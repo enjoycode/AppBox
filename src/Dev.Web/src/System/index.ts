@@ -1,7 +1,7 @@
 export type {IEnumerable} from './Linq'
 
-export * from './IDisposable'
-export * from './IEquatable'
+export * from './Interfaces/IDisposable'
+export * from './Interfaces/IEquatable'
 export * from './Delegates'
 export * from './Event'
 export * from './Random'
