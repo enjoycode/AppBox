@@ -22,5 +22,9 @@ export class Point extends Float32Array {
         this[0] += dx;
         this[1] += dy;
     }
+    
+    public static op_Equality(a: Point, b:Point): boolean {
+        return a.X === b.X && a.Y === b.Y;
+    }
 
 }

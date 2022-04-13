@@ -5,7 +5,7 @@ export const IsNullOrEmpty = function (s?: string): boolean {
 export const OpEquality = function (a: any, b: any): boolean {
     if (a == null && b == null) return true;
     if (a == null || b == null) return false;
-    a.prototype.op_Equality(a, b);
+    return a.constructor.op_Equality(a, b);
 }
 
 export const OpInequality = function (a: any, b: any): boolean {
