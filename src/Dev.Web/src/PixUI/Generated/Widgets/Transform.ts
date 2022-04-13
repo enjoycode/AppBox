@@ -18,7 +18,7 @@ export class Transform extends PixUI.SingleChildWidget {
     }
 
     public set Origin(value: Nullable<PixUI.Offset>) {
-        if (this._origin == value) return;
+        if (System.OpEquality(this._origin, value)) return;
         this._origin = value;
         this.NeedInvalidate();
     }

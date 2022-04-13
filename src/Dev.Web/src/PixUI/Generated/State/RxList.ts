@@ -2,7 +2,7 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 // @ts-ignore for IList implements
-export class RxList<T> extends PixUI.StateBase implements System.IList<T> {
+export class RxList<T> extends PixUI.StateBase {
     public get Readonly(): boolean {
         return true;
     }

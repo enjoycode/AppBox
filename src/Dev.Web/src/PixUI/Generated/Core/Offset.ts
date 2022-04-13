@@ -30,6 +30,14 @@ export class Offset implements System.IEquatable<Offset> {
     }
 
 
+    public static op_Equality(left: Offset, right: Offset): boolean {
+        return left.Equals(right);
+    }
+
+    public static op_Inequality(left: Offset, right: Offset): boolean {
+        return !left.Equals(right);
+    }
+
     public ToString(): string {
         return `{{Dx=${this.Dx}, Dy=${this.Dy}}}`;
     }
