@@ -119,7 +119,7 @@ export class HitTestResult {
     public ExitOldRegion(newResult: HitTestResult) {
         if (!this.IsHitAnyMouseRegion) return;
 
-        let exitTo = -1; //从后往前退出的区域 eg: 1->2->3 变为 1, exitTo=1
+        let exitTo = -1; //从后往前退出的区域 eg: 1->2->3 变为 1, exitTo=1 
         for (let i = 0; i < this._path.length; i++) {
             exitTo = i;
             if (newResult._path.length == i)

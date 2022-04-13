@@ -114,7 +114,7 @@ export class Column extends PixUI.MultiChildWidget {
 
         if (dy != 0) {
             if (this._totalFlex > 0) {
-                //TODO: recalc expanded and layout
+                //TODO: recalc expanded and layout 
                 throw new System.NotImplementedException();
             } else {
                 let indexOfChild = this._children.IndexOf(child);

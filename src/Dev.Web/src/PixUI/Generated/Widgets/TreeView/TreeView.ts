@@ -91,7 +91,7 @@ export class TreeView<T> extends PixUI.Widget {
     }
 
 
-    public static CalcMaxChildWidth<T>(nodes: System.IList<PixUI.TreeNode<T>>): number {
+    public static CalcMaxChildWidth<Tn>(nodes: System.IList<PixUI.TreeNode<Tn>>): number {
         let maxChildWidth = 0;
         for (const node of nodes) {
             maxChildWidth = Math.max(maxChildWidth, node.W);
@@ -100,7 +100,7 @@ export class TreeView<T> extends PixUI.Widget {
         return maxChildWidth;
     }
 
-    public static UpdatePositionAfter<T>(child: PixUI.Widget, nodes: System.IList<PixUI.TreeNode<T>>, dy: number) {
+    public static UpdatePositionAfter<Tn>(child: PixUI.Widget, nodes: System.IList<PixUI.TreeNode<Tn>>, dy: number) {
         let indexOfChild = -1;
         for (let i = 0; i < nodes.length; i++) {
             if (indexOfChild == -1) {

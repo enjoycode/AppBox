@@ -29,7 +29,7 @@ export class Transform extends PixUI.SingleChildWidget {
     }
 
     protected SetTransform(value: PixUI.Matrix4) {
-        if (this._transform == value) return;
+        if (System.OpEquality(this._transform, value)) return;
 
         this._transform = value;
         this.NeedInvalidate();
