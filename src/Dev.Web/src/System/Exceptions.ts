@@ -16,10 +16,18 @@ export class ArgumentException extends Error {
  * Exception thrown when the passed in argument is out of range.
  */
 export class ArgumentOutOfRangeException extends RangeError {
+    public constructor(public readonly paramName?: string, public readonly msg?: string) {
+        super(`${paramName} was out of range.` + msg);
+        this.name = `ArgumentOutOfRangeException`;
+        this.stack = this.stack || (new Error()).stack;
+    }
+}
+
+export class IndexOutOfRangeException extends RangeError {
     public constructor(public readonly paramName?: string) {
         super(`${paramName} was out of range.` +
             ` Must be non-negative and less than the size of the collection.`)
-        this.name = `ArgumentOutOfRangeException`
+        this.name = `IndexOutOfRangeException`
         this.stack = this.stack || (new Error()).stack
     }
 }

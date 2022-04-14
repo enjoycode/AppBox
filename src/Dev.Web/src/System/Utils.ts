@@ -11,3 +11,11 @@ export const OpEquality = function (a: any, b: any): boolean {
 export const OpInequality = function (a: any, b: any): boolean {
     return !OpEquality(a, b);
 }
+
+export const StringToUint16Array = function (str: string): Uint16Array {
+    let buf = new Uint16Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+        buf[i] = str.charCodeAt(i);
+    }
+    return buf;
+}

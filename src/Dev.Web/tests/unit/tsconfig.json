@@ -16,7 +16,9 @@
     "declaration": true,
     "lib": [
       "es2019",
-      "ESNext.WeakRef"
+      "ESNext.WeakRef",
+      "ES2017.TypedArrays",
+      "dom"
     ]
   }
 }

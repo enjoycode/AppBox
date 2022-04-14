@@ -7,10 +7,16 @@ describe("Equality tests", () => {
         let a = new Point(1, 2);
         let b = new Point(1, 2);
 
-        //let ds = new Map<Point, string>([[a, "1"], [b, "2"]]);
-        let source = new Int16Array(3);
-        let target = new Int16Array([1,2,3,4]);
-        source.set(target.subarray(1, 2), 1);
+
+        // let ds1 = Uint16Array.from('Hello');
+        //let ds3 = Int16Array.from("123456");
+        //let ds3 = new Uint16Array("12345");
+        let ds2 = Uint16Array.from([65, 66, 67, 68]);
+        //let ds2 = new Uint16Array([65, 66, 67, 68]);
+        //let str1 = new TextDecoder("utf-16").decode(ds2);
+        // @ts-ignore
+        let str2 = String.fromCharCode.apply(null, ds2);
+        expect(str2).toEqual("ABCD");
 
         let res = OpEquality(a, b);
         expect(res).toEqual(true);
