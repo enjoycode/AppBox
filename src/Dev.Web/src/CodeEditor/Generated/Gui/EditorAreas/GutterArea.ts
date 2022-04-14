@@ -6,7 +6,7 @@ export class GutterArea extends CodeEditor.EditorArea {
     public constructor(textEditor: CodeEditor.TextEditor) {
         super(textEditor);
         this._numberCache = this.GenerateNumberCache();
-        this._numberWidth = this._numberCache[7].LongestLine;
+        this._numberWidth = this._numberCache[7].getLongestLine();
     }
 
     private readonly _numberCache: PixUI.Paragraph[];
@@ -14,14 +14,14 @@ export class GutterArea extends CodeEditor.EditorArea {
 
     private GenerateNumberCache(): PixUI.Paragraph[] {
         let cache = [];
-        let ts = new PixUI.TextStyle({Color: this.Theme.LineNumberColor});
+        let ts = new PixUI.TextStyle({color: this.Theme.LineNumberColor});
         for (let i = 0; i < 10; i++) {
-            let ps = new PixUI.ParagraphStyle();
+            let ps = new PixUI.ParagraphStyle({maxLines: 1});
             let pb = new PixUI.ParagraphBuilder(ps);
-            pb.PushStyle(ts);
-            pb.AddText(i.toString());
-            let ph = pb.Build();
-            ph.Layout(Number.MAX_VALUE);
+            pb.pushStyle(ts);
+            pb.addText(i.toString());
+            let ph = pb.build();
+            ph.layout(Number.MAX_VALUE);
             cache[i] = ph;
             pb.delete();
         }
@@ -38,7 +38,7 @@ export class GutterArea extends CodeEditor.EditorArea {
 
         // background
         let paint = PixUI.PaintUtils.Shared(this.Theme.LineBgColor);
-        canvas.DrawRect(rect, paint);
+        canvas.drawRect(rect, paint);
 
         // line numbers
         let lineHeight = this.TextEditor.TextView.FontHeight;
@@ -63,13 +63,13 @@ export class GutterArea extends CodeEditor.EditorArea {
         let hundredPlace = lineNumber / 100 % 10;
         let thousandPlace = lineNumber / 1000 % 10;
 
-        canvas.DrawParagraph(this._numberCache[unitPlace], 2 + this._numberWidth * 3, yPos);
+        canvas.drawParagraph(this._numberCache[unitPlace], 2 + this._numberWidth * 3, yPos);
         if (lineNumber >= 10)
-            canvas.DrawParagraph(this._numberCache[tenPlace], 2 + this._numberWidth * 2, yPos);
+            canvas.drawParagraph(this._numberCache[tenPlace], 2 + this._numberWidth * 2, yPos);
         if (lineNumber >= 100)
-            canvas.DrawParagraph(this._numberCache[hundredPlace], 2 + this._numberWidth, yPos);
+            canvas.drawParagraph(this._numberCache[hundredPlace], 2 + this._numberWidth, yPos);
         if (lineNumber >= 1000)
-            canvas.DrawParagraph(this._numberCache[thousandPlace], 2, yPos);
+            canvas.drawParagraph(this._numberCache[thousandPlace], 2, yPos);
     }
 
     public Init(props: Partial<GutterArea>): GutterArea {

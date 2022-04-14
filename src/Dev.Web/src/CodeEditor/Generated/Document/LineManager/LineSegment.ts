@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export class LineSegment implements CodeEditor.ISegment {
-    public TreeEntry: CodeEditor.LinesEnumerator = CodeEditor.LinesEnumerator.Empty;
+    public TreeEntry: CodeEditor.LinesEnumerator = CodeEditor.LinesEnumerator.Invalid;
 
     public get IsDeleted(): boolean {
         return !this.TreeEntry.IsValid;
@@ -211,13 +211,13 @@ export class LineSegment implements CodeEditor.ISegment {
     public GetLineParagraph(editor: CodeEditor.TextEditor): PixUI.Paragraph {
         if (this._cachedParagraph != null) return this._cachedParagraph!;
 
-        let ps = new PixUI.ParagraphStyle({MaxLines: 1, Height: 1});
+        let ps = new PixUI.ParagraphStyle({maxLines: 1, heightMultiplier: 1});
         let pb = new PixUI.ParagraphBuilder(ps);
 
         if (this._lineTokens == null || this.Length == 0) {
             let lineText = editor.Document.GetText(this.Offset, this.Length);
-            pb.PushStyle(editor.Theme.TextStyle);
-            pb.AddText(lineText);
+            pb.pushStyle(editor.Theme.TextStyle);
+            pb.addText(lineText);
         } else {
             if (editor.Document.TextEditorOptions.EnableFolding)
                 this.BuildParagraphByFoldings(pb, editor);
@@ -225,8 +225,8 @@ export class LineSegment implements CodeEditor.ISegment {
                 this.BuildParagraphByTokens(pb, editor, 0, this.Length);
         }
 
-        this._cachedParagraph = pb.Build();
-        this._cachedParagraph!.Layout(Number.POSITIVE_INFINITY);
+        this._cachedParagraph = pb.build();
+        this._cachedParagraph!.layout(Number.POSITIVE_INFINITY);
         pb.delete();
 
         return this._cachedParagraph!;
@@ -252,9 +252,9 @@ export class LineSegment implements CodeEditor.ISegment {
             let tokenText = editor.Document.GetText(tokenOffset, tokenEndColumn - tokenStartColumn);
 
             // add to paragraph
-            pb.PushStyle(editor.Theme.GetTokenStyle(CodeEditor.CodeToken.GetTokenType(token)));
-            pb.AddText(tokenText);
-            pb.Pop();
+            pb.pushStyle(editor.Theme.GetTokenStyle(CodeEditor.CodeToken.GetTokenType(token)));
+            pb.addText(tokenText);
+            pb.pop();
 
             if (tokenEndColumn >= endIndex) break;
         }
@@ -309,9 +309,9 @@ export class LineSegment implements CodeEditor.ISegment {
             }
 
             // add folded text
-            pb.PushStyle(editor.Theme.FoldedTextStyle);
-            pb.AddText(firstFolding.FoldText);
-            pb.Pop();
+            pb.pushStyle(editor.Theme.FoldedTextStyle);
+            pb.addText(firstFolding.FoldText);
+            pb.pop();
             this.CachedFolds ??= new System.List<CachedFoldInfo>();
             this.CachedFolds.Add(new CachedFoldInfo(lineChars, firstFolding));
             lineChars += firstFolding.FoldText.length;
@@ -339,7 +339,7 @@ export class LineSegment implements CodeEditor.ISegment {
                 columnStart -= 1;
             }
 
-            let box1 = para.GetRectForPosition(columnStart, PixUI.BoxHeightStyle.Tight, PixUI.BoxWidthStyle.Tight);
+            let box1 = PixUI.Utils.GetRectForPosition(para, columnStart, PixUI.BoxHeightStyle.Tight, PixUI.BoxWidthStyle.Tight);
             return box1.Rect.Right;
         }
 
@@ -353,13 +353,13 @@ export class LineSegment implements CodeEditor.ISegment {
         }
 
         //TODO: find column start for multi code unit
-        let box2 = para.GetRectForPosition(offsetInLine - 1, PixUI.BoxHeightStyle.Tight, PixUI.BoxWidthStyle.Tight);
+        let box2 = PixUI.Utils.GetRectForPosition(para, offsetInLine - 1, PixUI.BoxHeightStyle.Tight, PixUI.BoxWidthStyle.Tight);
         return box2.Rect.Right;
     }
 
 
     public ClearCachedParagraph() {
-        this._cachedParagraph?.Dispose();
+        this._cachedParagraph?.delete();
         this._cachedParagraph = null;
         this.CachedFolds = null;
     }

@@ -1,4 +1,6 @@
 export class Rect extends Float32Array {
+    public static readonly Empty: Rect = new Rect();
+
     public constructor();
     public constructor(left: number, top: number, right: number, bottom: number);
     public constructor(left?: number, top?: number, right?: number, bottom?: number) {

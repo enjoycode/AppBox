@@ -17,29 +17,53 @@ export class TextEditorTheme {
 
     public LineBgColor: PixUI.Color = new PixUI.Color(0xFF313335);
 
-    public BracketHighlightPaint: PixUI.Paint = new PixUI.Paint().Init({Color: new PixUI.Color(255, 255, 0, 100)});
+    public BracketHighlightPaint: PixUI.Paint = new CanvasKit.Paint();
 
     public LineNumberColor: PixUI.Color = new PixUI.Color(0xFF606366);
 
-    public TextStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFFA9B7C7), Height: 1});
+    public TextStyle: PixUI.TextStyle = new PixUI.TextStyle({color: new PixUI.Color(0xFFA9B7C7), heightMultiplier: 1});
 
-    public FoldedTextStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFFA9B7C7), Height: 1});
+    public FoldedTextStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFFA9B7C7),
+        heightMultiplier: 1
+    });
 
-    private _tokenErrorStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: PixUI.Colors.Red, Height: 1});
+    private _tokenErrorStyle: PixUI.TextStyle = new PixUI.TextStyle({color: PixUI.Colors.Red, heightMultiplier: 1});
 
-    private _tokenTypeStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFF67DBF1), Height: 1});
+    private _tokenTypeStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFF67DBF1),
+        heightMultiplier: 1
+    });
 
-    private _tokenNumberStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFF6996BD), Height: 1});
+    private _tokenNumberStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFF6996BD),
+        heightMultiplier: 1
+    });
 
-    private _tokenStringStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFF98C379), Height: 1});
+    private _tokenStringStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFF98C379),
+        heightMultiplier: 1
+    });
 
-    private _tokenKeywordStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFFCC7927), Height: 1});
+    private _tokenKeywordStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFFCC7927),
+        heightMultiplier: 1
+    });
 
-    private _tokenCommentStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFF5F984F), Height: 1});
+    private _tokenCommentStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFF5F984F),
+        heightMultiplier: 1
+    });
 
-    private _tokenVariableStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFFE06C75), Height: 1});
+    private _tokenVariableStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFFE06C75),
+        heightMultiplier: 1
+    });
 
-    private _tokenFunctionStyle: PixUI.TextStyle = new PixUI.TextStyle({Color: new PixUI.Color(0xFFFFC763), Height: 1});
+    private _tokenFunctionStyle: PixUI.TextStyle = new PixUI.TextStyle({
+        color: new PixUI.Color(0xFFFFC763),
+        heightMultiplier: 1
+    });
 
     public GetTokenStyle(tokenType: CodeEditor.TokenType): PixUI.TextStyle {
         switch (tokenType) {

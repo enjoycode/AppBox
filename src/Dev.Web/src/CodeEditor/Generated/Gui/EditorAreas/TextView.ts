@@ -58,7 +58,7 @@ export class TextView extends CodeEditor.EditorArea {
         let line = this.Document.GetLineSegment(lineNumber);
         let inFoldMarker: Nullable<CodeEditor.FoldMarker> = null;
         let para = line.GetLineParagraph(this.TextEditor);
-        let columnInLine = para.GetGlyphPositionAtCoordinate(visualPosX, 1).Position;
+        let columnInLine = para.getGlyphPositionAtCoordinate(visualPosX, 1).pos;
         let column = columnInLine;
         // if has folded, eg: if (xxx) {...} else {...}
         if (line.CachedFolds != null && column > line.CachedFolds[0].LineStart) {
@@ -121,7 +121,7 @@ export class TextView extends CodeEditor.EditorArea {
 
         // paint background
         let paint = PixUI.PaintUtils.Shared(this.Theme.TextBgColor);
-        canvas.DrawRect(rect, paint);
+        canvas.drawRect(rect, paint);
 
         // paint lines one by one
         let endLine = <number><any>((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1);
@@ -141,7 +141,7 @@ export class TextView extends CodeEditor.EditorArea {
             if (lineSegment.Length == 0) continue;
 
             let lineParagraph = lineSegment.GetLineParagraph(this.TextEditor);
-            canvas.DrawParagraph(lineParagraph, lineRect.Left, lineRect.Top + this.Theme.LineSpace);
+            canvas.drawParagraph(lineParagraph, lineRect.Left, lineRect.Top + this.Theme.LineSpace);
         }
     }
 

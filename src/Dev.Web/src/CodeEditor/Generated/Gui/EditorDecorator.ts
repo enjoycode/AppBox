@@ -17,10 +17,10 @@ export class EditorDecorator extends PixUI.Widget {
     }
 
     protected Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        canvas.Save();
+        canvas.save();
 
         let pt2Win = this._codeEditor.LocalToWindow(0, 0);
-        canvas.Translate(pt2Win.X, pt2Win.Y);
+        canvas.translate(pt2Win.X, pt2Win.Y);
         //TODO: clip area
 
         let textEditor = this._codeEditor.Controller.TextEditor;
@@ -56,12 +56,12 @@ export class EditorDecorator extends PixUI.Widget {
                 let yPos = textView.Bounds.Top +
                     textEditor.Document.GetVisibleLine(i) * textView.FontHeight -
                     textEditor.VirtualTop.Y;
-                canvas.DrawRect(PixUI.Rect.FromLTWH(startXPos + textView.Bounds.Left, yPos, endXPos - startXPos, textView.FontHeight), paint);
+                canvas.drawRect(PixUI.Rect.FromLTWH(startXPos + textView.Bounds.Left, yPos, endXPos - startXPos, textView.FontHeight), paint);
             }
         }
 
 
-        canvas.Restore();
+        canvas.restore();
     }
 
     public Init(props: Partial<EditorDecorator>): EditorDecorator {

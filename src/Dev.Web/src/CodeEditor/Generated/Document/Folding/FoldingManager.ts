@@ -170,11 +170,6 @@ export class StartComparer implements System.IComparer<CodeEditor.FoldMarker> {
         if (x.StartLine < y.StartLine) return -1;
         return x.StartLine == y.StartLine ? x.StartColumn.CompareTo(y.StartColumn) : 1;
     }
-
-    public Init(props: Partial<StartComparer>): StartComparer {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class EndComparer implements System.IComparer<CodeEditor.FoldMarker> {
@@ -183,10 +178,5 @@ export class EndComparer implements System.IComparer<CodeEditor.FoldMarker> {
     public Compare(x: CodeEditor.FoldMarker, y: CodeEditor.FoldMarker): number {
         if (x.EndLine < y.EndLine) return -1;
         return x.EndLine == y.EndLine ? x.EndColumn.CompareTo(y.EndColumn) : 1;
-    }
-
-    public Init(props: Partial<EndComparer>): EndComparer {
-        Object.assign(this, props);
-        return this;
     }
 }
