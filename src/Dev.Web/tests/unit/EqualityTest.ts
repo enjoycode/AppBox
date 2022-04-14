@@ -8,6 +8,9 @@ describe("Equality tests", () => {
         let b = new Point(1, 2);
 
         //let ds = new Map<Point, string>([[a, "1"], [b, "2"]]);
+        let source = new Int16Array(3);
+        let target = new Int16Array([1,2,3,4]);
+        source.set(target.subarray(1, 2), 1);
 
         let res = OpEquality(a, b);
         expect(res).toEqual(true);
