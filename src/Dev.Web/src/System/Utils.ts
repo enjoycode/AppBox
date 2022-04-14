@@ -1,5 +1,5 @@
 export const IsNullOrEmpty = function (s?: string): boolean {
-    return s == null || s == '';
+    return s == null || s.length === 0;
 }
 
 export const OpEquality = function (a: any, b: any): boolean {

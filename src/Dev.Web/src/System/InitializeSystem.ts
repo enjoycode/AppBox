@@ -28,6 +28,17 @@ export const initializeSystem = () => {
             return new Rx<number>(this);
         }
     });
+
+    Object.defineProperty(Number.prototype, "CompareTo", {
+        value: function CompareTo(other: number) {
+            if (this < other) return -1;
+            if (this > other) return 1;
+            return 0;
+        },
+        writable: true,
+        configurable: true,
+    });
+
     Object.defineProperty(Boolean.prototype, "obs", {
         get: function () {
             return new Rx<boolean>(this);

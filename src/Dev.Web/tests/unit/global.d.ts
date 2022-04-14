@@ -14,11 +14,12 @@ declare global {
     function CanvasKitInit(opts: CanvasKitInitOptions): Promise<CanvasKit>;
 
     //System
-    interface Math {
-        clamp(v: number, min: number, max: number): number;
-    }
+    function clamp(v: number, min: number, max: number): number;
 
-    interface Number {get obs(): Rx<number>;}
+    interface Number {
+        get obs(): Rx<number>;
+        CompareTo(other: number): number;
+    }
 
     interface String {get obs(): Rx<string>;}
 

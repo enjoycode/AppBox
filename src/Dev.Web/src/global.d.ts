@@ -32,7 +32,10 @@ declare global {
     //System
     function clamp(v: number, min: number, max: number): number;
 
-    interface Number {get obs(): Rx<number>;}
+    interface Number {
+        get obs(): Rx<number>;
+        CompareTo(other: number): number;
+    }
 
     interface String {
         get obs(): Rx<string>;
