@@ -65,7 +65,7 @@ export class TextEditor {
         let caretLine = this.Document.GetLineSegment(this.Caret.Line);
         if (caretLine.Length < this.Caret.Column) {
             let whiteSpaceLength = this.Caret.Column - caretLine.Length;
-            text = new string(' ', whiteSpaceLength) + text;
+            text = ' '.repeat(whiteSpaceLength) + text;
         }
 
         if (replaceOffset == 0) {

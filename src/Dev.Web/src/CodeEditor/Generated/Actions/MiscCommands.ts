@@ -41,7 +41,7 @@ export class TabCommand implements CodeEditor.IEditCommand {
         // if (editor.Document.ReadOnly) return;
 
         let tabIndent = editor.Document.TextEditorOptions.TabIndent;
-        let convertToWhitespaces = new string(' ', tabIndent);
+        let convertToWhitespaces = ' '.repeat(tabIndent);
         editor.InsertOrReplaceString(convertToWhitespaces);
     }
 
