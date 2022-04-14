@@ -125,11 +125,7 @@ export class FoldingManager {
 
                 this._foldMarker = newFoldings;
             } else {
-                for (let i: number = 0; j:
-                number = 0;
-                i < this._foldMarker.length && j < newFoldings.length;
-            )
-                {
+                for (let i: number = 0, j: number = 0; i < this._foldMarker.length && j < newFoldings.length;) {
                     let n = newFoldings[j].CompareTo(this._foldMarker[i]);
                     if (n > 0) {
                         ++i;
