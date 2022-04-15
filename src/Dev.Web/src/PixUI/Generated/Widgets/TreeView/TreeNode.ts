@@ -280,7 +280,7 @@ export class TreeNode<T> extends PixUI.Widget {
         PixUI.PaintDebugger.PaintWidgetBorder(child, canvas);
     }
 
-    public ToString(): string {
+    public toString(): string {
         let labelText = this._row.Label == null ? "" : this._row.Label.Text.Value;
         return `TreeNode[\"${labelText}\"]`;
     }

@@ -133,7 +133,7 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         canvas.translate(-child.X, -child.Y);
     }
 
-    public ToString(): string {
+    public toString(): string {
         let labelText = this._label == null ? "" : this._label.Text.Value;
         return `MenuItemWidget[\"${labelText}\"]`;
     }

@@ -45,7 +45,7 @@ export abstract class State<T> extends StateBase {
     public abstract get Value(): T ;
     public abstract set Value(value: T);
 
-    public ToString(): Nullable<string> {
+    public toString(): Nullable<string> {
         return this.Value?.toString();
     }
 

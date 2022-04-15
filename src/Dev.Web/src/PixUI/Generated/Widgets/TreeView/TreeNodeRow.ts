@@ -128,7 +128,7 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         PixUI.PaintDebugger.PaintWidgetBorder(child, canvas);
     }
 
-    public ToString(): string {
+    public toString(): string {
         let labelText = this._label == null ? "" : this._label.Text.Value;
         return `TreeNodeRow[\"${labelText}\"]`;
     }

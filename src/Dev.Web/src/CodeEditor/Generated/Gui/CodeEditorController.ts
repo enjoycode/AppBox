@@ -152,14 +152,12 @@ export class CodeEditorController {
     private _OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
         //TODO: 进一步合并LineManager改变的行数
         let dirtyLines = this.Document.SyntaxParser.GetDirtyLines(this);
-        // @ts-ignore
         this.RequestInvalidate?.call(this, true, dirtyLines);
     }
 
     private _OnCaretPositionChanged() {
         //TODO: set IME input rect
 
-        // @ts-ignore
         this.RequestInvalidate?.call(this, false, null);
     }
 
