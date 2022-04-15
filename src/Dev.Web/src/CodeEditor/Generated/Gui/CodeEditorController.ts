@@ -20,8 +20,8 @@ export class CodeEditorController {
 
     public RequestInvalidate: Nullable<System.Action<boolean, Nullable<PixUI.IDirtyArea>>>;
 
-    // 全局命令
-    private readonly _editActions: System.Dictionary<PixUI.Keys, CodeEditor.IEditCommand> = new System.Dictionary<PixUI.Keys, CodeEditor.IEditCommand>();
+    // 全局命令字典表
+    private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><any>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><any>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><any>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><any>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><any>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><any>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><any>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><any>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><any>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
 
 
     private _mouseDownPos: PixUI.Point = PixUI.Point.Empty;
@@ -82,11 +82,8 @@ export class CodeEditorController {
     }
 
     public OnKeyDown(e: PixUI.KeyEvent) {
-        if (this._editActions.TryGetValue(e.KeyData, CodeEditor.var editAction
-    ))
-        {
-            editAction.Execute(this.TextEditor);
-        }
+        let cmd = this._editActions.get(<number><any>e.KeyData);
+        cmd?.Execute(this.TextEditor);
     }
 
     public OnTextInput(text: string) {
@@ -155,12 +152,14 @@ export class CodeEditorController {
     private _OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
         //TODO: 进一步合并LineManager改变的行数
         let dirtyLines = this.Document.SyntaxParser.GetDirtyLines(this);
+        // @ts-ignore
         this.RequestInvalidate?.call(this, true, dirtyLines);
     }
 
     private _OnCaretPositionChanged() {
         //TODO: set IME input rect
 
+        // @ts-ignore
         this.RequestInvalidate?.call(this, false, null);
     }
 

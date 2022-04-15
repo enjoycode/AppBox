@@ -60,8 +60,7 @@ export enum CSharpSymbol {
 export class CSharpLanguage implements CodeEditor.ICodeLanguage {
 
     //TODO:考虑数组映射
-    private static readonly TokenMap: System.Dictionary<number, CodeEditor.TokenType> = new System.Dictionary<number, CodeEditor.TokenType>();
-
+    private static readonly TokenMap: System.NumberMap<CodeEditor.TokenType> = new System.NumberMap<CodeEditor.TokenType>([[4, CodeEditor.TokenType.PunctuationDelimiter], [13, CodeEditor.TokenType.PunctuationDelimiter], [11, CodeEditor.TokenType.PunctuationDelimiter], [65, CodeEditor.TokenType.Operator], [69, CodeEditor.TokenType.Operator], [126, CodeEditor.TokenType.Operator], [75, CodeEditor.TokenType.Operator], [167, CodeEditor.TokenType.Operator], [68, CodeEditor.TokenType.Operator], [64, CodeEditor.TokenType.Operator], [125, CodeEditor.TokenType.Operator], [10, CodeEditor.TokenType.Operator], [76, CodeEditor.TokenType.Operator], [8, CodeEditor.TokenType.Operator], [78, CodeEditor.TokenType.Operator], [63, CodeEditor.TokenType.Operator], [79, CodeEditor.TokenType.Operator], [52, CodeEditor.TokenType.Operator], [12, CodeEditor.TokenType.Operator], [77, CodeEditor.TokenType.Operator], [74, CodeEditor.TokenType.Operator], [168, CodeEditor.TokenType.Operator], [59, CodeEditor.TokenType.Operator], [169, CodeEditor.TokenType.Operator], [73, CodeEditor.TokenType.Operator], [56, CodeEditor.TokenType.Operator], [70, CodeEditor.TokenType.Operator], [71, CodeEditor.TokenType.Operator], [72, CodeEditor.TokenType.Operator], [23, CodeEditor.TokenType.Operator], [24, CodeEditor.TokenType.PunctuationBracket], [25, CodeEditor.TokenType.PunctuationBracket], [14, CodeEditor.TokenType.PunctuationBracket], [15, CodeEditor.TokenType.PunctuationBracket], [50, CodeEditor.TokenType.PunctuationBracket], [51, CodeEditor.TokenType.PunctuationBracket], [170, CodeEditor.TokenType.Keyword], [49, CodeEditor.TokenType.Keyword], [99, CodeEditor.TokenType.Keyword], [109, CodeEditor.TokenType.Keyword], [122, CodeEditor.TokenType.Keyword], [100, CodeEditor.TokenType.Keyword], [58, CodeEditor.TokenType.Keyword], [102, CodeEditor.TokenType.Keyword], [110, CodeEditor.TokenType.Keyword], [89, CodeEditor.TokenType.Keyword], [103, CodeEditor.TokenType.Keyword], [112, CodeEditor.TokenType.Keyword], [87, CodeEditor.TokenType.Keyword], [17, CodeEditor.TokenType.Keyword], [54, CodeEditor.TokenType.Keyword], [123, CodeEditor.TokenType.Keyword], [105, CodeEditor.TokenType.Keyword], [107, CodeEditor.TokenType.Keyword], [108, CodeEditor.TokenType.Keyword], [111, CodeEditor.TokenType.Keyword], [53, CodeEditor.TokenType.Keyword], [88, CodeEditor.TokenType.Keyword], [146, CodeEditor.TokenType.Keyword], [113, CodeEditor.TokenType.Keyword], [91, CodeEditor.TokenType.Keyword], [55, CodeEditor.TokenType.Keyword], [48, CodeEditor.TokenType.Keyword], [21, CodeEditor.TokenType.Keyword], [164, CodeEditor.TokenType.Keyword], [136, CodeEditor.TokenType.Keyword], [60, CodeEditor.TokenType.Keyword], [114, CodeEditor.TokenType.Keyword], [120, CodeEditor.TokenType.Keyword], [121, CodeEditor.TokenType.Keyword], [165, CodeEditor.TokenType.Keyword], [101, CodeEditor.TokenType.Keyword], [6, CodeEditor.TokenType.Keyword], [104, CodeEditor.TokenType.Keyword], [33, CodeEditor.TokenType.Keyword], [106, CodeEditor.TokenType.Keyword], [46, CodeEditor.TokenType.Keyword], [124, CodeEditor.TokenType.Keyword], [82, CodeEditor.TokenType.Keyword], [83, CodeEditor.TokenType.Keyword], [119, CodeEditor.TokenType.Keyword], [45, CodeEditor.TokenType.Keyword], [40, CodeEditor.TokenType.Keyword], [149, CodeEditor.TokenType.Keyword], [57, CodeEditor.TokenType.Keyword], [160, CodeEditor.TokenType.Keyword], [90, CodeEditor.TokenType.Keyword], [86, CodeEditor.TokenType.Keyword], [166, CodeEditor.TokenType.Keyword], [154, CodeEditor.TokenType.Keyword]]);
 
     public IsLeafNode(node: TreeSitter.SyntaxNode): boolean {
         return node.typeId == <number><any>CSharpSymbol.Modifier ||
@@ -73,11 +72,10 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
         if (node.typeId == number.MaxValue) //IsError
             return CodeEditor.TokenType.Unknown;
 
-        if (!node.isNamed())
-            return CSharpLanguage.TokenMap.TryGetValue(node.typeId, CodeEditor.var
-        type
-    )
-            ? type : CodeEditor.TokenType.Unknown;
+        if (!node.isNamed()) {
+            let res: Nullable<CodeEditor.TokenType> = CSharpLanguage.TokenMap.get(node.typeId);
+            return res ?? CodeEditor.TokenType.Unknown;
+        }
 
         // is named node
         switch (node.typeId) {
