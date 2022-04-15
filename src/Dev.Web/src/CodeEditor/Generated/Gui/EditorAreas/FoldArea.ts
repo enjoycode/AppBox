@@ -10,11 +10,11 @@ export class FoldArea extends CodeEditor.EditorArea {
     private _selectedFoldLine: number = -1;
 
     private GetNormalPaint(): PixUI.Paint {
-        return PixUI.PaintUtils.Shared(new PixUI.Color(200, 200, 200, 255), PixUI.PaintStyle.Stroke, 1);
+        return PixUI.PaintUtils.Shared(new PixUI.Color(200, 200, 200, 255), CanvasKit.PaintStyle.Stroke, 1);
     }
 
     private GetSelectedPaint(): PixUI.Paint {
-        return PixUI.PaintUtils.Shared(new PixUI.Color(200, 200, 200, 255), PixUI.PaintStyle.Stroke, 1.5);
+        return PixUI.PaintUtils.Shared(new PixUI.Color(200, 200, 200, 255), CanvasKit.PaintStyle.Stroke, 1.5);
     }
 
     private SelectedFoldingFrom(list: System.IList<CodeEditor.FoldMarker>): boolean {

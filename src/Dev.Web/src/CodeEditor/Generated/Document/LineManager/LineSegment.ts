@@ -339,7 +339,7 @@ export class LineSegment implements CodeEditor.ISegment {
                 columnStart -= 1;
             }
 
-            let box1 = PixUI.Utils.GetRectForPosition(para, columnStart, PixUI.BoxHeightStyle.Tight, PixUI.BoxWidthStyle.Tight);
+            let box1 = PixUI.Utils.GetRectForPosition(para, columnStart, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
             return box1.Rect.Right;
         }
 
@@ -353,7 +353,7 @@ export class LineSegment implements CodeEditor.ISegment {
         }
 
         //TODO: find column start for multi code unit
-        let box2 = PixUI.Utils.GetRectForPosition(para, offsetInLine - 1, PixUI.BoxHeightStyle.Tight, PixUI.BoxWidthStyle.Tight);
+        let box2 = PixUI.Utils.GetRectForPosition(para, offsetInLine - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
         return box2.Rect.Right;
     }
 
