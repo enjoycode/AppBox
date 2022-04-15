@@ -63,7 +63,7 @@ export class RBHost implements CodeEditor.IRedBlackTreeHost<RBNode> {
 }
 
 export class LinesEnumerator {
-    public static readonly Invalid: LinesEnumerator = new LinesEnumerator(new CodeEditor.RedBlackTreeIterator<RBNode>(null)); //default(LinesEnumerator);
+    public static readonly Invalid: LinesEnumerator = new LinesEnumerator(new CodeEditor.RedBlackTreeIterator<RBNode>(null));
 
     public readonly Iterator: CodeEditor.RedBlackTreeIterator<RBNode>;
 
@@ -149,7 +149,7 @@ export class LineSegmentTree {
 
     public GetNode(index: number): CodeEditor.RedBlackTreeNode<RBNode> {
         if (index < 0 || index >= this.tree.Count)
-            throw new System.ArgumentOutOfRangeException("index", index, "index should be between 0 and " + (this.tree.Count - 1));
+            throw new System.ArgumentOutOfRangeException("index", "index should be between 0 and " + (this.tree.Count - 1));
         let node: CodeEditor.RedBlackTreeNode<RBNode> = this.tree.Root;
         while (true) {
             if (node.Left != null && index < node.Left.Value.Count) {
@@ -169,7 +169,7 @@ export class LineSegmentTree {
 
     private GetNodeByOffset(offset: number): CodeEditor.RedBlackTreeNode<RBNode> {
         if (offset < 0 || offset > this.TotalLength)
-            throw new System.ArgumentOutOfRangeException("offset", offset, "offset should be between 0 and " + this.TotalLength);
+            throw new System.ArgumentOutOfRangeException("offset", "offset should be between 0 and " + this.TotalLength);
         if (offset == this.TotalLength) {
             if (this.tree.Root == null)
                 throw new System.InvalidOperationException("Cannot call GetNodeByOffset while tree is empty.");
@@ -204,10 +204,9 @@ export class LineSegmentTree {
     public SetSegmentLength(segment: CodeEditor.LineSegment, newTotalLength: number) {
         if (segment == null)
             throw new System.ArgumentNullException("segment");
-        let node: CodeEditor.RedBlackTreeNode<RBNode> = segment.TreeEntry.Iterator.Node;
+        let node: CodeEditor.RedBlackTreeNode<RBNode> = segment.TreeEntry.Iterator.Node!;
         segment.TotalLength = newTotalLength;
-    default
-        (RBHost).UpdateAfterChildrenChange(node);
+        new RBHost().UpdateAfterChildrenChange(node);
     }
 
     public RemoveSegment(segment: CodeEditor.LineSegment) {

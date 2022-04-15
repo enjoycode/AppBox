@@ -394,9 +394,7 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
             it.MoveNext();
         }
 
-        return
-    default
-        (RedBlackTreeIterator<T>);
+        return new RedBlackTreeIterator<T>(null);
     }
 
     public LowerBound(item: T): RedBlackTreeIterator<T> {

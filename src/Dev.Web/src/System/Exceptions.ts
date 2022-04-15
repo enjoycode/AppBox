@@ -12,6 +12,14 @@ export class ArgumentException extends Error {
     }
 }
 
+export class ArgumentNullException extends Error {
+    public constructor(message?: string) {
+        super(message)
+        this.name = `ArgumentException`
+        this.stack = this.stack || (new Error()).stack
+    }
+}
+
 /**
  * Exception thrown when the passed in argument is out of range.
  */
