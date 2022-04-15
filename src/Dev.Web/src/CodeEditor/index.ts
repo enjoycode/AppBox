@@ -37,6 +37,8 @@ export * from './Generated/Undo/UndoableSetCaretPosition'
 export * from './Generated/Document/Enums'
 export * from './Generated/Document/TextLocation'
 export * from './Generated/Document/ISegment'
+export * from './Generated/Document/TextAnchor'
+export * from './Generated/Document/TextEditorOptions'
 export * from './Generated/Document/DocumentEventArgs'
 export * from './Generated/Document/Document'
 

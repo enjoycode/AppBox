@@ -33,3 +33,5 @@ export type Func<T1, T2 = void, T3 = void, T4 = void, T5 = void, T6 = void> =
                         Func6<T1, T2, T3, T4, T5, T6>;
 
 export type Predicate<T> = (arg: T) => boolean;
+
+export type Comparison<T> = (x: T, y: T) => number;

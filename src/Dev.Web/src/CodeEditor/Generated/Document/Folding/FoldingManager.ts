@@ -117,7 +117,7 @@ export class FoldingManager {
     public UpdateFoldings(newFoldings: Nullable<System.List<CodeEditor.FoldMarker>>) {
         // final int oldFoldingCount = foldMarker.length;
         if (newFoldings != null && newFoldings.length != 0) {
-            newFoldings.Sort();
+            newFoldings.Sort((a, b) => a.CompareTo(b));
             if (this._foldMarker.length == newFoldings.length) {
                 for (let i = 0; i < this._foldMarker.length; ++i) {
                     newFoldings[i].IsFolded = this._foldMarker[i].IsFolded;
@@ -143,7 +143,7 @@ export class FoldingManager {
         if (newFoldings != null) {
             this._foldMarker = newFoldings;
             this._foldMarkerByEnd = new System.List<CodeEditor.FoldMarker>(newFoldings);
-            this._foldMarkerByEnd.Sort(EndComparer.Instance);
+            this._foldMarkerByEnd.Sort((a, b) => EndComparer.Instance.Compare(a, b));
         } else {
             this._foldMarker.Clear();
             this._foldMarkerByEnd.Clear();

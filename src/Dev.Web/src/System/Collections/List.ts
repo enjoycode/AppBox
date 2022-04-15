@@ -1,6 +1,8 @@
-import {ArrayEnumerable, IEnumerable} from "../Linq";
-import {IList} from "./IList";
-import {Predicate} from "../Delegates";
+import {ArrayEnumerable, IEnumerable} from "../Linq"
+import {IList} from "./IList"
+import {Predicate, Comparison} from "../Delegates"
+import {IComparer} from "../Interfaces"
+import {BinarySearch as bs} from "../Utils";
 
 export class List<T> extends ArrayEnumerable<T> implements IList<T> {
 
@@ -77,4 +79,11 @@ export class List<T> extends ArrayEnumerable<T> implements IList<T> {
         return null;
     }
 
+    public Sort(comparison: Comparison<T>) {
+        this.sort(comparison);
+    }
+
+    public BinarySearch(item: T, comparer: IComparer<T>): number {
+        return bs(this, 0, this.length, item, comparer);
+    }
 }

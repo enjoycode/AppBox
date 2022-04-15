@@ -1,3 +1,5 @@
+import {IComparer} from './Interfaces'
+
 export const IsNullOrEmpty = function (s?: string): boolean {
     return s == null || s.length === 0;
 }
@@ -18,4 +20,21 @@ export const StringToUint16Array = function (str: string): Uint16Array {
         buf[i] = str.charCodeAt(i);
     }
     return buf;
+}
+
+export const BinarySearch = function <T>(array: ArrayLike<T>, index: number, length: number,
+                                         value: T, comparer: IComparer<T>): number {
+    let num1 = index;
+    let num2 = index + length - 1;
+    while (num1 <= num2) {
+        let index1 = num1 + (num2 - num1 >> 1);
+        let num3 = comparer.Compare(array[index1], value);
+        if (num3 == 0)
+            return index1;
+        if (num3 < 0)
+            num1 = index1 + 1;
+        else
+            num2 = index1 - 1;
+    }
+    return ~num1;
 }
