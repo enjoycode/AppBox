@@ -151,30 +151,23 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
 
 
     //参考: https://github.com/nvim-treesitter/nvim-treesitter/blob/master/queries/c_sharp/folds.scm
-    private static readonly FoldQuery: string = @"
-    body: [
-        (declaration_list)
-(
-    switch_body
-)
-(
-    enum_member_declaration_list
-)
-]
-    @fold
+    private static readonly FoldQuery: string = `
+body: [
+  (declaration_list)
+  (switch_body)
+  (enum_member_declaration_list)
+] @fold
 
-    accessors: [
-        (accessor_list)
-    ]
-    @fold
+accessors: [
+  (accessor_list)
+] @fold
 
-    initializer: [
-        (initializer_expression)
-    ]
-    @fold
+initializer: [
+  (initializer_expression)
+] @fold
 
-    (block) @fold
-    ";
+(block) @fold
+`;
 
     private _foldQuery: Nullable<TreeSitter.Query>;
 
