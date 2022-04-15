@@ -3,8 +3,8 @@ import * as PixUI from '@/PixUI'
 
 export class TreeController<T> implements PixUI.IStateBindable {
     public readonly DataSource: System.IList<T>;
-    public readonly NodeBuilder: System.Action<T, PixUI.TreeNode<T>>;
-    public readonly ChildrenGetter: System.Func<T, System.IList<T>>;
+    public readonly NodeBuilder: System.Action2<T, PixUI.TreeNode<T>>;
+    public readonly ChildrenGetter: System.Func2<T, System.IList<T>>;
     public readonly Nodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
 
     public HoverColor: PixUI.Color = new PixUI.Color(0xFFAAAAAA); //TODO:
@@ -14,7 +14,7 @@ export class TreeController<T> implements PixUI.IStateBindable {
     public TotalWidth: number = 0;
     public TotalHeight: number = 0;
 
-    public constructor(dataSource: System.IList<T>, nodeBuilder: System.Action<T, PixUI.TreeNode<T>>, childrenGetter: System.Func<T, System.IList<T>>) {
+    public constructor(dataSource: System.IList<T>, nodeBuilder: System.Action2<T, PixUI.TreeNode<T>>, childrenGetter: System.Func2<T, System.IList<T>>) {
         this.NodeBuilder = nodeBuilder;
         this.ChildrenGetter = childrenGetter;
         this.DataSource = dataSource;

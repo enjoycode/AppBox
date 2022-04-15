@@ -152,7 +152,7 @@ export class HitTestResult {
         }
     }
 
-    public PropagatePointerEvent(e: PixUI.PointerEvent, handler: System.Action<PixUI.MouseRegion, PixUI.PointerEvent>) {
+    public PropagatePointerEvent(e: PixUI.PointerEvent, handler: System.Action2<PixUI.MouseRegion, PixUI.PointerEvent>) {
         for (let i = this._path.length - 1; i >= 0; i--) {
             let transformed = PixUI.MatrixUtils.TransformPoint(this._path[i].Transform, e.X, e.Y);
             e.SetPoint(transformed.Dx, transformed.Dy);

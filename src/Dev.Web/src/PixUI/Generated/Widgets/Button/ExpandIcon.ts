@@ -12,7 +12,7 @@ export class ExpandIcon extends PixUI.SingleChildWidget implements PixUI.IMouseR
         this.#MouseRegion = value;
     }
 
-    public set OnPointerDown(value: System.Action<PixUI.PointerEvent>) {
+    public set OnPointerDown(value: System.Action1<PixUI.PointerEvent>) {
         this.MouseRegion.PointerDown.Add(value, this);
     }
 

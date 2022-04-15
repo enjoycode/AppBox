@@ -3,10 +3,10 @@ import * as PixUI from '@/PixUI'
 
 export class TabBody<T> extends PixUI.DynamicView {
     private readonly _controller: PixUI.TabController<T>;
-    private readonly _bodyBuilder: System.Func<T, PixUI.Widget>;
+    private readonly _bodyBuilder: System.Func2<T, PixUI.Widget>;
     private readonly _bodies: System.List<Nullable<PixUI.Widget>>;
 
-    public constructor(controller: PixUI.TabController<T>, bodyBuilder: System.Func<T, PixUI.Widget>) {
+    public constructor(controller: PixUI.TabController<T>, bodyBuilder: System.Func2<T, PixUI.Widget>) {
         super();
         this._controller = controller;
         this._controller.SetTabBody(this);

@@ -3,12 +3,12 @@ import * as PixUI from '@/PixUI'
 
 export class Caret {
     private readonly _widget: PixUI.Widget;
-    public readonly ColorBuilder: System.Func<PixUI.Color>;
-    public readonly BoundsBuilder: System.Func<PixUI.Rect>;
+    public readonly ColorBuilder: System.Func1<PixUI.Color>;
+    public readonly BoundsBuilder: System.Func1<PixUI.Rect>;
 
     private _overlayEntry: Nullable<PixUI.OverlayEntry>;
 
-    public constructor(widget: PixUI.Widget, colorBuilder: System.Func<PixUI.Color>, boundsBuilder: System.Func<PixUI.Rect>) {
+    public constructor(widget: PixUI.Widget, colorBuilder: System.Func1<PixUI.Color>, boundsBuilder: System.Func1<PixUI.Rect>) {
         this._widget = widget;
         this.ColorBuilder = colorBuilder;
         this.BoundsBuilder = boundsBuilder;

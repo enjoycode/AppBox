@@ -76,7 +76,7 @@ export class PopupMenuStack extends PixUI.Popup {
     }
 
 
-    public VisitChildren(action: System.Func<PixUI.Widget, boolean>) {
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         for (const child of this._children) {
             if (action(child)) break;
         }

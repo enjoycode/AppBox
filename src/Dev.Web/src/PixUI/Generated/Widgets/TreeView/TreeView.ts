@@ -26,7 +26,7 @@ export class TreeView<T> extends PixUI.Widget {
         return this._color != null && this._color.Value.Alpha == 0xFF;
     }
 
-    public VisitChildren(action: System.Func<PixUI.Widget, boolean>) {
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         for (const node of this._controller.Nodes) {
             if (action(node)) break;
         }

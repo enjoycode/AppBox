@@ -6,7 +6,7 @@ import * as PixUI from '@/PixUI'
 export abstract class SingleChildWidget extends PixUI.Widget {
     private _child: Nullable<PixUI.Widget>;
 
-    public VisitChildren(action: System.Func<PixUI.Widget, boolean>) {
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (this._child != null)
             action(this._child);
     }

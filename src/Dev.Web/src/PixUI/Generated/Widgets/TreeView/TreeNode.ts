@@ -141,7 +141,7 @@ export class TreeNode<T> extends PixUI.Widget {
     }
 
 
-    public VisitChildren(action: System.Func<PixUI.Widget, boolean>) {
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (action(this._row)) return;
 
         if (!this.IsLeaf && this._isExpanded) {

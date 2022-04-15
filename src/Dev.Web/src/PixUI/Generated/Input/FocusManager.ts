@@ -40,7 +40,7 @@ export class FocusManager {
         (<PixUI.IFocusable><any>this.FocusedWidget!).FocusNode.RaiseTextInput(text);
     }
 
-    private static PropagateEvent<T extends PixUI.PropagateEvent>(widget: Nullable<PixUI.Widget>, theEvent: T, handler: System.Action<PixUI.Widget, T>) {
+    private static PropagateEvent<T extends PixUI.PropagateEvent>(widget: Nullable<PixUI.Widget>, theEvent: T, handler: System.Action2<PixUI.Widget, T>) {
         while (true) {
             if (widget == null) return;
 

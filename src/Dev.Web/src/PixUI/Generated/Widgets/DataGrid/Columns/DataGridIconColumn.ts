@@ -2,13 +2,13 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class DataGridIconColumn<T> extends PixUI.DataGridColumn<T> {
-    public constructor(label: string, cellValueGetter: System.Func<T, Nullable<PixUI.IconData>>, width: Nullable<PixUI.ColumnWidth> = null, headerCellStyle: Nullable<PixUI.CellStyle> = null, cellStyle: Nullable<PixUI.CellStyle> = null, cellStyleGetter: Nullable<System.Func<T, number, PixUI.CellStyle>> = null, frozen: boolean = false) {
+    public constructor(label: string, cellValueGetter: System.Func2<T, Nullable<PixUI.IconData>>, width: Nullable<PixUI.ColumnWidth> = null, headerCellStyle: Nullable<PixUI.CellStyle> = null, cellStyle: Nullable<PixUI.CellStyle> = null, cellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>> = null, frozen: boolean = false) {
         super(label, width, headerCellStyle, cellStyle, cellStyleGetter, frozen);
         this.CellValueGetter = cellValueGetter;
     }
 
 
-    public readonly CellValueGetter: System.Func<T, Nullable<PixUI.IconData>>;
+    public readonly CellValueGetter: System.Func2<T, Nullable<PixUI.IconData>>;
 
 
     public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>, rowIndex: number, cellRect: PixUI.Rect) {

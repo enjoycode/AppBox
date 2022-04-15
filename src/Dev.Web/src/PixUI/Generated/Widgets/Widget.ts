@@ -169,13 +169,12 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return null;
     }
 
-    public VisitChildren(action: System.Func<Widget, boolean>) {
+    public VisitChildren(action: System.Func2<Widget, boolean>) {
     }
 
     public IndexOfChild(child: Widget): number {
         let index = -1;
         let found = -1;
-        // @ts-ignore
         this.VisitChildren(item => {
             index++;
             if (!(item === child)) return false;
@@ -207,7 +206,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         if (result.Add(this))
             return true; //不再检测嵌套的子级
 
-        // @ts-ignore
         this.VisitChildren(child => this.HitTestChild(child, x, y, result));
 
         return true;
@@ -227,7 +225,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     }
 
 
-    protected Compute<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>, getter: System.Func<T1, T2, TR>, setter: Nullable<System.Action<TR>> = null): PixUI.RxComputed<TR> {
+    protected Compute<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>, getter: System.Func3<T1, T2, TR>, setter: Nullable<System.Action1<TR>> = null): PixUI.RxComputed<TR> {
         return PixUI.RxComputed.Make2(s1, s2, getter, setter);
     }
 
@@ -253,7 +251,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
 
     private Mount() {
         this.IsMounted = true;
-        // @ts-ignore
         this.VisitChildren(child => {
             child.Mount();
             return false;
@@ -262,7 +259,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
 
     private Unmount() {
         this.IsMounted = false;
-        // @ts-ignore
         this.VisitChildren(child => {
             child.Unmount();
             return false;
@@ -275,7 +271,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
 
         let hasChildren = false;
         this.SetSize(0, 0);
-        // @ts-ignore
         this.VisitChildren(child => {
             hasChildren = true;
             child.Layout(width, height);
@@ -358,7 +353,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
 
     protected PaintChildren(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let dirtyRect = area?.GetRect() ?? PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
-        // @ts-ignore
         this.VisitChildren(child => {
             if (child.W <= 0 || child.H <= 0)
                 return false;

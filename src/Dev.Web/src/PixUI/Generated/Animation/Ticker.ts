@@ -4,7 +4,7 @@ import * as PixUI from '@/PixUI'
 export class Ticker {
     private static readonly Interval: number = 16;
 
-    private readonly _onTick: System.Action<number>;
+    private readonly _onTick: System.Action1<number>;
 
     private _startTime: Nullable<System.DateTime>;
     private _animationId: number = 0;
@@ -18,7 +18,7 @@ export class Ticker {
         return this._isActive;
     }
 
-    public constructor(onTick: System.Action<number>) {
+    public constructor(onTick: System.Action1<number>) {
         this._onTick = onTick;
     }
 

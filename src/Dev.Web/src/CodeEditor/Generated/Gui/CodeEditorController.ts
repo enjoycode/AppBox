@@ -18,7 +18,7 @@ export class CodeEditorController {
     public readonly TextEditor: CodeEditor.TextEditor;
     public readonly Theme: CodeEditor.TextEditorTheme;
 
-    public RequestInvalidate: Nullable<System.Action<boolean, Nullable<PixUI.IDirtyArea>>>;
+    public RequestInvalidate: Nullable<System.Action2<boolean, Nullable<PixUI.IDirtyArea>>>;
 
     // 全局命令字典表
     private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><any>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><any>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><any>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><any>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><any>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><any>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><any>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><any>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><any>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);

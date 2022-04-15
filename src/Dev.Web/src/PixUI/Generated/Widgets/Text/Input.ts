@@ -92,7 +92,7 @@ export class Input extends PixUI.Widget {
         super.OnUnmounted();
     }
 
-    public VisitChildren(action: System.Func<PixUI.Widget, boolean>) {
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (this._prefix != null)
             if (action(this._prefix))
                 return;

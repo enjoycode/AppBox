@@ -15,7 +15,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         this.#MouseRegion = value;
     }
 
-    public set OnTap(value: System.Action<PixUI.PointerEvent>) {
+    public set OnTap(value: System.Action1<PixUI.PointerEvent>) {
         this.MouseRegion.PointerTap.Add(value, this);
     }
 

@@ -2,7 +2,7 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class DataGridColumn<T> {
-    protected constructor(label: string, width: Nullable<PixUI.ColumnWidth> = null, headerCellStyle: Nullable<PixUI.CellStyle> = null, cellStyle: Nullable<PixUI.CellStyle> = null, cellStyleGetter: Nullable<System.Func<T, number, PixUI.CellStyle>> = null, frozen: boolean = false) {
+    protected constructor(label: string, width: Nullable<PixUI.ColumnWidth> = null, headerCellStyle: Nullable<PixUI.CellStyle> = null, cellStyle: Nullable<PixUI.CellStyle> = null, cellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>> = null, frozen: boolean = false) {
         this.Label = label;
         this.Width = width ?? PixUI.ColumnWidth.Auto();
         this.HeaderCellStyle = headerCellStyle;
@@ -16,7 +16,7 @@ export abstract class DataGridColumn<T> {
     public readonly Width: PixUI.ColumnWidth;
     public readonly HeaderCellStyle: Nullable<PixUI.CellStyle>;
     public readonly CellStyle: Nullable<PixUI.CellStyle>;
-    public readonly CellStyleGetter: Nullable<System.Func<T, number, PixUI.CellStyle>>;
+    public readonly CellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>>;
 
     public Frozen: boolean = false;
 

@@ -15,7 +15,7 @@ export class TransitionStack extends PixUI.Widget {
         this._to.Parent = this;
     }
 
-    public VisitChildren(action: System.Func<PixUI.Widget, boolean>) {
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (!this.IsMounted) return;
         if (action(this._from)) return;
         action(this._to);

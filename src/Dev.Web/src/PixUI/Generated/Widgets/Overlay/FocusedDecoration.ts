@@ -5,14 +5,14 @@ export class FocusedDecoration {
     public readonly Widget: PixUI.Widget;
 
     // Focus时的Border,用于动画结束
-    private readonly _focusedBorderBuilder: System.Func<PixUI.ShapeBorder>;
+    private readonly _focusedBorderBuilder: System.Func1<PixUI.ShapeBorder>;
 
     // 未Focus时的Border,用于动画开始
-    private readonly _unfocusedBorderBuilder: Nullable<System.Func<Nullable<PixUI.ShapeBorder>>>;
+    private readonly _unfocusedBorderBuilder: Nullable<System.Func1<Nullable<PixUI.ShapeBorder>>>;
 
     private _overlayEntry: Nullable<PixUI.OverlayEntry>;
 
-    public constructor(widget: PixUI.Widget, focusedBorderBuilder: System.Func<PixUI.ShapeBorder>, unfocusedBorderBuilder: Nullable<System.Func<Nullable<PixUI.ShapeBorder>>> = null) {
+    public constructor(widget: PixUI.Widget, focusedBorderBuilder: System.Func1<PixUI.ShapeBorder>, unfocusedBorderBuilder: Nullable<System.Func1<Nullable<PixUI.ShapeBorder>>> = null) {
         this.Widget = widget;
         this._focusedBorderBuilder = focusedBorderBuilder;
         this._unfocusedBorderBuilder = unfocusedBorderBuilder;

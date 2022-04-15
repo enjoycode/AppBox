@@ -76,7 +76,7 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         }
     }
 
-    public VisitChildren(action: System.Func<PixUI.Widget, boolean>) {
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         //need for lazy load icon font
         if (this._icon != null)
             action(this._icon);

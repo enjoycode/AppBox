@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 
 export class HoverDecoration {
     public readonly Widget: PixUI.Widget;
-    public readonly ShapeBuilder: System.Func<PixUI.ShapeBorder>;
+    public readonly ShapeBuilder: System.Func1<PixUI.ShapeBorder>;
     public readonly Elevation: number;
 
     public readonly HoverColor: Nullable<PixUI.Color>;
@@ -11,7 +11,7 @@ export class HoverDecoration {
 
     private _overlayEntry: Nullable<PixUI.OverlayEntry>;
 
-    public constructor(widget: PixUI.Widget, shapeBuilder: System.Func<PixUI.ShapeBorder>, elevation: number, hoverColor: Nullable<PixUI.Color> = null) {
+    public constructor(widget: PixUI.Widget, shapeBuilder: System.Func1<PixUI.ShapeBorder>, elevation: number, hoverColor: Nullable<PixUI.Color> = null) {
         this.Widget = widget;
         this.ShapeBuilder = shapeBuilder;
         this.Elevation = elevation;

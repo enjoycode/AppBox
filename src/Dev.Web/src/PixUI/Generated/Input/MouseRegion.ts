@@ -11,7 +11,7 @@ export function IsInterfaceOfIMouseRegion(obj: any): obj is IMouseRegion {
 }
 
 export class MouseRegion {
-    public readonly Cursor: Nullable<System.Func<PixUI.Cursor>>;
+    public readonly Cursor: Nullable<System.Func1<PixUI.Cursor>>;
 
     public readonly Opaque: boolean;
 
@@ -21,7 +21,7 @@ export class MouseRegion {
     public readonly PointerTap = new System.Event<PixUI.PointerEvent>();
     public readonly HoverChanged = new System.Event<boolean>();
 
-    public constructor(cursor: Nullable<System.Func<PixUI.Cursor>> = null, opaque: boolean = true) {
+    public constructor(cursor: Nullable<System.Func1<PixUI.Cursor>> = null, opaque: boolean = true) {
         this.Cursor = cursor;
         this.Opaque = opaque;
     }

@@ -47,7 +47,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         this.#FocusNode = value;
     }
 
-    public set OnTap(value: System.Action<PixUI.PointerEvent>) {
+    public set OnTap(value: System.Action1<PixUI.PointerEvent>) {
         this.MouseRegion.PointerTap.Add(value, this);
     }
 

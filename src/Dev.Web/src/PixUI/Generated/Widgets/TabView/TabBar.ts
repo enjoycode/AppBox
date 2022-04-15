@@ -3,13 +3,13 @@ import * as PixUI from '@/PixUI'
 
 export class TabBar<T> extends PixUI.Widget {
     private readonly _controller: PixUI.TabController<T>;
-    private readonly _tabBuilder: System.Action<T, PixUI.Tab>;
+    private readonly _tabBuilder: System.Action2<T, PixUI.Tab>;
     private readonly _tabs: System.List<PixUI.Tab> = new System.List<PixUI.Tab>();
     public readonly Scrollable: boolean;
 
     private _scrollOffset: number = 0;
 
-    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Action<T, PixUI.Tab>, scrollable: boolean = false) {
+    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Action2<T, PixUI.Tab>, scrollable: boolean = false) {
         super();
         this._controller = controller;
         this._controller.SetTabBar(this);

@@ -48,7 +48,7 @@ export class Navigator {
     private readonly _history: System.List<RouteEntry> = new System.List<RouteEntry>();
     private _histroyIndex: number = -1;
 
-    public OnRouteChanged: Nullable<System.Action<RouteChangeAction, PixUI.Route>>;
+    public OnRouteChanged: Nullable<System.Action2<RouteChangeAction, PixUI.Route>>;
 
     public constructor(routes: System.IList<PixUI.Route>) {
         this._routes.AddRange(routes);
@@ -87,7 +87,6 @@ export class Navigator {
         this._histroyIndex++;
 
         //通知变更
-        // @ts-ignore
         this.OnRouteChanged?.call(this, RouteChangeAction.Push, matchRoute);
     }
 
@@ -97,7 +96,6 @@ export class Navigator {
         let oldEntry = this._history[this._histroyIndex];
         this._histroyIndex--;
 
-        // @ts-ignore
         this.OnRouteChanged?.call(this, RouteChangeAction.Pop, oldEntry.Route);
     }
 }

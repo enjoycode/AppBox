@@ -7,11 +7,11 @@ export interface IEditCommand {
 }
 
 export class CustomEditCommand implements IEditCommand {
-    public constructor(command: System.Action<CodeEditor.TextEditor>) {
+    public constructor(command: System.Action1<CodeEditor.TextEditor>) {
         this._command = command;
     }
 
-    private readonly _command: System.Action<CodeEditor.TextEditor>;
+    private readonly _command: System.Action1<CodeEditor.TextEditor>;
 
     public Execute(editor: CodeEditor.TextEditor) {
         this._command(editor);
