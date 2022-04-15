@@ -2,7 +2,7 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
-export class CodeEditor extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IFocusable {
+export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IFocusable {
     private static readonly $meta_PixUI_IMouseRegion = true;
     private static readonly $meta_PixUI_IFocusable = true;
 
@@ -71,17 +71,17 @@ export class CodeEditor extends PixUI.Widget implements PixUI.IMouseRegion, PixU
     }
 
 
-    protected get IsOpaque(): boolean {
+    public get IsOpaque(): boolean {
         return true;
     }
 
-    protected Layout(availableWidth: number, availableHeight: number) {
+    public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
         this.SetSize(width, height);
     }
 
-    protected Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let clipRect = PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
         canvas.save();
         canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
@@ -89,7 +89,7 @@ export class CodeEditor extends PixUI.Widget implements PixUI.IMouseRegion, PixU
         canvas.restore();
     }
 
-    public Init(props: Partial<CodeEditor>): CodeEditor {
+    public Init(props: Partial<CodeEditorWidget>): CodeEditorWidget {
         Object.assign(this, props);
         return this;
     }

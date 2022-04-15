@@ -5,18 +5,18 @@ import * as CodeEditor from '@/CodeEditor'
 /// 专用于在Overlay绘制光标、高亮及选择区等
 /// </summary>
 export class EditorDecorator extends PixUI.Widget {
-    public constructor(codeEditor: CodeEditor.CodeEditor) {
+    public constructor(codeEditor: CodeEditor.CodeEditorWidget) {
         super();
         this._codeEditor = codeEditor;
     }
 
-    private readonly _codeEditor: CodeEditor.CodeEditor;
+    private readonly _codeEditor: CodeEditor.CodeEditorWidget;
 
-    protected Layout(availableWidth: number, availableHeight: number) {
+    public Layout(availableWidth: number, availableHeight: number) {
         this.SetSize(0, 0);
     }
 
-    protected Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         canvas.save();
 
         let pt2Win = this._codeEditor.LocalToWindow(0, 0);
