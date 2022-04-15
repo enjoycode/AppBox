@@ -41,6 +41,10 @@ export class Rect extends Float32Array {
         return this[3] - this[1];
     }
 
+    public ContainsPoint(x: number, y: number): boolean {
+        return x >= this.Left && x < this.Right && y >= this.Top && y < this.Bottom;
+    }
+
     public Offset(x: number, y: number): void {
         this[0] += x;
         this[1] += y;

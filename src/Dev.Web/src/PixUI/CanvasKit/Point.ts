@@ -16,8 +16,16 @@ export class Point extends Float32Array {
         return this[0];
     }
 
+    public set X(value) {
+        this[0] = value;
+    }
+
     public get Y() {
         return this[1];
+    }
+
+    public set Y(value) {
+        this[1] = value;
     }
 
     public Offset(dx: number, dy: number) {

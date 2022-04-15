@@ -38,11 +38,11 @@ export class CodeEditorController {
         this.TextEditor.PointerPos.Y = e.Y;
 
         for (const area of this.TextEditor.LeftAreas) {
-            if (area.Bounds.Contains(e.X, e.Y))
+            if (area.Bounds.ContainsPoint(e.X, e.Y))
                 area.HandlePointerDown(e.X, e.Y, e.Buttons);
         }
 
-        if (this.TextEditor.TextView.Bounds.Contains(e.X, e.Y)) {
+        if (this.TextEditor.TextView.Bounds.ContainsPoint(e.X, e.Y)) {
             this._gotMouseDown = true;
             this.TextEditor.SelectionManager.SelectFrom.Where = CodeEditor.WhereFrom.TextArea;
             this._mouseDownPos = new PixUI.Point(e.X, e.Y);
