@@ -1,4 +1,17 @@
-export * from './TreeSitter'
+import Parser from 'web-tree-sitter'
+
+export type {
+    SyntaxNode as TSSyntaxNode,
+    Tree as TSTree,
+    Query as TSQuery,
+    QueryCapture as TSQueryCapture
+} from 'web-tree-sitter'
+
+export class TSParser extends Parser {
+}
+
+export * from './Generated/TreeSitter/Common/TSPoint'
+export * from './Generated/TreeSitter/Common/TSEdit'
 
 export * from './Generated/Utils/RedBlackTree'
 export * from './Generated/Utils/TextUtils'
