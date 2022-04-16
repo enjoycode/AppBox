@@ -3,8 +3,8 @@ import {TSCSharpLanguage} from "@/CodeEditor";
 
 // 初始化TreeSitter
 const TreeSitter: any = (<any>window).TreeSitter;
-TreeSitter.init().then(async () => {
-    let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-csharp.wasm');
+TreeSitter.init().then(async (res: any) => {
+    let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-c_sharp.wasm');
     TSCSharpLanguage.Init(csharpLanguage);
 
     // 初始化PixUI
