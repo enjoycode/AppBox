@@ -5,7 +5,7 @@ import * as CodeEditor from '@/CodeEditor'
 export class SyntaxParser implements System.IDisposable {
     public constructor(document: CodeEditor.Document) {
         this._document = document;
-        let language = CodeEditor.TSLanguage.GetCSharpLanguage();
+        let language = CodeEditor.TSCSharpLanguage.Get();
         this._parser = new CodeEditor.TSParser().Init({Language: language});
         this._language = new CodeEditor.CSharpLanguage();
     }

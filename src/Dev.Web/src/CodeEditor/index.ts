@@ -1,13 +1,28 @@
-import Parser from 'web-tree-sitter'
+import Parser, {Language} from 'web-tree-sitter'
 
 export type {
     SyntaxNode as TSSyntaxNode,
     Tree as TSTree,
     Query as TSQuery,
-    QueryCapture as TSQueryCapture
 } from 'web-tree-sitter'
 
+export class TSCSharpLanguage {
+    private static _csharp: Language;
+
+    public static Init(csharp: Language) {
+        this._csharp = csharp;
+    }
+
+    public static Get(): Language {
+        return this._csharp;
+    }
+}
+
 export class TSParser extends Parser {
+    public Init(opts: { Language: Language }): TSParser {
+        this.setLanguage(opts.Language);
+        return this;
+    }
 }
 
 export * from './Generated/TreeSitter/Common/TSPoint'

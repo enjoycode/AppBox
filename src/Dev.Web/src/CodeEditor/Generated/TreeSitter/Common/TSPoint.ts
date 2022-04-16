@@ -3,6 +3,8 @@ import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export class TSPoint {
+    public static readonly Empty: TSPoint = new TSPoint(0, 0);
+
     public readonly row: number;
 
     public readonly column: number;
