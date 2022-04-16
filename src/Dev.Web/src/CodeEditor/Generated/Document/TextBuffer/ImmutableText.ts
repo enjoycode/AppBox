@@ -113,9 +113,11 @@ export class ImmutableText {
     }
 
     public ToString(offset: number, length: number): string {
-        throw new System.NotImplementedException();
+        let data = new Uint16Array(length);
+        this.CopyTo(offset, data, length);
+        // @ts-ignore
+        return String.fromCharCode.apply(null, data);
     }
-
 
     private SubText(start: number): ImmutableText {
         return this.GetText(start, this.Length - start);

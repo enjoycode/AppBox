@@ -1,5 +1,7 @@
 import Parser, {Language} from 'web-tree-sitter'
 
+export type TSParser = Parser
+
 export type {
     SyntaxNode as TSSyntaxNode,
     Tree as TSTree,
@@ -18,13 +20,7 @@ export class TSCSharpLanguage {
     }
 }
 
-export class TSParser extends Parser {
-    public Init(opts: { Language: Language }): TSParser {
-        this.setLanguage(opts.Language);
-        return this;
-    }
-}
-
+export * from './ParserInput'
 export * from './Generated/TreeSitter/Common/TSPoint'
 export * from './Generated/TreeSitter/Common/TSEdit'
 

@@ -15,7 +15,7 @@ export class TSPoint {
     }
 
     public static FromLocation(location: CodeEditor.TextLocation): TSPoint {
-        return new TSPoint(location.Line, location.Column * 2);
+        return new TSPoint(location.Line, location.Column);
     }
 
     public toString(): string {

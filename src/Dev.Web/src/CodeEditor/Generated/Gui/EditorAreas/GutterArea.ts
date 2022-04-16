@@ -59,9 +59,9 @@ export class GutterArea extends CodeEditor.EditorArea {
     private DrawLineNumber(canvas: PixUI.Canvas, lineNumber: number, yPos: number) {
         //TODO:暂计算至千位
         let unitPlace = lineNumber % 10;
-        let tenPlace = lineNumber / 10 % 10;
-        let hundredPlace = lineNumber / 100 % 10;
-        let thousandPlace = lineNumber / 1000 % 10;
+        let tenPlace = Math.trunc((lineNumber / 10) % 10);
+        let hundredPlace = Math.trunc((lineNumber / 100) % 10);
+        let thousandPlace = Math.trunc((lineNumber / 1000) % 10);
 
         canvas.drawParagraph(this._numberCache[unitPlace], 2 + this._numberWidth * 3, yPos);
         if (lineNumber >= 10)

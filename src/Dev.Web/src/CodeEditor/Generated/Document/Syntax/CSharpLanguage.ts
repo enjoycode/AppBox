@@ -109,7 +109,8 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
             case <number><any>CSharpSymbol.Comment:
                 return CodeEditor.TokenType.Comment;
             default:
-                throw new System.NotImplementedException(node.type);
+                return CodeEditor.TokenType.Comment;
+                //throw new System.NotImplementedException(node.type);
         }
     }
 

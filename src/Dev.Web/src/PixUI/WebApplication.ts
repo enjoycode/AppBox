@@ -24,7 +24,7 @@ export class WebApplication extends PixUI.UIApplication {
         initializeSystem();
     }
 
-    public static Run(rootWidget: PixUI.Widget) {
+    public static Run(rootBuilder: () => PixUI.Widget) {
         //开始加载CanvasKit及默认字体
         let ckLoad = CanvasKitInit({
             locateFile: (file) => '/' + file,
@@ -44,7 +44,7 @@ export class WebApplication extends PixUI.UIApplication {
             //创建WebApplication并执行
             let app = new WebApplication();
             PixUI.UIApplication.Current = app;
-            app.RunInternal(rootWidget);
+            app.RunInternal(rootBuilder());
         });
     }
 

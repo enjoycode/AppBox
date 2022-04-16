@@ -6,7 +6,9 @@ export class SyntaxParser implements System.IDisposable {
     public constructor(document: CodeEditor.Document) {
         this._document = document;
         let language = CodeEditor.TSCSharpLanguage.Get();
-        this._parser = new CodeEditor.TSParser().Init({Language: language});
+        // @ts-ignore
+        this._parser = new window.TreeSitter();
+        this._parser.setLanguage(language);
         this._language = new CodeEditor.CSharpLanguage();
     }
 
@@ -84,6 +86,22 @@ export class SyntaxParser implements System.IDisposable {
 
 
     public Parse(reset: boolean) {
+        let input = new CodeEditor.ParserInput(this._document.TextBuffer);
+        let newTree = this._parser.parse(input.Read.bind(input), reset === true ? null : this._oldTree);
+
+        //获取变动范围
+        if (this._oldTree && !reset) {
+            let changes = newTree.getChangedRanges(this._oldTree);
+
+            this._oldTree.delete();
+
+            this._startLineOfChanged = this._endLineOfChanged = this._edit.startPosition.row;
+            for (const range of changes) {
+                this._startLineOfChanged = Math.min(this._startLineOfChanged, range.startPosition.row);
+                this._endLineOfChanged = Math.max(this._endLineOfChanged, range.endPosition.row);
+            }
+        }
+        this._oldTree = newTree;
 
         //生成FoldMarkers
         let foldMarkers = this._language.GenerateFoldMarkers(this._document);
@@ -91,9 +109,9 @@ export class SyntaxParser implements System.IDisposable {
     }
 
     public Tokenize(startLine: number, endLine: number) {
-        for (let i = startLine; i < endLine; i++) {
-            this.TokenizeLine(i);
-        }
+        // for (let i = startLine; i < endLine; i++) {
+        //     this.TokenizeLine(i);
+        // }
     }
 
     public TokenizeLine(line: number) {
