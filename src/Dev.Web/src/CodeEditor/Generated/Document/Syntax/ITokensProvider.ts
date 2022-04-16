@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export interface ITokensProvider {
-    IsLeafNode(node: TreeSitter.SyntaxNode): boolean;
+    IsLeafNode(node: CodeEditor.SyntaxNode): boolean;
 
-    GetTokenType(node: TreeSitter.SyntaxNode): CodeEditor.TokenType;
+    GetTokenType(node: CodeEditor.SyntaxNode): CodeEditor.TokenType;
 }

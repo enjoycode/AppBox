@@ -14,10 +14,10 @@ export class GutterArea extends CodeEditor.EditorArea {
 
     private GenerateNumberCache(): PixUI.Paragraph[] {
         let cache = [];
-        let ts = new PixUI.TextStyle({color: this.Theme.LineNumberColor});
+        let ts = PixUI.MakeTextStyle({color: this.Theme.LineNumberColor});
         for (let i = 0; i < 10; i++) {
-            let ps = new PixUI.ParagraphStyle({maxLines: 1});
-            let pb = new PixUI.ParagraphBuilder(ps);
+            let ps = PixUI.MakeParagraphStyle({maxLines: 1});
+            let pb = PixUI.MakeParagraphBuilder(ps);
             pb.pushStyle(ts);
             pb.addText(i.toString());
             let ph = pb.build();

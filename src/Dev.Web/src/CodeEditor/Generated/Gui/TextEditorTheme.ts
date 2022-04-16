@@ -21,46 +21,46 @@ export class TextEditorTheme {
 
     public LineNumberColor: PixUI.Color = new PixUI.Color(0xFF606366);
 
-    public TextStyle: PixUI.TextStyle = new PixUI.TextStyle({color: new PixUI.Color(0xFFA9B7C7), heightMultiplier: 1});
+    public TextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({color: new PixUI.Color(0xFFA9B7C7), heightMultiplier: 1});
 
-    public FoldedTextStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    public FoldedTextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFFA9B7C7),
         heightMultiplier: 1
     });
 
-    private _tokenErrorStyle: PixUI.TextStyle = new PixUI.TextStyle({color: PixUI.Colors.Red, heightMultiplier: 1});
+    private _tokenErrorStyle: PixUI.TextStyle = PixUI.MakeTextStyle({color: PixUI.Colors.Red, heightMultiplier: 1});
 
-    private _tokenTypeStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    private _tokenTypeStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFF67DBF1),
         heightMultiplier: 1
     });
 
-    private _tokenNumberStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    private _tokenNumberStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFF6996BD),
         heightMultiplier: 1
     });
 
-    private _tokenStringStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    private _tokenStringStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFF98C379),
         heightMultiplier: 1
     });
 
-    private _tokenKeywordStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    private _tokenKeywordStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFFCC7927),
         heightMultiplier: 1
     });
 
-    private _tokenCommentStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    private _tokenCommentStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFF5F984F),
         heightMultiplier: 1
     });
 
-    private _tokenVariableStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    private _tokenVariableStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFFE06C75),
         heightMultiplier: 1
     });
 
-    private _tokenFunctionStyle: PixUI.TextStyle = new PixUI.TextStyle({
+    private _tokenFunctionStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFFFFC763),
         heightMultiplier: 1
     });

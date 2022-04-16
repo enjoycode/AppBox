@@ -296,7 +296,7 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
         }
     }
 
-    private static Sibling(node: RedBlackTreeNode<T>, parentNode: RedBlackTreeNode<T>): RedBlackTreeNode<T> {
+    private static Sibling<T>(node: RedBlackTreeNode<T>, parentNode: RedBlackTreeNode<T>): RedBlackTreeNode<T> {
         console.assert(node == null || node.Parent == parentNode);
         if (node == parentNode.Left)
             return parentNode.Right;
@@ -307,11 +307,11 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
     private static readonly RED: boolean = true;
     private static readonly BLACK: boolean = false;
 
-    private static GetColor(node: RedBlackTreeNode<T>): boolean {
+    private static GetColor<T>(node: Nullable<RedBlackTreeNode<T>>): boolean {
         return node != null ? node.Color : RedBlackTree.BLACK;
     }
 
-    FixTreeOnDelete(node: RedBlackTreeNode<T>, parentNode: RedBlackTreeNode<T>) {
+    FixTreeOnDelete(node: RedBlackTreeNode<T>, parentNode: Nullable<RedBlackTreeNode<T>>) {
         console.assert(node == null || node.Parent == parentNode);
         if (parentNode == null)
             return;
@@ -321,11 +321,10 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
         if (sibling.Color == RedBlackTree.RED) {
             parentNode.Color = RedBlackTree.RED;
             sibling.Color = RedBlackTree.BLACK;
-            if (node == parentNode.Left) {
+            if (node == parentNode.Left)
                 this.RotateLeft(parentNode);
-            } else {
+            else
                 this.RotateRight(parentNode);
-            }
 
             sibling = RedBlackTree.Sibling(node, parentNode); // update value of sibling after rotation
         }

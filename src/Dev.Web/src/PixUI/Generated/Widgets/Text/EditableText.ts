@@ -118,10 +118,10 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
 
         let winPt = this.LocalToWindow(0, 0);
         if (this._caretPosition == this.Text.Value.length) {
-            let textbox = PixUI.Utils.GetRectForPosition(this.CachedParagraph!, this._caretPosition - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
+            let textbox = PixUI.GetRectForPosition(this.CachedParagraph!, this._caretPosition - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
             winPt.Offset(textbox.Rect.Left + textbox.Rect.Width, 0);
         } else if (this._caretPosition != 0) {
-            let textbox = PixUI.Utils.GetRectForPosition(this.CachedParagraph!, this._caretPosition, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
+            let textbox = PixUI.GetRectForPosition(this.CachedParagraph!, this._caretPosition, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
             winPt.Offset(textbox.Rect.Left, 0);
         }
 

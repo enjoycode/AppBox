@@ -211,8 +211,8 @@ export class LineSegment implements CodeEditor.ISegment {
     public GetLineParagraph(editor: CodeEditor.TextEditor): PixUI.Paragraph {
         if (this._cachedParagraph != null) return this._cachedParagraph!;
 
-        let ps = new PixUI.ParagraphStyle({maxLines: 1, heightMultiplier: 1});
-        let pb = new PixUI.ParagraphBuilder(ps);
+        let ps = PixUI.MakeParagraphStyle({maxLines: 1, heightMultiplier: 1});
+        let pb = PixUI.MakeParagraphBuilder(ps);
 
         if (this._lineTokens == null || this.Length == 0) {
             let lineText = editor.Document.GetText(this.Offset, this.Length);
@@ -339,7 +339,7 @@ export class LineSegment implements CodeEditor.ISegment {
                 columnStart -= 1;
             }
 
-            let box1 = PixUI.Utils.GetRectForPosition(para, columnStart, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
+            let box1 = PixUI.GetRectForPosition(para, columnStart, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
             return box1.Rect.Right;
         }
 
@@ -353,7 +353,7 @@ export class LineSegment implements CodeEditor.ISegment {
         }
 
         //TODO: find column start for multi code unit
-        let box2 = PixUI.Utils.GetRectForPosition(para, offsetInLine - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
+        let box2 = PixUI.GetRectForPosition(para, offsetInLine - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
         return box2.Rect.Right;
     }
 

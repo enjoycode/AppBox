@@ -5,20 +5,20 @@ import * as CodeEditor from '@/CodeEditor'
 export class SyntaxParser implements System.IDisposable {
     public constructor(document: CodeEditor.Document) {
         this._document = document;
-        let language = TreeSitter.Language.GetCSharpLanguage();
-        this._parser = new TreeSitter.Parser().Init({Language: language});
+        let language = CodeEditor.Language.GetCSharpLanguage();
+        this._parser = new CodeEditor.Parser().Init({Language: language});
         this._language = new CodeEditor.CSharpLanguage();
     }
 
     private readonly _document: CodeEditor.Document;
 
-    private readonly _parser: TreeSitter.Parser;
+    private readonly _parser: CodeEditor.Parser;
     private readonly _language: CodeEditor.ICodeLanguage;
 
-    private _oldTree: Nullable<TreeSitter.Tree>;
-    private _edit: TreeSitter.Edit = new TreeSitter.Edit();
+    private _oldTree: Nullable<CodeEditor.Tree>;
+    private _edit: CodeEditor.Edit = new CodeEditor.Edit();
 
-    public get RootNode(): Nullable<TreeSitter.SyntaxNode> {
+    public get RootNode(): Nullable<CodeEditor.SyntaxNode> {
         return this._oldTree?.rootNode;
     }
 
@@ -32,13 +32,13 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.startIndex = <number><any>offset * 2;
         this._edit.oldEndIndex = this._edit.startIndex;
         this._edit.newEndIndex = this._edit.startIndex + <number><any>length * 2;
-        this._edit.startPosition = TreeSitter.Point.FromLocation(startLocation);
+        this._edit.startPosition = CodeEditor.Point.FromLocation(startLocation);
         this._edit.oldEndPosition = this._edit.startPosition;
     }
 
     public EndInsert(offset: number, length: number) {
         let endLocation = this._document.OffsetToPosition(offset + length);
-        this._edit.newEndPosition = TreeSitter.Point.FromLocation(endLocation);
+        this._edit.newEndPosition = CodeEditor.Point.FromLocation(endLocation);
 
         this._oldTree!.edit(this._edit);
 
@@ -52,8 +52,8 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.startIndex = <number><any>offset * 2;
         this._edit.oldEndIndex = this._edit.startIndex + <number><any>length * 2;
         this._edit.newEndIndex = this._edit.startIndex;
-        this._edit.startPosition = TreeSitter.Point.FromLocation(startLocation);
-        this._edit.oldEndPosition = TreeSitter.Point.FromLocation(endLocation);
+        this._edit.startPosition = CodeEditor.Point.FromLocation(startLocation);
+        this._edit.oldEndPosition = CodeEditor.Point.FromLocation(endLocation);
         this._edit.newEndPosition = this._edit.startPosition;
     }
 
@@ -69,13 +69,13 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.startIndex = <number><any>offset * 2;
         this._edit.oldEndIndex = this._edit.startIndex + <number><any>length * 2;
         this._edit.newEndIndex = this._edit.startIndex + <number><any>((textLenght - length) * 2);
-        this._edit.startPosition = TreeSitter.Point.FromLocation(startLocation);
-        this._edit.oldEndPosition = TreeSitter.Point.FromLocation(endLocation);
+        this._edit.startPosition = CodeEditor.Point.FromLocation(startLocation);
+        this._edit.oldEndPosition = CodeEditor.Point.FromLocation(endLocation);
     }
 
     public EndReplace(offset: number, length: number, textLength: number) {
         let endLocation = this._document.OffsetToPosition(offset + (textLength - length));
-        this._edit.newEndPosition = TreeSitter.Point.FromLocation(endLocation);
+        this._edit.newEndPosition = CodeEditor.Point.FromLocation(endLocation);
 
         this._oldTree!.edit(this._edit);
         this.Parse(false);
@@ -101,8 +101,8 @@ export class SyntaxParser implements System.IDisposable {
         let lineLength = lineSegment.Length;
         if (lineLength == 0) return;
 
-        let lineStartPoint = new TreeSitter.Point().Init({Row: <number><any>line, Column: 0});
-        let lineEndPoint = new TreeSitter.Point().Init({Row: <number><any>line, Column: <number><any>lineLength * 2});
+        let lineStartPoint = new CodeEditor.Point().Init({Row: <number><any>line, Column: 0});
+        let lineEndPoint = new CodeEditor.Point().Init({Row: <number><any>line, Column: <number><any>lineLength * 2});
         let lineNode = this._oldTree!.rootNode.namedDescendantForPosition(lineStartPoint, lineEndPoint);
         // Console.WriteLine(lineNode);
 
@@ -120,7 +120,7 @@ export class SyntaxParser implements System.IDisposable {
         //CodeToken.DumpLineTokens(lineSegment, _document);
     }
 
-    private VisitChildren(node: TreeSitter.SyntaxNode, lineSegment: CodeEditor.LineSegment) {
+    private VisitChildren(node: CodeEditor.SyntaxNode, lineSegment: CodeEditor.LineSegment) {
         for (const child of node.children) {
             if (SyntaxParser.BeforeLine(child, lineSegment)) continue;
             if (SyntaxParser.AfterLine(child, lineSegment)) break;
@@ -128,7 +128,7 @@ export class SyntaxParser implements System.IDisposable {
         }
     }
 
-    private VisitNode(node: TreeSitter.SyntaxNode, lineSegment: CodeEditor.LineSegment) {
+    private VisitNode(node: CodeEditor.SyntaxNode, lineSegment: CodeEditor.LineSegment) {
         let childrenCount = node.childCount;
         if (!this._language.IsLeafNode(node) && childrenCount > 0) {
             this.VisitChildren(node, lineSegment);
@@ -142,7 +142,7 @@ export class SyntaxParser implements System.IDisposable {
         lineSegment.AddToken(tokenType, startOffset, length);
     }
 
-    private static ContainsFullLine(node: TreeSitter.SyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
+    private static ContainsFullLine(node: CodeEditor.SyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
         let nodeStartOffset = node.startIndex / 2;
         let nodeEndOffset = node.endIndex / 2;
 
@@ -150,18 +150,18 @@ export class SyntaxParser implements System.IDisposable {
             (lineSegment.Offset + lineSegment.Length) <= nodeEndOffset;
     }
 
-    private static BeforeLine(node: TreeSitter.SyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
+    private static BeforeLine(node: CodeEditor.SyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
         let nodeEndOffset = node.endIndex / 2;
         return nodeEndOffset < lineSegment.Offset;
     }
 
-    private static AfterLine(node: TreeSitter.SyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
+    private static AfterLine(node: CodeEditor.SyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
         let nodeStartOffset = node.startIndex / 2;
         return nodeStartOffset > (lineSegment.Offset + lineSegment.Length);
     }
 
 
-    public CreateQuery(scm: string): TreeSitter.Query {
+    public CreateQuery(scm: string): CodeEditor.Query {
         return this._parser.getLanguage().query(scm)!;
     }
 

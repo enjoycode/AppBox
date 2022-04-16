@@ -1,5 +1,17 @@
 export type {
-    Canvas, Paint, PaintStyle, Paragraph, Affinity, Image, Font, FontWeight, BlendMode, Path
+    Canvas,
+    Paint,
+    PaintStyle,
+    TextStyle,
+    ParagraphBuilder,
+    ParagraphStyle,
+    Paragraph,
+    Affinity,
+    Image,
+    Font,
+    FontWeight,
+    BlendMode,
+    Path
 } from 'canvaskit-wasm';
 
 export * from './CanvasKit/Color'
@@ -10,7 +22,6 @@ export * from './CanvasKit/RRect'
 export * from './CanvasKit/Vector4'
 export * from './CanvasKit/Matrix4'
 export * from './CanvasKit/MatrixUtils'
-export * from './CanvasKit/Wrap'
 export * from './CanvasKit/Utils'
 export * from './CanvasKit/FontStyle'
 export * from './CanvasKit/FontCollection'

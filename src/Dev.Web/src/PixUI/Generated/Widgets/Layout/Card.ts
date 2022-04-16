@@ -81,7 +81,7 @@ export class Card extends PixUI.SingleChildWidget {
         //先画阴影
         let outer = shape.GetOuterPath(rect);
         if (elevation > 0) {
-            PixUI.Utils.DrawShadow(canvas, outer, shadowColor, elevation, shadowColor.Alpha != 0xFF, this.Root!.Window.ScaleFactor);
+            PixUI.DrawShadow(canvas, outer, shadowColor, elevation, shadowColor.Alpha != 0xFF, this.Root!.Window.ScaleFactor);
         }
 
         //Clip外形后填充背景及边框

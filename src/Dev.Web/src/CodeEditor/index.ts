@@ -1,4 +1,4 @@
-export * as TreeSitter from './TreeSitter'
+export * from './TreeSitter'
 
 export * from './Generated/Utils/RedBlackTree'
 export * from './Generated/Utils/TextUtils'

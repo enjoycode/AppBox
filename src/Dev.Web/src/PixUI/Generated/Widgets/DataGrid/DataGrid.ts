@@ -97,7 +97,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         if (this._controller.ScrollController.OffsetY > 0) {
             let shadowPath = new CanvasKit.Path();
             shadowPath.addRect(PixUI.Rect.FromLTWH(0, 0, Math.min(size.Width, totalColumnsWidth), this._controller.TotalHeaderHeight));
-            PixUI.Utils.DrawShadow(canvas, shadowPath, PixUI.Colors.Black, 5.0, false, this.Root!.Window.ScaleFactor);
+            PixUI.DrawShadow(canvas, shadowPath, PixUI.Colors.Black, 5.0, false, this.Root!.Window.ScaleFactor);
             shadowPath.delete();
         }
 

@@ -68,7 +68,7 @@ export class HoverDecorator extends PixUI.Widget {
         if (this._owner.Elevation > 0) {
             canvas.save();
             canvas.clipPath(path, CanvasKit.ClipOp.Difference, false);
-            PixUI.Utils.DrawShadow(canvas, path, PixUI.Colors.Black, this._owner.Elevation, false, this.Root!.Window.ScaleFactor);
+            PixUI.DrawShadow(canvas, path, PixUI.Colors.Black, this._owner.Elevation, false, this.Root!.Window.ScaleFactor);
             canvas.restore();
         }
 
