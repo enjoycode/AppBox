@@ -34,7 +34,7 @@ export class FoldArea extends CodeEditor.EditorArea {
     }
 
     public HandlePointerDown(x: number, y: number, buttons: PixUI.PointerButtons) {
-        let physicalLine = <number><any>((y + this.TextEditor.VirtualTop.Y) / this.TextEditor.TextView.FontHeight);
+        let physicalLine = (Math.floor(((y + this.TextEditor.VirtualTop.Y) / this.TextEditor.TextView.FontHeight)) & 0xFFFFFFFF);
         let realLine = this.Document.GetFirstLogicalLine(physicalLine);
         if (realLine < 0 || realLine + 1 >= this.Document.TotalNumberOfLines)
             return;
@@ -66,7 +66,7 @@ export class FoldArea extends CodeEditor.EditorArea {
 
         let fontHeight = this.TextEditor.TextView.FontHeight;
         let visibleLineRemainder = this.TextEditor.TextView.VisibleLineDrawingRemainder;
-        let maxHeight = <number><any>((this.Bounds.Height + visibleLineRemainder) / fontHeight + 1);
+        let maxHeight = (Math.floor(((this.Bounds.Height + visibleLineRemainder) / fontHeight + 1)) & 0xFFFFFFFF);
         for (let y = 0; y < maxHeight; ++y) {
             let markerRect = PixUI.Rect.FromLTWH(
                 this.Bounds.Left, this.Bounds.Top + y * fontHeight - visibleLineRemainder, this.Bounds.Width, fontHeight);

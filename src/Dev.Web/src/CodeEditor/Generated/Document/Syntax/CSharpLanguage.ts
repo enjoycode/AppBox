@@ -65,9 +65,9 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
     private static readonly TokenMap: System.NumberMap<CodeEditor.TokenType> = new System.NumberMap<CodeEditor.TokenType>([[4, CodeEditor.TokenType.PunctuationDelimiter], [13, CodeEditor.TokenType.PunctuationDelimiter], [11, CodeEditor.TokenType.PunctuationDelimiter], [65, CodeEditor.TokenType.Operator], [69, CodeEditor.TokenType.Operator], [126, CodeEditor.TokenType.Operator], [75, CodeEditor.TokenType.Operator], [167, CodeEditor.TokenType.Operator], [68, CodeEditor.TokenType.Operator], [64, CodeEditor.TokenType.Operator], [125, CodeEditor.TokenType.Operator], [10, CodeEditor.TokenType.Operator], [76, CodeEditor.TokenType.Operator], [8, CodeEditor.TokenType.Operator], [78, CodeEditor.TokenType.Operator], [63, CodeEditor.TokenType.Operator], [79, CodeEditor.TokenType.Operator], [52, CodeEditor.TokenType.Operator], [12, CodeEditor.TokenType.Operator], [77, CodeEditor.TokenType.Operator], [74, CodeEditor.TokenType.Operator], [168, CodeEditor.TokenType.Operator], [59, CodeEditor.TokenType.Operator], [169, CodeEditor.TokenType.Operator], [73, CodeEditor.TokenType.Operator], [56, CodeEditor.TokenType.Operator], [70, CodeEditor.TokenType.Operator], [71, CodeEditor.TokenType.Operator], [72, CodeEditor.TokenType.Operator], [23, CodeEditor.TokenType.Operator], [24, CodeEditor.TokenType.PunctuationBracket], [25, CodeEditor.TokenType.PunctuationBracket], [14, CodeEditor.TokenType.PunctuationBracket], [15, CodeEditor.TokenType.PunctuationBracket], [50, CodeEditor.TokenType.PunctuationBracket], [51, CodeEditor.TokenType.PunctuationBracket], [170, CodeEditor.TokenType.Keyword], [49, CodeEditor.TokenType.Keyword], [99, CodeEditor.TokenType.Keyword], [109, CodeEditor.TokenType.Keyword], [122, CodeEditor.TokenType.Keyword], [100, CodeEditor.TokenType.Keyword], [58, CodeEditor.TokenType.Keyword], [102, CodeEditor.TokenType.Keyword], [110, CodeEditor.TokenType.Keyword], [89, CodeEditor.TokenType.Keyword], [103, CodeEditor.TokenType.Keyword], [112, CodeEditor.TokenType.Keyword], [87, CodeEditor.TokenType.Keyword], [17, CodeEditor.TokenType.Keyword], [54, CodeEditor.TokenType.Keyword], [123, CodeEditor.TokenType.Keyword], [105, CodeEditor.TokenType.Keyword], [107, CodeEditor.TokenType.Keyword], [108, CodeEditor.TokenType.Keyword], [111, CodeEditor.TokenType.Keyword], [53, CodeEditor.TokenType.Keyword], [88, CodeEditor.TokenType.Keyword], [146, CodeEditor.TokenType.Keyword], [113, CodeEditor.TokenType.Keyword], [91, CodeEditor.TokenType.Keyword], [55, CodeEditor.TokenType.Keyword], [48, CodeEditor.TokenType.Keyword], [21, CodeEditor.TokenType.Keyword], [164, CodeEditor.TokenType.Keyword], [136, CodeEditor.TokenType.Keyword], [60, CodeEditor.TokenType.Keyword], [114, CodeEditor.TokenType.Keyword], [120, CodeEditor.TokenType.Keyword], [121, CodeEditor.TokenType.Keyword], [165, CodeEditor.TokenType.Keyword], [101, CodeEditor.TokenType.Keyword], [6, CodeEditor.TokenType.Keyword], [104, CodeEditor.TokenType.Keyword], [33, CodeEditor.TokenType.Keyword], [106, CodeEditor.TokenType.Keyword], [46, CodeEditor.TokenType.Keyword], [124, CodeEditor.TokenType.Keyword], [82, CodeEditor.TokenType.Keyword], [83, CodeEditor.TokenType.Keyword], [119, CodeEditor.TokenType.Keyword], [45, CodeEditor.TokenType.Keyword], [40, CodeEditor.TokenType.Keyword], [149, CodeEditor.TokenType.Keyword], [57, CodeEditor.TokenType.Keyword], [160, CodeEditor.TokenType.Keyword], [90, CodeEditor.TokenType.Keyword], [86, CodeEditor.TokenType.Keyword], [166, CodeEditor.TokenType.Keyword], [154, CodeEditor.TokenType.Keyword]]);
 
     public IsLeafNode(node: CodeEditor.TSSyntaxNode): boolean {
-        return node.typeId == <number><any>CSharpSymbol.Modifier ||
-            node.typeId == <number><any>CSharpSymbol.StringLiteral ||
-            node.typeId == <number><any>CSharpSymbol.CharacterLiteral;
+        return node.typeId == <number>CSharpSymbol.Modifier ||
+            node.typeId == <number>CSharpSymbol.StringLiteral ||
+            node.typeId == <number>CSharpSymbol.CharacterLiteral;
     }
 
     public GetTokenType(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
@@ -81,35 +81,36 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
 
         // is named node
         switch (node.typeId) {
-            case <number><any>CSharpSymbol.Identifier:
+            case <number>CSharpSymbol.Identifier:
                 return this.GetIdentifierTokenType(node);
 
-            case <number><any>CSharpSymbol.ImplicitType:
-            case <number><any>CSharpSymbol.PointerType:
-            case <number><any>CSharpSymbol.FunctionPointerType:
-            case <number><any>CSharpSymbol.PredefinedType:
+            case <number>CSharpSymbol.ImplicitType:
+            case <number>CSharpSymbol.PointerType:
+            case <number>CSharpSymbol.FunctionPointerType:
+            case <number>CSharpSymbol.PredefinedType:
                 return CodeEditor.TokenType.BuiltinType;
 
-            case <number><any>CSharpSymbol.RealLiteral:
-            case <number><any>CSharpSymbol.IntegerLiteral:
+            case <number>CSharpSymbol.RealLiteral:
+            case <number>CSharpSymbol.IntegerLiteral:
                 return CodeEditor.TokenType.LiteralNumber;
 
-            case <number><any>CSharpSymbol.StringLiteral:
-            case <number><any>CSharpSymbol.CharacterLiteral:
+            case <number>CSharpSymbol.StringLiteral:
+            case <number>CSharpSymbol.CharacterLiteral:
                 return CodeEditor.TokenType.LiteralString;
 
-            case <number><any>CSharpSymbol.NullLiteral:
-            case <number><any>CSharpSymbol.BooleanLiteral:
+            case <number>CSharpSymbol.NullLiteral:
+            case <number>CSharpSymbol.BooleanLiteral:
                 return CodeEditor.TokenType.Constant;
 
-            case <number><any>CSharpSymbol.Modifier:
-            case <number><any>CSharpSymbol.VoidKeyword:
+            case <number>CSharpSymbol.Modifier:
+            case <number>CSharpSymbol.VoidKeyword:
                 return CodeEditor.TokenType.Keyword;
 
-            case <number><any>CSharpSymbol.Comment:
+            case <number>CSharpSymbol.Comment:
                 return CodeEditor.TokenType.Comment;
             default:
                 return CodeEditor.TokenType.Unknown;
+            //throw new NotImplementedException(node.Type);
         }
     }
 
@@ -118,23 +119,23 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
             return CodeEditor.TokenType.Unknown;
 
         switch (node.parent!.typeId) {
-            case <number><any>CSharpSymbol.ClassDeclaration:
-            case <number><any>CSharpSymbol.InterfaceDeclaration:
-            case <number><any>CSharpSymbol.EnumDeclaration:
-            case <number><any>CSharpSymbol.StructDeclaration:
-            case <number><any>CSharpSymbol.RecordDeclaration:
-            case <number><any>CSharpSymbol.NamespaceDeclaration:
+            case <number>CSharpSymbol.ClassDeclaration:
+            case <number>CSharpSymbol.InterfaceDeclaration:
+            case <number>CSharpSymbol.EnumDeclaration:
+            case <number>CSharpSymbol.StructDeclaration:
+            case <number>CSharpSymbol.RecordDeclaration:
+            case <number>CSharpSymbol.NamespaceDeclaration:
                 return CodeEditor.TokenType.Type;
 
-            case <number><any>CSharpSymbol.Argument:
-            case <number><any>CSharpSymbol.VariableDeclarator:
-            case <number><any>CSharpSymbol.PropertyDeclaration:
+            case <number>CSharpSymbol.Argument:
+            case <number>CSharpSymbol.VariableDeclarator:
+            case <number>CSharpSymbol.PropertyDeclaration:
                 return CodeEditor.TokenType.Variable;
 
-            case <number><any>CSharpSymbol.MethodDeclaration:
+            case <number>CSharpSymbol.MethodDeclaration:
                 return CodeEditor.TokenType.Function;
 
-            case <number><any>CSharpSymbol.MemberAccessExpression:
+            case <number>CSharpSymbol.MemberAccessExpression:
                 return this.GetMemberAccessTokenType(node.parent);
 
             default:
@@ -143,7 +144,7 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
     }
 
     private GetMemberAccessTokenType(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
-        if (node.parent!.typeId == <number><any>CSharpSymbol.InvocationExpression)
+        if (node.parent!.typeId == <number>CSharpSymbol.InvocationExpression)
             return CodeEditor.TokenType.Function;
 
         return CodeEditor.TokenType.Type; //TODO:

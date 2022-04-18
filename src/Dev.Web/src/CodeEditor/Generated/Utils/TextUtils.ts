@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export class TextUtils {
-    private static readonly ZwjUtf16: any = <any><any>0x200D;
+    private static readonly ZwjUtf16: any = (Math.floor(0x200D) & 0xFF);
 
     private static IsUtf16Surrogate(value: any): boolean {
         return (value & 0xF800) == 0xD800;

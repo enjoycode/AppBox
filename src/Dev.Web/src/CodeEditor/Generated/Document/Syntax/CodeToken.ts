@@ -26,7 +26,7 @@ export enum TokenType {
 
 export class CodeToken {
     public static Make(type: TokenType, startColumn: number): number {
-        return (<number><any>type << 24) | startColumn;
+        return ((Math.floor(type) & 0xFFFFFFFF) << 24) | startColumn;
     }
 
     public static GetTokenStartColumn(token: number): number {
@@ -34,7 +34,7 @@ export class CodeToken {
     }
 
     public static GetTokenType(token: number): TokenType {
-        return <TokenType><any>(token >> 24);
+        return <TokenType>(token >> 24);
     }
 
 }

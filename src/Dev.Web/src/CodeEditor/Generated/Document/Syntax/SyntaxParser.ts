@@ -33,9 +33,9 @@ export class SyntaxParser implements System.IDisposable {
 
     public BeginInsert(offset: number, length: number) {
         let startLocation = this._document.OffsetToPosition(offset);
-        this._edit.startIndex = <number><any>offset * SyntaxParser.ParserEncoding;
+        this._edit.startIndex = (Math.floor(offset) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.oldEndIndex = this._edit.startIndex;
-        this._edit.newEndIndex = this._edit.startIndex + <number><any>length * SyntaxParser.ParserEncoding;
+        this._edit.newEndIndex = this._edit.startIndex + (Math.floor(length) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.startPosition = CodeEditor.TSPoint.FromLocation(startLocation);
         this._edit.oldEndPosition = this._edit.startPosition;
     }
@@ -53,8 +53,8 @@ export class SyntaxParser implements System.IDisposable {
     public BeginRemove(offset: number, length: number) {
         let startLocation = this._document.OffsetToPosition(offset);
         let endLocation = this._document.OffsetToPosition(offset + length);
-        this._edit.startIndex = <number><any>offset * SyntaxParser.ParserEncoding;
-        this._edit.oldEndIndex = this._edit.startIndex + <number><any>length * SyntaxParser.ParserEncoding;
+        this._edit.startIndex = (Math.floor(offset) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
+        this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(length) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.newEndIndex = this._edit.startIndex;
         this._edit.startPosition = CodeEditor.TSPoint.FromLocation(startLocation);
         this._edit.oldEndPosition = CodeEditor.TSPoint.FromLocation(endLocation);
@@ -70,9 +70,9 @@ export class SyntaxParser implements System.IDisposable {
     public BeginReplace(offset: number, length: number, textLenght: number) {
         let startLocation = this._document.OffsetToPosition(offset);
         let endLocation = this._document.OffsetToPosition(offset + length);
-        this._edit.startIndex = <number><any>offset * SyntaxParser.ParserEncoding;
-        this._edit.oldEndIndex = this._edit.startIndex + <number><any>length * SyntaxParser.ParserEncoding;
-        this._edit.newEndIndex = this._edit.startIndex + <number><any>((textLenght - length) * SyntaxParser.ParserEncoding);
+        this._edit.startIndex = (Math.floor(offset) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
+        this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(length) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
+        this._edit.newEndIndex = this._edit.startIndex + (Math.floor(((textLenght - length) * SyntaxParser.ParserEncoding)) & 0xFFFFFFFF);
         this._edit.startPosition = CodeEditor.TSPoint.FromLocation(startLocation);
         this._edit.oldEndPosition = CodeEditor.TSPoint.FromLocation(endLocation);
     }

@@ -21,7 +21,7 @@ export class CodeEditorController {
     public RequestInvalidate: Nullable<System.Action2<boolean, Nullable<PixUI.IDirtyArea>>>;
 
     // 全局命令字典表
-    private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><any>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><any>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><any>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><any>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><any>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><any>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><any>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><any>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><any>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
+    private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
 
 
     private _mouseDownPos: PixUI.Point = PixUI.Point.Empty;
@@ -82,7 +82,7 @@ export class CodeEditorController {
     }
 
     public OnKeyDown(e: PixUI.KeyEvent) {
-        let cmd = this._editActions.get(<number><any>e.KeyData);
+        let cmd = this._editActions.get((Math.floor(e.KeyData) & 0xFFFFFFFF));
         cmd?.Execute(this.TextEditor);
     }
 

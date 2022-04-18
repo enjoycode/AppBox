@@ -126,7 +126,7 @@ export class ImmutableText {
 
     private EnsureChunked(): ImmutableText {
         if (this.Length > ImmutableText.BlockSize && this._root instanceof CodeEditor.LeafNode) {
-            return new ImmutableText(ImmutableText.NodeOf(<CodeEditor.LeafNode><any>this._root, 0, this.Length));
+            return new ImmutableText(ImmutableText.NodeOf(<CodeEditor.LeafNode>this._root, 0, this.Length));
         }
 
         return this;
@@ -158,7 +158,7 @@ export class ImmutableText {
         let head = node1;
         let tail = node2;
         if ((head.Length << 1) < tail.Length && tail instanceof CodeEditor.CompositeNode) {
-            let compositeTail = <CodeEditor.CompositeNode><any>tail;
+            let compositeTail = <CodeEditor.CompositeNode>tail;
             // head too small, returns (head + tail/2) + (tail/2)
             if (compositeTail.head.Length > compositeTail.tail.Length) {
                 // Rotates to concatenate with smaller part.
@@ -169,7 +169,7 @@ export class ImmutableText {
             tail = compositeTail.tail;
         } else {
             if ((tail.Length << 1) < head.Length && head instanceof CodeEditor.CompositeNode) {
-                let compositeHead = <CodeEditor.CompositeNode><any>head;
+                let compositeHead = <CodeEditor.CompositeNode>head;
                 // tail too small, returns (head/2) + (head/2 concat tail)
                 if (compositeHead.tail.Length > compositeHead.head.Length) {
                     // Rotates to concatenate with smaller part.
@@ -195,7 +195,7 @@ export class ImmutableText {
                 return new InnerLeaf(leafNode, offset);
             }
 
-            let composite = <CodeEditor.CompositeNode><any>node;
+            let composite = <CodeEditor.CompositeNode>node;
             if (index < composite.head.Length) {
                 node = composite.head;
             } else {

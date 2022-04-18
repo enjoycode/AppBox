@@ -43,7 +43,7 @@ export class GutterArea extends CodeEditor.EditorArea {
         // line numbers
         let lineHeight = this.TextEditor.TextView.FontHeight;
         let visibleLineRemainder = this.TextEditor.TextView.VisibleLineDrawingRemainder;
-        let maxHeight = <number><any>((this.Bounds.Height + visibleLineRemainder) / lineHeight) + 1;
+        let maxHeight = (Math.floor(((this.Bounds.Height + visibleLineRemainder) / lineHeight)) & 0xFFFFFFFF) + 1;
         for (let y = 0; y < maxHeight; y++) {
             let yPos = this.Bounds.Top + lineHeight * y - visibleLineRemainder +
                 this.Theme.LineSpace;
@@ -60,9 +60,9 @@ export class GutterArea extends CodeEditor.EditorArea {
         //TODO:暂计算至千位
         let unitPlace = lineNumber % 10;
 
-        let tenPlace = <number><any>Math.floor(lineNumber / 10) % 10;
-        let hundredPlace = <number><any>Math.floor(lineNumber / 100) % 10;
-        let thousandPlace = <number><any>Math.floor(lineNumber / 1000) % 10;
+        let tenPlace = (Math.floor((lineNumber / 10)) & 0xFFFFFFFF) % 10;
+        let hundredPlace = (Math.floor((lineNumber / 100)) & 0xFFFFFFFF) % 10;
+        let thousandPlace = (Math.floor((lineNumber / 1000)) & 0xFFFFFFFF) % 10;
 
         canvas.drawParagraph(this._numberCache[unitPlace], 2 + this._numberWidth * 3, yPos);
         if (lineNumber >= 10)

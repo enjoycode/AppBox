@@ -20,15 +20,15 @@ export class TextView extends CodeEditor.EditorArea {
     } //TODO: rename to LineHeight
 
     public get VisibleLineCount(): number {
-        return 1 + <number><any>Math.round(this.Bounds.Height / this.FontHeight);
+        return 1 + (Math.floor(Math.round(this.Bounds.Height / this.FontHeight)) & 0xFFFFFFFF);
     }
 
     public get VisibleLineDrawingRemainder(): number {
-        return <number><any>Math.round(this.TextEditor.VirtualTop.Y % this.FontHeight);
+        return (Math.floor(Math.round(this.TextEditor.VirtualTop.Y % this.FontHeight)) & 0xFFFFFFFF);
     }
 
     public get FirstVisibleLine(): number {
-        return this.Document.GetFirstLogicalLine(<number><any>(this.TextEditor.VirtualTop.Y / this.FontHeight));
+        return this.Document.GetFirstLogicalLine((Math.floor((this.TextEditor.VirtualTop.Y / this.FontHeight)) & 0xFFFFFFFF));
     }
 
     public set FirstVisibleLine(value: number) {
@@ -38,7 +38,7 @@ export class TextView extends CodeEditor.EditorArea {
     }
 
     public get FirstPhysicalLine(): number {
-        return <number><any>(this.TextEditor.VirtualTop.Y / this.FontHeight);
+        return (Math.floor((this.TextEditor.VirtualTop.Y / this.FontHeight)) & 0xFFFFFFFF);
     }
 
     public GetLogicalPosition(visualPosX: number, visualPosY: number): CodeEditor.TextLocation {
@@ -48,7 +48,7 @@ export class TextView extends CodeEditor.EditorArea {
     public GetLogicalColumn(lineNumber: number, visualPosX: number): LogicalColumnInfo {
         visualPosX += this.TextEditor.VirtualTop.X;
         if (lineNumber >= this.Document.TotalNumberOfLines) {
-            return new LogicalColumnInfo(new CodeEditor.TextLocation(<number><any>(visualPosX / this._spaceWidth), lineNumber), null);
+            return new LogicalColumnInfo(new CodeEditor.TextLocation((Math.floor((visualPosX / this._spaceWidth)) & 0xFFFFFFFF), lineNumber), null);
         }
 
         if (visualPosX <= 0) {
@@ -81,7 +81,7 @@ export class TextView extends CodeEditor.EditorArea {
     }
 
     public GetLogicalLine(visualPosY: number): number {
-        let clickedVisualLine = Math.max(0, <number><any>((visualPosY + this.TextEditor.VirtualTop.Y) / this.FontHeight));
+        let clickedVisualLine = Math.max(0, (Math.floor(((visualPosY + this.TextEditor.VirtualTop.Y) / this.FontHeight)) & 0xFFFFFFFF));
         return this.Document.GetFirstLogicalLine(clickedVisualLine);
     }
 
@@ -124,7 +124,7 @@ export class TextView extends CodeEditor.EditorArea {
         canvas.drawRect(rect, paint);
 
         // paint lines one by one
-        let endLine = <number><any>((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1);
+        let endLine = (Math.floor(((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1)) & 0xFFFFFFFF);
         this.PaintLines(canvas, this.FirstVisibleLine, endLine);
     }
 

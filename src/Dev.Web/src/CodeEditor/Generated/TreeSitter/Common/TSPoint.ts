@@ -10,8 +10,8 @@ export class TSPoint {
     public readonly column: number;
 
     public constructor(row: number, column: number) {
-        this.row = <number><any>row;
-        this.column = <number><any>column;
+        this.row = (Math.floor(row) & 0xFFFFFFFF);
+        this.column = (Math.floor(column) & 0xFFFFFFFF);
     }
 
     public static FromLocation(location: CodeEditor.TextLocation): TSPoint {
