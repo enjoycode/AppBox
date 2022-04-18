@@ -109,17 +109,20 @@ export default class WebWindow extends PixUI.UIWindow {
         window.onmousemove = ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            this.OnPointerMove(PixUI.PointerEvent.UseDefault(ev.buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
+            const buttons = WebWindow.ConvertToButtons(ev);
+            this.OnPointerMove(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
         };
         window.onmousedown = ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            this.OnPointerDown(PixUI.PointerEvent.UseDefault(ev.buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
+            const buttons = WebWindow.ConvertToButtons(ev);
+            this.OnPointerDown(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
         };
         window.onmouseup = ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            this.OnPointerUp(PixUI.PointerEvent.UseDefault(ev.buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
+            const buttons = WebWindow.ConvertToButtons(ev);
+            this.OnPointerUp(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
         };
         window.onkeydown = ev => {
             // console.log(`KeyDown: '${ev.key}' keyCode=${ev.code}`)
@@ -139,6 +142,15 @@ export default class WebWindow extends PixUI.UIWindow {
     StopTextInput() {
         this._input.blur();
         this._input.value = '';
+    }
+
+    private static ConvertToButtons(ev: MouseEvent): PixUI.PointerButtons {
+        switch (ev.buttons) {
+            case 1: return PixUI.PointerButtons.Left;
+            case 2: return PixUI.PointerButtons.Right;
+            case 3: return PixUI.PointerButtons.Middle;
+            default: return PixUI.PointerButtons.None;
+        }
     }
 
     private static ConvertToKeys(ev: KeyboardEvent): PixUI.Keys {
