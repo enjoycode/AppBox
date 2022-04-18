@@ -186,23 +186,16 @@ initializer: [
 
             let node = capture.node;
 
-            let startIndex = node.startIndex / 2;
-            let endIndex = node.endIndex / 2;
+            //暂跳过同一行的
+            if (node.startPosition.row == node.endPosition.row) continue;
+
+            let startIndex = node.startIndex / CodeEditor.SyntaxParser.ParserEncoding;
+            let endIndex = node.endIndex / CodeEditor.SyntaxParser.ParserEncoding;
 
             let mark = new CodeEditor.FoldMarker(document, 0, 0, 0, 0, CodeEditor.FoldType.TypeBody, "{...}");
             mark.Offset = startIndex;
             mark.Length = endIndex - startIndex;
-            if (mark.StartLine != mark.EndLine)
-                result.Add(mark);
-
-            // var startPos = node.StartPosition;
-            // var endPos = node.EndPosition;
-            // if (startPos.Row == endPos.Row) continue; //暂跳过同一行的
-            //
-            // //TODO: fix FoldType
-            // var mark = new FoldMarker(document, (int)startPos.Row, (int)startPos.Column / 2,
-            //     (int)endPos.Row, (int)endPos.Column / 2, FoldType.MemberBody);
-            // result.Add(mark);
+            result.Add(mark);
         }
 
         return result;

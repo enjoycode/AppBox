@@ -156,26 +156,26 @@ export class SyntaxParser implements System.IDisposable {
 
         // leaf node now, 注意可能跨行的Comment
         let tokenType = this._language.GetTokenType(node);
-        let startOffset = Math.max(node.startIndex / 2, lineSegment.Offset);
-        let length = Math.min((node.endIndex - node.startIndex) / 2, lineSegment.Length);
+        let startOffset = Math.max(node.startIndex / SyntaxParser.ParserEncoding, lineSegment.Offset);
+        let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding, lineSegment.Length);
         lineSegment.AddToken(tokenType, startOffset, length);
     }
 
     private static ContainsFullLine(node: CodeEditor.TSSyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
-        let nodeStartOffset = node.startIndex / 2;
-        let nodeEndOffset = node.endIndex / 2;
+        let nodeStartOffset = node.startIndex / SyntaxParser.ParserEncoding;
+        let nodeEndOffset = node.endIndex / SyntaxParser.ParserEncoding;
 
         return nodeStartOffset <= lineSegment.Offset &&
             (lineSegment.Offset + lineSegment.Length) <= nodeEndOffset;
     }
 
     private static BeforeLine(node: CodeEditor.TSSyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
-        let nodeEndOffset = node.endIndex / 2;
+        let nodeEndOffset = node.endIndex / SyntaxParser.ParserEncoding;
         return nodeEndOffset < lineSegment.Offset;
     }
 
     private static AfterLine(node: CodeEditor.TSSyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
-        let nodeStartOffset = node.startIndex / 2;
+        let nodeStartOffset = node.startIndex / SyntaxParser.ParserEncoding;
         return nodeStartOffset > (lineSegment.Offset + lineSegment.Length);
     }
 
