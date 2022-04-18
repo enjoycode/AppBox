@@ -90,11 +90,11 @@ export default class WebWindow extends PixUI.UIWindow {
     }
 
     get Height(): number {
-        return window.innerWidth;
+        return window.innerHeight;
     }
 
     get Width(): number {
-        return window.innerHeight;
+        return window.innerWidth;
     }
 
     Present(): void {
@@ -146,10 +146,14 @@ export default class WebWindow extends PixUI.UIWindow {
 
     private static ConvertToButtons(ev: MouseEvent): PixUI.PointerButtons {
         switch (ev.buttons) {
-            case 1: return PixUI.PointerButtons.Left;
-            case 2: return PixUI.PointerButtons.Right;
-            case 3: return PixUI.PointerButtons.Middle;
-            default: return PixUI.PointerButtons.None;
+            case 1:
+                return PixUI.PointerButtons.Left;
+            case 2:
+                return PixUI.PointerButtons.Right;
+            case 3:
+                return PixUI.PointerButtons.Middle;
+            default:
+                return PixUI.PointerButtons.None;
         }
     }
 
