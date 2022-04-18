@@ -119,6 +119,7 @@ export class ImmutableText {
         return String.fromCharCode.apply(null, data);
     }
 
+
     private SubText(start: number): ImmutableText {
         return this.GetText(start, this.Length - start);
     }
