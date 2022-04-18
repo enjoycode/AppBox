@@ -54,6 +54,10 @@ export class Rect extends Float32Array {
         return this.Left < (x + w) && this.Right > x && this.Top < (y + h) && this.Bottom > y;
     }
 
+    public Clone(): Rect {
+        return new Rect(this.Left, this.Top, this.Right, this.Bottom);
+    }
+
     public static op_Equality(a: Rect, b: Rect): boolean {
         return a.Left === b.Left && a.Top === b.Top && a.Right === b.Right && a.Bottom === b.Bottom;
     }

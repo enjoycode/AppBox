@@ -185,6 +185,12 @@ export class Matrix4 extends Float32Array {
         }
     }
 
+    public Clone(): Matrix4 {
+        let clone = Matrix4.CreateEmpty();
+        clone.CopyFrom(this);
+        return clone;
+    }
+
     private static GetIndex(row: number, col: number) {
         return col * 4 + row;
     }

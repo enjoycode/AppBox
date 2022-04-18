@@ -6,4 +6,8 @@ export class Size {
         this.Width = width;
         this.Height = height;
     }
+
+    public Clone(): Size {
+        return new Size(this.Width, this.Height);
+    }
 }

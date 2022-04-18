@@ -48,6 +48,10 @@ export class Color extends Float32Array {
         return new Color(this.Red, this.Green, this.Blue, alpha);
     }
 
+    public Clone(): Color {
+        return new Color(this.Red, this.Green, this.Blue, this.Alpha);
+    }
+
     public static Lerp(a: Nullable<Color>, b: Nullable<Color>, t: number): Nullable<Color> {
         return PixUI.ColorUtils.Lerp(a, b, t);
     }

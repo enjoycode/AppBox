@@ -27,6 +27,10 @@ export class TimeSpan {
         return this._ticks / TicksPerSecond;
     }
 
+    public Clone(): TimeSpan {
+        return new TimeSpan(this._ticks);
+    }
+
     static TimeToTicks(hours: number, minutes: number, seconds: number): number {
         let ticks = (hours * 3600 + minutes * 60 + seconds) * TicksPerSecond;
         if (ticks > Number.MAX_SAFE_INTEGER)
@@ -83,6 +87,10 @@ export class DateTime {
 
     public get obs(): Rx<DateTime> {
         return new Rx<DateTime>(this);
+    }
+
+    public Clone(): DateTime {
+        return new DateTime(this._date);
     }
 
     public toString() {

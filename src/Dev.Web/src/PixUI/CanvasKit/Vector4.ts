@@ -4,4 +4,8 @@ export class Vector4 extends Float32Array {
         super([v1, v2, v3, v4]);
     }
 
+    public Clone(): Vector4 {
+        return new Vector4(this[0], this[1], this[2], this[3]);
+    }
+
 }

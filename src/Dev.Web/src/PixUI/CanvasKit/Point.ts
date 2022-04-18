@@ -33,6 +33,10 @@ export class Point extends Float32Array {
         this[1] += dy;
     }
 
+    public Clone(): Point {
+        return new Point(this.X, this.Y);
+    }
+
     public static op_Equality(a: Point, b: Point): boolean {
         return a.X === b.X && a.Y === b.Y;
     }
