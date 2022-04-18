@@ -35,7 +35,7 @@ export class ImmutableText {
 
     private myLastLeaf: Nullable<InnerLeaf>;
 
-    public GetCharAt(index: number): any {
+    public GetCharAt(index: number): number {
         if (this._root instanceof CodeEditor.LeafNode)
             return this._root.GetCharAt(index);
 

@@ -50,7 +50,7 @@ export class Document implements System.IDisposable {
         this.DocumentChanged.Invoke(new CodeEditor.DocumentEventArgs(this, 0, 0, value));
     }
 
-    public GetCharAt(offset: number): any {
+    public GetCharAt(offset: number): number {
         return this.TextBuffer.GetCharAt(offset);
     }
 

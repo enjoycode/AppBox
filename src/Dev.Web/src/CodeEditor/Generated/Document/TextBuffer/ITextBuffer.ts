@@ -14,7 +14,7 @@ export interface ITextBuffer {
 
     GetText(offset: number, length: number): string;
 
-    GetCharAt(offset: number): any;
+    GetCharAt(offset: number): number;
 
     SetContent(text: string): void;
 

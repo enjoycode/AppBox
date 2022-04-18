@@ -17,7 +17,7 @@ export class ImmutableTextBuffer implements CodeEditor.ITextBuffer {
         return this._buffer.Length;
     }
 
-    public GetCharAt(offset: number): any {
+    public GetCharAt(offset: number): number {
         return this._buffer.GetText(offset, 1).GetCharAt(0);
     }
 

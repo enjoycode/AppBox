@@ -162,11 +162,11 @@ export class CodeEditorController {
     }
 
 
-    private static IsSelectableChar(c: any): boolean {
+    private static IsSelectableChar(c: number): boolean {
         return !CodeEditorController.IsWhiteSpace(c);
     }
 
-    private static IsWhiteSpace(c: any): boolean {
+    private static IsWhiteSpace(c: number): boolean {
         return c == 32;
     }
 

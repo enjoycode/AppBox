@@ -6,7 +6,7 @@ export abstract class Node {
     public abstract get Length(): number;
 
 
-    public abstract GetCharAt(index: number): any;
+    public abstract GetCharAt(index: number): number;
 
     public abstract CopyTo(srcOffset: number, dest: Uint16Array, count: number): void;
 
@@ -33,7 +33,7 @@ export class LeafNode extends Node {
         return this._data.length;
     }
 
-    public GetCharAt(index: number): any {
+    public GetCharAt(index: number): number {
         return this._data[index];
     }
 
@@ -78,7 +78,7 @@ export class CompositeNode extends Node {
         return this._count;
     }
 
-    public GetCharAt(index: number): any {
+    public GetCharAt(index: number): number {
         let headLength = this.head.Length;
         return index < headLength
             ? this.head.GetCharAt(index)
