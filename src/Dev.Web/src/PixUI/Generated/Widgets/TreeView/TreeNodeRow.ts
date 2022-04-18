@@ -48,7 +48,7 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
     }
 
     private get TreeNode(): PixUI.TreeNode<T> {
-        return <PixUI.TreeNode<T>><any>this.Parent!;
+        return <PixUI.TreeNode<T>><unknown>this.Parent!;
     }
 
     private get Controller(): PixUI.TreeController<T> {

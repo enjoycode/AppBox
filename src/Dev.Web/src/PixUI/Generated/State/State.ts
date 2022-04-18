@@ -35,7 +35,7 @@ export abstract class StateBase {
                 this._bindings.RemoveAt(i); //remove none alive binding
                 i--;
             } else {
-                (<IStateBindable><any>target).OnStateChanged(this, binding.Options);
+                (<IStateBindable><unknown>target).OnStateChanged(this, binding.Options);
             }
         }
     }

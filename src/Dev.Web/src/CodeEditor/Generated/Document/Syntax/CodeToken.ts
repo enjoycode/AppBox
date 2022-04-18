@@ -34,7 +34,7 @@ export class CodeToken {
     }
 
     public static GetTokenType(token: number): TokenType {
-        return <TokenType>(token >> 24);
+        return <TokenType><unknown>(token >> 24);
     }
 
 }

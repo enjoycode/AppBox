@@ -25,12 +25,12 @@ export class Radius implements System.IEquatable<Radius> {
         if (b == null) {
             if (a == null) return null;
 
-            let k = <number><any>(1.0 - t);
+            let k = <number><unknown>(1.0 - t);
             return Radius.Elliptical(a.X * k, a.Y * k);
         }
 
         if (a == null)
-            return Radius.Elliptical(<number><any>(b.X * t), <number><any>(b.Y * t));
+            return Radius.Elliptical(<number><unknown>(b.X * t), <number><unknown>(b.Y * t));
         return Radius.Elliptical(PixUI.FloatUtils.Lerp(a.X, b.X, t), PixUI.FloatUtils.Lerp(a.Y, b.Y, t));
     }
 

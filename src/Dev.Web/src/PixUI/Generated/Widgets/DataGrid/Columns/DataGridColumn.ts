@@ -77,7 +77,7 @@ export abstract class DataGridColumn<T> {
     }
 
     public static BuildCellParagraph(rect: PixUI.Rect, style: PixUI.CellStyle, text: string, maxLines: number): PixUI.Paragraph {
-        let ps = PixUI.MakeParagraphStyle({maxLines: <number><any>maxLines});
+        let ps = PixUI.MakeParagraphStyle({maxLines: (Math.floor(maxLines) & 0xFFFFFFFF)});
         let pb = PixUI.MakeParagraphBuilder(ps);
         let ts = PixUI.MakeTextStyle({
             color: style.Color ?? PixUI.Colors.Black,

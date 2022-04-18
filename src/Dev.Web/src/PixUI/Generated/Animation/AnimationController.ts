@@ -141,7 +141,7 @@ export class AnimationController extends PixUI.Animation<number> {
             let remainingFraction = isFinite(range) ? Math.abs(target - this._value) / range : 1.0;
             let directionDuration = this._direction == AnimationDirection.Reverse && this.ReverseDuration != null
                 ? this.ReverseDuration : this.Duration!;
-            simulationDuration = <number><any>(directionDuration * remainingFraction);
+            simulationDuration = (Math.floor((directionDuration * remainingFraction)) & 0xFFFFFFFF);
         } else if (target == this._value) {
             simulationDuration = 0; // Already at target, don't animate.
         }

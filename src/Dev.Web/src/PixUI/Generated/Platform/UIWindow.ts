@@ -131,7 +131,7 @@ export abstract class UIWindow {
         let scrollable = this._oldHitResult.LastHitWidget!.FindParent(w => PixUI.IsInterfaceOfIScrollable(w));
         if (scrollable == null) return;
 
-        (<PixUI.IScrollable><any>scrollable).OnScroll(scrollEvent.Dx, scrollEvent.Dy);
+        (<PixUI.IScrollable><unknown>scrollable).OnScroll(scrollEvent.Dx, scrollEvent.Dy);
 
         //Translate HitTestResult and Rerun hit test.
         let stillInLastRegion = this._oldHitResult.TranslateOnScroll(scrollable, scrollEvent.Dx, scrollEvent.Dy, this._lastMouseX, this._lastMouseY);

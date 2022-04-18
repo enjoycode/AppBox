@@ -181,7 +181,7 @@ export class TreeNode<T> extends PixUI.Widget {
         if (this.IsExpanding || this.IsCollapsing) {
             //根据动画值计算需要展开的高度
             let totalChidrenHeight = this._children!.Sum(t => t.H);
-            let expandedHeight = <number><any>(totalChidrenHeight * this._animationValue);
+            let expandedHeight = <number><unknown>(totalChidrenHeight * this._animationValue);
             if (this._animationValue == 0) //已收缩需要恢复本身的宽度
             {
                 this._animationFlag = 0;

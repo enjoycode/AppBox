@@ -30,7 +30,7 @@ export class FocusedDecoration {
             this._overlayEntry ??= new PixUI.OverlayEntry(new FocusedDecorator(this));
             this.Widget.Overlay?.Show(this._overlayEntry);
         } else {
-            (<FocusedDecorator><any>this._overlayEntry!.Widget).Hide();
+            (<FocusedDecorator><unknown>this._overlayEntry!.Widget).Hide();
         }
     }
 
@@ -45,7 +45,7 @@ export class FocusedDecoration {
     public StopAndReset() {
         if (this._overlayEntry == null) return;
 
-        (<FocusedDecorator><any>this._overlayEntry!.Widget).Reset(); //will remove overlay
+        (<FocusedDecorator><unknown>this._overlayEntry!.Widget).Reset(); //will remove overlay
     }
 
     public RemoveOverlayEntry() {

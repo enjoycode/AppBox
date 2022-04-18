@@ -13,7 +13,7 @@ export class Colors {
 
     public static Random(alpha: number = 255): PixUI.Color {
         Colors._random ??= new System.Random();
-        let randomValue = <number><any>(Colors._random.Next(0, 1 << 24) | (alpha << 24));
+        let randomValue = (Math.floor((Colors._random.Next(0, 1 << 24) | (alpha << 24))) & 0xFFFFFFFF);
         return new PixUI.Color(randomValue);
     }
 }

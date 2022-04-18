@@ -60,7 +60,7 @@ export class OutlineInputBorder extends InputBorder {
     public LerpTo(to: Nullable<PixUI.ShapeBorder>, tween: PixUI.ShapeBorder, t: number) {
         if (to instanceof OutlineInputBorder) {
             const other = to;
-            let temp = <OutlineInputBorder><any>tween;
+            let temp = <OutlineInputBorder><unknown>tween;
             temp.BorderRadius = PixUI.BorderRadius.Lerp(this.BorderRadius, other.BorderRadius, t)!;
             temp.BorderSide = this.BorderSide.Lerp(this.BorderSide, other.BorderSide, t);
             temp.GapPadding = other.GapPadding;

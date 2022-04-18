@@ -26,7 +26,7 @@ export class RotationTransition extends PixUI.Transform {
 
     private CalcTransform(): PixUI.Matrix4 {
         let matrix = PixUI.Matrix4.CreateIdentity();
-        matrix.RotateZ(<number><any>(this._turns.Value * Math.PI * 2.0));
+        matrix.RotateZ(<number><unknown>(this._turns.Value * Math.PI * 2.0));
         return matrix;
     }
 

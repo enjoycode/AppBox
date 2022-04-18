@@ -16,28 +16,28 @@ export class FocusManager {
             return; //Already focused
 
         if (this.FocusedWidget != null) {
-            (<PixUI.IFocusable><any>this.FocusedWidget).FocusNode.RaiseFocusChanged(false);
+            (<PixUI.IFocusable><unknown>this.FocusedWidget).FocusNode.RaiseFocusChanged(false);
             this.FocusedWidget = null;
         }
 
         if (PixUI.IsInterfaceOfIFocusable(widget)) {
             this.FocusedWidget = widget;
-            (<PixUI.IFocusable><any>this.FocusedWidget).FocusNode.RaiseFocusChanged(true);
+            (<PixUI.IFocusable><unknown>this.FocusedWidget).FocusNode.RaiseFocusChanged(true);
         }
     }
 
     public OnKeyDown(e: PixUI.KeyEvent) {
         if (this.FocusedWidget == null) return;
-        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e) => (<PixUI.IFocusable><any>w).FocusNode.RaiseKeyDown(e));
+        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyDown(e));
     }
 
     public OnKeyUp(e: PixUI.KeyEvent) {
         if (this.FocusedWidget == null) return;
-        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e) => (<PixUI.IFocusable><any>w).FocusNode.RaiseKeyUp(e));
+        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyUp(e));
     }
 
     public OnTextInput(text: string) {
-        (<PixUI.IFocusable><any>this.FocusedWidget!).FocusNode.RaiseTextInput(text);
+        (<PixUI.IFocusable><unknown>this.FocusedWidget!).FocusNode.RaiseTextInput(text);
     }
 
     private static PropagateEvent<T extends PixUI.PropagateEvent>(widget: Nullable<PixUI.Widget>, theEvent: T, handler: System.Action2<PixUI.Widget, T>) {

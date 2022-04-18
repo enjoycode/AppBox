@@ -81,7 +81,7 @@ export class DataGridController<T> {
     }
 
     public get VisibleStartRowIndex(): number {
-        return <number><any>Math.trunc(this.ScrollController.OffsetY / this.RowHeight);
+        return (Math.floor(Math.trunc(this.ScrollController.OffsetY / this.RowHeight)) & 0xFFFFFFFF);
     }
 
 
@@ -194,7 +194,7 @@ export class DataGridController<T> {
         let scrollX = 0;
         let scrollY = 0;
 
-        let rowIndex = <number><any>Math.trunc((y - this.TotalHeaderHeight + this.ScrollController.OffsetY) / this.RowHeight);
+        let rowIndex = (Math.floor(Math.trunc((y - this.TotalHeaderHeight + this.ScrollController.OffsetY) / this.RowHeight)) & 0xFFFFFFFF);
         let deltaY = this.ScrollDeltaY;
         if (deltaY != 0) {
             if (rowIndex == this.VisibleStartRowIndex) {

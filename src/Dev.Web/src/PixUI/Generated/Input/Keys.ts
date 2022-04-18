@@ -184,7 +184,7 @@ export enum Keys {
     Shift = 0x00010000,
     Control = 0x00020000,
     Alt = 0x00040000,
-    Modifiers = <number><any>0xFFFF0000,
+    Modifiers = (Math.floor(0xFFFF0000) & 0xFFFFFFFF),
     IMEAccept = 0x0000001E,
     // Oem1 = 0x000000BA,
     Oem102 = 0x000000E2,

@@ -8,6 +8,6 @@ export class FloatUtils {
     }
 
     public static Lerp(a: number, b: number, t: number): number {
-        return <number><any>(a * (1.0 - t) + b * t);
+        return <number><unknown>(a * (1.0 - t) + b * t);
     }
 }

@@ -16,11 +16,11 @@ export class Offset implements System.IEquatable<Offset> {
         if (b == null) {
             if (a == null)
                 return null;
-            return new Offset(<number><any>(a.Dx * (1.0 - t)), <number><any>(a.Dy * (1.0 - t)));
+            return new Offset(<number><unknown>(a.Dx * (1.0 - t)), <number><unknown>(a.Dy * (1.0 - t)));
         }
 
         if (a == null)
-            return new Offset(<number><any>(b.Dx * t), <number><any>(b.Dy * t));
+            return new Offset(<number><unknown>(b.Dx * t), <number><unknown>(b.Dy * t));
 
         return new Offset(PixUI.FloatUtils.Lerp(a.Dx, b.Dx, t), PixUI.FloatUtils.Lerp(a.Dy, b.Dy, t));
     }

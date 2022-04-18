@@ -67,7 +67,7 @@ export class HitTestResult {
         if (contains) {
             //Translate路径内所有Scrollable的子级
             for (let i = this._path.length - 1; i >= 0; i--) {
-                if (!scrollable.IsAnyParentOf(<PixUI.Widget><any>this._path[i].Widget))
+                if (!scrollable.IsAnyParentOf(<PixUI.Widget><unknown>this._path[i].Widget))
                     break;
                 this._path[i].Transform.Translate(dx, dy);
             }
@@ -77,7 +77,7 @@ export class HitTestResult {
     }
 
     public get LastWidgetWithMouseRegion(): Nullable<PixUI.Widget> {
-        return this._path.length == 0 ? null : <PixUI.Widget><any>this._path[this._path.length - 1].Widget;
+        return this._path.length == 0 ? null : <PixUI.Widget><unknown>this._path[this._path.length - 1].Widget;
     }
 
     public get LastEntry(): Nullable<HitTestEntry> {
@@ -192,6 +192,6 @@ export class HitTestEntry {
 
     public ContainsPoint(winX: number, winY: number): boolean {
         let transformedPosition = PixUI.MatrixUtils.TransformPoint(this.Transform, winX, winY);
-        return (<PixUI.Widget><any>this.Widget).ContainsPoint(transformedPosition.Dx, transformedPosition.Dy);
+        return (<PixUI.Widget><unknown>this.Widget).ContainsPoint(transformedPosition.Dx, transformedPosition.Dy);
     }
 }

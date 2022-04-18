@@ -106,7 +106,7 @@ export class PopupMenuStack extends PixUI.Popup {
     public PreviewEvent(type: PixUI.EventType, e: Nullable<object>): PixUI.EventPreviewResult {
         //TODO: 判断ESC键及其他
         if (type == PixUI.EventType.PointerDown) {
-            let pointerEvent = <PixUI.PointerEvent><any>e!;
+            let pointerEvent = <PixUI.PointerEvent><unknown>e!;
             //判断是否在所有子菜单区域外，是则移除所有
             let someOneContains = false;
             for (const child of this._children) {

@@ -26,7 +26,7 @@ export class FloatTween extends Tween<number> {
     }
 
     public Lerp(t: number): number {
-        return <number><any>(this.Begin! + (this.End! - this.Begin!) * t);
+        return <number><unknown>(this.Begin! + (this.End! - this.Begin!) * t);
     }
 
     public Init(props: Partial<FloatTween>): FloatTween {

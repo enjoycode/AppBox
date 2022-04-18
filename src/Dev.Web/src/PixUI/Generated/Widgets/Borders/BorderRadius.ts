@@ -38,9 +38,9 @@ export class BorderRadius {
         if (a == null && b == null)
             return null;
         if (a == null)
-            return BorderRadius.op_Multiply(b!, <number><any>t);
+            return BorderRadius.op_Multiply(b!, <number><unknown>t);
         if (b == null)
-            return BorderRadius.op_Multiply(a, <number><any>(1.0 - t));
+            return BorderRadius.op_Multiply(a, <number><unknown>(1.0 - t));
 
         return new BorderRadius(PixUI.Radius.Lerp(a.TopLeft, b.TopLeft, t)!, PixUI.Radius.Lerp(a.TopRight, b.TopRight, t)!, PixUI.Radius.Lerp(a.BottomLeft, b.BottomLeft, t)!, PixUI.Radius.Lerp(a.BottomRight, b.BottomRight, t)!);
     }
