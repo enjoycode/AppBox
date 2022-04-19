@@ -16,7 +16,7 @@ export class FadeTransition extends PixUI.SingleChildWidget {
         let alpha = (Math.floor((255 * this._opacity.Value)) & 0xFF);
         let paint = PixUI.PaintUtils.Shared(new PixUI.Color(0, 0, 0, alpha));
         let rect = PixUI.Rect.FromLTWH(this.Child.X, this.Child.Y, this.Child.W, this.Child.H);
-        canvas.saveLayer(paint, (rect).Clone());
+        canvas.saveLayer(paint, rect);
 
         this.PaintChildren(canvas, area);
 

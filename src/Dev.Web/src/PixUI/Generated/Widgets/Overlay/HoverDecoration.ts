@@ -68,7 +68,7 @@ export class HoverDecorator extends PixUI.Widget {
         if (this._owner.Elevation > 0) {
             canvas.save();
             canvas.clipPath(path, CanvasKit.ClipOp.Difference, false);
-            PixUI.DrawShadow(canvas, path, (PixUI.Colors.Black).Clone(), this._owner.Elevation, false, this.Root!.Window.ScaleFactor);
+            PixUI.DrawShadow(canvas, path, PixUI.Colors.Black, this._owner.Elevation, false, this.Root!.Window.ScaleFactor);
             canvas.restore();
         }
 
@@ -76,7 +76,7 @@ export class HoverDecorator extends PixUI.Widget {
         if (this._owner.HoverColor != null) {
             canvas.save();
             canvas.clipPath(path, CanvasKit.ClipOp.Intersect, false);
-            let paint = PixUI.PaintUtils.Shared((this._owner.HoverColor).Clone());
+            let paint = PixUI.PaintUtils.Shared(this._owner.HoverColor);
             // paint.BlendMode = _owner.BlendMode;
             canvas.drawPath(path, paint);
             canvas.restore();

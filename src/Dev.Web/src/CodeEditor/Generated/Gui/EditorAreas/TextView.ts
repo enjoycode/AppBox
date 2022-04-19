@@ -120,8 +120,8 @@ export class TextView extends CodeEditor.EditorArea {
         // }
 
         // paint background
-        let paint = PixUI.PaintUtils.Shared((this.Theme.TextBgColor).Clone());
-        canvas.drawRect((rect).Clone(), paint);
+        let paint = PixUI.PaintUtils.Shared(this.Theme.TextBgColor);
+        canvas.drawRect(rect, paint);
 
         // paint lines one by one
         let endLine = (Math.floor(((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1)) & 0xFFFFFFFF);

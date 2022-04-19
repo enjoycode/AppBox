@@ -84,7 +84,7 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let clipRect = PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
         canvas.save();
-        canvas.clipRect((clipRect).Clone(), CanvasKit.ClipOp.Intersect, false);
+        canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
         this.Controller.TextEditor.Paint(canvas, new PixUI.Size(this.W, this.H), area);
         canvas.restore();
     }

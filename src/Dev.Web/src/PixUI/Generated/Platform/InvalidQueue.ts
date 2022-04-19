@@ -246,10 +246,10 @@ export class InvalidQueue {
         canvas.save();
         let opaque2Win = opaque.LocalToWindow(0, 0);
         canvas.translate(opaque2Win.X, opaque2Win.Y);
-        canvas.clipRect((dirtyChildRect).Clone(), CanvasKit.ClipOp.Intersect, false); //TODO: Root不用
+        canvas.clipRect(dirtyChildRect, CanvasKit.ClipOp.Intersect, false); //TODO: Root不用
         //判断是否RootWidget且非不透明，是则清空画布脏区域
         if ((opaque === ctx.Window.RootWidget) && !opaque.IsOpaque)
-            canvas.clear((ctx.Window.BackgroundColor).Clone());
+            canvas.clear(ctx.Window.BackgroundColor);
         opaque.Paint(canvas, new PixUI.RepaintArea((dirtyChildRect).Clone()));
         canvas.restore();
     }

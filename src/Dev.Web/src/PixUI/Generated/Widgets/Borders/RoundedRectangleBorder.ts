@@ -46,7 +46,7 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
             let outer = this.BorderRadius.ToRRect((rect).Clone());
             let inner = PixUI.RRect.FromCopy(outer);
             inner.Deflate(width, width);
-            let paint = PixUI.PaintUtils.Shared((this.Side.Color).Clone());
+            let paint = PixUI.PaintUtils.Shared(this.Side.Color);
             canvas.drawDRRect(outer, inner, paint);
         }
     }

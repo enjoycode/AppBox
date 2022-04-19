@@ -63,8 +63,8 @@ export abstract class DataGridColumn<T> {
 
         //画背景色
         if (cellStyle.BackgroundColor != null) {
-            let paint = PixUI.PaintUtils.Shared((cellStyle.BackgroundColor).Clone());
-            canvas.drawRect((cellRect).Clone(), paint);
+            let paint = PixUI.PaintUtils.Shared(cellStyle.BackgroundColor);
+            canvas.drawRect(cellRect, paint);
         }
 
         //画文本

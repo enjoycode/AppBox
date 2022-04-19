@@ -52,7 +52,7 @@ export class Icon extends PixUI.Widget {
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let size = this._size?.Value ?? PixUI.Theme.DefaultFontSize;
         let color = (this._color?.Value ?? new PixUI.Color(0xff5f6368)).Clone();
-        this._painter.Paint(canvas, size, (color).Clone(), (this._data.Value).Clone());
+        this._painter.Paint(canvas, size, color, this._data.Value);
     }
 
     public Dispose() {

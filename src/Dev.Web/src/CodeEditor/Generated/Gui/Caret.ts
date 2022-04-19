@@ -134,12 +134,12 @@ export class Caret {
         let cx = textViewArea.Left + this._caretPosX - this._textEditor.VirtualTop.X - 0.5;
         let cy = textViewArea.Top + this._caretPosY - this._textEditor.VirtualTop.Y;
         if (cx >= textViewArea.Left - 0.5) {
-            let paint = PixUI.PaintUtils.Shared((this._textEditor.Theme.CaretColor).Clone());
+            let paint = PixUI.PaintUtils.Shared(this._textEditor.Theme.CaretColor);
             canvas.drawRect(PixUI.Rect.FromLTWH(cx, cy, 2, fontHeight), paint);
         }
 
         // draw highlight background
-        let bgPaint = PixUI.PaintUtils.Shared((this._textEditor.Theme.LineHighlightColor).Clone());
+        let bgPaint = PixUI.PaintUtils.Shared(this._textEditor.Theme.LineHighlightColor);
         canvas.drawRect(PixUI.Rect.FromLTWH(textViewArea.Left, cy, textViewArea.Width, fontHeight), bgPaint);
     }
 

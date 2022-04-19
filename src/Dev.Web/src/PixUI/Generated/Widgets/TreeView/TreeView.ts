@@ -81,7 +81,7 @@ export class TreeView<T> extends PixUI.Widget {
 
         // draw background color if has
         if (this._color != null) {
-            canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared((this._color.Value).Clone()));
+            canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this._color.Value));
         }
 
         this.PaintChildren(canvas, area);

@@ -57,7 +57,7 @@ export abstract class UIWindow {
 
         let widgetsCanvas = this.GetWidgetsCanvas();
         widgetsCanvas.scale(this.ScaleFactor, this.ScaleFactor);
-        widgetsCanvas.clear((this.BackgroundColor).Clone());
+        widgetsCanvas.clear(this.BackgroundColor);
         this.RootWidget.Paint(widgetsCanvas);
 
         //TODO: paint Overlay

@@ -37,7 +37,7 @@ export abstract class UIApplication {
             window.OverlayInvalidQueue.RelayoutAll();
         }
 
-        overlayCanvas.clear((PixUI.Color.Empty).Clone()); //前端好像始终缓存了图像，所以暂清除掉
+        overlayCanvas.clear(PixUI.Color.Empty); //前端好像始终缓存了图像，所以暂清除掉
         window.Overlay.Paint(overlayCanvas); //always repaint
 
 

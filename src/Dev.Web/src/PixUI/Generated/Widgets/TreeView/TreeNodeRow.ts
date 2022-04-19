@@ -109,7 +109,7 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         //TODO: only paint expand icon when dirty area is not null
 
         if (this._isHover) {
-            let paint = PixUI.PaintUtils.Shared((this.Controller.HoverColor).Clone());
+            let paint = PixUI.PaintUtils.Shared(this.Controller.HoverColor);
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.TreeNode.TreeView!.W, this.Controller.NodeHeight), paint);
         }
 

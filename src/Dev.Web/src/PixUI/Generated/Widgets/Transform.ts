@@ -85,7 +85,7 @@ export class Transform extends PixUI.SingleChildWidget {
         if (this.Child == null) return;
 
         canvas.save();
-        canvas.concat((this.EffectiveTransform).Clone()); //canvas.Transform(EffectiveTransform);
+        canvas.concat(this.EffectiveTransform); //canvas.Transform(EffectiveTransform);
 
         this.PaintChildren(canvas, area);
 
