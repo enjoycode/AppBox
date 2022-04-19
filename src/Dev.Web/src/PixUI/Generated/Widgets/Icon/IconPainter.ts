@@ -25,7 +25,7 @@ export class IconPainter implements System.IDisposable {
             this._cachedGlyphId = this._cachedFont.getGlyphIDs(String.fromCharCode(data.CodePoint))[0];
         }
 
-        let paint = PixUI.PaintUtils.Shared(color);
+        let paint = PixUI.PaintUtils.Shared((color).Clone());
         canvas.drawGlyphs([this._cachedGlyphId], [offsetX, size + offsetY], 0, 0, this._cachedFont!, paint);
     }
 

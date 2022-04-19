@@ -79,8 +79,8 @@ export class Input extends PixUI.Widget {
         let border = this._border ?? Input.DefaultBorder;
         if (border instanceof PixUI.OutlineInputBorder) {
             const outline = border;
-            return new PixUI.OutlineInputBorder(new PixUI.BorderSide(PixUI.Theme.FocusedBorderColor, PixUI.Theme.FocusedBorderWidth), outline.BorderRadius
-            );
+            return new PixUI.OutlineInputBorder(new PixUI.BorderSide((PixUI.Theme.FocusedBorderColor).Clone(), PixUI.Theme.FocusedBorderWidth), (outline.BorderRadius
+            ).Clone());
         }
 
         throw new System.NotImplementedException();
@@ -106,7 +106,7 @@ export class Input extends PixUI.Widget {
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
-        let padding = this._padding?.Value ?? PixUI.EdgeInsets.All(4);
+        let padding = (this._padding?.Value ?? PixUI.EdgeInsets.All(4)).Clone();
 
         // 扣除padding的宽高
         let lw = width - padding.Horizontal;
@@ -141,7 +141,7 @@ export class Input extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let padding = this._padding?.Value ?? PixUI.EdgeInsets.All(4);
+        let padding = (this._padding?.Value ?? PixUI.EdgeInsets.All(4)).Clone();
         let border = this._border ?? Input.DefaultBorder;
 
         //画边框

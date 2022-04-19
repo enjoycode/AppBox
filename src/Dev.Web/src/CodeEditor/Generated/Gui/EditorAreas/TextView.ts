@@ -120,8 +120,8 @@ export class TextView extends CodeEditor.EditorArea {
         // }
 
         // paint background
-        let paint = PixUI.PaintUtils.Shared(this.Theme.TextBgColor);
-        canvas.drawRect(rect, paint);
+        let paint = PixUI.PaintUtils.Shared((this.Theme.TextBgColor).Clone());
+        canvas.drawRect((rect).Clone(), paint);
 
         // paint lines one by one
         let endLine = (Math.floor(((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1)) & 0xFFFFFFFF);
@@ -156,7 +156,7 @@ export class LogicalColumnInfo {
     public readonly InFoldMarker: Nullable<CodeEditor.FoldMarker>;
 
     public constructor(location: CodeEditor.TextLocation, inFoldMarker: Nullable<CodeEditor.FoldMarker>) {
-        this.Location = location;
+        this.Location = (location).Clone();
         this.InFoldMarker = inFoldMarker;
     }
 }

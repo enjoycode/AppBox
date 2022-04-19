@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export class LineSegment implements CodeEditor.ISegment {
-    public TreeEntry: CodeEditor.LinesEnumerator = CodeEditor.LinesEnumerator.Invalid;
+    public TreeEntry: CodeEditor.LinesEnumerator = (CodeEditor.LinesEnumerator.Invalid).Clone();
 
     public get IsDeleted(): boolean {
         return !this.TreeEntry.IsValid;
@@ -132,7 +132,7 @@ export class LineSegment implements CodeEditor.ISegment {
     }
 
     public Deleted(deferredEventList: CodeEditor.DeferredEventList) {
-        this.TreeEntry = CodeEditor.LinesEnumerator.Invalid;
+        this.TreeEntry = (CodeEditor.LinesEnumerator.Invalid).Clone();
 
         // TODO: anchors
         // if (anchors != null) {

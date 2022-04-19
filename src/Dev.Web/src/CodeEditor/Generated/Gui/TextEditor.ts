@@ -31,7 +31,7 @@ export class TextEditor {
     public readonly TextView: CodeEditor.TextView;
     public readonly LeftAreas: CodeEditor.EditorArea[];
 
-    private _virtualTop: PixUI.Point = PixUI.Point.Empty;
+    private _virtualTop: PixUI.Point = (PixUI.Point.Empty).Clone();
 
     public get VirtualTop(): PixUI.Point {
         return this._virtualTop;
@@ -40,7 +40,7 @@ export class TextEditor {
     public set VirtualTop(value: PixUI.Point) {
         let newVirtualTop = new PixUI.Point(Math.max(0, value.X), Math.min(this.MaxVScrollValue, Math.max(0, value.Y)));
         if (System.OpInequality(this._virtualTop, newVirtualTop))
-            this._virtualTop = newVirtualTop;
+            this._virtualTop = (newVirtualTop).Clone();
 
         //TODO: updateCaretPosition
     }
@@ -50,7 +50,7 @@ export class TextEditor {
             this.TextView.VisibleLineCount * 2 / 3) * this.TextView.FontHeight;
     }
 
-    public PointerPos: PixUI.Point = PixUI.Point.Empty; //缓存位置
+    public PointerPos: PixUI.Point = (PixUI.Point.Empty).Clone(); //缓存位置
 
 
     public InsertOrReplaceString(text: string, replaceOffset: number = 0) {
@@ -58,7 +58,7 @@ export class TextEditor {
 
         if (this.Document.TextEditorOptions.DocumentSelectionMode == CodeEditor.DocumentSelectionMode.Normal &&
             this.SelectionManager.HasSomethingSelected) {
-            this.Caret.Position = this.SelectionManager.SelectionCollection[0].StartPosition;
+            this.Caret.Position = (this.SelectionManager.SelectionCollection[0].StartPosition).Clone();
             this.SelectionManager.RemoveSelectedText();
         }
 
@@ -86,7 +86,7 @@ export class TextEditor {
     public DeleteSelection() {
         if (this.SelectionManager.SelectionIsReadonly) return;
 
-        this.Caret.Position = this.SelectionManager.SelectionCollection[0].StartPosition;
+        this.Caret.Position = (this.SelectionManager.SelectionCollection[0].StartPosition).Clone();
         this.SelectionManager.RemoveSelectedText();
         //textArea.scrollToCaret();
     }
@@ -103,22 +103,22 @@ export class TextEditor {
             let areaRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, area.Size.Width, size.Height - currentYPos);
             if (System.OpInequality(areaRect, area.Bounds)) {
                 adjustScrollBars = true;
-                area.Bounds = areaRect;
+                area.Bounds = (areaRect).Clone();
             }
 
             currentXPos += area.Bounds.Width;
-            area.Paint(canvas, areaRect);
+            area.Paint(canvas, (areaRect).Clone());
         }
 
         // paint text area
         let textRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, size.Width - currentXPos, size.Height - currentYPos);
         if (System.OpInequality(textRect, this.TextView.Bounds)) {
             adjustScrollBars = true;
-            this.TextView.Bounds = textRect;
+            this.TextView.Bounds = (textRect).Clone();
             //TODO: updateCaretPosition
         }
 
-        this.TextView.Paint(canvas, textRect);
+        this.TextView.Paint(canvas, (textRect).Clone());
     }
 
     public Init(props: Partial<TextEditor>): TextEditor {

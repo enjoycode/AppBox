@@ -7,7 +7,7 @@ export class SelectionManager {
         this._textEditor = editor;
         this.SelectionCollection = new System.List<CodeEditor.Selection>();
         this.SelectFrom = new SelectFrom();
-        this.SelectionStart = CodeEditor.TextLocation.Empty;
+        this.SelectionStart = (CodeEditor.TextLocation.Empty).Clone();
     }
 
     private readonly _textEditor: CodeEditor.TextEditor;
@@ -33,12 +33,12 @@ export class SelectionManager {
             return;
 
         this.SelectionCollection.Clear(); //clearWithoutUpdate();
-        this.SelectionCollection.Add(new CodeEditor.Selection(this._textEditor.Document, startPosition, endPosition));
+        this.SelectionCollection.Add(new CodeEditor.Selection(this._textEditor.Document, (startPosition).Clone(), (endPosition).Clone()));
         this.SelectionChanged.Invoke();
     }
 
     public ClearSelection() {
-        let mousePos = this._textEditor.PointerPos;
+        let mousePos = (this._textEditor.PointerPos).Clone();
 
         // this is the most logical place to reset selection starting
         // positions because it is always called before a new selection
@@ -58,7 +58,7 @@ export class SelectionManager {
                     .Length;
         }
 
-        this.SelectionStart = newSelectionStart;
+        this.SelectionStart = (newSelectionStart).Clone();
         this.SelectionCollection.Clear(); //clearWithoutUpdate();
         this.SelectionChanged.Invoke();
     }
@@ -100,22 +100,22 @@ export class SelectionManager {
             CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
         let max: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
         let oldnewX = newPosition.Column;
-        let oldIsGreater = SelectionManager.GreaterEqPos(oldPosition, newPosition);
+        let oldIsGreater = SelectionManager.GreaterEqPos((oldPosition).Clone(), (newPosition).Clone());
         if (oldIsGreater) {
-            min = newPosition;
-            max = oldPosition;
+            min = (newPosition).Clone();
+            max = (oldPosition).Clone();
         } else {
-            min = oldPosition;
-            max = newPosition;
+            min = (oldPosition).Clone();
+            max = (newPosition).Clone();
         }
 
         if (System.OpEquality(min, max)) return;
 
         if (!this.HasSomethingSelected) {
-            this.SetSelection(min, max);
+            this.SetSelection((min).Clone(), (max).Clone());
             // initialise selectFrom for a cursor selection
             if (this.SelectFrom.Where == WhereFrom.None)
-                this.SelectionStart = oldPosition; //textArea.Caret.Position;
+                this.SelectionStart = (oldPosition).Clone(); //textArea.Caret.Position;
             return;
         }
 
@@ -126,16 +126,16 @@ export class SelectionManager {
             newPosition.Column = 0;
         }
 
-        if (SelectionManager.GreaterEqPos(newPosition, this.SelectionStart)) {
+        if (SelectionManager.GreaterEqPos((newPosition).Clone(), (this.SelectionStart).Clone())) {
             // selecting forward
-            selection.StartPosition = this.SelectionStart;
+            selection.StartPosition = (this.SelectionStart).Clone();
             // this handles last line selection
             if (this.SelectFrom.Where == WhereFrom.Gutter) {
                 selection.EndPosition =
                     new CodeEditor.TextLocation(this._textEditor.Caret.Column, this._textEditor.Caret.Line);
             } else {
                 newPosition.Column = oldnewX;
-                selection.EndPosition = newPosition;
+                selection.EndPosition = (newPosition).Clone();
             }
         } else {
             // selecting back
@@ -144,10 +144,10 @@ export class SelectionManager {
                 selection.EndPosition = this.NextValidPosition(this.SelectionStart.Line);
             } else {
                 // internal text selection
-                selection.EndPosition = this.SelectionStart; //selection.StartPosition;
+                selection.EndPosition = (this.SelectionStart).Clone(); //selection.StartPosition;
             }
 
-            selection.StartPosition = newPosition;
+            selection.StartPosition = (newPosition).Clone();
         }
 
         this.SelectionChanged.Invoke();

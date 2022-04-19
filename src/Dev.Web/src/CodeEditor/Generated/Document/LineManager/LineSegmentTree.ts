@@ -68,7 +68,11 @@ export class LinesEnumerator {
     public readonly Iterator: CodeEditor.RedBlackTreeIterator<RBNode>;
 
     public constructor(it: CodeEditor.RedBlackTreeIterator<RBNode>) {
-        this.Iterator = it;
+        this.Iterator = (it).Clone();
+    }
+
+    public Clone(): LinesEnumerator {
+        return new LinesEnumerator((this.Iterator).Clone());
     }
 
     public get Current(): CodeEditor.LineSegment {
@@ -210,7 +214,7 @@ export class LineSegmentTree {
     }
 
     public RemoveSegment(segment: CodeEditor.LineSegment) {
-        this.tree.RemoveAt(segment.TreeEntry.Iterator);
+        this.tree.RemoveAt((segment.TreeEntry.Iterator).Clone());
     }
 
     public InsertSegmentAfter(segment: CodeEditor.LineSegment, length: number): CodeEditor.LineSegment {

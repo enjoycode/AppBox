@@ -2,7 +2,7 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class Radius implements System.IEquatable<Radius> {
-    public static readonly Zero: Radius = new Radius(0, 0);
+    public static readonly Empty: Radius = new Radius(0, 0);
 
     public static Circular(radius: number): Radius {
         return new Radius(radius, radius);
@@ -40,5 +40,9 @@ export class Radius implements System.IEquatable<Radius> {
 
     public Equals(other: Radius): boolean {
         return this.X == other.X && this.Y == other.Y;
+    }
+
+    public Clone(): Radius {
+        return new Radius(this.X, this.Y);
     }
 }

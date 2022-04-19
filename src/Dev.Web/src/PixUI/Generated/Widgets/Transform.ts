@@ -9,8 +9,8 @@ export class Transform extends PixUI.SingleChildWidget {
 
     public constructor(transform: PixUI.Matrix4, origin: Nullable<PixUI.Offset> = null) {
         super();
-        this.SetTransform(transform);
-        this.Origin = origin;
+        this.SetTransform((transform).Clone());
+        this.Origin = (origin)?.Clone();
     }
 
     public get Origin(): Nullable<PixUI.Offset> {
@@ -19,19 +19,19 @@ export class Transform extends PixUI.SingleChildWidget {
 
     public set Origin(value: Nullable<PixUI.Offset>) {
         if (System.OpEquality(this._origin, value)) return;
-        this._origin = value;
+        this._origin = (value)?.Clone();
         this.NeedInvalidate();
     }
 
     protected InitTransformAndOrigin(value: PixUI.Matrix4, origin: Nullable<PixUI.Offset> = null) {
-        this._transform = value;
-        this._origin = origin;
+        this._transform = (value).Clone();
+        this._origin = (origin)?.Clone();
     }
 
     protected SetTransform(value: PixUI.Matrix4) {
         if (System.OpEquality(this._transform, value)) return;
 
-        this._transform = value;
+        this._transform = (value).Clone();
         this.NeedInvalidate();
     }
 
@@ -47,7 +47,7 @@ export class Transform extends PixUI.SingleChildWidget {
         if (this._origin != null)
             result.Translate(this._origin.Dx, this._origin.Dy);
 
-        result.Multiply(this._transform);
+        result.Multiply((this._transform).Clone());
 
         if (this._origin != null)
             result.Translate(-this._origin.Dx, -this._origin.Dy);
@@ -59,23 +59,23 @@ export class Transform extends PixUI.SingleChildWidget {
         //不要检查ContainsPoint,可能变换出范围
         if (this.Child == null) return false;
 
-        let effectiveTransform = this.EffectiveTransform;
+        let effectiveTransform = (this.EffectiveTransform).Clone();
 
         // The provided paint `transform` (which describes the transform from the
         // child to the parent in 3D) is processed by
         // [PointerEvent.removePerspectiveTransform] to remove the
         // perspective component and inverted before it is used to transform
         // `position` from the coordinate system of the parent to the system of the child.
-        let transform = PixUI.Matrix4.TryInvert(PixUI.PointerEvent.RemovePerspectiveTransform(effectiveTransform));
+        let transform = PixUI.Matrix4.TryInvert(PixUI.PointerEvent.RemovePerspectiveTransform((effectiveTransform).Clone()));
         if (transform == null) {
             return false; // Objects are not visible on screen and cannot be hit-tested.
         }
 
-        let transformed = PixUI.MatrixUtils.TransformPoint(transform, x, y);
+        let transformed = PixUI.MatrixUtils.TransformPoint((transform).Clone(), x, y);
         //不要加入 result.Add(this, effectiveTransform);
         let hitChild = this.Child.HitTest(transformed.Dx, transformed.Dy, result);
         if (hitChild) {
-            result.ConcatLastTransform(transform);
+            result.ConcatLastTransform((transform).Clone());
         }
 
         return hitChild;
@@ -85,7 +85,7 @@ export class Transform extends PixUI.SingleChildWidget {
         if (this.Child == null) return;
 
         canvas.save();
-        canvas.concat(this.EffectiveTransform); //canvas.Transform(EffectiveTransform);
+        canvas.concat((this.EffectiveTransform).Clone()); //canvas.Transform(EffectiveTransform);
 
         this.PaintChildren(canvas, area);
 

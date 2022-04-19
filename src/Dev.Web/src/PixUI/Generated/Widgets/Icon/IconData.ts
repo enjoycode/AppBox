@@ -13,4 +13,8 @@ export class IconData {
         this.AssemblyName = assemblyName;
         this.AssetPath = assetPath;
     }
+
+    public Clone(): IconData {
+        return new IconData(this.CodePoint, this.FontFamily, this.AssemblyName, this.AssetPath);
+    }
 }

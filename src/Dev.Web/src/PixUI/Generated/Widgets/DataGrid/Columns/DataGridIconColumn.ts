@@ -30,7 +30,7 @@ export class DataGridIconColumn<T> extends PixUI.DataGridColumn<T> {
             offsetY = offsetY - cellRect.Bottom - style.FontSize;
         }
 
-        iconPainter.Paint(canvas, style.FontSize, style.Color ?? PixUI.Colors.Black, icon, offsetX, offsetY);
+        iconPainter.Paint(canvas, style.FontSize, (style.Color ?? PixUI.Colors.Black).Clone(), (icon).Clone(), offsetX, offsetY);
         iconPainter.Dispose();
     }
 

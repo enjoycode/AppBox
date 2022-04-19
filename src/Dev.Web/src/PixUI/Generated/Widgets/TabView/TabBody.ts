@@ -37,12 +37,12 @@ export class TabBody<T> extends PixUI.DynamicView {
         //ReplaceTo(to);
 
         this.AnimateTo(from, to, 200, false, (a, w) =>
-            TabBody.BuildDefaultTransition(a, w, newIndex > oldIndex ? new PixUI.Offset(1, 0) : new PixUI.Offset(-1, 0), PixUI.Offset.Zero), (a, w) =>
-            TabBody.BuildDefaultTransition(a, w, PixUI.Offset.Zero, newIndex > oldIndex ? new PixUI.Offset(-1, 0) : new PixUI.Offset(1, 0)));
+            TabBody.BuildDefaultTransition(a, w, (newIndex > oldIndex ? new PixUI.Offset(1, 0) : new PixUI.Offset(-1, 0)).Clone(), (PixUI.Offset.Zero).Clone()), (a, w) =>
+            TabBody.BuildDefaultTransition(a, w, (PixUI.Offset.Zero).Clone(), (newIndex > oldIndex ? new PixUI.Offset(-1, 0) : new PixUI.Offset(1, 0)).Clone()));
     }
 
     private static BuildDefaultTransition(animation: PixUI.Animation<number>, child: PixUI.Widget, fromOffset: PixUI.Offset, toOffset: PixUI.Offset): PixUI.Widget {
-        let offsetAnimation = new PixUI.OffsetTween(fromOffset, toOffset).Animate(animation);
+        let offsetAnimation = new PixUI.OffsetTween((fromOffset).Clone(), (toOffset).Clone()).Animate(animation);
         return new PixUI.SlideTransition(offsetAnimation).Init({Child: child});
     }
 

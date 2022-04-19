@@ -36,15 +36,15 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.startIndex = (Math.floor(offset) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.oldEndIndex = this._edit.startIndex;
         this._edit.newEndIndex = this._edit.startIndex + (Math.floor(length) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
-        this._edit.startPosition = CodeEditor.TSPoint.FromLocation(startLocation);
-        this._edit.oldEndPosition = this._edit.startPosition;
+        this._edit.startPosition = CodeEditor.TSPoint.FromLocation((startLocation).Clone());
+        this._edit.oldEndPosition = (this._edit.startPosition).Clone();
     }
 
     public EndInsert(offset: number, length: number) {
         let endLocation = this._document.OffsetToPosition(offset + length);
-        this._edit.newEndPosition = CodeEditor.TSPoint.FromLocation(endLocation);
+        this._edit.newEndPosition = CodeEditor.TSPoint.FromLocation((endLocation).Clone());
 
-        this._oldTree!.edit(this._edit);
+        this._oldTree!.edit((this._edit).Clone());
 
         this.Parse(false);
         this.Tokenize(this._startLineOfChanged, this._endLineOfChanged + 1);
@@ -56,13 +56,13 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.startIndex = (Math.floor(offset) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(length) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.newEndIndex = this._edit.startIndex;
-        this._edit.startPosition = CodeEditor.TSPoint.FromLocation(startLocation);
-        this._edit.oldEndPosition = CodeEditor.TSPoint.FromLocation(endLocation);
-        this._edit.newEndPosition = this._edit.startPosition;
+        this._edit.startPosition = CodeEditor.TSPoint.FromLocation((startLocation).Clone());
+        this._edit.oldEndPosition = CodeEditor.TSPoint.FromLocation((endLocation).Clone());
+        this._edit.newEndPosition = (this._edit.startPosition).Clone();
     }
 
     public EndRemove() {
-        this._oldTree!.edit(this._edit);
+        this._oldTree!.edit((this._edit).Clone());
         this.Parse(false);
         this.Tokenize(this._startLineOfChanged, this._endLineOfChanged + 1);
     }
@@ -73,21 +73,22 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.startIndex = (Math.floor(offset) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(length) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.newEndIndex = this._edit.startIndex + (Math.floor(((textLenght - length) * SyntaxParser.ParserEncoding)) & 0xFFFFFFFF);
-        this._edit.startPosition = CodeEditor.TSPoint.FromLocation(startLocation);
-        this._edit.oldEndPosition = CodeEditor.TSPoint.FromLocation(endLocation);
+        this._edit.startPosition = CodeEditor.TSPoint.FromLocation((startLocation).Clone());
+        this._edit.oldEndPosition = CodeEditor.TSPoint.FromLocation((endLocation).Clone());
     }
 
     public EndReplace(offset: number, length: number, textLength: number) {
         let endLocation = this._document.OffsetToPosition(offset + (textLength - length));
-        this._edit.newEndPosition = CodeEditor.TSPoint.FromLocation(endLocation);
+        this._edit.newEndPosition = CodeEditor.TSPoint.FromLocation((endLocation).Clone());
 
-        this._oldTree!.edit(this._edit);
+        this._oldTree!.edit((this._edit).Clone());
         this.Parse(false);
         this.Tokenize(this._startLineOfChanged, this._endLineOfChanged + 1);
     }
 
     public Parse(reset: boolean) {
         let input = new CodeEditor.ParserInput(this._document.TextBuffer);
+        // @ts-ignore
         let newTree = this._parser.parse(input.Read.bind(input), reset === true ? null : this._oldTree);
 
         //获取变动范围
@@ -122,7 +123,7 @@ export class SyntaxParser implements System.IDisposable {
 
         let lineStartPoint = new CodeEditor.TSPoint(line, 0);
         let lineEndPoint = new CodeEditor.TSPoint(line, lineLength * SyntaxParser.ParserEncoding);
-        let lineNode = this._oldTree!.rootNode.namedDescendantForPosition(lineStartPoint, lineEndPoint);
+        let lineNode = this._oldTree!.rootNode.namedDescendantForPosition((lineStartPoint).Clone(), (lineEndPoint).Clone());
         // Console.WriteLine(lineNode);
 
         lineSegment.BeginTokenize();

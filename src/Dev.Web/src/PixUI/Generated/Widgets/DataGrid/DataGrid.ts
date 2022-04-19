@@ -72,11 +72,11 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
 
         //TODO: 暂每次计算可见列
-        let visibleColumns = this._controller.LayoutVisibleColumns(size);
+        let visibleColumns = this._controller.LayoutVisibleColumns((size).Clone());
         let totalColumnsWidth = this._controller.TotalColumnsWidth;
 
         //draw header
-        this.PaintHeader(canvas, size, totalColumnsWidth, visibleColumns);
+        this.PaintHeader(canvas, (size).Clone(), totalColumnsWidth, visibleColumns);
 
         //draw rows
         if (this._controller.DataView == null || this._controller.DataView.length == 0) {
@@ -88,16 +88,16 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         if (this._controller.ScrollController.OffsetY > 0) {
             let clipRect = PixUI.Rect.FromLTWH(
                 0, this._controller.TotalHeaderHeight, size.Width, size.Height - this._controller.TotalHeaderHeight);
-            canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
+            canvas.clipRect((clipRect).Clone(), CanvasKit.ClipOp.Intersect, false);
         }
 
-        this.PaintRows(canvas, size, totalColumnsWidth, visibleColumns);
+        this.PaintRows(canvas, (size).Clone(), totalColumnsWidth, visibleColumns);
 
         //draw shadow for scroll vertical
         if (this._controller.ScrollController.OffsetY > 0) {
             let shadowPath = new CanvasKit.Path();
             shadowPath.addRect(PixUI.Rect.FromLTWH(0, 0, Math.min(size.Width, totalColumnsWidth), this._controller.TotalHeaderHeight));
-            PixUI.DrawShadow(canvas, shadowPath, PixUI.Colors.Black, 5.0, false, this.Root!.Window.ScaleFactor);
+            PixUI.DrawShadow(canvas, shadowPath, (PixUI.Colors.Black).Clone(), 5.0, false, this.Root!.Window.ScaleFactor);
             shadowPath.delete();
         }
 
@@ -120,7 +120,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
             //clip scroll region
             let clipRect = this._controller.GetScrollClipRect(0, size.Height);
             canvas.save();
-            canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
+            canvas.clipRect((clipRect).Clone(), CanvasKit.ClipOp.Intersect, false);
 
             //再画其他列
             let noneFrozenColumns = visibleColumns.Where(c => c.Frozen == false);
@@ -138,8 +138,8 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
 
     private PaintHeaderCell(canvas: PixUI.Canvas, column: PixUI.DataGridColumn<T>, paintedGroupColumns: System.IList<PixUI.DataGridGroupColumn<T>>) {
         let cellRect = this.GetHeaderCellRect(column);
-        column.PaintHeader(canvas, cellRect, this._controller.Theme);
-        this.PaintCellBorder(canvas, cellRect);
+        column.PaintHeader(canvas, (cellRect).Clone(), this._controller.Theme);
+        this.PaintCellBorder(canvas, (cellRect).Clone());
 
         if (column.Parent != null && !paintedGroupColumns.Contains(column.Parent)) {
             //因为布局时没有计算parent的位置
@@ -180,7 +180,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
             //clip scroll region
             let clipRect = this._controller.GetScrollClipRect(headerHeight, size.Height - headerHeight);
             canvas.save();
-            canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
+            canvas.clipRect((clipRect).Clone(), CanvasKit.ClipOp.Intersect, false);
 
             //再画其他列
             let noneFrozenColumns = visibleColumns.Where(c => c.Frozen == false);
@@ -206,14 +206,14 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
 
             //TODO:暂在这里画stripe背景
             if (this._controller.Theme.StripeRows && j % 2 != 0) {
-                let paint = PixUI.PaintUtils.Shared(this._controller.Theme.StripeBgColor);
-                canvas.drawRect(cellRect, paint);
+                let paint = PixUI.PaintUtils.Shared((this._controller.Theme.StripeBgColor).Clone());
+                canvas.drawRect((cellRect).Clone(), paint);
             }
 
-            col.PaintCell(canvas, this._controller, j, cellRect);
+            col.PaintCell(canvas, this._controller, j, (cellRect).Clone());
 
             let borderRect = new PixUI.Rect(col.CachedVisibleLeft, cellRect.Top, col.CachedVisibleRight, cellRect.Top + rowHeight);
-            this.PaintCellBorder(canvas, borderRect);
+            this.PaintCellBorder(canvas, (borderRect).Clone());
 
             offsetY += rowHeight;
             if (offsetY >= maxHeight) break;
@@ -221,8 +221,8 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
     }
 
     private PaintCellBorder(canvas: PixUI.Canvas, cellRect: PixUI.Rect) {
-        let paint = PixUI.PaintUtils.Shared(PixUI.Colors.Black, CanvasKit.PaintStyle.Stroke, 1);
-        canvas.drawRect(cellRect, paint);
+        let paint = PixUI.PaintUtils.Shared((PixUI.Colors.Black).Clone(), CanvasKit.PaintStyle.Stroke, 1);
+        canvas.drawRect((cellRect).Clone(), paint);
     }
 
     private PaintHighlight(canvas: PixUI.Canvas) {
@@ -235,13 +235,13 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
 
         if (theme.HighlightingCurrentRow) {
             let rowRect = PixUI.Rect.FromLTWH(0, cellRect.Top, Math.min(this.W, this._controller.TotalColumnsWidth), cellRect.Height);
-            let paint = PixUI.PaintUtils.Shared(theme.HighlightRowBgColor);
-            canvas.drawRect(rowRect, paint);
+            let paint = PixUI.PaintUtils.Shared((theme.HighlightRowBgColor).Clone());
+            canvas.drawRect((rowRect).Clone(), paint);
         }
 
         if (theme.HighlightingCurrentCell) {
-            let paint = PixUI.PaintUtils.Shared(PixUI.Theme.FocusedBorderColor, CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
-            canvas.drawRect(cellRect, paint);
+            let paint = PixUI.PaintUtils.Shared((PixUI.Theme.FocusedBorderColor).Clone(), CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
+            canvas.drawRect((cellRect).Clone(), paint);
         }
     }
 

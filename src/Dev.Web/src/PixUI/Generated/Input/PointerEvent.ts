@@ -79,8 +79,8 @@ export class PointerEvent extends PixUI.PropagateEvent {
 
     public static RemovePerspectiveTransform(transform: PixUI.Matrix4): PixUI.Matrix4 {
         let vector = new PixUI.Vector4(0, 0, 1, 0);
-        transform.SetColumn(2, vector);
-        transform.SetRow(2, vector);
+        transform.SetColumn(2, (vector).Clone());
+        transform.SetRow(2, (vector).Clone());
         return transform;
     }
 

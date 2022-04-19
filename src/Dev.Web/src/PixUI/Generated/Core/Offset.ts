@@ -29,13 +29,16 @@ export class Offset implements System.IEquatable<Offset> {
         return this.Dx == other.Dx && this.Dy == other.Dy;
     }
 
-
     public static op_Equality(left: Offset, right: Offset): boolean {
-        return left.Equals(right);
+        return left.Equals((right).Clone());
     }
 
     public static op_Inequality(left: Offset, right: Offset): boolean {
-        return !left.Equals(right);
+        return !left.Equals((right).Clone());
+    }
+
+    public Clone(): Offset {
+        return new Offset(this.Dx, this.Dy);
     }
 
     public toString(): string {

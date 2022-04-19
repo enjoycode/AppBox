@@ -15,7 +15,7 @@ export class HoverDecoration {
         this.Widget = widget;
         this.ShapeBuilder = shapeBuilder;
         this.Elevation = elevation;
-        this.HoverColor = hoverColor;
+        this.HoverColor = (hoverColor)?.Clone();
     }
 
     public Show() {
@@ -62,13 +62,13 @@ export class HoverDecorator extends PixUI.Widget {
         let pt2Win = widget.LocalToWindow(0, 0);
         let bounds = PixUI.Rect.FromLTWH(pt2Win.X, pt2Win.Y, widget.W, widget.H);
 
-        let path = this._shape.GetOuterPath(bounds);
+        let path = this._shape.GetOuterPath((bounds).Clone());
 
         // draw shadow
         if (this._owner.Elevation > 0) {
             canvas.save();
             canvas.clipPath(path, CanvasKit.ClipOp.Difference, false);
-            PixUI.DrawShadow(canvas, path, PixUI.Colors.Black, this._owner.Elevation, false, this.Root!.Window.ScaleFactor);
+            PixUI.DrawShadow(canvas, path, (PixUI.Colors.Black).Clone(), this._owner.Elevation, false, this.Root!.Window.ScaleFactor);
             canvas.restore();
         }
 
@@ -76,7 +76,7 @@ export class HoverDecorator extends PixUI.Widget {
         if (this._owner.HoverColor != null) {
             canvas.save();
             canvas.clipPath(path, CanvasKit.ClipOp.Intersect, false);
-            let paint = PixUI.PaintUtils.Shared(this._owner.HoverColor);
+            let paint = PixUI.PaintUtils.Shared((this._owner.HoverColor).Clone());
             // paint.BlendMode = _owner.BlendMode;
             canvas.drawPath(path, paint);
             canvas.restore();

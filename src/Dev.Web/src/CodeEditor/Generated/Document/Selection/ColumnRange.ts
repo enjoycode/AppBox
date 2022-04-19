@@ -14,4 +14,8 @@ export class ColumnRange implements System.IEquatable<ColumnRange> {
     public Equals(other: ColumnRange): boolean {
         return this.StartColumn == other.StartColumn && this.EndColumn == other.EndColumn;
     }
+
+    public Clone(): ColumnRange {
+        return new ColumnRange(this.StartColumn, this.EndColumn);
+    }
 }

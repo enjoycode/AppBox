@@ -116,7 +116,7 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this._isHover) {
-            let paint = PixUI.PaintUtils.Shared(this._controller.HoverColor, CanvasKit.PaintStyle.Fill);
+            let paint = PixUI.PaintUtils.Shared((this._controller.HoverColor).Clone(), CanvasKit.PaintStyle.Fill);
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), paint);
         }
 

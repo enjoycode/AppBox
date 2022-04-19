@@ -19,8 +19,8 @@ export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
             : this.CellStyle ?? controller.Theme.DefaultRowCellStyle;
 
         //TODO: cache cell paragraph
-        let ph = PixUI.DataGridColumn.BuildCellParagraph(cellRect, style, cellValue, 1);
-        PixUI.DataGridColumn.PaintCellParagraph(canvas, cellRect, style, ph);
+        let ph = PixUI.DataGridColumn.BuildCellParagraph((cellRect).Clone(), style, cellValue, 1);
+        PixUI.DataGridColumn.PaintCellParagraph(canvas, (cellRect).Clone(), style, ph);
         ph.delete();
     }
 

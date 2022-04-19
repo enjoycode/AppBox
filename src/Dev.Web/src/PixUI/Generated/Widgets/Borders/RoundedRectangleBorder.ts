@@ -5,12 +5,12 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
     public readonly BorderRadius: PixUI.BorderRadius;
 
     public constructor(side: Nullable<PixUI.BorderSide> = null, borderRadius: Nullable<PixUI.BorderRadius> = null) {
-        super(side);
-        this.BorderRadius = borderRadius ?? PixUI.BorderRadius.Empty;
+        super((side)?.Clone());
+        this.BorderRadius = (borderRadius ?? PixUI.BorderRadius.Empty).Clone();
     }
 
     public GetOuterPath(rect: PixUI.Rect): PixUI.Path {
-        let rrect = this.BorderRadius.ToRRect(rect);
+        let rrect = this.BorderRadius.ToRRect((rect).Clone());
         rrect.Deflate(this.Side.Width, this.Side.Width);
         let path = new CanvasKit.Path();
         path.addRRect(rrect);
@@ -18,7 +18,7 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
     }
 
     public GetInnerPath(rect: PixUI.Rect): PixUI.Path {
-        let rrect = this.BorderRadius.ToRRect(rect);
+        let rrect = this.BorderRadius.ToRRect((rect).Clone());
         let path = new CanvasKit.Path();
         path.addRRect(rrect);
         return path;
@@ -40,13 +40,13 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
         if (width == 0) {
             let paint = PixUI.PaintUtils.Shared();
             this.Side.ApplyPaint(paint);
-            let rrect = this.BorderRadius.ToRRect(rect);
+            let rrect = this.BorderRadius.ToRRect((rect).Clone());
             canvas.drawRRect(rrect, paint);
         } else {
-            let outer = this.BorderRadius.ToRRect(rect);
+            let outer = this.BorderRadius.ToRRect((rect).Clone());
             let inner = PixUI.RRect.FromCopy(outer);
             inner.Deflate(width, width);
-            let paint = PixUI.PaintUtils.Shared(this.Side.Color);
+            let paint = PixUI.PaintUtils.Shared((this.Side.Color).Clone());
             canvas.drawDRRect(outer, inner, paint);
         }
     }

@@ -335,7 +335,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             //判断上级是否Transform,是则变换坐标
             else if (temp.Parent instanceof PixUI.Transform) {
                 const transform = temp.Parent;
-                let transformed = PixUI.MatrixUtils.TransformPoint(transform.EffectiveTransform, x, y);
+                let transformed = PixUI.MatrixUtils.TransformPoint((transform.EffectiveTransform).Clone(), x, y);
                 x = transformed.Dx;
                 y = transformed.Dy;
             }
@@ -352,7 +352,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     }
 
     protected PaintChildren(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let dirtyRect = area?.GetRect() ?? PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
+        let dirtyRect = (area?.GetRect() ?? PixUI.Rect.FromLTWH(0, 0, this.W, this.H)).Clone();
         this.VisitChildren(child => {
             if (child.W <= 0 || child.H <= 0)
                 return false;

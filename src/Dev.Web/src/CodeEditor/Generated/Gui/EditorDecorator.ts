@@ -30,7 +30,7 @@ export class EditorDecorator extends PixUI.Widget {
 
         // paint selection
         let textView = textEditor.TextView;
-        let paint = PixUI.PaintUtils.Shared(textEditor.Theme.SelectionColor);
+        let paint = PixUI.PaintUtils.Shared((textEditor.Theme.SelectionColor).Clone());
         for (const selection of textEditor.SelectionManager.SelectionCollection) {
             let startLine = selection.StartPosition.Line;
             let endLine = selection.EndPosition.Line;

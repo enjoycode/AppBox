@@ -37,20 +37,20 @@ export class FloatTween extends Tween<number> {
 
 export class ColorTween extends Tween<PixUI.Color> {
     public constructor(begin: PixUI.Color, end: PixUI.Color) {
-        super(begin, end);
+        super((begin).Clone(), (end).Clone());
     }
 
     public Lerp(t: number): PixUI.Color {
-        return PixUI.Color.Lerp(this.Begin, this.End, t)!;
+        return PixUI.Color.Lerp((this.Begin).Clone(), (this.End).Clone(), t)!;
     }
 }
 
 export class OffsetTween extends Tween<PixUI.Offset> {
     public constructor(begin: PixUI.Offset, end: PixUI.Offset) {
-        super(begin, end);
+        super((begin).Clone(), (end).Clone());
     }
 
     public Lerp(t: number): PixUI.Offset {
-        return PixUI.Offset.Lerp(this.Begin, this.End, t)!;
+        return PixUI.Offset.Lerp((this.Begin).Clone(), (this.End).Clone(), t)!;
     }
 }

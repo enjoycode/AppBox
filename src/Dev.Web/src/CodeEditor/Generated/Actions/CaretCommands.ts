@@ -4,7 +4,7 @@ import * as CodeEditor from '@/CodeEditor'
 
 export class CaretLeft implements CodeEditor.IEditCommand {
     public Execute(editor: CodeEditor.TextEditor) {
-        let position = editor.Caret.Position;
+        let position = (editor.Caret.Position).Clone();
         let foldings = editor.Document.FoldingManager.GetFoldedFoldingsWithEnd(position.Line);
         let justBeforeCaret: Nullable<CodeEditor.FoldMarker> = null;
         for (const fm of foldings) {
@@ -28,7 +28,7 @@ export class CaretLeft implements CodeEditor.IEditCommand {
             }
         }
 
-        editor.Caret.Position = position;
+        editor.Caret.Position = (position).Clone();
         //textArea.setDesiredColumn();
     }
 
@@ -41,7 +41,7 @@ export class CaretLeft implements CodeEditor.IEditCommand {
 export class CaretRight implements CodeEditor.IEditCommand {
     public Execute(editor: CodeEditor.TextEditor) {
         let curLine = editor.Document.GetLineSegment(editor.Caret.Line);
-        let position = editor.Caret.Position;
+        let position = (editor.Caret.Position).Clone();
         let foldings = editor.Document.FoldingManager.GetFoldedFoldingsWithStart(position.Line);
         let justBehindCaret: Nullable<CodeEditor.FoldMarker> = null;
         for (const fm of foldings) {
@@ -65,7 +65,7 @@ export class CaretRight implements CodeEditor.IEditCommand {
             }
         }
 
-        editor.Caret.Position = position;
+        editor.Caret.Position = (position).Clone();
         //textArea.setDesiredColumn();
     }
 
@@ -77,7 +77,7 @@ export class CaretRight implements CodeEditor.IEditCommand {
 
 export class CaretUp implements CodeEditor.IEditCommand {
     public Execute(editor: CodeEditor.TextEditor) {
-        let position = editor.Caret.Position;
+        let position = (editor.Caret.Position).Clone();
         let visualLine = editor.Document.GetVisibleLine(position.Line);
         if (visualLine > 0) {
             //暂用模拟点击位置
@@ -87,7 +87,7 @@ export class CaretUp implements CodeEditor.IEditCommand {
                 (visualLine - 1) * editor.TextView.FontHeight - editor.VirtualTop.Y;
             let logicalLine = editor.TextView.GetLogicalLine(vy);
             let logicalColumn = editor.TextView.GetLogicalColumn(logicalLine, vx);
-            editor.Caret.Position = logicalColumn.Location;
+            editor.Caret.Position = (logicalColumn.Location).Clone();
         }
     }
 
@@ -99,7 +99,7 @@ export class CaretUp implements CodeEditor.IEditCommand {
 
 export class CaretDown implements CodeEditor.IEditCommand {
     public Execute(editor: CodeEditor.TextEditor) {
-        let position = editor.Caret.Position;
+        let position = (editor.Caret.Position).Clone();
         let visualLine = editor.Document.GetVisibleLine(position.Line);
         if (visualLine < editor.Document.GetVisibleLine(editor.Document.TotalNumberOfLines)) {
             //暂用模拟点击位置
@@ -110,7 +110,7 @@ export class CaretDown implements CodeEditor.IEditCommand {
                 editor.VirtualTop.Y;
             let logicalLine = editor.TextView.GetLogicalLine(vy);
             let logicalColumn = editor.TextView.GetLogicalColumn(logicalLine, vx);
-            editor.Caret.Position = logicalColumn.Location;
+            editor.Caret.Position = (logicalColumn.Location).Clone();
         }
     }
 

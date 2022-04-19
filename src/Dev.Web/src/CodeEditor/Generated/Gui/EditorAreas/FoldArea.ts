@@ -61,8 +61,8 @@ export class FoldArea extends CodeEditor.EditorArea {
         if (rect.Width <= 0 || rect.Height <= 0) return;
 
         //background
-        let paint = PixUI.PaintUtils.Shared(this.TextEditor.Theme.TextBgColor);
-        canvas.drawRect(rect, paint);
+        let paint = PixUI.PaintUtils.Shared((this.TextEditor.Theme.TextBgColor).Clone());
+        canvas.drawRect((rect).Clone(), paint);
 
         let fontHeight = this.TextEditor.TextView.FontHeight;
         let visibleLineRemainder = this.TextEditor.TextView.VisibleLineDrawingRemainder;
@@ -78,7 +78,7 @@ export class FoldArea extends CodeEditor.EditorArea {
                 let currentLine = this.Document
                     .GetFirstLogicalLine(this.TextEditor.TextView.FirstPhysicalLine + y);
                 if (currentLine < this.Document.TotalNumberOfLines) {
-                    this.PaintFoldMarker(canvas, currentLine, markerRect);
+                    this.PaintFoldMarker(canvas, currentLine, (markerRect).Clone());
                 }
             }
         }

@@ -17,7 +17,7 @@ export abstract class InputBorder extends PixUI.ShapeBorder {
 
     public constructor(borderSide: Nullable<PixUI.BorderSide>) {
         super();
-        this.BorderSide = borderSide ?? PixUI.BorderSide.Empty;
+        this.BorderSide = (borderSide ?? PixUI.BorderSide.Empty).Clone();
     }
 }
 
@@ -41,11 +41,11 @@ export class OutlineInputBorder extends InputBorder {
     }
 
     public constructor(borderSide: Nullable<PixUI.BorderSide> = null, borderRadius: Nullable<PixUI.BorderRadius> = null, gapPadding: number = 4.0) {
-        super(borderSide ?? new PixUI.BorderSide(new PixUI.Color(0xFF9B9B9B)));
+        super((borderSide ?? new PixUI.BorderSide(new PixUI.Color(0xFF9B9B9B))).Clone());
         if (gapPadding < 0)
             throw new System.ArgumentOutOfRangeException("gapPadding");
 
-        this.BorderRadius = borderRadius ?? PixUI.BorderRadius.All(PixUI.Radius.Circular(4.0));
+        this.BorderRadius = (borderRadius ?? PixUI.BorderRadius.All(PixUI.Radius.Circular(4.0))).Clone();
         this.GapPadding = gapPadding;
     }
 
@@ -61,8 +61,8 @@ export class OutlineInputBorder extends InputBorder {
         if (to instanceof OutlineInputBorder) {
             const other = to;
             let temp = <OutlineInputBorder><unknown>tween;
-            temp.BorderRadius = PixUI.BorderRadius.Lerp(this.BorderRadius, other.BorderRadius, t)!;
-            temp.BorderSide = this.BorderSide.Lerp(this.BorderSide, other.BorderSide, t);
+            temp.BorderRadius = (PixUI.BorderRadius.Lerp((this.BorderRadius).Clone(), (other.BorderRadius).Clone(), t)!).Clone();
+            temp.BorderSide = this.BorderSide.Lerp((this.BorderSide).Clone(), (other.BorderSide).Clone(), t);
             temp.GapPadding = other.GapPadding;
         } else {
             super.LerpTo(to, tween, t);
@@ -70,7 +70,7 @@ export class OutlineInputBorder extends InputBorder {
     }
 
     public Clone(): PixUI.ShapeBorder {
-        return new OutlineInputBorder(this.BorderSide, this.BorderRadius, this.GapPadding);
+        return new OutlineInputBorder((this.BorderSide).Clone(), (this.BorderRadius).Clone(), this.GapPadding);
     }
 
     public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
@@ -78,7 +78,7 @@ export class OutlineInputBorder extends InputBorder {
         this.BorderSide.ApplyPaint(paint);
         paint.setAntiAlias(true); //TODO: no radius no need
 
-        let outer = this.BorderRadius.ToRRect(rect);
+        let outer = this.BorderRadius.ToRRect((rect).Clone());
         outer.Deflate(this.BorderSide.Width / 2, this.BorderSide.Width / 2);
         canvas.drawRRect(outer, paint);
     }

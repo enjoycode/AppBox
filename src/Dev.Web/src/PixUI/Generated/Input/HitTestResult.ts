@@ -41,7 +41,7 @@ export class HitTestResult {
         let isOpaqueMouseRegion = false;
         if (PixUI.IsInterfaceOfIMouseRegion(widget)) {
             const mouseRegion = widget;
-            this._path.Add(new HitTestEntry(mouseRegion, this._tranform));
+            this._path.Add(new HitTestEntry(mouseRegion, (this._tranform).Clone()));
             isOpaqueMouseRegion = mouseRegion.MouseRegion.Opaque;
         }
 
@@ -49,9 +49,9 @@ export class HitTestResult {
     }
 
     public ConcatLastTransform(transform: PixUI.Matrix4) {
-        this._tranform.PreConcat(transform);
+        this._tranform.PreConcat((transform).Clone());
         if ((this.LastHitWidget === this.LastWidgetWithMouseRegion)) {
-            this._path[this._path.length - 1] = new HitTestEntry(this.LastEntry!.Widget, this._tranform);
+            this._path[this._path.length - 1] = new HitTestEntry(this.LastEntry!.Widget, (this._tranform).Clone());
         }
     }
 
@@ -62,7 +62,7 @@ export class HitTestResult {
 
         //滚动时必定没有超出scrollable的范围
         this._tranform.Translate(dx, dy);
-        let transformed = PixUI.MatrixUtils.TransformPoint(this._tranform, winX, winY);
+        let transformed = PixUI.MatrixUtils.TransformPoint((this._tranform).Clone(), winX, winY);
         let contains = this.LastHitWidget!.ContainsPoint(transformed.Dx, transformed.Dy);
         if (contains) {
             //Translate路径内所有Scrollable的子级
@@ -87,7 +87,7 @@ export class HitTestResult {
     public StillInLastRegion(winX: number, winY: number): boolean {
         if (this.LastHitWidget == null) return false;
 
-        let transformed = PixUI.MatrixUtils.TransformPoint(this._tranform, winX, winY);
+        let transformed = PixUI.MatrixUtils.TransformPoint((this._tranform).Clone(), winX, winY);
         let contains = this.LastHitWidget.ContainsPoint(transformed.Dx, transformed.Dy);
         if (!contains) return false;
 
@@ -100,7 +100,7 @@ export class HitTestResult {
     }
 
     public HitTestInLastRegion(winX: number, winY: number) {
-        let transformed = PixUI.MatrixUtils.TransformPoint(this._tranform, winX, winY);
+        let transformed = PixUI.MatrixUtils.TransformPoint((this._tranform).Clone(), winX, winY);
         let isOpaqueMouseRegion = false;
         if (PixUI.IsInterfaceOfIMouseRegion(this.LastHitWidget)) {
             const mouseRegion = this.LastHitWidget;
@@ -154,7 +154,7 @@ export class HitTestResult {
 
     public PropagatePointerEvent(e: PixUI.PointerEvent, handler: System.Action2<PixUI.MouseRegion, PixUI.PointerEvent>) {
         for (let i = this._path.length - 1; i >= 0; i--) {
-            let transformed = PixUI.MatrixUtils.TransformPoint(this._path[i].Transform, e.X, e.Y);
+            let transformed = PixUI.MatrixUtils.TransformPoint((this._path[i].Transform).Clone(), e.X, e.Y);
             e.SetPoint(transformed.Dx, transformed.Dy);
             handler(this._path[i].Widget.MouseRegion, e);
             if (e.IsHandled)
@@ -172,7 +172,7 @@ export class HitTestResult {
         this._path.Clear();
         this._path.AddRange(other._path);
         this.LastHitWidget = other.LastHitWidget;
-        this._tranform = other._tranform;
+        this._tranform = (other._tranform).Clone();
     }
 
     public Init(props: Partial<HitTestResult>): HitTestResult {
@@ -187,11 +187,15 @@ export class HitTestEntry {
 
     public constructor(widget: PixUI.IMouseRegion, transform: PixUI.Matrix4) {
         this.Widget = widget;
-        this.Transform = transform;
+        this.Transform = (transform).Clone();
     }
 
     public ContainsPoint(winX: number, winY: number): boolean {
-        let transformedPosition = PixUI.MatrixUtils.TransformPoint(this.Transform, winX, winY);
+        let transformedPosition = PixUI.MatrixUtils.TransformPoint((this.Transform).Clone(), winX, winY);
         return (<PixUI.Widget><unknown>this.Widget).ContainsPoint(transformedPosition.Dx, transformedPosition.Dy);
+    }
+
+    public Clone(): HitTestEntry {
+        return new HitTestEntry(this.Widget, (this.Transform).Clone());
     }
 }

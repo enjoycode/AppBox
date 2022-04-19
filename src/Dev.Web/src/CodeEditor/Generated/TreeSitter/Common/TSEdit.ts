@@ -9,4 +9,15 @@ export class TSEdit {
     public startPosition: CodeEditor.TSPoint = CodeEditor.TSPoint.Empty;
     public oldEndPosition: CodeEditor.TSPoint = CodeEditor.TSPoint.Empty;
     public newEndPosition: CodeEditor.TSPoint = CodeEditor.TSPoint.Empty;
+
+    public Clone(): TSEdit {
+        let clone = new TSEdit();
+        clone.startIndex = this.startIndex;
+        clone.oldEndIndex = this.oldEndIndex;
+        clone.newEndIndex = this.newEndIndex;
+        clone.startPosition = (this.startPosition).Clone();
+        clone.oldEndPosition = (this.oldEndPosition).Clone();
+        clone.newEndPosition = (this.newEndPosition).Clone();
+        return clone;
+    }
 }

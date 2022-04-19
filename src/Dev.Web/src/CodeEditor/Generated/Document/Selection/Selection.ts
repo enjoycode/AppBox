@@ -8,8 +8,8 @@ export class Selection {
             throw new System.ArgumentOutOfRangeException();
 
         this.Document = document;
-        this.StartPosition = startPosition;
-        this.EndPosition = endPosition;
+        this.StartPosition = (startPosition).Clone();
+        this.EndPosition = (endPosition).Clone();
     }
 
     public readonly Document: CodeEditor.Document;
@@ -32,11 +32,11 @@ export class Selection {
     }
 
     public get Offset(): number {
-        return this.Document.PositionToOffset(this.StartPosition);
+        return this.Document.PositionToOffset((this.StartPosition).Clone());
     }
 
     public get EndOffset(): number {
-        return this.Document.PositionToOffset(this.EndPosition);
+        return this.Document.PositionToOffset((this.EndPosition).Clone());
     }
 
     public get Length(): number {

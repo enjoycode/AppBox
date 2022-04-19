@@ -146,7 +146,7 @@ export class DataGridController<T> {
                     }
 
                     //重新计算所有列宽并重绘
-                    this.CalcColumnsWidth(this._cachedWidgetSize);
+                    this.CalcColumnsWidth((this._cachedWidgetSize).Clone());
                     this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
                 }
             }
@@ -226,7 +226,7 @@ export class DataGridController<T> {
             this.ScrollController.OffsetX = Math.max(this.ScrollController.OffsetX - deltaX, 0);
         }
 
-        this._cachedWidgetSize = widgetSize;
+        this._cachedWidgetSize = (widgetSize).Clone();
         if (!needCalc) return;
 
         //先计算固定宽度列

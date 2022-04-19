@@ -53,7 +53,7 @@ export abstract class TextBase extends PixUI.Widget {
         this._cachedParagraph?.delete();
 
         let fontSize = this._fontSize?.Value ?? PixUI.Theme.DefaultFontSize;
-        let color = this._color?.Value ?? PixUI.Colors.Black;
+        let color = (this._color?.Value ?? PixUI.Colors.Black).Clone();
         let ts = PixUI.MakeTextStyle({color: color, fontSize: fontSize});
         let ps = PixUI.MakeParagraphStyle({maxLines: 1, textStyle: ts});
         if (this instanceof PixUI.EditableText) {

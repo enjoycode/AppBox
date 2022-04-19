@@ -235,7 +235,7 @@ export class InvalidQueue {
         opaque ??= current; //没找到暂指向Window's RootWidget
 
         //计算脏区域(重绘的Widget相对于Opaque Widget)
-        let dirtyRect = dirtyArea?.GetRect();
+        let dirtyRect = (dirtyArea?.GetRect())?.Clone();
         let dirtyX = dx + (dirtyRect?.Left ?? 0);
         let dirtyY = dy + (dirtyRect?.Top ?? 0);
         let dirtyW = dirtyRect?.Width ?? widget.W;
@@ -246,11 +246,11 @@ export class InvalidQueue {
         canvas.save();
         let opaque2Win = opaque.LocalToWindow(0, 0);
         canvas.translate(opaque2Win.X, opaque2Win.Y);
-        canvas.clipRect(dirtyChildRect, CanvasKit.ClipOp.Intersect, false); //TODO: Root不用
+        canvas.clipRect((dirtyChildRect).Clone(), CanvasKit.ClipOp.Intersect, false); //TODO: Root不用
         //判断是否RootWidget且非不透明，是则清空画布脏区域
         if ((opaque === ctx.Window.RootWidget) && !opaque.IsOpaque)
-            canvas.clear(ctx.Window.BackgroundColor);
-        opaque.Paint(canvas, new PixUI.RepaintArea(dirtyChildRect));
+            canvas.clear((ctx.Window.BackgroundColor).Clone());
+        opaque.Paint(canvas, new PixUI.RepaintArea((dirtyChildRect).Clone()));
         canvas.restore();
     }
 

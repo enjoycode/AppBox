@@ -16,7 +16,7 @@ export class RepaintArea implements IDirtyArea {
     public readonly Rect: PixUI.Rect;
 
     public constructor(rect: PixUI.Rect) {
-        this.Rect = rect;
+        this.Rect = (rect).Clone();
     }
 
     public GetRect(): PixUI.Rect {
@@ -28,8 +28,8 @@ export class RepaintArea implements IDirtyArea {
     }
 
     public ToChild(childX: number, childY: number): IDirtyArea {
-        let childRect = this.Rect;
+        let childRect = (this.Rect).Clone();
         childRect.Offset(-childX, -childY);
-        return new RepaintArea(childRect);
+        return new RepaintArea((childRect).Clone());
     }
 }

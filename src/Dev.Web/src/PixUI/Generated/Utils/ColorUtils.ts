@@ -13,9 +13,9 @@ export class ColorUtils {
 
     public static Lerp(a: Nullable<PixUI.Color>, b: Nullable<PixUI.Color>, t: number): Nullable<PixUI.Color> {
         if (b == null)
-            return a == null ? null : ColorUtils.ScaleAlpha(a, 1.0 - t);
+            return a == null ? null : ColorUtils.ScaleAlpha((a).Clone(), 1.0 - t);
 
-        if (a == null) return ColorUtils.ScaleAlpha(b, t);
+        if (a == null) return ColorUtils.ScaleAlpha((b).Clone(), t);
 
         let red = clamp((Math.floor(ColorUtils.LerpInt(a.Red, b.Red, t)) & 0xFF), 0, 255);
         let green = clamp((Math.floor(ColorUtils.LerpInt(a.Green, b.Green, t)) & 0xFF), 0, 255);

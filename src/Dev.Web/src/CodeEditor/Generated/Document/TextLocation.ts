@@ -23,7 +23,6 @@ export class TextLocation implements System.IComparable<TextLocation>, System.IE
         return `(Line ${this.Line}, Col ${this.Column})`;
     }
 
-
     public Equals(other: TextLocation): boolean {
         return System.OpEquality(this, other);
     }
@@ -61,6 +60,10 @@ export class TextLocation implements System.IComparable<TextLocation>, System.IE
     // {
     //     return !(a < b);
     // }
+
+    public Clone(): TextLocation {
+        return new TextLocation(this.Line, this.Column);
+    }
 
     public CompareTo(other: TextLocation): number {
         if (System.OpEquality(this, other))

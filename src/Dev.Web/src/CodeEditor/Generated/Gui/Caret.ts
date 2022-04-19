@@ -55,12 +55,12 @@ export class Caret {
     public Mode: CaretMode = CaretMode.InsertMode;
 
     public get CanvasPosX(): number {
-        let textAreaRect = this._textEditor.TextView.Bounds;
+        let textAreaRect = (this._textEditor.TextView.Bounds).Clone();
         return textAreaRect.Left + this._caretPosX - this._textEditor.VirtualTop.X;
     }
 
     public get CanvasPosY(): number {
-        let textAreaRect = this._textEditor.TextView.Bounds;
+        let textAreaRect = (this._textEditor.TextView.Bounds).Clone();
         return textAreaRect.Top + this._caretPosY - this._textEditor.VirtualTop.Y;
     }
 
@@ -78,7 +78,7 @@ export class Caret {
     }
 
     public get Offset(): number {
-        return this._textEditor.Document.PositionToOffset(this.Position);
+        return this._textEditor.Document.PositionToOffset((this.Position).Clone());
     }
 
     public readonly PositionChanged = new System.Event();
@@ -128,18 +128,18 @@ export class Caret {
 
     public Paint(canvas: PixUI.Canvas) {
         let fontHeight = this._textEditor.TextView.FontHeight;
-        let textViewArea = this._textEditor.TextView.Bounds;
+        let textViewArea = (this._textEditor.TextView.Bounds).Clone();
 
         // draw caret
         let cx = textViewArea.Left + this._caretPosX - this._textEditor.VirtualTop.X - 0.5;
         let cy = textViewArea.Top + this._caretPosY - this._textEditor.VirtualTop.Y;
         if (cx >= textViewArea.Left - 0.5) {
-            let paint = PixUI.PaintUtils.Shared(this._textEditor.Theme.CaretColor);
+            let paint = PixUI.PaintUtils.Shared((this._textEditor.Theme.CaretColor).Clone());
             canvas.drawRect(PixUI.Rect.FromLTWH(cx, cy, 2, fontHeight), paint);
         }
 
         // draw highlight background
-        let bgPaint = PixUI.PaintUtils.Shared(this._textEditor.Theme.LineHighlightColor);
+        let bgPaint = PixUI.PaintUtils.Shared((this._textEditor.Theme.LineHighlightColor).Clone());
         canvas.drawRect(PixUI.Rect.FromLTWH(textViewArea.Left, cy, textViewArea.Width, fontHeight), bgPaint);
     }
 

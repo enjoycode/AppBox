@@ -86,7 +86,7 @@ export class UndoStack {
             this._undostack.Push(operation);
             this._actionCountInUndoGroup++;
             if (this.TextEditor != null) {
-                this._undostack.Push(new CodeEditor.UndoableSetCaretPosition(this, this.TextEditor.Caret.Position));
+                this._undostack.Push(new CodeEditor.UndoableSetCaretPosition(this, (this.TextEditor.Caret.Position).Clone()));
                 this._actionCountInUndoGroup++;
             }
 

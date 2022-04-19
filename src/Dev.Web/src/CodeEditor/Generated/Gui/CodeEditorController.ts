@@ -27,8 +27,8 @@ export class CodeEditorController {
     private _mouseDownPos: PixUI.Point = PixUI.Point.Empty;
     private _gotMouseDown: boolean = false; //primary button is down
     private _doDragDrop: boolean = false;
-    private _minSelection: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
-    private _maxSelection: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
+    private _minSelection: CodeEditor.TextLocation = (CodeEditor.TextLocation.Empty).Clone();
+    private _maxSelection: CodeEditor.TextLocation = (CodeEditor.TextLocation.Empty).Clone();
 
     public OnPointerDown(e: PixUI.PointerEvent) {
         // this corrects weird problems when text is selected,
@@ -46,8 +46,8 @@ export class CodeEditorController {
             this._gotMouseDown = true;
             this.TextEditor.SelectionManager.SelectFrom.Where = CodeEditor.WhereFrom.TextArea;
             this._mouseDownPos = new PixUI.Point(e.X, e.Y);
-            this._minSelection = CodeEditor.TextLocation.Empty;
-            this._maxSelection = CodeEditor.TextLocation.Empty;
+            this._minSelection = (CodeEditor.TextLocation.Empty).Clone();
+            this._maxSelection = (CodeEditor.TextLocation.Empty).Clone();
 
             let vx = e.X - this.TextEditor.TextView.Bounds.Left;
             let vy = e.Y - this.TextEditor.TextView.Bounds.Top;
@@ -58,7 +58,7 @@ export class CodeEditorController {
                 console.log(`CodeEditor Hit: ${logicalColumn.Location}`);
 
                 this.TextEditor.SelectionManager.ClearSelection();
-                this.TextEditor.Caret.Position = logicalColumn.Location;
+                this.TextEditor.Caret.Position = (logicalColumn.Location).Clone();
             }
         }
     }
@@ -91,12 +91,12 @@ export class CodeEditorController {
     }
 
     private ExtendSelectionToPointer() {
-        let mousePos = this.TextEditor.PointerPos;
+        let mousePos = (this.TextEditor.PointerPos).Clone();
         let realMousePos = this.TextEditor.TextView.GetLogicalPosition(
             Math.max(0, mousePos.X - this.TextEditor.TextView.Bounds.Left), mousePos.Y - this.TextEditor.TextView.Bounds.Top);
         let y = realMousePos.Line;
         //realMousePos = TextEditor.Caret.ValidatePosition(realMousePos);
-        let oldPos = this.TextEditor.Caret.Position;
+        let oldPos = (this.TextEditor.Caret.Position).Clone();
         if (System.OpEquality(oldPos, realMousePos) &&
             this.TextEditor.SelectionManager.SelectFrom.Where != CodeEditor.WhereFrom.Gutter)
             return;
@@ -112,7 +112,7 @@ export class CodeEditorController {
                     this.TextEditor.SelectionManager.NextValidPosition(realMousePos.Line);
             }
         } else {
-            this.TextEditor.Caret.Position = realMousePos;
+            this.TextEditor.Caret.Position = (realMousePos).Clone();
         }
 
         // moves selection across whole words for double-click initiated selection
@@ -121,29 +121,29 @@ export class CodeEditorController {
             this.TextEditor.SelectionManager.SelectFrom.Where == CodeEditor.WhereFrom.TextArea) {
             // Extend selection when selection was started with double-click
             let selection = this.TextEditor.SelectionManager.SelectionCollection[0];
-            let min = CodeEditor.SelectionManager.GreaterEqPos(this._minSelection, this._maxSelection)
+            let min = (CodeEditor.SelectionManager.GreaterEqPos((this._minSelection).Clone(), (this._maxSelection).Clone())
                 ? this._maxSelection
-                : this._minSelection;
-            let max = CodeEditor.SelectionManager.GreaterEqPos(this._minSelection, this._maxSelection)
+                : this._minSelection).Clone();
+            let max = (CodeEditor.SelectionManager.GreaterEqPos((this._minSelection).Clone(), (this._maxSelection).Clone())
                 ? this._minSelection
-                : this._maxSelection;
-            if (CodeEditor.SelectionManager.GreaterEqPos(max, realMousePos) &&
-                CodeEditor.SelectionManager.GreaterEqPos(realMousePos, min)) {
-                this.TextEditor.SelectionManager.SetSelection(min, max);
-            } else if (CodeEditor.SelectionManager.GreaterEqPos(max, realMousePos)) {
-                let moff = this.TextEditor.Document.PositionToOffset(realMousePos);
+                : this._maxSelection).Clone();
+            if (CodeEditor.SelectionManager.GreaterEqPos((max).Clone(), (realMousePos).Clone()) &&
+                CodeEditor.SelectionManager.GreaterEqPos((realMousePos).Clone(), (min).Clone())) {
+                this.TextEditor.SelectionManager.SetSelection((min).Clone(), (max).Clone());
+            } else if (CodeEditor.SelectionManager.GreaterEqPos((max).Clone(), (realMousePos).Clone())) {
+                let moff = this.TextEditor.Document.PositionToOffset((realMousePos).Clone());
                 min = this.TextEditor.Document
                     .OffsetToPosition(CodeEditorController.FindWordStart(this.TextEditor.Document, moff));
-                this.TextEditor.SelectionManager.SetSelection(min, max);
+                this.TextEditor.SelectionManager.SetSelection((min).Clone(), (max).Clone());
             } else {
-                let moff = this.TextEditor.Document.PositionToOffset(realMousePos);
+                let moff = this.TextEditor.Document.PositionToOffset((realMousePos).Clone());
                 max = this.TextEditor.Document
                     .OffsetToPosition(CodeEditorController.FindWordEnd(this.TextEditor.Document, moff));
-                this.TextEditor.SelectionManager.SetSelection(min, max);
+                this.TextEditor.SelectionManager.SetSelection((min).Clone(), (max).Clone());
             }
         } else {
             this.TextEditor.SelectionManager
-                .ExtendSelection(oldPos, this.TextEditor.Caret.Position);
+                .ExtendSelection((oldPos).Clone(), (this.TextEditor.Caret.Position).Clone());
         }
         //textArea.SetDesiredColumn();
     }

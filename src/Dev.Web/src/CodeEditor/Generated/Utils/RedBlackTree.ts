@@ -435,7 +435,7 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
         if (!it.IsValid)
             return false;
 
-        this.RemoveAt(it);
+        this.RemoveAt((it).Clone());
         return true;
     }
 
@@ -458,6 +458,10 @@ export class RedBlackTreeIterator<T> {
 
     public constructor(node: Nullable<RedBlackTreeNode<T>>) {
         this.Node = node;
+    }
+
+    public Clone(): RedBlackTreeIterator<T> {
+        return new RedBlackTreeIterator<T>(this.Node);
     }
 
     public get IsValid(): boolean {

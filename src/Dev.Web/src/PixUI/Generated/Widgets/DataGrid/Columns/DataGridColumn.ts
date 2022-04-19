@@ -63,13 +63,13 @@ export abstract class DataGridColumn<T> {
 
         //画背景色
         if (cellStyle.BackgroundColor != null) {
-            let paint = PixUI.PaintUtils.Shared(cellStyle.BackgroundColor);
-            canvas.drawRect(cellRect, paint);
+            let paint = PixUI.PaintUtils.Shared((cellStyle.BackgroundColor).Clone());
+            canvas.drawRect((cellRect).Clone(), paint);
         }
 
         //画文本
-        let ph = DataGridColumn.BuildCellParagraph(cellRect, cellStyle, this.Label, 2);
-        DataGridColumn.PaintCellParagraph(canvas, cellRect, cellStyle, ph);
+        let ph = DataGridColumn.BuildCellParagraph((cellRect).Clone(), cellStyle, this.Label, 2);
+        DataGridColumn.PaintCellParagraph(canvas, (cellRect).Clone(), cellStyle, ph);
         ph.delete();
     }
 

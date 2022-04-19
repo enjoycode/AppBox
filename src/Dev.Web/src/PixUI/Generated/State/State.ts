@@ -29,7 +29,7 @@ export abstract class StateBase {
         if (this._bindings == null) return;
 
         for (let i = 0; i < this._bindings.length; i++) {
-            let binding = this._bindings[i];
+            let binding = (this._bindings[i]).Clone();
             let target = binding.Target.deref();
             if (target == null) {
                 this._bindings.RemoveAt(i); //remove none alive binding

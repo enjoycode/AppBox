@@ -22,7 +22,7 @@ export abstract class UIApplication {
 
         let ctx = PaintContext.Default;
         ctx.Window = this.MainWindow;
-        let beginTime = System.DateTime.UtcNow;
+        let beginTime = (System.DateTime.UtcNow).Clone();
 
         //先绘制WidgetsCanvas
         if (!window.WidgetsInvalidQueue.IsEmpty) {
@@ -37,13 +37,13 @@ export abstract class UIApplication {
             window.OverlayInvalidQueue.RelayoutAll();
         }
 
-        overlayCanvas.clear(PixUI.Color.Empty); //前端好像始终缓存了图像，所以暂清除掉
+        overlayCanvas.clear((PixUI.Color.Empty).Clone()); //前端好像始终缓存了图像，所以暂清除掉
         window.Overlay.Paint(overlayCanvas); //always repaint
 
 
         window.HasPostInvalidateEvent = false;
 
-        let duration = System.DateTime.op_Subtraction(System.DateTime.UtcNow, beginTime);
+        let duration = (System.DateTime.op_Subtraction(System.DateTime.UtcNow, beginTime)).Clone();
         console.log(`Draw frame: ${duration.TotalMilliseconds}ms`);
 
         window.Present();

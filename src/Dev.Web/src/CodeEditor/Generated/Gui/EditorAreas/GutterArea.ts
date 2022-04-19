@@ -37,8 +37,8 @@ export class GutterArea extends CodeEditor.EditorArea {
         if (rect.Width <= 0 || rect.Height <= 0) return;
 
         // background
-        let paint = PixUI.PaintUtils.Shared(this.Theme.LineBgColor);
-        canvas.drawRect(rect, paint);
+        let paint = PixUI.PaintUtils.Shared((this.Theme.LineBgColor).Clone());
+        canvas.drawRect((rect).Clone(), paint);
 
         // line numbers
         let lineHeight = this.TextEditor.TextView.FontHeight;

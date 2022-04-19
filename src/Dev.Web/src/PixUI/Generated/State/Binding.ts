@@ -15,4 +15,8 @@ export class Binding {
         this.Target = new WeakRef<any>(target);
         this.Options = options;
     }
+
+    public Clone(): Binding {
+        return new Binding(<PixUI.IStateBindable><unknown>this.Target.deref(), this.Options);
+    }
 }

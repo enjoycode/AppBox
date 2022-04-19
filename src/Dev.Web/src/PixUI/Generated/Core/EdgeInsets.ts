@@ -29,4 +29,8 @@ export class EdgeInsets {
     public static Only(left: number, top: number, right: number, bottom: number): EdgeInsets {
         return new EdgeInsets(left, top, right, bottom);
     }
+
+    public Clone(): EdgeInsets {
+        return new EdgeInsets(this.Left, this.Top, this.Right, this.Bottom);
+    }
 }

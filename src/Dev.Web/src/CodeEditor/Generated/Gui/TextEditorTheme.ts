@@ -7,7 +7,7 @@ export class TextEditorTheme {
 
     public LineSpace: number = 2;
 
-    public CaretColor: PixUI.Color = PixUI.Colors.Red;
+    public CaretColor: PixUI.Color = (PixUI.Colors.Red).Clone();
 
     public LineHighlightColor: PixUI.Color = new PixUI.Color(150, 150, 150, 20);
 

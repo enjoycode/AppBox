@@ -7,14 +7,14 @@ export enum BorderStyle {
 }
 
 export class BorderSide {
-    public static readonly Empty: BorderSide = new BorderSide(PixUI.Color.Empty, 0, BorderStyle.None);
+    public static readonly Empty: BorderSide = new BorderSide((PixUI.Color.Empty).Clone(), 0, BorderStyle.None);
 
     public readonly Color: PixUI.Color;
     public readonly Width: number;
     public readonly Style: BorderStyle;
 
     public constructor(color: PixUI.Color, width: number = 1, style: BorderStyle = BorderStyle.Solid) {
-        this.Color = color;
+        this.Color = (color).Clone();
         this.Width = width;
         this.Style = style;
     }
@@ -33,10 +33,14 @@ export class BorderSide {
         if (width < 0)
             return BorderSide.Empty;
         if (a.Style == b.Style)
-            return new BorderSide(PixUI.Color.Lerp(a.Color, b.Color, t)!, width, a.Style);
+            return new BorderSide((PixUI.Color.Lerp((a.Color).Clone(), (b.Color).Clone(), t)!).Clone(), width, a.Style);
 
-        let colorA = a.Style == BorderStyle.Solid ? a.Color : a.Color.WithAlpha(0);
-        let colorB = b.Style == BorderStyle.Solid ? b.Color : b.Color.WithAlpha(0);
-        return new BorderSide(PixUI.Color.Lerp(colorA, colorB, t)!, width);
+        let colorA = (a.Style == BorderStyle.Solid ? a.Color : a.Color.WithAlpha(0)).Clone();
+        let colorB = (b.Style == BorderStyle.Solid ? b.Color : b.Color.WithAlpha(0)).Clone();
+        return new BorderSide((PixUI.Color.Lerp((colorA).Clone(), (colorB).Clone(), t)!).Clone(), width);
+    }
+
+    public Clone(): BorderSide {
+        return new BorderSide((this.Color).Clone(), this.Width, this.Style);
     }
 }
