@@ -127,9 +127,11 @@ export default class WebWindow extends PixUI.UIWindow {
         window.onkeydown = ev => {
             // console.log(`KeyDown: '${ev.key}' keyCode=${ev.code}`)
             this.OnKeyDown(PixUI.KeyEvent.UseDefault(WebWindow.ConvertToKeys(ev)));
+            ev.preventDefault();
         };
         window.onkeyup = ev => {
             this.OnKeyUp(PixUI.KeyEvent.UseDefault(WebWindow.ConvertToKeys(ev)));
+            ev.preventDefault();
         };
     }
 
