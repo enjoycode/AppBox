@@ -122,6 +122,7 @@ export class Caret {
     }
 
     private OnPositionChanged() {
+        console.log(`Caret改变位置: ${this._line} ${this._column}`);
         this.PositionChanged.Invoke();
         //TODO: _textArea.ScrollToCaret();
     }

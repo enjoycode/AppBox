@@ -62,7 +62,7 @@ export class TextLocation implements System.IComparable<TextLocation>, System.IE
     // }
 
     public Clone(): TextLocation {
-        return new TextLocation(this.Line, this.Column);
+        return new TextLocation(this.Column, this.Line);
     }
 
     public CompareTo(other: TextLocation): number {
