@@ -21,9 +21,17 @@ class DemoWidget {
     }
 
     public static MakeCodeEditor(): PixUI.Widget {
-        const srcCode = `public sealed class Person
+        const srcCode = `
+public sealed class Person
 {
-}`
+    public string Name { get; set; }
+
+    public void SayHello()
+    {
+        System.Console.WriteLine(Name);
+    }
+} //中国 */
+`
 
         let controller = new CodeEditorController("Demo.cs", srcCode);
         return new PixUI.Container().Init({
