@@ -8,4 +8,9 @@
         <LangVersion>9</LangVersion>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixUI\PixUI.CodeEditor\PixUI.CodeEditor.csproj" />
+      <ProjectReference Include="..\PixUI\PixUI\PixUI.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dev", "Dev\Dev.csproj", "{1E78621B-3432-4C22-A7B8-EDF093D8A479}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI", "PixUI\PixUI\PixUI.csproj", "{418E1E7E-4990-4FDD-83F4-82A988898CD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.CodeEditor", "PixUI\PixUI.CodeEditor\PixUI.CodeEditor.csproj", "{18CF6F65-92E9-443B-894A-D54959FD2375}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{1E78621B-3432-4C22-A7B8-EDF093D8A479}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E78621B-3432-4C22-A7B8-EDF093D8A479}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E78621B-3432-4C22-A7B8-EDF093D8A479}.Release|Any CPU.Build.0 = Release|Any CPU
+		{418E1E7E-4990-4FDD-83F4-82A988898CD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{418E1E7E-4990-4FDD-83F4-82A988898CD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{418E1E7E-4990-4FDD-83F4-82A988898CD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{418E1E7E-4990-4FDD-83F4-82A988898CD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18CF6F65-92E9-443B-894A-D54959FD2375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18CF6F65-92E9-443B-894A-D54959FD2375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18CF6F65-92E9-443B-894A-D54959FD2375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18CF6F65-92E9-443B-894A-D54959FD2375}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
