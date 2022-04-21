@@ -125,12 +125,14 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         this.TryBuildParagraph();
 
         let winPt = this.LocalToWindow(0, 0);
-        if (this._caretPosition == this.Text.Value.length) {
-            let textbox = PixUI.GetRectForPosition(this.CachedParagraph!, this._caretPosition - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
-            winPt.Offset(textbox.Rect.Left + textbox.Rect.Width, 0);
-        } else if (this._caretPosition != 0) {
-            let textbox = PixUI.GetRectForPosition(this.CachedParagraph!, this._caretPosition, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
-            winPt.Offset(textbox.Rect.Left, 0);
+        if (this._caretPosition != 0) {
+            if (this._caretPosition == this.Text.Value.length) {
+                let textbox = PixUI.GetRectForPosition(this.CachedParagraph!, this._caretPosition - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
+                winPt.Offset(textbox.Rect.Left + textbox.Rect.Width, 0);
+            } else {
+                let textbox = PixUI.GetRectForPosition(this.CachedParagraph!, this._caretPosition, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
+                winPt.Offset(textbox.Rect.Left, 0);
+            }
         }
 
         return PixUI.Rect.FromLTWH(winPt.X - halfCaretWidth, winPt.Y, caretWidth, this.H);
