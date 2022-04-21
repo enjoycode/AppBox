@@ -34,9 +34,8 @@ export class WebApplication extends PixUI.UIApplication {
         Promise.all([ckLoad, fontLoad]).then(([canvaskit, fontData]) => {
             let win: any = window;
             win.CanvasKit = canvaskit;
-            let fontProvider = canvaskit.TypefaceFontProvider.Make();
-            fontProvider.registerFont(fontData, FontCollection.DefaultFontFamily);
-            FontCollection.Init(fontProvider);
+            //初始化默认字体
+            FontCollection.Init(fontData);
 
             //初始化平台支持
             Cursor.PlatformCursors = new WebCursors();
