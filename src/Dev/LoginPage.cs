@@ -11,28 +11,37 @@ namespace AppBoxDev
         {
             Child = new Center
             {
-                Child = new Card { Width = 400, Height = 500, Child = BuildLoginForm() }
+                Child = new Card
+                {
+                    Width = 400, Height = 330,
+                    Elevation = 20,
+                    Child = BuildLoginForm()
+                }
             };
         }
 
         private Widget BuildLoginForm()
         {
-            return new Column
+            return new Container
             {
-                Children = new Widget[]
+                Padding = EdgeInsets.All(30),
+                Child = new Column(HorizontalAlignment.Center, 30)
                 {
-                    new Text("Welcome") { FontSize = 50 },
-                    new Input(_userName)
+                    Children = new Widget[]
                     {
-                        HintText = "Account",
-                        Prefix = new Icon(Icons.Filled.Person)
-                    },
-                    new Input(_password)
-                    {
-                        IsObscure = true, HintText = "Password",
-                        Prefix = new Icon(Icons.Filled.Lock)
-                    },
-                    new Button("Login")
+                        new Text("Welcome") { FontSize = 50 },
+                        new Input(_userName)
+                        {
+                            HintText = "Account",
+                            Prefix = new Icon(Icons.Filled.Person)
+                        },
+                        new Input(_password)
+                        {
+                            IsObscure = true, HintText = "Password",
+                            Prefix = new Icon(Icons.Filled.Lock)
+                        },
+                        new Button("Login")
+                    }
                 }
             };
         }

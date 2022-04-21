@@ -10,9 +10,11 @@ export class LoginPage extends PixUI.View {
         super();
         this.Child = new PixUI.Center
         ().Init({
-            Child: new PixUI.Card().Init({
+            Child: new PixUI.Card
+            ().Init({
                     Width: PixUI.State.op_Implicit_From(400),
-                    Height: PixUI.State.op_Implicit_From(500),
+                    Height: PixUI.State.op_Implicit_From(330),
+                    Elevation: PixUI.State.op_Implicit_From(20),
                     Child: this.BuildLoginForm()
                 }
             )
@@ -20,17 +22,20 @@ export class LoginPage extends PixUI.View {
     }
 
     private BuildLoginForm(): PixUI.Widget {
-        return new PixUI.Column
-        (PixUI.HorizontalAlignment.Center, 20).Init({
-            Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Welcome"))
-                .Init({FontSize: PixUI.State.op_Implicit_From(50)}), new PixUI.Input(this._userName).Init({
-                HintText: "Account",
-                Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Person))
-            }), new PixUI.Input(this._password).Init({
-                IsObscure: true,
-                HintText: "Password",
-                Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock))
-            }), new PixUI.Button(PixUI.State.op_Implicit_From("Login"))]
+        return new PixUI.Container
+        ().Init({
+            Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(30)),
+            Child: new PixUI.Column(PixUI.HorizontalAlignment.Center, 30).Init({
+                    Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Welcome")).Init({FontSize: PixUI.State.op_Implicit_From(50)}), new PixUI.Input(this._userName).Init({
+                        HintText: "Account",
+                        Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Person))
+                    }), new PixUI.Input(this._password).Init({
+                        IsObscure: true,
+                        HintText: "Password",
+                        Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock))
+                    }), new PixUI.Button(PixUI.State.op_Implicit_From("Login"))]
+                }
+            )
         });
     }
 
