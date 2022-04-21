@@ -2,14 +2,22 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class MainMenu extends PixUI.Widget {
-    private readonly _children: System.IList<PixUI.MenuItemWidget>;
-    private readonly _controller: PixUI.MenuController;
-
     public constructor(items: System.IList<PixUI.MenuItem>) {
         super();
         this._children = new System.List<PixUI.MenuItemWidget>(items.length);
         this._controller = new PixUI.MenuController();
         this.BuildMenuItemWidgets(items);
+    }
+
+    private readonly _children: System.IList<PixUI.MenuItemWidget>;
+    private readonly _controller: PixUI.MenuController;
+
+    public set BackgroudColor(value: PixUI.Color) {
+        this._controller.BackgroundColor = (value).Clone();
+    }
+
+    public set Color(value: PixUI.Color) {
+        this._controller.Color = (value).Clone();
     }
 
     private BuildMenuItemWidgets(items: System.IList<PixUI.MenuItem>) {

@@ -2,25 +2,25 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class MenuController {
+    public readonly TextColor: PixUI.State<PixUI.Color> = PixUI.State.op_Implicit_From(PixUI.Colors.Black);
+
     public get ItemPadding(): PixUI.EdgeInsets {
         return PixUI.EdgeInsets.Only(8, 5, 8, 5);
     }
 
     public get PopupItemHeight(): number {
-        return 25;
+        return 30;
     }
 
-    public get Color(): PixUI.Color {
-        return new PixUI.Color(200, 200, 200);
+    public BackgroundColor: PixUI.Color = new PixUI.Color(200, 200, 200);
+
+    public set Color(value: PixUI.Color) {
+        this.TextColor.Value = (value).Clone();
     }
 
-    public get HoverColor(): PixUI.Color {
-        return PixUI.Theme.AccentColor;
-    }
+    public HoverColor: PixUI.Color = PixUI.Theme.AccentColor;
 
-    public get HoverTextColor(): PixUI.Color {
-        return PixUI.Colors.White;
-    }
+    public HoverTextColor: PixUI.Color = PixUI.Colors.White;
 
     private _popupMenuStack: Nullable<PixUI.PopupMenuStack>;
 

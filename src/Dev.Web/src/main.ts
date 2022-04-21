@@ -43,7 +43,7 @@ public sealed class Person
     }
 
     public static MakeDev(): PixUI.Widget {
-        return new AppBoxDev.LoginPage();
+        return new AppBoxDev.AppStudio();
     }
 }
 

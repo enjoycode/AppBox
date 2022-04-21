@@ -38,16 +38,16 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
     private BuildChildren(inPopup: boolean) {
         if (this.MenuItem.Type != PixUI.MenuItemType.Divider) {
             if (this.MenuItem.Icon != null) {
-                this._icon = new PixUI.Icon(PixUI.State.op_Implicit_From(this.MenuItem.Icon));
+                this._icon = new PixUI.Icon(PixUI.State.op_Implicit_From(this.MenuItem.Icon)).Init({Color: this._controller.TextColor});
                 this._icon.Parent = this;
             }
 
-            this._label = new PixUI.Text(PixUI.State.op_Implicit_From(this.MenuItem.Label!));
+            this._label = new PixUI.Text(PixUI.State.op_Implicit_From(this.MenuItem.Label!)).Init({Color: this._controller.TextColor});
             this._label.Parent = this;
         }
 
         if (this.MenuItem.Type == PixUI.MenuItemType.SubMenu) {
-            this._expander = new PixUI.Icon(PixUI.State.op_Implicit_From(inPopup ? PixUI.Icons.Filled.ChevronRight : PixUI.Icons.Filled.ExpandMore));
+            this._expander = new PixUI.Icon(PixUI.State.op_Implicit_From(inPopup ? PixUI.Icons.Filled.ChevronRight : PixUI.Icons.Filled.ExpandMore)).Init({Color: this._controller.TextColor});
             this._expander.Parent = this;
         }
     }
@@ -96,13 +96,13 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         if (this._icon != null) {
             this._icon.Layout(availableWidth, availableHeight);
             this._icon.SetPosition(offsetX, (availableHeight - this._icon.H) / 2);
-            offsetX += this._icon.W;
+            offsetX += this._icon.W + 5;
         }
 
         if (this._label != null) {
             this._label.Layout(availableWidth, availableHeight);
             this._label.SetPosition(offsetX, (availableHeight - this._label.H) / 2);
-            offsetX += this._label.W;
+            offsetX += this._label.W + 5;
         }
 
         if (this._expander != null) {

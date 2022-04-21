@@ -33,7 +33,7 @@ export class MenuItem {
 
     //public readonly string? Shortcut;
 
-    public static Item(label: string, action: Nullable<System.Action> = null, icon: Nullable<PixUI.IconData> = null): MenuItem {
+    public static Item(label: string, icon: Nullable<PixUI.IconData> = null, action: Nullable<System.Action> = null): MenuItem {
         return new MenuItem(MenuItemType.MenuItem, label, (icon)?.Clone(), action);
     }
 

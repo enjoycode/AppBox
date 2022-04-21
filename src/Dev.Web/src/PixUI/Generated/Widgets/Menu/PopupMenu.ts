@@ -66,7 +66,7 @@ export class PopupMenu extends PixUI.Widget {
         let path = new CanvasKit.Path();
         path.addRRect(rrect);
         PixUI.DrawShadow(canvas, path, PixUI.Colors.Black, 5, false, this.Root!.Window.ScaleFactor);
-        let paint = PixUI.PaintUtils.Shared(this._controller.Color);
+        let paint = PixUI.PaintUtils.Shared(this._controller.BackgroundColor);
         canvas.drawRRect(rrect, paint);
 
         canvas.save();

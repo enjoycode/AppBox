@@ -16,7 +16,6 @@
     <ItemGroup>
       <Folder Include="Commands" />
       <Folder Include="Designers" />
-      <Folder Include="Pads" />
     </ItemGroup>
 
 </Project>
