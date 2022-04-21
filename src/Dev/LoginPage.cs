@@ -6,6 +6,7 @@ namespace AppBoxDev
     {
         private readonly State<string> _userName = "";
         private readonly State<string> _password = "";
+        private readonly State<float> _inputSize = 20;
 
         public LoginPage()
         {
@@ -32,13 +33,13 @@ namespace AppBoxDev
                         new Text("Welcome") { FontSize = 50 },
                         new Input(_userName)
                         {
-                            HintText = "Account",
-                            Prefix = new Icon(Icons.Filled.Person)
+                            HintText = "Account", FontSize = _inputSize,
+                            Prefix = new Icon(Icons.Filled.Person) { Size = _inputSize },
                         },
                         new Input(_password)
                         {
-                            IsObscure = true, HintText = "Password",
-                            Prefix = new Icon(Icons.Filled.Lock)
+                            IsObscure = true, HintText = "Password", FontSize = _inputSize,
+                            Prefix = new Icon(Icons.Filled.Lock) { Size = _inputSize },
                         },
                         new Button("Login")
                     }

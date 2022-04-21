@@ -5,6 +5,7 @@ import * as AppBoxDev from '@/AppBoxDev'
 export class LoginPage extends PixUI.View {
     private readonly _userName: PixUI.State<string> = PixUI.State.op_Implicit_From("");
     private readonly _password: PixUI.State<string> = PixUI.State.op_Implicit_From("");
+    private readonly _inputSize: PixUI.State<number> = PixUI.State.op_Implicit_From(20);
 
     public constructor() {
         super();
@@ -28,11 +29,13 @@ export class LoginPage extends PixUI.View {
             Child: new PixUI.Column(PixUI.HorizontalAlignment.Center, 30).Init({
                     Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Welcome")).Init({FontSize: PixUI.State.op_Implicit_From(50)}), new PixUI.Input(this._userName).Init({
                         HintText: "Account",
-                        Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Person))
+                        FontSize: this._inputSize,
+                        Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Person)).Init({Size: this._inputSize})
                     }), new PixUI.Input(this._password).Init({
                         IsObscure: true,
                         HintText: "Password",
-                        Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock))
+                        FontSize: this._inputSize,
+                        Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock)).Init({Size: this._inputSize})
                     }), new PixUI.Button(PixUI.State.op_Implicit_From("Login"))]
                 }
             )
