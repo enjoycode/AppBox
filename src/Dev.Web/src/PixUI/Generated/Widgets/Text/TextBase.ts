@@ -38,7 +38,7 @@ export abstract class TextBase extends PixUI.Widget {
 
     protected constructor(text: PixUI.State<string>) {
         super();
-        this.Text = this.Bind(text, PixUI.BindingOptions.AffectsLayout);
+        this.Text = this.Bind(text, this instanceof PixUI.EditableText ? PixUI.BindingOptions.AffectsVisual : PixUI.BindingOptions.AffectsLayout);
     }
 
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
@@ -48,12 +48,16 @@ export abstract class TextBase extends PixUI.Widget {
         super.OnStateChanged(state, options);
     }
 
-    protected BuildParagraph(width: number) {
+    protected BuildParagraph(text: string, width: number) {
         //if (_cachedParagraph != null) return;
         this._cachedParagraph?.delete();
 
-        let fontSize = this._fontSize?.Value ?? PixUI.Theme.DefaultFontSize;
         let color = (this._color?.Value ?? PixUI.Colors.Black).Clone();
+        this._cachedParagraph = this.BuildParagraphInternal(text, width, color);
+    }
+
+    protected BuildParagraphInternal(text: string, width: number, color: PixUI.Color): PixUI.Paragraph {
+        let fontSize = this._fontSize?.Value ?? PixUI.Theme.DefaultFontSize;
         let ts = PixUI.MakeTextStyle({color: color, fontSize: fontSize});
         let ps = PixUI.MakeParagraphStyle({maxLines: 1, textStyle: ts});
         if (this instanceof PixUI.EditableText) {
@@ -64,25 +68,26 @@ export abstract class TextBase extends PixUI.Widget {
         let pb = PixUI.MakeParagraphBuilder(ps);
 
         pb.pushStyle(ts);
-        pb.addText(this.Text.Value);
+        pb.addText(text);
         pb.pop();
-        this._cachedParagraph = pb.build();
-        this._cachedParagraph.layout(width);
+        let ph = pb.build();
+        ph.layout(width);
         pb.delete();
+        return ph;
     }
 
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
-        this.BuildParagraph(width);
+        this.BuildParagraph(this.Text.Value, width);
 
         //TODO:wait skia fix bug
         //https://groups.google.com/g/skia-discuss/c/WXUVWrcgiko?pli=1
         //https://bugs.chromium.org/p/skia/issues/list?q=Area=%22TextLayout%22
 
         //W = Math.Min(width, _cachedParagraph.LongestLine);
-        this.SetSize(Math.min(width, this._cachedParagraph.getMaxIntrinsicWidth()), Math.min(height, this._cachedParagraph.getHeight()));
+        this.SetSize(Math.min(width, this._cachedParagraph!.getMaxIntrinsicWidth()), Math.min(height, this._cachedParagraph.getHeight()));
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {

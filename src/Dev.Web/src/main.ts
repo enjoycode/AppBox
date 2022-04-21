@@ -1,4 +1,6 @@
 import * as PixUI from '@/PixUI'
+import * as AppBoxDev from '@/AppBoxDev'
+
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
 
 class DemoWidget {
@@ -39,6 +41,10 @@ public sealed class Person
             Child: new CodeEditorWidget(controller)
         });
     }
+
+    public static MakeDev(): PixUI.Widget {
+        return new AppBoxDev.LoginPage();
+    }
 }
 
 // 初始化TreeSitter
@@ -51,7 +57,7 @@ TreeSitter.init().then(async (res: any) => {
     PixUI.WebApplication.Init();
     // PixUI.PaintDebugger.Switch();
     // 开始运行
-    PixUI.WebApplication.Run(DemoWidget.MakeCodeEditor);
+    PixUI.WebApplication.Run(DemoWidget.MakeDev);
 });
 
 

@@ -4,10 +4,25 @@ import * as PixUI from '@/PixUI'
 export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, PixUI.IFocusable {
     private static readonly $meta_PixUI_IMouseRegion = true;
     private static readonly $meta_PixUI_IFocusable = true;
+
+    public constructor(text: PixUI.State<string>) {
+        super(text);
+        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.IBeam);
+        this.MouseRegion.PointerDown.Add(this._OnPointerDown, this);
+
+        this.FocusNode = new PixUI.FocusNode();
+        this.FocusNode.FocusChanged.Add(this._OnFocusChanged, this);
+        this.FocusNode.TextInput.Add(this._OnTextInput, this);
+        this.FocusNode.KeyDown.Add(this._OnKeyDown, this);
+
+        this._caret = new PixUI.Caret(this, this.GetCaretColor.bind(this), this.GetCaretBounds.bind(this));
+    }
+
     private readonly _caret: PixUI.Caret;
     private _caretPosition: number = 0;
 
     public readonly Focused: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
+    private _hintParagraph: Nullable<PixUI.Paragraph>;
 
     #MouseRegion: PixUI.MouseRegion;
     public get MouseRegion() {
@@ -31,18 +46,9 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         return (this.FontSize?.Value ?? PixUI.Theme.DefaultFontSize) + 4;
     }
 
-    public constructor(text: PixUI.State<string>) {
-        super(text);
-        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.IBeam);
-        this.MouseRegion.PointerDown.Add(this._OnPointerDown, this);
+    public IsObscure: boolean = false;
 
-        this.FocusNode = new PixUI.FocusNode();
-        this.FocusNode.FocusChanged.Add(this._OnFocusChanged, this);
-        this.FocusNode.TextInput.Add(this._OnTextInput, this);
-        this.FocusNode.KeyDown.Add(this._OnKeyDown, this);
-
-        this._caret = new PixUI.Caret(this, this.GetCaretColor.bind(this), this.GetCaretBounds.bind(this));
-    }
+    public HintText: Nullable<string>;
 
 
     private _OnFocusChanged(focused: boolean) {
@@ -116,6 +122,8 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         let caretWidth: number = 2;
         let halfCaretWidth: number = caretWidth / 2;
 
+        this.TryBuildParagraph();
+
         let winPt = this.LocalToWindow(0, 0);
         if (this._caretPosition == this.Text.Value.length) {
             let textbox = PixUI.GetRectForPosition(this.CachedParagraph!, this._caretPosition - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
@@ -133,18 +141,33 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
     } //TODO:
 
 
+    private TryBuildParagraph() {
+        if (this.CachedParagraph != null) return;
+
+        let text = this.IsObscure ? '●'.repeat(this.Text.Value.length) : this.Text.Value;
+        this.BuildParagraph(text, Number.POSITIVE_INFINITY);
+    }
+
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
-        this.BuildParagraph(Number.POSITIVE_INFINITY);
+        this.TryBuildParagraph();
         this.SetSize(width, Math.min(height, this.FontHeight));
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        if (this.CachedParagraph == null) return;
+        if (this.Text.Value.length == 0) {
+            if (System.IsNullOrEmpty(this.HintText)) return;
 
-        canvas.drawParagraph(this.CachedParagraph, 0, 2);
+            this._hintParagraph ??=
+                this.BuildParagraphInternal(this.HintText, Number.POSITIVE_INFINITY, PixUI.Colors.Gray);
+            canvas.drawParagraph(this._hintParagraph, 0, 2);
+        } else {
+            this.TryBuildParagraph();
+            if (this.CachedParagraph == null) return;
+            canvas.drawParagraph(this.CachedParagraph, 0, 2);
+        }
     }
 
     public Init(props: Partial<EditableText>): EditableText {

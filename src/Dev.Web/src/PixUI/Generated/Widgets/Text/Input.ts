@@ -2,6 +2,14 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class Input extends PixUI.Widget {
+    public constructor(text: PixUI.State<string>) {
+        super();
+        this._editableText = new PixUI.EditableText(text);
+        this._editableText.Parent = this;
+        this._focusedDecoration = new PixUI.FocusedDecoration(this, this.GetFocusedBorder.bind(this), this.GetUnFocusedBorder.bind(this));
+        this._focusedDecoration.AttachFocusChangedEvent(this._editableText);
+    }
+
     private static readonly DefaultBorder: PixUI.InputBorder = new PixUI.OutlineInputBorder(null, PixUI.BorderRadius.All(PixUI.Radius.Circular(4)));
 
     private _prefix: Nullable<PixUI.Widget>;
@@ -61,14 +69,17 @@ export class Input extends PixUI.Widget {
         this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
-    public constructor(text: PixUI.State<string>) {
-        super();
-        this._editableText = new PixUI.EditableText(text);
-        this._editableText.Parent = this;
-        this._focusedDecoration = new PixUI.FocusedDecoration(this, this.GetFocusedBorder.bind(this), this.GetUnFocusedBorder.bind(this));
-        this._focusedDecoration.AttachFocusChangedEvent(this._editableText);
+    public get IsObscure(): boolean {
+        return this._editableText.IsObscure;
     }
 
+    public set IsObscure(value: boolean) {
+        this._editableText.IsObscure = value;
+    }
+
+    public set HintText(value: string) {
+        this._editableText.HintText = value;
+    }
 
     private GetUnFocusedBorder(): Nullable<PixUI.ShapeBorder> {
         return this._border ?? Input.DefaultBorder;

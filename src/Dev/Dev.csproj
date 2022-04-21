@@ -13,4 +13,10 @@
       <ProjectReference Include="..\PixUI\PixUI\PixUI.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Commands" />
+      <Folder Include="Designers" />
+      <Folder Include="Pads" />
+    </ItemGroup>
+
 </Project>
