@@ -4,12 +4,29 @@ import * as PixUI from '@/PixUI'
 export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IFocusable {
     private static readonly $meta_PixUI_IMouseRegion = true;
     private static readonly $meta_PixUI_IFocusable = true;
+
+    public constructor(text: Nullable<PixUI.State<string>> = null, icon: Nullable<PixUI.State<PixUI.IconData>> = null) {
+        super();
+        this.Width = PixUI.State.op_Implicit_From(120);
+        this.Height = PixUI.State.op_Implicit_From(35);
+
+        this._text = text;
+        this._icon = icon;
+
+        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
+        this.FocusNode = new PixUI.FocusNode();
+
+        this._hoverDecoration = new PixUI.HoverDecoration(this, this.GetHoverShaper.bind(this), 4);
+        this._hoverDecoration.AttachHoverChangedEvent(this);
+    }
+
     private static readonly StandardRadius: number = 4;
 
     private _text: Nullable<PixUI.State<string>>;
     private _icon: Nullable<PixUI.State<PixUI.IconData>>;
     private _outlineWidth: Nullable<PixUI.State<number>>;
     private _textColor: Nullable<PixUI.State<PixUI.Color>>;
+    private _fontSize: Nullable<PixUI.State<number>>;
 
     public Style: PixUI.ButtonStyle = PixUI.ButtonStyle.Solid;
     public Shape: PixUI.ButtonShape = PixUI.ButtonShape.Standard;
@@ -25,6 +42,16 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         this._textColor = value;
         if (this._textWidget != null) this._textWidget.Color = value;
         if (this._iconWidget != null) this._iconWidget.Color = value;
+    }
+
+    public get FontSize(): Nullable<PixUI.State<number>> {
+        return this._fontSize;
+    }
+
+    public set FontSize(value: Nullable<PixUI.State<number>>) {
+        this._fontSize = value;
+        if (this._textWidget != null) this._textWidget.FontSize = value;
+        if (this._iconWidget != null) this._iconWidget.Size = value;
     }
 
     private readonly _hoverDecoration: PixUI.HoverDecoration;
@@ -50,22 +77,6 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
     public set OnTap(value: System.Action1<PixUI.PointerEvent>) {
         this.MouseRegion.PointerTap.Add(value, this);
     }
-
-    public constructor(text: Nullable<PixUI.State<string>> = null, icon: Nullable<PixUI.State<PixUI.IconData>> = null) {
-        super();
-        this.Width = PixUI.State.op_Implicit_From(120);
-        this.Height = PixUI.State.op_Implicit_From(35);
-
-        this._text = text;
-        this._icon = icon;
-
-        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
-        this.FocusNode = new PixUI.FocusNode();
-
-        this._hoverDecoration = new PixUI.HoverDecoration(this, this.GetHoverShaper.bind(this), 4);
-        this._hoverDecoration.AttachHoverChangedEvent(this);
-    }
-
 
     private GetHoverShaper(): PixUI.ShapeBorder {
         switch (this.Shape) {
@@ -105,12 +116,12 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         }
 
         if (this._text != null && this._textWidget == null) {
-            this._textWidget = new PixUI.Text(this._text).Init({Color: this._textColor});
+            this._textWidget = new PixUI.Text(this._text).Init({Color: this._textColor, FontSize: this._fontSize});
             this._textWidget.Parent = this;
         }
 
         if (this._icon != null && this._iconWidget == null) {
-            this._iconWidget = new PixUI.Icon(this._icon).Init({Color: this._textColor});
+            this._iconWidget = new PixUI.Icon(this._icon).Init({Color: this._textColor, Size: this._fontSize});
             this._iconWidget.Parent = this;
         }
     }

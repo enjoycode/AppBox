@@ -6,7 +6,14 @@ export class AppStudio extends PixUI.View {
     public constructor() {
         super();
         this.Child = new PixUI.Column
-        ().Init({Children: [new AppBoxDev.MainMenuPad()]});
+        ().Init({
+            Children: [new AppBoxDev.MainMenuPad(), new PixUI.Expanded
+            ().Init({
+                Child: new PixUI.Row
+                ().Init({Children: [new AppBoxDev.SidePad()]}
+                )
+            }), new AppBoxDev.FooterPad()]
+        });
     }
 
     public Init(props: Partial<AppStudio>): AppStudio {

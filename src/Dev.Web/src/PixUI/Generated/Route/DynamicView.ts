@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 
 export type TransitionBuilder = (animation: PixUI.Animation<number>, child: PixUI.Widget) => PixUI.Widget;
 
-export abstract class DynamicView extends PixUI.SingleChildWidget {
+export class DynamicView extends PixUI.SingleChildWidget {
     private _animationController: Nullable<PixUI.AnimationController>;
     private _animationFrom: Nullable<PixUI.Widget>;
     private _animationTo: Nullable<PixUI.Widget>;
@@ -92,5 +92,10 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
 
         if (this.Parent != null)
             canvas.restore();
+    }
+
+    public Init(props: Partial<DynamicView>): DynamicView {
+        Object.assign(this, props);
+        return this;
     }
 }

@@ -1,6 +1,6 @@
 using PixUI;
 
-namespace AppBoxDev.Pads
+namespace AppBoxDev
 {
     internal sealed class MainMenuPad : View
     {

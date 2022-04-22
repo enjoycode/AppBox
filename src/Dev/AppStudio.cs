@@ -1,4 +1,3 @@
-using AppBoxDev.Pads;
 using PixUI;
 
 namespace AppBoxDev
@@ -12,6 +11,17 @@ namespace AppBoxDev
                 Children = new Widget[]
                 {
                     new MainMenuPad(),
+                    new Expanded
+                    {
+                        Child = new Row
+                        {
+                            Children = new Widget[]
+                            {
+                                new SidePad(),
+                            }
+                        }
+                    },
+                    new FooterPad()
                 }
             };
         }
