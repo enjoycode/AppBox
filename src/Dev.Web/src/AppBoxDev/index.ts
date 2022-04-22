@@ -1,3 +1,5 @@
+export * from "./Generated/Design/DesignNode"
+
 export * from "./Generated/Pads/MainMenuPad"
 export * from "./Generated/Pads/FooterPad"
 export * from "./Generated/Pads/SidePad"

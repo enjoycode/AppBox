@@ -69,20 +69,20 @@ namespace AppBoxDev
         private readonly DesignTreePad _designTreePad = new DesignTreePad();
         private readonly ToolboxPad _toolboxPad = new ToolboxPad();
         private readonly SettingsPad _settingsPad = new SettingsPad();
-        private readonly State<Widget?> _activePad;
 
         public SidePad()
         {
-            _activePad = Compute<SidePadType, Widget?>(DevController.ActiveSidePad, s =>
-            {
-                switch (s)
+            var activePad = Compute<SidePadType, Widget?>(
+                DevController.ActiveSidePad, s =>
                 {
-                    case SidePadType.DesignTree: return _designTreePad;
-                    case SidePadType.Toolbox: return _toolboxPad;
-                    case SidePadType.Settings: return _settingsPad;
-                    default: return null;
-                }
-            });
+                    switch (s)
+                    {
+                        case SidePadType.DesignTree: return _designTreePad;
+                        case SidePadType.Toolbox: return _toolboxPad;
+                        case SidePadType.Settings: return _settingsPad;
+                        default: return null;
+                    }
+                });
 
 
             Child = new Row
@@ -92,8 +92,9 @@ namespace AppBoxDev
                     new NaviBar(),
                     new Container
                     {
+                        Padding = EdgeInsets.All(5),
                         Width = 250, Color = new Color(0xFFF3F3F3),
-                        Child = new DynamicView { DynamicWidget = _activePad },
+                        Child = new DynamicView { DynamicWidget = activePad },
                     }
                 }
             };
