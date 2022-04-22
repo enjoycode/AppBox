@@ -4,7 +4,7 @@ namespace AppBoxDev
 {
     public enum SidePadType
     {
-        ModelsTree,
+        DesignTree,
         Toolbox,
         Settings,
     }
@@ -30,7 +30,7 @@ namespace AppBoxDev
                             {
                                 Children = new Widget[]
                                 {
-                                    BuildButton(Icons.Filled.AccountTree, SidePadType.ModelsTree),
+                                    BuildButton(Icons.Filled.AccountTree, SidePadType.DesignTree),
                                     BuildButton(Icons.Filled.Build, SidePadType.Toolbox),
                                     BuildButton(Icons.Filled.Settings, SidePadType.Settings),
                                 }
@@ -46,7 +46,7 @@ namespace AppBoxDev
         {
             var color = _buttonColor;
             if (type != null)
-                color = RxComputed<Color>.Make(DevController.ActiveSidePad,
+                color = Compute(DevController.ActiveSidePad,
                     s => s == type ? new Color(0xFF4AC5EA) : new Color(0xFF6A7785));
 
             return new Button(null, icon)
@@ -66,14 +66,35 @@ namespace AppBoxDev
 
     internal sealed class SidePad : View
     {
+        private readonly DesignTreePad _designTreePad = new DesignTreePad();
+        private readonly ToolboxPad _toolboxPad = new ToolboxPad();
+        private readonly SettingsPad _settingsPad = new SettingsPad();
+        private readonly State<Widget?> _activePad;
+
         public SidePad()
         {
+            _activePad = Compute<SidePadType, Widget?>(DevController.ActiveSidePad, s =>
+            {
+                switch (s)
+                {
+                    case SidePadType.DesignTree: return _designTreePad;
+                    case SidePadType.Toolbox: return _toolboxPad;
+                    case SidePadType.Settings: return _settingsPad;
+                    default: return null;
+                }
+            });
+
+
             Child = new Row
             {
                 Children = new Widget[]
                 {
                     new NaviBar(),
-                    new DynamicView() { Width = 350 },
+                    new Container
+                    {
+                        Width = 250, Color = new Color(0xFFF3F3F3),
+                        Child = new DynamicView { DynamicWidget = _activePad },
+                    }
                 }
             };
         }

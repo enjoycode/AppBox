@@ -8,8 +8,15 @@ export class DynamicView extends PixUI.SingleChildWidget {
     private _animationFrom: Nullable<PixUI.Widget>;
     private _animationTo: Nullable<PixUI.Widget>;
     private _transitionStack: Nullable<PixUI.TransitionStack>;
+    private _dynamicWidget: Nullable<PixUI.State<Nullable<PixUI.Widget>>>;
 
-    protected ReplaceTo(to: PixUI.Widget) {
+    public set DynamicWidget(value: PixUI.State<Nullable<PixUI.Widget>>) {
+        this._dynamicWidget = this.Rebind(this._dynamicWidget, value, PixUI.BindingOptions.None);
+        if (!this.IsMounted && this._dynamicWidget != null)
+            this.Child = this._dynamicWidget.Value;
+    }
+
+    protected ReplaceTo(to: Nullable<PixUI.Widget>) {
         this.Root!.Window.BeforeDynamicViewChange();
         this.Child = to;
         this.Root!.Window.AfterDynamicViewChange();
@@ -66,6 +73,14 @@ export class DynamicView extends PixUI.SingleChildWidget {
 
             this.Root!.Window.AfterDynamicViewChange();
         }
+    }
+
+    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
+        if ((state === this._dynamicWidget)) {
+            this.ReplaceTo(this._dynamicWidget.Value);
+            return;
+        }
+        super.OnStateChanged(state, options);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {

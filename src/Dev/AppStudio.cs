@@ -18,6 +18,7 @@ namespace AppBoxDev
                             Children = new Widget[]
                             {
                                 new SidePad(),
+                                new Expanded()
                             }
                         }
                     },

@@ -7,6 +7,6 @@ namespace AppBoxDev
         /// <summary>
         /// 当前选择的侧边栏
         /// </summary>
-        public static readonly State<SidePadType> ActiveSidePad = SidePadType.ModelsTree;
+        public static readonly State<SidePadType> ActiveSidePad = SidePadType.DesignTree;
     }
 }

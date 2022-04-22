@@ -10,7 +10,7 @@ export class AppStudio extends PixUI.View {
             Children: [new AppBoxDev.MainMenuPad(), new PixUI.Expanded
             ().Init({
                 Child: new PixUI.Row
-                ().Init({Children: [new AppBoxDev.SidePad()]}
+                ().Init({Children: [new AppBoxDev.SidePad(), new PixUI.Expanded()]}
                 )
             }), new AppBoxDev.FooterPad()]
         });

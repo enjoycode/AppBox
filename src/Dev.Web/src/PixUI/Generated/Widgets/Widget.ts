@@ -225,7 +225,11 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     }
 
 
-    protected Compute<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>, getter: System.Func3<T1, T2, TR>, setter: Nullable<System.Action1<TR>> = null): PixUI.RxComputed<TR> {
+    protected Compute1<T, TR>(s: PixUI.State<T>, getter: System.Func2<T, TR>): PixUI.RxComputed<TR> {
+        return PixUI.RxComputed.Make1(s, getter);
+    }
+
+    protected Compute2<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>, getter: System.Func3<T1, T2, TR>, setter: Nullable<System.Action1<TR>> = null): PixUI.RxComputed<TR> {
         return PixUI.RxComputed.Make2(s1, s2, getter, setter);
     }
 

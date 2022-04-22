@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 import * as AppBoxDev from '@/AppBoxDev'
 
 export enum SidePadType {
-    ModelsTree,
+    DesignTree,
     Toolbox,
     Settings
 }
@@ -22,7 +22,7 @@ export class NaviBar extends PixUI.View {
             ().Init({
                     Children: [new PixUI.Expanded
                     ().Init({
-                        Child: new PixUI.Column(PixUI.HorizontalAlignment.Center, 5).Init({Children: [this.BuildButton(PixUI.Icons.Filled.AccountTree, SidePadType.ModelsTree), this.BuildButton(PixUI.Icons.Filled.Build, SidePadType.Toolbox), this.BuildButton(PixUI.Icons.Filled.Settings, SidePadType.Settings)]}
+                        Child: new PixUI.Column(PixUI.HorizontalAlignment.Center, 5).Init({Children: [this.BuildButton(PixUI.Icons.Filled.AccountTree, SidePadType.DesignTree), this.BuildButton(PixUI.Icons.Filled.Build, SidePadType.Toolbox), this.BuildButton(PixUI.Icons.Filled.Settings, SidePadType.Settings)]}
                         )
                     }), this.BuildButton(PixUI.Icons.Filled.ArrowLeft)
                     ]
@@ -34,7 +34,7 @@ export class NaviBar extends PixUI.View {
     private BuildButton(icon: PixUI.IconData, type: Nullable<SidePadType> = null): PixUI.Button {
         let color = this._buttonColor;
         if (type != null)
-            color = PixUI.RxComputed.Make1(AppBoxDev.DevController.ActiveSidePad, s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
+            color = this.Compute1(AppBoxDev.DevController.ActiveSidePad, s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
 
         return new PixUI.Button(null, PixUI.State.op_Implicit_From(icon)).Init({
             FontSize: this._buttonSize,
@@ -56,10 +56,37 @@ export class NaviBar extends PixUI.View {
 }
 
 export class SidePad extends PixUI.View {
+    private readonly _designTreePad: AppBoxDev.DesignTreePad = new AppBoxDev.DesignTreePad();
+    private readonly _toolboxPad: AppBoxDev.ToolboxPad = new AppBoxDev.ToolboxPad();
+    private readonly _settingsPad: AppBoxDev.SettingsPad = new AppBoxDev.SettingsPad();
+    private readonly _activePad: PixUI.State<Nullable<PixUI.Widget>>;
+
     public constructor() {
         super();
+        this._activePad = this.Compute1(AppBoxDev.DevController.ActiveSidePad, s => {
+            switch (s) {
+                case SidePadType.DesignTree:
+                    return this._designTreePad;
+                case SidePadType.Toolbox:
+                    return this._toolboxPad;
+                case SidePadType.Settings:
+                    return this._settingsPad;
+                default:
+                    return null;
+            }
+        });
+
+
         this.Child = new PixUI.Row
-        ().Init({Children: [new NaviBar(), new PixUI.DynamicView().Init({Width: PixUI.State.op_Implicit_From(350)})]});
+        ().Init({
+            Children: [new NaviBar(), new PixUI.Container
+            ().Init({
+                    Width: PixUI.State.op_Implicit_From(250),
+                    Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
+                    Child: new PixUI.DynamicView().Init({DynamicWidget: this._activePad})
+                }
+            )]
+        });
     }
 
     public Init(props: Partial<SidePad>): SidePad {
