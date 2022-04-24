@@ -7,8 +7,18 @@ export default defineConfig({
 
     resolve: {
         alias: [{
-            find:'@',
+            find: '@',
             replacement: resolve(__dirname, 'src')
         }]
+    },
+
+    server: {
+        proxy: {
+            '/ws': {
+                target: 'ws://localhost:5137/',
+                secure: false,
+                ws: true
+            }
+        }
     }
 })

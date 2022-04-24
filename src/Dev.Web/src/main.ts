@@ -1,5 +1,6 @@
 import * as PixUI from '@/PixUI'
 import * as AppBoxDev from '@/AppBoxDev'
+import {Channel, WebChannel} from "@/AppBoxChannel";
 
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
 
@@ -43,7 +44,7 @@ public sealed class Person
     }
 
     public static MakeDev(): PixUI.Widget {
-        return new AppBoxDev.AppStudio();
+        return new AppBoxDev.LoginPage();
     }
 }
 
@@ -53,6 +54,8 @@ TreeSitter.init().then(async (res: any) => {
     let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-c_sharp.wasm');
     TSCSharpLanguage.Init(csharpLanguage);
 
+    // 初始化Channel
+    Channel.Init(new WebChannel());
     // 初始化PixUI
     PixUI.WebApplication.Init();
     // PixUI.PaintDebugger.Switch();

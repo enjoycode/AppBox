@@ -1,6 +1,14 @@
 import {Point} from "../../src/PixUI/CanvasKit/Point";
 import {OpEquality, OpInequality} from "../../src/System/Utils";
 
+class Animable {
+    private static readonly $meta_info = true;
+}
+
+class Cat extends Animable {
+
+}
+
 describe("Equality tests", () => {
 
     it("OpEquality test", () => {
@@ -29,6 +37,11 @@ describe("Equality tests", () => {
 
         let res = OpInequality(a, b);
         expect(res).toEqual(true);
+    });
+
+    it("Inherit test", () => {
+       let cat = new Cat();
+       expect("$meta_info" in cat.constructor).toEqual(true);
     });
 
 });
