@@ -1,6 +1,6 @@
-namespace AppBoxChannel
+namespace AppBoxCore
 {
-    public enum PayloadType
+    public enum PayloadType : byte
     {
         Null = 0,
         BooleanTrue = 1,
