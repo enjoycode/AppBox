@@ -18,7 +18,7 @@ internal static class WebSocketManager
     private static readonly ReaderWriterLockSlim ClientsLock = new ReaderWriterLockSlim();
 
 
-    internal static async Task OnAccept(HttpContent content, WebSocket webSocket)
+    internal static async Task OnAccept(WebSocket webSocket)
     {
         // 先加入匿名列表
         var client = new WebSocketClient(webSocket);

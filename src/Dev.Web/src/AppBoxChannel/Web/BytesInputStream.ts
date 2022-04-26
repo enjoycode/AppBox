@@ -72,6 +72,10 @@ export class BytesInputStream implements IInputStream {
         return value;
     }
 
+    public ReadBool(): boolean {
+        return this.ReadByte() === PayloadType.BooleanTrue;
+    }
+
     public ReadInt16(): number {
         this.ensureRemaining(2);
         const value = this.view.getInt16(this.pos, true);

@@ -216,7 +216,7 @@ public class ObjectPool<T> where T : class
     /// return a larger array to the pool than was originally allocated.
     /// </summary>
     [Conditional("DEBUG")]
-    internal void ForgetTrackedObject(T old, T replacement = null)
+    internal void ForgetTrackedObject(T old, T? replacement = null)
     {
 #if DETECT_LEAKS
             LeakTracker tracker;

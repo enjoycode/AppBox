@@ -35,7 +35,7 @@ public sealed class SerializationTest
         var segment = writer.FinishWrite();
         MessageWriteStream.Return(writer);
 
-        var reader = MessageReadStream.RentFrom(segment.First!);
+        var reader = MessageReadStream.Rent(segment.First!);
         Assert.True(reader.ReadBool() == true);
         Assert.True(reader.ReadInt() == 1234);
         Assert.True(reader.ReadVariant() == 5678);

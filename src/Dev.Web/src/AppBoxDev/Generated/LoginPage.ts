@@ -38,8 +38,11 @@ export class LoginPage extends PixUI.View {
                         FontSize: this._inputSize,
                         Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock)).Init({Size: this._inputSize})
                     }), new PixUI.Button(PixUI.State.op_Implicit_From("Login")).Init({
-                        OnTap: e => {
-                            Channel.Login("Admin", "password");
+                        OnTap: async e => {
+                            let error = await Channel.Login("Admin", "password");
+                            console.log(`登录结果: ${error ?? "成功"}`);
+                            let res = await Channel.Invoke("System.HelloService.SayHello");
+                            console.log(`调用结果: ${res}`);
                         }
                     })]
                 }

@@ -204,7 +204,7 @@ public static class StringUtil
     }
 
     [System.Diagnostics.Contracts.Pure]
-    public static unsafe string ToHexString(byte[] bytes)
+    public static unsafe string? ToHexString(byte[]? bytes)
     {
         if (bytes == null || bytes.Length == 0)
             return null;
@@ -227,7 +227,7 @@ public static class StringUtil
         return result;
     }
 
-    public static unsafe string ToHexString(IntPtr bytePtr, int size)
+    public static unsafe string? ToHexString(IntPtr bytePtr, int size)
     {
         if (bytePtr == IntPtr.Zero)
             throw new ArgumentNullException(nameof(bytePtr));
@@ -255,7 +255,7 @@ public static class StringUtil
     }
 
     [System.Diagnostics.Contracts.Pure]
-    public static unsafe byte[] FromHexString(string value)
+    public static unsafe byte[]? FromHexString(string value)
     {
         if (string.IsNullOrEmpty(value))
             return null;

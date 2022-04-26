@@ -6,5 +6,5 @@ export interface IChannel {
 
     Logout(): Promise<boolean>;
 
-    Invoke(service: string, args: any[]): Promise<any>;
+    Invoke(service: string, args?: any[]): Promise<any>;
 }

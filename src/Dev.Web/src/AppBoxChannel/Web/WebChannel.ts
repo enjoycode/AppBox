@@ -21,7 +21,7 @@ export class WebChannel implements IChannel {
         console.log("Start connect to : " + connectionUrl);
         this.#_socket = new WebSocket(connectionUrl);
         this.#_socket.binaryType = 'arraybuffer';
-        this.#_socket.onmessage = this.onmessage;
+        this.#_socket.onmessage = e => this.OnMessage(e);
         this.#_connectDone = new Promise<void>((resolve, reject) => {
             this.#_socket.onopen = e => {
                 console.log("WebSocket connect done.");
@@ -45,14 +45,16 @@ export class WebChannel implements IChannel {
     }
 
     /** 接收到服务端消息，格式参照说明 */
-    private onmessage(event: MessageEvent) {
+    private OnMessage(event: MessageEvent) {
         // console.log("收到WebSocket消息:", event.data);
 
         if (event.data instanceof ArrayBuffer) {
             let rs = new BytesInputStream(event.data);
             let msgType = rs.ReadByte(); //先读消息类型
             if (msgType == MessageType.InvokeResponse) {
-                this.processInvokeResponse(rs).catch(err => console.warn(err));
+                this.ProcessInvokeResponse(rs).catch(err => console.warn(err));
+            } else if (msgType == MessageType.LoginResponse) {
+                this.ProcessLoginResponse(rs);
             } else if (msgType == MessageType.Event) {
                 //this.processEventMessage(rs);
             } else {
@@ -63,25 +65,32 @@ export class WebChannel implements IChannel {
         }
     }
 
+    private ProcessLoginResponse(stream: BytesInputStream) {
+        const reqMsgId = stream.ReadInt32();
+        const loginOk = stream.ReadBool();
+        //TODO: not ok, read error message
+        let errorMsg: string | null = null;
+        this.SetResponse(reqMsgId, InvokeErrorCode.None, errorMsg);
+    }
+
     /** 处理收到的调用服务的响应 */
-    private async processInvokeResponse(steam: BytesInputStream) {
-        let reqMsgId = steam.ReadInt32();
-        let errorCode: InvokeErrorCode = steam.ReadByte();
+    private async ProcessInvokeResponse(stream: BytesInputStream) {
+        let reqMsgId = stream.ReadInt32();
+        let errorCode: InvokeErrorCode = stream.ReadByte();
         let result: any;
-        if (steam.Remaining > 0) { //因有些错误可能不包含数据，只有错误码
+        if (stream.Remaining > 0) { //因有些错误可能不包含数据，只有错误码
             try {
-                result = await steam.DeserializeAsync();
+                result = await stream.DeserializeAsync();
             } catch (error) {
-                // console.error("DeserializeResponse error:", error);
                 errorCode = InvokeErrorCode.DeserializeResponseFail;
                 result = error;
             }
         }
-        this.setInvokeResponse(reqMsgId, errorCode, result);
+        this.SetResponse(reqMsgId, errorCode, result);
     }
 
     /** 处理收到的事件消息 */
-    // private processEventMessage(stream: BytesInputStream) {
+    // private ProcessEventMessage(stream: BytesInputStream) {
     //     let eventId = stream.ReadInt32();
     //     let handler = this.eventHandlers.get(eventId);
     //     if (handler) {
@@ -91,8 +100,8 @@ export class WebChannel implements IChannel {
     //     }
     // }
 
-    /** 正常收到调用响应或发送失败后设置调用结果 */
-    private setInvokeResponse(reqId: number, error: InvokeErrorCode, result: any) {
+    /** 正常收到响应或发送失败后设置等待结果 */
+    private SetResponse(reqId: number, error: InvokeErrorCode, result: any) {
         //console.log('收到调用回复: ', error, result);
 
         let waitHandler = this.waitHandles.get(reqId);
@@ -141,10 +150,7 @@ export class WebChannel implements IChannel {
     //endregion
 
     //region ====IChannel====
-
-    async Login(user: string, password: string, external?: string): Promise<string | null> {
-        const msgId = this.MakeMsgId();
-        //加入等待者列表
+    private MakePromise(reqId: number): Promise<any> {
         let waitHandler: any = {Cb: null};
         let promise = new Promise<any>((resolve, reject) => {
             waitHandler.Cb = (err: any, res: any) => {
@@ -152,13 +158,20 @@ export class WebChannel implements IChannel {
                 else resolve(res);
             }
         });
-        this.waitHandles.set(msgId, waitHandler);
+        this.waitHandles.set(reqId, waitHandler);
+        return promise;
+    }
+
+    async Login(user: string, password: string, external?: string): Promise<string | null> {
+        //加入等待者列表
+        const msgId = this.MakeMsgId();
+        let promise = this.MakePromise(msgId);
 
         //序列化消息
         let ws = new BytesOutputStream();
         //写入消息头
         ws.WriteByte(MessageType.LoginRequest);
-        ws.WriteInt32(msgId);   //请求消息标识
+        ws.WriteInt32(msgId);
         //写入消息体
         ws.WriteString(user);
         ws.WriteString(password);
@@ -172,8 +185,30 @@ export class WebChannel implements IChannel {
         return Promise.resolve(false);
     }
 
-    Invoke(service: string, args: any[]): Promise<any> {
-        return Promise.resolve(undefined);
+    async Invoke(service: string, args?: any[]): Promise<any> {
+        //加入等待者列表
+        const msgId = this.MakeMsgId();
+        let promise = this.MakePromise(msgId);
+
+        //序列化消息
+        let ws = new BytesOutputStream();
+        //写入消息头
+        ws.WriteByte(MessageType.InvokeRequest);
+        ws.WriteInt32(msgId);
+        //写入消息体
+        ws.WriteString(service);
+        if (args) {
+            ws.WriteVariant(args.length);
+            for (const arg of args) {
+                await ws.SerializeAsync(arg);
+            }
+        } else {
+            ws.WriteVariant(0);
+        }
+
+        //发送请求并等待响应
+        await this.SendMessage(ws.Bytes);
+        return promise;
     }
 
     //endregion

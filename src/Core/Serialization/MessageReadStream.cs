@@ -7,14 +7,7 @@ public sealed class MessageReadStream : IInputStream
     private static readonly ObjectPool<MessageReadStream> Pool =
         new ObjectPool<MessageReadStream>(() => new MessageReadStream(), 16);
 
-    public static MessageReadStream Rent()
-    {
-        var res = Pool.Allocate();
-        res._current = BytesSegment.Rent();
-        return res;
-    }
-
-    public static MessageReadStream RentFrom(BytesSegment segment)
+    public static MessageReadStream Rent(BytesSegment segment)
     {
         var res = Pool.Allocate();
         res._current = segment;

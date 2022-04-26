@@ -8,8 +8,12 @@ export class Channel {
         this.#_provider = provider;
     }
 
-    public static async Login(user: string, password: string, external?: string): Promise<string | null> {
+    public static Login(user: string, password: string, external?: string): Promise<string | null> {
         return this.#_provider.Login(user, password, external);
+    }
+
+    public static Invoke(service: string, args?: any[]): Promise<any> {
+        return this.#_provider.Invoke(service, args);
     }
 
 }
