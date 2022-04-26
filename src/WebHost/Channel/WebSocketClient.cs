@@ -63,10 +63,6 @@ internal sealed class WebSocketClient
             Log.Warn($"Read client message error: {e.Message}");
             //TODO:发送响应或关闭连接
         }
-        finally
-        {
-            MessageReadStream.Return(reader);
-        }
     }
 
     private async Task ProcessLoginRequest(int msgId, MessageReadStream reader)
@@ -88,25 +84,71 @@ internal sealed class WebSocketClient
 
     private async Task ProcessInvokeRequest(int msgId, MessageReadStream reader)
     {
-        var service = reader.ReadString();
-        var argsCount = reader.ReadVariant();
+        //调用服务
+        var result = AnyValue.Empty;
+        var errorCode = InvokeErrorCode.None;
+        try
+        {
+            var service = reader.ReadString()!;
+            Log.Debug($"收到调用请求: {service}");
 
-        Log.Debug($"收到调用请求: {service}");
+            result = await RuntimeContext.InvokeAsync(service, InvokeArgs.From(reader));
+        }
+        catch (Exception e)
+        {
+            errorCode = e switch
+            {
+                ServicePathException => InvokeErrorCode.DeserializeRequestFail,
+                SerializationException => InvokeErrorCode.DeserializeRequestFail,
+                ServiceNotExistsException => InvokeErrorCode.ServiceNotExists,
+                _ => InvokeErrorCode.ServiceInnerError
+            };
+            Log.Warn($"Invoke service error[{errorCode}]: {e.Message}");
+        }
 
-        var result = AnyValue.From("Hello World");
-
+        //序列化并发送响应
         var writer = MessageWriteStream.Rent();
-        writer.WriteByte((byte)MessageType.InvokeResponse);
-        writer.WriteInt(msgId);
-        writer.WriteByte((byte)InvokeErrorCode.None);
-        writer.Serialize(result);
+        var writeError = false;
+        try
+        {
+            writer.WriteByte((byte)MessageType.InvokeResponse);
+            writer.WriteInt(msgId);
+            writer.WriteByte((byte)errorCode);
+            writer.Serialize(result);
+        }
+        catch (Exception e) //序列化响应异常
+        {
+            writeError = true;
+            Log.Warn($"Serialize InvokeResponse error: {e.Message}");
+        }
 
         var data = writer.FinishWrite();
         MessageWriteStream.Return(writer);
-
-        await SendMessage(data).ConfigureAwait(false);
+        if (writeError)
+        {
+            BytesSegment.ReturnAll(data); //释放写错误的数据
+            await SendInvokeResponseWithSerializeError(msgId);
+        }
+        else
+        {
+            await SendMessage(data).ConfigureAwait(false);
+        }
     }
 
+    private async Task SendInvokeResponseWithSerializeError(int msgId)
+    {
+        var writer = MessageWriteStream.Rent();
+        writer.WriteByte((byte)MessageType.InvokeResponse);
+        writer.WriteInt(msgId);
+        writer.WriteByte((byte)InvokeErrorCode.SerializeResponseFail);
+        var data = writer.FinishWrite();
+        MessageWriteStream.Return(writer);
+        await SendMessage(data);
+    }
+
+    /// <summary>
+    /// 发送消息，完成后释放缓存
+    /// </summary>
     private async Task SendMessage(BytesSegment segment)
     {
         ReadOnlySequenceSegment<byte>? cur = segment;
@@ -127,6 +169,7 @@ internal sealed class WebSocketClient
         finally
         {
             _sendLock.Release();
+            BytesSegment.ReturnAll(segment);
         }
     }
 }

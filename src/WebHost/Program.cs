@@ -1,3 +1,6 @@
+using AppBoxCore;
+using AppBoxWebHost;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,5 +18,8 @@ var app = builder.Build();
 app.UseWebSockets();
 
 app.MapControllers();
+
+// 初始化
+RuntimeContext.Init(new HostRuntimeContext());
 
 app.Run();

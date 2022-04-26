@@ -19,6 +19,8 @@ public enum SerializationError
     NotSupportedValueType,
     NotSupportedClassType,
     KnownTypeOverriderIsNull,
+    
+    PayloadTypeNotMatch,
 
     NothingToRead,
     ReadVariantOutOfRange

@@ -41,7 +41,7 @@ export class LoginPage extends PixUI.View {
                         OnTap: async e => {
                             let error = await Channel.Login("Admin", "password");
                             console.log(`登录结果: ${error ?? "成功"}`);
-                            let res = await Channel.Invoke("System.HelloService.SayHello");
+                            let res = await Channel.Invoke("sys.SystemService.Hello", ["Rick"]);
                             console.log(`调用结果: ${res}`);
                         }
                     })]

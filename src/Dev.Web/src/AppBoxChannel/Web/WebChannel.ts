@@ -198,12 +198,9 @@ export class WebChannel implements IChannel {
         //写入消息体
         ws.WriteString(service);
         if (args) {
-            ws.WriteVariant(args.length);
             for (const arg of args) {
                 await ws.SerializeAsync(arg);
             }
-        } else {
-            ws.WriteVariant(0);
         }
 
         //发送请求并等待响应

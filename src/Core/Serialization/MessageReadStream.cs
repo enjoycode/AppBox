@@ -46,7 +46,7 @@ public sealed class MessageReadStream : IInputStream
     {
         var next = _current.Next as BytesSegment;
         if (next == null)
-            throw new Exception("Has no data to read");
+            throw new SerializationException(SerializationError.NothingToRead);
         Reset(next);
     }
 
