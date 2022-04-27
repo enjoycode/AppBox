@@ -21,6 +21,8 @@ public enum SerializationError
     KnownTypeOverriderIsNull,
     
     PayloadTypeNotMatch,
+    
+    ReadUnknownFieldId,
 
     NothingToRead,
     ReadVariantOutOfRange

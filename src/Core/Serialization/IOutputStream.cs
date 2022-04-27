@@ -95,6 +95,14 @@ public static class OutputStreamExtensions
         serializer.Write(s, value);
     }
 
+    public static IOutputStream WriteFieldId(this IOutputStream s, int fieldId)
+    {
+        s.WriteVariant(fieldId);
+        return s;
+    }
+
+    public static void WriteFieldEnd(this IOutputStream s) => s.WriteVariant(0);
+
     public static void Serialize(this IOutputStream s, in AnyValue value)
     {
         value.SerializeTo(s);

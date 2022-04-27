@@ -2,7 +2,7 @@ namespace AppBoxCore;
 
 public interface IBinSerializable
 {
-    void WriteTo(IOutputStream bs);
+    void WriteTo(IOutputStream ws);
 
-    void ReadFrom(IInputStream bs);
+    void ReadFrom(IInputStream rs);
 }

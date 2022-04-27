@@ -62,6 +62,8 @@ public static class InputStreamExtensions
         return -(temp & 1) ^ ((temp >> 1) & 0x7fffffff);
     }
 
+    public static int ReadFieldId(this IInputStream s) => s.ReadVariant();
+
     public static string? ReadString(this IInputStream s)
     {
         var len = s.ReadVariant();
