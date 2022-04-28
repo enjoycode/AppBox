@@ -2,13 +2,13 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
+public abstract class DesignNode : IComparable<DesignNode>, IDesignNode, IBinSerializable
 {
-    public abstract DesignNodeType NodeType { get; }
+    public abstract DesignNodeType Type { get; }
     public abstract string Label { get; }
 
     internal DesignNode? Parent;
-    public virtual IList<DesignNode>? Children => null;
+    public virtual IList<IDesignNode>? Children => null;
 
     /// <summary>
     /// 用于前端回传时识别是哪个节点
@@ -20,9 +20,9 @@ public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
     public int CompareTo(DesignNode? other)
     {
         //TODO:特殊类型排序
-        return NodeType == other!.NodeType
+        return Type == other!.Type
             ? string.Compare(Label, other.Label, StringComparison.Ordinal)
-            : ((byte)NodeType).CompareTo((byte)other.NodeType);
+            : ((byte)Type).CompareTo((byte)other.Type);
     }
 
     #endregion
@@ -32,7 +32,7 @@ public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
     public virtual void WriteTo(IOutputStream ws)
     {
         ws.WriteString(Id);
-        ws.WriteByte((byte)NodeType);
+        ws.WriteByte((byte)Type);
         ws.WriteString(Label);
     }
 

@@ -24,7 +24,7 @@ public sealed class NodeList<T> where T : DesignNode
     {
         item.Parent = Owner;
         //特定Owner找到插入点
-        if (Owner.NodeType is DesignNodeType.ModelRootNode or DesignNodeType.FolderNode)
+        if (Owner.Type is DesignNodeType.ModelRootNode or DesignNodeType.FolderNode)
         {
             var index = -1;
             for (var i = 0; i < _list.Count; i++)
@@ -71,7 +71,7 @@ public sealed class NodeList<T> where T : DesignNode
 
     public bool Exists(Predicate<T> match) => _list.Exists(match);
 
-    internal IList<DesignNode> ToList() => _list.Cast<DesignNode>().ToList();
+    internal IList<IDesignNode> ToList() => _list.Cast<IDesignNode>().ToList();
 
     internal void WriteTo(IOutputStream ws)
     {

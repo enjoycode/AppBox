@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerializationGenerator", "SerializationGenerator\SerializationGenerator.csproj", "{DAC4F539-8A6E-45DB-AB8C-822D31B460E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Design.Core", "Design.Core\Design.Core.csproj", "{46330B96-A7BA-4059-BACB-14B3A59962C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{DAC4F539-8A6E-45DB-AB8C-822D31B460E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAC4F539-8A6E-45DB-AB8C-822D31B460E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAC4F539-8A6E-45DB-AB8C-822D31B460E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46330B96-A7BA-4059-BACB-14B3A59962C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46330B96-A7BA-4059-BACB-14B3A59962C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46330B96-A7BA-4059-BACB-14B3A59962C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46330B96-A7BA-4059-BACB-14B3A59962C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

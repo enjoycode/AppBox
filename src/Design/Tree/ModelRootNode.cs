@@ -6,7 +6,7 @@ public sealed class ModelRootNode : DesignNode
 {
     public readonly ModelType TargetType;
     
-    public override DesignNodeType NodeType => DesignNodeType.ModelRootNode;
+    public override DesignNodeType Type => DesignNodeType.ModelRootNode;
     public override string Label => CodeUtil.GetPluralStringOfModelType(TargetType);
 
     public override string Id
