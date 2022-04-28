@@ -23,6 +23,24 @@ public static class OutputStreamExtensions
         }
     }
 
+    public static void WriteLong(this IOutputStream s, long value)
+    {
+        unsafe
+        {
+            var span = new Span<byte>(&value, 8);
+            s.WriteBytes(span);
+        }
+    }
+
+    public static void WriteGuid(this IOutputStream s, Guid value)
+    {
+        unsafe
+        {
+            var span = new Span<byte>(&value, 16);
+            s.WriteBytes(span);
+        }
+    }
+
     public static void WriteNativeVariant(this IOutputStream s, uint value)
     {
         do
@@ -58,6 +76,14 @@ public static class OutputStreamExtensions
             StringUtil.WriteTo(value, s.WriteByte);
         }
     }
+    
+    public static IOutputStream WriteFieldId(this IOutputStream s, int fieldId)
+    {
+        s.WriteVariant(fieldId);
+        return s;
+    }
+
+    public static void WriteFieldEnd(this IOutputStream s) => s.WriteVariant(0);
 
     public static void Serialize(this IOutputStream s, object? value)
     {
@@ -94,14 +120,6 @@ public static class OutputStreamExtensions
         //写入数据
         serializer.Write(s, value);
     }
-
-    public static IOutputStream WriteFieldId(this IOutputStream s, int fieldId)
-    {
-        s.WriteVariant(fieldId);
-        return s;
-    }
-
-    public static void WriteFieldEnd(this IOutputStream s) => s.WriteVariant(0);
 
     public static void Serialize(this IOutputStream s, in AnyValue value)
     {

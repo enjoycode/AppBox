@@ -2,7 +2,7 @@ using AppBoxCore.Utils;
 
 namespace AppBoxCore;
 
-[BinSerializable]
+[BinSerializable(BinSerializePolicy.Compact)]
 public sealed partial class ApplicationModel
 {
     [Field(1)] private int _id;

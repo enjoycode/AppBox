@@ -22,13 +22,27 @@ namespace SerializationGenerator
             "Field", "FieldAttribute", "AppBoxCore.Field", "AppBoxCore.FieldAttribute"
         };
 
+        private static readonly DiagnosticDescriptor NoReverseWithNullableField =
+#pragma warning disable RS2008
+            new DiagnosticDescriptor(id: "BS001",
+#pragma warning restore RS2008
+                title: "不可扩展的类型不能包含Nullable字段",
+                messageFormat: "不可扩展的类型不能包含Nullable字段: {0}",
+                category: "BinSerializationGenerator",
+                DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         public void Initialize(GeneratorInitializationContext context)
         {
 #if DEBUG
-            if (!Debugger.IsAttached)
-            {
-                Debugger.Launch();
-            }
+            // while (!Debugger.IsAttached)
+            // {
+            //     System.Threading.Thread.Sleep(1000);
+            // }
+            // if (!Debugger.IsAttached)
+            // {
+            //     Debugger.Launch();
+            // }
 #endif
             Debug.WriteLine("初始化序列化代码生成器");
         }
@@ -38,17 +52,34 @@ namespace SerializationGenerator
             var typeList = context.Compilation.SyntaxTrees
                 .SelectMany(t => t.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
                 .Where(type => type.AttributeLists.Any(list => list.Attributes.Any(a =>
-                    SerializableAttributeNames.Contains(a.Name.ToString()))));
+                    SerializableAttributeNames.Contains(a.Name.ToString()))))
+                .Select(n => new
+                {
+                    Declaration = n,
+                    Attribute = n.AttributeLists
+                        .SelectMany(l => l.Attributes)
+                        .First(a => SerializableAttributeNames.Contains(a.Name.ToString()))
+                });
 
             foreach (var type in typeList)
             {
-                Debug.WriteLine($"开始生成{type.Identifier.Text}...");
-                GenerateCode(type, context);
+                //读取策略配置
+                var policy = 0;
+                if (type.Attribute.ArgumentList!.Arguments.Count > 0)
+                {
+                    var policyName = type.Attribute.ArgumentList.Arguments[0].Expression.ToString();
+                    if (policyName.EndsWith(".Compact"))
+                        policy = 1;
+                    else if (policyName.EndsWith(".CompactNoReverse"))
+                        policy = 2;
+                }
+
+                GenerateCode(type.Declaration, context, policy);
             }
         }
 
-        private void GenerateCode(TypeDeclarationSyntax declaration,
-            GeneratorExecutionContext context)
+        private static void GenerateCode(TypeDeclarationSyntax declaration,
+            GeneratorExecutionContext context, int policy)
         {
             var semanticModel = context.Compilation.GetSemanticModel(declaration.SyntaxTree);
             var typeSymbol = semanticModel.GetDeclaredSymbol(declaration);
@@ -83,7 +114,8 @@ namespace SerializationGenerator
                     IsNullable = GetFieldType(n.Declaration) is NullableTypeSyntax,
                     TypeName = GetTypeName(GetFieldType(n.Declaration), n.Attribute),
                     FieldName = GetFieldName(n.Declaration),
-                    FieldId = n.Attribute.ArgumentList!.Arguments[0].Expression.ToString(),
+                    FieldId = int.Parse(
+                        n.Attribute.ArgumentList!.Arguments[0].Expression.ToString()),
                 })
                 .ToArray();
 
@@ -91,39 +123,103 @@ namespace SerializationGenerator
             //WriteTo
             sb.Append("\t\tpublic void WriteTo(IOutputStream ws)\n");
             sb.Append("\t\t{\n");
-            foreach (var item in fields)
+
+            if (policy == 0)
             {
-                if (item.IsNullable)
+                foreach (var item in fields)
+                {
+                    if (item.IsNullable)
+                        sb.Append($"\t\tif ({item.FieldName} != null)\n");
+                    sb.Append(
+                        $"\t\t\tws.WriteFieldId({item.FieldId}).Write{item.TypeName}({item.FieldName});\n");
+                }
+
+                sb.Append("\t\t\tws.WriteFieldEnd();\n");
+            }
+            else
+            {
+                var noneNullableFields = fields
+                    .Where(f => !f.IsNullable)
+                    .OrderBy(f => f.FieldId);
+                foreach (var item in noneNullableFields)
+                {
+                    sb.Append(
+                        $"\t\t\tws.Write{item.TypeName}({item.FieldName});\n");
+                }
+
+                var nullableFields = fields
+                    .Where(f => f.IsNullable)
+                    .OrderBy(f => f.FieldId)
+                    .ToArray();
+                foreach (var item in nullableFields)
+                {
                     sb.Append($"\t\tif ({item.FieldName} != null)\n");
-                sb.Append($"\t\t\tws.WriteFieldId({item.FieldId}).Write{item.TypeName}({item.FieldName});\n");
+                    sb.Append(
+                        $"\t\t\tws.WriteFieldId({item.FieldId}).Write{item.TypeName}({item.FieldName});\n");
+                }
+
+                if (policy == 2 && nullableFields.Length > 0)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(NoReverseWithNullableField,
+                        Location.None, typeSymbol.Name));
+                }
+
+                if (policy != 2)
+                    sb.Append("\t\t\tws.WriteFieldEnd();\n");
             }
 
             sb.Append("\t\t}\n\n");
 
-
             //ReadFrom
             sb.Append("\t\tpublic void ReadFrom(IInputStream rs)\n");
             sb.Append("\t\t{\n");
-            sb.Append("\t\t\twhile(true)\n");
-            sb.Append("\t\t\t{\n");
-            sb.Append("\t\t\t\tvar fieldId = rs.ReadFieldId();\n");
-            sb.Append("\t\t\t\tswitch(fieldId)\n");
-            sb.Append("\t\t\t\t{\n"); //begin switch
-            foreach (var item in fields)
+
+            if (policy != 0)
             {
-                sb.Append($"\t\t\t\t\tcase {item.FieldId}: ");
-                sb.Append($"{item.FieldName} = rs.Read{item.TypeName}(); break;\n");
+                var noneNullableFields = fields
+                    .Where(f => !f.IsNullable)
+                    .OrderBy(f => f.FieldId);
+                foreach (var item in noneNullableFields)
+                {
+                    sb.Append($"\t\t\t{item.FieldName} = rs.Read{item.TypeName}();\n");
+                }
+
+                var nullableFields = fields
+                    .Where(f => f.IsNullable)
+                    .OrderBy(f => f.FieldId)
+                    .ToArray();
+                
+                fields = nullableFields;
             }
 
-            sb.Append("\t\t\t\t\tcase 0: return;\n");
-            sb.Append(
-                "\t\t\t\t\tdefault: throw new SerializationException(SerializationError.ReadUnknownFieldId);\n");
+            if (fields.Length == 0)
+            {
+                if (policy != 2)
+                    sb.Append("\t\t\trs.ReadFieldId();\n");
+            }
+            else
+            {
+                sb.Append("\t\t\twhile(true)\n");
+                sb.Append("\t\t\t{\n"); //begin while
+                sb.Append("\t\t\t\tvar fieldId = rs.ReadFieldId();\n");
+                sb.Append("\t\t\t\tswitch(fieldId)\n");
+                sb.Append("\t\t\t\t{\n"); //begin switch
 
-            sb.Append("\t\t\t\t}\n"); //end switch
-            sb.Append("\t\t\t}\n");
-            sb.Append("\t\t}\n");
+                foreach (var item in fields)
+                {
+                    sb.Append($"\t\t\t\t\tcase {item.FieldId}: ");
+                    sb.Append($"{item.FieldName} = rs.Read{item.TypeName}(); break;\n");
+                }
 
+                sb.Append("\t\t\t\t\tcase 0: return;\n");
+                sb.Append(
+                    "\t\t\t\t\tdefault: throw new SerializationException(SerializationError.ReadUnknownFieldId);\n");
 
+                sb.Append("\t\t\t\t}\n"); //end switch
+                sb.Append("\t\t\t}\n"); //end while
+            }
+
+            sb.Append("\t\t}\n"); //end method
             sb.Append("\t}\n"); //end class
             sb.Append("}\n"); //end namespace
 
@@ -182,13 +278,15 @@ namespace SerializationGenerator
             return predefinedType.Keyword.Kind() switch
             {
                 SyntaxKind.StringKeyword => "String",
-                SyntaxKind.CharKeyword => "Char",
                 SyntaxKind.ByteKeyword => "Byte",
                 SyntaxKind.SByteKeyword => "SByte",
+                SyntaxKind.CharKeyword => "Char",
                 SyntaxKind.ShortKeyword => "Short",
                 SyntaxKind.UShortKeyword => "UShort",
                 SyntaxKind.IntKeyword => "Int",
                 SyntaxKind.UIntKeyword => "UInt",
+                SyntaxKind.LongKeyword => "Long",
+                SyntaxKind.ULongKeyword => "ULong",
                 SyntaxKind.FloatKeyword => "Float",
                 SyntaxKind.DoubleKeyword => "Double",
                 SyntaxKind.BoolKeyword => "Bool",

@@ -26,6 +26,31 @@ public static class InputStreamExtensions
         return res;
     }
 
+    public static long ReadLong(this IInputStream s)
+    {
+        long res = 0;
+        unsafe
+        {
+            var span = new Span<byte>(&res, 8);
+            s.ReadBytes(span);
+        }
+
+        return res;
+    }
+
+    public static Guid ReadGuid(this IInputStream s)
+    {
+        var res = Guid.Empty;
+        unsafe
+        {
+            var span = new Span<byte>(&res, 16);
+            s.ReadBytes(span);
+        }
+
+        return res;
+    }
+
+
     public static uint ReadNativeVariant(this IInputStream s)
     {
         var data = (uint)s.ReadByte();
