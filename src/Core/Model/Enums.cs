@@ -23,13 +23,13 @@ public enum ModelLayer : byte
 /// </summary>
 public enum ModelType : byte
 {
-    Enum = 1,
-    Entity = 2,
-    Event = 3,
-    Service = 4,
-    View = 5,
-    Workflow = 6,
-    Report = 7,
-    Folder = 8,
-    Permission = 9,
+    //注意顺序且无间隙
+    Entity = 0,
+    Service = 1,
+    View = 2,
+    Workflow = 3,
+    Report = 4,
+    Enum = 5,
+    Event = 6,
+    Permission = 7,
 }

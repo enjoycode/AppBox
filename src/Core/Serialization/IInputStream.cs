@@ -92,6 +92,7 @@ public static class InputStreamExtensions
     public static string? ReadString(this IInputStream s)
     {
         var len = s.ReadVariant();
+        //TODO:限制大小
         return len switch
         {
             -1 => null,
