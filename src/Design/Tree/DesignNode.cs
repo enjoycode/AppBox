@@ -8,6 +8,7 @@ public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
     public abstract string Label { get; }
 
     internal DesignNode? Parent;
+    public virtual IList<DesignNode>? Children => null;
 
     /// <summary>
     /// 用于前端回传时识别是哪个节点

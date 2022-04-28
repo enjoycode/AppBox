@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dev", "Dev\Dev.csproj", "{1E78621B-3432-4C22-A7B8-EDF093D8A479}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStudio", "AppStudio\AppStudio.csproj", "{1E78621B-3432-4C22-A7B8-EDF093D8A479}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI", "PixUI\PixUI\PixUI.csproj", "{418E1E7E-4990-4FDD-83F4-82A988898CD4}"
 EndProject

@@ -1,6 +1,6 @@
 using PixUI;
 
-namespace AppBoxDev
+namespace AppBoxDesign
 {
     public sealed class LoginPage : View
     {

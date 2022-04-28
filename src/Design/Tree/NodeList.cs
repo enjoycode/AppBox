@@ -71,6 +71,8 @@ public sealed class NodeList<T> where T : DesignNode
 
     public bool Exists(Predicate<T> match) => _list.Exists(match);
 
+    internal IList<DesignNode> ToList() => _list.Cast<DesignNode>().ToList();
+
     internal void WriteTo(IOutputStream ws)
     {
         ws.WriteVariant(_list.Count);

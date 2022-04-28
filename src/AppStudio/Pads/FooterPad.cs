@@ -1,6 +1,6 @@
 using PixUI;
 
-namespace AppBoxDev
+namespace AppBoxDesign
 {
     internal sealed class FooterPad : View
     {

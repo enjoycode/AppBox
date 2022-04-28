@@ -3,12 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <Nullable>enable</Nullable>
-        <AssemblyName>AppBoxDev</AssemblyName>
-        <RootNamespace>AppBoxDev</RootNamespace>
+        <AssemblyName>AppBoxStudio</AssemblyName>
+        <RootNamespace>AppBoxDesign</RootNamespace>
         <LangVersion>9</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Design\Design.csproj" />
       <ProjectReference Include="..\PixUI\PixUI.CodeEditor\PixUI.CodeEditor.csproj" />
       <ProjectReference Include="..\PixUI\PixUI\PixUI.csproj" />
     </ItemGroup>

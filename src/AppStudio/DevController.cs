@@ -1,6 +1,6 @@
 using PixUI;
 
-namespace AppBoxDev
+namespace AppBoxDesign
 {
     public static class DevController
     {

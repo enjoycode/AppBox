@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using PixUI;
 
-namespace AppBoxDev
+namespace AppBoxDesign
 {
     internal sealed class DesignTreePad : View
     {
