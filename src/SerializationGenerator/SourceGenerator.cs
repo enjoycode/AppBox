@@ -65,6 +65,7 @@ namespace SerializationGenerator
             {
                 //读取策略配置
                 var policy = 0;
+                var isOverrides = false;
                 if (type.Attribute.ArgumentList!.Arguments.Count > 0)
                 {
                     var policyName = type.Attribute.ArgumentList.Arguments[0].Expression.ToString();
@@ -72,18 +73,27 @@ namespace SerializationGenerator
                         policy = 1;
                     else if (policyName.EndsWith(".CompactNoReverse"))
                         policy = 2;
+
+                    if (type.Attribute.ArgumentList!.Arguments.Count > 1)
+                    {
+                        isOverrides =
+                            type.Attribute.ArgumentList.Arguments[1].Expression.ToString() ==
+                            "true";
+                    }
                 }
 
-                GenerateCode(type.Declaration, context, policy);
+                GenerateCode(type.Declaration, context, policy, isOverrides);
             }
         }
 
         private static void GenerateCode(TypeDeclarationSyntax declaration,
-            GeneratorExecutionContext context, int policy)
+            GeneratorExecutionContext context, int policy, bool isOverrides)
         {
             var semanticModel = context.Compilation.GetSemanticModel(declaration.SyntaxTree);
             var typeSymbol = semanticModel.GetDeclaredSymbol(declaration);
             if (typeSymbol == null) throw new ArgumentException("TypeSymbol is null");
+
+            var overrideKeyword = isOverrides ? "override" : "";
 
             var sb = new StringBuilder(512);
             sb.Append("using System;\n");
@@ -92,7 +102,8 @@ namespace SerializationGenerator
             sb.Append($"namespace {typeSymbol.ContainingNamespace.ToDisplayString()}\n");
             sb.Append("{\n"); //begin namespace
 
-            sb.Append($"\tpartial class {typeSymbol.Name} : IBinSerializable\n");
+            sb.Append($"\tpartial class {typeSymbol.Name}");
+            sb.Append(isOverrides ? '\n' : " : IBinSerializable\n");
             sb.Append("\t{\n"); //begin class
 
             //Get fields
@@ -121,8 +132,10 @@ namespace SerializationGenerator
 
 
             //WriteTo
-            sb.Append("\t\tpublic void WriteTo(IOutputStream ws)\n");
+            sb.Append($"\t\tpublic {overrideKeyword} void WriteTo(IOutputStream ws)\n");
             sb.Append("\t\t{\n");
+            if (isOverrides)
+                sb.Append("\t\t\tbase.WriteTo(ws);\n");
 
             if (policy == 0)
             {
@@ -171,8 +184,10 @@ namespace SerializationGenerator
             sb.Append("\t\t}\n\n");
 
             //ReadFrom
-            sb.Append("\t\tpublic void ReadFrom(IInputStream rs)\n");
+            sb.Append($"\t\tpublic {overrideKeyword} void ReadFrom(IInputStream rs)\n");
             sb.Append("\t\t{\n");
+            if (isOverrides)
+                sb.Append("\t\t\tbase.ReadFrom(rs);\n");
 
             if (policy != 0)
             {
@@ -188,7 +203,7 @@ namespace SerializationGenerator
                     .Where(f => f.IsNullable)
                     .OrderBy(f => f.FieldId)
                     .ToArray();
-                
+
                 fields = nullableFields;
             }
 

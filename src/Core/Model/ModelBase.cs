@@ -13,7 +13,7 @@ public abstract class ModelBase : IBinSerializable
     private PersistentState _persistentState;
     private Guid? _folderId;
 
-    public ModelBase(ModelId id, string name)
+    protected ModelBase(ModelId id, string name)
     {
         _designMode = true;
         _id = id;
@@ -71,7 +71,7 @@ public abstract class ModelBase : IBinSerializable
 
     #region ====Serialization====
 
-    public void WriteTo(IOutputStream ws)
+    public virtual void WriteTo(IOutputStream ws)
     {
         ws.WriteLong(_id.EncodedValue);
         ws.WriteString(_name);
@@ -95,7 +95,7 @@ public abstract class ModelBase : IBinSerializable
         ws.WriteFieldEnd();
     }
 
-    public void ReadFrom(IInputStream rs)
+    public virtual void ReadFrom(IInputStream rs)
     {
         _id = new ModelId(rs.ReadLong());
         _name = rs.ReadString()!;

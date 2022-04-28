@@ -22,10 +22,13 @@ public enum BinSerializePolicy
 public sealed class BinSerializableAttribute : Attribute
 {
     private readonly BinSerializePolicy _policy;
+    private readonly bool _isOverrides;
 
-    public BinSerializableAttribute(BinSerializePolicy policy = BinSerializePolicy.None)
+    public BinSerializableAttribute(BinSerializePolicy policy = BinSerializePolicy.None,
+        bool isOverrides = false)
     {
         _policy = policy;
+        _isOverrides = isOverrides;
     }
 }
 
