@@ -2,9 +2,9 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class MainMenu extends PixUI.Widget {
-    public constructor(items: System.IList<PixUI.MenuItem>) {
+    public constructor(items: System.IEnumerable<PixUI.MenuItem>) {
         super();
-        this._children = new System.List<PixUI.MenuItemWidget>(items.length);
+        this._children = new System.List<PixUI.MenuItemWidget>();
         this._controller = new PixUI.MenuController();
         this.BuildMenuItemWidgets(items);
     }
@@ -20,7 +20,7 @@ export class MainMenu extends PixUI.Widget {
         this._controller.Color = (value).Clone();
     }
 
-    private BuildMenuItemWidgets(items: System.IList<PixUI.MenuItem>) {
+    private BuildMenuItemWidgets(items: System.IEnumerable<PixUI.MenuItem>) {
         for (const item of items) {
             let child = new PixUI.MenuItemWidget(item, 0, false, this._controller);
             child.Parent = this;

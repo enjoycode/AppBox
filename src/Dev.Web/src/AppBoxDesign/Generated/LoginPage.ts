@@ -1,6 +1,5 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-import * as AppBoxDev from '@/AppBoxDev'
 import {Channel} from "@/AppBoxChannel";
 
 export class LoginPage extends PixUI.View {

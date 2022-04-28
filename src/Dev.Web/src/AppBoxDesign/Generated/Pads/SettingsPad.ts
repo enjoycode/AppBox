@@ -1,6 +1,5 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-import * as AppBoxDev from '@/AppBoxDev'
 
 export class SettingsPad extends PixUI.View {
     public constructor() {

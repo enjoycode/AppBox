@@ -1,4 +1,4 @@
-export * from "./Generated/Design/DesignNode"
+export * from "./Tree/DesignNode"
 
 export * from "./Generated/Pads/MainMenuPad"
 export * from "./Generated/Pads/FooterPad"

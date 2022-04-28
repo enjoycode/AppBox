@@ -1,6 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-import * as AppBoxDev from '@/AppBoxDev'
+import * as AppBoxDesign from '@/AppBoxDesign'
 
 export enum SidePadType {
     DesignTree,
@@ -34,7 +34,7 @@ export class NaviBar extends PixUI.View {
     private BuildButton(icon: PixUI.IconData, type: Nullable<SidePadType> = null): PixUI.Button {
         let color = this._buttonColor;
         if (type != null)
-            color = this.Compute1(AppBoxDev.DevController.ActiveSidePad, s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
+            color = this.Compute1(AppBoxDesign.DevController.ActiveSidePad, s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
 
         return new PixUI.Button(null, PixUI.State.op_Implicit_From(icon)).Init({
             FontSize: this._buttonSize,
@@ -46,7 +46,7 @@ export class NaviBar extends PixUI.View {
 
     private OnClick(type: Nullable<SidePadType>) {
         if (type != null)
-            AppBoxDev.DevController.ActiveSidePad.Value = type;
+            AppBoxDesign.DevController.ActiveSidePad.Value = type;
     }
 
     public Init(props: Partial<NaviBar>): NaviBar {
@@ -56,14 +56,14 @@ export class NaviBar extends PixUI.View {
 }
 
 export class SidePad extends PixUI.View {
-    private readonly _designTreePad: AppBoxDev.DesignTreePad = new AppBoxDev.DesignTreePad();
-    private readonly _toolboxPad: AppBoxDev.ToolboxPad = new AppBoxDev.ToolboxPad();
-    private readonly _settingsPad: AppBoxDev.SettingsPad = new AppBoxDev.SettingsPad();
+    private readonly _designTreePad: AppBoxDesign.DesignTreePad = new AppBoxDesign.DesignTreePad();
+    private readonly _toolboxPad: AppBoxDesign.ToolboxPad = new AppBoxDesign.ToolboxPad();
+    private readonly _settingsPad: AppBoxDesign.SettingsPad = new AppBoxDesign.SettingsPad();
 
     public constructor() {
         super();
         let activePad = this.Compute1(
-            AppBoxDev.DevController.ActiveSidePad, s => {
+            AppBoxDesign.DevController.ActiveSidePad, s => {
                 switch (s) {
                     case SidePadType.DesignTree:
                         return this._designTreePad;

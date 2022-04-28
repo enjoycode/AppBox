@@ -1,5 +1,5 @@
 import * as PixUI from '@/PixUI'
-import * as AppBoxDev from '@/AppBoxDev'
+import * as AppBoxDesign from '@/AppBoxDesign'
 import {Channel, WebChannel} from "@/AppBoxChannel";
 
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
@@ -44,7 +44,7 @@ public sealed class Person
     }
 
     public static MakeDev(): PixUI.Widget {
-        return new AppBoxDev.LoginPage();
+        return new AppBoxDesign.LoginPage();
     }
 }
 

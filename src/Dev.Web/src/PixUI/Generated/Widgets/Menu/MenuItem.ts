@@ -37,7 +37,7 @@ export class MenuItem {
         return new MenuItem(MenuItemType.MenuItem, label, (icon)?.Clone(), action);
     }
 
-    public static SubMenu(label: string, icon: Nullable<PixUI.IconData>, children: System.IList<MenuItem>): MenuItem {
+    public static SubMenu(label: string, icon: Nullable<PixUI.IconData>, children: MenuItem[]): MenuItem {
         return new MenuItem(MenuItemType.SubMenu, label, (icon)?.Clone(), null, children);
     }
 
@@ -45,12 +45,12 @@ export class MenuItem {
         return new MenuItem(MenuItemType.Divider);
     }
 
-    private constructor(type: MenuItemType, label: Nullable<string> = null, icon: Nullable<PixUI.IconData> = null, action: Nullable<System.Action> = null, children: Nullable<System.IList<MenuItem>> = null, enabled: boolean = true) {
+    private constructor(type: MenuItemType, label: Nullable<string> = null, icon: Nullable<PixUI.IconData> = null, action: Nullable<System.Action> = null, children: Nullable<MenuItem[]> = null, enabled: boolean = true) {
         this.Type = type;
         this.Label = label;
         this.Icon = (icon)?.Clone();
         this.Action = action;
-        this.Children = children;
+        this.Children = new System.List(children);
         this.Enabled = enabled;
     }
 
