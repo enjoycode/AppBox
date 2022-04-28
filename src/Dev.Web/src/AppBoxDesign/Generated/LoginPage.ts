@@ -1,6 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-import {Channel} from "@/AppBoxChannel";
+import * as AppBoxDesign from '@/AppBoxDesign'
 
 export class LoginPage extends PixUI.View {
     private readonly _userName: PixUI.State<string> = PixUI.State.op_Implicit_From("");
@@ -36,14 +36,7 @@ export class LoginPage extends PixUI.View {
                         HintText: "Password",
                         FontSize: this._inputSize,
                         Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock)).Init({Size: this._inputSize})
-                    }), new PixUI.Button(PixUI.State.op_Implicit_From("Login")).Init({
-                        OnTap: async e => {
-                            let error = await Channel.Login("Admin", "password");
-                            console.log(`登录结果: ${error ?? "成功"}`);
-                            let res = await Channel.Invoke("sys.SystemService.Hello", ["Rick"]);
-                            console.log(`调用结果: ${res}`);
-                        }
-                    })]
+                    }), new PixUI.Button(PixUI.State.op_Implicit_From("Login"))]
                 }
             )
         });
