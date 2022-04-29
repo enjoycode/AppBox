@@ -3,6 +3,8 @@ namespace AppBoxCore
     public enum PayloadType : byte
     {
         Null = 0,
+
+        //====常规类型====
         BooleanTrue = 1,
         BooleanFalse = 2,
         Byte = 3,
@@ -17,6 +19,7 @@ namespace AppBoxCore
         String = 16,
         Guid = 17,
 
+        //====Collection====
         Map = 18,
         Array = 19,
         List = 20,
@@ -37,6 +40,16 @@ namespace AppBoxCore
         // EntityModel = 50,
         EntityModelInfo = 51,
 
+        //----运行时相关类型----
         Entity = 90,
+
+        //----设计时相关类型----
+        DataStoreRootNode = 93,
+        DataStoreNode = 94,
+        ApplicationRootNode = 95,
+        ApplicationNode = 96,
+        ModelRootNode = 97,
+        ModelNode = 98,
+        FolderNode = 99,
     }
 }

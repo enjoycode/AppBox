@@ -17,6 +17,7 @@ public sealed class MessageWriteStream : IOutputStream
     public static void Return(MessageWriteStream mws)
     {
         mws._pos = 0;
+        mws._context?.Clear();
         Pool.Free(mws);
     }
 
@@ -26,7 +27,10 @@ public sealed class MessageWriteStream : IOutputStream
 
     private BytesSegment _current = null!;
     private int _pos;
-    
+    private SerializeContext? _context;
+
+    public SerializeContext Context => _context ??= new SerializeContext();
+
     private void MoveToNext()
     {
         var next = BytesSegment.Rent();

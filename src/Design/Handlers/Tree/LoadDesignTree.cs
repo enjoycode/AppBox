@@ -4,8 +4,9 @@ namespace AppBoxDesign;
 
 internal sealed class LoadDesignTree : IDesignHandler
 {
-    public ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        throw new NotImplementedException();
+        await hub.DesignTree.LoadAsync();
+        return AnyValue.From(hub.DesignTree.RootNodes.ToArray());
     }
 }

@@ -30,6 +30,9 @@ public sealed class MessageReadStream : IInputStream
 
     private BytesSegment _current = null!;
     private int _pos;
+    private DeserializeContext? _context;
+
+    public DeserializeContext Context => _context ??= new DeserializeContext();
 
     private void Reset(BytesSegment segment)
     {

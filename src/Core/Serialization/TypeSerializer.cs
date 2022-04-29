@@ -102,45 +102,47 @@ public abstract class TypeSerializer
     /// </summary>
     /// <param name="bs">Bs.</param>
     /// <param name="instance">用于引用类型及范型值类型的反序列化，由序列化器创建的实例</param>
-    public abstract object? Read(IInputStream bs, object instance);
+    public abstract object? Read(IInputStream bs, object? instance);
 
     internal void WriteAttachTypeInfo(IOutputStream bs, Type type)
     {
         if (_notWriteAttachInfo)
             return;
 
-        throw new NotImplementedException("TypeSerializer.WriteAttachTypeInfo");
+        if (PayloadType == PayloadType.Array)
+        {
+            var elementType = type.GetElementType();
+            bs.WriteType(elementType!);
+        }
+        else
+        {
+            if (PayloadType == PayloadType.ExtKnownType) //扩展类型先写入扩展类型标识
+            {
+                throw new NotImplementedException();
+                // VariantHelper.WriteUInt32(this.extKnownTypeID.AssemblyID, bs.Stream);
+                // VariantHelper.WriteUInt32(this.extKnownTypeID.TypeID, bs.Stream);
+            }
 
-        // if (this.PayloadType == PayloadType.Array)
-        // {
-        //     Type elementType = type.GetElementType();
-        //     bs.WriteType(elementType);
-        // }
-        // else
-        // {
-        //     if (this.PayloadType == PayloadType.ExtKnownType) //扩展类型先写入扩展类型标识
-        //     {
-        //         VariantHelper.WriteUInt32(this.extKnownTypeID.AssemblyID, bs.Stream);
-        //         VariantHelper.WriteUInt32(this.extKnownTypeID.TypeID, bs.Stream);
-        //     }
-        //
-        //     //再判断是否范型，是则写入范型各参数的类型信息
-        //     if (this.GenericTypeCount > 0)
-        //     {
-        //         var genericTypes = type.GetGenericArguments();
-        //         for (int i = 0; i < genericTypes.Length; i++)
-        //         {
-        //             bs.WriteType(genericTypes[i]);
-        //         }
-        //     }
-        // }
+            //再判断是否范型，是则写入范型各参数的类型信息
+            if (GenericTypeCount > 0)
+            {
+                var genericTypes = type.GetGenericArguments();
+                for (var i = 0; i < genericTypes.Length; i++)
+                {
+                    bs.WriteType(genericTypes[i]);
+                }
+            }
+        }
     }
 
     #region ====Static Methods====
 
     static TypeSerializer()
     {
+        //基本类型
         RegisterKnownType(new StringSerializer());
+        //Collection
+        RegisterKnownType(new ArraySerializer());
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);

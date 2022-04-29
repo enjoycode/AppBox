@@ -7,6 +7,7 @@ export class BytesInputStream implements IInputStream {
     private pos = 0;
     private view: DataView;
     private readonly bytes: Uint8Array;
+
     // private deserialized: Entity[] = null;
 
     constructor(buffer: ArrayBuffer) {

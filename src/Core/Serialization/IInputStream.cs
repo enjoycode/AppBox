@@ -4,6 +4,8 @@ namespace AppBoxCore;
 
 public interface IInputStream
 {
+    DeserializeContext Context { get; }
+
     byte ReadByte();
 
     void ReadBytes(Span<byte> dest);
@@ -11,6 +13,8 @@ public interface IInputStream
 
 public static class InputStreamExtensions
 {
+    #region ====Read(常规类型)====
+
     public static bool ReadBool(this IInputStream s)
         => s.ReadByte() == (byte)PayloadType.BooleanTrue;
 
@@ -49,7 +53,6 @@ public static class InputStreamExtensions
 
         return res;
     }
-
 
     public static uint ReadNativeVariant(this IInputStream s)
     {
@@ -100,4 +103,183 @@ public static class InputStreamExtensions
             _ => StringUtil.ReadFrom(len, s.ReadByte)
         };
     }
+
+    #endregion
+
+    #region ====ReadType====
+
+    public static Type ReadType(this IInputStream s)
+    {
+        var typeFlag = s.ReadByte();
+        switch (typeFlag)
+        {
+            case 0: //系统已知类型
+            {
+                var payloadType = (PayloadType)s.ReadByte();
+                var serializer = TypeSerializer.GetSerializer(payloadType);
+                if (serializer == null)
+                    throw new SerializationException(SerializationError.CanNotFindSerializer,
+                        payloadType.ToString());
+                if (serializer.PayloadType == PayloadType.Array)
+                {
+                    var elementType = s.ReadType();
+                    return elementType.MakeArrayType();
+                }
+
+                if (serializer.GenericTypeCount > 0)
+                {
+                    var genericTypes = new Type[serializer.GenericTypeCount];
+                    for (var i = 0; i < serializer.GenericTypeCount; i++)
+                    {
+                        genericTypes[i] = s.ReadType();
+                    }
+
+                    return serializer.TargetType.MakeGenericType(genericTypes);
+                }
+
+                return serializer.TargetType;
+            }
+            case 1:
+            {
+                throw new NotImplementedException();
+                // var extID = ReadExtKnownTypeID();
+                // var serializer = GetSerializer(extID);
+                // if (serializer == null)
+                //     throw new SerializationException(SerializationError.CanNotFindSerializer,
+                //         extID.ToString());
+                // if (serializer.GenericTypeCount > 0)
+                // {
+                //     var genericTypes = new Type[serializer.GenericTypeCount];
+                //     for (int i = 0; i < serializer.GenericTypeCount; i++)
+                //     {
+                //         genericTypes[i] = ReadType();
+                //     }
+                //
+                //     return serializer.TargetType.MakeGenericType(genericTypes);
+                // }
+                //
+                // return serializer.TargetType;
+            }
+            case 2:
+                return typeof(object);
+            default:
+                throw new SerializationException(SerializationError.UnknownTypeFlag,
+                    typeFlag.ToString());
+        }
+    }
+
+    #endregion
+
+    #region ====ReadCollection====
+
+    public static void ReadCollection(this IInputStream s, Type elementType, int count,
+        Action<int, object?> elementSetter)
+    {
+        if (count == 0) return;
+
+        var serializer = TypeSerializer.GetSerializer(elementType);
+        var isRefObject = elementType.IsClass && elementType != typeof(string);
+        if (serializer == null || isRefObject) //元素为引用类型
+        {
+            for (var i = 0; i < count; i++)
+            {
+                elementSetter(i, s.Deserialize());
+            }
+        }
+        else //元素为值类型包括string
+        {
+            if (serializer.GenericTypeCount > 0) //范型值类型
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var element = Activator.CreateInstance(elementType);
+                    serializer.Read(s, element);
+                    elementSetter(i, element);
+                }
+            }
+            else if (serializer.Creator != null) //带有构造器的值类型
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var element = serializer.Creator();
+                    serializer.Read(s, element);
+                    elementSetter(i, element);
+                }
+            }
+            else //其他值类型
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    elementSetter(i, serializer.Read(s, null));
+                }
+            }
+        }
+    }
+
+    #endregion
+
+    #region ====Deserialize====
+
+    public static object? Deserialize(this IInputStream s)
+    {
+        var payloadType = (PayloadType)s.ReadByte();
+        switch (payloadType)
+        {
+            case PayloadType.Null: return null;
+            case PayloadType.BooleanTrue: return true;
+            case PayloadType.BooleanFalse: return false;
+            case PayloadType.ObjectRef: return s.Context.GetDeserialized(s.ReadVariant());
+            case PayloadType.Entity: throw new NotImplementedException();
+        }
+
+        TypeSerializer? serializer;
+        if (payloadType == PayloadType.ExtKnownType)
+            throw new NotImplementedException();
+        else
+            serializer = TypeSerializer.GetSerializer(payloadType);
+        if (serializer == null)
+            throw new SerializationException(SerializationError.CanNotFindSerializer,
+                payloadType.ToString());
+
+        //读取附加类型信息并创建实例
+        if (serializer.Creator == null &&
+            payloadType != PayloadType.Array && //非数组类型
+            serializer.GenericTypeCount <= 0) //非范型类型
+        {
+            return serializer.Read(s, null);
+        }
+
+        //其他需要创建实例的类型
+        object result = null!;
+        if (payloadType == PayloadType.Array) //数组实例创建
+        {
+            var elementType = s.ReadType();
+            var elementCount = s.ReadVariant();
+            result = Array.CreateInstance(elementType, elementCount);
+        }
+        else if (serializer.GenericTypeCount > 0) //范型类型实例创建
+        {
+            var genericTypes = new Type[serializer.GenericTypeCount];
+            for (var i = 0; i < serializer.GenericTypeCount; i++)
+            {
+                genericTypes[i] = s.ReadType();
+            }
+
+            var type = serializer.TargetType.MakeGenericType(genericTypes);
+            result = Activator.CreateInstance(type);
+        }
+        else
+        {
+            result = serializer.Creator!.Invoke();
+        }
+
+        if (serializer.TargetType.IsClass && serializer.TargetType != typeof(string))
+            s.Context.AddToDeserialized(result); //引用类型加入已序列化列表
+
+        //读取数据
+        serializer.Read(s, result);
+        return result;
+    }
+
+    #endregion
 }
