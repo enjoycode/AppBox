@@ -67,15 +67,34 @@ internal sealed class WebSocketClient
 
     private async Task ProcessLoginRequest(int msgId, MessageReadStream reader)
     {
-        var user = reader.ReadString();
-        var password = reader.ReadString();
-
-        Log.Debug($"收到登录请求: {user}");
-
+        //调用系统服务进行验证
+        var result = AnyValue.Empty;
+        string? errorInfo = null;
+        try
+        {
+            result = await RuntimeContext.InvokeAsync("sys.SystemService.Login", InvokeArgs.From(reader));
+        }
+        catch (Exception e)
+        {
+            errorInfo = e.Message;
+            Log.Warn($"用户登录失败: {e.Message}");
+        }
+        
+        //登录成功创建并注册会话
+        if (errorInfo == null)
+        {
+            //TODO: sessionId
+            WebSession = new WebSession((TreePath)result.BoxedValue!);
+            WebSocketManager.RegisterSession(this, WebSession);
+        }
+        
+        //发送响应
         var writer = MessageWriteStream.Rent();
         writer.WriteByte((byte)MessageType.LoginResponse);
         writer.WriteInt(msgId);
-        writer.WriteBool(true);
+        writer.WriteBool(errorInfo == null);
+        if (errorInfo != null)
+            writer.WriteString(errorInfo);
         var data = writer.FinishWrite();
         MessageWriteStream.Return(writer);
 

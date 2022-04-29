@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public sealed class DesignHub
+public sealed class DesignHub : IDisposable
 {
     public readonly IDeveloperSession Session;
     public readonly DesignTree DesignTree;
@@ -12,6 +12,8 @@ public sealed class DesignHub
         Session = session;
         DesignTree = new DesignTree(this);
     }
+    
+    public void Dispose() {}
 
     static DesignHub()
     {

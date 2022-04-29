@@ -12,8 +12,7 @@ internal static class WebSocketManager
 
     private static readonly ReaderWriterLockSlim AnonymousLock = new ReaderWriterLockSlim();
 
-    private static readonly Dictionary<ulong, WebSocketClient> Clients =
-        new Dictionary<ulong, WebSocketClient>();
+    private static readonly Dictionary<ulong, WebSocketClient> Clients = new();
 
     private static readonly ReaderWriterLockSlim ClientsLock = new ReaderWriterLockSlim();
 
@@ -80,5 +79,17 @@ internal static class WebSocketManager
 
         var leftCount = Anonymous.Count + Clients.Count;
         Log.Debug($"WebSocket关闭, 还余: {leftCount}");
+    }
+
+    internal static void RegisterSession(WebSocketClient client, WebSession session)
+    {
+        //TODO: kick old session
+        AnonymousLock.EnterWriteLock();
+        Anonymous.Remove(client);
+        AnonymousLock.ExitWriteLock();
+        
+        ClientsLock.EnterWriteLock();
+        Clients.Add(session.SessionId, client);
+        ClientsLock.ExitWriteLock();
     }
 }

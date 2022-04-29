@@ -1,5 +1,5 @@
-import {IInputStream} from "../Generated/IInputStream";
-import {PayloadType} from "../Generated/PayloadType";
+import {IInputStream} from "./IInputStream";
+import {PayloadType} from "./PayloadType";
 import {Utf8Decode} from "./Utf8";
 import {NotImplementedException} from "@/System";
 

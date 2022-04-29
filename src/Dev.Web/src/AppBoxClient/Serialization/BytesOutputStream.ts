@@ -1,5 +1,5 @@
-import {IOutputStream} from "../Generated/IOutputStream";
-import {PayloadType} from "../Generated/PayloadType";
+import {IOutputStream} from "./IOutputStream";
+import {PayloadType} from "./PayloadType";
 import {Utf8Encode} from "./Utf8";
 
 export class BytesOutputStream implements IOutputStream {

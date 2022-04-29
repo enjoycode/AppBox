@@ -15,6 +15,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Channel\Channel.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Design\Design.csproj" />
     </ItemGroup>
 
 </Project>

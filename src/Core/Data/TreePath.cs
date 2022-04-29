@@ -12,6 +12,8 @@ public sealed class TreePath
 
     private TreePathNode[] _nodes;
 
+    public int Level => _nodes.Length;
+
     public TreePathNode this[int index] => _nodes[index];
 }
 

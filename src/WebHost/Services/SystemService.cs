@@ -12,6 +12,8 @@ internal sealed class SystemService : IService
     /// </summary>
     private Task<TreePath> Login(string user, string password)
     {
+        Log.Info($"用户登录: {user}");
+        
         var path = new TreePath(new[]
         {
             new TreePathNode(Guid.NewGuid(), "Admin"),
