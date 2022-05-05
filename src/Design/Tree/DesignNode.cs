@@ -2,13 +2,12 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public abstract class DesignNode : IComparable<DesignNode>, IDesignNode, IBinSerializable
+public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
 {
     public abstract DesignNodeType Type { get; }
     public abstract string Label { get; }
 
     internal DesignNode? Parent;
-    public virtual IList<IDesignNode>? Children => null;
 
     /// <summary>
     /// 用于前端回传时识别是哪个节点
@@ -32,7 +31,6 @@ public abstract class DesignNode : IComparable<DesignNode>, IDesignNode, IBinSer
     public virtual void WriteTo(IOutputStream ws)
     {
         ws.WriteString(Id);
-        ws.WriteByte((byte)Type);
         ws.WriteString(Label);
     }
 

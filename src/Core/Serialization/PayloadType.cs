@@ -36,20 +36,12 @@ namespace AppBoxCore
         /** 其他未知类型 */
         Object = 24,
 
-        //----模型相关----
+        //----设计时及模型相关----
         // EntityModel = 50,
         EntityModelInfo = 51,
+        DesignTree = 52,
 
         //----运行时相关类型----
         Entity = 90,
-
-        //----设计时相关类型----
-        DataStoreRootNode = 93,
-        DataStoreNode = 94,
-        ApplicationRootNode = 95,
-        ApplicationNode = 96,
-        ModelRootNode = 97,
-        ModelNode = 98,
-        FolderNode = 99,
     }
 }

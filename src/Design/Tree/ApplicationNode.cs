@@ -7,8 +7,6 @@ public sealed class ApplicationNode : DesignNode
     public readonly ApplicationModel Model;
     private readonly NodeList<ModelRootNode> _children;
 
-    public override IList<IDesignNode>? Children => _children.ToList();
-
     public override DesignNodeType Type => DesignNodeType.ApplicationNode;
     public override string Label => Model.Name;
 

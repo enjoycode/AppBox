@@ -81,15 +81,23 @@ internal static class WebSocketManager
         Log.Debug($"WebSocket关闭, 还余: {leftCount}");
     }
 
+    /// <summary>
+    /// 登录成功后注册会话信息
+    /// </summary>
     internal static void RegisterSession(WebSocketClient client, WebSession session)
     {
-        //TODO: kick old session
         AnonymousLock.EnterWriteLock();
         Anonymous.Remove(client);
         AnonymousLock.ExitWriteLock();
         
         ClientsLock.EnterWriteLock();
-        Clients.Add(session.SessionId, client);
+        //kick old session
+        if (Clients.TryGetValue(session.SessionId, out var oldClient))
+        {
+            oldClient.WebSession?.Dispose();
+        }
+
+        Clients[session.SessionId] = client;
         ClientsLock.ExitWriteLock();
     }
 }

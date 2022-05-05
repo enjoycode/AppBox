@@ -67,27 +67,33 @@ internal sealed class WebSocketClient
 
     private async Task ProcessLoginRequest(int msgId, MessageReadStream reader)
     {
+        //读取请求消息
+        var user = reader.ReadString()!;
+        var pass = reader.ReadString()!;
+        MessageReadStream.Return(reader);
+        Log.Debug($"收到用户登录请求: {user}");
+
         //调用系统服务进行验证
-        var result = AnyValue.Empty;
+        TreePath? result = null;
         string? errorInfo = null;
         try
         {
-            result = await RuntimeContext.InvokeAsync("sys.SystemService.Login", InvokeArgs.From(reader));
+            result = await SysServiceContainer.SystemService.Login(user, pass);
         }
         catch (Exception e)
         {
             errorInfo = e.Message;
             Log.Warn($"用户登录失败: {e.Message}");
         }
-        
+
         //登录成功创建并注册会话
         if (errorInfo == null)
         {
             //TODO: sessionId
-            WebSession = new WebSession((TreePath)result.BoxedValue!);
+            WebSession = new WebSession(result!);
             WebSocketManager.RegisterSession(this, WebSession);
         }
-        
+
         //发送响应
         var writer = MessageWriteStream.Rent();
         writer.WriteByte((byte)MessageType.LoginResponse);
@@ -103,6 +109,9 @@ internal sealed class WebSocketClient
 
     private async Task ProcessInvokeRequest(int msgId, MessageReadStream reader)
     {
+        //设置当前会话
+        HostRuntimeContext.SetCurrentSession(WebSession);
+        
         //调用服务
         var result = AnyValue.Empty;
         var errorCode = InvokeErrorCode.None;

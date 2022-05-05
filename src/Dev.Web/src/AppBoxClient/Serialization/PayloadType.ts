@@ -27,10 +27,11 @@ export enum PayloadType {
     /** 其他未知类型 */
     Object = 24,
 
-    //----模型相关----
+    //----设计时及模型相关----
     // EntityModel = 50,
     EntityModelInfo = 51,
+    DesignTree = 52,
 
+    //----运行时类型----
     Entity = 90,
-
 }

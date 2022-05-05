@@ -1,6 +1,8 @@
+using AppBoxCore;
+
 namespace AppBoxDesign;
 
-public sealed class DesignTree
+public sealed class DesignTree : IBinSerializable
 {
     private int _loadingFlag = 0;
     private readonly List<DesignNode> _rootNodes = new List<DesignNode>();
@@ -32,6 +34,12 @@ public sealed class DesignTree
         _rootNodes.Add(_storeRootNode);
         _appRootNode = new ApplicationRootNode(this);
         _rootNodes.Add(_appRootNode);
+        
+        //先加载签出信息及StagedModels
+        
+        //1.加载Apps
+        var appNode = new ApplicationNode(this, new ApplicationModel("sys", "sys"));
+        _appRootNode.Children.Add(appNode);
 
         //TODO:
         return Task.CompletedTask;
@@ -48,6 +56,22 @@ public sealed class DesignTree
     {
         //TODO:
     }
+
+    #endregion
+
+    #region ====IBinSerializable====
+
+    public void WriteTo(IOutputStream ws)
+    {
+        ws.WriteVariant(_rootNodes.Count);
+        foreach (var node in _rootNodes)
+        {
+            ws.WriteByte((byte)node.Type);
+            node.WriteTo(ws);
+        }
+    }
+
+    public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
 
     #endregion
 }

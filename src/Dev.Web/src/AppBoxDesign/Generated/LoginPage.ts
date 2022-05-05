@@ -1,6 +1,7 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
+import * as AppBoxClient from '@/AppBoxClient'
 
 export class LoginPage extends PixUI.View {
     private readonly _userName: PixUI.State<string> = PixUI.State.op_Implicit_From("");
@@ -36,7 +37,12 @@ export class LoginPage extends PixUI.View {
                         HintText: "Password",
                         FontSize: this._inputSize,
                         Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock)).Init({Size: this._inputSize})
-                    }), new PixUI.Button(PixUI.State.op_Implicit_From("Login"))]
+                    }), new PixUI.Button(PixUI.State.op_Implicit_From("Login")).Init({OnTap: async e => {
+                            await AppBoxClient.Channel.Login("Admin", "760wb");
+                            let nodes = await AppBoxClient.Channel.Invoke("sys.DesignService.LoadDesignTree");
+                            console.log(nodes);
+                        }})
+                    ]
                 }
             )
         });

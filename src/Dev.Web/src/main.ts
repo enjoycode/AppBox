@@ -1,6 +1,6 @@
 import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
-import {Channel, WebChannel} from "@/AppBoxChannel";
+import {Channel, WebChannel, PayloadType, TypeSerializer} from "@/AppBoxClient";
 
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
 
@@ -53,6 +53,9 @@ const TreeSitter: any = (<any>window).TreeSitter;
 TreeSitter.init().then(async (res: any) => {
     let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-c_sharp.wasm');
     TSCSharpLanguage.Init(csharpLanguage);
+
+    //暂在这里注册序列化
+    TypeSerializer.RegisterKnownType(PayloadType.DesignTree, false, () => new AppBoxDesign.DesignTree());
 
     // 初始化Channel
     Channel.Init(new WebChannel());

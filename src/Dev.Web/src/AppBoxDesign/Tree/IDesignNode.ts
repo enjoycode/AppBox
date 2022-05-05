@@ -8,5 +8,5 @@ export interface IDesignNode {
 
     get Label(): string;
 
-    get Children(): IList<IDesignNode>;
+    get Children(): IList<IDesignNode> | null;
 }

@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxDesign;
 
 namespace AppBoxWebHost;
 
@@ -7,14 +8,15 @@ namespace AppBoxWebHost;
 /// </summary>
 internal static class SysServiceContainer
 {
-    private static readonly IService SystemService = new SystemService();
+    internal static readonly SystemService SystemService = new SystemService();
+    internal static readonly DesignService DesignService = new DesignService();
 
     internal static IService? TryGet(ReadOnlyMemory<char> serviceName)
     {
         if (serviceName.Span.SequenceEqual(nameof(SystemService)))
-        {
             return SystemService;
-        }
+        if (serviceName.Span.SequenceEqual(nameof(DesignService)))
+            return DesignService;
 
         return null;
     }

@@ -128,6 +128,8 @@ public struct AnyValue
         //TODO: others
         switch (Type)
         {
+            case AnyValueType.Empty:
+                break;
             case AnyValueType.Boolean:
                 bs.WriteBool(BooleanValue);
                 break;
@@ -141,7 +143,7 @@ public struct AnyValue
                 bs.Serialize(ObjectValue);
                 break;
             default:
-                throw new NotImplementedException();
+                throw new NotImplementedException($"序列化AnyValue: {Type}");
         }
     }
 

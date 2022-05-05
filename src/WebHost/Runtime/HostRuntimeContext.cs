@@ -6,10 +6,11 @@ internal sealed class HostRuntimeContext : IRuntimeContext
 {
     private static readonly AsyncLocal<IUserSession?> SessionStore = new();
 
-    public IUserSession? CurrentSession
+    public IUserSession? CurrentSession => SessionStore.Value;
+
+    internal static void SetCurrentSession(IUserSession? session)
     {
-        get => SessionStore.Value;
-        internal set => SessionStore.Value = value;
+        SessionStore.Value = session;
     }
 
     public ValueTask<AnyValue> InvokeAsync(string servicePath, InvokeArgs args)

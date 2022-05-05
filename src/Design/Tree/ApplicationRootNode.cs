@@ -6,10 +6,10 @@ public sealed class ApplicationRootNode : DesignNode, IRootNode
 {
     private readonly NodeList<ApplicationNode> _children;
 
-    public override IList<IDesignNode>? Children => _children.ToList();
-
     public override DesignNodeType Type => DesignNodeType.ApplicationRoot;
     public override string Label => "Applications";
+
+    internal NodeList<ApplicationNode> Children => _children;
 
     public DesignTree DesignTree { get; }
 

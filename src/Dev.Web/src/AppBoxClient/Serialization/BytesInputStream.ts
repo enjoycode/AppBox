@@ -1,14 +1,15 @@
 import {IInputStream} from "./IInputStream";
 import {PayloadType} from "./PayloadType";
+import {TypeSerializer} from "./TypeSerializer";
 import {Utf8Decode} from "./Utf8";
-import {NotImplementedException} from "@/System";
+import {NotImplementedException, NotSupportedException} from "@/System";
 
 export class BytesInputStream implements IInputStream {
     private pos = 0;
     private view: DataView;
     private readonly bytes: Uint8Array;
 
-    // private deserialized: Entity[] = null;
+    private deserialized: any[] = null;
 
     constructor(buffer: ArrayBuffer) {
         this.bytes = new Uint8Array(buffer);
@@ -32,28 +33,36 @@ export class BytesInputStream implements IInputStream {
             //     return this.ReadInt64();
             case PayloadType.JsonObject:
                 return this.ReadJsonObject();
-            // case PayloadType.ObjectRef:
-            //     return this.deserialized[this.ReadVariant()];
+            case PayloadType.ObjectRef:
+                return this.deserialized[this.ReadVariant()];
             // case PayloadType.EntityModelInfo:
             //     return EntityModelInfo.ReadFrom(this);
             // case PayloadType.Entity:
             //     return await Entity.ReadFrom(this);
-            case PayloadType.List:
-                return await this.ReadList();
-            default:
-                throw new Error('未实现的类型: ' + payloadType.toString());
+            case PayloadType.Array:
+                return await this.ReadArray();
+            // case PayloadType.List:
+            //     return await this.ReadList();
         }
+
+        //查找已知类型创建实例(找不到抛异常)
+        const serializer = TypeSerializer.GetSerializer(payloadType);
+        if (serializer == null) throw new Error("Can't find type serializer: " + payloadType);
+        let obj = serializer.Factory();
+        //加入已反序列化列表
+        if (!serializer.IsStruct) {
+            this.AddToDeserialized(obj);
+        }
+        obj.ReadFrom(this);
+        return obj;
     }
 
-    // public AddToDeserialized(obj: Entity) {
-    //     if (!obj) {
-    //         throw new Error('Entity is null');
-    //     }
-    //     if (!this.deserialized) {
-    //         this.deserialized = [];
-    //     }
-    //     this.deserialized.push(obj);
-    // }
+    private AddToDeserialized(obj: any) {
+        if (!this.deserialized) {
+            this.deserialized = [];
+        }
+        this.deserialized.push(obj);
+    }
 
     /** 剩余字节数 */
     public get Remaining(): number {
@@ -180,4 +189,42 @@ export class BytesInputStream implements IInputStream {
         return list;
     }
 
+    private async ReadArray(): Promise<any[]> {
+        const elementType: PayloadType = this.ReadType();
+        const count = this.ReadVariant();
+        //TODO:根据elementType处理
+        const serializer = TypeSerializer.GetSerializer(elementType);
+        if (serializer) {
+            let res = [];
+            if (serializer.IsStruct) {
+                for (let i = 0; i < count; i++) {
+                    let item = serializer.Factory();
+                    item.ReadFrom(this);
+                    res.push(item);
+                }
+            } else {
+                for (let i = 0; i < count; i++) {
+                    let item = await this.DeserializeAsync();
+                    res.push(item);
+                }
+            }
+            return res;
+        } else {
+            throw new NotImplementedException("ReadArray elementType=" + elementType);
+        }
+    }
+
+    private ReadType(): PayloadType {
+        //只支持已知类型
+        const typeFlag = this.ReadByte();
+        if (typeFlag === 2) {
+            return PayloadType.Object;
+        } else if (typeFlag === 0) {
+            const payloadType: PayloadType = this.ReadByte();
+            //TODO:继续读Array或List等类型的附加类型
+            return payloadType;
+        } else {
+            throw new NotSupportedException("不支持的TypeFlag");
+        }
+    }
 }

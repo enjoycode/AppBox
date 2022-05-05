@@ -3,7 +3,7 @@ namespace AppBoxCore;
 internal sealed class ArraySerializer : TypeSerializer
 {
     public ArraySerializer()
-        : base(PayloadType.Array, typeof(Array), null, true) { }
+        : base(PayloadType.Array, typeof(Array), null, false) { }
 
     public override void Write(IOutputStream bs, object instance)
     {

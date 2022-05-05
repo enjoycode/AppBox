@@ -71,13 +71,13 @@ public sealed class NodeList<T> where T : DesignNode
 
     public bool Exists(Predicate<T> match) => _list.Exists(match);
 
-    internal IList<IDesignNode> ToList() => _list.Cast<IDesignNode>().ToList();
-
     internal void WriteTo(IOutputStream ws)
     {
         ws.WriteVariant(_list.Count);
         foreach (var item in _list)
         {
+            if (Owner.Type is DesignNodeType.ModelRootNode or DesignNodeType.FolderNode)
+                ws.WriteByte((byte)item.Type);
             item.WriteTo(ws);
         }
     }

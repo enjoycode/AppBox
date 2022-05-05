@@ -10,7 +10,7 @@ internal sealed class SystemService : IService
     /// <summary>
     /// 用户登录时验证并返回组织单元的路径
     /// </summary>
-    private Task<TreePath> Login(string user, string password)
+    internal Task<TreePath> Login(string user, string password)
     {
         Log.Info($"用户登录: {user}");
         
