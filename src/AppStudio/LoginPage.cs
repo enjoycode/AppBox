@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using PixUI;
 
 namespace AppBoxDesign
@@ -41,10 +42,15 @@ namespace AppBoxDesign
                             IsObscure = true, HintText = "Password", FontSize = _inputSize,
                             Prefix = new Icon(Icons.Filled.Lock) { Size = _inputSize },
                         },
-                        new Button("Login")
+                        new Button("Login") { OnTap = e => OnLogin() }
                     }
                 }
             };
+        }
+
+        private async Task OnLogin()
+        {
+            
         }
     }
 }

@@ -169,6 +169,12 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return null;
     }
 
+    public get Navigator(): Nullable<PixUI.Navigator> {
+        let routeView = this.FindParent(w => w instanceof PixUI.RouteView);
+        if (routeView == null) return null;
+        return (<PixUI.RouteView><unknown>routeView).Navigator;
+    }
+
     public VisitChildren(action: System.Func2<Widget, boolean>) {
     }
 
