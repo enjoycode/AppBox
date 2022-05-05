@@ -37,15 +37,17 @@ export class LoginPage extends PixUI.View {
                         HintText: "Password",
                         FontSize: this._inputSize,
                         Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock)).Init({Size: this._inputSize})
-                    }), new PixUI.Button(PixUI.State.op_Implicit_From("Login")).Init({OnTap: async e => {
-                            await AppBoxClient.Channel.Login("Admin", "760wb");
-                            let nodes = await AppBoxClient.Channel.Invoke("sys.DesignService.LoadDesignTree");
-                            console.log(nodes);
-                        }})
-                    ]
+                    }), new PixUI.Button(PixUI.State.op_Implicit_From("Login")).Init({OnTap: e => this.OnLogin()}
+                    )]
                 }
             )
         });
+    }
+
+    private async OnLogin(): System.Task {
+        await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
+
+        this.CurrentNavigator!.PushNamed("IDE");
     }
 
     public Init(props: Partial<LoginPage>): LoginPage {

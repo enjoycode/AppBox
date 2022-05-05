@@ -2,15 +2,22 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class RouteView extends PixUI.DynamicView {
-    private readonly _navigator: PixUI.Navigator;
+    #Navigator: PixUI.Navigator;
+    public get Navigator() {
+        return this.#Navigator;
+    }
+
+    private set Navigator(value) {
+        this.#Navigator = value;
+    }
 
     //OnNavigateIn, OnNavigateOut
 
     public constructor(navigator: PixUI.Navigator) {
         super();
-        this._navigator = navigator;
-        this._navigator.OnRouteChanged = this.OnRouteChanged.bind(this);
-        this.Child = this._navigator.GetCurrentRoute();
+        this.Navigator = navigator;
+        this.Navigator.OnRouteChanged = this.OnRouteChanged.bind(this);
+        this.Child = this.Navigator.GetCurrentRoute();
     }
 
     private OnRouteChanged(action: PixUI.RouteChangeAction, route: PixUI.Route) {
@@ -20,15 +27,15 @@ export class RouteView extends PixUI.DynamicView {
         this.Child = null;
 
         if (route.EnteringBuilder == null) {
-            this.ReplaceTo(this._navigator.GetCurrentRoute());
+            this.ReplaceTo(this.Navigator.GetCurrentRoute());
         } else {
             let to: PixUI.Widget;
             let reverse = action == PixUI.RouteChangeAction.Pop;
             if (reverse) {
                 to = from;
-                from = this._navigator.GetCurrentRoute();
+                from = this.Navigator.GetCurrentRoute();
             } else {
-                to = this._navigator.GetCurrentRoute();
+                to = this.Navigator.GetCurrentRoute();
             }
 
             this.AnimateTo(from, to, route.Duration, reverse, route.EnteringBuilder, route.ExistingBuilder);

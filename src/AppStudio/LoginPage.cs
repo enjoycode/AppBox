@@ -1,4 +1,6 @@
+using System;
 using System.Threading.Tasks;
+using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign
@@ -50,7 +52,13 @@ namespace AppBoxDesign
 
         private async Task OnLogin()
         {
-            
+            // try
+            // {
+                await Channel.Login(_userName.Value, _password.Value);
+
+                CurrentNavigator!.PushNamed("IDE");
+            // }
+            // catch (Exception ex) { }
         }
     }
 }

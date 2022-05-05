@@ -1,4 +1,4 @@
-namespace AppBoxChannel
+namespace AppBoxClient
 {
     public enum InvokeErrorCode
     {

@@ -44,7 +44,7 @@ public sealed class Person
     }
 
     public static MakeDev(): PixUI.Widget {
-        return new AppBoxDesign.LoginPage();
+        return new AppBoxDesign.HomePage();
     }
 }
 

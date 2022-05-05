@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace AppBoxChannel
+namespace AppBoxClient
 {
     public interface IChannel
     {

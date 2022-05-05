@@ -50,7 +50,8 @@ export class MenuItem {
         this.Label = label;
         this.Icon = (icon)?.Clone();
         this.Action = action;
-        this.Children = new System.List(children);
+        this.Children = new System.List<MenuItem>(children);
+
         this.Enabled = enabled;
     }
 

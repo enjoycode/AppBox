@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI", "PixUI\PixUI\PixUI.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.CodeEditor", "PixUI\PixUI.CodeEditor\PixUI.CodeEditor.csproj", "{18CF6F65-92E9-443B-894A-D54959FD2375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Channel", "Channel\Channel.csproj", "{19FE4329-7FEB-4971-899B-D51F8BA8DDAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{19FE4329-7FEB-4971-899B-D51F8BA8DDAC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebHost", "WebHost\WebHost.csproj", "{DAD384D7-716D-452A-BF8D-7927F858D194}"
 EndProject

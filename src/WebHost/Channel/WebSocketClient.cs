@@ -1,6 +1,6 @@
 using System.Buffers;
 using System.Net.WebSockets;
-using AppBoxChannel;
+using AppBoxClient;
 using AppBoxCore;
 
 namespace AppBoxWebHost;
