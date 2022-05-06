@@ -14,7 +14,6 @@ export class TreeNode<T> extends PixUI.Widget {
     private _children: Nullable<System.List<TreeNode<T>>>;
 
     public readonly IsSelected: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
-    private _isExpanded: boolean = false;
 
     private _expandController: Nullable<PixUI.AnimationController>;
     private _expandCurve: Nullable<PixUI.Animation<number>>;
@@ -30,6 +29,7 @@ export class TreeNode<T> extends PixUI.Widget {
 
     public IsLeaf: boolean = false;
     public IsLazyLoad: boolean = false;
+    public IsExpanded: boolean = false;
 
 
     private _animationFlag: number = 0; //0=none,1=expand,-1=collapse
@@ -84,7 +84,7 @@ export class TreeNode<T> extends PixUI.Widget {
     private TryBuildExpandIcon(): Nullable<PixUI.ExpandIcon> {
         if (this._expandController != null) return null;
 
-        this._expandController = new PixUI.AnimationController(200);
+        this._expandController = new PixUI.AnimationController(200, this.IsExpanded ? 1 : 0);
         this._expandController.ValueChanged.Add(this.OnAnimationValueChanged, this);
         this._expandCurve = new PixUI.CurvedAnimation(this._expandController, PixUI.Curves.EaseInOutCubic);
         this._expandArrowAnimation = new PixUI.FloatTween(0.75, 1.0).Animate(this._expandCurve);
@@ -126,15 +126,15 @@ export class TreeNode<T> extends PixUI.Widget {
     private OnTapExpander(e: PixUI.PointerEvent) {
         //TODO:先判断是否LazyLoad，是则异步加载后再处理
 
-        if (this._isExpanded) {
-            this._isExpanded = false;
+        if (this.IsExpanded) {
+            this.IsExpanded = false;
             this._animationFlag = -1;
             this._expandController?.Reverse();
         } else {
             let maxChildWidth = this.TryBuildAndLayoutChildren(); //先尝试Build子节点
             this.SetSize(Math.max(this.W, maxChildWidth), this.H); //仅预设宽度
 
-            this._isExpanded = true;
+            this.IsExpanded = true;
             this._animationFlag = 1;
             this._expandController?.Forward();
         }
@@ -144,8 +144,8 @@ export class TreeNode<T> extends PixUI.Widget {
     public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (action(this._row)) return;
 
-        if (!this.IsLeaf && this._isExpanded) {
-            for (const child of this._children!) {
+        if (!this.IsLeaf && this.IsExpanded && this._children != null) {
+            for (const child of this._children) {
                 if (action(child)) break;
             }
         }
@@ -210,13 +210,13 @@ export class TreeNode<T> extends PixUI.Widget {
 
         this._row.Layout(Number.POSITIVE_INFINITY, this.Controller.NodeHeight);
 
-        if (!this._isExpanded) {
+        if (!this.IsExpanded) {
             this.SetSize(this._row.W, this._controller.NodeHeight);
             return;
         }
 
         // expanded, continue layout children, 注意仅由初始化加载时设置的IsExpanded
-        if (!this.IsLeaf && this._isExpanded) {
+        if (!this.IsLeaf && this.IsExpanded) {
             let maxChildWidth = this.TryBuildAndLayoutChildren();
             this.SetSize(Math.max(this._row.W, maxChildWidth), this._controller.NodeHeight * (this._children!.length + 1));
         }
@@ -264,7 +264,7 @@ export class TreeNode<T> extends PixUI.Widget {
             }
 
             canvas.restore();
-        } else if (this._isExpanded) {
+        } else if (this.IsExpanded) {
             for (const child of this._children!) {
                 TreeNode.PaintChildNode(child, canvas, area);
             }
