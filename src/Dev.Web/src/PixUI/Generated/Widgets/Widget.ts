@@ -207,7 +207,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (!this.ContainsPoint(x, y)) return false;
 
-        // console.log(`${this} HitTest: ${x} ${y}`);
+       // console.log(`${this} HitTest: ${x} ${y}`);
 
         if (result.Add(this))
             return true; //不再检测嵌套的子级

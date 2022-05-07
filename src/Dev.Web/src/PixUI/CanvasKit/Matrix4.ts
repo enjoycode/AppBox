@@ -36,14 +36,10 @@ export class Matrix4 extends Float32Array {
     }
 
     public Translate(x: number, y: number = 0, z: number = 0) {
-        let t1 = this[0] * x + this[4] * y + this[8] * z + this[12];
-        let t2 = this[1] * x + this[5] * y + this[9] * z + this[13];
-        let t3 = this[2] * x + this[6] * y + this[10] * z + this[14];
-        let t4 = this[3] * x + this[7] * y + this[11] * z + this[15];
-        this[12] = t1;
-        this[13] = t2;
-        this[14] = t3;
-        this[15] = t4;
+        this[12] = this[0] * x + this[4] * y + this[8] * z + this[12];
+        this[13] = this[1] * x + this[5] * y + this[9] * z + this[13];
+        this[14] = this[2] * x + this[6] * y + this[10] * z + this[14];
+        this[15] = this[3] * x + this[7] * y + this[11] * z + this[15];
     }
 
     public RotateZ(angle: number) {
@@ -208,6 +204,15 @@ export class Matrix4 extends Float32Array {
         this[entry + 2] = arg[2];
         this[entry + 1] = arg[1];
         this[entry] = arg[0];
+    }
+
+    public TransponseTo(): Matrix4 {
+        return new Matrix4(
+            this[0], this[4], this[8], this[12],
+            this[1], this[5], this[9], this[13],
+            this[2], this[6], this[10], this[14],
+            this[3], this[7], this[11], this[15]
+        );
     }
 
     public static op_Equality(a: Matrix4, b: Matrix4): boolean {

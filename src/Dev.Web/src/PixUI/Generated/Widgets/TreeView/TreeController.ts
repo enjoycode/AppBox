@@ -31,7 +31,7 @@ export class TreeController<T> implements PixUI.IStateBindable {
         if (this._treeView != null && this._treeView.IsMounted) {
             this.Nodes.Clear();
             this.InitNodes(this._treeView);
-            this._treeView.Invalidate(PixUI.InvalidAction.Relayout);
+            this._treeView.Invalidate(PixUI.InvalidAction.Repaint);
         }
     }
 

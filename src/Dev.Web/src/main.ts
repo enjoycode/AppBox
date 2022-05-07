@@ -3,6 +3,7 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 import {Channel, WebChannel, PayloadType, TypeSerializer} from "@/AppBoxClient";
 
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
+import {Container} from "@/PixUI";
 
 class DemoWidget {
     public static Make1(): PixUI.Widget {
@@ -21,6 +22,38 @@ class DemoWidget {
                 new PixUI.Input("Hello".obs).Init({Width: (180).obs})
             ]
         })
+    }
+
+    public static Make2(): PixUI.Widget {
+        let _expandController = new PixUI.AnimationController(200);
+        let _expandCurve = new PixUI.CurvedAnimation(_expandController, PixUI.Curves.EaseInOutCubic);
+        let _expandArrowAnimation = new PixUI.FloatTween(0.75, 1.0).Animate(_expandCurve);
+
+        let button = new PixUI.ExpandIcon(_expandArrowAnimation);
+        button.OnPointerDown = e => {
+            if (_expandController.Value == 0)
+                _expandController.Forward();
+            else
+                _expandController.Reverse();
+        };
+        return button;
+    }
+
+    public static Make3(): PixUI.Widget {
+        let m2 = PixUI.Matrix4.CreateIdentity();
+        m2.Translate(25, 25);
+        m2.RotateZ(20 * (Math.PI / 180));
+
+        return new Container().Init({
+            Width: (300).obs, Height: (300).obs,
+            Color: PixUI.Colors.Green.obs,
+            Child: new PixUI.Transform(m2, new PixUI.Offset(50, 50)).Init({
+                Child: new PixUI.Container().Init({
+                    Width: (100).obs, Height: (100).obs,
+                    Color: PixUI.Colors.Red.obs,
+                })
+            }),
+        });
     }
 
     public static MakeCodeEditor(): PixUI.Widget {
