@@ -10,3 +10,7 @@ export interface IDesignNode {
 
     get Children(): IList<IDesignNode> | null;
 }
+
+export interface IDesignTree {
+    get RootNodes(): IList<IDesignNode>;
+}

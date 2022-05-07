@@ -210,4 +210,11 @@ export class Matrix4 extends Float32Array {
         this[entry] = arg[0];
     }
 
+    public static op_Equality(a: Matrix4, b: Matrix4): boolean {
+        for (let i = 0; i < 16; i++) {
+            if (a[i] != b[i]) return false;
+        }
+        return true;
+    }
+
 }
