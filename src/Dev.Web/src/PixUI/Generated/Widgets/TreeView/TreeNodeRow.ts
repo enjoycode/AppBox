@@ -25,7 +25,8 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
 
     private _OnHoverChanged(hover: boolean) {
         this._isHover = hover;
-        this.Invalidate(PixUI.InvalidAction.Repaint, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(0, 0, Number.MAX_VALUE, this.Controller.NodeHeight)));
+        this.Invalidate(PixUI.InvalidAction.Repaint, 
+            new PixUI.RepaintArea(PixUI.Rect.FromLTWH(0, 0, this.TreeNode.TreeView!.W, this.Controller.NodeHeight)));
     }
 
     public set ExpandIcon(value: PixUI.ExpandIcon) {

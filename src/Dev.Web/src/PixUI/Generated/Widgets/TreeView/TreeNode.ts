@@ -180,21 +180,21 @@ export class TreeNode<T> extends PixUI.Widget {
         //先处理是否由动画引起的高度改变
         if (this.IsExpanding || this.IsCollapsing) {
             //根据动画值计算需要展开的高度
-            let totalChidrenHeight = this._children!.Sum(t => t.H);
-            let expandedHeight = <number><unknown>(totalChidrenHeight * this._animationValue);
-            if (this._animationValue == 0) //已收缩需要恢复本身的宽度
+            let totalChildrenHeight = this._children!.Sum(t => t.H);
+            let expandedHeight = <number><unknown>(totalChildrenHeight * this._animationValue);
+            if (this.IsCollapsing && this._animationValue == 0) //已收缩需要恢复本身的宽度
             {
                 this._animationFlag = 0;
                 this.SetSize(this._row.W, this._controller.NodeHeight);
             }
             // ReSharper disable once CompareOfFloatsByEqualityOperator
-            else if (this._animationValue == 1) {
+            else if (this.IsExpanding && this._animationValue == 1) {
                 this._animationFlag = 0;
-                this.SetSize(this.W, this._controller.NodeHeight + totalChidrenHeight); //宽度之前已预设
+                this.SetSize(this.W, this._controller.NodeHeight + totalChildrenHeight); //宽度之前已预设
             } else {
                 this.SetSize(this.W, this._controller.NodeHeight + expandedHeight); //宽度之前已预设
             }
-
+            
             return;
         }
 
@@ -210,7 +210,7 @@ export class TreeNode<T> extends PixUI.Widget {
 
         this._row.Layout(Number.POSITIVE_INFINITY, this.Controller.NodeHeight);
 
-        if (!this.IsExpanded) {
+        if (this.IsLeaf || !this.IsExpanded) {
             this.SetSize(this._row.W, this._controller.NodeHeight);
             return;
         }
@@ -264,7 +264,7 @@ export class TreeNode<T> extends PixUI.Widget {
             }
 
             canvas.restore();
-        } else if (this.IsExpanded) {
+        } else if (!this.IsLeaf && this.IsExpanded) {
             for (const child of this._children!) {
                 TreeNode.PaintChildNode(child, canvas, area);
             }

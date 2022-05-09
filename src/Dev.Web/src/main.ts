@@ -1,9 +1,22 @@
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import {Channel, WebChannel, PayloadType, TypeSerializer} from "@/AppBoxClient";
 
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
-import {Container} from "@/PixUI";
+
+
+class TreeData {
+    public readonly Icon: PixUI.IconData;
+    public readonly Text: string;
+    public readonly Children: System.List<TreeData> | null;
+
+    constructor(icon: PixUI.IconData, text: string, children: System.List<TreeData> | null = null) {
+        this.Icon = icon;
+        this.Text = text;
+        this.Children = children;
+    }
+}
 
 class DemoWidget {
     public static Make1(): PixUI.Widget {
@@ -39,12 +52,12 @@ class DemoWidget {
         return button;
     }
 
-    public static Make3(): PixUI.Widget {
+    public static DemoTransform(): PixUI.Widget {
         let m2 = PixUI.Matrix4.CreateIdentity();
         m2.Translate(25, 25);
         m2.RotateZ(20 * (Math.PI / 180));
 
-        return new Container().Init({
+        return new PixUI.Container().Init({
             Width: (300).obs, Height: (300).obs,
             Color: PixUI.Colors.Green.obs,
             Child: new PixUI.Transform(m2, new PixUI.Offset(50, 50)).Init({
@@ -52,6 +65,38 @@ class DemoWidget {
                     Width: (100).obs, Height: (100).obs,
                     Color: PixUI.Colors.Red.obs,
                 })
+            }),
+        });
+    }
+
+    public static DemoTreeView(): PixUI.Widget {
+        let _treeDataSource = new System.List<TreeData>([
+            new TreeData(PixUI.Icons.Filled.Cloud, "Cloud", new System.List<TreeData>([
+                new TreeData(PixUI.Icons.Filled.Train, "Train"),
+                new TreeData(PixUI.Icons.Filled.AirplanemodeOn, "AirPlane")
+            ])),
+            new TreeData(PixUI.Icons.Filled.BeachAccess, "Beach", new System.List<TreeData>([
+                new TreeData(PixUI.Icons.Filled.Cake, "Cake", new System.List<TreeData>([
+                    new TreeData(PixUI.Icons.Filled.Apple, "Apple"),
+                    new TreeData(PixUI.Icons.Filled.Adobe, "Adobe"),
+                ])),
+                new TreeData(PixUI.Icons.Filled.Camera, "Camera"),
+            ])),
+            new TreeData(PixUI.Icons.Filled.Sunny, "Sunny"),
+        ]);
+
+        let _treeController = new PixUI.TreeController<TreeData>((data, node) => {
+            node.Icon = new PixUI.Icon(PixUI.State.op_Implicit_From(data.Icon));
+            node.Label = new PixUI.Text(data.Text.obs);
+            node.IsLeaf = data.Children == null;
+            //node.IsExpanded = data.Text == "Cloud";
+        }, (d) => d.Children);
+        _treeController.DataSource = _treeDataSource;
+
+        return new PixUI.Container().Init({
+            Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
+            Child: new PixUI.TreeView<TreeData>(_treeController).Init({
+                Color: new PixUI.Color(0xFFDCDCDC).obs,
             }),
         });
     }

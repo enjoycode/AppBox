@@ -43,5 +43,10 @@ describe("Equality tests", () => {
        let cat = new Cat();
        expect("$meta_info" in cat.constructor).toEqual(true);
     });
+    
+    it("Number test", () => {
+        let num = Number.MAX_VALUE;
+        expect(Number.isFinite(num)).toEqual(true);
+    });
 
 });

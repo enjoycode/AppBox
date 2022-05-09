@@ -13,7 +13,13 @@ export class DesignTreePad extends PixUI.View {
         this._treeController = new PixUI.TreeController<AppBoxDesign.IDesignNode>(DesignTreePad.BuildTreeNode, n => n.Children!);
 
         this.Child = new PixUI.Column
-        ().Init({Children: [new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}), new PixUI.TreeView<AppBoxDesign.IDesignNode>(this._treeController)]});
+        ().Init({
+            Children: [
+                new PixUI.Input(this._searchKey)
+                    .Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}),
+                new PixUI.TreeView<AppBoxDesign.IDesignNode>(this._treeController)
+            ]
+        });
     }
 
     private static BuildTreeNode(data: AppBoxDesign.IDesignNode, node: PixUI.TreeNode<AppBoxDesign.IDesignNode>) {

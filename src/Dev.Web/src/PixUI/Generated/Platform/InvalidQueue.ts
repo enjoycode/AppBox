@@ -19,11 +19,6 @@ export class AffectsByRelayout {
         //TODO: 考虑Root返回null或现有Bounds
         return new PixUI.RepaintArea(new PixUI.Rect(Math.min(this.OldX, this.Widget.X), Math.min(this.OldY, this.Widget.Y), Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H)));
     }
-
-    public Init(props: Partial<AffectsByRelayout>): AffectsByRelayout {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export enum InvalidAction {
