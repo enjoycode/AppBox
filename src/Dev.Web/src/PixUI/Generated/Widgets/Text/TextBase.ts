@@ -33,7 +33,7 @@ export abstract class TextBase extends PixUI.Widget {
     }
 
     public set Color(value: Nullable<PixUI.State<PixUI.Color>>) {
-        this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
+        this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsLayout);
     }
 
     protected constructor(text: PixUI.State<string>) {

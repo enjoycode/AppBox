@@ -39,8 +39,8 @@ export class MainMenu extends PixUI.Widget {
         let height = this.CacheAndCheckAssignHeight(availableHeight);
         this.SetSize(width, height);
 
-        if (this.IsLayout) return; //只布局一次，除非强制重布
-        this.IsLayout = true;
+        if (this.HasLayout) return; //只布局一次，除非强制重布
+        this.HasLayout = true;
 
         let offsetX = 0;
         for (const child of this._children) {

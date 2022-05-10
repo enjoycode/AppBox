@@ -6,6 +6,7 @@ export class TabBar<T> extends PixUI.Widget {
     private readonly _tabBuilder: System.Action2<T, PixUI.Tab>;
     private readonly _tabs: System.List<PixUI.Tab> = new System.List<PixUI.Tab>();
     public readonly Scrollable: boolean;
+    private _color: Nullable<PixUI.State<PixUI.Color>>;
 
     private _scrollOffset: number = 0;
 
@@ -17,6 +18,13 @@ export class TabBar<T> extends PixUI.Widget {
         this.Scrollable = scrollable;
     }
 
+    public get Color(): Nullable<PixUI.State<PixUI.Color>> {
+        return this._color;
+    }
+
+    public set Color(value: Nullable<PixUI.State<PixUI.Color>>) {
+        this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
+    }
 
     private OnTabSelected(selected: PixUI.Tab) {
         let selectedIndex = this._tabs.IndexOf(selected);
@@ -55,19 +63,23 @@ export class TabBar<T> extends PixUI.Widget {
             return;
         }
 
-        if (this.Scrollable)
-            throw new System.NotImplementedException();
-        else
-            this.LayoutNonScrollable(width, height);
-    }
+        if (this.Scrollable) {
+            this.SetSize(width, height); //TODO:考虑累加宽度
 
-    private LayoutNonScrollable(width: number, height: number) {
-        this.SetSize(width, height);
+            let offsetX = 0;
+            for (let i = 0; i < this._tabs.length; i++) {
+                this._tabs[i].Layout(Number.POSITIVE_INFINITY, height);
+                this._tabs[i].SetPosition(offsetX, 0);
+                offsetX += this._tabs[i].W;
+            }
+        } else {
+            this.SetSize(width, height);
 
-        let tabWidth = width / this._tabs.length;
-        for (let i = 0; i < this._tabs.length; i++) {
-            this._tabs[i].Layout(tabWidth, height);
-            this._tabs[i].SetPosition(tabWidth * i, 0);
+            let tabWidth = width / this._tabs.length;
+            for (let i = 0; i < this._tabs.length; i++) {
+                this._tabs[i].Layout(tabWidth, height);
+                this._tabs[i].SetPosition(tabWidth * i, 0);
+            }
         }
     }
 
@@ -88,13 +100,13 @@ export class TabBar<T> extends PixUI.Widget {
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         // paint background
-        let paint = PixUI.PaintUtils.Shared(new PixUI.Color(0xFF2196F3)); //TODO: bg color
-        canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), paint);
+        if (this._color != null)
+            canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this._color.Value));
 
         for (const tab of this._tabs) //TODO: check visible
         {
             canvas.translate(tab.X, tab.Y);
-            tab.Paint(canvas, area);
+            tab.Paint(canvas, area?.ToChild(tab.X, tab.Y));
             canvas.translate(-tab.X, -tab.Y);
         }
 

@@ -29,13 +29,12 @@ export abstract class StateBase {
         if (this._bindings == null) return;
 
         for (let i = 0; i < this._bindings.length; i++) {
-            let binding = (this._bindings[i]).Clone();
-            let target = binding.Target.deref();
+            let target = this._bindings[i].Target.deref();
             if (target == null) {
                 this._bindings.RemoveAt(i); //remove none alive binding
                 i--;
             } else {
-                (<IStateBindable><unknown>target).OnStateChanged(this, binding.Options);
+                (<IStateBindable><unknown>target).OnStateChanged(this, this._bindings[i].Options);
             }
         }
     }

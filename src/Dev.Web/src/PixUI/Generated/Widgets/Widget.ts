@@ -35,11 +35,11 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     //     protected set => SetFlagValue(value, HitTestableMask);
     // }
 
-    protected get IsLayout(): boolean {
+    protected get HasLayout(): boolean {
         return (this._flag & Widget.LayoutMask) == Widget.LayoutMask;
     }
 
-    protected set IsLayout(value: boolean) {
+    protected set HasLayout(value: boolean) {
         this.SetFlagValue(value, Widget.LayoutMask);
     }
 
@@ -207,7 +207,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (!this.ContainsPoint(x, y)) return false;
 
-       // console.log(`${this} HitTest: ${x} ${y}`);
+        //Console.WriteLine($"{this} HitTest: {x} {y}");
 
         if (result.Add(this))
             return true; //不再检测嵌套的子级

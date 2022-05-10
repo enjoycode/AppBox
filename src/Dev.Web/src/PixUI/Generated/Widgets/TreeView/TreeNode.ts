@@ -194,12 +194,12 @@ export class TreeNode<T> extends PixUI.Widget {
             } else {
                 this.SetSize(this.W, this._controller.NodeHeight + expandedHeight); //宽度之前已预设
             }
-            
+
             return;
         }
 
-        if (this.IsLayout) return;
-        this.IsLayout = true;
+        if (this.HasLayout) return;
+        this.HasLayout = true;
 
         // try build expand icon
         if (!this.IsLeaf) {

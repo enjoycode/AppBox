@@ -19,6 +19,16 @@ namespace AppBoxDesign
                             {
                                 new SidePad(),
                                 new Expanded()
+                                {
+                                    Child = new Column()
+                                    {
+                                        Children = new Widget[]
+                                        {
+                                            new Expanded(),
+                                            new BottomPad(),
+                                        }
+                                    }
+                                }
                             }
                         }
                     },

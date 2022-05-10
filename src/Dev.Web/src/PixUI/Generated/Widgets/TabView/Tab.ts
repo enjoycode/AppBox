@@ -55,13 +55,13 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this._isHover) {
-            let color = new PixUI.Color(0xFF2090EA);
+            let color = new PixUI.Color(0xFFAAAAAA); //TODO: HoverColor
             let paint = PixUI.PaintUtils.Shared(color);
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), paint);
         }
 
         canvas.translate(this.Child!.X, this.Child.Y);
-        this.Child.Paint(canvas, area);
+        this.Child.Paint(canvas, area?.ToChild(this.Child.X, this.Child.Y));
         canvas.translate(-this.Child.X, -this.Child.Y);
     }
 

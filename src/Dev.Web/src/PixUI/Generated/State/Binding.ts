@@ -16,7 +16,5 @@ export class Binding {
         this.Options = options;
     }
 
-    public Clone(): Binding {
-        return new Binding(<PixUI.IStateBindable><unknown>this.Target.deref(), this.Options);
-    }
+    //public Binding Clone() => new Binding((IStateBindable)Target.Target, Options);
 }

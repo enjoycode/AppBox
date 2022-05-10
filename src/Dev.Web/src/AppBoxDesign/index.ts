@@ -8,6 +8,7 @@ export * from "./Generated/Pads/SidePad"
 export * from "./Generated/Pads/DesignTreePad"
 export * from "./Generated/Pads/ToolboxPad"
 export * from "./Generated/Pads/SettingsPad"
+export * from "./Generated/Pads/BottomPad"
 
 export * from "./Generated/DevController"
 export * from "./Generated/LoginPage"

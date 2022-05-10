@@ -30,8 +30,8 @@ export class PopupMenu extends PixUI.Widget {
     }
 
     public Layout(availableWidth: number, availableHeight: number) {
-        if (this.IsLayout) return;
-        this.IsLayout = true;
+        if (this.HasLayout) return;
+        this.HasLayout = true;
 
         let maxChildWidth = 0;
         let maxWidthChild: Nullable<PixUI.MenuItemWidget> = null;
