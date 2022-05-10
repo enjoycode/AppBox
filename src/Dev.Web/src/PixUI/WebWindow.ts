@@ -124,6 +124,9 @@ export default class WebWindow extends PixUI.UIWindow {
             const buttons = WebWindow.ConvertToButtons(ev);
             this.OnPointerUp(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
         };
+        window.onmouseout = ev => {
+            this.OnPointerMoveOutWindow();
+        }
         window.onkeydown = ev => {
             // console.log(`KeyDown: '${ev.key}' keyCode=${ev.code}`)
             this.OnKeyDown(PixUI.KeyEvent.UseDefault(WebWindow.ConvertToKeys(ev)));
