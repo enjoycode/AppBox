@@ -222,8 +222,7 @@ export class InvalidQueue {
         }
 
         //向上查找不透明的父级组件
-        let opaque: Nullable<//向上查找不透明的父级组件
-            PixUI.Widget> = null;
+        let opaque: Nullable<PixUI.Widget> = null;
         let current: PixUI.Widget = widget;
         let dx: number = 0; //当前需要重绘的Widget相对于不透明的上级的坐标偏移X
         let dy: number = 0; //当前需要重绘的Widget相对于不透明的上级的坐标偏移Y
@@ -241,7 +240,7 @@ export class InvalidQueue {
         opaque ??= current; //没找到暂指向Window's RootWidget
 
         //计算脏区域(重绘的Widget相对于Opaque Widget)
-        let dirtyRect = (dirtyArea?.GetRect())?.Clone();
+        let dirtyRect = dirtyArea?.GetRect();
         let dirtyX = dx + (dirtyRect?.Left ?? 0);
         let dirtyY = dy + (dirtyRect?.Top ?? 0);
         let dirtyW = dirtyRect?.Width ?? widget.W;

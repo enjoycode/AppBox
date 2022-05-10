@@ -362,7 +362,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     }
 
     protected PaintChildren(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let dirtyRect = (area?.GetRect())?.Clone();
+        let dirtyRect = area?.GetRect();
 
         this.VisitChildren(child => {
             if (child.W <= 0 || child.H <= 0)
