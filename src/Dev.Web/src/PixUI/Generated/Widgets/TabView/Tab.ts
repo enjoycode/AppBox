@@ -24,11 +24,14 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         this._scrollable = scrollable;
         this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
         this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
+
+        this.Bind(this.IsSelected, PixUI.BindingOptions.AffectsVisual); //TODO:待TabBar实现指示器后移除
     }
 
     private _OnHoverChanged(hover: boolean) {
         this._isHover = hover;
-        this.Invalidate(PixUI.InvalidAction.Repaint);
+        if (!this.IsSelected.Value) //已选中的不需要重缓
+            this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
@@ -42,6 +45,11 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
+        if (this.Child == null) {
+            this.SetSize(0, 0);
+            return;
+        }
+
         this.Child!.Layout(width, height);
 
         if (this._scrollable) {
@@ -54,15 +62,21 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        if (this._isHover) {
-            let color = new PixUI.Color(0xFFAAAAAA); //TODO: HoverColor
+        if (!this.IsSelected.Value && this._isHover) {
+            let color = new PixUI.Color(0xFF2090EA); //TODO: HoverColor
             let paint = PixUI.PaintUtils.Shared(color);
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), paint);
         }
 
+        if (this.Child == null) return;
+
         canvas.translate(this.Child!.X, this.Child.Y);
         this.Child.Paint(canvas, area?.ToChild(this.Child.X, this.Child.Y));
         canvas.translate(-this.Child.X, -this.Child.Y);
+
+        //TODO:暂在这里画指示器，待TabBar实现后移除
+        if (this.IsSelected.Value)
+            canvas.drawRect(PixUI.Rect.FromLTWH(0, this.H - 4, this.W, 4), PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor));
     }
 
     public Init(props: Partial<Tab>): Tab {

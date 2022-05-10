@@ -33,7 +33,7 @@ export abstract class TextBase extends PixUI.Widget {
     }
 
     public set Color(value: Nullable<PixUI.State<PixUI.Color>>) {
-        this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsLayout);
+        this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
     }
 
     protected constructor(text: PixUI.State<string>) {
@@ -91,8 +91,17 @@ export abstract class TextBase extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        if (this._cachedParagraph != null)
-            canvas.drawParagraph(this._cachedParagraph, 0, 0);
+        if (this.Text.Value.length == 0) return;
+
+        if (this._cachedParagraph == null) //可能颜色改变后导致的缓存丢失，可以简单重建
+        {
+            let width = this.Width == null
+                ? this.CachedAvailableWidth
+                : Math.min(Math.max(0, this.Width.Value), this.CachedAvailableWidth);
+            this.BuildParagraph(this.Text.Value, width);
+        }
+
+        canvas.drawParagraph(this._cachedParagraph!, 0, 0);
         //Console.WriteLine($"Paint Text Widget: {_value} at {Left},{Top},{Width},{Height}");
     }
 }

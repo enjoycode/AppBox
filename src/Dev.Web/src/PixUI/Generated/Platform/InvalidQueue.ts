@@ -30,6 +30,7 @@ export class InvalidWidget {
     public Widget: PixUI.Widget;
     public Action: InvalidAction = 0;
     public Level: number = 0;
+    public RelayoutOnly: boolean = false;
 
     public Area: Nullable<PixUI.IDirtyArea>;
 
@@ -81,6 +82,8 @@ export class InvalidQueue {
         //先尝试合并入现有项
         let level = InvalidQueue.GetLevelToTop(widget);
         let insertPos = 0; // -1 mean has merged to exist.
+        let relayoutOnly = false;
+
         for (const exist of this._queue) {
             if (exist.Level > level) break;
 
@@ -105,6 +108,10 @@ export class InvalidQueue {
                     insertPos = -1;
                     break;
                 }
+
+                //上级要求重绘，子级要求重新布局的情况，尽可能标记当前项为RelayoutOnly
+                relayoutOnly = true;
+                exist.Area = null; //TODO:合并脏区域
             }
 
             insertPos++;
@@ -130,7 +137,9 @@ export class InvalidQueue {
         // insert to invalid queue.
         //TODO:use object pool for InvalidWidget
         let target = new InvalidWidget
-        ().Init({Widget: widget, Action: action, Level: level, Area: item});
+        ().Init({
+            Widget: widget, Action: action, Level: level, Area: item, RelayoutOnly: relayoutOnly
+        });
         this._queue.Insert(insertPos, target);
     }
 
@@ -153,8 +162,10 @@ export class InvalidQueue {
                 hasRelayout = true;
                 let affects = AffectsByRelayout.Default;
                 InvalidQueue.RelayoutWidget(item.Widget, affects);
-                //注意: 以下重绘的是受影响Widget的上级，除非本身是根节点
-                InvalidQueue.RepaintWidget(context, affects.Widget.Parent ?? affects.Widget, affects.GetDirtyArea());
+                if (!item.RelayoutOnly) {
+                    //注意: 以下重绘的是受影响Widget的上级，除非本身是根节点
+                    InvalidQueue.RepaintWidget(context, affects.Widget.Parent ?? affects.Widget, affects.GetDirtyArea());
+                }
             } else {
                 InvalidQueue.RepaintWidget(context, item.Widget, item.Area);
             }
@@ -247,10 +258,5 @@ export class InvalidQueue {
             canvas.clear(ctx.Window.BackgroundColor);
         opaque.Paint(canvas, new PixUI.RepaintArea((dirtyChildRect).Clone()));
         canvas.restore();
-    }
-
-    public Init(props: Partial<InvalidQueue>): InvalidQueue {
-        Object.assign(this, props);
-        return this;
     }
 }

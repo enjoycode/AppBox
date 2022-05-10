@@ -90,7 +90,7 @@ export class Input extends PixUI.Widget {
         let border = this._border ?? Input.DefaultBorder;
         if (border instanceof PixUI.OutlineInputBorder) {
             const outline = border;
-            return new PixUI.OutlineInputBorder(new PixUI.BorderSide((PixUI.Theme.FocusedBorderColor).Clone(), PixUI.Theme.FocusedBorderWidth), (outline.BorderRadius
+            return new PixUI.OutlineInputBorder(new PixUI.BorderSide((PixUI.Theme.FocusedColor).Clone(), PixUI.Theme.FocusedBorderWidth), (outline.BorderRadius
             ).Clone());
         }
 

@@ -240,7 +240,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         }
 
         if (theme.HighlightingCurrentCell) {
-            let paint = PixUI.PaintUtils.Shared(PixUI.Theme.FocusedBorderColor, CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
+            let paint = PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
             canvas.drawRect(cellRect, paint);
         }
     }

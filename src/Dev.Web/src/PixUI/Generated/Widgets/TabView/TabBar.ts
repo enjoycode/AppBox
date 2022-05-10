@@ -26,6 +26,11 @@ export class TabBar<T> extends PixUI.Widget {
         this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
     }
 
+    public get IsOpaque(): boolean {
+        return this._color != null && this._color.Value.Alpha == 0xFF;
+    }
+
+
     private OnTabSelected(selected: PixUI.Tab) {
         let selectedIndex = this._tabs.IndexOf(selected);
         if (selectedIndex < 0 || selectedIndex == this._controller.SelectedIndex)

@@ -362,12 +362,14 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     }
 
     protected PaintChildren(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let dirtyRect = (area?.GetRect() ?? PixUI.Rect.FromLTWH(0, 0, this.W, this.H)).Clone();
+        let dirtyRect = (area?.GetRect())?.Clone();
+
         this.VisitChildren(child => {
             if (child.W <= 0 || child.H <= 0)
                 return false;
-            if (!dirtyRect.IntersectsWith(child.X, child.Y, child.W, child.H))
-                return false;
+            if (dirtyRect != null &&
+                !dirtyRect.IntersectsWith(child.X, child.Y, child.W, child.H))
+                return false; //脏区域与子组件没有相交部分，不用绘制
 
             canvas.translate(child.X, child.Y); //TODO: x = y =0 no need
             child.Paint(canvas, area?.ToChild(child.X, child.Y));

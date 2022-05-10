@@ -28,6 +28,8 @@ export class RepaintArea implements IDirtyArea {
     }
 
     public ToChild(childX: number, childY: number): IDirtyArea {
+        if (childX == 0 && childY == 0) return this;
+
         let childRect = (this.Rect).Clone();
         childRect.Offset(-childX, -childY);
         return new RepaintArea((childRect).Clone());
