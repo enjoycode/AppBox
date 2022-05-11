@@ -24,6 +24,9 @@ public abstract class ModelBase : IBinSerializable
     public ModelLayer ModelLayer => _id.Layer;
     public ModelType ModelType => _id.Type;
 
+    public ModelId Id => _id;
+    public string Name => _name;
+
     #region ====Design Methods====
 
     public bool IsNameChanged => _originalName != null && _originalName != _name;

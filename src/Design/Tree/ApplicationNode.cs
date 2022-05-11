@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 public sealed class ApplicationNode : DesignNode
 {
     public readonly ApplicationModel Model;
-    private readonly NodeList<ModelRootNode> _children;
+    private readonly DesignNodeList<ModelRootNode> _children;
 
     public override DesignNodeType Type => DesignNodeType.ApplicationNode;
     public override string Label => Model.Name;
@@ -13,7 +13,7 @@ public sealed class ApplicationNode : DesignNode
     public ApplicationNode(DesignTree tree, ApplicationModel model)
     {
         Model = model;
-        _children = new NodeList<ModelRootNode>(this);
+        _children = new DesignNodeList<ModelRootNode>(this);
 
         //按ModelType项顺序添加模型根节点
         for (var i = 0; i < 8; i++)

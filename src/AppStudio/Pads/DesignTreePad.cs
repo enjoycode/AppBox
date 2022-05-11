@@ -28,7 +28,7 @@ namespace AppBoxDesign
         {
             node.Icon = new Icon(GetIconForNode(data));
             node.Label = new Text(data.Label);
-            node.IsLeaf = data.Children == null;
+            node.IsLeaf = data.Children == null || data.Children.Count == 0;
             node.IsExpanded = data.Type == DesignNodeType.DataStoreRootNode ||
                               data.Type == DesignNodeType.ApplicationRoot;
         }

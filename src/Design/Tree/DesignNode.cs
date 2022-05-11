@@ -14,6 +14,30 @@ public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
     /// </summary>
     public virtual string Id => Label;
 
+    protected DesignNode RootNode
+    {
+        get
+        {
+            var cur = this;
+            while (cur.Parent != null)
+            {
+                cur = cur.Parent;
+            }
+
+            return cur;
+        }
+    }
+
+    public DesignTree? DesignTree
+    {
+        get
+        {
+            if (RootNode is IRootNode rootNode)
+                return rootNode.DesignTree;
+            return null;
+        }
+    }
+
     #region ====IComparable====
 
     public int CompareTo(DesignNode? other)

@@ -5,12 +5,12 @@ namespace AppBoxDesign;
 /// <summary>
 /// 子节点列表，添加时自动排序
 /// </summary>
-public sealed class NodeList<T> where T : DesignNode
+public sealed class DesignNodeList<T> where T : DesignNode
 {
     internal readonly DesignNode Owner;
     private readonly List<T> _list;
 
-    public NodeList(DesignNode owner)
+    public DesignNodeList(DesignNode owner)
     {
         Owner = owner;
         _list = new List<T>();

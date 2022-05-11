@@ -19,7 +19,7 @@ export class DesignTreePad extends PixUI.View {
     private static BuildTreeNode(data: AppBoxDesign.IDesignNode, node: PixUI.TreeNode<AppBoxDesign.IDesignNode>) {
         node.Icon = new PixUI.Icon(PixUI.State.op_Implicit_From(DesignTreePad.GetIconForNode(data)));
         node.Label = new PixUI.Text(PixUI.State.op_Implicit_From(data.Label));
-        node.IsLeaf = data.Children == null;
+        node.IsLeaf = data.Children == null || data.Children.length == 0;
         node.IsExpanded = data.Type == AppBoxDesign.DesignNodeType.DataStoreRootNode ||
             data.Type == AppBoxDesign.DesignNodeType.ApplicationRoot;
     }

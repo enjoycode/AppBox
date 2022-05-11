@@ -7,14 +7,14 @@ public sealed class ApplicationRootNode : DesignNode, IRootNode
     public override DesignNodeType Type => DesignNodeType.ApplicationRoot;
     public override string Label => "Applications";
 
-    internal NodeList<ApplicationNode> Children { get; }
+    internal DesignNodeList<ApplicationNode> Children { get; }
 
     public DesignTree DesignTree { get; }
 
     public ApplicationRootNode(DesignTree tree)
     {
         DesignTree = tree;
-        Children = new NodeList<ApplicationNode>(this);
+        Children = new DesignNodeList<ApplicationNode>(this);
     }
 
     public override void WriteTo(IOutputStream ws)

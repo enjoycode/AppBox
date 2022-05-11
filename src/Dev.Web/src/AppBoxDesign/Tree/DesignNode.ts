@@ -1,7 +1,7 @@
 import * as System from '@/System'
 import {IDesignNode} from "./IDesignNode";
 import {DesignNodeType} from "./DesignNodeType";
-import {IBinSerializable, IInputStream, IOutputStream} from "@/AppBoxClient";
+import {IBinSerializable, IInputStream, IOutputStream, ModelType} from "@/AppBoxClient";
 
 export class DesignTree implements IBinSerializable {
     public readonly RootNodes: System.List<DesignNode> = new System.List<DesignNode>();
@@ -134,7 +134,50 @@ export class ApplicationNode extends DesignNode {
 }
 
 export class ModelRootNode extends DesignNode {
+    private readonly _children: System.List<DesignNode> = new System.List<DesignNode>();
+
+    get Children(): System.IList<IDesignNode> | null {
+        return this._children;
+    }
+
     get Type(): DesignNodeType {
         return DesignNodeType.ModelRootNode;
+    }
+
+    ReadFrom(bs: IInputStream) {
+        super.ReadFrom(bs);
+        const count = bs.ReadVariant();
+        for (let i = 0; i < count; i++) {
+            const nodeType = <DesignNodeType>bs.ReadByte();
+            let node: DesignNode;
+            if (nodeType == DesignNodeType.ModelNode) {
+                node = new ModelNode();
+            } else if (nodeType == DesignNodeType.FolderNode) {
+                throw new System.NotImplementedException();
+            } else {
+                throw new System.NotSupportedException();
+            }
+
+            node.ReadFrom(bs);
+            this._children.Add(node);
+        }
+    }
+}
+
+export class ModelNode extends DesignNode {
+    private _modelType: ModelType;
+
+    public get ModelType() {
+        return this._modelType;
+    }
+
+    get Type(): DesignNodeType {
+        return DesignNodeType.ModelNode;
+    }
+
+    ReadFrom(bs: IInputStream) {
+        super.ReadFrom(bs);
+
+        this._modelType = <ModelType>bs.ReadByte();
     }
 }

@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 public sealed class DataStoreRootNode : DesignNode, IRootNode
 {
-    internal NodeList<DataStoreNode> Children { get; }
+    internal DesignNodeList<DataStoreNode> Children { get; }
 
     public override DesignNodeType Type => DesignNodeType.DataStoreRootNode;
     public override string Label => "DataStore";
@@ -13,7 +13,7 @@ public sealed class DataStoreRootNode : DesignNode, IRootNode
     public DataStoreRootNode(DesignTree tree)
     {
         DesignTree = tree;
-        Children = new NodeList<DataStoreNode>(this);
+        Children = new DesignNodeList<DataStoreNode>(this);
     }
     
     public override void WriteTo(IOutputStream ws)

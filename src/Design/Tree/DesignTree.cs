@@ -34,21 +34,34 @@ public sealed class DesignTree : IBinSerializable
         _rootNodes.Add(_storeRootNode);
         _appRootNode = new ApplicationRootNode(this);
         _rootNodes.Add(_appRootNode);
-        
+
         //先加载签出信息及StagedModels
-        
+
         //1.加载Apps
         var appNode = new ApplicationNode(this, new ApplicationModel("sys", "sys"));
         _appRootNode.Children.Add(appNode);
-        
+
         //添加默认存储节点
         var defaultDataStoreModel = new DataStoreModel(DataStoreKind.Sql, "Default", null);
         var defaultDataStoreNode = new DataStoreNode(defaultDataStoreModel);
         _storeRootNode.Children.Add(defaultDataStoreNode);
 
+        //测试用节点
+        var homePageModel = new ViewModel(ModelId.Make(12345, ModelType.View, 1, ModelLayer.SYS),
+            "HomePage");
+        var homePageNode = new ModelNode(homePageModel);
+        appNode.FindModelRootNode(ModelType.View).Children.Add(homePageNode);
+
         //TODO:
         return Task.CompletedTask;
     }
+
+    #endregion
+
+    #region ====Find Methods====
+
+    public ApplicationNode? FindApplicationNode(int appId)
+        => _appRootNode.Children.Find(n => n.Model.Id == appId);
 
     #endregion
 
