@@ -67,7 +67,7 @@ export abstract class UIWindow {
 
     public abstract Present(): void;
 
-
+        
     public OnPointerMove(e: PixUI.PointerEvent) {
         this._lastMouseX = e.X;
         this._lastMouseY = e.Y;

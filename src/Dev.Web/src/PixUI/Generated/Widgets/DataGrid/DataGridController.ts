@@ -146,7 +146,7 @@ export class DataGridController<T> {
                     }
 
                     //重新计算所有列宽并重绘
-                    this.CalcColumnsWidth((this._cachedWidgetSize).Clone());
+                    this.CalcColumnsWidth(this._cachedWidgetSize, true);
                     this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
                 }
             }
@@ -218,7 +218,7 @@ export class DataGridController<T> {
     }
 
 
-    public CalcColumnsWidth(widgetSize: PixUI.Size) {
+    public CalcColumnsWidth(widgetSize: PixUI.Size, force: boolean = false) {
         let needCalc = this._cachedWidgetSize.Width != widgetSize.Width;
         if (this.ScrollController.OffsetX > 0 && widgetSize.Width > this._cachedWidgetSize.Width) {
             //如果变宽了且有横向滚动，需要扣减
@@ -227,7 +227,7 @@ export class DataGridController<T> {
         }
 
         this._cachedWidgetSize = (widgetSize).Clone();
-        if (!needCalc) return;
+        if (!needCalc && !force) return;
 
         //先计算固定宽度列
         let fixedColumns = this._cachedLeafColumns
