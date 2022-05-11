@@ -31,7 +31,7 @@ public sealed partial class DataStoreModel
 
     internal DataStoreModel() { }
 
-    public DataStoreModel(DataStoreKind kind, string provider, string storeName)
+    public DataStoreModel(DataStoreKind kind,string storeName, string? provider)
     {
         _id = StringUtil.GetHashCode(storeName);
         _name = storeName;

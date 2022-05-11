@@ -42,8 +42,9 @@ public sealed class DesignTree : IBinSerializable
         _appRootNode.Children.Add(appNode);
         
         //添加默认存储节点
-        //var defaultDataStoreNode = new DAtaStro
-        
+        var defaultDataStoreModel = new DataStoreModel(DataStoreKind.Sql, "Default", null);
+        var defaultDataStoreNode = new DataStoreNode(defaultDataStoreModel);
+        _storeRootNode.Children.Add(defaultDataStoreNode);
 
         //TODO:
         return Task.CompletedTask;

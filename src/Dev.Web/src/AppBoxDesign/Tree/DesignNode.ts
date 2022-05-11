@@ -59,8 +59,31 @@ export abstract class DesignNode implements IDesignNode, IBinSerializable {
 }
 
 export class DataStoreRootNode extends DesignNode {
+    private readonly _children: System.List<DataStoreNode> = new System.List<DataStoreNode>();
+
+    get Children(): System.IList<IDesignNode> | null {
+        return this._children;
+    }
+
     get Type(): DesignNodeType {
         return DesignNodeType.DataStoreRootNode;
+    }
+
+    ReadFrom(bs: IInputStream) {
+        super.ReadFrom(bs);
+
+        const count = bs.ReadVariant();
+        for (let i = 0; i < count; i++) {
+            let dataStoreNode = new DataStoreNode();
+            dataStoreNode.ReadFrom(bs);
+            this._children.Add(dataStoreNode);
+        }
+    }
+}
+
+export class DataStoreNode extends DesignNode {
+    get Type(): DesignNodeType {
+        return DesignNodeType.DataStoreNode;
     }
 }
 
