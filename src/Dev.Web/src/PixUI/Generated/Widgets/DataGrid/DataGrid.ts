@@ -81,6 +81,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         //draw rows
         if (this._controller.DataView == null || this._controller.DataView.length == 0) {
             //TODO: draw no data
+            canvas.restore();
             return;
         }
 

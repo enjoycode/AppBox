@@ -48,6 +48,11 @@ namespace AppBoxDesign
 
         private static Widget BuildBody(string title)
         {
+            if (title == "Problems")
+            {
+                return BuildProblemsPad();
+            }
+
             return new Container()
             {
                 Padding = EdgeInsets.All(10),
@@ -55,5 +60,24 @@ namespace AppBoxDesign
                 Child = new Text(title),
             };
         }
+
+        private static Widget BuildProblemsPad()
+        {
+            var controller = new DataGridController<IProblem>(new List<DataGridColumn<IProblem>>()
+            {
+                new DataGridTextColumn<IProblem>("Model", p => p.Model),
+                new DataGridTextColumn<IProblem>("Position", p => p.Position),
+                new DataGridTextColumn<IProblem>("Info", p => p.Info),
+            });
+
+            return new DataGrid<IProblem>(controller);
+        }
+    }
+
+    public interface IProblem
+    {
+        string Model { get; }
+        string Position { get; }
+        string Info { get; }
     }
 }
