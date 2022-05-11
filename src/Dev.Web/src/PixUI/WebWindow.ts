@@ -110,19 +110,19 @@ export default class WebWindow extends PixUI.UIWindow {
             ev.preventDefault();
             ev.stopPropagation();
             const buttons = WebWindow.ConvertToButtons(ev);
-            this.OnPointerMove(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
+            this.OnPointerMove(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
         };
         window.onmousedown = ev => {
             ev.preventDefault();
             ev.stopPropagation();
             const buttons = WebWindow.ConvertToButtons(ev);
-            this.OnPointerDown(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
+            this.OnPointerDown(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
         };
         window.onmouseup = ev => {
             ev.preventDefault();
             ev.stopPropagation();
             const buttons = WebWindow.ConvertToButtons(ev);
-            this.OnPointerUp(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.offsetX, ev.offsetY));
+            this.OnPointerUp(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
         };
         window.onmouseout = ev => {
             this.OnPointerMoveOutWindow();
