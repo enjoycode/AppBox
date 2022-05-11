@@ -123,7 +123,7 @@ namespace SerializationGenerator
                 .Select(n => new
                 {
                     IsNullable = GetFieldType(n.Declaration) is NullableTypeSyntax,
-                    TypeName = GetTypeName(GetFieldType(n.Declaration), n.Attribute),
+                    TypeInfo = GetTypeInfo(semanticModel, GetFieldType(n.Declaration), n.Attribute),
                     FieldName = GetFieldName(n.Declaration),
                     FieldId = int.Parse(
                         n.Attribute.ArgumentList!.Arguments[0].Expression.ToString()),
@@ -142,9 +142,9 @@ namespace SerializationGenerator
                 foreach (var item in fields)
                 {
                     if (item.IsNullable)
-                        sb.Append($"\t\tif ({item.FieldName} != null)\n");
+                        sb.Append($"\t\t\tif ({item.FieldName} != null)\n\t");
                     sb.Append(
-                        $"\t\t\tws.WriteFieldId({item.FieldId}).Write{item.TypeName}({item.FieldName});\n");
+                        $"\t\t\tws.WriteFieldId({item.FieldId}).Write{item.TypeInfo.TypeName}({item.TypeInfo.WriteCastExpression}{item.FieldName});\n");
                 }
 
                 sb.Append("\t\t\tws.WriteFieldEnd();\n");
@@ -157,7 +157,7 @@ namespace SerializationGenerator
                 foreach (var item in noneNullableFields)
                 {
                     sb.Append(
-                        $"\t\t\tws.Write{item.TypeName}({item.FieldName});\n");
+                        $"\t\t\tws.Write{item.TypeInfo.TypeName}({item.TypeInfo.WriteCastExpression}{item.FieldName});\n");
                 }
 
                 var nullableFields = fields
@@ -166,9 +166,9 @@ namespace SerializationGenerator
                     .ToArray();
                 foreach (var item in nullableFields)
                 {
-                    sb.Append($"\t\tif ({item.FieldName} != null)\n");
+                    sb.Append($"\t\t\tif ({item.FieldName} != null)\n");
                     sb.Append(
-                        $"\t\t\tws.WriteFieldId({item.FieldId}).Write{item.TypeName}({item.FieldName});\n");
+                        $"\t\t\t\tws.WriteFieldId({item.FieldId}).Write{item.TypeInfo.TypeName}({item.TypeInfo.WriteCastExpression}{item.FieldName});\n");
                 }
 
                 if (policy == 2 && nullableFields.Length > 0)
@@ -196,7 +196,8 @@ namespace SerializationGenerator
                     .OrderBy(f => f.FieldId);
                 foreach (var item in noneNullableFields)
                 {
-                    sb.Append($"\t\t\t{item.FieldName} = rs.Read{item.TypeName}();\n");
+                    sb.Append(
+                        $"\t\t\t{item.FieldName} = {item.TypeInfo.ReadCastExpression}rs.Read{item.TypeInfo.TypeName}();\n");
                 }
 
                 var nullableFields = fields
@@ -223,7 +224,8 @@ namespace SerializationGenerator
                 foreach (var item in fields)
                 {
                     sb.Append($"\t\t\t\t\tcase {item.FieldId}: ");
-                    sb.Append($"{item.FieldName} = rs.Read{item.TypeName}(); break;\n");
+                    sb.Append(
+                        $"{item.FieldName} = {item.TypeInfo.ReadCastExpression}rs.Read{item.TypeInfo.TypeName}(); break;\n");
                 }
 
                 sb.Append("\t\t\t\t\tcase 0: return;\n");
@@ -253,7 +255,7 @@ namespace SerializationGenerator
                 return propertyDeclarationSyntax.Type;
             }
 
-            throw new Exception();
+            throw new Exception("Never be here");
         }
 
         private static string GetFieldName(MemberDeclarationSyntax declaration)
@@ -268,22 +270,30 @@ namespace SerializationGenerator
                 return propertyDeclarationSyntax.Identifier.Text;
             }
 
-            throw new Exception();
+            throw new Exception($"GetFieldName: {declaration.ToString()}");
         }
 
-        private static string GetTypeName(TypeSyntax typeSyntax, AttributeSyntax attribute)
+        private static TypeInfo GetTypeInfo(SemanticModel semanticModel, TypeSyntax typeSyntax,
+            AttributeSyntax attribute)
         {
             if (attribute.ArgumentList!.Arguments.Count > 1 &&
                 attribute.ArgumentList.Arguments[1].Expression.ToString() == "true")
             {
-                return "Variant";
+                return new TypeInfo("Variant");
             }
 
             if (typeSyntax is NullableTypeSyntax nullableTypeSyntax)
                 typeSyntax = nullableTypeSyntax.ElementType;
 
             if (typeSyntax is PredefinedTypeSyntax predefinedType)
-                return GetPredefinedTypeName(predefinedType);
+                return new TypeInfo(GetPredefinedTypeName(predefinedType));
+
+            var typeSymbol = semanticModel.GetSymbolInfo(typeSyntax).Symbol as INamedTypeSymbol;
+            if (typeSymbol is { TypeKind: TypeKind.Enum })
+            {
+                //TODO:暂直接转换为Byte
+                return new TypeInfo("Byte", "(byte)", $"({typeSyntax.ToString()})");
+            }
 
             throw new NotImplementedException($"{typeSyntax.ToString()}");
         }

@@ -40,6 +40,10 @@ public sealed class DesignTree : IBinSerializable
         //1.加载Apps
         var appNode = new ApplicationNode(this, new ApplicationModel("sys", "sys"));
         _appRootNode.Children.Add(appNode);
+        
+        //添加默认存储节点
+        //var defaultDataStoreNode = new DAtaStro
+        
 
         //TODO:
         return Task.CompletedTask;
