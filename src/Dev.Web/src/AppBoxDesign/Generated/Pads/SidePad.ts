@@ -34,7 +34,7 @@ export class NaviBar extends PixUI.View {
     private BuildButton(icon: PixUI.IconData, type: Nullable<SidePadType> = null): PixUI.Button {
         let color = this._buttonColor;
         if (type != null)
-            color = this.Compute1(AppBoxDesign.DevController.ActiveSidePad, s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
+            color = this.Compute1(AppBoxDesign.DesignStore.ActiveSidePad, s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
 
         return new PixUI.Button(null, PixUI.State.op_Implicit_From(icon)).Init({
             FontSize: this._buttonSize,
@@ -46,7 +46,7 @@ export class NaviBar extends PixUI.View {
 
     private OnClick(type: Nullable<SidePadType>) {
         if (type != null)
-            AppBoxDesign.DevController.ActiveSidePad.Value = type;
+            AppBoxDesign.DesignStore.ActiveSidePad.Value = type;
     }
 
     public Init(props: Partial<NaviBar>): NaviBar {
@@ -63,7 +63,7 @@ export class SidePad extends PixUI.View {
     public constructor() {
         super();
         let activePad = this.Compute1(
-            AppBoxDesign.DevController.ActiveSidePad, s => {
+            AppBoxDesign.DesignStore.ActiveSidePad, s => {
                 switch (s) {
                     case SidePadType.DesignTree:
                         return this._designTreePad;

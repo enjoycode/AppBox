@@ -21,16 +21,16 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         super();
         this.MouseRegion = new PixUI.MouseRegion(null, false); //TODO: opaque=true
         this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
-    }
-
-    private _OnHoverChanged(hover: boolean) {
-        this._isHover = hover;
-        this.Invalidate(PixUI.InvalidAction.Repaint, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(0, 0, this.TreeNode.TreeView!.W, this.Controller.NodeHeight)));
+        this.MouseRegion.PointerTap.Add(this._OnTap, this);
     }
 
     public set ExpandIcon(value: PixUI.ExpandIcon) {
         this._expander = value;
         this._expander.Parent = this;
+    }
+
+    public get Icon(): PixUI.Icon {
+        return this._icon!;
     }
 
     public set Icon(value: PixUI.Icon) {
@@ -53,6 +53,16 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
 
     private get Controller(): PixUI.TreeController<T> {
         return this.TreeNode.Controller;
+    }
+
+
+    private _OnHoverChanged(hover: boolean) {
+        this._isHover = hover;
+        this.Invalidate(PixUI.InvalidAction.Repaint, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(0, 0, this.TreeNode.TreeView!.W, this.Controller.NodeHeight)));
+    }
+
+    private _OnTap(e: PixUI.PointerEvent) {
+        this.Controller.SelectNode(this.TreeNode);
     }
 
 

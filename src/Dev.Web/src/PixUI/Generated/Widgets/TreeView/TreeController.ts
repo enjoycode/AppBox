@@ -8,6 +8,20 @@ export class TreeController<T> implements PixUI.IStateBindable {
     public readonly ChildrenGetter: System.Func2<T, System.IList<T>>;
     public readonly Nodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
 
+
+    private readonly _selectedNodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
+
+    public get FirstSelectedNode(): Nullable<PixUI.TreeNode<T>> {
+        return this._selectedNodes.length > 0 ? this._selectedNodes[0] : null;
+    }
+
+    public get SelectedNodes(): PixUI.TreeNode<T>[] {
+        return this._selectedNodes.ToArray();
+    }
+
+    public readonly SelectionChanged = new System.Event();
+
+
     public HoverColor: PixUI.Color = new PixUI.Color(0xFFAAAAAA); //TODO:
 
     public NodeIndent: number = 20;
@@ -51,8 +65,26 @@ export class TreeController<T> implements PixUI.IStateBindable {
         throw new System.NotImplementedException();
     }
 
+
+    public SelectNode(node: PixUI.TreeNode<T>) {
+        if (this._selectedNodes.length == 1 && (this._selectedNodes[0] === node))
+            return;
+
+        for (const oldSelectedNode of this._selectedNodes) {
+            oldSelectedNode.IsSelected.Value = false;
+        }
+
+        this._selectedNodes.Clear();
+
+        this._selectedNodes.Add(node);
+        node.IsSelected.Value = true;
+
+        this.SelectionChanged.Invoke();
+    }
+
     public Init(props: Partial<TreeController<T>>): TreeController<T> {
         Object.assign(this, props);
         return this;
     }
+
 }

@@ -24,7 +24,7 @@ export class TabController<T> implements PixUI.IStateBindable {
         }
     }
 
-    public SetSelectedIndex(index: number, byTapTab: boolean) {
+    public SelectAt(index: number, byTapTab: boolean) {
         let oldIndex = this.SelectedIndex;
         this.SelectedIndex = index;
         this._tabBody?.SwitchTo(oldIndex);

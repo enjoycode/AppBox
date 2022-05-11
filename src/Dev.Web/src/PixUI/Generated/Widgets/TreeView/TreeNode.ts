@@ -14,6 +14,7 @@ export class TreeNode<T> extends PixUI.Widget {
     private _children: Nullable<System.List<TreeNode<T>>>;
 
     public readonly IsSelected: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
+    private readonly _color: PixUI.State<PixUI.Color>; //for icon and label
 
     private _expandController: Nullable<PixUI.AnimationController>;
     private _expandCurve: Nullable<PixUI.Animation<number>>;
@@ -21,10 +22,12 @@ export class TreeNode<T> extends PixUI.Widget {
 
     public set Icon(value: PixUI.Icon) {
         this._row.Icon = value;
+        this._row.Icon.Color ??= this._color;
     }
 
     public set Label(value: PixUI.Text) {
         this._row.Label = value;
+        this._row.Label.Color ??= this._color;
     }
 
     public IsLeaf: boolean = false;
@@ -78,6 +81,10 @@ export class TreeNode<T> extends PixUI.Widget {
         this._controller = controller;
         this._row = new PixUI.TreeNodeRow<T>();
         this._row.Parent = this;
+
+        this._color = this.Compute1(this.IsSelected, s => s ? PixUI.Theme.FocusedColor : PixUI.Colors.Black); //TODO:
+
+        this.Bind(this.IsSelected, PixUI.BindingOptions.AffectsVisual);
     }
 
 

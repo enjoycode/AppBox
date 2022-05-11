@@ -27,7 +27,6 @@ export class BottomPad extends PixUI.View {
         );
         let bgColor = PixUI.RxComputed.Make1(tab.IsSelected, selected => selected ? PixUI.Colors.White : new PixUI.Color(0xFFF3F3F3));
 
-        tab.DebugLabel = title;
         tab.Child = new PixUI.Container().Init({
             Color: bgColor,
             Width: PixUI.State.op_Implicit_From(100),
@@ -50,12 +49,7 @@ export class BottomPad extends PixUI.View {
     }
 
     private static BuildProblemsPad(): PixUI.Widget {
-        let controller = new PixUI.DataGridController<IProblem>(new System.List<PixUI.DataGridColumn<IProblem>>().Init(
-            [
-                new PixUI.DataGridTextColumn<IProblem>("Model", p => p.Model, PixUI.ColumnWidth.Fixed(160)),
-                new PixUI.DataGridTextColumn<IProblem>("Position", p => p.Position,PixUI.ColumnWidth.Fixed(180)),
-                new PixUI.DataGridTextColumn<IProblem>("Info", p => p.Info)
-            ]));
+        let controller = new PixUI.DataGridController<IProblem>(new System.List<PixUI.DataGridColumn<IProblem>>().Init([new PixUI.DataGridTextColumn<IProblem>("Model", p => p.Model), new PixUI.DataGridTextColumn<IProblem>("Position", p => p.Position), new PixUI.DataGridTextColumn<IProblem>("Info", p => p.Info)]));
 
         return new PixUI.DataGrid<IProblem>(controller);
     }

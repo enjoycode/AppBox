@@ -24,7 +24,7 @@ namespace AppBoxDesign
                                     {
                                         Children = new Widget[]
                                         {
-                                            new Expanded(),
+                                            new Expanded() { Child = new DesignerPad() },
                                             new BottomPad(),
                                         }
                                     }

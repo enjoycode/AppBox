@@ -46,7 +46,7 @@ namespace AppBoxDesign
         {
             var color = _buttonColor;
             if (type != null)
-                color = Compute(DevController.ActiveSidePad,
+                color = Compute(DesignStore.ActiveSidePad,
                     s => s == type ? new Color(0xFF4AC5EA) : new Color(0xFF6A7785));
 
             return new Button(null, icon)
@@ -60,7 +60,7 @@ namespace AppBoxDesign
         private void OnClick(SidePadType? type)
         {
             if (type != null)
-                DevController.ActiveSidePad.Value = type.Value;
+                DesignStore.ActiveSidePad.Value = type.Value;
         }
     }
 
@@ -73,7 +73,7 @@ namespace AppBoxDesign
         public SidePad()
         {
             var activePad = Compute<SidePadType, Widget?>(
-                DevController.ActiveSidePad, s =>
+                DesignStore.ActiveSidePad, s =>
                 {
                     switch (s)
                     {

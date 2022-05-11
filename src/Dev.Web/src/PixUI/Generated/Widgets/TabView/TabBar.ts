@@ -38,7 +38,7 @@ export class TabBar<T> extends PixUI.Widget {
 
         //TODO: check need scroll to target tab
         this._tabs[this._controller.SelectedIndex].IsSelected.Value = false;
-        this._controller.SetSelectedIndex(selectedIndex, true);
+        this._controller.SelectAt(selectedIndex, true);
         selected.IsSelected.Value = true;
     }
 
