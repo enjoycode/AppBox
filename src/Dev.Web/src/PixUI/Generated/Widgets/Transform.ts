@@ -47,7 +47,7 @@ export class Transform extends PixUI.SingleChildWidget {
         if (this._origin != null)
             result.Translate(this._origin.Dx, this._origin.Dy);
 
-        result.Multiply((this._transform).Clone());
+        result.Multiply(this._transform);
 
         if (this._origin != null)
             result.Translate(-this._origin.Dx, -this._origin.Dy);
@@ -71,11 +71,11 @@ export class Transform extends PixUI.SingleChildWidget {
             return false; // Objects are not visible on screen and cannot be hit-tested.
         }
 
-        let transformed = PixUI.MatrixUtils.TransformPoint((transform).Clone(), x, y);
+        let transformed = PixUI.MatrixUtils.TransformPoint(transform, x, y);
         //不要加入 result.Add(this, effectiveTransform);
         let hitChild = this.Child.HitTest(transformed.Dx, transformed.Dy, result);
         if (hitChild) {
-            result.ConcatLastTransform((transform).Clone());
+            result.ConcatLastTransform(transform);
         }
 
         return hitChild;

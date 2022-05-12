@@ -199,11 +199,13 @@ export abstract class UIWindow {
         this.FocusManager.Focus(null);
     }
 
-    public AfterDynamicViewChange() {
-        if (this._oldHitResult.IsHitAnyWidget && !this._oldHitResult.LastHitWidget!.IsMounted) {
-            this._oldHitResult.ExitAll();
-            this._oldHitResult.Reset();
-        }
+    public AfterDynamicViewChange(dynamicView: PixUI.DynamicView) {
+        if (!this._oldHitResult.IsHitAnyWidget ||
+            !(this._oldHitResult.LastHitWidget === dynamicView)) return;
+
+        //切换过程结束后仍旧在DynamicView内，继续HitTest子级
+        this.OldHitTest(this._lastMouseX, this._lastMouseY);
+        this.CompareAndSwapHitTestResult();
     }
 
     public AfterLayoutChanged() {

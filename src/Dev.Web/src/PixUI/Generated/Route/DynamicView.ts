@@ -19,7 +19,7 @@ export class DynamicView extends PixUI.SingleChildWidget {
     protected ReplaceTo(to: Nullable<PixUI.Widget>) {
         this.Root!.Window.BeforeDynamicViewChange();
         this.Child = to;
-        this.Root!.Window.AfterDynamicViewChange();
+        this.Root!.Window.AfterDynamicViewChange(this); //TODO: 检查是否需要，因重新布局会同样处理
         this.Invalidate(PixUI.InvalidAction.Relayout); //这里始终重新布局
     }
 
@@ -71,7 +71,7 @@ export class DynamicView extends PixUI.SingleChildWidget {
             this._transitionStack!.Dispose();
             this._transitionStack = null;
 
-            this.Root!.Window.AfterDynamicViewChange();
+            this.Root!.Window.AfterDynamicViewChange(this);
         }
     }
 
@@ -82,6 +82,7 @@ export class DynamicView extends PixUI.SingleChildWidget {
         }
         super.OnStateChanged(state, options);
     }
+
 
     public Layout(availableWidth: number, availableHeight: number) {
         //始终填满可用空间
@@ -94,6 +95,19 @@ export class DynamicView extends PixUI.SingleChildWidget {
 
     public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
         //do nothing now.
+    }
+
+    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+        //如果在动画切换过程中，不继续尝试HitTest子级，因为缓存的HitTestResult.LastTransform如终是动画开始前的
+        if (this._animationController != null &&
+            this._animationController.Status != PixUI.AnimationStatus.Dismissed &&
+            this._animationController.Status != PixUI.AnimationStatus.Completed) {
+            if (!this.ContainsPoint(x, y)) return false;
+            result.Add(this);
+            return true;
+        }
+
+        return super.HitTest(x, y, result);
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
@@ -113,4 +127,5 @@ export class DynamicView extends PixUI.SingleChildWidget {
         Object.assign(this, props);
         return this;
     }
+
 }

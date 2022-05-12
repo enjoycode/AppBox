@@ -11,8 +11,12 @@ export class AppStudio extends PixUI.View {
             ().Init({
                 Child: new PixUI.Row
                 ().Init({
-                        Children: [new AppBoxDesign.SidePad(), new PixUI.Expanded().Init({
-                                Child: new PixUI.Column().Init({Children: [new PixUI.Expanded().Init({Child: new AppBoxDesign.DesignerPad()}), new AppBoxDesign.BottomPad()]}
+                        Children: [
+                            new AppBoxDesign.SidePad(), 
+                            new PixUI.Expanded().Init({
+                                Child: new PixUI.Column().Init({Children: [
+                                    new PixUI.Expanded().Init({Child: new AppBoxDesign.DesignerPad()}), 
+                                        new AppBoxDesign.BottomPad()]}
                                 )
                             }
                         )]

@@ -37,6 +37,7 @@ export class DesignerPad extends PixUI.View {
         let bgColor = PixUI.RxComputed.Make1(tab.IsSelected, selected => selected ? PixUI.Colors.White : new PixUI.Color(0xFFF3F3F3));
 
         tab.Child = new PixUI.Container().Init({
+            DebugLabel: 'DesignerPanel',
             Color: bgColor,
             Width: PixUI.State.op_Implicit_From(100),
             Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(10, 8, 0, 0)),
@@ -47,6 +48,7 @@ export class DesignerPad extends PixUI.View {
 
     private static BuildBody(node: AppBoxDesign.IDesignNode): PixUI.Widget {
         return new PixUI.Container().Init({
+            DebugLabel: "DesignerBody-" + node.Label,
             Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
             Color: PixUI.State.op_Implicit_From(PixUI.Colors.White),
             Child: new PixUI.Text(PixUI.State.op_Implicit_From(node.Label))

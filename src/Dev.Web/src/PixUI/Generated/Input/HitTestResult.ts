@@ -4,7 +4,7 @@ import * as PixUI from '@/PixUI'
 export class HitTestResult {
     private readonly _path: System.List<HitTestEntry> = new System.List<HitTestEntry>();
 
-    private _tranform: PixUI.Matrix4 = PixUI.Matrix4.CreateIdentity();
+    private _transform: PixUI.Matrix4 = PixUI.Matrix4.CreateIdentity();
 
     #LastHitWidget: Nullable<PixUI.Widget>;
     public get LastHitWidget() {
@@ -28,20 +28,20 @@ export class HitTestResult {
             return false; //排除在旧区域中重新HitTest引起的重复加入
 
         this.LastHitWidget = widget;
-        this._tranform.Translate(-widget.X, -widget.Y);
+        this._transform.Translate(-widget.X, -widget.Y);
         if (widget.Parent != null) {
             let parent = widget.Parent!;
             if (PixUI.IsInterfaceOfIScrollable(parent)) //不要合并条件，Web暂不支持
             {
                 const scrollable = parent;
-                this._tranform.Translate(scrollable.ScrollOffsetX, scrollable.ScrollOffsetY);
+                this._transform.Translate(scrollable.ScrollOffsetX, scrollable.ScrollOffsetY);
             }
         }
 
         let isOpaqueMouseRegion = false;
         if (PixUI.IsInterfaceOfIMouseRegion(widget)) {
             const mouseRegion = widget;
-            this._path.Add(new HitTestEntry(mouseRegion, (this._tranform).Clone()));
+            this._path.Add(new HitTestEntry(mouseRegion, (this._transform).Clone()));
             isOpaqueMouseRegion = mouseRegion.MouseRegion.Opaque;
         }
 
@@ -49,9 +49,9 @@ export class HitTestResult {
     }
 
     public ConcatLastTransform(transform: PixUI.Matrix4) {
-        this._tranform.PreConcat((transform).Clone());
+        this._transform.PreConcat(transform);
         if ((this.LastHitWidget === this.LastWidgetWithMouseRegion)) {
-            this._path[this._path.length - 1] = new HitTestEntry(this.LastEntry!.Widget, (this._tranform).Clone());
+            this._path[this._path.length - 1] = new HitTestEntry(this.LastEntry!.Widget, (this._transform).Clone());
         }
     }
 
@@ -61,8 +61,8 @@ export class HitTestResult {
             return true;
 
         //滚动时必定没有超出scrollable的范围
-        this._tranform.Translate(dx, dy);
-        let transformed = PixUI.MatrixUtils.TransformPoint((this._tranform).Clone(), winX, winY);
+        this._transform.Translate(dx, dy);
+        let transformed = PixUI.MatrixUtils.TransformPoint(this._transform, winX, winY);
         let contains = this.LastHitWidget!.ContainsPoint(transformed.Dx, transformed.Dy);
         if (contains) {
             //Translate路径内所有Scrollable的子级
@@ -87,7 +87,7 @@ export class HitTestResult {
     public StillInLastRegion(winX: number, winY: number): boolean {
         if (this.LastHitWidget == null) return false;
 
-        let transformed = PixUI.MatrixUtils.TransformPoint((this._tranform).Clone(), winX, winY);
+        let transformed = PixUI.MatrixUtils.TransformPoint(this._transform, winX, winY);
         let contains = this.LastHitWidget.ContainsPoint(transformed.Dx, transformed.Dy);
         if (!contains) return false;
 
@@ -100,7 +100,7 @@ export class HitTestResult {
     }
 
     public HitTestInLastRegion(winX: number, winY: number) {
-        let transformed = PixUI.MatrixUtils.TransformPoint((this._tranform).Clone(), winX, winY);
+        let transformed = PixUI.MatrixUtils.TransformPoint(this._transform, winX, winY);
         let isOpaqueMouseRegion = false;
         if (PixUI.IsInterfaceOfIMouseRegion(this.LastHitWidget)) {
             const mouseRegion = this.LastHitWidget;
@@ -154,7 +154,7 @@ export class HitTestResult {
 
     public PropagatePointerEvent(e: PixUI.PointerEvent, handler: System.Action2<PixUI.MouseRegion, PixUI.PointerEvent>) {
         for (let i = this._path.length - 1; i >= 0; i--) {
-            let transformed = PixUI.MatrixUtils.TransformPoint((this._path[i].Transform).Clone(), e.X, e.Y);
+            let transformed = PixUI.MatrixUtils.TransformPoint(this._path[i].Transform, e.X, e.Y);
             e.SetPoint(transformed.Dx, transformed.Dy);
             handler(this._path[i].Widget.MouseRegion, e);
             if (e.IsHandled)
@@ -165,14 +165,14 @@ export class HitTestResult {
     public Reset() {
         this._path.Clear();
         this.LastHitWidget = null;
-        this._tranform = PixUI.Matrix4.CreateIdentity();
+        this._transform = PixUI.Matrix4.CreateIdentity();
     }
 
     public CopyFrom(other: HitTestResult) {
         this._path.Clear();
         this._path.AddRange(other._path);
         this.LastHitWidget = other.LastHitWidget;
-        this._tranform = (other._tranform).Clone();
+        this._transform = (other._transform).Clone();
     }
 
     public Init(props: Partial<HitTestResult>): HitTestResult {
@@ -191,7 +191,7 @@ export class HitTestEntry {
     }
 
     public ContainsPoint(winX: number, winY: number): boolean {
-        let transformedPosition = PixUI.MatrixUtils.TransformPoint((this.Transform).Clone(), winX, winY);
+        let transformedPosition = PixUI.MatrixUtils.TransformPoint(this.Transform, winX, winY);
         return (<PixUI.Widget><unknown>this.Widget).ContainsPoint(transformedPosition.Dx, transformedPosition.Dy);
     }
 

@@ -345,7 +345,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             //判断上级是否Transform,是则变换坐标
             else if (temp.Parent instanceof PixUI.Transform) {
                 const transform = temp.Parent;
-                let transformed = PixUI.MatrixUtils.TransformPoint((transform.EffectiveTransform).Clone(), x, y);
+                let transformed = PixUI.MatrixUtils.TransformPoint(transform.EffectiveTransform, x, y);
                 x = transformed.Dx;
                 y = transformed.Dy;
             }

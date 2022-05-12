@@ -1,4 +1,5 @@
 import {Vector4} from "./Vector4";
+// import {MatrixUtils} from "./MatrixUtils";
 
 export class Matrix4 extends Float32Array {
 
@@ -116,7 +117,8 @@ export class Matrix4 extends Float32Array {
     }
 
     public PreConcat(other: Matrix4) {
-        other.Multiply(this);
+        let res = other.Clone(); //传引用需要复制
+        res.Multiply(this);
         this.CopyFrom(other);
     }
 

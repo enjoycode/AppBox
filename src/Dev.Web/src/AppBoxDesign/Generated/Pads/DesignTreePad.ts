@@ -10,7 +10,9 @@ export class DesignTreePad extends PixUI.View {
     public constructor() {
         super();
         this.Child = new PixUI.Column
-        ().Init({Children: [new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}), new PixUI.TreeView<AppBoxDesign.IDesignNode>(AppBoxDesign.DesignStore.TreeController)]});
+        ().Init({Children: [
+            new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}), 
+                new PixUI.TreeView<AppBoxDesign.IDesignNode>(AppBoxDesign.DesignStore.TreeController)]});
     }
 
     public static BuildTreeNode(data: AppBoxDesign.IDesignNode, node: PixUI.TreeNode<AppBoxDesign.IDesignNode>) {
