@@ -5,7 +5,7 @@ export class DataGridTheme {
     public constructor() {
         this.DefaultHeaderCellStyle = new PixUI.CellStyle().Init({
             Color: (PixUI.Colors.Black).Clone(),
-            BackgroundColor: new PixUI.Color(0xFFEBEBEB),
+            BackgroundColor: new PixUI.Color(0xFFF5F7FA),
             HorizontalAlignment: PixUI.HorizontalAlignment.Center,
             FontWeight: CanvasKit.FontWeight.Bold
         });
@@ -17,6 +17,8 @@ export class DataGridTheme {
     public readonly DefaultRowCellStyle: PixUI.CellStyle;
 
     public CellPadding: number = 5.0;
+
+    public BorderColor: PixUI.Color = new PixUI.Color(0xFFEBEEF5);
 
     public StripeRows: boolean = true;
     public StripeBgColor: PixUI.Color = new PixUI.Color(0xFFEEEEEE);

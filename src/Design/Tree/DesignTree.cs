@@ -51,6 +51,10 @@ public sealed class DesignTree : IBinSerializable
             "HomePage");
         var homePageNode = new ModelNode(homePageModel);
         appNode.FindModelRootNode(ModelType.View).Children.Add(homePageNode);
+        var demoPageModel = new ViewModel(ModelId.Make(12345, ModelType.View, 2, ModelLayer.DEV),
+            "DemoPage");
+        var demoPageNode = new ModelNode(demoPageModel);
+        appNode.FindModelRootNode(ModelType.View).Children.Add(demoPageNode);
 
         //TODO:
         return Task.CompletedTask;

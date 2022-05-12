@@ -65,8 +65,9 @@ namespace AppBoxDesign
         {
             var controller = new DataGridController<IProblem>(new List<DataGridColumn<IProblem>>()
             {
-                new DataGridTextColumn<IProblem>("Model", p => p.Model),
-                new DataGridTextColumn<IProblem>("Position", p => p.Position),
+                new DataGridTextColumn<IProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
+                new DataGridTextColumn<IProblem>("Position", p => p.Position,
+                    ColumnWidth.Fixed(180)),
                 new DataGridTextColumn<IProblem>("Info", p => p.Info),
             });
 

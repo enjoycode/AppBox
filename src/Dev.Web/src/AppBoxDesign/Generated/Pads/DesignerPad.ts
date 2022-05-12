@@ -5,9 +5,9 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 export class DesignerPad extends PixUI.View {
     public constructor() {
         super();
-        
+
         AppBoxDesign.DesignStore.TreeController.SelectionChanged.Add(this.OnTreeSelectionChanged, this);
-        
+
         this.Child = new PixUI.Column().Init({
             DebugLabel: "DesignerPad",
             Children: [new PixUI.TabBar<AppBoxDesign.IDesignNode>(AppBoxDesign.DesignStore.DesignerController, DesignerPad.BuildTab, true).Init({
@@ -17,12 +17,17 @@ export class DesignerPad extends PixUI.View {
             )]
         });
     }
-    
-    private OnTreeSelectionChanged()
-    {
+
+    private OnTreeSelectionChanged() {
         let currentNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
         if (currentNode != null && currentNode.Data instanceof AppBoxDesign.ModelNode) {
-            AppBoxDesign.DesignStore.DesignerController.Add(currentNode.Data);
+            //先检查是否已经打开
+            let openedIndex = AppBoxDesign.DesignStore.DesignerController.DataSource.IndexOf(currentNode.Data);
+            if (openedIndex < 0) {
+                AppBoxDesign.DesignStore.DesignerController.Add(currentNode.Data);
+            } else {
+                AppBoxDesign.DesignStore.DesignerController.SelectAt(openedIndex);
+            }
         }
     }
 

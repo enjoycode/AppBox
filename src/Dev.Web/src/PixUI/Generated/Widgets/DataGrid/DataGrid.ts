@@ -222,7 +222,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
     }
 
     private PaintCellBorder(canvas: PixUI.Canvas, cellRect: PixUI.Rect) {
-        let paint = PixUI.PaintUtils.Shared(PixUI.Colors.Black, CanvasKit.PaintStyle.Stroke, 1);
+        let paint = PixUI.PaintUtils.Shared(this._controller.Theme.BorderColor, CanvasKit.PaintStyle.Stroke, 1);
         canvas.drawRect(cellRect, paint);
     }
 
