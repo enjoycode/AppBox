@@ -13,32 +13,38 @@ export class TabBody<T> extends PixUI.DynamicView {
         this._bodyBuilder = bodyBuilder;
 
         this._bodies = new System.List<Nullable<PixUI.Widget>>([]);
-        this.Child = this.TryBuildBody();
+        if (controller.DataSource.length > 0)
+            this.Child = this.TryBuildBody();
     }
 
     private TryBuildBody(): PixUI.Widget {
         let selectedIndex = this._controller.SelectedIndex;
         if (this._bodies[selectedIndex] == null) {
             let selectedData = this._controller.DataSource[selectedIndex];
-            let body = this._bodyBuilder(selectedData);
-            this._bodies[selectedIndex] = body;
+            this._bodies[selectedIndex] = this._bodyBuilder(selectedData);
         }
 
         return this._bodies[selectedIndex]!;
     }
 
-    public SwitchTo(oldIndex: number) {
+    public OnAdd(dataItem: T) {
+        this._bodies.Add(null);
+    }
+
+    public SwitchFrom(oldIndex: number) {
         let newIndex = this._controller.SelectedIndex;
 
         let from = this.Child;
         this.Child = null;
         let to = this.TryBuildBody();
 
-        //ReplaceTo(to);
-
-        this.AnimateTo(from, to, 200, false, (a, w) =>
-            TabBody.BuildDefaultTransition(a, w, (newIndex > oldIndex ? new PixUI.Offset(1, 0) : new PixUI.Offset(-1, 0)).Clone(), (PixUI.Offset.Zero).Clone()), (a, w) =>
-            TabBody.BuildDefaultTransition(a, w, (PixUI.Offset.Zero).Clone(), (newIndex > oldIndex ? new PixUI.Offset(-1, 0) : new PixUI.Offset(1, 0)).Clone()));
+        if (oldIndex < 0) {
+            this.ReplaceTo(to);
+        } else {
+            this.AnimateTo(from, to, 200, false, (a, w) =>
+                TabBody.BuildDefaultTransition(a, w, new PixUI.Offset(newIndex > oldIndex ? 1 : -1, 0), (PixUI.Offset.Zero).Clone()), (a, w) =>
+                TabBody.BuildDefaultTransition(a, w, (PixUI.Offset.Zero).Clone(), new PixUI.Offset(newIndex > oldIndex ? -1 : 1, 0)));
+        }
     }
 
     private static BuildDefaultTransition(animation: PixUI.Animation<number>, child: PixUI.Widget, fromOffset: PixUI.Offset, toOffset: PixUI.Offset): PixUI.Widget {

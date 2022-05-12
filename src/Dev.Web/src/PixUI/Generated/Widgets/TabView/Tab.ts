@@ -30,7 +30,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
 
     private _OnHoverChanged(hover: boolean) {
         this._isHover = hover;
-        if (!this.IsSelected.Value) //已选中的不需要重缓
+        if (!this.IsSelected.Value) //已选中的不需要重绘
             this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 

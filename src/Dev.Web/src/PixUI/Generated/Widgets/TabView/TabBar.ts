@@ -5,6 +5,11 @@ export class TabBar<T> extends PixUI.Widget {
     private readonly _controller: PixUI.TabController<T>;
     private readonly _tabBuilder: System.Action2<T, PixUI.Tab>;
     private readonly _tabs: System.List<PixUI.Tab> = new System.List<PixUI.Tab>();
+
+    public get Tabs(): System.IList<PixUI.Tab> {
+        return this._tabs;
+    }
+
     public readonly Scrollable: boolean;
     private _color: Nullable<PixUI.State<PixUI.Color>>;
 
@@ -33,13 +38,12 @@ export class TabBar<T> extends PixUI.Widget {
 
     private OnTabSelected(selected: PixUI.Tab) {
         let selectedIndex = this._tabs.IndexOf(selected);
-        if (selectedIndex < 0 || selectedIndex == this._controller.SelectedIndex)
-            return;
-
-        //TODO: check need scroll to target tab
-        this._tabs[this._controller.SelectedIndex].IsSelected.Value = false;
         this._controller.SelectAt(selectedIndex, true);
-        selected.IsSelected.Value = true;
+    }
+
+    public OnAdd(dataItem: T) {
+        this._tabs.Add(this.BuildTab(dataItem));
+        this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
 
@@ -93,14 +97,18 @@ export class TabBar<T> extends PixUI.Widget {
             return;
 
         for (const dataItem of this._controller.DataSource) {
-            let tab = new PixUI.Tab(this.Scrollable);
-            this._tabBuilder(dataItem, tab);
-            tab.Parent = this;
-            tab.OnTap = _ => this.OnTabSelected(tab);
-            this._tabs.Add(tab);
+            this._tabs.Add(this.BuildTab(dataItem));
         }
 
-        this._tabs[0].IsSelected.Value = true;
+        this._controller.SelectAt(0); //选中第一个Tab
+    }
+
+    private BuildTab(dataItem: T): PixUI.Tab {
+        let tab = new PixUI.Tab(this.Scrollable);
+        this._tabBuilder(dataItem, tab);
+        tab.Parent = this;
+        tab.OnTap = _ => this.OnTabSelected(tab);
+        return tab;
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
