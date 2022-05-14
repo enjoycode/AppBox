@@ -48,7 +48,7 @@ export abstract class UIApplication {
 
         window.HasPostInvalidateEvent = false;
 
-        let duration = (System.DateTime.op_Subtraction(System.DateTime.UtcNow, beginTime)).Clone();
+        let duration = System.DateTime.op_Subtraction(System.DateTime.UtcNow, beginTime);
         console.log(`Draw frame: ${duration.TotalMilliseconds}ms`);
 
         window.Present();

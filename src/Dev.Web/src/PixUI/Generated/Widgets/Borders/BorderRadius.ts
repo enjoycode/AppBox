@@ -45,7 +45,7 @@ export class BorderRadius {
     }
 
     public static op_Multiply(pt: BorderRadius, operand: number): BorderRadius {
-        return new BorderRadius((PixUI.Radius.op_Multiply(pt.TopLeft, operand)).Clone(), (PixUI.Radius.op_Multiply(pt.TopRight, operand)).Clone(), (PixUI.Radius.op_Multiply(pt.BottomLeft, operand)).Clone(), (PixUI.Radius.op_Multiply(pt.BottomRight, operand)).Clone());
+        return new BorderRadius(PixUI.Radius.op_Multiply(pt.TopLeft, operand), PixUI.Radius.op_Multiply(pt.TopRight, operand), PixUI.Radius.op_Multiply(pt.BottomLeft, operand), PixUI.Radius.op_Multiply(pt.BottomRight, operand));
     }
 
     public ToRRect(rect: PixUI.Rect): PixUI.RRect {
