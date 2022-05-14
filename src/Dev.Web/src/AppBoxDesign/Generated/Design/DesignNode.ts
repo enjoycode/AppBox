@@ -1,5 +1,5 @@
+import * as AppBoxCore from '@/AppBoxCore'
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
 
 export abstract class DesignNode {

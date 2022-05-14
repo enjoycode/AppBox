@@ -1,6 +1,4 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-import * as AppBoxDesign from '@/AppBoxDesign'
 
 export class MainMenuPad extends PixUI.View {
     private readonly _bgColor: PixUI.Color = new PixUI.Color(43, 49, 56);

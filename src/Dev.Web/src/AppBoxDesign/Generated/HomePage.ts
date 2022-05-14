@@ -1,6 +1,6 @@
+import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-import * as AppBoxDesign from '@/AppBoxDesign'
 
 export class HomePage extends PixUI.View {
     public constructor() {

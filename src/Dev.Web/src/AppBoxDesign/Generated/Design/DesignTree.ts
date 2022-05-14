@@ -1,6 +1,6 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
+import * as System from '@/System'
+import * as AppBoxCore from '@/AppBoxCore'
 
 export class DesignTree implements AppBoxCore.IBinSerializable {
     public readonly RootNodes: System.List<AppBoxDesign.DesignNode> = new System.List<AppBoxDesign.DesignNode>();

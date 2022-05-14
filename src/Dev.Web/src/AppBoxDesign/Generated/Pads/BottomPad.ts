@@ -1,6 +1,5 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-import * as AppBoxDesign from '@/AppBoxDesign'
 
 export class BottomPad extends PixUI.View {
     private readonly _tabController: PixUI.TabController<string>;
