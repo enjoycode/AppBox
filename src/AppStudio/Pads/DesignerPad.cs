@@ -6,22 +6,24 @@ namespace AppBoxDesign
     {
         public DesignerPad()
         {
+            DesignStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
+
             Child = new Column()
             {
                 DebugLabel = "DesignerPad",
                 Children = new Widget[]
                 {
-                    new TabBar<IDesignNode>(DesignStore.DesignerController, BuildTab, true)
+                    new TabBar<DesignNode>(DesignStore.DesignerController, BuildTab, true)
                         { Height = 40, Color = new Color(0xFFF3F3F3) },
                     new Expanded()
                     {
-                        Child = new TabBody<IDesignNode>(DesignStore.DesignerController, BuildBody),
+                        Child = new TabBody<DesignNode>(DesignStore.DesignerController, BuildBody),
                     }
                 }
             };
         }
 
-        private static void BuildTab(IDesignNode node, Tab tab)
+        private static void BuildTab(DesignNode node, Tab tab)
         {
             var textColor = RxComputed<Color>.Make(tab.IsSelected,
                 selected => selected ? Theme.FocusedColor : Colors.Black
@@ -38,7 +40,7 @@ namespace AppBoxDesign
             };
         }
 
-        private static Widget BuildBody(IDesignNode node)
+        private static Widget BuildBody(DesignNode node)
         {
             return new Container()
             {
@@ -46,6 +48,20 @@ namespace AppBoxDesign
                 Color = Colors.White,
                 Child = new Text(node.Label),
             };
+        }
+
+        private void OnTreeSelectionChanged()
+        {
+            var currentNode = DesignStore.TreeController.FirstSelectedNode;
+            if (currentNode != null && currentNode.Data is ModelNode)
+            {
+                //先检查是否已经打开
+                var existsIndex = DesignStore.DesignerController.IndexOf(currentNode.Data);
+                if (existsIndex < 0)
+                    DesignStore.DesignerController.Add(currentNode.Data);
+                else
+                    DesignStore.DesignerController.SelectAt(existsIndex);
+            }
         }
     }
 }

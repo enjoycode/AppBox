@@ -7,7 +7,7 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 export class DesignStore {
     public static readonly ActiveSidePad: PixUI.State<AppBoxDesign.SidePadType> = PixUI.State.op_Implicit_From(AppBoxDesign.SidePadType.DesignTree);
 
-    public static readonly TreeController: PixUI.TreeController<AppBoxDesign.IDesignNode> = new PixUI.TreeController<AppBoxDesign.IDesignNode>(AppBoxDesign.DesignTreePad.BuildTreeNode, n => n.Children!);
+    public static readonly TreeController: PixUI.TreeController<AppBoxDesign.DesignNode> = new PixUI.TreeController<AppBoxDesign.DesignNode>(AppBoxDesign.DesignTreePad.BuildTreeNode, n => n.Children!);
 
-    public static readonly DesignerController: PixUI.TabController<AppBoxDesign.IDesignNode> = new PixUI.TabController<AppBoxDesign.IDesignNode>(new System.List<AppBoxDesign.IDesignNode>());
+    public static readonly DesignerController: PixUI.TabController<AppBoxDesign.DesignNode> = new PixUI.TabController<AppBoxDesign.DesignNode>(new System.List<AppBoxDesign.DesignNode>());
 }

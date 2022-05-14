@@ -1,7 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
-import * as AppBoxClient from '@/AppBoxClient'
 
 export class DesignTreePad extends PixUI.View {
     private readonly _searchKey: PixUI.State<string> = PixUI.State.op_Implicit_From("");
@@ -10,12 +9,10 @@ export class DesignTreePad extends PixUI.View {
     public constructor() {
         super();
         this.Child = new PixUI.Column
-        ().Init({Children: [
-            new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}), 
-                new PixUI.TreeView<AppBoxDesign.IDesignNode>(AppBoxDesign.DesignStore.TreeController)]});
+        ().Init({Children: [new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}), new PixUI.TreeView<AppBoxDesign.DesignNode>(AppBoxDesign.DesignStore.TreeController)]});
     }
 
-    public static BuildTreeNode(data: AppBoxDesign.IDesignNode, node: PixUI.TreeNode<AppBoxDesign.IDesignNode>) {
+    public static BuildTreeNode(data: AppBoxDesign.DesignNode, node: PixUI.TreeNode<AppBoxDesign.DesignNode>) {
         node.Icon = new PixUI.Icon(PixUI.State.op_Implicit_From(DesignTreePad.GetIconForNode(data)));
         node.Label = new PixUI.Text(PixUI.State.op_Implicit_From(data.Label));
         node.IsLeaf = data.Children == null || data.Children.length == 0;
@@ -23,7 +20,7 @@ export class DesignTreePad extends PixUI.View {
             data.Type == AppBoxDesign.DesignNodeType.ApplicationRoot;
     }
 
-    private static GetIconForNode(data: AppBoxDesign.IDesignNode): PixUI.IconData {
+    private static GetIconForNode(data: AppBoxDesign.DesignNode): PixUI.IconData {
         switch (data.Type) {
             case AppBoxDesign.DesignNodeType.DataStoreNode:
                 return PixUI.Icons.Filled.Storage;
@@ -46,7 +43,7 @@ export class DesignTreePad extends PixUI.View {
         if (this._hasLoadTree) return;
         this._hasLoadTree = true;
 
-        let tree = <AppBoxDesign.IDesignTree><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.LoadDesignTree");
+        let tree = <AppBoxDesign.DesignTree><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.LoadDesignTree");
         AppBoxDesign.DesignStore.TreeController.DataSource = tree.RootNodes;
     }
 

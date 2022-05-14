@@ -16,12 +16,12 @@ namespace AppBoxDesign
                 Children = new Widget[]
                 {
                     new Input(_searchKey) { Prefix = new Icon(Icons.Filled.Search) },
-                    new TreeView<IDesignNode>(DesignStore.TreeController),
+                    new TreeView<DesignNode>(DesignStore.TreeController),
                 }
             };
         }
 
-        internal static void BuildTreeNode(IDesignNode data, TreeNode<IDesignNode> node)
+        internal static void BuildTreeNode(DesignNode data, TreeNode<DesignNode> node)
         {
             node.Icon = new Icon(GetIconForNode(data));
             node.Label = new Text(data.Label);
@@ -30,7 +30,7 @@ namespace AppBoxDesign
                               data.Type == DesignNodeType.ApplicationRoot;
         }
 
-        private static IconData GetIconForNode(IDesignNode data)
+        private static IconData GetIconForNode(DesignNode data)
         {
             switch (data.Type)
             {
@@ -53,7 +53,7 @@ namespace AppBoxDesign
             if (_hasLoadTree) return;
             _hasLoadTree = true;
 
-            var tree = (IDesignTree)await Channel.Invoke("sys.DesignService.LoadDesignTree");
+            var tree = (DesignTree)await Channel.Invoke("sys.DesignService.LoadDesignTree");
             DesignStore.TreeController.DataSource = tree.RootNodes;
         }
     }

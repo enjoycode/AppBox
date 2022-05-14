@@ -81,7 +81,6 @@ export class SidePad extends PixUI.View {
         ().Init({
             Children: [new NaviBar(), new PixUI.Container
             ().Init({
-                    DebugLabel: "SidePad",
                     Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
                     Width: PixUI.State.op_Implicit_From(250),
                     Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),

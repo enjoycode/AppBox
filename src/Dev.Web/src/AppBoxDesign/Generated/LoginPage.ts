@@ -1,7 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
-import * as AppBoxClient from '@/AppBoxClient'
 
 export class LoginPage extends PixUI.View {
     private readonly _userName: PixUI.State<string> = PixUI.State.op_Implicit_From("");

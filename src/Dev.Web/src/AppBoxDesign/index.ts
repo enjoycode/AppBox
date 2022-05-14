@@ -1,6 +1,7 @@
-export * from "./Tree/DesignNode"
 export * from "./Tree/DesignNodeType"
-export * from "./Tree/IDesignNode"
+
+export * from "./Generated/Design/DesignNode"
+export * from "./Generated/Design/DesignTree"
 
 export * from "./Generated/Pads/MainMenuPad"
 export * from "./Generated/Pads/FooterPad"
