@@ -1,6 +1,3 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-
 export class FloatUtils {
     public static IsNear(a: number, b: number): boolean {
         let diff = a - b;

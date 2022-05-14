@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class HitTestResult {
     private readonly _path: System.List<HitTestEntry> = new System.List<HitTestEntry>();

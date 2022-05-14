@@ -1,5 +1,4 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 
 export abstract class ParametricCurve<T> {
     public Transform(t: number): T {

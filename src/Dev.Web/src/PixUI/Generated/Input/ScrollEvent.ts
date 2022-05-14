@@ -1,6 +1,3 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-
 export class ScrollEvent {
     private static readonly Default: ScrollEvent = new ScrollEvent();
 

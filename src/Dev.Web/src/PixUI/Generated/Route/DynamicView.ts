@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export type TransitionBuilder = (animation: PixUI.Animation<number>, child: PixUI.Widget) => PixUI.Widget;

@@ -50,9 +50,9 @@ export abstract class UIWindow {
     public abstract GetOnscreenCanvas(): PixUI.Canvas ;
 
     public abstract GetOffscreenCanvas(): PixUI.Canvas ;
-    
+
     public abstract FlushOffscreenSurface(): void;
-    
+
     public abstract DrawOffscreenSurface(): void;
 
     public OnFirstShow() {
@@ -62,7 +62,7 @@ export abstract class UIWindow {
         let widgetsCanvas = this.GetOffscreenCanvas();
         widgetsCanvas.clear(this.BackgroundColor);
         this.RootWidget.Paint(widgetsCanvas);
-        
+
         let overlayCanvas = this.GetOnscreenCanvas();
         this.FlushOffscreenSurface();
         this.DrawOffscreenSurface();

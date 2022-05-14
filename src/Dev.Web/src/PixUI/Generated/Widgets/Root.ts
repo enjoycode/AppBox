@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 /// <summary>
 /// 每个窗体的根节点

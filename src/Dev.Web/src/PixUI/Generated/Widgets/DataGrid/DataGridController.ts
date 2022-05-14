@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class DataGridController<T> {
     public constructor(columns: System.IList<PixUI.DataGridColumn<T>>, theme: Nullable<PixUI.DataGridTheme> = null) {

@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class EventHookManager {
     private readonly _hookRefs: System.List<WeakRef<any>> = new System.List<WeakRef<any>>();

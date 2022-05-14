@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {

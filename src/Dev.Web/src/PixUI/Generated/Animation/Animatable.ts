@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 /// <summary>
 /// 根据Animation<double>生成指定T的值

@@ -1,6 +1,3 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-
 export class EdgeInsets {
     public readonly Left: number;
     public readonly Top: number;

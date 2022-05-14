@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 /// <summary>
 /// Animates the position of a widget relative to its normal position.

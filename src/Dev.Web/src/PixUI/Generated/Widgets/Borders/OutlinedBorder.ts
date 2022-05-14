@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 /// <summary>
 /// A ShapeBorder that draws an outline with the width and color specified by [side].

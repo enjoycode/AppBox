@@ -13,8 +13,6 @@ export class TabBody<T> extends PixUI.DynamicView {
         this._bodyBuilder = bodyBuilder;
 
         this._bodies = new System.List<Nullable<PixUI.Widget>>([]);
-        if (controller.DataSource.length > 0)
-            this.Child = this.TryBuildBody();
     }
 
     private TryBuildBody(): PixUI.Widget {

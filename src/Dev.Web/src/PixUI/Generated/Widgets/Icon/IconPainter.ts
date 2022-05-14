@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class IconPainter implements System.IDisposable {
     public constructor(onFontLoaded: System.Action) {

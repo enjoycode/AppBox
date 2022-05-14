@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class Offset implements System.IEquatable<Offset> {
     public static readonly Zero: Offset = new Offset(0, 0);

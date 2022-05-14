@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class Radius implements System.IEquatable<Radius> {
     public static readonly Empty: Radius = new Radius(0, 0);

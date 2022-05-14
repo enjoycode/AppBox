@@ -1,5 +1,4 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 
 export class Ticker {
     private static readonly Interval: number = 16;

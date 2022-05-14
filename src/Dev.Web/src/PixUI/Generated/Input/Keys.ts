@@ -1,6 +1,3 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-
 export enum Keys {
     None = 0x00000000,
     LButton = 0x00000001,

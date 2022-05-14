@@ -1,6 +1,3 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-
 export abstract class PropagateEvent {
     #IsHandled: boolean = false;
     public get IsHandled() {

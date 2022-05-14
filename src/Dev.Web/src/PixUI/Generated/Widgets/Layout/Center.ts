@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class Center extends PixUI.SingleChildWidget {

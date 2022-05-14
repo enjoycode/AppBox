@@ -36,7 +36,7 @@ export abstract class UIApplication {
             ctx.Canvas = overlayCanvas;
             window.OverlayInvalidQueue.RelayoutAll();
         }
-        
+
         window.DrawOffscreenSurface();
         if (window.ScaleFactor != 1) {
             overlayCanvas.save();
