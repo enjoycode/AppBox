@@ -1,44 +1,32 @@
 import * as PixUI from './';
-import {Canvas, Surface} from "canvaskit-wasm";
-import {Keys} from "./";
+import {Canvas, GrDirectContext, Surface} from "canvaskit-wasm";
+import {ConvertToButtons, ConvertToKeys} from "./InputUtils";
 
 export default class WebWindow extends PixUI.UIWindow {
-    private readonly _widgetsCanvasEl: HTMLCanvasElement;
-    private readonly _overlayCanvasEl: HTMLCanvasElement;
-    private readonly _widgetsSurface: Surface;
-    private readonly _overlaySurface: Surface;
-    private readonly _widgetsCanvas: Canvas;
-    private readonly _overlayCanvas: Canvas;
+    private _offscreenSurface: Surface;
+    private _onscreenSurface: Surface;
+    private _offscreenCanvas: Canvas;
+    private _onscreenCanvas: Canvas;
 
-    private _input: HTMLInputElement | null;
+    private readonly _webGLVersion: number = -1;
+    private _forceNewContext = false;
+    private _contextLost = false;
+    private _glContext: number = 0;
+    private _grContext: GrDirectContext | null = null;
+    private _currentCanvasPhysicalWidth = 0;
+    private _currentCanvasPhysicalHeight = 0;
+
+    private _htmlCanvas: HTMLCanvasElement;
+    private _htmlInput: HTMLInputElement | null;
 
     public constructor(rootWidget: PixUI.Widget) {
         super(rootWidget);
 
-        //创建canvas dom
-        this._widgetsCanvasEl = document.createElement("canvas");
-        WebWindow.SetCanvasEl(this._widgetsCanvasEl, '1');
+        this._webGLVersion = (typeof WebGL2RenderingContext !== 'undefined') ? 2 :
+            ((typeof WebGLRenderingContext !== 'undefined') ? 1 : -1);
 
-        this._overlayCanvasEl = document.createElement("canvas");
-        WebWindow.SetCanvasEl(this._overlayCanvasEl, '2');
-
-        document.body.appendChild(this._widgetsCanvasEl);
-        document.body.appendChild(this._overlayCanvasEl);
-
-        //创建canvas surface
-        //this._widgetsSurface = CanvasKit.MakeCanvasSurface(this._widgetsCanvasEl)!;
-        // http://webgl.brown37.net/appendices/webgl_context_options.html
-        this._widgetsSurface = CanvasKit.MakeWebGLCanvasSurface(this._widgetsCanvasEl, undefined, {
-            preserveDrawingBuffer: 1
-        })!;
-        this._widgetsCanvas = this._widgetsSurface.getCanvas();
-        this._widgetsCanvas.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-        this._overlaySurface = CanvasKit.MakeWebGLCanvasSurface(this._overlayCanvasEl, undefined, {
-            preserveDrawingBuffer: 0 //TODO:好像不起作用了
-        });
-        this._overlayCanvas = this._overlaySurface.getCanvas();
-        this._overlayCanvas.scale(window.devicePixelRatio, window.devicePixelRatio);
+        this.CreateCanvas();
+        this.CreateSurface();
 
         this.BindWindowEvents();
 
@@ -46,13 +34,87 @@ export default class WebWindow extends PixUI.UIWindow {
         this.CreateInput();
     }
 
-    private static SetCanvasEl(canvasEl: HTMLCanvasElement, zIndex: string) {
-        canvasEl.style.position = "absolute";
-        canvasEl.style.width = window.innerWidth + "px";
-        canvasEl.style.height = window.innerHeight + "px";
-        canvasEl.style.zIndex = zIndex;
-        canvasEl.width = window.innerWidth * window.devicePixelRatio;
-        canvasEl.height = window.innerHeight * window.devicePixelRatio;
+    private CreateCanvas() {
+        //TODO:考虑预先放大一些
+        this._htmlCanvas = document.createElement("canvas");
+        this._htmlCanvas.style.position = "absolute";
+        this._htmlCanvas.style.zIndex = "1";
+        this.UpdateCanvasSize();
+
+        // this._htmlCanvas.setAttribute("aria-hidden", "true");
+        // this._htmlCanvas.addEventListener("webglcontextlost", (e) => {
+        //     console.warn("Canvas webglcontextlost")
+        // });
+        // this._htmlCanvas.addEventListener("webglcontextrestored", (e) => {
+        //     console.warn("Canvas webglcontextrestored")
+        // });
+
+        this._forceNewContext = false;
+        this._contextLost = false;
+
+        if (this._webGLVersion != -1) {
+            this._glContext = CanvasKit.GetWebGLContext(this._htmlCanvas, {
+                antialias: 0,
+                majorVersion: this._webGLVersion
+            })
+
+            if (this._glContext != 0) {
+                this._grContext = CanvasKit.MakeGrContext(this._glContext);
+                this._grContext.setResourceCacheLimitBytes(100 * 1024 * 1024);
+            }
+        }
+
+        document.body.append(this._htmlCanvas);
+    }
+
+    private UpdateCanvasSize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const ratio = window.devicePixelRatio;
+        //set physical size
+        this._htmlCanvas.width = width * ratio;
+        this._htmlCanvas.height = height * ratio;
+        //set logical size
+        this._htmlCanvas.style.width = width + "px";
+        this._htmlCanvas.style.height = height + "px";
+    }
+
+    private CreateSurface() {
+        //清理旧的
+        // https://github.com/flutter/flutter/issues/52485
+        if (this._offscreenSurface != null) {
+            this._offscreenSurface.dispose();
+            this._onscreenSurface.dispose();
+
+            this._offscreenCanvas = null;
+            this._offscreenSurface = null;
+            this._onscreenCanvas = null;
+            this._onscreenSurface = null;
+
+            // console.log(this._grContext.getResourceCacheUsageBytes() > this._grContext.getResourceCacheLimitBytes());
+            //this._grContext.releaseResourcesAndAbandonContext();
+            // console.log(this._grContext.getResourceCacheLimitBytes())
+            // this._grContext.releaseResourcesAndAbandonContext();
+            // this._grContext.delete();
+            // this._grContext = null;
+
+            // let ctx = this._htmlCanvas.getContext('webgl2');
+            // let ext = ctx.getExtension("WEBGL_lose_context");
+            // ext.loseContext();
+            // CanvasKit.deleteContext(this._glContext);
+            // this._glContext = 0;
+        }
+
+        const ratio = window.devicePixelRatio;
+        const physicalWidth = this.Width * ratio;
+        const physicalHeight = this.Height * ratio;
+
+        this._offscreenSurface = CanvasKit.MakeRenderTarget(this._grContext, physicalWidth, physicalHeight);
+        this._offscreenCanvas = this._offscreenSurface.getCanvas();
+        this._offscreenCanvas.scale(ratio, ratio);
+
+        this._onscreenSurface = CanvasKit.MakeOnScreenGLSurface(this._grContext, physicalWidth, physicalHeight, CanvasKit.ColorSpace.SRGB);
+        this._onscreenCanvas = this._onscreenSurface.getCanvas();
     }
 
     private CreateInput() {
@@ -78,15 +140,65 @@ export default class WebWindow extends PixUI.UIWindow {
             }
         });
 
-        this._input = input;
+        this._htmlInput = input;
     }
 
-    GetOverlayCanvas(): Canvas {
-        return this._overlayCanvas;
+    private BindWindowEvents() {
+        window.onresize = ev => {
+            console.log("Resize Window: ", this.Width, this.Height)
+
+            this.UpdateCanvasSize();
+            //TODO: *** reuse surface if can, or create larger surface
+            this.CreateSurface();
+
+            this.RootWidget.CachedAvailableWidth = this.Width;
+            this.RootWidget.CachedAvailableHeight = this.Height;
+            this.RootWidget.Invalidate(PixUI.InvalidAction.Relayout);
+        };
+        window.onmousemove = ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const buttons = ConvertToButtons(ev);
+            this.OnPointerMove(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
+        };
+        window.onmousedown = ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const buttons = ConvertToButtons(ev);
+            this.OnPointerDown(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
+        };
+        window.onmouseup = ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const buttons = ConvertToButtons(ev);
+            this.OnPointerUp(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
+        };
+        window.onmouseout = ev => {
+            this.OnPointerMoveOutWindow();
+        }
+        window.onkeydown = ev => {
+            // console.log(`KeyDown: '${ev.key}' keyCode=${ev.code}`)
+            this.OnKeyDown(PixUI.KeyEvent.UseDefault(ConvertToKeys(ev)));
+            if (ev.code === 'Tab') {
+                ev.preventDefault();
+            }
+        };
+        window.onkeyup = ev => {
+            this.OnKeyUp(PixUI.KeyEvent.UseDefault(ConvertToKeys(ev)));
+            if (ev.code === 'Tab') {
+                ev.preventDefault();
+            }
+        };
     }
 
-    GetWidgetsCanvas(): Canvas {
-        return this._widgetsCanvas;
+    //region ====Overrides====
+
+    GetOnscreenCanvas(): Canvas {
+        return this._onscreenCanvas;
+    }
+
+    GetOffscreenCanvas(): Canvas {
+        return this._offscreenCanvas;
     }
 
     get Height(): number {
@@ -97,107 +209,35 @@ export default class WebWindow extends PixUI.UIWindow {
         return window.innerWidth;
     }
 
-    Present(): void {
-        this._widgetsSurface.flush();
-        this._overlaySurface.flush();
+    get ScaleFactor(): number {
+        return window.devicePixelRatio;
     }
 
-    private BindWindowEvents() {
-        window.onresize = ev => {
-            console.log(ev); //TODO:
-        };
-        window.onmousemove = ev => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            const buttons = WebWindow.ConvertToButtons(ev);
-            this.OnPointerMove(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
-        };
-        window.onmousedown = ev => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            const buttons = WebWindow.ConvertToButtons(ev);
-            this.OnPointerDown(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
-        };
-        window.onmouseup = ev => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            const buttons = WebWindow.ConvertToButtons(ev);
-            this.OnPointerUp(PixUI.PointerEvent.UseDefault(buttons, ev.x, ev.y, ev.movementX, ev.movementY));
-        };
-        window.onmouseout = ev => {
-            this.OnPointerMoveOutWindow();
-        }
-        window.onkeydown = ev => {
-            // console.log(`KeyDown: '${ev.key}' keyCode=${ev.code}`)
-            this.OnKeyDown(PixUI.KeyEvent.UseDefault(WebWindow.ConvertToKeys(ev)));
-            if (ev.code === 'Tab') {
-                ev.preventDefault();
-            }
-        };
-        window.onkeyup = ev => {
-            this.OnKeyUp(PixUI.KeyEvent.UseDefault(WebWindow.ConvertToKeys(ev)));
-            if (ev.code === 'Tab') {
-                ev.preventDefault();
-            }
-        };
+    FlushOffscreenSurface() {
+        this._offscreenSurface.flush();
+    }
+
+    DrawOffscreenSurface() {
+        let snapshot = this._offscreenSurface.makeImageSnapshot();
+        this._onscreenCanvas.drawImage(snapshot, 0, 0);
+        snapshot.delete();
+    }
+
+    Present(): void {
+        this._onscreenSurface.flush();
     }
 
     StartTextInput() {
         setTimeout(() => {
-            this._input.focus({preventScroll: true});
+            this._htmlInput.focus({preventScroll: true});
         }, 0);
     }
 
     StopTextInput() {
-        this._input.blur();
-        this._input.value = '';
+        this._htmlInput.blur();
+        this._htmlInput.value = '';
     }
 
-    private static ConvertToButtons(ev: MouseEvent): PixUI.PointerButtons {
-        switch (ev.buttons) {
-            case 1:
-                return PixUI.PointerButtons.Left;
-            case 2:
-                return PixUI.PointerButtons.Right;
-            case 3:
-                return PixUI.PointerButtons.Middle;
-            default:
-                return PixUI.PointerButtons.None;
-        }
-    }
-
-    private static ConvertToKeys(ev: KeyboardEvent): PixUI.Keys {
-        let keys = PixUI.Keys.None;
-        //TODO: others
-        switch (ev.code) {
-            case 'Backspace':
-                keys = PixUI.Keys.Back;
-                break;
-            case 'Tab':
-                keys = PixUI.Keys.Tab;
-                break;
-            case 'Enter':
-                keys = PixUI.Keys.Return;
-                break;
-            case 'ArrowLeft':
-                keys = PixUI.Keys.Left;
-                break;
-            case 'ArrowRight':
-                keys = PixUI.Keys.Right;
-                break;
-            case 'ArrowUp':
-                keys = PixUI.Keys.Up;
-                break;
-            case 'ArrowDown':
-                keys = PixUI.Keys.Down;
-                break;
-        }
-
-        if (ev.shiftKey) keys |= PixUI.Keys.Shift;
-        if (ev.ctrlKey) keys |= PixUI.Keys.Control;
-        if (ev.altKey) keys |= PixUI.Keys.Alt;
-
-        return keys;
-    }
+    //endregion
 
 }

@@ -17,8 +17,8 @@ export abstract class UIApplication {
 
     protected OnInvalidateRequest() {
         let window = this.MainWindow; //TODO:根据事件判断哪个UIWindow
-        let widgetsCanvas = window.GetWidgetsCanvas();
-        let overlayCanvas = window.GetOverlayCanvas();
+        let widgetsCanvas = window.GetOffscreenCanvas();
+        let overlayCanvas = window.GetOnscreenCanvas();
 
         let ctx = PaintContext.Default;
         ctx.Window = this.MainWindow;
@@ -27,8 +27,8 @@ export abstract class UIApplication {
         //先绘制WidgetsCanvas
         if (!window.WidgetsInvalidQueue.IsEmpty) {
             ctx.Canvas = widgetsCanvas;
-            widgetsCanvas.scale(window.ScaleFactor, window.ScaleFactor);
             window.WidgetsInvalidQueue.RenderFrame(ctx);
+            window.FlushOffscreenSurface();
         }
 
         //再绘制OverlayCanvas
@@ -36,10 +36,15 @@ export abstract class UIApplication {
             ctx.Canvas = overlayCanvas;
             window.OverlayInvalidQueue.RelayoutAll();
         }
-
-        overlayCanvas.clear(PixUI.Color.Empty); //前端好像始终缓存了图像，所以暂清除掉
+        
+        window.DrawOffscreenSurface();
+        if (window.ScaleFactor != 1) {
+            overlayCanvas.save();
+            overlayCanvas.scale(window.ScaleFactor, window.ScaleFactor);
+        }
         window.Overlay.Paint(overlayCanvas); //always repaint
-
+        if (window.ScaleFactor != 1)
+            overlayCanvas.restore();
 
         window.HasPostInvalidateEvent = false;
 

@@ -47,18 +47,25 @@ export abstract class UIWindow {
     private _hitResultOnPointDown: Nullable<PixUI.HitTestEntry>;
 
 
-    public abstract GetOverlayCanvas(): PixUI.Canvas ;
+    public abstract GetOnscreenCanvas(): PixUI.Canvas ;
 
-    public abstract GetWidgetsCanvas(): PixUI.Canvas ;
+    public abstract GetOffscreenCanvas(): PixUI.Canvas ;
+    
+    public abstract FlushOffscreenSurface(): void;
+    
+    public abstract DrawOffscreenSurface(): void;
 
     public OnFirstShow() {
         this.RootWidget.Layout(this.Width, this.Height);
         this.Overlay.Layout(this.Width, this.Height);
 
-        let widgetsCanvas = this.GetWidgetsCanvas();
-        widgetsCanvas.scale(this.ScaleFactor, this.ScaleFactor);
+        let widgetsCanvas = this.GetOffscreenCanvas();
         widgetsCanvas.clear(this.BackgroundColor);
         this.RootWidget.Paint(widgetsCanvas);
+        
+        let overlayCanvas = this.GetOnscreenCanvas();
+        this.FlushOffscreenSurface();
+        this.DrawOffscreenSurface();
 
         //TODO: paint Overlay
 
