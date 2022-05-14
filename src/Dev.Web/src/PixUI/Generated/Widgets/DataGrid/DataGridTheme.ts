@@ -3,13 +3,13 @@ import * as PixUI from '@/PixUI'
 export class DataGridTheme {
     public constructor() {
         this.DefaultHeaderCellStyle = new PixUI.CellStyle().Init({
-            Color: (PixUI.Colors.Black).Clone(),
+            Color: PixUI.Colors.Black,
             BackgroundColor: new PixUI.Color(0xFFF5F7FA),
             HorizontalAlignment: PixUI.HorizontalAlignment.Center,
             FontWeight: CanvasKit.FontWeight.Bold
         });
 
-        this.DefaultRowCellStyle = new PixUI.CellStyle().Init({Color: (PixUI.Colors.Black).Clone()});
+        this.DefaultRowCellStyle = new PixUI.CellStyle().Init({Color: PixUI.Colors.Black});
     }
 
     public readonly DefaultHeaderCellStyle: PixUI.CellStyle;

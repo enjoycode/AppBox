@@ -14,7 +14,7 @@ export class MenuController {
     public BackgroundColor: PixUI.Color = new PixUI.Color(200, 200, 200);
 
     public set Color(value: PixUI.Color) {
-        this.TextColor.Value = (value).Clone();
+        this.TextColor.Value = value;
     }
 
     public HoverColor: PixUI.Color = PixUI.Theme.AccentColor;

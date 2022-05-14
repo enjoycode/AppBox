@@ -63,17 +63,17 @@ export class Card extends PixUI.SingleChildWidget {
             return;
         }
 
-        let margin = (this._margin?.Value ?? PixUI.EdgeInsets.All(4)).Clone();
+        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(4);
         this.Child.Layout(width - margin.Left - margin.Right, height - margin.Top - margin.Bottom);
         this.Child.SetPosition(margin.Left, margin.Top);
         this.SetSize(this.Child.W + margin.Left + margin.Right, this.Child.H + margin.Top + margin.Bottom);
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let color = (this._color?.Value ?? PixUI.Colors.White).Clone();
-        let shadowColor = (this._shadowColor?.Value ?? PixUI.Colors.Black).Clone();
+        let color = this._color?.Value ?? PixUI.Colors.White;
+        let shadowColor = this._shadowColor?.Value ?? PixUI.Colors.Black;
         let elevation = this._elevation?.Value ?? 1;
-        let margin = (this._margin?.Value ?? PixUI.EdgeInsets.All(4)).Clone();
+        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(4);
         let rect = PixUI.Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right, this.H - margin.Top - margin.Bottom);
         let shape = this._shape?.Value ?? Card._defaultShape;
 

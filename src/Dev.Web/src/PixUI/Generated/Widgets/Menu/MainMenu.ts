@@ -13,11 +13,11 @@ export class MainMenu extends PixUI.Widget {
     private readonly _controller: PixUI.MenuController;
 
     public set BackgroudColor(value: PixUI.Color) {
-        this._controller.BackgroundColor = (value).Clone();
+        this._controller.BackgroundColor = value;
     }
 
     public set Color(value: PixUI.Color) {
-        this._controller.Color = (value).Clone();
+        this._controller.Color = value;
     }
 
     private BuildMenuItemWidgets(items: PixUI.MenuItem[]) {

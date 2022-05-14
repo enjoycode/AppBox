@@ -28,7 +28,7 @@ export class Container extends PixUI.SingleChildWidget {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
-        let padding = (this._padding?.Value ?? PixUI.EdgeInsets.All(0)).Clone();
+        let padding = this._padding?.Value ?? PixUI.EdgeInsets.All(0);
         if (this.Child != null) {
             this.Child.Layout(width - padding.Left - padding.Right, height - padding.Top - padding.Bottom);
             this.Child.SetPosition(padding.Left, padding.Top);

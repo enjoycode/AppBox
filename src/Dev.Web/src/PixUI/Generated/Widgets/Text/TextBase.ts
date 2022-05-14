@@ -51,7 +51,7 @@ export abstract class TextBase extends PixUI.Widget {
         //if (_cachedParagraph != null) return;
         this._cachedParagraph?.delete();
 
-        let color = (this._color?.Value ?? PixUI.Colors.Black).Clone();
+        let color = this._color?.Value ?? PixUI.Colors.Black;
         this._cachedParagraph = this.BuildParagraphInternal(text, width, color);
     }
 

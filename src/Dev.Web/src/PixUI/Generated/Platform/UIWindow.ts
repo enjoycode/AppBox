@@ -111,7 +111,7 @@ export abstract class UIWindow {
 
         if (!this._oldHitResult.IsHitAnyMouseRegion) return;
 
-        this._hitResultOnPointDown = (this._oldHitResult.LastEntry)?.Clone();
+        this._hitResultOnPointDown = this._oldHitResult.LastEntry;
         this._oldHitResult.PropagatePointerEvent(pointerEvent, (w, e) => w.RaisePointerDown(e));
 
         //Set focus widget after propagate event

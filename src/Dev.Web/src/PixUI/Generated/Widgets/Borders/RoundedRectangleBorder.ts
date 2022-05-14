@@ -5,8 +5,8 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
     public readonly BorderRadius: PixUI.BorderRadius;
 
     public constructor(side: Nullable<PixUI.BorderSide> = null, borderRadius: Nullable<PixUI.BorderRadius> = null) {
-        super((side)?.Clone());
-        this.BorderRadius = (borderRadius ?? PixUI.BorderRadius.Empty).Clone();
+        super(side);
+        this.BorderRadius = borderRadius ?? PixUI.BorderRadius.Empty;
     }
 
     public GetOuterPath(rect: PixUI.Rect): PixUI.Path {

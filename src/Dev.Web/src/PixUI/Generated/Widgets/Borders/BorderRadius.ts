@@ -1,11 +1,11 @@
 import * as PixUI from '@/PixUI'
 
 export class BorderRadius {
-    public static readonly Empty: BorderRadius = BorderRadius.All((PixUI.Radius.Empty).Clone());
+    public static readonly Empty: BorderRadius = BorderRadius.All(PixUI.Radius.Empty);
 
 
     public static All(radius: PixUI.Radius): BorderRadius {
-        return new BorderRadius((radius).Clone(), (radius).Clone(), (radius).Clone(), (radius).Clone());
+        return new BorderRadius(radius, radius, radius, radius);
     }
 
     public static Circular(radius: number): BorderRadius {
@@ -13,11 +13,11 @@ export class BorderRadius {
     }
 
     public static Vertical(top: PixUI.Radius, bottom: PixUI.Radius): BorderRadius {
-        return new BorderRadius((top).Clone(), (top).Clone(), (bottom).Clone(), (bottom).Clone());
+        return new BorderRadius(top, top, bottom, bottom);
     }
 
     public static Horizontal(left: PixUI.Radius, right: PixUI.Radius): BorderRadius {
-        return new BorderRadius((left).Clone(), (right).Clone(), (left).Clone(), (right).Clone());
+        return new BorderRadius(left, right, left, right);
     }
 
 
@@ -27,10 +27,10 @@ export class BorderRadius {
     public readonly BottomRight: PixUI.Radius;
 
     private constructor(topLeft: PixUI.Radius, topRight: PixUI.Radius, bottomLeft: PixUI.Radius, bottomRight: PixUI.Radius) {
-        this.TopLeft = (topLeft).Clone();
-        this.TopRight = (topRight).Clone();
-        this.BottomLeft = (bottomLeft).Clone();
-        this.BottomRight = (bottomRight).Clone();
+        this.TopLeft = topLeft;
+        this.TopRight = topRight;
+        this.BottomLeft = bottomLeft;
+        this.BottomRight = bottomRight;
     }
 
     public static Lerp(a: Nullable<BorderRadius>, b: Nullable<BorderRadius>, t: number): Nullable<BorderRadius> {
@@ -41,7 +41,7 @@ export class BorderRadius {
         if (b == null)
             return BorderRadius.op_Multiply(a, <number><unknown>(1.0 - t));
 
-        return new BorderRadius((PixUI.Radius.Lerp((a.TopLeft).Clone(), (b.TopLeft).Clone(), t)!).Clone(), (PixUI.Radius.Lerp((a.TopRight).Clone(), (b.TopRight).Clone(), t)!).Clone(), (PixUI.Radius.Lerp((a.BottomLeft).Clone(), (b.BottomLeft).Clone(), t)!).Clone(), (PixUI.Radius.Lerp((a.BottomRight).Clone(), (b.BottomRight).Clone(), t)!).Clone());
+        return new BorderRadius(PixUI.Radius.Lerp(a.TopLeft, b.TopLeft, t)!, PixUI.Radius.Lerp(a.TopRight, b.TopRight, t)!, PixUI.Radius.Lerp(a.BottomLeft, b.BottomLeft, t)!, PixUI.Radius.Lerp(a.BottomRight, b.BottomRight, t)!);
     }
 
     public static op_Multiply(pt: BorderRadius, operand: number): BorderRadius {
@@ -49,10 +49,10 @@ export class BorderRadius {
     }
 
     public ToRRect(rect: PixUI.Rect): PixUI.RRect {
-        return PixUI.RRect.FromRectAndCorner((rect).Clone(), (this.TopLeft).Clone(), (this.TopRight).Clone(), (this.BottomLeft).Clone(), (this.BottomRight).Clone());
+        return PixUI.RRect.FromRectAndCorner((rect).Clone(), this.TopLeft, this.TopRight, this.BottomLeft, this.BottomRight);
     }
 
     public Clone(): BorderRadius {
-        return new BorderRadius((this.TopLeft).Clone(), (this.TopRight).Clone(), (this.BottomLeft).Clone(), (this.BottomRight).Clone());
+        return new BorderRadius(this.TopLeft, this.TopRight, this.BottomLeft, this.BottomRight);
     }
 }

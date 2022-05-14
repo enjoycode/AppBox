@@ -22,7 +22,7 @@ export abstract class UIApplication {
 
         let ctx = PaintContext.Default;
         ctx.Window = this.MainWindow;
-        let beginTime = (System.DateTime.UtcNow).Clone();
+        let beginTime = System.DateTime.UtcNow;
 
         //先绘制WidgetsCanvas
         if (!window.WidgetsInvalidQueue.IsEmpty) {

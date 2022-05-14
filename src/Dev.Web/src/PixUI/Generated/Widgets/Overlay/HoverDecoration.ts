@@ -15,7 +15,7 @@ export class HoverDecoration {
         this.Widget = widget;
         this.ShapeBuilder = shapeBuilder;
         this.Elevation = elevation;
-        this.HoverColor = (hoverColor)?.Clone();
+        this.HoverColor = hoverColor;
     }
 
     public Show() {

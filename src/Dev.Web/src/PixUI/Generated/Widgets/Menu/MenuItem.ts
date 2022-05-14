@@ -34,11 +34,11 @@ export class MenuItem {
     //public readonly string? Shortcut;
 
     public static Item(label: string, icon: Nullable<PixUI.IconData> = null, action: Nullable<System.Action> = null): MenuItem {
-        return new MenuItem(MenuItemType.MenuItem, label, (icon)?.Clone(), action);
+        return new MenuItem(MenuItemType.MenuItem, label, icon, action);
     }
 
     public static SubMenu(label: string, icon: Nullable<PixUI.IconData>, children: MenuItem[]): MenuItem {
-        return new MenuItem(MenuItemType.SubMenu, label, (icon)?.Clone(), null, children);
+        return new MenuItem(MenuItemType.SubMenu, label, icon, null, children);
     }
 
     public static Divider(): MenuItem {
@@ -48,7 +48,7 @@ export class MenuItem {
     private constructor(type: MenuItemType, label: Nullable<string> = null, icon: Nullable<PixUI.IconData> = null, action: Nullable<System.Action> = null, children: Nullable<MenuItem[]> = null, enabled: boolean = true) {
         this.Type = type;
         this.Label = label;
-        this.Icon = (icon)?.Clone();
+        this.Icon = icon;
         this.Action = action;
         this.Children = new System.List<MenuItem>(children);
 

@@ -10,7 +10,7 @@ export class Transform extends PixUI.SingleChildWidget {
     public constructor(transform: PixUI.Matrix4, origin: Nullable<PixUI.Offset> = null) {
         super();
         this.SetTransform((transform).Clone());
-        this.Origin = (origin)?.Clone();
+        this.Origin = origin;
     }
 
     public get Origin(): Nullable<PixUI.Offset> {
@@ -19,13 +19,13 @@ export class Transform extends PixUI.SingleChildWidget {
 
     public set Origin(value: Nullable<PixUI.Offset>) {
         if (System.OpEquality(this._origin, value)) return;
-        this._origin = (value)?.Clone();
+        this._origin = value;
         this.NeedInvalidate();
     }
 
     protected InitTransformAndOrigin(value: PixUI.Matrix4, origin: Nullable<PixUI.Offset> = null) {
         this._transform = (value).Clone();
-        this._origin = (origin)?.Clone();
+        this._origin = origin;
     }
 
     protected SetTransform(value: PixUI.Matrix4) {

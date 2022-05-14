@@ -23,7 +23,7 @@ export class Ticker {
 
     public Start() {
         console.assert(this._startTime == null);
-        this._startTime = (System.DateTime.UtcNow).Clone();
+        this._startTime = System.DateTime.UtcNow;
         this._animationId++;
         this._isActive = true;
         if (this.ShouldScheduleTick)
@@ -45,7 +45,7 @@ export class Ticker {
     private Tick(timeStamp: System.DateTime, id: number) {
         if (id != this._animationId) return;
 
-        this._startTime ??= (timeStamp).Clone();
+        this._startTime ??= timeStamp;
         this._onTick((System.DateTime.op_Subtraction(timeStamp, this._startTime)).TotalSeconds);
 
         if (this.ShouldScheduleTick)
