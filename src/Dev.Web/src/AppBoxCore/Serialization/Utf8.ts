@@ -1,5 +1,5 @@
-import {IInputStream} from "../Generated/IInputStream";
-import {IOutputStream} from "../Generated/IOutputStream";
+import {IInputStream} from "./IInputStream";
+import {IOutputStream} from "./IOutputStream";
 
 const CHUNK_SIZE = 0x1000;
 

@@ -1,7 +1,8 @@
 import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
-import {Channel, WebChannel, PayloadType, TypeSerializer} from "@/AppBoxClient";
+import {Channel, WebChannel} from '@/AppBoxClient';
+import {PayloadType, TypeSerializer} from '@/AppBoxCore'
 
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
 
