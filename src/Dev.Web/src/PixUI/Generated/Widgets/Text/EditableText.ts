@@ -1,3 +1,4 @@
+import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, PixUI.IFocusable {

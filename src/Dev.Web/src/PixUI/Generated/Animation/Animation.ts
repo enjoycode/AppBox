@@ -1,4 +1,5 @@
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export abstract class Animation<T> {
     public abstract get ValueChanged(): System.Event;

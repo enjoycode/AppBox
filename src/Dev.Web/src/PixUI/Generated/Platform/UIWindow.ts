@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class UIWindow {
@@ -55,6 +54,7 @@ export abstract class UIWindow {
 
     public abstract DrawOffscreenSurface(): void;
 
+
     public OnFirstShow() {
         this.RootWidget.Layout(this.Width, this.Height);
         this.Overlay.Layout(this.Width, this.Height);
@@ -67,7 +67,7 @@ export abstract class UIWindow {
         this.FlushOffscreenSurface();
         this.DrawOffscreenSurface();
 
-        //TODO: paint Overlay
+        //TODO: maybe paint Overlay
 
         this.Present();
     }

@@ -1,4 +1,5 @@
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class PaintDebugger {
     public static readonly EnableChanged = new System.Event();

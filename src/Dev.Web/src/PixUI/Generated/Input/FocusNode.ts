@@ -1,4 +1,5 @@
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export class FocusNode {
     public readonly KeyDown = new System.Event<PixUI.KeyEvent>();
