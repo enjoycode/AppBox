@@ -1,3 +1,4 @@
+import * as AppBoxCore from '@/AppBoxCore'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -31,6 +32,13 @@ export class DesignerPad extends PixUI.View {
     }
 
     private static BuildBody(node: AppBoxDesign.DesignNode): PixUI.Widget {
+        if (node.Type == AppBoxDesign.DesignNodeType.ModelNode) {
+            let modelNode = <AppBoxDesign.ModelNode><unknown>node;
+            if (modelNode.ModelType == AppBoxCore.ModelType.View) {
+                return new AppBoxDesign.ViewDesigner(modelNode);
+            }
+        }
+
         return new PixUI.Container().Init({
             Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
             Color: PixUI.State.op_Implicit_From(PixUI.Colors.White),

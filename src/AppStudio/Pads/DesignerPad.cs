@@ -1,3 +1,4 @@
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign
@@ -42,6 +43,15 @@ namespace AppBoxDesign
 
         private static Widget BuildBody(DesignNode node)
         {
+            if (node.Type == DesignNodeType.ModelNode)
+            {
+                var modelNode = (ModelNode)node;
+                if (modelNode.ModelType == ModelType.View)
+                {
+                    return new ViewDesigner(modelNode);
+                }
+            }
+
             return new Container()
             {
                 Padding = EdgeInsets.All(10),

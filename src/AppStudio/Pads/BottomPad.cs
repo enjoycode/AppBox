@@ -22,7 +22,7 @@ namespace AppBoxDesign
                         { Height = 40, Color = new Color(0xFFF3F3F3) },
                     new Container()
                     {
-                        Height = 180,
+                        Height = 150,
                         Child = new TabBody<string>(_tabController, BuildBody),
                     }
                 }

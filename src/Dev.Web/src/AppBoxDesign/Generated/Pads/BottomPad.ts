@@ -14,7 +14,7 @@ export class BottomPad extends PixUI.View {
                 Height: PixUI.State.op_Implicit_From(40),
                 Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3))
             }), new PixUI.Container().Init({
-                    Height: PixUI.State.op_Implicit_From(180),
+                    Height: PixUI.State.op_Implicit_From(150),
                     Child: new PixUI.TabBody<string>(this._tabController, BottomPad.BuildBody)
                 }
             )]

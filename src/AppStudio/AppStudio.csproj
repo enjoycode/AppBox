@@ -18,7 +18,6 @@
 
     <ItemGroup>
       <Folder Include="Commands" />
-      <Folder Include="Designers\View" />
     </ItemGroup>
 
 </Project>
