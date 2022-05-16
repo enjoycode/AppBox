@@ -1,4 +1,5 @@
 export * from "./Tree/DesignNodeType"
+export * from "./WebPreviewer"
 
 export * from "./Generated/Design/DesignNode"
 export * from "./Generated/Design/DesignTree"

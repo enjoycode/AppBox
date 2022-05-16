@@ -3,9 +3,7 @@ import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import {Channel, WebChannel} from '@/AppBoxClient';
 import {PayloadType, TypeSerializer} from '@/AppBoxCore'
-
 import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
-
 
 class TreeData {
     public readonly Icon: PixUI.IconData;
@@ -132,6 +130,12 @@ const TreeSitter: any = (<any>window).TreeSitter;
 TreeSitter.init().then(async (res: any) => {
     let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-c_sharp.wasm');
     TSCSharpLanguage.Init(csharpLanguage);
+    
+    //测试js import
+    let viewName = '/preview/1234/sys/HomePage';
+    let module = await import(/* @vite-ignore */ viewName);
+    let p = new module.HomePage();
+    console.log(p.SayHello());
 
     //暂在这里注册序列化
     TypeSerializer.RegisterKnownType(PayloadType.DesignTree, false, () => new AppBoxDesign.DesignTree());

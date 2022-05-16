@@ -18,6 +18,10 @@ export default defineConfig({
                 target: 'ws://localhost:5137/',
                 secure: false,
                 ws: true
+            },
+            '/preview': {
+                target: 'http://localhost:5137/',
+                secure: false,
             }
         }
     }
