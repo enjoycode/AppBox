@@ -11,6 +11,17 @@ export class WebChannel implements IChannel {
     private readonly waitHandles: Map<number, any> = new Map<number, any>();       // 待回复的请求列表
     //private eventHandlers: Map<number, IEventHandler> = new Map<number, IEventHandler>();
 
+    #_sessionId: number | null;
+    #_name: string | null;
+
+    get SessionId(): number | null {
+        return this.#_sessionId;
+    }
+
+    get Name(): string | null {
+        return this.#_name;
+    }
+
     //region ====WebSocket====
     /** 连接至服务端 */
     private Connect(): Promise<void> {
@@ -68,9 +79,14 @@ export class WebChannel implements IChannel {
     private ProcessLoginResponse(stream: BytesInputStream) {
         const reqMsgId = stream.ReadInt32();
         const loginOk = stream.ReadBool();
-        //TODO: not ok, read error message
-        let errorMsg: string | null = null;
-        this.SetResponse(reqMsgId, InvokeErrorCode.None, errorMsg);
+        if (loginOk) {
+            this.#_sessionId = stream.ReadInt32();
+            this.#_name = stream.ReadString();
+            this.SetResponse(reqMsgId, InvokeErrorCode.None, undefined);
+        } else {
+            let errorMsg = stream.ReadString();
+            this.SetResponse(reqMsgId, InvokeErrorCode.ServiceInnerError, errorMsg);
+        }
     }
 
     /** 处理收到的调用服务的响应 */
@@ -162,7 +178,7 @@ export class WebChannel implements IChannel {
         return promise;
     }
 
-    async Login(user: string, password: string, external?: string): Promise<string | null> {
+    async Login(user: string, password: string, external?: string): Promise<void> {
         //加入等待者列表
         const msgId = this.MakeMsgId();
         let promise = this.MakePromise(msgId);
@@ -181,8 +197,9 @@ export class WebChannel implements IChannel {
         return promise;
     }
 
-    Logout(): Promise<boolean> {
-        return Promise.resolve(false);
+    Logout(): Promise<void> {
+        //TODO:
+        return Promise.resolve();
     }
 
     async Invoke(service: string, args?: any[]): Promise<any> {

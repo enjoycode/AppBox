@@ -23,7 +23,7 @@ public interface IUserSession
     /// <summary>
     /// 会话标识号，仅用于服务端会话管理
     /// </summary>
-    ulong SessionId { get; }
+    int SessionId { get; }
 
     /// <summary>
     /// 当前会话用户的组织路径深度

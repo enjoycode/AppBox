@@ -1,10 +1,13 @@
 export interface IChannel {
-    /** 登录至服务端
-     * @return 有错误返回错误信息，成功返回null
-     */
-    Login(user: string, password: string, external?: string): Promise<string | null>;
+    
+    get SessionId(): number | null;
+    
+    get Name(): string | null;
+    
+    /** 登录至服务端 */
+    Login(user: string, password: string, external?: string): Promise<void>;
 
-    Logout(): Promise<boolean>;
+    Logout(): Promise<void>;
 
     Invoke(service: string, args?: any[]): Promise<any>;
 }

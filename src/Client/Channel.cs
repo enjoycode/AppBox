@@ -5,12 +5,12 @@ namespace AppBoxClient
 {
     public static class Channel
     {
-        public static Task<object> Login(string user, string password, object? external = null)
+        public static Task Login(string user, string password, object? external = null)
         {
             throw new NotImplementedException();
         }
 
-        public static Task<bool> Logout()
+        public static Task Logout()
         {
             throw new NotImplementedException();
         }

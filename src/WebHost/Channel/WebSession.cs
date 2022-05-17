@@ -8,9 +8,10 @@ public sealed class WebSession : IDeveloperSession, IDisposable
     private readonly TreePath _treePath;
     private DesignHub? _designHub;
 
-    public WebSession(TreePath path)
+    public WebSession(TreePath path, int sessionId)
     {
         _treePath = path;
+        SessionId = sessionId;
     }
 
     #region ====IUserSession====
@@ -20,7 +21,7 @@ public sealed class WebSession : IDeveloperSession, IDisposable
     public bool IsExternal => false;
     public string Tag => string.Empty;
 
-    public ulong SessionId { get; } = 0;
+    public int SessionId { get; } = 0;
 
     public int Levels => _treePath.Level;
 

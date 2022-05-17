@@ -8,7 +8,7 @@ export class Channel {
         this.#_provider = provider;
     }
 
-    public static Login(user: string, password: string, external?: string): Promise<string | null> {
+    public static Login(user: string, password: string, external?: string): Promise<void> {
         return this.#_provider.Login(user, password, external);
     }
 

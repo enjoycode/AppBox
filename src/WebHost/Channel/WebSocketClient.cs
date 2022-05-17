@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Net.WebSockets;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxCore.Utils;
 
 namespace AppBoxWebHost;
 
@@ -89,8 +90,8 @@ internal sealed class WebSocketClient
         //登录成功创建并注册会话
         if (errorInfo == null)
         {
-            //TODO: sessionId
-            WebSession = new WebSession(result!);
+            var sessionId = StringUtil.GetHashCode(user); //TODO:暂Hash得到会话标识
+            WebSession = new WebSession(result!, sessionId);
             WebSocketManager.RegisterSession(this, WebSession);
         }
 
@@ -99,8 +100,17 @@ internal sealed class WebSocketClient
         writer.WriteByte((byte)MessageType.LoginResponse);
         writer.WriteInt(msgId);
         writer.WriteBool(errorInfo == null);
-        if (errorInfo != null)
+        if (errorInfo == null)
+        {
+            writer.WriteInt(WebSession!.SessionId);
+            writer.WriteString(WebSession.Name);
+            //TODO:考虑写入员工标识
+        }
+        else
+        {
             writer.WriteString(errorInfo);
+        }
+
         var data = writer.FinishWrite();
         MessageWriteStream.Return(writer);
 
@@ -111,7 +121,7 @@ internal sealed class WebSocketClient
     {
         //设置当前会话
         HostRuntimeContext.SetCurrentSession(WebSession);
-        
+
         //调用服务
         var result = AnyValue.Empty;
         var errorCode = InvokeErrorCode.None;

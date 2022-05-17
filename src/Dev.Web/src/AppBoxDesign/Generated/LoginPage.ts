@@ -44,13 +44,12 @@ export class LoginPage extends PixUI.View {
     }
 
     private async OnLogin(): System.Task {
-        // try
-        // {
-        await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
-
-        this.CurrentNavigator!.PushNamed("IDE");
-        // }
-        // catch (Exception ex) { }
+        try {
+            await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
+            this.CurrentNavigator!.PushNamed("IDE");
+        } catch (ex: any) {
+            console.log(ex.Message);
+        }
     }
 
     public Init(props: Partial<LoginPage>): LoginPage {

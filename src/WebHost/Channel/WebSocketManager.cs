@@ -12,7 +12,7 @@ internal static class WebSocketManager
 
     private static readonly ReaderWriterLockSlim AnonymousLock = new ReaderWriterLockSlim();
 
-    private static readonly Dictionary<ulong, WebSocketClient> Clients = new();
+    private static readonly Dictionary<int, WebSocketClient> Clients = new();
 
     private static readonly ReaderWriterLockSlim ClientsLock = new ReaderWriterLockSlim();
 
