@@ -20,7 +20,7 @@ public sealed class DesignTree : IBinSerializable
 
     #region ====Load Methods====
 
-    public Task LoadAsync()
+    public async Task LoadAsync()
     {
         if (Interlocked.CompareExchange(ref _loadingFlag, 1, 0) != 0)
             throw new Exception("DesignTree is loading.");
@@ -49,15 +49,16 @@ public sealed class DesignTree : IBinSerializable
         //测试用节点
         var homePageModel = new ViewModel(ModelId.Make(12345, ModelType.View, 1, ModelLayer.SYS),
             "HomePage");
-        var homePageNode = new ModelNode(homePageModel);
-        appNode.FindModelRootNode(ModelType.View).Children.Add(homePageNode);
+        var homePageNode = appNode.FindModelRootNode(ModelType.View).AddModelForLoad(homePageModel);
         var demoPageModel = new ViewModel(ModelId.Make(12345, ModelType.View, 2, ModelLayer.DEV),
             "DemoPage");
-        var demoPageNode = new ModelNode(demoPageModel);
-        appNode.FindModelRootNode(ModelType.View).Children.Add(demoPageNode);
+        var demoPageNode = appNode.FindModelRootNode(ModelType.View).AddModelForLoad(demoPageModel);
 
-        //TODO:
-        return Task.CompletedTask;
+        //在所有节点加载完成后创建模型对应的RoslynDocument
+        await DesignHub.TypeSystem.CreateModelDocumentAsync(homePageNode);
+        await DesignHub.TypeSystem.CreateModelDocumentAsync(demoPageNode);
+
+        Interlocked.Exchange(ref _loadingFlag, 0);
     }
 
     #endregion
@@ -66,6 +67,12 @@ public sealed class DesignTree : IBinSerializable
 
     public ApplicationNode? FindApplicationNode(int appId)
         => _appRootNode.Children.Find(n => n.Model.Id == appId);
+
+    public ModelRootNode? FindModelRootNode(int appId, ModelType modelType)
+        => FindApplicationNode(appId)?.FindModelRootNode(modelType);
+
+    public ModelNode? FindModelNode(ModelType modelType, ModelId modelId)
+        => FindModelRootNode(modelId.AppId, modelType)?.FindModelNode(modelId);
 
     #endregion
 

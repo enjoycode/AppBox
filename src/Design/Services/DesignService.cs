@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxDesign.View;
 
 namespace AppBoxDesign;
 
@@ -6,7 +7,10 @@ public sealed class DesignService : IService
 {
     private readonly Dictionary<CharsKey, IDesignHandler> _handlers = new()
     {
-        { "LoadDesignTree", new LoadDesignTree() },
+        // Tree
+        { nameof(LoadDesignTree), new LoadDesignTree() },
+        // View
+        { nameof(OpenViewModel), new OpenViewModel() },
     };
 
     public ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)

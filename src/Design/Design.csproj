@@ -14,4 +14,8 @@
       <ProjectReference Include="..\Design.Core\Design.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.2.0" />
+    </ItemGroup>
+
 </Project>

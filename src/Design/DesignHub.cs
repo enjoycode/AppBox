@@ -6,10 +6,12 @@ public sealed class DesignHub : IDisposable
 {
     public readonly IDeveloperSession Session;
     public readonly DesignTree DesignTree;
+    internal readonly TypeSystem TypeSystem;
 
     public DesignHub(IDeveloperSession session)
     {
         Session = session;
+        TypeSystem = new TypeSystem();
         DesignTree = new DesignTree(this);
     }
 
