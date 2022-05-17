@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 每个开发人员的设计时上下文对应一个TypeSystem实例
 /// </summary>
-internal sealed class TypeSystem
+internal sealed class TypeSystem : IDisposable
 {
     internal readonly ModelWorkspace Workspace;
 
@@ -79,5 +79,10 @@ internal sealed class TypeSystem
             if (!Workspace.TryApplyChanges(newSolution))
                 throw new Exception($"Can't add roslyn document for: {model.Name}");
         }
+    }
+
+    public void Dispose()
+    {
+        Workspace.Dispose();
     }
 }

@@ -13,6 +13,7 @@ export * from "./Generated/Pads/SettingsPad"
 export * from "./Generated/Pads/BottomPad"
 export * from "./Generated/Pads/DesignerPad"
 
+export * from "./Generated/Designers/ModelCodeSyncService"
 export * from "./Generated/Designers/View/ViewDesigner"
 
 export * from "./Generated/DesignStore"

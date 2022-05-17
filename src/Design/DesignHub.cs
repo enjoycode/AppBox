@@ -15,7 +15,11 @@ public sealed class DesignHub : IDisposable
         DesignTree = new DesignTree(this);
     }
 
-    public void Dispose() { }
+    public void Dispose()
+    {
+        //TODO: stop debugger if has
+        TypeSystem.Dispose();
+    }
 
     static DesignHub()
     {

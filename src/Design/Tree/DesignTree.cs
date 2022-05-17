@@ -47,10 +47,12 @@ public sealed class DesignTree : IBinSerializable
         _storeRootNode.Children.Add(defaultDataStoreNode);
 
         //测试用节点
-        var homePageModel = new ViewModel(ModelId.Make(12345, ModelType.View, 1, ModelLayer.SYS),
+        var homePageModel = new ViewModel(
+            ModelId.Make(appNode.Model.Id, ModelType.View, 1, ModelLayer.SYS),
             "HomePage");
         var homePageNode = appNode.FindModelRootNode(ModelType.View).AddModelForLoad(homePageModel);
-        var demoPageModel = new ViewModel(ModelId.Make(12345, ModelType.View, 2, ModelLayer.DEV),
+        var demoPageModel = new ViewModel(
+            ModelId.Make(appNode.Model.Id, ModelType.View, 2, ModelLayer.DEV),
             "DemoPage");
         var demoPageNode = appNode.FindModelRootNode(ModelType.View).AddModelForLoad(demoPageModel);
 

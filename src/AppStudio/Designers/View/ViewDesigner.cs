@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using AppBoxClient;
 using CodeEditor;
 using PixUI;
 
@@ -7,11 +9,14 @@ namespace AppBoxDesign
     {
         private readonly ModelNode _modelNode;
         private readonly CodeEditorController _codeEditorController;
+        private readonly ModelCodeSyncService _codeSyncService;
+        private bool _hasLoadSourceCode = false;
 
         public ViewDesigner(ModelNode modelNode)
         {
             _modelNode = modelNode;
             _codeEditorController = new CodeEditorController("fileName.cs", "");
+            _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
 
             Child = BuildEditor(_codeEditorController);
         }
@@ -43,6 +48,34 @@ namespace AppBoxDesign
                     }
                 }
             };
+        }
+
+        protected override void OnMounted()
+        {
+            base.OnMounted();
+            TryLoadSourceCode();
+        }
+
+        private async ValueTask TryLoadSourceCode()
+        {
+            if (!_hasLoadSourceCode)
+            {
+                _hasLoadSourceCode = true;
+                var srcCode = (string)await Channel.Invoke("sys.DesignService.OpenViewModel",
+                    new object[] { _modelNode.Id });
+                _codeEditorController.Document.TextContent = srcCode;
+                //订阅代码变更事件同步至服务端
+                _codeEditorController.Document.DocumentChanged +=
+                    _codeSyncService.OnDocumentChanged;
+            }
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            if (_hasLoadSourceCode)
+                _codeEditorController.Document.DocumentChanged -=
+                    _codeSyncService.OnDocumentChanged;
         }
     }
 }

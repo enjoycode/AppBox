@@ -9,6 +9,8 @@ public sealed class DesignService : IService
     {
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
+        // Code
+        { nameof(ChangeBuffer), new ChangeBuffer() },
         // View
         { nameof(OpenViewModel), new OpenViewModel() },
     };

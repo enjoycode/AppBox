@@ -32,6 +32,13 @@ public readonly struct InvokeArgs
 
     #region ====GetXXX Methods====
 
+    public int GetInt()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.Int32) return _stream.ReadInt();
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
     public string? GetString()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
