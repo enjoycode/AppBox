@@ -16,7 +16,12 @@ export class ViewDesigner extends PixUI.View {
         this._codeEditorController = new CodeEditor.CodeEditorController("fileName.cs", "");
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
 
-        this.Child = ViewDesigner.BuildEditor(this._codeEditorController);
+        this.Child = new PixUI.Row().Init({
+            Children: [
+                new PixUI.Expanded(ViewDesigner.BuildEditor(this._codeEditorController), 2),
+                new PixUI.Expanded(new AppBoxDesign.WidgetPreviewer(modelNode), 1),
+            ]
+        });
     }
 
     private static BuildEditor(codeEditorController: CodeEditor.CodeEditorController): PixUI.Widget {

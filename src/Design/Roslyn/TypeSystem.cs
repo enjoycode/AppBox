@@ -74,8 +74,7 @@ internal sealed class TypeSystem : IDisposable
             {
                 var docName = $"{appName}.Views.{model.Name}.cs";
                 //TODO:get source from StagedService or ModelStore
-                var src = $@"
-using PixUI;
+                var src = $@"using PixUI;
 
 public sealed class {model.Name} : View
 {{

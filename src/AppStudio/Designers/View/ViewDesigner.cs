@@ -18,7 +18,14 @@ namespace AppBoxDesign
             _codeEditorController = new CodeEditorController("fileName.cs", "");
             _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
 
-            Child = BuildEditor(_codeEditorController);
+            Child = new Row()
+            {
+                Children = new Widget[]
+                {
+                    new Expanded(BuildEditor(_codeEditorController), 2),
+                    new Expanded(new WidgetPreviewer(modelNode), 1),
+                }
+            };
         }
 
         private static Widget BuildEditor(CodeEditorController codeEditorController)

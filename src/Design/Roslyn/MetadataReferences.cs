@@ -29,8 +29,8 @@ internal static class MetadataReferences
     {
 #if DEBUG
         var currentPath = Directory.GetCurrentDirectory();
-        var srcPath = Path.GetDirectoryName(
-            Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(currentPath))));
+        var srcIndex = currentPath.IndexOf($"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}");
+        var srcPath = currentPath.Substring(0, srcIndex + 5);
         if (asmName == "PixUI.dll")
         {
             var fullPath = Path.Combine(srcPath, "PixUI", "PixUI", "bin", "DebugWeb",

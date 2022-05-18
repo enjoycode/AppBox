@@ -3,7 +3,11 @@ import {IChannel} from "./IChannel";
 export class Channel {
 
     static #_provider: IChannel;
-
+    
+    public static get SessionId(): number {
+        return this.#_provider.SessionId;
+    }
+    
     public static Init(provider: IChannel) {
         this.#_provider = provider;
     }

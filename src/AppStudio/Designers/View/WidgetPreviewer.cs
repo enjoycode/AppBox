@@ -6,7 +6,7 @@ namespace AppBoxDesign
     {
         private Matrix4 _scale = Matrix4.CreateIdentity();
 
-        public WidgetPreviewer()
+        public WidgetPreviewer(ModelNode modelNode)
         {
             Child = new Container()
             {
