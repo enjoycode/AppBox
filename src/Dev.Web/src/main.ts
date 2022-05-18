@@ -131,11 +131,11 @@ TreeSitter.init().then(async (res: any) => {
     let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-c_sharp.wasm');
     TSCSharpLanguage.Init(csharpLanguage);
     
-    //测试js import
-    let viewName = '/preview/1234/sys/HomePage';
-    let module = await import(/* @vite-ignore */ viewName);
-    let p = new module.HomePage();
-    console.log(p.SayHello());
+    // //测试js import
+    // let viewName = '/preview/1234/sys/HomePage';
+    // let module = await import(/* @vite-ignore */ viewName);
+    // let p = new module.HomePage();
+    // console.log(p.SayHello());
 
     //暂在这里注册序列化
     TypeSerializer.RegisterKnownType(PayloadType.DesignTree, false, () => new AppBoxDesign.DesignTree());

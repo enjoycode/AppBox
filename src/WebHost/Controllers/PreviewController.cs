@@ -1,43 +1,29 @@
 using System.Text;
+using AppBoxCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppBoxWebHost;
 
+/// <summary>
+/// 用于设计时预览生成视图模型的JS
+/// </summary>
 [ApiController]
 [Route("[controller]")]
 public class PreviewController : ControllerBase
 {
-    private static int _count = 0;
-
-    [HttpGet("{sessionId}/{appName}/{viewName}")]
-    public IActionResult Get(string sessionId, string appName, string viewName)
+    [HttpGet("{sessionId}/{viewModelId}")]
+    public async Task<IActionResult> Get(int sessionId, string viewModelId)
     {
-        Console.WriteLine($"Preview: {sessionId} {appName} {viewName}");
-        _count++;
+        var session = WebSocketManager.FindSession(sessionId);
+        if (session == null)
+            throw new Exception("Can't find session");
 
-        var sb = new StringBuilder(512);
-        if (viewName != "DemoWidget")
-            sb.Append("import {DemoWidget} from '/preview/1234/sys/DemoWidget';\n\n");
+        HostRuntimeContext.SetCurrentSession(session);
 
-        sb.Append("export class ");
-        sb.Append(viewName);
-        sb.Append("{\n");
-        sb.Append("\tSayHello() {\n");
-        if (viewName == "DemoWidget")
-        {
-            sb.Append("\t\treturn 'Hello from DemoWidget ");
-            sb.Append(_count);
-            sb.Append("';\n");
-        }
-        else
-        {
-            sb.Append("\t\tlet demo = new DemoWidget();\n");
-            sb.Append("\t\treturn demo.SayHello();\n");
-        }
+        var jsCode = (string)await RuntimeContext.InvokeAsync(
+            "sys.DesignService.GetWebPreview", InvokeArgs.Make(viewModelId));
 
-        sb.Append("\t}\n}");
-        
-        var data = Encoding.UTF8.GetBytes(sb.ToString());
+        var data = Encoding.UTF8.GetBytes(jsCode);
         return new FileContentResult(data, "text/javascript");
     }
 }

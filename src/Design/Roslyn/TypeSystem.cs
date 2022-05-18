@@ -17,33 +17,41 @@ internal sealed class TypeSystem : IDisposable
     internal readonly ProjectId ModelProjectId;
 
     /// <summary>
-    /// 视图模型的虚拟工程标识号
+    /// 用于Web的视图模型的虚拟工程标识号
     /// </summary>
-    internal readonly ProjectId ViewsProjectId;
+    internal readonly ProjectId WebViewsProjectId;
 
     public TypeSystem()
     {
         Workspace = new ModelWorkspace(new HostServicesAggregator());
 
         ModelProjectId = ProjectId.CreateNewId();
-        ViewsProjectId = ProjectId.CreateNewId();
+        WebViewsProjectId = ProjectId.CreateNewId();
 
         var dllCompilationOptions =
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                .WithNullableContextOptions(NullableContextOptions.Enable);
+        var parseOptions = new CSharpParseOptions()
+            .WithLanguageVersion(LanguageVersion.CSharp10);
+        var webParseOptions = parseOptions.WithPreprocessorSymbols("__WEB__");
+
         var modelProjectInfo = ProjectInfo.Create(ModelProjectId, VersionStamp.Create(),
             "ModelProject", "ModelProject", LanguageNames.CSharp, null, null,
-            dllCompilationOptions);
-        var viewsProjectInfo = ProjectInfo.Create(ViewsProjectId, VersionStamp.Create(),
+            dllCompilationOptions, parseOptions);
+        var webViewsProjectInfo = ProjectInfo.Create(WebViewsProjectId, VersionStamp.Create(),
             "ViewsProject", "ViewsProject", LanguageNames.CSharp, null, null,
-            dllCompilationOptions);
+            dllCompilationOptions, webParseOptions);
 
         var newSolution = Workspace.CurrentSolution
+                //通用模型工程
                 .AddProject(modelProjectInfo)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.CoreLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.NetstandardLib)
-                .AddProject(viewsProjectInfo)
-                .AddMetadataReference(ViewsProjectId, MetadataReferences.CoreLib)
-                .AddMetadataReference(ViewsProjectId, MetadataReferences.NetstandardLib)
+                //专用于Web视图模型的工程
+                .AddProject(webViewsProjectInfo)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.NetstandardLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIWebLib)
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))
@@ -66,7 +74,10 @@ internal sealed class TypeSystem : IDisposable
             {
                 var docName = $"{appName}.Views.{model.Name}.cs";
                 //TODO:get source from StagedService or ModelStore
-                var src = $@"public sealed class {model.Name}
+                var src = $@"
+using PixUI;
+
+public sealed class {model.Name} : View
 {{
 }}";
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, src);

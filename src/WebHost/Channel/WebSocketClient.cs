@@ -9,9 +9,10 @@ namespace AppBoxWebHost;
 internal sealed class WebSocketClient
 {
     private readonly WebSocket _webSocket;
+    internal WebSession? WebSession { get; set; }
+
     private BytesSegment? _pending;
     private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
-    internal WebSession? WebSession { get; set; }
 
     public WebSocketClient(WebSocket webSocket)
     {

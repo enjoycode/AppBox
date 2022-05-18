@@ -12,6 +12,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Design.Core\Design.Core.csproj" />
+      <ProjectReference Include="..\PixUI\PixUI.CS2TS\PixUI.CS2TS.csproj" />
     </ItemGroup>
 
     <ItemGroup>

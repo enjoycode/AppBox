@@ -104,7 +104,7 @@ public struct AnyValue
 
     #endregion
 
-    #region ====隐式转换，仅用于方便服务端编码====
+    #region ====隐式/显式转换，仅用于方便服务端编码====
 
     //注意隐式转换不支持接口类型及object
     public static implicit operator AnyValue(uint v)
@@ -118,6 +118,8 @@ public struct AnyValue
 
     // public static implicit operator AnyValue(Entity obj)
     //  => new AnyValue { ObjectValue = obj, Type = AnyValueType.Object };
+
+    public static explicit operator string(AnyValue v) => v.BoxedValue!.ToString();
 
     #endregion
 

@@ -13,6 +13,7 @@ public sealed class DesignService : IService
         { nameof(ChangeBuffer), new ChangeBuffer() },
         // View
         { nameof(OpenViewModel), new OpenViewModel() },
+        { nameof(GetWebPreview), new GetWebPreview() },
     };
 
     public ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)

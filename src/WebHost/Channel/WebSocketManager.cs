@@ -16,7 +16,6 @@ internal static class WebSocketManager
 
     private static readonly ReaderWriterLockSlim ClientsLock = new ReaderWriterLockSlim();
 
-
     internal static async Task OnAccept(WebSocket webSocket)
     {
         // 先加入匿名列表
@@ -99,5 +98,16 @@ internal static class WebSocketManager
 
         Clients[session.SessionId] = client;
         ClientsLock.ExitWriteLock();
+    }
+
+    /// <summary>
+    /// 根据会话标识查找会话
+    /// </summary>
+    internal static WebSession? FindSession(int sessionId)
+    {
+        ClientsLock.EnterReadLock();
+        Clients.TryGetValue(sessionId, out var client);
+        ClientsLock.ExitReadLock();
+        return client?.WebSession;
     }
 }

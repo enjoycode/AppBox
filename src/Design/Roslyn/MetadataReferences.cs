@@ -3,9 +3,12 @@ using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
 
+/// <summary>
+/// 管理虚拟工程需要引用的类库
+/// </summary>
 internal static class MetadataReferences
 {
-    private static readonly Dictionary<string, MetadataReference> _metaRefs = new();
+    private static readonly Dictionary<string, MetadataReference> MetaRefs = new();
 
     internal static readonly string SdkPath =
         Path.GetDirectoryName(typeof(object).Assembly.Location)!;
@@ -15,16 +18,49 @@ internal static class MetadataReferences
 
     internal static MetadataReference NetstandardLib => GetSdkLib("netstandard.dll");
 
+    internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUI.dll");
+
     private static MetadataReference GetSdkLib(string asmName)
     {
-        MetadataReference? res = null;
-        lock (_metaRefs)
+        return TryGet(asmName, Path.Combine(SdkPath, asmName));
+    }
+
+    private static MetadataReference GetPixUIWebLib(string asmName)
+    {
+#if DEBUG
+        var currentPath = Directory.GetCurrentDirectory();
+        var srcPath = Path.GetDirectoryName(
+            Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(currentPath))));
+        if (asmName == "PixUI.dll")
         {
-            if (!_metaRefs.TryGetValue(asmName, out res))
-            {
-                res = MetadataReference.CreateFromFile(Path.Combine(SdkPath, asmName));
-                _metaRefs.Add(asmName, res);
-            }
+            var fullPath = Path.Combine(srcPath, "PixUI", "PixUI", "bin", "DebugWeb",
+                "netstandard2.1", asmName);
+            return TryGet(asmName, fullPath);
+        }
+
+        throw new NotImplementedException();
+#else
+        throw new NotImplementedException();
+#endif
+    }
+
+    // private static MetadataReference GetByType(Type type)
+    // {
+    //     var fullPath = type.Assembly.Location;
+    //     var fileName = Path.GetFileName(fullPath);
+    //
+    //     return TryGet(fileName, fullPath);
+    // }
+
+    private static MetadataReference TryGet(string asmName, string fullPath)
+    {
+        MetadataReference? res = null;
+        lock (MetaRefs)
+        {
+            if (MetaRefs.TryGetValue(asmName, out res)) return res;
+
+            res = MetadataReference.CreateFromFile(fullPath);
+            MetaRefs.Add(asmName, res);
         }
 
         return res;

@@ -15,7 +15,7 @@ public sealed class ModelNode : DesignNode
         switch (model.ModelType)
         {
             case ModelType.View:
-                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ViewsProjectId);
+                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId);
                 break;
         }
     }
