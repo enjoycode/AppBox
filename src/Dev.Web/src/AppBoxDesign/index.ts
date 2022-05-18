@@ -14,6 +14,7 @@ export * from "./Generated/Pads/BottomPad"
 export * from "./Generated/Pads/DesignerPad"
 
 export * from "./Generated/Designers/ModelCodeSyncService"
+export * from "./Generated/Designers/View/PreviewController"
 export * from "./Generated/Designers/View/WidgetPreviewer"
 export * from "./Generated/Designers/View/ViewDesigner"
 

@@ -4,17 +4,20 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 
 export class WebPreviewer extends PixUI.View {
 
-    private readonly _modelNode: AppBoxDesign.ModelNode;
+    private readonly _controller: AppBoxDesign.PreviewController;
+    private _version = 0;
 
-    public constructor(modelNode: AppBoxDesign.ModelNode) {
+    public constructor(controller: AppBoxDesign.PreviewController) {
         super();
-        this._modelNode = modelNode;
+        controller.InvalidateAction = () => this.Run();
+        this._controller = controller;
     }
 
     private async Run() {
-        const url = "/preview/" + AppBoxClient.Channel.SessionId + "/" + this._modelNode.Id;
+        this._version++;
+        const url = "/preview/" + AppBoxClient.Channel.SessionId + "/" + this._controller.ModelNode.Id + "?v=" +this._version;
         let module = await import(/* @vite-ignore */url);
-        let widget = new module[this._modelNode.Label];
+        let widget = new module[this._controller.ModelNode.Label];
         this.Child = new PixUI.Container().Init({Child: widget});
         this.Invalidate(PixUI.InvalidAction.Relayout);
     }

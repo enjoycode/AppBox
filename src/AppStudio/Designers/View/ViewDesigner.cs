@@ -10,11 +10,13 @@ namespace AppBoxDesign
         private readonly ModelNode _modelNode;
         private readonly CodeEditorController _codeEditorController;
         private readonly ModelCodeSyncService _codeSyncService;
+        private readonly PreviewController _previewController;
         private bool _hasLoadSourceCode = false;
 
         public ViewDesigner(ModelNode modelNode)
         {
             _modelNode = modelNode;
+            _previewController = new PreviewController(modelNode);
             _codeEditorController = new CodeEditorController("fileName.cs", "");
             _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
 
@@ -23,7 +25,7 @@ namespace AppBoxDesign
                 Children = new Widget[]
                 {
                     new Expanded(BuildEditor(_codeEditorController), 2),
-                    new Expanded(new WidgetPreviewer(modelNode), 1),
+                    new Expanded(new WidgetPreviewer(_previewController), 1),
                 }
             };
         }
