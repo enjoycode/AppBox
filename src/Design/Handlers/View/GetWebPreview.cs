@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AppBoxCore;
 using PixUI.CS2TS;
 
@@ -24,10 +25,27 @@ internal sealed class GetWebPreview : IDesignHandler
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
         var emitter = await Emitter.MakeAsync(translator, srcDocument);
         emitter.Emit();
-        var tsCode = emitter.GetTypeScriptCode();
+        var tsCode = emitter.GetTypeScriptCode(true);
 
-        //TODO:转换为js
+        //转换为js
+        var jsCodeData = await ConvertToJs(tsCode, modelNode);
+        return AnyValue.From(jsCodeData);
+    }
 
-        return tsCode;
+    private static async Task<byte[]> ConvertToJs(string tsCode, ModelNode modelNode)
+    {
+        //TODO:*** 暂简单使用tsc转换处理
+        var tsTemp = Path.Combine(Path.GetTempPath(), $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.ts");
+        await File.WriteAllTextAsync(tsTemp, tsCode);
+        var process = Process.Start("tsc", $"-t esnext -m esnext {tsTemp}");
+        process!.WaitForExit();
+
+        var jsTemp = Path.Combine(Path.GetDirectoryName(tsTemp)!,
+            $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.js");
+        var data = await File.ReadAllBytesAsync(jsTemp);
+        
+        File.Delete(tsTemp);
+        File.Delete(jsTemp);
+        return data;
     }
 }

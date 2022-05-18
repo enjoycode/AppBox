@@ -79,6 +79,10 @@ using PixUI;
 
 public sealed class {model.Name} : View
 {{
+    public {model.Name}()
+    {{
+        Child = new Text(nameof({model.Name}));
+    }}
 }}";
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, src);
                 break;

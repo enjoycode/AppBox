@@ -121,6 +121,8 @@ public struct AnyValue
 
     public static explicit operator string(AnyValue v) => v.BoxedValue!.ToString();
 
+    public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;
+
     #endregion
 
     #region ====Serialization====

@@ -20,10 +20,8 @@ public class PreviewController : ControllerBase
 
         HostRuntimeContext.SetCurrentSession(session);
 
-        var jsCode = (string)await RuntimeContext.InvokeAsync(
+        var jsCodeData = (byte[])await RuntimeContext.InvokeAsync(
             "sys.DesignService.GetWebPreview", InvokeArgs.Make(viewModelId));
-
-        var data = Encoding.UTF8.GetBytes(jsCode);
-        return new FileContentResult(data, "text/javascript");
+        return new FileContentResult(jsCodeData, "text/javascript");
     }
 }
