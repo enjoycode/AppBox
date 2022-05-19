@@ -11,6 +11,7 @@ namespace AppBoxDesign
         private readonly CodeEditorController _codeEditorController;
         private readonly ModelCodeSyncService _codeSyncService;
         private readonly PreviewController _previewController;
+        private readonly DelayTask _delayDocChangedTask;
         private bool _hasLoadSourceCode = false;
 
         public ViewDesigner(ModelNode modelNode)
@@ -19,6 +20,7 @@ namespace AppBoxDesign
             _previewController = new PreviewController(modelNode);
             _codeEditorController = new CodeEditorController("fileName.cs", "");
             _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
+            _delayDocChangedTask = new DelayTask(300, RunDelayTask);
 
             Child = new Row()
             {
@@ -73,18 +75,32 @@ namespace AppBoxDesign
                 var srcCode = (string)await Channel.Invoke("sys.DesignService.OpenViewModel",
                     new object[] { _modelNode.Id });
                 _codeEditorController.Document.TextContent = srcCode;
-                //订阅代码变更事件同步至服务端
-                _codeEditorController.Document.DocumentChanged +=
-                    _codeSyncService.OnDocumentChanged;
+                //订阅代码变更事件
+                _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
             }
+        }
+
+        private void OnDocumentChanged(DocumentEventArgs e)
+        {
+            //同步变更至服务端
+            _codeSyncService.OnDocumentChanged(e);
+            //启动延时任务
+            _delayDocChangedTask.Run();
+        }
+
+        private void RunDelayTask()
+        {
+            //TODO:获取错误列表，如果没有错误刷新预览
+            _previewController.Invalidate();
         }
 
         public override void Dispose()
         {
             base.Dispose();
             if (_hasLoadSourceCode)
-                _codeEditorController.Document.DocumentChanged -=
-                    _codeSyncService.OnDocumentChanged;
+            {
+                _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
+            }
         }
     }
 }

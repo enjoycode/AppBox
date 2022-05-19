@@ -9,14 +9,16 @@ export class ViewDesigner extends PixUI.View {
     private readonly _codeEditorController: CodeEditor.CodeEditorController;
     private readonly _codeSyncService: AppBoxDesign.ModelCodeSyncService;
     private readonly _previewController: AppBoxDesign.PreviewController;
+    private readonly _delayDocChangedTask: PixUI.DelayTask;
     private _hasLoadSourceCode: boolean = false;
-
+    
     public constructor(modelNode: AppBoxDesign.ModelNode) {
         super();
         this._modelNode = modelNode;
         this._previewController = new AppBoxDesign.PreviewController(modelNode);
         this._codeEditorController = new CodeEditor.CodeEditorController("fileName.cs", "");
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
+        this._delayDocChangedTask = new PixUI.DelayTask(300, () => this.RunDelayTask())
 
         this.Child = new PixUI.Row().Init({Children: [new PixUI.Expanded(this.BuildEditor(this._codeEditorController), 2), new PixUI.Expanded(new AppBoxDesign.WidgetPreviewer(this._previewController), 1)]});
     }
@@ -55,14 +57,26 @@ export class ViewDesigner extends PixUI.View {
             let srcCode = <string><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.OpenViewModel", [this._modelNode.Id]);
             this._codeEditorController.Document.TextContent = srcCode;
             //订阅代码变更事件同步至服务端
-            this._codeEditorController.Document.DocumentChanged.Add(this._codeSyncService.OnDocumentChanged, this._codeSyncService);
+            this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
         }
+    }
+    
+    private OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
+        //同步至服务端
+        this._codeSyncService.OnDocumentChanged(e);
+        //启动延时任务
+        this._delayDocChangedTask.Run();
+    }
+    
+    private RunDelayTask() {
+        console.log("延迟任务...")
+        this._previewController.Invalidate();
     }
 
     public Dispose() {
         super.Dispose();
         if (this._hasLoadSourceCode)
-            this._codeEditorController.Document.DocumentChanged.Remove(this._codeSyncService.OnDocumentChanged, this._codeSyncService);
+            this._codeEditorController.Document.DocumentChanged.Remove(this.OnDocumentChanged, this);
     }
 
     public Init(props: Partial<ViewDesigner>): ViewDesigner {

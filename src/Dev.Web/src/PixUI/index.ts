@@ -26,6 +26,7 @@ export * from './CanvasKit/Utils'
 export * from './CanvasKit/FontStyle'
 export * from './CanvasKit/FontCollection'
 
+export * from './DelayTask'
 export * from './WidgetList'
 export * from './Generated/Internal'
 
