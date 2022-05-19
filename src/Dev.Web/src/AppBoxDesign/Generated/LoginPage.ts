@@ -1,4 +1,5 @@
 import * as AppBoxClient from '@/AppBoxClient'
+import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
@@ -44,12 +45,15 @@ export class LoginPage extends PixUI.View {
     }
 
     private async OnLogin(): System.Task {
-        try {
-            await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
-            this.CurrentNavigator!.PushNamed("IDE");
-        } catch (ex: any) {
-            console.log(ex.Message);
-        }
+        // try
+        // {
+        await AppBoxDesign.DesignInitializer.TryInit();
+
+        await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
+
+        this.CurrentNavigator!.PushNamed("IDE");
+        // }
+        // catch (Exception ex) { }
     }
 
     public Init(props: Partial<LoginPage>): LoginPage {

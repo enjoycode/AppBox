@@ -3,17 +3,17 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 
 export class PreviewController {
     public readonly ModelNode: AppBoxDesign.ModelNode;
-    private _invalidateAction: System.Action | null;
+    private _invalidateAction: Nullable<System.Action>;
 
     public constructor(modelNode: AppBoxDesign.ModelNode) {
         this.ModelNode = modelNode;
     }
-    
-    public set InvalidateAction(action: System.Action) {
-        this._invalidateAction = action;
+
+    public set InvalidateAction(value: System.Action) {
+        this._invalidateAction = value;
     }
-    
-    public Invalidate(): void {
-        this._invalidateAction();
+
+    public Invalidate() {
+        this._invalidateAction?.call(this);
     }
 }

@@ -18,12 +18,7 @@ export class ViewDesigner extends PixUI.View {
         this._codeEditorController = new CodeEditor.CodeEditorController("fileName.cs", "");
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
 
-        this.Child = new PixUI.Row().Init({
-            Children: [
-                new PixUI.Expanded(this.BuildEditor(this._codeEditorController), 2),
-                new PixUI.Expanded(new AppBoxDesign.WidgetPreviewer(this._previewController), 1),
-            ]
-        });
+        this.Child = new PixUI.Row().Init({Children: [new PixUI.Expanded(this.BuildEditor(this._codeEditorController), 2), new PixUI.Expanded(new AppBoxDesign.WidgetPreviewer(this._previewController), 1)]});
     }
 
     private BuildEditor(codeEditorController: CodeEditor.CodeEditorController): PixUI.Widget {
@@ -36,17 +31,16 @@ export class ViewDesigner extends PixUI.View {
             Height: PixUI.State.op_Implicit_From(40),
             Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
             Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init({
-                    Children: [
-                        new PixUI.Button(PixUI.State.op_Implicit_From("Preview"))
-                            .Init({Width: PixUI.State.op_Implicit_From(75)}),
-                        new PixUI.Button(PixUI.State.op_Implicit_From("Debug"))
-                            .Init({
-                                Width: PixUI.State.op_Implicit_From(75),
-                                OnTap: (e) => this._previewController.Invalidate()
-                            })
-                    ]
-                }
-            )
+                Children: [
+                    new PixUI.Button(PixUI.State.op_Implicit_From("Preview"))
+                        .Init({Width: PixUI.State.op_Implicit_From(75)}),
+                    new PixUI.Button(PixUI.State.op_Implicit_From("Debug"))
+                        .Init({
+                            Width: PixUI.State.op_Implicit_From(75),
+                            OnTap: (e) => this._previewController.Invalidate()
+                        })
+                ]
+            })
         });
     }
 
@@ -55,7 +49,7 @@ export class ViewDesigner extends PixUI.View {
         this.TryLoadSourceCode();
     }
 
-    private async TryLoadSourceCode(): System.Task {
+    private async TryLoadSourceCode(): System.ValueTask {
         if (!this._hasLoadSourceCode) {
             this._hasLoadSourceCode = true;
             let srcCode = <string><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.OpenViewModel", [this._modelNode.Id]);

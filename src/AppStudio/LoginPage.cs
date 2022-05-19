@@ -54,9 +54,11 @@ namespace AppBoxDesign
         {
             // try
             // {
-                await Channel.Login(_userName.Value, _password.Value);
+            await DesignInitializer.TryInit();
 
-                CurrentNavigator!.PushNamed("IDE");
+            await Channel.Login(_userName.Value, _password.Value);
+
+            CurrentNavigator!.PushNamed("IDE");
             // }
             // catch (Exception ex) { }
         }

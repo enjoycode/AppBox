@@ -1,9 +1,8 @@
 import * as PixUI from '@/PixUI'
 import * as System from '@/System'
-import * as AppBoxDesign from '@/AppBoxDesign'
 import {Channel, WebChannel} from '@/AppBoxClient';
-import {PayloadType, TypeSerializer} from '@/AppBoxCore'
-import {CodeEditorController, CodeEditorWidget, TSCSharpLanguage} from "@/CodeEditor";
+import {CodeEditorController, CodeEditorWidget} from "@/CodeEditor";
+import * as AppBoxDesign from './AppBoxDesign/Generated/HomePage'
 
 class TreeData {
     public readonly Icon: PixUI.IconData;
@@ -125,29 +124,12 @@ public sealed class Person
     }
 }
 
-// 初始化TreeSitter
-const TreeSitter: any = (<any>window).TreeSitter;
-TreeSitter.init().then(async (res: any) => {
-    let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-c_sharp.wasm');
-    TSCSharpLanguage.Init(csharpLanguage);
-    
-    // //测试js import
-    // let viewName = '/preview/1234/sys/HomePage';
-    // let module = await import(/* @vite-ignore */ viewName);
-    // let p = new module.HomePage();
-    // console.log(p.SayHello());
-
-    //暂在这里注册序列化
-    TypeSerializer.RegisterKnownType(PayloadType.DesignTree, false, () => new AppBoxDesign.DesignTree());
-
-    // 初始化Channel
-    Channel.Init(new WebChannel());
-    // 初始化PixUI
-    PixUI.WebApplication.Init();
-    // PixUI.PaintDebugger.Switch();
-    // 开始运行
-    PixUI.WebApplication.Run(DemoWidget.MakeDev);
-});
-
+// 初始化Channel
+Channel.Init(new WebChannel());
+// 初始化PixUI
+PixUI.WebApplication.Init();
+// PixUI.PaintDebugger.Switch();
+// 开始运行
+PixUI.WebApplication.Run(DemoWidget.MakeDev);
 
 

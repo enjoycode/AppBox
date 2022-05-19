@@ -1,7 +1,9 @@
 using System;
+using PixUI;
 
 namespace AppBoxDesign
 {
+    [TSNoInitializer]
     internal sealed class PreviewController
     {
         public readonly ModelNode ModelNode;

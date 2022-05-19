@@ -18,6 +18,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference NetstandardLib => GetSdkLib("netstandard.dll");
 
+    internal static MetadataReference SystemRuntimeLib => GetSdkLib("System.Runtime.dll");
+
     internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUI.dll");
 
     private static MetadataReference GetSdkLib(string asmName)

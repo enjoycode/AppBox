@@ -6,14 +6,13 @@ export class WidgetPreviewer extends PixUI.View {
 
     public constructor(controller: AppBoxDesign.PreviewController) {
         super();
-
         this.Child = new PixUI.Container().Init({
             Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFA2A2A2)),
             Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
             Child: new PixUI.Card().Init({
                     Elevation: PixUI.State.op_Implicit_From(10),
-                    Child: new PixUI.Transform((this._scale).Clone())
-                        .Init({Child: new AppBoxDesign.WebPreviewer(controller)})
+                    Child: new PixUI.Transform((this._scale).Clone()).Init({Child: new AppBoxDesign.WebPreviewer(controller)}
+                    )
                 }
             )
         });

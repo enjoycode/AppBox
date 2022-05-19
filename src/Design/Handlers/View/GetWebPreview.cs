@@ -16,13 +16,21 @@ internal sealed class GetWebPreview : IDesignHandler
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
 
-        //TODO:检查代码错误
-
         //开始转换生成视图模型的js代码
         var srcPrjId = hub.TypeSystem.WebViewsProjectId;
         var translator = new Translator(hub.TypeSystem.Workspace, srcPrjId);
         var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
+
+        //TODO:检查代码错误
+        // var semanticModel = await srcDocument.GetSemanticModelAsync();
+        // var diagnostics = semanticModel!.GetDiagnostics();
+        // foreach (var problem in diagnostics)
+        // {
+        //     var span = problem.Location.GetMappedLineSpan();
+        //     Console.WriteLine($"{span.StartLinePosition.Line} {problem.GetMessage()}");
+        // }
+
         var emitter = await Emitter.MakeAsync(translator, srcDocument);
         emitter.Emit();
         var tsCode = emitter.GetTypeScriptCode(true);
@@ -35,7 +43,8 @@ internal sealed class GetWebPreview : IDesignHandler
     private static async Task<byte[]> ConvertToJs(string tsCode, ModelNode modelNode)
     {
         //TODO:*** 暂简单使用tsc转换处理
-        var tsTemp = Path.Combine(Path.GetTempPath(), $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.ts");
+        var tsTemp = Path.Combine(Path.GetTempPath(),
+            $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.ts");
         await File.WriteAllTextAsync(tsTemp, tsCode);
         var process = Process.Start("tsc", $"-t esnext -m esnext {tsTemp}");
         process!.WaitForExit();
@@ -43,7 +52,7 @@ internal sealed class GetWebPreview : IDesignHandler
         var jsTemp = Path.Combine(Path.GetDirectoryName(tsTemp)!,
             $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.js");
         var data = await File.ReadAllBytesAsync(jsTemp);
-        
+
         File.Delete(tsTemp);
         File.Delete(jsTemp);
         return data;
