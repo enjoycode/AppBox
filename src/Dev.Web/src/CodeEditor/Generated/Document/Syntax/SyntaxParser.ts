@@ -1,6 +1,5 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as System from '@/System'
 
 export class SyntaxParser implements System.IDisposable {
     public static readonly ParserEncoding: number = 1;
@@ -37,7 +36,7 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.oldEndIndex = this._edit.startIndex;
         this._edit.newEndIndex = this._edit.startIndex + (Math.floor(length) & 0xFFFFFFFF) * SyntaxParser.ParserEncoding;
         this._edit.startPosition = CodeEditor.TSPoint.FromLocation((startLocation).Clone());
-        this._edit.oldEndPosition = (this._edit.startPosition).Clone();
+        this._edit.oldEndPosition = this._edit.startPosition;
     }
 
     public EndInsert(offset: number, length: number) {
@@ -58,7 +57,7 @@ export class SyntaxParser implements System.IDisposable {
         this._edit.newEndIndex = this._edit.startIndex;
         this._edit.startPosition = CodeEditor.TSPoint.FromLocation((startLocation).Clone());
         this._edit.oldEndPosition = CodeEditor.TSPoint.FromLocation((endLocation).Clone());
-        this._edit.newEndPosition = (this._edit.startPosition).Clone();
+        this._edit.newEndPosition = this._edit.startPosition;
     }
 
     public EndRemove() {
@@ -123,7 +122,7 @@ export class SyntaxParser implements System.IDisposable {
 
         let lineStartPoint = new CodeEditor.TSPoint(line, 0);
         let lineEndPoint = new CodeEditor.TSPoint(line, lineLength * SyntaxParser.ParserEncoding);
-        let lineNode = this._oldTree!.rootNode.namedDescendantForPosition((lineStartPoint).Clone(), (lineEndPoint).Clone());
+        let lineNode = this._oldTree!.rootNode.namedDescendantForPosition(lineStartPoint, lineEndPoint);
         // Console.WriteLine(lineNode);
 
         lineSegment.BeginTokenize();

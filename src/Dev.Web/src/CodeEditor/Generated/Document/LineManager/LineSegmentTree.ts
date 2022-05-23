@@ -1,5 +1,4 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export class RBNode {
@@ -65,7 +64,7 @@ export class RBHost implements CodeEditor.IRedBlackTreeHost<RBNode> {
 export class LinesEnumerator {
     public static readonly Invalid: LinesEnumerator = new LinesEnumerator(new CodeEditor.RedBlackTreeIterator<RBNode>(null));
 
-    public readonly Iterator: CodeEditor.RedBlackTreeIterator<RBNode>;
+    public Iterator: CodeEditor.RedBlackTreeIterator<RBNode>;
 
     public constructor(it: CodeEditor.RedBlackTreeIterator<RBNode>) {
         this.Iterator = (it).Clone();
@@ -145,16 +144,16 @@ export class LinesEnumerator {
 /// its parent nodes - an O(lg n) operation.
 /// However this means getting the line number or offset from a LineSegment is not a constant time
 /// operation, but takes O(lg n).
-///
+/// 
 /// NOTE: The tree is never empty, Clear() causes it to contain an empty segment.
 /// </summary>
 export class LineSegmentTree {
-    private readonly tree: CodeEditor.RedBlackTree<RBNode, RBHost> = new CodeEditor.RedBlackTree<RBNode, RBHost>(new RBHost());
+    private readonly _tree: CodeEditor.RedBlackTree<RBNode, RBHost> = new CodeEditor.RedBlackTree<RBNode, RBHost>(new RBHost());
 
     public GetNode(index: number): CodeEditor.RedBlackTreeNode<RBNode> {
-        if (index < 0 || index >= this.tree.Count)
-            throw new System.ArgumentOutOfRangeException("index", "index should be between 0 and " + (this.tree.Count - 1));
-        let node: CodeEditor.RedBlackTreeNode<RBNode> = this.tree.Root;
+        if (index < 0 || index >= this._tree.Count)
+            throw new System.ArgumentOutOfRangeException("index", "index should be between 0 and " + (this._tree.Count - 1));
+        let node: CodeEditor.RedBlackTreeNode<RBNode> = this._tree.Root;
         while (true) {
             if (node.Left != null && index < node.Left.Value.Count) {
                 node = node.Left;
@@ -175,12 +174,12 @@ export class LineSegmentTree {
         if (offset < 0 || offset > this.TotalLength)
             throw new System.ArgumentOutOfRangeException("offset", "offset should be between 0 and " + this.TotalLength);
         if (offset == this.TotalLength) {
-            if (this.tree.Root == null)
+            if (this._tree.Root == null)
                 throw new System.InvalidOperationException("Cannot call GetNodeByOffset while tree is empty.");
-            return this.tree.Root.RightMost;
+            return this._tree.Root.RightMost;
         }
 
-        let node = this.tree.Root;
+        let node = this._tree.Root;
         while (true) {
             if (node.Left != null && offset < node.Left.Value.TotalLength) {
                 node = node.Left;
@@ -202,7 +201,7 @@ export class LineSegmentTree {
     }
 
     public get TotalLength(): number {
-        return this.tree.Root == null ? 0 : this.tree.Root.Value.TotalLength;
+        return this._tree.Root == null ? 0 : this._tree.Root.Value.TotalLength;
     }
 
     public SetSegmentLength(segment: CodeEditor.LineSegment, newTotalLength: number) {
@@ -214,7 +213,7 @@ export class LineSegmentTree {
     }
 
     public RemoveSegment(segment: CodeEditor.LineSegment) {
-        this.tree.RemoveAt((segment.TreeEntry.Iterator).Clone());
+        this._tree.RemoveAt((segment.TreeEntry.Iterator).Clone());
     }
 
     public InsertSegmentAfter(segment: CodeEditor.LineSegment, length: number): CodeEditor.LineSegment {
@@ -229,15 +228,15 @@ export class LineSegmentTree {
     InsertAfter(node: CodeEditor.RedBlackTreeNode<RBNode>, newSegment: CodeEditor.LineSegment): LinesEnumerator {
         let newNode: CodeEditor.RedBlackTreeNode<RBNode> = new CodeEditor.RedBlackTreeNode<RBNode>(new RBNode(newSegment));
         if (node.Right == null) {
-            this.tree.InsertAsRight(node, newNode);
+            this._tree.InsertAsRight(node, newNode);
         } else {
-            this.tree.InsertAsLeft(node.Right.LeftMost, newNode);
+            this._tree.InsertAsLeft(node.Right.LeftMost, newNode);
         }
         return new LinesEnumerator(new CodeEditor.RedBlackTreeIterator<RBNode>(newNode));
     }
 
     public get Count(): number {
-        return this.tree.Count;
+        return this._tree.Count;
     }
 
     public GetAt(index: number): CodeEditor.LineSegment {
@@ -259,11 +258,11 @@ export class LineSegmentTree {
     }
 
     public Clear() {
-        this.tree.Clear();
+        this._tree.Clear();
         let emptySegment: CodeEditor.LineSegment = new CodeEditor.LineSegment();
         emptySegment.TotalLength = 0;
         emptySegment.DelimiterLength = 0;
-        this.tree.Add(new RBNode(emptySegment));
+        this._tree.Add(new RBNode(emptySegment));
         emptySegment.TreeEntry = this.GetEnumeratorForIndex(0);
     }
 

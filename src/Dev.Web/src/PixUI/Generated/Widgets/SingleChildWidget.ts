@@ -6,11 +6,6 @@ import * as PixUI from '@/PixUI'
 export abstract class SingleChildWidget extends PixUI.Widget {
     private _child: Nullable<PixUI.Widget>;
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
-        if (this._child != null)
-            action(this._child);
-    }
-
     public get Child(): Nullable<PixUI.Widget> {
         return this._child;
     }
@@ -23,6 +18,11 @@ export abstract class SingleChildWidget extends PixUI.Widget {
 
         if (this._child != null)
             this._child.Parent = this;
+    }
+
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+        if (this._child != null)
+            action(this._child);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {

@@ -1,6 +1,5 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as System from '@/System'
 /// <summary>
 /// A list of events that are fired after the line manager has finished working.
 /// </summary>

@@ -56,7 +56,7 @@ export class MenuController {
     }
 
     public CloseAll() {
-        this._popupMenuStack?.Close();
+        this._popupMenuStack?.Hide();
         this._popupMenuStack = null;
     }
 

@@ -53,7 +53,7 @@ export class FoldArea extends CodeEditor.EditorArea {
         if (foldings.length > 0) {
             this.Document.FoldingManager.RaiseFoldingsChanged();
             // TODO:重绘范围
-            this.TextEditor.Controller.RequestInvalidate?.call(this, true, null);
+            this.TextEditor.Controller.Widget.RequestInvalidate(true, null);
         }
     }
 

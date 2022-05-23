@@ -2,7 +2,7 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class UIApplication {
-    public MainWindow: PixUI.UIWindow; //目前仅支持单一Window
+    protected MainWindow: PixUI.UIWindow; //目前仅支持单一Window
 
     static #Current: UIApplication;
     public static get Current() {
@@ -14,6 +14,7 @@ export abstract class UIApplication {
     }
 
     public abstract PostInvalidateEvent(): void;
+
 
     protected OnInvalidateRequest() {
         let window = this.MainWindow; //TODO:根据事件判断哪个UIWindow

@@ -2,6 +2,18 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class TreeNode<T> extends PixUI.Widget {
+    public constructor(data: T, controller: PixUI.TreeController<T>) {
+        super();
+        this.Data = data;
+        this._controller = controller;
+        this._row = new PixUI.TreeNodeRow<T>();
+        this._row.Parent = this;
+
+        this._color = this.Compute1(this.IsSelected, s => s ? PixUI.Theme.FocusedColor : PixUI.Colors.Black); //TODO:
+
+        this.Bind(this.IsSelected, PixUI.BindingOptions.AffectsVisual);
+    }
+
 
     public readonly Data: T;
     private readonly _controller: PixUI.TreeController<T>;
@@ -72,19 +84,6 @@ export class TreeNode<T> extends PixUI.Widget {
                 return null;
             temp = temp.Parent;
         }
-    }
-
-
-    public constructor(data: T, controller: PixUI.TreeController<T>) {
-        super();
-        this.Data = data;
-        this._controller = controller;
-        this._row = new PixUI.TreeNodeRow<T>();
-        this._row.Parent = this;
-
-        this._color = this.Compute1(this.IsSelected, s => s ? PixUI.Theme.FocusedColor : PixUI.Colors.Black); //TODO:
-
-        this.Bind(this.IsSelected, PixUI.BindingOptions.AffectsVisual);
     }
 
 

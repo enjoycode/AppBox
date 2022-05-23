@@ -19,6 +19,10 @@ export abstract class MultiChildWidget extends PixUI.Widget {
         }
     }
 
+    public GetChildAt(index: number): PixUI.Widget {
+        return this._children[index];
+    }
+
     public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         for (const child of this._children) {
             if (action(child))

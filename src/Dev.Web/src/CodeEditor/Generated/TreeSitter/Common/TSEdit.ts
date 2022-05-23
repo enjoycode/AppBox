@@ -1,5 +1,3 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export class TSEdit {
@@ -15,9 +13,9 @@ export class TSEdit {
         clone.startIndex = this.startIndex;
         clone.oldEndIndex = this.oldEndIndex;
         clone.newEndIndex = this.newEndIndex;
-        clone.startPosition = (this.startPosition).Clone();
-        clone.oldEndPosition = (this.oldEndPosition).Clone();
-        clone.newEndPosition = (this.newEndPosition).Clone();
+        clone.startPosition = this.startPosition;
+        clone.oldEndPosition = this.oldEndPosition;
+        clone.newEndPosition = this.newEndPosition;
         return clone;
     }
 }

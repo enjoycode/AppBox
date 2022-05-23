@@ -1,7 +1,9 @@
 import * as PixUI from '@/PixUI'
 
 export class Card extends PixUI.SingleChildWidget {
-    private static readonly _defaultShape: PixUI.ShapeBorder = new PixUI.RoundedRectangleBorder(null, PixUI.BorderRadius.All(PixUI.Radius.Circular(4)));
+    public static readonly DefaultMargin: number = 4;
+
+    private static readonly DefaultShape: PixUI.ShapeBorder = new PixUI.RoundedRectangleBorder(null, PixUI.BorderRadius.All(PixUI.Radius.Circular(4)));
 
     private _margin: Nullable<PixUI.State<PixUI.EdgeInsets>>;
     private _elevation: Nullable<PixUI.State<number>>;
@@ -63,7 +65,7 @@ export class Card extends PixUI.SingleChildWidget {
             return;
         }
 
-        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(4);
+        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(Card.DefaultMargin);
         this.Child.Layout(width - margin.Left - margin.Right, height - margin.Top - margin.Bottom);
         this.Child.SetPosition(margin.Left, margin.Top);
         this.SetSize(this.Child.W + margin.Left + margin.Right, this.Child.H + margin.Top + margin.Bottom);
@@ -72,10 +74,10 @@ export class Card extends PixUI.SingleChildWidget {
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let color = this._color?.Value ?? PixUI.Colors.White;
         let shadowColor = this._shadowColor?.Value ?? PixUI.Colors.Black;
-        let elevation = this._elevation?.Value ?? 1;
-        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(4);
+        let elevation = this._elevation?.Value ?? 2;
+        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(Card.DefaultMargin);
         let rect = PixUI.Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right, this.H - margin.Top - margin.Bottom);
-        let shape = this._shape?.Value ?? Card._defaultShape;
+        let shape = this._shape?.Value ?? Card.DefaultShape;
 
         //先画阴影
         let outer = shape.GetOuterPath((rect).Clone());

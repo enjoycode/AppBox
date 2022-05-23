@@ -1,7 +1,3 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-import * as CodeEditor from '@/CodeEditor'
-
 export class TextUtils {
     private static readonly ZwjUtf16: number = (Math.floor(0x200D) & 0xFF);
 

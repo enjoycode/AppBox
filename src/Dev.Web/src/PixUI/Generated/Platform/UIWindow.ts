@@ -138,18 +138,16 @@ export abstract class UIWindow {
         let scrollable = this._oldHitResult.LastHitWidget!.FindParent(w => PixUI.IsInterfaceOfIScrollable(w));
         if (scrollable == null) return;
 
-        (<PixUI.IScrollable><unknown>scrollable).OnScroll(scrollEvent.Dx, scrollEvent.Dy);
-
-        //Translate HitTestResult and Rerun hit test.
-        let stillInLastRegion = this._oldHitResult.TranslateOnScroll(scrollable, scrollEvent.Dx, scrollEvent.Dy, this._lastMouseX, this._lastMouseY);
-        if (stillInLastRegion)
-            this.OldHitTest(this._lastMouseX, this._lastMouseY);
-        else
-            this.NewHitTest(this._lastMouseX, this._lastMouseY);
-        this.CompareAndSwapHitTestResult();
+        //TODO:如果返回的偏移量为0，继续循环向上查找IScrollable处理
+        let offset = (<PixUI.IScrollable><unknown>scrollable).OnScroll(scrollEvent.Dx, scrollEvent.Dy);
+        if (!offset.IsEmpty)
+            this.AfterScrollDoneInternal(scrollable, offset.Dx, offset.Dy);
     }
 
     public OnKeyDown(keyEvent: PixUI.KeyEvent) {
+        if (this.EventHookManager.HookEvent(PixUI.EventType.KeyDown, keyEvent))
+            return;
+
         this.FocusManager.OnKeyDown(keyEvent);
     }
 
@@ -204,6 +202,25 @@ export abstract class UIWindow {
 
     public BeforeDynamicViewChange() {
         this.FocusManager.Focus(null);
+    }
+
+    public AfterScrollDone(scrollable: PixUI.Widget, offset: PixUI.Offset) {
+        //判断旧HitResult是否隶属于当前IScrollable的子级
+        if (this._oldHitResult.IsHitAnyWidget &&
+            scrollable.IsAnyParentOf(this._oldHitResult.LastHitWidget)) {
+            this.AfterScrollDoneInternal(scrollable, offset.Dx, offset.Dy);
+        }
+    }
+
+    private AfterScrollDoneInternal(scrollable: PixUI.Widget, dx: number, dy: number) {
+        console.assert(dx != 0 || dy != 0);
+        //Translate HitTestResult and Rerun hit test.
+        let stillInLastRegion = this._oldHitResult.TranslateOnScroll(scrollable, dx, dy, this._lastMouseX, this._lastMouseY);
+        if (stillInLastRegion)
+            this.OldHitTest(this._lastMouseX, this._lastMouseY);
+        else
+            this.NewHitTest(this._lastMouseX, this._lastMouseY);
+        this.CompareAndSwapHitTestResult();
     }
 
     public AfterDynamicViewChange(dynamicView: PixUI.DynamicView) {

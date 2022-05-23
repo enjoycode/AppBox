@@ -2,10 +2,14 @@ import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 
 export class Offset implements System.IEquatable<Offset> {
-    public static readonly Zero: Offset = new Offset(0, 0);
+    public static readonly Empty: Offset = new Offset(0, 0);
 
     public readonly Dx: number;
     public readonly Dy: number;
+
+    public get IsEmpty(): boolean {
+        return this.Dx == 0 && this.Dy == 0;
+    }
 
     public constructor(dx: number, dy: number) {
         this.Dx = dx;

@@ -56,6 +56,7 @@ export * from "./Widgets/Theme/Theme";
 export * from "./Widgets/WidgetRef";
 export * from "./Widgets/IRootWidget";
 export * from "./Widgets/Widget";
+export * from "./Widgets/WidgetController"
 export * from "./Widgets/SingleChildWidget";
 export * from "./Widgets/MultiChildWidget";
 export * from "./Widgets/Root";
@@ -82,6 +83,7 @@ export * from "./Widgets/Overlay/Caret";
 export * from "./Widgets/Overlay/FocusedDecoration";
 export * from "./Widgets/Overlay/HoverDecoration";
 export * from "./Widgets/Overlay/Popup";
+export * from "./Widgets/Overlay/ListPopup"
 
 export * from "./Widgets/Animated/FadeTransition";
 export * from "./Widgets/Animated/RotationTransition";

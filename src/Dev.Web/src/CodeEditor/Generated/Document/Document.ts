@@ -1,6 +1,5 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as System from '@/System'
 
 export class Document implements System.IDisposable {
     public constructor(fileName: string) {

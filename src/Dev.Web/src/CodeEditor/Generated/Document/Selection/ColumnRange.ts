@@ -1,6 +1,4 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-import * as CodeEditor from '@/CodeEditor'
 
 export class ColumnRange implements System.IEquatable<ColumnRange> {
     public constructor(startColumn: number, endColumn: number) {

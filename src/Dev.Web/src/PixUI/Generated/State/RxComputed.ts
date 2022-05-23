@@ -12,7 +12,7 @@ export class RxComputed<T> extends PixUI.State<T> implements PixUI.IStateBindabl
     }
 
     public static MakeAsString<TR>(s: PixUI.State<TR>, formatter: Nullable<System.Func2<TR, string>> = null, parser: Nullable<System.Func2<string, TR>> = null): RxComputed<string> {
-        let computed = new RxComputed<string>(formatter == null ? () => s.toString() : () => formatter(s.Value), parser == null ? null : v => s.Value = parser(v)
+        let computed = new RxComputed<string>(formatter == null ? s.toString.bind(s) : () => formatter(s.Value), parser == null ? null : v => s.Value = parser(v)
         );
         s.AddBinding(computed, PixUI.BindingOptions.None);
         return computed;
@@ -40,7 +40,11 @@ export class RxComputed<T> extends PixUI.State<T> implements PixUI.IStateBindabl
     }
 
     public set Value(value: T) {
-        this._setter?.call(this, value);
+        try {
+            this._setter?.call(this, value);
+        } catch (e: any) {
+            //Log it
+        }
     }
 
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {

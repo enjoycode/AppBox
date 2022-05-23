@@ -77,6 +77,12 @@ export * from './Generated/Gui/EditorAreas/TextView'
 export * from './Generated/Gui/EditorAreas/FoldArea'
 export * from './Generated/Gui/EditorAreas/GutterArea'
 
+export * from './Generated/Gui/Completion/CompletionItemKind'
+export * from './Generated/Gui/Completion/CompletionItem'
+export * from './Generated/Gui/Completion/ICompletionProvider'
+export * from './Generated/Gui/Completion/CompletionItemWidget'
+export * from './Generated/Gui/Completion/CompletionContext'
+
 export * from './Generated/Gui/Caret'
 export * from './Generated/Gui/DirtyLines'
 export * from './Generated/Gui/TextEditorTheme'

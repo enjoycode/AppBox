@@ -1,19 +1,18 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 /// <summary>
-/// <p> This class represents an immutable character sequence with
-/// fast {@link #concat concatenation}, {@link #insert insertion} and
-/// {@link #delete deletion} capabilities (O[Log(n)]) instead of
+/// <p> This class represents an immutable character sequence with 
+/// fast {@link #concat concatenation}, {@link #insert insertion} and 
+/// {@link #delete deletion} capabilities (O[Log(n)]) instead of 
 /// O[n] for StringBuffer/StringBuilder).</p>
-///
-/// <p><i> Implementation Note: To avoid expensive copy operations ,
-/// {@link ImmutableText} instances are broken down into smaller immutable
+/// 
+/// <p><i> Implementation Note: To avoid expensive copy operations , 
+/// {@link ImmutableText} instances are broken down into smaller immutable 
 /// sequences, they form a minimal-depth binary tree.
-/// The tree is maintained balanced automatically through <a
-/// href="http://en.wikipedia.org/wiki/Tree_rotation">tree rotations</a>.
+/// The tree is maintained balanced automatically through <a 
+/// href="http://en.wikipedia.org/wiki/Tree_rotation">tree rotations</a>. 
 /// Insertion/deletions are performed in <code>O[Log(n)]</code>
-/// instead of <code>O[n]</code> for
+/// instead of <code>O[n]</code> for 
 /// <code>StringBuffer/StringBuilder</code>.</i></p>
 /// </summary>
 export class ImmutableText {

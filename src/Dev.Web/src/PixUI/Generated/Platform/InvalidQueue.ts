@@ -85,7 +85,7 @@ export class InvalidQueue {
         let relayoutOnly = false;
 
         for (const exist of this._queue) {
-            if (exist.Level > level) break;
+            if (exist.Level > level) break; //TODO:判断新项是否现存项的任意上级，是则尝试合并
 
             // check is same widget
             if ((exist.Widget === widget)) {

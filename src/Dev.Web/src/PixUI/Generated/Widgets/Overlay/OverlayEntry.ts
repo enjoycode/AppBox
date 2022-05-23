@@ -17,7 +17,8 @@ export class OverlayEntry {
 
     public UpdatePosition(x: number, y: number) {
         this.Widget.SetPosition(x, y);
-        this.Invalidate();
+        if (this.Widget.IsMounted)
+            this.Invalidate();
     }
 
     public Remove() {

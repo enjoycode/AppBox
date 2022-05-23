@@ -2,6 +2,14 @@ import * as PixUI from '@/PixUI'
 
 export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
     private static readonly $meta_PixUI_IMouseRegion = true;
+
+    public constructor() {
+        super();
+        this.MouseRegion = new PixUI.MouseRegion(null, false); //TODO: opaque=true
+        this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
+        this.MouseRegion.PointerTap.Add(this._OnTap, this);
+    }
+
     private _expander: Nullable<PixUI.ExpandIcon>;
     private _icon: Nullable<PixUI.Icon>;
     private _label: Nullable<PixUI.Text>;
@@ -14,13 +22,6 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
 
     private set MouseRegion(value) {
         this.#MouseRegion = value;
-    }
-
-    public constructor() {
-        super();
-        this.MouseRegion = new PixUI.MouseRegion(null, false); //TODO: opaque=true
-        this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
-        this.MouseRegion.PointerTap.Add(this._OnTap, this);
     }
 
     public set ExpandIcon(value: PixUI.ExpandIcon) {

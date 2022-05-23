@@ -1,6 +1,6 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as PixUI from '@/PixUI'
 /// <summary>
 /// 需要重新绘制的行范围[StartLine, EndLine)
 /// </summary>

@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 import * as CodeEditor from '@/CodeEditor'
 
 export class LineSegment implements CodeEditor.ISegment {
@@ -75,10 +75,10 @@ export class LineSegment implements CodeEditor.ISegment {
     // void AddAnchor(TextAnchor anchor)
     // {
     // 	Debug.Assert(anchor.Line == this);
-    //
+    // 	
     // 	if (anchors == null)
     // 		anchors = new Util.WeakCollection<TextAnchor>();
-    //
+    // 	
     // 	anchors.Add(anchor);
     // }
 
@@ -167,7 +167,7 @@ export class LineSegment implements CodeEditor.ISegment {
         // 			a.Line = followingLine;
         // 			followingLine.AddAnchor(a);
         // 			a.ColumnNumber -= this.Length;
-        //
+        // 			
         // 			if (movedAnchors == null)
         // 				movedAnchors = new List<TextAnchor>();
         // 			movedAnchors.Add(a);
@@ -205,6 +205,23 @@ export class LineSegment implements CodeEditor.ISegment {
         if (this._tokenColumnIndex < this.Length) {
             this._lineTokens!.Add(CodeEditor.CodeToken.Make(CodeEditor.TokenType.WhiteSpace, this._tokenColumnIndex));
         }
+    }
+
+    public GetTokenAt(column: number): Nullable<number> {
+        if (this._lineTokens == null) return null;
+
+        let tokenEndColumn = this.Length;
+        for (let i = this._lineTokens.length - 1; i >= 0; i--) {
+            let token = this._lineTokens[i];
+            let tokenStartColumn = CodeEditor.CodeToken.GetTokenStartColumn(token);
+            if (tokenStartColumn <= column && column <= tokenEndColumn) {
+                return token;
+            }
+
+            tokenEndColumn = tokenStartColumn;
+        }
+
+        return null; //should never be here
     }
 
 

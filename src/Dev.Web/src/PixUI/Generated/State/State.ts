@@ -44,8 +44,12 @@ export abstract class State<T> extends StateBase {
     public abstract get Value(): T ;
     public abstract set Value(value: T);
 
-    public toString(): Nullable<string> {
-        return this.Value?.toString();
+    public toString(): string {
+        return this.Value?.toString() ?? "";
+    }
+
+    public AsStateOfString(formatter: Nullable<System.Func2<T, string>> = null, parser: Nullable<System.Func2<string, T>> = null): State<string> {
+        return PixUI.RxComputed.MakeAsString(this, formatter, parser);
     }
 
     //TODO:临时解决隐式转换

@@ -1,6 +1,4 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-import * as CodeEditor from '@/CodeEditor'
 
 export class RedBlackTreeNode<T> {
     public Left: Nullable<RedBlackTreeNode<T>>;
@@ -447,6 +445,8 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
 }
 
 export class RedBlackTreeIterator<T> {
+    public static readonly Empty: RedBlackTreeIterator<void> = new RedBlackTreeIterator<void>(null);
+    
     #Node: Nullable<RedBlackTreeNode<T>>;
     public get Node() {
         return this.#Node;

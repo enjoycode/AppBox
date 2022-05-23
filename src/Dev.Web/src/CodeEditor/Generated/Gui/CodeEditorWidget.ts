@@ -1,6 +1,5 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as PixUI from '@/PixUI'
 
 export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IFocusable {
     private static readonly $meta_PixUI_IMouseRegion = true;
@@ -12,7 +11,7 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
         this.FocusNode = new PixUI.FocusNode();
 
         this.Controller = controller;
-        this.Controller.RequestInvalidate = this.OnRequestInvalidate.bind(this);
+        this.Controller.AttachWidget(this);
         this._decoration = new PixUI.OverlayEntry(new CodeEditor.EditorDecorator(this));
 
         this.MouseRegion.PointerDown.Add(this.Controller.OnPointerDown, this.Controller);
@@ -45,7 +44,7 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
     }
 
 
-    private OnRequestInvalidate(all: boolean, dirtyArea: Nullable<PixUI.IDirtyArea>) {
+    public RequestInvalidate(all: boolean, dirtyArea: Nullable<PixUI.IDirtyArea>) {
         if (all)
             this.Invalidate(PixUI.InvalidAction.Repaint, dirtyArea);
         else

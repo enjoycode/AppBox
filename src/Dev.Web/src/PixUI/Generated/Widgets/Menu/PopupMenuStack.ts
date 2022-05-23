@@ -23,7 +23,7 @@ export class PopupMenuStack extends PixUI.Popup {
         this._children.Add(child);
 
         if (this._children.length == 1)
-            this.Open();
+            this.Show();
         else
             this.Invalidate(PixUI.InvalidAction.Repaint);
     }

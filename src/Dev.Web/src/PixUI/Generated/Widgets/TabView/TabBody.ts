@@ -40,8 +40,8 @@ export class TabBody<T> extends PixUI.DynamicView {
             this.ReplaceTo(to);
         } else {
             this.AnimateTo(from, to, 200, false, (a, w) =>
-                TabBody.BuildDefaultTransition(a, w, new PixUI.Offset(newIndex > oldIndex ? 1 : -1, 0), PixUI.Offset.Zero), (a, w) =>
-                TabBody.BuildDefaultTransition(a, w, PixUI.Offset.Zero, new PixUI.Offset(newIndex > oldIndex ? -1 : 1, 0)));
+                TabBody.BuildDefaultTransition(a, w, new PixUI.Offset(newIndex > oldIndex ? 1 : -1, 0), PixUI.Offset.Empty), (a, w) =>
+                TabBody.BuildDefaultTransition(a, w, PixUI.Offset.Empty, new PixUI.Offset(newIndex > oldIndex ? -1 : 1, 0)));
         }
     }
 

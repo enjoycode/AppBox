@@ -35,25 +35,19 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         return this._controller.ScrollController.OffsetY;
     }
 
-    public OnScroll(dx: number, dy: number) {
+    public OnScroll(dx: number, dy: number): PixUI.Offset {
         if (this._controller.DataView == null || this._controller.DataView.length == 0)
-            return;
-
-        let oldX = this._controller.ScrollController.OffsetX;
-        let oldY = this._controller.ScrollController.OffsetY;
+            return PixUI.Offset.Empty;
 
         let totalRowsHeight = this._controller.TotalRowsHeight;
         let totalHeaderHeight = this._controller.TotalHeaderHeight;
-        let maxX = this._controller.TotalColumnsWidth - this.W;
-        let maxY = totalRowsHeight - (this.H - totalHeaderHeight);
-        let newX = Math.max(Math.min(oldX + dx, maxX), 0);
-        let newY = Math.max(Math.min(oldY + dy, maxY), 0);
+        let maxOffsetX = this._controller.TotalColumnsWidth - this.W;
+        let maxOffsetY = totalRowsHeight - (this.H - totalHeaderHeight);
 
-        if (oldX == newX && oldY == newY) return;
-
-        this._controller.ScrollController.OffsetX = newX;
-        this._controller.ScrollController.OffsetY = newY;
-        this.Invalidate(PixUI.InvalidAction.Repaint);
+        let offset = this._controller.ScrollController.OnScroll(dx, dy, maxOffsetX, maxOffsetY);
+        if (!offset.IsEmpty)
+            this.Invalidate(PixUI.InvalidAction.Repaint);
+        return offset;
     }
 
 

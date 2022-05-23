@@ -1,6 +1,5 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as System from '@/System'
 
 export class UndoStack {
     private readonly _undostack: System.Stack<CodeEditor.IUndoableOperation> = new System.Stack<CodeEditor.IUndoableOperation>();

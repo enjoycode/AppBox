@@ -1,6 +1,4 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
-import * as CodeEditor from '@/CodeEditor'
 
 export class TextLocation implements System.IComparable<TextLocation>, System.IEquatable<TextLocation> {
     public static readonly MaxColumn: number = 0xFFFFFF; //int.MaxValue;

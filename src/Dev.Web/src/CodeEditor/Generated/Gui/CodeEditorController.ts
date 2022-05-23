@@ -1,12 +1,14 @@
 import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as PixUI from '@/PixUI'
 
-export class CodeEditorController {
-    public constructor(fileName: string, content: string) {
+export class CodeEditorController extends PixUI.WidgetController<CodeEditor.CodeEditorWidget> {
+    public constructor(fileName: string, content: string, completionProvider: Nullable<CodeEditor.ICompletionProvider> = null) {
+        super();
         this.Theme = new CodeEditor.TextEditorTheme();
         this.Document = new CodeEditor.Document(fileName);
         this.TextEditor = new CodeEditor.TextEditor(this);
+        this._completionContext = new CodeEditor.CompletionContext(this, completionProvider);
 
         this.Document.TextContent = content;
 
@@ -17,8 +19,7 @@ export class CodeEditorController {
     public readonly Document: CodeEditor.Document;
     public readonly TextEditor: CodeEditor.TextEditor;
     public readonly Theme: CodeEditor.TextEditorTheme;
-
-    public RequestInvalidate: Nullable<System.Action2<boolean, Nullable<PixUI.IDirtyArea>>>;
+    private readonly _completionContext: CodeEditor.CompletionContext;
 
     // 全局命令字典表
     private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><unknown>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><unknown>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><unknown>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><unknown>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><unknown>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><unknown>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><unknown>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
@@ -29,6 +30,7 @@ export class CodeEditorController {
     private _doDragDrop: boolean = false;
     private _minSelection: CodeEditor.TextLocation = (CodeEditor.TextLocation.Empty).Clone();
     private _maxSelection: CodeEditor.TextLocation = (CodeEditor.TextLocation.Empty).Clone();
+    private _caretChangedByTextInput: boolean = false; //是否由文本输入导致的光标位置变更
 
     public OnPointerDown(e: PixUI.PointerEvent) {
         // this corrects weird problems when text is selected,
@@ -82,12 +84,19 @@ export class CodeEditorController {
     }
 
     public OnKeyDown(e: PixUI.KeyEvent) {
+        //先预处理一些特殊键
+        this._completionContext.PreProcessKeyDown(e);
+
         let cmd = this._editActions.get((Math.floor(e.KeyData) & 0xFFFFFFFF));
         cmd?.Execute(this.TextEditor);
     }
 
     public OnTextInput(text: string) {
+        this._caretChangedByTextInput = true;
         this.TextEditor.InsertOrReplaceString(text, 0);
+        this._caretChangedByTextInput = false;
+        //处理Completion
+        this._completionContext.RunCompletion(text);
     }
 
     private ExtendSelectionToPointer() {
@@ -152,13 +161,16 @@ export class CodeEditorController {
     private _OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
         //TODO: 进一步合并LineManager改变的行数
         let dirtyLines = this.Document.SyntaxParser.GetDirtyLines(this);
-        this.RequestInvalidate?.call(this, true, dirtyLines);
+        this.Widget.RequestInvalidate(true, dirtyLines);
     }
 
     private _OnCaretPositionChanged() {
-        //TODO: set IME input rect
+        if (!this._caretChangedByTextInput) {
+            //TODO: set IME input rect
+            this._completionContext.OnCaretChangedByNoneTextInput();
+        }
 
-        this.RequestInvalidate?.call(this, false, null);
+        this.Widget.RequestInvalidate(false, null);
     }
 
 

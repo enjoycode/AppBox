@@ -1,13 +1,12 @@
-import * as System from '@/System'
-import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
+import * as PixUI from '@/PixUI'
 
 export class TextEditorTheme {
     public FontSize: number = 15;
 
     public LineSpace: number = 2;
 
-    public CaretColor: PixUI.Color = (PixUI.Colors.Red).Clone();
+    public CaretColor: PixUI.Color = PixUI.Colors.Red;
 
     public LineHighlightColor: PixUI.Color = new PixUI.Color(150, 150, 150, 20);
 
@@ -21,14 +20,20 @@ export class TextEditorTheme {
 
     public LineNumberColor: PixUI.Color = new PixUI.Color(0xFF606366);
 
-    public TextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({color: new PixUI.Color(0xFFA9B7C7), heightMultiplier: 1});
+    public TextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
+        color: new PixUI.Color(0xFFA9B7C7),
+        heightMultiplier: 1
+    });
 
     public FoldedTextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFFA9B7C7),
         heightMultiplier: 1
     });
 
-    private _tokenErrorStyle: PixUI.TextStyle = PixUI.MakeTextStyle({color: PixUI.Colors.Red, heightMultiplier: 1});
+    private _tokenErrorStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
+        color: PixUI.Colors.Red,
+        heightMultiplier: 1
+    });
 
     private _tokenTypeStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFF67DBF1),

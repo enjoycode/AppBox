@@ -6,7 +6,8 @@ export interface IScrollable {
 
     get ScrollOffsetY(): number;
 
-    OnScroll(dx: number, dy: number): void;
+
+    OnScroll(dx: number, dy: number): PixUI.Offset;
 }
 
 export function IsInterfaceOfIScrollable(obj: any): obj is IScrollable {
@@ -31,15 +32,20 @@ export class ScrollController {
         this.Direction = direction;
     }
 
-    public OnScroll(dx: number, dy: number) {
-        //TODO:暂时不允许负值
+    public OnScroll(dx: number, dy: number, maxOffsetX: number, maxOffsetY: number): PixUI.Offset {
+        let oldX = this.OffsetX;
+        let oldY = this.OffsetY;
+
+        //暂滚动不允许超出范围
         if (this.Direction == ScrollDirection.Both || this.Direction == ScrollDirection.Horizontal) {
-            this.OffsetX = Math.max(0, this.OffsetX + dx);
+            this.OffsetX = clamp(this.OffsetX + dx, 0, maxOffsetX);
         }
 
         if (this.Direction == ScrollDirection.Both || this.Direction == ScrollDirection.Vertical) {
-            this.OffsetY = Math.max(0, this.OffsetY + dy);
+            this.OffsetY = clamp(this.OffsetY + dy, 0, maxOffsetY);
         }
+
+        return new PixUI.Offset(this.OffsetX - oldX, this.OffsetY - oldY);
     }
 
     public Init(props: Partial<ScrollController>): ScrollController {

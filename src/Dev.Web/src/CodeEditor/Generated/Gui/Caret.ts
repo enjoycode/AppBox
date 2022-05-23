@@ -1,5 +1,5 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 import * as CodeEditor from '@/CodeEditor'
 
 export enum CaretMode {
@@ -55,13 +55,12 @@ export class Caret {
     public Mode: CaretMode = CaretMode.InsertMode;
 
     public get CanvasPosX(): number {
-        let textAreaRect = (this._textEditor.TextView.Bounds).Clone();
-        return textAreaRect.Left + this._caretPosX - this._textEditor.VirtualTop.X;
+        return this._textEditor.TextView.Bounds.Left + this._caretPosX - this._textEditor.VirtualTop.X -
+            0.5;
     }
 
     public get CanvasPosY(): number {
-        let textAreaRect = (this._textEditor.TextView.Bounds).Clone();
-        return textAreaRect.Top + this._caretPosY - this._textEditor.VirtualTop.Y;
+        return this._textEditor.TextView.Bounds.Top + this._caretPosY - this._textEditor.VirtualTop.Y;
     }
 
     public get Position(): CodeEditor.TextLocation {
@@ -131,8 +130,8 @@ export class Caret {
         let textViewArea = (this._textEditor.TextView.Bounds).Clone();
 
         // draw caret
-        let cx = textViewArea.Left + this._caretPosX - this._textEditor.VirtualTop.X - 0.5;
-        let cy = textViewArea.Top + this._caretPosY - this._textEditor.VirtualTop.Y;
+        let cx = this.CanvasPosX;
+        let cy = this.CanvasPosY;
         if (cx >= textViewArea.Left - 0.5) {
             let paint = PixUI.PaintUtils.Shared(this._textEditor.Theme.CaretColor);
             canvas.drawRect(PixUI.Rect.FromLTWH(cx, cy, 2, fontHeight), paint);
