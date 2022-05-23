@@ -2,14 +2,14 @@ import * as CodeEditor from '@/CodeEditor'
 import * as PixUI from '@/PixUI'
 
 export class CompletionItemWidget extends PixUI.Widget {
-    public constructor(item: CodeEditor.CompletionItem, isSelected: PixUI.State<boolean>) {
+    public constructor(item: CodeEditor.ICompletionItem, isSelected: PixUI.State<boolean>) {
         super();
         this._item = item;
         this._isSelected = isSelected;
         this._iconPainter = new PixUI.IconPainter(() => this.Invalidate(PixUI.InvalidAction.Repaint));
     }
 
-    private readonly _item: CodeEditor.CompletionItem;
+    private readonly _item: CodeEditor.ICompletionItem;
     private readonly _isSelected: PixUI.State<boolean>;
     private readonly _iconPainter: PixUI.IconPainter;
     private _paragraph: Nullable<PixUI.Paragraph>; //TODO: use TextPainter

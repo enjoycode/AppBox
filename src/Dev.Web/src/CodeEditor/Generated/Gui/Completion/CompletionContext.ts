@@ -3,17 +3,17 @@ import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
 
 export class CompletionContext {
-    private static readonly STATE_IDLE: number = 0;
-    private static readonly STATE_SHOW: number = 1;
-    private static readonly STATE_SUSPEND_HIDE: number = 2;
+    private static readonly StateIdle: number = 0;
+    private static readonly StateShow: number = 1;
+    private static readonly StateSuspendHide: number = 2;
 
     private readonly _controller: CodeEditor.CodeEditorController;
     private readonly _provider: Nullable<CodeEditor.ICompletionProvider>;
 
     private _completionStartOffset: number = -1; //开始自动完成时的光标位置
     private _startByTriggerChar: boolean = false; //是否由TriggerChar触发的
-    private _completionWindow: Nullable<PixUI.ListPopup<CodeEditor.CompletionItem>>;
-    private _state: number = CompletionContext.STATE_IDLE; //当前状态
+    private _completionWindow: Nullable<PixUI.ListPopup<CodeEditor.ICompletionItem>>;
+    private _state: number = CompletionContext.StateIdle; //当前状态
 
     public constructor(controller: CodeEditor.CodeEditorController, provider: Nullable<CodeEditor.ICompletionProvider>) {
         this._controller = controller;
@@ -27,7 +27,7 @@ export class CompletionContext {
         let world = this.GetWortAtPosition((this._controller.TextEditor.Caret.Position).Clone());
 
         //是否已经显示
-        if (this._state == CompletionContext.STATE_SHOW) {
+        if (this._state == CompletionContext.StateShow) {
             if (world == null) //if word is null, hide completion window
             {
                 this.HideCompletionWindow();
@@ -41,15 +41,15 @@ export class CompletionContext {
         if (world != null) {
             this._completionStartOffset = world.Offset;
             this._startByTriggerChar = false;
-            this._state = CompletionContext.STATE_SHOW;
+            this._state = CompletionContext.StateShow;
             this.RunInternal(world.Word);
         } else {
             let triggerChar = value[value.length - 1];
             if (this._provider.TriggerCharacters.Contains(Number(triggerChar))) {
                 this._completionStartOffset = this._controller.TextEditor.Caret.Offset;
                 this._startByTriggerChar = true;
-                this._state = CompletionContext.STATE_SHOW;
-                this.RunInternal("");
+                this._state = CompletionContext.StateShow;
+                this.RunInternal('');
             }
         }
     }
@@ -81,14 +81,14 @@ export class CompletionContext {
         return new CodeEditor.CompletionWord(offset, tokenWord);
     }
 
-    private ShowCompletionWindow(list: Nullable<System.IList<CodeEditor.CompletionItem>>, filter: string) {
+    private ShowCompletionWindow(list: Nullable<System.IList<CodeEditor.ICompletionItem>>, filter: string) {
         if (list == null || list.length == 0) {
-            this._state = CompletionContext.STATE_IDLE;
+            this._state = CompletionContext.StateIdle;
             return;
         }
 
         if (this._completionWindow == null) {
-            this._completionWindow = new PixUI.ListPopup<CodeEditor.CompletionItem>(this._controller.Widget.Overlay!, CompletionContext.BuildPopupItem, 250, 18, 8);
+            this._completionWindow = new PixUI.ListPopup<CodeEditor.ICompletionItem>(this._controller.Widget.Overlay!, CompletionContext.BuildPopupItem, 250, 18, 8);
             this._completionWindow.OnSelectionChanged = this.OnCompletionDone.bind(this);
         }
 
@@ -104,7 +104,7 @@ export class CompletionContext {
 
     private HideCompletionWindow() {
         this._completionWindow?.Hide();
-        this._state = CompletionContext.STATE_IDLE;
+        this._state = CompletionContext.StateIdle;
     }
 
     private UpdateFilter() {
@@ -119,7 +119,7 @@ export class CompletionContext {
     }
 
     public OnCaretChangedByNoneTextInput() {
-        if (this._state != CompletionContext.STATE_SUSPEND_HIDE) {
+        if (this._state != CompletionContext.StateSuspendHide) {
             this.HideCompletionWindow();
             return;
         }
@@ -128,33 +128,35 @@ export class CompletionContext {
         let caret = this._controller.TextEditor.Caret;
         if (caret.Offset <= this._completionStartOffset) {
             if (caret.Offset == this._completionStartOffset && this._startByTriggerChar) {
-                this._state = CompletionContext.STATE_SHOW;
+                this._state = CompletionContext.StateShow;
                 this.ClearFilter();
             } else {
                 this.HideCompletionWindow();
             }
         } else {
-            this._state = CompletionContext.STATE_SHOW;
+            this._state = CompletionContext.StateShow;
             this.UpdateFilter();
         }
     }
 
     public PreProcessKeyDown(e: PixUI.KeyEvent) {
-        if (this._state == CompletionContext.STATE_SHOW) {
+        if (this._state == CompletionContext.StateShow) {
             if (e.KeyCode == PixUI.Keys.Back)
-                this._state = CompletionContext.STATE_SUSPEND_HIDE;
+                this._state = CompletionContext.StateSuspendHide;
         }
     }
 
-    private OnCompletionDone(item: CodeEditor.CompletionItem) {
+    private OnCompletionDone(item: Nullable<CodeEditor.ICompletionItem>) {
         this.HideCompletionWindow();
+
+        if (item == null) return;
 
         this._controller.TextEditor.InsertOrReplaceString(item.InsertText ?? item.Label, this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
 
         //TODO: force focus editor, maybe has lost focus by click someone.
     }
 
-    private static BuildPopupItem(item: CodeEditor.CompletionItem, index: number, isHover: PixUI.State<boolean>, isSelected: PixUI.State<boolean>): PixUI.Widget {
+    private static BuildPopupItem(item: CodeEditor.ICompletionItem, index: number, isHover: PixUI.State<boolean>, isSelected: PixUI.State<boolean>): PixUI.Widget {
         return new CodeEditor.CompletionItemWidget(item, isSelected);
     }
 

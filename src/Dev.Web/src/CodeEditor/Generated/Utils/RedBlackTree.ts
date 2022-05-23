@@ -445,8 +445,6 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
 }
 
 export class RedBlackTreeIterator<T> {
-    public static readonly Empty: RedBlackTreeIterator<void> = new RedBlackTreeIterator<void>(null);
-    
     #Node: Nullable<RedBlackTreeNode<T>>;
     public get Node() {
         return this.#Node;
@@ -459,6 +457,7 @@ export class RedBlackTreeIterator<T> {
     public constructor(node: Nullable<RedBlackTreeNode<T>>) {
         this.Node = node;
     }
+
 
     public Clone(): RedBlackTreeIterator<T> {
         return new RedBlackTreeIterator<T>(this.Node);
