@@ -15,7 +15,7 @@ namespace AppBoxClient
             throw new NotImplementedException();
         }
 
-        public static Task<object> Invoke(string service, object[]? args = null)
+        public static Task<object> Invoke(string service, object?[]? args = null)
         {
             throw new NotImplementedException();
         }

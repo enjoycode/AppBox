@@ -18,7 +18,8 @@ namespace AppBoxDesign
         {
             _modelNode = modelNode;
             _previewController = new PreviewController(modelNode);
-            _codeEditorController = new CodeEditorController("fileName.cs", "");
+            _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
+                RoslynCompletionProvider.Default, modelNode.Id);
             _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
             _delayDocChangedTask = new DelayTask(300, RunDelayTask);
 

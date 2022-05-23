@@ -3,6 +3,7 @@ export * from "./HandWrite/WebPreviewer"
 
 export * from "./Generated/Design/DesignNode"
 export * from "./Generated/Design/DesignTree"
+export * from "./Generated/Design/CompletionItem"
 
 export * from "./Generated/Pads/MainMenuPad"
 export * from "./Generated/Pads/FooterPad"

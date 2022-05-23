@@ -16,7 +16,7 @@ export class ViewDesigner extends PixUI.View {
         super();
         this._modelNode = modelNode;
         this._previewController = new AppBoxDesign.PreviewController(modelNode);
-        this._codeEditorController = new CodeEditor.CodeEditorController("fileName.cs", "");
+        this._codeEditorController = new CodeEditor.CodeEditorController("fileName.cs", "", null, modelNode.Id);
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
         this._delayDocChangedTask = new PixUI.DelayTask(300, this.RunDelayTask.bind(this));
 

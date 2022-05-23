@@ -55,7 +55,7 @@ export class CompletionContext {
     }
 
     public async RunInternal(filter: string): System.Task {
-        let items = await this._provider!.ProvideCompletionItems(this._controller.Document, (this._controller.TextEditor.Caret.Position).Clone(), filter);
+        let items = await this._provider!.ProvideCompletionItems(this._controller.Document, this._controller.TextEditor.Caret.Offset, filter);
         this.ShowCompletionWindow(items, "");
     }
 

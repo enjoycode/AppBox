@@ -16,7 +16,7 @@ export interface ICompletionProvider {
     get TriggerCharacters(): Uint16Array;
 
 
-    ProvideCompletionItems(document: CodeEditor.Document, location: CodeEditor.TextLocation, completionWord: Nullable<string>): System.Task<Nullable<System.IList<ICompletionItem>>>;
+    ProvideCompletionItems(document: CodeEditor.Document, offset: number, completionWord: Nullable<string>): System.Task<Nullable<System.IList<ICompletionItem>>>;
 }
 
 export class CompletionWord {

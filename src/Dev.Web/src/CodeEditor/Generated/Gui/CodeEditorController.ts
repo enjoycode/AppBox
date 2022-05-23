@@ -3,10 +3,10 @@ import * as CodeEditor from '@/CodeEditor'
 import * as PixUI from '@/PixUI'
 
 export class CodeEditorController extends PixUI.WidgetController<CodeEditor.CodeEditorWidget> {
-    public constructor(fileName: string, content: string, completionProvider: Nullable<CodeEditor.ICompletionProvider> = null) {
+    public constructor(fileName: string, content: string, completionProvider: Nullable<CodeEditor.ICompletionProvider> = null, tag: any = null) {
         super();
         this.Theme = new CodeEditor.TextEditorTheme();
-        this.Document = new CodeEditor.Document(fileName);
+        this.Document = new CodeEditor.Document(fileName, tag);
         this.TextEditor = new CodeEditor.TextEditor(this);
         this._completionContext = new CodeEditor.CompletionContext(this, completionProvider);
 

@@ -2,8 +2,10 @@ import * as CodeEditor from '@/CodeEditor'
 import * as System from '@/System'
 
 export class Document implements System.IDisposable {
-    public constructor(fileName: string) {
+    public constructor(fileName: string, tag: any) {
         this._fileName = fileName;
+        this.Tag = tag;
+        
         this.TextBuffer = new CodeEditor.ImmutableTextBuffer();
         this._lineManager = new CodeEditor.LineManager(this);
         this.SyntaxParser = new CodeEditor.SyntaxParser(this);
@@ -14,6 +16,7 @@ export class Document implements System.IDisposable {
 
 
     private _fileName: string = "";
+    public readonly Tag: any;
     private readonly _lineManager: CodeEditor.LineManager;
     public readonly TextBuffer: CodeEditor.ITextBuffer;
     public readonly SyntaxParser: CodeEditor.SyntaxParser;

@@ -1,4 +1,4 @@
-import {DesignTree} from '@/AppBoxDesign'
+import {DesignTree, CompletionItem} from '@/AppBoxDesign'
 import {TSCSharpLanguage} from "@/CodeEditor";
 import {PayloadType, TypeSerializer} from "@/AppBoxCore";
 
@@ -15,5 +15,6 @@ export class DesignInitializer {
 
         // 注册序列化器
         TypeSerializer.RegisterKnownType(PayloadType.DesignTree, false, () => new DesignTree());
+        TypeSerializer.RegisterKnownType(PayloadType.CompletionItem, true, () => new CompletionItem());
     }
 }
