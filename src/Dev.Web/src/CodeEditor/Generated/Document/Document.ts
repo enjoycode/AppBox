@@ -5,7 +5,7 @@ export class Document implements System.IDisposable {
     public constructor(fileName: string, tag: any) {
         this._fileName = fileName;
         this.Tag = tag;
-        
+
         this.TextBuffer = new CodeEditor.ImmutableTextBuffer();
         this._lineManager = new CodeEditor.LineManager(this);
         this.SyntaxParser = new CodeEditor.SyntaxParser(this);
