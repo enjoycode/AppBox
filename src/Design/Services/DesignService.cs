@@ -11,6 +11,7 @@ public sealed class DesignService : IService
         { nameof(LoadDesignTree), new LoadDesignTree() },
         // Code
         { nameof(ChangeBuffer), new ChangeBuffer() },
+        { nameof(GetCompletion), new GetCompletion() },
         // View
         { nameof(OpenViewModel), new OpenViewModel() },
         { nameof(GetWebPreview), new GetWebPreview() },

@@ -30,6 +30,20 @@ public readonly struct InvokeArgs
 
     public static InvokeArgs Make<T1, T2>(T1 arg1, T2 arg2) => throw new NotImplementedException();
 
+    public static InvokeArgs Make<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+    {
+        var writer = MessageWriteStream.Rent();
+        writer.Serialize(arg1);
+        writer.Serialize(arg2);
+        writer.Serialize(arg3);
+        writer.Serialize(arg4);
+        var data = writer.FinishWrite();
+        MessageWriteStream.Return(writer);
+
+        var reader = MessageReadStream.Rent(data);
+        return new InvokeArgs(reader);
+    }
+
     #region ====GetXXX Methods====
 
     public int GetInt()
