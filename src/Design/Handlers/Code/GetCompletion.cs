@@ -7,6 +7,34 @@ namespace AppBoxDesign;
 
 internal sealed class GetCompletion : IDesignHandler
 {
+    private static readonly Dictionary<string, CompletionItemKind> KindsMap = new()
+    {
+        // Types
+        { "Class", CompletionItemKind.Class },
+        { "Delegate", CompletionItemKind.Function },
+        { "Enum", CompletionItemKind.Enum },
+        { "Interface", CompletionItemKind.Interface },
+        { "Struct", CompletionItemKind.Struct },
+        { "Event", CompletionItemKind.Event },
+
+        // Variables
+        { "Local", CompletionItemKind.Variable },
+        { "Parameter", CompletionItemKind.Variable },
+        { "RangeVariable", CompletionItemKind.Variable },
+
+        // Members
+        { "Const", CompletionItemKind.Constant },
+        { "EnumMember", CompletionItemKind.EnumMember },
+        { "Field", CompletionItemKind.Field },
+        { "Method", CompletionItemKind.Method },
+        { "Property", CompletionItemKind.Property },
+
+        // Others
+        { "Label", CompletionItemKind.Text },
+        { "Keyword", CompletionItemKind.Keyword },
+        { "Namespace", CompletionItemKind.Module },
+    };
+
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         var targetType = args.GetInt();
@@ -166,7 +194,7 @@ internal sealed class GetCompletion : IDesignHandler
         return response;
     }
 
-    internal struct CompletionItem
+    internal struct CompletionItem : IBinSerializable
     {
         public string? Kind;
         public string Label;
@@ -176,6 +204,25 @@ internal sealed class GetCompletion : IDesignHandler
 
         //RequiredNamespaceImport, MethodHeader
         public override string ToString() => $"{Kind}\t\t{Label}";
+
+        public void WriteTo(IOutputStream ws)
+        {
+            ws.WriteByte((byte) ToKind(Kind));
+            ws.WriteString(Label);
+            ws.WriteString(InsertText == Label ? null : InsertText); //相同不需要重复输出
+            ws.WriteString(Detail);
+            //ws.WriteString(ReturnType);
+        }
+
+        public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
+    }
+
+    private static CompletionItemKind ToKind(string? kindString)
+    {
+        if (string.IsNullOrEmpty(kindString)
+            || !KindsMap.TryGetValue(kindString, out var value))
+            return CompletionItemKind.Text;
+        return value;
     }
 
     [Flags]
@@ -215,5 +262,40 @@ internal sealed class GetCompletion : IDesignHandler
         /// Returns the kind (i.e Method, Property, Field)
         /// </summary>
         WantKind = 32
+    }
+
+    /// <summary>
+    /// 与CodeEditor的定义必须一致
+    /// </summary>
+    public enum CompletionItemKind
+    {
+        Method,
+        Function,
+        Constructor,
+        Field,
+        Variable,
+        Class,
+        Struct,
+        Interface,
+        Module,
+        Property,
+        Event,
+        Operator,
+        Unit,
+        Value,
+        Constant,
+        Enum,
+        EnumMember,
+        Keyword,
+        Text,
+        Color,
+        File,
+        Reference,
+        CustomColor,
+        Folder,
+        TypeParameter,
+        User,
+        Issue,
+        Snippet
     }
 }
