@@ -13,7 +13,7 @@ export class BytesOutputStream implements IOutputStream {
         return this.bytes.subarray(0, this.pos);
     }
 
-    public async SerializeAsync(obj: any) {
+    public Serialize(obj: any) {
         if (obj == null) {
             this.WriteByte(PayloadType.Null);
         } else if (typeof obj === 'boolean') {
@@ -30,7 +30,7 @@ export class BytesOutputStream implements IOutputStream {
         } else if (obj instanceof Entity) {
             await this.SerializeEntityAsync(obj);
         }*/ else if (Array.isArray(obj)) {
-            await this.SerializeArrayAsync(obj);
+            this.SerializeArray(obj);
         } else {
             throw new Error('未实现');
         }
@@ -53,12 +53,12 @@ export class BytesOutputStream implements IOutputStream {
     //     }
     // }
 
-    private async SerializeArrayAsync(obj: Array<any>) {
+    private SerializeArray(obj: Array<any>) {
         this.WriteByte(PayloadType.Array);
         this.WriteByte(PayloadType.Object);
         this.WriteVariant(obj.length);
         for (let i = 0; i < obj.length; i++) {
-            await this.SerializeAsync(obj[i]);
+            this.Serialize(obj[i]);
         }
     }
 

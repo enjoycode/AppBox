@@ -216,7 +216,7 @@ export class WebChannel implements IChannel {
         ws.WriteString(service);
         if (args) {
             for (const arg of args) {
-                await ws.SerializeAsync(arg);
+                ws.Serialize(arg);
             }
         }
 
