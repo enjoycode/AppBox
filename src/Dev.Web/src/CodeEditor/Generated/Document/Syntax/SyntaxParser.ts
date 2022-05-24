@@ -154,11 +154,18 @@ export class SyntaxParser implements System.IDisposable {
             return;
         }
 
-        // leaf node now, 注意可能跨行的Comment
-        let tokenType = this._language.GetTokenType(node);
-        let startOffset = Math.max(node.startIndex / SyntaxParser.ParserEncoding, lineSegment.Offset);
-        let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding, lineSegment.Length);
-        lineSegment.AddToken(tokenType, startOffset, length);
+        // leaf node now
+        // 注意: 1.可能跨行的Comment; 2.如下特例(" this._")会产生长度为0的MISSING节点
+        // member_access_expression [4, 0] - [4, 6]
+        //     expression: this_expression [4, 0] - [4, 4]
+        //     name: identifier [4, 5] - [4, 6]
+        // MISSING ; [4, 6] - [4, 6]
+        if (node.endIndex > node.startIndex) {
+            let tokenType = this._language.GetTokenType(node);
+            let startOffset = Math.max(node.startIndex / SyntaxParser.ParserEncoding, lineSegment.Offset);
+            let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding, lineSegment.Length);
+            lineSegment.AddToken(tokenType, startOffset, length);
+        }
     }
 
     private static ContainsFullLine(node: CodeEditor.TSSyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
