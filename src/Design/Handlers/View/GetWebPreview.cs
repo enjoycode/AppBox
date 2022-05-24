@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using AppBoxCore;
+using Microsoft.CodeAnalysis;
 using PixUI.CS2TS;
 
 namespace AppBoxDesign;
@@ -22,14 +23,11 @@ internal sealed class GetWebPreview : IDesignHandler
         var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
 
-        //TODO:检查代码错误
-        // var semanticModel = await srcDocument.GetSemanticModelAsync();
-        // var diagnostics = semanticModel!.GetDiagnostics();
-        // foreach (var problem in diagnostics)
-        // {
-        //     var span = problem.Location.GetMappedLineSpan();
-        //     Console.WriteLine($"{span.StartLinePosition.Line} {problem.GetMessage()}");
-        // }
+        // 始终检查语义错误，防止同步过程出现问题
+        var semanticModel = await srcDocument.GetSemanticModelAsync();
+        var diagnostics = semanticModel!.GetDiagnostics();
+        if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
+            throw new Exception("Has error");
 
         var emitter = await Emitter.MakeAsync(translator, srcDocument);
         emitter.Emit();
