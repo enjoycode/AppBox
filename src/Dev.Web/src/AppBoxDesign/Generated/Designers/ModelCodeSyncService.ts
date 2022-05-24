@@ -26,8 +26,8 @@ export class ModelCodeSyncService {
         this._submittingFlag = 1;
         while (this._queue.length > 0) {
             let item = this._queue[0];
-            await AppBoxClient.Channel.Invoke("sys.DesignService.ChangeBuffer", [this._targetType, this._targetId, item.Offset, item.Length, item.Text
-            ]);
+            await AppBoxClient.Channel.Invoke("sys.DesignService.ChangeBuffer", 
+                [this._targetType, this._targetId, item.Offset, item.Length, item.Text]);
             this._queue.RemoveAt(0);
         }
         this._submittingFlag = 0;

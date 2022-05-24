@@ -24,11 +24,11 @@ export class CompletionContext {
         if (this._provider == null) return;
 
         //Get word at caret position (end with caret position)
-        let world = this.GetWortAtPosition((this._controller.TextEditor.Caret.Position).Clone());
+        let word = this.GetWordAtPosition(this._controller.TextEditor.Caret.Position);
 
         //是否已经显示
         if (this._state == CompletionContext.StateShow) {
-            if (world == null) //if word is null, hide completion window
+            if (word == null) //if word is null, hide completion window
             {
                 this.HideCompletionWindow();
             } else {
@@ -38,14 +38,14 @@ export class CompletionContext {
         }
 
         //开始显示
-        if (world != null) {
-            this._completionStartOffset = world.Offset;
+        if (word != null) {
+            this._completionStartOffset = word.Offset;
             this._startByTriggerChar = false;
             this._state = CompletionContext.StateShow;
-            this.RunInternal(world.Word);
+            this.RunInternal(word.Word);
         } else {
             let triggerChar = value[value.length - 1];
-            if (this._provider.TriggerCharacters.Contains(Number(triggerChar))) {
+            if (this._provider.TriggerCharacters.Contains(triggerChar.charCodeAt(0))) {
                 this._completionStartOffset = this._controller.TextEditor.Caret.Offset;
                 this._startByTriggerChar = true;
                 this._state = CompletionContext.StateShow;
@@ -59,8 +59,9 @@ export class CompletionContext {
         this.ShowCompletionWindow(items, "");
     }
 
-    private GetWortAtPosition(pos: CodeEditor.TextLocation): Nullable<CodeEditor.CompletionWord> {
+    private GetWordAtPosition(pos: CodeEditor.TextLocation): Nullable<CodeEditor.CompletionWord> {
         let lineSegment = this._controller.Document.GetLineSegment(pos.Line);
+        lineSegment.DumpTokens(this._controller.Document);
         let token = lineSegment.GetTokenAt(pos.Column);
         if (token == null) return null;
 

@@ -6,12 +6,14 @@ export class RoslynCompletionProvider implements CodeEditor.ICompletionProvider 
     public static readonly Default: RoslynCompletionProvider = new RoslynCompletionProvider();
 
     public get TriggerCharacters(): Uint16Array {
-        return new Uint16Array('.'.charCodeAt(0));
+        let res = new Uint16Array(1);
+        res[0] = '.'.charCodeAt(0);
+        return res;
     }
 
     public async ProvideCompletionItems(document: CodeEditor.Document, offset: number, completionWord: Nullable<string>): System.Task<Nullable<System.IList<CodeEditor.ICompletionItem>>> {
-        let res = await AppBoxClient.Channel.Invoke("sys.DesignService.GetCompletion", [0, document.Tag, offset, completionWord
-        ]);
+        let res = await AppBoxClient.Channel.Invoke("sys.DesignService.GetCompletion", 
+            [0, document.Tag, offset, completionWord]);
         return <Nullable<System.IList<CodeEditor.ICompletionItem>>><unknown>res;
     }
 
