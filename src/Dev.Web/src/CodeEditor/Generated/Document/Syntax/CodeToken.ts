@@ -3,6 +3,7 @@ export enum TokenType {
     WhiteSpace,
     Error,
 
+    Module,
     Type,
     BuiltinType,
 

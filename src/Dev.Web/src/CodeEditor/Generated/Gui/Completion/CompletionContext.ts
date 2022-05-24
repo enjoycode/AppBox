@@ -72,7 +72,7 @@ export class CompletionContext {
             tokenType == CodeEditor.TokenType.PunctuationBracket ||
             tokenType == CodeEditor.TokenType.PunctuationDelimiter ||
             tokenType == CodeEditor.TokenType.WhiteSpace || tokenType == CodeEditor.TokenType.Operator)
-            return null;
+        return null;
 
         let tokenStartColumn = CodeEditor.CodeToken.GetTokenStartColumn(token);
         let len = pos.Column - tokenStartColumn;

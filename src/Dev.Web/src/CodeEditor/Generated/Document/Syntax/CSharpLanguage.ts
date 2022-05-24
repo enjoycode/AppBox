@@ -61,13 +61,18 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
             return CodeEditor.TokenType.Unknown;
 
         switch (parentType) {
+            case "namespace_declaration":
+            case "using_directive":
+                return CodeEditor.TokenType.Module;
+            
             case "class_declaration":
             case "interface_declaration":
             case "enum_declaration":
             case "struct_declaration":
             case "record_declaration":
-            case "namespace_declaration":
             case "object_creation_expression":
+            case "constructor_declaration":
+            case "base_list":
                 return CodeEditor.TokenType.Type;
 
             case "argument":
@@ -78,15 +83,21 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
             case "method_declaration":
                 return CodeEditor.TokenType.Function;
 
+            case "qualified_name":
+                return CSharpLanguage.GetIdentifierTypeFromQualifiedName(node);
             case "member_access_expression":
-                return this.GetIdentifierTokenTypeFromMemberAccess(node.parent);
+                return CSharpLanguage.GetIdentifierTypeFromMemberAccess(node.parent);
 
             default:
                 return CodeEditor.TokenType.Unknown;
         }
     }
 
-    private GetIdentifierTokenTypeFromMemberAccess(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
+    private static GetIdentifierTypeFromQualifiedName(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
+        return node.nextNamedSibling == null ? CodeEditor.TokenType.Type : CodeEditor.TokenType.Module;
+    }
+
+    private static GetIdentifierTypeFromMemberAccess(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
         if (node.parent!.type == "invocation_expression")
             return CodeEditor.TokenType.Function;
 

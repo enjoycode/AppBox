@@ -57,7 +57,11 @@ export class WebApplication extends PixUI.UIApplication {
 
     public PostInvalidateEvent(): void {
         requestAnimationFrame(() => {
+            // try {
             this.OnInvalidateRequest();
+            // } catch (error) {
+            //     console.warn(error);
+            // }
         });
     }
 }
