@@ -214,7 +214,7 @@ export class LineSegment implements CodeEditor.ISegment {
         for (let i = this._lineTokens.length - 1; i >= 0; i--) {
             let token = this._lineTokens[i];
             let tokenStartColumn = CodeEditor.CodeToken.GetTokenStartColumn(token);
-            if (tokenStartColumn <= column && column <= tokenEndColumn) {
+            if (tokenStartColumn < column && column <= tokenEndColumn) {
                 return token;
             }
 
