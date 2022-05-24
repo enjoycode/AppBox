@@ -174,8 +174,10 @@ export class BytesInputStream implements IInputStream {
         return data;
     }
 
-    public ReadString(): string {
+    public ReadString(): string | null {
         let chars = this.ReadVariant();
+        if (chars < 0) return null;
+        if (chars === 0) return '';
         return Utf8Decode(this, chars);
     }
 
