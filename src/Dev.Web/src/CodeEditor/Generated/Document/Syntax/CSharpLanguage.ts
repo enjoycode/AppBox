@@ -88,7 +88,7 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
             case "qualified_name":
                 return CSharpLanguage.GetIdentifierTypeFromQualifiedName(node);
             case "member_access_expression":
-                return CSharpLanguage.GetIdentifierTypeFromMemberAccess(node.parent);
+                return CSharpLanguage.GetIdentifierTypeFromMemberAccess(node);
 
             default:
                 return CodeEditor.TokenType.Unknown;
@@ -100,10 +100,10 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
     }
 
     private static GetIdentifierTypeFromMemberAccess(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
-        if (node.parent!.type == "invocation_expression")
+        if (node.parent!.parent!.type == "invocation_expression")
             return CodeEditor.TokenType.Function;
 
-        return CodeEditor.TokenType.Variable; //TODO: fix
+        return node.nextNamedSibling == null ? CodeEditor.TokenType.Variable : CodeEditor.TokenType.Type;
     }
 
 
