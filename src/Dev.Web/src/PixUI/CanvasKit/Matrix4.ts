@@ -119,7 +119,7 @@ export class Matrix4 extends Float32Array {
     public PreConcat(other: Matrix4) {
         let res = other.Clone(); //传引用需要复制
         res.Multiply(this);
-        this.CopyFrom(other);
+        this.CopyFrom(res);
     }
 
     public CopyInverse(other: Matrix4): number {
