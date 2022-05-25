@@ -54,9 +54,14 @@ export class ReturnCommand implements CodeEditor.IEditCommand {
         // if (editor.Document.ReadOnly) return;
 
         editor.Document.UndoStack.StartUndoGroup();
-        editor.InsertOrReplaceString("\n");
+        let curLine = editor.Caret.Line;
+        let curLineSegment = editor.Document.GetLineSegment(curLine);
+        let leadingWhiteSpaces = curLineSegment.GetLeadingWhiteSpaces();
+        if (leadingWhiteSpaces == 0)
+            editor.InsertOrReplaceString("\n");
+        else
+            editor.InsertOrReplaceString("\n" + ' '.repeat(leadingWhiteSpaces));
 
-        // var curLine = editor.Caret.Line;
         // editor.Document.FormattingStrategy.FormatLine(
         //     editor, curLine, editor.Caret.Offset, '\n');
         editor.Document.UndoStack.EndUndoGroup();

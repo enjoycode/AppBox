@@ -224,6 +224,13 @@ export class LineSegment implements CodeEditor.ISegment {
         return null; //should never be here
     }
 
+    public GetLeadingWhiteSpaces(): number {
+        if (this._lineTokens == null) return 0;
+        let firstTokenType = CodeEditor.CodeToken.GetTokenType(this._lineTokens[0]);
+        if (firstTokenType != CodeEditor.TokenType.WhiteSpace) return 0;
+        return this._lineTokens.length > 1 ? CodeEditor.CodeToken.GetTokenStartColumn(this._lineTokens[1]) : this.Length;
+    }
+
     public DumpTokens(document: CodeEditor.Document) {
         if (this._lineTokens == null) {
             console.warn("No tokens.");
