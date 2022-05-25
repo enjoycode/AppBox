@@ -29,30 +29,32 @@ internal sealed class GetWebPreview : IDesignHandler
         if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
             throw new Exception("Has error");
 
-        var emitter = await Emitter.MakeAsync(translator, srcDocument);
+        var emitter = await Emitter.MakeAsync(translator, srcDocument, true);
         emitter.Emit();
         var tsCode = emitter.GetTypeScriptCode(true);
 
         //转换为js
-        var jsCodeData = await ConvertToJs(tsCode, modelNode);
-        return AnyValue.From(jsCodeData);
+        //var jsCodeData = await ConvertToJs(tsCode, modelNode);
+        return AnyValue.From(System.Text.Encoding.UTF8.GetBytes(tsCode));
     }
 
-    private static async Task<byte[]> ConvertToJs(string tsCode, ModelNode modelNode)
-    {
-        //TODO:*** 暂简单使用tsc转换处理
-        var tsTemp = Path.Combine(Path.GetTempPath(),
-            $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.ts");
-        await File.WriteAllTextAsync(tsTemp, tsCode);
-        var process = Process.Start("tsc", $"-t esnext -m esnext {tsTemp}");
-        process!.WaitForExit();
-
-        var jsTemp = Path.Combine(Path.GetDirectoryName(tsTemp)!,
-            $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.js");
-        var data = await File.ReadAllBytesAsync(jsTemp);
-
-        File.Delete(tsTemp);
-        File.Delete(jsTemp);
-        return data;
-    }
+    // private static async Task<byte[]> ConvertToJs(string tsCode, ModelNode modelNode)
+    // {
+    //     //npx swc -C module.type=es6 -C jsc.target=es2022 HomePage.ts
+    //     //npx swc -C module.type=es6 -C jsc.target=es2022 -C sourceMaps=false -C inlineSourcesContent=false -C minify=true HomePage.ts
+    //     //TODO:*** 暂简单使用tsc转换处理
+    //     var tsTemp = Path.Combine(Path.GetTempPath(),
+    //         $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.ts");
+    //     await File.WriteAllTextAsync(tsTemp, tsCode);
+    //     var process = Process.Start("tsc", $"-t esnext -m esnext {tsTemp}");
+    //     process!.WaitForExit();
+    //
+    //     var jsTemp = Path.Combine(Path.GetDirectoryName(tsTemp)!,
+    //         $"{modelNode.AppNode.Model.Name}.{modelNode.Model.Name}.js");
+    //     var data = await File.ReadAllBytesAsync(jsTemp);
+    //
+    //     File.Delete(tsTemp);
+    //     File.Delete(jsTemp);
+    //     return data;
+    // }
 }

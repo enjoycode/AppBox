@@ -136,16 +136,17 @@ internal sealed class GetCompletion : IDesignHandler
         //TODO:处理Overloads
 
 
-        return AnyValue.From(completions
-            .OrderByDescending(c =>
-                c.InsertText.IsValidCompletionStartsWithExactCase(wordToComplete))
-            .ThenByDescending(c =>
-                c.InsertText.IsValidCompletionStartsWithIgnoreCase(wordToComplete))
-            .ThenByDescending(c => c.InsertText.IsCamelCaseMatch(wordToComplete))
-            .ThenByDescending(c => c.InsertText.IsSubsequenceMatch(wordToComplete))
-            .ThenBy(c => c.Label, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(c => c.InsertText, StringComparer.OrdinalIgnoreCase)
-            .ToArray());
+        return AnyValue.From(completions.ToArray());
+        // return AnyValue.From(completions
+        //     .OrderByDescending(c =>
+        //         c.InsertText.IsValidCompletionStartsWithExactCase(wordToComplete))
+        //     .ThenByDescending(c =>
+        //         c.InsertText.IsValidCompletionStartsWithIgnoreCase(wordToComplete))
+        //     .ThenByDescending(c => c.InsertText.IsCamelCaseMatch(wordToComplete))
+        //     .ThenByDescending(c => c.InsertText.IsSubsequenceMatch(wordToComplete))
+        //     .ThenBy(c => c.Label, StringComparer.OrdinalIgnoreCase)
+        //     .ThenBy(c => c.InsertText, StringComparer.OrdinalIgnoreCase)
+        //     .ToArray());
     }
 
     private static CompletionItem MakeCompletionItem(WantsType wants, ISymbol symbol,
@@ -207,7 +208,7 @@ internal sealed class GetCompletion : IDesignHandler
 
         public void WriteTo(IOutputStream ws)
         {
-            ws.WriteByte((byte) ToKind(Kind));
+            ws.WriteByte((byte)ToKind(Kind));
             ws.WriteString(Label);
             ws.WriteString(InsertText == Label ? null : InsertText); //相同不需要重复输出
             ws.WriteString(Detail);
