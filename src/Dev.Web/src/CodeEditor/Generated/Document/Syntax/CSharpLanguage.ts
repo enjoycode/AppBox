@@ -64,7 +64,7 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
             case "namespace_declaration":
             case "using_directive":
                 return CodeEditor.TokenType.Module;
-            
+
             case "class_declaration":
             case "interface_declaration":
             case "enum_declaration":
@@ -72,6 +72,8 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
             case "record_declaration":
             case "object_creation_expression":
             case "constructor_declaration":
+            case "generic_name":
+            case "array_type":
             case "base_list":
                 return CodeEditor.TokenType.Type;
 
