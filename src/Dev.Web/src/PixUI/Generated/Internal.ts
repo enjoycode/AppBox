@@ -136,6 +136,7 @@ export * from "./Widgets/DataGrid/Columns/DataGridIconColumn";
 export * from "./Widgets/DataGrid/Columns/DataGridTextColumn";
 
 export * from "./Platform/Cursor";
+export * from "./Platform/Clipboard";
 export * from "./Platform/DirtyArea";
 export * from "./Platform/UIApplication";
 export * from "./Platform/InvalidQueue";

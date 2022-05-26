@@ -4,8 +4,9 @@ import {initializeSystem} from "@/System/InitializeSystem";
 import {initializeLinq} from "@/System/Linq";
 import {P, match} from "ts-pattern";
 import {FontCollection} from "@/PixUI/CanvasKit/FontCollection";
-import {Cursor} from "./";
+import {Cursor, Clipboard} from "./";
 import {WebCursors} from "./WebCursor";
+import {WebClipboard} from "./WebClipboard";
 
 export class WebApplication extends PixUI.UIApplication {
 
@@ -39,6 +40,7 @@ export class WebApplication extends PixUI.UIApplication {
 
             //初始化平台支持
             Cursor.PlatformCursors = new WebCursors();
+            Clipboard.Init(new WebClipboard());
 
             //创建WebApplication并执行
             let app = new WebApplication();
