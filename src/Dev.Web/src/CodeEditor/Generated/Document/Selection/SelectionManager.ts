@@ -25,6 +25,19 @@ export class SelectionManager {
         return false;
     } //TODO:
 
+    public get SelectedText(): string {
+        if (!this.HasSomethingSelected) return '';
+        if (this.SelectionCollection.length == 1)
+            return this.SelectionCollection[0].SelectedText;
+
+        let sb = '';
+        for (const selection of this.SelectionCollection) {
+            sb += selection.SelectedText;
+        }
+
+        return sb;
+    }
+
     public SetSelection(startPosition: CodeEditor.TextLocation, endPosition: CodeEditor.TextLocation) {
         if (this.SelectionCollection.length == 1 &&
             System.OpEquality(this.SelectionCollection[0].StartPosition, startPosition) &&

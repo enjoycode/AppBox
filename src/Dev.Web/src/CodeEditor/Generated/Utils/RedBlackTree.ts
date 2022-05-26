@@ -420,7 +420,8 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
 
     public Begin(): RedBlackTreeIterator<T> {
         return this.Root == null
-            ? new RedBlackTreeIterator<T>(null) : new RedBlackTreeIterator<T>(this.Root.LeftMost);
+            ? new RedBlackTreeIterator<T>(null)
+            : new RedBlackTreeIterator<T>(this.Root.LeftMost);
     }
 
 

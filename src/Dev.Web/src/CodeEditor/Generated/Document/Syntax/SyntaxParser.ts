@@ -160,12 +160,12 @@ export class SyntaxParser implements System.IDisposable {
         //     expression: this_expression [4, 0] - [4, 4]
         //     name: identifier [4, 5] - [4, 6]
         // MISSING ; [4, 6] - [4, 6]
-        if (node.endIndex > node.startIndex) {
-            let tokenType = this._language.GetTokenType(node);
-            let startOffset = Math.max(node.startIndex / SyntaxParser.ParserEncoding, lineSegment.Offset);
-            let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding, lineSegment.Length);
-            lineSegment.AddToken(tokenType, startOffset, length);
-        }
+        if (node.endIndex <= node.startIndex) return;
+
+        let tokenType = this._language.GetTokenType(node);
+        let startOffset = Math.max(node.startIndex / SyntaxParser.ParserEncoding, lineSegment.Offset);
+        let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding, lineSegment.Length);
+        lineSegment.AddToken(tokenType, startOffset, length);
     }
 
     private static ContainsFullLine(node: CodeEditor.TSSyntaxNode, lineSegment: CodeEditor.LineSegment): boolean {
@@ -192,9 +192,11 @@ export class SyntaxParser implements System.IDisposable {
     }
 
     public GetDirtyLines(controller: CodeEditor.CodeEditorController): CodeEditor.DirtyLines {
-        return new CodeEditor.DirtyLines(controller).Init({
-            StartLine: this._startLineOfChanged, EndLine: this._endLineOfChanged
-        });
+        return new CodeEditor.DirtyLines(controller).Init(
+            {
+                StartLine: this._startLineOfChanged,
+                EndLine: this._endLineOfChanged
+            });
     }
 
     public DumpTree() {

@@ -44,8 +44,8 @@ export class CompletionContext {
             this._state = CompletionContext.StateShow;
             this.RunInternal(word.Word);
         } else {
-            let triggerChar = value[value.length - 1];
-            if (this._provider.TriggerCharacters.Contains(triggerChar.charCodeAt(0))) {
+            let triggerChar = value[value.length - 1].charCodeAt(0);
+            if (this._provider.TriggerCharacters.Contains(triggerChar)) {
                 this._completionStartOffset = this._controller.TextEditor.Caret.Offset;
                 this._startByTriggerChar = true;
                 this._state = CompletionContext.StateShow;
@@ -61,7 +61,6 @@ export class CompletionContext {
 
     private GetWordAtPosition(pos: CodeEditor.TextLocation): Nullable<CodeEditor.CompletionWord> {
         let lineSegment = this._controller.Document.GetLineSegment(pos.Line);
-        lineSegment.DumpTokens(this._controller.Document);
         let token = lineSegment.GetTokenAt(pos.Column);
         if (token == null) return null;
 
@@ -72,7 +71,7 @@ export class CompletionContext {
             tokenType == CodeEditor.TokenType.PunctuationBracket ||
             tokenType == CodeEditor.TokenType.PunctuationDelimiter ||
             tokenType == CodeEditor.TokenType.WhiteSpace || tokenType == CodeEditor.TokenType.Operator)
-        return null;
+            return null;
 
         let tokenStartColumn = CodeEditor.CodeToken.GetTokenStartColumn(token);
         let len = pos.Column - tokenStartColumn;

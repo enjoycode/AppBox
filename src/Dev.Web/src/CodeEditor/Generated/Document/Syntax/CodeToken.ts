@@ -9,7 +9,6 @@ export enum TokenType {
 
     LiteralNumber,
     LiteralString,
-
     Constant,
 
     Keyword,

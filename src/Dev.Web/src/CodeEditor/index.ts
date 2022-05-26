@@ -36,6 +36,8 @@ export * from './Generated/Document/Selection/ColumnRange'
 export * from './Generated/Document/Selection/Selection'
 export * from './Generated/Document/Selection/SelectionManager'
 
+export * from "./Generated/Actions/ClipboardCommands"
+
 export * from './Generated/Document/Folding/FoldMarker'
 export * from './Generated/Document/Folding/IFoldingProvider'
 export * from './Generated/Document/Folding/FoldingManager'

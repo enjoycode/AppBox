@@ -3,7 +3,7 @@ import * as CodeEditor from '@/CodeEditor'
 import * as PixUI from '@/PixUI'
 
 export class CodeEditorController extends PixUI.WidgetController<CodeEditor.CodeEditorWidget> {
-    public constructor(fileName: string, content: string, completionProvider: Nullable<CodeEditor.ICompletionProvider> = null, tag: any = null) {
+    public constructor(fileName: string, content: string, completionProvider: Nullable<CodeEditor.ICompletionProvider> = null, tag: Nullable<string> = null) {
         super();
         this.Theme = new CodeEditor.TextEditorTheme();
         this.Document = new CodeEditor.Document(fileName, tag);
@@ -22,7 +22,7 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
     private readonly _completionContext: CodeEditor.CompletionContext;
 
     // 全局命令字典表
-    private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><unknown>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><unknown>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><unknown>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><unknown>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><unknown>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><unknown>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><unknown>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
+    private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><unknown>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><unknown>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><unknown>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><unknown>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><unknown>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><unknown>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><unknown>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.C), new CodeEditor.CopyCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.X), new CodeEditor.CutCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.V), new CodeEditor.PasteCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
 
 
     private _mouseDownPos: PixUI.Point = PixUI.Point.Empty;

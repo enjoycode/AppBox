@@ -23,7 +23,7 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
         // is named node
         switch (type) {
             case "identifier":
-                return this.GetIdentifierTokenType(node);
+                return CSharpLanguage.GetIdentifierTokenType(node);
 
             case "implicit_type":
             case "pointer_type":
@@ -55,7 +55,7 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
         }
     }
 
-    private GetIdentifierTokenType(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
+    private static GetIdentifierTokenType(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
         let parentType = node.parent!.type;
         if (parentType == "Error")
             return CodeEditor.TokenType.Unknown;

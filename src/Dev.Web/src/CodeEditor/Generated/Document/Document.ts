@@ -2,7 +2,7 @@ import * as CodeEditor from '@/CodeEditor'
 import * as System from '@/System'
 
 export class Document implements System.IDisposable {
-    public constructor(fileName: string, tag: any) {
+    public constructor(fileName: string, tag: Nullable<string> = null) {
         this._fileName = fileName;
         this.Tag = tag;
 
@@ -16,7 +16,7 @@ export class Document implements System.IDisposable {
 
 
     private _fileName: string = "";
-    public readonly Tag: any;
+    public readonly Tag: Nullable<string>;
     private readonly _lineManager: CodeEditor.LineManager;
     public readonly TextBuffer: CodeEditor.ITextBuffer;
     public readonly SyntaxParser: CodeEditor.SyntaxParser;

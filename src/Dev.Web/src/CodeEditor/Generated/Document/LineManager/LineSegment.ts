@@ -228,27 +228,9 @@ export class LineSegment implements CodeEditor.ISegment {
         if (this._lineTokens == null) return 0;
         let firstTokenType = CodeEditor.CodeToken.GetTokenType(this._lineTokens[0]);
         if (firstTokenType != CodeEditor.TokenType.WhiteSpace) return 0;
-        return this._lineTokens.length > 1 ? CodeEditor.CodeToken.GetTokenStartColumn(this._lineTokens[1]) : this.Length;
-    }
-
-    public DumpTokens(document: CodeEditor.Document) {
-        if (this._lineTokens == null) {
-            console.warn("No tokens.");
-            return;
-        }
-
-        console.log("=====Line Tokens====");
-        for (let i = 0; i < this._lineTokens.length; i++) {
-            let token = this._lineTokens[i];
-            let tokenStartColumn = CodeEditor.CodeToken.GetTokenStartColumn(token);
-            let tokenEndColumn = i == this._lineTokens.length - 1
-                ? this.Length
-                : CodeEditor.CodeToken.GetTokenStartColumn(this._lineTokens[i + 1]);
-            let tokenOffset =
-                document.PositionToOffset(new CodeEditor.TextLocation(tokenStartColumn, this.LineNumber));
-            let tokenText = document.GetText(tokenOffset, tokenEndColumn - tokenStartColumn);
-            console.log(tokenStartColumn + "-" + tokenEndColumn + " " + CodeEditor.TokenType[CodeEditor.CodeToken.GetTokenType(token)] + "  " + tokenText);
-        }
+        return this._lineTokens.length > 1
+            ? CodeEditor.CodeToken.GetTokenStartColumn(this._lineTokens[1])
+            : this.Length;
     }
 
 
