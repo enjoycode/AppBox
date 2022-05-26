@@ -26,8 +26,7 @@ export class ImageSource {
     }
 
     public static FromEncodedData(data: Uint8Array): ImageSource {
-        let imgSrc = new ImageSource
-        ().Init(
+        let imgSrc = new ImageSource().Init(
             {
                 Loading: false,
                 Image: CanvasKit.MakeImageFromEncoded(data)

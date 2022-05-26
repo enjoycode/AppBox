@@ -137,8 +137,7 @@ export class InvalidQueue {
 
         // insert to invalid queue.
         //TODO:use object pool for InvalidWidget
-        let target = new InvalidWidget
-        ().Init(
+        let target = new InvalidWidget().Init(
             {
                 Widget: widget, Action: action, Level: level, Area: item,
                 RelayoutOnly: relayoutOnly

@@ -148,7 +148,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             throw new System.InvalidOperationException("Can't set parent for IRootWidget");
         if (this._parent != null && value != null && !this.SuspendingMount)
             throw new System.InvalidOperationException("Widget already has parent");
-        if (value == null && this.SuspendingMount) return; //忽略移动过程中设上级为空
+        if (this.SuspendingMount && value == null) return; //忽略移动过程中设上级为空
 
         // Don't do this: _parent?.Children.Remove(this);
         this._parent = value;
