@@ -120,8 +120,10 @@ export class ListPopup<T> extends PixUI.Popup {
     }
 
     public TrySelectFirst() {
-        if (this._listViewController.DataSource != null && this._listViewController.DataSource.length > 0)
+        if (this._listViewController.DataSource != null && this._listViewController.DataSource.length > 0) {
             this.Select(0, false);
+            this._listViewController.ScrollController.OffsetY = 0;
+        }
     }
 
     private Select(index: number, raiseChangedEvent: boolean = false) {
