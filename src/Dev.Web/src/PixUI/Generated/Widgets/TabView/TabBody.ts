@@ -31,14 +31,13 @@ export class TabBody<T> extends PixUI.DynamicView {
 
     public SwitchFrom(oldIndex: number) {
         let newIndex = this._controller.SelectedIndex;
-
-        let from = this.Child;
-        this.Child = null;
         let to = this.TryBuildBody();
 
         if (oldIndex < 0) {
             this.ReplaceTo(to);
         } else {
+            let from = this.Child;
+            from!.SuspendingMount = true; //动画开始前挂起
             this.AnimateTo(from, to, 200, false, (a, w) =>
                 TabBody.BuildDefaultTransition(a, w, new PixUI.Offset(newIndex > oldIndex ? 1 : -1, 0), PixUI.Offset.Empty), (a, w) =>
                 TabBody.BuildDefaultTransition(a, w, PixUI.Offset.Empty, new PixUI.Offset(newIndex > oldIndex ? -1 : 1, 0)));

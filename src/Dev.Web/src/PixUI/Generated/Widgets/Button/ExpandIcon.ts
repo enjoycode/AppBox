@@ -20,13 +20,13 @@ export class ExpandIcon extends PixUI.SingleChildWidget implements PixUI.IMouseR
         super();
         this.MouseRegion = new PixUI.MouseRegion();
 
-        this.Child = new PixUI.RotationTransition(turns).Init({
-            Child: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.ExpandMore)).Init({
+        this.Child = new PixUI.RotationTransition(turns).Init(
+            {
+                Child: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.ExpandMore)).Init({
                     Size: size,
                     Color: color
-                }
-            )
-        });
+                })
+            });
     }
 
     public Init(props: Partial<ExpandIcon>): ExpandIcon {

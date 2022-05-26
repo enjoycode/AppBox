@@ -62,10 +62,16 @@ export class DynamicView extends PixUI.SingleChildWidget {
             this._animationController.Dispose();
             this._animationController = null;
 
-            //TODO:考虑使用MoveTo()以避免多余的Unmount/Mount
-            this._animationTo!.Parent = null;
-            this._animationFrom!.Parent = null;
-            this.Child = status == PixUI.AnimationStatus.Completed ? this._animationTo : this._animationFrom;
+            if (this._animationFrom!.SuspendingMount) {
+                this._animationFrom.SuspendingMount = false;
+                this._animationFrom.Parent = null;
+                this._animationTo!.SuspendingMount = true;
+            } else {
+                this._animationTo!.SuspendingMount = false;
+                this._animationTo.Parent = null;
+                this._animationFrom.SuspendingMount = true;
+            }
+            this.Child = status == PixUI.AnimationStatus.Dismissed ? this._animationFrom : this._animationTo;
 
             this._transitionStack!.Dispose();
             this._transitionStack = null;

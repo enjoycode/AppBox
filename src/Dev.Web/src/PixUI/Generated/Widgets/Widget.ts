@@ -17,10 +17,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
 
     private _flag: number = 0;
     private static readonly MountedMask: number = 1;
-
-    private static readonly LayoutMask: number = 2;
-
-    // private const int HitTestableMask = 1 << 30;
+    private static readonly HasLayoutMask: number = 2; //TODO:待实现自动判断是否需要重新布局后移除
+    private static readonly SuspendingMountMask: number = 1 << 20;
 
     private SetFlagValue(value: boolean, mask: number) {
         if (value)
@@ -29,18 +27,20 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             this._flag &= ~(mask);
     }
 
-    // public bool IsHitTestable
-    // {
-    //     get => (_flag & HitTestableMask) == HitTestableMask;
-    //     protected set => SetFlagValue(value, HitTestableMask);
-    // }
+    public get SuspendingMount(): boolean {
+        return (this._flag & Widget.SuspendingMountMask) == Widget.SuspendingMountMask;
+    }
+
+    public set SuspendingMount(value: boolean) {
+        this.SetFlagValue(value, Widget.SuspendingMountMask);
+    }
 
     protected get HasLayout(): boolean {
-        return (this._flag & Widget.LayoutMask) == Widget.LayoutMask;
+        return (this._flag & Widget.HasLayoutMask) == Widget.HasLayoutMask;
     }
 
     protected set HasLayout(value: boolean) {
-        this.SetFlagValue(value, Widget.LayoutMask);
+        this.SetFlagValue(value, Widget.HasLayoutMask);
     }
 
     public get IsMounted(): boolean {
@@ -146,8 +146,10 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     public set Parent(value: Nullable<Widget>) {
         if (PixUI.IsInterfaceOfIRootWidget(this) && value != null)
             throw new System.InvalidOperationException("Can't set parent for IRootWidget");
-        if (this._parent != null && value != null)
+        if (this._parent != null && value != null && !this.SuspendingMount)
             throw new System.InvalidOperationException("Widget already has parent");
+        if (value == null && this.SuspendingMount) return; //忽略移动过程中设上级为空
+
         // Don't do this: _parent?.Children.Remove(this);
         this._parent = value;
 
@@ -260,6 +262,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
 
 
     private Mount() {
+        if (this.SuspendingMount) return;
+
         this.IsMounted = true;
         this.VisitChildren(child => {
             child.Mount();
@@ -268,6 +272,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     }
 
     private Unmount() {
+        if (this.SuspendingMount) return;
+
         this.IsMounted = false;
         this.VisitChildren(child => {
             child.Unmount();

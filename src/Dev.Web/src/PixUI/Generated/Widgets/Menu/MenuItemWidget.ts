@@ -47,7 +47,8 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         }
 
         if (this.MenuItem.Type == PixUI.MenuItemType.SubMenu) {
-            this._expander = new PixUI.Icon(PixUI.State.op_Implicit_From(inPopup ? PixUI.Icons.Filled.ChevronRight : PixUI.Icons.Filled.ExpandMore)).Init({Color: this._controller.TextColor});
+            this._expander = new PixUI.Icon(PixUI.State.op_Implicit_From(inPopup ? PixUI.Icons.Filled.ChevronRight : PixUI.Icons.Filled.ExpandMore)).Init(
+                {Color: this._controller.TextColor});
             this._expander.Parent = this;
         }
     }

@@ -22,13 +22,14 @@ export class RouteView extends PixUI.DynamicView {
     private OnRouteChanged(action: PixUI.RouteChangeAction, route: PixUI.Route) {
         //TODO: stop running transition.
 
-        let from = this.Child!;
-        this.Child = null;
-
         if (route.EnteringBuilder == null) {
             this.ReplaceTo(this.Navigator.GetCurrentRoute());
         } else {
-            let to: PixUI.Widget;
+            let from = this.Child!;
+            from.SuspendingMount = true; //动画开始前挂起
+
+            let to:
+                PixUI.Widget;
             let reverse = action == PixUI.RouteChangeAction.Pop;
             if (reverse) {
                 to = from;

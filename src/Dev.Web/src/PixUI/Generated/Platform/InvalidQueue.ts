@@ -17,7 +17,8 @@ export class AffectsByRelayout {
 
     public GetDirtyArea(): PixUI.IDirtyArea {
         //TODO: 考虑Root返回null或现有Bounds
-        return new PixUI.RepaintArea(new PixUI.Rect(Math.min(this.OldX, this.Widget.X), Math.min(this.OldY, this.Widget.Y), Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H)));
+        return new PixUI.RepaintArea(new PixUI.Rect(Math.min(this.OldX, this.Widget.X), Math.min(this.OldY, this.Widget.Y), Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H))
+        );
     }
 }
 
@@ -137,9 +138,11 @@ export class InvalidQueue {
         // insert to invalid queue.
         //TODO:use object pool for InvalidWidget
         let target = new InvalidWidget
-        ().Init({
-            Widget: widget, Action: action, Level: level, Area: item, RelayoutOnly: relayoutOnly
-        });
+        ().Init(
+            {
+                Widget: widget, Action: action, Level: level, Area: item,
+                RelayoutOnly: relayoutOnly
+            });
         this._queue.Insert(insertPos, target);
     }
 

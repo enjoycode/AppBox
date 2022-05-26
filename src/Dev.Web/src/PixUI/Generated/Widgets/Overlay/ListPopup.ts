@@ -67,11 +67,12 @@ export class ListPopup<T> extends PixUI.Popup {
         this._maxShowItems = maxShowItems;
         this._itemBuilder = itemBuilder;
         this._listViewController = new PixUI.ListViewController<T>();
-        this._child = new PixUI.Card().Init({
-            Width: PixUI.State.op_Implicit_From(popupWidth),
-            Elevation: PixUI.State.op_Implicit_From(8),
-            Child: new PixUI.ListView<T>(this.BuildItem.bind(this), null, this._listViewController)
-        });
+        this._child = new PixUI.Card().Init(
+            {
+                Width: PixUI.State.op_Implicit_From(popupWidth),
+                Elevation: PixUI.State.op_Implicit_From(8),
+                Child: new PixUI.ListView<T>(this.BuildItem.bind(this), null, this._listViewController)
+            });
         this._child.Parent = this;
     }
 
@@ -94,14 +95,7 @@ export class ListPopup<T> extends PixUI.Popup {
         this.ChangeDataSource(value);
     }
 
-    #OnSelectionChanged: Nullable<System.Action1<Nullable<T>>>;
-    public get OnSelectionChanged() {
-        return this.#OnSelectionChanged;
-    }
-
-    public set OnSelectionChanged(value) {
-        this.#OnSelectionChanged = value;
-    }
+    public OnSelectionChanged: Nullable<System.Action1<Nullable<T>>>;
 
     private ChangeDataSource(value: Nullable<System.IList<T>>) {
         if (value != null) {
@@ -118,11 +112,11 @@ export class ListPopup<T> extends PixUI.Popup {
     private BuildItem(data: T, index: number): PixUI.Widget {
         let states = this._itemStates![index];
 
-        return new ListPopupItemWidget(index, states.HoverState, states.SelectedState, this.OnSelectByTap.bind(this)).Init({
-            Width: this._child.Width,
-            Height: PixUI.State.op_Implicit_From(this._itemExtent),
-            Child: this._itemBuilder(data, index, states.HoverState, states.SelectedState)
-        });
+        return new ListPopupItemWidget(index, states.HoverState, states.SelectedState, this.OnSelectByTap.bind(this)).Init(
+            {
+                Width: this._child.Width, Height: PixUI.State.op_Implicit_From(this._itemExtent),
+                Child: this._itemBuilder(data, index, states.HoverState, states.SelectedState)
+            });
     }
 
     public TrySelectFirst() {

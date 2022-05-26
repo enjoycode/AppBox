@@ -75,6 +75,7 @@ export class Transform extends PixUI.SingleChildWidget {
         //不要加入 result.Add(this, effectiveTransform);
         let hitChild = this.Child.HitTest(transformed.Dx, transformed.Dy, result);
         if (hitChild) {
+            //TODO: 忽略transform.Value is Identity
             result.ConcatLastTransform(transform);
         }
 

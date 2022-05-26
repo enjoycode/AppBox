@@ -45,7 +45,7 @@ export abstract class State<T> extends StateBase {
     public abstract set Value(value: T);
 
     public toString(): string {
-        return this.Value?.toString() ?? "";
+        return this.Value?.toString() ?? '';
     }
 
     public AsStateOfString(formatter: Nullable<System.Func2<T, string>> = null, parser: Nullable<System.Func2<string, T>> = null): State<string> {
