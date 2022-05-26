@@ -16,34 +16,38 @@ export function ConvertToButtons(ev: MouseEvent): PointerButtons {
 
 export function ConvertToKeys(ev: KeyboardEvent): Keys {
     let keys = Keys.None;
-    //TODO: others
-    switch (ev.code) {
-        case 'Backspace':
-            keys = Keys.Back;
-            break;
-        case 'Tab':
-            keys = Keys.Tab;
-            break;
-        case 'Enter':
-            keys = Keys.Return;
-            break;
-        case 'ArrowLeft':
-            keys = Keys.Left;
-            break;
-        case 'ArrowRight':
-            keys = Keys.Right;
-            break;
-        case 'ArrowUp':
-            keys = Keys.Up;
-            break;
-        case 'ArrowDown':
-            keys = Keys.Down;
-            break;
-    }
 
     if (ev.shiftKey) keys |= Keys.Shift;
     if (ev.ctrlKey) keys |= Keys.Control;
     if (ev.altKey) keys |= Keys.Alt;
+
+    if (ev.key.length == 1) {
+        let keyValue = ev.key.charCodeAt(0);
+        if (keyValue >= 0x41 && keyValue <= 0x5A) { //A-Z
+            return keys | <Keys>keyValue;
+        }
+        if (keyValue >= 0x61 && keyValue <= 0x7A) { //a-z
+            return keys | <Keys>(keyValue - 32);
+        }
+    }
+
+    //TODO: others and use map
+    switch (ev.code) {
+        case 'Backspace':
+            return keys | Keys.Back;
+        case 'Tab':
+            return keys | Keys.Tab;
+        case 'Enter':
+            return keys | Keys.Return;
+        case 'ArrowLeft':
+            return keys | Keys.Left;
+        case 'ArrowRight':
+            return keys | Keys.Right;
+        case 'ArrowUp':
+            return keys | Keys.Up;
+        case 'ArrowDown':
+            return keys | Keys.Down;
+    }
 
     return keys;
 }
