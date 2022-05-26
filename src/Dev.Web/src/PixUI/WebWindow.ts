@@ -175,7 +175,7 @@ export default class WebWindow extends PixUI.UIWindow {
         };
         window.onmouseout = ev => {
             this.OnPointerMoveOutWindow();
-        }
+        };
         window.onkeydown = ev => {
             // console.log(`KeyDown: '${ev.key}' keyCode=${ev.code}`)
             this.OnKeyDown(PixUI.KeyEvent.UseDefault(ConvertToKeys(ev)));
@@ -189,6 +189,13 @@ export default class WebWindow extends PixUI.UIWindow {
                 ev.preventDefault();
             }
         };
+
+        //注意onwheel事件附加在画布元素上
+        this._htmlCanvas.onwheel = ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.OnScroll(PixUI.ScrollEvent.Make(ev.x, ev.y, ev.deltaX, ev.deltaY));
+        }
     }
 
     //region ====Overrides====
