@@ -46,7 +46,7 @@ export class SyntaxParser implements System.IDisposable {
         this._oldTree!.edit((this._edit).Clone());
 
         this.Parse(false);
-        this.Tokenize(this._startLineOfChanged, this._endLineOfChanged + 1);
+        this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
     }
 
     public BeginRemove(offset: number, length: number) {
@@ -63,7 +63,7 @@ export class SyntaxParser implements System.IDisposable {
     public EndRemove() {
         this._oldTree!.edit((this._edit).Clone());
         this.Parse(false);
-        this.Tokenize(this._startLineOfChanged, this._endLineOfChanged + 1);
+        this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
     }
 
     public BeginReplace(offset: number, length: number, textLenght: number) {
@@ -82,7 +82,7 @@ export class SyntaxParser implements System.IDisposable {
 
         this._oldTree!.edit((this._edit).Clone());
         this.Parse(false);
-        this.Tokenize(this._startLineOfChanged, this._endLineOfChanged + 1);
+        this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
     }
 
     public Parse(reset: boolean) {
@@ -96,7 +96,8 @@ export class SyntaxParser implements System.IDisposable {
 
             this._oldTree.delete();
 
-            this._startLineOfChanged = this._endLineOfChanged = this._edit.startPosition.row;
+            this._startLineOfChanged = this._edit.startPosition.row;
+            this._endLineOfChanged = this._startLineOfChanged + 1;
             for (const range of changes) {
                 this._startLineOfChanged = Math.min(this._startLineOfChanged, range.startPosition.row);
                 this._endLineOfChanged = Math.max(this._endLineOfChanged, range.endPosition.row);
