@@ -26,6 +26,7 @@ public abstract class ModelBase : IBinSerializable
 
     public ModelId Id => _id;
     public string Name => _name;
+    public bool IsDesignMode => _designMode;
 
     #region ====Design Methods====
 
@@ -64,7 +65,7 @@ public abstract class ModelBase : IBinSerializable
         if (!_designMode) throw new InvalidOperationException();
     }
 
-    protected void OnPropertyChanged()
+    protected internal void OnPropertyChanged()
     {
         if (_persistentState == PersistentState.Unchanged)
             _persistentState = PersistentState.Modified;
@@ -82,39 +83,34 @@ public abstract class ModelBase : IBinSerializable
 
         if (_designMode)
         {
-            ws.WriteFieldId(1).WriteVariant(_version);
-            ws.WriteFieldId(2).WriteByte((byte)_persistentState);
-            if (_folderId != null)
-                ws.WriteFieldId(3).WriteGuid(_folderId.Value);
-            if (_originalName != null)
-                ws.WriteFieldId(4).WriteString(_originalName);
-        }
-        else if (ModelType == ModelType.Permission)
-        {
-            if (_folderId != null)
-                ws.WriteFieldId(3).WriteGuid(_folderId.Value);
-        }
-
+            ws.WriteVariant(_version);
+            ws.WriteByte((byte)_persistentState);
+            ws.WriteString(_originalName);
+        } 
+        
+        if (_folderId != null && (_designMode || ModelType == ModelType.Permission))
+            ws.WriteFieldId(3).WriteGuid(_folderId.Value);
         ws.WriteFieldEnd();
     }
 
     public virtual void ReadFrom(IInputStream rs)
     {
-        _id = new ModelId(rs.ReadLong());
+        _id = rs.ReadLong();
         _name = rs.ReadString()!;
         _designMode = rs.ReadBool();
+
+        if (_designMode)
+        {
+            _version = rs.ReadVariant();
+            _persistentState = (PersistentState)rs.ReadByte();
+            _originalName = rs.ReadString();
+        }
 
         while (true)
         {
             var fieldId = rs.ReadFieldId();
             switch (fieldId)
             {
-                case 1:
-                    _version = rs.ReadVariant();
-                    break;
-                case 2:
-                    _persistentState = (PersistentState)rs.ReadByte();
-                    break;
                 case 3:
                     _folderId = rs.ReadGuid();
                     break;
