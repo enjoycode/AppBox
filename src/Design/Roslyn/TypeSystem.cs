@@ -54,6 +54,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.NetstandardLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIWebLib)
+                .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))
@@ -72,6 +73,15 @@ internal sealed class TypeSystem : IDisposable
 
         switch (model.ModelType)
         {
+            case ModelType.Entity:
+            {
+                var docName = $"{appName}.Entities.{model.Name}.cs";
+                var dummyCode =
+                    CodeGenService.GenEntityDummyCode((EntityModel)model, appName,
+                        node.DesignTree!);
+                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
+                break;
+            }
             case ModelType.View:
             {
                 var docName = $"{appName}.Views.{model.Name}.cs";

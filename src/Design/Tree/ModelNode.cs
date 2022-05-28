@@ -7,19 +7,19 @@ public sealed class ModelNode : DesignNode
 {
     public readonly ModelBase Model;
     public readonly DocumentId? RoslynDocumentId;
-    
+
     public ModelNode(ModelBase model, DesignHub hub)
     {
         Model = model;
 
-        switch (model.ModelType)
+        RoslynDocumentId = model.ModelType switch
         {
-            case ModelType.View:
-                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId);
-                break;
-        }
+            ModelType.Entity => DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId),
+            ModelType.View => DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId),
+            _ => null
+        };
     }
-    
+
     public override DesignNodeType Type => DesignNodeType.ModelNode;
     public override string Id => Model.Id.ToString();
     public override string Label => Model.Name;

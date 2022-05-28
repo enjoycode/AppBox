@@ -47,6 +47,10 @@ public sealed class DesignTree : IBinSerializable
         _storeRootNode.Children.Add(defaultDataStoreNode);
 
         //测试用节点
+        var empModel = new EntityModel(
+            ModelId.Make(appNode.Model.Id, ModelType.Entity, 1, ModelLayer.SYS), "Employee");
+        var empNode = appNode.FindModelRootNode(ModelType.Entity).AddModelForLoad(empModel);
+
         var homePageModel = new ViewModel(
             ModelId.Make(appNode.Model.Id, ModelType.View, 1, ModelLayer.SYS),
             "HomePage");
@@ -57,6 +61,7 @@ public sealed class DesignTree : IBinSerializable
         var demoPageNode = appNode.FindModelRootNode(ModelType.View).AddModelForLoad(demoPageModel);
 
         //在所有节点加载完成后创建模型对应的RoslynDocument
+        await DesignHub.TypeSystem.CreateModelDocumentAsync(empNode);
         await DesignHub.TypeSystem.CreateModelDocumentAsync(homePageNode);
         await DesignHub.TypeSystem.CreateModelDocumentAsync(demoPageNode);
 
