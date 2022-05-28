@@ -21,6 +21,7 @@ public sealed class MessageReadStream : IInputStream
     {
         BytesSegment.ReturnAll(mws._current);
         mws._pos = 0;
+        mws._context?.Clear();
         Pool.Free(mws);
     }
 

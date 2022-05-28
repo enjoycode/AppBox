@@ -20,6 +20,9 @@ public enum SerializationError
     NotSupportedClassType,
     KnownTypeOverriderIsNull,
     
+    EntityFactoryIsNull,
+    EntityFactoryNotExists,
+    
     PayloadTypeNotMatch,
     
     ReadUnknownFieldId,

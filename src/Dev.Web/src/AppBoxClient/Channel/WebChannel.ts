@@ -202,7 +202,7 @@ export class WebChannel implements IChannel {
         return Promise.resolve();
     }
 
-    async Invoke(service: string, args?: any[]): Promise<any> {
+    async Invoke(service: string, args?: any[] /* TODO: EntityFactory for deserialization*/): Promise<any> {
         //加入等待者列表
         const msgId = this.MakeMsgId();
         let promise = this.MakePromise(msgId);

@@ -7,10 +7,7 @@ public sealed class SerializeContext
 {
     private List<object>? _serialized;
 
-    public void Clear()
-    {
-        _serialized?.Clear();
-    }
+    public void Clear() => _serialized?.Clear();
 
     public void AddToSerialized(object obj)
     {

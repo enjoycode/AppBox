@@ -2,13 +2,48 @@ using AppBoxCore.Utils;
 
 namespace AppBoxCore;
 
-public interface IOutputStream
+public interface IOutputStream : IEntityMemberWriter
 {
     public SerializeContext Context { get; }
 
     void WriteByte(byte value);
 
     void WriteBytes(Span<byte> src);
+
+    #region ====IEntityMemberWriter====
+
+    void IEntityMemberWriter.WriteStringMember(short id, string? value,
+        EntityMemberWriteFlags flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteString(value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    void IEntityMemberWriter.WriteIntMember(short id, int? value, EntityMemberWriteFlags flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteInt(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
 }
 
 public static class OutputStreamExtensions
@@ -17,6 +52,15 @@ public static class OutputStreamExtensions
 
     public static void WriteBool(this IOutputStream s, bool value)
         => s.WriteByte(value ? (byte)PayloadType.BooleanTrue : (byte)PayloadType.BooleanFalse);
+
+    public static void WriteShort(this IOutputStream s, short value)
+    {
+        unsafe
+        {
+            var span = new Span<byte>(&value, 2);
+            s.WriteBytes(span);
+        }
+    }
 
     public static void WriteInt(this IOutputStream s, int value)
     {
@@ -178,12 +222,10 @@ public static class OutputStreamExtensions
             //不要在这里AddToSerialized(obj);
             return false;
         }
-        else
-        {
-            s.WriteByte((byte)PayloadType.ObjectRef);
-            s.WriteVariant(index);
-            return true;
-        }
+
+        s.WriteByte((byte)PayloadType.ObjectRef);
+        s.WriteVariant(index);
+        return true;
     }
 
     public static void Serialize(this IOutputStream s, object? value)
@@ -191,6 +233,12 @@ public static class OutputStreamExtensions
         if (value == null)
         {
             s.WriteByte((byte)PayloadType.Null);
+            return;
+        }
+
+        if (value is Entity entity)
+        {
+            s.Serialize(entity);
             return;
         }
 
@@ -236,6 +284,22 @@ public static class OutputStreamExtensions
     {
         s.WriteByte((byte)PayloadType.Int32);
         s.WriteInt(value);
+    }
+
+    public static void Serialize(this IOutputStream s, Entity? value)
+    {
+        if (value == null)
+        {
+            s.WriteByte((byte)PayloadType.Null);
+            return;
+        }
+
+        if (CheckSerialized(s, value)) return;
+
+        s.Context.AddToSerialized(value);
+        s.WriteByte((byte)PayloadType.Entity);
+        s.WriteLong(value.Model.ModelId.EncodedValue);
+        value.WriteTo(s);
     }
 
     #endregion

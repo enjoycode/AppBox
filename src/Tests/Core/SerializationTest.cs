@@ -42,4 +42,22 @@ public sealed class SerializationTest
         Assert.True(reader.ReadString() == src);
         MessageReadStream.Return(reader);
     }
+
+    [Test]
+    public void EntitySerializationTest()
+    {
+        var src = new TestEntity() { Name = "Rick", Score = 100};
+        var writer = MessageWriteStream.Rent();
+        writer.Serialize(src);
+        var segment = writer.FinishWrite();
+        MessageWriteStream.Return(writer);
+
+        var reader = MessageReadStream.Rent(segment.First!);
+        reader.Context.SetEntityFactories(new[]
+            { new EntityFactory(src.Model.ModelId.EncodedValue, () => new TestEntity()) });
+        var dest = (TestEntity) reader.Deserialize()!;
+        MessageReadStream.Return(reader);
+        
+        Assert.True(src.Name == dest.Name && src.Score == dest.Score);
+    }
 }

@@ -2,13 +2,31 @@ using AppBoxCore.Utils;
 
 namespace AppBoxCore;
 
-public interface IInputStream
+public interface IInputStream : IEntityMemberReader
 {
     DeserializeContext Context { get; }
 
     byte ReadByte();
 
     void ReadBytes(Span<byte> dest);
+
+    #region ====IEntityMemberReader====
+
+    string? IEntityMemberReader.ReadStringMember(int flags)
+    {
+        if (flags == 0) return this.ReadString();
+
+        throw new NotImplementedException();
+    }
+
+    int IEntityMemberReader.ReadIntMember(int flags)
+    {
+        if (flags == 0) return this.ReadInt();
+
+        throw new NotImplementedException();
+    }
+
+    #endregion
 }
 
 public static class InputStreamExtensions
@@ -17,6 +35,18 @@ public static class InputStreamExtensions
 
     public static bool ReadBool(this IInputStream s)
         => s.ReadByte() == (byte)PayloadType.BooleanTrue;
+
+    public static short ReadShort(this IInputStream s)
+    {
+        short res = 0;
+        unsafe
+        {
+            var span = new Span<byte>(&res, 2);
+            s.ReadBytes(span);
+        }
+
+        return res;
+    }
 
     public static int ReadInt(this IInputStream s)
     {
@@ -229,7 +259,7 @@ public static class InputStreamExtensions
             case PayloadType.BooleanTrue: return true;
             case PayloadType.BooleanFalse: return false;
             case PayloadType.ObjectRef: return s.Context.GetDeserialized(s.ReadVariant());
-            case PayloadType.Entity: throw new NotImplementedException();
+            case PayloadType.Entity: return s.DeserializeEntity();
         }
 
         TypeSerializer? serializer;
@@ -279,6 +309,17 @@ public static class InputStreamExtensions
         //读取数据
         serializer.Read(s, result);
         return result;
+    }
+
+    private static Entity DeserializeEntity(this IInputStream s)
+    {
+        var modelId = s.ReadLong();
+        //从上下文获取实体工厂
+        var creator = s.Context.GetEntityFactory(modelId);
+        var entity = creator();
+        s.Context.AddToDeserialized(entity);
+        entity.ReadFrom(s);
+        return entity;
     }
 
     #endregion

@@ -85,6 +85,7 @@ namespace AppBoxDesign
         {
             //同步变更至服务端
             _codeSyncService.OnDocumentChanged(e);
+            //TODO: check syntax error first.
             //启动延时任务
             _delayDocChangedTask.Run();
         }
