@@ -12,7 +12,18 @@ public sealed class EntityModel : ModelBase
     private short _usrMemberIdSeq;
     private readonly List<EntityMemberModel> _members = new(); ////注意已按memberId排序
     private IEntityStoreOption? _storeOption = null;
-    
+
+    public IReadOnlyList<EntityMemberModel> Members => _members;
+
+    public DataStoreKind DataStoreKind
+    {
+        get
+        {
+            if (_storeOption == null) return DataStoreKind.None;
+            throw new NotImplementedException(); //return _storeOption.
+        }
+    }
+
     #region ====GetMember Methods====
 
     private EntityMemberModel? BinarySearch(short id)
@@ -53,19 +64,22 @@ public sealed class EntityModel : ModelBase
         {
             //TODO:通过设计时上下文获取ApplicationModel是否导入，从而确认当前Layer
             var layer = ModelLayer.DEV;
-            var seq   = layer == ModelLayer.DEV ? ++_devMemberIdSeq : ++_usrMemberIdSeq;
-            if (seq >= MaxMemberId) { //TODO:尝试找空的
+            var seq = layer == ModelLayer.DEV ? ++_devMemberIdSeq : ++_usrMemberIdSeq;
+            if (seq >= MaxMemberId)
+            {
+                //TODO:尝试找空的
                 throw new NotImplementedException("Member id out of range");
             }
+
             member.InitMemberId(IdUtil.MakeMemberId(layer, seq));
         }
-        
+
         _members.Add(member);
         _members.Sort((a, b) => a.MemberId.CompareTo(b.MemberId));
-        
+
         if (!member.AllowNull)
             ChangeSchemaVersion();
-        
+
         OnPropertyChanged();
     }
 

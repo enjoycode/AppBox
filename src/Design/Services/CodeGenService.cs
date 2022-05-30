@@ -8,13 +8,69 @@ internal static class CodeGenService
     internal static string GenEntityDummyCode(EntityModel model, string appName,
         DesignTree designTree)
     {
-        //TODO:暂测试实现
-
+        //TODO:未完
         var sb = new StringBuilder(300);
+        sb.Append("using AppBoxCore;\n\n");
         sb.Append($"namespace {appName}.Entities;\n");
 
-        sb.Append($"public class {model.Name} \n{{\n");
+        sb.Append($"public class {model.Name}");
+        //根据存储配置继承不同的基类
+        switch (model.DataStoreKind)
+        {
+            case DataStoreKind.None:
+                sb.Append(" : Entity");
+                break;
+            default: throw new NotImplementedException(model.DataStoreKind.ToString());
+        }
+
+        sb.Append("\n{\n");
+
+        // 实体成员
+        foreach (var member in model.Members)
+        {
+            switch (member.Type)
+            {
+                case EntityMemberType.DataField:
+                    GenDataFieldMember((DataFieldModel)member, sb);
+                    break;
+                default:
+                    throw new NotImplementedException(member.Type.ToString());
+            }
+        }
+
         sb.Append("}\n");
         return sb.ToString();
+    }
+
+    private static void GenDataFieldMember(DataFieldModel field, StringBuilder sb)
+    {
+        var typeString = GetDataFieldTypeString(field);
+        if (field.Owner.DataStoreKind == DataStoreKind.None)
+        {
+            sb.Append($"\tpublic {typeString} {field.Name} {{get; set;}}\n");
+        }
+        else
+        {
+            sb.Append($"\tprivate {typeString} _{field.Name};\n");
+            sb.Append($"\tpublic {typeString} {field.Name}\n");
+            sb.Append("\t{\n"); //prop start
+            sb.Append($"\t\tget => _{field.Name};\n");
+            sb.Append("\t\tset\n");
+            sb.Append("\t\t{\n"); //prop set start
+            sb.Append($"\t\t\tif (_{field.Name} == value) return;\n");
+            sb.Append($"\t\t\t_{field.Name} = value;\n");
+            //TODO: DbEntity.OnPropertyChanged
+            sb.Append("\t\t}\n"); //prop set end
+            sb.Append("\t}\n"); //prop end
+        }
+    }
+
+    private static string GetDataFieldTypeString(DataFieldModel field)
+    {
+        return field.DataType switch
+        {
+            DataFieldType.String => field.AllowNull ? "string?" : "string",
+            _ => throw new NotImplementedException(field.DataType.ToString())
+        };
     }
 }

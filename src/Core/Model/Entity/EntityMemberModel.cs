@@ -28,6 +28,7 @@ public abstract class EntityMemberModel
     private string? _comment;
 
     public short MemberId => _memberId;
+    public string Name => _name;
     public PersistentState PersistentState => _persistentState;
     public bool AllowNull => _allowNull;
 

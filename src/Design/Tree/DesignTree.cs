@@ -49,6 +49,8 @@ public sealed class DesignTree : IBinSerializable
         //测试用节点
         var empModel = new EntityModel(
             ModelId.Make(appNode.Model.Id, ModelType.Entity, 1, ModelLayer.SYS), "Employee");
+        var nameField = new DataFieldModel(empModel, "Name", DataFieldType.String, false);
+        empModel.AddMember(nameField);
         var empNode = appNode.FindModelRootNode(ModelType.Entity).AddModelForLoad(empModel);
 
         var homePageModel = new ViewModel(

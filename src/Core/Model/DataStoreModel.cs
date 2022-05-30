@@ -4,6 +4,8 @@ namespace AppBoxCore;
 
 public enum DataStoreKind : byte
 {
+    None = 0,
+
     /// <summary>
     /// 系统内置存储
     /// </summary>
@@ -31,7 +33,7 @@ public sealed partial class DataStoreModel
 
     internal DataStoreModel() { }
 
-    public DataStoreModel(DataStoreKind kind,string storeName, string? provider)
+    public DataStoreModel(DataStoreKind kind, string storeName, string? provider)
     {
         _id = StringUtil.GetHashCode(storeName);
         _name = storeName;

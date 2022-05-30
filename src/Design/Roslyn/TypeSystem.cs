@@ -48,6 +48,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ModelProjectId, MetadataReferences.CoreLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.NetstandardLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(ModelProjectId, MetadataReferences.AppBoxCoreLib)
                 //专用于Web视图模型的工程
                 .AddProject(webViewsProjectInfo)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)

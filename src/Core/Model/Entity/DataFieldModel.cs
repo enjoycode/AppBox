@@ -20,8 +20,11 @@ public enum DataFieldType : byte
 
 public sealed class DataFieldModel : EntityMemberModel
 {
-    public DataFieldModel(EntityModel owner, string name, bool allowNull) : base(owner, name,
-        allowNull) { }
+    public DataFieldModel(EntityModel owner, string name, DataFieldType dataType, bool allowNull) :
+        base(owner, name, allowNull)
+    {
+        _dataType = dataType;
+    }
 
     public override EntityMemberType Type => EntityMemberType.DataField;
 
@@ -80,7 +83,7 @@ public sealed class DataFieldModel : EntityMemberModel
     public override void WriteTo(IOutputStream ws)
     {
         base.WriteTo(ws);
-        
+
         ws.WriteByte((byte)_dataType);
         ws.WriteBool(_isForeignKey);
         if (_dataType == DataFieldType.Enum)
@@ -92,9 +95,9 @@ public sealed class DataFieldModel : EntityMemberModel
             ws.WriteVariant(_length);
             ws.WriteVariant(_decimals);
         }
-        
+
         ws.WriteString(_defaultValue);
-        
+
         if (Owner.IsDesignMode)
             ws.WriteBool(_isDataTypeChanged);
     }
