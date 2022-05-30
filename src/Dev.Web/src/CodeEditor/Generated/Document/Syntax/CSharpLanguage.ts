@@ -105,6 +105,8 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
     private static GetIdentifierTypeFromMemberAccess(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
         if (node.parent!.parent!.type == "invocation_expression")
             return CodeEditor.TokenType.Function;
+        if (node.parent!.parent!.type == "assignment_expression")
+            return CodeEditor.TokenType.Variable; //TODO:是否静态类型的成员
 
         return node.nextNamedSibling == null ? CodeEditor.TokenType.Variable : CodeEditor.TokenType.Type;
     }
