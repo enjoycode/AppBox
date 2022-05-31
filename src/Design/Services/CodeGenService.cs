@@ -5,6 +5,58 @@ namespace AppBoxDesign;
 
 internal static class CodeGenService
 {
+    /// <summary>
+    /// 生成实体模型的Web代码
+    /// </summary>
+    internal static string GenEntityWebCode(EntityModel model, string appName, bool forPreview)
+    {
+        var sb = new StringBuilder(300);
+        if (forPreview)
+            sb.Append("import * as AppBoxCore from '/src/AppBoxCore/index.ts'\n\n");
+        else
+            throw new NotImplementedException();
+
+        sb.Append($"export class {model.Name}");
+        //根据存储配置继承不同的基类
+        switch (model.DataStoreKind)
+        {
+            case DataStoreKind.None:
+                sb.Append(" extends AppBoxCore.Entity");
+                break;
+            default: throw new NotImplementedException(model.DataStoreKind.ToString());
+        }
+
+        sb.Append("\n{\n"); //class start
+
+        // 实体成员
+        foreach (var member in model.Members)
+        {
+            switch (member.Type)
+            {
+                case EntityMemberType.DataField:
+                    GenWebDataFieldMember((DataFieldModel)member, sb);
+                    break;
+                default:
+                    throw new NotImplementedException(member.Type.ToString());
+            }
+        }
+
+        sb.Append("}\n"); //class end
+        return sb.ToString();
+    }
+
+    private static void GenWebDataFieldMember(DataFieldModel field, StringBuilder sb)
+    {
+        if (field.Owner.DataStoreKind == DataStoreKind.None)
+        {
+            sb.Append($"\t{field.Name};\n");
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     internal static string GenEntityDummyCode(EntityModel model, string appName,
         DesignTree designTree)
     {
@@ -23,7 +75,7 @@ internal static class CodeGenService
             default: throw new NotImplementedException(model.DataStoreKind.ToString());
         }
 
-        sb.Append("\n{\n");
+        sb.Append("\n{\n"); //class start
 
         // 实体成员
         foreach (var member in model.Members)
@@ -38,7 +90,7 @@ internal static class CodeGenService
             }
         }
 
-        sb.Append("}\n");
+        sb.Append("}\n"); //class end
         return sb.ToString();
     }
 

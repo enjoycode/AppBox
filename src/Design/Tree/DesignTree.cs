@@ -77,11 +77,45 @@ public sealed class DesignTree : IBinSerializable
     public ApplicationNode? FindApplicationNode(int appId)
         => _appRootNode.Children.Find(n => n.Model.Id == appId);
 
+    public ApplicationNode? FindApplicationNodeByName(ReadOnlyMemory<char> name)
+        => _appRootNode.Children.Find(n => n.Model.Name.AsSpan().SequenceEqual(name.Span));
+
     public ModelRootNode? FindModelRootNode(int appId, ModelType modelType)
         => FindApplicationNode(appId)?.FindModelRootNode(modelType);
 
     public ModelNode? FindModelNode(ModelType modelType, ModelId modelId)
         => FindModelRootNode(modelId.AppId, modelType)?.FindModelNode(modelId);
+
+    public ModelNode? FindModelNodeByName(int appId, ModelType modelType, ReadOnlyMemory<char> name)
+        => FindModelRootNode(appId, modelType)?.FindModelNodeByName(name);
+
+    // /// <summary>
+    // /// 设计时新建模型时检查名称是否已存在
+    // /// </summary>
+    // public bool IsModelNameExists(int appId, ModelType modelType, ReadOnlyMemory<char> name)
+    // {
+    //     //TODO:***** 如果forNew = true,考虑在这里加载存储有没有相同名称的存在,或发布时检测，如改为全局Workspace没有此问题
+    //     // dev1 -> load tree -> checkout -> add model -> publish
+    //     // dev2 -> load tree                                 -> checkout -> add model with same name will pass
+    // }
+
+    /// <summary>
+    /// 根据全名称找到模型节点
+    /// </summary>
+    /// <param name="fullName">eg: sys.Entities.Employee</param>
+    public ModelNode? FindModelNodeByFullName(string fullName)
+    {
+        var firstDot = fullName.IndexOf('.');
+        var lastDot = fullName.LastIndexOf('.');
+        var appName = fullName.AsMemory(0, firstDot);
+        var typeName = fullName.AsSpan(firstDot + 1, lastDot - firstDot - 1);
+        var modelName = fullName.AsMemory(lastDot + 1);
+
+        var appNode = FindApplicationNodeByName(appName);
+        if (appNode == null) return null;
+        var modelType = CodeUtil.GetModelTypeFromPluralString(typeName);
+        return FindModelNodeByName(appNode.Model.Id, modelType, modelName);
+    }
 
     #endregion
 

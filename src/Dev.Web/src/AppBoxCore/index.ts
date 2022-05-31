@@ -5,3 +5,5 @@ export * from "./Serialization/IOutputStream"
 export * from "./Serialization/IInputStream"
 export * from "./Serialization/IBinSerializable"
 export * from "./Serialization/TypeSerializer"
+
+export * from "./Data/Entity"

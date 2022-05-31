@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using PixUI.CS2TS;
@@ -8,11 +9,12 @@ namespace AppBoxDesign;
 /// <summary>
 /// 获取WebIDE预览用的视图模型的JS代码
 /// </summary>
-internal sealed class GetWebPreview : IDesignHandler
+internal sealed class GetWebPreview : IDesignHandler //TODO: rename to GetViewPreview
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var modelId = (long)ulong.Parse(args.GetString()!);
+        var modelIdString = args.GetString()!;
+        var modelId = (long)ulong.Parse(modelIdString);
         var modelNode = hub.DesignTree.FindModelNode(ModelType.View, modelId);
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
@@ -29,13 +31,31 @@ internal sealed class GetWebPreview : IDesignHandler
         if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
             throw new Exception("Has error");
 
-        var emitter = await Emitter.MakeAsync(translator, srcDocument, true);
+        var emitter = await Emitter.MakeAsync(translator, srcDocument, true, true);
         emitter.Emit();
         var tsCode = emitter.GetTypeScriptCode(true);
 
-        //转换为js
-        //var jsCodeData = await ConvertToJs(tsCode, modelNode);
-        return AnyValue.From(System.Text.Encoding.UTF8.GetBytes(tsCode));
+        //附加import使用到的模型
+        if (emitter.UsedModels.Count > 0)
+        {
+            var sb = new StringBuilder(100);
+            foreach (var fullName in emitter.UsedModels)
+            {
+                //根据名称找到相关模型
+                var usedModel = hub.DesignTree.FindModelNodeByFullName(fullName)!;
+                var usedModelName = usedModel.Model.Name; //TODO:考虑加应用前缀防止同名
+                // var usedModelAppName = usedModel.AppNode.Model.Name;
+                var usedModelType = usedModel.Model.ModelType.ToString();
+                var usedModelId = usedModel.Model.Id;
+
+                sb.Insert(0,
+                    $"import {{{usedModelName}}} from '/preview/{usedModelType}/{hub.Session.SessionId}/{usedModelId}'\n");
+            }
+
+            tsCode = sb.Append(tsCode).ToString();
+        }
+
+        return AnyValue.From(Encoding.UTF8.GetBytes(tsCode));
     }
 
     // private static async Task<byte[]> ConvertToJs(string tsCode, ModelNode modelNode)

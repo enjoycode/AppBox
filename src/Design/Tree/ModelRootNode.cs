@@ -63,6 +63,9 @@ public sealed class ModelRootNode : DesignNode
     public ModelNode? FindModelNode(ModelId modelId)
         => _models.TryGetValue(modelId, out var modelNode) ? modelNode : null;
 
+    public ModelNode? FindModelNodeByName(ReadOnlyMemory<char> name)
+        => _models.Values.FirstOrDefault(t => t.Model.Name.AsSpan().SequenceEqual(name.Span));
+
     #endregion
 
     internal void CheckInAllNodes()

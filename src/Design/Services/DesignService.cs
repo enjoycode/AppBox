@@ -12,6 +12,8 @@ public sealed class DesignService : IService
         // Code
         { nameof(ChangeBuffer), new ChangeBuffer() },
         { nameof(GetCompletion), new GetCompletion() },
+        // Entity
+        { nameof(GetEntityPreview), new GetEntityPreview() },
         // View
         { nameof(OpenViewModel), new OpenViewModel() },
         { nameof(GetWebPreview), new GetWebPreview() },
