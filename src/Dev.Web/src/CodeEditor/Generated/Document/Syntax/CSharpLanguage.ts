@@ -2,8 +2,23 @@ import * as System from '@/System'
 import * as CodeEditor from '@/CodeEditor'
 
 export class CSharpLanguage implements CodeEditor.ICodeLanguage {
+    public GetAutoColsingPairs(ch: number): Nullable<number> {
+        switch (ch) {
+            case 123:
+                return 125;
+            case 91:
+                return 93;
+            case 40:
+                return 41;
+            case 34:
+                return 34;
+            default:
+                return null;
+        }
+    }
 
-    private static readonly TokenMap: System.StringMap<CodeEditor.TokenType> = new System.StringMap<CodeEditor.TokenType>([[";", CodeEditor.TokenType.PunctuationDelimiter], [".", CodeEditor.TokenType.PunctuationDelimiter], [",", CodeEditor.TokenType.PunctuationDelimiter], ["--", CodeEditor.TokenType.Operator], ["-", CodeEditor.TokenType.Operator], ["-=", CodeEditor.TokenType.Operator], ["&", CodeEditor.TokenType.Operator], ["&&", CodeEditor.TokenType.Operator], ["+", CodeEditor.TokenType.Operator], ["++", CodeEditor.TokenType.Operator], ["+=", CodeEditor.TokenType.Operator], ["<", CodeEditor.TokenType.Operator], ["<<", CodeEditor.TokenType.Operator], ["=", CodeEditor.TokenType.Operator], ["==", CodeEditor.TokenType.Operator], ["!", CodeEditor.TokenType.Operator], ["!=", CodeEditor.TokenType.Operator], ["=>", CodeEditor.TokenType.Operator], [">", CodeEditor.TokenType.Operator], [">>", CodeEditor.TokenType.Operator], ["|", CodeEditor.TokenType.Operator], ["||", CodeEditor.TokenType.Operator], ["?", CodeEditor.TokenType.Operator], ["??", CodeEditor.TokenType.Operator], ["^", CodeEditor.TokenType.Operator], ["~", CodeEditor.TokenType.Operator], ["*", CodeEditor.TokenType.Operator], ["/", CodeEditor.TokenType.Operator], ["%", CodeEditor.TokenType.Operator], [":", CodeEditor.TokenType.Operator], ["(", CodeEditor.TokenType.PunctuationBracket], [")", CodeEditor.TokenType.PunctuationBracket], ["[", CodeEditor.TokenType.PunctuationBracket], ["]", CodeEditor.TokenType.PunctuationBracket], ["{", CodeEditor.TokenType.PunctuationBracket], ["}", CodeEditor.TokenType.PunctuationBracket], ["as", CodeEditor.TokenType.Keyword], ["base", CodeEditor.TokenType.Keyword], ["break", CodeEditor.TokenType.Keyword], ["case", CodeEditor.TokenType.Keyword], ["catch", CodeEditor.TokenType.Keyword], ["checked", CodeEditor.TokenType.Keyword], ["class", CodeEditor.TokenType.Keyword], ["continue", CodeEditor.TokenType.Keyword], ["default", CodeEditor.TokenType.Keyword], ["delegate", CodeEditor.TokenType.Keyword], ["do", CodeEditor.TokenType.Keyword], ["else", CodeEditor.TokenType.Keyword], ["enum", CodeEditor.TokenType.Keyword], ["event", CodeEditor.TokenType.Keyword], ["explicit", CodeEditor.TokenType.Keyword], ["finally", CodeEditor.TokenType.Keyword], ["for", CodeEditor.TokenType.Keyword], ["foreach", CodeEditor.TokenType.Keyword], ["goto", CodeEditor.TokenType.Keyword], ["if", CodeEditor.TokenType.Keyword], ["implicit", CodeEditor.TokenType.Keyword], ["interface", CodeEditor.TokenType.Keyword], ["is", CodeEditor.TokenType.Keyword], ["lock", CodeEditor.TokenType.Keyword], ["namespace", CodeEditor.TokenType.Keyword], ["operator", CodeEditor.TokenType.Keyword], ["params", CodeEditor.TokenType.Keyword], ["return", CodeEditor.TokenType.Keyword], ["sizeof", CodeEditor.TokenType.Keyword], ["stackalloc", CodeEditor.TokenType.Keyword], ["struct", CodeEditor.TokenType.Keyword], ["switch", CodeEditor.TokenType.Keyword], ["throw", CodeEditor.TokenType.Keyword], ["try", CodeEditor.TokenType.Keyword], ["typeof", CodeEditor.TokenType.Keyword], ["unchecked", CodeEditor.TokenType.Keyword], ["using", CodeEditor.TokenType.Keyword], ["while", CodeEditor.TokenType.Keyword], ["new", CodeEditor.TokenType.Keyword], ["await", CodeEditor.TokenType.Keyword], ["in", CodeEditor.TokenType.Keyword], ["yield", CodeEditor.TokenType.Keyword], ["get", CodeEditor.TokenType.Keyword], ["set", CodeEditor.TokenType.Keyword], ["when", CodeEditor.TokenType.Keyword], ["out", CodeEditor.TokenType.Keyword], ["ref", CodeEditor.TokenType.Keyword], ["from", CodeEditor.TokenType.Keyword], ["where", CodeEditor.TokenType.Keyword], ["select", CodeEditor.TokenType.Keyword], ["record", CodeEditor.TokenType.Keyword], ["init", CodeEditor.TokenType.Keyword], ["with", CodeEditor.TokenType.Keyword], ["let", CodeEditor.TokenType.Keyword], ["this", CodeEditor.TokenType.Keyword], ["var", CodeEditor.TokenType.Keyword]]);
+
+    private static readonly TokenMap: System.StringMap<CodeEditor.TokenType> = new System.StringMap<CodeEditor.TokenType>([[";", CodeEditor.TokenType.PunctuationDelimiter], [".", CodeEditor.TokenType.PunctuationDelimiter], [",", CodeEditor.TokenType.PunctuationDelimiter], ["--", CodeEditor.TokenType.Operator], ["-", CodeEditor.TokenType.Operator], ["-=", CodeEditor.TokenType.Operator], ["&", CodeEditor.TokenType.Operator], ["&&", CodeEditor.TokenType.Operator], ["+", CodeEditor.TokenType.Operator], ["++", CodeEditor.TokenType.Operator], ["+=", CodeEditor.TokenType.Operator], ["<", CodeEditor.TokenType.Operator], ["<<", CodeEditor.TokenType.Operator], ["=", CodeEditor.TokenType.Operator], ["==", CodeEditor.TokenType.Operator], ["!", CodeEditor.TokenType.Operator], ["!=", CodeEditor.TokenType.Operator], ["=>", CodeEditor.TokenType.Operator], [">", CodeEditor.TokenType.Operator], [">>", CodeEditor.TokenType.Operator], ["|", CodeEditor.TokenType.Operator], ["||", CodeEditor.TokenType.Operator], ["?", CodeEditor.TokenType.Operator], ["??", CodeEditor.TokenType.Operator], ["^", CodeEditor.TokenType.Operator], ["~", CodeEditor.TokenType.Operator], ["*", CodeEditor.TokenType.Operator], ["/", CodeEditor.TokenType.Operator], ["%", CodeEditor.TokenType.Operator], [":", CodeEditor.TokenType.Operator], ["(", CodeEditor.TokenType.PunctuationBracket], [")", CodeEditor.TokenType.PunctuationBracket], ["[", CodeEditor.TokenType.PunctuationBracket], ["]", CodeEditor.TokenType.PunctuationBracket], ["{", CodeEditor.TokenType.PunctuationBracket], ["}", CodeEditor.TokenType.PunctuationBracket], ["as", CodeEditor.TokenType.Keyword], ["base", CodeEditor.TokenType.Keyword], ["break", CodeEditor.TokenType.Keyword], ["case", CodeEditor.TokenType.Keyword], ["catch", CodeEditor.TokenType.Keyword], ["checked", CodeEditor.TokenType.Keyword], ["class", CodeEditor.TokenType.Keyword], ["continue", CodeEditor.TokenType.Keyword], ["default", CodeEditor.TokenType.Keyword], ["delegate", CodeEditor.TokenType.Keyword], ["do", CodeEditor.TokenType.Keyword], ["else", CodeEditor.TokenType.Keyword], ["enum", CodeEditor.TokenType.Keyword], ["event", CodeEditor.TokenType.Keyword], ["explicit", CodeEditor.TokenType.Keyword], ["finally", CodeEditor.TokenType.Keyword], ["for", CodeEditor.TokenType.Keyword], ["foreach", CodeEditor.TokenType.Keyword], ["goto", CodeEditor.TokenType.Keyword], ["if", CodeEditor.TokenType.Keyword], ["implicit", CodeEditor.TokenType.Keyword], ["interface", CodeEditor.TokenType.Keyword], ["is", CodeEditor.TokenType.Keyword], ["lock", CodeEditor.TokenType.Keyword], ["namespace", CodeEditor.TokenType.Keyword], ["operator", CodeEditor.TokenType.Keyword], ["params", CodeEditor.TokenType.Keyword], ["return", CodeEditor.TokenType.Keyword], ["sizeof", CodeEditor.TokenType.Keyword], ["stackalloc", CodeEditor.TokenType.Keyword], ["struct", CodeEditor.TokenType.Keyword], ["switch", CodeEditor.TokenType.Keyword], ["throw", CodeEditor.TokenType.Keyword], ["try", CodeEditor.TokenType.Keyword], ["typeof", CodeEditor.TokenType.Keyword], ["unchecked", CodeEditor.TokenType.Keyword], ["using", CodeEditor.TokenType.Keyword], ["while", CodeEditor.TokenType.Keyword], ["new", CodeEditor.TokenType.Keyword], ["await", CodeEditor.TokenType.Keyword], ["in", CodeEditor.TokenType.Keyword], ["yield", CodeEditor.TokenType.Keyword], ["get", CodeEditor.TokenType.Keyword], ["set", CodeEditor.TokenType.Keyword], ["when", CodeEditor.TokenType.Keyword], ["out", CodeEditor.TokenType.Keyword], ["ref", CodeEditor.TokenType.Keyword], ["from", CodeEditor.TokenType.Keyword], ["where", CodeEditor.TokenType.Keyword], ["select", CodeEditor.TokenType.Keyword], ["record", CodeEditor.TokenType.Keyword], ["init", CodeEditor.TokenType.Keyword], ["with", CodeEditor.TokenType.Keyword], ["let", CodeEditor.TokenType.Keyword], ["var", CodeEditor.TokenType.Keyword], ["this", CodeEditor.TokenType.Keyword]]);
 
     public IsLeafNode(node: CodeEditor.TSSyntaxNode): boolean {
         let type = node.type;
@@ -96,18 +111,18 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
     }
 
     private static GetIdentifierTypeFromQualifiedName(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
-        if (node.parent.parent.type == "qualified_name")
+        if (node.parent!.parent?.type == "qualified_name")
             return CodeEditor.TokenType.Module;
-        
+        if (node.parent!.parent?.type == "assignment_expression")
+            return CodeEditor.TokenType.Variable; //TODO:是否静态类型的成员
+
         return node.nextNamedSibling == null ? CodeEditor.TokenType.Type : CodeEditor.TokenType.Module;
     }
 
     private static GetIdentifierTypeFromMemberAccess(node: CodeEditor.TSSyntaxNode): CodeEditor.TokenType {
         if (node.parent!.parent!.type == "invocation_expression")
             return CodeEditor.TokenType.Function;
-        if (node.parent!.parent!.type == "assignment_expression")
-            return CodeEditor.TokenType.Variable; //TODO:是否静态类型的成员
-
+        //TODO:查找上下文变量列表
         return node.nextNamedSibling == null ? CodeEditor.TokenType.Variable : CodeEditor.TokenType.Type;
     }
 

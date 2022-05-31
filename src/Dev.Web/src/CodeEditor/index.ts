@@ -20,6 +20,7 @@ export class TSCSharpLanguage {
     }
 }
 
+export * from './Generated/Gui/Signature/ISignatureProvider'
 export * from './ParserInput'
 export * from './Generated/TreeSitter/Common/TSPoint'
 export * from './Generated/TreeSitter/Common/TSEdit'

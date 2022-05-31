@@ -30,12 +30,12 @@ export class SelectionManager {
         if (this.SelectionCollection.length == 1)
             return this.SelectionCollection[0].SelectedText;
 
-        let sb = '';
+        let res = "";
         for (const selection of this.SelectionCollection) {
-            sb += selection.SelectedText;
+            res += selection.SelectedText;
         }
 
-        return sb;
+        return res;
     }
 
     public SetSelection(startPosition: CodeEditor.TextLocation, endPosition: CodeEditor.TextLocation) {

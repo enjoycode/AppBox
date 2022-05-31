@@ -44,7 +44,7 @@ export class CompletionContext {
             this._state = CompletionContext.StateShow;
             this.RunInternal(word.Word);
         } else {
-            let triggerChar = value[value.length - 1].charCodeAt(0);
+            let triggerChar = value.charCodeAt(value.length - 1);
             if (this._provider.TriggerCharacters.Contains(triggerChar)) {
                 this._completionStartOffset = this._controller.TextEditor.Caret.Offset;
                 this._startByTriggerChar = true;

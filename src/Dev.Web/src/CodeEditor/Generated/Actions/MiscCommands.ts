@@ -8,22 +8,28 @@ export class BackspaceCommand implements CodeEditor.IEditCommand {
         }
 
         let caretOffset = editor.Caret.Offset;
+        if (caretOffset <= 0) return;
 
-        if (caretOffset > 0) {
-            let curLineNr = editor.Document.GetLineNumberForOffset(caretOffset);
-            let curLineOffset = editor.Document.GetLineSegment(curLineNr).Offset;
+        let curLineNr = editor.Document.GetLineNumberForOffset(caretOffset);
+        let curLine = editor.Document.GetLineSegment(curLineNr);
+        let curLineOffset = curLine.Offset;
+        if (curLineOffset == caretOffset) {
+            let preLine = editor.Document.GetLineSegment(curLineNr - 1);
+            let preLineEndOffset = preLine.Offset + preLine.Length;
+            editor.Document.Remove(preLineEndOffset, curLineOffset - preLineEndOffset);
+            editor.Caret.Position = new CodeEditor.TextLocation(preLine.Length, curLineNr - 1);
+        } else {
+            //TODO:unicode like emoji
+            //先处理AutoClosingPairs
+            let ch = editor.Document.GetCharAt(caretOffset - 1);
+            let closingPair = editor.Document.SyntaxParser.Language.GetAutoColsingPairs(ch);
+            let len = closingPair != null &&
+            closingPair == editor.Document.GetCharAt(caretOffset)
+                ? 2
+                : 1;
 
-            if (curLineOffset == caretOffset) {
-                let line = editor.Document.GetLineSegment(curLineNr - 1);
-                let lineEndOffset = line.Offset + line.Length;
-                let lineLength = line.Length;
-                editor.Document.Remove(lineEndOffset, curLineOffset - lineEndOffset);
-                editor.Caret.Position = new CodeEditor.TextLocation(lineLength, curLineNr - 1);
-            } else {
-                //TODO:unicode like emoji
-                editor.Document.Remove(caretOffset - 1, 1);
-                editor.Caret.Position = editor.Document.OffsetToPosition(caretOffset - 1);
-            }
+            editor.Document.Remove(caretOffset - 1, len);
+            editor.Caret.Position = editor.Document.OffsetToPosition(caretOffset - 1);
         }
     }
 

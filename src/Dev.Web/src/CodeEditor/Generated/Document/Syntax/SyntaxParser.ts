@@ -10,13 +10,20 @@ export class SyntaxParser implements System.IDisposable {
         // @ts-ignore for new TSParser();
         this._parser = new window.TreeSitter(); //Don't use Initializer
         this._parser.setLanguage(language);
-        this._language = new CodeEditor.CSharpLanguage();
+        this.Language = new CodeEditor.CSharpLanguage();
     }
 
     private readonly _document: CodeEditor.Document;
 
     private readonly _parser: CodeEditor.TSParser;
-    private readonly _language: CodeEditor.ICodeLanguage;
+    #Language: CodeEditor.ICodeLanguage;
+    public get Language() {
+        return this.#Language;
+    }
+
+    private set Language(value) {
+        this.#Language = value;
+    }
 
     private _oldTree: Nullable<CodeEditor.TSTree>;
     private _edit: CodeEditor.TSEdit = new CodeEditor.TSEdit();
@@ -106,7 +113,7 @@ export class SyntaxParser implements System.IDisposable {
         this._oldTree = newTree;
 
         //生成FoldMarkers
-        let foldMarkers = this._language.GenerateFoldMarkers(this._document);
+        let foldMarkers = this.Language.GenerateFoldMarkers(this._document);
         this._document.FoldingManager.UpdateFoldings(foldMarkers);
     }
 
@@ -150,7 +157,7 @@ export class SyntaxParser implements System.IDisposable {
 
     private VisitNode(node: CodeEditor.TSSyntaxNode, lineSegment: CodeEditor.LineSegment) {
         let childrenCount = node.childCount;
-        if (!this._language.IsLeafNode(node) && childrenCount > 0) {
+        if (!this.Language.IsLeafNode(node) && childrenCount > 0) {
             this.VisitChildren(node, lineSegment);
             return;
         }
@@ -163,7 +170,7 @@ export class SyntaxParser implements System.IDisposable {
         // MISSING ; [4, 6] - [4, 6]
         if (node.endIndex <= node.startIndex) return;
 
-        let tokenType = this._language.GetTokenType(node);
+        let tokenType = this.Language.GetTokenType(node);
         let startOffset = Math.max(node.startIndex / SyntaxParser.ParserEncoding, lineSegment.Offset);
         let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding, lineSegment.Length);
         lineSegment.AddToken(tokenType, startOffset, length);

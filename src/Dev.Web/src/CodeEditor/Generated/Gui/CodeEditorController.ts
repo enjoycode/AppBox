@@ -93,7 +93,20 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
 
     public OnTextInput(text: string) {
         this._caretChangedByTextInput = true;
-        this.TextEditor.InsertOrReplaceString(text, 0);
+
+        //先判断处理AutoClosingPairs
+        let closingPair = text.length == 1
+            ? this.Document.SyntaxParser.Language.GetAutoColsingPairs(text.charCodeAt(0))
+            : null;
+        if (closingPair == null) {
+            this.TextEditor.InsertOrReplaceString(text, 0);
+        } else {
+            this.TextEditor.InsertOrReplaceString(text + String.fromCharCode(closingPair), 0);
+            let oldPosition = (this.TextEditor.Caret.Position).Clone();
+            this.TextEditor.Caret.Position =
+                new CodeEditor.TextLocation(oldPosition.Column - 1, oldPosition.Line);
+        }
+
         this._caretChangedByTextInput = false;
         //处理Completion
         this._completionContext.RunCompletion(text);

@@ -217,13 +217,13 @@ export class LineManager {
 
     private static NextDelimiter(text: string, offset: number): Nullable<DelimiterSegment> {
         for (let i = offset; i < text.length; i++) {
-            switch (text[i]) {
-                case '\r':
-                    if (i + 1 < text.length && text[i + 1] == '\n')
+            switch (text.charCodeAt(i)) {
+                case 13:
+                    if (i + 1 < text.length && text.charCodeAt(i + 1) == 10)
                         return new DelimiterSegment(i, 2);
                     else
                         return new DelimiterSegment(i, 1);
-                case '\n':
+                case 10:
                     return new DelimiterSegment(i, 1);
             }
         }
