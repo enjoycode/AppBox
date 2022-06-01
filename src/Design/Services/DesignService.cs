@@ -12,6 +12,7 @@ public sealed class DesignService : IService
         // Code
         { nameof(ChangeBuffer), new ChangeBuffer() },
         { nameof(GetCompletion), new GetCompletion() },
+        { nameof(GetSignatures), new GetSignatures() },
         // Entity
         { nameof(GetEntityPreview), new GetEntityPreview() },
         // View
