@@ -25,9 +25,15 @@ public sealed class DataFieldModel : EntityMemberModel
 
     public DataFieldType DataType => _dataType;
 
+    public int Length => _length;
+
+    public int Decimals => _decimals;
+
+    public bool IsDataTypeChanged => _isDataTypeChanged;
+
     public bool IsPrimaryKey =>
         Owner.SqlStoreOptions != null && Owner.SqlStoreOptions.IsPrimaryKey(MemberId);
-    
+
     /// <summary>
     /// 保留用于根据规则生成Sql列的名称, eg:相同前缀、命名规则等
     /// </summary>

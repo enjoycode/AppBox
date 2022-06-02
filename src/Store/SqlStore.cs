@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -17,8 +15,7 @@ public abstract class SqlStore
 {
     #region ====Statics====
 
-    private static readonly Dictionary<long, SqlStore> sqlStores =
-        new Dictionary<long, SqlStore>();
+    private static readonly Dictionary<long, SqlStore> SqlStores = new();
 
 #if !FUTURE
     internal static readonly long DefaultSqlStoreId = StringUtil.GetHashCode("Default");
@@ -28,7 +25,7 @@ public abstract class SqlStore
     internal static void SetDefaultSqlStore(SqlStore defaultSqlStore)
     {
         Debug.Assert(defaultSqlStore != null);
-        sqlStores.Add(DefaultSqlStoreId, defaultSqlStore);
+        SqlStores.Add(DefaultSqlStoreId, defaultSqlStore);
         Default = defaultSqlStore;
     }
 #endif
@@ -101,7 +98,7 @@ public abstract class SqlStore
     public abstract bool IsAtomicUpsertSupported { get; }
 
     /// <summary>
-    /// 某些数据不支持Retuning，所以需要单独读取
+    /// 某些数据库不支持Retuning，所以需要单独读取
     /// </summary>
     public abstract bool UseReaderForOutput { get; }
 
@@ -109,17 +106,21 @@ public abstract class SqlStore
 
     #region ====Connection & Command & Transaction====
 
-    public abstract DbCommand MakeCommand();
-
     public abstract DbConnection MakeConnection();
 
-    public abstract Task<DbTransaction> BeginTransactionAsync();
+    public abstract DbCommand MakeCommand();
 
     public async Task<DbConnection> OpenConnectionAsync()
     {
         var conn = MakeConnection();
         await conn.OpenAsync();
         return conn;
+    }
+
+    public async Task<DbTransaction> BeginTransactionAsync()
+    {
+        var conn = await OpenConnectionAsync();
+        return await conn.BeginTransactionAsync();
     }
 
     #endregion
@@ -452,13 +453,12 @@ public abstract class SqlStore
 
         var parasCount = 0; //用于判断有没有写入字段值
         var members = model.Members;
-        for (var i = 0; i < members.Count; i++)
+        foreach (var member in members)
         {
-            var member = members[i];
             if (member.Type != EntityMemberType.DataField) continue;
 
             var dataField = (DataFieldModel)member;
-            entity.WriteMember(dataField.MemberId, entityMemberWriter, /*参数序号*/ i);
+            entity.WriteMember(dataField.MemberId, entityMemberWriter, EntityMemberWriteFlags.None);
             if (cmd.Parameters.Count > parasCount) //已写入实体成员
             {
                 if (parasCount != 0) sb.Append(',');
@@ -472,9 +472,51 @@ public abstract class SqlStore
         for (var i = 0; i < cmd.Parameters.Count; i++)
         {
             if (i != 0) sb.Append(',');
-            sb.Append('@');
+            sb.Append(ParameterPrefix);
             sb.Append(cmd.Parameters[i].ParameterName);
         }
+
+        cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
+        return cmd;
+    }
+
+    protected internal virtual DbCommand BuildUpdateCommand(SqlEntity entity, EntityModel model)
+    {
+        var cmd = MakeCommand();
+        var entityMemberWriter = new DbCommandEntityMemberWriter(cmd);
+        var sb = StringBuilderCache.Acquire();
+        var tableName = model.GetSqlTableName(false, null);
+
+        sb.Append("Update ");
+        sb.AppendWithNameEscaper(tableName, NameEscaper);
+        sb.Append(" Set ");
+
+        var hasChangedMember = false;
+        foreach (var mm in model.Members)
+        {
+            if (mm.Type != EntityMemberType.DataField) continue;
+
+            var dfm = (DataFieldModel)mm;
+            if (dfm.IsPrimaryKey) continue; //跳过主键
+            if (!entity.IsMemberChanged(dfm.MemberId)) continue; //字段值无改变
+
+            entity.WriteMember(mm.MemberId, entityMemberWriter, EntityMemberWriteFlags.None);
+
+            if (hasChangedMember) sb.Append(",");
+            else hasChangedMember = true;
+
+            sb.AppendWithNameEscaper(dfm.SqlColName, NameEscaper);
+            sb.Append('=');
+            sb.Append(ParameterPrefix);
+            sb.Append(cmd.Parameters[^1].ParameterName);
+        }
+
+        if (!hasChangedMember)
+            throw new InvalidOperationException("entity has no changed member");
+
+        //根据主键生成条件
+        sb.Append(" Where ");
+        BuildWhereForUpdateOrDelete(entity, model, cmd, sb);
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
@@ -494,70 +536,24 @@ public abstract class SqlStore
         return cmd;
     }
 
-    protected internal virtual DbCommand BuildUpdateCommand(SqlEntity entity, EntityModel model)
-    {
-        var cmd = MakeCommand();
-        var entityMemberWriter = new DbCommandEntityMemberWriter(cmd);
-        var sb = StringBuilderCache.Acquire();
-        var tableName = model.GetSqlTableName(false, null);
-
-        sb.Append("Update ");
-        sb.AppendWithNameEscaper(tableName, NameEscaper);
-        sb.Append(" Set ");
-
-        var hasChangedMember = false;
-        var members = model.Members;
-        for (var i = 0; i < members.Count; i++)
-        {
-            var mm = model.Members[i];
-            if (mm.Type != EntityMemberType.DataField) continue;
-
-            var dfm = (DataFieldModel)mm;
-            if (dfm.IsPrimaryKey) continue; //跳过主键
-            if (!entity.IsMemberChanged(dfm.MemberId)) continue; //字段值无改变
-
-            entity.WriteMember(mm.MemberId, entityMemberWriter, /*参数序号*/ i);
-
-            if (hasChangedMember) sb.Append(",");
-            else hasChangedMember = true;
-
-            sb.AppendWithNameEscaper(dfm.SqlColName, NameEscaper);
-            sb.Append("=@p");
-            sb.Append(i.ToString());
-        }
-
-        if (!hasChangedMember)
-            throw new InvalidOperationException("entity has no changed member");
-
-        //根据主键生成条件
-        sb.Append(" Where ");
-        BuildWhereForUpdateOrDelete(entity, model, cmd, sb);
-
-        cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
-        return cmd;
-    }
-
     private void BuildWhereForUpdateOrDelete(Entity entity, EntityModel model, DbCommand cmd,
-        System.Text.StringBuilder sb)
+        StringBuilder sb)
     {
-        throw new NotImplementedException();
-        // int pindex = 0;
-        // FieldWithOrder pk;
-        // DataFieldModel mm;
-        // for (int i = 0; i < model.SqlStoreOptions.PrimaryKeys.Count; i++)
-        // {
-        //     pk = model.SqlStoreOptions.PrimaryKeys[i];
-        //     mm = (DataFieldModel)model.GetMember(pk.MemberId, true);
-        //
-        //     pindex++;
-        //     var para = MakeParameter();
-        //     para.ParameterName = $"p{pindex}";
-        //     para.Value = entity.GetMember(pk.MemberId).BoxedValue; //TODO: no boxing
-        //     cmd.Parameters.Add(para);
-        //
-        //     if (i != 0) sb.Append(" And");
-        //     sb.Append($" {NameEscaper}{mm.SqlColName}{NameEscaper}=@{para.ParameterName}");
-        // }
+        var entityMemberWriter = new DbCommandEntityMemberWriter(cmd);
+        for (var i = 0; i < model.SqlStoreOptions!.PrimaryKeys.Length; i++)
+        {
+            var pk = model.SqlStoreOptions.PrimaryKeys[i];
+            var mm = (DataFieldModel)model.GetMember(pk.MemberId, true)!;
+
+            entity.WriteMember(pk.MemberId, entityMemberWriter, EntityMemberWriteFlags.None);
+
+            if (i != 0) sb.Append(" And");
+            sb.Append(' ');
+            sb.AppendWithNameEscaper(mm.SqlColName, NameEscaper);
+            sb.Append('=');
+            sb.Append(ParameterPrefix);
+            sb.Append(cmd.Parameters[^1].ParameterName);
+        }
     }
 
     // protected internal abstract DbCommand BuildDeleteCommand(SqlDeleteCommand deleteCommand);

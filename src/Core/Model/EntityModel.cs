@@ -23,6 +23,35 @@ public sealed class EntityModel : ModelBase
     public SqlStoreOptions? SqlStoreOptions => _storeOptions as SqlStoreOptions;
 
     #region ====GetMember Methods====
+    
+    public EntityMemberModel? GetMember(string name, bool throwOnNotExists)
+    {
+        var m = _members.SingleOrDefault(t => t.Name == name);
+        if (m == null && throwOnNotExists)
+            throw new Exception($"Member not exists:{Name}.{name}");
+        return m;
+    }
+
+    public EntityMemberModel? GetMember(ReadOnlySpan<char> name, bool throwOnNotExists = true)
+    {
+        foreach (var t in Members)
+        {
+            if (t.Name.AsSpan().SequenceEqual(name))
+                return t;
+        }
+
+        if (throwOnNotExists)
+            throw new Exception($"Member not exists :{Name}.{name.ToString()}");
+        return null;
+    }
+
+    public EntityMemberModel? GetMember(short id, bool throwOnNotExists)
+    {
+        var m = _members.SingleOrDefault(t => t.MemberId == id);
+        if (m == null && throwOnNotExists)
+            throw new Exception($"Member not exists with id:{id}");
+        return null;
+    }
 
     private EntityMemberModel? BinarySearch(short id)
     {

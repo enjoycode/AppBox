@@ -12,7 +12,7 @@ public abstract class ModelBase : IBinSerializable
         _name = name;
         _persistentState = PersistentState.Detached;
     }
-    
+
     private ModelId _id;
     private string _name;
     private string? _originalName;
@@ -27,8 +27,10 @@ public abstract class ModelBase : IBinSerializable
     public ModelId Id => _id;
     public string Name => _name;
     public string OriginalName => _originalName ?? _name;
-    
+
     public bool IsDesignMode => _designMode;
+
+    public PersistentState PersistentState => _persistentState;
 
     #region ====Design Methods====
 
@@ -88,8 +90,8 @@ public abstract class ModelBase : IBinSerializable
             ws.WriteVariant(_version);
             ws.WriteByte((byte)_persistentState);
             ws.WriteString(_originalName);
-        } 
-        
+        }
+
         if (_folderId != null && (_designMode || ModelType == ModelType.Permission))
             ws.WriteFieldId(3).WriteGuid(_folderId.Value);
         ws.WriteFieldEnd();
