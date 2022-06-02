@@ -1,3 +1,4 @@
+using System;
 using System.Data.Common;
 using AppBoxCore;
 
@@ -23,7 +24,47 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
         _command.Parameters.Add(para);
     }
 
+    public void WriteBoolMember(short id, bool? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value;
+        _command.Parameters.Add(para);
+    }
+
     public void WriteIntMember(short id, int? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value;
+        _command.Parameters.Add(para);
+    }
+
+    public void WriteLongMember(short id, long? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value;
+        _command.Parameters.Add(para);
+    }
+
+    public void WriteDateTimeMember(short id, DateTime? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value;
+        _command.Parameters.Add(para);
+    }
+
+    public void WriteGuidMember(short id, Guid? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value;
+        _command.Parameters.Add(para);
+    }
+
+    public void WriteBinaryMember(short id, byte[]? value, int flags)
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";

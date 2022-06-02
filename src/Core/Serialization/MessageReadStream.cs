@@ -5,7 +5,7 @@ public sealed class MessageReadStream : IInputStream
     #region ====Static Pool====
 
     private static readonly ObjectPool<MessageReadStream> Pool =
-        new ObjectPool<MessageReadStream>(() => new MessageReadStream(), 16);
+        new(() => new MessageReadStream(), 16);
 
     public static MessageReadStream Rent(BytesSegment segment)
     {

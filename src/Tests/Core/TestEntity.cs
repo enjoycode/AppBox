@@ -35,7 +35,7 @@ public sealed class TestEntity : Entity
         switch (id)
         {
             case 1:
-                Name = rs.ReadStringMember(flags)!;
+                Name = rs.ReadStringMember(flags);
                 break;
             case 2:
                 Score = rs.ReadIntMember(flags);

@@ -10,9 +10,16 @@ public interface IInputStream : IEntityMemberReader
 
     #region ====IEntityMemberReader====
 
-    string? IEntityMemberReader.ReadStringMember(int flags)
+    string IEntityMemberReader.ReadStringMember(int flags)
     {
-        if (flags == 0) return this.ReadString();
+        if (flags == 0) return this.ReadString()!;
+
+        throw new NotImplementedException();
+    }
+
+    bool IEntityMemberReader.ReadBoolMember(int flags)
+    {
+        if (flags == 0) return this.ReadBool();
 
         throw new NotImplementedException();
     }
@@ -20,6 +27,40 @@ public interface IInputStream : IEntityMemberReader
     int IEntityMemberReader.ReadIntMember(int flags)
     {
         if (flags == 0) return this.ReadInt();
+
+        throw new NotImplementedException();
+    }
+
+    long IEntityMemberReader.ReadLongMember(int flags)
+    {
+        if (flags == 0) return this.ReadLong();
+
+        throw new NotImplementedException();
+    }
+
+    DateTime IEntityMemberReader.ReadDateTimeMember(int flags)
+    {
+        if (flags == 0) return this.ReadDateTime();
+
+        throw new NotImplementedException();
+    }
+
+    Guid IEntityMemberReader.ReadGuidMember(int flags)
+    {
+        if (flags == 0) return this.ReadGuid();
+
+        throw new NotImplementedException();
+    }
+
+    byte[] IEntityMemberReader.ReadBinaryMember(int flags)
+    {
+        if (flags == 0)
+        {
+            var len = this.ReadVariant();
+            var data = new byte[len];
+            ReadBytes(data);
+            return data;
+        }
 
         throw new NotImplementedException();
     }
@@ -68,6 +109,12 @@ public static class InputStreamExtensions
         }
 
         return res;
+    }
+
+    public static DateTime ReadDateTime(this IInputStream s)
+    {
+        var ticks = s.ReadLong();
+        return new DateTime(ticks);
     }
 
     public static Guid ReadGuid(this IInputStream s)

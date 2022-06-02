@@ -20,6 +20,7 @@ public enum SerializationError
     NotSupportedClassType,
     KnownTypeOverriderIsNull,
     
+    UnknownEntityMember,
     EntityFactoryIsNull,
     EntityFactoryNotExists,
     

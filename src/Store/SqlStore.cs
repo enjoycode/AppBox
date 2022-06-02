@@ -522,7 +522,7 @@ public abstract class SqlStore
         return cmd;
     }
 
-    protected internal virtual DbCommand BuildDeleteCommand(Entity entity, EntityModel model)
+    protected internal virtual DbCommand BuildDeleteCommand(SqlEntity entity, EntityModel model)
     {
         var cmd = MakeCommand();
         var sb = StringBuilderCache.Acquire();
@@ -536,7 +536,7 @@ public abstract class SqlStore
         return cmd;
     }
 
-    private void BuildWhereForUpdateOrDelete(Entity entity, EntityModel model, DbCommand cmd,
+    private void BuildWhereForUpdateOrDelete(SqlEntity entity, EntityModel model, DbCommand cmd,
         StringBuilder sb)
     {
         var entityMemberWriter = new DbCommandEntityMemberWriter(cmd);

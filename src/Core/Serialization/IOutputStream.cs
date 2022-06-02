@@ -25,6 +25,21 @@ public interface IOutputStream : IEntityMemberWriter
         }
     }
 
+    void IEntityMemberWriter.WriteBoolMember(short id, bool? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteBool(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     void IEntityMemberWriter.WriteIntMember(short id, int? value, int flags)
     {
         if (flags == EntityMemberWriteFlags.None)
@@ -33,6 +48,67 @@ public interface IOutputStream : IEntityMemberWriter
 
             this.WriteShort(id);
             this.WriteInt(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    void IEntityMemberWriter.WriteLongMember(short id, long? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteLong(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    void IEntityMemberWriter.WriteDateTimeMember(short id, DateTime? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteDateTime(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    void IEntityMemberWriter.WriteGuidMember(short id, Guid? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteGuid(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    void IEntityMemberWriter.WriteBinaryMember(short id, byte[]? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteVariant(value.Length);
+            WriteBytes(value);
         }
         else
         {
@@ -75,6 +151,11 @@ public static class OutputStreamExtensions
             var span = new Span<byte>(&value, 8);
             s.WriteBytes(span);
         }
+    }
+
+    public static void WriteDateTime(this IOutputStream s, DateTime value)
+    {
+        s.WriteLong(value.Ticks);
     }
 
     public static void WriteGuid(this IOutputStream s, Guid value)
