@@ -103,7 +103,7 @@ public sealed class ModelFolder : IBinSerializable
 
     public void WriteTo(IOutputStream ws)
     {
-        ws.WriteBool(Parent != null);
+        ws.WriteByte((byte)TargetModelType);
         if (Parent != null)
         {
             ws.WriteGuid(Id);
@@ -114,7 +114,6 @@ public sealed class ModelFolder : IBinSerializable
         else
         {
             ws.WriteInt(AppId);
-            ws.WriteByte((byte)TargetModelType);
             ws.WriteBool(IsDeleted);
         }
 
@@ -134,15 +133,26 @@ public sealed class ModelFolder : IBinSerializable
 
     public void ReadFrom(IInputStream rs)
     {
-        var isRoot = rs.ReadBool();
-        if (!isRoot)
+        TargetModelType = (ModelType)rs.ReadByte();
+        if (Parent != null)
         {
             Id = rs.ReadGuid();
             Name = rs.ReadString()!;
+            if (TargetModelType == ModelType.Permission) //仅权限文件夹排序
+                SortNum = rs.ReadVariant();
         }
-        else { }
+        else
+        {
+            AppId = rs.ReadInt();
+            IsDeleted = rs.ReadBool();
+        }
 
-        throw new NotImplementedException();
+        var childCount = rs.ReadVariant();
+        for (var i = 0; i < childCount; i++)
+        {
+            var child = new ModelFolder { Parent = this };
+            child.ReadFrom(rs);
+        }
     }
 
     #endregion
