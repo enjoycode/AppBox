@@ -22,7 +22,7 @@ public abstract class SqlStore
 
     public static SqlStore Default { get; private set; }
 
-    internal static void SetDefaultSqlStore(SqlStore defaultSqlStore)
+    public static void InitDefaultSqlStore(SqlStore defaultSqlStore)
     {
         Debug.Assert(defaultSqlStore != null);
         SqlStores.Add(DefaultSqlStoreId, defaultSqlStore);

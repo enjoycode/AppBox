@@ -5,6 +5,8 @@ namespace AppBoxStore;
 
 public interface IMetaStore
 {
+    Task TryInitStoreAsync();
+    
     /// <summary>
     ///  加载单个Model，用于运行时或设计时重新加载
     /// </summary>

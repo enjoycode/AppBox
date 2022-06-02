@@ -13,7 +13,7 @@ namespace AppBoxStore;
 /// <summary>
 /// 模型存储相关Api
 /// </summary>
-internal sealed class SqlMetaStore : IMetaStore
+public sealed class SqlMetaStore : IMetaStore
 {
     //以下常量跟内置存储的MetaCF内的Key前缀一致
     private const byte Meta_Application = 0x0C;
@@ -30,21 +30,22 @@ internal sealed class SqlMetaStore : IMetaStore
     private const byte Meta_App_Model_Usr_Counter = 0xAD;
 
     private const byte ModelType_Application = 100;
+    private const byte ModelType_Folder = 101;
 
     #region ====初始化====
 
     /// <summary>
     /// 如果没有初始化则创建元数据表结构
     /// </summary>
-    internal static async Task TryInitStoreAsync()
+    public async Task TryInitStoreAsync()
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
         //暂通过查询判断有无初始化过
-        using var cmd1 = db.MakeCommand();
+        await using var cmd1 = db.MakeCommand();
         cmd1.CommandText =
             $"Select meta From {esc}sys.Meta{esc} Where meta={Meta_Application} And id='{Consts.SYS_APP_ID.ToString()}'";
-        using var conn = db.MakeConnection();
+        await using var conn = db.MakeConnection();
         try
         {
             await conn.OpenAsync();
@@ -58,7 +59,7 @@ internal sealed class SqlMetaStore : IMetaStore
         cmd1.Connection = conn;
         try
         {
-            using var dr = await cmd1.ExecuteReaderAsync();
+            await using var dr = await cmd1.ExecuteReaderAsync();
             return;
         }
         catch (Exception ex)
@@ -68,8 +69,8 @@ internal sealed class SqlMetaStore : IMetaStore
         }
 
         //开始事务初始化
-        using var txn = conn.BeginTransaction();
-        using var cmd2 = db.MakeCommand();
+        await using var txn = await conn.BeginTransactionAsync();
+        await using var cmd2 = db.MakeCommand();
         cmd2.CommandText =
             $"Create Table {esc}sys.Meta{esc} (meta smallint NOT NULL, id varchar(100) NOT NULL, model smallint, data {db.BlobType} NOT NULL);";
         cmd2.CommandText +=
@@ -80,13 +81,13 @@ internal sealed class SqlMetaStore : IMetaStore
         {
             await cmd2.ExecuteNonQueryAsync();
             Log.Info("Create meta table done.");
-            await StoreInitiator.InitAsync(txn);
-            txn.Commit();
+            //TODO:***** await StoreInitiator.InitAsync(txn);
+            await txn.CommitAsync();
             Log.Info("Init default sql store done.");
         }
         catch (Exception ex)
         {
-            Log.Warn(
+            Log.Error(
                 $"Init default sql store error: {ex.GetType().Name}\n{ex.Message}\n{ex.StackTrace}");
             Environment.Exit(0); //TODO:退出前关闭子进程
         }
@@ -171,7 +172,7 @@ internal sealed class SqlMetaStore : IMetaStore
         await cmd2.ExecuteNonQueryAsync();
 
         await txn.CommitAsync();
-        
+
         return ModelId.Make(appId, type, seq, layer);
     }
 
@@ -231,7 +232,7 @@ internal sealed class SqlMetaStore : IMetaStore
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
         BuildInsertMetaCommand(cmd, Meta_Model, model.Id.ToString(), (byte)model.ModelType,
-             MetaSerializer.SerializeMeta(model), false);
+            MetaSerializer.SerializeMeta(model), false);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -243,7 +244,8 @@ internal sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildUpdateMetaCommand(cmd, Meta_Model, model.Id.ToString(),  MetaSerializer.SerializeMeta(model));
+        BuildUpdateMetaCommand(cmd, Meta_Model, model.Id.ToString(),
+            MetaSerializer.SerializeMeta(model));
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -688,7 +690,8 @@ internal sealed class SqlMetaStore : IMetaStore
         var list = new List<T>();
         while (await reader.ReadAsync())
         {
-            var meta = (T)MetaSerializer.DeserializeMeta((byte[])reader.GetValue(0)); //TODO:Use GetStream
+            var meta =
+                (T)MetaSerializer.DeserializeMeta((byte[])reader.GetValue(0)); //TODO:Use GetStream
             list.Add(meta);
         }
 
