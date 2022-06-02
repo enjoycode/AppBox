@@ -1,16 +1,31 @@
 using AppBoxCore;
+using AppBoxStore;
 
 namespace AppBoxWebHost;
 
 internal sealed class HostRuntimeContext : IRuntimeContext
 {
     private static readonly AsyncLocal<IUserSession?> SessionStore = new();
+    private static readonly Dictionary<long, ModelBase> Models = new Dictionary<long, ModelBase>();
 
     public IUserSession? CurrentSession => SessionStore.Value;
 
     internal static void SetCurrentSession(IUserSession? session)
     {
         SessionStore.Value = session;
+    }
+
+    public async ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
+    {
+        if (Models.TryGetValue(modelId, out var model))
+            return (T)model;
+
+        model = await MetaStore.Provider.LoadModelAsync(modelId);
+        if (model == null)
+            throw new Exception("Can't load model from ModelStore");
+
+        Models.TryAdd(modelId, model);
+        return (T)model;
     }
 
     public ValueTask<AnyValue> InvokeAsync(string servicePath, InvokeArgs args)

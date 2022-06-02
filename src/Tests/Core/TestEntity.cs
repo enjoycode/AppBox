@@ -7,18 +7,16 @@ namespace Tests.Core;
 
 public sealed class TestEntity : Entity
 {
-    private static readonly IEntityRuntimeModel _model =
-        new EntityRuntimeModel(12345, new short[] { 1, 2 });
+    private static readonly short[] Members = { 1, 2 };
 
-    public override IEntityRuntimeModel Model => _model;
-
-    private string _aa = "aa";
-    
     public string Name { get; set; } = null!;
 
     public int? Score { get; set; }
 
-    public override void WriteMember(short id, IEntityMemberWriter ws, EntityMemberWriteFlags flags)
+    public override ModelId ModelId => 12345;
+    public override short[] AllMembers => Members;
+
+    public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {
         switch (id)
         {

@@ -8,9 +8,7 @@ public readonly struct ModelId
     //| AppId 32bit | Type 8bit | Seq 22bit | Layer 2bit|
     private readonly long _encoded;
 
-    internal long EncodedValue => _encoded;
-
-    internal ModelId(long encoded)
+    private ModelId(long encoded)
     {
         _encoded = encoded;
     }
@@ -25,6 +23,8 @@ public readonly struct ModelId
     public ModelType Type => (ModelType)((_encoded >> 24) & 0xFF);
     
     public static implicit operator ModelId(long value) => new ModelId(value);
+
+    public static implicit operator long(ModelId value) => value._encoded;
 
     public override string ToString() => ((ulong)_encoded).ToString();
 }

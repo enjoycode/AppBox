@@ -1,5 +1,3 @@
-using AppBoxCore.Utils;
-
 namespace AppBoxCore;
 
 public interface IInputStream : IEntityMemberReader

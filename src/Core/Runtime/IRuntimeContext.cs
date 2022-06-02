@@ -9,6 +9,11 @@ public interface IRuntimeContext
     /// 当前用户的会话信息
     /// </summary>
     IUserSession? CurrentSession { get; }
+    
+    /// <summary>
+    /// 获取运行时模型,找不到抛异常
+    /// </summary>
+    ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase;
 
     /// <summary>
     /// 调用服务

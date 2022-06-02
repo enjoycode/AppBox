@@ -1,5 +1,3 @@
-using AppBoxCore.Utils;
-
 namespace AppBoxCore;
 
 public interface IOutputStream : IEntityMemberWriter
@@ -12,8 +10,7 @@ public interface IOutputStream : IEntityMemberWriter
 
     #region ====IEntityMemberWriter====
 
-    void IEntityMemberWriter.WriteStringMember(short id, string? value,
-        EntityMemberWriteFlags flags)
+    void IEntityMemberWriter.WriteStringMember(short id, string? value, int flags)
     {
         if (flags == EntityMemberWriteFlags.None)
         {
@@ -28,7 +25,7 @@ public interface IOutputStream : IEntityMemberWriter
         }
     }
 
-    void IEntityMemberWriter.WriteIntMember(short id, int? value, EntityMemberWriteFlags flags)
+    void IEntityMemberWriter.WriteIntMember(short id, int? value, int flags)
     {
         if (flags == EntityMemberWriteFlags.None)
         {
@@ -298,7 +295,7 @@ public static class OutputStreamExtensions
 
         s.Context.AddToSerialized(value);
         s.WriteByte((byte)PayloadType.Entity);
-        s.WriteLong(value.Model.ModelId.EncodedValue);
+        s.WriteLong(value.ModelId);
         value.WriteTo(s);
     }
 

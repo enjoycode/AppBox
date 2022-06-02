@@ -1,12 +1,5 @@
 namespace AppBoxCore;
 
-public enum EntityMemberType
-{
-    DataField,
-    EntityRef = 2,
-    EntitySet = 3,
-}
-
 public abstract class EntityMemberModel
 {
     public EntityMemberModel(EntityModel owner, string name, bool allowNull)
@@ -29,10 +22,10 @@ public abstract class EntityMemberModel
 
     public short MemberId => _memberId;
     public string Name => _name;
+    internal string OriginalName => string.IsNullOrEmpty(_originalName) ? Name : _originalName;
+    public bool IsNameChanged => _originalName != null && _originalName != _name;
     public PersistentState PersistentState => _persistentState;
     public bool AllowNull => _allowNull;
-
-    public bool IsNameChanged => _originalName != null && _originalName != _name;
 
     #region ====Design Methods====
 

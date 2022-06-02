@@ -1,5 +1,3 @@
-using AppBoxCore.Utils;
-
 namespace AppBoxCore;
 
 [BinSerializable(BinSerializePolicy.Compact)]

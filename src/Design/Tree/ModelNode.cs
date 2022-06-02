@@ -5,20 +5,32 @@ namespace AppBoxDesign;
 
 public sealed class ModelNode : DesignNode
 {
-    public readonly ModelBase Model;
-    public readonly DocumentId? RoslynDocumentId;
-
     public ModelNode(ModelBase model, DesignHub hub)
     {
         Model = model;
 
-        RoslynDocumentId = model.ModelType switch
+        // 创建Roslyn相关标识
+        switch (model.ModelType)
         {
-            ModelType.Entity => DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId),
-            ModelType.View => DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId),
-            _ => null
-        };
+            case ModelType.Entity:
+                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId);
+                break;
+            case ModelType.View:
+                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId);
+                break;
+            case ModelType.Service:
+                ServiceProjectId = ProjectId.CreateNewId();
+                RoslynDocumentId = DocumentId.CreateNewId(ServiceProjectId);
+                ServiceProxyDocumentId =
+                    DocumentId.CreateNewId(hub.TypeSystem.ServiceProxyProjectId);
+                break;
+        }
     }
+
+    public readonly ModelBase Model;
+    public readonly DocumentId? RoslynDocumentId;
+    public readonly ProjectId? ServiceProjectId; //服务模型专用
+    public readonly DocumentId? ServiceProxyDocumentId; //服务模型专用
 
     public override DesignNodeType Type => DesignNodeType.ModelNode;
     public override string Id => Model.Id.ToString();

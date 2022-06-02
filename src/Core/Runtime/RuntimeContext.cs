@@ -8,6 +8,9 @@ public static class RuntimeContext
 
     public static IUserSession? CurrentSession => _instance.CurrentSession;
 
+    public static ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
+        => _instance.GetModelAsync<T>(modelId);
+
     public static ValueTask<AnyValue> InvokeAsync(string service, InvokeArgs args)
         => _instance.InvokeAsync(service, args);
 }

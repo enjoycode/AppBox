@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace AppBoxCore.Utils;
+namespace AppBoxCore;
 
 public static class StringUtil
 {

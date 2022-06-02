@@ -5,6 +5,14 @@ namespace AppBoxCore;
 /// </summary>
 public abstract class ModelBase : IBinSerializable
 {
+    protected ModelBase(ModelId id, string name)
+    {
+        _designMode = true;
+        _id = id;
+        _name = name;
+        _persistentState = PersistentState.Detached;
+    }
+    
     private ModelId _id;
     private string _name;
     private string? _originalName;
@@ -13,19 +21,13 @@ public abstract class ModelBase : IBinSerializable
     private PersistentState _persistentState;
     private Guid? _folderId;
 
-    protected ModelBase(ModelId id, string name)
-    {
-        _designMode = true;
-        _id = id;
-        _name = name;
-        _persistentState = PersistentState.Detached;
-    }
-
     public ModelLayer ModelLayer => _id.Layer;
     public ModelType ModelType => _id.Type;
 
     public ModelId Id => _id;
     public string Name => _name;
+    public string OriginalName => _originalName ?? _name;
+    
     public bool IsDesignMode => _designMode;
 
     #region ====Design Methods====
@@ -77,7 +79,7 @@ public abstract class ModelBase : IBinSerializable
 
     public virtual void WriteTo(IOutputStream ws)
     {
-        ws.WriteLong(_id.EncodedValue);
+        ws.WriteLong(_id);
         ws.WriteString(_name);
         ws.WriteBool(_designMode);
 

@@ -1,5 +1,4 @@
 using AppBoxCore;
-using AppBoxCore.Utils;
 using NUnit.Framework;
 
 namespace Tests.Core;
@@ -54,7 +53,7 @@ public sealed class SerializationTest
 
         var reader = MessageReadStream.Rent(segment.First!);
         reader.Context.SetEntityFactories(new[]
-            { new EntityFactory(src.Model.ModelId.EncodedValue, () => new TestEntity()) });
+            { new EntityFactory(src.ModelId, () => new TestEntity()) });
         var dest = (TestEntity) reader.Deserialize()!;
         MessageReadStream.Return(reader);
         

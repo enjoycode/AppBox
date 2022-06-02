@@ -1,23 +1,5 @@
 namespace AppBoxCore;
 
-public enum DataFieldType : byte
-{
-    EntityId = 0,
-    String = 1,
-    DateTime = 2,
-    Short = 4,
-    Int = 6,
-    Long = 8,
-    Decimal = 9,
-    Bool = 10,
-    Guid = 11,
-    Byte = 12,
-    Binary = 13,
-    Enum = 14,
-    Float = 15,
-    Double = 16,
-}
-
 public sealed class DataFieldModel : EntityMemberModel
 {
     public DataFieldModel(EntityModel owner, string name, DataFieldType dataType, bool allowNull) :
@@ -42,6 +24,16 @@ public sealed class DataFieldModel : EntityMemberModel
     private string? _defaultValue; //默认值
 
     public DataFieldType DataType => _dataType;
+
+    public bool IsPrimaryKey =>
+        Owner.SqlStoreOptions != null && Owner.SqlStoreOptions.IsPrimaryKey(MemberId);
+    
+    /// <summary>
+    /// 保留用于根据规则生成Sql列的名称, eg:相同前缀、命名规则等
+    /// </summary>
+    public string SqlColName => Name;
+
+    public string SqlColOriginalName => OriginalName;
 
     #region ====Design Methods====
 
@@ -87,7 +79,7 @@ public sealed class DataFieldModel : EntityMemberModel
         ws.WriteByte((byte)_dataType);
         ws.WriteBool(_isForeignKey);
         if (_dataType == DataFieldType.Enum)
-            ws.WriteLong(_enumModelId!.Value.EncodedValue);
+            ws.WriteLong(_enumModelId!.Value);
         else if (_dataType == DataFieldType.String)
             ws.WriteVariant(_length);
         else if (_dataType == DataFieldType.Decimal)

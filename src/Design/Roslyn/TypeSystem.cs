@@ -21,26 +21,43 @@ internal sealed class TypeSystem : IDisposable
     /// </summary>
     internal readonly ProjectId WebViewsProjectId;
 
+    /// <summary>
+    /// 服务代理虚拟工程标识号
+    /// </summary>
+    internal readonly ProjectId ServiceProxyProjectId;
+
+    private static readonly CSharpCompilationOptions DllCompilationOptions =
+        new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            .WithNullableContextOptions(NullableContextOptions.Enable);
+
+    private static readonly CSharpParseOptions ParseOptions =
+        new CSharpParseOptions()
+            .WithLanguageVersion(LanguageVersion.CSharp10);
+
     public TypeSystem()
     {
         Workspace = new ModelWorkspace(new HostServicesAggregator());
 
         ModelProjectId = ProjectId.CreateNewId();
         WebViewsProjectId = ProjectId.CreateNewId();
+        ServiceProxyProjectId = ProjectId.CreateNewId();
 
-        var dllCompilationOptions =
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                .WithNullableContextOptions(NullableContextOptions.Enable);
-        var parseOptions = new CSharpParseOptions()
-            .WithLanguageVersion(LanguageVersion.CSharp10);
-        var webParseOptions = parseOptions.WithPreprocessorSymbols("__WEB__");
+        InitWorkspace();
+    }
+
+    /// <summary>
+    /// 初始化虚拟工程
+    /// </summary>
+    private void InitWorkspace()
+    {
+        var webParseOptions = ParseOptions.WithPreprocessorSymbols("__WEB__");
 
         var modelProjectInfo = ProjectInfo.Create(ModelProjectId, VersionStamp.Create(),
             "ModelProject", "ModelProject", LanguageNames.CSharp, null, null,
-            dllCompilationOptions, parseOptions);
+            DllCompilationOptions, ParseOptions);
         var webViewsProjectInfo = ProjectInfo.Create(WebViewsProjectId, VersionStamp.Create(),
             "ViewsProject", "ViewsProject", LanguageNames.CSharp, null, null,
-            dllCompilationOptions, webParseOptions);
+            DllCompilationOptions, webParseOptions);
 
         var newSolution = Workspace.CurrentSolution
                 //通用模型工程
@@ -100,6 +117,23 @@ public sealed class {model.Name} : View
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, src);
                 break;
             }
+            case ModelType.Service:
+            {
+                CreateServiceProject(node.ServiceProjectId!, (ServiceModel)model, appName);
+
+                var docName = $"{appName}.Services.{model.Name}.cs";
+                //TODO:get source from StagedService or ModelStore
+                var src = $@"public sealed class HelloService
+{{
+    public string SayHello(string name)
+    {{
+        return ""Hello "" + name;
+    }}
+}}";
+                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, src);
+                //TODO:服务代理的代码生成
+                break;
+            }
         }
 
         if (newSolution != null)
@@ -107,6 +141,51 @@ public sealed class {model.Name} : View
             if (!Workspace.TryApplyChanges(newSolution))
                 throw new Exception($"Can't add roslyn document for: {model.Name}");
         }
+    }
+
+    /// <summary>
+    /// 创建服务模型的虚拟项目，即一个服务模型对应一个虚拟项目
+    /// </summary>
+    private void CreateServiceProject(ProjectId prjId, ServiceModel model, string appName)
+    {
+        var prjName = $"{appName}.{model.Name}";
+
+        var serviceProjectInfo = ProjectInfo.Create(prjId, VersionStamp.Create(),
+            prjName, prjName, LanguageNames.CSharp, null, null,
+            DllCompilationOptions, ParseOptions);
+
+        var deps = new List<MetadataReference>
+        {
+            MetadataReferences.CoreLib,
+            MetadataReferences.NetstandardLib,
+            //MetadataReferences.SystemCoreLib,
+            // MetadataReferences.SystemLinqLib,
+            MetadataReferences.SystemRuntimeLib,
+            // MetadataReferences.SystemRuntimeExtLib,
+            // MetadataReferences.DataCommonLib,
+            // MetadataReferences.ComponentModelPrimitivesLib,
+            // MetadataReferences.SystemBuffersLib,
+            // MetadataReferences.TasksLib,
+            // MetadataReferences.TasksExtLib
+        };
+        // if (model.HasReference) //添加其他引用
+        // {
+        //     for (int i = 0; i < model.References.Count; i++)
+        //     {
+        //         deps.Add(MetadataReferences.Get($"{model.References[i]}.dll", appName));
+        //     }
+        // }
+
+        var newSolution = Workspace.CurrentSolution
+            .AddProject(serviceProjectInfo)
+            .AddMetadataReferences(prjId, deps)
+            .AddProjectReference(prjId, new ProjectReference(ModelProjectId));
+        // .AddProjectReference(prjid, new ProjectReference(ServiceBaseProjectId))
+        // .AddProjectReference(prjid, new ProjectReference(AsyncServiceProxyProjectId));
+        //.AddProjectReference(prjid, new ProjectReference(WorkflowModelProjectId));
+
+        if (!Workspace.TryApplyChanges(newSolution))
+            Log.Warn("Cannot create service project.");
     }
 
     public void Dispose()

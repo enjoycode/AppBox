@@ -2,6 +2,9 @@ using System.Diagnostics;
 
 namespace AppBoxCore;
 
+/// <summary>
+/// 实体模型，描述成员及存储选项
+/// </summary>
 public sealed class EntityModel : ModelBase
 {
     public EntityModel(ModelId id, string name) : base(id, name) { }
@@ -11,18 +14,13 @@ public sealed class EntityModel : ModelBase
     private short _devMemberIdSeq;
     private short _usrMemberIdSeq;
     private readonly List<EntityMemberModel> _members = new(); ////注意已按memberId排序
-    private IEntityStoreOption? _storeOption = null;
+    private IEntityStoreOptions? _storeOptions = null;
 
     public IReadOnlyList<EntityMemberModel> Members => _members;
 
-    public DataStoreKind DataStoreKind
-    {
-        get
-        {
-            if (_storeOption == null) return DataStoreKind.None;
-            throw new NotImplementedException(); //return _storeOption.
-        }
-    }
+    public DataStoreKind DataStoreKind => _storeOptions?.Kind ?? DataStoreKind.None;
+
+    public SqlStoreOptions? SqlStoreOptions => _storeOptions as SqlStoreOptions;
 
     #region ====GetMember Methods====
 
@@ -88,6 +86,40 @@ public sealed class EntityModel : ModelBase
         // if (persistentState() != PersistentState.Detached && sysStoreOptions() != null) {
         //     ((SysStoreOptions) _storeOptions).changeSchemaVersion();
         // }
+    }
+
+    #endregion
+
+    #region ====Runtime Methods====
+
+    public string GetSqlTableName(bool original, IDesignContext? ctx)
+    {
+        //TODO:暂简单实现
+        return original ? OriginalName : Name;
+//         Debug.Assert(SqlStoreOptions != null);
+// #if FUTURE
+//             return Name; //暂直接返回名称
+// #else
+//         if (!original && _sqlTableName_cached != null)
+//             return _sqlTableName_cached;
+//
+//         var name = original ? OriginalName : Name;
+//         //TODO:根据规则生成，另注意默认存储使用默认规则
+//         //if ((SqlStoreOptions.DataStoreModel.NameRules & DataStoreNameRules.AppPrefixForTable)
+//         //    == DataStoreNameRules.AppPrefixForTable)
+//         //{
+//         ApplicationModel app = ctx == null ? RuntimeContext.Current.GetApplicationModelAsync(AppId).Result
+//             : ctx.GetApplicationModel(AppId);
+//         if (original) return $"{app.Name}.{name}";
+//
+//         _sqlTableName_cached = $"{app.Name}.{name}";
+//         //}
+//         //else
+//         //{
+//         //    _sqlTableName_cached = name;
+//         //}
+//         return _sqlTableName_cached;
+// #endif
     }
 
     #endregion

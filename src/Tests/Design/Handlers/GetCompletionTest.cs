@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 using AppBoxCore;
-using AppBoxCore.Utils;
 using AppBoxDesign;
 using NUnit.Framework;
 
@@ -19,7 +18,7 @@ public class GetCompletionTest
 
         var appId = StringUtil.GetHashCode("sys") ^ StringUtil.GetHashCode("sys");
         var viewModelId = ModelId.Make(appId, ModelType.View, 1, ModelLayer.SYS);
-        var viewModelIdString = ((ulong)viewModelId.EncodedValue).ToString();
+        var viewModelIdString = viewModelId.ToString();
 
         var handler = new GetCompletion();
         var res = await handler.Handle(designHub,
