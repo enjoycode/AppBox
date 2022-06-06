@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using AppBoxCore;
 
@@ -71,4 +72,10 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
         para.Value = value;
         _command.Parameters.Add(para);
     }
+
+    public void WriteEntityRefMember(short id, Entity? value, int flags)
+        => throw new NotSupportedException(nameof(WriteEntityRefMember));
+
+    public void WriteEntitySetMember<T>(short id, IList<T>? value, int flags) where T : Entity
+        => throw new NotSupportedException(nameof(WriteEntitySetMember));
 }

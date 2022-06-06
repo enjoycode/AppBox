@@ -25,4 +25,8 @@ public interface IEntityMemberWriter
     void WriteGuidMember(short id, Guid? value, int flags);
 
     void WriteBinaryMember(short id, byte[]? value, int flags);
+
+    void WriteEntityRefMember(short id, Entity? value, int flags);
+
+    void WriteEntitySetMember<T>(short id, IList<T>? value, int flags) where T: Entity;
 }

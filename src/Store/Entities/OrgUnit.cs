@@ -11,7 +11,7 @@ public sealed class OrgUnit : SqlEntity
     private long _baseType;
     private Guid? _parentId;
 
-    private OrgUnit? _base;
+    private Entity? _base;
     private OrgUnit? _parent;
     private IList<OrgUnit>? _children;
 
@@ -50,14 +50,14 @@ public sealed class OrgUnit : SqlEntity
             case PARENTID_ID:
                 ws.WriteGuidMember(id, _parentId, flags);
                 break;
-            // case BASE_ID:
-            //     ws.WriteEntityRefMember(id, _base, flags);
-            //     break;
-            // case PARENT_ID:
-            //     ws.WriteEntityRefMember(id, _parent, flags);
-            //     break;
-            // case CHILDREN_ID:
-            //     ws.WriteEntitySetMember(id, _children, flags);
+            case BASE_ID:
+                ws.WriteEntityRefMember(id, _base, flags);
+                break;
+            case PARENT_ID:
+                ws.WriteEntityRefMember(id, _parent, flags);
+                break;
+            case CHILDREN_ID:
+                ws.WriteEntitySetMember(id, _children, flags);
                 break;
             default:
                 throw new SerializationException(SerializationError.UnknownEntityMember,
@@ -81,15 +81,24 @@ public sealed class OrgUnit : SqlEntity
             case PARENTID_ID:
                 _parentId = rs.ReadGuidMember(flags);
                 break;
-            // case BASE_ID:
-            //     _base = rs.ReadEntityRefMember(flags);
-            //     break;
-            // case PARENT_ID:
-            //     _parent = rs.ReadEntityRefMember(flags);
-            //     break;
-            // case CHILDREN_ID:
-            //     _children = rs.ReadEntitySetMember(flags);
-            //     break;
+            case BASE_ID:
+                _base = rs.ReadEntityRefMember<Entity>(flags, () =>
+                {
+                    if (_baseType == Employee.MODELID)
+                        return new Employee();
+                    if (_baseType == Workgroup.MODELID)
+                        return new Workgroup();
+                    if (_baseType == Enterprise.MODELID)
+                        return new Enterprise();
+                    throw new Exception();
+                });
+                break;
+            case PARENT_ID:
+                _parent = rs.ReadEntityRefMember(flags, () => new OrgUnit());
+                break;
+            case CHILDREN_ID:
+                _children = rs.ReadEntitySetMember(flags, () => new OrgUnit());
+                break;
             default:
                 throw new SerializationException(SerializationError.UnknownEntityMember,
                     nameof(Employee));

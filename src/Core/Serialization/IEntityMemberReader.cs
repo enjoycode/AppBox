@@ -3,7 +3,7 @@ namespace AppBoxCore;
 public interface IEntityMemberReader
 {
     //所有类型成员读取均返回非Nullable
-    
+
     string ReadStringMember(int flags);
 
     bool ReadBoolMember(int flags);
@@ -17,4 +17,8 @@ public interface IEntityMemberReader
     Guid ReadGuidMember(int flags);
 
     byte[] ReadBinaryMember(int flags);
+
+    T ReadEntityRefMember<T>(int flags, Func<T>? creator) where T : Entity;
+
+    IList<T> ReadEntitySetMember<T>(int flags, Func<T>? creator) where T : Entity;
 }

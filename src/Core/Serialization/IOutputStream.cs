@@ -116,6 +116,28 @@ public interface IOutputStream : IEntityMemberWriter
         }
     }
 
+    void IEntityMemberWriter.WriteEntityRefMember(short id, Entity? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None) return;
+        if (value == null) return;
+
+        this.WriteShort(id);
+        this.Serialize(value);
+    }
+
+    void IEntityMemberWriter.WriteEntitySetMember<T>(short id, IList<T>? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None) return;
+        if (value == null) return;
+
+        this.WriteShort(id);
+        this.WriteVariant(value.Count);
+        foreach (var entity in value)
+        {
+            this.Serialize(entity);
+        }
+    }
+
     #endregion
 }
 

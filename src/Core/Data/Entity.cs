@@ -6,12 +6,12 @@ public abstract class Entity : IBinSerializable
     /// 实体模型标识
     /// </summary>
     public abstract ModelId ModelId { get; }
-    
+
     /// <summary>
     /// 用于序列化时获取所有成员标识
     /// </summary>
     public abstract short[] AllMembers { get; }
-    
+
     #region ====Serialization====
 
     /// <summary>
@@ -20,7 +20,7 @@ public abstract class Entity : IBinSerializable
     public abstract void WriteMember(short id, IEntityMemberWriter ws, int flags);
 
     /// <summary>
-    /// 读取成员至IEntityMemberReader
+    /// 从IEntityMemberReader读取并设置成员
     /// </summary>
     public abstract void ReadMember(short id, IEntityMemberReader rs, int flags);
 
@@ -31,6 +31,7 @@ public abstract class Entity : IBinSerializable
         {
             WriteMember(memberId, ws, EntityMemberWriteFlags.None);
         }
+
         ws.WriteShort(0); //End write members
     }
 

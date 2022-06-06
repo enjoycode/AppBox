@@ -65,6 +65,22 @@ public interface IInputStream : IEntityMemberReader
         throw new NotImplementedException();
     }
 
+    T IEntityMemberReader.ReadEntityRefMember<T>(int flags, Func<T>? creator)
+        => this.DeserializeEntity(creator);
+
+    IList<T> IEntityMemberReader.ReadEntitySetMember<T>(int flags, Func<T>? creator)
+    {
+        var count = this.ReadVariant();
+        var list = new List<T>(count);
+        for (var i = 0; i < count; i++)
+        {
+            var entity = this.DeserializeEntity(creator);
+            list.Add(entity);
+        }
+
+        return list;
+    }
+
     #endregion
 }
 
@@ -304,7 +320,7 @@ public static class InputStreamExtensions
             case PayloadType.BooleanTrue: return true;
             case PayloadType.BooleanFalse: return false;
             case PayloadType.ObjectRef: return s.Context.GetDeserialized(s.ReadVariant());
-            case PayloadType.Entity: return s.DeserializeEntity();
+            case PayloadType.Entity: return s.DeserializeEntity<Entity>(null);
         }
 
         TypeSerializer? serializer;
@@ -356,15 +372,15 @@ public static class InputStreamExtensions
         return result;
     }
 
-    private static Entity DeserializeEntity(this IInputStream s)
+    internal static T DeserializeEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
     {
         var modelId = s.ReadLong();
         //从上下文获取实体工厂
-        var creator = s.Context.GetEntityFactory(modelId);
-        var entity = creator();
+        var f = creator ?? s.Context.GetEntityFactory(modelId);
+        var entity = f();
         s.Context.AddToDeserialized(entity);
         entity.ReadFrom(s);
-        return entity;
+        return (T)entity;
     }
 
     #endregion
