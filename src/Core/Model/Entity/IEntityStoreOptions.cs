@@ -1,6 +1,6 @@
 namespace AppBoxCore;
 
-public interface IEntityStoreOptions
+public interface IEntityStoreOptions : IBinSerializable
 {
     DataStoreKind Kind { get; }
 }

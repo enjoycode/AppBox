@@ -2,6 +2,11 @@ namespace AppBoxCore;
 
 public sealed class SqlStoreOptions : IEntityStoreOptions
 {
+    internal SqlStoreOptions(EntityModel owner)
+    {
+        _owner = owner;
+    }
+
     public SqlStoreOptions(EntityModel owner, long storeModelId)
     {
         _owner = owner;
@@ -73,6 +78,85 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         _indexes.Add(index);
 
         _owner.OnPropertyChanged();
+    }
+
+    #endregion
+
+    #region ====Serialization====
+
+    public void WriteTo(IOutputStream ws)
+    {
+        ws.WriteLong(_storeModelId);
+
+        //写入主键
+        ws.WriteVariant(_primaryKeys?.Length ?? 0);
+        if (_primaryKeys != null)
+        {
+            for (var i = 0; i < _primaryKeys.Length; i++)
+            {
+                ws.WriteShort(_primaryKeys[i].MemberId);
+                ws.WriteBool(_primaryKeys[i].OrderByDesc);
+            }
+        }
+
+        //写入索引
+        ws.WriteVariant(_indexes?.Count ?? 0);
+        if (_indexes != null)
+        {
+            for (var i = 0; i < _indexes.Count; i++)
+            {
+                _indexes[i].WriteTo(ws);
+            }
+        }
+
+        if (_owner.IsDesignMode)
+        {
+            ws.WriteByte(_devIndexIdSeq);
+            ws.WriteByte(_usrIndexIdSeq);
+            ws.WriteBool(_primaryKeysHasChanged);
+        }
+
+        ws.WriteFieldEnd(); //保留
+    }
+
+    public void ReadFrom(IInputStream rs)
+    {
+        _storeModelId = rs.ReadLong();
+
+        //读取主键
+        var count = rs.ReadVariant();
+        if (count > 0)
+        {
+            _primaryKeys = new FieldWithOrder[count];
+            for (var i = 0; i < count; i++)
+            {
+                var memberId = rs.ReadShort();
+                var orderByDesc = rs.ReadBool();
+                _primaryKeys[i] = new FieldWithOrder(memberId, orderByDesc);
+            }
+        }
+
+        //读取索引
+        count = rs.ReadVariant();
+        if (count > 0)
+        {
+            _indexes = new List<SqlIndexModel>();
+            for (var i = 0; i < count; i++)
+            {
+                var index = new SqlIndexModel(_owner);
+                index.ReadFrom(rs);
+                _indexes.Add(index);
+            }
+        }
+
+        if (_owner.IsDesignMode)
+        {
+            _devIndexIdSeq = rs.ReadByte();
+            _usrIndexIdSeq = rs.ReadByte();
+            _primaryKeysHasChanged = rs.ReadBool();
+        }
+
+        rs.ReadVariant(); //保留
     }
 
     #endregion

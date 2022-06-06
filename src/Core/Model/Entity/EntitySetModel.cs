@@ -2,6 +2,8 @@ namespace AppBoxCore;
 
 public sealed class EntitySetModel : EntityMemberModel
 {
+    internal EntitySetModel(EntityModel owner) : base(owner, string.Empty, false) { }
+
     public EntitySetModel(EntityModel owner, string name, long refModelId, short refMemberId)
         : base(owner, name, true)
     {

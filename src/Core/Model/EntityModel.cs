@@ -176,8 +176,9 @@ public sealed class EntityModel : ModelBase
             member.WriteTo(ws);
         }
 
-        //TODO: 写入存储配置
-        ws.WriteByte(0);
+        //写入存储配置
+        ws.WriteByte(_storeOptions == null ? (byte)0 : (byte)_storeOptions.Kind);
+        _storeOptions?.WriteTo(ws);
 
         if (IsDesignMode)
         {
@@ -201,8 +202,13 @@ public sealed class EntityModel : ModelBase
             _members.Add(member);
         }
 
-        //TODO: 读取存储配置
+        //读取存储配置
         var storeType = rs.ReadByte();
+        if (storeType != 0)
+        {
+            _storeOptions = MakeStoreOptionsByType(storeType);
+            _storeOptions.ReadFrom(rs);
+        }
 
         if (IsDesignMode)
         {
@@ -213,16 +219,24 @@ public sealed class EntityModel : ModelBase
         rs.ReadVariant(); //保留
     }
 
-    private static EntityMemberModel MakeMemberByType(byte memberType)
+    private EntityMemberModel MakeMemberByType(byte memberType)
     {
-        // if (memberType == EntityMemberType.DataField.value) {
-        //     return new DataFieldModel(this);
-        // } else if (memberType == EntityMemberType.EntityRef.value) {
-        //     return new EntityRefModel(this);
-        // } else if (memberType == EntityMemberType.EntitySet.value) {
-        //     return new EntitySetModel(this);
-        // }
-        throw new NotSupportedException("Unknown EntityMember type: " + memberType);
+        return (EntityMemberType)memberType switch
+        {
+            EntityMemberType.DataField => new DataFieldModel(this),
+            EntityMemberType.EntityRef => new EntityRefModel(this),
+            EntityMemberType.EntitySet => new EntitySetModel(this),
+            _ => throw new NotImplementedException(memberType.ToString())
+        };
+    }
+
+    private IEntityStoreOptions MakeStoreOptionsByType(byte type)
+    {
+        return (DataStoreKind)type switch
+        {
+            DataStoreKind.Sql => new SqlStoreOptions(this),
+            _ => throw new NotImplementedException(type.ToString())
+        };
     }
 
     #endregion

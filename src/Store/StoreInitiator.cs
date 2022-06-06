@@ -60,11 +60,13 @@ internal static class StoreInitiator
         //新建默认系统管理员及测试账号
         var admin = new Employee(Guid.NewGuid());
         admin.Name = admin.Account = "Admin";
+        admin.Password = RuntimeContext.PasswordHasher.HashPassword("760wb");
         admin.Male = true;
         admin.Birthday = new DateTime(1977, 3, 16);
 
         var test = new Employee(Guid.NewGuid());
         test.Name = test.Account = "Test";
+        test.Password = RuntimeContext.PasswordHasher.HashPassword("la581");
         test.Male = false;
         test.Birthday = new DateTime(1979, 1, 2);
 
@@ -173,23 +175,27 @@ internal static class StoreInitiator
 #endif
 
         //添加权限模型在保存OU实例之后
-//         var admin_permission = new PermissionModel(Consts.SYS_PERMISSION_ADMIN_ID, "Admin");
-//         admin_permission.Remark = "System administrator";
-// #if FUTURE
-//             admin_permission.OrgUnits.Add(adminou.Id);
-// #else
-//         admin_permission.OrgUnits.Add(adminou.GetGuid(PK_Member_Id));
-// #endif
-//         var developer_permission =
-//             new PermissionModel(Consts.SYS_PERMISSION_DEVELOPER_ID, "Developer");
-//         developer_permission.Remark = "System developer";
-// #if FUTURE
-//             developer_permission.OrgUnits.Add(itdeptou.Id);
-// #else
-//         developer_permission.OrgUnits.Add(itdeptou.GetGuid(PK_Member_Id));
-// #endif
-//         await ModelStore.InsertModelAsync(admin_permission, txn);
-//         await ModelStore.InsertModelAsync(developer_permission, txn);
+        var admin_permission =
+            new PermissionModel(
+                ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS), "Admin");
+        admin_permission.Comment = "System administrator";
+#if FUTURE
+            admin_permission.OrgUnits.Add(adminou.Id);
+#else
+        admin_permission.OrgUnits.Add(adminou.Id);
+#endif
+        var developer_permission =
+            new PermissionModel(
+                ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS),
+                "Developer");
+        developer_permission.Comment = "System developer";
+#if FUTURE
+            developer_permission.OrgUnits.Add(itdeptou.Id);
+#else
+        developer_permission.OrgUnits.Add(itdeptou.Id);
+#endif
+        await MetaStore.Provider.InsertModelAsync(admin_permission, txn);
+        await MetaStore.Provider.InsertModelAsync(developer_permission, txn);
 
 #if FUTURE
             await txn.CommitAsync();

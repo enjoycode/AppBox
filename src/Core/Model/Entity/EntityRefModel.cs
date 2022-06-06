@@ -4,6 +4,8 @@ public sealed class EntityRefModel : EntityMemberModel
 {
     #region ====Ctor====
 
+    internal EntityRefModel(EntityModel owner) : base(owner, string.Empty, false) { }
+
     /// <summary>
     /// 设计时新建非聚合引用成员
     /// </summary>

@@ -4,25 +4,15 @@ using AppBoxStore;
 using AppBoxWebHost;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-
-// app.UseHttpsRedirection();
-
-// app.UseAuthorization();
-
 app.UseWebSockets();
-
 app.MapControllers();
 
 // 初始化
-RuntimeContext.Init(new HostRuntimeContext());
+RuntimeContext.Init(new HostRuntimeContext(), new PasswordHasher());
 #if !FUTURE
 // 加载默认SqlStore
 var libPath = Path.GetDirectoryName(typeof(SqlStore).Assembly.Location)!;

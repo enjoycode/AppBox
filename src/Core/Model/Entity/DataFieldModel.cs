@@ -2,6 +2,8 @@ namespace AppBoxCore;
 
 public sealed class DataFieldModel : EntityMemberModel
 {
+    internal DataFieldModel(EntityModel owner) : base(owner, string.Empty, false) { }
+
     public DataFieldModel(EntityModel owner, string name, DataFieldType dataType, bool allowNull) :
         base(owner, name, allowNull)
     {
