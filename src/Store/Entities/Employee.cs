@@ -5,11 +5,21 @@ namespace AppBoxStore;
 
 public sealed class Employee : SqlEntity
 {
+    internal Employee() { }
+
+    public Employee(Guid id)
+    {
+        _id = id;
+    }
+
+    private Guid _id;
     private string _name = null!;
     private bool _male;
     private DateTime _birthday;
     private string? _account;
     private byte[]? _password;
+
+    public Guid Id => _id;
 
     public string Name
     {
@@ -71,14 +81,15 @@ public sealed class Employee : SqlEntity
     internal static readonly ModelId MODELID =
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Entity, 1, ModelLayer.SYS);
 
-    internal const short NAME_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short MALE_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BIRTHDAY_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short ACCOUNT_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short PASSWORD_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short MALE_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short BIRTHDAY_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short ACCOUNT_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short PASSWORD_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds =
-        { NAME_ID, MALE_ID, BIRTHDAY_ID, ACCOUNT_ID, PASSWORD_ID };
+        { ID_ID, NAME_ID, MALE_ID, BIRTHDAY_ID, ACCOUNT_ID, PASSWORD_ID };
 
     public override ModelId ModelId => MODELID;
     public override short[] AllMembers => MemberIds;
@@ -87,6 +98,9 @@ public sealed class Employee : SqlEntity
     {
         switch (id)
         {
+            case ID_ID:
+                ws.WriteGuidMember(id, _id, flags);
+                break;
             case NAME_ID:
                 ws.WriteStringMember(id, _name, flags);
                 break;
@@ -112,8 +126,11 @@ public sealed class Employee : SqlEntity
     {
         switch (id)
         {
+            case ID_ID:
+                _id = rs.ReadGuidMember(flags);
+                break;
             case NAME_ID:
-                _name = rs.ReadStringMember(flags)!;
+                _name = rs.ReadStringMember(flags);
                 break;
             case MALE_ID:
                 _male = rs.ReadBoolMember(flags);

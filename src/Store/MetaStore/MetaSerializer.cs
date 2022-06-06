@@ -1,3 +1,4 @@
+using System;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -7,16 +8,18 @@ namespace AppBoxStore;
 /// </summary>
 public static class MetaSerializer
 {
-    public static byte[] SerializeMeta(object obj)
+    public static byte[] SerializeMeta<T>(T obj) where T: IBinSerializable
     {
         using var ms = new MemoryWriteStream(128);
-        ms.Serialize(obj);
+        obj.WriteTo(ms);
         return ms.Data;
     }
 
-    public static object DeserializeMeta(byte[] data)
+    public static T DeserializeMeta<T>(byte[] data, Func<T> creator) where T: IBinSerializable
     {
+        var obj = creator();
         using var ms = new MemoryReadStream(data);
-        return ms.Deserialize()!;
+        obj.ReadFrom(ms);
+        return obj;
     }
 }

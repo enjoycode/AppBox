@@ -18,6 +18,8 @@ public sealed partial class ViewModel : ModelBase
 {
     [Field(1)] private ViewModelType _type;
 
+    public ViewModel() { }
+
     public ViewModel(ModelId id, string name) : base(id, name)
     {
         Debug.Assert(id.Type == ModelType.View);

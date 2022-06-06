@@ -8,9 +8,9 @@ namespace AppBoxStore;
 /// <summary>
 /// 用于将实体成员转换为DbCommand的参数
 /// </summary>
-internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
+internal readonly struct DbCommandParameterWriter : IEntityMemberWriter
 {
-    public DbCommandEntityMemberWriter(DbCommand command)
+    public DbCommandParameterWriter(DbCommand command)
     {
         _command = command;
     }
@@ -21,7 +21,7 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        para.Value = value;
+        para.Value = value == null ? DBNull.Value : value;
         _command.Parameters.Add(para);
     }
 
@@ -29,7 +29,7 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        para.Value = value;
+        para.Value = value == null ? DBNull.Value : value;
         _command.Parameters.Add(para);
     }
 
@@ -37,7 +37,7 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        para.Value = value;
+        para.Value = value == null ? DBNull.Value : value;
         _command.Parameters.Add(para);
     }
 
@@ -45,7 +45,7 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        para.Value = value;
+        para.Value = value == null ? DBNull.Value : value;
         _command.Parameters.Add(para);
     }
 
@@ -53,7 +53,7 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        para.Value = value;
+        para.Value = value == null ? DBNull.Value : value;
         _command.Parameters.Add(para);
     }
 
@@ -61,7 +61,7 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        para.Value = value;
+        para.Value = value == null ? DBNull.Value : value;
         _command.Parameters.Add(para);
     }
 
@@ -69,7 +69,7 @@ internal readonly struct DbCommandEntityMemberWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        para.Value = value;
+        para.Value = value == null ? DBNull.Value : value;
         _command.Parameters.Add(para);
     }
 

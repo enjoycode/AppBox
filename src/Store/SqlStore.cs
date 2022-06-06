@@ -18,7 +18,7 @@ public abstract class SqlStore
     private static readonly Dictionary<long, SqlStore> SqlStores = new();
 
 #if !FUTURE
-    internal static readonly long DefaultSqlStoreId = StringUtil.GetHashCode("Default");
+    public static readonly long DefaultSqlStoreId = StringUtil.GetHashCode("Default");
 
     public static SqlStore Default { get; private set; }
 
@@ -445,7 +445,7 @@ public abstract class SqlStore
     {
         //TODO: cache SqlText to EntityModel's SqlStoreOptions
         var cmd = MakeCommand();
-        var entityMemberWriter = new DbCommandEntityMemberWriter(cmd);
+        var entityMemberWriter = new DbCommandParameterWriter(cmd);
         var sb = StringBuilderCache.Acquire();
         sb.Append("Insert Into ");
         sb.AppendWithNameEscaper(model.GetSqlTableName(false, null), NameEscaper);
@@ -476,6 +476,8 @@ public abstract class SqlStore
             sb.Append(cmd.Parameters[i].ParameterName);
         }
 
+        sb.Append(')');
+
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
     }
@@ -483,7 +485,7 @@ public abstract class SqlStore
     protected internal virtual DbCommand BuildUpdateCommand(SqlEntity entity, EntityModel model)
     {
         var cmd = MakeCommand();
-        var entityMemberWriter = new DbCommandEntityMemberWriter(cmd);
+        var entityMemberWriter = new DbCommandParameterWriter(cmd);
         var sb = StringBuilderCache.Acquire();
         var tableName = model.GetSqlTableName(false, null);
 
@@ -539,7 +541,7 @@ public abstract class SqlStore
     private void BuildWhereForUpdateOrDelete(SqlEntity entity, EntityModel model, DbCommand cmd,
         StringBuilder sb)
     {
-        var entityMemberWriter = new DbCommandEntityMemberWriter(cmd);
+        var entityMemberWriter = new DbCommandParameterWriter(cmd);
         for (var i = 0; i < model.SqlStoreOptions!.PrimaryKeys.Length; i++)
         {
             var pk = model.SqlStoreOptions.PrimaryKeys[i];

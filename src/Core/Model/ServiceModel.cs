@@ -4,6 +4,8 @@ namespace AppBoxCore;
 
 public sealed class ServiceModel : ModelBase
 {
+    public ServiceModel() { }
+
     public ServiceModel(ModelId id, string name) : base(id, name)
     {
         Debug.Assert(id.Type == ModelType.Service);

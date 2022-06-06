@@ -7,7 +7,7 @@ public sealed class EntityRefModel : EntityMemberModel
     /// <summary>
     /// 设计时新建非聚合引用成员
     /// </summary>
-    internal EntityRefModel(EntityModel owner, string name, long refModelId,
+    public EntityRefModel(EntityModel owner, string name, long refModelId,
         short[] fkMemberIds, bool foreignConstraint = true) : base(owner, name, true)
     {
         if (fkMemberIds == null || fkMemberIds.Length == 0)
@@ -23,7 +23,7 @@ public sealed class EntityRefModel : EntityMemberModel
     /// <summary>
     /// 设计时新建聚合引用成员
     /// </summary>
-    internal EntityRefModel(EntityModel owner, string name, List<long> refModelIds,
+    public EntityRefModel(EntityModel owner, string name, List<long> refModelIds,
         short[] fkMemberIds, short typeMemberId, bool foreignConstraint = true) : base(owner, name,
         true)
     {
@@ -97,6 +97,24 @@ public sealed class EntityRefModel : EntityMemberModel
     //         }
     //     }
     // }
+
+    #endregion
+
+    #region ====Design Methods====
+
+    public override void SetAllowNull(bool value)
+    {
+        _allowNull = value;
+        foreach (var fkId in FKMemberIds)
+        {
+            Owner.GetMember(fkId, true)!.SetAllowNull(value);
+        }
+
+        if (IsAggregationRef)
+        {
+            Owner.GetMember(TypeMemberId, true)!.SetAllowNull(value);
+        }
+    }
 
     #endregion
 }

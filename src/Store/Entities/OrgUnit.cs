@@ -6,6 +6,14 @@ namespace AppBoxStore;
 
 public sealed class OrgUnit : SqlEntity
 {
+    internal OrgUnit() { }
+
+    public OrgUnit(Guid id)
+    {
+        _id = id;
+    }
+
+    private Guid _id;
     private string _name = null!;
     private Guid _baseId;
     private long _baseType;
@@ -15,21 +23,70 @@ public sealed class OrgUnit : SqlEntity
     private OrgUnit? _parent;
     private IList<OrgUnit>? _children;
 
+    public Guid Id => _id;
+
+    public Guid BaseId => _baseId;
+
+    public long BaseType => _baseType;
+
+    public Guid? ParentId => _parentId;
+
+    public Entity? Parent => _parent;
+
+    public string Name
+    {
+        get => _name;
+    }
+
+    public Entity? Base
+    {
+        get => _base;
+        set
+        {
+            _base = value ?? throw new ArgumentNullException();
+            switch (value)
+            {
+                case Enterprise enterprise:
+                    _baseType = Enterprise.MODELID;
+                    _baseId = enterprise.Id;
+                    _name = enterprise.Name;
+                    break;
+                case Workgroup workgroup:
+                    _baseType = Workgroup.MODELID;
+                    _baseId = workgroup.Id;
+                    _name = workgroup.Name;
+                    break;
+                case Employee employee:
+                    _baseType = Employee.MODELID;
+                    _baseId = employee.Id;
+                    _name = employee.Name;
+                    break;
+                default: throw new ArgumentException();
+            }
+
+            OnPropertyChanged(BASETYPE_ID);
+            OnPropertyChanged(BASEID_ID);
+        }
+    }
+
+    public IList<OrgUnit>? Children => _children;
+
     #region ====Overrides====
 
     internal static readonly ModelId MODELID =
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Entity, 4, ModelLayer.SYS);
 
-    internal const short NAME_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASEID_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASETYPE_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASE_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short PARENTID_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short PARENT_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short CHILDREN_ID = 7 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short BASEID_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short BASETYPE_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short BASE_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short PARENTID_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short PARENT_ID = 7 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short CHILDREN_ID = 8 << IdUtil.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds =
-        { NAME_ID, BASEID_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID };
+        { ID_ID, NAME_ID, BASEID_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID };
 
     public override ModelId ModelId => MODELID;
     public override short[] AllMembers => MemberIds;
@@ -38,6 +95,9 @@ public sealed class OrgUnit : SqlEntity
     {
         switch (id)
         {
+            case ID_ID:
+                ws.WriteGuidMember(id, _id, flags);
+                break;
             case NAME_ID:
                 ws.WriteStringMember(id, _name, flags);
                 break;
@@ -69,6 +129,9 @@ public sealed class OrgUnit : SqlEntity
     {
         switch (id)
         {
+            case ID_ID:
+                _id = rs.ReadGuidMember(flags);
+                break;
             case NAME_ID:
                 _name = rs.ReadStringMember(flags);
                 break;
@@ -89,7 +152,7 @@ public sealed class OrgUnit : SqlEntity
                     if (_baseType == Workgroup.MODELID)
                         return new Workgroup();
                     if (_baseType == Enterprise.MODELID)
-                        return new Enterprise();
+                        return new Enterprise(Guid.Empty);
                     throw new Exception();
                 });
                 break;

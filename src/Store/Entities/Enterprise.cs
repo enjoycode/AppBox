@@ -1,11 +1,20 @@
+using System;
 using AppBoxCore;
 
 namespace AppBoxStore;
 
 public sealed class Enterprise : SqlEntity
 {
+    public Enterprise(Guid id)
+    {
+        _id = id;
+    }
+
+    private Guid _id;
     private string _name = null!;
     private string? _address;
+
+    public Guid Id => _id;
 
     public string Name
     {
@@ -34,10 +43,11 @@ public sealed class Enterprise : SqlEntity
     internal static readonly ModelId MODELID =
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Entity, 2, ModelLayer.SYS);
 
-    internal const short NAME_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short ADDRESS_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short ADDRESS_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
 
-    private static readonly short[] MemberIds = { NAME_ID, ADDRESS_ID };
+    private static readonly short[] MemberIds = { ID_ID, NAME_ID, ADDRESS_ID };
 
     public override ModelId ModelId => MODELID;
     public override short[] AllMembers => MemberIds;
@@ -46,6 +56,9 @@ public sealed class Enterprise : SqlEntity
     {
         switch (id)
         {
+            case ID_ID:
+                ws.WriteGuidMember(id, _id, flags);
+                break;
             case NAME_ID:
                 ws.WriteStringMember(id, _name, flags);
                 break;
@@ -62,6 +75,9 @@ public sealed class Enterprise : SqlEntity
     {
         switch (id)
         {
+            case ID_ID:
+                _id = rs.ReadGuidMember(flags);
+                break;
             case NAME_ID:
                 _name = rs.ReadStringMember(flags);
                 break;

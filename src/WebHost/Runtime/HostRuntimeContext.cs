@@ -3,10 +3,10 @@ using AppBoxStore;
 
 namespace AppBoxWebHost;
 
-internal sealed class HostRuntimeContext : IRuntimeContext
+internal sealed class HostRuntimeContext : IHostRuntimeContext
 {
     private static readonly AsyncLocal<IUserSession?> SessionStore = new();
-    private static readonly Dictionary<long, ModelBase> Models = new Dictionary<long, ModelBase>();
+    private readonly Dictionary<long, ModelBase> Models = new();
 
     public IUserSession? CurrentSession => SessionStore.Value;
 
@@ -57,5 +57,16 @@ internal sealed class HostRuntimeContext : IRuntimeContext
         {
             args.Free();
         }
+    }
+
+    public void InjectApplication(ApplicationModel appModel)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void InjectModel(ModelBase model)
+    {
+        model.AcceptChanges();
+        Models.Add(model.Id, model);
     }
 }

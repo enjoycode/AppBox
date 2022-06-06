@@ -10,6 +10,8 @@ public sealed partial class ApplicationModel
 #if FUTURE
     private byte _sysStoreId; //映射至系统存储的编号，由SysStore生成
 #endif
+    
+    public ApplicationModel() {}
 
     public ApplicationModel(string owner, string name)
     {

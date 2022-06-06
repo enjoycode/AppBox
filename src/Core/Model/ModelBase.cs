@@ -5,6 +5,8 @@ namespace AppBoxCore;
 /// </summary>
 public abstract class ModelBase : IBinSerializable
 {
+    protected ModelBase() { }
+
     protected ModelBase(ModelId id, string name)
     {
         _designMode = true;
@@ -27,6 +29,12 @@ public abstract class ModelBase : IBinSerializable
     public ModelId Id => _id;
     public string Name => _name;
     public string OriginalName => _originalName ?? _name;
+
+    public Guid? FolderId
+    {
+        get => _folderId;
+        set => _folderId = value;
+    }
 
     public bool IsDesignMode => _designMode;
 
@@ -64,7 +72,7 @@ public abstract class ModelBase : IBinSerializable
             _persistentState = PersistentState.Deleted;
     }
 
-    protected void CheckDesignMode()
+    public void CheckDesignMode()
     {
         if (!_designMode) throw new InvalidOperationException();
     }

@@ -16,7 +16,7 @@ public abstract class EntityMemberModel
     private string _name;
     private string? _originalName;
     private short _memberId;
-    private bool _allowNull; //设计时改变时如果是DataField需要调用其onDataTypeChanged
+    protected bool _allowNull; //设计时改变时如果是DataField需要调用其onDataTypeChanged
     private PersistentState _persistentState;
     private string? _comment;
 
@@ -36,6 +36,8 @@ public abstract class EntityMemberModel
         else
             throw new InvalidOperationException("Member id has set");
     }
+
+    public abstract void SetAllowNull(bool value);
 
     public void RenameTo(string newName)
     {

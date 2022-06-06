@@ -2,6 +2,8 @@ namespace AppBoxCore;
 
 public static class IdUtil
 {
+    public const int INDEXID_UNIQUE_OFFSET = 7;
+    
     public const short MEMBERID_MASK = unchecked((short)0xFFE0); //2的11次方左移5位
     public const short MEMBERID_LENFLAG_MASK = 0xF; //后4位
     public const int MEMBERID_SEQ_OFFSET = 7;

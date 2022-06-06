@@ -66,7 +66,7 @@ public sealed class ModelFolder : IBinSerializable
     /// <summary>
     /// Create child folder
     /// </summary>
-    internal ModelFolder(ModelFolder parent, string name)
+    public ModelFolder(ModelFolder parent, string name)
     {
         Id = Guid.NewGuid();
         AppId = parent.AppId;

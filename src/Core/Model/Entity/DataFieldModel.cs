@@ -25,7 +25,15 @@ public sealed class DataFieldModel : EntityMemberModel
 
     public DataFieldType DataType => _dataType;
 
-    public int Length => _length;
+    public int Length
+    {
+        get => _length;
+        set
+        {
+            _length = value;
+            OnDataTypeChanged();
+        }
+    }
 
     public int Decimals => _decimals;
 
@@ -49,6 +57,15 @@ public sealed class DataFieldModel : EntityMemberModel
         {
             _isDataTypeChanged = true;
             OnPropertyChanged();
+        }
+    }
+
+    public override void SetAllowNull(bool value)
+    {
+        if (_allowNull != value)
+        {
+            _allowNull = value;
+            OnDataTypeChanged(); //TODO: !allowNull -> allowNull
         }
     }
 

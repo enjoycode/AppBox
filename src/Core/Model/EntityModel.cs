@@ -7,6 +7,7 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class EntityModel : ModelBase
 {
+    public EntityModel() { }
     public EntityModel(ModelId id, string name) : base(id, name) { }
 
     public const short MaxMemberId = 512;
@@ -23,14 +24,6 @@ public sealed class EntityModel : ModelBase
     public SqlStoreOptions? SqlStoreOptions => _storeOptions as SqlStoreOptions;
 
     #region ====GetMember Methods====
-    
-    public EntityMemberModel? GetMember(string name, bool throwOnNotExists)
-    {
-        var m = _members.SingleOrDefault(t => t.Name == name);
-        if (m == null && throwOnNotExists)
-            throw new Exception($"Member not exists:{Name}.{name}");
-        return m;
-    }
 
     public EntityMemberModel? GetMember(ReadOnlySpan<char> name, bool throwOnNotExists = true)
     {
@@ -45,12 +38,12 @@ public sealed class EntityModel : ModelBase
         return null;
     }
 
-    public EntityMemberModel? GetMember(short id, bool throwOnNotExists)
+    public EntityMemberModel? GetMember(short id, bool throwOnNotExists = true)
     {
         var m = _members.SingleOrDefault(t => t.MemberId == id);
         if (m == null && throwOnNotExists)
             throw new Exception($"Member not exists with id:{id}");
-        return null;
+        return m;
     }
 
     private EntityMemberModel? BinarySearch(short id)
@@ -81,6 +74,22 @@ public sealed class EntityModel : ModelBase
     #endregion
 
     #region ====Design Methods====
+
+    public void BindToSqlStore(long storeId)
+    {
+        _storeOptions = new SqlStoreOptions(this, storeId);
+    }
+
+    /// <summary>
+    /// Only for StoreInitiator
+    /// </summary>
+    public void AddSysMember(EntityMemberModel member, short id)
+    {
+        CheckDesignMode();
+        member.InitMemberId(id); //已处理Layer标记
+        _members.Add(member);
+        _members.Sort((a, b) => a.MemberId.CompareTo(b.MemberId));
+    }
 
     public void AddMember(EntityMemberModel member, bool byImport = false)
     {

@@ -4,6 +4,8 @@ public static class RuntimeContext
 {
     private static IRuntimeContext _instance = null!;
 
+    public static IRuntimeContext Current => _instance;
+
     public static void Init(IRuntimeContext instance) => _instance = instance;
 
     public static IUserSession? CurrentSession => _instance.CurrentSession;

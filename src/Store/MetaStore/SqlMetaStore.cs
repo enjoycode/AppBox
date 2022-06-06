@@ -81,7 +81,7 @@ public sealed class SqlMetaStore : IMetaStore
         {
             await cmd2.ExecuteNonQueryAsync();
             Log.Info("Create meta table done.");
-            //TODO:***** await StoreInitiator.InitAsync(txn);
+            await StoreInitiator.InitAsync(txn);
             await txn.CommitAsync();
             Log.Info("Init default sql store done.");
         }
@@ -97,17 +97,17 @@ public sealed class SqlMetaStore : IMetaStore
 
     #region ====模型相关操作====
 
-    internal static async ValueTask CreateApplicationAsync(ApplicationModel app)
+    public async Task CreateApplicationAsync(ApplicationModel app)
     {
-        using var conn = await SqlStore.Default.OpenConnectionAsync();
-        using var txn = conn.BeginTransaction();
+        await using var conn = await SqlStore.Default.OpenConnectionAsync();
+        await using var txn = await conn.BeginTransactionAsync();
         await CreateApplicationAsync(app, txn);
-        txn.Commit();
+        await txn.CommitAsync();
     }
 
-    internal static async ValueTask CreateApplicationAsync(ApplicationModel app, DbTransaction txn)
+    public async Task CreateApplicationAsync(ApplicationModel app, DbTransaction txn)
     {
-        using var cmd = SqlStore.Default.MakeCommand();
+        await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
         BuildInsertMetaCommand(cmd, Meta_Application, app.Id.ToString(),
@@ -117,8 +117,8 @@ public sealed class SqlMetaStore : IMetaStore
 
     internal static async ValueTask DeleteApplicationAsync(ApplicationModel app)
     {
-        using var conn = await SqlStore.Default.OpenConnectionAsync();
-        using var cmd = SqlStore.Default.MakeCommand();
+        await using var conn = await SqlStore.Default.OpenConnectionAsync();
+        await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = conn;
         BuildDeleteMetaCommand(cmd, Meta_Application, app.Id.ToString());
         await cmd.ExecuteNonQueryAsync();
@@ -182,7 +182,7 @@ public sealed class SqlMetaStore : IMetaStore
     internal static async ValueTask<ApplicationModel> LoadApplicationAsync(int appId)
     {
         var data = await LoadMetaDataAsync(Meta_Application, appId.ToString());
-        return (ApplicationModel)MetaSerializer.DeserializeMeta(data);
+        return (ApplicationModel)MetaSerializer.DeserializeMeta(data, () => new ApplicationModel());
     }
 
     /// <summary>
@@ -218,15 +218,24 @@ public sealed class SqlMetaStore : IMetaStore
     /// <summary>
     /// 加载单个Model，用于运行时或设计时重新加载
     /// </summary>
-    public async ValueTask<ModelBase> LoadModelAsync(long modelId)
+    public async ValueTask<ModelBase> LoadModelAsync(ModelId modelId)
     {
         var data = await LoadMetaDataAsync(Meta_Model, modelId.ToString());
-        var model = (ModelBase)MetaSerializer.DeserializeMeta(data);
+        var model = MetaSerializer.DeserializeMeta<ModelBase>(data, () =>
+        {
+            return modelId.Type switch
+            {
+                ModelType.Entity => new EntityModel(),
+                ModelType.Service => new ServiceModel(),
+                ModelType.View => new ViewModel(),
+                _ => throw new NotImplementedException(modelId.Type.ToString())
+            };
+        });
         model.AcceptChanges();
         return model;
     }
 
-    internal static async ValueTask InsertModelAsync(ModelBase model, DbTransaction txn)
+    public async Task InsertModelAsync(ModelBase model, DbTransaction txn)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
@@ -259,25 +268,26 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    // /// <summary>
-    // /// 插入或更新根文件夹
-    // /// </summary>
-    // internal static async ValueTask UpsertFolderAsync(ModelFolder folder, DbTransaction txn)
-    // {
-    //     if (folder.Parent != null)
-    //         throw new InvalidOperationException("Can't save none root folder.");
-    //
-    //     //TODO:暂先删除再插入
-    //     var id =
-    //         $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
-    //     using var cmd = SqlStore.Default.MakeCommand();
-    //     cmd.Connection = txn.Connection;
-    //     cmd.Transaction = txn;
-    //     BuildDeleteMetaCommand(cmd, Meta_Folder, id);
-    //     BuildInsertMetaCommand(cmd, Meta_Folder, id, (byte)ModelType.Folder, SerializeModel(folder),
-    //         true);
-    //     await cmd.ExecuteNonQueryAsync();
-    // }
+    /// <summary>
+    /// 插入或更新根文件夹
+    /// </summary>
+    public async Task UpsertFolderAsync(ModelFolder folder, DbTransaction txn)
+    {
+        if (folder.Parent != null)
+            throw new InvalidOperationException("Can't save none root folder.");
+
+        //TODO:暂先删除再插入
+        var id =
+            $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
+        await using var cmd = SqlStore.Default.MakeCommand();
+        cmd.Connection = txn.Connection;
+        cmd.Transaction = txn;
+        BuildDeleteMetaCommand(cmd, Meta_Folder, id);
+        BuildInsertMetaCommand(cmd, Meta_Folder, id, ModelType_Folder,
+            MetaSerializer.SerializeMeta(folder),
+            true);
+        await cmd.ExecuteNonQueryAsync();
+    }
 
     // /// <summary>
     // /// 删除根文件夹
@@ -677,21 +687,21 @@ public sealed class SqlMetaStore : IMetaStore
     /// <summary>
     /// 加载所有指定meta类型并反序列化目标类型
     /// </summary>
-    private static async Task<T[]> LoadMetasAsync<T>(byte metaType)
+    private static async Task<T[]> LoadMetasAsync<T>(byte metaType) where T : IBinSerializable
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
-        using var conn = await db.OpenConnectionAsync();
-        using var cmd = db.MakeCommand();
+        await using var conn = await db.OpenConnectionAsync();
+        await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
         cmd.CommandText = $"Select data From {esc}sys.Meta{esc} Where meta={metaType}";
         Log.Debug(cmd.CommandText);
-        using var reader = await cmd.ExecuteReaderAsync();
+        await using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<T>();
         while (await reader.ReadAsync())
         {
-            var meta =
-                (T)MetaSerializer.DeserializeMeta((byte[])reader.GetValue(0)); //TODO:Use GetStream
+            var meta = MetaSerializer.DeserializeMeta<T>((byte[])reader.GetValue(0),
+                () => { throw new NotImplementedException(); }); //TODO:Use GetStream
             list.Add(meta);
         }
 
