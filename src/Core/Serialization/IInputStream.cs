@@ -24,6 +24,13 @@ public interface IInputStream : IEntityMemberReader
         throw new NotImplementedException();
     }
 
+    byte IEntityMemberReader.ReadByteMember(int flags)
+    {
+        if (flags == 0) return ReadByte();
+
+        throw new NotImplementedException();
+    }
+
     int IEntityMemberReader.ReadIntMember(int flags)
     {
         if (flags == 0) return this.ReadInt();

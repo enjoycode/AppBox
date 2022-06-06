@@ -1,0 +1,82 @@
+using System;
+using AppBoxCore;
+
+namespace AppBoxStore;
+
+public sealed class Checkout : SqlEntity
+{
+    private byte _nodeType;
+    private string _targetId;
+    private Guid _developerId;
+    private string _developerName;
+    private int _version;
+
+    #region ====Overrides====
+
+    internal static readonly ModelId MODELID =
+        ModelId.Make(Consts.SYS_APP_ID, ModelType.Entity, 6, ModelLayer.SYS);
+
+    internal const short NODETYPE_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short TARGET_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short DEVELOPER_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short DEVELOPERNAME_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short VERSION_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
+
+    private static readonly short[] MemberIds =
+        { NODETYPE_ID, TARGET_ID, DEVELOPER_ID, DEVELOPERNAME_ID, VERSION_ID };
+
+    public override ModelId ModelId => MODELID;
+    public override short[] AllMembers => MemberIds;
+
+    public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
+    {
+        switch (id)
+        {
+            case NODETYPE_ID:
+                ws.WriteByteMember(id, _nodeType, flags);
+                break;
+            case TARGET_ID:
+                ws.WriteStringMember(id, _targetId, flags);
+                break;
+            case DEVELOPER_ID:
+                ws.WriteGuidMember(id, _developerId, flags);
+                break;
+            case DEVELOPERNAME_ID:
+                ws.WriteStringMember(id, _developerName, flags);
+                break;
+            case VERSION_ID:
+                ws.WriteIntMember(id, _version, flags);
+                break;
+            default:
+                throw new SerializationException(SerializationError.UnknownEntityMember,
+                    nameof(Employee));
+        }
+    }
+
+    public override void ReadMember(short id, IEntityMemberReader rs, int flags)
+    {
+        switch (id)
+        {
+            case NODETYPE_ID:
+                _nodeType = rs.ReadByteMember(flags);
+                break;
+            case TARGET_ID:
+                _targetId = rs.ReadStringMember(flags);
+                break;
+            case DEVELOPER_ID:
+                _developerId = rs.ReadGuidMember(flags);
+                break;
+            case DEVELOPERNAME_ID:
+                _developerName = rs.ReadStringMember(flags);
+                break;
+            case VERSION_ID:
+                _version = rs.ReadIntMember(flags);
+                break;
+            default:
+                throw new SerializationException(SerializationError.UnknownEntityMember,
+                    nameof(Employee));
+        }
+    }
+
+    #endregion
+}

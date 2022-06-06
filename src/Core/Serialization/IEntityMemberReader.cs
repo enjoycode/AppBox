@@ -8,6 +8,8 @@ public interface IEntityMemberReader
 
     bool ReadBoolMember(int flags);
 
+    byte ReadByteMember(int flags);
+
     int ReadIntMember(int flags);
 
     long ReadLongMember(int flags);

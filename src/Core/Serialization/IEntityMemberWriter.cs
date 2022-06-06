@@ -16,6 +16,8 @@ public interface IEntityMemberWriter
 
     void WriteBoolMember(short id, bool? value, int flags);
 
+    void WriteByteMember(short id, byte? value, int flags);
+
     void WriteIntMember(short id, int? value, int flags);
 
     void WriteLongMember(short id, long? value, int flags);

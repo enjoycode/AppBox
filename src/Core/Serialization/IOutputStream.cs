@@ -40,6 +40,21 @@ public interface IOutputStream : IEntityMemberWriter
         }
     }
 
+    void IEntityMemberWriter.WriteByteMember(short id, byte? value, int flags)
+    {
+        if (flags == EntityMemberWriteFlags.None)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            WriteByte(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     void IEntityMemberWriter.WriteIntMember(short id, int? value, int flags)
     {
         if (flags == EntityMemberWriteFlags.None)

@@ -33,6 +33,14 @@ internal readonly struct DbCommandParameterWriter : IEntityMemberWriter
         _command.Parameters.Add(para);
     }
 
+    public void WriteByteMember(short id, byte? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value == null ? DBNull.Value : value;
+        _command.Parameters.Add(para);
+    }
+
     public void WriteIntMember(short id, int? value, int flags)
     {
         var para = _command.CreateParameter();

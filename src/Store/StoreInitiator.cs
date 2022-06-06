@@ -48,10 +48,10 @@ internal static class StoreInitiator
         workgroup.FolderId = entityOrgUnitsFolder.Id;
         var orgunit = CreateOrgUnitModel(app);
         orgunit.FolderId = entityOrgUnitsFolder.Id;
-        // var staged = CreateStagedModel(app);
-        // staged.FolderId = entityDesignFolder.Id;
-        // var checkout = CreateCheckoutModel(app);
-        // checkout.FolderId = entityDesignFolder.Id;
+        var staged = CreateStagedModel(app);
+        staged.FolderId = entityDesignFolder.Id;
+        var checkout = CreateCheckoutModel(app);
+        checkout.FolderId = entityDesignFolder.Id;
 
         //新建默认组织
         var defaultEnterprise = new Enterprise(Guid.NewGuid());
@@ -95,8 +95,8 @@ internal static class StoreInitiator
         await MetaStore.Provider.InsertModelAsync(enterprise, txn);
         await MetaStore.Provider.InsertModelAsync(workgroup, txn);
         await MetaStore.Provider.InsertModelAsync(orgunit, txn);
-        // await MetaStore.Provider.InsertModelAsync(staged, txn);
-        // await MetaStore.Provider.InsertModelAsync(checkout, txn);
+        await MetaStore.Provider.InsertModelAsync(staged, txn);
+        await MetaStore.Provider.InsertModelAsync(checkout, txn);
 
 // #if FUTURE
 //             await CreateServiceModel("OrgUnitService", 1, null, true, txn);
@@ -134,8 +134,8 @@ internal static class StoreInitiator
         runtime.InjectModel(enterprise);
         runtime.InjectModel(workgroup);
         runtime.InjectModel(orgunit);
-        // runtime.InjectModel(staged);
-        // runtime.InjectModel(checkout);
+        runtime.InjectModel(staged);
+        runtime.InjectModel(checkout);
 
 #if FUTURE
             await EntityStore.InsertEntityAsync(defaultEnterprise, txn);
@@ -152,15 +152,15 @@ internal static class StoreInitiator
         ctx.AddEntityModel(enterprise);
         ctx.AddEntityModel(workgroup);
         ctx.AddEntityModel(orgunit);
-        // ctx.AddEntityModel(staged);
-        // ctx.AddEntityModel(checkout);
+        ctx.AddEntityModel(staged);
+        ctx.AddEntityModel(checkout);
 
         await SqlStore.Default.CreateTableAsync(emploee, txn, ctx);
         await SqlStore.Default.CreateTableAsync(enterprise, txn, ctx);
         await SqlStore.Default.CreateTableAsync(workgroup, txn, ctx);
         await SqlStore.Default.CreateTableAsync(orgunit, txn, ctx);
-        // await SqlStore.Default.CreateTableAsync(staged, txn, ctx);
-        // await SqlStore.Default.CreateTableAsync(checkout, txn, ctx);
+        await SqlStore.Default.CreateTableAsync(staged, txn, ctx);
+        await SqlStore.Default.CreateTableAsync(checkout, txn, ctx);
 
         await SqlStore.Default.InsertAsync(defaultEnterprise, txn);
         await SqlStore.Default.InsertAsync(itdept, txn);
@@ -351,104 +351,104 @@ internal static class StoreInitiator
         return model;
     }
 
-//     private static EntityModel CreateStagedModel(ApplicationModel app)
-//     {
-// #if FUTURE
-//             var model =
-//  new EntityModel(Consts.SYS_STAGED_MODEL_ID, "StagedModel", EntityStoreType.StoreWithoutMvcc);
-// #else
-//         var model = new EntityModel(Consts.SYS_STAGED_MODEL_ID, "StagedModel",
-//             new SqlStoreOptions(SqlStore.DefaultSqlStoreId));
-// #endif
-//
-//         var type = new DataFieldModel(model, "Type", EntityFieldType.Byte);
-//         model.AddSysMember(type, Consts.STAGED_TYPE_ID);
-//
-//         var modelId = new DataFieldModel(model, "ModelId", EntityFieldType.String); //暂用String
-// #if !FUTURE
-//         modelId.Length = 100;
-// #endif
-//         model.AddSysMember(modelId, Consts.STAGED_MODELID_ID);
-//
-//         var devId = new DataFieldModel(model, "DeveloperId", EntityFieldType.Guid);
-//         model.AddSysMember(devId, Consts.STAGED_DEVELOPERID_ID);
-//
-//         var data = new DataFieldModel(model, "Data", EntityFieldType.Binary);
-//         data.AllowNull = true;
-//         model.AddSysMember(data, Consts.STAGED_DATA_ID);
-//
-// #if !FUTURE
-//         //add pk
-//         model.SqlStoreOptions.SetPrimaryKeys(model, new List<FieldWithOrder>
-//         {
-//             new FieldWithOrder { MemberId = devId.MemberId },
-//             new FieldWithOrder { MemberId = type.MemberId },
-//             new FieldWithOrder { MemberId = modelId.MemberId }
-//         });
-// #endif
-//
-//         return model;
-//     }
+    private static EntityModel CreateStagedModel(ApplicationModel app)
+    {
+#if FUTURE
+            var model =
+ new EntityModel(Consts.SYS_STAGED_MODEL_ID, "StagedModel", EntityStoreType.StoreWithoutMvcc);
+#else
+        var model = new EntityModel(StagedModel.MODELID, nameof(StagedModel));
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
 
-//     private static EntityModel CreateCheckoutModel(ApplicationModel app)
-//     {
-// #if FUTURE
-//             var model =
-//  new EntityModel(Consts.SYS_CHECKOUT_MODEL_ID, "Checkout", EntityStoreType.StoreWithoutMvcc);
-// #else
-//         var model = new EntityModel(Consts.SYS_CHECKOUT_MODEL_ID, "Checkout",
-//             new SqlStoreOptions(SqlStore.DefaultSqlStoreId));
-// #endif
-//
-//         var nodeType = new DataFieldModel(model, "NodeType", EntityFieldType.Byte);
-//         model.AddSysMember(nodeType, Consts.CHECKOUT_NODETYPE_ID);
-//
-//         var targetId = new DataFieldModel(model, "TargetId", EntityFieldType.String);
-// #if !FUTURE
-//         targetId.Length = 100;
-// #endif
-//         model.AddSysMember(targetId, Consts.CHECKOUT_TARGETID_ID);
-//
-//         var devId = new DataFieldModel(model, "DeveloperId", EntityFieldType.Guid);
-//         model.AddSysMember(devId, Consts.CHECKOUT_DEVELOPERID_ID);
-//
-//         var devName = new DataFieldModel(model, "DeveloperName", EntityFieldType.String);
-// #if !FUTURE
-//         devName.Length = 100;
-// #endif
-//         model.AddSysMember(devName, Consts.CHECKOUT_DEVELOPERNAME_ID);
-//
-//         var version = new DataFieldModel(model, "Version", EntityFieldType.Int32); //TODO:UInt32
-//         model.AddSysMember(version, Consts.CHECKOUT_VERSION_ID);
-//
-//         //Add indexes
-// #if FUTURE
-//             var ui_nodeType_targetId = new EntityIndexModel(model, "UI_NodeType_TargetId", true,
-//                                                             new FieldWithOrder[]
-//             {
-//                 new FieldWithOrder(Consts.CHECKOUT_NODETYPE_ID),
-//                 new FieldWithOrder(Consts.CHECKOUT_TARGETID_ID)
-//             });
-//             model.SysStoreOptions.AddSysIndex(model, ui_nodeType_targetId, Consts.CHECKOUT_UI_NODETYPE_TARGETID_ID);
-// #else
-//         var ui_nodeType_targetId = new SqlIndexModel(model, "UI_NodeType_TargetId", true,
-//             new FieldWithOrder[]
-//             {
-//                 new FieldWithOrder(Consts.CHECKOUT_NODETYPE_ID),
-//                 new FieldWithOrder(Consts.CHECKOUT_TARGETID_ID)
-//             });
-//         model.SqlStoreOptions.AddIndex(model, ui_nodeType_targetId);
-//
-//         //add pk
-//         model.SqlStoreOptions.SetPrimaryKeys(model, new List<FieldWithOrder>
-//         {
-//             new FieldWithOrder { MemberId = devId.MemberId },
-//             new FieldWithOrder { MemberId = nodeType.MemberId },
-//             new FieldWithOrder { MemberId = targetId.MemberId }
-//         });
-// #endif
-//         return model;
-//     }
+#endif
+
+        var type = new DataFieldModel(model, "Type", DataFieldType.Byte, false);
+        model.AddSysMember(type, StagedModel.TYPE_ID);
+
+        var modelId = new DataFieldModel(model, "ModelId", DataFieldType.String, false);
+#if !FUTURE
+        modelId.Length = 100;
+#endif
+        model.AddSysMember(modelId, StagedModel.MODEL_ID);
+
+        var devId = new DataFieldModel(model, "DeveloperId", DataFieldType.Guid, false);
+        model.AddSysMember(devId, StagedModel.DEVELOPER_ID);
+
+        var data = new DataFieldModel(model, "Data", DataFieldType.Binary, true);
+        model.AddSysMember(data, StagedModel.DATA_ID);
+
+#if !FUTURE
+        //add pk
+        model.SqlStoreOptions!.SetPrimaryKeys(new[]
+        {
+            new FieldWithOrder(devId.MemberId),
+            new FieldWithOrder(type.MemberId),
+            new FieldWithOrder(modelId.MemberId)
+        });
+#endif
+
+        return model;
+    }
+
+    private static EntityModel CreateCheckoutModel(ApplicationModel app)
+    {
+#if FUTURE
+            var model =
+ new EntityModel(Consts.SYS_CHECKOUT_MODEL_ID, "Checkout", EntityStoreType.StoreWithoutMvcc);
+#else
+        var model = new EntityModel(Checkout.MODELID, nameof(Checkout));
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
+#endif
+
+        var nodeType = new DataFieldModel(model, "NodeType", DataFieldType.Byte, false);
+        model.AddSysMember(nodeType, Checkout.NODETYPE_ID);
+
+        var targetId = new DataFieldModel(model, "TargetId", DataFieldType.String, false);
+#if !FUTURE
+        targetId.Length = 100;
+#endif
+        model.AddSysMember(targetId, Checkout.TARGET_ID);
+
+        var devId = new DataFieldModel(model, "DeveloperId", DataFieldType.Guid, false);
+        model.AddSysMember(devId, Checkout.DEVELOPER_ID);
+
+        var devName = new DataFieldModel(model, "DeveloperName", DataFieldType.String, false);
+#if !FUTURE
+        devName.Length = 100;
+#endif
+        model.AddSysMember(devName, Checkout.DEVELOPERNAME_ID);
+
+        var version = new DataFieldModel(model, "Version", DataFieldType.Int, false);
+        model.AddSysMember(version, Checkout.VERSION_ID);
+
+        //Add indexes
+#if FUTURE
+            var ui_nodeType_targetId = new EntityIndexModel(model, "UI_NodeType_TargetId", true,
+                                                            new FieldWithOrder[]
+            {
+                new FieldWithOrder(Consts.CHECKOUT_NODETYPE_ID),
+                new FieldWithOrder(Consts.CHECKOUT_TARGETID_ID)
+            });
+            model.SysStoreOptions.AddSysIndex(model, ui_nodeType_targetId, Consts.CHECKOUT_UI_NODETYPE_TARGETID_ID);
+#else
+        var ui_nodeType_targetId = new SqlIndexModel(model, "UI_NodeType_TargetId", true,
+            new[]
+            {
+                new FieldWithOrder(Checkout.NODETYPE_ID),
+                new FieldWithOrder(Checkout.TARGET_ID)
+            });
+        model.SqlStoreOptions!.AddIndex(ui_nodeType_targetId);
+
+        //add pk
+        model.SqlStoreOptions.SetPrimaryKeys(new[]
+        {
+            new FieldWithOrder(devId.MemberId),
+            new FieldWithOrder(nodeType.MemberId),
+            new FieldWithOrder(targetId.MemberId)
+        });
+#endif
+        return model;
+    }
 
 //     private static async Task CreateServiceModel(string name, ulong idIndex, Guid? folderId,
 //         bool forceFuture,
