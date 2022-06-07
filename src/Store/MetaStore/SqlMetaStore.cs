@@ -228,6 +228,7 @@ public sealed class SqlMetaStore : IMetaStore
                 ModelType.Entity => new EntityModel(),
                 ModelType.Service => new ServiceModel(),
                 ModelType.View => new ViewModel(),
+                ModelType.Permission => new PermissionModel(),
                 _ => throw new NotImplementedException(modelId.Type.ToString())
             };
         });

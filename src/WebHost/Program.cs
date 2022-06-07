@@ -1,4 +1,3 @@
-using System.Reflection;
 using AppBoxCore;
 using AppBoxStore;
 using AppBoxWebHost;
@@ -15,13 +14,9 @@ app.MapControllers();
 RuntimeContext.Init(new HostRuntimeContext(), new PasswordHasher());
 #if !FUTURE
 // 加载默认SqlStore
-var libPath = Path.GetDirectoryName(typeof(SqlStore).Assembly.Location)!;
-var asm = Assembly.LoadFile(Path.Combine(libPath,
-    $"{app.Configuration["DefaultSqlStore:Assembly"]}.dll"));
-var type = asm.GetType(app.Configuration["DefaultSqlStore:Type"])!;
-var defaultSqlStore = (SqlStore)
-    Activator.CreateInstance(type, app.Configuration["DefaultSqlStore:ConnectionString"])!;
-SqlStore.InitDefaultSqlStore(defaultSqlStore);
+SqlStore.InitDefault(app.Configuration["DefaultSqlStore:Assembly"],
+    app.Configuration["DefaultSqlStore:Type"],
+    app.Configuration["DefaultSqlStore:ConnectionString"]);
 // 尝试初始化存储, 初始化失败直接终止进程
 MetaStore.Init(new SqlMetaStore());
 MetaStore.Provider.TryInitStoreAsync();

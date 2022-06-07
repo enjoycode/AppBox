@@ -5,7 +5,7 @@ namespace AppBoxStore;
 
 public sealed class Employee : SqlEntity
 {
-    internal Employee() { }
+    public Employee() { }
 
     public Employee(Guid id)
     {

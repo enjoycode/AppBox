@@ -13,9 +13,9 @@ public sealed class EntityExpression : EntityPathExpression
     /// </summary>
     public string AliasName { get; set; }
 
-    private object _user;
+    private object? _user;
 
-    public object User
+    public object? User
     {
         get
         {
@@ -35,17 +35,10 @@ public sealed class EntityExpression : EntityPathExpression
     public long ModelID { get; private set; }
 
     //TODO:考虑实现AddToCache，用于下属成员反序列化时自动加入Cache内
-    private Dictionary<string, EntityPathExpression> _cache;
+    private Dictionary<string, EntityPathExpression>? _cache;
 
-    private Dictionary<string, EntityPathExpression> Cache
-    {
-        get
-        {
-            if (_cache == null)
-                _cache = new Dictionary<string, EntityPathExpression>();
-            return _cache;
-        }
-    }
+    private Dictionary<string, EntityPathExpression> Cache =>
+        _cache ??= new Dictionary<string, EntityPathExpression>();
 
     #endregion
 
@@ -55,56 +48,54 @@ public sealed class EntityExpression : EntityPathExpression
     {
         get
         {
-            throw new NotImplementedException();
-            // EntityPathExpression? exp = null;
-            // if (Cache.TryGetValue(name, out exp))
-            //     return exp;
-            //
-            // EntityModel model = RuntimeContext.GetModelAsync<EntityModel>(ModelID)
-            //     .Result;
-            // EntityMemberModel m = model.GetMember(name, false);
-            // if (m != null)
-            // {
-            //     switch (m.Type)
-            //     {
-            //         case EntityMemberType.DataField:
-            //             //case EntityMemberType.Formula:
-            //             //case EntityMemberType.Aggregate:
-            //             //case EntityMemberType.AutoNumber:
-            //             exp = new FieldExpression(name, this);
-            //             break;
-            //         case EntityMemberType.EntityRef:
-            //             var rm = (EntityRefModel)m;
-            //             if (!rm.IsAggregationRef)
-            //                 exp = new EntityExpression(name, rm.RefModelIds[0], this);
-            //             else
-            //                 throw new NotImplementedException("尚未实现聚合引用对象的表达式");
-            //             break;
-            //         case EntityMemberType.EntitySet:
-            //             var sm = (EntitySetModel)m;
-            //             //EntityRefModel erm = esm.RefModel[esm.RefMemberName] as EntityRefModel;
-            //             exp = new EntitySetExpression(name, this, sm.RefModelId);
-            //             break;
-            //         //case EntityMemberType.AggregationRefField:
-            //         //    exp = new AggregationRefFieldExpression(name, this);
-            //         //    break;
-            //         default:
-            //             throw new NotSupportedException(
-            //                 $"EntityExpression.DefaultIndex[]: Not Supported MemberType [{m.Type.ToString()}].");
-            //     }
-            //
-            //     Cache.Add(name, exp);
-            //     return exp;
-            // }
-            //
-            // //如果不包含判断是否继承，或EntityRef's DisplayText
-            // //if (name.EndsWith("DisplayText", StringComparison.Ordinal)) //TODO: 暂简单判断
-            // //{
-            // //    exp = new FieldExpression(name, this);
-            // //    Cache.Add(name, exp);
-            // //    return exp;
-            // //}
-            // throw new Exception($"Can not find member [{name}] in [{model.Name}].");
+            EntityPathExpression? exp = null;
+            if (Cache.TryGetValue(name, out exp))
+                return exp;
+
+            var model = RuntimeContext.GetModelAsync<EntityModel>(ModelID).Result;
+            var m = model.GetMember(name, false);
+            if (m != null)
+            {
+                switch (m.Type)
+                {
+                    case EntityMemberType.DataField:
+                        //case EntityMemberType.Formula:
+                        //case EntityMemberType.Aggregate:
+                        //case EntityMemberType.AutoNumber:
+                        exp = new EntityFieldExpression(name, this);
+                        break;
+                    case EntityMemberType.EntityRef:
+                        var rm = (EntityRefModel)m;
+                        if (!rm.IsAggregationRef)
+                            exp = new EntityExpression(name, rm.RefModelIds[0], this);
+                        else
+                            throw new NotImplementedException("尚未实现聚合引用对象的表达式");
+                        break;
+                    // case EntityMemberType.EntitySet:
+                    //     var sm = (EntitySetModel)m;
+                    //     //EntityRefModel erm = esm.RefModel[esm.RefMemberName] as EntityRefModel;
+                    //     exp = new EntitySetExpression(name, this, sm.RefModelId);
+                    //     break;
+                    //case EntityMemberType.AggregationRefField:
+                    //    exp = new AggregationRefFieldExpression(name, this);
+                    //    break;
+                    default:
+                        throw new NotSupportedException(
+                            $"EntityExpression.DefaultIndex[]: Not Supported MemberType [{m.Type.ToString()}].");
+                }
+
+                Cache.Add(name, exp);
+                return exp;
+            }
+
+            //如果不包含判断是否继承，或EntityRef's DisplayText
+            //if (name.EndsWith("DisplayText", StringComparison.Ordinal)) //TODO: 暂简单判断
+            //{
+            //    exp = new FieldExpression(name, this);
+            //    Cache.Add(name, exp);
+            //    return exp;
+            //}
+            throw new Exception($"Can not find member [{name}] in [{model.Name}].");
         }
     }
 
@@ -113,15 +104,9 @@ public sealed class EntityExpression : EntityPathExpression
     #region ====Ctor====
 
     /// <summary>
-    /// Ctor for Serialization
-    /// </summary>
-    internal EntityExpression() { }
-
-    /// <summary>
     /// New Root EntityExpression
     /// </summary>
-    public EntityExpression(long modelID, object user)
-        : base(null, null)
+    public EntityExpression(long modelID, object user) : base(null, null)
     {
         ModelID = modelID;
         _user = user;

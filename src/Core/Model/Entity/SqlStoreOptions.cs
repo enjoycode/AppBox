@@ -25,6 +25,8 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public DataStoreKind Kind => DataStoreKind.Sql;
 
+    public long StoreModelId => _storeModelId;
+
     public bool HasIndexes => _indexes != null && _indexes.Count > 0;
     public bool HasPrimaryKeys => _primaryKeys != null && _primaryKeys.Length > 0;
 

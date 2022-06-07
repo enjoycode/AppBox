@@ -21,5 +21,9 @@ public abstract class DbEntity : Entity
 
     public bool IsMemberChanged(short memberId) =>
         _changedMembers != null && _changedMembers.IndexOf(memberId) >= 0;
-    
+
+    /// <summary>
+    /// 仅用于从数据库加载完成后变更持久化状态
+    /// </summary>
+    internal void FetchDone() => PersistentState = PersistentState.Unchanged;
 }

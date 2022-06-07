@@ -21,7 +21,7 @@ public abstract class EntityPathExpression : Expression
     /// </summary>
     internal EntityPathExpression() { }
 
-    internal EntityPathExpression(string name, EntityExpression owner)
+    internal EntityPathExpression(string? name, EntityExpression? owner)
     {
         Name = name;
         Owner = owner;
@@ -33,6 +33,6 @@ public abstract class EntityPathExpression : Expression
     /// <returns></returns>
     internal string GetFieldAlias()
     {
-        return Expression.IsNull(Owner) ? Name : $"{Owner.GetFieldAlias()}{Name}";
+        return IsNull(Owner) ? Name! : $"{Owner!.GetFieldAlias()}{Name}";
     }
 }

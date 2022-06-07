@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -22,9 +24,12 @@ public abstract class SqlStore
 
     public static SqlStore Default { get; private set; }
 
-    public static void InitDefaultSqlStore(SqlStore defaultSqlStore)
+    public static void InitDefault(string assemblyName, string typeName, string connectionString)
     {
-        Debug.Assert(defaultSqlStore != null);
+        var libPath = Path.GetDirectoryName(typeof(SqlStore).Assembly.Location)!;
+        var asm = Assembly.LoadFile(Path.Combine(libPath, $"{assemblyName}.dll"));
+        var type = asm.GetType(typeName)!;
+        var defaultSqlStore = (SqlStore)Activator.CreateInstance(type, connectionString)!;
         SqlStores.Add(DefaultSqlStoreId, defaultSqlStore);
         Default = defaultSqlStore;
     }
@@ -35,42 +40,42 @@ public abstract class SqlStore
     /// </summary>
     public static SqlStore Get(long storeId)
     {
-        throw new NotImplementedException();
-        // if (!sqlStores.TryGetValue(storeId, out SqlStore res))
-        // {
-        //     lock (sqlStores)
-        //     {
-        //         if (!sqlStores.TryGetValue(storeId, out res))
-        //         {
-        //             //加载存储模型
-        //             if (!(ModelStore.LoadModelAsync(storeId).Result is DataStoreModel model)
-        //                 || model.Kind != DataStoreKind.Sql)
-        //                 throw new Exception($"Can't get SqlStore[Id={storeId}]");
-        //
-        //             //根据Provider创建实例
-        //             var ps = model.Provider.Split(';');
-        //             var asmPath = Path.Combine(RuntimeContext.Current.AppPath,
-        //                 Server.Consts.LibPath, ps[0] + ".dll");
-        //             try
-        //             {
-        //                 var asm = Assembly.LoadFile(asmPath);
-        //                 var type = asm.GetType(ps[1]);
-        //                 res = (SqlStore)Activator.CreateInstance(type, model.Settings);
-        //                 sqlStores[storeId] = res;
-        //                 Log.Debug($"Create SqlStore instance: {type}, isNull={res == null}");
-        //                 return res;
-        //             }
-        //             catch (Exception ex)
-        //             {
-        //                 var error =
-        //                     $"Create SqlStore[Provider={model.Provider}] instance error: {ex.Message}";
-        //                 throw new Exception(error);
-        //             }
-        //         }
-        //     }
-        // }
-        //
-        // return res;
+        if (!SqlStores.TryGetValue(storeId, out var res))
+        {
+            lock (SqlStores)
+            {
+                if (!SqlStores.TryGetValue(storeId, out res))
+                {
+                    throw new NotImplementedException();
+                    // //加载存储模型
+                    // if (!(MetaStore.Provider.LoadModelAsync(storeId).Result is DataStoreModel model)
+                    //     || model.Kind != DataStoreKind.Sql)
+                    //     throw new Exception($"Can't get SqlStore[Id={storeId}]");
+                    //
+                    // //根据Provider创建实例
+                    // var ps = model.Provider.Split(';');
+                    // var asmPath = Path.Combine(RuntimeContext.Current.AppPath,
+                    //     Server.Consts.LibPath, ps[0] + ".dll");
+                    // try
+                    // {
+                    //     var asm = Assembly.LoadFile(asmPath);
+                    //     var type = asm.GetType(ps[1]);
+                    //     res = (SqlStore)Activator.CreateInstance(type, model.Settings);
+                    //     sqlStores[storeId] = res;
+                    //     Log.Debug($"Create SqlStore instance: {type}, isNull={res == null}");
+                    //     return res;
+                    // }
+                    // catch (Exception ex)
+                    // {
+                    //     var error =
+                    //         $"Create SqlStore[Provider={model.Provider}] instance error: {ex.Message}";
+                    //     throw new Exception(error);
+                    // }
+                }
+            }
+        }
+
+        return res;
     }
 
     #endregion
@@ -559,13 +564,13 @@ public abstract class SqlStore
     }
 
     // protected internal abstract DbCommand BuildDeleteCommand(SqlDeleteCommand deleteCommand);
-    //
+
     // /// <summary>
     // /// 将SqlUpdateCommand转换为sql
     // /// </summary>
     // protected internal abstract DbCommand BuidUpdateCommand(SqlUpdateCommand updateCommand);
-    //
-    // protected internal abstract DbCommand BuildQuery(ISqlSelectQuery query);
+
+    protected internal abstract DbCommand BuildQuery(ISqlSelectQuery query);
 
     #endregion
 }
