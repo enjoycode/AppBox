@@ -119,6 +119,62 @@ public sealed class EntityRefModel : EntityMemberModel
     }
 
     #endregion
+
+    #region ====Serialization====
+
+    public override void WriteTo(IOutputStream ws)
+    {
+        base.WriteTo(ws);
+
+        ws.WriteBool(IsReverse);
+        ws.WriteBool(IsForeignKeyConstraint);
+        ws.WriteShort(TypeMemberId);
+        ws.WriteByte((byte)UpdateRule);
+        ws.WriteByte((byte)DeleteRule);
+
+        ws.WriteVariant(RefModelIds.Count);
+        foreach (var refModelId in RefModelIds)
+        {
+            ws.WriteLong(refModelId);
+        }
+
+        ws.WriteVariant(FKMemberIds.Length);
+        foreach (var fkMemberId in FKMemberIds)
+        {
+            ws.WriteShort(fkMemberId);
+        }
+
+        ws.WriteFieldEnd(); //保留
+    }
+
+    public override void ReadFrom(IInputStream rs)
+    {
+        base.ReadFrom(rs);
+
+        IsReverse = rs.ReadBool();
+        IsForeignKeyConstraint = rs.ReadBool();
+        TypeMemberId = rs.ReadShort();
+        UpdateRule = (EntityRefActionRule)rs.ReadByte();
+        DeleteRule = (EntityRefActionRule)rs.ReadByte();
+
+        var count = rs.ReadVariant();
+        RefModelIds = new List<long>(count);
+        for (var i = 0; i < count; i++)
+        {
+            RefModelIds.Add(rs.ReadLong());
+        }
+
+        count = rs.ReadVariant();
+        FKMemberIds = new short[count];
+        for (var i = 0; i < count; i++)
+        {
+            FKMemberIds[i] = rs.ReadShort();
+        }
+
+        rs.ReadVariant(); //保留
+    }
+
+    #endregion
 }
 
 public enum EntityRefActionRule : byte

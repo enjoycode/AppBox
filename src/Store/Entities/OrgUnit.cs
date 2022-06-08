@@ -6,30 +6,31 @@ namespace AppBoxStore;
 
 public sealed class OrgUnit : SqlEntity
 {
-    internal OrgUnit() { }
+    public OrgUnit() { }
 
-    public OrgUnit(Guid id)
-    {
-        _id = id;
-    }
-
-    private Guid _id;
     private string _name = null!;
-    private Guid _baseId;
+    private Guid _id;
     private long _baseType;
     private Guid? _parentId;
 
     private Entity? _base;
     private OrgUnit? _parent;
     private IList<OrgUnit>? _children;
-
+    
     public Guid Id => _id;
-
-    public Guid BaseId => _baseId;
 
     public long BaseType => _baseType;
 
-    public Guid? ParentId => _parentId;
+    public Guid? ParentId
+    {
+        get => _parentId;
+        set
+        {
+            if (_parentId == value) return;
+            _parentId = value;
+            OnPropertyChanged(PARENTID_ID);
+        }
+    }
 
     public Entity? Parent => _parent;
 
@@ -48,24 +49,24 @@ public sealed class OrgUnit : SqlEntity
             {
                 case Enterprise enterprise:
                     _baseType = Enterprise.MODELID;
-                    _baseId = enterprise.Id;
+                    _id = enterprise.Id;
                     _name = enterprise.Name;
                     break;
                 case Workgroup workgroup:
                     _baseType = Workgroup.MODELID;
-                    _baseId = workgroup.Id;
+                    _id = workgroup.Id;
                     _name = workgroup.Name;
                     break;
                 case Employee employee:
                     _baseType = Employee.MODELID;
-                    _baseId = employee.Id;
+                    _id = employee.Id;
                     _name = employee.Name;
                     break;
                 default: throw new ArgumentException();
             }
 
             OnPropertyChanged(BASETYPE_ID);
-            OnPropertyChanged(BASEID_ID);
+            OnPropertyChanged(ID_ID);
         }
     }
 
@@ -78,15 +79,14 @@ public sealed class OrgUnit : SqlEntity
 
     internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASEID_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASETYPE_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASE_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short PARENTID_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short PARENT_ID = 7 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short CHILDREN_ID = 8 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short BASETYPE_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short BASE_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short PARENTID_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short PARENT_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short CHILDREN_ID = 7 << IdUtil.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds =
-        { ID_ID, NAME_ID, BASEID_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID };
+        { ID_ID, NAME_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID };
 
     public override ModelId ModelId => MODELID;
     public override short[] AllMembers => MemberIds;
@@ -95,14 +95,11 @@ public sealed class OrgUnit : SqlEntity
     {
         switch (id)
         {
-            case ID_ID:
-                ws.WriteGuidMember(id, _id, flags);
-                break;
             case NAME_ID:
                 ws.WriteStringMember(id, _name, flags);
                 break;
-            case BASEID_ID:
-                ws.WriteGuidMember(id, _baseId, flags);
+            case ID_ID:
+                ws.WriteGuidMember(id, _id, flags);
                 break;
             case BASETYPE_ID:
                 ws.WriteLongMember(id, _baseType, flags);
@@ -129,14 +126,11 @@ public sealed class OrgUnit : SqlEntity
     {
         switch (id)
         {
-            case ID_ID:
-                _id = rs.ReadGuidMember(flags);
-                break;
             case NAME_ID:
                 _name = rs.ReadStringMember(flags);
                 break;
-            case BASEID_ID:
-                _baseId = rs.ReadGuidMember(flags);
+            case ID_ID:
+                _id = rs.ReadGuidMember(flags);
                 break;
             case BASETYPE_ID:
                 _baseType = rs.ReadLongMember(flags);

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Reflection;
 using System.Threading.Tasks;
 using AppBoxCore;
 
@@ -70,7 +69,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     #region ----树状查询属性----
 
-    public EntityFieldExpression? TreeParentIDMember { get; private set; }
+    public EntityRefModel? TreeParentMember { get; private set; }
 
     #endregion
 
@@ -234,6 +233,64 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return list;
     }
 
+    public async Task<IList<TEntity>> ToTreeAsync(
+        Func<EntityExpression, EntityPathExpression> childrenMember)
+    {
+        Purpose = QueryPurpose.ToTree;
+        var children = (EntitySetExpression)childrenMember(this.T);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var childrenModel = (EntitySetModel)model.GetMember(children.Name)!;
+        TreeParentMember = (EntityRefModel)model.GetMember(childrenModel.RefMemberId)!;
+
+        AddAllSelects(model, T, null);
+
+        //TODO:考虑EntitySet自动排序
+
+        //如果没有设置任何条件，则设置默认条件为查询根级开始
+        if (Expression.IsNull(Filter))
+        {
+            foreach (var fk in TreeParentMember.FKMemberIds)
+            {
+                var condition = T[model.GetMember(fk)!.Name] == new PrimitiveExpression(null);
+                AndWhere(condition);
+            }
+        }
+
+        var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
+        await using var cmd = db.BuildQuery(this);
+        await using var conn = await db.OpenConnectionAsync();
+        cmd.Connection = conn;
+        Log.Debug(cmd.CommandText);
+
+        var list = new List<TEntity>();
+        var allList = new List<TEntity>();
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
+            FillEntity(entity, model, reader, 0);
+
+            var treeLevel = reader.GetInt32(reader.FieldCount - 1);
+            if (treeLevel == 0)
+            {
+                list.Add(entity);
+            }
+            else
+            {
+                var parent = FindParent(TreeParentMember, entity, allList);
+                //TODO:**** set child.Parent = parent
+                var childrenList =
+                    (IList<TEntity>)GetNaviPropForFetch(parent, childrenModel.MemberId);
+                childrenList.Add(entity);
+            }
+
+            allList.Add(entity);
+        }
+
+        allList.Clear();
+        return list;
+    }
+
     private static void FillEntity(SqlEntity entity, EntityModel model, DbDataReader row,
         int extendsFlag)
     {
@@ -271,6 +328,57 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         {
             throw new NotImplementedException();
         }
+    }
+
+    /// <summary>
+    /// 用于树状结构填充时查找指定实体的上级
+    /// </summary>
+    private static TEntity FindParent(EntityRefModel parentModel, TEntity entity,
+        IList<TEntity> from)
+    {
+        var model = parentModel.Owner;
+        var pks = model.SqlStoreOptions!.PrimaryKeys;
+        var memberValueGetter = EntityMemberValueGetter.ThreadInstance;
+        for (var i = from.Count - 1; i >= 0; i--) //倒查
+        {
+            var allSame = true;
+            for (var j = 0; j < parentModel.FKMemberIds.Length; j++)
+            {
+                entity.WriteMember(parentModel.FKMemberIds[j], memberValueGetter,
+                    EntityMemberWriteFlags.None);
+                var fkValue = memberValueGetter.Value;
+                from[i].WriteMember(pks[j].MemberId, memberValueGetter,
+                    EntityMemberWriteFlags.None);
+                var pkValue = memberValueGetter.Value;
+                if (!fkValue.Equals(pkValue))
+                {
+                    allSame = false;
+                    break;
+                }
+            }
+
+            if (allSame)
+                return from[i];
+        }
+
+        throw new Exception("Can't find parent");
+    }
+
+    /// <summary>
+    /// 初始化实体的导航属性
+    /// </summary>
+    private static object GetNaviPropForFetch(SqlEntity entity, short naviMemberId)
+    {
+        // 先判断是否已初始化过
+        var memberValueGetter = EntityMemberValueGetter.ThreadInstance;
+        entity.WriteMember(naviMemberId, memberValueGetter, EntityMemberWriteFlags.None);
+        if (!memberValueGetter.Value.IsEmpty)
+            return memberValueGetter.Value.BoxedValue!;
+
+        // 初始化导航属性
+        var initiator = EntityNaviPropInitiator.ThreadInstance;
+        entity.ReadMember(naviMemberId, initiator, EntityMemberWriteFlags.None);
+        return initiator.NaviMemberValue;
     }
 
     #endregion
@@ -335,15 +443,13 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public SqlQuery<TEntity> OrderBy(Expression sortItem)
     {
-        SqlSortItem sort = new SqlSortItem(sortItem, SortType.ASC);
-        SortItems.Add(sort);
+        SortItems.Add(new SqlSortItem(sortItem, SortType.ASC));
         return this;
     }
 
     public SqlQuery<TEntity> OrderByDesc(Expression sortItem)
     {
-        SqlSortItem sort = new SqlSortItem(sortItem, SortType.DESC);
-        SortItems.Add(sort);
+        SortItems.Add(new SqlSortItem(sortItem, SortType.DESC));
         return this;
     }
 

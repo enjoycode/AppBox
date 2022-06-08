@@ -75,6 +75,9 @@ internal sealed class BuildQueryContext
 
     public void Append(char ch) => CurrentQueryInfo.Out.Append(ch);
 
+    public void AppendWithNameEscaper(string name) =>
+        CurrentQueryInfo.Out.AppendWithNameEscaper(name, "\"");
+
     public void AppendFormat(string sql, params object[] para)
         => CurrentQueryInfo.Out.AppendFormat(sql, para);
 

@@ -18,8 +18,7 @@ partial class PgSqlStore
         switch (query.Purpose)
         {
             case QueryPurpose.ToTree:
-                throw new NotImplementedException();
-                // BuildTreeQuery(query, ctx);
+                BuildTreeQuery(query, ctx);
                 break;
             case QueryPurpose.ToTreePath:
                 throw new NotImplementedException();
@@ -85,7 +84,7 @@ partial class PgSqlStore
         // else
         // {
         var q = (ISqlEntityQuery)ctx.CurrentQuery;
-        var model = RuntimeContext.Current.GetModelAsync<EntityModel>(q.T.ModelID).Result;
+        var model = RuntimeContext.GetModelAsync<EntityModel>(q.T.ModelID).Result;
         ctx.Append('"');
         ctx.Append(model.GetSqlTableName(false, null));
         ctx.Append("\" ");
@@ -152,92 +151,103 @@ partial class PgSqlStore
     //"t.ManagerID", t."SortNumber" "t.SortNumber", t."Disabled" "t.Disabled" From cte t
     //Order By t."TreeLevel", t."SortNumber"
 
-    // private void BuildTreeQuery(ISqlSelectQuery query, BuildQueryContext ctx)
-    // {
-    //     //注意目前实现仅支持单一主键
-    //
-    //     //设置上下文
-    //     ctx.BeginBuildQuery(query);
-    //
-    //     ctx.Append("With RECURSIVE cte (");
-    //     ctx.SetBuildStep(BuildQueryStep.BuildWithCTE);
-    //     foreach (var si in query.Selects.Values)
-    //     {
-    //         FieldExpression fsi = si.Expression as FieldExpression;
-    //         if (!Equals(null, fsi) && Equals(fsi.Owner.Owner, null))
-    //         {
-    //             ctx.AppendFormat("\"{0}\",", ((FieldExpression)si.Expression).Name);
-    //         }
-    //     }
-    //
-    //     ctx.Append("\"TreeLevel\") As (Select ");
-    //     //Select Anchor
-    //     ctx.SetBuildStep(BuildQueryStep.BuildSelect);
-    //     BuildCTE_SelectItems(query, ctx);
-    //     ctx.Append("0 From ");
-    //     //From Anchor
-    //     ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-    //     SqlQuery q = (SqlQuery)query;
-    //     var model = Runtime.RuntimeContext.Current.GetModelAsync<EntityModel>(q.T.ModelID).Result;
-    //     ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
-    //     //Where Anchor
-    //     ctx.SetBuildStep(BuildQueryStep.BuildWhere);
-    //     if (!object.Equals(null, query.Filter))
-    //     {
-    //         ctx.Append(" Where ");
-    //         BuildExpression(query.Filter, ctx);
-    //     }
-    //
-    //     //End 1
-    //     ctx.CurrentQueryInfo.EndBuidQuery(); //ctx.EndBuildQuery(query);
-    //
-    //     //Union all
-    //     ctx.SetBuildStep(BuildQueryStep.BuildSelect);
-    //     ctx.Append(" Union All Select ");
-    //     //Select 2
-    //     //ctx.SetBuildStep(BuildQueryStep.BuildSelect);
-    //     BuildCTE_SelectItems(query, ctx);
-    //     ctx.Append("\"TreeLevel\" + 1 From ");
-    //     //From 2
-    //     ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-    //     ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
-    //     //Inner Join 
-    //     ctx.Append(" Inner Join cte as d On ");
-    //     BuildFieldExpression(q.TreeParentIDMember, ctx);
-    //     ctx.Append(" = d.\"Id\") Select "); //TODO:fix pk
-    //     //重新处理SelectItem
-    //     ctx.SetBuildStep(BuildQueryStep.BuildSelect);
-    //     foreach (var si in query.Selects.Values)
-    //     {
-    //         BuildSelectItem(si, ctx);
-    //         ctx.Append(",");
-    //     }
-    //
-    //     ctx.RemoveLastChar();
-    //     ctx.Append(" From cte t");
-    //     //构建自动联接Join，主要用于继承的
-    //     ctx.SetBuildStep(BuildQueryStep.BuildJoin);
-    //     ctx.BuildQueryAutoJoins(q); //再处理自动联接
-    //
-    //     //最后处理Order By 
-    //     ctx.SetBuildStep(BuildQueryStep.BuildOrderBy);
-    //     if (query.HasSortItems)
-    //     {
-    //         ctx.Append(" Order By t.\"TreeLevel\"");
-    //         for (int i = 0; i < query.SortItems.Count; i++)
-    //         {
-    //             ctx.Append(",");
-    //             SqlSortItem si = query.SortItems[i];
-    //             BuildExpression(si.Expression, ctx);
-    //             if (si.SortType == SortType.DESC)
-    //                 ctx.Append(" DESC");
-    //         }
-    //     }
-    //
-    //     //End 1
-    //     ctx.EndBuildQuery(query, true);
-    // }
-    //
+    private void BuildTreeQuery(ISqlSelectQuery query, BuildQueryContext ctx)
+    {
+        //设置上下文
+        ctx.BeginBuildQuery(query);
+
+        ctx.Append("With RECURSIVE cte (");
+        ctx.SetBuildStep(BuildQueryStep.BuildWithCTE);
+        foreach (var si in query.Selects!)
+        {
+            if (si.Expression is EntityFieldExpression fsi && Expression.IsNull(fsi.Owner!.Owner))
+            {
+                ctx.AppendWithNameEscaper(fsi.Name!);
+                ctx.Append(',');
+            }
+        }
+
+        ctx.Append(TREE_LEVEL);
+        ctx.Append(") As (Select ");
+        //Select Anchor
+        ctx.SetBuildStep(BuildQueryStep.BuildSelect);
+        BuildCTE_SelectItems(query, ctx);
+        ctx.Append("0 From ");
+
+        //From Anchor
+        ctx.SetBuildStep(BuildQueryStep.BuildFrom);
+        var q = (ISqlEntityQuery)query;
+        var model = RuntimeContext.GetModelAsync<EntityModel>(q.T.ModelID).Result;
+        ctx.AppendWithNameEscaper(model.GetSqlTableName(false, null));
+        ctx.Append(" AS ");
+        ctx.Append(q.AliasName);
+
+        //Where Anchor
+        ctx.SetBuildStep(BuildQueryStep.BuildWhere);
+        if (!Expression.IsNull(query.Filter))
+        {
+            ctx.Append(" Where ");
+            BuildExpression(query.Filter!, ctx);
+        }
+
+        //End 1
+        ctx.CurrentQueryInfo.EndBuidQuery();
+
+        //Union all
+        ctx.SetBuildStep(BuildQueryStep.BuildSelect);
+        ctx.Append(" Union All Select ");
+
+        //Select 2
+        //ctx.SetBuildStep(BuildQueryStep.BuildSelect);
+        BuildCTE_SelectItems(query, ctx);
+        ctx.Append(TREE_LEVEL);
+        ctx.Append("+1 From ");
+
+        //From 2
+        ctx.SetBuildStep(BuildQueryStep.BuildFrom);
+        ctx.AppendWithNameEscaper(model.GetSqlTableName(false, null));
+        ctx.Append(" AS ");
+        ctx.Append(q.AliasName);
+
+        //Inner Join 
+        ctx.Append(" Inner Join cte as d On ");
+        var treeParentMember = q.TreeParentMember!;
+        for (var i = 0; i < treeParentMember.FKMemberIds.Length; i++)
+        {
+            if (i != 0) ctx.Append(" And ");
+
+            var fkName = model.GetMember(treeParentMember.FKMemberIds[i])!.Name;
+            var pkName = model.GetMember(model.SqlStoreOptions!.PrimaryKeys[i].MemberId)!.Name;
+            BuildFieldExpression((EntityFieldExpression)q.T[fkName], ctx);
+            ctx.Append("=d.");
+            ctx.AppendWithNameEscaper(pkName);
+        }
+
+        ctx.Append(") Select t.* From cte t"); //需要tree_level用于判断层级
+
+        //构建自动联接Join，主要用于继承的
+        ctx.SetBuildStep(BuildQueryStep.BuildJoin);
+        ctx.BuildQueryAutoJoins((SqlQueryBase)q); //再处理自动联接
+
+        //最后处理Order By 
+        ctx.SetBuildStep(BuildQueryStep.BuildOrderBy);
+        if (query.HasSortItems)
+        {
+            ctx.Append(" Order By t.");
+            ctx.Append(TREE_LEVEL);
+            foreach (var item in query.SortItems)
+            {
+                ctx.Append(',');
+                BuildExpression(item.Expression, ctx);
+                if (item.SortType == SortType.DESC)
+                    ctx.Append(" DESC");
+            }
+        }
+
+        //End 1
+        ctx.EndBuildQuery(query, true);
+    }
+
     // private void BuildTreeNodePathQuery(ISqlSelectQuery query, BuildQueryContext ctx)
     // {
     //     //设置上下文
@@ -279,36 +289,40 @@ partial class PgSqlStore
     //     //End 1
     //     ctx.EndBuildQuery(query, true);
     // }
-    //
-    // private void BuildCTE_SelectItems(ISqlSelectQuery query, BuildQueryContext ctx,
-    //     bool forTeeNodePath = false)
-    // {
-    //     //ctx.IsBuildCTESelectItem = true;
-    //     foreach (var si in query.Selects.Values)
-    //     {
-    //         FieldExpression fsi = si.Expression as FieldExpression;
-    //         if (!Expression.IsNull(fsi))
-    //         {
-    //             if (Equals(fsi.Owner.Owner, null))
-    //             {
-    //                 if (forTeeNodePath)
-    //                     ctx.AppendFormat("t.\"{0}\" \"{1}\",", fsi.Name, si.AliasName);
-    //                 else
-    //                     ctx.AppendFormat("t.\"{0}\",", fsi.Name);
-    //             }
-    //         }
-    //         //else if (forTeeNodePath)
-    //         //{
-    //         //    var aggRefField = si.Expression as AggregationRefFieldExpression;
-    //         //    if (!object.Equals(null, aggRefField))
-    //         //    {
-    //         //        BuildAggregationRefFieldExpression(aggRefField, ctx);
-    //         //        ctx.AppendFormat(" \"{0}\",", si.AliasName);
-    //         //    }
-    //         //}
-    //     }
-    //     //ctx.IsBuildCTESelectItem = false;
-    // }
+
+    private void BuildCTE_SelectItems(ISqlSelectQuery query, BuildQueryContext ctx,
+        bool forTeeNodePath = false)
+    {
+        //ctx.IsBuildCTESelectItem = true;
+        foreach (var si in query.Selects!)
+        {
+            if (si.Expression is EntityFieldExpression fsi)
+            {
+                if (Expression.IsNull(fsi.Owner!.Owner))
+                {
+                    ctx.Append("t.");
+                    ctx.AppendWithNameEscaper(fsi.Name!);
+                    if (forTeeNodePath)
+                    {
+                        ctx.Append(' ');
+                        ctx.AppendWithNameEscaper(si.AliasName!);
+                    }
+
+                    ctx.Append(',');
+                }
+            }
+            //TODO: else if (forTeeNodePath)
+            //{
+            //    var aggRefField = si.Expression as AggregationRefFieldExpression;
+            //    if (!object.Equals(null, aggRefField))
+            //    {
+            //        BuildAggregationRefFieldExpression(aggRefField, ctx);
+            //        ctx.AppendFormat(" \"{0}\",", si.AliasName);
+            //    }
+            //}
+        }
+        //ctx.IsBuildCTESelectItem = false;
+    }
 
     private void BuildOrderBy(ISqlSelectQuery query, BuildQueryContext ctx)
     {

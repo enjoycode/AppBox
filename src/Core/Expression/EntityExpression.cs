@@ -11,7 +11,7 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// 用于查询时的别名，不用序列化
     /// </summary>
-    public string AliasName { get; set; }
+    public string? AliasName { get; set; }
 
     private object? _user;
 
@@ -71,11 +71,11 @@ public sealed class EntityExpression : EntityPathExpression
                         else
                             throw new NotImplementedException("尚未实现聚合引用对象的表达式");
                         break;
-                    // case EntityMemberType.EntitySet:
-                    //     var sm = (EntitySetModel)m;
-                    //     //EntityRefModel erm = esm.RefModel[esm.RefMemberName] as EntityRefModel;
-                    //     exp = new EntitySetExpression(name, this, sm.RefModelId);
-                    //     break;
+                    case EntityMemberType.EntitySet:
+                        var sm = (EntitySetModel)m;
+                        //EntityRefModel erm = esm.RefModel[esm.RefMemberName] as EntityRefModel;
+                        exp = new EntitySetExpression(name, this, sm.RefModelId);
+                        break;
                     //case EntityMemberType.AggregationRefField:
                     //    exp = new AggregationRefFieldExpression(name, this);
                     //    break;
@@ -106,7 +106,7 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// New Root EntityExpression
     /// </summary>
-    public EntityExpression(long modelID, object user) : base(null, null)
+    public EntityExpression(long modelID, object? user) : base(null, null)
     {
         ModelID = modelID;
         _user = user;

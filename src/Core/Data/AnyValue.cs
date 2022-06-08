@@ -4,10 +4,10 @@ namespace AppBoxCore;
 
 /// <summary>
 /// 任意值，可包含C#常规则内置类型或引用类型或Boxed的结构体
-/// 主要用于服务调用的返回值，以减少常规类型的装箱操作
+/// 主要用于服务调用的返回值，以减少常规类型的装拆箱操作
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Pack = 4)]
-public struct AnyValue
+public struct AnyValue : IEquatable<AnyValue>
 {
     public readonly static AnyValue Empty = new AnyValue { Type = AnyValueType.Empty };
 
@@ -32,6 +32,8 @@ public struct AnyValue
     [FieldOffset(24)] private AnyValueType Type;
 
     #endregion
+
+    public bool IsEmpty => Type == AnyValueType.Empty;
 
     public object? BoxedValue
     {
@@ -152,6 +154,13 @@ public struct AnyValue
     }
 
     #endregion
+
+    public bool Equals(AnyValue other)
+    {
+        if (Type != other.Type) return false;
+        if (Type == AnyValueType.Object) return ObjectValue == other.ObjectValue;
+        return GuidValue == other.GuidValue;
+    }
 }
 
 public enum AnyValueType : byte

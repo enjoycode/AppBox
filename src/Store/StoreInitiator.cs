@@ -74,17 +74,10 @@ internal static class StoreInitiator
         itdept.Name = "IT Dept";
 
         //新建默认组织单元
-        var entou = new OrgUnit(Guid.NewGuid());
-        entou.Base = defaultEnterprise;
-
-        var itdeptou = new OrgUnit(Guid.NewGuid());
-        itdeptou.Base = itdept;
-
-        var adminou = new OrgUnit(Guid.NewGuid());
-        adminou.Base = admin;
-
-        var testou = new OrgUnit(Guid.NewGuid());
-        testou.Base = test;
+        var entou = new OrgUnit { Base = defaultEnterprise };
+        var itdeptou = new OrgUnit { Base = itdept, ParentId = entou.Id };
+        var adminou = new OrgUnit { Base = admin, ParentId = itdeptou.Id };
+        var testou = new OrgUnit { Base = test, ParentId = itdeptou.Id };
 
         //事务保存
 #if FUTURE
@@ -334,20 +327,18 @@ internal static class StoreInitiator
 #endif
         model.AddSysMember(name, OrgUnit.NAME_ID);
 
-        var baseId = new DataFieldModel(model, nameof(OrgUnit.BaseId), fkType, false);
-        model.AddSysMember(baseId, OrgUnit.BASEID_ID);
         var baseType =
             new DataFieldModel(model, nameof(OrgUnit.BaseType), DataFieldType.Long, false);
         model.AddSysMember(baseType, OrgUnit.BASETYPE_ID);
         var Base = new EntityRefModel(model, nameof(OrgUnit.Base),
             new List<long> { Enterprise.MODELID, Workgroup.MODELID, Employee.MODELID },
-            new short[] { baseId.MemberId }, baseType.MemberId);
+            new[] { id.MemberId }, baseType.MemberId);
         model.AddSysMember(Base, OrgUnit.BASE_ID);
 
         var parentId = new DataFieldModel(model, nameof(OrgUnit.ParentId), fkType, true);
         model.AddSysMember(parentId, OrgUnit.PARENTID_ID);
         var parent = new EntityRefModel(model, nameof(OrgUnit.Parent), OrgUnit.MODELID,
-            new short[] { parentId.MemberId });
+            new[] { parentId.MemberId });
         model.AddSysMember(parent, OrgUnit.PARENT_ID);
 
         var children =

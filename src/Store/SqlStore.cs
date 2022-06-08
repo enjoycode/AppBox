@@ -17,6 +17,8 @@ public abstract class SqlStore
 {
     #region ====Statics====
 
+    public const string TREE_LEVEL = "__tree_level";
+
     private static readonly Dictionary<long, SqlStore> SqlStores = new();
 
 #if !FUTURE
@@ -575,9 +577,9 @@ public abstract class SqlStore
     #endregion
 }
 
-internal static class StringBuilderExtensions
+public static class StringBuilderExtensions
 {
-    internal static void AppendWithNameEscaper(this StringBuilder sb, string name, string escaper)
+    public static void AppendWithNameEscaper(this StringBuilder sb, string name, string escaper)
     {
         sb.Append(escaper);
         sb.Append(name);

@@ -46,4 +46,6 @@ public interface ISqlEntityQuery : ISqlSelectQuery
     EntityExpression T { get; }
 
     string AliasName { get; }
+    
+    EntityRefModel? TreeParentMember { get; }
 }

@@ -18,11 +18,6 @@ public sealed class BinaryExpression : Expression
 
     #region ====Ctor====
 
-    /// <summary>
-    /// Ctor for Serialization
-    /// </summary>
-    internal BinaryExpression() { }
-
     public BinaryExpression(Expression leftOperator, Expression rightOperator,
         BinaryOperatorType operatorType)
     {
