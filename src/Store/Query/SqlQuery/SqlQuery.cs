@@ -278,7 +278,9 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
             else
             {
                 var parent = FindParent(TreeParentMember, entity, allList);
-                //TODO:**** set child.Parent = parent
+                //set child.Parent = parent
+                SetParent(TreeParentMember, parent, entity);
+                //add child to parent.children list
                 var childrenList =
                     (IList<TEntity>)GetNaviPropForFetch(parent, childrenModel.MemberId);
                 childrenList.Add(entity);
@@ -362,6 +364,16 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         }
 
         throw new Exception("Can't find parent");
+    }
+
+    /// <summary>
+    /// 用于树状结构填充时设置上级实例
+    /// </summary>
+    private static void SetParent(EntityRefModel parentModel, TEntity parent, TEntity child)
+    {
+        var memberValueSetter = EntityMemberValueSetter.ThreadInstance;
+        memberValueSetter.Value = AnyValue.From(parent);
+        child.ReadMember(parentModel.MemberId, memberValueSetter, EntityMemberWriteFlags.None);
     }
 
     /// <summary>
