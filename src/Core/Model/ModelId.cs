@@ -21,8 +21,11 @@ public readonly struct ModelId
     public ModelLayer Layer => (ModelLayer)(_encoded & 3);
 
     public ModelType Type => (ModelType)((_encoded >> 24) & 0xFF);
-    
+
     public static implicit operator ModelId(long value) => new ModelId(value);
+
+    public static implicit operator ModelId(string value)
+        => new ModelId((long)ulong.Parse(value));
 
     public static implicit operator long(ModelId value) => value._encoded;
 

@@ -13,6 +13,7 @@
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Design.Core\Design.Core.csproj" />
       <ProjectReference Include="..\PixUI\PixUI.CS2TS\PixUI.CS2TS.csproj" />
+      <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -17,5 +17,5 @@ public interface IMetaStore
     /// <summary>
     ///  加载单个Model，用于运行时或设计时重新加载
     /// </summary>
-    ValueTask<ModelBase> LoadModelAsync(ModelId modelId);
+    Task<ModelBase> LoadModelAsync(ModelId modelId);
 }

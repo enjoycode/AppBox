@@ -182,7 +182,7 @@ public sealed class SqlMetaStore : IMetaStore
     internal static async ValueTask<ApplicationModel> LoadApplicationAsync(int appId)
     {
         var data = await LoadMetaDataAsync(Meta_Application, appId.ToString());
-        return (ApplicationModel)MetaSerializer.DeserializeMeta(data, () => new ApplicationModel());
+        return MetaSerializer.DeserializeMeta(data, () => new ApplicationModel());
     }
 
     /// <summary>
@@ -218,20 +218,11 @@ public sealed class SqlMetaStore : IMetaStore
     /// <summary>
     /// 加载单个Model，用于运行时或设计时重新加载
     /// </summary>
-    public async ValueTask<ModelBase> LoadModelAsync(ModelId modelId)
+    public async Task<ModelBase> LoadModelAsync(ModelId modelId)
     {
         var data = await LoadMetaDataAsync(Meta_Model, modelId.ToString());
-        var model = MetaSerializer.DeserializeMeta<ModelBase>(data, () =>
-        {
-            return modelId.Type switch
-            {
-                ModelType.Entity => new EntityModel(),
-                ModelType.Service => new ServiceModel(),
-                ModelType.View => new ViewModel(),
-                ModelType.Permission => new PermissionModel(),
-                _ => throw new NotImplementedException(modelId.Type.ToString())
-            };
-        });
+        var model = MetaSerializer.DeserializeMeta<ModelBase>(data,
+            () => ModelFactory.Make(modelId.Type));
         model.AcceptChanges();
         return model;
     }

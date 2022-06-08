@@ -5,10 +5,33 @@ namespace AppBoxStore;
 
 public sealed class StagedModel : SqlEntity
 {
+    public StagedModel() { }
+
+    public StagedModel(byte type, string modelId, Guid developerId)
+    {
+        _type = type;
+        _modelId = modelId;
+        _developerId = developerId;
+    }
+
     private byte _type;
     private string _modelId;
     private Guid _developerId;
     private byte[] _data;
+
+    public byte Type => _type;
+
+    public string ModelIdString => _modelId;
+
+    public byte[] Data
+    {
+        get => _data;
+        set
+        {
+            _data = value;
+            OnPropertyChanged(DATA_ID);
+        }
+    }
 
     #region ====Overrides====
 
