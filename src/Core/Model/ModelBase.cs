@@ -29,6 +29,7 @@ public abstract class ModelBase : IBinSerializable
     public ModelId Id => _id;
     public string Name => _name;
     public string OriginalName => _originalName ?? _name;
+    public int Version => _version;
 
     public Guid? FolderId
     {

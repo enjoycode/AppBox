@@ -5,11 +5,44 @@ namespace AppBoxStore;
 
 public sealed class Checkout : SqlEntity
 {
+    public Checkout() { }
+
+    public Checkout(Guid developerId, byte nodeType, string targetId)
+    {
+        _developerId = developerId;
+        _nodeType = nodeType;
+        _targetId = targetId;
+    }
+
     private byte _nodeType;
     private string _targetId;
     private Guid _developerId;
     private string _developerName;
     private int _version;
+
+    public byte NodeType => _nodeType;
+    public string TargetId => _targetId;
+    public Guid DeveloperId => _developerId;
+
+    public string DeveloperName
+    {
+        get => _developerName;
+        set
+        {
+            _developerName = value;
+            OnPropertyChanged(DEVELOPERNAME_ID);
+        }
+    }
+
+    public int Version
+    {
+        get => _version;
+        set
+        {
+            _version = value;
+            OnPropertyChanged(VERSION_ID);
+        }
+    }
 
     #region ====Overrides====
 
