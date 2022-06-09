@@ -26,18 +26,20 @@ public sealed class ModelFolder : IBinSerializable
 
     public int SortNum { get; set; }
 
-    private List<ModelFolder>? _childs;
+    public int Version { get; internal set; } //TODO: remove?
 
-    public List<ModelFolder> Childs
+    private List<ModelFolder>? _children;
+
+    public List<ModelFolder> Children
     {
         get
         {
-            _childs ??= new List<ModelFolder>();
-            return _childs;
+            _children ??= new List<ModelFolder>();
+            return _children;
         }
     }
 
-    public bool HasChilds => _childs != null && _childs.Count > 0;
+    public bool HasChilds => _children != null && _children.Count > 0;
 
     /// <summary>
     /// 仅Root有效
@@ -73,7 +75,7 @@ public sealed class ModelFolder : IBinSerializable
         Parent = parent;
         Name = name;
         TargetModelType = parent.TargetModelType;
-        Parent.Childs.Add(this);
+        Parent.Children.Add(this);
     }
 
     #endregion
@@ -87,7 +89,7 @@ public sealed class ModelFolder : IBinSerializable
     {
         if (Parent == null)
             throw new InvalidOperationException("Can't remove root folder");
-        Parent.Childs.Remove(this);
+        Parent.Children.Remove(this);
     }
 
     public ModelFolder GetRoot()
@@ -121,8 +123,8 @@ public sealed class ModelFolder : IBinSerializable
             ws.WriteVariant(0);
         else
         {
-            ws.WriteVariant(_childs!.Count);
-            foreach (var child in _childs)
+            ws.WriteVariant(_children!.Count);
+            foreach (var child in _children)
             {
                 child.WriteTo(ws);
             }

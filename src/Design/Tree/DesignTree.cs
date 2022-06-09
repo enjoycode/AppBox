@@ -4,17 +4,24 @@ namespace AppBoxDesign;
 
 public sealed class DesignTree : IBinSerializable
 {
+    public DesignTree(DesignHub hub)
+    {
+        DesignHub = hub;
+    }
+
     private int _loadingFlag = 0;
     private readonly List<DesignNode> _rootNodes = new List<DesignNode>();
     private DataStoreRootNode _storeRootNode = null!;
     private ApplicationRootNode _appRootNode = null!;
 
-    public readonly DesignHub DesignHub;
+    private Dictionary<string, CheckoutInfo> _checkouts = null!;
 
-    public DesignTree(DesignHub hub)
-    {
-        DesignHub = hub;
-    }
+    /// <summary>
+    /// 仅用于加载树时临时放入挂起的模型
+    /// </summary>
+    internal StagedItems Staged { get; private set; }
+
+    public readonly DesignHub DesignHub;
 
     public IList<DesignNode> RootNodes => _rootNodes;
 
@@ -36,6 +43,8 @@ public sealed class DesignTree : IBinSerializable
         _rootNodes.Add(_appRootNode);
 
         //先加载签出信息及StagedModels
+        _checkouts = await CheckoutService.LoadAllAsync();
+        Staged = await StagedService.LoadStagedAsync(onlyModelsAndFolders: true);
 
         //1.加载Apps
         var appNode = new ApplicationNode(this, new ApplicationModel("sys", "sys"));
@@ -122,11 +131,68 @@ public sealed class DesignTree : IBinSerializable
     #region ====Checkout Methods====
 
     /// <summary>
-    /// 给设计节点添加签出信息，如果已签出的模型节点则用本地存储替换原模型
+    /// 用于签出节点成功后添加签出信息列表
+    /// </summary>
+    internal void AddCheckoutInfos(IList<CheckoutInfo> infos)
+    {
+        foreach (var item in infos)
+        {
+            var key = CheckoutInfo.MakeKey(item.NodeType, item.TargetID);
+            _checkouts.TryAdd(key, item);
+        }
+    }
+
+    /// <summary>
+    /// 给设计节点添加签出信息，如果已签出的模型节点则用Staged替换原模型
     /// </summary>
     internal void BindCheckoutInfo(DesignNode node, bool isNewNode)
     {
-        //TODO:
+        //if (node.NodeType == DesignNodeType.FolderNode || !node.AllowCheckout)
+        //    throw new ArgumentException("不允许绑定签出信息: " + node.NodeType.ToString());
+
+        //先判断是否新增的
+        if (isNewNode)
+        {
+            node.CheckoutInfo = new CheckoutInfo(node.Type, node.CheckoutTargetId, node.Version,
+                DesignHub.Session.Name, DesignHub.Session.LeafOrgUnitId);
+            return;
+        }
+
+        //非新增的比对服务端的签出列表
+        var key = CheckoutInfo.MakeKey(node.Type, node.CheckoutTargetId);
+        if (_checkouts.TryGetValue(key, out var checkout))
+        {
+            node.CheckoutInfo = checkout;
+            if (node.IsCheckoutByMe && node is ModelNode modelNode) //如果是被当前用户签出的模型
+            {
+                //从Staged加载
+                var stagedModel = Staged.FindModel(modelNode.Model.Id);
+                if (stagedModel != null)
+                    modelNode.Model = stagedModel;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 部署完后更新所有模型节点的状态，并移除待删除的节点
+    /// </summary>
+    public void CheckinAllNodes()
+    {
+        //循环更新模型节点
+        for (var i = 0; i < _appRootNode.Children.Count; i++)
+        {
+            _appRootNode.Children[i].CheckinAllNodes();
+        }
+
+        //刷新签出信息表，移除被自己签出的信息
+        var list = _checkouts.Keys
+            .Where(key =>
+                _checkouts[key].DeveloperOuid == RuntimeContext.CurrentSession!.LeafOrgUnitId)
+            .ToList();
+        foreach (var key in list)
+        {
+            _checkouts.Remove(key);
+        }
     }
 
     #endregion

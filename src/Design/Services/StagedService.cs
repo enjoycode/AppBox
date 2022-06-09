@@ -289,7 +289,7 @@ internal sealed class StagedItems
     {
         var list = new List<ModelBase>();
         if (Items == null) return list.ToArray();
-        
+
         foreach (var item in Items)
         {
             if (item is ModelBase { PersistentState: PersistentState.Detached } m)
@@ -299,15 +299,14 @@ internal sealed class StagedItems
         return list.ToArray();
     }
 
-    internal ModelBase FindModel(ModelId modelId)
+    internal ModelBase? FindModel(ModelId modelId)
     {
-        if (Items != null)
+        if (Items == null) return null;
+
+        foreach (var item in Items)
         {
-            for (int i = 0; i < Items.Length; i++)
-            {
-                if (Items[i] is ModelBase m && m.Id == modelId)
-                    return m;
-            }
+            if (item is ModelBase m && m.Id == modelId)
+                return m;
         }
 
         return null;

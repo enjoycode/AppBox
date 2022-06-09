@@ -70,7 +70,51 @@ public sealed class ModelRootNode : DesignNode
 
     internal void CheckInAllNodes()
     {
-        throw new NotImplementedException();
+        //定义待删除模型节点列表
+        var ls = new List<ModelNode>();
+
+        //签入模型根节点，文件夹的签出信息同模型根节点
+        if (IsCheckoutByMe)
+            CheckoutInfo = null;
+
+        //签入所有模型节点
+        foreach (var n in _models.Values)
+        {
+            if (n.IsCheckoutByMe)
+            {
+                //判断是否待删除的节点
+                if (n.Model.PersistentState == PersistentState.Deleted)
+                {
+                    ls.Add(n);
+                }
+                else
+                {
+                    n.CheckoutInfo = null;
+                    //不再需要累加版本号，由ModelStore保存模型时处理 n.Model.Version += 1;
+                    n.Model.AcceptChanges();
+                }
+            }
+        }
+
+        //TODO:移除已删除的文件夹节点
+        //开始移除待删除的模型节点
+        foreach (var modelNode in ls)
+        {
+            //先移除索引
+            _models.Remove(modelNode.Model.Id);
+            //再移除节点
+            var parentNode = modelNode.Parent;
+            switch (parentNode)
+            {
+                case FolderNode folderNode:
+                    folderNode.Children.Remove(modelNode);
+                    break;
+                case ModelRootNode modelRootNode:
+                    modelRootNode.Children.Remove(modelNode);
+                    break;
+                default: throw new Exception("Can't remove");
+            }
+        }
     }
 
     public override void WriteTo(IOutputStream ws)

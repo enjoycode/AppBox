@@ -8,7 +8,7 @@ internal static class CheckoutService
     /// <summary>
     /// 签出指定节点
     /// </summary>
-    internal static async Task<CheckoutResult?> CheckoutAsync(List<CheckoutRequest> checkoutInfos)
+    internal static async Task<CheckoutResult?> CheckoutAsync(List<CheckoutInfo> checkoutInfos)
     {
         if (checkoutInfos.Count == 0)
             return null;
@@ -60,9 +60,9 @@ internal static class CheckoutService
     /// <summary>
     /// 用于DesignTree加载时
     /// </summary>
-    internal static async Task<Dictionary<string, CheckoutRequest>> LoadAllAsync()
+    internal static async Task<Dictionary<string, CheckoutInfo>> LoadAllAsync()
     {
-        var list = new Dictionary<string, CheckoutRequest>();
+        var list = new Dictionary<string, CheckoutInfo>();
 #if FUTURE
             var q = new TableScan(Consts.SYS_CHECKOUT_MODEL_ID);
 #else
@@ -71,7 +71,7 @@ internal static class CheckoutService
         var res = await q.ToListAsync();
         foreach (var item in res)
         {
-            var info = new CheckoutRequest((DesignNodeType)item.NodeType, item.TargetId,
+            var info = new CheckoutInfo((DesignNodeType)item.NodeType, item.TargetId,
                 item.Version, item.DeveloperName, item.DeveloperId);
             list.Add(info.GetKey(), info);
         }

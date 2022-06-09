@@ -4,12 +4,6 @@ namespace AppBoxDesign;
 
 public sealed class ApplicationNode : DesignNode
 {
-    public readonly ApplicationModel Model;
-    private readonly DesignNodeList<ModelRootNode> _children;
-
-    public override DesignNodeType Type => DesignNodeType.ApplicationNode;
-    public override string Label => Model.Name;
-
     public ApplicationNode(DesignTree tree, ApplicationModel model)
     {
         Model = model;
@@ -21,6 +15,23 @@ public sealed class ApplicationNode : DesignNode
             var modelRoot = new ModelRootNode((ModelType)i);
             _children.Add(modelRoot);
             tree.BindCheckoutInfo(modelRoot, false);
+        }
+    }
+
+    public readonly ApplicationModel Model;
+    private readonly DesignNodeList<ModelRootNode> _children;
+
+    public override DesignNodeType Type => DesignNodeType.ApplicationNode;
+    public override string Label => Model.Name;
+
+    /// <summary>
+    /// 签入当前应用节点下所有子节点
+    /// </summary>
+    internal void CheckinAllNodes()
+    {
+        for (var i = 0; i < _children.Count; i++)
+        {
+            _children[i].CheckInAllNodes();
         }
     }
 

@@ -3,7 +3,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 用于包装设计器向服务端发送的签出请求
 /// </summary>
-public sealed class CheckoutRequest
+public sealed class CheckoutInfo //TODO: remove it, use Checkout
 {
     public DesignNodeType NodeType { get; }
     
@@ -14,7 +14,7 @@ public sealed class CheckoutRequest
     public Guid DeveloperOuid { get;}
     public DateTime CheckoutTime { get; set; }
 
-    public CheckoutRequest(DesignNodeType nodeType, string targetID,
+    public CheckoutInfo(DesignNodeType nodeType, string targetID,
         int version, string developerName, Guid developerOuID)
     {
         NodeType = nodeType;

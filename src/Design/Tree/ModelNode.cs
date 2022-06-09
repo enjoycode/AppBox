@@ -27,7 +27,7 @@ public sealed class ModelNode : DesignNode
         }
     }
 
-    public readonly ModelBase Model;
+    public ModelBase Model { get; internal set; }
     public readonly DocumentId? RoslynDocumentId;
     public readonly ProjectId? ServiceProjectId; //服务模型专用
     public readonly DocumentId? ServiceProxyDocumentId; //服务模型专用
@@ -35,6 +35,12 @@ public sealed class ModelNode : DesignNode
     public override DesignNodeType Type => DesignNodeType.ModelNode;
     public override string Id => Model.Id.ToString();
     public override string Label => Model.Name;
+
+    public override int Version
+    {
+        get => Model.Version;
+        set => throw new NotSupportedException();
+    }
 
     public ApplicationNode AppNode
     {
