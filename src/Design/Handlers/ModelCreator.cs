@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal static class ModelCreator
 {
-    public static async Task<NewNodeResult> Handle(DesignHub hub, ModelType modelType,
+    public static async Task<NewNodeResult> Make(DesignHub hub, ModelType modelType,
         Func<ModelId, ModelBase> creator,
         DesignNodeType selectedNodeType, string selectedNodeId, string name, string? initSrcCode)
     {
@@ -25,20 +25,21 @@ internal static class ModelCreator
         //判断名称是否已存在
         if (hub.DesignTree.IsModelNameExists(appId, modelType, name.AsMemory()))
             throw new Exception("Name has exists");
-        
+
         //判断当前模型根节点有没有签出
         var modelRootNode = hub.DesignTree.FindModelRootNode(appId, modelType)!;
         var modelRootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
         var checkoutOK = await modelRootNode.CheckoutAsync();
         if (!checkoutOK)
             throw new Exception("Can't checkout ModelRootNode");
-        
+
         //生成模型标识号并新建模型及节点 //TODO:fix Layer
         var modelId = await MetaStore.Provider.GenModelIdAsync(appId, modelType, ModelLayer.DEV);
         var model = creator(modelId);
         var node = new ModelNode(model, hub);
-        var insertIndex = parentNode.Type == DesignNodeType.ModelRootNode ? 
-            modelRootNode.Children.Add(node) : ((FolderNode)parentNode).Children.Add(node);
+        var insertIndex = parentNode.Type == DesignNodeType.ModelRootNode
+            ? modelRootNode.Children.Add(node)
+            : ((FolderNode)parentNode).Children.Add(node);
         modelRootNode.AddModelIndex(node); //添加至模型根节点的索引内
         //设置文件夹
         if (parentNode is FolderNode folderNode)
@@ -46,11 +47,11 @@ internal static class ModelCreator
         //设为签出状态
         node.CheckoutInfo = new CheckoutInfo(node.Type, node.CheckoutTargetId, model.Version,
             hub.Session.Name, hub.Session.LeafOrgUnitId);
-        
+
         //保存至Staged
         await node.SaveAsync(initSrcCode);
         //创建RoslynDocument
-        await hub.TypeSystem.CreateModelDocumentAsync(node);
+        await hub.TypeSystem.CreateModelDocumentAsync(node, initSrcCode);
 
         return new NewNodeResult(parentNode.Type, parentNode.Id, node,
             modelRootNodeHasCheckout ? null : modelRootNode.Id, insertIndex);

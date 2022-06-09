@@ -1,5 +1,4 @@
 using AppBoxCore;
-using AppBoxDesign.View;
 
 namespace AppBoxDesign;
 
@@ -16,6 +15,7 @@ public sealed class DesignService : IService
         // Entity
         { nameof(GetEntityPreview), new GetEntityPreview() },
         // View
+        { nameof(NewViewModel), new NewViewModel() },
         { nameof(OpenViewModel), new OpenViewModel() },
         { nameof(GetWebPreview), new GetWebPreview() },
     };

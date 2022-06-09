@@ -1,6 +1,6 @@
 using AppBoxCore;
 
-namespace AppBoxDesign.View;
+namespace AppBoxDesign;
 
 internal sealed class OpenViewModel : IDesignHandler
 {

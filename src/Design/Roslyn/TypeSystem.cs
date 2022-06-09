@@ -85,7 +85,7 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// Create model's roslyn document
     /// </summary>
-    internal async ValueTask CreateModelDocumentAsync(ModelNode node)
+    internal async ValueTask CreateModelDocumentAsync(ModelNode node, string? initSrcCode = null)
     {
         Solution? newSolution = null;
         var appName = node.AppNode.Model.Name;
@@ -106,33 +106,19 @@ internal sealed class TypeSystem : IDisposable
             case ModelType.View:
             {
                 var docName = $"{appName}.Views.{model.Name}.cs";
-                //TODO:get source from StagedService or ModelStore
-                var src = $@"using PixUI;
-
-public sealed class {model.Name} : View
-{{
-    public {model.Name}()
-    {{
-        Child = new Text(nameof({model.Name}));
-    }}
-}}";
-                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, src);
+                var sourceCode = await LoadSourceCode(initSrcCode, node);
+                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
                 break;
             }
             case ModelType.Service:
             {
+                //服务模型先创建虚拟项目
                 CreateServiceProject(node.ServiceProjectId!, (ServiceModel)model, appName);
 
                 var docName = $"{appName}.Services.{model.Name}.cs";
-                //TODO:get source from StagedService or ModelStore
-                var src = $@"public sealed class HelloService
-{{
-    public string SayHello(string name)
-    {{
-        return ""Hello "" + name;
-    }}
-}}";
-                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, src);
+                var sourceCode = await LoadSourceCode(initSrcCode, node);
+                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
+
                 //TODO:服务代理的代码生成
                 break;
             }
@@ -143,6 +129,23 @@ public sealed class {model.Name} : View
             if (!Workspace.TryApplyChanges(newSolution))
                 throw new Exception($"Can't add roslyn document for: {model.Name}");
         }
+    }
+
+    /// <summary>
+    /// 获取模型节点代码，如果是新建的节点使用初始化代码，如果是已签出的先尝试从Staged中获取，最后从MetaStore获取
+    /// </summary>
+    private static async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
+    {
+        var sourceCode = initSrcCode;
+        if (string.IsNullOrEmpty(sourceCode))
+        {
+            if (node.IsCheckoutByMe) //已签出尝试从Staged中加载
+                sourceCode = await StagedService.LoadCodeAsync(node.Model.Id);
+            if (string.IsNullOrEmpty(sourceCode)) //从MetaStore加载
+                sourceCode = await MetaStore.Provider.LoadModelCodeAsync(node.Model.Id);
+        }
+
+        return sourceCode;
     }
 
     /// <summary>
