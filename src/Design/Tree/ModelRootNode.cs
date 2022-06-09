@@ -4,7 +4,16 @@ namespace AppBoxDesign;
 
 public sealed class ModelRootNode : DesignNode
 {
+    public ModelRootNode(ModelType targetType)
+    {
+        TargetType = targetType;
+        Children = new DesignNodeList<DesignNode>(this);
+    }
+
+    private readonly Dictionary<Guid, FolderNode> _folders = new();
     private readonly Dictionary<ModelId, ModelNode> _models = new();
+    
+    public ModelFolder? RootFolder { get; internal set; }
 
     public readonly ModelType TargetType;
 
@@ -23,39 +32,64 @@ public sealed class ModelRootNode : DesignNode
         }
     }
 
-    public ModelRootNode(ModelType targetType)
-    {
-        TargetType = targetType;
-        Children = new DesignNodeList<DesignNode>(this);
-    }
-
     #region ====Add and Remove Methods====
+    
+    /// <summary>
+    /// 仅用于设计树从顶级开始递归添加文件夹节点
+    /// </summary>
+    internal void LoadFolder(ModelFolder folder, FolderNode? parent = null)
+    {
+        FolderNode? parentNode = null;
+        if (folder.Parent != null)
+        {
+            var node = new FolderNode(folder);
+            parentNode = node;
+            //不再检查本地有没有挂起的修改,由DesignTree加载时处理好
+            if (parent == null)
+                Children.Add(node);
+            else
+                parent.Children.Add(node);
+
+            _folders.Add(folder.Id, node);
+        }
+        else
+        {
+            RootFolder = folder;
+        }
+
+        if (folder.HasChilds)
+        {
+            foreach (var child in folder.Children)
+            {
+                LoadFolder(child, parentNode);
+            }
+        }
+    }
 
     /// <summary>
     /// 仅用于加载设计树时添加节点并绑定签出信息
     /// </summary>
-    internal ModelNode AddModelForLoad(ModelBase model)
+    internal ModelNode LoadModel(ModelBase model)
     {
         //注意: 1.不在这里创建相应的RoslynDocument,因为可能生成虚拟代码时找不到引用的模型，待加载完整个树后再创建
         //     2.model可能被签出的本地替换掉，所以相关操作必须指向node.Model
         var node = new ModelNode(model, DesignTree!.DesignHub);
-        // DesignTree.BindCheckoutInfo(node, model.PersistentState == PersistentState.Detached);
+        DesignTree.BindCheckoutInfo(node, model.PersistentState == PersistentState.Detached);
 
-        // if (node.Model.FolderId.HasValue)
-        // {
-        //     if (_folders.TryGetValue(node.Model.FolderId.Value, out FolderNode folderNode))
-        //         folderNode.Nodes.Add(node);
-        //     else
-        //         Nodes.Add(node);
-        // }
-        // else
-        // {
-        Children.Add(node);
-        // }
+        if (node.Model.FolderId.HasValue &&
+            _folders.TryGetValue(node.Model.FolderId.Value, out var folderNode))
+        {
+            folderNode.Children.Add(node);
+        }
+        else
+        {
+            Children.Add(node);
+        }
+
         _models.Add(node.Model.Id, node);
         return node;
     }
-
+    
     #endregion
 
     #region ====Find Methods====

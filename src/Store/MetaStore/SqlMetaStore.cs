@@ -188,32 +188,32 @@ public sealed class SqlMetaStore : IMetaStore
     /// <summary>
     /// 用于设计时加载所有ApplicationModel
     /// </summary>
-    internal static async ValueTask<ApplicationModel[]> LoadAllApplicationAsync()
+    public Task<ApplicationModel[]> LoadAllApplicationAsync()
     {
-        return await LoadMetasAsync<ApplicationModel>(Meta_Application);
+        return LoadMetasAsync<ApplicationModel>(Meta_Application);
     }
 
     /// <summary>
     /// 用于设计时加载所有Model
     /// </summary>
-    internal static async ValueTask<ModelBase[]> LoadAllModelAsync()
+    public async Task<ModelBase[]> LoadAllModelAsync()
     {
         var res = await LoadMetasAsync<ModelBase>(Meta_Model);
-        for (int i = 0; i < res.Length; i++) //暂循环转换状态
+        foreach (var model in res)
         {
-            res[i].AcceptChanges();
+            model.AcceptChanges(); //暂循环转换状态
         }
 
         return res;
     }
 
-    // /// <summary>
-    // /// 用于设计时加载所有Folder
-    // /// </summary>
-    // internal static async ValueTask<ModelFolder[]> LoadAllFolderAsync()
-    // {
-    //     return await LoadMetasAsync<ModelFolder>(Meta_Folder);
-    // }
+    /// <summary>
+    /// 用于设计时加载所有Folder
+    /// </summary>
+    public Task<ModelFolder[]> LoadAllFolderAsync()
+    {
+        return LoadMetasAsync<ModelFolder>(Meta_Folder);
+    }
 
     /// <summary>
     /// 加载单个Model，用于运行时或设计时重新加载
@@ -686,15 +686,39 @@ public sealed class SqlMetaStore : IMetaStore
         await using var conn = await db.OpenConnectionAsync();
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
-        cmd.CommandText = $"Select data From {esc}sys.Meta{esc} Where meta={metaType}";
+        cmd.CommandText = $"Select data,id From {esc}sys.Meta{esc} Where meta={metaType}";
         Log.Debug(cmd.CommandText);
         await using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<T>();
         while (await reader.ReadAsync())
         {
-            var meta = MetaSerializer.DeserializeMeta<T>((byte[])reader.GetValue(0),
-                () => { throw new NotImplementedException(); }); //TODO:Use GetStream
-            list.Add(meta);
+            var data = (byte[])reader.GetValue(0);
+            switch (metaType)
+            {
+                case Meta_Application:
+                {
+                    var appModel = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
+                        () => new ApplicationModel());
+                    list.Add((T)appModel);
+                    break;
+                }
+                case Meta_Folder:
+                {
+                    var folder = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
+                        () => new ModelFolder());
+                    list.Add((T)folder);
+                    break;
+                }
+                case Meta_Model:
+                {
+                    ModelId modelId = reader.GetString(1);
+                    var model = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
+                        () => ModelFactory.Make(modelId.Type));
+                    list.Add((T)model);
+                    break;
+                }
+                default: throw new NotImplementedException();
+            }
         }
 
         return list.ToArray();

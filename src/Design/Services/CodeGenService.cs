@@ -72,6 +72,9 @@ internal static class CodeGenService
             case DataStoreKind.None:
                 sb.Append(" : Entity");
                 break;
+            case DataStoreKind.Sql:
+                sb.Append(" : SqlEntity");
+                break;
             default: throw new NotImplementedException(model.DataStoreKind.ToString());
         }
 
@@ -84,6 +87,12 @@ internal static class CodeGenService
             {
                 case EntityMemberType.DataField:
                     GenDataFieldMember((DataFieldModel)member, sb);
+                    break;
+                case EntityMemberType.EntityRef:
+                    //TODO:
+                    break;
+                case EntityMemberType.EntitySet:
+                    //TODO:
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
@@ -119,10 +128,22 @@ internal static class CodeGenService
 
     private static string GetDataFieldTypeString(DataFieldModel field)
     {
-        return field.DataType switch
+        var typeString = field.DataType switch
         {
-            DataFieldType.String => field.AllowNull ? "string?" : "string",
+            DataFieldType.String => "string",
+            DataFieldType.Bool => "bool",
+            DataFieldType.Byte => "byte",
+            DataFieldType.Short => "short",
+            DataFieldType.Int => "int",
+            DataFieldType.Long => "long",
+            DataFieldType.Float => "float",
+            DataFieldType.Double => "double",
+            DataFieldType.DateTime => "DateTime",
+            DataFieldType.Decimal => "decimal",
+            DataFieldType.Guid => "Guid",
+            DataFieldType.Binary => "byte[]",
             _ => throw new NotImplementedException(field.DataType.ToString())
         };
+        return field.AllowNull ? typeString + '?' : typeString;
     }
 }

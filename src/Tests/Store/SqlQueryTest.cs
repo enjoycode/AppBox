@@ -10,11 +10,7 @@ public sealed class SqlQueryTest
 {
     static SqlQueryTest()
     {
-        RuntimeContext.Init(new HostRuntimeContext(), null);
-        SqlStore.InitDefault("AppBoxStore.PostgreSql",
-            "AppBoxStore.PgSqlStore",
-            "Server=127.0.0.1;Port=5432;Database=AppBox;Userid=rick;Password=;Enlist=true;Pooling=true;MinPoolSize=1;MaxPoolSize=200;");
-        MetaStore.Init(new SqlMetaStore());
+        TestHelper.TryInitDefaultStore();
     }
 
     [Test]

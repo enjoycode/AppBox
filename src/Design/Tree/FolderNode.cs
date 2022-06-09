@@ -11,7 +11,7 @@ public sealed class FolderNode : DesignNode
     }
 
     public override DesignNodeType Type => DesignNodeType.FolderNode;
-    
+
     internal DesignNodeList<DesignNode> Children { get; }
 
     public ModelFolder Folder { get; internal set; }
@@ -47,5 +47,11 @@ public sealed class FolderNode : DesignNode
         var rootFolder = Folder.GetRoot();
         //保存节点模型
         return StagedService.SaveFolderAsync(rootFolder);
+    }
+
+    public override void WriteTo(IOutputStream ws)
+    {
+        base.WriteTo(ws);
+        Children.WriteTo(ws);
     }
 }

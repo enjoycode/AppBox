@@ -1,5 +1,11 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=642af9b5_002D7a6a_002D4f94_002Dab65_002D343c9fa6ba31/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1a4010e0_002Debf9_002D43b7_002Da699_002D3e2d34f6c502/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ModelFolderTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.ModelSerializationTest.ModelFolderTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.Handlers.LoadDesignTreeTest.LoadTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=642af9b5_002D7a6a_002D4f94_002Dab65_002D343c9fa6ba31/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.Handlers.GetWebPreviewTest.Test&lt;/TestId&gt;
@@ -10,5 +16,7 @@
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.EntityTest.GetMemberValueTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest.ToTreeTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.CodeCompressTest.CompressTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.Handlers.LoadDesignTreeTest.LoadTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.ModelSerializationTest.ModelFolderTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

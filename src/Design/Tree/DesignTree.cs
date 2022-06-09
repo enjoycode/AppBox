@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxStore;
 
 namespace AppBoxDesign;
 
@@ -19,7 +20,7 @@ public sealed class DesignTree : IBinSerializable
     /// <summary>
     /// 仅用于加载树时临时放入挂起的模型
     /// </summary>
-    internal StagedItems Staged { get; private set; }
+    internal StagedItems? Staged { get; private set; }
 
     public readonly DesignHub DesignHub;
 
@@ -42,40 +43,65 @@ public sealed class DesignTree : IBinSerializable
         _appRootNode = new ApplicationRootNode(this);
         _rootNodes.Add(_appRootNode);
 
-        //先加载签出信息及StagedModels
+        //1.先加载签出信息及StagedModels
         _checkouts = await CheckoutService.LoadAllAsync();
         Staged = await StagedService.LoadStagedAsync(onlyModelsAndFolders: true);
 
-        //1.加载Apps
-        var appNode = new ApplicationNode(this, new ApplicationModel("sys", "sys"));
-        _appRootNode.Children.Add(appNode);
+        //2.开始加载设计时元数据
+        //加载Apps
+        var mapps = await MetaStore.Provider.LoadAllApplicationAsync();
+        var apps = new List<ApplicationModel>(mapps);
+        apps.Sort((a, b) => a.Name.CompareTo(b.Name));
+
+        //加载Folders
+        var mfolders = await MetaStore.Provider.LoadAllFolderAsync();
+        var folders = new List<ModelFolder>(mfolders);
+        //从staged中添加新建的并更新修改的文件夹
+        Staged.UpdateFolders(folders);
+
+        //加载Models
+        var mmodels = await MetaStore.Provider.LoadAllModelAsync();
+        var models = new List<ModelBase>(mmodels);
 
         //添加默认存储节点
+#if !FUTURE
         var defaultDataStoreModel = new DataStoreModel(DataStoreKind.Sql, "Default", null);
+        //defaultDataStoreModel.AcceptChanges();
         var defaultDataStoreNode = new DataStoreNode(defaultDataStoreModel);
         _storeRootNode.Children.Add(defaultDataStoreNode);
+#endif
 
-        //测试用节点
-        var empModel = new EntityModel(
-            ModelId.Make(appNode.Model.Id, ModelType.Entity, 1, ModelLayer.SYS), "Employee");
-        var nameField = new DataFieldModel(empModel, "Name", DataFieldType.String, false);
-        empModel.AddMember(nameField);
-        var empNode = appNode.FindModelRootNode(ModelType.Entity).AddModelForLoad(empModel);
+        //3.加载staged中新建的模型，可能包含DataStoreModel
+        models.AddRange(Staged.FindNewModels());
 
-        var homePageModel = new ViewModel(
-            ModelId.Make(appNode.Model.Id, ModelType.View, 1, ModelLayer.SYS),
-            "HomePage");
-        var homePageNode = appNode.FindModelRootNode(ModelType.View).AddModelForLoad(homePageModel);
-        var demoPageModel = new ViewModel(
-            ModelId.Make(appNode.Model.Id, ModelType.View, 2, ModelLayer.DEV),
-            "DemoPage");
-        var demoPageNode = appNode.FindModelRootNode(ModelType.View).AddModelForLoad(demoPageModel);
+        //4.开始添加树节点
+        //加入AppModels节点
+        foreach (var app in apps)
+        {
+            _appRootNode.Children.Add(new ApplicationNode(this, app));
+        }
 
-        //在所有节点加载完成后创建模型对应的RoslynDocument
-        await DesignHub.TypeSystem.CreateModelDocumentAsync(empNode);
-        await DesignHub.TypeSystem.CreateModelDocumentAsync(homePageNode);
-        await DesignHub.TypeSystem.CreateModelDocumentAsync(demoPageNode);
+        //加入Folders
+        foreach (var folder in folders)
+        {
+            FindModelRootNode(folder.AppId, folder.TargetModelType)!.LoadFolder(folder);
+        }
 
+        //加入Models
+        Staged.RemoveDeletedModels(models); //先移除已删除的
+        var allModelNodes = new List<ModelNode>(models.Count);
+        foreach (var model in models)
+        {
+            allModelNodes.Add(FindModelRootNode(model.Id.AppId, model.ModelType)!.LoadModel(model));
+        }
+
+        //5.在所有节点加载完后创建模型对应的RoslynDocument
+        foreach (var modelNode in allModelNodes)
+        {
+            await DesignHub.TypeSystem.CreateModelDocumentAsync(modelNode);
+        }
+
+        Staged = null;
         Interlocked.Exchange(ref _loadingFlag, 0);
     }
 

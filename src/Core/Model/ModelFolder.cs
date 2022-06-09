@@ -154,7 +154,10 @@ public sealed class ModelFolder : IBinSerializable
         {
             var child = new ModelFolder { Parent = this };
             child.ReadFrom(rs);
+            Children.Add(child);
         }
+
+        rs.ReadVariant(); //保留
     }
 
     #endregion
