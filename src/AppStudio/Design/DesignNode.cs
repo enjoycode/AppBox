@@ -103,7 +103,36 @@ namespace AppBoxDesign
                 if (nodeType == DesignNodeType.ModelNode)
                     node = new ModelNode();
                 else if (nodeType == DesignNodeType.FolderNode)
-                    throw new NotImplementedException();
+                    node = new FolderNode();
+                else
+                    throw new NotSupportedException();
+
+                node.ReadFrom(rs);
+                _children.Add(node);
+            }
+        }
+    }
+
+    internal sealed class FolderNode : DesignNode
+    {
+        public override DesignNodeType Type => DesignNodeType.FolderNode;
+
+        private readonly List<DesignNode> _children = new List<DesignNode>();
+        public override IList<DesignNode>? Children => _children;
+
+        public override void ReadFrom(IInputStream rs)
+        {
+            base.ReadFrom(rs);
+
+            var count = rs.ReadVariant();
+            for (var i = 0; i < count; i++)
+            {
+                var nodeType = (DesignNodeType)rs.ReadByte();
+                DesignNode node;
+                if (nodeType == DesignNodeType.ModelNode)
+                    node = new ModelNode();
+                else if (nodeType == DesignNodeType.FolderNode)
+                    node = new FolderNode();
                 else
                     throw new NotSupportedException();
 

@@ -147,7 +147,7 @@ export class ModelRootNode extends DesignNode {
             if (nodeType == AppBoxDesign.DesignNodeType.ModelNode)
                 node = new ModelNode();
             else if (nodeType == AppBoxDesign.DesignNodeType.FolderNode)
-                throw new System.NotImplementedException();
+                node = new FolderNode();
             else
                 throw new System.NotSupportedException();
 
@@ -161,6 +161,43 @@ export class ModelRootNode extends DesignNode {
         return this;
     }
 }
+
+export class FolderNode extends DesignNode {
+    public get Type(): AppBoxDesign.DesignNodeType {
+        return AppBoxDesign.DesignNodeType.FolderNode;
+    }
+
+    private readonly _children: System.List<DesignNode> = new System.List<DesignNode>();
+
+    public get Children(): Nullable<System.IList<DesignNode>> {
+        return this._children;
+    }
+
+    public ReadFrom(rs: AppBoxCore.IInputStream) {
+        super.ReadFrom(rs);
+
+        let count = rs.ReadVariant();
+        for (let i = 0; i < count; i++) {
+            let nodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
+            let node: DesignNode;
+            if (nodeType == AppBoxDesign.DesignNodeType.ModelNode)
+                node = new ModelNode();
+            else if (nodeType == AppBoxDesign.DesignNodeType.FolderNode)
+                node = new FolderNode();
+            else
+                throw new System.NotSupportedException();
+
+            node.ReadFrom(rs);
+            this._children.Add(node);
+        }
+    }
+
+    public Init(props: Partial<FolderNode>): FolderNode {
+        Object.assign(this, props);
+        return this;
+    }
+}
+
 
 export class ModelNode extends DesignNode {
     public get Type(): AppBoxDesign.DesignNodeType {
