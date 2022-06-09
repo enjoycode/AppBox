@@ -32,6 +32,7 @@ export enum PayloadType {
     EntityModelInfo = 51,
     DesignTree = 52,
     CompletionItem = 53,
+    NewNodeResult = 54,
 
     //----运行时类型----
     Entity = 90,

@@ -1,6 +1,8 @@
 using AppBoxCore;
+using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
 
 namespace AppBoxDesign;
 
@@ -9,6 +11,17 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class TypeSystem : IDisposable
 {
+    public TypeSystem()
+    {
+        Workspace = new ModelWorkspace(new HostServicesAggregator());
+
+        ModelProjectId = ProjectId.CreateNewId();
+        WebViewsProjectId = ProjectId.CreateNewId();
+        ServiceProxyProjectId = ProjectId.CreateNewId();
+
+        InitWorkspace();
+    }
+
     internal readonly ModelWorkspace Workspace;
 
     /// <summary>
@@ -33,17 +46,6 @@ internal sealed class TypeSystem : IDisposable
     private static readonly CSharpParseOptions ParseOptions =
         new CSharpParseOptions()
             .WithLanguageVersion(LanguageVersion.CSharp10);
-
-    public TypeSystem()
-    {
-        Workspace = new ModelWorkspace(new HostServicesAggregator());
-
-        ModelProjectId = ProjectId.CreateNewId();
-        WebViewsProjectId = ProjectId.CreateNewId();
-        ServiceProxyProjectId = ProjectId.CreateNewId();
-
-        InitWorkspace();
-    }
 
     /// <summary>
     /// 初始化虚拟工程
@@ -140,6 +142,58 @@ public sealed class {model.Name} : View
         {
             if (!Workspace.TryApplyChanges(newSolution))
                 throw new Exception($"Can't add roslyn document for: {model.Name}");
+        }
+    }
+
+    /// <summary>
+    /// 更新模型RoslynDocument，注意：服务模型也会更新，如不需要由调用者忽略
+    /// </summary>
+    internal async ValueTask UpdateModelDocumentAsync(ModelNode node)
+    {
+        if (node.RoslynDocumentId == null)
+            return;
+
+        var appName = node.AppNode.Model.Name;
+        var model = node.Model;
+        var docId = node.RoslynDocumentId;
+
+        Solution? newSolution = null;
+        //TODO: others
+        switch (model.ModelType)
+        {
+            case ModelType.Entity:
+            {
+                var sourceCode =
+                    CodeGenService.GenEntityDummyCode((EntityModel)model, appName, node.DesignTree);
+                newSolution =
+                    Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
+            }
+                break;
+            case ModelType.Enum:
+                //TODO:
+                // newSolution = Workspace.CurrentSolution.WithDocumentText(docId,
+                //                     SourceText.From(CodeGenService.GenEnumDummyCode((EnumModel)model, appName)));
+                break;
+            case ModelType.Service:
+            {
+                var sourceCode = await MetaStore.Provider.LoadModelCodeAsync(model.Id);
+                newSolution =
+                    Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
+
+                // 服务模型还需要更新代理类
+                //TODO:
+                // var srcdoc = newSolution.GetDocument(docId);
+                // var proxyCode = await CodeGenService.GenProxyCode(srcdoc, appName, (ServiceModel)model);
+                // newSolution = newSolution
+                //         .WithDocumentText(node.AsyncProxyDocumentId, SourceText.From(proxyCode));
+            }
+                break;
+        }
+
+        if (newSolution != null)
+        {
+            if (!Workspace.TryApplyChanges(newSolution))
+                Log.Warn("Cannot update roslyn document for: " + model.Name);
         }
     }
 

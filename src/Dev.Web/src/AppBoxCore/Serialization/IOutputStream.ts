@@ -1,17 +1,17 @@
 export interface IOutputStream {
     WriteByte(v: number): void;
 
-    WriteInt8(v: number): void;
+    // WriteInt8(v: number): void;
 
-    WriteInt16(v: number): void;
+    WriteShort(v: number): void;
 
-    WriteInt32(v: number): void;
+    WriteInt(v: number): void;
 
-    WriteInt64(v: number): void;
+    WriteLong(v: number): void;
 
     WriteDouble(v: number): void;
 
-    WriteDate(v: Date): void;
+    WriteDateTime(v: Date): void;
 
     WriteVariant(v: number): void;
 

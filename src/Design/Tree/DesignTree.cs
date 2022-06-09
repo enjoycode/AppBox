@@ -109,6 +109,31 @@ public sealed class DesignTree : IBinSerializable
 
     #region ====Find Methods====
 
+    /// <summary>
+    /// 用于前端传回的参数查找对应的设计节点
+    /// </summary>
+    public DesignNode? FindNode(DesignNodeType type, string id)
+    {
+        switch (type)
+        {
+            case DesignNodeType.ModelNode:
+                ModelId modelId = id;
+                return FindModelNode(modelId.Type, modelId);
+            case DesignNodeType.FolderNode:
+                return FindFolderNode(id);
+            case DesignNodeType.DataStoreNode:
+                return _storeRootNode.Children.Find(n => n.Id == id);
+            case DesignNodeType.ModelRootNode:
+                var sepIndex = id.IndexOf('-');
+                var appId = (int)uint.Parse(id.AsSpan(0, sepIndex));
+                var modelType = (ModelType)byte.Parse(id.AsSpan(sepIndex + 1));
+                return FindModelRootNode(appId, modelType);
+            default:
+                Log.Warn($"FindNode: {type} 未实现");
+                throw new NotImplementedException();
+        }
+    }
+
     public ApplicationNode? FindApplicationNode(int appId)
         => _appRootNode.Children.Find(n => n.Model.Id == appId);
 
@@ -118,21 +143,24 @@ public sealed class DesignTree : IBinSerializable
     public ModelRootNode? FindModelRootNode(int appId, ModelType modelType)
         => FindApplicationNode(appId)?.FindModelRootNode(modelType);
 
+    public FolderNode? FindFolderNode(string id)
+    {
+        var folderId = new Guid(id); //注意：id为Guid形式
+        for (var i = 0; i < _appRootNode.Children.Count; i++)
+        {
+            var folderNode = _appRootNode.Children[i].FindFolderNode(folderId);
+            if (folderNode != null)
+                return folderNode;
+        }
+
+        return null;
+    }
+
     public ModelNode? FindModelNode(ModelType modelType, ModelId modelId)
         => FindModelRootNode(modelId.AppId, modelType)?.FindModelNode(modelId);
 
     public ModelNode? FindModelNodeByName(int appId, ModelType modelType, ReadOnlyMemory<char> name)
         => FindModelRootNode(appId, modelType)?.FindModelNodeByName(name);
-
-    // /// <summary>
-    // /// 设计时新建模型时检查名称是否已存在
-    // /// </summary>
-    // public bool IsModelNameExists(int appId, ModelType modelType, ReadOnlyMemory<char> name)
-    // {
-    //     //TODO:***** 如果forNew = true,考虑在这里加载存储有没有相同名称的存在,或发布时检测，如改为全局Workspace没有此问题
-    //     // dev1 -> load tree -> checkout -> add model -> publish
-    //     // dev2 -> load tree                                 -> checkout -> add model with same name will pass
-    // }
 
     /// <summary>
     /// 根据全名称找到模型节点
@@ -150,6 +178,65 @@ public sealed class DesignTree : IBinSerializable
         if (appNode == null) return null;
         var modelType = CodeUtil.GetModelTypeFromPluralString(typeName);
         return FindModelNodeByName(appNode.Model.Id, modelType, modelName);
+    }
+
+    /// <summary>
+    /// 根据当前选择的节点查询新建模型的上级节点
+    /// </summary>
+    public static DesignNode? FindNewModelParentNode(DesignNode? node, ModelType newModelType)
+    {
+        if (node == null) return null;
+
+        switch (node.Type)
+        {
+            case DesignNodeType.FolderNode:
+            {
+                var folderNode = (FolderNode)node;
+                if (folderNode.Folder.TargetModelType == newModelType)
+                    return folderNode;
+                break;
+            }
+            case DesignNodeType.ModelRootNode:
+            {
+                var modelRootNode = (ModelRootNode)node;
+                if (modelRootNode.TargetType == newModelType)
+                    return modelRootNode;
+                break;
+            }
+            case DesignNodeType.ApplicationNode:
+                return ((ApplicationNode)node).FindModelRootNode(newModelType);
+            case DesignNodeType.ModelNode:
+                break;
+            default:
+                return null;
+        }
+
+        return FindNewModelParentNode(node.Parent, newModelType);
+    }
+
+    /// <summary>
+    /// 向上递归查找指定节点所属的应用节点
+    /// </summary>
+    public static ApplicationNode? FindAppNodeFromNode(DesignNode? node)
+    {
+        while (true)
+        {
+            if (node == null) return null;
+            if (node.Type == DesignNodeType.ApplicationNode) return (ApplicationNode)node;
+            node = node.Parent;
+        }
+    }
+
+    /// <summary>
+    /// 设计时新建模型时检查名称是否已存在
+    /// </summary>
+    public bool IsModelNameExists(int appId, ModelType modelType, ReadOnlyMemory<char> name)
+    {
+        //TODO:***** 如果forNew = true,考虑在这里加载存储有没有相同名称的存在,或发布时检测，如改为全局Workspace没有此问题
+        // dev1 -> load tree -> checkout -> add model -> publish
+        // dev2 -> load tree                                 -> checkout -> add model with same name will pass
+        var found = FindModelNodeByName(appId, modelType, name);
+        return found != null;
     }
 
     #endregion

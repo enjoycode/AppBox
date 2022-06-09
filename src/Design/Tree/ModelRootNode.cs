@@ -12,7 +12,7 @@ public sealed class ModelRootNode : DesignNode
 
     private readonly Dictionary<Guid, FolderNode> _folders = new();
     private readonly Dictionary<ModelId, ModelNode> _models = new();
-    
+
     public ModelFolder? RootFolder { get; internal set; }
 
     public readonly ModelType TargetType;
@@ -34,6 +34,16 @@ public sealed class ModelRootNode : DesignNode
 
     #region ====Add and Remove Methods====
     
+    /// <summary>
+    /// 用于新建时添加至字典表
+    /// </summary>
+    internal void AddModelIndex(ModelNode node) => _models.Add(node.Model.Id, node);
+
+    /// <summary>
+    /// 用于新建时添加至字典表
+    /// </summary>
+    internal void AddFolderIndex(FolderNode node) => _folders.Add(node.Folder.Id, node);
+
     /// <summary>
     /// 仅用于设计树从顶级开始递归添加文件夹节点
     /// </summary>
@@ -89,10 +99,16 @@ public sealed class ModelRootNode : DesignNode
         _models.Add(node.Model.Id, node);
         return node;
     }
-    
+
     #endregion
 
     #region ====Find Methods====
+
+    public FolderNode? FindFolderNode(Guid folderID)
+    {
+        _folders.TryGetValue(folderID, out var node);
+        return node;
+    }
 
     public ModelNode? FindModelNode(ModelId modelId)
         => _models.TryGetValue(modelId, out var modelNode) ? modelNode : null;

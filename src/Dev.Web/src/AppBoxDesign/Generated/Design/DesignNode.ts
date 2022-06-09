@@ -198,7 +198,6 @@ export class FolderNode extends DesignNode {
     }
 }
 
-
 export class ModelNode extends DesignNode {
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.ModelNode;

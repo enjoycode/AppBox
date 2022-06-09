@@ -56,6 +56,39 @@ public sealed class ModelNode : DesignNode
         }
     }
 
+    /// <summary>
+    /// 保存模型节点(包括相关代码)
+    /// </summary>
+    public async Task SaveAsync(string? initSrcCode)
+    {
+        if (!IsCheckoutByMe) throw new Exception("ModelNode has not checkout");
+        
+        //TODO: 考虑事务保存模型及相关代码
+        
+        //先保存模型代码
+        if (Model.PersistentState != PersistentState.Deleted)
+        {
+            //注意：不在此更新RoslynDocument, 实体模型通过设计命令更新,服务模型通过前端代码编辑器实时更新
+            if (Model.ModelType == ModelType.Service || Model.ModelType == ModelType.View)
+            {
+                string srcCode;
+                if (initSrcCode != null) srcCode = initSrcCode;
+                else
+                {
+                    var doc = DesignTree!.DesignHub.TypeSystem.Workspace.CurrentSolution
+                        .GetDocument(RoslynDocumentId)!;
+                    var srcText = await doc.GetTextAsync();
+                    srcCode = srcText.ToString();
+                }
+
+                await StagedService.SaveCodeAsync(Model.Id, srcCode);
+            }
+        }
+        
+        //再保存模型元数据
+        await StagedService.SaveModelAsync(Model);
+    }
+
     public override void WriteTo(IOutputStream ws)
     {
         base.WriteTo(ws);

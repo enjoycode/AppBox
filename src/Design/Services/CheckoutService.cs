@@ -8,10 +8,10 @@ internal static class CheckoutService
     /// <summary>
     /// 签出指定节点
     /// </summary>
-    internal static async Task<CheckoutResult?> CheckoutAsync(List<CheckoutInfo> checkoutInfos)
+    internal static async Task<CheckoutResult> CheckoutAsync(List<CheckoutInfo> checkoutInfos)
     {
         if (checkoutInfos.Count == 0)
-            return null;
+            throw new ArgumentException();
 
         //尝试向存储插入签出信息
 #if FUTURE

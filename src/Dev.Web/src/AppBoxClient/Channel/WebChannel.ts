@@ -77,10 +77,10 @@ export class WebChannel implements IChannel {
     }
 
     private ProcessLoginResponse(stream: BytesInputStream) {
-        const reqMsgId = stream.ReadInt32();
+        const reqMsgId = stream.ReadInt();
         const loginOk = stream.ReadBool();
         if (loginOk) {
-            this.#_sessionId = stream.ReadInt32();
+            this.#_sessionId = stream.ReadInt();
             this.#_name = stream.ReadString();
             this.SetResponse(reqMsgId, InvokeErrorCode.None, undefined);
         } else {
@@ -91,7 +91,7 @@ export class WebChannel implements IChannel {
 
     /** 处理收到的调用服务的响应 */
     private async ProcessInvokeResponse(stream: BytesInputStream) {
-        let reqMsgId = stream.ReadInt32();
+        let reqMsgId = stream.ReadInt();
         let errorCode: InvokeErrorCode = stream.ReadByte();
         let result: any;
         if (stream.Remaining > 0) { //因有些错误可能不包含数据，只有错误码
@@ -187,7 +187,7 @@ export class WebChannel implements IChannel {
         let ws = new BytesOutputStream();
         //写入消息头
         ws.WriteByte(MessageType.LoginRequest);
-        ws.WriteInt32(msgId);
+        ws.WriteInt(msgId);
         //写入消息体
         ws.WriteString(user);
         ws.WriteString(password);
@@ -211,7 +211,7 @@ export class WebChannel implements IChannel {
         let ws = new BytesOutputStream();
         //写入消息头
         ws.WriteByte(MessageType.InvokeRequest);
-        ws.WriteInt32(msgId);
+        ws.WriteInt(msgId);
         //写入消息体
         ws.WriteString(service);
         if (args) {

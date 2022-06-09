@@ -5,15 +5,15 @@ export interface IInputStream {
 
     ReadByte(): number;
 
-    ReadInt16(): number;
+    ReadShort(): number;
 
-    ReadInt32(): number;
+    ReadInt(): number;
 
-    ReadInt64(): bigint;
+    ReadLong(): bigint;
 
     ReadVariant(): number;
 
-    ReadDate(): Date;
+    ReadDateTime(): Date;
 
     ReadString(): string;
 

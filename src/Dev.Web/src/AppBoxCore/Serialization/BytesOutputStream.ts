@@ -67,14 +67,14 @@ export class BytesOutputStream implements IOutputStream {
             //TODO: 暂全部按有符号处理以适应Java, 且暂只分int32, int64
             if (num >= -2147483648 && num <= 2147483647) {
                 this.WriteByte(PayloadType.Int32);
-                this.WriteInt32(num);
+                this.WriteInt(num);
             } else {
                 this.WriteByte(PayloadType.Int64);
-                this.WriteInt64(num);
+                this.WriteLong(num);
             }
         } else {
             //TODO: 暂按Double处理
-            this.WriteInt64(num);
+            this.WriteLong(num);
         }
     }
 
@@ -113,19 +113,19 @@ export class BytesOutputStream implements IOutputStream {
         this.pos++;
     }
 
-    public WriteInt16(v: number): void {
+    public WriteShort(v: number): void {
         this.ensureSizeToWrite(2);
         this.view.setInt16(this.pos, v, true);
         this.pos += 2;
     }
 
-    public WriteInt32(v: number): void {
+    public WriteInt(v: number): void {
         this.ensureSizeToWrite(4);
         this.view.setInt32(this.pos, v, true);
         this.pos += 4;
     }
 
-    public WriteInt64(v: number): void {
+    public WriteLong(v: number): void {
         this.ensureSizeToWrite(8);
         const high = Math.floor(v / 0x100000000);
         this.view.setUint32(this.pos, v, true); // high bits are truncated by DataView
@@ -139,8 +139,8 @@ export class BytesOutputStream implements IOutputStream {
         this.pos += 8;
     }
 
-    public WriteDate(v: Date) {
-        this.WriteInt64(v.getTime());
+    public WriteDateTime(v: Date) {
+        this.WriteLong(v.getTime());
     }
 
     public WriteString(v?: string): void {

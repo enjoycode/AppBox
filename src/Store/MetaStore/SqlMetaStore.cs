@@ -124,8 +124,7 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    internal static async ValueTask<long> GenModelIdAsync(int appId, ModelType type,
-        ModelLayer layer)
+    public async Task<ModelId> GenModelIdAsync(int appId, ModelType type, ModelLayer layer)
     {
         if (layer == ModelLayer.SYS) //不允许SYS Layer
             throw new ArgumentException(nameof(layer));
@@ -146,7 +145,7 @@ public sealed class SqlMetaStore : IMetaStore
         cmd1.CommandText =
             $"Select data From {esc}sys.Meta{esc} Where meta={meta} And id='{id}' For Update";
         await using var reader = await cmd1.ExecuteReaderAsync();
-        byte[] counterData = null;
+        byte[] counterData;
         var seq = 0;
 
         await using var cmd2 = db.MakeCommand();
@@ -281,21 +280,21 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    // /// <summary>
-    // /// 删除根文件夹
-    // /// </summary>
-    // internal static async ValueTask DeleteFolderAsync(ModelFolder folder, DbTransaction txn)
-    // {
-    //     if (folder.Parent != null)
-    //         throw new InvalidOperationException("Can't delete none root folder.");
-    //     var id =
-    //         $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
-    //     using var cmd = SqlStore.Default.MakeCommand();
-    //     cmd.Connection = txn.Connection;
-    //     cmd.Transaction = txn;
-    //     BuildDeleteMetaCommand(cmd, Meta_Folder, id);
-    //     await cmd.ExecuteNonQueryAsync();
-    // }
+    /// <summary>
+    /// 删除根文件夹
+    /// </summary>
+    internal static async ValueTask DeleteFolderAsync(ModelFolder folder, DbTransaction txn)
+    {
+        if (folder.Parent != null)
+            throw new InvalidOperationException("Can't delete none root folder.");
+        var id =
+            $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
+        await using var cmd = SqlStore.Default.MakeCommand();
+        cmd.Connection = txn.Connection;
+        cmd.Transaction = txn;
+        BuildDeleteMetaCommand(cmd, Meta_Folder, id);
+        await cmd.ExecuteNonQueryAsync();
+    }
 
     #endregion
 
@@ -327,41 +326,15 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    // /// <summary>
-    // /// 仅用于加载服务模型的代码
-    // /// </summary>
-    // internal static async ValueTask<string> LoadServiceCodeAsync(ulong modelId)
-    // {
-    //     var data = await LoadMetaDataAsync(Meta_Code, modelId.ToString());
-    //     if (data == null)
-    //         return null;
-    //     ModelCodeUtil.DecodeServiceCode(data, out string sourceCode, out _);
-    //     return sourceCode;
-    // }
-
-    // /// <summary>
-    // /// 仅用于加载视图模型的代码
-    // /// </summary>
-    // internal static async ValueTask<ValueTuple<string, string, string>> LoadViewCodeAsync(
-    //     ulong modelId)
-    // {
-    //     var data = await LoadMetaDataAsync(Meta_Code, modelId.ToString());
-    //     if (data == null)
-    //         return ValueTuple.Create<string, string, string>(null, null, null);
-    //
-    //     ModelCodeUtil.DecodeViewCode(data, out string templateCode, out string scriptCode,
-    //         out string styleCode);
-    //     return ValueTuple.Create(templateCode, scriptCode, styleCode);
-    // }
-
-    // internal static async ValueTask<string> LoadReportCodeAsync(ulong modelId)
-    // {
-    //     var data = await LoadMetaDataAsync(Meta_Code, modelId.ToString());
-    //     if (data == null)
-    //         return null;
-    //     return ModelCodeUtil.DecompressCode(data);
-    // }
-
+    /// <summary>
+    /// 加载模型(视图、服务等)的代码
+    /// </summary>
+    public async Task<string> LoadModelCodeAsync(ModelId modelId)
+    {
+        var data = await LoadMetaDataAsync(Meta_Code, modelId.ToString());
+        return ModelCodeUtil.DecompressCode(data);
+    }
+    
     // /// <summary>
     // /// 加载指定应用的第三方组件列表，仅用于设计时前端绑定
     // /// </summary>

@@ -4,6 +4,7 @@ export * from "./HandWrite/WebPreviewer"
 export * from "./Generated/Design/DesignNode"
 export * from "./Generated/Design/DesignTree"
 export * from "./Generated/Design/CompletionItem"
+export * from "./Generated/Design/NewNodeResult"
 export * from "./Generated/Design/RoslynCompletionProvider"
 
 export * from "./Generated/Pads/MainMenuPad"

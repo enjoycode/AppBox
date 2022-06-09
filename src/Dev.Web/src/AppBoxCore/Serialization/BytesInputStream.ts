@@ -28,7 +28,7 @@ export class BytesInputStream implements IInputStream {
             case PayloadType.String:
                 return this.ReadString();
             case PayloadType.Int32:
-                return this.ReadInt32();
+                return this.ReadInt();
             // case PayloadType.Int64:
             //     return this.ReadInt64();
             case PayloadType.JsonObject:
@@ -86,21 +86,21 @@ export class BytesInputStream implements IInputStream {
         return this.ReadByte() === PayloadType.BooleanTrue;
     }
 
-    public ReadInt16(): number {
+    public ReadShort(): number {
         this.ensureRemaining(2);
         const value = this.view.getInt16(this.pos, true);
         this.pos += 2;
         return value;
     }
 
-    public ReadInt32(): number {
+    public ReadInt(): number {
         this.ensureRemaining(4);
         const value = this.view.getInt32(this.pos, true);
         this.pos += 4;
         return value;
     }
 
-    public ReadInt64(): bigint {
+    public ReadLong(): bigint {
         throw new NotImplementedException();
         // this.ensureRemaining(8);
         // const v1 = this.view.getInt32(this.pos, true);
@@ -109,7 +109,7 @@ export class BytesInputStream implements IInputStream {
         // return new Long(v1, v2);
     }
 
-    public ReadDate(): Date {
+    public ReadDateTime(): Date {
         throw new NotImplementedException();
         //TODO:寻找更好的方法
         // let long = this.ReadInt64();

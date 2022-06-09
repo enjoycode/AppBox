@@ -22,13 +22,6 @@ public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
 
     public virtual int Version { get; set; }
 
-    /// <summary>
-    /// 设计节点是否被当前用户签出
-    /// </summary>
-    public bool IsCheckoutByMe => CheckoutInfo != null &&
-                                  CheckoutInfo.DeveloperOuid ==
-                                  RuntimeContext.CurrentSession!.LeafOrgUnitId;
-
     protected DesignNode RootNode
     {
         get
@@ -52,6 +45,56 @@ public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
             return null;
         }
     }
+
+    #region ====Checkout====
+
+    /// <summary>
+    /// 设计节点是否被当前用户签出
+    /// </summary>
+    public bool IsCheckoutByMe => CheckoutInfo != null &&
+                                  CheckoutInfo.DeveloperOuid ==
+                                  RuntimeContext.CurrentSession!.LeafOrgUnitId;
+
+    public bool AllowCheckout => Type is DesignNodeType.ModelRootNode
+        or DesignNodeType.ModelNode or DesignNodeType.DataStoreNode;
+
+    /// <summary>
+    /// 签出当前节点
+    /// </summary>
+    public async Task<bool> CheckoutAsync()
+    {
+        //判断是否已签出或者能否签出
+        if (!AllowCheckout) return false;
+        if (IsCheckoutByMe) return true;
+
+        //调用服务
+        var session = DesignTree!.DesignHub.Session;
+        var infos = new List<CheckoutInfo>()
+        {
+            new(Type, CheckoutTargetId, Version, session.Name, session.LeafOrgUnitId)
+        };
+        var res = await CheckoutService.CheckoutAsync(infos);
+        if (res.Success)
+        {
+            //签出成功则将请求的签出信息添加至当前的已签出列表
+            DesignTree.AddCheckoutInfos(infos);
+            //如果签出的是单个模型，且具备更新的版本，则替换旧模型
+            if (Type == DesignNodeType.ModelNode && res.ModelWithNewVersion != null)
+            {
+                var modelNode = (ModelNode)this;
+                modelNode.Model = res.ModelWithNewVersion;
+                await DesignTree.DesignHub.TypeSystem
+                    .UpdateModelDocumentAsync(modelNode); //更新为新模型的虚拟代码
+            }
+
+            //更新当前节点的签出信息
+            CheckoutInfo = infos[0];
+        }
+
+        return res.Success;
+    }
+
+    #endregion
 
     #region ====IComparable====
 

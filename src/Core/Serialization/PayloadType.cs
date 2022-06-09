@@ -41,6 +41,7 @@ namespace AppBoxCore
         EntityModelInfo = 51,
         DesignTree = 52,
         CompletionItem = 53,
+        NewNodeResult = 54,
 
         //----运行时相关类型----
         Entity = 90,

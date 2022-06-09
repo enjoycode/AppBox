@@ -20,24 +20,31 @@ export class ViewDesigner extends PixUI.View {
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
         this._delayDocChangedTask = new PixUI.DelayTask(300, this.RunDelayTask.bind(this));
 
-        this.Child = new PixUI.Row().Init({Children: [new PixUI.Expanded(ViewDesigner.BuildEditor(this._codeEditorController), 2), new PixUI.Expanded(new AppBoxDesign.WidgetPreviewer(this._previewController), 1)]});
+        this.Child = new PixUI.Row().Init(
+            {
+                Children: [new PixUI.Expanded(ViewDesigner.BuildEditor(this._codeEditorController), 2), new PixUI.Expanded(new AppBoxDesign.WidgetPreviewer(this._previewController), 1)]
+            });
     }
 
     private static BuildEditor(codeEditorController: CodeEditor.CodeEditorController): PixUI.Widget {
-        return new PixUI.Column().Init({Children: [ViewDesigner.BuildActionBar(), new PixUI.Expanded().Init({Child: new CodeEditor.CodeEditorWidget(codeEditorController)})]});
+        return new PixUI.Column().Init(
+            {
+                Children: [ViewDesigner.BuildActionBar(), new PixUI.Expanded().Init({Child: new CodeEditor.CodeEditorWidget(codeEditorController)})]
+            });
     }
 
     private static BuildActionBar(): PixUI.Widget {
-        return new PixUI.Container().Init({
-            Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFF3C3C3C)),
-            Height: PixUI.State.op_Implicit_From(40),
-            Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
-            Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init({
-                    Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Preview")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Debug")).Init({Width: PixUI.State.op_Implicit_From(75)}
-                    )]
-                }
-            )
-        });
+        return new PixUI.Container().Init(
+            {
+                Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFF3C3C3C)),
+                Height: PixUI.State.op_Implicit_From(40),
+                Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
+                Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init(
+                    {
+                        Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Preview")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Debug")).Init({Width: PixUI.State.op_Implicit_From(75)})
+                        ]
+                    })
+            });
     }
 
     protected OnMounted() {
@@ -58,6 +65,7 @@ export class ViewDesigner extends PixUI.View {
     private OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
         //同步变更至服务端
         this._codeSyncService.OnDocumentChanged(e);
+        //TODO: check syntax error first.
         //启动延时任务
         this._delayDocChangedTask.Run();
     }

@@ -35,12 +35,24 @@ public sealed class ApplicationNode : DesignNode
         }
     }
 
+    public ModelRootNode FindModelRootNode(ModelType modelType)
+        => _children[(int)modelType];
+
+    internal FolderNode? FindFolderNode(Guid folderID)
+    {
+        for (var i = 0; i < _children.Count; i++)
+        {
+            var res = _children[i].FindFolderNode(folderID);
+            if (res != null)
+                return res;
+        }
+
+        return null;
+    }
+
     public override void WriteTo(IOutputStream ws)
     {
         base.WriteTo(ws);
         _children.WriteTo(ws);
     }
-
-    public ModelRootNode FindModelRootNode(ModelType modelType)
-        => _children[(int)modelType];
 }
