@@ -17,7 +17,7 @@ namespace AppBoxDesign
                     Elevation = 10,
                     Child = new Transform(_scale)
                     {
-                        Child = new WebPreviewer()
+                        Child = new WebPreviewer(controller)
                     }
                 }
             };

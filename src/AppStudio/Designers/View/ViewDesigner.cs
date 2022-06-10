@@ -92,8 +92,9 @@ namespace AppBoxDesign
 
         private void RunDelayTask()
         {
-            //TODO:获取错误列表，如果没有错误刷新预览
-            _previewController.Invalidate();
+            //TODO:获取错误列表，如果没有错误刷新预览(暂只判断语法错误)
+            if (!_codeEditorController.Document.HasSyntaxError)
+                _previewController.Invalidate();
         }
 
         public override void Dispose()

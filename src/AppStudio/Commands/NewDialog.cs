@@ -12,8 +12,8 @@ namespace AppBoxDesign
 
         public NewDialog(Overlay overlay, string type) : base(overlay)
         {
-            Width = 400;
-            Height = 300;
+            Width = 300;
+            Height = 150;
             Title.Value = $"New {type}";
             _type = type;
             OnClose = _OnClose;
@@ -33,8 +33,8 @@ namespace AppBoxDesign
                         {
                             Children = new Widget[]
                             {
-                                new Button("OK") { OnTap = _ => Close(false) },
                                 new Button("Cancel") { OnTap = _ => Close(true) },
+                                new Button("OK") { OnTap = _ => Close(false) },
                             }
                         }
                     }
@@ -48,6 +48,9 @@ namespace AppBoxDesign
         private void _OnClose(bool canceled, string? result)
         {
             if (canceled) return;
+            if (string.IsNullOrEmpty(_name.Value)) return;
+            
+            
         }
     }
 }

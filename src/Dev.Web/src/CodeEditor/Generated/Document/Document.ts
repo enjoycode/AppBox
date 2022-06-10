@@ -26,6 +26,10 @@ export class Document implements System.IDisposable {
 
     public Readonly: boolean = false;
 
+    public get HasSyntaxError(): boolean {
+        return this.SyntaxParser.RootNode?.hasError() ?? false;
+    }
+
     public get TextLength(): number {
         return this.TextBuffer.Length;
     }

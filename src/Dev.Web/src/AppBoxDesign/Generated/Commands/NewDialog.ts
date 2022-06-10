@@ -8,8 +8,8 @@ export class NewDialog extends PixUI.Dialog<string> {
 
     public constructor(overlay: PixUI.Overlay, type: string) {
         super(overlay);
-        this.Width = PixUI.State.op_Implicit_From(400);
-        this.Height = PixUI.State.op_Implicit_From(300);
+        this.Width = PixUI.State.op_Implicit_From(300);
+        this.Height = PixUI.State.op_Implicit_From(150);
         this.Title.Value = `New ${type}`;
         this._type = type;
         this.OnClose = this._OnClose.bind(this);
