@@ -84,6 +84,7 @@ export * from "./Widgets/Overlay/FocusedDecoration";
 export * from "./Widgets/Overlay/HoverDecoration";
 export * from "./Widgets/Overlay/Popup";
 export * from "./Widgets/Overlay/ListPopup"
+export * from "./Widgets/Overlay/Dialog"
 
 export * from "./Widgets/Animated/FadeTransition";
 export * from "./Widgets/Animated/RotationTransition";

@@ -2,13 +2,13 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class Dialog<T> extends PixUI.Popup {
-    private readonly _onClose: Nullable<System.Action2<boolean, Nullable<T>>>;
     private readonly _child: PixUI.Card;
     protected readonly Title: PixUI.State<string> = PixUI.State.op_Implicit_From("");
+    protected OnClose: Nullable<System.Action2<boolean, Nullable<T>>>;
 
     protected constructor(overlay: PixUI.Overlay, onClose: Nullable<System.Action2<boolean, Nullable<T>>> = null) {
         super(overlay);
-        this._onClose = onClose;
+        this.OnClose = onClose;
 
         this._child = new PixUI.Card().Init(
             {
@@ -42,7 +42,7 @@ export abstract class Dialog<T> extends PixUI.Popup {
 
     public Close(canceled: boolean) {
         this.Hide();
-        this._onClose?.call(this, canceled, this.GetResult(canceled));
+        this.OnClose?.call(this, canceled, this.GetResult(canceled));
     }
 
 

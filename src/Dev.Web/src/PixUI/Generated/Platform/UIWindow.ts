@@ -8,8 +8,14 @@ export abstract class UIWindow {
         this.RootWidget = new PixUI.Root(this, child);
 
         PixUI.PaintDebugger.EnableChanged.Add(() => this.RootWidget.Invalidate(PixUI.InvalidAction.Repaint));
+        
+        UIWindow._current = this; //TODO:
     }
 
+    private static _current: UIWindow;
+    public static get Current(): UIWindow {
+        return this._current;
+    }
 
     public readonly RootWidget: PixUI.Root;
 

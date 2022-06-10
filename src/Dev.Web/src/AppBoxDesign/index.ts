@@ -7,6 +7,9 @@ export * from "./Generated/Design/CompletionItem"
 export * from "./Generated/Design/NewNodeResult"
 export * from "./Generated/Design/RoslynCompletionProvider"
 
+export * from "./Generated/Commands/NewDialog"
+export * from "./Generated/Commands/Commands"
+
 export * from "./Generated/Pads/MainMenuPad"
 export * from "./Generated/Pads/FooterPad"
 export * from "./Generated/Pads/SidePad"
