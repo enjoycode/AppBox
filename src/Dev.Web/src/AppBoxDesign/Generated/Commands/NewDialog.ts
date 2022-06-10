@@ -1,3 +1,6 @@
+import * as AppBoxClient from '@/AppBoxClient'
+import * as AppBoxDesign from '@/AppBoxDesign'
+import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 /// <summary>
 /// 通用的新建对话框(Application, Folder, 除Entity外的Model)
@@ -23,7 +26,7 @@ export class NewDialog extends PixUI.Dialog<string> {
                     {
                         Children: [new PixUI.Input(this._name).Init({HintText: "Please input name"}), new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
                             {
-                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({OnTap: _ => this.Close(false)}), new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({OnTap: _ => this.Close(true)})]
+                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({OnTap: _ => this.Close(true)}), new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({OnTap: _ => this.Close(false)})]
                             })
                         ]
                     })
@@ -36,6 +39,23 @@ export class NewDialog extends PixUI.Dialog<string> {
 
     private _OnClose(canceled: boolean, result: Nullable<string>) {
         if (canceled) return;
+        if (System.IsNullOrEmpty(this._name.Value)) return;
+
+        let selectedNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
+        if (selectedNode == null) return;
+
+        let service = `sys.DesignService.New${this._type}`;
+        if (this._type != "Application" && this._type != "Folder")
+            service += "Model";
+        let args = this._type == "Application"
+            ? [this._name.Value] : [selectedNode.Data.Type, selectedNode.Data.Id, this._name.Value];
+        this.CreateAsync(service, args);
+    }
+
+    private async CreateAsync(service: string, args: any[]): System.Task {
+        let res = await AppBoxClient.Channel.Invoke(service, args);
+        //根据返回结果同步添加新节点
+        AppBoxDesign.DesignStore.OnNewNode(<AppBoxDesign.NewNodeResult><unknown>res);
     }
 
     public Init(props: Partial<NewDialog>): NewDialog {

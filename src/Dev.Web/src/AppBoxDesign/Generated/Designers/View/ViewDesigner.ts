@@ -71,10 +71,9 @@ export class ViewDesigner extends PixUI.View {
     }
 
     private RunDelayTask() {
-        //TODO:获取错误列表，如果没有错误刷新预览, 暂只判断了语法错误
-        if (!this._codeEditorController.Document.SyntaxParser.RootNode.hasError()) {
+        //TODO:获取错误列表，如果没有错误刷新预览(暂只判断语法错误)
+        if (!this._codeEditorController.Document.HasSyntaxError)
             this._previewController.Invalidate();
-        }
     }
 
     public Dispose() {

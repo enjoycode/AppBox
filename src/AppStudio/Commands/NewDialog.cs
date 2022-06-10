@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign
@@ -49,8 +51,26 @@ namespace AppBoxDesign
         {
             if (canceled) return;
             if (string.IsNullOrEmpty(_name.Value)) return;
-            
-            
+
+            var selectedNode = DesignStore.TreeController.FirstSelectedNode;
+            if (selectedNode == null) return;
+
+            var service = $"sys.DesignService.New{_type}";
+            if (_type != "Application" && _type != "Folder")
+                service += "Model";
+            var args = _type == "Application"
+                ? new object[] { _name.Value }
+                : new object[] { selectedNode.Data.Type, selectedNode.Data.Id, _name.Value };
+#pragma warning disable CS4014
+            CreateAsync(service, args);
+#pragma warning restore CS4014
+        }
+
+        private async Task CreateAsync(string service, object[] args)
+        {
+            var res = await Channel.Invoke(service, args);
+            //根据返回结果同步添加新节点
+            DesignStore.OnNewNode((NewNodeResult)res);
         }
     }
 }
