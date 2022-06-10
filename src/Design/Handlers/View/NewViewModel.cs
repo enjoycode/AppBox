@@ -18,8 +18,8 @@ public sealed class {name} : View
     {{
         Child = new Center()
         {{
-            Child = new Text(""Hello World"") {{ FontSize = 50 }};
-        }}
+            Child = new Text(""Hello World"") {{ FontSize = 50 }}
+        }};
     }}
 }}";
 

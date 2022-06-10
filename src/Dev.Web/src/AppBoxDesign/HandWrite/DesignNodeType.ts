@@ -4,6 +4,6 @@ export enum DesignNodeType {
     DataStoreNode = 2,
     ApplicationNode = 3,
     ModelRootNode = 4,
-    ModelNode = 5,
-    FolderNode = 6,
+    FolderNode = 5,
+    ModelNode = 6,
 }
