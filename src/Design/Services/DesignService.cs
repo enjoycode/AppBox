@@ -6,6 +6,7 @@ public sealed class DesignService : IService
 {
     private readonly Dictionary<CharsKey, IDesignHandler> _handlers = new()
     {
+        { nameof(SaveModel), new SaveModel() },
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
         // Code

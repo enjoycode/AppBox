@@ -103,7 +103,7 @@ export class PopupMenuStack extends PixUI.Popup {
     }
 
 
-    public PreviewEvent(type: PixUI.EventType, e: Nullable<object>): PixUI.EventPreviewResult {
+    public PreviewEvent(type: PixUI.EventType, e: Nullable<any>): PixUI.EventPreviewResult {
         //TODO: 判断ESC键及其他
         if (type == PixUI.EventType.PointerDown) {
             let pointerEvent = <PixUI.PointerEvent><unknown>e!;

@@ -2,6 +2,11 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class TreeController<T> implements PixUI.IStateBindable {
+    public constructor(nodeBuilder: System.Action2<T, PixUI.TreeNode<T>>, childrenGetter: System.Func2<T, System.IList<T>>) {
+        this.NodeBuilder = nodeBuilder;
+        this.ChildrenGetter = childrenGetter;
+    }
+
     private _treeView: Nullable<PixUI.TreeView<T>>;
     private _dataSource: Nullable<System.IList<T>>;
     public readonly NodeBuilder: System.Action2<T, PixUI.TreeNode<T>>;
@@ -28,11 +33,6 @@ export class TreeController<T> implements PixUI.IStateBindable {
     public NodeHeight: number = 0;
     public TotalWidth: number = 0;
     public TotalHeight: number = 0;
-
-    public constructor(nodeBuilder: System.Action2<T, PixUI.TreeNode<T>>, childrenGetter: System.Func2<T, System.IList<T>>) {
-        this.NodeBuilder = nodeBuilder;
-        this.ChildrenGetter = childrenGetter;
-    }
 
     public get DataSource(): Nullable<System.IList<T>> {
         return this._dataSource;

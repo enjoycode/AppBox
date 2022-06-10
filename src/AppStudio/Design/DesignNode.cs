@@ -12,6 +12,11 @@ namespace AppBoxDesign
         public string Id { get; private set; }
         public string Label { get; private set; }
 
+        /// <summary>
+        /// 当前节点打开的设计器，打开时设置关闭时取消
+        /// </summary>
+        internal IDesigner? Designer { get; set; }
+
         public virtual void ReadFrom(IInputStream rs)
         {
             Id = rs.ReadString()!;

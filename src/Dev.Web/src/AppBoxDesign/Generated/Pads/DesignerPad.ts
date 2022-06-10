@@ -40,7 +40,9 @@ export class DesignerPad extends PixUI.View {
         if (node.Type == AppBoxDesign.DesignNodeType.ModelNode) {
             let modelNode = <AppBoxDesign.ModelNode><unknown>node;
             if (modelNode.ModelType == AppBoxCore.ModelType.View) {
-                return new AppBoxDesign.ViewDesigner(modelNode);
+                let viewDesigner = new AppBoxDesign.ViewDesigner(modelNode);
+                node.Designer = viewDesigner;
+                return viewDesigner;
             }
         }
 

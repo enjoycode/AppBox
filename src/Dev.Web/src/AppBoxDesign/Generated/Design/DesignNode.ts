@@ -27,6 +27,8 @@ export abstract class DesignNode {
         this.#Label = value;
     }
 
+    public Designer: Nullable<AppBoxDesign.IDesigner>;
+
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         this.Id = rs.ReadString()!;
         this.Label = rs.ReadString()!;

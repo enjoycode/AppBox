@@ -1,7 +1,7 @@
 import * as PixUI from '@/PixUI'
 
 export interface IEventHook {
-    PreviewEvent(type: PixUI.EventType, e: Nullable<object>): EventPreviewResult;
+    PreviewEvent(type: PixUI.EventType, e: Nullable<any>): EventPreviewResult;
 }
 
 export enum EventPreviewResult {

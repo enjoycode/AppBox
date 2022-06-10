@@ -36,7 +36,7 @@ export abstract class Popup extends PixUI.Widget implements IPopup, PixUI.IEvent
         this._overlay.Remove(this._overlayEntry);
     }
 
-    public PreviewEvent(type: PixUI.EventType, e: Nullable<object>): PixUI.EventPreviewResult {
+    public PreviewEvent(type: PixUI.EventType, e: Nullable<any>): PixUI.EventPreviewResult {
         return PixUI.EventPreviewResult.NotProcessed;
     }
 }

@@ -4,14 +4,7 @@ import * as CodeEditor from '@/CodeEditor'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
-export class ViewDesigner extends PixUI.View {
-    private readonly _modelNode: AppBoxDesign.ModelNode;
-    private readonly _codeEditorController: CodeEditor.CodeEditorController;
-    private readonly _codeSyncService: AppBoxDesign.ModelCodeSyncService;
-    private readonly _previewController: AppBoxDesign.PreviewController;
-    private readonly _delayDocChangedTask: PixUI.DelayTask;
-    private _hasLoadSourceCode: boolean = false;
-
+export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
     public constructor(modelNode: AppBoxDesign.ModelNode) {
         super();
         this._modelNode = modelNode;
@@ -25,6 +18,13 @@ export class ViewDesigner extends PixUI.View {
                 Children: [new PixUI.Expanded(ViewDesigner.BuildEditor(this._codeEditorController), 2), new PixUI.Expanded(new AppBoxDesign.WidgetPreviewer(this._previewController), 1)]
             });
     }
+
+    private readonly _modelNode: AppBoxDesign.ModelNode;
+    private readonly _codeEditorController: CodeEditor.CodeEditorController;
+    private readonly _codeSyncService: AppBoxDesign.ModelCodeSyncService;
+    private readonly _previewController: AppBoxDesign.PreviewController;
+    private readonly _delayDocChangedTask: PixUI.DelayTask;
+    private _hasLoadSourceCode: boolean = false;
 
     private static BuildEditor(codeEditorController: CodeEditor.CodeEditorController): PixUI.Widget {
         return new PixUI.Column().Init(
@@ -81,6 +81,10 @@ export class ViewDesigner extends PixUI.View {
         if (this._hasLoadSourceCode) {
             this._codeEditorController.Document.DocumentChanged.Remove(this.OnDocumentChanged, this);
         }
+    }
+
+    public async SaveAsync(): System.Task {
+        await AppBoxClient.Channel.Invoke("sys.DesignService.SaveModel", [this._modelNode.Id]);
     }
 
     public Init(props: Partial<ViewDesigner>): ViewDesigner {

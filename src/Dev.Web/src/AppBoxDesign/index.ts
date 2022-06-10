@@ -1,6 +1,7 @@
 export * from "./HandWrite/DesignNodeType"
 export * from "./HandWrite/WebPreviewer"
 
+export * from "./Generated/Design/IDesigner"
 export * from "./Generated/Design/DesignNode"
 export * from "./Generated/Design/DesignTree"
 export * from "./Generated/Design/CompletionItem"

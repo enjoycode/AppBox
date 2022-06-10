@@ -48,7 +48,9 @@ namespace AppBoxDesign
                 var modelNode = (ModelNode)node;
                 if (modelNode.ModelType == ModelType.View)
                 {
-                    return new ViewDesigner(modelNode);
+                    var viewDesigner = new ViewDesigner(modelNode);
+                    node.Designer = viewDesigner;
+                    return viewDesigner;
                 }
             }
 

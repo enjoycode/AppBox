@@ -2,8 +2,14 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class TabController<T> implements PixUI.IStateBindable {
-    public readonly DataSource: System.IList<T>;
+    public constructor(dataSource: System.IList<T>) {
+        this.DataSource = dataSource;
+    }
 
+    private _tabBar: Nullable<PixUI.TabBar<T>>;
+    private _tabBody: Nullable<PixUI.TabBody<T>>;
+
+    public readonly DataSource: System.IList<T>;
     #SelectedIndex: number = -1;
     public get SelectedIndex() {
         return this.#SelectedIndex;
@@ -11,13 +17,6 @@ export class TabController<T> implements PixUI.IStateBindable {
 
     private set SelectedIndex(value) {
         this.#SelectedIndex = value;
-    }
-
-    private _tabBar: Nullable<PixUI.TabBar<T>>;
-    private _tabBody: Nullable<PixUI.TabBody<T>>;
-
-    public constructor(dataSource: System.IList<T>) {
-        this.DataSource = dataSource;
     }
 
     public SetTabBar(tabBar: PixUI.TabBar<T>) {

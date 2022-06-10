@@ -48,7 +48,7 @@ namespace AppBoxDesign
                 }),
                 MenuItem.SubMenu("Models", Icons.Filled.Widgets, new MenuItem[]
                 {
-                    MenuItem.Item("Save", Icons.Filled.Save),
+                    MenuItem.Item("Save", Icons.Filled.Save, Commands.SaveCommand),
                     MenuItem.Item("Checkout", Icons.Filled.CheckCircle),
                     MenuItem.Item("Delete", Icons.Filled.DeleteForever),
                     MenuItem.Item("Publish", Icons.Filled.Publish),

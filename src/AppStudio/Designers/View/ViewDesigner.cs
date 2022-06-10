@@ -5,15 +5,8 @@ using PixUI;
 
 namespace AppBoxDesign
 {
-    internal sealed class ViewDesigner : View
+    internal sealed class ViewDesigner : View, IDesigner
     {
-        private readonly ModelNode _modelNode;
-        private readonly CodeEditorController _codeEditorController;
-        private readonly ModelCodeSyncService _codeSyncService;
-        private readonly PreviewController _previewController;
-        private readonly DelayTask _delayDocChangedTask;
-        private bool _hasLoadSourceCode = false;
-
         public ViewDesigner(ModelNode modelNode)
         {
             _modelNode = modelNode;
@@ -32,6 +25,13 @@ namespace AppBoxDesign
                 }
             };
         }
+
+        private readonly ModelNode _modelNode;
+        private readonly CodeEditorController _codeEditorController;
+        private readonly ModelCodeSyncService _codeSyncService;
+        private readonly PreviewController _previewController;
+        private readonly DelayTask _delayDocChangedTask;
+        private bool _hasLoadSourceCode = false;
 
         private static Widget BuildEditor(CodeEditorController codeEditorController)
         {
@@ -104,6 +104,11 @@ namespace AppBoxDesign
             {
                 _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
             }
+        }
+
+        public async Task SaveAsync()
+        {
+            await Channel.Invoke("sys.DesignService.SaveModel", new object?[] { _modelNode.Id });
         }
     }
 }

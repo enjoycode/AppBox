@@ -197,7 +197,7 @@ export class ListPopup<T> extends PixUI.Popup {
     }
 
 
-    public PreviewEvent(type: PixUI.EventType, e: Nullable<object>): PixUI.EventPreviewResult {
+    public PreviewEvent(type: PixUI.EventType, e: Nullable<any>): PixUI.EventPreviewResult {
         if (type == PixUI.EventType.KeyDown) {
             let keyEvent = <PixUI.KeyEvent><unknown>e!;
             if (keyEvent.KeyCode == PixUI.Keys.Up) {

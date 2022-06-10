@@ -13,9 +13,15 @@ namespace AppBoxDesign
         /// </summary>
         public static readonly State<SidePadType> ActiveSidePad = SidePadType.DesignTree;
 
+        /// <summary>
+        /// 模型树控制器
+        /// </summary>
         internal static readonly TreeController<DesignNode> TreeController =
             new TreeController<DesignNode>(DesignTreePad.BuildTreeNode, n => n.Children!);
 
+        /// <summary>
+        /// 设计器控制器
+        /// </summary>
         internal static readonly TabController<DesignNode> DesignerController =
             new TabController<DesignNode>(new List<DesignNode>());
 
