@@ -7,11 +7,11 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
 
     public constructor(text: Nullable<PixUI.State<string>> = null, icon: Nullable<PixUI.State<PixUI.IconData>> = null) {
         super();
-        this.Width = PixUI.State.op_Implicit_From(120);
-        this.Height = PixUI.State.op_Implicit_From(35);
-
         this._text = text;
         this._icon = icon;
+
+        this.Width = PixUI.State.op_Implicit_From(text == null ? 35 : 120);
+        this.Height = PixUI.State.op_Implicit_From(35);
 
         this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
         this.FocusNode = new PixUI.FocusNode();
@@ -169,6 +169,11 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
             default:
                 throw new System.NotImplementedException();
         }
+    }
+
+    protected OnUnmounted() {
+        super.OnUnmounted();
+        this._hoverDecoration.Hide();
     }
 
     public Dispose() {

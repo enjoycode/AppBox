@@ -48,6 +48,7 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor));
         else if (this._hoverState.Value)
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(PixUI.Theme.AccentColor));
+
         super.Paint(canvas, area);
     }
 

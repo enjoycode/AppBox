@@ -40,6 +40,7 @@ export class Icon extends PixUI.Widget {
         if ((state === this._data) || (state === this._size)) {
             this._painter.Reset();
         }
+
         super.OnStateChanged(state, options);
     }
 

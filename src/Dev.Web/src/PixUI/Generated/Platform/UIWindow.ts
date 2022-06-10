@@ -181,7 +181,7 @@ export abstract class UIWindow {
         //先检测Overlay，没有命中再从RootWidget开始
         if (this.Overlay.HasEntry)
             this.Overlay.HitTest(winX, winY, this._newHitResult);
-        if (!this._newHitResult.IsHitAnyMouseRegion)
+        if (!this._newHitResult.IsHitAnyWidget)
             this.RootWidget.HitTest(winX, winY, this._newHitResult);
     }
 

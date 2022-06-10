@@ -85,6 +85,7 @@ export class DynamicView extends PixUI.SingleChildWidget {
             this.ReplaceTo(this._dynamicWidget.Value);
             return;
         }
+
         super.OnStateChanged(state, options);
     }
 

@@ -44,6 +44,7 @@ export abstract class TextBase extends PixUI.Widget {
         //TODO: fast update font size or color use skia paragraph
         this._cachedParagraph?.delete();
         this._cachedParagraph = null;
+
         super.OnStateChanged(state, options);
     }
 

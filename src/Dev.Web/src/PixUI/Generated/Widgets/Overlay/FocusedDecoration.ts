@@ -137,6 +137,7 @@ export class FocusedDecorator extends PixUI.Widget {
             this._controller.StatusChanged.Remove(this.OnAnimationStateChanged, this);
             this._controller.Dispose();
         }
+
         super.Dispose();
     }
 
