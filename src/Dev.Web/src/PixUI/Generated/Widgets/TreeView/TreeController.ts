@@ -8,6 +8,11 @@ export class TreeController<T> implements PixUI.IStateBindable {
     }
 
     private _treeView: Nullable<PixUI.TreeView<T>>;
+
+    public get TreeView(): Nullable<PixUI.TreeView<T>> {
+        return this._treeView;
+    }
+
     private _dataSource: Nullable<System.IList<T>>;
     public readonly NodeBuilder: System.Action2<T, PixUI.TreeNode<T>>;
     public readonly ChildrenGetter: System.Func2<T, System.IList<T>>;
@@ -66,10 +71,21 @@ export class TreeController<T> implements PixUI.IStateBindable {
     }
 
 
+    public FindNode(predicate: System.Predicate<T>): Nullable<PixUI.TreeNode<T>> {
+        for (const child of this.Nodes) {
+            let found = child.FindNode(predicate);
+            if (found != null) return found;
+        }
+
+        return null;
+    }
+
     public SelectNode(node: PixUI.TreeNode<T>) {
+        //是否已经选择
         if (this._selectedNodes.length == 1 && (this._selectedNodes[0] === node))
             return;
 
+        //取消旧的选择并选择新的
         for (const oldSelectedNode of this._selectedNodes) {
             oldSelectedNode.IsSelected.Value = false;
         }
@@ -80,6 +96,62 @@ export class TreeController<T> implements PixUI.IStateBindable {
         node.IsSelected.Value = true;
 
         this.SelectionChanged.Invoke();
+    }
+
+    public ExpandTo(node: PixUI.TreeNode<T>) {
+        let temp = node.Parent;
+        while (temp != null && !(temp === this._treeView)) {
+            let tempNode = <PixUI.TreeNode<T>><unknown>temp;
+            tempNode.Expand();
+            temp = tempNode.Parent;
+        }
+
+        //TODO: scroll to
+    }
+
+    public InsertNode(child: T, parentNode: Nullable<PixUI.TreeNode<T>> = null, insertIndex: number = -1): PixUI.TreeNode<T> {
+        let node = new PixUI.TreeNode<T>(child, this);
+        this.NodeBuilder(child, node);
+        if (parentNode == null) {
+            node.Parent = this._treeView;
+            let index = insertIndex < 0 ? this.Nodes.length : insertIndex;
+            this.Nodes.Insert(index, node);
+            this.DataSource!.Insert(index, child);
+            //强制重新布局
+            this._treeView!.Invalidate(PixUI.InvalidAction.Relayout);
+        } else {
+            node.Parent = parentNode;
+            parentNode.InsertChild(insertIndex, node);
+            //强制重新布局
+            if (parentNode.IsExpanded)
+                parentNode.Invalidate(PixUI.InvalidAction.Relayout);
+        }
+
+        return node;
+    }
+
+    public RemoveNode(node: PixUI.TreeNode<T>) {
+        if ((node.Parent === this._treeView)) {
+            this.Nodes.Remove(node);
+            this.DataSource!.Remove(node.Data);
+            node.Parent = null;
+            //强制重新布局
+            this._treeView!.Invalidate(PixUI.InvalidAction.Relayout);
+        } else {
+            let parentNode = <PixUI.TreeNode<T>><unknown>node.Parent!;
+            parentNode.RemoveChild(node);
+            node.Parent = null;
+            //强制重新布局
+            if (parentNode.IsExpanded)
+                parentNode.Invalidate(PixUI.InvalidAction.Relayout);
+        }
+
+        //如果是选择的，则清除
+        let selectedAt = this._selectedNodes.IndexOf(node);
+        if (selectedAt >= 0) {
+            this._selectedNodes.RemoveAt(selectedAt);
+            this.SelectionChanged.Invoke();
+        }
     }
 
     public Init(props: Partial<TreeController<T>>): TreeController<T> {

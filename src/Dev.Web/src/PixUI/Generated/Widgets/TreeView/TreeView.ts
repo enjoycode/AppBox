@@ -2,6 +2,13 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class TreeView<T> extends PixUI.Widget {
+    public constructor(controller: PixUI.TreeController<T>, nodeHeight: number = 30) {
+        super();
+        this._controller = controller;
+        this._controller.NodeHeight = nodeHeight;
+        this._controller.InitNodes(this);
+    }
+
     private readonly _controller: PixUI.TreeController<T>;
 
     private _color: Nullable<PixUI.State<PixUI.Color>>;
@@ -13,14 +20,6 @@ export class TreeView<T> extends PixUI.Widget {
     public set Color(value: Nullable<PixUI.State<PixUI.Color>>) {
         this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
     }
-
-    public constructor(controller: PixUI.TreeController<T>, nodeHeight: number = 30) {
-        super();
-        this._controller = controller;
-        this._controller.NodeHeight = nodeHeight;
-        this._controller.InitNodes(this);
-    }
-
 
     public get IsOpaque(): boolean {
         return this._color != null && this._color.Value.Alpha == 0xFF;

@@ -28,7 +28,7 @@ export class TreeNode<T> extends PixUI.Widget {
     public readonly IsSelected: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
     private readonly _color: PixUI.State<PixUI.Color>; //for icon and label
 
-    private _expandController: Nullable<PixUI.AnimationController>;
+    private _expandController: Nullable<PixUI.AnimationController>; //TODO:考虑提升至TreeController共用实例
     private _expandCurve: Nullable<PixUI.Animation<number>>;
     private _expandArrowAnimation: Nullable<PixUI.Animation<number>>;
 
@@ -71,24 +71,9 @@ export class TreeNode<T> extends PixUI.Widget {
         return depth;
     }
 
-    public get TreeView(): Nullable<PixUI.TreeView<T>> {
-        let temp: PixUI.Widget = this;
-        while (true) {
-            if (temp.Parent == null)
-                return null;
-            if (temp.Parent instanceof PixUI.TreeView) {
-                const treeView = temp.Parent;
-                return treeView;
-            }
-            if (!(temp.Parent instanceof TreeNode))
-                return null;
-            temp = temp.Parent;
-        }
-    }
 
-
-    private TryBuildExpandIcon(): Nullable<PixUI.ExpandIcon> {
-        if (this._expandController != null) return null;
+    private TryBuildExpandIcon() {
+        if (this._expandController != null) return;
 
         this._expandController = new PixUI.AnimationController(200, this.IsExpanded ? 1 : 0);
         this._expandController.ValueChanged.Add(this.OnAnimationValueChanged, this);
@@ -97,7 +82,7 @@ export class TreeNode<T> extends PixUI.Widget {
 
         let expander = new PixUI.ExpandIcon(this._expandArrowAnimation);
         expander.OnPointerDown = this.OnTapExpander.bind(this);
-        return expander;
+        this._row.ExpandIcon = expander;
     }
 
     private OnAnimationValueChanged() {
@@ -105,24 +90,33 @@ export class TreeNode<T> extends PixUI.Widget {
         this.Invalidate(PixUI.InvalidAction.Relayout); //自身改变高度并通知上级
     }
 
-    private TryBuildAndLayoutChildren(): number {
-        if (this._children != null) {
-            return PixUI.TreeView.CalcMaxChildWidth(this._children!);
-        }
+    private TryBuildChildren() {
+        if (this.IsLeaf || this._children != null) return;
 
         let childrenList = this._controller.ChildrenGetter(this.Data);
         this._children = new System.List<TreeNode<T>>(childrenList.length);
-        let maxWidth = 0;
-        for (let i = 0; i < childrenList.length; i++) {
-            let child = childrenList[i];
+        for (const child of childrenList) {
             let node = new TreeNode<T>(child, this._controller);
             this._controller.NodeBuilder(child, node);
             node.Parent = this;
             this._children.Add(node);
+        }
+    }
 
+    private TryBuildAndLayoutChildren(): number {
+        if (this._children != null && this.HasLayout && this._children.All(t => t.HasLayout)) {
+            return PixUI.TreeView.CalcMaxChildWidth(this._children);
+        }
+
+        this.TryBuildChildren();
+
+        let maxWidth = 0;
+        let yPos = this._controller.NodeHeight;
+        for (let i = 0; i < this._children!.length; i++) {
+            let node = this._children[i];
             node.Layout(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-            node.SetPosition(0, (i + 1) * this._controller.NodeHeight);
-
+            node.SetPosition(0, yPos);
+            yPos += node.H;
             maxWidth = Math.max(maxWidth, node.W);
         }
 
@@ -137,7 +131,7 @@ export class TreeNode<T> extends PixUI.Widget {
             this._animationFlag = -1;
             this._expandController?.Reverse();
         } else {
-            let maxChildWidth = this.TryBuildAndLayoutChildren(); //先尝试Build子节点
+            let maxChildWidth = this.TryBuildAndLayoutChildren(); //先尝试布局子节点
             this.SetSize(Math.max(this.W, maxChildWidth), this.H); //仅预设宽度
 
             this.IsExpanded = true;
@@ -205,26 +199,24 @@ export class TreeNode<T> extends PixUI.Widget {
         }
 
         if (this.HasLayout) return;
-        this.HasLayout = true;
 
         // try build expand icon
-        if (!this.IsLeaf) {
-            let expander = this.TryBuildExpandIcon();
-            if (expander != null)
-                this._row.ExpandIcon = expander;
-        }
+        if (!this.IsLeaf)
+            this.TryBuildExpandIcon();
 
         this._row.Layout(Number.POSITIVE_INFINITY, this.Controller.NodeHeight);
 
         if (this.IsLeaf || !this.IsExpanded) {
             this.SetSize(this._row.W, this._controller.NodeHeight);
+            this.HasLayout = true;
             return;
         }
 
-        // expanded, continue layout children, 注意仅由初始化加载时设置的IsExpanded
+        // expanded, continue build and layout children
         if (!this.IsLeaf && this.IsExpanded) {
             let maxChildWidth = this.TryBuildAndLayoutChildren();
-            this.SetSize(Math.max(this._row.W, maxChildWidth), this._controller.NodeHeight * (this._children!.length + 1));
+            this.SetSize(Math.max(this._row.W, maxChildWidth), this._controller.NodeHeight + this._children!.Sum(t => t.H));
+            this.HasLayout = true;
         }
     }
 
@@ -257,7 +249,7 @@ export class TreeNode<T> extends PixUI.Widget {
         if (this.IsExpanding || this.IsCollapsing) //need clip expanding area
         {
             canvas.save();
-            canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.TreeView!.W, this.H), CanvasKit.ClipOp.Intersect, false);
+            canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this._controller.TreeView!.W, this.H), CanvasKit.ClipOp.Intersect, false);
         }
 
         this._row.Paint(canvas, area);
@@ -289,6 +281,58 @@ export class TreeNode<T> extends PixUI.Widget {
     public toString(): string {
         let labelText = this._row.Label == null ? "" : this._row.Label.Text.Value;
         return `TreeNode[\"${labelText}\"]`;
+    }
+
+
+    public FindNode(predicate: System.Predicate<T>): Nullable<TreeNode<T>> {
+        if (predicate(this.Data)) return this;
+
+        if (!this.IsLeaf) {
+            this.TryBuildChildren(); //可能收缩中还没有构建子节点
+
+            for (const child of this._children!) {
+                let found = child.FindNode(predicate);
+                if (found != null) return found;
+            }
+        }
+
+        return null;
+    }
+
+    public Expand() {
+        if (this.IsLeaf || this.IsExpanded) return;
+
+        this.IsExpanded = true;
+        this.HasLayout = false;
+        this.TryBuildExpandIcon();
+        this._expandController!.Forward(1);
+        if ((this.Parent === this._controller.TreeView))
+            this._controller.TreeView!.Invalidate(PixUI.InvalidAction.Relayout);
+        else
+            this.Invalidate(PixUI.InvalidAction.Relayout);
+    }
+
+    public InsertChild(index: number, child: TreeNode<T>) {
+        if (this.IsLeaf) return;
+
+        this.TryBuildChildren();
+
+        let insertIndex = index < 0 ? this._children!.length : index;
+        this._children!.Insert(insertIndex, child);
+        //同步数据
+        let dataChildren = this._controller.ChildrenGetter(this.Data);
+        dataChildren.Insert(insertIndex, child.Data);
+        //Reset HasLayout
+        this.HasLayout = false;
+    }
+
+    public RemoveChild(child: TreeNode<T>) {
+        this._children!.Remove(child);
+        //同步数据
+        let dataChildren = this._controller.ChildrenGetter(this.Data);
+        dataChildren.Remove(child.Data);
+        //Reset HasLayout
+        this.HasLayout = false;
     }
 
     public Init(props: Partial<TreeNode<T>>): TreeNode<T> {
