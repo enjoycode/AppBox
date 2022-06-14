@@ -15,18 +15,17 @@ internal sealed class GetPendingChanges : IDesignHandler
         if (hub.PendingChanges == null || hub.PendingChanges.Length == 0)
             return AnyValue.Empty;
 
-        var res = new ChangedInfo[hub.PendingChanges.Length];
-        for (var i = 0; i < hub.PendingChanges.Length; i++)
+        var res = new List<ChangedInfo>();
+        //仅向前端返回Model及Folder
+        foreach (var item in hub.PendingChanges)
         {
-            if (hub.PendingChanges[i] is ModelBase model)
-                res[i] = new ChangedInfo(model.ModelType.ToString(), model.Name);
-            else if (hub.PendingChanges[i] is ModelFolder folder)
-                res[i] = new ChangedInfo("Folder", folder.TargetModelType.ToString());
-            else
-                throw new NotImplementedException(hub.PendingChanges[i].GetType().ToString());
+            if (item is ModelBase model)
+                res.Add(new ChangedInfo(model.ModelType.ToString(), model.Name));
+            else if (item is ModelFolder folder)
+                res.Add(new ChangedInfo("Folder", folder.TargetModelType.ToString()));
         }
 
-        return AnyValue.From(res);
+        return AnyValue.From(res.ToArray());
     }
 }
 
