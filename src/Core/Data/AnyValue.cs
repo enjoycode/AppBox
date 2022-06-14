@@ -131,6 +131,9 @@ public struct AnyValue : IEquatable<AnyValue>
     #region ====隐式/显式转换，仅用于方便服务端编码====
 
     //注意隐式转换不支持接口类型及object
+    public static implicit operator AnyValue(bool v)
+        => new AnyValue { _BooleanValue = v, Type = AnyValueType.Boolean };
+
     public static implicit operator AnyValue(uint v)
         => new AnyValue { _UInt32Value = v, Type = AnyValueType.UInt32 };
 

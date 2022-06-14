@@ -11,6 +11,7 @@ public sealed class DesignService : IService
         { nameof(Publish), new Publish() },
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
+        { nameof(CheckoutNode), new CheckoutNode() },
         // Code
         { nameof(ChangeBuffer), new ChangeBuffer() },
         { nameof(GetCompletion), new GetCompletion() },
