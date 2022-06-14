@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 模型标识
 /// </summary>
-public readonly struct ModelId
+public readonly struct ModelId : IComparable<ModelId>
 {
     //| AppId 32bit | Type 8bit | Seq 22bit | Layer 2bit|
     private readonly long _encoded;
@@ -28,6 +28,8 @@ public readonly struct ModelId
         => new ModelId((long)ulong.Parse(value));
 
     public static implicit operator long(ModelId value) => value._encoded;
+
+    public int CompareTo(ModelId other) => _encoded.CompareTo(other._encoded);
 
     public override string ToString() => ((ulong)_encoded).ToString();
 }

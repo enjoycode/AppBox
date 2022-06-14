@@ -7,6 +7,8 @@ public sealed class DesignService : IService
     private readonly Dictionary<CharsKey, IDesignHandler> _handlers = new()
     {
         { nameof(SaveModel), new SaveModel() },
+        { nameof(GetPendingChanges), new GetPendingChanges() },
+        { nameof(Publish), new Publish() },
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
         // Code

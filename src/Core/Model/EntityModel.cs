@@ -5,7 +5,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 实体模型，描述成员及存储选项
 /// </summary>
-public sealed class EntityModel : ModelBase
+public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 {
     public EntityModel() { }
     public EntityModel(ModelId id, string name) : base(id, name) { }
@@ -240,4 +240,32 @@ public sealed class EntityModel : ModelBase
     }
 
     #endregion
+
+    #region ====IComparable====
+
+    public int CompareTo(EntityModel other)
+    {
+        //判断当前对象有没有EntityRef引用成员至目标对象, 如果引用则大于other对象
+        var refs = Members
+            .Where(t => t.Type == EntityMemberType.EntityRef)
+            .Cast<EntityRefModel>();
+        if (refs.Any(rm => rm.RefModelIds.Any(refModelId => refModelId == other.Id)))
+        {
+            return other.PersistentState == PersistentState.Deleted ? -1 : 1;
+        }
+
+        //反过来判断,应该不需要
+        var otherRefs = other.Members
+            .Where(t => t.Type == EntityMemberType.EntityRef)
+            .Cast<EntityRefModel>();
+        if (otherRefs.Any(m => m.RefModelIds.Any()))
+        {
+            return other.PersistentState == PersistentState.Deleted ? 1 : -1;
+        }
+
+        return Id.CompareTo(other.Id);
+    }
+
+    #endregion
+    
 }

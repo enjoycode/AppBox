@@ -4,16 +4,21 @@ namespace AppBoxDesign;
 
 public sealed class DesignHub : IDisposable
 {
-    public readonly IDeveloperSession Session;
-    public readonly DesignTree DesignTree;
-    internal readonly TypeSystem TypeSystem;
-
     public DesignHub(IDeveloperSession session)
     {
         Session = session;
         TypeSystem = new TypeSystem();
         DesignTree = new DesignTree(this);
     }
+    
+    public readonly IDeveloperSession Session;
+    public readonly DesignTree DesignTree;
+    internal readonly TypeSystem TypeSystem;
+    
+    /// <summary>
+    /// 用于发布时暂存挂起的修改
+    /// </summary>
+    internal object[]? PendingChanges { get; set; }
 
     public void Dispose()
     {
