@@ -41,11 +41,11 @@ internal sealed class TypeSystem : IDisposable
 
     private static readonly CSharpCompilationOptions DllCompilationOptions =
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-            .WithNullableContextOptions(NullableContextOptions.Enable);
+            .WithNullableContextOptions(NullableContextOptions.Enable)
+            .WithUsings("System");
 
     private static readonly CSharpParseOptions ParseOptions =
-        new CSharpParseOptions()
-            .WithLanguageVersion(LanguageVersion.CSharp10);
+        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10);
 
     /// <summary>
     /// 初始化虚拟工程

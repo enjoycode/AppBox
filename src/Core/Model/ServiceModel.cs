@@ -13,6 +13,8 @@ public sealed class ServiceModel : ModelBase
 
     private IList<string>? _references;
 
+    public bool HasReference => _references != null && _references.Count > 0;
+
     #region ====Serialization====
 
     public override void WriteTo(IOutputStream ws)
