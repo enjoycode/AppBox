@@ -46,11 +46,20 @@ namespace AppBoxDesign
             if (node.Type == DesignNodeType.ModelNode)
             {
                 var modelNode = (ModelNode)node;
-                if (modelNode.ModelType == ModelType.View)
+                switch (modelNode.ModelType)
                 {
-                    var viewDesigner = new ViewDesigner(modelNode);
-                    node.Designer = viewDesigner;
-                    return viewDesigner;
+                    case ModelType.View:
+                    {
+                        var viewDesigner = new ViewDesigner(modelNode);
+                        node.Designer = viewDesigner;
+                        return viewDesigner;
+                    }
+                    case ModelType.Service:
+                    {
+                        var designer = new ServiceDesigner(modelNode);
+                        node.Designer = designer;
+                        return designer;
+                    }
                 }
             }
 

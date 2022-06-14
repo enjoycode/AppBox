@@ -2,14 +2,14 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-internal sealed class OpenViewModel : IDesignHandler
+internal sealed class OpenServiceModel : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var modelNode = hub.DesignTree.FindModelNode(ModelType.View, modelId);
+        var modelNode = hub.DesignTree.FindModelNode(ModelType.Service, modelId);
         if (modelNode == null)
-            throw new Exception($"Can't find view model: {modelId}");
+            throw new Exception($"Can't find service model: {modelId}");
         
         //先判断是否已经打开，是则先关闭，主要用于签出后重新加载
         var docId = modelNode.RoslynDocumentId!;

@@ -40,7 +40,7 @@ namespace AppBoxDesign
                     MenuItem.Item("Application", Icons.Filled.Widgets),
                     MenuItem.Item("Folder", Icons.Filled.Folder),
                     MenuItem.Item("Entity", Icons.Filled.TableChart),
-                    MenuItem.Item("Service", Icons.Filled.Settings),
+                    MenuItem.Item("Service", Icons.Filled.Settings, Commands.NewServiceCommand),
                     MenuItem.Item("View", Icons.Filled.Window, Commands.NewViewCommand),
                     MenuItem.Item("Report", Icons.Filled.PieChart),
                     MenuItem.Item("Enum", Icons.Filled.Bolt),

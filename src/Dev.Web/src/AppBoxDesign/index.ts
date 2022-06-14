@@ -24,6 +24,7 @@ export * from "./Generated/Design/DesignStore"
 export * from "./HandWrite/DesignInitializer"
 
 export * from "./Generated/Designers/ModelCodeSyncService"
+export * from "./Generated/Designers/Service/ServiceDesigner"
 export * from "./Generated/Designers/View/PreviewController"
 export * from "./Generated/Designers/View/WidgetPreviewer"
 export * from "./Generated/Designers/View/ViewDesigner"

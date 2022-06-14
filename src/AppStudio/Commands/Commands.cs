@@ -6,6 +6,9 @@ namespace AppBoxDesign
 {
     public static class Commands
     {
+        public static readonly Action NewServiceCommand = () =>
+            new NewDialog(UIWindow.Current.Overlay, "Service").Show();
+
         public static readonly Action NewViewCommand = () =>
             new NewDialog(UIWindow.Current.Overlay, "View").Show();
 

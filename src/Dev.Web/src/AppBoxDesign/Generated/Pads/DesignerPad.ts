@@ -39,10 +39,17 @@ export class DesignerPad extends PixUI.View {
     private static BuildBody(node: AppBoxDesign.DesignNode): PixUI.Widget {
         if (node.Type == AppBoxDesign.DesignNodeType.ModelNode) {
             let modelNode = <AppBoxDesign.ModelNode><unknown>node;
-            if (modelNode.ModelType == AppBoxCore.ModelType.View) {
-                let viewDesigner = new AppBoxDesign.ViewDesigner(modelNode);
-                node.Designer = viewDesigner;
-                return viewDesigner;
+            switch (modelNode.ModelType) {
+                case AppBoxCore.ModelType.View: {
+                    let viewDesigner = new AppBoxDesign.ViewDesigner(modelNode);
+                    node.Designer = viewDesigner;
+                    return viewDesigner;
+                }
+                case AppBoxCore.ModelType.Service: {
+                    let designer = new AppBoxDesign.ServiceDesigner(modelNode);
+                    node.Designer = designer;
+                    return designer;
+                }
             }
         }
 
