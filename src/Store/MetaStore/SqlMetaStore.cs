@@ -236,8 +236,8 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    internal static async ValueTask UpdateModelAsync(ModelBase model, DbTransaction txn,
-        Func<uint, ApplicationModel> getApp)
+    public async Task UpdateModelAsync(ModelBase model, DbTransaction txn,
+        Func<int, ApplicationModel> getApp)
     {
         model.IncreaseVersion(); //注意增加模型版本号
 
@@ -249,8 +249,8 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    internal static async ValueTask DeleteModelAsync(ModelBase model, DbTransaction txn,
-        Func<uint, ApplicationModel> getApp)
+    public async Task DeleteModelAsync(ModelBase model, DbTransaction txn,
+        Func<int, ApplicationModel> getApp)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
@@ -283,7 +283,7 @@ public sealed class SqlMetaStore : IMetaStore
     /// <summary>
     /// 删除根文件夹
     /// </summary>
-    internal static async ValueTask DeleteFolderAsync(ModelFolder folder, DbTransaction txn)
+    public async Task DeleteFolderAsync(ModelFolder folder, DbTransaction txn)
     {
         if (folder.Parent != null)
             throw new InvalidOperationException("Can't delete none root folder.");
@@ -300,26 +300,25 @@ public sealed class SqlMetaStore : IMetaStore
 
     #region ====模型代码及Assembly相关操作====
 
-    // /// <summary>
-    // /// Insert or Update模型相关的代码，目前主要用于服务模型及视图模型
-    // /// </summary>
-    // /// <param name="codeData">已经压缩编码过</param>
-    // internal static async ValueTask UpsertModelCodeAsync(ulong modelId, byte[] codeData,
-    //     DbTransaction txn)
-    // {
-    //     //TODO:暂先删除再插入
-    //     var id = modelId.ToString();
-    //     using var cmd = SqlStore.Default.MakeCommand();
-    //     cmd.Connection = txn.Connection;
-    //     cmd.Transaction = txn;
-    //     BuildDeleteMetaCommand(cmd, Meta_Code, id);
-    //     BuildInsertMetaCommand(cmd, Meta_Code, id, (byte)ModelType.Application, codeData, true);
-    //     await cmd.ExecuteNonQueryAsync();
-    // }
-
-    internal static async ValueTask DeleteModelCodeAsync(ulong modelId, DbTransaction txn)
+    /// <summary>
+    /// Insert or Update模型相关的代码，目前主要用于服务模型及视图模型
+    /// </summary>
+    /// <param name="codeData">已经压缩编码过</param>
+    public async Task UpsertModelCodeAsync(ModelId modelId, byte[] codeData, DbTransaction txn)
     {
-        using var cmd = SqlStore.Default.MakeCommand();
+        //TODO:暂先删除再插入
+        var id = modelId.ToString();
+        await using var cmd = SqlStore.Default.MakeCommand();
+        cmd.Connection = txn.Connection;
+        cmd.Transaction = txn;
+        BuildDeleteMetaCommand(cmd, Meta_Code, id);
+        BuildInsertMetaCommand(cmd, Meta_Code, id, (byte)modelId.Type, codeData, true);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async Task DeleteModelCodeAsync(ModelId modelId, DbTransaction txn)
+    {
+        await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
         BuildDeleteMetaCommand(cmd, Meta_Code, modelId.ToString());
@@ -334,7 +333,7 @@ public sealed class SqlMetaStore : IMetaStore
         var data = await LoadMetaDataAsync(Meta_Code, modelId.ToString());
         return ModelCodeUtil.DecompressCode(data);
     }
-    
+
     // /// <summary>
     // /// 加载指定应用的第三方组件列表，仅用于设计时前端绑定
     // /// </summary>
@@ -415,46 +414,43 @@ public sealed class SqlMetaStore : IMetaStore
 //         txn.Commit();
 //     }
 
-    // /// <summary>
-    // /// 保存编译好的服务组件或视图运行时代码或应用的第三方组件
-    // /// </summary>
-    // /// <param name="asmName">
-    // /// 服务or视图 eg: sys.HelloService or sys.CustomerView
-    // /// 应用 eg: sys.Newtonsoft.Json.dll,注意应用前缀防止不同app冲突
-    // /// </param>
-    // /// <param name="asmData">已压缩</param>
-    // /// <param name="platform">仅适用于应用的第三方组件</param>
-    // internal static async ValueTask UpsertAssemblyAsync(MetaAssemblyType type,
-    //     string asmName, byte[] asmData, DbTransaction txn,
-    //     AssemblyPlatform platform = AssemblyPlatform.Common)
-    // {
-    //     byte modelType;
-    //     if (type == MetaAssemblyType.Application)
-    //         modelType = (byte)platform;
-    //     else if (type == MetaAssemblyType.Service)
-    //         modelType = (byte)ModelType.Service;
-    //     else if (type == MetaAssemblyType.View)
-    //         modelType = (byte)ModelType.View;
-    //     else
-    //         throw new ArgumentException("Not supported MetaAssemblyType");
-    //
-    //     using var cmd = SqlStore.Default.MakeCommand();
-    //     cmd.Connection = txn.Connection;
-    //     cmd.Transaction = txn;
-    //     BuildDeleteMetaCommand(cmd, (byte)type, asmName);
-    //     BuildInsertMetaCommand(cmd, (byte)type, asmName, modelType, asmData, true);
-    //     await cmd.ExecuteNonQueryAsync();
-    // }
-    //
-    // internal static async ValueTask DeleteAssemblyAsync(MetaAssemblyType type,
-    //     string asmName, DbTransaction txn)
-    // {
-    //     using var cmd = SqlStore.Default.MakeCommand();
-    //     cmd.Connection = txn.Connection;
-    //     cmd.Transaction = txn;
-    //     BuildDeleteMetaCommand(cmd, (byte)type, asmName);
-    //     await cmd.ExecuteNonQueryAsync();
-    // }
+    /// <summary>
+    /// 保存编译好的服务组件或视图运行时代码或应用的第三方组件
+    /// </summary>
+    /// <param name="asmName">
+    /// 服务or视图 eg: sys.HelloService or sys.CustomerView
+    /// 应用 eg: sys.Newtonsoft.Json.dll,注意应用前缀防止不同app冲突
+    /// </param>
+    /// <param name="asmData">已压缩</param>
+    /// <param name="platform">仅适用于应用的第三方组件</param>
+    public async Task UpsertAssemblyAsync(MetaAssemblyType type,
+        string asmName, byte[] asmData, DbTransaction txn,
+        AssemblyPlatform platform = AssemblyPlatform.Common)
+    {
+        var modelType = type switch
+        {
+            MetaAssemblyType.Application => (byte)platform,
+            MetaAssemblyType.Service => (byte)ModelType.Service,
+            MetaAssemblyType.View => (byte)ModelType.View,
+            _ => throw new ArgumentException("Not supported MetaAssemblyType")
+        };
+
+        await using var cmd = SqlStore.Default.MakeCommand();
+        cmd.Connection = txn.Connection;
+        cmd.Transaction = txn;
+        BuildDeleteMetaCommand(cmd, (byte)type, asmName);
+        BuildInsertMetaCommand(cmd, (byte)type, asmName, modelType, asmData, true);
+        await cmd.ExecuteNonQueryAsync();
+    }
+    
+    public async Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn)
+    {
+        await using var cmd = SqlStore.Default.MakeCommand();
+        cmd.Connection = txn.Connection;
+        cmd.Transaction = txn;
+        BuildDeleteMetaCommand(cmd, (byte)type, asmName);
+        await cmd.ExecuteNonQueryAsync();
+    }
 
 //     /// <summary>
 //     /// 加载服务组件或应用的第三方组件

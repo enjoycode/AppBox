@@ -27,6 +27,7 @@ public abstract class ModelBase : IBinSerializable
     public ModelType ModelType => _id.Type;
 
     public ModelId Id => _id;
+    public int AppId => Id.AppId;
     public string Name => _name;
     public string OriginalName => _originalName ?? _name;
     public int Version => _version;

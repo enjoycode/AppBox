@@ -67,5 +67,5 @@ public enum AssemblyPlatform : byte
     Common,
     Linux,
     Windows,
-    OSX
+    MacOS,
 }

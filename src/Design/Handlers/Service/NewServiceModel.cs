@@ -10,7 +10,10 @@ internal sealed class NewServiceModel : IDesignHandler
         var selectedNodeId = args.GetString()!;
         var name = args.GetString()!;
 
-        var initSrcCode = $@"public sealed class {name}
+        var initSrcCode = $@"using System;
+using System.Threading.Tasks;
+
+public sealed class {name}
 {{
     public string SayHello()
     {{

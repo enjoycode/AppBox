@@ -1,3 +1,4 @@
+using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -14,7 +15,22 @@ public interface IMetaStore
 
     Task UpsertFolderAsync(ModelFolder folder, DbTransaction txn);
 
+    Task DeleteFolderAsync(ModelFolder folder, DbTransaction txn);
+
     Task InsertModelAsync(ModelBase model, DbTransaction txn);
+
+    Task UpdateModelAsync(ModelBase model, DbTransaction txn, Func<int, ApplicationModel> getApp);
+
+    Task DeleteModelAsync(ModelBase model, DbTransaction txn, Func<int, ApplicationModel> getApp);
+
+    Task UpsertModelCodeAsync(ModelId modelId, byte[] codeData, DbTransaction txn);
+
+    Task DeleteModelCodeAsync(ModelId modelId, DbTransaction txn);
+
+    Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
+        DbTransaction txn, AssemblyPlatform platform = AssemblyPlatform.Common);
+
+    Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn);
 
     /// <summary>
     /// 用于设计时加载所有ApplicationModel

@@ -42,7 +42,7 @@ internal sealed class TypeSystem : IDisposable
     private static readonly CSharpCompilationOptions DllCompilationOptions =
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
             .WithNullableContextOptions(NullableContextOptions.Enable)
-            .WithUsings("System");
+            .WithUsings("System"); //不起作用
 
     private static readonly CSharpParseOptions ParseOptions =
         new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10);
@@ -225,13 +225,15 @@ internal sealed class TypeSystem : IDisposable
             // MetadataReferences.TasksLib,
             // MetadataReferences.TasksExtLib
         };
-        // if (model.HasReference) //添加其他引用
-        // {
-        //     for (int i = 0; i < model.References.Count; i++)
-        //     {
-        //         deps.Add(MetadataReferences.Get($"{model.References[i]}.dll", appName));
-        //     }
-        // }
+        
+        if (model.HasReference) //添加其他引用
+        {
+            throw new NotImplementedException();
+            // for (int i = 0; i < model.References.Count; i++)
+            // {
+            //     deps.Add(MetadataReferences.Get($"{model.References[i]}.dll", appName));
+            // }
+        }
 
         var newSolution = Workspace.CurrentSolution
             .AddProject(serviceProjectInfo)

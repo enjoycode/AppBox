@@ -2,19 +2,30 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public sealed class DesignHub : IDisposable
+public sealed class DesignHub : IDesignContext, IDisposable
 {
+    static DesignHub()
+    {
+        //注册设计时序列化器，仅用于向前端序列化，不需要反序列化
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.DesignTree,
+            typeof(DesignTree)));
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.NewNodeResult,
+            typeof(NewNodeResult)));
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.CompletionItem,
+            typeof(GetCompletion.CompletionItem)));
+    }
+
     public DesignHub(IDeveloperSession session)
     {
         Session = session;
         TypeSystem = new TypeSystem();
         DesignTree = new DesignTree(this);
     }
-    
+
     public readonly IDeveloperSession Session;
     public readonly DesignTree DesignTree;
     internal readonly TypeSystem TypeSystem;
-    
+
     /// <summary>
     /// 用于发布时暂存挂起的修改
     /// </summary>
@@ -26,14 +37,13 @@ public sealed class DesignHub : IDisposable
         TypeSystem.Dispose();
     }
 
-    static DesignHub()
-    {
-        //注册设计时序列化器，仅用于向前端序列化，不需要反序列化
-        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.DesignTree,
-            typeof(DesignTree)));
-        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.NewNodeResult,
-            typeof(NewNodeResult)));
-        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.CompletionItem,
-            typeof(GetCompletion.CompletionItem)));
-    }
+    #region ====IDesignContext====
+
+    public ApplicationModel GetApplicationModel(int appId)
+        => DesignTree.FindApplicationNode(appId)!.Model;
+
+    public EntityModel GetEntityModel(ModelId modelID)
+        => (EntityModel)DesignTree.FindModelNode(ModelType.Entity, modelID)!.Model;
+
+    #endregion
 }
