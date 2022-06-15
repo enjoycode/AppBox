@@ -11,7 +11,7 @@ export class NotificationEntry extends PixUI.SingleChildWidget {
 
         this.Child = new PixUI.Card().Init(
             {
-                Width: PixUI.State.op_Implicit_From(250),
+                Width: PixUI.State.op_Implicit_From(280),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 5).Init(
                     {
                         Children: [icon, new PixUI.Expanded().Init({Child: text}), new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
