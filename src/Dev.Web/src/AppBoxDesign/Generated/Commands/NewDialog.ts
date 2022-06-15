@@ -52,7 +52,7 @@ export class NewDialog extends PixUI.Dialog<string> {
         this.CreateAsync(service, args);
     }
 
-    private async CreateAsync(service: string, args: any[]): System.Task {
+    private async CreateAsync(service: string, args: any[]): Promise<void> {
         let res = await AppBoxClient.Channel.Invoke(service, args);
         //根据返回结果同步添加新节点
         AppBoxDesign.DesignStore.OnNewNode(<AppBoxDesign.NewNodeResult><unknown>res);

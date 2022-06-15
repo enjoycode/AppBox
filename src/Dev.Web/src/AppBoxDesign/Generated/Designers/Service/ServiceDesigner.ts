@@ -76,7 +76,7 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IDesigne
         }
     }
 
-    public async SaveAsync(): System.Task {
+    public async SaveAsync(): Promise<void> {
         await AppBoxClient.Channel.Invoke("sys.DesignService.SaveModel", [this._modelNode.Id]);
     }
 

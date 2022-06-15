@@ -1,5 +1,4 @@
 import * as AppBoxClient from '@/AppBoxClient'
-import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -42,7 +41,7 @@ export class DesignTreePad extends PixUI.View {
         this.LoadDesignTree();
     }
 
-    private async LoadDesignTree(): System.Task {
+    private async LoadDesignTree(): Promise<void> {
         if (this._hasLoadTree) return;
         this._hasLoadTree = true;
 

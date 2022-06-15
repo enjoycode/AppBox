@@ -1,6 +1,5 @@
 import * as AppBoxClient from '@/AppBoxClient'
 import * as AppBoxDesign from '@/AppBoxDesign'
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class LoginPage extends PixUI.View {
@@ -42,7 +41,7 @@ export class LoginPage extends PixUI.View {
             });
     }
 
-    private async OnLogin(): System.Task {
+    private async OnLogin(): Promise<void> {
         // try
         // {
         await AppBoxDesign.DesignInitializer.TryInit();
