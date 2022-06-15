@@ -77,6 +77,11 @@ export * from "./Route/Navigator";
 export * from "./Route/DynamicView";
 export * from "./Route/RouteView";
 
+export * from "./Widgets/Text/TextBase";
+export * from "./Widgets/Text/Text";
+export * from "./Widgets/Text/EditableText";
+export * from "./Widgets/Text/Input";
+
 export * from "./Widgets/Overlay/Overlay";
 export * from "./Widgets/Overlay/OverlayEntry";
 export * from "./Widgets/Overlay/Caret";
@@ -85,15 +90,11 @@ export * from "./Widgets/Overlay/HoverDecoration";
 export * from "./Widgets/Overlay/Popup";
 export * from "./Widgets/Overlay/ListPopup"
 export * from "./Widgets/Overlay/Dialog"
+export * from "./Widgets/Overlay/Notification"
 
 export * from "./Widgets/Animated/FadeTransition";
 export * from "./Widgets/Animated/RotationTransition";
 export * from "./Widgets/Animated/SlideTransition";
-
-export * from "./Widgets/Text/TextBase";
-export * from "./Widgets/Text/Text";
-export * from "./Widgets/Text/EditableText";
-export * from "./Widgets/Text/Input";
 
 export * from "./Widgets/Button/ButtonIconPosition";
 export * from "./Widgets/Button/ButtonStyle";

@@ -3,6 +3,13 @@ import * as PixUI from '@/PixUI'
 
 export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
     private static readonly $meta_PixUI_IRootWidget = true;
+
+    public constructor(window: PixUI.UIWindow) {
+        super();
+        this.Window = window;
+        this.IsMounted = true;
+    }
+
     #Window: PixUI.UIWindow;
     public get Window() {
         return this.#Window;
@@ -18,10 +25,12 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
         return this._entries.length > 0;
     }
 
-    public constructor(window: PixUI.UIWindow) {
-        super();
-        this.Window = window;
-        this.IsMounted = true;
+    public FindEntry(predicate: System.Predicate<PixUI.OverlayEntry>): Nullable<PixUI.OverlayEntry> {
+        for (const entry of this._entries) {
+            if (predicate(entry)) return entry;
+        }
+
+        return null;
     }
 
 
