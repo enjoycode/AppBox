@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <AssemblyName>AppBoxServer</AssemblyName>
+        <RootNamespace>AppBoxServer</RootNamespace>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Store\Store.csproj" />
+    </ItemGroup>
+
+</Project>

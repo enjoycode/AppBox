@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store", "Store\Store.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.PostgreSql", "Store.PostgreSql\Store.PostgreSql.csproj", "{0C124E7D-07FD-449A-B381-6F4C81F3F70C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{BF90319C-F718-47ED-979E-C3E11675BBAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +86,9 @@ Global
 		{0C124E7D-07FD-449A-B381-6F4C81F3F70C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C124E7D-07FD-449A-B381-6F4C81F3F70C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C124E7D-07FD-449A-B381-6F4C81F3F70C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF90319C-F718-47ED-979E-C3E11675BBAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF90319C-F718-47ED-979E-C3E11675BBAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF90319C-F718-47ED-979E-C3E11675BBAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF90319C-F718-47ED-979E-C3E11675BBAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
