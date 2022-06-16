@@ -9,7 +9,7 @@ export class PublishDialog extends PixUI.Dialog<boolean> {
         this.Width = PixUI.State.op_Implicit_From(400);
         this.Height = PixUI.State.op_Implicit_From(300);
         this.Title.Value = "Publish";
-        this.OnClose = this._OnClose.bind(this);
+        this.OnClose = PublishDialog._OnClose;
     }
 
     private readonly _dataGridController: PixUI.DataGridController<AppBoxDesign.ChangedModel> = new PixUI.DataGridController<AppBoxDesign.ChangedModel>(new System.List<PixUI.DataGridColumn<AppBoxDesign.ChangedModel>>().Init(
@@ -41,16 +41,27 @@ export class PublishDialog extends PixUI.Dialog<boolean> {
     }
 
     private async LoadChanges() {
-        let res = await AppBoxClient.Channel.Invoke("sys.DesignService.GetPendingChanges");
-        this._dataGridController.DataSource = new System.List<AppBoxDesign.ChangedModel>(<AppBoxDesign.ChangedModel[]><unknown>res);
+        try {
+            let res = await AppBoxClient.Channel.Invoke("sys.DesignService.GetPendingChanges");
+            this._dataGridController.DataSource = new System.List<AppBoxDesign.ChangedModel>(<AppBoxDesign.ChangedModel[]><unknown>res);
+        } catch (e: any) {
+            PixUI.Notification.Error("加载模型变更失败");
+        }
     }
 
     protected GetResult(canceled: boolean): boolean {
         return canceled;
     }
 
-    private _OnClose(canceled: boolean, result: boolean) {
+    private static async _OnClose(canceled: boolean, result: boolean) {
         if (canceled) return;
+
+        try {
+            await AppBoxClient.Channel.Invoke("sys.DesignService.Publish", ["commit message"]);
+            PixUI.Notification.Success("发布成功");
+        } catch (e: any) {
+            PixUI.Notification.Error("发布失败");
+        }
     }
 
     public Init(props: Partial<PublishDialog>): PublishDialog {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AppBoxClient;
 using PixUI;
@@ -55,15 +56,33 @@ namespace AppBoxDesign
 
         private async void LoadChanges()
         {
-            var res = await Channel.Invoke("sys.DesignService.GetPendingChanges");
-            _dataGridController.DataSource = new List<ChangedModel>((ChangedModel[])res);
+            try
+            {
+                var res = await Channel.Invoke("sys.DesignService.GetPendingChanges");
+                _dataGridController.DataSource = new List<ChangedModel>((ChangedModel[])res);
+            }
+            catch (Exception e)
+            {
+                Notification.Error("加载模型变更失败");
+            }
         }
 
         protected override bool GetResult(bool canceled) => canceled;
 
-        private void _OnClose(bool canceled, bool result)
+        private static async void _OnClose(bool canceled, bool result)
         {
             if (canceled) return;
+
+            try
+            {
+                await Channel.Invoke("sys.DesignService.Publish",
+                    new object?[] { "commit message" });
+                Notification.Success("发布成功");
+            }
+            catch (Exception e)
+            {
+                Notification.Error("发布失败");
+            }
         }
     }
 }
