@@ -442,7 +442,7 @@ public sealed class SqlMetaStore : IMetaStore
         BuildInsertMetaCommand(cmd, (byte)type, asmName, modelType, asmData, true);
         await cmd.ExecuteNonQueryAsync();
     }
-    
+
     public async Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
@@ -452,26 +452,21 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-//     /// <summary>
-//     /// 加载服务组件或应用的第三方组件
-//     /// </summary>
-//     /// <param name="serviceName">eg: sys.HelloService or sys.Newtonsoft.Json.dll</param>
-//     /// <returns>压缩过的</returns>
-//     internal static async ValueTask<byte[]>
-//         LoadServiceAssemblyAsync(string serviceName) //TODO:考虑保存至本地文件，返回路径
-//     {
-// #if !DEBUG
-//             //注意：只允许服务域调用
-//             //if (Runtime.RuntimeContext.Current.RuntimeId == 0)
-//             //    throw new NotSupportedException("不支持服务端主进程加载");
-// #endif
-//         //暂通过判断有无扩展名来区别是服务的组件还是第三方的组件
-//         if (serviceName.Length >= 4 &&
-//             serviceName.AsSpan(serviceName.Length - 4).SequenceEqual(".dll"))
-//             return await LoadMetaDataAsync((byte)MetaAssemblyType.Application, serviceName);
-//         return await LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
-//     }
-//
+    /// <summary>
+    /// 运行时加载服务组件或应用的第三方组件
+    /// </summary>
+    /// <param name="serviceName">eg: sys.HelloService or sys.Newtonsoft.Json.dll</param>
+    /// <returns>压缩过的</returns>
+    public async Task<byte[]?> LoadServiceAssemblyAsync(string serviceName)
+    {
+        //TODO:考虑保存至本地文件，返回路径
+        //暂通过判断有无扩展名来区别是服务的组件还是第三方的组件
+        if (serviceName.Length >= 4 &&
+            serviceName.AsSpan(serviceName.Length - 4).SequenceEqual(".dll"))
+            return await LoadMetaDataAsync((byte)MetaAssemblyType.Application, serviceName);
+        return await LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
+    }
+
 //     internal static async ValueTask<string> LoadViewAssemblyAsync(string viewName)
 //     {
 //         var res = await LoadMetaDataAsync(Meta_View_Assembly, viewName);
@@ -625,18 +620,18 @@ public sealed class SqlMetaStore : IMetaStore
 
     #region ====Helpers====
 
-    private static async Task<byte[]> LoadMetaDataAsync(byte metaType, string id)
+    private static async Task<byte[]?> LoadMetaDataAsync(byte metaType, string id)
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
-        using var conn = await db.OpenConnectionAsync();
-        using var cmd = db.MakeCommand();
+        await using var conn = await db.OpenConnectionAsync();
+        await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
         cmd.CommandText =
             $"Select data From {esc}sys.Meta{esc} Where meta={metaType} And id='{id}'";
         Log.Debug(cmd.CommandText);
-        using var reader = await cmd.ExecuteReaderAsync();
-        byte[] metaData = null;
+        await using var reader = await cmd.ExecuteReaderAsync();
+        byte[]? metaData = null;
         if (await reader.ReadAsync())
         {
             metaData = (byte[])reader.GetValue(0); //TODO:Use GetStream

@@ -55,5 +55,7 @@ public interface IMetaStore
     /// <summary>
     /// 加载模型(视图、服务等)的代码
     /// </summary>
-    public Task<string> LoadModelCodeAsync(ModelId modelId);
+    Task<string> LoadModelCodeAsync(ModelId modelId);
+
+    Task<byte[]?> LoadServiceAssemblyAsync(string serviceName);
 }
