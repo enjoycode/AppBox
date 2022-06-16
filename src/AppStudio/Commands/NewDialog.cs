@@ -61,12 +61,10 @@ namespace AppBoxDesign
             var args = _type == "Application"
                 ? new object[] { _name.Value }
                 : new object[] { selectedNode.Data.Type, selectedNode.Data.Id, _name.Value };
-#pragma warning disable CS4014
             CreateAsync(service, args);
-#pragma warning restore CS4014
         }
 
-        private async Task CreateAsync(string service, object[] args)
+        private static async void CreateAsync(string service, object[] args)
         {
             var res = await Channel.Invoke(service, args);
             //根据返回结果同步添加新节点

@@ -1,6 +1,7 @@
 export * from "./HandWrite/DesignNodeType"
 export * from "./HandWrite/WebPreviewer"
 
+export * from "./Generated/Design/ChangedModel"
 export * from "./Generated/Design/IDesigner"
 export * from "./Generated/Design/DesignNode"
 export * from "./Generated/Design/DesignTree"
@@ -9,6 +10,7 @@ export * from "./Generated/Design/NewNodeResult"
 export * from "./Generated/Design/RoslynCompletionProvider"
 
 export * from "./Generated/Commands/NewDialog"
+export * from "./Generated/Commands/PublishDialog"
 export * from "./Generated/Commands/Commands"
 
 export * from "./Generated/Pads/MainMenuPad"

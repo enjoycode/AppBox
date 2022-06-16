@@ -16,6 +16,11 @@ namespace AppBoxDesign
 
         public static readonly Action SaveCommand = Save;
 
+        public static readonly Action PublishCommand = () =>
+            new PublishDialog(UIWindow.Current.Overlay).Show();
+
+        public static readonly Action NotImplCommand = () => Notification.Error("暂未实现");
+
         /// <summary>
         /// 签出选择的节点
         /// </summary>

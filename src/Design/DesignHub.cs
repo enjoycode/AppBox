@@ -13,6 +13,8 @@ public sealed class DesignHub : IDesignContext, IDisposable
             typeof(NewNodeResult)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.CompletionItem,
             typeof(GetCompletion.CompletionItem)));
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ChangedModel,
+            typeof(ChangedModel)));
     }
 
     public DesignHub(IDeveloperSession session)

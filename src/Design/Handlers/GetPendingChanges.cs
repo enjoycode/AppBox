@@ -15,28 +15,16 @@ internal sealed class GetPendingChanges : IDesignHandler
         if (hub.PendingChanges == null || hub.PendingChanges.Length == 0)
             return AnyValue.Empty;
 
-        var res = new List<ChangedInfo>();
+        var res = new List<ChangedModel>();
         //仅向前端返回Model及Folder
         foreach (var item in hub.PendingChanges)
         {
             if (item is ModelBase model)
-                res.Add(new ChangedInfo(model.ModelType.ToString(), model.Name));
+                res.Add(new ChangedModel(model.ModelType.ToString(), model.Name));
             else if (item is ModelFolder folder)
-                res.Add(new ChangedInfo("Folder", folder.TargetModelType.ToString()));
+                res.Add(new ChangedModel("Folder", folder.TargetModelType.ToString()));
         }
 
         return AnyValue.From(res.ToArray());
-    }
-}
-
-internal readonly struct ChangedInfo
-{
-    public readonly string ModelType;
-    public readonly string ModelId;
-
-    public ChangedInfo(string modelType, string modelId)
-    {
-        ModelType = modelType;
-        ModelId = modelId;
     }
 }

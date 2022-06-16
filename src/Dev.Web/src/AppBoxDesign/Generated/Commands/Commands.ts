@@ -14,6 +14,11 @@ export class Commands {
 
     public static readonly SaveCommand: System.Action = Commands.Save;
 
+    public static readonly PublishCommand: System.Action = () =>
+        new AppBoxDesign.PublishDialog(PixUI.UIWindow.Current.Overlay).Show();
+
+    public static readonly NotImplCommand: System.Action = () => PixUI.Notification.Error("暂未实现");
+
     private static async Checkout() {
         let selectedNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
         if (selectedNode == null) {
