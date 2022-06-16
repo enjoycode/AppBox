@@ -1,7 +1,8 @@
+using System;
 using AppBoxCore;
 using AppBoxDesign;
 
-namespace AppBoxWebHost;
+namespace AppBoxServer;
 
 /// <summary>
 /// 系统服务容器，启动时注册，不能动态添加移除

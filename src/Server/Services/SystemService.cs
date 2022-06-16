@@ -1,6 +1,8 @@
+using System;
+using System.Threading.Tasks;
 using AppBoxCore;
 
-namespace AppBoxWebHost;
+namespace AppBoxServer;
 
 /// <summary>
 /// 系统内置的一些服务，如初始化存储、密码Hash等

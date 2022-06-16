@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Net.WebSockets;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxServer;
 
 namespace AppBoxWebHost;
 

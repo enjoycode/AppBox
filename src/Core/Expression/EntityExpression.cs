@@ -138,11 +138,11 @@ public sealed class EntityExpression : EntityPathExpression
         if (ReferenceEquals(this, obj))
             return true;
 
-        EntityExpression target = obj as EntityExpression;
-        if (Equals(null, target))
+        var target = obj as EntityExpression;
+        if (IsNull(target))
             return false;
 
-        return target.ModelID == ModelID
+        return target!.ModelID == ModelID
                && target.User == User && Equals(target.Owner, Owner);
     }
 

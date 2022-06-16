@@ -22,11 +22,11 @@ public static class StringBuilderCache
         if (capacity <= MAX_BUILDER_SIZE)
         {
             // find the instance which has the lowest size matching the requested capacity, if any.
-            StringBuilder minimalMatchingCachedInstance = null;
-            StringBuilder minimalOverallInstance = null;
-            int indexToRemove = -1;
-            int indexMinimalOverall = -1;
-            for (int i = 0; i < _cachedInstances.Count; i++)
+            StringBuilder? minimalMatchingCachedInstance = null;
+            StringBuilder? minimalOverallInstance = null;
+            var indexToRemove = -1;
+            var indexMinimalOverall = -1;
+            for (var i = 0; i < _cachedInstances.Count; i++)
             {
                 var cachedInstance = _cachedInstances[i];
                 if (minimalOverallInstance == null ||

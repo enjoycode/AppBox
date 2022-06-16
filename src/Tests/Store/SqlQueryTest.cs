@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
-using AppBoxCore;
 using AppBoxStore;
-using AppBoxWebHost;
 using NUnit.Framework;
 
 namespace Tests.Store;

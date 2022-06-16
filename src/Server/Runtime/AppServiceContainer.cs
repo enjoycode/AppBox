@@ -10,7 +10,7 @@ namespace AppBoxServer;
 /// <summary>
 /// 服务模型运行时实例容器
 /// </summary>
-public static class ServiceContainer
+public static class AppServiceContainer
 {
     private struct ServiceInfo
     {
@@ -44,7 +44,7 @@ public static class ServiceContainer
         var dotIndex = name.AsSpan().IndexOf('.');
         var appName = name.AsSpan(0, dotIndex).ToString();
         var serviceName = name.AsSpan(dotIndex + 1).ToString();
-        var libPath = Path.Combine(typeof(ServiceContainer).Assembly.Location, "libs", appName);
+        var libPath = Path.Combine(typeof(AppServiceContainer).Assembly.Location, "libs", appName);
         // await MetaStore.Provider.ExtractAppAssemblies(appName, libPath);
 
         lock (services)

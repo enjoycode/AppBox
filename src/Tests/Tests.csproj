@@ -20,7 +20,6 @@
       <ProjectReference Include="..\Server\Server.csproj" />
       <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj" />
       <ProjectReference Include="..\Store\Store.csproj" />
-      <ProjectReference Include="..\WebHost\WebHost.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,7 +1,7 @@
 using System.Threading;
 using AppBoxCore;
 using AppBoxStore;
-using AppBoxWebHost;
+using AppBoxServer;
 
 namespace Tests;
 

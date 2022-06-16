@@ -1,7 +1,8 @@
+using System;
 using System.Security.Cryptography;
 using AppBoxCore;
 
-namespace AppBoxWebHost;
+namespace AppBoxServer;
 
 internal sealed class PasswordHasher : IPasswordHasher
 {

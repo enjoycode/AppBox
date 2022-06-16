@@ -1,6 +1,6 @@
 using AppBoxCore;
 using AppBoxStore;
-using AppBoxWebHost;
+using AppBoxServer;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.

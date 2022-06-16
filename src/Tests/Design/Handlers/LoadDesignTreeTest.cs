@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using AppBoxWebHost;
+using AppBoxServer;
 using NUnit.Framework;
 
 namespace Tests.Design.Handlers;
