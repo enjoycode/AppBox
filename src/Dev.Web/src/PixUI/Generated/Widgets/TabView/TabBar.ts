@@ -2,6 +2,14 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class TabBar<T> extends PixUI.Widget {
+    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Action2<T, PixUI.Tab>, scrollable: boolean = false) {
+        super();
+        this._controller = controller;
+        this._controller.BindTabBar(this);
+        this._tabBuilder = tabBuilder;
+        this.Scrollable = scrollable;
+    }
+
     private readonly _controller: PixUI.TabController<T>;
     private readonly _tabBuilder: System.Action2<T, PixUI.Tab>;
     private readonly _tabs: System.List<PixUI.Tab> = new System.List<PixUI.Tab>();
@@ -14,14 +22,6 @@ export class TabBar<T> extends PixUI.Widget {
     private _color: Nullable<PixUI.State<PixUI.Color>>;
 
     private _scrollOffset: number = 0;
-
-    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Action2<T, PixUI.Tab>, scrollable: boolean = false) {
-        super();
-        this._controller = controller;
-        this._controller.SetTabBar(this);
-        this._tabBuilder = tabBuilder;
-        this.Scrollable = scrollable;
-    }
 
     public get Color(): Nullable<PixUI.State<PixUI.Color>> {
         return this._color;
@@ -43,6 +43,11 @@ export class TabBar<T> extends PixUI.Widget {
 
     public OnAdd(dataItem: T) {
         this._tabs.Add(this.BuildTab(dataItem));
+        this.Invalidate(PixUI.InvalidAction.Relayout);
+    }
+
+    public OnRemoveAt(index: number) {
+        this._tabs.RemoveAt(index);
         this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 

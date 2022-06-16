@@ -2,21 +2,22 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class HoverDecoration {
-    public readonly Widget: PixUI.Widget;
-    public readonly ShapeBuilder: System.Func1<PixUI.ShapeBorder>;
-    public readonly Elevation: number;
-
-    public readonly HoverColor: Nullable<PixUI.Color>;
-    // internal readonly BlendMode BlendMode;
-
-    private _overlayEntry: Nullable<PixUI.OverlayEntry>;
-
-    public constructor(widget: PixUI.Widget, shapeBuilder: System.Func1<PixUI.ShapeBorder>, elevation: number, hoverColor: Nullable<PixUI.Color> = null) {
+    public constructor(widget: PixUI.Widget, shapeBuilder: System.Func1<PixUI.ShapeBorder>, boundsGetter: Nullable<System.Func1<PixUI.Rect>> = null, elevation: number = 4, hoverColor: Nullable<PixUI.Color> = null) {
         this.Widget = widget;
         this.ShapeBuilder = shapeBuilder;
+        this.BoundsGetter = boundsGetter;
         this.Elevation = elevation;
         this.HoverColor = hoverColor;
     }
+
+    public readonly Widget: PixUI.Widget;
+    public readonly ShapeBuilder: System.Func1<PixUI.ShapeBorder>;
+    public readonly BoundsGetter: Nullable<System.Func1<PixUI.Rect>>;
+    public readonly Elevation: number;
+
+    public readonly HoverColor: Nullable<PixUI.Color>;
+
+    private _overlayEntry: Nullable<PixUI.OverlayEntry>;
 
     public Show() {
         this._overlayEntry ??= new PixUI.OverlayEntry(new HoverDecorator(this));
@@ -58,9 +59,14 @@ export class HoverDecorator extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let widget = this._owner.Widget;
-        let pt2Win = widget.LocalToWindow(0, 0);
-        let bounds = PixUI.Rect.FromLTWH(pt2Win.X, pt2Win.Y, widget.W, widget.H);
+        let bounds: PixUI.Rect = PixUI.Rect.Empty;
+        if (this._owner.BoundsGetter == null) {
+            let widget = this._owner.Widget;
+            let pt2Win = widget.LocalToWindow(0, 0);
+            bounds = PixUI.Rect.FromLTWH(pt2Win.X, pt2Win.Y, widget.W, widget.H);
+        } else {
+            bounds = this._owner.BoundsGetter();
+        }
 
         let path = this._shape.GetOuterPath((bounds).Clone());
 

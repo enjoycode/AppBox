@@ -18,6 +18,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     private _flag: number = 0;
     private static readonly MountedMask: number = 1;
     private static readonly HasLayoutMask: number = 2; //TODO:待实现自动判断是否需要重新布局后移除
+    protected static readonly LayoutTightMask: number = 1 << 3;
     private static readonly SuspendingMountMask: number = 1 << 20;
 
     private SetFlagValue(value: boolean, mask: number) {
@@ -41,6 +42,17 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
 
     protected set HasLayout(value: boolean) {
         this.SetFlagValue(value, Widget.HasLayoutMask);
+    }
+
+    public get IsLayoutTight(): boolean {
+        return (this._flag & Widget.LayoutTightMask) == Widget.LayoutTightMask;
+    }
+
+    public set IsLayoutTight(value: boolean) {
+        if (value == this.IsLayoutTight) return;
+        this.SetFlagValue(value, Widget.LayoutTightMask);
+        if (this.IsMounted)
+            this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
     public get IsMounted(): boolean {

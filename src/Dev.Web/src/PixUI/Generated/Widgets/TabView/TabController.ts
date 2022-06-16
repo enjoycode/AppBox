@@ -19,11 +19,11 @@ export class TabController<T> implements PixUI.IStateBindable {
         this.#SelectedIndex = value;
     }
 
-    public SetTabBar(tabBar: PixUI.TabBar<T>) {
+    public BindTabBar(tabBar: PixUI.TabBar<T>) {
         this._tabBar = tabBar;
     }
 
-    public SetTabBody(tabBody: PixUI.TabBody<T>) {
+    public BindTabBody(tabBody: PixUI.TabBody<T>) {
         this._tabBody = tabBody;
     }
 
@@ -57,6 +57,21 @@ export class TabController<T> implements PixUI.IStateBindable {
         this._tabBody?.OnAdd(dataItem);
 
         this.SelectAt(this.DataSource.length - 1); //选中添加的
+    }
+
+    public Remove(dataItem: T) {
+        let index = this.DataSource.IndexOf(dataItem);
+        let isSelected = index == this.SelectedIndex;
+        this.DataSource.RemoveAt(index);
+        this._tabBar?.OnRemoveAt(index);
+        this._tabBody?.OnRemoveAt(index);
+
+        //原本是选中的那个，移除后选择新的
+        if (isSelected && this.DataSource.length > 0) {
+            this.SelectedIndex = -1; //reset first
+            let newSelectedIndex = Math.max(0, index - 1);
+            this.SelectAt(newSelectedIndex);
+        }
     }
 
     public Init(props: Partial<TabController<T>>): TabController<T> {

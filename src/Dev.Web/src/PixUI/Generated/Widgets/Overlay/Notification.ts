@@ -17,6 +17,7 @@ export class NotificationEntry extends PixUI.SingleChildWidget {
                         Children: [icon, new PixUI.Expanded().Init({Child: text}), new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
                             {
                                 Style: PixUI.ButtonStyle.Transparent,
+                                Shape: PixUI.ButtonShape.Pills,
                                 OnTap: _ => this._controller.Reverse()
                             })
                         ]

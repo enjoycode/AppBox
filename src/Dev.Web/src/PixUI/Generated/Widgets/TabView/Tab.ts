@@ -22,7 +22,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
     public constructor(scrollable: boolean) {
         super();
         this._scrollable = scrollable;
-        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
+        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand, false);
         this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
 
         this.Bind(this.IsSelected, PixUI.BindingOptions.AffectsVisual); //TODO:待TabBar实现指示器后移除
@@ -34,12 +34,13 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
             this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
-        if (!this.ContainsPoint(x, y)) return false;
-
-        result.Add(this);
-        return true; //Don't hit test child
-    }
+    // protected internal override bool HitTest(float x, float y, HitTestResult result)
+    // {
+    //     if (!ContainsPoint(x, y)) return false;
+    //
+    //     result.Add(this);
+    //     return true; //Don't hit test child
+    // }
 
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);

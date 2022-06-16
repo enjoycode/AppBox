@@ -61,7 +61,7 @@ namespace AppBoxDesign
             if (selectedIndex < 0)
                 return;
 
-            var designer = DesignStore.DesignerController.DataSource[selectedIndex].Designer!;
+            var designer = DesignStore.DesignerController.GetAt(selectedIndex).Designer!;
             try
             {
                 await designer.SaveAsync();

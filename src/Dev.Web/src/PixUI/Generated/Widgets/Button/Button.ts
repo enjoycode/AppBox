@@ -16,7 +16,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
         this.FocusNode = new PixUI.FocusNode();
 
-        this._hoverDecoration = new PixUI.HoverDecoration(this, this.GetHoverShaper.bind(this), 4);
+        this._hoverDecoration = new PixUI.HoverDecoration(this, this.GetHoverShaper.bind(this), this.GetHoverBounds.bind(this));
         this._hoverDecoration.AttachHoverChangedEvent(this);
     }
 
@@ -81,11 +81,24 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
     private GetHoverShaper(): PixUI.ShapeBorder {
         switch (this.Shape) {
             case PixUI.ButtonShape.Square:
-                return new PixUI.RoundedRectangleBorder();
+                return new PixUI.RoundedRectangleBorder(); //TODO: use RectangleBorder
             case PixUI.ButtonShape.Standard:
                 return new PixUI.RoundedRectangleBorder(null, PixUI.BorderRadius.All(PixUI.Radius.Circular(Button.StandardRadius)));
+            case PixUI.ButtonShape.Pills:
+                return new PixUI.RoundedRectangleBorder(null, PixUI.BorderRadius.All(PixUI.Radius.Circular(this.H / 2)));
             default:
                 throw new System.NotImplementedException();
+        }
+    }
+
+    private GetHoverBounds(): PixUI.Rect {
+        //Icon only 特殊处理
+        if (this._iconWidget != null && this._textWidget == null && this.Style == PixUI.ButtonStyle.Transparent) {
+            let pt2Win = this._iconWidget.LocalToWindow(0, 0);
+            return PixUI.Rect.FromLTWH(pt2Win.X, pt2Win.Y, this._iconWidget.W, this._iconWidget.H);
+        } else {
+            let pt2Win = this.LocalToWindow(0, 0);
+            return PixUI.Rect.FromLTWH(pt2Win.X, pt2Win.Y, this.W, this.H);
         }
     }
 

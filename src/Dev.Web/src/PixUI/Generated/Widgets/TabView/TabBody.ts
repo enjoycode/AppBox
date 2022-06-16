@@ -9,7 +9,7 @@ export class TabBody<T> extends PixUI.DynamicView {
     public constructor(controller: PixUI.TabController<T>, bodyBuilder: System.Func2<T, PixUI.Widget>) {
         super();
         this._controller = controller;
-        this._controller.SetTabBody(this);
+        this._controller.BindTabBody(this);
         this._bodyBuilder = bodyBuilder;
 
         this._bodies = new System.List<Nullable<PixUI.Widget>>([]);
@@ -27,6 +27,10 @@ export class TabBody<T> extends PixUI.DynamicView {
 
     public OnAdd(dataItem: T) {
         this._bodies.Add(null);
+    }
+
+    public OnRemoveAt(index: number) {
+        this._bodies.RemoveAt(index);
     }
 
     public SwitchFrom(oldIndex: number) {

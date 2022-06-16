@@ -120,6 +120,7 @@ export * from "./Widgets/TabView/Tab";
 export * from "./Widgets/TabView/TabController";
 export * from "./Widgets/TabView/TabBar";
 export * from "./Widgets/TabView/TabBody";
+export * from "./Widgets/TabView/TabView"
 
 export * from "./Widgets/TreeView/TreeNode";
 export * from "./Widgets/TreeView/TreeNodeRow";
