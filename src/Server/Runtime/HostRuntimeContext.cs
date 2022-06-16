@@ -32,7 +32,7 @@ internal sealed class HostRuntimeContext : IHostRuntimeContext
         return (T)model;
     }
 
-    public ValueTask<AnyValue> InvokeAsync(string servicePath, InvokeArgs args)
+    public async ValueTask<AnyValue> InvokeAsync(string servicePath, InvokeArgs args)
     {
         var span = servicePath.AsMemory();
         var firstDot = span.Span.IndexOf('.');
@@ -43,19 +43,28 @@ internal sealed class HostRuntimeContext : IHostRuntimeContext
         var service = servicePath.AsMemory(firstDot + 1, lastDot - firstDot - 1);
         var method = servicePath.AsMemory(lastDot + 1);
 
+        IService? instance;
         try
         {
-            //尝试系统服务调用
-            if (app.Span.SequenceEqual("sys"))
+            //TODO:埋点监测性能指标
+            //尝试系统内置服务调用
+            if (app.Span.SequenceEqual(Consts.SYS))
             {
-                var instance = SysServiceContainer.TryGet(service);
-                if (instance == null)
-                    throw new ServiceNotExistsException($"Can't find system service: {service}");
-                return instance.InvokeAsync(method, args);
+                instance = SysServiceContainer.TryGet(service);
+                if (instance != null)
+                    return await instance.InvokeAsync(method, args);
             }
 
             //应用服务调用
-            throw new NotImplementedException();
+            instance = await AppServiceContainer.TryGetAsync($"{app}.{service}"); //TODO:优化
+            if (instance == null)
+            {
+                var error = $"Can't find service: {servicePath}";
+                Log.Warn(error);
+                throw new Exception(error);
+            }
+
+            return await instance.InvokeAsync(method, args);
         }
         finally
         {
