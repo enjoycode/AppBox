@@ -413,19 +413,18 @@ internal static class PublishService
     /// </summary>
     private static void InvalidModelsCache(DesignHub hub, PublishPackage package)
     {
-        //TODO:
-        // if (package.Models.Count == 0)
-        //     return;
-        //
-        // var others = package.Models.Where(t => t.ModelType != ModelType.Service).Select(t => t.Id).ToArray();
-        // var serviceModels = package.Models.Where(t => t.ModelType == ModelType.Service).Cast<ServiceModel>().ToArray();
-        // var services = new string[serviceModels.Length];
-        // for (int i = 0; i < serviceModels.Length; i++)
-        // {
-        //     var sm = serviceModels[i];
-        //     var app = hub.DesignTree.FindApplicationNode(sm.AppId).Model;
-        //     services[i] = serviceModels[i].IsNameChanged ? $"{app.Name}.{sm.OriginalName}" : $"{app.Name}.{sm.Name}";
-        // }
-        // RuntimeContext.Current.InvalidModelsCache(services, others, true);
+        if (package.Models.Count == 0)
+            return;
+        
+        var others = package.Models.Where(t => t.ModelType != ModelType.Service).Select(t => t.Id).ToArray();
+        var serviceModels = package.Models.Where(t => t.ModelType == ModelType.Service).Cast<ServiceModel>().ToArray();
+        var services = new string[serviceModels.Length];
+        for (var i = 0; i < serviceModels.Length; i++)
+        {
+            var sm = serviceModels[i];
+            var app = hub.DesignTree.FindApplicationNode(sm.AppId)!.Model;
+            services[i] = serviceModels[i].IsNameChanged ? $"{app.Name}.{sm.OriginalName}" : $"{app.Name}.{sm.Name}";
+        }
+        RuntimeContext.Current.InvalidModelsCache(services, others, true);
     }
 }

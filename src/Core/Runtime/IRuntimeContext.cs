@@ -21,6 +21,11 @@ public interface IRuntimeContext
     /// <param name="service">eg: sys.HelloService.SayHello</param>
     /// <param name="args">注意: 使用完后必须调用args.Free()释放缓存</param>
     ValueTask<AnyValue> InvokeAsync(string service, InvokeArgs args);
+
+    /// <summary>
+    /// 用于发布时更新模型缓存
+    /// </summary>
+    void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish);
 }
 
 public interface IHostRuntimeContext : IRuntimeContext

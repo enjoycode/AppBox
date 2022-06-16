@@ -31,6 +31,31 @@ internal sealed class HostRuntimeContext : IHostRuntimeContext
         Models.TryAdd(modelId, model);
         return (T)model;
     }
+    
+    public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)
+    {
+        //先移除已加载的服务实例
+        if (services != null)
+        {
+            foreach (var service in services)
+            {
+                AppServiceContainer.TryRemove(service);
+            }
+        }
+        //再移除已加载的模型缓存
+        if (others != null)
+        {
+            foreach (var t in others)
+            {
+                Models.Remove(t);
+            }
+        }
+        //最后通知整个集群
+        if (byPublish)
+        {
+            //TODO:*** 广播事件至集群
+        }
+    }
 
     public async ValueTask<AnyValue> InvokeAsync(string servicePath, InvokeArgs args)
     {
