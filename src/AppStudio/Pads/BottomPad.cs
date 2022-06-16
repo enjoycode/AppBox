@@ -14,36 +14,21 @@ namespace AppBoxDesign
                 "Problems", "Usages", "Output"
             });
 
-            Child = new Column()
+            Child = new Container()
             {
-                Children = new Widget[]
-                {
-                    new TabBar<string>(_tabController, BuildTab, true)
-                        { Height = 40, Color = new Color(0xFFF3F3F3) },
-                    new Container()
-                    {
-                        Height = 150,
-                        Child = new TabBody<string>(_tabController, BuildBody),
-                    }
-                }
+                Height = 190,
+                Child = new TabView<string>(_tabController, BuildTab, BuildBody, false, 40)
+                    { SelectedTabColor = Colors.White },
             };
         }
 
-        private static void BuildTab(string title, Tab tab)
+        private static Widget BuildTab(string title, State<bool> isSelected)
         {
-            var textColor = RxComputed<Color>.Make(tab.IsSelected,
+            var textColor = RxComputed<Color>.Make(isSelected,
                 selected => selected ? Theme.FocusedColor : Colors.Black
             );
-            var bgColor = RxComputed<Color>.Make(tab.IsSelected,
-                selected => selected ? Colors.White : new Color(0xFFF3F3F3)
-            );
 
-            tab.Child = new Container()
-            {
-                Color = bgColor, Width = 100,
-                Padding = EdgeInsets.Only(10, 8, 0, 0),
-                Child = new Text(title) { Color = textColor }
-            };
+            return new Text(title) { TextColor = textColor };
         }
 
         private static Widget BuildBody(string title)
@@ -56,7 +41,7 @@ namespace AppBoxDesign
             return new Container()
             {
                 Padding = EdgeInsets.All(10),
-                Color = Colors.White,
+                BgColor = Colors.White,
                 Child = new Text(title),
             };
         }

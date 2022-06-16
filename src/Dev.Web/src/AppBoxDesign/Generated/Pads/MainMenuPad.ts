@@ -9,7 +9,7 @@ export class MainMenuPad extends PixUI.View {
         this.Child = new PixUI.Container().Init(
             {
                 Height: PixUI.State.op_Implicit_From(45),
-                Color: PixUI.State.op_Implicit_From(this._bgColor),
+                BgColor: PixUI.State.op_Implicit_From(this._bgColor),
                 Child: new PixUI.Row().Init(
                     {
                         Children: [new PixUI.Container().Init({Width: PixUI.State.op_Implicit_From(50)}), new PixUI.Expanded().Init(

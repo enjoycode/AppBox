@@ -9,6 +9,7 @@ public sealed class DesignService : IService
         { nameof(SaveModel), new SaveModel() },
         { nameof(GetPendingChanges), new GetPendingChanges() },
         { nameof(Publish), new Publish() },
+        { nameof(CloseDesigner), new CloseDesigner() },
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
         { nameof(CheckoutNode), new CheckoutNode() },

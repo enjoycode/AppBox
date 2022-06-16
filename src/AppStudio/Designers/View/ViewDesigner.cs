@@ -49,7 +49,7 @@ namespace AppBoxDesign
         {
             return new Container()
             {
-                Color = new Color(0xFF3C3C3C), Height = 40,
+                BgColor = new Color(0xFF3C3C3C), Height = 40,
                 Padding = EdgeInsets.Only(15, 8, 15, 8),
                 Child = new Row(VerticalAlignment.Middle, 10)
                 {

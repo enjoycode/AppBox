@@ -29,7 +29,7 @@ class DemoWidget {
                         size.Value = clamp(Math.random() * 100, 18, 100);
                     }
                 }),
-                new PixUI.Text("Hello中国".obs).Init({Color: color, FontSize: size}),
+                new PixUI.Text("Hello中国".obs).Init({TextColor: color, FontSize: size}),
                 new PixUI.Input("Hello".obs).Init({Width: (180).obs})
             ]
         })
@@ -57,11 +57,11 @@ class DemoWidget {
 
         return new PixUI.Container().Init({
             Width: (300).obs, Height: (300).obs,
-            Color: PixUI.Colors.Green.obs,
+            BgColor: PixUI.Colors.Green.obs,
             Child: new PixUI.Transform(m2, new PixUI.Offset(50, 50)).Init({
                 Child: new PixUI.Container().Init({
                     Width: (100).obs, Height: (100).obs,
-                    Color: PixUI.Colors.Red.obs,
+                    BgColor: PixUI.Colors.Red.obs,
                 })
             }),
         });

@@ -36,7 +36,7 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
     private static BuildActionBar(): PixUI.Widget {
         return new PixUI.Container().Init(
             {
-                Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFF3C3C3C)),
+                BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFF3C3C3C)),
                 Height: PixUI.State.op_Implicit_From(40),
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init(

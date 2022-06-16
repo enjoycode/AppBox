@@ -8,7 +8,7 @@ export class WidgetPreviewer extends PixUI.View {
         super();
         this.Child = new PixUI.Container().Init(
             {
-                Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFA2A2A2)),
+                BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFA2A2A2)),
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
                 Child: new PixUI.Card().Init(
                     {

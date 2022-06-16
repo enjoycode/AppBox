@@ -10,7 +10,7 @@ namespace AppBoxDesign
         {
             Child = new Container
             {
-                Height = 45, Color = _bgColor,
+                Height = 45, BgColor = _bgColor,
                 Child = new Row
                 {
                     Children = new Widget[]

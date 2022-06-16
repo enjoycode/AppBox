@@ -1,3 +1,4 @@
+using AppBoxClient;
 using AppBoxCore;
 using PixUI;
 
@@ -8,37 +9,22 @@ namespace AppBoxDesign
         public DesignerPad()
         {
             DesignStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
+            // DesignStore.DesignerController.TabAdded += OnDesignerOpened;
+            DesignStore.DesignerController.TabClosed += OnDesignerClosed;
 
-            Child = new Column()
-            {
-                DebugLabel = "DesignerPad",
-                Children = new Widget[]
-                {
-                    new TabBar<DesignNode>(DesignStore.DesignerController, BuildTab, true)
-                        { Height = 40, Color = new Color(0xFFF3F3F3) },
-                    new Expanded()
-                    {
-                        Child = new TabBody<DesignNode>(DesignStore.DesignerController, BuildBody),
-                    }
-                }
-            };
+            BgColor = Colors.White;
+
+            Child = new TabView<DesignNode>(DesignStore.DesignerController, BuildTab, BuildBody,
+                true, 40) { SelectedTabColor = Colors.White };
         }
 
-        private static void BuildTab(DesignNode node, Tab tab)
+        private static Widget BuildTab(DesignNode node, State<bool> isSelected)
         {
-            var textColor = RxComputed<Color>.Make(tab.IsSelected,
+            var textColor = RxComputed<Color>.Make(isSelected,
                 selected => selected ? Theme.FocusedColor : Colors.Black
             );
-            var bgColor = RxComputed<Color>.Make(tab.IsSelected,
-                selected => selected ? Colors.White : new Color(0xFFF3F3F3)
-            );
 
-            tab.Child = new Container()
-            {
-                Color = bgColor, Width = 100,
-                Padding = EdgeInsets.Only(10, 8, 0, 0),
-                Child = new Text(node.Label) { Color = textColor }
-            };
+            return new Text(node.Label) { TextColor = textColor };
         }
 
         private static Widget BuildBody(DesignNode node)
@@ -66,9 +52,30 @@ namespace AppBoxDesign
             return new Container()
             {
                 Padding = EdgeInsets.All(10),
-                Color = Colors.White,
+                BgColor = Colors.White,
                 Child = new Text(node.Label),
             };
+        }
+
+        // private void OnDesignerOpened(DesignNode node)
+        // {
+        //     if (DesignStore.DesignerController.Count == 1)
+        //         BgColor!.Value = new Color(0xFFF3F3F3);
+        // }
+
+        private async void OnDesignerClosed(DesignNode node)
+        {
+            // if (DesignStore.DesignerController.Count == 0)
+            //     BgColor!.Value = Colors.White;
+
+            if (node.Type == DesignNodeType.ModelNode)
+            {
+                var modelNode = (ModelNode)node;
+                if (modelNode.ModelType == ModelType.Service ||
+                    modelNode.ModelType == ModelType.View)
+                    await Channel.Invoke("sys.DesignService.CloseDesigner", new object?[]
+                        { (int)node.Type, node.Id });
+            }
         }
 
         private void OnTreeSelectionChanged()

@@ -43,6 +43,10 @@ export class Color extends Float32Array {
     public get Alpha() {
         return this[3] * 255;
     }
+    
+    public get IsOpaque(): boolean {
+        return Math.floor(this.Alpha) == 0xFF;
+    }
 
     public WithAlpha(alpha: number): Color {
         return new Color(this.Red, this.Green, this.Blue, alpha);

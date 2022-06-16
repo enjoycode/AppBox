@@ -4,7 +4,7 @@ import * as PixUI from '@/PixUI'
 /// 包装TabBar及TabBody
 /// </summary>
 export class TabView<T> extends PixUI.Widget {
-    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Func3<T, PixUI.State<boolean>, PixUI.Widget>, bodyBuilder: System.Func2<T, PixUI.Widget>, tabBarIndent: number = 35) {
+    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Func3<T, PixUI.State<boolean>, PixUI.Widget>, bodyBuilder: System.Func2<T, PixUI.Widget>, closable: boolean = false, tabBarIndent: number = 35) {
         super();
         this._tabBarIndent = tabBarIndent;
         this._tabBody = new PixUI.TabBody<T>(controller, bodyBuilder);
@@ -12,17 +12,19 @@ export class TabView<T> extends PixUI.Widget {
             tab.Child = new PixUI.Container().Init(
                 {
                     IsLayoutTight: true,
-                    Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(10, 2, 0, 2)),
-                    Child: new PixUI.Row().Init(
-                        {
-                            Children: [tabBuilder(data, tab.IsSelected), new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
-                                {
-                                    Style: PixUI.ButtonStyle.Transparent,
-                                    Shape: PixUI.ButtonShape.Pills,
-                                    OnTap: _ => controller.Remove(data)
-                                })
-                            ]
-                        })
+                    Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(10, 2, closable ? 0 : 10, 2)),
+                    Child: closable
+                        ? new PixUI.Row().Init(
+                            {
+                                Children: [tabBuilder(data, tab.IsSelected), new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
+                                    {
+                                        Style: PixUI.ButtonStyle.Transparent,
+                                        Shape: PixUI.ButtonShape.Pills,
+                                        OnTap: _ => controller.Remove(data)
+                                    })
+                                ]
+                            })
+                        : tabBuilder(data, tab.IsSelected)
                 });
         }, true);
 
@@ -34,6 +36,21 @@ export class TabView<T> extends PixUI.Widget {
     private readonly _tabBody: PixUI.TabBody<T>;
     private readonly _tabBarIndent: number;
 
+    public get SelectedTabColor(): Nullable<PixUI.Color> {
+        return this._tabBar.SelectedColor;
+    }
+
+    public set SelectedTabColor(value: Nullable<PixUI.Color>) {
+        this._tabBar.SelectedColor = value;
+    }
+
+    public get HoverTabColor(): Nullable<PixUI.Color> {
+        return this._tabBar.HoverColor;
+    }
+
+    public set HoverTabColor(value: Nullable<PixUI.Color>) {
+        this._tabBar.HoverColor = value;
+    }
 
     public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (action(this._tabBar)) return;

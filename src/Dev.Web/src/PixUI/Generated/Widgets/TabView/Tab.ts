@@ -3,9 +3,22 @@ import * as PixUI from '@/PixUI'
 
 export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
     private static readonly $meta_PixUI_IMouseRegion = true;
+
+    public constructor() {
+        super();
+        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand, false);
+        this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
+
+        this.Bind(this.IsSelected, PixUI.BindingOptions.AffectsVisual); //TODO:待TabBar实现指示器后移除
+    }
+
     public readonly IsSelected: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
-    private readonly _scrollable: boolean;
     private _isHover: boolean = false;
+
+    private get TabBar(): PixUI.ITabBar {
+        return <PixUI.ITabBar><unknown>this.Parent!;
+    }
+
     #MouseRegion: PixUI.MouseRegion;
     public get MouseRegion() {
         return this.#MouseRegion;
@@ -19,28 +32,19 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         this.MouseRegion.PointerTap.Add(value, this);
     }
 
-    public constructor(scrollable: boolean) {
-        super();
-        this._scrollable = scrollable;
-        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand, false);
-        this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
-
-        this.Bind(this.IsSelected, PixUI.BindingOptions.AffectsVisual); //TODO:待TabBar实现指示器后移除
-    }
-
     private _OnHoverChanged(hover: boolean) {
         this._isHover = hover;
         if (!this.IsSelected.Value) //已选中的不需要重绘
             this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    // protected internal override bool HitTest(float x, float y, HitTestResult result)
-    // {
-    //     if (!ContainsPoint(x, y)) return false;
-    //
-    //     result.Add(this);
-    //     return true; //Don't hit test child
-    // }
+    public get IsOpaque(): boolean {
+        if (this.IsSelected.Value)
+            return this.TabBar.SelectedColor != null && this.TabBar.SelectedColor.IsOpaque;
+        if (this._isHover)
+            return this.TabBar.HoverColor != null && this.TabBar.HoverColor.IsOpaque;
+        return false;
+    }
 
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
@@ -53,7 +57,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
 
         this.Child!.Layout(width, height);
 
-        if (this._scrollable) {
+        if (this.TabBar.Scrollable) {
             this.SetSize(this.Child.W, height);
             this.Child.SetPosition(0, (height - this.Child.H) / 2);
         } else {
@@ -63,10 +67,13 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        if (!this.IsSelected.Value && this._isHover) {
-            let color = new PixUI.Color(0xFF2090EA); //TODO: HoverColor
-            let paint = PixUI.PaintUtils.Shared(color);
-            canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), paint);
+        //根据状态画背景色
+        if (this.IsSelected.Value) {
+            if (this.TabBar.SelectedColor != null)
+                canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this.TabBar.SelectedColor));
+        } else if (this._isHover) {
+            if (this.TabBar.HoverColor != null)
+                canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this.TabBar.HoverColor));
         }
 
         if (this.Child == null) return;

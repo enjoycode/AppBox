@@ -1,7 +1,16 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export class TabBar<T> extends PixUI.Widget {
+export interface ITabBar {
+    get Scrollable(): boolean;
+
+    get SelectedColor(): Nullable<PixUI.Color>;
+
+    get HoverColor(): Nullable<PixUI.Color>;
+
+}
+
+export class TabBar<T> extends PixUI.Widget implements ITabBar {
     public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Action2<T, PixUI.Tab>, scrollable: boolean = false) {
         super();
         this._controller = controller;
@@ -18,22 +27,20 @@ export class TabBar<T> extends PixUI.Widget {
         return this._tabs;
     }
 
-    public readonly Scrollable: boolean;
-    private _color: Nullable<PixUI.State<PixUI.Color>>;
+    #Scrollable: boolean = false;
+    public get Scrollable() {
+        return this.#Scrollable;
+    }
+
+    private set Scrollable(value) {
+        this.#Scrollable = value;
+    }
 
     private _scrollOffset: number = 0;
 
-    public get Color(): Nullable<PixUI.State<PixUI.Color>> {
-        return this._color;
-    }
+    public SelectedColor: Nullable<PixUI.Color>;
 
-    public set Color(value: Nullable<PixUI.State<PixUI.Color>>) {
-        this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
-    }
-
-    public get IsOpaque(): boolean {
-        return this._color != null && this._color.Value.Alpha == 0xFF;
-    }
+    public HoverColor: Nullable<PixUI.Color>;
 
 
     private OnTabSelected(selected: PixUI.Tab) {
@@ -109,7 +116,7 @@ export class TabBar<T> extends PixUI.Widget {
     }
 
     private BuildTab(dataItem: T): PixUI.Tab {
-        let tab = new PixUI.Tab(this.Scrollable);
+        let tab = new PixUI.Tab();
         this._tabBuilder(dataItem, tab);
         tab.Parent = this;
         tab.OnTap = _ => this.OnTabSelected(tab);
@@ -117,10 +124,6 @@ export class TabBar<T> extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        // paint background
-        if (this._color != null)
-            canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this._color.Value));
-
         for (const tab of this._tabs) //TODO: check visible
         {
             canvas.translate(tab.X, tab.Y);

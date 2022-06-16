@@ -16,7 +16,7 @@ export class NaviBar extends PixUI.View {
         this.Child = new PixUI.Container().Init(
             {
                 Width: PixUI.State.op_Implicit_From(45),
-                Color: PixUI.State.op_Implicit_From(new PixUI.Color(43, 49, 56)),
+                BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(43, 49, 56)),
                 Child: new PixUI.Column().Init(
                     {
                         Children: [new PixUI.Expanded().Init(
@@ -83,7 +83,7 @@ export class SidePad extends PixUI.View {
                     {
                         Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
                         Width: PixUI.State.op_Implicit_From(250),
-                        Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
+                        BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
                         Child: new PixUI.DynamicView().Init({DynamicWidget: activePad}),
                     })
                 ]

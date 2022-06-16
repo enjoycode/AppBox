@@ -40,7 +40,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
 
     public set TextColor(value: Nullable<PixUI.State<PixUI.Color>>) {
         this._textColor = value;
-        if (this._textWidget != null) this._textWidget.Color = value;
+        if (this._textWidget != null) this._textWidget.TextColor = value;
         if (this._iconWidget != null) this._iconWidget.Color = value;
     }
 
@@ -130,7 +130,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
 
         if (this._text != null && this._textWidget == null) {
             this._textWidget = new PixUI.Text(this._text).Init({
-                Color: this._textColor,
+                TextColor: this._textColor,
                 FontSize: this._fontSize
             });
             this._textWidget.Parent = this;

@@ -10,7 +10,7 @@ namespace AppBoxDesign
         {
             Child = new Container()
             {
-                Color = new Color(0xFFA2A2A2),
+                BgColor = new Color(0xFFA2A2A2),
                 Padding = EdgeInsets.All(10),
                 Child = new Card()
                 {

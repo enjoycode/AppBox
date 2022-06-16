@@ -48,6 +48,10 @@ export class TabBody<T> extends PixUI.DynamicView {
         }
     }
 
+    public ClearBody() {
+        this.ReplaceTo(null);
+    }
+
     private static BuildDefaultTransition(animation: PixUI.Animation<number>, child: PixUI.Widget, fromOffset: PixUI.Offset, toOffset: PixUI.Offset): PixUI.Widget {
         let offsetAnimation = new PixUI.OffsetTween(fromOffset, toOffset).Animate(animation);
         return new PixUI.SlideTransition(offsetAnimation).Init({Child: child});

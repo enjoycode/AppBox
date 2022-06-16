@@ -39,7 +39,7 @@ export class TreeNode<T> extends PixUI.Widget {
 
     public set Label(value: PixUI.Text) {
         this._row.Label = value;
-        this._row.Label.Color ??= this._color;
+        this._row.Label.TextColor ??= this._color;
     }
 
     public IsLeaf: boolean = false;

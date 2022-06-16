@@ -11,33 +11,19 @@ export class BottomPad extends PixUI.View {
                 "Problems", "Usages", "Output"
             ]));
 
-        this.Child = new PixUI.Column().Init(
+        this.Child = new PixUI.Container().Init(
             {
-                Children: [new PixUI.TabBar<string>(this._tabController, BottomPad.BuildTab, true).Init(
-                    {
-                        Height: PixUI.State.op_Implicit_From(40),
-                        Color: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3))
-                    }), new PixUI.Container().Init(
-                    {
-                        Height: PixUI.State.op_Implicit_From(150),
-                        Child: new PixUI.TabBody<string>(this._tabController, BottomPad.BuildBody),
-                    })
-                ]
+                Height: PixUI.State.op_Implicit_From(190),
+                Child: new PixUI.TabView<string>(this._tabController, BottomPad.BuildTab, BottomPad.BuildBody, false, 40).Init(
+                    {SelectedTabColor: PixUI.Colors.White}),
             });
     }
 
-    private static BuildTab(title: string, tab: PixUI.Tab) {
-        let textColor = PixUI.RxComputed.Make1(tab.IsSelected, selected => selected ? PixUI.Theme.FocusedColor : PixUI.Colors.Black
-        );
-        let bgColor = PixUI.RxComputed.Make1(tab.IsSelected, selected => selected ? PixUI.Colors.White : new PixUI.Color(0xFFF3F3F3)
+    private static BuildTab(title: string, isSelected: PixUI.State<boolean>): PixUI.Widget {
+        let textColor = PixUI.RxComputed.Make1(isSelected, selected => selected ? PixUI.Theme.FocusedColor : PixUI.Colors.Black
         );
 
-        tab.Child = new PixUI.Container().Init(
-            {
-                Color: bgColor, Width: PixUI.State.op_Implicit_From(100),
-                Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(10, 8, 0, 0)),
-                Child: new PixUI.Text(PixUI.State.op_Implicit_From(title)).Init({Color: textColor})
-            });
+        return new PixUI.Text(PixUI.State.op_Implicit_From(title)).Init({TextColor: textColor});
     }
 
     private static BuildBody(title: string): PixUI.Widget {
@@ -48,7 +34,7 @@ export class BottomPad extends PixUI.View {
         return new PixUI.Container().Init(
             {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
-                Color: PixUI.State.op_Implicit_From(PixUI.Colors.White),
+                BgColor: PixUI.State.op_Implicit_From(PixUI.Colors.White),
                 Child: new PixUI.Text(PixUI.State.op_Implicit_From(title)),
             });
     }

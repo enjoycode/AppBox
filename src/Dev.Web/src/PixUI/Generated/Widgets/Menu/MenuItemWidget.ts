@@ -42,7 +42,7 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
                 this._icon.Parent = this;
             }
 
-            this._label = new PixUI.Text(PixUI.State.op_Implicit_From(this.MenuItem.Label!)).Init({Color: this._controller.TextColor});
+            this._label = new PixUI.Text(PixUI.State.op_Implicit_From(this.MenuItem.Label!)).Init({TextColor: this._controller.TextColor});
             this._label.Parent = this;
         }
 

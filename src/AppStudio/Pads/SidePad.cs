@@ -19,7 +19,7 @@ namespace AppBoxDesign
             Child = new Container
             {
                 Width = 45,
-                Color = new Color(43, 49, 56),
+                BgColor = new Color(43, 49, 56),
                 Child = new Column
                 {
                     Children = new Widget[]
@@ -93,7 +93,7 @@ namespace AppBoxDesign
                     new Container
                     {
                         Padding = EdgeInsets.All(5),
-                        Width = 250, Color = new Color(0xFFF3F3F3),
+                        Width = 250, BgColor = new Color(0xFFF3F3F3),
                         Child = new DynamicView { DynamicWidget = activePad },
                     }
                 }

@@ -45,7 +45,7 @@ export class Commands {
         if (selectedIndex < 0)
             return;
 
-        let designer = AppBoxDesign.DesignStore.DesignerController.DataSource[selectedIndex].Designer!;
+        let designer = AppBoxDesign.DesignStore.DesignerController.GetAt(selectedIndex).Designer!;
         try {
             await designer.SaveAsync();
             PixUI.Notification.Success("保存成功");

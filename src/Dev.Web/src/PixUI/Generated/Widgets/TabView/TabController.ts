@@ -30,6 +30,17 @@ export class TabController<T> implements PixUI.IStateBindable {
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
     }
 
+    public get Count(): number {
+        return this.DataSource.length;
+    }
+
+    public readonly TabAdded = new System.Event<T>();
+    public readonly TabClosed = new System.Event<T>();
+
+
+    public GetAt(index: number): T {
+        return this.DataSource[index];
+    } // public T this[int index] => DataSource[index];
 
     public IndexOf(dataItem: T): number {
         return this.DataSource.IndexOf(dataItem);
@@ -55,22 +66,31 @@ export class TabController<T> implements PixUI.IStateBindable {
         this.DataSource.Add(dataItem);
         this._tabBar?.OnAdd(dataItem);
         this._tabBody?.OnAdd(dataItem);
+        this.TabAdded.Invoke(dataItem);
 
         this.SelectAt(this.DataSource.length - 1); //选中添加的
     }
 
     public Remove(dataItem: T) {
         let index = this.DataSource.IndexOf(dataItem);
-        let isSelected = index == this.SelectedIndex;
+        let isSelected = index == this.SelectedIndex; //是否正在移除选中的
+        if (index < this.SelectedIndex)
+            this.SelectedIndex -= 1;
+
         this.DataSource.RemoveAt(index);
         this._tabBar?.OnRemoveAt(index);
         this._tabBody?.OnRemoveAt(index);
+        this.TabClosed.Invoke(dataItem);
 
         //原本是选中的那个，移除后选择新的
-        if (isSelected && this.DataSource.length > 0) {
+        if (isSelected) {
             this.SelectedIndex = -1; //reset first
-            let newSelectedIndex = Math.max(0, index - 1);
-            this.SelectAt(newSelectedIndex);
+            if (this.DataSource.length > 0) {
+                let newSelectedIndex = Math.max(0, index - 1);
+                this.SelectAt(newSelectedIndex);
+            } else {
+                this._tabBody?.ClearBody();
+            }
         }
     }
 

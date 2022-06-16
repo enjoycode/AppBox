@@ -1,6 +1,11 @@
 import * as PixUI from '@/PixUI'
 
 export abstract class TextBase extends PixUI.Widget {
+    protected constructor(text: PixUI.State<string>) {
+        super();
+        this.Text = this.Bind(text, this instanceof PixUI.EditableText ? PixUI.BindingOptions.AffectsVisual : PixUI.BindingOptions.AffectsLayout);
+    }
+
     #Text: PixUI.State<string>;
     public get Text() {
         return this.#Text;
@@ -11,7 +16,7 @@ export abstract class TextBase extends PixUI.Widget {
     }
 
     private _fontSize: Nullable<PixUI.State<number>>;
-    private _color: Nullable<PixUI.State<PixUI.Color>>;
+    private _textColor: Nullable<PixUI.State<PixUI.Color>>;
 
     private _cachedParagraph: Nullable<PixUI.Paragraph>;
 
@@ -27,17 +32,12 @@ export abstract class TextBase extends PixUI.Widget {
         this._fontSize = this.Rebind(this._fontSize, value, PixUI.BindingOptions.AffectsLayout);
     }
 
-    public get Color(): Nullable<PixUI.State<PixUI.Color>> {
-        return this._color;
+    public get TextColor(): Nullable<PixUI.State<PixUI.Color>> {
+        return this._textColor;
     }
 
-    public set Color(value: Nullable<PixUI.State<PixUI.Color>>) {
-        this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
-    }
-
-    protected constructor(text: PixUI.State<string>) {
-        super();
-        this.Text = this.Bind(text, this instanceof PixUI.EditableText ? PixUI.BindingOptions.AffectsVisual : PixUI.BindingOptions.AffectsLayout);
+    public set TextColor(value: Nullable<PixUI.State<PixUI.Color>>) {
+        this._textColor = this.Rebind(this._textColor, value, PixUI.BindingOptions.AffectsVisual);
     }
 
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
@@ -52,7 +52,7 @@ export abstract class TextBase extends PixUI.Widget {
         //if (_cachedParagraph != null) return;
         this._cachedParagraph?.delete();
 
-        let color = this._color?.Value ?? PixUI.Colors.Black;
+        let color = this._textColor?.Value ?? PixUI.Colors.Black;
         this._cachedParagraph = this.BuildParagraphInternal(text, width, color);
     }
 
