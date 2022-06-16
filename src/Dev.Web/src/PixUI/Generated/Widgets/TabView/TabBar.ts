@@ -54,6 +54,7 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
     }
 
     public OnRemoveAt(index: number) {
+        this._tabs[index].Parent = null;
         this._tabs.RemoveAt(index);
         this.Invalidate(PixUI.InvalidAction.Relayout);
     }

@@ -30,6 +30,8 @@ export class TabBody<T> extends PixUI.DynamicView {
     }
 
     public OnRemoveAt(index: number) {
+        if (this._bodies[index] != null)
+            this._bodies[index]!.Parent = null;
         this._bodies.RemoveAt(index);
     }
 

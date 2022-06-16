@@ -156,6 +156,7 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
     }
 
     public set Parent(value: Nullable<Widget>) {
+        if (value == null && this._parent == null) return;
         if (PixUI.IsInterfaceOfIRootWidget(this) && value != null)
             throw new System.InvalidOperationException("Can't set parent for IRootWidget");
         if (this._parent != null && value != null && !this.SuspendingMount)

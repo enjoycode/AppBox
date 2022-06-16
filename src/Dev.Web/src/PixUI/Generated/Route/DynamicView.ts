@@ -71,7 +71,14 @@ export class DynamicView extends PixUI.SingleChildWidget {
                 this._animationTo.Parent = null;
                 this._animationFrom.SuspendingMount = true;
             }
+            
             this.Child = status == PixUI.AnimationStatus.Dismissed ? this._animationFrom : this._animationTo;
+            
+            if (this._animationTo!.SuspendingMount) {
+                this._animationTo!.SuspendingMount = false;
+            } else {
+                this._animationFrom.SuspendingMount = false;
+            }
 
             this._transitionStack!.Dispose();
             this._transitionStack = null;
