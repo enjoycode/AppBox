@@ -200,11 +200,11 @@ internal static class CodeGenService
             //非异步方法转换为异步
             if (isReturnVoid)
             {
-                sb.Append("Task");
+                sb.Append("System.Threading.Tasks.Task");
             }
             else if (!isReturnTask)
             {
-                sb.Append("Task<");
+                sb.Append("System.Threading.Tasks.Task<");
                 sb.Append(method.ReturnType);
                 sb.Append('>');
             }

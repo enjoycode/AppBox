@@ -13,8 +13,7 @@ internal sealed class GetWebPreview : IDesignHandler //TODO: rename to GetViewPr
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var modelIdString = args.GetString()!;
-        var modelId = (long)ulong.Parse(modelIdString);
+        ModelId modelId = args.GetString()!;
         var modelNode = hub.DesignTree.FindModelNode(ModelType.View, modelId);
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
