@@ -57,6 +57,10 @@ internal sealed class TypeSystem : IDisposable
         var modelProjectInfo = ProjectInfo.Create(ModelProjectId, VersionStamp.Create(),
             "ModelProject", "ModelProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
+        var serviceProxyProjectInfo = ProjectInfo.Create(ServiceProxyProjectId,
+            VersionStamp.Create(),
+            "ServiceProxyProject", "ServiceProxyProject", LanguageNames.CSharp, null, null,
+            DllCompilationOptions, ParseOptions);
         var webViewsProjectInfo = ProjectInfo.Create(WebViewsProjectId, VersionStamp.Create(),
             "ViewsProject", "ViewsProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, webParseOptions);
@@ -68,6 +72,13 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ModelProjectId, MetadataReferences.NetstandardLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.AppBoxCoreLib)
+                //服务代理工程
+                .AddProject(serviceProxyProjectInfo)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.CoreLib)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.NetstandardLib)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.AppBoxCoreLib)
+                .AddProjectReference(ServiceProxyProjectId, new ProjectReference(ModelProjectId))
                 //专用于Web视图模型的工程
                 .AddProject(webViewsProjectInfo)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)
@@ -76,6 +87,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIWebLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
+                .AddProjectReference(WebViewsProjectId, new ProjectReference(ServiceProxyProjectId))
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))
@@ -119,7 +131,12 @@ internal sealed class TypeSystem : IDisposable
                 var sourceCode = await LoadSourceCode(initSrcCode, node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
 
-                //TODO:服务代理的代码生成
+                //服务代理的代码生成
+                var srcDoc = newSolution.GetDocument(docId)!;
+                var proxyCode =
+                    await CodeGenService.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
+                newSolution =
+                    newSolution.AddDocument(node.ServiceProxyDocumentId!, docName, proxyCode);
                 break;
             }
         }
@@ -170,8 +187,8 @@ internal sealed class TypeSystem : IDisposable
                     CodeGenService.GenEntityDummyCode((EntityModel)model, appName, node.DesignTree);
                 newSolution =
                     Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
-            }
                 break;
+            }
             case ModelType.Enum:
                 //TODO:
                 // newSolution = Workspace.CurrentSolution.WithDocumentText(docId,
@@ -184,13 +201,13 @@ internal sealed class TypeSystem : IDisposable
                     Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
 
                 // 服务模型还需要更新代理类
-                //TODO:
-                // var srcdoc = newSolution.GetDocument(docId);
-                // var proxyCode = await CodeGenService.GenProxyCode(srcdoc, appName, (ServiceModel)model);
-                // newSolution = newSolution
-                //         .WithDocumentText(node.AsyncProxyDocumentId, SourceText.From(proxyCode));
-            }
+                var srcdoc = newSolution.GetDocument(docId)!;
+                var proxyCode =
+                    await CodeGenService.GenServiceProxyCode(srcdoc, appName, (ServiceModel)model);
+                newSolution = newSolution.WithDocumentText(node.ServiceProxyDocumentId!,
+                    SourceText.From(proxyCode));
                 break;
+            }
         }
 
         if (newSolution != null)
@@ -225,7 +242,7 @@ internal sealed class TypeSystem : IDisposable
             // MetadataReferences.TasksLib,
             // MetadataReferences.TasksExtLib
         };
-        
+
         if (model.HasReference) //添加其他引用
         {
             throw new NotImplementedException();
