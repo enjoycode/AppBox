@@ -1,3 +1,4 @@
+import * as AppBoxCore from '@/AppBoxCore'
 import * as AppBoxClient from '@/AppBoxClient'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
@@ -29,7 +30,23 @@ export class DesignTreePad extends PixUI.View {
             case AppBoxDesign.DesignNodeType.ApplicationNode:
                 return PixUI.Icons.Filled.Widgets;
             case AppBoxDesign.DesignNodeType.ModelNode:
-                return PixUI.Icons.Filled.TableChart; //TODO:
+                let modelNode = <AppBoxDesign.ModelNode>data;
+                switch (modelNode.ModelType) {
+                    case AppBoxCore.ModelType.Entity:
+                        return PixUI.Icons.Filled.TableChart;
+                    case AppBoxCore.ModelType.Service:
+                        return PixUI.Icons.Filled.Settings;
+                    case AppBoxCore.ModelType.View:
+                        return PixUI.Icons.Filled.Wysiwyg;
+                    case AppBoxCore.ModelType.Report:
+                        return PixUI.Icons.Filled.PieChart;
+                    case AppBoxCore.ModelType.Enum:
+                        return PixUI.Icons.Filled.ViewList;
+                    case AppBoxCore.ModelType.Permission:
+                        return PixUI.Icons.Filled.Lock;
+                    default:
+                        return PixUI.Icons.Filled.TableChart;
+                }
             default:
                 return PixUI.Icons.Filled.Folder;
         }

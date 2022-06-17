@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using AppBoxClient;
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign
@@ -36,7 +37,8 @@ namespace AppBoxDesign
             {
                 case DesignNodeType.DataStoreNode: return Icons.Filled.Storage;
                 case DesignNodeType.ApplicationNode: return Icons.Filled.Widgets;
-                case DesignNodeType.ModelNode: return Icons.Filled.TableChart; //TODO:
+                case DesignNodeType.ModelNode:
+                    return IconUtil.GetIconForModelType(((ModelNode)data).ModelType);
                 default: return Icons.Filled.Folder;
             }
         }
@@ -48,7 +50,7 @@ namespace AppBoxDesign
             LoadDesignTree();
         }
 
-        private async Task LoadDesignTree()
+        private async void LoadDesignTree()
         {
             if (_hasLoadTree) return;
             _hasLoadTree = true;

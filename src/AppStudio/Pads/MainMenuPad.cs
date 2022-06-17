@@ -41,9 +41,9 @@ namespace AppBoxDesign
                     MenuItem.Item("Folder", Icons.Filled.Folder, Commands.NotImplCommand),
                     MenuItem.Item("Entity", Icons.Filled.TableChart, Commands.NotImplCommand),
                     MenuItem.Item("Service", Icons.Filled.Settings, Commands.NewServiceCommand),
-                    MenuItem.Item("View", Icons.Filled.Window, Commands.NewViewCommand),
+                    MenuItem.Item("View", Icons.Filled.Wysiwyg, Commands.NewViewCommand),
                     MenuItem.Item("Report", Icons.Filled.PieChart, Commands.NotImplCommand),
-                    MenuItem.Item("Enum", Icons.Filled.Bolt, Commands.NotImplCommand),
+                    MenuItem.Item("Enum", Icons.Filled.ViewList, Commands.NotImplCommand),
                     MenuItem.Item("Permission", Icons.Filled.Lock, Commands.NotImplCommand),
                 }),
                 MenuItem.SubMenu("Models", Icons.Filled.Widgets, new MenuItem[]
