@@ -61,15 +61,16 @@ internal static class CodeGenService
         }
     }
 
-    internal static string GenEntityDummyCode(EntityModel model, string appName,
-        DesignTree designTree)
+    internal static string GenEntityRuntimeCode(ModelNode modelNode)
     {
-        //TODO:未完
-        var sb = new StringBuilder(300);
+        var appName = modelNode.AppNode.Model.Name;
+        var model = (EntityModel)modelNode.Model;
+        
+        var sb = StringBuilderCache.Acquire();
         sb.Append("using AppBoxCore;\n\n");
         sb.Append($"namespace {appName}.Entities;\n");
 
-        sb.Append($"public class {model.Name}");
+        sb.Append($"public sealed class {model.Name}");
         //根据存储配置继承不同的基类
         switch (model.DataStoreKind)
         {
@@ -103,8 +104,70 @@ internal static class CodeGenService
             }
         }
 
+        // override ModelId
+        long modelIdValue = model.Id;
+        sb.Append("private static readonly ModelId MODELID=");
+        sb.Append(modelIdValue.ToString());
+        sb.Append(";\npublic override ModelId ModelId => MODELID;\n");
+
+        // override AllMembers
+        sb.Append("private static readonly short[] MemberIds={");
+        for (var i = 0; i < model.Members.Count; i++)
+        {
+            if (i != 0) sb.Append(',');
+            sb.Append(model.Members[i].MemberId.ToString());
+        }
+
+        sb.Append("};\npublic override short[] AllMembers => MemberIds;\n");
+
+        // override WriteMember
+        sb.Append(
+            "public override void WriteMember(short id, IEntityMemberWriter ws, int flags){\n");
+        sb.Append("\tswitch(id){\n");
+        foreach (var member in model.Members)
+        {
+            sb.Append("\t\tcase ");
+            sb.Append(member.MemberId.ToString());
+            sb.Append(": ws.Write");
+            sb.Append(GetEntityMemberWriteReadType(member));
+            sb.Append("Member(id,");
+            if (model.StoreOptions != null) sb.Append('_');
+            sb.Append(member.Name);
+            sb.Append(",flags);break;\n");
+        }
+
+        sb.Append(
+            "\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
+        sb.Append(model.Name);
+        sb.Append("));\n");
+        sb.Append("\t}\n"); //end switch
+        sb.Append("}\n"); //end WriteMember
+        
+        // override ReadMember
+        sb.Append(
+            "public override void ReadMember(short id, IEntityMemberReader rs, int flags){\n");
+        sb.Append("\tswitch(id){\n");
+        foreach (var member in model.Members)
+        {
+            sb.Append("\t\tcase ");
+            sb.Append(member.MemberId.ToString());
+            sb.Append(":");
+            if (model.StoreOptions != null) sb.Append('_');
+            sb.Append(member.Name);
+            sb.Append("=rs.Read");
+            sb.Append(GetEntityMemberWriteReadType(member));
+            sb.Append("Member(flags);break;\n");
+        }
+
+        sb.Append(
+            "\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
+        sb.Append(model.Name);
+        sb.Append("));\n");
+        sb.Append("\t}\n"); //end switch
+        sb.Append("}\n"); //end ReadMember
+
         sb.Append("}\n"); //class end
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 
     private static void GenDataFieldMember(DataFieldModel field, StringBuilder sb)
@@ -149,6 +212,19 @@ internal static class CodeGenService
             _ => throw new NotImplementedException(field.DataType.ToString())
         };
         return field.AllowNull ? typeString + '?' : typeString;
+    }
+
+    private static string GetEntityMemberWriteReadType(EntityMemberModel member)
+    {
+        switch (member.Type)
+        {
+            case EntityMemberType.DataField:
+                var dfm = (DataFieldModel)member;
+                return dfm.DataType == DataFieldType.Enum ? "Int" : dfm.DataType.ToString();
+            case EntityMemberType.EntityRef: return "EntityRef";
+            case EntityMemberType.EntitySet: return "EntitySet";
+            default:throw new Exception();
+        }
     }
 
     #endregion
@@ -212,7 +288,7 @@ internal static class CodeGenService
             {
                 sb.Append(method.ReturnType);
             }
-            
+
             sb.Append(' ');
             sb.Append(method.Identifier.ValueText);
             sb.Append('(');

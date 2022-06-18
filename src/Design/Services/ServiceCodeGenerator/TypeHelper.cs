@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -59,6 +60,27 @@ internal static class TypeHelper
     }
 
     internal static TypeSyntax ServiceInterfaceType => GetRealType("AppBoxCore.IService");
+
+    #endregion
+
+    #region ====Symbol Extensions====
+
+    /// <summary>
+    /// 判断当前类型是否继承自指定类型
+    /// </summary>
+    internal static bool IsInherits(this ITypeSymbol symbol, ITypeSymbol type)
+    {
+        var baseType = symbol.BaseType;
+        while (baseType != null)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type, baseType))
+                return true;
+
+            baseType = baseType.BaseType;
+        }
+
+        return false;
+    }
 
     #endregion
 }

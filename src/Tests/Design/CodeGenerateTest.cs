@@ -10,14 +10,18 @@ namespace Tests.Design;
 public class CodeGenerateTest
 {
     [Test]
-    public void GenEntityCodeTest()
+    public async Task GenEntityCodeTest()
     {
-        const int appId = 12345;
-        var empModel = new EntityModel(
-            ModelId.Make(appId, ModelType.Entity, 1, ModelLayer.SYS), "Employee");
-        empModel.AddMember(new DataFieldModel(empModel, "Name", DataFieldType.String, false));
+        TestHelper.TryInitDefaultStore();
 
-        var code = CodeGenService.GenEntityDummyCode(empModel, "sys", null);
+        var mockSession = new MockSession(12345);
+        HostRuntimeContext.SetCurrentSession(mockSession);
+        var designHub = mockSession.GetDesignHub();
+        await designHub.DesignTree.LoadAsync();
+
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
+
+        var code = CodeGenService.GenEntityRuntimeCode(entityNode);
         Console.Write(code);
     }
 
@@ -30,7 +34,6 @@ public class CodeGenerateTest
         HostRuntimeContext.SetCurrentSession(mockSession);
         var designHub = mockSession.GetDesignHub();
         await designHub.DesignTree.LoadAsync();
-
 
         var serviceModel = (ServiceModel)
             designHub.DesignTree.FindModelNodeByFullName("sys.Services.HelloService")!.Model;

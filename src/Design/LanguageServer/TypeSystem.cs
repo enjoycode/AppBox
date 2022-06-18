@@ -109,9 +109,7 @@ internal sealed class TypeSystem : IDisposable
             case ModelType.Entity:
             {
                 var docName = $"{appName}.Entities.{model.Name}.cs";
-                var dummyCode =
-                    CodeGenService.GenEntityDummyCode((EntityModel)model, appName,
-                        node.DesignTree!);
+                var dummyCode = CodeGenService.GenEntityRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
                 break;
             }
@@ -183,8 +181,7 @@ internal sealed class TypeSystem : IDisposable
         {
             case ModelType.Entity:
             {
-                var sourceCode =
-                    CodeGenService.GenEntityDummyCode((EntityModel)model, appName, node.DesignTree);
+                var sourceCode = CodeGenService.GenEntityRuntimeCode(node);
                 newSolution =
                     Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
                 break;
@@ -240,7 +237,8 @@ internal sealed class TypeSystem : IDisposable
             // MetadataReferences.ComponentModelPrimitivesLib,
             // MetadataReferences.SystemBuffersLib,
             // MetadataReferences.TasksLib,
-            // MetadataReferences.TasksExtLib
+            // MetadataReferences.TasksExtLib,
+            MetadataReferences.AppBoxCoreLib, //需要解析一些类型
         };
 
         if (model.HasReference) //添加其他引用

@@ -21,6 +21,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     public DataStoreKind DataStoreKind => _storeOptions?.Kind ?? DataStoreKind.None;
 
+    public IEntityStoreOptions? StoreOptions => _storeOptions;
     public SqlStoreOptions? SqlStoreOptions => _storeOptions as SqlStoreOptions;
 
     #region ====GetMember Methods====

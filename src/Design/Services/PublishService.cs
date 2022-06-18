@@ -108,43 +108,28 @@ internal static class PublishService
         string? debugFolder = null)
     {
         var forDebug = !string.IsNullOrEmpty(debugFolder);
-        //获取RoslynDocumentId
         var designNode = hub.DesignTree.FindModelNode(ModelType.Service, model.Id)!;
         var appName = designNode.AppNode.Model.Name;
-        //获取RoslynDocument
+
+        //获取RoslynDocument并检测语义错误
         var doc =
             hub.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
         var semanticModel = await doc.GetSemanticModelAsync();
+        if (semanticModel == null) throw new Exception("Can't get SemanticModel");
+        CheckSemanticErrors(semanticModel);
 
-        //先检测虚拟代码错误
-        var diagnostics = semanticModel!.GetDiagnostics();
-        if (diagnostics.Length > 0)
-        {
-            var hasError = false;
-            var sb = new StringBuilder("语法错误:");
-            sb.AppendLine();
-            for (var i = 0; i < diagnostics.Length; i++)
-            {
-                var error = diagnostics[i];
-                if (error.WarningLevel == 0)
-                {
-                    hasError = true;
-                    sb.AppendFormat("{0}. {1} {2}{3}", i + 1, error.WarningLevel,
-                        error.GetMessage(), Environment.NewLine);
-                }
-            }
-
-            if (hasError)
-                throw new Exception(sb.ToString());
-        }
-
+        //转换服务模型的虚拟代码为运行时代码
         var codegen = new ServiceCodeGenerator(hub, appName, semanticModel, model);
         var newRootNode = codegen.Visit(await semanticModel.SyntaxTree.GetRootAsync());
         //Log.Debug(newRootNode.ToFullString());
 
         var docName = $"{appName}.Services.{model.Name}";
-        var newTree =
-            SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs", encoding: Encoding.UTF8);
+        var newTree = SyntaxFactory.SyntaxTree(newRootNode,
+            path: docName + ".cs", encoding: Encoding.UTF8);
+
+        //生成服务模型依赖的其他模型的运行时代码
+        var usagesTree = codegen.GetUsagesTree();
+
         //注意：必须添加并更改版本号，否则服务端Assembly.Load始终是旧版 
         var newModelVersion = model.Version + 1; //用于消除版本差
         var asmVersion =
@@ -152,9 +137,86 @@ internal static class PublishService
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
             $"global using System;using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
-            .WithUsings("System")
+            .WithUsings("System") //必须防止原代码没有
             .WithNullableContextOptions(NullableContextOptions.Enable)
             .WithOptimizationLevel(forDebug ? OptimizationLevel.Debug : OptimizationLevel.Release);
+
+        //开始编译运行时代码
+        var compilation = CSharpCompilation.Create(docName)
+            .AddReferences(GetServiceModelReferences(model))
+            .AddSyntaxTrees(newTree, usingAndVersionTree)
+            .WithOptions(options);
+        if (usagesTree != null)
+            compilation = compilation.AddSyntaxTrees(usagesTree);
+
+        EmitResult emitResult;
+        byte[]? asmData = null;
+        if (forDebug)
+        {
+            await using var dllStream = new FileStream(Path.Combine(debugFolder!, docName + ".dll"),
+                FileMode.CreateNew);
+            var emitOpts = new EmitOptions(false, DebugInformationFormat.Embedded);
+            //using var pdbStream = new FileStream(Path.Combine(debugFolder, docName + ".pdb"), FileMode.CreateNew);
+            emitResult = compilation.Emit(dllStream, null, null, null, null, emitOpts);
+        }
+        else
+        {
+            using var dllStream = new MemoryStream(1024);
+            await using (var cs = new BrotliStream(dllStream, CompressionMode.Compress, true))
+            {
+                emitResult = compilation.Emit(cs);
+            }
+
+            asmData = dllStream.ToArray();
+        }
+
+        if (!emitResult.Success)
+        {
+            var sb = new StringBuilder("编译错误:");
+            sb.AppendLine();
+            for (var i = 0; i < emitResult.Diagnostics.Length; i++)
+            {
+                var error = emitResult.Diagnostics[i];
+                sb.AppendFormat("{0}. {1}", i + 1, error);
+                sb.AppendLine();
+            }
+
+            throw new Exception(sb.ToString());
+        }
+
+        return forDebug ? null : asmData;
+    }
+
+    /// <summary>
+    /// 检查服务模型的设计时代码是否有语义错误
+    /// </summary>
+    private static void CheckSemanticErrors(SemanticModel semanticModel)
+    {
+        var diagnostics = semanticModel.GetDiagnostics();
+        if (diagnostics.Length <= 0) return;
+
+        var hasError = false;
+        var sb = new StringBuilder("语义错误:");
+        sb.AppendLine();
+        for (var i = 0; i < diagnostics.Length; i++)
+        {
+            var error = diagnostics[i];
+            if (error.WarningLevel != 0) continue;
+
+            hasError = true;
+            sb.AppendFormat("{0}. {1} {2}{3}", i + 1, error.WarningLevel,
+                error.GetMessage(), Environment.NewLine);
+        }
+
+        if (hasError)
+            throw new Exception(sb.ToString());
+    }
+
+    /// <summary>
+    /// 获取服务模型的依赖引用
+    /// </summary>
+    private static IEnumerable<MetadataReference> GetServiceModelReferences(ServiceModel model)
+    {
         var deps = new List<MetadataReference>
         {
             MetadataReferences.CoreLib,
@@ -183,49 +245,7 @@ internal static class PublishService
             // }
         }
 
-        var compilation = CSharpCompilation.Create(docName)
-            .AddReferences(deps)
-            .AddSyntaxTrees(newTree, usingAndVersionTree)
-            .WithOptions(options);
-        EmitResult emitResult;
-        byte[]? asmData = null;
-        if (forDebug)
-        {
-            await using var dllStream = new FileStream(Path.Combine(debugFolder!, docName + ".dll"),
-                FileMode.CreateNew);
-            var emitOpts = new EmitOptions(false, DebugInformationFormat.Embedded);
-            //using var pdbStream = new FileStream(Path.Combine(debugFolder, docName + ".pdb"), FileMode.CreateNew);
-            emitResult = compilation.Emit(dllStream, null, null, null, null, emitOpts);
-        }
-        else
-        {
-            using var dllStream = new MemoryStream(1024);
-            await using (var cs = new BrotliStream(dllStream, CompressionMode.Compress, true))
-            {
-                emitResult = compilation.Emit(cs);
-            }
-
-            asmData = dllStream.ToArray();
-        }
-
-        //测试写入本地文件系统
-        //File.WriteAllBytes(Path.Combine(RuntimeContext.Current.AppPath, $"{appName}.{model.Name}.dll"), asmData);
-
-        if (!emitResult.Success)
-        {
-            var sb = new StringBuilder("编译错误:");
-            sb.AppendLine();
-            for (var i = 0; i < emitResult.Diagnostics.Length; i++)
-            {
-                var error = emitResult.Diagnostics[i];
-                sb.AppendFormat("{0}. {1}", i + 1, error);
-                sb.AppendLine();
-            }
-
-            throw new Exception(sb.ToString());
-        }
-
-        return forDebug ? null : asmData;
+        return deps;
     }
 
     private static async ValueTask<DbTransaction> MakeOtherStoreTxn(long storeId,
@@ -415,16 +435,21 @@ internal static class PublishService
     {
         if (package.Models.Count == 0)
             return;
-        
-        var others = package.Models.Where(t => t.ModelType != ModelType.Service).Select(t => t.Id).ToArray();
-        var serviceModels = package.Models.Where(t => t.ModelType == ModelType.Service).Cast<ServiceModel>().ToArray();
+
+        var others = package.Models.Where(t => t.ModelType != ModelType.Service).Select(t => t.Id)
+            .ToArray();
+        var serviceModels = package.Models.Where(t => t.ModelType == ModelType.Service)
+            .Cast<ServiceModel>().ToArray();
         var services = new string[serviceModels.Length];
         for (var i = 0; i < serviceModels.Length; i++)
         {
             var sm = serviceModels[i];
             var app = hub.DesignTree.FindApplicationNode(sm.AppId)!.Model;
-            services[i] = serviceModels[i].IsNameChanged ? $"{app.Name}.{sm.OriginalName}" : $"{app.Name}.{sm.Name}";
+            services[i] = serviceModels[i].IsNameChanged
+                ? $"{app.Name}.{sm.OriginalName}"
+                : $"{app.Name}.{sm.Name}";
         }
+
         RuntimeContext.Current.InvalidModelsCache(services, others, true);
     }
 }
