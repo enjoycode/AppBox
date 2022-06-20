@@ -226,7 +226,6 @@ internal static class PublishService
             MetadataReferences.SystemRuntimeLib,
             // MetadataReferences.SystemRuntimeExtLib,
             // MetadataReferences.SystemTasksLib,
-            // MetadataReferences.TasksExtLib,
             MetadataReferences.SystemDataLib,
             // MetadataReferences.ComponentModelPrimitivesLib,
             //MetadataReferences.ComponentModelLib,

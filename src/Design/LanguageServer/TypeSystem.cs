@@ -17,6 +17,7 @@ internal sealed class TypeSystem : IDisposable
 
         ModelProjectId = ProjectId.CreateNewId();
         WebViewsProjectId = ProjectId.CreateNewId();
+        ServiceBaseProjectId = ProjectId.CreateNewId();
         ServiceProxyProjectId = ProjectId.CreateNewId();
 
         InitWorkspace();
@@ -25,14 +26,19 @@ internal sealed class TypeSystem : IDisposable
     internal readonly ModelWorkspace Workspace;
 
     /// <summary>
-    /// 通用模型的虚拟工程标识号
+    /// 通用模型的虚拟工程标识
     /// </summary>
     internal readonly ProjectId ModelProjectId;
 
     /// <summary>
-    /// 用于Web的视图模型的虚拟工程标识号
+    /// 用于Web的视图模型的虚拟工程标识
     /// </summary>
     internal readonly ProjectId WebViewsProjectId;
+
+    /// <summary>
+    /// 服务模型的通用虚拟工程标识
+    /// </summary>
+    internal readonly ProjectId ServiceBaseProjectId;
 
     /// <summary>
     /// 服务代理虚拟工程标识号
@@ -67,6 +73,10 @@ internal sealed class TypeSystem : IDisposable
         var webViewsProjectInfo = ProjectInfo.Create(WebViewsProjectId, VersionStamp.Create(),
             "ViewsProject", "ViewsProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, webParseOptions);
+        var serviceBaseProjectInfo = ProjectInfo.Create(ServiceBaseProjectId,
+            VersionStamp.Create(),
+            "ServiceBaseProject", "ServiceBaseProject", LanguageNames.CSharp, null, null,
+            DllCompilationOptions, ParseOptions);
 
         var newSolution = Workspace.CurrentSolution
                 //通用模型工程
@@ -82,6 +92,16 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(ServiceProxyProjectId, new ProjectReference(ModelProjectId))
+                //服务通用基础工程
+                .AddProject(serviceBaseProjectInfo)
+                .AddMetadataReference(ServiceBaseProjectId, MetadataReferences.CoreLib)
+                .AddMetadataReference(ServiceBaseProjectId, MetadataReferences.NetstandardLib)
+                .AddMetadataReference(ServiceBaseProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(ServiceBaseProjectId, MetadataReferences.SystemDataLib)
+                .AddMetadataReference(ServiceBaseProjectId, MetadataReferences.AppBoxCoreLib)
+                .AddProjectReference(ServiceBaseProjectId, new ProjectReference(ModelProjectId))
+                .AddDocument(DocumentId.CreateNewId(ServiceBaseProjectId), "ServiceBase.cs",
+                    Resources.GetString("DummyCode.ServiceBaseDummyCode.cs"))
                 //专用于Web视图模型的工程
                 .AddProject(webViewsProjectInfo)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)
@@ -137,7 +157,7 @@ internal sealed class TypeSystem : IDisposable
                 var proxyCode =
                     await CodeGenService.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
                 newSolution =
-                    newSolution.AddDocument(node.ServiceProxyDocumentId!, docName, proxyCode);
+                    newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
                 break;
             }
         }
@@ -204,7 +224,7 @@ internal sealed class TypeSystem : IDisposable
                 var srcdoc = newSolution.GetDocument(docId)!;
                 var proxyCode =
                     await CodeGenService.GenServiceProxyCode(srcdoc, appName, (ServiceModel)model);
-                newSolution = newSolution.WithDocumentText(node.ServiceProxyDocumentId!,
+                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
                     SourceText.From(proxyCode));
                 break;
             }
@@ -239,7 +259,7 @@ internal sealed class TypeSystem : IDisposable
             MetadataReferences.SystemDataLib,
             // MetadataReferences.ComponentModelPrimitivesLib,
             // MetadataReferences.SystemBuffersLib,
-            // MetadataReferences.TasksLib,
+            // MetadataReferences.SystemTasksLib,
             // MetadataReferences.TasksExtLib,
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
             MetadataReferences.AppBoxStoreLib,
@@ -259,8 +279,9 @@ internal sealed class TypeSystem : IDisposable
                 .AddProject(serviceProjectInfo)
                 .AddMetadataReferences(prjId, deps)
                 .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
+                .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
                 .AddDocument(globalUsingDocId, "GlobalUsing.cs",
-                    "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;")
+                    "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxStore;")
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))

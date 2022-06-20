@@ -14,6 +14,9 @@ public sealed class ModelNode : DesignNode
         {
             case ModelType.Entity:
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId);
+                if (((EntityModel)model).SqlStoreOptions != null)
+                    ExtRoslynDocumentId =
+                        DocumentId.CreateNewId(hub.TypeSystem.ServiceBaseProjectId);
                 break;
             case ModelType.View:
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId);
@@ -21,16 +24,28 @@ public sealed class ModelNode : DesignNode
             case ModelType.Service:
                 ServiceProjectId = ProjectId.CreateNewId();
                 RoslynDocumentId = DocumentId.CreateNewId(ServiceProjectId);
-                ServiceProxyDocumentId =
+                ExtRoslynDocumentId =
                     DocumentId.CreateNewId(hub.TypeSystem.ServiceProxyProjectId);
                 break;
         }
     }
 
     public ModelBase Model { get; internal set; }
+
+    /// <summary>
+    /// 虚拟工程对应的RoslynDocument标识
+    /// </summary>
     public readonly DocumentId? RoslynDocumentId;
-    public readonly ProjectId? ServiceProjectId; //服务模型专用
-    public readonly DocumentId? ServiceProxyDocumentId; //服务模型专用
+
+    /// <summary>
+    /// 服务模型对应的虚拟工程标识
+    /// </summary>
+    public readonly ProjectId? ServiceProjectId;
+
+    /// <summary>
+    /// 扩展的RoslynDocument标识，服务模型为代理，实体模型为服务端存储扩展
+    /// </summary>
+    public readonly DocumentId? ExtRoslynDocumentId;
 
     public override DesignNodeType Type => DesignNodeType.ModelNode;
     public override string Id => Model.Id.ToString();
@@ -62,9 +77,9 @@ public sealed class ModelNode : DesignNode
     public async Task SaveAsync(string? initSrcCode)
     {
         if (!IsCheckoutByMe) throw new Exception("ModelNode has not checkout");
-        
+
         //TODO: 考虑事务保存模型及相关代码
-        
+
         //先保存模型代码
         if (Model.PersistentState != PersistentState.Deleted)
         {
@@ -84,7 +99,7 @@ public sealed class ModelNode : DesignNode
                 await StagedService.SaveCodeAsync(Model.Id, srcCode);
             }
         }
-        
+
         //再保存模型元数据
         await StagedService.SaveModelAsync(Model);
     }

@@ -315,6 +315,10 @@ internal static class CodeGenService
 
         //先导入using
         var sb = StringBuilderCache.Acquire();
+        sb.Append("using System;\n");
+        sb.Append("using System.Linq;\n");
+        sb.Append("using System.Collections.Generic;\n");
+        sb.Append("using System.Threading.Tasks;\n");
         var usings = rootNode!.DescendantNodes().OfType<UsingDirectiveSyntax>().ToArray();
         foreach (var usingDirectiveSyntax in usings)
         {
@@ -350,11 +354,11 @@ internal static class CodeGenService
             //非异步方法转换为异步
             if (isReturnVoid)
             {
-                sb.Append("System.Threading.Tasks.Task");
+                sb.Append("Task");
             }
             else if (!isReturnTask)
             {
-                sb.Append("System.Threading.Tasks.Task<");
+                sb.Append("Task<");
                 sb.Append(method.ReturnType);
                 sb.Append('>');
             }
