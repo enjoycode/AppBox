@@ -2,7 +2,6 @@ using AppBoxCore;
 using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.CodeAnalysis.Text;
 
 namespace AppBoxDesign;
@@ -42,8 +41,7 @@ internal sealed class TypeSystem : IDisposable
 
     private static readonly CSharpCompilationOptions DllCompilationOptions =
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-            .WithNullableContextOptions(NullableContextOptions.Enable)
-            .WithUsings("System"); //不起作用
+            .WithNullableContextOptions(NullableContextOptions.Enable);
 
     private static readonly CSharpParseOptions ParseOptions =
         new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10);
@@ -256,13 +254,14 @@ internal sealed class TypeSystem : IDisposable
             // }
         }
 
+        var globalUsingDocId = DocumentId.CreateNewId(prjId);
         var newSolution = Workspace.CurrentSolution
-            .AddProject(serviceProjectInfo)
-            .AddMetadataReferences(prjId, deps)
-            .AddProjectReference(prjId, new ProjectReference(ModelProjectId));
-        // .AddProjectReference(prjid, new ProjectReference(ServiceBaseProjectId))
-        // .AddProjectReference(prjid, new ProjectReference(AsyncServiceProxyProjectId));
-        //.AddProjectReference(prjid, new ProjectReference(WorkflowModelProjectId));
+                .AddProject(serviceProjectInfo)
+                .AddMetadataReferences(prjId, deps)
+                .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
+                .AddDocument(globalUsingDocId, "GlobalUsing.cs",
+                    "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;")
+            ;
 
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot create service project.");
