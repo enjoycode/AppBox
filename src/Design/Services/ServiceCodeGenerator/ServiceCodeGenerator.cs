@@ -2,6 +2,7 @@ using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace AppBoxDesign;
 
@@ -23,6 +24,11 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     internal readonly string AppName;
     internal readonly SemanticModel SemanticModel;
     internal readonly ServiceModel ServiceModel;
+
+    /// <summary>
+    /// 用于转换查询方法的Lambda表达式
+    /// </summary>
+    private readonly QueryMethodContext queryMethodCtx = new();
 
     /// <summary>
     /// 公开的服务方法集合

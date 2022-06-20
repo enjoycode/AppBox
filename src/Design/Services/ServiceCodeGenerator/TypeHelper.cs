@@ -8,8 +8,11 @@ internal static class TypeHelper
 {
     #region ====设计时类型常量====
 
-    internal const string MemberAccessInterceptorAttribute = "System.Reflection.MemberAccessInterceptorAttribute";
-    internal const string InvocationInterceptorAttribute = "System.Reflection.InvocationInterceptorAttribute";
+    internal const string MemberAccessInterceptorAttribute =
+        "System.Reflection.MemberAccessInterceptorAttribute";
+
+    internal const string InvocationInterceptorAttribute =
+        "System.Reflection.InvocationInterceptorAttribute";
 
     internal const string GenericCreateAttribute = "System.Reflection.GenericCreateAttribute";
     internal const string QueriableClassAttribute = "System.Reflection.QueriableClassAttribute";
@@ -19,7 +22,7 @@ internal static class TypeHelper
     internal const string InvokePermissionAttribute = "InvokePermissionAttribute";
 
     #endregion
-    
+
     #region ====IsXXX Methods====
 
     internal static bool IsServiceClass(ClassDeclarationSyntax? node, string appName,
@@ -83,4 +86,92 @@ internal static class TypeHelper
     }
 
     #endregion
+
+    internal static string GetEntityMemberTypeString(ITypeSymbol valueTypeSymbol,
+        out bool isNullable)
+    {
+        throw new NotImplementedException();
+        // isNullable = false;
+        // var valueTypeString = valueTypeSymbol.ToString();
+        // //先处理一些特殊类型
+        // if (valueTypeString.AsSpan().EndsWith("?")) //nullable
+        // {
+        //     valueTypeString = valueTypeString.Remove(valueTypeString.Length - 1, 1);
+        //     isNullable = true;
+        // }
+        // else if (valueTypeString.AsSpan().StartsWith(Type_EntityList)) //TODO:暂简单判断
+        //     valueTypeString = RuntimeType_EntityList;
+        // else if (IsEntityClass(valueTypeSymbol as INamedTypeSymbol))
+        //     valueTypeString = RuntimeType_Entity;
+        //
+        // string type;
+        // switch (valueTypeString)
+        // {
+        //     case "short":
+        //         type = "Short";
+        //         break;
+        //     case "int":
+        //         type = "Int";
+        //         break;
+        //     case "long":
+        //         type = "Long";
+        //         break;
+        //     case "bool":
+        //         type = "Bool";
+        //         break;
+        //     case "byte":
+        //         type = "Byte";
+        //         break;
+        //     case "float":
+        //         type = "Float";
+        //         break;
+        //     case "double":
+        //         type = "Double";
+        //         break;
+        //     case "decimal":
+        //         type = "Decimal";
+        //         break;
+        //     case "System.Guid":
+        //     case "Guid":
+        //         type = "Guid";
+        //         break;
+        //     case "System.DateTime":
+        //     case "DateTime":
+        //         type = "DateTime";
+        //         break;
+        //     case "byte[]":
+        //         type = "Bytes";
+        //         break;
+        //     case "string":
+        //         type = "String";
+        //         break;
+        //     case "EntityId":
+        //         type = "EntityId";
+        //         break;
+        //     case RuntimeType_Entity:
+        //         type = "EntityRef";
+        //         break;
+        //     case RuntimeType_EntityList:
+        //         type = "EntitySet";
+        //         break;
+        //     default: //other enum
+        //         type = "Int32";
+        //         break;
+        // }
+        //
+        // return type;
+    }
+
+    internal static ITypeSymbol? GetSymbolType(ISymbol symbol)
+    {
+        return symbol switch
+        {
+            IMethodSymbol methodSymbol => methodSymbol.ReturnType,
+            ILocalSymbol localSymbol => localSymbol.Type,
+            IParameterSymbol parameterSymbol => parameterSymbol.Type,
+            IPropertySymbol propertySymbol => propertySymbol.Type,
+            IFieldSymbol fieldSymbol => fieldSymbol.Type,
+            _ => null
+        };
+    }
 }

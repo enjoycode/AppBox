@@ -30,9 +30,8 @@ internal partial class ServiceCodeGenerator
 
     private static bool IsGenericCreate(IMethodSymbol? methodSymbol)
     {
-        if (methodSymbol == null) return false;
-
-        return methodSymbol.GetAttributes()
+        return methodSymbol != null &&
+            methodSymbol.GetAttributes()
             .Any(a => a.AttributeClass != null &&
                       a.AttributeClass.ToString() == "AppBoxStore.GenericCreateAttribute");
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Data.Common;
 using AppBoxCore;
@@ -30,6 +31,16 @@ public static class SqlEntityExtensions
 public sealed class SqlQuery<T> where T : SqlEntity
 {
     [GenericCreate] public SqlQuery() {}
-    
-    
+
+    [QueryMethod()] public SqlQuery<T> Where(Func<T, bool> condition) => this;
+
+    /// <summary>
+    /// 执行查询并转换为列表
+    /// </summary>
+    public Task<IList<T>> ToListAsync() => throw new Exception();
+
+    /// <summary>
+    /// 执行查询并转换为树状结构
+    /// </summary>
+    public Task<IList<T>> ToTreeAsync(Func<T, IList<T>> children) => throw new Exception();
 }

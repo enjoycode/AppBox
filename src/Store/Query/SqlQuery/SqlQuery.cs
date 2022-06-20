@@ -237,7 +237,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         Func<EntityExpression, EntityPathExpression> childrenMember)
     {
         Purpose = QueryPurpose.ToTree;
-        var children = (EntitySetExpression)childrenMember(this.T);
+        var children = (EntitySetExpression)childrenMember(T);
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
         var childrenModel = (EntitySetModel)model.GetMember(children.Name)!;
         TreeParentMember = (EntityRefModel)model.GetMember(childrenModel.RefMemberId)!;
