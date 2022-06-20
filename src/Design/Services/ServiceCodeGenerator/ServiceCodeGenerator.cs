@@ -72,7 +72,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
 
         //处理自身 TODO:直接复制SyntaxTree,不需要再生成一次
         var code = CodeGenService.GenEntityRuntimeCode(modelNode);
-        var syntaxTree = SyntaxFactory.ParseSyntaxTree(code);
+        var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, TypeSystem.ServiceParseOptions);
         ctx.Add(modelNode.Id, syntaxTree);
 
         //处理引用

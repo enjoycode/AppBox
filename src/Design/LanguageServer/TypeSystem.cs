@@ -2,6 +2,7 @@ using AppBoxCore;
 using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.CodeAnalysis.Text;
 
 namespace AppBoxDesign;
@@ -46,6 +47,10 @@ internal sealed class TypeSystem : IDisposable
 
     private static readonly CSharpParseOptions ParseOptions =
         new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10);
+
+    internal static readonly CSharpParseOptions ServiceParseOptions =
+        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10)
+            .WithPreprocessorSymbols("__RUNTIME__", "__HOSTRUNTIME__");
 
     /// <summary>
     /// 初始化虚拟工程
@@ -223,7 +228,7 @@ internal sealed class TypeSystem : IDisposable
 
         var serviceProjectInfo = ProjectInfo.Create(prjId, VersionStamp.Create(),
             prjName, prjName, LanguageNames.CSharp, null, null,
-            DllCompilationOptions, ParseOptions);
+            DllCompilationOptions, ServiceParseOptions);
 
         var deps = new List<MetadataReference>
         {
@@ -233,12 +238,13 @@ internal sealed class TypeSystem : IDisposable
             // MetadataReferences.SystemLinqLib,
             MetadataReferences.SystemRuntimeLib,
             // MetadataReferences.SystemRuntimeExtLib,
-            // MetadataReferences.DataCommonLib,
+            MetadataReferences.SystemDataLib,
             // MetadataReferences.ComponentModelPrimitivesLib,
             // MetadataReferences.SystemBuffersLib,
             // MetadataReferences.TasksLib,
             // MetadataReferences.TasksExtLib,
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
+            MetadataReferences.AppBoxStoreLib,
         };
 
         if (model.HasReference) //添加其他引用

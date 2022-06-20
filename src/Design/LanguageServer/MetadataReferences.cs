@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxStore;
 using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
@@ -19,13 +20,18 @@ internal static class MetadataReferences
     internal static MetadataReference NetstandardLib => GetSdkLib("netstandard.dll");
 
     internal static MetadataReference SystemRuntimeLib => GetSdkLib("System.Runtime.dll");
-    
+
     internal static MetadataReference SystemTasksLib => GetSdkLib("System.Threading.Tasks.dll");
+
+    internal static MetadataReference SystemDataLib => GetSdkLib("System.Data.Common.dll");
 
     internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUI.dll");
 
     internal static MetadataReference AppBoxCoreLib =>
         MetadataReference.CreateFromFile(typeof(Entity).Assembly.Location);
+
+    internal static MetadataReference AppBoxStoreLib =>
+        MetadataReference.CreateFromFile(typeof(MetaStore).Assembly.Location);
 
     private static MetadataReference GetSdkLib(string asmName)
     {
@@ -36,8 +42,9 @@ internal static class MetadataReferences
     {
 #if DEBUG
         var currentPath = Directory.GetCurrentDirectory();
-        var srcIndex =
-            currentPath.IndexOf($"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}");
+        var srcIndex = currentPath.IndexOf(
+            $"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}",
+            StringComparison.Ordinal);
         var srcPath = currentPath.Substring(0, srcIndex + 5);
         if (asmName == "PixUI.dll")
         {

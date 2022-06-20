@@ -92,7 +92,7 @@ public sealed class Employee : SqlEntity
         { ID_ID, NAME_ID, MALE_ID, BIRTHDAY_ID, ACCOUNT_ID, PASSWORD_ID };
 
     public override ModelId ModelId => MODELID;
-    public override short[] AllMembers => MemberIds;
+    protected override short[] AllMembers => MemberIds;
 
     public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {

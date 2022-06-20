@@ -59,7 +59,7 @@ public sealed class Checkout : SqlEntity
         { NODETYPE_ID, TARGET_ID, DEVELOPER_ID, DEVELOPERNAME_ID, VERSION_ID };
 
     public override ModelId ModelId => MODELID;
-    public override short[] AllMembers => MemberIds;
+    protected override short[] AllMembers => MemberIds;
 
     public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {

@@ -1,5 +1,6 @@
 using System.Text;
 using AppBoxCore;
+using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -65,8 +66,10 @@ internal static class CodeGenService
     {
         var appName = modelNode.AppNode.Model.Name;
         var model = (EntityModel)modelNode.Model;
-        
+
         var sb = StringBuilderCache.Acquire();
+        sb.Append("using System;\n");
+        sb.Append("using System.Threading.Tasks;\n");
         sb.Append("using AppBoxCore;\n\n");
         sb.Append($"namespace {appName}.Entities;\n");
 
@@ -84,6 +87,44 @@ internal static class CodeGenService
         }
 
         sb.Append("\n{\n"); //class start
+
+        //构造(仅Sql存储且具备主键)
+        if (model.SqlStoreOptions != null && model.SqlStoreOptions.HasPrimaryKeys)
+        {
+            var pks = model.SqlStoreOptions.PrimaryKeys;
+
+            sb.Append("#if __RUNTIME__\n");
+            sb.Append("public ");
+            sb.Append(model.Name);
+            sb.Append("(){}\n");
+            sb.Append("#endif\n");
+
+            sb.Append("public ");
+            sb.Append(model.Name);
+            sb.Append('(');
+            for (var i = 0; i < pks.Length; i++)
+            {
+                if (i != 0) sb.Append(',');
+                var dfm = (DataFieldModel)model.GetMember(pks[i].MemberId)!;
+                sb.Append(GetDataFieldTypeString(dfm));
+                sb.Append(' ');
+                sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
+            }
+
+            sb.Append("){\n");
+            foreach (var pk in pks)
+            {
+                sb.Append('\t');
+                var dfm = (DataFieldModel)model.GetMember(pk.MemberId)!;
+                sb.Append('_');
+                sb.Append(dfm.Name);
+                sb.Append('=');
+                sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
+                sb.Append(";\n");
+            }
+
+            sb.Append("}\n");
+        }
 
         // 实体成员
         foreach (var member in model.Members)
@@ -118,7 +159,7 @@ internal static class CodeGenService
             sb.Append(model.Members[i].MemberId.ToString());
         }
 
-        sb.Append("};\npublic override short[] AllMembers => MemberIds;\n");
+        sb.Append("};\nprotected override short[] AllMembers => MemberIds;\n");
 
         // override WriteMember
         sb.Append(
@@ -142,7 +183,7 @@ internal static class CodeGenService
         sb.Append("));\n");
         sb.Append("\t}\n"); //end switch
         sb.Append("}\n"); //end WriteMember
-        
+
         // override ReadMember
         sb.Append(
             "public override void ReadMember(short id, IEntityMemberReader rs, int flags){\n");
@@ -166,6 +207,19 @@ internal static class CodeGenService
         sb.Append("\t}\n"); //end switch
         sb.Append("}\n"); //end ReadMember
 
+        // 存储方法Insert/Update/Delete/Fetch
+        if (model.SqlStoreOptions != null)
+        {
+            sb.Append("#if __HOSTRUNTIME__\n");
+            sb.Append(
+                "public Task<int> InsertAsync(System.Data.Common.DbTransaction? txn=null) => ");
+            GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
+            sb.Append(".InsertAsync(");
+            sb.Append("this,txn);\n");
+
+            sb.Append("#endif\n");
+        }
+
         sb.Append("}\n"); //class end
         return StringBuilderCache.GetStringAndRelease(sb);
     }
@@ -183,12 +237,17 @@ internal static class CodeGenService
             sb.Append($"\tpublic {typeString} {field.Name}\n");
             sb.Append("\t{\n"); //prop start
             sb.Append($"\t\tget => _{field.Name};\n");
-            sb.Append("\t\tset\n");
-            sb.Append("\t\t{\n"); //prop set start
-            sb.Append($"\t\t\tif (_{field.Name} == value) return;\n");
-            sb.Append($"\t\t\t_{field.Name} = value;\n");
-            //TODO: DbEntity.OnPropertyChanged
-            sb.Append("\t\t}\n"); //prop set end
+
+            if (!field.IsPrimaryKey)
+            {
+                sb.Append("\t\tset\n");
+                sb.Append("\t\t{\n"); //prop set start
+                sb.Append($"\t\t\tif (_{field.Name} == value) return;\n");
+                sb.Append($"\t\t\t_{field.Name} = value;\n");
+                //TODO: DbEntity.OnPropertyChanged
+                sb.Append("\t\t}\n"); //prop set end
+            }
+
             sb.Append("\t}\n"); //prop end
         }
     }
@@ -214,6 +273,21 @@ internal static class CodeGenService
         return field.AllowNull ? typeString + '?' : typeString;
     }
 
+    private static void GenSqlStoreGetMethod(SqlStoreOptions sqlStoreOptions, StringBuilder sb)
+    {
+        var isDefaultStore = sqlStoreOptions.StoreModelId == SqlStore.DefaultSqlStoreId;
+        if (isDefaultStore)
+        {
+            sb.Append("\tAppBoxStore.SqlStore.Default");
+        }
+        else
+        {
+            sb.Append("\tAppBoxStore.SqlStore.Get(");
+            sb.Append(sqlStoreOptions.StoreModelId.ToString());
+            sb.Append(')');
+        }
+    }
+
     private static string GetEntityMemberWriteReadType(EntityMemberModel member)
     {
         switch (member.Type)
@@ -223,7 +297,7 @@ internal static class CodeGenService
                 return dfm.DataType == DataFieldType.Enum ? "Int" : dfm.DataType.ToString();
             case EntityMemberType.EntityRef: return "EntityRef";
             case EntityMemberType.EntitySet: return "EntitySet";
-            default:throw new Exception();
+            default: throw new Exception();
         }
     }
 

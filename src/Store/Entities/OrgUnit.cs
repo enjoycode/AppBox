@@ -89,7 +89,7 @@ public sealed class OrgUnit : SqlEntity
         { ID_ID, NAME_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID };
 
     public override ModelId ModelId => MODELID;
-    public override short[] AllMembers => MemberIds;
+    protected override short[] AllMembers => MemberIds;
 
     public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {

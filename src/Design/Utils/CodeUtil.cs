@@ -154,4 +154,9 @@ public static class CodeUtil
             _ => throw new NotSupportedException(typeName.ToString())
         };
     }
+
+    public static string ToLowCamelCase(string name)
+    {
+        return char.ToLower(name[0]) + name.Substring(1);
+    }
 }

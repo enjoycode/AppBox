@@ -228,12 +228,12 @@ internal static class PublishService
             // MetadataReferences.SystemRuntimeExtLib,
             // MetadataReferences.SystemTasksLib,
             // MetadataReferences.TasksExtLib,
-            // MetadataReferences.DataCommonLib,
+            MetadataReferences.SystemDataLib,
             // MetadataReferences.ComponentModelPrimitivesLib,
             //MetadataReferences.ComponentModelLib,
             //MetadataReferences.SystemBuffersLib,
             MetadataReferences.AppBoxCoreLib,
-            // MetadataReferences.AppBoxStoreLib
+            MetadataReferences.AppBoxStoreLib
         };
 
         if (model.HasReference) //添加其他引用

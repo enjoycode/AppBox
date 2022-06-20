@@ -10,7 +10,7 @@ public abstract class Entity : IBinSerializable
     /// <summary>
     /// 用于序列化时获取所有成员标识
     /// </summary>
-    public abstract short[] AllMembers { get; }
+    protected abstract short[] AllMembers { get; }
 
     #region ====Serialization====
 

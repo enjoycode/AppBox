@@ -14,7 +14,7 @@ public sealed class TestEntity : Entity
     public int? Score { get; set; }
 
     public override ModelId ModelId => 12345;
-    public override short[] AllMembers => Members;
+    protected override short[] AllMembers => Members;
 
     public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {

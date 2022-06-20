@@ -50,7 +50,7 @@ public sealed class Enterprise : SqlEntity
     private static readonly short[] MemberIds = { ID_ID, NAME_ID, ADDRESS_ID };
 
     public override ModelId ModelId => MODELID;
-    public override short[] AllMembers => MemberIds;
+    protected override short[] AllMembers => MemberIds;
 
     public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {

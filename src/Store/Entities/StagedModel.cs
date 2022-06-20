@@ -46,7 +46,7 @@ public sealed class StagedModel : SqlEntity
     private static readonly short[] MemberIds = { TYPE_ID, MODEL_ID, DEVELOPER_ID, DATA_ID };
 
     public override ModelId ModelId => MODELID;
-    public override short[] AllMembers => MemberIds;
+    protected override short[] AllMembers => MemberIds;
 
     public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {
