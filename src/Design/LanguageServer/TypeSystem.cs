@@ -262,7 +262,6 @@ internal sealed class TypeSystem : IDisposable
             // MetadataReferences.SystemTasksLib,
             // MetadataReferences.TasksExtLib,
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
-            MetadataReferences.AppBoxStoreLib,
         };
 
         if (model.HasReference) //添加其他引用
@@ -276,12 +275,11 @@ internal sealed class TypeSystem : IDisposable
 
         var globalUsingDocId = DocumentId.CreateNewId(prjId);
         var newSolution = Workspace.CurrentSolution
-                .AddProject(serviceProjectInfo)
-                .AddMetadataReferences(prjId, deps)
-                .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
-                .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
-                .AddDocument(globalUsingDocId, "GlobalUsing.cs",
-                    "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxStore;")
+            .AddProject(serviceProjectInfo)
+            .AddMetadataReferences(prjId, deps)
+            .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
+            .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
+            .AddDocument(globalUsingDocId, "GlobalUsing.cs", CodeUtil.ServiceGlobalUsings())
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))

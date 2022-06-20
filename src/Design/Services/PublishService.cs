@@ -135,7 +135,8 @@ internal static class PublishService
         var asmVersion =
             $"{newModelVersion >> 24}.{(newModelVersion >> 16) & 0xFF}.{newModelVersion & 0xFFFF}";
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
-            $"global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
+            CodeUtil.ServiceGlobalUsings() +
+            $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
             .WithNullableContextOptions(NullableContextOptions.Enable)
             .WithOptimizationLevel(forDebug ? OptimizationLevel.Debug : OptimizationLevel.Release);

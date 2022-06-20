@@ -159,4 +159,7 @@ public static class CodeUtil
     {
         return char.ToLower(name[0]) + name.Substring(1);
     }
+
+    public static string ServiceGlobalUsings() =>
+        "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxStore;";
 }

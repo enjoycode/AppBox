@@ -22,6 +22,8 @@ public readonly struct ModelId : IComparable<ModelId>
 
     public ModelType Type => (ModelType)((_encoded >> 24) & 0xFF);
 
+    public long Value => _encoded;
+
     public static implicit operator ModelId(long value) => new ModelId(value);
 
     public static implicit operator ModelId(string value)

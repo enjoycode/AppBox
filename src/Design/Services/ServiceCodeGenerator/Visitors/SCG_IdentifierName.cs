@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBoxDesign;
 
-partial class ServiceCodeGenerator
+internal partial class ServiceCodeGenerator
 {
     public override SyntaxNode? VisitIdentifierName(IdentifierNameSyntax node)
     {
