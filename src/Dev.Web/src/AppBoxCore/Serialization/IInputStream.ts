@@ -1,4 +1,5 @@
 import {Entity} from "@/AppBoxCore";
+import {DateTime, Guid} from "@/System";
 
 export type EntityFactory = () => Entity;
 
@@ -21,7 +22,9 @@ export interface IInputStream {
 
     ReadVariant(): number;
 
-    ReadDateTime(): Date;
+    ReadDateTime(): DateTime;
+    
+    ReadGuid(): Guid;
 
     ReadString(): string;
 

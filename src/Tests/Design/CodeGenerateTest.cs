@@ -10,6 +10,23 @@ namespace Tests.Design;
 public class CodeGenerateTest
 {
     [Test]
+    public async Task GenEntityWebCodeTest()
+    {
+        TestHelper.TryInitDefaultStore();
+
+        var mockSession = new MockSession(12345);
+        HostRuntimeContext.SetCurrentSession(mockSession);
+        var designHub = mockSession.GetDesignHub();
+        await designHub.DesignTree.LoadAsync();
+
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
+
+        var code = CodeGenService.GenEntityWebCode((EntityModel)entityNode.Model, "sys", true);
+        Console.Write(code);
+    }
+    
+    
+    [Test]
     public async Task GenEntityCodeTest()
     {
         TestHelper.TryInitDefaultStore();

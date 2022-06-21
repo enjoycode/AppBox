@@ -8,6 +8,7 @@ export * from './Event'
 export * from './Random'
 export * from './Exceptions'
 export * from './DateTime'
+export * from './Guid'
 
 export * from './Collections/IList'
 export * from './Collections/List'

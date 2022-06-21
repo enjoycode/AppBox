@@ -15,7 +15,7 @@ internal static class CodeGenService
     /// </summary>
     internal static string GenEntityWebCode(EntityModel model, string appName, bool forPreview)
     {
-        var sb = new StringBuilder(300);
+        var sb = StringBuilderCache.Acquire();
         if (forPreview)
             sb.Append("import * as AppBoxCore from '/src/AppBoxCore/index.ts'\n\n");
         else
@@ -23,13 +23,9 @@ internal static class CodeGenService
 
         sb.Append($"export class {model.Name}");
         //根据存储配置继承不同的基类
-        switch (model.DataStoreKind)
-        {
-            case DataStoreKind.None:
-                sb.Append(" extends AppBoxCore.Entity");
-                break;
-            default: throw new NotImplementedException(model.DataStoreKind.ToString());
-        }
+        sb.Append(model.DataStoreKind == DataStoreKind.None
+            ? " extends AppBoxCore.Entity"
+            : " extends AppBoxCore.DbEntity");
 
         sb.Append("\n{\n"); //class start
 
@@ -46,8 +42,42 @@ internal static class CodeGenService
             }
         }
 
+        // Override ReadFrom()
+        sb.Append("\n\tReadFrom(rs){\n");
+        sb.Append("\t\twhile(true){\n");
+        sb.Append("\t\t\tlet mid=rs.ReadShort();\n");
+        sb.Append("\t\t\tif(mid===0) break;\n");
+        sb.Append("\t\t\tswitch(mid){\n");
+
+        foreach (var member in model.Members)
+        {
+            sb.Append("\t\t\t\tcase ");
+            sb.Append(member.MemberId.ToString());
+            sb.Append(':');
+            switch (member.Type)
+            {
+                case EntityMemberType.DataField:
+                    sb.Append("this.");
+                    if (model.DataStoreKind != DataStoreKind.None)
+                        sb.Append('_');
+                    sb.Append(member.Name);
+                    sb.Append("=rs.Read");
+                    sb.Append(GetEntityMemberWriteReadType(member));
+                    sb.Append("();break;\n");
+                    break;
+                default:
+                    throw new NotImplementedException(member.Type.ToString());
+            }
+        }
+
+        sb.Append("\t\t\t\tdefault: throw new Error();\n");
+
+        sb.Append("\t\t\t}\n"); //end switch
+        sb.Append("\t\t}\n"); //end while
+        sb.Append("\t}\n"); //end ReadFrom()
+
         sb.Append("}\n"); //class end
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 
     private static void GenWebDataFieldMember(DataFieldModel field, StringBuilder sb)
@@ -58,7 +88,12 @@ internal static class CodeGenService
         }
         else
         {
-            throw new NotImplementedException();
+            sb.Append($"\t_{field.Name};\n");
+            sb.Append($"\tget {field.Name}() {{return this._{field.Name}}}\n");
+            sb.Append($"\tset {field.Name}(value) {{");
+            //TODO: check equals and OnPropertyChanged
+            sb.Append($"this._{field.Name}=value;");
+            sb.Append("}\n");
         }
     }
 

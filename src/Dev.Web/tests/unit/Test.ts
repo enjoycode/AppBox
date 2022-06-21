@@ -4,7 +4,13 @@ class Dog {
 }
 
 class Cat {
+    private readonly _map: Map<string, string> = new Map<string, string>([
+        ["aa", "a1"],
+        ["a2", "a2"],
+    ]);
+
     public Meow() {
+        let map = this._map;
     }
 }
 

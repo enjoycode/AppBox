@@ -2,7 +2,7 @@ import {EntityFactory, IInputStream} from "./IInputStream";
 import {PayloadType} from "./PayloadType";
 import {TypeSerializer} from "./TypeSerializer";
 import {Utf8Decode} from "./Utf8";
-import {NotImplementedException, NotSupportedException} from "@/System";
+import {DateTime, Guid, NotImplementedException, NotSupportedException} from "@/System";
 import {Entity} from "@/AppBoxCore";
 
 export class BytesInputStream implements IInputStream {
@@ -116,13 +116,18 @@ export class BytesInputStream implements IInputStream {
         return value;
     }
 
-    public ReadDateTime(): Date {
-        throw new NotImplementedException();
-        //TODO:寻找更好的方法
-        // let long = this.ReadInt64();
-        // let date = new Date();
-        // date.setTime(Number.parseInt(long.toString()));
-        // return date;
+    public ReadDateTime(): DateTime {
+        let ticks = this.ReadLong() - 621355968000000000n /*UnixEpoch ticks*/;
+        let date = new Date();
+        date.setTime(Number(ticks / 10000n));
+        return new DateTime(date);
+    }
+
+    public ReadGuid(): Guid {
+        this.ensureRemaining(16);
+        let value = new Uint8Array(this.bytes.slice(this.pos, this.pos + 16));
+        this.pos += 16;
+        return new Guid(value);
     }
 
     public ReadEntityId(): string {
