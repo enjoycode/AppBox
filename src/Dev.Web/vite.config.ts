@@ -7,6 +7,11 @@ import {resolve} from 'path'
 const dev = defineConfig({
     plugins: [],
 
+    build: {
+        target: 'es2020', //bigint
+        chunkSizeWarningLimit: 2000,
+    },
+
     resolve: {
         alias: [{
             find: '@',

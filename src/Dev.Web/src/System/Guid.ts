@@ -1,5 +1,9 @@
 export class Guid {
     private readonly _data: Uint8Array;
+    
+    public get Value(): Uint8Array {
+        return this._data;
+    }
 
     public constructor(data: Uint8Array);
     public constructor(string: string);

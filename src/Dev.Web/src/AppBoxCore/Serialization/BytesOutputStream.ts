@@ -1,6 +1,7 @@
 import {IOutputStream} from "./IOutputStream";
 import {PayloadType} from "./PayloadType";
 import {Utf8Encode} from "./Utf8";
+import {DateTime, Guid} from "@/System";
 
 export class BytesOutputStream implements IOutputStream {
     private pos = 0;
@@ -23,11 +24,17 @@ export class BytesOutputStream implements IOutputStream {
         } else if (typeof obj === 'string') {
             this.WriteByte(PayloadType.String);
             this.WriteString(obj);
-        } /*else if (obj instanceof Long) {
+        } else if (typeof obj === 'bigint') {
             this.WriteByte(PayloadType.Int64);
-            this.WriteInt32(obj.low);
-            this.WriteInt32(obj.high);
-        } else if (obj instanceof Entity) {
+            this.WriteLong(obj);
+        } else if (obj instanceof DateTime) {
+            this.WriteByte(PayloadType.DateTime);
+            this.WriteDateTime(obj);
+        } else if (obj instanceof Guid) {
+            this.WriteByte(PayloadType.Guid);
+            this.WriteGuid(obj);
+        }
+        /*else if (obj instanceof Entity) {
             await this.SerializeEntityAsync(obj);
         }*/ else if (Array.isArray(obj)) {
             this.SerializeArray(obj);
@@ -70,11 +77,12 @@ export class BytesOutputStream implements IOutputStream {
                 this.WriteInt(num);
             } else {
                 this.WriteByte(PayloadType.Int64);
-                this.WriteLong(num);
+                this.WriteLong(BigInt(num));
             }
         } else {
             //TODO: 暂按Double处理
-            this.WriteLong(num);
+            this.WriteByte(PayloadType.Double);
+            this.WriteDouble(num);
         }
     }
 
@@ -107,11 +115,11 @@ export class BytesOutputStream implements IOutputStream {
         this.pos++;
     }
 
-    public WriteInt8(v: number): void {
-        this.ensureSizeToWrite(1);
-        this.view.setInt8(this.pos, v);
-        this.pos++;
-    }
+    // public WriteInt8(v: number): void {
+    //     this.ensureSizeToWrite(1);
+    //     this.view.setInt8(this.pos, v);
+    //     this.pos++;
+    // }
 
     public WriteShort(v: number): void {
         this.ensureSizeToWrite(2);
@@ -125,11 +133,9 @@ export class BytesOutputStream implements IOutputStream {
         this.pos += 4;
     }
 
-    public WriteLong(v: number): void {
+    public WriteLong(v: bigint): void {
         this.ensureSizeToWrite(8);
-        const high = Math.floor(v / 0x100000000);
-        this.view.setUint32(this.pos, v, true); // high bits are truncated by DataView
-        this.view.setUint32(this.pos + 4, high, true);
+        this.view.setBigInt64(this.pos, v, true)
         this.pos += 8;
     }
 
@@ -139,8 +145,14 @@ export class BytesOutputStream implements IOutputStream {
         this.pos += 8;
     }
 
-    public WriteDateTime(v: Date) {
-        this.WriteLong(v.getTime());
+    public WriteDateTime(v: DateTime) {
+        this.WriteLong(v.Ticks);
+    }
+    
+    public WriteGuid(v: Guid) {
+        this.ensureSizeToWrite(16);
+        this.bytes.set(v.Value, this.pos);
+        this.pos += 16;
     }
 
     public WriteString(v?: string): void {

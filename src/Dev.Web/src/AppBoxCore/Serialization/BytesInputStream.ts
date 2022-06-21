@@ -32,6 +32,8 @@ export class BytesInputStream implements IInputStream {
                 return this.ReadInt();
             case PayloadType.Int64:
                 return this.ReadLong();
+            case PayloadType.DateTime:
+                return this.ReadDateTime();
             case PayloadType.JsonObject:
                 return this.ReadJsonObject();
             case PayloadType.ObjectRef:
