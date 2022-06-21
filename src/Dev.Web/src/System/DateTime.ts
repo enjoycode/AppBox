@@ -1,5 +1,4 @@
 import {ArgumentOutOfRangeException} from "./Exceptions";
-import {Rx} from "../PixUI";
 
 const TicksPerSecond = 1000;
 const TicksPerMinute = 60000;
@@ -60,6 +59,10 @@ export class DateTime {
         }
     }
 
+    public get Ticks(): bigint {
+        return (621355968000000000n /*UnixEpoch ticks*/ + BigInt(this._date.getTime())) * 10000n;
+    }
+
     public Subtract(dateTime: DateTime): TimeSpan;
     public Subtract(timeSpan: TimeSpan): DateTime;
     public Subtract(other: DateTime | TimeSpan): DateTime | TimeSpan {
@@ -83,10 +86,6 @@ export class DateTime {
     public static op_Subtraction(v: DateTime, other: DateTime | TimeSpan): DateTime | TimeSpan {
         if (other instanceof DateTime) return v.Subtract(other);
         return v.Subtract(other);
-    }
-
-    public get obs(): Rx<DateTime> {
-        return new Rx<DateTime>(this);
     }
 
     public Clone(): DateTime {
