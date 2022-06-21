@@ -1,7 +1,15 @@
+import {Entity} from "@/AppBoxCore";
+
+export type EntityFactory = () => Entity;
+
 export interface IInputStream {
+    /** 流内剩余字节数 */
     readonly Remaining: number;
 
-    DeserializeAsync(): Promise<any>;
+    /** 实体工厂，反序列化时根据实体模型标识创建实例*/
+    EntityFactories: Map<bigint, EntityFactory> | null;
+
+    Deserialize(): any;
 
     ReadByte(): number;
 

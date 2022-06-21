@@ -379,7 +379,7 @@ public static class InputStreamExtensions
         return result;
     }
 
-    internal static T DeserializeEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
+    public static T DeserializeEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
     {
         var modelId = s.ReadLong();
         //从上下文获取实体工厂

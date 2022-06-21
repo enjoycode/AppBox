@@ -1,7 +1,7 @@
 import {IChannel} from "./IChannel";
 import {InvokeErrorCode} from "./InvokeErrorCode";
 import {MessageType} from "./MessageType";
-import {BytesOutputStream, BytesInputStream} from "@/AppBoxCore";
+import {BytesOutputStream, BytesInputStream, EntityFactory} from "@/AppBoxCore";
 
 export class WebChannel implements IChannel {
     #_socket: WebSocket;
@@ -62,7 +62,7 @@ export class WebChannel implements IChannel {
             let rs = new BytesInputStream(event.data);
             let msgType = rs.ReadByte(); //先读消息类型
             if (msgType == MessageType.InvokeResponse) {
-                this.ProcessInvokeResponse(rs).catch(err => console.warn(err));
+                this.ProcessInvokeResponse(rs);
             } else if (msgType == MessageType.LoginResponse) {
                 this.ProcessLoginResponse(rs);
             } else if (msgType == MessageType.Event) {
@@ -89,13 +89,15 @@ export class WebChannel implements IChannel {
     }
 
     /** 处理收到的调用服务的响应 */
-    private async ProcessInvokeResponse(stream: BytesInputStream) {
+    private ProcessInvokeResponse(stream: BytesInputStream) {
         let reqMsgId = stream.ReadInt();
         let errorCode: InvokeErrorCode = stream.ReadByte();
         let result: any;
+        let waitHandler = this.waitHandles.get(reqMsgId);
+        stream.EntityFactories = waitHandler.Ef; //设置实体工厂用于反序列化创建实体实例
         if (stream.Remaining > 0) { //因有些错误可能不包含数据，只有错误码
             try {
-                result = await stream.DeserializeAsync();
+                result = stream.Deserialize();
             } catch (error) {
                 errorCode = InvokeErrorCode.DeserializeResponseFail;
                 result = error;
@@ -165,12 +167,12 @@ export class WebChannel implements IChannel {
     //endregion
 
     //region ====IChannel====
-    private MakePromise(reqId: number): Promise<any> {
-        let waitHandler: any = {Cb: null};
+    private MakePromise<T>(reqId: number, entityFactories?: Map<bigint, EntityFactory>): Promise<T> {
+        let waitHandler: any = {Cb: null, Ef: entityFactories};
         let promise = new Promise<any>((resolve, reject) => {
             waitHandler.Cb = (err: any, res: any) => {
                 if (err) reject(err);
-                else resolve(res);
+                else resolve(<T>res);
             }
         });
         this.waitHandles.set(reqId, waitHandler);
@@ -180,7 +182,7 @@ export class WebChannel implements IChannel {
     async Login(user: string, password: string, external?: string): Promise<void> {
         //加入等待者列表
         const msgId = this.MakeMsgId();
-        let promise = this.MakePromise(msgId);
+        let promise = this.MakePromise<void>(msgId);
 
         //序列化消息
         let ws = new BytesOutputStream();
@@ -201,10 +203,10 @@ export class WebChannel implements IChannel {
         return Promise.resolve();
     }
 
-    async Invoke(service: string, args?: any[] /* TODO: EntityFactory for deserialization*/): Promise<any> {
+    async Invoke<T>(service: string, args?: any[], entityFactories?: Map<bigint, EntityFactory>): Promise<T> {
         //加入等待者列表
         const msgId = this.MakeMsgId();
-        let promise = this.MakePromise(msgId);
+        let promise = this.MakePromise<T>(msgId, entityFactories);
 
         //序列化消息
         let ws = new BytesOutputStream();

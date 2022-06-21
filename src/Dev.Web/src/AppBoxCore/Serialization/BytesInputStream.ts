@@ -1,22 +1,23 @@
-import {IInputStream} from "./IInputStream";
+import {EntityFactory, IInputStream} from "./IInputStream";
 import {PayloadType} from "./PayloadType";
 import {TypeSerializer} from "./TypeSerializer";
 import {Utf8Decode} from "./Utf8";
 import {NotImplementedException, NotSupportedException} from "@/System";
+import {Entity} from "@/AppBoxCore";
 
 export class BytesInputStream implements IInputStream {
     private pos = 0;
     private view: DataView;
     private readonly bytes: Uint8Array;
-
     private deserialized: any[] = null;
+    EntityFactories: Map<bigint, EntityFactory> | null;
 
     constructor(buffer: ArrayBuffer) {
         this.bytes = new Uint8Array(buffer);
         this.view = new DataView(buffer);
     }
 
-    public async DeserializeAsync(): Promise<any> {
+    public Deserialize(): any {
         const payloadType = this.ReadByte();
         switch (payloadType) {
             case PayloadType.Null:
@@ -29,18 +30,16 @@ export class BytesInputStream implements IInputStream {
                 return this.ReadString();
             case PayloadType.Int32:
                 return this.ReadInt();
-            // case PayloadType.Int64:
-            //     return this.ReadInt64();
+            case PayloadType.Int64:
+                return this.ReadLong();
             case PayloadType.JsonObject:
                 return this.ReadJsonObject();
             case PayloadType.ObjectRef:
                 return this.deserialized[this.ReadVariant()];
-            // case PayloadType.EntityModelInfo:
-            //     return EntityModelInfo.ReadFrom(this);
-            // case PayloadType.Entity:
-            //     return await Entity.ReadFrom(this);
+            case PayloadType.Entity:
+                return this.DeserializeEntity(null);
             case PayloadType.Array:
-                return await this.ReadArray();
+                return this.ReadArray();
             // case PayloadType.List:
             //     return await this.ReadList();
         }
@@ -55,6 +54,16 @@ export class BytesInputStream implements IInputStream {
         }
         obj.ReadFrom(this);
         return obj;
+    }
+
+    public DeserializeEntity<T extends Entity>(creator?: () => T): T {
+        let modelId = this.ReadLong();
+        //从上下文获取实体工厂
+        let f = creator ?? this.EntityFactories.get(modelId);
+        let entity = f();
+        this.AddToDeserialized(entity);
+        entity.ReadFrom(this);
+        return <T>entity;
     }
 
     private AddToDeserialized(obj: any) {
@@ -101,12 +110,10 @@ export class BytesInputStream implements IInputStream {
     }
 
     public ReadLong(): bigint {
-        throw new NotImplementedException();
-        // this.ensureRemaining(8);
-        // const v1 = this.view.getInt32(this.pos, true);
-        // const v2 = this.view.getInt32(this.pos + 4, true);
-        // this.pos += 8;
-        // return new Long(v1, v2);
+        this.ensureRemaining(8);
+        const value = this.view.getBigInt64(this.pos, true);
+        this.pos += 8;
+        return value;
     }
 
     public ReadDateTime(): Date {
@@ -127,12 +134,11 @@ export class BytesInputStream implements IInputStream {
     }
 
     public ReadBinary(): Uint8Array {
-        throw new NotImplementedException();
-        // let len = this.ReadVariant();
-        // this.ensureRemaining(len);
-        // let base64 = Base64Encode(this.bytes.slice(this.pos, this.pos + len), false);
-        // this.pos += len;
-        // return base64;
+        let len = this.ReadVariant();
+        this.ensureRemaining(len);
+        let value = new Uint8Array(this.bytes.slice(this.pos, this.pos + len));
+        this.pos += len;
+        return value;
     }
 
     private ReadJsonObject(): any {
@@ -181,17 +187,17 @@ export class BytesInputStream implements IInputStream {
         return Utf8Decode(this, chars);
     }
 
-    private async ReadList(): Promise<any[]> {
+    private ReadList(): any[] {
         this.ReadByte(); //Element type always = Object
         let count = this.ReadVariant();
         let list = [];
         for (let i = 0; i < count; i++) {
-            list.push(await this.DeserializeAsync());
+            list.push(this.Deserialize());
         }
         return list;
     }
 
-    private async ReadArray(): Promise<any[]> {
+    private ReadArray(): any[] {
         const elementType: PayloadType = this.ReadType();
         const count = this.ReadVariant();
         //TODO:根据elementType处理
@@ -206,7 +212,7 @@ export class BytesInputStream implements IInputStream {
                 }
             } else {
                 for (let i = 0; i < count; i++) {
-                    let item = await this.DeserializeAsync();
+                    let item = this.Deserialize();
                     res.push(item);
                 }
             }
