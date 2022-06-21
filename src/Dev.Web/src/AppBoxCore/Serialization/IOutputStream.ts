@@ -1,17 +1,19 @@
+import {DateTime, Guid} from "@/System";
+
 export interface IOutputStream {
     WriteByte(v: number): void;
-
-    // WriteInt8(v: number): void;
 
     WriteShort(v: number): void;
 
     WriteInt(v: number): void;
 
-    WriteLong(v: number): void;
-
     WriteDouble(v: number): void;
 
-    WriteDateTime(v: Date): void;
+    WriteLong(v: bigint): void;
+
+    WriteDateTime(v: DateTime): void;
+    
+    WriteGuid(v: Guid): void;
 
     WriteVariant(v: number): void;
 

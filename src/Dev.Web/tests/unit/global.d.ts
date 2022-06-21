@@ -1,6 +1,6 @@
 import {CanvasKit, CanvasKitInitOptions} from "canvaskit-wasm";
 import * as pattern from "ts-pattern";
-import {Rx} from "../../src/PixUI";
+// import {Rx} from "../../src/PixUI/Generated/State/Rx";
 
 declare global {
     //ts-pattern
@@ -16,14 +16,14 @@ declare global {
     //System
     function clamp(v: number, min: number, max: number): number;
 
-    interface Number {
-        get obs(): Rx<number>;
-        CompareTo(other: number): number;
-    }
-
-    interface String {get obs(): Rx<string>;}
-
-    interface Boolean {get obs(): Rx<boolean>;}
+    // interface Number {
+    //     get obs(): Rx<number>;
+    //     CompareTo(other: number): number;
+    // }
+    //
+    // interface String {get obs(): Rx<string>;}
+    //
+    // interface Boolean {get obs(): Rx<boolean>;}
 
     type Nullable<T> = T | null | undefined;
 

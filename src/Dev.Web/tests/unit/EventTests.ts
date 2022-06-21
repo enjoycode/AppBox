@@ -1,4 +1,4 @@
-import {Event} from "../../src/System/Event";
+import {Event} from "@/System";
 
 class EventSource {
     public readonly ValueChanged = new Event<boolean>();

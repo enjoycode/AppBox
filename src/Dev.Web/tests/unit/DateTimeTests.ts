@@ -1,4 +1,4 @@
-import * as System from "../../src/System";
+import * as System from "@/System";
 
 describe("DateTime Tests", () => {
 
