@@ -20,7 +20,7 @@ public abstract class Entity : IBinSerializable
     public abstract void WriteMember(short id, IEntityMemberWriter ws, int flags);
 
     /// <summary>
-    /// 从IEntityMemberReader读取并设置成员
+    /// 从IEntityMemberReader读取成员值赋值给当前实例
     /// </summary>
     public abstract void ReadMember(short id, IEntityMemberReader rs, int flags);
 

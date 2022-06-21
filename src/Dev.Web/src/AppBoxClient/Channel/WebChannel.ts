@@ -1,8 +1,7 @@
 import {IChannel} from "./IChannel";
 import {InvokeErrorCode} from "./InvokeErrorCode";
 import {MessageType} from "./MessageType";
-import {BytesOutputStream} from "../../AppBoxCore/Serialization/BytesOutputStream";
-import {BytesInputStream} from "../../AppBoxCore/Serialization/BytesInputStream";
+import {BytesOutputStream, BytesInputStream} from "@/AppBoxCore";
 
 export class WebChannel implements IChannel {
     #_socket: WebSocket;

@@ -1,3 +1,7 @@
+// import {Entity} from "@/AppBoxCore";
+//
+// export type EntityFactory = (modelId: bigint) => Entity;
+
 export interface IChannel {
     
     get SessionId(): number | null;

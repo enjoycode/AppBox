@@ -1,8 +1,10 @@
-import {defineConfig} from 'vite'
+import {defineConfig, loadEnv, UserConfig} from 'vite'
 import {resolve} from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+
+//开发模式
+const dev = defineConfig({
     plugins: [],
 
     resolve: {
@@ -25,4 +27,42 @@ export default defineConfig({
             }
         }
     }
+});
+
+//生产库
+const libAppBoxClient = defineConfig({
+    plugins: [],
+
+    resolve: {
+        alias: [{
+            find: '@',
+            replacement: resolve(__dirname, 'src')
+        }]
+    },
+
+    build: {
+        lib: {
+            entry: resolve(__dirname, 'src/AppBoxClient/index.ts'),
+            formats: ['es'],
+            name: 'AppBoxClient',
+            fileName: 'AppBoxClient'
+        },
+        rollupOptions: {
+            external: [
+                resolve(__dirname, 'src/AppBoxCore'),
+                resolve(__dirname, 'src/System'),
+            ]
+        },
+        // minify: 'terser'
+    },
 })
+
+export default ({mode}: UserConfig) => {
+    console.log(mode)
+    const url = loadEnv(mode, process.cwd()).VITE_BASEURL
+    if (mode === 'libAppBoxClient') {
+        return libAppBoxClient;
+    } else {
+        return dev;
+    }
+}

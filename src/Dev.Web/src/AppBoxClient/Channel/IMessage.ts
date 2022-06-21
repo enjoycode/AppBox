@@ -1,4 +1,4 @@
-import {IBinSerializable} from "../../AppBoxCore/Serialization/IBinSerializable";
+import {IBinSerializable} from "@/AppBoxCore";
 import {MessageType} from "./MessageType";
 
 export interface IMessage extends IBinSerializable {

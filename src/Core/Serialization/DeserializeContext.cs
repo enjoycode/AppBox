@@ -32,7 +32,7 @@ public sealed class DeserializeContext
         if (_entityFactories == null)
             throw new SerializationException(SerializationError.EntityFactoryIsNull);
         var index = Array.FindIndex(_entityFactories, t => t.ModelId == modelId);
-        if (index < 0)
+        if (index < 0) //TODO: 不存在返回动态类型工厂，不抛异常
             throw new SerializationException(SerializationError.EntityFactoryNotExists);
         return _entityFactories[index].Creator;
     }
