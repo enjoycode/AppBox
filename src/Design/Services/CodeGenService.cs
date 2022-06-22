@@ -127,6 +127,7 @@ internal static class CodeGenService
 
     private static void GenWebDataFieldMember(DataFieldModel field, StringBuilder sb)
     {
+        //TODO:默认值生成
         if (field.Owner.DataStoreKind == DataStoreKind.None)
         {
             sb.Append($"\t{field.Name};\n");

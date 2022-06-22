@@ -338,9 +338,9 @@ partial class PgSqlStore
         var fkName = $"FK_{rm.Owner.Id}_{rm.MemberId}";
         var rsb = StringBuilderCache.Acquire();
         rsb.Append($"ALTER TABLE \"{tableName}\" ADD CONSTRAINT \"{fkName}\" FOREIGN KEY (");
-        for (int i = 0; i < rm.FKMemberIds.Length; i++)
+        for (var i = 0; i < rm.FKMemberIds.Length; i++)
         {
-            var fk = (DataFieldModel)rm.Owner.GetMember(rm.FKMemberIds[i], true);
+            var fk = (DataFieldModel)rm.Owner.GetMember(rm.FKMemberIds[i], true)!;
             if (i != 0) rsb.Append(',');
             rsb.Append($"\"{fk.SqlColName}\"");
         }
@@ -386,10 +386,10 @@ partial class PgSqlStore
             sb.Append("CREATE ");
             if (index.Unique) sb.Append("UNIQUE ");
             sb.Append($"INDEX \"IX_{model.Id}_{index.IndexId}\" ON \"{tableName}\" (");
-            for (int i = 0; i < index.Fields.Length; i++)
+            for (var i = 0; i < index.Fields.Length; i++)
             {
                 if (i != 0) sb.Append(',');
-                var dfm = (DataFieldModel)model.GetMember(index.Fields[i].MemberId, true);
+                var dfm = (DataFieldModel)model.GetMember(index.Fields[i].MemberId, true)!;
                 sb.Append($"\"{dfm.SqlColName}\"");
                 if (index.Fields[i].OrderByDesc) sb.Append(" DESC");
             }
