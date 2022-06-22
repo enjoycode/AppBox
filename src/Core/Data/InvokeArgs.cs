@@ -9,6 +9,9 @@ public readonly struct InvokeArgs
         _stream = stream;
     }
 
+    public void SetEntityFactories(EntityFactory[] factories)
+        => _stream!.Context.SetEntityFactories(factories);
+
     public void Free()
     {
         if (_stream != null)
@@ -56,10 +59,32 @@ public readonly struct InvokeArgs
 
     #region ====GetXXX Methods====
 
+    public bool GetBool()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.BooleanTrue) return true;
+        if (payloadType == PayloadType.BooleanFalse) return false;
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
     public int GetInt()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
         if (payloadType == PayloadType.Int32) return _stream.ReadInt();
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
+    public DateTime GetDateTime()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.DateTime) return _stream.ReadDateTime();
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
+    public Guid GetGuid()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.Guid) return _stream.ReadGuid();
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
 
@@ -70,6 +95,8 @@ public readonly struct InvokeArgs
         if (payloadType == PayloadType.Null) return null;
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
+
+    public object? GetObject() => _stream!.Deserialize();
 
     #endregion
 }
