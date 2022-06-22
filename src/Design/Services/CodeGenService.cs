@@ -42,7 +42,12 @@ internal static class CodeGenService
             }
         }
 
-        // Override ReadFrom()
+        // override ModelId
+        sb.Append("\n\tget ModelId() {return ");
+        sb.Append(model.Id.Value.ToString());
+        sb.Append("n;}\n");
+
+        // override ReadFrom()
         sb.Append("\n\tReadFrom(rs){\n");
         sb.Append("\t\twhile(true){\n");
         sb.Append("\t\t\tlet mid=rs.ReadShort();\n");
@@ -76,6 +81,46 @@ internal static class CodeGenService
         sb.Append("\t\t}\n"); //end while
         sb.Append("\t}\n"); //end ReadFrom()
 
+        // override WriteTo()
+        sb.Append("\n\tWriteTo(ws){\n");
+        foreach (var member in model.Members)
+        {
+            sb.Append("\t\t");
+            if (member.AllowNull)
+            {
+                sb.Append("if (this.");
+                if (model.DataStoreKind != DataStoreKind.None)
+                    sb.Append('_');
+                sb.Append(member.Name);
+                sb.Append(" != null){ ");
+            }
+
+            switch (member.Type)
+            {
+                case EntityMemberType.DataField:
+                    sb.Append("ws.WriteShort(");
+                    sb.Append(member.MemberId.ToString());
+                    sb.Append("); ");
+
+                    sb.Append("ws.Write");
+                    sb.Append(GetEntityMemberWriteReadType(member));
+                    sb.Append("(this.");
+                    if (model.DataStoreKind != DataStoreKind.None)
+                        sb.Append('_');
+                    sb.Append(member.Name);
+                    sb.Append(");");
+                    break;
+                default:
+                    throw new NotImplementedException(member.Type.ToString());
+            }
+
+            if (member.AllowNull) sb.Append(" }\n");
+            else sb.Append('\n');
+        }
+
+        sb.Append("\t\tws.WriteShort(0);\n");
+        sb.Append("\t}\n"); //end WriteTo()
+
         sb.Append("}\n"); //class end
         return StringBuilderCache.GetStringAndRelease(sb);
     }
@@ -88,9 +133,9 @@ internal static class CodeGenService
         }
         else
         {
-            sb.Append($"\t_{field.Name};\n");
-            sb.Append($"\tget {field.Name}() {{return this._{field.Name}}}\n");
-            sb.Append($"\tset {field.Name}(value) {{");
+            sb.Append($"\t_{field.Name}; ");
+            sb.Append($"get {field.Name}() {{return this._{field.Name}}} ");
+            sb.Append($"set {field.Name}(value) {{");
             //TODO: check equals and OnPropertyChanged
             sb.Append($"this._{field.Name}=value;");
             sb.Append("}\n");
