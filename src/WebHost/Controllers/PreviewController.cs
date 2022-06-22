@@ -15,6 +15,7 @@ public class PreviewController : ControllerBase
     /// 设计时获取视图模型预览
     /// </summary>
     [HttpGet("View/{sessionId}/{viewModelId}")]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> View(int sessionId, string viewModelId)
     {
         var session = WebSocketManager.FindSession(sessionId);
@@ -32,6 +33,7 @@ public class PreviewController : ControllerBase
     /// 设计时获取实体模型的预览
     /// </summary>
     [HttpGet("Entity/{sessionId}/{entityModelId}")]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Entity(int sessionId, string entityModelId)
     {
         var session = WebSocketManager.FindSession(sessionId);
