@@ -2,6 +2,8 @@ import {DateTime, Guid} from "@/System";
 
 export interface IOutputStream {
     WriteByte(v: number): void;
+    
+    WriteBool(v: boolean): void;
 
     WriteShort(v: number): void;
 

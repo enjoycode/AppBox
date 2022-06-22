@@ -60,7 +60,7 @@ export class DateTime {
     }
 
     public get Ticks(): bigint {
-        return (621355968000000000n /*UnixEpoch ticks*/ + BigInt(this._date.getTime())) * 10000n;
+        return BigInt(this._date.getTime()) * 10000n + 621355968000000000n /*UnixEpoch ticks*/;
     }
 
     public Subtract(dateTime: DateTime): TimeSpan;

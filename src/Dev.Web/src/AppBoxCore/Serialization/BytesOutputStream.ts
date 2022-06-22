@@ -124,6 +124,10 @@ export class BytesOutputStream implements IOutputStream {
     //     this.pos++;
     // }
 
+    public WriteBool(v: boolean): void {
+        this.WriteByte(v === true ? PayloadType.BooleanTrue : PayloadType.BooleanFalse);
+    }
+
     public WriteShort(v: number): void {
         this.ensureSizeToWrite(2);
         this.view.setInt16(this.pos, v, true);
