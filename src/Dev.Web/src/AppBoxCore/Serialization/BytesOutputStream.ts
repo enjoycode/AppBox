@@ -2,18 +2,42 @@ import {IOutputStream} from "./IOutputStream";
 import {PayloadType} from "./PayloadType";
 import {Utf8Encode} from "./Utf8";
 import {DateTime, Guid} from "@/System";
+import {Entity} from "@/AppBoxCore";
 
 export class BytesOutputStream implements IOutputStream {
     private pos = 0;
-    private view = new DataView(new ArrayBuffer(256));
+    private view = new DataView(new ArrayBuffer(128));
     private bytes = new Uint8Array(this.view.buffer);
-
-    // private _serializedList: Entity[] = null;
+    private _serializedList: any[] | null = null;
 
     public get Bytes(): Uint8Array {
         return this.bytes.subarray(0, this.pos);
     }
 
+    private ensureSizeToWrite(sizeToWrite: number) {
+        const requiredSize = this.pos + sizeToWrite;
+
+        if (this.view.byteLength < requiredSize) {
+            this.resizeBuffer(requiredSize * 2);
+        }
+    }
+
+    private resizeBuffer(newSize: number) {
+        const newBuffer = new ArrayBuffer(newSize);
+        const newBytes = new Uint8Array(newBuffer);
+        const newView = new DataView(newBuffer);
+
+        newBytes.set(this.bytes);
+
+        this.view = newView;
+        this.bytes = newBytes;
+    }
+
+    public Skip(size: number) {
+        this.pos += size;
+    }
+
+    //region ====SerializeXXX====
     public Serialize(obj: any) {
         if (obj == null) {
             this.WriteByte(PayloadType.Null);
@@ -33,32 +57,30 @@ export class BytesOutputStream implements IOutputStream {
         } else if (obj instanceof Guid) {
             this.WriteByte(PayloadType.Guid);
             this.WriteGuid(obj);
-        }
-        /*else if (obj instanceof Entity) {
-            await this.SerializeEntityAsync(obj);
-        }*/ else if (Array.isArray(obj)) {
+        } else if (obj instanceof Entity) {
+            this.SerializeEntity(obj);
+        } else if (Array.isArray(obj)) {
             this.SerializeArray(obj);
         } else {
-            throw new Error('未实现');
+            throw new Error('未实现的序列化');
         }
     }
 
-    // private async SerializeEntityAsync(obj: Entity) {
-    //     if (!obj) {
-    //         this.WriteByte(PayloadType.Null);
-    //         return;
-    //     }
-    //
-    //     //判断是否已经序列化过(解决实体循环引用)
-    //     let index = this.GetSerializedIndex(obj);
-    //     if (index < 0) {
-    //         this.WriteByte(PayloadType.Entity);
-    //         await obj.WriteTo(this);
-    //     } else {
-    //         this.WriteByte(PayloadType.ObjectRef);
-    //         this.WriteVariant(index);
-    //     }
-    // }
+    private SerializeEntity(obj: Entity | null) {
+        if (!obj) {
+            this.WriteByte(PayloadType.Null);
+            return;
+        }
+
+        //判断是否已经序列化过(解决实体循环引用)
+        if (this.CheckSerialized(obj)) return;
+
+        this.AddToSerialized(obj);
+
+        this.WriteByte(PayloadType.Entity);
+        this.WriteLong(obj.ModelId);
+        obj.WriteTo(this);
+    }
 
     private SerializeArray(obj: Array<any>) {
         this.WriteByte(PayloadType.Array);
@@ -86,28 +108,9 @@ export class BytesOutputStream implements IOutputStream {
         }
     }
 
-    private ensureSizeToWrite(sizeToWrite: number) {
-        const requiredSize = this.pos + sizeToWrite;
+    //endregion
 
-        if (this.view.byteLength < requiredSize) {
-            this.resizeBuffer(requiredSize * 2);
-        }
-    }
-
-    private resizeBuffer(newSize: number) {
-        const newBuffer = new ArrayBuffer(newSize);
-        const newBytes = new Uint8Array(newBuffer);
-        const newView = new DataView(newBuffer);
-
-        newBytes.set(this.bytes);
-
-        this.view = newView;
-        this.bytes = newBytes;
-    }
-
-    public Skip(size: number) {
-        this.pos += size;
-    }
+    //region ====WriteXXX====
 
     public WriteByte(v: number): void {
         this.ensureSizeToWrite(1);
@@ -148,7 +151,7 @@ export class BytesOutputStream implements IOutputStream {
     public WriteDateTime(v: DateTime) {
         this.WriteLong(v.Ticks);
     }
-    
+
     public WriteGuid(v: Guid) {
         this.ensureSizeToWrite(16);
         this.bytes.set(v.Value, this.pos);
@@ -196,23 +199,41 @@ export class BytesOutputStream implements IOutputStream {
         } while (true);
     }
 
-    // private GetSerializedIndex(obj: Entity): number {
-    //     if (!this._serializedList || this._serializedList.length == 0) {
-    //         return -1;
-    //     }
-    //     for (let i = this._serializedList.length - 1; i >= 0; i--) {
-    //         if (this._serializedList[i] === obj) {
-    //             return i;
-    //         }
-    //     }
-    //     return -1;
-    // }
-    //
-    // public AddToSerialized(obj: Entity) {
-    //     if (!this._serializedList) {
-    //         this._serializedList = [];
-    //     }
-    //     this._serializedList.push(obj);
-    // }
+    //endregion
+
+    //region ====循环引用处理====
+
+    private GetSerializedIndex(obj: any): number {
+        if (!this._serializedList || this._serializedList.length == 0) {
+            return -1;
+        }
+        for (let i = this._serializedList.length - 1; i >= 0; i--) {
+            if (this._serializedList[i] === obj) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**检查是否已经序列化过，是则写入ObjectRef信息*/
+    private CheckSerialized(obj: any): boolean {
+        let index = this.GetSerializedIndex(obj);
+        if (index === -1) {
+            return false;
+        }
+
+        this.WriteByte(PayloadType.ObjectRef);
+        this.WriteVariant(index);
+        return true;
+    }
+
+    private AddToSerialized(obj: any) {
+        if (!this._serializedList) {
+            this._serializedList = [];
+        }
+        this._serializedList.push(obj);
+    }
+
+    //endregion
 
 }
