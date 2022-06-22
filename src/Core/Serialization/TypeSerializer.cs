@@ -104,6 +104,9 @@ public abstract class TypeSerializer
     /// <param name="instance">用于引用类型及范型值类型的反序列化，由序列化器创建的实例</param>
     public abstract object? Read(IInputStream bs, object? instance);
 
+    /// <summary>
+    /// 写入附加类型信息(数组或其他范型类型的范型参数)
+    /// </summary>
     internal void WriteAttachTypeInfo(IOutputStream bs, Type type)
     {
         if (_notWriteAttachInfo)
@@ -127,9 +130,9 @@ public abstract class TypeSerializer
             if (GenericTypeCount > 0)
             {
                 var genericTypes = type.GetGenericArguments();
-                for (var i = 0; i < genericTypes.Length; i++)
+                foreach (var genericType in genericTypes)
                 {
-                    bs.WriteType(genericTypes[i]);
+                    bs.WriteType(genericType);
                 }
             }
         }
@@ -144,6 +147,7 @@ public abstract class TypeSerializer
         RegisterKnownType(new StringSerializer());
         //Collection
         RegisterKnownType(new ArraySerializer());
+        RegisterKnownType(new ListSerializer());
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);

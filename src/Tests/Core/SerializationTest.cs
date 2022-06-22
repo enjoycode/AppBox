@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using AppBoxCore;
 using NUnit.Framework;
 
@@ -5,6 +7,28 @@ namespace Tests.Core;
 
 public sealed class SerializationTest
 {
+    private static readonly EntityFactory[] _entityFactories =
+        { new(TestEntity.MODELID, () => new TestEntity()) };
+
+    private static BytesSegment Serialize<T>(T obj)
+    {
+        var writer = MessageWriteStream.Rent();
+        writer.Serialize(obj);
+        var segment = writer.FinishWrite();
+        MessageWriteStream.Return(writer);
+        return segment;
+    }
+
+    private static object? Deserialize(BytesSegment data, EntityFactory[]? factories = null)
+    {
+        var reader = MessageReadStream.Rent(data.First!);
+        if (factories != null)
+            reader.Context.SetEntityFactories(factories);
+        var res = reader.Deserialize();
+        MessageReadStream.Return(reader);
+        return res;
+    }
+
     [Test]
     public void Utf8EncodeAndDecodeTest()
     {
@@ -45,18 +69,35 @@ public sealed class SerializationTest
     [Test]
     public void EntitySerializationTest()
     {
-        var src = new TestEntity() { Name = "Rick", Score = 100};
-        var writer = MessageWriteStream.Rent();
-        writer.Serialize(src);
-        var segment = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
+        var src = new TestEntity() { Name = "Rick", Score = 100 };
+        var data = Serialize(src);
+        var dest = (TestEntity)Deserialize(data, _entityFactories)!;
 
-        var reader = MessageReadStream.Rent(segment.First!);
-        reader.Context.SetEntityFactories(new[]
-            { new EntityFactory(src.ModelId, () => new TestEntity()) });
-        var dest = (TestEntity) reader.Deserialize()!;
-        MessageReadStream.Return(reader);
-        
         Assert.True(src.Name == dest.Name && src.Score == dest.Score);
+    }
+
+    [Test]
+    public void ListOfValueSerializationTest()
+    {
+        var src = new List<int> { 1, 2, 3, 4 };
+        var data = Serialize(src);
+        var dest = (List<int>)Deserialize(data)!;
+        Assert.True(src.Count == dest.Count);
+        Assert.AreEqual(src, dest);
+    }
+
+    [Test]
+    public void ListOfEntitySerializationTest()
+    {
+        var src = new List<TestEntity>
+        {
+            new() { Name = "Rick", Score = 100 },
+            new() { Name = "Eric", Score = 200 }
+        };
+        var data = Serialize(src);
+        var dest = ((List<Entity>)Deserialize(data, _entityFactories)!)
+            .Cast<TestEntity>().ToList();
+        Assert.True(src.Count == dest.Count);
+        Assert.AreEqual(src, dest);
     }
 }

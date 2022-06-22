@@ -253,10 +253,15 @@ public static class OutputStreamExtensions
 
     public static void WriteType(this IOutputStream s, Type type)
     {
-        //TypeFlag定义： 0 = 系统已知类型 1 = 扩展已知类型 2 = Object
+        //TypeFlag定义： 0 = 系统已知类型 1 = 扩展已知类型 2 = Object, 3=Entity
         if (type == typeof(object))
         {
             s.WriteByte(2);
+        }
+        else if (type == typeof(Entity) || type.IsSubclassOf(typeof(Entity)))
+        {
+            s.WriteByte(3); 
+            //考虑再写入模型标识或类型名称
         }
         else
         {

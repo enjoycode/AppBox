@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using AppBoxCore;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace Tests.Core;
 
-public sealed class TestEntity : Entity
+public sealed class TestEntity : Entity, IEquatable<TestEntity>
 {
     private static readonly short[] Members = { 1, 2 };
 
@@ -13,7 +11,8 @@ public sealed class TestEntity : Entity
 
     public int? Score { get; set; }
 
-    public override ModelId ModelId => 12345;
+    internal static readonly ModelId MODELID = 12345;
+    public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => Members;
 
     public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
@@ -42,5 +41,11 @@ public sealed class TestEntity : Entity
                 break;
             default: throw new Exception();
         }
+    }
+
+    public bool Equals(TestEntity? other)
+    {
+        if (other == null) return false;
+        return Name == other.Name && Score == other.Score;
     }
 }

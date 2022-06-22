@@ -260,6 +260,8 @@ public static class InputStreamExtensions
             }
             case 2:
                 return typeof(object);
+            case 3:
+                return typeof(Entity);
             default:
                 throw new SerializationException(SerializationError.UnknownTypeFlag,
                     typeFlag.ToString());

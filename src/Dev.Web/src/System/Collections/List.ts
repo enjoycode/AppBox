@@ -6,6 +6,8 @@ import {BinarySearch as bs} from "../Utils";
 
 export class List<T> extends ArrayEnumerable<T> implements IList<T> {
 
+    //TODO:考虑ElementType(PayloadType)标记，用于向服务端序列化时作为范型类型
+
     constructor();
     constructor(cap: number);
     constructor(array: Array<T> | IEnumerable<T>);

@@ -68,11 +68,11 @@ internal sealed class HostRuntimeContext : IHostRuntimeContext
         var service = servicePath.AsMemory(firstDot + 1, lastDot - firstDot - 1);
         var method = servicePath.AsMemory(lastDot + 1);
 
-        IService? instance;
         try
         {
             //TODO:埋点监测性能指标
             //尝试系统内置服务调用
+            IService? instance;
             if (app.Span.SequenceEqual(Consts.SYS))
             {
                 instance = SysServiceContainer.TryGet(service);

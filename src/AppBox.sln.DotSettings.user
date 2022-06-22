@@ -5,5 +5,9 @@
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenServiceRuntimeCodeTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityWebCodeTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Tests.Test1&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfValueSerializationTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfObjectSerializationText&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfEntitySerializationText&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfEntitySerializationTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
