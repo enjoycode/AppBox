@@ -198,7 +198,7 @@ export class BytesInputStream implements IInputStream {
     }
 
     private ReadList(): List<any> {
-        const elementType: PayloadType = this.ReadByte();
+        const elementType: PayloadType = this.ReadType();
         let count = this.ReadVariant();
         let list = new List<any>(count);
         this.ReadCollection(elementType, count, v => list.Add(v));
