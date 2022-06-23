@@ -35,6 +35,10 @@ const dev = defineConfig({
 });
 
 //生产库
+// https://rollupjs.org/guide/en/#outputpaths
+const extSystem = resolve(__dirname, 'src/System');
+const extAppBoxCore = resolve(__dirname, 'src/AppBoxCore');
+
 const libAppBoxClient = defineConfig({
     plugins: [],
 
@@ -50,20 +54,22 @@ const libAppBoxClient = defineConfig({
             entry: resolve(__dirname, 'src/AppBoxClient/index.ts'),
             formats: ['es'],
             name: 'AppBoxClient',
-            fileName: 'AppBoxClient'
+            fileName: (format) => 'AppBoxClient.js'
         },
         rollupOptions: {
-            external: [
-                resolve(__dirname, 'src/AppBoxCore'),
-                resolve(__dirname, 'src/System'),
-            ]
+            external: [extAppBoxCore, extSystem],
+            output: {
+                paths: {
+                    [extAppBoxCore]: '/AppBoxCore.js'
+                },
+            },
+            makeAbsoluteExternalsRelative: false,
         },
         // minify: 'terser'
     },
 })
 
 export default ({mode}: UserConfig) => {
-    console.log(mode)
     const url = loadEnv(mode, process.cwd()).VITE_BASEURL
     if (mode === 'libAppBoxClient') {
         return libAppBoxClient;
