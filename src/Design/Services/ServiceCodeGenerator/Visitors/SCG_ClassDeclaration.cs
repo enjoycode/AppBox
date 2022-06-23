@@ -134,6 +134,13 @@ internal partial class ServiceCodeGenerator
             case SpecialType.System_String: return "args.GetString()";
         }
 
+        //特殊处理范型集合
+        if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
+        {
+            var elementType = arrayTypeSymbol.ElementType;
+            return $"args.GetArray<{elementType}>()";
+        }
+
         if ((typeSymbol.Name == "IList" &&
              SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition,
                  TypeOfListGeneric))

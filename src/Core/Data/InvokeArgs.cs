@@ -2,6 +2,9 @@ using System.Collections;
 
 namespace AppBoxCore;
 
+/// <summary>
+/// 封装调用服务的参数，直接从流中反序列化相应的参数
+/// </summary>
 public readonly struct InvokeArgs
 {
     private readonly MessageReadStream? _stream;
@@ -21,6 +24,8 @@ public readonly struct InvokeArgs
     }
 
     public static InvokeArgs From(MessageReadStream stream) => new(stream);
+
+    #region ====MakeXXX Methods====
 
     public static InvokeArgs Make<T>(T arg)
     {
@@ -58,6 +63,8 @@ public readonly struct InvokeArgs
         var reader = MessageReadStream.Rent(data);
         return new InvokeArgs(reader);
     }
+
+    #endregion
 
     #region ====GetXXX Methods====
 
@@ -99,6 +106,19 @@ public readonly struct InvokeArgs
     }
 
     public object? GetObject() => _stream!.Deserialize();
+
+    /// <summary>
+    /// 用于转换如Web前端封送的object[]数组
+    /// </summary>
+    public T[]? GetArray<T>()
+    {
+        var res = _stream!.Deserialize();
+        if (res == null) return null;
+
+        // TODO:考虑判断源类型是否目标类型
+        var array = (IEnumerable)res;
+        return array.Cast<T>().ToArray();
+    }
 
     /// <summary>
     /// 用于转换如Web前端封送的List<object>或List<Entity>

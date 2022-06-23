@@ -35,6 +35,7 @@ internal sealed class GetWebPreview : IDesignHandler //TODO: rename to GetViewPr
         var tsCode = emitter.GetTypeScriptCode(true);
 
         //附加import使用到的模型
+        
         if (emitter.UsedModels.Count > 0)
         {
             var sb = StringBuilderCache.Acquire();
@@ -60,6 +61,10 @@ internal sealed class GetWebPreview : IDesignHandler //TODO: rename to GetViewPr
         
             sb.Append(tsCode);
             tsCode = StringBuilderCache.GetStringAndRelease(sb);
+        }
+        else
+        {
+            tsCode = tsCode + "\nconst EntityFactories=null;";
         }
 
         return AnyValue.From(Encoding.UTF8.GetBytes(tsCode));
