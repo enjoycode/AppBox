@@ -1,7 +1,7 @@
 import {IOutputStream} from "./IOutputStream";
 import {PayloadType} from "./PayloadType";
 import {Utf8Encode} from "./Utf8";
-import {DateTime, Guid} from "@/System";
+import {DateTime, Guid, List} from "@/System";
 import {Entity} from "@/AppBoxCore";
 
 export class BytesOutputStream implements IOutputStream {
@@ -59,11 +59,14 @@ export class BytesOutputStream implements IOutputStream {
             this.WriteGuid(obj);
         } else if (obj instanceof Entity) {
             this.SerializeEntity(obj);
+        } else if (obj instanceof List) {
+            this.SerializeList(obj);
         } else if (Array.isArray(obj)) {
             this.SerializeArray(obj);
         } else {
             throw new Error('未实现的序列化');
         }
+        //TODO: for Uint8Array and other
     }
 
     private SerializeEntity(obj: Entity | null) {
@@ -82,9 +85,18 @@ export class BytesOutputStream implements IOutputStream {
         obj.WriteTo(this);
     }
 
+    private SerializeList(obj: List<any>) {
+        this.WriteByte(PayloadType.List);
+        this.WriteByte(2); //ElementType always = Object
+        this.WriteVariant(obj.length);
+        for (let i = 0; i < obj.length; i++) {
+            this.Serialize(obj[i]);
+        }
+    }
+    
     private SerializeArray(obj: Array<any>) {
         this.WriteByte(PayloadType.Array);
-        this.WriteByte(PayloadType.Object);
+        this.WriteByte(2); //ElementType always = Object
         this.WriteVariant(obj.length);
         for (let i = 0; i < obj.length; i++) {
             this.Serialize(obj[i]);

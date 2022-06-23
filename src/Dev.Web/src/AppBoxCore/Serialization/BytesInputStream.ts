@@ -2,7 +2,7 @@ import {EntityFactory, IInputStream} from "./IInputStream";
 import {PayloadType} from "./PayloadType";
 import {TypeSerializer} from "./TypeSerializer";
 import {Utf8Decode} from "./Utf8";
-import {DateTime, Guid, NotImplementedException, NotSupportedException} from "@/System";
+import {DateTime, Guid, List, NotImplementedException, NotSupportedException} from "@/System";
 import {Entity} from "@/AppBoxCore";
 
 export class BytesInputStream implements IInputStream {
@@ -16,7 +16,19 @@ export class BytesInputStream implements IInputStream {
         this.bytes = new Uint8Array(buffer);
         this.view = new DataView(buffer);
     }
+    
+    /** 剩余字节数 */
+    public get Remaining(): number {
+        return this.view.byteLength - this.pos;
+    }
 
+    private ensureRemaining(size: number) {
+        if (this.view.byteLength - this.pos < size) {
+            throw new RangeError('Has no data.');
+        }
+    }
+    
+    //region ====DeserializeXXXX====
     public Deserialize(): any {
         const payloadType = this.ReadByte();
         switch (payloadType) {
@@ -42,8 +54,8 @@ export class BytesInputStream implements IInputStream {
                 return this.DeserializeEntity(null);
             case PayloadType.Array:
                 return this.ReadArray();
-            // case PayloadType.List:
-            //     return await this.ReadList();
+            case PayloadType.List:
+                return this.ReadList();
         }
 
         //查找已知类型创建实例(找不到抛异常)
@@ -74,18 +86,9 @@ export class BytesInputStream implements IInputStream {
         }
         this.deserialized.push(obj);
     }
+    //endregion
 
-    /** 剩余字节数 */
-    public get Remaining(): number {
-        return this.view.byteLength - this.pos;
-    }
-
-    private ensureRemaining(size: number) {
-        if (this.view.byteLength - this.pos < size) {
-            throw new RangeError('Has no data.');
-        }
-    }
-
+    //region ====ReadXXX====
     public ReadByte(): number {
         this.ensureRemaining(1);
         const value = this.view.getUint8(this.pos);
@@ -194,38 +197,46 @@ export class BytesInputStream implements IInputStream {
         return Utf8Decode(this, chars);
     }
 
-    private ReadList(): any[] {
-        this.ReadByte(); //Element type always = Object
+    private ReadList(): List<any> {
+        const elementType: PayloadType = this.ReadByte();
         let count = this.ReadVariant();
-        let list = [];
-        for (let i = 0; i < count; i++) {
-            list.push(this.Deserialize());
-        }
+        let list = new List<any>(count);
+        this.ReadCollection(elementType, count, v => list.Add(v));
         return list;
     }
 
     private ReadArray(): any[] {
         const elementType: PayloadType = this.ReadType();
         const count = this.ReadVariant();
-        //TODO:根据elementType处理
+        //TODO:short path for Uint8Array or other
+        let res: any[] = [];
+        this.ReadCollection(elementType, count, v => res.push(v));
+        return res;
+    }
+
+    private ReadCollection(elementType: PayloadType, count: number, setter: (v: any) => void) {
+        if (elementType === PayloadType.Entity) {
+            for (let i = 0; i < count; i++) {
+                setter(this.Deserialize());
+            }
+            return;
+        }
+
         const serializer = TypeSerializer.GetSerializer(elementType);
         if (serializer) {
-            let res = [];
             if (serializer.IsStruct) {
                 for (let i = 0; i < count; i++) {
                     let item = serializer.Factory();
                     item.ReadFrom(this);
-                    res.push(item);
+                    setter(item);
                 }
             } else {
                 for (let i = 0; i < count; i++) {
-                    let item = this.Deserialize();
-                    res.push(item);
+                    setter(this.Deserialize());
                 }
             }
-            return res;
         } else {
-            throw new NotImplementedException("ReadArray elementType=" + elementType);
+            throw new NotImplementedException("ReadCollection elementType=" + elementType);
         }
     }
 
@@ -234,12 +245,19 @@ export class BytesInputStream implements IInputStream {
         const typeFlag = this.ReadByte();
         if (typeFlag === 2) {
             return PayloadType.Object;
+        } else if (typeFlag === 3) {
+            return PayloadType.Entity;
         } else if (typeFlag === 0) {
             const payloadType: PayloadType = this.ReadByte();
-            //TODO:继续读Array或List等类型的附加类型
+            if (payloadType === PayloadType.Array || payloadType === PayloadType.List || payloadType === PayloadType.Map) {
+                //TODO:继续读Array或List等范型类型的附加类型
+                throw new NotImplementedException();
+            }
             return payloadType;
         } else {
             throw new NotSupportedException("不支持的TypeFlag");
         }
     }
+
+    //endregion
 }

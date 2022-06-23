@@ -114,6 +114,12 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     private readonly Dictionary<string, INamedTypeSymbol> _typesCache = new();
 
     private INamedTypeSymbol TypeOfEntity => GetTypeByName("AppBoxCore.Entity");
+    
+    private INamedTypeSymbol TypeOfIListGeneric =>
+        GetTypeByName("System.Collections.Generic.IList`1");
+    
+    private INamedTypeSymbol TypeOfListGeneric =>
+        GetTypeByName("System.Collections.Generic.List`1");
 
     private INamedTypeSymbol GetTypeByName(string typeName)
     {

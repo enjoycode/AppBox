@@ -84,6 +84,13 @@ internal static class TypeHelper
 
         return false;
     }
+    
+    // internal static bool IsImplements(this ITypeSymbol symbol, ITypeSymbol type)
+    // {
+    //     //注意擦除范型类型
+    //     return symbol.AllInterfaces
+    //         .Any(t => t.IsGenericType ? t.OriginalDefinition.Equals(type) : t.Equals(type));
+    // }
 
     #endregion
 

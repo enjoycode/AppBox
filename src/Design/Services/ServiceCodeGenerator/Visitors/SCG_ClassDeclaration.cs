@@ -16,13 +16,13 @@ internal partial class ServiceCodeGenerator
             var updatedNode = (ClassDeclarationSyntax)base.VisitClassDeclaration(node)!;
             updatedNode = updatedNode.AddBaseListTypes(
                 SyntaxFactory.SimpleBaseType(TypeHelper.ServiceInterfaceType));
-            
+
             //实体工厂
             var entityFactoriesCode = GenerateEntityFactoriesCode();
             var entityFactories =
                 SyntaxFactory.ParseCompilationUnit(entityFactoriesCode).Members[0];
             updatedNode = updatedNode.AddMembers(entityFactories);
-            
+
             //IService接口实现
             var iserivceImplsCode = GenerateIServiceImplementsCode();
             var invokeMethod = SyntaxFactory
@@ -63,7 +63,7 @@ internal partial class ServiceCodeGenerator
         }
 
         sb.Append("};\n");
-        
+
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
@@ -77,7 +77,7 @@ internal partial class ServiceCodeGenerator
             "async ValueTask<AppBoxCore.AnyValue> AppBoxCore.IService.InvokeAsync(ReadOnlyMemory<char> method, AppBoxCore.InvokeArgs args) {\n");
         sb.Append("args.SetEntityFactories(_entityFactories);\n");
         sb.Append("switch(method) {\n");
-        
+
         foreach (var method in _publicMethods)
         {
             sb.AppendFormat("case ReadOnlyMemory<char> s when s.Span.SequenceEqual(\"{0}\"):",
@@ -89,7 +89,7 @@ internal partial class ServiceCodeGenerator
             //     sb.AppendFormat("{1}if (!({0})) throw new System.Exception(\"无调用服务方法的权限\");{1}",
             //         invokePermissionCode, Environment.NewLine);
             // }
-        
+
             //插入调用代码
             //TODO:暂简单判断有无返回值，应直接判断是否Awaitable，另处理同步方法调用
             var isReturnVoid = method.IsReturnVoid();
@@ -101,17 +101,15 @@ internal partial class ServiceCodeGenerator
             sb.AppendFormat("{0}(", method.Identifier.ValueText);
             for (var i = 0; i < method.ParameterList.Parameters.Count; i++)
             {
-                //var typeSymbol = SemanticModel.GetSymbolInfo(method.ParameterList.Parameters[i].Type).Symbol;
-                var paraType = method.ParameterList.Parameters[i].Type!.ToString();
-                sb.Append(GenArgsGetMethod(paraType));
-        
+                sb.Append(GenArgsGetMethod(method.ParameterList.Parameters[i].Type!));
+
                 if (i != method.ParameterList.Parameters.Count - 1)
                     sb.Append(",");
             }
-        
+
             sb.Append(!isReturnVoid ? "));\n" : "); return AppBoxCore.AnyValue.Empty;\n");
         }
-        
+
         sb.Append("default: throw new Exception(\"Cannot find method: \" + method);\n}\n}");
         return StringBuilderCache.GetStringAndRelease(sb);
     }
@@ -119,24 +117,35 @@ internal partial class ServiceCodeGenerator
     /// <summary>
     /// 生成IService调用时根据参数类型生成如args.GetString()
     /// </summary>
-    private static string GenArgsGetMethod(string argType)
+    private string GenArgsGetMethod(TypeSyntax argType)
     {
-        switch (argType) //TODO: fix other types
+        var typeSymbol = (ITypeSymbol)SemanticModel.GetSymbolInfo(argType).Symbol!;
+        var specType = typeSymbol.SpecialType;
+        switch (specType)
         {
-            case "bool": return "args.GetBool()";
-            case "int": return "args.GetInt()";
-            case "float": return "args.GetFloat()";
-            case "double": return "args.GetDouble()";
-            case "char": return "args.GetChar()";
-            case "sbyte": return "args.GetSByte()";
-            case "byte": return "args.GetByte()";
-            case "string": return "args.GetString()";
-            case "DateTime":
-            case "System.DateTime": return "args.GetDateTime()";
-            case "Guid":
-            case "System.Guid": return "args.GetGuid()";
-            default:
-                return $"({argType})args.GetObject()";
+            case SpecialType.System_Boolean: return "args.GetBool()";
+            case SpecialType.System_Byte: return "args.GetByte()";
+            case SpecialType.System_Int16: return "args.GetShort()";
+            case SpecialType.System_Int32: return "args.GetInt()";
+            case SpecialType.System_Int64: return "args.GetLong()";
+            case SpecialType.System_DateTime: return "args.GetDateTime()";
+            case SpecialType.System_Single: return "args.GetFloat()";
+            case SpecialType.System_Double: return "args.GetDouble()";
+            case SpecialType.System_String: return "args.GetString()";
         }
+
+        if ((typeSymbol.Name == "IList" &&
+             SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition,
+                 TypeOfListGeneric))
+            ||
+            (typeSymbol.Name == "List" &&
+             SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition,
+                 TypeOfListGeneric)))
+        {
+            var elementType = ((INamedTypeSymbol)typeSymbol).TypeArguments[0];
+            return $"({argType})args.GetList<{elementType}>()";
+        }
+
+        return $"({argType})args.GetObject()";
     }
 }

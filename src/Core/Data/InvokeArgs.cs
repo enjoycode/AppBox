@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace AppBoxCore;
 
 public readonly struct InvokeArgs
@@ -97,6 +99,21 @@ public readonly struct InvokeArgs
     }
 
     public object? GetObject() => _stream!.Deserialize();
+
+    /// <summary>
+    /// 用于转换如Web前端封送的List<object>或List<Entity>
+    /// </summary>
+    public IList<T>? GetList<T>()
+    {
+        var res = _stream!.Deserialize();
+        if (res == null) return null;
+
+        var list = (IList)res;
+        // TODO:考虑判断源类型是否目标类型
+        // var srcElementType = res.GetType().GenericTypeArguments[0];
+        // if (srcElementType != typeof(T))
+        return list.Cast<T>().ToList();
+    }
 
     #endregion
 }
