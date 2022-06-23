@@ -123,9 +123,8 @@ public static class CodeUtil
     /// <summary>
     /// 获取模型类型的复数名称
     /// </summary>
-    public static string GetPluralStringOfModelType(ModelType modelType)
-    {
-        return modelType switch
+    public static string GetPluralStringOfModelType(ModelType modelType) =>
+        modelType switch
         {
             ModelType.Enum => "Enums",
             ModelType.Entity => "Entities",
@@ -137,11 +136,9 @@ public static class CodeUtil
             ModelType.Permission => "Permissions",
             _ => throw new NotSupportedException()
         };
-    }
 
-    public static ModelType GetModelTypeFromPluralString(ReadOnlySpan<char> typeName)
-    {
-        return typeName switch
+    public static ModelType GetModelTypeFromPluralString(ReadOnlySpan<char> typeName) =>
+        typeName switch
         {
             var s when s.SequenceEqual("Enums") => ModelType.Enum,
             var s when s.SequenceEqual("Entities") => ModelType.Entity,
@@ -153,12 +150,8 @@ public static class CodeUtil
             var s when s.SequenceEqual("Permissions") => ModelType.Permission,
             _ => throw new NotSupportedException(typeName.ToString())
         };
-    }
 
-    public static string ToLowCamelCase(string name)
-    {
-        return char.ToLower(name[0]) + name.Substring(1);
-    }
+    public static string ToLowCamelCase(string name) => char.ToLower(name[0]) + name[1..];
 
     public static string ServiceGlobalUsings() =>
         "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxStore;";
