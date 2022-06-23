@@ -221,10 +221,8 @@ internal static class PublishService
         {
             MetadataReferences.CoreLib,
             MetadataReferences.NetstandardLib,
-            //MetadataReferences.SystemCoreLib,
-            // MetadataReferences.SystemCollectionsLib,
-            // MetadataReferences.SystemLinqLib,
             MetadataReferences.SystemRuntimeLib,
+            MetadataReferences.SystemLinqLib,
             // MetadataReferences.SystemRuntimeExtLib,
             // MetadataReferences.SystemTasksLib,
             MetadataReferences.SystemDataLib,

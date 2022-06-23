@@ -252,9 +252,8 @@ internal sealed class TypeSystem : IDisposable
         {
             MetadataReferences.CoreLib,
             MetadataReferences.NetstandardLib,
-            //MetadataReferences.SystemCoreLib,
-            // MetadataReferences.SystemLinqLib,
             MetadataReferences.SystemRuntimeLib,
+            MetadataReferences.SystemLinqLib,
             // MetadataReferences.SystemRuntimeExtLib,
             MetadataReferences.SystemDataLib,
             // MetadataReferences.ComponentModelPrimitivesLib,
@@ -275,11 +274,11 @@ internal sealed class TypeSystem : IDisposable
 
         var globalUsingDocId = DocumentId.CreateNewId(prjId);
         var newSolution = Workspace.CurrentSolution
-            .AddProject(serviceProjectInfo)
-            .AddMetadataReferences(prjId, deps)
-            .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
-            .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
-            .AddDocument(globalUsingDocId, "GlobalUsing.cs", CodeUtil.ServiceGlobalUsings())
+                .AddProject(serviceProjectInfo)
+                .AddMetadataReferences(prjId, deps)
+                .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
+                .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
+                .AddDocument(globalUsingDocId, "GlobalUsing.cs", CodeUtil.ServiceGlobalUsings())
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))
