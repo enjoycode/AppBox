@@ -113,25 +113,29 @@ export class TextView extends CodeEditor.EditorArea {
         if (rect.Width <= 0 || rect.Height <= 0) return;
 
         let horizontalDelta = this.TextEditor.VirtualTop.X;
-        // if (horizontalDelta > 0)
-        // {
-        //     //TODO: check need clip
-        // }
+        if (horizontalDelta > 0) {
+            canvas.save();
+            canvas.clipRect(this.Bounds, CanvasKit.ClipOp.Intersect, false);
+        }
 
         // paint background
         let paint = PixUI.PaintUtils.Shared(this.Theme.TextBgColor);
         canvas.drawRect(rect, paint);
 
         // paint lines one by one
-        let endLine = (Math.floor(((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1)) & 0xFFFFFFFF);
-        this.PaintLines(canvas, this.FirstVisibleLine, endLine);
+        let maxLines = (Math.floor(((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1)) & 0xFFFFFFFF);
+        this.PaintLines(canvas, maxLines);
+
+        if (horizontalDelta > 0)
+            canvas.restore();
     }
 
-    private PaintLines(canvas: PixUI.Canvas, startLine: number, endLine: number) {
+    private PaintLines(canvas: PixUI.Canvas, maxLines: number) {
         let horizontalDelta = this.TextEditor.VirtualTop.X;
-        for (let y = startLine; y < endLine; y++) {
+        for (let y = 0; y < maxLines; y++) {
             let lineRect = PixUI.Rect.FromLTWH(
                 this.Bounds.Left - horizontalDelta, this.Bounds.Top + y * this.FontHeight - this.VisibleLineDrawingRemainder, this.Bounds.Width + horizontalDelta, this.FontHeight);
+            //TODO: check lineRect overlaps with dirty area.
 
             let currentLine = this.Document.GetFirstLogicalLine(
                 this.Document.GetVisibleLine(this.FirstVisibleLine) + y);

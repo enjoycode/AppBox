@@ -83,6 +83,19 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         }
     }
 
+    public OnScroll(dx: number, dy: number): PixUI.Offset {
+        let oldX = this.TextEditor.VirtualTop.X;
+        let oldY = this.TextEditor.VirtualTop.Y;
+
+        //TODO: low and high bound
+        this.TextEditor.VirtualTop = new PixUI.Point(oldX + dx, oldY + dy);
+
+        let offset = new PixUI.Offset(this.TextEditor.VirtualTop.X - oldX, this.TextEditor.VirtualTop.Y - oldY);
+        if (offset.Dx != 0 || offset.Dy != 0)
+            this.Widget.RequestInvalidate(true, null);
+        return offset;
+    }
+
     public OnKeyDown(e: PixUI.KeyEvent) {
         //先预处理一些特殊键
         this._completionContext.PreProcessKeyDown(e);
@@ -101,7 +114,7 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         if (closingPair == null) {
             this.TextEditor.InsertOrReplaceString(text, 0);
         } else {
-            this.TextEditor.InsertOrReplaceString(text + String.fromCharCode(closingPair), 0);
+            this.TextEditor.InsertOrReplaceString(text + String.fromCharCode(closingPair).repeat(1), 0);
             let oldPosition = (this.TextEditor.Caret.Position).Clone();
             this.TextEditor.Caret.Position =
                 new CodeEditor.TextLocation(oldPosition.Column - 1, oldPosition.Line);

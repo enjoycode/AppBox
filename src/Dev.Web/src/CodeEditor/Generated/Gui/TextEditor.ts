@@ -92,6 +92,7 @@ export class TextEditor {
     }
 
     public Paint(canvas: PixUI.Canvas, size: PixUI.Size, dirtyArea: Nullable<PixUI.IDirtyArea>) {
+        //TODO: check dirtyArea
         let currentXPos = 0;
         let currentYPos = 0;
         let adjustScrollBars = false;

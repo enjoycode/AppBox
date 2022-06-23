@@ -132,7 +132,8 @@ export class Caret {
         // draw caret
         let cx = this.CanvasPosX;
         let cy = this.CanvasPosY;
-        if (cx >= textViewArea.Left - 0.5) {
+        if (cx >= textViewArea.Left - 0.5) //TODO:进一步判断超出范围
+        {
             let paint = PixUI.PaintUtils.Shared(this._textEditor.Theme.CaretColor);
             canvas.drawRect(PixUI.Rect.FromLTWH(cx, cy, 2, fontHeight), paint);
         }

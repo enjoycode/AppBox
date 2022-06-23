@@ -1,9 +1,10 @@
 import * as CodeEditor from '@/CodeEditor'
 import * as PixUI from '@/PixUI'
 
-export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IFocusable {
+export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IFocusable, PixUI.IScrollable {
     private static readonly $meta_PixUI_IMouseRegion = true;
     private static readonly $meta_PixUI_IFocusable = true;
+    private static readonly $meta_PixUI_IScrollable = true;
 
     public constructor(controller: CodeEditor.CodeEditorController) {
         super();
@@ -43,6 +44,14 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
         this.#FocusNode = value;
     }
 
+    public get ScrollOffsetX(): number {
+        return this.Controller.TextEditor.VirtualTop.X;
+    }
+
+    public get ScrollOffsetY(): number {
+        return this.Controller.TextEditor.VirtualTop.Y;
+    }
+
 
     public RequestInvalidate(all: boolean, dirtyArea: Nullable<PixUI.IDirtyArea>) {
         if (all)
@@ -57,6 +66,10 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
             this.Root!.Window.StartTextInput();
         else
             this.Root!.Window.StopTextInput();
+    }
+
+    public OnScroll(dx: number, dy: number): PixUI.Offset {
+        return this.Controller.OnScroll(dx, dy);
     }
 
     protected OnMounted() {
