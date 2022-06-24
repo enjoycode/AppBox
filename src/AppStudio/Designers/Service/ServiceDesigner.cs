@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppBoxClient;
 using CodeEditor;
@@ -59,17 +60,16 @@ namespace AppBoxDesign
             TryLoadSourceCode();
         }
 
-        private async ValueTask TryLoadSourceCode()
+        private async void TryLoadSourceCode()
         {
-            if (!_hasLoadSourceCode)
-            {
-                _hasLoadSourceCode = true;
-                var srcCode = (string)await Channel.Invoke("sys.DesignService.OpenServiceModel",
-                    new object[] { _modelNode.Id });
-                _codeEditorController.Document.TextContent = srcCode;
-                //订阅代码变更事件
-                _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
-            }
+            if (_hasLoadSourceCode) return;
+            _hasLoadSourceCode = true;
+
+            var srcCode = (string)await Channel.Invoke("sys.DesignService.OpenServiceModel",
+                new object[] { _modelNode.Id });
+            _codeEditorController.Document.TextContent = srcCode;
+            //订阅代码变更事件
+            _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
         }
 
         private void OnDocumentChanged(DocumentEventArgs e)
@@ -81,9 +81,14 @@ namespace AppBoxDesign
             _delayDocChangedTask.Run();
         }
 
-        private void RunDelayTask()
+        private async void RunDelayTask()
         {
-            //TODO:获取错误列表
+            //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
+            //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
+
+            var problems = (IList<CodeProblem>)await Channel.Invoke("sys.DesignService.GetProblems",
+                new object?[] { false, _modelNode.Id });
+            DesignStore.UpdateProblems(_modelNode, problems);
         }
 
         public override void Dispose()

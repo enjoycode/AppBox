@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppBoxClient;
 using CodeEditor;
@@ -68,32 +69,36 @@ namespace AppBoxDesign
             TryLoadSourceCode();
         }
 
-        private async ValueTask TryLoadSourceCode()
+        private async void TryLoadSourceCode()
         {
-            if (!_hasLoadSourceCode)
-            {
-                _hasLoadSourceCode = true;
-                var srcCode = (string)await Channel.Invoke("sys.DesignService.OpenViewModel",
-                    new object[] { _modelNode.Id });
-                _codeEditorController.Document.TextContent = srcCode;
-                //订阅代码变更事件
-                _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
-            }
+            if (_hasLoadSourceCode) return;
+            _hasLoadSourceCode = true;
+
+            var srcCode = (string)await Channel.Invoke("sys.DesignService.OpenViewModel",
+                new object[] { _modelNode.Id });
+            _codeEditorController.Document.TextContent = srcCode;
+            //订阅代码变更事件
+            _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
         }
 
         private void OnDocumentChanged(DocumentEventArgs e)
         {
             //同步变更至服务端
             _codeSyncService.OnDocumentChanged(e);
-            //TODO: check syntax error first.
             //启动延时任务
             _delayDocChangedTask.Run();
         }
 
-        private void RunDelayTask()
+        private async void RunDelayTask()
         {
-            //TODO:获取错误列表，如果没有错误刷新预览(暂只判断语法错误)
-            if (!_codeEditorController.Document.HasSyntaxError)
+            //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
+            //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
+
+            var problems = (IList<CodeProblem>)await Channel.Invoke("sys.DesignService.GetProblems",
+                new object?[] { false, _modelNode.Id });
+            DesignStore.UpdateProblems(_modelNode, problems);
+
+            if (problems.Count == 0)
                 _previewController.Invalidate();
         }
 

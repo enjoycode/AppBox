@@ -1,5 +1,5 @@
-import * as AppBoxClient from '@/AppBoxClient'
 import * as System from '@/System'
+import * as AppBoxClient from '@/AppBoxClient'
 import * as CodeEditor from '@/CodeEditor'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
@@ -52,27 +52,31 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
         this.TryLoadSourceCode();
     }
 
-    private async TryLoadSourceCode(): System.ValueTask {
-        if (!this._hasLoadSourceCode) {
-            this._hasLoadSourceCode = true;
-            let srcCode = <string><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.OpenViewModel", [this._modelNode.Id]);
-            this._codeEditorController.Document.TextContent = srcCode;
-            //订阅代码变更事件
-            this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
-        }
+    private async TryLoadSourceCode() {
+        if (this._hasLoadSourceCode) return;
+        this._hasLoadSourceCode = true;
+
+        let srcCode = <string><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.OpenViewModel", [this._modelNode.Id]);
+        this._codeEditorController.Document.TextContent = srcCode;
+        //订阅代码变更事件
+        this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
     }
 
     private OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
         //同步变更至服务端
         this._codeSyncService.OnDocumentChanged(e);
-        //TODO: check syntax error first.
         //启动延时任务
         this._delayDocChangedTask.Run();
     }
 
-    private RunDelayTask() {
-        //TODO:获取错误列表，如果没有错误刷新预览(暂只判断语法错误)
-        if (!this._codeEditorController.Document.HasSyntaxError)
+    private async RunDelayTask() {
+        //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
+        //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
+
+        let problems = <System.IList<AppBoxDesign.CodeProblem>><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.GetProblems", [false, this._modelNode.Id]);
+        AppBoxDesign.DesignStore.UpdateProblems(this._modelNode, problems);
+
+        if (problems.length == 0)
             this._previewController.Invalidate();
     }
 

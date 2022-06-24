@@ -13,6 +13,8 @@ export interface IInputStream {
     Deserialize(): any;
 
     ReadByte(): number;
+    
+    ReadBool(): boolean;
 
     ReadShort(): number;
 

@@ -1,3 +1,4 @@
+import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
@@ -28,7 +29,7 @@ export class BottomPad extends PixUI.View {
 
     private static BuildBody(title: string): PixUI.Widget {
         if (title == "Problems") {
-            return BottomPad.BuildProblemsPad();
+            return new PixUI.DataGrid<AppBoxDesign.CodeProblem>(AppBoxDesign.DesignStore.ProblemsController);
         }
 
         return new PixUI.Container().Init(
@@ -39,28 +40,8 @@ export class BottomPad extends PixUI.View {
             });
     }
 
-    private static BuildProblemsPad(): PixUI.Widget {
-        let controller = new PixUI.DataGridController<IProblem>(new System.List<PixUI.DataGridColumn<IProblem>>().Init(
-            [
-                new PixUI.DataGridTextColumn<IProblem>("Model", p => p.Model, PixUI.ColumnWidth.Fixed(150)),
-                new PixUI.DataGridTextColumn<IProblem>("Position", p => p.Position, PixUI.ColumnWidth.Fixed(180)),
-                new PixUI.DataGridTextColumn<IProblem>("Info", p => p.Info),
-            ]));
-
-        return new PixUI.DataGrid<IProblem>(controller);
-    }
-
     public Init(props: Partial<BottomPad>): BottomPad {
         Object.assign(this, props);
         return this;
     }
-}
-
-export interface IProblem {
-    get Model(): string;
-
-    get Position(): string;
-
-    get Info(): string;
-
 }

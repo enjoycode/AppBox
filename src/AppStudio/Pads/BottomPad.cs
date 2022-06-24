@@ -35,7 +35,7 @@ namespace AppBoxDesign
         {
             if (title == "Problems")
             {
-                return BuildProblemsPad();
+                return new DataGrid<CodeProblem>(DesignStore.ProblemsController);
             }
 
             return new Container()
@@ -45,25 +45,6 @@ namespace AppBoxDesign
                 Child = new Text(title),
             };
         }
-
-        private static Widget BuildProblemsPad()
-        {
-            var controller = new DataGridController<IProblem>(new List<DataGridColumn<IProblem>>()
-            {
-                new DataGridTextColumn<IProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
-                new DataGridTextColumn<IProblem>("Position", p => p.Position,
-                    ColumnWidth.Fixed(180)),
-                new DataGridTextColumn<IProblem>("Info", p => p.Info),
-            });
-
-            return new DataGrid<IProblem>(controller);
-        }
     }
-
-    public interface IProblem
-    {
-        string Model { get; }
-        string Position { get; }
-        string Info { get; }
-    }
+    
 }

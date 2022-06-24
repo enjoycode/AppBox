@@ -25,6 +25,28 @@ namespace AppBoxDesign
         internal static readonly TabController<DesignNode> DesignerController =
             new TabController<DesignNode>(new List<DesignNode>());
 
+        private static DataGridController<CodeProblem>? _problemsController;
+
+        /// <summary>
+        /// 问题列表控制器
+        /// </summary>
+        internal static DataGridController<CodeProblem> ProblemsController
+        {
+            get
+            {
+                //延迟实始化 for web
+                _problemsController ??= new DataGridController<CodeProblem>(
+                    new List<DataGridColumn<CodeProblem>>()
+                    {
+                        //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
+                        new DataGridTextColumn<CodeProblem>("Position", p => p.Position,
+                            ColumnWidth.Fixed(180)),
+                        new DataGridTextColumn<CodeProblem>("Message", p => p.Message),
+                    });
+                return _problemsController;
+            }
+        }
+
         /// <summary>
         /// 新建成功返回后刷新模型根节点或添加新建的节点
         /// </summary>
@@ -37,6 +59,12 @@ namespace AppBoxDesign
             var newNode = TreeController.InsertNode(result.NewNode, parentNode, result.InsertIndex);
             TreeController.ExpandTo(newNode);
             TreeController.SelectNode(newNode);
+        }
+
+        internal static void UpdateProblems(ModelNode modelNode, IList<CodeProblem> problems)
+        {
+            //TODO:暂简单实现
+            ProblemsController.DataSource = problems;
         }
     }
 }
