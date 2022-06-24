@@ -43,6 +43,7 @@ namespace AppBoxCore
         CompletionItem = 53,
         NewNodeResult = 54,
         ChangedModel = 55,
+        CodeProblem = 56,
 
         //----运行时相关类型----
         Entity = 90,

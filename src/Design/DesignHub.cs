@@ -11,6 +11,8 @@ public sealed class DesignHub : IDesignContext, IDisposable
             typeof(DesignTree)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.NewNodeResult,
             typeof(NewNodeResult)));
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.CodeProblem,
+            typeof(CodeProblem)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.CompletionItem,
             typeof(GetCompletion.CompletionItem)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ChangedModel,

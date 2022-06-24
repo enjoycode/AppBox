@@ -15,6 +15,7 @@ public sealed class DesignService : IService
         { nameof(CheckoutNode), new CheckoutNode() },
         // Code
         { nameof(ChangeBuffer), new ChangeBuffer() },
+        { nameof(GetProblems), new GetProblems() },
         { nameof(GetCompletion), new GetCompletion() },
         { nameof(GetSignatures), new GetSignatures() },
         // Entity
