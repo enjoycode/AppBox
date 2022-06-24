@@ -43,7 +43,7 @@ export class ListViewController<T> extends PixUI.WidgetController<ListView<T>> {
     }
 }
 
-export class ListView<T> extends PixUI.MultiChildWidget implements PixUI.IScrollable {
+export class ListView<T> extends PixUI.MultiChildWidget<PixUI.Widget> implements PixUI.IScrollable {
     private static readonly $meta_PixUI_IScrollable = true;
 
     public static From(widgets: System.IList<PixUI.Widget>, controller: Nullable<ListViewController<PixUI.Widget>> = null): ListView<PixUI.Widget> {

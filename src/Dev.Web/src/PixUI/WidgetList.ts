@@ -1,7 +1,7 @@
-import {List, Predicate} from "../System";
+import {List, Predicate} from "@/System";
 import {Widget} from "./Generated/Widgets/Widget";
 
-export class WidgetList extends List<Widget> {
+export class WidgetList<T extends Widget> extends List<T> {
     private readonly _parent: Widget;
 
     public constructor(parent: Widget) {
@@ -9,12 +9,12 @@ export class WidgetList extends List<Widget> {
         this._parent = parent;
     }
 
-    public Add(item: Widget): void {
+    public Add(item: T): void {
         item.Parent = this._parent;
         this.push(item);
     }
 
-    public Remove(item: Widget): boolean {
+    public Remove(item: T): boolean {
         let index = this.indexOf(item);
         if (index >= 0) {
             item.Parent = null;
@@ -23,7 +23,7 @@ export class WidgetList extends List<Widget> {
         return index >= 0;
     }
 
-    public RemoveAll(pred: Predicate<Widget>) {
+    public RemoveAll(pred: Predicate<T>) {
         for (let i = this.length - 1; i >= 0; i--) {
             if (pred(this[i])) {
                 this[i].Parent = null;
@@ -32,11 +32,11 @@ export class WidgetList extends List<Widget> {
         }
     }
 
-    IndexOf(item: Widget): number {
+    IndexOf(item: T): number {
         return this.indexOf(item);
     }
 
-    Insert(index: number, item: Widget): void {
+    Insert(index: number, item: T): void {
         item.Parent = this._parent;
         this.splice(index, 0, item);
     }

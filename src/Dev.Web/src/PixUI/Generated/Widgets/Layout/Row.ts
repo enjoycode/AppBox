@@ -1,7 +1,7 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export class Row extends PixUI.MultiChildWidget {
+export class Row extends PixUI.MultiChildWidget<PixUI.Widget> {
     private readonly _alignment: PixUI.VerticalAlignment;
     private readonly _spacing: number;
 

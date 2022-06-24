@@ -3,16 +3,16 @@ import * as PixUI from '@/PixUI'
 /// <summary>
 /// 具有多个子级的Widget
 /// </summary>
-export abstract class MultiChildWidget extends PixUI.Widget {
+export abstract class MultiChildWidget<T extends PixUI.Widget> extends PixUI.Widget {
     protected constructor() {
         super();
-        this._children = new PixUI.WidgetList(this);
+        this._children = new PixUI.WidgetList<T>(this);
     }
 
     // ReSharper disable once InconsistentNaming
-    protected readonly _children: PixUI.WidgetList;
+    protected readonly _children: PixUI.WidgetList<T>;
 
-    public set Children(value: PixUI.Widget[]) {
+    public set Children(value: T[]) {
         this._children.Clear();
         for (const child of value) {
             this._children.Add(child);
@@ -31,6 +31,6 @@ export abstract class MultiChildWidget extends PixUI.Widget {
     }
 
     public IndexOfChild(child: PixUI.Widget): number {
-        return this._children.IndexOf(child);
+        return this._children.IndexOf(<T><unknown>child);
     }
 }
