@@ -1,5 +1,6 @@
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
+import {EdgeInsets} from "@/PixUI";
 
 export enum SidePadType {
     DesignTree,
@@ -15,6 +16,7 @@ export class NaviBar extends PixUI.View {
         super();
         this.Child = new PixUI.Container().Init(
             {
+                Padding: PixUI.State.op_Implicit_From(EdgeInsets.Only(5, 0, 0, 0)),
                 Width: PixUI.State.op_Implicit_From(45),
                 BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(43, 49, 56)),
                 Child: new PixUI.Column().Init(
@@ -65,7 +67,7 @@ export class SidePad extends PixUI.View {
                         Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
                         Width: PixUI.State.op_Implicit_From(250),
                         BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
-                        Child: new PixUI.Conditional<SidePadType>(AppBoxDesign.DesignStore.ActiveSidePad, [new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignerPad()), new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad()), new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad())]),
+                        Child: new PixUI.Conditional<SidePadType>(AppBoxDesign.DesignStore.ActiveSidePad, [new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignTreePad()), new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad()), new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad())]),
                     })
                 ]
             });

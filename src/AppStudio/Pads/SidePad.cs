@@ -18,6 +18,7 @@ namespace AppBoxDesign
         {
             Child = new Container
             {
+                Padding = EdgeInsets.Only(5, 0, 0, 0),
                 Width = 45,
                 BgColor = new Color(43, 49, 56),
                 Child = new Column
@@ -80,7 +81,7 @@ namespace AppBoxDesign
                         Child = new Conditional<SidePadType>(DesignStore.ActiveSidePad, new[]
                         {
                             new WhenBuilder<SidePadType>(t => t == SidePadType.DesignTree,
-                                () => new DesignerPad()),
+                                () => new DesignTreePad()),
                             new WhenBuilder<SidePadType>(t => t == SidePadType.Toolbox,
                                 () => new ToolboxPad()),
                             new WhenBuilder<SidePadType>(t => t == SidePadType.Settings,
