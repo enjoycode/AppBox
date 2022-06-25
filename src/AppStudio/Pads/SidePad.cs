@@ -66,25 +66,8 @@ namespace AppBoxDesign
 
     internal sealed class SidePad : View
     {
-        private readonly DesignTreePad _designTreePad = new DesignTreePad();
-        private readonly ToolboxPad _toolboxPad = new ToolboxPad();
-        private readonly SettingsPad _settingsPad = new SettingsPad();
-
         public SidePad()
         {
-            var activePad = Compute<SidePadType, Widget?>(
-                DesignStore.ActiveSidePad, s =>
-                {
-                    switch (s)
-                    {
-                        case SidePadType.DesignTree: return _designTreePad;
-                        case SidePadType.Toolbox: return _toolboxPad;
-                        case SidePadType.Settings: return _settingsPad;
-                        default: return null;
-                    }
-                });
-
-
             Child = new Row
             {
                 Children = new Widget[]
@@ -94,7 +77,15 @@ namespace AppBoxDesign
                     {
                         Padding = EdgeInsets.All(5),
                         Width = 250, BgColor = new Color(0xFFF3F3F3),
-                        Child = new DynamicView { DynamicWidget = activePad },
+                        Child = new Conditional<SidePadType>(DesignStore.ActiveSidePad, new[]
+                        {
+                            new WhenBuilder<SidePadType>(t => t == SidePadType.DesignTree,
+                                () => new DesignerPad()),
+                            new WhenBuilder<SidePadType>(t => t == SidePadType.Toolbox,
+                                () => new ToolboxPad()),
+                            new WhenBuilder<SidePadType>(t => t == SidePadType.Settings,
+                                () => new SettingsPad()),
+                        }),
                     }
                 }
             };
