@@ -46,7 +46,10 @@ export abstract class SingleChildWidget extends PixUI.Widget {
         let padding = this._padding?.Value ?? PixUI.EdgeInsets.All(0);
 
         if (this.Child == null) {
-            this.SetSize(width, height);
+            if (this.IsLayoutTight)
+                this.SetSize(0, 0);
+            else
+                this.SetSize(width, height);
             return;
         }
 
@@ -57,5 +60,17 @@ export abstract class SingleChildWidget extends PixUI.Widget {
             this.SetSize(this.Child.W + padding.Left + padding.Right, this.Child.H + padding.Top + padding.Bottom);
         else
             this.SetSize(width, height);
+    }
+
+    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+        console.assert(this.AutoSize);
+
+        if (!this.IsLayoutTight) return; //do nothing when not IsLayoutTight
+
+        let oldWidth = this.W;
+        let oldHeight = this.H;
+        this.SetSize(oldWidth + dx, oldHeight + dy); //直接更新自己的大小
+
+        this.TryNotifyParentIfSizeChanged(oldWidth, oldHeight, affects);
     }
 }

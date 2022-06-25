@@ -56,27 +56,8 @@ export class NaviBar extends PixUI.View {
 }
 
 export class SidePad extends PixUI.View {
-    private readonly _designTreePad: AppBoxDesign.DesignTreePad = new AppBoxDesign.DesignTreePad();
-    private readonly _toolboxPad: AppBoxDesign.ToolboxPad = new AppBoxDesign.ToolboxPad();
-    private readonly _settingsPad: AppBoxDesign.SettingsPad = new AppBoxDesign.SettingsPad();
-
     public constructor() {
         super();
-        let activePad = this.Compute1(
-            AppBoxDesign.DesignStore.ActiveSidePad, s => {
-                switch (s) {
-                    case SidePadType.DesignTree:
-                        return this._designTreePad;
-                    case SidePadType.Toolbox:
-                        return this._toolboxPad;
-                    case SidePadType.Settings:
-                        return this._settingsPad;
-                    default:
-                        return null;
-                }
-            });
-
-
         this.Child = new PixUI.Row().Init(
             {
                 Children: [new NaviBar(), new PixUI.Container().Init(
@@ -84,7 +65,12 @@ export class SidePad extends PixUI.View {
                         Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
                         Width: PixUI.State.op_Implicit_From(250),
                         BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
-                        Child: new PixUI.DynamicView().Init({DynamicWidget: activePad}),
+                        Child: new PixUI.Conditional<SidePadType>(AppBoxDesign.DesignStore.ActiveSidePad,
+                            [
+                                new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignerPad()),
+                                new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad()),
+                                new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad()),
+                            ]),
                     })
                 ]
             });

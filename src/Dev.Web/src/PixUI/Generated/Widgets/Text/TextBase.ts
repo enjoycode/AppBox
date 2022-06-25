@@ -58,22 +58,7 @@ export abstract class TextBase extends PixUI.Widget {
 
     protected BuildParagraphInternal(text: string, width: number, color: PixUI.Color): PixUI.Paragraph {
         let fontSize = this._fontSize?.Value ?? PixUI.Theme.DefaultFontSize;
-        let ts = PixUI.MakeTextStyle({color: color, fontSize: fontSize});
-        let ps = PixUI.MakeParagraphStyle({maxLines: 1, textStyle: ts});
-        if (this instanceof PixUI.EditableText) {
-            ts.heightMultiplier = 1;
-            ps.heightMultiplier = 1;
-        }
-
-        let pb = PixUI.MakeParagraphBuilder(ps);
-
-        pb.pushStyle(ts);
-        pb.addText(text);
-        pb.pop();
-        let ph = pb.build();
-        ph.layout(width);
-        pb.delete();
-        return ph;
+        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, null, 1, this instanceof PixUI.EditableText);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {

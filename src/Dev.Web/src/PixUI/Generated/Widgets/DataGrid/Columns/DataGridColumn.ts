@@ -77,22 +77,7 @@ export abstract class DataGridColumn<T> {
     }
 
     public static BuildCellParagraph(rect: PixUI.Rect, style: PixUI.CellStyle, text: string, maxLines: number): PixUI.Paragraph {
-        let ps = PixUI.MakeParagraphStyle({maxLines: (Math.floor(maxLines) & 0xFFFFFFFF)});
-        let pb = PixUI.MakeParagraphBuilder(ps);
-        let ts = PixUI.MakeTextStyle({
-            color: style.Color ?? PixUI.Colors.Black,
-            heightMultiplier: 1,
-            fontSize: style.FontSize,
-            fontStyle: new PixUI.FontStyle(style.FontWeight, CanvasKit.FontSlant.Upright)
-        });
-        pb.pushStyle(ts);
-        pb.addText(text);
-        pb.pop();
-
-        let ph = pb.build();
-        ph.layout(rect.Width - PixUI.CellStyle.CellPadding * 2);
-        pb.delete();
-        return ph;
+        return PixUI.TextPainter.BuildParagraph(text, rect.Width - PixUI.CellStyle.CellPadding * 2, style.FontSize, style.Color ?? PixUI.Colors.Black, new PixUI.FontStyle(style.FontWeight, CanvasKit.FontSlant.Upright), maxLines, true);
     }
 
     public static PaintCellParagraph(canvas: PixUI.Canvas, rect: PixUI.Rect, style: PixUI.CellStyle, paragraph: PixUI.Paragraph) {

@@ -37,6 +37,7 @@ export * from "./Animation/CurvedAnimation";
 export * from "./Utils/ColorUtils";
 export * from "./Utils/FloatUtils";
 export * from "./Utils/PaintDebugger";
+export * from "./Utils/TextPainter"
 
 export * from "./State/Binding";
 export * from "./State/State";
@@ -77,6 +78,9 @@ export * from "./Route/Navigator";
 export * from "./Route/DynamicView";
 export * from "./Route/RouteView";
 
+export * from "./Widgets/Conditional/Conditional";
+export * from "./Widgets/Conditional/IfConditional";
+
 export * from "./Widgets/Text/TextBase";
 export * from "./Widgets/Text/Text";
 export * from "./Widgets/Text/EditableText";
@@ -115,6 +119,9 @@ export * from "./Widgets/Menu/MainMenu";
 export * from "./Widgets/Menu/MenuItemWidget";
 export * from "./Widgets/Menu/PopupMenuStack";
 export * from "./Widgets/Menu/PopupMenu";
+
+export * from "./Widgets/Form/FormItem";
+export * from "./Widgets/Form/Form";
 
 export * from "./Widgets/TabView/Tab";
 export * from "./Widgets/TabView/TabController";

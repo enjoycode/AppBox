@@ -2,18 +2,16 @@ import * as PixUI from '@/PixUI'
 
 export type TransitionBuilder = (animation: PixUI.Animation<number>, child: PixUI.Widget) => PixUI.Widget;
 
-export class DynamicView extends PixUI.SingleChildWidget {
+export abstract class DynamicView extends PixUI.SingleChildWidget {
+    protected constructor() {
+        super();
+        this.IsLayoutTight = false; //默认非紧凑布局
+    }
+
     private _animationController: Nullable<PixUI.AnimationController>;
     private _animationFrom: Nullable<PixUI.Widget>;
     private _animationTo: Nullable<PixUI.Widget>;
     private _transitionStack: Nullable<PixUI.TransitionStack>;
-    private _dynamicWidget: Nullable<PixUI.State<Nullable<PixUI.Widget>>>;
-
-    public set DynamicWidget(value: PixUI.State<Nullable<PixUI.Widget>>) {
-        this._dynamicWidget = this.Rebind(this._dynamicWidget, value, PixUI.BindingOptions.None);
-        if (!this.IsMounted && this._dynamicWidget != null)
-            this.Child = this._dynamicWidget.Value;
-    }
 
     protected ReplaceTo(to: Nullable<PixUI.Widget>) {
         this.Root!.Window.BeforeDynamicViewChange();
@@ -86,28 +84,6 @@ export class DynamicView extends PixUI.SingleChildWidget {
         }
     }
 
-    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
-        if ((state === this._dynamicWidget)) {
-            this.ReplaceTo(this._dynamicWidget.Value);
-            return;
-        }
-
-        super.OnStateChanged(state, options);
-    }
-
-
-    public Layout(availableWidth: number, availableHeight: number) {
-        //始终填满可用空间
-        this.CachedAvailableWidth = availableWidth;
-        this.CachedAvailableHeight = availableHeight;
-
-        this.Child?.Layout(availableWidth, availableHeight);
-        this.SetSize(availableWidth, availableHeight);
-    }
-
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
-        //do nothing now.
-    }
 
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         //如果在动画切换过程中，不继续尝试HitTest子级，因为缓存的HitTestResult.LastTransform如终是动画开始前的
@@ -133,11 +109,6 @@ export class DynamicView extends PixUI.SingleChildWidget {
 
         if (this.Parent != null)
             canvas.restore();
-    }
-
-    public Init(props: Partial<DynamicView>): DynamicView {
-        Object.assign(this, props);
-        return this;
     }
 
 }
