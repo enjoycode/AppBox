@@ -1,3 +1,4 @@
+import * as AppBoxCore from '@/AppBoxCore'
 import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
@@ -13,8 +14,8 @@ export class MembersDesigner extends PixUI.View {
                             {
                                 Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.EntityMemberVO>>().Init(
                                     [
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name, PixUI.ColumnWidth.Fixed(110)),
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", v => v.Type.toString(), PixUI.ColumnWidth.Fixed(120)),
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name, PixUI.ColumnWidth.Fixed(150)),
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", v => AppBoxCore.EntityMemberType[v.Type], PixUI.ColumnWidth.Fixed(180)),
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("AllowNull", v => v.AllowNull.toString(), PixUI.ColumnWidth.Fixed(90)),
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Comment", v => v.Comment ?? ''),
                                     ])

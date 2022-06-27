@@ -18,10 +18,10 @@ namespace AppBoxDesign
                             Columns = new List<DataGridColumn<EntityMemberVO>>()
                             {
                                 new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name,
-                                    ColumnWidth.Fixed(110)),
+                                    ColumnWidth.Fixed(150)),
                                 new DataGridTextColumn<EntityMemberVO>("Type",
                                     v => v.Type.ToString(),
-                                    ColumnWidth.Fixed(120)),
+                                    ColumnWidth.Fixed(180)),
                                 new DataGridTextColumn<EntityMemberVO>("AllowNull",
                                     v => v.AllowNull.ToString(),
                                     ColumnWidth.Fixed(90)),
