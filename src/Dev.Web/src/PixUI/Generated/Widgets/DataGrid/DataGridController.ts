@@ -1,30 +1,40 @@
-import * as PixUI from '@/PixUI'
 import * as System from '@/System'
+import * as PixUI from '@/PixUI'
 
 export class DataGridController<T> {
-    public constructor(columns: System.IList<PixUI.DataGridColumn<T>>, theme: Nullable<PixUI.DataGridTheme> = null) {
-        this.Columns = columns;
+    public constructor(theme: Nullable<PixUI.DataGridTheme> = null) {
         this.Theme = theme ?? new PixUI.DataGridTheme();
+    }
+
+    public readonly Theme: PixUI.DataGridTheme;
+
+    public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
+
+    private _columns: System.IList<PixUI.DataGridColumn<T>>;
+    private _owner: Nullable<PixUI.DataGrid<T>>;
+
+    public Attach(dataGrid: PixUI.DataGrid<T>) {
+        this._owner = dataGrid;
+    }
+
+    public get Columns(): System.IList<PixUI.DataGridColumn<T>> {
+        return this._columns;
+    }
+
+    public set Columns(value: System.IList<PixUI.DataGridColumn<T>>) {
+        this._columns = value;
 
         //展开非分组列
         this.HeaderRows = 1;
-        for (const column of columns) {
+        for (const column of this._columns) {
             this.GetLeafColumns(column, this._cachedLeafColumns, null);
         }
 
         //TODO:纠正一些错误的冻结列设置,如全部冻结，中间有冻结等
         this.HasFrozen = this._cachedLeafColumns.Any(c => c.Frozen);
-    }
 
-    public readonly Columns: System.IList<PixUI.DataGridColumn<T>>;
-    public readonly Theme: PixUI.DataGridTheme;
-
-    public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
-
-    private _owner: Nullable<PixUI.DataGrid<T>>;
-
-    public Attach(dataGrid: PixUI.DataGrid<T>) {
-        this._owner = dataGrid;
+        if (this._owner != null && this._owner.IsMounted)
+            this._owner.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
 

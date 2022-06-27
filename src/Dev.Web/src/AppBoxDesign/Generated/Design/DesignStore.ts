@@ -15,13 +15,7 @@ export class DesignStore {
 
     public static get ProblemsController(): PixUI.DataGridController<AppBoxDesign.CodeProblem> {
         //延迟实始化 for web
-        DesignStore._problemsController ??= new PixUI.DataGridController<AppBoxDesign.CodeProblem>(new System.List<PixUI.DataGridColumn<AppBoxDesign.CodeProblem>>().Init(
-            [
-                //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
-                //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
-                new PixUI.DataGridTextColumn<AppBoxDesign.CodeProblem>("Position", p => p.Position, PixUI.ColumnWidth.Fixed(180)),
-                new PixUI.DataGridTextColumn<AppBoxDesign.CodeProblem>("Message", p => p.Message),
-            ]));
+        DesignStore._problemsController ??= new PixUI.DataGridController<AppBoxDesign.CodeProblem>();
         return DesignStore._problemsController;
     }
 

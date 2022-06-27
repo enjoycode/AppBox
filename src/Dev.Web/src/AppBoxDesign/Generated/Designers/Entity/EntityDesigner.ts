@@ -1,5 +1,5 @@
-import * as AppBoxClient from '@/AppBoxClient'
 import * as System from '@/System'
+import * as AppBoxClient from '@/AppBoxClient'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -22,13 +22,7 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
     private _hasLoad: boolean = false;
     private _entityModel: Nullable<AppBoxDesign.EntityModelVO>;
 
-    private readonly _membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO> = new PixUI.DataGridController<AppBoxDesign.EntityMemberVO>(new System.List<PixUI.DataGridColumn<AppBoxDesign.EntityMemberVO>>().Init(
-        [
-            new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name, PixUI.ColumnWidth.Fixed(110)),
-            new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", v => v.Type.toString(), PixUI.ColumnWidth.Fixed(120)),
-            new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("AllowNull", v => v.AllowNull.toString(), PixUI.ColumnWidth.Fixed(90)),
-            new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Comment", v => v.Comment ?? ''),
-        ]));
+    private readonly _membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO> = new PixUI.DataGridController<AppBoxDesign.EntityMemberVO>();
 
     private static BuildActionBar(): PixUI.Widget {
         return new PixUI.Container().Init(

@@ -16,13 +16,7 @@ namespace AppBoxDesign
         }
 
         private readonly DataGridController<ChangedModel> _dataGridController =
-            new DataGridController<ChangedModel>(
-                new List<DataGridColumn<ChangedModel>>()
-                {
-                    new DataGridTextColumn<ChangedModel>("ModelType", v => v.ModelType),
-                    new DataGridTextColumn<ChangedModel>("ModelId", v => v.ModelId),
-                }
-            );
+            new DataGridController<ChangedModel>();
 
         protected override Widget BuildBody()
         {
@@ -33,7 +27,18 @@ namespace AppBoxDesign
                 {
                     Children = new Widget[]
                     {
-                        new Expanded() { Child = new DataGrid<ChangedModel>(_dataGridController) },
+                        new Expanded()
+                        {
+                            Child = new DataGrid<ChangedModel>(_dataGridController)
+                            {
+                                Columns = new List<DataGridColumn<ChangedModel>>()
+                                {
+                                    new DataGridTextColumn<ChangedModel>("ModelType",
+                                        v => v.ModelType),
+                                    new DataGridTextColumn<ChangedModel>("ModelId", v => v.ModelId),
+                                }
+                            }
+                        },
                         new Row(VerticalAlignment.Middle, 20)
                         {
                             Children = new Widget[]

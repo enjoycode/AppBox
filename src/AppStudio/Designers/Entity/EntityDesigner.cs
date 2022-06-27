@@ -35,15 +35,7 @@ namespace AppBoxDesign
         private EntityModelVO? _entityModel;
 
         private readonly DataGridController<EntityMemberVO> _membersController =
-            new DataGridController<EntityMemberVO>(new List<DataGridColumn<EntityMemberVO>>()
-            {
-                new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name, ColumnWidth.Fixed(110)),
-                new DataGridTextColumn<EntityMemberVO>("Type", v => v.Type.ToString(),
-                    ColumnWidth.Fixed(120)),
-                new DataGridTextColumn<EntityMemberVO>("AllowNull", v => v.AllowNull.ToString(),
-                    ColumnWidth.Fixed(90)),
-                new DataGridTextColumn<EntityMemberVO>("Comment", v => v.Comment ?? string.Empty),
-            });
+            new DataGridController<EntityMemberVO>();
 
         private static Widget BuildActionBar()
         {

@@ -18,7 +18,7 @@ namespace AppBoxDesign
             {
                 Height = 190,
                 Child = new TabView<string>(_tabController, BuildTab, BuildBody, false, 40)
-                    { SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3)},
+                    { SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3) },
             };
         }
 
@@ -35,7 +35,16 @@ namespace AppBoxDesign
         {
             if (title == "Problems")
             {
-                return new DataGrid<CodeProblem>(DesignStore.ProblemsController);
+                return new DataGrid<CodeProblem>(DesignStore.ProblemsController)
+                {
+                    Columns = new List<DataGridColumn<CodeProblem>>()
+                    {
+                        //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
+                        new DataGridTextColumn<CodeProblem>("Position", p => p.Position,
+                            ColumnWidth.Fixed(180)),
+                        new DataGridTextColumn<CodeProblem>("Message", p => p.Message),
+                    }
+                };
             }
 
             return new Container()
@@ -46,5 +55,4 @@ namespace AppBoxDesign
             };
         }
     }
-    
 }

@@ -1,3 +1,4 @@
+import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -8,7 +9,16 @@ export class MembersDesigner extends PixUI.View {
             {
                 Children: [new PixUI.Expanded().Init(
                     {
-                        Child: new PixUI.DataGrid<AppBoxDesign.EntityMemberVO>(membersController),
+                        Child: new PixUI.DataGrid<AppBoxDesign.EntityMemberVO>(membersController).Init(
+                            {
+                                Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.EntityMemberVO>>().Init(
+                                    [
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name, PixUI.ColumnWidth.Fixed(110)),
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", v => v.Type.toString(), PixUI.ColumnWidth.Fixed(120)),
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("AllowNull", v => v.AllowNull.toString(), PixUI.ColumnWidth.Fixed(90)),
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Comment", v => v.Comment ?? ''),
+                                    ])
+                            }),
                     }), new PixUI.Container().Init(
                     {
                         BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),

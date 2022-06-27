@@ -17,6 +17,14 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
 
     private readonly _controller: PixUI.DataGridController<T>;
 
+    public get Columns(): System.IList<PixUI.DataGridColumn<T>> {
+        return this._controller.Columns;
+    }
+
+    public set Columns(value: System.IList<PixUI.DataGridColumn<T>>) {
+        this._controller.Columns = value;
+    }
+
     #MouseRegion: PixUI.MouseRegion;
     public get MouseRegion() {
         return this.#MouseRegion;

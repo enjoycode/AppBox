@@ -12,12 +12,7 @@ export class PublishDialog extends PixUI.Dialog<boolean> {
         this.OnClose = PublishDialog._OnClose;
     }
 
-    private readonly _dataGridController: PixUI.DataGridController<AppBoxDesign.ChangedModel> = new PixUI.DataGridController<AppBoxDesign.ChangedModel>(new System.List<PixUI.DataGridColumn<AppBoxDesign.ChangedModel>>().Init(
-        [
-            new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelType", v => v.ModelType),
-            new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelId", v => v.ModelId),
-        ])
-    );
+    private readonly _dataGridController: PixUI.DataGridController<AppBoxDesign.ChangedModel> = new PixUI.DataGridController<AppBoxDesign.ChangedModel>();
 
     protected BuildBody(): PixUI.Widget {
         return new PixUI.Container().Init(
@@ -25,7 +20,17 @@ export class PublishDialog extends PixUI.Dialog<boolean> {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
                 Child: new PixUI.Column(PixUI.HorizontalAlignment.Right, 20).Init(
                     {
-                        Children: [new PixUI.Expanded().Init({Child: new PixUI.DataGrid<AppBoxDesign.ChangedModel>(this._dataGridController)}), new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
+                        Children: [new PixUI.Expanded().Init(
+                            {
+                                Child: new PixUI.DataGrid<AppBoxDesign.ChangedModel>(this._dataGridController).Init(
+                                    {
+                                        Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.ChangedModel>>().Init(
+                                            [
+                                                new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelType", v => v.ModelType),
+                                                new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelId", v => v.ModelId),
+                                            ])
+                                    })
+                            }), new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
                             {
                                 Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({OnTap: _ => this.Close(true)}), new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({OnTap: _ => this.Close(false)})]
                             })

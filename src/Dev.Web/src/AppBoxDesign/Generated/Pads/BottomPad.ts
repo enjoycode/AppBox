@@ -32,7 +32,16 @@ export class BottomPad extends PixUI.View {
 
     private static BuildBody(title: string): PixUI.Widget {
         if (title == "Problems") {
-            return new PixUI.DataGrid<AppBoxDesign.CodeProblem>(AppBoxDesign.DesignStore.ProblemsController);
+            return new PixUI.DataGrid<AppBoxDesign.CodeProblem>(AppBoxDesign.DesignStore.ProblemsController).Init(
+                {
+                    Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.CodeProblem>>().Init(
+                        [
+                            //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
+                            //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
+                            new PixUI.DataGridTextColumn<AppBoxDesign.CodeProblem>("Position", p => p.Position, PixUI.ColumnWidth.Fixed(180)),
+                            new PixUI.DataGridTextColumn<AppBoxDesign.CodeProblem>("Message", p => p.Message),
+                        ])
+                });
         }
 
         return new PixUI.Container().Init(
