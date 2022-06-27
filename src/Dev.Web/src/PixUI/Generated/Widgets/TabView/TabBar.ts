@@ -38,6 +38,8 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
 
     private _scrollOffset: number = 0;
 
+    public BgColor: Nullable<PixUI.Color>;
+
     public SelectedColor: Nullable<PixUI.Color>;
 
     public HoverColor: Nullable<PixUI.Color>;
@@ -59,6 +61,10 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
         this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
+
+    public get IsOpaque(): boolean {
+        return this.BgColor != null && this.BgColor.IsOpaque;
+    }
 
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (!this.ContainsPoint(x, y)) return false;
@@ -125,6 +131,9 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+        if (this.BgColor != null)
+            canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this.BgColor));
+
         for (const tab of this._tabs) //TODO: check visible
         {
             canvas.translate(tab.X, tab.Y);

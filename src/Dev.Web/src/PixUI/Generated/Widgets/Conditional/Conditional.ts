@@ -35,7 +35,6 @@ export class Conditional<T> extends PixUI.DynamicView //where T: IEquatable<T>
         this._whens = whens;
 
         this.Child = this.MakeChildByCondition();
-        console.log(this.Child)
     }
 
     private readonly _state: PixUI.State<T>;

@@ -18,7 +18,7 @@ namespace AppBoxDesign
             {
                 Height = 190,
                 Child = new TabView<string>(_tabController, BuildTab, BuildBody, false, 40)
-                    { SelectedTabColor = Colors.White },
+                    { SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3)},
             };
         }
 

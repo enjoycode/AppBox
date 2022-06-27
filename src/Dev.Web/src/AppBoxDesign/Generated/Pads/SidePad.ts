@@ -1,6 +1,5 @@
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
-import {EdgeInsets} from "@/PixUI";
 
 export enum SidePadType {
     DesignTree,
@@ -16,7 +15,7 @@ export class NaviBar extends PixUI.View {
         super();
         this.Child = new PixUI.Container().Init(
             {
-                Padding: PixUI.State.op_Implicit_From(EdgeInsets.Only(5, 0, 0, 0)),
+                Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(5, 0, 0, 0)),
                 Width: PixUI.State.op_Implicit_From(45),
                 BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(43, 49, 56)),
                 Child: new PixUI.Column().Init(

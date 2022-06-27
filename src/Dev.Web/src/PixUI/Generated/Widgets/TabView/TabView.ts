@@ -36,6 +36,14 @@ export class TabView<T> extends PixUI.Widget {
     private readonly _tabBody: PixUI.TabBody<T>;
     private readonly _tabBarIndent: number;
 
+    public get TabBarBgColor(): Nullable<PixUI.Color> {
+        return this._tabBar.BgColor;
+    }
+
+    public set TabBarBgColor(value: Nullable<PixUI.Color>) {
+        this._tabBar.BgColor = value;
+    }
+
     public get SelectedTabColor(): Nullable<PixUI.Color> {
         return this._tabBar.SelectedColor;
     }

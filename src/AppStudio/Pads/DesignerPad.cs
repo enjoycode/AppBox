@@ -15,7 +15,8 @@ namespace AppBoxDesign
             BgColor = Colors.White;
 
             Child = new TabView<DesignNode>(DesignStore.DesignerController, BuildTab, BuildBody,
-                true, 40) { SelectedTabColor = Colors.White };
+                    true, 40)
+                { SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3) };
         }
 
         private static Widget BuildTab(DesignNode node, State<bool> isSelected)
@@ -34,6 +35,12 @@ namespace AppBoxDesign
                 var modelNode = (ModelNode)node;
                 switch (modelNode.ModelType)
                 {
+                    case ModelType.Entity:
+                    {
+                        var entityDesigner = new EntityDesigner(modelNode);
+                        node.Designer = entityDesigner;
+                        return entityDesigner;
+                    }
                     case ModelType.View:
                     {
                         var viewDesigner = new ViewDesigner(modelNode);
