@@ -13,6 +13,7 @@ export class CodeProblem implements AppBoxCore.IBinSerializable {
         return `[${this.StartLine + 1}, ${this.StartColumn}] - [${this.EndLine + 1}, ${this.EndColumn}]`;
     }
 
+
     public WriteTo(ws: AppBoxCore.IOutputStream) {
         throw new System.NotSupportedException();
     }

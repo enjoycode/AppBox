@@ -9,9 +9,16 @@
         <LangVersion>10</LangVersion>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>TRACE;__APPBOXDESIGN__;</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants>TRACE;__APPBOXDESIGN__;</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Design.Core\Design.Core.csproj" />
       <ProjectReference Include="..\PixUI\PixUI.CS2TS\PixUI.CS2TS.csproj" />
       <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>
@@ -22,6 +29,15 @@
 
     <ItemGroup>
       <Compile Remove="DummyCode\ServiceBaseDummyCode.cs" />
+      <Compile Include="..\AppStudio\Data\ChangedModel.cs">
+        <Link>Data\ChangedModel.cs</Link>
+      </Compile>
+      <Compile Include="..\AppStudio\Data\CodeProblem.cs">
+        <Link>Data\CodeProblem.cs</Link>
+      </Compile>
+      <Compile Include="..\AppStudio\Data\DesignNodeType.cs">
+        <Link>Data\DesignNodeType.cs</Link>
+      </Compile>
       <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
     </ItemGroup>
 

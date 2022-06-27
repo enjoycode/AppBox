@@ -20,9 +20,11 @@ internal sealed class GetPendingChanges : IDesignHandler
         foreach (var item in hub.PendingChanges)
         {
             if (item is ModelBase model)
-                res.Add(new ChangedModel(model.ModelType.ToString(), model.Name));
+                res.Add(new ChangedModel
+                    { ModelType = model.ModelType.ToString(), ModelId = model.Name });
             else if (item is ModelFolder folder)
-                res.Add(new ChangedModel("Folder", folder.TargetModelType.ToString()));
+                res.Add(new ChangedModel
+                    { ModelType = "Folder", ModelId = folder.TargetModelType.ToString() });
         }
 
         return AnyValue.From(res.ToArray());

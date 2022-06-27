@@ -39,26 +39,3 @@ internal sealed class GetProblems : IDesignHandler
         };
     }
 }
-
-internal struct CodeProblem : IBinSerializable
-{
-    internal int StartLine;
-    internal int StartColumn;
-    internal int EndLine;
-    internal int EndColumn;
-    internal bool IsError;
-    internal string Message;
-    
-    public void WriteTo(IOutputStream ws)
-    {
-        ws.WriteInt(StartLine);
-        ws.WriteInt(StartColumn);
-        ws.WriteInt(EndLine);
-        ws.WriteInt(EndColumn);
-        ws.WriteBool(IsError);
-        ws.WriteString(Message);
-    }
-
-    public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
-
-}
