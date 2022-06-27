@@ -1,5 +1,6 @@
 import * as System from '@/System'
 import * as AppBoxClient from '@/AppBoxClient'
+import * as AppBoxCore from '@/AppBoxCore'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -10,7 +11,7 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
 
         this.Child = new PixUI.Column().Init(
             {
-                Children: [EntityDesigner.BuildActionBar(), new PixUI.Expanded().Init(
+                Children: [this.BuildActionBar(), new PixUI.Expanded().Init(
                     {
                         Child: new PixUI.Conditional<number>(this._activePad, [new PixUI.WhenBuilder<number>(t => t == 0, () => new AppBoxDesign.MembersDesigner(this._membersController))])
                     })]
@@ -24,7 +25,7 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
 
     private readonly _membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO> = new PixUI.DataGridController<AppBoxDesign.EntityMemberVO>();
 
-    private static BuildActionBar(): PixUI.Widget {
+    private BuildActionBar(): PixUI.Widget {
         return new PixUI.Container().Init(
             {
                 BgColor: PixUI.State.op_Implicit_From(PixUI.Colors.White),
@@ -32,9 +33,15 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init(
                     {
-                        Children: [new PixUI.Text(PixUI.State.op_Implicit_From("")).Init({Width: PixUI.State.op_Implicit_From(120)}), new PixUI.Button(PixUI.State.op_Implicit_From("Members")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Options")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Data")).Init({Width: PixUI.State.op_Implicit_From(75)})]
+                        Children: [new PixUI.Text(PixUI.State.op_Implicit_From("SqlStore")), new PixUI.Button(PixUI.State.op_Implicit_From("Members")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Options")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Data")).Init({Width: PixUI.State.op_Implicit_From(75)})]
                     })
             });
+    }
+
+    private GetDataStoreKindString(): string {
+        if (this._entityModel == null) return '';
+
+        return `${AppBoxCore.DataStoreKind[this._entityModel!.DataStoreKind]}Store`;
     }
 
     protected OnMounted() {

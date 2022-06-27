@@ -95,6 +95,7 @@ export class EntitySetVO extends EntityMemberVO {
 export class EntityModelVO implements AppBoxCore.IBinSerializable {
     public IsNew: boolean = false;
     public readonly Members: System.IList<EntityMemberVO> = new System.List<EntityMemberVO>();
+    public DataStoreKind: AppBoxCore.DataStoreKind = 0;
 
     public WriteTo(ws: AppBoxCore.IOutputStream) {
         throw new System.NotSupportedException();
@@ -102,6 +103,7 @@ export class EntityModelVO implements AppBoxCore.IBinSerializable {
 
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         this.IsNew = rs.ReadBool();
+        this.DataStoreKind = <AppBoxCore.DataStoreKind><unknown>rs.ReadByte();
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
             let type = <AppBoxCore.EntityMemberType><unknown>rs.ReadByte();

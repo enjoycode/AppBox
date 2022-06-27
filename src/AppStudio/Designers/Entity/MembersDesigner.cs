@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign
@@ -20,7 +21,7 @@ namespace AppBoxDesign
                                 new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name,
                                     ColumnWidth.Fixed(150)),
                                 new DataGridTextColumn<EntityMemberVO>("Type",
-                                    v => v.Type.ToString(),
+                                    MemberTypeToString,
                                     ColumnWidth.Fixed(180)),
                                 new DataGridTextColumn<EntityMemberVO>("AllowNull",
                                     v => v.AllowNull.ToString(),
@@ -37,6 +38,14 @@ namespace AppBoxDesign
                     }
                 }
             };
+        }
+
+        private static string MemberTypeToString(EntityMemberVO member)
+        {
+            if (member.Type == EntityMemberType.DataField)
+                return $"{member.Type.ToString()} - {((EntityFieldVO)member).DataType.ToString()}";
+            //TODO: EntityRef and EntitySet attach target entity name
+            return member.Type.ToString();
         }
     }
 }

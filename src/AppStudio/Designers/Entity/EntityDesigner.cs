@@ -37,7 +37,7 @@ namespace AppBoxDesign
         private readonly DataGridController<EntityMemberVO> _membersController =
             new DataGridController<EntityMemberVO>();
 
-        private static Widget BuildActionBar()
+        private Widget BuildActionBar()
         {
             return new Container()
             {
@@ -47,7 +47,7 @@ namespace AppBoxDesign
                 {
                     Children = new Widget[]
                     {
-                        new Text("") { Width = 120 },
+                        new Text(GetDataStoreKindString()) { Width = 120 },
                         new Button("Members") { Width = 75 },
                         new Button("Options") { Width = 75 },
                         new Button("Data") { Width = 75 },
@@ -55,7 +55,14 @@ namespace AppBoxDesign
                 }
             };
         }
-        
+
+        private string GetDataStoreKindString()
+        {
+            if (_entityModel == null) return string.Empty;
+
+            return $"{_entityModel!.DataStoreKind.ToString()}Store";
+        }
+
         protected override void OnMounted()
         {
             base.OnMounted();

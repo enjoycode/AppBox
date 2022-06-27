@@ -181,12 +181,14 @@ namespace AppBoxDesign
     {
         public bool IsNew { get; set; }
         public readonly IList<EntityMemberVO> Members = new List<EntityMemberVO>();
+        public DataStoreKind DataStoreKind { get; set; }
 
 #if __APPBOXDESIGN__
         public static EntityModelVO From(EntityModel model)
         {
             var vo = new EntityModelVO();
             vo.IsNew = model.PersistentState == PersistentState.Detached;
+            vo.DataStoreKind = model.DataStoreKind;
             //注意不向前端封送EntityRef的隐藏成员及删除的成员
             foreach (var memberModel in model.Members)
             {
@@ -216,6 +218,7 @@ namespace AppBoxDesign
         public void WriteTo(IOutputStream ws)
         {
             ws.WriteBool(IsNew);
+            ws.WriteByte((byte)DataStoreKind);
             ws.WriteVariant(Members.Count);
             foreach (var member in Members)
             {
@@ -231,6 +234,7 @@ namespace AppBoxDesign
         public void ReadFrom(IInputStream rs)
         {
             IsNew = rs.ReadBool();
+            DataStoreKind = (DataStoreKind)rs.ReadByte();
             var count = rs.ReadVariant();
             for (var i = 0; i < count; i++)
             {

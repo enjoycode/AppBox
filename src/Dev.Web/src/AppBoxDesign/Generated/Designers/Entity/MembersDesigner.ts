@@ -15,7 +15,7 @@ export class MembersDesigner extends PixUI.View {
                                 Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.EntityMemberVO>>().Init(
                                     [
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name, PixUI.ColumnWidth.Fixed(150)),
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", v => AppBoxCore.EntityMemberType[v.Type], PixUI.ColumnWidth.Fixed(180)),
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", MembersDesigner.MemberTypeToString, PixUI.ColumnWidth.Fixed(180)),
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("AllowNull", v => v.AllowNull.toString(), PixUI.ColumnWidth.Fixed(90)),
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Comment", v => v.Comment ?? ''),
                                     ])
@@ -27,6 +27,13 @@ export class MembersDesigner extends PixUI.View {
                     })
                 ]
             });
+    }
+
+    private static MemberTypeToString(member: AppBoxDesign.EntityMemberVO): string {
+        if (member.Type == AppBoxCore.EntityMemberType.DataField)
+            return `${AppBoxCore.EntityMemberType[member.Type]} - ${AppBoxCore.DataFieldType[(<AppBoxDesign.EntityFieldVO><unknown>member).DataType]}`;
+        //TODO: EntityRef and EntitySet attach target entity name
+        return AppBoxCore.EntityMemberType[member.Type];
     }
 
     public Init(props: Partial<MembersDesigner>): MembersDesigner {
