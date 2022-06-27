@@ -5,7 +5,7 @@ namespace AppBoxDesign
 {
     internal sealed class MembersDesigner : View
     {
-        public MembersDesigner()
+        public MembersDesigner(DataGridController<EntityMemberVO> membersController)
         {
             Child = new Row()
             {
@@ -13,7 +13,7 @@ namespace AppBoxDesign
                 {
                     new Expanded()
                     {
-                        Child = new DataGrid<EntityModelVO>(_membersController),
+                        Child = new DataGrid<EntityMemberVO>(membersController),
                     },
                     new Container()
                     {
@@ -23,15 +23,5 @@ namespace AppBoxDesign
                 }
             };
         }
-
-        private readonly DataGridController<EntityModelVO> _membersController =
-            new DataGridController<EntityModelVO>(new List<DataGridColumn<EntityModelVO>>()
-            {
-                new DataGridTextColumn<EntityModelVO>("Name", v => v.Name, ColumnWidth.Fixed(90)),
-                new DataGridTextColumn<EntityModelVO>("Type", v => v.Name, ColumnWidth.Fixed(90)),
-                new DataGridTextColumn<EntityModelVO>("AllowNull", v => v.Name,
-                    ColumnWidth.Fixed(90)),
-                new DataGridTextColumn<EntityModelVO>("Comment", v => v.Name),
-            });
     }
 }

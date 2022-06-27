@@ -1,4 +1,11 @@
-import {DesignTree, CompletionItem, NewNodeResult, ChangedModel, CodeProblem} from '@/AppBoxDesign'
+import {
+    DesignTree,
+    CompletionItem,
+    NewNodeResult,
+    ChangedModel,
+    CodeProblem,
+    EntityModelVO
+} from '@/AppBoxDesign'
 import {TSCSharpLanguage} from "@/CodeEditor";
 import {PayloadType, TypeSerializer} from "@/AppBoxCore";
 
@@ -13,7 +20,8 @@ export class DesignInitializer {
         let csharpLanguage = await TreeSitter.Language.load('/tree-sitter-c_sharp.wasm');
         TSCSharpLanguage.Init(csharpLanguage);
 
-        // 注册序列化器
+        // 注册序列化器(仅反序列化后端设计时类型)
+        TypeSerializer.RegisterKnownType(PayloadType.EntityModelVO, false, () => new EntityModelVO());
         TypeSerializer.RegisterKnownType(PayloadType.DesignTree, false, () => new DesignTree());
         TypeSerializer.RegisterKnownType(PayloadType.NewNodeResult, false, () => new NewNodeResult());
         TypeSerializer.RegisterKnownType(PayloadType.CodeProblem, true, () => new CodeProblem());

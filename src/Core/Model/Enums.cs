@@ -41,7 +41,7 @@ public enum EntityMemberType
     EntitySet = 3,
 }
 
-public enum DataFieldType : byte
+public enum DataFieldType : byte //TODO: rename to EntityFieldType
 {
     EntityId = 0,
     String = 1,

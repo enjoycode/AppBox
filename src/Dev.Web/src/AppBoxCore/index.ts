@@ -1,4 +1,6 @@
 export * from "./Model/ModelType"
+export * from "./Model/EntityMemberType"
+export * from "./Model/EntityFieldType"
 
 export * from "./Serialization/PayloadType"
 export * from "./Serialization/IOutputStream"

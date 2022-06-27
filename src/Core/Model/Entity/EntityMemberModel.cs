@@ -26,6 +26,7 @@ public abstract class EntityMemberModel
     public bool IsNameChanged => _originalName != null && _originalName != _name;
     public PersistentState PersistentState => _persistentState;
     public bool AllowNull => _allowNull;
+    public string? Comment => _comment;
 
     #region ====Design Methods====
 

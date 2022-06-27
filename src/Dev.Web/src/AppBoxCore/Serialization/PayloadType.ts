@@ -28,7 +28,7 @@ export enum PayloadType {
     Object = 24,
 
     //----设计时及模型相关----
-    // EntityModel = 50,
+    EntityModelVO = 51,
     DesignTree = 52,
     CompletionItem = 53,
     NewNodeResult = 54,

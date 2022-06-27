@@ -19,6 +19,7 @@ public sealed class DesignService : IService
         { nameof(GetCompletion), new GetCompletion() },
         { nameof(GetSignatures), new GetSignatures() },
         // Entity
+        { nameof(OpenEntityModel), new OpenEntityModel() },
         { nameof(GetEntityPreview), new GetEntityPreview() },
         // Service
         { nameof(NewServiceModel), new NewServiceModel() },

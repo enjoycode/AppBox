@@ -25,7 +25,9 @@ public sealed class DataFieldModel : EntityMemberModel
     private int _decimals; //仅用于Sql存储设置Decimal小数部分长度
     private string? _defaultValue; //默认值
 
+    public bool IsForeignKey => _isForeignKey;
     public DataFieldType DataType => _dataType;
+    public ModelId? EnumModelId => _enumModelId;
 
     public int Length
     {
