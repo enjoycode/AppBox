@@ -205,6 +205,9 @@ export class DataGridController<T> {
         let scrollY = 0;
 
         let rowIndex = (Math.floor(Math.trunc((y - this.TotalHeaderHeight + this.ScrollController.OffsetY) / this.RowHeight)) & 0xFFFFFFFF);
+        if (rowIndex >= this.DataView.length)
+            return this._cachedHitInRows;
+
         let deltaY = this.ScrollDeltaY;
         if (deltaY != 0) {
             if (rowIndex == this.VisibleStartRowIndex) {
