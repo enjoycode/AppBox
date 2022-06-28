@@ -44,6 +44,7 @@ export * from "./State/State";
 export * from "./State/Rx";
 export * from "./State/RxComputed";
 export * from "./State/RxList";
+export * from "./State/RxObject";
 
 export * from "./Widgets/Borders/Radius";
 export * from "./Widgets/Borders/BorderSide";

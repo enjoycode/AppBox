@@ -12,7 +12,12 @@ export class EntityPropertyPanel extends PixUI.View {
                 Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Entity Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)}), new PixUI.Form().Init(
                     {
                         LabelWidth: 120,
-                        Children: [new PixUI.FormItem("DataStoreKind:", new PixUI.Input(PixUI.State.op_Implicit_From("SqlStore")).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("DataStoreName:", new PixUI.Input(PixUI.State.op_Implicit_From("Default")).Init({Readonly: PixUI.State.op_Implicit_From(true)}))
+                        Children: [
+                            new PixUI.FormItem("DataStoreKind:", new PixUI.Input(PixUI.State.op_Implicit_From("SqlStore"))
+                                .Init({Readonly: PixUI.State.op_Implicit_From(true)})),
+                            new PixUI.FormItem("DataStoreName:", new PixUI.Input(PixUI.State.op_Implicit_From("Default"))
+                                .Init({Readonly: PixUI.State.op_Implicit_From(true)})),
+                            new PixUI.FormItem("Comment:", new PixUI.Input(PixUI.State.op_Implicit_From(""))),
                         ]
                     })
                 ]

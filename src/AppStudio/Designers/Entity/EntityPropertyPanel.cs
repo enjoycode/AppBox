@@ -21,7 +21,8 @@ internal sealed class EntityPropertyPanel : View
                     Children = new[]
                     {
                         new FormItem("DataStoreKind:", new Input("SqlStore") { Readonly = true }),
-                        new FormItem("DataStoreName:", new Input("Default") { Readonly = true })
+                        new FormItem("DataStoreName:", new Input("Default") { Readonly = true }),
+                        new FormItem("Comment", new Input(""))
                     }
                 }
             }
