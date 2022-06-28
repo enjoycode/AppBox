@@ -4,7 +4,7 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
 export class MembersDesigner extends PixUI.View {
-    public constructor(membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO>) {
+    public constructor(entityModel: AppBoxDesign.EntityModelVO, membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO>) {
         super();
         this.Child = new PixUI.Row().Init(
             {
@@ -15,7 +15,7 @@ export class MembersDesigner extends PixUI.View {
                                 Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.EntityMemberVO>>().Init(
                                     [
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name, PixUI.ColumnWidth.Fixed(150)),
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", MembersDesigner.MemberTypeToString, PixUI.ColumnWidth.Fixed(180)),
+                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", MembersDesigner.MemberTypeToString, PixUI.ColumnWidth.Fixed(200)),
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("AllowNull", v => v.AllowNull.toString(), PixUI.ColumnWidth.Fixed(90)),
                                         new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Comment", v => v.Comment ?? ''),
                                     ])
@@ -24,10 +24,13 @@ export class MembersDesigner extends PixUI.View {
                     {
                         BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
                         Width: PixUI.State.op_Implicit_From(280),
+                        Child: new AppBoxDesign.EntityPropertyPanel(entityModel, this._selectedMember)
                     })
                 ]
             });
     }
+
+    private readonly _selectedMember: PixUI.State<Nullable<AppBoxDesign.EntityMemberVO>> = new PixUI.Rx<Nullable<AppBoxDesign.EntityMemberVO>>(null);
 
     private static MemberTypeToString(member: AppBoxDesign.EntityMemberVO): string {
         if (member.Type == AppBoxCore.EntityMemberType.DataField)

@@ -80,7 +80,7 @@ export class Card extends PixUI.SingleChildWidget {
         let shape = this._shape?.Value ?? Card.DefaultShape;
 
         //先画阴影
-        let outer = shape.GetOuterPath((rect).Clone());
+        let outer = shape.GetOuterPath(rect);
         if (elevation > 0) {
             PixUI.DrawShadow(canvas, outer, shadowColor, elevation, shadowColor.Alpha != 0xFF, this.Root!.Window.ScaleFactor);
         }
@@ -89,7 +89,7 @@ export class Card extends PixUI.SingleChildWidget {
         canvas.save();
         canvas.clipPath(outer, CanvasKit.ClipOp.Intersect, true); //TODO:考虑根据shape类型clip区域
         canvas.clear(color);
-        shape.Paint(canvas, (rect).Clone());
+        shape.Paint(canvas, rect);
 
         this.PaintChildren(canvas, area);
 

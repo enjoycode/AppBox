@@ -14,7 +14,7 @@ export abstract class ShapeBorder {
         //TODO: if (b == null) ScaleTo(1.0 - t)
     }
 
-    public abstract Paint(canvas: PixUI.Canvas, rect: PixUI.Rect): void;
+    public abstract Paint(canvas: PixUI.Canvas, rect: PixUI.Rect, fillColor?: Nullable<PixUI.Color>): void;
 
     public abstract Clone(): ShapeBorder ;
 }

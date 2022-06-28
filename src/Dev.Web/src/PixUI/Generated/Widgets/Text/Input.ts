@@ -69,8 +69,8 @@ export class Input extends PixUI.Widget {
         this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
-    public get IsObscure(): boolean {
-        return this._editableText.IsObscure;
+    public set Readonly(value: PixUI.State<boolean>) {
+        this._editableText.Readonly = value;
     }
 
     public set IsObscure(value: boolean) {
@@ -152,11 +152,12 @@ export class Input extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let padding = this._padding?.Value ?? PixUI.EdgeInsets.All(4);
+        // var padding = _padding?.Value ?? EdgeInsets.All(4);
+        let bounds = PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
         let border = this._border ?? Input.DefaultBorder;
 
-        //画边框
-        border.Paint(canvas, PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
+        //画背景及边框
+        border.Paint(canvas, bounds, this._editableText.IsReadonly ? new PixUI.Color(0xFFF3F3F3) : PixUI.Colors.White);
 
         this.PaintChildren(canvas, area);
     }

@@ -16,6 +16,7 @@ export abstract class TextBase extends PixUI.Widget {
     }
 
     private _fontSize: Nullable<PixUI.State<number>>;
+    private _fontWeight: Nullable<PixUI.State<PixUI.FontWeight>>;
     private _textColor: Nullable<PixUI.State<PixUI.Color>>;
 
     private _cachedParagraph: Nullable<PixUI.Paragraph>;
@@ -30,6 +31,14 @@ export abstract class TextBase extends PixUI.Widget {
 
     public set FontSize(value: Nullable<PixUI.State<number>>) {
         this._fontSize = this.Rebind(this._fontSize, value, PixUI.BindingOptions.AffectsLayout);
+    }
+
+    public get FontWeight(): Nullable<PixUI.State<PixUI.FontWeight>> {
+        return this._fontWeight;
+    }
+
+    public set FontWeight(value: Nullable<PixUI.State<PixUI.FontWeight>>) {
+        this._fontWeight = this.Rebind(this._fontWeight, value, PixUI.BindingOptions.AffectsLayout);
     }
 
     public get TextColor(): Nullable<PixUI.State<PixUI.Color>> {
@@ -58,7 +67,10 @@ export abstract class TextBase extends PixUI.Widget {
 
     protected BuildParagraphInternal(text: string, width: number, color: PixUI.Color): PixUI.Paragraph {
         let fontSize = this._fontSize?.Value ?? PixUI.Theme.DefaultFontSize;
-        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, null, 1, this instanceof PixUI.EditableText);
+        let fontStyle: Nullable<PixUI.FontStyle> = this._fontWeight == null
+            ? null
+            : new PixUI.FontStyle(this._fontWeight.Value, CanvasKit.FontSlant.Upright);
+        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, 1, this instanceof PixUI.EditableText);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {

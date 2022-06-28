@@ -22,7 +22,22 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
     private _caretPosition: number = 0;
 
     public readonly Focused: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
+
     private _hintParagraph: Nullable<PixUI.Paragraph>;
+
+    private _readonly: Nullable<PixUI.State<boolean>>;
+
+    public get Readonly(): Nullable<PixUI.State<boolean>> {
+        return this._readonly;
+    }
+
+    public set Readonly(value: Nullable<PixUI.State<boolean>>) {
+        this._readonly = this.Rebind(this._readonly, value, PixUI.BindingOptions.None);
+    }
+
+    public get IsReadonly(): boolean {
+        return this._readonly != null && this._readonly.Value;
+    }
 
     #MouseRegion: PixUI.MouseRegion;
     public get MouseRegion() {
@@ -54,15 +69,19 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
     private _OnFocusChanged(focused: boolean) {
         this.Focused.Value = focused;
         if (focused) {
-            this.Root!.Window.StartTextInput();
+            if (!this.IsReadonly)
+                this.Root!.Window.StartTextInput();
             this._caret.Show();
         } else {
-            this.Root!.Window.StopTextInput();
+            if (!this.IsReadonly)
+                this.Root!.Window.StopTextInput();
             this._caret.Hide();
         }
     }
 
     private _OnTextInput(text: string) {
+        if (this.IsReadonly) return;
+
         this.Text.Value = this.Text.Value.Insert(this._caretPosition, text);
         this._caretPosition += text.length;
     }
@@ -96,7 +115,7 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
     }
 
     private DeleteBack() {
-        if (this._caretPosition == 0) return;
+        if (this.IsReadonly || this._caretPosition == 0) return;
 
         this.Text.Value = this.Text.Value.Remove(this._caretPosition - 1, 1);
         this._caretPosition--;
@@ -148,6 +167,18 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
 
         let text = this.IsObscure ? '●'.repeat(this.Text.Value.length) : this.Text.Value;
         this.BuildParagraph(text, Number.POSITIVE_INFINITY);
+    }
+
+    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
+        if ((state === this._readonly)) {
+            if (this.IsReadonly)
+                this.Root?.Window.StopTextInput();
+            else
+                this.Root?.Window.StartTextInput();
+            return;
+        }
+
+        super.OnStateChanged(state, options);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {

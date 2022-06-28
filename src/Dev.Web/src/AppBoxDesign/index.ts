@@ -30,6 +30,7 @@ export * from "./Generated/Design/DesignStore"
 export * from "./HandWrite/DesignInitializer"
 
 export * from "./Generated/Designers/ModelCodeSyncService"
+export * from "./Generated/Designers/Entity/EntityPropertyPanel"
 export * from "./Generated/Designers/Entity/MembersDesigner"
 export * from "./Generated/Designers/Entity/EntityDesigner"
 export * from "./Generated/Designers/Service/ServiceDesigner"

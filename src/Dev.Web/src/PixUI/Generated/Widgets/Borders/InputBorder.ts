@@ -73,13 +73,16 @@ export class OutlineInputBorder extends InputBorder {
         return new OutlineInputBorder(this.BorderSide, this.BorderRadius, this.GapPadding);
     }
 
-    public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
+    public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect, fillColor: Nullable<PixUI.Color> = null) {
+        let outer = this.BorderRadius.ToRRect(rect);
+        outer.Deflate(this.BorderSide.Width / 2, this.BorderSide.Width / 2);
+
+        if (fillColor != null)
+            canvas.drawRRect(outer, PixUI.PaintUtils.Shared(fillColor));
+
         let paint = PixUI.PaintUtils.Shared();
         this.BorderSide.ApplyPaint(paint);
         paint.setAntiAlias(true); //TODO: no radius no need
-
-        let outer = this.BorderRadius.ToRRect((rect).Clone());
-        outer.Deflate(this.BorderSide.Width / 2, this.BorderSide.Width / 2);
         canvas.drawRRect(outer, paint);
     }
 

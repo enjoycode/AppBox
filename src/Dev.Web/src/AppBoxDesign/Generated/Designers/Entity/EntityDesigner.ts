@@ -1,6 +1,5 @@
 import * as System from '@/System'
 import * as AppBoxClient from '@/AppBoxClient'
-import * as AppBoxCore from '@/AppBoxCore'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -13,7 +12,8 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
             {
                 Children: [this.BuildActionBar(), new PixUI.Expanded().Init(
                     {
-                        Child: new PixUI.Conditional<number>(this._activePad, [new PixUI.WhenBuilder<number>(t => t == 0, () => new AppBoxDesign.MembersDesigner(this._membersController))])
+                        //TODO: use FutureBuilder
+                        Child: new PixUI.IfConditional(this._loaded, () => new PixUI.Conditional<number>(this._activePad, [new PixUI.WhenBuilder<number>(t => t == 0, () => new AppBoxDesign.MembersDesigner(this._entityModel!, this._membersController))]), null)
                     })]
             });
     }
@@ -21,9 +21,10 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
     private readonly _modelNode: AppBoxDesign.ModelNode;
     private readonly _activePad: PixUI.State<number> = PixUI.State.op_Implicit_From(0);
     private _hasLoad: boolean = false;
+    private readonly _loaded: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
     private _entityModel: Nullable<AppBoxDesign.EntityModelVO>;
 
-    private readonly _membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO> = new PixUI.DataGridController<AppBoxDesign.EntityMemberVO>();
+    private readonly _membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO> = new PixUI.DataGridController();
 
     private BuildActionBar(): PixUI.Widget {
         return new PixUI.Container().Init(
@@ -33,15 +34,9 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init(
                     {
-                        Children: [new PixUI.Text(PixUI.State.op_Implicit_From("SqlStore")), new PixUI.Button(PixUI.State.op_Implicit_From("Members")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Options")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Data")).Init({Width: PixUI.State.op_Implicit_From(75)})]
+                        Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Members")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Options")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Data")).Init({Width: PixUI.State.op_Implicit_From(75)})]
                     })
             });
-    }
-
-    private GetDataStoreKindString(): string {
-        if (this._entityModel == null) return '';
-
-        return `${AppBoxCore.DataStoreKind[this._entityModel!.DataStoreKind]}Store`;
     }
 
     protected OnMounted() {
@@ -57,6 +52,7 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
             this._entityModel = <AppBoxDesign.EntityModelVO><unknown>await AppBoxClient.Channel.Invoke(
                 "sys.DesignService.OpenEntityModel", [this._modelNode.Id]);
             this._membersController.DataSource = this._entityModel!.Members;
+            this._loaded.Value = true;
         } catch (e: any) {
             PixUI.Notification.Error("无法加载实体模型");
         }

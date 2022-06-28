@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppBoxClient;
 using PixUI;
@@ -14,16 +13,18 @@ namespace AppBoxDesign
 
             Child = new Column()
             {
-                Children = new Widget[]
+                Children = new[]
                 {
                     BuildActionBar(),
                     new Expanded()
                     {
-                        Child = new Conditional<int>(_activePad, new[]
-                        {
-                            new WhenBuilder<int>(t => t == 0,
-                                () => new MembersDesigner(_membersController)),
-                        })
+                        //TODO: use FutureBuilder
+                        Child = new IfConditional(_loaded, () => new Conditional<int>(_activePad,
+                            new[]
+                            {
+                                new WhenBuilder<int>(t => t == 0,
+                                    () => new MembersDesigner(_entityModel!, _membersController)),
+                            }), null)
                     },
                 }
             };
@@ -32,10 +33,10 @@ namespace AppBoxDesign
         private readonly ModelNode _modelNode;
         private readonly State<int> _activePad = 0;
         private bool _hasLoad = false;
+        private readonly State<bool> _loaded = false;
         private EntityModelVO? _entityModel;
 
-        private readonly DataGridController<EntityMemberVO> _membersController =
-            new DataGridController<EntityMemberVO>();
+        private readonly DataGridController<EntityMemberVO> _membersController = new();
 
         private Widget BuildActionBar()
         {
@@ -47,20 +48,12 @@ namespace AppBoxDesign
                 {
                     Children = new Widget[]
                     {
-                        new Text(GetDataStoreKindString()) { Width = 120 },
                         new Button("Members") { Width = 75 },
                         new Button("Options") { Width = 75 },
                         new Button("Data") { Width = 75 },
                     }
                 }
             };
-        }
-
-        private string GetDataStoreKindString()
-        {
-            if (_entityModel == null) return string.Empty;
-
-            return $"{_entityModel!.DataStoreKind.ToString()}Store";
         }
 
         protected override void OnMounted()
@@ -80,6 +73,7 @@ namespace AppBoxDesign
                     "sys.DesignService.OpenEntityModel",
                     new object[] { _modelNode.Id });
                 _membersController.DataSource = _entityModel!.Members;
+                _loaded.Value = true;
             }
             catch (Exception e)
             {

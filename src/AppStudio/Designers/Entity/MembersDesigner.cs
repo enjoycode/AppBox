@@ -6,7 +6,8 @@ namespace AppBoxDesign
 {
     internal sealed class MembersDesigner : View
     {
-        public MembersDesigner(DataGridController<EntityMemberVO> membersController)
+        public MembersDesigner(EntityModelVO entityModel,
+            DataGridController<EntityMemberVO> membersController)
         {
             Child = new Row()
             {
@@ -22,7 +23,7 @@ namespace AppBoxDesign
                                     ColumnWidth.Fixed(150)),
                                 new DataGridTextColumn<EntityMemberVO>("Type",
                                     MemberTypeToString,
-                                    ColumnWidth.Fixed(180)),
+                                    ColumnWidth.Fixed(200)),
                                 new DataGridTextColumn<EntityMemberVO>("AllowNull",
                                     v => v.AllowNull.ToString(),
                                     ColumnWidth.Fixed(90)),
@@ -35,10 +36,13 @@ namespace AppBoxDesign
                     {
                         BgColor = new Color(0xFFF3F3F3),
                         Width = 280,
+                        Child = new EntityPropertyPanel(entityModel, _selectedMember)
                     }
                 }
             };
         }
+
+        private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);
 
         private static string MemberTypeToString(EntityMemberVO member)
         {

@@ -101,11 +101,11 @@ export class FocusedDecorator extends PixUI.Widget {
         let bounds = PixUI.Rect.FromLTWH(pt2Win.X, pt2Win.Y, widget.W, widget.H);
 
         if (this._from == null) {
-            this._to.Paint(canvas, (bounds).Clone());
+            this._to.Paint(canvas, bounds);
             return;
         }
 
-        this._tween!.Paint(canvas, (bounds).Clone());
+        this._tween!.Paint(canvas, bounds);
     }
 
     protected OnMounted() {

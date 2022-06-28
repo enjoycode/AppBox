@@ -68,7 +68,7 @@ export class HoverDecorator extends PixUI.Widget {
             bounds = this._owner.BoundsGetter();
         }
 
-        let path = this._shape.GetOuterPath((bounds).Clone());
+        let path = this._shape.GetOuterPath(bounds);
 
         // draw shadow
         if (this._owner.Elevation > 0) {
