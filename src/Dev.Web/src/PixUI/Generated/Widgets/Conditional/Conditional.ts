@@ -40,6 +40,8 @@ export class Conditional<T> extends PixUI.DynamicView //where T: IEquatable<T>
     private readonly _state: PixUI.State<T>;
     private readonly _whens: WhenBuilder<T>[];
 
+    //TODO: add AutoDispose property to dispose not used widget
+
     private MakeChildByCondition(): Nullable<PixUI.Widget> {
         for (const item of this._whens) {
             //EqualityComparer<T>.Default.Equals(item.StateValue, _state.Value)

@@ -9,6 +9,9 @@ namespace AppBoxDesign
         public MembersDesigner(EntityModelVO entityModel,
             DataGridController<EntityMemberVO> membersController)
         {
+            _membersController = membersController;
+            _membersController.SelectionChanged += OnSelectedMemberChanged;
+
             Child = new Row()
             {
                 Children = new Widget[]
@@ -42,7 +45,15 @@ namespace AppBoxDesign
             };
         }
 
+        private readonly DataGridController<EntityMemberVO> _membersController;
         private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);
+
+        private void OnSelectedMemberChanged()
+        {
+            _selectedMember.Value = _membersController.SelectedRows.Length == 0
+                ? null
+                : _membersController.SelectedRows[0];
+        }
 
         private static string MemberTypeToString(EntityMemberVO member)
         {

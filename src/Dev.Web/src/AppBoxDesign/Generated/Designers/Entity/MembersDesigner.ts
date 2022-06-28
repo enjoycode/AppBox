@@ -6,6 +6,9 @@ import * as PixUI from '@/PixUI'
 export class MembersDesigner extends PixUI.View {
     public constructor(entityModel: AppBoxDesign.EntityModelVO, membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO>) {
         super();
+        this._membersController = membersController;
+        this._membersController.SelectionChanged.Add(this.OnSelectedMemberChanged, this);
+
         this.Child = new PixUI.Row().Init(
             {
                 Children: [new PixUI.Expanded().Init(
@@ -30,7 +33,14 @@ export class MembersDesigner extends PixUI.View {
             });
     }
 
+    private readonly _membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO>;
     private readonly _selectedMember: PixUI.State<Nullable<AppBoxDesign.EntityMemberVO>> = new PixUI.Rx<Nullable<AppBoxDesign.EntityMemberVO>>(null);
+
+    private OnSelectedMemberChanged() {
+        this._selectedMember.Value = this._membersController.SelectedRows.length == 0
+            ? null
+            : this._membersController.SelectedRows[0];
+    }
 
     private static MemberTypeToString(member: AppBoxDesign.EntityMemberVO): string {
         if (member.Type == AppBoxCore.EntityMemberType.DataField)

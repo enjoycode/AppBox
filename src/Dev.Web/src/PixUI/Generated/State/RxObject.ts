@@ -45,7 +45,7 @@ export abstract class RxObject<T extends object> {
 
     private OnObjectChanged() {
         const props = Object.getOwnPropertyNames(this);
-        for (let prop in props) {
+        for (let prop of props) {
             // @ts-ignore
             if (this[prop] instanceof PixUI.RxProperty) {
                 // @ts-ignore
