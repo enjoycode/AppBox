@@ -157,7 +157,7 @@ export class Input extends PixUI.Widget {
         let border = this._border ?? Input.DefaultBorder;
 
         //画背景及边框
-        border.Paint(canvas, bounds, this._editableText.IsReadonly ? new PixUI.Color(0xFFF3F3F3) : PixUI.Colors.White);
+        border.Paint(canvas, bounds, this._editableText.IsReadonly ? new PixUI.Color(0xFFF5F7FA) : PixUI.Colors.White);
 
         this.PaintChildren(canvas, area);
     }
