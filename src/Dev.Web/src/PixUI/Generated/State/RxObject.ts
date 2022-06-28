@@ -1,30 +1,28 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export class RxProperty<TObject extends object, TValue> extends PixUI.State<TValue> {
-    public constructor(owner: RxObject<TObject>, getter: System.Func2<TObject, TValue>, setter: Nullable<System.Action2<TObject, TValue>> = null) {
+export class RxProperty<T> extends PixUI.State<T> {
+    public constructor(getter: System.Func1<T>, setter: Nullable<System.Action1<T>> = null) {
         super();
-        this._rxObject = owner;
         this._getter = getter;
         this._setter = setter;
     }
 
-    private readonly _rxObject: RxObject<TObject>;
-    private readonly _getter: System.Func2<TObject, TValue>;
-    private readonly _setter: Nullable<System.Action2<TObject, TValue>>;
+    private readonly _getter: System.Func1<T>;
+    private readonly _setter: Nullable<System.Action1<T>>;
 
     public get Readonly(): boolean {
         return this._setter == null;
     }
 
-    public get Value(): TValue {
-        return this._getter(this._rxObject.Object);
+    public get Value(): T {
+        return this._getter();
     }
 
-    public set Value(value: TValue) {
+    public set Value(value: T) {
         if (this._setter == null)
             throw new System.NotSupportedException();
-        this._setter(this._rxObject.Object, value);
+        this._setter(value);
         this.OnValueChanged();
     }
 

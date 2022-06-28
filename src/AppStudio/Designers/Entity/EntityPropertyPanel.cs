@@ -1,6 +1,29 @@
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign;
+
+internal sealed class RxEntityField : RxObject<EntityFieldVO>
+{
+    public RxEntityField()
+    {
+        Name = new RxProperty<string>(() => Object.Name);
+        DataType = new RxProperty<DataFieldType>(() => Object.DataType);
+        Comment = new RxProperty<string>(() => Object.Comment ?? string.Empty,
+            v => Object.Comment = v);
+    }
+
+    public readonly RxProperty<string> Name;
+    public readonly RxProperty<DataFieldType> DataType;
+    public readonly RxProperty<string> Comment;
+
+#if !__WEB__
+    protected override void OnObjectChanged()
+    {
+        throw new System.NotImplementedException();
+    }
+#endif
+}
 
 internal sealed class EntityPropertyPanel : View
 {
