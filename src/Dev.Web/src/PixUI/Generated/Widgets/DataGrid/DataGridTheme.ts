@@ -1,6 +1,12 @@
 import * as PixUI from '@/PixUI'
 
 export class DataGridTheme {
+    private static _default: Nullable<DataGridTheme>;
+
+    public static get Default(): DataGridTheme {
+        return DataGridTheme._default ??= new DataGridTheme();
+    }
+
     public constructor() {
         this.DefaultHeaderCellStyle = new PixUI.CellStyle().Init(
             {
@@ -16,14 +22,15 @@ export class DataGridTheme {
     public readonly DefaultHeaderCellStyle: PixUI.CellStyle;
     public readonly DefaultRowCellStyle: PixUI.CellStyle;
 
+    public RowHeight: number = 28;
     public CellPadding: number = 5.0;
 
     public BorderColor: PixUI.Color = new PixUI.Color(0xFFEBEEF5);
 
     public StripeRows: boolean = true;
-    public StripeBgColor: PixUI.Color = new PixUI.Color(0xFFEEEEEE);
+    public StripeBgColor: PixUI.Color = new PixUI.Color(0xFFFAFAFA);
 
-    public HighlightingCurrentCell: boolean = true;
+    public HighlightingCurrentCell: boolean = false;
     public HighlightingCurrentRow: boolean = true;
 
     public HighlightRowBgColor: PixUI.Color = new PixUI.Color(0x30263238);

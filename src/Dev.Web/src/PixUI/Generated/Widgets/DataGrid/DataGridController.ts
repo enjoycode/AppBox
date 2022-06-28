@@ -2,12 +2,6 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class DataGridController<T> {
-    public constructor(theme: Nullable<PixUI.DataGridTheme> = null) {
-        this.Theme = theme ?? new PixUI.DataGridTheme();
-    }
-
-    public readonly Theme: PixUI.DataGridTheme;
-
     public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
 
     private _columns: System.IList<PixUI.DataGridColumn<T>>;
@@ -15,6 +9,10 @@ export class DataGridController<T> {
 
     public Attach(dataGrid: PixUI.DataGrid<T>) {
         this._owner = dataGrid;
+    }
+
+    public get Theme(): PixUI.DataGridTheme {
+        return this._owner!.Theme;
     }
 
     public get Columns(): System.IList<PixUI.DataGridColumn<T>> {
@@ -61,20 +59,11 @@ export class DataGridController<T> {
     }
 
     public get TotalRowsHeight(): number {
-        return this.DataView == null ? 0 : this.DataView.length * this.RowHeight;
+        return this.DataView == null ? 0 : this.DataView.length * this.Theme.RowHeight;
     }
 
     public get TotalColumnsWidth(): number {
         return this._cachedLeafColumns.Sum(c => c.LayoutWidth);
-    }
-
-    #RowHeight: number = 28;
-    public get RowHeight() {
-        return this.#RowHeight;
-    }
-
-    private set RowHeight(value) {
-        this.#RowHeight = value;
     }
 
     #HasFrozen: boolean = false;
@@ -87,11 +76,11 @@ export class DataGridController<T> {
     }
 
     public get ScrollDeltaY(): number {
-        return this.ScrollController.OffsetY % this.RowHeight;
+        return this.ScrollController.OffsetY % this.Theme.RowHeight;
     }
 
     public get VisibleStartRowIndex(): number {
-        return (Math.floor(Math.trunc(this.ScrollController.OffsetY / this.RowHeight)) & 0xFFFFFFFF);
+        return (Math.floor(Math.trunc(this.ScrollController.OffsetY / this.Theme.RowHeight)) & 0xFFFFFFFF);
     }
 
 
@@ -122,6 +111,15 @@ export class DataGridController<T> {
 
     private _cachedHitInHeader: Nullable<PixUI.DataGridHitTestResult<T>>;
     private _cachedHitInRows: Nullable<PixUI.DataGridHitTestResult<T>>;
+
+
+    private readonly _selectedRows: System.List<T> = new System.List<T>();
+
+    public get SelectedRows(): T[] {
+        return this._selectedRows.ToArray();
+    }
+
+    public readonly SelectionChanged = new System.Event();
 
 
     public Invalidate() {
@@ -169,7 +167,16 @@ export class DataGridController<T> {
             return;
         }
 
+        //TODO:暂仅支持单选
+        let oldRowIndex = this._cachedHitInRows != null ? this._cachedHitInRows.RowIndex : -1;
         this._cachedHitInRows = this.HitTestInRows(e.X, e.Y);
+        let newRowIndex = this._cachedHitInRows != null ? this._cachedHitInRows.RowIndex : -1;
+        if (oldRowIndex != newRowIndex) {
+            this._selectedRows.Clear();
+            if (newRowIndex != -1)
+                this._selectedRows.Add(this.DataView![newRowIndex]);
+            this.SelectionChanged.Invoke();
+        }
         //TODO: if (res == _cachedHitInRows) return;
 
         //检查是否需要自动滚动
@@ -189,7 +196,7 @@ export class DataGridController<T> {
         for (const col of this._cachedVisibleColumns) {
             if (col.CachedVisibleLeft <= x && x <= col.CachedVisibleRight) {
                 let isColumnResizer = col.CachedVisibleRight - x <= 5;
-                return new PixUI.DataGridHitTestResult<T>(col, null, 0, 0, isColumnResizer);
+                return new PixUI.DataGridHitTestResult<T>(col, -1, 0, 0, isColumnResizer);
             }
         }
 
@@ -204,7 +211,9 @@ export class DataGridController<T> {
         let scrollX = 0;
         let scrollY = 0;
 
-        let rowIndex = (Math.floor(Math.trunc((y - this.TotalHeaderHeight + this.ScrollController.OffsetY) / this.RowHeight)) & 0xFFFFFFFF);
+        let rowIndex = (Math.floor(Math.trunc((y - this.TotalHeaderHeight + this.ScrollController.OffsetY) /
+            this.Theme.RowHeight)) & 0xFFFFFFFF);
+        //判断是否超出范围
         if (rowIndex >= this.DataView.length)
             return this._cachedHitInRows;
 
@@ -357,14 +366,15 @@ export class DataGridController<T> {
     }
 
     public GetCurrentCellRect(): Nullable<PixUI.Rect> {
-        if (this._cachedHitInRows == null || this._cachedHitInRows.RowIndex == null)
+        if (this._cachedHitInRows == null || this._cachedHitInRows.RowIndex == -1)
             return null;
 
         let hitColumn = this._cachedHitInRows.Column;
         let top = this.TotalHeaderHeight +
-            (this._cachedHitInRows.RowIndex - this.VisibleStartRowIndex) * this.RowHeight -
+            (this._cachedHitInRows.RowIndex - this.VisibleStartRowIndex) *
+            this.Theme.RowHeight -
             this.ScrollDeltaY;
-        return new PixUI.Rect(hitColumn.CachedVisibleLeft, top, hitColumn.CachedVisibleRight, top + this.RowHeight);
+        return new PixUI.Rect(hitColumn.CachedVisibleLeft, top, hitColumn.CachedVisibleRight, top + this.Theme.RowHeight);
     }
 
     private GetLeafColumns(column: PixUI.DataGridColumn<T>, leafColumns: System.IList<PixUI.DataGridColumn<T>>, parentFrozen: Nullable<boolean>) {

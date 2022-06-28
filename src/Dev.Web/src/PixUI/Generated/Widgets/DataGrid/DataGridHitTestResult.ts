@@ -1,7 +1,7 @@
 import * as PixUI from '@/PixUI'
 
 export class DataGridHitTestResult<T> {
-    public constructor(column: PixUI.DataGridColumn<T>, rowIndex: Nullable<number> = null, scrollDeltaX: number = 0, scrollDeltaY: number = 0, isColumnResizer: boolean = false) {
+    public constructor(column: PixUI.DataGridColumn<T>, rowIndex: number, scrollDeltaX: number = 0, scrollDeltaY: number = 0, isColumnResizer: boolean = false) {
         this.Column = column;
         this.RowIndex = rowIndex;
         this.ScrollDeltaX = scrollDeltaX;
@@ -10,7 +10,7 @@ export class DataGridHitTestResult<T> {
     }
 
     public readonly Column: PixUI.DataGridColumn<T>;
-    public readonly RowIndex: Nullable<number>;
+    public readonly RowIndex: number; //-1 == hit in header
     public readonly ScrollDeltaX: number;
     public readonly ScrollDeltaY: number;
     public readonly IsColumnResizer: boolean;
