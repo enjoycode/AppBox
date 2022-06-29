@@ -50,7 +50,7 @@ namespace AppBoxDesign
                 {
                     MenuItem.Item("Save", Icons.Filled.Save, Commands.SaveCommand),
                     MenuItem.Item("Checkout", Icons.Filled.CheckCircle, Commands.CheckoutCommand),
-                    MenuItem.Item("Delete", Icons.Filled.DeleteForever, Commands.NotImplCommand),
+                    MenuItem.Item("Delete", Icons.Filled.DeleteForever, Commands.DeleteCommand),
                     MenuItem.Item("Publish", Icons.Filled.Publish, Commands.PublishCommand),
                 }),
                 MenuItem.Item("Tools", Icons.Filled.Handyman),

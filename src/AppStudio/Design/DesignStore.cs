@@ -54,6 +54,18 @@ namespace AppBoxDesign
             TreeController.SelectNode(newNode);
         }
 
+        /// <summary>
+        /// 删除成功返回后刷新
+        /// </summary>
+        internal static void OnDeleteNode(TreeNode<DesignNode> node, string? modelRootNodeIdString)
+        {
+            // 移除选中节点打开的设计器
+            DesignerController.Remove(node.Data);
+            // 从设计树中移除选中的节点
+            //TODO: 刷新模型根节点 if (modelRootNodeIdString != null)
+            TreeController.RemoveNode(node);
+        }
+
         internal static void UpdateProblems(ModelNode modelNode, IList<CodeProblem> problems)
         {
             //TODO:暂简单实现

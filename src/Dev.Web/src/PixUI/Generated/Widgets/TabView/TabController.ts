@@ -73,6 +73,8 @@ export class TabController<T> implements PixUI.IStateBindable {
 
     public Remove(dataItem: T) {
         let index = this.DataSource.IndexOf(dataItem);
+        if (index < 0) return;
+
         let isSelected = index == this.SelectedIndex; //是否正在移除选中的
         if (index < this.SelectedIndex)
             this.SelectedIndex -= 1;
