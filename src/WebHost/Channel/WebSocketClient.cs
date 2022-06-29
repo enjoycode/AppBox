@@ -126,9 +126,10 @@ internal sealed class WebSocketClient
         //调用服务
         var result = AnyValue.Empty;
         var errorCode = InvokeErrorCode.None;
+        var service = "";
         try
         {
-            var service = reader.ReadString()!;
+            service = reader.ReadString()!;
             Log.Debug($"收到调用请求: {service}");
 
             result = await RuntimeContext.InvokeAsync(service, InvokeArgs.From(reader));
@@ -142,7 +143,7 @@ internal sealed class WebSocketClient
                 ServiceNotExistsException => InvokeErrorCode.ServiceNotExists,
                 _ => InvokeErrorCode.ServiceInnerError
             };
-            Log.Warn($"Invoke service error[{errorCode}]: {e.Message}");
+            Log.Error($"Invoke service[{service}] error[{errorCode}]: {e.Message}\n{e.StackTrace}");
         }
 
         //序列化并发送响应

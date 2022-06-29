@@ -20,7 +20,7 @@ internal static class MetadataReferences
     internal static MetadataReference NetstandardLib => GetSdkLib("netstandard.dll");
 
     internal static MetadataReference SystemLinqLib => GetSdkLib("System.Linq.dll");
-    
+
     internal static MetadataReference SystemRuntimeLib => GetSdkLib("System.Runtime.dll");
 
     internal static MetadataReference SystemTasksLib => GetSdkLib("System.Threading.Tasks.dll");
@@ -57,7 +57,8 @@ internal static class MetadataReferences
 
         throw new NotImplementedException();
 #else
-        throw new NotImplementedException();
+        var appPath = Path.GetDirectoryName(typeof(MetadataReferences).Assembly.Location)!;
+        return TryGet(asmName, Path.Combine(appPath, "WebLibs", asmName));
 #endif
     }
 

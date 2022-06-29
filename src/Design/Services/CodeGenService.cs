@@ -17,9 +17,13 @@ internal static class CodeGenService
     {
         var sb = StringBuilderCache.Acquire();
         if (forPreview)
+#if DEBUG
             sb.Append("import * as AppBoxCore from '/src/AppBoxCore/index.ts'\n\n");
+#else
+            sb.Append("import * as AppBoxCore from '/AppBoxCore.js'\n\n");
+#endif
         else
-            throw new NotImplementedException();
+            throw new NotImplementedException("Not for preview");
 
         sb.Append($"export class {model.Name}");
         //根据存储配置继承不同的基类
