@@ -76,7 +76,7 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
         let problems = <System.IList<AppBoxDesign.CodeProblem>><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.GetProblems", [false, this._modelNode.Id]);
         AppBoxDesign.DesignStore.UpdateProblems(this._modelNode, problems);
 
-        if (problems.length == 0)
+        if (!problems.Any(p => p.IsError))
             this._previewController.Invalidate();
     }
 

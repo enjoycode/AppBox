@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AppBoxClient;
 using CodeEditor;
@@ -98,7 +99,7 @@ namespace AppBoxDesign
                 new object?[] { false, _modelNode.Id });
             DesignStore.UpdateProblems(_modelNode, problems);
 
-            if (problems.Count == 0)
+            if (!problems.Any(p => p.IsError))
                 _previewController.Invalidate();
         }
 
