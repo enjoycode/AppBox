@@ -14,6 +14,8 @@ export class Commands {
 
     public static readonly SaveCommand: System.Action = Commands.Save;
 
+    public static readonly DeleteCommand: System.Action = Commands.Delete;
+
     public static readonly PublishCommand: System.Action = () =>
         new AppBoxDesign.PublishDialog(PixUI.UIWindow.Current.Overlay).Show();
 
@@ -56,6 +58,26 @@ export class Commands {
             PixUI.Notification.Success("保存成功");
         } catch (e: any) {
             PixUI.Notification.Error("保存失败");
+        }
+    }
+
+    private static async Delete() {
+        //TODO:确认删除
+        let selectedNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
+        if (selectedNode == null) {
+            PixUI.Notification.Error("请先选择待删除的节点");
+            return;
+        }
+
+        let nodeType = selectedNode.Data.Type;
+        //TODO:判断能否删除
+
+        try {
+            let modelRootNodeIdString = await AppBoxClient.Channel.Invoke("sys.DesignService.DeleteNode", [(Math.floor(nodeType) & 0xFFFFFFFF), selectedNode.Data.Id]);
+            AppBoxDesign.DesignStore.OnDeleteNode(selectedNode, <string><unknown>modelRootNodeIdString);
+            PixUI.Notification.Success(`删除节点[${selectedNode.Data.Label}]成功`);
+        } catch (e: any) {
+            PixUI.Notification.Success(`删除节点[${selectedNode.Data.Label}]失败`);
         }
     }
 }

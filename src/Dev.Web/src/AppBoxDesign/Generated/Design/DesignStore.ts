@@ -29,6 +29,14 @@ export class DesignStore {
         DesignStore.TreeController.SelectNode(newNode);
     }
 
+    public static OnDeleteNode(node: PixUI.TreeNode<AppBoxDesign.DesignNode>, modelRootNodeIdString: Nullable<string>) {
+        // 移除选中节点打开的设计器
+        DesignStore.DesignerController.Remove(node.Data);
+        // 从设计树中移除选中的节点
+        //TODO: 刷新模型根节点 if (modelRootNodeIdString != null)
+        DesignStore.TreeController.RemoveNode(node);
+    }
+
     public static UpdateProblems(modelNode: AppBoxDesign.ModelNode, problems: System.IList<AppBoxDesign.CodeProblem>) {
         //TODO:暂简单实现
         DesignStore.ProblemsController.DataSource = problems;
