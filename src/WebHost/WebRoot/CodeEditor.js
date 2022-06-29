@@ -4015,7 +4015,10 @@ class CodeEditorController extends PixUI.WidgetController {
   OnKeyDown(e) {
     this._completionContext.PreProcessKeyDown(e);
     let cmd = this._editActions.get(Math.floor(e.KeyData) & 4294967295);
-    cmd == null ? void 0 : cmd.Execute(this.TextEditor);
+    if (cmd != null) {
+      cmd.Execute(this.TextEditor);
+      e.StopPropagate();
+    }
   }
   OnTextInput(text) {
     this._caretChangedByTextInput = true;

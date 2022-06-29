@@ -101,7 +101,10 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         this._completionContext.PreProcessKeyDown(e);
 
         let cmd = this._editActions.get((Math.floor(e.KeyData) & 0xFFFFFFFF));
-        cmd?.Execute(this.TextEditor);
+        if (cmd != null) {
+            cmd.Execute(this.TextEditor);
+            e.StopPropagate(); //暂全部停止向上传播
+        }
     }
 
     public OnTextInput(text: string) {
