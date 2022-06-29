@@ -1,31 +1,38 @@
-import * as PixUI from './';
+import {initializeSystem} from "@/System";
 import WebWindow from "./WebWindow";
-import {initializeSystem} from "@/System/InitializeSystem";
-import {initializeLinq} from "@/System/Linq";
-import {P, match} from "ts-pattern";
 import {FontCollection} from "@/PixUI/CanvasKit/FontCollection";
-import {Cursor, Clipboard} from "./";
+import {Cursor, Clipboard, Rx, UIApplication, Widget} from "./";
 import {WebCursors} from "./WebCursor";
 import {WebClipboard} from "./WebClipboard";
 
-export class WebApplication extends PixUI.UIApplication {
+export class WebApplication extends UIApplication {
 
     /** 初始化 & Polyfill*/
     public static Init() {
-        initializeLinq();
-
-        let win: any = window;
-        win.match = match;
-        win.when = P.when;
-
-        win.clamp = function (v: number, min: number, max: number): number {
-            return Math.min(Math.max(v, min), max)
-        }
-
+        //初始化System
         initializeSystem();
+        
+        //初始化一些状态扩展
+        Object.defineProperty(String.prototype, "obs", {
+            get: function () {
+                return new Rx<string>(this);
+            }
+        });
+
+        Object.defineProperty(Number.prototype, "obs", {
+            get: function () {
+                return new Rx<number>(this);
+            }
+        });
+
+        Object.defineProperty(Boolean.prototype, "obs", {
+            get: function () {
+                return new Rx<boolean>(this);
+            }
+        });
     }
 
-    public static Run(rootBuilder: () => PixUI.Widget) {
+    public static Run(rootBuilder: () => Widget) {
         //开始加载CanvasKit及默认字体
         let ckLoad = CanvasKitInit({
             locateFile: (file) => '/' + file,
@@ -44,12 +51,12 @@ export class WebApplication extends PixUI.UIApplication {
 
             //创建WebApplication并执行
             let app = new WebApplication();
-            PixUI.UIApplication.Current = app;
+            UIApplication.Current = app;
             app.RunInternal(rootBuilder());
         });
     }
 
-    private RunInternal(rootWidget: PixUI.Widget) {
+    private RunInternal(rootWidget: Widget) {
         //创建WebWindow
         let webWindow = new WebWindow(rootWidget);
         this.MainWindow = webWindow;

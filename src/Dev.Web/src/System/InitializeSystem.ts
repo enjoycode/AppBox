@@ -1,11 +1,20 @@
-import {Rx} from "@/PixUI";
+import {initializeLinq} from "@/System/Linq";
+import {P, match} from "ts-pattern";
 
+/** 初始化System */
 export const initializeSystem = () => {
-    Object.defineProperty(String.prototype, "obs", {
-        get: function () {
-            return new Rx<string>(this);
-        }
-    });
+    //初始化Linq支持
+    initializeLinq();
+    
+    //初始化Pattern支持
+    let win: any = window;
+    win.match = match;
+    win.when = P.when;
+
+    //初始化全局clamp函数
+    win.clamp = function (v: number, min: number, max: number): number {
+        return Math.min(Math.max(v, min), max)
+    }
 
     Object.defineProperty(String.prototype, "Insert", {
         value: function Insert(pos: number, str: string): string {
@@ -23,12 +32,6 @@ export const initializeSystem = () => {
         configurable: true,
     });
 
-    Object.defineProperty(Number.prototype, "obs", {
-        get: function () {
-            return new Rx<number>(this);
-        }
-    });
-
     Object.defineProperty(Number.prototype, "CompareTo", {
         value: function CompareTo(other: number) {
             if (this < other) return -1;
@@ -37,12 +40,6 @@ export const initializeSystem = () => {
         },
         writable: true,
         configurable: true,
-    });
-
-    Object.defineProperty(Boolean.prototype, "obs", {
-        get: function () {
-            return new Rx<boolean>(this);
-        }
     });
 
     // Object.defineProperty(Array.prototype, "IndexOf", {
