@@ -43,6 +43,18 @@ public sealed class ModelRootNode : DesignNode
     /// 用于新建时添加至字典表
     /// </summary>
     internal void AddFolderIndex(FolderNode node) => _folders.Add(node.Folder.Id, node);
+    
+    /// <summary>
+    /// 删除并移除字典表中对应的键
+    /// </summary>
+    internal void RemoveModel(ModelNode node)
+    {
+        if (node.Parent is FolderNode folderNode)
+            folderNode.Children.Remove(node);
+        else
+            Children.Remove(node);
+        _models.Remove(node.Model.Id);
+    }
 
     /// <summary>
     /// 仅用于设计树从顶级开始递归添加文件夹节点

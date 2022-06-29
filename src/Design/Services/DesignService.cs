@@ -10,6 +10,7 @@ public sealed class DesignService : IService
         { nameof(GetPendingChanges), new GetPendingChanges() },
         { nameof(Publish), new Publish() },
         { nameof(CloseDesigner), new CloseDesigner() },
+        { nameof(DeleteNode), new DeleteNode() },
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
         { nameof(CheckoutNode), new CheckoutNode() },

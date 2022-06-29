@@ -117,6 +117,8 @@ internal sealed class TypeSystem : IDisposable
             throw new Exception("Can't init workspace");
     }
 
+    #region ====Create/Update/Remove Document====
+
     /// <summary>
     /// Create model's roslyn document
     /// </summary>
@@ -238,6 +240,26 @@ internal sealed class TypeSystem : IDisposable
     }
 
     /// <summary>
+    /// 用于删除表达式和删除模型时移除相应的RoslynDocument
+    /// </summary>
+    /// <remarks>
+    /// 注意: 如果处于打开状态，则先关闭再移除
+    /// </remarks>
+    internal void RemoveDocument(DocumentId docId)
+    {
+        if (Workspace.IsDocumentOpen(docId))
+            Workspace.CloseDocument(docId);
+
+        var newSolution = Workspace.CurrentSolution.RemoveDocument(docId);
+        if (!Workspace.TryApplyChanges(newSolution))
+            Log.Warn($"Cannot remove roslyn document for: {docId}");
+    }
+
+    #endregion
+
+    #region ====ServiceProject=====
+
+    /// <summary>
     /// 创建服务模型的虚拟项目，即一个服务模型对应一个虚拟项目
     /// </summary>
     private void CreateServiceProject(ProjectId prjId, ServiceModel model, string appName)
@@ -284,6 +306,15 @@ internal sealed class TypeSystem : IDisposable
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot create service project.");
     }
+
+    internal void RemoveServiceProject(ProjectId serviceProjectId)
+    {
+        var newSolution = Workspace.CurrentSolution.RemoveProject(serviceProjectId);
+        if (!Workspace.TryApplyChanges(newSolution))
+            Log.Warn("Cannot remove service project.");
+    }
+
+    #endregion
 
     public void Dispose()
     {
