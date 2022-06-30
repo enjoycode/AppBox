@@ -83,6 +83,7 @@ public sealed class ModelNode : DesignNode
         //先保存模型代码
         if (Model.PersistentState != PersistentState.Deleted)
         {
+            var typeSystem = DesignTree!.DesignHub.TypeSystem;
             //注意：不在此更新RoslynDocument, 实体模型通过设计命令更新,服务模型通过前端代码编辑器实时更新
             if (Model.ModelType == ModelType.Service || Model.ModelType == ModelType.View)
             {
@@ -90,13 +91,16 @@ public sealed class ModelNode : DesignNode
                 if (initSrcCode != null) srcCode = initSrcCode;
                 else
                 {
-                    var doc = DesignTree!.DesignHub.TypeSystem.Workspace.CurrentSolution
-                        .GetDocument(RoslynDocumentId)!;
+                    var doc = typeSystem.Workspace.CurrentSolution.GetDocument(RoslynDocumentId)!;
                     var srcText = await doc.GetTextAsync();
                     srcCode = srcText.ToString();
                 }
 
                 await StagedService.SaveCodeAsync(Model.Id, srcCode);
+
+                //如果是服务模型需要更新服务代理
+                if (Model.ModelType == ModelType.Service)
+                    await typeSystem.UpdateServiceProxyDocumentAsync(this);
             }
         }
 

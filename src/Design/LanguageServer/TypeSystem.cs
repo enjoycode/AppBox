@@ -240,6 +240,22 @@ internal sealed class TypeSystem : IDisposable
     }
 
     /// <summary>
+    /// 仅用于保存服务模型时同步更新服务代理
+    /// </summary>
+    internal async ValueTask UpdateServiceProxyDocumentAsync(ModelNode node)
+    {
+        var appName = node.AppNode.Model.Name;
+        var model = (ServiceModel)node.Model;
+        var srcdoc = Workspace.CurrentSolution.GetDocument(node.RoslynDocumentId)!;
+        var proxyCode =
+            await CodeGenService.GenServiceProxyCode(srcdoc, appName, model);
+        var newSolution = Workspace.CurrentSolution.WithDocumentText(node.ExtRoslynDocumentId!,
+            SourceText.From(proxyCode));
+        if (!Workspace.TryApplyChanges(newSolution))
+            Log.Warn("Cannot update service proxy document for: " + model.Name);
+    }
+
+    /// <summary>
     /// 用于删除表达式和删除模型时移除相应的RoslynDocument
     /// </summary>
     /// <remarks>
