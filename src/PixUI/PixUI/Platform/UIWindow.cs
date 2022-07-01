@@ -1,0 +1,337 @@
+using System;
+using System.Diagnostics;
+
+namespace PixUI
+{
+    public abstract class UIWindow
+    {
+        protected UIWindow(Widget child)
+        {
+            FocusManager = new FocusManager();
+            EventHookManager = new EventHookManager();
+            Overlay = new Overlay(this);
+            RootWidget = new Root(this, child);
+
+            PaintDebugger.EnableChanged += () => RootWidget.Invalidate(InvalidAction.Repaint);
+
+            UIWindow.Current = this; //TODO:暂单窗体
+        }
+
+        #region ====Fields & Properties====
+        
+        /// <summary>
+        /// 当前激活的窗体
+        /// </summary>
+        public static UIWindow Current { get; private set; } //TODO: 暂单窗体
+
+        public readonly Root RootWidget;
+
+        /// <summary>
+        /// 管理键盘输入焦点
+        /// </summary>
+        public readonly FocusManager FocusManager;
+
+        public readonly EventHookManager EventHookManager;
+
+        public readonly Overlay Overlay;
+
+        public Color BackgroundColor { get; set; } = Colors.White; //TODO: move to Root
+
+        public abstract float Width { get; }
+        public abstract float Height { get; }
+        public virtual float ScaleFactor => 1.0f;
+
+        internal readonly InvalidQueue WidgetsInvalidQueue = new InvalidQueue();
+        internal readonly InvalidQueue OverlayInvalidQueue = new InvalidQueue();
+        internal bool HasPostInvalidateEvent = false;
+
+        #region ----Mouse----
+
+        private float _lastMouseX = -1;
+        private float _lastMouseY = -1;
+
+        // Pointer.Move时检测命中的结果
+        private HitTestResult _oldHitResult = new HitTestResult();
+
+        private HitTestResult _newHitResult = new HitTestResult();
+
+        // Pointer.Down时捕获的结果
+        private HitTestEntry? _hitResultOnPointDown;
+
+        #endregion
+
+        #endregion
+
+        #region ====Canvas & Show====
+
+        /// <summary>
+        /// 获取Onscreen画布, 用于绘制Overlay并显示
+        /// </summary>
+        protected internal abstract Canvas GetOnscreenCanvas();
+
+        /// <summary>
+        /// 获取Offscreen画布，用于绘布不常变化的Widgets
+        /// </summary>
+        protected internal abstract Canvas GetOffscreenCanvas();
+
+#if __WEB__
+        protected internal abstract void FlushOffscreenSurface();
+        
+        protected internal abstract void DrawOffscreenSurface();
+#endif
+
+
+        /// <summary>
+        /// 窗体首次呈现
+        /// </summary>
+        protected
+#if __WEB__
+             internal
+#endif
+            void OnFirstShow()
+        {
+            RootWidget.Layout(Width, Height);
+            Overlay.Layout(Width, Height);
+
+            var widgetsCanvas = GetOffscreenCanvas();
+            widgetsCanvas.Clear(BackgroundColor);
+            RootWidget.Paint(widgetsCanvas);
+
+            var overlayCanvas = GetOnscreenCanvas();
+#if __WEB__
+            FlushOffscreenSurface();
+            DrawOffscreenSurface();
+#else
+            widgetsCanvas.Flush();
+            widgetsCanvas.Surface.Draw(overlayCanvas, 0, 0, null);
+            overlayCanvas.Flush();
+#endif
+
+            //TODO: maybe paint Overlay
+
+            Present();
+        }
+
+        /// <summary>
+        /// 呈现已渲染好的当前帧
+        /// </summary>
+        protected internal abstract void Present();
+
+        #endregion
+
+        #region ====Input Events====
+
+        public void OnPointerMove(PointerEvent e)
+        {
+            _lastMouseX = e.X;
+            _lastMouseY = e.Y;
+
+            if (_oldHitResult.StillInLastRegion(e.X, e.Y))
+            {
+                OldHitTest(e.X, e.Y); //仍在旧的命中范围内
+            }
+            else
+            {
+                NewHitTest(e.X, e.Y); //重新开始检测
+            }
+
+            //开始比较新旧命中结果，激发相应的HoverChanged事件
+            CompareAndSwapHitTestResult();
+
+            //如果命中MouseRegion，则向上传播事件(TODO: 考虑不传播)
+            if (_oldHitResult.IsHitAnyMouseRegion)
+            {
+                _oldHitResult.PropagatePointerEvent(e, (w, e) => w.RaisePointerMove(e));
+            }
+        }
+
+        public void OnPointerMoveOutWindow()
+        {
+            _lastMouseX = _lastMouseY = -1;
+            CompareAndSwapHitTestResult();
+        }
+
+        public void OnPointerDown(PointerEvent pointerEvent)
+        {
+            if (EventHookManager.HookEvent(EventType.PointerDown, pointerEvent))
+                return;
+
+            //TODO:移动端强制HitTest
+            if (!_oldHitResult.IsHitAnyWidget)
+            {
+                //TODO: overlay first
+                RootWidget.HitTest(pointerEvent.X, pointerEvent.Y, _oldHitResult);
+            }
+
+            if (!_oldHitResult.IsHitAnyMouseRegion) return;
+
+            _hitResultOnPointDown = _oldHitResult.LastEntry;
+            _oldHitResult.PropagatePointerEvent(pointerEvent, (w, e) => w.RaisePointerDown(e));
+
+            //Set focus widget after propagate event
+            FocusManager.Focus(_oldHitResult.LastHitWidget);
+        }
+
+        public void OnPointerUp(PointerEvent pointerEvent)
+        {
+            if (!_oldHitResult.IsHitAnyMouseRegion)
+                return;
+
+            //先尝试激发PointerTap事件
+            if (_hitResultOnPointDown != null)
+            {
+                if (_hitResultOnPointDown.Value.ContainsPoint(pointerEvent.X, pointerEvent.Y))
+                    _hitResultOnPointDown.Value.Widget.MouseRegion.RaisePointerTap(pointerEvent);
+                _hitResultOnPointDown = null;
+            }
+
+            _oldHitResult.PropagatePointerEvent(pointerEvent, (w, e) => w.RaisePointerUp(e));
+        }
+
+        public void OnScroll(ScrollEvent scrollEvent)
+        {
+            if (!_oldHitResult.IsHitAnyWidget) return;
+
+            var scrollable =
+                _oldHitResult.LastHitWidget!.FindParent(w => w is IScrollable);
+            if (scrollable == null) return;
+
+            //TODO:如果返回的偏移量为0，继续循环向上查找IScrollable处理
+            var offset = ((IScrollable)scrollable).OnScroll(scrollEvent.Dx, scrollEvent.Dy);
+            if (!offset.IsEmpty)
+                AfterScrollDoneInternal(scrollable, offset.Dx, offset.Dy);
+        }
+
+        public void OnKeyDown(KeyEvent keyEvent)
+        {
+            if (EventHookManager.HookEvent(EventType.KeyDown, keyEvent))
+                return;
+
+            FocusManager.OnKeyDown(keyEvent);
+        }
+
+        public void OnKeyUp(KeyEvent keyEvent) => FocusManager.OnKeyUp(keyEvent);
+
+        public void OnTextInput(string text) => FocusManager.OnTextInput(text);
+
+        #region ----HitTest----
+
+        private void OldHitTest(float winX, float winY)
+        {
+            // Console.WriteLine($"========OldHitTest:({winX},{winY}) ========");
+            var hitTestInOldRegion = true;
+            if (_oldHitResult.LastHitWidget!.Root is Root && Overlay.HasEntry)
+            {
+                //特殊情况，例如Popup与原Hit存在相交区域，还是得先尝试HitTest overlay
+                Overlay.HitTest(winX, winY, _newHitResult);
+                if (_newHitResult.IsHitAnyMouseRegion)
+                    hitTestInOldRegion = false;
+            }
+
+            if (hitTestInOldRegion)
+            {
+                _newHitResult.CopyFrom(_oldHitResult);
+                _newHitResult.HitTestInLastRegion(winX, winY);
+            }
+        }
+
+        private void NewHitTest(float winX, float winY)
+        {
+            Console.WriteLine($"========NewHitTest:({winX},{winY}) ========");
+            //先检测Overlay，没有命中再从RootWidget开始
+            if (Overlay.HasEntry)
+                Overlay.HitTest(winX, winY, _newHitResult);
+            if (!_newHitResult.IsHitAnyWidget /*IsHitAnyMouseRegion*/)
+                RootWidget.HitTest(winX, winY, _newHitResult);
+        }
+
+        private void CompareAndSwapHitTestResult()
+        {
+            _oldHitResult.ExitOldRegion(_newHitResult);
+            _newHitResult.EnterNewRegion(_oldHitResult);
+
+            if (_oldHitResult.LastHitWidget != _newHitResult.LastHitWidget)
+            {
+                Console.WriteLine(
+                    $"Hit: {_newHitResult.LastHitWidget} {_newHitResult.LastWidgetWithMouseRegion}");
+            }
+
+            //重置并交换
+            _oldHitResult.Reset();
+            var temp = _oldHitResult;
+            _oldHitResult = _newHitResult;
+            _newHitResult = temp;
+        }
+
+        /// <summary>
+        /// 目前仅用于DynamicView改变前取消FocusedWidget
+        /// </summary>
+        internal void BeforeDynamicViewChange()
+        {
+            FocusManager.Focus(null);
+        }
+
+        /// <summary>
+        /// 仅用于程序滚动后重设之前缓存的HitTest结果
+        /// </summary>
+        public void AfterScrollDone(Widget scrollable, Offset offset)
+        {
+            //判断旧HitResult是否隶属于当前IScrollable的子级
+            if (_oldHitResult.IsHitAnyWidget &&
+                scrollable.IsAnyParentOf(_oldHitResult.LastHitWidget))
+            {
+                AfterScrollDoneInternal(scrollable, offset.Dx, offset.Dy);
+            }
+        }
+
+        private void AfterScrollDoneInternal(Widget scrollable, float dx, float dy)
+        {
+            Debug.Assert(dx != 0 || dy != 0);
+            //Translate HitTestResult and Rerun hit test.
+            var stillInLastRegion =
+                _oldHitResult.TranslateOnScroll(scrollable, dx, dy, _lastMouseX, _lastMouseY);
+            if (stillInLastRegion)
+                OldHitTest(_lastMouseX, _lastMouseY);
+            else
+                NewHitTest(_lastMouseX, _lastMouseY);
+            CompareAndSwapHitTestResult();
+        }
+
+        /// <summary>
+        /// 目前仅用于DynamicView改变内容后，重设之前缓存的HitTest结果
+        /// </summary>
+        internal void AfterDynamicViewChange(DynamicView dynamicView)
+        {
+            if (!_oldHitResult.IsHitAnyWidget ||
+                !ReferenceEquals(_oldHitResult.LastHitWidget, dynamicView)) return;
+
+            //切换过程结束后仍旧在DynamicView内，继续HitTest子级
+            OldHitTest(_lastMouseX, _lastMouseY);
+            CompareAndSwapHitTestResult();
+        }
+
+        /// <summary>
+        /// 仅用于布局变更后重设之前缓存的HitTest结果
+        /// </summary>
+        internal void AfterLayoutChanged()
+        {
+            //始终重新开始检测，因为旧的命中的位置可能已改变
+            NewHitTest(_lastMouseX, _lastMouseY);
+            CompareAndSwapHitTestResult();
+        }
+
+        #endregion
+
+        #endregion
+
+        #region ====TextInput Methods====
+
+        public virtual void StartTextInput() { }
+
+        public virtual void SetTextInputRect(Rect rect) { }
+
+        public virtual void StopTextInput() { }
+
+        #endregion
+    }
+}

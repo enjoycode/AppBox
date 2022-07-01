@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{F92BAC70-041A-4415-BCF8-B5DEC31A1171}</ProjectGuid>
+        <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>PixUI.Test.Mac</RootNamespace>
+        <AssemblyName>PixUI.Test.Mac</AssemblyName>
+        <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+        <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
+        <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
+        <LangVersion>9</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+      <OutputPath>bin\Release\</OutputPath>
+      <MtouchLink>SdkOnly</MtouchLink>
+      <Optimize>true</Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+      <OutputPath>bin\Debug\</OutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+        <Reference Include="Xamarin.Mac" />
+    </ItemGroup>
+    <ItemGroup>
+        <ImageAsset Include="Assets.xcassets\Contents.json" />
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Resources\" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Info.plist" />
+        <None Include="Entitlements.plist" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="DemoAnimation.cs" />
+        <Compile Include="DemoCodeEditor.cs" />
+        <Compile Include="DemoData.cs" />
+        <Compile Include="DemoDataGrid.cs" />
+        <Compile Include="DemoDialog.cs" />
+        <Compile Include="DemoForm.cs" />
+        <Compile Include="DemoListView.cs" />
+        <Compile Include="DemoPage.cs" />
+        <Compile Include="DemoRoute.cs" />
+        <Compile Include="DemoTabView.cs" />
+        <Compile Include="DemoTransform.cs" />
+        <Compile Include="DemoTreeView.cs" />
+        <Compile Include="Main.cs" />
+        <Compile Include="Resources\Resources.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <NativeReference Include="..\PixUI.Platform.Mac\libs\libskia.dylib">
+            <Kind>Dynamic</Kind>
+            <SmartLink>False</SmartLink>
+        </NativeReference>
+        <NativeReference Include="..\PixUI.CodeEditor\libs\osx-x64\libtree-sitter.dylib">
+            <Kind>Dynamic</Kind>
+            <SmartLink>False</SmartLink>
+        </NativeReference>
+        <NativeReference Include="..\PixUI.CodeEditor\libs\osx-x64\libtree-sitter-c-sharp.dylib">
+            <Kind>Dynamic</Kind>
+            <SmartLink>False</SmartLink>
+        </NativeReference>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PixUI.CodeEditor\PixUI.CodeEditor.csproj">
+          <Project>{24e5a347-4558-4a65-b88e-f8e42bf27ea8}</Project>
+          <Name>PixUI.CodeEditor</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\PixUI.Platform.Mac\PixUI.Platform.Mac.csproj">
+            <Project>{8e61f4d4-1134-4798-8290-99df730aaa19}</Project>
+            <Name>PixUI.Platform.Mac</Name>
+        </ProjectReference>
+        <ProjectReference Include="..\PixUI\PixUI.csproj">
+            <Project>{9644950e-175c-4efd-9307-cbf97764561d}</Project>
+            <Name>PixUI</Name>
+        </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\Cat.webp" />
+    </ItemGroup>
+    <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+</Project>
