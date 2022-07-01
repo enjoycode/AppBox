@@ -35,8 +35,8 @@ namespace AppBoxDesign
                         {
                             Children = new Widget[]
                             {
-                                new Button("Cancel") { OnTap = _ => Close(true) },
-                                new Button("OK") { OnTap = _ => Close(false) },
+                                new Button("Cancel") { Width = 65, OnTap = _ => Close(true) },
+                                new Button("OK") { Width = 65, OnTap = _ => Close(false) },
                             }
                         }
                     }
