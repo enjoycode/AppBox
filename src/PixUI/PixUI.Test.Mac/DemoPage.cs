@@ -43,6 +43,15 @@ namespace PixUI.Test
                                 new Text(_fullName) { FontSize = 50, TextColor = Colors.Red },
                                 new Button("Click Me", Icons.Filled.Search)
                                     { OnTap = OnButtonTap, Ref = _buttonRef },
+                                new ButtonGroup()
+                                {
+                                    Children = new[]
+                                    {
+                                        new Button("Button1"),
+                                        new Button("Button2"),
+                                        new Button("Button3")
+                                    },
+                                },
                                 new Input("Hello World!")
                                 {
                                     Width = 200, FontSize = 20,

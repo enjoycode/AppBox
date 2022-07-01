@@ -9,8 +9,7 @@ namespace PixUI
             _text = text;
             _icon = icon;
 
-            Width = text == null ? 35 : 120;
-            Height = 35;
+            Height = DefaultHeight; //TODO: 默认字体高+padding
 
             MouseRegion = new MouseRegion(() => Cursors.Hand);
             FocusNode = new FocusNode();
@@ -19,7 +18,8 @@ namespace PixUI
             _hoverDecoration.AttachHoverChangedEvent(this);
         }
 
-        private const float StandardRadius = 4;
+        internal const float DefaultHeight = 30;
+        internal const float StandardRadius = 4;
 
         private State<string>? _text;
         private State<IconData>? _icon;
@@ -103,21 +103,27 @@ namespace PixUI
 
         #region ====Overrides====
 
+        /// <summary>
+        /// 没有指定宽高充满可用空间, 仅指定高则使用Icon+Text的宽度
+        /// </summary>
         public override void Layout(float availableWidth, float availableHeight)
         {
             var width = CacheAndCheckAssignWidth(availableWidth);
             var height = CacheAndCheckAssignHeight(availableHeight);
-            SetSize(width, height);
 
             TryBuildContent();
             _iconWidget?.Layout(width, height);
             _textWidget?.Layout(width - (_iconWidget?.W ?? 0), height);
+            var contentWidth = (_iconWidget?.W ?? 0) + (_textWidget?.W ?? 0);
+            if (Width == null)
+                SetSize(Math.Max(DefaultHeight, contentWidth + 16 /*padding*/), height);
+            else
+                SetSize(width, height);
 
             //TODO: 根据icon位置计算
-            var contentWidth = (_iconWidget?.W ?? 0) + (_textWidget?.W ?? 0);
-            var contentHeight = Math.Max(_iconWidget?.H ?? 0, _textWidget?.H ?? 0);
+            // var contentHeight = Math.Max(_iconWidget?.H ?? 0, _textWidget?.H ?? 0);
             var contentOffsetX = (W - contentWidth) / 2;
-            var contentOffsetY = (H - contentHeight) / 2;
+            // var contentOffsetY = (H - contentHeight) / 2;
             _iconWidget?.SetPosition(contentOffsetX, (H - _iconWidget!.H) / 2);
             _textWidget?.SetPosition(contentOffsetX + (_iconWidget?.W ?? 0),
                 (H - _textWidget!.H) / 2);
@@ -184,8 +190,8 @@ namespace PixUI
                     using var rrect = RRect.FromRectAndRadius(Rect.FromLTWH(0, 0, W, H),
                         StandardRadius, StandardRadius);
                     canvas.DrawRRect(rrect, paint);
-                }
                     break;
+                }
                 default:
                     throw new NotImplementedException();
             }
