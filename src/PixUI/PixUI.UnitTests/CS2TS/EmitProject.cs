@@ -118,15 +118,13 @@ namespace PixUI.UnitTests.CS2TS
                 "../../../../../Core/bin/Debug/netstandard2.1/AppBoxCore.dll";
             const string clientDllPath =
                 "../../../../../Client/bin/Debug/netstandard2.1/AppBoxClient.dll";
-            const string designDllPath =
-                "../../../../../Design.Core/bin/Debug/netstandard2.1/AppBoxDesign.Core.dll";
             const string prjPath = "../../../../../AppStudio/";
             const string outPath = "../../../../../Dev.Web/src/AppBoxDesign/Generated/";
 
             var translator = new Translator("AppBoxDesign",
                 new[]
                 {
-                    pixUIDllPath, codeEditorDllPath, coreDllPath, clientDllPath, designDllPath
+                    pixUIDllPath, codeEditorDllPath, coreDllPath, clientDllPath
                 });
             var workspace = translator.AddSourceFiles(prjPath);
 
