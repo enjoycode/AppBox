@@ -30,11 +30,17 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
         return new PixUI.Container().Init(
             {
                 BgColor: PixUI.State.op_Implicit_From(PixUI.Colors.White),
-                Height: PixUI.State.op_Implicit_From(40),
-                Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
+                Height: PixUI.State.op_Implicit_From(45),
+                Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(8, 8, 8, 8)),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init(
                     {
-                        Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Members")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Options")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Data")).Init({Width: PixUI.State.op_Implicit_From(75)})]
+                        Children: [new PixUI.ButtonGroup().Init(
+                            {
+                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Members")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Options")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Data")).Init({Width: PixUI.State.op_Implicit_From(75)})]
+                            }), new PixUI.IfConditional(this._activePad.AsStateOfBool(i => i == 0), () => new PixUI.ButtonGroup().Init(
+                            {
+                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Add"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Add)), new PixUI.Button(PixUI.State.op_Implicit_From("Remove"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Delete)), new PixUI.Button(PixUI.State.op_Implicit_From("Rename"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Edit)), new PixUI.Button(PixUI.State.op_Implicit_From("Usages"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Link))]
+                            }))]
                     })
             });
     }

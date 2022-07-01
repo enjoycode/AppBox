@@ -35,7 +35,10 @@ export class LoginPage extends PixUI.View {
                             {
                                 IsObscure: true, HintText: "Password", FontSize: this._inputSize,
                                 Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Lock)).Init({Size: this._inputSize}),
-                            }), new PixUI.Button(PixUI.State.op_Implicit_From("Login")).Init({OnTap: e => this.OnLogin()})
+                            }), new PixUI.Button(PixUI.State.op_Implicit_From("Login")).Init({
+                            Width: PixUI.State.op_Implicit_From(120),
+                            OnTap: e => this.OnLogin()
+                        })
                         ]
                     })
             });

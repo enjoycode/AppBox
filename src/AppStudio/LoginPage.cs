@@ -44,7 +44,7 @@ namespace AppBoxDesign
                             IsObscure = true, HintText = "Password", FontSize = _inputSize,
                             Prefix = new Icon(Icons.Filled.Lock) { Size = _inputSize },
                         },
-                        new Button("Login") { OnTap = e => OnLogin() }
+                        new Button("Login") { Width = 120, OnTap = e => OnLogin() }
                     }
                 }
             };

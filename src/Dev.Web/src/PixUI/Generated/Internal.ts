@@ -106,6 +106,7 @@ export * from "./Widgets/Button/ButtonStyle";
 export * from "./Widgets/Button/ButtonShape";
 export * from "./Widgets/Button/Button";
 export * from "./Widgets/Button/ExpandIcon";
+export * from "./Widgets/Button/ButtonGroup";
 
 export * from "./Widgets/Icon/IconData";
 export * from "./Widgets/Icon/MaterialIcons";

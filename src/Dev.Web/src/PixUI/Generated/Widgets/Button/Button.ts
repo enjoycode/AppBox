@@ -10,8 +10,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         this._text = text;
         this._icon = icon;
 
-        this.Width = PixUI.State.op_Implicit_From(text == null ? 35 : 120);
-        this.Height = PixUI.State.op_Implicit_From(35);
+        this.Height = PixUI.State.op_Implicit_From(Button.DefaultHeight); //TODO: 默认字体高+padding
 
         this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
         this.FocusNode = new PixUI.FocusNode();
@@ -20,7 +19,8 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         this._hoverDecoration.AttachHoverChangedEvent(this);
     }
 
-    private static readonly StandardRadius: number = 4;
+    public static readonly DefaultHeight: number = 30;
+    public static readonly StandardRadius: number = 4;
 
     private _text: Nullable<PixUI.State<string>>;
     private _icon: Nullable<PixUI.State<PixUI.IconData>>;
@@ -106,17 +106,20 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
-        this.SetSize(width, height);
 
         this.TryBuildContent();
         this._iconWidget?.Layout(width, height);
         this._textWidget?.Layout(width - (this._iconWidget?.W ?? 0), height);
+        let contentWidth = (this._iconWidget?.W ?? 0) + (this._textWidget?.W ?? 0);
+        if (this.Width == null)
+            this.SetSize(Math.max(Button.DefaultHeight, contentWidth + 16), height);
+        else
+            this.SetSize(width, height);
 
         //TODO: 根据icon位置计算
-        let contentWidth = (this._iconWidget?.W ?? 0) + (this._textWidget?.W ?? 0);
-        let contentHeight = Math.max(this._iconWidget?.H ?? 0, this._textWidget?.H ?? 0);
+        // var contentHeight = Math.Max(_iconWidget?.H ?? 0, _textWidget?.H ?? 0);
         let contentOffsetX = (this.W - contentWidth) / 2;
-        let contentOffsetY = (this.H - contentHeight) / 2;
+        // var contentOffsetY = (H - contentHeight) / 2;
         this._iconWidget?.SetPosition(contentOffsetX, (this.H - this._iconWidget!.H) / 2);
         this._textWidget?.SetPosition(contentOffsetX + (this._iconWidget?.W ?? 0), (this.H - this._textWidget!.H) / 2);
     }
@@ -177,8 +180,8 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
             case PixUI.ButtonShape.Standard: {
                 let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), Button.StandardRadius, Button.StandardRadius);
                 canvas.drawRRect(rrect, paint);
-            }
                 break;
+            }
             default:
                 throw new System.NotImplementedException();
         }

@@ -42,15 +42,32 @@ namespace AppBoxDesign
         {
             return new Container()
             {
-                BgColor = Colors.White, Height = 40,
-                Padding = EdgeInsets.Only(15, 8, 15, 8),
+                BgColor = Colors.White, Height = 45,
+                Padding = EdgeInsets.Only(8, 8, 8, 8),
                 Child = new Row(VerticalAlignment.Middle, 10)
                 {
                     Children = new Widget[]
                     {
-                        new Button("Members") { Width = 75 },
-                        new Button("Options") { Width = 75 },
-                        new Button("Data") { Width = 75 },
+                        new ButtonGroup()
+                        {
+                            Children = new[]
+                            {
+                                new Button("Members") { Width = 75 },
+                                new Button("Options") { Width = 75 },
+                                new Button("Data") { Width = 75 },
+                            }
+                        },
+                        new IfConditional(_activePad.AsStateOfBool(i => i == 0),
+                            () => new ButtonGroup()
+                            {
+                                Children = new[]
+                                {
+                                    new Button("Add", Icons.Filled.Add),
+                                    new Button("Remove", Icons.Filled.Delete),
+                                    new Button("Rename", Icons.Filled.Edit),
+                                    new Button("Usages", Icons.Filled.Link),
+                                }
+                            }),
                     }
                 }
             };

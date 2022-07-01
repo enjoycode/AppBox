@@ -4,6 +4,8 @@ namespace PixUI
 {
     public sealed class ButtonGroup : MultiChildWidget<Button>
     {
+        public ButtonGroup() {}
+        
         #region ====Widget Overrides====
 
         public override void Layout(float availableWidth, float availableHeight)
