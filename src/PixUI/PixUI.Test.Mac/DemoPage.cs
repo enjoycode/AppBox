@@ -10,7 +10,7 @@ namespace PixUI.Test
         private readonly RxComputed<string> _fullName;
         private readonly Rx<ImageSource> _imgSrc;
 
-        private readonly WidgetRef<Button> _buttonRef = new WidgetRef<Button>();
+        private readonly WidgetRef<Button> _buttonRef = new();
         private ListPopup<Person>? _listPopup;
 
         public DemoPage()
@@ -41,13 +41,13 @@ namespace PixUI.Test
                                 new Text(_firstName) { FontSize = 20, TextColor = Colors.Red },
                                 new Text(_lastName) { FontSize = 20, TextColor = Colors.Red },
                                 new Text(_fullName) { FontSize = 50, TextColor = Colors.Red },
-                                new Button("Click Me", Icons.Filled.Search)
-                                    { OnTap = OnButtonTap, Ref = _buttonRef },
+                                new Button("Click Me", Icons.Filled.Search) { OnTap = OnButtonTap },
                                 new ButtonGroup()
                                 {
                                     Children = new[]
                                     {
-                                        new Button("Button1"),
+                                        new Button("Button1")
+                                            { OnTap = OnButton1Tap, Ref = _buttonRef },
                                         new Button("Button2"),
                                         new Button("Button3")
                                     },
@@ -95,14 +95,17 @@ namespace PixUI.Test
             //         Console.WriteLine(canceled ? "Dialog closed" : $"Dialog closed: {res}");
             //     });
             // dlg.Show();
+        }
 
-            // _listPopup ??= new ListPopup<Person>(Overlay!, BuidPopupItem, 200, 25)
-            //     { OnSelectionChanged = OnListPopupSelectionChanged };
-            // _listPopup.DataSource ??= Person.GeneratePersons(10);
-            // if (!_listPopup.IsMounted)
-            //     _listPopup.Show(_buttonRef.Widget, new Offset(-4, -2));
-            // else
-            //     _listPopup?.Hide();
+        private void OnButton1Tap(PointerEvent e)
+        {
+            _listPopup ??= new ListPopup<Person>(Overlay!, BuidPopupItem, 200, 25)
+                { OnSelectionChanged = OnListPopupSelectionChanged };
+            _listPopup.DataSource ??= Person.GeneratePersons(10);
+            if (!_listPopup.IsMounted)
+                _listPopup.Show(_buttonRef.Widget, new Offset(-4, -2));
+            else
+                _listPopup?.Hide();
         }
 
         private void OnListPopupSelectionChanged(Person? person)

@@ -480,6 +480,22 @@ namespace PixUI
             M15 = M3 * x + M7 * y + M11 * z + M15;
         }
 
+        public void Scale(float x, float y = 1.0f, float z = 1.0f)
+        {
+            M0 *= x;
+            M1 *= x;
+            M2 *= x;
+            M3 *= x;
+            M4 *= y;
+            M5 *= y;
+            M6 *= y;
+            M7 *= y;
+            M8 *= z;
+            M9 *= z;
+            M10 *= z;
+            M11 *= z;
+        }
+
         public void RotateX(float angle)
         {
             var cosAngle = (float)Math.Cos(angle);

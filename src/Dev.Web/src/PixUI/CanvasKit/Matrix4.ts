@@ -1,4 +1,5 @@
 import {Vector4} from "./Vector4";
+
 // import {MatrixUtils} from "./MatrixUtils";
 
 export class Matrix4 extends Float32Array {
@@ -41,6 +42,21 @@ export class Matrix4 extends Float32Array {
         this[13] = this[1] * x + this[5] * y + this[9] * z + this[13];
         this[14] = this[2] * x + this[6] * y + this[10] * z + this[14];
         this[15] = this[3] * x + this[7] * y + this[11] * z + this[15];
+    }
+
+    public Scale(x: number, y: number = 1.0, z: number = 1.0) {
+        this[0] *= x;
+        this[1] *= x;
+        this[2] *= x;
+        this[3] *= x;
+        this[4] *= y;
+        this[5] *= y;
+        this[6] *= y;
+        this[7] *= y;
+        this[8] *= z;
+        this[9] *= z;
+        this[10] *= z;
+        this[11] *= z;
     }
 
     public RotateZ(angle: number) {

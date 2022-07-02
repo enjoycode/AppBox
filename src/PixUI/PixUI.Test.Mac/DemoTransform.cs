@@ -7,7 +7,8 @@ namespace PixUI.Test.Mac
         public DemoTransform()
         {
             var m2 = Matrix4.CreateIdentity();
-            m2.Translate(25, 25);
+            m2.Scale(1, 0.5f);
+            //m2.Translate(25, 25);
             // m2.RotateZ(20 * Matrix3.DegreesToRadians);
             // var m1 = Matrix4.CreateRotationDegrees(0, 0, 1, 45);
 
@@ -17,7 +18,7 @@ namespace PixUI.Test.Mac
                 Width = 300,
                 Height = 300,
                 BgColor = Colors.Green,
-                Child = new Transform(m2, new Offset(50, 50))
+                Child = new Transform(m2, new Offset(0, 0))
                 {
                     Child = new HitTestWidget()
                     {
