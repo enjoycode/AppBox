@@ -4,6 +4,14 @@ namespace PixUI
 {
     public sealed class FocusedDecoration
     {
+        public FocusedDecoration(Widget widget, Func<ShapeBorder> focusedBorderBuilder,
+            Func<ShapeBorder?>? unfocusedBorderBuilder = null)
+        {
+            Widget = widget;
+            _focusedBorderBuilder = focusedBorderBuilder;
+            _unfocusedBorderBuilder = unfocusedBorderBuilder;
+        }
+        
         internal readonly Widget Widget;
 
         // Focus时的Border,用于动画结束
@@ -12,15 +20,7 @@ namespace PixUI
         // 未Focus时的Border,用于动画开始
         private readonly Func<ShapeBorder?>? _unfocusedBorderBuilder;
 
-        private OverlayEntry? _overlayEntry;
-
-        public FocusedDecoration(Widget widget, Func<ShapeBorder> focusedBorderBuilder,
-            Func<ShapeBorder?>? unfocusedBorderBuilder = null)
-        {
-            Widget = widget;
-            _focusedBorderBuilder = focusedBorderBuilder;
-            _unfocusedBorderBuilder = unfocusedBorderBuilder;
-        }
+        private FocusedDecorator? _decorator;
 
         public void AttachFocusChangedEvent(Widget widget)
         {
@@ -32,12 +32,12 @@ namespace PixUI
         {
             if (focused)
             {
-                _overlayEntry ??= new OverlayEntry(new FocusedDecorator(this));
-                Widget.Overlay?.Show(_overlayEntry);
+                _decorator = new FocusedDecorator(this);
+                Widget.Overlay?.Show(_decorator);
             }
             else
             {
-                ((FocusedDecorator)_overlayEntry!.Widget).Hide();
+                _decorator?.Hide();
             }
         }
 
@@ -45,14 +45,14 @@ namespace PixUI
 
         internal ShapeBorder GetFocusedBorder() => _focusedBorderBuilder();
 
-        internal void StopAndReset()
+        internal void StopAndReset() => _decorator?.Reset(); //will remove overlay
+
+        internal void RemoveOverlayEntry()
         {
-            if (_overlayEntry == null) return;
-
-            ((FocusedDecorator)_overlayEntry!.Widget).Reset(); //will remove overlay
+            if (_decorator == null) return;
+            ((Overlay)_decorator.Parent!).Remove(_decorator);
+            _decorator = null;
         }
-
-        internal void RemoveOverlayEntry() => _overlayEntry?.Remove();
     }
 
     internal sealed class FocusedDecorator : Widget

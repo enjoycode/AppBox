@@ -4,12 +4,6 @@ namespace PixUI
 {
     public sealed class Caret
     {
-        private readonly Widget _widget;
-        internal readonly Func<Color> ColorBuilder;
-        internal readonly Func<Rect> BoundsBuilder;
-
-        private OverlayEntry? _overlayEntry;
-
         public Caret(Widget widget, Func<Color> colorBuilder, Func<Rect> boundsBuilder)
         {
             _widget = widget;
@@ -17,15 +11,25 @@ namespace PixUI
             BoundsBuilder = boundsBuilder;
         }
 
+        private readonly Widget _widget; //拥有caret的Widget
+        internal readonly Func<Color> ColorBuilder;
+        internal readonly Func<Rect> BoundsBuilder;
+        private CaretDecorator? _decorator;
+
         public void Show()
         {
-            _overlayEntry ??= new OverlayEntry(new CaretDecorator(this));
-            _widget.Overlay?.Show(_overlayEntry);
+            _decorator = new CaretDecorator(this);
+            _widget.Overlay?.Show(_decorator);
         }
 
-        public void Hide() => _overlayEntry?.Remove();
+        public void Hide()
+        {
+            if (_decorator == null) return;
+            ((Overlay)_decorator.Parent!).Remove(_decorator);
+            _decorator = null;
+        }
 
-        public void NotifyPositionChanged() => _overlayEntry?.Invalidate();
+        public void NotifyPositionChanged() => _decorator?.Invalidate(InvalidAction.Repaint);
     }
 
     internal sealed class CaretDecorator : Widget

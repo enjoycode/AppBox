@@ -11,7 +11,7 @@ namespace CodeEditor
 
             Controller = controller;
             Controller.AttachWidget(this);
-            _decoration = new OverlayEntry(new EditorDecorator(this));
+            _decoration = new EditorDecorator(this);
 
             MouseRegion.PointerDown += Controller.OnPointerDown;
             MouseRegion.PointerUp += Controller.OnPointerUp;
@@ -22,7 +22,7 @@ namespace CodeEditor
         }
 
         internal readonly CodeEditorController Controller;
-        private readonly OverlayEntry _decoration;
+        private readonly EditorDecorator _decoration;
 
         public MouseRegion MouseRegion { get; }
         public FocusNode FocusNode { get; }
@@ -38,7 +38,7 @@ namespace CodeEditor
             if (all)
                 Invalidate(InvalidAction.Repaint, dirtyArea);
             else
-                _decoration.Invalidate();
+                _decoration.Invalidate(InvalidAction.Repaint);
         }
 
         private void _OnFocusChanged(bool focused)
@@ -60,7 +60,7 @@ namespace CodeEditor
 
         protected override void OnUnmounted()
         {
-            _decoration.Remove();
+            ((Overlay)_decoration.Parent!).Remove(_decoration);
             base.OnUnmounted();
         }
 

@@ -130,10 +130,10 @@ namespace PixUI
         private static void Show(Icon icon, Text text)
         {
             var win = UIWindow.Current;
-            var exists = win.Overlay.FindEntry(e => e.Widget is Notification);
+            var exists = win.Overlay.FindEntry(e => e is Notification);
             var notification = exists == null
                 ? new Notification(win.Overlay)
-                : (Notification)exists.Widget;
+                : (Notification)exists;
             if (exists == null)
                 notification.Show();
 

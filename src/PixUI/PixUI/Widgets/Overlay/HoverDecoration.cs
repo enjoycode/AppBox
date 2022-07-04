@@ -20,18 +20,21 @@ namespace PixUI
         internal readonly Func<ShapeBorder> ShapeBuilder;
         internal readonly Func<Rect>? BoundsGetter;
         internal readonly float Elevation;
-
         internal readonly Color? HoverColor;
-
-        private OverlayEntry? _overlayEntry;
+        private HoverDecorator? _decorator;
 
         public void Show()
         {
-            _overlayEntry ??= new OverlayEntry(new HoverDecorator(this));
-            Widget.Overlay?.Show(_overlayEntry);
+            _decorator = new HoverDecorator(this);
+            Widget.Overlay?.Show(_decorator);
         }
 
-        public void Hide() => _overlayEntry?.Remove();
+        public void Hide()
+        {
+            if (_decorator == null) return;
+            ((Overlay)_decorator.Parent!).Remove(_decorator);
+            _decorator = null;
+        }
 
         public void AttachHoverChangedEvent(IMouseRegion widget) =>
             widget.MouseRegion.HoverChanged += _OnHoverChanged;

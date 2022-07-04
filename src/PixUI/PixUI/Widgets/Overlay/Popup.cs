@@ -1,22 +1,19 @@
 namespace PixUI
 {
-    public interface IPopup
+    public abstract class Popup : Widget, IEventHook
     {
-        public void Hide();
-    }
-
-    public abstract class Popup : Widget, IPopup, IEventHook
-    {
-        private readonly Overlay _overlay;
-        private readonly OverlayEntry _overlayEntry;
-
         protected Popup(Overlay overlay)
         {
             _overlay = overlay;
-            _overlayEntry = new OverlayEntry(this);
         }
+        
+        private readonly Overlay _overlay;
 
-        public void UpdatePosition(float x, float y) => _overlayEntry.UpdatePosition(x, y);
+        public void UpdatePosition(float x, float y)
+        {
+            SetPosition(x, y);
+            Invalidate(InvalidAction.Repaint);
+        }
 
         public void Show(Widget? relativeTo = null,
             Offset? relativeOffset = null /*TODO:TransitionBuilder*/)
@@ -31,13 +28,13 @@ namespace PixUI
             }
 
             _overlay.Window.EventHookManager.Add(this);
-            _overlay.Show(_overlayEntry);
+            _overlay.Show(this);
         }
 
         public void Hide( /*TODO:TransitionBuilder*/)
         {
             _overlay.Window.EventHookManager.Remove(this);
-            _overlay.Remove(_overlayEntry);
+            _overlay.Remove(this);
         }
 
         public virtual EventPreviewResult PreviewEvent(EventType type, object? e)

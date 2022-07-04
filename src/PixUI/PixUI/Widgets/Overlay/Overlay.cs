@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace PixUI
 {
@@ -9,51 +9,32 @@ namespace PixUI
         {
             Window = window;
             IsMounted = true;
+            _children = new WidgetList<Widget>(this);
         }
+
+        private readonly WidgetList<Widget> _children;
 
         public UIWindow Window { get; }
-        private readonly List<OverlayEntry> _entries = new List<OverlayEntry>();
-        internal bool HasEntry => _entries.Count > 0;
+        internal bool HasEntry => _children.Count > 0;
 
-        public OverlayEntry? FindEntry(Predicate<OverlayEntry> predicate)
-        {
-            foreach (var entry in _entries)
-            {
-                if (predicate(entry)) return entry;
-            }
-
-            return null;
-        }
+        public Widget? FindEntry(Predicate<Widget> predicate) =>
+            _children.FirstOrDefault(entry => predicate(entry));
 
         #region ====Show & Hide====
 
-        public void Show(OverlayEntry entry)
+        public void Show(Widget entry)
         {
-            if (_entries.Contains(entry)) return;
+            if (_children.Contains(entry)) return;
 
-            _entries.Add(entry);
-            entry.Owner = this;
-            entry.Widget.Parent = this;
-            entry.Widget.Layout(Window.Width, Window.Height);
+            _children.Add(entry);
+            entry.Layout(Window.Width, Window.Height);
 
             Invalidate(InvalidAction.Repaint);
         }
 
-        public void ShowBelow(OverlayEntry entry, OverlayEntry below)
+        public void Remove(Widget entry)
         {
-            throw new NotImplementedException();
-        }
-
-        public void ShowAbove(OverlayEntry entry, OverlayEntry above)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(OverlayEntry entry)
-        {
-            if (!_entries.Remove(entry)) return;
-
-            entry.Widget.Parent = null;
+            if (!_children.Remove(entry)) return;
 
             Invalidate(InvalidAction.Repaint);
         }
@@ -64,9 +45,9 @@ namespace PixUI
 
         protected internal override bool HitTest(float x, float y, HitTestResult result)
         {
-            foreach (var entry in _entries)
+            foreach (var entry in _children)
             {
-                if (HitTestChild(entry.Widget, x, y, result))
+                if (HitTestChild(entry, x, y, result))
                     break;
             }
 
@@ -75,25 +56,22 @@ namespace PixUI
 
         public override void Layout(float availableWidth, float availableHeight)
         {
-            foreach (var entry in _entries)
-            {
-                entry.Widget.Layout(availableWidth, availableHeight);
-            }
+            //do nothing, children will layout on Show()
         }
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
-            foreach (var entry in _entries)
+            foreach (var entry in _children)
             {
                 // if (entry.Widget.W <= 0 || entry.Widget.H <= 0)
                 //     continue;
 
-                var needTranslate = entry.Widget.X != 0 || entry.Widget.Y != 0;
+                var needTranslate = entry.X != 0 || entry.Y != 0;
                 if (needTranslate)
-                    canvas.Translate(entry.Widget.X, entry.Widget.Y);
-                entry.Widget.Paint(canvas, area);
+                    canvas.Translate(entry.X, entry.Y);
+                entry.Paint(canvas, area);
                 if (needTranslate)
-                    canvas.Translate(-entry.Widget.X, -entry.Widget.Y);
+                    canvas.Translate(-entry.X, -entry.Y);
             }
         }
 
