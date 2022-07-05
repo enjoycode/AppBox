@@ -103,7 +103,7 @@ namespace PixUI.Test
                 { OnSelectionChanged = OnListPopupSelectionChanged };
             _listPopup.DataSource ??= Person.GeneratePersons(10);
             if (!_listPopup.IsMounted)
-                _listPopup.Show(_buttonRef.Widget, new Offset(-4, -2));
+                _listPopup.Show(_buttonRef.Widget, new Offset(-4, -2), Popup.DefaultTransitionBuilder);
             else
                 _listPopup?.Hide();
         }
