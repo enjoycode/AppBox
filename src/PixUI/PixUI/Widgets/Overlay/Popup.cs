@@ -2,6 +2,9 @@ using System;
 
 namespace PixUI
 {
+    public delegate Widget PopupTransitionBuilder(Animation<double> animation, Widget child,
+        Offset? origin);
+
     public abstract class Popup : Widget, IEventHook
     {
         protected Popup(Overlay overlay)
@@ -9,16 +12,17 @@ namespace PixUI
             Overlay = overlay;
         }
 
-        internal readonly Overlay Overlay;
+        internal new readonly Overlay Overlay;
         private PopupTransitionWrap? _transition;
+        private PopupProxy? _proxy;
 
-        public static readonly TransitionBuilder DefaultTransitionBuilder =
-            (animation, child) =>
+        /// <summary>
+        /// 默认的沿Y缩放的打开动画
+        /// </summary>
+        public static readonly PopupTransitionBuilder DefaultTransitionBuilder =
+            (animation, child, origin) => new ScaleYTransition(animation, origin)
             {
-                return new ScaleYTransition(animation, null /*TODO*/)
-                {
-                    Child = child
-                };
+                Child = child
             };
 
         public void UpdatePosition(float x, float y)
@@ -28,25 +32,50 @@ namespace PixUI
         }
 
         public void Show(Widget? relativeTo = null,
-            Offset? relativeOffset = null, TransitionBuilder? transitionBuilder = null)
+            Offset? relativeOffset = null, PopupTransitionBuilder? transitionBuilder = null)
         {
-            Widget target = this; //没有动画指向自己，有则指向动画组件
+            Widget target = this;
+
+            //先计算显示位置
+            Offset? origin = null;
+            var winX = 0f;
+            var winY = 0f;
+            if (relativeTo != null)
+            {
+                var winPt = relativeTo.LocalToWindow(0, 0);
+                var offsetX = relativeOffset?.Dx ?? 0;
+                var offsetY = relativeOffset?.Dy ?? 0;
+
+                _proxy = new PopupProxy(this); //构建占位并计算布局
+                target = _proxy;
+                var popupHeight = H;
+                //暂简单支持向下或向上弹出
+                if (winPt.Y + relativeTo.H + offsetY + popupHeight > Overlay.Window.Height)
+                {
+                    //向上弹出
+                    winX = winPt.X + offsetX;
+                    winY = winPt.Y - offsetY - popupHeight;
+                    origin = new Offset(0, popupHeight);
+                }
+                else
+                {
+                    //向下弹出
+                    winX = winPt.X + offsetX;
+                    winY = winPt.Y + relativeTo.H + offsetY;
+                    //origin = new Offset(0, 0);
+                }
+            }
+
             if (transitionBuilder != null)
             {
-                _transition = new PopupTransitionWrap(this, transitionBuilder);
+                _proxy ??= new PopupProxy(this);
+                _transition = new PopupTransitionWrap(Overlay, _proxy, origin, transitionBuilder);
                 _transition.Forward();
                 target = _transition;
             }
 
             if (relativeTo != null)
-            {
-                //TODO: 暂只实现在下方显示，应该入参确定相对位置
-                var winPt = relativeTo.LocalToWindow(0, 0);
-                var offsetX = relativeOffset?.Dx ?? 0;
-                var offsetY = relativeOffset?.Dy ?? 0;
-                target.SetPosition(winPt.X + offsetX, winPt.Y + relativeTo.H + offsetY);
-            }
-
+                target.SetPosition(winX, winY);
             Overlay.Window.EventHookManager.Add(this);
             Overlay.Show(target);
         }
@@ -57,6 +86,11 @@ namespace PixUI
             if (_transition != null)
             {
                 _transition.Reverse();
+            }
+            else if (_proxy != null)
+            {
+                Overlay.Remove(_proxy);
+                _proxy = null;
             }
             else
             {
@@ -72,16 +106,14 @@ namespace PixUI
 
     internal sealed class PopupTransitionWrap : SingleChildWidget
     {
-        internal PopupTransitionWrap(Popup popup, TransitionBuilder transitionBuilder)
+        internal PopupTransitionWrap(Overlay overlay, PopupProxy proxy, Offset? origin,
+            PopupTransitionBuilder transitionBuilder)
         {
-            _overlay = popup.Overlay;
+            _overlay = overlay;
             _controller = new AnimationController(100);
             _controller.StatusChanged += OnStateChanged;
 
-            //先直接布局popup，方便TransitionBuilder时根据popup的大小来确定自身大小
-            popup.Layout(popup.Overlay.Window.Width, popup.Overlay.Window.Height);
-            //再构建WidgetTree
-            Child = transitionBuilder(_controller, new PopupTransitionProxy(popup));
+            Child = transitionBuilder(_controller, proxy, origin);
         }
 
         private readonly AnimationController _controller;
@@ -107,10 +139,13 @@ namespace PixUI
     /// <summary>
     /// 相当于Popup的占位，布局时不用再计算Popup
     /// </summary>
-    internal sealed class PopupTransitionProxy : Widget
+    internal sealed class PopupProxy : Widget
     {
-        internal PopupTransitionProxy(Popup popup)
+        internal PopupProxy(Popup popup)
         {
+            //直接布局方便计算显示位置，后续不用再计算
+            popup.Layout(popup.Overlay.Window.Width, popup.Overlay.Window.Height);
+
             _popup = popup;
             _popup.Parent = this;
         }
