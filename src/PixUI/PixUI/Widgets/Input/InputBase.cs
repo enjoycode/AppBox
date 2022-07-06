@@ -2,14 +2,15 @@ using System;
 
 namespace PixUI
 {
-    public sealed class Input : Widget
+    public abstract class InputBase<T> : Widget where T : Widget, IFocusable
     {
-        public Input(State<string> text)
+        protected InputBase(T editor)
         {
-            _editableText = new EditableText(text);
-            _editableText.Parent = this;
+            _editor = editor;
+            _editor.Parent = this;
+
             _focusedDecoration = new FocusedDecoration(this, GetFocusedBorder, GetUnFocusedBorder);
-            _focusedDecoration.AttachFocusChangedEvent(_editableText);
+            _focusedDecoration.AttachFocusChangedEvent(_editor);
         }
 
         private static readonly InputBorder DefaultBorder =
@@ -17,7 +18,7 @@ namespace PixUI
 
         private Widget? _prefix;
         private Widget? _suffix;
-        private readonly EditableText _editableText;
+        protected readonly T _editor;
 
         private InputBorder? _border;
         private State<EdgeInsets>? _padding;
@@ -30,13 +31,11 @@ namespace PixUI
             set => _padding = Rebind(_padding, value, BindingOptions.AffectsLayout);
         }
 
-        public State<float>? FontSize
-        {
-            get => _editableText.FontSize;
-            set => _editableText.FontSize = value;
-        }
+        public abstract State<bool>? Readonly { get; set; }
 
-        public Widget? Prefix
+        public bool IsReadonly => Readonly != null && Readonly.Value;
+
+        protected Widget? PrefixWidget
         {
             get => _prefix;
             set
@@ -53,7 +52,7 @@ namespace PixUI
             }
         }
 
-        public Widget? Suffix
+        protected Widget? SuffixWidget
         {
             get => _suffix;
             set
@@ -68,21 +67,6 @@ namespace PixUI
                 if (!IsMounted) return;
                 Invalidate(InvalidAction.Relayout);
             }
-        }
-
-        public State<bool> Readonly
-        {
-            set => _editableText.Readonly = value;
-        }
-
-        public bool IsObscure
-        {
-            set => _editableText.IsObscure = value;
-        }
-
-        public string HintText
-        {
-            set => _editableText.HintText = value;
         }
 
         #region ====FocusedDecoration====
@@ -106,7 +90,7 @@ namespace PixUI
 
         #endregion
 
-        #region ====Overrides====
+        #region ====Widget Overrides====
 
         protected override void OnUnmounted()
         {
@@ -120,7 +104,7 @@ namespace PixUI
                 if (action(_prefix))
                     return;
 
-            if (action(_editableText)) return;
+            if (action(_editor)) return;
 
             if (_suffix != null)
                 action(_suffix);
@@ -141,42 +125,41 @@ namespace PixUI
                 return;
             }
 
-            // 设置自身宽高
-            var fontHeight = _editableText.FontHeight;
-            height = Math.Min(height, fontHeight + padding.Vertical);
-            SetSize(width, height);
 
-            // prefix
+            // 布局计算子组件
             if (_prefix != null)
             {
-                _prefix.Layout(lw, fontHeight);
-                _prefix.SetPosition(padding.Left, padding.Top + (fontHeight - _prefix.H) / 2);
+                _prefix.Layout(lw, lh);
                 lw -= _prefix.W;
             }
 
-            // suffix
             if (_suffix != null)
             {
-                _suffix.Layout(lw, fontHeight);
-                _suffix.SetPosition(width - padding.Right - _suffix.W,
-                    padding.Top + (fontHeight - _suffix.H) / 2);
+                _suffix.Layout(lw, lh);
                 lw -= _suffix.W;
             }
 
-            // editableText
-            _editableText.Layout(lw, lh);
-            _editableText.SetPosition(padding.Left + (_prefix?.W ?? 0), padding.Top);
+            _editor.Layout(lw, lh);
+
+            // 设置子组件位置(暂以editor为中心上下居中对齐, TODO:考虑基线对齐)
+            var maxChildHeight = _editor.H;
+            _prefix?.SetPosition(0, (maxChildHeight - _prefix.H) / 2 + padding.Top);
+            _suffix?.SetPosition(width - padding.Right - _suffix.W,
+                (maxChildHeight - _suffix.H) / 2 + padding.Top);
+            _editor.SetPosition(padding.Left + (_prefix?.W ?? 0), padding.Top + 1 /*offset*/);
+
+            // 设置自身宽高
+            height = Math.Min(height, maxChildHeight + padding.Vertical);
+            SetSize(width, height);
         }
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
-            // var padding = _padding?.Value ?? EdgeInsets.All(4);
             var bounds = Rect.FromLTWH(0, 0, W, H);
             var border = _border ?? DefaultBorder;
 
             //画背景及边框
-            border.Paint(canvas, bounds,
-                _editableText.IsReadonly ? new Color(0xFFF5F7FA) : Colors.White);
+            border.Paint(canvas, bounds, IsReadonly ? Theme.DisabledBgColor : Colors.White);
 
             PaintChildren(canvas, area);
         }

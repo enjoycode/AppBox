@@ -11,5 +11,10 @@ namespace PixUI
         public static Color CaretColor = new Color(0xFF2196F3);
         
         public static Color AccentColor = new Color(0xFFF7821B);
+
+        /// <summary>
+        /// 禁用的组件的背景色
+        /// </summary>
+        public static Color DisabledBgColor = new Color(0xFFF5F7FA);
     }
 }
