@@ -40,7 +40,9 @@ namespace PixUI
         /// <summary>
         /// 字体行高
         /// </summary>
-        public float FontHeight => (FontSize?.Value ?? Theme.DefaultFontSize) + 4;
+        private float FontHeight => (FontSize?.Value ?? Theme.DefaultFontSize) + 4;
+
+        protected override bool ForceHeight => true;
 
         public bool IsObscure { get; set; }
 

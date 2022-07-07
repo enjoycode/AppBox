@@ -5,10 +5,12 @@ namespace PixUI.Test
 {
     public sealed class DemoPage : View
     {
-        private readonly Rx<string> _firstName = "Rick";
-        private readonly Rx<string> _lastName = "Lg";
+        private readonly State<string> _firstName = "Rick";
+        private readonly State<string> _lastName = "Lg";
         private readonly RxComputed<string> _fullName;
-        private readonly Rx<ImageSource> _imgSrc;
+        private readonly State<ImageSource> _imgSrc;
+
+        private readonly State<string?> _selectedValue = "";
 
         private readonly WidgetRef<Button> _buttonRef = new();
         private ListPopup<Person>? _listPopup;
@@ -51,6 +53,13 @@ namespace PixUI.Test
                                         new Button("Button2"),
                                         new Button("Button3")
                                     },
+                                },
+                                new Select<string>(_selectedValue)
+                                {
+                                    Width = 200, Options = new[]
+                                    {
+                                        "无锡", "上海", "苏州"
+                                    }
                                 },
                                 new Input("Hello World!")
                                 {
@@ -103,7 +112,8 @@ namespace PixUI.Test
                 { OnSelectionChanged = OnListPopupSelectionChanged };
             _listPopup.DataSource ??= Person.GeneratePersons(10);
             if (!_listPopup.IsMounted)
-                _listPopup.Show(_buttonRef.Widget, new Offset(-4, -2), Popup.DefaultTransitionBuilder);
+                _listPopup.Show(_buttonRef.Widget, new Offset(-4, -2),
+                    Popup.DefaultTransitionBuilder);
             else
                 _listPopup?.Hide();
         }

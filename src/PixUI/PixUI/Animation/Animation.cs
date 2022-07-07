@@ -63,10 +63,4 @@ namespace PixUI
 
         public override T Value => _evaluatable.Evaluate(Parent);
     }
-
-    // public static class AnimationExtensions
-    // {
-    //     public static Animation<T> Drive<T>(this Animation<double> parent, Animatable<T> child)
-    //         => child.Animate(parent);
-    // }
 }

@@ -295,4 +295,73 @@ namespace PixUI
 
         public override bool IsDone(double timeInSeconds) => timeInSeconds > _durationInSeconds;
     }
+
+    /// <summary>
+    /// 可选动画控制，如果不指定上级，则在0或1之间直接切换
+    /// </summary>
+    [TSNoInitializer]
+    public sealed class OptionalAnimationController : Animation<double>
+    {
+        private Animation<double>? _parent;
+        private double _value = 0;
+
+        public Animation<double>? Parent
+        {
+            set
+            {
+                if (ReferenceEquals(_parent, value)) return;
+                
+                if (_parent != null)
+                {
+                    _parent.ValueChanged -= OnParentValueChanged;
+                    _parent.StatusChanged -= OnParentStatusChanged;
+                }
+
+                _parent = value;
+
+                if (_parent != null)
+                {
+                    _parent.ValueChanged += OnParentValueChanged;
+                    _parent.StatusChanged += OnParentStatusChanged;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 切换值及状态
+        /// </summary>
+        public void Switch()
+        {
+            _value = _value == 0 ? 1 : 0;
+            ValueChanged?.Invoke();
+            StatusChanged?.Invoke(_value == 0
+                ? AnimationStatus.Dismissed
+                : AnimationStatus.Completed);
+        }
+
+        private void OnParentValueChanged() => ValueChanged?.Invoke();
+
+        private void OnParentStatusChanged(AnimationStatus s) => StatusChanged?.Invoke(s);
+
+        public override event Action? ValueChanged;
+        public override event Action<AnimationStatus>? StatusChanged;
+
+        public override double Value
+        {
+            get
+            {
+                if (_parent != null) return _parent.Value;
+                return _value;
+            }
+        }
+
+        public override AnimationStatus Status
+        {
+            get
+            {
+                if (_parent != null) return _parent.Status;
+                return _value == 0 ? AnimationStatus.Dismissed : AnimationStatus.Completed;
+            }
+        }
+    }
 }

@@ -19,6 +19,8 @@ namespace PixUI
 
         protected Paragraph? CachedParagraph => _cachedParagraph;
 
+        protected virtual bool ForceHeight { get; } = false;
+
         public State<float>? FontSize
         {
             get => _fontSize;
@@ -62,7 +64,7 @@ namespace PixUI
                 ? null
                 : new FontStyle(_fontWeight.Value, FontSlant.Upright);
             return TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, 1 /*TODO*/,
-                this is EditableText);
+                ForceHeight);
         }
 
         public override void Layout(float availableWidth, float availableHeight)

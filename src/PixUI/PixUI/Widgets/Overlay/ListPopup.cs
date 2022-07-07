@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace PixUI
 {
+    public delegate Widget ListPopupItemBuilder<T>(T data, int index, State<bool> isHover,
+        State<bool> isSelected);
+
     internal readonly struct ItemState
     {
         internal readonly State<bool> HoverState;
@@ -60,7 +63,7 @@ namespace PixUI
     public class ListPopup<T> : Popup
     {
         public ListPopup(Overlay overlay,
-            Func<T, int, State<bool>, State<bool>, Widget> itemBuilder,
+            ListPopupItemBuilder<T> itemBuilder,
             float popupWidth, float itemExtent, int maxShowItems = 5) : base(overlay)
         {
             _itemExtent = itemExtent;
@@ -76,7 +79,7 @@ namespace PixUI
         }
 
         private readonly ListViewController<T> _listViewController;
-        private readonly Func<T, int, State<bool>, State<bool>, Widget> _itemBuilder;
+        private readonly ListPopupItemBuilder<T> _itemBuilder;
         private readonly Card _child;
         private readonly int _maxShowItems; //最多可显示多少个
         private readonly float _itemExtent;
@@ -141,7 +144,9 @@ namespace PixUI
                 _itemStates![_selectedIndex].SelectedState.Value = false;
 
             _selectedIndex = index;
-            _itemStates![_selectedIndex].SelectedState.Value = true;
+
+            if (_selectedIndex >= 0)
+                _itemStates![_selectedIndex].SelectedState.Value = true;
 
             if (raiseChangedEvent)
                 OnSelectionChanged?.Invoke(DataSource![index]);

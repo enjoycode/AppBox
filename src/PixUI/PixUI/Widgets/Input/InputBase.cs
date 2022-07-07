@@ -2,7 +2,7 @@ using System;
 
 namespace PixUI
 {
-    public abstract class InputBase<T> : Widget where T : Widget, IFocusable
+    public abstract class InputBase<T> : Widget where T : Widget//, IFocusable
     {
         protected InputBase(T editor)
         {
