@@ -307,6 +307,7 @@ namespace PixUI
 
         public Animation<double>? Parent
         {
+            get => _parent;
             set
             {
                 if (ReferenceEquals(_parent, value)) return;

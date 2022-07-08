@@ -15,7 +15,7 @@ namespace PixUI
         {
             _selectedValue = value;
 
-            SuffixWidget = new ExpandIcon(new FloatTween(0, 1).Animate(_expandAnimation));
+            SuffixWidget = new ExpandIcon(new FloatTween(0, 0.5f).Animate(_expandAnimation));
 
             if (_editor is IMouseRegion mouseRegion)
                 mouseRegion.MouseRegion.PointerTap += OnEditorTap;
@@ -71,10 +71,14 @@ namespace PixUI
                     return new Text(data?.ToString() ?? "") { TextColor = color };
                 });
             _listPopup =
-                new ListPopup<T>(Overlay!, optionBuilder, W, Theme.DefaultFontSize + 2);
+                new ListPopup<T>(Overlay!, optionBuilder, W + 8, Theme.DefaultFontSize + 8);
             _listPopup.DataSource = new List<T>(Options);
+            //初始化选中的
+            if (_selectedValue.Value != null)
+                _listPopup.InitSelect(_selectedValue.Value!);
             _listPopup.OnSelectionChanged = OnSelectionChanged;
-            _listPopup.Show(this, null, Popup.DefaultTransitionBuilder);
+            _listPopup.Show(this, new Offset(-4, 0), Popup.DefaultTransitionBuilder);
+            _expandAnimation.Parent = _listPopup.AnimationController;
         }
 
         private void HidePopup()
@@ -83,13 +87,13 @@ namespace PixUI
             _showing = false;
 
             _listPopup?.Hide();
-            // _listPopup?.Dispose();
-            // _listPopup = null;
+            _listPopup = null;
         }
 
         private void OnSelectionChanged(T? data)
         {
             _showing = false;
+            _listPopup = null;
             _selectedValue.Value = data;
         }
     }

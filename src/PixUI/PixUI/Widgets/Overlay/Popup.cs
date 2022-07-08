@@ -16,6 +16,7 @@ namespace PixUI
         internal readonly FocusManager FocusManager = new();
         private PopupTransitionWrap? _transition;
         private PopupProxy? _proxy;
+        internal AnimationController? AnimationController => _transition?.AnimationController;
 
         /// <summary>
         /// 默认的沿Y缩放的打开动画
@@ -113,18 +114,18 @@ namespace PixUI
             PopupTransitionBuilder transitionBuilder)
         {
             _overlay = overlay;
-            _controller = new AnimationController(100);
-            _controller.StatusChanged += OnStateChanged;
+            AnimationController = new AnimationController(100);
+            AnimationController.StatusChanged += OnStateChanged;
 
-            Child = transitionBuilder(_controller, proxy, origin);
+            Child = transitionBuilder(AnimationController, proxy, origin);
         }
 
-        private readonly AnimationController _controller;
+        internal readonly AnimationController AnimationController;
         private readonly Overlay _overlay;
 
-        internal void Forward() => _controller.Forward();
+        internal void Forward() => AnimationController.Forward();
 
-        internal void Reverse() => _controller.Reverse();
+        internal void Reverse() => AnimationController.Reverse();
 
         private void OnStateChanged(AnimationStatus status)
         {
@@ -134,7 +135,7 @@ namespace PixUI
 
         public override void Dispose()
         {
-            _controller.Dispose();
+            AnimationController.Dispose();
             base.Dispose();
         }
     }

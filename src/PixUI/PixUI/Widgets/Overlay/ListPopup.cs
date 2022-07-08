@@ -136,6 +136,18 @@ namespace PixUI
             }
         }
 
+        /// <summary>
+        /// 用于显示前初始化选择的项
+        /// </summary>
+        public void InitSelect(T item)
+        {
+            var index = _listViewController.DataSource!.IndexOf(item);
+            if (index < 0) return;
+
+            _selectedIndex = index;
+            _itemStates![_selectedIndex].SelectedState.Value = true;
+        }
+
         private void Select(int index, bool raiseChangedEvent = false)
         {
             if (_selectedIndex == index) return;

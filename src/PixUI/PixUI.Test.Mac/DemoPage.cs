@@ -63,14 +63,14 @@ namespace PixUI.Test
                                 },
                                 new Input("Hello World!")
                                 {
-                                    Width = 200, FontSize = 20,
-                                    Prefix = new Icon(Icons.Filled.Person) { Size = 20 },
-                                    Suffix = new Icon(Icons.Filled.Search) { Size = 20 }
+                                    Width = 200,
+                                    Prefix = new Icon(Icons.Filled.Person),
+                                    Suffix = new Icon(Icons.Filled.Search)
                                 },
                                 new Input("")
                                 {
-                                    Width = 200, FontSize = 20, IsObscure = true,
-                                    Prefix = new Icon(Icons.Filled.Lock) { Size = 20 },
+                                    Width = 200, IsObscure = true,
+                                    Prefix = new Icon(Icons.Filled.Lock),
                                     HintText = "Password",
                                 },
                                 new Card
