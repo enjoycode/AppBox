@@ -47,8 +47,8 @@ namespace PixUI
 
         private void OnFocusChanged(bool focused)
         {
-            // if (!focused)
-            //     HidePopup();
+            if (!focused)
+                HidePopup();
         }
 
         private void OnEditorTap(PointerEvent e)

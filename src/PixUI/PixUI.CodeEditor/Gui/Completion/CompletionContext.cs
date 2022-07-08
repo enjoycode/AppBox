@@ -205,8 +205,6 @@ namespace CodeEditor
 
             _controller.TextEditor.InsertOrReplaceString(item.InsertText ?? item.Label,
                 _controller.TextEditor.Caret.Offset - _completionStartOffset);
-
-            //TODO: force focus editor, maybe has lost focus by click someone.
         }
 
         private static Widget BuildPopupItem(ICompletionItem item, int index, State<bool> isHover,

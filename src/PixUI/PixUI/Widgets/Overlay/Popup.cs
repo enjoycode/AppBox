@@ -9,10 +9,11 @@ namespace PixUI
     {
         protected Popup(Overlay overlay)
         {
-            Overlay = overlay;
+            Owner = overlay;
         }
 
-        internal new readonly Overlay Overlay;
+        internal readonly Overlay Owner;
+        internal readonly FocusManager FocusManager = new();
         private PopupTransitionWrap? _transition;
         private PopupProxy? _proxy;
 
@@ -50,7 +51,7 @@ namespace PixUI
                 target = _proxy;
                 var popupHeight = H;
                 //暂简单支持向下或向上弹出
-                if (winPt.Y + relativeTo.H + offsetY + popupHeight > Overlay.Window.Height)
+                if (winPt.Y + relativeTo.H + offsetY + popupHeight > Owner.Window.Height)
                 {
                     //向上弹出
                     winX = winPt.X + offsetX;
@@ -69,32 +70,34 @@ namespace PixUI
             if (transitionBuilder != null)
             {
                 _proxy ??= new PopupProxy(this);
-                _transition = new PopupTransitionWrap(Overlay, _proxy, origin, transitionBuilder);
+                _transition = new PopupTransitionWrap(Owner, _proxy, origin, transitionBuilder);
                 _transition.Forward();
                 target = _transition;
             }
 
             if (relativeTo != null)
                 target.SetPosition(winX, winY);
-            Overlay.Window.EventHookManager.Add(this);
-            Overlay.Show(target);
+            Owner.Window.EventHookManager.Add(this);
+            Owner.Window.FocusManagerStack.Push(FocusManager);
+            Owner.Show(target);
         }
 
         public void Hide( /*TODO:TransitionBuilder*/)
         {
-            Overlay.Window.EventHookManager.Remove(this);
+            Owner.Window.EventHookManager.Remove(this);
+            Owner.Window.FocusManagerStack.Remove(FocusManager);
             if (_transition != null)
             {
                 _transition.Reverse();
             }
             else if (_proxy != null)
             {
-                Overlay.Remove(_proxy);
+                Owner.Remove(_proxy);
                 _proxy = null;
             }
             else
             {
-                Overlay.Remove(this);
+                Owner.Remove(this);
             }
         }
 
@@ -144,7 +147,7 @@ namespace PixUI
         internal PopupProxy(Popup popup)
         {
             //直接布局方便计算显示位置，后续不用再计算
-            popup.Layout(popup.Overlay.Window.Width, popup.Overlay.Window.Height);
+            popup.Layout(popup.Owner.Window.Width, popup.Owner.Window.Height);
 
             _popup = popup;
             _popup.Parent = this;

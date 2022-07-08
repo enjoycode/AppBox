@@ -7,8 +7,6 @@ namespace PixUI
     {
         protected UIWindow(Widget child)
         {
-            FocusManager = new FocusManager();
-            EventHookManager = new EventHookManager();
             Overlay = new Overlay(this);
             RootWidget = new Root(this, child);
 
@@ -18,22 +16,17 @@ namespace PixUI
         }
 
         #region ====Fields & Properties====
-        
+
         /// <summary>
         /// 当前激活的窗体
         /// </summary>
         public static UIWindow Current { get; private set; } //TODO: 暂单窗体
 
         public readonly Root RootWidget;
-
-        /// <summary>
-        /// 管理键盘输入焦点
-        /// </summary>
-        public readonly FocusManager FocusManager;
-
-        public readonly EventHookManager EventHookManager;
-
         public readonly Overlay Overlay;
+
+        internal readonly FocusManagerStack FocusManagerStack = new();
+        public readonly EventHookManager EventHookManager = new();
 
         public Color BackgroundColor { get; set; } = Colors.White; //TODO: move to Root
 
@@ -140,9 +133,7 @@ namespace PixUI
 
             //如果命中MouseRegion，则向上传播事件(TODO: 考虑不传播)
             if (_oldHitResult.IsHitAnyMouseRegion)
-            {
-                _oldHitResult.PropagatePointerEvent(e, (w, e) => w.RaisePointerMove(e));
-            }
+                _oldHitResult.PropagatePointerEvent(e, (w, pe) => w.RaisePointerMove(pe));
         }
 
         public void OnPointerMoveOutWindow()
@@ -169,7 +160,7 @@ namespace PixUI
             _oldHitResult.PropagatePointerEvent(pointerEvent, (w, e) => w.RaisePointerDown(e));
 
             //Set focus widget after propagate event
-            FocusManager.Focus(_oldHitResult.LastHitWidget);
+            FocusManagerStack.Focus(_oldHitResult.LastHitWidget);
         }
 
         public void OnPointerUp(PointerEvent pointerEvent)
@@ -207,12 +198,12 @@ namespace PixUI
             if (EventHookManager.HookEvent(EventType.KeyDown, keyEvent))
                 return;
 
-            FocusManager.OnKeyDown(keyEvent);
+            FocusManagerStack.OnKeyDown(keyEvent);
         }
 
-        public void OnKeyUp(KeyEvent keyEvent) => FocusManager.OnKeyUp(keyEvent);
+        public void OnKeyUp(KeyEvent keyEvent) => FocusManagerStack.OnKeyUp(keyEvent);
 
-        public void OnTextInput(string text) => FocusManager.OnTextInput(text);
+        public void OnTextInput(string text) => FocusManagerStack.OnTextInput(text);
 
         #region ----HitTest----
 
@@ -264,14 +255,6 @@ namespace PixUI
         }
 
         /// <summary>
-        /// 目前仅用于DynamicView改变前取消FocusedWidget
-        /// </summary>
-        internal void BeforeDynamicViewChange()
-        {
-            FocusManager.Focus(null);
-        }
-
-        /// <summary>
         /// 仅用于程序滚动后重设之前缓存的HitTest结果
         /// </summary>
         public void AfterScrollDone(Widget scrollable, Offset offset)
@@ -295,6 +278,19 @@ namespace PixUI
             else
                 NewHitTest(_lastMouseX, _lastMouseY);
             CompareAndSwapHitTestResult();
+        }
+
+        /// <summary>
+        /// 目前仅用于DynamicView改变前取消FocusedWidget
+        /// </summary>
+        internal void BeforeDynamicViewChange(DynamicView dynamicView)
+        {
+            //判断当前Focused是否DynamicView的子级，是则取消Focus状态
+            var focusManger = FocusManagerStack.GetFocusManagerByWidget(dynamicView);
+            if (focusManger.FocusedWidget == null) return;
+
+            if (dynamicView.IsAnyParentOf(focusManger.FocusedWidget))
+                focusManger.Focus(null);
         }
 
         /// <summary>

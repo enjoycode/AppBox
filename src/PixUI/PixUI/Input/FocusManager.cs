@@ -1,10 +1,14 @@
 using System;
+using System.Collections.Generic;
 
 namespace PixUI
 {
+    /// <summary>
+    /// 管理输入焦点，UIWindow及每个显示的Popup各自拥有一个实例管理各自的焦点
+    /// </summary>
     public sealed class FocusManager
     {
-        public Widget? FocusedWidget { get; private set; }
+        internal Widget? FocusedWidget { get; private set; }
 
         public void Focus(Widget? widget)
         {
@@ -29,7 +33,7 @@ namespace PixUI
             //TODO:考虑FocusedWidget==null时且为Tab从根节点开始查找Focusable
             if (FocusedWidget == null) return;
             PropagateEvent<KeyEvent>(FocusedWidget, e,
-                (w, e) => ((IFocusable)w).FocusNode.RaiseKeyDown(e));
+                (w, ke) => ((IFocusable)w).FocusNode.RaiseKeyDown(ke));
             //如果是Tab键跳转至下一个Focused
             if (!e.IsHandled && e.KeyCode == Keys.Tab)
             {
@@ -48,7 +52,7 @@ namespace PixUI
         {
             if (FocusedWidget == null) return;
             PropagateEvent<KeyEvent>(FocusedWidget, e,
-                (w, e) => ((IFocusable)w).FocusNode.RaiseKeyUp(e));
+                (w, ke) => ((IFocusable)w).FocusNode.RaiseKeyUp(ke));
         }
 
         internal void OnTextInput(string text)
@@ -141,6 +145,66 @@ namespace PixUI
             if (container.Parent != null && !(container.Parent is IRootWidget))
                 return FindFocusableBackward(container.Parent!, container);
             return null;
+        }
+    }
+
+    /// <summary>
+    /// 每个UIWindow对应一个实例，管理当前窗体的FocusManger
+    /// </summary>
+    internal sealed class FocusManagerStack
+    {
+        internal FocusManagerStack()
+        {
+            _stack.Add(new FocusManager()); // for UIWindow
+        }
+
+        private readonly List<FocusManager> _stack = new List<FocusManager>();
+
+        internal void Push(FocusManager manager) => _stack.Add(manager);
+
+        internal void Remove(FocusManager manager)
+        {
+            if (manager == _stack[0]) throw new NotSupportedException();
+            _stack.Remove(manager);
+        }
+
+        internal void Focus(Widget? widget)
+        {
+            if (widget == null)
+                return; //TODO:考虑取消最后一层的FocusedWidget
+
+            var manager = GetFocusManagerByWidget(widget);
+            manager.Focus(widget);
+        }
+
+        internal void OnKeyDown(KeyEvent e) => GetFocusManagerWithFocused().OnKeyDown(e);
+
+        internal void OnKeyUp(KeyEvent e) => GetFocusManagerWithFocused().OnKeyUp(e);
+
+        internal void OnTextInput(string text) => GetFocusManagerWithFocused().OnTextInput(text);
+        
+        internal FocusManager GetFocusManagerByWidget(Widget widget)
+        {
+            var temp = widget;
+            while (temp.Parent != null)
+            {
+                if (temp.Parent is Popup popup)
+                    return popup.FocusManager;
+                temp = temp.Parent;
+            }
+
+            return _stack[0];
+        }
+
+        private FocusManager GetFocusManagerWithFocused()
+        {
+            for (var i = _stack.Count - 1; i > 0; i--)
+            {
+                if (_stack[i].FocusedWidget != null)
+                    return _stack[i];
+            }
+
+            return _stack[0];
         }
     }
 }
