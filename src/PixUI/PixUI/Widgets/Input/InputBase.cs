@@ -2,7 +2,7 @@ using System;
 
 namespace PixUI
 {
-    public abstract class InputBase<T> : Widget where T : Widget//, IFocusable
+    public abstract class InputBase<T> : Widget where T : Widget //, IFocusable
     {
         protected InputBase(T editor)
         {
@@ -143,7 +143,7 @@ namespace PixUI
 
             // 设置子组件位置(暂以editor为中心上下居中对齐, TODO:考虑基线对齐)
             var maxChildHeight = _editor.H;
-            _prefix?.SetPosition(0, (maxChildHeight - _prefix.H) / 2 + padding.Top);
+            _prefix?.SetPosition(padding.Left, (maxChildHeight - _prefix.H) / 2 + padding.Top);
             _suffix?.SetPosition(width - padding.Right - _suffix.W,
                 (maxChildHeight - _suffix.H) / 2 + padding.Top);
             _editor.SetPosition(padding.Left + (_prefix?.W ?? 0), padding.Top + 1 /*offset*/);
