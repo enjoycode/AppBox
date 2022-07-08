@@ -2,8 +2,6 @@ import * as PixUI from '@/PixUI'
 
 export abstract class UIWindow {
     protected constructor(child: PixUI.Widget) {
-        this.FocusManager = new PixUI.FocusManager();
-        this.EventHookManager = new PixUI.EventHookManager();
         this.Overlay = new PixUI.Overlay(this);
         this.RootWidget = new PixUI.Root(this, child);
 
@@ -23,12 +21,10 @@ export abstract class UIWindow {
     } //TODO: 暂单窗体
 
     public readonly RootWidget: PixUI.Root;
-
-    public readonly FocusManager: PixUI.FocusManager;
-
-    public readonly EventHookManager: PixUI.EventHookManager;
-
     public readonly Overlay: PixUI.Overlay;
+
+    public readonly FocusManagerStack: PixUI.FocusManagerStack = new PixUI.FocusManagerStack();
+    public readonly EventHookManager: PixUI.EventHookManager = new PixUI.EventHookManager();
 
     public BackgroundColor: PixUI.Color = PixUI.Colors.White; //TODO: move to Root
 
@@ -100,9 +96,8 @@ export abstract class UIWindow {
         this.CompareAndSwapHitTestResult();
 
         //如果命中MouseRegion，则向上传播事件(TODO: 考虑不传播)
-        if (this._oldHitResult.IsHitAnyMouseRegion) {
-            this._oldHitResult.PropagatePointerEvent(e, (w, e) => w.RaisePointerMove(e));
-        }
+        if (this._oldHitResult.IsHitAnyMouseRegion)
+            this._oldHitResult.PropagatePointerEvent(e, (w, pe) => w.RaisePointerMove(pe));
     }
 
     public OnPointerMoveOutWindow() {
@@ -126,7 +121,7 @@ export abstract class UIWindow {
         this._oldHitResult.PropagatePointerEvent(pointerEvent, (w, e) => w.RaisePointerDown(e));
 
         //Set focus widget after propagate event
-        this.FocusManager.Focus(this._oldHitResult.LastHitWidget);
+        this.FocusManagerStack.Focus(this._oldHitResult.LastHitWidget);
     }
 
     public OnPointerUp(pointerEvent: PixUI.PointerEvent) {
@@ -159,15 +154,15 @@ export abstract class UIWindow {
         if (this.EventHookManager.HookEvent(PixUI.EventType.KeyDown, keyEvent))
             return;
 
-        this.FocusManager.OnKeyDown(keyEvent);
+        this.FocusManagerStack.OnKeyDown(keyEvent);
     }
 
     public OnKeyUp(keyEvent: PixUI.KeyEvent) {
-        this.FocusManager.OnKeyUp(keyEvent);
+        this.FocusManagerStack.OnKeyUp(keyEvent);
     }
 
     public OnTextInput(text: string) {
-        this.FocusManager.OnTextInput(text);
+        this.FocusManagerStack.OnTextInput(text);
     }
 
 
@@ -211,10 +206,6 @@ export abstract class UIWindow {
         this._newHitResult = temp;
     }
 
-    public BeforeDynamicViewChange() {
-        this.FocusManager.Focus(null);
-    }
-
     public AfterScrollDone(scrollable: PixUI.Widget, offset: PixUI.Offset) {
         //判断旧HitResult是否隶属于当前IScrollable的子级
         if (this._oldHitResult.IsHitAnyWidget &&
@@ -232,6 +223,15 @@ export abstract class UIWindow {
         else
             this.NewHitTest(this._lastMouseX, this._lastMouseY);
         this.CompareAndSwapHitTestResult();
+    }
+
+    public BeforeDynamicViewChange(dynamicView: PixUI.DynamicView) {
+        //判断当前Focused是否DynamicView的子级，是则取消Focus状态
+        let focusManger = this.FocusManagerStack.GetFocusManagerByWidget(dynamicView);
+        if (focusManger.FocusedWidget == null) return;
+
+        if (dynamicView.IsAnyParentOf(focusManger.FocusedWidget))
+            focusManger.Focus(null);
     }
 
     public AfterDynamicViewChange(dynamicView: PixUI.DynamicView) {

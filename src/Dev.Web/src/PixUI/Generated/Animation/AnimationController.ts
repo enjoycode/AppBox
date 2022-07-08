@@ -268,3 +268,60 @@ export class InterpolationSimulation extends PixUI.Simulation {
         return this;
     }
 }
+
+/// <summary>
+/// 可选动画控制，如果不指定上级，则在0或1之间直接切换
+/// </summary>
+export class OptionalAnimationController extends PixUI.Animation<number> {
+    private _parent: Nullable<PixUI.Animation<number>>;
+    private _value: number = 0;
+
+    public get Parent(): Nullable<PixUI.Animation<number>> {
+        return this._parent;
+    }
+
+    public set Parent(value: Nullable<PixUI.Animation<number>>) {
+        if ((this._parent === value)) return;
+
+        if (this._parent != null) {
+            this._parent.ValueChanged.Remove(this.OnParentValueChanged, this);
+            this._parent.StatusChanged.Remove(this.OnParentStatusChanged, this);
+        }
+
+        this._parent = value;
+
+        if (this._parent != null) {
+            this._parent.ValueChanged.Add(this.OnParentValueChanged, this);
+            this._parent.StatusChanged.Add(this.OnParentStatusChanged, this);
+        }
+    }
+
+    public Switch() {
+        this._value = this._value == 0 ? 1 : 0;
+        this.ValueChanged.Invoke();
+        this.StatusChanged.Invoke(this._value == 0
+            ? PixUI.AnimationStatus.Dismissed
+            : PixUI.AnimationStatus.Completed);
+    }
+
+    private OnParentValueChanged() {
+        this.ValueChanged.Invoke();
+    }
+
+    private OnParentStatusChanged(s: PixUI.AnimationStatus) {
+        this.StatusChanged.Invoke(s);
+    }
+
+    public readonly ValueChanged = new System.Event();
+    public readonly StatusChanged = new System.Event<PixUI.AnimationStatus>();
+
+    public get Value(): number {
+        if (this._parent != null) return this._parent.Value;
+        return this._value;
+    }
+
+    public get Status(): PixUI.AnimationStatus {
+        if (this._parent != null) return this._parent.Status;
+        return this._value == 0 ? PixUI.AnimationStatus.Dismissed : PixUI.AnimationStatus.Completed;
+    }
+}

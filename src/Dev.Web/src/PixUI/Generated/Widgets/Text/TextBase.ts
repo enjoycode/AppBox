@@ -25,6 +25,10 @@ export abstract class TextBase extends PixUI.Widget {
         return this._cachedParagraph;
     }
 
+    protected get ForceHeight(): boolean {
+        return false;
+    }
+
     public get FontSize(): Nullable<PixUI.State<number>> {
         return this._fontSize;
     }
@@ -70,7 +74,7 @@ export abstract class TextBase extends PixUI.Widget {
         let fontStyle: Nullable<PixUI.FontStyle> = this._fontWeight == null
             ? null
             : new PixUI.FontStyle(this._fontWeight.Value, CanvasKit.FontSlant.Upright);
-        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, 1, this instanceof PixUI.EditableText);
+        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, 1, this.ForceHeight);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {

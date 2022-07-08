@@ -14,18 +14,18 @@ export class HoverDecoration {
     public readonly ShapeBuilder: System.Func1<PixUI.ShapeBorder>;
     public readonly BoundsGetter: Nullable<System.Func1<PixUI.Rect>>;
     public readonly Elevation: number;
-
     public readonly HoverColor: Nullable<PixUI.Color>;
-
-    private _overlayEntry: Nullable<PixUI.OverlayEntry>;
+    private _decorator: Nullable<HoverDecorator>;
 
     public Show() {
-        this._overlayEntry ??= new PixUI.OverlayEntry(new HoverDecorator(this));
-        this.Widget.Overlay?.Show(this._overlayEntry);
+        this._decorator = new HoverDecorator(this);
+        this.Widget.Overlay?.Show(this._decorator);
     }
 
     public Hide() {
-        this._overlayEntry?.Remove();
+        if (this._decorator == null) return;
+        (<PixUI.Overlay><unknown>this._decorator.Parent!).Remove(this._decorator);
+        this._decorator = null;
     }
 
     public AttachHoverChangedEvent(widget: PixUI.IMouseRegion) {

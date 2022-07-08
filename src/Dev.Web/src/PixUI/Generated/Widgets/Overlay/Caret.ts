@@ -2,29 +2,30 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class Caret {
-    private readonly _widget: PixUI.Widget;
-    public readonly ColorBuilder: System.Func1<PixUI.Color>;
-    public readonly BoundsBuilder: System.Func1<PixUI.Rect>;
-
-    private _overlayEntry: Nullable<PixUI.OverlayEntry>;
-
     public constructor(widget: PixUI.Widget, colorBuilder: System.Func1<PixUI.Color>, boundsBuilder: System.Func1<PixUI.Rect>) {
         this._widget = widget;
         this.ColorBuilder = colorBuilder;
         this.BoundsBuilder = boundsBuilder;
     }
 
+    private readonly _widget: PixUI.Widget; //拥有caret的Widget
+    public readonly ColorBuilder: System.Func1<PixUI.Color>;
+    public readonly BoundsBuilder: System.Func1<PixUI.Rect>;
+    private _decorator: Nullable<CaretDecorator>;
+
     public Show() {
-        this._overlayEntry ??= new PixUI.OverlayEntry(new CaretDecorator(this));
-        this._widget.Overlay?.Show(this._overlayEntry);
+        this._decorator = new CaretDecorator(this);
+        this._widget.Overlay?.Show(this._decorator);
     }
 
     public Hide() {
-        this._overlayEntry?.Remove();
+        if (this._decorator == null) return;
+        (<PixUI.Overlay><unknown>this._decorator.Parent!).Remove(this._decorator);
+        this._decorator = null;
     }
 
     public NotifyPositionChanged() {
-        this._overlayEntry?.Invalidate();
+        this._decorator?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
     public Init(props: Partial<Caret>): Caret {

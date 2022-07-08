@@ -10,4 +10,6 @@ export class Theme {
     public static CaretColor: PixUI.Color = new PixUI.Color(0xFF2196F3);
 
     public static AccentColor: PixUI.Color = new PixUI.Color(0xFFF7821B);
+
+    public static DisabledBgColor: PixUI.Color = new PixUI.Color(0xFFF5F7FA);
 }

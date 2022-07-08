@@ -57,8 +57,12 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         this.#FocusNode = value;
     }
 
-    public get FontHeight(): number {
+    private get FontHeight(): number {
         return (this.FontSize?.Value ?? PixUI.Theme.DefaultFontSize) + 4;
+    }
+
+    protected get ForceHeight(): boolean {
+        return true;
     }
 
     public IsObscure: boolean = false;

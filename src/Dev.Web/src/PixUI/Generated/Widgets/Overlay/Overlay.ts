@@ -8,7 +8,10 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
         super();
         this.Window = window;
         this.IsMounted = true;
+        this._children = new PixUI.WidgetList<PixUI.Widget>(this);
     }
+
+    private readonly _children: PixUI.WidgetList<PixUI.Widget>;
 
     #Window: PixUI.UIWindow;
     public get Window() {
@@ -19,52 +22,34 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
         this.#Window = value;
     }
 
-    private readonly _entries: System.List<PixUI.OverlayEntry> = new System.List<PixUI.OverlayEntry>();
-
     public get HasEntry(): boolean {
-        return this._entries.length > 0;
+        return this._children.length > 0;
     }
 
-    public FindEntry(predicate: System.Predicate<PixUI.OverlayEntry>): Nullable<PixUI.OverlayEntry> {
-        for (const entry of this._entries) {
-            if (predicate(entry)) return entry;
-        }
-
-        return null;
+    public FindEntry(predicate: System.Predicate<PixUI.Widget>): Nullable<PixUI.Widget> {
+        return this._children.FirstOrDefault(entry => predicate(entry));
     }
 
 
-    public Show(entry: PixUI.OverlayEntry) {
-        if (this._entries.Contains(entry)) return;
+    public Show(entry: PixUI.Widget) {
+        if (this._children.Contains(entry)) return;
 
-        this._entries.Add(entry);
-        entry.Owner = this;
-        entry.Widget.Parent = this;
-        entry.Widget.Layout(this.Window.Width, this.Window.Height);
+        this._children.Add(entry);
+        entry.Layout(this.Window.Width, this.Window.Height);
 
         this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    public ShowBelow(entry: PixUI.OverlayEntry, below: PixUI.OverlayEntry) {
-        throw new System.NotImplementedException();
-    }
-
-    public ShowAbove(entry: PixUI.OverlayEntry, above: PixUI.OverlayEntry) {
-        throw new System.NotImplementedException();
-    }
-
-    public Remove(entry: PixUI.OverlayEntry) {
-        if (!this._entries.Remove(entry)) return;
-
-        entry.Widget.Parent = null;
+    public Remove(entry: PixUI.Widget) {
+        if (!this._children.Remove(entry)) return;
 
         this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
 
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
-        for (const entry of this._entries) {
-            if (this.HitTestChild(entry.Widget, x, y, result))
+        for (const entry of this._children) {
+            if (this.HitTestChild(entry, x, y, result))
                 break;
         }
 
@@ -72,22 +57,20 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
     }
 
     public Layout(availableWidth: number, availableHeight: number) {
-        for (const entry of this._entries) {
-            entry.Widget.Layout(availableWidth, availableHeight);
-        }
+        //do nothing, children will layout on Show()
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        for (const entry of this._entries) {
+        for (const entry of this._children) {
             // if (entry.Widget.W <= 0 || entry.Widget.H <= 0)
             //     continue;
 
-            let needTranslate = entry.Widget.X != 0 || entry.Widget.Y != 0;
+            let needTranslate = entry.X != 0 || entry.Y != 0;
             if (needTranslate)
-                canvas.translate(entry.Widget.X, entry.Widget.Y);
-            entry.Widget.Paint(canvas, area);
+                canvas.translate(entry.X, entry.Y);
+            entry.Paint(canvas, area);
             if (needTranslate)
-                canvas.translate(-entry.Widget.X, -entry.Widget.Y);
+                canvas.translate(-entry.X, -entry.Y);
         }
     }
 

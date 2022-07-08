@@ -23,22 +23,7 @@ export class CompletionItemWidget extends PixUI.Widget {
         let x: number = 2;
         let y: number = 3;
         this._iconPainter.Paint(canvas, fontSize, PixUI.Colors.Gray, CompletionItemWidget.GetIcon(this._item.Kind), x, y);
-        if (this._paragraph == null) {
-            let ts = PixUI.MakeTextStyle({
-                color: PixUI.Colors.Black,
-                fontSize: fontSize,
-                heightMultiplier: 1
-            });
-            let ps = PixUI.MakeParagraphStyle({maxLines: 1, textStyle: ts, heightMultiplier: 1});
-            let pb = PixUI.MakeParagraphBuilder(ps);
-
-            pb.pushStyle(ts);
-            pb.addText(this._item.Label);
-            pb.pop();
-            this._paragraph = pb.build();
-            this._paragraph.layout(Number.POSITIVE_INFINITY);
-            pb.delete();
-        }
+        this._paragraph ??= PixUI.TextPainter.BuildParagraph(this._item.Label, Number.POSITIVE_INFINITY, fontSize, PixUI.Colors.Black, null, 1, true);
 
         canvas.drawParagraph(this._paragraph!, x + 20, y);
     }

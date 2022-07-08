@@ -109,10 +109,10 @@ export class Notification extends PixUI.Popup {
 
     private static Show(icon: PixUI.Icon, text: PixUI.Text) {
         let win = PixUI.UIWindow.Current;
-        let exists = win.Overlay.FindEntry(e => e.Widget instanceof Notification);
+        let exists = win.Overlay.FindEntry(e => e instanceof Notification);
         let notification = exists == null
             ? new Notification(win.Overlay)
-            : <Notification><unknown>exists.Widget;
+            : <Notification><unknown>exists;
         if (exists == null)
             notification.Show();
 

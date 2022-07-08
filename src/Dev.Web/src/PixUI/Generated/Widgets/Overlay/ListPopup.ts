@@ -1,6 +1,8 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
+export type ListPopupItemBuilder<T> = (data: T, index: number, isHover: PixUI.State<boolean>, isSelected: PixUI.State<boolean>) => PixUI.Widget;
+
 export class ItemState {
     public readonly HoverState: PixUI.State<boolean>;
     public readonly SelectedState: PixUI.State<boolean>;
@@ -62,7 +64,7 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
 /// 列表弹窗，可通过键盘或鼠标选择指定项，并且支持条件过滤
 /// </summary>
 export class ListPopup<T> extends PixUI.Popup {
-    public constructor(overlay: PixUI.Overlay, itemBuilder: System.Func5<T, number, PixUI.State<boolean>, PixUI.State<boolean>, PixUI.Widget>, popupWidth: number, itemExtent: number, maxShowItems: number = 5) {
+    public constructor(overlay: PixUI.Overlay, itemBuilder: ListPopupItemBuilder<T>, popupWidth: number, itemExtent: number, maxShowItems: number = 5) {
         super(overlay);
         this._itemExtent = itemExtent;
         this._maxShowItems = maxShowItems;
@@ -78,7 +80,7 @@ export class ListPopup<T> extends PixUI.Popup {
     }
 
     private readonly _listViewController: PixUI.ListViewController<T>;
-    private readonly _itemBuilder: System.Func5<T, number, PixUI.State<boolean>, PixUI.State<boolean>, PixUI.Widget>;
+    private readonly _itemBuilder: ListPopupItemBuilder<T>;
     private readonly _child: PixUI.Card;
     private readonly _maxShowItems: number; //最多可显示多少个
     private readonly _itemExtent: number;
@@ -127,6 +129,14 @@ export class ListPopup<T> extends PixUI.Popup {
         }
     }
 
+    public InitSelect(item: T) {
+        let index = this._listViewController.DataSource!.IndexOf(item);
+        if (index < 0) return;
+
+        this._selectedIndex = index;
+        this._itemStates![this._selectedIndex].SelectedState.Value = true;
+    }
+
     private Select(index: number, raiseChangedEvent: boolean = false) {
         if (this._selectedIndex == index) return;
 
@@ -134,7 +144,9 @@ export class ListPopup<T> extends PixUI.Popup {
             this._itemStates![this._selectedIndex].SelectedState.Value = false;
 
         this._selectedIndex = index;
-        this._itemStates![this._selectedIndex].SelectedState.Value = true;
+
+        if (this._selectedIndex >= 0)
+            this._itemStates![this._selectedIndex].SelectedState.Value = true;
 
         if (raiseChangedEvent)
             this.OnSelectionChanged?.call(this, this.DataSource![index]);

@@ -13,7 +13,7 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
 
         this.Controller = controller;
         this.Controller.AttachWidget(this);
-        this._decoration = new PixUI.OverlayEntry(new CodeEditor.EditorDecorator(this));
+        this._decoration = new CodeEditor.EditorDecorator(this);
 
         this.MouseRegion.PointerDown.Add(this.Controller.OnPointerDown, this.Controller);
         this.MouseRegion.PointerUp.Add(this.Controller.OnPointerUp, this.Controller);
@@ -24,7 +24,7 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
     }
 
     public readonly Controller: CodeEditor.CodeEditorController;
-    private readonly _decoration: PixUI.OverlayEntry;
+    private readonly _decoration: CodeEditor.EditorDecorator;
 
     #MouseRegion: PixUI.MouseRegion;
     public get MouseRegion() {
@@ -57,7 +57,7 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
         if (all)
             this.Invalidate(PixUI.InvalidAction.Repaint, dirtyArea);
         else
-            this._decoration.Invalidate();
+            this._decoration.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
     private _OnFocusChanged(focused: boolean) {
@@ -78,7 +78,7 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
     }
 
     protected OnUnmounted() {
-        this._decoration.Remove();
+        (<PixUI.Overlay><unknown>this._decoration.Parent!).Remove(this._decoration);
         super.OnUnmounted();
     }
 

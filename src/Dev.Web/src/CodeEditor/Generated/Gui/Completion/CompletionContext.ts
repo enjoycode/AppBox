@@ -152,8 +152,6 @@ export class CompletionContext {
         if (item == null) return;
 
         this._controller.TextEditor.InsertOrReplaceString(item.InsertText ?? item.Label, this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
-
-        //TODO: force focus editor, maybe has lost focus by click someone.
     }
 
     private static BuildPopupItem(item: CodeEditor.ICompletionItem, index: number, isHover: PixUI.State<boolean>, isSelected: PixUI.State<boolean>): PixUI.Widget {

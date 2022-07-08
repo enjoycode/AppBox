@@ -1,6 +1,8 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-
+/// <summary>
+/// 管理输入焦点，UIWindow及每个显示的Popup各自拥有一个实例管理各自的焦点
+/// </summary>
 export class FocusManager {
     #FocusedWidget: Nullable<PixUI.Widget>;
     public get FocusedWidget() {
@@ -29,7 +31,7 @@ export class FocusManager {
     public OnKeyDown(e: PixUI.KeyEvent) {
         //TODO:考虑FocusedWidget==null时且为Tab从根节点开始查找Focusable
         if (this.FocusedWidget == null) return;
-        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyDown(e));
+        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, ke) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyDown(ke));
         //如果是Tab键跳转至下一个Focused
         if (!e.IsHandled && e.KeyCode == PixUI.Keys.Tab) {
             let forward = !e.Shift;
@@ -45,7 +47,7 @@ export class FocusManager {
 
     public OnKeyUp(e: PixUI.KeyEvent) {
         if (this.FocusedWidget == null) return;
-        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyUp(e));
+        FocusManager.PropagateEvent(this.FocusedWidget, e, (w, ke) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyUp(ke));
     }
 
     public OnTextInput(text: string) {
@@ -123,6 +125,73 @@ export class FocusManager {
     }
 
     public Init(props: Partial<FocusManager>): FocusManager {
+        Object.assign(this, props);
+        return this;
+    }
+}
+
+/// <summary>
+/// 每个UIWindow对应一个实例，管理当前窗体的FocusManger
+/// </summary>
+export class FocusManagerStack {
+    public constructor() {
+        this._stack.Add(new FocusManager()); // for UIWindow
+    }
+
+    private readonly _stack: System.List<FocusManager> = new System.List<FocusManager>();
+
+    public Push(manager: FocusManager) {
+        this._stack.Add(manager);
+    }
+
+    public Remove(manager: FocusManager) {
+        if (manager == this._stack[0]) throw new System.NotSupportedException();
+        this._stack.Remove(manager);
+    }
+
+    public Focus(widget: Nullable<PixUI.Widget>) {
+        if (widget == null)
+            return; //TODO:考虑取消最后一层的FocusedWidget
+
+        let manager = this.GetFocusManagerByWidget(widget);
+        manager.Focus(widget);
+    }
+
+    public OnKeyDown(e: PixUI.KeyEvent) {
+        this.GetFocusManagerWithFocused().OnKeyDown(e);
+    }
+
+    public OnKeyUp(e: PixUI.KeyEvent) {
+        this.GetFocusManagerWithFocused().OnKeyUp(e);
+    }
+
+    public OnTextInput(text: string) {
+        this.GetFocusManagerWithFocused().OnTextInput(text);
+    }
+
+    public GetFocusManagerByWidget(widget: PixUI.Widget): FocusManager {
+        let temp = widget;
+        while (temp.Parent != null) {
+            if (temp.Parent instanceof PixUI.Popup) {
+                const popup = temp.Parent;
+                return popup.FocusManager;
+            }
+            temp = temp.Parent;
+        }
+
+        return this._stack[0];
+    }
+
+    private GetFocusManagerWithFocused(): FocusManager {
+        for (let i = this._stack.length - 1; i > 0; i--) {
+            if (this._stack[i].FocusedWidget != null)
+                return this._stack[i];
+        }
+
+        return this._stack[0];
+    }
+
+    public Init(props: Partial<FocusManagerStack>): FocusManagerStack {
         Object.assign(this, props);
         return this;
     }

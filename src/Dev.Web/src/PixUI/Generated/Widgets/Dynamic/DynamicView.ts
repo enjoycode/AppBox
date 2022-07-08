@@ -14,7 +14,7 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
     private _transitionStack: Nullable<PixUI.TransitionStack>;
 
     protected ReplaceTo(to: Nullable<PixUI.Widget>) {
-        this.Root!.Window.BeforeDynamicViewChange();
+        this.Root!.Window.BeforeDynamicViewChange(this);
         this.Child = to;
         this.Root!.Window.AfterDynamicViewChange(this); //TODO: 检查是否需要，因重新布局会同样处理
         this.Invalidate(PixUI.InvalidAction.Relayout); //这里始终重新布局
@@ -24,7 +24,7 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
         this._animationFrom = from;
         this._animationTo = to;
 
-        this.Root!.Window.BeforeDynamicViewChange();
+        this.Root!.Window.BeforeDynamicViewChange(this);
 
         this.CreateAnimationControl(duration, reverse);
         let exsiting = existingBuilder == null

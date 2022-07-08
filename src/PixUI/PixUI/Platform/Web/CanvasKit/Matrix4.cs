@@ -27,6 +27,8 @@ namespace PixUI
 
         public static Matrix4 CreateTranslation(float x, float y, float z) => new Matrix4();
 
+        public static Matrix4 CreateScale(float x, float y, float z) => new Matrix4();
+
         public static Matrix4? TryInvert(Matrix4 other) => null;
 
         public void Translate(float x, float y = 0.0f, float z = 0.0f) { }

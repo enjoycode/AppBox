@@ -2,6 +2,12 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class FocusedDecoration {
+    public constructor(widget: PixUI.Widget, focusedBorderBuilder: System.Func1<PixUI.ShapeBorder>, unfocusedBorderBuilder: Nullable<System.Func1<Nullable<PixUI.ShapeBorder>>> = null) {
+        this.Widget = widget;
+        this._focusedBorderBuilder = focusedBorderBuilder;
+        this._unfocusedBorderBuilder = unfocusedBorderBuilder;
+    }
+
     public readonly Widget: PixUI.Widget;
 
     // Focus时的Border,用于动画结束
@@ -10,13 +16,7 @@ export class FocusedDecoration {
     // 未Focus时的Border,用于动画开始
     private readonly _unfocusedBorderBuilder: Nullable<System.Func1<Nullable<PixUI.ShapeBorder>>>;
 
-    private _overlayEntry: Nullable<PixUI.OverlayEntry>;
-
-    public constructor(widget: PixUI.Widget, focusedBorderBuilder: System.Func1<PixUI.ShapeBorder>, unfocusedBorderBuilder: Nullable<System.Func1<Nullable<PixUI.ShapeBorder>>> = null) {
-        this.Widget = widget;
-        this._focusedBorderBuilder = focusedBorderBuilder;
-        this._unfocusedBorderBuilder = unfocusedBorderBuilder;
-    }
+    private _decorator: Nullable<FocusedDecorator>;
 
     public AttachFocusChangedEvent(widget: PixUI.Widget) {
         if (PixUI.IsInterfaceOfIFocusable(widget)) {
@@ -27,10 +27,10 @@ export class FocusedDecoration {
 
     private _OnFocusChanged(focused: boolean) {
         if (focused) {
-            this._overlayEntry ??= new PixUI.OverlayEntry(new FocusedDecorator(this));
-            this.Widget.Overlay?.Show(this._overlayEntry);
+            this._decorator = new FocusedDecorator(this);
+            this.Widget.Overlay?.Show(this._decorator);
         } else {
-            (<FocusedDecorator><unknown>this._overlayEntry!.Widget).Hide();
+            this._decorator?.Hide();
         }
     }
 
@@ -43,13 +43,13 @@ export class FocusedDecoration {
     }
 
     public StopAndReset() {
-        if (this._overlayEntry == null) return;
-
-        (<FocusedDecorator><unknown>this._overlayEntry!.Widget).Reset(); //will remove overlay
-    }
+        this._decorator?.Reset();
+    } //will remove overlay
 
     public RemoveOverlayEntry() {
-        this._overlayEntry?.Remove();
+        if (this._decorator == null) return;
+        (<PixUI.Overlay><unknown>this._decorator.Parent!).Remove(this._decorator);
+        this._decorator = null;
     }
 
     public Init(props: Partial<FocusedDecoration>): FocusedDecoration {

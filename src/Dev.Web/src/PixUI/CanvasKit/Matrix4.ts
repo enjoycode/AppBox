@@ -31,6 +31,13 @@ export class Matrix4 extends Float32Array {
             x, y, z, 1);
     }
 
+    public static CreateScale(x: number, y: number, z: number): Matrix4 {
+        return new Matrix4(x, 0, 0, 0,
+            0, y, 0, 0,
+            0, 0, z, 0,
+            0, 0, 0, 1);
+    }
+
     public static TryInvert(other: Matrix4): Matrix4 | null {
         let res = Matrix4.CreateEmpty();
         let determinant = res.CopyInverse(other);

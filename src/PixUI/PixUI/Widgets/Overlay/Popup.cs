@@ -115,7 +115,7 @@ namespace PixUI
         {
             _overlay = overlay;
             AnimationController = new AnimationController(100);
-            AnimationController.StatusChanged += OnStateChanged;
+            AnimationController.StatusChanged += OnAnimationStateChanged;
 
             Child = transitionBuilder(AnimationController, proxy, origin);
         }
@@ -127,7 +127,7 @@ namespace PixUI
 
         internal void Reverse() => AnimationController.Reverse();
 
-        private void OnStateChanged(AnimationStatus status)
+        private void OnAnimationStateChanged(AnimationStatus status)
         {
             if (status == AnimationStatus.Dismissed)
                 _overlay.Remove(this);
