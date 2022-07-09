@@ -243,7 +243,7 @@ export abstract class UIWindow {
         this.CompareAndSwapHitTestResult();
     }
 
-    public AfterLayoutChanged() {
+    public RunNewHitTest() {
         //始终重新开始检测，因为旧的命中的位置可能已改变
         this.NewHitTest(this._lastMouseX, this._lastMouseY);
         this.CompareAndSwapHitTestResult();

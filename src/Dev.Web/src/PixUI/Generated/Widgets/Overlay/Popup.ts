@@ -11,6 +11,11 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
 
     public readonly Owner: PixUI.Overlay;
     public readonly FocusManager: PixUI.FocusManager = new PixUI.FocusManager();
+
+    protected get IsDialog(): boolean {
+        return false;
+    }
+
     private _transition: Nullable<PopupTransitionWrap>;
     private _proxy: Nullable<PopupProxy>;
 
@@ -22,6 +27,15 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
         {
             Child: child
         });
+
+    public static readonly DialogTransitionBuilder: PopupTransitionBuilder = (animation, child, origin) => {
+        let curve = new PixUI.CurvedAnimation(animation, PixUI.Curves.EaseInOutCubic);
+        let offsetAnimation = new PixUI.OffsetTween(new PixUI.Offset(0, -0.1), new PixUI.Offset(0, 0)).Animate(curve);
+        return new PixUI.SlideTransition(offsetAnimation).Init(
+            {
+                Child: child //new FadeTransition(curve) { Child = child }
+            });
+    };
 
     public UpdatePosition(x: number, y: number) {
         this.SetPosition(x, y);
@@ -59,13 +73,17 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
 
         if (transitionBuilder != null) {
             this._proxy ??= new PopupProxy(this);
-            this._transition = new PopupTransitionWrap(this.Owner, this._proxy, origin, transitionBuilder);
+            this._transition =
+                new PopupTransitionWrap(this.Owner, this.IsDialog, this._proxy, origin, transitionBuilder);
             this._transition.Forward();
             target = this._transition;
         }
 
         if (relativeTo != null)
             target.SetPosition(winX, winY);
+        else if (this.IsDialog)
+            target.SetPosition((this.Owner.Window.Width - this.W) / 2, (this.Owner.Window.Height - this.H) / 2);
+
         this.Owner.Window.EventHookManager.Add(this);
         this.Owner.Window.FocusManagerStack.Push(this.FocusManager);
         this.Owner.Show(target);
@@ -90,9 +108,10 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
 }
 
 export class PopupTransitionWrap extends PixUI.SingleChildWidget {
-    public constructor(overlay: PixUI.Overlay, proxy: PopupProxy, origin: Nullable<PixUI.Offset>, transitionBuilder: PopupTransitionBuilder) {
+    public constructor(overlay: PixUI.Overlay, isDialog: boolean, proxy: PopupProxy, origin: Nullable<PixUI.Offset>, transitionBuilder: PopupTransitionBuilder) {
         super();
         this._overlay = overlay;
+        this._isDialog = isDialog;
         this.AnimationController = new PixUI.AnimationController(100);
         this.AnimationController.StatusChanged.Add(this.OnAnimationStateChanged, this);
 
@@ -101,6 +120,7 @@ export class PopupTransitionWrap extends PixUI.SingleChildWidget {
 
     public readonly AnimationController: PixUI.AnimationController;
     private readonly _overlay: PixUI.Overlay;
+    private readonly _isDialog: boolean;
 
     public Forward() {
         this.AnimationController.Forward();
@@ -111,8 +131,23 @@ export class PopupTransitionWrap extends PixUI.SingleChildWidget {
     }
 
     private OnAnimationStateChanged(status: PixUI.AnimationStatus) {
-        if (status == PixUI.AnimationStatus.Dismissed)
+        if (status == PixUI.AnimationStatus.Completed) {
+            this._overlay.Window.RunNewHitTest(); //打开后强制重新HitTest,考虑优化
+        } else if (status == PixUI.AnimationStatus.Dismissed) {
             this._overlay.Remove(this);
+            this._overlay.Window.RunNewHitTest(); //关闭后强制重新HitTest,考虑优化
+        }
+    }
+
+    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+        if (this._isDialog) {
+            //always hit dialog
+            result.Add(this);
+            this.HitTestChild(this.Child!, x, y, result);
+            return true;
+        }
+
+        return super.HitTest(x, y, result);
     }
 
     public Dispose() {
@@ -145,6 +180,14 @@ export class PopupProxy extends PixUI.Widget {
         action(this._popup);
     }
 
+    public ContainsPoint(x: number, y: number): boolean {
+        return this._popup.ContainsPoint(x, y);
+    }
+
+    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+        return this._popup.HitTest(x, y, result);
+    }
+
     public Layout(availableWidth: number, availableHeight: number) {
         //popup已经布局过,只需要设置自身大小等于popup的大小
         this.SetSize(this._popup.W, this._popup.H);
@@ -164,7 +207,7 @@ export class PopupProxy extends PixUI.Widget {
 export class ScaleYTransition extends PixUI.Transform //TODO: 整合
 {
     public constructor(animation: PixUI.Animation<number>, origin: Nullable<PixUI.Offset> = null) {
-        super(PixUI.Matrix4.CreateScale(1, <number><unknown>(animation.Value), 1), origin);
+        super(PixUI.Matrix4.CreateScale(1, <number><unknown>animation.Value, 1), origin);
         this._animation = animation;
         this._animation.ValueChanged.Add(this.OnAnimationValueChanged, this);
     }

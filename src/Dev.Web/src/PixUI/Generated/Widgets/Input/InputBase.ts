@@ -1,7 +1,7 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export abstract class InputBase<T extends PixUI.Widget> extends PixUI.Widget //, IFocusable
+export abstract class InputBase<T extends PixUI.Widget> extends PixUI.Widget  //, IFocusable
 {
     protected constructor(editor: T) {
         super();
