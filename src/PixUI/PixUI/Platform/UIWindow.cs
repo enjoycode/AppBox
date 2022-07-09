@@ -205,7 +205,9 @@ namespace PixUI
 
         public void OnTextInput(string text) => FocusManagerStack.OnTextInput(text);
 
-        #region ----HitTest----
+        #endregion
+
+        #region ====HitTest====
 
         private void OldHitTest(float winX, float winY)
         {
@@ -307,16 +309,14 @@ namespace PixUI
         }
 
         /// <summary>
-        /// 仅用于布局变更后重设之前缓存的HitTest结果
+        /// 布局变更后或Popup弹出关闭后重新进行
         /// </summary>
-        internal void AfterLayoutChanged()
+        internal void RunNewHitTest()
         {
             //始终重新开始检测，因为旧的命中的位置可能已改变
             NewHitTest(_lastMouseX, _lastMouseY);
             CompareAndSwapHitTestResult();
         }
-
-        #endregion
 
         #endregion
 

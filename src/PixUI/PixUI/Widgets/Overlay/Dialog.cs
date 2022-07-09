@@ -4,16 +4,17 @@ namespace PixUI
 {
     public abstract class Dialog<T> : Popup
     {
-        private Card? _child;
-        protected readonly State<string> Title = "";
-        protected Action<bool, T?>? OnClose;
-
         protected Dialog(Overlay overlay, Action<bool, T?>? onClose = null) :
             base(overlay)
         {
             OnClose = onClose;
             //注意不在这里构建WidgetTree,参照以下OnMounted时的说明
         }
+
+        private Card? _child;
+        protected readonly State<string> Title = "";
+        protected Action<bool, T?>? OnClose;
+        protected sealed override bool IsDialog => true;
 
         private Widget BuildTitle()
         {
@@ -40,6 +41,9 @@ namespace PixUI
 
         protected abstract T? GetResult(bool canceled);
 
+        public void Show()
+            => base.Show(null, null, DialogTransitionBuilder);
+
         public void Close(bool canceled)
         {
             Hide();
@@ -57,37 +61,47 @@ namespace PixUI
             //          super(overlay); //如果在这里构建WidgetTree,则_someState为undefined
             //      }
             // }
-            if (_child == null)
-            {
-                _child = new Card()
-                {
-                    Elevation = 20,
-                    Child = new Column()
-                    {
-                        Children = new Widget[]
-                        {
-                            BuildTitle(),
-                            BuildBody(),
-                        }
-                    }
-                };
-                _child.Parent = this;
-            }
-
+            TryBuildChild();
             base.OnMounted();
+        }
+
+        private void TryBuildChild()
+        {
+            if (_child != null) return;
+
+            _child = new Card()
+            {
+                Elevation = 20,
+                Child = new Column()
+                {
+                    Children = new[]
+                    {
+                        BuildTitle(),
+                        BuildBody(),
+                    }
+                }
+            };
+            _child.Parent = this;
         }
 
         public override void VisitChildren(Func<Widget, bool> action) => action(_child!);
 
+        public override bool ContainsPoint(float x, float y) => true;
+
+        protected internal override bool HitTest(float x, float y, HitTestResult result)
+        {
+            //always hit dialog
+            result.Add(this);
+            HitTestChild(_child!, x, y, result);
+            return true;
+        }
+
         public override void Layout(float availableWidth, float availableHeight)
         {
+            TryBuildChild();
             _child!.Layout(Width?.Value ?? availableWidth, Height?.Value ?? availableHeight);
-
-            //设置child居中
-            _child.SetPosition((availableWidth - _child.W) / 2, (availableHeight - _child.H) / 2);
-
-            //注意自身宽高无限
-            SetSize(float.PositiveInfinity, float.PositiveInfinity);
+            //不用设置_child位置,显示时设置自身位置，另外不能设置自身大小为无限，因为弹出动画需要
+            SetSize(_child.W, _child.H);
         }
 
         #endregion

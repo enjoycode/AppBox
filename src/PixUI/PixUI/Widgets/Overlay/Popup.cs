@@ -14,6 +14,7 @@ namespace PixUI
 
         internal readonly Overlay Owner;
         internal readonly FocusManager FocusManager = new();
+        protected virtual bool IsDialog => false;
         private PopupTransitionWrap? _transition;
         private PopupProxy? _proxy;
         internal AnimationController? AnimationController => _transition?.AnimationController;
@@ -25,6 +26,21 @@ namespace PixUI
             (animation, child, origin) => new ScaleYTransition(animation, origin)
             {
                 Child = child
+            };
+
+        /// <summary>
+        /// 默认的对话框打开关闭动画
+        /// </summary>
+        public static readonly PopupTransitionBuilder DialogTransitionBuilder =
+            (animation, child, origin) =>
+            {
+                var curve = new CurvedAnimation(animation, Curves.EaseInOutCubic);
+                var offsetAnimation =
+                    new OffsetTween(new Offset(0, -0.1f), new Offset(0, 0)).Animate(curve);
+                return new SlideTransition(offsetAnimation)
+                {
+                    Child = child //new FadeTransition(curve) { Child = child }
+                };
             };
 
         public void UpdatePosition(float x, float y)
@@ -71,13 +87,17 @@ namespace PixUI
             if (transitionBuilder != null)
             {
                 _proxy ??= new PopupProxy(this);
-                _transition = new PopupTransitionWrap(Owner, _proxy, origin, transitionBuilder);
+                _transition =
+                    new PopupTransitionWrap(Owner, IsDialog, _proxy, origin, transitionBuilder);
                 _transition.Forward();
                 target = _transition;
             }
 
             if (relativeTo != null)
                 target.SetPosition(winX, winY);
+            else if (IsDialog)
+                target.SetPosition((Owner.Window.Width - W) / 2f, (Owner.Window.Height - H) / 2f);
+
             Owner.Window.EventHookManager.Add(this);
             Owner.Window.FocusManagerStack.Push(FocusManager);
             Owner.Show(target);
@@ -110,10 +130,12 @@ namespace PixUI
 
     internal sealed class PopupTransitionWrap : SingleChildWidget
     {
-        internal PopupTransitionWrap(Overlay overlay, PopupProxy proxy, Offset? origin,
+        internal PopupTransitionWrap(Overlay overlay, bool isDialog,
+            PopupProxy proxy, Offset? origin,
             PopupTransitionBuilder transitionBuilder)
         {
             _overlay = overlay;
+            _isDialog = isDialog;
             AnimationController = new AnimationController(100);
             AnimationController.StatusChanged += OnAnimationStateChanged;
 
@@ -122,6 +144,7 @@ namespace PixUI
 
         internal readonly AnimationController AnimationController;
         private readonly Overlay _overlay;
+        private readonly bool _isDialog;
 
         internal void Forward() => AnimationController.Forward();
 
@@ -129,8 +152,28 @@ namespace PixUI
 
         private void OnAnimationStateChanged(AnimationStatus status)
         {
-            if (status == AnimationStatus.Dismissed)
+            if (status == AnimationStatus.Completed)
+            {
+                _overlay.Window.RunNewHitTest(); //打开后强制重新HitTest,考虑优化
+            }
+            else if (status == AnimationStatus.Dismissed)
+            {
                 _overlay.Remove(this);
+                _overlay.Window.RunNewHitTest(); //关闭后强制重新HitTest,考虑优化
+            }
+        }
+
+        protected internal override bool HitTest(float x, float y, HitTestResult result)
+        {
+            if (_isDialog)
+            {
+                //always hit dialog
+                result.Add(this);
+                HitTestChild(Child!, x, y, result);
+                return true;
+            }
+
+            return base.HitTest(x, y, result);
         }
 
         public override void Dispose()
@@ -159,6 +202,12 @@ namespace PixUI
         public override void VisitChildren(Func<Widget, bool> action)
             => action(_popup);
 
+        public override bool ContainsPoint(float x, float y)
+            => _popup.ContainsPoint(x, y);
+
+        protected internal override bool HitTest(float x, float y, HitTestResult result)
+            => _popup.HitTest(x, y, result);
+
         public override void Layout(float availableWidth, float availableHeight)
         {
             //popup已经布局过,只需要设置自身大小等于popup的大小
@@ -175,7 +224,7 @@ namespace PixUI
     internal sealed class ScaleYTransition : Transform //TODO: 整合
     {
         public ScaleYTransition(Animation<double> animation, Offset? origin = null)
-            : base(Matrix4.CreateScale(1, (float)(animation.Value), 1), origin)
+            : base(Matrix4.CreateScale(1, (float)animation.Value, 1), origin)
         {
             _animation = animation;
             _animation.ValueChanged += OnAnimationValueChanged;

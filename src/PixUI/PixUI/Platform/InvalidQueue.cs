@@ -224,7 +224,7 @@ namespace PixUI
 
             // 通知重新进行HitTest TODO:确认布局影响，eg:Input重布局没有改变大小，则不需要重新HitTest
             if (hasRelayout)
-                context.Window.AfterLayoutChanged();
+                context.Window.RunNewHitTest();
         }
 
         /// <summary>

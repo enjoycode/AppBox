@@ -50,7 +50,7 @@ namespace PixUI.Test
                                     {
                                         new Button("Button1")
                                             { OnTap = OnButton1Tap, Ref = _buttonRef },
-                                        new Button("Button2"),
+                                        new Button("Button2") { OnTap = OnButton2Tap },
                                         new Button("Button3")
                                     },
                                 },
@@ -97,13 +97,6 @@ namespace PixUI.Test
             _firstName.Value = "Eric " + DateTime.Now.Second;
 
             Notification.Error("Click Done!");
-
-            // var dlg = new DemoDialog(Overlay!,
-            //     (canceled, res) =>
-            //     {
-            //         Console.WriteLine(canceled ? "Dialog closed" : $"Dialog closed: {res}");
-            //     });
-            // dlg.Show();
         }
 
         private void OnButton1Tap(PointerEvent e)
@@ -116,6 +109,16 @@ namespace PixUI.Test
                     Popup.DefaultTransitionBuilder);
             else
                 _listPopup?.Hide();
+        }
+
+        private void OnButton2Tap(PointerEvent e)
+        {
+            var dlg = new DemoDialog(Overlay!,
+                (canceled, res) =>
+                {
+                    Console.WriteLine(canceled ? "Dialog closed" : $"Dialog closed: {res}");
+                });
+            dlg.Show();
         }
 
         private void OnListPopupSelectionChanged(Person? person)
