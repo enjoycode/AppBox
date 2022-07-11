@@ -58,6 +58,15 @@ namespace PixUI
         Unpremul = 3,
     }
 
+    [TSType("CanvasKit.BlurStyle")]
+    public enum BlurStyle
+    {
+        Normal = 0,
+        Solid = 1,
+        Outer = 2,
+        Inner = 3,
+    }
+
     [TSType("CanvasKit.FontSlant")]
     public enum FontSlant
     {

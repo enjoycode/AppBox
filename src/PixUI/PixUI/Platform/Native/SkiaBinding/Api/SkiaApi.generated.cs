@@ -2460,13 +2460,13 @@ namespace PixUI
 		// sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t, float sigma)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_maskfilter_t sk_maskfilter_new_blur (SKBlurStyle param0, Single sigma);
+		internal static extern sk_maskfilter_t sk_maskfilter_new_blur (BlurStyle param0, Single sigma);
 		
 
 		// sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t, float sigma, bool respectCTM)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_maskfilter_t sk_maskfilter_new_blur_with_flags (SKBlurStyle param0, Single sigma, [MarshalAs (UnmanagedType.I1)] bool respectCTM);
+		internal static extern sk_maskfilter_t sk_maskfilter_new_blur_with_flags (BlurStyle param0, Single sigma, [MarshalAs (UnmanagedType.I1)] bool respectCTM);
 		
 
 		// sk_maskfilter_t* sk_maskfilter_new_clip(uint8_t min, uint8_t max)

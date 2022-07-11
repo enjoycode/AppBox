@@ -73,6 +73,12 @@ namespace PixUI
             set => SkiaApi.sk_paint_set_blendmode(Handle, value);
         }
 
+        public MaskFilter? MaskFilter
+        {
+            get => MaskFilter.GetObject(SkiaApi.sk_paint_get_maskfilter(Handle));
+            set => SkiaApi.sk_paint_set_maskfilter(Handle, value?.Handle ?? IntPtr.Zero);
+        }
+
         #endregion
 
         // private void UpdateFontEdging (bool antialias)

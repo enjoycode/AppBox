@@ -170,7 +170,7 @@ namespace PixUI
             SkiaApi.sk_rrect_outset(Handle, dx, dy);
         }
 
-        public void Offset(float dx, float dy)
+        public void Shift(float dx, float dy)
         {
             SkiaApi.sk_rrect_offset(Handle, dx, dy);
         }

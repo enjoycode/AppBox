@@ -12,6 +12,7 @@ namespace PixUI
             _shared.Style = style;
             _shared.Color = color ?? Colors.Black;
             _shared.StrokeWidth = strokeWidth;
+            _shared.MaskFilter = null;
 #if !__WEB__ //TODO: fix web
             _shared.BlendMode = BlendMode.SrcOver;
 #endif
