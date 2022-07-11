@@ -54,6 +54,7 @@ namespace PixUI.Test
                                         new Button("Button3")
                                     },
                                 },
+                                new Switch(false),
                                 new Select<string>(_selectedValue)
                                 {
                                     Width = 200, Options = new[]
