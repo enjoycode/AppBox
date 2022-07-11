@@ -14,17 +14,19 @@ namespace PixUI
 
         #region ====Widget Overrides====
 
-        private const float _kTrackWidth = 51.0f;
-        private const float _kTrackHeight = 31.0f;
+        private const float _kTrackWidth = 40;
+        private const float _kTrackHeight = 24f;
         private const float _kTrackRadius = _kTrackHeight / 2.0f;
         private const float _kTrackInnerStart = _kTrackHeight / 2.0f;
+
         private const float _kTrackInnerEnd = _kTrackWidth - _kTrackInnerStart;
+
         // private const float _kTrackInnerLength = _kTrackInnerEnd - _kTrackInnerStart;
-        private const float _kSwitchWidth = 59.0f;
-        private const float _kSwitchHeight = 39.0f;
+        private const float _kSwitchWidth = _kTrackWidth + 6;
+        private const float _kSwitchHeight = _kTrackHeight + 6;
 
         private const float _kThumbExtension = 7f;
-        private const float _kThumbRadius = 14f;
+        private const float _kThumbRadius = _kTrackHeight / 2 - 2;
         private static readonly Color _kThumbBorderColor = new Color(0x0A000000);
 
         public override void Layout(float availableWidth, float availableHeight)
@@ -37,6 +39,9 @@ namespace PixUI
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
+            canvas.Save();
+            canvas.Translate(0, (_kSwitchHeight - _kTrackHeight) / 2f);
+
             var currentValue = 1f;
             var currentReactionValue = 0f;
             var visualPosition = currentValue;
@@ -71,17 +76,15 @@ namespace PixUI
 
             var clipPath = new Path();
             clipPath.AddRRect(trackRRect);
-            canvas.Save();
             canvas.ClipPath(clipPath, ClipOp.Intersect, true);
-            
+
             PaintThumb(canvas, thumbBounds);
-            
+
             canvas.Restore();
         }
 
         private void PaintThumb(Canvas canvas, Rect rect)
         {
-            // CupertinoThumbPainter
             var shortestSide = Math.Min(rect.Width, rect.Height);
             var rrect = RRect.FromRectAndRadius(rect, shortestSide / 2f, shortestSide / 2f);
 
@@ -108,6 +111,7 @@ namespace PixUI
             // border and fill
             rrect.Inflate(0.5f, 0.5f);
             paint.Color = _kThumbBorderColor;
+            paint.MaskFilter = null;
             canvas.DrawRRect(rrect, paint);
             rrect.Deflate(0.5f, 0.5f);
 
