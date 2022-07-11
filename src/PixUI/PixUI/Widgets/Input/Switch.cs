@@ -2,15 +2,43 @@ using System;
 
 namespace PixUI
 {
-    public sealed class Switch : Widget
+    public sealed class Switch : Widget, IMouseRegion
     {
         public Switch(State<bool> value)
         {
             _value = Bind(value, BindingOptions.AffectsVisual);
+            _positionController = new AnimationController(100, value.Value ? 1 : 0);
+            _positionController.ValueChanged += OnPositionValueChanged;
+            _positionController.StatusChanged += OnPositionStatusChanged;
+
+            MouseRegion = new MouseRegion(() => Cursors.Hand);
+            MouseRegion.PointerTap += OnTap;
         }
 
         private readonly State<bool> _value;
+        private readonly AnimationController _positionController;
+        public MouseRegion MouseRegion { get; }
 
+        private void OnTap(PointerEvent e)
+        {
+            if (_value.Value)
+                _positionController.Reverse();
+            else
+                _positionController.Forward();
+        }
+
+        private void OnPositionValueChanged()
+        {
+            Invalidate(InvalidAction.Repaint);
+        }
+
+        private void OnPositionStatusChanged(AnimationStatus status)
+        {
+            if (status == AnimationStatus.Completed)
+                _value.Value = true;
+            else if (status == AnimationStatus.Dismissed)
+                _value.Value = false;
+        }
 
         #region ====Widget Overrides====
 
@@ -42,7 +70,7 @@ namespace PixUI
             canvas.Save();
             canvas.Translate(0, (_kSwitchHeight - _kTrackHeight) / 2f);
 
-            var currentValue = 1f;
+            var currentValue = _positionController.Value;
             var currentReactionValue = 0f;
             var visualPosition = currentValue;
 
@@ -70,7 +98,7 @@ namespace PixUI
                 trackRect.Left + _kTrackInnerEnd + _kThumbRadius,
                 visualPosition
             );
-            var thumbCenterY = (H - _kThumbExtension) / 2.0f;
+            var thumbCenterY = _kTrackHeight / 2.0f;
             var thumbBounds = new Rect(thumbLeft, thumbCenterY - _kThumbRadius, thumbRight,
                 thumbCenterY + _kThumbRadius);
 
@@ -83,7 +111,7 @@ namespace PixUI
             canvas.Restore();
         }
 
-        private void PaintThumb(Canvas canvas, Rect rect)
+        private static void PaintThumb(Canvas canvas, Rect rect)
         {
             var shortestSide = Math.Min(rect.Width, rect.Height);
             var rrect = RRect.FromRectAndRadius(rect, shortestSide / 2f, shortestSide / 2f);
