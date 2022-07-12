@@ -33,6 +33,9 @@ namespace PixUI
             throw new System.NotImplementedException();
         }
 
+        public override OutlinedBorder CopyWith(BorderSide? side)
+            => new RoundedRectangleBorder(side ?? Side, BorderRadius /*TODO: need copy for web?*/);
+
         public override ShapeBorder Clone()
         {
             throw new System.NotImplementedException();

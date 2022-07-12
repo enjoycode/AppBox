@@ -54,7 +54,14 @@ namespace PixUI.Test
                                         new Button("Button3")
                                     },
                                 },
-                                new Switch(false),
+                                new Row(VerticalAlignment.Middle, 10)
+                                {
+                                    Children = new Widget[]
+                                    {
+                                        new Switch(false),
+                                        new Checkbox(false),
+                                    }
+                                },
                                 new Select<string>(_selectedValue)
                                 {
                                     Width = 200, Options = new[]

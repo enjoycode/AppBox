@@ -13,5 +13,11 @@ namespace PixUI
         {
             Side = side ?? BorderSide.Empty;
         }
+
+        /// <summary>
+        /// Returns a copy of this OutlinedBorder that draws its outline with the
+        /// specified [side], if [side] is non-null.
+        /// </summary>
+        public abstract OutlinedBorder CopyWith(BorderSide? side);
     }
 }

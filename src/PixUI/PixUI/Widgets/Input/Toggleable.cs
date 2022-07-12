@@ -14,7 +14,7 @@ namespace PixUI
             MouseRegion.PointerTap += OnTap;
         }
 
-        private readonly State<bool?> _value;
+        protected readonly State<bool?> _value;
         private readonly bool _triState;
         protected readonly AnimationController _positionController;
         public MouseRegion MouseRegion { get; }
@@ -23,6 +23,8 @@ namespace PixUI
         {
             //TODO: skip on readonly
 
+            BeforeChangeValue();
+
             if (_value.Value == null)
                 _value.Value = false;
             else if (_value.Value == true)
@@ -30,6 +32,8 @@ namespace PixUI
             else
                 _value.Value = true;
         }
+
+        protected virtual void BeforeChangeValue() { }
 
         private void AnimateToValue()
         {
@@ -61,9 +65,9 @@ namespace PixUI
             if (ReferenceEquals(state, _value))
             {
                 AnimateToValue();
-                return;    
+                return;
             }
-            
+
             base.OnStateChanged(state, options);
         }
     }
