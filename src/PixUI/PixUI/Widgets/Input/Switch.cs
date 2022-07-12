@@ -4,9 +4,12 @@ namespace PixUI
 {
     public sealed class Switch : Toggleable
     {
-        public Switch(State<bool> value) : base(
-            RxComputed<bool?>.Make<bool, bool?>(value, v => v, v => value.Value = v ?? false),
-            false) { }
+        public Switch(State<bool> value)
+        {
+            InitState(
+                RxComputed<bool?>.Make<bool, bool?>(value, v => v, v => value.Value = v ?? false),
+                false);
+        }
 
         #region ====Widget Overrides====
 

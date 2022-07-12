@@ -5,8 +5,19 @@ namespace PixUI
 {
     public sealed class Checkbox : Toggleable
     {
-        public Checkbox(State<bool> value) : base(
-            RxComputed<bool?>.Make<bool, bool?>(value, v => v, v => value.Value = v ?? false)) { }
+        public Checkbox(State<bool> value)
+        {
+            InitState(
+                RxComputed<bool?>.Make<bool, bool?>(value, v => v, v => value.Value = v ?? false),
+                false);
+        }
+
+        public static Checkbox Tristate(State<bool?> value)
+        {
+            var checkbox = new Checkbox(false);
+            checkbox.InitState(value, true); //replace to nullable state
+            return checkbox;
+        }
 
         private bool? _previousValue;
 

@@ -2,26 +2,30 @@ namespace PixUI
 {
     public abstract class Toggleable : Widget, IMouseRegion
     {
-        protected Toggleable(State<bool?> value, bool triState = false)
+        protected Toggleable()
         {
-            _triState = triState;
-            _value = Bind(value, BindingOptions.AffectsVisual);
-            _positionController =
-                new AnimationController(100, value.Value != null && value.Value.Value ? 1 : 0);
-            _positionController.ValueChanged += OnPositionValueChanged;
-
             MouseRegion = new MouseRegion(() => Cursors.Hand);
             MouseRegion.PointerTap += OnTap;
         }
 
-        protected readonly State<bool?> _value;
-        private readonly bool _triState;
-        protected readonly AnimationController _positionController;
+        protected State<bool?> _value;
+        private bool _triState;
+        protected AnimationController _positionController;
         public MouseRegion MouseRegion { get; }
+
+        protected void InitState(State<bool?> value, bool tristate)
+        {
+            _triState = tristate;
+            _value = Bind(value, BindingOptions.AffectsVisual);
+            _positionController =
+                new AnimationController(100, value.Value != null && value.Value.Value ? 1 : 0);
+            _positionController.ValueChanged += OnPositionValueChanged;
+        }
 
         private void OnTap(PointerEvent e)
         {
             //TODO: skip on readonly
+            //TODO: 考虑只切换true与false，中间状态只能程序改变，目前true->null->false循环
 
             BeforeChangeValue();
 
@@ -41,7 +45,7 @@ namespace PixUI
             {
                 if (_value.Value == null)
                     _positionController.SetValue(0);
-                else if (_value.Value == true)
+                if (_value.Value == null || _value.Value == true)
                     _positionController.Forward();
                 else
                     _positionController.Reverse();
