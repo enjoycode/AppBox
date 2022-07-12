@@ -8,6 +8,7 @@ export class PaintUtils {
         PaintUtils._shared.setStyle(style);
         PaintUtils._shared.setColor(color ?? PixUI.Colors.Black);
         PaintUtils._shared.setStrokeWidth(strokeWidth);
+        PaintUtils._shared.setMaskFilter(null);
         PaintUtils._shared.setAntiAlias(false);
         //TODO: set other properties to default value
         return PaintUtils._shared;

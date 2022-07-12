@@ -20,6 +20,8 @@ namespace PixUI
 
         [TSPropertyToGetSet] public bool AntiAlias { get; set; }
 
+        [TSPropertyToGetSet] public MaskFilter? MaskFilter { get; set; }
+
         [TSRename("delete")]
         public void Dispose() { }
     }

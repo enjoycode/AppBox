@@ -90,6 +90,7 @@ export * from "./Widgets/Text/EditableText";
 export * from "./Widgets/Input/InputBase";
 export * from "./Widgets/Input/Input";
 export * from "./Widgets/Input/Select";
+export * from "./Widgets/Input/Switch";
 
 export * from "./Widgets/Overlay/Overlay";
 export * from "./Widgets/Overlay/Caret";

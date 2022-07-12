@@ -22,7 +22,7 @@ namespace PixUI
 
         public void Inflate(float dx, float dy) { }
 
-        public void Offset(float dx, float dy) { }
+        public void Shift(float dx, float dy) { }
 
         [TSMethodIgnore]
         public void Dispose() { }

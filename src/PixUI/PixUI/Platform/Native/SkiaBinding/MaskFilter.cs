@@ -1,3 +1,5 @@
+#if !__WEB__
+
 using System;
 
 namespace PixUI
@@ -22,3 +24,4 @@ namespace PixUI
             => GetObject(SkiaApi.sk_maskfilter_new_blur(blurStyle, sigma))!;
     }
 }
+#endif

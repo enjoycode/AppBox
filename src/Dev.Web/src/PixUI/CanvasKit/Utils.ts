@@ -66,3 +66,7 @@ export function MakeParagraphStyle(ps: ParagraphStyle): ParagraphStyle {
 export function MakeParagraphBuilder(ps: ParagraphStyle): ParagraphBuilder {
     return CanvasKit.ParagraphBuilder.MakeFromFontProvider(ps, FontCollection.Instance.FontProvider);
 }
+
+export function ConvertRadiusToSigma(radius: number): number {
+    return radius > 0 ? 0.57735 * radius + 0.5 : 0.0;
+}

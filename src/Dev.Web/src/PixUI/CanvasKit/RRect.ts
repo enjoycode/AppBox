@@ -73,5 +73,12 @@ export class RRect extends Float32Array {
     public Deflate(dx: number, dy: number) {
         this.Inflate(-dx, -dy);
     }
+    
+    public Shift(dx: number, dy: number) {
+        this[0] += dx;
+        this[1] += dy;
+        this[2] += dx;
+        this[3] += dy;
+    }
 
 }
