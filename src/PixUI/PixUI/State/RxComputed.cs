@@ -26,9 +26,10 @@ namespace PixUI
         }
 
         [TSRename("Make1")]
-        public static RxComputed<TR> Make<TS, TR>(State<TS> source, Func<TS, TR> getter)
+        public static RxComputed<TR> Make<TS, TR>(State<TS> source, Func<TS, TR> getter,
+            Action<TR>? setter = null)
         {
-            var computed = new RxComputed<TR>(() => getter(source.Value), null);
+            var computed = new RxComputed<TR>(() => getter(source.Value), setter);
             source.AddBinding(computed, BindingOptions.None);
             return computed;
         }
@@ -57,7 +58,7 @@ namespace PixUI
                 }
                 catch (Exception e)
                 {
-                    //Log it
+                    //TODO: Log it
                 }
             }
         }

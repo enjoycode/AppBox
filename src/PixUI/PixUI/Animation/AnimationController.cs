@@ -74,7 +74,7 @@ namespace PixUI
 
         public override double Value => _value;
 
-        private void SetValue(double newValue)
+        internal void SetValue(double newValue)
         {
             Stop();
             SetValueInternal(newValue);

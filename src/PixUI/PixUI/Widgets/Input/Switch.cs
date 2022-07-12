@@ -2,43 +2,11 @@ using System;
 
 namespace PixUI
 {
-    public sealed class Switch : Widget, IMouseRegion
+    public sealed class Switch : Toggleable
     {
-        public Switch(State<bool> value)
-        {
-            _value = Bind(value, BindingOptions.AffectsVisual);
-            _positionController = new AnimationController(100, value.Value ? 1 : 0);
-            _positionController.ValueChanged += OnPositionValueChanged;
-            _positionController.StatusChanged += OnPositionStatusChanged;
-
-            MouseRegion = new MouseRegion(() => Cursors.Hand);
-            MouseRegion.PointerTap += OnTap;
-        }
-
-        private readonly State<bool> _value;
-        private readonly AnimationController _positionController;
-        public MouseRegion MouseRegion { get; }
-
-        private void OnTap(PointerEvent e)
-        {
-            if (_value.Value)
-                _positionController.Reverse();
-            else
-                _positionController.Forward();
-        }
-
-        private void OnPositionValueChanged()
-        {
-            Invalidate(InvalidAction.Repaint);
-        }
-
-        private void OnPositionStatusChanged(AnimationStatus status)
-        {
-            if (status == AnimationStatus.Completed)
-                _value.Value = true;
-            else if (status == AnimationStatus.Dismissed)
-                _value.Value = false;
-        }
+        public Switch(State<bool> value) : base(
+            RxComputed<bool?>.Make<bool, bool?>(value, v => v, v => value.Value = v ?? false),
+            false) { }
 
         #region ====Widget Overrides====
 
@@ -46,12 +14,11 @@ namespace PixUI
         private const float _kTrackHeight = 24f;
         private const float _kTrackRadius = _kTrackHeight / 2.0f;
         private const float _kTrackInnerStart = _kTrackHeight / 2.0f;
-
         private const float _kTrackInnerEnd = _kTrackWidth - _kTrackInnerStart;
-
-        // private const float _kTrackInnerLength = _kTrackInnerEnd - _kTrackInnerStart;
         private const float _kSwitchWidth = _kTrackWidth + 6;
         private const float _kSwitchHeight = _kTrackHeight + 6;
+
+        // private const float _kTrackInnerLength = _kTrackInnerEnd - _kTrackInnerStart;
 
         private const float _kThumbExtension = 7f;
         private const float _kThumbRadius = _kTrackHeight / 2 - 2;
