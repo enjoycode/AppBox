@@ -8,9 +8,9 @@ namespace PixUI
             MouseRegion.PointerTap += OnTap;
         }
 
-        protected State<bool?> _value;
+        protected State<bool?> _value = null!;
         private bool _triState;
-        protected AnimationController _positionController;
+        protected AnimationController _positionController = null!;
         public MouseRegion MouseRegion { get; }
 
         protected void InitState(State<bool?> value, bool tristate)
@@ -27,8 +27,6 @@ namespace PixUI
             //TODO: skip on readonly
             //TODO: 考虑只切换true与false，中间状态只能程序改变，目前true->null->false循环
 
-            BeforeChangeValue();
-
             if (_value.Value == null)
                 _value.Value = false;
             else if (_value.Value == true)
@@ -36,8 +34,6 @@ namespace PixUI
             else
                 _value.Value = true;
         }
-
-        protected virtual void BeforeChangeValue() { }
 
         private void AnimateToValue()
         {

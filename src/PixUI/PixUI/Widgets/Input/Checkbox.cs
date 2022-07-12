@@ -7,14 +7,17 @@ namespace PixUI
     {
         public Checkbox(State<bool> value)
         {
+            _previousValue = value.Value;
             InitState(
                 RxComputed<bool?>.Make<bool, bool?>(value, v => v, v => value.Value = v ?? false),
                 false);
+            _positionController.StatusChanged += OnPositionStatusChanged;
         }
 
         public static Checkbox Tristate(State<bool?> value)
         {
             var checkbox = new Checkbox(false);
+            checkbox._previousValue = value.Value;
             checkbox.InitState(value, true); //replace to nullable state
             return checkbox;
         }
@@ -24,10 +27,11 @@ namespace PixUI
         private OutlinedBorder _shape =
             new RoundedRectangleBorder(null, BorderRadius.All(Radius.Circular(1.0f)));
 
-        protected override void BeforeChangeValue()
+        private void OnPositionStatusChanged(AnimationStatus status)
         {
-            _previousValue = _value.Value;
-            base.BeforeChangeValue();
+            //暂在动画完成后更新缓存的旧值
+            if (status == AnimationStatus.Completed || status == AnimationStatus.Dismissed)
+                _previousValue = _value.Value;
         }
 
         #region ====Widget Overrides====
