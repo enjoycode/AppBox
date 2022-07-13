@@ -50,6 +50,11 @@ namespace PixUI
             return ph;
         }
 
+        internal override void ClearCacheOnResized()
+        {
+            _cellParagraphs.Clear();
+        }
+
         internal override void ClearCacheOnScroll(bool isScrollDown, int rowIndex)
         {
             if (isScrollDown)
