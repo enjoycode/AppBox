@@ -111,6 +111,14 @@ namespace PixUI
         Ideographic
     }
 
+    [TSType("CanvasKit.TextAlign")]
+    public enum TextAlign
+    {
+        Left = 0,
+        Right = 1,
+        Center = 2,
+    }
+
     [TSType("CanvasKit.Affinity")]
     public enum Affinity
     {

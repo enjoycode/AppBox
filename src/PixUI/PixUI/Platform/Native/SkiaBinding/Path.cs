@@ -197,32 +197,17 @@ namespace PixUI
         public bool Contains(float x, float y) =>
             SkiaApi.sk_path_contains(Handle, x, y);
 
-        public void Offset(Point offset) =>
-            Offset(offset.X, offset.Y);
-
         public void Offset(float dx, float dy) =>
             Transform(Matrix3.CreateTranslation(dx, dy));
-
-        public void MoveTo(Point point) =>
-            SkiaApi.sk_path_move_to(Handle, point.X, point.Y);
 
         public void MoveTo(float x, float y) =>
             SkiaApi.sk_path_move_to(Handle, x, y);
 
-        public void RMoveTo(Point point) =>
-            SkiaApi.sk_path_rmove_to(Handle, point.X, point.Y);
-
         public void RMoveTo(float dx, float dy) =>
             SkiaApi.sk_path_rmove_to(Handle, dx, dy);
 
-        public void LineTo(Point point) =>
-            SkiaApi.sk_path_line_to(Handle, point.X, point.Y);
-
         public void LineTo(float x, float y) =>
             SkiaApi.sk_path_line_to(Handle, x, y);
-
-        public void RLineTo(Point point) =>
-            SkiaApi.sk_path_rline_to(Handle, point.X, point.Y);
 
         public void RLineTo(float dx, float dy) =>
             SkiaApi.sk_path_rline_to(Handle, dx, dy);

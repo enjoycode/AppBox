@@ -102,12 +102,37 @@ namespace PixUI
         internal static Paragraph BuildCellParagraph(Rect rect, CellStyle style,
             string text, int maxLines)
         {
-            return TextPainter.BuildParagraph(text,
-                rect.Width - CellStyle.CellPadding * 2,
-                style.FontSize,
-                style.Color ?? Colors.Black,
-                new FontStyle(style.FontWeight, FontSlant.Upright),
-                maxLines, true);
+            using var ts = new TextStyle
+            {
+                Color = style.Color ?? Colors.Black, FontSize = style.FontSize,
+                FontStyle = new FontStyle(style.FontWeight, FontSlant.Upright),
+                Height = 1,
+            };
+
+            TextAlign textAlign;
+            switch (style.HorizontalAlignment)
+            {
+                case HorizontalAlignment.Left:
+                    textAlign = TextAlign.Left;
+                    break;
+                case HorizontalAlignment.Center:
+                    textAlign = TextAlign.Center;
+                    break;
+                default:
+                    textAlign = TextAlign.Right;
+                    break;
+            }
+
+            using var ps = new ParagraphStyle
+                { MaxLines = (uint)maxLines, TextStyle = ts, Height = 1, TextAlign = textAlign };
+            using var pb = new ParagraphBuilder(ps);
+
+            pb.PushStyle(ts);
+            pb.AddText(text);
+            pb.Pop();
+            var ph = pb.Build();
+            ph.Layout(rect.Width - CellStyle.CellPadding * 2);
+            return ph;
         }
 
         /// <summary>

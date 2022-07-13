@@ -727,20 +727,7 @@ namespace PixUI
         // USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS = 1 << 0
         UseDeviceIndependentFonts = 1,
     }
-
-    // sk_text_align_t
-    public enum TextAlign
-    {
-        // LEFT_SK_TEXT_ALIGN = 0
-        Left = 0,
-
-        // CENTER_SK_TEXT_ALIGN = 1
-        Center = 1,
-
-        // RIGHT_SK_TEXT_ALIGN = 2
-        Right = 2,
-    }
-
+    
     // sk_text_encoding_t
     public enum SKTextEncoding
     {

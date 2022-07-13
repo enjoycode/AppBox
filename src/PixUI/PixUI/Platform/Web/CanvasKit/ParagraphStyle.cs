@@ -11,6 +11,8 @@ namespace PixUI
         [TSRename("maxLines")] public uint MaxLines;
 
         [TSRename("textStyle")] public TextStyle TextStyle;
+        
+        [TSRename("textAlign")] public TextAlign TextAlign;
 
         [TSRename("heightMultiplier")] public float Height;
 
