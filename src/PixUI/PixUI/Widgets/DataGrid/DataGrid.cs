@@ -44,9 +44,30 @@ namespace PixUI
             var maxOffsetX = Math.Max(0, _controller.TotalColumnsWidth - W);
             var maxOffsetY = Math.Max(0, totalRowsHeight - (H - totalHeaderHeight));
 
+            var oldVisibleRowStart = _controller.VisibleStartRowIndex;
+            var visibleRows = _controller.VisibleRows;
+
             var offset = _controller.ScrollController.OnScroll(dx, dy, maxOffsetX, maxOffsetY);
             if (!offset.IsEmpty)
+            {
+                //根据向上或向下滚动计算需要清除缓存的边界, TODO:考虑多一部分范围，现暂超出范围即清除
+                if (dy > 0)
+                {
+                    var newVisibleRowStart = _controller.VisibleStartRowIndex;
+                    if (newVisibleRowStart != oldVisibleRowStart)
+                        _controller.ClearCacheOnScroll(true, newVisibleRowStart);
+                }
+                else
+                {
+                    var oldVisibleRowEnd = oldVisibleRowStart + visibleRows;
+                    var newVisibleRowEnd = _controller.VisibleStartRowIndex + visibleRows;
+                    if (oldVisibleRowEnd != newVisibleRowEnd)
+                        _controller.ClearCacheOnScroll(false, newVisibleRowEnd);
+                }
+
                 Invalidate(InvalidAction.Repaint);
+            }
+
             return offset;
         }
 
@@ -84,7 +105,6 @@ namespace PixUI
                 canvas.Restore();
                 return;
             }
-
 
             if (_controller.ScrollController.OffsetY > 0)
             {

@@ -64,13 +64,18 @@ namespace PixUI
                 _cachedWidth = newWidth;
             }
 
-            if (widthChanged) OnResized();
+            if (widthChanged) ClearCacheOnResized();
         }
 
         /// <summary>
-        /// 改变列宽后由子类清除相关缓存
+        /// 改变列宽后清除相关缓存
         /// </summary>
-        internal virtual void OnResized() { }
+        internal virtual void ClearCacheOnResized() { }
+
+        /// <summary>
+        /// 滚动后清除相关缓存
+        /// </summary>
+        internal virtual void ClearCacheOnScroll(bool isScrollDown, int rowIndex) { }
 
         /// <summary>
         ///  画标题，允许子类特殊绘制(如CheckBoxColumn)

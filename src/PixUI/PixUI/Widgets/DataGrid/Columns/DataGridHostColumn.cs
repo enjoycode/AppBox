@@ -14,7 +14,7 @@ namespace PixUI
         }
 
         private readonly Func<T, int, Widget> _cellBuilder;
-        private readonly List<CellCachedWidget> _cellWidgets = new List<CellCachedWidget>();
+        private readonly List<CellCache<Widget>> _cellWidgets = new List<CellCache<Widget>>();
 
         internal override void PaintCell(Canvas canvas, DataGridController<T> controller,
             int rowIndex, Rect cellRect)
@@ -32,10 +32,10 @@ namespace PixUI
         private Widget GetCellWidget(int rowIndex, DataGridController<T> controller,
             in Rect cellRect)
         {
-            var pattern = new CellCachedWidget(rowIndex, null);
-            var index = _cellWidgets.BinarySearch(pattern, CellCachedWidgetComparer.Default);
+            var pattern = new CellCache<Widget>(rowIndex, null);
+            var index = _cellWidgets.BinarySearch(pattern, CellCacheComparer<Widget>.Default);
             if (index >= 0)
-                return _cellWidgets[index].Widget!;
+                return _cellWidgets[index].CachedItem!;
 
             index = ~index;
             //没找到开始新建
@@ -43,29 +43,17 @@ namespace PixUI
             var cellWidget = _cellBuilder(row, rowIndex);
             cellWidget.Parent = controller.DataGrid;
             cellWidget.Layout(cellRect.Width, cellRect.Height);
-            var cellCachedWidget = new CellCachedWidget(rowIndex, cellWidget);
+            var cellCachedWidget = new CellCache<Widget>(rowIndex, cellWidget);
             _cellWidgets.Insert(index, cellCachedWidget);
             return cellWidget;
         }
-    }
 
-    internal readonly struct CellCachedWidget
-    {
-        internal readonly int RowIndex;
-        internal readonly Widget? Widget;
-
-        internal CellCachedWidget(int rowIndex, Widget? widget)
+        internal override void ClearCacheOnScroll(bool isScrollDown, int rowIndex)
         {
-            RowIndex = rowIndex;
-            Widget = widget;
+            if (isScrollDown)
+                _cellWidgets.RemoveAll(t => t.RowIndex < rowIndex);
+            else
+                _cellWidgets.RemoveAll(t => t.RowIndex >= rowIndex);
         }
-    }
-
-    internal sealed class CellCachedWidgetComparer : IComparer<CellCachedWidget>
-    {
-        internal static readonly CellCachedWidgetComparer Default = new();
-
-        public int Compare(CellCachedWidget x, CellCachedWidget y)
-            => x.RowIndex.CompareTo(y.RowIndex);
     }
 }

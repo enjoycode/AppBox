@@ -61,8 +61,17 @@ namespace PixUI
 
         internal float ScrollDeltaY => ScrollController.OffsetY % Theme.RowHeight;
 
+        /// <summary>
+        /// 第一行可见行索引号
+        /// </summary>
         internal int VisibleStartRowIndex =>
             (int)Math.Truncate(ScrollController.OffsetY / Theme.RowHeight);
+
+        /// <summary>
+        /// 可见行总数
+        /// </summary>
+        internal int VisibleRows =>
+            (int)Math.Ceiling(Math.Max(0, DataGrid.H - TotalHeaderHeight) / Theme.RowHeight);
 
         #endregion
 
@@ -127,6 +136,16 @@ namespace PixUI
 
         public void Invalidate() => _owner?.Invalidate(InvalidAction.Repaint);
 
+        internal void ClearCacheOnScroll(bool isScrollDown, int rowIndex)
+        {
+            //Console.WriteLine($"---------->ClearCache: down={isScrollDown} row={rowIndex}");
+            //TODO:暂所有列，考虑仅可见列
+            foreach (var column in _cachedLeafColumns)
+            {
+                column.ClearCacheOnScroll(isScrollDown, rowIndex);
+            }
+        }
+
         internal void OnPointerMove(PointerEvent e)
         {
             if (e.Buttons == PointerButtons.None)
@@ -156,7 +175,7 @@ namespace PixUI
                         var delta = e.DeltaX;
                         var newWidth = col.Width.Value + delta;
                         col.Width.ChangeValue(newWidth);
-                        col.OnResized(); //固定列暂需要
+                        col.ClearCacheOnResized(); //固定列暂需要
                         if (delta < 0 && ScrollController.OffsetX > 0)
                         {
                             //减小需要重设滚动位置
