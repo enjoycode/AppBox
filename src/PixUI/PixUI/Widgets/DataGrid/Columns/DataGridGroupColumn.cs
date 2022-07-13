@@ -10,7 +10,7 @@ namespace PixUI
             Children = children;
         }
 
-        public readonly IList<DataGridColumn<T>> Children;
+        public readonly DataGridColumn<T>[] Children;
 
         internal override float LayoutWidth => Children.Sum(c => c.LayoutWidth);
     }

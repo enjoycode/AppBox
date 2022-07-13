@@ -1,4 +1,3 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class DataGridGroupColumn<T> extends PixUI.DataGridColumn<T> {
@@ -7,7 +6,7 @@ export class DataGridGroupColumn<T> extends PixUI.DataGridColumn<T> {
         this.Children = children;
     }
 
-    public readonly Children: System.IList<PixUI.DataGridColumn<T>>;
+    public readonly Children: PixUI.DataGridColumn<T>[];
 
     public get LayoutWidth(): number {
         return this.Children.Sum(c => c.LayoutWidth);

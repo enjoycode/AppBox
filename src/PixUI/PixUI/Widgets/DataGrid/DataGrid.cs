@@ -179,7 +179,7 @@ namespace PixUI
             {
                 //因为布局时没有计算parent的位置
                 var parent = column.Parent!;
-                var index = parent.Children.IndexOf(column);
+                var index = Array.IndexOf(parent.Children, column);
                 var offsetLeft = 0.0f;
                 for (var i = 0; i < index; i++)
                 {

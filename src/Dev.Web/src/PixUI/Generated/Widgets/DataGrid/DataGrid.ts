@@ -166,7 +166,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         if (column.Parent != null && !paintedGroupColumns.Contains(column.Parent)) {
             //因为布局时没有计算parent的位置
             let parent = column.Parent!;
-            let index = parent.Children.IndexOf(column);
+            let index = parent.Children.indexOf(column);
             let offsetLeft = 0.0;
             for (let i = 0; i < index; i++) {
                 offsetLeft += parent.Children[i].LayoutWidth;

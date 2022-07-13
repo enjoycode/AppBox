@@ -109,17 +109,14 @@ namespace PixUI
                 Height = 1,
             };
 
-            TextAlign textAlign;
+            var textAlign = TextAlign.Left; //default value for web
             switch (style.HorizontalAlignment)
             {
-                case HorizontalAlignment.Left:
-                    textAlign = TextAlign.Left;
+                case HorizontalAlignment.Right:
+                    textAlign = TextAlign.Right;
                     break;
                 case HorizontalAlignment.Center:
                     textAlign = TextAlign.Center;
-                    break;
-                default:
-                    textAlign = TextAlign.Right;
                     break;
             }
 

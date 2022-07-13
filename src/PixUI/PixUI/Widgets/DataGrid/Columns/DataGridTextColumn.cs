@@ -15,6 +15,9 @@ namespace PixUI
         private readonly List<CellCache<Paragraph>> _cellParagraphs =
             new List<CellCache<Paragraph>>();
 
+        private static readonly CellCacheComparer<Paragraph> _cellCacheComparer
+            = new CellCacheComparer<Paragraph>();
+
         internal override void PaintCell(Canvas canvas, DataGridController<T> controller,
             int rowIndex, Rect cellRect)
         {
@@ -37,7 +40,7 @@ namespace PixUI
             in Rect cellRect, string cellValue, CellStyle style)
         {
             var pattern = new CellCache<Paragraph>(rowIndex, null);
-            var index = _cellParagraphs.BinarySearch(pattern, CellCacheComparer<Paragraph>.Default);
+            var index = _cellParagraphs.BinarySearch(pattern, _cellCacheComparer);
             if (index >= 0)
                 return _cellParagraphs[index].CachedItem!;
 

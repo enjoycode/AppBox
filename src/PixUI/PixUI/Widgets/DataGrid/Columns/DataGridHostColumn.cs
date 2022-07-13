@@ -16,6 +16,9 @@ namespace PixUI
         private readonly Func<T, int, Widget> _cellBuilder;
         private readonly List<CellCache<Widget>> _cellWidgets = new List<CellCache<Widget>>();
 
+        private static readonly CellCacheComparer<Widget> _cellCacheComparer =
+            new CellCacheComparer<Widget>();
+
         internal override void PaintCell(Canvas canvas, DataGridController<T> controller,
             int rowIndex, Rect cellRect)
         {
@@ -33,7 +36,7 @@ namespace PixUI
             in Rect cellRect)
         {
             var pattern = new CellCache<Widget>(rowIndex, null);
-            var index = _cellWidgets.BinarySearch(pattern, CellCacheComparer<Widget>.Default);
+            var index = _cellWidgets.BinarySearch(pattern, _cellCacheComparer);
             if (index >= 0)
                 return _cellWidgets[index].CachedItem!;
 

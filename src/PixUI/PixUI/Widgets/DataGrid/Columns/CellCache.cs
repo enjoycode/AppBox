@@ -16,8 +16,6 @@ namespace PixUI
 
     internal sealed class CellCacheComparer<T> : IComparer<CellCache<T>>
     {
-        internal static readonly CellCacheComparer<T> Default = new();
-
         public int Compare(CellCache<T> x, CellCache<T> y)
             => x.RowIndex.CompareTo(y.RowIndex);
     }

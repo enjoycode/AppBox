@@ -82,16 +82,13 @@ export abstract class DataGridColumn<T> {
             heightMultiplier: 1
         });
 
-        let textAlign: PixUI.TextAlign;
+        let textAlign = CanvasKit.TextAlign.Left; //default value for web
         switch (style.HorizontalAlignment) {
-            case PixUI.HorizontalAlignment.Left:
-                textAlign = CanvasKit.TextAlign.Left;
+            case PixUI.HorizontalAlignment.Right:
+                textAlign = CanvasKit.TextAlign.Right;
                 break;
             case PixUI.HorizontalAlignment.Center:
                 textAlign = CanvasKit.TextAlign.Center;
-                break;
-            default:
-                textAlign = CanvasKit.TextAlign.Right;
                 break;
         }
 
