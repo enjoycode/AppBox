@@ -23,7 +23,7 @@ namespace PixUI.CS2TS
             }
         }
 
-        private void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node,
+        private static void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node,
             ISymbol symbol)
         {
             var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
@@ -33,6 +33,8 @@ namespace PixUI.CS2TS
 
             if (methodName == "Truncate")
                 emitter.Write("trunc");
+            else if (methodName == "Ceiling")
+                emitter.Write("ceil");
             else
                 emitter.Write(methodName.ToLower());
 
