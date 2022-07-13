@@ -18,12 +18,16 @@ namespace PixUI.Test.Mac
                 {
                     Columns = new List<DataGridColumn<Person>>()
                     {
-                        new DataGridTextColumn<Person>(label: "Name", cellValueGetter: p => p.Name),
-                        new DataGridIconColumn<Person>(label: "Gender",
-                            cellValueGetter: p =>
-                                p.Female ? Icons.Outlined.Woman : Icons.Outlined.Man,
-                            width: ColumnWidth.Fixed(35)),
-                        new DataGridTextColumn<Person>(label: "Score",
+                        new DataGridTextColumn<Person>("Name", cellValueGetter: p => p.Name),
+                        new DataGridGroupColumn<Person>("Gender", new List<DataGridColumn<Person>>
+                            {
+                                new DataGridIconColumn<Person>("Icon",
+                                    cellValueGetter: p =>
+                                        p.Female ? Icons.Outlined.Woman : Icons.Outlined.Man,
+                                    width: ColumnWidth.Fixed(60)),
+                                new DataGridCheckboxColumn<Person>("IsMan", p => !p.Female),
+                            }),
+                        new DataGridTextColumn<Person>("Score",
                             cellValueGetter: p => p.Score.ToString()),
                     }
                 }

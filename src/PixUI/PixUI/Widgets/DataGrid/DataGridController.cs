@@ -15,6 +15,8 @@ namespace PixUI
 
         public DataGridTheme Theme => _owner!.Theme;
 
+        internal DataGrid<T> DataGrid => _owner;
+
         public IList<DataGridColumn<T>> Columns
         {
             get => _columns;
