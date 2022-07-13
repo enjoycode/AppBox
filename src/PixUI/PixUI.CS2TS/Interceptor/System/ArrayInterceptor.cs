@@ -44,6 +44,13 @@ namespace PixUI.CS2TS
                 {
                     emitter.Write("[]");
                 }
+                else if (memberAccess.Name.Identifier.Text == "IndexOf")
+                {
+                    emitter.Visit(node.ArgumentList.Arguments[0]);
+                    emitter.Write(".indexOf(");
+                    emitter.Visit(node.ArgumentList.Arguments[1]);
+                    emitter.Write(')');
+                }
                 else
                 {
                     throw new NotImplementedException();
