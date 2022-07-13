@@ -61,7 +61,7 @@ export class AnimationController extends PixUI.Animation<number> {
         return this._value;
     }
 
-    private SetValue(newValue: number) {
+    public SetValue(newValue: number) {
         this.Stop();
         this.SetValueInternal(newValue);
         this.NotifyValueChanged();

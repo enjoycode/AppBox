@@ -1,5 +1,5 @@
-import * as AppBoxClient from '@/AppBoxClient'
 import * as System from '@/System'
+import * as AppBoxClient from '@/AppBoxClient'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -24,11 +24,7 @@ export class PublishDialog extends PixUI.Dialog<boolean> {
                             {
                                 Child: new PixUI.DataGrid<AppBoxDesign.ChangedModel>(this._dataGridController).Init(
                                     {
-                                        Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.ChangedModel>>().Init(
-                                            [
-                                                new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelType", v => v.ModelType),
-                                                new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelId", v => v.ModelId),
-                                            ])
+                                        Columns: [new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelType", v => v.ModelType), new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelId", v => v.ModelId)]
                                     })
                             }), new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
                             {

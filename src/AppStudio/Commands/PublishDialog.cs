@@ -31,7 +31,7 @@ namespace AppBoxDesign
                         {
                             Child = new DataGrid<ChangedModel>(_dataGridController)
                             {
-                                Columns = new List<DataGridColumn<ChangedModel>>()
+                                Columns = new DataGridColumn<ChangedModel>[]
                                 {
                                     new DataGridTextColumn<ChangedModel>("ModelType",
                                         v => v.ModelType),

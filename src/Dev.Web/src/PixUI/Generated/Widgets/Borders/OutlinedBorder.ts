@@ -13,4 +13,6 @@ export abstract class OutlinedBorder extends PixUI.ShapeBorder {
         super();
         this.Side = side ?? PixUI.BorderSide.Empty;
     }
+
+    public abstract CopyWith(side: Nullable<PixUI.BorderSide>): OutlinedBorder ;
 }

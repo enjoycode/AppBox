@@ -3,6 +3,7 @@ export type {
     Paint,
     PaintStyle,
     TextStyle,
+    TextAlign,
     ParagraphBuilder,
     ParagraphStyle,
     Paragraph,

@@ -63,11 +63,12 @@ namespace PixUI
             {
                 var t = _value.Value == false ? 1.0f - tNormalized : tNormalized;
                 var outer = OuterRectAt(origin, (float)t);
-                var paint = PaintUtils.Shared(ColorAt(t));
+                var color = ColorAt(t);
+                var paint = PaintUtils.Shared(color);
 
                 if (t <= 0.5)
                 {
-                    var border = /*_side ?? */ new BorderSide(paint.Color, 2);
+                    var border = /*_side ?? */ new BorderSide(color, 2);
                     DrawBox(canvas, outer, paint, border, false); //only draw border
                 }
                 else

@@ -20,16 +20,15 @@ namespace AppBoxDesign
                     {
                         Child = new DataGrid<EntityMemberVO>(membersController)
                         {
-                            Columns = new List<DataGridColumn<EntityMemberVO>>()
+                            Columns = new DataGridColumn<EntityMemberVO>[]
                             {
-                                new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name,
-                                    ColumnWidth.Fixed(150)),
-                                new DataGridTextColumn<EntityMemberVO>("Type",
-                                    MemberTypeToString,
-                                    ColumnWidth.Fixed(200)),
+                                new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name)
+                                    { Width = ColumnWidth.Fixed(150) },
+                                new DataGridTextColumn<EntityMemberVO>("Type", MemberTypeToString)
+                                    { Width = ColumnWidth.Fixed(200) },
                                 new DataGridTextColumn<EntityMemberVO>("AllowNull",
-                                    v => v.AllowNull.ToString(),
-                                    ColumnWidth.Fixed(90)),
+                                        v => v.AllowNull.ToString())
+                                    { Width = ColumnWidth.Fixed(90) },
                                 new DataGridTextColumn<EntityMemberVO>("Comment",
                                     v => v.Comment ?? string.Empty),
                             }

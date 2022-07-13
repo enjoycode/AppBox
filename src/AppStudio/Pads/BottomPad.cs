@@ -37,11 +37,11 @@ namespace AppBoxDesign
             {
                 return new DataGrid<CodeProblem>(DesignStore.ProblemsController)
                 {
-                    Columns = new List<DataGridColumn<CodeProblem>>()
+                    Columns = new DataGridColumn<CodeProblem>[]
                     {
                         //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
-                        new DataGridTextColumn<CodeProblem>("Position", p => p.Position,
-                            ColumnWidth.Fixed(180)),
+                        new DataGridTextColumn<CodeProblem>("Position", p => p.Position)
+                            { Width = ColumnWidth.Fixed(180) },
                         new DataGridTextColumn<CodeProblem>("Message", p => p.Message),
                     }
                 };

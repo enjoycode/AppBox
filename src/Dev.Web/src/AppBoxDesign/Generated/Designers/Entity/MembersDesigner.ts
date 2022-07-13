@@ -1,5 +1,4 @@
 import * as AppBoxCore from '@/AppBoxCore'
-import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
@@ -15,13 +14,10 @@ export class MembersDesigner extends PixUI.View {
                     {
                         Child: new PixUI.DataGrid<AppBoxDesign.EntityMemberVO>(membersController).Init(
                             {
-                                Columns: new System.List<PixUI.DataGridColumn<AppBoxDesign.EntityMemberVO>>().Init(
-                                    [
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name, PixUI.ColumnWidth.Fixed(150)),
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", MembersDesigner.MemberTypeToString, PixUI.ColumnWidth.Fixed(200)),
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("AllowNull", v => v.AllowNull.toString(), PixUI.ColumnWidth.Fixed(90)),
-                                        new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Comment", v => v.Comment ?? ''),
-                                    ])
+                                Columns: [new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Name", v => v.Name).Init(
+                                    {Width: PixUI.ColumnWidth.Fixed(150)}), new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Type", MembersDesigner.MemberTypeToString).Init(
+                                    {Width: PixUI.ColumnWidth.Fixed(200)}), new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("AllowNull", v => v.AllowNull.toString()).Init(
+                                    {Width: PixUI.ColumnWidth.Fixed(90)}), new PixUI.DataGridTextColumn<AppBoxDesign.EntityMemberVO>("Comment", v => v.Comment ?? '')]
                             }),
                     }), new PixUI.Container().Init(
                     {

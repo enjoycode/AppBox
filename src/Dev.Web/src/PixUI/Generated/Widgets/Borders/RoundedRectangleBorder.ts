@@ -28,6 +28,10 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
         throw new System.NotImplementedException();
     }
 
+    public CopyWith(side: Nullable<PixUI.BorderSide>): PixUI.OutlinedBorder {
+        return new RoundedRectangleBorder(side ?? this.Side, this.BorderRadius);
+    }
+
     public Clone(): PixUI.ShapeBorder {
         throw new System.NotImplementedException();
     }

@@ -2,12 +2,14 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
-    public constructor(label: string, cellValueGetter: System.Func2<T, string>, width: Nullable<PixUI.ColumnWidth> = null, headerCellStyle: Nullable<PixUI.CellStyle> = null, cellStyle: Nullable<PixUI.CellStyle> = null, cellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>> = null, frozen: boolean = false) {
-        super(label, width, headerCellStyle, cellStyle, cellStyleGetter, frozen);
+    public constructor(label: string, cellValueGetter: System.Func2<T, string>) {
+        super(label);
         this._cellValueGetter = cellValueGetter;
     }
 
     private readonly _cellValueGetter: System.Func2<T, string>;
+
+    private readonly _cellParagraphs: System.List<PixUI.CellCache<PixUI.Paragraph>> = new System.List<PixUI.CellCache<PixUI.Paragraph>>();
 
     public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>, rowIndex: number, cellRect: PixUI.Rect) {
         let row = controller.DataView![rowIndex];
@@ -18,10 +20,34 @@ export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
             ? this.CellStyleGetter(row, rowIndex)
             : this.CellStyle ?? controller.Theme.DefaultRowCellStyle;
 
-        //TODO: cache cell paragraph
-        let ph = PixUI.DataGridColumn.BuildCellParagraph((cellRect).Clone(), style, cellValue, 1);
+        let ph = this.GetCellParagraph(rowIndex, controller, cellRect, cellValue, style);
         PixUI.DataGridColumn.PaintCellParagraph(canvas, (cellRect).Clone(), style, ph);
-        ph.delete();
+    }
+
+    private GetCellParagraph(rowIndex: number, controller: PixUI.DataGridController<T>, cellRect: PixUI.Rect, cellValue: string, style: PixUI.CellStyle): PixUI.Paragraph {
+        let pattern = new PixUI.CellCache<PixUI.Paragraph>(rowIndex, null);
+        let index = this._cellParagraphs.BinarySearch(pattern, PixUI.CellCacheComparer.Default);
+        if (index >= 0)
+            return this._cellParagraphs[index].CachedItem!;
+
+        index = ~index;
+        //没找到开始新建
+        let row = controller.DataView![rowIndex];
+        let ph = PixUI.DataGridColumn.BuildCellParagraph((cellRect).Clone(), style, cellValue, 1);
+        let cellCachedWidget = new PixUI.CellCache<PixUI.Paragraph>(rowIndex, ph);
+        this._cellParagraphs.Insert(index, cellCachedWidget);
+        return ph;
+    }
+
+    public ClearCacheOnResized() {
+        this._cellParagraphs.Clear();
+    }
+
+    public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
+        if (isScrollDown)
+            this._cellParagraphs.RemoveAll(t => t.RowIndex < rowIndex);
+        else
+            this._cellParagraphs.RemoveAll(t => t.RowIndex >= rowIndex);
     }
 
     public Init(props: Partial<DataGridTextColumn<T>>): DataGridTextColumn<T> {

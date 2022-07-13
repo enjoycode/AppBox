@@ -90,7 +90,9 @@ export * from "./Widgets/Text/EditableText";
 export * from "./Widgets/Input/InputBase";
 export * from "./Widgets/Input/Input";
 export * from "./Widgets/Input/Select";
+export * from "./Widgets/Input/Toggleable";
 export * from "./Widgets/Input/Switch";
+export * from "./Widgets/Input/Checkbox";
 
 export * from "./Widgets/Overlay/Overlay";
 export * from "./Widgets/Overlay/Caret";
@@ -140,6 +142,7 @@ export * from "./Widgets/TreeView/TreeNodeRow";
 export * from "./Widgets/TreeView/TreeController";
 export * from "./Widgets/TreeView/TreeView";
 
+export * from "./Widgets/DataGrid/Columns/CellCache";
 export * from "./Widgets/DataGrid/CellStyle";
 export * from "./Widgets/DataGrid/DataGrid";
 export * from "./Widgets/DataGrid/DataGridController";
@@ -150,6 +153,8 @@ export * from "./Widgets/DataGrid/Columns/DataGridColumn";
 export * from "./Widgets/DataGrid/Columns/DataGridGroupColumn";
 export * from "./Widgets/DataGrid/Columns/DataGridIconColumn";
 export * from "./Widgets/DataGrid/Columns/DataGridTextColumn";
+export * from "./Widgets/DataGrid/Columns/DataGridHostColumn";
+export * from "./Widgets/DataGrid/Columns/DataGridCheckboxColumn";
 
 export * from "./Platform/Cursor";
 export * from "./Platform/Clipboard";

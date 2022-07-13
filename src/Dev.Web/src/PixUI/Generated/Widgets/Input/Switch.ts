@@ -1,46 +1,10 @@
 import * as PixUI from '@/PixUI'
 
-export class Switch extends PixUI.Widget implements PixUI.IMouseRegion {
-    private static readonly $meta_PixUI_IMouseRegion = true;
-
+export class Switch extends PixUI.Toggleable {
     public constructor(value: PixUI.State<boolean>) {
         super();
-        this._value = this.Bind(value, PixUI.BindingOptions.AffectsVisual);
-        this._positionController = new PixUI.AnimationController(100, value.Value ? 1 : 0);
-        this._positionController.ValueChanged.Add(this.OnPositionValueChanged, this);
-        this._positionController.StatusChanged.Add(this.OnPositionStatusChanged, this);
-
-        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
-        this.MouseRegion.PointerTap.Add(this.OnTap, this);
-    }
-
-    private readonly _value: PixUI.State<boolean>;
-    private readonly _positionController: PixUI.AnimationController;
-    #MouseRegion: PixUI.MouseRegion;
-    public get MouseRegion() {
-        return this.#MouseRegion;
-    }
-
-    private set MouseRegion(value) {
-        this.#MouseRegion = value;
-    }
-
-    private OnTap(e: PixUI.PointerEvent) {
-        if (this._value.Value)
-            this._positionController.Reverse();
-        else
-            this._positionController.Forward();
-    }
-
-    private OnPositionValueChanged() {
-        this.Invalidate(PixUI.InvalidAction.Repaint);
-    }
-
-    private OnPositionStatusChanged(status: PixUI.AnimationStatus) {
-        if (status == PixUI.AnimationStatus.Completed)
-            this._value.Value = true;
-        else if (status == PixUI.AnimationStatus.Dismissed)
-            this._value.Value = false;
+        this.InitState(
+            PixUI.RxComputed.Make1(value, v => v, v => value.Value = v ?? false), false);
     }
 
 
@@ -48,12 +12,11 @@ export class Switch extends PixUI.Widget implements PixUI.IMouseRegion {
     private static readonly _kTrackHeight: number = 24;
     private static readonly _kTrackRadius: number = Switch._kTrackHeight / 2.0;
     private static readonly _kTrackInnerStart: number = Switch._kTrackHeight / 2.0;
-
     private static readonly _kTrackInnerEnd: number = Switch._kTrackWidth - Switch._kTrackInnerStart;
-
-    // private const float _kTrackInnerLength = _kTrackInnerEnd - _kTrackInnerStart;
     private static readonly _kSwitchWidth: number = Switch._kTrackWidth + 6;
     private static readonly _kSwitchHeight: number = Switch._kTrackHeight + 6;
+
+    // private const float _kTrackInnerLength = _kTrackInnerEnd - _kTrackInnerStart;
 
     private static readonly _kThumbExtension: number = 7;
     private static readonly _kThumbRadius: number = Switch._kTrackHeight / 2 - 2;

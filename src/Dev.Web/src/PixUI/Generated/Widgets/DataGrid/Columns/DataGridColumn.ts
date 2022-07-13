@@ -2,21 +2,16 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class DataGridColumn<T> {
-    protected constructor(label: string, width: Nullable<PixUI.ColumnWidth> = null, headerCellStyle: Nullable<PixUI.CellStyle> = null, cellStyle: Nullable<PixUI.CellStyle> = null, cellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>> = null, frozen: boolean = false) {
+    protected constructor(label: string) {
         this.Label = label;
-        this.Width = width ?? PixUI.ColumnWidth.Auto();
-        this.HeaderCellStyle = headerCellStyle;
-        this.CellStyle = cellStyle;
-        this.CellStyleGetter = cellStyleGetter;
-        this.Frozen = frozen;
     }
 
     public readonly Label: string;
 
-    public readonly Width: PixUI.ColumnWidth;
-    public readonly HeaderCellStyle: Nullable<PixUI.CellStyle>;
-    public readonly CellStyle: Nullable<PixUI.CellStyle>;
-    public readonly CellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>>;
+    public Width: PixUI.ColumnWidth = PixUI.ColumnWidth.Auto();
+    public HeaderCellStyle: Nullable<PixUI.CellStyle>;
+    public CellStyle: Nullable<PixUI.CellStyle>;
+    public CellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>>;
 
     public Frozen: boolean = false;
 
@@ -52,10 +47,13 @@ export abstract class DataGridColumn<T> {
             this._cachedWidth = newWidth;
         }
 
-        if (widthChanged) this.OnResized();
+        if (widthChanged) this.ClearCacheOnResized();
     }
 
-    public OnResized() {
+    public ClearCacheOnResized() {
+    }
+
+    public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
     }
 
     public PaintHeader(canvas: PixUI.Canvas, cellRect: PixUI.Rect, theme: PixUI.DataGridTheme) {
@@ -77,7 +75,41 @@ export abstract class DataGridColumn<T> {
     }
 
     public static BuildCellParagraph(rect: PixUI.Rect, style: PixUI.CellStyle, text: string, maxLines: number): PixUI.Paragraph {
-        return PixUI.TextPainter.BuildParagraph(text, rect.Width - PixUI.CellStyle.CellPadding * 2, style.FontSize, style.Color ?? PixUI.Colors.Black, new PixUI.FontStyle(style.FontWeight, CanvasKit.FontSlant.Upright), maxLines, true);
+        let ts = PixUI.MakeTextStyle({
+            color: style.Color ?? PixUI.Colors.Black,
+            fontSize: style.FontSize,
+            fontStyle: new PixUI.FontStyle(style.FontWeight, CanvasKit.FontSlant.Upright),
+            heightMultiplier: 1
+        });
+
+        let textAlign: PixUI.TextAlign;
+        switch (style.HorizontalAlignment) {
+            case PixUI.HorizontalAlignment.Left:
+                textAlign = CanvasKit.TextAlign.Left;
+                break;
+            case PixUI.HorizontalAlignment.Center:
+                textAlign = CanvasKit.TextAlign.Center;
+                break;
+            default:
+                textAlign = CanvasKit.TextAlign.Right;
+                break;
+        }
+
+        let ps = PixUI.MakeParagraphStyle({
+            maxLines: (Math.floor(maxLines) & 0xFFFFFFFF),
+            textStyle: ts,
+            heightMultiplier: 1,
+            textAlign: textAlign
+        });
+        let pb = PixUI.MakeParagraphBuilder(ps);
+
+        pb.pushStyle(ts);
+        pb.addText(text);
+        pb.pop();
+        let ph = pb.build();
+        ph.layout(rect.Width - PixUI.CellStyle.CellPadding * 2);
+        pb.delete();
+        return ph;
     }
 
     public static PaintCellParagraph(canvas: PixUI.Canvas, rect: PixUI.Rect, style: PixUI.CellStyle, paragraph: PixUI.Paragraph) {

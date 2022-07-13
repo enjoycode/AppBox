@@ -18,8 +18,8 @@ export class RxComputed<T> extends PixUI.State<T> implements PixUI.IStateBindabl
         return computed;
     }
 
-    public static Make1<TS, TR>(source: PixUI.State<TS>, getter: System.Func2<TS, TR>): RxComputed<TR> {
-        let computed = new RxComputed<TR>(() => getter(source.Value), null);
+    public static Make1<TS, TR>(source: PixUI.State<TS>, getter: System.Func2<TS, TR>, setter: Nullable<System.Action1<TR>> = null): RxComputed<TR> {
+        let computed = new RxComputed<TR>(() => getter(source.Value), setter);
         source.AddBinding(computed, PixUI.BindingOptions.None);
         return computed;
     }
@@ -43,7 +43,7 @@ export class RxComputed<T> extends PixUI.State<T> implements PixUI.IStateBindabl
         try {
             this._setter?.call(this, value);
         } catch (e: any) {
-            //Log it
+            //TODO: Log it
         }
     }
 

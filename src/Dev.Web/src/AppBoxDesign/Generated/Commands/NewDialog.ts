@@ -26,7 +26,13 @@ export class NewDialog extends PixUI.Dialog<string> {
                     {
                         Children: [new PixUI.Input(this._name).Init({HintText: "Please input name"}), new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
                             {
-                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({Width: PixUI.State.op_Implicit_From(65), OnTap: _ => this.Close(true)}), new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({Width: PixUI.State.op_Implicit_From(65),OnTap: _ => this.Close(false)})]
+                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({
+                                    Width: PixUI.State.op_Implicit_From(65),
+                                    OnTap: _ => this.Close(true)
+                                }), new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({
+                                    Width: PixUI.State.op_Implicit_From(65),
+                                    OnTap: _ => this.Close(false)
+                                })]
                             })
                         ]
                     })

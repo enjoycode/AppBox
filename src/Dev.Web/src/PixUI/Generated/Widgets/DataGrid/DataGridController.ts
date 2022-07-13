@@ -4,7 +4,7 @@ import * as PixUI from '@/PixUI'
 export class DataGridController<T> {
     public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
 
-    private _columns: System.IList<PixUI.DataGridColumn<T>>;
+    private _columns: PixUI.DataGridColumn<T>[];
     private _owner: Nullable<PixUI.DataGrid<T>>;
 
     public Attach(dataGrid: PixUI.DataGrid<T>) {
@@ -15,11 +15,15 @@ export class DataGridController<T> {
         return this._owner!.Theme;
     }
 
-    public get Columns(): System.IList<PixUI.DataGridColumn<T>> {
+    public get DataGrid(): PixUI.DataGrid<T> {
+        return this._owner;
+    }
+
+    public get Columns(): PixUI.DataGridColumn<T>[] {
         return this._columns;
     }
 
-    public set Columns(value: System.IList<PixUI.DataGridColumn<T>>) {
+    public set Columns(value: PixUI.DataGridColumn<T>[]) {
         this._columns = value;
 
         //展开非分组列
@@ -83,6 +87,10 @@ export class DataGridController<T> {
         return (Math.floor(Math.trunc(this.ScrollController.OffsetY / this.Theme.RowHeight)) & 0xFFFFFFFF);
     }
 
+    public get VisibleRows(): number {
+        return (Math.floor(Math.ceil(Math.max(0, this.DataGrid.H - this.TotalHeaderHeight) / this.Theme.RowHeight)) & 0xFFFFFFFF);
+    }
+
 
     private _dataSource: Nullable<System.IList<T>>;
 
@@ -126,6 +134,14 @@ export class DataGridController<T> {
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
+    public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
+        //Console.WriteLine($"---------->ClearCache: down={isScrollDown} row={rowIndex}");
+        //TODO:暂所有列，考虑仅可见列
+        for (const column of this._cachedLeafColumns) {
+            column.ClearCacheOnScroll(isScrollDown, rowIndex);
+        }
+    }
+
     public OnPointerMove(e: PixUI.PointerEvent) {
         if (e.Buttons == PixUI.PointerButtons.None) {
             if (e.Y <= this.TotalHeaderHeight) {
@@ -146,7 +162,7 @@ export class DataGridController<T> {
                     let delta = e.DeltaX;
                     let newWidth = col.Width.Value + delta;
                     col.Width.ChangeValue(newWidth);
-                    col.OnResized(); //固定列暂需要
+                    col.ClearCacheOnResized(); //固定列暂需要
                     if (delta < 0 && this.ScrollController.OffsetX > 0) {
                         //减小需要重设滚动位置
                         this.ScrollController.OffsetX =

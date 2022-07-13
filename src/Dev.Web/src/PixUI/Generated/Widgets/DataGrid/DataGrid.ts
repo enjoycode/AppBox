@@ -20,11 +20,11 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
     private readonly _controller: PixUI.DataGridController<T>;
     public readonly Theme: PixUI.DataGridTheme;
 
-    public get Columns(): System.IList<PixUI.DataGridColumn<T>> {
+    public get Columns(): PixUI.DataGridColumn<T>[] {
         return this._controller.Columns;
     }
 
-    public set Columns(value: System.IList<PixUI.DataGridColumn<T>>) {
+    public set Columns(value: PixUI.DataGridColumn<T>[]) {
         this._controller.Columns = value;
     }
 
@@ -55,9 +55,26 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         let maxOffsetX = Math.max(0, this._controller.TotalColumnsWidth - this.W);
         let maxOffsetY = Math.max(0, totalRowsHeight - (this.H - totalHeaderHeight));
 
+        let oldVisibleRowStart = this._controller.VisibleStartRowIndex;
+        let visibleRows = this._controller.VisibleRows;
+
         let offset = this._controller.ScrollController.OnScroll(dx, dy, maxOffsetX, maxOffsetY);
-        if (!offset.IsEmpty)
+        if (!offset.IsEmpty) {
+            //根据向上或向下滚动计算需要清除缓存的边界, TODO:考虑多一部分范围，现暂超出范围即清除
+            if (dy > 0) {
+                let newVisibleRowStart = this._controller.VisibleStartRowIndex;
+                if (newVisibleRowStart != oldVisibleRowStart)
+                    this._controller.ClearCacheOnScroll(true, newVisibleRowStart);
+            } else {
+                let oldVisibleRowEnd = oldVisibleRowStart + visibleRows;
+                let newVisibleRowEnd = this._controller.VisibleStartRowIndex + visibleRows;
+                if (oldVisibleRowEnd != newVisibleRowEnd)
+                    this._controller.ClearCacheOnScroll(false, newVisibleRowEnd);
+            }
+
             this.Invalidate(PixUI.InvalidAction.Repaint);
+        }
+
         return offset;
     }
 
@@ -89,7 +106,6 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
             canvas.restore();
             return;
         }
-
 
         if (this._controller.ScrollController.OffsetY > 0) {
             let clipRect = PixUI.Rect.FromLTWH(
