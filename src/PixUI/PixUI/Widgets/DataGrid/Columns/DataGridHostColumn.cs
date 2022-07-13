@@ -8,15 +8,10 @@ namespace PixUI
     /// </summary>
     public class DataGridHostColumn<T> : DataGridColumn<T>
     {
-        public DataGridHostColumn(string label, Func<T, int, Widget> cellBuilder,
-            ColumnWidth? width = null,
-            CellStyle? headerCellStyle = null, CellStyle? cellStyle = null,
-            Func<T, int, CellStyle>? cellStyleGetter = null, bool frozen = false) : base(label,
-            width, headerCellStyle, cellStyle, cellStyleGetter, frozen)
+        public DataGridHostColumn(string label, Func<T, int, Widget> cellBuilder) : base(label)
         {
             _cellBuilder = cellBuilder;
         }
-
 
         private readonly Func<T, int, Widget> _cellBuilder;
         private readonly List<CellCachedWidget> _cellWidgets = new List<CellCachedWidget>();

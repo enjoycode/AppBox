@@ -4,24 +4,18 @@ namespace PixUI
 {
     public sealed class DataGridIconColumn<T> : DataGridColumn<T>
     {
-        public DataGridIconColumn(string label, Func<T, IconData?> cellValueGetter,
-            ColumnWidth? width = null,
-            CellStyle? headerCellStyle = null, CellStyle? cellStyle = null,
-            Func<T, int, CellStyle>? cellStyleGetter = null, bool frozen = false) : base(label,
-            width, headerCellStyle, cellStyle, cellStyleGetter, frozen)
+        public DataGridIconColumn(string label, Func<T, IconData?> cellValueGetter) : base(label)
         {
-            CellValueGetter = cellValueGetter;
+            _cellValueGetter = cellValueGetter;
         }
 
-
-        public readonly Func<T, IconData?> CellValueGetter;
-
+        private readonly Func<T, IconData?> _cellValueGetter;
 
         internal override void PaintCell(Canvas canvas, DataGridController<T> controller,
             int rowIndex, Rect cellRect)
         {
             var row = controller.DataView![rowIndex];
-            var icon = CellValueGetter(row);
+            var icon = _cellValueGetter(row);
             if (icon == null) return;
 
             var style = CellStyleGetter != null

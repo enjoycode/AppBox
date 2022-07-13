@@ -4,17 +4,9 @@ namespace PixUI
 {
     public abstract class DataGridColumn<T>
     {
-        protected DataGridColumn(string label, ColumnWidth? width = null,
-            CellStyle? headerCellStyle = null, CellStyle? cellStyle = null,
-            Func<T, int, CellStyle>? cellStyleGetter = null,
-            bool frozen = false)
+        protected DataGridColumn(string label)
         {
             Label = label;
-            Width = width ?? ColumnWidth.Auto();
-            HeaderCellStyle = headerCellStyle;
-            CellStyle = cellStyle;
-            CellStyleGetter = cellStyleGetter;
-            Frozen = frozen;
         }
 
         /// <summary>
@@ -22,10 +14,10 @@ namespace PixUI
         /// </summary>
         public readonly string Label;
 
-        public readonly ColumnWidth Width;
-        public readonly CellStyle? HeaderCellStyle;
-        public readonly CellStyle? CellStyle;
-        public readonly Func<T, int, CellStyle>? CellStyleGetter;
+        public ColumnWidth Width { get; set; } = ColumnWidth.Auto();
+        public CellStyle? HeaderCellStyle { get; set; }
+        public CellStyle? CellStyle { get; set; }
+        public Func<T, int, CellStyle>? CellStyleGetter { get; set; }
 
         /// <summary>
         /// 是否冻结列

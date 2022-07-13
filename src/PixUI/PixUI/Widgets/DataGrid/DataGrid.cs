@@ -21,7 +21,7 @@ namespace PixUI
         private readonly DataGridController<T> _controller;
         internal readonly DataGridTheme Theme;
 
-        public IList<DataGridColumn<T>> Columns
+        public DataGridColumn<T>[] Columns
         {
             get => _controller.Columns;
             set => _controller.Columns = value;

@@ -5,10 +5,7 @@ namespace PixUI
 {
     public sealed class DataGridGroupColumn<T> : DataGridColumn<T>
     {
-        public DataGridGroupColumn(string label, IList<DataGridColumn<T>> children,
-            ColumnWidth? width = null,
-            CellStyle? headerCellStyle = null, bool frozen = false) :
-            base(label, width, headerCellStyle, null, null, frozen)
+        public DataGridGroupColumn(string label, DataGridColumn<T>[] children) : base(label)
         {
             Children = children;
         }

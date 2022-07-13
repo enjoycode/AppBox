@@ -8,7 +8,7 @@ namespace PixUI
     {
         internal readonly ScrollController ScrollController = new(ScrollDirection.Both);
 
-        private IList<DataGridColumn<T>> _columns = null!;
+        private DataGridColumn<T>[] _columns = null!;
         private DataGrid<T>? _owner;
 
         internal void Attach(DataGrid<T> dataGrid) => _owner = dataGrid;
@@ -17,7 +17,7 @@ namespace PixUI
 
         internal DataGrid<T> DataGrid => _owner;
 
-        public IList<DataGridColumn<T>> Columns
+        public DataGridColumn<T>[] Columns
         {
             get => _columns;
             set

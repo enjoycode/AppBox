@@ -4,11 +4,7 @@ namespace PixUI
 {
     public sealed class DataGridTextColumn<T> : DataGridColumn<T>
     {
-        public DataGridTextColumn(string label, Func<T, string> cellValueGetter,
-            ColumnWidth? width = null,
-            CellStyle? headerCellStyle = null, CellStyle? cellStyle = null,
-            Func<T, int, CellStyle>? cellStyleGetter = null, bool frozen = false) :
-            base(label, width, headerCellStyle, cellStyle, cellStyleGetter, frozen)
+        public DataGridTextColumn(string label, Func<T, string> cellValueGetter) : base(label)
         {
             _cellValueGetter = cellValueGetter;
         }
