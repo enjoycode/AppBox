@@ -162,6 +162,10 @@ namespace PixUI
             {
                 _path[i].Widget.MouseRegion.RaiseHoverChanged(false);
             }
+
+            //退出嵌套的MouseRegion的子级，需要恢复上级的Cursor
+            if (exitTo > 0)
+                _path[exitTo - 1].Widget.MouseRegion.RestoreHoverCursor();
         }
 
         /// <summary>

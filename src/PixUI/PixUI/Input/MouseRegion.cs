@@ -49,5 +49,11 @@ namespace PixUI
                 PixUI.Cursor.Current = hover ? Cursor() : Cursors.Arrow;
             HoverChanged?.Invoke(hover);
         }
+
+        internal void RestoreHoverCursor()
+        {
+            if (Cursor != null)
+                PixUI.Cursor.Current = Cursor();
+        }
     }
 }
