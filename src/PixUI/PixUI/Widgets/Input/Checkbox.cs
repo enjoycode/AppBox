@@ -36,6 +36,7 @@ namespace PixUI
 
         #region ====Widget Overrides====
 
+        private const float _kCheckboxSize = 30;
         private const float _kEdgeSize = 18;
         private const float _kStrokeWidth = 2.0f;
 
@@ -44,7 +45,7 @@ namespace PixUI
             var width = CacheAndCheckAssignWidth(availableWidth);
             var height = CacheAndCheckAssignHeight(availableHeight);
 
-            SetSize(Math.Min(width, 30), Math.Min(height, 30));
+            SetSize(Math.Min(width, _kCheckboxSize), Math.Min(height, _kCheckboxSize));
         }
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)

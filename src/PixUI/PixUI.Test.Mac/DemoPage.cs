@@ -60,7 +60,8 @@ namespace PixUI.Test
                                     {
                                         new Switch(false),
                                         new Checkbox(false),
-                                        Checkbox.Tristate(false), 
+                                        Checkbox.Tristate(false),
+                                        new Radio(false),
                                     }
                                 },
                                 new Select<string>(_selectedValue)

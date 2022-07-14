@@ -6,8 +6,9 @@ namespace PixUI
     {
         public Switch(State<bool> value)
         {
-            InitState(
-                RxComputed<bool?>.Make<bool, bool?>(value, v => v, v => value.Value = v ?? false),
+            InitState(RxComputed<bool?>.Make<bool, bool?>(value,
+                    v => v,
+                    v => value.Value = v ?? false),
                 false);
         }
 
@@ -45,7 +46,7 @@ namespace PixUI
             var visualPosition = currentValue;
 
             var activeColor = Theme.AccentColor;
-            var trackColor = new Color(0x52000000); // Black with 32% opacity
+            var trackColor = new Color(0x52000000);
             var paint = PaintUtils.Shared(Color.Lerp(trackColor, activeColor, currentValue));
             paint.AntiAlias = true;
 
