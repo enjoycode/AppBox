@@ -96,8 +96,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         {
             for (var i = 0; i < _primaryKeys.Length; i++)
             {
-                ws.WriteShort(_primaryKeys[i].MemberId);
-                ws.WriteBool(_primaryKeys[i].OrderByDesc);
+                _primaryKeys[i].WriteTo(ws);
             }
         }
 
@@ -132,9 +131,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             _primaryKeys = new FieldWithOrder[count];
             for (var i = 0; i < count; i++)
             {
-                var memberId = rs.ReadShort();
-                var orderByDesc = rs.ReadBool();
-                _primaryKeys[i] = new FieldWithOrder(memberId, orderByDesc);
+                _primaryKeys[i].ReadFrom(rs);
             }
         }
 

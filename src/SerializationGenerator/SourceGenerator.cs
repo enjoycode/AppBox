@@ -102,7 +102,9 @@ namespace SerializationGenerator
             sb.Append($"namespace {typeSymbol.ContainingNamespace.ToDisplayString()}\n");
             sb.Append("{\n"); //begin namespace
 
-            sb.Append($"\tpartial class {typeSymbol.Name}");
+            sb.Append($"\tpartial ");
+            sb.Append(typeSymbol.TypeKind == TypeKind.Class ? "class" : "struct");
+            sb.Append($" {typeSymbol.Name}");
             sb.Append(isOverrides ? '\n' : " : IBinSerializable\n");
             sb.Append("\t{\n"); //begin class
 

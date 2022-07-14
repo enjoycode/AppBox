@@ -2,6 +2,7 @@ export * from "./Model/ModelType"
 export * from "./Model/DataStoreKind"
 export * from "./Model/EntityMemberType"
 export * from "./Model/EntityFieldType"
+export * from "./Model/FieldWithOrder"
 
 export * from "./Serialization/PayloadType"
 export * from "./Serialization/IOutputStream"

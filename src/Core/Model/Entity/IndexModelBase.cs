@@ -69,15 +69,14 @@ public abstract class IndexModelBase : IBinSerializable
         ws.WriteByte(IndexId);
         ws.WriteString(Name);
         ws.WriteBool(Unique);
-        
+
         //Fields
         ws.WriteVariant(Fields.Length);
         for (var i = 0; i < Fields.Length; i++)
         {
-            ws.WriteShort(Fields[i].MemberId);
-            ws.WriteBool(Fields[i].OrderByDesc);
+            Fields[i].WriteTo(ws);
         }
-        
+
         //Storing fields
         ws.WriteVariant(StoringFields?.Length ?? 0);
         if (StoringFields != null)
@@ -87,7 +86,7 @@ public abstract class IndexModelBase : IBinSerializable
                 ws.WriteShort(StoringFields[i]);
             }
         }
-        
+
         if (Owner.IsDesignMode)
             ws.WriteByte((byte)PersistentState);
     }
@@ -97,15 +96,13 @@ public abstract class IndexModelBase : IBinSerializable
         IndexId = rs.ReadByte();
         Name = rs.ReadString()!;
         Unique = rs.ReadBool();
-        
+
         //Fields
         var count = rs.ReadVariant();
         Fields = new FieldWithOrder[count];
         for (var i = 0; i < count; i++)
         {
-            var memberId = rs.ReadShort();
-            var orderByDesc = rs.ReadBool();
-            Fields[i] = new FieldWithOrder(memberId, orderByDesc);
+            Fields[i].ReadFrom(rs);
         }
 
         //Storing fields
