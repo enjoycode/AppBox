@@ -4,7 +4,7 @@ import * as PixUI from '@/PixUI'
 /// A widget that applies a transformation before painting its child.
 /// </summary>
 export class Transform extends PixUI.SingleChildWidget {
-    private _transform: PixUI.Matrix4 = PixUI.Matrix4.Empty;
+    private _transform: PixUI.Matrix4 = PixUI.Matrix4.Empty.Clone();
     private _origin: Nullable<PixUI.Offset>;
 
     public constructor(transform: PixUI.Matrix4, origin: Nullable<PixUI.Offset> = null) {

@@ -59,7 +59,7 @@ export class HoverDecorator extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let bounds: PixUI.Rect = PixUI.Rect.Empty;
+        let bounds: PixUI.Rect = PixUI.Rect.Empty.Clone();
         if (this._owner.BoundsGetter == null) {
             let widget = this._owner.Widget;
             let pt2Win = widget.LocalToWindow(0, 0);

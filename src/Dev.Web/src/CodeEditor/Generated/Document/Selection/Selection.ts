@@ -12,7 +12,7 @@ export class Selection {
     }
 
     public readonly Document: CodeEditor.Document;
-    #StartPosition: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
+    #StartPosition: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
     public get StartPosition() {
         return this.#StartPosition;
     }
@@ -21,7 +21,7 @@ export class Selection {
         this.#StartPosition = value;
     }
 
-    #EndPosition: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
+    #EndPosition: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
     public get EndPosition() {
         return this.#EndPosition;
     }

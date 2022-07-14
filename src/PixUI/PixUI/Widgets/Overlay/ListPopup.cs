@@ -17,6 +17,11 @@ namespace PixUI
             HoverState = hoverState;
             SelectedState = selectedState;
         }
+
+#if __WEB__
+        internal static readonly ItemState Empty = new ItemState(false, false);
+        internal ItemState Clone() => new ItemState(HoverState, SelectedState);
+#endif
     }
 
     internal sealed class ListPopupItemWidget : SingleChildWidget, IMouseRegion

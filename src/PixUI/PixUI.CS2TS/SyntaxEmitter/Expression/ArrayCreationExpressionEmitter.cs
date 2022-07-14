@@ -9,7 +9,10 @@ namespace PixUI.CS2TS
     {
         internal static void Emit(Emitter emitter, ArrayCreationExpressionSyntax node)
         {
-            if (node.Type.RankSpecifiers.Count > 0) //eg: var array = new int[3];
+            //eg: var array = new int[3];
+            if (node.Type.RankSpecifiers.Count > 0 &&
+                node.Type.RankSpecifiers[0].Sizes.Count > 0 &&
+                node.Type.RankSpecifiers[0].Sizes[0] is not OmittedArraySizeExpressionSyntax)
             {
                 if (node.Type.RankSpecifiers.Count > 1)
                     throw new NotImplementedException("新建指定长度数组");

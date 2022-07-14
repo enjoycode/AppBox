@@ -4,7 +4,7 @@ import * as CodeEditor from '@/CodeEditor'
 export class UndoQueue implements CodeEditor.IUndoableOperation {
     public constructor(stack: System.Stack<CodeEditor.IUndoableOperation>, numops: number) {
         numops = Math.min(numops, stack.length);
-        this._undoList = [];
+        this._undoList = new Array<CodeEditor.IUndoableOperation>(numops);
         for (let i = 0; i < numops; ++i) {
             this._undoList[i] = stack.Pop();
         }

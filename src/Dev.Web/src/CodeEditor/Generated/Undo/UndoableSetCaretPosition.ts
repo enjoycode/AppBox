@@ -8,7 +8,7 @@ export class UndoableSetCaretPosition implements CodeEditor.IUndoableOperation {
 
     private readonly _stack: CodeEditor.UndoStack;
     private readonly _pos: CodeEditor.TextLocation;
-    private _redoPos: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
+    private _redoPos: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
 
     public Undo() {
         this._redoPos = (this._stack.TextEditor!.Caret.Position).Clone();

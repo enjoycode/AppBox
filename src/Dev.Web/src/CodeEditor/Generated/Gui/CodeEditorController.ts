@@ -25,7 +25,7 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
     private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><unknown>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><unknown>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><unknown>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><unknown>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><unknown>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><unknown>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><unknown>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.C), new CodeEditor.CopyCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.X), new CodeEditor.CutCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.V), new CodeEditor.PasteCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
 
 
-    private _mouseDownPos: PixUI.Point = PixUI.Point.Empty;
+    private _mouseDownPos: PixUI.Point = PixUI.Point.Empty.Clone();
     private _gotMouseDown: boolean = false; //primary button is down
     private _doDragDrop: boolean = false;
     private _minSelection: CodeEditor.TextLocation = (CodeEditor.TextLocation.Empty).Clone();

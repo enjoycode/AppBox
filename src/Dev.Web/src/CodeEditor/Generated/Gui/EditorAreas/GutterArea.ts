@@ -12,7 +12,7 @@ export class GutterArea extends CodeEditor.EditorArea {
     private readonly _numberWidth: number;
 
     private GenerateNumberCache(): PixUI.Paragraph[] {
-        let cache = [];
+        let cache = new Array<PixUI.Paragraph>(10);
         let ts = PixUI.MakeTextStyle({color: this.Theme.LineNumberColor});
         for (let i = 0; i < 10; i++) {
             let ps = PixUI.MakeParagraphStyle({maxLines: 1});

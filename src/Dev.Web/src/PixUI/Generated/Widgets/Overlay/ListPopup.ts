@@ -11,6 +11,12 @@ export class ItemState {
         this.HoverState = hoverState;
         this.SelectedState = selectedState;
     }
+
+    public static readonly Empty: ItemState = new ItemState(PixUI.State.op_Implicit_From(false), PixUI.State.op_Implicit_From(false));
+
+    public Clone(): ItemState {
+        return new ItemState(this.HoverState, this.SelectedState);
+    }
 }
 
 export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
@@ -102,7 +108,7 @@ export class ListPopup<T> extends PixUI.Popup {
 
     private ChangeDataSource(value: Nullable<System.IList<T>>) {
         if (value != null) {
-            this._itemStates = [];
+            this._itemStates = new Array<ItemState>(value.length).fill(ItemState.Empty.Clone());
             for (let i = 0; i < value.length; i++) {
                 this._itemStates[i] = new ItemState(PixUI.State.op_Implicit_From(false), PixUI.State.op_Implicit_From(false));
             }

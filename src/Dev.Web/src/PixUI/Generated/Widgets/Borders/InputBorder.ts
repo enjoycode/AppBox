@@ -2,7 +2,7 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class InputBorder extends PixUI.ShapeBorder {
-    #BorderSide: PixUI.BorderSide = PixUI.BorderSide.Empty;
+    #BorderSide: PixUI.BorderSide = PixUI.BorderSide.Empty.Clone();
     public get BorderSide() {
         return this.#BorderSide;
     }
@@ -22,7 +22,7 @@ export abstract class InputBorder extends PixUI.ShapeBorder {
 }
 
 export class OutlineInputBorder extends InputBorder {
-    #BorderRadius: PixUI.BorderRadius = PixUI.BorderRadius.Empty;
+    #BorderRadius: PixUI.BorderRadius = PixUI.BorderRadius.Empty.Clone();
     public get BorderRadius() {
         return this.#BorderRadius;
     }

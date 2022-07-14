@@ -13,7 +13,7 @@ export class SelectionManager {
     public readonly SelectionCollection: System.IList<CodeEditor.Selection>;
 
     public SelectFrom: SelectFrom;
-    public SelectionStart: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
+    public SelectionStart: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
 
     public readonly SelectionChanged = new System.Event();
 
@@ -109,8 +109,8 @@ export class SelectionManager {
         if (System.OpEquality(oldPosition, newPosition)) return;
 
         let min:
-            CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
-        let max: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty;
+            CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
+        let max: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
         let oldnewX = newPosition.Column;
         let oldIsGreater = SelectionManager.GreaterEqPos((oldPosition).Clone(), (newPosition).Clone());
         if (oldIsGreater) {
