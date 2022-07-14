@@ -93,6 +93,7 @@ export * from "./Widgets/Input/Select";
 export * from "./Widgets/Input/Toggleable";
 export * from "./Widgets/Input/Switch";
 export * from "./Widgets/Input/Checkbox";
+export * from "./Widgets/Input/Radio";
 
 export * from "./Widgets/Overlay/Overlay";
 export * from "./Widgets/Overlay/Caret";

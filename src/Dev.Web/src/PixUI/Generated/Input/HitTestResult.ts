@@ -132,6 +132,10 @@ export class HitTestResult {
         for (let i = this._path.length - 1; i >= exitTo; i--) {
             this._path[i].Widget.MouseRegion.RaiseHoverChanged(false);
         }
+
+        //退出嵌套的MouseRegion的子级，需要恢复上级的Cursor
+        if (exitTo > 0)
+            this._path[exitTo - 1].Widget.MouseRegion.RestoreHoverCursor();
     }
 
     public EnterNewRegion(oldResult: HitTestResult) {

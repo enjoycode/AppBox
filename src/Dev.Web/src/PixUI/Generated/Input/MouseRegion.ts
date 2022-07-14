@@ -48,6 +48,11 @@ export class MouseRegion {
         this.HoverChanged.Invoke(hover);
     }
 
+    public RestoreHoverCursor() {
+        if (this.Cursor != null)
+            PixUI.Cursor.Current = this.Cursor();
+    }
+
     public Init(props: Partial<MouseRegion>): MouseRegion {
         Object.assign(this, props);
         return this;

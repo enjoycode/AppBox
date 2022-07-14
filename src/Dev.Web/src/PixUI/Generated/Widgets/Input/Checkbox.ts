@@ -27,6 +27,7 @@ export class Checkbox extends PixUI.Toggleable {
     }
 
 
+    private static readonly _kCheckboxSize: number = 30;
     private static readonly _kEdgeSize: number = 18;
     private static readonly _kStrokeWidth: number = 2.0;
 
@@ -34,7 +35,7 @@ export class Checkbox extends PixUI.Toggleable {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
-        this.SetSize(Math.min(width, 30), Math.min(height, 30));
+        this.SetSize(Math.min(width, Checkbox._kCheckboxSize), Math.min(height, Checkbox._kCheckboxSize));
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {

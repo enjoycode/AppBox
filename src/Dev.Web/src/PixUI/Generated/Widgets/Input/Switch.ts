@@ -3,8 +3,7 @@ import * as PixUI from '@/PixUI'
 export class Switch extends PixUI.Toggleable {
     public constructor(value: PixUI.State<boolean>) {
         super();
-        this.InitState(
-            PixUI.RxComputed.Make1(value, v => v, v => value.Value = v ?? false), false);
+        this.InitState(PixUI.RxComputed.Make1(value, v => v, v => value.Value = v ?? false), false);
     }
 
 
@@ -38,7 +37,7 @@ export class Switch extends PixUI.Toggleable {
         let visualPosition = currentValue;
 
         let activeColor = PixUI.Theme.AccentColor;
-        let trackColor = new PixUI.Color(0x52000000); // Black with 32% opacity
+        let trackColor = new PixUI.Color(0x52000000);
         let paint = PixUI.PaintUtils.Shared(PixUI.Color.Lerp(trackColor, activeColor, currentValue));
         paint.setAntiAlias(true);
 

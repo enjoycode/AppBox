@@ -44,6 +44,9 @@ namespace PixUI
 
         [TSRename("drawDRRect")]
         public void DrawDRRect(RRect outer, RRect inner, Paint paint) { }
+        
+        [TSRename("drawCircle")]
+        public void DrawCircle(float cx, float cy, float radius, Paint paint) {}
 
         [TSRename("drawPath")]
         public void DrawPath(Path path, Paint paint) { }
