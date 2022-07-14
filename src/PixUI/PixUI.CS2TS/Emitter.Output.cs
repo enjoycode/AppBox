@@ -226,13 +226,14 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 尝试写入非空值类型所对应的默认值
         /// </summary>
-        internal void TryWriteDefaultValueForValueType(TypeSyntax typeSyntax, SyntaxNode from)
+        internal void TryWriteDefaultValueForValueType(TypeSyntax typeSyntax, SyntaxNode from, bool withAsign = true)
         {
             if (typeSyntax is NullableTypeSyntax) return;
 
             if (typeSyntax is PredefinedTypeSyntax predefined)
             {
-                Write(" = ");
+                if (withAsign)
+                    Write(" = ");
                 WritePredefinedTypeDefaultValue(predefined);
                 return;
             }
@@ -241,14 +242,17 @@ namespace PixUI.CS2TS
             var typeKind = type.TypeKind;
             if (typeKind == TypeKind.Enum)
             {
-                Write(" = 0"); //TODO: convert to enum first value
+                if (withAsign)
+                    Write(" = ");
+                Write("0"); //TODO: convert to enum first value
             }
             else if (typeKind == TypeKind.Struct)
             {
                 //因为结构体构造带参数，所以使用默认的XXX.Empty作为初始化值
-                Write(" = ");
+                if(withAsign)
+                    Write(" = ");
                 WriteTypeSymbol(type, !from.InSameSourceFile(type));
-                Write(".Empty");
+                Write(".Empty.Clone()");
             }
         }
 

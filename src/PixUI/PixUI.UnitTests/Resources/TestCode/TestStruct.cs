@@ -12,6 +12,8 @@ struct Point
     {
         float? a = 21f;
         float? b = a;
+
+        var array = new Point[3];
         
         var num1 = 1;
         var num2 = num1;

@@ -43,8 +43,7 @@ namespace PixUI.CS2TS
             if (node.ArgumentList != null)
                 emitter.VisitSeparatedList(node.ArgumentList.Arguments);
             emitter.Write(')');
-
-
+            
             // initializer
             emitter.Visit(node.Initializer);
 
