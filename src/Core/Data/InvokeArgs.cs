@@ -121,7 +121,7 @@ public readonly struct InvokeArgs
     }
 
     /// <summary>
-    /// 用于转换如Web前端封送的List<object>或List<Entity>
+    /// 用于转换如Web前端封送的List&lt;object&gt;或List&lt;Entity&gt;
     /// </summary>
     public IList<T>? GetList<T>()
     {

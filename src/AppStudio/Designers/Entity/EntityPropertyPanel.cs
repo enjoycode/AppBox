@@ -25,6 +25,9 @@ internal sealed class RxEntityField : RxObject<EntityFieldVO>
 #endif
 }
 
+/// <summary>
+/// 实体模型的属性面板
+/// </summary>
 internal sealed class EntityPropertyPanel : View
 {
     public EntityPropertyPanel(EntityModelVO entityModel,
