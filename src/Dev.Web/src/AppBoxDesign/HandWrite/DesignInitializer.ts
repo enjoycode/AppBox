@@ -7,7 +7,7 @@ import {
     EntityModelVO
 } from '@/AppBoxDesign'
 import {TSCSharpLanguage} from "@/CodeEditor";
-import {PayloadType, TypeSerializer} from "@/AppBoxCore";
+import {FieldWithOrder, PayloadType, TypeSerializer} from "@/AppBoxCore";
 
 export class DesignInitializer {
     public static async TryInit(): Promise<void> {
@@ -27,5 +27,6 @@ export class DesignInitializer {
         TypeSerializer.RegisterKnownType(PayloadType.CodeProblem, true, () => new CodeProblem());
         TypeSerializer.RegisterKnownType(PayloadType.CompletionItem, true, () => new CompletionItem());
         TypeSerializer.RegisterKnownType(PayloadType.ChangedModel, true, () => new ChangedModel());
+        TypeSerializer.RegisterKnownType(PayloadType.FieldWithOrder, true, () => new FieldWithOrder());
     }
 }

@@ -12,9 +12,17 @@ export class FieldWithOrder implements IBinSerializable {
         return this._orderByDesc;
     }
 
-    public constructor(memberId: number, orderByDesc: boolean = false) {
-        this._memberId = memberId;
-        this._orderByDesc = orderByDesc;
+    public constructor();
+    public constructor(memberId: number, orderByDesc?: boolean);
+    public constructor(memberId?: number, orderByDesc?: boolean) {
+        if (memberId != undefined) {
+            this._memberId = memberId;
+            this._orderByDesc = orderByDesc == undefined ? false : orderByDesc;
+        }
+    }
+
+    public Clone(): FieldWithOrder {
+        return new FieldWithOrder(this._memberId, this._orderByDesc);
     }
 
     WriteTo(bs: IOutputStream): void {

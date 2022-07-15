@@ -41,6 +41,9 @@
       <Compile Include="..\AppStudio\Data\EntityModelVO.cs">
         <Link>Data\EntityModelVO.cs</Link>
       </Compile>
+      <Compile Include="..\AppStudio\Data\SqlStoreOptionsVO.cs">
+        <Link>Data\SqlStoreOptionsVO.cs</Link>
+      </Compile>
       <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
     </ItemGroup>
 

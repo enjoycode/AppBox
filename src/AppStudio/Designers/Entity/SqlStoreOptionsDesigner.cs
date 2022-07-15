@@ -1,27 +1,77 @@
+using System.Linq;
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign;
 
 internal sealed class SqlStoreOptionsDesigner : View
 {
-    internal SqlStoreOptionsDesigner()
+    internal SqlStoreOptionsDesigner(EntityModelVO entityModel)
     {
-        Child = new Column()
+        _entityModel = entityModel;
+        _pkController.DataSource = _entityModel.SqlStoreOptions.PrimaryKeys;
+
+        Child = new Container()
         {
-            Children = new Widget[]
+            Padding = EdgeInsets.All(8),
+            Child = new Column(HorizontalAlignment.Left, 10)
             {
-                new Text("Primary Keys:") { FontSize = 28, FontWeight = FontWeight.Bold },
-                new ButtonGroup()
+                Children = new Widget[]
                 {
-                    Children = new[]
+                    // Primary keys
+                    new Text("Primary Keys:") { FontSize = 20, FontWeight = FontWeight.Bold },
+                    new ButtonGroup()
                     {
-                        new Button("Add", Icons.Filled.Add),
-                        new Button("Remove", Icons.Filled.Remove)
-                    }
-                },
-                
+                        Children = new[]
+                        {
+                            new Button("Add", Icons.Filled.Add),
+                            new Button("Remove", Icons.Filled.Remove)
+                        }
+                    },
+                    new DataGrid<FieldWithOrder>(_pkController)
+                    {
+                        Height = 112,
+                        Columns = new DataGridColumn<FieldWithOrder>[]
+                        {
+                            new DataGridTextColumn<FieldWithOrder>("Name",
+                                t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
+                            new DataGridCheckboxColumn<FieldWithOrder>("OrderByDesc",
+                                t => t.OrderByDesc),
+                        }
+                    },
+
+                    //Indexes
+                    new Text("Indexes:") { FontSize = 20, FontWeight = FontWeight.Bold },
+                    new ButtonGroup()
+                    {
+                        Children = new[]
+                        {
+                            new Button("Add", Icons.Filled.Add),
+                            new Button("Remove", Icons.Filled.Remove)
+                        }
+                    },
+                    new DataGrid<object>(_idxController)
+                    {
+                        Height = 112,
+                        Columns = new DataGridColumn<object>[]
+                        {
+                            new DataGridTextColumn<object>("Name",
+                                t => "TODO"),
+                            new DataGridTextColumn<object>("Fields",
+                                t => "TODO"),
+                            new DataGridCheckboxColumn<object>("Unique",
+                                t => true),
+                        }
+                    },
+                }
             }
         };
     }
-     
+
+    private readonly EntityModelVO _entityModel;
+
+    private readonly DataGridController<FieldWithOrder> _pkController =
+        new DataGridController<FieldWithOrder>();
+
+    private readonly DataGridController<object> _idxController = new DataGridController<object>();
 }

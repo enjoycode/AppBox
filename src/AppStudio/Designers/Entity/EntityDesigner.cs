@@ -24,6 +24,8 @@ namespace AppBoxDesign
                             {
                                 new WhenBuilder<int>(t => t == 0,
                                     () => new MembersDesigner(_entityModel!, _membersController)),
+                                new WhenBuilder<int>(t => t == 1,
+                                    () => new SqlStoreOptionsDesigner(_entityModel!))
                             }), null)
                     },
                 }
@@ -31,7 +33,7 @@ namespace AppBoxDesign
         }
 
         private readonly ModelNode _modelNode;
-        private readonly State<int> _activePad = 0;
+        private readonly State<int> _activePad = 0; //当前的设计面板
         private bool _hasLoad = false;
         private readonly State<bool> _loaded = false;
         private EntityModelVO? _entityModel;
@@ -42,8 +44,8 @@ namespace AppBoxDesign
         {
             return new Container()
             {
-                BgColor = Colors.White, Height = 45,
-                Padding = EdgeInsets.Only(8, 8, 8, 8),
+                BgColor = new Color(0xFFF5F7FA), Height = 45,
+                Padding = EdgeInsets.All(8),
                 Child = new Row(VerticalAlignment.Middle, 10)
                 {
                     Children = new Widget[]
@@ -52,8 +54,10 @@ namespace AppBoxDesign
                         {
                             Children = new[]
                             {
-                                new Button("Members") { Width = 75 },
-                                new Button("Options") { Width = 75 },
+                                new Button("Members")
+                                    { Width = 75, OnTap = _ => _activePad.Value = 0 },
+                                new Button("Options")
+                                    { Width = 75, OnTap = _ => _activePad.Value = 1 },
                                 new Button("Data") { Width = 75 },
                             }
                         },

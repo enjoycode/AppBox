@@ -26,8 +26,8 @@ namespace AppBoxDesign
                                     { Width = ColumnWidth.Fixed(150) },
                                 new DataGridTextColumn<EntityMemberVO>("Type", MemberTypeToString)
                                     { Width = ColumnWidth.Fixed(200) },
-                                new DataGridTextColumn<EntityMemberVO>("AllowNull",
-                                        v => v.AllowNull.ToString())
+                                new DataGridCheckboxColumn<EntityMemberVO>("AllowNull",
+                                        v => v.AllowNull)
                                     { Width = ColumnWidth.Fixed(90) },
                                 new DataGridTextColumn<EntityMemberVO>("Comment",
                                     v => v.Comment ?? string.Empty),

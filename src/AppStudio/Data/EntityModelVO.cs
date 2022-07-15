@@ -183,12 +183,19 @@ namespace AppBoxDesign
         public readonly IList<EntityMemberVO> Members = new List<EntityMemberVO>();
         public DataStoreKind DataStoreKind { get; set; }
 
+        private object? _storeOptions;
+
+        public SqlStoreOptionsVO SqlStoreOptions => (SqlStoreOptionsVO)_storeOptions!;
+
 #if __APPBOXDESIGN__
         public static EntityModelVO From(EntityModel model)
         {
             var vo = new EntityModelVO();
             vo.IsNew = model.PersistentState == PersistentState.Detached;
             vo.DataStoreKind = model.DataStoreKind;
+            if (model.DataStoreKind == DataStoreKind.Sql) //TODO: others
+                vo._storeOptions = SqlStoreOptionsVO.From(model.SqlStoreOptions!);
+            
             //注意不向前端封送EntityRef的隐藏成员及删除的成员
             foreach (var memberModel in model.Members)
             {
@@ -219,6 +226,11 @@ namespace AppBoxDesign
         {
             ws.WriteBool(IsNew);
             ws.WriteByte((byte)DataStoreKind);
+            // store options
+            if (DataStoreKind == DataStoreKind.Sql) //TODO: others
+                SqlStoreOptions.WriteTo(ws);
+            
+            // members
             ws.WriteVariant(Members.Count);
             foreach (var member in Members)
             {
@@ -235,6 +247,15 @@ namespace AppBoxDesign
         {
             IsNew = rs.ReadBool();
             DataStoreKind = (DataStoreKind)rs.ReadByte();
+            //store options
+            if (DataStoreKind == DataStoreKind.Sql)
+            {
+                var sqlStoreOptions = new SqlStoreOptionsVO();
+                sqlStoreOptions.ReadFrom(rs);
+                _storeOptions = sqlStoreOptions;
+            }
+
+            //members
             var count = rs.ReadVariant();
             for (var i = 0; i < count; i++)
             {

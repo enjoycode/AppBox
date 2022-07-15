@@ -21,6 +21,9 @@ export class RxEntityField extends PixUI.RxObject<AppBoxDesign.EntityFieldVO> {
 
 }
 
+/// <summary>
+/// 实体模型的属性面板
+/// </summary>
 export class EntityPropertyPanel extends PixUI.View {
     public constructor(entityModel: AppBoxDesign.EntityModelVO, selectedMember: PixUI.State<Nullable<AppBoxDesign.EntityMemberVO>>) {
         super();

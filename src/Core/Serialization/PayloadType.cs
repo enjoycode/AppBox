@@ -43,6 +43,7 @@ namespace AppBoxCore
         NewNodeResult = 54,
         ChangedModel = 55,
         CodeProblem = 56,
+        FieldWithOrder = 57,
 
         //----运行时相关类型----
         Entity = 90,

@@ -1,3 +1,4 @@
+import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 import * as AppBoxCore from '@/AppBoxCore'
 
@@ -97,6 +98,12 @@ export class EntityModelVO implements AppBoxCore.IBinSerializable {
     public readonly Members: System.IList<EntityMemberVO> = new System.List<EntityMemberVO>();
     public DataStoreKind: AppBoxCore.DataStoreKind = 0;
 
+    private _storeOptions: Nullable<any>;
+
+    public get SqlStoreOptions(): AppBoxDesign.SqlStoreOptionsVO {
+        return <AppBoxDesign.SqlStoreOptionsVO><unknown>this._storeOptions!;
+    }
+
     public WriteTo(ws: AppBoxCore.IOutputStream) {
         throw new System.NotSupportedException();
     }
@@ -104,6 +111,14 @@ export class EntityModelVO implements AppBoxCore.IBinSerializable {
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         this.IsNew = rs.ReadBool();
         this.DataStoreKind = <AppBoxCore.DataStoreKind><unknown>rs.ReadByte();
+        //store options
+        if (this.DataStoreKind == AppBoxCore.DataStoreKind.Sql) {
+            let sqlStoreOptions = new AppBoxDesign.SqlStoreOptionsVO();
+            sqlStoreOptions.ReadFrom(rs);
+            this._storeOptions = sqlStoreOptions;
+        }
+
+        //members
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
             let type = <AppBoxCore.EntityMemberType><unknown>rs.ReadByte();
