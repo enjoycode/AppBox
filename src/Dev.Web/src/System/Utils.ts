@@ -4,6 +4,14 @@ export const IsNullOrEmpty = function (s?: string): boolean {
     return s == null || s.length === 0;
 }
 
+export const Equals = function (a: any, b: any): boolean {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (typeof a === "object" && a.constructor.op_Equality)
+        return a.constructor.op_Equality(a, b);
+    return a == b;
+}
+
 export const OpEquality = function (a: any, b: any): boolean {
     if (a == null && b == null) return true;
     if (a == null || b == null) return false;

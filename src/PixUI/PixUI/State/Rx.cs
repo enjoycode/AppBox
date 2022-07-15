@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace PixUI
 {
@@ -14,11 +15,15 @@ namespace PixUI
             get => _value;
             set
             {
-                //TODO:相等判断
+                if (IsValueEquals(_value, value)) return;
                 _value = value;
                 OnValueChanged();
             }
         }
+
+        [TSTemplate("System.Equals({1}, {2})")] //TODO:考虑CS2TS直接转换EqualityComparer
+        private static bool IsValueEquals(T a, T b)
+            => EqualityComparer<T>.Default.Equals(a, b);
 
         public Rx(T value)
         {
