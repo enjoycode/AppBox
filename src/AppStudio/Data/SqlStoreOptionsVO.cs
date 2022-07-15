@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using AppBoxCore;
 
 namespace AppBoxDesign;
@@ -7,7 +8,9 @@ public sealed class SqlStoreOptionsVO
 {
     public long StoreModelId { get; private set; }
 
-    public IList<FieldWithOrder> PrimaryKeys { get; private set; }
+    public IList<FieldWithOrder> PrimaryKeys { get; private set; } = null!;
+
+    public IList<SqlIndexModelVO> Indexes { get; private set; } = null!;
 
 #if __APPBOXDESIGN__
     public static SqlStoreOptionsVO From(SqlStoreOptions options)
@@ -17,8 +20,14 @@ public sealed class SqlStoreOptionsVO
         vo.PrimaryKeys = options.HasPrimaryKeys
             ? new List<FieldWithOrder>(options.PrimaryKeys)
             : new List<FieldWithOrder>();
-
-        //TODO: indexes
+        vo.Indexes = new List<SqlIndexModelVO>();
+        if (options.HasIndexes)
+        {
+            foreach (var indexModel in options.Indexes)
+            {
+                vo.Indexes.Add(SqlIndexModelVO.From(indexModel));
+            }
+        }
 
         return vo;
     }
@@ -31,6 +40,11 @@ public sealed class SqlStoreOptionsVO
         {
             PrimaryKeys[i].WriteTo(ws);
         }
+        ws.WriteVariant(Indexes.Count);
+        for (var i = 0; i < Indexes.Count; i++)
+        {
+            Indexes[i].WriteTo(ws);
+        }
     }
 
 #else
@@ -39,14 +53,20 @@ public sealed class SqlStoreOptionsVO
         StoreModelId = rs.ReadLong();
         var pkCount = rs.ReadVariant();
         PrimaryKeys = new List<FieldWithOrder>();
-        if (pkCount > 0)
+        for (var i = 0; i < pkCount; i++)
         {
-            for (var i = 0; i < pkCount; i++)
-            {
-                var pk = new FieldWithOrder();
-                pk.ReadFrom(rs);
-                PrimaryKeys.Add(pk);
-            }
+            var pk = new FieldWithOrder();
+            pk.ReadFrom(rs);
+            PrimaryKeys.Add(pk);
+        }
+
+        var idxCount = rs.ReadVariant();
+        Indexes = new List<SqlIndexModelVO>();
+        for (var i = 0; i < idxCount; i++)
+        {
+            var idx = new SqlIndexModelVO();
+            idx.ReadFrom(rs);
+            Indexes.Add(idx);
         }
     }
 

@@ -10,6 +10,7 @@ internal sealed class SqlStoreOptionsDesigner : View
     {
         _entityModel = entityModel;
         _pkController.DataSource = _entityModel.SqlStoreOptions.PrimaryKeys;
+        _idxController.DataSource = _entityModel.SqlStoreOptions.Indexes;
 
         Child = new Container()
         {
@@ -50,16 +51,16 @@ internal sealed class SqlStoreOptionsDesigner : View
                             new Button("Remove", Icons.Filled.Remove)
                         }
                     },
-                    new DataGrid<object>(_idxController)
+                    new DataGrid<SqlIndexModelVO>(_idxController)
                     {
                         Height = 112,
-                        Columns = new DataGridColumn<object>[]
+                        Columns = new DataGridColumn<SqlIndexModelVO>[]
                         {
-                            new DataGridTextColumn<object>("Name",
-                                t => "TODO"),
-                            new DataGridTextColumn<object>("Fields",
-                                t => "TODO"),
-                            new DataGridCheckboxColumn<object>("Unique",
+                            new DataGridTextColumn<SqlIndexModelVO>("Name",
+                                t => t.Name),
+                            new DataGridTextColumn<SqlIndexModelVO>("Fields",
+                                t => GetIndexesFieldsList(t)),
+                            new DataGridCheckboxColumn<SqlIndexModelVO>("Unique",
                                 t => true),
                         }
                     },
@@ -69,9 +70,21 @@ internal sealed class SqlStoreOptionsDesigner : View
     }
 
     private readonly EntityModelVO _entityModel;
+    private readonly DataGridController<FieldWithOrder> _pkController = new();
+    private readonly DataGridController<SqlIndexModelVO> _idxController = new();
 
-    private readonly DataGridController<FieldWithOrder> _pkController =
-        new DataGridController<FieldWithOrder>();
+    private string GetIndexesFieldsList(SqlIndexModelVO indexMode)
+    {
+        var s = "";
+        for (var i = 0; i < indexMode.Fields.Length; i++)
+        {
+            if (i != 0)
+                s += ", ";
+            s += _entityModel.Members.First(m => m.Id == indexMode.Fields[i].MemberId).Name;
+            if (indexMode.Fields[i].OrderByDesc)
+                s += " OrderByDesc";
+        }
 
-    private readonly DataGridController<object> _idxController = new DataGridController<object>();
+        return s;
+    }
 }

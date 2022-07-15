@@ -1,6 +1,8 @@
 import {IBinSerializable, IInputStream, IOutputStream} from "@/AppBoxCore";
 
 export class FieldWithOrder implements IBinSerializable {
+    public static readonly Empty: FieldWithOrder = new FieldWithOrder();
+    
     private _memberId: number;
     private _orderByDesc: boolean;
 
