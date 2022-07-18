@@ -1,7 +1,12 @@
+using System.Runtime.InteropServices;
 using AppBoxCore;
 using AppBoxStore;
 using AppBoxServer;
 using Microsoft.Extensions.FileProviders;
+
+//临时方案Console输出编码问题
+if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
