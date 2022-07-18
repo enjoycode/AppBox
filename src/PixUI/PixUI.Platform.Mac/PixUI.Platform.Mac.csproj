@@ -1,79 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{8E61F4D4-1134-4798-8290-99DF730AAA19}</ProjectGuid>
-        <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-        <OutputType>Library</OutputType>
-        <RootNamespace>PixUI.Platform.Mac</RootNamespace>
-        <AssemblyName>PixUI.Platform.Mac</AssemblyName>
-        <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-        <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
-        <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-        <LangVersion>9</LangVersion>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug</OutputPath>
-        <DefineConstants>DEBUG;</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <EnableCodeSigning>false</EnableCodeSigning>
-        <CreatePackage>false</CreatePackage>
-        <EnablePackageSigning>false</EnablePackageSigning>
-        <IncludeMonoRuntime>false</IncludeMonoRuntime>
-        <UseSGen>false</UseSGen>
-        <LinkMode>None</LinkMode>
-        <AOTMode>None</AOTMode>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release</OutputPath>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <EnableCodeSigning>false</EnableCodeSigning>
-        <CreatePackage>false</CreatePackage>
-        <EnablePackageSigning>false</EnablePackageSigning>
-        <IncludeMonoRuntime>false</IncludeMonoRuntime>
-        <UseSGen>false</UseSGen>
-        <LinkMode>None</LinkMode>
-        <AOTMode>None</AOTMode>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugWeb|AnyCPU' ">
-      <OutputPath>bin\DebugWeb\</OutputPath>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="Xamarin.Mac" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="AppDelegate.cs" />
-        <Compile Include="MacApplication.cs" />
-        <Compile Include="MacCursor.cs" />
-        <Compile Include="MacKeyCodeMap.cs" />
-        <Compile Include="MacMetalWindowContext.cs" />
-        <Compile Include="MacWindow.cs" />
-        <Compile Include="MainView.cs" />
-        <Compile Include="MetalWindowContext.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="TextInputView.cs" />
-        <Compile Include="WindowDelegate.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <None Include="libs\libskia.dylib" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\PixUI\PixUI.csproj">
-        <Project>{9644950e-175c-4efd-9307-cbf97764561d}</Project>
-        <Name>PixUI</Name>
-      </ProjectReference>
-    </ItemGroup>
-    <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-macos</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>true</ImplicitUsings>
+    <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PixUI\PixUI.csproj" />
+  </ItemGroup>
 </Project>

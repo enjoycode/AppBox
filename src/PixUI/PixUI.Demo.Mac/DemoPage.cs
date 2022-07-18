@@ -1,7 +1,6 @@
 ﻿using System;
-using PixUI.Test.Mac;
 
-namespace PixUI.Test
+namespace PixUI.Demo
 {
     public sealed class DemoPage : View
     {

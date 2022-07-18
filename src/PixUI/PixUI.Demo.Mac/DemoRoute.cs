@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PixUI.Test
+namespace PixUI.Demo
 {
     public sealed class DemoRoute : View
     {

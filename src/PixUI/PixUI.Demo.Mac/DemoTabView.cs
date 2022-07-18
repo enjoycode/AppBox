@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PixUI.Test.Mac
+namespace PixUI.Demo.Mac
 {
     public class DemoTabView : View
     {

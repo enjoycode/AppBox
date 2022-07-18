@@ -1,4 +1,4 @@
-namespace PixUI.Test
+namespace PixUI.Demo
 {
     public sealed class DemoForm : View
     {

@@ -1,7 +1,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace PixUI.Test.Mac
+namespace PixUI.Demo
 {
     internal static class Resources
     {
@@ -9,7 +9,7 @@ namespace PixUI.Test.Mac
 
         public static Stream LoadStream(string res)
         {
-            return ResAssembly.GetManifestResourceStream("PixUI.Test.Mac." + res)!;
+            return ResAssembly.GetManifestResourceStream("PixUI.Demo.Mac." + res)!;
         }
 
         public static byte[] LoadBytes(string res)

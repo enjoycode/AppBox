@@ -1,6 +1,6 @@
 using System;
 
-namespace PixUI.Test.Mac
+namespace PixUI.Demo
 {
     public sealed class DemoDialog : Dialog<string>
     {

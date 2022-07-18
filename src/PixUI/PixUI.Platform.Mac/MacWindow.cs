@@ -5,7 +5,7 @@ namespace PixUI.Platform.Mac
 {
     public sealed class MacWindow : NativeWindow
     {
-        private System.nint _windowNumber;
+        private nint _windowNumber;
         private TextInputView? _inputView;
 
         internal NSWindow? NSWindow { get; private set; }

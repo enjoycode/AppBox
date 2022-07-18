@@ -3,15 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>PixUI.Test.Mac</string>
+	<string>PixUI.Demo.Mac</string>
 	<key>CFBundleIdentifier</key>
-	<string>dev.appbox.PixUI-Test-Mac</string>
+	<string>com.companyname.PixUI.Demo.Mac</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.14</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -27,6 +25,6 @@
 	<key>NSMainStoryboardFile</key>
 	<string>Main</string>
 	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/AppIcon.appiconset</string>	
+	<string>Assets.xcassets/AppIcon.appiconset</string>
 </dict>
 </plist>

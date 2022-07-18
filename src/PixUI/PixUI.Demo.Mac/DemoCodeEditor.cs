@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CodeEditor;
 
-namespace PixUI.Test.Mac
+namespace PixUI.Demo.Mac
 {
     public sealed class DemoCodeEditor : View
     {

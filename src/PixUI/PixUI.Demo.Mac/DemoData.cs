@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace PixUI.Test.Mac
+namespace PixUI.Demo
 {
     internal sealed class Person
     {

@@ -1,4 +1,4 @@
-namespace PixUI.Test.Mac
+namespace PixUI.Demo.Mac
 {
     public sealed class DemoAnimation : View
     {

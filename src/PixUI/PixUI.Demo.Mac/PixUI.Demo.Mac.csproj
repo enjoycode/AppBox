@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-macos</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>true</ImplicitUsings>
+    <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PixUI.CodeEditor\PixUI.CodeEditor.csproj" />
+    <ProjectReference Include="..\PixUI.Platform.Mac\PixUI.Platform.Mac.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Resources\Cat.webp" />
+    <EmbeddedResource Include="Resources\Cat.webp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeReference Include="..\PixUI.Platform.Mac\libs\libskia.dylib">
+      <Kind>Dynamic</Kind>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+    <NativeReference Include="..\PixUI.CodeEditor\libs\osx-x64\libtree-sitter.dylib">
+      <Kind>Dynamic</Kind>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+    <NativeReference Include="..\PixUI.CodeEditor\libs\osx-x64\libtree-sitter-c-sharp.dylib">
+      <Kind>Dynamic</Kind>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+  </ItemGroup>
+</Project>

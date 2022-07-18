@@ -58,7 +58,7 @@ namespace PixUI.Platform.Mac
 
             var currentDrawable = MetalLayer!.NextDrawable();
             var fbInfo = new GRMtlTextureInfoNative();
-            fbInfo.fTexture = currentDrawable!.Texture.Handle.ToPointer();
+            fbInfo.fTexture = (void*) currentDrawable!.Texture.Handle;
 
             var backendRt = new GRBackendRenderTarget(Width, Height, SampleCount, fbInfo);
             var surface = SKSurface.Create(Context!, backendRt, GRSurfaceOrigin.TopLeft,
