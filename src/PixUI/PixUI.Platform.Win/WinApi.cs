@@ -551,9 +551,6 @@ namespace PixUI.Platform.Win
         [DllImport("user32.dll", EntryPoint = "PostMessageW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         internal extern static bool Win32PostMessage(IntPtr hwnd, Msg msg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("user32.dll", EntryPoint = "LoadCursorW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        private extern static IntPtr Win32LoadCursor(IntPtr hInstance, LoadCursorType type);
-
         [DllImport("user32.dll", EntryPoint = "RegisterClassW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         private extern static bool Win32RegisterClass(ref WNDCLASS wndClass);
 
@@ -576,6 +573,12 @@ namespace PixUI.Platform.Win
         [DllImport("gdi32.dll", EntryPoint = "StretchDIBits", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern int Win32StretchDIBits(IntPtr hdc, int xDest, int yDest, int destWidth, int destHeight,
             int xSrc, int ySrc, int srcWidth, int srcHeight, void* lpBits, void* lpbmi, uint iUsage, uint rop);
+
+        [DllImport("user32.dll", EntryPoint = "LoadCursorW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32LoadCursor(IntPtr hInstance, LoadCursorType type);
+
+        [DllImport("user32.dll", EntryPoint = "SetCursor", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32SetCursor(IntPtr hCursor);
 
     }
 }

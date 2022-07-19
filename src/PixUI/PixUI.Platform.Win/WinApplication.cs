@@ -31,6 +31,9 @@ namespace PixUI.Platform.Win
             // Init SynchronizationContext
             SynchronizationContext.SetSynchronizationContext(new WinSynchronizationContext());
 
+            // init platform supports
+            Cursor.PlatformCursors = new WinCursors();
+
             // Create root & native window
             var window = new WinWindow(child);
             // window.InitWindow();
