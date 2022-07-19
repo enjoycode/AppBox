@@ -478,6 +478,22 @@ namespace PixUI.Platform.Win
         [MarshalAs(UnmanagedType.LPWStr)]
         internal string lpszClassName;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct BITMAPINFOHEADER
+    {
+        internal uint biSize;
+        internal int biWidth;
+        internal int biHeight;
+        internal ushort biPlanes;
+        internal ushort biBitCount;
+        internal uint biCompression;
+        internal uint biSizeImage;
+        internal int biXPelsPerMeter;
+        internal int biYPelsPerMeter;
+        internal uint biClrUsed;
+        internal uint biClrImportant;
+    }
     #endregion
 
     internal static class WinApi
@@ -495,7 +511,7 @@ namespace PixUI.Platform.Win
             //TODO: cache to dic
             var className = $"PixUI.{Thread.GetDomainID()}.{classStyle}";
             var wndClass = new WNDCLASS();
-            wndClass.style = classStyle;
+            wndClass.style = 1 | 2 | 0x00000020;//classStyle;
             wndClass.lpfnWndProc = wnd_proc;
             wndClass.cbClsExtra = 0;
             wndClass.cbWndExtra = 0;
@@ -532,6 +548,9 @@ namespace PixUI.Platform.Win
         [DllImport("user32.dll", EntryPoint = "DispatchMessageW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32DispatchMessage(ref MSG msg);
 
+        [DllImport("user32.dll", EntryPoint = "PostMessageW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+        internal extern static bool Win32PostMessage(IntPtr hwnd, Msg msg, IntPtr wParam, IntPtr lParam);
+
         [DllImport("user32.dll", EntryPoint = "LoadCursorW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         private extern static IntPtr Win32LoadCursor(IntPtr hInstance, LoadCursorType type);
 
@@ -540,6 +559,23 @@ namespace PixUI.Platform.Win
 
         [DllImport("user32.dll", EntryPoint = "DefWindowProcW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         private extern static IntPtr Win32DefWindowProc(IntPtr hWnd, Msg Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", EntryPoint = "GetDC", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32GetDC(IntPtr hWnd);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowDC", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32GetWindowDC(IntPtr hWnd);
+
+        [DllImport("user32.dll", EntryPoint = "ReleaseDC", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        [DllImport("gdi32.dll", EntryPoint = "BitBlt", CallingConvention = CallingConvention.StdCall)]
+        internal static extern bool Win32BitBlt(IntPtr hObject, int nXDest, int nYDest, int nWidth,
+           int nHeight, IntPtr hObjSource, int nXSrc, int nYSrc, uint dwRop);
+
+        [DllImport("gdi32.dll", EntryPoint = "StretchDIBits", CallingConvention = CallingConvention.StdCall)]
+        internal static unsafe extern int Win32StretchDIBits(IntPtr hdc, int xDest, int yDest, int destWidth, int destHeight,
+            int xSrc, int ySrc, int srcWidth, int srcHeight, void* lpBits, void* lpbmi, uint iUsage, uint rop);
 
     }
 }

@@ -19,8 +19,9 @@ namespace PixUI.Platform
             if (WindowContext == null) return;
 
             //TODO: eg set title
+
+            Show(); //must show window first
             OnFirstShow();
-            Show();
         }
 
         protected void Detach()

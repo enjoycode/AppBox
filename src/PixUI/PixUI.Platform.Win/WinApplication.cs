@@ -30,13 +30,15 @@ namespace PixUI.Platform.Win
             // Run EventLoop
             var quit = false;
             var msg = new MSG();
-            while(!quit && WinApi.Win32GetMessage(ref msg, IntPtr.Zero, 0 , 0))
+            while (!quit && WinApi.Win32GetMessage(ref msg, IntPtr.Zero, 0, 0))
             {
                 Console.WriteLine($"EventLoop got msg: {msg.message}");
                 if (msg.message == Msg.WM_QUIT)
                     quit = true;
 
                 // process the events
+                //if (msg.message == Msg.WM_PAINT)
+                //    OnInvalidateRequest();
 
                 WinApi.Win32TranslateMessage(ref msg);
                 WinApi.Win32DispatchMessage(ref msg);
@@ -51,7 +53,8 @@ namespace PixUI.Platform.Win
 
         public override void PostInvalidateEvent()
         {
-            
+            //TODO:
+            WinApi.Win32PostMessage(new IntPtr(0xFFFFFFFF), Msg.WM_PAINT, IntPtr.Zero, IntPtr.Zero);
         }
     }
 }

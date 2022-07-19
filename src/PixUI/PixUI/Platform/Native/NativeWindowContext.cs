@@ -28,7 +28,7 @@ namespace PixUI.Platform
             DisplayParams = displayParams;
         }
 
-        protected virtual bool IsGpuContext() => true;
+        public virtual bool IsGpuContext => true;
 
         /// <summary>
         /// 获取OnScreen画布(用于画Overlay并显示)

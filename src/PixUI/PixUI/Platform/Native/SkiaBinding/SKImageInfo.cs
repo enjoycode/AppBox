@@ -46,15 +46,15 @@ namespace PixUI
 
         static SKImageInfo()
         {
-            PlatformColorType = SkiaApi.sk_colortype_get_default_8888().FromNative();
+            PlatformColorType = SKColorType.Bgra8888; //SkiaApi.sk_colortype_get_default_8888().FromNative();
 
-            fixed (int* a = &PlatformColorAlphaShift)
-            fixed (int* r = &PlatformColorRedShift)
-            fixed (int* g = &PlatformColorGreenShift)
-            fixed (int* b = &PlatformColorBlueShift)
-            {
-                SkiaApi.sk_color_get_bit_shift(a, r, g, b);
-            }
+            //fixed (int* a = &PlatformColorAlphaShift)
+            //fixed (int* r = &PlatformColorRedShift)
+            //fixed (int* g = &PlatformColorGreenShift)
+            //fixed (int* b = &PlatformColorBlueShift)
+            //{
+            //    SkiaApi.sk_color_get_bit_shift(a, r, g, b);
+            //}
         }
 
         public int Width { get; set; }

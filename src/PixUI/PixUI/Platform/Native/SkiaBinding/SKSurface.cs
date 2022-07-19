@@ -17,6 +17,16 @@ namespace PixUI
 
         #region ====Static Create====
 
+        // RASTER DIRECT surface
+
+        public static SKSurface Create(SKImageInfo info, IntPtr pixels, int rowBytes)
+        {
+            var cinfo = SKImageInfoNative.FromManaged(ref info);
+            return GetObject(SkiaApi.sk_surface_new_raster_direct(&cinfo, (void*)pixels, (IntPtr)rowBytes, 
+                null, null, IntPtr.Zero))!;
+        }
+
+
         // ----GPU BACKEND RENDER TARGET surface----
 
         public static SKSurface? Create(GRRecordingContext context, GRBackendRenderTarget renderTarget,
