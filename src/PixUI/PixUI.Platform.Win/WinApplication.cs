@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PixUI.Platform.Win
 {
     public sealed class WinApplication : UIApplication
     {
+        private static readonly Thread _uiThread = Thread.CurrentThread;
+        private static readonly IntPtr _usrHWND = new IntPtr(0xFFFFFFFF);
+        private static readonly IntPtr _invokeMsg = new IntPtr(1);
+        private static readonly IntPtr _invalidateMsg = new IntPtr(2);
+
         public static void Run(Widget child)
         {
             // init platform supports
@@ -21,6 +28,9 @@ namespace PixUI.Platform.Win
 
         private void RunInternal(Widget child)
         {
+            // Init SynchronizationContext
+            SynchronizationContext.SetSynchronizationContext(new WinSynchronizationContext());
+
             // Create root & native window
             var window = new WinWindow(child);
             // window.InitWindow();
@@ -40,21 +50,41 @@ namespace PixUI.Platform.Win
                 //if (msg.message == Msg.WM_PAINT)
                 //    OnInvalidateRequest();
 
+                // 自定义消息处理
+                if (msg.hwnd == _usrHWND && msg.message == Msg.WM_USER)
+                {
+                    if (msg.wParam == _invokeMsg)
+                    {
+                        var gcHandle = GCHandle.FromIntPtr(msg.lParam);
+                        var action = (Action)gcHandle.Target!;
+                        gcHandle.Free();
+                        action();
+                    }
+                    else if (msg.wParam == _invalidateMsg)
+                    {
+                        OnInvalidateRequest();
+                    }
+                }
+
                 WinApi.Win32TranslateMessage(ref msg);
                 WinApi.Win32DispatchMessage(ref msg);
             }
 
             Console.WriteLine("Application exit.");
         }
+
+        public static bool InvokeRequired => Thread.CurrentThread != _uiThread;
+
         public override void BeginInvoke(Action action)
         {
-            throw new NotImplementedException();
+            var gcHandle = GCHandle.Alloc(action);
+            WinApi.Win32PostMessage(_usrHWND, Msg.WM_USER, _invokeMsg, GCHandle.ToIntPtr(gcHandle));
         }
 
         public override void PostInvalidateEvent()
         {
             //TODO:
-            WinApi.Win32PostMessage(new IntPtr(0xFFFFFFFF), Msg.WM_PAINT, IntPtr.Zero, IntPtr.Zero);
+            WinApi.Win32PostMessage(_usrHWND, Msg.WM_USER, _invalidateMsg, IntPtr.Zero);
         }
     }
 }
