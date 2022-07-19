@@ -45,13 +45,8 @@ namespace PixUI.Platform.Win
             var msg = new MSG();
             while (!quit && WinApi.Win32GetMessage(ref msg, IntPtr.Zero, 0, 0))
             {
-                Console.WriteLine($"EventLoop got msg: {msg.message}");
                 if (msg.message == Msg.WM_QUIT)
                     quit = true;
-
-                // process the events
-                //if (msg.message == Msg.WM_PAINT)
-                //    OnInvalidateRequest();
 
                 // 自定义消息处理
                 if (msg.hwnd == _usrHWND && msg.message == Msg.WM_USER)

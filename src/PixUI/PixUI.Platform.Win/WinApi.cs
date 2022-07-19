@@ -258,6 +258,7 @@ namespace PixUI.Platform.Win
         WM_MBUTTONUP = 0x0208,
         WM_MBUTTONDBLCLK = 0x0209,
         WM_MOUSEWHEEL = 0x020A,
+        WM_MOUSEHWHEEL = 0x020E,
         WM_MOUSELAST = 0x020D,
         //              public const uint WM_XBUTTONDOWN      = 0x020B;
         //              public const uint WM_XBUTTONUP        = 0x020C;
@@ -498,38 +499,6 @@ namespace PixUI.Platform.Win
 
     internal static class WinApi
     {
-        internal static WndProc wnd_proc = InternalWndProc;
-        private static IntPtr InternalWndProc(IntPtr hWnd, Msg msg, IntPtr wParam, IntPtr lParam)
-        {
-            //return NativeWindow.WndProc(hWnd, msg, wParam, lParam);
-            //Console.WriteLine($"InternalWndProc: {hWnd} {msg}");
-            return Win32DefWindowProc(hWnd, msg, wParam, lParam);
-        }
-
-        internal static string RegisterWindowClass(int classStyle)
-        {
-            //TODO: cache to dic
-            var className = $"PixUI.{Thread.GetDomainID()}.{classStyle}";
-            var wndClass = new WNDCLASS();
-            wndClass.style = 1 | 2 | 0x00000020;//classStyle;
-            wndClass.lpfnWndProc = wnd_proc;
-            wndClass.cbClsExtra = 0;
-            wndClass.cbWndExtra = 0;
-            wndClass.hbrBackground = (IntPtr)(GetSysColorIndex.COLOR_WINDOW + 1);
-            wndClass.hCursor = Win32LoadCursor(IntPtr.Zero, LoadCursorType.IDC_ARROW);
-            wndClass.hIcon = IntPtr.Zero;
-            wndClass.hInstance = IntPtr.Zero;
-            wndClass.lpszClassName = className;
-            wndClass.lpszMenuName = "";
-
-            var result = Win32RegisterClass(ref wndClass);
-            if (!result)
-                throw new Exception("Can't register window class");
-
-            return className;
-        }
-
-
         [DllImport("user32.dll", EntryPoint = "CreateWindowExW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32CreateWindow(WindowExStyles dwExStyle, string lpClassName, string lpWindowName, WindowStyles dwStyle, int x, int y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lParam);
 
@@ -551,11 +520,14 @@ namespace PixUI.Platform.Win
         [DllImport("user32.dll", EntryPoint = "PostMessageW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         internal extern static bool Win32PostMessage(IntPtr hwnd, Msg msg, IntPtr wParam, IntPtr lParam);
 
+        [DllImport("user32.dll", EntryPoint = "PostQuitMessage", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32PostQuitMessage(int nExitCode);
+
         [DllImport("user32.dll", EntryPoint = "RegisterClassW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        private extern static bool Win32RegisterClass(ref WNDCLASS wndClass);
+        internal extern static bool Win32RegisterClass(ref WNDCLASS wndClass);
 
         [DllImport("user32.dll", EntryPoint = "DefWindowProcW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        private extern static IntPtr Win32DefWindowProc(IntPtr hWnd, Msg Msg, IntPtr wParam, IntPtr lParam);
+        internal extern static IntPtr Win32DefWindowProc(IntPtr hWnd, Msg Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", EntryPoint = "GetDC", CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32GetDC(IntPtr hWnd);
