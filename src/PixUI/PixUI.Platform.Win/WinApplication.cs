@@ -11,14 +11,20 @@ namespace PixUI.Platform.Win
     public sealed class WinApplication : UIApplication
     {
         private static readonly Thread _uiThread = Thread.CurrentThread;
-        private static readonly IntPtr _usrHWND = new IntPtr(0xFFFFFFFF);
         private static readonly IntPtr _invokeMsg = new IntPtr(1);
         private static readonly IntPtr _invalidateMsg = new IntPtr(2);
 
         public static void Run(Widget child)
         {
+            // Init SynchronizationContext
+            SynchronizationContext.SetSynchronizationContext(new WinSynchronizationContext());
             // init platform supports
-            //Cursor.PlatformCursors = new MacCursors();
+            Cursor.PlatformCursors = new WinCursors();
+
+            // 测试加载字体
+            //var fontStream = File.OpenRead("MiSans-Regular.ttf");
+            //var fontData = SKData.Create(fontStream);
+            //FontCollection.Instance.RegisterTypefaceToAsset(fontData, "MiSans", false);
 
             // create and run application
             var app = new WinApplication();
@@ -28,18 +34,11 @@ namespace PixUI.Platform.Win
 
         private void RunInternal(Widget child)
         {
-            // Init SynchronizationContext
-            SynchronizationContext.SetSynchronizationContext(new WinSynchronizationContext());
-
-            // init platform supports
-            Cursor.PlatformCursors = new WinCursors();
-
             // Create root & native window
-            var window = new WinWindow(child);
+            MainWindow = new WinWindow(child);
             // window.InitWindow();
-            window.Attach(NativeWindow.BackendType.Raster);
-            MainWindow = window;
-
+            ((NativeWindow)MainWindow).Attach(NativeWindow.BackendType.Raster);
+           
             // Run EventLoop
             var quit = false;
             var msg = new MSG();
@@ -49,7 +48,7 @@ namespace PixUI.Platform.Win
                     quit = true;
 
                 // 自定义消息处理
-                if (msg.hwnd == _usrHWND && msg.message == Msg.WM_USER)
+                if (msg.message == Msg.WM_USER)
                 {
                     if (msg.wParam == _invokeMsg)
                     {
@@ -75,14 +74,23 @@ namespace PixUI.Platform.Win
 
         public override void BeginInvoke(Action action)
         {
+            //HWND_BROADCAST = 0xFFFF
+            var win = (WinWindow)MainWindow;
             var gcHandle = GCHandle.Alloc(action);
-            WinApi.Win32PostMessage(_usrHWND, Msg.WM_USER, _invokeMsg, GCHandle.ToIntPtr(gcHandle));
+            var ok = WinApi.Win32PostMessage(win.MSWindow, Msg.WM_USER, _invokeMsg, GCHandle.ToIntPtr(gcHandle));
+            if (!ok)
+            {
+                gcHandle.Free();
+                Console.WriteLine("Can't post message to event loop");
+            }
         }
 
         public override void PostInvalidateEvent()
         {
             //TODO:
-            WinApi.Win32PostMessage(_usrHWND, Msg.WM_USER, _invalidateMsg, IntPtr.Zero);
+            var ok = WinApi.Win32PostMessage(IntPtr.Zero, Msg.WM_USER, _invalidateMsg, IntPtr.Zero);
+            if (!ok)
+                Console.WriteLine("Can't post message to event loop");
         }
     }
 }

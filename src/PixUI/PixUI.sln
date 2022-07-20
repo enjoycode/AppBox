@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.Platform.Win", "PixUI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.Demo.Win", "PixUI.Demo.Win\PixUI.Demo.Win.csproj", "{40B9FD31-5D6D-4CF4-8207-5B01CF037C69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Demo", "PixUI.Demo\PixUI.Demo.csproj", "{59B0D778-B916-4754-8783-F1ABC5DF73BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +84,12 @@ Global
 		{40B9FD31-5D6D-4CF4-8207-5B01CF037C69}.DebugWeb|Any CPU.Build.0 = Debug|Any CPU
 		{40B9FD31-5D6D-4CF4-8207-5B01CF037C69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40B9FD31-5D6D-4CF4-8207-5B01CF037C69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.DebugWeb|Any CPU.ActiveCfg = Debug|Any CPU
+		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.DebugWeb|Any CPU.Build.0 = Debug|Any CPU
+		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

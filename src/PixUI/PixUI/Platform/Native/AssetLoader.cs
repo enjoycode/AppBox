@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace PixUI.Platform
 {
@@ -12,6 +13,17 @@ namespace PixUI.Platform
 
         public static Stream? LoadAsStream(string assemblyName, string path)
         {
+            //TODO:??Windows??
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var filePath = path;
+                if (path == "MaterialIcons.woff2")
+                    filePath = "MaterialIcons.ttf";
+                else if (path == "MaterialIconsOutlined.woff2")
+                    filePath = "MaterialIconsOutlined.otf";
+                return File.OpenRead(filePath);
+            }
+
             Assembly? asm;
             lock (AsmCaches)
             {

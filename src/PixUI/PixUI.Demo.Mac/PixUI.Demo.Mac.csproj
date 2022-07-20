@@ -8,11 +8,11 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixUI.CodeEditor\PixUI.CodeEditor.csproj" />
+    <ProjectReference Include="..\PixUI.Demo\PixUI.Demo.csproj" />
     <ProjectReference Include="..\PixUI.Platform.Mac\PixUI.Platform.Mac.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Resources\Cat.webp" />
-    <EmbeddedResource Include="Resources\Cat.webp" />
   </ItemGroup>
 
   <ItemGroup>

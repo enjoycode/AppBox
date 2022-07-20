@@ -17,7 +17,7 @@ namespace PixUI
         private readonly HashSet<string> _loading = new();
         private readonly Dictionary<string, SKTypeface> _loaded = new();
 
-        public IntPtr Handle => _fontCollectionHandle;
+        internal IntPtr Handle => _fontCollectionHandle;
 
         public event Action? FontChanged;
 
