@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 enum Level
 {
@@ -17,6 +18,8 @@ class TestString
         var len = str1.Length;
         var empty = string.Empty;
         var starts = empty.StartsWith("some");
+
+        EqualityComparer<int>.Default.Equals(1, 2); //will to System.Equals(1, 2)
     }
 }
 

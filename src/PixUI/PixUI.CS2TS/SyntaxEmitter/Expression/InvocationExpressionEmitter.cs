@@ -33,13 +33,18 @@ namespace PixUI.CS2TS
                 return;
 
             //尝试转换系统方法调用, eg: Console.Write(), Math.Max()
-            if (methodSymbol.IsSystemNamespace() &&
-                SystemInterceptorMap.TryGetInterceptor(methodSymbol.ContainingType.ToString(),
-                    out var systemInterceptor))
+            if (methodSymbol.IsSystemNamespace())
             {
-                emitter.WriteLeadingTrivia(node);
-                systemInterceptor.Emit(emitter, node, methodSymbol);
-                return;
+                var systemType = methodSymbol.ContainingType.IsGenericType
+                    ? methodSymbol.ContainingType.OriginalDefinition
+                    : methodSymbol.ContainingType;
+                if (SystemInterceptorMap.TryGetInterceptor(systemType.ToString(),
+                        out var systemInterceptor))
+                {
+                    emitter.WriteLeadingTrivia(node);
+                    systemInterceptor.Emit(emitter, node, methodSymbol);
+                    return;
+                }
             }
 
             //尝试使用拦截器

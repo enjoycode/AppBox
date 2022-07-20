@@ -15,7 +15,6 @@ namespace PixUI.UnitTests.CS2TS
         public async Task EmitPixUI()
         {
             const string prjPath = "../../../../PixUI/";
-            //const string outPath = "../../../../PixUI.Platform.Web/src/PixUI/Generated/";
             const string outPath = "../../../../../Dev.Web/src/PixUI/Generated/";
 
             var translator = new Translator("PixUI");

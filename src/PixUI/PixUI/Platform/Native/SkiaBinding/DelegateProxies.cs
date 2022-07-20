@@ -1,3 +1,4 @@
+#if !__WEB__
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -347,3 +348,4 @@ namespace PixUI
         public Type Type { get; private set; }
     }
 }
+#endif

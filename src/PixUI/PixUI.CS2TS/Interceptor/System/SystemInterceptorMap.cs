@@ -15,6 +15,7 @@ namespace PixUI.CS2TS
             { "System.Array", new ArrayInterceptor() },
             { "System.WeakReference", new WeakReferenceInterceptor() },
             { "System.Threading.Tasks.Task", new TaskInterceptor() },
+            { "System.Collections.Generic.EqualityComparer<T>", new EqualityComparerInterceptor() },
             { "string", new StringInterceptor() },
             { "byte", NumberInterceptor.Default },
             { "float", NumberInterceptor.Default },

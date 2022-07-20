@@ -1,6 +1,12 @@
+import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class Rx<T> extends PixUI.State<T> {
+    public constructor(value: T) {
+        super();
+        this._value = value;
+    }
+
     private _value: T;
 
     public get Readonly(): boolean {
@@ -12,13 +18,8 @@ export class Rx<T> extends PixUI.State<T> {
     }
 
     public set Value(value: T) {
-        //TODO:相等判断
+        if (System.Equals(this._value, value)) return;
         this._value = value;
         this.OnValueChanged();
-    }
-
-    public constructor(value: T) {
-        super();
-        this._value = value;
     }
 }

@@ -52,7 +52,8 @@ namespace PixUI.CS2TS
             emitter.Write(output);
         }
 
-        private void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node, ISymbol symbol)
+        private void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node,
+            ISymbol symbol)
         {
             //TODO: 默认值及可选参数处理，以下参数数量会与模版不匹配
             var argList = node.ArgumentList;
@@ -60,8 +61,13 @@ namespace PixUI.CS2TS
 
             //先处理Expression
             emitter.UseTempOutput();
-            var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
-            emitter.Visit(memberAccess.Expression);
+            if (node.Expression is MemberAccessExpressionSyntax memberAccess)
+                emitter.Visit(memberAccess.Expression);
+            else if (node.Expression is IdentifierNameSyntax identifierName)
+                emitter.Visit(identifierName);
+            else
+                throw new NotImplementedException(
+                    $"{nameof(TSTemplateInterceptor)}.{node.Expression.GetType()}");
             args[0] = emitter.GetTempOutput();
 
             //再处理参数列表

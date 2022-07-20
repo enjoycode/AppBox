@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace PixUI
@@ -6,6 +5,11 @@ namespace PixUI
     [TSNoInitializer]
     public sealed class Rx<T> : State<T>
     {
+        public Rx(T value)
+        {
+            _value = value;
+        }
+
         private T _value;
 
         public override bool Readonly => false;
@@ -15,19 +19,10 @@ namespace PixUI
             get => _value;
             set
             {
-                if (IsValueEquals(_value, value)) return;
+                if (EqualityComparer<T>.Default.Equals(_value, value)) return;
                 _value = value;
                 OnValueChanged();
             }
-        }
-
-        [TSTemplate("System.Equals({1}, {2})")] //TODO:考虑CS2TS直接转换EqualityComparer
-        private static bool IsValueEquals(T a, T b)
-            => EqualityComparer<T>.Default.Equals(a, b);
-
-        public Rx(T value)
-        {
-            _value = value;
         }
 
         //类似Nullable<T>暂不支持隐式转换为相应的值
