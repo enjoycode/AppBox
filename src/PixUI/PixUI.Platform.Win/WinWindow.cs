@@ -9,28 +9,34 @@ namespace PixUI.Platform.Win
 {
     public sealed class WinWindow : NativeWindow
     {
+        public WinWindow(Widget child) : base(child) { }
         internal IntPtr HWND { get; private set; }
-
+        private float _scaleFactor = 1;
+        public override float ScaleFactor => _scaleFactor;
         private static bool _hasRegisterWinCls = false;
         private static WndProcFunc _wndProc = new WndProcFunc(WndProc);
 
-        public WinWindow(Widget child) : base(child)
-        {
-        }
-
         private void InitWindow()
         {
+            var x = 50;
+            var y = 50;
+            var width = (int)(950 * _scaleFactor);
+            var height = (int)(705 * _scaleFactor);
+
             var className = RegisterWindowClass();
             HWND = WinApi.Win32CreateWindow(WindowExStyles.WS_EX_APPWINDOW, className, "Demo",
                 WindowStyles.WS_OVERLAPPED | WindowStyles.WS_CAPTION |
                 WindowStyles.WS_SYSMENU | WindowStyles.WS_MINIMIZEBOX | WindowStyles.WS_MAXIMIZEBOX,
-                50, 50, 911, 666, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+                x, y, width, height, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
             if (HWND == IntPtr.Zero)
                 throw new Exception("Can't create native window");
         }
 
         public override bool Attach(BackendType backendType)
         {
+            var systemDpi = WinApi.Win32GetDpiForSystem();
+            _scaleFactor = systemDpi / 96f;
+
             InitWindow();
 
             WindowContext = new WinRasterWindowContext(this, new DisplayParams());
@@ -86,8 +92,8 @@ namespace PixUI.Platform.Win
                     return eventHandled;
                 case Msg.WM_MOUSEMOVE:
                     {
-                        var xPos = lParam.ToInt32() & 0xFFFF;
-                        var yPos = lParam.ToInt32() >> 16;
+                        var xPos = (lParam.ToInt32() & 0xFFFF) / win.ScaleFactor;
+                        var yPos = (lParam.ToInt32() >> 16) / win.ScaleFactor;
                         var buttons = GetButtonsFromWParam(wParam.ToInt64());
                         //Console.WriteLine($"MouseMove: pos=[{xPos}, {yPos}] btn={buttons}");
                         win.OnPointerMove(PointerEvent.UseDefault(buttons, xPos, yPos, 0, 0));
@@ -100,8 +106,8 @@ namespace PixUI.Platform.Win
                     }
                 case Msg.WM_MOUSEWHEEL:
                     {
-                        var xPos = lParam.ToInt32() & 0xFFFF;
-                        var yPos = lParam.ToInt32() >> 16;
+                        var xPos = (lParam.ToInt32() & 0xFFFF) / win.ScaleFactor;
+                        var yPos = (lParam.ToInt32() >> 16) / win.ScaleFactor;
                         var delta = (short)(wParam.ToInt64() >> 16);
                         //Console.WriteLine($"MouseWheel: {delta}");
                         win.OnScroll(ScrollEvent.Make(xPos, yPos, 0, -delta));
@@ -109,8 +115,8 @@ namespace PixUI.Platform.Win
                     }
                 case Msg.WM_MOUSEHWHEEL:
                     {
-                        var xPos = lParam.ToInt32() & 0xFFFF;
-                        var yPos = lParam.ToInt32() >> 16;
+                        var xPos = (lParam.ToInt32() & 0xFFFF) / win.ScaleFactor;
+                        var yPos = (lParam.ToInt32() >> 16) / win.ScaleFactor;
                         var delta = (short)(wParam.ToInt64() >> 16);
                         win.OnScroll(ScrollEvent.Make(xPos, yPos, delta, 0));
                         return eventHandled;
@@ -118,16 +124,16 @@ namespace PixUI.Platform.Win
                 case Msg.WM_LBUTTONDOWN:
                 case Msg.WM_RBUTTONDOWN:
                     {
-                        var xPos = lParam.ToInt32() & 0xFFFF;
-                        var yPos = lParam.ToInt32() >> 16;
+                        var xPos = (lParam.ToInt32() & 0xFFFF) / win.ScaleFactor;
+                        var yPos = (lParam.ToInt32() >> 16) / win.ScaleFactor;
                         win.OnPointerDown(PointerEvent.UseDefault(GetButtonsFromWParam(wParam.ToInt64()), xPos, yPos, 0, 0));
                         return eventHandled;
                     }
                 case Msg.WM_LBUTTONUP:
                 case Msg.WM_RBUTTONUP:
                     {
-                        var xPos = lParam.ToInt32() & 0xFFFF;
-                        var yPos = lParam.ToInt32() >> 16;
+                        var xPos = (lParam.ToInt32() & 0xFFFF) / win.ScaleFactor;
+                        var yPos = (lParam.ToInt32() >> 16) / win.ScaleFactor;
                         win.OnPointerUp(PointerEvent.UseDefault(GetButtonsFromWParam(wParam.ToInt64()), xPos, yPos, 0, 0));
                         return eventHandled;
                     }

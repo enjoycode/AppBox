@@ -26,9 +26,10 @@ namespace PixUI.Platform.Win
 
         private unsafe void InitContext()
         {
-            //TODO: fix size, get window client rectangle
-            Width = 911;
-            Height = 666;
+            //set size to window client rectangle
+            WinApi.Win32GetClientRect(((WinWindow)NativeWindow).HWND, out var clientRect);
+            Width = clientRect.right - clientRect.left;
+            Height = clientRect.bottom - clientRect.top;
 
             // alloc surface memory
             var memSize = sizeof(BITMAPINFOHEADER) + Width * Height * sizeof(uint);
@@ -39,6 +40,9 @@ namespace PixUI.Platform.Win
             _offscreenSurface = CreateSurface(_offscreenSufaceMem, Width, Height);
             _onscreenCanvas = _onscreenSurface.Canvas;
             _offscreenCanvas = _offscreenSurface.Canvas;
+
+            //直接缩放一次OffscreenCanvas，后续就不用处理了
+            _offscreenCanvas.Scale(NativeWindow.ScaleFactor, NativeWindow.ScaleFactor);
         }
 
         private unsafe SKSurface CreateSurface(IntPtr memPtr, int w, int h)

@@ -505,6 +505,9 @@ namespace PixUI.Platform.Win
 
     internal static class WinApi
     {
+        [DllImport("user32.dll", EntryPoint = "SetProcessDPIAware", CallingConvention = CallingConvention.StdCall)]
+        internal static extern int Win32SetProcessDPIAware();
+
         [DllImport("user32.dll", EntryPoint = "CreateWindowExW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32CreateWindow(WindowExStyles dwExStyle, string lpClassName, string lpWindowName, WindowStyles dwStyle,
             int x, int y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lParam);
@@ -514,6 +517,12 @@ namespace PixUI.Platform.Win
 
         [DllImport("user32.dll", EntryPoint = "ShowWindow", CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32ShowWindow(IntPtr hwnd, WindowPlacementFlags nCmdShow);
+
+        [DllImport("user32.dll", EntryPoint = "GetDpiForSystem", CallingConvention = CallingConvention.StdCall)]
+        internal extern static uint Win32GetDpiForSystem();
+
+        [DllImport("user32.dll", EntryPoint = "GetClientRect", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32GetClientRect(IntPtr hWnd, out RECT rect);
 
         [DllImport("user32.dll", EntryPoint = "GetMessage", CallingConvention = CallingConvention.StdCall)]
         internal extern static int Win32GetMessage(ref MSG msg, IntPtr hWnd, uint wFilterMin, uint wFilterMax);

@@ -8,12 +8,12 @@ namespace PixUI.Platform
         protected GRContext? Context;
 
         /// <summary>
-        /// 实际像素宽度
+        /// Canvas physics pixel width 实际像素宽度
         /// </summary>
         public int Width { get; protected set; }
 
         /// <summary>
-        /// 实际像素高度
+        /// Canvas physics pixel height 实际像素高度
         /// </summary>
         public int Height { get; protected set; }
 

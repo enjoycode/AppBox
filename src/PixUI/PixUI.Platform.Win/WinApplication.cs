@@ -19,6 +19,8 @@ namespace PixUI.Platform.Win
             // init platform supports
             Cursor.PlatformCursors = new WinCursors();
 
+            WinApi.Win32SetProcessDPIAware();
+
             // 测试加载字体
             //var fontStream = File.OpenRead("MiSans-Regular.ttf");
             //var fontData = SKData.Create(fontStream);
