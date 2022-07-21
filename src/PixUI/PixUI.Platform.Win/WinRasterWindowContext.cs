@@ -67,7 +67,7 @@ namespace PixUI.Platform.Win
 
         public unsafe override void SwapBuffers()
         {
-            var hWnd = ((WinWindow)NativeWindow).MSWindow;
+            var hWnd = ((WinWindow)NativeWindow).HWND;
             void* bmiPtr = _onscreenSurfaceMem.ToPointer();
             void* bitsPtr = (_onscreenSurfaceMem + sizeof(BITMAPINFOHEADER)).ToPointer();
             var dc = WinApi.Win32GetDC(hWnd);

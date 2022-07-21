@@ -32,7 +32,7 @@ namespace PixUI.Demo.Mac
 
         private static Widget[] BuildList()
         {
-            var list = new Widget[10];
+            var list = new Widget[50];
             for (var i = 0; i < list.Length; i++)
             {
                 list[i] = new Card()

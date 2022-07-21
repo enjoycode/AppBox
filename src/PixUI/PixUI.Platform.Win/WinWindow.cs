@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,9 +9,10 @@ namespace PixUI.Platform.Win
 {
     public sealed class WinWindow : NativeWindow
     {
-        internal IntPtr MSWindow { get; private set; }
+        internal IntPtr HWND { get; private set; }
 
         private static bool _hasRegisterWinCls = false;
+        private static WndProcFunc _wndProc = new WndProcFunc(WndProc);
 
         public WinWindow(Widget child) : base(child)
         {
@@ -19,11 +21,11 @@ namespace PixUI.Platform.Win
         private void InitWindow()
         {
             var className = RegisterWindowClass();
-            MSWindow = WinApi.Win32CreateWindow(WindowExStyles.WS_EX_APPWINDOW, className, "Demo",
+            HWND = WinApi.Win32CreateWindow(WindowExStyles.WS_EX_APPWINDOW, className, "Demo",
                 WindowStyles.WS_OVERLAPPED | WindowStyles.WS_CAPTION |
                 WindowStyles.WS_SYSMENU | WindowStyles.WS_MINIMIZEBOX | WindowStyles.WS_MAXIMIZEBOX,
                 50, 50, 911, 666, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
-            if (MSWindow == IntPtr.Zero)
+            if (HWND == IntPtr.Zero)
                 throw new Exception("Can't create native window");
         }
 
@@ -39,7 +41,8 @@ namespace PixUI.Platform.Win
 
         protected override void Show()
         {
-            WinApi.Win32ShowWindow(MSWindow, WindowPlacementFlags.SW_SHOWNORMAL);
+            WinApi.Win32ShowWindow(HWND, WindowPlacementFlags.SW_SHOWNORMAL);
+            //WinApi.Win32UpdateWindow(HWND);
         }
 
         private static string RegisterWindowClass()
@@ -50,7 +53,7 @@ namespace PixUI.Platform.Win
 
             var wndClass = new WNDCLASS();
             wndClass.style = 1 | 2 | 0x00000020;//classStyle;
-            wndClass.lpfnWndProc = WndProc;
+            wndClass.lpfnWndProc = _wndProc;
             wndClass.cbClsExtra = 0;
             wndClass.cbWndExtra = 0;
             wndClass.hbrBackground = (IntPtr)(GetSysColorIndex.COLOR_WINDOW + 1);
@@ -69,9 +72,12 @@ namespace PixUI.Platform.Win
 
         private static IntPtr WndProc(IntPtr hWnd, Msg msg, IntPtr wParam, IntPtr lParam)
         {
-            var eventHandled = new IntPtr(0);
+            var eventHandled = IntPtr.Zero;
+            var ps = new PAINTSTRUCT();
 
-            var win = Current; //TODO:暂单窗体
+            var win = (WinWindow)Current; //TODO:暂单窗体
+            if (hWnd != win.HWND)
+                return WinApi.Win32DefWindowProc(hWnd, msg, wParam, lParam);
 
             switch (msg)
             {
@@ -98,7 +104,7 @@ namespace PixUI.Platform.Win
                         var yPos = lParam.ToInt32() >> 16;
                         var delta = (short)(wParam.ToInt64() >> 16);
                         //Console.WriteLine($"MouseWheel: {delta}");
-                        win.OnScroll(ScrollEvent.Make(xPos, yPos, 0, delta));
+                        win.OnScroll(ScrollEvent.Make(xPos, yPos, 0, -delta));
                         return eventHandled;
                     }
                 case Msg.WM_MOUSEHWHEEL:
@@ -109,6 +115,31 @@ namespace PixUI.Platform.Win
                         win.OnScroll(ScrollEvent.Make(xPos, yPos, delta, 0));
                         return eventHandled;
                     }
+                case Msg.WM_LBUTTONDOWN:
+                case Msg.WM_RBUTTONDOWN:
+                    {
+                        var xPos = lParam.ToInt32() & 0xFFFF;
+                        var yPos = lParam.ToInt32() >> 16;
+                        win.OnPointerDown(PointerEvent.UseDefault(GetButtonsFromWParam(wParam.ToInt64()), xPos, yPos, 0, 0));
+                        return eventHandled;
+                    }
+                case Msg.WM_LBUTTONUP:
+                case Msg.WM_RBUTTONUP:
+                    {
+                        var xPos = lParam.ToInt32() & 0xFFFF;
+                        var yPos = lParam.ToInt32() >> 16;
+                        win.OnPointerUp(PointerEvent.UseDefault(GetButtonsFromWParam(wParam.ToInt64()), xPos, yPos, 0, 0));
+                        return eventHandled;
+                    }
+                case Msg.WM_SETCURSOR:
+                    if ((lParam.ToInt32() & 0xFFFF) != 1 /*HTCLIENT*/)
+                        return WinApi.Win32DefWindowProc(hWnd, msg, wParam, lParam);
+                    return eventHandled;
+                case Msg.WM_PAINT:
+                    //Console.WriteLine($"Got WM_PAINT {DateTime.Now}");
+                    WinApi.Win32BeginPaint(win.HWND, ref ps);
+                    WinApi.Win32EndPaint(win.HWND, ref ps);
+                    return eventHandled;
                 default:
                     return WinApi.Win32DefWindowProc(hWnd, msg, wParam, lParam);
             }

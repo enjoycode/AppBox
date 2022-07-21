@@ -11,8 +11,6 @@ namespace PixUI.Platform.Win
     public sealed class WinApplication : UIApplication
     {
         private static readonly Thread _uiThread = Thread.CurrentThread;
-        private static readonly IntPtr _invokeMsg = new IntPtr(1);
-        private static readonly IntPtr _invalidateMsg = new IntPtr(2);
 
         public static void Run(Widget child)
         {
@@ -35,37 +33,46 @@ namespace PixUI.Platform.Win
         private void RunInternal(Widget child)
         {
             // Create root & native window
-            MainWindow = new WinWindow(child);
+            var win = new WinWindow(child);
+            MainWindow = win;
             // window.InitWindow();
             ((NativeWindow)MainWindow).Attach(NativeWindow.BackendType.Raster);
-           
+
             // Run EventLoop
-            var quit = false;
+            var ps = new PAINTSTRUCT();
             var msg = new MSG();
-            while (!quit && WinApi.Win32GetMessage(ref msg, IntPtr.Zero, 0, 0))
+            do
             {
+                var ret = WinApi.Win32GetMessage(ref msg, IntPtr.Zero, 0, 0);
+                if (ret == 0)
+                    break;
+                if (ret == -1)
+                    break;
+
                 if (msg.message == Msg.WM_QUIT)
-                    quit = true;
+                    break;
 
                 // 自定义消息处理
-                if (msg.message == Msg.WM_USER)
+                if (msg.message == Msg.WM_ASYNC_MESSAGE)
                 {
-                    if (msg.wParam == _invokeMsg)
-                    {
-                        var gcHandle = GCHandle.FromIntPtr(msg.lParam);
-                        var action = (Action)gcHandle.Target!;
-                        gcHandle.Free();
-                        action();
-                    }
-                    else if (msg.wParam == _invalidateMsg)
-                    {
-                        OnInvalidateRequest();
-                    }
+                    var gcHandle = GCHandle.FromIntPtr(msg.lParam);
+                    var action = (Action)gcHandle.Target!;
+                    gcHandle.Free();
+                    action();
+                }
+                else if (msg.message == Msg.WM_PAINT)
+                {
+                    WinApi.Win32BeginPaint(win.HWND, ref ps);
+                    OnInvalidateRequest();
+                    WinApi.Win32EndPaint(win.HWND, ref ps);
+                }
+                else
+                {
+                    WinApi.Win32TranslateMessage(ref msg);
+                    WinApi.Win32DispatchMessage(ref msg);
                 }
 
-                WinApi.Win32TranslateMessage(ref msg);
-                WinApi.Win32DispatchMessage(ref msg);
-            }
+            } while (true);
 
             Console.WriteLine("Application exit.");
         }
@@ -77,20 +84,20 @@ namespace PixUI.Platform.Win
             //HWND_BROADCAST = 0xFFFF
             var win = (WinWindow)MainWindow;
             var gcHandle = GCHandle.Alloc(action);
-            var ok = WinApi.Win32PostMessage(win.MSWindow, Msg.WM_USER, _invokeMsg, GCHandle.ToIntPtr(gcHandle));
+            var ok = WinApi.Win32PostMessage(win.HWND, Msg.WM_ASYNC_MESSAGE, IntPtr.Zero, GCHandle.ToIntPtr(gcHandle));
             if (!ok)
             {
                 gcHandle.Free();
-                Console.WriteLine("Can't post message to event loop");
+                Console.WriteLine("Can't post async message to event loop");
             }
         }
 
         public override void PostInvalidateEvent()
         {
-            //TODO:
-            var ok = WinApi.Win32PostMessage(IntPtr.Zero, Msg.WM_USER, _invalidateMsg, IntPtr.Zero);
-            if (!ok)
-                Console.WriteLine("Can't post message to event loop");
+            var win = (WinWindow)MainWindow;
+            var res = WinApi.Win32InvalidateRect(win.HWND, IntPtr.Zero, false);
+            if (res == IntPtr.Zero)
+                Console.WriteLine("Can't post update message to event loop");
         }
     }
 }

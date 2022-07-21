@@ -96,7 +96,7 @@ namespace PixUI.Platform.Win
         SW_MAX = 11
     }
 
-    internal enum Msg
+    internal enum Msg : uint
     {
         WM_NULL = 0x0000,
         WM_CREATE = 0x0001,
@@ -426,22 +426,6 @@ namespace PixUI.Platform.Win
     {
         public int x;
         public int y;
-
-        public POINT(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        public Point ToPoint()
-        {
-            return new Point(x, y);
-        }
-
-        public override string ToString()
-        {
-            return "Point {" + x.ToString() + ", " + y.ToString() + "}";
-        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -453,21 +437,16 @@ namespace PixUI.Platform.Win
         internal IntPtr lParam;
         internal uint time;
         internal POINT pt;
-        internal object refobject;
-
-        public override string ToString()
-        {
-            return String.Format("msg=0x{0:x} ({1}) hwnd=0x{2:x} wparam=0x{3:x} lparam=0x{4:x} pt={5}", (int)message, message.ToString(), hwnd.ToInt32(), wParam.ToInt32(), lParam.ToInt32(), pt);
-        }
+        internal uint lPrivate;
     }
 
-    internal delegate IntPtr WndProc(IntPtr hwnd, Msg message, IntPtr wParam, IntPtr lParam);
+    internal delegate IntPtr WndProcFunc(IntPtr hwnd, Msg message, IntPtr wParam, IntPtr lParam);
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct WNDCLASS
     {
         internal int style;
-        internal WndProc lpfnWndProc;
+        internal WndProcFunc lpfnWndProc;
         internal int cbClsExtra;
         internal int cbWndExtra;
         internal IntPtr hInstance;
@@ -495,12 +474,40 @@ namespace PixUI.Platform.Win
         internal uint biClrUsed;
         internal uint biClrImportant;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct RECT
+    {
+        internal int left;
+        internal int top;
+        internal int right;
+        internal int bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct PAINTSTRUCT
+    {
+        internal IntPtr hdc;
+        internal int fErase;
+        internal RECT rcPaint;
+        internal int fRestore;
+        internal int fIncUpdate;
+        internal int Reserved1;
+        internal int Reserved2;
+        internal int Reserved3;
+        internal int Reserved4;
+        internal int Reserved5;
+        internal int Reserved6;
+        internal int Reserved7;
+        internal int Reserved8;
+    }
     #endregion
 
     internal static class WinApi
     {
         [DllImport("user32.dll", EntryPoint = "CreateWindowExW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        internal extern static IntPtr Win32CreateWindow(WindowExStyles dwExStyle, string lpClassName, string lpWindowName, WindowStyles dwStyle, int x, int y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lParam);
+        internal extern static IntPtr Win32CreateWindow(WindowExStyles dwExStyle, string lpClassName, string lpWindowName, WindowStyles dwStyle,
+            int x, int y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lParam);
 
         [DllImport("user32.dll", EntryPoint = "DestroyWindow", CallingConvention = CallingConvention.StdCall)]
         internal extern static bool Win32DestroyWindow(IntPtr hWnd);
@@ -508,13 +515,13 @@ namespace PixUI.Platform.Win
         [DllImport("user32.dll", EntryPoint = "ShowWindow", CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32ShowWindow(IntPtr hwnd, WindowPlacementFlags nCmdShow);
 
-        [DllImport("user32.dll", EntryPoint = "GetMessageW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        internal extern static bool Win32GetMessage(ref MSG msg, IntPtr hWnd, int wFilterMin, int wFilterMax);
+        [DllImport("user32.dll", EntryPoint = "GetMessage", CallingConvention = CallingConvention.StdCall)]
+        internal extern static int Win32GetMessage(ref MSG msg, IntPtr hWnd, uint wFilterMin, uint wFilterMax);
 
         [DllImport("user32.dll", EntryPoint = "TranslateMessage", CallingConvention = CallingConvention.StdCall)]
         internal extern static bool Win32TranslateMessage(ref MSG msg);
 
-        [DllImport("user32.dll", EntryPoint = "DispatchMessageW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+        [DllImport("user32.dll", EntryPoint = "DispatchMessage", CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32DispatchMessage(ref MSG msg);
 
         [DllImport("user32.dll", EntryPoint = "PostMessageW", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
@@ -537,6 +544,18 @@ namespace PixUI.Platform.Win
 
         [DllImport("user32.dll", EntryPoint = "ReleaseDC", CallingConvention = CallingConvention.StdCall)]
         internal extern static IntPtr Win32ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        [DllImport("user32.dll", EntryPoint = "UpdateWindow", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32UpdateWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", EntryPoint = "InvalidateRect", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32InvalidateRect(IntPtr hWnd, IntPtr rect, bool bErase);
+
+        [DllImport("user32.dll", EntryPoint = "BeginPaint", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32BeginPaint(IntPtr hWnd, ref PAINTSTRUCT ps);
+
+        [DllImport("user32.dll", EntryPoint = "EndPaint", CallingConvention = CallingConvention.StdCall)]
+        internal extern static bool Win32EndPaint(IntPtr hWnd, ref PAINTSTRUCT ps);
 
         [DllImport("gdi32.dll", EntryPoint = "BitBlt", CallingConvention = CallingConvention.StdCall)]
         internal static extern bool Win32BitBlt(IntPtr hObject, int nXDest, int nYDest, int nWidth,
