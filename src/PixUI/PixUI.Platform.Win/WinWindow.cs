@@ -16,6 +16,8 @@ namespace PixUI.Platform.Win
         private static bool _hasRegisterWinCls = false;
         private static WndProcFunc _wndProc = new WndProcFunc(WndProc);
 
+        private char _highSurrogate;
+
         private void InitWindow()
         {
             var x = 50;
@@ -96,7 +98,7 @@ namespace PixUI.Platform.Win
                         var yPos = (lParam.ToInt32() >> 16) / win.ScaleFactor;
                         var buttons = GetButtonsFromWParam(wParam.ToInt64());
                         //Console.WriteLine($"MouseMove: pos=[{xPos}, {yPos}] btn={buttons}");
-                        win.OnPointerMove(PointerEvent.UseDefault(buttons, xPos, yPos, 0, 0));
+                        win.OnPointerMove(PointerEvent.UseDefault(buttons, xPos, yPos, xPos - win.LastMouseX, yPos - win.LastMouseY));
                         return eventHandled;
                     }
                 case Msg.WM_NCMOUSEMOVE:
@@ -141,6 +143,46 @@ namespace PixUI.Platform.Win
                     if ((lParam.ToInt32() & 0xFFFF) != 1 /*HTCLIENT*/)
                         return WinApi.Win32DefWindowProc(hWnd, msg, wParam, lParam);
                     return eventHandled;
+                case Msg.WM_KEYDOWN:
+                case Msg.WM_SYSKEYDOWN:
+                    {
+                        var keys = (Keys)wParam.ToInt32();
+                        win.OnKeyDown(KeyEvent.UseDefault(keys | GetModifierKeys()));
+                        return eventHandled;
+                    }
+                case Msg.WM_KEYUP:
+                case Msg.WM_SYSKEYUP:
+                    {
+                        var keys = (Keys)wParam.ToInt32();
+                        win.OnKeyUp(KeyEvent.UseDefault(keys | GetModifierKeys()));
+                        return eventHandled;
+                    }
+                case Msg.WM_CHAR:
+                    {
+                        var ch = (char)wParam.ToInt32();
+                        //Don't post text events for unprintable characters
+                        if (ch < ' ' || ch == 127)
+                            return eventHandled;
+
+                        if (IsHighSurrogate(ch))
+                        {
+                            win._highSurrogate = ch;
+                        }
+                        else if (IsHighSurrogate(win._highSurrogate) && IsLowSurrogate(ch))
+                        {
+                            var text = string.Create<object?>(2, null, (span, arg) =>
+                            {
+                                span[0] = win._highSurrogate;
+                                span[1] = ch;
+                            });
+                            win._highSurrogate = (char)0;
+                        }
+                        else
+                        {
+                            win.OnTextInput(ch.ToString());
+                        }
+                        return eventHandled;
+                    }
                 case Msg.WM_PAINT:
                     //Console.WriteLine($"Got WM_PAINT {DateTime.Now}");
                     WinApi.Win32BeginPaint(win.HWND, ref ps);
@@ -164,5 +206,21 @@ namespace PixUI.Platform.Win
 
             return buttons;
         }
+
+        private static Keys GetModifierKeys()
+        {
+            Keys key_state = Keys.None;
+            if ((WinApi.Win32GetKeyState(VirtualKeys.VK_SHIFT) & 0x8000) != 0)
+                key_state |= Keys.Shift;
+            if ((WinApi.Win32GetKeyState(VirtualKeys.VK_CONTROL) & 0x8000) != 0)
+                key_state |= Keys.Control;
+            if ((WinApi.Win32GetKeyState(VirtualKeys.VK_MENU) & 0x8000) != 0)
+                key_state |= Keys.Alt;
+            return key_state;
+        }
+
+        private static bool IsHighSurrogate(char ch) => (ch >= 0xd800) && (ch <= 0xdbff);
+
+        private static bool IsLowSurrogate(char ch) => (ch >= 0xdc00) && (ch <= 0xdfff);
     }
 }

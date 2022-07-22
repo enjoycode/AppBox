@@ -42,6 +42,8 @@ namespace PixUI
 
         private float _lastMouseX = -1;
         private float _lastMouseY = -1;
+        protected float LastMouseX => _lastMouseX;
+        protected float LastMouseY => _lastMouseY;
 
         // Pointer.Move时检测命中的结果
         private HitTestResult _oldHitResult = new HitTestResult();
