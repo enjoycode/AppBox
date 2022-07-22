@@ -24,7 +24,7 @@
       <Kind>Dynamic</Kind>
       <SmartLink>False</SmartLink>
     </NativeReference>
-    <NativeReference Include="..\PixUI.CodeEditor\libs\osx-x64\libtree-sitter-c-sharp.dylib">
+    <NativeReference Include="..\PixUI.CodeEditor\libs\osx-x64\libtree-sitter-csharp.dylib">
       <Kind>Dynamic</Kind>
       <SmartLink>False</SmartLink>
     </NativeReference>
