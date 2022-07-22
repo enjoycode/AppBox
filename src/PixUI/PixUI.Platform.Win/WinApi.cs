@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -577,6 +578,48 @@ namespace PixUI.Platform.Win
         VK_OEM_CLEAR = 0xFE,
     }
 
+    internal enum ClipboardFormats : ushort
+    {
+        CF_TEXT = 1,
+        CF_BITMAP = 2,
+        CF_METAFILEPICT = 3,
+        CF_SYLK = 4,
+        CF_DIF = 5,
+        CF_TIFF = 6,
+        CF_OEMTEXT = 7,
+        CF_DIB = 8,
+        CF_PALETTE = 9,
+        CF_PENDATA = 10,
+        CF_RIFF = 11,
+        CF_WAVE = 12,
+        CF_UNICODETEXT = 13,
+        CF_ENHMETAFILE = 14,
+        CF_HDROP = 15,
+        CF_LOCALE = 16,
+        CF_DIBV5 = 17
+    }
+
+    [Flags]
+    internal enum GAllocFlags : uint
+    {
+        GMEM_FIXED = 0x0000,
+        GMEM_MOVEABLE = 0x0002,
+        GMEM_NOCOMPACT = 0x0010,
+        GMEM_NODISCARD = 0x0020,
+        GMEM_ZEROINIT = 0x0040,
+        GMEM_MODIFY = 0x0080,
+        GMEM_DISCARDABLE = 0x0100,
+        GMEM_NOT_BANKED = 0x1000,
+        GMEM_SHARE = 0x2000,
+        GMEM_DDESHARE = 0x2000,
+        GMEM_NOTIFY = 0x4000,
+        GMEM_LOWER = GMEM_NOT_BANKED,
+        GMEM_VALID_FLAGS = 0x7F72,
+        GMEM_INVALID_HANDLE = 0x8000,
+        GHND = (GMEM_MOVEABLE | GMEM_ZEROINIT),
+        GPTR = (GMEM_FIXED | GMEM_ZEROINIT)
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct POINT
     {
@@ -738,6 +781,51 @@ namespace PixUI.Platform.Win
 
         [DllImport("user32.dll", EntryPoint = "GetKeyState", CallingConvention = CallingConvention.StdCall)]
         internal extern static short Win32GetKeyState(VirtualKeys nVirtKey);
+
+        [DllImport("user32.dll", EntryPoint = "OpenClipboard", CallingConvention = CallingConvention.StdCall)]
+        internal extern static bool Win32OpenClipboard(IntPtr hwnd);
+
+        [DllImport("user32.dll", EntryPoint = "CloseClipboard", CallingConvention = CallingConvention.StdCall)]
+        internal extern static bool Win32CloseClipboard();
+
+        [DllImport("user32.dll", EntryPoint = "EmptyClipboard", CallingConvention = CallingConvention.StdCall)]
+        internal extern static bool Win32EmptyClipboard();
+
+        [DllImport("user32.dll", EntryPoint = "GetClipboardData", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32GetClipboardData(uint format);
+
+        [DllImport("user32.dll", EntryPoint = "SetClipboardData", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32SetClipboardData(uint format, IntPtr handle);
+
+        [DllImport("kernel32.dll", EntryPoint = "GlobalAlloc", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32GlobalAlloc(GAllocFlags Flags, int dwBytes);
+
+        [DllImport("kernel32.dll", EntryPoint = "GlobalLock", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32GlobalLock(IntPtr hMem);
+
+        [DllImport("kernel32.dll", EntryPoint = "GlobalUnlock", CallingConvention = CallingConvention.StdCall)]
+        internal extern static IntPtr Win32GlobalUnlock(IntPtr hMem);
+
+        internal unsafe static IntPtr CopyToMoveableMemory(Span<byte> data, bool forString)
+        {
+            if (data == null || data.Length == 0)
+                throw new ArgumentException("Can't create a zero length memory block.");
+
+            var len = forString ? data.Length + 1 : data.Length;
+
+            IntPtr hmem = Win32GlobalAlloc(GAllocFlags.GMEM_MOVEABLE | GAllocFlags.GMEM_DDESHARE, len);
+            if (hmem == IntPtr.Zero)
+                throw new Win32Exception();
+            IntPtr hmem_ptr = Win32GlobalLock(hmem);
+            if (hmem_ptr == IntPtr.Zero) // If the allocation was valid this shouldn't occur.
+                throw new Win32Exception();
+            var dest = new Span<byte>(hmem_ptr.ToPointer(), len);
+            data.CopyTo(dest); //Marshal.Copy(data, 0, hmem_ptr, data.Length);
+            if (forString)
+                dest[data.Length] = 0;
+            Win32GlobalUnlock(hmem);
+            return hmem;
+        }
 
     }
 }

@@ -18,7 +18,8 @@ namespace PixUI.Platform.Win
             SynchronizationContext.SetSynchronizationContext(new WinSynchronizationContext());
             // init platform supports
             Cursor.PlatformCursors = new WinCursors();
-
+            Clipboard.Init(new WinClipboard());
+            // init for hidpi
             WinApi.Win32SetProcessDPIAware();
 
             // 测试加载字体
