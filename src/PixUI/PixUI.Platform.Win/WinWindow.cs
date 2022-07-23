@@ -14,9 +14,10 @@ namespace PixUI.Platform.Win
         private float _scaleFactor = 1;
         public override float ScaleFactor => _scaleFactor;
         private static bool _hasRegisterWinCls = false;
-        private static WndProcFunc _wndProc = new WndProcFunc(WndProc);
+        private static readonly WndProcFunc _wndProc = new WndProcFunc(WndProc);
+        internal static Action OnInvalidateRequest = null!;
 
-        private char _highSurrogate;
+        private char _highSurrogate; //cache for WM_CHAR
 
         private void InitWindow()
         {
@@ -27,8 +28,7 @@ namespace PixUI.Platform.Win
 
             var className = RegisterWindowClass();
             HWND = WinApi.Win32CreateWindow(WindowExStyles.WS_EX_APPWINDOW, className, "Demo",
-                WindowStyles.WS_OVERLAPPED | WindowStyles.WS_CAPTION |
-                WindowStyles.WS_SYSMENU | WindowStyles.WS_MINIMIZEBOX | WindowStyles.WS_MAXIMIZEBOX,
+                WindowStyles.WS_OVERLAPPEDWINDOW,
                 x, y, width, height, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
             if (HWND == IntPtr.Zero)
                 throw new Exception("Can't create native window");
@@ -60,7 +60,7 @@ namespace PixUI.Platform.Win
             _hasRegisterWinCls = true;
 
             var wndClass = new WNDCLASS();
-            wndClass.style = 1 | 2 | 0x00000020;//classStyle;
+            wndClass.style = 1 | 2 | 0x00000020;//CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
             wndClass.lpfnWndProc = _wndProc;
             wndClass.cbClsExtra = 0;
             wndClass.cbWndExtra = 0;
@@ -92,6 +92,15 @@ namespace PixUI.Platform.Win
                 case Msg.WM_CLOSE:
                     WinApi.Win32PostQuitMessage(0);
                     return eventHandled;
+                case Msg.WM_WINDOWPOSCHANGED:
+                    {
+                        WinApi.Win32GetClientRect(win.HWND, out var rect);
+                        var newWidth = rect.right - rect.left;
+                        var newHeight = rect.bottom - rect.top;
+                        if (win.WindowContext!.Width != newWidth || win.WindowContext.Height != newHeight)
+                            win.OnResize(newWidth, newHeight);
+                        return WinApi.Win32DefWindowProc(hWnd, msg, wParam, lParam);
+                    }
                 case Msg.WM_MOUSEMOVE:
                     {
                         var xPos = (lParam.ToInt32() & 0xFFFF) / win.ScaleFactor;
@@ -142,7 +151,8 @@ namespace PixUI.Platform.Win
                 case Msg.WM_SETCURSOR:
                     if ((lParam.ToInt32() & 0xFFFF) != 1 /*HTCLIENT*/)
                         return WinApi.Win32DefWindowProc(hWnd, msg, wParam, lParam);
-                    return eventHandled;
+                    //TODO: fix default cursor on enter window client
+                    return (IntPtr)1;
                 case Msg.WM_KEYDOWN:
                 case Msg.WM_SYSKEYDOWN:
                     {
@@ -186,6 +196,7 @@ namespace PixUI.Platform.Win
                 case Msg.WM_PAINT:
                     //Console.WriteLine($"Got WM_PAINT {DateTime.Now}");
                     WinApi.Win32BeginPaint(win.HWND, ref ps);
+                    OnInvalidateRequest();
                     WinApi.Win32EndPaint(win.HWND, ref ps);
                     return eventHandled;
                 default:

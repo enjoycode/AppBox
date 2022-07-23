@@ -36,13 +36,13 @@ namespace PixUI.Platform.Win
         private void RunInternal(Widget child)
         {
             // Create root & native window
+            WinWindow.OnInvalidateRequest = OnInvalidateRequest;
             var win = new WinWindow(child);
             MainWindow = win;
             // window.InitWindow();
-            ((NativeWindow)MainWindow).Attach(NativeWindow.BackendType.Raster);
+            win.Attach(NativeWindow.BackendType.Raster);
 
             // Run EventLoop
-            var ps = new PAINTSTRUCT();
             var msg = new MSG();
             do
             {
@@ -62,12 +62,6 @@ namespace PixUI.Platform.Win
                     var action = (Action)gcHandle.Target!;
                     gcHandle.Free();
                     action();
-                }
-                else if (msg.message == Msg.WM_PAINT)
-                {
-                    WinApi.Win32BeginPaint(win.HWND, ref ps);
-                    OnInvalidateRequest();
-                    WinApi.Win32EndPaint(win.HWND, ref ps);
                 }
                 else
                 {

@@ -30,7 +30,7 @@ namespace PixUI
             var overlayCanvas = window.GetOnscreenCanvas();
 
             var ctx = PaintContext.Default;
-            ctx.Window = MainWindow;
+            ctx.Window = window;
             var beginTime = DateTime.UtcNow;
 
             //先绘制WidgetsCanvas

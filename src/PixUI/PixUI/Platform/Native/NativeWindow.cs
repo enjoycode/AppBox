@@ -46,11 +46,11 @@ namespace PixUI.Platform
             if (WindowContext == null) return;
 
             WindowContext.Resize(width, height);
-            //加入无效队列，准备重新布局并绘制 TODO:目前Mac resizing期间无法处理重绘
+            //加入无效队列，准备重新布局并绘制
             RootWidget.CachedAvailableWidth = Width;
             RootWidget.CachedAvailableHeight = Height;
             InvalidQueue.Add(RootWidget, InvalidAction.Relayout, null);
-            // Console.WriteLine($"Resize: {width} {height}");
+            //System.Console.WriteLine($"Resize: {width} {height}");
         }
 
         public enum BackendType

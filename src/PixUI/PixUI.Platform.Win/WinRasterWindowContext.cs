@@ -17,10 +17,10 @@ namespace PixUI.Platform.Win
 
         private IntPtr _onscreenSurfaceMem;
         private IntPtr _offscreenSufaceMem;
-        private SKSurface _onscreenSurface;
-        private SKSurface _offscreenSurface;
-        private Canvas _onscreenCanvas;
-        private Canvas _offscreenCanvas;
+        private SKSurface? _onscreenSurface;
+        private SKSurface? _offscreenSurface;
+        private Canvas? _onscreenCanvas;
+        private Canvas? _offscreenCanvas;
 
         public override bool IsGpuContext => false;
 
@@ -31,6 +31,11 @@ namespace PixUI.Platform.Win
             Width = clientRect.right - clientRect.left;
             Height = clientRect.bottom - clientRect.top;
 
+            AllocMemAndCreateSurface();
+        }
+
+        private unsafe void AllocMemAndCreateSurface()
+        {
             // alloc surface memory
             var memSize = sizeof(BITMAPINFOHEADER) + Width * Height * sizeof(uint);
             _onscreenSurfaceMem = Marshal.AllocHGlobal(memSize);
@@ -60,13 +65,24 @@ namespace PixUI.Platform.Win
             return SKSurface.Create(skImgInfo, new IntPtr(pixels), sizeof(uint) * w);
         }
 
-        public override Canvas GetOffScreenCanvas() => _offscreenCanvas;
+        public override Canvas GetOffScreenCanvas() => _offscreenCanvas!;
 
-        public override Canvas GetOnScreenCanvas() => _onscreenCanvas;
+        public override Canvas GetOnScreenCanvas() => _onscreenCanvas!;
 
         public override void Resize(int width, int height)
         {
-            //TODO:
+            //TODO: 暂简单实现
+
+            //free exists
+            Marshal.FreeHGlobal(_onscreenSurfaceMem);
+            Marshal.FreeHGlobal(_offscreenSufaceMem);
+            _onscreenSurface?.Dispose();
+            _offscreenSurface?.Dispose();
+
+            //reset size and recreate
+            Width = width;
+            Height = height;
+            AllocMemAndCreateSurface();
         }
 
         public unsafe override void SwapBuffers()
@@ -75,7 +91,7 @@ namespace PixUI.Platform.Win
             void* bmiPtr = _onscreenSurfaceMem.ToPointer();
             void* bitsPtr = (_onscreenSurfaceMem + sizeof(BITMAPINFOHEADER)).ToPointer();
             var dc = WinApi.Win32GetDC(hWnd);
-            //WinApi.Win32BitBlt(dc, 0, 0, Width, Height, new IntPtr(pixels), 0, 0, 0x00CC0020/*SRCCOPY*/);
+            //WinApi.Win32BitBlt(dc, 0, 0, Width, Height, new IntPtr(bitsPtr), 0, 0, 0x00CC0020/*SRCCOPY*/);
             WinApi.Win32StretchDIBits(dc, 0, 0, Width, Height, 0, 0, Width, Height,
                 bitsPtr, bmiPtr, 0 /*DIB_RGB_COLORS*/, 0x00CC0020/*SRCCOPY*/);
             WinApi.Win32ReleaseDC(hWnd, dc);
