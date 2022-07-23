@@ -149,9 +149,9 @@ namespace PixUI.Platform.Win
                         return eventHandled;
                     }
                 case Msg.WM_SETCURSOR:
-                    if ((lParam.ToInt32() & 0xFFFF) != 1 /*HTCLIENT*/)
+                    if (WinCursors.Current == null || (lParam.ToInt32() & 0xFFFF) != 1 /*HTCLIENT*/)
                         return WinApi.Win32DefWindowProc(hWnd, msg, wParam, lParam);
-                    //TODO: fix default cursor on enter window client
+                    WinApi.Win32SetCursor(((WinCursor)WinCursors.Current).Handle);
                     return (IntPtr)1;
                 case Msg.WM_KEYDOWN:
                 case Msg.WM_SYSKEYDOWN:

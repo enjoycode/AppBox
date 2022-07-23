@@ -23,6 +23,8 @@ namespace PixUI.Platform.Win
         private Cursor? _resizeLR;
         private Cursor? _resizeUD;
 
+        internal static Cursor? Current { get; private set; }
+
         public Cursor Arrow
         {
             get
@@ -70,6 +72,7 @@ namespace PixUI.Platform.Win
 
         public void SetCursor(Cursor cursor)
         {
+            Current = cursor;
             WinApi.Win32SetCursor(((WinCursor)cursor).Handle);
         }
     }
