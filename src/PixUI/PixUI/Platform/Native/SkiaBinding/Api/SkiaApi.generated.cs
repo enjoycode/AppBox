@@ -140,8 +140,11 @@ namespace PixUI
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern gr_backendrendertarget_t gr_backendrendertarget_new_vulkan (Int32 width, Int32 height, Int32 samples, GRVkImageInfo* vkImageInfo);
 
-		// void gr_backendtexture_delete(gr_backendtexture_t* texture)
-		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern gr_backendrendertarget_t gr_backendrendertarget_new_direct3d(Int32 width, Int32 height, IntPtr buffer);
+
+        // void gr_backendtexture_delete(gr_backendtexture_t* texture)
+        [DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void gr_backendtexture_delete (gr_backendtexture_t texture);
 
 		// gr_backend_t gr_backendtexture_get_backend(const gr_backendtexture_t* texture)
@@ -232,8 +235,11 @@ namespace PixUI
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern gr_direct_context_t gr_direct_context_make_metal_with_options (void* device, void* queue, GRContextOptionsNative* options);
 
-		// gr_direct_context_t* gr_direct_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext)
-		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern gr_direct_context_t gr_direct_context_make_direct3d(void* backendContext);
+
+        // gr_direct_context_t* gr_direct_context_make_vulkan(const gr_vk_backendcontext_t vkBackendContext)
+        [DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern gr_direct_context_t gr_direct_context_make_vulkan (GRVkBackendContextNative vkBackendContext);
 
 		// gr_direct_context_t* gr_direct_context_make_vulkan_with_options(const gr_vk_backendcontext_t vkBackendContext, const gr_context_options_t* options)
@@ -332,12 +338,30 @@ namespace PixUI
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern gr_vk_extensions_t gr_vk_extensions_new ();
 
-		#endregion
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gr_d3d_new_backend_context();
 
-		#region sk_bitmap.h
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gr_d3d_new_swapchain(IntPtr hwnd, IntPtr d3dbackendCtx, uint width, uint height);
 
-		// void sk_bitmap_destructor(sk_bitmap_t* cbitmap)
-		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int gr_d3d_swapchain_get_current_buffer_index(IntPtr swapchain);
+
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gr_d3d_swapchain_get_buffer(IntPtr swapchain, int index);
+
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gr_d3d_swapchain_resize_buffers(IntPtr swapchain, uint width, uint height);
+
+        [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gr_d3d_swapbuffer(IntPtr d3dbackendCtx, IntPtr grCtx, IntPtr surface, IntPtr swapchain);
+
+        #endregion
+
+        #region sk_bitmap.h
+
+        // void sk_bitmap_destructor(sk_bitmap_t* cbitmap)
+        [DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void sk_bitmap_destructor (sk_bitmap_t cbitmap);
 
 		// void sk_bitmap_erase(sk_bitmap_t* cbitmap, sk_color_t color)
@@ -696,13 +720,6 @@ namespace PixUI
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		internal static extern void sk_canvas_draw_vertices (sk_canvas_t ccanvas, sk_vertices_t vertices, BlendMode mode, sk_paint_t paint);
-		
-
-		// void sk_canvas_flush(sk_canvas_t* ccanvas)
-		
-		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void sk_canvas_flush (sk_canvas_t ccanvas);
-		
 
 		// bool sk_canvas_get_device_clip_bounds(sk_canvas_t* t, sk_irect_t* cbounds)
 		

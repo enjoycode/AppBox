@@ -5,7 +5,7 @@ namespace PixUI.Platform
 {
     public abstract class NativeWindowContext : IDisposable
     {
-        protected GRContext? Context;
+        protected GRContext? GrContext;
 
         /// <summary>
         /// Canvas physics pixel width 实际像素宽度
@@ -55,8 +55,8 @@ namespace PixUI.Platform
         {
             if (disposing)
             {
-                Context?.Dispose();
-                Context = null;
+                GrContext?.Dispose();
+                GrContext = null;
             }
         }
 

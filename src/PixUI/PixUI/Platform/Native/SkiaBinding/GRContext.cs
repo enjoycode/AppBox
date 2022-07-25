@@ -9,7 +9,7 @@ namespace PixUI
         internal GRContext(IntPtr h, bool owns) : base(h, owns)
         {
         }
-
+     
         protected override void Dispose(bool disposing) => base.Dispose(disposing);
 
         protected override void DisposeNative()
@@ -77,6 +77,11 @@ namespace PixUI
             return GetObject(
                 SkiaApi.gr_direct_context_make_metal_with_options((void*)device, (void*)queue,
                     &opts));
+        }
+
+        public static GRContext CreateDirect3D(IntPtr backendContext)
+        {
+            return GetObject(SkiaApi.gr_direct_context_make_direct3d((void*)backendContext));
         }
 
         public new GRBackend Backend => base.Backend;

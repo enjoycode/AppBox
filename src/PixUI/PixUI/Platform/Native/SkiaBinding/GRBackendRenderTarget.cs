@@ -5,53 +5,32 @@ namespace PixUI
 {
     public unsafe class GRBackendRenderTarget : SKObject, ISKSkipObjectRegistration
     {
-        internal GRBackendRenderTarget(IntPtr handle, bool owns)
-            : base(handle, owns)
-        {
-        }
+        private GRBackendRenderTarget(IntPtr handle, bool owns) : base(handle, owns) { }
 
-        public GRBackendRenderTarget(int width, int height, int sampleCount, int stencilBits,
-            GRGlFramebufferInfo glInfo)
-            : this(IntPtr.Zero, true)
+        public static GRBackendRenderTarget CreateVulkan(int width, int height, int sampleCount, GRVkImageInfo vkImageInfo)
         {
-            CreateGl(width, height, sampleCount, stencilBits, glInfo);
-        }
-
-        public GRBackendRenderTarget(int width, int height, int sampleCount, GRVkImageInfo vkImageInfo)
-            : this(IntPtr.Zero, true)
-        {
-            CreateVulkan(width, height, sampleCount, vkImageInfo);
-        }
-
-        public GRBackendRenderTarget(int width, int height, int sampleCount, GRMtlTextureInfoNative mtlInfo)
-            : this(IntPtr.Zero, true)
-        {
-            Handle = SkiaApi.gr_backendrendertarget_new_metal(width, height, sampleCount, &mtlInfo);
-
-            if (Handle == IntPtr.Zero)
-            {
+            var handle = SkiaApi.gr_backendrendertarget_new_vulkan(width, height, sampleCount, &vkImageInfo);
+            if (handle == IntPtr.Zero)
                 throw new InvalidOperationException("Unable to create a new GRBackendRenderTarget instance.");
-            }
+
+            return new GRBackendRenderTarget(handle, true);
         }
 
-        private void CreateGl(int width, int height, int sampleCount, int stencilBits, GRGlFramebufferInfo glInfo)
+        public static GRBackendRenderTarget CreateMetal(int width, int height, int sampleCount, GRMtlTextureInfoNative mtlInfo)
         {
-            Handle = SkiaApi.gr_backendrendertarget_new_gl(width, height, sampleCount, stencilBits, &glInfo);
-
-            if (Handle == IntPtr.Zero)
-            {
+            var handle = SkiaApi.gr_backendrendertarget_new_metal(width, height, sampleCount, &mtlInfo);
+            if (handle == IntPtr.Zero)
                 throw new InvalidOperationException("Unable to create a new GRBackendRenderTarget instance.");
-            }
+            return new GRBackendRenderTarget(handle, true);
         }
 
-        private void CreateVulkan(int width, int height, int sampleCount, GRVkImageInfo vkImageInfo)
+        public static GRBackendRenderTarget CreateDirect3D(int width, int height, IntPtr buffer)
         {
-            Handle = SkiaApi.gr_backendrendertarget_new_vulkan(width, height, sampleCount, &vkImageInfo);
-
-            if (Handle == IntPtr.Zero)
-            {
+            var handle = SkiaApi.gr_backendrendertarget_new_direct3d(width, height, buffer);
+            if (handle == IntPtr.Zero)
                 throw new InvalidOperationException("Unable to create a new GRBackendRenderTarget instance.");
-            }
+
+            return new GRBackendRenderTarget(handle, true);
         }
 
         protected override void DisposeNative() =>

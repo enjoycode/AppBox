@@ -128,24 +128,30 @@ namespace PixUI
             var mid = new Offset(_kEdgeSize * 0.4f, _kEdgeSize * 0.7f);
             var end = new Offset(_kEdgeSize * 0.85f, _kEdgeSize * 0.25f);
 
-            using var path = new Path();
+            
             if (t < 0.5)
             {
                 var strokeT = t * 2.0;
                 var drawMid = Offset.Lerp(start, mid, strokeT)!.Value;
-                path.MoveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
-                path.LineTo(origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy);
+                canvas.DrawLine(origin.Dx + start.Dx, origin.Dy + start.Dy, 
+                    origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy, paint);
+                //path.MoveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
+                //path.LineTo(origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy);
             }
             else
             {
                 var strokeT = (t - 0.5) * 2.0;
                 var drawEnd = Offset.Lerp(mid, end, strokeT)!.Value;
-                path.MoveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
-                path.LineTo(origin.Dx + mid.Dx, origin.Dy + mid.Dy);
-                path.LineTo(origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy);
-            }
+                canvas.DrawLine(origin.Dx + start.Dx, origin.Dy + start.Dy, origin.Dx + mid.Dx + 0.8f, origin.Dy + mid.Dy + 0.8f, paint);
+                canvas.DrawLine(origin.Dx + mid.Dx, origin.Dy + mid.Dy, origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy, paint);
 
-            canvas.DrawPath(path, paint);
+                //using var path = new Path(); //TODO: swapbuffer error on dx12
+                //path.MoveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
+                //path.LineTo(origin.Dx + mid.Dx, origin.Dy + mid.Dy);
+                //path.LineTo(origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy);
+                //path.FillType = SKPathFillType.InverseEvenOdd;
+                //canvas.DrawPath(path, paint);
+            }
         }
 
         private static void DrawDash(Canvas canvas, Offset origin, double t, Paint paint)
