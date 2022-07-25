@@ -36,7 +36,7 @@ namespace PixUI.Platform.Mac
             StencilBits = 8;
             Valid = OnInitializeContext();
 
-            Context = GRContext.CreateMetal(Device.Handle, Queue!.Handle);
+            GrContext = GRContext.CreateMetal(Device.Handle, Queue!.Handle);
         }
 
         protected abstract bool OnInitializeContext();
@@ -60,8 +60,8 @@ namespace PixUI.Platform.Mac
             var fbInfo = new GRMtlTextureInfoNative();
             fbInfo.fTexture = (void*) currentDrawable!.Texture.Handle;
 
-            var backendRt = new GRBackendRenderTarget(Width, Height, SampleCount, fbInfo);
-            var surface = SKSurface.Create(Context!, backendRt, GRSurfaceOrigin.TopLeft,
+            var backendRt = GRBackendRenderTarget.CreateMetal(Width, Height, SampleCount, fbInfo);
+            var surface = SKSurface.Create(GrContext!, backendRt, GRSurfaceOrigin.TopLeft,
                 SKColorType.Bgra8888, DisplayParams.ColorSpace, DisplayParams.SurfaceProps);
             backendRt.Dispose();
 
@@ -75,7 +75,7 @@ namespace PixUI.Platform.Mac
             if (OffscreenCanvas != null) return OffscreenCanvas;
 
             var imageInfo = new SKImageInfo(Width, Height, SKColorType.Bgra8888);
-            var surface = SKSurface.Create(Context!, true /*TODO:*/, imageInfo);
+            var surface = SKSurface.Create(GrContext!, true /*TODO:*/, imageInfo);
             OffscreenCanvas = surface!.Canvas;
             //直接缩放一次OffscreenCanvas，后续就不用处理了
             OffscreenCanvas.Scale(NativeWindow.ScaleFactor, NativeWindow.ScaleFactor);
@@ -84,6 +84,9 @@ namespace PixUI.Platform.Mac
 
         public override void SwapBuffers()
         {
+            //flush and submit
+            GrContext!.Flush();
+            
             var commandBuffer =
                 Queue!.CommandBufferWithUnretainedReferences(); //Queue!.CommandBuffer();
             commandBuffer!.AddCompletedHandler(buf => buf.Dispose());
@@ -108,9 +111,9 @@ namespace PixUI.Platform.Mac
                 OffscreenCanvas?.Surface.Dispose();
                 OffscreenCanvas = null;
 
-                Context?.AbandonContext(true);
-                Context?.Dispose();
-                Context = null;
+                GrContext?.AbandonContext(true);
+                GrContext?.Dispose();
+                GrContext = null;
                 OnDestroyContext();
 
                 MetalLayer?.Dispose();

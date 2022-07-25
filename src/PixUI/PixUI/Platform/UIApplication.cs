@@ -38,9 +38,7 @@ namespace PixUI
             {
                 ctx.Canvas = widgetsCanvas;
                 window.WidgetsInvalidQueue.RenderFrame(ctx);
-#if !__WEB__
-                widgetsCanvas.Flush();
-#else
+#if __WEB__
                 window.FlushOffscreenSurface();
 #endif
             }
@@ -58,7 +56,6 @@ namespace PixUI
                 overlayCanvas.Scale(window.ScaleFactor, window.ScaleFactor);
 
             window.Overlay.Paint(overlayCanvas); //always repaint
-            overlayCanvas.Flush();
 
             if (window.ScaleFactor != 1)
                 overlayCanvas.ResetMatrix();

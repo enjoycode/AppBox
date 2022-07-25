@@ -97,9 +97,7 @@ namespace PixUI
             FlushOffscreenSurface();
             DrawOffscreenSurface();
 #else
-            widgetsCanvas.Flush();
             widgetsCanvas.Surface.Draw(overlayCanvas, 0, 0, null);
-            overlayCanvas.Flush();
 #endif
 
             //TODO: maybe paint Overlay

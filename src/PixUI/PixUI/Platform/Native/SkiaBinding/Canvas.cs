@@ -203,8 +203,6 @@ namespace PixUI
 
         public void Clear(Color color) => SkiaApi.sk_canvas_clear(Handle, (uint)color);
 
-        public void Flush() => SkiaApi.sk_canvas_flush(Handle);
-
         #endregion
     }
 }
