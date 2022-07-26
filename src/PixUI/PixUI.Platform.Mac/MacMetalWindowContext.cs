@@ -34,6 +34,7 @@ namespace PixUI.Platform.Mac
 
             //Reset cached offscreen canvas
             OffscreenCanvas?.Dispose();
+            OffscreenCanvas?.Surface.Dispose();
             OffscreenCanvas = null;
         }
 
