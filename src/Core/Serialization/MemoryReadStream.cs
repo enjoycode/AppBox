@@ -13,6 +13,8 @@ public sealed class MemoryReadStream : IInputStream, IDisposable
 
     public DeserializeContext Context => _context ??= new DeserializeContext();
 
+    public bool HasRemaning => _memory.Position < _memory.Length;
+
     public byte ReadByte()
     {
         var res = _memory.ReadByte();

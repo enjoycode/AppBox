@@ -16,13 +16,6 @@ internal sealed class RxEntityField : RxObject<EntityFieldVO>
     public readonly RxProperty<string> Name;
     public readonly RxProperty<DataFieldType> DataType;
     public readonly RxProperty<string> Comment;
-
-#if !__WEB__
-    protected override void OnObjectChanged()
-    {
-        throw new System.NotImplementedException();
-    }
-#endif
 }
 
 /// <summary>

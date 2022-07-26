@@ -79,6 +79,9 @@ namespace PixUI.Platform.Win
             GrContext!.Flush(true, true);
 
             // release the previous surface and backbuffer resources
+            _onscreenCanvas1?.Dispose();
+            _onscreenCanvas2?.Dispose();
+            _offscreenCanvas?.Dispose();
             _offscreenSurface?.Dispose();
             _onscreenSurface1?.Dispose();
             _onscreenSurface2?.Dispose();

@@ -11,7 +11,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Client\Client.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Design.Core\Design.Core.csproj" />
       <ProjectReference Include="..\PixUI\PixUI.CodeEditor\PixUI.CodeEditor.csproj" />
       <ProjectReference Include="..\PixUI\PixUI\PixUI.csproj" />
     </ItemGroup>

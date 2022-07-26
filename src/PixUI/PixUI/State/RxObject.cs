@@ -1,9 +1,14 @@
-using System;
+﻿using System;
 
 namespace PixUI
 {
+    public interface IRxProperty
+    {
+        void NotifyValueChanged();
+    }
+
     [TSNoInitializer]
-    public sealed class RxProperty<T> : State<T>
+    public sealed class RxProperty<T> : State<T>, IRxProperty
     {
         public RxProperty(Func<T> getter,
             Action<T>? setter = null)
@@ -61,7 +66,23 @@ namespace PixUI
 ")]
         private void OnObjectChanged() {}
 #else
-        protected abstract void OnObjectChanged();
+        protected virtual void OnObjectChanged()
+        {
+            //默认使用反射处理, TODO:
+            //var rxPropertytype = typeof(RxProperty<>);
+
+            var fields = GetType().GetFields(System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.Public);
+            foreach (var field in fields)
+            {
+                var fieldType = field.FieldType;
+                if (fieldType.Name == "RxProperty`1")
+                {
+                    var state = (IRxProperty)field.GetValue(this);
+                    state.NotifyValueChanged();
+                }
+            }
+        }
 #endif
     }
 }

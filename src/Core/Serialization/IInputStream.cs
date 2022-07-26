@@ -8,6 +8,8 @@ public interface IInputStream : IEntityMemberReader
 
     void ReadBytes(Span<byte> dest);
 
+    bool HasRemaning { get; }
+
     #region ====IEntityMemberReader====
 
     string IEntityMemberReader.ReadStringMember(int flags)

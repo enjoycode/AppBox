@@ -41,8 +41,8 @@ namespace PixUI.Platform.Win
 
             InitWindow();
 
-            //WindowContext = new WinRasterWindowContext(this, new DisplayParams());
-            WindowContext = new WinD3D12WindowContext(this, new DisplayParams());
+            WindowContext = new WinRasterWindowContext(this, new DisplayParams());
+            //WindowContext = new WinD3D12WindowContext(this, new DisplayParams());
             OnBackendCreated();
 
             return true;

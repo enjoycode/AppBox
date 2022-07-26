@@ -46,6 +46,8 @@ public sealed class MessageReadStream : IInputStream
     /// </summary>
     private int CurrentRemaning => _current.Length - _pos;
 
+    public bool HasRemaning => CurrentRemaning > 0 || _current.Next != null;
+
     private void MoveToNext()
     {
         var next = _current.Next as BytesSegment;

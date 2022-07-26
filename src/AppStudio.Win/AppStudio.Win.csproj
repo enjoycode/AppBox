@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+		<Platforms>AnyCPU;ARM64</Platforms>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AppStudio\AppStudio.csproj" />
+      <ProjectReference Include="..\PixUI\PixUI.Platform.Win\PixUI.Platform.Win.csproj" />
+    </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="..\PixUI\PixUI.Demo.Win\MaterialIcons.ttf">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="..\PixUI\PixUI.Demo.Win\MaterialIconsOutlined.otf">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<Choose>
+		<When Condition=" '$(Platform)'=='ARM64' ">
+			<ItemGroup>
+				<Content Include="..\PixUI\PixUI.Platform.Win\libs\arm64\skia.dll">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+				<Content Include="..\PixUI\PixUI.Platform.Win\libs\arm64\icudtl.dat">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+				<Content Include="..\PixUI\PixUI.CodeEditor\libs\win-arm64\tree-sitter.dll">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+				<Content Include="..\PixUI\PixUI.CodeEditor\libs\win-arm64\tree-sitter-csharp.dll">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<ItemGroup>
+				<Content Include="..\PixUI\PixUI.Platform.Win\libs\x64\skia.dll">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+				<Content Include="..\PixUI\PixUI.Platform.Win\libs\x64\icudtl.dat">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+				<Content Include="..\PixUI\PixUI.CodeEditor\libs\win-x64\tree-sitter.dll">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+				<Content Include="..\PixUI\PixUI.CodeEditor\libs\win-x64\tree-sitter-csharp.dll">
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
+
+</Project>
