@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using AppBoxClient;
 using CodeEditor;
 
@@ -18,7 +19,14 @@ namespace AppBoxDesign
             {
                 0, document.Tag, offset, completionWord
             });
-            return (IList<ICompletionItem>?)res;
+            
+            if (res == null) return null;
+
+#if __WEB__
+            return (IList<ICompletionItem>?)res; //TODO:WebLinq暂不支持Cast()
+#else
+            return ((CompletionItem[]?)res!).Cast<ICompletionItem>().ToArray();
+#endif
         }
     }
 }

@@ -18,7 +18,6 @@ export class RxEntityField extends PixUI.RxObject<AppBoxDesign.EntityFieldVO> {
         Object.assign(this, props);
         return this;
     }
-
 }
 
 /// <summary>

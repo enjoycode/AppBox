@@ -46,8 +46,13 @@ export class DesignTreePad extends PixUI.View {
         if (this._hasLoadTree) return;
         this._hasLoadTree = true;
 
-        let tree = <AppBoxDesign.DesignTree><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.LoadDesignTree");
-        AppBoxDesign.DesignStore.TreeController.DataSource = tree.RootNodes;
+        try {
+            let res = await AppBoxClient.Channel.Invoke("sys.DesignService.LoadDesignTree");
+            let tree = <AppBoxDesign.DesignTree><unknown>(res!);
+            AppBoxDesign.DesignStore.TreeController.DataSource = tree.RootNodes;
+        } catch (ex: any) {
+            PixUI.Notification.Error("Can't load design tree.");
+        }
     }
 
     public Init(props: Partial<DesignTreePad>): DesignTreePad {

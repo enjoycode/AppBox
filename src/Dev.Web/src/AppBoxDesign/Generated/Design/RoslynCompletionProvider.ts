@@ -12,7 +12,10 @@ export class RoslynCompletionProvider implements CodeEditor.ICompletionProvider 
     public async ProvideCompletionItems(document: CodeEditor.Document, offset: number, completionWord: Nullable<string>): System.Task<Nullable<System.IList<CodeEditor.ICompletionItem>>> {
         let res = await AppBoxClient.Channel.Invoke("sys.DesignService.GetCompletion", [0, document.Tag, offset, completionWord
         ]);
-        return <Nullable<System.IList<CodeEditor.ICompletionItem>>><unknown>res;
+
+        if (res == null) return null;
+
+        return <Nullable<System.IList<CodeEditor.ICompletionItem>>><unknown>res; //TODO:WebLinq暂不支持Cast()
     }
 
     public Init(props: Partial<RoslynCompletionProvider>): RoslynCompletionProvider {
