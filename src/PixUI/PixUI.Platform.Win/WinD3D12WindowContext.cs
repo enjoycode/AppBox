@@ -85,6 +85,9 @@ namespace PixUI.Platform.Win
             _offscreenSurface?.Dispose();
             _onscreenSurface1?.Dispose();
             _onscreenSurface2?.Dispose();
+            SkiaApi.gr_d3d_swapchain_release_buffers(_swapchain, 2);
+
+            GrContext.PurgeResources(); //TODO:?
 
             Width = width;
             Height = height;

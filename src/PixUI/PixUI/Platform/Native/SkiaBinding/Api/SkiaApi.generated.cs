@@ -350,6 +350,9 @@ namespace PixUI
         [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr gr_d3d_swapchain_get_buffer(IntPtr swapchain, int index);
 
+		[DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void gr_d3d_swapchain_release_buffers(IntPtr swapchain, int count);
+
         [DllImport(SKIA, CallingConvention = CallingConvention.Cdecl)]
         public static extern void gr_d3d_swapchain_resize_buffers(IntPtr swapchain, uint width, uint height);
 
