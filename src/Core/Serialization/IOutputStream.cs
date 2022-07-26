@@ -260,7 +260,7 @@ public static class OutputStreamExtensions
         }
         else if (type == typeof(Entity) || type.IsSubclassOf(typeof(Entity)))
         {
-            s.WriteByte(3); 
+            s.WriteByte(3);
             //考虑再写入模型标识或类型名称
         }
         else
@@ -356,7 +356,12 @@ public static class OutputStreamExtensions
             return;
         }
 
-        if (value is Entity entity)
+        if (value is bool boolValue)
+        {
+            s.WriteByte(boolValue ? (byte)PayloadType.BooleanTrue : (byte)PayloadType.BooleanFalse);
+            return;
+        }
+        else if (value is Entity entity)
         {
             s.Serialize(entity);
             return;
