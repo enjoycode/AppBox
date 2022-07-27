@@ -60,7 +60,7 @@ namespace AppBoxDesign
                 service += "Model";
             var args = _type == "Application"
                 ? new object[] { _name.Value }
-                : new object[] { selectedNode.Data.Type, selectedNode.Data.Id, _name.Value };
+                : new object[] { (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value };
             CreateAsync(service, args);
         }
 

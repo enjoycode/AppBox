@@ -143,6 +143,7 @@ public abstract class TypeSerializer
     static TypeSerializer()
     {
         //基本类型
+        RegisterKnownType(new ByteSerializer());
         RegisterKnownType(new IntSerializer());
         RegisterKnownType(new StringSerializer());
         //Collection

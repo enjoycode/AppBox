@@ -50,4 +50,8 @@
       <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Services\RuntimeCodeGenerator" />
+    </ItemGroup>
+
 </Project>

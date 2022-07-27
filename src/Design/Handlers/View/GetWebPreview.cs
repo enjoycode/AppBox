@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 获取WebIDE预览用的视图模型的JS代码
 /// </summary>
-internal sealed class GetWebPreview : IDesignHandler //TODO: rename to GetViewPreview
+internal sealed class GetWebPreview : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {

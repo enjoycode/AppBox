@@ -25,7 +25,7 @@ namespace AppBoxDesign
 #if __WEB__
             return (IList<ICompletionItem>?)res; //TODO:WebLinq暂不支持Cast()
 #else
-            return ((CompletionItem[]?)res!).Cast<ICompletionItem>().ToArray();
+            return ((CompletionItem[]?)res!).Cast<ICompletionItem>().ToList();
 #endif
         }
     }

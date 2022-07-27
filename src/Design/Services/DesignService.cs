@@ -29,6 +29,7 @@ public sealed class DesignService : IService
         { nameof(NewViewModel), new NewViewModel() },
         { nameof(OpenViewModel), new OpenViewModel() },
         { nameof(GetWebPreview), new GetWebPreview() },
+        { nameof(GetDesktopPreview), new GetDesktopPreview() },
     };
 
     public ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
