@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Threading;
 using AppBoxClient;
 using PixUI;
 
@@ -19,22 +18,31 @@ internal sealed class DesktopPreviewer : View
 
         Child = new Container()
         {
-            Child = new ViewModelWidget(_target)
+            Ref = _containerRef,
+            Child = _loading,
         };
     }
 
     private readonly PreviewController _controller;
+    private readonly WidgetRef<Container> _containerRef = new();
     private ViewAssemblyLoader? _assemblyLoader;
-    private readonly State<Widget> _target = new Center { Child = new Text("Loading....") };
+    private static readonly Widget _loading = new Center { Child = new Text("Loading....") };
+    private bool _hasLoaded = false;
 
     protected override void OnMounted()
     {
         base.OnMounted();
-        Run();
+        if (!_hasLoaded)
+        {
+            _hasLoaded = true;
+            Run();
+        }
     }
 
     private async void Run()
     {
+        _containerRef.Widget!.Child?.Dispose();
+        _containerRef.Widget!.Child = null;
         _assemblyLoader?.Unload();
         _assemblyLoader = null;
 
@@ -49,37 +57,19 @@ internal sealed class DesktopPreviewer : View
             var widgetTypeName = _controller.ModelNode.Label;
             var widgetType = asm.GetType(widgetTypeName);
             var widget = (Widget)Activator.CreateInstance(widgetType!)!;
+            widget.DebugLabel = asm.FullName;
             sw.Stop();
             Console.WriteLine(
                 $"Load preview widget: {widget.GetType()}, ms={sw.ElapsedMilliseconds}");
-            _target.Value = widget;
+            _containerRef.Widget.Child = widget;
         }
         catch (Exception e)
         {
             Console.WriteLine($"Can't load preview widget: {e.Message}");
-            _target.Value = new Center { Child = new Text("Has Error") };
-        }
-    }
-}
-
-internal sealed class ViewModelWidget : DynamicView
-{
-    internal ViewModelWidget(State<Widget> target)
-    {
-        _target = Bind(target, BindingOptions.None);
-    }
-
-    private readonly State<Widget> _target;
-
-    public override void OnStateChanged(StateBase state, BindingOptions options)
-    {
-        if (ReferenceEquals(_target, state))
-        {
-            ReplaceTo(_target.Value);
-            return;
+            _containerRef.Widget.Child = new Center { Child = new Text("Has Error") };
         }
 
-        base.OnStateChanged(state, options);
+        _containerRef.Widget.Invalidate(InvalidAction.Relayout);
     }
 }
 
