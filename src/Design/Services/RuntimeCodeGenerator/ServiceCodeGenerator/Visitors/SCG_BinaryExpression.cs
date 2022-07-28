@@ -11,7 +11,7 @@ internal partial class ServiceCodeGenerator
         if (queryMethodCtx.HasAny && queryMethodCtx.Current.InLambdaExpression)
         {
             //如果在条件表达式内将&&转为&, ||转为|
-            if (node.OperatorToken.Kind() == SyntaxKind.AmpersandAmpersandToken) //&& -> &
+            if (node.OperatorToken.IsKind(SyntaxKind.AmpersandAmpersandToken)) //&& -> &
             {
                 var left = (ExpressionSyntax)node.Left.Accept(this)!.WithTriviaFrom(node.Left);
                 var right = (ExpressionSyntax)node.Right.Accept(this)!.WithTriviaFrom(node.Right);
@@ -19,7 +19,7 @@ internal partial class ServiceCodeGenerator
                     .WithTriviaFrom(node);
             }
 
-            if (node.OperatorToken.Kind() == SyntaxKind.BarBarToken) //|| -> |
+            if (node.OperatorToken.IsKind(SyntaxKind.BarBarToken)) //|| -> |
             {
                 var left = (ExpressionSyntax)node.Left.Accept(this)!;
                 var right = (ExpressionSyntax)node.Right.Accept(this)!;
@@ -28,8 +28,8 @@ internal partial class ServiceCodeGenerator
             }
 
             //TODO:转换其他Bitwise操作符
-            if (node.OperatorToken.Kind() == SyntaxKind.AmpersandToken
-                || node.OperatorToken.Kind() == SyntaxKind.BarToken)
+            if (node.OperatorToken.IsKind(SyntaxKind.AmpersandToken)
+                || node.OperatorToken.IsKind(SyntaxKind.BarToken))
             {
                 throw new NotImplementedException("Binary & and | operator not implemented.");
             }
