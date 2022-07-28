@@ -182,6 +182,8 @@ namespace PixUI
 
         #region ====Save & Restore====
 
+        public int SaveCount => SkiaApi.sk_canvas_get_save_count(Handle);
+
         public int Save() => SkiaApi.sk_canvas_save(Handle);
 
         public int SaveLayer(Paint? paint = null, Rect? bounds = null)
@@ -197,7 +199,7 @@ namespace PixUI
 
         #endregion
 
-        #region ====Clear & Flush====
+        #region ====Clear====
 
         public void Clear() => Clear(Color.Empty);
 
