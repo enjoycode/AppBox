@@ -86,8 +86,12 @@ namespace PixUI
         {
             set
             {
+                var oldEmpty = _dataSource == null ? true : _dataSource.Count == 0;
+                var newEmpty = value == null ? true : value.Count == 0;
+
                 _dataSource = value;
-                _owner?.Invalidate(InvalidAction.Repaint);
+                if (!(oldEmpty && newEmpty))
+                    _owner?.Invalidate(InvalidAction.Repaint);
             }
         }
 
