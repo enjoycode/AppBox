@@ -64,7 +64,7 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
         this._hasLoad = true;
 
         try {
-            this._entityModel = <AppBoxDesign.EntityModelVO><unknown>await AppBoxClient.Channel.Invoke(
+            this._entityModel = await AppBoxClient.Channel.Invoke<AppBoxDesign.EntityModelVO>(
                 "sys.DesignService.OpenEntityModel", [this._modelNode.Id]);
             this._membersController.DataSource = this._entityModel!.Members;
             this._loaded.Value = true;

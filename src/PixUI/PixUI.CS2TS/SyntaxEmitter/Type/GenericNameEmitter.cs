@@ -34,10 +34,15 @@ namespace PixUI.CS2TS
                 symbol.GetRootNamespace()?.Name == "System")
                 emitter.Write(node.TypeArgumentList.Arguments.Count.ToString());
 
-            if (!emitter.ToJavaScript && emitter.NeedGenericTypeArguments)
+            //写入范型参数，注意: GenericType<T>.StaticMethod<T>()忽略范型类型的参数，但不忽略方法的范型参数
+            if (!emitter.ToJavaScript &&
+                (emitter.NeedGenericTypeArguments || symbol is IMethodSymbol))
             {
                 emitter.VisitToken(node.TypeArgumentList.LessThanToken);
+                var preNeedGenericTypes = emitter.NeedGenericTypeArguments;
+                emitter.NeedGenericTypeArguments = true; //嵌套
                 emitter.VisitSeparatedList(node.TypeArgumentList.Arguments);
+                emitter.NeedGenericTypeArguments = preNeedGenericTypes;
                 emitter.VisitToken(node.TypeArgumentList.GreaterThanToken);
             }
         }

@@ -54,14 +54,14 @@ export class NewDialog extends PixUI.Dialog<string> {
         if (this._type != "Application" && this._type != "Folder")
             service += "Model";
         let args = this._type == "Application"
-            ? [this._name.Value] : [selectedNode.Data.Type, selectedNode.Data.Id, this._name.Value];
+            ? [this._name.Value] : [(Math.floor(selectedNode.Data.Type) & 0xFFFFFFFF), selectedNode.Data.Id, this._name.Value];
         NewDialog.CreateAsync(service, args);
     }
 
     private static async CreateAsync(service: string, args: any[]) {
-        let res = await AppBoxClient.Channel.Invoke(service, args);
+        let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.NewNodeResult>(service, args);
         //根据返回结果同步添加新节点
-        AppBoxDesign.DesignStore.OnNewNode(<AppBoxDesign.NewNodeResult><unknown>res);
+        AppBoxDesign.DesignStore.OnNewNode(res);
     }
 
     public Init(props: Partial<NewDialog>): NewDialog {

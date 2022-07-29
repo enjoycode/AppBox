@@ -24,7 +24,7 @@ namespace PixUI.CS2TS
         // 使用到的模型，用于生成文件头import
         public readonly HashSet<string> UsedModels = new HashSet<string>();
 
-        // 是否需要输出范型的类型，因为ts不支持如GenericType<T>.SomeMethod()
+        // 是否需要输出范型的类型，因为ts不支持如GenericType<T>.SomeStaticMethod()
         internal bool NeedGenericTypeArguments = true;
 
         // 是否忽略委托绑定，事件+= or -=时设为true

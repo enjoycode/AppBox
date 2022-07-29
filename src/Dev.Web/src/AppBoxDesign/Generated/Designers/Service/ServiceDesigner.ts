@@ -51,7 +51,7 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IDesigne
         if (this._hasLoadSourceCode) return;
         this._hasLoadSourceCode = true;
 
-        let srcCode = <string><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.OpenServiceModel", [this._modelNode.Id]);
+        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenServiceModel", [this._modelNode.Id]);
         this._codeEditorController.Document.TextContent = srcCode;
         //订阅代码变更事件
         this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
@@ -69,7 +69,7 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IDesigne
         //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
         //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
 
-        let problems = <System.IList<AppBoxDesign.CodeProblem>><unknown>await AppBoxClient.Channel.Invoke("sys.DesignService.GetProblems", [false, this._modelNode.Id]);
+        let problems = await AppBoxClient.Channel.Invoke<System.IList<AppBoxDesign.CodeProblem>>("sys.DesignService.GetProblems", [false, this._modelNode.Id]);
         AppBoxDesign.DesignStore.UpdateProblems(this._modelNode, problems);
     }
 
@@ -80,8 +80,8 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IDesigne
         }
     }
 
-    public async SaveAsync(): Promise<void> {
-        await AppBoxClient.Channel.Invoke("sys.DesignService.SaveModel", [this._modelNode.Id]);
+    public SaveAsync(): Promise<void> {
+        return AppBoxClient.Channel.Invoke("sys.DesignService.SaveModel", [this._modelNode.Id]);
     }
 
     public Init(props: Partial<ServiceDesigner>): ServiceDesigner {
