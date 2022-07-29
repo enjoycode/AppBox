@@ -95,10 +95,10 @@ namespace AppBoxDesign
 
             try
             {
-                var modelRootNodeIdString = await Channel.Invoke("sys.DesignService.DeleteNode",
-                    new object?[]
-                        { (int)nodeType, selectedNode.Data.Id });
-                DesignStore.OnDeleteNode(selectedNode, (string)modelRootNodeIdString);
+                var modelRootNodeIdString = await Channel.Invoke<string?>(
+                    "sys.DesignService.DeleteNode",
+                    new object?[] { (int)nodeType, selectedNode.Data.Id });
+                DesignStore.OnDeleteNode(selectedNode, modelRootNodeIdString);
                 Notification.Success($"删除节点[{selectedNode.Data.Label}]成功");
             }
             catch (Exception e)

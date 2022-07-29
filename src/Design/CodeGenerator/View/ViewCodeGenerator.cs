@@ -1,6 +1,7 @@
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using RoslynUtils;
 
 namespace AppBoxDesign;
 
@@ -16,10 +17,27 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
         AppName = appName;
         SemanticModel = semanticModel;
         ViewModel = viewModel;
+        _typeSymbolCache = new TypeSymbolCache(semanticModel);
     }
 
     internal readonly DesignHub DesignHub;
     internal readonly string AppName;
     internal readonly SemanticModel SemanticModel;
     internal readonly ViewModel ViewModel;
+    private readonly TypeSymbolCache _typeSymbolCache;
+    
+    #region ====Usages====
+
+    /// <summary>
+    /// 视图模型使用到的实体模型及其他视图模型
+    /// </summary>
+    private readonly HashSet<string> _usedModels = new();
+
+    private void AddUsedModel(string fullName)
+    {
+        if (!_usedModels.Contains(fullName))
+            _usedModels.Add(fullName);
+    }
+    
+    #endregion
 }

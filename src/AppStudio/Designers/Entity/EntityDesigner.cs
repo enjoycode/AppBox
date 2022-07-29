@@ -90,7 +90,7 @@ namespace AppBoxDesign
 
             try
             {
-                _entityModel = (EntityModelVO)await Channel.Invoke(
+                _entityModel = await Channel.Invoke<EntityModelVO>(
                     "sys.DesignService.OpenEntityModel",
                     new object[] { _modelNode.Id });
                 _membersController.DataSource = _entityModel!.Members;

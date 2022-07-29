@@ -66,9 +66,9 @@ namespace AppBoxDesign
 
         private static async void CreateAsync(string service, object[] args)
         {
-            var res = await Channel.Invoke(service, args);
+            var res = await Channel.Invoke<NewNodeResult>(service, args);
             //根据返回结果同步添加新节点
-            DesignStore.OnNewNode((NewNodeResult)res);
+            DesignStore.OnNewNode(res);
         }
     }
 }

@@ -15,17 +15,15 @@ namespace AppBoxDesign
         public async Task<IList<ICompletionItem>?> ProvideCompletionItems(Document document,
             int offset, string? completionWord)
         {
-            var res = await Channel.Invoke("sys.DesignService.GetCompletion", new object?[]
-            {
-                0, document.Tag, offset, completionWord
-            });
-            
+            var res = await Channel.Invoke<CompletionItem[]?>("sys.DesignService.GetCompletion",
+                new object?[] { 0, document.Tag, offset, completionWord });
+
             if (res == null) return null;
 
 #if __WEB__
             return (IList<ICompletionItem>?)res; //TODO:WebLinq暂不支持Cast()
 #else
-            return ((CompletionItem[]?)res!).Cast<ICompletionItem>().ToList();
+            return res.Cast<ICompletionItem>().ToList();
 #endif
         }
     }

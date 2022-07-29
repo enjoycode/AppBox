@@ -49,9 +49,8 @@ internal sealed class DesktopPreviewer : View
         try
         {
             var sw = Stopwatch.StartNew();
-            var res = await Channel.Invoke("sys.DesignService.GetDesktopPreview",
+            var asmData = await Channel.Invoke<byte[]>("sys.DesignService.GetDesktopPreview",
                 new object?[] { _controller.ModelNode.Id });
-            var asmData = (byte[])res!;
             _assemblyLoader = new ViewAssemblyLoader();
             var asm = _assemblyLoader.LoadViewAssembly(asmData);
             var widgetTypeName = _controller.ModelNode.Label;

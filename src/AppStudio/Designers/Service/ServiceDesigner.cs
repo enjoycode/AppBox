@@ -65,7 +65,7 @@ namespace AppBoxDesign
             if (_hasLoadSourceCode) return;
             _hasLoadSourceCode = true;
 
-            var srcCode = (string)await Channel.Invoke("sys.DesignService.OpenServiceModel",
+            var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenServiceModel",
                 new object[] { _modelNode.Id });
             _codeEditorController.Document.TextContent = srcCode;
             //订阅代码变更事件
@@ -86,7 +86,7 @@ namespace AppBoxDesign
             //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
             //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
 
-            var problems = (IList<CodeProblem>)await Channel.Invoke("sys.DesignService.GetProblems",
+            var problems = await Channel.Invoke<IList<CodeProblem>>("sys.DesignService.GetProblems",
                 new object?[] { false, _modelNode.Id });
             DesignStore.UpdateProblems(_modelNode, problems);
         }
@@ -100,9 +100,9 @@ namespace AppBoxDesign
             }
         }
 
-        public async Task SaveAsync()
+        public Task SaveAsync()
         {
-            await Channel.Invoke("sys.DesignService.SaveModel", new object?[] { _modelNode.Id });
+            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { _modelNode.Id });
         }
     }
 }

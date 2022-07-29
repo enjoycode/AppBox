@@ -58,9 +58,8 @@ namespace AppBoxDesign
 
             try
             {
-                var res = await Channel.Invoke("sys.DesignService.LoadDesignTree");
-                var tree = (DesignTree)(res!);
-                DesignStore.TreeController.DataSource = tree.RootNodes;
+                var res = await Channel.Invoke<DesignTree>("sys.DesignService.LoadDesignTree");
+                DesignStore.TreeController.DataSource = res.RootNodes;
             }
             catch (System.Exception ex)
             {
