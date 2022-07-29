@@ -170,19 +170,7 @@ internal static class PublishService
             asmData = dllStream.ToArray();
         }
 
-        if (!emitResult.Success)
-        {
-            var sb = new StringBuilder("编译错误:");
-            sb.AppendLine();
-            for (var i = 0; i < emitResult.Diagnostics.Length; i++)
-            {
-                var error = emitResult.Diagnostics[i];
-                sb.AppendFormat("{0}. {1}", i + 1, error);
-                sb.AppendLine();
-            }
-
-            throw new Exception(sb.ToString());
-        }
+        CodeGeneratorUtil.CheckEmitResult(emitResult);
 
         return forDebug ? null : asmData;
     }

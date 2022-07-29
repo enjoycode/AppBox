@@ -28,9 +28,10 @@ internal sealed class GetDesktopPreview : IDesignHandler
         if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
             throw new Exception("Has error");
 
-        var codegen = new ViewCodeGenerator();
+        var appName = modelNode.AppNode.Model.Name;
+        var codegen = new ViewCodeGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model);
         var newRootNode = codegen.Visit(await semanticModel.SyntaxTree.GetRootAsync());
-        var docName = $"{modelNode.AppNode.Model.Name}.Views.{modelNode.Model.Name}";
+        var docName = $"{appName}.Views.{modelNode.Model.Name}";
         var newTree = SyntaxFactory.SyntaxTree(newRootNode,
             path: docName + ".cs", encoding: Encoding.UTF8);
 
@@ -54,21 +55,8 @@ internal sealed class GetDesktopPreview : IDesignHandler
 
         using var dllStream = new MemoryStream(1024);
         var emitResult = compilation.Emit(dllStream);
-        if (!emitResult.Success)
-        {
-            var sb = new StringBuilder("编译错误:");
-            sb.AppendLine();
-            for (var i = 0; i < emitResult.Diagnostics.Length; i++)
-            {
-                var error = emitResult.Diagnostics[i];
-                sb.AppendFormat("{0}. {1}", i + 1, error);
-                sb.AppendLine();
-            }
+        CodeGeneratorUtil.CheckEmitResult(emitResult);
 
-            throw new Exception(sb.ToString());
-        }
-        
-        
         var asmData = dllStream.ToArray();
         return AnyValue.From(asmData);
     }

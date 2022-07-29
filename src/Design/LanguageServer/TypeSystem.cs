@@ -134,7 +134,7 @@ internal sealed class TypeSystem : IDisposable
             case ModelType.Entity:
             {
                 var docName = $"{appName}.Entities.{model.Name}.cs";
-                var dummyCode = CodeGenService.GenEntityRuntimeCode(node);
+                var dummyCode = EntityCodeGenerator.GenEntityRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
                 break;
             }
@@ -157,7 +157,7 @@ internal sealed class TypeSystem : IDisposable
                 //服务代理的代码生成
                 var srcDoc = newSolution.GetDocument(docId)!;
                 var proxyCode =
-                    await CodeGenService.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
+                    await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
                 newSolution =
                     newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
                 break;
@@ -206,7 +206,7 @@ internal sealed class TypeSystem : IDisposable
         {
             case ModelType.Entity:
             {
-                var sourceCode = CodeGenService.GenEntityRuntimeCode(node);
+                var sourceCode = EntityCodeGenerator.GenEntityRuntimeCode(node);
                 newSolution =
                     Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
                 break;
@@ -225,7 +225,7 @@ internal sealed class TypeSystem : IDisposable
                 // 服务模型还需要更新代理类
                 var srcdoc = newSolution.GetDocument(docId)!;
                 var proxyCode =
-                    await CodeGenService.GenServiceProxyCode(srcdoc, appName, (ServiceModel)model);
+                    await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName, (ServiceModel)model);
                 newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
                     SourceText.From(proxyCode));
                 break;
@@ -248,7 +248,7 @@ internal sealed class TypeSystem : IDisposable
         var model = (ServiceModel)node.Model;
         var srcdoc = Workspace.CurrentSolution.GetDocument(node.RoslynDocumentId)!;
         var proxyCode =
-            await CodeGenService.GenServiceProxyCode(srcdoc, appName, model);
+            await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName, model);
         var newSolution = Workspace.CurrentSolution.WithDocumentText(node.ExtRoslynDocumentId!,
             SourceText.From(proxyCode));
         if (!Workspace.TryApplyChanges(newSolution))

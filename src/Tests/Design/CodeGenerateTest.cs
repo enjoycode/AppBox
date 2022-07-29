@@ -21,7 +21,7 @@ public class CodeGenerateTest
 
         var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
 
-        var code = CodeGenService.GenEntityWebCode((EntityModel)entityNode.Model, "sys", true);
+        var code = EntityCodeGenerator.GenEntityWebCode((EntityModel)entityNode.Model, "sys", true);
         Console.Write(code);
     }
     
@@ -38,7 +38,7 @@ public class CodeGenerateTest
 
         var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
 
-        var code = CodeGenService.GenEntityRuntimeCode(entityNode);
+        var code = EntityCodeGenerator.GenEntityRuntimeCode(entityNode);
         Console.Write(code);
     }
 

@@ -73,7 +73,7 @@ internal sealed class DesktopPreviewer : View
     }
 }
 
-internal sealed class ViewAssemblyLoader : AssemblyLoadContext
+internal sealed class ViewAssemblyLoader : AssemblyLoadContext //TODO: move to AppBoxClient
 {
     public ViewAssemblyLoader() : base(true) { }
 
