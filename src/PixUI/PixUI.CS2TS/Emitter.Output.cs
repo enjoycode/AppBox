@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace PixUI.CS2TS
 {
@@ -226,7 +227,8 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 尝试写入非空值类型所对应的默认值
         /// </summary>
-        internal void TryWriteDefaultValueForValueType(TypeSyntax typeSyntax, SyntaxNode from, bool withAsign = true)
+        internal void TryWriteDefaultValueForValueType(TypeSyntax typeSyntax, SyntaxNode from,
+            bool withAsign = true)
         {
             if (typeSyntax is NullableTypeSyntax) return;
 
@@ -249,7 +251,7 @@ namespace PixUI.CS2TS
             else if (typeKind == TypeKind.Struct)
             {
                 //因为结构体构造带参数，所以使用默认的XXX.Empty作为初始化值
-                if(withAsign)
+                if (withAsign)
                     Write(" = ");
                 WriteTypeSymbol(type, !from.InSameSourceFile(type));
                 Write(".Empty.Clone()");
@@ -259,7 +261,7 @@ namespace PixUI.CS2TS
         internal void TryWritePackageName(NameSyntax node, ISymbol symbol)
         {
             //先判断是否模型类
-            if (IsAppBoxModel(symbol))
+            if (TrackModelUsages && symbol.IsAppBoxModel(_typeSymbolCache, AddUsedModel))
             {
                 //TODO:考虑写入应用名称作为前缀防止同名, eg: sys_EntityName
                 return;

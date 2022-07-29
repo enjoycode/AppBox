@@ -1,9 +1,8 @@
-using System;
-using System.Linq;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace PixUI.CS2TS
 {
@@ -91,16 +90,12 @@ namespace PixUI.CS2TS
         private static bool TryEmitInvokeAppBoxService(Emitter emitter,
             InvocationExpressionSyntax node, IMethodSymbol symbol)
         {
-            if (symbol.ContainingNamespace.Name != "Services") return false;
-            var interceptorAttribute = symbol.GetAttributes()
-                .SingleOrDefault(t => t.AttributeClass != null &&
-                                      t.AttributeClass.ToString() ==
-                                      "System.Reflection.InvocationInterceptorAttribute");
-            if (interceptorAttribute == null) return false;
+            if (!symbol.IsAppBoxServiceMethod()) return false;
 
             //需要检查返回类型内是否包含实体，是则加入引用模型列表内
-            if (!symbol.ReturnsVoid)
-                emitter.CheckTypeHasAppBoxModel(symbol.ReturnType);
+            if (emitter.TrackModelUsages && !symbol.ReturnsVoid)
+                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter._typeSymbolCache,
+                    emitter.AddUsedModel);
 
             //开始转换为前端服务调用
             emitter.AddUsedModule("AppBoxClient");

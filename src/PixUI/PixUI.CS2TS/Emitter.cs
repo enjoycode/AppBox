@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace PixUI.CS2TS
 {
@@ -49,6 +50,7 @@ namespace PixUI.CS2TS
             SemanticModel = semanticModel;
             ToJavaScript = toJavaScript;
             TrackModelUsages = trackModelUsages;
+            _typeSymbolCache = new TypeSymbolCache(semanticModel);
         }
 
         public static async Task<Emitter> MakeAsync(Translator translator, Document document,

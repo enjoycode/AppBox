@@ -47,6 +47,9 @@
       <Compile Include="..\AppStudio\Data\SqlStoreOptionsVO.cs">
         <Link>Data\SqlStoreOptionsVO.cs</Link>
       </Compile>
+      <Compile Include="..\PixUI\PixUI.CS2TS\RoslynUtils.cs">
+        <Link>CodeGenerator\RoslynUtils.cs</Link>
+      </Compile>
       <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
     </ItemGroup>
 

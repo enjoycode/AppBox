@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace PixUI.CS2TS
 {
@@ -64,97 +63,41 @@ namespace PixUI.CS2TS
 
         #region =====Type Symbols====
 
-        private readonly Dictionary<string, INamedTypeSymbol> _typesCache = new();
-
-        private INamedTypeSymbol GetTypeByName(string typeName)
-        {
-            var type = TryGetTypeByName(typeName);
-            if (type == null)
-                throw new ArgumentException($"Can't find type by name: {typeName}");
-            return type;
-        }
-
-        private INamedTypeSymbol? TryGetTypeByName(string typeName)
-        {
-            if (_typesCache.TryGetValue(typeName, out var typeSymbol))
-                return typeSymbol;
-
-            var type = SemanticModel.Compilation.GetTypeByMetadataName(typeName);
-            if (type != null) _typesCache[typeName] = type;
-            return type;
-        }
+        internal readonly TypeSymbolCache _typeSymbolCache;
 
         internal INamedTypeSymbol TypeOfICollection =>
-            GetTypeByName("System.Collections.ICollection");
+            _typeSymbolCache.GetTypeByName("System.Collections.ICollection");
 
         internal INamedTypeSymbol TypeOfICollectionGeneric =>
-            GetTypeByName("System.Collections.Generic.ICollection`1");
+            _typeSymbolCache.GetTypeByName("System.Collections.Generic.ICollection`1");
 
         internal INamedTypeSymbol TypeOfIDictionary =>
-            GetTypeByName("System.Collections.Generic.IDictionary`2");
+            _typeSymbolCache.GetTypeByName("System.Collections.Generic.IDictionary`2");
 
-        internal INamedTypeSymbol TypeOfNullable => GetTypeByName("System.Nullable`1");
+        internal INamedTypeSymbol TypeOfNullable =>
+            _typeSymbolCache.GetTypeByName("System.Nullable`1");
 
-        internal INamedTypeSymbol TypeOfAction => GetTypeByName("System.Action");
+        internal INamedTypeSymbol TypeOfAction => _typeSymbolCache.GetTypeByName("System.Action");
 
-        internal INamedTypeSymbol TypeOfAction1 => GetTypeByName("System.Action`1");
+        internal INamedTypeSymbol TypeOfAction1 =>
+            _typeSymbolCache.GetTypeByName("System.Action`1");
 
-        internal INamedTypeSymbol TypeOfDelegate => GetTypeByName("System.Delegate");
+        internal INamedTypeSymbol TypeOfDelegate =>
+            _typeSymbolCache.GetTypeByName("System.Delegate");
 
-        internal INamedTypeSymbol TypeOfState => GetTypeByName("PixUI.State`1");
+        internal INamedTypeSymbol TypeOfState => _typeSymbolCache.GetTypeByName("PixUI.State`1");
 
         internal INamedTypeSymbol TypeOfTSInterfaceOfAttribute
-            => GetTypeByName(TSInterfaceOfAttributeFullName);
+            => _typeSymbolCache.GetTypeByName(TSInterfaceOfAttributeFullName);
 
         private INamedTypeSymbol TypeOfTSRenameAttribute =>
-            GetTypeByName(TSRenameAttributeFullName);
+            _typeSymbolCache.GetTypeByName(TSRenameAttributeFullName);
 
         private INamedTypeSymbol TypeOfTSInterceptorAttribute =>
-            GetTypeByName(TSInterceptorAttributeFullName);
+            _typeSymbolCache.GetTypeByName(TSInterceptorAttributeFullName);
 
-        #endregion
-        
-        #region ====模型类型====
-
-        private INamedTypeSymbol? TypeOfEntity => TryGetTypeByName("AppBoxCore.Entity");
-
-        /// <summary>
-        /// 专用于检测是否模型类，是则加入列表
-        /// </summary>
-        internal bool IsAppBoxModel(ISymbol symbol)
-        {
-            if (!TrackModelUsages) return false;
-            if (symbol is not ITypeSymbol typeSymbol) return false;
-
-            if (typeSymbol.IsInherits(TypeOfEntity!))
-            {
-                AddUsedModel(symbol.ToString());
-                return true;
-            }
-
-            return false;
-        }
-
-        internal void CheckTypeHasAppBoxModel(ITypeSymbol typeSymbol)
-        {
-            //检查Entity数组
-            if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
-            {
-                CheckTypeHasAppBoxModel(arrayTypeSymbol.ElementType);
-                return;
-            }
-            //检查其他范型集合
-            if (typeSymbol is INamedTypeSymbol { IsGenericType: true } namedTypeSymbol)
-            {
-                foreach (var typeArgument in namedTypeSymbol.TypeArguments)
-                {
-                    CheckTypeHasAppBoxModel(typeArgument);
-                }
-                return;
-            }
-
-            IsAppBoxModel(typeSymbol);
-        }
+        private INamedTypeSymbol? TypeOfEntity =>
+            _typeSymbolCache.TryGetTypeByName("AppBoxCore.Entity");
 
         #endregion
 

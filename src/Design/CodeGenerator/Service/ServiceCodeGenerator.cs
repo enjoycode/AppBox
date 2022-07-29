@@ -2,7 +2,7 @@ using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
+using RoslynUtils;
 
 namespace AppBoxDesign;
 
@@ -18,6 +18,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
         AppName = appName;
         SemanticModel = semanticModel;
         ServiceModel = serviceModel;
+        _typeSymbolCache = new TypeSymbolCache(semanticModel);
     }
 
     internal readonly DesignHub DesignHub;
@@ -111,33 +112,13 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
 
     #region ====Type Symbols====
 
-    private readonly Dictionary<string, INamedTypeSymbol> _typesCache = new();
+    private readonly TypeSymbolCache _typeSymbolCache;
 
-    private INamedTypeSymbol TypeOfEntity => GetTypeByName("AppBoxCore.Entity");
-    
     private INamedTypeSymbol TypeOfIListGeneric =>
-        GetTypeByName("System.Collections.Generic.IList`1");
-    
+        _typeSymbolCache.GetTypeByName("System.Collections.Generic.IList`1");
+
     private INamedTypeSymbol TypeOfListGeneric =>
-        GetTypeByName("System.Collections.Generic.List`1");
-
-    private INamedTypeSymbol GetTypeByName(string typeName)
-    {
-        var type = TryGetTypeByName(typeName);
-        if (type == null)
-            throw new ArgumentException($"Can't find type by name: {typeName}");
-        return type;
-    }
-
-    private INamedTypeSymbol? TryGetTypeByName(string typeName)
-    {
-        if (_typesCache.TryGetValue(typeName, out var typeSymbol))
-            return typeSymbol;
-
-        var type = SemanticModel.Compilation.GetTypeByMetadataName(typeName);
-        if (type != null) _typesCache[typeName] = type;
-        return type;
-    }
+        _typeSymbolCache.GetTypeByName("System.Collections.Generic.List`1");
 
     #endregion
 }

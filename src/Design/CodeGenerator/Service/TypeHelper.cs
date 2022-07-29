@@ -48,8 +48,7 @@ internal static class TypeHelper
 
     #region ====运行时类型转换====
 
-    private static readonly Dictionary<string, TypeSyntax> realTypes =
-        new Dictionary<string, TypeSyntax>();
+    private static readonly Dictionary<string, TypeSyntax> realTypes = new();
 
     internal static TypeSyntax GetRealType(string realTypeName)
     {
@@ -63,34 +62,6 @@ internal static class TypeHelper
     }
 
     internal static TypeSyntax ServiceInterfaceType => GetRealType("AppBoxCore.IService");
-
-    #endregion
-
-    #region ====Symbol Extensions====
-
-    /// <summary>
-    /// 判断当前类型是否继承自指定类型
-    /// </summary>
-    internal static bool IsInherits(this ITypeSymbol symbol, ITypeSymbol type)
-    {
-        var baseType = symbol.BaseType;
-        while (baseType != null)
-        {
-            if (SymbolEqualityComparer.Default.Equals(type, baseType))
-                return true;
-
-            baseType = baseType.BaseType;
-        }
-
-        return false;
-    }
-    
-    // internal static bool IsImplements(this ITypeSymbol symbol, ITypeSymbol type)
-    // {
-    //     //注意擦除范型类型
-    //     return symbol.AllInterfaces
-    //         .Any(t => t.IsGenericType ? t.OriginalDefinition.Equals(type) : t.Equals(type));
-    // }
 
     #endregion
 

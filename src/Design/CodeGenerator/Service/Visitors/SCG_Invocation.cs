@@ -9,8 +9,7 @@ internal partial class ServiceCodeGenerator
 {
     public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node)
     {
-        var methodSymbol =
-            ModelExtensions.GetSymbolInfo(SemanticModel, node.Expression).Symbol as IMethodSymbol;
+        var methodSymbol = SemanticModel.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
         var needPopQueryMethod = false;
         if (IsQueryMethod(methodSymbol))
         {

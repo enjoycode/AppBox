@@ -1,6 +1,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace PixUI.CS2TS
 {
@@ -55,23 +56,6 @@ namespace PixUI.CS2TS
             //注意擦除范型类型
             return symbol.AllInterfaces
                 .Any(t => t.IsGenericType ? t.OriginalDefinition.Equals(type) : t.Equals(type));
-        }
-
-        /// <summary>
-        /// 判断当前类型是否继承自指定类型
-        /// </summary>
-        internal static bool IsInherits(this ITypeSymbol symbol, ITypeSymbol type)
-        {
-            var baseType = symbol.BaseType;
-            while (baseType != null)
-            {
-                if (SymbolEqualityComparer.Default.Equals(type, baseType))
-                    return true;
-
-                baseType = baseType.BaseType;
-            }
-
-            return false;
         }
 
         /// <summary>
