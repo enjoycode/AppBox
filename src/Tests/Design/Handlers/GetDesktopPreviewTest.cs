@@ -19,7 +19,7 @@ public class GetDesktopPreviewTest
         var designHub = mockSession.GetDesignHub();
         await designHub.DesignTree.LoadAsync();
         
-        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.DemoPage")!;
+        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
         
         var handler = new GetDesktopPreview();
         var res = (string)await handler.Handle(designHub, InvokeArgs.Make(modelNode.Id));
