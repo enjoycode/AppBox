@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using AppBoxCore;
 
 namespace AppBoxClient
 {
@@ -8,6 +9,6 @@ namespace AppBoxClient
 
         Task Logout();
 
-        Task<object?> Invoke(string service, object?[]? args);
+        Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories);
     }
 }

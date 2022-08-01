@@ -23,6 +23,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference SystemRuntimeLib => GetSdkLib("System.Runtime.dll");
 
+    internal static MetadataReference SystemCollectionsLib => GetSdkLib("System.Collections.dll");
+
     internal static MetadataReference SystemTasksLib => GetSdkLib("System.Threading.Tasks.dll");
 
     internal static MetadataReference SystemDataLib => GetSdkLib("System.Data.Common.dll");

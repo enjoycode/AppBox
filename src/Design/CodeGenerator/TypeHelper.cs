@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace AppBoxDesign;
 
@@ -42,6 +43,24 @@ internal static class TypeHelper
 
         //TODO:暂简单判断方法是否public，还需要判断返回类型
         return node.Modifiers.Any(t => t.ValueText == "public");
+    }
+
+    internal static bool IsViewClass(ClassDeclarationSyntax? node, string appName, string viewName)
+    {
+        if (node == null) return false;
+
+        return node.Identifier.ValueText == viewName;
+    }
+
+    internal static bool IsListGeneric(ITypeSymbol typeSymbol, TypeSymbolCache typeSymbolCache)
+    {
+        return (typeSymbol.Name == "IList" &&
+                SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition,
+                    typeSymbolCache.TypeOfIListGeneric))
+               ||
+               (typeSymbol.Name == "List" &&
+                SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition,
+                    typeSymbolCache.TypeOfListGeneric));
     }
 
     #endregion

@@ -32,7 +32,24 @@ internal partial class ViewCodeGenerator
             $"{symbol.ContainingNamespace.ContainingNamespace.Name}.{symbol.ContainingType.Name}.{symbol.Name}";
         var methodName = "AppBoxClient.Channel.Invoke";
         if (isReturnGenericTask)
-            methodName += $"<{((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0]}>";
+        {
+            //以下需要特殊处理服务端序列化后丢失的实体类型
+            var rt = ((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0];
+            if (rt is IArrayTypeSymbol arrayTypeSymbol &&
+                arrayTypeSymbol.ElementType.IsAppBoxEntity(_typeSymbolCache))
+            {
+                methodName += $"EntityArray<{arrayTypeSymbol.ElementType}>";
+            }
+            else if (TypeHelper.IsListGeneric(rt, _typeSymbolCache) &&
+                     ((INamedTypeSymbol)rt).TypeArguments[0].IsAppBoxEntity(_typeSymbolCache))
+            {
+                methodName += $"EntityList<{((INamedTypeSymbol)rt).TypeArguments[0]}>";
+            }
+            else
+            {
+                methodName += $"<{rt}>";
+            }
+        }
 
         var method = SyntaxFactory.ParseExpression(methodName);
         var serviceArg = SyntaxFactory.Argument(
@@ -75,7 +92,13 @@ internal partial class ViewCodeGenerator
 
             args = args.AddArguments(SyntaxFactory.Argument(argsArray));
         }
-        //TODO: entity factory arg
+
+        //entity factory arg
+        if (isReturnGenericTask)
+        {
+            var entityFactories = SyntaxFactory.IdentifierName("_entityFactories");
+            args = args.AddArguments(SyntaxFactory.Argument(entityFactories));
+        }
 
         var res = SyntaxFactory.InvocationExpression(method, args).WithTriviaFrom(node);
         return res;

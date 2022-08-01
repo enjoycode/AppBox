@@ -18,7 +18,8 @@ internal partial class ServiceCodeGenerator
                 SyntaxFactory.SimpleBaseType(TypeHelper.ServiceInterfaceType));
 
             //实体工厂
-            var entityFactoriesCode = GenerateEntityFactoriesCode();
+            var entityFactoriesCode =
+                CodeGeneratorUtil.GenerateEntityFactoriesCode(DesignHub, _usedEntities);
             var entityFactories =
                 SyntaxFactory.ParseCompilationUnit(entityFactoriesCode).Members[0];
             updatedNode = updatedNode.AddMembers(entityFactories);
@@ -31,40 +32,6 @@ internal partial class ServiceCodeGenerator
         }
 
         return base.VisitClassDeclaration(node);
-    }
-
-    /// <summary>
-    /// 生成反序列化时的实体工厂(只需要直接引用的实体)
-    /// </summary>
-    /// <returns></returns>
-    private string GenerateEntityFactoriesCode()
-    {
-        var sb = StringBuilderCache.Acquire();
-
-        sb.Append("private static readonly AppBoxCore.EntityFactory[] _entityFactories=");
-        if (_usedEntities.Count == 0)
-            sb.Append("Array.Empty<EntityFactory>();");
-        else
-        {
-            sb.Append('{');
-            var sep = false;
-            foreach (var usedEntity in _usedEntities)
-            {
-                if (sep == false) sep = true;
-                else sb.Append(',');
-
-                var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(usedEntity)!;
-                sb.Append("new (");
-                sb.Append(modelNode.Model.Id.Value.ToString());
-                sb.Append(", ()=>new ");
-                sb.Append(usedEntity);
-                sb.Append("())");
-            }
-        }
-
-        sb.Append("};\n");
-
-        return StringBuilderCache.GetStringAndRelease(sb);
     }
 
     /// <summary>
@@ -141,13 +108,7 @@ internal partial class ServiceCodeGenerator
             return $"args.GetArray<{elementType}>()";
         }
 
-        if ((typeSymbol.Name == "IList" &&
-             SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition,
-                 TypeOfListGeneric))
-            ||
-            (typeSymbol.Name == "List" &&
-             SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition,
-                 TypeOfListGeneric)))
+        if (TypeHelper.IsListGeneric(typeSymbol, _typeSymbolCache))
         {
             var elementType = ((INamedTypeSymbol)typeSymbol).TypeArguments[0];
             return $"({argType})args.GetList<{elementType}>()";

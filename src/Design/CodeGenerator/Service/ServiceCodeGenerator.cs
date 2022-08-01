@@ -26,6 +26,8 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     internal readonly SemanticModel SemanticModel;
     internal readonly ServiceModel ServiceModel;
 
+    private readonly TypeSymbolCache _typeSymbolCache;
+
     /// <summary>
     /// 用于转换查询方法的Lambda表达式
     /// </summary>
@@ -68,18 +70,6 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
 
         return ctx.Values;
     }
-
-    #endregion
-
-    #region ====Type Symbols====
-
-    private readonly TypeSymbolCache _typeSymbolCache;
-
-    private INamedTypeSymbol TypeOfIListGeneric =>
-        _typeSymbolCache.GetTypeByName("System.Collections.Generic.IList`1");
-
-    private INamedTypeSymbol TypeOfListGeneric =>
-        _typeSymbolCache.GetTypeByName("System.Collections.Generic.List`1");
 
     #endregion
 }

@@ -96,9 +96,6 @@ namespace PixUI.CS2TS
         private INamedTypeSymbol TypeOfTSInterceptorAttribute =>
             _typeSymbolCache.GetTypeByName(TSInterceptorAttributeFullName);
 
-        private INamedTypeSymbol? TypeOfEntity =>
-            _typeSymbolCache.TryGetTypeByName("AppBoxCore.Entity");
-
         #endregion
 
         internal bool TryGetInterceptor(ISymbol? symbol, out ITSInterceptor? interceptor)

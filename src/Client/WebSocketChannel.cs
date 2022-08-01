@@ -23,14 +23,20 @@ namespace AppBoxClient
         private int _sessionId;
         private string? _name;
         private int _msgIdIndex = 0;
-        private readonly ConcurrentDictionary<int, TaskCompletionSource<MessageReadStream>> _pendingRequests = new();
+
+        private readonly ConcurrentDictionary<int, TaskCompletionSource<MessageReadStream>>
+            _pendingRequests = new();
+
         //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
         private BytesSegment? _pendingResponse;
-        public async Task<object?> Invoke(string service, object?[]? args)
+
+        public async Task<object?> Invoke(string service, object?[]? args,
+            EntityFactory[]? entityFactories)
         {
             //add to wait list
             var msgId = MakeMsgId();
-            var promise = new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
+            var promise =
+                new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
             _pendingRequests.TryAdd(msgId, promise);
 
             //serialize request
@@ -52,6 +58,8 @@ namespace AppBoxClient
             await SendMessage(reqData);
 
             var rs = await promise.Task;
+            if (entityFactories != null)
+                rs.Context.SetEntityFactories(entityFactories);
             _pendingRequests.TryRemove(msgId, out _);
 
             // deserialize response
@@ -72,6 +80,7 @@ namespace AppBoxClient
                     MessageReadStream.Return(rs);
                 }
             }
+
             if (errorCode != InvokeErrorCode.None)
                 throw new Exception($"ErrorCode={errorCode} ErrorMsg={result}");
             else
@@ -82,7 +91,8 @@ namespace AppBoxClient
         {
             //add to wait list
             var msgId = MakeMsgId();
-            var promise = new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
+            var promise =
+                new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
             _pendingRequests.TryAdd(msgId, promise);
 
             //serialize request
@@ -139,9 +149,10 @@ namespace AppBoxClient
             while (true)
             {
                 var segment = BytesSegment.Rent();
-                var res = await _clientWebSocket.ReceiveAsync(segment.Buffer, CancellationToken.None);
+                var res = await _clientWebSocket.ReceiveAsync(segment.Buffer,
+                    CancellationToken.None);
                 segment.Length = res.Count;
-               
+
                 if (res.EndOfMessage)
                 {
                     if (_pendingResponse != null)
@@ -164,6 +175,7 @@ namespace AppBoxClient
                     {
                         _pendingResponse.Append(segment);
                     }
+
                     _pendingResponse = segment;
                 }
             }
@@ -177,13 +189,13 @@ namespace AppBoxClient
             do
             {
                 var isEnd = cur.Next == null;
-                await _clientWebSocket.SendAsync(cur.Buffer, WebSocketMessageType.Binary, isEnd, CancellationToken.None);
+                await _clientWebSocket.SendAsync(cur.Buffer, WebSocketMessageType.Binary, isEnd,
+                    CancellationToken.None);
                 if (isEnd)
                     break;
             } while (true);
 
             BytesSegment.ReturnAll(data);
         }
-
     }
 }

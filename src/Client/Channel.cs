@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AppBoxCore;
 
 namespace AppBoxClient
 {
@@ -19,13 +22,36 @@ namespace AppBoxClient
 
         public static async Task Invoke(string service, object?[]? args = null)
         {
-            await _provider.Invoke(service, args);
+            await _provider.Invoke(service, args, null);
         }
 
-        public static async Task<T?> Invoke<T>(string service, object?[]? args = null)
+        public static async Task<T?> Invoke<T>(string service, object?[]? args = null,
+            EntityFactory[]? entityFactories = null)
         {
-            var res = await _provider.Invoke(service, args);
-            return res == null ? default : (T)res;
+            var res = await _provider.Invoke(service, args, entityFactories);
+            if (res == null) return default;
+
+            return (T)res;
+        }
+
+        public static async Task<T[]?> InvokeEntityArray<T>(string service, object?[]? args = null,
+            EntityFactory[]? entityFactories = null)
+        {
+            var res = await _provider.Invoke(service, args, entityFactories);
+            if (res == null) return default;
+
+            var entityArray = (Entity[])res;
+            return entityArray.Cast<T>().ToArray();
+        }
+
+        public static async Task<List<T>?> InvokeEntityList<T>(string service,
+            object?[]? args = null, EntityFactory[]? entityFactories = null)
+        {
+            var res = await _provider.Invoke(service, args, entityFactories);
+            if (res == null) return default;
+
+            var entityList = (IList<Entity>)res;
+            return entityList.Cast<T>().ToList();
         }
     }
 }

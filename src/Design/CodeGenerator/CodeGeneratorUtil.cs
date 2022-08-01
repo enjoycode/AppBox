@@ -66,4 +66,43 @@ internal static class CodeGeneratorUtil
         }
         //TODO:实体枚举成员的处理
     }
+
+    private const string EmptyEntityFactories =
+        "private static readonly AppBoxCore.EntityFactory[] _entityFactories=Array.Empty<EntityFactory>();\n";
+
+    /// <summary>
+    /// 生成反序列化时的实体工厂
+    /// </summary>
+    /// <returns></returns>
+    internal static string GenerateEntityFactoriesCode(DesignHub hub, HashSet<string> usedModels)
+    {
+        if (usedModels.Count == 0)
+            return EmptyEntityFactories;
+
+        var entities = usedModels.Select(name => hub.DesignTree.FindModelNodeByFullName(name))
+            .Where(node => node != null && node.Model.ModelType == ModelType.Entity)
+            .ToArray();
+        if (entities.Length == 0)
+            return EmptyEntityFactories;
+
+        var sb = StringBuilderCache.Acquire();
+        sb.Append("private static readonly AppBoxCore.EntityFactory[] _entityFactories={");
+        var sep = false;
+        foreach (var usedEntity in entities)
+        {
+            if (sep == false) sep = true;
+            else sb.Append(',');
+
+            sb.Append("new (");
+            sb.Append(usedEntity!.Model.Id.Value.ToString());
+            sb.Append(", ()=>new ");
+            sb.Append(usedEntity.AppNode.Model.Name);
+            sb.Append(".Entities.");
+            sb.Append(usedEntity.Model.Name);
+            sb.Append("())");
+        }
+
+        sb.Append("};\n");
+        return StringBuilderCache.GetStringAndRelease(sb);
+    }
 }
