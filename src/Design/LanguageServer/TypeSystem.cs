@@ -56,6 +56,10 @@ internal sealed class TypeSystem : IDisposable
         new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10)
             .WithPreprocessorSymbols("__RUNTIME__", "__HOSTRUNTIME__");
 
+    internal static readonly CSharpParseOptions ViewParseOptions =
+        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10)
+            .WithPreprocessorSymbols("__RUNTIME__");
+
     /// <summary>
     /// 初始化虚拟工程
     /// </summary>
@@ -157,7 +161,8 @@ internal sealed class TypeSystem : IDisposable
                 //服务代理的代码生成
                 var srcDoc = newSolution.GetDocument(docId)!;
                 var proxyCode =
-                    await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
+                    await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName,
+                        (ServiceModel)model);
                 newSolution =
                     newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
                 break;
@@ -225,7 +230,8 @@ internal sealed class TypeSystem : IDisposable
                 // 服务模型还需要更新代理类
                 var srcdoc = newSolution.GetDocument(docId)!;
                 var proxyCode =
-                    await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName, (ServiceModel)model);
+                    await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName,
+                        (ServiceModel)model);
                 newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
                     SourceText.From(proxyCode));
                 break;

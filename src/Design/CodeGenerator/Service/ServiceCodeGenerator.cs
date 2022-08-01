@@ -48,11 +48,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     /// </summary>
     private readonly HashSet<string> _usedEntities = new();
 
-    private void AddUsedEntity(string fullName)
-    {
-        if (!_usedEntities.Contains(fullName))
-            _usedEntities.Add(fullName);
-    }
+    private void AddUsedEntity(string fullName) => _usedEntities.Add(fullName);
 
     /// <summary>
     /// 获取使用的其他模型生成的运行时代码
@@ -66,46 +62,11 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
         foreach (var usedEntity in _usedEntities)
         {
             var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(usedEntity)!;
-            BuildUsagedEntity(modelNode, ctx);
+            CodeGeneratorUtil.BuildUsagedEntity(DesignHub, modelNode, ctx,
+                TypeSystem.ServiceParseOptions);
         }
 
         return ctx.Values;
-    }
-
-    private void BuildUsagedEntity(ModelNode modelNode, IDictionary<string, SyntaxTree> ctx)
-    {
-        if (ctx.ContainsKey(modelNode.Id)) return;
-
-        //处理自身 TODO:直接复制SyntaxTree,不需要再生成一次
-        var code = EntityCodeGenerator.GenEntityRuntimeCode(modelNode);
-        var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, TypeSystem.ServiceParseOptions);
-        ctx.Add(modelNode.Id, syntaxTree);
-
-        //处理引用
-        var model = (EntityModel)modelNode.Model;
-        var refs = model.Members
-            .Where(t => t.Type == EntityMemberType.EntityRef)
-            .Cast<EntityRefModel>();
-        foreach (var refModel in refs)
-        {
-            foreach (var refModelId in refModel.RefModelIds)
-            {
-                var refModelNode =
-                    DesignHub.DesignTree.FindModelNode(ModelType.Entity, refModelId)!;
-                BuildUsagedEntity(refModelNode, ctx);
-            }
-        }
-
-        var sets = model.Members
-            .Where(t => t.Type == EntityMemberType.EntitySet)
-            .Cast<EntitySetModel>();
-        foreach (var setModel in sets)
-        {
-            var setModelNode =
-                DesignHub.DesignTree.FindModelNode(ModelType.Entity, setModel.RefModelId)!;
-            BuildUsagedEntity(setModelNode, ctx);
-        }
-        //TODO:实体枚举成员的处理
     }
 
     #endregion

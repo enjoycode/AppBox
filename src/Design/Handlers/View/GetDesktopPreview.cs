@@ -34,6 +34,8 @@ internal sealed class GetDesktopPreview : IDesignHandler
         var docName = $"{appName}.Views.{modelNode.Model.Name}";
         var newTree = SyntaxFactory.SyntaxTree(newRootNode,
             path: docName + ".cs", encoding: Encoding.UTF8);
+        //生成视图模型依赖的其他模型的运行时代码
+        var usagesTree = codegen.GetUsagesTree();
 
         var version = (int)(DateTime.Now - DateTime.UnixEpoch).TotalSeconds;
         var asmVersion =
@@ -50,8 +52,8 @@ internal sealed class GetDesktopPreview : IDesignHandler
             .AddReferences(GetViewModelReferences())
             .AddSyntaxTrees(newTree, usingAndVersionTree)
             .WithOptions(options);
-        // if (usagesTree != null)
-        //     compilation = compilation.AddSyntaxTrees(usagesTree);
+        if (usagesTree != null)
+            compilation = compilation.AddSyntaxTrees(usagesTree);
 
         using var dllStream = new MemoryStream(1024);
         var emitResult = compilation.Emit(dllStream);
