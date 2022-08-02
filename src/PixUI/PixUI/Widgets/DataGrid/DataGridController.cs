@@ -90,8 +90,10 @@ namespace PixUI
                 var newEmpty = value == null ? true : value.Count == 0;
 
                 _dataSource = value;
-                if (!(oldEmpty && newEmpty))
-                    _owner?.Invalidate(InvalidAction.Repaint);
+                ClearCacheOnDataSourceChanged();
+                
+                if (oldEmpty && newEmpty) return;
+                _owner?.Invalidate(InvalidAction.Repaint);
             }
         }
 
@@ -140,6 +142,15 @@ namespace PixUI
 
         public void Invalidate() => _owner?.Invalidate(InvalidAction.Repaint);
 
+        private void ClearCacheOnDataSourceChanged()
+        {
+            //TODO:暂所有列，考虑仅可见列
+            foreach (var column in _cachedLeafColumns)
+            {
+                column.ClearAllCache();
+            }
+        }
+
         internal void ClearCacheOnScroll(bool isScrollDown, int rowIndex)
         {
             //Console.WriteLine($"---------->ClearCache: down={isScrollDown} row={rowIndex}");
@@ -179,7 +190,7 @@ namespace PixUI
                         var delta = e.DeltaX;
                         var newWidth = col.Width.Value + delta;
                         col.Width.ChangeValue(newWidth);
-                        col.ClearCacheOnResized(); //固定列暂需要
+                        col.ClearAllCache(); //固定列暂需要
                         if (delta < 0 && ScrollController.OffsetX > 0)
                         {
                             //减小需要重设滚动位置

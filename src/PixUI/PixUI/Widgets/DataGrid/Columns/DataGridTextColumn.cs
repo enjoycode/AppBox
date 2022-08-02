@@ -53,7 +53,7 @@ namespace PixUI
             return ph;
         }
 
-        internal override void ClearCacheOnResized()
+        internal override void ClearAllCache()
         {
             _cellParagraphs.Clear();
         }

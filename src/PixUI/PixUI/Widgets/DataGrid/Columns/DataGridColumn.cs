@@ -64,13 +64,13 @@ namespace PixUI
                 _cachedWidth = newWidth;
             }
 
-            if (widthChanged) ClearCacheOnResized();
+            if (widthChanged) ClearAllCache();
         }
 
         /// <summary>
-        /// 改变列宽后清除相关缓存
+        /// 改变列宽或重设数据源后清除所有缓存
         /// </summary>
-        internal virtual void ClearCacheOnResized() { }
+        internal virtual void ClearAllCache() { }
 
         /// <summary>
         /// 滚动后清除相关缓存

@@ -128,7 +128,7 @@ public struct AnyValue : IEquatable<AnyValue>
 
     #endregion
 
-    #region ====隐式/显式转换，仅用于方便服务端编码====
+    #region ====隐式/显式转换====
 
     //注意隐式转换不支持接口类型及object
     public static implicit operator AnyValue(bool v)
