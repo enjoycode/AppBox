@@ -3,6 +3,7 @@ using AppBoxCore;
 
 namespace AppBoxStore;
 
+[EntityModelId(MODELID)]
 public sealed class Employee : SqlEntity
 {
     public Employee() { }
@@ -78,8 +79,7 @@ public sealed class Employee : SqlEntity
 
     #region ====Overrides====
 
-    internal static readonly ModelId MODELID =
-        ModelId.Make(Consts.SYS_APP_ID, ModelType.Entity, 1, ModelLayer.SYS);
+    internal const long MODELID = 8012673906332663812; //1
 
     internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;

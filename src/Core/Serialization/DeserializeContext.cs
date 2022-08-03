@@ -25,27 +25,33 @@ public sealed class DeserializeContext
     public void SetEntityFactories(EntityFactory[] factories) => _entityFactories = factories;
 
     /// <summary>
-    /// 根据实体模型标识号获取实体工厂方法，如果不存在抛异常
+    /// 根据实体模型标识号获取实体运行时类型
     /// </summary>
-    public Func<Entity> GetEntityFactory(long modelId)
+    public Type GetEntityType(long modelId)
     {
         if (_entityFactories == null)
             throw new SerializationException(SerializationError.EntityFactoryIsNull);
         var index = Array.FindIndex(_entityFactories, t => t.ModelId == modelId);
-        if (index < 0) //TODO: 不存在返回动态类型工厂，不抛异常
+        if (index < 0) //TODO: 不存在返回动态类型，不抛异常
             throw new SerializationException(SerializationError.EntityFactoryNotExists);
-        return _entityFactories[index].Creator;
+        return _entityFactories[index].EntityType;
     }
+
+    /// <summary>
+    /// 根据实体模型标识号获取实体实例
+    /// </summary>
+    public Entity MakeEntity(long modelId) =>
+        (Entity)Activator.CreateInstance(GetEntityType(modelId));
 }
 
 public readonly struct EntityFactory
 {
     public readonly long ModelId;
-    public readonly Func<Entity> Creator;
+    public readonly Type EntityType;
 
-    public EntityFactory(long modelId, Func<Entity> creator)
+    public EntityFactory(long modelId, Type entityType)
     {
         ModelId = modelId;
-        Creator = creator;
+        EntityType = entityType;
     }
 }

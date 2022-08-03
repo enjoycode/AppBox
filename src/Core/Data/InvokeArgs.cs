@@ -23,6 +23,8 @@ public readonly struct InvokeArgs
             MessageReadStream.Return(_stream);
     }
 
+    public static readonly InvokeArgs Empty = new();
+
     public static InvokeArgs From(MessageReadStream stream) => new(stream);
 
     #region ====MakeXXX Methods====

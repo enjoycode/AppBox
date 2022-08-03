@@ -4,6 +4,7 @@ using AppBoxCore;
 
 namespace AppBoxStore;
 
+[EntityModelId(MODELID)]
 public sealed class OrgUnit : SqlEntity
 {
     public OrgUnit() { }
@@ -74,8 +75,7 @@ public sealed class OrgUnit : SqlEntity
 
     #region ====Overrides====
 
-    internal static readonly ModelId MODELID =
-        ModelId.Make(Consts.SYS_APP_ID, ModelType.Entity, 4, ModelLayer.SYS);
+    internal const long MODELID = 8012673906332663824; //4
 
     internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;

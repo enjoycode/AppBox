@@ -246,6 +246,7 @@ export class BytesInputStream implements IInputStream {
         if (typeFlag === 2) {
             return PayloadType.Object;
         } else if (typeFlag === 3) {
+            this.ReadLong(); //ignore entity model id
             return PayloadType.Entity;
         } else if (typeFlag === 0) {
             const payloadType: PayloadType = this.ReadByte();

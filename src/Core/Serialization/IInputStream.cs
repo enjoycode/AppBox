@@ -263,7 +263,10 @@ public static class InputStreamExtensions
             case 2:
                 return typeof(object);
             case 3:
-                return typeof(Entity);
+            {
+                var modelId = s.ReadLong();
+                return modelId == 0 ? typeof(Entity) : s.Context.GetEntityType(modelId);
+            }
             default:
                 throw new SerializationException(SerializationError.UnknownTypeFlag,
                     typeFlag.ToString());
@@ -386,9 +389,7 @@ public static class InputStreamExtensions
     public static T DeserializeEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
     {
         var modelId = s.ReadLong();
-        //从上下文获取实体工厂
-        var f = creator ?? s.Context.GetEntityFactory(modelId);
-        var entity = f();
+        var entity = creator != null ? creator() : s.Context.MakeEntity(modelId);
         s.Context.AddToDeserialized(entity);
         entity.ReadFrom(s);
         return (T)entity;

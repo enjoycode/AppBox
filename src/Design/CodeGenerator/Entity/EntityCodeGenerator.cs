@@ -154,6 +154,7 @@ internal static class EntityCodeGenerator
         sb.Append("using AppBoxCore;\n\n");
         sb.Append($"namespace {appName}.Entities;\n");
 
+        sb.Append($"[EntityModelIdAttribute({model.Id.Value}L)]");
         sb.Append($"public sealed class {model.Name}");
         //根据存储配置继承不同的基类
         switch (model.DataStoreKind)
@@ -230,7 +231,7 @@ internal static class EntityCodeGenerator
         long modelIdValue = model.Id;
         sb.Append("private static readonly ModelId MODELID=");
         sb.Append(modelIdValue.ToString());
-        sb.Append(";\npublic override ModelId ModelId => MODELID;\n");
+        sb.Append("L;\npublic override ModelId ModelId => MODELID;\n");
 
         // override AllMembers
         sb.Append("private static readonly short[] MemberIds={");

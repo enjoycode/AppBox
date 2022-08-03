@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace AppBoxCore;
 
 public interface IOutputStream : IEntityMemberWriter
@@ -261,7 +263,10 @@ public static class OutputStreamExtensions
         else if (type == typeof(Entity) || type.IsSubclassOf(typeof(Entity)))
         {
             s.WriteByte(3);
-            //考虑再写入模型标识或类型名称
+            //再写入模型标识, TODO:待C#11 直接用ModelId静态接口
+            //https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/static-abstract-interface-methods
+            var modelIdAttr = type.GetCustomAttribute(typeof(EntityModelIdAttribute));
+            s.WriteLong(modelIdAttr == null ? 0 : ((EntityModelIdAttribute)modelIdAttr).Id);
         }
         else
         {

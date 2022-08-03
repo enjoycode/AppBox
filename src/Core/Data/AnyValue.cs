@@ -81,50 +81,37 @@ public struct AnyValue : IEquatable<AnyValue>
 
     #region ====FromXXX Methods, 仅用于生成虚拟服务代码的IService接口====
 
-    public static AnyValue From(bool v) =>
-        new AnyValue { _BooleanValue = v, Type = AnyValueType.Boolean };
+    public static AnyValue From(bool v) => new() { _BooleanValue = v, Type = AnyValueType.Boolean };
 
-    public static AnyValue From(byte v) =>
-        new AnyValue { _ByteValue = v, Type = AnyValueType.Byte };
+    public static AnyValue From(byte v) => new() { _ByteValue = v, Type = AnyValueType.Byte };
 
-    public static AnyValue From(ushort v) =>
-        new AnyValue { _UInt16Value = v, Type = AnyValueType.UInt16 };
+    public static AnyValue From(ushort v) => new() { _UInt16Value = v, Type = AnyValueType.UInt16 };
 
-    public static AnyValue From(short v) =>
-        new AnyValue { _Int16Value = v, Type = AnyValueType.Int16 };
+    public static AnyValue From(short v) => new() { _Int16Value = v, Type = AnyValueType.Int16 };
 
-    public static AnyValue From(uint v) =>
-        new AnyValue { _UInt32Value = v, Type = AnyValueType.UInt32 };
+    public static AnyValue From(uint v) => new() { _UInt32Value = v, Type = AnyValueType.UInt32 };
 
-    public static AnyValue From(int v) =>
-        new AnyValue { _Int32Value = v, Type = AnyValueType.Int32 };
+    public static AnyValue From(int v) => new() { _Int32Value = v, Type = AnyValueType.Int32 };
 
-    public static AnyValue From(ulong v) =>
-        new AnyValue { _UInt64Value = v, Type = AnyValueType.UInt64 };
+    public static AnyValue From(ulong v) => new() { _UInt64Value = v, Type = AnyValueType.UInt64 };
 
-    public static AnyValue From(long v) =>
-        new AnyValue { _Int64Value = v, Type = AnyValueType.Int64 };
+    public static AnyValue From(long v) => new() { _Int64Value = v, Type = AnyValueType.Int64 };
 
-    public static AnyValue From(float v) =>
-        new AnyValue { _FloatValue = v, Type = AnyValueType.Float };
+    public static AnyValue From(float v) => new() { _FloatValue = v, Type = AnyValueType.Float };
 
-    public static AnyValue From(double v) =>
-        new AnyValue { _DoubleValue = v, Type = AnyValueType.Double };
+    public static AnyValue From(double v) => new() { _DoubleValue = v, Type = AnyValueType.Double };
 
-    public static AnyValue From(DateTime v) => new AnyValue
-        { _DateTimeValue = v, Type = AnyValueType.DateTime };
+    public static AnyValue From(DateTime v) =>
+        new() { _DateTimeValue = v, Type = AnyValueType.DateTime };
 
-    public static AnyValue From(decimal v) => new AnyValue
-        { _DecimalValue = v, Type = AnyValueType.Decimal };
+    public static AnyValue From(decimal v) =>
+        new() { _DecimalValue = v, Type = AnyValueType.Decimal };
 
-    public static AnyValue From(Guid v) =>
-        new AnyValue { _GuidValue = v, Type = AnyValueType.Guid };
+    public static AnyValue From(Guid v) => new() { _GuidValue = v, Type = AnyValueType.Guid };
 
-    public static AnyValue From(string v) =>
-        new AnyValue { _ObjectValue = v, Type = AnyValueType.Object };
+    public static AnyValue From(string v) => new() { _ObjectValue = v, Type = AnyValueType.Object };
 
-    public static AnyValue From(object v) =>
-        new AnyValue { _ObjectValue = v, Type = AnyValueType.Object };
+    public static AnyValue From(object v) => new() { _ObjectValue = v, Type = AnyValueType.Object };
 
     #endregion
 
@@ -132,19 +119,19 @@ public struct AnyValue : IEquatable<AnyValue>
 
     //注意隐式转换不支持接口类型及object
     public static implicit operator AnyValue(bool v)
-        => new AnyValue { _BooleanValue = v, Type = AnyValueType.Boolean };
+        => new() { _BooleanValue = v, Type = AnyValueType.Boolean };
 
     public static implicit operator AnyValue(uint v)
-        => new AnyValue { _UInt32Value = v, Type = AnyValueType.UInt32 };
+        => new() { _UInt32Value = v, Type = AnyValueType.UInt32 };
 
     public static implicit operator AnyValue(int v)
-        => new AnyValue { _Int32Value = v, Type = AnyValueType.Int32 };
+        => new() { _Int32Value = v, Type = AnyValueType.Int32 };
 
     public static implicit operator AnyValue(string v)
-        => new AnyValue { _ObjectValue = v, Type = AnyValueType.Object };
+        => new() { _ObjectValue = v, Type = AnyValueType.Object };
 
     // public static implicit operator AnyValue(Entity obj)
-    //  => new AnyValue { ObjectValue = obj, Type = AnyValueType.Object };
+    //  => new() { ObjectValue = obj, Type = AnyValueType.Object };
 
     public static explicit operator string(AnyValue v) => v.BoxedValue!.ToString();
 

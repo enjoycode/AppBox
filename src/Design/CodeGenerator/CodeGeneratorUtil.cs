@@ -95,11 +95,11 @@ internal static class CodeGeneratorUtil
 
             sb.Append("new (");
             sb.Append(usedEntity!.Model.Id.Value.ToString());
-            sb.Append(", ()=>new ");
+            sb.Append("L, typeof(");
             sb.Append(usedEntity.AppNode.Model.Name);
             sb.Append(".Entities.");
             sb.Append(usedEntity.Model.Name);
-            sb.Append("())");
+            sb.Append("))");
         }
 
         sb.Append("};\n");

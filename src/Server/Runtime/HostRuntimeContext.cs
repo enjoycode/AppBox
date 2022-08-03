@@ -9,29 +9,26 @@ namespace AppBoxServer;
 
 internal sealed class HostRuntimeContext : IHostRuntimeContext
 {
-    private static readonly AsyncLocal<IUserSession?> SessionStore = new();
-    private readonly Dictionary<long, ModelBase> Models = new();
+    private static readonly AsyncLocal<IUserSession?> _sessionStore = new();
+    private readonly Dictionary<long, ModelBase> _models = new();
 
-    public IUserSession? CurrentSession => SessionStore.Value;
+    public IUserSession? CurrentSession => _sessionStore.Value;
 
-    internal static void SetCurrentSession(IUserSession? session)
-    {
-        SessionStore.Value = session;
-    }
+    internal static void SetCurrentSession(IUserSession? session) => _sessionStore.Value = session;
 
     public async ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
     {
-        if (Models.TryGetValue(modelId, out var model))
+        if (_models.TryGetValue(modelId, out var model))
             return (T)model;
 
         model = await MetaStore.Provider.LoadModelAsync(modelId);
         if (model == null)
             throw new Exception("Can't load model from ModelStore");
 
-        Models.TryAdd(modelId, model);
+        _models.TryAdd(modelId, model);
         return (T)model;
     }
-    
+
     public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)
     {
         //先移除已加载的服务实例
@@ -42,14 +39,16 @@ internal sealed class HostRuntimeContext : IHostRuntimeContext
                 AppServiceContainer.TryRemove(service);
             }
         }
+
         //再移除已加载的模型缓存
         if (others != null)
         {
             foreach (var t in others)
             {
-                Models.Remove(t);
+                _models.Remove(t);
             }
         }
+
         //最后通知整个集群
         if (byPublish)
         {
@@ -105,6 +104,6 @@ internal sealed class HostRuntimeContext : IHostRuntimeContext
     public void InjectModel(ModelBase model)
     {
         model.AcceptChanges();
-        Models.Add(model.Id, model);
+        _models.Add(model.Id, model);
     }
 }

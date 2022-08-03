@@ -35,20 +35,7 @@ internal partial class ViewCodeGenerator
         {
             //以下需要特殊处理服务端序列化后丢失的实体类型
             var rt = ((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0];
-            if (rt is IArrayTypeSymbol arrayTypeSymbol &&
-                arrayTypeSymbol.ElementType.IsAppBoxEntity(_typeSymbolCache))
-            {
-                methodName += $"EntityArray<{arrayTypeSymbol.ElementType}>";
-            }
-            else if (TypeHelper.IsListGeneric(rt, _typeSymbolCache) &&
-                     ((INamedTypeSymbol)rt).TypeArguments[0].IsAppBoxEntity(_typeSymbolCache))
-            {
-                methodName += $"EntityList<{((INamedTypeSymbol)rt).TypeArguments[0]}>";
-            }
-            else
-            {
-                methodName += $"<{rt}>";
-            }
+            methodName += $"<{rt}>";
         }
 
         var method = SyntaxFactory.ParseExpression(methodName);

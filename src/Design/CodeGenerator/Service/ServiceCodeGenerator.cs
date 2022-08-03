@@ -72,4 +72,66 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     }
 
     #endregion
+
+    #region ====Interceptors====
+
+    private static readonly Dictionary<string, IInvocationInterceptor<SyntaxNode>>
+        invocationInterceptors;
+
+    private static readonly Dictionary<string, IMemberAccessInterceptor<SyntaxNode>>
+        memberAccessInterceptors;
+
+    static ServiceCodeGenerator()
+    {
+        invocationInterceptors = new Dictionary<string, IInvocationInterceptor<SyntaxNode>>
+        {
+            { CallServiceInterceptor.Name, new CallServiceInterceptor() }
+        };
+
+        memberAccessInterceptors = new();
+    }
+
+    private static IInvocationInterceptor<SyntaxNode>? GetInvocationInterceptor(ISymbol? symbol)
+    {
+        if (symbol == null) return null;
+
+        var attributes = symbol.GetAttributes();
+        foreach (var item in attributes)
+        {
+            if (item.AttributeClass != null && item.AttributeClass.ToString() ==
+                TypeHelper.InvocationInterceptorAttribute)
+            {
+                var key = item.ConstructorArguments[0].Value!.ToString();
+                if (!invocationInterceptors.TryGetValue(key,
+                        out IInvocationInterceptor<SyntaxNode> interceptor))
+                    Log.Debug($"未能找到InvocationInterceptor: {key}");
+                return interceptor;
+            }
+        }
+
+        return null;
+    }
+
+    private static IMemberAccessInterceptor<SyntaxNode>? GetMemberAccessInterceptor(ISymbol? symbol)
+    {
+        if (symbol == null) return null;
+
+        var attributes = symbol.GetAttributes();
+        foreach (var item in attributes)
+        {
+            if (item.AttributeClass != null && item.AttributeClass.ToString() ==
+                TypeHelper.MemberAccessInterceptorAttribute)
+            {
+                var key = item.ConstructorArguments[0].Value!.ToString();
+                if (!memberAccessInterceptors.TryGetValue(key,
+                        out IMemberAccessInterceptor<SyntaxNode> interceptor))
+                    Log.Debug($"未能找到MemberAccessInterceptro: {key}");
+                return interceptor;
+            }
+        }
+
+        return null;
+    }
+
+    #endregion
 }

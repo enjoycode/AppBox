@@ -3,6 +3,7 @@ using AppBoxCore;
 
 namespace Tests.Core;
 
+[EntityModelId(12345l)]
 public sealed class TestEntity : Entity, IEquatable<TestEntity>
 {
     private static readonly short[] Members = { 1, 2 };

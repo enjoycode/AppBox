@@ -10,6 +10,12 @@ internal partial class ServiceCodeGenerator
     public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         var methodSymbol = SemanticModel.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
+
+        //先判断有无拦截器
+        var interceptor = GetInvocationInterceptor(methodSymbol);
+        if (interceptor != null)
+            return interceptor.VisitInvocation(node, methodSymbol!, this!);
+
         var needPopQueryMethod = false;
         if (IsQueryMethod(methodSymbol))
         {

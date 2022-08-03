@@ -48,3 +48,16 @@ public abstract class Entity : IBinSerializable
 
     #endregion
 }
+
+/// <summary>
+/// 用于运行时反射获取实体类型对应的模型标识号
+/// </summary>
+public sealed class EntityModelIdAttribute : Attribute
+{
+    public readonly long Id;
+
+    public EntityModelIdAttribute(long id)
+    {
+        Id = id;
+    }
+}

@@ -15,7 +15,7 @@ internal struct ChangedModel : IBinSerializable
     public void WriteTo(IOutputStream ws)
     {
         ws.WriteString(ModelType);
-        ws.WriteString(ModelType);
+        ws.WriteString(ModelId);
     }
 
     public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
