@@ -1,5 +1,3 @@
-using PixUI;
-
 namespace PixUI
 {
     public sealed class Card : SingleChildWidget

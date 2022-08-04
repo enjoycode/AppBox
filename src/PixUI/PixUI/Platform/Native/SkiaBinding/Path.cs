@@ -115,35 +115,24 @@ namespace PixUI
             }
         }
 
-        public RRect GetRoundRect()
+        public RRect? GetRoundRect()
         {
             var rrect = new RRect();
             var result = SkiaApi.sk_path_is_rrect(Handle, rrect.Handle);
             if (result)
-            {
                 return rrect;
-            }
-            else
-            {
-                rrect.Dispose();
-                return null;
-            }
+
+            rrect.Dispose();
+            return null;
         }
 
-        public Point[] GetLine()
+        public Point[]? GetLine()
         {
             var temp = new Point[2];
             fixed (Point* t = temp)
             {
                 var result = SkiaApi.sk_path_is_line(Handle, t);
-                if (result)
-                {
-                    return temp;
-                }
-                else
-                {
-                    return null;
-                }
+                return result ? temp : null;
             }
         }
 
@@ -413,28 +402,12 @@ namespace PixUI
         public RawIterator CreateRawIterator() =>
             new RawIterator(this);
 
-        public bool Op(Path other, SKPathOp op, Path result)
+        public bool Op(Path other, PathOp op)
         {
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
-            if (result == null)
-                throw new ArgumentNullException(nameof(result));
 
-            return SkiaApi.sk_pathop_op(Handle, other.Handle, op, result.Handle);
-        }
-
-        public Path Op(Path other, SKPathOp op)
-        {
-            var result = new Path();
-            if (Op(other, op, result))
-            {
-                return result;
-            }
-            else
-            {
-                result.Dispose();
-                return null;
-            }
+            return SkiaApi.sk_pathop_op(Handle, other.Handle, op, Handle);
         }
 
         public bool Simplify(Path result)
@@ -623,7 +596,7 @@ namespace PixUI
             public OpBuilder()
                 : base(SkiaApi.sk_opbuilder_new(), true) { }
 
-            public void Add(Path path, SKPathOp op) =>
+            public void Add(Path path, PathOp op) =>
                 SkiaApi.sk_opbuilder_add(Handle, path.Handle, op);
 
             public bool Resolve(Path result)

@@ -2826,7 +2826,7 @@ namespace PixUI
 		// void sk_opbuilder_add(sk_opbuilder_t* builder, const sk_path_t* path, sk_pathop_t op)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void sk_opbuilder_add (sk_opbuilder_t builder, sk_path_t path, SKPathOp op);
+		internal static extern void sk_opbuilder_add (sk_opbuilder_t builder, sk_path_t path, PathOp op);
 		
 
 		// void sk_opbuilder_destroy(sk_opbuilder_t* builder)
@@ -3322,7 +3322,7 @@ namespace PixUI
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		[return: MarshalAs (UnmanagedType.I1)]
-		internal static extern bool sk_pathop_op (sk_path_t one, sk_path_t two, SKPathOp op, sk_path_t result);
+		internal static extern bool sk_pathop_op (sk_path_t one, sk_path_t two, PathOp op, sk_path_t result);
 		
 
 		// bool sk_pathop_simplify(const sk_path_t* path, sk_path_t* result)

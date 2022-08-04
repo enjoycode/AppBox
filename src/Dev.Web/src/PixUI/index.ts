@@ -12,7 +12,8 @@ export type {
     Font,
     FontWeight,
     BlendMode,
-    Path
+    Path,
+    PathOp,
 } from 'canvaskit-wasm';
 
 export * from './CanvasKit/Color'
