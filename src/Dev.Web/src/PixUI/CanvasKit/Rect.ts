@@ -52,6 +52,8 @@ export class Rect extends Float32Array {
     public Offset(x: number, y: number): void {
         this[0] += x;
         this[1] += y;
+        this[2] += x;
+        this[3] += y;
     }
 
     public IntersectTo(other: Rect): void {
