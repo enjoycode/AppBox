@@ -5,7 +5,7 @@ export class Checkbox extends PixUI.Toggleable {
         super();
         this._previousValue = value.Value;
         this.InitState(
-            PixUI.RxComputed.Make1(value, v => v, v => value.Value = v ?? false), false);
+            PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value, v => v, v => value.Value = v ?? false), false);
         this._positionController.StatusChanged.Add(this.OnPositionStatusChanged, this);
     }
 
@@ -105,22 +105,26 @@ export class Checkbox extends PixUI.Toggleable {
         let mid = new PixUI.Offset(Checkbox._kEdgeSize * 0.4, Checkbox._kEdgeSize * 0.7);
         let end = new PixUI.Offset(Checkbox._kEdgeSize * 0.85, Checkbox._kEdgeSize * 0.25);
 
-        let path = new CanvasKit.Path();
+
         if (t < 0.5) {
             let strokeT = t * 2.0;
             let drawMid = PixUI.Offset.Lerp(start, mid, strokeT)!;
-            path.moveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
-            path.lineTo(origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy);
+            canvas.drawLine(origin.Dx + start.Dx, origin.Dy + start.Dy, origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy, paint);
+            //path.MoveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
+            //path.LineTo(origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy);
         } else {
             let strokeT = (t - 0.5) * 2.0;
             let drawEnd = PixUI.Offset.Lerp(mid, end, strokeT)!;
-            path.moveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
-            path.lineTo(origin.Dx + mid.Dx, origin.Dy + mid.Dy);
-            path.lineTo(origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy);
-        }
+            canvas.drawLine(origin.Dx + start.Dx, origin.Dy + start.Dy, origin.Dx + mid.Dx + 0.8, origin.Dy + mid.Dy + 0.8, paint);
+            canvas.drawLine(origin.Dx + mid.Dx, origin.Dy + mid.Dy, origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy, paint);
 
-        canvas.drawPath(path, paint);
-        path.delete();
+            //using var path = new Path(); //TODO: swapbuffer error on dx12
+            //path.MoveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
+            //path.LineTo(origin.Dx + mid.Dx, origin.Dy + mid.Dy);
+            //path.LineTo(origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy);
+            //path.FillType = SKPathFillType.InverseEvenOdd;
+            //canvas.DrawPath(path, paint);
+        }
     }
 
     private static DrawDash(canvas: PixUI.Canvas, origin: PixUI.Offset, t: number, paint: PixUI.Paint) {

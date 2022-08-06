@@ -9,6 +9,10 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return false;
     }
 
+    public get Clipper(): Nullable<PixUI.IClipper> {
+        return null;
+    }
+
     public DebugLabel: Nullable<string>;
 
     public set Ref(value: PixUI.IWidgetRef) {

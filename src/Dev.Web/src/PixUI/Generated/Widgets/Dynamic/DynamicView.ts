@@ -98,17 +98,23 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
         return super.HitTest(x, y, result);
     }
 
+    public get Clipper(): Nullable<PixUI.IClipper> {
+        return this.Parent == null ? null : new PixUI.ClipperOfRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
+    }
+
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //TODO:暂简单clip
-        if (this.Parent != null) {
+        let clipper = this.Clipper;
+        if (clipper != null) {
             canvas.save();
-            canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
+            clipper.ApplyToCanvas(canvas);
         }
 
         this.PaintChildren(canvas, area);
 
-        if (this.Parent != null)
+        if (clipper != null)
             canvas.restore();
+        clipper?.Dispose();
     }
 
 }

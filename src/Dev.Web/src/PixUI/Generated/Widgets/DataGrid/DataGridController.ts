@@ -95,7 +95,13 @@ export class DataGridController<T> {
     private _dataSource: Nullable<System.IList<T>>;
 
     public set DataSource(value: System.IList<T>) {
+        let oldEmpty = this._dataSource == null ? true : this._dataSource.length == 0;
+        let newEmpty = value == null ? true : value.length == 0;
+
         this._dataSource = value;
+        this.ClearCacheOnDataSourceChanged();
+
+        if (oldEmpty && newEmpty) return;
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
@@ -134,6 +140,13 @@ export class DataGridController<T> {
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
+    private ClearCacheOnDataSourceChanged() {
+        //TODO:暂所有列，考虑仅可见列
+        for (const column of this._cachedLeafColumns) {
+            column.ClearAllCache();
+        }
+    }
+
     public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
         //Console.WriteLine($"---------->ClearCache: down={isScrollDown} row={rowIndex}");
         //TODO:暂所有列，考虑仅可见列
@@ -162,7 +175,7 @@ export class DataGridController<T> {
                     let delta = e.DeltaX;
                     let newWidth = col.Width.Value + delta;
                     col.Width.ChangeValue(newWidth);
-                    col.ClearCacheOnResized(); //固定列暂需要
+                    col.ClearAllCache(); //固定列暂需要
                     if (delta < 0 && this.ScrollController.OffsetX > 0) {
                         //减小需要重设滚动位置
                         this.ScrollController.OffsetX =

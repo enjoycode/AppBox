@@ -71,30 +71,42 @@ export class Card extends PixUI.SingleChildWidget {
         this.SetSize(this.Child.W + margin.Left + margin.Right, this.Child.H + margin.Top + margin.Bottom);
     }
 
+    public get Clipper(): Nullable<PixUI.IClipper> {
+        let shape = this._shape?.Value ?? Card.DefaultShape;
+        let rect = this.GetChildRect();
+        let path = shape.GetOuterPath(rect);
+        return new PixUI.ClipperOfPath(path);
+    }
+
+    private GetChildRect(): PixUI.Rect {
+        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(Card.DefaultMargin);
+        return PixUI.Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right, this.H - margin.Top - margin.Bottom);
+    }
+
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let color = this._color?.Value ?? PixUI.Colors.White;
         let shadowColor = this._shadowColor?.Value ?? PixUI.Colors.Black;
         let elevation = this._elevation?.Value ?? 2;
-        let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(Card.DefaultMargin);
-        let rect = PixUI.Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right, this.H - margin.Top - margin.Bottom);
+        let rect = this.GetChildRect();
         let shape = this._shape?.Value ?? Card.DefaultShape;
+        let clipper = this.Clipper!;
 
         //先画阴影
-        let outer = shape.GetOuterPath(rect);
+        let outer = clipper.GetPath();
         if (elevation > 0) {
             PixUI.DrawShadow(canvas, outer, shadowColor, elevation, shadowColor.Alpha != 0xFF, this.Root!.Window.ScaleFactor);
         }
 
         //Clip外形后填充背景及边框
         canvas.save();
-        canvas.clipPath(outer, CanvasKit.ClipOp.Intersect, true); //TODO:考虑根据shape类型clip区域
+        clipper.ApplyToCanvas(canvas);
         canvas.clear(color);
         shape.Paint(canvas, rect);
 
         this.PaintChildren(canvas, area);
 
         canvas.restore();
-        outer.delete();
+        clipper.Dispose();
     }
 
     public Init(props: Partial<Card>): Card {

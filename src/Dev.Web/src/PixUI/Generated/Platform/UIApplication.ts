@@ -22,7 +22,7 @@ export abstract class UIApplication {
         let overlayCanvas = window.GetOnscreenCanvas();
 
         let ctx = PaintContext.Default;
-        ctx.Window = this.MainWindow;
+        ctx.Window = window;
         let beginTime = System.DateTime.UtcNow;
 
         //先绘制WidgetsCanvas

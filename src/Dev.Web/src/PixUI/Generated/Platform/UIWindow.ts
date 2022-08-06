@@ -44,6 +44,14 @@ export abstract class UIWindow {
     private _lastMouseX: number = -1;
     private _lastMouseY: number = -1;
 
+    protected get LastMouseX(): number {
+        return this._lastMouseX;
+    }
+
+    protected get LastMouseY(): number {
+        return this._lastMouseY;
+    }
+
     // Pointer.Move时检测命中的结果
     private _oldHitResult: PixUI.HitTestResult = new PixUI.HitTestResult();
 

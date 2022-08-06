@@ -1,7 +1,11 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export class RxProperty<T> extends PixUI.State<T> {
+export interface IRxProperty {
+    NotifyValueChanged(): void;
+}
+
+export class RxProperty<T> extends PixUI.State<T> implements IRxProperty {
     public constructor(getter: System.Func1<T>, setter: Nullable<System.Action1<T>> = null) {
         super();
         this._getter = getter;

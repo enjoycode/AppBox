@@ -53,7 +53,7 @@ export abstract class State<T> extends StateBase {
     }
 
     public AsStateOfBool(getter: System.Func2<T, boolean>): State<boolean> {
-        return PixUI.RxComputed.Make1(this, getter);
+        return PixUI.RxComputed.Make1<T, boolean>(this, getter);
     }
 
     //TODO:临时解决隐式转换

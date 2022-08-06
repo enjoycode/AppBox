@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 export class Radio extends PixUI.Toggleable {
     public constructor(value: PixUI.State<boolean>) {
         super();
-        this.InitState(PixUI.RxComputed.Make1(value, v => v, v => value.Value = v ?? false), false);
+        this.InitState(PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value, v => v, v => value.Value = v ?? false), false);
     }
 
 

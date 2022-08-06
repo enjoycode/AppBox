@@ -45,4 +45,5 @@ export class EdgeInsets implements System.IEquatable<EdgeInsets> {
         return this.Left == other.Left && this.Top == other.Top &&
             this.Right == other.Right && this.Bottom == other.Bottom;
     }
+
 }

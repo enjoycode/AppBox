@@ -41,7 +41,7 @@ export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
         return ph;
     }
 
-    public ClearCacheOnResized() {
+    public ClearAllCache() {
         this._cellParagraphs.Clear();
     }
 

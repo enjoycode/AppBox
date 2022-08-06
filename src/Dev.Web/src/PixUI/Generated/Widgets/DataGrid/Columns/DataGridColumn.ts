@@ -47,10 +47,10 @@ export abstract class DataGridColumn<T> {
             this._cachedWidth = newWidth;
         }
 
-        if (widthChanged) this.ClearCacheOnResized();
+        if (widthChanged) this.ClearAllCache();
     }
 
-    public ClearCacheOnResized() {
+    public ClearAllCache() {
     }
 
     public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {

@@ -10,7 +10,7 @@ namespace PixUI
         public Path() { }
 
         [TSRename("isEmpty")]
-        public void IsEmpty() => false;
+        public bool IsEmpty() => false;
 
         [TSRename("addRect")]
         public void AddRect(Rect rect, bool isCCW = false) { }
@@ -23,6 +23,12 @@ namespace PixUI
 
         [TSRename("lineTo")]
         public void LineTo(float x, float y) { }
+        
+        [TSRename("offset")]
+        public void Offset(float dx, float dy) {}
+
+        [TSRename("op")]
+        public bool Op(Path other, PathOp pathOp) => true;
 
         [TSRename("delete")]
         public void Dispose() { }

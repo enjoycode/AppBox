@@ -54,6 +54,7 @@ export * from "./Widgets/Borders/OutlinedBorder";
 export * from "./Widgets/Borders/InputBorder";
 export * from "./Widgets/Borders/RoundedRectangleBorder";
 
+export * from "./Widgets/Clipper";
 export * from "./Widgets/Theme/Theme";
 export * from "./Widgets/WidgetRef";
 export * from "./Widgets/IRootWidget";
