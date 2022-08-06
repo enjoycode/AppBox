@@ -12,10 +12,15 @@ namespace PixUI
         /// <summary>
         /// 是否不透明的
         /// </summary>
-        public virtual bool IsOpaque { get; } = false;
+        public virtual bool IsOpaque => false;
 
         /// <summary>
-        /// 调试信息
+        /// 裁剪区域
+        /// </summary>
+        protected internal virtual IClipper? Clipper => null;
+
+        /// <summary>
+        /// 调试标签
         /// </summary>
         public string? DebugLabel { get; set; }
 

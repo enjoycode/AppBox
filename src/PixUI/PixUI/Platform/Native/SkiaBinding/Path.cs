@@ -46,7 +46,7 @@ namespace PixUI
 
         public bool IsConcave => !IsConvex;
 
-        public bool IsEmpty => VerbCount == 0;
+        public bool IsEmpty() => VerbCount == 0;
 
         public bool IsOval => SkiaApi.sk_path_is_oval(Handle, null);
 
@@ -307,7 +307,7 @@ namespace PixUI
 
         public bool GetBounds(out Rect rect)
         {
-            var isEmpty = IsEmpty;
+            var isEmpty = IsEmpty();
             if (isEmpty)
             {
                 rect = Rect.Empty;

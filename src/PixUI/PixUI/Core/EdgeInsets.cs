@@ -35,5 +35,11 @@ namespace PixUI
 
         public bool Equals(EdgeInsets other) => Left == other.Left && Top == other.Top &&
                                                 Right == other.Right && Bottom == other.Bottom;
+
+#if !__WEB__
+        public override bool Equals(object? obj) => obj is EdgeInsets other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Left, Top, Right, Bottom);
+#endif
     }
 }

@@ -119,18 +119,22 @@ namespace PixUI
             return base.HitTest(x, y, result);
         }
 
+        protected internal override IClipper? Clipper =>
+            Parent == null ? null : new ClipperOfRect(Rect.FromLTWH(0, 0, W, H));
+
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
             //TODO:暂简单clip
-            if (Parent != null)
+            using var clipper = Clipper;
+            if (clipper != null)
             {
                 canvas.Save();
-                canvas.ClipRect(Rect.FromLTWH(0, 0, W, H), ClipOp.Intersect, false);
+                clipper.ApplyToCanvas(canvas);
             }
 
             PaintChildren(canvas, area);
 
-            if (Parent != null)
+            if (clipper != null)
                 canvas.Restore();
         }
 

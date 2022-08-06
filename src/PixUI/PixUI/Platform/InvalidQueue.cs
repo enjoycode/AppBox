@@ -114,7 +114,11 @@ namespace PixUI
 
             foreach (var exist in _queue)
             {
-                if (exist.Level > level) break; //TODO:判断新项是否现存项的任意上级，是则尝试合并
+                if (exist.Level > level)
+                {
+                    //TODO:判断新项是否现存项的任意上级，是则尝试合并
+                    break;
+                }
 
                 // check is same widget
                 if (ReferenceEquals(exist.Widget, widget))
@@ -173,7 +177,10 @@ namespace PixUI
             //TODO:use object pool for InvalidWidget
             var target = new InvalidWidget
             {
-                Widget = widget, Action = action, Level = level, Area = item,
+                Widget = widget,
+                Action = action,
+                Level = level,
+                Area = item,
                 RelayoutOnly = relayoutOnly
             };
             _queue.Insert(insertPos, target);
@@ -265,58 +272,116 @@ namespace PixUI
 
         private static void RepaintWidget(PaintContext ctx, Widget widget, IDirtyArea? dirtyArea)
         {
-            Console.WriteLine($"Repaint: {widget} rect={dirtyArea?.GetRect()}");
+            Console.WriteLine($"InvalidQueue.Repaint: {widget} rect={dirtyArea?.GetRect()}");
             var canvas = ctx.Canvas;
 
-            //TODO:不能简单判断是否不透明，例如上级有OpacityWidget or ImageFilter等
-            //Find first opaque (self or parent) to clear dirty area
-            if (widget.IsOpaque) //self is opaque
+            //循环向上查找需要开始重绘的Widget(不透明的),并且计算裁剪区域
+            var x = 0f; //开始绘制的不透明的Widget相对于窗体的坐标
+            var y = 0f;
+            Widget? opaque = null;
+            Widget temp = widget;
+            var dirtyRect = dirtyArea == null
+                ? Rect.FromLTWH(0, 0, widget.W, widget.H)
+                : dirtyArea.GetRect();
+            IClipper clipper = new ClipperOfRect(dirtyRect);
+            var isClipperEmpty = false;
+
+            var dirtyX = dirtyRect.Left; //脏区域(重绘的Widget相对于Opaque Widget)
+            var dirtyY = dirtyRect.Top;
+
+            do
             {
-                var pt2Win = widget.LocalToWindow(0, 0);
-                canvas.Translate(pt2Win.X, pt2Win.Y);
-                widget.Paint(canvas, dirtyArea);
-                canvas.Translate(-pt2Win.X, -pt2Win.Y);
+                //查找开始绘制的Widget
+                if (opaque == null)
+                {
+                    if (temp.IsOpaque) //TODO:不能简单判断是否不透明，例如上级有OpacityWidget or ImageFilter等
+                    {
+                        opaque = temp;
+                        x = 0;
+                        y = 0;
+                    }
+                    else
+                    {
+                        dirtyX += temp.X;
+                        dirtyY += temp.Y;
+                    }
+                }
+
+                //计算当前子级相对于上级的位置
+                var cx = temp.X; //当前相对于上级的坐标
+                var cy = temp.Y;
+                if (temp.Parent is IScrollable scrollable) //判断上级是否IScrollable,是则处理偏移量
+                {
+                    cx -= scrollable.ScrollOffsetX;
+                    cy -= scrollable.ScrollOffsetY;
+                }
+                else if (temp.Parent is Transform transform) //判断上级是否Transform,是则变换坐标
+                {
+                    var transformed =
+                        MatrixUtils.TransformPoint(transform.EffectiveTransform, cx, cy);
+                    cx = transformed.Dx;
+                    cy = transformed.Dy;
+                }
+
+                //尝试获取当前的Clipper，并与现有的求交集
+                var currentClipper = temp.Clipper;
+                if (currentClipper != null)
+                {
+                    clipper = currentClipper.IntersectWith(clipper);
+                    if (clipper.IsEmpty)
+                    {
+                        isClipperEmpty = true;
+                        break; //裁剪区域为空，不需要重绘
+                    }
+                }
+
+                clipper.Offset(cx, cy);
+
+                x += cx;
+                y += cy;
+                if (temp.Parent == null)
+                    break;
+                else
+                    temp = temp.Parent;
+            } while (true);
+
+            if (isClipperEmpty)
+            {
+                Console.WriteLine("裁剪区域为空，不需要重绘");
                 return;
             }
 
-            //向上查找不透明的父级组件
-            Widget? opaque = null;
-            Widget current = widget;
-            float dx = 0; //当前需要重绘的Widget相对于不透明的上级的坐标偏移X
-            float dy = 0; //当前需要重绘的Widget相对于不透明的上级的坐标偏移Y
-            while (current.Parent != null)
+            if (opaque == null) //没找到指向RootWidget
             {
-                dx += current.X;
-                dy += current.Y;
-
-                current = current.Parent;
-                if (current.IsOpaque)
-                {
-                    opaque = current;
-                    break;
-                }
+                opaque = temp;
+                x = 0;
+                y = 0;
             }
-
-            opaque ??= current; //没找到暂指向Window's RootWidget
-
-            //计算脏区域(重绘的Widget相对于Opaque Widget)
-            var dirtyRect = dirtyArea?.GetRect();
-            var dirtyX = dx + (dirtyRect?.Left ?? 0);
-            var dirtyY = dy + (dirtyRect?.Top ?? 0);
-            var dirtyW = dirtyRect?.Width ?? widget.W;
-            var dirtyH = dirtyRect?.Height ?? widget.H;
-            var dirtyChildRect = Rect.FromLTWH(dirtyX, dirtyY, dirtyW, dirtyH);
 
             //裁剪脏区域并开始绘制
             canvas.Save();
-            var opaque2Win = opaque.LocalToWindow(0, 0);
-            canvas.Translate(opaque2Win.X, opaque2Win.Y);
-            canvas.ClipRect(dirtyChildRect, ClipOp.Intersect, false); //TODO: Root不用
-            //判断是否RootWidget且非不透明，是则清空画布脏区域
-            if (ReferenceEquals(opaque, ctx.Window.RootWidget) && !opaque.IsOpaque)
-                canvas.Clear(ctx.Window.BackgroundColor);
-            opaque.Paint(canvas, new RepaintArea(dirtyChildRect));
-            canvas.Restore();
+            try
+            {
+                clipper.ApplyToCanvas(canvas); //必须在下句Translate之前
+                canvas.Translate(x, y);
+                //判断是否RootWidget且非不透明，是则清空画布脏区域
+                if (ReferenceEquals(opaque, ctx.Window.RootWidget) && !opaque.IsOpaque)
+                    canvas.Clear(ctx.Window.BackgroundColor);
+                if (ReferenceEquals(opaque, widget))
+                    opaque.Paint(canvas, dirtyArea);
+                else
+                    opaque!.Paint(canvas, new RepaintArea( //TODO:考虑使用RepaintChild
+                        Rect.FromLTWH(dirtyX, dirtyY, dirtyRect.Width, dirtyRect.Height)));
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"InvalidQueue.RepaintWidget Error: {ex.Message}");
+            }
+            finally
+            {
+                clipper.Dispose();
+                canvas.Restore();
+            }
         }
     }
 }

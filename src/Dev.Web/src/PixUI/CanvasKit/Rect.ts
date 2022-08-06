@@ -41,6 +41,10 @@ export class Rect extends Float32Array {
         return this[3] - this[1];
     }
 
+    public get IsEmpty(): boolean {
+        return Rect.op_Equality(this, Rect.Empty);
+    }
+
     public ContainsPoint(x: number, y: number): boolean {
         return x >= this.Left && x < this.Right && y >= this.Top && y < this.Bottom;
     }
@@ -48,6 +52,21 @@ export class Rect extends Float32Array {
     public Offset(x: number, y: number): void {
         this[0] += x;
         this[1] += y;
+    }
+
+    public IntersectTo(other: Rect): void {
+        if (!this.IntersectsWith(other.Left, other.Top, other.Width, other.Height)) {
+            this[0] = 0;
+            this[1] = 0;
+            this[2] = 0;
+            this[3] = 0;
+            return;
+        }
+
+        this[0] = Math.max(this.Left, other.Left);
+        this[1] = Math.max(this.Top, other.Top);
+        this[2] = Math.min(this.Right, other.Right);
+        this[3] = Math.min(this.Bottom, other.Bottom);
     }
 
     public IntersectsWith(x: number, y: number, w: number, h: number): boolean {

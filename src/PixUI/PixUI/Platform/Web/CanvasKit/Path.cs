@@ -9,6 +9,9 @@ namespace PixUI
         [TSTemplate("new CanvasKit.Path()")]
         public Path() { }
 
+        [TSRename("isEmpty")]
+        public void IsEmpty() => false;
+
         [TSRename("addRect")]
         public void AddRect(Rect rect, bool isCCW = false) { }
 

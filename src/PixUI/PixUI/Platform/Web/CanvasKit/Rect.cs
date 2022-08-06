@@ -16,6 +16,8 @@ namespace PixUI
         public static Rect FromLTWH(float left, float top, float width, float height)
             => new Rect(left, top, width, height);
 
+        public bool IsEmpty => false;
+
         public float Left { get; }
 
         public float Top { get; }
@@ -29,6 +31,9 @@ namespace PixUI
         public float Height => 0;
 
         public void Offset(float x, float y) { }
+
+        [TSRename("IntersectTo")]
+        public void Intersect(in Rect other) {}
 
         public bool ContainsPoint(float x, float y) => false;
 

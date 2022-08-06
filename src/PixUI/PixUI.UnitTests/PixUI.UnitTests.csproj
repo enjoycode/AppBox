@@ -89,11 +89,4 @@
       <None Include="Resources\TestCode\TestLiteral.cs" />
     </ItemGroup>
 
-<!--    <ItemGroup>-->
-<!--        <NativeReference Include="..\PixUI.CodeEditor\libs\osx-arm64\libtree-sitter.dylib">-->
-<!--            <Kind>Dynamic</Kind>-->
-<!--            <SmartLink>False</SmartLink>-->
-<!--        </NativeReference>-->
-<!--    </ItemGroup>-->
-
 </Project>

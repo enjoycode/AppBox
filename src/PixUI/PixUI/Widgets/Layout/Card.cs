@@ -69,18 +69,35 @@ namespace PixUI
             SetSize(Child.W + margin.Left + margin.Right, Child.H + margin.Top + margin.Bottom);
         }
 
+        protected internal override IClipper? Clipper
+        {
+            get
+            {
+                var shape = _shape?.Value ?? DefaultShape;
+                var rect = GetChildRect();
+                var path = shape.GetOuterPath(rect);
+                return new ClipperOfPath(path);
+            }
+        }
+
+        private Rect GetChildRect()
+        {
+            var margin = _margin?.Value ?? EdgeInsets.All(DefaultMargin);
+            return Rect.FromLTWH(margin.Left, margin.Top, W - margin.Left - margin.Right,
+                H - margin.Top - margin.Bottom);
+        }
+
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
             var color = _color?.Value ?? Colors.White;
             var shadowColor = _shadowColor?.Value ?? Colors.Black;
             var elevation = _elevation?.Value ?? 2;
-            var margin = _margin?.Value ?? EdgeInsets.All(DefaultMargin);
-            var rect = Rect.FromLTWH(margin.Left, margin.Top, W - margin.Left - margin.Right,
-                H - margin.Top - margin.Bottom);
+            var rect = GetChildRect();
             var shape = _shape?.Value ?? DefaultShape;
+            using var clipper = Clipper!;
 
             //先画阴影
-            using var outer = shape.GetOuterPath(rect);
+            var outer = clipper.GetPath();
             if (elevation > 0)
             {
                 canvas.DrawShadow(outer, shadowColor, elevation,
@@ -89,7 +106,7 @@ namespace PixUI
 
             //Clip外形后填充背景及边框
             canvas.Save();
-            canvas.ClipPath(outer, ClipOp.Intersect, true); //TODO:考虑根据shape类型clip区域
+            clipper.ApplyToCanvas(canvas);
             canvas.Clear(color);
             shape.Paint(canvas, rect);
 
