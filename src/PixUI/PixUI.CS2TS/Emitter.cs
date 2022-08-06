@@ -114,7 +114,8 @@ namespace PixUI.CS2TS
             foreach (var resource in block.Resources)
             {
                 //TODO:暂简单根据名称特殊处理CanvasKit相关资源Dispose重命名或忽略
-                var typeInfo = SemanticModel.GetTypeInfo(resource.Type);
+                //var typeInfo = SemanticModel.GetTypeInfo(resource.Type);
+                var typeInfo = SemanticModel.GetTypeInfo(resource.Variables[0].Initializer!.Value);
                 var typeName = typeInfo.Type!.Name;
                 var rootNamespace = typeInfo.Type!.GetRootNamespace();
                 var renameForCanvasKitResource = false;
@@ -132,6 +133,8 @@ namespace PixUI.CS2TS
                     Write('\t');
 
                     Write(variable.Identifier.Text);
+                    if (typeInfo.Nullability.FlowState == NullableFlowState.MaybeNull)
+                        Write('?');
                     Write(renameForCanvasKitResource ? ".delete();\n" : ".Dispose();\n");
                 }
             }
