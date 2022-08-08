@@ -9,9 +9,7 @@ internal partial class ViewCodeGenerator
 {
     public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node)
     {
-        var methodSymbol =
-            ModelExtensions.GetSymbolInfo(SemanticModel, node.Expression).Symbol as IMethodSymbol;
-
+        var methodSymbol = SemanticModel.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
         if (methodSymbol != null && methodSymbol.IsAppBoxServiceMethod())
             return VisitInvokeAppBoxService(node, methodSymbol);
 
@@ -33,7 +31,6 @@ internal partial class ViewCodeGenerator
         var methodName = "AppBoxClient.Channel.Invoke";
         if (isReturnGenericTask)
         {
-            //以下需要特殊处理服务端序列化后丢失的实体类型
             var rt = ((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0];
             methodName += $"<{rt}>";
         }

@@ -51,7 +51,7 @@ public sealed class DesignTree : IBinSerializable
         //加载Apps
         var mapps = await MetaStore.Provider.LoadAllApplicationAsync();
         var apps = new List<ApplicationModel>(mapps);
-        apps.Sort((a, b) => a.Name.CompareTo(b.Name));
+        apps.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
 
         //加载Folders
         var mfolders = await MetaStore.Provider.LoadAllFolderAsync();
@@ -103,6 +103,10 @@ public sealed class DesignTree : IBinSerializable
 
         Staged = null;
         Interlocked.Exchange(ref _loadingFlag, 0);
+
+#if DEBUG
+        DesignHub.TypeSystem.DumpAllProjectErrors();
+#endif
     }
 
     #endregion
@@ -279,7 +283,7 @@ public sealed class DesignTree : IBinSerializable
             if (node.IsCheckoutByMe && node is ModelNode modelNode) //如果是被当前用户签出的模型
             {
                 //从Staged加载
-                var stagedModel = Staged.FindModel(modelNode.Model.Id);
+                var stagedModel = Staged!.FindModel(modelNode.Model.Id);
                 if (stagedModel != null)
                     modelNode.Model = stagedModel;
             }

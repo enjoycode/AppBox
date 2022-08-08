@@ -10,7 +10,7 @@ internal partial class ServiceCodeGenerator
     {
         //判断是否实体模型的类型，是则加入引用列表
         var symbol = SemanticModel.GetSymbolInfo(node).Symbol;
-        if (symbol != null && symbol.IsAppBoxEntity(_typeSymbolCache))
+        if (symbol != null && symbol.IsAppBoxEntity(TypeSymbolCache))
             AddUsedEntity(symbol.ToString());
 
         return base.VisitIdentifierName(node);

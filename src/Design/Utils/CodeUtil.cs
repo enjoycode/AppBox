@@ -154,7 +154,7 @@ public static class CodeUtil
     public static string ToLowCamelCase(string name) => char.ToLower(name[0]) + name[1..];
 
     public static string ServiceGlobalUsings() =>
-        "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxStore;";
+        "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxCore;global using AppBoxStore;";
     
     public static string ViewGlobalUsings() =>
         "global using System;global using System.Linq;global using System.Collections.Generic;global using PixUI;global using AppBoxCore;global using AppBoxClient;";

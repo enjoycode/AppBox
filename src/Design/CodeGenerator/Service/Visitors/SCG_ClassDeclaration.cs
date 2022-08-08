@@ -108,7 +108,7 @@ internal partial class ServiceCodeGenerator
             return $"args.GetArray<{elementType}>()";
         }
 
-        if (TypeHelper.IsListGeneric(typeSymbol, _typeSymbolCache))
+        if (TypeHelper.IsListGeneric(typeSymbol, TypeSymbolCache))
         {
             var elementType = ((INamedTypeSymbol)typeSymbol).TypeArguments[0];
             return $"({argType})args.GetList<{elementType}>()";

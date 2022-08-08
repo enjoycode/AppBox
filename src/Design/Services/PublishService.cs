@@ -218,6 +218,7 @@ internal static class PublishService
             //MetadataReferences.ComponentModelLib,
             //MetadataReferences.SystemBuffersLib,
             MetadataReferences.AppBoxCoreLib,
+            MetadataReferences.AppBoxServerLib,
             MetadataReferences.AppBoxStoreLib
         };
 

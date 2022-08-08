@@ -7,7 +7,10 @@ using AppBoxStore;
 
 namespace AppBoxServer;
 
-internal sealed class HostRuntimeContext : IHostRuntimeContext
+/// <summary>
+/// 服务端进程的运行时上下文
+/// </summary>
+public sealed class HostRuntimeContext : IHostRuntimeContext
 {
     private static readonly AsyncLocal<IUserSession?> _sessionStore = new();
     private readonly Dictionary<long, ModelBase> _models = new();
@@ -94,6 +97,25 @@ internal sealed class HostRuntimeContext : IHostRuntimeContext
         {
             args.Free();
         }
+    }
+
+    /// <summary>
+    /// 仅用于服务端服务调用服务(无返回)
+    /// </summary>
+    public static async ValueTask Invoke(string service, InvokeArgs args)
+    {
+        await RuntimeContext.InvokeAsync(service, args);
+    }
+
+    /// <summary>
+    /// 仅用于服务端服务调用服务(有返回)
+    /// </summary>
+    public static async ValueTask<T?> Invoke<T>(string service, InvokeArgs args)
+    {
+        var res = await RuntimeContext.InvokeAsync(service, args);
+        if (res.IsEmpty) return default;
+
+        return (T)res.BoxedValue!;
     }
 
     public void InjectApplication(ApplicationModel appModel)

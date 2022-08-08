@@ -96,6 +96,8 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(ServiceProxyProjectId, new ProjectReference(ModelProjectId))
+                .AddDocument(DocumentId.CreateNewId(ServiceProxyProjectId), "ServiceBase.cs",
+                    Resources.GetString("DummyCode.ServiceProxyDummyCode.cs"))
                 //服务通用基础工程
                 .AddProject(serviceBaseProjectInfo)
                 .AddMetadataReference(ServiceBaseProjectId, MetadataReferences.CoreLib)
@@ -322,6 +324,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReferences(prjId, deps)
                 .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
+                .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId))
                 .AddDocument(globalUsingDocId, "GlobalUsing.cs", CodeUtil.ServiceGlobalUsings())
             ;
 
@@ -337,6 +340,25 @@ internal sealed class TypeSystem : IDisposable
     }
 
     #endregion
+
+    internal async void DumpAllProjectErrors()
+    {
+        await DumpProjectErrors(ModelProjectId);
+        await DumpProjectErrors(ServiceBaseProjectId);
+        await DumpProjectErrors(ServiceProxyProjectId);
+    }
+
+    private async Task DumpProjectErrors(ProjectId projectId)
+    {
+        var project = Workspace.CurrentSolution.GetProject(projectId);
+        var cu = await project!.GetCompilationAsync();
+        var errors = cu!.GetDiagnostics();
+        foreach (var err in errors)
+        {
+            if (err.Severity == DiagnosticSeverity.Error)
+                Console.WriteLine("项目[{0}]存在错误: {1}", project.Name, err);
+        }
+    }
 
     public void Dispose()
     {

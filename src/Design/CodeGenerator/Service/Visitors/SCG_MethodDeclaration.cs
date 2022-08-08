@@ -24,7 +24,7 @@ internal partial class ServiceCodeGenerator
         {
             if (TypeHelper.IsServiceMethod(node)) //处理公开的服务方法，加入列表
             {
-                _publicMethods.Add(updateNode);
+                _publicMethods.Add(node); //注意添加旧节点,非updateNode
             }
         }
 

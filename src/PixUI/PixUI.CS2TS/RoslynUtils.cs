@@ -124,7 +124,7 @@ namespace RoslynUtils
             var interceptorAttribute = symbol.GetAttributes()
                 .SingleOrDefault(t => t.AttributeClass != null &&
                                       t.AttributeClass.ToString() ==
-                                      "System.Reflection.InvocationInterceptorAttribute");
+                                      "AppBoxCore.InvocationInterceptorAttribute");
             return interceptorAttribute != null;
         }
     }

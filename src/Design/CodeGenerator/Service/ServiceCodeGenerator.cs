@@ -18,7 +18,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
         AppName = appName;
         SemanticModel = semanticModel;
         ServiceModel = serviceModel;
-        _typeSymbolCache = new TypeSymbolCache(semanticModel);
+        TypeSymbolCache = new TypeSymbolCache(semanticModel);
     }
 
     internal readonly DesignHub DesignHub;
@@ -26,7 +26,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     internal readonly SemanticModel SemanticModel;
     internal readonly ServiceModel ServiceModel;
 
-    private readonly TypeSymbolCache _typeSymbolCache;
+    internal readonly TypeSymbolCache TypeSymbolCache;
 
     /// <summary>
     /// 用于转换查询方法的Lambda表达式
@@ -50,7 +50,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     /// </summary>
     private readonly HashSet<string> _usedEntities = new();
 
-    private void AddUsedEntity(string fullName) => _usedEntities.Add(fullName);
+    internal void AddUsedEntity(string fullName) => _usedEntities.Add(fullName);
 
     /// <summary>
     /// 获取使用的其他模型生成的运行时代码
@@ -125,7 +125,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
                 var key = item.ConstructorArguments[0].Value!.ToString();
                 if (!memberAccessInterceptors.TryGetValue(key,
                         out IMemberAccessInterceptor<SyntaxNode> interceptor))
-                    Log.Debug($"未能找到MemberAccessInterceptro: {key}");
+                    Log.Debug($"未能找到MemberAccessInterceptor: {key}");
                 return interceptor;
             }
         }

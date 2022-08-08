@@ -51,6 +51,8 @@
         <Link>CodeGenerator\RoslynUtils.cs</Link>
       </Compile>
       <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
+      <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
+      <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs" />
     </ItemGroup>
 
 </Project>

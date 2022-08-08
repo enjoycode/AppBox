@@ -40,6 +40,11 @@ internal static class MetadataReferences
         TryGet("AppBoxClient.dll",
             Path.Combine(Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!,
                 "AppBoxClient.dll"));
+    
+    internal static MetadataReference AppBoxServerLib =>
+        TryGet("AppBoxServer.dll",
+            Path.Combine(Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!,
+                "AppBoxServer.dll"));
 
     internal static MetadataReference AppBoxStoreLib =>
         TryGet("AppBoxStore.dll", typeof(MetaStore).Assembly.Location);
