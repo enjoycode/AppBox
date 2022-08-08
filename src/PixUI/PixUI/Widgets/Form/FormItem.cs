@@ -56,7 +56,8 @@ namespace PixUI
                 x = lableWidth - _cachedLabelParagraph!.MaxIntrinsicWidth;
             canvas.Save(); //TODO:优化不必要的Save and Clip
             canvas.ClipRect(Rect.FromLTWH(0, 0, lableWidth, H), ClipOp.Intersect, false);
-            canvas.DrawParagraph(_cachedLabelParagraph!, x, 0);
+            canvas.DrawParagraph(_cachedLabelParagraph!, x,
+                (H - _cachedLabelParagraph!.Height) / 2f /*暂上下居中*/);
             canvas.Restore();
 
             //再画Widget

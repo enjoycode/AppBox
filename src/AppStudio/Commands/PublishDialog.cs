@@ -63,9 +63,10 @@ namespace AppBoxDesign
         {
             try
             {
-                var res = await Channel.Invoke<ChangedModel[]>(
+                var res = await Channel.Invoke<ChangedModel[]?>(
                     "sys.DesignService.GetPendingChanges");
-                _dataGridController.DataSource = new List<ChangedModel>(res);
+                if (res != null)
+                    _dataGridController.DataSource = new List<ChangedModel>(res);
             }
             catch (Exception e)
             {
