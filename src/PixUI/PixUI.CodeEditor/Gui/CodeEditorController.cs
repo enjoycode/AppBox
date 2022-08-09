@@ -244,8 +244,8 @@ namespace CodeEditor
         private void _OnDocumentChanged(DocumentEventArgs e)
         {
             //TODO: 进一步合并LineManager改变的行数
-            var dirtyLines = Document.SyntaxParser.GetDirtyLines(this);
-            Widget.RequestInvalidate(true, dirtyLines);
+            //var dirtyLines = Document.SyntaxParser.GetDirtyLines(this);
+            Widget.RequestInvalidate(true, null /*dirtyLines*/);
         }
 
         private void _OnCaretPositionChanged()

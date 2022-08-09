@@ -24,8 +24,8 @@ namespace CodeEditor
 
         public Rect GetRect()
         {
-            //TODO:暂返回TextArea的范围，考虑仅行范围
-            return _controller.TextEditor.TextView.Bounds;
+            //TODO:暂返回所有范围,注意需要包含GutterArea
+            return Rect.Empty;
         }
 
         public IDirtyArea ToChild(float childX, float childY)
