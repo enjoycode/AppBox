@@ -45,9 +45,9 @@ namespace PixUI
 
         protected internal override bool HitTest(float x, float y, HitTestResult result)
         {
-            foreach (var entry in _children)
+            for (var i = _children.Count - 1; i >= 0; i--) //倒序
             {
-                if (HitTestChild(entry, x, y, result))
+                if (HitTestChild(_children[i], x, y, result))
                     break;
             }
 
