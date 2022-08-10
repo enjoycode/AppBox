@@ -68,7 +68,7 @@ namespace AppBoxDesign
         {
             var res = await Channel.Invoke<NewNodeResult>(service, args);
             //根据返回结果同步添加新节点
-            DesignStore.OnNewNode(res);
+            DesignStore.OnNewNode(res!);
         }
     }
 }

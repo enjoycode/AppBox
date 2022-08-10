@@ -39,7 +39,7 @@ namespace AppBoxDesign
                 {
                     MenuItem.Item("Application", Icons.Filled.Widgets, Commands.NotImplCommand),
                     MenuItem.Item("Folder", Icons.Filled.Folder, Commands.NotImplCommand),
-                    MenuItem.Item("Entity", Icons.Filled.TableChart, Commands.NotImplCommand),
+                    MenuItem.Item("Entity", Icons.Filled.TableChart, Commands.NewEntityCommand),
                     MenuItem.Item("Service", Icons.Filled.Settings, Commands.NewServiceCommand),
                     MenuItem.Item("View", Icons.Filled.Wysiwyg, Commands.NewViewCommand),
                     MenuItem.Item("Report", Icons.Filled.PieChart, Commands.NotImplCommand),

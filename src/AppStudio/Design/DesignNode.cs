@@ -9,13 +9,15 @@ namespace AppBoxDesign
         public abstract DesignNodeType Type { get; }
         public virtual IList<DesignNode>? Children => null;
 
-        public string Id { get; private set; }
-        public string Label { get; private set; }
+        public string Id { get; protected set; } = null!;
+        public string Label { get; protected set; } = null!;
 
         /// <summary>
         /// 当前节点打开的设计器，打开时设置关闭时取消
         /// </summary>
         internal IDesigner? Designer { get; set; }
+
+        public override string ToString() => Label;
 
         public virtual void ReadFrom(IInputStream rs)
         {
@@ -48,6 +50,9 @@ namespace AppBoxDesign
 
     internal sealed class DataStoreNode : DesignNode
     {
+        public static readonly DataStoreNode None = new DataStoreNode()
+            { Id = string.Empty, Label = "None" };
+
         public override DesignNodeType Type => DesignNodeType.DataStoreNode;
     }
 

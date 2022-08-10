@@ -4,14 +4,14 @@ namespace AppBoxDesign;
 
 public sealed class DataStoreNode : DesignNode
 {
-    private readonly DataStoreModel _model;
+    internal readonly DataStoreModel Model;
 
     public DataStoreNode(DataStoreModel model)
     {
-        _model = model;
+        Model = model;
     }
-    
+
     public override DesignNodeType Type => DesignNodeType.DataStoreNode;
-    public override string Label => _model.Name;
-    public override string Id => ((ulong)_model.Id).ToString();
+    public override string Label => Model.Name;
+    public override string Id => ((ulong)Model.Id).ToString();
 }
