@@ -1,10 +1,5 @@
 using System.Collections.Generic;
 
-class Row : PixUI.MultiChildWidget
-{
-    public Row(string name) {}
-}
-
 class Person
 {
     public string Name { get; set; } = "";
@@ -21,11 +16,8 @@ class Person
             Age = 100
         };
         var list = new List<int>() { 1, 2, 3 };
-        Person[] array = new[] { new Person(), new Person() };
-
-        var container = new Row ("Hello")
-        {
-            1,2,3
-        };
+        Person[] array1 = new[] { new Person(), new Person() };
+        Person[] array2 = { new Person() };
+        //Dictionary<int, int> dic = new() { { 1, 3 }, { 2, 4 } }; //TODO:暂不支持
     }
 }

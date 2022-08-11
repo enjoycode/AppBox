@@ -20,19 +20,19 @@ namespace PixUI.CS2TS
 
             emitter.WriteLeadingTrivia(node);
             emitter.WriteModifiers(node.Modifiers);
-            emitter.Write("constructor(");
-
-            // parameters
+            emitter.Write("constructor");
+            emitter.VisitToken(node.ParameterList.OpenParenToken);
             emitter.VisitSeparatedList(node.ParameterList.Parameters);
-            emitter.Write(')');
-            emitter.WriteTrailingTrivia(node);
+            emitter.VisitToken(node.ParameterList.CloseParenToken);
 
             if (node.ExpressionBody != null)
                 throw new NotImplementedException();
 
             // body
-            emitter.WriteLeadingWhitespaceOnly(node);
-            emitter.Write("{");
+            if (node.Initializer != null)
+                emitter.WriteTrailingTrivia(node.Initializer);
+            emitter.VisitToken(node.Body!.OpenBraceToken);
+            
             if (typeDeclaration is ClassDeclarationSyntax classDeclaration)
                 EmitSuperCall(emitter, classDeclaration, node);
 
@@ -41,8 +41,7 @@ namespace PixUI.CS2TS
                 emitter.Visit(statement);
             }
 
-            emitter.WriteLeadingWhitespaceOnly(node);
-            emitter.Write("}\n");
+            emitter.VisitToken(node.Body!.CloseBraceToken);
         }
 
         private static void EmitSuperCall(Emitter emitter, ClassDeclarationSyntax parent,
@@ -57,14 +56,14 @@ namespace PixUI.CS2TS
                     throw new NotSupportedException();
 
                 emitter.WriteLeadingWhitespaceOnly(node);
-                emitter.Write("\n\tsuper(");
+                emitter.Write("\tsuper(");
                 emitter.VisitSeparatedList(node.Initializer.ArgumentList.Arguments);
                 emitter.Write(");\n");
             }
             else
             {
                 emitter.WriteLeadingWhitespaceOnly(node);
-                emitter.Write("\n\t\tsuper();\n");
+                emitter.Write("\t\tsuper();\n");
             }
         }
     }

@@ -73,7 +73,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task MemberAccessTest() => await Run("TestMemberAccess.cs");
 
         [Test]
-        public async Task ConstructorTest() => await Run("TestConstructor.cs");
+        public async Task ConstructorTest() => await Run("TestConstructor.cs", true);
 
         [Test]
         public async Task InitializerTest() => await Run("TestInitializer.cs");

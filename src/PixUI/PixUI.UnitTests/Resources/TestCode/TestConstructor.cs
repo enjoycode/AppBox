@@ -1,8 +1,10 @@
+using PixUI;
+
+[TSNoInitializer]
 class BaseClass
 {
     public readonly string Type;
 
-    [TSCtor(noInitializer: true)]
     public BaseClass(string type)
     {
         Type = type;
