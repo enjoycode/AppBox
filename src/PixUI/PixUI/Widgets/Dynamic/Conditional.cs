@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 
 namespace PixUI
 {
-    public sealed class WhenBuilder<T>
+    internal sealed class WhenBuilder<T>
     {
         internal readonly Predicate<T> Match;
-        internal readonly Func<Widget> Builder;
+        private readonly Func<Widget> Builder;
         private Widget? _cachedWidget;
 
         public WhenBuilder(Predicate<T> match, Func<Widget> builder)
@@ -14,7 +15,7 @@ namespace PixUI
             Builder = builder;
         }
 
-        public Widget? GetWidget()
+        internal Widget? GetWidget()
         {
             if (_cachedWidget == null)
                 _cachedWidget = Builder();
@@ -27,18 +28,15 @@ namespace PixUI
     /// </summary>
     public class Conditional<T> : DynamicView //where T: IEquatable<T>
     {
-        public Conditional(State<T> state, WhenBuilder<T>[] whens)
+        public Conditional(State<T> state)
         {
             IsLayoutTight = true;
             _state = Bind(state, BindingOptions.AffectsLayout);
-            _whens = whens;
-
-            Child = MakeChildByCondition();
         }
-        
+
         private readonly State<T> _state;
-        private readonly WhenBuilder<T>[] _whens;
-        
+        private readonly List<WhenBuilder<T>> _whens = new List<WhenBuilder<T>>();
+
         //TODO: add AutoDispose property to dispose not used widget
 
         private Widget? MakeChildByCondition()
@@ -53,6 +51,13 @@ namespace PixUI
             }
 
             return null;
+        }
+
+        public Conditional<T> When(Predicate<T> predicate, Func<Widget> builder)
+        {
+            _whens.Add(new WhenBuilder<T>(predicate, builder));
+            Child ??= MakeChildByCondition();
+            return this;
         }
 
         public override void OnStateChanged(StateBase state, BindingOptions options)

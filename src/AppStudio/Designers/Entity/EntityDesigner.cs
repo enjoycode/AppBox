@@ -19,14 +19,11 @@ namespace AppBoxDesign
                     new Expanded()
                     {
                         //TODO: use FutureBuilder
-                        Child = new IfConditional(_loaded, () => new Conditional<int>(_activePad,
-                            new[]
-                            {
-                                new WhenBuilder<int>(t => t == 0,
-                                    () => new MembersDesigner(_entityModel!, _membersController)),
-                                new WhenBuilder<int>(t => t == 1,
-                                    () => new SqlStoreOptionsDesigner(_entityModel!))
-                            }), null)
+                        Child = new IfConditional(_loaded, () => new Conditional<int>(_activePad)
+                            .When(t => t == 0,
+                                () => new MembersDesigner(_entityModel!, _membersController))
+                            .When(t => t == 1, () => new SqlStoreOptionsDesigner(_entityModel!))
+                        )
                     },
                 }
             };
@@ -66,7 +63,7 @@ namespace AppBoxDesign
                             {
                                 Children = new[]
                                 {
-                                    new Button("Add", Icons.Filled.Add),
+                                    new Button("Add", Icons.Filled.Add) { OnTap = OnAddMember },
                                     new Button("Remove", Icons.Filled.Delete),
                                     new Button("Rename", Icons.Filled.Edit),
                                     new Button("Usages", Icons.Filled.Link),
@@ -100,6 +97,12 @@ namespace AppBoxDesign
             {
                 Notification.Error("无法加载实体模型");
             }
+        }
+
+        private void OnAddMember(PointerEvent e)
+        {
+            var dlg = new NewEntityMemberDialog(Overlay!);
+            dlg.Show();
         }
 
         public Task SaveAsync()

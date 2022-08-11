@@ -5,17 +5,11 @@ namespace PixUI
     public sealed class IfConditional : Conditional<bool>
     {
         public IfConditional(State<bool> state, Func<Widget> trueBuilder,
-            Func<Widget>? falseBuilder = null) : base(state,
-            falseBuilder == null
-                ? new[]
-                {
-                    new WhenBuilder<bool>(v => v, trueBuilder),
-                }
-                : new[]
-                {
-                    new WhenBuilder<bool>(v => v, trueBuilder),
-                    new WhenBuilder<bool>(v => !v, falseBuilder)
-                }
-        ) { }
+            Func<Widget>? falseBuilder = null) : base(state)
+        {
+            When(v => v, trueBuilder);
+            if (falseBuilder != null)
+                When(v => !v, falseBuilder);
+        }
     }
 }
