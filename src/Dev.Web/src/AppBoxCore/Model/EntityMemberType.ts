@@ -1,5 +1,5 @@
 export enum EntityMemberType {
-    DataField,
+    EntityField,
     EntityRef = 2,
     EntitySet = 3,
 }

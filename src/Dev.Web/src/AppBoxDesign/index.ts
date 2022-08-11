@@ -16,6 +16,7 @@ export * from "./Generated/Design/NewNodeResult"
 export * from "./Generated/Design/RoslynCompletionProvider"
 
 export * from "./Generated/Commands/NewDialog"
+export * from "./Generated/Commands/NewEntityDialog"
 export * from "./Generated/Commands/PublishDialog"
 export * from "./Generated/Commands/Commands"
 
@@ -32,6 +33,7 @@ export * from "./Generated/Design/DesignStore"
 export * from "./HandWrite/DesignInitializer"
 
 export * from "./Generated/Designers/ModelCodeSyncService"
+export * from "./Generated/Designers/Entity/NewEntityMemberDialog"
 export * from "./Generated/Designers/Entity/EntityPropertyPanel"
 export * from "./Generated/Designers/Entity/MembersDesigner"
 export * from "./Generated/Designers/Entity/SqlStoreOptionsDesigner"

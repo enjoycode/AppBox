@@ -66,7 +66,10 @@ export class SidePad extends PixUI.View {
                         Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
                         Width: PixUI.State.op_Implicit_From(250),
                         BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
-                        Child: new PixUI.Conditional<SidePadType>(AppBoxDesign.DesignStore.ActiveSidePad, [new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignTreePad()), new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad()), new PixUI.WhenBuilder<SidePadType>(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad())]),
+                        Child: new PixUI.Conditional(AppBoxDesign.DesignStore.ActiveSidePad)
+                            .When(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignTreePad())
+                            .When(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad())
+                            .When(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad())
                     })
                 ]
             });

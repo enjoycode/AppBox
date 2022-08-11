@@ -43,9 +43,10 @@ export class PublishDialog extends PixUI.Dialog<boolean> {
 
     private async LoadChanges() {
         try {
-            let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.ChangedModel[]>(
+            let res = await AppBoxClient.Channel.Invoke<Nullable<AppBoxDesign.ChangedModel[]>>(
                 "sys.DesignService.GetPendingChanges");
-            this._dataGridController.DataSource = new System.List<AppBoxDesign.ChangedModel>(res);
+            if (res != null)
+                this._dataGridController.DataSource = new System.List<AppBoxDesign.ChangedModel>(res);
         } catch (e: any) {
             PixUI.Notification.Error("加载模型变更失败");
         }

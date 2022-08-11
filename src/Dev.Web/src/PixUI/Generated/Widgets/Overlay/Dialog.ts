@@ -5,6 +5,7 @@ export abstract class Dialog<T> extends PixUI.Popup {
     protected constructor(overlay: PixUI.Overlay, onClose: Nullable<System.Action2<boolean, Nullable<T>>> = null) {
         super(overlay);
         this.OnClose = onClose;
+        //注意不在这里构建WidgetTree,参照以下OnMounted时的说明
     }
 
     private _child: Nullable<PixUI.Card>;

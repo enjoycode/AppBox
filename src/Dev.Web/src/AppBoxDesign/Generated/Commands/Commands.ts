@@ -4,6 +4,9 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 
 export class Commands {
+    public static readonly NewEntityCommand: System.Action = () =>
+        new AppBoxDesign.NewEntityDialog(PixUI.UIWindow.Current.Overlay).Show();
+
     public static readonly NewServiceCommand: System.Action = () =>
         new AppBoxDesign.NewDialog(PixUI.UIWindow.Current.Overlay, "Service").Show();
 

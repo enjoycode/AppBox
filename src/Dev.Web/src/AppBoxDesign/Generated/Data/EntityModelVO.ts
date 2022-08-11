@@ -21,18 +21,18 @@ export abstract class EntityMemberVO {
 
 export class EntityFieldVO extends EntityMemberVO {
     public get Type(): AppBoxCore.EntityMemberType {
-        return AppBoxCore.EntityMemberType.DataField;
+        return AppBoxCore.EntityMemberType.EntityField;
     }
 
-    public DataType: AppBoxCore.DataFieldType = 0;
+    public FieldType: AppBoxCore.EntityFieldType = 0;
     public EnumModelId: Nullable<any>;
     public Length: number = 0;
     public Decimals: number = 0;
 
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         super.ReadFrom(rs);
-        this.DataType = <AppBoxCore.DataFieldType><unknown>rs.ReadByte();
-        if (this.DataType == AppBoxCore.DataFieldType.Enum)
+        this.FieldType = <AppBoxCore.EntityFieldType><unknown>rs.ReadByte();
+        if (this.FieldType == AppBoxCore.EntityFieldType.Enum)
             this.EnumModelId = rs.ReadLong();
         this.Length = rs.ReadVariant();
         this.Decimals = rs.ReadVariant();
@@ -124,7 +124,7 @@ export class EntityModelVO implements AppBoxCore.IBinSerializable {
             let type = <AppBoxCore.EntityMemberType><unknown>rs.ReadByte();
             let member: EntityMemberVO;
             switch (type) {
-                case AppBoxCore.EntityMemberType.DataField:
+                case AppBoxCore.EntityMemberType.EntityField:
                     member = new EntityFieldVO();
                     break;
                 case AppBoxCore.EntityMemberType.EntityRef:

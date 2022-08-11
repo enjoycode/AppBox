@@ -24,28 +24,57 @@ var DataStoreKind = /* @__PURE__ */ ((DataStoreKind2) => {
   return DataStoreKind2;
 })(DataStoreKind || {});
 var EntityMemberType = /* @__PURE__ */ ((EntityMemberType2) => {
-  EntityMemberType2[EntityMemberType2["DataField"] = 0] = "DataField";
+  EntityMemberType2[EntityMemberType2["EntityField"] = 0] = "EntityField";
   EntityMemberType2[EntityMemberType2["EntityRef"] = 2] = "EntityRef";
   EntityMemberType2[EntityMemberType2["EntitySet"] = 3] = "EntitySet";
   return EntityMemberType2;
 })(EntityMemberType || {});
-var DataFieldType = /* @__PURE__ */ ((DataFieldType2) => {
-  DataFieldType2[DataFieldType2["EntityId"] = 0] = "EntityId";
-  DataFieldType2[DataFieldType2["String"] = 1] = "String";
-  DataFieldType2[DataFieldType2["DateTime"] = 2] = "DateTime";
-  DataFieldType2[DataFieldType2["Short"] = 4] = "Short";
-  DataFieldType2[DataFieldType2["Int"] = 6] = "Int";
-  DataFieldType2[DataFieldType2["Long"] = 8] = "Long";
-  DataFieldType2[DataFieldType2["Decimal"] = 9] = "Decimal";
-  DataFieldType2[DataFieldType2["Bool"] = 10] = "Bool";
-  DataFieldType2[DataFieldType2["Guid"] = 11] = "Guid";
-  DataFieldType2[DataFieldType2["Byte"] = 12] = "Byte";
-  DataFieldType2[DataFieldType2["Binary"] = 13] = "Binary";
-  DataFieldType2[DataFieldType2["Enum"] = 14] = "Enum";
-  DataFieldType2[DataFieldType2["Float"] = 15] = "Float";
-  DataFieldType2[DataFieldType2["Double"] = 16] = "Double";
-  return DataFieldType2;
-})(DataFieldType || {});
+var EntityFieldType = /* @__PURE__ */ ((EntityFieldType2) => {
+  EntityFieldType2[EntityFieldType2["EntityId"] = 0] = "EntityId";
+  EntityFieldType2[EntityFieldType2["String"] = 1] = "String";
+  EntityFieldType2[EntityFieldType2["DateTime"] = 2] = "DateTime";
+  EntityFieldType2[EntityFieldType2["Short"] = 4] = "Short";
+  EntityFieldType2[EntityFieldType2["Int"] = 6] = "Int";
+  EntityFieldType2[EntityFieldType2["Long"] = 8] = "Long";
+  EntityFieldType2[EntityFieldType2["Decimal"] = 9] = "Decimal";
+  EntityFieldType2[EntityFieldType2["Bool"] = 10] = "Bool";
+  EntityFieldType2[EntityFieldType2["Guid"] = 11] = "Guid";
+  EntityFieldType2[EntityFieldType2["Byte"] = 12] = "Byte";
+  EntityFieldType2[EntityFieldType2["Binary"] = 13] = "Binary";
+  EntityFieldType2[EntityFieldType2["Enum"] = 14] = "Enum";
+  EntityFieldType2[EntityFieldType2["Float"] = 15] = "Float";
+  EntityFieldType2[EntityFieldType2["Double"] = 16] = "Double";
+  return EntityFieldType2;
+})(EntityFieldType || {});
+const _FieldWithOrder = class {
+  constructor(memberId, orderByDesc) {
+    __publicField(this, "_memberId");
+    __publicField(this, "_orderByDesc");
+    if (memberId != void 0) {
+      this._memberId = memberId;
+      this._orderByDesc = orderByDesc == void 0 ? false : orderByDesc;
+    }
+  }
+  get MemberId() {
+    return this._memberId;
+  }
+  get OrderByDesc() {
+    return this._orderByDesc;
+  }
+  Clone() {
+    return new _FieldWithOrder(this._memberId, this._orderByDesc);
+  }
+  WriteTo(bs) {
+    bs.WriteShort(this.MemberId);
+    bs.WriteBool(this.OrderByDesc);
+  }
+  ReadFrom(bs) {
+    this._memberId = bs.ReadShort();
+    this._orderByDesc = bs.ReadBool();
+  }
+};
+let FieldWithOrder = _FieldWithOrder;
+__publicField(FieldWithOrder, "Empty", new _FieldWithOrder());
 var PayloadType = /* @__PURE__ */ ((PayloadType2) => {
   PayloadType2[PayloadType2["Null"] = 0] = "Null";
   PayloadType2[PayloadType2["BooleanTrue"] = 1] = "BooleanTrue";
@@ -74,6 +103,7 @@ var PayloadType = /* @__PURE__ */ ((PayloadType2) => {
   PayloadType2[PayloadType2["NewNodeResult"] = 54] = "NewNodeResult";
   PayloadType2[PayloadType2["ChangedModel"] = 55] = "ChangedModel";
   PayloadType2[PayloadType2["CodeProblem"] = 56] = "CodeProblem";
+  PayloadType2[PayloadType2["FieldWithOrder"] = 57] = "FieldWithOrder";
   PayloadType2[PayloadType2["Entity"] = 90] = "Entity";
   return PayloadType2;
 })(PayloadType || {});
@@ -377,6 +407,7 @@ class BytesInputStream {
     if (typeFlag === 2) {
       return PayloadType.Object;
     } else if (typeFlag === 3) {
+      this.ReadLong();
       return PayloadType.Entity;
     } else if (typeFlag === 0) {
       const payloadType = this.ReadByte();
@@ -594,4 +625,4 @@ class Entity {
 }
 class DbEntity extends Entity {
 }
-export { BytesInputStream, BytesOutputStream, DataFieldType, DataStoreKind, DbEntity, Entity, EntityMemberType, IsInterfaceOfIBinSerializable, ModelType, PayloadType, TypeSerializer };
+export { BytesInputStream, BytesOutputStream, DataStoreKind, DbEntity, Entity, EntityFieldType, EntityMemberType, FieldWithOrder, IsInterfaceOfIBinSerializable, ModelType, PayloadType, TypeSerializer };

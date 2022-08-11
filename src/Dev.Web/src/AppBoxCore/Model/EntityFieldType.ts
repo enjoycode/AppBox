@@ -1,4 +1,4 @@
-export enum DataFieldType {
+export enum EntityFieldType {
     EntityId = 0,
     String = 1,
     DateTime = 2,

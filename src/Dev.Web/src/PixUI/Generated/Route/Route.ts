@@ -26,7 +26,8 @@ export class Route {
 
     public readonly ExistingBuilder: Nullable<PixUI.TransitionBuilder>;
 
-    public constructor(name: string, builder: RouteWidgetBuilder, enteringBuilder: Nullable<PixUI.TransitionBuilder> = null, existingBuilder: Nullable<PixUI.TransitionBuilder> = null, duration: number = 200, reverseDuration: number = 200, isDynamic: boolean = false) {            //TODO:检查名称有效性
+    public constructor(name: string, builder: RouteWidgetBuilder, enteringBuilder: Nullable<PixUI.TransitionBuilder> = null, existingBuilder: Nullable<PixUI.TransitionBuilder> = null, duration: number = 200, reverseDuration: number = 200, isDynamic: boolean = false) {
+        //TODO:检查名称有效性
         this.Name = name;
         this.Dynamic = isDynamic;
         this.Builder = builder;

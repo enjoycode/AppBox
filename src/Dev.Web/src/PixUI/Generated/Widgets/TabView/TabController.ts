@@ -4,6 +4,10 @@ import * as PixUI from '@/PixUI'
 export class TabController<T> implements PixUI.IStateBindable {
     public constructor(dataSource: System.IList<T>) {
         this.DataSource = dataSource;
+        // if (DataSource is RxList<T> rxList)
+        // {
+        //     rxList.AddBinding(this, BindingOptions.None);
+        // }
     }
 
     private _tabBar: Nullable<PixUI.TabBar<T>>;

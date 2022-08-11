@@ -9,25 +9,29 @@ export abstract class DesignNode {
         return null;
     }
 
-    #Id: string = "";
+    #Id!: string;
     public get Id() {
         return this.#Id;
     }
 
-    private set Id(value) {
+    protected set Id(value) {
         this.#Id = value;
     }
 
-    #Label: string = "";
+    #Label!: string;
     public get Label() {
         return this.#Label;
     }
 
-    private set Label(value) {
+    protected set Label(value) {
         this.#Label = value;
     }
 
     public Designer: Nullable<AppBoxDesign.IDesigner>;
+
+    public toString(): string {
+        return this.Label;
+    }
 
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         this.Id = rs.ReadString()!;
@@ -64,6 +68,9 @@ export class DataStoreRootNode extends DesignNode {
 }
 
 export class DataStoreNode extends DesignNode {
+    public static readonly None: DataStoreNode = new DataStoreNode().Init(
+        {Id: '', Label: "None"});
+
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.DataStoreNode;
     }

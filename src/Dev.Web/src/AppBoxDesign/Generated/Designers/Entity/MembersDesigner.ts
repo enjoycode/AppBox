@@ -39,8 +39,8 @@ export class MembersDesigner extends PixUI.View {
     }
 
     private static MemberTypeToString(member: AppBoxDesign.EntityMemberVO): string {
-        if (member.Type == AppBoxCore.EntityMemberType.DataField)
-            return `${AppBoxCore.EntityMemberType[member.Type]} - ${AppBoxCore.DataFieldType[(<AppBoxDesign.EntityFieldVO><unknown>member).DataType]}`;
+        if (member.Type == AppBoxCore.EntityMemberType.EntityField)
+            return `${AppBoxCore.EntityMemberType[member.Type]} - ${AppBoxCore.EntityFieldType[(<AppBoxDesign.EntityFieldVO><unknown>member).FieldType]}`;
         //TODO: EntityRef and EntitySet attach target entity name
         return AppBoxCore.EntityMemberType[member.Type];
     }

@@ -3,7 +3,7 @@ import * as System from '@/System'
 
 export class WhenBuilder<T> {
     public readonly Match: System.Predicate<T>;
-    public readonly Builder: System.Func1<PixUI.Widget>;
+    private readonly Builder: System.Func1<PixUI.Widget>;
     private _cachedWidget: Nullable<PixUI.Widget>;
 
     public constructor(match: System.Predicate<T>, builder: System.Func1<PixUI.Widget>) {
@@ -28,17 +28,14 @@ export class WhenBuilder<T> {
 /// </summary>
 export class Conditional<T> extends PixUI.DynamicView //where T: IEquatable<T>
 {
-    public constructor(state: PixUI.State<T>, whens: WhenBuilder<T>[]) {
+    public constructor(state: PixUI.State<T>) {
         super();
         this.IsLayoutTight = true;
         this._state = this.Bind(state, PixUI.BindingOptions.AffectsLayout);
-        this._whens = whens;
-
-        this.Child = this.MakeChildByCondition();
     }
 
     private readonly _state: PixUI.State<T>;
-    private readonly _whens: WhenBuilder<T>[];
+    private readonly _whens: System.List<WhenBuilder<T>> = new System.List<WhenBuilder<T>>();
 
     //TODO: add AutoDispose property to dispose not used widget
 
@@ -51,6 +48,12 @@ export class Conditional<T> extends PixUI.DynamicView //where T: IEquatable<T>
         }
 
         return null;
+    }
+
+    public When(predicate: System.Predicate<T>, builder: System.Func1<PixUI.Widget>): Conditional<T> {
+        this._whens.Add(new WhenBuilder<T>(predicate, builder));
+        this.Child ??= this.MakeChildByCondition();
+        return this;
     }
 
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {

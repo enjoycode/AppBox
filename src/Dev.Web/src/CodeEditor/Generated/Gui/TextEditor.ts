@@ -14,6 +14,8 @@ export class TextEditor {
 
         this.TextView = new CodeEditor.TextView(this);
         this.LeftAreas = [new CodeEditor.GutterArea(this), new CodeEditor.FoldArea(this)];
+
+        //TODO: Caret position changed to matching bracket
     }
 
     public readonly Controller: CodeEditor.CodeEditorController;

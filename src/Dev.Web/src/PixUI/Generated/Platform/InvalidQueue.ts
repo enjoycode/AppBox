@@ -35,9 +35,8 @@ export class InvalidWidget {
 
     public Area: Nullable<PixUI.IDirtyArea>;
 
-    public constructor() //Need for web now, TODO:use TSRecordAttribute
-    {
-    }
+    public constructor() {
+    } //Need for web now, TODO:use TSRecordAttribute
 
     public Init(props: Partial<InvalidWidget>): InvalidWidget {
         Object.assign(this, props);

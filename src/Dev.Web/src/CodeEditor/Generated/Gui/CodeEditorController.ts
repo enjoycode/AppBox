@@ -189,8 +189,8 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
 
     private _OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
         //TODO: 进一步合并LineManager改变的行数
-        let dirtyLines = this.Document.SyntaxParser.GetDirtyLines(this);
-        this.Widget.RequestInvalidate(true, dirtyLines);
+        //var dirtyLines = Document.SyntaxParser.GetDirtyLines(this);
+        this.Widget.RequestInvalidate(true, null);
     }
 
     private _OnCaretPositionChanged() {

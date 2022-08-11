@@ -4,6 +4,7 @@ import * as CodeEditor from '@/CodeEditor'
 export class FoldingManager {
     public constructor(document: CodeEditor.Document) {
         this._document = document;
+        // _document.DocumentChanged += OnDocumentChanged;
     }
 
     private readonly _document: CodeEditor.Document;

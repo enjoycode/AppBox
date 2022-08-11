@@ -52,7 +52,7 @@ export class FormItem extends PixUI.Widget {
             x = lableWidth - this._cachedLabelParagraph!.getMaxIntrinsicWidth();
         canvas.save(); //TODO:优化不必要的Save and Clip
         canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, lableWidth, this.H), CanvasKit.ClipOp.Intersect, false);
-        canvas.drawParagraph(this._cachedLabelParagraph!, x, 0);
+        canvas.drawParagraph(this._cachedLabelParagraph!, x, (this.H - this._cachedLabelParagraph!.getHeight()) / 2);
         canvas.restore();
 
         //再画Widget

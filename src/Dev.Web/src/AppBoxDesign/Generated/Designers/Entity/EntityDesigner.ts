@@ -13,8 +13,10 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
                 Children: [this.BuildActionBar(), new PixUI.Expanded().Init(
                     {
                         //TODO: use FutureBuilder
-                        Child: new PixUI.IfConditional(this._loaded, () => new PixUI.Conditional<number>(this._activePad, [new PixUI.WhenBuilder<number>(t => t == 0, () => new AppBoxDesign.MembersDesigner(this._entityModel!, this._membersController)), new PixUI.WhenBuilder<number>(t => t == 1, () => new AppBoxDesign.SqlStoreOptionsDesigner(this._entityModel!))
-                        ]), null)
+                        Child: new PixUI.IfConditional(this._loaded, () => new PixUI.Conditional(this._activePad)
+                            .When(t => t == 0, () => new AppBoxDesign.MembersDesigner(this._entityModel!, this._membersController))
+                            .When(t => t == 1, () => new AppBoxDesign.SqlStoreOptionsDesigner(this._entityModel!))
+                        )
                     })]
             });
     }
@@ -48,7 +50,7 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
                                     }), new PixUI.Button(PixUI.State.op_Implicit_From("Data")).Init({Width: PixUI.State.op_Implicit_From(75)})]
                             }), new PixUI.IfConditional(this._activePad.AsStateOfBool(i => i == 0), () => new PixUI.ButtonGroup().Init(
                             {
-                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Add"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Add)), new PixUI.Button(PixUI.State.op_Implicit_From("Remove"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Delete)), new PixUI.Button(PixUI.State.op_Implicit_From("Rename"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Edit)), new PixUI.Button(PixUI.State.op_Implicit_From("Usages"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Link))]
+                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Add"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Add)).Init({OnTap: this.OnAddMember.bind(this)}), new PixUI.Button(PixUI.State.op_Implicit_From("Remove"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Delete)), new PixUI.Button(PixUI.State.op_Implicit_From("Rename"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Edit)), new PixUI.Button(PixUI.State.op_Implicit_From("Usages"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Link))]
                             }))]
                     })
             });
@@ -71,6 +73,11 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IDesigner
         } catch (e: any) {
             PixUI.Notification.Error("无法加载实体模型");
         }
+    }
+
+    private OnAddMember(e: PixUI.PointerEvent) {
+        let dlg = new AppBoxDesign.NewEntityMemberDialog(this.Overlay!);
+        dlg.Show();
     }
 
     public SaveAsync(): Promise<void> {

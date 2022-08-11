@@ -48,8 +48,9 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
 
 
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
-        for (const entry of this._children) {
-            if (this.HitTestChild(entry, x, y, result))
+        for (let i = this._children.length - 1; i >= 0; i--) //倒序
+        {
+            if (this.HitTestChild(this._children[i], x, y, result))
                 break;
         }
 
