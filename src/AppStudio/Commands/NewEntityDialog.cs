@@ -52,7 +52,7 @@ internal sealed class NewEntityDialog : Dialog<object>
 
     protected override object? GetResult(bool canceled) => null;
 
-    private void _OnClose(bool canceled, object? result)
+    private async void _OnClose(bool canceled, object? result)
     {
         if (canceled) return;
         if (string.IsNullOrEmpty(_name.Value)) return;
@@ -65,12 +65,8 @@ internal sealed class NewEntityDialog : Dialog<object>
             (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value,
             _store.Value == null ? null : _store.Value.Id
         };
-        CreateAsync("sys.DesignService.NewEntityModel", args);
-    }
 
-    private static async void CreateAsync(string service, object?[] args)
-    {
-        var res = await Channel.Invoke<NewNodeResult>(service, args);
+        var res = await Channel.Invoke<NewNodeResult>("sys.DesignService.NewEntityModel", args);
         //根据返回结果同步添加新节点
         DesignStore.OnNewNode(res!);
     }

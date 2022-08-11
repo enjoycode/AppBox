@@ -35,6 +35,7 @@ export enum PayloadType {
     ChangedModel = 55,
     CodeProblem = 56,
     FieldWithOrder = 57,
+    EntityFieldVO = 58,
 
     //----运行时类型----
     Entity = 90,

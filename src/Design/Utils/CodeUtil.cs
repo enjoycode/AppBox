@@ -7,6 +7,8 @@ public static class CodeUtil
 {
     private static readonly string[] _keywords = { "private", "protected" };
 
+    private static readonly string[] _reservedEntityMemberNames = { "ModelId" };
+
     public static bool IsValidIdentifier(string value)
     {
         if (string.IsNullOrEmpty(value))
@@ -34,10 +36,10 @@ public static class CodeUtil
         return IsValidLanguageIndependentIdentifier(value);
     }
 
-    private static bool IsKeyword(string value)
-    {
-        return _keywords.Contains(value);
-    }
+    public static bool IsReservedEntityMemberName(string name) =>
+        _reservedEntityMemberNames.Contains(name);
+
+    private static bool IsKeyword(string value) => _keywords.Contains(value);
 
     public static bool IsValidLanguageIndependentIdentifier(string value)
     {
@@ -155,7 +157,7 @@ public static class CodeUtil
 
     public static string ServiceGlobalUsings() =>
         "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxCore;global using AppBoxStore;";
-    
+
     public static string ViewGlobalUsings() =>
         "global using System;global using System.Linq;global using System.Collections.Generic;global using PixUI;global using AppBoxCore;global using AppBoxClient;";
 }

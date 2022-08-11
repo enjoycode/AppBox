@@ -4,7 +4,7 @@ using AppBoxCore;
 
 namespace AppBoxDesign
 {
-    public abstract class EntityMemberVO
+    public abstract class EntityMemberVO : IBinSerializable
     {
         public abstract EntityMemberType Type { get; }
         public short Id { get; set; }
@@ -21,7 +21,7 @@ namespace AppBoxDesign
             Comment = model.Comment;
         }
 
-        protected internal virtual void WriteTo(IOutputStream ws)
+        public virtual void WriteTo(IOutputStream ws)
         {
             ws.WriteShort(Id);
             ws.WriteString(Name);
@@ -29,8 +29,12 @@ namespace AppBoxDesign
             ws.WriteString(Comment);
         }
 
+        public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
+
 #else
-        protected internal virtual void ReadFrom(IInputStream rs)
+        public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
+        
+        public virtual void ReadFrom(IInputStream rs)
         {
             Id = rs.ReadShort();
             Name = rs.ReadString()!;
@@ -63,7 +67,7 @@ namespace AppBoxDesign
             return vo;
         }
 
-        protected internal override void WriteTo(IOutputStream ws)
+        public override void WriteTo(IOutputStream ws)
         {
             base.WriteTo(ws);
             ws.WriteByte((byte)FieldType);
@@ -74,7 +78,7 @@ namespace AppBoxDesign
         }
 
 #else
-        protected internal override void ReadFrom(IInputStream rs)
+        public override void ReadFrom(IInputStream rs)
         {
             base.ReadFrom(rs);
             FieldType = (EntityFieldType)rs.ReadByte();
@@ -112,7 +116,7 @@ namespace AppBoxDesign
             return vo;
         }
 
-        protected internal override void WriteTo(IOutputStream ws)
+        public override void WriteTo(IOutputStream ws)
         {
             base.WriteTo(ws);
 
@@ -127,7 +131,7 @@ namespace AppBoxDesign
         }
 
 #else
-        protected internal override void ReadFrom(IInputStream rs)
+        public override void ReadFrom(IInputStream rs)
         {
             base.ReadFrom(rs);
             IsReverse = rs.ReadBool();
@@ -160,7 +164,7 @@ namespace AppBoxDesign
             return vo;
         }
 
-        protected internal override void WriteTo(IOutputStream ws)
+        public override void WriteTo(IOutputStream ws)
         {
             base.WriteTo(ws);
 
@@ -168,7 +172,7 @@ namespace AppBoxDesign
             ws.WriteShort(RefMemberId);
         }
 #else
-        protected internal override void ReadFrom(IInputStream rs)
+        public override void ReadFrom(IInputStream rs)
         {
             base.ReadFrom(rs);
             RefModelId = rs.ReadLong();

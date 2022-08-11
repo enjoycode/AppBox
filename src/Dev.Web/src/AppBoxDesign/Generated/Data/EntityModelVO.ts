@@ -10,13 +10,16 @@ export abstract class EntityMemberVO {
     public AllowNull: boolean = false;
     public Comment: Nullable<string>;
 
+    public WriteTo(ws: AppBoxCore.IOutputStream) {
+        throw new System.NotSupportedException();
+    }
+
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         this.Id = rs.ReadShort();
         this.Name = rs.ReadString()!;
         this.AllowNull = rs.ReadBool();
         this.Comment = rs.ReadString();
     }
-
 }
 
 export class EntityFieldVO extends EntityMemberVO {

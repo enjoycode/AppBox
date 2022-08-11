@@ -9,6 +9,8 @@ public sealed class DesignHub : IDesignContext, IDisposable
         //注册设计时序列化器，仅用于向前端序列化，不需要反序列化
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityModelVO,
             typeof(EntityModelVO)));
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityFieldVO,
+            typeof(EntityFieldVO)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.DesignTree,
             typeof(DesignTree)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.NewNodeResult,

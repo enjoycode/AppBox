@@ -44,6 +44,7 @@ namespace AppBoxCore
         ChangedModel = 55,
         CodeProblem = 56,
         FieldWithOrder = 57,
+        EntityFieldVO = 58,
 
         //----运行时相关类型----
         Entity = 90,

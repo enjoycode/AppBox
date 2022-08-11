@@ -34,6 +34,7 @@ namespace AppBoxDesign
         private bool _hasLoad = false;
         private readonly State<bool> _loaded = false;
         private EntityModelVO? _entityModel;
+        internal ModelNode ModelNode => _modelNode;
 
         private readonly DataGridController<EntityMemberVO> _membersController = new();
 
@@ -101,8 +102,14 @@ namespace AppBoxDesign
 
         private void OnAddMember(PointerEvent e)
         {
-            var dlg = new NewEntityMemberDialog(Overlay!);
+            var dlg = new NewEntityMemberDialog(Overlay!, this);
             dlg.Show();
+        }
+
+        internal void OnMemberAdded(EntityMemberVO member)
+        {
+            _entityModel!.Members.Add(member);
+            _membersController.DataSource = _entityModel!.Members; //TODO: use Refresh()
         }
 
         public Task SaveAsync()
