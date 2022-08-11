@@ -60,14 +60,14 @@ public sealed class EntityRefModel : EntityMemberModel
     /// <summary>
     /// 引用的实体模型标识号集合，聚合引用有多个
     /// </summary>
-    public List<long> RefModelIds { get; private set; }
+    public List<long> RefModelIds { get; private set; } = null!;
 
     /// <summary>
     /// 引用的外键成员标识集合，
     /// 1. SysStore只有一个Id, eg: Order->Customer为Order.CustomerId
     /// 2. SqlStore有一或多个，与引用目标的主键的数量、顺序、类型一致
     /// </summary>
-    public short[] FKMemberIds { get; private set; }
+    public short[] FKMemberIds { get; private set; } = null!;
 
     /// <summary>
     /// 聚合引用时的类型字段，存储引用目标的EntityModel.Id

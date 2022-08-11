@@ -204,32 +204,32 @@ internal static class StoreInitiator
         var emploee = new EntityModel(Employee.MODELID, nameof(Employee));
         emploee.BindToSqlStore(SqlStore.DefaultSqlStoreId);
 
-        var id = new DataFieldModel(emploee, nameof(Employee.Id), DataFieldType.Guid, false);
+        var id = new EntityFieldModel(emploee, nameof(Employee.Id), EntityFieldType.Guid, false);
         emploee.AddSysMember(id, Employee.ID_ID);
         //add pk
         emploee.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
 #endif
 
         //Add members
-        var name = new DataFieldModel(emploee, nameof(Employee.Name), DataFieldType.String, false);
+        var name = new EntityFieldModel(emploee, nameof(Employee.Name), EntityFieldType.String, false);
 #if !FUTURE
         name.Length = 20;
 #endif
         emploee.AddSysMember(name, Employee.NAME_ID);
 
-        var male = new DataFieldModel(emploee, nameof(Employee.Male), DataFieldType.Bool, false);
+        var male = new EntityFieldModel(emploee, nameof(Employee.Male), EntityFieldType.Bool, false);
         emploee.AddSysMember(male, Employee.MALE_ID);
 
-        var birthday = new DataFieldModel(emploee, nameof(Employee.Birthday),
-            DataFieldType.DateTime, true);
+        var birthday = new EntityFieldModel(emploee, nameof(Employee.Birthday),
+            EntityFieldType.DateTime, true);
         emploee.AddSysMember(birthday, Employee.BIRTHDAY_ID);
 
         var account =
-            new DataFieldModel(emploee, nameof(Employee.Account), DataFieldType.String, true);
+            new EntityFieldModel(emploee, nameof(Employee.Account), EntityFieldType.String, true);
         emploee.AddSysMember(account, Employee.ACCOUNT_ID);
 
         var password =
-            new DataFieldModel(emploee, nameof(Employee.Password), DataFieldType.Binary, true);
+            new EntityFieldModel(emploee, nameof(Employee.Password), EntityFieldType.Binary, true);
         emploee.AddSysMember(password, Employee.PASSWORD_ID);
 
         // var orgunits = new EntitySetModel(emploee, "OrgUnits", OrgUnit.MODELID, OrgUnit.BASE_ID);
@@ -260,20 +260,20 @@ internal static class StoreInitiator
         var model = new EntityModel(Enterprise.MODELID, nameof(Enterprise));
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
 
-        var id = new DataFieldModel(model, nameof(Enterprise.Id), DataFieldType.Guid, false);
+        var id = new EntityFieldModel(model, nameof(Enterprise.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Enterprise.ID_ID);
         //add pk
         model.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
 #endif
 
-        var name = new DataFieldModel(model, nameof(Enterprise.Name), DataFieldType.String, false);
+        var name = new EntityFieldModel(model, nameof(Enterprise.Name), EntityFieldType.String, false);
 #if !FUTURE
         name.Length = 100;
 #endif
         model.AddSysMember(name, Enterprise.NAME_ID);
 
         var address =
-            new DataFieldModel(model, nameof(Enterprise.Address), DataFieldType.String, true);
+            new EntityFieldModel(model, nameof(Enterprise.Address), EntityFieldType.String, true);
         model.AddSysMember(address, Enterprise.ADDRESS_ID);
 
         return model;
@@ -288,13 +288,13 @@ internal static class StoreInitiator
         var model = new EntityModel(Workgroup.MODELID, nameof(Workgroup));
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
 
-        var id = new DataFieldModel(model, nameof(Workgroup.Id), DataFieldType.Guid, false);
+        var id = new EntityFieldModel(model, nameof(Workgroup.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Workgroup.ID_ID);
         //add pk
         model.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
 #endif
 
-        var name = new DataFieldModel(model, nameof(Workgroup.Name), DataFieldType.String, false);
+        var name = new EntityFieldModel(model, nameof(Workgroup.Name), EntityFieldType.String, false);
 #if !FUTURE
         name.Length = 50;
 #endif
@@ -305,37 +305,37 @@ internal static class StoreInitiator
 
     private static EntityModel CreateOrgUnitModel(ApplicationModel app)
     {
-        DataFieldType fkType;
+        EntityFieldType fkType;
 #if FUTURE
             var model =
  new EntityModel(Consts.SYS_ORGUNIT_MODEL_ID, Consts.ORGUNIT, EntityStoreType.StoreWithMvcc);
             fkType = EntityFieldType.EntityId;
 #else
-        fkType = DataFieldType.Guid;
+        fkType = EntityFieldType.Guid;
         var model = new EntityModel(OrgUnit.MODELID, nameof(OrgUnit));
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
 
-        var id = new DataFieldModel(model, nameof(OrgUnit.Id), DataFieldType.Guid, false);
+        var id = new EntityFieldModel(model, nameof(OrgUnit.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, OrgUnit.ID_ID);
         //add pk
         model.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
 #endif
 
-        var name = new DataFieldModel(model, nameof(OrgUnit.Name), DataFieldType.String, false);
+        var name = new EntityFieldModel(model, nameof(OrgUnit.Name), EntityFieldType.String, false);
 #if !FUTURE
         name.Length = 100;
 #endif
         model.AddSysMember(name, OrgUnit.NAME_ID);
 
         var baseType =
-            new DataFieldModel(model, nameof(OrgUnit.BaseType), DataFieldType.Long, false);
+            new EntityFieldModel(model, nameof(OrgUnit.BaseType), EntityFieldType.Long, false);
         model.AddSysMember(baseType, OrgUnit.BASETYPE_ID);
         var Base = new EntityRefModel(model, nameof(OrgUnit.Base),
             new List<long> { Enterprise.MODELID, Workgroup.MODELID, Employee.MODELID },
             new[] { id.MemberId }, baseType.MemberId);
         model.AddSysMember(Base, OrgUnit.BASE_ID);
 
-        var parentId = new DataFieldModel(model, nameof(OrgUnit.ParentId), fkType, true);
+        var parentId = new EntityFieldModel(model, nameof(OrgUnit.ParentId), fkType, true);
         model.AddSysMember(parentId, OrgUnit.PARENTID_ID);
         var parent = new EntityRefModel(model, nameof(OrgUnit.Parent), OrgUnit.MODELID,
             new[] { parentId.MemberId });
@@ -359,19 +359,19 @@ internal static class StoreInitiator
 
 #endif
 
-        var type = new DataFieldModel(model, "Type", DataFieldType.Byte, false);
+        var type = new EntityFieldModel(model, "Type", EntityFieldType.Byte, false);
         model.AddSysMember(type, StagedModel.TYPE_ID);
 
-        var modelId = new DataFieldModel(model, "ModelId", DataFieldType.String, false);
+        var modelId = new EntityFieldModel(model, "ModelId", EntityFieldType.String, false);
 #if !FUTURE
         modelId.Length = 100;
 #endif
         model.AddSysMember(modelId, StagedModel.MODEL_ID);
 
-        var devId = new DataFieldModel(model, "DeveloperId", DataFieldType.Guid, false);
+        var devId = new EntityFieldModel(model, "DeveloperId", EntityFieldType.Guid, false);
         model.AddSysMember(devId, StagedModel.DEVELOPER_ID);
 
-        var data = new DataFieldModel(model, "Data", DataFieldType.Binary, true);
+        var data = new EntityFieldModel(model, "Data", EntityFieldType.Binary, true);
         model.AddSysMember(data, StagedModel.DATA_ID);
 
 #if !FUTURE
@@ -397,25 +397,25 @@ internal static class StoreInitiator
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
 #endif
 
-        var nodeType = new DataFieldModel(model, "NodeType", DataFieldType.Byte, false);
+        var nodeType = new EntityFieldModel(model, "NodeType", EntityFieldType.Byte, false);
         model.AddSysMember(nodeType, Checkout.NODETYPE_ID);
 
-        var targetId = new DataFieldModel(model, "TargetId", DataFieldType.String, false);
+        var targetId = new EntityFieldModel(model, "TargetId", EntityFieldType.String, false);
 #if !FUTURE
         targetId.Length = 100;
 #endif
         model.AddSysMember(targetId, Checkout.TARGET_ID);
 
-        var devId = new DataFieldModel(model, "DeveloperId", DataFieldType.Guid, false);
+        var devId = new EntityFieldModel(model, "DeveloperId", EntityFieldType.Guid, false);
         model.AddSysMember(devId, Checkout.DEVELOPER_ID);
 
-        var devName = new DataFieldModel(model, "DeveloperName", DataFieldType.String, false);
+        var devName = new EntityFieldModel(model, "DeveloperName", EntityFieldType.String, false);
 #if !FUTURE
         devName.Length = 100;
 #endif
         model.AddSysMember(devName, Checkout.DEVELOPERNAME_ID);
 
-        var version = new DataFieldModel(model, "Version", DataFieldType.Int, false);
+        var version = new EntityFieldModel(model, "Version", EntityFieldType.Int, false);
         model.AddSysMember(version, Checkout.VERSION_ID);
 
         //Add indexes

@@ -16,7 +16,7 @@ public abstract class EntityMemberModel
     private string _name;
     private string? _originalName;
     private short _memberId;
-    protected bool _allowNull; //设计时改变时如果是DataField需要调用其onDataTypeChanged
+    protected bool _allowNull; //设计时改变时如果是EntityField需要调用其onFieldTypeChanged
     private PersistentState _persistentState;
     private string? _comment;
 

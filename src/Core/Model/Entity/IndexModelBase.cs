@@ -7,9 +7,9 @@ public abstract class IndexModelBase : IBinSerializable
 {
     public EntityModel Owner { get; private set; }
     public byte IndexId { get; private set; }
-    public string Name { get; private set; }
+    public string Name { get; private set; } = null!;
     public bool Unique { get; private set; }
-    public FieldWithOrder[] Fields { get; private set; }
+    public FieldWithOrder[] Fields { get; private set; } = null!;
 
     /// <summary>
     /// 索引覆盖字段

@@ -462,14 +462,15 @@ public abstract class SqlStore
         var members = model.Members;
         foreach (var member in members)
         {
-            if (member.Type != EntityMemberType.DataField) continue;
+            if (member.Type != EntityMemberType.EntityField) continue;
 
-            var dataField = (DataFieldModel)member;
-            entity.WriteMember(dataField.MemberId, entityMemberWriter, EntityMemberWriteFlags.None);
+            var entityField = (EntityFieldModel)member;
+            entity.WriteMember(entityField.MemberId, entityMemberWriter,
+                EntityMemberWriteFlags.None);
             if (cmd.Parameters.Count > parasCount) //已写入实体成员
             {
                 if (parasCount != 0) sb.Append(',');
-                sb.AppendWithNameEscaper(dataField.Name, NameEscaper);
+                sb.AppendWithNameEscaper(entityField.Name, NameEscaper);
                 parasCount = cmd.Parameters.Count;
             }
         }
@@ -503,9 +504,9 @@ public abstract class SqlStore
         var hasChangedMember = false;
         foreach (var mm in model.Members)
         {
-            if (mm.Type != EntityMemberType.DataField) continue;
+            if (mm.Type != EntityMemberType.EntityField) continue;
 
-            var dfm = (DataFieldModel)mm;
+            var dfm = (EntityFieldModel)mm;
             if (dfm.IsPrimaryKey) continue; //跳过主键
             if (!entity.IsMemberChanged(dfm.MemberId)) continue; //字段值无改变
 
@@ -552,7 +553,7 @@ public abstract class SqlStore
         for (var i = 0; i < model.SqlStoreOptions!.PrimaryKeys.Length; i++)
         {
             var pk = model.SqlStoreOptions.PrimaryKeys[i];
-            var mm = (DataFieldModel)model.GetMember(pk.MemberId, true)!;
+            var mm = (EntityFieldModel)model.GetMember(pk.MemberId, true)!;
 
             entity.WriteMember(pk.MemberId, entityMemberWriter, EntityMemberWriteFlags.None);
 

@@ -1,32 +1,32 @@
 namespace AppBoxCore;
 
-public sealed class DataFieldModel : EntityMemberModel
+public sealed class EntityFieldModel : EntityMemberModel
 {
-    internal DataFieldModel(EntityModel owner) : base(owner, string.Empty, false) { }
+    internal EntityFieldModel(EntityModel owner) : base(owner, string.Empty, false) { }
 
-    public DataFieldModel(EntityModel owner, string name, DataFieldType dataType, bool allowNull) :
+    public EntityFieldModel(EntityModel owner, string name, EntityFieldType fieldType, bool allowNull) :
         base(owner, name, allowNull)
     {
-        _dataType = dataType;
+        _fieldType = fieldType;
     }
 
-    public override EntityMemberType Type => EntityMemberType.DataField;
+    public override EntityMemberType Type => EntityMemberType.EntityField;
 
     private bool _isForeignKey; //是否引用外键
 
-    private bool _isDataTypeChanged; //字段类型、AllowNull及DefaultValue变更均视为DataTypeChanged
+    private bool _isFieldTypeChanged; //字段类型、AllowNull及DefaultValue变更均视为FieldTypeChanged
 
     //----以下change must call onPropertyChanged----
-    private ModelId? _enumModelId; //如果DataType = Enum,则必须设置相应的EnumModel.ModelId
+    private ModelId? _enumModelId; //如果FieldType = Enum,则必须设置相应的EnumModel.ModelId
 
-    //----以下change must call onDataTypeChanged----
-    private DataFieldType _dataType;
+    //----以下change must call onFieldTypeChanged----
+    private EntityFieldType _fieldType;
     private int _length; //仅用于Sql存储设置字符串最大长度(0=无限制)或Decimal整数部分长度
     private int _decimals; //仅用于Sql存储设置Decimal小数部分长度
     private string? _defaultValue; //默认值
 
     public bool IsForeignKey => _isForeignKey;
-    public DataFieldType DataType => _dataType;
+    public EntityFieldType FieldType => _fieldType;
     public ModelId? EnumModelId => _enumModelId;
 
     public int Length
@@ -35,13 +35,13 @@ public sealed class DataFieldModel : EntityMemberModel
         set
         {
             _length = value;
-            OnDataTypeChanged();
+            OnFieldTypeChanged();
         }
     }
 
     public int Decimals => _decimals;
 
-    public bool IsDataTypeChanged => _isDataTypeChanged;
+    public bool IsFieldTypeChanged => _isFieldTypeChanged;
 
     public bool IsPrimaryKey =>
         Owner.SqlStoreOptions != null && Owner.SqlStoreOptions.IsPrimaryKey(MemberId);
@@ -55,11 +55,11 @@ public sealed class DataFieldModel : EntityMemberModel
 
     #region ====Design Methods====
 
-    private void OnDataTypeChanged()
+    private void OnFieldTypeChanged()
     {
         if (PersistentState == PersistentState.Unchanged)
         {
-            _isDataTypeChanged = true;
+            _isFieldTypeChanged = true;
             OnPropertyChanged();
         }
     }
@@ -69,30 +69,30 @@ public sealed class DataFieldModel : EntityMemberModel
         if (_allowNull != value)
         {
             _allowNull = value;
-            OnDataTypeChanged(); //TODO: !allowNull -> allowNull
+            OnFieldTypeChanged(); //TODO: !allowNull -> allowNull
         }
     }
 
     // public void SetDefaultValue(string value)
     // {
-    //     _defaultValue = _dataType switch
+    //     _defaultValue = _fieldType switch
     //     {
-    //         DataFieldType.String => value,
-    //         DataFieldType.DateTime => DateTime.Parse(value),
-    //         DataFieldType.Byte => byte.Parse(value),
-    //         DataFieldType.Short => short.Parse(value),
-    //         DataFieldType.Int => int.Parse(value),
-    //         DataFieldType.Long => long.Parse(value),
-    //         DataFieldType.Decimal => decimal.Parse(value),
-    //         DataFieldType.Float => float.Parse(value),
-    //         DataFieldType.Double => double.Parse(value),
-    //         DataFieldType.Bool => bool.Parse(value),
-    //         DataFieldType.Guid => Guid.Parse(value),
+    //         EntityFieldType.String => value,
+    //         EntityFieldType.DateTime => DateTime.Parse(value),
+    //         EntityFieldType.Byte => byte.Parse(value),
+    //         EntityFieldType.Short => short.Parse(value),
+    //         EntityFieldType.Int => int.Parse(value),
+    //         EntityFieldType.Long => long.Parse(value),
+    //         EntityFieldType.Decimal => decimal.Parse(value),
+    //         EntityFieldType.Float => float.Parse(value),
+    //         EntityFieldType.Double => double.Parse(value),
+    //         EntityFieldType.Bool => bool.Parse(value),
+    //         EntityFieldType.Guid => Guid.Parse(value),
     //         _ => throw new NotImplementedException()
     //     };
     //
     //     if (!AllowNull)
-    //         OnDataTypeChanged();
+    //         OnFieldTypeChanged();
     // }
 
     #endregion
@@ -103,13 +103,13 @@ public sealed class DataFieldModel : EntityMemberModel
     {
         base.WriteTo(ws);
 
-        ws.WriteByte((byte)_dataType);
+        ws.WriteByte((byte)_fieldType);
         ws.WriteBool(_isForeignKey);
-        if (_dataType == DataFieldType.Enum)
+        if (_fieldType == EntityFieldType.Enum)
             ws.WriteLong(_enumModelId!.Value);
-        else if (_dataType == DataFieldType.String)
+        else if (_fieldType == EntityFieldType.String)
             ws.WriteVariant(_length);
-        else if (_dataType == DataFieldType.Decimal)
+        else if (_fieldType == EntityFieldType.Decimal)
         {
             ws.WriteVariant(_length);
             ws.WriteVariant(_decimals);
@@ -118,20 +118,20 @@ public sealed class DataFieldModel : EntityMemberModel
         ws.WriteString(_defaultValue);
 
         if (Owner.IsDesignMode)
-            ws.WriteBool(_isDataTypeChanged);
+            ws.WriteBool(_isFieldTypeChanged);
     }
 
     public override void ReadFrom(IInputStream rs)
     {
         base.ReadFrom(rs);
 
-        _dataType = (DataFieldType)rs.ReadByte();
+        _fieldType = (EntityFieldType)rs.ReadByte();
         _isForeignKey = rs.ReadBool();
-        if (_dataType == DataFieldType.Enum)
+        if (_fieldType == EntityFieldType.Enum)
             _enumModelId = rs.ReadLong();
-        else if (_dataType == DataFieldType.String)
+        else if (_fieldType == EntityFieldType.String)
             _length = rs.ReadVariant();
-        else if (_dataType == DataFieldType.Decimal)
+        else if (_fieldType == EntityFieldType.Decimal)
         {
             _length = rs.ReadVariant();
             _decimals = rs.ReadVariant();
@@ -140,7 +140,7 @@ public sealed class DataFieldModel : EntityMemberModel
         _defaultValue = rs.ReadString();
 
         if (Owner.IsDesignMode)
-            _isDataTypeChanged = rs.ReadBool();
+            _isFieldTypeChanged = rs.ReadBool();
     }
 
     #endregion

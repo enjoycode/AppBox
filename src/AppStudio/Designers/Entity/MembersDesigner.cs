@@ -56,8 +56,8 @@ namespace AppBoxDesign
 
         private static string MemberTypeToString(EntityMemberVO member)
         {
-            if (member.Type == EntityMemberType.DataField)
-                return $"{member.Type.ToString()} - {((EntityFieldVO)member).DataType.ToString()}";
+            if (member.Type == EntityMemberType.EntityField)
+                return $"{member.Type.ToString()} - {((EntityFieldVO)member).FieldType.ToString()}";
             //TODO: EntityRef and EntitySet attach target entity name
             return member.Type.ToString();
         }

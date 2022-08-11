@@ -43,20 +43,20 @@ namespace AppBoxDesign
 
     public sealed class EntityFieldVO : EntityMemberVO
     {
-        public override EntityMemberType Type => EntityMemberType.DataField;
+        public override EntityMemberType Type => EntityMemberType.EntityField;
 
-        public DataFieldType DataType { get; set; }
+        public EntityFieldType FieldType { get; set; }
         public long? EnumModelId { get; set; }
         public int Length { get; set; }
         public int Decimals { get; set; }
 
 #if __APPBOXDESIGN__
-        internal static EntityFieldVO From(DataFieldModel model)
+        internal static EntityFieldVO From(EntityFieldModel model)
         {
             var vo = new EntityFieldVO();
             vo.FetchFrom(model);
-            vo.DataType = model.DataType;
-            if (model.DataType == DataFieldType.Enum)
+            vo.FieldType = model.FieldType;
+            if (model.FieldType == EntityFieldType.Enum)
                 vo.EnumModelId = model.EnumModelId!.Value;
             vo.Length = model.Length;
             vo.Decimals = model.Decimals;
@@ -66,8 +66,8 @@ namespace AppBoxDesign
         protected internal override void WriteTo(IOutputStream ws)
         {
             base.WriteTo(ws);
-            ws.WriteByte((byte)DataType);
-            if (DataType == DataFieldType.Enum)
+            ws.WriteByte((byte)FieldType);
+            if (FieldType == EntityFieldType.Enum)
                 ws.WriteLong(EnumModelId!.Value);
             ws.WriteVariant(Length);
             ws.WriteVariant(Decimals);
@@ -77,8 +77,8 @@ namespace AppBoxDesign
         protected internal override void ReadFrom(IInputStream rs)
         {
             base.ReadFrom(rs);
-            DataType = (DataFieldType)rs.ReadByte();
-            if (DataType == DataFieldType.Enum)
+            FieldType = (EntityFieldType)rs.ReadByte();
+            if (FieldType == EntityFieldType.Enum)
                 EnumModelId = rs.ReadLong();
             Length = rs.ReadVariant();
             Decimals = rs.ReadVariant();
@@ -204,10 +204,10 @@ namespace AppBoxDesign
 
                 switch (memberModel.Type)
                 {
-                    case EntityMemberType.DataField:
-                        if (((DataFieldModel)memberModel).IsForeignKey) continue;
+                    case EntityMemberType.EntityField:
+                        if (((EntityFieldModel)memberModel).IsForeignKey) continue;
 
-                        vo.Members.Add(EntityFieldVO.From((DataFieldModel)memberModel));
+                        vo.Members.Add(EntityFieldVO.From((EntityFieldModel)memberModel));
                         break;
                     case EntityMemberType.EntityRef:
                         vo.Members.Add(EntityRefVO.From((EntityRefModel)memberModel));
@@ -263,7 +263,7 @@ namespace AppBoxDesign
                 EntityMemberVO member;
                 switch (type)
                 {
-                    case EntityMemberType.DataField:
+                    case EntityMemberType.EntityField:
                         member = new EntityFieldVO();
                         break;
                     case EntityMemberType.EntityRef:

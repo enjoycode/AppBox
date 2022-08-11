@@ -34,14 +34,17 @@ public enum ModelType : byte
     Permission = 7,
 }
 
-public enum EntityMemberType
+/// <summary>
+/// 实体成员的类型
+/// </summary>
+public enum EntityMemberType : byte
 {
-    DataField,
+    EntityField,
     EntityRef = 2,
     EntitySet = 3,
 }
 
-public enum DataFieldType : byte //TODO: rename to EntityFieldType
+public enum EntityFieldType : byte
 {
     EntityId = 0,
     String = 1,

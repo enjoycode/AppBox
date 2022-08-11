@@ -11,6 +11,9 @@ internal sealed class NewEntityMemberDialog : Dialog<object>
         Title.Value = "New Entity Member";
     }
 
+    private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
+    private static readonly string[] FieldTypes = { "String", "Int", "Long", "Float", "Double" };
+
     private readonly State<string> _name = string.Empty;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
@@ -63,9 +66,6 @@ internal sealed class NewEntityMemberDialog : Dialog<object>
             }
         };
     }
-
-    private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
-    private static readonly string[] FieldTypes = { "String", "Int", "Long", "Float", "Double" };
 
     protected override object? GetResult(bool canceled) => null;
 }

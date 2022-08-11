@@ -16,7 +16,7 @@ public abstract class ModelBase : IBinSerializable
     }
 
     private ModelId _id;
-    private string _name;
+    private string _name = null!;
     private string? _originalName;
     private int _version;
     private bool _designMode;

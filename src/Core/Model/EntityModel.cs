@@ -224,7 +224,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
     {
         return (EntityMemberType)memberType switch
         {
-            EntityMemberType.DataField => new DataFieldModel(this),
+            EntityMemberType.EntityField => new EntityFieldModel(this),
             EntityMemberType.EntityRef => new EntityRefModel(this),
             EntityMemberType.EntitySet => new EntitySetModel(this),
             _ => throw new NotImplementedException(memberType.ToString())

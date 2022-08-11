@@ -131,7 +131,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         var members = model.Members;
         for (var i = 0; i < members.Count; i++)
         {
-            if (members[i].Type == EntityMemberType.DataField
+            if (members[i].Type == EntityMemberType.EntityField
                 /*|| members[i].Type == EntityMemberType.Aggregate
                 || members[i].Type == EntityMemberType.Formula
                 || members[i].Type == EntityMemberType.AutoNumber

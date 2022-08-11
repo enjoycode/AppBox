@@ -8,13 +8,13 @@ internal sealed class RxEntityField : RxObject<EntityFieldVO>
     public RxEntityField()
     {
         Name = new RxProperty<string>(() => Object.Name);
-        DataType = new RxProperty<DataFieldType>(() => Object.DataType);
+        FieldType = new RxProperty<EntityFieldType>(() => Object.FieldType);
         Comment = new RxProperty<string>(() => Object.Comment ?? string.Empty,
             v => Object.Comment = v);
     }
 
     public readonly RxProperty<string> Name;
-    public readonly RxProperty<DataFieldType> DataType;
+    public readonly RxProperty<EntityFieldType> FieldType;
     public readonly RxProperty<string> Comment;
 }
 
@@ -29,7 +29,7 @@ internal sealed class EntityPropertyPanel : View
         _entityModel = entityModel;
         _selectedMember = Bind(selectedMember, BindingOptions.None);
         var isEntityField = _selectedMember
-            .AsStateOfBool(v => v != null && v.Type == EntityMemberType.DataField);
+            .AsStateOfBool(v => v != null && v.Type == EntityMemberType.EntityField);
 
         Child = new Column(HorizontalAlignment.Left)
         {
@@ -54,8 +54,8 @@ internal sealed class EntityPropertyPanel : View
                     Children = new[]
                     {
                         new FormItem("Name:", new Input(_rxEntityField.Name) { Readonly = true }),
-                        new FormItem("DataType:",
-                            new Input(_rxEntityField.DataType.AsStateOfString(v => v.ToString()))
+                        new FormItem("FieldType:",
+                            new Input(_rxEntityField.FieldType.AsStateOfString(v => v.ToString()))
                                 { Readonly = true }),
                         new FormItem("Comment:", new Input(_rxEntityField.Comment))
                     }
@@ -75,7 +75,7 @@ internal sealed class EntityPropertyPanel : View
         {
             if (_selectedMember.Value != null)
             {
-                if (_selectedMember.Value.Type == EntityMemberType.DataField)
+                if (_selectedMember.Value.Type == EntityMemberType.EntityField)
                     _rxEntityField.Object = (EntityFieldVO)_selectedMember.Value;
             }
 

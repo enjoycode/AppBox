@@ -280,9 +280,9 @@ internal sealed class BuildQueryContext
             for (var i = 0; i < rqModel.SqlStoreOptions.PrimaryKeys.Length; i++)
             {
                 if (i != 0) Append(" And ");
-                var pk = (DataFieldModel)rqModel.GetMember(
+                var pk = (EntityFieldModel)rqModel.GetMember(
                     rqModel.SqlStoreOptions.PrimaryKeys[i].MemberId, true);
-                var fk = (DataFieldModel)rqOwnerModel.GetMember(rm.FKMemberIds[i], true);
+                var fk = (EntityFieldModel)rqOwnerModel.GetMember(rm.FKMemberIds[i], true);
                 AppendFormat("{0}.\"{1}\"={2}.\"{3}\"", rq.AliasName, pk.SqlColName,
                     rq.Owner.AliasName, fk.SqlColName);
             }

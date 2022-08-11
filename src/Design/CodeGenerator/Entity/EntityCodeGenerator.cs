@@ -34,8 +34,8 @@ internal static class EntityCodeGenerator
         {
             switch (member.Type)
             {
-                case EntityMemberType.DataField:
-                    GenWebDataFieldMember((DataFieldModel)member, sb);
+                case EntityMemberType.EntityField:
+                    GenWebEntityFieldMember((EntityFieldModel)member, sb);
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
@@ -61,7 +61,7 @@ internal static class EntityCodeGenerator
             sb.Append(':');
             switch (member.Type)
             {
-                case EntityMemberType.DataField:
+                case EntityMemberType.EntityField:
                     sb.Append("this.");
                     if (model.DataStoreKind != DataStoreKind.None)
                         sb.Append('_');
@@ -97,7 +97,7 @@ internal static class EntityCodeGenerator
 
             switch (member.Type)
             {
-                case EntityMemberType.DataField:
+                case EntityMemberType.EntityField:
                     sb.Append("ws.WriteShort(");
                     sb.Append(member.MemberId.ToString());
                     sb.Append("); ");
@@ -125,7 +125,7 @@ internal static class EntityCodeGenerator
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
-    private static void GenWebDataFieldMember(DataFieldModel field, StringBuilder sb)
+    private static void GenWebEntityFieldMember(EntityFieldModel field, StringBuilder sb)
     {
         //TODO:默认值生成
         if (field.Owner.DataStoreKind == DataStoreKind.None)
@@ -187,8 +187,8 @@ internal static class EntityCodeGenerator
             for (var i = 0; i < pks.Length; i++)
             {
                 if (i != 0) sb.Append(',');
-                var dfm = (DataFieldModel)model.GetMember(pks[i].MemberId)!;
-                sb.Append(GetDataFieldTypeString(dfm));
+                var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
+                sb.Append(GetEntityFieldTypeString(dfm));
                 sb.Append(' ');
                 sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
             }
@@ -197,7 +197,7 @@ internal static class EntityCodeGenerator
             foreach (var pk in pks)
             {
                 sb.Append('\t');
-                var dfm = (DataFieldModel)model.GetMember(pk.MemberId)!;
+                var dfm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
                 sb.Append('_');
                 sb.Append(dfm.Name);
                 sb.Append('=');
@@ -213,8 +213,8 @@ internal static class EntityCodeGenerator
         {
             switch (member.Type)
             {
-                case EntityMemberType.DataField:
-                    GenDataFieldMember((DataFieldModel)member, sb);
+                case EntityMemberType.EntityField:
+                    GenEntityFieldMember((EntityFieldModel)member, sb);
                     break;
                 case EntityMemberType.EntityRef:
                     //TODO:
@@ -306,9 +306,9 @@ internal static class EntityCodeGenerator
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
-    private static void GenDataFieldMember(DataFieldModel field, StringBuilder sb)
+    private static void GenEntityFieldMember(EntityFieldModel field, StringBuilder sb)
     {
-        var typeString = GetDataFieldTypeString(field);
+        var typeString = GetEntityFieldTypeString(field);
         if (field.Owner.DataStoreKind == DataStoreKind.None)
         {
             sb.Append($"\tpublic {typeString} {field.Name} {{get; set;}}\n");
@@ -334,23 +334,23 @@ internal static class EntityCodeGenerator
         }
     }
 
-    private static string GetDataFieldTypeString(DataFieldModel field)
+    private static string GetEntityFieldTypeString(EntityFieldModel field)
     {
-        var typeString = field.DataType switch
+        var typeString = field.FieldType switch
         {
-            DataFieldType.String => "string",
-            DataFieldType.Bool => "bool",
-            DataFieldType.Byte => "byte",
-            DataFieldType.Short => "short",
-            DataFieldType.Int => "int",
-            DataFieldType.Long => "long",
-            DataFieldType.Float => "float",
-            DataFieldType.Double => "double",
-            DataFieldType.DateTime => "DateTime",
-            DataFieldType.Decimal => "decimal",
-            DataFieldType.Guid => "Guid",
-            DataFieldType.Binary => "byte[]",
-            _ => throw new NotImplementedException(field.DataType.ToString())
+            EntityFieldType.String => "string",
+            EntityFieldType.Bool => "bool",
+            EntityFieldType.Byte => "byte",
+            EntityFieldType.Short => "short",
+            EntityFieldType.Int => "int",
+            EntityFieldType.Long => "long",
+            EntityFieldType.Float => "float",
+            EntityFieldType.Double => "double",
+            EntityFieldType.DateTime => "DateTime",
+            EntityFieldType.Decimal => "decimal",
+            EntityFieldType.Guid => "Guid",
+            EntityFieldType.Binary => "byte[]",
+            _ => throw new NotImplementedException(field.FieldType.ToString())
         };
         return field.AllowNull ? typeString + '?' : typeString;
     }
@@ -374,9 +374,9 @@ internal static class EntityCodeGenerator
     {
         switch (member.Type)
         {
-            case EntityMemberType.DataField:
-                var dfm = (DataFieldModel)member;
-                return dfm.DataType == DataFieldType.Enum ? "Int" : dfm.DataType.ToString();
+            case EntityMemberType.EntityField:
+                var dfm = (EntityFieldModel)member;
+                return dfm.FieldType == EntityFieldType.Enum ? "Int" : dfm.FieldType.ToString();
             case EntityMemberType.EntityRef: return "EntityRef";
             case EntityMemberType.EntitySet: return "EntitySet";
             default: throw new Exception();

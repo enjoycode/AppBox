@@ -22,9 +22,9 @@ partial class PgSqlStore
         sb.Append($"CREATE TABLE \"{tableName}\" (");
         foreach (var mm in model.Members)
         {
-            if (mm.Type == EntityMemberType.DataField)
+            if (mm.Type == EntityMemberType.EntityField)
             {
-                BuildFieldDefine((DataFieldModel)mm, sb, false);
+                BuildFieldDefine((EntityFieldModel)mm, sb, false);
                 sb.Append(',');
             }
             else if (mm.Type == EntityMemberType.EntityRef)
@@ -50,7 +50,7 @@ partial class PgSqlStore
             sb.Append(" PRIMARY KEY (");
             foreach (var pk in model.SqlStoreOptions.PrimaryKeys)
             {
-                var mm = (DataFieldModel)model.GetMember(pk.MemberId, true)!;
+                var mm = (EntityFieldModel)model.GetMember(pk.MemberId, true)!;
                 sb.Append($"\"{mm.SqlColName}\",");
             }
 
@@ -105,11 +105,11 @@ partial class PgSqlStore
             sb = StringBuilderCache.Acquire();
             foreach (var m in deletedMembers)
             {
-                if (m.Type == EntityMemberType.DataField)
+                if (m.Type == EntityMemberType.EntityField)
                 {
                     needCommand = true;
                     sb.AppendFormat("ALTER TABLE \"{0}\" DROP COLUMN \"{1}\";", tableName,
-                        ((DataFieldModel)m).SqlColOriginalName);
+                        ((EntityFieldModel)m).SqlColOriginalName);
                 }
                 else if (m.Type == EntityMemberType.EntityRef)
                 {
@@ -153,11 +153,11 @@ partial class PgSqlStore
             sb = StringBuilderCache.Acquire();
             foreach (var m in addedMembers)
             {
-                if (m.Type == EntityMemberType.DataField)
+                if (m.Type == EntityMemberType.EntityField)
                 {
                     needCommand = true;
                     sb.AppendFormat("ALTER TABLE \"{0}\" ADD COLUMN ", tableName);
-                    BuildFieldDefine((DataFieldModel)m, sb, false);
+                    BuildFieldDefine((EntityFieldModel)m, sb, false);
                     sb.Append(";");
                 }
                 else if (m.Type == EntityMemberType.EntityRef)
@@ -200,11 +200,11 @@ partial class PgSqlStore
 
             foreach (var m in changedMembers)
             {
-                if (m.Type == EntityMemberType.DataField)
+                if (m.Type == EntityMemberType.EntityField)
                 {
-                    DataFieldModel dfm = (DataFieldModel)m;
+                    EntityFieldModel dfm = (EntityFieldModel)m;
                     //先处理数据类型变更，变更类型或者变更AllowNull或者变更默认值
-                    if (dfm.IsDataTypeChanged)
+                    if (dfm.IsFieldTypeChanged)
                     {
                         sb = StringBuilderCache.Acquire();
                         sb.AppendFormat("ALTER TABLE \"{0}\" ALTER COLUMN ", tableName);
@@ -217,7 +217,7 @@ partial class PgSqlStore
                         }
                         else
                         {
-                            if (dfm.DataType == DataFieldType.Binary)
+                            if (dfm.FieldType == EntityFieldType.Binary)
                                 throw new Exception("Binary field must be allow null");
                             sb.AppendFormat(",ALTER COLUMN \"{0}\" SET NOT NULL",
                                 dfm.SqlColOriginalName);
@@ -268,62 +268,62 @@ partial class PgSqlStore
         };
     }
 
-    private static void BuildFieldDefine(DataFieldModel dfm, StringBuilder sb, bool forAlter)
+    private static void BuildFieldDefine(EntityFieldModel dfm, StringBuilder sb, bool forAlter)
     {
         var fieldName = forAlter ? dfm.SqlColOriginalName : dfm.SqlColName;
         sb.Append($"\"{fieldName}\" ");
         if (forAlter)
             sb.Append("TYPE ");
 
-        switch (dfm.DataType)
+        switch (dfm.FieldType)
         {
-            case DataFieldType.String:
+            case EntityFieldType.String:
                 sb.Append(dfm.Length == 0 ? "text " : $"varchar({dfm.Length}) ");
                 break;
-            case DataFieldType.DateTime:
+            case EntityFieldType.DateTime:
                 sb.Append("timestamptz ");
                 break;
-            case DataFieldType.Short:
+            case EntityFieldType.Short:
                 sb.Append("int2 ");
                 break;
-            case DataFieldType.Int:
+            case EntityFieldType.Int:
                 sb.Append("int4 ");
                 break;
-            case DataFieldType.Long:
+            case EntityFieldType.Long:
                 sb.Append("int8 ");
                 break;
-            case DataFieldType.Decimal:
+            case EntityFieldType.Decimal:
                 sb.AppendFormat("decimal({0},{1}) ", dfm.Length + dfm.Decimals, dfm.Decimals);
                 break;
-            case DataFieldType.Bool:
+            case EntityFieldType.Bool:
                 sb.Append("bool ");
                 break;
-            case DataFieldType.Guid:
+            case EntityFieldType.Guid:
                 sb.Append("uuid ");
                 break;
-            case DataFieldType.Byte:
+            case EntityFieldType.Byte:
                 sb.Append("int2 ");
                 break;
-            case DataFieldType.Enum:
+            case EntityFieldType.Enum:
                 sb.Append("int4 ");
                 break;
-            case DataFieldType.Float:
+            case EntityFieldType.Float:
                 sb.Append("float4 ");
                 break;
-            case DataFieldType.Double:
+            case EntityFieldType.Double:
                 sb.Append("float8 ");
                 break;
-            case DataFieldType.Binary:
+            case EntityFieldType.Binary:
                 sb.Append("bytea ");
                 break;
             default:
                 throw new NotImplementedException(
-                    $"PgSqlStore.BuildFieldDefine with type: {dfm.DataType}");
+                    $"PgSqlStore.BuildFieldDefine with type: {dfm.FieldType}");
         }
 
         if (!dfm.AllowNull && !forAlter)
         {
-            if (dfm.DataType == DataFieldType.Binary)
+            if (dfm.FieldType == EntityFieldType.Binary)
                 throw new Exception("Binary field must be allow null");
 
             sb.Append("NOT NULL ");
@@ -340,7 +340,7 @@ partial class PgSqlStore
         rsb.Append($"ALTER TABLE \"{tableName}\" ADD CONSTRAINT \"{fkName}\" FOREIGN KEY (");
         for (var i = 0; i < rm.FKMemberIds.Length; i++)
         {
-            var fk = (DataFieldModel)rm.Owner.GetMember(rm.FKMemberIds[i], true)!;
+            var fk = (EntityFieldModel)rm.Owner.GetMember(rm.FKMemberIds[i], true)!;
             if (i != 0) rsb.Append(',');
             rsb.Append($"\"{fk.SqlColName}\"");
         }
@@ -348,7 +348,7 @@ partial class PgSqlStore
         rsb.Append($") REFERENCES \"{refModel.GetSqlTableName(false, ctx)}\" ("); //引用目标使用新名称
         for (var i = 0; i < refModel.SqlStoreOptions!.PrimaryKeys.Length; i++)
         {
-            var pk = (DataFieldModel)refModel.GetMember(
+            var pk = (EntityFieldModel)refModel.GetMember(
                 refModel.SqlStoreOptions!.PrimaryKeys[i].MemberId, true)!;
             if (i != 0) rsb.Append(',');
             rsb.Append($"\"{pk.SqlColName}\"");
@@ -389,7 +389,7 @@ partial class PgSqlStore
             for (var i = 0; i < index.Fields.Length; i++)
             {
                 if (i != 0) sb.Append(',');
-                var dfm = (DataFieldModel)model.GetMember(index.Fields[i].MemberId, true)!;
+                var dfm = (EntityFieldModel)model.GetMember(index.Fields[i].MemberId, true)!;
                 sb.Append($"\"{dfm.SqlColName}\"");
                 if (index.Fields[i].OrderByDesc) sb.Append(" DESC");
             }

@@ -736,8 +736,8 @@ partial class PgSqlStore
             {
                 var e = (EntityFieldExpression)exp;
                 var model = RuntimeContext.GetModelAsync<EntityModel>(e.Owner.ModelID).Result;
-                var fieldModel = (DataFieldModel)model.GetMember(e.Name, true);
-                return fieldModel.DataType == DataFieldType.String;
+                var fieldModel = (EntityFieldModel)model.GetMember(e.Name, true);
+                return fieldModel.FieldType == EntityFieldType.String;
             }
             case ExpressionType.PrimitiveExpression:
                 return ((PrimitiveExpression)exp).Value is string;

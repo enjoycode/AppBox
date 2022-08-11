@@ -6,7 +6,7 @@ namespace AppBoxCore;
 public abstract class TypeSerializer
 {
     /// <summary>
-    /// 用于实体DataField成员不写入附加范型信息
+    /// 用于实体EntityField成员不写入附加范型信息
     /// </summary>
     private readonly bool _notWriteAttachInfo = false;
 

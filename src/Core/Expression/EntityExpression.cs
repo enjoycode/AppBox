@@ -58,7 +58,7 @@ public sealed class EntityExpression : EntityPathExpression
             {
                 switch (m.Type)
                 {
-                    case EntityMemberType.DataField:
+                    case EntityMemberType.EntityField:
                         //case EntityMemberType.Formula:
                         //case EntityMemberType.Aggregate:
                         //case EntityMemberType.AutoNumber:
