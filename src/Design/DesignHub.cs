@@ -6,7 +6,7 @@ public sealed class DesignHub : IDesignContext, IDisposable
 {
     static DesignHub()
     {
-        //注册设计时序列化器，仅用于向前端序列化，不需要反序列化
+        //注册设计时序列化器，仅用于向前端序列化，大部分不需要反序列化
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityModelVO,
             typeof(EntityModelVO)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityFieldVO,
@@ -21,6 +21,9 @@ public sealed class DesignHub : IDesignContext, IDisposable
             typeof(GetCompletion.CompletionItem)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ChangedModel,
             typeof(ChangedModel)));
+
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.FieldWithOrder,
+            typeof(FieldWithOrder), () => new FieldWithOrder()));
     }
 
     public DesignHub(IDeveloperSession session)

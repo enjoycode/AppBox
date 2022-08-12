@@ -8,9 +8,11 @@ namespace AppBoxDesign
     {
         public abstract EntityMemberType Type { get; }
         public short Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public bool AllowNull { get; set; }
         public string? Comment { get; set; }
+
+        public override string ToString() => Name;
 
 #if __APPBOXDESIGN__
         protected void FetchFrom(EntityMemberModel model)

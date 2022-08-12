@@ -26,7 +26,7 @@ namespace AppBoxDesign
                                     () => new MembersDesigner(_entityModel!, _membersController,
                                         _selectedMember))
                                 .When(t => t == 1,
-                                    () => new SqlStoreOptionsDesigner(_entityModel!))
+                                    () => new SqlStoreOptionsDesigner(_entityModel!, _modelNode.Id))
                         )
                     },
                 }
@@ -144,7 +144,7 @@ namespace AppBoxDesign
 
         public Task SaveAsync()
         {
-            throw new System.NotImplementedException();
+            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { _modelNode.Id });
         }
     }
 }

@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using AppBoxClient;
 using AppBoxCore;
 using PixUI;
 
@@ -6,9 +8,10 @@ namespace AppBoxDesign;
 
 internal sealed class SqlStoreOptionsDesigner : View
 {
-    internal SqlStoreOptionsDesigner(EntityModelVO entityModel)
+    internal SqlStoreOptionsDesigner(EntityModelVO entityModel, string modelId)
     {
         _entityModel = entityModel;
+        _modelId = modelId;
         _pkController.DataSource = _entityModel.SqlStoreOptions.PrimaryKeys;
         _idxController.DataSource = _entityModel.SqlStoreOptions.Indexes;
 
@@ -25,8 +28,8 @@ internal sealed class SqlStoreOptionsDesigner : View
                     {
                         Children = new[]
                         {
-                            new Button("Add", Icons.Filled.Add),
-                            new Button("Remove", Icons.Filled.Remove)
+                            new Button("Add", Icons.Filled.Add) { OnTap = OnAddPk },
+                            new Button("Remove", Icons.Filled.Remove) { OnTap = OnRemovePk }
                         }
                     },
                     new DataGrid<FieldWithOrder>(_pkController)
@@ -70,6 +73,7 @@ internal sealed class SqlStoreOptionsDesigner : View
     }
 
     private readonly EntityModelVO _entityModel;
+    private readonly string _modelId;
     private readonly DataGridController<FieldWithOrder> _pkController = new();
     private readonly DataGridController<SqlIndexModelVO> _idxController = new();
 
@@ -86,5 +90,45 @@ internal sealed class SqlStoreOptionsDesigner : View
         }
 
         return s;
+    }
+
+    private void OnAddPk(PointerEvent e)
+    {
+        var dlg = new FieldWithOrderDialog(Overlay!, _entityModel, (cancel, fieldWithOrder) =>
+        {
+            if (cancel) return;
+            _pkController.Add(fieldWithOrder);
+            ChangePrimaryKeys();
+        });
+        dlg.Show();
+    }
+
+    private void OnRemovePk(PointerEvent e)
+    {
+        var selection = _pkController.SelectedRows;
+        if (selection.Length == 0) return;
+
+        _pkController.Remove(selection[0]);
+        ChangePrimaryKeys();
+    }
+
+    private async void ChangePrimaryKeys()
+    {
+        var args = new object?[]
+        {
+            _modelId,
+            _entityModel.SqlStoreOptions.PrimaryKeys.Count == 0
+                ? null
+                : _entityModel.SqlStoreOptions.PrimaryKeys.ToArray()
+        };
+        try
+        {
+            await Channel.Invoke("sys.DesignService.ChangePrimaryKeys", args);
+        }
+        catch (Exception ex)
+        {
+            //TODO: rollback to pre state
+            Notification.Error($"Change primary keys error: {ex.Message}");
+        }
     }
 }
