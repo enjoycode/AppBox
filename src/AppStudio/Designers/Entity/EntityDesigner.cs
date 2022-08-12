@@ -10,6 +10,7 @@ namespace AppBoxDesign
         public EntityDesigner(ModelNode modelNode)
         {
             _modelNode = modelNode;
+            _membersController.SelectionChanged += OnMemberSelectionChanged;
 
             Child = new Column()
             {
@@ -19,10 +20,13 @@ namespace AppBoxDesign
                     new Expanded()
                     {
                         //TODO: use FutureBuilder
-                        Child = new IfConditional(_loaded, () => new Conditional<int>(_activePad)
-                            .When(t => t == 0,
-                                () => new MembersDesigner(_entityModel!, _membersController))
-                            .When(t => t == 1, () => new SqlStoreOptionsDesigner(_entityModel!))
+                        Child = new IfConditional(_loaded, () =>
+                            new Conditional<int>(_activePad)
+                                .When(t => t == 0,
+                                    () => new MembersDesigner(_entityModel!, _membersController,
+                                        _selectedMember))
+                                .When(t => t == 1,
+                                    () => new SqlStoreOptionsDesigner(_entityModel!))
                         )
                     },
                 }
@@ -37,6 +41,7 @@ namespace AppBoxDesign
         internal ModelNode ModelNode => _modelNode;
 
         private readonly DataGridController<EntityMemberVO> _membersController = new();
+        private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);
 
         private Widget BuildActionBar()
         {
@@ -65,7 +70,8 @@ namespace AppBoxDesign
                                 Children = new[]
                                 {
                                     new Button("Add", Icons.Filled.Add) { OnTap = OnAddMember },
-                                    new Button("Remove", Icons.Filled.Delete),
+                                    new Button("Remove", Icons.Filled.Delete)
+                                        { OnTap = OnDeleteMember },
                                     new Button("Rename", Icons.Filled.Edit),
                                     new Button("Usages", Icons.Filled.Link),
                                 }
@@ -100,17 +106,41 @@ namespace AppBoxDesign
             }
         }
 
+        #region ====Event Handlers====
+
+        private void OnMemberSelectionChanged()
+        {
+            _selectedMember.Value = _membersController.SelectedRows.Length == 0
+                ? null
+                : _membersController.SelectedRows[0];
+        }
+
         private void OnAddMember(PointerEvent e)
         {
             var dlg = new NewEntityMemberDialog(Overlay!, this);
             dlg.Show();
         }
 
-        internal void OnMemberAdded(EntityMemberVO member)
+        internal void OnMemberAdded(EntityMemberVO member) => _membersController.Add(member);
+
+        private async void OnDeleteMember(PointerEvent e)
         {
-            _entityModel!.Members.Add(member);
-            _membersController.DataSource = _entityModel!.Members; //TODO: use Refresh()
+            if (_selectedMember.Value == null) return;
+
+            var args = new object?[] { _modelNode.Id, _selectedMember.Value.Name };
+            try
+            {
+                await Channel.Invoke("sys.DesignService.DeleteEntityMember", args);
+                //TODO: 如果EntityRef移除相关隐藏成员
+                _membersController.Remove(_selectedMember.Value);
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"Delete member error: {ex.Message}");
+            }
         }
+
+        #endregion
 
         public Task SaveAsync()
         {

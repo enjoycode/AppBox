@@ -10,12 +10,12 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
     public EntityModel() { }
     public EntityModel(ModelId id, string name) : base(id, name) { }
 
-    public const short MaxMemberId = 512;
+    private const short MaxMemberId = 512;
 
     private short _devMemberIdSeq;
     private short _usrMemberIdSeq;
     private readonly List<EntityMemberModel> _members = new(); ////注意已按memberId排序
-    private IEntityStoreOptions? _storeOptions = null;
+    private IEntityStoreOptions? _storeOptions;
 
     public IReadOnlyList<EntityMemberModel> Members => _members;
 
@@ -76,7 +76,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     #region ====Design Methods====
 
-    public void BindToSqlStore(long storeId)
+    internal void BindToSqlStore(long storeId)
     {
         _storeOptions = new SqlStoreOptions(this, storeId);
     }
@@ -84,7 +84,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
     /// <summary>
     /// Only for StoreInitiator
     /// </summary>
-    public void AddSysMember(EntityMemberModel member, short id)
+    internal void AddSysMember(EntityMemberModel member, short id)
     {
         CheckDesignMode();
         member.InitMemberId(id); //已处理Layer标记
@@ -92,7 +92,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         _members.Sort((a, b) => a.MemberId.CompareTo(b.MemberId));
     }
 
-    public void AddMember(EntityMemberModel member, bool byImport = false)
+    internal void AddMember(EntityMemberModel member, bool byImport = false)
     {
         CheckDesignMode();
         Debug.Assert(member.Owner == this);
@@ -120,7 +120,50 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         OnPropertyChanged();
     }
 
-    public void ChangeSchemaVersion()
+    /// <summary>
+    /// 删除成员，如果是EntityRef包含其隐藏成员
+    /// </summary>
+    internal void RemoveMember(EntityMemberModel member)
+    {
+        CheckDesignMode();
+
+        //如果实体是新建的或成员是新建的直接移除
+        if (PersistentState == PersistentState.Detached ||
+            member.PersistentState == PersistentState.Detached)
+        {
+            if (member is EntityRefModel entityRef)
+            {
+                foreach (var fk in entityRef.FKMemberIds)
+                {
+                    _members.Remove(GetMember(fk)!);
+                }
+
+                if (entityRef.IsAggregationRef)
+                    _members.Remove(GetMember(entityRef.TypeMemberId)!);
+            }
+
+            _members.Remove(member);
+            return;
+        }
+
+        //否则仅标为删除状态
+        member.AsDeleted();
+        if (member is EntityRefModel entityRefModel)
+        {
+            foreach (var fk in entityRefModel.FKMemberIds)
+            {
+                GetMember(fk)!.AsDeleted();
+            }
+
+            if (entityRefModel.IsAggregationRef)
+                GetMember(entityRefModel.TypeMemberId)!.AsDeleted();
+        }
+
+        ChangeSchemaVersion();
+        OnPropertyChanged();
+    }
+
+    internal void ChangeSchemaVersion()
     {
         // if (persistentState() != PersistentState.Detached && sysStoreOptions() != null) {
         //     ((SysStoreOptions) _storeOptions).changeSchemaVersion();
@@ -268,5 +311,4 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
     }
 
     #endregion
-    
 }

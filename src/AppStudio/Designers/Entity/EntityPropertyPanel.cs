@@ -23,8 +23,7 @@ internal sealed class RxEntityField : RxObject<EntityFieldVO>
 /// </summary>
 internal sealed class EntityPropertyPanel : View
 {
-    public EntityPropertyPanel(EntityModelVO entityModel,
-        State<EntityMemberVO?> selectedMember)
+    public EntityPropertyPanel(EntityModelVO entityModel, State<EntityMemberVO?> selectedMember)
     {
         _entityModel = entityModel;
         _selectedMember = Bind(selectedMember, BindingOptions.None);
@@ -64,7 +63,7 @@ internal sealed class EntityPropertyPanel : View
         };
     }
 
-    private readonly float _labelWidth = 120f;
+    private const float _labelWidth = 120f;
     private readonly EntityModelVO _entityModel;
     private readonly State<EntityMemberVO?> _selectedMember;
     private readonly RxEntityField _rxEntityField = new RxEntityField();

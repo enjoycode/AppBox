@@ -41,6 +41,21 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         return _primaryKeys != null && _primaryKeys.Any(t => t.MemberId == memberId);
     }
 
+    public bool IsUsedByIndexes(short memberId)
+    {
+        if (!HasIndexes) return false;
+        foreach (var idx in _indexes!)
+        {
+            if (idx.PersistentState == PersistentState.Deleted) continue; //暂跳过已删除的
+            if (idx.Fields.Any(f => f.MemberId == memberId))
+                return true;
+            if (idx.HasStoringFields && idx.StoringFields!.Contains(memberId))
+                return true;
+        }
+
+        return false;
+    }
+
     #endregion
 
     #region ====Design Methods====

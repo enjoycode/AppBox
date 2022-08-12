@@ -4,7 +4,8 @@ public sealed class EntityFieldModel : EntityMemberModel
 {
     internal EntityFieldModel(EntityModel owner) : base(owner, string.Empty, false) { }
 
-    public EntityFieldModel(EntityModel owner, string name, EntityFieldType fieldType, bool allowNull) :
+    public EntityFieldModel(EntityModel owner, string name, EntityFieldType fieldType,
+        bool allowNull) :
         base(owner, name, allowNull)
     {
         _fieldType = fieldType;
@@ -71,6 +72,14 @@ public sealed class EntityFieldModel : EntityMemberModel
             _allowNull = value;
             OnFieldTypeChanged(); //TODO: !allowNull -> allowNull
         }
+    }
+
+    public bool IsUsedByIndexes()
+    {
+        //TODO: other db type
+        if (Owner.SqlStoreOptions != null)
+            return Owner.SqlStoreOptions.IsUsedByIndexes(MemberId);
+        return false;
     }
 
     // public void SetDefaultValue(string value)

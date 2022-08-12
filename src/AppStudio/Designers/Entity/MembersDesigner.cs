@@ -7,11 +7,9 @@ namespace AppBoxDesign
     internal sealed class MembersDesigner : View
     {
         public MembersDesigner(EntityModelVO entityModel,
-            DataGridController<EntityMemberVO> membersController)
+            DataGridController<EntityMemberVO> membersController, 
+            State<EntityMemberVO?> selectedMember)
         {
-            _membersController = membersController;
-            _membersController.SelectionChanged += OnSelectedMemberChanged;
-
             Child = new Row()
             {
                 Children = new Widget[]
@@ -38,20 +36,10 @@ namespace AppBoxDesign
                     {
                         BgColor = new Color(0xFFF3F3F3),
                         Width = 280,
-                        Child = new EntityPropertyPanel(entityModel, _selectedMember)
+                        Child = new EntityPropertyPanel(entityModel, selectedMember)
                     }
                 }
             };
-        }
-
-        private readonly DataGridController<EntityMemberVO> _membersController;
-        private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);
-
-        private void OnSelectedMemberChanged()
-        {
-            _selectedMember.Value = _membersController.SelectedRows.Length == 0
-                ? null
-                : _membersController.SelectedRows[0];
         }
 
         private static string MemberTypeToString(EntityMemberVO member)
