@@ -90,8 +90,8 @@ namespace PixUI
                 var newEmpty = value == null ? true : value.Count == 0;
 
                 _dataSource = value;
-                ClearCacheOnDataSourceChanged();
-                
+                ClearAllCache();
+
                 if (oldEmpty && newEmpty) return;
                 _owner?.Invalidate(InvalidAction.Repaint);
             }
@@ -136,13 +136,20 @@ namespace PixUI
 
         public event Action? SelectionChanged;
 
+        public void ClearSelection()
+        {
+            _selectedRows.Clear();
+            _cachedHitInRows = null;
+            SelectionChanged?.Invoke();
+        }
+
         #endregion
 
         #region ====Event Handles====
 
         public void Invalidate() => _owner?.Invalidate(InvalidAction.Repaint);
 
-        private void ClearCacheOnDataSourceChanged()
+        private void ClearAllCache()
         {
             //TODO:暂所有列，考虑仅可见列
             foreach (var column in _cachedLeafColumns)
@@ -486,6 +493,34 @@ namespace PixUI
             {
                 leafColumns.Add(column);
             }
+        }
+
+        #endregion
+
+        #region ====Add / Remove / Refresh=====
+
+        public void Add(T item)
+        {
+            _dataSource!.Add(item);
+            _owner?.Invalidate(InvalidAction.Repaint);
+        }
+
+        public void Remove(T item)
+        {
+            //var rowIndex = _dataSource!.IndexOf(item);
+            _dataSource!.Remove(item);
+            ClearSelection();
+            ClearAllCache(); //TODO:仅移除并重设缓存
+            _owner?.Invalidate(InvalidAction.Repaint);
+        }
+
+        /// <summary>
+        /// 清除缓存并重绘
+        /// </summary>
+        public void Refresh()
+        {
+            ClearAllCache();
+            _owner?.Invalidate(InvalidAction.Repaint);
         }
 
         #endregion
