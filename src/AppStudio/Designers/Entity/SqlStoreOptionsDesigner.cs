@@ -18,11 +18,31 @@ internal sealed class SqlStoreOptionsDesigner : View
         Child = new Container()
         {
             Padding = EdgeInsets.All(8),
+            Child = new Row(VerticalAlignment.Top, 10)
+            {
+                Children = new Widget[]
+                {
+                    new Expanded(BuildPrimaryKeysPannel()),
+                    new Expanded(BuildIndexesPannel()),
+                }
+            }
+        };
+    }
+
+    private readonly EntityModelVO _entityModel;
+    private readonly string _modelId;
+    private readonly DataGridController<FieldWithOrder> _pkController = new();
+    private readonly DataGridController<SqlIndexModelVO> _idxController = new();
+
+    private Widget BuildPrimaryKeysPannel()
+    {
+        return new Card()
+        {
+            Padding = EdgeInsets.All(10),
             Child = new Column(HorizontalAlignment.Left, 10)
             {
                 Children = new Widget[]
                 {
-                    // Primary keys
                     new Text("Primary Keys:") { FontSize = 20, FontWeight = FontWeight.Bold },
                     new ButtonGroup()
                     {
@@ -34,7 +54,6 @@ internal sealed class SqlStoreOptionsDesigner : View
                     },
                     new DataGrid<FieldWithOrder>(_pkController)
                     {
-                        Height = 112,
                         Columns = new DataGridColumn<FieldWithOrder>[]
                         {
                             new DataGridTextColumn<FieldWithOrder>("Name",
@@ -42,9 +61,21 @@ internal sealed class SqlStoreOptionsDesigner : View
                             new DataGridCheckboxColumn<FieldWithOrder>("OrderByDesc",
                                 t => t.OrderByDesc),
                         }
-                    },
+                    }
+                }
+            }
+        };
+    }
 
-                    //Indexes
+    private Widget BuildIndexesPannel()
+    {
+        return new Card()
+        {
+            Padding = EdgeInsets.All(10),
+            Child = new Column(HorizontalAlignment.Left, 10)
+            {
+                Children = new Widget[]
+                {
                     new Text("Indexes:") { FontSize = 20, FontWeight = FontWeight.Bold },
                     new ButtonGroup()
                     {
@@ -56,7 +87,6 @@ internal sealed class SqlStoreOptionsDesigner : View
                     },
                     new DataGrid<SqlIndexModelVO>(_idxController)
                     {
-                        Height = 112,
                         Columns = new DataGridColumn<SqlIndexModelVO>[]
                         {
                             new DataGridTextColumn<SqlIndexModelVO>("Name",
@@ -71,11 +101,6 @@ internal sealed class SqlStoreOptionsDesigner : View
             }
         };
     }
-
-    private readonly EntityModelVO _entityModel;
-    private readonly string _modelId;
-    private readonly DataGridController<FieldWithOrder> _pkController = new();
-    private readonly DataGridController<SqlIndexModelVO> _idxController = new();
 
     private string GetIndexesFieldsList(SqlIndexModelVO indexMode)
     {
