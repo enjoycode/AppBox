@@ -64,9 +64,13 @@ namespace PixUI
             }
 
             var margin = _margin?.Value ?? EdgeInsets.All(DefaultMargin);
-            Child.Layout(width - margin.Left - margin.Right, height - margin.Top - margin.Bottom);
-            Child.SetPosition(margin.Left, margin.Top);
-            SetSize(Child.W + margin.Left + margin.Right, Child.H + margin.Top + margin.Bottom);
+            var padding = Padding?.Value ?? EdgeInsets.All(0);
+
+            Child.Layout(width - margin.Horizontal - padding.Horizontal,
+                height - margin.Vertical - padding.Vertical);
+            Child.SetPosition(margin.Left + padding.Left, margin.Top + padding.Top);
+            SetSize(Child.W + margin.Horizontal + padding.Horizontal,
+                Child.H + margin.Vertical + padding.Vertical);
         }
 
         protected internal override IClipper? Clipper
