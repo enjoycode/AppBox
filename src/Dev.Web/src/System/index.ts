@@ -9,6 +9,7 @@ export * from './Random'
 export * from './Exceptions'
 export * from './DateTime'
 export * from './Guid'
+export * from './TaskCompletionSource'
 
 export * from './Collections/IList'
 export * from './Collections/List'
