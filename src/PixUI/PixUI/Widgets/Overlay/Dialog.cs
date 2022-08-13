@@ -1,20 +1,42 @@
 using System;
+using System.Threading.Tasks;
 
 namespace PixUI
 {
-    public abstract class Dialog<T> : Popup
+    public abstract class Dialog : Popup
     {
-        protected Dialog(Overlay overlay, Action<bool, T?>? onClose = null) :
-            base(overlay)
+        protected Dialog(Overlay? overlay = null) : base(overlay ?? UIWindow.Current.Overlay)
         {
-            OnClose = onClose;
             //注意不在这里构建WidgetTree,参照以下OnMounted时的说明
         }
 
         private Card? _child;
         protected readonly State<string> Title = "";
-        protected Action<bool, T?>? OnClose;
+        private TaskCompletionSource<bool>? _closeDone;
+
         protected sealed override bool IsDialog => true;
+
+        #region ====Build====
+
+        private void TryBuildChild()
+        {
+            if (_child != null) return;
+
+            _child = new Card()
+            {
+                Elevation = 20,
+                Child = new Column()
+                {
+                    Children = new[]
+                    {
+                        BuildTitle(),
+                        new Expanded(BuildBody()),
+                        BuildFooter()
+                    }
+                }
+            };
+            _child.Parent = this;
+        }
 
         private Widget BuildTitle()
         {
@@ -39,18 +61,62 @@ namespace PixUI
 
         protected abstract Widget BuildBody();
 
-        protected abstract T? GetResult(bool canceled);
+        /// <summary>
+        /// 构建对话框的Footer, 必须指定高度
+        /// </summary>
+        protected virtual Widget BuildFooter()
+        {
+            return new Container()
+            {
+                Height = Button.DefaultHeight + 20 + 20,
+                Padding = EdgeInsets.All(20),
+                Child = new Row(VerticalAlignment.Middle, 20)
+                {
+                    Children = new Widget[]
+                    {
+                        new Expanded(),
+                        new Button("Cancel") { Width = 80, OnTap = _ => Close(true) },
+                        new Button("OK") { Width = 80, OnTap = _ => Close(false) }
+                    }
+                }
+            };
+        }
+
+        #endregion
+
+        #region ====Show & Close====
 
         public void Show()
             => base.Show(null, null, DialogTransitionBuilder);
 
-        public void Close(bool canceled)
+        /// <summary>
+        /// 显示并等待关闭
+        /// </summary>
+        /// <returns>false=canceled</returns>
+        public Task<bool> ShowAndWaitClose()
         {
-            Hide();
-            OnClose?.Invoke(canceled, GetResult(canceled));
+            Show();
+            _closeDone = new TaskCompletionSource<bool>();
+            return _closeDone.Task;
         }
 
-        #region ====Overrides====
+        /// <summary>
+        /// 关闭前处理
+        /// </summary>
+        /// <returns>true=abort close</returns>
+        protected virtual bool OnClosing(bool canceled) => false;
+
+        protected void Close(bool canceled)
+        {
+            if (OnClosing(canceled)) return; //aborted
+            
+            Hide();
+            _closeDone?.SetResult(canceled);
+        }
+
+        #endregion
+
+        #region ====Widget Overrides====
 
         protected override void OnMounted()
         {
@@ -63,25 +129,6 @@ namespace PixUI
             // }
             TryBuildChild();
             base.OnMounted();
-        }
-
-        private void TryBuildChild()
-        {
-            if (_child != null) return;
-
-            _child = new Card()
-            {
-                Elevation = 20,
-                Child = new Column()
-                {
-                    Children = new[]
-                    {
-                        BuildTitle(),
-                        BuildBody(),
-                    }
-                }
-            };
-            _child.Parent = this;
         }
 
         public override void VisitChildren(Func<Widget, bool> action) => action(_child!);

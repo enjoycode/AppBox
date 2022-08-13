@@ -5,25 +5,22 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class NewEntityMemberDialog : Dialog<object>
+internal sealed class NewEntityMemberDialog : Dialog
 {
-    public NewEntityMemberDialog(Overlay overlay, EntityDesigner designer) : base(overlay)
+    public NewEntityMemberDialog()
     {
-        _designer = designer;
         Width = 380;
         Height = 280;
         Title.Value = "New Entity Member";
-        OnClose = _OnClose;
     }
 
     private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
     private static readonly string[] FieldTypes = { "String", "Int", "Long", "Float", "Double" };
 
-    private readonly EntityDesigner _designer;
-    private readonly State<string> _name = string.Empty;
+    internal readonly State<string> Name = string.Empty;
+    internal readonly State<bool> AllowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
-    private readonly State<bool> _allowNull = false;
 
     protected override Widget BuildBody()
     {
@@ -40,7 +37,7 @@ internal sealed class NewEntityMemberDialog : Dialog<object>
                         Padding = EdgeInsets.Only(5, 5, 5, 0),
                         Children = new[]
                         {
-                            new FormItem("Name:", new Input(_name)),
+                            new FormItem("Name:", new Input(Name)),
                             new FormItem("MemberType:", new Select<string>(_memberType!)
                             {
                                 Options = MemberTypes
@@ -56,26 +53,16 @@ internal sealed class NewEntityMemberDialog : Dialog<object>
                                 {
                                     new FormItem("FieldType:",
                                         new Select<string>(_fieldType!) { Options = FieldTypes }),
-                                    new FormItem("AllowNull:", new Checkbox(_allowNull))
+                                    new FormItem("AllowNull:", new Checkbox(AllowNull))
                                 }
                             }
                         ),
-                    new Row(VerticalAlignment.Middle, 20)
-                    {
-                        Children = new Widget[]
-                        {
-                            new Button("Cancel") { Width = 65, OnTap = _ => Close(true) },
-                            new Button("OK") { Width = 65, OnTap = _ => Close(false) },
-                        }
-                    }
                 }
             }
         };
     }
 
-    protected override object? GetResult(bool canceled) => null;
-
-    private int GetMemberTypeValue()
+    internal int GetMemberTypeValue()
     {
         switch (_memberType.Value)
         {
@@ -86,7 +73,7 @@ internal sealed class NewEntityMemberDialog : Dialog<object>
         }
     }
 
-    private int GetFieldTypeValue()
+    internal int GetFieldTypeValue()
     {
         switch (_fieldType.Value)
         {
@@ -96,34 +83,6 @@ internal sealed class NewEntityMemberDialog : Dialog<object>
             case "Float": return (int)EntityFieldType.Float;
             case "Double": return (int)EntityFieldType.Double;
             default: throw new NotImplementedException();
-        }
-    }
-
-    private async void _OnClose(bool canceled, object? result)
-    {
-        if (canceled) return;
-        if (string.IsNullOrEmpty(_name.Value)) return;
-
-        var memberType = GetMemberTypeValue();
-        object?[] args;
-        if (memberType == (int)EntityMemberType.EntityField)
-            args = new object?[]
-            {
-                _designer.ModelNode.Id, _name.Value, memberType, GetFieldTypeValue(),
-                _allowNull.Value
-            };
-        else
-            throw new NotImplementedException();
-
-        try
-        {
-            var res = await Channel.Invoke<EntityMemberVO>("sys.DesignService.NewEntityMember",
-                args);
-            _designer.OnMemberAdded(res!);
-        }
-        catch (Exception e)
-        {
-            Notification.Error($"新建实体成员错误: {e.Message}");
         }
     }
 }

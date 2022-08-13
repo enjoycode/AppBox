@@ -6,14 +6,11 @@ namespace AppBoxDesign
 {
     public static class Commands
     {
-        public static readonly Action NewEntityCommand = () =>
-            new NewEntityDialog(UIWindow.Current.Overlay).Show();
+        public static readonly Action NewEntityCommand = () => new NewEntityDialog().Show();
 
-        public static readonly Action NewServiceCommand = () =>
-            new NewDialog(UIWindow.Current.Overlay, "Service").Show();
+        public static readonly Action NewServiceCommand = () => new NewDialog("Service").Show();
 
-        public static readonly Action NewViewCommand = () =>
-            new NewDialog(UIWindow.Current.Overlay, "View").Show();
+        public static readonly Action NewViewCommand = () => new NewDialog("View").Show();
 
         public static readonly Action CheckoutCommand = Checkout;
 
@@ -21,8 +18,7 @@ namespace AppBoxDesign
 
         public static readonly Action DeleteCommand = Delete;
 
-        public static readonly Action PublishCommand = () =>
-            new PublishDialog(UIWindow.Current.Overlay).Show();
+        public static readonly Action PublishCommand = () => new PublishDialog().Show();
 
         public static readonly Action NotImplCommand = () => Notification.Error("暂未实现");
 

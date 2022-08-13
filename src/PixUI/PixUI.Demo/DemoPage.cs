@@ -120,14 +120,11 @@ namespace PixUI.Demo
                 _listPopup?.Hide();
         }
 
-        private void OnButton2Tap(PointerEvent e)
+        private async void OnButton2Tap(PointerEvent e)
         {
-            var dlg = new DemoDialog(Overlay!,
-                (canceled, res) =>
-                {
-                    Console.WriteLine(canceled ? "Dialog closed" : $"Dialog closed: {res}");
-                });
-            dlg.Show();
+            var dlg = new DemoDialog();
+            var canceled = await dlg.ShowAndWaitClose();
+            Console.WriteLine($"Dialog closed: {canceled}");
         }
 
         private void OnListPopupSelectionChanged(Person? person)

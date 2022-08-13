@@ -2,16 +2,17 @@ using System;
 
 namespace PixUI.Demo
 {
-    public sealed class DemoDialog : Dialog<string>
+    public sealed class DemoDialog : Dialog
     {
-        public DemoDialog(Overlay overlay, Action<bool, string?> onClose) : base(overlay, onClose)
+        public DemoDialog()
         {
             Width = 400;
             Height = 300;
             Title.Value = "Demo Dialog";
         }
 
-        private readonly State<string> _result = "";
+        private readonly State<string> _user = "";
+        private readonly State<string> _password = "";
 
         protected override Widget BuildBody()
         {
@@ -22,20 +23,11 @@ namespace PixUI.Demo
                 {
                     Children = new Widget[]
                     {
-                        new Input(_result),
-                        new Row(VerticalAlignment.Middle, 20)
-                        {
-                            Children = new Widget[]
-                            {
-                                new Button("OK") { OnTap = _ => Close(false) },
-                                new Button("Cancel") { OnTap = _ => Close(true) }
-                            }
-                        }
+                        new Input(_user) { HintText = "User" },
+                        new Input(_password) { HintText = "Password", IsObscure = true }
                     }
                 }
             };
         }
-
-        protected override string? GetResult(bool canceled) => canceled ? null : _result.Value;
     }
 }

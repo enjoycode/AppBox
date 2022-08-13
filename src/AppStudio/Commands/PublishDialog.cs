@@ -5,14 +5,13 @@ using PixUI;
 
 namespace AppBoxDesign
 {
-    internal sealed class PublishDialog : Dialog<bool>
+    internal sealed class PublishDialog : Dialog
     {
-        public PublishDialog(Overlay overlay) : base(overlay)
+        public PublishDialog()
         {
             Width = 400;
             Height = 300;
             Title.Value = "Publish";
-            OnClose = _OnClose;
         }
 
         private readonly DataGridController<ChangedModel> _dataGridController =
@@ -23,30 +22,13 @@ namespace AppBoxDesign
             return new Container()
             {
                 Padding = EdgeInsets.All(20),
-                Child = new Column(HorizontalAlignment.Right, 20)
+                Child = new DataGrid<ChangedModel>(_dataGridController)
                 {
-                    Children = new Widget[]
+                    Columns = new DataGridColumn<ChangedModel>[]
                     {
-                        new Expanded()
-                        {
-                            Child = new DataGrid<ChangedModel>(_dataGridController)
-                            {
-                                Columns = new DataGridColumn<ChangedModel>[]
-                                {
-                                    new DataGridTextColumn<ChangedModel>("ModelType",
-                                        v => v.ModelType),
-                                    new DataGridTextColumn<ChangedModel>("ModelId", v => v.ModelId),
-                                }
-                            }
-                        },
-                        new Row(VerticalAlignment.Middle, 20)
-                        {
-                            Children = new Widget[]
-                            {
-                                new Button("Cancel") { OnTap = _ => Close(true) },
-                                new Button("OK") { OnTap = _ => Close(false) },
-                            }
-                        }
+                        new DataGridTextColumn<ChangedModel>("ModelType",
+                            v => v.ModelType),
+                        new DataGridTextColumn<ChangedModel>("ModelId", v => v.ModelId),
                     }
                 }
             };
@@ -74,12 +56,15 @@ namespace AppBoxDesign
             }
         }
 
-        protected override bool GetResult(bool canceled) => canceled;
-
-        private static async void _OnClose(bool canceled, bool result)
+        protected override bool OnClosing(bool canceled)
         {
-            if (canceled) return;
+            if (!canceled) //TODO: check no items to publish
+                PublishAsync();
+            return base.OnClosing(canceled);
+        }
 
+        private static async void PublishAsync()
+        {
             try
             {
                 await Channel.Invoke("sys.DesignService.Publish",

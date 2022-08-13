@@ -24,8 +24,8 @@ namespace PixUI
                 Child.SetPosition(0, 0);
             }
 
-            var w = Parent is Column && Child != null ? Child.W : availableWidth;
-            var h = Parent is Row && Child != null ? Child.H : availableHeight;
+            var w = Parent is Column ? Child?.W ?? 0 : availableWidth;
+            var h = Parent is Row ? Child?.H ?? 0 : availableHeight;
             SetSize(w, h);
         }
 

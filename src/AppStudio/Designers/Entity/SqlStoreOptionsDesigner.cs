@@ -117,15 +117,17 @@ internal sealed class SqlStoreOptionsDesigner : View
         return s;
     }
 
-    private void OnAddPk(PointerEvent e)
+    private async void OnAddPk(PointerEvent e)
     {
-        var dlg = new FieldWithOrderDialog(Overlay!, _entityModel, (cancel, fieldWithOrder) =>
-        {
-            if (cancel) return;
-            _pkController.Add(fieldWithOrder);
-            ChangePrimaryKeys();
-        });
-        dlg.Show();
+        var dlg = new FieldWithOrderDialog( _entityModel);
+        var canceled = await dlg.ShowAndWaitClose();
+        if (canceled) return;
+        
+        var fieldWithOrder = dlg.GetResult();
+        if (fieldWithOrder == null) return;
+        
+        _pkController.Add(fieldWithOrder.Value);
+        ChangePrimaryKeys();
     }
 
     private void OnRemovePk(PointerEvent e)

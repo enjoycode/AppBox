@@ -5,10 +5,9 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class FieldWithOrderDialog : Dialog<FieldWithOrder>
+internal sealed class FieldWithOrderDialog : Dialog
 {
-    public FieldWithOrderDialog(Overlay overlay, EntityModelVO entityModel,
-        Action<bool, FieldWithOrder>? onClose = null) : base(overlay, onClose)
+    public FieldWithOrderDialog(EntityModelVO entityModel)
     {
         _entityModel = entityModel;
         Width = 380;
@@ -25,42 +24,25 @@ internal sealed class FieldWithOrderDialog : Dialog<FieldWithOrder>
         return new Container
         {
             Padding = EdgeInsets.All(20),
-            Child = new Column()
+            Child = new Form()
             {
-                Children = new Widget[]
+                Children = new[]
                 {
-                    new Form()
+                    new FormItem("EntityField:", new Select<EntityMemberVO>(_selected)
                     {
-                        Children = new[]
-                        {
-                            new FormItem("EntityField:", new Select<EntityMemberVO>(_selected)
-                            {
-                                Options = _entityModel.Members
-                                    .Where(m => m.Type == EntityMemberType.EntityField)
-                                    .ToArray()
-                            }),
-                            new FormItem("OrderByDesc:", new Checkbox(_orderByDesc))
-                        }
-                    },
-                    new Row(VerticalAlignment.Middle, 20)
-                    {
-                        Children = new Widget[]
-                        {
-                            new Button("Cancel")
-                                { Width = 65, OnTap = _ => Close(true) },
-                            new Button("OK")
-                                { Width = 65, OnTap = _ => Close(_selected.Value == null) },
-                        }
-                    }
+                        Options = _entityModel.Members
+                            .Where(m => m.Type == EntityMemberType.EntityField)
+                            .ToArray()
+                    }),
+                    new FormItem("OrderByDesc:", new Checkbox(_orderByDesc))
                 }
             }
         };
     }
 
-    protected override FieldWithOrder GetResult(bool canceled)
+    internal FieldWithOrder? GetResult()
     {
-        if (canceled || _selected.Value == null) return new FieldWithOrder(0);
-
+        if (_selected.Value == null) return null;
         return new FieldWithOrder(_selected.Value.Id, _orderByDesc.Value);
     }
 }

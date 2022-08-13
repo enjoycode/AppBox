@@ -7,18 +7,17 @@ namespace AppBoxDesign
     /// <summary>
     /// 通用的新建对话框(Application, Folder, 除Entity外的Model)
     /// </summary>
-    public sealed class NewDialog : Dialog<string>
+    public sealed class NewDialog : Dialog
     {
         private readonly State<string> _name = "";
         private readonly string _type;
 
-        public NewDialog(Overlay overlay, string type) : base(overlay)
+        public NewDialog(string type)
         {
             Width = 300;
-            Height = 150;
+            Height = 180;
             Title.Value = $"New {type}";
             _type = type;
-            OnClose = _OnClose;
         }
 
         protected override Widget BuildBody()
@@ -26,32 +25,19 @@ namespace AppBoxDesign
             return new Container()
             {
                 Padding = EdgeInsets.All(20),
-                Child = new Column(HorizontalAlignment.Right, 20)
-                {
-                    Children = new Widget[]
-                    {
-                        new Input(_name) { HintText = "Please input name" },
-                        new Row(VerticalAlignment.Middle, 20)
-                        {
-                            Children = new Widget[]
-                            {
-                                new Button("Cancel") { Width = 65, OnTap = _ => Close(true) },
-                                new Button("OK") { Width = 65, OnTap = _ => Close(false) },
-                            }
-                        }
-                    }
-                }
+                Child = new Input(_name) { HintText = "Please input name" }
             };
         }
 
-        protected override string? GetResult(bool canceled)
-            => canceled ? null : _name.Value;
-
-        private void _OnClose(bool canceled, string? result)
+        protected override bool OnClosing(bool canceled)
         {
-            if (canceled) return;
-            if (string.IsNullOrEmpty(_name.Value)) return;
+            if (!canceled && !string.IsNullOrEmpty(_name.Value))
+                CreateAsync();
+            return base.OnClosing(canceled);
+        }
 
+        private async void CreateAsync()
+        {
             var selectedNode = DesignStore.TreeController.FirstSelectedNode;
             if (selectedNode == null) return;
 
@@ -61,11 +47,7 @@ namespace AppBoxDesign
             var args = _type == "Application"
                 ? new object[] { _name.Value }
                 : new object[] { (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value };
-            CreateAsync(service, args);
-        }
 
-        private static async void CreateAsync(string service, object[] args)
-        {
             var res = await Channel.Invoke<NewNodeResult>(service, args);
             //根据返回结果同步添加新节点
             DesignStore.OnNewNode(res!);

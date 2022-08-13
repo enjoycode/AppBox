@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AppBoxClient;
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign
@@ -115,13 +116,34 @@ namespace AppBoxDesign
                 : _membersController.SelectedRows[0];
         }
 
-        private void OnAddMember(PointerEvent e)
+        private async void OnAddMember(PointerEvent e)
         {
-            var dlg = new NewEntityMemberDialog(Overlay!, this);
-            dlg.Show();
-        }
+            var dlg = new NewEntityMemberDialog();
+            var canceled = await dlg.ShowAndWaitClose();
+            if (canceled) return;
 
-        internal void OnMemberAdded(EntityMemberVO member) => _membersController.Add(member);
+            var memberType = dlg.GetMemberTypeValue();
+            object?[] args;
+            if (memberType == (int)EntityMemberType.EntityField)
+                args = new object?[]
+                {
+                    _modelNode.Id, dlg.Name.Value, memberType, dlg.GetFieldTypeValue(),
+                    dlg.AllowNull.Value
+                };
+            else
+                throw new NotImplementedException();
+
+            try
+            {
+                var member = await Channel.Invoke<EntityMemberVO>(
+                    "sys.DesignService.NewEntityMember", args);
+                _membersController.Add(member!);
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"新建实体成员错误: {ex.Message}");
+            }
+        }
 
         private async void OnDeleteMember(PointerEvent e)
         {
