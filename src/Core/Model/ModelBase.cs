@@ -46,7 +46,7 @@ public abstract class ModelBase : IBinSerializable
 
     public bool IsNameChanged => _originalName != null && _originalName != _name;
 
-    public void RenameTo(string newName)
+    internal void RenameTo(string newName)
     {
         CheckDesignMode();
 
@@ -57,9 +57,9 @@ public abstract class ModelBase : IBinSerializable
         OnPropertyChanged();
     }
 
-    public void IncreaseVersion() => _version++;
+    internal void IncreaseVersion() => _version++;
 
-    public void AcceptChanges()
+    internal virtual void AcceptChanges()
     {
         if (_persistentState == PersistentState.Unchanged) return;
         _persistentState = _persistentState == PersistentState.Deleted
@@ -68,13 +68,13 @@ public abstract class ModelBase : IBinSerializable
         _originalName = null;
     }
 
-    public void Delete()
+    internal void Delete()
     {
         if (_persistentState != PersistentState.Detached)
             _persistentState = PersistentState.Deleted;
     }
 
-    public void CheckDesignMode()
+    internal void CheckDesignMode()
     {
         if (!_designMode) throw new InvalidOperationException();
     }

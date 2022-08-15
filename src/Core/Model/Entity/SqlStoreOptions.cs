@@ -97,6 +97,22 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         _owner.OnPropertyChanged();
     }
 
+    public void AcceptChanges()
+    {
+        //PrimaryKeysHasChanged = false;
+
+        if (HasIndexes)
+        {
+            for (var i = _indexes!.Count - 1; i >= 0; i--)
+            {
+                if (_indexes[i].PersistentState == PersistentState.Deleted)
+                    _indexes.RemoveAt(i);
+                else
+                    _indexes[i].AcceptChanges();
+            }
+        }
+    }
+
     #endregion
 
     #region ====Serialization====

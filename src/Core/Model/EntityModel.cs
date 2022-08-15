@@ -170,6 +170,21 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         // }
     }
 
+    internal override void AcceptChanges()
+    {
+        base.AcceptChanges();
+        
+        for (var i = _members.Count - 1; i >= 0; i--)
+        {
+            if (_members[i].PersistentState == PersistentState.Deleted)
+                _members.RemoveAt(i);
+            else
+                _members[i].AcceptChanges();
+        }
+
+        StoreOptions?.AcceptChanges();
+    }
+
     #endregion
 
     #region ====Runtime Methods====

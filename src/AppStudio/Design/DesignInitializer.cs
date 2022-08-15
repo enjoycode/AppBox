@@ -16,6 +16,10 @@ namespace AppBoxDesign
                 typeof(EntityModelVO), () => new EntityModelVO()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityFieldVO,
                 typeof(EntityFieldVO), () => new EntityFieldVO()));
+            TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityRefVO,
+                typeof(EntityRefVO), () => new EntityRefVO()));
+            TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntitySetVO,
+                typeof(EntitySetVO), () => new EntitySetVO()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.DesignTree,
                 typeof(DesignTree), () => new DesignTree()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.NewNodeResult,

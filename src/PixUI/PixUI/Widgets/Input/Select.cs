@@ -28,8 +28,14 @@ namespace PixUI
         private readonly OptionalAnimationController _expandAnimation = new();
         private ListPopup<T>? _listPopup;
         private bool _showing;
+        private Func<T, string>? _labelGetter;
 
         public T[] Options { get; set; } = Array.Empty<T>();
+
+        public Func<T, string> LabelGetter
+        {
+            set => _labelGetter = value;
+        }
 
         public override State<bool>? Readonly
         {
@@ -68,7 +74,10 @@ namespace PixUI
                 {
                     var color = RxComputed<Color>.Make(
                         isSelected, v => v ? Colors.White : Colors.Black);
-                    return new Text(data?.ToString() ?? "") { TextColor = color };
+                    return new Text(_labelGetter != null
+                            ? _labelGetter(data)
+                            : data?.ToString() ?? "")
+                        { TextColor = color };
                 });
             _listPopup =
                 new ListPopup<T>(Overlay!, optionBuilder, W + 8, Theme.DefaultFontSize + 8);

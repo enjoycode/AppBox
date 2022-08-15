@@ -1,5 +1,5 @@
 using System;
-using AppBoxClient;
+using System.Linq;
 using AppBoxCore;
 using PixUI;
 
@@ -21,6 +21,7 @@ internal sealed class NewEntityMemberDialog : Dialog
     internal readonly State<bool> AllowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
+    private readonly State<ModelNode?> _refTarget = new Rx<ModelNode?>(null);
 
     protected override Widget BuildBody()
     {
@@ -46,17 +47,30 @@ internal sealed class NewEntityMemberDialog : Dialog
                     },
                     new Conditional<string>(_memberType)
                         .When(t => t == "EntityField", () => new Form()
+                        {
+                            LabelWidth = 100,
+                            Padding = EdgeInsets.Only(5, 0, 5, 5),
+                            Children = new[]
                             {
-                                LabelWidth = 100,
-                                Padding = EdgeInsets.Only(5, 0, 5, 5),
-                                Children = new[]
-                                {
-                                    new FormItem("FieldType:",
-                                        new Select<string>(_fieldType!) { Options = FieldTypes }),
-                                    new FormItem("AllowNull:", new Checkbox(AllowNull))
-                                }
+                                new FormItem("FieldType:",
+                                    new Select<string>(_fieldType!) { Options = FieldTypes }),
+                                new FormItem("AllowNull:", new Checkbox(AllowNull))
                             }
-                        ),
+                        })
+                        .When(t => t == "EntityRef", () => new Form()
+                        {
+                            LabelWidth = 100,
+                            Padding = EdgeInsets.Only(5, 0, 5, 5),
+                            Children = new[]
+                            {
+                                new FormItem("Target:",
+                                    new Select<ModelNode>(_refTarget)
+                                    {
+                                        Options = DesignStore.GetAllEntityNodes().ToArray()
+                                    }),
+                                new FormItem("AllowNull:", new Checkbox(AllowNull))
+                            }
+                        })
                 }
             }
         };
@@ -84,5 +98,11 @@ internal sealed class NewEntityMemberDialog : Dialog
             case "Double": return (int)EntityFieldType.Double;
             default: throw new NotImplementedException();
         }
+    }
+
+    internal string[] GetRefModelIds()
+    {
+        if (_refTarget.Value == null) return Array.Empty<string>();
+        return new string[] { _refTarget.Value!.Id };
     }
 }

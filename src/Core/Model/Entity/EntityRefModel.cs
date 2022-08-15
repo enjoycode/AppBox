@@ -9,7 +9,7 @@ public sealed class EntityRefModel : EntityMemberModel
     /// <summary>
     /// 设计时新建非聚合引用成员
     /// </summary>
-    public EntityRefModel(EntityModel owner, string name, long refModelId,
+    public EntityRefModel(EntityModel owner, string name, ModelId refModelId,
         short[] fkMemberIds, bool foreignConstraint = true) : base(owner, name, true)
     {
         if (fkMemberIds == null || fkMemberIds.Length == 0)

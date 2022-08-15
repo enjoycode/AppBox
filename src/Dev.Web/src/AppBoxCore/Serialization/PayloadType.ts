@@ -36,6 +36,8 @@ export enum PayloadType {
     CodeProblem = 56,
     FieldWithOrder = 57,
     EntityFieldVO = 58,
+    EntityRefVO = 59,
+    EntitySetVO = 60,
 
     //----运行时类型----
     Entity = 90,

@@ -71,5 +71,37 @@ namespace AppBoxDesign
             //TODO:暂简单实现
             ProblemsController.DataSource = problems;
         }
+
+        /// <summary>
+        /// 获取所有实体节点
+        /// </summary>
+        internal static IList<ModelNode> GetAllEntityNodes()
+        {
+            var list = new List<ModelNode>();
+            var appRootNode = TreeController.DataSource![1];
+            foreach (var appNode in appRootNode.Children!)
+            {
+                var entityRootNode = appNode.Children![0];
+                LoopAddEntityNode(entityRootNode, list);
+            }
+
+            return list;
+        }
+
+        private static void LoopAddEntityNode(DesignNode node, IList<ModelNode> list)
+        {
+            if (node is ModelNode modelNode)
+                list.Add(modelNode);
+            else
+            {
+                if (node.Children != null)
+                {
+                    foreach (var child in node.Children!)
+                    {
+                        LoopAddEntityNode(child, list);
+                    }
+                }
+            }
+        }
     }
 }

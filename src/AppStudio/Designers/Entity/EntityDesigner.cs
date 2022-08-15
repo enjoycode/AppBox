@@ -130,6 +130,13 @@ namespace AppBoxDesign
                     _modelNode.Id, dlg.Name.Value, memberType, dlg.GetFieldTypeValue(),
                     dlg.AllowNull.Value
                 };
+            else if (memberType == (int)EntityMemberType.EntityRef)
+                args = new object?[]
+                {
+                    //TODO:暂不支持聚合引用
+                    _modelNode.Id, dlg.Name.Value, memberType, dlg.GetRefModelIds(),
+                    dlg.AllowNull.Value
+                };
             else
                 throw new NotImplementedException();
 
