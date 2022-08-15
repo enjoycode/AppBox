@@ -27,11 +27,11 @@ internal sealed class NewEntityMember : IDesignHandler
         if (model.GetMember(memberName, false) != null)
             throw new Exception("Name has exists");
 
-        EntityMemberVO res;
+        EntityMemberVO[] res;
         if (entityMemberType == EntityMemberType.EntityField)
-            res = EntityFieldVO.From(NewEntityField(model, memberName, ref args));
+            res = NewEntityField(model, memberName, ref args);
         else if (entityMemberType == EntityMemberType.EntityRef)
-            res = EntityRefVO.From(NewEntityRef(model, memberName, hub, ref args));
+            res = NewEntityRef(model, memberName, hub, ref args);
         else
             throw new NotImplementedException();
 
@@ -42,7 +42,7 @@ internal sealed class NewEntityMember : IDesignHandler
         return AnyValue.From(res);
     }
 
-    private static EntityFieldModel NewEntityField(EntityModel model, string name,
+    private static EntityMemberVO[] NewEntityField(EntityModel model, string name,
         ref InvokeArgs args)
     {
         var fieldType = (EntityFieldType)args.GetInt();
@@ -51,10 +51,11 @@ internal sealed class NewEntityMember : IDesignHandler
         var field = new EntityFieldModel(model, name, fieldType, allowNull);
         model.AddMember(field);
         //TODO:默认值处理
-        return field;
+
+        return new EntityMemberVO[] { EntityFieldVO.From(field) };
     }
 
-    private static EntityRefModel NewEntityRef(EntityModel model, string name, DesignHub hub,
+    private static EntityMemberVO[] NewEntityRef(EntityModel model, string name, DesignHub hub,
         ref InvokeArgs args)
     {
         var refIds = args.GetArray<string>()!;
@@ -92,6 +93,7 @@ internal sealed class NewEntityMember : IDesignHandler
             refModels[i] = refModel;
         }
 
+        var res = new List<EntityMemberVO>();
         //检查外键字段名称是否已存在，并且添加外键成员 //TODO:聚合引用检查XXXType是否存在
         var fkMemberIds = new short[refModels.Length];
         if (model.DataStoreKind == DataStoreKind.Sql)
@@ -106,6 +108,7 @@ internal sealed class NewEntityMember : IDesignHandler
                     throw new Exception($"Name has exists: {fkName}");
                 var fk = new EntityFieldModel(model, fkName, pkMemberModel.FieldType, allowNull);
                 model.AddMember(fk);
+                res.Add(EntityFieldVO.From(fk));
                 fkMemberIds[i] = fk.MemberId;
             }
         }
@@ -117,6 +120,7 @@ internal sealed class NewEntityMember : IDesignHandler
             var fkId =
                 new EntityFieldModel(model, $"{name}Id", EntityFieldType.EntityId, allowNull);
             model.AddMember(fkId);
+            res.Add(EntityFieldVO.From(fkId));
             fkMemberIds[0] = fkId.MemberId;
         }
 
@@ -135,6 +139,8 @@ internal sealed class NewEntityMember : IDesignHandler
         }
 
         model.AddMember(entityRef);
-        return entityRef;
+        res.Add(EntityRefVO.From(entityRef));
+
+        return res.ToArray();
     }
 }

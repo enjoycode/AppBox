@@ -142,9 +142,12 @@ namespace AppBoxDesign
 
             try
             {
-                var member = await Channel.Invoke<EntityMemberVO>(
+                var members = await Channel.Invoke<EntityMemberVO[]>(
                     "sys.DesignService.NewEntityMember", args);
-                _membersController.Add(member!);
+                foreach (var member in members!)
+                {
+                    _membersController.Add(member);
+                }
             }
             catch (Exception ex)
             {
