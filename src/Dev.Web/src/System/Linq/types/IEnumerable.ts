@@ -11,6 +11,7 @@ import {
     OfType,
     SelectorKeyType
 } from "./"
+import {IList} from '../../Collections/IList'
 
 /**
  * Iterable type with methods from LINQ.
@@ -721,6 +722,8 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      * @returns An array of elements
      */
     ToArray(): TSource[]
+    
+    ToList(): IList<TSource>
 
     /**
      * Converts an Iterable<V> to a Map<K, V[]>.

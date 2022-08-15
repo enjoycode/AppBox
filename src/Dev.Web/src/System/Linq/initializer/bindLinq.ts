@@ -79,6 +79,9 @@ import {whereAsync} from "./../sync/_private/whereAsync"
 import {zip} from "./../sync/_private/zip"
 import {zipAsync} from "./../sync/_private/zipAsync"
 
+import {List} from "../../Collections/List"
+import {IList} from "../../Collections/IList"
+
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
 
 /**
@@ -181,4 +184,9 @@ export const bindLinq = <T, Y extends Iterable<T>>(object: IPrototype<Y>) => {
     bind(zipAsync, "ZipAsync")
 
     bind(cast, "Cast")
+    bind(<TSource>(source: Iterable<TSource>): IList<TSource> => {
+        if (source instanceof List)
+            return source;
+        return new List<TSource>([...source]);
+    }, "ToList")
 }
