@@ -77,3 +77,7 @@ const select3 = <TSource, TKey extends keyof TSource>(
 
     return new BasicEnumerable(iterator)
 }
+
+export const cast = <TSource, TResult>(source: Iterable<TSource>): IEnumerable<TResult> => {
+    return <IEnumerable<TResult>>source;
+}

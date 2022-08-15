@@ -520,6 +520,8 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      * An IEnumerable<T> whose elements are the result of invoking the transform function on each element of source.
      */
     Select<TResult>(selector: (x: TSource, index: number) => TResult): IEnumerable<TResult>
+    
+    Cast<TResult>(): IEnumerable<TResult>
 
     /**
      * Projects each element of a sequence into a new form.
