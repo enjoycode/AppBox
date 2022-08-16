@@ -5,10 +5,11 @@ public sealed class EntityFieldModel : EntityMemberModel
     internal EntityFieldModel(EntityModel owner) : base(owner, string.Empty, false) { }
 
     public EntityFieldModel(EntityModel owner, string name, EntityFieldType fieldType,
-        bool allowNull) :
+        bool allowNull, bool isForeignKey = false) :
         base(owner, name, allowNull)
     {
         _fieldType = fieldType;
+        _isForeignKey = isForeignKey;
     }
 
     public override EntityMemberType Type => EntityMemberType.EntityField;

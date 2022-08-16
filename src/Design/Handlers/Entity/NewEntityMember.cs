@@ -106,7 +106,8 @@ internal sealed class NewEntityMember : IDesignHandler
                 var fkName = $"{name}{pkMemberModel.Name}";
                 if (model.Members.Any(t => t.Name == fkName))
                     throw new Exception($"Name has exists: {fkName}");
-                var fk = new EntityFieldModel(model, fkName, pkMemberModel.FieldType, allowNull);
+                var fk = new EntityFieldModel(model, fkName, pkMemberModel.FieldType, allowNull,
+                    true);
                 model.AddMember(fk);
                 res.Add(EntityFieldVO.From(fk));
                 fkMemberIds[i] = fk.MemberId;
@@ -118,7 +119,7 @@ internal sealed class NewEntityMember : IDesignHandler
                 throw new Exception($"Name has exists: {name}Id");
             // 添加外键Id列, eg: Customer -> CustomerId
             var fkId =
-                new EntityFieldModel(model, $"{name}Id", EntityFieldType.EntityId, allowNull);
+                new EntityFieldModel(model, $"{name}Id", EntityFieldType.EntityId, allowNull, true);
             model.AddMember(fkId);
             res.Add(EntityFieldVO.From(fkId));
             fkMemberIds[0] = fkId.MemberId;
@@ -129,7 +130,7 @@ internal sealed class NewEntityMember : IDesignHandler
         if (refIds.Length > 1)
         {
             throw new NotImplementedException();
-            // var fkType = new EntityFieldModel(model, $"{name}Type", EntityFieldType.Long, allowNull);
+            // var fkType = new EntityFieldModel(model, $"{name}Type", EntityFieldType.Long, allowNull, true);
             // model.AddMember(fkType);
             // entityRef = new EntityRefModel(model, name, refIds.Cast<ulong>().ToList(), fkMemberIds, fkType.MemberId);
         }

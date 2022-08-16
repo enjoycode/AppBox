@@ -7,10 +7,13 @@ namespace AppBoxDesign
     public abstract class EntityMemberVO : IBinSerializable
     {
         public abstract EntityMemberType Type { get; }
-        public short Id { get; set; }
+        public short Id { get; private set; }
         public string Name { get; set; } = null!;
         public bool AllowNull { get; set; }
         public string? Comment { get; set; }
+
+        public bool IsForeignKeyMember => Type == EntityMemberType.EntityField
+                                          && ((EntityFieldVO)this).IsForeignKey;
 
         public override string ToString() => Name;
 
@@ -35,7 +38,7 @@ namespace AppBoxDesign
 
 #else
         public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
-        
+
         public virtual void ReadFrom(IInputStream rs)
         {
             Id = rs.ReadShort();
@@ -51,7 +54,8 @@ namespace AppBoxDesign
     {
         public override EntityMemberType Type => EntityMemberType.EntityField;
 
-        public EntityFieldType FieldType { get; set; }
+        public EntityFieldType FieldType { get; private set; }
+        public bool IsForeignKey { get; private set; }
         public long? EnumModelId { get; set; }
         public int Length { get; set; }
         public int Decimals { get; set; }
@@ -62,6 +66,7 @@ namespace AppBoxDesign
             var vo = new EntityFieldVO();
             vo.FetchFrom(model);
             vo.FieldType = model.FieldType;
+            vo.IsForeignKey = model.IsForeignKey;
             if (model.FieldType == EntityFieldType.Enum)
                 vo.EnumModelId = model.EnumModelId!.Value;
             vo.Length = model.Length;
@@ -73,6 +78,7 @@ namespace AppBoxDesign
         {
             base.WriteTo(ws);
             ws.WriteByte((byte)FieldType);
+            ws.WriteBool(IsForeignKey);
             if (FieldType == EntityFieldType.Enum)
                 ws.WriteLong(EnumModelId!.Value);
             ws.WriteVariant(Length);
@@ -84,6 +90,7 @@ namespace AppBoxDesign
         {
             base.ReadFrom(rs);
             FieldType = (EntityFieldType)rs.ReadByte();
+            IsForeignKey = rs.ReadBool();
             if (FieldType == EntityFieldType.Enum)
                 EnumModelId = rs.ReadLong();
             Length = rs.ReadVariant();
@@ -97,10 +104,11 @@ namespace AppBoxDesign
     {
         public override EntityMemberType Type => EntityMemberType.EntityRef;
 
+        public readonly IList<long> RefModelIds = new List<long>();
+        public short[] FKMemberIds { get; private set; } = null!;
         public bool IsReverse { get; set; }
         public bool IsAggregationRef { get; set; }
         public bool IsForeignKeyConstraint { get; set; }
-        public readonly IList<long> RefModelIds = new List<long>();
 
 #if __APPBOXDESIGN__
         internal static EntityRefVO From(EntityRefModel model)
@@ -110,6 +118,7 @@ namespace AppBoxDesign
             vo.IsReverse = model.IsReverse;
             vo.IsAggregationRef = model.IsAggregationRef;
             vo.IsForeignKeyConstraint = model.IsForeignKeyConstraint;
+            vo.FKMemberIds = model.FKMemberIds;
             foreach (var refModelId in model.RefModelIds)
             {
                 vo.RefModelIds.Add(refModelId);
@@ -130,6 +139,12 @@ namespace AppBoxDesign
             {
                 ws.WriteLong(refModelId);
             }
+
+            ws.WriteVariant(FKMemberIds.Length);
+            foreach (var fkMemberId in FKMemberIds)
+            {
+                ws.WriteShort(fkMemberId);
+            }
         }
 
 #else
@@ -143,6 +158,13 @@ namespace AppBoxDesign
             for (var i = 0; i < count; i++)
             {
                 RefModelIds.Add(rs.ReadLong());
+            }
+
+            count = rs.ReadVariant();
+            FKMemberIds = new short[count];
+            for (var i = 0; i < count; i++)
+            {
+                FKMemberIds[i] = rs.ReadShort();
             }
         }
 
@@ -201,18 +223,15 @@ namespace AppBoxDesign
             vo.DataStoreKind = model.DataStoreKind;
             if (model.DataStoreKind == DataStoreKind.Sql) //TODO: others
                 vo._storeOptions = SqlStoreOptionsVO.From(model.SqlStoreOptions!);
-            
-            //注意不向前端封送EntityRef的隐藏成员及删除的成员
+
             foreach (var memberModel in model.Members)
             {
                 if (memberModel.PersistentState == PersistentState.Deleted)
-                    continue;
+                    continue; //注意不向前端封送删除的成员
 
                 switch (memberModel.Type)
                 {
                     case EntityMemberType.EntityField:
-                        if (((EntityFieldModel)memberModel).IsForeignKey) continue;
-
                         vo.Members.Add(EntityFieldVO.From((EntityFieldModel)memberModel));
                         break;
                     case EntityMemberType.EntityRef:
@@ -235,7 +254,7 @@ namespace AppBoxDesign
             // store options
             if (DataStoreKind == DataStoreKind.Sql) //TODO: others
                 SqlStoreOptions.WriteTo(ws);
-            
+
             // members
             ws.WriteVariant(Members.Count);
             foreach (var member in Members)

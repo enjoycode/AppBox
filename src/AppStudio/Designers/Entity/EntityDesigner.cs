@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
@@ -98,12 +99,14 @@ namespace AppBoxDesign
                 _entityModel = await Channel.Invoke<EntityModelVO>(
                     "sys.DesignService.OpenEntityModel",
                     new object[] { _modelNode.Id });
-                _membersController.DataSource = _entityModel!.Members;
+                _membersController.DataSource = _entityModel!.Members
+                    .Where(m => !m.IsForeignKeyMember)
+                    .ToList();
                 _loaded.Value = true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Notification.Error("无法加载实体模型");
+                Notification.Error($"无法加载实体模型: {ex.Message}");
             }
         }
 
@@ -146,6 +149,12 @@ namespace AppBoxDesign
                     "sys.DesignService.NewEntityMember", args);
                 foreach (var member in members!)
                 {
+                    if (member.IsForeignKeyMember)
+                    {
+                        _entityModel!.Members.Add(member);
+                        continue;
+                    }
+
                     _membersController.Add(member);
                 }
             }
@@ -163,8 +172,25 @@ namespace AppBoxDesign
             try
             {
                 await Channel.Invoke("sys.DesignService.DeleteEntityMember", args);
-                //TODO: 如果EntityRef移除相关隐藏成员
-                _membersController.Remove(_selectedMember.Value);
+
+                var member = _selectedMember.Value!;
+                if (member is EntityRefVO entityRef)
+                {
+                    //如果EntityRef同步移除相关隐藏成员
+                    if (entityRef.IsAggregationRef)
+                    {
+                        //TODO:移除聚合类型成员
+                        throw new NotImplementedException();
+                    }
+
+                    foreach (var fkMemberId in entityRef.FKMemberIds)
+                    {
+                        var fk = _entityModel!.Members.First(m => m.Id == fkMemberId);
+                        _entityModel!.Members.Remove(fk);
+                    }
+                }
+
+                _membersController.Remove(member);
             }
             catch (Exception ex)
             {
