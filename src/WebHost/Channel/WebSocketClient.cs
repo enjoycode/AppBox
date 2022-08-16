@@ -143,6 +143,7 @@ internal sealed class WebSocketClient
                 ServiceNotExistsException => InvokeErrorCode.ServiceNotExists,
                 _ => InvokeErrorCode.ServiceInnerError
             };
+            result = e.Message;
             Log.Error($"Invoke service[{service}] error[{errorCode}]: {e.Message}\n{e.StackTrace}");
         }
 

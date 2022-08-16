@@ -82,9 +82,8 @@ namespace AppBoxClient
             }
 
             if (errorCode != InvokeErrorCode.None)
-                throw new Exception($"ErrorCode={errorCode} ErrorMsg={result}");
-            else
-                return result;
+                throw new Exception($"Code={errorCode} Msg={result}");
+            return result;
         }
 
         public async Task Login(string user, string password, object? external)
