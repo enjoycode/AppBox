@@ -9,7 +9,7 @@ namespace AppBoxDesign
 {
     internal sealed class EntityDesigner : View, IDesigner
     {
-        public EntityDesigner(ModelNode modelNode)
+        public EntityDesigner(ModelNodeVO modelNode)
         {
             _modelNode = modelNode;
             _membersController.SelectionChanged += OnMemberSelectionChanged;
@@ -35,12 +35,12 @@ namespace AppBoxDesign
             };
         }
 
-        private readonly ModelNode _modelNode;
+        private readonly ModelNodeVO _modelNode;
         private readonly State<int> _activePad = 0; //当前的设计面板
         private bool _hasLoad = false;
         private readonly State<bool> _loaded = false;
         private EntityModelVO? _entityModel;
-        internal ModelNode ModelNode => _modelNode;
+        internal ModelNodeVO ModelNode => _modelNode;
 
         private readonly DataGridController<EntityMemberVO> _membersController = new();
         private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);

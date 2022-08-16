@@ -9,7 +9,7 @@ namespace AppBoxDesign
 {
     internal sealed class ViewDesigner : View, IDesigner
     {
-        public ViewDesigner(ModelNode modelNode)
+        public ViewDesigner(ModelNodeVO modelNode)
         {
             _modelNode = modelNode;
             _previewController = new PreviewController(modelNode);
@@ -28,7 +28,7 @@ namespace AppBoxDesign
             };
         }
 
-        private readonly ModelNode _modelNode;
+        private readonly ModelNodeVO _modelNode;
         private readonly CodeEditorController _codeEditorController;
         private readonly ModelCodeSyncService _codeSyncService;
         private readonly PreviewController _previewController;

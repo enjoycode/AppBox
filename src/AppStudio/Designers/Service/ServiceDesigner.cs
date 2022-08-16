@@ -8,7 +8,7 @@ namespace AppBoxDesign
 {
     internal sealed class ServiceDesigner : View, IDesigner
     {
-        public ServiceDesigner(ModelNode modelNode)
+        public ServiceDesigner(ModelNodeVO modelNode)
         {
             _modelNode = modelNode;
             _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
@@ -19,7 +19,7 @@ namespace AppBoxDesign
             Child = BuildEditor(_codeEditorController);
         }
 
-        private readonly ModelNode _modelNode;
+        private readonly ModelNodeVO _modelNode;
         private readonly CodeEditorController _codeEditorController;
         private readonly ModelCodeSyncService _codeSyncService;
         private readonly DelayTask _delayDocChangedTask;

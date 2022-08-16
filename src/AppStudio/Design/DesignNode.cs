@@ -4,10 +4,10 @@ using AppBoxCore;
 
 namespace AppBoxDesign
 {
-    internal abstract class DesignNode
+    internal abstract class DesignNodeVO
     {
         public abstract DesignNodeType Type { get; }
-        public virtual IList<DesignNode>? Children => null;
+        public virtual IList<DesignNodeVO>? Children => null;
 
         public string Id { get; protected set; } = null!;
         public string Label { get; protected set; } = null!;
@@ -26,13 +26,13 @@ namespace AppBoxDesign
         }
     }
 
-    internal sealed class DataStoreRootNode : DesignNode
+    internal sealed class DataStoreRootNodeVO : DesignNodeVO
     {
         public override DesignNodeType Type => DesignNodeType.DataStoreRootNode;
 
-        private readonly List<DesignNode> _children = new List<DesignNode>();
+        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
 
-        public override IList<DesignNode>? Children => _children;
+        public override IList<DesignNodeVO>? Children => _children;
 
         public override void ReadFrom(IInputStream rs)
         {
@@ -41,26 +41,26 @@ namespace AppBoxDesign
             var count = rs.ReadVariant();
             for (var i = 0; i < count; i++)
             {
-                var dataStoreNode = new DataStoreNode();
+                var dataStoreNode = new DataStoreNodeVO();
                 dataStoreNode.ReadFrom(rs);
                 _children.Add(dataStoreNode);
             }
         }
     }
 
-    internal sealed class DataStoreNode : DesignNode
+    internal sealed class DataStoreNodeVO : DesignNodeVO
     {
-        public static readonly DataStoreNode None = new DataStoreNode()
+        public static readonly DataStoreNodeVO None = new DataStoreNodeVO()
             { Id = string.Empty, Label = "None" };
 
         public override DesignNodeType Type => DesignNodeType.DataStoreNode;
     }
 
-    internal sealed class ApplicationRootNode : DesignNode
+    internal sealed class ApplicationRootNodeVO : DesignNodeVO
     {
         public override DesignNodeType Type => DesignNodeType.ApplicationRoot;
-        private readonly List<DesignNode> _children = new List<DesignNode>();
-        public override IList<DesignNode>? Children => _children;
+        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+        public override IList<DesignNodeVO>? Children => _children;
 
         public override void ReadFrom(IInputStream rs)
         {
@@ -68,18 +68,18 @@ namespace AppBoxDesign
             var count = rs.ReadVariant();
             for (var i = 0; i < count; i++)
             {
-                var appNode = new ApplicationNode();
+                var appNode = new ApplicationNodeVO();
                 appNode.ReadFrom(rs);
                 _children.Add(appNode);
             }
         }
     }
 
-    internal sealed class ApplicationNode : DesignNode
+    internal sealed class ApplicationNodeVO : DesignNodeVO
     {
         public override DesignNodeType Type => DesignNodeType.ApplicationNode;
-        private readonly List<DesignNode> _children = new List<DesignNode>();
-        public override IList<DesignNode>? Children => _children;
+        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+        public override IList<DesignNodeVO>? Children => _children;
 
         public override void ReadFrom(IInputStream rs)
         {
@@ -87,19 +87,19 @@ namespace AppBoxDesign
             var count = rs.ReadVariant();
             for (var i = 0; i < count; i++)
             {
-                var modelRootNode = new ModelRootNode();
+                var modelRootNode = new ModelRootNodeVO();
                 modelRootNode.ReadFrom(rs);
                 _children.Add(modelRootNode);
             }
         }
     }
 
-    internal sealed class ModelRootNode : DesignNode
+    internal sealed class ModelRootNodeVO : DesignNodeVO
     {
         public override DesignNodeType Type => DesignNodeType.ModelRootNode;
 
-        private readonly List<DesignNode> _children = new List<DesignNode>();
-        public override IList<DesignNode>? Children => _children;
+        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+        public override IList<DesignNodeVO>? Children => _children;
 
         public override void ReadFrom(IInputStream rs)
         {
@@ -109,11 +109,11 @@ namespace AppBoxDesign
             for (var i = 0; i < count; i++)
             {
                 var nodeType = (DesignNodeType)rs.ReadByte();
-                DesignNode node;
+                DesignNodeVO node;
                 if (nodeType == DesignNodeType.ModelNode)
-                    node = new ModelNode();
+                    node = new ModelNodeVO();
                 else if (nodeType == DesignNodeType.FolderNode)
-                    node = new FolderNode();
+                    node = new FolderNodeVO();
                 else
                     throw new NotSupportedException();
 
@@ -123,12 +123,12 @@ namespace AppBoxDesign
         }
     }
 
-    internal sealed class FolderNode : DesignNode
+    internal sealed class FolderNodeVO : DesignNodeVO
     {
         public override DesignNodeType Type => DesignNodeType.FolderNode;
 
-        private readonly List<DesignNode> _children = new List<DesignNode>();
-        public override IList<DesignNode>? Children => _children;
+        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+        public override IList<DesignNodeVO>? Children => _children;
 
         public override void ReadFrom(IInputStream rs)
         {
@@ -138,11 +138,11 @@ namespace AppBoxDesign
             for (var i = 0; i < count; i++)
             {
                 var nodeType = (DesignNodeType)rs.ReadByte();
-                DesignNode node;
+                DesignNodeVO node;
                 if (nodeType == DesignNodeType.ModelNode)
-                    node = new ModelNode();
+                    node = new ModelNodeVO();
                 else if (nodeType == DesignNodeType.FolderNode)
-                    node = new FolderNode();
+                    node = new FolderNodeVO();
                 else
                     throw new NotSupportedException();
 
@@ -152,7 +152,7 @@ namespace AppBoxDesign
         }
     }
 
-    internal sealed class ModelNode : DesignNode
+    internal sealed class ModelNodeVO : DesignNodeVO
     {
         public override DesignNodeType Type => DesignNodeType.ModelNode;
 

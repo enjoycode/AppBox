@@ -13,7 +13,7 @@ internal sealed class NewEntityDialog : Dialog
     }
 
     private readonly State<string> _name = "";
-    private readonly State<DataStoreNode?> _store = new Rx<DataStoreNode?>(null);
+    private readonly State<DataStoreNodeVO?> _store = new Rx<DataStoreNodeVO?>(null);
 
     protected override Widget BuildBody()
     {
@@ -30,7 +30,7 @@ internal sealed class NewEntityDialog : Dialog
                         Children = new[]
                         {
                             new FormItem("Name:", new Input(_name)),
-                            new FormItem("DataStore:", new Select<DataStoreNode>(_store)
+                            new FormItem("DataStore:", new Select<DataStoreNodeVO>(_store)
                             {
                                 Options = GetAllDataStores()
                             })
@@ -64,14 +64,14 @@ internal sealed class NewEntityDialog : Dialog
         DesignStore.OnNewNode(res!);
     }
 
-    private static DataStoreNode[] GetAllDataStores()
+    private static DataStoreNodeVO[] GetAllDataStores()
     {
-        var dataStoreRootNode = (DataStoreRootNode)DesignStore.TreeController.DataSource![0];
-        var list = new DataStoreNode[dataStoreRootNode.Children!.Count + 1];
-        list[0] = DataStoreNode.None;
+        var dataStoreRootNode = (DataStoreRootNodeVO)DesignStore.TreeController.DataSource![0];
+        var list = new DataStoreNodeVO[dataStoreRootNode.Children!.Count + 1];
+        list[0] = DataStoreNodeVO.None;
         for (var i = 1; i < list.Length; i++)
         {
-            list[i] = (DataStoreNode)dataStoreRootNode.Children[i - 1];
+            list[i] = (DataStoreNodeVO)dataStoreRootNode.Children[i - 1];
         }
 
         return list;

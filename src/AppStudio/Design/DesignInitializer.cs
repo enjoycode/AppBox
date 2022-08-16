@@ -23,7 +23,7 @@ namespace AppBoxDesign
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntitySetVO,
                 typeof(EntitySetVO), () => new EntitySetVO()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.DesignTree,
-                typeof(DesignTree), () => new DesignTree()));
+                typeof(DesignTreeVO), () => new DesignTreeVO()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.NewNodeResult,
                 typeof(NewNodeResult), () => new NewNodeResult()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.CodeProblem,

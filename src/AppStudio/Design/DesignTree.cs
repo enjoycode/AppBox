@@ -4,9 +4,9 @@ using AppBoxCore;
 
 namespace AppBoxDesign
 {
-    internal sealed class DesignTree : IBinSerializable
+    internal sealed class DesignTreeVO : IBinSerializable
     {
-        public readonly List<DesignNode> RootNodes = new List<DesignNode>();
+        public readonly List<DesignNodeVO> RootNodes = new List<DesignNodeVO>();
 
         public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
 
@@ -16,11 +16,11 @@ namespace AppBoxDesign
             for (var i = 0; i < count; i++)
             {
                 var nodeType = (DesignNodeType)rs.ReadByte();
-                DesignNode node;
+                DesignNodeVO node;
                 if (nodeType == DesignNodeType.DataStoreRootNode)
-                    node = new DataStoreRootNode();
+                    node = new DataStoreRootNodeVO();
                 else if (nodeType == DesignNodeType.ApplicationRoot)
-                    node = new ApplicationRootNode();
+                    node = new ApplicationRootNodeVO();
                 else
                     throw new NotSupportedException();
                 node.ReadFrom(rs);

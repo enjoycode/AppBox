@@ -14,12 +14,12 @@ namespace AppBoxDesign
 
             BgColor = Colors.White;
 
-            Child = new TabView<DesignNode>(DesignStore.DesignerController, BuildTab, BuildBody,
+            Child = new TabView<DesignNodeVO>(DesignStore.DesignerController, BuildTab, BuildBody,
                     true, 40)
                 { SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3) };
         }
 
-        private static Widget BuildTab(DesignNode node, State<bool> isSelected)
+        private static Widget BuildTab(DesignNodeVO node, State<bool> isSelected)
         {
             var textColor = RxComputed<Color>.Make(isSelected,
                 selected => selected ? Theme.FocusedColor : Colors.Black
@@ -28,11 +28,11 @@ namespace AppBoxDesign
             return new Text(node.Label) { TextColor = textColor };
         }
 
-        private static Widget BuildBody(DesignNode node)
+        private static Widget BuildBody(DesignNodeVO node)
         {
             if (node.Type == DesignNodeType.ModelNode)
             {
-                var modelNode = (ModelNode)node;
+                var modelNode = (ModelNodeVO)node;
                 switch (modelNode.ModelType)
                 {
                     case ModelType.Entity:
@@ -70,14 +70,14 @@ namespace AppBoxDesign
         //         BgColor!.Value = new Color(0xFFF3F3F3);
         // }
 
-        private async void OnDesignerClosed(DesignNode node)
+        private async void OnDesignerClosed(DesignNodeVO node)
         {
             // if (DesignStore.DesignerController.Count == 0)
             //     BgColor!.Value = Colors.White;
 
             if (node.Type == DesignNodeType.ModelNode)
             {
-                var modelNode = (ModelNode)node;
+                var modelNode = (ModelNodeVO)node;
                 if (modelNode.ModelType == ModelType.Service ||
                     modelNode.ModelType == ModelType.View)
                     await Channel.Invoke("sys.DesignService.CloseDesigner", new object?[]
@@ -88,7 +88,7 @@ namespace AppBoxDesign
         private void OnTreeSelectionChanged()
         {
             var currentNode = DesignStore.TreeController.FirstSelectedNode;
-            if (currentNode != null && currentNode.Data is ModelNode)
+            if (currentNode != null && currentNode.Data is ModelNodeVO)
             {
                 //先检查是否已经打开
                 var existsIndex = DesignStore.DesignerController.IndexOf(currentNode.Data);

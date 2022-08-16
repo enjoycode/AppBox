@@ -7,7 +7,7 @@ namespace AppBoxDesign
     {
         public DesignNodeType ParentNodeType { get; private set; }
         public string ParentNodeId { get; private set; }
-        public DesignNode NewNode { get; private set; }
+        public DesignNodeVO NewNode { get; private set; }
         public string? RootNodeId { get; private set; }
         public int InsertIndex { get; private set; }
 
@@ -24,13 +24,13 @@ namespace AppBoxDesign
             switch (newNodeType)
             {
                 case DesignNodeType.FolderNode:
-                    NewNode = new FolderNode();
+                    NewNode = new FolderNodeVO();
                     break;
                 case DesignNodeType.ModelNode:
-                    NewNode = new ModelNode();
+                    NewNode = new ModelNodeVO();
                     break;
                 case DesignNodeType.DataStoreNode:
-                    NewNode = new DataStoreNode();
+                    NewNode = new DataStoreNodeVO();
                     break;
                 default:
                     throw new NotSupportedException();

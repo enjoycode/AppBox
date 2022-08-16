@@ -21,7 +21,7 @@ internal sealed class NewEntityMemberDialog : Dialog
     internal readonly State<bool> AllowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
-    private readonly State<ModelNode?> _refTarget = new Rx<ModelNode?>(null);
+    private readonly State<ModelNodeVO?> _refTarget = new Rx<ModelNodeVO?>(null);
 
     protected override Widget BuildBody()
     {
@@ -64,7 +64,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                             Children = new[]
                             {
                                 new FormItem("Target:",
-                                    new Select<ModelNode>(_refTarget)
+                                    new Select<ModelNodeVO>(_refTarget)
                                     {
                                         Options = DesignStore.GetAllEntityNodes().ToArray()
                                     }),

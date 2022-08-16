@@ -17,12 +17,12 @@ namespace AppBoxDesign
                 Children = new Widget[]
                 {
                     new Input(_searchKey) { Prefix = new Icon(Icons.Filled.Search) },
-                    new TreeView<DesignNode>(DesignStore.TreeController),
+                    new TreeView<DesignNodeVO>(DesignStore.TreeController),
                 }
             };
         }
 
-        internal static void BuildTreeNode(DesignNode data, TreeNode<DesignNode> node)
+        internal static void BuildTreeNode(DesignNodeVO data, TreeNode<DesignNodeVO> node)
         {
             node.Icon = new Icon(GetIconForNode(data));
             node.Label = new Text(data.Label);
@@ -32,14 +32,14 @@ namespace AppBoxDesign
                               data.Type == DesignNodeType.ApplicationRoot;
         }
 
-        private static IconData GetIconForNode(DesignNode data)
+        private static IconData GetIconForNode(DesignNodeVO data)
         {
             switch (data.Type)
             {
                 case DesignNodeType.DataStoreNode: return Icons.Filled.Storage;
                 case DesignNodeType.ApplicationNode: return Icons.Filled.Widgets;
                 case DesignNodeType.ModelNode:
-                    return IconUtil.GetIconForModelType(((ModelNode)data).ModelType);
+                    return IconUtil.GetIconForModelType(((ModelNodeVO)data).ModelType);
                 default: return Icons.Filled.Folder;
             }
         }
@@ -58,8 +58,8 @@ namespace AppBoxDesign
 
             try
             {
-                var res = await Channel.Invoke<DesignTree>("sys.DesignService.LoadDesignTree");
-                DesignStore.TreeController.DataSource = res.RootNodes;
+                var res = await Channel.Invoke<DesignTreeVO>("sys.DesignService.LoadDesignTree");
+                DesignStore.TreeController.DataSource = res!.RootNodes;
             }
             catch (System.Exception ex)
             {

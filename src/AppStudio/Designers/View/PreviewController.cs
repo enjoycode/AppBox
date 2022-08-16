@@ -6,10 +6,10 @@ namespace AppBoxDesign
     [TSNoInitializer]
     internal sealed class PreviewController
     {
-        public readonly ModelNode ModelNode;
+        public readonly ModelNodeVO ModelNode;
         private Action? _invalidateAction;
 
-        public PreviewController(ModelNode modelNode)
+        public PreviewController(ModelNodeVO modelNode)
         {
             ModelNode = modelNode;
         }

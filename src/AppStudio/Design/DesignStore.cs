@@ -16,14 +16,14 @@ namespace AppBoxDesign
         /// <summary>
         /// 模型树控制器
         /// </summary>
-        internal static readonly TreeController<DesignNode> TreeController =
-            new TreeController<DesignNode>(DesignTreePad.BuildTreeNode, n => n.Children!);
+        internal static readonly TreeController<DesignNodeVO> TreeController =
+            new TreeController<DesignNodeVO>(DesignTreePad.BuildTreeNode, n => n.Children!);
 
         /// <summary>
         /// 设计器控制器
         /// </summary>
-        internal static readonly TabController<DesignNode> DesignerController =
-            new TabController<DesignNode>(new List<DesignNode>());
+        internal static readonly TabController<DesignNodeVO> DesignerController =
+            new TabController<DesignNodeVO>(new List<DesignNodeVO>());
 
         private static DataGridController<CodeProblem>? _problemsController;
 
@@ -57,7 +57,8 @@ namespace AppBoxDesign
         /// <summary>
         /// 删除成功返回后刷新
         /// </summary>
-        internal static void OnDeleteNode(TreeNode<DesignNode> node, string? modelRootNodeIdString)
+        internal static void OnDeleteNode(TreeNode<DesignNodeVO> node,
+            string? modelRootNodeIdString)
         {
             // 移除选中节点打开的设计器
             DesignerController.Remove(node.Data);
@@ -66,7 +67,7 @@ namespace AppBoxDesign
             TreeController.RemoveNode(node);
         }
 
-        internal static void UpdateProblems(ModelNode modelNode, IList<CodeProblem> problems)
+        internal static void UpdateProblems(ModelNodeVO modelNode, IList<CodeProblem> problems)
         {
             //TODO:暂简单实现
             ProblemsController.DataSource = problems;
@@ -75,9 +76,9 @@ namespace AppBoxDesign
         /// <summary>
         /// 获取所有实体节点
         /// </summary>
-        internal static IList<ModelNode> GetAllEntityNodes()
+        internal static IList<ModelNodeVO> GetAllEntityNodes()
         {
-            var list = new List<ModelNode>();
+            var list = new List<ModelNodeVO>();
             var appRootNode = TreeController.DataSource![1];
             foreach (var appNode in appRootNode.Children!)
             {
@@ -88,9 +89,9 @@ namespace AppBoxDesign
             return list;
         }
 
-        private static void LoopAddEntityNode(DesignNode node, IList<ModelNode> list)
+        private static void LoopAddEntityNode(DesignNodeVO node, IList<ModelNodeVO> list)
         {
-            if (node is ModelNode modelNode)
+            if (node is ModelNodeVO modelNode)
                 list.Add(modelNode);
             else
             {
