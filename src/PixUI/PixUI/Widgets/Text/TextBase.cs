@@ -14,6 +14,7 @@ namespace PixUI
         private State<float>? _fontSize;
         private State<FontWeight>? _fontWeight;
         private State<Color>? _textColor;
+        private int _maxLines = 1;
 
         private Paragraph? _cachedParagraph;
 
@@ -37,6 +38,25 @@ namespace PixUI
         {
             get => _textColor;
             set => _textColor = Rebind(_textColor, value, BindingOptions.AffectsVisual);
+        }
+
+        public int MaxLines
+        {
+            set
+            {
+                if (value <= 0)
+                    throw new ArgumentException();
+                if (_maxLines != value)
+                {
+                    _maxLines = value;
+                    if (IsMounted)
+                    {
+                        _cachedParagraph?.Dispose();
+                        _cachedParagraph = null;
+                        Invalidate(InvalidAction.Relayout);
+                    }
+                }
+            }
         }
 
         public override void OnStateChanged(StateBase state, BindingOptions options)
@@ -63,7 +83,7 @@ namespace PixUI
             FontStyle? fontStyle = _fontWeight == null
                 ? null
                 : new FontStyle(_fontWeight.Value, FontSlant.Upright);
-            return TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, 1 /*TODO*/,
+            return TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, _maxLines,
                 ForceHeight);
         }
 

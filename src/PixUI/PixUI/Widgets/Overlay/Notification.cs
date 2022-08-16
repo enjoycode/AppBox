@@ -156,21 +156,21 @@ namespace PixUI
         {
             State<Color> color = Colors.Gray;
             Show(new Icon(Icons.Filled.Info) { Size = 18, Color = color },
-                new Text(message) { TextColor = color });
+                new Text(message) { TextColor = color, MaxLines = 5});
         }
 
         public static void Success(string message)
         {
             State<Color> color = Colors.Green;
             Show(new Icon(Icons.Filled.Error) { Size = 18, Color = color },
-                new Text(message) { TextColor = color });
+                new Text(message) { TextColor = color, MaxLines = 5});
         }
 
         public static void Error(string message)
         {
             State<Color> color = Colors.Red;
             Show(new Icon(Icons.Filled.Error) { Size = 18, Color = color },
-                new Text(message) { TextColor = color });
+                new Text(message) { TextColor = color, MaxLines = 5 });
         }
 
         #endregion
