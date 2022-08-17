@@ -1,14 +1,16 @@
 using System;
 using System.Linq;
 using AppBoxCore;
+using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign;
 
 internal sealed class NewEntityMemberDialog : Dialog
 {
-    public NewEntityMemberDialog()
+    public NewEntityMemberDialog(ModelNodeVO modelNode)
     {
+        _modelNode = modelNode;
         Width = 380;
         Height = 280;
         Title.Value = "New Entity Member";
@@ -17,11 +19,13 @@ internal sealed class NewEntityMemberDialog : Dialog
     private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
     private static readonly string[] FieldTypes = { "String", "Int", "Long", "Float", "Double" };
 
-    internal readonly State<string> Name = string.Empty;
-    internal readonly State<bool> AllowNull = false;
+    private readonly ModelNodeVO _modelNode;
+    private readonly State<string> _name = string.Empty;
+    private readonly State<bool> _allowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
-    private readonly State<ModelNodeVO?> _refTarget = new Rx<ModelNodeVO?>(null);
+    private readonly State<ModelNodeVO?> _entityRefTarget = new Rx<ModelNodeVO?>(null);
+    private readonly State<EntityMemberInfo?> _entitySetTarget = new Rx<EntityMemberInfo?>(null);
 
     protected override Widget BuildBody()
     {
@@ -38,7 +42,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                         Padding = EdgeInsets.Only(5, 5, 5, 0),
                         Children = new[]
                         {
-                            new FormItem("Name:", new Input(Name)),
+                            new FormItem("Name:", new Input(_name)),
                             new FormItem("MemberType:", new Select<string>(_memberType!)
                             {
                                 Options = MemberTypes
@@ -54,7 +58,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                             {
                                 new FormItem("FieldType:",
                                     new Select<string>(_fieldType!) { Options = FieldTypes }),
-                                new FormItem("AllowNull:", new Checkbox(AllowNull))
+                                new FormItem("AllowNull:", new Checkbox(_allowNull))
                             }
                         })
                         .When(t => t == "EntityRef", () => new Form()
@@ -64,11 +68,26 @@ internal sealed class NewEntityMemberDialog : Dialog
                             Children = new[]
                             {
                                 new FormItem("Target:",
-                                    new Select<ModelNodeVO>(_refTarget)
+                                    new Select<ModelNodeVO>(_entityRefTarget)
                                     {
                                         Options = DesignStore.GetAllEntityNodes().ToArray()
                                     }),
-                                new FormItem("AllowNull:", new Checkbox(AllowNull))
+                                new FormItem("AllowNull:", new Checkbox(_allowNull))
+                            }
+                        })
+                        .When(t => t == "EntitySet", () => new Form()
+                        {
+                            LabelWidth = 100,
+                            Padding = EdgeInsets.Only(5, 0, 5, 5),
+                            Children = new[]
+                            {
+                                new FormItem("Target:",
+                                    new Select<EntityMemberInfo>(_entitySetTarget)
+                                    {
+                                        OptionsAsyncGetter = Channel.Invoke<EntityMemberInfo[]>(
+                                            "sys.DesignService.GetAllEntityRefs",
+                                            new object?[] { _modelNode.Id })!
+                                    })
                             }
                         })
                 }
@@ -76,7 +95,7 @@ internal sealed class NewEntityMemberDialog : Dialog
         };
     }
 
-    internal int GetMemberTypeValue()
+    private int GetMemberTypeValue()
     {
         switch (_memberType.Value)
         {
@@ -87,7 +106,7 @@ internal sealed class NewEntityMemberDialog : Dialog
         }
     }
 
-    internal int GetFieldTypeValue()
+    private int GetFieldTypeValue()
     {
         switch (_fieldType.Value)
         {
@@ -100,9 +119,33 @@ internal sealed class NewEntityMemberDialog : Dialog
         }
     }
 
-    internal string[] GetRefModelIds()
+    private string[] GetRefModelIds()
     {
-        if (_refTarget.Value == null) return Array.Empty<string>();
-        return new string[] { _refTarget.Value!.Id };
+        if (_entityRefTarget.Value == null) return Array.Empty<string>();
+        return new string[] { _entityRefTarget.Value!.Id };
+    }
+
+    internal object?[] GetArgs()
+    {
+        var memberType = GetMemberTypeValue();
+        if (memberType == (int)EntityMemberType.EntityField)
+            return new object?[]
+            {
+                _modelNode.Id, _name.Value, memberType, GetFieldTypeValue(), _allowNull.Value
+            };
+        if (memberType == (int)EntityMemberType.EntityRef)
+            return new object?[]
+            {
+                //TODO:暂不支持聚合引用
+                _modelNode.Id, _name.Value, memberType, GetRefModelIds(), _allowNull.Value
+            };
+        if (memberType == (int)EntityMemberType.EntitySet)
+            return new object?[]
+            {
+                _modelNode.Id, _name.Value, memberType, _entitySetTarget.Value!.ModelId,
+                _entitySetTarget.Value!.MemberId
+            };
+
+        throw new NotImplementedException();
     }
 }

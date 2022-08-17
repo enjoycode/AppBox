@@ -17,6 +17,8 @@ public sealed class DesignHub : IDesignContext, IDisposable
             typeof(EntityRefVO)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntitySetVO,
             typeof(EntitySetVO)));
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityMemberInfo,
+            typeof(EntityMemberInfo)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.DesignTree,
             typeof(DesignTree)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.NewNodeResult,

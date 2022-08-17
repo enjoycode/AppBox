@@ -38,6 +38,9 @@
       <Compile Include="..\AppStudio\Data\DesignNodeType.cs">
         <Link>Data\DesignNodeType.cs</Link>
       </Compile>
+      <Compile Include="..\AppStudio\Data\EntityMemberInfo.cs">
+        <Link>Data\EntityMemberInfo.cs</Link>
+      </Compile>
       <Compile Include="..\AppStudio\Data\EntityModelVO.cs">
         <Link>Data\EntityModelVO.cs</Link>
       </Compile>

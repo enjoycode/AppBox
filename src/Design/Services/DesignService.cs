@@ -25,6 +25,7 @@ public sealed class DesignService : IService
         { nameof(DeleteEntityMember), new DeleteEntityMember() },
         { nameof(OpenEntityModel), new OpenEntityModel() },
         { nameof(ChangePrimaryKeys), new ChangePrimaryKeys() },
+        { nameof(GetAllEntityRefs), new GetAllEntityRefs() },
         { nameof(GetEntityPreview), new GetEntityPreview() },
         // Service
         { nameof(NewServiceModel), new NewServiceModel() },

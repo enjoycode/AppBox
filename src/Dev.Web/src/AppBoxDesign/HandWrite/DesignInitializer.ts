@@ -4,7 +4,7 @@ import {
     NewNodeResult,
     ChangedModel,
     CodeProblem,
-    EntityModelVO, EntityFieldVO, EntityRefVO, EntitySetVO
+    EntityModelVO, EntityFieldVO, EntityRefVO, EntitySetVO, EntityMemberInfo
 } from '@/AppBoxDesign'
 import {TSCSharpLanguage} from "@/CodeEditor";
 import {FieldWithOrder, PayloadType, TypeSerializer} from "@/AppBoxCore";
@@ -25,6 +25,7 @@ export class DesignInitializer {
         TypeSerializer.RegisterKnownType(PayloadType.EntityFieldVO, false, () => new EntityFieldVO());
         TypeSerializer.RegisterKnownType(PayloadType.EntityRefVO, false, () => new EntityRefVO());
         TypeSerializer.RegisterKnownType(PayloadType.EntitySetVO, false, () => new EntitySetVO());
+        TypeSerializer.RegisterKnownType(PayloadType.EntityMemberInfo, false, () => new EntityMemberInfo());
         TypeSerializer.RegisterKnownType(PayloadType.DesignTree, false, () => new DesignTree());
         TypeSerializer.RegisterKnownType(PayloadType.NewNodeResult, false, () => new NewNodeResult());
         TypeSerializer.RegisterKnownType(PayloadType.CodeProblem, true, () => new CodeProblem());

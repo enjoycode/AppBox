@@ -78,6 +78,14 @@ public readonly struct InvokeArgs
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
 
+    public short GetShort()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.Int16) return _stream.ReadShort();
+        if (payloadType == PayloadType.Int32) return (short)_stream.ReadInt();
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
     public int GetInt()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();

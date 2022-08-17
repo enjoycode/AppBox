@@ -33,7 +33,7 @@ public sealed class ModelRootNode : DesignNode
     }
 
     #region ====Add and Remove Methods====
-    
+
     /// <summary>
     /// 用于新建时添加至字典表
     /// </summary>
@@ -43,7 +43,7 @@ public sealed class ModelRootNode : DesignNode
     /// 用于新建时添加至字典表
     /// </summary>
     internal void AddFolderIndex(FolderNode node) => _folders.Add(node.Folder.Id, node);
-    
+
     /// <summary>
     /// 删除并移除字典表中对应的键
     /// </summary>
@@ -127,6 +127,8 @@ public sealed class ModelRootNode : DesignNode
 
     public ModelNode? FindModelNodeByName(ReadOnlyMemory<char> name)
         => _models.Values.FirstOrDefault(t => t.Model.Name.AsSpan().SequenceEqual(name.Span));
+    
+    public ModelNode[] GetAllModelNodes() => _models.Values.ToArray();
 
     #endregion
 

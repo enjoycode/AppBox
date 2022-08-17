@@ -243,6 +243,49 @@ public sealed class DesignTree : IBinSerializable
         return found != null;
     }
 
+    public ModelNode[] FindNodesByType(ModelType modelType)
+    {
+        var list = new List<ModelNode>();
+        for (var i = 0; i < _appRootNode.Children.Count; i++)
+        {
+            var appNode = _appRootNode.Children[i];
+            var modelRootNode = appNode.FindModelRootNode(modelType);
+            list.AddRange(modelRootNode.GetAllModelNodes());
+        }
+
+        return list.ToArray();
+    }
+
+    /// <summary>
+    /// 查找所有引用指定模型标识的EntityRef Member集合
+    /// </summary>
+    public List<EntityRefModel> FindAllEntityRefs(ModelId targetEntityModelId)
+    {
+        var rs = new List<EntityRefModel>();
+
+        var allEntities = FindNodesByType(ModelType.Entity);
+        for (var i = 0; i < allEntities.Length; i++)
+        {
+            var model = (EntityModel)allEntities[i].Model;
+            //注意：不能排除自身引用，主要指树状结构的实体
+            for (var j = 0; j < model.Members.Count; j++)
+            {
+                if (model.Members[j].Type == EntityMemberType.EntityRef)
+                {
+                    var refMember = (EntityRefModel)model.Members[j];
+                    //注意不排除聚合引用
+                    for (var k = 0; k < refMember.RefModelIds.Count; k++)
+                    {
+                        if (refMember.RefModelIds[k] == targetEntityModelId.Value)
+                            rs.Add(refMember);
+                    }
+                }
+            }
+        }
+
+        return rs;
+    }
+
     #endregion
 
     #region ====Checkout Methods====

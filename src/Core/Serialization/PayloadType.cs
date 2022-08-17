@@ -48,6 +48,7 @@ namespace AppBoxCore
         EntityRefVO = 59,
         EntitySetVO = 60,
         EntityMemberVO = 61,
+        EntityMemberInfo = 62,
 
         //----运行时相关类型----
         Entity = 90,

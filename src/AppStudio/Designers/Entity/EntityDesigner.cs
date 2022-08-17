@@ -121,32 +121,14 @@ namespace AppBoxDesign
 
         private async void OnAddMember(PointerEvent e)
         {
-            var dlg = new NewEntityMemberDialog();
+            var dlg = new NewEntityMemberDialog(_modelNode);
             var canceled = await dlg.ShowAndWaitClose();
             if (canceled) return;
-
-            var memberType = dlg.GetMemberTypeValue();
-            object?[] args;
-            if (memberType == (int)EntityMemberType.EntityField)
-                args = new object?[]
-                {
-                    _modelNode.Id, dlg.Name.Value, memberType, dlg.GetFieldTypeValue(),
-                    dlg.AllowNull.Value
-                };
-            else if (memberType == (int)EntityMemberType.EntityRef)
-                args = new object?[]
-                {
-                    //TODO:暂不支持聚合引用
-                    _modelNode.Id, dlg.Name.Value, memberType, dlg.GetRefModelIds(),
-                    dlg.AllowNull.Value
-                };
-            else
-                throw new NotImplementedException();
 
             try
             {
                 var members = await Channel.Invoke<EntityMemberVO[]>(
-                    "sys.DesignService.NewEntityMember", args);
+                    "sys.DesignService.NewEntityMember", dlg.GetArgs());
                 foreach (var member in members!)
                 {
                     if (member.IsForeignKeyMember)

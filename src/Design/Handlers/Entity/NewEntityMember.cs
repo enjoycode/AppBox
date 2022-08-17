@@ -27,13 +27,13 @@ internal sealed class NewEntityMember : IDesignHandler
         if (model.GetMember(memberName, false) != null)
             throw new Exception("Name has exists");
 
-        EntityMemberVO[] res;
-        if (entityMemberType == EntityMemberType.EntityField)
-            res = NewEntityField(model, memberName, ref args);
-        else if (entityMemberType == EntityMemberType.EntityRef)
-            res = NewEntityRef(model, memberName, hub, ref args);
-        else
-            throw new NotImplementedException();
+        var res = entityMemberType switch
+        {
+            EntityMemberType.EntityField => NewEntityField(model, memberName, ref args),
+            EntityMemberType.EntityRef => NewEntityRef(model, memberName, hub, ref args),
+            EntityMemberType.EntitySet => NewEntitySet(model, memberName, hub, ref args),
+            _ => throw new NotSupportedException($"不支持的实体成员类型: {entityMemberType}")
+        };
 
         //保存并更新虚拟代码
         await node.SaveAsync(null);
@@ -143,5 +143,26 @@ internal sealed class NewEntityMember : IDesignHandler
         res.Add(EntityRefVO.From(entityRef));
 
         return res.ToArray();
+    }
+
+    private static EntityMemberVO[] NewEntitySet(EntityModel model, string name, DesignHub hub,
+        ref InvokeArgs args)
+    {
+        ModelId refModelId = args.GetString()!;
+        var refMemberId = args.GetShort();
+
+        //验证引用目标是否存在
+        var target = hub.DesignTree.FindModelNode(ModelType.Entity, refModelId);
+        if (target == null)
+            throw new Exception("Can't find EntityRef");
+        var targetModel = (EntityModel)target.Model;
+        var targetMember = targetModel.GetMember(refMemberId)!;
+        if (targetMember.Type != EntityMemberType.EntityRef)
+            throw new Exception("Target member is not EntityRef");
+
+        var entitySet = new EntitySetModel(model, name, refModelId, refMemberId);
+        model.AddMember(entitySet);
+
+        return new EntityMemberVO[] { EntitySetVO.From(entitySet) };
     }
 }

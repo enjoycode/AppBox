@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PixUI
 {
@@ -31,6 +32,11 @@ namespace PixUI
         private Func<T, string>? _labelGetter;
 
         public T[] Options { get; set; } = Array.Empty<T>();
+
+        public Task<T[]> OptionsAsyncGetter
+        {
+            set => GetOptionsAsync(value);
+        }
 
         public Func<T, string> LabelGetter
         {
@@ -97,6 +103,11 @@ namespace PixUI
 
             _listPopup?.Hide();
             _listPopup = null;
+        }
+
+        private async void GetOptionsAsync(Task<T[]> builder)
+        {
+            Options = await builder;
         }
 
         private void OnSelectionChanged(T? data)
