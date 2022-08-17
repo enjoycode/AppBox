@@ -98,7 +98,7 @@ partial class PgSqlStore
         var deletedMembers = model.Members
             .Where(t => t.PersistentState == PersistentState.Deleted)
             .ToArray();
-        if (deletedMembers != null && deletedMembers.Length > 0)
+        if (deletedMembers.Length > 0)
         {
             #region ----删除的成员----
 
@@ -146,7 +146,7 @@ partial class PgSqlStore
         var addedMembers = model.Members
             .Where(t => t.PersistentState == PersistentState.Detached)
             .ToArray();
-        if (addedMembers != null && addedMembers.Length > 0)
+        if (addedMembers.Length > 0)
         {
             #region ----新增的成员----
 
@@ -171,16 +171,16 @@ partial class PgSqlStore
                 }
             }
 
-            var cmdText = StringBuilderCache.GetStringAndRelease(sb);
             if (needCommand)
             {
-                //加入关系
+                //加入外键约束
                 sb.AppendLine();
-                for (int i = 0; i < fks.Count; i++)
+                for (var i = 0; i < fks.Count; i++)
                 {
                     sb.AppendLine(fks[i]);
                 }
 
+                var cmdText = StringBuilderCache.GetStringAndRelease(sb);
                 commands.Add(new NpgsqlCommand(cmdText));
             }
 
@@ -192,9 +192,10 @@ partial class PgSqlStore
         fks.Clear();
 
         //处理修改的成员
-        var changedMembers = model.Members.Where(t => t.PersistentState == PersistentState.Modified)
+        var changedMembers = model.Members
+            .Where(t => t.PersistentState == PersistentState.Modified)
             .ToArray();
-        if (changedMembers != null && changedMembers.Length > 0)
+        if (changedMembers.Length > 0)
         {
             #region ----修改的成员----
 
@@ -202,7 +203,7 @@ partial class PgSqlStore
             {
                 if (m.Type == EntityMemberType.EntityField)
                 {
-                    EntityFieldModel dfm = (EntityFieldModel)m;
+                    var dfm = (EntityFieldModel)m;
                     //先处理数据类型变更，变更类型或者变更AllowNull或者变更默认值
                     if (dfm.IsFieldTypeChanged)
                     {
