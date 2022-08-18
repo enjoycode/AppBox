@@ -143,6 +143,9 @@ internal static class EntityCodeGenerator
         }
     }
 
+    /// <summary>
+    /// 生成实体模型的运行时代码
+    /// </summary>
     internal static string GenEntityRuntimeCode(ModelNode modelNode)
     {
         var appName = modelNode.AppNode.Model.Name;
@@ -150,63 +153,17 @@ internal static class EntityCodeGenerator
 
         var sb = StringBuilderCache.Acquire();
         sb.Append("using System;\n");
+        sb.Append("using System.Collections.Generic;\n");
         sb.Append("using System.Threading.Tasks;\n");
         sb.Append("using AppBoxCore;\n\n");
         sb.Append($"namespace {appName}.Entities;\n");
 
-        sb.Append($"[EntityModelIdAttribute({model.Id.Value}L)]");
-        sb.Append($"public sealed class {model.Name}");
-        //根据存储配置继承不同的基类
-        switch (model.DataStoreKind)
-        {
-            case DataStoreKind.None:
-                sb.Append(" : Entity");
-                break;
-            case DataStoreKind.Sql:
-                sb.Append(" : SqlEntity");
-                break;
-            default: throw new NotImplementedException(model.DataStoreKind.ToString());
-        }
-
+        sb.Append($"[EntityModelIdAttribute({model.Id.Value}L)]\n");
+        sb.Append($"public sealed class {model.Name} : {GetEntityBaseClass(model)}");
         sb.Append("\n{\n"); //class start
 
         //构造(仅Sql存储且具备主键)
-        if (model.SqlStoreOptions != null && model.SqlStoreOptions.HasPrimaryKeys)
-        {
-            var pks = model.SqlStoreOptions.PrimaryKeys;
-
-            sb.Append("#if __RUNTIME__\n");
-            sb.Append("public ");
-            sb.Append(model.Name);
-            sb.Append("(){}\n");
-            sb.Append("#endif\n");
-
-            sb.Append("public ");
-            sb.Append(model.Name);
-            sb.Append('(');
-            for (var i = 0; i < pks.Length; i++)
-            {
-                if (i != 0) sb.Append(',');
-                var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
-                sb.Append(GetEntityFieldTypeString(dfm));
-                sb.Append(' ');
-                sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
-            }
-
-            sb.Append("){\n");
-            foreach (var pk in pks)
-            {
-                sb.Append('\t');
-                var dfm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
-                sb.Append('_');
-                sb.Append(dfm.Name);
-                sb.Append('=');
-                sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
-                sb.Append(";\n");
-            }
-
-            sb.Append("}\n");
-        }
+        GenEntityCtor(model, sb);
 
         // 实体成员
         foreach (var member in model.Members)
@@ -217,10 +174,10 @@ internal static class EntityCodeGenerator
                     GenEntityFieldMember((EntityFieldModel)member, sb);
                     break;
                 case EntityMemberType.EntityRef:
-                    //TODO:
+                    GenEntityRefMember((EntityRefModel)member, sb, modelNode.DesignTree!);
                     break;
                 case EntityMemberType.EntitySet:
-                    //TODO:
+                    GenEntitySetMember((EntitySetModel)member, sb, modelNode.DesignTree!);
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
@@ -243,67 +200,59 @@ internal static class EntityCodeGenerator
 
         sb.Append("};\nprotected override short[] AllMembers => MemberIds;\n");
 
-        // override WriteMember
-        sb.Append(
-            "public override void WriteMember(short id, IEntityMemberWriter ws, int flags){\n");
-        sb.Append("\tswitch(id){\n");
-        foreach (var member in model.Members)
-        {
-            sb.Append("\t\tcase ");
-            sb.Append(member.MemberId.ToString());
-            sb.Append(": ws.Write");
-            sb.Append(GetEntityMemberWriteReadType(member));
-            sb.Append("Member(id,");
-            if (model.StoreOptions != null) sb.Append('_');
-            sb.Append(member.Name);
-            sb.Append(",flags);break;\n");
-        }
-
-        sb.Append(
-            "\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
-        sb.Append(model.Name);
-        sb.Append("));\n");
-        sb.Append("\t}\n"); //end switch
-        sb.Append("}\n"); //end WriteMember
-
-        // override ReadMember
-        sb.Append(
-            "public override void ReadMember(short id, IEntityMemberReader rs, int flags){\n");
-        sb.Append("\tswitch(id){\n");
-        foreach (var member in model.Members)
-        {
-            sb.Append("\t\tcase ");
-            sb.Append(member.MemberId.ToString());
-            sb.Append(":");
-            if (model.StoreOptions != null) sb.Append('_');
-            sb.Append(member.Name);
-            sb.Append("=rs.Read");
-            sb.Append(GetEntityMemberWriteReadType(member));
-            sb.Append("Member(flags);break;\n");
-        }
-
-        sb.Append(
-            "\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
-        sb.Append(model.Name);
-        sb.Append("));\n");
-        sb.Append("\t}\n"); //end switch
-        sb.Append("}\n"); //end ReadMember
+        // override WriteMember & ReadMember
+        GenOverrideWriteMember(model, sb);
+        GenOverrideReadMember(model, sb, modelNode.DesignTree!);
 
         // 存储方法Insert/Update/Delete/Fetch
-        if (model.SqlStoreOptions != null)
-        {
-            sb.Append("#if __HOSTRUNTIME__\n");
-            sb.Append(
-                "public Task<int> InsertAsync(System.Data.Common.DbTransaction? txn=null) => ");
-            GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
-            sb.Append(".InsertAsync(");
-            sb.Append("this,txn);\n");
-
-            sb.Append("#endif\n");
-        }
+        GenStoreCRUDMethods(model, sb);
 
         sb.Append("}\n"); //class end
         return StringBuilderCache.GetStringAndRelease(sb);
+    }
+
+    /// <summary>
+    /// 生成实体构造(仅Sql存储且具备主键)
+    /// </summary>
+    private static void GenEntityCtor(EntityModel model, StringBuilder sb)
+    {
+        if (model.SqlStoreOptions == null || !model.SqlStoreOptions.HasPrimaryKeys) return;
+
+        var pks = model.SqlStoreOptions.PrimaryKeys;
+
+        sb.Append("#if __RUNTIME__\n");
+        sb.Append("\tpublic \n");
+        sb.Append("#else\n");
+        sb.Append("\tinternal \n");
+        sb.Append("#endif\n\t");
+        sb.Append(model.Name);
+        sb.Append("(){}\n\n");
+
+        sb.Append("\tpublic ");
+        sb.Append(model.Name);
+        sb.Append('(');
+        for (var i = 0; i < pks.Length; i++)
+        {
+            if (i != 0) sb.Append(',');
+            var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
+            sb.Append(GetEntityFieldTypeString(dfm));
+            sb.Append(' ');
+            sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
+        }
+
+        sb.Append("){\n");
+        foreach (var pk in pks)
+        {
+            sb.Append("\t\t");
+            var dfm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
+            sb.Append('_');
+            sb.Append(dfm.Name);
+            sb.Append('=');
+            sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
+            sb.Append(";\n");
+        }
+
+        sb.Append("\t}\n");
     }
 
     private static void GenEntityFieldMember(EntityFieldModel field, StringBuilder sb)
@@ -332,6 +281,231 @@ internal static class EntityCodeGenerator
 
             sb.Append("\t}\n"); //prop end
         }
+    }
+
+    private static void GenEntityRefMember(EntityRefModel entityRef, StringBuilder sb,
+        DesignTree tree)
+    {
+        var refModelNode = tree.FindModelNode(ModelType.Entity, entityRef.RefModelIds[0])!;
+        var typeString = entityRef.IsAggregationRef
+            ? GetEntityBaseClass(entityRef.Owner)
+            : $"{refModelNode.AppNode.Model.Name}.Entities.{refModelNode.Model.Name}";
+
+        var fieldName = entityRef.Name;
+        sb.Append($"\tprivate {typeString}? _{fieldName};\n");
+        sb.Append($"\tpublic {typeString}? {fieldName}\n");
+        sb.Append("\t{\n"); //prop start
+        sb.Append($"\t\tget => _{fieldName};\n");
+
+        sb.Append("\t\tset\n");
+        sb.Append("\t\t{\n"); //prop set start
+        sb.Append($"\t\t\t_{fieldName} = value");
+        if (!entityRef.AllowNull) sb.Append(" ?? throw new ArgumentNullException()");
+        sb.Append(";\n");
+
+        //同步设置聚合引用类型的成员的值及外键成员的值
+        if (entityRef.Owner.DataStoreKind == DataStoreKind.Sql)
+        {
+            if (entityRef.IsAggregationRef)
+            {
+                var typeMember = entityRef.Owner.GetMember(entityRef.TypeMemberId)!;
+                sb.Append("\t\t\tswitch (value) {\n");
+                foreach (var refModelId in entityRef.RefModelIds)
+                {
+                    refModelNode = tree.FindModelNode(ModelType.Entity, refModelId)!;
+                    var refModel = (EntityModel)refModelNode.Model;
+                    var refPks = refModel.SqlStoreOptions!.PrimaryKeys;
+
+                    sb.Append(
+                        $"\t\t\tcase {refModelNode.AppNode.Model.Name}.Entities.{refModel.Name} _{refModel.Name}:\n");
+                    sb.Append($"\t\t\t\t{typeMember.Name} = {refModel.Id.ToString()}L;\n");
+                    for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
+                    {
+                        var fkMember =
+                            (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        if (fkMember.IsPrimaryKey) continue; //TODO:暂OrgUnit特例
+                        var pkMember = refModel.GetMember(refPks[i].MemberId)!;
+                        sb.Append(
+                            $"\t\t\t\t{fkMember.Name} = _{refModel.Name}.{pkMember.Name};\n");
+                    }
+
+                    sb.Append("\t\t\t\tbreak;\n");
+                }
+
+                sb.Append("\t\t\tdefault: throw new ArgumentException();\n");
+                sb.Append("\t\t\t}\n");
+            }
+            else
+            {
+                var refModel = (EntityModel)refModelNode.Model;
+                var refPks = refModel.SqlStoreOptions!.PrimaryKeys;
+                for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
+                {
+                    var fkMember = entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                    var pkMember = refModel.GetMember(refPks[i].MemberId)!;
+                    sb.Append($"\t\t\t{fkMember.Name} = value.{pkMember.Name};\n");
+                }
+            }
+        }
+        else
+        {
+            throw new NotImplementedException("生成实体的EntityRef成员代码");
+        }
+
+        //TODO: DbEntity.OnPropertyChanged
+        sb.Append("\t\t}\n"); //prop set end
+
+        sb.Append("\t}\n"); //prop end
+    }
+
+    private static void GenEntitySetMember(EntitySetModel entitySet, StringBuilder sb,
+        DesignTree tree)
+    {
+        var refNode = tree.FindModelNode(ModelType.Entity, entitySet.RefModelId)!;
+        var refModel = (EntityModel)refNode.Model;
+        var typeString = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
+        var fieldName = entitySet.Name;
+
+        sb.Append($"\tprivate IList<{typeString}>? _{fieldName};\n");
+        sb.Append($"\tpublic IList<{typeString}>? {fieldName}\n");
+        sb.Append("\t{\n"); //prop start
+        sb.Append("\t\tget {\n");
+        sb.Append(
+            $"\t\t\tif (_{fieldName} == null && PersistentState == PersistentState.Detached)\n");
+        sb.Append($"\t\t\t\t_{fieldName} = new List<{typeString}>();\n");
+        sb.Append($"\t\t\treturn _{fieldName};\n");
+        sb.Append("\t\t}\n");
+
+        sb.Append("\t}\n"); //prop end
+    }
+
+    private static void GenOverrideWriteMember(EntityModel model, StringBuilder sb)
+    {
+        sb.Append(
+            "public override void WriteMember(short id, IEntityMemberWriter ws, int flags){\n");
+        sb.Append("\tswitch(id){\n");
+        foreach (var member in model.Members)
+        {
+            sb.Append("\t\tcase ");
+            sb.Append(member.MemberId.ToString());
+            sb.Append(": ws.Write");
+            sb.Append(GetEntityMemberWriteReadType(member));
+            sb.Append("Member(id,");
+            if (model.StoreOptions != null) sb.Append('_');
+            sb.Append(member.Name);
+            sb.Append(",flags);break;\n");
+        }
+
+        sb.Append(
+            "\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
+        sb.Append(model.Name);
+        sb.Append("));\n");
+        sb.Append("\t}\n"); //end switch
+        sb.Append("}\n"); //end WriteMember
+    }
+
+    private static void GenOverrideReadMember(EntityModel model, StringBuilder sb, DesignTree tree)
+    {
+        sb.Append(
+            "public override void ReadMember(short id, IEntityMemberReader rs, int flags){\n");
+        sb.Append("\tswitch(id){\n");
+        foreach (var member in model.Members)
+        {
+            sb.Append("\t\tcase ");
+            sb.Append(member.MemberId.ToString());
+            sb.Append(":");
+            if (model.StoreOptions != null) sb.Append('_');
+            sb.Append(member.Name);
+            sb.Append("=rs.Read");
+            sb.Append(GetEntityMemberWriteReadType(member));
+            sb.Append("Member");
+            switch (member.Type)
+            {
+                case EntityMemberType.EntityField:
+                    sb.Append("(flags);break;\n");
+                    break;
+                case EntityMemberType.EntityRef:
+                {
+                    var entityRef = (EntityRefModel)member;
+                    if (entityRef.IsAggregationRef)
+                    {
+                        var typeMember = model.GetMember(entityRef.TypeMemberId)!;
+                        sb.Append($"<{GetEntityBaseClass(model)}>");
+                        sb.Append($"(flags, () => _{typeMember.Name} switch {{\n");
+                        foreach (var refModelId in entityRef.RefModelIds)
+                        {
+                            var refNode = tree.FindModelNode(ModelType.Entity, refModelId)!;
+                            var refModel = (EntityModel)refNode.Model;
+                            var refModelName =
+                                $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
+                            sb.Append(
+                                $"\t\t\t{refModel.Id.ToString()}L => new {refModelName}(),\n");
+                        }
+
+                        sb.Append("\t\t\t_ => throw new Exception()\n");
+
+                        sb.Append("\t\t\t});break;\n");
+                    }
+                    else
+                    {
+                        var refModelId = entityRef.RefModelIds[0];
+                        var refNode = tree.FindModelNode(ModelType.Entity, refModelId)!;
+                        var refModel = (EntityModel)refNode.Model;
+                        var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
+                        sb.Append($"(flags, () => new {refModelName}());break;\n");
+                    }
+
+                    break;
+                }
+                case EntityMemberType.EntitySet:
+                {
+                    var entitySet = (EntitySetModel)member;
+                    var refNode = tree.FindModelNode(ModelType.Entity, entitySet.RefModelId)!;
+                    var refModel = (EntityModel)refNode.Model;
+                    var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
+                    sb.Append($"(flags, () => new {refModelName}());break;\n");
+
+                    break;
+                }
+                default: throw new NotImplementedException();
+            }
+        }
+
+        sb.Append(
+            "\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
+        sb.Append(model.Name);
+        sb.Append("));\n");
+        sb.Append("\t}\n"); //end switch
+        sb.Append("}\n"); //end ReadMember
+    }
+
+    private static void GenStoreCRUDMethods(EntityModel model, StringBuilder sb)
+    {
+        if (model.SqlStoreOptions == null) return;
+
+        sb.Append("#if __HOSTRUNTIME__\n");
+        sb.Append(
+            "public Task<int> InsertAsync(System.Data.Common.DbTransaction? txn=null) =>\n");
+        GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
+        sb.Append(".InsertAsync(");
+        sb.Append("this,txn);\n");
+
+        //TODO: others
+
+        sb.Append("#endif\n");
+    }
+
+    /// <summary>
+    /// 根据实体模型的存储配置获取继承的基类
+    /// </summary>
+    private static string GetEntityBaseClass(EntityModel model)
+    {
+        return model.DataStoreKind switch
+        {
+            DataStoreKind.None => nameof(Entity),
+            DataStoreKind.Sql => nameof(SqlEntity),
+            _ => throw new NotImplementedException(model.DataStoreKind.ToString())
+        };
     }
 
     private static string GetEntityFieldTypeString(EntityFieldModel field)

@@ -36,7 +36,7 @@ public class CodeGenerateTest
         var designHub = mockSession.GetDesignHub();
         await designHub.DesignTree.LoadAsync();
 
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
 
         var code = EntityCodeGenerator.GenEntityRuntimeCode(entityNode);
         Console.Write(code);

@@ -14,10 +14,10 @@ public sealed class OrgUnit : SqlEntity
     private long _baseType;
     private Guid? _parentId;
 
-    private Entity? _base;
+    private SqlEntity? _base;
     private OrgUnit? _parent;
     private IList<OrgUnit>? _children;
-    
+
     public Guid Id => _id;
 
     public long BaseType => _baseType;
@@ -33,14 +33,14 @@ public sealed class OrgUnit : SqlEntity
         }
     }
 
-    public Entity? Parent => _parent;
+    public OrgUnit? Parent => _parent;
 
     public string Name
     {
         get => _name;
     }
 
-    public Entity? Base
+    public SqlEntity? Base
     {
         get => _base;
         set
@@ -139,15 +139,12 @@ public sealed class OrgUnit : SqlEntity
                 _parentId = rs.ReadGuidMember(flags);
                 break;
             case BASE_ID:
-                _base = rs.ReadEntityRefMember<Entity>(flags, () =>
+                _base = rs.ReadEntityRefMember<SqlEntity>(flags, () => _baseType switch
                 {
-                    if (_baseType == Employee.MODELID)
-                        return new Employee();
-                    if (_baseType == Workgroup.MODELID)
-                        return new Workgroup();
-                    if (_baseType == Enterprise.MODELID)
-                        return new Enterprise(Guid.Empty);
-                    throw new Exception();
+                    Employee.MODELID => new Employee(),
+                    Workgroup.MODELID => new Workgroup(),
+                    Enterprise.MODELID => new Enterprise(Guid.Empty),
+                    _ => throw new Exception()
                 });
                 break;
             case PARENT_ID:
