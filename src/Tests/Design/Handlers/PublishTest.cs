@@ -11,12 +11,7 @@ public class PublishTest
     [Test]
     public async Task Test()
     {
-        TestHelper.TryInitDefaultStore();
-
-        var mockSession = new MockSession(12345);
-        HostRuntimeContext.SetCurrentSession(mockSession);
-        var designHub = mockSession.GetDesignHub();
-        await designHub.DesignTree.LoadAsync();
+        var designHub = await TestHelper.MockSession();
 
         var getPendingChanges = new GetPendingChanges();
         await getPendingChanges.Handle(designHub, new InvokeArgs());

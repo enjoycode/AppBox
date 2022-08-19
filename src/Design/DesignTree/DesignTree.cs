@@ -166,21 +166,24 @@ public sealed class DesignTree : IBinSerializable
     public ModelNode? FindModelNodeByName(int appId, ModelType modelType, ReadOnlyMemory<char> name)
         => FindModelRootNode(appId, modelType)?.FindModelNodeByName(name);
 
+    public ModelNode? FindModelNodeByFullName(string fullName)
+        => FindModelNodeByFullName(fullName.AsMemory());
+    
     /// <summary>
     /// 根据全名称找到模型节点
     /// </summary>
     /// <param name="fullName">eg: sys.Entities.Employee</param>
-    public ModelNode? FindModelNodeByFullName(string fullName)
+    public ModelNode? FindModelNodeByFullName(ReadOnlyMemory<char> fullName)
     {
-        var firstDot = fullName.IndexOf('.');
-        var lastDot = fullName.LastIndexOf('.');
-        var appName = fullName.AsMemory(0, firstDot);
-        var typeName = fullName.AsSpan(firstDot + 1, lastDot - firstDot - 1);
-        var modelName = fullName.AsMemory(lastDot + 1);
+        var firstDot = fullName.Span.IndexOf('.');
+        var lastDot = fullName.Span.LastIndexOf('.');
+        var appName = fullName.Slice(0, firstDot);
+        var typeName = fullName.Slice(firstDot + 1, lastDot - firstDot - 1);
+        var modelName = fullName.Slice(lastDot + 1);
 
         var appNode = FindApplicationNodeByName(appName);
         if (appNode == null) return null;
-        var modelType = CodeUtil.GetModelTypeFromPluralString(typeName);
+        var modelType = CodeUtil.GetModelTypeFromPluralString(typeName.Span);
         return FindModelNodeByName(appNode.Model.Id, modelType, modelName);
     }
 

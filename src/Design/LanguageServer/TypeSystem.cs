@@ -2,6 +2,7 @@ using AppBoxCore;
 using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace AppBoxDesign;
@@ -341,6 +342,52 @@ internal sealed class TypeSystem : IDisposable
 
     #endregion
 
+    #region ====Get Symbol Methods====
+
+    private Document? GetModelDocument(ModelType modelType, string appName, string modelName)
+    {
+        //TODO:考虑从设计树查找相应的DocumentId
+        var docName = $"{appName}.{CodeUtil.GetPluralStringOfModelType(modelType)}.{modelName}.cs";
+        return Workspace.CurrentSolution.GetProject(ModelProjectId)!.Documents
+            .SingleOrDefault(t => t.Name == docName);
+    }
+
+    /// <summary>
+    /// 根据指定的模型类型及标识号获取相应的虚拟类的类型
+    /// </summary>
+    internal async Task<INamedTypeSymbol?> GetModelSymbolAsync(ModelType modelType, string appName,
+        string modelName)
+    {
+        var doc = GetModelDocument(modelType, appName, modelName);
+        if (doc == null)
+            return null;
+
+        var syntaxRootNode = await doc.GetSyntaxRootAsync();
+        var semanticModel = await doc.GetSemanticModelAsync();
+
+        if (modelType == ModelType.Enum)
+            throw new NotImplementedException(); //TODO:处理枚举等非ClassDeclaration的类型
+
+        var classDeclaration = syntaxRootNode!
+            .DescendantNodes()
+            .OfType<ClassDeclarationSyntax>()
+            .Single(c => c.Identifier.ValueText == modelName);
+        return semanticModel.GetDeclaredSymbol(classDeclaration);
+    }
+
+    internal async Task<IPropertySymbol?> GetEntityMemberSymbolAsync(string appName,
+        string modelName, string memberName)
+    {
+        var modelSymbol = await GetModelSymbolAsync(ModelType.Entity, appName, modelName);
+        if (modelSymbol == null) return null;
+
+        return modelSymbol.GetMembers(memberName).SingleOrDefault() as IPropertySymbol;
+    }
+
+    #endregion
+
+    #region ====Debug Methods====
+
     internal async void DumpAllProjectErrors()
     {
         await DumpProjectErrors(ModelProjectId);
@@ -359,6 +406,8 @@ internal sealed class TypeSystem : IDisposable
                 Console.WriteLine("项目[{0}]存在错误: {1}", project.Name, err);
         }
     }
+
+    #endregion
 
     public void Dispose()
     {

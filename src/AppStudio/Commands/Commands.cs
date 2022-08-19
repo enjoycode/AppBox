@@ -100,9 +100,9 @@ namespace AppBoxDesign
                 DesignStore.OnDeleteNode(selectedNode, modelRootNodeIdString);
                 Notification.Success($"删除节点[{selectedNode.Data.Label}]成功");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Notification.Success($"删除节点[{selectedNode.Data.Label}]失败");
+                Notification.Error($"删除节点[{selectedNode.Data.Label}]失败: {ex.Message}");
             }
         }
     }

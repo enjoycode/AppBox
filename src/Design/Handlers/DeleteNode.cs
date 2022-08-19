@@ -25,13 +25,14 @@ internal sealed class DeleteNode : IDesignHandler
             throw new NotImplementedException();
 
         //注意：返回rootNode.ID用于前端重新刷新模型根节点
-        return  AnyValue.From(rootNode == null ? string.Empty : rootNode.Id);
+        return AnyValue.From(rootNode == null ? string.Empty : rootNode.Id);
     }
 
     private static async Task<DesignNode?> DeleteModelNode(DesignHub hub, ModelNode node)
     {
         // 查找ModelRootNode
-        var modelRootNode = hub.DesignTree.FindModelRootNode(node.Model.AppId, node.Model.ModelType)!;
+        var modelRootNode =
+            hub.DesignTree.FindModelRootNode(node.Model.AppId, node.Model.ModelType)!;
         var rootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
         // 尝试签出模型节点及根节点
         var nodeCheckout = await node.CheckoutAsync();
@@ -47,24 +48,24 @@ internal sealed class DeleteNode : IDesignHandler
         if (node.Model.ModelLayer == ModelLayer.SYS)
             throw new Exception("Can't delete system model.");
         var model = node.Model;
-        // TODO:***查找引用项
-//         var usages = await RefactoringService.FindModelReferencesAsync(hub, model.ModelType,
-//             node.AppNode.Model.Name, model.Name);
-//         if (usages != null && usages.Count > 0)
-//         {
-//             //注意排除自身引用
-//             usages = usages.Where(u => !(u.ModelNode.Model.Id  == model.Id)).ToArray();
-//             if (usages.Count > 0)
-//             {
-// #if DEBUG
-//                 foreach (var item in usages)
-//                 {
-//                     Log.Warn(item.ToString());
-//                 }
-// #endif
-//                 throw new Exception("Has usages, Can't delete it.");
-//             }
-//         }
+        // 查找引用项
+        var usages = await ReferenceService.FindModelReferencesAsync(hub, model.ModelType,
+            node.AppNode.Model.Name, model.Name);
+        if (usages != null && usages.Count > 0)
+        {
+            //注意排除自身引用
+            usages = usages.Where(u => u.ModelNode.Model.Id != model.Id).ToList();
+            if (usages.Count > 0)
+            {
+#if DEBUG
+                foreach (var item in usages)
+                {
+                    Log.Warn(item.ToString());
+                }
+#endif
+                throw new Exception("Has usages, Can't delete it.");
+            }
+        }
 
         // 判断当前模型是否已持久化到数据库中
         if (model.PersistentState == PersistentState.Detached)
@@ -76,6 +77,7 @@ internal sealed class DeleteNode : IDesignHandler
             model.Delete();
             await node.SaveAsync(null);
         }
+
         // 移除对应节点
         modelRootNode.RemoveModel(node);
         // 删除Roslyn相关
@@ -83,7 +85,7 @@ internal sealed class DeleteNode : IDesignHandler
 
         return rootNodeHasCheckout ? null : modelRootNode;
     }
-    
+
     private static void RemoveRoslynFromModelNode(DesignHub hub, ModelNode node)
     {
         if (node.RoslynDocumentId != null)

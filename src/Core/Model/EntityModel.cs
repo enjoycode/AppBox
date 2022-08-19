@@ -163,6 +163,24 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         OnPropertyChanged();
     }
 
+    /// <summary>
+    /// 重命名成员
+    /// </summary>
+    internal void RenameMember(string oldName, string newName)
+    {
+        CheckDesignMode();
+        if (string.IsNullOrEmpty(oldName) || string.IsNullOrEmpty(newName))
+            throw new ArgumentNullException();
+        if (oldName == newName)
+        {
+            Log.Warn("Rename: name is same");
+            return;
+        }
+
+        var m = GetMember(oldName)!;
+        m.RenameTo(newName);
+    }
+
     internal void ChangeSchemaVersion()
     {
         // if (persistentState() != PersistentState.Detached && sysStoreOptions() != null) {
@@ -173,7 +191,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
     internal override void AcceptChanges()
     {
         base.AcceptChanges();
-        
+
         for (var i = _members.Count - 1; i >= 0; i--)
         {
             if (_members[i].PersistentState == PersistentState.Deleted)
