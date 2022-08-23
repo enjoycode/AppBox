@@ -30,7 +30,7 @@ public abstract class EntityMemberModel
 
     #region ====Design Methods====
 
-    public void InitMemberId(short id)
+    internal void InitMemberId(short id)
     {
         if (_memberId == 0)
             _memberId = id;
@@ -38,9 +38,9 @@ public abstract class EntityMemberModel
             throw new InvalidOperationException("Member id has set");
     }
 
-    public abstract void SetAllowNull(bool value);
+    internal abstract void SetAllowNull(bool value);
 
-    public void RenameTo(string newName)
+    internal void RenameTo(string newName)
     {
         if (_originalName == null && _persistentState != PersistentState.Detached)
             _originalName = _name;
@@ -56,7 +56,7 @@ public abstract class EntityMemberModel
         Owner.OnPropertyChanged();
     }
 
-    public void AcceptChanges()
+    internal void AcceptChanges()
     {
         _persistentState = _persistentState == PersistentState.Deleted
             ? PersistentState.Detached
@@ -64,11 +64,18 @@ public abstract class EntityMemberModel
         _originalName = null;
     }
 
-    public void AsDeleted()
+    internal void AsDeleted()
     {
         _persistentState = PersistentState.Deleted;
         Owner.OnPropertyChanged();
     }
+
+    /// <summary>
+    /// 添加对其他模型或成员的引用
+    /// </summary>
+    internal virtual void AddModelReferences(List<ModelReferenceInfo> list,
+        ModelReferenceType referenceType, ModelId modelID, string? memberName,
+        short? entityMemberId) { }
 
     #endregion
 

@@ -6,13 +6,13 @@ namespace AppBoxCore;
 public enum ModelReferenceType : byte
 {
     ApplicationID,
-    EntityModelID,
-    EntityMemberName,
-    EntityIndexName,
-    ServiceModelID,
-    ServiceMethodName,
-    EnumModelID,
-    EnumModelItemName,
+    EntityModel,
+    EntityMember,
+    EntityIndex,
+    ServiceModel,
+    ServiceMethod,
+    EnumModel,
+    EnumModelItem,
     FormModelID,
     ReportModelID,
     WorkflowModelID,
@@ -34,10 +34,10 @@ public enum ModelReferencePosition : byte
     EntityFormulaModel_Formula,
     EntityAggregateModel_TargetEntitySet,
     EntityRefModel_RefModelID,
-    EntityRefModel_IDMemberName,
-    EntityRefModel_TypeMemberName,
+    EntityRefModel_IDMember,
+    EntityRefModel_TypeMember,
     EntitySetModel_RefModelID,
-    EntitySetModel_RefMemberName,
+    EntitySetModel_RefMemberId,
     EntitySetModel_RefRowNumberMemberName,
     EntityActionPermissionRule_PermissionModelID,
     EntityActionPermissionRule_Filter,
@@ -48,10 +48,10 @@ public enum ModelReferencePosition : byte
 }
 
 /// <summary>
-/// 模型或模型成员名称引用者接口
+/// 模型或模型成员引用者接口
 /// </summary>
 /// <remarks>
-/// 实现该接口的对象引用了某一模型或其成员的名称，在引用的模型或成员重命名时做相应的重命名操作；
+/// 实现该接口的对象引用了某一模型或其成员，在引用的模型或成员重命名时做相应的重命名操作；
 /// 只要是具备表达式成员的对象或者是引用了其他模型或模型成员名称的对象就必须实现该接口
 /// </remarks>
 public interface IModelReference

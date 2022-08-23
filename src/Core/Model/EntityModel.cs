@@ -203,6 +203,33 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         StoreOptions?.AcceptChanges();
     }
 
+    internal void AddModelReferences(List<ModelReferenceInfo> list,
+        ModelReferenceType referenceType,
+        ModelId modelID, string? memberName, short? entityMemberId)
+    {
+        //处理ToStringExpression
+        // if (FindModelReferenceVisitor.ContainsModelReference(this._toStringExpression, referenceType, modelID, memberName))
+        // {
+        //     list.Add(new ModelReferenceInfo(this, ModelReferencePosition.EntityModel_ToStringExpression,
+        //         this.Name, this._toStringExpression.ToString()));
+        // }
+
+        //处理各成员
+        foreach (var member in _members)
+        {
+            member.AddModelReferences(list, referenceType, modelID, memberName, entityMemberId);
+        }
+
+        // //处理各行为
+        // if (_actions != null && _actions.Count > 0)
+        // {
+        //     foreach (EntityAction act in Actions.Values)
+        //     {
+        //         act.AddModelReferences(list, referenceType, modelID, memberName);
+        //     }
+        // }
+    }
+
     #endregion
 
     #region ====Runtime Methods====

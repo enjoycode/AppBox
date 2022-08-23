@@ -27,7 +27,11 @@ internal sealed class DeleteEntityMember : IDesignHandler
             if (field.IsUsedByIndexes())
                 throw new Exception("Can't delete with in Index");
         }
-        //TODO:在虚拟工程内查找外部引用
+
+        //查找成员引用
+        var refs = await ReferenceService.FindEntityMemberReferencesAsync(hub, node, member);
+        if (refs.Count > 0) //有引用项不做删除操作
+            throw new Exception("Member has reference, can't delete it");
 
         //移除成员
         model.RemoveMember(member);

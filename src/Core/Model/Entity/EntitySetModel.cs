@@ -1,6 +1,6 @@
 namespace AppBoxCore;
 
-public sealed class EntitySetModel : EntityMemberModel
+public sealed class EntitySetModel : EntityMemberModel, IModelReference
 {
     internal EntitySetModel(EntityModel owner) : base(owner, string.Empty, false) { }
 
@@ -23,10 +23,37 @@ public sealed class EntitySetModel : EntityMemberModel
 
     public override EntityMemberType Type => EntityMemberType.EntitySet;
 
-    public override void SetAllowNull(bool value)
+    internal override void SetAllowNull(bool value)
     {
         //do noting, always allow null
     }
+
+    internal override void AddModelReferences(List<ModelReferenceInfo> list,
+        ModelReferenceType referenceType, ModelId modelID,
+        string? memberName, short? entityMemberId)
+    {
+        if (referenceType == ModelReferenceType.EntityModel)
+        {
+            if (RefModelId == modelID)
+                list.Add(new ModelReferenceInfo(this,
+                    ModelReferencePosition.EntitySetModel_RefModelID, Name,
+                    $"{Owner.Name}.{Name}"));
+        }
+        else if (referenceType == ModelReferenceType.EntityMember && RefModelId == modelID)
+        {
+            if (RefMemberId == entityMemberId!.Value)
+                list.Add(new ModelReferenceInfo(this,
+                    ModelReferencePosition.EntitySetModel_RefMemberId, Name, $"{Owner.Name}.{Name}"));
+        }
+    }
+
+    void IModelReference.RenameReference(ModelReferenceType sourceType,
+        ModelReferencePosition targetType, ModelId modelId, string oldName, string newName)
+    {
+        //do nothing
+    }
+
+    #region ====Serialization====
 
     public override void WriteTo(IOutputStream ws)
     {
@@ -42,4 +69,6 @@ public sealed class EntitySetModel : EntityMemberModel
         RefModelId = rs.ReadLong();
         RefMemberId = rs.ReadShort();
     }
+
+    #endregion
 }

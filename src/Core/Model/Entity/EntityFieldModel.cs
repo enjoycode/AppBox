@@ -66,7 +66,7 @@ public sealed class EntityFieldModel : EntityMemberModel
         }
     }
 
-    public override void SetAllowNull(bool value)
+    internal override void SetAllowNull(bool value)
     {
         if (_allowNull != value)
         {

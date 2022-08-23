@@ -27,21 +27,6 @@ internal static class ReferenceService
         }
     }
 
-    internal static Task<List<Reference>> FindUsagesAsync(DesignHub hub,
-        ModelReferenceType referenceType, string appName, string modelName, string memberName)
-    {
-        return referenceType switch
-        {
-            ModelReferenceType.EntityMemberName => FindEntityMemberReferencesAsync(hub, appName,
-                modelName, memberName),
-            ModelReferenceType.EntityIndexName => FindEntityIndexReferencesAsync(hub, appName,
-                modelName, memberName),
-            ModelReferenceType.EnumModelItemName => FindEnumItemReferencesAsync(hub, appName,
-                modelName, memberName),
-            _ => throw new NotImplementedException(referenceType.ToString()),
-        };
-    }
-
     private static async Task<IList<Reference>> FindEntityReferences(DesignHub ctx, string appName,
         string modelName)
     {
@@ -56,21 +41,20 @@ internal static class ReferenceService
     /// <summary>
     /// 查找实体模型成员的引用项
     /// </summary>
-    /// <returns>The none null entity member references.</returns>
-    private static async Task<List<Reference>> FindEntityMemberReferencesAsync(DesignHub hub,
-        string appName, string modelName, string memberName)
+    internal static async Task<List<Reference>> FindEntityMemberReferencesAsync(DesignHub hub,
+        ModelNode modelNode, EntityMemberModel member)
     {
-        if (string.IsNullOrEmpty(modelName))
-            throw new ArgumentNullException(nameof(modelName), "实体模型标识为空");
-        if (string.IsNullOrEmpty(memberName))
-            throw new ArgumentNullException(nameof(memberName), "实体模型成员名称为空");
+        var appName = modelNode.AppNode.Model.Name;
+        var modelName = modelNode.Model.Name;
+        var memberName = member.Name;
 
         var ls = new List<Reference>();
 
-        //TODO:查找实体模型本身及所有其他实体模型的相关表达式（组织策略、编辑策略等）的引用
-        //AddReferencesFromEntityModels(hub, ls, ModelReferenceType.EntityMemberName, modelID, memberName);
+        //查找实体模型本身及所有其他实体模型的相关表达式（组织策略、编辑策略等）的引用
+        AddReferencesFromEntityModels(hub, ls, ModelReferenceType.EntityMember, modelNode.Model.Id,
+            memberName, member.MemberId);
 
-        //获取虚拟成员及相应的资源的虚拟成员
+        //获取虚拟代码的成员符号并查找代码引用
         var symbol =
             await hub.TypeSystem.GetEntityMemberSymbolAsync(appName, modelName, memberName);
         if (symbol != null)
@@ -97,8 +81,7 @@ internal static class ReferenceService
         //     Log.Warn($"Can't get EntityIndex symbol: {appName}.{modelName}.{indexName}");
         // return ls;
     }
-
-
+    
     private static async Task<IList<Reference>> FindServiceReferences(DesignHub ctx, string appName,
         string modelName)
     {
@@ -138,25 +121,25 @@ internal static class ReferenceService
         // return ls;
     }
 
-    // /// <summary>
-    // /// 从所有实体模型中查找指定类型的引用项
-    // /// </summary>
-    //private static void AddReferencesFromEntityModels(DesignHub hub, List<Reference> list,
-    //    ModelReferenceType referenceType, string modelID, string memberName)
-    //{
-    //    var en = hub.DesignTree.FindNodesByType(ModelType.Entity);
-    //    for (int i = 0; i < en.Length; i++)
-    //    {
-    //        ModelNode node = en[i];
-    //        EntityModel model = (EntityModel)node.Model;
-    //        List<ModelReferenceInfo> mrs = new List<ModelReferenceInfo>();
-    //        model.AddModelReferences(mrs, referenceType, modelID, memberName);
-    //        foreach (ModelReferenceInfo item in mrs)
-    //        {
-    //            list.Add(new ModelReference(model.ModelType, model.ID, item));
-    //        }
-    //    }
-    //}
+    /// <summary>
+    /// 从所有实体模型中查找指定类型的引用项
+    /// </summary>
+    private static void AddReferencesFromEntityModels(DesignHub hub, List<Reference> list,
+        ModelReferenceType referenceType, ModelId modelID, string? memberName,
+        short? entityMemberId)
+    {
+        var allEntityNodes = hub.DesignTree.FindNodesByType(ModelType.Entity);
+        foreach (var entityNode in allEntityNodes)
+        {
+            var model = (EntityModel)entityNode.Model;
+            var mrs = new List<ModelReferenceInfo>();
+            model.AddModelReferences(mrs, referenceType, modelID, memberName, entityMemberId);
+            foreach (var item in mrs)
+            {
+                list.Add(new ModelReference(entityNode, item));
+            }
+        }
+    }
 
     /// <summary>
     /// 添加代码引用
@@ -192,14 +175,17 @@ internal static class ReferenceService
         ModelReferenceType referenceType, ModelId modelID, string oldName, string newName)
     {
         //注意：暂不用Roslyn的Renamer.RenameSymbolAsync，因为需要处理多个Symbol
-
-        //Action<List<Reference>> addSpecRefsAction = null;
+        
         ModelNode sourceNode;
-        //1.先判断当前模型是否已签出
+        List<Reference> references;
+        //1.查找引用项并排序，同时判断有无签出
         switch (referenceType)
         {
-            case ModelReferenceType.EntityMemberName:
+            case ModelReferenceType.EntityMember:
                 sourceNode = hub.DesignTree.FindModelNode(ModelType.Entity, modelID)!;
+                var entityModel =(EntityModel) sourceNode.Model;
+                var entityMember = entityModel.GetMember(oldName)!;
+                references = await FindEntityMemberReferencesAsync(hub, sourceNode, entityMember);
                 break;
             default:
                 throw new NotImplementedException($"{referenceType}");
@@ -207,10 +193,6 @@ internal static class ReferenceService
 
         if (!sourceNode.IsCheckoutByMe)
             throw new Exception("当前模型尚未签出");
-
-        //2.查找引用项并排序，同时判断有无签出
-        var references = await FindUsagesAsync(hub, referenceType,
-            sourceNode.AppNode.Model.Name, sourceNode.Model.Name, oldName);
         references.Sort();
         for (var i = 0; i < references.Count; i++)
         {
@@ -261,7 +243,7 @@ internal static class ReferenceService
         var needUpdateSourceRoslyn = false; //注意:如果改为RoslynRenamer实现则不再需要更新
         switch (referenceType)
         {
-            case ModelReferenceType.EntityMemberName:
+            case ModelReferenceType.EntityMember:
                 ((EntityModel)sourceNode.Model).RenameMember(oldName, newName);
                 needUpdateSourceRoslyn = true;
                 break;
