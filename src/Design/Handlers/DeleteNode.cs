@@ -49,8 +49,7 @@ internal sealed class DeleteNode : IDesignHandler
             throw new Exception("Can't delete system model.");
         var model = node.Model;
         // 查找引用项
-        var usages = await ReferenceService.FindModelReferencesAsync(hub, model.ModelType,
-            node.AppNode.Model.Name, model.Name);
+        var usages = await ReferenceService.FindModelReferencesAsync(hub, node);
         if (usages != null && usages.Count > 0)
         {
             //注意排除自身引用

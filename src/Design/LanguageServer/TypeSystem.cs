@@ -126,6 +126,8 @@ internal sealed class TypeSystem : IDisposable
 
     #region ====Create/Update/Remove Document====
 
+    private static string MakeModelDocName(in ModelId modelId) => $"M{modelId}.cs";
+
     /// <summary>
     /// Create model's roslyn document
     /// </summary>
@@ -135,19 +137,18 @@ internal sealed class TypeSystem : IDisposable
         var appName = node.AppNode.Model.Name;
         var model = node.Model;
         var docId = node.RoslynDocumentId;
+        var docName = MakeModelDocName(model.Id); //使用模型标识作为文档名称
 
         switch (model.ModelType)
         {
             case ModelType.Entity:
             {
-                var docName = $"{appName}.Entities.{model.Name}.cs";
                 var dummyCode = EntityCodeGenerator.GenEntityRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
                 break;
             }
             case ModelType.View:
             {
-                var docName = $"{appName}.Views.{model.Name}.cs";
                 var sourceCode = await LoadSourceCode(initSrcCode, node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
                 break;
@@ -157,7 +158,6 @@ internal sealed class TypeSystem : IDisposable
                 //服务模型先创建虚拟项目
                 CreateServiceProject(node.ServiceProjectId!, (ServiceModel)model, appName);
 
-                var docName = $"{appName}.Services.{model.Name}.cs";
                 var sourceCode = await LoadSourceCode(initSrcCode, node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
 
@@ -344,29 +344,22 @@ internal sealed class TypeSystem : IDisposable
 
     #region ====Get Symbol Methods====
 
-    private Document? GetModelDocument(ModelType modelType, string appName, string modelName)
-    {
-        //TODO:考虑从设计树查找相应的DocumentId
-        var docName = $"{appName}.{CodeUtil.GetPluralStringOfModelType(modelType)}.{modelName}.cs";
-        return Workspace.CurrentSolution.GetProject(ModelProjectId)!.Documents
-            .SingleOrDefault(t => t.Name == docName);
-    }
-
     /// <summary>
     /// 根据指定的模型类型及标识号获取相应的虚拟类的类型
     /// </summary>
-    internal async Task<INamedTypeSymbol?> GetModelSymbolAsync(ModelType modelType, string appName,
-        string modelName)
+    internal async Task<INamedTypeSymbol?> GetModelSymbolAsync(ModelNode modelNode)
     {
-        var doc = GetModelDocument(modelType, appName, modelName);
+        var modelId = modelNode.Model.Id;
+        var modelName = modelNode.Model.Name;
+        var doc = Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
         if (doc == null)
             return null;
 
         var syntaxRootNode = await doc.GetSyntaxRootAsync();
         var semanticModel = await doc.GetSemanticModelAsync();
 
-        if (modelType == ModelType.Enum)
-            throw new NotImplementedException(); //TODO:处理枚举等非ClassDeclaration的类型
+        if (modelId.Type == ModelType.Enum) //TODO:处理枚举等非ClassDeclaration的类型
+            throw new NotImplementedException($"获取类型为{modelId.Type}的Symbol");
 
         var classDeclaration = syntaxRootNode!
             .DescendantNodes()
@@ -375,10 +368,10 @@ internal sealed class TypeSystem : IDisposable
         return semanticModel.GetDeclaredSymbol(classDeclaration);
     }
 
-    internal async Task<IPropertySymbol?> GetEntityMemberSymbolAsync(string appName,
-        string modelName, string memberName)
+    internal async Task<IPropertySymbol?> GetEntityMemberSymbolAsync(ModelNode modelNode,
+        string memberName)
     {
-        var modelSymbol = await GetModelSymbolAsync(ModelType.Entity, appName, modelName);
+        var modelSymbol = await GetModelSymbolAsync(modelNode);
         if (modelSymbol == null) return null;
 
         return modelSymbol.GetMembers(memberName).SingleOrDefault() as IPropertySymbol;
@@ -409,8 +402,5 @@ internal sealed class TypeSystem : IDisposable
 
     #endregion
 
-    public void Dispose()
-    {
-        Workspace.Dispose();
-    }
+    public void Dispose() => Workspace.Dispose();
 }

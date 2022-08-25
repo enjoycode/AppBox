@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using AppBoxCore;
 using NUnit.Framework;
@@ -12,9 +11,8 @@ public class ReferenceServiceTest
     public async Task FindModelReferencesTest()
     {
         var hub = await TestHelper.MockSession();
-
-        var res = await ReferenceService.FindModelReferencesAsync(hub, ModelType.Entity, "sys",
-            "Customer");
+        var customerNode = hub.DesignTree.FindModelNodeByFullName("sys.Entities.Customer");
+        var res = await ReferenceService.FindModelReferencesAsync(hub, customerNode);
         Assert.True(res != null && res.Count > 0);
     }
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.FindSymbols;
 using AppBoxCore;
@@ -10,26 +11,25 @@ internal static class ReferenceService
     /// 查找模型的引用项
     /// </summary>
     internal static async Task<List<Reference>> FindModelReferencesAsync(DesignHub ctx,
-        ModelType modelType, string appName, string modelName)
+        ModelNode modelNode)
     {
-        switch (modelType)
+        switch (modelNode.Model.ModelType)
         {
             case ModelType.Entity:
-                return await FindEntityReferences(ctx, appName, modelName);
+                return await FindEntityReferences(ctx, modelNode);
             case ModelType.Service:
-                return await FindServiceReferences(ctx, appName, modelName);
+                return await FindServiceReferences(ctx, modelNode);
             default:
-                throw new NotImplementedException($"查找模型引用: {modelType}");
+                throw new NotImplementedException($"查找模型引用: {modelNode.Model.ModelType}");
         }
     }
 
-    private static async Task<List<Reference>> FindEntityReferences(DesignHub ctx, string appName,
-        string modelName)
+    private static async Task<List<Reference>> FindEntityReferences(DesignHub ctx,
+        ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
-        var modelClass =
-            await ctx.TypeSystem.GetModelSymbolAsync(ModelType.Entity, appName, modelName);
+        var modelClass = await ctx.TypeSystem.GetModelSymbolAsync(modelNode);
         await AddCodeReferencesAsync(ctx, ls, modelClass!, null);
         return ls;
     }
@@ -52,7 +52,7 @@ internal static class ReferenceService
 
         //获取虚拟代码的成员符号并查找代码引用
         var symbol =
-            await hub.TypeSystem.GetEntityMemberSymbolAsync(appName, modelName, memberName);
+            await hub.TypeSystem.GetEntityMemberSymbolAsync(modelNode, memberName);
         if (symbol != null)
             await AddCodeReferencesAsync(hub, ls, symbol.ContainingType, symbol);
         else
@@ -78,14 +78,13 @@ internal static class ReferenceService
         // return ls;
     }
 
-    private static async Task<List<Reference>> FindServiceReferences(DesignHub ctx, string appName,
-        string modelName)
+    private static async Task<List<Reference>> FindServiceReferences(DesignHub ctx,
+        ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
         //查找其他服务引用
-        var modelClass =
-            await ctx.TypeSystem.GetModelSymbolAsync(ModelType.Service, appName, modelName);
+        var modelClass = await ctx.TypeSystem.GetModelSymbolAsync(modelNode);
         await AddCodeReferencesAsync(ctx, ls, modelClass!, null);
         //TODO:查找视图引用
         Log.Warn("查找视图等引用尚未实现.");
@@ -153,10 +152,8 @@ internal static class ReferenceService
         {
             foreach (var loc in mref.Locations)
             {
-                var docName = loc.Document.Name;
-                var lastDotIndex = docName.LastIndexOf('.');
-                var modelNode =
-                    hub.DesignTree.FindModelNodeByFullName(docName.AsMemory()[..lastDotIndex])!;
+                var modelId = GetModelIdFromDocName(loc.Document.Name);
+                var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId)!;
                 var reference = new CodeReference(modelNode,
                     loc.Location.SourceSpan.Start, loc.Location.SourceSpan.Length);
                 list.Add(reference);
@@ -184,12 +181,11 @@ internal static class ReferenceService
                 references = await FindEntityMemberReferencesAsync(hub, sourceNode, entityMember);
                 break;
             case ModelReferenceType.EntityModel:
-                case ModelReferenceType.ServiceModel:
-                    case ModelReferenceType.ViewModel:
+            case ModelReferenceType.ServiceModel:
+            case ModelReferenceType.ViewModel:
                 sourceNode = hub.DesignTree.FindModelNode(modelID.Type, modelID)!;
-                references = await FindModelReferencesAsync(hub, modelID.Type,
-                    sourceNode.AppNode.Model.Name, sourceNode.Model.Name);
-                        break;
+                references = await FindModelReferencesAsync(hub, sourceNode);
+                break;
             default:
                 throw new NotImplementedException($"重命名引用类型: {referenceType}");
         }
@@ -274,6 +270,15 @@ internal static class ReferenceService
         //保存节点
         await node.SaveAsync(null);
         //TODO: 是否需要更新引用者的RoslynDocument
+    }
+
+    private static ModelId GetModelIdFromDocName(string docName)
+    {
+        Debug.Assert(docName.StartsWith('M') && docName.EndsWith(".cs"));
+        var lastDotIndex = docName.LastIndexOf('.');
+        var value = ulong.Parse(docName.AsSpan(1, lastDotIndex - 1));
+        ModelId modelId = (long)value;
+        return modelId;
     }
 
     #region ----尝试使用Roslyn.Renamer----
