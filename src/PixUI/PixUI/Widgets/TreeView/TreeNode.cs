@@ -273,7 +273,8 @@ namespace PixUI
             affects.Widget = this;
 
             //更新后续子节点的Y坐标
-            TreeView<T>.UpdatePositionAfter(child, _children!, dy);
+            if (dy != 0 && _children != null)
+                TreeView<T>.UpdatePositionAfter(child, _children, dy);
 
             //更新自身的宽高
             var newWidth = oldWidth;
@@ -283,11 +284,13 @@ namespace PixUI
                 //宽度增加，总宽取现值及当前的大者
                 newWidth = Math.Max(child.W, W);
             }
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
             else if (dx < 0 && child.W - dx == _controller.TotalWidth)
             {
                 //宽度减小，且原本是最宽的那个, 重新计算最宽的子节点
-                newWidth = Math.Max(TreeView<T>.CalcMaxChildWidth(_children!), W);
+                if (_children == null)
+                    newWidth = child.W;
+                else
+                    newWidth = Math.Max(TreeView<T>.CalcMaxChildWidth(_children), W);
             }
 
             SetSize(newWidth, newHeight);

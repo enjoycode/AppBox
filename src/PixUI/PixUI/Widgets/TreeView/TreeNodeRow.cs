@@ -1,3 +1,5 @@
+using System;
+
 namespace PixUI
 {
     internal sealed class TreeNodeRow<T> : Widget, IMouseRegion
@@ -73,6 +75,12 @@ namespace PixUI
 
         public override bool ContainsPoint(float x, float y) =>
             y >= 0 && y < H && x >= 0 && x < Controller.TreeView!.W;
+
+        public override void VisitChildren(Func<Widget, bool> action)
+        {
+            if (_icon != null) action(_icon);
+            if (_label != null) action(_label);
+        }
 
         protected internal override bool HitTest(float x, float y, HitTestResult result)
         {
