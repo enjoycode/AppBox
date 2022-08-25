@@ -126,8 +126,6 @@ internal sealed class TypeSystem : IDisposable
 
     #region ====Create/Update/Remove Document====
 
-    private static string MakeModelDocName(in ModelId modelId) => $"M{modelId}.cs";
-
     /// <summary>
     /// Create model's roslyn document
     /// </summary>
@@ -137,7 +135,7 @@ internal sealed class TypeSystem : IDisposable
         var appName = node.AppNode.Model.Name;
         var model = node.Model;
         var docId = node.RoslynDocumentId;
-        var docName = MakeModelDocName(model.Id); //使用模型标识作为文档名称
+        var docName = DocNameUtil.MakeModelDocName(model.Id); //使用模型标识作为文档名称
 
         switch (model.ModelType)
         {

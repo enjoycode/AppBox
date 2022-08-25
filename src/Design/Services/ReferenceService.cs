@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.FindSymbols;
 using AppBoxCore;
@@ -152,7 +151,7 @@ internal static class ReferenceService
         {
             foreach (var loc in mref.Locations)
             {
-                var modelId = GetModelIdFromDocName(loc.Document.Name);
+                var modelId = DocNameUtil.GetModelIdFromDocName(loc.Document.Name);
                 var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId)!;
                 var reference = new CodeReference(modelNode,
                     loc.Location.SourceSpan.Start, loc.Location.SourceSpan.Length);
@@ -270,15 +269,6 @@ internal static class ReferenceService
         //保存节点
         await node.SaveAsync(null);
         //TODO: 是否需要更新引用者的RoslynDocument
-    }
-
-    private static ModelId GetModelIdFromDocName(string docName)
-    {
-        Debug.Assert(docName.StartsWith('M') && docName.EndsWith(".cs"));
-        var lastDotIndex = docName.LastIndexOf('.');
-        var value = ulong.Parse(docName.AsSpan(1, lastDotIndex - 1));
-        ModelId modelId = (long)value;
-        return modelId;
     }
 
     #region ----尝试使用Roslyn.Renamer----
