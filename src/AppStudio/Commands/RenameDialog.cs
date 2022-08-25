@@ -34,6 +34,8 @@ internal sealed class RenameDialog : Dialog
             Title.Value = "Rename";
     }
 
+    public string GetNewName() => _newName.Value;
+
     protected override Widget BuildBody()
     {
         return new Container()
@@ -65,9 +67,8 @@ internal sealed class RenameDialog : Dialog
         {
             var affects = await Channel.Invoke<string[]>("sys.DesignService.Rename",
                 new object?[] { (int)_referenceType, _modelId, _oldName.Value, _newName.Value });
-            //TODO: 如果重命名模型，刷新模型显示文本
-            //TODO: 根据返回结果刷新所有已打开的设计器
-
+            //通知刷新受影响的节点
+            DesignStore.OnRenameDone(_referenceType, _modelId, affects!);
             Notification.Success("重命名成功");
         }
         catch (Exception ex)

@@ -42,21 +42,21 @@ namespace PixUI
         public void Add(T item)
         {
             _source.Add(item);
-            OnValueChanged();
+            NotifyValueChanged();
         }
 
         public bool Remove(T item)
         {
             var res = _source.Remove(item);
             if (res)
-                OnValueChanged();
+                NotifyValueChanged();
             return res;
         }
 
         public void Clear()
         {
             _source.Clear();
-            OnValueChanged();
+            NotifyValueChanged();
         }
 
         public bool Contains(T item) => _source.Contains(item);
@@ -66,13 +66,13 @@ namespace PixUI
         public void Insert(int index, T item)
         {
             _source.Insert(index, item);
-            OnValueChanged();
+            NotifyValueChanged();
         }
 
         public void RemoveAt(int index)
         {
             _source.RemoveAt(index);
-            OnValueChanged();
+            NotifyValueChanged();
         }
 
         public T this[int index]
@@ -81,7 +81,7 @@ namespace PixUI
             set
             {
                 _source[index] = value;
-                OnValueChanged();
+                NotifyValueChanged();
             }
         }
 

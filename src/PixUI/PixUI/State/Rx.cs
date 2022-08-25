@@ -21,7 +21,7 @@ namespace PixUI
             {
                 if (EqualityComparer<T>.Default.Equals(_value, value)) return;
                 _value = value;
-                OnValueChanged();
+                NotifyValueChanged();
             }
         }
 

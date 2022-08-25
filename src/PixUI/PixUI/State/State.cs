@@ -41,7 +41,7 @@ namespace PixUI
             _bindings?.RemoveAll(b => ReferenceEquals(b.Target.Target, target));
         }
 
-        protected void OnValueChanged()
+        public void NotifyValueChanged()
         {
             if (_bindings == null) return;
 
@@ -125,6 +125,6 @@ namespace PixUI
             }
         }
 
-        public void OnStateChanged(StateBase state, BindingOptions options) => OnValueChanged();
+        public void OnStateChanged(StateBase state, BindingOptions options) => NotifyValueChanged();
     }
 }

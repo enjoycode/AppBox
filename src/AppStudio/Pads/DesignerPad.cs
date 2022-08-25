@@ -74,7 +74,8 @@ namespace AppBoxDesign
         {
             // if (DesignStore.DesignerController.Count == 0)
             //     BgColor!.Value = Colors.White;
-
+            
+            node.Designer = null;
             if (node.Type == DesignNodeType.ModelNode)
             {
                 var modelNode = (ModelNodeVO)node;

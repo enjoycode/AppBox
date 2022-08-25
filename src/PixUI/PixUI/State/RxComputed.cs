@@ -63,6 +63,6 @@ namespace PixUI
             }
         }
 
-        public void OnStateChanged(StateBase state, BindingOptions options) => OnValueChanged();
+        public void OnStateChanged(StateBase state, BindingOptions options) => NotifyValueChanged();
     }
 }

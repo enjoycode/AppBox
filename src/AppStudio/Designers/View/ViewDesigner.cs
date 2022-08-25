@@ -7,11 +7,11 @@ using PixUI;
 
 namespace AppBoxDesign
 {
-    internal sealed class ViewDesigner : View, IDesigner
+    internal sealed class ViewDesigner : View, IModelDesigner
     {
         public ViewDesigner(ModelNodeVO modelNode)
         {
-            _modelNode = modelNode;
+            ModelNode = modelNode;
             _previewController = new PreviewController(modelNode);
             _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
                 RoslynCompletionProvider.Default, modelNode.Id);
@@ -28,7 +28,7 @@ namespace AppBoxDesign
             };
         }
 
-        private readonly ModelNodeVO _modelNode;
+        public ModelNodeVO ModelNode { get; }
         private readonly CodeEditorController _codeEditorController;
         private readonly ModelCodeSyncService _codeSyncService;
         private readonly PreviewController _previewController;
@@ -76,7 +76,7 @@ namespace AppBoxDesign
             _hasLoadSourceCode = true;
 
             var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
-                new object[] { _modelNode.Id });
+                new object[] { ModelNode.Id });
             _codeEditorController.Document.TextContent = srcCode!;
             //订阅代码变更事件
             _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
@@ -96,10 +96,10 @@ namespace AppBoxDesign
             //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
 
             var problems = await Channel.Invoke<IList<CodeProblem>>("sys.DesignService.GetProblems",
-                new object?[] { false, _modelNode.Id });
-            DesignStore.UpdateProblems(_modelNode, problems);
+                new object?[] { false, ModelNode.Id });
+            DesignStore.UpdateProblems(ModelNode, problems!);
 
-            if (!problems.Any(p => p.IsError))
+            if (!problems!.Any(p => p.IsError))
                 _previewController.Invalidate();
         }
 
@@ -114,7 +114,16 @@ namespace AppBoxDesign
 
         public Task SaveAsync()
         {
-            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { _modelNode.Id });
+            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });
+        }
+
+        public async Task RefreshAsync()
+        {
+            var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
+                new object[] { ModelNode.Id });
+            _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
+            _codeEditorController.Document.TextContent = srcCode!;
+            _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
         }
     }
 }

@@ -2,13 +2,9 @@
 
 namespace PixUI
 {
-    public interface IRxProperty
-    {
-        void NotifyValueChanged();
-    }
 
     [TSNoInitializer]
-    public sealed class RxProperty<T> : State<T>, IRxProperty
+    public sealed class RxProperty<T> : State<T>
     {
         public RxProperty(Func<T> getter,
             Action<T>? setter = null)
@@ -30,11 +26,9 @@ namespace PixUI
                 if (_setter == null)
                     throw new NotSupportedException();
                 _setter(value);
-                OnValueChanged();
+                NotifyValueChanged();
             }
         }
-
-        public void NotifyValueChanged() => OnValueChanged();
     }
 
     public abstract class RxObject<T> where T : class
@@ -78,7 +72,7 @@ namespace PixUI
                 var fieldType = field.FieldType;
                 if (fieldType.Name == "RxProperty`1")
                 {
-                    var state = (IRxProperty)field.GetValue(this);
+                    var state = (StateBase)field.GetValue(this);
                     state.NotifyValueChanged();
                 }
             }

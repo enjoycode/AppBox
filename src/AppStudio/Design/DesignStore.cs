@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign
@@ -65,6 +67,25 @@ namespace AppBoxDesign
             // 从设计树中移除选中的节点
             //TODO: 刷新模型根节点 if (modelRootNodeIdString != null)
             TreeController.RemoveNode(node);
+        }
+
+        internal static void OnRenameDone(ModelReferenceType referenceType, string modelId,
+            string[] affects)
+        {
+            //TODO: 如果重命名模型，刷新模型显示文本
+            //根据返回结果刷新所有已打开的设计器
+            for (var i = 0; i < DesignerController.Count; i++)
+            {
+                var designer = DesignerController.GetAt(i).Designer;
+                if (designer != null)
+                {
+                    if (designer is IModelDesigner modelDesigner)
+                    {
+                        if (affects.Contains(modelDesigner.ModelNode.Id)) 
+                            designer.RefreshAsync();
+                    }
+                }
+            }
         }
 
         internal static void UpdateProblems(ModelNodeVO modelNode, IList<CodeProblem> problems)

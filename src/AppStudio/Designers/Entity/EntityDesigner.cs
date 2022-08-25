@@ -7,11 +7,11 @@ using PixUI;
 
 namespace AppBoxDesign
 {
-    internal sealed class EntityDesigner : View, IDesigner
+    internal sealed class EntityDesigner : View, IModelDesigner
     {
         public EntityDesigner(ModelNodeVO modelNode)
         {
-            _modelNode = modelNode;
+            ModelNode = modelNode;
             _membersController.SelectionChanged += OnMemberSelectionChanged;
 
             Child = new Column()
@@ -28,19 +28,18 @@ namespace AppBoxDesign
                                     () => new MembersDesigner(_entityModel!, _membersController,
                                         _selectedMember))
                                 .When(t => t == 1,
-                                    () => new SqlStoreOptionsDesigner(_entityModel!, _modelNode.Id))
+                                    () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id))
                         )
                     },
                 }
             };
         }
 
-        private readonly ModelNodeVO _modelNode;
+        public ModelNodeVO ModelNode { get; }
         private readonly State<int> _activePad = 0; //当前的设计面板
         private bool _hasLoad = false;
         private readonly State<bool> _loaded = false;
         private EntityModelVO? _entityModel;
-        internal ModelNodeVO ModelNode => _modelNode;
 
         private readonly DataGridController<EntityMemberVO> _membersController = new();
         private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);
@@ -99,7 +98,7 @@ namespace AppBoxDesign
             {
                 _entityModel = await Channel.Invoke<EntityModelVO>(
                     "sys.DesignService.OpenEntityModel",
-                    new object[] { _modelNode.Id });
+                    new object[] { ModelNode.Id });
                 _membersController.DataSource = _entityModel!.Members
                     .Where(m => !m.IsForeignKeyMember)
                     .ToList();
@@ -122,7 +121,7 @@ namespace AppBoxDesign
 
         private async void OnAddMember(PointerEvent e)
         {
-            var dlg = new NewEntityMemberDialog(_modelNode);
+            var dlg = new NewEntityMemberDialog(ModelNode);
             var canceled = await dlg.ShowAndWaitClose();
             if (canceled) return;
 
@@ -151,7 +150,7 @@ namespace AppBoxDesign
         {
             if (_selectedMember.Value == null) return;
 
-            var args = new object?[] { _modelNode.Id, _selectedMember.Value.Name };
+            var args = new object?[] { ModelNode.Id, _selectedMember.Value.Name };
             try
             {
                 await Channel.Invoke("sys.DesignService.DeleteEntityMember", args);
@@ -181,22 +180,33 @@ namespace AppBoxDesign
             }
         }
 
-        private void OnRenameMember(PointerEvent e)
+        private async void OnRenameMember(PointerEvent e)
         {
             if (_selectedMember.Value == null) return;
 
             var oldName = _selectedMember.Value.Name;
-            var target = $"{_modelNode.Label}.{oldName}";
+            var target = $"{ModelNode.Label}.{oldName}";
             var dlg = new RenameDialog(ModelReferenceType.EntityMember,
-                target, _modelNode.Id, oldName);
-            dlg.Show();
+                target, ModelNode.Id, oldName);
+            var canceled = await dlg.ShowAndWaitClose();
+            if (canceled) return;
+
+            //同步重命名的成员名称
+            _selectedMember.Value.Name = dlg.GetNewName();
+            _membersController.Refresh();
+            _selectedMember.NotifyValueChanged();
         }
 
         #endregion
 
         public Task SaveAsync()
         {
-            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { _modelNode.Id });
+            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });
+        }
+
+        public Task RefreshAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

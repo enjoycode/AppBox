@@ -92,7 +92,7 @@ namespace PixUI
         /// <summary>
         /// 显示并等待关闭
         /// </summary>
-        /// <returns>false=canceled</returns>
+        /// <returns>true=canceled</returns>
         public Task<bool> ShowAndWaitClose()
         {
             Show();
