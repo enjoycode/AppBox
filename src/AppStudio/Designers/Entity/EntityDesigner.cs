@@ -74,7 +74,8 @@ namespace AppBoxDesign
                                     new Button("Add", Icons.Filled.Add) { OnTap = OnAddMember },
                                     new Button("Remove", Icons.Filled.Delete)
                                         { OnTap = OnDeleteMember },
-                                    new Button("Rename", Icons.Filled.Edit),
+                                    new Button("Rename", Icons.Filled.Edit)
+                                        { OnTap = OnRenameMember },
                                     new Button("Usages", Icons.Filled.Link),
                                 }
                             }),
@@ -178,6 +179,17 @@ namespace AppBoxDesign
             {
                 Notification.Error($"Delete member error: {ex.Message}");
             }
+        }
+
+        private void OnRenameMember(PointerEvent e)
+        {
+            if (_selectedMember.Value == null) return;
+
+            var oldName = _selectedMember.Value.Name;
+            var target = $"{_modelNode.Label}.{oldName}";
+            var dlg = new RenameDialog(ModelReferenceType.EntityMember,
+                target, _modelNode.Id, oldName);
+            dlg.Show();
         }
 
         #endregion

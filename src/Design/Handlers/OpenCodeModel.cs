@@ -1,15 +1,23 @@
 using AppBoxCore;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace AppBoxDesign;
 
-internal sealed class OpenServiceModel : IDesignHandler
+/// <summary>
+/// 打开服务或视图模型时返回源代码
+/// </summary>
+internal sealed class OpenCodeModel : IDesignHandler
 {
+    internal static readonly OpenCodeModel Instance = new OpenCodeModel();
+    
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var modelNode = hub.DesignTree.FindModelNode(ModelType.Service, modelId);
+        if (modelId.Type != ModelType.Service && modelId.Type != ModelType.View)
+            throw new NotSupportedException("Only Service or View now");
+        var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId);
         if (modelNode == null)
-            throw new Exception($"Can't find service model: {modelId}");
+            throw new Exception($"Can't find model: {modelId}");
         
         //先判断是否已经打开，是则先关闭，主要用于签出后重新加载
         var docId = modelNode.RoslynDocumentId!;

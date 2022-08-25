@@ -11,6 +11,7 @@ public sealed class DesignService : IService
         { nameof(Publish), new Publish() },
         { nameof(CloseDesigner), new CloseDesigner() },
         { nameof(DeleteNode), new DeleteNode() },
+        { nameof(Rename), new Rename() },
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
         { nameof(CheckoutNode), new CheckoutNode() },
@@ -19,6 +20,7 @@ public sealed class DesignService : IService
         { nameof(GetProblems), new GetProblems() },
         { nameof(GetCompletion), new GetCompletion() },
         { nameof(GetSignatures), new GetSignatures() },
+        { nameof(OpenCodeModel), new OpenCodeModel() },
         // Entity
         { nameof(NewEntityModel), new NewEntityModel() },
         { nameof(NewEntityMember), new NewEntityMember() },
@@ -29,10 +31,8 @@ public sealed class DesignService : IService
         { nameof(GetEntityPreview), new GetEntityPreview() },
         // Service
         { nameof(NewServiceModel), new NewServiceModel() },
-        { nameof(OpenServiceModel), new OpenServiceModel() },
         // View
         { nameof(NewViewModel), new NewViewModel() },
-        { nameof(OpenViewModel), new OpenViewModel() },
         { nameof(GetWebPreview), new GetWebPreview() },
         { nameof(GetDesktopPreview), new GetDesktopPreview() },
     };

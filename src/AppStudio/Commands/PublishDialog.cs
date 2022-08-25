@@ -71,9 +71,9 @@ namespace AppBoxDesign
                     new object?[] { "commit message" });
                 Notification.Success("发布成功");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Notification.Error("发布失败");
+                Notification.Error($"发布失败: {ex.Message}");
             }
         }
     }

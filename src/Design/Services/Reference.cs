@@ -83,26 +83,17 @@ internal sealed class CodeReference : Reference
     /// <summary>
     /// 重命名
     /// </summary>
-    /// <param name="diff"></param>
-    /// <param name="newName"></param>
     internal void Rename(DesignHub hub, int diff, string newName)
     {
-        if (ModelNode.Model.ModelType == ModelType.Service) //暂只支持服务模型
-        {
-            var document = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(ModelNode.RoslynDocumentId)!;
-            var sourceText = document.GetTextAsync().Result;
-            var startOffset = Offset + diff;
+        var document = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(ModelNode.RoslynDocumentId)!;
+        var sourceText = document.GetTextAsync().Result;
+        var startOffset = Offset + diff;
 
-            sourceText = sourceText.WithChanges(new[] {
-                    new TextChange(new TextSpan(startOffset, Length), newName)
-                });
+        sourceText = sourceText.WithChanges(new[] {
+                new TextChange(new TextSpan(startOffset, Length), newName)
+            });
 
-            hub.TypeSystem.Workspace.OnDocumentChanged(ModelNode.RoslynDocumentId!, sourceText);
-        }
-        else
-        {
-            throw new NotSupportedException("CodeReference is not from ServiceModel");
-        }
+        hub.TypeSystem.Workspace.OnDocumentChanged(ModelNode.RoslynDocumentId!, sourceText);
     }
     #endregion
 }

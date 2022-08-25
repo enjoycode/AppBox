@@ -65,7 +65,7 @@ namespace AppBoxDesign
             if (_hasLoadSourceCode) return;
             _hasLoadSourceCode = true;
 
-            var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenServiceModel",
+            var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
                 new object[] { _modelNode.Id });
             _codeEditorController.Document.TextContent = srcCode;
             //订阅代码变更事件

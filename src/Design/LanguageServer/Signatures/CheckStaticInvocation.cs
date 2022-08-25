@@ -31,7 +31,7 @@ internal static class CheckForStaticExtension
 
             case SyntaxKind.PropertyDeclaration:
                 return GetModifiers(memberDeclaration).Any(SyntaxKind.StaticKeyword) ||
-                       node.IsFoundUnder((PropertyDeclarationSyntax p) => p.Initializer);
+                       node.IsFoundUnder((PropertyDeclarationSyntax p) => p.Initializer!);
 
             case SyntaxKind.FieldDeclaration:
             case SyntaxKind.EventFieldDeclaration:
@@ -52,46 +52,45 @@ internal static class CheckForStaticExtension
         return true;
     }
 
-    public static SyntaxTokenList GetModifiers(SyntaxNode member)
+    public static SyntaxTokenList GetModifiers(SyntaxNode? member)
     {
-        if (member != null)
+        if (member == null) return default;
+        
+        switch (member.Kind())
         {
-            switch (member.Kind())
-            {
-                case SyntaxKind.EnumDeclaration:
-                    return ((EnumDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.ClassDeclaration:
-                case SyntaxKind.InterfaceDeclaration:
-                case SyntaxKind.StructDeclaration:
-                    return ((TypeDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.DelegateDeclaration:
-                    return ((DelegateDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.FieldDeclaration:
-                    return ((FieldDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.EventFieldDeclaration:
-                    return ((EventFieldDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.ConstructorDeclaration:
-                    return ((ConstructorDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.DestructorDeclaration:
-                    return ((DestructorDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.PropertyDeclaration:
-                    return ((PropertyDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.EventDeclaration:
-                    return ((EventDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.IndexerDeclaration:
-                    return ((IndexerDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.OperatorDeclaration:
-                    return ((OperatorDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.ConversionOperatorDeclaration:
-                    return ((ConversionOperatorDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.MethodDeclaration:
-                    return ((MethodDeclarationSyntax)member).Modifiers;
-                case SyntaxKind.GetAccessorDeclaration:
-                case SyntaxKind.SetAccessorDeclaration:
-                case SyntaxKind.AddAccessorDeclaration:
-                case SyntaxKind.RemoveAccessorDeclaration:
-                    return ((AccessorDeclarationSyntax)member).Modifiers;
-            }
+            case SyntaxKind.EnumDeclaration:
+                return ((EnumDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.InterfaceDeclaration:
+            case SyntaxKind.StructDeclaration:
+                return ((TypeDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.DelegateDeclaration:
+                return ((DelegateDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.FieldDeclaration:
+                return ((FieldDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.EventFieldDeclaration:
+                return ((EventFieldDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.ConstructorDeclaration:
+                return ((ConstructorDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.DestructorDeclaration:
+                return ((DestructorDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.PropertyDeclaration:
+                return ((PropertyDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.EventDeclaration:
+                return ((EventDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.IndexerDeclaration:
+                return ((IndexerDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.OperatorDeclaration:
+                return ((OperatorDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.ConversionOperatorDeclaration:
+                return ((ConversionOperatorDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.MethodDeclaration:
+                return ((MethodDeclarationSyntax)member).Modifiers;
+            case SyntaxKind.GetAccessorDeclaration:
+            case SyntaxKind.SetAccessorDeclaration:
+            case SyntaxKind.AddAccessorDeclaration:
+            case SyntaxKind.RemoveAccessorDeclaration:
+                return ((AccessorDeclarationSyntax)member).Modifiers;
         }
 
         return default;
@@ -113,7 +112,7 @@ internal static class CheckForStaticExtension
         return node.GetAncestorsOrThis<SyntaxNode>().Contains(child);
     }
 
-    public static TNode GetAncestor<TNode>(this SyntaxNode node)
+    public static TNode? GetAncestor<TNode>(this SyntaxNode node)
         where TNode : SyntaxNode
     {
         var current = node.Parent;
@@ -130,7 +129,7 @@ internal static class CheckForStaticExtension
         return null;
     }
 
-    private static SyntaxNode GetParent(this SyntaxNode node)
+    private static SyntaxNode? GetParent(this SyntaxNode node)
     {
         return node is IStructuredTriviaSyntax trivia
             ? trivia.ParentTrivia.Token.Parent
@@ -157,10 +156,10 @@ internal static class CheckForStaticExtension
         return default;
     }
 
-    public static TNode GetAncestorOrThis<TNode>(this SyntaxNode node)
+    public static TNode? GetAncestorOrThis<TNode>(this SyntaxNode node)
         where TNode : SyntaxNode
     {
-        return node?.GetAncestorsOrThis<TNode>().FirstOrDefault();
+        return node.GetAncestorsOrThis<TNode>().FirstOrDefault();
     }
 
     public static IEnumerable<TNode> GetAncestorsOrThis<TNode>(this SyntaxNode node)

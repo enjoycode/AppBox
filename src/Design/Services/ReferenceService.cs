@@ -68,7 +68,7 @@ internal static class ReferenceService
     /// <summary>
     /// 查找实体模型的索引的引用项
     /// </summary>
-    private static async Task<List<Reference>> FindEntityIndexReferencesAsync(DesignHub hub,
+    private static Task<List<Reference>> FindEntityIndexReferencesAsync(DesignHub hub,
         string appName, string modelName, string indexName)
     {
         throw new NotImplementedException();
@@ -81,7 +81,7 @@ internal static class ReferenceService
         //     Log.Warn($"Can't get EntityIndex symbol: {appName}.{modelName}.{indexName}");
         // return ls;
     }
-    
+
     private static async Task<IList<Reference>> FindServiceReferences(DesignHub ctx, string appName,
         string modelName)
     {
@@ -96,7 +96,7 @@ internal static class ReferenceService
         return ls;
     }
 
-    private static async Task<List<Reference>> FindEnumItemReferencesAsync(DesignHub hub,
+    private static Task<List<Reference>> FindEnumItemReferencesAsync(DesignHub hub,
         string appName, string modelName, string memberName)
     {
         throw new NotImplementedException();
@@ -171,11 +171,11 @@ internal static class ReferenceService
     /// <summary>
     /// 开始执行重命名
     /// </summary>
-    internal static async Task<string[]> RenameAsync(DesignHub hub,
+    internal static async Task<IList<Reference>> RenameAsync(DesignHub hub,
         ModelReferenceType referenceType, ModelId modelID, string oldName, string newName)
     {
         //注意：暂不用Roslyn的Renamer.RenameSymbolAsync，因为需要处理多个Symbol
-        
+
         ModelNode sourceNode;
         List<Reference> references;
         //1.查找引用项并排序，同时判断有无签出
@@ -183,7 +183,7 @@ internal static class ReferenceService
         {
             case ModelReferenceType.EntityMember:
                 sourceNode = hub.DesignTree.FindModelNode(ModelType.Entity, modelID)!;
-                var entityModel =(EntityModel) sourceNode.Model;
+                var entityModel = (EntityModel)sourceNode.Model;
                 var entityMember = entityModel.GetMember(oldName)!;
                 references = await FindEntityMemberReferencesAsync(hub, sourceNode, entityMember);
                 break;
@@ -196,8 +196,8 @@ internal static class ReferenceService
         references.Sort();
         for (var i = 0; i < references.Count; i++)
         {
-            if (!references[i].ModelNode.IsCheckoutByMe)
-                throw new Exception($"模型[{references[i].ModelNode.Model.Name}]尚未签出");
+            if (!await references[i].ModelNode.CheckoutAsync())
+                throw new Exception($"模型[{references[i].ModelNode.Model.Name}]无法签出");
         }
 
         ////3.添加特殊引用项（如模型资源名称）
@@ -256,7 +256,7 @@ internal static class ReferenceService
             await hub.TypeSystem.UpdateModelDocumentAsync(sourceNode);
 
         //最后返回处理结果，暂简单返回受影响的节点，由前端刷新
-        return references.Select(t => t.ModelNode.Model.Id.ToString()).Distinct().ToArray();
+        return references;
     }
 
     /// <summary>
