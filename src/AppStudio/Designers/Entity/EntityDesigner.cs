@@ -206,7 +206,7 @@ namespace AppBoxDesign
 
         public Task RefreshAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask; //TODO:
         }
     }
 }

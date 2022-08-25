@@ -15,7 +15,7 @@ internal sealed class RenameDialog : Dialog
         _modelId = modelId;
         _oldName = oldName;
 
-        SetTitile();
+        Title.Value = GetTitile();
         Width = 380;
         Height = 240;
     }
@@ -26,12 +26,16 @@ internal sealed class RenameDialog : Dialog
     private readonly State<string> _oldName;
     private readonly State<string> _newName = "";
 
-    private void SetTitile()
+    private string GetTitile()
     {
-        if (_referenceType == ModelReferenceType.EntityMember)
-            Title.Value = "Rename Entity Member";
-        else
-            Title.Value = "Rename";
+        switch (_referenceType)
+        {
+            case ModelReferenceType.EntityModel: return "Rename Entity";
+            case ModelReferenceType.EntityMember: return "Rename Entity Member";
+            case ModelReferenceType.ServiceModel: return "Rename Service";
+            case ModelReferenceType.ViewModel: return "Rename View";
+            default: return "Rename";
+        }
     }
 
     public string GetNewName() => _newName.Value;

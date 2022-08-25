@@ -5,7 +5,7 @@ namespace AppBoxCore;
 /// </summary>
 public enum ModelReferenceType : byte
 {
-    ApplicationID,
+    Application,
     EntityModel,
     EntityMember,
     EntityIndex,
@@ -13,14 +13,11 @@ public enum ModelReferenceType : byte
     ServiceMethod,
     EnumModel,
     EnumModelItem,
-    FormModelID,
-    ReportModelID,
-    WorkflowModelID,
-    PermissionModelID,
-    ResourceModelID,
-    MenuFolderID,
-    MenuItemID,
-    EventModelID
+    ViewModel,
+    ReportModel,
+    WorkflowModel,
+    PermissionModel,
+    EventModel
 }
 
 /// <summary>

@@ -9,7 +9,7 @@ internal static class ReferenceService
     /// <summary>
     /// 查找模型的引用项
     /// </summary>
-    internal static async Task<IList<Reference>?> FindModelReferencesAsync(DesignHub ctx,
+    internal static async Task<List<Reference>> FindModelReferencesAsync(DesignHub ctx,
         ModelType modelType, string appName, string modelName)
     {
         switch (modelType)
@@ -18,16 +18,12 @@ internal static class ReferenceService
                 return await FindEntityReferences(ctx, appName, modelName);
             case ModelType.Service:
                 return await FindServiceReferences(ctx, appName, modelName);
-            case ModelType.Report:
-            case ModelType.View:
-                Log.Warn("查找引用尚未实现.");
-                return null;
             default:
-                throw new NotImplementedException();
+                throw new NotImplementedException($"查找模型引用: {modelType}");
         }
     }
 
-    private static async Task<IList<Reference>> FindEntityReferences(DesignHub ctx, string appName,
+    private static async Task<List<Reference>> FindEntityReferences(DesignHub ctx, string appName,
         string modelName)
     {
         var ls = new List<Reference>();
@@ -82,7 +78,7 @@ internal static class ReferenceService
         // return ls;
     }
 
-    private static async Task<IList<Reference>> FindServiceReferences(DesignHub ctx, string appName,
+    private static async Task<List<Reference>> FindServiceReferences(DesignHub ctx, string appName,
         string modelName)
     {
         var ls = new List<Reference>();
@@ -187,8 +183,15 @@ internal static class ReferenceService
                 var entityMember = entityModel.GetMember(oldName)!;
                 references = await FindEntityMemberReferencesAsync(hub, sourceNode, entityMember);
                 break;
+            case ModelReferenceType.EntityModel:
+                case ModelReferenceType.ServiceModel:
+                    case ModelReferenceType.ViewModel:
+                sourceNode = hub.DesignTree.FindModelNode(modelID.Type, modelID)!;
+                references = await FindModelReferencesAsync(hub, modelID.Type,
+                    sourceNode.AppNode.Model.Name, sourceNode.Model.Name);
+                        break;
             default:
-                throw new NotImplementedException($"{referenceType}");
+                throw new NotImplementedException($"重命名引用类型: {referenceType}");
         }
 
         if (!sourceNode.IsCheckoutByMe)
@@ -245,6 +248,10 @@ internal static class ReferenceService
         {
             case ModelReferenceType.EntityMember:
                 ((EntityModel)sourceNode.Model).RenameMember(oldName, newName);
+                needUpdateSourceRoslyn = true;
+                break;
+            case ModelReferenceType.EntityModel:
+                ((EntityModel)sourceNode.Model).RenameTo(newName);
                 needUpdateSourceRoslyn = true;
                 break;
             default:

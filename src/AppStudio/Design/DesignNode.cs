@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using PixUI;
 using AppBoxCore;
 
 namespace AppBoxDesign
@@ -10,19 +11,19 @@ namespace AppBoxDesign
         public virtual IList<DesignNodeVO>? Children => null;
 
         public string Id { get; protected set; } = null!;
-        public string Label { get; protected set; } = null!;
+        public readonly State<string> Label = "None";
 
         /// <summary>
         /// 当前节点打开的设计器，打开时设置关闭时取消
         /// </summary>
         internal IDesigner? Designer { get; set; }
 
-        public override string ToString() => Label;
+        public override string ToString() => Label.Value;
 
         public virtual void ReadFrom(IInputStream rs)
         {
             Id = rs.ReadString()!;
-            Label = rs.ReadString()!;
+            Label.Value = rs.ReadString()!;
         }
     }
 
@@ -51,7 +52,7 @@ namespace AppBoxDesign
     internal sealed class DataStoreNodeVO : DesignNodeVO
     {
         public static readonly DataStoreNodeVO None = new DataStoreNodeVO()
-            { Id = string.Empty, Label = "None" };
+            { Id = string.Empty };
 
         public override DesignNodeType Type => DesignNodeType.DataStoreNode;
     }

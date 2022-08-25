@@ -50,6 +50,8 @@ namespace AppBoxDesign
                 {
                     MenuItem.Item("Save", Icons.Filled.Save, Commands.SaveCommand),
                     MenuItem.Item("Checkout", Icons.Filled.CheckCircle, Commands.CheckoutCommand),
+                    MenuItem.Item("Rename", Icons.Filled.DriveFileRenameOutline,
+                        Commands.RenameCommand),
                     MenuItem.Item("Delete", Icons.Filled.DeleteForever, Commands.DeleteCommand),
                     MenuItem.Item("Publish", Icons.Filled.Publish, Commands.PublishCommand),
                 }),

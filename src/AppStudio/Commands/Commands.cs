@@ -1,5 +1,6 @@
 using System;
 using AppBoxClient;
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign
@@ -15,6 +16,8 @@ namespace AppBoxDesign
         public static readonly Action CheckoutCommand = Checkout;
 
         public static readonly Action SaveCommand = Save;
+
+        public static readonly Action RenameCommand = Rename;
 
         public static readonly Action DeleteCommand = Delete;
 
@@ -104,6 +107,53 @@ namespace AppBoxDesign
             {
                 Notification.Error($"删除节点[{selectedNode.Data.Label}]失败: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// 重命名选择的节点
+        /// </summary>
+        private static async void Rename()
+        {
+            var selectedNode = DesignStore.TreeController.FirstSelectedNode;
+            if (selectedNode == null)
+            {
+                Notification.Error("请先选择待重命名的节点");
+                return;
+            }
+
+            ModelReferenceType referenceType;
+            ModelNodeVO modelNode;
+            if (selectedNode.Data.Type == DesignNodeType.ModelNode)
+            {
+                modelNode = (ModelNodeVO)selectedNode.Data;
+                switch (modelNode.ModelType)
+                {
+                    case ModelType.Entity:
+                        referenceType = ModelReferenceType.EntityModel;
+                        break;
+                    case ModelType.Service:
+                        referenceType = ModelReferenceType.ServiceModel;
+                        break;
+                    case ModelType.View:
+                        referenceType = ModelReferenceType.ViewModel;
+                        break;
+                    default:
+                        Notification.Error("不支持重命名的节点");
+                        return;
+                }
+            }
+            else
+            {
+                Notification.Error("不支持重命名的节点");
+                return;
+            }
+
+            var dlg = new RenameDialog(referenceType, modelNode.Label.Value, modelNode.Id,
+                modelNode.Label.Value);
+            var canceled = await dlg.ShowAndWaitClose();
+            if (canceled) return;
+
+            modelNode.Label.Value = dlg.GetNewName();
         }
     }
 }
