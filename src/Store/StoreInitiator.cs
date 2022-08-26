@@ -362,7 +362,7 @@ internal static class StoreInitiator
         var type = new EntityFieldModel(model, "Type", EntityFieldType.Byte, false);
         model.AddSysMember(type, StagedModel.TYPE_ID);
 
-        var modelId = new EntityFieldModel(model, "ModelId", EntityFieldType.String, false);
+        var modelId = new EntityFieldModel(model, "Model", EntityFieldType.String, false);
 #if !FUTURE
         modelId.Length = 100;
 #endif
