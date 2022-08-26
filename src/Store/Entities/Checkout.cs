@@ -61,7 +61,7 @@ public sealed class Checkout : SqlEntity
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
 
-    public override void WriteMember(short id, IEntityMemberWriter ws, int flags)
+    protected internal override void WriteMember(short id, IEntityMemberWriter ws, int flags)
     {
         switch (id)
         {
@@ -86,7 +86,7 @@ public sealed class Checkout : SqlEntity
         }
     }
 
-    public override void ReadMember(short id, IEntityMemberReader rs, int flags)
+    protected internal override void ReadMember(short id, IEntityMemberReader rs, int flags)
     {
         switch (id)
         {

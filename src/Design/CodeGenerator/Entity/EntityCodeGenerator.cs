@@ -382,7 +382,7 @@ internal static class EntityCodeGenerator
     private static void GenOverrideWriteMember(EntityModel model, StringBuilder sb)
     {
         sb.Append(
-            "public override void WriteMember(short id, IEntityMemberWriter ws, int flags){\n");
+            "protected override void WriteMember(short id, IEntityMemberWriter ws, int flags){\n");
         sb.Append("\tswitch(id){\n");
         foreach (var member in model.Members)
         {
@@ -407,7 +407,7 @@ internal static class EntityCodeGenerator
     private static void GenOverrideReadMember(EntityModel model, StringBuilder sb, DesignTree tree)
     {
         sb.Append(
-            "public override void ReadMember(short id, IEntityMemberReader rs, int flags){\n");
+            "protected override void ReadMember(short id, IEntityMemberReader rs, int flags){\n");
         sb.Append("\tswitch(id){\n");
         foreach (var member in model.Members)
         {

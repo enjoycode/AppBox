@@ -429,7 +429,7 @@ public static class OutputStreamExtensions
         s.Context.AddToSerialized(value);
         s.WriteByte((byte)PayloadType.Entity);
         s.WriteLong(value.ModelId);
-        value.WriteTo(s);
+        ((IBinSerializable)value).WriteTo(s);
     }
 
     #endregion

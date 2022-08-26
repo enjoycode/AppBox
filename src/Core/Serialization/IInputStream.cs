@@ -391,7 +391,7 @@ public static class InputStreamExtensions
         var modelId = s.ReadLong();
         var entity = creator != null ? creator() : s.Context.MakeEntity(modelId);
         s.Context.AddToDeserialized(entity);
-        entity.ReadFrom(s);
+        ((IBinSerializable)entity).ReadFrom(s);
         return (T)entity;
     }
 

@@ -17,14 +17,14 @@ public abstract class Entity : IBinSerializable
     /// <summary>
     /// 写入成员至IEntityMemberWriter，由IEntityMemberWriter及flags决定写入格式
     /// </summary>
-    public abstract void WriteMember(short id, IEntityMemberWriter ws, int flags);
+    protected internal abstract void WriteMember(short id, IEntityMemberWriter ws, int flags);
 
     /// <summary>
     /// 从IEntityMemberReader读取成员值赋值给当前实例
     /// </summary>
-    public abstract void ReadMember(short id, IEntityMemberReader rs, int flags);
+    protected internal abstract void ReadMember(short id, IEntityMemberReader rs, int flags);
 
-    public void WriteTo(IOutputStream ws)
+    void IBinSerializable.WriteTo(IOutputStream ws)
     {
         //Write members
         foreach (var memberId in AllMembers)
@@ -35,7 +35,7 @@ public abstract class Entity : IBinSerializable
         ws.WriteShort(0); //End write members
     }
 
-    public void ReadFrom(IInputStream rs)
+    void IBinSerializable.ReadFrom(IInputStream rs)
     {
         //Read members
         while (true)
