@@ -10,6 +10,8 @@ namespace AppBoxDesign
     /// </summary>
     public static class DesignStore
     {
+        #region ====State and Controllers====
+
         /// <summary>
         /// 当前选择的侧边栏
         /// </summary>
@@ -27,20 +29,27 @@ namespace AppBoxDesign
         internal static readonly TabController<DesignNodeVO> DesignerController =
             new TabController<DesignNodeVO>(new List<DesignNodeVO>());
 
-        private static DataGridController<CodeProblem>? _problemsController;
+        internal static readonly TabController<string> BottomPadController =
+            new TabController<string>(new List<string>()
+            {
+                "Problems", "Usages", "Output"
+            });
 
         /// <summary>
-        /// 问题列表控制器
+        ///  问题列表控制器
         /// </summary>
-        internal static DataGridController<CodeProblem> ProblemsController
-        {
-            get
-            {
-                //延迟实始化 for web
-                _problemsController ??= new DataGridController<CodeProblem>();
-                return _problemsController;
-            }
-        }
+        internal static readonly DataGridController<CodeProblem> ProblemsController =
+            new DataGridController<CodeProblem>();
+
+        /// <summary>
+        /// 引用列表控制器
+        /// </summary>
+        internal static readonly DataGridController<ReferenceVO> UsagesController =
+            new DataGridController<ReferenceVO>();
+
+        #endregion
+
+        #region ====Actions====
 
         /// <summary>
         /// 新建成功返回后刷新模型根节点或添加新建的节点
@@ -81,7 +90,7 @@ namespace AppBoxDesign
                 {
                     if (designer is IModelDesigner modelDesigner)
                     {
-                        if (affects.Contains(modelDesigner.ModelNode.Id)) 
+                        if (affects.Contains(modelDesigner.ModelNode.Id))
                             designer.RefreshAsync();
                     }
                 }
@@ -93,6 +102,14 @@ namespace AppBoxDesign
             //TODO:暂简单实现
             ProblemsController.DataSource = problems;
         }
+
+        internal static void UpdateUsages(IList<ReferenceVO> usages)
+        {
+            UsagesController.DataSource = usages;
+            BottomPadController.SelectAt(1);
+        }
+
+        #endregion
 
         /// <summary>
         /// 获取所有实体节点

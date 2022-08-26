@@ -15,7 +15,7 @@ internal sealed class OpenCodeModel : IDesignHandler
         ModelId modelId = args.GetString()!;
         if (modelId.Type != ModelType.Service && modelId.Type != ModelType.View)
             throw new NotSupportedException("Only Service or View now");
-        var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId);
+        var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
         

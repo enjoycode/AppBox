@@ -50,7 +50,7 @@ internal static class CodeGeneratorUtil
             foreach (var refModelId in refModel.RefModelIds)
             {
                 var refModelNode =
-                    hub.DesignTree.FindModelNode(ModelType.Entity, refModelId)!;
+                    hub.DesignTree.FindModelNode(refModelId)!;
                 BuildUsagedEntity(hub, refModelNode, ctx, parseOptions);
             }
         }
@@ -61,7 +61,7 @@ internal static class CodeGeneratorUtil
         foreach (var setModel in sets)
         {
             var setModelNode =
-                hub.DesignTree.FindModelNode(ModelType.Entity, setModel.RefModelId)!;
+                hub.DesignTree.FindModelNode(setModel.RefModelId)!;
             BuildUsagedEntity(hub, setModelNode, ctx, parseOptions);
         }
         //TODO:实体枚举成员的处理

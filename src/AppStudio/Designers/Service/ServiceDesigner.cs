@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppBoxClient;
@@ -86,9 +87,16 @@ namespace AppBoxDesign
             //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
             //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
 
-            var problems = await Channel.Invoke<IList<CodeProblem>>("sys.DesignService.GetProblems",
-                new object?[] { false, ModelNode.Id });
-            DesignStore.UpdateProblems(ModelNode, problems);
+            try
+            {
+                var problems = await Channel.Invoke<IList<CodeProblem>>(
+                    "sys.DesignService.GetProblems", new object?[] { false, ModelNode.Id });
+                DesignStore.UpdateProblems(ModelNode, problems!);
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"GetProblems error: {ex.Message}");
+            }
         }
 
         public override void Dispose()

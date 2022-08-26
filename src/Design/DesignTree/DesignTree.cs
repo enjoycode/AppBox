@@ -122,7 +122,7 @@ public sealed class DesignTree : IBinSerializable
         {
             case DesignNodeType.ModelNode:
                 ModelId modelId = id;
-                return FindModelNode(modelId.Type, modelId);
+                return FindModelNode(modelId);
             case DesignNodeType.FolderNode:
                 return FindFolderNode(id);
             case DesignNodeType.DataStoreNode:
@@ -160,15 +160,15 @@ public sealed class DesignTree : IBinSerializable
         return null;
     }
 
-    public ModelNode? FindModelNode(ModelType modelType, ModelId modelId)
-        => FindModelRootNode(modelId.AppId, modelType)?.FindModelNode(modelId);
+    public ModelNode? FindModelNode(ModelId modelId)
+        => FindModelRootNode(modelId.AppId, modelId.Type)?.FindModelNode(modelId);
 
     public ModelNode? FindModelNodeByName(int appId, ModelType modelType, ReadOnlyMemory<char> name)
         => FindModelRootNode(appId, modelType)?.FindModelNodeByName(name);
 
     public ModelNode? FindModelNodeByFullName(string fullName)
         => FindModelNodeByFullName(fullName.AsMemory());
-    
+
     /// <summary>
     /// 根据全名称找到模型节点
     /// </summary>

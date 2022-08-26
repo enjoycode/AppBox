@@ -13,7 +13,7 @@ internal sealed class GetDesktopPreview : IDesignHandler
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var modelNode = hub.DesignTree.FindModelNode(ModelType.View, modelId);
+        var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
 

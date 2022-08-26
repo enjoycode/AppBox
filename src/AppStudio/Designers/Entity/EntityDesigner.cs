@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AppBoxClient;
@@ -70,12 +71,14 @@ namespace AppBoxDesign
                             {
                                 Children = new[]
                                 {
-                                    new Button("Add", Icons.Filled.Add) { OnTap = OnAddMember },
+                                    new Button("Add", Icons.Filled.Add)
+                                        { OnTap = OnAddMember },
                                     new Button("Remove", Icons.Filled.Delete)
                                         { OnTap = OnDeleteMember },
                                     new Button("Rename", Icons.Filled.Edit)
                                         { OnTap = OnRenameMember },
-                                    new Button("Usages", Icons.Filled.Link),
+                                    new Button("Usages", Icons.Filled.Link)
+                                        { OnTap = OnFindUsages },
                                 }
                             }),
                     }
@@ -195,6 +198,24 @@ namespace AppBoxDesign
             _selectedMember.Value.Name = dlg.GetNewName();
             _membersController.Refresh();
             _selectedMember.NotifyValueChanged();
+        }
+
+        private async void OnFindUsages(PointerEvent e)
+        {
+            if (_selectedMember.Value == null) return;
+
+            var args = new object?[]
+                { (int)ModelReferenceType.EntityMember, ModelNode.Id, _selectedMember.Value.Name };
+            try
+            {
+                var res = await Channel.Invoke<IList<ReferenceVO>>("sys.DesignService.FindUsages",
+                    args);
+                DesignStore.UpdateUsages(res!);
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"Delete member error: {ex.Message}");
+            }
         }
 
         #endregion

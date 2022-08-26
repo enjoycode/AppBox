@@ -47,6 +47,9 @@
       <Compile Include="..\AppStudio\Data\IndexModelVO.cs">
         <Link>Data\IndexModelVO.cs</Link>
       </Compile>
+      <Compile Include="..\AppStudio\Data\ReferenceVO.cs">
+        <Link>Data\ReferenceVO.cs</Link>
+      </Compile>
       <Compile Include="..\AppStudio\Data\SqlStoreOptionsVO.cs">
         <Link>Data\SqlStoreOptionsVO.cs</Link>
       </Compile>

@@ -13,7 +13,7 @@ internal sealed class NewEntityMember : IDesignHandler
         var memberName = args.GetString()!;
         var entityMemberType = (EntityMemberType)args.GetInt();
 
-        var node = hub.DesignTree.FindModelNode(ModelType.Entity, modelId);
+        var node = hub.DesignTree.FindModelNode(modelId);
         if (node == null)
             throw new Exception("Can't find Entity node");
         var model = (EntityModel)node.Model;
@@ -67,7 +67,7 @@ internal sealed class NewEntityMember : IDesignHandler
         var refModels = new EntityModel[refIds.Length];
         for (var i = 0; i < refIds.Length; i++)
         {
-            var refNode = hub.DesignTree.FindModelNode(ModelType.Entity, refIds[i]);
+            var refNode = hub.DesignTree.FindModelNode(refIds[i]);
             if (refNode == null)
                 throw new Exception("EntityRef target not exists");
             var refModel = (EntityModel)refNode.Model;
@@ -152,7 +152,7 @@ internal sealed class NewEntityMember : IDesignHandler
         var refMemberId = args.GetShort();
 
         //验证引用目标是否存在
-        var target = hub.DesignTree.FindModelNode(ModelType.Entity, refModelId);
+        var target = hub.DesignTree.FindModelNode(refModelId);
         if (target == null)
             throw new Exception("Can't find EntityRef");
         var targetModel = (EntityModel)target.Model;

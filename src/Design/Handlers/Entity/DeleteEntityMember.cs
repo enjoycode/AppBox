@@ -9,7 +9,7 @@ internal sealed class DeleteEntityMember : IDesignHandler
         ModelId modelId = args.GetString()!;
         var memberName = args.GetString()!;
 
-        var node = hub.DesignTree.FindModelNode(ModelType.Entity, modelId);
+        var node = hub.DesignTree.FindModelNode(modelId);
         if (node == null)
             throw new Exception("Can't find Entity");
         if (!node.IsCheckoutByMe)

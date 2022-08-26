@@ -286,7 +286,7 @@ internal static class EntityCodeGenerator
     private static void GenEntityRefMember(EntityRefModel entityRef, StringBuilder sb,
         DesignTree tree)
     {
-        var refModelNode = tree.FindModelNode(ModelType.Entity, entityRef.RefModelIds[0])!;
+        var refModelNode = tree.FindModelNode(entityRef.RefModelIds[0])!;
         var typeString = entityRef.IsAggregationRef
             ? GetEntityBaseClass(entityRef.Owner)
             : $"{refModelNode.AppNode.Model.Name}.Entities.{refModelNode.Model.Name}";
@@ -312,7 +312,7 @@ internal static class EntityCodeGenerator
                 sb.Append("\t\t\tswitch (value) {\n");
                 foreach (var refModelId in entityRef.RefModelIds)
                 {
-                    refModelNode = tree.FindModelNode(ModelType.Entity, refModelId)!;
+                    refModelNode = tree.FindModelNode(refModelId)!;
                     var refModel = (EntityModel)refModelNode.Model;
                     var refPks = refModel.SqlStoreOptions!.PrimaryKeys;
 
@@ -361,7 +361,7 @@ internal static class EntityCodeGenerator
     private static void GenEntitySetMember(EntitySetModel entitySet, StringBuilder sb,
         DesignTree tree)
     {
-        var refNode = tree.FindModelNode(ModelType.Entity, entitySet.RefModelId)!;
+        var refNode = tree.FindModelNode(entitySet.RefModelId)!;
         var refModel = (EntityModel)refNode.Model;
         var typeString = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
         var fieldName = entitySet.Name;
@@ -434,7 +434,7 @@ internal static class EntityCodeGenerator
                         sb.Append($"(flags, () => _{typeMember.Name} switch {{\n");
                         foreach (var refModelId in entityRef.RefModelIds)
                         {
-                            var refNode = tree.FindModelNode(ModelType.Entity, refModelId)!;
+                            var refNode = tree.FindModelNode(refModelId)!;
                             var refModel = (EntityModel)refNode.Model;
                             var refModelName =
                                 $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
@@ -449,7 +449,7 @@ internal static class EntityCodeGenerator
                     else
                     {
                         var refModelId = entityRef.RefModelIds[0];
-                        var refNode = tree.FindModelNode(ModelType.Entity, refModelId)!;
+                        var refNode = tree.FindModelNode(refModelId)!;
                         var refModel = (EntityModel)refNode.Model;
                         var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
                         sb.Append($"(flags, () => new {refModelName}());break;\n");
@@ -460,7 +460,7 @@ internal static class EntityCodeGenerator
                 case EntityMemberType.EntitySet:
                 {
                     var entitySet = (EntitySetModel)member;
-                    var refNode = tree.FindModelNode(ModelType.Entity, entitySet.RefModelId)!;
+                    var refNode = tree.FindModelNode(entitySet.RefModelId)!;
                     var refModel = (EntityModel)refNode.Model;
                     var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
                     sb.Append($"(flags, () => new {refModelName}());break;\n");

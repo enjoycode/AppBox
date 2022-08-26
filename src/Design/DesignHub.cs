@@ -29,6 +29,8 @@ public sealed class DesignHub : IDesignContext, IDisposable
             typeof(GetCompletion.CompletionItem)));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ChangedModel,
             typeof(ChangedModel)));
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ReferenceVO,
+            typeof(ReferenceVO)));
 
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.FieldWithOrder,
             typeof(FieldWithOrder), () => new FieldWithOrder()));
@@ -62,7 +64,7 @@ public sealed class DesignHub : IDesignContext, IDisposable
         => DesignTree.FindApplicationNode(appId)!.Model;
 
     public EntityModel GetEntityModel(ModelId modelID)
-        => (EntityModel)DesignTree.FindModelNode(ModelType.Entity, modelID)!.Model;
+        => (EntityModel)DesignTree.FindModelNode(modelID)!.Model;
 
     #endregion
 }

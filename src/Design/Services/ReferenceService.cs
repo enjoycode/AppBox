@@ -152,7 +152,7 @@ internal static class ReferenceService
             foreach (var loc in mref.Locations)
             {
                 var modelId = DocNameUtil.GetModelIdFromDocName(loc.Document.Name);
-                var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId)!;
+                var modelNode = hub.DesignTree.FindModelNode(modelId)!;
                 var reference = new CodeReference(modelNode,
                     loc.Location.SourceSpan.Start, loc.Location.SourceSpan.Length);
                 list.Add(reference);
@@ -174,7 +174,7 @@ internal static class ReferenceService
         switch (referenceType)
         {
             case ModelReferenceType.EntityMember:
-                sourceNode = hub.DesignTree.FindModelNode(ModelType.Entity, modelID)!;
+                sourceNode = hub.DesignTree.FindModelNode(modelID)!;
                 var entityModel = (EntityModel)sourceNode.Model;
                 var entityMember = entityModel.GetMember(oldName)!;
                 references = await FindEntityMemberReferencesAsync(hub, sourceNode, entityMember);
@@ -182,7 +182,7 @@ internal static class ReferenceService
             case ModelReferenceType.EntityModel:
             case ModelReferenceType.ServiceModel:
             case ModelReferenceType.ViewModel:
-                sourceNode = hub.DesignTree.FindModelNode(modelID.Type, modelID)!;
+                sourceNode = hub.DesignTree.FindModelNode(modelID)!;
                 references = await FindModelReferencesAsync(hub, sourceNode);
                 break;
             default:

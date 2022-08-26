@@ -36,6 +36,8 @@ namespace AppBoxDesign
                 typeof(ChangedModel), () => new ChangedModel()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.FieldWithOrder,
                 typeof(FieldWithOrder), () => new FieldWithOrder()));
+            TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ReferenceVO,
+                typeof(ReferenceVO), () => new ReferenceVO()));
 
             return Task.CompletedTask;
         }

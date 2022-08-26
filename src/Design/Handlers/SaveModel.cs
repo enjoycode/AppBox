@@ -11,7 +11,7 @@ internal sealed class SaveModel : IDesignHandler
     {
         ModelId modelId = args.GetString()!;
 
-        var node = hub.DesignTree.FindModelNode(modelId.Type, modelId);
+        var node = hub.DesignTree.FindModelNode(modelId);
         if (node == null)
             throw new Exception("Can't find ModelNode");
         await node.SaveAsync(null);

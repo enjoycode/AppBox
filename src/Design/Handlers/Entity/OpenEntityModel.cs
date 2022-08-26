@@ -7,7 +7,7 @@ internal sealed class OpenEntityModel : IDesignHandler
     public ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId);
+        var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception("Can't find entity model");
 

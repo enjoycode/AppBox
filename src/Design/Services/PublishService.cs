@@ -108,7 +108,7 @@ internal static class PublishService
         string? debugFolder = null)
     {
         var forDebug = !string.IsNullOrEmpty(debugFolder);
-        var designNode = hub.DesignTree.FindModelNode(ModelType.Service, model.Id)!;
+        var designNode = hub.DesignTree.FindModelNode(model.Id)!;
         var appName = designNode.AppNode.Model.Name;
 
         //获取RoslynDocument并检测语义错误

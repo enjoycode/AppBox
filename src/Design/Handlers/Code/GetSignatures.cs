@@ -12,7 +12,7 @@ internal sealed class GetSignatures : IDesignHandler
         var offset = args.GetInt();
 
         ModelId modelId = (long)ulong.Parse(targetId);
-        var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId);
+        var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
 

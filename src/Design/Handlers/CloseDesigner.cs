@@ -17,7 +17,7 @@ internal sealed class CloseDesigner : IDesignHandler
             ModelId modelId = nodeId!;
             if (modelId.Type == ModelType.Service || modelId.Type == ModelType.View)
             {
-                var modelNode = hub.DesignTree.FindModelNode(modelId.Type, modelId);
+                var modelNode = hub.DesignTree.FindModelNode(modelId);
                 if (modelNode != null) //可能已被删除了，即由删除节点引发的关闭设计器
                 {
                     var docId = modelNode.RoslynDocumentId!;
