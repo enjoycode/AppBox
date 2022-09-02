@@ -18,6 +18,8 @@ namespace PixUI
         internal readonly Action<T, TreeNode<T>> NodeBuilder;
         internal readonly Func<T, IList<T>> ChildrenGetter;
         internal readonly List<TreeNode<T>> Nodes = new List<TreeNode<T>>();
+        
+        internal readonly ScrollController ScrollController = new(ScrollDirection.Both);
 
         #region ----Selection----
 

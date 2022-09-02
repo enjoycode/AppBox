@@ -29,7 +29,7 @@ namespace PixUI
 
         public MouseRegion MouseRegion { get; }
 
-        #region ====Event Handles====
+        #region ====IScrollable====
 
         public float ScrollOffsetX => _controller.ScrollController.OffsetX;
         public float ScrollOffsetY => _controller.ScrollController.OffsetY;

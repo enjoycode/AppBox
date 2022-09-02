@@ -493,8 +493,7 @@ namespace PixUI
 
         public void Offset(Point pos) => Offset(pos.X, pos.Y);
 
-        public readonly override string ToString() =>
-            $"{{Left={Left},Top={Top},Width={Width},Height={Height}}}";
+        public readonly override string ToString() => $"{{X={Left},Y={Top},W={Width},H={Height}}}";
 
         public static Rect Create(Point location, Size size) =>
             FromLTWH(location.X, location.Y, size.Width, size.Height);
@@ -584,10 +583,18 @@ namespace PixUI
             int x, y, r, b;
             checked
             {
-                x = (int)(outwards && value.Width > 0 ? Math.Floor(value.Left) : Math.Ceiling(value.Left));
-                y = (int)(outwards && value.Height > 0 ? Math.Floor(value.Top) : Math.Ceiling(value.Top));
-                r = (int)(outwards && value.Width < 0 ? Math.Floor(value.Right) : Math.Ceiling(value.Right));
-                b = (int)(outwards && value.Height < 0 ? Math.Floor(value.Bottom) : Math.Ceiling(value.Bottom));
+                x = (int)(outwards && value.Width > 0
+                    ? Math.Floor(value.Left)
+                    : Math.Ceiling(value.Left));
+                y = (int)(outwards && value.Height > 0
+                    ? Math.Floor(value.Top)
+                    : Math.Ceiling(value.Top));
+                r = (int)(outwards && value.Width < 0
+                    ? Math.Floor(value.Right)
+                    : Math.Ceiling(value.Right));
+                b = (int)(outwards && value.Height < 0
+                    ? Math.Floor(value.Bottom)
+                    : Math.Ceiling(value.Bottom));
             }
 
             return new RectI(x, y, r, b);
@@ -647,10 +654,18 @@ namespace PixUI
             int x, y, r, b;
             checked
             {
-                x = (int)(inwards && value.Width > 0 ? Math.Ceiling(value.Left) : Math.Floor(value.Left));
-                y = (int)(inwards && value.Height > 0 ? Math.Ceiling(value.Top) : Math.Floor(value.Top));
-                r = (int)(inwards && value.Width < 0 ? Math.Ceiling(value.Right) : Math.Floor(value.Right));
-                b = (int)(inwards && value.Height < 0 ? Math.Ceiling(value.Bottom) : Math.Floor(value.Bottom));
+                x = (int)(inwards && value.Width > 0
+                    ? Math.Ceiling(value.Left)
+                    : Math.Floor(value.Left));
+                y = (int)(inwards && value.Height > 0
+                    ? Math.Ceiling(value.Top)
+                    : Math.Floor(value.Top));
+                r = (int)(inwards && value.Width < 0
+                    ? Math.Ceiling(value.Right)
+                    : Math.Floor(value.Right));
+                b = (int)(inwards && value.Height < 0
+                    ? Math.Ceiling(value.Bottom)
+                    : Math.Floor(value.Bottom));
             }
 
             return new RectI(x, y, r, b);
@@ -691,10 +706,12 @@ namespace PixUI
             (top <= rect.top) && (bottom >= rect.bottom);
 
         public readonly bool IntersectsWith(RectI rect) =>
-            (left < rect.right) && (right > rect.left) && (top < rect.bottom) && (bottom > rect.top);
+            (left < rect.right) && (right > rect.left) && (top < rect.bottom) &&
+            (bottom > rect.top);
 
         public readonly bool IntersectsWithInclusive(RectI rect) =>
-            (left <= rect.right) && (right >= rect.left) && (top <= rect.bottom) && (bottom >= rect.top);
+            (left <= rect.right) && (right >= rect.left) && (top <= rect.bottom) &&
+            (bottom >= rect.top);
 
         public void Offset(int x, int y)
         {
@@ -721,7 +738,5 @@ namespace PixUI
         public static RectI Create(int x, int y, int width, int height) =>
             new RectI(x, y, x + width, y + height);
     }
-    
-    
 }
 #endif

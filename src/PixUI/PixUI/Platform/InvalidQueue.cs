@@ -25,16 +25,26 @@ namespace PixUI
         public IDirtyArea GetDirtyArea()
         {
             //TODO: 考虑Root返回null或现有Bounds
+
+            var cx = 0f;
+            var cy = 0f;
+
+            if (Widget.Parent is IScrollable scrollable) //判断上级是否IScrollable,是则处理偏移量
+            {
+                cx = scrollable.ScrollOffsetX;
+                cy = scrollable.ScrollOffsetY;
+            }
+
             return new RepaintArea(
-                new Rect(Math.Min(OldX, Widget.X),
-                    Math.Min(OldY, Widget.Y),
+                new Rect(Math.Min(OldX, Widget.X) - cx,
+                    Math.Min(OldY, Widget.Y) - cy,
                     Math.Max(OldX + OldW, Widget.X + Widget.W),
                     Math.Max(OldY + OldH, Widget.Y + Widget.H))
             );
         }
     }
 
-    public enum InvalidAction
+    public enum InvalidAction : byte
     {
         Repaint,
         Relayout,
@@ -272,7 +282,6 @@ namespace PixUI
 
         private static void RepaintWidget(PaintContext ctx, Widget widget, IDirtyArea? dirtyArea)
         {
-            Console.WriteLine($"InvalidQueue.Repaint: {widget} rect={dirtyArea?.GetRect()}");
             var canvas = ctx.Canvas;
 
             //循环向上查找需要开始重绘的Widget(不透明的),并且计算裁剪区域
@@ -291,22 +300,6 @@ namespace PixUI
 
             do
             {
-                //查找开始绘制的Widget
-                if (opaque == null)
-                {
-                    if (temp.IsOpaque) //TODO:不能简单判断是否不透明，例如上级有OpacityWidget or ImageFilter等
-                    {
-                        opaque = temp;
-                        x = 0;
-                        y = 0;
-                    }
-                    else
-                    {
-                        dirtyX += temp.X;
-                        dirtyY += temp.Y;
-                    }
-                }
-
                 //计算当前子级相对于上级的位置
                 var cx = temp.X; //当前相对于上级的坐标
                 var cy = temp.Y;
@@ -321,6 +314,26 @@ namespace PixUI
                         MatrixUtils.TransformPoint(transform.EffectiveTransform, cx, cy);
                     cx = transformed.Dx;
                     cy = transformed.Dy;
+                }
+
+                //查找开始绘制的Widget
+                if (opaque == null)
+                {
+                    if (temp.IsOpaque)
+                    {
+                        opaque = temp;
+                        x = 0;
+                        y = 0;
+                    }
+                    else
+                    {
+                        dirtyX += cx;
+                        dirtyY += cy;
+                    }
+                }
+                else
+                {
+                    //TODO: 判断temp是否Transform or Opacity or ImageFilter等，是则重设opaque
                 }
 
                 //尝试获取当前的Clipper，并与现有的求交集
@@ -341,8 +354,7 @@ namespace PixUI
                 y += cy;
                 if (temp.Parent == null)
                     break;
-                else
-                    temp = temp.Parent;
+                temp = temp.Parent;
             } while (true);
 
             if (isClipperEmpty)
@@ -359,6 +371,8 @@ namespace PixUI
             }
 
             //裁剪脏区域并开始绘制
+            Console.WriteLine(
+                $"InvalidQueue.Repaint: {widget} rect={dirtyArea?.GetRect()} Opaque={opaque} area={{X={dirtyX} Y={dirtyY} W={dirtyRect.Width} H={dirtyRect.Height}}}");
             canvas.Save();
             try
             {
@@ -370,10 +384,10 @@ namespace PixUI
                 if (ReferenceEquals(opaque, widget))
                     opaque.Paint(canvas, dirtyArea);
                 else
-                    opaque!.Paint(canvas, new RepaintArea( //TODO:考虑使用RepaintChild
+                    opaque.Paint(canvas, new RepaintArea( //TODO:考虑使用RepaintChild
                         Rect.FromLTWH(dirtyX, dirtyY, dirtyRect.Width, dirtyRect.Height)));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"InvalidQueue.RepaintWidget Error: {ex.Message}");
             }

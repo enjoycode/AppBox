@@ -271,6 +271,8 @@ namespace PixUI
             var oldWidth = W;
             var oldHeight = H;
             affects.Widget = this;
+            affects.OldX += X;
+            affects.OldY += Y;
 
             //更新后续子节点的Y坐标
             if (dy != 0 && _children != null)

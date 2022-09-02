@@ -76,6 +76,7 @@ namespace AppBoxDesign
                     new NaviBar(),
                     new Container
                     {
+                        DebugLabel = "SidePad",
                         Padding = EdgeInsets.All(5),
                         Width = 250, BgColor = new Color(0xFFF3F3F3),
                         Child = new Conditional<SidePadType>(DesignStore.ActiveSidePad)

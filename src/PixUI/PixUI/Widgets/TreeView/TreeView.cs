@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PixUI
 {
-    public sealed class TreeView<T> : Widget
+    public sealed class TreeView<T> : Widget, IScrollable
     {
         public TreeView(TreeController<T> controller, float nodeHeight = 30)
         {
@@ -11,7 +11,7 @@ namespace PixUI
             _controller.NodeHeight = nodeHeight;
             _controller.InitNodes(this);
         }
-        
+
         private readonly TreeController<T> _controller;
 
         private State<Color>? _color;
@@ -25,9 +25,34 @@ namespace PixUI
             set => _color = Rebind(_color, value, BindingOptions.AffectsVisual);
         }
 
+        #region ====IScrollable====
+
+        public float ScrollOffsetX => _controller.ScrollController.OffsetX;
+        public float ScrollOffsetY => _controller.ScrollController.OffsetY;
+
+        public Offset OnScroll(float dx, float dy)
+        {
+            if (_controller.Nodes.Count == 0) return Offset.Empty;
+
+            var maxOffsetX = Math.Max(0, _controller.TotalWidth - W);
+            var maxOffsetY = Math.Max(0, _controller.TotalHeight - H);
+            var offset = _controller.ScrollController.OnScroll(dx, dy, maxOffsetX, maxOffsetY);
+            if (!offset.IsEmpty)
+            {
+                Invalidate(InvalidAction.Repaint);
+            }
+
+            return offset;
+        }
+
+        #endregion
+
         #region ====Overrides====
 
         public override bool IsOpaque => _color != null && _color.Value.Alpha == 0xFF;
+
+        protected internal override IClipper? Clipper =>
+            new ClipperOfRect(Rect.FromLTWH(0, 0, W, H));
 
         public override void VisitChildren(Func<Widget, bool> action)
         {
@@ -85,22 +110,32 @@ namespace PixUI
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
-            var needClip = area != null;
-            if (needClip)
+            if (area == null)
             {
                 canvas.Save();
-                canvas.ClipRect(area!.GetRect(), ClipOp.Intersect, false);
+                canvas.ClipRect(Rect.FromLTWH(0, 0, W, H), ClipOp.Intersect, false);
             }
 
             // draw background color if has
             if (_color != null)
-            {
                 canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), PaintUtils.Shared(_color.Value));
+
+            // draw nodes in visual region
+            var dirtyRect = area?.GetRect() ?? Rect.FromLTWH(0, 0, W, H);
+            foreach (var node in _controller.Nodes)
+            {
+                var vx = node.X - ScrollOffsetX;
+                var vy = node.Y - ScrollOffsetY;
+                if (vy >= dirtyRect.Bottom) break;
+                var vb = vy + node.H;
+                if (vb <= dirtyRect.Top) continue;
+
+                canvas.Translate(vx, vy);
+                node.Paint(canvas, area?.ToChild(vx, vy));
+                canvas.Translate(-vx, -vy);
             }
 
-            PaintChildren(canvas, area);
-
-            if (needClip)
+            if (area == null)
                 canvas.Restore();
         }
 
@@ -125,7 +160,8 @@ namespace PixUI
         /// <summary>
         /// 更新指定子节点之后的子节点的Y坐标
         /// </summary>
-        internal static void UpdatePositionAfter<Tn>(Widget child, IList<TreeNode<Tn>> nodes, float dy)
+        internal static void UpdatePositionAfter<Tn>(Widget child, IList<TreeNode<Tn>> nodes,
+            float dy)
         {
             var indexOfChild = -1;
             for (var i = 0; i < nodes.Count; i++)

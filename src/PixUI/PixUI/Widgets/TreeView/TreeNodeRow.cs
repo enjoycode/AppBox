@@ -131,6 +131,7 @@ namespace PixUI
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
             //TODO: only paint expand icon when dirty area is not null
+            //Console.WriteLine($"重绘TreeNodeRow[{_label?.Text.Value}]: isHover = {_isHover}");
 
             if (_isHover)
             {
