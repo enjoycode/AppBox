@@ -1,4 +1,3 @@
-using System;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -14,16 +13,16 @@ internal sealed class OutlinePad : View
 
     private readonly Widget NotSupported = new Center { Child = new Text("Not supported.") };
 
-    protected override void OnMounted() => BuildOutlineView(false);
+    protected override void OnMounted() => BuildOutlineView();
 
     private void OnActiveDesignerChanged(int index)
     {
         if (!IsMounted) return;
 
-        BuildOutlineView(true);
+        BuildOutlineView();
     }
 
-    private void BuildOutlineView(bool byChangeDesigner)
+    private void BuildOutlineView()
     {
         var designer = DesignStore.ActiveDesigner;
         if (designer is IModelDesigner modelDesigner)
@@ -37,7 +36,8 @@ internal sealed class OutlinePad : View
             }
         }
 
-        if (byChangeDesigner)
+        //no outline view
+        if (!ReferenceEquals(Child, NotSupported))
         {
             Child = NotSupported;
             Invalidate(InvalidAction.Relayout);
