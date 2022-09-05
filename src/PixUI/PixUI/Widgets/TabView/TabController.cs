@@ -18,6 +18,8 @@ namespace PixUI
         private TabBody<T>? _tabBody;
 
         internal readonly IList<T> DataSource;
+
+        public int Count => DataSource.Count;
         public int SelectedIndex { get; private set; } = -1;
 
         internal void BindTabBar(TabBar<T> tabBar) => _tabBar = tabBar;
@@ -25,10 +27,13 @@ namespace PixUI
 
         public void OnStateChanged(StateBase state, BindingOptions options) { }
 
-        public int Count => DataSource.Count;
+        #region ====Events====
 
+        public event Action<int>? TabSelectChanged;
         public event Action<T>? TabAdded;
         public event Action<T>? TabClosed;
+
+        #endregion
 
         #region ====Operations====
 
@@ -42,8 +47,7 @@ namespace PixUI
         /// </summary>
         public void SelectAt(int index, bool byTapTab = false)
         {
-            if (index < 0 || index == SelectedIndex)
-                return;
+            if (index < 0 || index == SelectedIndex) return;
 
             //TODO: check need scroll to target tab
             if (_tabBar != null && SelectedIndex >= 0)
@@ -55,6 +59,8 @@ namespace PixUI
 
             if (_tabBar != null)
                 _tabBar.Tabs[SelectedIndex].IsSelected.Value = true;
+
+            TabSelectChanged?.Invoke(index);
         }
 
         public void Add(T dataItem)
@@ -93,6 +99,7 @@ namespace PixUI
                 else
                 {
                     _tabBody?.ClearBody();
+                    TabSelectChanged?.Invoke(-1);
                 }
             }
         }
