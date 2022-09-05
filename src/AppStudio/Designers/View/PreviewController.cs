@@ -9,18 +9,17 @@ internal sealed class WidgetTreeNode
 {
     public WidgetTreeNode(Widget widget)
     {
-        _widget = widget;
+        Widget = widget;
         Children = new List<WidgetTreeNode>();
-        _widget.VisitChildren(child =>
+        Widget.VisitChildren(child =>
         {
             Children.Add(new WidgetTreeNode(child));
             return false;
         });
     }
 
-    private readonly Widget _widget;
+    public readonly Widget Widget;
     public readonly IList<WidgetTreeNode> Children;
-    public string Label => _widget.ToString();
 }
 
 [TSNoInitializer]

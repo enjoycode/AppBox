@@ -379,26 +379,14 @@ namespace PixUI
             {
                 if (left > right)
                 {
-                    if (top > bottom)
-                    {
-                        return new Rect(right, bottom, left, top);
-                    }
-                    else
-                    {
-                        return new Rect(right, top, left, bottom);
-                    }
+                    return top > bottom
+                        ? new Rect(right, bottom, left, top)
+                        : new Rect(right, top, left, bottom);
                 }
-                else
-                {
-                    if (top > bottom)
-                    {
-                        return new Rect(left, bottom, right, top);
-                    }
-                    else
-                    {
-                        return new Rect(left, top, right, bottom);
-                    }
-                }
+
+                return top > bottom
+                    ? new Rect(left, bottom, right, top)
+                    : new Rect(left, top, right, bottom);
             }
         }
 
