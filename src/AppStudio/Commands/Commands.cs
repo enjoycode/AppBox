@@ -66,11 +66,8 @@ namespace AppBoxDesign
         /// </summary>
         private static async void Save()
         {
-            var selectedIndex = DesignStore.DesignerController.SelectedIndex;
-            if (selectedIndex < 0)
-                return;
-
-            var designer = DesignStore.DesignerController.GetAt(selectedIndex).Designer!;
+            var designer = DesignStore.ActiveDesigner;
+            if (designer == null) return;
             try
             {
                 await designer.SaveAsync();

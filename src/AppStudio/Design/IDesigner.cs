@@ -14,5 +14,10 @@ namespace AppBoxDesign
     internal interface IModelDesigner : IDesigner
     {
         ModelNodeVO ModelNode { get; }
+
+        /// <summary>
+        /// 获取大纲视图
+        /// </summary>
+        Widget? GetOutlinePad();
     }
 }

@@ -107,6 +107,8 @@ namespace AppBoxDesign
                 _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
             }
         }
+        
+        public Widget? GetOutlinePad() => null;
 
         public Task SaveAsync()
         {

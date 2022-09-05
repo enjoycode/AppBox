@@ -5,6 +5,7 @@ namespace AppBoxDesign
     public enum SidePadType
     {
         DesignTree,
+        Outline,
         Toolbox,
         Settings,
     }
@@ -31,7 +32,8 @@ namespace AppBoxDesign
                             {
                                 Children = new Widget[]
                                 {
-                                    BuildButton(Icons.Filled.AccountTree, SidePadType.DesignTree),
+                                    BuildButton(Icons.Filled.Folder, SidePadType.DesignTree),
+                                    BuildButton(Icons.Filled.AccountTree, SidePadType.Outline),
                                     BuildButton(Icons.Filled.Build, SidePadType.Toolbox),
                                     BuildButton(Icons.Filled.Settings, SidePadType.Settings),
                                 }
@@ -81,6 +83,7 @@ namespace AppBoxDesign
                         Width = 250, BgColor = new Color(0xFFF3F3F3),
                         Child = new Conditional<SidePadType>(DesignStore.ActiveSidePad)
                             .When(t => t == SidePadType.DesignTree, () => new DesignTreePad())
+                            .When(t => t == SidePadType.Outline, () => new OutlinePad())
                             .When(t => t == SidePadType.Toolbox, () => new ToolboxPad())
                             .When(t => t == SidePadType.Settings, () => new SettingsPad())
                     }

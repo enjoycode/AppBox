@@ -86,7 +86,7 @@ namespace AppBoxDesign
             }
         }
 
-        private void OnTreeSelectionChanged()
+        private static void OnTreeSelectionChanged()
         {
             var currentNode = DesignStore.TreeController.FirstSelectedNode;
             if (currentNode != null && currentNode.Data is ModelNodeVO)

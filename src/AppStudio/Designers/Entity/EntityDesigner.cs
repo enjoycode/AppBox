@@ -220,6 +220,8 @@ namespace AppBoxDesign
 
         #endregion
 
+        public Widget? GetOutlinePad() => null;
+
         public Task SaveAsync()
         {
             return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });

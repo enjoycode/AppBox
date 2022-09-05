@@ -47,6 +47,17 @@ namespace AppBoxDesign
         internal static readonly DataGridController<ReferenceVO> UsagesController =
             new DataGridController<ReferenceVO>();
 
+        internal static IDesigner? ActiveDesigner
+        {
+            get
+            {
+                var selectedIndex = DesignerController.SelectedIndex;
+                if (selectedIndex < 0)
+                    return null;
+                return DesignerController.GetAt(selectedIndex).Designer;
+            }
+        }
+
         #endregion
 
         #region ====Actions====

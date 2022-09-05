@@ -60,6 +60,7 @@ internal sealed class DesktopPreviewer : View
             sw.Stop();
             Console.WriteLine(
                 $"Load preview widget: {widget.GetType()}, ms={sw.ElapsedMilliseconds}");
+
             _containerRef.Widget.Child = widget;
         }
         catch (Exception e)
@@ -68,6 +69,7 @@ internal sealed class DesktopPreviewer : View
             _containerRef.Widget.Child = new Center { Child = new Text("Has Error") };
         }
 
+        _controller.CurrentWidget = _containerRef.Widget.Child;
         _containerRef.Widget.Invalidate(InvalidAction.Relayout);
     }
 }

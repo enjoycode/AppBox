@@ -112,6 +112,8 @@ namespace AppBoxDesign
             }
         }
 
+        public Widget? GetOutlinePad() => new ViewOutlinePad(_previewController);
+
         public Task SaveAsync()
         {
             return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });
