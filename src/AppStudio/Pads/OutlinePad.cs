@@ -18,8 +18,6 @@ internal sealed class OutlinePad : View
 
     private void OnActiveDesignerChanged(int index)
     {
-        Console.WriteLine($"激活的设计器变更为: {index}");
-        
         if (!IsMounted) return;
 
         BuildOutlineView(true);
