@@ -18,12 +18,21 @@ namespace PixUI.CS2TS
                     throw new NotImplementedException("新建指定长度数组");
                 if (node.Initializer != null) throw new NotImplementedException("新建指定长度数组且具有初始化器");
 
-                emitter.Write("new Array");
-                if (!emitter.ToJavaScript)
+                //先判断js原生数组类型
+                var jsArrayType = ArrayTypeEmitter.GetJsNativeArrayType(node.Type);
+                if (jsArrayType != null)
                 {
-                    emitter.Write('<');
-                    emitter.Visit(node.Type.ElementType);
-                    emitter.Write('>');
+                    emitter.Write($"new {jsArrayType}");
+                }
+                else
+                {
+                    emitter.Write("new Array");
+                    if (!emitter.ToJavaScript)
+                    {
+                        emitter.Write('<');
+                        emitter.Visit(node.Type.ElementType);
+                        emitter.Write('>');
+                    }
                 }
 
                 emitter.Write('(');
@@ -31,12 +40,17 @@ namespace PixUI.CS2TS
                 emitter.Write(')');
 
                 //如果ElementType是值类型必须填充默认值
-                var elementTypeSymbol = emitter.SemanticModel.GetSymbolInfo(node.Type.ElementType);
-                if (elementTypeSymbol.Symbol is ITypeSymbol { IsValueType: true })
+                if (jsArrayType == null)
                 {
-                    emitter.Write(".fill(");
-                    emitter.TryWriteDefaultValueForValueType(node.Type.ElementType, node, false);
-                    emitter.Write(')');
+                    var elementTypeSymbol =
+                        emitter.SemanticModel.GetSymbolInfo(node.Type.ElementType);
+                    if (elementTypeSymbol.Symbol is ITypeSymbol { IsValueType: true })
+                    {
+                        emitter.Write(".fill(");
+                        emitter.TryWriteDefaultValueForValueType(node.Type.ElementType, node,
+                            false);
+                        emitter.Write(')');
+                    }
                 }
             }
             else

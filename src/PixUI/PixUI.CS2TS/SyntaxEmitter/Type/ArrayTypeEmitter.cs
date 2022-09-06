@@ -9,6 +9,22 @@ namespace PixUI.CS2TS
         {
             if (node.ElementType is PredefinedTypeSyntax predefinedType)
             {
+                var jsArrayType = GetJsNativeArrayType(node);
+                if (jsArrayType != null)
+                {
+                    emitter.Write(jsArrayType);
+                    return;
+                }
+            }
+
+            emitter.Visit(node.ElementType);
+            emitter.Write("[]");
+        }
+
+        internal static string? GetJsNativeArrayType(ArrayTypeSyntax node)
+        {
+            if (node.ElementType is PredefinedTypeSyntax predefinedType)
+            {
                 var jsArrayType = predefinedType.Keyword.Kind() switch
                 {
                     SyntaxKind.ByteKeyword => "Uint8Array",
@@ -22,15 +38,10 @@ namespace PixUI.CS2TS
                     SyntaxKind.DoubleKeyword => "Float64Array",
                     _ => null
                 };
-                if (jsArrayType != null)
-                {
-                    emitter.Write(jsArrayType);
-                    return;
-                }
+                return jsArrayType;
             }
 
-            emitter.Visit(node.ElementType);
-            emitter.Write("[]");
+            return null;
         }
     }
 }
