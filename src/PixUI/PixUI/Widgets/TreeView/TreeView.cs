@@ -110,11 +110,8 @@ namespace PixUI
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
-            if (area == null)
-            {
-                canvas.Save();
-                canvas.ClipRect(Rect.FromLTWH(0, 0, W, H), ClipOp.Intersect, false);
-            }
+            canvas.Save();
+            canvas.ClipRect(Rect.FromLTWH(0, 0, W, H), ClipOp.Intersect, false);
 
             // draw background color if has
             if (_color != null)
@@ -135,8 +132,7 @@ namespace PixUI
                 canvas.Translate(-vx, -vy);
             }
 
-            if (area == null)
-                canvas.Restore();
+            canvas.Restore();
         }
 
         #endregion
