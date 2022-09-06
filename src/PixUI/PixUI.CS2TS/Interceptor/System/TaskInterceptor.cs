@@ -21,9 +21,16 @@ namespace PixUI.CS2TS
                 emitter.Write("Promise");
                 emitter.Visit(genericName.TypeArgumentList);
             }
+            else if (node is MemberAccessExpressionSyntax memberAccess)
+            {
+                if (memberAccess.Name.Identifier.Text == "CompletedTask")
+                    emitter.Write("Promise.resolve()");
+                else
+                    throw new NotImplementedException(node.ToString());
+            }
             else
             {
-                throw new NotImplementedException();
+                throw new NotImplementedException(node.ToString());
             }
         }
 
