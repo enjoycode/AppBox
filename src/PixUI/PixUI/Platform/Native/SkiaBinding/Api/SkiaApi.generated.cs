@@ -2670,13 +2670,13 @@ namespace PixUI
 		// sk_stroke_cap_t sk_paint_get_stroke_cap(const sk_paint_t*)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern SKStrokeCap sk_paint_get_stroke_cap (sk_paint_t param0);
+		internal static extern StrokeCap sk_paint_get_stroke_cap (sk_paint_t param0);
 		
 
 		// sk_stroke_join_t sk_paint_get_stroke_join(const sk_paint_t*)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern SKStrokeJoin sk_paint_get_stroke_join (sk_paint_t param0);
+		internal static extern StrokeJoin sk_paint_get_stroke_join (sk_paint_t param0);
 		
 
 		// float sk_paint_get_stroke_miter(const sk_paint_t*)
@@ -2792,13 +2792,13 @@ namespace PixUI
 		// void sk_paint_set_stroke_cap(sk_paint_t*, sk_stroke_cap_t)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void sk_paint_set_stroke_cap (sk_paint_t param0, SKStrokeCap param1);
+		internal static extern void sk_paint_set_stroke_cap (sk_paint_t param0, StrokeCap param1);
 		
 
 		// void sk_paint_set_stroke_join(sk_paint_t*, sk_stroke_join_t)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern void sk_paint_set_stroke_join (sk_paint_t param0, SKStrokeJoin param1);
+		internal static extern void sk_paint_set_stroke_join (sk_paint_t param0, StrokeJoin param1);
 		
 
 		// void sk_paint_set_stroke_miter(sk_paint_t*, float miter)

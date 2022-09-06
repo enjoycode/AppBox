@@ -79,6 +79,24 @@ namespace PixUI
             set => SkiaApi.sk_paint_set_maskfilter(Handle, value?.Handle ?? IntPtr.Zero);
         }
 
+        public float StrokeMiter
+        {
+            get => SkiaApi.sk_paint_get_stroke_miter(Handle);
+            set => SkiaApi.sk_paint_set_stroke_miter(Handle, value);
+        }
+
+        public StrokeCap StrokeCap
+        {
+            get => SkiaApi.sk_paint_get_stroke_cap(Handle);
+            set => SkiaApi.sk_paint_set_stroke_cap(Handle, value);
+        }
+
+        public StrokeJoin StrokeJoin
+        {
+            get => SkiaApi.sk_paint_get_stroke_join(Handle);
+            set => SkiaApi.sk_paint_set_stroke_join(Handle, value);
+        }
+
         #endregion
 
         // private void UpdateFontEdging (bool antialias)

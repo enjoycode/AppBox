@@ -672,32 +672,6 @@ namespace PixUI
         Decal = 3,
     }
 
-    // sk_stroke_cap_t
-    public enum SKStrokeCap
-    {
-        // BUTT_SK_STROKE_CAP = 0
-        Butt = 0,
-
-        // ROUND_SK_STROKE_CAP = 1
-        Round = 1,
-
-        // SQUARE_SK_STROKE_CAP = 2
-        Square = 2,
-    }
-
-    // sk_stroke_join_t
-    public enum SKStrokeJoin
-    {
-        // MITER_SK_STROKE_JOIN = 0
-        Miter = 0,
-
-        // ROUND_SK_STROKE_JOIN = 1
-        Round = 1,
-
-        // BEVEL_SK_STROKE_JOIN = 2
-        Bevel = 2,
-    }
-
     // sk_surfaceprops_flags_t
     [Flags]
     public enum SKSurfacePropsFlags

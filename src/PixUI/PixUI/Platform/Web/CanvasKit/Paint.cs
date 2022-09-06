@@ -18,6 +18,12 @@ namespace PixUI
 
         [TSPropertyToGetSet] public float StrokeWidth { get; set; }
 
+        [TSPropertyToGetSet] public float StrokeMiter { get; set; }
+
+        [TSPropertyToGetSet] public StrokeCap StrokeCap { get; set; }
+
+        [TSPropertyToGetSet] public StrokeJoin StrokeJoin { get; set; }
+
         [TSPropertyToGetSet] public bool AntiAlias { get; set; }
 
         [TSPropertyToGetSet] public MaskFilter? MaskFilter { get; set; }
