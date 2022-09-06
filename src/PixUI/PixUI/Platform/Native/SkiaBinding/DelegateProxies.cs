@@ -77,7 +77,7 @@ namespace PixUI
         public static T GetUserData<T>(IntPtr contextPtr, out GCHandle gch)
         {
             var del = Get<UserDataDelegate>(contextPtr, out gch);
-            var value = del.Invoke();
+            var value = del!.Invoke();
             return value is WeakReference weak ? (T)weak.Target : (T)value;
         }
 
@@ -130,7 +130,7 @@ namespace PixUI
             where T : Delegate
         {
             var multi = Get<GetMultiDelegateDelegate>(contextPtr, out gch);
-            return (T)multi.Invoke(typeof(T));
+            return (T)multi!.Invoke(typeof(T));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,7 +140,7 @@ namespace PixUI
             where T2 : Delegate
         {
             var multi = Get<GetMultiDelegateDelegate>(contextPtr, out gch);
-            wrappedDelegate1 = (T1)multi.Invoke(typeof(T1));
+            wrappedDelegate1 = (T1)multi!.Invoke(typeof(T1));
             wrappedDelegate2 = (T2)multi.Invoke(typeof(T2));
         }
 
@@ -152,7 +152,7 @@ namespace PixUI
             where T3 : Delegate
         {
             var multi = Get<GetMultiDelegateDelegate>(contextPtr, out gch);
-            wrappedDelegate1 = (T1)multi.Invoke(typeof(T1));
+            wrappedDelegate1 = (T1)multi!.Invoke(typeof(T1));
             wrappedDelegate2 = (T2)multi.Invoke(typeof(T2));
             wrappedDelegate3 = (T3)multi.Invoke(typeof(T3));
         }
@@ -238,7 +238,7 @@ namespace PixUI
         public static TUserData GetMultiUserData<TUserData>(IntPtr contextPtr, out GCHandle gch)
         {
             var multi = Get<GetMultiDelegateDelegate>(contextPtr, out gch);
-            return GetUserData<TUserData>(multi);
+            return GetUserData<TUserData>(multi!);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -247,7 +247,7 @@ namespace PixUI
             where T : Delegate
         {
             var multi = Get<GetMultiDelegateDelegate>(contextPtr, out gch);
-            wrappedDelegate = (T)multi.Invoke(typeof(T));
+            wrappedDelegate = (T)multi!.Invoke(typeof(T));
             userData = GetUserData<TUserData>(multi);
         }
 
@@ -259,7 +259,7 @@ namespace PixUI
             where T2 : Delegate
         {
             var multi = Get<GetMultiDelegateDelegate>(contextPtr, out gch);
-            wrappedDelegate1 = (T1)multi.Invoke(typeof(T1));
+            wrappedDelegate1 = (T1)multi!.Invoke(typeof(T1));
             wrappedDelegate2 = (T2)multi.Invoke(typeof(T2));
             userData = GetUserData<TUserData>(multi);
         }
@@ -273,7 +273,7 @@ namespace PixUI
             where T3 : Delegate
         {
             var multi = Get<GetMultiDelegateDelegate>(contextPtr, out gch);
-            wrappedDelegate1 = (T1)multi.Invoke(typeof(T1));
+            wrappedDelegate1 = (T1)multi!.Invoke(typeof(T1));
             wrappedDelegate2 = (T2)multi.Invoke(typeof(T2));
             wrappedDelegate3 = (T3)multi.Invoke(typeof(T3));
             userData = GetUserData<TUserData>(multi);

@@ -400,10 +400,10 @@ namespace PixUI
 
         // Create
 
-        public static SKColorSpaceIccProfile Create(byte[] data) =>
+        public static SKColorSpaceIccProfile? Create(byte[] data) =>
             Create(data.AsSpan());
 
-        public static SKColorSpaceIccProfile Create(ReadOnlySpan<byte> data)
+        public static SKColorSpaceIccProfile? Create(ReadOnlySpan<byte> data)
         {
             if (data.IsEmpty)
                 return null;
@@ -415,7 +415,7 @@ namespace PixUI
             return icc;
         }
 
-        public static SKColorSpaceIccProfile Create(SKData data)
+        public static SKColorSpaceIccProfile? Create(SKData data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));

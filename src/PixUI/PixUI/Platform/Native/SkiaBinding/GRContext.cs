@@ -6,10 +6,8 @@ namespace PixUI
 {
     public unsafe class GRContext : GRRecordingContext
     {
-        internal GRContext(IntPtr h, bool owns) : base(h, owns)
-        {
-        }
-     
+        internal GRContext(IntPtr h, bool owns) : base(h, owns) { }
+
         protected override void Dispose(bool disposing) => base.Dispose(disposing);
 
         protected override void DisposeNative()
@@ -71,17 +69,17 @@ namespace PixUI
             GRContextOptions? options = null)
         {
             if (options == null)
-                return GetObject(SkiaApi.gr_direct_context_make_metal((void*)device, (void*)queue));
+                return GetObject(SkiaApi.gr_direct_context_make_metal((void*)device, (void*)queue))!;
 
             var opts = options.ToNative();
             return GetObject(
                 SkiaApi.gr_direct_context_make_metal_with_options((void*)device, (void*)queue,
-                    &opts));
+                    &opts))!;
         }
 
         public static GRContext CreateDirect3D(IntPtr backendContext)
         {
-            return GetObject(SkiaApi.gr_direct_context_make_direct3d((void*)backendContext));
+            return GetObject(SkiaApi.gr_direct_context_make_direct3d((void*)backendContext))!;
         }
 
         public new GRBackend Backend => base.Backend;
@@ -156,7 +154,7 @@ namespace PixUI
             SkiaApi.gr_direct_context_purge_unlocked_resources_bytes(Handle, (IntPtr)bytesToPurge,
                 preferScratchResources);
 
-        internal static /*new*/ GRContext GetObject(IntPtr handle, bool owns = true) =>
+        internal static /*new*/ GRContext? GetObject(IntPtr handle, bool owns = true) =>
             GetOrAddObject(handle, owns, (h, o) => new GRContext(h, o));
     }
 }

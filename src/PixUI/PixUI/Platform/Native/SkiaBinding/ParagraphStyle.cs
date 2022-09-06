@@ -29,7 +29,7 @@ namespace PixUI
             set => SkiaApi.sk_paragraph_style_set_height(Handle, value);
         }
 
-        public TextStyle TextStyle //TODO:
+        public TextStyle? TextStyle //TODO:
         {
             get;
             set;

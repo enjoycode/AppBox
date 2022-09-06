@@ -8,6 +8,22 @@ namespace PixUI
         //StrokeAndFill = 2,
     }
 
+    [TSType("CanvasKit.StrokeCap")]
+    public enum StrokeCap
+    {
+        Butt = 0,
+        Round = 1,
+        Square = 2,
+    }
+
+    [TSType("CanvasKit.StrokeJoin")]
+    public enum StrokeJoin
+    {
+        Miter = 0,
+        Round = 1,
+        Bevel = 2,
+    }
+
     [TSType("CanvasKit.ClipOp")]
     public enum ClipOp
     {

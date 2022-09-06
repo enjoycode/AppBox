@@ -13,10 +13,10 @@ namespace PixUI
 
         public AlphaType AlphaType => SkiaApi.sk_image_get_alpha_type(Handle);
 
-        internal static Image GetObject(IntPtr handle) =>
+        internal static Image? GetObject(IntPtr handle) =>
             GetOrAddObject(handle, (h, o) => new Image(h, o));
 
-        public static Image FromEncodedData(SKData data)
+        public static Image? FromEncodedData(SKData data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -33,7 +33,7 @@ namespace PixUI
                 throw new ArgumentException("The data buffer was empty.");
 
             using var skdata = SKData.CreateCopy(data);
-            return FromEncodedData(skdata);
+            return FromEncodedData(skdata)!;
         }
     }
 }

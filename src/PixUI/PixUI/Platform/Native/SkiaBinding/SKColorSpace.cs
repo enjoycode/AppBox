@@ -66,10 +66,10 @@ namespace PixUI
 
         // CreateIcc
 
-        public static SKColorSpace CreateIcc(IntPtr input, long length) =>
+        public static SKColorSpace? CreateIcc(IntPtr input, long length) =>
             CreateIcc(SKColorSpaceIccProfile.Create(input, length));
 
-        public static SKColorSpace CreateIcc(byte[] input, long length)
+        public static SKColorSpace? CreateIcc(byte[] input, long length)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -80,16 +80,16 @@ namespace PixUI
             }
         }
 
-        public static SKColorSpace CreateIcc(byte[] input) =>
+        public static SKColorSpace? CreateIcc(byte[] input) =>
             CreateIcc(input.AsSpan());
 
-        public static SKColorSpace CreateIcc(ReadOnlySpan<byte> input) =>
+        public static SKColorSpace? CreateIcc(ReadOnlySpan<byte> input) =>
             CreateIcc(SKColorSpaceIccProfile.Create(input));
 
-        public static SKColorSpace CreateIcc(SKData input) =>
+        public static SKColorSpace? CreateIcc(SKData input) =>
             CreateIcc(SKColorSpaceIccProfile.Create(input));
 
-        public static SKColorSpace CreateIcc(SKColorSpaceIccProfile profile)
+        public static SKColorSpace? CreateIcc(SKColorSpaceIccProfile? profile)
         {
             if (profile == null)
                 throw new ArgumentNullException(nameof(profile));

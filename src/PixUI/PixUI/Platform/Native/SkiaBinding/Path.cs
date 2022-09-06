@@ -418,7 +418,7 @@ namespace PixUI
             return SkiaApi.sk_pathop_simplify(Handle, result.Handle);
         }
 
-        public Path Simplify()
+        public Path? Simplify()
         {
             var result = new Path();
             if (Simplify(result))
@@ -448,27 +448,23 @@ namespace PixUI
             return SkiaApi.sk_pathop_as_winding(Handle, result.Handle);
         }
 
-        public Path ToWinding()
+        public Path? ToWinding()
         {
             var result = new Path();
             if (ToWinding(result))
             {
                 return result;
             }
-            else
-            {
-                result.Dispose();
-                return null;
-            }
+
+            result.Dispose();
+            return null;
         }
 
         public string ToSvgPathData()
         {
-            using (var str = new SKString())
-            {
-                SkiaApi.sk_path_to_svg_string(Handle, str.Handle);
-                return (string)str;
-            }
+            using var str = new SKString();
+            SkiaApi.sk_path_to_svg_string(Handle, str.Handle);
+            return (string)str;
         }
 
         public static Path ParseSvgPathData(string svgPath)
