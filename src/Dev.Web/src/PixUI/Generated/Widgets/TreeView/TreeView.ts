@@ -1,7 +1,9 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export class TreeView<T> extends PixUI.Widget {
+export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
+    private static readonly $meta_PixUI_IScrollable = true;
+
     public constructor(controller: PixUI.TreeController<T>, nodeHeight: number = 30) {
         super();
         this._controller = controller;
@@ -21,8 +23,34 @@ export class TreeView<T> extends PixUI.Widget {
         this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
     }
 
+    public get ScrollOffsetX(): number {
+        return this._controller.ScrollController.OffsetX;
+    }
+
+    public get ScrollOffsetY(): number {
+        return this._controller.ScrollController.OffsetY;
+    }
+
+    public OnScroll(dx: number, dy: number): PixUI.Offset {
+        if (this._controller.Nodes.length == 0) return PixUI.Offset.Empty;
+
+        let maxOffsetX = Math.max(0, this._controller.TotalWidth - this.W);
+        let maxOffsetY = Math.max(0, this._controller.TotalHeight - this.H);
+        let offset = this._controller.ScrollController.OnScroll(dx, dy, maxOffsetX, maxOffsetY);
+        if (!offset.IsEmpty) {
+            this.Invalidate(PixUI.InvalidAction.Repaint);
+        }
+
+        return offset;
+    }
+
+
     public get IsOpaque(): boolean {
         return this._color != null && this._color.Value.Alpha == 0xFF;
+    }
+
+    public get Clipper(): Nullable<PixUI.IClipper> {
+        return new PixUI.ClipperOfRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
     }
 
     public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
@@ -72,20 +100,30 @@ export class TreeView<T> extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        let needClip = area != null;
-        if (needClip) {
+        if (area == null) {
             canvas.save();
-            canvas.clipRect(area!.GetRect(), CanvasKit.ClipOp.Intersect, false);
+            canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
         }
 
         // draw background color if has
-        if (this._color != null) {
+        if (this._color != null)
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this._color.Value));
+
+        // draw nodes in visual region
+        let dirtyRect = (area?.GetRect() ?? PixUI.Rect.FromLTWH(0, 0, this.W, this.H)).Clone();
+        for (const node of this._controller.Nodes) {
+            let vx = node.X - this.ScrollOffsetX;
+            let vy = node.Y - this.ScrollOffsetY;
+            if (vy >= dirtyRect.Bottom) break;
+            let vb = vy + node.H;
+            if (vb <= dirtyRect.Top) continue;
+
+            canvas.translate(vx, vy);
+            node.Paint(canvas, area?.ToChild(vx, vy));
+            canvas.translate(-vx, -vy);
         }
 
-        this.PaintChildren(canvas, area);
-
-        if (needClip)
+        if (area == null)
             canvas.restore();
     }
 

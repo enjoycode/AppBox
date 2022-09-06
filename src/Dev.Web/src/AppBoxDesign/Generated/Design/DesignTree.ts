@@ -2,8 +2,8 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 import * as AppBoxCore from '@/AppBoxCore'
 
-export class DesignTree implements AppBoxCore.IBinSerializable {
-    public readonly RootNodes: System.List<AppBoxDesign.DesignNode> = new System.List<AppBoxDesign.DesignNode>();
+export class DesignTreeVO implements AppBoxCore.IBinSerializable {
+    public readonly RootNodes: System.List<AppBoxDesign.DesignNodeVO> = new System.List<AppBoxDesign.DesignNodeVO>();
 
     public WriteTo(ws: AppBoxCore.IOutputStream) {
         throw new System.NotSupportedException();
@@ -13,11 +13,11 @@ export class DesignTree implements AppBoxCore.IBinSerializable {
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
             let nodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
-            let node: AppBoxDesign.DesignNode;
+            let node: AppBoxDesign.DesignNodeVO;
             if (nodeType == AppBoxDesign.DesignNodeType.DataStoreRootNode)
-                node = new AppBoxDesign.DataStoreRootNode();
+                node = new AppBoxDesign.DataStoreRootNodeVO();
             else if (nodeType == AppBoxDesign.DesignNodeType.ApplicationRoot)
-                node = new AppBoxDesign.ApplicationRootNode();
+                node = new AppBoxDesign.ApplicationRootNodeVO();
             else
                 throw new System.NotSupportedException();
             node.ReadFrom(rs);
@@ -25,7 +25,7 @@ export class DesignTree implements AppBoxCore.IBinSerializable {
         }
     }
 
-    public Init(props: Partial<DesignTree>): DesignTree {
+    public Init(props: Partial<DesignTreeVO>): DesignTreeVO {
         Object.assign(this, props);
         return this;
     }

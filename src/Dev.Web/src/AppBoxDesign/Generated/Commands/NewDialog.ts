@@ -5,48 +5,33 @@ import * as PixUI from '@/PixUI'
 /// <summary>
 /// 通用的新建对话框(Application, Folder, 除Entity外的Model)
 /// </summary>
-export class NewDialog extends PixUI.Dialog<string> {
+export class NewDialog extends PixUI.Dialog {
     private readonly _name: PixUI.State<string> = PixUI.State.op_Implicit_From("");
     private readonly _type: string;
 
-    public constructor(overlay: PixUI.Overlay, type: string) {
-        super(overlay);
+    public constructor(type: string) {
+        super();
         this.Width = PixUI.State.op_Implicit_From(300);
-        this.Height = PixUI.State.op_Implicit_From(150);
+        this.Height = PixUI.State.op_Implicit_From(180);
         this.Title.Value = `New ${type}`;
         this._type = type;
-        this.OnClose = this._OnClose.bind(this);
     }
 
     protected BuildBody(): PixUI.Widget {
         return new PixUI.Container().Init(
             {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
-                Child: new PixUI.Column(PixUI.HorizontalAlignment.Right, 20).Init(
-                    {
-                        Children: [new PixUI.Input(this._name).Init({HintText: "Please input name"}), new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
-                            {
-                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({
-                                    Width: PixUI.State.op_Implicit_From(65),
-                                    OnTap: _ => this.Close(true)
-                                }), new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({
-                                    Width: PixUI.State.op_Implicit_From(65),
-                                    OnTap: _ => this.Close(false)
-                                })]
-                            })
-                        ]
-                    })
+                Child: new PixUI.Input(this._name).Init({HintText: "Please input name"})
             });
     }
 
-    protected GetResult(canceled: boolean): Nullable<string> {
-        return canceled ? null : this._name.Value;
+    protected OnClosing(canceled: boolean): boolean {
+        if (!canceled && !System.IsNullOrEmpty(this._name.Value))
+            this.CreateAsync();
+        return super.OnClosing(canceled);
     }
 
-    private _OnClose(canceled: boolean, result: Nullable<string>) {
-        if (canceled) return;
-        if (System.IsNullOrEmpty(this._name.Value)) return;
-
+    private async CreateAsync() {
         let selectedNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
         if (selectedNode == null) return;
 
@@ -55,10 +40,7 @@ export class NewDialog extends PixUI.Dialog<string> {
             service += "Model";
         let args = this._type == "Application"
             ? [this._name.Value] : [(Math.floor(selectedNode.Data.Type) & 0xFFFFFFFF), selectedNode.Data.Id, this._name.Value];
-        NewDialog.CreateAsync(service, args);
-    }
 
-    private static async CreateAsync(service: string, args: any[]) {
         let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.NewNodeResult>(service, args);
         //根据返回结果同步添加新节点
         AppBoxDesign.DesignStore.OnNewNode(res!);

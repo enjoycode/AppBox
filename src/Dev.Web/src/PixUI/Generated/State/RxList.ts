@@ -17,19 +17,19 @@ export class RxList<T> extends PixUI.StateBase {
 
     public Add(item: T) {
         this._source.Add(item);
-        this.OnValueChanged();
+        this.NotifyValueChanged();
     }
 
     public Remove(item: T): boolean {
         let res = this._source.Remove(item);
         if (res)
-            this.OnValueChanged();
+            this.NotifyValueChanged();
         return res;
     }
 
     public Clear() {
         this._source.Clear();
-        this.OnValueChanged();
+        this.NotifyValueChanged();
     }
 
     public Contains(item: T): boolean {
@@ -42,12 +42,12 @@ export class RxList<T> extends PixUI.StateBase {
 
     public Insert(index: number, item: T) {
         this._source.Insert(index, item);
-        this.OnValueChanged();
+        this.NotifyValueChanged();
     }
 
     public RemoveAt(index: number) {
         this._source.RemoveAt(index);
-        this.OnValueChanged();
+        this.NotifyValueChanged();
     }
 
     public Init(props: Partial<RxList<T>>): RxList<T> {

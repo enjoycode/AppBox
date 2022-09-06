@@ -97,6 +97,7 @@ namespace PixUI
         {
             Show();
             _closeDone = new TaskCompletionSource<bool>();
+            // @ts-ignore
             return _closeDone.Task;
         }
 

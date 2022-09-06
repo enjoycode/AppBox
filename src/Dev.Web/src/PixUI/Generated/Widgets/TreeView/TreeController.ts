@@ -18,6 +18,8 @@ export class TreeController<T> implements PixUI.IStateBindable {
     public readonly ChildrenGetter: System.Func2<T, System.IList<T>>;
     public readonly Nodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
 
+    public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
+
 
     private readonly _selectedNodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
 

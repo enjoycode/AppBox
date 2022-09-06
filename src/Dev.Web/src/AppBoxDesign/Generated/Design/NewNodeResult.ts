@@ -21,7 +21,7 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
         this.#ParentNodeId = value;
     }
 
-    #NewNode: AppBoxDesign.DesignNode;
+    #NewNode: AppBoxDesign.DesignNodeVO;
     public get NewNode() {
         return this.#NewNode;
     }
@@ -61,13 +61,13 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
         let newNodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
         switch (newNodeType) {
             case AppBoxDesign.DesignNodeType.FolderNode:
-                this.NewNode = new AppBoxDesign.FolderNode();
+                this.NewNode = new AppBoxDesign.FolderNodeVO();
                 break;
             case AppBoxDesign.DesignNodeType.ModelNode:
-                this.NewNode = new AppBoxDesign.ModelNode();
+                this.NewNode = new AppBoxDesign.ModelNodeVO();
                 break;
             case AppBoxDesign.DesignNodeType.DataStoreNode:
-                this.NewNode = new AppBoxDesign.DataStoreNode();
+                this.NewNode = new AppBoxDesign.DataStoreNodeVO();
                 break;
             default:
                 throw new System.NotSupportedException();

@@ -48,6 +48,6 @@ export class RxComputed<T> extends PixUI.State<T> implements PixUI.IStateBindabl
     }
 
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
-        this.OnValueChanged();
+        this.NotifyValueChanged();
     }
 }

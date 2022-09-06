@@ -136,7 +136,10 @@ export class Notification extends PixUI.Popup {
         Notification.Show(new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Info)).Init({
             Size: PixUI.State.op_Implicit_From(18),
             Color: color
-        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color}));
+        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({
+            TextColor: color,
+            MaxLines: 5
+        }));
     }
 
     public static Success(message: string) {
@@ -144,7 +147,10 @@ export class Notification extends PixUI.Popup {
         Notification.Show(new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Error)).Init({
             Size: PixUI.State.op_Implicit_From(18),
             Color: color
-        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color}));
+        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({
+            TextColor: color,
+            MaxLines: 5
+        }));
     }
 
     public static Error(message: string) {
@@ -152,7 +158,10 @@ export class Notification extends PixUI.Popup {
         Notification.Show(new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Error)).Init({
             Size: PixUI.State.op_Implicit_From(18),
             Color: color
-        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color}));
+        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({
+            TextColor: color,
+            MaxLines: 5
+        }));
     }
 
     public Init(props: Partial<Notification>): Notification {

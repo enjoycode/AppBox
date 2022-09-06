@@ -1,21 +1,13 @@
 import * as AppBoxDesign from '@/AppBoxDesign'
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class BottomPad extends PixUI.View {
-    private readonly _tabController: PixUI.TabController<string>;
-
     public constructor() {
         super();
-        this._tabController = new PixUI.TabController<string>(new System.List<string>().Init(
-            [
-                "Problems", "Usages", "Output"
-            ]));
-
         this.Child = new PixUI.Container().Init(
             {
                 Height: PixUI.State.op_Implicit_From(190),
-                Child: new PixUI.TabView<string>(this._tabController, BottomPad.BuildTab, BottomPad.BuildBody, false, 40).Init(
+                Child: new PixUI.TabView<string>(AppBoxDesign.DesignStore.BottomPadController, BottomPad.BuildTab, BottomPad.BuildBody, false, 40).Init(
                     {
                         SelectedTabColor: PixUI.Colors.White,
                         TabBarBgColor: new PixUI.Color(0xFFF3F3F3)
@@ -37,6 +29,13 @@ export class BottomPad extends PixUI.View {
                     Columns: [                        //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
                         new PixUI.DataGridTextColumn<AppBoxDesign.CodeProblem>("Position", p => p.Position).Init(
                             {Width: PixUI.ColumnWidth.Fixed(180)}), new PixUI.DataGridTextColumn<AppBoxDesign.CodeProblem>("Message", p => p.Message)]
+                });
+        }
+
+        if (title == "Usages") {
+            return new PixUI.DataGrid<AppBoxDesign.ReferenceVO>(AppBoxDesign.DesignStore.UsagesController).Init(
+                {
+                    Columns: [new PixUI.DataGridTextColumn<AppBoxDesign.ReferenceVO>("Model", u => u.ModelName), new PixUI.DataGridTextColumn<AppBoxDesign.ReferenceVO>("Location", u => u.Location)]
                 });
         }
 

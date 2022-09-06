@@ -25,7 +25,7 @@ export abstract class StateBase {
         this._bindings?.RemoveAll(b => (b.Target.deref() === target));
     }
 
-    protected OnValueChanged() {
+    public NotifyValueChanged() {
         if (this._bindings == null) return;
 
         for (let i = 0; i < this._bindings.length; i++) {
@@ -94,7 +94,7 @@ export class StateProxy<T> extends State<T> implements IStateBindable {
     }
 
     public OnStateChanged(state: StateBase, options: PixUI.BindingOptions) {
-        this.OnValueChanged();
+        this.NotifyValueChanged();
     }
 
     public Init(props: Partial<StateProxy<T>>): StateProxy<T> {

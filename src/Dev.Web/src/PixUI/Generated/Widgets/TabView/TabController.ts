@@ -14,6 +14,11 @@ export class TabController<T> implements PixUI.IStateBindable {
     private _tabBody: Nullable<PixUI.TabBody<T>>;
 
     public readonly DataSource: System.IList<T>;
+
+    public get Count(): number {
+        return this.DataSource.length;
+    }
+
     #SelectedIndex: number = -1;
     public get SelectedIndex() {
         return this.#SelectedIndex;
@@ -34,10 +39,8 @@ export class TabController<T> implements PixUI.IStateBindable {
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
     }
 
-    public get Count(): number {
-        return this.DataSource.length;
-    }
 
+    public readonly TabSelectChanged = new System.Event<number>();
     public readonly TabAdded = new System.Event<T>();
     public readonly TabClosed = new System.Event<T>();
 
@@ -51,8 +54,7 @@ export class TabController<T> implements PixUI.IStateBindable {
     }
 
     public SelectAt(index: number, byTapTab: boolean = false) {
-        if (index < 0 || index == this.SelectedIndex)
-            return;
+        if (index < 0 || index == this.SelectedIndex) return;
 
         //TODO: check need scroll to target tab
         if (this._tabBar != null && this.SelectedIndex >= 0)
@@ -64,6 +66,8 @@ export class TabController<T> implements PixUI.IStateBindable {
 
         if (this._tabBar != null)
             this._tabBar.Tabs[this.SelectedIndex].IsSelected.Value = true;
+
+        this.TabSelectChanged.Invoke(index);
     }
 
     public Add(dataItem: T) {
@@ -96,6 +100,7 @@ export class TabController<T> implements PixUI.IStateBindable {
                 this.SelectAt(newSelectedIndex);
             } else {
                 this._tabBody?.ClearBody();
+                this.TabSelectChanged.Invoke(-1);
             }
         }
     }

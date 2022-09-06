@@ -4,10 +4,12 @@ import * as CodeEditor from '@/CodeEditor'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
-export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
-    public constructor(modelNode: AppBoxDesign.ModelNode) {
+export class ViewDesigner extends PixUI.View implements AppBoxDesign.IModelDesigner {
+    private static readonly $meta_AppBoxDesign_IModelDesigner = true;
+
+    public constructor(modelNode: AppBoxDesign.ModelNodeVO) {
         super();
-        this._modelNode = modelNode;
+        this.ModelNode = modelNode;
         this._previewController = new AppBoxDesign.PreviewController(modelNode);
         this._codeEditorController = new CodeEditor.CodeEditorController(`${modelNode.Label}.cs`, "", AppBoxDesign.RoslynCompletionProvider.Default, modelNode.Id);
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
@@ -19,7 +21,15 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
             });
     }
 
-    private readonly _modelNode: AppBoxDesign.ModelNode;
+    #ModelNode: AppBoxDesign.ModelNodeVO;
+    public get ModelNode() {
+        return this.#ModelNode;
+    }
+
+    private set ModelNode(value) {
+        this.#ModelNode = value;
+    }
+
     private readonly _codeEditorController: CodeEditor.CodeEditorController;
     private readonly _codeSyncService: AppBoxDesign.ModelCodeSyncService;
     private readonly _previewController: AppBoxDesign.PreviewController;
@@ -56,8 +66,8 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
         if (this._hasLoadSourceCode) return;
         this._hasLoadSourceCode = true;
 
-        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenViewModel", [this._modelNode.Id]);
-        this._codeEditorController.Document.TextContent = srcCode;
+        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenCodeModel", [this.ModelNode.Id]);
+        this._codeEditorController.Document.TextContent = srcCode!;
         //订阅代码变更事件
         this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
     }
@@ -73,10 +83,10 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
         //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
         //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
 
-        let problems = await AppBoxClient.Channel.Invoke<System.IList<AppBoxDesign.CodeProblem>>("sys.DesignService.GetProblems", [false, this._modelNode.Id]);
-        AppBoxDesign.DesignStore.UpdateProblems(this._modelNode, problems);
+        let problems = await AppBoxClient.Channel.Invoke<System.IList<AppBoxDesign.CodeProblem>>("sys.DesignService.GetProblems", [false, this.ModelNode.Id]);
+        AppBoxDesign.DesignStore.UpdateProblems(this.ModelNode, problems!);
 
-        if (!problems.Any(p => p.IsError))
+        if (!problems!.Any(p => p.IsError))
             this._previewController.Invalidate();
     }
 
@@ -87,8 +97,19 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IDesigner {
         }
     }
 
+    public GetOutlinePad(): Nullable<PixUI.Widget> {
+        return new AppBoxDesign.ViewOutlinePad(this._previewController);
+    }
+
     public SaveAsync(): Promise<void> {
-        return AppBoxClient.Channel.Invoke("sys.DesignService.SaveModel", [this._modelNode.Id]);
+        return AppBoxClient.Channel.Invoke("sys.DesignService.SaveModel", [this.ModelNode.Id]);
+    }
+
+    public async RefreshAsync(): Promise<void> {
+        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenCodeModel", [this.ModelNode.Id]);
+        this._codeEditorController.Document.DocumentChanged.Remove(this.OnDocumentChanged, this);
+        this._codeEditorController.Document.TextContent = srcCode!;
+        this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
     }
 
     public Init(props: Partial<ViewDesigner>): ViewDesigner {

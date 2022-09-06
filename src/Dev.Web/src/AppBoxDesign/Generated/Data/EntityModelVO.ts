@@ -2,13 +2,30 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 import * as AppBoxCore from '@/AppBoxCore'
 
-export abstract class EntityMemberVO {
+export abstract class EntityMemberVO implements AppBoxCore.IBinSerializable {
     public abstract get Type(): AppBoxCore.EntityMemberType ;
 
-    public Id: number = 0;
-    public Name: string = "";
+    #Id: number = 0;
+    public get Id() {
+        return this.#Id;
+    }
+
+    private set Id(value) {
+        this.#Id = value;
+    }
+
+    public Name!: string;
     public AllowNull: boolean = false;
     public Comment: Nullable<string>;
+
+    public get IsForeignKeyMember(): boolean {
+        return this.Type == AppBoxCore.EntityMemberType.EntityField
+            && (<EntityFieldVO><unknown>this).IsForeignKey;
+    }
+
+    public toString(): string {
+        return this.Name;
+    }
 
     public WriteTo(ws: AppBoxCore.IOutputStream) {
         throw new System.NotSupportedException();
@@ -20,6 +37,7 @@ export abstract class EntityMemberVO {
         this.AllowNull = rs.ReadBool();
         this.Comment = rs.ReadString();
     }
+
 }
 
 export class EntityFieldVO extends EntityMemberVO {
@@ -27,7 +45,24 @@ export class EntityFieldVO extends EntityMemberVO {
         return AppBoxCore.EntityMemberType.EntityField;
     }
 
-    public FieldType: AppBoxCore.EntityFieldType = 0;
+    #FieldType: AppBoxCore.EntityFieldType = 0;
+    public get FieldType() {
+        return this.#FieldType;
+    }
+
+    private set FieldType(value) {
+        this.#FieldType = value;
+    }
+
+    #IsForeignKey: boolean = false;
+    public get IsForeignKey() {
+        return this.#IsForeignKey;
+    }
+
+    private set IsForeignKey(value) {
+        this.#IsForeignKey = value;
+    }
+
     public EnumModelId: Nullable<any>;
     public Length: number = 0;
     public Decimals: number = 0;
@@ -35,6 +70,7 @@ export class EntityFieldVO extends EntityMemberVO {
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         super.ReadFrom(rs);
         this.FieldType = <AppBoxCore.EntityFieldType><unknown>rs.ReadByte();
+        this.IsForeignKey = rs.ReadBool();
         if (this.FieldType == AppBoxCore.EntityFieldType.Enum)
             this.EnumModelId = rs.ReadLong();
         this.Length = rs.ReadVariant();
@@ -53,10 +89,19 @@ export class EntityRefVO extends EntityMemberVO {
         return AppBoxCore.EntityMemberType.EntityRef;
     }
 
+    public readonly RefModelIds: System.IList<any> = new System.List<any>();
+    #FKMemberIds!: Int16Array;
+    public get FKMemberIds() {
+        return this.#FKMemberIds;
+    }
+
+    private set FKMemberIds(value) {
+        this.#FKMemberIds = value;
+    }
+
     public IsReverse: boolean = false;
     public IsAggregationRef: boolean = false;
     public IsForeignKeyConstraint: boolean = false;
-    public readonly RefModelIds: System.IList<any> = new System.List<any>();
 
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         super.ReadFrom(rs);
@@ -66,6 +111,12 @@ export class EntityRefVO extends EntityMemberVO {
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
             this.RefModelIds.Add(rs.ReadLong());
+        }
+
+        count = rs.ReadVariant();
+        this.FKMemberIds = new Int16Array(count);
+        for (let i = 0; i < count; i++) {
+            this.FKMemberIds[i] = rs.ReadShort();
         }
     }
 

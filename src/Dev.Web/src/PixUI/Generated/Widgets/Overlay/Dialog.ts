@@ -1,19 +1,34 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export abstract class Dialog<T> extends PixUI.Popup {
-    protected constructor(overlay: PixUI.Overlay, onClose: Nullable<System.Action2<boolean, Nullable<T>>> = null) {
-        super(overlay);
-        this.OnClose = onClose;
+export abstract class Dialog extends PixUI.Popup {
+    protected constructor(overlay: Nullable<PixUI.Overlay> = null) {
+        super(overlay ?? PixUI.UIWindow.Current.Overlay);
         //注意不在这里构建WidgetTree,参照以下OnMounted时的说明
     }
 
     private _child: Nullable<PixUI.Card>;
     protected readonly Title: PixUI.State<string> = PixUI.State.op_Implicit_From("");
-    protected OnClose: Nullable<System.Action2<boolean, Nullable<T>>>;
+    private _closeDone: Nullable<System.TaskCompletionSource<boolean>>;
 
     protected get IsDialog(): boolean {
         return true;
+    }
+
+
+    private TryBuildChild() {
+        if (this._child != null) return;
+
+        this._child = new PixUI.Card().Init(
+            {
+                Elevation: PixUI.State.op_Implicit_From(20),
+                Child: new PixUI.Column().Init(
+                    {
+                        Children: [this.BuildTitle(), new PixUI.Expanded(this.BuildBody()), this.BuildFooter()
+                        ]
+                    })
+            });
+        this._child.Parent = this;
     }
 
     private BuildTitle(): PixUI.Widget {
@@ -33,15 +48,46 @@ export abstract class Dialog<T> extends PixUI.Popup {
 
     protected abstract BuildBody(): PixUI.Widget ;
 
-    protected abstract GetResult(canceled: boolean): Nullable<T> ;
+    protected BuildFooter(): PixUI.Widget {
+        return new PixUI.Container().Init(
+            {
+                Height: PixUI.State.op_Implicit_From(PixUI.Button.DefaultHeight + 20 + 20),
+                Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
+                Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
+                    {
+                        Children: [new PixUI.Expanded(), new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({
+                            Width: PixUI.State.op_Implicit_From(80),
+                            OnTap: _ => this.Close(true)
+                        }), new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({
+                            Width: PixUI.State.op_Implicit_From(80),
+                            OnTap: _ => this.Close(false)
+                        })
+                        ]
+                    })
+            });
+    }
+
 
     public Show() {
         super.Show(null, null, PixUI.Popup.DialogTransitionBuilder);
     }
 
-    public Close(canceled: boolean) {
+    public ShowAndWaitClose(): System.Task<boolean> {
+        this.Show();
+        this._closeDone = new System.TaskCompletionSource<boolean>();
+        // @ts-ignore
+        return this._closeDone.Task;
+    }
+
+    protected OnClosing(canceled: boolean): boolean {
+        return false;
+    }
+
+    protected Close(canceled: boolean) {
+        if (this.OnClosing(canceled)) return; //aborted
+
         this.Hide();
-        this.OnClose?.call(this, canceled, this.GetResult(canceled));
+        this._closeDone?.SetResult(canceled);
     }
 
 
@@ -55,20 +101,6 @@ export abstract class Dialog<T> extends PixUI.Popup {
         // }
         this.TryBuildChild();
         super.OnMounted();
-    }
-
-    private TryBuildChild() {
-        if (this._child != null) return;
-
-        this._child = new PixUI.Card().Init(
-            {
-                Elevation: PixUI.State.op_Implicit_From(20),
-                Child: new PixUI.Column().Init(
-                    {
-                        Children: [this.BuildTitle(), this.BuildBody()]
-                    })
-            });
-        this._child.Parent = this;
     }
 
     public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {

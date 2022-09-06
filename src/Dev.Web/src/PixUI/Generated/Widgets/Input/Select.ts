@@ -27,8 +27,17 @@ export class Select<T> extends PixUI.InputBase<PixUI.Widget> {
     private readonly _expandAnimation: PixUI.OptionalAnimationController = new PixUI.OptionalAnimationController();
     private _listPopup: Nullable<PixUI.ListPopup<T>>;
     private _showing: boolean = false;
+    private _labelGetter: Nullable<System.Func2<T, string>>;
 
     public Options: T[] = [];
+
+    public set OptionsAsyncGetter(value: System.Task<T[]>) {
+        this.GetOptionsAsync(value);
+    }
+
+    public set LabelGetter(value: System.Func2<T, string>) {
+        this._labelGetter = value;
+    }
 
     public get Readonly(): Nullable<PixUI.State<boolean>> {
         if (this._editor instanceof PixUI.EditableText) {
@@ -63,7 +72,10 @@ export class Select<T> extends PixUI.InputBase<PixUI.Widget> {
             ((data, index, isHover, isSelected) => {
                 let color = PixUI.RxComputed.Make1(
                     isSelected, v => v ? PixUI.Colors.White : PixUI.Colors.Black);
-                return new PixUI.Text(PixUI.State.op_Implicit_From(data?.toString() ?? "")).Init({TextColor: color});
+                return new PixUI.Text(PixUI.State.op_Implicit_From(this._labelGetter != null
+                    ? this._labelGetter(data)
+                    : data?.toString() ?? "")).Init(
+                    {TextColor: color});
             });
         this._listPopup =
             new PixUI.ListPopup<T>(this.Overlay!, optionBuilder, this.W + 8, PixUI.Theme.DefaultFontSize + 8);
@@ -82,6 +94,10 @@ export class Select<T> extends PixUI.InputBase<PixUI.Widget> {
 
         this._listPopup?.Hide();
         this._listPopup = null;
+    }
+
+    private async GetOptionsAsync(builder: System.Task<T[]>) {
+        this.Options = await builder;
     }
 
     private OnSelectionChanged(data: Nullable<T>) {

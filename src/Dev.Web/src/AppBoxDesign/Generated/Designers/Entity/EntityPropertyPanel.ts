@@ -35,11 +35,11 @@ export class EntityPropertyPanel extends PixUI.View {
             {
                 Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Entity Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)}), new PixUI.Form().Init(
                     {
-                        LabelWidth: this._labelWidth,
+                        LabelWidth: EntityPropertyPanel._labelWidth,
                         Children: [new PixUI.FormItem("DataStoreKind:", new PixUI.Input(PixUI.State.op_Implicit_From("SqlStore")).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("DataStoreName:", new PixUI.Input(PixUI.State.op_Implicit_From("Default")).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("Comment:", new PixUI.Input(PixUI.State.op_Implicit_From("")))]
                     }), new PixUI.IfConditional(isEntityField, () => new PixUI.Text(PixUI.State.op_Implicit_From("EntityField Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)})), new PixUI.IfConditional(isEntityField, () => new PixUI.Form().Init(
                     {
-                        LabelWidth: this._labelWidth,
+                        LabelWidth: EntityPropertyPanel._labelWidth,
                         Children: [new PixUI.FormItem("Name:", new PixUI.Input(this._rxEntityField.Name).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("FieldType:", new PixUI.Input(this._rxEntityField.FieldType.AsStateOfString(v => AppBoxCore.EntityFieldType[v])).Init(
                             {Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("Comment:", new PixUI.Input(this._rxEntityField.Comment))
                         ]
@@ -48,7 +48,7 @@ export class EntityPropertyPanel extends PixUI.View {
             });
     }
 
-    private readonly _labelWidth: number = 120;
+    private static readonly _labelWidth: number = 120;
     private readonly _entityModel: AppBoxDesign.EntityModelVO;
     private readonly _selectedMember: PixUI.State<Nullable<AppBoxDesign.EntityMemberVO>>;
     private readonly _rxEntityField: RxEntityField = new RxEntityField();

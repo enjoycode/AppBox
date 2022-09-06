@@ -1,5 +1,6 @@
 export * from "./Model/ModelType"
 export * from "./Model/DataStoreKind"
+export * from "./Model/ModelReferenceType"
 export * from "./Model/EntityMemberType"
 export * from "./Model/EntityFieldType"
 export * from "./Model/FieldWithOrder"

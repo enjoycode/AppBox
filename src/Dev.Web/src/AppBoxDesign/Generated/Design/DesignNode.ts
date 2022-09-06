@@ -1,11 +1,12 @@
 import * as AppBoxCore from '@/AppBoxCore'
+import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 import * as AppBoxDesign from '@/AppBoxDesign'
 
-export abstract class DesignNode {
+export abstract class DesignNodeVO {
     public abstract get Type(): AppBoxDesign.DesignNodeType ;
 
-    public get Children(): Nullable<System.IList<DesignNode>> {
+    public get Children(): Nullable<System.IList<DesignNodeVO>> {
         return null;
     }
 
@@ -18,35 +19,28 @@ export abstract class DesignNode {
         this.#Id = value;
     }
 
-    #Label!: string;
-    public get Label() {
-        return this.#Label;
-    }
-
-    protected set Label(value) {
-        this.#Label = value;
-    }
+    public readonly Label: PixUI.State<string> = PixUI.State.op_Implicit_From("None");
 
     public Designer: Nullable<AppBoxDesign.IDesigner>;
 
     public toString(): string {
-        return this.Label;
+        return this.Label.Value;
     }
 
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         this.Id = rs.ReadString()!;
-        this.Label = rs.ReadString()!;
+        this.Label.Value = rs.ReadString()!;
     }
 }
 
-export class DataStoreRootNode extends DesignNode {
+export class DataStoreRootNodeVO extends DesignNodeVO {
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.DataStoreRootNode;
     }
 
-    private readonly _children: System.List<DesignNode> = new System.List<DesignNode>();
+    private readonly _children: System.List<DesignNodeVO> = new System.List<DesignNodeVO>();
 
-    public get Children(): Nullable<System.IList<DesignNode>> {
+    public get Children(): Nullable<System.IList<DesignNodeVO>> {
         return this._children;
     }
 
@@ -55,40 +49,40 @@ export class DataStoreRootNode extends DesignNode {
 
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
-            let dataStoreNode = new DataStoreNode();
+            let dataStoreNode = new DataStoreNodeVO();
             dataStoreNode.ReadFrom(rs);
             this._children.Add(dataStoreNode);
         }
     }
 
-    public Init(props: Partial<DataStoreRootNode>): DataStoreRootNode {
+    public Init(props: Partial<DataStoreRootNodeVO>): DataStoreRootNodeVO {
         Object.assign(this, props);
         return this;
     }
 }
 
-export class DataStoreNode extends DesignNode {
-    public static readonly None: DataStoreNode = new DataStoreNode().Init(
-        {Id: '', Label: "None"});
+export class DataStoreNodeVO extends DesignNodeVO {
+    public static readonly None: DataStoreNodeVO = new DataStoreNodeVO().Init(
+        {Id: ''});
 
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.DataStoreNode;
     }
 
-    public Init(props: Partial<DataStoreNode>): DataStoreNode {
+    public Init(props: Partial<DataStoreNodeVO>): DataStoreNodeVO {
         Object.assign(this, props);
         return this;
     }
 }
 
-export class ApplicationRootNode extends DesignNode {
+export class ApplicationRootNodeVO extends DesignNodeVO {
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.ApplicationRoot;
     }
 
-    private readonly _children: System.List<DesignNode> = new System.List<DesignNode>();
+    private readonly _children: System.List<DesignNodeVO> = new System.List<DesignNodeVO>();
 
-    public get Children(): Nullable<System.IList<DesignNode>> {
+    public get Children(): Nullable<System.IList<DesignNodeVO>> {
         return this._children;
     }
 
@@ -96,26 +90,26 @@ export class ApplicationRootNode extends DesignNode {
         super.ReadFrom(rs);
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
-            let appNode = new ApplicationNode();
+            let appNode = new ApplicationNodeVO();
             appNode.ReadFrom(rs);
             this._children.Add(appNode);
         }
     }
 
-    public Init(props: Partial<ApplicationRootNode>): ApplicationRootNode {
+    public Init(props: Partial<ApplicationRootNodeVO>): ApplicationRootNodeVO {
         Object.assign(this, props);
         return this;
     }
 }
 
-export class ApplicationNode extends DesignNode {
+export class ApplicationNodeVO extends DesignNodeVO {
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.ApplicationNode;
     }
 
-    private readonly _children: System.List<DesignNode> = new System.List<DesignNode>();
+    private readonly _children: System.List<DesignNodeVO> = new System.List<DesignNodeVO>();
 
-    public get Children(): Nullable<System.IList<DesignNode>> {
+    public get Children(): Nullable<System.IList<DesignNodeVO>> {
         return this._children;
     }
 
@@ -123,26 +117,26 @@ export class ApplicationNode extends DesignNode {
         super.ReadFrom(rs);
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
-            let modelRootNode = new ModelRootNode();
+            let modelRootNode = new ModelRootNodeVO();
             modelRootNode.ReadFrom(rs);
             this._children.Add(modelRootNode);
         }
     }
 
-    public Init(props: Partial<ApplicationNode>): ApplicationNode {
+    public Init(props: Partial<ApplicationNodeVO>): ApplicationNodeVO {
         Object.assign(this, props);
         return this;
     }
 }
 
-export class ModelRootNode extends DesignNode {
+export class ModelRootNodeVO extends DesignNodeVO {
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.ModelRootNode;
     }
 
-    private readonly _children: System.List<DesignNode> = new System.List<DesignNode>();
+    private readonly _children: System.List<DesignNodeVO> = new System.List<DesignNodeVO>();
 
-    public get Children(): Nullable<System.IList<DesignNode>> {
+    public get Children(): Nullable<System.IList<DesignNodeVO>> {
         return this._children;
     }
 
@@ -152,11 +146,11 @@ export class ModelRootNode extends DesignNode {
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
             let nodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
-            let node: DesignNode;
+            let node: DesignNodeVO;
             if (nodeType == AppBoxDesign.DesignNodeType.ModelNode)
-                node = new ModelNode();
+                node = new ModelNodeVO();
             else if (nodeType == AppBoxDesign.DesignNodeType.FolderNode)
-                node = new FolderNode();
+                node = new FolderNodeVO();
             else
                 throw new System.NotSupportedException();
 
@@ -165,20 +159,20 @@ export class ModelRootNode extends DesignNode {
         }
     }
 
-    public Init(props: Partial<ModelRootNode>): ModelRootNode {
+    public Init(props: Partial<ModelRootNodeVO>): ModelRootNodeVO {
         Object.assign(this, props);
         return this;
     }
 }
 
-export class FolderNode extends DesignNode {
+export class FolderNodeVO extends DesignNodeVO {
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.FolderNode;
     }
 
-    private readonly _children: System.List<DesignNode> = new System.List<DesignNode>();
+    private readonly _children: System.List<DesignNodeVO> = new System.List<DesignNodeVO>();
 
-    public get Children(): Nullable<System.IList<DesignNode>> {
+    public get Children(): Nullable<System.IList<DesignNodeVO>> {
         return this._children;
     }
 
@@ -188,11 +182,11 @@ export class FolderNode extends DesignNode {
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
             let nodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
-            let node: DesignNode;
+            let node: DesignNodeVO;
             if (nodeType == AppBoxDesign.DesignNodeType.ModelNode)
-                node = new ModelNode();
+                node = new ModelNodeVO();
             else if (nodeType == AppBoxDesign.DesignNodeType.FolderNode)
-                node = new FolderNode();
+                node = new FolderNodeVO();
             else
                 throw new System.NotSupportedException();
 
@@ -201,13 +195,13 @@ export class FolderNode extends DesignNode {
         }
     }
 
-    public Init(props: Partial<FolderNode>): FolderNode {
+    public Init(props: Partial<FolderNodeVO>): FolderNodeVO {
         Object.assign(this, props);
         return this;
     }
 }
 
-export class ModelNode extends DesignNode {
+export class ModelNodeVO extends DesignNodeVO {
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.ModelNode;
     }
@@ -226,7 +220,7 @@ export class ModelNode extends DesignNode {
         this.ModelType = <AppBoxCore.ModelType><unknown>rs.ReadByte();
     }
 
-    public Init(props: Partial<ModelNode>): ModelNode {
+    public Init(props: Partial<ModelNodeVO>): ModelNodeVO {
         Object.assign(this, props);
         return this;
     }

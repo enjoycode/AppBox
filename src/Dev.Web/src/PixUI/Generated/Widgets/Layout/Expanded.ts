@@ -25,8 +25,8 @@ export class Expanded extends PixUI.SingleChildWidget {
             this.Child.SetPosition(0, 0);
         }
 
-        let w = this.Parent instanceof PixUI.Column && this.Child != null ? this.Child.W : availableWidth;
-        let h = this.Parent instanceof PixUI.Row && this.Child != null ? this.Child.H : availableHeight;
+        let w = this.Parent instanceof PixUI.Column ? this.Child?.W ?? 0 : availableWidth;
+        let h = this.Parent instanceof PixUI.Row ? this.Child?.H ?? 0 : availableHeight;
         this.SetSize(w, h);
     }
 

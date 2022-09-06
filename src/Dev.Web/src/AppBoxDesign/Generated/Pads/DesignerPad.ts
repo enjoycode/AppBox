@@ -6,26 +6,26 @@ import * as PixUI from '@/PixUI'
 export class DesignerPad extends PixUI.View {
     public constructor() {
         super();
-        AppBoxDesign.DesignStore.TreeController.SelectionChanged.Add(this.OnTreeSelectionChanged, this);
+        AppBoxDesign.DesignStore.TreeController.SelectionChanged.Add(DesignerPad.OnTreeSelectionChanged);
         // DesignStore.DesignerController.TabAdded += OnDesignerOpened;
         AppBoxDesign.DesignStore.DesignerController.TabClosed.Add(this.OnDesignerClosed, this);
 
         this.BgColor = PixUI.State.op_Implicit_From(PixUI.Colors.White);
 
-        this.Child = new PixUI.TabView<AppBoxDesign.DesignNode>(AppBoxDesign.DesignStore.DesignerController, DesignerPad.BuildTab, DesignerPad.BuildBody, true, 40).Init(
+        this.Child = new PixUI.TabView<AppBoxDesign.DesignNodeVO>(AppBoxDesign.DesignStore.DesignerController, DesignerPad.BuildTab, DesignerPad.BuildBody, true, 40).Init(
             {SelectedTabColor: PixUI.Colors.White, TabBarBgColor: new PixUI.Color(0xFFF3F3F3)});
     }
 
-    private static BuildTab(node: AppBoxDesign.DesignNode, isSelected: PixUI.State<boolean>): PixUI.Widget {
+    private static BuildTab(node: AppBoxDesign.DesignNodeVO, isSelected: PixUI.State<boolean>): PixUI.Widget {
         let textColor = PixUI.RxComputed.Make1(isSelected, selected => selected ? PixUI.Theme.FocusedColor : PixUI.Colors.Black
         );
 
-        return new PixUI.Text(PixUI.State.op_Implicit_From(node.Label)).Init({TextColor: textColor});
+        return new PixUI.Text(node.Label).Init({TextColor: textColor});
     }
 
-    private static BuildBody(node: AppBoxDesign.DesignNode): PixUI.Widget {
+    private static BuildBody(node: AppBoxDesign.DesignNodeVO): PixUI.Widget {
         if (node.Type == AppBoxDesign.DesignNodeType.ModelNode) {
-            let modelNode = <AppBoxDesign.ModelNode><unknown>node;
+            let modelNode = <AppBoxDesign.ModelNodeVO><unknown>node;
             switch (modelNode.ModelType) {
                 case AppBoxCore.ModelType.Entity: {
                     let entityDesigner = new AppBoxDesign.EntityDesigner(modelNode);
@@ -49,7 +49,7 @@ export class DesignerPad extends PixUI.View {
             {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
                 BgColor: PixUI.State.op_Implicit_From(PixUI.Colors.White),
-                Child: new PixUI.Text(PixUI.State.op_Implicit_From(node.Label)),
+                Child: new PixUI.Text(node.Label),
             });
     }
 
@@ -59,21 +59,22 @@ export class DesignerPad extends PixUI.View {
     //         BgColor!.Value = new Color(0xFFF3F3F3);
     // }
 
-    private async OnDesignerClosed(node: AppBoxDesign.DesignNode) {
+    private async OnDesignerClosed(node: AppBoxDesign.DesignNodeVO) {
         // if (DesignStore.DesignerController.Count == 0)
         //     BgColor!.Value = Colors.White;
 
+        node.Designer = null;
         if (node.Type == AppBoxDesign.DesignNodeType.ModelNode) {
-            let modelNode = <AppBoxDesign.ModelNode><unknown>node;
+            let modelNode = <AppBoxDesign.ModelNodeVO><unknown>node;
             if (modelNode.ModelType == AppBoxCore.ModelType.Service ||
                 modelNode.ModelType == AppBoxCore.ModelType.View)
                 await AppBoxClient.Channel.Invoke("sys.DesignService.CloseDesigner", [(Math.floor(node.Type) & 0xFFFFFFFF), node.Id]);
         }
     }
 
-    private OnTreeSelectionChanged() {
+    private static OnTreeSelectionChanged() {
         let currentNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
-        if (currentNode != null && currentNode.Data instanceof AppBoxDesign.ModelNode) {
+        if (currentNode != null && currentNode.Data instanceof AppBoxDesign.ModelNodeVO) {
             //先检查是否已经打开
             let existsIndex = AppBoxDesign.DesignStore.DesignerController.IndexOf(currentNode.Data);
             if (existsIndex < 0)

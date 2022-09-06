@@ -3,6 +3,7 @@ import * as PixUI from '@/PixUI'
 
 export enum SidePadType {
     DesignTree,
+    Outline,
     Toolbox,
     Settings
 }
@@ -24,7 +25,7 @@ export class NaviBar extends PixUI.View {
                             {
                                 Child: new PixUI.Column(PixUI.HorizontalAlignment.Center, 5).Init(
                                     {
-                                        Children: [this.BuildButton(PixUI.Icons.Filled.AccountTree, SidePadType.DesignTree), this.BuildButton(PixUI.Icons.Filled.Build, SidePadType.Toolbox), this.BuildButton(PixUI.Icons.Filled.Settings, SidePadType.Settings)]
+                                        Children: [this.BuildButton(PixUI.Icons.Filled.Folder, SidePadType.DesignTree), this.BuildButton(PixUI.Icons.Filled.AccountTree, SidePadType.Outline), this.BuildButton(PixUI.Icons.Filled.Build, SidePadType.Toolbox), this.BuildButton(PixUI.Icons.Filled.Settings, SidePadType.Settings)]
                                     })
                             }), this.BuildButton(PixUI.Icons.Filled.ArrowLeft)
                         ]
@@ -63,11 +64,13 @@ export class SidePad extends PixUI.View {
             {
                 Children: [new NaviBar(), new PixUI.Container().Init(
                     {
+                        DebugLabel: "SidePad",
                         Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
                         Width: PixUI.State.op_Implicit_From(250),
                         BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
                         Child: new PixUI.Conditional(AppBoxDesign.DesignStore.ActiveSidePad)
                             .When(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignTreePad())
+                            .When(t => t == SidePadType.Outline, () => new AppBoxDesign.OutlinePad())
                             .When(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad())
                             .When(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad())
                     })

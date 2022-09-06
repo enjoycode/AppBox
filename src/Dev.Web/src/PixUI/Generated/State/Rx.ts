@@ -20,6 +20,6 @@ export class Rx<T> extends PixUI.State<T> {
     public set Value(value: T) {
         if (System.Equals(this._value, value)) return;
         this._value = value;
-        this.OnValueChanged();
+        this.NotifyValueChanged();
     }
 }

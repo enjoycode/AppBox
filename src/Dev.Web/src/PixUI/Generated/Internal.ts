@@ -104,6 +104,7 @@ export * from "./Widgets/Overlay/Popup";
 export * from "./Widgets/Overlay/ListPopup"
 export * from "./Widgets/Overlay/Dialog"
 export * from "./Widgets/Overlay/Notification"
+export * from "./Widgets/Overlay/Inspector"
 
 export * from "./Widgets/Animated/FadeTransition";
 export * from "./Widgets/Animated/RotationTransition";

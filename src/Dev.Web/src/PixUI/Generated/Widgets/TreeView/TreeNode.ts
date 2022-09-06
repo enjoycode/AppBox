@@ -224,7 +224,12 @@ export class TreeNode<T> extends PixUI.Widget {
         let oldWidth = this.W;
         let oldHeight = this.H;
         affects.Widget = this;
-        PixUI.TreeView.UpdatePositionAfter(child, this._children!, dy);
+        affects.OldX += this.X;
+        affects.OldY += this.Y;
+
+        //更新后续子节点的Y坐标
+        if (dy != 0 && this._children != null)
+            PixUI.TreeView.UpdatePositionAfter(child, this._children, dy);
 
         //更新自身的宽高
         let newWidth = oldWidth;
@@ -232,11 +237,12 @@ export class TreeNode<T> extends PixUI.Widget {
         if (dx > 0) {
             //宽度增加，总宽取现值及当前的大者
             newWidth = Math.max(child.W, this.W);
-        }
-        // ReSharper disable once CompareOfFloatsByEqualityOperator
-        else if (dx < 0 && child.W - dx == this._controller.TotalWidth) {
+        } else if (dx < 0 && child.W - dx == this._controller.TotalWidth) {
             //宽度减小，且原本是最宽的那个, 重新计算最宽的子节点
-            newWidth = Math.max(PixUI.TreeView.CalcMaxChildWidth(this._children!), this.W);
+            if (this._children == null)
+                newWidth = child.W;
+            else
+                newWidth = Math.max(PixUI.TreeView.CalcMaxChildWidth(this._children), this.W);
         }
 
         this.SetSize(newWidth, newHeight);

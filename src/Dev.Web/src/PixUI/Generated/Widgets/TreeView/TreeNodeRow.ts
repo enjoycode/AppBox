@@ -1,3 +1,4 @@
+import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
@@ -74,6 +75,11 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         return y >= 0 && y < this.H && x >= 0 && x < this.Controller.TreeView!.W;
     }
 
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+        if (this._icon != null) action(this._icon);
+        if (this._label != null) action(this._label);
+    }
+
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (y < 0 || y > this.H) return false;
 
@@ -117,6 +123,7 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //TODO: only paint expand icon when dirty area is not null
+        //Console.WriteLine($"重绘TreeNodeRow[{_label?.Text.Value}]: isHover = {_isHover}");
 
         if (this._isHover) {
             let paint = PixUI.PaintUtils.Shared(this.Controller.HoverColor);

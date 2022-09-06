@@ -1,3 +1,4 @@
+import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class TextBase extends PixUI.Widget {
@@ -18,6 +19,7 @@ export abstract class TextBase extends PixUI.Widget {
     private _fontSize: Nullable<PixUI.State<number>>;
     private _fontWeight: Nullable<PixUI.State<PixUI.FontWeight>>;
     private _textColor: Nullable<PixUI.State<PixUI.Color>>;
+    private _maxLines: number = 1;
 
     private _cachedParagraph: Nullable<PixUI.Paragraph>;
 
@@ -53,6 +55,19 @@ export abstract class TextBase extends PixUI.Widget {
         this._textColor = this.Rebind(this._textColor, value, PixUI.BindingOptions.AffectsVisual);
     }
 
+    public set MaxLines(value: number) {
+        if (value <= 0)
+            throw new System.ArgumentException();
+        if (this._maxLines != value) {
+            this._maxLines = value;
+            if (this.IsMounted) {
+                this._cachedParagraph?.delete();
+                this._cachedParagraph = null;
+                this.Invalidate(PixUI.InvalidAction.Relayout);
+            }
+        }
+    }
+
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         //TODO: fast update font size or color use skia paragraph
         this._cachedParagraph?.delete();
@@ -74,7 +89,7 @@ export abstract class TextBase extends PixUI.Widget {
         let fontStyle: Nullable<PixUI.FontStyle> = this._fontWeight == null
             ? null
             : new PixUI.FontStyle(this._fontWeight.Value, CanvasKit.FontSlant.Upright);
-        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, 1, this.ForceHeight);
+        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, this._maxLines, this.ForceHeight);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {

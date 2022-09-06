@@ -99,7 +99,7 @@ export class DataGridController<T> {
         let newEmpty = value == null ? true : value.length == 0;
 
         this._dataSource = value;
-        this.ClearCacheOnDataSourceChanged();
+        this.ClearAllCache();
 
         if (oldEmpty && newEmpty) return;
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
@@ -135,12 +135,18 @@ export class DataGridController<T> {
 
     public readonly SelectionChanged = new System.Event();
 
+    public ClearSelection() {
+        this._selectedRows.Clear();
+        this._cachedHitInRows = null;
+        this.SelectionChanged.Invoke();
+    }
+
 
     public Invalidate() {
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    private ClearCacheOnDataSourceChanged() {
+    private ClearAllCache() {
         //TODO:暂所有列，考虑仅可见列
         for (const column of this._cachedLeafColumns) {
             column.ClearAllCache();
@@ -420,6 +426,25 @@ export class DataGridController<T> {
         } else {
             leafColumns.Add(column);
         }
+    }
+
+
+    public Add(item: T) {
+        this._dataSource!.Add(item);
+        this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
+    }
+
+    public Remove(item: T) {
+        //var rowIndex = _dataSource!.IndexOf(item);
+        this._dataSource!.Remove(item);
+        this.ClearSelection();
+        this.ClearAllCache(); //TODO:仅移除并重设缓存
+        this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
+    }
+
+    public Refresh() {
+        this.ClearAllCache();
+        this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
     public Init(props: Partial<DataGridController<T>>): DataGridController<T> {

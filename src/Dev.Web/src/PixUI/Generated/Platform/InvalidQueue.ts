@@ -17,7 +17,18 @@ export class AffectsByRelayout {
 
     public GetDirtyArea(): PixUI.IDirtyArea {
         //TODO: 考虑Root返回null或现有Bounds
-        return new PixUI.RepaintArea(new PixUI.Rect(Math.min(this.OldX, this.Widget.X), Math.min(this.OldY, this.Widget.Y), Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H))
+
+        let cx = 0;
+        let cy = 0;
+
+        if (PixUI.IsInterfaceOfIScrollable(this.Widget.Parent)) //判断上级是否IScrollable,是则处理偏移量
+        {
+            const scrollable = this.Widget.Parent;
+            cx = scrollable.ScrollOffsetX;
+            cy = scrollable.ScrollOffsetY;
+        }
+
+        return new PixUI.RepaintArea(new PixUI.Rect(Math.min(this.OldX, this.Widget.X) - cx, Math.min(this.OldY, this.Widget.Y) - cy, Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H))
         );
     }
 }
@@ -214,7 +225,6 @@ export class InvalidQueue {
     }
 
     private static RepaintWidget(ctx: PixUI.PaintContext, widget: PixUI.Widget, dirtyArea: Nullable<PixUI.IDirtyArea>) {
-        console.log(`InvalidQueue.Repaint: ${widget} rect=${dirtyArea?.GetRect()}`);
         let canvas = ctx.Canvas;
 
         //循环向上查找需要开始重绘的Widget(不透明的),并且计算裁剪区域
@@ -232,19 +242,6 @@ export class InvalidQueue {
         let dirtyY = dirtyRect.Top;
 
         do {
-            //查找开始绘制的Widget
-            if (opaque == null) {
-                if (temp.IsOpaque) //TODO:不能简单判断是否不透明，例如上级有OpacityWidget or ImageFilter等
-                {
-                    opaque = temp;
-                    x = 0;
-                    y = 0;
-                } else {
-                    dirtyX += temp.X;
-                    dirtyY += temp.Y;
-                }
-            }
-
             //计算当前子级相对于上级的位置
             let cx = temp.X; //当前相对于上级的坐标
             let cy = temp.Y;
@@ -259,6 +256,20 @@ export class InvalidQueue {
                 let transformed = PixUI.MatrixUtils.TransformPoint(transform.EffectiveTransform, cx, cy);
                 cx = transformed.Dx;
                 cy = transformed.Dy;
+            }
+
+            //查找开始绘制的Widget
+            if (opaque == null) {
+                if (temp.IsOpaque) {
+                    opaque = temp;
+                    x = 0;
+                    y = 0;
+                } else {
+                    dirtyX += cx;
+                    dirtyY += cy;
+                }
+            } else {
+                //TODO: 判断temp是否Transform or Opacity or ImageFilter等，是则重设opaque
             }
 
             //尝试获取当前的Clipper，并与现有的求交集
@@ -277,8 +288,7 @@ export class InvalidQueue {
             y += cy;
             if (temp.Parent == null)
                 break;
-            else
-                temp = temp.Parent;
+            temp = temp.Parent;
         } while (true);
 
         if (isClipperEmpty) {
@@ -294,6 +304,7 @@ export class InvalidQueue {
         }
 
         //裁剪脏区域并开始绘制
+        console.log(`InvalidQueue.Repaint: ${widget} rect=${dirtyArea?.GetRect()} Opaque=${opaque} area={{X=${dirtyX} Y=${dirtyY} W=${dirtyRect.Width} H=${dirtyRect.Height}}}`);
         canvas.save();
         try {
             clipper.ApplyToCanvas(canvas); //必须在下句Translate之前
@@ -304,7 +315,7 @@ export class InvalidQueue {
             if ((opaque === widget))
                 opaque.Paint(canvas, dirtyArea);
             else
-                opaque!.Paint(canvas, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(dirtyX, dirtyY, dirtyRect.Width, dirtyRect.Height)));
+                opaque.Paint(canvas, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(dirtyX, dirtyY, dirtyRect.Width, dirtyRect.Height)));
         } catch (ex: any) {
             console.log(`InvalidQueue.RepaintWidget Error: ${ex.Message}`);
         } finally {

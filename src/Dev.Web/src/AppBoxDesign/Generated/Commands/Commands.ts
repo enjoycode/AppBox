@@ -1,26 +1,25 @@
+import * as AppBoxCore from '@/AppBoxCore'
 import * as AppBoxClient from '@/AppBoxClient'
 import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as System from '@/System'
 
 export class Commands {
-    public static readonly NewEntityCommand: System.Action = () =>
-        new AppBoxDesign.NewEntityDialog(PixUI.UIWindow.Current.Overlay).Show();
+    public static readonly NewEntityCommand: System.Action = () => new AppBoxDesign.NewEntityDialog().Show();
 
-    public static readonly NewServiceCommand: System.Action = () =>
-        new AppBoxDesign.NewDialog(PixUI.UIWindow.Current.Overlay, "Service").Show();
+    public static readonly NewServiceCommand: System.Action = () => new AppBoxDesign.NewDialog("Service").Show();
 
-    public static readonly NewViewCommand: System.Action = () =>
-        new AppBoxDesign.NewDialog(PixUI.UIWindow.Current.Overlay, "View").Show();
+    public static readonly NewViewCommand: System.Action = () => new AppBoxDesign.NewDialog("View").Show();
 
     public static readonly CheckoutCommand: System.Action = Commands.Checkout;
 
     public static readonly SaveCommand: System.Action = Commands.Save;
 
+    public static readonly RenameCommand: System.Action = Commands.Rename;
+
     public static readonly DeleteCommand: System.Action = Commands.Delete;
 
-    public static readonly PublishCommand: System.Action = () =>
-        new AppBoxDesign.PublishDialog(PixUI.UIWindow.Current.Overlay).Show();
+    public static readonly PublishCommand: System.Action = () => new AppBoxDesign.PublishDialog().Show();
 
     public static readonly NotImplCommand: System.Action = () => PixUI.Notification.Error("暂未实现");
 
@@ -51,11 +50,8 @@ export class Commands {
     }
 
     private static async Save() {
-        let selectedIndex = AppBoxDesign.DesignStore.DesignerController.SelectedIndex;
-        if (selectedIndex < 0)
-            return;
-
-        let designer = AppBoxDesign.DesignStore.DesignerController.GetAt(selectedIndex).Designer!;
+        let designer = AppBoxDesign.DesignStore.ActiveDesigner;
+        if (designer == null) return;
         try {
             await designer.SaveAsync();
             PixUI.Notification.Success("保存成功");
@@ -80,8 +76,46 @@ export class Commands {
                 "sys.DesignService.DeleteNode", [(Math.floor(nodeType) & 0xFFFFFFFF), selectedNode.Data.Id]);
             AppBoxDesign.DesignStore.OnDeleteNode(selectedNode, modelRootNodeIdString);
             PixUI.Notification.Success(`删除节点[${selectedNode.Data.Label}]成功`);
-        } catch (e: any) {
-            PixUI.Notification.Success(`删除节点[${selectedNode.Data.Label}]失败`);
+        } catch (ex: any) {
+            PixUI.Notification.Error(`删除节点[${selectedNode.Data.Label}]失败: ${ex.Message}`);
         }
+    }
+
+    private static async Rename() {
+        let selectedNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
+        if (selectedNode == null) {
+            PixUI.Notification.Error("请先选择待重命名的节点");
+            return;
+        }
+
+        let referenceType:
+            AppBoxCore.ModelReferenceType = 0;
+        let modelNode: AppBoxDesign.ModelNodeVO;
+        if (selectedNode.Data.Type == AppBoxDesign.DesignNodeType.ModelNode) {
+            modelNode = <AppBoxDesign.ModelNodeVO><unknown>selectedNode.Data;
+            switch (modelNode.ModelType) {
+                case AppBoxCore.ModelType.Entity:
+                    referenceType = AppBoxCore.ModelReferenceType.EntityModel;
+                    break;
+                case AppBoxCore.ModelType.Service:
+                    referenceType = AppBoxCore.ModelReferenceType.ServiceModel;
+                    break;
+                case AppBoxCore.ModelType.View:
+                    referenceType = AppBoxCore.ModelReferenceType.ViewModel;
+                    break;
+                default:
+                    PixUI.Notification.Error("不支持重命名的节点");
+                    return;
+            }
+        } else {
+            PixUI.Notification.Error("不支持重命名的节点");
+            return;
+        }
+
+        let dlg = new AppBoxDesign.RenameDialog(referenceType, modelNode.Label.Value, modelNode.Id, modelNode.Label.Value);
+        let canceled = await dlg.ShowAndWaitClose();
+        if (canceled) return;
+
+        modelNode.Label.Value = dlg.GetNewName();
     }
 }
