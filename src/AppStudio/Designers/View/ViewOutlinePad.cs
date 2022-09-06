@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using PixUI;
 
@@ -11,9 +12,8 @@ internal sealed class ViewOutlinePad : View
     public ViewOutlinePad(PreviewController previewController)
     {
         _previewController = previewController;
-        _treeController.DataSource = new List<WidgetTreeNode>()
-            { previewController.GetWidgetTree()! };
         _treeController.SelectionChanged += OnSelectedWidget;
+        BuildWidgetTree();
 
         Child = new Column
         {
@@ -33,6 +33,17 @@ internal sealed class ViewOutlinePad : View
     private readonly State<string> _searchKey = "";
     private Inspector? _inspector = null;
 
+
+    protected override void OnMounted()
+    {
+        _previewController.RefreshOutlineAction = BuildWidgetTree;
+    }
+    protected override void OnUnmounted()
+    {
+        ClearInspector();
+        _previewController.RefreshOutlineAction = null;
+    }
+
     private static void BuildTreeNode(WidgetTreeNode data, TreeNode<WidgetTreeNode> node)
     {
         node.Icon = new Icon(Icons.Filled.Folder);
@@ -41,11 +52,24 @@ internal sealed class ViewOutlinePad : View
         node.IsExpanded = !node.IsLeaf;
     }
 
+    private void BuildWidgetTree()
+    {
+        ClearInspector();
+        _treeController.DataSource = new List<WidgetTreeNode>()
+            { _previewController.GetWidgetTree()! };
+    }
+
+    private void ClearInspector()
+    {
+        _inspector?.Remove();
+        _inspector = null;
+    }
+
     private void OnSelectedWidget()
     {
         if (_treeController.FirstSelectedNode == null)
         {
-            _inspector?.Remove();
+            ClearInspector();
             return;
         }
 

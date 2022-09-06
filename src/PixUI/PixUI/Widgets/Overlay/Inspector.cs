@@ -72,12 +72,18 @@ namespace PixUI
                     canvas.Concat(transform.EffectiveTransform); //TODO:考虑画未变换前的边框
             }
 
+            //draw bounds border
             var bounds = Rect.FromLTWH(_target.X + 0.5f, _target.Y + 0.5f, _target.W - 1f,
                 _target.H - 1f);
             var borderColor = new Color(0x807F7EBE);
             var fillColor = new Color(0x80BDBDFC);
             canvas.DrawRect(bounds, PaintUtils.Shared(fillColor));
             canvas.DrawRect(bounds, PaintUtils.Shared(borderColor, PaintStyle.Stroke));
+
+            //draw bounds text
+            // var text = $"X: {_target.X} Y: {_target.Y} W: {_target.W} H: {_target.H}";
+            // using var ph = TextPainter.BuildParagraph(text, float.PositiveInfinity, 12, Colors.Red);
+            // canvas.DrawParagraph(ph, bounds.Left + 1, bounds.Top + 1);
             canvas.Restore();
         }
 

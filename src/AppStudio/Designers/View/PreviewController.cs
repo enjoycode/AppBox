@@ -22,6 +22,9 @@ internal sealed class WidgetTreeNode
     public readonly IList<WidgetTreeNode> Children;
 }
 
+/// <summary>
+/// 视图模型的预览控制器
+/// </summary>
 [TSNoInitializer]
 internal sealed class PreviewController
 {
@@ -32,11 +35,24 @@ internal sealed class PreviewController
 
     public readonly ModelNodeVO ModelNode;
     private Action? _invalidateAction;
+    private Action? _refreshOutlineAction;
     internal Widget? CurrentWidget; //当前加载的预览的Widget实例
 
+    /// <summary>
+    /// 用于重新加载预览
+    /// </summary>
     internal Action InvalidateAction
     {
         set => _invalidateAction = value;
+    }
+
+    /// <summary>
+    /// 用于重新加载大纲视图
+    /// </summary>
+    internal Action? RefreshOutlineAction
+    {
+        get => _refreshOutlineAction;
+        set => _refreshOutlineAction = value;
     }
 
     public void Invalidate() => _invalidateAction?.Invoke();

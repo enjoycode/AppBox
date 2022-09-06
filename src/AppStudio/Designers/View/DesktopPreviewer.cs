@@ -69,8 +69,10 @@ internal sealed class DesktopPreviewer : View
             _containerRef.Widget.Child = new Center { Child = new Text("Has Error") };
         }
 
-        _controller.CurrentWidget = _containerRef.Widget.Child;
         _containerRef.Widget.Invalidate(InvalidAction.Relayout);
+        //Sync outline view
+        _controller.CurrentWidget = _containerRef.Widget.Child;
+        _controller.RefreshOutlineAction?.Invoke();
     }
 }
 
