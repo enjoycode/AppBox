@@ -20,7 +20,7 @@ internal static class StagedService
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
         q.Where(q.T["DeveloperId"] == developerID &
-                q.T["ModelId"] == modelId.ToString() &
+                q.T["Model"] == modelId.ToString() &
                 q.T["Type"] == (byte)StagedType.SourceCode);
 #endif
         var res = await q.ToListAsync(); //TODO: ToSingleAsync()
@@ -88,7 +88,7 @@ internal static class StagedService
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
         q.Where(q.T["DeveloperId"] == developerID &
-                q.T["ModelId"] == viewModelId.ToString() &
+                q.T["Model"] == viewModelId.ToString() &
                 q.T["Type"] == (byte)StagedType.ViewRuntimeCode);
 #endif
         var res = await q.ToListAsync();
@@ -112,7 +112,7 @@ internal static class StagedService
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
         q.Where(q.T["Type"] == (byte)type &
-                q.T["ModelId"] == modelId &
+                q.T["Model"] == modelId &
                 q.T["DeveloperId"] == developerID);
 
         await using var conn = await SqlStore.Default.OpenConnectionAsync();
@@ -216,7 +216,7 @@ internal static class StagedService
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
         q.Where(q.T["DeveloperId"] == devId &
-                q.T["ModelId"] == modelId.ToString());
+                q.T["Model"] == modelId.ToString());
 #endif
         var list = await q.ToListAsync();
         for (var i = 0; i < list.Count; i++)
