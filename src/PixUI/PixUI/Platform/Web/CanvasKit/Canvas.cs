@@ -48,6 +48,9 @@ namespace PixUI
         [TSRename("drawCircle")]
         public void DrawCircle(float cx, float cy, float radius, Paint paint) {}
 
+        [TSTemplate("{0}.drawArc({1}, {2} * 180 / Math.PI, {3} * 180 / Math.PI, {4}, {5})")]
+        public void DrawArc(in Rect oval, float startAngle, float sweepAngle, bool useCenter, Paint paint) {}
+
         [TSRename("drawPath")]
         public void DrawPath(Path path, Paint paint) { }
 

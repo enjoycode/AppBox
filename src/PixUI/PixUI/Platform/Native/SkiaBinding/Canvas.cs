@@ -70,6 +70,17 @@ namespace PixUI
             SkiaApi.sk_canvas_draw_circle(Handle, cx, cy, radius, paint.Handle);
         }
 
+        public void DrawArc(Rect oval, float startAngle, float sweepAngle, bool useCenter,
+            Paint paint)
+        {
+            if (paint == null)
+                throw new ArgumentNullException(nameof(paint));
+
+            const float toDegrees = (float)(180 / Math.PI);
+            SkiaApi.sk_canvas_draw_arc(Handle, &oval, startAngle * toDegrees,
+                sweepAngle * toDegrees, useCenter, paint.Handle);
+        }
+
         public void DrawPath(Path path, Paint paint)
         {
             if (paint == null)
