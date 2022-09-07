@@ -1,8 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace PixUI
 {
-    [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
     public abstract class Tween<T> : Animatable<T>
     {
         protected readonly T? Begin;

@@ -105,6 +105,30 @@ namespace PixUI
         }
     }
 
+    /// <summary>
+    /// A sawtooth curve that repeats a given number of times over the unit interval.
+    /// </summary>
+    /// <remarks>
+    /// The curve rises linearly from 0.0 to 1.0 and then falls discontinuously back
+    /// to 0.0 each iteration.
+    /// </remarks>
+    public sealed class SawTooth : Curve
+    {
+        public SawTooth(int count)
+        {
+            _count = count;
+        }
+
+        // The number of repetitions of the sawtooth pattern in the unit interval.
+        private readonly int _count;
+
+        protected override double TransformInternal(double t)
+        {
+            t *= _count;
+            return t - Math.Truncate(t);
+        }
+    }
+
     public sealed class Cubic : Curve
     {
         private const double CubicErrorBound = 0.001;
@@ -153,7 +177,9 @@ namespace PixUI
 
         public static readonly Curve BounceInOut = new BounceInOutCurve();
 
-        public static readonly Curve EaseInOutCubic = new Cubic(0.645, 0.045, 0.355, 1.0);
+        public static readonly Cubic EaseInOutCubic = new Cubic(0.645, 0.045, 0.355, 1.0);
+
+        public static readonly Cubic FastOutSlowIn = new Cubic(0.4, 0.0, 0.2, 1.0);
 
         internal static double Bounce(double t)
         {

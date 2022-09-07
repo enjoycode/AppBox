@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 
 namespace PixUI
 {
@@ -21,7 +19,6 @@ namespace PixUI
         Preserve,
     }
 
-    [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
     public sealed class AnimationController : Animation<double>
     {
         private double _value;
@@ -64,7 +61,7 @@ namespace PixUI
             Duration = duration;
             _animationBehavior = behavior;
             _direction = AnimationDirection.Forward;
-            _ticker = new Ticker(Tick);
+            _ticker = new Ticker(OnTick);
             SetValueInternal(value ?? LowerBound);
         }
 
@@ -102,7 +99,7 @@ namespace PixUI
             LastElapsedDuration = null;
         }
 
-        private void Tick(double elapsedInSeconds)
+        private void OnTick(double elapsedInSeconds)
         {
             if (_simulation == null) return; //TODO:临时判断是否已停止
 
@@ -147,8 +144,7 @@ namespace PixUI
             AnimateToInternal(target, duration, curve);
         }
 
-        private void AnimateToInternal(double target, int? duration = null,
-            Curve? curve = null)
+        private void AnimateToInternal(double target, int? duration = null, Curve? curve = null)
         {
             curve ??= Curves.Linear;
 
@@ -234,6 +230,35 @@ namespace PixUI
 
         public void Reset() => SetValue(LowerBound);
 
+        /// <summary>
+        /// Starts running this animation in the forward direction, and
+        /// restarts the animation when it completes.
+        /// </summary>
+        public void Repeat(double? min = null, double? max = null, bool reverse = false,
+            int? period = null)
+        {
+            min ??= LowerBound;
+            max ??= UpperBound;
+            period ??= Duration;
+
+            if (period == null)
+                throw new Exception("Without an explicit period and with no default Duration.");
+            Debug.Assert(max >= min);
+            Debug.Assert(max <= UpperBound && min >= LowerBound);
+
+            Stop();
+            StartSimulation(new RepeatingSimulation(_value, min.Value, max.Value, reverse,
+                period.Value,
+                direction =>
+                {
+                    _direction = direction;
+                    _status = _direction == AnimationDirection.Forward
+                        ? AnimationStatus.Forward
+                        : AnimationStatus.Reverse;
+                    CheckStatusChanged();
+                }));
+        }
+
         public void Dispose()
         {
             _ticker?.Stop(true);
@@ -259,43 +284,6 @@ namespace PixUI
         #endregion
     }
 
-    [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
-    internal sealed class InterpolationSimulation : Simulation
-    {
-        private readonly double _durationInSeconds;
-        private readonly double _begin;
-        private readonly double _end;
-        private readonly Curve _curve;
-
-        internal InterpolationSimulation(double begin, double end, double duration, Curve curve,
-            double scale)
-        {
-            Debug.Assert(duration > 0);
-
-            _begin = begin;
-            _end = end;
-            _curve = curve;
-
-            _durationInSeconds = (duration * scale) / 1000;
-        }
-
-        public override double X(double timeInSeconds)
-        {
-            var t = Math.Clamp((timeInSeconds / _durationInSeconds), 0.0, 1.0);
-            if (t == 0.0) return _begin;
-            if (t == 1.0) return _end;
-            return _begin + (_end - _begin) * _curve.Transform(t);
-        }
-
-        public override double Dx(double timeInSeconds)
-        {
-            var epsilon = Tolerance.Time;
-            return (X(timeInSeconds + epsilon) - X(timeInSeconds - epsilon)) / (2 * epsilon);
-        }
-
-        public override bool IsDone(double timeInSeconds) => timeInSeconds > _durationInSeconds;
-    }
-
     /// <summary>
     /// 可选动画控制，如果不指定上级，则在0或1之间直接切换
     /// </summary>
@@ -311,7 +299,7 @@ namespace PixUI
             set
             {
                 if (ReferenceEquals(_parent, value)) return;
-                
+
                 if (_parent != null)
                 {
                     _parent.ValueChanged -= OnParentValueChanged;
