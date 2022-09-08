@@ -34,6 +34,7 @@ namespace PixUI.Demo.Mac
         };
 
         private readonly TreeController<TreeData> _treeController;
+        private bool _loading = false;
 
         public DemoTreeView()
         {
@@ -53,6 +54,7 @@ namespace PixUI.Demo.Mac
                             {
                                 new Button("Insert") { OnTap = OnInsert },
                                 new Button("Remove") { OnTap = OnRemove },
+                                new Button("Loading") { OnTap = OnSwitchLoading },
                             }
                         },
                         new Expanded()
@@ -87,6 +89,12 @@ namespace PixUI.Demo.Mac
             var node = _treeController.FindNode(t => t.Text == "AppBox");
             if (node != null)
                 _treeController.RemoveNode(node);
+        }
+
+        private void OnSwitchLoading(PointerEvent e)
+        {
+            _loading = !_loading;
+            _treeController.IsLoading = _loading;
         }
     }
 

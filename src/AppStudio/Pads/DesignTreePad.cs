@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
 using AppBoxClient;
-using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign
@@ -56,6 +54,7 @@ namespace AppBoxDesign
             if (_hasLoadTree) return;
             _hasLoadTree = true;
 
+            DesignStore.TreeController.IsLoading = true;
             try
             {
                 var res = await Channel.Invoke<DesignTreeVO>("sys.DesignService.LoadDesignTree");
@@ -63,7 +62,11 @@ namespace AppBoxDesign
             }
             catch (System.Exception ex)
             {
-                Notification.Error("Can't load design tree.");
+                Notification.Error($"Can't load design tree: {ex.Message}");
+            }
+            finally
+            {
+                DesignStore.TreeController.IsLoading = false;
             }
         }
     }

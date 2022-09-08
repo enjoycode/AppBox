@@ -110,6 +110,14 @@ namespace PixUI
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
+            if (_controller.IsLoading)
+            {
+                if (_color != null)
+                    canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), PaintUtils.Shared(_color.Value));
+                _controller.LoadingPainter!.PaintToWidget(this, canvas);
+                return;
+            }
+
             canvas.Save();
             canvas.ClipRect(Rect.FromLTWH(0, 0, W, H), ClipOp.Intersect, false);
 

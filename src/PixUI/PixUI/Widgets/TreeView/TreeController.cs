@@ -12,13 +12,10 @@ namespace PixUI
             ChildrenGetter = childrenGetter;
         }
 
-        private TreeView<T>? _treeView;
-        internal TreeView<T>? TreeView => _treeView;
-        private IList<T>? _dataSource;
+        internal TreeView<T>? TreeView { get; private set; }
         internal readonly Action<T, TreeNode<T>> NodeBuilder;
         internal readonly Func<T, IList<T>> ChildrenGetter;
         internal readonly List<TreeNode<T>> Nodes = new List<TreeNode<T>>();
-        
         internal readonly ScrollController ScrollController = new(ScrollDirection.Both);
 
         #region ----Selection----
@@ -38,11 +35,38 @@ namespace PixUI
         #endregion
 
         internal Color HoverColor = new Color(0xFFAAAAAA); //TODO:
-
         internal float NodeIndent = 20;
         internal float NodeHeight;
         internal float TotalWidth = 0;
         internal float TotalHeight = 0;
+
+        private bool _isLoading = false;
+        internal CircularProgressPainter? LoadingPainter { get; private set; }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading == value) return;
+                _isLoading = value;
+                if (_isLoading)
+                {
+                    LoadingPainter = new CircularProgressPainter();
+                    LoadingPainter.Start(() => TreeView?.Invalidate(InvalidAction.Repaint));
+                }
+                else
+                {
+                    LoadingPainter?.Stop();
+                    LoadingPainter?.Dispose();
+                    LoadingPainter = null;
+                }
+
+                TreeView?.Invalidate(InvalidAction.Repaint);
+            }
+        }
+
+        private IList<T>? _dataSource;
 
         public IList<T>? DataSource
         {
@@ -52,18 +76,18 @@ namespace PixUI
                 _dataSource = value;
                 // if (DataSource is RxList<T> rxList)
                 //     rxList.AddBinding(this, BindingOptions.None);
-                if (_treeView != null && _treeView.IsMounted)
+                if (TreeView != null && TreeView.IsMounted)
                 {
                     Nodes.Clear();
-                    InitNodes(_treeView);
-                    _treeView.Invalidate(InvalidAction.Relayout);
+                    InitNodes(TreeView);
+                    TreeView.Invalidate(InvalidAction.Relayout);
                 }
             }
         }
 
         internal void InitNodes(TreeView<T> treeView)
         {
-            _treeView = treeView;
+            TreeView = treeView;
             if (_dataSource == null) return;
 
             foreach (var item in _dataSource)
@@ -119,7 +143,7 @@ namespace PixUI
         public void ExpandTo(TreeNode<T> node)
         {
             var temp = node.Parent;
-            while (temp != null && !ReferenceEquals(temp, _treeView))
+            while (temp != null && !ReferenceEquals(temp, TreeView))
             {
                 var tempNode = (TreeNode<T>)temp;
                 tempNode.Expand();
@@ -135,12 +159,12 @@ namespace PixUI
             NodeBuilder(child, node);
             if (parentNode == null)
             {
-                node.Parent = _treeView;
+                node.Parent = TreeView;
                 var index = insertIndex < 0 ? Nodes.Count : insertIndex;
                 Nodes.Insert(index, node);
                 DataSource!.Insert(index, child);
                 //强制重新布局
-                _treeView!.Invalidate(InvalidAction.Relayout);
+                TreeView!.Invalidate(InvalidAction.Relayout);
             }
             else
             {
@@ -156,13 +180,13 @@ namespace PixUI
 
         public void RemoveNode(TreeNode<T> node)
         {
-            if (ReferenceEquals(node.Parent, _treeView))
+            if (ReferenceEquals(node.Parent, TreeView))
             {
                 Nodes.Remove(node);
                 DataSource!.Remove(node.Data);
                 node.Parent = null;
                 //强制重新布局
-                _treeView!.Invalidate(InvalidAction.Relayout);
+                TreeView!.Invalidate(InvalidAction.Relayout);
             }
             else
             {
