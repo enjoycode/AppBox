@@ -9,15 +9,22 @@ namespace AppBoxDesign
         public DesignerPad()
         {
             DesignStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
-            // DesignStore.DesignerController.TabAdded += OnDesignerOpened;
+            DesignStore.DesignerController.TabAdded += OnDesignerOpened;
             DesignStore.DesignerController.TabClosed += OnDesignerClosed;
 
             BgColor = Colors.White;
 
-            Child = new TabView<DesignNodeVO>(DesignStore.DesignerController, BuildTab, BuildBody,
+            Child = new IfConditional(_isOpenedAnyDesigner,
+                () => new TabView<DesignNodeVO>(DesignStore.DesignerController, BuildTab, BuildBody,
                     true, 40)
-                { SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3) };
+                {
+                    SelectedTabColor = Colors.White,
+                    TabBarBgColor = new Color(0xFFF3F3F3)
+                },
+                () => new Center { Child = new Text("Welcome to AppBox!") });
         }
+
+        private readonly State<bool> _isOpenedAnyDesigner = false;
 
         private static Widget BuildTab(DesignNodeVO node, State<bool> isSelected)
         {
@@ -64,17 +71,15 @@ namespace AppBoxDesign
             };
         }
 
-        // private void OnDesignerOpened(DesignNode node)
-        // {
-        //     if (DesignStore.DesignerController.Count == 1)
-        //         BgColor!.Value = new Color(0xFFF3F3F3);
-        // }
+        private void OnDesignerOpened(DesignNodeVO node)
+        {
+            _isOpenedAnyDesigner.Value = DesignStore.DesignerController.Count > 0;
+        }
 
         private async void OnDesignerClosed(DesignNodeVO node)
         {
-            // if (DesignStore.DesignerController.Count == 0)
-            //     BgColor!.Value = Colors.White;
-            
+            _isOpenedAnyDesigner.Value = DesignStore.DesignerController.Count > 0;
+
             node.Designer = null;
             if (node.Type == DesignNodeType.ModelNode)
             {

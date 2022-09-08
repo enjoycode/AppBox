@@ -13,11 +13,11 @@ namespace PixUI
         // improvement in Copy performance.
         internal const int CopyBufferSize = 81920;
 
-        private static readonly SKData empty;
+        //private static readonly SKData empty;
 
         static SKData()
         {
-            empty = new SKDataStatic(SkiaApi.sk_data_new_empty());
+            //empty = new SKDataStatic(SkiaApi.sk_data_new_empty());
         }
 
         internal static void EnsureStaticInstanceAreInitialized()
@@ -34,7 +34,7 @@ namespace PixUI
 
         void ISKNonVirtualReferenceCounted.UnreferenceNative() => SkiaApi.sk_data_unref(Handle);
 
-        public static SKData Empty => empty;
+        //public static SKData Empty => empty;
 
         // CreateCopy
 

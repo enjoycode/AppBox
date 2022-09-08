@@ -218,6 +218,9 @@ namespace PixUI
 
             foreach (var item in _queue)
             {
+                //Maybe removed from widget tree after added to InvalidQueue, so check again
+                if (!item.Widget.IsMounted) continue;
+
                 if (item.Action == InvalidAction.Relayout)
                 {
                     hasRelayout = true;

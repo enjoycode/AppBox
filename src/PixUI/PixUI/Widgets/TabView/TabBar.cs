@@ -19,6 +19,17 @@ namespace PixUI
             _controller.BindTabBar(this);
             _tabBuilder = tabBuilder;
             Scrollable = scrollable;
+
+            // build tabs
+            if (_controller.DataSource.Count == _tabs.Count)
+                return;
+
+            foreach (var dataItem in _controller.DataSource)
+            {
+                _tabs.Add(BuildTab(dataItem));
+            }
+
+            _controller.SelectAt(0); //选中第一个Tab
         }
 
         private readonly TabController<T> _controller;
@@ -65,8 +76,25 @@ namespace PixUI
 
         #region ====Widget Overrides====
 
+        private Tab BuildTab(T dataItem)
+        {
+            var tab = new Tab();
+            _tabBuilder(dataItem, tab);
+            tab.Parent = this;
+            tab.OnTap = _ => OnTabSelected(tab);
+            return tab;
+        }
+
         public override bool IsOpaque => BgColor != null && BgColor.Value.IsOpaque;
 
+        public override void VisitChildren(Func<Widget, bool> action)
+        {
+            if (_tabs.Count == 0) return;
+            foreach(var tab in _tabs)
+            {
+                if (action(tab)) break;
+            }
+        }
         protected internal override bool HitTest(float x, float y, HitTestResult result)
         {
             if (!ContainsPoint(x, y)) return false;
@@ -86,8 +114,6 @@ namespace PixUI
 
         public override void Layout(float availableWidth, float availableHeight)
         {
-            TryBuildTabs();
-
             var width = CacheAndCheckAssignWidth(availableWidth);
             var height = CacheAndCheckAssignHeight(availableHeight);
             if (_tabs.Count == 0)
@@ -119,28 +145,6 @@ namespace PixUI
                     _tabs[i].SetPosition(tabWidth * i, 0);
                 }
             }
-        }
-
-        private void TryBuildTabs()
-        {
-            if (_controller.DataSource.Count == _tabs.Count)
-                return;
-
-            foreach (var dataItem in _controller.DataSource)
-            {
-                _tabs.Add(BuildTab(dataItem));
-            }
-
-            _controller.SelectAt(0); //选中第一个Tab
-        }
-
-        private Tab BuildTab(T dataItem)
-        {
-            var tab = new Tab();
-            _tabBuilder(dataItem, tab);
-            tab.Parent = this;
-            tab.OnTap = _ => OnTabSelected(tab);
-            return tab;
         }
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)

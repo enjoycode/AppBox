@@ -19,6 +19,12 @@ namespace PixUI
         /// </summary>
         protected void ReplaceTo(Widget? to)
         {
+            if (!IsMounted)
+            {
+                Child = to;
+                return;
+            }
+
             Root!.Window.BeforeDynamicViewChange(this);
             Child = to;
             Root!.Window.AfterDynamicViewChange(this); //TODO: 检查是否需要，因重新布局会同样处理

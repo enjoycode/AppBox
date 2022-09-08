@@ -60,7 +60,8 @@ namespace CodeEditor
 
         protected override void OnUnmounted()
         {
-            ((Overlay)_decoration.Parent!).Remove(_decoration);
+            if (_decoration.Parent != null)
+                ((Overlay)_decoration.Parent).Remove(_decoration);
             base.OnUnmounted();
         }
 

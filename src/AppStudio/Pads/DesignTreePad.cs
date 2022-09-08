@@ -27,7 +27,8 @@ namespace AppBoxDesign
             node.IsLeaf = data.Type == DesignNodeType.ModelNode ||
                           data.Type == DesignNodeType.DataStoreNode;
             node.IsExpanded = data.Type == DesignNodeType.DataStoreRootNode ||
-                              data.Type == DesignNodeType.ApplicationRoot;
+                              data.Type == DesignNodeType.ApplicationRoot ||
+                              data.Type == DesignNodeType.ApplicationNode;
         }
 
         private static IconData GetIconForNode(DesignNodeVO data)
