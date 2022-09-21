@@ -28,14 +28,14 @@ namespace PixUI.Demo
 
         private Widget BuildChild()
         {
-            return new Column(debugLabel: "Main")
+            return new Column(debugLabel: "DemoMain")
             {
                 Children = new Widget[]
                 {
                     //Body
                     new Expanded
                     {
-                        Child = new Column(spacing: 8, debugLabel: "Body")
+                        Child = new Column(spacing: 8, debugLabel: "DemoBody")
                         {
                             Children = new Widget[]
                             {
@@ -96,7 +96,7 @@ namespace PixUI.Demo
                     },
                     //Footer
                     new Container
-                        { Height = 20, BgColor = new Color(0xFFCA673B), DebugLabel = "Footer" }
+                        { Height = 20, BgColor = new Color(0xFFCA673B), DebugLabel = "DemoFooter" }
                 }
             };
         }

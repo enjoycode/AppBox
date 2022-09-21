@@ -375,7 +375,7 @@ namespace PixUI
 
             //裁剪脏区域并开始绘制
             Console.WriteLine(
-                $"InvalidQueue.Repaint: {widget} rect={dirtyArea?.GetRect()} Opaque={opaque} area={{X={dirtyX} Y={dirtyY} W={dirtyRect.Width} H={dirtyRect.Height}}}");
+                $"InvalidQueue.Repaint: {widget} dirty={dirtyArea} Opaque={opaque} area={{X={dirtyX} Y={dirtyY} W={dirtyRect.Width} H={dirtyRect.Height}}}");
             canvas.Save();
             try
             {
@@ -384,11 +384,11 @@ namespace PixUI
                 //判断是否RootWidget且非不透明，是则清空画布脏区域
                 if (ReferenceEquals(opaque, ctx.Window.RootWidget) && !opaque.IsOpaque)
                     canvas.Clear(ctx.Window.BackgroundColor);
+
                 if (ReferenceEquals(opaque, widget))
                     opaque.Paint(canvas, dirtyArea);
                 else
-                    opaque.Paint(canvas, new RepaintArea( //TODO:考虑使用RepaintChild
-                        Rect.FromLTWH(dirtyX, dirtyY, dirtyRect.Width, dirtyRect.Height)));
+                    opaque.Paint(canvas, new RepaintChild(opaque, widget, dirtyArea));
             }
             catch (Exception ex)
             {

@@ -336,7 +336,7 @@ namespace PixUI
         {
             //TODO:判断是否可见
             canvas.Translate(child.X, child.Y);
-            child.Paint(canvas, area?.ToChild(child.X, child.Y));
+            child.Paint(canvas, area?.ToChild(child));
             canvas.Translate(-child.X, -child.Y);
 
             PaintDebugger.PaintWidgetBorder(child, canvas);

@@ -86,7 +86,7 @@ namespace PixUI
             if (Child == null) return;
 
             canvas.Translate(Child!.X, Child.Y);
-            Child.Paint(canvas, area?.ToChild(Child.X, Child.Y));
+            Child.Paint(canvas, area?.ToChild(Child));
             canvas.Translate(-Child.X, -Child.Y);
 
             //TODO:暂在这里画指示器，待TabBar实现后移除

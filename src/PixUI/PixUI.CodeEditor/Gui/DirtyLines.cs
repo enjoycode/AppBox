@@ -28,9 +28,8 @@ namespace CodeEditor
             return Rect.Empty;
         }
 
-        public IDirtyArea ToChild(float childX, float childY)
-        {
-            throw new NotSupportedException();
-        }
+        public bool IntersectsWith(Widget child) => throw new NotSupportedException();
+
+        public IDirtyArea? ToChild(Widget child) => throw new NotSupportedException();
     }
 }

@@ -136,7 +136,7 @@ namespace PixUI
                 if (vb <= dirtyRect.Top) continue;
 
                 canvas.Translate(vx, vy);
-                node.Paint(canvas, area?.ToChild(vx, vy));
+                node.Paint(canvas, null /*area?.ToChild(vx, vy)*/);
                 canvas.Translate(-vx, -vy);
             }
 

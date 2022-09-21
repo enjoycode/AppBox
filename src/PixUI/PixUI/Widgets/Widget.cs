@@ -490,19 +490,19 @@ namespace PixUI
 
         protected void PaintChildren(Canvas canvas, IDirtyArea? area = null)
         {
-            var dirtyRect = area?.GetRect();
-
             VisitChildren(child =>
             {
                 if (child.W <= 0 || child.H <= 0)
                     return false;
-                if (dirtyRect != null &&
-                    !dirtyRect.Value.IntersectsWith(child.X, child.Y, child.W, child.H))
+                if (area != null && !area.IntersectsWith(child))
                     return false; //脏区域与子组件没有相交部分，不用绘制
 
-                canvas.Translate(child.X, child.Y); //TODO: x = y =0 no need
-                child.Paint(canvas, area?.ToChild(child.X, child.Y));
-                canvas.Translate(-child.X, -child.Y);
+                var needTranslate = child.X != 0 || child.Y != 0;
+                if (needTranslate)
+                    canvas.Translate(child.X, child.Y);
+                child.Paint(canvas, area?.ToChild(child));
+                if (needTranslate)
+                    canvas.Translate(-child.X, -child.Y);
 
                 PaintDebugger.PaintWidgetBorder(child, canvas);
                 return false;

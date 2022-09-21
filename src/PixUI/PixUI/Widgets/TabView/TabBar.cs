@@ -155,7 +155,7 @@ namespace PixUI
             foreach (var tab in _tabs) //TODO: check visible
             {
                 canvas.Translate(tab.X, tab.Y);
-                tab.Paint(canvas, area?.ToChild(tab.X, tab.Y));
+                tab.Paint(canvas, area?.ToChild(tab));
                 canvas.Translate(-tab.X, -tab.Y);
             }
 
