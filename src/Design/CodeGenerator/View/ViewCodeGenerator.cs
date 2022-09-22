@@ -71,6 +71,16 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
     /// </summary>
     /// <param name="fullName">eg: sys.Entities.Customer</param>
     private void AddUsedModel(string fullName) => _usedModels.Add(fullName);
+    
+    /// <summary>
+    /// 根据类型全名称查找是否模型
+    /// </summary>
+    /// <param name="fullName">eg: sys.Entities.Customer</param>
+    private bool FindModel(string fullName)
+    {
+        var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(fullName);
+        return modelNode != null;
+    }
 
     /// <summary>
     /// 获取使用的其他模型生成的运行时代码

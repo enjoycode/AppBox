@@ -261,9 +261,10 @@ namespace PixUI.CS2TS
         internal void TryWritePackageName(NameSyntax node, ISymbol symbol)
         {
             //先判断是否模型类
-            if (TrackModelUsages && symbol.IsAppBoxModel(_typeSymbolCache, AddUsedModel))
+            if (FindModel != null &&
+                (symbol.IsAppBoxEntity(FindModel) || symbol.IsAppBoxView(FindModel)))
             {
-                //TODO:考虑写入应用名称作为前缀防止同名, eg: sys_EntityName
+                AddUsedModel(symbol.ToString()); //TODO:考虑写入应用名称作为前缀防止同名, eg: sys_EntityName
                 return;
             }
 

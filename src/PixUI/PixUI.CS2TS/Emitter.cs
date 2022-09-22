@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -12,11 +13,30 @@ namespace PixUI.CS2TS
     /// </summary>
     public sealed partial class Emitter : CSharpSyntaxWalker
     {
+        private Emitter(Translator translator, Document document, SemanticModel semanticModel,
+            bool toJavaScript = false, Func<string, bool>? findModel = null)
+            : base(SyntaxWalkerDepth.Trivia)
+        {
+            Translator = translator;
+            Document = document;
+            SemanticModel = semanticModel;
+            ToJavaScript = toJavaScript;
+            FindModel = findModel;
+            _typeSymbolCache = new TypeSymbolCache(semanticModel);
+        }
+
+        public static async Task<Emitter> MakeAsync(Translator translator, Document document,
+            bool toJavascript = false, Func<string, bool>? findModel = null)
+        {
+            var semanticModel = await document.GetSemanticModelAsync();
+            return new Emitter(translator, document, semanticModel!, toJavascript, findModel);
+        }
+
         private readonly Document Document;
         internal readonly SemanticModel SemanticModel;
         internal readonly Translator Translator;
         internal readonly bool ToJavaScript; //直接翻译为ES2017
-        internal readonly bool TrackModelUsages; //用于AppBox跟踪使用到的模型
+        internal readonly Func<string, bool>? FindModel; //用于AppBox跟踪使用到的模型
 
         // 使用到的模块，用于生成文件头import
         private readonly HashSet<string> _usedModules = new HashSet<string>();
@@ -40,26 +60,6 @@ namespace PixUI.CS2TS
         internal IsPatternExpressionSyntax? InjectIsPatternExpression = null;
 
         private readonly Stack<BlockResources> _blockStack = new Stack<BlockResources>();
-
-        private Emitter(Translator translator, Document document, SemanticModel semanticModel,
-            bool toJavaScript = false, bool trackModelUsages = false)
-            : base(SyntaxWalkerDepth.Trivia)
-        {
-            Translator = translator;
-            Document = document;
-            SemanticModel = semanticModel;
-            ToJavaScript = toJavaScript;
-            TrackModelUsages = trackModelUsages;
-            _typeSymbolCache = new TypeSymbolCache(semanticModel);
-        }
-
-        public static async Task<Emitter> MakeAsync(Translator translator, Document document,
-            bool toJavascript = false, bool trackModelUsages = false)
-        {
-            var semanticModel = await document.GetSemanticModelAsync();
-            return new Emitter(translator, document, semanticModel!, toJavascript,
-                trackModelUsages);
-        }
 
         public void Emit() => Visit(SemanticModel.SyntaxTree.GetRoot());
 

@@ -22,8 +22,7 @@ internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode
         var isReturnGenericTask = ((INamedTypeSymbol)symbol.ReturnType).IsGenericType;
         //需要检查返回类型内是否包含实体，是则加入引用模型列表内
         if (isReturnGenericTask)
-            symbol.ReturnType.CheckTypeHasAppBoxModel(generator.TypeSymbolCache,
-                generator.AddUsedEntity);
+            symbol.ReturnType.CheckTypeHasAppBoxModel(generator.FindModel, generator.AddUsedEntity);
 
         //转换服务方法调用为 HostRuntimeContext.Invoke
         var servicePath =

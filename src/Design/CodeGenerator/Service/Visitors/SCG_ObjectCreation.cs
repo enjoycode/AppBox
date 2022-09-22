@@ -9,7 +9,7 @@ internal partial class ServiceCodeGenerator
 {
     public override SyntaxNode? VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
     {
-        var symbol = ModelExtensions.GetSymbolInfo(SemanticModel, node).Symbol as IMethodSymbol;
+        var symbol = SemanticModel.GetSymbolInfo(node).Symbol;
         if (IsGenericCreate(symbol))
         {
             var typeArgs = symbol!.ContainingType.TypeArguments;
@@ -17,9 +17,11 @@ internal partial class ServiceCodeGenerator
             var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(modelType.ToString())!;
             var model = (EntityModel)modelNode.Model;
             if (typeArgs.Length == 1)
+            {
                 return SyntaxFactory
                     .ParseExpression($"new {node.Type.ToString()}({model.Id.Value})")
                     .WithTriviaFrom(node);
+            }
 
             //TODO: IndexScan有多个范型参数
             throw new NotImplementedException();
@@ -28,11 +30,11 @@ internal partial class ServiceCodeGenerator
         return base.VisitObjectCreationExpression(node);
     }
 
-    private static bool IsGenericCreate(IMethodSymbol? methodSymbol)
+    private static bool IsGenericCreate(ISymbol? methodSymbol)
     {
         return methodSymbol != null &&
-            methodSymbol.GetAttributes()
-            .Any(a => a.AttributeClass != null &&
-                      a.AttributeClass.ToString() == "AppBoxStore.GenericCreateAttribute");
+               methodSymbol.GetAttributes()
+                   .Any(a => a.AttributeClass != null &&
+                             a.AttributeClass.ToString() == "AppBoxStore.GenericCreateAttribute");
     }
 }

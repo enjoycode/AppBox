@@ -5,6 +5,8 @@ using Microsoft.CodeAnalysis;
 
 namespace RoslynUtils
 {
+    // PixUI.CS2TS及Design工程通用
+
     internal sealed class TypeSymbolCache
     {
         internal TypeSymbolCache(SemanticModel semanticModel)
@@ -15,8 +17,8 @@ namespace RoslynUtils
         private readonly SemanticModel _semanticModel;
         private readonly Dictionary<string, INamedTypeSymbol> _typesCache = new();
 
-        internal INamedTypeSymbol TypeOfEntity => GetTypeByName("AppBoxCore.Entity");
-        
+        //internal INamedTypeSymbol TypeOfEntity => GetTypeByName("AppBoxCore.Entity");
+
         internal INamedTypeSymbol TypeOfIListGeneric =>
             GetTypeByName("System.Collections.Generic.IList`1");
 
@@ -62,32 +64,15 @@ namespace RoslynUtils
         }
 
         /// <summary>
-        /// 用于检测是否模型类，是则加入列表
-        /// </summary>
-        internal static bool IsAppBoxModel(this ISymbol symbol, TypeSymbolCache typesCache,
-            Action<string> addAction)
-        {
-            if (symbol is not ITypeSymbol typeSymbol) return false;
-
-            if (symbol.IsAppBoxEntity(typesCache))
-            {
-                addAction(symbol.ToString());
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// 用于检查类型是否包含模型类
         /// </summary>
         internal static void CheckTypeHasAppBoxModel(this ITypeSymbol typeSymbol,
-            TypeSymbolCache typesCache, Action<string> addAction)
+            Func<string, bool> findModel, Action<string> addAction)
         {
             //检查Entity数组
             if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
             {
-                CheckTypeHasAppBoxModel(arrayTypeSymbol.ElementType, typesCache, addAction);
+                CheckTypeHasAppBoxModel(arrayTypeSymbol.ElementType, findModel, addAction);
                 return;
             }
 
@@ -96,23 +81,42 @@ namespace RoslynUtils
             {
                 foreach (var typeArgument in namedTypeSymbol.TypeArguments)
                 {
-                    CheckTypeHasAppBoxModel(typeArgument, typesCache, addAction);
+                    CheckTypeHasAppBoxModel(typeArgument, findModel, addAction);
                 }
 
                 return;
             }
 
-            IsAppBoxModel(typeSymbol, typesCache, addAction);
+            if (typeSymbol.IsAppBoxEntity(findModel) || typeSymbol.IsAppBoxView(findModel))
+                addAction(typeSymbol.ToString());
         }
 
         /// <summary>
         /// 是否AppBox实体类型
         /// </summary>
-        internal static bool IsAppBoxEntity(this ISymbol symbol, TypeSymbolCache typesCache)
+        internal static bool IsAppBoxEntity(this ISymbol symbol, Func<string, bool> findModel)
         {
-            return symbol is INamedTypeSymbol typeSymbol &&
-                   typeSymbol.ContainingNamespace.Name == "Entities" &&
-                   typeSymbol.IsInherits(typesCache.TypeOfEntity);
+            if (symbol is INamedTypeSymbol typeSymbol &&
+                typeSymbol.ContainingNamespace.Name == "Entities")
+            {
+                return findModel(symbol.ToString());
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 是否AppBox视图模型
+        /// </summary>
+        internal static bool IsAppBoxView(this ISymbol symbol, Func<string, bool> findModel)
+        {
+            if (symbol is INamedTypeSymbol typeSymbol &&
+                typeSymbol.ContainingNamespace.Name == "Views")
+            {
+                return findModel(symbol.ToString());
+            }
+
+            return false;
         }
 
         /// <summary>

@@ -23,11 +23,11 @@ internal partial class ViewCodeGenerator
         var isReturnGenericTask = ((INamedTypeSymbol)symbol.ReturnType).IsGenericType;
         //需要检查返回类型内是否包含实体，是则加入引用模型列表内
         if (isReturnGenericTask)
-            symbol.ReturnType.CheckTypeHasAppBoxModel(_typeSymbolCache, AddUsedModel);
+            symbol.ReturnType.CheckTypeHasAppBoxModel(FindModel, AddUsedModel);
 
         //转换服务方法调用为 AppBoxClient.Channel.Invoke()
-        var servicePath =
-            $"{symbol.ContainingNamespace.ContainingNamespace.Name}.{symbol.ContainingType.Name}.{symbol.Name}";
+        var appName = symbol.ContainingNamespace.ContainingNamespace.Name;
+        var servicePath = $"{appName}.{symbol.ContainingType.Name}.{symbol.Name}";
         var methodName = "AppBoxClient.Channel.Invoke";
         if (isReturnGenericTask)
         {
@@ -43,9 +43,8 @@ internal partial class ViewCodeGenerator
         var args = SyntaxFactory.ArgumentList().AddArguments(serviceArg);
         if (node.ArgumentList.Arguments.Count == 0)
         {
-            var nullArg =
-                SyntaxFactory.Argument(
-                    SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression));
+            var nullArg = SyntaxFactory.Argument(
+                SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression));
             args = args.AddArguments(nullArg);
         }
         else

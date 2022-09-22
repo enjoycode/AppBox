@@ -30,17 +30,18 @@ internal sealed class GetWebPreview : IDesignHandler
         if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
             throw new Exception("Has error");
 
-        var emitter = await Emitter.MakeAsync(translator, srcDocument, true, true);
+        var emitter = await Emitter.MakeAsync(translator, srcDocument, true,
+            fullName => hub.DesignTree.FindModelNodeByFullName(fullName) != null);
         emitter.Emit();
         var tsCode = emitter.GetTypeScriptCode(true);
 
         //附加import使用到的模型
-        
+
         if (emitter.UsedModels.Count > 0)
         {
             var sb = StringBuilderCache.Acquire();
             sb.Append("\nconst EntityFactories=new Map([");
-        
+
             foreach (var fullName in emitter.UsedModels)
             {
                 //根据名称找到相关模型
@@ -49,16 +50,16 @@ internal sealed class GetWebPreview : IDesignHandler
                 // var usedModelAppName = usedModel.AppNode.Model.Name;
                 var usedModelType = usedModel.Model.ModelType.ToString();
                 var usedModelId = usedModel.Model.Id;
-            
+
                 sb.Insert(0,
                     $"import {{{usedModelName}}} from '/preview/{usedModelType}/{hub.Session.SessionId}/{usedModelId}'\n");
-            
+
                 //附加EntityFactories常量
                 sb.Append($"[{usedModel.Model.Id.Value}n, ()=>new {usedModelName}()],");
             }
-        
+
             sb.Append("]);\n\n"); //end EntityFactories
-        
+
             sb.Append(tsCode);
             tsCode = StringBuilderCache.GetStringAndRelease(sb);
         }
