@@ -69,9 +69,8 @@ namespace AppBoxDesign
         {
             //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
 
-            var parentNode = TreeController.FindNode(n =>
-                n.Type == result.ParentNodeType && n.Id == result.ParentNodeId)!;
-            var newNode = TreeController.InsertNode(result.NewNode, parentNode, result.InsertIndex);
+            var newNode = TreeController.InsertNode(
+                result.NewNode, result.ParentNode, result.InsertIndex);
             TreeController.ExpandTo(newNode);
             TreeController.SelectNode(newNode);
         }

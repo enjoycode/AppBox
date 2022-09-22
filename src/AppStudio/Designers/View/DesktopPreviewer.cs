@@ -65,8 +65,10 @@ internal sealed class DesktopPreviewer : View
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Can't load preview widget: {e.Message}");
-            _containerRef.Widget.Child = new Center { Child = new Text("Has Error") };
+            _containerRef.Widget.Child = new Center
+            {
+                Child = new Text($"Has Error:\n{e.Message}") { MaxLines = 20 }
+            };
         }
 
         _containerRef.Widget.Invalidate(InvalidAction.Relayout);

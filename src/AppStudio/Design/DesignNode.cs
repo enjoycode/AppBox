@@ -88,7 +88,7 @@ namespace AppBoxDesign
             var count = rs.ReadVariant();
             for (var i = 0; i < count; i++)
             {
-                var modelRootNode = new ModelRootNodeVO();
+                var modelRootNode = new ModelRootNodeVO(this);
                 modelRootNode.ReadFrom(rs);
                 _children.Add(modelRootNode);
             }
@@ -97,6 +97,13 @@ namespace AppBoxDesign
 
     internal sealed class ModelRootNodeVO : DesignNodeVO
     {
+        public ModelRootNodeVO(ApplicationNodeVO applicationNode)
+        {
+            ApplicationNode = applicationNode;
+        }
+
+        public readonly ApplicationNodeVO ApplicationNode;
+
         public override DesignNodeType Type => DesignNodeType.ModelRootNode;
 
         private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
@@ -112,9 +119,9 @@ namespace AppBoxDesign
                 var nodeType = (DesignNodeType)rs.ReadByte();
                 DesignNodeVO node;
                 if (nodeType == DesignNodeType.ModelNode)
-                    node = new ModelNodeVO();
+                    node = new ModelNodeVO(this);
                 else if (nodeType == DesignNodeType.FolderNode)
-                    node = new FolderNodeVO();
+                    node = new FolderNodeVO(this);
                 else
                     throw new NotSupportedException();
 
@@ -126,6 +133,13 @@ namespace AppBoxDesign
 
     internal sealed class FolderNodeVO : DesignNodeVO
     {
+        public FolderNodeVO(ModelRootNodeVO modelRootNode)
+        {
+            ModelRootNode = modelRootNode;
+        }
+
+        public readonly ModelRootNodeVO ModelRootNode;
+        
         public override DesignNodeType Type => DesignNodeType.FolderNode;
 
         private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
@@ -141,9 +155,9 @@ namespace AppBoxDesign
                 var nodeType = (DesignNodeType)rs.ReadByte();
                 DesignNodeVO node;
                 if (nodeType == DesignNodeType.ModelNode)
-                    node = new ModelNodeVO();
+                    node = new ModelNodeVO(ModelRootNode);
                 else if (nodeType == DesignNodeType.FolderNode)
-                    node = new FolderNodeVO();
+                    node = new FolderNodeVO(ModelRootNode);
                 else
                     throw new NotSupportedException();
 
@@ -155,6 +169,15 @@ namespace AppBoxDesign
 
     internal sealed class ModelNodeVO : DesignNodeVO
     {
+        public ModelNodeVO(ModelRootNodeVO modelRootNode)
+        {
+            ModelRootNode = modelRootNode;
+        }
+        
+        public readonly ModelRootNodeVO ModelRootNode;
+
+        public string AppName => ModelRootNode.Label.Value;
+        
         public override DesignNodeType Type => DesignNodeType.ModelNode;
 
         public ModelType ModelType { get; private set; }

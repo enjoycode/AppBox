@@ -1,5 +1,6 @@
 using System;
 using AppBoxCore;
+using PixUI;
 
 namespace AppBoxDesign
 {
@@ -11,6 +12,8 @@ namespace AppBoxDesign
         public string? RootNodeId { get; private set; }
         public int InsertIndex { get; private set; }
 
+        public TreeNode<DesignNodeVO> ParentNode { get; private set; } = null!;
+
         public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
 
         public void ReadFrom(IInputStream rs)
@@ -20,14 +23,18 @@ namespace AppBoxDesign
             RootNodeId = rs.ReadString();
             InsertIndex = rs.ReadInt();
 
+            //find parent node
+            ParentNode = DesignStore.TreeController.FindNode(
+                n => n.Type == ParentNodeType && n.Id == ParentNodeId)!;
+
             var newNodeType = (DesignNodeType)rs.ReadByte();
             switch (newNodeType)
             {
                 case DesignNodeType.FolderNode:
-                    NewNode = new FolderNodeVO();
+                    NewNode = new FolderNodeVO(GetModelRootNode(ParentNode));
                     break;
                 case DesignNodeType.ModelNode:
-                    NewNode = new ModelNodeVO();
+                    NewNode = new ModelNodeVO(GetModelRootNode(ParentNode));
                     break;
                 case DesignNodeType.DataStoreNode:
                     NewNode = new DataStoreNodeVO();
@@ -37,6 +44,17 @@ namespace AppBoxDesign
             }
 
             NewNode.ReadFrom(rs);
+        }
+
+        private static ModelRootNodeVO GetModelRootNode(TreeNode<DesignNodeVO> parentNode)
+        {
+            switch (parentNode.Data.Type)
+            {
+                case DesignNodeType.ModelRootNode: return (ModelRootNodeVO)parentNode.Data;
+                case DesignNodeType.FolderNode:
+                    return ((FolderNodeVO)parentNode.Data).ModelRootNode;
+                default: throw new NotSupportedException();
+            }
         }
     }
 }
