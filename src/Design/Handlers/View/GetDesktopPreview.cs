@@ -17,29 +17,13 @@ internal sealed class GetDesktopPreview : IDesignHandler
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
 
-        //开始转换编译视图模型的运行时代码
-        var srcPrjId = hub.TypeSystem.WebViewsProjectId;
-        var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
-        var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
-
-        //始终检查语义错误，防止同步过程出现问题
-        var semanticModel = await srcDocument.GetSemanticModelAsync();
-        var diagnostics = semanticModel!.GetDiagnostics();
-        if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
-            throw new Exception("Has error");
-
-        var appName = modelNode.AppNode.Model.Name;
-        var codegen = new ViewCodeGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model);
-        var newRootNode = codegen.Visit(await semanticModel.SyntaxTree.GetRootAsync());
-        var docName = $"{appName}.Views.{modelNode.Model.Name}";
-        var newTree = SyntaxFactory.SyntaxTree(newRootNode,
-            path: docName + ".cs", encoding: Encoding.UTF8);
+        var codegen = await ViewCodeGenerator.Make(hub, modelNode);
+        var newTree = await codegen.GetRuntimeSyntaxTree();
         //生成视图模型依赖的其他模型的运行时代码
-        var usagesTree = codegen.GetUsagesTree();
+        var usagesTree = await BuildAllUsages(codegen);
 
         var version = (int)(DateTime.Now - DateTime.UnixEpoch).TotalSeconds;
-        var asmVersion =
-            $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
+        var asmVersion = $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
             CodeUtil.ViewGlobalUsings() +
             $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
@@ -48,19 +32,26 @@ internal sealed class GetDesktopPreview : IDesignHandler
             .WithOptimizationLevel(OptimizationLevel.Debug);
 
         //开始编译运行时代码
-        var compilation = CSharpCompilation.Create(docName)
+        var compilation = CSharpCompilation.Create(null)
             .AddReferences(GetViewModelReferences())
             .AddSyntaxTrees(newTree, usingAndVersionTree)
             .WithOptions(options);
-        if (usagesTree != null)
-            compilation = compilation.AddSyntaxTrees(usagesTree);
+        // if (usagesTree.Any())
+        compilation = compilation.AddSyntaxTrees(usagesTree);
 
         using var dllStream = new MemoryStream(1024);
         var emitResult = compilation.Emit(dllStream);
         CodeGeneratorUtil.CheckEmitResult(emitResult);
 
-        var asmData = dllStream.ToArray();
+        var asmData = dllStream.ToArray(); //TODO:考虑写临时文件并返回流
         return AnyValue.From(asmData);
+    }
+
+    private static async Task<IEnumerable<SyntaxTree>> BuildAllUsages(ViewCodeGenerator generator)
+    {
+        var ctx = new Dictionary<string, SyntaxTree>(); //key = ModelNode.Id
+        await generator.BuildUsages(ctx);
+        return ctx.Values;
     }
 
     private static IEnumerable<MetadataReference> GetViewModelReferences()
