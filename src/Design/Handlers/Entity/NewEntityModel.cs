@@ -29,7 +29,7 @@ internal sealed class NewEntityModel : IDesignHandler
 
                 return entityModel;
             },
-            selectedNodeType, selectedNodeId, name, null);
+            selectedNodeType, selectedNodeId, name, _ => null);
         return AnyValue.From(result);
     }
 }

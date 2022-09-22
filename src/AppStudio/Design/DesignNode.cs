@@ -176,7 +176,7 @@ namespace AppBoxDesign
         
         public readonly ModelRootNodeVO ModelRootNode;
 
-        public string AppName => ModelRootNode.Label.Value;
+        public string AppName => ModelRootNode.ApplicationNode.Label.Value;
         
         public override DesignNodeType Type => DesignNodeType.ModelNode;
 

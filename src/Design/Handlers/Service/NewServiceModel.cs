@@ -10,20 +10,18 @@ internal sealed class NewServiceModel : IDesignHandler
         var selectedNodeId = args.GetString()!;
         var name = args.GetString()!;
 
-        var initSrcCode = $@"using System;
-using System.Threading.Tasks;
-
+        var result = await ModelCreator.Make(hub, ModelType.Service,
+            id => new ServiceModel(id, name),
+            selectedNodeType, selectedNodeId, name,
+            appName => $@"
 public sealed class {name}
 {{
     public string SayHello()
     {{
         return ""Hello World"";
     }}
-}}";
-
-        var result = await ModelCreator.Make(hub, ModelType.Service,
-            id => new ServiceModel(id, name),
-            selectedNodeType, selectedNodeId, name, initSrcCode);
+}}");
+        
         return AnyValue.From(result);
     }
 }

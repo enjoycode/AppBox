@@ -53,7 +53,8 @@ internal sealed class DesktopPreviewer : View
                 new object?[] { _controller.ModelNode.Id });
             _assemblyLoader = new ViewAssemblyLoader();
             var asm = _assemblyLoader.LoadViewAssembly(asmData!);
-            var widgetTypeName = _controller.ModelNode.Label.Value;
+            var modelNode = _controller.ModelNode;
+            var widgetTypeName = $"{modelNode.AppName}.Views.{modelNode.Label.Value}";
             var widgetType = asm.GetType(widgetTypeName);
             var widget = (Widget)Activator.CreateInstance(widgetType!)!;
             widget.DebugLabel = asm.FullName;

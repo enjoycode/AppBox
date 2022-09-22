@@ -118,6 +118,8 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ServiceProxyProjectId))
+                .AddDocument(DocumentId.CreateNewId(WebViewsProjectId), "GlobalUsing.cs",
+                    CodeUtil.ViewGlobalUsings())
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))
@@ -317,14 +319,14 @@ internal sealed class TypeSystem : IDisposable
             // }
         }
 
-        var globalUsingDocId = DocumentId.CreateNewId(prjId);
         var newSolution = Workspace.CurrentSolution
                 .AddProject(serviceProjectInfo)
                 .AddMetadataReferences(prjId, deps)
                 .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
                 .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId))
-                .AddDocument(globalUsingDocId, "GlobalUsing.cs", CodeUtil.ServiceGlobalUsings())
+                .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs",
+                    CodeUtil.ServiceGlobalUsings())
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))

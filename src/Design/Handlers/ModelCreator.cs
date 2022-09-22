@@ -7,7 +7,8 @@ internal static class ModelCreator
 {
     public static async Task<NewNodeResult> Make(DesignHub hub, ModelType modelType,
         Func<ModelId, ModelBase> creator,
-        DesignNodeType selectedNodeType, string selectedNodeId, string name, string? initSrcCode)
+        DesignNodeType selectedNodeType, string selectedNodeId, string name,
+        Func<string, string?> initSrcCodeGen)
     {
         //验证名称有效性
         if (string.IsNullOrEmpty(name) || !CodeUtil.IsValidIdentifier(name))
@@ -49,6 +50,7 @@ internal static class ModelCreator
             hub.Session.Name, hub.Session.LeafOrgUnitId);
 
         //保存至Staged
+        var initSrcCode = initSrcCodeGen(appNode.Model.Name);
         await node.SaveAsync(initSrcCode);
         //创建RoslynDocument
         await hub.TypeSystem.CreateModelDocumentAsync(node, initSrcCode);

@@ -10,7 +10,10 @@ internal sealed class NewViewModel : IDesignHandler
         var selectedNodeId = args.GetString()!;
         var name = args.GetString()!;
 
-        var initSrcCode = $@"using PixUI;
+        var result = await ModelCreator.Make(hub, ModelType.View,
+            id => new ViewModel(id, name),
+            selectedNodeType, selectedNodeId, name,
+            appName => $@"namespace {appName}.Views;
 
 public sealed class {name} : View
 {{
@@ -21,10 +24,8 @@ public sealed class {name} : View
             Child = new Text(""Hello World"") {{ FontSize = 50 }}
         }};
     }}
-}}";
+}}");
 
-        var result = await ModelCreator.Make(hub, ModelType.View, id => new ViewModel(id, name),
-            selectedNodeType, selectedNodeId, name, initSrcCode);
         return AnyValue.From(result);
     }
 }
