@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxDesign;
-using AppBoxServer;
 using NUnit.Framework;
 
 namespace Tests.Design.Handlers;

@@ -35,12 +35,11 @@ internal sealed class GetWebPreview : IDesignHandler
         emitter.Emit();
         var tsCode = emitter.GetTypeScriptCode(true);
 
-        //附加import使用到的模型
-
+        //附加import使用到的模型, 包括实体模型及视图模型
         if (emitter.UsedModels.Count > 0)
         {
             var sb = StringBuilderCache.Acquire();
-            sb.Append("\nconst EntityFactories=new Map([");
+            var hasEntityModel = false;
 
             foreach (var fullName in emitter.UsedModels)
             {
@@ -54,18 +53,34 @@ internal sealed class GetWebPreview : IDesignHandler
                 sb.Insert(0,
                     $"import {{{usedModelName}}} from '/preview/{usedModelType}/{hub.Session.SessionId}/{usedModelId}'\n");
 
-                //附加EntityFactories常量
-                sb.Append($"[{usedModel.Model.Id.Value}n, ()=>new {usedModelName}()],");
+                //如果是Entity模型附加EntityFactories常量
+                if (usedModel.Model.ModelType == ModelType.Entity)
+                {
+                    if (!hasEntityModel)
+                    {
+                        sb.Append("\nconst EntityFactories=new Map([");
+                        hasEntityModel = true;
+                    }
+                    else
+                    {
+                        sb.Append(',');
+                    }
+
+                    sb.Append($"[{usedModel.Model.Id.Value}n, ()=>new {usedModelName}()]");
+                }
             }
 
-            sb.Append("]);\n\n"); //end EntityFactories
+            if (hasEntityModel)
+                sb.Append("]);\n\n"); //end EntityFactories
+            else
+                sb.Append("const EntityFactories=null;\n\n");
 
             sb.Append(tsCode);
             tsCode = StringBuilderCache.GetStringAndRelease(sb);
         }
         else
         {
-            tsCode = tsCode + "\nconst EntityFactories=null;";
+            tsCode += "\n\nconst EntityFactories=null;";
         }
 
         return AnyValue.From(Encoding.UTF8.GetBytes(tsCode));
