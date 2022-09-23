@@ -32,7 +32,8 @@ namespace PixUI.CS2TS
             if (node.Initializer != null)
                 emitter.WriteTrailingTrivia(node.Initializer);
             emitter.VisitToken(node.Body!.OpenBraceToken);
-            
+            emitter.EnterBlock(node.Body);
+
             if (typeDeclaration is ClassDeclarationSyntax classDeclaration)
                 EmitSuperCall(emitter, classDeclaration, node);
 
@@ -41,6 +42,8 @@ namespace PixUI.CS2TS
                 emitter.Visit(statement);
             }
 
+            emitter.LeaveBlock(node.Body.Statements.Count > 0 &&
+                               node.Body.Statements.Last() is ReturnStatementSyntax);
             emitter.VisitToken(node.Body!.CloseBraceToken);
         }
 
