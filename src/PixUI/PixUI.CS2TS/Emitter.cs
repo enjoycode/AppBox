@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -101,15 +102,36 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 在return前如果有需要自动释放的资源生成相关Dispose代码
         /// </summary>
-        internal void AutoDisposeBeforeReturn()
+        internal bool AutoDisposeBeforeReturn(ReturnStatementSyntax returnStatement)
         {
-            var block = _blockStack.Peek();
-            AutoDisposeBlockResources(block);
+            // 如下示例:
+            // using var res = new Resource();
+            // if (some)
+            //     return;
+            var autoBlock = returnStatement.Parent is not BlockSyntax &&
+                            _blockStack.Any(b => b.Resources != null);
+            if (autoBlock)
+            {
+                WriteLeadingWhitespaceOnly(returnStatement.Parent!);
+                Write("{\n");
+            }
+            
+            //注意需要循环向上处理所有Block，除非是Lambda表达式的Block
+            foreach (var block in _blockStack)
+            {
+                AutoDisposeBlockResources(block, returnStatement);
+                if (block.BlockSyntax.Parent is ParenthesizedLambdaExpressionSyntax)
+                    break;
+            }
+            
+            return autoBlock;
         }
 
-        private void AutoDisposeBlockResources(BlockResources block)
+        private void AutoDisposeBlockResources(BlockResources block,
+            ReturnStatementSyntax? returnStatement = null)
         {
             if (block.Resources == null) return;
+
             //dispose using resources
             foreach (var resource in block.Resources)
             {
@@ -129,8 +151,15 @@ namespace PixUI.CS2TS
 
                 foreach (var variable in resource.Variables)
                 {
-                    WriteLeadingWhitespaceOnly(block.BlockSyntax);
-                    Write('\t');
+                    if (returnStatement == null)
+                    {
+                        WriteLeadingWhitespaceOnly(block.BlockSyntax);
+                        Write('\t');
+                    }
+                    else
+                    {
+                        WriteLeadingWhitespaceOnly(returnStatement);
+                    }
 
                     Write(variable.Identifier.Text);
                     if (typeInfo.Nullability.FlowState == NullableFlowState.MaybeNull)

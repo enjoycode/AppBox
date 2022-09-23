@@ -11,11 +11,17 @@ namespace PixUI.CS2TS
         internal override void Emit(Emitter emitter, ReturnStatementSyntax node)
         {
             //dispose block using
-            emitter.AutoDisposeBeforeReturn();
+            var autoBlock = emitter.AutoDisposeBeforeReturn(node);
 
             emitter.VisitToken(node.ReturnKeyword);
             emitter.Visit(node.Expression);
             emitter.VisitToken(node.SemicolonToken);
+
+            if (autoBlock)
+            {
+                emitter.WriteLeadingWhitespaceOnly(node.Parent!);
+                emitter.Write("}\n"); 
+            }
         }
     }
 }
