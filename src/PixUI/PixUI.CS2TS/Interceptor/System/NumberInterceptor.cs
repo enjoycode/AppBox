@@ -85,6 +85,9 @@ namespace PixUI.CS2TS
                     case "PositiveInfinity":
                         emitter.Write("Number.POSITIVE_INFINITY");
                         break;
+                    case "IsNaN":
+                        emitter.Write("Number.isNaN");
+                        break;
                     default:
                         throw new NotImplementedException(node.ToString());
                 }
