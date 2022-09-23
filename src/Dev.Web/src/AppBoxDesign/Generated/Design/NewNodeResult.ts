@@ -1,4 +1,5 @@
 import * as System from '@/System'
+import * as PixUI from '@/PixUI'
 import * as AppBoxDesign from '@/AppBoxDesign'
 import * as AppBoxCore from '@/AppBoxCore'
 
@@ -48,6 +49,15 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
         this.#InsertIndex = value;
     }
 
+    #ParentNode!: PixUI.TreeNode<AppBoxDesign.DesignNodeVO>;
+    public get ParentNode() {
+        return this.#ParentNode;
+    }
+
+    private set ParentNode(value) {
+        this.#ParentNode = value;
+    }
+
     public WriteTo(ws: AppBoxCore.IOutputStream) {
         throw new System.NotSupportedException();
     }
@@ -58,13 +68,17 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
         this.RootNodeId = rs.ReadString();
         this.InsertIndex = rs.ReadInt();
 
+        //find parent node
+        this.ParentNode = AppBoxDesign.DesignStore.TreeController.FindNode(
+            n => n.Type == this.ParentNodeType && n.Id == this.ParentNodeId)!;
+
         let newNodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
         switch (newNodeType) {
             case AppBoxDesign.DesignNodeType.FolderNode:
-                this.NewNode = new AppBoxDesign.FolderNodeVO();
+                this.NewNode = new AppBoxDesign.FolderNodeVO(NewNodeResult.GetModelRootNode(this.ParentNode));
                 break;
             case AppBoxDesign.DesignNodeType.ModelNode:
-                this.NewNode = new AppBoxDesign.ModelNodeVO();
+                this.NewNode = new AppBoxDesign.ModelNodeVO(NewNodeResult.GetModelRootNode(this.ParentNode));
                 break;
             case AppBoxDesign.DesignNodeType.DataStoreNode:
                 this.NewNode = new AppBoxDesign.DataStoreNodeVO();
@@ -74,6 +88,17 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
         }
 
         this.NewNode.ReadFrom(rs);
+    }
+
+    private static GetModelRootNode(parentNode: PixUI.TreeNode<AppBoxDesign.DesignNodeVO>): AppBoxDesign.ModelRootNodeVO {
+        switch (parentNode.Data.Type) {
+            case AppBoxDesign.DesignNodeType.ModelRootNode:
+                return <AppBoxDesign.ModelRootNodeVO><unknown>parentNode.Data;
+            case AppBoxDesign.DesignNodeType.FolderNode:
+                return (<AppBoxDesign.FolderNodeVO><unknown>parentNode.Data).ModelRootNode;
+            default:
+                throw new System.NotSupportedException();
+        }
     }
 
     public Init(props: Partial<NewNodeResult>): NewNodeResult {

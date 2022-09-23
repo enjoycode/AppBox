@@ -100,10 +100,15 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        if (area == null) {
-            canvas.save();
-            canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
+        if (this._controller.IsLoading) {
+            if (this._color != null)
+                canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this._color.Value));
+            this._controller.LoadingPainter!.PaintToWidget(this, canvas);
+            return;
         }
+
+        canvas.save();
+        canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
 
         // draw background color if has
         if (this._color != null)
@@ -119,12 +124,11 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
             if (vb <= dirtyRect.Top) continue;
 
             canvas.translate(vx, vy);
-            node.Paint(canvas, area?.ToChild(vx, vy));
+            node.Paint(canvas, null);
             canvas.translate(-vx, -vy);
         }
 
-        if (area == null)
-            canvas.restore();
+        canvas.restore();
     }
 
 

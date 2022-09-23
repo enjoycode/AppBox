@@ -7,17 +7,18 @@ export class TreeController<T> implements PixUI.IStateBindable {
         this.ChildrenGetter = childrenGetter;
     }
 
-    private _treeView: Nullable<PixUI.TreeView<T>>;
-
-    public get TreeView(): Nullable<PixUI.TreeView<T>> {
-        return this._treeView;
+    #TreeView: Nullable<PixUI.TreeView<T>>;
+    public get TreeView() {
+        return this.#TreeView;
     }
 
-    private _dataSource: Nullable<System.IList<T>>;
+    private set TreeView(value) {
+        this.#TreeView = value;
+    }
+
     public readonly NodeBuilder: System.Action2<T, PixUI.TreeNode<T>>;
     public readonly ChildrenGetter: System.Func2<T, System.IList<T>>;
     public readonly Nodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
-
     public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
 
 
@@ -35,11 +36,41 @@ export class TreeController<T> implements PixUI.IStateBindable {
 
 
     public HoverColor: PixUI.Color = new PixUI.Color(0xFFAAAAAA); //TODO:
-
     public NodeIndent: number = 20;
     public NodeHeight: number = 0;
     public TotalWidth: number = 0;
     public TotalHeight: number = 0;
+
+    private _isLoading: boolean = false;
+    #LoadingPainter: Nullable<PixUI.CircularProgressPainter>;
+    public get LoadingPainter() {
+        return this.#LoadingPainter;
+    }
+
+    private set LoadingPainter(value) {
+        this.#LoadingPainter = value;
+    }
+
+    public get IsLoading(): boolean {
+        return this._isLoading;
+    }
+
+    public set IsLoading(value: boolean) {
+        if (this._isLoading == value) return;
+        this._isLoading = value;
+        if (this._isLoading) {
+            this.LoadingPainter = new PixUI.CircularProgressPainter();
+            this.LoadingPainter.Start(() => this.TreeView?.Invalidate(PixUI.InvalidAction.Repaint));
+        } else {
+            this.LoadingPainter?.Stop();
+            this.LoadingPainter?.Dispose();
+            this.LoadingPainter = null;
+        }
+
+        this.TreeView?.Invalidate(PixUI.InvalidAction.Repaint);
+    }
+
+    private _dataSource: Nullable<System.IList<T>>;
 
     public get DataSource(): Nullable<System.IList<T>> {
         return this._dataSource;
@@ -49,15 +80,15 @@ export class TreeController<T> implements PixUI.IStateBindable {
         this._dataSource = value;
         // if (DataSource is RxList<T> rxList)
         //     rxList.AddBinding(this, BindingOptions.None);
-        if (this._treeView != null && this._treeView.IsMounted) {
+        if (this.TreeView != null && this.TreeView.IsMounted) {
             this.Nodes.Clear();
-            this.InitNodes(this._treeView);
-            this._treeView.Invalidate(PixUI.InvalidAction.Relayout);
+            this.InitNodes(this.TreeView);
+            this.TreeView.Invalidate(PixUI.InvalidAction.Relayout);
         }
     }
 
     public InitNodes(treeView: PixUI.TreeView<T>) {
-        this._treeView = treeView;
+        this.TreeView = treeView;
         if (this._dataSource == null) return;
 
         for (const item of this._dataSource) {
@@ -102,7 +133,7 @@ export class TreeController<T> implements PixUI.IStateBindable {
 
     public ExpandTo(node: PixUI.TreeNode<T>) {
         let temp = node.Parent;
-        while (temp != null && !(temp === this._treeView)) {
+        while (temp != null && !(temp === this.TreeView)) {
             let tempNode = <PixUI.TreeNode<T>><unknown>temp;
             tempNode.Expand();
             temp = tempNode.Parent;
@@ -115,12 +146,12 @@ export class TreeController<T> implements PixUI.IStateBindable {
         let node = new PixUI.TreeNode<T>(child, this);
         this.NodeBuilder(child, node);
         if (parentNode == null) {
-            node.Parent = this._treeView;
+            node.Parent = this.TreeView;
             let index = insertIndex < 0 ? this.Nodes.length : insertIndex;
             this.Nodes.Insert(index, node);
             this.DataSource!.Insert(index, child);
             //强制重新布局
-            this._treeView!.Invalidate(PixUI.InvalidAction.Relayout);
+            this.TreeView!.Invalidate(PixUI.InvalidAction.Relayout);
         } else {
             node.Parent = parentNode;
             parentNode.InsertChild(insertIndex, node);
@@ -133,12 +164,12 @@ export class TreeController<T> implements PixUI.IStateBindable {
     }
 
     public RemoveNode(node: PixUI.TreeNode<T>) {
-        if ((node.Parent === this._treeView)) {
+        if ((node.Parent === this.TreeView)) {
             this.Nodes.Remove(node);
             this.DataSource!.Remove(node.Data);
             node.Parent = null;
             //强制重新布局
-            this._treeView!.Invalidate(PixUI.InvalidAction.Relayout);
+            this.TreeView!.Invalidate(PixUI.InvalidAction.Relayout);
         } else {
             let parentNode = <PixUI.TreeNode<T>><unknown>node.Parent!;
             parentNode.RemoveChild(node);

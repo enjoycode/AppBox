@@ -17,6 +17,16 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
         this._controller.BindTabBar(this);
         this._tabBuilder = tabBuilder;
         this.Scrollable = scrollable;
+
+        // build tabs
+        if (this._controller.DataSource.length == this._tabs.length)
+            return;
+
+        for (const dataItem of this._controller.DataSource) {
+            this._tabs.Add(this.BuildTab(dataItem));
+        }
+
+        this._controller.SelectAt(0); //选中第一个Tab
     }
 
     private readonly _controller: PixUI.TabController<T>;
@@ -62,8 +72,23 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
     }
 
 
+    private BuildTab(dataItem: T): PixUI.Tab {
+        let tab = new PixUI.Tab();
+        this._tabBuilder(dataItem, tab);
+        tab.Parent = this;
+        tab.OnTap = _ => this.OnTabSelected(tab);
+        return tab;
+    }
+
     public get IsOpaque(): boolean {
         return this.BgColor != null && this.BgColor.IsOpaque;
+    }
+
+    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+        if (this._tabs.length == 0) return;
+        for (const tab of this._tabs) {
+            if (action(tab)) break;
+        }
     }
 
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
@@ -82,8 +107,6 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
     }
 
     public Layout(availableWidth: number, availableHeight: number) {
-        this.TryBuildTabs();
-
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
         if (this._tabs.length == 0) {
@@ -111,25 +134,6 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
         }
     }
 
-    private TryBuildTabs() {
-        if (this._controller.DataSource.length == this._tabs.length)
-            return;
-
-        for (const dataItem of this._controller.DataSource) {
-            this._tabs.Add(this.BuildTab(dataItem));
-        }
-
-        this._controller.SelectAt(0); //选中第一个Tab
-    }
-
-    private BuildTab(dataItem: T): PixUI.Tab {
-        let tab = new PixUI.Tab();
-        this._tabBuilder(dataItem, tab);
-        tab.Parent = this;
-        tab.OnTap = _ => this.OnTabSelected(tab);
-        return tab;
-    }
-
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.BgColor != null)
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this.BgColor));
@@ -137,7 +141,7 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
         for (const tab of this._tabs) //TODO: check visible
         {
             canvas.translate(tab.X, tab.Y);
-            tab.Paint(canvas, area?.ToChild(tab.X, tab.Y));
+            tab.Paint(canvas, area?.ToChild(tab));
             canvas.translate(-tab.X, -tab.Y);
         }
 

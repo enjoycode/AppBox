@@ -278,7 +278,7 @@ export class TreeNode<T> extends PixUI.Widget {
     private static PaintChildNode(child: PixUI.Widget, canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea>) {
         //TODO:判断是否可见
         canvas.translate(child.X, child.Y);
-        child.Paint(canvas, area?.ToChild(child.X, child.Y));
+        child.Paint(canvas, area?.ToChild(child));
         canvas.translate(-child.X, -child.Y);
 
         PixUI.PaintDebugger.PaintWidgetBorder(child, canvas);

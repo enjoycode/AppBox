@@ -45,7 +45,7 @@ export class AnimationController extends PixUI.Animation<number> {
         this.Duration = duration;
         this._animationBehavior = behavior;
         this._direction = AnimationDirection.Forward;
-        this._ticker = new PixUI.Ticker(this.Tick.bind(this));
+        this._ticker = new PixUI.Ticker(this.OnTick.bind(this));
         this.SetValueInternal(value ?? this.LowerBound);
     }
 
@@ -86,7 +86,7 @@ export class AnimationController extends PixUI.Animation<number> {
         this.LastElapsedDuration = null;
     }
 
-    private Tick(elapsedInSeconds: number) {
+    private OnTick(elapsedInSeconds: number) {
         if (this._simulation == null) return; //TODO:临时判断是否已停止
 
         this.LastElapsedDuration = elapsedInSeconds;
@@ -163,7 +163,7 @@ export class AnimationController extends PixUI.Animation<number> {
 
         console.assert(simulationDuration > 0);
         console.assert(!this.IsAnimating);
-        this.StartSimulation(new InterpolationSimulation(this._value, target, simulationDuration, curve, scale));
+        this.StartSimulation(new PixUI.InterpolationSimulation(this._value, target, simulationDuration, curve, scale));
     }
 
     private StartSimulation(simulation: PixUI.Simulation) {
@@ -202,6 +202,26 @@ export class AnimationController extends PixUI.Animation<number> {
         this.SetValue(this.LowerBound);
     }
 
+    public Repeat(min: Nullable<number> = null, max: Nullable<number> = null, reverse: boolean = false, period: Nullable<number> = null) {
+        min ??= this.LowerBound;
+        max ??= this.UpperBound;
+        period ??= this.Duration;
+
+        if (period == null)
+            throw new System.Exception("Without an explicit period and with no default Duration.");
+        console.assert(max >= min);
+        console.assert(max <= this.UpperBound && min >= this.LowerBound);
+
+        this.Stop();
+        this.StartSimulation(new PixUI.RepeatingSimulation(this._value, min, max, reverse, period, direction => {
+            this._direction = direction;
+            this._status = this._direction == AnimationDirection.Forward
+                ? PixUI.AnimationStatus.Forward
+                : PixUI.AnimationStatus.Reverse;
+            this.CheckStatusChanged();
+        }));
+    }
+
     public Dispose() {
         this._ticker?.Stop(true);
         this._ticker = null;
@@ -228,45 +248,6 @@ export class AnimationController extends PixUI.Animation<number> {
         return this;
     }
 
-}
-
-export class InterpolationSimulation extends PixUI.Simulation {
-    private readonly _durationInSeconds: number;
-    private readonly _begin: number;
-    private readonly _end: number;
-    private readonly _curve: PixUI.Curve;
-
-    public constructor(begin: number, end: number, duration: number, curve: PixUI.Curve, scale: number) {
-        super();
-        console.assert(duration > 0);
-
-        this._begin = begin;
-        this._end = end;
-        this._curve = curve;
-
-        this._durationInSeconds = (duration * scale) / 1000;
-    }
-
-    public X(timeInSeconds: number): number {
-        let t = clamp((timeInSeconds / this._durationInSeconds), 0.0, 1.0);
-        if (t == 0.0) return this._begin;
-        if (t == 1.0) return this._end;
-        return this._begin + (this._end - this._begin) * this._curve.Transform(t);
-    }
-
-    public Dx(timeInSeconds: number): number {
-        let epsilon = this.Tolerance.Time;
-        return (this.X(timeInSeconds + epsilon) - this.X(timeInSeconds - epsilon)) / (2 * epsilon);
-    }
-
-    public IsDone(timeInSeconds: number): boolean {
-        return timeInSeconds > this._durationInSeconds;
-    }
-
-    public Init(props: Partial<InterpolationSimulation>): InterpolationSimulation {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>

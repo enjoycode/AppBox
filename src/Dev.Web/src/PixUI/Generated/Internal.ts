@@ -37,6 +37,7 @@ export * from "./Animation/CurvedAnimation";
 export * from "./Utils/ColorUtils";
 export * from "./Utils/FloatUtils";
 export * from "./Utils/PaintDebugger";
+export * from "./Utils/ProgressPainter"
 export * from "./Utils/TextPainter"
 
 export * from "./State/Binding";

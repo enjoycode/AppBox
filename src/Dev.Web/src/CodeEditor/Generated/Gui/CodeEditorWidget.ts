@@ -78,7 +78,8 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
     }
 
     protected OnUnmounted() {
-        (<PixUI.Overlay><unknown>this._decoration.Parent!).Remove(this._decoration);
+        if (this._decoration.Parent != null)
+            (<PixUI.Overlay><unknown>this._decoration.Parent).Remove(this._decoration);
         super.OnUnmounted();
     }
 

@@ -14,6 +14,11 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
     private _transitionStack: Nullable<PixUI.TransitionStack>;
 
     protected ReplaceTo(to: Nullable<PixUI.Widget>) {
+        if (!this.IsMounted) {
+            this.Child = to;
+            return;
+        }
+
         this.Root!.Window.BeforeDynamicViewChange(this);
         this.Child = to;
         this.Root!.Window.AfterDynamicViewChange(this); //TODO: 检查是否需要，因重新布局会同样处理

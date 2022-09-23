@@ -22,7 +22,11 @@ export class DirtyLines implements PixUI.IDirtyArea {
         return PixUI.Rect.Empty;
     }
 
-    public ToChild(childX: number, childY: number): PixUI.IDirtyArea {
+    public IntersectsWith(child: PixUI.Widget): boolean {
+        throw new System.NotSupportedException();
+    }
+
+    public ToChild(child: PixUI.Widget): Nullable<PixUI.IDirtyArea> {
         throw new System.NotSupportedException();
     }
 

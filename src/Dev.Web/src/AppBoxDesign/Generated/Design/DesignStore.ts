@@ -33,9 +33,8 @@ export class DesignStore {
     public static OnNewNode(result: AppBoxDesign.NewNodeResult) {
         //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
 
-        let parentNode = DesignStore.TreeController.FindNode(n =>
-            n.Type == result.ParentNodeType && n.Id == result.ParentNodeId)!;
-        let newNode = DesignStore.TreeController.InsertNode(result.NewNode, parentNode, result.InsertIndex);
+        let newNode = DesignStore.TreeController.InsertNode(
+            result.NewNode, result.ParentNode, result.InsertIndex);
         DesignStore.TreeController.ExpandTo(newNode);
         DesignStore.TreeController.SelectNode(newNode);
     }

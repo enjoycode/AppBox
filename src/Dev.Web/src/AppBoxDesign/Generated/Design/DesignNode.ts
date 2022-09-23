@@ -117,7 +117,7 @@ export class ApplicationNodeVO extends DesignNodeVO {
         super.ReadFrom(rs);
         let count = rs.ReadVariant();
         for (let i = 0; i < count; i++) {
-            let modelRootNode = new ModelRootNodeVO();
+            let modelRootNode = new ModelRootNodeVO(this);
             modelRootNode.ReadFrom(rs);
             this._children.Add(modelRootNode);
         }
@@ -130,6 +130,13 @@ export class ApplicationNodeVO extends DesignNodeVO {
 }
 
 export class ModelRootNodeVO extends DesignNodeVO {
+    public constructor(applicationNode: ApplicationNodeVO) {
+        super();
+        this.ApplicationNode = applicationNode;
+    }
+
+    public readonly ApplicationNode: ApplicationNodeVO;
+
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.ModelRootNode;
     }
@@ -148,9 +155,9 @@ export class ModelRootNodeVO extends DesignNodeVO {
             let nodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
             let node: DesignNodeVO;
             if (nodeType == AppBoxDesign.DesignNodeType.ModelNode)
-                node = new ModelNodeVO();
+                node = new ModelNodeVO(this);
             else if (nodeType == AppBoxDesign.DesignNodeType.FolderNode)
-                node = new FolderNodeVO();
+                node = new FolderNodeVO(this);
             else
                 throw new System.NotSupportedException();
 
@@ -166,6 +173,13 @@ export class ModelRootNodeVO extends DesignNodeVO {
 }
 
 export class FolderNodeVO extends DesignNodeVO {
+    public constructor(modelRootNode: ModelRootNodeVO) {
+        super();
+        this.ModelRootNode = modelRootNode;
+    }
+
+    public readonly ModelRootNode: ModelRootNodeVO;
+
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.FolderNode;
     }
@@ -184,9 +198,9 @@ export class FolderNodeVO extends DesignNodeVO {
             let nodeType = <AppBoxDesign.DesignNodeType><unknown>rs.ReadByte();
             let node: DesignNodeVO;
             if (nodeType == AppBoxDesign.DesignNodeType.ModelNode)
-                node = new ModelNodeVO();
+                node = new ModelNodeVO(this.ModelRootNode);
             else if (nodeType == AppBoxDesign.DesignNodeType.FolderNode)
-                node = new FolderNodeVO();
+                node = new FolderNodeVO(this.ModelRootNode);
             else
                 throw new System.NotSupportedException();
 
@@ -202,6 +216,17 @@ export class FolderNodeVO extends DesignNodeVO {
 }
 
 export class ModelNodeVO extends DesignNodeVO {
+    public constructor(modelRootNode: ModelRootNodeVO) {
+        super();
+        this.ModelRootNode = modelRootNode;
+    }
+
+    public readonly ModelRootNode: ModelRootNodeVO;
+
+    public get AppName(): string {
+        return this.ModelRootNode.ApplicationNode.Label.Value;
+    }
+
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.ModelNode;
     }

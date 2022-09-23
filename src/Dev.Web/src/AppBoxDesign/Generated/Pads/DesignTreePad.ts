@@ -20,7 +20,8 @@ export class DesignTreePad extends PixUI.View {
         node.IsLeaf = data.Type == AppBoxDesign.DesignNodeType.ModelNode ||
             data.Type == AppBoxDesign.DesignNodeType.DataStoreNode;
         node.IsExpanded = data.Type == AppBoxDesign.DesignNodeType.DataStoreRootNode ||
-            data.Type == AppBoxDesign.DesignNodeType.ApplicationRoot;
+            data.Type == AppBoxDesign.DesignNodeType.ApplicationRoot ||
+            data.Type == AppBoxDesign.DesignNodeType.ApplicationNode;
     }
 
     private static GetIconForNode(data: AppBoxDesign.DesignNodeVO): PixUI.IconData {
@@ -46,11 +47,14 @@ export class DesignTreePad extends PixUI.View {
         if (this._hasLoadTree) return;
         this._hasLoadTree = true;
 
+        AppBoxDesign.DesignStore.TreeController.IsLoading = true;
         try {
             let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.DesignTreeVO>("sys.DesignService.LoadDesignTree");
             AppBoxDesign.DesignStore.TreeController.DataSource = res!.RootNodes;
         } catch (ex: any) {
-            PixUI.Notification.Error("Can't load design tree.");
+            PixUI.Notification.Error(`Can't load design tree: ${ex.Message}`);
+        } finally {
+            AppBoxDesign.DesignStore.TreeController.IsLoading = false;
         }
     }
 

@@ -176,6 +176,9 @@ export class InvalidQueue {
         let hasRelayout = false;
 
         for (const item of this._queue) {
+            //Maybe removed from widget tree after added to InvalidQueue, so check again
+            if (!item.Widget.IsMounted) continue;
+
             if (item.Action == InvalidAction.Relayout) {
                 hasRelayout = true;
                 let affects = AffectsByRelayout.Default;
@@ -304,7 +307,7 @@ export class InvalidQueue {
         }
 
         //裁剪脏区域并开始绘制
-        console.log(`InvalidQueue.Repaint: ${widget} rect=${dirtyArea?.GetRect()} Opaque=${opaque} area={{X=${dirtyX} Y=${dirtyY} W=${dirtyRect.Width} H=${dirtyRect.Height}}}`);
+        console.log(`InvalidQueue.Repaint: ${widget} dirty=${dirtyArea} Opaque=${opaque} area={{X=${dirtyX} Y=${dirtyY} W=${dirtyRect.Width} H=${dirtyRect.Height}}}`);
         canvas.save();
         try {
             clipper.ApplyToCanvas(canvas); //必须在下句Translate之前
@@ -312,10 +315,11 @@ export class InvalidQueue {
             //判断是否RootWidget且非不透明，是则清空画布脏区域
             if ((opaque === ctx.Window.RootWidget) && !opaque.IsOpaque)
                 canvas.clear(ctx.Window.BackgroundColor);
+
             if ((opaque === widget))
                 opaque.Paint(canvas, dirtyArea);
             else
-                opaque.Paint(canvas, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(dirtyX, dirtyY, dirtyRect.Width, dirtyRect.Height)));
+                opaque.Paint(canvas, new PixUI.RepaintChild(opaque, widget, dirtyArea));
         } catch (ex: any) {
             console.log(`InvalidQueue.RepaintWidget Error: ${ex.Message}`);
         } finally {

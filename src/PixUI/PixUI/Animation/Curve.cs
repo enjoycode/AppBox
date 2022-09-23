@@ -88,7 +88,7 @@ namespace PixUI
 
         public Interval(double begin, double end, Curve? curve = null)
         {
-            if (!(_begin >= 0 && _begin <= 1 && _end >= 0 && _end <= 1 && _end >= _begin))
+            if (!(begin >= 0 && begin <= 1 && end >= 0 && end <= 1 && end >= begin))
                 throw new ArgumentOutOfRangeException();
 
             _begin = begin;

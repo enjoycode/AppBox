@@ -79,7 +79,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         if (this.Child == null) return;
 
         canvas.translate(this.Child!.X, this.Child.Y);
-        this.Child.Paint(canvas, area?.ToChild(this.Child.X, this.Child.Y));
+        this.Child.Paint(canvas, area?.ToChild(this.Child));
         canvas.translate(-this.Child.X, -this.Child.Y);
 
         //TODO:暂在这里画指示器，待TabBar实现后移除

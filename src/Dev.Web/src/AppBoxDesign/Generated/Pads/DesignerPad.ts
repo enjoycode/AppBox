@@ -7,14 +7,19 @@ export class DesignerPad extends PixUI.View {
     public constructor() {
         super();
         AppBoxDesign.DesignStore.TreeController.SelectionChanged.Add(DesignerPad.OnTreeSelectionChanged);
-        // DesignStore.DesignerController.TabAdded += OnDesignerOpened;
+        AppBoxDesign.DesignStore.DesignerController.TabAdded.Add(this.OnDesignerOpened, this);
         AppBoxDesign.DesignStore.DesignerController.TabClosed.Add(this.OnDesignerClosed, this);
 
         this.BgColor = PixUI.State.op_Implicit_From(PixUI.Colors.White);
 
-        this.Child = new PixUI.TabView<AppBoxDesign.DesignNodeVO>(AppBoxDesign.DesignStore.DesignerController, DesignerPad.BuildTab, DesignerPad.BuildBody, true, 40).Init(
-            {SelectedTabColor: PixUI.Colors.White, TabBarBgColor: new PixUI.Color(0xFFF3F3F3)});
+        this.Child = new PixUI.IfConditional(this._isOpenedAnyDesigner, () => new PixUI.TabView<AppBoxDesign.DesignNodeVO>(AppBoxDesign.DesignStore.DesignerController, DesignerPad.BuildTab, DesignerPad.BuildBody, true, 40).Init(
+            {
+                SelectedTabColor: PixUI.Colors.White,
+                TabBarBgColor: new PixUI.Color(0xFFF3F3F3)
+            }), () => new PixUI.Center().Init({Child: new PixUI.Text(PixUI.State.op_Implicit_From("Welcome to AppBox!"))}));
     }
+
+    private readonly _isOpenedAnyDesigner: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
 
     private static BuildTab(node: AppBoxDesign.DesignNodeVO, isSelected: PixUI.State<boolean>): PixUI.Widget {
         let textColor = PixUI.RxComputed.Make1(isSelected, selected => selected ? PixUI.Theme.FocusedColor : PixUI.Colors.Black
@@ -53,15 +58,12 @@ export class DesignerPad extends PixUI.View {
             });
     }
 
-    // private void OnDesignerOpened(DesignNode node)
-    // {
-    //     if (DesignStore.DesignerController.Count == 1)
-    //         BgColor!.Value = new Color(0xFFF3F3F3);
-    // }
+    private OnDesignerOpened(node: AppBoxDesign.DesignNodeVO) {
+        this._isOpenedAnyDesigner.Value = AppBoxDesign.DesignStore.DesignerController.Count > 0;
+    }
 
     private async OnDesignerClosed(node: AppBoxDesign.DesignNodeVO) {
-        // if (DesignStore.DesignerController.Count == 0)
-        //     BgColor!.Value = Colors.White;
+        this._isOpenedAnyDesigner.Value = AppBoxDesign.DesignStore.DesignerController.Count > 0;
 
         node.Designer = null;
         if (node.Type == AppBoxDesign.DesignNodeType.ModelNode) {

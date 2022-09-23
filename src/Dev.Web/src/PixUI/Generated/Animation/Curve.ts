@@ -84,7 +84,7 @@ export class Interval extends Curve {
 
     public constructor(begin: number, end: number, curve: Nullable<Curve> = null) {
         super();
-        if (!(this._begin >= 0 && this._begin <= 1 && this._end >= 0 && this._end <= 1 && this._end >= this._begin))
+        if (!(begin >= 0 && begin <= 1 && end >= 0 && end <= 1 && end >= begin))
             throw new System.ArgumentOutOfRangeException();
 
         this._begin = begin;
@@ -100,6 +100,33 @@ export class Interval extends Curve {
     }
 
     public Init(props: Partial<Interval>): Interval {
+        Object.assign(this, props);
+        return this;
+    }
+}
+
+/// <summary>
+/// A sawtooth curve that repeats a given number of times over the unit interval.
+/// </summary>
+/// <remarks>
+/// The curve rises linearly from 0.0 to 1.0 and then falls discontinuously back
+/// to 0.0 each iteration.
+/// </remarks>
+export class SawTooth extends Curve {
+    public constructor(count: number) {
+        super();
+        this._count = count;
+    }
+
+    // The number of repetitions of the sawtooth pattern in the unit interval.
+    private readonly _count: number;
+
+    protected TransformInternal(t: number): number {
+        t *= this._count;
+        return t - Math.trunc(t);
+    }
+
+    public Init(props: Partial<SawTooth>): SawTooth {
         Object.assign(this, props);
         return this;
     }
@@ -153,7 +180,9 @@ export class Curves {
 
     public static readonly BounceInOut: Curve = new BounceInOutCurve();
 
-    public static readonly EaseInOutCubic: Curve = new Cubic(0.645, 0.045, 0.355, 1.0);
+    public static readonly EaseInOutCubic: Cubic = new Cubic(0.645, 0.045, 0.355, 1.0);
+
+    public static readonly FastOutSlowIn: Cubic = new Cubic(0.4, 0.0, 0.2, 1.0);
 
     public static Bounce(t: number): number {
         if (t < 1.0 / 2.75) {
