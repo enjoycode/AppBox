@@ -15,7 +15,7 @@ public readonly struct InvokeArgs
     }
 
     public void SetEntityFactories(EntityFactory[] factories)
-        => _stream!.Context.SetEntityFactories(factories);
+        => _stream?.Context.SetEntityFactories(factories); //stream maybe null when is Empty
 
     public void Free()
     {
