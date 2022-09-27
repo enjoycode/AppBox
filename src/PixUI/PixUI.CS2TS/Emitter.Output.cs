@@ -258,13 +258,21 @@ namespace PixUI.CS2TS
             }
         }
 
+        /// <summary>
+        /// 写入类型的包名称，如果是AppBox的模型则写入应用名称作为前缀
+        /// </summary>
         internal void TryWritePackageName(NameSyntax node, ISymbol symbol)
         {
-            //先判断是否模型类
+            //先判断是否模型类，是则特殊处理
             if (FindModel != null &&
                 (symbol.IsAppBoxEntity(FindModel) || symbol.IsAppBoxView(FindModel)))
             {
-                AddUsedModel(symbol.ToString()); //TODO:考虑写入应用名称作为前缀防止同名, eg: sys_EntityName
+                //写入应用名称作为前缀防止同名, eg: sys_EntityName
+                var appName = symbol.ContainingNamespace.ContainingNamespace.Name;
+                Write(appName);
+                Write('_');
+
+                AddUsedModel(symbol.ToString());
                 return;
             }
 

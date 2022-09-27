@@ -45,13 +45,13 @@ internal sealed class GetWebPreview : IDesignHandler
             {
                 //根据名称找到相关模型
                 var usedModel = hub.DesignTree.FindModelNodeByFullName(fullName)!;
-                var usedModelName = usedModel.Model.Name; //TODO:考虑加应用前缀防止同名
-                // var usedModelAppName = usedModel.AppNode.Model.Name;
+                var usedModelName = usedModel.Model.Name;
+                var usedFullName = $"{usedModel.AppNode.Model.Name}_{usedModelName}"; //加应用前缀防止同名
                 var usedModelType = usedModel.Model.ModelType.ToString();
                 var usedModelId = usedModel.Model.Id;
 
                 sb.Insert(0,
-                    $"import {{{usedModelName}}} from '/preview/{usedModelType}/{hub.Session.SessionId}/{usedModelId}'\n");
+                    $"import {{{usedModelName} as {usedFullName}}} from '/preview/{usedModelType}/{hub.Session.SessionId}/{usedModelId}'\n");
 
                 //如果是Entity模型附加EntityFactories常量
                 if (usedModel.Model.ModelType == ModelType.Entity)
@@ -66,7 +66,7 @@ internal sealed class GetWebPreview : IDesignHandler
                         sb.Append(',');
                     }
 
-                    sb.Append($"[{usedModel.Model.Id.Value}n, ()=>new {usedModelName}()]");
+                    sb.Append($"[{usedModel.Model.Id.Value}n, ()=>new {usedFullName}()]");
                 }
             }
 
