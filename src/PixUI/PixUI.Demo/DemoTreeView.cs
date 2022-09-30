@@ -33,13 +33,16 @@ namespace PixUI.Demo.Mac
             new TreeData { Icon = Icons.Filled.Sunny, Text = "Sunny" }
         };
 
-        private readonly TreeController<TreeData> _treeController;
+        private readonly TreeController<TreeData> _treeController1;
         private bool _loading = false;
+        private readonly TreeController<TreeData> _treeController2;
 
         public DemoTreeView()
         {
-            _treeController = new TreeController<TreeData>(BuildTreeNode, d => d.Children!);
-            _treeController.DataSource = _treeDataSource;
+            _treeController1 = new TreeController<TreeData>(BuildTreeNode, d => d.Children!);
+            _treeController1.DataSource = _treeDataSource;
+            _treeController2 = new TreeController<TreeData>(BuildTreeNode, d => d.Children!);
+            _treeController2.DataSource = _treeDataSource;
 
             Child = new Container()
             {
@@ -59,8 +62,22 @@ namespace PixUI.Demo.Mac
                         },
                         new Expanded()
                         {
-                            Child = new TreeView<TreeData>(_treeController)
-                                { Color = new Color(0xFFDCDCDC) }
+                            Child = new Row(VerticalAlignment.Middle, 20)
+                            {
+                                Children = new Widget[]
+                                {
+                                    new Expanded()
+                                    {
+                                        Child = new TreeView<TreeData>(_treeController1)
+                                        { Color = new Color(0xFFDCDCDC) }
+                                    },
+                                    new Expanded()
+                                    {
+                                        Child = new TreeView<TreeData>(_treeController2, true)
+                                        { Color = new Color(0xFFDCDCDC) }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -77,24 +94,24 @@ namespace PixUI.Demo.Mac
 
         private void OnInsert(PointerEvent e)
         {
-            var parentNode = _treeController.FindNode(t => t.Text == "Cake");
-            var childNode = _treeController.InsertNode(
+            var parentNode = _treeController1.FindNode(t => t.Text == "Cake");
+            var childNode = _treeController1.InsertNode(
                 new TreeData() { Icon = Icons.Filled.Start, Text = "AppBox" }, parentNode, 1);
-            _treeController.ExpandTo(childNode);
-            _treeController.SelectNode(childNode);
+            _treeController1.ExpandTo(childNode);
+            _treeController1.SelectNode(childNode);
         }
 
         private void OnRemove(PointerEvent e)
         {
-            var node = _treeController.FindNode(t => t.Text == "AppBox");
+            var node = _treeController1.FindNode(t => t.Text == "AppBox");
             if (node != null)
-                _treeController.RemoveNode(node);
+                _treeController1.RemoveNode(node);
         }
 
         private void OnSwitchLoading(PointerEvent e)
         {
             _loading = !_loading;
-            _treeController.IsLoading = _loading;
+            _treeController1.IsLoading = _loading;
         }
     }
 

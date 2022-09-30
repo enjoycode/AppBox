@@ -6,12 +6,13 @@ namespace PixUI
     {
         internal TreeNodeRow()
         {
-            MouseRegion = new MouseRegion(null, false); //TODO: opaque=true
+            MouseRegion = new MouseRegion(null, false);
             MouseRegion.HoverChanged += _OnHoverChanged;
             MouseRegion.PointerTap += _OnTap;
         }
 
         private ExpandIcon? _expander;
+        private Checkbox? _checkbox;
         private Icon? _icon;
         private Text? _label;
         private bool _isHover;
@@ -27,6 +28,15 @@ namespace PixUI
             }
         }
 
+        internal Checkbox Checkbox
+        {
+            set
+            {
+                _checkbox = value;
+                _checkbox.Parent = this;
+            }
+        }
+        
         internal Icon Icon
         {
             get => _icon!;
@@ -61,23 +71,20 @@ namespace PixUI
                     Controller.NodeHeight)));
         }
 
-        private void _OnTap(PointerEvent e)
-        {
-            Controller.SelectNode(TreeNode);
-        }
+        private void _OnTap(PointerEvent e) => Controller.SelectNode(TreeNode);
 
         #endregion
 
         #region ====Overrides====
 
-        public override bool IsOpaque =>
-            _isHover && Controller.HoverColor.Alpha == 0xFF;
+        public override bool IsOpaque => _isHover && Controller.HoverColor.IsOpaque;
 
         public override bool ContainsPoint(float x, float y) =>
             y >= 0 && y < H && x >= 0 && x < Controller.TreeView!.W;
 
         public override void VisitChildren(Func<Widget, bool> action)
         {
+            if (_checkbox != null) action(_checkbox);
             if (_icon != null) action(_icon);
             if (_label != null) action(_label);
         }
@@ -88,9 +95,11 @@ namespace PixUI
 
             result.Add(this);
 
-            //子级只需要判断是否命中ExpandIcon
+            //子级判断是否命中ExpandIcon
             if (_expander != null)
                 HitTestChild(_expander, x, y, result);
+            if (_checkbox != null)
+                HitTestChild(_checkbox, x, y, result);
 
             return true;
         }
@@ -105,17 +114,24 @@ namespace PixUI
                 _expander?.Layout(Controller.NodeHeight, Controller.NodeHeight);
                 _expander?.SetPosition(indentation, (Controller.NodeHeight - _expander.H) / 2);
             }
-
             indentation += Controller.NodeIndent; //always keep expand icon size
 
-            // Icon
-            if (_icon != null)
+            // Icon or Checkbox
+            if (Controller.ShowCheckbox)
             {
-                _icon.Layout(Controller.NodeHeight, Controller.NodeHeight);
-                _icon.SetPosition(indentation, (Controller.NodeHeight - _icon.H) / 2);
+                _checkbox!.Layout(Controller.NodeHeight, Controller.NodeHeight);
+                _checkbox.SetPosition(indentation, (Controller.NodeHeight - _checkbox.H) / 2);
+                indentation += _checkbox.W;
             }
-
-            indentation += Controller.NodeIndent; //always keep icon size
+            else
+            {
+                if (_icon != null)
+                {
+                    _icon.Layout(Controller.NodeHeight, Controller.NodeHeight);
+                    _icon.SetPosition(indentation, (Controller.NodeHeight - _icon.H) / 2);
+                }
+                indentation += Controller.NodeIndent; //always keep icon size
+            }
 
             // Label
             if (_label != null)
@@ -142,7 +158,10 @@ namespace PixUI
             }
 
             PaintChild(_expander, canvas);
-            PaintChild(_icon, canvas);
+            if (Controller.ShowCheckbox)
+                PaintChild(_checkbox, canvas);
+            else
+                PaintChild(_icon, canvas);
             PaintChild(_label, canvas);
         }
 

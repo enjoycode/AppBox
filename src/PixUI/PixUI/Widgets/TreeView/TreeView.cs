@@ -5,10 +5,11 @@ namespace PixUI
 {
     public sealed class TreeView<T> : Widget, IScrollable
     {
-        public TreeView(TreeController<T> controller, float nodeHeight = 30)
+        public TreeView(TreeController<T> controller, bool showCheckbox = false, float nodeHeight = 30)
         {
             _controller = controller;
             _controller.NodeHeight = nodeHeight;
+            _controller.ShowCheckbox = showCheckbox;
             _controller.InitNodes(this);
         }
 
@@ -23,6 +24,11 @@ namespace PixUI
         {
             get => _color;
             set => _color = Rebind(_color, value, BindingOptions.AffectsVisual);
+        }
+
+        public Action<TreeNode<T>, bool?> OnCheckChanged
+        {
+            set { _controller.CheckChanged += value; }
         }
 
         #region ====IScrollable====

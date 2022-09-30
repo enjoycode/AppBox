@@ -1,3 +1,5 @@
+using System;
+
 namespace PixUI
 {
     public abstract class Toggleable : Widget, IMouseRegion
@@ -13,6 +15,8 @@ namespace PixUI
         protected AnimationController _positionController = null!;
         public MouseRegion MouseRegion { get; }
 
+        public event Action<bool?>? ValueChanged;
+
         protected void InitState(State<bool?> value, bool tristate)
         {
             _triState = tristate;
@@ -25,24 +29,23 @@ namespace PixUI
         private void OnTap(PointerEvent e)
         {
             //TODO: skip on readonly
-            //TODO: 考虑只切换true与false，中间状态只能程序改变，目前true->null->false循环
 
-            if (_value.Value == null)
-                _value.Value = false;
-            else if (_value.Value == true)
-                _value.Value = _triState ? null : false;
-            else
+            //只切换true与false，中间状态只能程序改变
+            if (_value.Value == null || _value.Value == false)
                 _value.Value = true;
+            else
+                _value.Value = false;
         }
 
         private void AnimateToValue()
         {
             if (_triState)
             {
-                if (_value.Value == null)
-                    _positionController.SetValue(0);
                 if (_value.Value == null || _value.Value == true)
+                {
+                    _positionController.SetValue(0);
                     _positionController.Forward();
+                }
                 else
                     _positionController.Reverse();
             }
@@ -64,6 +67,7 @@ namespace PixUI
         {
             if (ReferenceEquals(state, _value))
             {
+                ValueChanged?.Invoke(_value.Value);
                 AnimateToValue();
                 return;
             }

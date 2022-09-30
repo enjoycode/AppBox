@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PixUI
@@ -29,6 +30,8 @@ namespace PixUI
 
         public readonly State<bool> IsSelected = false;
         private readonly State<Color> _color; //for icon and label
+
+        private State<bool?>? _checkState;
 
         private AnimationController? _expandController; //TODO:考虑提升至TreeController共用实例
         private Animation<double>? _expandCurve;
@@ -80,6 +83,16 @@ namespace PixUI
             }
         }
 
+        internal TreeNode<T>? ParentNode
+        {
+            get
+            {
+                if (Parent == null) return null;
+                if (Parent is TreeView<T>) return null;
+                return (TreeNode<T>)Parent;
+            }
+        }
+
         #endregion
 
         #region ====Expand & Collapse=====
@@ -114,6 +127,7 @@ namespace PixUI
             {
                 var node = new TreeNode<T>(child, _controller);
                 _controller.NodeBuilder(child, node);
+                node.TryBuildCheckbox();
                 node.Parent = this;
                 _children.Add(node);
             }
@@ -346,6 +360,90 @@ namespace PixUI
         {
             var labelText = _row.Label == null ? "" : _row.Label.Text.Value;
             return $"TreeNode[\"{labelText}\"]";
+        }
+
+        #endregion
+
+        #region ====Checkbox====
+
+        internal void TryBuildCheckbox()
+        {
+            if (!Controller.ShowCheckbox) return;
+
+            _checkState = new Rx<bool?>(false);
+            var checkbox = Checkbox.Tristate(_checkState);
+            checkbox.ValueChanged += OnCheckChanged;
+            _row.Checkbox = checkbox;
+        }
+        internal void OnCheckChanged(bool? value)
+        {
+            //Auto check children and parent
+            if (!Controller.SuspendAutoCheck)
+            {
+                Controller.SuspendAutoCheck = true;
+                //auto check parent first
+                AutoCheckParent(ParentNode);
+                //auto check children
+                AutoCheckChildren(this, value);
+                Controller.SuspendAutoCheck = false;
+            }
+
+            //Raise CheckChanged event
+            Controller.RaiseCheckChanged(this, value);
+        }
+
+        private static void AutoCheckParent(TreeNode<T>? parent)
+        {
+            if (parent == null) return;
+
+            var allChecked = true;
+            var allUnchecked = true;
+
+            foreach (var child in parent._children!)
+            {
+                if (child._checkState!.Value == null)
+                {
+                    allChecked = false;
+                    allUnchecked = false;
+                    break;
+                }
+                else if (child._checkState.Value == true)
+                {
+                    allUnchecked = false;
+                }
+                else
+                {
+                    allChecked = false;
+                }
+            }
+
+            bool? newValue = null;
+            if (allChecked)
+                newValue = true;
+            else if (allUnchecked)
+                newValue = false;
+
+            parent._checkState!.Value = newValue;
+
+            AutoCheckParent(parent.ParentNode);
+        }
+
+        private static void AutoCheckChildren(TreeNode<T> node, bool? newValue)
+        {
+            Debug.Assert(newValue.HasValue);
+
+            if (node.IsLeaf) return;
+
+            node.TryBuildChildren(); //maybe not build
+
+            if (node._children != null && node._children.Count > 0)
+            {
+                foreach (var child in node._children)
+                {
+                    child._checkState!.Value = newValue;
+                    AutoCheckChildren(child, newValue);
+                }
+            }
         }
 
         #endregion

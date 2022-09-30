@@ -16,11 +16,13 @@ namespace PixUI
 
         public static Checkbox Tristate(State<bool?> value)
         {
-            var checkbox = new Checkbox(false);
+            var checkbox = new Checkbox(_notSetState);
             checkbox._previousValue = value.Value;
             checkbox.InitState(value, true); //replace to nullable state
             return checkbox;
         }
+
+        private static readonly State<bool> _notSetState = false;
 
         private bool? _previousValue;
 
