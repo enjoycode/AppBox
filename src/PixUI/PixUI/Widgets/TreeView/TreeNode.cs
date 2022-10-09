@@ -446,6 +446,13 @@ namespace PixUI
             }
         }
 
+        internal void SetChecked(bool value)
+        {
+            if (!Controller.ShowCheckbox)
+                throw new InvalidOperationException("Not supported");
+            _checkState!.Value = value;
+        }
+
         #endregion
 
         #region ====Operations====

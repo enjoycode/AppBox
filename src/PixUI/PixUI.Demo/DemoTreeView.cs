@@ -58,6 +58,7 @@ namespace PixUI.Demo.Mac
                                 new Button("Insert") { OnTap = OnInsert },
                                 new Button("Remove") { OnTap = OnRemove },
                                 new Button("Loading") { OnTap = OnSwitchLoading },
+                                new Button("Check") { OnTap = OnCheck }
                             }
                         },
                         new Expanded()
@@ -112,6 +113,12 @@ namespace PixUI.Demo.Mac
         {
             _loading = !_loading;
             _treeController1.IsLoading = _loading;
+        }
+
+        private void OnCheck(PointerEvent e)
+        {
+            var node = _treeController2.FindNode(t => t.Text == "Cake");
+            _treeController2.SetChecked(node!.Data, true);
         }
     }
 

@@ -221,6 +221,15 @@ namespace PixUI
             }
         }
 
+        public void SetChecked(T data, bool value)
+        {
+            var node = FindNode(t => EqualityComparer<T>.Default.Equals(data, t));
+            if (node == null)
+                throw new Exception("Can't find node");
+
+            node.SetChecked(value);
+        }
+
         #endregion
     }
 }
