@@ -53,5 +53,6 @@ namespace AppBoxCore
 
         //----运行时相关类型----
         Entity = 90,
+        PermissionNode = 91,
     }
 }

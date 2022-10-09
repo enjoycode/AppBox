@@ -150,6 +150,9 @@ public abstract class TypeSerializer
         //Collection
         RegisterKnownType(new ArraySerializer());
         RegisterKnownType(new ListSerializer());
+        //运行时类型
+        RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode),
+            () => new PermissionNode()));
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);

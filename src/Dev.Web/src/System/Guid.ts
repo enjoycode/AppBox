@@ -1,6 +1,6 @@
 export class Guid {
     private readonly _data: Uint8Array;
-    
+
     public get Value(): Uint8Array {
         return this._data;
     }
@@ -14,4 +14,9 @@ export class Guid {
             throw new Error("未实现");
         }
     }
+
+    public Clone(): Guid {
+        return new Guid(this._data);
+    }
+
 }
