@@ -7,10 +7,10 @@ internal sealed class RxEntityField : RxObject<EntityFieldVO>
 {
     public RxEntityField()
     {
-        Name = new RxProperty<string>(() => Object.Name);
-        FieldType = new RxProperty<EntityFieldType>(() => Object.FieldType);
-        Comment = new RxProperty<string>(() => Object.Comment ?? string.Empty,
-            v => Object.Comment = v);
+        Name = new RxProperty<string>(() => Target.Name);
+        FieldType = new RxProperty<EntityFieldType>(() => Target.FieldType);
+        Comment = new RxProperty<string>(() => Target.Comment ?? string.Empty,
+            v => Target.Comment = v);
     }
 
     public readonly RxProperty<string> Name;
@@ -75,7 +75,7 @@ internal sealed class EntityPropertyPanel : View
             if (_selectedMember.Value != null)
             {
                 if (_selectedMember.Value.Type == EntityMemberType.EntityField)
-                    _rxEntityField.Object = (EntityFieldVO)_selectedMember.Value;
+                    _rxEntityField.Target = (EntityFieldVO)_selectedMember.Value;
             }
 
             return;

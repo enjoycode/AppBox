@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace AppBoxCore
 {
-    [System.AttributeUsage(System.AttributeTargets.Method)]
-    internal sealed class InvocationInterceptorAttribute : System.Attribute
+    [AttributeUsage(AttributeTargets.Method)]
+    internal sealed class InvocationInterceptorAttribute : Attribute
     {
         public InvocationInterceptorAttribute(string name) {}
     }

@@ -13,7 +13,7 @@ public class CodeGenerateTest
     {
         var designHub = await TestHelper.MockSession();
         var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
-        var code = EntityCodeGenerator.GenEntityWebCode((EntityModel)entityNode.Model, "sys", true);
+        var code = EntityCodeGenerator.GenWebCode((EntityModel)entityNode.Model, "sys", true);
         Console.Write(code);
     }
 
@@ -23,7 +23,17 @@ public class CodeGenerateTest
     {
         var designHub = await TestHelper.MockSession();
         var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
-        var code = EntityCodeGenerator.GenEntityRuntimeCode(entityNode);
+        var code = EntityCodeGenerator.GenRuntimeCode(entityNode);
+        Console.Write(code);
+    }
+
+    [Test]
+    public async Task GenRxEntityCodeTest()
+    {
+        var designHub = await TestHelper.MockSession();
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
+        var code = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)entityNode.Model,
+            appId => designHub.DesignTree.FindApplicationNode(appId)!.Model.Name);
         Console.Write(code);
     }
 

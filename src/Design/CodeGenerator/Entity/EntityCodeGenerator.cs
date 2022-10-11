@@ -6,10 +6,13 @@ namespace AppBoxDesign;
 
 internal static class EntityCodeGenerator
 {
+
+    #region ====Web====
+
     /// <summary>
     /// 生成实体模型的Web代码
     /// </summary>
-    internal static string GenEntityWebCode(EntityModel model, string appName, bool forPreview)
+    internal static string GenWebCode(EntityModel model, string appName, bool forPreview)
     {
         var sb = StringBuilderCache.Acquire();
         if (forPreview)
@@ -143,10 +146,14 @@ internal static class EntityCodeGenerator
         }
     }
 
+    #endregion
+
+    #region ====Entity for runtime====
+
     /// <summary>
     /// 生成实体模型的运行时代码
     /// </summary>
-    internal static string GenEntityRuntimeCode(ModelNode modelNode)
+    internal static string GenRuntimeCode(ModelNode modelNode)
     {
         var appName = modelNode.AppNode.Model.Name;
         var model = (EntityModel)modelNode.Model;
@@ -556,4 +563,68 @@ internal static class EntityCodeGenerator
             default: throw new Exception();
         }
     }
+
+    #endregion
+    
+    #region ===RxEntity for UI====
+
+    /// <summary>
+    ///  生成用于前端组件状态绑定的响应实体类
+    /// </summary>
+    internal static string GenRxRuntimeCode(EntityModel model, Func<int, string> appNameGetter)
+    {
+        var appName = appNameGetter(model.AppId);
+        var className = $"Rx{model.Name}";
+        
+        var sb = StringBuilderCache.Acquire();
+        sb.Append("using System;\n");
+        sb.Append("using System.Collections.Generic;\n");
+        sb.Append("using AppBoxCore;\n");
+        sb.Append("using PixUI;\n\n");
+        sb.Append($"namespace {appName}.Entities;\n");
+
+        sb.Append($"public sealed class {className} : RxObject<{model.Name}>\n");
+        sb.Append("{\n");
+        
+        // 构造
+        sb.Append($"\tpublic {className}()\n");
+        sb.Append("\t{\n");
+        foreach (var member in model.Members)
+        {
+            switch (member.Type)
+            {
+                case EntityMemberType.EntityField:
+                    var entityField = (EntityFieldModel)member;
+                    var fieldType = GetEntityFieldTypeString(entityField);
+                    sb.Append($"\t\t{member.Name} = new RxProperty<{fieldType}>(() => Target.{member.Name}");
+                    if (!entityField.IsPrimaryKey)
+                        sb.Append($", v => Target.{member.Name} = v");
+                    sb.Append(");\n");
+                    break;
+                default:
+                    throw new NotImplementedException(member.Type.ToString());
+            }
+        }
+        sb.Append("\t}\n");
+
+        // 实体成员
+        foreach (var member in model.Members)
+        {
+            switch (member.Type)
+            {
+                case EntityMemberType.EntityField:
+                    var fieldType = GetEntityFieldTypeString((EntityFieldModel)member);
+                    sb.Append($"\tpublic readonly RxProperty<{fieldType}> {member.Name};\n");
+                    break;
+                default:
+                    throw new NotImplementedException(member.Type.ToString());
+            }
+        }
+
+        sb.Append("}");
+
+        return StringBuilderCache.GetStringAndRelease(sb);
+    }
+
+    #endregion
 }

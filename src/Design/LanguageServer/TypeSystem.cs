@@ -143,7 +143,7 @@ internal sealed class TypeSystem : IDisposable
         {
             case ModelType.Entity:
             {
-                var dummyCode = EntityCodeGenerator.GenEntityRuntimeCode(node);
+                var dummyCode = EntityCodeGenerator.GenRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
                 break;
             }
@@ -214,7 +214,7 @@ internal sealed class TypeSystem : IDisposable
         {
             case ModelType.Entity:
             {
-                var sourceCode = EntityCodeGenerator.GenEntityRuntimeCode(node);
+                var sourceCode = EntityCodeGenerator.GenRuntimeCode(node);
                 newSolution =
                     Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
                 break;

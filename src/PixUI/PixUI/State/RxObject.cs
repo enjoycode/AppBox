@@ -33,15 +33,18 @@ namespace PixUI
 
     public abstract class RxObject<T> where T : class
     {
-        private T _object = null!;
+        private T _target = null!;
 
-        public T Object
+        /// <summary>
+        /// 代理的目标对象实例
+        /// </summary>
+        public T Target
         {
-            get => _object;
+            get => _target;
             set
             {
-                _object = value;
-                OnObjectChanged();
+                _target = value;
+                OnTargetChanged();
             }
         }
 
@@ -58,12 +61,12 @@ namespace PixUI
             }
         }
 ")]
-        private void OnObjectChanged() {}
+        private void OnTargetChanged() {}
 #else
-        protected virtual void OnObjectChanged()
+        protected virtual void OnTargetChanged()
         {
             //默认使用反射处理, TODO:
-            //var rxPropertytype = typeof(RxProperty<>);
+            //var rxPropertyType = typeof(RxProperty<>);
 
             var fields = GetType().GetFields(System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.Public);

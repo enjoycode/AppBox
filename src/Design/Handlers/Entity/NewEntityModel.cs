@@ -2,6 +2,9 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
+/// <summary>
+/// 新建实体模型
+/// </summary>
 internal sealed class NewEntityModel : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
@@ -10,6 +13,9 @@ internal sealed class NewEntityModel : IDesignHandler
         var selectedNodeId = args.GetString()!;
         var name = args.GetString()!;
         var storeId = args.GetString();
+
+        if (name.StartsWith("Rx")) //保留Rx头
+            throw new Exception("Name can't start with Rx");
 
         var result = await ModelCreator.Make(hub, ModelType.Entity,
             id =>
