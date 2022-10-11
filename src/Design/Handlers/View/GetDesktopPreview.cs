@@ -49,7 +49,7 @@ internal sealed class GetDesktopPreview : IDesignHandler
 
     private static async Task<IEnumerable<SyntaxTree>> BuildAllUsages(ViewCodeGenerator generator)
     {
-        var ctx = new Dictionary<string, SyntaxTree>(); //key = ModelNode.Id
+        var ctx = new Dictionary<string, SyntaxTree>(); //key = Model's full name
         await generator.BuildUsages(ctx);
         return ctx.Values;
     }

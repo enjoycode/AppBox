@@ -52,6 +52,12 @@ public sealed class DesignHub : IDesignContext, IDisposable
     /// </summary>
     internal object[]? PendingChanges { get; set; }
 
+    internal Func<int, string> AppNameGetter =>
+        appId => DesignTree.FindApplicationNode(appId)!.Model.Name;
+
+    internal Func<ModelId, ModelBase> ModelGetter =>
+        id => DesignTree.FindModelNode(id)!.Model;
+
     public void Dispose()
     {
         //TODO: stop debugger if has

@@ -170,9 +170,9 @@ public sealed class DesignTree : IBinSerializable
         => FindModelNodeByFullName(fullName.AsMemory());
 
     /// <summary>
-    /// 根据全名称找到模型节点
+    /// 根据全名称找到模型节点,包括响应实体类的全名称
     /// </summary>
-    /// <param name="fullName">eg: sys.Entities.Employee</param>
+    /// <param name="fullName">eg: sys.Entities.Employee or sys.Entities.RxEmployee</param>
     public ModelNode? FindModelNodeByFullName(ReadOnlyMemory<char> fullName)
     {
         var firstDot = fullName.Span.IndexOf('.');
@@ -184,6 +184,9 @@ public sealed class DesignTree : IBinSerializable
         var appNode = FindApplicationNodeByName(appName);
         if (appNode == null) return null;
         var modelType = CodeUtil.GetModelTypeFromPluralString(typeName.Span);
+        if (modelType == ModelType.Entity && modelName.Span.StartsWith("Rx"))
+            modelName = modelName.Slice(2);
+        
         return FindModelNodeByName(appNode.Model.Id, modelType, modelName);
     }
 

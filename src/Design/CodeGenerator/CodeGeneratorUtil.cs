@@ -28,17 +28,18 @@ internal static class CodeGeneratorUtil
     }
 
     /// <summary>
-    /// 生成使用到的实体模型的运行时代码，包括EntityRef有EntitySet的引用
+    /// 转换视图或服务模型时生成使用到的实体模型的运行时代码，包括EntityRef及EntitySet的引用
     /// </summary>
     internal static void BuildUsagedEntity(DesignHub hub, ModelNode modelNode,
         IDictionary<string, SyntaxTree> ctx, CSharpParseOptions parseOptions)
     {
-        if (ctx.ContainsKey(modelNode.Id)) return;
+        var fullName = $"{modelNode.AppNode.Model.Name}.Entities.{modelNode.Model.Name}";
+        if (ctx.ContainsKey(fullName)) return;
 
         //处理自身
         var code = EntityCodeGenerator.GenRuntimeCode(modelNode);
         var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, parseOptions);
-        ctx.Add(modelNode.Id, syntaxTree);
+        ctx.Add(fullName, syntaxTree);
 
         //处理引用
         var model = (EntityModel)modelNode.Model;

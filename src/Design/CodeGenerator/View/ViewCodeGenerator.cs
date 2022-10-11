@@ -71,7 +71,7 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
     /// </summary>
     /// <param name="fullName">eg: sys.Entities.Customer</param>
     private void AddUsedModel(string fullName) => _usedModels.Add(fullName);
-    
+
     /// <summary>
     /// 根据类型全名称查找是否模型
     /// </summary>
@@ -89,28 +89,43 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
     {
         if (_usedModels.Count == 0) return;
 
+        var parseOpts = TypeSystem.ViewParseOptions;
+
         //开始生成依赖模型的运行时代码
         foreach (var usedModel in _usedModels)
         {
             var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(usedModel)!;
             var modelType = modelNode.Model.ModelType;
 
-            if (ctx.ContainsKey(modelNode.Id)) continue;
+            if (ctx.ContainsKey(usedModel)) continue;
 
             if (modelType == ModelType.Entity)
             {
-                CodeGeneratorUtil.BuildUsagedEntity(DesignHub, modelNode, ctx,
-                    TypeSystem.ViewParseOptions);
+                CodeGeneratorUtil.BuildUsagedEntity(DesignHub, modelNode, ctx, parseOpts);
+
+                var isRxEntity = usedModel.Contains(".Entities.Rx");
+                if (isRxEntity)
+                {
+                    var rxEntityCode = EntityCodeGenerator.GenRxRuntimeCode(
+                        (EntityModel)modelNode.Model, DesignHub.AppNameGetter,
+                        DesignHub.ModelGetter);
+                    var syntaxTree = SyntaxFactory.ParseSyntaxTree(rxEntityCode, parseOpts);
+                    ctx.Add(usedModel, syntaxTree);
+                }
             }
             else if (modelType == ModelType.View)
             {
                 var codeGen = await Make(DesignHub, modelNode);
-                ctx.Add(modelNode.Id, await codeGen.GetRuntimeSyntaxTree());
+                ctx.Add(usedModel, await codeGen.GetRuntimeSyntaxTree());
                 await codeGen.BuildUsages(ctx);
+            }
+            else if (modelType == ModelType.Enum)
+            {
+                throw new NotImplementedException("未实现生成枚举模型的运行时代码");
             }
             else
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException(modelType.ToString());
             }
         }
     }
