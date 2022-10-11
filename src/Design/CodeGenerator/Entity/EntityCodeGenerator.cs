@@ -6,7 +6,6 @@ namespace AppBoxDesign;
 
 internal static class EntityCodeGenerator
 {
-
     #region ====Web====
 
     /// <summary>
@@ -565,18 +564,20 @@ internal static class EntityCodeGenerator
     }
 
     #endregion
-    
+
     #region ===RxEntity for UI====
 
     /// <summary>
     ///  生成用于前端组件状态绑定的响应实体类
     /// </summary>
-    internal static string GenRxRuntimeCode(EntityModel model, Func<int, string> appNameGetter)
+    internal static string GenRxRuntimeCode(EntityModel model,
+        Func<int, string> appNameGetter, Func<ModelId, ModelBase> modelGetter)
     {
         var appName = appNameGetter(model.AppId);
         var className = $"Rx{model.Name}";
-        
+
         var sb = StringBuilderCache.Acquire();
+        var sb2 = StringBuilderCache.Acquire();
         sb.Append("using System;\n");
         sb.Append("using System.Collections.Generic;\n");
         sb.Append("using AppBoxCore;\n");
@@ -585,8 +586,7 @@ internal static class EntityCodeGenerator
 
         sb.Append($"public sealed class {className} : RxObject<{model.Name}>\n");
         sb.Append("{\n");
-        
-        // 构造
+
         sb.Append($"\tpublic {className}()\n");
         sb.Append("\t{\n");
         foreach (var member in model.Members)
@@ -596,30 +596,45 @@ internal static class EntityCodeGenerator
                 case EntityMemberType.EntityField:
                     var entityField = (EntityFieldModel)member;
                     var fieldType = GetEntityFieldTypeString(entityField);
-                    sb.Append($"\t\t{member.Name} = new RxProperty<{fieldType}>(() => Target.{member.Name}");
+                    sb.Append(
+                        $"\t\t{member.Name} = new RxProperty<{fieldType}>(() => Target.{member.Name}");
                     if (!entityField.IsPrimaryKey)
                         sb.Append($", v => Target.{member.Name} = v");
                     sb.Append(");\n");
+
+                    sb2.Append($"\tpublic readonly RxProperty<{fieldType}> {member.Name};\n");
+                    break;
+                case EntityMemberType.EntityRef:
+                    //TODO: gen RxObject?
+                    // var entityRef = (EntityRefModel)member;
+                    // var refTarget = modelGetter(entityRef.RefModelIds[0]);
+                    // var refTypeString = entityRef.IsAggregationRef
+                    //     ? GetEntityBaseClass(entityRef.Owner)
+                    //     : $"{appNameGetter(refTarget.AppId)}.Entities.{refTarget.Name}";
+                    // sb.Append(
+                    //     $"\t\t{member.Name} = new RxProperty<{refTypeString}>(() => Target.{member.Name}, v => Target.{member.Name} = v);\n");
+                    //
+                    // sb2.Append($"\tpublic readonly RxProperty<{refTypeString}> {member.Name};\n");
+                    break;
+                case EntityMemberType.EntitySet:
+                    //TODO: gen RxList?
+                    // var entitySet = (EntitySetModel)member;
+                    // var setTarget = modelGetter(entitySet.RefModelId);
+                    // var setTypeString =
+                    //     $"IList<{appNameGetter(setTarget.AppId)}.Entities.{setTarget.Name}>?";
+                    // sb.Append(
+                    //     $"\t\t{member.Name} = new RxProperty<{setTypeString}>(() => Target.{member.Name});\n");
+                    //
+                    // sb2.Append($"\tpublic readonly RxProperty<{setTypeString}> {member.Name};\n");
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
             }
         }
+
         sb.Append("\t}\n");
 
-        // 实体成员
-        foreach (var member in model.Members)
-        {
-            switch (member.Type)
-            {
-                case EntityMemberType.EntityField:
-                    var fieldType = GetEntityFieldTypeString((EntityFieldModel)member);
-                    sb.Append($"\tpublic readonly RxProperty<{fieldType}> {member.Name};\n");
-                    break;
-                default:
-                    throw new NotImplementedException(member.Type.ToString());
-            }
-        }
+        sb.Append(StringBuilderCache.GetStringAndRelease(sb2));
 
         sb.Append("}");
 

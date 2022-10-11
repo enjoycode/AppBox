@@ -31,9 +31,10 @@ public class CodeGenerateTest
     public async Task GenRxEntityCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
         var code = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)entityNode.Model,
-            appId => designHub.DesignTree.FindApplicationNode(appId)!.Model.Name);
+            appId => designHub.DesignTree.FindApplicationNode(appId)!.Model.Name,
+            id => designHub.DesignTree.FindModelNode(id)!.Model);
         Console.Write(code);
     }
 

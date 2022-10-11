@@ -14,9 +14,7 @@ public sealed class ModelNode : DesignNode
         {
             case ModelType.Entity:
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId);
-                // if (((EntityModel)model).SqlStoreOptions != null)
-                //     ExtRoslynDocumentId =
-                //         DocumentId.CreateNewId(hub.TypeSystem.ServiceBaseProjectId);
+                ExtRoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.RxEntityProjectId);
                 break;
             case ModelType.View:
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId);

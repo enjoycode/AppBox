@@ -17,6 +17,7 @@ internal sealed class TypeSystem : IDisposable
         Workspace = new ModelWorkspace(new HostServicesAggregator());
 
         ModelProjectId = ProjectId.CreateNewId();
+        RxEntityProjectId = ProjectId.CreateNewId();
         WebViewsProjectId = ProjectId.CreateNewId();
         ServiceBaseProjectId = ProjectId.CreateNewId();
         ServiceProxyProjectId = ProjectId.CreateNewId();
@@ -32,6 +33,11 @@ internal sealed class TypeSystem : IDisposable
     internal readonly ProjectId ModelProjectId;
 
     /// <summary>
+    /// 前端使用的响应式实体类工程标识
+    /// </summary>
+    internal readonly ProjectId RxEntityProjectId;
+
+    /// <summary>
     /// 用于Web的视图模型的虚拟工程标识
     /// </summary>
     internal readonly ProjectId WebViewsProjectId;
@@ -39,7 +45,7 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 服务模型的通用虚拟工程标识
     /// </summary>
-    internal readonly ProjectId ServiceBaseProjectId;
+    private readonly ProjectId ServiceBaseProjectId;
 
     /// <summary>
     /// 服务代理虚拟工程标识号
@@ -70,6 +76,9 @@ internal sealed class TypeSystem : IDisposable
 
         var modelProjectInfo = ProjectInfo.Create(ModelProjectId, VersionStamp.Create(),
             "ModelProject", "ModelProject", LanguageNames.CSharp, null, null,
+            DllCompilationOptions, ParseOptions);
+        var rxEntityProjectInfo = ProjectInfo.Create(RxEntityProjectId, VersionStamp.Create(),
+            "RxEntityProject", "RxEntityProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
         var serviceProxyProjectInfo = ProjectInfo.Create(ServiceProxyProjectId,
             VersionStamp.Create(),
@@ -109,6 +118,14 @@ internal sealed class TypeSystem : IDisposable
                 .AddProjectReference(ServiceBaseProjectId, new ProjectReference(ModelProjectId))
                 .AddDocument(DocumentId.CreateNewId(ServiceBaseProjectId), "ServiceBase.cs",
                     Resources.GetString("DummyCode.ServiceBaseDummyCode.cs"))
+                //响应式实体类工程
+                .AddProject(rxEntityProjectInfo)
+                .AddMetadataReference(RxEntityProjectId, MetadataReferences.CoreLib)
+                .AddMetadataReference(RxEntityProjectId, MetadataReferences.NetstandardLib)
+                .AddMetadataReference(RxEntityProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(RxEntityProjectId, MetadataReferences.AppBoxCoreLib)
+                .AddMetadataReference(RxEntityProjectId, MetadataReferences.PixUIWebLib)
+                .AddProjectReference(RxEntityProjectId, new ProjectReference(ModelProjectId))
                 //专用于Web视图模型的工程
                 .AddProject(webViewsProjectInfo)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)
@@ -117,6 +134,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIWebLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
+                .AddProjectReference(WebViewsProjectId, new ProjectReference(RxEntityProjectId))
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ServiceProxyProjectId))
                 .AddDocument(DocumentId.CreateNewId(WebViewsProjectId), "GlobalUsing.cs",
                     CodeUtil.ViewGlobalUsings())
@@ -145,6 +163,10 @@ internal sealed class TypeSystem : IDisposable
             {
                 var dummyCode = EntityCodeGenerator.GenRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
+                var rxCode = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)model,
+                    appId => node.DesignTree!.FindApplicationNode(appId)!.Model.Name,
+                    id => node.DesignTree!.FindModelNode(id)!.Model);
+                newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, rxCode);
                 break;
             }
             case ModelType.View:
@@ -217,6 +239,11 @@ internal sealed class TypeSystem : IDisposable
                 var sourceCode = EntityCodeGenerator.GenRuntimeCode(node);
                 newSolution =
                     Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
+                var rxCode = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)model,
+                    appId => node.DesignTree!.FindApplicationNode(appId)!.Model.Name,
+                    id => node.DesignTree!.FindModelNode(id)!.Model);
+                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
+                    SourceText.From(rxCode));
                 break;
             }
             case ModelType.Enum:
