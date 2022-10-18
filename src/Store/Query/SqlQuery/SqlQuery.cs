@@ -251,8 +251,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         {
             foreach (var fk in TreeParentMember.FKMemberIds)
             {
-                var condition = T[model.GetMember(fk)!.Name] == new PrimitiveExpression(null);
-                AndWhere(condition);
+                AndWhere(t => t[model.GetMember(fk)!.Name] == new PrimitiveExpression(null));
             }
         }
 
@@ -427,25 +426,25 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     #region ====Where Methods====
 
-    public SqlQuery<TEntity> Where(Expression condition)
+    public SqlQuery<TEntity> Where(Func<EntityExpression, Expression> condition)
     {
-        Filter = condition;
+        Filter = condition(T);
         return this;
     }
 
-    public SqlQuery<TEntity> AndWhere(Expression condition)
+    public SqlQuery<TEntity> AndWhere(Func<EntityExpression, Expression> condition)
     {
         Filter = Expression.IsNull(Filter)
-            ? condition
-            : new BinaryExpression(Filter!, condition, BinaryOperatorType.AndAlso);
+            ? condition(T)
+            : new BinaryExpression(Filter!, condition(T), BinaryOperatorType.AndAlso);
         return this;
     }
 
-    public SqlQuery<TEntity> OrWhere(Expression condition)
+    public SqlQuery<TEntity> OrWhere(Func<EntityExpression, Expression> condition)
     {
         Filter = Expression.IsNull(Filter)
-            ? condition
-            : new BinaryExpression(Filter!, condition, BinaryOperatorType.OrElse);
+            ? condition(T)
+            : new BinaryExpression(Filter!, condition(T), BinaryOperatorType.OrElse);
         return this;
     }
 
@@ -453,15 +452,15 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     #region ====OrderBy Methods====
 
-    public SqlQuery<TEntity> OrderBy(Expression sortItem)
+    public SqlQuery<TEntity> OrderBy(Func<EntityExpression, Expression> sortItem)
     {
-        SortItems.Add(new SqlSortItem(sortItem, SortType.ASC));
+        SortItems.Add(new SqlSortItem(sortItem(T), SortType.ASC));
         return this;
     }
 
-    public SqlQuery<TEntity> OrderByDesc(Expression sortItem)
+    public SqlQuery<TEntity> OrderByDesc(Func<EntityExpression, Expression> sortItem)
     {
-        SortItems.Add(new SqlSortItem(sortItem, SortType.DESC));
+        SortItems.Add(new SqlSortItem(sortItem(T), SortType.DESC));
         return this;
     }
 
@@ -484,9 +483,9 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     //     return this;
     // }
 
-    public SqlQuery<TEntity> Having(Expression condition)
+    public SqlQuery<TEntity> Having(Func<EntityExpression, Expression> condition)
     {
-        HavingFilter = condition;
+        HavingFilter = condition(T);
         return this;
     }
 

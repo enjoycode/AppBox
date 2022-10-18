@@ -48,7 +48,7 @@ namespace PixUI
             for (var i = 0; i < _bindings.Count; i++)
             {
                 var target = _bindings[i].Target.Target;
-                if (target == null) /*Not use binding.Target.IsAlive*/
+                if (target == null) /*DoNot use binding.Target.IsAlive*/
                 {
                     _bindings.RemoveAt(i); //remove none alive binding
                     i--;
@@ -80,6 +80,9 @@ namespace PixUI
         public State<bool> AsStateOfBool(Func<T, bool> getter)
             => RxComputed<bool>.Make<T,bool>(this, getter);
 
+        // public State<T> AsNonNullable()
+        //     => RxComputed<T>.Make(this, v => v == null ? default(T) : v, v => Value = v);
+
         public static implicit operator State<T>(T value) => new Rx<T>(value);
 
 #if __WEB__
@@ -90,41 +93,41 @@ namespace PixUI
 #endif
     }
 
-    public sealed class StateProxy<T> : State<T>, IStateBindable
-    {
-        private State<T>? _source;
-        private readonly T _defaultValue;
-
-        public StateProxy(State<T>? source, T defaultValue)
-        {
-            _source = source;
-            _source?.AddBinding(this, BindingOptions.None);
-            _defaultValue = defaultValue;
-        }
-
-        public State<T>? Source
-        {
-            set
-            {
-                _source?.RemoveBinding(this);
-                _source = value;
-                _source?.AddBinding(this, BindingOptions.None);
-            }
-        }
-
-        public override bool Readonly => _source?.Readonly ?? false;
-
-        public override T Value
-        {
-            get => _source == null ? _defaultValue : _source.Value;
-            set
-            {
-                if (_source == null)
-                    throw new InvalidOperationException();
-                _source.Value = value;
-            }
-        }
-
-        public void OnStateChanged(StateBase state, BindingOptions options) => NotifyValueChanged();
-    }
+    // public sealed class StateProxy<T> : State<T>, IStateBindable
+    // {
+    //     private State<T>? _source;
+    //     private readonly T _defaultValue;
+    //
+    //     public StateProxy(State<T>? source, T defaultValue)
+    //     {
+    //         _source = source;
+    //         _source?.AddBinding(this, BindingOptions.None);
+    //         _defaultValue = defaultValue;
+    //     }
+    //
+    //     public State<T>? Source
+    //     {
+    //         set
+    //         {
+    //             _source?.RemoveBinding(this);
+    //             _source = value;
+    //             _source?.AddBinding(this, BindingOptions.None);
+    //         }
+    //     }
+    //
+    //     public override bool Readonly => _source?.Readonly ?? false;
+    //
+    //     public override T Value
+    //     {
+    //         get => _source == null ? _defaultValue : _source.Value;
+    //         set
+    //         {
+    //             if (_source == null)
+    //                 throw new InvalidOperationException();
+    //             _source.Value = value;
+    //         }
+    //     }
+    //
+    //     public void OnStateChanged(StateBase state, BindingOptions options) => NotifyValueChanged();
+    // }
 }

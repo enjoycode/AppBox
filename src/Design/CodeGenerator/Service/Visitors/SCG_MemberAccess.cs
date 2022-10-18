@@ -14,18 +14,14 @@ internal partial class ServiceCodeGenerator
         if (queryMethodCtx.HasAny && queryMethodCtx.Current.InLambdaExpression)
         {
             var identifier = FindIndentifierForMemberAccessExpression(node);
-            if (identifier != null)
+            if (identifier != null) //TODO: ***需要判断是否QueryMethod.LambdaParameters
             {
-                var replacedIdentifier = queryMethodCtx.Current.ReplaceLambdaParameter(identifier);
-                if (replacedIdentifier != null)
-                {
-                    var sb = StringBuilderCache.Acquire();
-                    BuildQueryMethodMemberAccess(node, replacedIdentifier, sb);
-                    //TODO:判断是否由上级处理换行
-                    //return SyntaxFactory.ParseExpression(sb.ToString()).WithTrailingTrivia(GetEndOfLineTrivia(node, false));
-                    return SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb))
-                        .WithTriviaFrom(node);
-                }
+                var sb = StringBuilderCache.Acquire();
+                BuildQueryMethodMemberAccess(node, identifier, sb);
+                //TODO:判断是否由上级处理换行
+                //return SyntaxFactory.ParseExpression(sb.ToString()).WithTrailingTrivia(GetEndOfLineTrivia(node, false));
+                return SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb))
+                    .WithTriviaFrom(node);
             }
         }
 
@@ -76,11 +72,10 @@ internal partial class ServiceCodeGenerator
         }
         else
         {
-            var sep = queryMethodCtx.Current.IsIncludeMethod ? "" : ".T"; //Include类方法不需要.T
             if (node.Expression is IdentifierNameSyntax)
             {
                 sb.Insert(0,
-                    $"{targetIdentifier.Identifier.ValueText}{sep}[\"{node.Name.Identifier.ValueText}\"]");
+                    $"{targetIdentifier.Identifier.ValueText}[\"{node.Name.Identifier.ValueText}\"]");
             }
             else if (node.Expression is MemberAccessExpressionSyntax memberAccess)
             {

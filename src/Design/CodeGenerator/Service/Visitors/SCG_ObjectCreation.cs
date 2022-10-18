@@ -19,7 +19,7 @@ internal partial class ServiceCodeGenerator
             if (typeArgs.Length == 1)
             {
                 return SyntaxFactory
-                    .ParseExpression($"new {node.Type.ToString()}({model.Id.Value})")
+                    .ParseExpression($"new {node.Type.ToString()}({model.Id.Value}L)")
                     .WithTriviaFrom(node);
             }
 

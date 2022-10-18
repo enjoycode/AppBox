@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace AppBoxDesign;
 
 /// <summary>
-/// 用于映射Lambda表达式的参数至相应的QueryMethod的变量名
+/// 查询方法的相关信息
 /// </summary>
 internal sealed class QueryMethod
 {
@@ -11,42 +11,21 @@ internal sealed class QueryMethod
 
     public bool IsSystemQuery; //标明是否系统存储查询，否则表示其他如Sql查询
 
-    public int ArgsCount; //参数数量，用于确定是ToEntityList还是ToDynamicList
-
-    public IdentifierNameSyntax[]? Identifiers; //实际指向的参数目标
-
-    public string[]? LambdaParameters; // (t, j1, j2) => {}
-
     public bool InLambdaExpression;
 
-    //保留参数，仅Join及Include相关
-    public bool HoldLambdaArgs => MethodName == "LeftJoin" || MethodName == "RightJoin" ||
-                                  MethodName == "InnerJoin" || MethodName == "FullJoin" ||
-                                  IsIncludeMethod;
+    public ParameterSyntax[]? LambdaParameters; 
 
-    internal bool IsIncludeMethod => MethodName == "Include" || MethodName == "ThenInclude";
+    //internal bool IsIncludeMethod => MethodName == "Include" || MethodName == "ThenInclude";
 
-    internal bool IsDynamicMethod => ArgsCount > 0
-                                     && (MethodName == "ToListAsync" || MethodName == "Output");
-
-    internal IdentifierNameSyntax? ReplaceLambdaParameter(IdentifierNameSyntax identifier)
-    {
-        //Include不用处理
-        if (IsIncludeMethod) return identifier;
-
-        var index = Array.IndexOf(LambdaParameters, identifier.Identifier.ValueText);
-        if (index >= 0)
-        {
-            return Identifiers[index]; //替换的目标
-        }
-
-        return null;
-    }
+    internal bool IsDynamicMethod => MethodName == "ToListAsync" || MethodName == "Output";
 }
 
+/// <summary>
+/// 查询方法Stack
+/// </summary>
 internal sealed class QueryMethodContext
 {
-    private readonly Stack<QueryMethod> methodsStack = new Stack<QueryMethod>();
+    private readonly Stack<QueryMethod> methodsStack = new();
 
     internal bool HasAny => methodsStack.Count > 0;
 

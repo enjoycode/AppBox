@@ -15,7 +15,7 @@ public sealed class SqlQueryTest
     public async Task ToListTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where(q.T["Name"] == "Admin");
+        q.Where( t => t["Name"] == "Admin");
         var list = await q.ToListAsync();
         Assert.True(list.Count == 1);
     }

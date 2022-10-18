@@ -42,5 +42,5 @@ public sealed class SqlQuery<T> where T : SqlEntity
     /// <summary>
     /// 执行查询并转换为树状结构
     /// </summary>
-    public Task<IList<T>> ToTreeAsync(Func<T, IList<T>> children) => throw new Exception();
+    [QueryMethod()] public Task<IList<T>> ToTreeAsync(Func<T, IList<T>> children) => throw new Exception();
 }
