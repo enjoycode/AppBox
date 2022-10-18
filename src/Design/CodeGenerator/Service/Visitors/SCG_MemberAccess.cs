@@ -10,12 +10,16 @@ internal partial class ServiceCodeGenerator
 {
     public override SyntaxNode? VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
-        //处理查询类方法的lambda表达式内的实体成员访问, eg: t.Customer.Name
+        //处理查询类方法的lambda表达式内的实体成员访问,
+        //eg: t.Customer.Name 转换为 t["Customer"]["Name"]
         if (queryMethodCtx.HasAny && queryMethodCtx.Current.InLambdaExpression)
         {
             var identifier = FindIndentifierForMemberAccessExpression(node);
-            if (identifier != null) //TODO: ***需要判断是否QueryMethod.LambdaParameters
+            if (identifier != null && queryMethodCtx.Current.IsLambdaParameter(identifier))
             {
+                //TODO:考虑进一步判断符号是否相同
+                //var symbol = SemanticModel.GetSymbolInfo(identifier).Symbol;
+
                 var sb = StringBuilderCache.Acquire();
                 BuildQueryMethodMemberAccess(node, identifier, sb);
                 //TODO:判断是否由上级处理换行

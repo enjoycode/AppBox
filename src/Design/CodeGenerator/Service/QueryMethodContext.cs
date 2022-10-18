@@ -18,6 +18,14 @@ internal sealed class QueryMethod
     //internal bool IsIncludeMethod => MethodName == "Include" || MethodName == "ThenInclude";
 
     internal bool IsDynamicMethod => MethodName == "ToListAsync" || MethodName == "Output";
+
+    internal bool IsLambdaParameter(IdentifierNameSyntax identifier)
+    {
+        //TODO:暂简单判断名称是否相同
+        if (LambdaParameters == null || LambdaParameters.Length == 0) return false;
+
+        return LambdaParameters.Any(p => p.Identifier.ValueText == identifier.Identifier.Text);
+    }
 }
 
 /// <summary>
