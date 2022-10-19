@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStudio.Mac", "AppStudio.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Platform.Mac", "PixUI\PixUI.Platform.Mac\PixUI.Platform.Mac.csproj", "{676FF0F1-F172-409C-B078-09B08614455F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -185,6 +187,14 @@ Global
 		{676FF0F1-F172-409C-B078-09B08614455F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{676FF0F1-F172-409C-B078-09B08614455F}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{676FF0F1-F172-409C-B078-09B08614455F}.Release|ARM64.Build.0 = Release|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
