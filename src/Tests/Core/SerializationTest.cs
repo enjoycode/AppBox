@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using AppBoxCore;
 using NUnit.Framework;
 
@@ -110,5 +109,25 @@ public sealed class SerializationTest
         var dest = (List<TestEntity>)Deserialize(data, _entityFactories)!;
         Assert.True(src.Count == dest.Count);
         Assert.AreEqual(src, dest);
+    }
+
+    /// <summary>
+    /// 测试有导航属性的实体序列化
+    /// </summary>
+    [Test]
+    public void EntityWithNavigationSerializationTest()
+    {
+        var ou1 = new AppBoxStore.OrgUnit { Name = "Company" };
+        var ou2 = new AppBoxStore.OrgUnit { Name = "Rick", Parent = ou1 };
+        ou1.Children!.Add(ou2);
+
+        var data = Serialize(ou1);
+
+        var dest = (AppBoxStore.OrgUnit) Deserialize(data,
+            new EntityFactory[] { new(AppBoxStore.OrgUnit.MODELID, typeof(AppBoxStore.OrgUnit)) })!;
+        Assert.AreEqual(dest.Name, ou1.Name);
+        Assert.AreEqual(dest.Children!.Count, 1);
+        Assert.AreEqual(dest.Children[0].Name, ou2.Name);
+        Assert.True(ReferenceEquals(dest.Children[0].Parent, dest));
     }
 }

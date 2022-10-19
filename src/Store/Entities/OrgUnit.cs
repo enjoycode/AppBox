@@ -33,11 +33,21 @@ public sealed class OrgUnit : SqlEntity
         }
     }
 
-    public OrgUnit? Parent => _parent;
+    public OrgUnit? Parent
+    {
+        get => _parent;
+        set
+        {
+            _parent = value;
+            if (_parent != null) 
+                _parentId = _parent.Id;
+        }
+    }
 
     public string Name
     {
         get => _name;
+        set => _name = value;
     }
 
     public SqlEntity? Base
@@ -71,7 +81,15 @@ public sealed class OrgUnit : SqlEntity
         }
     }
 
-    public IList<OrgUnit>? Children => _children;
+    public IList<OrgUnit>? Children
+    {
+        get
+        {
+            if (_children == null && PersistentState == PersistentState.Detached)
+                _children = new List<OrgUnit>();
+            return _children;
+        }
+    }
 
     #region ====Overrides====
 

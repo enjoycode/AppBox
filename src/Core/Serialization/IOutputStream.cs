@@ -135,7 +135,7 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteEntityRefMember(short id, Entity? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None) return;
+        if (flags != EntityMemberWriteFlags.None) return; //存储不需要写入
         if (value == null) return;
 
         this.WriteShort(id);
@@ -144,7 +144,7 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteEntitySetMember<T>(short id, IList<T>? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None) return;
+        if (flags != EntityMemberWriteFlags.None) return; //存储不需要写入
         if (value == null) return;
 
         this.WriteShort(id);

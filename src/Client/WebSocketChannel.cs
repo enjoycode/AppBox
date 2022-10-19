@@ -15,7 +15,7 @@ namespace AppBoxClient
         {
             _serverUri = serverUri;
             _clientWebSocket = new ClientWebSocket();
-            _ = Task.Run(() => ConnectAndStartReceive());
+            _ = Task.Run(ConnectAndStartReceive);
         }
 
         private readonly Uri _serverUri;
@@ -71,9 +71,10 @@ namespace AppBoxClient
                 {
                     result = rs.Deserialize();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     errorCode = InvokeErrorCode.DeserializeResponseFail;
+                    result = ex.Message;
                 }
                 finally
                 {
