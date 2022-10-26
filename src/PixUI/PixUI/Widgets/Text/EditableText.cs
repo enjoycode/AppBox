@@ -204,7 +204,7 @@ namespace PixUI
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
-            if (Text.Value.Length == 0)
+            if (Text.Value == null || Text.Value.Length == 0)
             {
                 if (string.IsNullOrEmpty(HintText)) return;
 

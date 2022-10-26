@@ -27,6 +27,9 @@ public class CodeGenerateTest
         Console.Write(code);
     }
 
+    /// <summary>
+    /// 测试生成响应实体类
+    /// </summary>
     [Test]
     public async Task GenRxEntityCodeTest()
     {

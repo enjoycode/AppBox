@@ -33,7 +33,7 @@ namespace PixUI
 
     public abstract class RxObject<T> where T : class
     {
-        private T _target = null!;
+        protected T _target = null!;
 
         /// <summary>
         /// 代理的目标对象实例

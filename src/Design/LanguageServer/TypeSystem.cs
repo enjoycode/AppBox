@@ -411,6 +411,7 @@ internal sealed class TypeSystem : IDisposable
     internal async void DumpAllProjectErrors()
     {
         await DumpProjectErrors(ModelProjectId);
+        await DumpProjectErrors(RxEntityProjectId);
         await DumpProjectErrors(ServiceBaseProjectId);
         await DumpProjectErrors(ServiceProxyProjectId);
     }

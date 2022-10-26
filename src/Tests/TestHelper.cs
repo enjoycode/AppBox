@@ -12,7 +12,7 @@ public static class TestHelper
     private static int _initFlag = 0;
 
     public const string ConnectionString
-        = "Server=127.0.0.1;Port=5432;Database=AppBox;Userid=rick;Password=;Enlist=true;Pooling=true;MinPoolSize=1;MaxPoolSize=200;";
+        = "Server=10.211.55.2;Port=5432;Database=AppBox;Userid=rick;Password=;Enlist=true;Pooling=true;MinPoolSize=1;MaxPoolSize=200;";
 
     public static void TryInitDefaultStore()
     {

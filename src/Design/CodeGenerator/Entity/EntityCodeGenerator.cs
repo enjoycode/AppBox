@@ -589,6 +589,11 @@ internal static class EntityCodeGenerator
 
         sb.Append($"\tpublic {className}()\n");
         sb.Append("\t{\n");
+        //生成实例化空目标对象
+        sb.Append("#if __RUNTIME__\n");
+        sb.Append($"\t\t_target = new {model.Name}();\n");
+        sb.Append("#endif\n");
+
         foreach (var member in model.Members)
         {
             switch (member.Type)
