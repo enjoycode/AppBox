@@ -71,7 +71,11 @@ namespace PixUI
         {
             if (IsReadonly) return;
 
-            Text.Value = Text.Value.Insert(_caretPosition, text);
+            if (Text.Value != null)
+                Text.Value = Text.Value.Insert(_caretPosition, text);
+            else
+                Text.Value = text;
+
             _caretPosition += text.Length;
         }
 
