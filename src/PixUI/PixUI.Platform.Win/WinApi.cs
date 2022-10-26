@@ -811,7 +811,7 @@ namespace PixUI.Platform.Win
             if (data == null || data.Length == 0)
                 throw new ArgumentException("Can't create a zero length memory block.");
 
-            var len = forString ? data.Length + 1 : data.Length;
+            var len = forString ? data.Length + 2 : data.Length;
 
             IntPtr hmem = Win32GlobalAlloc(GAllocFlags.GMEM_MOVEABLE | GAllocFlags.GMEM_DDESHARE, len);
             if (hmem == IntPtr.Zero)
@@ -822,7 +822,10 @@ namespace PixUI.Platform.Win
             var dest = new Span<byte>(hmem_ptr.ToPointer(), len);
             data.CopyTo(dest); //Marshal.Copy(data, 0, hmem_ptr, data.Length);
             if (forString)
+            {
                 dest[data.Length] = 0;
+                dest[data.Length + 1] = 0;
+            }
             Win32GlobalUnlock(hmem);
             return hmem;
         }
