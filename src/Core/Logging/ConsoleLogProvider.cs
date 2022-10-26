@@ -1,10 +1,10 @@
 using System.Buffers;
+using System.Runtime.InteropServices;
 
 namespace AppBoxCore;
 
 public sealed class ConsoleLogProvider : ILogProvider
 {
-#if !Windows
     //1B5B33316D [=5B 3=33 1=31 m=6D
     private static readonly byte[] Red = { 0x1B, 0x5B, 0x33, 0x31, 0x6D };
     private static readonly byte[] Green = { 0x1B, 0x5B, 0x33, 0x32, 0x6D };
@@ -12,7 +12,13 @@ public sealed class ConsoleLogProvider : ILogProvider
     private static readonly byte[] Blue = { 0x1B, 0x5B, 0x33, 0x34, 0x6D };
     private static readonly byte[] Magenta = { 0x1B, 0x5B, 0x33, 0x35, 0x6D };
     private static readonly byte[] Reset = { 0x1B, 0x5b, 0x30, 0x6D };
-#endif
+
+    public ConsoleLogProvider()
+    {
+        _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    }
+
+    private readonly bool _isWindows;
 
     private static char GetLevelChar(LogLevel level)
     {
@@ -26,7 +32,6 @@ public sealed class ConsoleLogProvider : ILogProvider
         };
     }
 
-#if !Windows
     private static byte[] GetLevelColor(LogLevel level)
     {
         return level switch
@@ -38,15 +43,10 @@ public sealed class ConsoleLogProvider : ILogProvider
             _ => Magenta,
         };
     }
-#endif
 
     public void Write(LogLevel level, string file, int line, string method, string msg)
     {
         //TODO:暂先简单实现，待优化
-#if Windows
-            Console.WriteLine("[{0}{1:MM}{1:dd} {1:hh:mm:ss} {2}.{3}:{4}]: {5}",
-                GetLevelChar(level), DateTime.Now, file, method, line, msg);
-#else
         var now = DateTime.Now;
         var head = string.Format("[{0}{1:MM}{1:dd} {1:hh:mm:ss} {2}.{3}:{4}]: ",
             GetLevelChar(level), now, file, method, line);
@@ -56,7 +56,7 @@ public sealed class ConsoleLogProvider : ILogProvider
         var logSize = 0;
         StringUtil.WriteTo(msg, b => logSize++);
 
-        var totalSize = 5 + headerSize + 4 + logSize + 1;
+        var totalSize = 5 + headerSize + 4 + logSize + (_isWindows ? 2 : 1);
         var buf = ArrayPool<byte>.Shared.Rent(totalSize);
         var color = GetLevelColor(level);
         color.AsSpan().CopyTo(buf.AsSpan(0, 5));
@@ -65,7 +65,9 @@ public sealed class ConsoleLogProvider : ILogProvider
         Reset.AsSpan().CopyTo(buf.AsSpan(5 + headerSize, 4));
         var logIndex = 5 + headerSize + 4;
         StringUtil.WriteTo(msg, b => buf[logIndex++] = b);
-        buf[totalSize - 1] = 0x0A; //换行
+        if (_isWindows)
+            buf[totalSize - 2] = 0x0D; //cr
+        buf[totalSize - 1] = 0x0A; //lf
 
         using (var output = Console.OpenStandardOutput())
         {
@@ -73,6 +75,5 @@ public sealed class ConsoleLogProvider : ILogProvider
         }
 
         ArrayPool<byte>.Shared.Return(buf);
-#endif
     }
 }
