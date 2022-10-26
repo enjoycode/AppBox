@@ -193,6 +193,8 @@ namespace AppBoxClient
                     CancellationToken.None);
                 if (isEnd)
                     break;
+                else
+                    cur = (BytesSegment)cur.Next!;
             } while (true);
 
             BytesSegment.ReturnAll(data);
