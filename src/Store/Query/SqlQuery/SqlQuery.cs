@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using AppBoxCore;
+using AppBoxStore.Utils;
 
 namespace AppBoxStore;
 
@@ -224,7 +225,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         while (await reader.ReadAsync())
         {
             var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
-            FillEntity(entity, model, reader, 0);
+            EntityFetchUtil.FillEntity(entity, model, reader, 0);
             list.Add(entity);
         }
 
@@ -267,7 +268,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         while (await reader.ReadAsync())
         {
             var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
-            FillEntity(entity, model, reader, 0);
+            EntityFetchUtil.FillEntity(entity, model, reader, 0);
 
             var treeLevel = reader.GetInt32(reader.FieldCount - 1);
             if (treeLevel == 0)
@@ -292,44 +293,6 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return list;
     }
 
-    private static void FillEntity(SqlEntity entity, EntityModel model, DbDataReader row,
-        int extendsFlag)
-    {
-        //填充实体成员
-        for (var i = 0; i < row.FieldCount - extendsFlag; i++)
-        {
-            FillMember(model, entity, row.GetName(i), row, i);
-        }
-
-        //需要改变实体持久化状态
-        entity.FetchDone();
-    }
-
-    private static void FillMember(EntityModel model, SqlEntity entity, string path,
-        DbDataReader row, int clIndex)
-    {
-        if (row.IsDBNull(clIndex)) return;
-
-        var indexOfDot = path.IndexOf('.');
-        if (indexOfDot < 0)
-        {
-            var member = model.GetMember(path, false);
-            if (member == null)
-            {
-                //不存在通过反射处理, 如扩展的引用字段
-                Log.Warn($"未找到实体成员{model.Name}.{path}");
-            }
-            else
-            {
-                var reader = new SqlRowReader(row);
-                entity.ReadMember(member.MemberId, reader, clIndex);
-            }
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
 
     /// <summary>
     /// 用于树状结构填充时查找指定实体的上级

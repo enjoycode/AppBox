@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AppBoxCore;
+using AppBoxStore.Utils;
 
 namespace AppBoxStore;
 
@@ -15,6 +16,9 @@ namespace AppBoxStore;
 /// </summary>
 public abstract class SqlStore
 {
+
+    //TODO:**** cache Load\Insert\Update\Delete command
+
     #region ====Statics====
 
     public const string TREE_LEVEL = "__tree_level";
@@ -287,46 +291,47 @@ public abstract class SqlStore
     #endregion
 
     #region ====DML Methods====
+    /// <summary>
+    /// 从存储加载指定主键的单个实体，不存在返回null
+    /// </summary>
+    public async Task<Entity?> FetchAsync(SqlEntity entity, DbTransaction? txn = null)
+    {
+        if (entity == null) throw new ArgumentNullException(nameof(entity));
+        if (entity.PersistentState != PersistentState.Detached)
+            throw new InvalidOperationException("Can't fetch none new entity");
 
-    //TODO:**** cache Load\Insert\Update\Delete command
+        var model = await RuntimeContext.Current.GetModelAsync<EntityModel>(entity.ModelId);
+        if (model.SqlStoreOptions == null || !model.SqlStoreOptions.HasPrimaryKeys)
+            throw new InvalidOperationException("Can't fetch entity from sqlstore");
 
-    // /// <summary>
-    // /// 从存储加载指定主键的单个实体，不存在返回null
-    // /// </summary>
-    // public async Task<Entity> LoadAsync(ulong modelId, DbTransaction txn, params EntityMember[] pks)
-    // {
-    //     if (pks == null || pks.Length == 0) throw new ArgumentNullException(nameof(pks));
-    //
-    //     var model = await RuntimeContext.Current.GetModelAsync<EntityModel>(modelId);
-    //     if (model.SqlStoreOptions == null || !model.SqlStoreOptions.HasPrimaryKeys
-    //                                       || model.SqlStoreOptions.PrimaryKeys.Count != pks.Length)
-    //         throw new InvalidOperationException("Can't load entity from sqlstore");
-    //
-    //     var cmd = BuildLoadCommand(model, pks);
-    //     cmd.Connection = txn != null ? txn.Connection : MakeConnection();
-    //     if (txn == null)
-    //         await cmd.Connection.OpenAsync();
-    //
-    //     try
-    //     {
-    //         using var reader = await cmd.ExecuteReaderAsync();
-    //         if (await reader.ReadAsync())
-    //         {
-    //             return SqlQuery.FillEntity(model, reader);
-    //         }
-    //
-    //         return null;
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
-    //         throw;
-    //     }
-    //     finally
-    //     {
-    //         if (txn == null) cmd.Connection.Dispose();
-    //     }
-    // }
+        var cmd = BuildFetchCommand(entity, model);
+        cmd.Connection = txn != null ? txn.Connection : MakeConnection();
+        cmd.Transaction = txn;
+        if (txn == null)
+            await cmd.Connection.OpenAsync();
+        Log.Debug(cmd.CommandText);
+
+        try
+        {
+            using var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                EntityFetchUtil.FillEntity(entity, model, reader, 0);
+                return entity;
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            throw;
+        }
+        finally
+        {
+            if (txn == null) cmd.Connection.Dispose();
+        }
+    }
 
     // public async Task ExecCommandAsync(SqlUpdateCommand updateCommand, DbTransaction txn = null)
     // {
@@ -413,37 +418,29 @@ public abstract class SqlStore
     //     }
     // }
 
+    #endregion
+
+    #region ====Build DbCommand Methods====
     /// <summary>
-    /// 根据主键值生成加载单个实体的sql
+    /// 根据主键值生成加载单个实体的命令
     /// </summary>
-    // protected internal virtual DbCommand BuildLoadCommand(EntityModel model, EntityMember[] pks)
-    // {
-    //     var cmd = MakeCommand();
-    //     var sb = StringBuilderCache.Acquire();
-    //     int pindex = 0;
-    //     EntityMemberModel mm;
-    //     var tableName = model.GetSqlTableName(false, null);
-    //
-    //     sb.Append($"Select * From {NameEscaper}{tableName}{NameEscaper} Where ");
-    //     for (int i = 0; i < model.SqlStoreOptions.PrimaryKeys.Count; i++)
-    //     {
-    //         pindex++;
-    //         var para = MakeParameter();
-    //         para.ParameterName = $"V{pindex}";
-    //         para.Value = pks[i].BoxedValue;
-    //         cmd.Parameters.Add(para);
-    //
-    //         //注意隐式转换的pk的MemberId = 0, 所以不要读pks[i].Id
-    //         mm = model.GetMember(model.SqlStoreOptions.PrimaryKeys[i].MemberId, true);
-    //         if (i != 0) sb.Append(" And ");
-    //         sb.Append($"{NameEscaper}{mm.Name}{NameEscaper}=@{para.ParameterName}");
-    //     }
-    //
-    //     sb.Append(" Limit 1");
-    //
-    //     cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
-    //     return cmd;
-    // }
+    /// <param name="entity">已设置主键值的实例</param>
+    protected internal virtual DbCommand BuildFetchCommand(SqlEntity entity, EntityModel model)
+    {
+        var cmd = MakeCommand();
+        var sb = StringBuilderCache.Acquire();
+        var tableName = model.GetSqlTableName(false, null);
+
+        //TODO:仅select非主键的字段
+        sb.Append("Select * From ");
+        sb.AppendWithNameEscaper(tableName, NameEscaper);
+        sb.Append(" Where");
+        BuildWhereForEntityPKS(entity, model, cmd, sb);
+        sb.Append(" Limit 1");
+
+        cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
+        return cmd;
+    }
 
     /// <summary>
     /// 根据Entity及其模型生成相应的Insert命令
@@ -526,7 +523,7 @@ public abstract class SqlStore
 
         //根据主键生成条件
         sb.Append(" Where ");
-        BuildWhereForUpdateOrDelete(entity, model, cmd, sb);
+        BuildWhereForEntityPKS(entity, model, cmd, sb);
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
@@ -540,13 +537,16 @@ public abstract class SqlStore
 
         sb.Append($"Delete From {NameEscaper}{tableName}{NameEscaper} Where ");
         //根据主键生成条件
-        BuildWhereForUpdateOrDelete(entity, model, cmd, sb);
+        BuildWhereForEntityPKS(entity, model, cmd, sb);
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
     }
 
-    private void BuildWhereForUpdateOrDelete(SqlEntity entity, EntityModel model, DbCommand cmd,
+    /// <summary>
+    /// 根据实体的主键生成Where条件
+    /// </summary>
+    private void BuildWhereForEntityPKS(SqlEntity entity, EntityModel model, DbCommand cmd,
         StringBuilder sb)
     {
         var entityMemberWriter = new DbCommandParameterWriter(cmd);
@@ -574,7 +574,6 @@ public abstract class SqlStore
     // protected internal abstract DbCommand BuidUpdateCommand(SqlUpdateCommand updateCommand);
 
     protected internal abstract DbCommand BuildQuery(ISqlSelectQuery query);
-
     #endregion
 }
 

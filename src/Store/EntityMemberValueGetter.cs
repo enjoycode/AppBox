@@ -1,13 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AppBoxCore;
 
 namespace AppBoxCore;
 
 /// <summary>
 /// 用于读取实体成员的值为AnyValue
 /// </summary>
+/// <remarks>
+/// <example>
+/// 使用示例:
+/// <code>
+/// var obj = new SomeEntity() { Name = "Rick" };
+/// var getter = EntityMemberValueGetter.ThreadInstance;
+/// obj.WriteMember(1 /*memberId*/, getter, EntityMemberWriteFlags.None);
+/// var memberValue = getter.Value.GuidValue;
+/// </code>
+/// </example>
+/// </remarks>
 internal sealed class EntityMemberValueGetter : IEntityMemberWriter
 {
     private static readonly ThreadLocal<EntityMemberValueGetter> _threadLocal =

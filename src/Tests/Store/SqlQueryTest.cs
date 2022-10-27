@@ -1,4 +1,6 @@
+using System;
 using System.Threading.Tasks;
+using AppBoxCore;
 using AppBoxStore;
 using NUnit.Framework;
 
@@ -12,10 +14,24 @@ public sealed class SqlQueryTest
     }
 
     [Test]
+    public async Task FetchTest()
+    {
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        q.Where(t => t["Name"] == "Admin");
+        var list = await q.ToListAsync();
+        var src = list[0];
+
+        var res = await SqlStore.Default.FetchAsync(new Employee(src.Id));
+        Assert.IsNotNull(res);
+        var dest = (Employee)res!;
+        Assert.True(src.Name == dest.Name);
+    }
+
+    [Test]
     public async Task ToListTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where( t => t["Name"] == "Admin");
+        q.Where(t => t["Name"] == "Admin");
         var list = await q.ToListAsync();
         Assert.True(list.Count == 1);
     }
