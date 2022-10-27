@@ -30,9 +30,7 @@ namespace PixUI
             _animationId++;
             _isActive = true;
             if (ShouldScheduleTick)
-#pragma warning disable CS4014
                 ScheduleTick();
-#pragma warning restore CS4014
         }
 
         public void Stop(bool canceled = false)
@@ -53,7 +51,7 @@ namespace PixUI
         ")]
         private void ScheduleTick(bool rescheduling = false) {}
 #else
-        private async Task ScheduleTick(bool rescheduling = false)
+        private async void ScheduleTick(bool rescheduling = false)
         {
             var id = _animationId;
             await Task.Delay(Interval);
@@ -69,9 +67,7 @@ namespace PixUI
             _onTick((timeStamp - _startTime.Value).TotalSeconds);
 
             if (ShouldScheduleTick)
-#pragma warning disable CS4014
                 ScheduleTick(true);
-#pragma warning restore CS4014
         }
     }
 }

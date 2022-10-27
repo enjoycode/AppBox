@@ -30,7 +30,7 @@ namespace PixUI
                     return;
                 }
 
-                _cachedFont = new Font(typeface, size);
+                _cachedFont = new Font(typeface!, size);
                 _cachedGlyphId = _cachedFont.GetGlyphId(data.CodePoint);
             }
 

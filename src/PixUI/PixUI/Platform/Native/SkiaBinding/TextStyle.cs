@@ -28,7 +28,7 @@ namespace PixUI
             get
             {
                 var slant = (FontSlant)SkiaApi.sk_text_style_get_font_style(Handle);
-                var weight = (FontWeight)(FontWeight)SkiaApi.sk_text_style_get_font_weight(Handle);
+                var weight = (FontWeight)SkiaApi.sk_text_style_get_font_weight(Handle);
                 return new FontStyle(weight, slant);
             }
             set
