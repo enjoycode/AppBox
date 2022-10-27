@@ -12,7 +12,7 @@ namespace PixUI
         /// <summary>
         /// 绑定的状态发生变更
         /// </summary>
-        public void OnStateChanged(StateBase state, BindingOptions options);
+        void OnStateChanged(StateBase state, BindingOptions options);
     }
 
     public abstract class StateBase
