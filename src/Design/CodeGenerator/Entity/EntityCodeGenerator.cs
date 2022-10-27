@@ -190,11 +190,9 @@ internal static class EntityCodeGenerator
             }
         }
 
-        // override ModelId
-        long modelIdValue = model.Id;
-        sb.Append("private static readonly ModelId MODELID=");
-        sb.Append(modelIdValue.ToString());
-        sb.Append("L;\npublic override ModelId ModelId => MODELID;\n");
+        // override ModelId, 下句静态变量不要生成const long, Web代码暂不支持隐式转换
+        sb.Append($"public static readonly ModelId MODELID={model.Id.Value}L;\n");
+        sb.Append("public override ModelId ModelId => MODELID;\n");
 
         // override AllMembers
         sb.Append("private static readonly short[] MemberIds={");
