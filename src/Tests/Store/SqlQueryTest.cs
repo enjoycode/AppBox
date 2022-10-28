@@ -23,8 +23,7 @@ public sealed class SqlQueryTest
 
         var res = await SqlStore.Default.FetchAsync(new Employee(src.Id));
         Assert.IsNotNull(res);
-        var dest = (Employee)res!;
-        Assert.True(src.Name == dest.Name);
+        Assert.True(src.Name == res!.Name);
     }
 
     [Test]

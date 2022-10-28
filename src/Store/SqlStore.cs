@@ -294,7 +294,7 @@ public abstract class SqlStore
     /// <summary>
     /// 从存储加载指定主键的单个实体，不存在返回null
     /// </summary>
-    public async Task<Entity?> FetchAsync(SqlEntity entity, DbTransaction? txn = null)
+    public async Task<T?> FetchAsync<T>(T entity, DbTransaction? txn = null) where T: SqlEntity
     {
         if (entity == null) throw new ArgumentNullException(nameof(entity));
         if (entity.PersistentState != PersistentState.Detached)

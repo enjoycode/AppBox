@@ -22,15 +22,12 @@ public class CodeGenerateTest
     public async Task GenEntityCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
         var code = EntityCodeGenerator.GenRuntimeCode(entityNode);
         Console.Write(code);
     }
 
-    /// <summary>
-    /// 测试生成响应实体类
-    /// </summary>
-    [Test]
+    [Test(Description = "测试生成响应实体类")]
     public async Task GenRxEntityCodeTest()
     {
         var designHub = await TestHelper.MockSession();
