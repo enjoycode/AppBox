@@ -61,6 +61,7 @@ internal sealed class GetDesktopPreview : IDesignHandler
             MetadataReferences.CoreLib,
             MetadataReferences.NetstandardLib,
             MetadataReferences.SystemRuntimeLib,
+            MetadataReferences.SystemDataLib,
             MetadataReferences.SystemCollectionsLib,
             MetadataReferences.SystemLinqLib,
             MetadataReferences.PixUIDesktopLib,
