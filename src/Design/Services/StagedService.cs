@@ -1,5 +1,6 @@
 using AppBoxCore;
 using AppBoxStore;
+using AppBoxStore.Entities;
 
 namespace AppBoxDesign;
 

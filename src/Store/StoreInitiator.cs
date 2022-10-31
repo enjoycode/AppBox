@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using AppBoxCore;
+using AppBoxStore.Entities;
 
 namespace AppBoxStore;
 

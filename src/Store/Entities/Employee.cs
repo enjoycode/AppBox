@@ -1,10 +1,10 @@
 using System;
 using AppBoxCore;
 
-namespace AppBoxStore;
+namespace AppBoxStore.Entities;
 
 [EntityModelId(MODELID)]
-public sealed class Employee : SqlEntity
+internal sealed class Employee : SqlEntity
 {
     public Employee() { }
 

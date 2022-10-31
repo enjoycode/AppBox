@@ -1,10 +1,10 @@
 using System;
 using AppBoxCore;
 
-namespace AppBoxStore;
+namespace AppBoxStore.Entities;
 
 [EntityModelId(MODELID)]
-public sealed class Enterprise : SqlEntity
+internal sealed class Enterprise : SqlEntity
 {
     public Enterprise(Guid id)
     {

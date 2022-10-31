@@ -1,10 +1,10 @@
 using System;
 using AppBoxCore;
 
-namespace AppBoxStore;
+namespace AppBoxStore.Entities;
 
 [EntityModelId(MODELID)]
-public sealed class Workgroup : SqlEntity
+internal sealed class Workgroup : SqlEntity
 {
     internal Workgroup() { }
 

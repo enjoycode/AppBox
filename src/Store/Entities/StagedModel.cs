@@ -1,10 +1,10 @@
 using System;
 using AppBoxCore;
 
-namespace AppBoxStore;
+namespace AppBoxStore.Entities;
 
 [EntityModelId(MODELID)]
-public sealed class StagedModel : SqlEntity
+internal sealed class StagedModel : SqlEntity
 {
     public StagedModel() { }
 

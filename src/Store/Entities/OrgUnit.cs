@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using AppBoxCore;
 
-namespace AppBoxStore;
+namespace AppBoxStore.Entities;
 
 [EntityModelId(MODELID)]
-public sealed class OrgUnit : SqlEntity
+internal sealed class OrgUnit : SqlEntity
 {
     public OrgUnit() { }
 
