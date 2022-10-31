@@ -117,14 +117,14 @@ public sealed class SerializationTest
     [Test]
     public void EntityWithNavigationSerializationTest()
     {
-        var ou1 = new AppBoxStore.OrgUnit { Name = "Company" };
-        var ou2 = new AppBoxStore.OrgUnit { Name = "Rick", Parent = ou1 };
+        var ou1 = new AppBoxStore.Entities.OrgUnit { Name = "Company" };
+        var ou2 = new AppBoxStore.Entities.OrgUnit { Name = "Rick", Parent = ou1 };
         ou1.Children!.Add(ou2);
 
         var data = Serialize(ou1);
 
-        var dest = (AppBoxStore.OrgUnit) Deserialize(data,
-            new EntityFactory[] { new(AppBoxStore.OrgUnit.MODELID, typeof(AppBoxStore.OrgUnit)) })!;
+        var dest = (AppBoxStore.Entities.OrgUnit) Deserialize(data,
+            new EntityFactory[] { new(AppBoxStore.Entities.OrgUnit.MODELID, typeof(AppBoxStore.Entities.OrgUnit)) })!;
         Assert.AreEqual(dest.Name, ou1.Name);
         Assert.AreEqual(dest.Children!.Count, 1);
         Assert.AreEqual(dest.Children[0].Name, ou2.Name);

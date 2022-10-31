@@ -456,20 +456,23 @@ internal static class EntityCodeGenerator
         sb.Append(".InsertAsync(this,txn);\n\n");
 
         // FetchAsync
-        GenStoreFetchMethod(model, sb);
+        GenStoreFetchMethod(model, sb, true);
 
         //TODO: others
-
+        sb.Append("#else\n");
+        //生成internal版本的FetchAsync方法,防止前端工程看见此方法
+        GenStoreFetchMethod(model, sb, false); 
         sb.Append("#endif\n");
     }
 
-    private static void GenStoreFetchMethod(EntityModel model, StringBuilder sb)
+    private static void GenStoreFetchMethod(EntityModel model, StringBuilder sb, bool forRuntime)
     {
         if (!model.SqlStoreOptions!.HasPrimaryKeys) return;
 
         var pks = model.SqlStoreOptions.PrimaryKeys;
 
-        sb.Append($"public static Task<{model.Name}?> FetchAsync(");
+        sb.Append(forRuntime ? "public" : "internal");
+        sb.Append($" static Task<{model.Name}?> FetchAsync(");
         for (var i = 0; i < pks.Length; i++)
         {
             if (i != 0) sb.Append(',');
@@ -480,17 +483,24 @@ internal static class EntityCodeGenerator
         }
         sb.Append(", System.Data.Common.DbTransaction? txn=null) => \n");
 
-        GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
-        sb.Append(".FetchAsync(new ");
-        sb.Append(model.Name);
-        sb.Append("{");
-        for (var i = 0; i < pks.Length; i++)
+        if (forRuntime)
         {
-            if (i != 0) sb.Append(',');
-            var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
-            sb.Append($"{dfm.Name} = {CodeUtil.ToLowCamelCase(dfm.Name)}");
+            GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
+            sb.Append(".FetchAsync(new ");
+            sb.Append(model.Name);
+            sb.Append("{");
+            for (var i = 0; i < pks.Length; i++)
+            {
+                if (i != 0) sb.Append(',');
+                var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
+                sb.Append($"{dfm.Name} = {CodeUtil.ToLowCamelCase(dfm.Name)}");
+            }
+            sb.Append("}, txn);\n");
         }
-        sb.Append("}, txn);\n");
+        else
+        {
+            sb.Append("\tthrow new Exception();\n");
+        }
     }
 
     /// <summary>

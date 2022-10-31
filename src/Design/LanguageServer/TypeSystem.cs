@@ -25,6 +25,11 @@ internal sealed class TypeSystem : IDisposable
         InitWorkspace();
     }
 
+    //统一AsseblyName,方便ModelProject InternalVisibleTo
+    private const string DesignTimeServiceAssemblyName = "DesignTimeService";
+
+    private readonly string ModelBaseCode = $"using System.Runtime.CompilerServices;[assembly: InternalsVisibleTo(\"{DesignTimeServiceAssemblyName}\")]";
+
     internal readonly ModelWorkspace Workspace;
 
     /// <summary>
@@ -98,7 +103,9 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ModelProjectId, MetadataReferences.CoreLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.NetstandardLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(ModelProjectId, MetadataReferences.SystemDataLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.AppBoxCoreLib)
+                .AddDocument(DocumentId.CreateNewId(ModelProjectId), "ModelBase.cs", ModelBaseCode)
                 //服务代理工程
                 .AddProject(serviceProxyProjectInfo)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.CoreLib)
@@ -160,38 +167,38 @@ internal sealed class TypeSystem : IDisposable
         switch (model.ModelType)
         {
             case ModelType.Entity:
-            {
-                var dummyCode = EntityCodeGenerator.GenRuntimeCode(node);
-                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
-                var rxCode = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)model,
-                    appId => node.DesignTree!.FindApplicationNode(appId)!.Model.Name,
-                    id => node.DesignTree!.FindModelNode(id)!.Model);
-                newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, rxCode);
-                break;
-            }
+                {
+                    var dummyCode = EntityCodeGenerator.GenRuntimeCode(node);
+                    newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
+                    var rxCode = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)model,
+                        appId => node.DesignTree!.FindApplicationNode(appId)!.Model.Name,
+                        id => node.DesignTree!.FindModelNode(id)!.Model);
+                    newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, rxCode);
+                    break;
+                }
             case ModelType.View:
-            {
-                var sourceCode = await LoadSourceCode(initSrcCode, node);
-                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
-                break;
-            }
+                {
+                    var sourceCode = await LoadSourceCode(initSrcCode, node);
+                    newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
+                    break;
+                }
             case ModelType.Service:
-            {
-                //服务模型先创建虚拟项目
-                CreateServiceProject(node.ServiceProjectId!, (ServiceModel)model, appName);
+                {
+                    //服务模型先创建虚拟项目
+                    CreateServiceProject(node.ServiceProjectId!, (ServiceModel)model, appName);
 
-                var sourceCode = await LoadSourceCode(initSrcCode, node);
-                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
+                    var sourceCode = await LoadSourceCode(initSrcCode, node);
+                    newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
 
-                //服务代理的代码生成
-                var srcDoc = newSolution.GetDocument(docId)!;
-                var proxyCode =
-                    await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName,
-                        (ServiceModel)model);
-                newSolution =
-                    newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
-                break;
-            }
+                    //服务代理的代码生成
+                    var srcDoc = newSolution.GetDocument(docId)!;
+                    var proxyCode =
+                        await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName,
+                            (ServiceModel)model);
+                    newSolution =
+                        newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
+                    break;
+                }
         }
 
         if (newSolution != null)
@@ -235,37 +242,37 @@ internal sealed class TypeSystem : IDisposable
         switch (model.ModelType)
         {
             case ModelType.Entity:
-            {
-                var sourceCode = EntityCodeGenerator.GenRuntimeCode(node);
-                newSolution =
-                    Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
-                var rxCode = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)model,
-                    appId => node.DesignTree!.FindApplicationNode(appId)!.Model.Name,
-                    id => node.DesignTree!.FindModelNode(id)!.Model);
-                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
-                    SourceText.From(rxCode));
-                break;
-            }
+                {
+                    var sourceCode = EntityCodeGenerator.GenRuntimeCode(node);
+                    newSolution =
+                        Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
+                    var rxCode = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)model,
+                        appId => node.DesignTree!.FindApplicationNode(appId)!.Model.Name,
+                        id => node.DesignTree!.FindModelNode(id)!.Model);
+                    newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
+                        SourceText.From(rxCode));
+                    break;
+                }
             case ModelType.Enum:
                 //TODO:
                 // newSolution = Workspace.CurrentSolution.WithDocumentText(docId,
                 //                     SourceText.From(CodeGenService.GenEnumDummyCode((EnumModel)model, appName)));
                 break;
             case ModelType.Service:
-            {
-                var sourceCode = await MetaStore.Provider.LoadModelCodeAsync(model.Id);
-                newSolution =
-                    Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
+                {
+                    var sourceCode = await MetaStore.Provider.LoadModelCodeAsync(model.Id);
+                    newSolution =
+                        Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
 
-                // 服务模型还需要更新代理类
-                var srcdoc = newSolution.GetDocument(docId)!;
-                var proxyCode =
-                    await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName,
-                        (ServiceModel)model);
-                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
-                    SourceText.From(proxyCode));
-                break;
-            }
+                    // 服务模型还需要更新代理类
+                    var srcdoc = newSolution.GetDocument(docId)!;
+                    var proxyCode =
+                        await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName,
+                            (ServiceModel)model);
+                    newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
+                        SourceText.From(proxyCode));
+                    break;
+                }
         }
 
         if (newSolution != null)
@@ -319,7 +326,7 @@ internal sealed class TypeSystem : IDisposable
         var prjName = $"{appName}.{model.Name}";
 
         var serviceProjectInfo = ProjectInfo.Create(prjId, VersionStamp.Create(),
-            prjName, prjName, LanguageNames.CSharp, null, null,
+            prjName, DesignTimeServiceAssemblyName, LanguageNames.CSharp, null, null,
             DllCompilationOptions, ServiceParseOptions);
 
         var deps = new List<MetadataReference>

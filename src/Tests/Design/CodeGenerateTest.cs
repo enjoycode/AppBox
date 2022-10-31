@@ -38,7 +38,7 @@ public class CodeGenerateTest
         Console.Write(code);
     }
 
-    [Test]
+    [Test(Description ="测试生成服务的运行时代码")]
     public async Task GenServiceRuntimeCodeTest()
     {
         var designHub = await TestHelper.MockSession();

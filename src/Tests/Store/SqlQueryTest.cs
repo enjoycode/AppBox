@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore;
+using AppBoxStore.Entities;
 using NUnit.Framework;
 
 namespace Tests.Store;
