@@ -27,6 +27,7 @@ namespace PixUI
 
         private readonly TreeNodeRow<T> _row;
         private List<TreeNode<T>>? _children;
+        public TreeNode<T>[]? Children => _children?.ToArray();
 
         public readonly State<bool> IsSelected = false;
         private readonly State<Color> _color; //for icon and label

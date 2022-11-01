@@ -18,6 +18,11 @@ namespace PixUI
         internal readonly List<TreeNode<T>> Nodes = new List<TreeNode<T>>();
         internal readonly ScrollController ScrollController = new(ScrollDirection.Both);
 
+        /// <summary>
+        /// 获取根节点只读列表
+        /// </summary>
+        public TreeNode<T>[] RootNodes => Nodes.ToArray();
+
         #region ----Selection----
 
         private readonly List<TreeNode<T>> _selectedNodes = new List<TreeNode<T>>();
