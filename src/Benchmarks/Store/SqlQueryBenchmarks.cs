@@ -1,6 +1,6 @@
 using AppBoxStore;
+using AppBoxStore.Entities;
 using BenchmarkDotNet.Attributes;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Tests;

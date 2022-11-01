@@ -32,7 +32,7 @@ SqlStore.InitDefault(app.Configuration["DefaultSqlStore:Assembly"],
     app.Configuration["DefaultSqlStore:ConnectionString"]);
 // 尝试初始化存储, 初始化失败直接终止进程
 MetaStore.Init(new SqlMetaStore());
-MetaStore.Provider.TryInitStoreAsync();
+await SqlStoreInitiator.TryInitStoreAsync();
 #endif
 
 app.Run();

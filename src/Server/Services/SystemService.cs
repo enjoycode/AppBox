@@ -110,7 +110,7 @@ internal sealed class SystemService : IService
     /// <summary>
     /// 保存单个PermissionModel的权限变更
     /// </summary>
-    private async Task<bool> SavePermission(string modelId, Guid[]? ouids)
+    private async Task<bool> SavePermission(string modelId, IList<Guid>? ouids)
     {
         EnsureIsAdmin();
 

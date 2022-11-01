@@ -16,7 +16,7 @@ namespace AppBoxStore;
 public sealed class SqlMetaStore : IMetaStore
 {
     //以下常量跟内置存储的MetaCF内的Key前缀一致
-    private const byte Meta_Application = 0x0C;
+    public const byte Meta_Application = 0x0C;
     private const byte Meta_Model = 0x0D;
     private const byte Meta_Code = 0x0E;
     private const byte Meta_Folder = 0x0F;
@@ -31,69 +31,6 @@ public sealed class SqlMetaStore : IMetaStore
 
     private const byte ModelType_Application = 100;
     private const byte ModelType_Folder = 101;
-
-    #region ====初始化====
-
-    /// <summary>
-    /// 如果没有初始化则创建元数据表结构
-    /// </summary>
-    public async Task TryInitStoreAsync()
-    {
-        var db = SqlStore.Default;
-        var esc = db.NameEscaper;
-        //暂通过查询判断有无初始化过
-        await using var cmd1 = db.MakeCommand();
-        cmd1.CommandText =
-            $"Select meta From {esc}sys.Meta{esc} Where meta={Meta_Application} And id='{Consts.SYS_APP_ID.ToString()}'";
-        await using var conn = db.MakeConnection();
-        try
-        {
-            await conn.OpenAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Warn($"Open sql connection error: {ex.Message}");
-            Environment.Exit(0);
-        }
-
-        cmd1.Connection = conn;
-        try
-        {
-            await using var dr = await cmd1.ExecuteReaderAsync();
-            return;
-        }
-        catch (Exception ex)
-        {
-            Log.Debug($"CMD:{cmd1.CommandText} MSG:{ex.Message}");
-            Log.Info("Start create meta store...");
-        }
-
-        //开始事务初始化
-        await using var txn = await conn.BeginTransactionAsync();
-        await using var cmd2 = db.MakeCommand();
-        cmd2.CommandText =
-            $"Create Table {esc}sys.Meta{esc} (meta smallint NOT NULL, id varchar(100) NOT NULL, model smallint, data {db.BlobType} NOT NULL);";
-        cmd2.CommandText +=
-            $"Alter Table {esc}sys.Meta{esc} Add CONSTRAINT {esc}PK_Meta{esc} Primary Key (meta,id);";
-        cmd2.Connection = conn;
-        cmd2.Transaction = txn;
-        try
-        {
-            await cmd2.ExecuteNonQueryAsync();
-            Log.Info("Create meta table done.");
-            await StoreInitiator.InitAsync(txn);
-            await txn.CommitAsync();
-            Log.Info("Init default sql store done.");
-        }
-        catch (Exception ex)
-        {
-            Log.Error(
-                $"Init default sql store error: {ex.GetType().Name}\n{ex.Message}\n{ex.StackTrace}");
-            Environment.Exit(0); //TODO:退出前关闭子进程
-        }
-    }
-
-    #endregion
 
     #region ====模型相关操作====
 

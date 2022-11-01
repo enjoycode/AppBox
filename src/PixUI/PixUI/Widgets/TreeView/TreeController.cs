@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PixUI
 {
-    public sealed class TreeController<T> : IStateBindable
+    public sealed class TreeController<T> //: IStateBindable
     {
         public TreeController(Action<T, TreeNode<T>> nodeBuilder,
             Func<T, IList<T>> childrenGetter)
@@ -118,10 +118,10 @@ namespace PixUI
             }
         }
 
-        public void OnStateChanged(StateBase state, BindingOptions options)
-        {
-            throw new NotImplementedException();
-        }
+        //public void OnStateChanged(StateBase state, BindingOptions options)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         #region ====Operations====
 

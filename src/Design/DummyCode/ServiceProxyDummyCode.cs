@@ -19,6 +19,9 @@ namespace sys.Services
     {
         [AppBoxCore.InvocationInterceptor("CallService")]
         public static Task<IList<AppBoxCore.PermissionNode>> LoadPermissionTree() => throw new Exception();
+
+        [AppBoxCore.InvocationInterceptor("CallService")]
+        public static Task<bool> SavePermission(string modelId, IList<Guid>? ouids) => throw new Exception();
     }
 }
 
