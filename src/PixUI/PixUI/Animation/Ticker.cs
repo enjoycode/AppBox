@@ -25,7 +25,7 @@ namespace PixUI
 
         public void Start()
         {
-            Debug.Assert(_startTime == null);
+            //Debug.Assert(_startTime == null);
             _startTime = DateTime.UtcNow;
             _animationId++;
             _isActive = true;

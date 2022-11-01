@@ -118,7 +118,10 @@ namespace PixUI
             Invalidate(InvalidAction.Relayout); //自身改变高度并通知上级
         }
 
-        private void TryBuildChildren()
+        /// <summary>
+        /// 确保构建子节点
+        /// </summary>
+        public void EnsureBuildChildren()
         {
             if (IsLeaf || _children != null) return;
 
@@ -145,7 +148,7 @@ namespace PixUI
                 return TreeView<T>.CalcMaxChildWidth(_children);
             }
 
-            TryBuildChildren();
+            EnsureBuildChildren();
 
             var maxWidth = 0f;
             var yPos = _controller.NodeHeight;
@@ -435,7 +438,7 @@ namespace PixUI
 
             if (node.IsLeaf) return;
 
-            node.TryBuildChildren(); //maybe not build
+            node.EnsureBuildChildren(); //maybe not build
 
             if (node._children != null && node._children.Count > 0)
             {
@@ -464,7 +467,7 @@ namespace PixUI
 
             if (!IsLeaf)
             {
-                TryBuildChildren(); //可能收缩中还没有构建子节点
+                EnsureBuildChildren(); //可能收缩中还没有构建子节点
 
                 foreach (var child in _children!)
                 {
@@ -497,7 +500,7 @@ namespace PixUI
         {
             if (IsLeaf) return;
 
-            TryBuildChildren();
+            EnsureBuildChildren();
 
             var insertIndex = index < 0 ? _children!.Count : index;
             _children!.Insert(insertIndex, child);
