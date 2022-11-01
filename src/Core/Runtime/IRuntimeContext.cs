@@ -11,6 +11,11 @@ public interface IRuntimeContext
     IUserSession? CurrentSession { get; }
 
     /// <summary>
+    /// 获取应用模型,找不到抛异常
+    /// </summary>
+    ValueTask<ApplicationModel> GetApplicationAsync(int appId);
+
+    /// <summary>
     /// 获取运行时模型,找不到抛异常
     /// </summary>
     ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase;

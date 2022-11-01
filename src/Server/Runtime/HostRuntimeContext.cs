@@ -14,10 +14,27 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
 {
     private static readonly AsyncLocal<IUserSession?> _sessionStore = new();
     private readonly Dictionary<long, ModelBase> _models = new();
+    private readonly Dictionary<int, ApplicationModel> _apps = new();
 
     public IUserSession? CurrentSession => _sessionStore.Value;
 
     internal static void SetCurrentSession(IUserSession? session) => _sessionStore.Value = session;
+
+    public async ValueTask<ApplicationModel> GetApplicationAsync(int appId)
+    {
+        if (_apps.TryGetValue(appId, out var app))
+            return app;
+
+        //TODO: 暂简单实现加载全部
+        var apps = await MetaStore.Provider.LoadAllApplicationAsync();
+        foreach(var item in apps)
+        {
+            _apps[item.Id] = item;
+        }
+        if (!_apps.TryGetValue(appId, out var app2))
+            throw new Exception("Can't load Application from MetaStore");
+        return app2;
+    }
 
     public async ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
     {
@@ -26,7 +43,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
 
         model = await MetaStore.Provider.LoadModelAsync(modelId);
         if (model == null)
-            throw new Exception("Can't load model from ModelStore");
+            throw new Exception("Can't load model from MetaStore");
 
         _models.TryAdd(modelId, model);
         return (T)model;

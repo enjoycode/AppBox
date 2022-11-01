@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -12,6 +13,13 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class SystemService : IService
 {
+    private static readonly ModelId _adminPermissionId = ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS);
+
+    private static void EnsureIsAdmin()
+    {
+        //TODO:
+    }
+
     /// <summary>
     /// 用户登录时验证并返回组织单元的路径
     /// </summary>
@@ -44,7 +52,7 @@ internal sealed class SystemService : IService
         foreach (var app in apps)
         {
             var appNode = new PermissionNode
-                { Name = app.Name, Children = new List<PermissionNode>() };
+            { Name = app.Name, Children = new List<PermissionNode>() };
             list.Add(appNode);
 
             var folderIndex = new Dictionary<Guid, PermissionNode>();
@@ -58,7 +66,8 @@ internal sealed class SystemService : IService
             {
                 var node = new PermissionNode
                 {
-                    Name = permision.Name, ModelId = permision.Id.ToString(),
+                    Name = permision.Name,
+                    ModelId = permision.Id.ToString(),
                     OrgUnits = permision.OrgUnits
                 };
                 if (permision.FolderId.HasValue &&
@@ -83,7 +92,7 @@ internal sealed class SystemService : IService
         if (folder.Parent != null)
         {
             var node = new PermissionNode
-                { Name = folder.Name!, Children = new List<PermissionNode>() };
+            { Name = folder.Name!, Children = new List<PermissionNode>() };
             dic.Add(folder.Id, node);
             parent.Children!.Add(node);
             parentNode = node;
@@ -96,6 +105,39 @@ internal sealed class SystemService : IService
                 LoopAddFolder(dic, parentNode, folder.Children[i]);
             }
         }
+    }
+
+    /// <summary>
+    /// 保存单个PermissionModel的权限变更
+    /// </summary>
+    private async Task<bool> SavePermission(string modelId, Guid[]? ouids)
+    {
+        EnsureIsAdmin();
+
+        var oldModel = (PermissionModel)await MetaStore.Provider.LoadModelAsync(modelId);
+        if (oldModel == null)
+            throw new Exception("Can't find PermissionModel");
+
+        //开始重置
+        oldModel.OrgUnits.Clear();
+        if (ouids != null)
+        {
+            foreach (var ouid in ouids)
+            {
+                oldModel.OrgUnits.Add(ouid);
+            }
+        }
+
+        //保存权限模型
+        await using var txn = await SqlStore.Default.BeginTransactionAsync();
+        await MetaStore.Provider.UpdateModelAsync(oldModel, txn,
+            appId => RuntimeContext.Current.GetApplicationAsync(appId).Result);
+        await txn.CommitAsync();
+
+        //更新本地模型缓存
+        RuntimeContext.Current.InvalidModelsCache(null, new[] { oldModel.Id }, true);
+        //TODO: 激发事件通知集群更新缓存
+        return true;
     }
 
     /// <summary>
@@ -114,6 +156,8 @@ internal sealed class SystemService : IService
                 await Login(args.GetString()!, args.GetString()!)),
             _ when method.Span.SequenceEqual(nameof(LoadPermissionTree)) => AnyValue.From(
                 await LoadPermissionTree()),
+            _ when method.Span.SequenceEqual(nameof(SavePermission)) => AnyValue.From(
+                await SavePermission(args.GetString()!, args.GetArray<Guid>())),
             _ when method.Span.SequenceEqual(nameof(Hello)) => AnyValue.From(
                 await Hello(args.GetString()!)),
             _ => throw new Exception($"Can't find method: {method}")
