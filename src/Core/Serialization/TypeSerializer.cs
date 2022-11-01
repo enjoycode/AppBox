@@ -146,6 +146,7 @@ public abstract class TypeSerializer
         RegisterKnownType(new ByteSerializer());
         RegisterKnownType(new ShortSerializer());
         RegisterKnownType(new IntSerializer());
+        RegisterKnownType(new GuidSerializer());
         RegisterKnownType(new StringSerializer());
         //Collection
         RegisterKnownType(new ArraySerializer());
