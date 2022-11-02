@@ -52,7 +52,7 @@ public sealed class EntityExpression : EntityPathExpression
             if (Cache.TryGetValue(name, out exp))
                 return exp;
 
-            var model = RuntimeContext.GetModelAsync<EntityModel>(ModelID).Result;
+            var model = RuntimeContext.GetModel<EntityModel>(ModelID);
             var m = model.GetMember(name, false);
             if (m != null)
             {

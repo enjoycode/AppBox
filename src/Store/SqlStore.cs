@@ -300,7 +300,7 @@ public abstract class SqlStore
         if (entity.PersistentState != PersistentState.Detached)
             throw new InvalidOperationException("Can't fetch none new entity");
 
-        var model = await RuntimeContext.Current.GetModelAsync<EntityModel>(entity.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(entity.ModelId);
         if (model.SqlStoreOptions == null || !model.SqlStoreOptions.HasPrimaryKeys)
             throw new InvalidOperationException("Can't fetch entity from sqlstore");
 

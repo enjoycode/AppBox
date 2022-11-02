@@ -84,7 +84,7 @@ partial class PgSqlStore
         // else
         // {
         var q = (ISqlEntityQuery)ctx.CurrentQuery;
-        var model = RuntimeContext.GetModelAsync<EntityModel>(q.T.ModelID).Result;
+        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
         ctx.Append('"');
         ctx.Append(model.GetSqlTableName(false, null));
         ctx.Append("\" ");
@@ -177,7 +177,7 @@ partial class PgSqlStore
         //From Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
         var q = (ISqlEntityQuery)query;
-        var model = RuntimeContext.GetModelAsync<EntityModel>(q.T.ModelID).Result;
+        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
         ctx.AppendWithNameEscaper(model.GetSqlTableName(false, null));
         ctx.Append(" AS ");
         ctx.Append(q.AliasName);
@@ -558,7 +558,7 @@ partial class PgSqlStore
 
     private void BuildFieldExpression(EntityFieldExpression exp, BuildQueryContext ctx)
     {
-        var model = RuntimeContext.GetModelAsync<EntityModel>(exp.Owner!.ModelID).Result;
+        var model = RuntimeContext.GetModel<EntityModel>(exp.Owner!.ModelID);
 
         //判断上下文是否在处理Update的Set
         if (ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildUpdateSet)
@@ -735,7 +735,7 @@ partial class PgSqlStore
             case ExpressionType.EntityFieldExpression:
             {
                 var e = (EntityFieldExpression)exp;
-                var model = RuntimeContext.GetModelAsync<EntityModel>(e.Owner.ModelID).Result;
+                var model = RuntimeContext.GetModel<EntityModel>(e.Owner.ModelID);
                 var fieldModel = (EntityFieldModel)model.GetMember(e.Name, true);
                 return fieldModel.FieldType == EntityFieldType.String;
             }

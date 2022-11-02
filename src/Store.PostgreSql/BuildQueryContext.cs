@@ -270,9 +270,9 @@ internal sealed class BuildQueryContext
         {
             //Left Join "City" c ON c."Code" = t."CityCode"
             //eg: Customer.City的City
-            var rqModel = RuntimeContext.GetModelAsync<EntityModel>(rq.ModelID).Result;
+            var rqModel = RuntimeContext.GetModel<EntityModel>(rq.ModelID);
             //eg: Customer.City的Customer
-            var rqOwnerModel = RuntimeContext.GetModelAsync<EntityModel>(rq.Owner.ModelID).Result;
+            var rqOwnerModel = RuntimeContext.GetModel<EntityModel>(rq.Owner.ModelID);
             AppendFormat(" Left Join \"{0}\" {1} On ", rqModel.GetSqlTableName(false, null),
                 rq.AliasName);
             //Build ON Condition, other.pks == this.fks

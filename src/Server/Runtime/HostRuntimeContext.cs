@@ -27,7 +27,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
 
         //TODO: 暂简单实现加载全部
         var apps = await MetaStore.Provider.LoadAllApplicationAsync();
-        foreach(var item in apps)
+        foreach (var item in apps)
         {
             _apps[item.Id] = item;
         }
@@ -144,5 +144,16 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     {
         model.AcceptChanges();
         _models.Add(model.Id, model);
+    }
+
+    /// <summary>
+    /// 判断当前运行时内的当前用户是否具备指定权限模型的授权
+    /// </summary>
+    public static bool HasPermission(ModelId permissionModelId)
+    {
+        if (RuntimeContext.CurrentSession == null) return false;
+
+        var model = RuntimeContext.GetModel<PermissionModel>(permissionModelId);
+        return model.Owns(RuntimeContext.CurrentSession);
     }
 }

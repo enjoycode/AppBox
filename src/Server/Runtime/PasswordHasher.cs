@@ -4,6 +4,9 @@ using AppBoxCore;
 
 namespace AppBoxServer;
 
+/// <summary>
+/// 默认的密码Hasher
+/// </summary>
 internal sealed class PasswordHasher : IPasswordHasher
 {
     public byte[] HashPassword(string password)

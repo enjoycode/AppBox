@@ -13,7 +13,8 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class SystemService : IService
 {
-    private static readonly ModelId _adminPermissionId = ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS);
+    private static readonly ModelId _adminPermissionId =
+        ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS);
 
     private static void EnsureIsAdmin()
     {
@@ -52,7 +53,7 @@ internal sealed class SystemService : IService
         foreach (var app in apps)
         {
             var appNode = new PermissionNode
-            { Name = app.Name, Children = new List<PermissionNode>() };
+                { Name = app.Name, Children = new List<PermissionNode>() };
             list.Add(appNode);
 
             var folderIndex = new Dictionary<Guid, PermissionNode>();
@@ -92,7 +93,7 @@ internal sealed class SystemService : IService
         if (folder.Parent != null)
         {
             var node = new PermissionNode
-            { Name = folder.Name!, Children = new List<PermissionNode>() };
+                { Name = folder.Name!, Children = new List<PermissionNode>() };
             dic.Add(folder.Id, node);
             parent.Children!.Add(node);
             parentNode = node;
@@ -130,8 +131,7 @@ internal sealed class SystemService : IService
 
         //保存权限模型
         await using var txn = await SqlStore.Default.BeginTransactionAsync();
-        await MetaStore.Provider.UpdateModelAsync(oldModel, txn,
-            appId => RuntimeContext.Current.GetApplicationAsync(appId).Result);
+        await MetaStore.Provider.UpdateModelAsync(oldModel, txn, RuntimeContext.GetApplication);
         await txn.CommitAsync();
 
         //更新本地模型缓存
