@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using PixUI;
 using AppBoxCore;
 
@@ -10,7 +9,7 @@ namespace AppBoxDesign
     [TSType("AppBoxDesign.DesignInitializer")]
     public static class DesignInitializer
     {
-        public static Task TryInit()
+        public static void Init()
         {
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityModelVO,
                 typeof(EntityModelVO), () => new EntityModelVO()));
@@ -38,8 +37,6 @@ namespace AppBoxDesign
                 typeof(FieldWithOrder), () => new FieldWithOrder()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ReferenceVO,
                 typeof(ReferenceVO), () => new ReferenceVO()));
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -122,7 +122,7 @@ namespace AppBoxClient
             {
                 var error = rs.ReadString();
                 MessageReadStream.Return(rs);
-                throw new Exception($"Login error: {error}");
+                throw new Exception(error);
             }
         }
 

@@ -55,10 +55,8 @@ namespace AppBoxDesign
             };
         }
 
-        private async Task OnLogin()
+        private async void OnLogin()
         {
-            await DesignInitializer.TryInit();
-
             try
             {
                 await Channel.Login(_userName.Value, _password.Value);
