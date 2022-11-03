@@ -9,11 +9,9 @@ internal static class TypeHelper
 {
     #region ====设计时类型常量====
 
-    internal const string MemberAccessInterceptorAttribute =
-        "AppBoxCore.MemberAccessInterceptorAttribute";
-
-    internal const string InvocationInterceptorAttribute =
-        "AppBoxCore.InvocationInterceptorAttribute";
+    internal const string MemberAccessInterceptorAttribute = "AppBoxCore.MemberAccessInterceptorAttribute";
+    internal const string InvocationInterceptorAttribute = "AppBoxCore.InvocationInterceptorAttribute";
+    internal const string InvokePermissionAttribute = "AppBoxCore.InvokePermissionAttribute";
 
     #endregion
 
@@ -77,8 +75,7 @@ internal static class TypeHelper
 
     #endregion
 
-    internal static string GetEntityMemberTypeString(ITypeSymbol valueTypeSymbol,
-        out bool isNullable)
+    internal static string GetEntityMemberTypeString(ITypeSymbol valueTypeSymbol, out bool isNullable)
     {
         throw new NotImplementedException();
         // isNullable = false;

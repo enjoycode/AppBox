@@ -49,29 +49,28 @@ internal partial class ServiceCodeGenerator
         {
             sb.AppendFormat("case ReadOnlyMemory<char> s when s.Span.SequenceEqual(\"{0}\"):",
                 method.Identifier.ValueText);
-            //TODO: 插入验证权限代码
-            // if (publicMethodsInvokePermissions.TryGetValue(method.Identifier.ValueText,
-            //         out string invokePermissionCode))
-            // {
-            //     sb.AppendFormat("{1}if (!({0})) throw new System.Exception(\"无调用服务方法的权限\");{1}",
-            //         invokePermissionCode, Environment.NewLine);
-            // }
+            //插入验证权限代码
+            if (_publicMethodsInvokePermissions.TryGetValue(method.Identifier.ValueText,
+                    out var invokePermissionCode))
+            {
+                sb.AppendFormat("\nif (!({0})) throw new System.Exception(\"无调用服务方法的权限\");\n",
+                    invokePermissionCode);
+            }
 
             //插入调用代码
             //TODO:暂简单判断有无返回值，应直接判断是否Awaitable，另处理同步方法调用
             var isReturnVoid = method.IsReturnVoid();
             var isReturnTask = !isReturnVoid && method.IsReturnTask();
-            if (!isReturnVoid)
-                sb.Append("return AppBoxCore.AnyValue.From(");
-            if (isReturnTask)
-                sb.Append("await ");
-            sb.AppendFormat("{0}(", method.Identifier.ValueText);
+            if (!isReturnVoid) sb.Append("return AppBoxCore.AnyValue.From(");
+            if (isReturnTask) sb.Append("await ");
+            sb.Append(method.Identifier.ValueText);
+            sb.Append('(');
             for (var i = 0; i < method.ParameterList.Parameters.Count; i++)
             {
                 sb.Append(GenArgsGetMethod(method.ParameterList.Parameters[i].Type!));
 
                 if (i != method.ParameterList.Parameters.Count - 1)
-                    sb.Append(",");
+                    sb.Append(',');
             }
 
             sb.Append(!isReturnVoid ? "));\n" : "); return AppBoxCore.AnyValue.Empty;\n");

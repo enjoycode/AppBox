@@ -11,6 +11,15 @@ namespace AppBoxCore
     {
         public MemberAccessInterceptorAttribute(string name) {}
     }
+    
+    /// <summary>
+    /// 服务方法的调用权限
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public sealed class InvokePermissionAttribute : Attribute
+    {
+        public InvokePermissionAttribute(bool permission) { }
+    }
 }
 
 namespace AppBoxStore
