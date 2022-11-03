@@ -28,6 +28,15 @@ public sealed class SqlQueryTest
     }
 
     [Test]
+    public async Task ToSingleTest()
+    {
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        q.Where(t => t["Name"] == "Admin");
+        var entity = await q.ToSingleAsync();
+        Assert.True(entity != null && entity.Name == "Admin");
+    }
+
+    [Test]
     public async Task ToListTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);

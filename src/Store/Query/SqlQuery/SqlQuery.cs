@@ -203,12 +203,44 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     //     //return (T)db.ExecuteScalar(cmd);
     // }
 
+    public async Task<TEntity?> ToSingleAsync()
+    {
+        Purpose = QueryPurpose.ToSingle;
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+
+        //TODO: 添加选择项,暂默认*
+        // if (_rootIncluder != null) {
+        //     AddAllSelects(model, t, null);
+        //     _rootIncluder.addSelects(this, model, null);
+        // }
+
+        //递交查询
+        var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
+        await using var cmd = db.BuildQuery(this);
+        await using var conn = await db.OpenConnectionAsync();
+        cmd.Connection = conn;
+        Log.Debug(cmd.CommandText);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        if (await reader.ReadAsync())
+        {
+            var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
+            EntityFetchUtil.FillEntity(entity, model, reader, 0);
+
+            // if (_rootIncluder != null)
+            //     await _rootIncluder.LoadEntitySets(db, res, null); //TODO:fix txn
+            return entity;
+        }
+
+        return null;
+    }
+
     public async Task<IList<TEntity>> ToListAsync()
     {
         Purpose = QueryPurpose.ToList;
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
 
-        //添加选择项,暂默认*
+        // TODO: 添加选择项,暂默认*
         // if (_rootIncluder != null) {
         //     AddAllSelects(model, t, null);
         //     _rootIncluder.addSelects(this, model, null);
