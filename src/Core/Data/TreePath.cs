@@ -10,19 +10,31 @@ public sealed class TreePath
         _nodes = nodes.ToArray();
     }
 
-    private TreePathNode[] _nodes;
+    private readonly TreePathNode[] _nodes;
 
     public int Level => _nodes.Length;
 
     public TreePathNode this[int index] => _nodes[index];
+
+    public override string ToString()
+    {
+        var sb = StringBuilderCache.Acquire();
+        for (var i = _nodes.Length - 1; i >= 0; i--)
+        {
+            if (i != _nodes.Length - 1) sb.Append(" / ");
+            sb.Append(_nodes[i].Text);
+        }
+
+        return StringBuilderCache.GetStringAndRelease(sb);
+    }
 }
 
 public readonly struct TreePathNode
 {
-    public readonly Guid Id;
+    public readonly object Id;
     public readonly string Text;
 
-    public TreePathNode(Guid id, string text)
+    public TreePathNode(object id, string text)
     {
         Id = id;
         Text = text;

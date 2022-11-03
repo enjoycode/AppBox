@@ -18,7 +18,7 @@ public sealed class SqlQueryTest
     public async Task FetchTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where(t => t["Name"] == "Admin");
+        q.Where(t => t[nameof(Employee.Name)] == "Admin");
         var list = await q.ToListAsync();
         var src = list[0];
 
@@ -31,7 +31,7 @@ public sealed class SqlQueryTest
     public async Task ToSingleTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where(t => t["Name"] == "Admin");
+        q.Where(t => t[nameof(Employee.Name)] == "Admin");
         var entity = await q.ToSingleAsync();
         Assert.True(entity != null && entity.Name == "Admin");
     }
@@ -40,7 +40,7 @@ public sealed class SqlQueryTest
     public async Task ToListTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where(t => t["Name"] == "Admin");
+        q.Where(t => t[nameof(Employee.Name)] == "Admin");
         var list = await q.ToListAsync();
         Assert.True(list.Count == 1);
     }
@@ -49,7 +49,17 @@ public sealed class SqlQueryTest
     public async Task ToTreeTest()
     {
         var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
-        var tree = await q.ToTreeAsync(t => t["Children"]);
+        var tree = await q.ToTreeAsync(t => t[nameof(OrgUnit.Children)]);
         Assert.True(tree.Count == 1);
+    }
+
+    [Test]
+    public async Task ToTreePathTest()
+    {
+        var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
+        q.Where(t => t[nameof(OrgUnit.Name)] == "Admin");
+        var path = await q.ToTreePathAsync(t => t[nameof(OrgUnit.Parent)], t => t[nameof(OrgUnit.Name)]);
+        Assert.True(path != null);
+        Console.WriteLine(path);
     }
 }

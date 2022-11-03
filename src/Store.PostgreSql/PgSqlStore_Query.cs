@@ -21,8 +21,7 @@ partial class PgSqlStore
                 BuildTreeQuery(query, ctx);
                 break;
             case QueryPurpose.ToTreePath:
-                throw new NotImplementedException();
-                // BuildTreeNodePathQuery(query, ctx);
+                BuildTreePathQuery(query, ctx);
                 break;
             default:
                 BuildNormalQuery(query, ctx);
@@ -248,49 +247,49 @@ partial class PgSqlStore
         ctx.EndBuildQuery(query, true);
     }
 
-    // private void BuildTreeNodePathQuery(ISqlSelectQuery query, BuildQueryContext ctx)
-    // {
-    //     //设置上下文
-    //     ctx.BeginBuildQuery(query);
-    //
-    //     ctx.Append("With RECURSIVE cte (\"Id\",\"ParentId\",\"Text\",\"Level\") As (Select ");
-    //     //Select Anchor
-    //     ctx.SetBuildStep(BuildQueryStep.BuildSelect);
-    //     BuildCTE_SelectItems(query, ctx, true);
-    //     ctx.Append("0 From ");
-    //     //From Anchor
-    //     ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-    //     SqlQuery q = (SqlQuery)query;
-    //     var model = Runtime.RuntimeContext.Current.GetModelAsync<EntityModel>(q.T.ModelID).Result;
-    //     ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
-    //     //Where Anchor
-    //     ctx.SetBuildStep(BuildQueryStep.BuildWhere);
-    //     if (!Equals(null, query.Filter))
-    //     {
-    //         ctx.Append(" Where ");
-    //         BuildExpression(query.Filter, ctx);
-    //     }
-    //
-    //     //End 1
-    //     ctx.CurrentQueryInfo.EndBuidQuery(); //ctx.EndBuildQuery(query);
-    //
-    //     //Union all
-    //     ctx.SetBuildStep(BuildQueryStep.BuildSelect);
-    //     ctx.Append(" Union All Select ");
-    //     //Select 2
-    //     BuildCTE_SelectItems(query, ctx, true);
-    //     ctx.Append("\"Level\" + 1 From ");
-    //     //From 2
-    //     ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-    //     ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
-    //     //Inner Join 
-    //     ctx.Append(" Inner Join cte as d On d.\"ParentId\"=t.\"Id\") Select * From cte");
-    //
-    //     //End 1
-    //     ctx.EndBuildQuery(query, true);
-    // }
+    private void BuildTreePathQuery(ISqlSelectQuery query, BuildQueryContext ctx)
+    {
+        //设置上下文
+        ctx.BeginBuildQuery(query);
+    
+        ctx.Append("With RECURSIVE cte (\"Id\",\"ParentId\",\"Text\",\"Level\") As (Select ");
+        //Select Anchor
+        ctx.SetBuildStep(BuildQueryStep.BuildSelect);
+        BuildCTE_SelectItems(query, ctx, true);
+        ctx.Append("0 From ");
+        //From Anchor
+        ctx.SetBuildStep(BuildQueryStep.BuildFrom);
+        var q = (ISqlEntityQuery)query;
+        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
+        ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
+        //Where Anchor
+        ctx.SetBuildStep(BuildQueryStep.BuildWhere);
+        if (!Equals(null, query.Filter))
+        {
+            ctx.Append(" Where ");
+            BuildExpression(query.Filter, ctx);
+        }
+    
+        //End 1
+        ctx.CurrentQueryInfo.EndBuidQuery(); //ctx.EndBuildQuery(query);
+    
+        //Union all
+        ctx.SetBuildStep(BuildQueryStep.BuildSelect);
+        ctx.Append(" Union All Select ");
+        //Select 2
+        BuildCTE_SelectItems(query, ctx, true);
+        ctx.Append("\"Level\" + 1 From ");
+        //From 2
+        ctx.SetBuildStep(BuildQueryStep.BuildFrom);
+        ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
+        //Inner Join 
+        ctx.Append(" Inner Join cte as d On d.\"ParentId\"=t.\"Id\") Select * From cte");
+    
+        //End 1
+        ctx.EndBuildQuery(query, true);
+    }
 
-    private void BuildCTE_SelectItems(ISqlSelectQuery query, BuildQueryContext ctx,
+    private static void BuildCTE_SelectItems(ISqlSelectQuery query, BuildQueryContext ctx,
         bool forTeeNodePath = false)
     {
         //ctx.IsBuildCTESelectItem = true;

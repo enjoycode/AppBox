@@ -266,6 +266,11 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return list;
     }
 
+    /// <summary>
+    /// 返回树状结构的实体集合
+    /// </summary>
+    /// <param name="childrenMember">eg: t => t["Children"]</param>
+    /// <returns></returns>
     public async Task<IList<TEntity>> ToTreeAsync(
         Func<EntityExpression, EntityPathExpression> childrenMember)
     {
@@ -325,6 +330,56 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return list;
     }
 
+    /// <summary>
+    /// 返回树状结构的路径, eg: 根节点/子节点/子子节点
+    /// </summary>
+    /// <param name="parentMember">指向上级的EntityRef成员 eg: t => t["Parent"]</param>
+    /// <param name="textMember">指向用于显示的文本成员</param>
+    public async Task<TreePath?> ToTreePathAsync(Func<EntityExpression, EntityPathExpression> parentMember,
+        Func<EntityExpression, EntityPathExpression> textMember)
+    {
+        if (Expression.IsNull(Filter))
+            throw new Exception("Must set filter to single entity");
+        var parent = parentMember(T);
+        if (parent is not EntityExpression)
+            throw new Exception("Parent is not EntityRef member");
+
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        if (!model.SqlStoreOptions!.HasPrimaryKeys || model.SqlStoreOptions.PrimaryKeys.Length > 1)
+            throw new Exception("仅支持具备单一主键的树状实体");
+
+        //验证上级非聚合引用，且引用目标为自身
+        var entityRefModel = (EntityRefModel)model.GetMember(parent.Name!)!;
+        if (entityRefModel.IsAggregationRef)
+            throw new Exception("不支持上级成员为聚合引用");
+        if (entityRefModel.RefModelIds[0] != model.Id)
+            throw new Exception("当前实体非树状结构");
+
+        var pkName = model.GetMember(model.SqlStoreOptions.PrimaryKeys[0].MemberId)!.Name;
+        var fkName = model.GetMember(entityRefModel.FKMemberIds[0])!.Name;
+
+        Purpose = QueryPurpose.ToTreePath;
+        AddSelectItem(new SqlSelectItemExpression(T[pkName], "Id"));
+        AddSelectItem(new SqlSelectItemExpression(T[fkName], "ParentId"));
+        AddSelectItem(new SqlSelectItemExpression(textMember(T), "Text"));
+
+        //开始执行查询并转换
+        var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
+        await using var cmd = db.BuildQuery(this);
+        await using var conn = await db.OpenConnectionAsync();
+        cmd.Connection = conn;
+        Log.Debug(cmd.CommandText);
+
+        var list = new List<TreePathNode>();
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            var node = new TreePathNode(reader.GetValue(0), reader.GetString(2));
+            list.Add(node);
+        }
+
+        return new TreePath(list);
+    }
 
     /// <summary>
     /// 用于树状结构填充时查找指定实体的上级
