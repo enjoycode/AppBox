@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore;
+using AppBoxStore.Entities;
 
 namespace AppBoxServer;
 
@@ -24,17 +24,34 @@ internal sealed class SystemService : IService
     /// <summary>
     /// 用户登录时验证并返回组织单元的路径
     /// </summary>
-    internal Task<TreePath> Login(string user, string password)
+    internal async Task<TreePath> Login(string user, string password)
     {
-        Log.Info($"用户登录: {user}");
+        if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
+            throw new Exception("用户名或密码为空");
 
-        var path = new TreePath(new[]
-        {
-            new TreePathNode(Guid.NewGuid(), "Admin"),
-            new TreePathNode(Guid.NewGuid(), "AppBox Corp.")
-        });
+        //查找账号
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        q.Where(e => e[nameof(Employee.Account)] == user);
+        var emp = await q.ToSingleAsync();
+        if (emp == null)
+            throw new Exception("用户不存在");
+        if (emp.Password == null)
+            throw new Exception("用户密码不存在");
 
-        return Task.FromResult(path);
+        //验证密码
+        if (!RuntimeContext.PasswordHasher!.VerifyHashedPassword(emp.Password, password))
+            throw new Exception("密码错误");
+
+        //查找对应的组织单元
+        var q1 = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
+        q1.Where(t => t[nameof(OrgUnit.Id)] == emp.Id);
+        var ous = await q1.ToListAsync();
+        if (ous.Count == 0)
+            throw new Exception("用户不在组织内");
+        var q2 = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
+        q2.Where(t => t[nameof(OrgUnit.Id)] == ous[0].Id); //暂始终取第一个组织单元
+        var path = await q2.ToTreePathAsync(t => t[nameof(OrgUnit.Parent)], t => t[nameof(OrgUnit.Name)]);
+        return path!;
     }
 
     /// <summary>

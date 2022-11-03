@@ -52,7 +52,7 @@ public sealed class PermissionModel : ModelBase
             var startIndex = session.IsExternal ? 1 : 0; //注意:外部会话忽略第0级的External信息
             for (var j = startIndex; j < session.Levels; j++)
             {
-                if (session[j].Id == orgUnit)
+                if ((Guid)session[j].Id == orgUnit)
                     return true;
             }
         }

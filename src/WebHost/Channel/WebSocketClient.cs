@@ -73,7 +73,6 @@ internal sealed class WebSocketClient
         var user = reader.ReadString()!;
         var pass = reader.ReadString()!;
         MessageReadStream.Return(reader);
-        Log.Debug($"收到用户登录请求: {user}");
 
         //调用系统服务进行验证
         TreePath? result = null;
@@ -81,6 +80,7 @@ internal sealed class WebSocketClient
         try
         {
             result = await SysServiceContainer.SystemService.Login(user, pass);
+            Log.Info($"[{user}]登录成功.");
         }
         catch (Exception e)
         {

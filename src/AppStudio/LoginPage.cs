@@ -7,8 +7,13 @@ namespace AppBoxDesign
 {
     public sealed class LoginPage : View
     {
+#if DEBUG
+        private readonly State<string> _userName = "Admin";
+        private readonly State<string> _password = "760wb";
+#else
         private readonly State<string> _userName = "";
         private readonly State<string> _password = "";
+#endif
         private readonly State<float> _inputSize = 20;
 
         public LoginPage()
@@ -52,15 +57,17 @@ namespace AppBoxDesign
 
         private async Task OnLogin()
         {
-            // try
-            // {
             await DesignInitializer.TryInit();
 
-            await Channel.Login(_userName.Value, _password.Value);
-
-            CurrentNavigator!.PushNamed("IDE");
-            // }
-            // catch (Exception ex) { }
+            try
+            {
+                await Channel.Login(_userName.Value, _password.Value);
+                CurrentNavigator!.PushNamed("IDE");
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"登录错误: {ex.Message}");
+            }
         }
     }
 }
