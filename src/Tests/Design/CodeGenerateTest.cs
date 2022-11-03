@@ -38,12 +38,22 @@ public class CodeGenerateTest
         Console.Write(code);
     }
 
+    [Test(Description = "测试生成权限模型虚拟代码")]
+    public async Task GenPermissionCodeTest()
+    {
+        var designHub = await TestHelper.MockSession();
+        var node = designHub.DesignTree.FindModelNodeByFullName("sys.Permissions.Admin")!;
+        var model = (PermissionModel)node.Model;
+        var code = PermissionCodeGenerator.GenDummyCode(model, node.AppNode.Model.Name);
+        Console.WriteLine(code);
+    }
+
     [Test(Description ="测试生成服务的运行时代码")]
     public async Task GenServiceRuntimeCodeTest()
     {
         var designHub = await TestHelper.MockSession();
         var serviceModel = (ServiceModel)
-            designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrgUnitService")!.Model;
+            designHub.DesignTree.FindModelNodeByFullName("sys.Services.HelloService")!.Model;
         var res = await PublishService.CompileServiceAsync(designHub, serviceModel);
         Assert.True(res != null);
     }

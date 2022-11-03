@@ -98,7 +98,10 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
             { CallServiceInterceptor.Name, new CallServiceInterceptor() }
         };
 
-        memberAccessInterceptors = new();
+        memberAccessInterceptors = new Dictionary<string, IMemberAccessInterceptor<SyntaxNode>>
+        {
+            { PermissionAccessInterceptor.Name, new PermissionAccessInterceptor() }
+        };
     }
 
     private static IInvocationInterceptor<SyntaxNode>? GetInvocationInterceptor(ISymbol? symbol)

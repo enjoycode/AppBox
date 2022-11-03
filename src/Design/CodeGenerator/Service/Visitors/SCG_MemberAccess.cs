@@ -28,6 +28,15 @@ internal partial class ServiceCodeGenerator
                     .WithTriviaFrom(node);
             }
         }
+        
+        //拦截器处理
+        var expSymbol = SemanticModel.GetSymbolInfo(node).Symbol;
+        if (expSymbol != null)
+        {
+            var interceptor = GetMemberAccessInterceptor(expSymbol);
+            if (interceptor != null)
+                return interceptor.VisitMemberAccess(node, expSymbol, this);
+        }
 
         return base.VisitMemberAccessExpression(node);
     }

@@ -25,6 +25,9 @@ public sealed class ModelNode : DesignNode
                 ExtRoslynDocumentId =
                     DocumentId.CreateNewId(hub.TypeSystem.ServiceProxyProjectId);
                 break;
+            case ModelType.Permission:
+                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ServiceBaseProjectId);
+                break;
         }
     }
 
