@@ -45,6 +45,13 @@ namespace AppBoxStore
 
         public static Task<int> DeleteAsync(this SqlEntity entity, DbTransaction? txn = null)
             => throw new Exception();
+
+        public static SqlStore GetSqlStore(this SqlEntity entity) => throw new Exception();
+    }
+
+    public abstract class SqlStore
+    {
+        public Task<DbTransaction> BeginTransactionAsync() => throw new Exception();
     }
 
     public sealed class SqlQuery<T> where T : SqlEntity

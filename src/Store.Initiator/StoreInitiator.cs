@@ -61,7 +61,7 @@ internal static class StoreInitiator
         //新建默认系统管理员及测试账号
         var admin = new Employee(Guid.NewGuid());
         admin.Name = admin.Account = "Admin";
-        admin.Password = RuntimeContext.PasswordHasher.HashPassword("760wb");
+        admin.Password = RuntimeContext.PasswordHasher!.HashPassword("760wb");
         admin.Male = true;
         admin.Birthday = new DateTime(1977, 3, 16);
 

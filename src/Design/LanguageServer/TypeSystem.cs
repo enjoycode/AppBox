@@ -345,18 +345,13 @@ internal sealed class TypeSystem : IDisposable
             prjName, DesignTimeServiceAssemblyName, LanguageNames.CSharp, null, null,
             DllCompilationOptions, ServiceParseOptions);
 
-        var deps = new List<MetadataReference>
+        var deps = new List<MetadataReference> //设计时不加入AppBoxStore引用
         {
             MetadataReferences.CoreLib,
             MetadataReferences.NetstandardLib,
             MetadataReferences.SystemRuntimeLib,
             MetadataReferences.SystemLinqLib,
-            // MetadataReferences.SystemRuntimeExtLib,
             MetadataReferences.SystemDataLib,
-            // MetadataReferences.ComponentModelPrimitivesLib,
-            // MetadataReferences.SystemBuffersLib,
-            // MetadataReferences.SystemTasksLib,
-            // MetadataReferences.TasksExtLib,
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
         };
 

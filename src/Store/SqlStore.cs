@@ -28,7 +28,7 @@ public abstract class SqlStore
 #if !FUTURE
     public static readonly long DefaultSqlStoreId = StringUtil.GetHashCode("Default");
 
-    public static SqlStore Default { get; private set; }
+    public static SqlStore Default { get; private set; } = null!;
 
     public static void InitDefault(string assemblyName, string typeName, string connectionString)
     {

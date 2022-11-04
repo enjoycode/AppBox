@@ -449,6 +449,11 @@ internal static class EntityCodeGenerator
         if (model.SqlStoreOptions == null) return;
 
         sb.Append("#if __HOSTRUNTIME__\n");
+        // GetSqlStore
+        sb.Append("public SqlStore GetSqlStore() =>");
+        GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
+        sb.Append(";\n\n");
+        
         // InsertAsync
         sb.Append(
             "public Task<int> InsertAsync(System.Data.Common.DbTransaction? txn=null) =>\n");
