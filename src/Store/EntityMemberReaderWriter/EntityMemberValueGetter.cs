@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace AppBoxCore;
@@ -56,6 +55,6 @@ internal sealed class EntityMemberValueGetter : IEntityMemberWriter
     public void WriteEntityRefMember(short id, Entity? value, int flags)
         => Value = value == null ? AnyValue.Empty : AnyValue.From(value);
 
-    public void WriteEntitySetMember<T>(short id, IList<T>? value, int flags) where T : Entity
+    public void WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags) where T : Entity, new()
         => Value = value == null ? AnyValue.Empty : AnyValue.From(value);
 }

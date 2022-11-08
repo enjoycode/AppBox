@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using AppBoxCore;
 
@@ -15,9 +14,12 @@ internal sealed class EntityNaviPropInitiator : IEntityMemberReader
 
     internal static EntityNaviPropInitiator ThreadInstance => _threadLocal.Value;
 
-    private object _naviMemberValue = null!;
+    /// <summary>
+    /// EntityRef或EntitySet的实例
+    /// </summary>
+    internal object NaviMemberValue { get; private set; } = null!;
 
-    internal object NaviMemberValue => _naviMemberValue;
+    #region ====NotSupported====
 
     public string ReadStringMember(int flags) => throw new NotSupportedException();
 
@@ -35,17 +37,17 @@ internal sealed class EntityNaviPropInitiator : IEntityMemberReader
 
     public byte[] ReadBinaryMember(int flags) => throw new NotSupportedException();
 
+    #endregion
+
     public T ReadEntityRefMember<T>(int flags, Func<T>? creator) where T : Entity
     {
         var res = creator!.Invoke();
-        _naviMemberValue = res;
+        NaviMemberValue = res;
         return res;
     }
 
-    public IList<T> ReadEntitySetMember<T>(int flags, Func<T>? creator) where T : Entity
+    public void ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet) where T : Entity, new()
     {
-        var res = new List<T>();
-        _naviMemberValue = res;
-        return res;
+        NaviMemberValue = entitySet;
     }
 }

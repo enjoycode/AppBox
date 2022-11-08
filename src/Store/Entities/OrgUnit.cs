@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using AppBoxCore;
 
 namespace AppBoxStore.Entities;
@@ -16,7 +15,7 @@ internal sealed class OrgUnit : SqlEntity
 
     private SqlEntity? _base;
     private OrgUnit? _parent;
-    private IList<OrgUnit>? _children;
+    private EntitySet<OrgUnit>? _children;
 
     public Guid Id => _id;
 
@@ -39,8 +38,7 @@ internal sealed class OrgUnit : SqlEntity
         set
         {
             _parent = value;
-            if (_parent != null) 
-                _parentId = _parent.Id;
+            _parentId = _parent?.Id;
         }
     }
 
@@ -81,12 +79,11 @@ internal sealed class OrgUnit : SqlEntity
         }
     }
 
-    public IList<OrgUnit>? Children
+    public EntitySet<OrgUnit> Children
     {
         get
         {
-            if (_children == null && PersistentState == PersistentState.Detached)
-                _children = new List<OrgUnit>();
+            _children ??= new EntitySet<OrgUnit>((child, toNull) => child.Parent = toNull ? null : this);
             return _children;
         }
     }
@@ -169,7 +166,7 @@ internal sealed class OrgUnit : SqlEntity
                 _parent = rs.ReadEntityRefMember(flags, () => new OrgUnit());
                 break;
             case CHILDREN_ID:
-                _children = rs.ReadEntitySetMember(flags, () => new OrgUnit());
+                rs.ReadEntitySetMember(flags, Children);
                 break;
             default:
                 throw new SerializationException(SerializationError.UnknownEntityMember,

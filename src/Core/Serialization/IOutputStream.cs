@@ -142,17 +142,13 @@ public interface IOutputStream : IEntityMemberWriter
         this.Serialize(value);
     }
 
-    void IEntityMemberWriter.WriteEntitySetMember<T>(short id, IList<T>? value, int flags)
+    void IEntityMemberWriter.WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags)
     {
         if (flags != EntityMemberWriteFlags.None) return; //存储不需要写入
         if (value == null) return;
 
         this.WriteShort(id);
-        this.WriteVariant(value.Count);
-        foreach (var entity in value)
-        {
-            this.Serialize(entity);
-        }
+        ((IBinSerializable)value).WriteTo(this);
     }
 
     #endregion

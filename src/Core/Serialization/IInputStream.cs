@@ -76,33 +76,12 @@ public interface IInputStream : IEntityMemberReader
 
     T IEntityMemberReader.ReadEntityRefMember<T>(int flags, Func<T>? creator)
     {
-        var payloadType = (PayloadType)ReadByte();
-        if (payloadType == PayloadType.ObjectRef)
-            return (T)Context.GetDeserialized(this.ReadVariant());
-        if (payloadType == PayloadType.Entity)
-            return this.ReadEntity(creator);
-        //其他PayloadType抛异常
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return this.DeserializeEntity(creator)!;
     }
 
-    IList<T> IEntityMemberReader.ReadEntitySetMember<T>(int flags, Func<T>? creator)
+    void IEntityMemberReader.ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet)
     {
-        var count = this.ReadVariant();
-        var list = new List<T>(count);
-        for (var i = 0; i < count; i++)
-        {
-            T entity;
-            var payloadType = (PayloadType)ReadByte();
-            if (payloadType == PayloadType.ObjectRef)
-                entity = (T)Context.GetDeserialized(this.ReadVariant());
-            else if (payloadType == PayloadType.Entity)
-                entity = this.ReadEntity(creator);
-            else //其他PayloadType抛异常
-                throw new SerializationException(SerializationError.PayloadTypeNotMatch);
-            list.Add(entity);
-        }
-
-        return list;
+        ((IBinSerializable)entitySet).ReadFrom(this);
     }
 
     #endregion
@@ -401,7 +380,19 @@ public static class InputStreamExtensions
         return result;
     }
 
-    internal static T ReadEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
+    internal static T? DeserializeEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
+    {
+        var payloadType = (PayloadType)s.ReadByte();
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.ObjectRef => (T)s.Context.GetDeserialized(s.ReadVariant()),
+            PayloadType.Entity => s.ReadEntity(creator),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
+    }
+
+    private static T ReadEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
     {
         var modelId = s.ReadLong();
         var entity = creator != null ? creator() : s.Context.MakeEntity(modelId);

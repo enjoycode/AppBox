@@ -84,6 +84,6 @@ internal readonly struct DbCommandParameterWriter : IEntityMemberWriter
     public void WriteEntityRefMember(short id, Entity? value, int flags)
         => throw new NotSupportedException(nameof(WriteEntityRefMember));
 
-    public void WriteEntitySetMember<T>(short id, IList<T>? value, int flags) where T : Entity
+    public void WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags) where T : Entity, new()
         => throw new NotSupportedException(nameof(WriteEntitySetMember));
 }

@@ -51,6 +51,7 @@ public sealed class SqlQueryTest
         var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
         var tree = await q.ToTreeAsync(t => t[nameof(OrgUnit.Children)]);
         Assert.True(tree.Count == 1);
+        Assert.True(ReferenceEquals(tree[0], tree[0].Children[0].Parent));
     }
 
     [Test]

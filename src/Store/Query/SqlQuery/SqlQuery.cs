@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore.Utils;
@@ -315,11 +314,8 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
             else
             {
                 var parent = FindParent(TreeParentMember, entity, allList);
-                //set child.Parent = parent
-                SetParent(TreeParentMember, parent, entity);
                 //add child to parent.children list
-                var childrenList =
-                    (IList<TEntity>)GetNaviPropForFetch(parent, childrenModel.MemberId);
+                var childrenList = (EntitySet<TEntity>)GetNaviPropForFetch(parent, childrenModel.MemberId);
                 childrenList.Add(entity);
             }
 
@@ -416,17 +412,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     }
 
     /// <summary>
-    /// 用于树状结构填充时设置上级实例
-    /// </summary>
-    private static void SetParent(EntityRefModel parentModel, TEntity parent, TEntity child)
-    {
-        var memberValueSetter = EntityMemberValueSetter.ThreadInstance;
-        memberValueSetter.Value = AnyValue.From(parent);
-        child.ReadMember(parentModel.MemberId, memberValueSetter, EntityMemberWriteFlags.None);
-    }
-
-    /// <summary>
-    /// 初始化实体的导航属性
+    /// 初始化(读取或新建)实体的导航属性
     /// </summary>
     private static object GetNaviPropForFetch(SqlEntity entity, short naviMemberId)
     {
@@ -436,7 +422,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         if (!memberValueGetter.Value.IsEmpty)
             return memberValueGetter.Value.BoxedValue!;
 
-        // 初始化导航属性
+        // 初始化导航属性的实例
         var initiator = EntityNaviPropInitiator.ThreadInstance;
         entity.ReadMember(naviMemberId, initiator, EntityMemberWriteFlags.None);
         return initiator.NaviMemberValue;

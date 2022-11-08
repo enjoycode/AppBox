@@ -285,7 +285,7 @@ internal static class EntityCodeGenerator
                     {
                         var fkMember =
                             (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
-                        if (fkMember.IsPrimaryKey) continue; //TODO:暂OrgUnit特例
+                        if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
                         var pkMember = refModel.GetMember(refPks[i].MemberId)!;
                         sb.Append(
                             $"\t\t\t\t{fkMember.Name} = _{refModel.Name}.{pkMember.Name};\n");
@@ -305,7 +305,9 @@ internal static class EntityCodeGenerator
                 {
                     var fkMember = entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
                     var pkMember = refModel.GetMember(refPks[i].MemberId)!;
-                    sb.Append($"\t\t\t{fkMember.Name} = value.{pkMember.Name};\n");
+                    sb.Append(entityRef.AllowNull
+                        ? $"\t\t\t{fkMember.Name} = value?.{pkMember.Name};\n"
+                        : $"\t\t\t{fkMember.Name} = value!.{pkMember.Name};\n");
                 }
             }
         }
@@ -327,14 +329,14 @@ internal static class EntityCodeGenerator
         var refModel = (EntityModel)refNode.Model;
         var typeString = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
         var fieldName = entitySet.Name;
+        var refName = refModel.GetMember(entitySet.RefMemberId)!.Name;
 
-        sb.Append($"\tprivate IList<{typeString}>? _{fieldName};\n");
-        sb.Append($"\tpublic IList<{typeString}>? {fieldName}\n");
+        sb.Append($"\tprivate EntitySet<{typeString}>? _{fieldName};\n");
+        sb.Append($"\tpublic EntitySet<{typeString}> {fieldName}\n");
         sb.Append("\t{\n"); //prop start
         sb.Append("\t\tget {\n");
-        sb.Append(
-            $"\t\t\tif (_{fieldName} == null && PersistentState == PersistentState.Detached)\n");
-        sb.Append($"\t\t\t\t_{fieldName} = new List<{typeString}>();\n");
+        sb.Append($"\t\t\t_{fieldName} ??= new EntitySet<{typeString}>((t,toNull) => t.{refName} = toNull ? null : this);\n");
+        
         sb.Append($"\t\t\treturn _{fieldName};\n");
         sb.Append("\t\t}\n");
 
@@ -376,9 +378,13 @@ internal static class EntityCodeGenerator
             sb.Append("\t\tcase ");
             sb.Append(member.MemberId.ToString());
             sb.Append(":");
-            if (model.StoreOptions != null) sb.Append('_');
-            sb.Append(member.Name);
-            sb.Append("=rs.Read");
+            if (member.Type != EntityMemberType.EntitySet)
+            {
+                if (model.StoreOptions != null) sb.Append('_');
+                sb.Append(member.Name);
+                sb.Append('=');
+            }
+            sb.Append("rs.Read");
             sb.Append(GetEntityMemberWriteReadType(member));
             sb.Append("Member");
             switch (member.Type)
@@ -425,7 +431,7 @@ internal static class EntityCodeGenerator
                         var refNode = tree.FindModelNode(entitySet.RefModelId)!;
                         var refModel = (EntityModel)refNode.Model;
                         var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
-                        sb.Append($"(flags, () => new {refModelName}());break;\n");
+                        sb.Append($"(flags, {member.Name});break;\n");
 
                         break;
                     }

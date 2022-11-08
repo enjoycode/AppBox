@@ -33,6 +33,6 @@ internal sealed class EntityMemberValueSetter : IEntityMemberReader
     public T ReadEntityRefMember<T>(int flags, Func<T>? creator) where T : Entity
         => (T)Value.BoxedValue!;
 
-    public IList<T> ReadEntitySetMember<T>(int flags, Func<T>? creator) where T : Entity
-        => (IList<T>)Value.BoxedValue!;
+    public void ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet) where T : Entity, new()
+        => throw new NotSupportedException();
 }

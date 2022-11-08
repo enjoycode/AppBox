@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using AppBoxCore;
 
@@ -35,6 +34,6 @@ public readonly struct SqlRowReader : IEntityMemberReader
     public T ReadEntityRefMember<T>(int flags, Func<T>? creator) where T : Entity
         => throw new NotSupportedException();
 
-    public IList<T> ReadEntitySetMember<T>(int flags, Func<T>? creator) where T : Entity
+    public void ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet) where T : Entity, new()
         => throw new NotSupportedException();
 }

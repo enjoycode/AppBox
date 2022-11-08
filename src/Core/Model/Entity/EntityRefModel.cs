@@ -10,7 +10,7 @@ public sealed class EntityRefModel : EntityMemberModel, IModelReference
     /// 设计时新建非聚合引用成员
     /// </summary>
     public EntityRefModel(EntityModel owner, string name, ModelId refModelId,
-        short[] fkMemberIds, bool foreignConstraint = true) : base(owner, name, true)
+        short[] fkMemberIds, bool allowNull = true, bool foreignConstraint = true) : base(owner, name, allowNull)
     {
         if (fkMemberIds == null || fkMemberIds.Length == 0)
             throw new ArgumentNullException(nameof(fkMemberIds));
@@ -26,8 +26,8 @@ public sealed class EntityRefModel : EntityMemberModel, IModelReference
     /// 设计时新建聚合引用成员
     /// </summary>
     public EntityRefModel(EntityModel owner, string name, List<long> refModelIds,
-        short[] fkMemberIds, short typeMemberId, bool foreignConstraint = true) : base(owner, name,
-        true)
+        short[] fkMemberIds, short typeMemberId, bool allowNull = true, bool foreignConstraint = true)
+        : base(owner, name, allowNull)
     {
         if (fkMemberIds == null || fkMemberIds.Length == 0)
             throw new ArgumentNullException(nameof(fkMemberIds));

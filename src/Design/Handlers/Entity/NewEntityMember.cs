@@ -136,7 +136,7 @@ internal sealed class NewEntityMember : IDesignHandler
         }
         else
         {
-            entityRef = new EntityRefModel(model, name, refIds[0], fkMemberIds); //TODO:入参指明是否外键约束
+            entityRef = new EntityRefModel(model, name, refIds[0], fkMemberIds, allowNull /*TODO:入参指明是否外键约束 */);
         }
 
         model.AddMember(entityRef);
