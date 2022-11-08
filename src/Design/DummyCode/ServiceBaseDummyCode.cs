@@ -71,6 +71,6 @@ namespace AppBoxStore
         /// 执行查询并转换为树状结构
         /// </summary>
         [QueryMethod()]
-        public Task<IList<T>> ToTreeAsync(Func<T, IList<T>> children) => throw new Exception();
+        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => throw new Exception();
     }
 }

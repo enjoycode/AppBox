@@ -139,6 +139,8 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.NetstandardLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemCollectionsLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemLinqLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIWebLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
