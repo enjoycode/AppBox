@@ -6,8 +6,6 @@ namespace AppBoxStore.Entities;
 [EntityModelId(MODELID)]
 internal sealed class OrgUnit : SqlEntity
 {
-    public OrgUnit() { }
-
     private string _name = null!;
     private Guid _id;
     private long _baseType;
