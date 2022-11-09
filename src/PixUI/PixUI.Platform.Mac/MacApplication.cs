@@ -18,6 +18,7 @@ namespace PixUI.Platform.Mac
         {
             // init platform supports
             Cursor.PlatformCursors = new MacCursors();
+            Clipboard.Init(new MacClipboard());
 
             // create and run application
             var app = new MacApplication();
