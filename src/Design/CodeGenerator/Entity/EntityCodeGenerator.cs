@@ -462,11 +462,20 @@ internal static class EntityCodeGenerator
         sb.Append("public Task<int> InsertAsync(System.Data.Common.DbTransaction? txn=null) =>\n");
         GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
         sb.Append(".InsertAsync(this,txn);\n\n");
+        
+        // UpdateAsync
+        sb.Append("public Task<int> UpdateAsync(System.Data.Common.DbTransaction? txn=null) =>\n");
+        GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
+        sb.Append(".UpdateAsync(this,txn);\n\n");
+        
+        // DeleteAsync
+        sb.Append("public Task<int> DeleteAsync(System.Data.Common.DbTransaction? txn=null) =>\n");
+        GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
+        sb.Append(".DeleteAsync(this,txn);\n\n");
 
         // FetchAsync
         GenStoreFetchMethod(model, sb, true);
-
-        //TODO: others
+        
         sb.Append("#else\n");
         //生成internal版本的FetchAsync方法,防止前端工程看见此方法
         GenStoreFetchMethod(model, sb, false);

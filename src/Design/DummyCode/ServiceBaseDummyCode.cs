@@ -54,7 +54,7 @@ namespace AppBoxStore
         public Task<DbTransaction> BeginTransactionAsync() => throw new Exception();
     }
 
-    public sealed class SqlQuery<T> where T : SqlEntity
+    public sealed class SqlQuery<T> where T : SqlEntity, new()
     {
         [GenericCreate]
         public SqlQuery() { }

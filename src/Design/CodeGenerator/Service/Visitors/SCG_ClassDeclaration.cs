@@ -59,8 +59,11 @@ internal partial class ServiceCodeGenerator
 
             //插入调用代码
             //TODO:暂简单判断有无返回值，应直接判断是否Awaitable，另处理同步方法调用
-            var isReturnVoid = method.IsReturnVoid();
-            var isReturnTask = !isReturnVoid && method.IsReturnTask();
+            var isReturnTask = method.IsReturnTask();
+            var isReturnVoidTask = isReturnTask &&
+                                   !((INamedTypeSymbol)SemanticModel.GetSymbolInfo(method.ReturnType).Symbol!)
+                                       .IsGenericType;
+            var isReturnVoid = method.IsReturnVoid() || isReturnVoidTask;
             if (!isReturnVoid) sb.Append("return AppBoxCore.AnyValue.From(");
             if (isReturnTask) sb.Append("await ");
             sb.Append(method.Identifier.ValueText);
