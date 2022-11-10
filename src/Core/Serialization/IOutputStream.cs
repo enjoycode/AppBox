@@ -267,10 +267,9 @@ public static class OutputStreamExtensions
         else if (type == typeof(Entity) || type.IsSubclassOf(typeof(Entity)))
         {
             s.WriteByte(3);
-            //再写入模型标识, TODO:待C#11 直接用ModelId静态接口
-            //https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/static-abstract-interface-methods
-            var modelIdAttr = type.GetCustomAttribute(typeof(EntityModelIdAttribute));
-            s.WriteLong(modelIdAttr == null ? 0 : ((EntityModelIdAttribute)modelIdAttr).Id);
+            //再写入模型标识, TODO:暂使用反射，考虑只写入ModelId = 0
+            var staticModelIdProp = type.GetField("MODELID", BindingFlags.Static | BindingFlags.Public);
+            s.WriteLong(staticModelIdProp == null ? 0 : (long)staticModelIdProp.GetValue(null));
         }
         else
         {
@@ -278,8 +277,7 @@ public static class OutputStreamExtensions
             if (serializer == null)
             {
                 Log.Error("未能找到序列化实现 类型:" + type.FullName);
-                throw new SerializationException(SerializationError.CanNotFindSerializer,
-                    type.FullName);
+                throw new SerializationException(SerializationError.CanNotFindSerializer, type.FullName);
             }
 
             if (serializer.PayloadType == PayloadType.ExtKnownType)
@@ -370,7 +368,8 @@ public static class OutputStreamExtensions
             s.WriteByte(boolValue ? (byte)PayloadType.BooleanTrue : (byte)PayloadType.BooleanFalse);
             return;
         }
-        else if (value is Entity entity)
+
+        if (value is Entity entity)
         {
             s.Serialize(entity);
             return;

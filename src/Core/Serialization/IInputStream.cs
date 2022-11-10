@@ -262,8 +262,7 @@ public static class InputStreamExtensions
                 return modelId == 0 ? typeof(Entity) : s.Context.GetEntityType(modelId);
             }
             default:
-                throw new SerializationException(SerializationError.UnknownTypeFlag,
-                    typeFlag.ToString());
+                throw new SerializationException(SerializationError.UnknownTypeFlag, typeFlag.ToString());
         }
     }
 

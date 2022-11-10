@@ -3,7 +3,6 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-[EntityModelId(MODELID)]
 internal sealed class Checkout : SqlEntity
 {
     public Checkout() { }

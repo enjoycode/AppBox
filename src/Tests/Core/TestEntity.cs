@@ -3,7 +3,6 @@ using AppBoxCore;
 
 namespace Tests.Core;
 
-[EntityModelId(12345l)]
 public sealed class TestEntity : Entity, IEquatable<TestEntity>
 {
     private static readonly short[] Members = { 1, 2 };
@@ -12,7 +11,7 @@ public sealed class TestEntity : Entity, IEquatable<TestEntity>
 
     public int? Score { get; set; }
 
-    internal static readonly ModelId MODELID = 12345;
+    internal const long MODELID = 12345;
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => Members;
 

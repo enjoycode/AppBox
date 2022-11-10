@@ -163,8 +163,7 @@ internal static class EntityCodeGenerator
         sb.Append("using System.Threading.Tasks;\n");
         sb.Append("using AppBoxCore;\n\n");
         sb.Append($"namespace {appName}.Entities;\n");
-
-        sb.Append($"[EntityModelIdAttribute({model.Id.Value}L)]\n");
+        
         sb.Append($"public sealed class {model.Name} : {GetEntityBaseClass(model)}");
         sb.Append("\n{\n"); //class start
 

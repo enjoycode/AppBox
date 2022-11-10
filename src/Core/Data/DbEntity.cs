@@ -5,7 +5,7 @@ namespace AppBoxCore;
 /// </summary>
 public abstract class DbEntity : Entity
 {
-    private IList<short>? _changedMembers = null;
+    private IList<short>? _changedMembers;
     public PersistentState PersistentState { get; private set; }
 
     protected void OnPropertyChanged(short memberId)
@@ -26,4 +26,11 @@ public abstract class DbEntity : Entity
     /// 仅用于从数据库加载完成后变更持久化状态
     /// </summary>
     internal void FetchDone() => PersistentState = PersistentState.Unchanged;
+
+    internal void WriteTo(IOutputStream ws)
+    {
+        ws.WriteByte((byte)PersistentState);
+        
+    }
+    
 }
