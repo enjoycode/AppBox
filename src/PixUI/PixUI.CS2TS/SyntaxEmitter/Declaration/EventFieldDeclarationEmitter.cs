@@ -13,7 +13,7 @@ namespace PixUI.CS2TS
         internal override void Emit(Emitter emitter, EventFieldDeclarationSyntax node)
         {
             emitter.AddUsedModule("System"); //always use System module
-            
+
             if (node.IsTSRawScript(out var script))
             {
                 emitter.Write(script!);
@@ -32,8 +32,8 @@ namespace PixUI.CS2TS
             var typeSymbol = emitter.SemanticModel.GetSymbolInfo(type).Symbol;
             // check is System.Action type
             var isActionType = type is GenericNameSyntax
-                ? emitter.TypeOfAction1.Equals(typeSymbol?.OriginalDefinition)
-                : emitter.TypeOfAction.Equals(typeSymbol);
+                ? SymbolEqualityComparer.Default.Equals(emitter.TypeOfAction1, typeSymbol?.OriginalDefinition)
+                : SymbolEqualityComparer.Default.Equals(emitter.TypeOfAction, typeSymbol);
             if (!isActionType)
                 throw new Exception("Only support System.Action now");
 

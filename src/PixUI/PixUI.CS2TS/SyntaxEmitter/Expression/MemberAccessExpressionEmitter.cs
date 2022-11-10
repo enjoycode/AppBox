@@ -76,16 +76,18 @@ namespace PixUI.CS2TS
                 var type = propertySymbol.ContainingType;
                 var isCollection = false;
                 //先判断本身是否ICollection
-                isCollection = type.TypeKind == TypeKind.Interface &&
-                               (type.Equals(emitter.TypeOfICollection)
-                                || emitter.TypeOfICollectionGeneric.Equals(
-                                    type.OriginalDefinition));
+                isCollection = type.TypeKind == TypeKind.Interface && (
+                    SymbolEqualityComparer.Default.Equals(type, emitter.TypeOfICollection)
+                    ||
+                    SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, emitter.TypeOfICollection)
+                );
                 //再判断有无实现ICollection接口
                 if (!isCollection)
-                    isCollection = type.AllInterfaces
-                        .Any(t => t.Equals(emitter.TypeOfICollection)
-                                  || emitter.TypeOfICollectionGeneric
-                                      .Equals(t.OriginalDefinition));
+                    isCollection = type.AllInterfaces.Any(t =>
+                        SymbolEqualityComparer.Default.Equals(t, emitter.TypeOfICollection)
+                        ||
+                        SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, emitter.TypeOfICollection)
+                    );
 
                 if (isCollection)
                 {

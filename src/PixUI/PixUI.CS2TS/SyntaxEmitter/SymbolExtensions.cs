@@ -35,27 +35,31 @@ namespace PixUI.CS2TS
 
         internal static bool IsNullableType(this ITypeSymbol symbol, INamedTypeSymbol nullableType)
         {
-            return symbol.IsValueType && nullableType.Equals(symbol.OriginalDefinition);
+            return symbol.IsValueType &&
+                   SymbolEqualityComparer.Default.Equals(nullableType, symbol.OriginalDefinition);
         }
 
         internal static bool IsStateType(this ITypeSymbol symbol, INamedTypeSymbol stateType)
         {
             //TODO:考虑判断继承自
-            return symbol.IsReferenceType && stateType.Equals(symbol.OriginalDefinition);
+            return symbol.IsReferenceType &&
+                   SymbolEqualityComparer.Default.Equals(stateType, symbol.OriginalDefinition);
         }
 
         internal static bool IsTSInterfaceOfAttribute(this ITypeSymbol symbol,
             INamedTypeSymbol interfaceOfType)
         {
-            return symbol.GetAttributes().Any(t =>
-                t.AttributeClass != null && t.AttributeClass.Equals(interfaceOfType));
+            return symbol.GetAttributes().Any(
+                t => t.AttributeClass != null &&
+                     SymbolEqualityComparer.Default.Equals(t.AttributeClass, interfaceOfType));
         }
 
         internal static bool IsImplements(this ITypeSymbol symbol, ITypeSymbol type)
         {
             //注意擦除范型类型
-            return symbol.AllInterfaces
-                .Any(t => t.IsGenericType ? t.OriginalDefinition.Equals(type) : t.Equals(type));
+            return symbol.AllInterfaces.Any(t => t.IsGenericType
+                ? SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, type)
+                : SymbolEqualityComparer.Default.Equals(t, type));
         }
 
         /// <summary>

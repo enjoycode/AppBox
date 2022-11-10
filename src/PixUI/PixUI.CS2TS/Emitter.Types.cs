@@ -132,9 +132,9 @@ namespace PixUI.CS2TS
 
             if (symbol.IsSystemNamespace()) return;
 
-            var renameAttribute = symbol.GetAttributes()
-                .SingleOrDefault(t => t.AttributeClass != null &&
-                                      t.AttributeClass.Equals(TypeOfTSRenameAttribute));
+            var renameAttribute = symbol.GetAttributes().FirstOrDefault(
+                t => t.AttributeClass != null &&
+                     SymbolEqualityComparer.Default.Equals(t.AttributeClass, TypeOfTSRenameAttribute));
             if (renameAttribute == null) return;
 
             name = renameAttribute.ConstructorArguments[0].Value!.ToString();
