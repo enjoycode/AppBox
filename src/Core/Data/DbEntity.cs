@@ -31,6 +31,27 @@ public abstract class DbEntity : Entity
     {
         ws.WriteByte((byte)PersistentState);
         
+        var changesCount = _changedMembers?.Count ?? 0;
+        ws.WriteVariant(changesCount);
+        for (var i = 0; i < changesCount; i++)
+        {
+            ws.WriteShort(_changedMembers![i]);
+        }
+    }
+
+    internal void ReadFrom(IInputStream rs)
+    {
+        PersistentState = (PersistentState)rs.ReadByte();
+
+        var changesCount = rs.ReadVariant();
+        if (changesCount > 0)
+        {
+            _changedMembers = new List<short>(changesCount);
+            for (var i = 0; i < changesCount; i++)
+            {
+                _changedMembers.Add(rs.ReadShort());
+            }
+        }
     }
     
 }
