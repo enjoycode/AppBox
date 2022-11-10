@@ -118,7 +118,7 @@ public sealed class SqlMetaStore : IMetaStore
     internal static async ValueTask<ApplicationModel> LoadApplicationAsync(int appId)
     {
         var data = await LoadMetaDataAsync(Meta_Application, appId.ToString());
-        return MetaSerializer.DeserializeMeta(data, () => new ApplicationModel());
+        return MetaSerializer.DeserializeMeta(data!, () => new ApplicationModel());
     }
 
     /// <summary>
@@ -157,8 +157,7 @@ public sealed class SqlMetaStore : IMetaStore
     public async Task<ModelBase> LoadModelAsync(ModelId modelId)
     {
         var data = await LoadMetaDataAsync(Meta_Model, modelId.ToString());
-        var model = MetaSerializer.DeserializeMeta<ModelBase>(data,
-            () => ModelFactory.Make(modelId.Type));
+        var model = MetaSerializer.DeserializeMeta<ModelBase>(data!, () => ModelFactory.Make(modelId.Type));
         model.AcceptChanges();
         return model;
     }
@@ -268,7 +267,7 @@ public sealed class SqlMetaStore : IMetaStore
     public async Task<string> LoadModelCodeAsync(ModelId modelId)
     {
         var data = await LoadMetaDataAsync(Meta_Code, modelId.ToString());
-        return ModelCodeUtil.DecompressCode(data);
+        return ModelCodeUtil.DecompressCode(data!);
     }
 
     // /// <summary>

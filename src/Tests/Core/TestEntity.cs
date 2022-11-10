@@ -16,7 +16,7 @@ public sealed class TestEntity : Entity, IEquatable<TestEntity>
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => Members;
 
-    protected internal override void WriteMember(short id, IEntityMemberWriter ws, int flags)
+    protected internal override void WriteMember<T>(short id, ref T ws, int flags)
     {
         switch (id)
         {
@@ -30,7 +30,7 @@ public sealed class TestEntity : Entity, IEquatable<TestEntity>
         }
     }
 
-    protected internal override void ReadMember(short id, IEntityMemberReader rs, int flags)
+    protected internal override void ReadMember<T>(short id, ref T rs, int flags)
     {
         switch (id)
         {

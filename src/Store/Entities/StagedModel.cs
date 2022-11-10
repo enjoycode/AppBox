@@ -16,9 +16,9 @@ internal sealed class StagedModel : SqlEntity
     }
 
     private byte _type;
-    private string _modelId;
+    private string _modelId = string.Empty;
     private Guid _developerId;
-    private byte[] _data;
+    private byte[] _data = null!;
 
     public byte Type => _type;
 
@@ -48,7 +48,7 @@ internal sealed class StagedModel : SqlEntity
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
 
-    protected internal override void WriteMember(short id, IEntityMemberWriter ws, int flags)
+    protected internal override void WriteMember<T>(short id, ref T ws, int flags)
     {
         switch (id)
         {
@@ -70,7 +70,7 @@ internal sealed class StagedModel : SqlEntity
         }
     }
 
-    protected internal override void ReadMember(short id, IEntityMemberReader rs, int flags)
+    protected internal override void ReadMember<T>(short id, ref T rs, int flags)
     {
         switch (id)
         {

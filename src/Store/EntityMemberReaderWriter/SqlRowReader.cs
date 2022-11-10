@@ -1,41 +1,35 @@
 using System;
 using System.Data.Common;
-using System.Threading;
 using AppBoxCore;
 
 namespace AppBoxStore;
 
-public sealed class SqlRowReader : IEntityMemberReader
+public readonly struct SqlRowReader : IEntityMemberReader
 {
     //flags = 列序号
-    
-    private static readonly ThreadLocal<SqlRowReader> _threadLocal =
-        new(() => new SqlRowReader());
 
-    internal static SqlRowReader ThreadInstance => _threadLocal.Value;
-
-    private DbDataReader? _dataReader;
-
-    public DbDataReader? DataReader
+    public SqlRowReader(DbDataReader dbDataReader)
     {
-        set => _dataReader = value;
+        _dataReader = dbDataReader;
     }
 
-    public string ReadStringMember(int flags) => _dataReader!.GetString(flags);
+    private readonly DbDataReader _dataReader;
 
-    public bool ReadBoolMember(int flags) => _dataReader!.GetBoolean(flags);
+    public string ReadStringMember(int flags) => _dataReader.GetString(flags);
 
-    public byte ReadByteMember(int flags) => _dataReader!.GetByte(flags);
+    public bool ReadBoolMember(int flags) => _dataReader.GetBoolean(flags);
 
-    public int ReadIntMember(int flags) => _dataReader!.GetInt32(flags);
+    public byte ReadByteMember(int flags) => _dataReader.GetByte(flags);
 
-    public long ReadLongMember(int flags) => _dataReader!.GetInt64(flags);
+    public int ReadIntMember(int flags) => _dataReader.GetInt32(flags);
 
-    public DateTime ReadDateTimeMember(int flags) => _dataReader!.GetDateTime(flags);
+    public long ReadLongMember(int flags) => _dataReader.GetInt64(flags);
 
-    public Guid ReadGuidMember(int flags) => _dataReader!.GetGuid(flags);
+    public DateTime ReadDateTimeMember(int flags) => _dataReader.GetDateTime(flags);
 
-    public byte[] ReadBinaryMember(int flags) => (byte[])_dataReader!.GetValue(flags);
+    public Guid ReadGuidMember(int flags) => _dataReader.GetGuid(flags);
+
+    public byte[] ReadBinaryMember(int flags) => (byte[])_dataReader.GetValue(flags);
 
     public T ReadEntityRefMember<T>(int flags, Func<T>? creator) where T : Entity
         => throw new NotSupportedException();

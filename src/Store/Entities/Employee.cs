@@ -94,7 +94,7 @@ internal sealed class Employee : SqlEntity
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
 
-    protected internal override void WriteMember(short id, IEntityMemberWriter ws, int flags)
+    protected internal override void WriteMember<T>(short id, ref T ws, int flags)
     {
         switch (id)
         {
@@ -122,7 +122,7 @@ internal sealed class Employee : SqlEntity
         }
     }
 
-    protected internal override void ReadMember(short id, IEntityMemberReader rs, int flags)
+    protected internal override void ReadMember<T>(short id, ref T rs, int flags)
     {
         switch (id)
         {

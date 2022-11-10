@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 
 namespace AppBoxCore;
 
@@ -11,22 +10,15 @@ namespace AppBoxCore;
 /// 使用示例:
 /// <code>
 /// var obj = new SomeEntity() { Name = "Rick" };
-/// var getter = EntityMemberValueGetter.ThreadInstance;
-/// obj.WriteMember(1 /*memberId*/, getter, EntityMemberWriteFlags.None);
+/// var getter = new EntityMemberValueGetter();
+/// obj.WriteMember(1 /*memberId*/, ref getter, EntityMemberWriteFlags.None);
 /// var memberValue = getter.Value.GuidValue;
 /// </code>
 /// </example>
 /// </remarks>
-internal sealed class EntityMemberValueGetter : IEntityMemberWriter
+internal struct EntityMemberValueGetter : IEntityMemberWriter
 {
-    private static readonly ThreadLocal<EntityMemberValueGetter> _threadLocal =
-        new(() => new EntityMemberValueGetter());
-
-    internal static EntityMemberValueGetter ThreadInstance => _threadLocal.Value;
-
     internal AnyValue Value;
-
-    private EntityMemberValueGetter() { }
 
     public void WriteStringMember(short id, string? value, int flags)
         => Value = value == null ? AnyValue.Empty : AnyValue.From(value);

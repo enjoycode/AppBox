@@ -16,9 +16,9 @@ internal sealed class Checkout : SqlEntity
     }
 
     private byte _nodeType;
-    private string _targetId;
+    private string _targetId = string.Empty;
     private Guid _developerId;
-    private string _developerName;
+    private string _developerName = string.Empty;
     private int _version;
 
     public byte NodeType => _nodeType;
@@ -61,7 +61,7 @@ internal sealed class Checkout : SqlEntity
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
 
-    protected internal override void WriteMember(short id, IEntityMemberWriter ws, int flags)
+    protected internal override void WriteMember<T>(short id, ref T ws, int flags)
     {
         switch (id)
         {
@@ -86,7 +86,7 @@ internal sealed class Checkout : SqlEntity
         }
     }
 
-    protected internal override void ReadMember(short id, IEntityMemberReader rs, int flags)
+    protected internal override void ReadMember<T>(short id, ref T rs, int flags)
     {
         switch (id)
         {

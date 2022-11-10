@@ -9,24 +9,20 @@ namespace AppBoxStore.Utils
         internal static void FillEntity(SqlEntity entity, EntityModel model, DbDataReader row,
             int extendsFlag)
         {
-            var reader = SqlRowReader.ThreadInstance;
-            reader.DataReader = row;
-            
             //填充实体成员
             for (var i = 0; i < row.FieldCount - extendsFlag; i++)
             {
                 if (row.IsDBNull(i)) continue;
-                
-                FillMember(model, entity, row.GetName(i), reader, i);
+
+                FillMember(model, entity, row.GetName(i), row, i);
             }
 
-            reader.DataReader = null;
             //需要改变实体持久化状态
             entity.FetchDone();
         }
 
         private static void FillMember(EntityModel model, SqlEntity entity, string path,
-            SqlRowReader reader, int clIndex)
+            DbDataReader row, int clIndex)
         {
             var indexOfDot = path.IndexOf('.');
             if (indexOfDot < 0)
@@ -39,7 +35,8 @@ namespace AppBoxStore.Utils
                 }
                 else
                 {
-                    entity.ReadMember(member.MemberId, reader, clIndex);
+                    var reader = new SqlRowReader(row);
+                    entity.ReadMember(member.MemberId, ref reader, clIndex);
                 }
             }
             else
@@ -47,6 +44,5 @@ namespace AppBoxStore.Utils
                 throw new NotImplementedException();
             }
         }
-
     }
 }

@@ -462,8 +462,7 @@ public abstract class SqlStore
             if (member.Type != EntityMemberType.EntityField) continue;
 
             var entityField = (EntityFieldModel)member;
-            entity.WriteMember(entityField.MemberId, entityMemberWriter,
-                EntityMemberWriteFlags.None);
+            entity.WriteMember(entityField.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
             if (cmd.Parameters.Count > parasCount) //已写入实体成员
             {
                 if (parasCount != 0) sb.Append(',');
@@ -507,7 +506,7 @@ public abstract class SqlStore
             if (dfm.IsPrimaryKey) continue; //跳过主键
             if (!entity.IsMemberChanged(dfm.MemberId)) continue; //字段值无改变
 
-            entity.WriteMember(mm.MemberId, entityMemberWriter, EntityMemberWriteFlags.None);
+            entity.WriteMember(mm.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
 
             if (hasChangedMember) sb.Append(",");
             else hasChangedMember = true;
@@ -555,7 +554,7 @@ public abstract class SqlStore
             var pk = model.SqlStoreOptions.PrimaryKeys[i];
             var mm = (EntityFieldModel)model.GetMember(pk.MemberId, true)!;
 
-            entity.WriteMember(pk.MemberId, entityMemberWriter, EntityMemberWriteFlags.None);
+            entity.WriteMember(pk.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
 
             if (i != 0) sb.Append(" And");
             sb.Append(' ');

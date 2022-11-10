@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -7,12 +6,9 @@ namespace AppBoxStore;
 /// <summary>
 /// 用于查询时初始化实体的导航属性
 /// </summary>
-internal sealed class EntityNaviPropInitiator : IEntityMemberReader
+internal struct EntityNaviPropInitiator : IEntityMemberReader
 {
-    private static readonly ThreadLocal<EntityNaviPropInitiator> _threadLocal =
-        new(() => new EntityNaviPropInitiator());
-
-    internal static EntityNaviPropInitiator ThreadInstance => _threadLocal.Value;
+    public EntityNaviPropInitiator() { }
 
     /// <summary>
     /// EntityRef或EntitySet的实例

@@ -385,16 +385,16 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     {
         var model = parentModel.Owner;
         var pks = model.SqlStoreOptions!.PrimaryKeys;
-        var memberValueGetter = EntityMemberValueGetter.ThreadInstance;
+        var memberValueGetter = new EntityMemberValueGetter();
         for (var i = from.Count - 1; i >= 0; i--) //倒查
         {
             var allSame = true;
             for (var j = 0; j < parentModel.FKMemberIds.Length; j++)
             {
-                entity.WriteMember(parentModel.FKMemberIds[j], memberValueGetter,
+                entity.WriteMember(parentModel.FKMemberIds[j], ref memberValueGetter,
                     EntityMemberWriteFlags.None);
                 var fkValue = memberValueGetter.Value;
-                from[i].WriteMember(pks[j].MemberId, memberValueGetter,
+                from[i].WriteMember(pks[j].MemberId, ref memberValueGetter,
                     EntityMemberWriteFlags.None);
                 var pkValue = memberValueGetter.Value;
                 if (!fkValue.Equals(pkValue))
@@ -417,14 +417,14 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     private static object GetNaviPropForFetch(SqlEntity entity, short naviMemberId)
     {
         // 先判断是否已初始化过
-        var memberValueGetter = EntityMemberValueGetter.ThreadInstance;
-        entity.WriteMember(naviMemberId, memberValueGetter, EntityMemberWriteFlags.None);
+        var memberValueGetter = new EntityMemberValueGetter();
+        entity.WriteMember(naviMemberId, ref memberValueGetter, EntityMemberWriteFlags.None);
         if (!memberValueGetter.Value.IsEmpty)
             return memberValueGetter.Value.BoxedValue!;
 
         // 初始化导航属性的实例
-        var initiator = EntityNaviPropInitiator.ThreadInstance;
-        entity.ReadMember(naviMemberId, initiator, EntityMemberWriteFlags.None);
+        var initiator = new EntityNaviPropInitiator();
+        entity.ReadMember(naviMemberId, ref initiator, EntityMemberWriteFlags.None);
         return initiator.NaviMemberValue;
     }
 
