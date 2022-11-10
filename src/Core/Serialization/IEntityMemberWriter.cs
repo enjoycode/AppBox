@@ -6,6 +6,7 @@ public static class EntityMemberWriteFlags
     public const int Store = 1;
     public const int WriteNull = 2;
     public const int OrderByDesc = 4;
+    public const int IgnoreNavigates = 8;
 }
 
 public interface IEntityMemberWriter

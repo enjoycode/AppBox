@@ -14,7 +14,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteStringMember(short id, string? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -29,7 +30,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteBoolMember(short id, bool? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -44,7 +46,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteByteMember(short id, byte? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -59,7 +62,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteIntMember(short id, int? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -74,7 +78,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteLongMember(short id, long? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -89,7 +94,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteDateTimeMember(short id, DateTime? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -104,7 +110,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteGuidMember(short id, Guid? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -119,7 +126,8 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteBinaryMember(short id, byte[]? value, int flags)
     {
-        if (flags == EntityMemberWriteFlags.None)
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
         {
             if (value == null) return;
 
@@ -135,7 +143,7 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteEntityRefMember(short id, Entity? value, int flags)
     {
-        if (flags != EntityMemberWriteFlags.None) return; //存储不需要写入
+        if (flags != EntityMemberWriteFlags.None) return; //存储或忽略导航属性不需要写入
         if (value == null) return;
 
         this.WriteShort(id);
@@ -144,7 +152,7 @@ public interface IOutputStream : IEntityMemberWriter
 
     void IEntityMemberWriter.WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags)
     {
-        if (flags != EntityMemberWriteFlags.None) return; //存储不需要写入
+        if (flags != EntityMemberWriteFlags.None) return; //存储或忽略导航属性不需要写入
         if (value == null) return;
 
         this.WriteShort(id);

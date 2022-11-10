@@ -12,7 +12,25 @@ public abstract class Entity : IBinSerializable
     /// </summary>
     protected abstract short[] AllMembers { get; }
 
+    /// <summary>
+    /// 用于序列化时是否忽略导航属性
+    /// </summary>
+    private int _writeMemberFlags = 0;
+
     #region ====Serialization====
+
+    /// <summary>
+    /// 序列化时忽略当前实体的所有导航属性
+    /// </summary>
+    /// <remarks>
+    /// 一般用于树状结构实体由前端向后端传输时，忽略相关的上下级关系，以减少序列化数据量。 注意序列化后会重置
+    /// </remarks>
+    /// <returns>Self instance</returns>
+    public T IgnoreSerializeNavigateMembers<T>() where T : Entity
+    {
+        _writeMemberFlags |= EntityMemberWriteFlags.IgnoreNavigates;
+        return (T)this;
+    }
 
     /// <summary>
     /// 写入成员至IEntityMemberWriter，由IEntityMemberWriter及flags决定写入格式
@@ -29,8 +47,10 @@ public abstract class Entity : IBinSerializable
         //Write members
         foreach (var memberId in AllMembers)
         {
-            WriteMember(memberId, ref ws, EntityMemberWriteFlags.None);
+            WriteMember(memberId, ref ws, _writeMemberFlags);
         }
+
+        _writeMemberFlags = EntityMemberWriteFlags.None; //注意写完后重置
 
         ws.WriteShort(0); //End write members
     }

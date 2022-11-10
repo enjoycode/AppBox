@@ -232,7 +232,8 @@ internal static class EntityCodeGenerator
             //暂判断是主键且非新建状态抛异常
             if (field.IsPrimaryKey)
             {
-                sb.Append($"\t\t\tif (PersistentState != PersistentState.Detached) throw new NotSupportedException();\n");
+                sb.Append(
+                    "\t\t\tif (PersistentState != PersistentState.Detached) throw new NotSupportedException();\n");
             }
 
             sb.Append($"\t\t\tif (_{field.Name} == value) return;\n");
@@ -335,8 +336,9 @@ internal static class EntityCodeGenerator
         sb.Append($"\tpublic EntitySet<{typeString}> {fieldName}\n");
         sb.Append("\t{\n"); //prop start
         sb.Append("\t\tget {\n");
-        sb.Append($"\t\t\t_{fieldName} ??= new EntitySet<{typeString}>((t,toNull) => t.{refName} = toNull ? null : this);\n");
-        
+        sb.Append(
+            $"\t\t\t_{fieldName} ??= new EntitySet<{typeString}>((t,toNull) => t.{refName} = toNull ? null : this);\n");
+
         sb.Append($"\t\t\treturn _{fieldName};\n");
         sb.Append("\t\t}\n");
 
@@ -345,8 +347,7 @@ internal static class EntityCodeGenerator
 
     private static void GenOverrideWriteMember(EntityModel model, StringBuilder sb)
     {
-        sb.Append(
-            "protected override void WriteMember(short id, IEntityMemberWriter ws, int flags){\n");
+        sb.Append("protected override void WriteMember<T>(short id, ref T ws, int flags){\n");
         sb.Append("\tswitch(id){\n");
         foreach (var member in model.Members)
         {
@@ -370,8 +371,7 @@ internal static class EntityCodeGenerator
 
     private static void GenOverrideReadMember(EntityModel model, StringBuilder sb, DesignTree tree)
     {
-        sb.Append(
-            "protected override void ReadMember(short id, IEntityMemberReader rs, int flags){\n");
+        sb.Append("protected override void ReadMember<T>(short id, ref T rs, int flags){\n");
         sb.Append("\tswitch(id){\n");
         foreach (var member in model.Members)
         {
@@ -384,6 +384,7 @@ internal static class EntityCodeGenerator
                 sb.Append(member.Name);
                 sb.Append('=');
             }
+
             sb.Append("rs.Read");
             sb.Append(GetEntityMemberWriteReadType(member));
             sb.Append("Member");
@@ -393,54 +394,51 @@ internal static class EntityCodeGenerator
                     sb.Append("(flags);break;\n");
                     break;
                 case EntityMemberType.EntityRef:
+                {
+                    var entityRef = (EntityRefModel)member;
+                    if (entityRef.IsAggregationRef)
                     {
-                        var entityRef = (EntityRefModel)member;
-                        if (entityRef.IsAggregationRef)
+                        var typeMember = model.GetMember(entityRef.TypeMemberId)!;
+                        sb.Append($"<{GetEntityBaseClass(model)}>");
+                        sb.Append($"(flags, () => _{typeMember.Name} switch {{\n");
+                        foreach (var refModelId in entityRef.RefModelIds)
                         {
-                            var typeMember = model.GetMember(entityRef.TypeMemberId)!;
-                            sb.Append($"<{GetEntityBaseClass(model)}>");
-                            sb.Append($"(flags, () => _{typeMember.Name} switch {{\n");
-                            foreach (var refModelId in entityRef.RefModelIds)
-                            {
-                                var refNode = tree.FindModelNode(refModelId)!;
-                                var refModel = (EntityModel)refNode.Model;
-                                var refModelName =
-                                    $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
-                                sb.Append(
-                                    $"\t\t\t{refModel.Id.ToString()}L => new {refModelName}(),\n");
-                            }
-
-                            sb.Append("\t\t\t_ => throw new Exception()\n");
-
-                            sb.Append("\t\t\t});break;\n");
-                        }
-                        else
-                        {
-                            var refModelId = entityRef.RefModelIds[0];
                             var refNode = tree.FindModelNode(refModelId)!;
                             var refModel = (EntityModel)refNode.Model;
                             var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
-                            sb.Append($"(flags, () => new {refModelName}());break;\n");
+                            sb.Append($"\t\t\t{refModel.Id.ToString()}L => new {refModelName}(),\n");
                         }
 
-                        break;
+                        sb.Append("\t\t\t_ => throw new Exception()\n");
+
+                        sb.Append("\t\t\t});break;\n");
                     }
-                case EntityMemberType.EntitySet:
+                    else
                     {
-                        var entitySet = (EntitySetModel)member;
-                        var refNode = tree.FindModelNode(entitySet.RefModelId)!;
+                        var refModelId = entityRef.RefModelIds[0];
+                        var refNode = tree.FindModelNode(refModelId)!;
                         var refModel = (EntityModel)refNode.Model;
                         var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
-                        sb.Append($"(flags, {member.Name});break;\n");
-
-                        break;
+                        sb.Append($"(flags, () => new {refModelName}());break;\n");
                     }
+
+                    break;
+                }
+                case EntityMemberType.EntitySet:
+                {
+                    var entitySet = (EntitySetModel)member;
+                    var refNode = tree.FindModelNode(entitySet.RefModelId)!;
+                    var refModel = (EntityModel)refNode.Model;
+                    var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
+                    sb.Append($"(flags, {member.Name});break;\n");
+
+                    break;
+                }
                 default: throw new NotImplementedException();
             }
         }
 
-        sb.Append(
-            "\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
+        sb.Append("\t\tdefault: throw new SerializationException(SerializationError.UnknownEntityMember,nameof(");
         sb.Append(model.Name);
         sb.Append("));\n");
         sb.Append("\t}\n"); //end switch
@@ -459,10 +457,9 @@ internal static class EntityCodeGenerator
         sb.Append("public SqlStore GetSqlStore() =>");
         GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
         sb.Append(";\n\n");
-        
+
         // InsertAsync
-        sb.Append(
-            "public Task<int> InsertAsync(System.Data.Common.DbTransaction? txn=null) =>\n");
+        sb.Append("public Task<int> InsertAsync(System.Data.Common.DbTransaction? txn=null) =>\n");
         GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
         sb.Append(".InsertAsync(this,txn);\n\n");
 
@@ -472,7 +469,7 @@ internal static class EntityCodeGenerator
         //TODO: others
         sb.Append("#else\n");
         //生成internal版本的FetchAsync方法,防止前端工程看见此方法
-        GenStoreFetchMethod(model, sb, false); 
+        GenStoreFetchMethod(model, sb, false);
         sb.Append("#endif\n");
     }
 
@@ -492,6 +489,7 @@ internal static class EntityCodeGenerator
             sb.Append(' ');
             sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
         }
+
         sb.Append(", System.Data.Common.DbTransaction? txn=null) => \n");
 
         if (forRuntime)
@@ -506,6 +504,7 @@ internal static class EntityCodeGenerator
                 var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
                 sb.Append($"{dfm.Name} = {CodeUtil.ToLowCamelCase(dfm.Name)}");
             }
+
             sb.Append("}, txn);\n");
         }
         else
