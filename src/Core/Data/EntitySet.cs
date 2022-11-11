@@ -81,6 +81,13 @@ public sealed class EntitySet<T> : IEnumerable<T>, IBinSerializable where T : En
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <summary>
+    /// Only for DbStore.SaveEntitySet()
+    /// </summary>
+    internal void ClearRemoved() => _removed = null;
+
+    #region ====Serialization====
+
     void IBinSerializable.WriteTo(IOutputStream ws)
     {
         ws.WriteVariant(_list.Count);
@@ -115,6 +122,32 @@ public sealed class EntitySet<T> : IEnumerable<T>, IBinSerializable where T : En
             {
                 _removed.Add(rs.DeserializeEntity(() => new T())!);
             }
+        }
+    }
+
+    #endregion
+}
+
+public static class EntitySetExtensions
+{
+    public static void AcceptChanges<T>(this EntitySet<T> entitySet) where T : DbEntity, new()
+    {
+        if (entitySet.RemovedList != null)
+        {
+            for (var i = 0; i < entitySet.RemovedList.Count; i++)
+            {
+                if (entitySet.RemovedList[i].PersistentState !=
+                    PersistentState.Detached /*Maybe already changed by DbStore*/)
+                    entitySet.RemovedList[i].AcceptChanges();
+            }
+
+            entitySet.ClearRemoved();
+        }
+
+        for (var i = 0; i < entitySet.Count; i++)
+        {
+            if (entitySet[i].PersistentState != PersistentState.Unchanged)
+                entitySet[i].AcceptChanges();
         }
     }
 }

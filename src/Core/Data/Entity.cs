@@ -22,14 +22,9 @@ public abstract class Entity : IBinSerializable
     /// <summary>
     /// 序列化时忽略当前实体的所有导航属性
     /// </summary>
-    /// <remarks>
-    /// 一般用于树状结构实体由前端向后端传输时，忽略相关的上下级关系，以减少序列化数据量。 注意序列化后会重置
-    /// </remarks>
-    /// <returns>Self instance</returns>
-    public T IgnoreSerializeNavigateMembers<T>() where T : Entity
+    internal void IgnoreSerializeNavigateMembersInternal()
     {
         _writeMemberFlags |= EntityMemberWriteFlags.IgnoreNavigates;
-        return (T)this;
     }
 
     /// <summary>
@@ -75,4 +70,20 @@ public abstract class Entity : IBinSerializable
     }
 
     #endregion
+}
+
+public static class EntityExtensions
+{
+    /// <summary>
+    /// 序列化时忽略当前实体的所有导航属性
+    /// </summary>
+    /// <remarks>
+    /// 一般用于树状结构实体由前端向后端传输时，忽略相关的上下级关系，以减少序列化数据量。 注意序列化后会重置
+    /// </remarks>
+    /// <returns>Self instance</returns>
+    public static T IgnoreSerializeNavigateMembers<T>(this T entity) where T : Entity
+    {
+        entity.IgnoreSerializeNavigateMembersInternal();
+        return entity;
+    }
 }

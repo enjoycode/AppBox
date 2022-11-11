@@ -3,6 +3,7 @@
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.EntityTest.GetMemberValueTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityCodeTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=50b8f99c_002Ded1b_002D4a99_002Da02a_002Db321e107bd2f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ToTreeTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;

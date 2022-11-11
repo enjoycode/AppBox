@@ -23,14 +23,28 @@ public abstract class DbEntity : Entity
         _changedMembers != null && _changedMembers.IndexOf(memberId) >= 0;
 
     /// <summary>
-    /// 仅用于从数据库加载完成后变更持久化状态
+    /// 接受状态变更
     /// </summary>
-    internal void FetchDone() => PersistentState = PersistentState.Unchanged;
+    public void AcceptChanges()
+    {
+        _changedMembers = null;
+        PersistentState = PersistentState == PersistentState.Deleted
+            ? PersistentState.Detached
+            : PersistentState.Unchanged;
+        //TODO: accept Tracker member change?
+    }
+
+    /// <summary>
+    /// Only for DbStore.Delete()
+    /// </summary>
+    internal void AsDeleted() => PersistentState = PersistentState.Deleted;
+
+    #region ====Serialization====
 
     internal void WriteTo(IOutputStream ws)
     {
         ws.WriteByte((byte)PersistentState);
-        
+
         var changesCount = _changedMembers?.Count ?? 0;
         ws.WriteVariant(changesCount);
         for (var i = 0; i < changesCount; i++)
@@ -53,5 +67,6 @@ public abstract class DbEntity : Entity
             }
         }
     }
-    
+
+    #endregion
 }

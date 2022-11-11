@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,6 @@ namespace AppBoxStore;
 /// </summary>
 public abstract class SqlStore
 {
-
     //TODO:**** cache Load\Insert\Update\Delete command
 
     #region ====Statics====
@@ -188,7 +188,7 @@ public abstract class SqlStore
 
         var model = await RuntimeContext.GetModelAsync<EntityModel>(entity.ModelId);
         if (model.SqlStoreOptions == null)
-            throw new InvalidOperationException("Can't insert entity to sqlstore");
+            throw new InvalidOperationException("Can't insert entity to this store");
 
         var cmd = BuildInsertCommand(entity, model);
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
@@ -199,7 +199,9 @@ public abstract class SqlStore
         //执行命令
         try
         {
-            return await cmd.ExecuteNonQueryAsync();
+            var res = await cmd.ExecuteNonQueryAsync();
+            entity.AcceptChanges();
+            return res;
         }
         catch (Exception ex)
         {
@@ -218,10 +220,8 @@ public abstract class SqlStore
     public async Task<int> UpdateAsync(SqlEntity entity, DbTransaction? txn = null)
     {
         if (entity == null) throw new ArgumentNullException(nameof(entity));
-        if (entity.PersistentState == PersistentState.Detached)
-            throw new InvalidOperationException("Can't update new entity");
-        if (entity.PersistentState == PersistentState.Deleted)
-            throw new InvalidOperationException("Entity already deleted");
+        if (entity.PersistentState != PersistentState.Modified)
+            throw new InvalidOperationException("Can't update unchanged entity");
 
         var model = await RuntimeContext.GetModelAsync<EntityModel>(entity.ModelId);
         if (model.SqlStoreOptions == null)
@@ -238,7 +238,9 @@ public abstract class SqlStore
         //执行命令
         try
         {
-            return await cmd.ExecuteNonQueryAsync();
+            var res = await cmd.ExecuteNonQueryAsync();
+            entity.AcceptChanges();
+            return res;
         }
         catch (Exception ex)
         {
@@ -265,6 +267,8 @@ public abstract class SqlStore
             throw new InvalidOperationException("Can't delete entity from sqlstore");
         if (!model.SqlStoreOptions.HasPrimaryKeys)
             throw new InvalidOperationException("Can't delete entity without primary key");
+        
+        entity.AsDeleted(); //先标为待删除状态
 
         var cmd = BuildDeleteCommand(entity, model);
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
@@ -275,7 +279,9 @@ public abstract class SqlStore
         //执行命令
         try
         {
-            return await cmd.ExecuteNonQueryAsync();
+            var res = await cmd.ExecuteNonQueryAsync();
+            entity.AcceptChanges();
+            return res;
         }
         catch (Exception ex)
         {
@@ -288,13 +294,58 @@ public abstract class SqlStore
         }
     }
 
+    /// <summary>
+    /// 批量保存EntitySet
+    /// </summary>
+    /// <param name="entitySet"></param>
+    /// <param name="txn">未显式指定则自动新建事务</param>
+    public async Task SaveEntitySetAsync<T>(EntitySet<T> entitySet, DbTransaction? txn = null)
+        where T : SqlEntity, new()
+    {
+        var hasChanges = (entitySet.RemovedList != null && entitySet.RemovedList.Count > 0)
+                         ||
+                         entitySet.Any(item => item.PersistentState != PersistentState.Unchanged);
+        if (!hasChanges) return;
+
+        var needCommit = txn == null;
+        txn ??= await BeginTransactionAsync();
+
+        //1. 删除的实体
+        var removed = entitySet.RemovedList;
+        if (removed != null && removed.Count > 0)
+        {
+            for (var i = 0; i < removed.Count; i++)
+            {
+                await DeleteAsync(removed[i], txn);
+            }
+        }
+
+        //2. 新建或更新的实体
+        for (var i = 0; i < entitySet.Count; i++)
+        {
+            if (entitySet[i].PersistentState == PersistentState.Detached)
+                await InsertAsync(entitySet[i], txn);
+            else if (entitySet[i].PersistentState == PersistentState.Modified)
+                await UpdateAsync(entitySet[i], txn);
+        }
+
+        if (needCommit)
+        {
+            await txn.CommitAsync();
+            await txn.DisposeAsync();
+        }
+
+        entitySet.ClearRemoved(); //不需要调用AcceptChanges()
+    }
+
     #endregion
 
     #region ====DML Methods====
+
     /// <summary>
     /// 从存储加载指定主键的单个实体，不存在返回null
     /// </summary>
-    public async Task<T?> FetchAsync<T>(T entity, DbTransaction? txn = null) where T: SqlEntity
+    public async Task<T?> FetchAsync<T>(T entity, DbTransaction? txn = null) where T : SqlEntity
     {
         if (entity == null) throw new ArgumentNullException(nameof(entity));
         if (entity.PersistentState != PersistentState.Detached)
@@ -421,6 +472,7 @@ public abstract class SqlStore
     #endregion
 
     #region ====Build DbCommand Methods====
+
     /// <summary>
     /// 根据主键值生成加载单个实体的命令
     /// </summary>
@@ -573,6 +625,7 @@ public abstract class SqlStore
     // protected internal abstract DbCommand BuidUpdateCommand(SqlUpdateCommand updateCommand);
 
     protected internal abstract DbCommand BuildQuery(ISqlSelectQuery query);
+
     #endregion
 }
 

@@ -18,7 +18,7 @@ namespace AppBoxStore.Utils
             }
 
             //需要改变实体持久化状态
-            entity.FetchDone();
+            entity.AcceptChanges();
         }
 
         private static void FillMember(EntityModel model, SqlEntity entity, string path,
