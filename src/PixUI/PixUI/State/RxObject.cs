@@ -2,12 +2,10 @@
 
 namespace PixUI
 {
-
     [TSNoInitializer]
-    public sealed class RxProperty<T> : State<T>
+    public class RxProperty<T> : State<T>
     {
-        public RxProperty(Func<T> getter,
-            Action<T>? setter = null)
+        public RxProperty(Func<T> getter, Action<T>? setter = null)
         {
             _getter = getter;
             _setter = setter;
@@ -43,14 +41,15 @@ namespace PixUI
             get => _target;
             set
             {
+                var old = _target;
                 _target = value;
-                OnTargetChanged();
+                OnTargetChanged(old);
             }
         }
 
 #if __WEB__
         [TSRawScript(@"
-        private OnTargetChanged() {
+        private OnTargetChanged(old) {
             const props = Object.getOwnPropertyNames(this);
             for(let prop of props) {
                 // @ts-ignore
@@ -61,15 +60,16 @@ namespace PixUI
             }
         }
 ")]
-        private void OnTargetChanged() {}
+        private void OnTargetChanged(T old) {}
 #else
-        protected virtual void OnTargetChanged()
+        protected virtual void OnTargetChanged(T old)
         {
             //默认使用反射处理, TODO:
             //var rxPropertyType = typeof(RxProperty<>);
 
             var fields = GetType().GetFields(System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.Public);
+                                             System.Reflection.BindingFlags.GetField |
+                                             System.Reflection.BindingFlags.Public);
             foreach (var field in fields)
             {
                 var fieldType = field.FieldType;

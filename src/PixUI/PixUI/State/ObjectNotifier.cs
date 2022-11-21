@@ -5,7 +5,6 @@ namespace PixUI
     /// <summary>
     /// 用于通知对象实例的变更
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public sealed class ObjectNotifier<T> where T : class
     {
         private Action<T>? _changeHandler;

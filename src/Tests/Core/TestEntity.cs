@@ -7,9 +7,31 @@ public sealed class TestEntity : Entity, IEquatable<TestEntity>
 {
     private static readonly short[] Members = { 1, 2 };
 
-    public string Name { get; set; } = null!;
+    private string _name = string.Empty;
 
-    public int? Score { get; set; }
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (_name == value) return;
+            _name = value;
+            OnPropertyChanged(1);
+        }
+    }
+
+    private int? _score;
+
+    public int? Score
+    {
+        get => _score;
+        set
+        {
+            if (_score == value) return;
+            _score = value;
+            OnPropertyChanged(2);
+        }
+    }
 
     internal const long MODELID = 12345;
     public override ModelId ModelId => MODELID;

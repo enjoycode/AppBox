@@ -8,15 +8,18 @@ public abstract class DbEntity : Entity
     private IList<short>? _changedMembers;
     public PersistentState PersistentState { get; private set; }
 
-    protected void OnPropertyChanged(short memberId)
+    protected sealed override void OnPropertyChanged(short memberId)
     {
-        if (PersistentState != PersistentState.Unchanged) return;
-
-        PersistentState = PersistentState.Modified;
-        //Track member changes
-        _changedMembers ??= new List<short>();
-        if (_changedMembers.IndexOf(memberId) < 0)
-            _changedMembers.Add(memberId);
+        if (PersistentState == PersistentState.Unchanged || PersistentState == PersistentState.Modified)
+        {
+            PersistentState = PersistentState.Modified;
+            //Track member changes
+            _changedMembers ??= new List<short>();
+            if (_changedMembers.IndexOf(memberId) < 0)
+                _changedMembers.Add(memberId);
+        }
+        
+        base.OnPropertyChanged(memberId);
     }
 
     public bool IsMemberChanged(short memberId) =>

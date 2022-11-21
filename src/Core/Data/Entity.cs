@@ -17,6 +17,14 @@ public abstract class Entity : IBinSerializable
     /// </summary>
     private int _writeMemberFlags = 0;
 
+    #region ====PropertyChanged====
+
+    public event Action<short>? PropertyChanged;
+
+    protected virtual void OnPropertyChanged(short memberId) => PropertyChanged?.Invoke(memberId);
+
+    #endregion
+
     #region ====Serialization====
 
     /// <summary>

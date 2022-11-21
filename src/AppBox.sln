@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Be
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Initiator", "Store.Initiator\Store.Initiator.csproj", "{2EB41B5E-F49F-4C27-851B-0AC8ED21BFC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.UI", "Client.UI\Client.UI.csproj", "{C949A94B-D79A-4522-948A-484942ACB570}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -205,6 +207,14 @@ Global
 		{2EB41B5E-F49F-4C27-851B-0AC8ED21BFC4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2EB41B5E-F49F-4C27-851B-0AC8ED21BFC4}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{2EB41B5E-F49F-4C27-851B-0AC8ED21BFC4}.Release|ARM64.Build.0 = Release|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{C949A94B-D79A-4522-948A-484942ACB570}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
