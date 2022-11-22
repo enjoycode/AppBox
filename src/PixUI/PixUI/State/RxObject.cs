@@ -49,7 +49,7 @@ namespace PixUI
 
 #if __WEB__
         [TSRawScript(@"
-        private OnTargetChanged(old) {
+        private OnTargetChanged(old: T) {
             const props = Object.getOwnPropertyNames(this);
             for(let prop of props) {
                 // @ts-ignore
