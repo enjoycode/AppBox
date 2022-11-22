@@ -7,8 +7,8 @@ namespace AppBoxDesign
     internal sealed class NewNodeResult : IBinSerializable
     {
         public DesignNodeType ParentNodeType { get; private set; }
-        public string ParentNodeId { get; private set; }
-        public DesignNodeVO NewNode { get; private set; }
+        public string ParentNodeId { get; private set; } = null!;
+        public DesignNodeVO NewNode { get; private set; } = null!;
         public string? RootNodeId { get; private set; }
         public int InsertIndex { get; private set; }
 

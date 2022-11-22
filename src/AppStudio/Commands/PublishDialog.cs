@@ -50,9 +50,9 @@ namespace AppBoxDesign
                 if (res != null)
                     _dataGridController.DataSource = new List<ChangedModel>(res);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Notification.Error("加载模型变更失败");
+                Notification.Error($"加载模型变更失败:{ex.Message}");
             }
         }
 

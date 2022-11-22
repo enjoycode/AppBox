@@ -39,7 +39,7 @@ namespace AppBoxDesign
             StartSubmit();
         }
 
-        private async Task StartSubmit()
+        private async void StartSubmit()
         {
 #if __WEB__
             if (_submittingFlag != 0) return;

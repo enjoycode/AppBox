@@ -55,9 +55,9 @@ namespace AppBoxDesign
                 //TODO:判断返回结果刷新
                 Notification.Success($"签出节点[{selectedNode.Data.Label}]成功");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Notification.Success($"签出节点[{selectedNode.Data.Label}]失败");
+                Notification.Success($"签出节点[{selectedNode.Data.Label}]失败: {ex.Message}");
             }
         }
 
@@ -73,9 +73,9 @@ namespace AppBoxDesign
                 await designer.SaveAsync();
                 Notification.Success("保存成功");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Notification.Error("保存失败");
+                Notification.Error($"保存失败: {ex.Message}");
             }
         }
 
