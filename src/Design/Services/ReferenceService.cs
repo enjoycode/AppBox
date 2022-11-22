@@ -18,6 +18,8 @@ internal static class ReferenceService
                 return await FindEntityReferences(ctx, modelNode);
             case ModelType.Service:
                 return await FindServiceReferences(ctx, modelNode);
+            case ModelType.View:
+                return new List<Reference>(); //TODO:
             default:
                 throw new NotImplementedException($"查找模型引用: {modelNode.Model.ModelType}");
         }

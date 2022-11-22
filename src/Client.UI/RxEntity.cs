@@ -82,3 +82,12 @@ public static class EntityExtensions
         return rxMember;
     }
 }
+
+public static class ObjectNotifierExtensions
+{
+    public static void BindToRxEntity<T>(this ObjectNotifier<T> notifier, RxEntity<T> rxEntity)
+        where T: Entity, new()
+    {
+        notifier.OnChange = t => rxEntity.Target = t;
+    }
+}
