@@ -1,14 +1,20 @@
 import {IBinSerializable, IInputStream, IOutputStream} from "@/AppBoxCore";
+import {Event} from "@/System";
 
 export abstract class Entity implements IBinSerializable {
     public abstract get ModelId(): bigint;
+
+    public readonly PropertyChanged = new Event<number>();
+
+    protected OnPropertyChanged(memberId: number) {
+        this.PropertyChanged.Invoke(memberId);
+    }
 
     ReadFrom(bs: IInputStream): void {
     }
 
     WriteTo(bs: IOutputStream): void {
     }
-
 }
 
 export enum PersistentState {
@@ -20,11 +26,14 @@ export enum PersistentState {
 
 export abstract class DbEntity extends Entity {
     private _persistentState: PersistentState = PersistentState.Detached;
+
     public get PersistentState(): PersistentState {
         return this._persistentState;
     }
 
     private _changedMembers: number[] | null = null;
+
+    //TODO: override OnPropertyChanged
 
     WriteTo(bs: IOutputStream) {
         bs.WriteByte(this._persistentState);

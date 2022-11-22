@@ -1,52 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1e4660b8_002Df52f_002D48e8_002Dbd5c_002Dc9ecc13af9e1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ToTreeTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=697df045_002D14af_002D4f01_002Daa83_002D59027f00a55d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GenEntityWebCodeTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.EntityTest.GetMemberValueTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenRxEntityCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.EntityTest.RxEntityTest&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=50b8f99c_002Ded1b_002D4a99_002Da02a_002Db321e107bd2f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ToTreeTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest.ToTreeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.EntityTest.GetMemberValueTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityWebCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenServiceRuntimeCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenRxEntityCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.EntityTest.RxEntityTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.Handlers.GetDesktopPreviewTest.Test&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a55e135a_002D2330_002D4abe_002D826c_002D7a8ac2805ae9/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.Handlers.GetWebPreviewTest.Test&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenServiceRuntimeCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityWebCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Tests.Test1&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfValueSerializationTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfObjectSerializationText&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfEntitySerializationText&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.ListOfEntitySerializationTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.InvokeArgsTest.GetListTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.InvokeArgsTest.GetArrayTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.Handlers.GetDesktopPreviewTest.Test&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.EntityArraySerializationTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.EntityTest.ModelIdTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.Handlers.PublishTest.Test&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.ReferenceServiceTest.FindModelReferencesTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.ReferenceServiceTest.FindEntityMemberReferencesTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenRxEntityCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest.ToListTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest.ToTreeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Core.SerializationTest.EntityWithNavigationSerializationTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenPermissionCodeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest.ToSingleTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Store.SqlQueryTest.ToTreePathTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
