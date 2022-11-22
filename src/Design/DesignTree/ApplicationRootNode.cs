@@ -9,7 +9,7 @@ public sealed class ApplicationRootNode : DesignNode, IRootNode
 
     internal DesignNodeList<ApplicationNode> Children { get; }
 
-    public DesignTree DesignTree { get; }
+    public new DesignTree DesignTree { get; }
 
     public ApplicationRootNode(DesignTree tree)
     {

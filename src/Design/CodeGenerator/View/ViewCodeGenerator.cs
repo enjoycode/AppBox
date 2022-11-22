@@ -102,16 +102,6 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
             if (modelType == ModelType.Entity)
             {
                 CodeGeneratorUtil.BuildUsagedEntity(DesignHub, modelNode, ctx, parseOpts);
-
-                var isRxEntity = usedModel.Contains(".Entities.Rx");
-                if (isRxEntity)
-                {
-                    var rxEntityCode = EntityCodeGenerator.GenRxRuntimeCode(
-                        (EntityModel)modelNode.Model, DesignHub.AppNameGetter,
-                        DesignHub.ModelGetter);
-                    var syntaxTree = SyntaxFactory.ParseSyntaxTree(rxEntityCode, parseOpts);
-                    ctx.Add(usedModel, syntaxTree);
-                }
             }
             else if (modelType == ModelType.View)
             {

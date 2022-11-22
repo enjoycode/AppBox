@@ -92,7 +92,7 @@ namespace RoslynUtils
         }
 
         /// <summary>
-        /// 是否AppBox实体类型,包括响应实体类型
+        /// 是否AppBox实体类型
         /// </summary>
         internal static bool IsAppBoxEntity(this ISymbol symbol, Func<string, bool> findModel)
         {
@@ -100,8 +100,6 @@ namespace RoslynUtils
                 typeSymbol.ContainingNamespace.Name == "Entities")
             {
                 var fullName = symbol.ToString();
-                if (fullName.StartsWith("Rx"))
-                    fullName = fullName.Substring(2);
                 return findModel(fullName);
             }
 

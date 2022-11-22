@@ -4,9 +4,9 @@ namespace AppBoxDesign;
 
 internal sealed class ReferenceVO : IBinSerializable
 {
-    public string ModelId { get; private set; }
-    public string ModelName { get; private set; }
-    public string Location { get; private set; }
+    public string ModelId { get; private set; } = null!;
+    public string ModelName { get; private set; } = null!;
+    public string Location { get; private set; } = null!;
 
     public int Offset { get; private set; } = -1;
     public int Length { get; private set; } = -1;

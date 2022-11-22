@@ -112,8 +112,10 @@ internal partial class ViewCodeGenerator
         if (modelNode == null)
             throw new Exception("Can't find EntityModel");
         var entityModel = (EntityModel)modelNode.Model;
-        var member = entityModel.GetMember(memberAccess.Name.Identifier.Text);
-
+        var memberName = memberAccess.Name.Identifier.Text;
+        var member = entityModel.GetMember(memberName, false);
+        if (member == null)
+            throw new Exception($"Can't find entity member: {entityModel.Name}.{memberName}");
 
         var arg1 = SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
             SyntaxFactory.Literal(member.MemberId)));

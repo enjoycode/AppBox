@@ -27,17 +27,6 @@ public class CodeGenerateTest
         Console.Write(code);
     }
 
-    [Test(Description = "测试生成响应实体类")]
-    public async Task GenRxEntityCodeTest()
-    {
-        var designHub = await TestHelper.MockSession();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
-        var code = EntityCodeGenerator.GenRxRuntimeCode((EntityModel)entityNode.Model,
-            appId => designHub.DesignTree.FindApplicationNode(appId)!.Model.Name,
-            id => designHub.DesignTree.FindModelNode(id)!.Model);
-        Console.Write(code);
-    }
-
     [Test(Description = "测试生成权限模型虚拟代码")]
     public async Task GenPermissionCodeTest()
     {
