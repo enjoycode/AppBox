@@ -44,4 +44,5 @@ export enum PayloadType {
 
     //----运行时类型----
     Entity = 90,
+    PermissionNode = 91,
 }

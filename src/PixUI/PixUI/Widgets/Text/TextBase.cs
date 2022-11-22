@@ -92,6 +92,12 @@ namespace PixUI
             var width = CacheAndCheckAssignWidth(availableWidth);
             var height = CacheAndCheckAssignHeight(availableHeight);
 
+            if (Text.Value == null || Text.Value.Length == 0)
+            {
+                SetSize(0, 0);
+                return;
+            }
+
             BuildParagraph(Text.Value, width);
 
             //TODO:wait skia fix bug
@@ -105,7 +111,7 @@ namespace PixUI
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
-            if (Text.Value.Length == 0) return;
+            if (Text.Value == null || Text.Value.Length == 0) return;
 
             if (_cachedParagraph == null) //可能颜色改变后导致的缓存丢失，可以简单重建
             {

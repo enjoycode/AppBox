@@ -95,6 +95,11 @@ export abstract class TextBase extends PixUI.Widget {
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
+        
+        if (this.Text.Value == null || this.Text.Value.length == 0) {
+            this.SetSize(0,0);
+            return;
+        }
 
         this.BuildParagraph(this.Text.Value, width);
 
@@ -107,7 +112,7 @@ export abstract class TextBase extends PixUI.Widget {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        if (this.Text.Value.length == 0) return;
+        if (this.Text.Value == null || this.Text.Value.length == 0) return;
 
         if (this._cachedParagraph == null) //可能颜色改变后导致的缓存丢失，可以简单重建
         {

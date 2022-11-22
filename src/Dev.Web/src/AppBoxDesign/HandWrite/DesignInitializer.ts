@@ -4,6 +4,7 @@ import {
 } from '@/AppBoxDesign'
 import {TSCSharpLanguage} from "@/CodeEditor";
 import {FieldWithOrder, PayloadType, TypeSerializer} from "@/AppBoxCore";
+import {PermissionNode} from "@/AppBoxCore/Data/PermissionNode";
 
 export class DesignInitializer {
     public static async TryInit(): Promise<void> {
@@ -30,5 +31,6 @@ export class DesignInitializer {
         TypeSerializer.RegisterKnownType(PayloadType.ChangedModel, true, () => new ChangedModel());
         TypeSerializer.RegisterKnownType(PayloadType.FieldWithOrder, true, () => new FieldWithOrder());
         TypeSerializer.RegisterKnownType(PayloadType.ReferenceVO, false, () => new ReferenceVO());
+        TypeSerializer.RegisterKnownType(PayloadType.PermissionNode, false, () => new PermissionNode());
     }
 }
