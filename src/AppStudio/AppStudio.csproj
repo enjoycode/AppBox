@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Client.UI\Client.UI.csproj" />
       <ProjectReference Include="..\Client\Client.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\PixUI\PixUI.CodeEditor\PixUI.CodeEditor.csproj" />

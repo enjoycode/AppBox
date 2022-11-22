@@ -146,6 +146,8 @@ internal sealed class TypeSystem : IDisposable
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(RxEntityProjectId))
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ServiceProxyProjectId))
+                .AddDocument(DocumentId.CreateNewId(WebViewsProjectId), "ViewBase.cs",
+                    Resources.GetString("DummyCode.ViewBaseDummyCode.cs"))
                 .AddDocument(DocumentId.CreateNewId(WebViewsProjectId), "GlobalUsing.cs",
                     CodeUtil.ViewGlobalUsings())
             ;

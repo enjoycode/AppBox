@@ -59,6 +59,8 @@
       <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
       <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
       <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs" />
+      <Compile Remove="DummyCode\ViewBaseDummyCode.cs" />
+      <EmbeddedResource Include="DummyCode\ViewBaseDummyCode.cs" />
     </ItemGroup>
 
 </Project>
