@@ -98,8 +98,7 @@ namespace PixUI.CS2TS
             emitter.WriteTrailingTrivia(node);
         }
 
-        private static void
-            EmitReadonlyAutoProperty(Emitter emitter, PropertyDeclarationSyntax node)
+        private static void EmitReadonlyAutoProperty(Emitter emitter, PropertyDeclarationSyntax node)
         {
             // eg: public string Name {get;}
             if (node.Initializer == null && node.ExpressionBody == null)
@@ -140,8 +139,7 @@ namespace PixUI.CS2TS
             emitter.WriteTrailingTrivia(node);
         }
 
-        private static void EmitAutoProperty(Emitter emitter, PropertyDeclarationSyntax node,
-            bool forGetOnly)
+        private static void EmitAutoProperty(Emitter emitter, PropertyDeclarationSyntax node, bool forGetOnly)
         {
             var fieldName = $"#{node.Identifier.Text}";
 
@@ -241,9 +239,14 @@ namespace PixUI.CS2TS
 
                     emitter.Write("set ");
                     emitter.Write(node.Identifier.Text);
-                    emitter.Write("(value: ");
-                    emitter.Visit(node.Type);
-                    emitter.Write(")");
+                    emitter.Write("(value");
+                    if (!emitter.ToJavaScript)
+                    {
+                        emitter.Write(": ");
+                        emitter.Visit(node.Type);
+                    }
+
+                    emitter.Write(')');
                     if (item.ExpressionBody != null)
                     {
                         emitter.Write(" { ");
