@@ -14,6 +14,12 @@ internal sealed class GetWebPreview : IDesignHandler
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
+        var tsCode = await GenViewWebCode(hub, modelId);
+        return AnyValue.From(Encoding.UTF8.GetBytes(tsCode));
+    }
+
+    internal static async ValueTask<string> GenViewWebCode(DesignHub hub, ModelId modelId)
+    {
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
@@ -83,7 +89,7 @@ internal sealed class GetWebPreview : IDesignHandler
             tsCode += "\n\nconst EntityFactories=null;";
         }
 
-        return AnyValue.From(Encoding.UTF8.GetBytes(tsCode));
+        return tsCode;
     }
 
     // private static async Task<byte[]> ConvertToJs(string tsCode, ModelNode modelNode)

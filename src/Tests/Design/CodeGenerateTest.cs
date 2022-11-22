@@ -17,6 +17,16 @@ public class CodeGenerateTest
         Console.Write(code);
     }
 
+    [Test(Description = "测试生成视图模型的Web预览代码")]
+    public async Task GetViewWebCodeTest()
+    {
+        var designHub = await TestHelper.MockSession();
+        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.EmployeeView")!;
+
+        var res = await GetWebPreview.GenViewWebCode(designHub, modelNode.Id);
+        Console.Write(res);
+    }
+
 
     [Test]
     public async Task GenEntityCodeTest()
@@ -37,7 +47,7 @@ public class CodeGenerateTest
         Console.WriteLine(code);
     }
 
-    [Test(Description ="测试生成服务的运行时代码")]
+    [Test(Description = "测试生成服务的运行时代码")]
     public async Task GenServiceRuntimeCodeTest()
     {
         var designHub = await TestHelper.MockSession();
