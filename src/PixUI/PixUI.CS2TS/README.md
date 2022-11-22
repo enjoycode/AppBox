@@ -16,6 +16,21 @@ class A {}
 
 * namespace转module
 
+* 事件最多支持一个参数
+
+```c#
+public event Action<string/*这里最多一个参数*/>? ValueChanged;
+```
+
+* 静态范型方法必须显示指明范型类型
+
+```csharp
+class Node<T>
+{
+    public static SomeMethod<TNode/*这里必须且不要与类型范型参数同名*/>(Node<TNode> node){}
+}
+```
+
 * 变量名称不支持@XXX
 
 ```c#
