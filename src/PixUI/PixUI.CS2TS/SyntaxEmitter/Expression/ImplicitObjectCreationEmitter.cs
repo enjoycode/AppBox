@@ -1,11 +1,9 @@
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace PixUI.CS2TS
 {
-    internal sealed class
-        ImplicitObjectCreationEmitter : SyntaxEmitter<ImplicitObjectCreationExpressionSyntax>
+    internal sealed class ImplicitObjectCreationEmitter : SyntaxEmitter<ImplicitObjectCreationExpressionSyntax>
     {
         internal static readonly ImplicitObjectCreationEmitter Default = new();
 
@@ -32,12 +30,14 @@ namespace PixUI.CS2TS
                 return;
             }
 
-            // TODO: GetType from symbol
-            var typeInfo = emitter.SemanticModel.GetTypeInfo(node);
+            //特殊处理new RxEntity()
+            if (ObjectCreationEmitter.TryEmitNewRxEntity(emitter, node, symbol!.ContainingType))
+                return;
 
+            //以下正常处理
             emitter.VisitToken(node.NewKeyword);
             emitter.Write(' ');
-            emitter.WriteTypeSymbol(typeInfo.Type!, !node.InSameSourceFile(typeInfo.Type!));
+            emitter.WriteTypeSymbol(symbol!.ContainingType, !node.InSameSourceFile(symbol.ContainingType));
 
             // arguments
             emitter.Write('(');

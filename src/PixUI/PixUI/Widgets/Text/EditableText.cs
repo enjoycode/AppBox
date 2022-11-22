@@ -178,6 +178,7 @@ namespace PixUI
         private void TryBuildParagraph()
         {
             if (CachedParagraph != null) return;
+            if (Text.Value == null || Text.Value.Length == 0) return;
 
             var text = IsObscure ? new string('●', Text.Value.Length) : Text.Value;
             BuildParagraph(text, float.PositiveInfinity);

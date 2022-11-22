@@ -29,6 +29,10 @@ namespace PixUI.CS2TS
                 interceptor!.Emit(emitter, node, symbol!);
                 return;
             }
+            
+            //特殊处理new RxEntity()
+            if (TryEmitNewRxEntity(emitter, node, symbol!.ContainingType))
+                return;
 
             //Type, maybe: new SomeType \n{ Prop = 1}, so disable trailing trivia
             emitter.VisitToken(node.NewKeyword);
@@ -43,13 +47,39 @@ namespace PixUI.CS2TS
             if (node.ArgumentList != null)
                 emitter.VisitSeparatedList(node.ArgumentList.Arguments);
             emitter.Write(')');
-            
+
             // initializer
             emitter.Visit(node.Initializer);
 
             // TrailingTrivia
             if (node.Initializer == null)
                 emitter.WriteTrailingTrivia(node);
+        }
+
+        /// <summary>
+        /// new RxEntity`sys.Entities.Employee`();
+        /// 转换为:
+        /// new AppBoxClient.RxEntity(new sys_Employee());
+        /// </summary>
+        internal static bool TryEmitNewRxEntity(Emitter emitter, BaseObjectCreationExpressionSyntax node,
+            INamedTypeSymbol typeSymbol)
+        {
+            if (!(typeSymbol.Name =="RxEntity" && typeSymbol.ContainingNamespace.Name == "AppBoxClient"))
+                return false;
+
+            var entityType = typeSymbol.TypeArguments[0];
+            emitter.AddUsedModel(entityType.ToString());
+            emitter.AddUsedModule("AppBoxClient");
+            
+            emitter.VisitToken(node.NewKeyword);
+            emitter.Write("AppBoxClient.RxEntity(");
+            emitter.Write("new ");
+            emitter.Write(entityType.ContainingNamespace.ContainingNamespace.Name);
+            emitter.Write('_');
+            emitter.Write(entityType.Name);
+            emitter.Write("())");
+
+            return true;
         }
     }
 }

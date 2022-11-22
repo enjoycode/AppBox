@@ -69,12 +69,18 @@ namespace PixUI.CS2TS
 
         public void Emit() => Visit(SemanticModel.SyntaxTree.GetRoot());
 
+        /// <summary>
+        /// 添加使用到的包
+        /// </summary>
         internal void AddUsedModule(string moduleName)
         {
             if (!_usedModules.Contains(moduleName))
                 _usedModules.Add(moduleName);
         }
 
+        /// <summary>
+        /// 添加使用到的模型
+        /// </summary>
         internal void AddUsedModel(string modelFullName)
         {
             if (!UsedModels.Contains(modelFullName))

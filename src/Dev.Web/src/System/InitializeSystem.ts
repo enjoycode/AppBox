@@ -41,6 +41,15 @@ export const initializeSystem = () => {
         writable: true,
         configurable: true,
     });
+    
+    // Object.defineProperty(Object.prototype, "Init", {
+    //     value: function Init<T>(props: Partial<T>): T {
+    //         Object.assign(this, props);
+    //         return <T>this;
+    //     },
+    //     writable: true,
+    //     configurable: true,
+    // });
 
     // Object.defineProperty(Array.prototype, "IndexOf", {
     //     value: function IndexOf(item: any): number {

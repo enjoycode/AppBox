@@ -172,7 +172,8 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
 
     private TryBuildParagraph() {
         if (this.CachedParagraph != null) return;
-
+        if (this.Text.Value == null || this.Text.Value.length == 0) return;
+        
         let text = this.IsObscure ? '●'.repeat(this.Text.Value.length) : this.Text.Value;
         this.BuildParagraph(text, Number.POSITIVE_INFINITY);
     }

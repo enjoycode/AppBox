@@ -30,13 +30,11 @@ namespace PixUI.CS2TS
             emitter.Write(name);
 
             //暂在这里重命名重载的系统类型 eg: Action<T1,T2>
-            if (symbol is { Name: "Action" or "Func" } &&
-                symbol.GetRootNamespace()?.Name == "System")
+            if (symbol is { Name: "Action" or "Func" } && symbol.GetRootNamespace()?.Name == "System")
                 emitter.Write(node.TypeArgumentList.Arguments.Count.ToString());
 
             //写入范型参数，注意: GenericType<T>.StaticMethod<T>()忽略范型类型的参数，但不忽略方法的范型参数
-            if (!emitter.ToJavaScript &&
-                (emitter.NeedGenericTypeArguments || symbol is IMethodSymbol))
+            if (!emitter.ToJavaScript && (emitter.NeedGenericTypeArguments || symbol is IMethodSymbol))
             {
                 emitter.VisitToken(node.TypeArgumentList.LessThanToken);
                 var preNeedGenericTypes = emitter.NeedGenericTypeArguments;
