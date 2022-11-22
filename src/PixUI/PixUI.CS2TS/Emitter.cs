@@ -14,8 +14,10 @@ namespace PixUI.CS2TS
     /// </summary>
     public sealed partial class Emitter : CSharpSyntaxWalker
     {
-        private Emitter(Translator translator, Document document, SemanticModel semanticModel,
-            bool toJavaScript = false, Func<string, bool>? findModel = null)
+        private Emitter(Translator translator, Document document,
+            SemanticModel semanticModel, bool toJavaScript = false,
+            Func<string, bool>? findModel = null,
+            Func<string, string, short>? findEntityMemberId = null)
             : base(SyntaxWalkerDepth.Trivia)
         {
             Translator = translator;
@@ -23,21 +25,24 @@ namespace PixUI.CS2TS
             SemanticModel = semanticModel;
             ToJavaScript = toJavaScript;
             FindModel = findModel;
+            FindEntityMemberId = findEntityMemberId;
             _typeSymbolCache = new TypeSymbolCache(semanticModel);
         }
 
-        public static async Task<Emitter> MakeAsync(Translator translator, Document document,
-            bool toJavascript = false, Func<string, bool>? findModel = null)
+        public static async Task<Emitter> MakeAsync(Translator translator, Document document, bool toJavascript = false,
+            Func<string, bool>? findModel = null, Func<string, string, short>? findEntityMemberId = null)
         {
             var semanticModel = await document.GetSemanticModelAsync();
-            return new Emitter(translator, document, semanticModel!, toJavascript, findModel);
+            return new Emitter(translator, document, semanticModel!, toJavascript, findModel, findEntityMemberId);
         }
 
         private readonly Document Document;
         internal readonly SemanticModel SemanticModel;
         internal readonly Translator Translator;
         internal readonly bool ToJavaScript; //直接翻译为ES2017
+
         internal readonly Func<string, bool>? FindModel; //用于AppBox跟踪使用到的模型
+        internal readonly Func<string, string, short>? FindEntityMemberId; //用于AppBox查找实体成员的标识
 
         // 使用到的模块，用于生成文件头import
         private readonly HashSet<string> _usedModules = new HashSet<string>();
@@ -115,7 +120,7 @@ namespace PixUI.CS2TS
                 WriteLeadingWhitespaceOnly(returnStatement.Parent!);
                 Write("{\n");
             }
-            
+
             //注意需要循环向上处理所有Block，除非是Lambda表达式的Block
             foreach (var block in _blockStack)
             {
@@ -123,7 +128,7 @@ namespace PixUI.CS2TS
                 if (block.BlockSyntax.Parent is ParenthesizedLambdaExpressionSyntax)
                     break;
             }
-            
+
             return autoBlock;
         }
 

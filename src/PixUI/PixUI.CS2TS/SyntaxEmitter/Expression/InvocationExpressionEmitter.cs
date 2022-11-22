@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -56,6 +57,9 @@ namespace PixUI.CS2TS
             //尝试特殊处理调用AppBox的服务
             if (TryEmitInvokeAppBoxService(emitter, node, methodSymbol))
                 return;
+            //尝试特殊处理Entity.Observe() or RxEntity.Observe()
+            if (TryEmitEntityObserve(emitter, node, methodSymbol))
+                return;
 
             emitter.NeedGenericTypeArguments = false;
             emitter.IgnoreDelegateBind = true;
@@ -85,45 +89,6 @@ namespace PixUI.CS2TS
             }
 
             return false;
-        }
-
-        private static bool TryEmitInvokeAppBoxService(Emitter emitter,
-            InvocationExpressionSyntax node, IMethodSymbol symbol)
-        {
-            if (!symbol.IsAppBoxServiceMethod()) return false;
-
-            //需要检查返回类型内是否包含实体，是则加入引用模型列表内
-            if (emitter.FindModel != null && !symbol.ReturnsVoid)
-                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter.FindModel, emitter.AddUsedModel);
-
-            //开始转换为前端服务调用
-            emitter.AddUsedModule("AppBoxClient");
-            emitter.Write("AppBoxClient.Channel.Invoke('");
-            //参数1: 服务名称 eg: sys.HelloService.SayHello
-            emitter.Write(symbol.ContainingNamespace.ContainingNamespace.Name);
-            emitter.Write('.');
-            emitter.Write(symbol.ContainingType.Name);
-            emitter.Write('.');
-            emitter.Write(symbol.Name);
-            emitter.Write("'");
-            //参数2: 服务方法参数列表
-            if (node.ArgumentList.Arguments.Count > 0)
-            {
-                emitter.Write(", [");
-                emitter.VisitSeparatedList(node.ArgumentList.Arguments);
-                emitter.Write(']');
-            }
-            else
-            {
-                emitter.Write(", null");
-            }
-
-            //参数3: 传入根据视图模型引用的实体模型所生成的EntityFactory
-            emitter.Write(", EntityFactories");
-
-            emitter.Write(')');
-
-            return true;
         }
 
         private static bool TryEmitNameof(Emitter emitter, InvocationExpressionSyntax node)
@@ -225,6 +190,78 @@ namespace PixUI.CS2TS
             }
 
             return false;
+        }
+
+        private static bool TryEmitInvokeAppBoxService(Emitter emitter,
+            InvocationExpressionSyntax node, IMethodSymbol symbol)
+        {
+            if (!symbol.IsAppBoxServiceMethod()) return false;
+
+            //需要检查返回类型内是否包含实体，是则加入引用模型列表内
+            if (emitter.FindModel != null && !symbol.ReturnsVoid)
+                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter.FindModel, emitter.AddUsedModel);
+
+            //开始转换为前端服务调用
+            emitter.AddUsedModule("AppBoxClient");
+            emitter.Write("AppBoxClient.Channel.Invoke('");
+            //参数1: 服务名称 eg: sys.HelloService.SayHello
+            emitter.Write(symbol.ContainingNamespace.ContainingNamespace.Name);
+            emitter.Write('.');
+            emitter.Write(symbol.ContainingType.Name);
+            emitter.Write('.');
+            emitter.Write(symbol.Name);
+            emitter.Write("'");
+            //参数2: 服务方法参数列表
+            if (node.ArgumentList.Arguments.Count > 0)
+            {
+                emitter.Write(", [");
+                emitter.VisitSeparatedList(node.ArgumentList.Arguments);
+                emitter.Write(']');
+            }
+            else
+            {
+                emitter.Write(", null");
+            }
+
+            //参数3: 传入根据视图模型引用的实体模型所生成的EntityFactory
+            emitter.Write(", EntityFactories");
+
+            emitter.Write(')');
+
+            return true;
+        }
+
+        private static bool TryEmitEntityObserve(Emitter emitter, InvocationExpressionSyntax node, IMethodSymbol symbol)
+        {
+            var typeFullName = symbol.ContainingType.ToString();
+            if (typeFullName != "AppBoxClient.EntityExtensions" && !typeFullName.StartsWith("AppBoxClient.RxEntity<"))
+                return false;
+
+            //方法参数暂只支持指向实体成员的表达式, eg: e => e.Name
+            var arg = node.ArgumentList.Arguments[0];
+            if (arg.Expression is not LambdaExpressionSyntax argLambda)
+                throw new Exception("Only support LambdaExpression now.");
+            if (argLambda.ExpressionBody is not MemberAccessExpressionSyntax memberAccess)
+                throw new Exception("Only support MemberAccess now.");
+
+            var propSymbol = (IPropertySymbol)emitter.SemanticModel.GetSymbolInfo(memberAccess).Symbol!;
+            if (!propSymbol.ContainingType.IsAppBoxEntity(emitter.FindModel!))
+                throw new Exception("Must be a Entity");
+
+            var entityFullName = propSymbol.ContainingType.ToString();
+            var memberName = memberAccess.Name.Identifier.Text;
+            var memberId = emitter.FindEntityMemberId!(entityFullName, memberName);
+
+            emitter.Visit(node.Expression);
+            emitter.Write('(');
+            emitter.Write(memberId.ToString());
+            emitter.Write(',');
+            emitter.Write($"e=>e.{memberName},");
+            emitter.Write($"(e,v)=>e.{memberName}=v");
+            emitter.Write(')');
+            emitter.WriteTrailingTrivia(node);
+
+            return true;
         }
     }
 }

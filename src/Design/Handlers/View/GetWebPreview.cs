@@ -37,7 +37,8 @@ internal sealed class GetWebPreview : IDesignHandler
             throw new Exception("Has error");
 
         var emitter = await Emitter.MakeAsync(translator, srcDocument, true,
-            fullName => hub.DesignTree.FindModelNodeByFullName(fullName) != null);
+            fullName => hub.DesignTree.FindModelNodeByFullName(fullName) != null,
+            (entityName, memberName) => ((EntityModel)hub.DesignTree.FindModelNodeByFullName(entityName)!.Model).GetMember(memberName)!.MemberId);
         emitter.Emit();
         var tsCode = emitter.GetTypeScriptCode(true);
 
