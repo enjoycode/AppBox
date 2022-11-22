@@ -10,11 +10,13 @@ export class Checkbox extends PixUI.Toggleable {
     }
 
     public static Tristate(value: PixUI.State<Nullable<boolean>>): Checkbox {
-        let checkbox = new Checkbox(PixUI.State.op_Implicit_From(false));
+        let checkbox = new Checkbox(Checkbox._notSetState);
         checkbox._previousValue = value.Value;
         checkbox.InitState(value, true); //replace to nullable state
         return checkbox;
     }
+
+    private static readonly _notSetState: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
 
     private _previousValue: Nullable<boolean>;
 

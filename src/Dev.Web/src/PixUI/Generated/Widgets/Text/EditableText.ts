@@ -86,7 +86,11 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
     private _OnTextInput(text: string) {
         if (this.IsReadonly) return;
 
-        this.Text.Value = this.Text.Value.Insert(this._caretPosition, text);
+        if (this.Text.Value != null)
+            this.Text.Value = this.Text.Value.Insert(this._caretPosition, text);
+        else
+            this.Text.Value = text;
+
         this._caretPosition += text.length;
     }
 
@@ -194,7 +198,7 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
-        if (this.Text.Value.length == 0) {
+        if (this.Text.Value == null || this.Text.Value.length == 0) {
             if (System.IsNullOrEmpty(this.HintText)) return;
 
             this._hintParagraph ??=

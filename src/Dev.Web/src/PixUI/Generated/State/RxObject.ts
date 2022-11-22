@@ -28,18 +28,19 @@ export class RxProperty<T> extends PixUI.State<T> {
 }
 
 export abstract class RxObject<T extends object> {
-    private _object: T;
+    protected _target: T;
 
     public get Target(): T {
-        return this._object;
+        return this._target;
     }
 
     public set Target(value: T) {
-        this._object = value;
-        this.OnTargetChanged();
+        let old = this._target;
+        this._target = value;
+        this.OnTargetChanged(old);
     }
 
-    private OnTargetChanged() {
+    private OnTargetChanged(old: T) {
         const props = Object.getOwnPropertyNames(this);
         for (let prop of props) {
             // @ts-ignore

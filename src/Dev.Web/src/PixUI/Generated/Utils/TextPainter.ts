@@ -6,10 +6,7 @@ export class TextPainter {
         if (fontStyle != null)
             ts.fontStyle = fontStyle;
 
-        let ps = PixUI.MakeParagraphStyle({
-            maxLines: (Math.floor(maxLines) & 0xFFFFFFFF),
-            textStyle: ts
-        });
+        let ps = PixUI.MakeParagraphStyle({maxLines: (Math.floor(maxLines) & 0xFFFFFFFF), textStyle: ts});
         if (forceHeight) {
             ts.heightMultiplier = 1;
             ps.heightMultiplier = 1;

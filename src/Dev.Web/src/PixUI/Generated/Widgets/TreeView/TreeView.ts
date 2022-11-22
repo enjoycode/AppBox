@@ -4,10 +4,11 @@ import * as PixUI from '@/PixUI'
 export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
     private static readonly $meta_PixUI_IScrollable = true;
 
-    public constructor(controller: PixUI.TreeController<T>, nodeHeight: number = 30) {
+    public constructor(controller: PixUI.TreeController<T>, showCheckbox: boolean = false, nodeHeight: number = 30) {
         super();
         this._controller = controller;
         this._controller.NodeHeight = nodeHeight;
+        this._controller.ShowCheckbox = showCheckbox;
         this._controller.InitNodes(this);
     }
 
@@ -21,6 +22,10 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
 
     public set Color(value: Nullable<PixUI.State<PixUI.Color>>) {
         this._color = this.Rebind(this._color, value, PixUI.BindingOptions.AffectsVisual);
+    }
+
+    public set OnCheckChanged(value: System.Action1<PixUI.TreeNode<T>>) {
+        this._controller.CheckChanged.Add(value, this);
     }
 
     public get ScrollOffsetX(): number {

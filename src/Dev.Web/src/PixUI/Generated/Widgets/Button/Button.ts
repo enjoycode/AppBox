@@ -140,10 +140,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         }
 
         if (this._icon != null && this._iconWidget == null) {
-            this._iconWidget = new PixUI.Icon(this._icon).Init({
-                Color: this._textColor,
-                Size: this._fontSize
-            });
+            this._iconWidget = new PixUI.Icon(this._icon).Init({Color: this._textColor, Size: this._fontSize});
             this._iconWidget.Parent = this;
         }
     }

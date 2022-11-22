@@ -22,7 +22,7 @@ export class Ticker {
     }
 
     public Start() {
-        console.assert(this._startTime == null);
+        //Debug.Assert(_startTime == null);
         this._startTime = System.DateTime.UtcNow;
         this._animationId++;
         this._isActive = true;

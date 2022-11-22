@@ -1,7 +1,7 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
-export class TreeController<T> implements PixUI.IStateBindable {
+export class TreeController<T> {
     public constructor(nodeBuilder: System.Action2<T, PixUI.TreeNode<T>>, childrenGetter: System.Func2<T, System.IList<T>>) {
         this.NodeBuilder = nodeBuilder;
         this.ChildrenGetter = childrenGetter;
@@ -20,6 +20,10 @@ export class TreeController<T> implements PixUI.IStateBindable {
     public readonly ChildrenGetter: System.Func2<T, System.IList<T>>;
     public readonly Nodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
     public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
+
+    public get RootNodes(): PixUI.TreeNode<T>[] {
+        return this.Nodes.ToArray();
+    }
 
 
     private readonly _selectedNodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
@@ -40,6 +44,18 @@ export class TreeController<T> implements PixUI.IStateBindable {
     public NodeHeight: number = 0;
     public TotalWidth: number = 0;
     public TotalHeight: number = 0;
+
+
+    public ShowCheckbox: boolean = false;
+
+    public SuspendAutoCheck: boolean = false;
+
+    public readonly CheckChanged = new System.Event<PixUI.TreeNode<T>>();
+
+    public RaiseCheckChanged(node: PixUI.TreeNode<T>) {
+        this.CheckChanged.Invoke(node);
+    }
+
 
     private _isLoading: boolean = false;
     #LoadingPainter: Nullable<PixUI.CircularProgressPainter>;
@@ -70,6 +86,7 @@ export class TreeController<T> implements PixUI.IStateBindable {
         this.TreeView?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
+
     private _dataSource: Nullable<System.IList<T>>;
 
     public get DataSource(): Nullable<System.IList<T>> {
@@ -94,14 +111,16 @@ export class TreeController<T> implements PixUI.IStateBindable {
         for (const item of this._dataSource) {
             let node = new PixUI.TreeNode<T>(item, this);
             this.NodeBuilder(item, node);
+            node.TryBuildCheckbox();
             node.Parent = treeView;
             this.Nodes.Add(node);
         }
     }
 
-    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
-        throw new System.NotImplementedException();
-    }
+    //public void OnStateChanged(StateBase state, BindingOptions options)
+    //{
+    //    throw new NotImplementedException();
+    //}
 
 
     public FindNode(predicate: System.Predicate<T>): Nullable<PixUI.TreeNode<T>> {
@@ -185,6 +204,14 @@ export class TreeController<T> implements PixUI.IStateBindable {
             this._selectedNodes.RemoveAt(selectedAt);
             this.SelectionChanged.Invoke();
         }
+    }
+
+    public SetChecked(data: T, value: boolean) {
+        let node = this.FindNode(t => System.Equals(data, t));
+        if (node == null)
+            throw new System.Exception("Can't find node");
+
+        node.SetChecked(value);
     }
 
     public Init(props: Partial<TreeController<T>>): TreeController<T> {

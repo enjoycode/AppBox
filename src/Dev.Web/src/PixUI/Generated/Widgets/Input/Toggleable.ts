@@ -1,3 +1,4 @@
+import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class Toggleable extends PixUI.Widget implements PixUI.IMouseRegion {
@@ -21,6 +22,8 @@ export abstract class Toggleable extends PixUI.Widget implements PixUI.IMouseReg
         this.#MouseRegion = value;
     }
 
+    public readonly ValueChanged = new System.Event<Nullable<boolean>>();
+
     protected InitState(value: PixUI.State<Nullable<boolean>>, tristate: boolean) {
         this._triState = tristate;
         this._value = this.Bind(value, PixUI.BindingOptions.AffectsVisual);
@@ -31,23 +34,20 @@ export abstract class Toggleable extends PixUI.Widget implements PixUI.IMouseReg
 
     private OnTap(e: PixUI.PointerEvent) {
         //TODO: skip on readonly
-        //TODO: 考虑只切换true与false，中间状态只能程序改变，目前true->null->false循环
 
-        if (this._value.Value == null)
-            this._value.Value = false;
-        else if (this._value.Value == true)
-            this._value.Value = this._triState ? null : false;
-        else
+        //只切换true与false，中间状态只能程序改变
+        if (this._value.Value == null || this._value.Value == false)
             this._value.Value = true;
+        else
+            this._value.Value = false;
     }
 
     private AnimateToValue() {
         if (this._triState) {
-            if (this._value.Value == null)
+            if (this._value.Value == null || this._value.Value == true) {
                 this._positionController.SetValue(0);
-            if (this._value.Value == null || this._value.Value == true)
                 this._positionController.Forward();
-            else
+            } else
                 this._positionController.Reverse();
         } else {
             if (this._value.Value != null && this._value.Value == true)
@@ -63,6 +63,7 @@ export abstract class Toggleable extends PixUI.Widget implements PixUI.IMouseReg
 
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         if ((state === this._value)) {
+            this.ValueChanged.Invoke(this._value.Value);
             this.AnimateToValue();
             return;
         }

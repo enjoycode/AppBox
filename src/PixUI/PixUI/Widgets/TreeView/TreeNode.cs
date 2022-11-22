@@ -397,7 +397,7 @@ namespace PixUI
             Controller.RaiseCheckChanged(this);
         }
 
-        private static void AutoCheckParent(TreeNode<T>? parent)
+        private static void AutoCheckParent<TNode>(TreeNode<TNode>? parent)
         {
             if (parent == null) return;
 
@@ -433,7 +433,7 @@ namespace PixUI
             AutoCheckParent(parent.ParentNode);
         }
 
-        private static void AutoCheckChildren(TreeNode<T> node, bool? newValue)
+        private static void AutoCheckChildren<TNode>(TreeNode<TNode> node, bool? newValue)
         {
             Debug.Assert(newValue.HasValue);
 

@@ -25,8 +25,14 @@ export class TreeNode<T> extends PixUI.Widget {
     private readonly _row: PixUI.TreeNodeRow<T>;
     private _children: Nullable<System.List<TreeNode<T>>>;
 
+    public get Children(): Nullable<TreeNode<T>[]> {
+        return this._children?.ToArray();
+    }
+
     public readonly IsSelected: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
     private readonly _color: PixUI.State<PixUI.Color>; //for icon and label
+
+    private _checkState: Nullable<PixUI.State<Nullable<boolean>>>;
 
     private _expandController: Nullable<PixUI.AnimationController>; //TODO:考虑提升至TreeController共用实例
     private _expandCurve: Nullable<PixUI.Animation<number>>;
@@ -71,6 +77,12 @@ export class TreeNode<T> extends PixUI.Widget {
         return depth;
     }
 
+    public get ParentNode(): Nullable<TreeNode<T>> {
+        if (this.Parent == null) return null;
+        if (this.Parent instanceof PixUI.TreeView) return null;
+        return <TreeNode<T>><unknown>this.Parent;
+    }
+
 
     private TryBuildExpandIcon() {
         if (this._expandController != null) return;
@@ -90,7 +102,7 @@ export class TreeNode<T> extends PixUI.Widget {
         this.Invalidate(PixUI.InvalidAction.Relayout); //自身改变高度并通知上级
     }
 
-    private TryBuildChildren() {
+    public EnsureBuildChildren() {
         if (this.IsLeaf || this._children != null) return;
 
         let childrenList = this._controller.ChildrenGetter(this.Data);
@@ -98,6 +110,7 @@ export class TreeNode<T> extends PixUI.Widget {
         for (const child of childrenList) {
             let node = new TreeNode<T>(child, this._controller);
             this._controller.NodeBuilder(child, node);
+            node.TryBuildCheckbox();
             node.Parent = this;
             this._children.Add(node);
         }
@@ -108,7 +121,7 @@ export class TreeNode<T> extends PixUI.Widget {
             return PixUI.TreeView.CalcMaxChildWidth(this._children);
         }
 
-        this.TryBuildChildren();
+        this.EnsureBuildChildren();
 
         let maxWidth = 0;
         let yPos = this._controller.NodeHeight;
@@ -290,11 +303,90 @@ export class TreeNode<T> extends PixUI.Widget {
     }
 
 
+    public TryBuildCheckbox() {
+        if (!this.Controller.ShowCheckbox) return;
+
+        this._checkState = new PixUI.Rx<Nullable<boolean>>(false);
+        let checkbox = PixUI.Checkbox.Tristate(this._checkState);
+        checkbox.ValueChanged.Add(this.OnCheckChanged, this);
+        this._row.Checkbox = checkbox;
+    }
+
+    private OnCheckChanged(value: Nullable<boolean>) {
+        //Auto check children and parent
+        if (!this.Controller.SuspendAutoCheck) {
+            this.Controller.SuspendAutoCheck = true;
+            //auto check parent first
+            TreeNode.AutoCheckParent(this.ParentNode);
+            //auto check children
+            TreeNode.AutoCheckChildren(this, value);
+            this.Controller.SuspendAutoCheck = false;
+        }
+
+        //Raise CheckChanged event
+        this.Controller.RaiseCheckChanged(this);
+    }
+
+    private static AutoCheckParent<TNode>(parent: Nullable<TreeNode<TNode>>) {
+        if (parent == null) return;
+
+        let allChecked = true;
+        let allUnchecked = true;
+
+        for (const child of parent._children!) {
+            if (child._checkState!.Value == null) {
+                allChecked = false;
+                allUnchecked = false;
+                break;
+            } else if (child._checkState.Value == true) {
+                allUnchecked = false;
+            } else {
+                allChecked = false;
+            }
+        }
+
+        let newValue: Nullable<boolean> = null;
+        if (allChecked)
+            newValue = true;
+        else if (allUnchecked)
+            newValue = false;
+
+        parent._checkState!.Value = newValue;
+
+        TreeNode.AutoCheckParent(parent.ParentNode);
+    }
+
+    private static AutoCheckChildren<TNode>(node: TreeNode<TNode>, newValue: Nullable<boolean>) {
+        console.assert(newValue);
+
+        if (node.IsLeaf) return;
+
+        node.EnsureBuildChildren(); //maybe not build
+
+        if (node._children != null && node._children.length > 0) {
+            for (const child of node._children) {
+                child._checkState!.Value = newValue;
+                TreeNode.AutoCheckChildren(child, newValue);
+            }
+        }
+    }
+
+    public SetChecked(value: boolean) {
+        if (!this.Controller.ShowCheckbox)
+            throw new System.InvalidOperationException("Not supported");
+        this._checkState!.Value = value;
+    }
+
+    public get CheckState(): Nullable<boolean> {
+        return this._checkState?.Value;
+    }
+
+
     public FindNode(predicate: System.Predicate<T>): Nullable<TreeNode<T>> {
         if (predicate(this.Data)) return this;
 
         if (!this.IsLeaf) {
-            this.TryBuildChildren(); //可能收缩中还没有构建子节点
+            this.EnsureBuildChildren(); //可能收缩中还没有构建子节点
 
             for (const child of this._children!) {
                 let found = child.FindNode(predicate);
@@ -321,7 +413,7 @@ export class TreeNode<T> extends PixUI.Widget {
     public InsertChild(index: number, child: TreeNode<T>) {
         if (this.IsLeaf) return;
 
-        this.TryBuildChildren();
+        this.EnsureBuildChildren();
 
         let insertIndex = index < 0 ? this._children!.length : index;
         this._children!.Insert(insertIndex, child);

@@ -21,7 +21,7 @@ export class IconPainter implements System.IDisposable {
                 return;
             }
 
-            this._cachedFont = new CanvasKit.Font(typeface, size);
+            this._cachedFont = new CanvasKit.Font(typeface!, size);
             this._cachedGlyphId = this._cachedFont.getGlyphIDs(String.fromCharCode(data.CodePoint))[0];
         }
 

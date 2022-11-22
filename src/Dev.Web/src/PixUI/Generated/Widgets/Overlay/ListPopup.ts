@@ -78,8 +78,7 @@ export class ListPopup<T> extends PixUI.Popup {
         this._listViewController = new PixUI.ListViewController<T>();
         this._child = new PixUI.Card().Init(
             {
-                Width: PixUI.State.op_Implicit_From(popupWidth),
-                Elevation: PixUI.State.op_Implicit_From(8),
+                Width: PixUI.State.op_Implicit_From(popupWidth), Elevation: PixUI.State.op_Implicit_From(8),
                 Child: new PixUI.ListView<T>(this.BuildItem.bind(this), null, this._listViewController)
             });
         this._child.Parent = this;
