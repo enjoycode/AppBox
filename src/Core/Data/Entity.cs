@@ -47,6 +47,10 @@ public abstract class Entity : IBinSerializable
 
     void IBinSerializable.WriteTo(IOutputStream ws)
     {
+        // Write DbEntity
+        if (this is DbEntity dbEntity)
+            dbEntity.WriteTo(ws);
+
         //Write members
         foreach (var memberId in AllMembers)
         {
@@ -56,14 +60,14 @@ public abstract class Entity : IBinSerializable
         _writeMemberFlags = EntityMemberWriteFlags.None; //注意写完后重置
 
         ws.WriteShort(0); //End write members
-
-        // Write DbEntity
-        if (this is DbEntity dbEntity)
-            dbEntity.WriteTo(ws);
     }
 
     void IBinSerializable.ReadFrom(IInputStream rs)
     {
+        //Read DbEntity
+        if (this is DbEntity dbEntity)
+            dbEntity.ReadFrom(rs);
+
         //Read members
         while (true)
         {
@@ -71,10 +75,6 @@ public abstract class Entity : IBinSerializable
             if (memberId == 0) break;
             ReadMember(memberId, ref rs, 0);
         }
-
-        //Read DbEntity
-        if (this is DbEntity dbEntity)
-            dbEntity.ReadFrom(rs);
     }
 
     #endregion
