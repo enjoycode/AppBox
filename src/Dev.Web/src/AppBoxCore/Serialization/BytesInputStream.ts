@@ -16,7 +16,7 @@ export class BytesInputStream implements IInputStream {
         this.bytes = new Uint8Array(buffer);
         this.view = new DataView(buffer);
     }
-    
+
     /** 剩余字节数 */
     public get Remaining(): number {
         return this.view.byteLength - this.pos;
@@ -27,7 +27,7 @@ export class BytesInputStream implements IInputStream {
             throw new RangeError('Has no data.');
         }
     }
-    
+
     //region ====DeserializeXXXX====
     public Deserialize(): any {
         const payloadType = this.ReadByte();
@@ -51,7 +51,7 @@ export class BytesInputStream implements IInputStream {
             case PayloadType.ObjectRef:
                 return this.deserialized[this.ReadVariant()];
             case PayloadType.Entity:
-                return this.DeserializeEntity(null);
+                return this.ReadEntity(null);
             case PayloadType.Array:
                 return this.ReadArray();
             case PayloadType.List:
@@ -70,7 +70,7 @@ export class BytesInputStream implements IInputStream {
         return obj;
     }
 
-    public DeserializeEntity<T extends Entity>(creator?: () => T): T {
+    public ReadEntity<T extends Entity>(creator?: () => T): T {
         let modelId = this.ReadLong();
         //从上下文获取实体工厂
         let f = creator ?? this.EntityFactories.get(modelId);
@@ -80,12 +80,21 @@ export class BytesInputStream implements IInputStream {
         return <T>entity;
     }
 
+    public DeserializeEntity<T extends Entity>(creator?: () => T): T | null {
+        let payloadType = this.ReadByte();
+        if (payloadType == PayloadType.Null) return null;
+        if (payloadType == PayloadType.ObjectRef) return this.deserialized[this.ReadVariant()];
+        if (payloadType == PayloadType.Entity) return this.ReadEntity(creator);
+        throw new Error("Payload type not match");
+    }
+
     private AddToDeserialized(obj: any) {
         if (!this.deserialized) {
             this.deserialized = [];
         }
         this.deserialized.push(obj);
     }
+
     //endregion
 
     //region ====ReadXXX====
