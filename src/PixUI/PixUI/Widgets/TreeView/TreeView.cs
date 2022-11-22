@@ -26,9 +26,9 @@ namespace PixUI
             set => _color = Rebind(_color, value, BindingOptions.AffectsVisual);
         }
 
-        public Action<TreeNode<T>, bool?> OnCheckChanged
+        public Action<TreeNode<T>> OnCheckChanged
         {
-            set { _controller.CheckChanged += value; }
+            set => _controller.CheckChanged += value;
         }
 
         #region ====IScrollable====

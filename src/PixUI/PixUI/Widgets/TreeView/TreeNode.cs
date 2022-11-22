@@ -379,7 +379,8 @@ namespace PixUI
             checkbox.ValueChanged += OnCheckChanged;
             _row.Checkbox = checkbox;
         }
-        internal void OnCheckChanged(bool? value)
+
+        private void OnCheckChanged(bool? value)
         {
             //Auto check children and parent
             if (!Controller.SuspendAutoCheck)
@@ -393,7 +394,7 @@ namespace PixUI
             }
 
             //Raise CheckChanged event
-            Controller.RaiseCheckChanged(this, value);
+            Controller.RaiseCheckChanged(this);
         }
 
         private static void AutoCheckParent(TreeNode<T>? parent)
@@ -456,6 +457,8 @@ namespace PixUI
                 throw new InvalidOperationException("Not supported");
             _checkState!.Value = value;
         }
+
+        public bool? CheckState => _checkState?.Value;
 
         #endregion
 

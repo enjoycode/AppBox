@@ -51,14 +51,14 @@ export class EntitySet<T extends Entity> extends List<T> implements IBinSerializ
     ReadFrom(bs: IInputStream): void {
         let count = bs.ReadVariant();
         for (let i = 0; i < count; i++) {
-            super.Add((<any>bs).DeserializeEntity(this._creator));
+            super.Add((<any>bs).DeserializeEntity(/*this._creator*/ null));
         }
 
         count = bs.ReadVariant();
         if (count > 0) {
             this._removed = new List<T>();
             for (let i = 0; i < count; i++) {
-                this._removed.Add((<any>bs).DeserializeEntity(this._creator));
+                this._removed.Add((<any>bs).DeserializeEntity(/*this._creator*/ null));
             }
         }
     }

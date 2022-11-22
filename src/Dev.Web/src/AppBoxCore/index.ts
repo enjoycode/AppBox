@@ -14,3 +14,4 @@ export * from "./Serialization/BytesInputStream"
 export * from "./Serialization/BytesOutputStream"
 
 export * from "./Data/Entity"
+export * from "./Data/EntitySet"

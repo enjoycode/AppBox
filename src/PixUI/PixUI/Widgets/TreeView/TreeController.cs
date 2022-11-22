@@ -46,20 +46,22 @@ namespace PixUI
         internal float TotalHeight = 0;
 
         #region ----Checkbox----
+
         internal bool ShowCheckbox;
 
         internal bool SuspendAutoCheck;
 
-        public event Action<TreeNode<T>, bool?>? CheckChanged;
+        public event Action<TreeNode<T>>? CheckChanged;
 
-        internal void RaiseCheckChanged(TreeNode<T> node, bool? value)
-            => CheckChanged?.Invoke(node, value);
+        internal void RaiseCheckChanged(TreeNode<T> node) => CheckChanged?.Invoke(node);
 
         #endregion
 
         #region ----Loading----
+
         private bool _isLoading = false;
         internal CircularProgressPainter? LoadingPainter { get; private set; }
+
         public bool IsLoading
         {
             get => _isLoading;
@@ -82,6 +84,7 @@ namespace PixUI
                 TreeView?.Invalidate(InvalidAction.Repaint);
             }
         }
+
         #endregion
 
         private IList<T>? _dataSource;

@@ -30,12 +30,12 @@ namespace PixUI.CS2TS
                 type = nullableTypeSyntax.ElementType;
 
             var typeSymbol = emitter.SemanticModel.GetSymbolInfo(type).Symbol;
-            // check is System.Action type
+            // check is System.Action type 并且最多只能有一个事件参数
             var isActionType = type is GenericNameSyntax
                 ? SymbolEqualityComparer.Default.Equals(emitter.TypeOfAction1, typeSymbol?.OriginalDefinition)
                 : SymbolEqualityComparer.Default.Equals(emitter.TypeOfAction, typeSymbol);
             if (!isActionType)
-                throw new Exception("Only support System.Action now");
+                throw new Exception("暂只支持最多一个事件参数");
 
             var eventName = node.Declaration.Variables[0].Identifier.Text;
             if (isAbstract)
