@@ -163,8 +163,7 @@ namespace PixUI.CS2TS
 
         #region ====Expression====
 
-        public override void VisitImplicitObjectCreationExpression(
-            ImplicitObjectCreationExpressionSyntax node) =>
+        public override void VisitImplicitObjectCreationExpression(ImplicitObjectCreationExpressionSyntax node) =>
             ImplicitObjectCreationEmitter.Default.Emit(this, node);
 
         public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node) =>
@@ -176,9 +175,8 @@ namespace PixUI.CS2TS
         public override void VisitArrayCreationExpression(ArrayCreationExpressionSyntax node) =>
             ArrayCreationExpressionEmitter.Emit(this, node);
 
-        public override void VisitImplicitArrayCreationExpression(
-            ImplicitArrayCreationExpressionSyntax node)
-            => ArrayCreationExpressionEmitter.Emit(this, node);
+        public override void VisitImplicitArrayCreationExpression(ImplicitArrayCreationExpressionSyntax node) =>
+            ArrayCreationExpressionEmitter.Emit(this, node);
 
         public override void VisitInvocationExpression(InvocationExpressionSyntax node) =>
             InvocationExpressionEmitter.Default.Emit(this, node);
@@ -216,8 +214,7 @@ namespace PixUI.CS2TS
         public override void VisitLiteralExpression(LiteralExpressionSyntax node) =>
             LiteralExpressionEmitter.Default.Emit(this, node);
 
-        public override void
-            VisitInterpolatedStringExpression(InterpolatedStringExpressionSyntax node) =>
+        public override void VisitInterpolatedStringExpression(InterpolatedStringExpressionSyntax node) =>
             InterpolatedStringEmitter.Default.Emit(this, node);
 
         public override void VisitInterpolatedStringText(InterpolatedStringTextSyntax node) =>
@@ -243,6 +240,18 @@ namespace PixUI.CS2TS
             Write('[');
             VisitSeparatedList(node.Arguments);
             Write(']');
+        }
+
+        public override void VisitPostfixUnaryExpression(PostfixUnaryExpressionSyntax node)
+        {
+            if (node.Kind() == SyntaxKind.SuppressNullableWarningExpression && ToJavaScript)
+            {
+                node.Operand.Accept(this);
+                WriteTrailingTrivia(node);
+                return;
+            }
+            
+            base.VisitPostfixUnaryExpression(node);
         }
 
         #endregion
