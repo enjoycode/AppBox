@@ -1,6 +1,6 @@
 import * as PixUI from '@/PixUI'
 import * as System from '@/System'
-import {Channel, WebChannel} from '@/AppBoxClient';
+import {Channel, initializeAppBoxClient, WebChannel} from '@/AppBoxClient';
 import {CodeEditorController, CodeEditorWidget} from "@/CodeEditor";
 import * as AppBoxDesign from './AppBoxDesign/Generated/HomePage'
 
@@ -128,6 +128,8 @@ public sealed class Person
 Channel.Init(new WebChannel());
 // 初始化PixUI
 PixUI.WebApplication.Init();
+// 初始化AppBoxClient的一些扩展方法
+initializeAppBoxClient();
 // PixUI.PaintDebugger.Switch();
 // 开始运行
 PixUI.WebApplication.Run(DemoWidget.MakeDev);

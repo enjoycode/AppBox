@@ -5,9 +5,9 @@ import * as PixUI from '@/PixUI'
 export class RxEntityField extends PixUI.RxObject<AppBoxDesign.EntityFieldVO> {
     public constructor() {
         super();
-        this.Name = new PixUI.RxProperty<string>(() => this.Object.Name);
-        this.FieldType = new PixUI.RxProperty<AppBoxCore.EntityFieldType>(() => this.Object.FieldType);
-        this.Comment = new PixUI.RxProperty<string>(() => this.Object.Comment ?? '', v => this.Object.Comment = v);
+        this.Name = new PixUI.RxProperty<string>(() => this.Target.Name);
+        this.FieldType = new PixUI.RxProperty<AppBoxCore.EntityFieldType>(() => this.Target.FieldType);
+        this.Comment = new PixUI.RxProperty<string>(() => this.Target.Comment ?? '', v => this.Target.Comment = v);
     }
 
     public readonly Name: PixUI.RxProperty<string>;
@@ -57,7 +57,7 @@ export class EntityPropertyPanel extends PixUI.View {
         if ((state === this._selectedMember)) {
             if (this._selectedMember.Value != null) {
                 if (this._selectedMember.Value.Type == AppBoxCore.EntityMemberType.EntityField)
-                    this._rxEntityField.Object = <AppBoxDesign.EntityFieldVO><unknown>this._selectedMember.Value;
+                    this._rxEntityField.Target = <AppBoxDesign.EntityFieldVO><unknown>this._selectedMember.Value;
             }
 
             return;

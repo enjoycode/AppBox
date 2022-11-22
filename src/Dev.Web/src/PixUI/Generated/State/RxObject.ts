@@ -40,7 +40,7 @@ export abstract class RxObject<T extends object> {
         this.OnTargetChanged(old);
     }
 
-    private OnTargetChanged(old: T) {
+    protected OnTargetChanged(old: T) {
         const props = Object.getOwnPropertyNames(this);
         for (let prop of props) {
             // @ts-ignore
