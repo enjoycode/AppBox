@@ -210,6 +210,7 @@ export class BytesInputStream implements IInputStream {
         const elementType: PayloadType = this.ReadType();
         let count = this.ReadVariant();
         let list = new List<any>(count);
+        this.AddToDeserialized(list);
         this.ReadCollection(elementType, count, v => list.Add(v));
         return list;
     }
@@ -219,6 +220,7 @@ export class BytesInputStream implements IInputStream {
         const count = this.ReadVariant();
         //TODO:short path for Uint8Array or other
         let res: any[] = [];
+        this.AddToDeserialized(res);
         this.ReadCollection(elementType, count, v => res.push(v));
         return res;
     }

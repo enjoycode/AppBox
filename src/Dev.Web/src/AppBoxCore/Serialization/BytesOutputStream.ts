@@ -86,6 +86,8 @@ export class BytesOutputStream implements IOutputStream {
     }
 
     private SerializeList(obj: List<any>) {
+        if (this.CheckSerialized(obj)) return;
+        
         this.WriteByte(PayloadType.List);
         this.WriteByte(2); //ElementType always = Object
         this.WriteVariant(obj.length);
@@ -95,6 +97,8 @@ export class BytesOutputStream implements IOutputStream {
     }
     
     private SerializeArray(obj: Array<any>) {
+        if (this.CheckSerialized(obj)) return;
+        
         this.WriteByte(PayloadType.Array);
         this.WriteByte(2); //ElementType always = Object
         this.WriteVariant(obj.length);
