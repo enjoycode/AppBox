@@ -57,8 +57,7 @@ export class DataStoreRootNodeVO extends DesignNodeVO {
 }
 
 export class DataStoreNodeVO extends DesignNodeVO {
-    public static readonly None: DataStoreNodeVO = new DataStoreNodeVO().Init(
-        {Id: ''});
+    public static readonly None: DataStoreNodeVO = new DataStoreNodeVO();
 
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.DataStoreNode;

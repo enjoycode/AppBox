@@ -51,8 +51,7 @@ namespace AppBoxDesign
 
     internal sealed class DataStoreNodeVO : DesignNodeVO
     {
-        public static readonly DataStoreNodeVO None = new DataStoreNodeVO()
-            { Id = string.Empty };
+        public static readonly DataStoreNodeVO None = new();
 
         public override DesignNodeType Type => DesignNodeType.DataStoreNode;
     }
@@ -139,7 +138,7 @@ namespace AppBoxDesign
         }
 
         public readonly ModelRootNodeVO ModelRootNode;
-        
+
         public override DesignNodeType Type => DesignNodeType.FolderNode;
 
         private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
@@ -173,11 +172,11 @@ namespace AppBoxDesign
         {
             ModelRootNode = modelRootNode;
         }
-        
+
         public readonly ModelRootNodeVO ModelRootNode;
 
         public string AppName => ModelRootNode.ApplicationNode.Label.Value;
-        
+
         public override DesignNodeType Type => DesignNodeType.ModelNode;
 
         public ModelType ModelType { get; private set; }
