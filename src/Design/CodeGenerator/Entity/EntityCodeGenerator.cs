@@ -51,6 +51,10 @@ internal static class EntityCodeGenerator
         }
 
         // override ModelId
+        sb.Append("\n\n\tstatic get MODELID() {return ");
+        sb.Append(model.Id.Value.ToString());
+        sb.Append("n;}");
+        
         sb.Append("\n\tget ModelId() {return ");
         sb.Append(model.Id.Value.ToString());
         sb.Append("n;}\n");
