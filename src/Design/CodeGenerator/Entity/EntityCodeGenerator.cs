@@ -115,7 +115,10 @@ internal static class EntityCodeGenerator
             {
                 sb.Append("if (this._");
                 sb.Append(member.Name);
-                sb.Append(" != null){ ");
+                sb.Append(" != null");
+                if (member.Type == EntityMemberType.EntityRef || member.Type == EntityMemberType.EntitySet)
+                    sb.Append(" && !this._ignoreSerializeNavigateMembers");
+                sb.Append("){ ");
             }
 
             switch (member.Type)
@@ -158,6 +161,7 @@ internal static class EntityCodeGenerator
         }
 
         sb.Append("\t\tws.WriteShort(0);\n");
+        sb.Append("\t\tthis._ignoreSerializeNavigateMembers = false;\n");
         sb.Append("\t}\n"); //end WriteTo()
 
         sb.Append("}\n"); //class end

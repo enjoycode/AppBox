@@ -4,6 +4,13 @@ import {Event} from "@/System";
 export abstract class Entity implements IBinSerializable {
     public abstract get ModelId(): bigint;
 
+    protected _ignoreSerializeNavigateMembers: boolean = false;
+
+    public IgnoreSerializeNavigateMembers(): typeof this {
+        this._ignoreSerializeNavigateMembers = true;
+        return this;
+    }
+
     public readonly PropertyChanged = new Event<number>();
 
     protected OnPropertyChanged(memberId: number) {
@@ -33,7 +40,19 @@ export abstract class DbEntity extends Entity {
 
     private _changedMembers: number[] | null = null;
 
-    //TODO: override OnPropertyChanged
+    protected OnPropertyChanged(memberId: number) {
+        if (this._persistentState == PersistentState.Unchanged || this._persistentState == PersistentState.Modified) {
+            this._persistentState = PersistentState.Modified;
+            if (!this._changedMembers) {
+                this._changedMembers = [];
+            }
+            if (this._changedMembers.indexOf(memberId) < 0) {
+                this._changedMembers.push(memberId);
+            }
+        }
+
+        super.OnPropertyChanged(memberId);
+    }
 
     WriteTo(bs: IOutputStream) {
         bs.WriteByte(this._persistentState);
