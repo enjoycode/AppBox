@@ -15,6 +15,13 @@ export class Guid {
         }
     }
 
+    public static op_Equality(a: Guid, b: Guid): boolean {
+        for (let i = 0; i < 16; i++) {
+            if(a._data[i] != b._data[i]) return false;
+        }
+        return true;
+    }
+
     public Clone(): Guid {
         return new Guid(this._data);
     }
