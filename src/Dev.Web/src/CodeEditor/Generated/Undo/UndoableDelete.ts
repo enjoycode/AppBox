@@ -26,9 +26,4 @@ export class UndoableDelete implements CodeEditor.IUndoableOperation {
         this._document.Remove(this._offset, this._text.length);
         this._document.UndoStack.AcceptChanges = true;
     }
-
-    public Init(props: Partial<UndoableDelete>): UndoableDelete {
-        Object.assign(this, props);
-        return this;
-    }
 }

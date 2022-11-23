@@ -1,5 +1,4 @@
 import * as AppBoxClient from '@/AppBoxClient'
-import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
 export class LoginPage extends PixUI.View {
@@ -13,8 +12,7 @@ export class LoginPage extends PixUI.View {
             {
                 Child: new PixUI.Card().Init(
                     {
-                        Width: PixUI.State.op_Implicit_From(400),
-                        Height: PixUI.State.op_Implicit_From(330),
+                        Width: PixUI.State.op_Implicit_From(400), Height: PixUI.State.op_Implicit_From(330),
                         Elevation: PixUI.State.op_Implicit_From(20),
                         Child: this.BuildLoginForm()
                     })
@@ -44,20 +42,12 @@ export class LoginPage extends PixUI.View {
             });
     }
 
-    private async OnLogin(): Promise<void> {
-        // try
-        // {
-        await AppBoxDesign.DesignInitializer.TryInit();
-
-        await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
-
-        this.CurrentNavigator!.PushNamed("IDE");
-        // }
-        // catch (Exception ex) { }
-    }
-
-    public Init(props: Partial<LoginPage>): LoginPage {
-        Object.assign(this, props);
-        return this;
+    private async OnLogin() {
+        try {
+            await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
+            this.CurrentNavigator!.PushNamed("IDE");
+        } catch (ex: any) {
+            PixUI.Notification.Error(`登录错误: ${ex.Message}`);
+        }
     }
 }

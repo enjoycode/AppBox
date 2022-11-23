@@ -53,9 +53,4 @@ export class Selection {
     public ContainsOffset(offset: number): boolean {
         return this.Offset <= offset && offset <= this.EndOffset;
     }
-
-    public Init(props: Partial<Selection>): Selection {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -177,9 +177,4 @@ initializer: [
         return result;
     }
 
-    public Init(props: Partial<CSharpLanguage>): CSharpLanguage {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

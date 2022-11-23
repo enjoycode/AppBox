@@ -205,11 +205,6 @@ export class ImmutableText {
         }
     }
 
-    public Init(props: Partial<ImmutableText>): ImmutableText {
-        Object.assign(this, props);
-        return this;
-    }
-
 }
 
 export class InnerLeaf {
@@ -219,10 +214,5 @@ export class InnerLeaf {
     public constructor(leafNode: CodeEditor.LeafNode, offset: number) {
         this.LeafNode = leafNode;
         this.Offset = offset;
-    }
-
-    public Init(props: Partial<InnerLeaf>): InnerLeaf {
-        Object.assign(this, props);
-        return this;
     }
 }

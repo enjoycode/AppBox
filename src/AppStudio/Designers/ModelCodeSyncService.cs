@@ -11,7 +11,6 @@ namespace AppBoxDesign
     /// <summary>
     /// 用于同步客户端代码编辑器的变更至服务端
     /// </summary>
-    [TSNoInitializer]
     internal sealed class ModelCodeSyncService
     {
         private readonly int _targetType;

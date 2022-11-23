@@ -32,11 +32,6 @@ export class BackspaceCommand implements CodeEditor.IEditCommand {
             editor.Caret.Position = editor.Document.OffsetToPosition(caretOffset - 1);
         }
     }
-
-    public Init(props: Partial<BackspaceCommand>): BackspaceCommand {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class TabCommand implements CodeEditor.IEditCommand {
@@ -47,11 +42,6 @@ export class TabCommand implements CodeEditor.IEditCommand {
         let tabIndent = editor.Document.TextEditorOptions.TabIndent;
         let convertToWhitespaces = ' '.repeat(tabIndent);
         editor.InsertOrReplaceString(convertToWhitespaces);
-    }
-
-    public Init(props: Partial<TabCommand>): TabCommand {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -72,11 +62,6 @@ export class ReturnCommand implements CodeEditor.IEditCommand {
         //     editor, curLine, editor.Caret.Offset, '\n');
         editor.Document.UndoStack.EndUndoGroup();
     }
-
-    public Init(props: Partial<ReturnCommand>): ReturnCommand {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class UndoCommand implements CodeEditor.IEditCommand {
@@ -85,11 +70,6 @@ export class UndoCommand implements CodeEditor.IEditCommand {
 
         editor.Document.UndoStack.Undo();
     }
-
-    public Init(props: Partial<UndoCommand>): UndoCommand {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class RedoCommand implements CodeEditor.IEditCommand {
@@ -97,10 +77,5 @@ export class RedoCommand implements CodeEditor.IEditCommand {
         // if (editor.Document.ReadOnly) return;
 
         editor.Document.UndoStack.Redo();
-    }
-
-    public Init(props: Partial<RedoCommand>): RedoCommand {
-        Object.assign(this, props);
-        return this;
     }
 }

@@ -36,8 +36,8 @@ export class PublishDialog extends PixUI.Dialog {
                 "sys.DesignService.GetPendingChanges");
             if (res != null)
                 this._dataGridController.DataSource = new System.List<AppBoxDesign.ChangedModel>(res);
-        } catch (e: any) {
-            PixUI.Notification.Error("加载模型变更失败");
+        } catch (ex: any) {
+            PixUI.Notification.Error(`加载模型变更失败:${ex.Message}`);
         }
     }
 
@@ -54,10 +54,5 @@ export class PublishDialog extends PixUI.Dialog {
         } catch (ex: any) {
             PixUI.Notification.Error(`发布失败: ${ex.Message}`);
         }
-    }
-
-    public Init(props: Partial<PublishDialog>): PublishDialog {
-        Object.assign(this, props);
-        return this;
     }
 }

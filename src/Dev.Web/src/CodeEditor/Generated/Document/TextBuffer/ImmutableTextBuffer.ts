@@ -45,9 +45,4 @@ export class ImmutableTextBuffer implements CodeEditor.ITextBuffer {
     public CopyTo(dest: Uint16Array, offset: number, count: number) {
         this._buffer.CopyTo(offset, dest, count);
     }
-
-    public Init(props: Partial<ImmutableTextBuffer>): ImmutableTextBuffer {
-        Object.assign(this, props);
-        return this;
-    }
 }

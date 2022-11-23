@@ -75,9 +75,4 @@ export class TextAnchor {
     public toString(): string {
         return this.IsDeleted ? "[TextAnchor (deleted)]" : `[TextAnchor ${this.Location}]`;
     }
-
-    public Init(props: Partial<TextAnchor>): TextAnchor {
-        Object.assign(this, props);
-        return this;
-    }
 }

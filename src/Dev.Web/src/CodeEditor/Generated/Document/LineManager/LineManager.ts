@@ -230,11 +230,6 @@ export class LineManager {
 
         return null;
     }
-
-    public Init(props: Partial<LineManager>): LineManager {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class DelimiterSegment {

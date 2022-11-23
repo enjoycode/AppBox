@@ -104,9 +104,4 @@ export class UndoStack {
         this._redostack.Clear();
         this._actionCountInUndoGroup = 0;
     }
-
-    public Init(props: Partial<UndoStack>): UndoStack {
-        Object.assign(this, props);
-        return this;
-    }
 }

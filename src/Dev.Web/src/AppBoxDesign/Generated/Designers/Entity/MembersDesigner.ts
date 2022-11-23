@@ -32,9 +32,4 @@ export class MembersDesigner extends PixUI.View {
         //TODO: EntityRef and EntitySet attach target entity name
         return AppBoxCore.EntityMemberType[member.Type];
     }
-
-    public Init(props: Partial<MembersDesigner>): MembersDesigner {
-        Object.assign(this, props);
-        return this;
-    }
 }

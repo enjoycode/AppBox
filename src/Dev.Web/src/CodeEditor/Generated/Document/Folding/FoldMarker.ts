@@ -112,9 +112,4 @@ export class FoldMarker implements CodeEditor.ISegment, System.IComparable<FoldM
             ? this.Offset.CompareTo(other.Offset)
             : this.Length.CompareTo(other.Length);
     }
-
-    public Init(props: Partial<FoldMarker>): FoldMarker {
-        Object.assign(this, props);
-        return this;
-    }
 }

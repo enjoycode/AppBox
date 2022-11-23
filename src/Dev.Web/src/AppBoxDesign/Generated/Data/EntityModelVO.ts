@@ -77,11 +77,6 @@ export class EntityFieldVO extends EntityMemberVO {
         this.Decimals = rs.ReadVariant();
     }
 
-    public Init(props: Partial<EntityFieldVO>): EntityFieldVO {
-        Object.assign(this, props);
-        return this;
-    }
-
 }
 
 export class EntityRefVO extends EntityMemberVO {
@@ -120,11 +115,6 @@ export class EntityRefVO extends EntityMemberVO {
         }
     }
 
-    public Init(props: Partial<EntityRefVO>): EntityRefVO {
-        Object.assign(this, props);
-        return this;
-    }
-
 }
 
 export class EntitySetVO extends EntityMemberVO {
@@ -139,11 +129,6 @@ export class EntitySetVO extends EntityMemberVO {
         super.ReadFrom(rs);
         this.RefModelId = rs.ReadLong();
         this.RefMemberId = rs.ReadShort();
-    }
-
-    public Init(props: Partial<EntitySetVO>): EntitySetVO {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -194,10 +179,5 @@ export class EntityModelVO implements AppBoxCore.IBinSerializable {
             member.ReadFrom(rs);
             this.Members.Add(member);
         }
-    }
-
-    public Init(props: Partial<EntityModelVO>): EntityModelVO {
-        Object.assign(this, props);
-        return this;
     }
 }

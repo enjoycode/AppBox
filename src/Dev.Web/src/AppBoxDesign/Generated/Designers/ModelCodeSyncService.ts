@@ -21,7 +21,7 @@ export class ModelCodeSyncService {
         this.StartSubmit();
     }
 
-    private async StartSubmit(): Promise<void> {
+    private async StartSubmit() {
         if (this._submittingFlag != 0) return;
         this._submittingFlag = 1;
         while (this._queue.length > 0) {

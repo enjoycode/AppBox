@@ -142,9 +142,4 @@ export class Caret {
         let bgPaint = PixUI.PaintUtils.Shared(this._textEditor.Theme.LineHighlightColor);
         canvas.drawRect(PixUI.Rect.FromLTWH(textViewArea.Left, cy, textViewArea.Width, fontHeight), bgPaint);
     }
-
-    public Init(props: Partial<Caret>): Caret {
-        Object.assign(this, props);
-        return this;
-    }
 }

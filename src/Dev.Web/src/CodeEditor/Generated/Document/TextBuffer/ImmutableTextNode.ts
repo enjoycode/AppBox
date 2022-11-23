@@ -54,11 +54,6 @@ export class LeafNode extends Node {
         // @ts-ignore
         return String.fromCharCode.apply(null, this._data);
     }
-
-    public Init(props: Partial<LeafNode>): LeafNode {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class CompositeNode extends Node {
@@ -131,10 +126,5 @@ export class CompositeNode extends Node {
 
         // Overlaps head and tail.
         return CodeEditor.ImmutableText.ConcatNodes(this.head.SubNode(start, cesure), this.tail.SubNode(0, end - cesure));
-    }
-
-    public Init(props: Partial<CompositeNode>): CompositeNode {
-        Object.assign(this, props);
-        return this;
     }
 }

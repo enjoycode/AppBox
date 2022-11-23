@@ -123,9 +123,4 @@ export class NewEntityMemberDialog extends PixUI.Dialog {
 
         throw new System.NotImplementedException();
     }
-
-    public Init(props: Partial<NewEntityMemberDialog>): NewEntityMemberDialog {
-        Object.assign(this, props);
-        return this;
-    }
 }

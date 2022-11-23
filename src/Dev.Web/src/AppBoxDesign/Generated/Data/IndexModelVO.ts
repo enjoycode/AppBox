@@ -54,9 +54,4 @@ export abstract class IndexModelVO implements AppBoxCore.IBinSerializable {
 }
 
 export class SqlIndexModelVO extends IndexModelVO {
-
-    public Init(props: Partial<SqlIndexModelVO>): SqlIndexModelVO {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -45,9 +45,4 @@ export class NewDialog extends PixUI.Dialog {
         //根据返回结果同步添加新节点
         AppBoxDesign.DesignStore.OnNewNode(res!);
     }
-
-    public Init(props: Partial<NewDialog>): NewDialog {
-        Object.assign(this, props);
-        return this;
-    }
 }

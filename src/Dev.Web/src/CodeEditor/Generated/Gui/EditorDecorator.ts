@@ -67,9 +67,4 @@ export class EditorDecorator extends PixUI.Widget {
 
         canvas.restore();
     }
-
-    public Init(props: Partial<EditorDecorator>): EditorDecorator {
-        Object.assign(this, props);
-        return this;
-    }
 }

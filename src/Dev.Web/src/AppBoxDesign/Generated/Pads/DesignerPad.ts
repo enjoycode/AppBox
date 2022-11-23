@@ -85,9 +85,4 @@ export class DesignerPad extends PixUI.View {
                 AppBoxDesign.DesignStore.DesignerController.SelectAt(existsIndex);
         }
     }
-
-    public Init(props: Partial<DesignerPad>): DesignerPad {
-        Object.assign(this, props);
-        return this;
-    }
 }

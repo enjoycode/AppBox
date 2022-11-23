@@ -28,9 +28,4 @@ export class TextEditorOptions {
     public LineTerminator: string = "\n";
     public AutoInsertCurlyBracket: boolean = true;
     public SupportReadOnlySegments: boolean = false;
-
-    public Init(props: Partial<TextEditorOptions>): TextEditorOptions {
-        Object.assign(this, props);
-        return this;
-    }
 }

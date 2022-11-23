@@ -57,9 +57,4 @@ export class DesignTreePad extends PixUI.View {
             AppBoxDesign.DesignStore.TreeController.IsLoading = false;
         }
     }
-
-    public Init(props: Partial<DesignTreePad>): DesignTreePad {
-        Object.assign(this, props);
-        return this;
-    }
 }

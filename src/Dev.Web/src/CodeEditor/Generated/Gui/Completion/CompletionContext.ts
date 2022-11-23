@@ -157,9 +157,4 @@ export class CompletionContext {
     private static BuildPopupItem(item: CodeEditor.ICompletionItem, index: number, isHover: PixUI.State<boolean>, isSelected: PixUI.State<boolean>): PixUI.Widget {
         return new CodeEditor.CompletionItemWidget(item, isSelected);
     }
-
-    public Init(props: Partial<CompletionContext>): CompletionContext {
-        Object.assign(this, props);
-        return this;
-    }
 }

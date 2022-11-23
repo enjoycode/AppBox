@@ -13,9 +13,4 @@ export class FooterPad extends PixUI.View {
                     })
             });
     }
-
-    public Init(props: Partial<FooterPad>): FooterPad {
-        Object.assign(this, props);
-        return this;
-    }
 }

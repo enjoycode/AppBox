@@ -12,11 +12,6 @@ export class CutCommand implements CodeEditor.IEditCommand {
             editor.SelectionManager.RemoveSelectedText();
         }
     }
-
-    public Init(props: Partial<CutCommand>): CutCommand {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class CopyCommand implements CodeEditor.IEditCommand {
@@ -24,11 +19,6 @@ export class CopyCommand implements CodeEditor.IEditCommand {
         let selectedText = editor.SelectionManager.SelectedText;
         if (selectedText.length > 0)
             PixUI.Clipboard.WriteText(selectedText);
-    }
-
-    public Init(props: Partial<CopyCommand>): CopyCommand {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -51,10 +41,5 @@ export class PasteCommand implements CodeEditor.IEditCommand {
 
         editor.InsertOrReplaceString(text);
         editor.Document.UndoStack.EndUndoGroup();
-    }
-
-    public Init(props: Partial<PasteCommand>): PasteCommand {
-        Object.assign(this, props);
-        return this;
     }
 }

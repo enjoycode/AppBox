@@ -30,10 +30,7 @@ export class TextEditorTheme {
         heightMultiplier: 1
     });
 
-    private _tokenErrorStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
-        color: PixUI.Colors.Red,
-        heightMultiplier: 1
-    });
+    private _tokenErrorStyle: PixUI.TextStyle = PixUI.MakeTextStyle({color: PixUI.Colors.Red, heightMultiplier: 1});
 
     private _tokenTypeStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFF67DBF1),
@@ -94,10 +91,5 @@ export class TextEditorTheme {
             default:
                 return this.TextStyle;
         }
-    }
-
-    public Init(props: Partial<TextEditorTheme>): TextEditorTheme {
-        Object.assign(this, props);
-        return this;
     }
 }

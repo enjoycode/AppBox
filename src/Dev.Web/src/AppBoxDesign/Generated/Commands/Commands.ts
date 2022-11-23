@@ -44,8 +44,8 @@ export class Commands {
             await AppBoxClient.Channel.Invoke("sys.DesignService.CheckoutNode", [(Math.floor(nodeType) & 0xFFFFFFFF), selectedNode.Data.Id]);
             //TODO:判断返回结果刷新
             PixUI.Notification.Success(`签出节点[${selectedNode.Data.Label}]成功`);
-        } catch (e: any) {
-            PixUI.Notification.Success(`签出节点[${selectedNode.Data.Label}]失败`);
+        } catch (ex: any) {
+            PixUI.Notification.Success(`签出节点[${selectedNode.Data.Label}]失败: ${ex.Message}`);
         }
     }
 
@@ -55,8 +55,8 @@ export class Commands {
         try {
             await designer.SaveAsync();
             PixUI.Notification.Success("保存成功");
-        } catch (e: any) {
-            PixUI.Notification.Error("保存失败");
+        } catch (ex: any) {
+            PixUI.Notification.Error(`保存失败: ${ex.Message}`);
         }
     }
 

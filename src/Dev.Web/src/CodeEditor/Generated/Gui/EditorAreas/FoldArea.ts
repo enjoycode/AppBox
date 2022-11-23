@@ -171,9 +171,4 @@ export class FoldArea extends CodeEditor.EditorArea {
             canvas.drawLine(rect.Left + mid, rect.Top + space, rect.Left + mid, rect.Top + rect.Height - space, this.GetNormalPaint());
         }
     }
-
-    public Init(props: Partial<FoldArea>): FoldArea {
-        Object.assign(this, props);
-        return this;
-    }
 }

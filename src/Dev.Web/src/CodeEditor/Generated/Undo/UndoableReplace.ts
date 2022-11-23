@@ -28,9 +28,4 @@ export class UndoableReplace implements CodeEditor.IUndoableOperation {
         this._document.Replace(this._offset, this._origText.length, this._text);
         this._document.UndoStack.AcceptChanges = true;
     }
-
-    public Init(props: Partial<UndoableReplace>): UndoableReplace {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -13,9 +13,4 @@ export class HomePage extends PixUI.View {
 
         this.Child = new PixUI.RouteView(navigator);
     }
-
-    public Init(props: Partial<HomePage>): HomePage {
-        Object.assign(this, props);
-        return this;
-    }
 }

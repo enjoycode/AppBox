@@ -24,9 +24,4 @@ export class DeferredEventList {
             a.RaiseDeleted();
         }
     }
-
-    public Init(props: Partial<DeferredEventList>): DeferredEventList {
-        Object.assign(this, props);
-        return this;
-    }
 }

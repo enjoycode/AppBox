@@ -190,9 +190,4 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IModelDes
     public RefreshAsync(): Promise<void> {
         return Promise.resolve(); //TODO:
     }
-
-    public Init(props: Partial<EntityDesigner>): EntityDesigner {
-        Object.assign(this, props);
-        return this;
-    }
 }

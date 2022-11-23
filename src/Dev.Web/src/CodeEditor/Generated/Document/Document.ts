@@ -180,9 +180,4 @@ export class Document implements System.IDisposable {
     public Dispose() {
         this.SyntaxParser.Dispose();
     }
-
-    public Init(props: Partial<Document>): Document {
-        Object.assign(this, props);
-        return this;
-    }
 }

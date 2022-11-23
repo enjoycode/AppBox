@@ -111,9 +111,4 @@ export class ViewDesigner extends PixUI.View implements AppBoxDesign.IModelDesig
         this._codeEditorController.Document.TextContent = srcCode!;
         this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
     }
-
-    public Init(props: Partial<ViewDesigner>): ViewDesigner {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -50,11 +50,6 @@ export class NaviBar extends PixUI.View {
         if (type != null)
             AppBoxDesign.DesignStore.ActiveSidePad.Value = type;
     }
-
-    public Init(props: Partial<NaviBar>): NaviBar {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class SidePad extends PixUI.View {
@@ -76,10 +71,5 @@ export class SidePad extends PixUI.View {
                     })
                 ]
             });
-    }
-
-    public Init(props: Partial<SidePad>): SidePad {
-        Object.assign(this, props);
-        return this;
     }
 }

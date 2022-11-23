@@ -23,9 +23,4 @@ export class UndoQueue implements CodeEditor.IUndoableOperation {
             this._undoList[i].Redo();
         }
     }
-
-    public Init(props: Partial<UndoQueue>): UndoQueue {
-        Object.assign(this, props);
-        return this;
-    }
 }

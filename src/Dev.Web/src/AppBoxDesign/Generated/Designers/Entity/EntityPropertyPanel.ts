@@ -13,11 +13,6 @@ export class RxEntityField extends PixUI.RxObject<AppBoxDesign.EntityFieldVO> {
     public readonly Name: PixUI.RxProperty<string>;
     public readonly FieldType: PixUI.RxProperty<AppBoxCore.EntityFieldType>;
     public readonly Comment: PixUI.RxProperty<string>;
-
-    public Init(props: Partial<RxEntityField>): RxEntityField {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>
@@ -64,10 +59,5 @@ export class EntityPropertyPanel extends PixUI.View {
         }
 
         super.OnStateChanged(state, options);
-    }
-
-    public Init(props: Partial<EntityPropertyPanel>): EntityPropertyPanel {
-        Object.assign(this, props);
-        return this;
     }
 }

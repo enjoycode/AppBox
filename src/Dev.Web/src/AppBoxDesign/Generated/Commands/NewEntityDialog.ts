@@ -62,9 +62,4 @@ export class NewEntityDialog extends PixUI.Dialog {
 
         return list;
     }
-
-    public Init(props: Partial<NewEntityDialog>): NewEntityDialog {
-        Object.assign(this, props);
-        return this;
-    }
 }

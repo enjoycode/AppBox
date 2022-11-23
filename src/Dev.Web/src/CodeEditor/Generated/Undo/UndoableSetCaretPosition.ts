@@ -20,9 +20,4 @@ export class UndoableSetCaretPosition implements CodeEditor.IUndoableOperation {
         this._stack.TextEditor!.Caret.Position = (this._redoPos).Clone();
         this._stack.TextEditor!.SelectionManager.ClearSelection();
     }
-
-    public Init(props: Partial<UndoableSetCaretPosition>): UndoableSetCaretPosition {
-        Object.assign(this, props);
-        return this;
-    }
 }

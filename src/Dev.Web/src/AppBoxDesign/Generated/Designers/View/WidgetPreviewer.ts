@@ -20,9 +20,4 @@ export class WidgetPreviewer extends PixUI.View {
                     })
             });
     }
-
-    public Init(props: Partial<WidgetPreviewer>): WidgetPreviewer {
-        Object.assign(this, props);
-        return this;
-    }
 }

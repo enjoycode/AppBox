@@ -282,9 +282,4 @@ export class LineSegmentTree {
     public GetEnumeratorForOffset(offset: number): LinesEnumerator {
         return new LinesEnumerator(new CodeEditor.RedBlackTreeIterator<RBNode>(this.GetNodeByOffset(offset)));
     }
-
-    public Init(props: Partial<LineSegmentTree>): LineSegmentTree {
-        Object.assign(this, props);
-        return this;
-    }
 }

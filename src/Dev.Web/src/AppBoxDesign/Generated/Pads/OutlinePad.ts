@@ -39,9 +39,4 @@ export class OutlinePad extends PixUI.View {
             this.Invalidate(PixUI.InvalidAction.Relayout);
         }
     }
-
-    public Init(props: Partial<OutlinePad>): OutlinePad {
-        Object.assign(this, props);
-        return this;
-    }
 }

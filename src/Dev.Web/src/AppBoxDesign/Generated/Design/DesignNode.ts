@@ -54,11 +54,6 @@ export class DataStoreRootNodeVO extends DesignNodeVO {
             this._children.Add(dataStoreNode);
         }
     }
-
-    public Init(props: Partial<DataStoreRootNodeVO>): DataStoreRootNodeVO {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class DataStoreNodeVO extends DesignNodeVO {
@@ -67,11 +62,6 @@ export class DataStoreNodeVO extends DesignNodeVO {
 
     public get Type(): AppBoxDesign.DesignNodeType {
         return AppBoxDesign.DesignNodeType.DataStoreNode;
-    }
-
-    public Init(props: Partial<DataStoreNodeVO>): DataStoreNodeVO {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -95,11 +85,6 @@ export class ApplicationRootNodeVO extends DesignNodeVO {
             this._children.Add(appNode);
         }
     }
-
-    public Init(props: Partial<ApplicationRootNodeVO>): ApplicationRootNodeVO {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class ApplicationNodeVO extends DesignNodeVO {
@@ -121,11 +106,6 @@ export class ApplicationNodeVO extends DesignNodeVO {
             modelRootNode.ReadFrom(rs);
             this._children.Add(modelRootNode);
         }
-    }
-
-    public Init(props: Partial<ApplicationNodeVO>): ApplicationNodeVO {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -165,11 +145,6 @@ export class ModelRootNodeVO extends DesignNodeVO {
             this._children.Add(node);
         }
     }
-
-    public Init(props: Partial<ModelRootNodeVO>): ModelRootNodeVO {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class FolderNodeVO extends DesignNodeVO {
@@ -208,11 +183,6 @@ export class FolderNodeVO extends DesignNodeVO {
             this._children.Add(node);
         }
     }
-
-    public Init(props: Partial<FolderNodeVO>): FolderNodeVO {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class ModelNodeVO extends DesignNodeVO {
@@ -243,10 +213,5 @@ export class ModelNodeVO extends DesignNodeVO {
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         super.ReadFrom(rs);
         this.ModelType = <AppBoxCore.ModelType><unknown>rs.ReadByte();
-    }
-
-    public Init(props: Partial<ModelNodeVO>): ModelNodeVO {
-        Object.assign(this, props);
-        return this;
     }
 }

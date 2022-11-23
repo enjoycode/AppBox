@@ -147,11 +147,6 @@ export class TextView extends CodeEditor.EditorArea {
             canvas.drawParagraph(lineParagraph, lineRect.Left, lineRect.Top + this.Theme.LineSpace);
         }
     }
-
-    public Init(props: Partial<TextView>): TextView {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class LogicalColumnInfo {

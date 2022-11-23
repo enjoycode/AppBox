@@ -24,9 +24,4 @@ export class DesignTreeVO implements AppBoxCore.IBinSerializable {
             this.RootNodes.Add(node);
         }
     }
-
-    public Init(props: Partial<DesignTreeVO>): DesignTreeVO {
-        Object.assign(this, props);
-        return this;
-    }
 }

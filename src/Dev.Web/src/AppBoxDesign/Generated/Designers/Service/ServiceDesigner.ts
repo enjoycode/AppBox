@@ -109,9 +109,4 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
         this._codeEditorController.Document.TextContent = srcCode!;
         this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
     }
-
-    public Init(props: Partial<ServiceDesigner>): ServiceDesigner {
-        Object.assign(this, props);
-        return this;
-    }
 }

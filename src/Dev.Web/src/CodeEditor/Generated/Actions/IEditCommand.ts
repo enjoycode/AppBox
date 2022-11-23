@@ -15,9 +15,4 @@ export class CustomEditCommand implements IEditCommand {
     public Execute(editor: CodeEditor.TextEditor) {
         this._command(editor);
     }
-
-    public Init(props: Partial<CustomEditCommand>): CustomEditCommand {
-        Object.assign(this, props);
-        return this;
-    }
 }

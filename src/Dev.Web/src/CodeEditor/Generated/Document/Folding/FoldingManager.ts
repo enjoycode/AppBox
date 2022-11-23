@@ -152,11 +152,6 @@ export class FoldingManager {
         //TODO:暂激发foldingsChanged
         this.FoldingsChanged.Invoke();
     }
-
-    public Init(props: Partial<FoldingManager>): FoldingManager {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class StartComparer implements System.IComparer<CodeEditor.FoldMarker> {

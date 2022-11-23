@@ -123,9 +123,4 @@ export class TextEditor {
 
         this.TextView.Paint(canvas, (textRect).Clone());
     }
-
-    public Init(props: Partial<TextEditor>): TextEditor {
-        Object.assign(this, props);
-        return this;
-    }
 }

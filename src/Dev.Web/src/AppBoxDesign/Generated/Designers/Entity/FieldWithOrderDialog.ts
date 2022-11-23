@@ -36,9 +36,4 @@ export class FieldWithOrderDialog extends PixUI.Dialog {
         if (this._selected.Value == null) return null;
         return new AppBoxCore.FieldWithOrder(this._selected.Value.Id, this._orderByDesc.Value);
     }
-
-    public Init(props: Partial<FieldWithOrderDialog>): FieldWithOrderDialog {
-        Object.assign(this, props);
-        return this;
-    }
 }

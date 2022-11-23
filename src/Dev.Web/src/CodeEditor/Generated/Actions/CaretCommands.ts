@@ -29,11 +29,6 @@ export class CaretLeft implements CodeEditor.IEditCommand {
         editor.Caret.Position = (position).Clone();
         //textArea.setDesiredColumn();
     }
-
-    public Init(props: Partial<CaretLeft>): CaretLeft {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class CaretRight implements CodeEditor.IEditCommand {
@@ -66,11 +61,6 @@ export class CaretRight implements CodeEditor.IEditCommand {
         editor.Caret.Position = (position).Clone();
         //textArea.setDesiredColumn();
     }
-
-    public Init(props: Partial<CaretRight>): CaretRight {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class CaretUp implements CodeEditor.IEditCommand {
@@ -87,11 +77,6 @@ export class CaretUp implements CodeEditor.IEditCommand {
             let logicalColumn = editor.TextView.GetLogicalColumn(logicalLine, vx);
             editor.Caret.Position = (logicalColumn.Location).Clone();
         }
-    }
-
-    public Init(props: Partial<CaretUp>): CaretUp {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -110,10 +95,5 @@ export class CaretDown implements CodeEditor.IEditCommand {
             let logicalColumn = editor.TextView.GetLogicalColumn(logicalLine, vx);
             editor.Caret.Position = (logicalColumn.Location).Clone();
         }
-    }
-
-    public Init(props: Partial<CaretDown>): CaretDown {
-        Object.assign(this, props);
-        return this;
     }
 }

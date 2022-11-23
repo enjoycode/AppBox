@@ -49,9 +49,4 @@ export class SqlStoreOptionsVO {
         }
     }
 
-    public Init(props: Partial<SqlStoreOptionsVO>): SqlStoreOptionsVO {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

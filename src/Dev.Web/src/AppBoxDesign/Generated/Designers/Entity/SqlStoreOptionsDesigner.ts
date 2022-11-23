@@ -114,9 +114,4 @@ export class SqlStoreOptionsDesigner extends PixUI.View {
             PixUI.Notification.Error(`Change primary keys error: ${ex.Message}`);
         }
     }
-
-    public Init(props: Partial<SqlStoreOptionsDesigner>): SqlStoreOptionsDesigner {
-        Object.assign(this, props);
-        return this;
-    }
 }

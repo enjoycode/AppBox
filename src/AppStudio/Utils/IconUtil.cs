@@ -7,15 +7,15 @@ internal static class IconUtil
 {
     internal static IconData GetIconForModelType(ModelType modelType)
     {
-        return modelType switch
+        switch (modelType)
         {
-            ModelType.Entity => Icons.Filled.TableChart,
-            ModelType.Service => Icons.Filled.Settings,
-            ModelType.View => Icons.Filled.Wysiwyg,
-            ModelType.Report => Icons.Filled.PieChart,
-            ModelType.Enum => Icons.Filled.ViewList,
-            ModelType.Permission => Icons.Filled.Lock,
-            _ => Icons.Filled.TableChart
-        };
+            case ModelType.Entity: return Icons.Filled.TableChart;
+            case ModelType.Service: return Icons.Filled.Settings;
+            case ModelType.View: return Icons.Filled.Wysiwyg;
+            case ModelType.Report: return Icons.Filled.PieChart;
+            case ModelType.Enum: return Icons.Filled.ViewList;
+            case ModelType.Permission: return Icons.Filled.Lock;
+            default: return Icons.Filled.TableChart;
+        }
     }
 }

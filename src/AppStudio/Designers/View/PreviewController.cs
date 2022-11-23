@@ -4,7 +4,6 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-[TSNoInitializer]
 internal sealed class WidgetTreeNode
 {
     public WidgetTreeNode(Widget widget)
@@ -25,7 +24,6 @@ internal sealed class WidgetTreeNode
 /// <summary>
 /// 视图模型的预览控制器
 /// </summary>
-[TSNoInitializer]
 internal sealed class PreviewController
 {
     public PreviewController(ModelNodeVO modelNode)

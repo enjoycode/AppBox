@@ -23,9 +23,4 @@ export class EntityMemberInfo implements AppBoxCore.IBinSerializable {
         this.ModelId = rs.ReadString()!;
         this.MemberId = rs.ReadShort();
     }
-
-    public Init(props: Partial<EntityMemberInfo>): EntityMemberInfo {
-        Object.assign(this, props);
-        return this;
-    }
 }

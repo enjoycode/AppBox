@@ -102,9 +102,4 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
         canvas.restore();
     }
 
-    public Init(props: Partial<CodeEditorWidget>): CodeEditorWidget {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

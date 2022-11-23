@@ -71,9 +71,4 @@ export class GutterArea extends CodeEditor.EditorArea {
         if (lineNumber >= 1000)
             canvas.drawParagraph(this._numberCache[thousandPlace], 2, yPos);
     }
-
-    public Init(props: Partial<GutterArea>): GutterArea {
-        Object.assign(this, props);
-        return this;
-    }
 }

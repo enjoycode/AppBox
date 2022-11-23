@@ -175,11 +175,6 @@ export class SelectionManager {
     public static GreaterEqPos(p1: CodeEditor.TextLocation, p2: CodeEditor.TextLocation): boolean {
         return p1.Line > p2.Line || p1.Line == p2.Line && p1.Column >= p2.Column;
     }
-
-    public Init(props: Partial<SelectionManager>): SelectionManager {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export enum WhereFrom {
@@ -194,9 +189,4 @@ export enum WhereFrom {
 export class SelectFrom {
     public Where: WhereFrom = WhereFrom.None;
     public First: WhereFrom = WhereFrom.None;
-
-    public Init(props: Partial<SelectFrom>): SelectFrom {
-        Object.assign(this, props);
-        return this;
-    }
 }

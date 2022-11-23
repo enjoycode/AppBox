@@ -13,7 +13,7 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
         this.#ParentNodeType = value;
     }
 
-    #ParentNodeId: string = "";
+    #ParentNodeId!: string;
     public get ParentNodeId() {
         return this.#ParentNodeId;
     }
@@ -22,7 +22,7 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
         this.#ParentNodeId = value;
     }
 
-    #NewNode: AppBoxDesign.DesignNodeVO;
+    #NewNode!: AppBoxDesign.DesignNodeVO;
     public get NewNode() {
         return this.#NewNode;
     }
@@ -99,10 +99,5 @@ export class NewNodeResult implements AppBoxCore.IBinSerializable {
             default:
                 throw new System.NotSupportedException();
         }
-    }
-
-    public Init(props: Partial<NewNodeResult>): NewNodeResult {
-        Object.assign(this, props);
-        return this;
     }
 }

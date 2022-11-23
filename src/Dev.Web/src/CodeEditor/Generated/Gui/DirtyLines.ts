@@ -29,9 +29,4 @@ export class DirtyLines implements PixUI.IDirtyArea {
     public ToChild(child: PixUI.Widget): Nullable<PixUI.IDirtyArea> {
         throw new System.NotSupportedException();
     }
-
-    public Init(props: Partial<DirtyLines>): DirtyLines {
-        Object.assign(this, props);
-        return this;
-    }
 }

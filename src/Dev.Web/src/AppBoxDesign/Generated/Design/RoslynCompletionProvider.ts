@@ -17,9 +17,4 @@ export class RoslynCompletionProvider implements CodeEditor.ICompletionProvider 
 
         return <Nullable<System.IList<CodeEditor.ICompletionItem>>><unknown>(<any><unknown>res); //TODO:WebLinq暂不支持Cast()
     }
-
-    public Init(props: Partial<RoslynCompletionProvider>): RoslynCompletionProvider {
-        Object.assign(this, props);
-        return this;
-    }
 }

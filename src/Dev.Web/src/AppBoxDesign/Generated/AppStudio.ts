@@ -23,9 +23,4 @@ export class AppStudio extends PixUI.View {
                 ]
             });
     }
-
-    public Init(props: Partial<AppStudio>): AppStudio {
-        Object.assign(this, props);
-        return this;
-    }
 }

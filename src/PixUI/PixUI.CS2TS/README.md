@@ -1,6 +1,8 @@
 # 前端配置
 
-## TypeScript必须配置 "strictNullChecks": false
+## TypeScript必须配置 
+* "strictNullChecks": false
+* "noImplicitAny": false
 
 # TODO:
 

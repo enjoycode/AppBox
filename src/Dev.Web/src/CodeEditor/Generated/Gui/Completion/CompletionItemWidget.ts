@@ -39,9 +39,4 @@ export class CompletionItemWidget extends PixUI.Widget {
                 return PixUI.Icons.Filled.Title;
         }
     }
-
-    public Init(props: Partial<CompletionItemWidget>): CompletionItemWidget {
-        Object.assign(this, props);
-        return this;
-    }
 }

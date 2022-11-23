@@ -9,8 +9,7 @@ export class BottomPad extends PixUI.View {
                 Height: PixUI.State.op_Implicit_From(190),
                 Child: new PixUI.TabView<string>(AppBoxDesign.DesignStore.BottomPadController, BottomPad.BuildTab, BottomPad.BuildBody, false, 40).Init(
                     {
-                        SelectedTabColor: PixUI.Colors.White,
-                        TabBarBgColor: new PixUI.Color(0xFFF3F3F3)
+                        SelectedTabColor: PixUI.Colors.White, TabBarBgColor: new PixUI.Color(0xFFF3F3F3)
                     }),
             });
     }
@@ -45,10 +44,5 @@ export class BottomPad extends PixUI.View {
                 BgColor: PixUI.State.op_Implicit_From(PixUI.Colors.White),
                 Child: new PixUI.Text(PixUI.State.op_Implicit_From(title)),
             });
-    }
-
-    public Init(props: Partial<BottomPad>): BottomPad {
-        Object.assign(this, props);
-        return this;
     }
 }

@@ -70,9 +70,4 @@ export class RenameDialog extends PixUI.Dialog {
             PixUI.Notification.Error(`重命名失败: ${ex.Message}`);
         }
     }
-
-    public Init(props: Partial<RenameDialog>): RenameDialog {
-        Object.assign(this, props);
-        return this;
-    }
 }

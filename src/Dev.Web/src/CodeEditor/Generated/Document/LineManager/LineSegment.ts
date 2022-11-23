@@ -408,11 +408,6 @@ export class LineSegment implements CodeEditor.ISegment {
             ", Length = " + this.Length + ", TotalLength = " + this.TotalLength +
             ", DelimiterLength = " + this.DelimiterLength + "]";
     }
-
-    public Init(props: Partial<LineSegment>): LineSegment {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class CachedFoldInfo {

@@ -264,9 +264,4 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         return offset;
     }
 
-    public Init(props: Partial<CodeEditorController>): CodeEditorController {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

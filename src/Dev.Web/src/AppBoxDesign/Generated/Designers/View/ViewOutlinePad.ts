@@ -61,9 +61,4 @@ export class ViewOutlinePad extends PixUI.View {
 
         this._inspector = PixUI.Inspector.Show(this._treeController.FirstSelectedNode.Data.Widget);
     }
-
-    public Init(props: Partial<ViewOutlinePad>): ViewOutlinePad {
-        Object.assign(this, props);
-        return this;
-    }
 }

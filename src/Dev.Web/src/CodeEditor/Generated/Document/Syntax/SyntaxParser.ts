@@ -217,9 +217,4 @@ export class SyntaxParser implements System.IDisposable {
         this._oldTree?.delete();
         this._parser.delete();
     }
-
-    public Init(props: Partial<SyntaxParser>): SyntaxParser {
-        Object.assign(this, props);
-        return this;
-    }
 }

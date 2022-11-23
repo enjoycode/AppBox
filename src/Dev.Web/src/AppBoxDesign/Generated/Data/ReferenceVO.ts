@@ -2,7 +2,7 @@ import * as System from '@/System'
 import * as AppBoxCore from '@/AppBoxCore'
 
 export class ReferenceVO implements AppBoxCore.IBinSerializable {
-    #ModelId: string = "";
+    #ModelId!: string;
     public get ModelId() {
         return this.#ModelId;
     }
@@ -11,7 +11,7 @@ export class ReferenceVO implements AppBoxCore.IBinSerializable {
         this.#ModelId = value;
     }
 
-    #ModelName: string = "";
+    #ModelName!: string;
     public get ModelName() {
         return this.#ModelName;
     }
@@ -20,7 +20,7 @@ export class ReferenceVO implements AppBoxCore.IBinSerializable {
         this.#ModelName = value;
     }
 
-    #Location: string = "";
+    #Location!: string;
     public get Location() {
         return this.#Location;
     }
@@ -67,10 +67,5 @@ export class ReferenceVO implements AppBoxCore.IBinSerializable {
         this.Offset = rs.ReadVariant();
         this.Length = rs.ReadVariant();
         this.TargetType = rs.ReadVariant();
-    }
-
-    public Init(props: Partial<ReferenceVO>): ReferenceVO {
-        Object.assign(this, props);
-        return this;
     }
 }

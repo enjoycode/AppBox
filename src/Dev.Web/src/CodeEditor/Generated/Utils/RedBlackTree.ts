@@ -24,11 +24,6 @@ export class RedBlackTreeNode<T> {
             node = node.Right;
         return node;
     }
-
-    public Init(props: Partial<RedBlackTreeNode<T>>): RedBlackTreeNode<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export interface IRedBlackTreeHost<T> extends System.IComparer<T> {
@@ -436,11 +431,6 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
 
         this.RemoveAt((it).Clone());
         return true;
-    }
-
-    public Init(props: Partial<RedBlackTree<T, Host>>): RedBlackTree<T, Host> {
-        Object.assign(this, props);
-        return this;
     }
 
 }

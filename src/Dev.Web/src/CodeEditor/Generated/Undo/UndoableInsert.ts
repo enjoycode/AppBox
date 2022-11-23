@@ -26,9 +26,4 @@ export class UndoableInsert implements CodeEditor.IUndoableOperation {
         this._document.Insert(this._offset, this._text);
         this._document.UndoStack.AcceptChanges = true;
     }
-
-    public Init(props: Partial<UndoableInsert>): UndoableInsert {
-        Object.assign(this, props);
-        return this;
-    }
 }
