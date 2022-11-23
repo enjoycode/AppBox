@@ -86,9 +86,4 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         if (this.IsSelected.Value)
             canvas.drawRect(PixUI.Rect.FromLTWH(0, this.H - 4, this.W, 4), PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor));
     }
-
-    public Init(props: Partial<Tab>): Tab {
-        Object.assign(this, props);
-        return this;
-    }
 }

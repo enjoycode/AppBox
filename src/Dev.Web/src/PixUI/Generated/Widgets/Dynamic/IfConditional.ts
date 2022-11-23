@@ -8,9 +8,4 @@ export class IfConditional extends PixUI.Conditional<boolean> {
         if (falseBuilder != null)
             this.When(v => !v, falseBuilder);
     }
-
-    public Init(props: Partial<IfConditional>): IfConditional {
-        Object.assign(this, props);
-        return this;
-    }
 }

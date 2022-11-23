@@ -403,71 +403,20 @@ namespace PixUI.CS2TS
             }
         }
 
-        /// <summary>
-        /// 类或结构体的初始化器函数
-        /// </summary>
-        internal void TryWriteInitializer(TypeDeclarationSyntax node)
-        {
-            // https://stackoverflow.com/questions/14142071/typescript-and-field-initializers
-
-            // 类型为abstract or static class or readonly struct不需要
-            if (node.Modifiers
-                .Any(m => m.Kind() == SyntaxKind.ReadOnlyKeyword
-                          || m.Kind() == SyntaxKind.StaticKeyword
-                          || m.Kind() == SyntaxKind.AbstractKeyword))
-                return;
-            if (node.IsTSNoInitializer())
-                return;
-
-            // TODO:包含公开的属性或字段定义(以下注释逻辑错误，应该判断继承关系)
-            // var need = node.DescendantNodes()
-            //     .Any(n => n is PropertyDeclarationSyntax prop
-            //               && prop.Modifiers
-            //                   .Any(m => m.Kind() == SyntaxKind.PublicKeyword ||
-            //                             m.Kind() == SyntaxKind.InternalKeyword)
-            //               /*&& prop.AccessorList.Accessors.Any(a =>
-            //                   a.Keyword.Kind() == SyntaxKind.SetKeyword)*/
-            //               ||
-            //               n is FieldDeclarationSyntax field
-            //               && field.Modifiers
-            //                   .Any(m => m.Kind() != SyntaxKind.ReadOnlyKeyword &&
-            //                             (m.Kind() == SyntaxKind.PublicKeyword ||
-            //                              m.Kind() == SyntaxKind.InternalKeyword))
-            //     );
-            // if (!need) return;
-
-            // TODO: 2.排除只读字段及属性 Exclude<> or Pick<Type, Keys>
-
-            if (ToJavaScript)
-            {
-                Write("\n\tInit(props)");
-            }
-            else
-            {
-                Write("\n\tpublic Init(props: Partial<");
-                WriteType(node);
-
-                Write(">): ");
-                WriteType(node);
-            }
-
-            Write("\n\t{\n\t\tObject.assign(this, props);\n\t\treturn this;\n\t}\n");
-        }
-
-        private void WriteType(TypeDeclarationSyntax node)
-        {
-            Write(node.Identifier.Text);
-            if (node.TypeParameterList is not { Parameters: { Count: > 0 } }) return;
-
-            Write('<');
-            for (var i = 0; i < node.TypeParameterList.Parameters.Count; i++)
-            {
-                if (i != 0) Write(", ");
-                Write(node.TypeParameterList.Parameters[i].Identifier.Text);
-            }
-
-            Write('>');
-        }
+        // private void WriteType(TypeDeclarationSyntax node)
+        // {
+        //     Write(node.Identifier.Text);
+        //     if (node.TypeParameterList is not { Parameters: { Count: > 0 } }) return;
+        //
+        //     Write('<');
+        //     for (var i = 0; i < node.TypeParameterList.Parameters.Count; i++)
+        //     {
+        //         if (i != 0) Write(", ");
+        //         Write(node.TypeParameterList.Parameters[i].Identifier.Text);
+        //     }
+        //
+        //     Write('>');
+        // }
 
         /// <summary>
         /// 转换 eg: obj is string

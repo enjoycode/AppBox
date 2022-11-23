@@ -2,7 +2,6 @@ using System;
 
 namespace PixUI
 {
-    [TSNoInitializer]
     public sealed class HoverDecoration
     {
         public HoverDecoration(Widget widget, Func<ShapeBorder> shapeBuilder,

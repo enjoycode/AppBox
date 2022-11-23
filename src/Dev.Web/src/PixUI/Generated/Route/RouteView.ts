@@ -41,9 +41,4 @@ export class RouteView extends PixUI.DynamicView {
             this.AnimateTo(from, to, route.Duration, reverse, route.EnteringBuilder, route.ExistingBuilder);
         }
     }
-
-    public Init(props: Partial<RouteView>): RouteView {
-        Object.assign(this, props);
-        return this;
-    }
 }

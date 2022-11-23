@@ -52,9 +52,4 @@ export class CurvedAnimation extends PixUI.AnimationWithParent<number> {
 
         return activeCurve.Transform(t);
     }
-
-    public Init(props: Partial<CurvedAnimation>): CurvedAnimation {
-        Object.assign(this, props);
-        return this;
-    }
 }

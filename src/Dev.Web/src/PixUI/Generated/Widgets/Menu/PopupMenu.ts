@@ -77,9 +77,4 @@ export class PopupMenu extends PixUI.Widget {
         canvas.restore();
         path.delete();
     }
-
-    public Init(props: Partial<PopupMenu>): PopupMenu {
-        Object.assign(this, props);
-        return this;
-    }
 }

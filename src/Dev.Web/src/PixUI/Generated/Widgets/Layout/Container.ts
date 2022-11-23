@@ -26,9 +26,4 @@ export class Container extends PixUI.SingleChildWidget {
 
         this.PaintChildren(canvas, area);
     }
-
-    public Init(props: Partial<Container>): Container {
-        Object.assign(this, props);
-        return this;
-    }
 }

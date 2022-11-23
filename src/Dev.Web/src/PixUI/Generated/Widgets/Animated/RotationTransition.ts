@@ -37,9 +37,4 @@ export class RotationTransition extends PixUI.Transform {
         this._turns.ValueChanged.Remove(this.OnTurnChanged, this);
         super.Dispose();
     }
-
-    public Init(props: Partial<RotationTransition>): RotationTransition {
-        Object.assign(this, props);
-        return this;
-    }
 }

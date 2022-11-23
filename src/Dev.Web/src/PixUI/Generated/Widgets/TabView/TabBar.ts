@@ -148,9 +148,4 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
         //TODO: paint indicator
     }
 
-    public Init(props: Partial<TabBar<T>>): TabBar<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

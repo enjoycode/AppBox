@@ -69,9 +69,6 @@ namespace PixUI.CS2TS
             {
                 emitter.Visit(member);
             }
-            
-            //尝试生成初始化器方法
-            emitter.TryWriteInitializer(node);
 
             emitter.VisitToken(node.CloseBraceToken);
         }

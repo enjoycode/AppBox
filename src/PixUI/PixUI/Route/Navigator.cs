@@ -37,7 +37,6 @@ namespace PixUI
     /// <summary>
     /// 路由导航器，与RouteView一对一绑定控制其导航
     /// </summary>
-    [TSNoInitializer]
     public sealed class Navigator
     {
         private readonly List<Route> _routes = new List<Route>();

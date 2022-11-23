@@ -78,9 +78,4 @@ export class TabView<T> extends PixUI.Widget {
         this.SetSize(width, height);
     }
 
-    public Init(props: Partial<TabView<T>>): TabView<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

@@ -27,11 +27,6 @@ export class Caret {
     public NotifyPositionChanged() {
         this._decorator?.Invalidate(PixUI.InvalidAction.Repaint);
     }
-
-    public Init(props: Partial<Caret>): Caret {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class CaretDecorator extends PixUI.Widget {
@@ -58,10 +53,5 @@ export class CaretDecorator extends PixUI.Widget {
 
     protected OnUnmounted() {
         //TODO: stop animation
-    }
-
-    public Init(props: Partial<CaretDecorator>): CaretDecorator {
-        Object.assign(this, props);
-        return this;
     }
 }

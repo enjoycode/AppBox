@@ -433,9 +433,4 @@ export class TreeNode<T> extends PixUI.Widget {
         this.HasLayout = false;
     }
 
-    public Init(props: Partial<TreeNode<T>>): TreeNode<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

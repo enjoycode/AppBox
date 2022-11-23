@@ -76,9 +76,4 @@ export class Inspector extends PixUI.Widget {
         canvas.restore();
     }
 
-    public Init(props: Partial<Inspector>): Inspector {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

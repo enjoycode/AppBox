@@ -105,11 +105,6 @@ export class Select<T> extends PixUI.InputBase<PixUI.Widget> {
         this._listPopup = null;
         this._selectedValue.Value = data;
     }
-
-    public Init(props: Partial<Select<T>>): Select<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class SelectText extends PixUI.TextBase implements PixUI.IMouseRegion, PixUI.IFocusable {
@@ -167,10 +162,5 @@ export class SelectText extends PixUI.TextBase implements PixUI.IMouseRegion, Pi
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.Text.Value.length == 0) return;
         canvas.drawParagraph(this.CachedParagraph!, 0, 2);
-    }
-
-    public Init(props: Partial<SelectText>): SelectText {
-        Object.assign(this, props);
-        return this;
     }
 }

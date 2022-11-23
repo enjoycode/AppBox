@@ -2,7 +2,6 @@ using System;
 
 namespace PixUI
 {
-    [TSNoInitializer]
     public sealed class RxComputed<T> : State<T>, IStateBindable
     {
         private readonly Func<T> _getter;

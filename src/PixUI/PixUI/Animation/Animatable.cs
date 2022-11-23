@@ -30,7 +30,6 @@ namespace PixUI
             new ChainedEvaluation<T>(parent, this);
     }
 
-    [TSNoInitializer]
     internal sealed class ChainedEvaluation<T> : Animatable<T>
     {
         private readonly Animatable<double> _parent;

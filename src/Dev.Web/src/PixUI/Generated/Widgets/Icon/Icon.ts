@@ -59,9 +59,4 @@ export class Icon extends PixUI.Widget {
         this._painter.Dispose();
         super.Dispose();
     }
-
-    public Init(props: Partial<Icon>): Icon {
-        Object.assign(this, props);
-        return this;
-    }
 }

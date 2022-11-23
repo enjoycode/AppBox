@@ -51,11 +51,6 @@ export class FocusedDecoration {
         (<PixUI.Overlay><unknown>this._decorator.Parent!).Remove(this._decorator);
         this._decorator = null;
     }
-
-    public Init(props: Partial<FocusedDecoration>): FocusedDecoration {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class FocusedDecorator extends PixUI.Widget {
@@ -139,10 +134,5 @@ export class FocusedDecorator extends PixUI.Widget {
         }
 
         super.Dispose();
-    }
-
-    public Init(props: Partial<FocusedDecorator>): FocusedDecorator {
-        Object.assign(this, props);
-        return this;
     }
 }

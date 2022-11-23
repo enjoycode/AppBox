@@ -51,9 +51,4 @@ export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
         else
             this._cellParagraphs.RemoveAll(t => t.RowIndex >= rowIndex);
     }
-
-    public Init(props: Partial<DataGridTextColumn<T>>): DataGridTextColumn<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }

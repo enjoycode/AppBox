@@ -6,7 +6,6 @@ namespace PixUI
     /// <summary>
     /// Widget重新布局后向上所影响的Widget及区域
     /// </summary>
-    [TSNoInitializer]
     public sealed class AffectsByRelayout
     {
         internal static readonly AffectsByRelayout Default = new();
@@ -68,7 +67,6 @@ namespace PixUI
     /// <summary>
     /// Dirty widget queue, One UIWindow has two queue.
     /// </summary>
-    [TSNoInitializer]
     internal sealed class InvalidQueue
     {
         #region ====Static====

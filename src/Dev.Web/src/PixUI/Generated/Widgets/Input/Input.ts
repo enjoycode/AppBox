@@ -36,9 +36,4 @@ export class Input extends PixUI.InputBase<PixUI.EditableText> {
     public set HintText(value: string) {
         this._editor.HintText = value;
     }
-
-    public Init(props: Partial<Input>): Input {
-        Object.assign(this, props);
-        return this;
-    }
 }

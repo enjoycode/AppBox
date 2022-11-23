@@ -43,9 +43,6 @@ namespace PixUI.CS2TS
         internal static bool IsTSRawScriptAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSRawScript");
 
-        internal static bool IsTSNoInitializerAttribute(AttributeSyntax attribute)
-            => IsAttribute(attribute, "TSNoInitializer");
-
         internal static bool IsTSGenericTypeOverloadsAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSGenericTypeOverloads");
 

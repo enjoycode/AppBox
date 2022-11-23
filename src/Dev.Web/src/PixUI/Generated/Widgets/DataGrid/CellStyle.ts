@@ -12,9 +12,4 @@ export class CellStyle {
     public FontWeight: PixUI.FontWeight = CanvasKit.FontWeight.Normal;
     public HorizontalAlignment: PixUI.HorizontalAlignment = PixUI.HorizontalAlignment.Left;
     public VerticalAlignment: PixUI.VerticalAlignment = PixUI.VerticalAlignment.Middle;
-
-    public Init(props: Partial<CellStyle>): CellStyle {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -16,11 +16,6 @@ export class WhenBuilder<T> {
             this._cachedWidget = this.Builder();
         return this._cachedWidget;
     }
-
-    public Init(props: Partial<WhenBuilder<T>>): WhenBuilder<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>
@@ -64,10 +59,5 @@ export class Conditional<T> extends PixUI.DynamicView //where T: IEquatable<T>
         }
 
         super.OnStateChanged(state, options);
-    }
-
-    public Init(props: Partial<Conditional<T>>): Conditional<T> {
-        Object.assign(this, props);
-        return this;
     }
 }

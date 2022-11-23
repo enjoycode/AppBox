@@ -118,12 +118,6 @@ namespace PixUI.CS2TS
         internal static bool IsGenericOverloadsType(this TypeDeclarationSyntax node) =>
             TryGetAttribute(node.AttributeLists, Emitter.IsTSGenericTypeOverloadsAttribute) != null;
 
-        /// <summary>
-        /// 用于判断是否不需要生成初始器方法
-        /// </summary>
-        internal static bool IsTSNoInitializer(this TypeDeclarationSyntax node) =>
-            TryGetAttribute(node.AttributeLists, Emitter.IsTSNoInitializerAttribute) != null;
-
         internal static AttributeSyntax? TryGetAttribute(SyntaxList<AttributeListSyntax> attributes,
             Predicate<AttributeSyntax> checker)
         {

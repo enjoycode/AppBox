@@ -194,7 +194,6 @@ namespace CodeEditor
         }
     }
 
-    [TSNoInitializer]
     internal sealed class StartComparer : IComparer<FoldMarker>
     {
         internal static readonly StartComparer Instance = new StartComparer();
@@ -206,7 +205,6 @@ namespace CodeEditor
         }
     }
 
-    [TSNoInitializer]
     internal sealed class EndComparer : IComparer<FoldMarker>
     {
         internal static readonly EndComparer Instance = new EndComparer();

@@ -80,9 +80,4 @@ export class PaintContext //TODO: remove this
     public set Canvas(value) {
         this.#Canvas = value;
     }
-
-    public Init(props: Partial<PaintContext>): PaintContext {
-        Object.assign(this, props);
-        return this;
-    }
 }

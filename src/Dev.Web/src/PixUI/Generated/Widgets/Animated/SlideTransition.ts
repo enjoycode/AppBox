@@ -44,9 +44,4 @@ export class SlideTransition extends PixUI.Transform {
         this._position.ValueChanged.Remove(this.OnPositionChanged, this);
         super.Dispose();
     }
-
-    public Init(props: Partial<SlideTransition>): SlideTransition {
-        Object.assign(this, props);
-        return this;
-    }
 }

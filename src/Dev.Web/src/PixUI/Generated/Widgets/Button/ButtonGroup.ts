@@ -45,9 +45,4 @@ export class ButtonGroup extends PixUI.MultiChildWidget<PixUI.Button> {
         path.delete();
     }
 
-    public Init(props: Partial<ButtonGroup>): ButtonGroup {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

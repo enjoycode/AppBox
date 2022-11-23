@@ -77,9 +77,4 @@ export class Row extends PixUI.MultiChildWidget<PixUI.Widget> {
         // 最高的子级 and 所有子级的宽度
         this.SetSize(Math.min(width, totalWidth), maxHeightOfChild);
     }
-
-    public Init(props: Partial<Row>): Row {
-        Object.assign(this, props);
-        return this;
-    }
 }

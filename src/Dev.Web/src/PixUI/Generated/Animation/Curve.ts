@@ -27,11 +27,6 @@ export class Linear extends Curve {
     protected TransformInternal(t: number): number {
         return t;
     }
-
-    public Init(props: Partial<Linear>): Linear {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class BounceInOutCurve extends Curve {
@@ -39,11 +34,6 @@ export class BounceInOutCurve extends Curve {
         if (t < 0.5)
             return (1.0 - Curves.Bounce(1.0 - t * 2.0)) * 0.5;
         return Curves.Bounce(t * 2.0 - 1.0) * 0.5 + 0.5;
-    }
-
-    public Init(props: Partial<BounceInOutCurve>): BounceInOutCurve {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -57,11 +47,6 @@ export class FlippedCurve extends Curve {
 
     protected TransformInternal(t: number): number {
         return 1.0 - this.Curve.Transform(1.0 - t);
-    }
-
-    public Init(props: Partial<FlippedCurve>): FlippedCurve {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -98,11 +83,6 @@ export class Interval extends Curve {
             return t;
         return this._curve.Transform(t);
     }
-
-    public Init(props: Partial<Interval>): Interval {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>
@@ -124,11 +104,6 @@ export class SawTooth extends Curve {
     protected TransformInternal(t: number): number {
         t *= this._count;
         return t - Math.trunc(t);
-    }
-
-    public Init(props: Partial<SawTooth>): SawTooth {
-        Object.assign(this, props);
-        return this;
     }
 }
 
@@ -167,11 +142,6 @@ export class Cubic extends Curve {
             else
                 end = midpoint;
         }
-    }
-
-    public Init(props: Partial<Cubic>): Cubic {
-        Object.assign(this, props);
-        return this;
     }
 }
 

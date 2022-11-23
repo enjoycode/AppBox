@@ -12,9 +12,4 @@ export class Center extends PixUI.SingleChildWidget {
 
         this.SetSize(width, height);
     }
-
-    public Init(props: Partial<Center>): Center {
-        Object.assign(this, props);
-        return this;
-    }
 }

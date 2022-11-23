@@ -105,9 +105,4 @@ export class TabController<T> implements PixUI.IStateBindable {
         }
     }
 
-    public Init(props: Partial<TabController<T>>): TabController<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

@@ -154,11 +154,6 @@ export class PopupTransitionWrap extends PixUI.SingleChildWidget {
         this.AnimationController.Dispose();
         super.Dispose();
     }
-
-    public Init(props: Partial<PopupTransitionWrap>): PopupTransitionWrap {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>
@@ -197,11 +192,6 @@ export class PopupProxy extends PixUI.Widget {
         this._popup.Parent = null;
         super.OnUnmounted();
     }
-
-    public Init(props: Partial<PopupProxy>): PopupProxy {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class ScaleYTransition extends PixUI.Transform //TODO: 整合
@@ -216,10 +206,5 @@ export class ScaleYTransition extends PixUI.Transform //TODO: 整合
 
     private OnAnimationValueChanged() {
         this.SetTransform(PixUI.Matrix4.CreateScale(1, <number><unknown>this._animation.Value, 1));
-    }
-
-    public Init(props: Partial<ScaleYTransition>): ScaleYTransition {
-        Object.assign(this, props);
-        return this;
     }
 }

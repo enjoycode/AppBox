@@ -5,7 +5,7 @@ import {P, match} from "ts-pattern";
 export const initializeSystem = () => {
     //初始化Linq支持
     initializeLinq();
-    
+
     //初始化Pattern支持
     let win: any = window;
     win.match = match;
@@ -20,16 +20,12 @@ export const initializeSystem = () => {
         value: function Insert(pos: number, str: string): string {
             return this.slice(0, pos) + str + this.slice(pos);
         },
-        writable: true,
-        configurable: true,
     });
 
     Object.defineProperty(String.prototype, "Remove", {
         value: function Remove(start: number, count: number): string {
             return this.substring(0, start) + this.substring(start + count);
         },
-        writable: true,
-        configurable: true,
     });
 
     Object.defineProperty(Number.prototype, "CompareTo", {
@@ -38,18 +34,14 @@ export const initializeSystem = () => {
             if (this > other) return 1;
             return 0;
         },
-        writable: true,
-        configurable: true,
     });
-    
-    // Object.defineProperty(Object.prototype, "Init", {
-    //     value: function Init<T>(props: Partial<T>): T {
-    //         Object.assign(this, props);
-    //         return <T>this;
-    //     },
-    //     writable: true,
-    //     configurable: true,
-    // });
+
+    Object.defineProperty(Object.prototype, "Init", {
+        value: function Init(props: Partial<typeof this>): typeof this {
+            Object.assign(this, props);
+            return this;
+        },
+    })
 
     // Object.defineProperty(Array.prototype, "IndexOf", {
     //     value: function IndexOf(item: any): number {

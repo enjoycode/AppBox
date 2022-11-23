@@ -8,9 +8,4 @@ export class DataGridCheckboxColumn<T> extends PixUI.DataGridHostColumn<T> {
             return new PixUI.Checkbox(state);
         });
     }
-
-    public Init(props: Partial<DataGridCheckboxColumn<T>>): DataGridCheckboxColumn<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }

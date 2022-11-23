@@ -89,9 +89,4 @@ export class HoverDecorator extends PixUI.Widget {
         }
         path.delete();
     }
-
-    public Init(props: Partial<HoverDecorator>): HoverDecorator {
-        Object.assign(this, props);
-        return this;
-    }
 }

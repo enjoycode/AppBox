@@ -39,9 +39,4 @@ export class Expanded extends PixUI.SingleChildWidget {
 
         this.TryNotifyParentIfSizeChanged(oldWidth, oldHeight, affects);
     }
-
-    public Init(props: Partial<Expanded>): Expanded {
-        Object.assign(this, props);
-        return this;
-    }
 }

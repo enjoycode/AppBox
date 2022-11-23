@@ -51,11 +51,6 @@ export class NotificationEntry extends PixUI.SingleChildWidget {
         this._controller.Dispose();
         super.Dispose();
     }
-
-    public Init(props: Partial<NotificationEntry>): NotificationEntry {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class Notification extends PixUI.Popup {
@@ -153,11 +148,6 @@ export class Notification extends PixUI.Popup {
             Size: PixUI.State.op_Implicit_From(18),
             Color: color
         }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color, MaxLines: 5}));
-    }
-
-    public Init(props: Partial<Notification>): Notification {
-        Object.assign(this, props);
-        return this;
     }
 
 }

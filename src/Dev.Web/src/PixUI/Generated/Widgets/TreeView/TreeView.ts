@@ -159,9 +159,4 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
         }
     }
 
-    public Init(props: Partial<TreeView<T>>): TreeView<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

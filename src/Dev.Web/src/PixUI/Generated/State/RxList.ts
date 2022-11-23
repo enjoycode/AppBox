@@ -50,9 +50,4 @@ export class RxList<T> extends PixUI.StateBase {
         this.NotifyValueChanged();
     }
 
-    public Init(props: Partial<RxList<T>>): RxList<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

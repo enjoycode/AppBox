@@ -29,7 +29,6 @@ namespace PixUI
     /// <summary>
     /// 重绘指定Rect的区域
     /// </summary>
-    [TSNoInitializer]
     public sealed class RepaintArea : IDirtyArea
     {
         private readonly Rect _rect;
@@ -63,7 +62,6 @@ namespace PixUI
         public override string ToString() => $"RepaintArea[{_rect}]";
     }
 
-    [TSNoInitializer]
     internal sealed class RepaintChild : IDirtyArea
     {
         private readonly IDirtyArea? _lastDirtyArea;

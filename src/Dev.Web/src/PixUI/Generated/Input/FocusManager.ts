@@ -123,11 +123,6 @@ export class FocusManager {
             return FocusManager.FindFocusableBackward(container.Parent!, container);
         return null;
     }
-
-    public Init(props: Partial<FocusManager>): FocusManager {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>
@@ -189,10 +184,5 @@ export class FocusManagerStack {
         }
 
         return this._stack[0];
-    }
-
-    public Init(props: Partial<FocusManagerStack>): FocusManagerStack {
-        Object.assign(this, props);
-        return this;
     }
 }

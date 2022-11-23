@@ -9,7 +9,6 @@ namespace PixUI
 
     public delegate Widget RouteWidgetBuilder(RouteSettings settings);
 
-    [TSNoInitializer]
     public sealed class Route
     {
         internal readonly string Name;

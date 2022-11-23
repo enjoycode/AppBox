@@ -91,9 +91,4 @@ export class Form extends PixUI.MultiChildWidget<PixUI.FormItem> {
         this.SetSize(width, Math.min(y + this._padding.Bottom, height));
     }
 
-    public Init(props: Partial<Form>): Form {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

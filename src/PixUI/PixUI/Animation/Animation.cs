@@ -50,7 +50,6 @@ namespace PixUI
 #endif
     }
 
-    [TSNoInitializer]
     internal sealed class AnimatedEvaluation<T> : AnimationWithParent<T>
     {
         private readonly Animatable<T> _evaluatable;

@@ -59,9 +59,4 @@ export class MenuController {
         this._popupMenuStack?.Hide();
         this._popupMenuStack = null;
     }
-
-    public Init(props: Partial<MenuController>): MenuController {
-        Object.assign(this, props);
-        return this;
-    }
 }

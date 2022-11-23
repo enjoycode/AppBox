@@ -31,9 +31,4 @@ export class DataGridIconColumn<T> extends PixUI.DataGridColumn<T> {
         iconPainter.Paint(canvas, style.FontSize, style.Color ?? PixUI.Colors.Black, icon, offsetX, offsetY);
         iconPainter.Dispose();
     }
-
-    public Init(props: Partial<DataGridIconColumn<T>>): DataGridIconColumn<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }

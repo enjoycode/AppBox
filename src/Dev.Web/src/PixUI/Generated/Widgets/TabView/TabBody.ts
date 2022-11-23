@@ -58,9 +58,4 @@ export class TabBody<T> extends PixUI.DynamicView {
         let offsetAnimation = new PixUI.OffsetTween(fromOffset, toOffset).Animate(animation);
         return new PixUI.SlideTransition(offsetAnimation).Init({Child: child});
     }
-
-    public Init(props: Partial<TabBody<T>>): TabBody<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }

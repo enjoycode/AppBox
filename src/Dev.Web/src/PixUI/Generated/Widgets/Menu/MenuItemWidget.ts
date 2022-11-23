@@ -138,9 +138,4 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         let labelText = this._label == null ? "" : this._label.Text.Value;
         return `MenuItemWidget[\"${labelText}\"]`;
     }
-
-    public Init(props: Partial<MenuItemWidget>): MenuItemWidget {
-        Object.assign(this, props);
-        return this;
-    }
 }

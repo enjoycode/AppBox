@@ -37,9 +37,4 @@ export class KeyEvent extends PixUI.PropagateEvent {
         super();
         this.KeyData = keyData;
     }
-
-    public Init(props: Partial<KeyEvent>): KeyEvent {
-        Object.assign(this, props);
-        return this;
-    }
 }

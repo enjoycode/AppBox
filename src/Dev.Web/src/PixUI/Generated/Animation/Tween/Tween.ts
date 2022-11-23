@@ -27,11 +27,6 @@ export class FloatTween extends Tween<number> {
     public Lerp(t: number): number {
         return <number><unknown>(this.Begin! + (this.End! - this.Begin!) * t);
     }
-
-    public Init(props: Partial<FloatTween>): FloatTween {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class ColorTween extends Tween<PixUI.Color> {

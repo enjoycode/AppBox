@@ -128,9 +128,4 @@ export class Column extends PixUI.MultiChildWidget<PixUI.Widget> {
 
         this.TryNotifyParentIfSizeChanged(oldWidth, oldHeight, affects);
     }
-
-    public Init(props: Partial<Column>): Column {
-        Object.assign(this, props);
-        return this;
-    }
 }

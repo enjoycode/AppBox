@@ -47,9 +47,4 @@ export class ScrollEvent {
         ScrollEvent.Default.Dy = dy;
         return ScrollEvent.Default;
     }
-
-    public Init(props: Partial<ScrollEvent>): ScrollEvent {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -8472,9 +8472,4 @@ export class MaterialIconsOutlined {
     public get ZoomOutMap(): PixUI.IconData {
         return new PixUI.IconData(0xe56b, MaterialIconsOutlined.FontFamily, MaterialIconsOutlined.AssemblyName, MaterialIconsOutlined.AssetPath);
     }
-
-    public Init(props: Partial<MaterialIconsOutlined>): MaterialIconsOutlined {
-        Object.assign(this, props);
-        return this;
-    }
 }

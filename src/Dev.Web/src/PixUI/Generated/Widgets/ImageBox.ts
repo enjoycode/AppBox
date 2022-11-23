@@ -38,9 +38,4 @@ export class ImageBox extends PixUI.Widget {
         // @ts-ignore //TODO:尝试忽略web端canvaskit的paint参数
         canvas.drawImageRect(img, PixUI.Rect.FromLTWH(0, 0, img.width, img.height), PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
     }
-
-    public Init(props: Partial<ImageBox>): ImageBox {
-        Object.assign(this, props);
-        return this;
-    }
 }

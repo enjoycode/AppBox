@@ -21,9 +21,4 @@ export class FadeTransition extends PixUI.SingleChildWidget {
 
         canvas.restore();
     }
-
-    public Init(props: Partial<FadeTransition>): FadeTransition {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -47,9 +47,4 @@ export class ScrollController {
 
         return new PixUI.Offset(this.OffsetX - oldX, this.OffsetY - oldY);
     }
-
-    public Init(props: Partial<ScrollController>): ScrollController {
-        Object.assign(this, props);
-        return this;
-    }
 }

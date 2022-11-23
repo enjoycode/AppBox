@@ -178,11 +178,6 @@ export class HitTestResult {
         this.LastHitWidget = other.LastHitWidget;
         this._transform = (other._transform).Clone();
     }
-
-    public Init(props: Partial<HitTestResult>): HitTestResult {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class HitTestEntry {

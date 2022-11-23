@@ -4,7 +4,6 @@ namespace PixUI
     /// Structure that specifies maximum allowable magnitudes for distances,
     /// durations, and velocity differences to be considered equal.
     /// </summary>
-    [TSNoInitializer]
     public sealed class Tolerance //TODO: maybe struct
     {
         private const double EpsilonDefault = 1e-3;

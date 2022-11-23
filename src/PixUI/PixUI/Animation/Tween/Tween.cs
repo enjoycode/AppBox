@@ -28,7 +28,6 @@ namespace PixUI
         public override float Lerp(double t) => (float)(Begin! + (End! - Begin!) * t);
     }
 
-    [TSNoInitializer]
     public sealed class ColorTween : Tween<Color>
     {
         public ColorTween(Color begin, Color end) : base(begin, end) { }
@@ -36,7 +35,6 @@ namespace PixUI
         public override Color Lerp(double t) => Color.Lerp(Begin, End, t)!.Value;
     }
 
-    [TSNoInitializer]
     public sealed class OffsetTween : Tween<Offset>
     {
         public OffsetTween(Offset begin, Offset end) : base(begin, end) { }

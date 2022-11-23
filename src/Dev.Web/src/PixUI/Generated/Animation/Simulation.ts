@@ -53,11 +53,6 @@ export class InterpolationSimulation extends Simulation {
     public IsDone(timeInSeconds: number): boolean {
         return timeInSeconds > this._durationInSeconds;
     }
-
-    public Init(props: Partial<InterpolationSimulation>): InterpolationSimulation {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export type DirectionSetter = (direction: PixUI.AnimationDirection) => any;
@@ -107,10 +102,5 @@ export class RepeatingSimulation extends Simulation {
 
     public IsDone(time: number): boolean {
         return false;
-    }
-
-    public Init(props: Partial<RepeatingSimulation>): RepeatingSimulation {
-        Object.assign(this, props);
-        return this;
     }
 }

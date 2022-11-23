@@ -40,9 +40,4 @@ export class TransitionStack extends PixUI.Widget {
         this._from.Paint(canvas, area);
         this._to.Paint(canvas, area);
     }
-
-    public Init(props: Partial<TransitionStack>): TransitionStack {
-        Object.assign(this, props);
-        return this;
-    }
 }

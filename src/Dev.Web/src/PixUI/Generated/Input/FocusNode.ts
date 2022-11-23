@@ -22,9 +22,4 @@ export class FocusNode {
     public RaiseTextInput(text: string) {
         this.TextInput.Invoke(text);
     }
-
-    public Init(props: Partial<FocusNode>): FocusNode {
-        Object.assign(this, props);
-        return this;
-    }
 }

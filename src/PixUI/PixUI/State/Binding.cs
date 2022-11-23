@@ -12,7 +12,6 @@ namespace PixUI
     /// <summary>
     /// 状态与目标的绑定关系
     /// </summary>
-    [TSNoInitializer]
     internal readonly struct Binding
     {
         internal readonly WeakReference Target;

@@ -59,9 +59,4 @@ export class FormItem extends PixUI.Widget {
         this.PaintChildren(canvas, area);
     }
 
-    public Init(props: Partial<FormItem>): FormItem {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

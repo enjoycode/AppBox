@@ -32,9 +32,4 @@ export class DataGridTheme {
     public HighlightingCurrentRow: boolean = true;
 
     public HighlightRowBgColor: PixUI.Color = new PixUI.Color(0x30263238);
-
-    public Init(props: Partial<DataGridTheme>): DataGridTheme {
-        Object.assign(this, props);
-        return this;
-    }
 }

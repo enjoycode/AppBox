@@ -101,9 +101,4 @@ export class Switch extends PixUI.Toggleable {
         canvas.drawRRect(rrect, paint);
     }
 
-    public Init(props: Partial<Switch>): Switch {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

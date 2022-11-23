@@ -111,9 +111,4 @@ export class Card extends PixUI.SingleChildWidget {
         clipper.Dispose();
     }
 
-    public Init(props: Partial<Card>): Card {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace PixUI
 {
     [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
-    [TSNoInitializer]
     public sealed class CurveTween : Animatable<double>
     {
         private readonly Curve _curve;

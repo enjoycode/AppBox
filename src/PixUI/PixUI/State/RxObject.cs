@@ -2,7 +2,6 @@
 
 namespace PixUI
 {
-    [TSNoInitializer]
     public class RxProperty<T> : State<T>
     {
         public RxProperty(Func<T> getter, Action<T>? setter = null)

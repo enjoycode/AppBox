@@ -20,7 +20,6 @@ namespace PixUI
         Fixed
     }
 
-    [TSNoInitializer]
     public sealed class ColumnWidth
     {
         private ColumnWidth(ColumnWidthType type, float value, float minValue)

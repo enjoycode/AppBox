@@ -1,6 +1,5 @@
 using PixUI;
 
-[TSNoInitializer]
 class BaseClass
 {
     public readonly string Type;

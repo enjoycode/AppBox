@@ -1,6 +1,5 @@
 namespace PixUI
 {
-    [TSNoInitializer]
     public sealed class RoundedRectangleBorder : OutlinedBorder
     {
         public readonly BorderRadius BorderRadius;

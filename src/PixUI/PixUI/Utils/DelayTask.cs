@@ -8,7 +8,6 @@ namespace PixUI
     /// 用于延迟执行任务，如执行过程中更新则继续延迟
     /// </summary>
     [TSType("PixUI.DelayTask")]
-    [TSNoInitializer]
     public sealed class DelayTask
     {
         private int _flag = 0;

@@ -243,11 +243,6 @@ export class AnimationController extends PixUI.Animation<number> {
         this.ValueChanged.Invoke();
     }
 
-    public Init(props: Partial<AnimationController>): AnimationController {
-        Object.assign(this, props);
-        return this;
-    }
-
 }
 
 /// <summary>

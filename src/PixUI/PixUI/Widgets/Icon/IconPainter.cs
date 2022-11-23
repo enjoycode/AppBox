@@ -2,7 +2,6 @@ using System;
 
 namespace PixUI
 {
-    [TSNoInitializer]
     public sealed class IconPainter : IDisposable
     {
         public IconPainter(Action onFontLoaded)

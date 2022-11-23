@@ -95,9 +95,9 @@ export abstract class TextBase extends PixUI.Widget {
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
-        
+
         if (this.Text.Value == null || this.Text.Value.length == 0) {
-            this.SetSize(0,0);
+            this.SetSize(0, 0);
             return;
         }
 

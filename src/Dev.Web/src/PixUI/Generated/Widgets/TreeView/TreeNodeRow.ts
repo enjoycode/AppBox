@@ -167,9 +167,4 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         return `TreeNodeRow[\"${labelText}\"]`;
     }
 
-    public Init(props: Partial<TreeNodeRow<T>>): TreeNodeRow<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

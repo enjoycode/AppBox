@@ -37,9 +37,4 @@ export class ImageSource {
     public static FromNetwork(url: string): ImageSource {
         throw new System.NotImplementedException();
     }
-
-    public Init(props: Partial<ImageSource>): ImageSource {
-        Object.assign(this, props);
-        return this;
-    }
 }

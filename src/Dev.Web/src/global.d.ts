@@ -32,6 +32,8 @@ declare global {
     //System
     function clamp(v: number, min: number, max: number): number;
 
+    type Nullable<T> = T | null | undefined;
+
     interface Number {
         get obs(): Rx<number>;
         CompareTo(other: number): number;
@@ -45,7 +47,9 @@ declare global {
 
     interface Boolean {get obs(): Rx<boolean>;}
 
-    type Nullable<T> = T | null | undefined;
+    interface Object {
+        Init(props: any): any;
+    }
 
 }
 

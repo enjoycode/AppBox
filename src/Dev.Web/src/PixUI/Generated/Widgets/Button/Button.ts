@@ -195,9 +195,4 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         super.Dispose();
     }
 
-    public Init(props: Partial<Button>): Button {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

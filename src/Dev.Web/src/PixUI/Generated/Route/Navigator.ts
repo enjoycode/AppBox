@@ -33,11 +33,6 @@ export class RouteEntry {
         this._widget = this.Route.Builder(this._settings);
         return this._widget;
     }
-
-    public Init(props: Partial<RouteEntry>): RouteEntry {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>

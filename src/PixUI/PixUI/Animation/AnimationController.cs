@@ -287,7 +287,6 @@ namespace PixUI
     /// <summary>
     /// 可选动画控制，如果不指定上级，则在0或1之间直接切换
     /// </summary>
-    [TSNoInitializer]
     public sealed class OptionalAnimationController : Animation<double>
     {
         private Animation<double>? _parent;

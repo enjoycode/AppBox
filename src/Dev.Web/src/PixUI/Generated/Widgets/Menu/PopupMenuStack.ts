@@ -125,9 +125,4 @@ export class PopupMenuStack extends PixUI.Popup {
         return super.PreviewEvent(type, e);
     }
 
-    public Init(props: Partial<PopupMenuStack>): PopupMenuStack {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

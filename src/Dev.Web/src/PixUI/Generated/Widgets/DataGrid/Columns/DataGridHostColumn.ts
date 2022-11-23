@@ -45,9 +45,4 @@ export class DataGridHostColumn<T> extends PixUI.DataGridColumn<T> {
         else
             this._cellWidgets.RemoveAll(t => t.RowIndex >= rowIndex);
     }
-
-    public Init(props: Partial<DataGridHostColumn<T>>): DataGridHostColumn<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }

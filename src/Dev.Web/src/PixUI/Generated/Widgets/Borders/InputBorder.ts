@@ -85,9 +85,4 @@ export class OutlineInputBorder extends InputBorder {
         paint.setAntiAlias(true); //TODO: no radius no need
         canvas.drawRRect(outer, paint);
     }
-
-    public Init(props: Partial<OutlineInputBorder>): OutlineInputBorder {
-        Object.assign(this, props);
-        return this;
-    }
 }

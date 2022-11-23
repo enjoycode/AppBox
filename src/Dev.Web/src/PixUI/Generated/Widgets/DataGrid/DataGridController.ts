@@ -447,9 +447,4 @@ export class DataGridController<T> {
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    public Init(props: Partial<DataGridController<T>>): DataGridController<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

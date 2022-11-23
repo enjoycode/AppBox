@@ -75,9 +75,4 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
         }
     }
 
-    public Init(props: Partial<Overlay>): Overlay {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

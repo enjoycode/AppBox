@@ -28,9 +28,4 @@ export class ExpandIcon extends PixUI.SingleChildWidget implements PixUI.IMouseR
                 })
             });
     }
-
-    public Init(props: Partial<ExpandIcon>): ExpandIcon {
-        Object.assign(this, props);
-        return this;
-    }
 }

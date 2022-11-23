@@ -76,7 +76,6 @@ namespace CodeEditor
         }
     }
 
-    [TSNoInitializer]
     public struct LinesEnumerator
     {
         /// <summary>

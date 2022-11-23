@@ -59,11 +59,6 @@ export class ClipperOfRect implements IClipper {
 
         throw new System.NotSupportedException();
     }
-
-    public Init(props: Partial<ClipperOfRect>): ClipperOfRect {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class ClipperOfPath implements IClipper {
@@ -115,10 +110,5 @@ export class ClipperOfPath implements IClipper {
         }
 
         throw new System.NotSupportedException();
-    }
-
-    public Init(props: Partial<ClipperOfPath>): ClipperOfPath {
-        Object.assign(this, props);
-        return this;
     }
 }

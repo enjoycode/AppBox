@@ -32,9 +32,4 @@ export class Root extends PixUI.SingleChildWidget implements PixUI.IRootWidget {
     public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
         //do nothing
     }
-
-    public Init(props: Partial<Root>): Root {
-        Object.assign(this, props);
-        return this;
-    }
 }

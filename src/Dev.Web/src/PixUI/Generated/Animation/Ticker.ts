@@ -51,9 +51,4 @@ export class Ticker {
         if (this.ShouldScheduleTick)
             this.ScheduleTick(true);
     }
-
-    public Init(props: Partial<Ticker>): Ticker {
-        Object.assign(this, props);
-        return this;
-    }
 }

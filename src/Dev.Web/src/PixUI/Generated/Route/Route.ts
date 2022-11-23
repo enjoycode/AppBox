@@ -2,11 +2,6 @@ import * as PixUI from '@/PixUI'
 
 export class RouteSettings {
     public static readonly Empty: RouteSettings = new RouteSettings();
-
-    public Init(props: Partial<RouteSettings>): RouteSettings {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export type RouteWidgetBuilder = (settings: RouteSettings) => PixUI.Widget;

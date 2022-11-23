@@ -214,9 +214,4 @@ export class TreeController<T> {
         node.SetChecked(value);
     }
 
-    public Init(props: Partial<TreeController<T>>): TreeController<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

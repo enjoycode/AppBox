@@ -36,11 +36,6 @@ export class ListViewController<T> extends PixUI.WidgetController<ListView<T>> {
         if (!offset.IsEmpty)
             this.Widget.Root!.Window.AfterScrollDone(this.Widget, offset);
     }
-
-    public Init(props: Partial<ListViewController<T>>): ListViewController<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export class ListView<T> extends PixUI.MultiChildWidget<PixUI.Widget> implements PixUI.IScrollable {
@@ -126,10 +121,5 @@ export class ListView<T> extends PixUI.MultiChildWidget<PixUI.Widget> implements
         if (!offset.IsEmpty)
             this.Invalidate(PixUI.InvalidAction.Repaint);
         return offset;
-    }
-
-    public Init(props: Partial<ListView<T>>): ListView<T> {
-        Object.assign(this, props);
-        return this;
     }
 }

@@ -59,11 +59,6 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
 
         super.Paint(canvas, area);
     }
-
-    public Init(props: Partial<ListPopupItemWidget>): ListPopupItemWidget {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 /// <summary>
@@ -234,11 +229,6 @@ export class ListPopup<T> extends PixUI.Popup {
         }
 
         return super.PreviewEvent(type, e);
-    }
-
-    public Init(props: Partial<ListPopup<T>>): ListPopup<T> {
-        Object.assign(this, props);
-        return this;
     }
 
 }

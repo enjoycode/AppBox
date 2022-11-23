@@ -49,9 +49,4 @@ export class MainMenu extends PixUI.Widget {
             offsetX += child.W;
         }
     }
-
-    public Init(props: Partial<MainMenu>): MainMenu {
-        Object.assign(this, props);
-        return this;
-    }
 }

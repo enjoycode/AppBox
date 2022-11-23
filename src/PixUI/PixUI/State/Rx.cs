@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 namespace PixUI
 {
-    [TSNoInitializer]
     public sealed class Rx<T> : State<T>
     {
         public Rx(T value)

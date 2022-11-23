@@ -271,9 +271,4 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         }
     }
 
-    public Init(props: Partial<DataGrid<T>>): DataGrid<T> {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

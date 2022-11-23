@@ -37,9 +37,4 @@ export class Radio extends PixUI.Toggleable {
         }
     }
 
-    public Init(props: Partial<Radio>): Radio {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

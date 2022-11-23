@@ -43,9 +43,4 @@ export class EventHookManager {
             }
         }
     }
-
-    public Init(props: Partial<EventHookManager>): EventHookManager {
-        Object.assign(this, props);
-        return this;
-    }
 }

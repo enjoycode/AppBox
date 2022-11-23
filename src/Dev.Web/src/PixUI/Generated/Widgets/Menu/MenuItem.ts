@@ -54,9 +54,4 @@ export class MenuItem {
 
         this.Enabled = enabled;
     }
-
-    public Init(props: Partial<MenuItem>): MenuItem {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -82,9 +82,4 @@ export class PointerEvent extends PixUI.PropagateEvent {
         transform.SetRow(2, (vector).Clone());
         return transform;
     }
-
-    public Init(props: Partial<PointerEvent>): PointerEvent {
-        Object.assign(this, props);
-        return this;
-    }
 }

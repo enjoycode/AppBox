@@ -15,11 +15,6 @@ export class WidgetRef<T extends PixUI.Widget> implements IWidgetRef {
     public SetWidget(widget: PixUI.Widget) {
         this.Widget = <T><unknown>widget;
     }
-
-    public Init(props: Partial<WidgetRef<T>>): WidgetRef<T> {
-        Object.assign(this, props);
-        return this;
-    }
 }
 
 export interface IWidgetRef {

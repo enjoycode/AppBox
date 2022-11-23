@@ -27,4 +27,12 @@ declare global {
 
     type Nullable<T> = T | null | undefined;
 
+    // interface IInit {
+    //     Init(props: Partial<this>): this;
+    // }
+
+    interface Object {
+        Init(props: any): any;
+    }
+
 }

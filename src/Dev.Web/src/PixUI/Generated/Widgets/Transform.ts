@@ -92,9 +92,4 @@ export class Transform extends PixUI.SingleChildWidget {
 
         canvas.restore();
     }
-
-    public Init(props: Partial<Transform>): Transform {
-        Object.assign(this, props);
-        return this;
-    }
 }

@@ -157,9 +157,4 @@ export class Checkbox extends PixUI.Toggleable {
         return t >= 0.25 ? activeColor : PixUI.Color.Lerp(inactiveColor, activeColor, t * 4.0)!;
     }
 
-    public Init(props: Partial<Checkbox>): Checkbox {
-        Object.assign(this, props);
-        return this;
-    }
-
 }

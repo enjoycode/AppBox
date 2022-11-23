@@ -81,9 +81,4 @@ export class CircularProgressPainter implements System.IDisposable {
 
         canvas.drawArc(rect, <number><unknown>arcStart * 180 / Math.PI, <number><unknown>arcSweep * 180 / Math.PI, false, paint);
     }
-
-    public Init(props: Partial<CircularProgressPainter>): CircularProgressPainter {
-        Object.assign(this, props);
-        return this;
-    }
 }

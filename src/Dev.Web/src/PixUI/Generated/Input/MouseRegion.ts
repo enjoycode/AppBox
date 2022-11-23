@@ -52,9 +52,4 @@ export class MouseRegion {
         if (this.Cursor != null)
             PixUI.Cursor.Current = this.Cursor();
     }
-
-    public Init(props: Partial<MouseRegion>): MouseRegion {
-        Object.assign(this, props);
-        return this;
-    }
 }
