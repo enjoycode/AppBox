@@ -1,5 +1,6 @@
 import * as AppBoxClient from '@/AppBoxClient'
 import * as PixUI from '@/PixUI'
+import * as AppBoxDesign from '@/AppBoxDesign'
 
 export class LoginPage extends PixUI.View {
     private readonly _userName: PixUI.State<string> = PixUI.State.op_Implicit_From("");
@@ -44,6 +45,7 @@ export class LoginPage extends PixUI.View {
 
     private async OnLogin() {
         try {
+            await AppBoxDesign.DesignInitializer.TryInit();
             await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
             this.CurrentNavigator!.PushNamed("IDE");
         } catch (ex: any) {

@@ -52,7 +52,7 @@ export class DesignTreePad extends PixUI.View {
             let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.DesignTreeVO>("sys.DesignService.LoadDesignTree");
             AppBoxDesign.DesignStore.TreeController.DataSource = res!.RootNodes;
         } catch (ex: any) {
-            PixUI.Notification.Error(`Can't load design tree: ${ex.Message}`);
+            PixUI.Notification.Error(`Can't load design tree: ${ex}`);
         } finally {
             AppBoxDesign.DesignStore.TreeController.IsLoading = false;
         }
