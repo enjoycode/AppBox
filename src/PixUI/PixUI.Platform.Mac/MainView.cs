@@ -92,6 +92,16 @@ namespace PixUI.Platform.Mac
                 (float)(rect.Height - pos.Y), 0, 0));
         }
 
+        public override void RightMouseDown(NSEvent theEvent)
+        {
+            var view = MacWindow.NSWindow!.ContentView;
+            var rect = view!.Frame;
+            var pos = theEvent.LocationInWindow;
+
+            MacWindow.OnPointerDown(PointerEvent.UseDefault(PointerButtons.Right, (float)pos.X,
+                (float)(rect.Height - pos.Y), 0, 0));
+        }
+
         public override void MouseUp(NSEvent theEvent)
         {
             var view = MacWindow.NSWindow!.ContentView;
@@ -99,6 +109,16 @@ namespace PixUI.Platform.Mac
             var pos = theEvent.LocationInWindow;
 
             MacWindow.OnPointerUp(PointerEvent.UseDefault(PointerButtons.Left, (float)pos.X,
+                (float)(rect.Height - pos.Y), 0, 0));
+        }
+
+        public override void RightMouseUp(NSEvent theEvent)
+        {
+            var view = MacWindow.NSWindow!.ContentView;
+            var rect = view!.Frame;
+            var pos = theEvent.LocationInWindow;
+
+            MacWindow.OnPointerUp(PointerEvent.UseDefault(PointerButtons.Right, (float)pos.X,
                 (float)(rect.Height - pos.Y), 0, 0));
         }
 
