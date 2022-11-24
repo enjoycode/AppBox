@@ -34,20 +34,23 @@ namespace PixUI
 
         internal bool TryCloseSome(MenuItemWidget newHoverItem)
         {
-            var lastMenuItem = _children[_children.Count - 1].Owner;
-            //判断子级回到上级
-            if (ReferenceEquals(lastMenuItem, newHoverItem))
+            //判断子级回到任意上级
+            for (int i = _children.Count - 1; i >= 0; i--)
             {
-                CloseTo(newHoverItem.Depth);
-                return true; //调用者不需要后续操作
+                if (ReferenceEquals(newHoverItem, _children[i].Owner))
+                {
+                    CloseTo(newHoverItem.Depth);
+                    return true; //调用者不需要后续操作
+                }
             }
 
+            var lastMenuItem = _children[_children.Count - 1].Owner;
             //判断是否同级
             if (newHoverItem.Depth == lastMenuItem?.Depth)
             {
                 CloseTo(newHoverItem.Depth - 1);
             }
-            //再判断是否子级
+            //再判断是否直接子级
             else if (lastMenuItem != null && !IsChildOf(newHoverItem, lastMenuItem))
             {
                 CloseTo(newHoverItem.Depth - 1);

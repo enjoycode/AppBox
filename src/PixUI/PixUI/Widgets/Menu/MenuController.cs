@@ -26,11 +26,8 @@ namespace PixUI
             if (hover)
             {
                 //尝试关闭之前打开的
-                if (_popupMenuStack != null)
-                {
-                    if (_popupMenuStack.TryCloseSome(item))
-                        return;
-                }
+                if (_popupMenuStack != null && _popupMenuStack.TryCloseSome(item))
+                    return;
 
                 //尝试打开子菜单
                 if (item.MenuItem.Type == MenuItemType.SubMenu)
