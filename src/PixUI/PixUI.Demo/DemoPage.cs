@@ -47,10 +47,9 @@ namespace PixUI.Demo
                                 {
                                     Children = new[]
                                     {
-                                        new Button("Button1")
-                                            { OnTap = OnButton1Tap, Ref = _buttonRef },
+                                        new Button("Button1") { OnTap = OnButton1Tap, Ref = _buttonRef },
                                         new Button("Button2") { OnTap = OnButton2Tap },
-                                        new Button("Button3")
+                                        new Button("Button3") { OnTap = OnButton3Tap },
                                     },
                                 },
                                 new Row(VerticalAlignment.Middle, 10)
@@ -111,7 +110,7 @@ namespace PixUI.Demo
         private void OnButton1Tap(PointerEvent e)
         {
             _listPopup ??= new ListPopup<Person>(Overlay!, BuidPopupItem, 200, 25)
-                { OnSelectionChanged = OnListPopupSelectionChanged };
+            { OnSelectionChanged = OnListPopupSelectionChanged };
             _listPopup.DataSource ??= Person.GeneratePersons(10);
             if (!_listPopup.IsMounted)
                 _listPopup.Show(_buttonRef.Widget, new Offset(-4, -2),
@@ -125,6 +124,26 @@ namespace PixUI.Demo
             var dlg = new DemoDialog();
             var canceled = await dlg.ShowAndWaitClose();
             Console.WriteLine($"Dialog closed: {canceled}");
+        }
+
+        private void OnButton3Tap(PointerEvent e)
+        {
+            var menuItems = new MenuItem[]
+            {
+                MenuItem.Item("Copy"),
+                MenuItem.Item("Paste"),
+                MenuItem.Divider(),
+                MenuItem.SubMenu("Actions", null, new MenuItem[]
+                {
+                    MenuItem.Item("Action1"),
+                    MenuItem.SubMenu("Actions2", null, new MenuItem[]
+                    {
+                        MenuItem.Item("Action3"),
+                        MenuItem.Item("Action4"),
+                    })
+                })
+            };
+            ContextMenu.Show(menuItems);
         }
 
         private void OnListPopupSelectionChanged(Person? person)

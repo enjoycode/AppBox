@@ -4,20 +4,7 @@ namespace PixUI
 {
     internal sealed class MenuItemWidget : Widget, IMouseRegion
     {
-        internal readonly MenuItem MenuItem;
-        internal readonly int Depth;
-        private readonly MenuController _controller;
-
-        private Icon? _icon;
-        private Text? _label; //TODO:考虑实现并使用SimpleText
-        private Icon? _expander;
-
-        private bool _isHover;
-
-        public MouseRegion MouseRegion { get; }
-
-        internal MenuItemWidget(MenuItem menuItem, int depth, bool inPopup,
-            MenuController controller)
+        internal MenuItemWidget(MenuItem menuItem, int depth, bool inPopup, MenuController controller)
         {
             Depth = depth;
             MenuItem = menuItem;
@@ -30,24 +17,36 @@ namespace PixUI
             MouseRegion.PointerUp += _OnPointerUp;
         }
 
+        internal readonly MenuItem MenuItem;
+        internal readonly int Depth;
+        private readonly MenuController _controller;
+
+        private Icon? _icon;
+        private Text? _label; //TODO:考虑实现并使用SimpleText
+        private Icon? _expander;
+
+        private bool _isHover;
+
+        public MouseRegion MouseRegion { get; }
+
         private void BuildChildren(bool inPopup)
         {
-            if (MenuItem.Type != MenuItemType.Divider)
-            {
-                if (MenuItem.Icon != null)
-                {
-                    _icon = new Icon(MenuItem.Icon) { Color = _controller.TextColor };
-                    _icon.Parent = this;
-                }
+            if (MenuItem.Type == MenuItemType.Divider)
+                return;
 
-                _label = new Text(MenuItem.Label!) { TextColor = _controller.TextColor };
-                _label.Parent = this;
+            if (MenuItem.Icon != null)
+            {
+                _icon = new Icon(MenuItem.Icon) { Color = _controller.TextColor };
+                _icon.Parent = this;
             }
+
+            _label = new Text(MenuItem.Label!) { TextColor = _controller.TextColor };
+            _label.Parent = this;
 
             if (MenuItem.Type == MenuItemType.SubMenu)
             {
                 _expander = new Icon(inPopup ? Icons.Filled.ChevronRight : Icons.Filled.ExpandMore)
-                    { Color = _controller.TextColor };
+                { Color = _controller.TextColor };
                 _expander.Parent = this;
             }
         }
@@ -64,6 +63,8 @@ namespace PixUI
 
         private void _OnHoverChanged(bool hover)
         {
+            if (MenuItem.Type == MenuItemType.Divider) return;
+
             _isHover = hover;
             Invalidate(InvalidAction.Repaint);
 
@@ -104,6 +105,12 @@ namespace PixUI
         {
             var offsetX = _controller.ItemPadding.Left;
 
+            if (MenuItem.Type == MenuItemType.Divider)
+            {
+                SetSize(offsetX + 2, 6);
+                return;
+            }
+
             if (_icon != null)
             {
                 _icon.Layout(availableWidth, availableHeight);
@@ -130,6 +137,14 @@ namespace PixUI
 
         public override void Paint(Canvas canvas, IDirtyArea? area = null)
         {
+            if (MenuItem.Type == MenuItemType.Divider)
+            {
+                var paint = PaintUtils.Shared(Colors.Gray, PaintStyle.Stroke, 2);
+                var midY = H / 2;
+                canvas.DrawLine(_controller.ItemPadding.Left, midY, W - _controller.ItemPadding.Horizontal, midY, paint);
+                return;
+            }
+
             if (_isHover)
             {
                 var paint = PaintUtils.Shared(_controller.HoverColor, PaintStyle.Fill);

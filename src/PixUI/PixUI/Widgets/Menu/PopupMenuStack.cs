@@ -43,14 +43,14 @@ namespace PixUI
             }
 
             //判断是否同级
-            if (newHoverItem.Depth == lastMenuItem.Depth)
+            if (newHoverItem.Depth == lastMenuItem?.Depth)
             {
                 CloseTo(newHoverItem.Depth - 1);
             }
             //再判断是否子级
-            else if (!IsChildOf(newHoverItem, lastMenuItem))
+            else if (lastMenuItem != null && !IsChildOf(newHoverItem, lastMenuItem))
             {
-                CloseTo(-1);
+                CloseTo(newHoverItem.Depth - 1);
             }
 
             return false;

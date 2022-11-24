@@ -3,22 +3,35 @@ using System.Collections.Generic;
 
 namespace PixUI
 {
+    /// <summary>
+    /// 弹出的子菜单，由MenuController创建并加入至其PopupMenuStack内
+    /// </summary>
     internal sealed class PopupMenu : Widget
     {
-        internal readonly MenuItemWidget Owner;
+        internal PopupMenu(MenuItemWidget? owner, MenuItem[]? items, int depth, MenuController controller)
+        {
+            if (owner == null && items == null)
+                throw new ArgumentNullException();
+
+            Owner = owner;
+            _controller = controller;
+            if (owner != null)
+            {
+                _children = new List<MenuItemWidget>(owner.MenuItem.Children!.Count);
+                BuildMenuItemWidgets(owner.MenuItem.Children!, depth);
+            }
+            else
+            {
+                _children = new List<MenuItemWidget>(items!.Length);
+                BuildMenuItemWidgets(items, depth);
+            }
+        }
+
+        internal readonly MenuItemWidget? Owner; //maybe null on ContextMenu
         private readonly IList<MenuItemWidget> _children;
         private readonly MenuController _controller;
 
-        internal PopupMenu(MenuItemWidget owner, int depth, MenuController controller)
-        {
-            Owner = owner;
-            _controller = controller;
-            _children = new List<MenuItemWidget>(owner.MenuItem.Children!.Count);
-
-            BuildMenuItemWidgets(owner.MenuItem.Children!, depth);
-        }
-
-        private void BuildMenuItemWidgets(IList<MenuItem> items, int depth)
+        private void BuildMenuItemWidgets(IEnumerable<MenuItem> items, int depth)
         {
             foreach (var item in items)
             {
