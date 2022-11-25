@@ -84,8 +84,7 @@ namespace AppBoxDesign
             if (node.Type == DesignNodeType.ModelNode)
             {
                 var modelNode = (ModelNodeVO)node;
-                if (modelNode.ModelType == ModelType.Service ||
-                    modelNode.ModelType == ModelType.View)
+                if (modelNode.ModelType == ModelType.Service || modelNode.ModelType == ModelType.View)
                     await Channel.Invoke("sys.DesignService.CloseDesigner", new object?[]
                         { (int)node.Type, node.Id });
             }

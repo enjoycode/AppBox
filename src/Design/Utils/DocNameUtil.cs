@@ -15,4 +15,14 @@ internal static class DocNameUtil
         ModelId modelId = (long)value;
         return modelId;
     }
+
+    internal static ModelId? TryGetModelIdFromDocName(string docName)
+    {
+        if (!(docName.StartsWith('M') && docName.EndsWith(".cs"))) return null;
+        var lastDotIndex = docName.LastIndexOf('.');
+        if (!ulong.TryParse(docName.AsSpan(1, lastDotIndex - 1), out var value))
+            return null;
+        ModelId modelId = (long)value;
+        return modelId;
+    }
 }

@@ -8,10 +8,9 @@ internal sealed class GetSignatures : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var targetId = args.GetString()!;
+        ModelId modelId = args.GetString()!;
         var offset = args.GetInt();
 
-        ModelId modelId = (long)ulong.Parse(targetId);
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
@@ -42,16 +41,14 @@ internal sealed class GetSignatures : IDesignHandler
         SignatureItem? bestScoredItem = null;
 
         var types = invocation.ArgumentTypes;
-        ISymbol? throughSymbol = null;
-        ISymbol? throughType = null;
         var methodGroup = invocation.SemanticModel.GetMemberGroup(invocation.Receiver)
             .OfType<IMethodSymbol>();
         if (invocation.Receiver is MemberAccessExpressionSyntax)
         {
             var throughExpression = ((MemberAccessExpressionSyntax)invocation.Receiver).Expression;
-            throughSymbol = invocation.SemanticModel.GetSpeculativeSymbolInfo(invocation.Position,
+            var throughSymbol = invocation.SemanticModel.GetSpeculativeSymbolInfo(invocation.Position,
                 throughExpression, SpeculativeBindingOption.BindAsExpression).Symbol;
-            throughType = invocation.SemanticModel.GetSpeculativeTypeInfo(invocation.Position,
+            ISymbol? throughType = invocation.SemanticModel.GetSpeculativeTypeInfo(invocation.Position,
                 throughExpression, SpeculativeBindingOption.BindAsTypeOrNamespace).Type;
             var includeInstance = (throughSymbol != null && !(throughSymbol is ITypeSymbol)) ||
                                   throughExpression is LiteralExpressionSyntax ||
@@ -86,7 +83,7 @@ internal sealed class GetSignatures : IDesignHandler
         return AnyValue.From(result);
     }
 
-    private async Task<InvocationContext?> GetInvocation(Document document, int position)
+    private static async Task<InvocationContext?> GetInvocation(Document document, int position)
     {
         var sourceText = await document.GetTextAsync();
         var tree = await document.GetSyntaxTreeAsync();
@@ -126,7 +123,7 @@ internal sealed class GetSignatures : IDesignHandler
         return null;
     }
 
-    private int InvocationScore(IMethodSymbol symbol, IEnumerable<TypeInfo> types)
+    private static int InvocationScore(IMethodSymbol symbol, IEnumerable<TypeInfo> types)
     {
         var parameters = symbol.Parameters;
         if (parameters.Count() < types.Count())
@@ -179,7 +176,7 @@ internal sealed class GetSignatures : IDesignHandler
 
 internal sealed class SignatureResult
 {
-    public IEnumerable<SignatureItem> Signatures { get; set; }
+    public IEnumerable<SignatureItem> Signatures { get; set; } = null!;
 
     public int ActiveSignature { get; set; }
 

@@ -30,13 +30,11 @@ namespace AppBoxClient
         //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
         private BytesSegment? _pendingResponse;
 
-        public async Task<object?> Invoke(string service, object?[]? args,
-            EntityFactory[]? entityFactories)
+        public async Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories)
         {
             //add to wait list
             var msgId = MakeMsgId();
-            var promise =
-                new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
+            var promise = new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
             _pendingRequests.TryAdd(msgId, promise);
 
             //serialize request

@@ -140,7 +140,9 @@ namespace AppBoxDesign
         private static void LoopAddEntityNode(DesignNodeVO node, IList<ModelNodeVO> list)
         {
             if (node is ModelNodeVO modelNode)
+            {
                 list.Add(modelNode);
+            }
             else
             {
                 if (node.Children != null)

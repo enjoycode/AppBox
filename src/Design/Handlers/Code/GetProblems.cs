@@ -18,8 +18,7 @@ internal sealed class GetProblems : IDesignHandler
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception("Can't find model");
-        var document =
-            hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
+        var document = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
         var semanticModel = await document.GetSemanticModelAsync();
         var diagnostics = semanticModel!.GetDiagnostics();
         return AnyValue.From(diagnostics.Select(MakeProblem).ToList());

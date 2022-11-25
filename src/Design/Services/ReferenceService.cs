@@ -9,8 +9,7 @@ internal static class ReferenceService
     /// <summary>
     /// 查找模型的引用项
     /// </summary>
-    internal static async Task<List<Reference>> FindModelReferencesAsync(DesignHub ctx,
-        ModelNode modelNode)
+    internal static async Task<List<Reference>> FindModelReferencesAsync(DesignHub ctx, ModelNode modelNode)
     {
         switch (modelNode.Model.ModelType)
         {
@@ -25,8 +24,7 @@ internal static class ReferenceService
         }
     }
 
-    private static async Task<List<Reference>> FindEntityReferences(DesignHub ctx,
-        ModelNode modelNode)
+    private static async Task<List<Reference>> FindEntityReferences(DesignHub ctx, ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
@@ -79,8 +77,7 @@ internal static class ReferenceService
         // return ls;
     }
 
-    private static async Task<List<Reference>> FindServiceReferences(DesignHub ctx,
-        ModelNode modelNode)
+    private static async Task<List<Reference>> FindServiceReferences(DesignHub ctx, ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
@@ -121,8 +118,7 @@ internal static class ReferenceService
     /// 从所有实体模型中查找指定类型的引用项
     /// </summary>
     private static void AddReferencesFromEntityModels(DesignHub hub, List<Reference> list,
-        ModelReferenceType referenceType, ModelId modelID, string? memberName,
-        short? entityMemberId)
+        ModelReferenceType referenceType, ModelId modelID, string? memberName, short? entityMemberId)
     {
         var allEntityNodes = hub.DesignTree.FindNodesByType(ModelType.Entity);
         foreach (var entityNode in allEntityNodes)

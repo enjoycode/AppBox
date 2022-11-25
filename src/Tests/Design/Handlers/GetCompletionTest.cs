@@ -12,9 +12,7 @@ public class GetCompletionTest
     [Test]
     public async Task Test()
     {
-        var mockSession = new MockSession(12345);
-        var designHub = mockSession.GetDesignHub();
-        await designHub.DesignTree.LoadAsync();
+        var designHub = await TestHelper.MockSession();
 
         var appId = StringUtil.GetHashCode("sys") ^ StringUtil.GetHashCode("sys");
         var viewModelId = ModelId.Make(appId, ModelType.View, 1, ModelLayer.SYS);

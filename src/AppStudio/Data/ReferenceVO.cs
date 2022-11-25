@@ -2,14 +2,17 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
+/// <summary>
+/// 模型引用的源位置, 作为FindUsages和GotoDefinition的结果
+/// </summary>
 internal sealed class ReferenceVO : IBinSerializable
 {
-    public string ModelId { get; private set; } = null!;
-    public string ModelName { get; private set; } = null!;
-    public string Location { get; private set; } = null!;
+    public string ModelId { get; internal set; } = null!;
+    public string? ModelName { get; private set; }
+    public string? Location { get; internal set; }
 
-    public int Offset { get; private set; } = -1;
-    public int Length { get; private set; } = -1;
+    public int Offset { get; internal set; } = -1;
+    public int Length { get; internal set; } = -1;
 
     public int TargetType { get; private set; } = -1;
 
@@ -52,8 +55,8 @@ internal sealed class ReferenceVO : IBinSerializable
     public void ReadFrom(IInputStream rs)
     {
         ModelId = rs.ReadString()!;
-        ModelName = rs.ReadString()!;
-        Location = rs.ReadString()!;
+        ModelName = rs.ReadString();
+        Location = rs.ReadString();
         Offset = rs.ReadVariant();
         Length = rs.ReadVariant();
         TargetType = rs.ReadVariant();

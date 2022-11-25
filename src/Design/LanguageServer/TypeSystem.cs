@@ -176,16 +176,13 @@ internal sealed class TypeSystem : IDisposable
                 //服务代理的代码生成
                 var srcDoc = newSolution.GetDocument(docId)!;
                 var proxyCode =
-                    await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName,
-                        (ServiceModel)model);
-                newSolution =
-                    newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
+                    await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
+                newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
                 break;
             }
             case ModelType.Permission:
             {
-                var dummyCode =
-                    PermissionCodeGenerator.GenDummyCode((PermissionModel)model, appName);
+                var dummyCode = PermissionCodeGenerator.GenDummyCode((PermissionModel)model, appName);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
                 break;
             }
@@ -389,13 +386,26 @@ internal sealed class TypeSystem : IDisposable
         return semanticModel.GetDeclaredSymbol(classDeclaration);
     }
 
-    internal async Task<IPropertySymbol?> GetEntityMemberSymbolAsync(ModelNode modelNode,
-        string memberName)
+    /// <summary>
+    /// 根据实体成员的名称获取相应的虚拟实体类的PropertySymbol
+    /// </summary>
+    internal async Task<IPropertySymbol?> GetEntityMemberSymbolAsync(ModelNode modelNode, string memberName)
     {
         var modelSymbol = await GetModelSymbolAsync(modelNode);
         if (modelSymbol == null) return null;
 
         return modelSymbol.GetMembers(memberName).SingleOrDefault() as IPropertySymbol;
+    }
+
+    /// <summary>
+    /// 根据服务方法的名称获取相应的服务类的MethodSymbol
+    /// </summary>
+    internal async Task<IMethodSymbol?> GetServiceMethodSymbolAsync(ModelNode modelNode, string methodName)
+    {
+        var modelSymbol = await GetModelSymbolAsync(modelNode);
+        if (modelSymbol == null) return null;
+
+        return modelSymbol.GetMembers(methodName).FirstOrDefault() as IMethodSymbol;
     }
 
     #endregion

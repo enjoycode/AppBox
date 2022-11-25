@@ -268,7 +268,7 @@ internal sealed class GetCompletion : IDesignHandler
     /// <summary>
     /// 与CodeEditor的定义必须一致
     /// </summary>
-    public enum CompletionItemKind
+    private enum CompletionItemKind
     {
         Method,
         Function,
