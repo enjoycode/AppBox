@@ -23,6 +23,10 @@ namespace CodeEditor
         internal readonly TextEditor TextEditor;
         internal readonly TextEditorTheme Theme;
         private readonly CompletionContext _completionContext;
+        /// <summary>
+        /// 用于构建文本编辑区域的右键菜单
+        /// </summary>
+        public Func<TextLocation, MenuItem[]>? ContextMenuBuilder { get; set; }
 
         // 全局命令字典表
         private readonly NumberMap<IEditCommand> _editActions = new NumberMap<IEditCommand>(
@@ -60,12 +64,14 @@ namespace CodeEditor
             TextEditor.PointerPos.X = e.X;
             TextEditor.PointerPos.Y = e.Y;
 
+            // 处理非文本区域
             foreach (var area in TextEditor.LeftAreas)
             {
                 if (area.Bounds.ContainsPoint(e.X, e.Y))
                     area.HandlePointerDown(e.X, e.Y, e.Buttons);
             }
 
+            // 处理文本编辑区域
             if (TextEditor.TextView.Bounds.ContainsPoint(e.X, e.Y))
             {
                 _gotMouseDown = true;
@@ -73,19 +79,7 @@ namespace CodeEditor
                 _mouseDownPos = new PixUI.Point(e.X, e.Y);
                 _minSelection = TextLocation.Empty;
                 _maxSelection = TextLocation.Empty;
-
-                var vx = e.X - TextEditor.TextView.Bounds.Left;
-                var vy = e.Y - TextEditor.TextView.Bounds.Top;
-                if (e.Buttons == PointerButtons.Left)
-                {
-                    var logicalLine = TextEditor.TextView.GetLogicalLine(vy);
-                    var logicalColumn = TextEditor.TextView.GetLogicalColumn(logicalLine, vx);
-
-                    Console.WriteLine($"CodeEditor Hit: {logicalColumn.Location}");
-
-                    TextEditor.SelectionManager.ClearSelection();
-                    TextEditor.Caret.Position = logicalColumn.Location;
-                }
+                TextEditor.TextView.HandlePointerDown(e.X, e.Y, e.Buttons);
             }
         }
 

@@ -40,10 +40,9 @@ namespace PixUI
 
         #region ----Mouse----
 
-        private float _lastMouseX = -1;
-        private float _lastMouseY = -1;
-        internal float LastMouseX => _lastMouseX;
-        internal float LastMouseY => _lastMouseY;
+        protected internal float LastMouseX { get; private set; } = -1;
+
+        protected internal float LastMouseY { get; private set; } = -1;
 
         // Pointer.Move时检测命中的结果
         private HitTestResult _oldHitResult = new HitTestResult();
@@ -116,8 +115,8 @@ namespace PixUI
 
         public void OnPointerMove(PointerEvent e)
         {
-            _lastMouseX = e.X;
-            _lastMouseY = e.Y;
+            LastMouseX = e.X;
+            LastMouseY = e.Y;
 
             if (_oldHitResult.StillInLastRegion(e.X, e.Y))
             {
@@ -138,7 +137,7 @@ namespace PixUI
 
         public void OnPointerMoveOutWindow()
         {
-            _lastMouseX = _lastMouseY = -1;
+            LastMouseX = LastMouseY = -1;
             CompareAndSwapHitTestResult();
         }
 
@@ -274,11 +273,11 @@ namespace PixUI
             Debug.Assert(dx != 0 || dy != 0);
             //Translate HitTestResult and Rerun hit test.
             var stillInLastRegion =
-                _oldHitResult.TranslateOnScroll(scrollable, dx, dy, _lastMouseX, _lastMouseY);
+                _oldHitResult.TranslateOnScroll(scrollable, dx, dy, LastMouseX, LastMouseY);
             if (stillInLastRegion)
-                OldHitTest(_lastMouseX, _lastMouseY);
+                OldHitTest(LastMouseX, LastMouseY);
             else
-                NewHitTest(_lastMouseX, _lastMouseY);
+                NewHitTest(LastMouseX, LastMouseY);
             CompareAndSwapHitTestResult();
         }
 
@@ -304,7 +303,7 @@ namespace PixUI
                 !ReferenceEquals(_oldHitResult.LastHitWidget, dynamicView)) return;
 
             //切换过程结束后仍旧在DynamicView内，继续HitTest子级
-            OldHitTest(_lastMouseX, _lastMouseY);
+            OldHitTest(LastMouseX, LastMouseY);
             CompareAndSwapHitTestResult();
         }
 
@@ -314,7 +313,7 @@ namespace PixUI
         internal void RunNewHitTest()
         {
             //始终重新开始检测，因为旧的命中的位置可能已改变
-            NewHitTest(_lastMouseX, _lastMouseY);
+            NewHitTest(LastMouseX, LastMouseY);
             CompareAndSwapHitTestResult();
         }
 

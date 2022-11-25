@@ -126,6 +126,37 @@ namespace CodeEditor
             return drawingPos - TextEditor.VirtualTop.X;
         }
 
+        internal override void HandlePointerDown(float x, float y, PointerButtons buttons)
+        {
+            var vx = x - Bounds.Left;
+            var vy = y - Bounds.Top;
+            if (buttons == PointerButtons.Left)
+            {
+                //左键按下清除选择并设置新的光标位置
+                var logicalLine = GetLogicalLine(vy);
+                var logicalColumn = GetLogicalColumn(logicalLine, vx);
+
+                //Console.WriteLine($"Click at TextView: {logicalColumn.Location}");
+
+                TextEditor.SelectionManager.ClearSelection();
+                TextEditor.Caret.Position = logicalColumn.Location;
+            }
+            else if (buttons == PointerButtons.Right)
+            {
+                //右键按下开始显示ContextMemu
+                var contextMenuBuilder = TextEditor.Controller.ContextMenuBuilder;
+                if (contextMenuBuilder != null)
+                {
+                    var logicalLine = GetLogicalLine(vy);
+                    var logicalColumn = GetLogicalColumn(logicalLine, vx);
+
+                    var contextMenus = contextMenuBuilder(logicalColumn.Location);
+                    if (contextMenus.Length > 0)
+                        ContextMenu.Show(contextMenus);
+                }
+            }
+        }
+
         internal override void Paint(Canvas canvas, Rect rect)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
