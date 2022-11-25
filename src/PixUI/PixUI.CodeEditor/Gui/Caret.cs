@@ -3,13 +3,13 @@ using PixUI;
 
 namespace CodeEditor
 {
-    internal enum CaretMode
+    public enum CaretMode
     {
         InsertMode,
         OverwriteMode
     }
 
-    internal sealed class Caret
+    public sealed class Caret
     {
         internal Caret(TextEditor editor)
         {
@@ -22,10 +22,10 @@ namespace CodeEditor
         private int _column = 0;
         // private int _oldLine = -1;
 
-        internal int Line
+        public int Line
         {
             get => _line;
-            set
+            internal set
             {
                 if (_line != value)
                 {
@@ -37,10 +37,10 @@ namespace CodeEditor
             }
         }
 
-        internal int Column
+        public int Column
         {
             get => _column;
-            set
+            internal set
             {
                 if (_column != value)
                 {

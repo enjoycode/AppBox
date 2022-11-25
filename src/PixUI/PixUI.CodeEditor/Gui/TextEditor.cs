@@ -23,11 +23,11 @@ namespace CodeEditor
         }
 
         internal readonly CodeEditorController Controller;
-        internal readonly Caret Caret;
+        public readonly Caret Caret;
         internal readonly SelectionManager SelectionManager;
 
         internal TextEditorTheme Theme => Controller.Theme;
-        internal Document Document => Controller.Document;
+        public Document Document => Controller.Document;
 
         internal readonly TextView TextView;
         internal readonly EditorArea[] LeftAreas;

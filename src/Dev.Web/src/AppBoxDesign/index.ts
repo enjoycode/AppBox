@@ -36,7 +36,7 @@ export * from "./Generated/Pads/DesignerPad"
 export * from "./Generated/Design/DesignStore"
 export * from "./HandWrite/DesignInitializer"
 
-export * from "./Generated/Designers/ModelCodeSyncService"
+export * from "./Generated/CodeEditor/ModelCodeSyncService"
 export * from "./Generated/Designers/Entity/NewEntityMemberDialog"
 export * from "./Generated/Designers/Entity/FieldWithOrderDialog"
 export * from "./Generated/Designers/Entity/EntityPropertyPanel"

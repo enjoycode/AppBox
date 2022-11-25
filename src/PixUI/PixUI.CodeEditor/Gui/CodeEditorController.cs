@@ -23,10 +23,11 @@ namespace CodeEditor
         internal readonly TextEditor TextEditor;
         internal readonly TextEditorTheme Theme;
         private readonly CompletionContext _completionContext;
+
         /// <summary>
         /// 用于构建文本编辑区域的右键菜单
         /// </summary>
-        public Func<TextLocation, MenuItem[]>? ContextMenuBuilder { get; set; }
+        public Func<TextEditor, MenuItem[]>? ContextMenuBuilder { get; set; }
 
         // 全局命令字典表
         private readonly NumberMap<IEditCommand> _editActions = new NumberMap<IEditCommand>(
@@ -97,8 +98,7 @@ namespace CodeEditor
 
             if (e.Buttons == PointerButtons.Left)
             {
-                if (_gotMouseDown &&
-                    TextEditor.SelectionManager.SelectFrom.Where == WhereFrom.TextArea)
+                if (_gotMouseDown && TextEditor.SelectionManager.SelectFrom.Where == WhereFrom.TextArea)
                 {
                     ExtendSelectionToPointer();
                 }
@@ -148,8 +148,7 @@ namespace CodeEditor
             {
                 TextEditor.InsertOrReplaceString(text + new string(closingPair.Value, 1), 0);
                 var oldPosition = TextEditor.Caret.Position;
-                TextEditor.Caret.Position =
-                    new TextLocation(oldPosition.Column - 1, oldPosition.Line);
+                TextEditor.Caret.Position = new TextLocation(oldPosition.Column - 1, oldPosition.Line);
             }
 
             _caretChangedByTextInput = false;
@@ -181,8 +180,7 @@ namespace CodeEditor
                 else
                 {
                     // the selection has moved below the start point
-                    TextEditor.Caret.Position =
-                        TextEditor.SelectionManager.NextValidPosition(realMousePos.Line);
+                    TextEditor.Caret.Position = TextEditor.SelectionManager.NextValidPosition(realMousePos.Line);
                 }
             }
             else

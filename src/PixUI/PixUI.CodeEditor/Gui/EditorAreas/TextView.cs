@@ -143,14 +143,11 @@ namespace CodeEditor
             }
             else if (buttons == PointerButtons.Right)
             {
-                //右键按下开始显示ContextMemu
+                //右键按下开始显示ContextMenu
                 var contextMenuBuilder = TextEditor.Controller.ContextMenuBuilder;
                 if (contextMenuBuilder != null)
                 {
-                    var logicalLine = GetLogicalLine(vy);
-                    var logicalColumn = GetLogicalColumn(logicalLine, vx);
-
-                    var contextMenus = contextMenuBuilder(logicalColumn.Location);
+                    var contextMenus = contextMenuBuilder(TextEditor);
                     if (contextMenus.Length > 0)
                         ContextMenu.Show(contextMenus);
                 }

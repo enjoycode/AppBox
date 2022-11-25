@@ -14,6 +14,7 @@ namespace AppBoxDesign
             ModelNode = modelNode;
             _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
                 RoslynCompletionProvider.Default, modelNode.Id);
+            _codeEditorController.ContextMenuBuilder = ContextMenuService.BuildContextMenu;
             _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
             _delayDocChangedTask = new DelayTask(300, RunDelayTask);
 
