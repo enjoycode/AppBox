@@ -116,7 +116,7 @@ namespace CodeEditor
             //TODO: check dirtyArea
             var currentXPos = 0f;
             var currentYPos = 0f;
-            var adjustScrollBars = false;
+            //var adjustScrollBars = false;
 
             // paint left areas
             foreach (var area in LeftAreas)
@@ -127,7 +127,7 @@ namespace CodeEditor
                     size.Height - currentYPos);
                 if (areaRect != area.Bounds)
                 {
-                    adjustScrollBars = true;
+                    //adjustScrollBars = true;
                     area.Bounds = areaRect;
                 }
 
@@ -140,7 +140,7 @@ namespace CodeEditor
                 size.Width - currentXPos, size.Height - currentYPos);
             if (textRect != TextView.Bounds)
             {
-                adjustScrollBars = true;
+                //adjustScrollBars = true;
                 TextView.Bounds = textRect;
                 //TODO: updateCaretPosition
             }

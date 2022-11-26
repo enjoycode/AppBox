@@ -253,6 +253,23 @@ namespace CodeEditor
 
         #endregion
 
+        #region ====Actions====
+        /// <summary>
+        /// 设置光标位置
+        /// </summary>
+        public void SetCaret(int line, int column)
+        {
+            TextEditor.Caret.Position = new TextLocation(column, line);
+
+            //TODO: anminate scroll to caret position
+        }
+
+        public void SetSelection(TextLocation start, TextLocation end)
+        {
+            TextEditor.SelectionManager.SetSelection(start, end);
+        }
+        #endregion
+
         #region ====Static Helpers====
 
         private static bool IsSelectableChar(char c) => !IsWhiteSpace(c);

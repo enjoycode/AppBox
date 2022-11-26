@@ -8,6 +8,11 @@ namespace AppBoxDesign
         Task SaveAsync();
 
         Task RefreshAsync();
+
+        /// <summary>
+        /// 跳转至指定位置
+        /// </summary>
+        void GotoDefinition(ReferenceVO reference);
     }
 
     [TSInterfaceOf]

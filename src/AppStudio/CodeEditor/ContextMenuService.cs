@@ -13,6 +13,8 @@ internal static class ContextMenuService
         return new MenuItem[]
         {
             MenuItem.Item("Goto Definition", null, () => GotoDefinitionCommand.Default.Execute(textEditor)),
+            MenuItem.Divider(),
+            MenuItem.Item("Format Document"),
         };
     }
 }

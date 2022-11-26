@@ -37,8 +37,8 @@ namespace PixUI
 
         #region ====Operations====
 
-        public T GetAt(int index) =>
-            DataSource[index]; // public T this[int index] => DataSource[index];
+        public T GetAt(int index) => DataSource[index];
+        // public T this[int index] => DataSource[index];
 
         public int IndexOf(T dataItem) => DataSource.IndexOf(dataItem);
 

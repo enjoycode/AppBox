@@ -20,36 +20,25 @@ namespace AppBoxDesign
                 Children = new[]
                 {
                     BuildActionBar(),
-                    new Expanded()
-                    {
-                        //TODO: use FutureBuilder
-                        Child = new IfConditional(_loaded, () =>
-                            new Conditional<int>(_activePad)
-                                .When(t => t == 0,
-                                    () => new MembersDesigner(_entityModel!, _membersController,
-                                        _selectedMember))
-                                .When(t => t == 1,
-                                    () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id))
-                        )
-                    },
+                    new Expanded() { Child = BuildBody() },
                 }
             };
         }
 
         public ModelNodeVO ModelNode { get; }
         private readonly State<int> _activePad = 0; //当前的设计面板
-        private bool _hasLoad = false;
-        private readonly State<bool> _loaded = false;
         private EntityModelVO? _entityModel;
+
+        private ReferenceVO? _pendingGoto;
 
         private readonly DataGridController<EntityMemberVO> _membersController = new();
         private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);
 
-        private Widget BuildActionBar()
-        {
-            return new Container()
+        private Widget BuildActionBar() =>
+            new Container()
             {
-                BgColor = new Color(0xFFF5F7FA), Height = 45,
+                BgColor = new Color(0xFFF5F7FA),
+                Height = 45,
                 Padding = EdgeInsets.All(8),
                 Child = new Row(VerticalAlignment.Middle, 10)
                 {
@@ -84,34 +73,35 @@ namespace AppBoxDesign
                     }
                 }
             };
-        }
 
-        protected override void OnMounted()
-        {
-            base.OnMounted();
-            TryLoadEntityModel();
-        }
-
-        private async void TryLoadEntityModel()
-        {
-            if (_hasLoad) return;
-            _hasLoad = true;
-
-            try
-            {
-                _entityModel = await Channel.Invoke<EntityModelVO>(
-                    "sys.DesignService.OpenEntityModel",
-                    new object[] { ModelNode.Id });
-                _membersController.DataSource = _entityModel!.Members
-                    .Where(m => !m.IsForeignKeyMember)
+        private Widget BuildBody() =>
+            new FutureBuilder<EntityModelVO?>(
+                Channel.Invoke<EntityModelVO>("sys.DesignService.OpenEntityModel", new object[] { ModelNode.Id }),
+                model =>
+                {
+                    _entityModel = model;
+                    _membersController.DataSource = _entityModel!.Members
+                    .Where(m => !m.IsForeignKeyMember) //暂不显示EntityRef的外键
                     .ToList();
-                _loaded.Value = true;
-            }
-            catch (Exception ex)
-            {
-                Notification.Error($"无法加载实体模型: {ex.Message}");
-            }
-        }
+
+                    if (_pendingGoto != null)
+                    {
+                        GotoDefinitionInternal(_pendingGoto);
+                        _pendingGoto = null;
+                    }
+
+                    return new Conditional<int>(_activePad)
+                    .When(t => t == 0,
+                        () => new MembersDesigner(_entityModel!, _membersController, _selectedMember))
+                    .When(t => t == 1,
+                        () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id));
+                },
+                ex =>
+                {
+                    Notification.Error($"无法加载实体模型: {ex.Message}");
+                    return null;
+                }
+          );
 
         #region ====Event Handlers====
 
@@ -221,6 +211,21 @@ namespace AppBoxDesign
         #endregion
 
         public Widget? GetOutlinePad() => null;
+
+        public void GotoDefinition(ReferenceVO reference)
+        {
+            if (string.IsNullOrEmpty(reference.Location)) return; //不需要跳转
+
+            if (_entityModel == null)
+                _pendingGoto = reference;
+            else
+                GotoDefinitionInternal(reference);
+        }
+
+        private void GotoDefinitionInternal(ReferenceVO reference)
+        {
+            //TODO:
+        }
 
         public Task SaveAsync()
         {

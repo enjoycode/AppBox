@@ -119,7 +119,34 @@ namespace AppBoxDesign
             BottomPadController.SelectAt(1);
         }
 
+        /// <summary>
+        /// 打开或激活指定节点的设计器, 并且如果需要则跳转至指定位置
+        /// </summary>
+        internal static void OpenOrActiveDesigner(DesignNodeVO node, ReferenceVO? gotoReference)
+        {
+            //先检查是否已经打开
+            var existsIndex = DesignerController.IndexOf(node);
+            if (existsIndex < 0)
+                DesignerController.Add(node);
+            else
+                DesignerController.SelectAt(existsIndex);
+
+            if (gotoReference != null)
+                node.Designer!.GotoDefinition(gotoReference);
+        }
+
         #endregion
+
+        #region ====设计节点相关查找方法====
+
+        /// <summary>
+        /// 根据节点标识找到相应的节点
+        /// </summary>
+        internal static DesignNodeVO? FindDesignNodeById(string nodeId)
+        {
+            var node = TreeController.FindNode(n => n.Id == nodeId);
+            return node?.Data;
+        }
 
         /// <summary>
         /// 获取所有实体节点
@@ -154,5 +181,8 @@ namespace AppBoxDesign
                 }
             }
         }
+
+        #endregion
+
     }
 }

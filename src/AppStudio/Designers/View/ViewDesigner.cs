@@ -115,6 +115,24 @@ namespace AppBoxDesign
 
         public Widget? GetOutlinePad() => new ViewOutlinePad(_previewController);
 
+        public void GotoDefinition(ReferenceVO reference)
+        {
+            if (reference.Offset < 0) return; //无需跳转
+
+            var doc = _codeEditorController.Document;
+            if (doc.TextLength == 0)
+            {
+
+            }
+            else
+            {
+                var pos = doc.OffsetToPosition(reference.Offset);
+                var end = doc.OffsetToPosition(reference.Offset + reference.Length);
+                _codeEditorController.SetCaret(pos.Line, pos.Column);
+                _codeEditorController.SetSelection(pos, end);
+            }
+        }
+
         public Task SaveAsync()
         {
             return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });

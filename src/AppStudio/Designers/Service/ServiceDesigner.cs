@@ -111,6 +111,11 @@ namespace AppBoxDesign
         
         public Widget? GetOutlinePad() => null;
 
+        public void GotoDefinition(ReferenceVO reference)
+        {
+            
+        }
+
         public Task SaveAsync()
         {
             return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });
