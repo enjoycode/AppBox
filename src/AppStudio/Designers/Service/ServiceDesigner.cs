@@ -25,7 +25,9 @@ namespace AppBoxDesign
         private readonly CodeEditorController _codeEditorController;
         private readonly ModelCodeSyncService _codeSyncService;
         private readonly DelayTask _delayDocChangedTask;
-        private bool _hasLoadSourceCode = false;
+        private bool _hasLoadSourceCode;
+
+        private ReferenceVO? _pendingGoto;
 
         private static Widget BuildEditor(CodeEditorController codeEditorController)
         {
@@ -72,6 +74,12 @@ namespace AppBoxDesign
             _codeEditorController.Document.TextContent = srcCode!;
             //订阅代码变更事件
             _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+
+            if (_pendingGoto != null)
+            {
+                GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
+                _pendingGoto = null;
+            }
         }
 
         private void OnDocumentChanged(DocumentEventArgs e)
@@ -108,12 +116,18 @@ namespace AppBoxDesign
                 _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
             }
         }
-        
+
         public Widget? GetOutlinePad() => null;
 
         public void GotoDefinition(ReferenceVO reference)
         {
-            
+            if (reference.Offset < 0) return; //无需跳转
+
+            var doc = _codeEditorController.Document;
+            if (doc.TextLength == 0)
+                _pendingGoto = reference;
+            else
+                GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, reference);
         }
 
         public Task SaveAsync()

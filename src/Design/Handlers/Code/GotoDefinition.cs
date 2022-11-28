@@ -52,6 +52,10 @@ internal sealed class GotoDefinition : IDesignHandler
         // 模型成员(eg: 实体属性 or 服务代理的方法 or 视图属性方法等)
         if (targetModelNode.Model.ModelType == ModelType.Entity)
         {
+            //判断是否实体构造
+            if (symbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.Constructor)
+                return AnyValue.From(new ReferenceVO { ModelId = targetModelNode.Id });
+
             //判断是否实体成员
             var entityModel = (EntityModel)targetModelNode.Model;
             var member = entityModel.GetMember(symbol.Name, false);
@@ -75,7 +79,7 @@ internal sealed class GotoDefinition : IDesignHandler
 
         return AnyValue.From(new ReferenceVO
         {
-            ModelId = modelNode.Id, Offset = loc.SourceSpan.Start, Length = loc.SourceSpan.Length
+            ModelId = targetModelNode.Id, Offset = loc.SourceSpan.Start, Length = loc.SourceSpan.Length
         });
     }
 

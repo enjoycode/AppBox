@@ -24,4 +24,13 @@ internal sealed class GotoDefinitionCommand : IEditCommand
                 DesignStore.OpenOrActiveDesigner(node, res);//打开或激活节点
         }
     }
+
+    internal static void RunOnCodeEditor(CodeEditorController controller, ReferenceVO reference)
+    {
+        var doc = controller.Document;
+        var pos = doc.OffsetToPosition(reference.Offset);
+        var end = doc.OffsetToPosition(reference.Offset + reference.Length);
+        controller.SetCaret(pos.Line, pos.Column);
+        controller.SetSelection(pos, end);
+    }
 }

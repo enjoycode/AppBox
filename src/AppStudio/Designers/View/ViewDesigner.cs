@@ -35,6 +35,8 @@ namespace AppBoxDesign
         private readonly PreviewController _previewController;
         private readonly DelayTask _delayDocChangedTask;
         private bool _hasLoadSourceCode = false;
+        
+        private ReferenceVO? _pendingGoto;
 
         private static Widget BuildEditor(CodeEditorController codeEditorController)
         {
@@ -81,6 +83,12 @@ namespace AppBoxDesign
             _codeEditorController.Document.TextContent = srcCode!;
             //订阅代码变更事件
             _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+
+            if (_pendingGoto != null)
+            {
+                GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
+                _pendingGoto = null;
+            }
         }
 
         private void OnDocumentChanged(DocumentEventArgs e)
@@ -121,16 +129,9 @@ namespace AppBoxDesign
 
             var doc = _codeEditorController.Document;
             if (doc.TextLength == 0)
-            {
-
-            }
+                _pendingGoto = reference;
             else
-            {
-                var pos = doc.OffsetToPosition(reference.Offset);
-                var end = doc.OffsetToPosition(reference.Offset + reference.Length);
-                _codeEditorController.SetCaret(pos.Line, pos.Column);
-                _codeEditorController.SetSelection(pos, end);
-            }
+                GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, reference);
         }
 
         public Task SaveAsync()
