@@ -132,10 +132,9 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private void OnRemovePk(PointerEvent e)
     {
-        var selection = _pkController.SelectedRows;
-        if (selection.Length == 0) return;
+        if (_pkController.CurrentRowIndex < 0) return;
 
-        _pkController.Remove(selection[0]);
+        _pkController.RemoveAt(_pkController.CurrentRowIndex);
         ChangePrimaryKeys();
     }
 

@@ -280,34 +280,34 @@ namespace PixUI
 
         private void PaintHighlight(Canvas canvas)
         {
-            if (!Theme.HighlightingCurrentCell && !Theme.HighlightingCurrentRow)
-                return;
-
-            var cellRect = _controller.GetCurrentCellRect();
-            if (cellRect == null) return;
-
             if (Theme.HighlightingCurrentRow)
             {
-                var rowRect = Rect.FromLTWH(0, cellRect.Value.Top,
-                    Math.Min(W, _controller.TotalColumnsWidth), cellRect.Value.Height);
-                if (Theme.HighlightingCurrentCell)
+                var rowRect = _controller.GetCurrentRowRect();
+                if (rowRect != null)
                 {
-                    var paint = PaintUtils.Shared(Theme.HighlightRowBgColor);
-                    canvas.DrawRect(rowRect, paint);
-                }
-                else
-                {
-                    var paint = PaintUtils.Shared(PixUI.Theme.FocusedColor,
-                        PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
-                    canvas.DrawRect(rowRect, paint);
+                    if (Theme.HighlightingCurrentCell)
+                    {
+                        var paint = PaintUtils.Shared(Theme.HighlightRowBgColor);
+                        canvas.DrawRect(rowRect.Value, paint);
+                    }
+                    else
+                    {
+                        var paint = PaintUtils.Shared(PixUI.Theme.FocusedColor,
+                            PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
+                        canvas.DrawRect(rowRect.Value, paint);
+                    }
                 }
             }
 
             if (Theme.HighlightingCurrentCell)
             {
-                var paint = PaintUtils.Shared(PixUI.Theme.FocusedColor,
+                var cellRect = _controller.GetCurrentCellRect();
+                if (cellRect != null)
+                {
+                    var paint = PaintUtils.Shared(PixUI.Theme.FocusedColor,
                     PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
-                canvas.DrawRect(cellRect.Value, paint);
+                    canvas.DrawRect(cellRect.Value, paint);
+                }
             }
         }
 

@@ -13,7 +13,7 @@ namespace AppBoxDesign
         public EntityDesigner(ModelNodeVO modelNode)
         {
             ModelNode = modelNode;
-            _membersController.SelectionChanged += OnMemberSelectionChanged;
+            _selectedMember = _membersController.ObserveCurrentRow();
 
             Child = new Column()
             {
@@ -32,7 +32,7 @@ namespace AppBoxDesign
         private ReferenceVO? _pendingGoto;
 
         private readonly DataGridController<EntityMemberVO> _membersController = new();
-        private readonly State<EntityMemberVO?> _selectedMember = new Rx<EntityMemberVO?>(null);
+        private readonly State<EntityMemberVO?> _selectedMember;
 
         private Widget BuildActionBar() =>
             new Container()
@@ -77,8 +77,14 @@ namespace AppBoxDesign
         private Widget BuildBody() =>
             new FutureBuilder<EntityModelVO?>(
                 Channel.Invoke<EntityModelVO>("sys.DesignService.OpenEntityModel", new object[] { ModelNode.Id }),
-                model =>
+                (model, ex) =>
                 {
+                    if (ex != null)
+                    {
+                        Notification.Error($"无法加载实体模型: {ex.Message}");
+                        return null;
+                    }
+
                     _entityModel = model;
                     _membersController.DataSource = _entityModel!.Members
                     .Where(m => !m.IsForeignKeyMember) //暂不显示EntityRef的外键
@@ -95,22 +101,10 @@ namespace AppBoxDesign
                         () => new MembersDesigner(_entityModel!, _membersController, _selectedMember))
                     .When(t => t == 1,
                         () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id));
-                },
-                ex =>
-                {
-                    Notification.Error($"无法加载实体模型: {ex.Message}");
-                    return null;
                 }
           );
 
         #region ====Event Handlers====
-
-        private void OnMemberSelectionChanged()
-        {
-            _selectedMember.Value = _membersController.SelectedRows.Length == 0
-                ? null
-                : _membersController.SelectedRows[0];
-        }
 
         private async void OnAddMember(PointerEvent e)
         {
@@ -224,7 +218,9 @@ namespace AppBoxDesign
 
         private void GotoDefinitionInternal(ReferenceVO reference)
         {
-            //TODO:
+            //选中指定的成员
+            var member = _entityModel!.Members.FirstOrDefault(m => m.Name == reference.Location);
+            _selectedMember.Value = member;
         }
 
         public Task SaveAsync()

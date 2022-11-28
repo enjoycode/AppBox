@@ -27,6 +27,7 @@ internal sealed class EntityPropertyPanel : View
     {
         _entityModel = entityModel;
         _selectedMember = Bind(selectedMember, BindingOptions.None);
+        OnStateChanged(_selectedMember, BindingOptions.None); //maybe has select someone
         var isEntityField = _selectedMember
             .AsStateOfBool(v => v != null && v.Type == EntityMemberType.EntityField);
 

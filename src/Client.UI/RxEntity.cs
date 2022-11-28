@@ -73,8 +73,7 @@ public static class EntityExtensions
         Func<TEntity, TMember> getter, Action<TEntity, TMember> setter)
         where TEntity : Entity
     {
-        //TODO: 暂使用RxProperty，可能会重复激发PropertyChanged
-        var rxMember = new RxProperty<TMember>(() => getter(entity), v => setter(entity, v));
+        var rxMember = new RxListener<TMember>(() => getter(entity), v => setter(entity, v));
         entity.PropertyChanged += mid =>
         {
             if (mid == memberId) rxMember.NotifyValueChanged();

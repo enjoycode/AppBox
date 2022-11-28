@@ -2,7 +2,32 @@
 
 namespace PixUI
 {
-    public class RxProperty<T> : State<T>
+    public sealed class RxListener<T> : State<T>
+    {
+        public RxListener(Func<T> getter, Action<T>? setter = null)
+        {
+            _getter = getter;
+            _setter = setter;
+        }
+
+        private readonly Func<T> _getter;
+        private readonly Action<T>? _setter;
+
+        public override bool Readonly => _setter == null;
+
+        public override T Value
+        {
+            get => _getter();
+            set
+            {
+                if (_setter == null)
+                    throw new NotSupportedException();
+                _setter(value);
+            }
+        }
+    }
+
+    public sealed class RxProperty<T> : State<T>
     {
         public RxProperty(Func<T> getter, Action<T>? setter = null)
         {

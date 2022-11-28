@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PixUI
 {
-    public sealed class DataGridController<T>
+    public sealed class DataGridController<T> where T : notnull
     {
         internal readonly ScrollController ScrollController = new(ScrollDirection.Both);
 
@@ -130,16 +130,66 @@ namespace PixUI
 
         #region ----Selection----
 
-        private readonly List<T> _selectedRows = new List<T>();
-
-        public T[] SelectedRows => _selectedRows.ToArray();
+        private readonly List<int> _selectedRows = new();
 
         public event Action? SelectionChanged;
+
+        public int CurrentRowIndex => _selectedRows.Count > 0 ? _selectedRows[0] : -1;
+
+        /// <summary>
+        /// 返回监测当前选择的行的状态
+        /// </summary>
+        public State<T?> ObserveCurrentRow()
+        {
+            var state = new RxListener<T?>(
+                () =>
+                {
+                    if (DataView == null || _selectedRows.Count == 0)
+                    {
+                        object? nullValue = null;
+                        return (T?)nullValue; //Donot use default(T) for Web
+                    }
+                    return DataView[_selectedRows[0]];
+                },
+                newRow =>
+                {
+                    if (newRow == null)
+                    {
+                        ClearSelection();
+                        return;
+                    }
+
+                    var index = DataView!.IndexOf(newRow);
+                    SelectAt(index);
+                }
+            );
+            SelectionChanged += () => state.NotifyValueChanged();
+
+            return state;
+        }
+
+        public void SelectAt(int index)
+        {
+            var oldRowIndex = CurrentRowIndex;
+            //_cachedHitInRows = new DataGridHitTestResult<T>(Columns[0], index);
+            var newRowIndex = index; //_cachedHitInRows != null ? _cachedHitInRows.Value.RowIndex : -1;
+            TrySelectRow(oldRowIndex, newRowIndex);
+        }
 
         public void ClearSelection()
         {
             _selectedRows.Clear();
             _cachedHitInRows = null;
+            SelectionChanged?.Invoke();
+        }
+
+        private void TrySelectRow(int oldRowIndex, int newRowIndex)
+        {
+            if (oldRowIndex == newRowIndex) return;
+
+            _selectedRows.Clear();
+            if (newRowIndex != -1)
+                _selectedRows.Add(newRowIndex);
             SelectionChanged?.Invoke();
         }
 
@@ -222,18 +272,10 @@ namespace PixUI
             }
 
             //TODO:暂仅支持单选
-            var oldRowIndex =
-                _cachedHitInRows != null ? _cachedHitInRows.Value.RowIndex : -1;
+            var oldRowIndex = CurrentRowIndex;
             _cachedHitInRows = HitTestInRows(e.X, e.Y);
-            var newRowIndex =
-                _cachedHitInRows != null ? _cachedHitInRows.Value.RowIndex : -1;
-            if (oldRowIndex != newRowIndex)
-            {
-                _selectedRows.Clear();
-                if (newRowIndex != -1)
-                    _selectedRows.Add(DataView![newRowIndex]);
-                SelectionChanged?.Invoke();
-            }
+            var newRowIndex = _cachedHitInRows != null ? _cachedHitInRows.Value.RowIndex : -1;
+            TrySelectRow(oldRowIndex, newRowIndex);
             //TODO: if (res == _cachedHitInRows) return;
 
             //检查是否需要自动滚动
@@ -457,6 +499,14 @@ namespace PixUI
             Rect.FromLTWH(_cachedScrollLeft, top, _cachedScrollRight - _cachedScrollLeft,
                 height);
 
+        internal Rect? GetCurrentRowRect()
+        {
+            if (_selectedRows.Count == 0) return null;
+
+            var top = TotalHeaderHeight + (_selectedRows[0] - VisibleStartRowIndex) * Theme.RowHeight - ScrollDeltaY;
+            return new Rect(1, top + 1, _owner!.W - 2, top + Theme.RowHeight - 2);
+        }
+
         /// <summary>
         /// 获取当前选择的单元格的边框
         /// </summary>
@@ -468,10 +518,9 @@ namespace PixUI
             var hitColumn = _cachedHitInRows.Value.Column;
             var top = TotalHeaderHeight +
                       (_cachedHitInRows.Value.RowIndex - VisibleStartRowIndex) *
-                      Theme.RowHeight -
-                      ScrollDeltaY;
-            return new Rect(hitColumn.CachedVisibleLeft, top, hitColumn.CachedVisibleRight,
-                top + Theme.RowHeight);
+                      Theme.RowHeight - ScrollDeltaY;
+            return new Rect(hitColumn.CachedVisibleLeft + 1, top + 1,
+                hitColumn.CachedVisibleRight - 2, top + Theme.RowHeight - 2);
         }
 
         private void GetLeafColumns(DataGridColumn<T> column, IList<DataGridColumn<T>> leafColumns,
@@ -502,14 +551,28 @@ namespace PixUI
         public void Add(T item)
         {
             _dataSource!.Add(item);
+            //TODO: refresh DataView
             _owner?.Invalidate(InvalidAction.Repaint);
         }
 
         public void Remove(T item)
         {
-            //var rowIndex = _dataSource!.IndexOf(item);
-            _dataSource!.Remove(item);
-            ClearSelection();
+            var indexInDataView = DataView!.IndexOf(item);
+            RemoveAt(indexInDataView);
+        }
+
+        public void RemoveAt(int index)
+        {
+            var rowIndex = index;
+            if (!ReferenceEquals(DataView, _dataSource))
+            {
+                var rowInView = DataView![index];
+                DataView.RemoveAt(index);
+                rowIndex = _dataSource!.IndexOf(rowInView);
+            }
+
+            _dataSource!.RemoveAt(rowIndex);
+            ClearSelection(); //TODO: rowIndex when in selection
             ClearAllCache(); //TODO:仅移除并重设缓存
             _owner?.Invalidate(InvalidAction.Repaint);
         }
