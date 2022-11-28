@@ -14,8 +14,6 @@ namespace PixUI
 
             if (runningBuilder != null)
                 ReplaceTo(runningBuilder());
-
-            Run(future);
         }
 
         private readonly Task<T> _future;

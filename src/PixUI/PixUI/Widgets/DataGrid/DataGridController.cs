@@ -26,6 +26,7 @@ namespace PixUI
 
                 //展开非分组列
                 HeaderRows = 1;
+                _cachedLeafColumns.Clear();
                 foreach (var column in _columns)
                 {
                     GetLeafColumns(column, _cachedLeafColumns, null);
