@@ -5,12 +5,13 @@ namespace AppBoxDesign;
 
 internal sealed class RxEntityField : RxObject<EntityFieldVO>
 {
-    public RxEntityField()
+    public RxEntityField(EntityFieldVO? target)
     {
+        _target = target;
+
         Name = new RxProperty<string>(() => Target.Name);
         FieldType = new RxProperty<EntityFieldType>(() => Target.FieldType);
-        Comment = new RxProperty<string>(() => Target.Comment ?? string.Empty,
-            v => Target.Comment = v);
+        Comment = new RxProperty<string>(() => Target.Comment ?? string.Empty, v => Target.Comment = v);
     }
 
     public readonly RxProperty<string> Name;
@@ -27,7 +28,7 @@ internal sealed class EntityPropertyPanel : View
     {
         _entityModel = entityModel;
         _selectedMember = Bind(selectedMember, BindingOptions.None);
-        OnStateChanged(_selectedMember, BindingOptions.None); //maybe has select someone
+        _rxEntityField = new RxEntityField((EntityFieldVO?)_selectedMember.Value);
         var isEntityField = _selectedMember
             .AsStateOfBool(v => v != null && v.Type == EntityMemberType.EntityField);
 
@@ -53,10 +54,9 @@ internal sealed class EntityPropertyPanel : View
                     LabelWidth = _labelWidth,
                     Children = new[]
                     {
-                        new FormItem("Name:", new Input(_rxEntityField.Name) { Readonly = true }),
+                        new FormItem("Name:", new Input(_rxEntityField.Name)),
                         new FormItem("FieldType:",
-                            new Input(_rxEntityField.FieldType.AsStateOfString(v => v.ToString()))
-                                { Readonly = true }),
+                            new Input(_rxEntityField.FieldType.AsStateOfString(v => v.ToString()))),
                         new FormItem("Comment:", new Input(_rxEntityField.Comment))
                     }
                 })
@@ -67,7 +67,7 @@ internal sealed class EntityPropertyPanel : View
     private const float _labelWidth = 120f;
     private readonly EntityModelVO _entityModel;
     private readonly State<EntityMemberVO?> _selectedMember;
-    private readonly RxEntityField _rxEntityField = new RxEntityField();
+    private readonly RxEntityField _rxEntityField;
 
     public override void OnStateChanged(StateBase state, BindingOptions options)
     {

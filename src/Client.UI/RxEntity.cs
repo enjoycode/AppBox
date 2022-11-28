@@ -17,8 +17,12 @@ public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
     {
         if (_ds.TryGetValue(memberId, out var state))
             return (State<TMember>)state;
-        
-        var proxy = new EntityMemberProxy<T, TMember>(this, getter, setter);
+
+        var proxy = new RxProperty<TMember>(
+            () => getter(Target),
+            v => setter(Target, v),
+            false
+        );
         _ds[memberId] = proxy;
         return proxy;
     }
@@ -35,7 +39,7 @@ public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
     {
         old.PropertyChanged -= OnTargetPropertyChanged;
         _target.PropertyChanged += OnTargetPropertyChanged;
-        
+
         //TODO:考虑比较新旧值是否产生变更，暂全部通知
         foreach (var state in _ds.Values)
         {
@@ -44,36 +48,13 @@ public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
     }
 }
 
-internal sealed class EntityMemberProxy<TEntity, TMember> : State<TMember> where TEntity: Entity, new()
-{
-    internal EntityMemberProxy(RxEntity<TEntity> rxEntity, Func<TEntity, TMember> getter, Action<TEntity, TMember> setter)
-    {
-        _rxEntity = rxEntity;
-        _getter = getter;
-        _setter = setter;
-    }
-
-    private readonly RxEntity<TEntity> _rxEntity;
-    private readonly Func<TEntity, TMember> _getter;
-    private readonly Action<TEntity, TMember> _setter;
-
-    public override bool Readonly => false;
-
-    public override TMember Value
-    {
-        get => _getter(_rxEntity.Target);
-        set => _setter(_rxEntity.Target, value);
-    }
-}
-
-
 public static class EntityExtensions
 {
     public static State<TMember> Observe<TEntity, TMember>(this TEntity entity, short memberId,
         Func<TEntity, TMember> getter, Action<TEntity, TMember> setter)
         where TEntity : Entity
     {
-        var rxMember = new RxListener<TMember>(() => getter(entity), v => setter(entity, v));
+        var rxMember = new RxProperty<TMember>(() => getter(entity), v => setter(entity, v), false);
         entity.PropertyChanged += mid =>
         {
             if (mid == memberId) rxMember.NotifyValueChanged();
@@ -85,7 +66,7 @@ public static class EntityExtensions
 public static class ObjectNotifierExtensions
 {
     public static void BindToRxEntity<T>(this ObjectNotifier<T> notifier, RxEntity<T> rxEntity)
-        where T: Entity, new()
+        where T : Entity, new()
     {
         notifier.OnChange = t => rxEntity.Target = t;
     }

@@ -141,13 +141,13 @@ namespace PixUI
         /// </summary>
         public State<T?> ObserveCurrentRow()
         {
-            var state = new RxListener<T?>(
+            var state = new RxProperty<T?>(
                 () =>
                 {
                     if (DataView == null || _selectedRows.Count == 0)
                     {
                         object? nullValue = null;
-                        return (T?)nullValue; //Donot use default(T) for Web
+                        return (T?)nullValue; //Don't use default(T) for Web
                     }
 
                     return DataView[_selectedRows[0]];
@@ -162,7 +162,8 @@ namespace PixUI
 
                     var index = DataView!.IndexOf(newRow);
                     SelectAt(index);
-                }
+                },
+                false
             );
             SelectionChanged += () => state.NotifyValueChanged();
 

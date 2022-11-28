@@ -2,7 +2,10 @@ namespace PixUI
 {
     public sealed class Input : InputBase<EditableText>
     {
-        public Input(State<string> text) : base(new EditableText(text)) { }
+        public Input(State<string> text) : base(new EditableText(text))
+        {
+            Readonly = text.Readonly;
+        }
 
         public State<float>? FontSize
         {
