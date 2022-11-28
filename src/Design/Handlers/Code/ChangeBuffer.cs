@@ -25,8 +25,7 @@ internal sealed class ChangeBuffer : IDesignHandler
             throw new Exception($"Can't find document: {modelNode.Model.Name}");
 
         var sourceText = await doc.GetTextAsync().ConfigureAwait(false);
-        sourceText =
-            sourceText.WithChanges(new TextChange(new TextSpan(offset, length), text ?? ""));
+        sourceText = sourceText.WithChanges(new TextChange(new TextSpan(offset, length), text ?? ""));
         hub.TypeSystem.Workspace.OnDocumentChanged(doc.Id, sourceText);
 
         return AnyValue.Empty;

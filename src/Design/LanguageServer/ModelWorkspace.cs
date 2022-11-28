@@ -57,7 +57,7 @@ internal sealed class ModelWorkspace : Workspace
         }
     }
 
-    public void OnDocumentChanged(DocumentId documentId, SourceText text)
+    internal void OnDocumentChanged(DocumentId documentId, SourceText text)
     {
         OnDocumentTextChanged(documentId, text, PreservationMode.PreserveIdentity);
     }

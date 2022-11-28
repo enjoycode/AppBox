@@ -50,6 +50,7 @@ namespace AppBoxCore
         EntityMemberVO = 61,
         EntityMemberInfo = 62,
         ReferenceVO = 63,
+        TextChange = 64,
 
         //----运行时相关类型----
         Entity = 90,

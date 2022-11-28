@@ -14,7 +14,7 @@ internal static class ContextMenuService
         {
             MenuItem.Item("Goto Definition", null, () => GotoDefinitionCommand.Default.Execute(textEditor)),
             MenuItem.Divider(),
-            MenuItem.Item("Format Document"),
+            MenuItem.Item("Format Document", null, () => FormatDocumentCommand.Default.Execute(textEditor)),
         };
     }
 }

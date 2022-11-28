@@ -37,6 +37,8 @@ namespace AppBoxDesign
                 typeof(FieldWithOrder), () => new FieldWithOrder()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ReferenceVO,
                 typeof(ReferenceVO), () => new ReferenceVO()));
+            TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.TextChange,
+                typeof(TextChange), () => new TextChange()));
         }
     }
 }

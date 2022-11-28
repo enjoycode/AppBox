@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PixUI
 {
-    public sealed class DataGridController<T> where T : notnull
+    public sealed class DataGridController<T> /* where T : notnull*/
     {
         internal readonly ScrollController ScrollController = new(ScrollDirection.Both);
 
@@ -149,6 +149,7 @@ namespace PixUI
                         object? nullValue = null;
                         return (T?)nullValue; //Donot use default(T) for Web
                     }
+
                     return DataView[_selectedRows[0]];
                 },
                 newRow =>
@@ -517,8 +518,8 @@ namespace PixUI
 
             var hitColumn = _cachedHitInRows.Value.Column;
             var top = TotalHeaderHeight +
-                      (_cachedHitInRows.Value.RowIndex - VisibleStartRowIndex) *
-                      Theme.RowHeight - ScrollDeltaY;
+                (_cachedHitInRows.Value.RowIndex - VisibleStartRowIndex) *
+                Theme.RowHeight - ScrollDeltaY;
             return new Rect(hitColumn.CachedVisibleLeft + 1, top + 1,
                 hitColumn.CachedVisibleRight - 2, top + Theme.RowHeight - 2);
         }

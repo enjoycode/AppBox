@@ -23,6 +23,7 @@ public sealed class DesignService : IService
         { nameof(GetSignatures), new GetSignatures() },
         { nameof(OpenCodeModel), new OpenCodeModel() },
         { nameof(GotoDefinition), new GotoDefinition() },
+        { nameof(FormatDocument), new FormatDocument() },
         // Entity
         { nameof(NewEntityModel), new NewEntityModel() },
         { nameof(NewEntityMember), new NewEntityMember() },

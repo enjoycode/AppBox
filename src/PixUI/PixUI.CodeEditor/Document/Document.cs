@@ -114,6 +114,8 @@ namespace CodeEditor
             DocumentChanged?.Invoke(new DocumentEventArgs(this, offset, length, text));
         }
 
+        public void StartUndoGroup() => UndoStack.StartUndoGroup();
+        public void EndUndoGroup() => UndoStack.EndUndoGroup();
         #endregion
 
         #region ====Position Methods====

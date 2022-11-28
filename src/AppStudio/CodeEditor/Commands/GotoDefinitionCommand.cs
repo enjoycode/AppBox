@@ -16,13 +16,12 @@ internal sealed class GotoDefinitionCommand : IEditCommand
 
         var res = await Channel.Invoke<ReferenceVO?>("sys.DesignService.GotoDefinition",
             new object?[] { modelIdString, line, column });
-        if (res != null)
-        {
-            //找到对应的节点, TODO: 考虑优化当前节点即目标节点
-            var node = DesignStore.FindDesignNodeById(res.ModelId);
-            if (node != null)
-                DesignStore.OpenOrActiveDesigner(node, res);//打开或激活节点
-        }
+        if (res == null) return;
+
+        //找到对应的节点, TODO: 考虑优化当前节点即目标节点
+        var node = DesignStore.FindDesignNodeById(res.ModelId);
+        if (node != null)
+            DesignStore.OpenOrActiveDesigner(node, res); //打开或激活节点
     }
 
     internal static void RunOnCodeEditor(CodeEditorController controller, ReferenceVO reference)
