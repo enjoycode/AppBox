@@ -72,7 +72,7 @@ namespace PixUI.CS2TS
             emitter.AddUsedModule("AppBoxClient");
             
             emitter.VisitToken(node.NewKeyword);
-            emitter.Write("AppBoxClient.RxEntity(");
+            emitter.Write(" AppBoxClient.RxEntity(");
             emitter.Write("new ");
             emitter.Write(entityType.ContainingNamespace.ContainingNamespace.Name);
             emitter.Write('_');
