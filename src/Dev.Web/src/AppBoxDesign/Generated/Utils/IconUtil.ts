@@ -17,7 +17,7 @@ export class IconUtil {
             case AppBoxCore.ModelType.Permission:
                 return PixUI.Icons.Filled.Lock;
             default:
-                return PixUI.Icons.Filled.TableChart; //TODO: others
+                return PixUI.Icons.Filled.TableChart;
         }
     }
 }

@@ -47,7 +47,9 @@ export class TabController<T> implements PixUI.IStateBindable {
 
     public GetAt(index: number): T {
         return this.DataSource[index];
-    } // public T this[int index] => DataSource[index];
+    }
+
+    // public T this[int index] => DataSource[index];
 
     public IndexOf(dataItem: T): number {
         return this.DataSource.IndexOf(dataItem);

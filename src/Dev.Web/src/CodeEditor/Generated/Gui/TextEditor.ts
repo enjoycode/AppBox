@@ -97,7 +97,7 @@ export class TextEditor {
         //TODO: check dirtyArea
         let currentXPos = 0;
         let currentYPos = 0;
-        let adjustScrollBars = false;
+        //var adjustScrollBars = false;
 
         // paint left areas
         for (const area of this.LeftAreas) {
@@ -105,7 +105,7 @@ export class TextEditor {
 
             let areaRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, area.Size.Width, size.Height - currentYPos);
             if (System.OpInequality(areaRect, area.Bounds)) {
-                adjustScrollBars = true;
+                //adjustScrollBars = true;
                 area.Bounds = (areaRect).Clone();
             }
 
@@ -116,7 +116,7 @@ export class TextEditor {
         // paint text area
         let textRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, size.Width - currentXPos, size.Height - currentYPos);
         if (System.OpInequality(textRect, this.TextView.Bounds)) {
-            adjustScrollBars = true;
+            //adjustScrollBars = true;
             this.TextView.Bounds = (textRect).Clone();
             //TODO: updateCaretPosition
         }

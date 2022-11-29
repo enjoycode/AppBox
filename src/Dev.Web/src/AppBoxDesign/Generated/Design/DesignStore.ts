@@ -72,6 +72,23 @@ export class DesignStore {
         DesignStore.BottomPadController.SelectAt(1);
     }
 
+    public static OpenOrActiveDesigner(node: AppBoxDesign.DesignNodeVO, gotoReference: Nullable<AppBoxDesign.ReferenceVO>) {
+        //先检查是否已经打开
+        let existsIndex = DesignStore.DesignerController.IndexOf(node);
+        if (existsIndex < 0)
+            DesignStore.DesignerController.Add(node);
+        else
+            DesignStore.DesignerController.SelectAt(existsIndex);
+
+        if (gotoReference != null)
+            node.Designer!.GotoDefinition(gotoReference);
+    }
+
+
+    public static FindDesignNodeById(nodeId: string): Nullable<AppBoxDesign.DesignNodeVO> {
+        let node = DesignStore.TreeController.FindNode(n => n.Id == nodeId);
+        return node?.Data;
+    }
 
     public static GetAllEntityNodes(): System.IList<AppBoxDesign.ModelNodeVO> {
         let list = new System.List<AppBoxDesign.ModelNodeVO>();
@@ -96,4 +113,6 @@ export class DesignStore {
             }
         }
     }
+
+
 }

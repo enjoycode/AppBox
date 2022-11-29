@@ -1,21 +1,30 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-
+/// <summary>
+/// 弹出的子菜单，由MenuController创建并加入至其PopupMenuStack内
+/// </summary>
 export class PopupMenu extends PixUI.Widget {
-    public readonly Owner: PixUI.MenuItemWidget;
+    public constructor(owner: Nullable<PixUI.MenuItemWidget>, items: Nullable<PixUI.MenuItem[]>, depth: number, controller: PixUI.MenuController) {
+        super();
+        if (owner == null && items == null)
+            throw new System.ArgumentNullException();
+
+        this.Owner = owner;
+        this._controller = controller;
+        if (owner != null) {
+            this._children = new System.List<PixUI.MenuItemWidget>(owner.MenuItem.Children!.length);
+            this.BuildMenuItemWidgets(owner.MenuItem.Children!, depth);
+        } else {
+            this._children = new System.List<PixUI.MenuItemWidget>(items!.length);
+            this.BuildMenuItemWidgets(items, depth);
+        }
+    }
+
+    public readonly Owner: Nullable<PixUI.MenuItemWidget>; //maybe null on ContextMenu
     private readonly _children: System.IList<PixUI.MenuItemWidget>;
     private readonly _controller: PixUI.MenuController;
 
-    public constructor(owner: PixUI.MenuItemWidget, depth: number, controller: PixUI.MenuController) {
-        super();
-        this.Owner = owner;
-        this._controller = controller;
-        this._children = new System.List<PixUI.MenuItemWidget>(owner.MenuItem.Children!.length);
-
-        this.BuildMenuItemWidgets(owner.MenuItem.Children!, depth);
-    }
-
-    private BuildMenuItemWidgets(items: System.IList<PixUI.MenuItem>, depth: number) {
+    private BuildMenuItemWidgets(items: System.IEnumerable<PixUI.MenuItem>, depth: number) {
         for (const item of items) {
             let child = new PixUI.MenuItemWidget(item, depth, true, this._controller);
             child.Parent = this;

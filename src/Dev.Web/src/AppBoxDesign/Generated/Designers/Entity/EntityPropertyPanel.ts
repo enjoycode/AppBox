@@ -3,8 +3,10 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 import * as PixUI from '@/PixUI'
 
 export class RxEntityField extends PixUI.RxObject<AppBoxDesign.EntityFieldVO> {
-    public constructor() {
+    public constructor(target: Nullable<AppBoxDesign.EntityFieldVO>) {
         super();
+        this._target = target;
+
         this.Name = new PixUI.RxProperty<string>(() => this.Target.Name);
         this.FieldType = new PixUI.RxProperty<AppBoxCore.EntityFieldType>(() => this.Target.FieldType);
         this.Comment = new PixUI.RxProperty<string>(() => this.Target.Comment ?? '', v => this.Target.Comment = v);
@@ -23,6 +25,7 @@ export class EntityPropertyPanel extends PixUI.View {
         super();
         this._entityModel = entityModel;
         this._selectedMember = this.Bind(selectedMember, PixUI.BindingOptions.None);
+        this._rxEntityField = new RxEntityField(<Nullable<AppBoxDesign.EntityFieldVO>><unknown>this._selectedMember.Value);
         let isEntityField = this._selectedMember
             .AsStateOfBool(v => v != null && v.Type == AppBoxCore.EntityMemberType.EntityField);
 
@@ -35,8 +38,7 @@ export class EntityPropertyPanel extends PixUI.View {
                     }), new PixUI.IfConditional(isEntityField, () => new PixUI.Text(PixUI.State.op_Implicit_From("EntityField Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)})), new PixUI.IfConditional(isEntityField, () => new PixUI.Form().Init(
                     {
                         LabelWidth: EntityPropertyPanel._labelWidth,
-                        Children: [new PixUI.FormItem("Name:", new PixUI.Input(this._rxEntityField.Name).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("FieldType:", new PixUI.Input(this._rxEntityField.FieldType.AsStateOfString(v => AppBoxCore.EntityFieldType[v])).Init(
-                            {Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("Comment:", new PixUI.Input(this._rxEntityField.Comment))
+                        Children: [new PixUI.FormItem("Name:", new PixUI.Input(this._rxEntityField.Name)), new PixUI.FormItem("FieldType:", new PixUI.Input(this._rxEntityField.FieldType.AsStateOfString(v => AppBoxCore.EntityFieldType[v]))), new PixUI.FormItem("Comment:", new PixUI.Input(this._rxEntityField.Comment))
                         ]
                     }))
                 ]
@@ -46,7 +48,7 @@ export class EntityPropertyPanel extends PixUI.View {
     private static readonly _labelWidth: number = 120;
     private readonly _entityModel: AppBoxDesign.EntityModelVO;
     private readonly _selectedMember: PixUI.State<Nullable<AppBoxDesign.EntityMemberVO>>;
-    private readonly _rxEntityField: RxEntityField = new RxEntityField();
+    private readonly _rxEntityField: RxEntityField;
 
     public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         if ((state === this._selectedMember)) {

@@ -41,15 +41,22 @@ export abstract class UIWindow {
     public HasPostInvalidateEvent: boolean = false;
 
 
-    private _lastMouseX: number = -1;
-    private _lastMouseY: number = -1;
-
-    protected get LastMouseX(): number {
-        return this._lastMouseX;
+    #LastMouseX: number = -1;
+    public get LastMouseX() {
+        return this.#LastMouseX;
     }
 
-    protected get LastMouseY(): number {
-        return this._lastMouseY;
+    private set LastMouseX(value) {
+        this.#LastMouseX = value;
+    }
+
+    #LastMouseY: number = -1;
+    public get LastMouseY() {
+        return this.#LastMouseY;
+    }
+
+    private set LastMouseY(value) {
+        this.#LastMouseY = value;
     }
 
     // Pointer.Move时检测命中的结果
@@ -91,8 +98,8 @@ export abstract class UIWindow {
 
 
     public OnPointerMove(e: PixUI.PointerEvent) {
-        this._lastMouseX = e.X;
-        this._lastMouseY = e.Y;
+        this.LastMouseX = e.X;
+        this.LastMouseY = e.Y;
 
         if (this._oldHitResult.StillInLastRegion(e.X, e.Y)) {
             this.OldHitTest(e.X, e.Y); //仍在旧的命中范围内
@@ -109,7 +116,7 @@ export abstract class UIWindow {
     }
 
     public OnPointerMoveOutWindow() {
-        this._lastMouseX = this._lastMouseY = -1;
+        this.LastMouseX = this.LastMouseY = -1;
         this.CompareAndSwapHitTestResult();
     }
 
@@ -225,11 +232,11 @@ export abstract class UIWindow {
     private AfterScrollDoneInternal(scrollable: PixUI.Widget, dx: number, dy: number) {
         console.assert(dx != 0 || dy != 0);
         //Translate HitTestResult and Rerun hit test.
-        let stillInLastRegion = this._oldHitResult.TranslateOnScroll(scrollable, dx, dy, this._lastMouseX, this._lastMouseY);
+        let stillInLastRegion = this._oldHitResult.TranslateOnScroll(scrollable, dx, dy, this.LastMouseX, this.LastMouseY);
         if (stillInLastRegion)
-            this.OldHitTest(this._lastMouseX, this._lastMouseY);
+            this.OldHitTest(this.LastMouseX, this.LastMouseY);
         else
-            this.NewHitTest(this._lastMouseX, this._lastMouseY);
+            this.NewHitTest(this.LastMouseX, this.LastMouseY);
         this.CompareAndSwapHitTestResult();
     }
 
@@ -247,13 +254,13 @@ export abstract class UIWindow {
             !(this._oldHitResult.LastHitWidget === dynamicView)) return;
 
         //切换过程结束后仍旧在DynamicView内，继续HitTest子级
-        this.OldHitTest(this._lastMouseX, this._lastMouseY);
+        this.OldHitTest(this.LastMouseX, this.LastMouseY);
         this.CompareAndSwapHitTestResult();
     }
 
     public RunNewHitTest() {
         //始终重新开始检测，因为旧的命中的位置可能已改变
-        this.NewHitTest(this._lastMouseX, this._lastMouseY);
+        this.NewHitTest(this.LastMouseX, this.LastMouseY);
         this.CompareAndSwapHitTestResult();
     }
 

@@ -248,26 +248,25 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
     }
 
     private PaintHighlight(canvas: PixUI.Canvas) {
-        if (!this.Theme.HighlightingCurrentCell && !this.Theme.HighlightingCurrentRow)
-            return;
-
-        let cellRect = this._controller.GetCurrentCellRect();
-        if (cellRect == null) return;
-
         if (this.Theme.HighlightingCurrentRow) {
-            let rowRect = PixUI.Rect.FromLTWH(0, cellRect.Top, Math.min(this.W, this._controller.TotalColumnsWidth), cellRect.Height);
-            if (this.Theme.HighlightingCurrentCell) {
-                let paint = PixUI.PaintUtils.Shared(this.Theme.HighlightRowBgColor);
-                canvas.drawRect(rowRect, paint);
-            } else {
-                let paint = PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
-                canvas.drawRect(rowRect, paint);
+            let rowRect = this._controller.GetCurrentRowRect();
+            if (rowRect != null) {
+                if (this.Theme.HighlightingCurrentCell) {
+                    let paint = PixUI.PaintUtils.Shared(this.Theme.HighlightRowBgColor);
+                    canvas.drawRect(rowRect, paint);
+                } else {
+                    let paint = PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
+                    canvas.drawRect(rowRect, paint);
+                }
             }
         }
 
         if (this.Theme.HighlightingCurrentCell) {
-            let paint = PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
-            canvas.drawRect(cellRect, paint);
+            let cellRect = this._controller.GetCurrentCellRect();
+            if (cellRect != null) {
+                let paint = PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, PixUI.Theme.FocusedBorderWidth);
+                canvas.drawRect(cellRect, paint);
+            }
         }
     }
 

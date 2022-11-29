@@ -109,6 +109,29 @@ export class TextView extends CodeEditor.EditorArea {
         return drawingPos - this.TextEditor.VirtualTop.X;
     }
 
+    public HandlePointerDown(x: number, y: number, buttons: PixUI.PointerButtons) {
+        let vx = x - this.Bounds.Left;
+        let vy = y - this.Bounds.Top;
+        if (buttons == PixUI.PointerButtons.Left) {
+            //左键按下清除选择并设置新的光标位置
+            let logicalLine = this.GetLogicalLine(vy);
+            let logicalColumn = this.GetLogicalColumn(logicalLine, vx);
+
+            //Console.WriteLine($"Click at TextView: {logicalColumn.Location}");
+
+            this.TextEditor.SelectionManager.ClearSelection();
+            this.TextEditor.Caret.Position = (logicalColumn.Location).Clone();
+        } else if (buttons == PixUI.PointerButtons.Right) {
+            //右键按下开始显示ContextMenu
+            let contextMenuBuilder = this.TextEditor.Controller.ContextMenuBuilder;
+            if (contextMenuBuilder != null) {
+                let contextMenus = contextMenuBuilder(this.TextEditor);
+                if (contextMenus.length > 0)
+                    PixUI.ContextMenu.Show(contextMenus);
+            }
+        }
+    }
+
     public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
         if (rect.Width <= 0 || rect.Height <= 0) return;
 

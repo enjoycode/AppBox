@@ -29,20 +29,22 @@ export class PopupMenuStack extends PixUI.Popup {
     }
 
     public TryCloseSome(newHoverItem: PixUI.MenuItemWidget): boolean {
-        let lastMenuItem = this._children[this._children.length - 1].Owner;
-        //判断子级回到上级
-        if ((lastMenuItem === newHoverItem)) {
-            this.CloseTo(newHoverItem.Depth);
-            return true; //调用者不需要后续操作
+        //判断子级回到任意上级
+        for (let i: number = this._children.length - 1; i >= 0; i--) {
+            if ((newHoverItem === this._children[i].Owner)) {
+                this.CloseTo(newHoverItem.Depth);
+                return true; //调用者不需要后续操作
+            }
         }
 
+        let lastMenuItem = this._children[this._children.length - 1].Owner;
         //判断是否同级
-        if (newHoverItem.Depth == lastMenuItem.Depth) {
+        if (newHoverItem.Depth == lastMenuItem?.Depth) {
             this.CloseTo(newHoverItem.Depth - 1);
         }
-        //再判断是否子级
-        else if (!PopupMenuStack.IsChildOf(newHoverItem, lastMenuItem)) {
-            this.CloseTo(-1);
+        //再判断是否直接子级
+        else if (lastMenuItem != null && !PopupMenuStack.IsChildOf(newHoverItem, lastMenuItem)) {
+            this.CloseTo(newHoverItem.Depth - 1);
         }
 
         return false;

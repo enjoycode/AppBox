@@ -5,6 +5,8 @@ export interface IDesigner {
     SaveAsync(): Promise<void>;
 
     RefreshAsync(): Promise<void>;
+
+    GotoDefinition(reference: AppBoxDesign.ReferenceVO): void;
 }
 
 export interface IModelDesigner extends IDesigner {

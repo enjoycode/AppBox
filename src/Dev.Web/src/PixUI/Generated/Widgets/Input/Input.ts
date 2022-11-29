@@ -3,6 +3,7 @@ import * as PixUI from '@/PixUI'
 export class Input extends PixUI.InputBase<PixUI.EditableText> {
     public constructor(text: PixUI.State<string>) {
         super(new PixUI.EditableText(text));
+        this.Readonly = PixUI.State.op_Implicit_From(text.Readonly);
     }
 
     public get FontSize(): Nullable<PixUI.State<number>> {

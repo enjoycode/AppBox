@@ -95,10 +95,9 @@ export class SqlStoreOptionsDesigner extends PixUI.View {
     }
 
     private OnRemovePk(e: PixUI.PointerEvent) {
-        let selection = this._pkController.SelectedRows;
-        if (selection.length == 0) return;
+        if (this._pkController.CurrentRowIndex < 0) return;
 
-        this._pkController.Remove((selection[0]).Clone());
+        this._pkController.RemoveAt(this._pkController.CurrentRowIndex);
         this.ChangePrimaryKeys();
     }
 

@@ -3,6 +3,20 @@ import * as PixUI from '@/PixUI'
 
 export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
     private static readonly $meta_PixUI_IMouseRegion = true;
+
+    public constructor(menuItem: PixUI.MenuItem, depth: number, inPopup: boolean, controller: PixUI.MenuController) {
+        super();
+        this.Depth = depth;
+        this.MenuItem = menuItem;
+        this._controller = controller;
+
+        this.BuildChildren(inPopup);
+
+        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
+        this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
+        this.MouseRegion.PointerUp.Add(this._OnPointerUp, this);
+    }
+
     public readonly MenuItem: PixUI.MenuItem;
     public readonly Depth: number;
     private readonly _controller: PixUI.MenuController;
@@ -22,29 +36,17 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         this.#MouseRegion = value;
     }
 
-    public constructor(menuItem: PixUI.MenuItem, depth: number, inPopup: boolean, controller: PixUI.MenuController) {
-        super();
-        this.Depth = depth;
-        this.MenuItem = menuItem;
-        this._controller = controller;
-
-        this.BuildChildren(inPopup);
-
-        this.MouseRegion = new PixUI.MouseRegion(() => PixUI.Cursors.Hand);
-        this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
-        this.MouseRegion.PointerUp.Add(this._OnPointerUp, this);
-    }
-
     private BuildChildren(inPopup: boolean) {
-        if (this.MenuItem.Type != PixUI.MenuItemType.Divider) {
-            if (this.MenuItem.Icon != null) {
-                this._icon = new PixUI.Icon(PixUI.State.op_Implicit_From(this.MenuItem.Icon)).Init({Color: this._controller.TextColor});
-                this._icon.Parent = this;
-            }
+        if (this.MenuItem.Type == PixUI.MenuItemType.Divider)
+            return;
 
-            this._label = new PixUI.Text(PixUI.State.op_Implicit_From(this.MenuItem.Label!)).Init({TextColor: this._controller.TextColor});
-            this._label.Parent = this;
+        if (this.MenuItem.Icon != null) {
+            this._icon = new PixUI.Icon(PixUI.State.op_Implicit_From(this.MenuItem.Icon)).Init({Color: this._controller.TextColor});
+            this._icon.Parent = this;
         }
+
+        this._label = new PixUI.Text(PixUI.State.op_Implicit_From(this.MenuItem.Label!)).Init({TextColor: this._controller.TextColor});
+        this._label.Parent = this;
 
         if (this.MenuItem.Type == PixUI.MenuItemType.SubMenu) {
             this._expander = new PixUI.Icon(PixUI.State.op_Implicit_From(inPopup ? PixUI.Icons.Filled.ChevronRight : PixUI.Icons.Filled.ExpandMore)).Init(
@@ -62,6 +64,8 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
     }
 
     private _OnHoverChanged(hover: boolean) {
+        if (this.MenuItem.Type == PixUI.MenuItemType.Divider) return;
+
         this._isHover = hover;
         this.Invalidate(PixUI.InvalidAction.Repaint);
 
@@ -94,6 +98,11 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
     public Layout(availableWidth: number, availableHeight: number) {
         let offsetX = this._controller.ItemPadding.Left;
 
+        if (this.MenuItem.Type == PixUI.MenuItemType.Divider) {
+            this.SetSize(offsetX + 2, 6);
+            return;
+        }
+
         if (this._icon != null) {
             this._icon.Layout(availableWidth, availableHeight);
             this._icon.SetPosition(offsetX, (availableHeight - this._icon.H) / 2);
@@ -116,6 +125,13 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+        if (this.MenuItem.Type == PixUI.MenuItemType.Divider) {
+            let paint = PixUI.PaintUtils.Shared(PixUI.Colors.Gray, CanvasKit.PaintStyle.Stroke, 2);
+            let midY = this.H / 2;
+            canvas.drawLine(this._controller.ItemPadding.Left, midY, this.W - this._controller.ItemPadding.Horizontal, midY, paint);
+            return;
+        }
+
         if (this._isHover) {
             let paint = PixUI.PaintUtils.Shared(this._controller.HoverColor, CanvasKit.PaintStyle.Fill);
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), paint);

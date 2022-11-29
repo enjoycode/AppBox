@@ -106,6 +106,14 @@ export class Document implements System.IDisposable {
         this.DocumentChanged.Invoke(new CodeEditor.DocumentEventArgs(this, offset, length, text));
     }
 
+    public StartUndoGroup() {
+        this.UndoStack.StartUndoGroup();
+    }
+
+    public EndUndoGroup() {
+        this.UndoStack.EndUndoGroup();
+    }
+
 
     public GetLineNumberForOffset(offset: number): number {
         return this._lineManager.GetLineNumberForOffset(offset);

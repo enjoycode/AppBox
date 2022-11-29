@@ -2,10 +2,17 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class RxProperty<T> extends PixUI.State<T> {
-    public constructor(getter: System.Func1<T>, setter: Nullable<System.Action1<T>> = null) {
+    public constructor(getter: System.Func1<T>, setter: Nullable<System.Action1<T>> = null, autoNotify: boolean = true) {
         super();
         this._getter = getter;
-        this._setter = setter;
+        if (setter == null || !autoNotify)
+            this._setter = setter;
+        else
+            this._setter = v => {
+                //TODO: compare old value
+                setter(v);
+                this.NotifyValueChanged();
+            };
     }
 
     private readonly _getter: System.Func1<T>;
@@ -20,10 +27,8 @@ export class RxProperty<T> extends PixUI.State<T> {
     }
 
     public set Value(value: T) {
-        if (this._setter == null)
-            throw new System.NotSupportedException();
+        if (this._setter == null) throw new System.NotSupportedException();
         this._setter(value);
-        this.NotifyValueChanged();
     }
 }
 

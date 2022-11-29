@@ -11,6 +11,7 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
         super();
         this.ModelNode = modelNode;
         this._codeEditorController = new CodeEditor.CodeEditorController(`${modelNode.Label}.cs`, "", AppBoxDesign.RoslynCompletionProvider.Default, modelNode.Id);
+        this._codeEditorController.ContextMenuBuilder = AppBoxDesign.ContextMenuService.BuildContextMenu;
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
         this._delayDocChangedTask = new PixUI.DelayTask(300, this.RunDelayTask.bind(this));
 
@@ -30,6 +31,8 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
     private readonly _codeSyncService: AppBoxDesign.ModelCodeSyncService;
     private readonly _delayDocChangedTask: PixUI.DelayTask;
     private _hasLoadSourceCode: boolean = false;
+
+    private _pendingGoto: Nullable<AppBoxDesign.ReferenceVO>;
 
     private static BuildEditor(codeEditorController: CodeEditor.CodeEditorController): PixUI.Widget {
         return new PixUI.Column().Init(
@@ -65,6 +68,11 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
         this._codeEditorController.Document.TextContent = srcCode!;
         //订阅代码变更事件
         this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
+
+        if (this._pendingGoto != null) {
+            AppBoxDesign.GotoDefinitionCommand.RunOnCodeEditor(this._codeEditorController, this._pendingGoto);
+            this._pendingGoto = null;
+        }
     }
 
     private OnDocumentChanged(e: CodeEditor.DocumentEventArgs) {
@@ -97,6 +105,16 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
 
     public GetOutlinePad(): Nullable<PixUI.Widget> {
         return null;
+    }
+
+    public GotoDefinition(reference: AppBoxDesign.ReferenceVO) {
+        if (reference.Offset < 0) return; //无需跳转
+
+        let doc = this._codeEditorController.Document;
+        if (doc.TextLength == 0)
+            this._pendingGoto = reference;
+        else
+            AppBoxDesign.GotoDefinitionCommand.RunOnCodeEditor(this._codeEditorController, reference);
     }
 
     public SaveAsync(): Promise<void> {

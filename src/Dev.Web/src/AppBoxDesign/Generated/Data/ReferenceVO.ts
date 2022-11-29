@@ -1,17 +1,20 @@
 import * as System from '@/System'
 import * as AppBoxCore from '@/AppBoxCore'
 
+/// <summary>
+/// 模型引用的源位置, 作为FindUsages和GotoDefinition的结果
+/// </summary>
 export class ReferenceVO implements AppBoxCore.IBinSerializable {
     #ModelId!: string;
     public get ModelId() {
         return this.#ModelId;
     }
 
-    private set ModelId(value) {
+    public set ModelId(value) {
         this.#ModelId = value;
     }
 
-    #ModelName!: string;
+    #ModelName: Nullable<string>;
     public get ModelName() {
         return this.#ModelName;
     }
@@ -20,12 +23,12 @@ export class ReferenceVO implements AppBoxCore.IBinSerializable {
         this.#ModelName = value;
     }
 
-    #Location!: string;
+    #Location: Nullable<string>;
     public get Location() {
         return this.#Location;
     }
 
-    private set Location(value) {
+    public set Location(value) {
         this.#Location = value;
     }
 
@@ -34,7 +37,7 @@ export class ReferenceVO implements AppBoxCore.IBinSerializable {
         return this.#Offset;
     }
 
-    private set Offset(value) {
+    public set Offset(value) {
         this.#Offset = value;
     }
 
@@ -43,7 +46,7 @@ export class ReferenceVO implements AppBoxCore.IBinSerializable {
         return this.#Length;
     }
 
-    private set Length(value) {
+    public set Length(value) {
         this.#Length = value;
     }
 
@@ -62,8 +65,8 @@ export class ReferenceVO implements AppBoxCore.IBinSerializable {
 
     public ReadFrom(rs: AppBoxCore.IInputStream) {
         this.ModelId = rs.ReadString()!;
-        this.ModelName = rs.ReadString()!;
-        this.Location = rs.ReadString()!;
+        this.ModelName = rs.ReadString();
+        this.Location = rs.ReadString();
         this.Offset = rs.ReadVariant();
         this.Length = rs.ReadVariant();
         this.TargetType = rs.ReadVariant();

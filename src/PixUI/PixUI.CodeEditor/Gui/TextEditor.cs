@@ -41,7 +41,7 @@ namespace CodeEditor
             {
                 var newVirtualTop = new Point(Math.Max(0, value.X),
                     Math.Min(MaxVScrollValue, Math.Max(0, value.Y)));
-                if (!_virtualTop.Equals(newVirtualTop))
+                if (_virtualTop != newVirtualTop)
                     _virtualTop = newVirtualTop;
 
                 //TODO: updateCaretPosition

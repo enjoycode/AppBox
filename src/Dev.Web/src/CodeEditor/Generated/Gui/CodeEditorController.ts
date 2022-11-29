@@ -21,6 +21,8 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
     public readonly Theme: CodeEditor.TextEditorTheme;
     private readonly _completionContext: CodeEditor.CompletionContext;
 
+    public ContextMenuBuilder: Nullable<System.Func2<CodeEditor.TextEditor, PixUI.MenuItem[]>>;
+
     // 全局命令字典表
     private readonly _editActions: System.NumberMap<CodeEditor.IEditCommand> = new System.NumberMap<CodeEditor.IEditCommand>([[<number><unknown>PixUI.Keys.Left, new CodeEditor.CaretLeft()], [<number><unknown>PixUI.Keys.Right, new CodeEditor.CaretRight()], [<number><unknown>PixUI.Keys.Up, new CodeEditor.CaretUp()], [<number><unknown>PixUI.Keys.Down, new CodeEditor.CaretDown()], [<number><unknown>PixUI.Keys.Back, new CodeEditor.BackspaceCommand()], [<number><unknown>PixUI.Keys.Return, new CodeEditor.ReturnCommand()], [<number><unknown>PixUI.Keys.Tab, new CodeEditor.TabCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.C), new CodeEditor.CopyCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.X), new CodeEditor.CutCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.V), new CodeEditor.PasteCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Z), new CodeEditor.UndoCommand()], [<number><unknown>(PixUI.Keys.Control | PixUI.Keys.Y), new CodeEditor.RedoCommand()]]);
 
@@ -39,29 +41,20 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         this.TextEditor.PointerPos.X = e.X;
         this.TextEditor.PointerPos.Y = e.Y;
 
+        // 处理非文本区域
         for (const area of this.TextEditor.LeftAreas) {
             if (area.Bounds.ContainsPoint(e.X, e.Y))
                 area.HandlePointerDown(e.X, e.Y, e.Buttons);
         }
 
+        // 处理文本编辑区域
         if (this.TextEditor.TextView.Bounds.ContainsPoint(e.X, e.Y)) {
             this._gotMouseDown = true;
             this.TextEditor.SelectionManager.SelectFrom.Where = CodeEditor.WhereFrom.TextArea;
             this._mouseDownPos = new PixUI.Point(e.X, e.Y);
             this._minSelection = (CodeEditor.TextLocation.Empty).Clone();
             this._maxSelection = (CodeEditor.TextLocation.Empty).Clone();
-
-            let vx = e.X - this.TextEditor.TextView.Bounds.Left;
-            let vy = e.Y - this.TextEditor.TextView.Bounds.Top;
-            if (e.Buttons == PixUI.PointerButtons.Left) {
-                let logicalLine = this.TextEditor.TextView.GetLogicalLine(vy);
-                let logicalColumn = this.TextEditor.TextView.GetLogicalColumn(logicalLine, vx);
-
-                console.log(`CodeEditor Hit: ${logicalColumn.Location}`);
-
-                this.TextEditor.SelectionManager.ClearSelection();
-                this.TextEditor.Caret.Position = (logicalColumn.Location).Clone();
-            }
+            this.TextEditor.TextView.HandlePointerDown(e.X, e.Y, e.Buttons);
         }
     }
 
@@ -76,8 +69,7 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         this.TextEditor.PointerPos.Y = e.Y;
 
         if (e.Buttons == PixUI.PointerButtons.Left) {
-            if (this._gotMouseDown &&
-                this.TextEditor.SelectionManager.SelectFrom.Where == CodeEditor.WhereFrom.TextArea) {
+            if (this._gotMouseDown && this.TextEditor.SelectionManager.SelectFrom.Where == CodeEditor.WhereFrom.TextArea) {
                 this.ExtendSelectionToPointer();
             }
         }
@@ -119,8 +111,7 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         } else {
             this.TextEditor.InsertOrReplaceString(text + String.fromCharCode(closingPair).repeat(1), 0);
             let oldPosition = (this.TextEditor.Caret.Position).Clone();
-            this.TextEditor.Caret.Position =
-                new CodeEditor.TextLocation(oldPosition.Column - 1, oldPosition.Line);
+            this.TextEditor.Caret.Position = new CodeEditor.TextLocation(oldPosition.Column - 1, oldPosition.Line);
         }
 
         this._caretChangedByTextInput = false;
@@ -146,8 +137,7 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
                 this.TextEditor.Caret.Position = new CodeEditor.TextLocation(0, realMousePos.Line);
             } else {
                 // the selection has moved below the start point
-                this.TextEditor.Caret.Position =
-                    this.TextEditor.SelectionManager.NextValidPosition(realMousePos.Line);
+                this.TextEditor.Caret.Position = this.TextEditor.SelectionManager.NextValidPosition(realMousePos.Line);
             }
         } else {
             this.TextEditor.Caret.Position = (realMousePos).Clone();
@@ -200,6 +190,17 @@ export class CodeEditorController extends PixUI.WidgetController<CodeEditor.Code
         }
 
         this.Widget.RequestInvalidate(false, null);
+    }
+
+
+    public SetCaret(line: number, column: number) {
+        this.TextEditor.Caret.Position = new CodeEditor.TextLocation(column, line);
+
+        //TODO: anminate scroll to caret position
+    }
+
+    public SetSelection(start: CodeEditor.TextLocation, end: CodeEditor.TextLocation) {
+        this.TextEditor.SelectionManager.SetSelection((start).Clone(), (end).Clone());
     }
 
 

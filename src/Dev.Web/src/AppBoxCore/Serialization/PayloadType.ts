@@ -41,6 +41,7 @@ export enum PayloadType {
     EntityMemberVO = 61,
     EntityMemberInfo = 62,
     ReferenceVO = 63,
+    TextChange = 64,
 
     //----运行时类型----
     Entity = 90,

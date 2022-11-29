@@ -10,19 +10,11 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IModelDes
     public constructor(modelNode: AppBoxDesign.ModelNodeVO) {
         super();
         this.ModelNode = modelNode;
-        this._membersController.SelectionChanged.Add(this.OnMemberSelectionChanged, this);
+        this._selectedMember = this._membersController.ObserveCurrentRow();
 
         this.Child = new PixUI.Column().Init(
             {
-                Children: [this.BuildActionBar(), new PixUI.Expanded().Init(
-                    {
-                        //TODO: use FutureBuilder
-                        Child: new PixUI.IfConditional(this._loaded, () =>
-                            new PixUI.Conditional(this._activePad)
-                                .When(t => t == 0, () => new AppBoxDesign.MembersDesigner(this._entityModel!, this._membersController, this._selectedMember))
-                                .When(t => t == 1, () => new AppBoxDesign.SqlStoreOptionsDesigner(this._entityModel!, this.ModelNode.Id))
-                        )
-                    })]
+                Children: [this.BuildActionBar(), new PixUI.Expanded().Init({Child: this.BuildBody()})]
             });
     }
 
@@ -36,12 +28,12 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IModelDes
     }
 
     private readonly _activePad: PixUI.State<number> = PixUI.State.op_Implicit_From(0); //当前的设计面板
-    private _hasLoad: boolean = false;
-    private readonly _loaded: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
     private _entityModel: Nullable<AppBoxDesign.EntityModelVO>;
 
+    private _pendingGoto: Nullable<AppBoxDesign.ReferenceVO>;
+
     private readonly _membersController: PixUI.DataGridController<AppBoxDesign.EntityMemberVO> = new PixUI.DataGridController();
-    private readonly _selectedMember: PixUI.State<Nullable<AppBoxDesign.EntityMemberVO>> = new PixUI.Rx<Nullable<AppBoxDesign.EntityMemberVO>>(null);
+    private readonly _selectedMember: PixUI.State<Nullable<AppBoxDesign.EntityMemberVO>>;
 
     private BuildActionBar(): PixUI.Widget {
         return new PixUI.Container().Init(
@@ -74,33 +66,30 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IModelDes
             });
     }
 
-    protected OnMounted() {
-        super.OnMounted();
-        this.TryLoadEntityModel();
+    private BuildBody(): PixUI.Widget {
+        return new PixUI.FutureBuilder<Nullable<AppBoxDesign.EntityModelVO>>(AppBoxClient.Channel.Invoke<AppBoxDesign.EntityModelVO>("sys.DesignService.OpenEntityModel", [this.ModelNode.Id]), (model, ex) => {
+                if (ex != null) {
+                    PixUI.Notification.Error(`无法加载实体模型: ${ex}`);
+                    return null;
+                }
+
+                this._entityModel = model;
+                this._membersController.DataSource = this._entityModel!.Members
+                    .Where(m => !m.IsForeignKeyMember) //暂不显示EntityRef的外键
+                    .ToList();
+
+                if (this._pendingGoto != null) {
+                    this.GotoDefinitionInternal(this._pendingGoto);
+                    this._pendingGoto = null;
+                }
+
+                return new PixUI.Conditional(this._activePad)
+                    .When(t => t == 0, () => new AppBoxDesign.MembersDesigner(this._entityModel!, this._membersController, this._selectedMember))
+                    .When(t => t == 1, () => new AppBoxDesign.SqlStoreOptionsDesigner(this._entityModel!, this.ModelNode.Id));
+            }
+        );
     }
 
-    private async TryLoadEntityModel() {
-        if (this._hasLoad) return;
-        this._hasLoad = true;
-
-        try {
-            this._entityModel = await AppBoxClient.Channel.Invoke<AppBoxDesign.EntityModelVO>(
-                "sys.DesignService.OpenEntityModel", [this.ModelNode.Id]);
-            this._membersController.DataSource = this._entityModel!.Members
-                .Where(m => !m.IsForeignKeyMember)
-                .ToList();
-            this._loaded.Value = true;
-        } catch (ex: any) {
-            PixUI.Notification.Error(`无法加载实体模型: ${ex.Message}`);
-        }
-    }
-
-
-    private OnMemberSelectionChanged() {
-        this._selectedMember.Value = this._membersController.SelectedRows.length == 0
-            ? null
-            : this._membersController.SelectedRows[0];
-    }
 
     private async OnAddMember(e: PixUI.PointerEvent) {
         let dlg = new AppBoxDesign.NewEntityMemberDialog(this.ModelNode);
@@ -181,6 +170,21 @@ export class EntityDesigner extends PixUI.View implements AppBoxDesign.IModelDes
 
     public GetOutlinePad(): Nullable<PixUI.Widget> {
         return null;
+    }
+
+    public GotoDefinition(reference: AppBoxDesign.ReferenceVO) {
+        if (System.IsNullOrEmpty(reference.Location)) return; //不需要跳转
+
+        if (this._entityModel == null)
+            this._pendingGoto = reference;
+        else
+            this.GotoDefinitionInternal(reference);
+    }
+
+    private GotoDefinitionInternal(reference: AppBoxDesign.ReferenceVO) {
+        //选中指定的成员
+        let member = this._entityModel!.Members.FirstOrDefault(m => m.Name == reference.Location);
+        this._selectedMember.Value = member;
     }
 
     public SaveAsync(): Promise<void> {

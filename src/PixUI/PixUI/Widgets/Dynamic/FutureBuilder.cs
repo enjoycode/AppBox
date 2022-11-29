@@ -24,19 +24,20 @@ namespace PixUI
             base.OnMounted();
 
             if (!HasLayout)
-                Run(_future);
+                Run();
         }
 
-        private async void Run(Task<T> future)
+        private async void Run()
         {
             try
             {
-                var res = await future;
+                var res = await _future;
+                // @ts-ignore
                 ReplaceTo(_doneBuilder(res, null));
             }
             catch (Exception ex)
             {
-                object? nullValue = null; //Donot use default(T) for web
+                object? nullValue = null; //Don't use default(T) for web
                 ReplaceTo(_doneBuilder((T?)nullValue, ex));
             }
         }

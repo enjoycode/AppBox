@@ -1,6 +1,6 @@
 import {
     DesignTreeVO, CompletionItem, NewNodeResult, ChangedModel, CodeProblem,
-    EntityModelVO, EntityFieldVO, EntityRefVO, EntitySetVO, EntityMemberInfo, ReferenceVO
+    EntityModelVO, EntityFieldVO, EntityRefVO, EntitySetVO, EntityMemberInfo, ReferenceVO, TextChange
 } from '@/AppBoxDesign'
 import {TSCSharpLanguage} from "@/CodeEditor";
 import {FieldWithOrder, PayloadType, TypeSerializer} from "@/AppBoxCore";
@@ -31,6 +31,7 @@ export class DesignInitializer {
         TypeSerializer.RegisterKnownType(PayloadType.ChangedModel, true, () => new ChangedModel());
         TypeSerializer.RegisterKnownType(PayloadType.FieldWithOrder, true, () => new FieldWithOrder());
         TypeSerializer.RegisterKnownType(PayloadType.ReferenceVO, false, () => new ReferenceVO());
+        TypeSerializer.RegisterKnownType(PayloadType.TextChange, true, () => new TextChange());
         TypeSerializer.RegisterKnownType(PayloadType.PermissionNode, false, () => new PermissionNode());
     }
 }

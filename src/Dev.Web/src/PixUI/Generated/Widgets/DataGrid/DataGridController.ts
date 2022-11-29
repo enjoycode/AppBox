@@ -16,7 +16,7 @@ export class DataGridController<T> {
     }
 
     public get DataGrid(): PixUI.DataGrid<T> {
-        return this._owner;
+        return this._owner!;
     }
 
     public get Columns(): PixUI.DataGridColumn<T>[] {
@@ -28,6 +28,7 @@ export class DataGridController<T> {
 
         //展开非分组列
         this.HeaderRows = 1;
+        this._cachedLeafColumns.Clear();
         for (const column of this._columns) {
             this.GetLeafColumns(column, this._cachedLeafColumns, null);
         }
@@ -127,17 +128,56 @@ export class DataGridController<T> {
     private _cachedHitInRows: Nullable<PixUI.DataGridHitTestResult<T>>;
 
 
-    private readonly _selectedRows: System.List<T> = new System.List<T>();
-
-    public get SelectedRows(): T[] {
-        return this._selectedRows.ToArray();
-    }
+    private readonly _selectedRows: System.List<number> = new System.List();
 
     public readonly SelectionChanged = new System.Event();
+
+    public get CurrentRowIndex(): number {
+        return this._selectedRows.length > 0 ? this._selectedRows[0] : -1;
+    }
+
+    public ObserveCurrentRow(): PixUI.State<Nullable<T>> {
+        let state = new PixUI.RxProperty<Nullable<T>>(() => {
+                if (this.DataView == null || this._selectedRows.length == 0) {
+                    let nullValue: Nullable<any> = null;
+                    return <Nullable<T>><unknown>nullValue; //Don't use default(T) for Web
+                }
+
+                return this.DataView[this._selectedRows[0]];
+            }, newRow => {
+                if (newRow == null) {
+                    this.ClearSelection();
+                    return;
+                }
+
+                let index = this.DataView!.IndexOf(newRow);
+                this.SelectAt(index);
+            }, false
+        );
+        this.SelectionChanged.Add(() => state.NotifyValueChanged());
+
+        return state;
+    }
+
+    public SelectAt(index: number) {
+        let oldRowIndex = this.CurrentRowIndex;
+        //_cachedHitInRows = new DataGridHitTestResult<T>(Columns[0], index);
+        let newRowIndex = index; //_cachedHitInRows != null ? _cachedHitInRows.Value.RowIndex : -1;
+        this.TrySelectRow(oldRowIndex, newRowIndex);
+    }
 
     public ClearSelection() {
         this._selectedRows.Clear();
         this._cachedHitInRows = null;
+        this.SelectionChanged.Invoke();
+    }
+
+    private TrySelectRow(oldRowIndex: number, newRowIndex: number) {
+        if (oldRowIndex == newRowIndex) return;
+
+        this._selectedRows.Clear();
+        if (newRowIndex != -1)
+            this._selectedRows.Add(newRowIndex);
         this.SelectionChanged.Invoke();
     }
 
@@ -203,15 +243,10 @@ export class DataGridController<T> {
         }
 
         //TODO:暂仅支持单选
-        let oldRowIndex = this._cachedHitInRows != null ? this._cachedHitInRows.RowIndex : -1;
+        let oldRowIndex = this.CurrentRowIndex;
         this._cachedHitInRows = this.HitTestInRows(e.X, e.Y);
         let newRowIndex = this._cachedHitInRows != null ? this._cachedHitInRows.RowIndex : -1;
-        if (oldRowIndex != newRowIndex) {
-            this._selectedRows.Clear();
-            if (newRowIndex != -1)
-                this._selectedRows.Add(this.DataView![newRowIndex]);
-            this.SelectionChanged.Invoke();
-        }
+        this.TrySelectRow(oldRowIndex, newRowIndex);
         //TODO: if (res == _cachedHitInRows) return;
 
         //检查是否需要自动滚动
@@ -400,6 +435,13 @@ export class DataGridController<T> {
         return PixUI.Rect.FromLTWH(this._cachedScrollLeft, top, this._cachedScrollRight - this._cachedScrollLeft, height);
     }
 
+    public GetCurrentRowRect(): Nullable<PixUI.Rect> {
+        if (this._selectedRows.length == 0) return null;
+
+        let top = this.TotalHeaderHeight + (this._selectedRows[0] - this.VisibleStartRowIndex) * this.Theme.RowHeight - this.ScrollDeltaY;
+        return new PixUI.Rect(1, top + 1, this._owner!.W - 2, top + this.Theme.RowHeight - 1);
+    }
+
     public GetCurrentCellRect(): Nullable<PixUI.Rect> {
         if (this._cachedHitInRows == null || this._cachedHitInRows.RowIndex == -1)
             return null;
@@ -407,9 +449,8 @@ export class DataGridController<T> {
         let hitColumn = this._cachedHitInRows.Column;
         let top = this.TotalHeaderHeight +
             (this._cachedHitInRows.RowIndex - this.VisibleStartRowIndex) *
-            this.Theme.RowHeight -
-            this.ScrollDeltaY;
-        return new PixUI.Rect(hitColumn.CachedVisibleLeft, top, hitColumn.CachedVisibleRight, top + this.Theme.RowHeight);
+            this.Theme.RowHeight - this.ScrollDeltaY;
+        return new PixUI.Rect(hitColumn.CachedVisibleLeft + 1, top + 1, hitColumn.CachedVisibleRight - 2, top + this.Theme.RowHeight - 1);
     }
 
     private GetLeafColumns(column: PixUI.DataGridColumn<T>, leafColumns: System.IList<PixUI.DataGridColumn<T>>, parentFrozen: Nullable<boolean>) {
@@ -431,13 +472,25 @@ export class DataGridController<T> {
 
     public Add(item: T) {
         this._dataSource!.Add(item);
+        //TODO: refresh DataView
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
     public Remove(item: T) {
-        //var rowIndex = _dataSource!.IndexOf(item);
-        this._dataSource!.Remove(item);
-        this.ClearSelection();
+        let indexInDataView = this.DataView!.IndexOf(item);
+        this.RemoveAt(indexInDataView);
+    }
+
+    public RemoveAt(index: number) {
+        let rowIndex = index;
+        if (!(this.DataView === this._dataSource)) {
+            let rowInView = this.DataView![index];
+            this.DataView.RemoveAt(index);
+            rowIndex = this._dataSource!.IndexOf(rowInView);
+        }
+
+        this._dataSource!.RemoveAt(rowIndex);
+        this.ClearSelection(); //TODO: rowIndex when in selection
         this.ClearAllCache(); //TODO:仅移除并重设缓存
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }

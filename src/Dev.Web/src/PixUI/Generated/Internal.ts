@@ -85,6 +85,7 @@ export * from "./Route/RouteView";
 
 export * from "./Widgets/Dynamic/Conditional";
 export * from "./Widgets/Dynamic/IfConditional";
+export * from "./Widgets/Dynamic/FutureBuilder";
 
 export * from "./Widgets/Text/TextBase";
 export * from "./Widgets/Text/Text";
@@ -132,6 +133,7 @@ export * from "./Widgets/Menu/MainMenu";
 export * from "./Widgets/Menu/MenuItemWidget";
 export * from "./Widgets/Menu/PopupMenuStack";
 export * from "./Widgets/Menu/PopupMenu";
+export * from "./Widgets/Menu/ContextMenu";
 
 export * from "./Widgets/Form/FormItem";
 export * from "./Widgets/Form/Form";
