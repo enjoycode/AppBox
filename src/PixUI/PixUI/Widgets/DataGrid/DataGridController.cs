@@ -507,7 +507,7 @@ namespace PixUI
             if (_selectedRows.Count == 0) return null;
 
             var top = TotalHeaderHeight + (_selectedRows[0] - VisibleStartRowIndex) * Theme.RowHeight - ScrollDeltaY;
-            return new Rect(1, top + 1, _owner!.W - 2, top + Theme.RowHeight - 2);
+            return new Rect(1, top + 1, _owner!.W - 2, top + Theme.RowHeight - 1);
         }
 
         /// <summary>
@@ -523,7 +523,7 @@ namespace PixUI
                 (_cachedHitInRows.Value.RowIndex - VisibleStartRowIndex) *
                 Theme.RowHeight - ScrollDeltaY;
             return new Rect(hitColumn.CachedVisibleLeft + 1, top + 1,
-                hitColumn.CachedVisibleRight - 2, top + Theme.RowHeight - 2);
+                hitColumn.CachedVisibleRight - 2, top + Theme.RowHeight - 1);
         }
 
         private void GetLeafColumns(DataGridColumn<T> column, IList<DataGridColumn<T>> leafColumns,
