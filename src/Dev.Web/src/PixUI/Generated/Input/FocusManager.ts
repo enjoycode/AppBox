@@ -31,7 +31,8 @@ export class FocusManager {
     public OnKeyDown(e: PixUI.KeyEvent) {
         //TODO:考虑FocusedWidget==null时且为Tab从根节点开始查找Focusable
         if (this.FocusedWidget == null) return;
-        FocusManager.PropagateEvent<PixUI.KeyEvent>(this.FocusedWidget, e, (w, ke) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyDown(ke));
+        FocusManager.PropagateEvent<PixUI.KeyEvent>(this.FocusedWidget, e,
+            (w, ke) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyDown(ke));
         //如果是Tab键跳转至下一个Focused
         if (!e.IsHandled && e.KeyCode == PixUI.Keys.Tab) {
             let forward = !e.Shift;
@@ -47,14 +48,16 @@ export class FocusManager {
 
     public OnKeyUp(e: PixUI.KeyEvent) {
         if (this.FocusedWidget == null) return;
-        FocusManager.PropagateEvent<PixUI.KeyEvent>(this.FocusedWidget, e, (w, ke) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyUp(ke));
+        FocusManager.PropagateEvent<PixUI.KeyEvent>(this.FocusedWidget, e,
+            (w, ke) => (<PixUI.IFocusable><unknown>w).FocusNode.RaiseKeyUp(ke));
     }
 
     public OnTextInput(text: string) {
         (<PixUI.IFocusable><unknown>this.FocusedWidget!).FocusNode.RaiseTextInput(text);
     }
 
-    private static PropagateEvent<T extends PixUI.PropagateEvent>(widget: Nullable<PixUI.Widget>, theEvent: T, handler: System.Action2<PixUI.Widget, T>) {
+    private static PropagateEvent<T extends PixUI.PropagateEvent>(widget: Nullable<PixUI.Widget>, theEvent: T,
+                                                                  handler: System.Action2<PixUI.Widget, T>) {
         while (true) {
             if (widget == null) return;
 

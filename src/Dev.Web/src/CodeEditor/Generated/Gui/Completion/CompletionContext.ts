@@ -55,7 +55,8 @@ export class CompletionContext {
     }
 
     public async RunInternal(filter: string): Promise<void> {
-        let items = await this._provider!.ProvideCompletionItems(this._controller.Document, this._controller.TextEditor.Caret.Offset, filter);
+        let items = await this._provider!.ProvideCompletionItems(this._controller.Document,
+            this._controller.TextEditor.Caret.Offset, filter);
         this.ShowCompletionWindow(items, "");
     }
 
@@ -88,7 +89,8 @@ export class CompletionContext {
         }
 
         if (this._completionWindow == null) {
-            this._completionWindow = new PixUI.ListPopup<CodeEditor.ICompletionItem>(this._controller.Widget.Overlay!, CompletionContext.BuildPopupItem, 250, 18, 8);
+            this._completionWindow = new PixUI.ListPopup<CodeEditor.ICompletionItem>(this._controller.Widget.Overlay!,
+                CompletionContext.BuildPopupItem, 250, 18, 8);
             this._completionWindow.OnSelectionChanged = this.OnCompletionDone.bind(this);
         }
 
@@ -98,7 +100,8 @@ export class CompletionContext {
         let caret = this._controller.TextEditor.Caret;
         let lineHeight = this._controller.TextEditor.TextView.FontHeight;
         let pt2Win = this._controller.Widget.LocalToWindow(0, 0);
-        this._completionWindow.UpdatePosition(caret.CanvasPosX + pt2Win.X - 8, caret.CanvasPosY + lineHeight + pt2Win.Y);
+        this._completionWindow.UpdatePosition(caret.CanvasPosX + pt2Win.X - 8,
+            caret.CanvasPosY + lineHeight + pt2Win.Y);
         this._completionWindow.Show();
     }
 
@@ -108,7 +111,8 @@ export class CompletionContext {
     }
 
     private UpdateFilter() {
-        let filter = this._controller.Document.GetText(this._completionStartOffset, this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
+        let filter = this._controller.Document.GetText(this._completionStartOffset,
+            this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
         this._completionWindow?.UpdateFilter(t => t.Label.startsWith(filter));
         this._completionWindow?.TrySelectFirst();
     }
@@ -151,10 +155,12 @@ export class CompletionContext {
 
         if (item == null) return;
 
-        this._controller.TextEditor.InsertOrReplaceString(item.InsertText ?? item.Label, this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
+        this._controller.TextEditor.InsertOrReplaceString(item.InsertText ?? item.Label,
+            this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
     }
 
-    private static BuildPopupItem(item: CodeEditor.ICompletionItem, index: number, isHover: PixUI.State<boolean>, isSelected: PixUI.State<boolean>): PixUI.Widget {
+    private static BuildPopupItem(item: CodeEditor.ICompletionItem, index: number, isHover: PixUI.State<boolean>,
+                                  isSelected: PixUI.State<boolean>): PixUI.Widget {
         return new CodeEditor.CompletionItemWidget(item, isSelected);
     }
 }

@@ -65,7 +65,9 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
 
     private _OnHoverChanged(hover: boolean) {
         this._isHover = hover;
-        this.Invalidate(PixUI.InvalidAction.Repaint, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(0, 0, this.Controller.TreeView!.W, this.Controller.NodeHeight)));
+        this.Invalidate(PixUI.InvalidAction.Repaint,
+            new PixUI.RepaintArea(PixUI.Rect.FromLTWH(0, 0, this.Controller.TreeView!.W,
+                this.Controller.NodeHeight)));
     }
 
     private _OnTap(e: PixUI.PointerEvent) {
@@ -141,7 +143,8 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         if (this._isHover) {
             let paint = PixUI.PaintUtils.Shared(this.Controller.HoverColor);
             canvas.drawRect(
-                PixUI.Rect.FromLTWH(0, 0, this.Controller.TreeView!.W, this.Controller.NodeHeight), paint);
+                PixUI.Rect.FromLTWH(0, 0, this.Controller.TreeView!.W, this.Controller.NodeHeight),
+                paint);
         }
 
         TreeNodeRow.PaintChild(this._expander, canvas);

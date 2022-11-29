@@ -121,7 +121,8 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         let contentOffsetX = (this.W - contentWidth) / 2;
         // var contentOffsetY = (H - contentHeight) / 2;
         this._iconWidget?.SetPosition(contentOffsetX, (this.H - this._iconWidget!.H) / 2);
-        this._textWidget?.SetPosition(contentOffsetX + (this._iconWidget?.W ?? 0), (this.H - this._textWidget!.H) / 2);
+        this._textWidget?.SetPosition(contentOffsetX + (this._iconWidget?.W ?? 0),
+            (this.H - this._textWidget!.H) / 2);
     }
 
     private TryBuildContent() {
@@ -175,7 +176,8 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
                 canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), paint);
                 break;
             case PixUI.ButtonShape.Standard: {
-                let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), Button.StandardRadius, Button.StandardRadius);
+                let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(0, 0, this.W, this.H),
+                    Button.StandardRadius, Button.StandardRadius);
                 canvas.drawRRect(rrect, paint);
                 break;
             }

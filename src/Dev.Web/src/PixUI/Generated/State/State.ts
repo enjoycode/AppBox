@@ -48,7 +48,8 @@ export abstract class State<T> extends StateBase {
         return this.Value?.toString() ?? '';
     }
 
-    public AsStateOfString(formatter: Nullable<System.Func2<T, string>> = null, parser: Nullable<System.Func2<string, T>> = null): State<string> {
+    public AsStateOfString(formatter: Nullable<System.Func2<T, string>> = null,
+                           parser: Nullable<System.Func2<string, T>> = null): State<string> {
         return PixUI.RxComputed.MakeAsString(this, formatter, parser);
     }
 

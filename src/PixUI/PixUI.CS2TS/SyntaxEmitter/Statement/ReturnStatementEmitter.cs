@@ -2,25 +2,21 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace PixUI.CS2TS
 {
-    internal sealed class ReturnStatementEmitter : SyntaxEmitter<ReturnStatementSyntax>
+    partial class Emitter
     {
-        internal static readonly ReturnStatementEmitter Default = new();
-
-        private ReturnStatementEmitter() { }
-
-        internal override void Emit(Emitter emitter, ReturnStatementSyntax node)
+        public override void VisitReturnStatement(ReturnStatementSyntax node)
         {
             //dispose block using
-            var autoBlock = emitter.AutoDisposeBeforeReturn(node);
+            var autoBlock = AutoDisposeBeforeReturn(node);
 
-            emitter.VisitToken(node.ReturnKeyword);
-            emitter.Visit(node.Expression);
-            emitter.VisitToken(node.SemicolonToken);
+            VisitToken(node.ReturnKeyword);
+            Visit(node.Expression);
+            VisitToken(node.SemicolonToken);
 
             if (autoBlock)
             {
-                emitter.WriteLeadingWhitespaceOnly(node.Parent!);
-                emitter.Write("}\n"); 
+                WriteLeadingWhitespaceOnly(node.Parent!);
+                Write("}\n"); 
             }
         }
     }

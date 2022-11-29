@@ -11,12 +11,14 @@ export class IconPainter implements System.IDisposable {
     private _cachedGlyphId: number = 0;
     private _loading: boolean = false;
 
-    public Paint(canvas: PixUI.Canvas, size: number, color: PixUI.Color, data: PixUI.IconData, offsetX: number = 0, offsetY: number = 0) {
+    public Paint(canvas: PixUI.Canvas, size: number, color: PixUI.Color, data: PixUI.IconData,
+                 offsetX: number = 0, offsetY: number = 0) {
         if (this._cachedFont == null) {
             let typeface = PixUI.FontCollection.Instance.TryMatchFamilyFromAsset(data.FontFamily);
             if (typeface == null && !this._loading) {
                 this._loading = true;
-                PixUI.FontCollection.Instance.StartLoadFontFromAsset(data.AssemblyName, data.AssetPath, data.FontFamily);
+                PixUI.FontCollection.Instance.StartLoadFontFromAsset(data.AssemblyName,
+                    data.AssetPath, data.FontFamily);
                 PixUI.FontCollection.Instance.FontChanged.Add(this._OnFontChanged, this);
                 return;
             }

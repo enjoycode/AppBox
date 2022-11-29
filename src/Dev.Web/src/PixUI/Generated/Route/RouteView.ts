@@ -38,7 +38,8 @@ export class RouteView extends PixUI.DynamicView {
                 to = this.Navigator.GetCurrentRoute();
             }
 
-            this.AnimateTo(from, to, route.Duration, reverse, route.EnteringBuilder, route.ExistingBuilder);
+            this.AnimateTo(from, to, route.Duration, reverse, route.EnteringBuilder,
+                route.ExistingBuilder);
         }
     }
 }

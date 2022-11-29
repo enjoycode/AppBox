@@ -31,7 +31,8 @@ export class Radius implements System.IEquatable<Radius> {
 
         if (a == null)
             return Radius.Elliptical(<number><unknown>(b.X * t), <number><unknown>(b.Y * t));
-        return Radius.Elliptical(PixUI.FloatUtils.Lerp(a.X, b.X, t), PixUI.FloatUtils.Lerp(a.Y, b.Y, t));
+        return Radius.Elliptical(PixUI.FloatUtils.Lerp(a.X, b.X, t),
+            PixUI.FloatUtils.Lerp(a.Y, b.Y, t));
     }
 
     public static op_Multiply(pt: Radius, operand: number): Radius {

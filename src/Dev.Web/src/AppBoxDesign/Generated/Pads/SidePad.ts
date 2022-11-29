@@ -21,14 +21,23 @@ export class NaviBar extends PixUI.View {
                 BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(43, 49, 56)),
                 Child: new PixUI.Column().Init(
                     {
-                        Children: [new PixUI.Expanded().Init(
-                            {
-                                Child: new PixUI.Column(PixUI.HorizontalAlignment.Center, 5).Init(
+                        Children:
+                            [
+                                new PixUI.Expanded().Init(
                                     {
-                                        Children: [this.BuildButton(PixUI.Icons.Filled.Folder, SidePadType.DesignTree), this.BuildButton(PixUI.Icons.Filled.AccountTree, SidePadType.Outline), this.BuildButton(PixUI.Icons.Filled.Build, SidePadType.Toolbox), this.BuildButton(PixUI.Icons.Filled.Settings, SidePadType.Settings)]
-                                    })
-                            }), this.BuildButton(PixUI.Icons.Filled.ArrowLeft)
-                        ]
+                                        Child: new PixUI.Column(PixUI.HorizontalAlignment.Center, 5).Init(
+                                            {
+                                                Children:
+                                                    [
+                                                        this.BuildButton(PixUI.Icons.Filled.Folder, SidePadType.DesignTree),
+                                                        this.BuildButton(PixUI.Icons.Filled.AccountTree, SidePadType.Outline),
+                                                        this.BuildButton(PixUI.Icons.Filled.Build, SidePadType.Toolbox),
+                                                        this.BuildButton(PixUI.Icons.Filled.Settings, SidePadType.Settings),
+                                                    ]
+                                            })
+                                    }),
+                                this.BuildButton(PixUI.Icons.Filled.ArrowLeft)
+                            ]
                     })
             });
     }
@@ -36,7 +45,8 @@ export class NaviBar extends PixUI.View {
     private BuildButton(icon: PixUI.IconData, type: Nullable<SidePadType> = null): PixUI.Button {
         let color = this._buttonColor;
         if (type != null)
-            color = this.Compute1(AppBoxDesign.DesignStore.ActiveSidePad, s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
+            color = this.Compute1(AppBoxDesign.DesignStore.ActiveSidePad,
+                s => s == type ? new PixUI.Color(0xFF4AC5EA) : new PixUI.Color(0xFF6A7785));
 
         return new PixUI.Button(null, PixUI.State.op_Implicit_From(icon)).Init(
             {
@@ -57,19 +67,22 @@ export class SidePad extends PixUI.View {
         super();
         this.Child = new PixUI.Row().Init(
             {
-                Children: [new NaviBar(), new PixUI.Container().Init(
-                    {
-                        DebugLabel: "SidePad",
-                        Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
-                        Width: PixUI.State.op_Implicit_From(250),
-                        BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
-                        Child: new PixUI.Conditional(AppBoxDesign.DesignStore.ActiveSidePad)
-                            .When(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignTreePad())
-                            .When(t => t == SidePadType.Outline, () => new AppBoxDesign.OutlinePad())
-                            .When(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad())
-                            .When(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad())
-                    })
-                ]
+                Children:
+                    [
+                        new NaviBar(),
+                        new PixUI.Container().Init(
+                            {
+                                DebugLabel: "SidePad",
+                                Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(5)),
+                                Width: PixUI.State.op_Implicit_From(250),
+                                BgColor: PixUI.State.op_Implicit_From(new PixUI.Color(0xFFF3F3F3)),
+                                Child: new PixUI.Conditional(AppBoxDesign.DesignStore.ActiveSidePad)
+                                    .When(t => t == SidePadType.DesignTree, () => new AppBoxDesign.DesignTreePad())
+                                    .When(t => t == SidePadType.Outline, () => new AppBoxDesign.OutlinePad())
+                                    .When(t => t == SidePadType.Toolbox, () => new AppBoxDesign.ToolboxPad())
+                                    .When(t => t == SidePadType.Settings, () => new AppBoxDesign.SettingsPad())
+                            })
+                    ]
             });
     }
 }

@@ -6,7 +6,8 @@ export class Column extends PixUI.MultiChildWidget<PixUI.Widget> {
     private readonly _spacing: number;
     private _totalFlex: number = 0;
 
-    public constructor(alignment: PixUI.HorizontalAlignment = PixUI.HorizontalAlignment.Center, spacing: number = 0, debugLabel: Nullable<string> = null) {
+    public constructor(alignment: PixUI.HorizontalAlignment = PixUI.HorizontalAlignment.Center, spacing: number = 0,
+                       debugLabel: Nullable<string> = null) {
         super();
         if (spacing < 0) throw new System.ArgumentOutOfRangeException("spacing");
         this._alignment = alignment;
@@ -78,7 +79,8 @@ export class Column extends PixUI.MultiChildWidget<PixUI.Widget> {
         this.SetSize(maxWidthOfChild, Math.min(height, totalHeight));
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    public OnChildSizeChanged(child: PixUI.Widget,
+                              dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
         console.assert(this.AutoSize);
 
         let oldWidth = this.W;

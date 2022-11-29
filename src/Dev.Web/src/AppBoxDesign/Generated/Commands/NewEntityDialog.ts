@@ -20,16 +20,21 @@ export class NewEntityDialog extends PixUI.Dialog {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
                 Child: new PixUI.Column().Init(
                     {
-                        Children: [new PixUI.Form().Init(
-                            {
-                                LabelWidth: 80,
-                                Children: [new PixUI.FormItem("Name:", new PixUI.Input(this._name)), new PixUI.FormItem("DataStore:", new PixUI.Select<AppBoxDesign.DataStoreNodeVO>(this._store).Init(
+                        Children:
+                            [
+                                new PixUI.Form().Init(
                                     {
-                                        Options: NewEntityDialog.GetAllDataStores()
-                                    }))
-                                ]
-                            })
-                        ]
+                                        LabelWidth: 80,
+                                        Children:
+                                            [
+                                                new PixUI.FormItem("Name:", new PixUI.Input(this._name)),
+                                                new PixUI.FormItem("DataStore:", new PixUI.Select<AppBoxDesign.DataStoreNodeVO>(this._store).Init(
+                                                    {
+                                                        Options: NewEntityDialog.GetAllDataStores()
+                                                    }))
+                                            ]
+                                    })
+                            ]
                     })
             });
     }
@@ -44,8 +49,11 @@ export class NewEntityDialog extends PixUI.Dialog {
         let selectedNode = AppBoxDesign.DesignStore.TreeController.FirstSelectedNode;
         if (selectedNode == null) return;
 
-        let args = [(Math.floor(selectedNode.Data.Type) & 0xFFFFFFFF), selectedNode.Data.Id, this._name.Value, this._store.Value == null ? null : this._store.Value.Id
-        ];
+        let args =
+            [
+                (Math.floor(selectedNode.Data.Type) & 0xFFFFFFFF), selectedNode.Data.Id, this._name.Value,
+                this._store.Value == null ? null : this._store.Value.Id
+            ];
 
         let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.NewNodeResult>("sys.DesignService.NewEntityModel", args);
         //根据返回结果同步添加新节点

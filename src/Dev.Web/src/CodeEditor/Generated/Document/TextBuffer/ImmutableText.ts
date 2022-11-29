@@ -99,11 +99,13 @@ export class ImmutableText {
 
     private VerifyRange(startIndex: number, length: number) {
         if (startIndex < 0 || startIndex > this.Length) {
-            throw new System.ArgumentOutOfRangeException("startIndex", `0 <= startIndex <= ${this.Length}`);
+            throw new System.ArgumentOutOfRangeException("startIndex",
+                `0 <= startIndex <= ${this.Length}`);
         }
 
         if (length < 0 || startIndex + length > this.Length) {
-            throw new System.ArgumentOutOfRangeException("length", `0 <= length, startIndex(${startIndex})+length(${length}) <= ${length} `);
+            throw new System.ArgumentOutOfRangeException("length",
+                `0 <= length, startIndex(${startIndex})+length(${length}) <= ${length} `);
         }
     }
 
@@ -138,7 +140,8 @@ export class ImmutableText {
 
         // Splits on a block boundary.
         let half: number = ((length + ImmutableText.BlockSize) >> 1) & ImmutableText.BlockMask;
-        return new CodeEditor.CompositeNode(ImmutableText.NodeOf(node, offset, half), ImmutableText.NodeOf(node, offset + half, length - half));
+        return new CodeEditor.CompositeNode(ImmutableText.NodeOf(node, offset, half),
+            ImmutableText.NodeOf(node, offset + half, length - half));
     }
 
     public static ConcatNodes(node1: CodeEditor.Node, node2: CodeEditor.Node): CodeEditor.Node {

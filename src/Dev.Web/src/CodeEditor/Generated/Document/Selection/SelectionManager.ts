@@ -45,7 +45,8 @@ export class SelectionManager {
             return;
 
         this.SelectionCollection.Clear(); //clearWithoutUpdate();
-        this.SelectionCollection.Add(new CodeEditor.Selection(this._textEditor.Document, (startPosition).Clone(), (endPosition).Clone()));
+        this.SelectionCollection.Add(new CodeEditor.Selection(this._textEditor.Document, (startPosition).Clone(),
+            (endPosition).Clone()));
         this.SelectionChanged.Invoke();
     }
 
@@ -56,7 +57,8 @@ export class SelectionManager {
         // positions because it is always called before a new selection
         this.SelectFrom.First = this.SelectFrom.Where;
         let newSelectionStart = this._textEditor.TextView.GetLogicalPosition(
-            mousePos.X - this._textEditor.TextView.Bounds.Left, mousePos.Y - this._textEditor.TextView.Bounds.Top);
+            mousePos.X - this._textEditor.TextView.Bounds.Left,
+            mousePos.Y - this._textEditor.TextView.Bounds.Top);
 
         if (this.SelectFrom.Where == WhereFrom.Gutter) {
             newSelectionStart.Column = 0;
@@ -169,7 +171,8 @@ export class SelectionManager {
         if (line < this._textEditor.Document.TotalNumberOfLines - 1)
             return new CodeEditor.TextLocation(0, line + 1);
         return new CodeEditor.TextLocation(this._textEditor.Document.GetLineSegment(this._textEditor.Document.TotalNumberOfLines - 1)
-            .Length + 1, line);
+            .Length + 1,
+            line);
     }
 
     public static GreaterEqPos(p1: CodeEditor.TextLocation, p2: CodeEditor.TextLocation): boolean {

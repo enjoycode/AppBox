@@ -40,7 +40,8 @@ export class AnimationController extends PixUI.Animation<number> {
     public readonly LowerBound: number = 0;
     public readonly UpperBound: number = 1;
 
-    public constructor(duration: number, value: Nullable<number> = null, behavior: AnimationBehavior = AnimationBehavior.Normal) {
+    public constructor(duration: number, value: Nullable<number> = null,
+                       behavior: AnimationBehavior = AnimationBehavior.Normal) {
         super();
         this.Duration = duration;
         this._animationBehavior = behavior;
@@ -163,7 +164,8 @@ export class AnimationController extends PixUI.Animation<number> {
 
         console.assert(simulationDuration > 0);
         console.assert(!this.IsAnimating);
-        this.StartSimulation(new PixUI.InterpolationSimulation(this._value, target, simulationDuration, curve, scale));
+        this.StartSimulation(new PixUI.InterpolationSimulation(this._value, target, simulationDuration,
+            curve, scale));
     }
 
     private StartSimulation(simulation: PixUI.Simulation) {
@@ -202,7 +204,8 @@ export class AnimationController extends PixUI.Animation<number> {
         this.SetValue(this.LowerBound);
     }
 
-    public Repeat(min: Nullable<number> = null, max: Nullable<number> = null, reverse: boolean = false, period: Nullable<number> = null) {
+    public Repeat(min: Nullable<number> = null, max: Nullable<number> = null, reverse: boolean = false,
+                  period: Nullable<number> = null) {
         min ??= this.LowerBound;
         max ??= this.UpperBound;
         period ??= this.Duration;
@@ -213,13 +216,15 @@ export class AnimationController extends PixUI.Animation<number> {
         console.assert(max <= this.UpperBound && min >= this.LowerBound);
 
         this.Stop();
-        this.StartSimulation(new PixUI.RepeatingSimulation(this._value, min, max, reverse, period, direction => {
-            this._direction = direction;
-            this._status = this._direction == AnimationDirection.Forward
-                ? PixUI.AnimationStatus.Forward
-                : PixUI.AnimationStatus.Reverse;
-            this.CheckStatusChanged();
-        }));
+        this.StartSimulation(new PixUI.RepeatingSimulation(this._value, min, max, reverse,
+            period,
+            direction => {
+                this._direction = direction;
+                this._status = this._direction == AnimationDirection.Forward
+                    ? PixUI.AnimationStatus.Forward
+                    : PixUI.AnimationStatus.Reverse;
+                this.CheckStatusChanged();
+            }));
     }
 
     public Dispose() {

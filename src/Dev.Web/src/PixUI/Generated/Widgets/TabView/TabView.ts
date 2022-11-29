@@ -4,7 +4,10 @@ import * as PixUI from '@/PixUI'
 /// 包装TabBar及TabBody
 /// </summary>
 export class TabView<T> extends PixUI.Widget {
-    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Func3<T, PixUI.State<boolean>, PixUI.Widget>, bodyBuilder: System.Func2<T, PixUI.Widget>, closable: boolean = false, tabBarIndent: number = 35) {
+    public constructor(controller: PixUI.TabController<T>,
+                       tabBuilder: System.Func3<T, PixUI.State<boolean>, PixUI.Widget>,
+                       bodyBuilder: System.Func2<T, PixUI.Widget>,
+                       closable: boolean = false, tabBarIndent: number = 35) {
         super();
         this._tabBarIndent = tabBarIndent;
         this._tabBody = new PixUI.TabBody<T>(controller, bodyBuilder);
@@ -16,13 +19,16 @@ export class TabView<T> extends PixUI.Widget {
                     Child: closable
                         ? new PixUI.Row().Init(
                             {
-                                Children: [tabBuilder(data, tab.IsSelected), new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
-                                    {
-                                        Style: PixUI.ButtonStyle.Transparent,
-                                        Shape: PixUI.ButtonShape.Pills,
-                                        OnTap: _ => controller.Remove(data)
-                                    })
-                                ]
+                                Children:
+                                    [
+                                        tabBuilder(data, tab.IsSelected),
+                                        new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
+                                            {
+                                                Style: PixUI.ButtonStyle.Transparent,
+                                                Shape: PixUI.ButtonShape.Pills,
+                                                OnTap: _ => controller.Remove(data)
+                                            })
+                                    ]
                             })
                         : tabBuilder(data, tab.IsSelected)
                 });

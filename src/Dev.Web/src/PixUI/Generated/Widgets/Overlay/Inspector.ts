@@ -63,7 +63,8 @@ export class Inspector extends PixUI.Widget {
         }
 
         //draw bounds border
-        let bounds = PixUI.Rect.FromLTWH(this._target.X + 0.5, this._target.Y + 0.5, this._target.W - 1, this._target.H - 1);
+        let bounds = PixUI.Rect.FromLTWH(this._target.X + 0.5, this._target.Y + 0.5, this._target.W - 1,
+            this._target.H - 1);
         let borderColor = new PixUI.Color(0x807F7EBE);
         let fillColor = new PixUI.Color(0x80BDBDFC);
         canvas.drawRect(bounds, PixUI.PaintUtils.Shared(fillColor));

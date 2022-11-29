@@ -228,12 +228,14 @@ export class TreeNode<T> extends PixUI.Widget {
         // expanded, continue build and layout children
         if (!this.IsLeaf && this.IsExpanded) {
             let maxChildWidth = this.TryBuildAndLayoutChildren();
-            this.SetSize(Math.max(this._row.W, maxChildWidth), this._controller.NodeHeight + this._children!.Sum(t => t.H));
+            this.SetSize(Math.max(this._row.W, maxChildWidth),
+                this._controller.NodeHeight + this._children!.Sum(t => t.H));
             this.HasLayout = true;
         }
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                              affects: PixUI.AffectsByRelayout) {
         let oldWidth = this.W;
         let oldHeight = this.H;
         affects.Widget = this;
@@ -268,7 +270,8 @@ export class TreeNode<T> extends PixUI.Widget {
         if (this.IsExpanding || this.IsCollapsing) //need clip expanding area
         {
             canvas.save();
-            canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this._controller.TreeView!.W, this.H), CanvasKit.ClipOp.Intersect, false);
+            canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this._controller.TreeView!.W, this.H), CanvasKit.ClipOp.Intersect,
+                false);
         }
 
         this._row.Paint(canvas, area);

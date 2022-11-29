@@ -36,6 +36,7 @@ export class ImageBox extends PixUI.Widget {
 
         //TODO:暂简单绘制，应根据大小及fit
         // @ts-ignore //TODO:尝试忽略web端canvaskit的paint参数
-        canvas.drawImageRect(img, PixUI.Rect.FromLTWH(0, 0, img.width, img.height), PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
+        canvas.drawImageRect(img, PixUI.Rect.FromLTWH(0, 0, img.width, img.height),
+            PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
     }
 }

@@ -40,7 +40,8 @@ export class TextEditor {
     }
 
     public set VirtualTop(value: PixUI.Point) {
-        let newVirtualTop = new PixUI.Point(Math.max(0, value.X), Math.min(this.MaxVScrollValue, Math.max(0, value.Y)));
+        let newVirtualTop = new PixUI.Point(Math.max(0, value.X),
+            Math.min(this.MaxVScrollValue, Math.max(0, value.Y)));
         if (System.OpInequality(this._virtualTop, newVirtualTop))
             this._virtualTop = (newVirtualTop).Clone();
 
@@ -78,7 +79,8 @@ export class TextEditor {
             if (replaceOffset == text.length) {
                 this.Caret.UpdateCaretPosition(); //替换后位置没有变化，需要更新光标的绘制坐标
             } else {
-                this.Caret.Position = new CodeEditor.TextLocation(this.Caret.Position.Column - replaceOffset + text.length, this.Caret.Position.Line);
+                this.Caret.Position = new CodeEditor.TextLocation(this.Caret.Position.Column - replaceOffset + text.length,
+                    this.Caret.Position.Line);
             }
         }
 
@@ -103,7 +105,8 @@ export class TextEditor {
         for (const area of this.LeftAreas) {
             if (!area.IsVisible) continue;
 
-            let areaRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, area.Size.Width, size.Height - currentYPos);
+            let areaRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, area.Size.Width,
+                size.Height - currentYPos);
             if (System.OpInequality(areaRect, area.Bounds)) {
                 //adjustScrollBars = true;
                 area.Bounds = (areaRect).Clone();
@@ -114,7 +117,8 @@ export class TextEditor {
         }
 
         // paint text area
-        let textRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, size.Width - currentXPos, size.Height - currentYPos);
+        let textRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos,
+            size.Width - currentXPos, size.Height - currentYPos);
         if (System.OpInequality(textRect, this.TextView.Bounds)) {
             //adjustScrollBars = true;
             this.TextView.Bounds = (textRect).Clone();

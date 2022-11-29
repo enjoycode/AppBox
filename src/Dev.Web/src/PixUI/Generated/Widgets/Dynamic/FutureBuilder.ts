@@ -2,7 +2,9 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class FutureBuilder<T> extends PixUI.DynamicView {
-    public constructor(future: System.Task<T>, doneBuilder: System.Func3<Nullable<T>, Nullable<System.Exception>, Nullable<PixUI.Widget>>, runningBuilder: Nullable<System.Func1<PixUI.Widget>> = null) {
+    public constructor(future: System.Task<T>,
+                       doneBuilder: System.Func3<Nullable<T>, Nullable<System.Exception>, Nullable<PixUI.Widget>>,
+                       runningBuilder: Nullable<System.Func1<PixUI.Widget>> = null) {
         super();
         this._future = future;
         this._doneBuilder = doneBuilder;

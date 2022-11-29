@@ -41,7 +41,8 @@ export class Commands {
         }
 
         try {
-            await AppBoxClient.Channel.Invoke("sys.DesignService.CheckoutNode", [(Math.floor(nodeType) & 0xFFFFFFFF), selectedNode.Data.Id]);
+            await AppBoxClient.Channel.Invoke("sys.DesignService.CheckoutNode",
+                [(Math.floor(nodeType) & 0xFFFFFFFF), selectedNode.Data.Id]);
             //TODO:判断返回结果刷新
             PixUI.Notification.Success(`签出节点[${selectedNode.Data.Label}]成功`);
         } catch (ex: any) {
@@ -73,7 +74,8 @@ export class Commands {
 
         try {
             let modelRootNodeIdString = await AppBoxClient.Channel.Invoke<Nullable<string>>(
-                "sys.DesignService.DeleteNode", [(Math.floor(nodeType) & 0xFFFFFFFF), selectedNode.Data.Id]);
+                "sys.DesignService.DeleteNode",
+                [(Math.floor(nodeType) & 0xFFFFFFFF), selectedNode.Data.Id]);
             AppBoxDesign.DesignStore.OnDeleteNode(selectedNode, modelRootNodeIdString);
             PixUI.Notification.Success(`删除节点[${selectedNode.Data.Label}]成功`);
         } catch (ex: any) {
@@ -112,7 +114,8 @@ export class Commands {
             return;
         }
 
-        let dlg = new AppBoxDesign.RenameDialog(referenceType, modelNode.Label.Value, modelNode.Id, modelNode.Label.Value);
+        let dlg = new AppBoxDesign.RenameDialog(referenceType, modelNode.Label.Value, modelNode.Id,
+            modelNode.Label.Value);
         let canceled = await dlg.ShowAndWaitClose();
         if (canceled) return;
 

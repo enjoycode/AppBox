@@ -55,7 +55,8 @@ export class HitTestResult {
         }
     }
 
-    public TranslateOnScroll(scrollable: PixUI.Widget, dx: number, dy: number, winX: number, winY: number): boolean {
+    public TranslateOnScroll(scrollable: PixUI.Widget, dx: number, dy: number, winX: number,
+                             winY: number): boolean {
         //如果scrollable就是LastHitWidget，不需要处理
         if ((this.LastHitWidget === scrollable))
             return true;
@@ -96,7 +97,8 @@ export class HitTestResult {
         if (scrollableParent == null) return true;
 
         let scrollableToWin = scrollableParent.LocalToWindow(0, 0);
-        return scrollableParent.ContainsPoint(winX - scrollableToWin.X, winY - scrollableToWin.Y);
+        return scrollableParent.ContainsPoint(winX - scrollableToWin.X,
+            winY - scrollableToWin.Y);
     }
 
     public HitTestInLastRegion(winX: number, winY: number) {
@@ -156,7 +158,8 @@ export class HitTestResult {
         }
     }
 
-    public PropagatePointerEvent(e: PixUI.PointerEvent, handler: System.Action2<PixUI.MouseRegion, PixUI.PointerEvent>) {
+    public PropagatePointerEvent(e: PixUI.PointerEvent,
+                                 handler: System.Action2<PixUI.MouseRegion, PixUI.PointerEvent>) {
         for (let i = this._path.length - 1; i >= 0; i--) {
             let transformed = PixUI.MatrixUtils.TransformPoint(this._path[i].Transform, e.X, e.Y);
             e.SetPoint(transformed.Dx, transformed.Dy);
@@ -191,7 +194,8 @@ export class HitTestEntry {
 
     public ContainsPoint(winX: number, winY: number): boolean {
         let transformedPosition = PixUI.MatrixUtils.TransformPoint(this.Transform, winX, winY);
-        return (<PixUI.Widget><unknown>this.Widget).ContainsPoint(transformedPosition.Dx, transformedPosition.Dy);
+        return (<PixUI.Widget><unknown>this.Widget).ContainsPoint(transformedPosition.Dx,
+            transformedPosition.Dy);
     }
 
     public Clone(): HitTestEntry {

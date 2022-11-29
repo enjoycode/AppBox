@@ -30,7 +30,8 @@ export class Expanded extends PixUI.SingleChildWidget {
         this.SetSize(w, h);
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    public OnChildSizeChanged(child: PixUI.Widget,
+                              dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
         let oldWidth = this.W;
         let oldHeight = this.H;
         let w = this.Parent instanceof PixUI.Column ? child.W : this.CachedAvailableWidth;

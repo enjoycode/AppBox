@@ -5,7 +5,8 @@ export class Checkbox extends PixUI.Toggleable {
         super();
         this._previousValue = value.Value;
         this.InitState(
-            PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value, v => v, v => value.Value = v ?? false), false);
+            PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value, v => v, v => value.Value = v ?? false),
+            false);
         this._positionController.StatusChanged.Add(this.OnPositionStatusChanged, this);
     }
 
@@ -111,7 +112,8 @@ export class Checkbox extends PixUI.Toggleable {
         if (t < 0.5) {
             let strokeT = t * 2.0;
             let drawMid = PixUI.Offset.Lerp(start, mid, strokeT)!;
-            canvas.drawLine(origin.Dx + start.Dx, origin.Dy + start.Dy, origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy, paint);
+            canvas.drawLine(origin.Dx + start.Dx, origin.Dy + start.Dy,
+                origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy, paint);
             //path.MoveTo(origin.Dx + start.Dx, origin.Dy + start.Dy);
             //path.LineTo(origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy);
         } else {
@@ -140,7 +142,8 @@ export class Checkbox extends PixUI.Toggleable {
 
         let drawStart = PixUI.Offset.Lerp(start, mid, 1.0 - t)!;
         let drawEnd = PixUI.Offset.Lerp(mid, end, t)!;
-        canvas.drawLine(origin.Dx + drawStart.Dx, origin.Dy + drawStart.Dy, origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy, paint);
+        canvas.drawLine(origin.Dx + drawStart.Dx, origin.Dy + drawStart.Dy,
+            origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy, paint);
     }
 
     private static OuterRectAt(origin: PixUI.Offset, t: number): PixUI.Rect {

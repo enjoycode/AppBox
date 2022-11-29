@@ -44,9 +44,13 @@ export class TabBody<T> extends PixUI.DynamicView {
         } else {
             let from = this.Child;
             from!.SuspendingMount = true; //动画开始前挂起
-            this.AnimateTo(from, to, 200, false, (a, w) =>
-                TabBody.BuildDefaultTransition(a, w, new PixUI.Offset(newIndex > oldIndex ? 1 : -1, 0), PixUI.Offset.Empty), (a, w) =>
-                TabBody.BuildDefaultTransition(a, w, PixUI.Offset.Empty, new PixUI.Offset(newIndex > oldIndex ? -1 : 1, 0)));
+            this.AnimateTo(from, to, 200, false,
+                (a, w) =>
+                    TabBody.BuildDefaultTransition(a, w, new PixUI.Offset(newIndex > oldIndex ? 1 : -1, 0),
+                        PixUI.Offset.Empty),
+                (a, w) =>
+                    TabBody.BuildDefaultTransition(a, w, PixUI.Offset.Empty,
+                        new PixUI.Offset(newIndex > oldIndex ? -1 : 1, 0)));
         }
     }
 
@@ -54,7 +58,8 @@ export class TabBody<T> extends PixUI.DynamicView {
         this.ReplaceTo(null);
     }
 
-    private static BuildDefaultTransition(animation: PixUI.Animation<number>, child: PixUI.Widget, fromOffset: PixUI.Offset, toOffset: PixUI.Offset): PixUI.Widget {
+    private static BuildDefaultTransition(animation: PixUI.Animation<number>, child: PixUI.Widget,
+                                          fromOffset: PixUI.Offset, toOffset: PixUI.Offset): PixUI.Widget {
         let offsetAnimation = new PixUI.OffsetTween(fromOffset, toOffset).Animate(animation);
         return new PixUI.SlideTransition(offsetAnimation).Init({Child: child});
     }

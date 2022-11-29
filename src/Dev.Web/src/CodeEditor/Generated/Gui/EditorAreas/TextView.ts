@@ -32,7 +32,8 @@ export class TextView extends CodeEditor.EditorArea {
 
     public set FirstVisibleLine(value: number) {
         if (this.FirstVisibleLine != value) {
-            this.TextEditor.VirtualTop = new PixUI.Point(this.TextEditor.VirtualTop.X, this.Document.GetVisibleLine(value) * this.FontHeight);
+            this.TextEditor.VirtualTop = new PixUI.Point(this.TextEditor.VirtualTop.X,
+                this.Document.GetVisibleLine(value) * this.FontHeight);
         }
     }
 
@@ -47,7 +48,8 @@ export class TextView extends CodeEditor.EditorArea {
     public GetLogicalColumn(lineNumber: number, visualPosX: number): LogicalColumnInfo {
         visualPosX += this.TextEditor.VirtualTop.X;
         if (lineNumber >= this.Document.TotalNumberOfLines) {
-            return new LogicalColumnInfo(new CodeEditor.TextLocation((Math.floor((visualPosX / this._spaceWidth)) & 0xFFFFFFFF), lineNumber), null);
+            return new LogicalColumnInfo(new CodeEditor.TextLocation((Math.floor((visualPosX / this._spaceWidth)) & 0xFFFFFFFF), lineNumber),
+                null);
         }
 
         if (visualPosX <= 0) {
@@ -157,7 +159,10 @@ export class TextView extends CodeEditor.EditorArea {
         let horizontalDelta = this.TextEditor.VirtualTop.X;
         for (let y = 0; y < maxLines; y++) {
             let lineRect = PixUI.Rect.FromLTWH(
-                this.Bounds.Left - horizontalDelta, this.Bounds.Top + y * this.FontHeight - this.VisibleLineDrawingRemainder, this.Bounds.Width + horizontalDelta, this.FontHeight);
+                this.Bounds.Left - horizontalDelta,
+                this.Bounds.Top + y * this.FontHeight - this.VisibleLineDrawingRemainder,
+                this.Bounds.Width + horizontalDelta,
+                this.FontHeight);
             //TODO: check lineRect overlaps with dirty area.
 
             let currentLine = this.Document.GetFirstLogicalLine(

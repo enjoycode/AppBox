@@ -14,13 +14,17 @@ export class NotificationEntry extends PixUI.SingleChildWidget {
                 Width: PixUI.State.op_Implicit_From(280),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 5).Init(
                     {
-                        Children: [icon, new PixUI.Expanded().Init({Child: text}), new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
-                            {
-                                Style: PixUI.ButtonStyle.Transparent,
-                                Shape: PixUI.ButtonShape.Pills,
-                                OnTap: _ => this._controller.Reverse()
-                            })
-                        ]
+                        Children:
+                            [
+                                icon,
+                                new PixUI.Expanded().Init({Child: text}),
+                                new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
+                                    {
+                                        Style: PixUI.ButtonStyle.Transparent,
+                                        Shape: PixUI.ButtonShape.Pills,
+                                        OnTap: _ => this._controller.Reverse()
+                                    })
+                            ]
                     })
             });
     }
@@ -129,25 +133,28 @@ export class Notification extends PixUI.Popup {
     public static Info(message: string) {
         let color: PixUI.State<PixUI.Color> = PixUI.State.op_Implicit_From(PixUI.Colors.Gray);
         Notification.Show(new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Info)).Init({
-            Size: PixUI.State.op_Implicit_From(18),
-            Color: color
-        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color, MaxLines: 5}));
+                Size: PixUI.State.op_Implicit_From(18),
+                Color: color
+            }),
+            new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color, MaxLines: 5}));
     }
 
     public static Success(message: string) {
         let color: PixUI.State<PixUI.Color> = PixUI.State.op_Implicit_From(PixUI.Colors.Green);
         Notification.Show(new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Error)).Init({
-            Size: PixUI.State.op_Implicit_From(18),
-            Color: color
-        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color, MaxLines: 5}));
+                Size: PixUI.State.op_Implicit_From(18),
+                Color: color
+            }),
+            new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color, MaxLines: 5}));
     }
 
     public static Error(message: string) {
         let color: PixUI.State<PixUI.Color> = PixUI.State.op_Implicit_From(PixUI.Colors.Red);
         Notification.Show(new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Error)).Init({
-            Size: PixUI.State.op_Implicit_From(18),
-            Color: color
-        }), new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color, MaxLines: 5}));
+                Size: PixUI.State.op_Implicit_From(18),
+                Color: color
+            }),
+            new PixUI.Text(PixUI.State.op_Implicit_From(message)).Init({TextColor: color, MaxLines: 5}));
     }
 
 }

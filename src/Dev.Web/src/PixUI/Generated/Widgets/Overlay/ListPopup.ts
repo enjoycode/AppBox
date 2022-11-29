@@ -1,7 +1,8 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export type ListPopupItemBuilder<T> = (data: T, index: number, isHover: PixUI.State<boolean>, isSelected: PixUI.State<boolean>) => PixUI.Widget;
+export type ListPopupItemBuilder<T> = (data: T, index: number, isHover: PixUI.State<boolean>,
+                                       isSelected: PixUI.State<boolean>) => PixUI.Widget;
 
 export class ItemState {
     public readonly HoverState: PixUI.State<boolean>;
@@ -24,7 +25,8 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
     private readonly _hoverState: PixUI.State<boolean>;
     private readonly _selectedState: PixUI.State<boolean>;
 
-    public constructor(index: number, hoverState: PixUI.State<boolean>, selectedState: PixUI.State<boolean>, onSelect: System.Action1<number>) {
+    public constructor(index: number, hoverState: PixUI.State<boolean>, selectedState: PixUI.State<boolean>,
+                       onSelect: System.Action1<number>) {
         super();
         this._hoverState = this.Bind(hoverState);
         this._selectedState = selectedState;
@@ -65,7 +67,9 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
 /// 列表弹窗，可通过键盘或鼠标选择指定项，并且支持条件过滤
 /// </summary>
 export class ListPopup<T> extends PixUI.Popup {
-    public constructor(overlay: PixUI.Overlay, itemBuilder: ListPopupItemBuilder<T>, popupWidth: number, itemExtent: number, maxShowItems: number = 5) {
+    public constructor(overlay: PixUI.Overlay,
+                       itemBuilder: ListPopupItemBuilder<T>,
+                       popupWidth: number, itemExtent: number, maxShowItems: number = 5) {
         super(overlay);
         this._itemExtent = itemExtent;
         this._maxShowItems = maxShowItems;
@@ -115,7 +119,8 @@ export class ListPopup<T> extends PixUI.Popup {
     private BuildItem(data: T, index: number): PixUI.Widget {
         let states = this._itemStates![index];
 
-        return new ListPopupItemWidget(index, states.HoverState, states.SelectedState, this.OnSelectByTap.bind(this)).Init(
+        return new ListPopupItemWidget(index, states.HoverState, states.SelectedState,
+            this.OnSelectByTap.bind(this)).Init(
             {
                 Width: this._child.Width, Height: PixUI.State.op_Implicit_From(this._itemExtent),
                 Child: this._itemBuilder(data, index, states.HoverState, states.SelectedState)

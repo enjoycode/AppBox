@@ -30,45 +30,63 @@ export class NewEntityMemberDialog extends PixUI.Dialog {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
                 Child: new PixUI.Column().Init(
                     {
-                        Children: [new PixUI.Form().Init(
-                            {
-                                LabelWidth: 100,
-                                Padding: PixUI.EdgeInsets.Only(5, 5, 5, 0),
-                                Children: [new PixUI.FormItem("Name:", new PixUI.Input(this._name)), new PixUI.FormItem("MemberType:", new PixUI.Select<string>(this._memberType!).Init(
+                        Children:
+                            [
+                                new PixUI.Form().Init(
                                     {
-                                        Options: NewEntityMemberDialog.MemberTypes
-                                    }))
-                                ]
-                            }), new PixUI.Conditional(this._memberType)
-                            .When(t => t == "EntityField", () => new PixUI.Form().Init(
-                                {
-                                    LabelWidth: 100,
-                                    Padding: PixUI.EdgeInsets.Only(5, 0, 5, 5),
-                                    Children: [new PixUI.FormItem("FieldType:", new PixUI.Select<string>(this._fieldType!).Init({Options: NewEntityMemberDialog.FieldTypes})), new PixUI.FormItem("AllowNull:", new PixUI.Checkbox(this._allowNull))
-                                    ]
-                                }))
-                            .When(t => t == "EntityRef", () => new PixUI.Form().Init(
-                                {
-                                    LabelWidth: 100,
-                                    Padding: PixUI.EdgeInsets.Only(5, 0, 5, 5),
-                                    Children: [new PixUI.FormItem("Target:", new PixUI.Select<AppBoxDesign.ModelNodeVO>(this._entityRefTarget).Init(
+                                        LabelWidth: 100,
+                                        Padding: PixUI.EdgeInsets.Only(5, 5, 5, 0),
+                                        Children:
+                                            [
+                                                new PixUI.FormItem("Name:", new PixUI.Input(this._name)),
+                                                new PixUI.FormItem("MemberType:", new PixUI.Select<string>(this._memberType!).Init(
+                                                    {
+                                                        Options: NewEntityMemberDialog.MemberTypes
+                                                    }))
+                                            ]
+                                    }),
+                                new PixUI.Conditional(this._memberType)
+                                    .When(t => t == "EntityField", () => new PixUI.Form().Init(
                                         {
-                                            Options: AppBoxDesign.DesignStore.GetAllEntityNodes().ToArray()
-                                        })), new PixUI.FormItem("AllowNull:", new PixUI.Checkbox(this._allowNull))
-                                    ]
-                                }))
-                            .When(t => t == "EntitySet", () => new PixUI.Form().Init(
-                                {
-                                    LabelWidth: 100,
-                                    Padding: PixUI.EdgeInsets.Only(5, 0, 5, 5),
-                                    Children: [new PixUI.FormItem("Target:", new PixUI.Select<AppBoxDesign.EntityMemberInfo>(this._entitySetTarget).Init(
-                                        {
-                                            OptionsAsyncGetter: AppBoxClient.Channel.Invoke<AppBoxDesign.EntityMemberInfo[]>(
-                                                "sys.DesignService.GetAllEntityRefs", [this._modelNode.Id])!
+                                            LabelWidth: 100,
+                                            Padding: PixUI.EdgeInsets.Only(5, 0, 5, 5),
+                                            Children:
+                                                [
+                                                    new PixUI.FormItem("FieldType:",
+                                                        new PixUI.Select<string>(this._fieldType!).Init({Options: NewEntityMemberDialog.FieldTypes})),
+                                                    new PixUI.FormItem("AllowNull:", new PixUI.Checkbox(this._allowNull))
+                                                ]
                                         }))
-                                    ]
-                                }))
-                        ]
+                                    .When(t => t == "EntityRef", () => new PixUI.Form().Init(
+                                        {
+                                            LabelWidth: 100,
+                                            Padding: PixUI.EdgeInsets.Only(5, 0, 5, 5),
+                                            Children:
+                                                [
+                                                    new PixUI.FormItem("Target:",
+                                                        new PixUI.Select<AppBoxDesign.ModelNodeVO>(this._entityRefTarget).Init(
+                                                            {
+                                                                Options: AppBoxDesign.DesignStore.GetAllEntityNodes().ToArray()
+                                                            })),
+                                                    new PixUI.FormItem("AllowNull:", new PixUI.Checkbox(this._allowNull))
+                                                ]
+                                        }))
+                                    .When(t => t == "EntitySet", () => new PixUI.Form().Init(
+                                        {
+                                            LabelWidth: 100,
+                                            Padding: PixUI.EdgeInsets.Only(5, 0, 5, 5),
+                                            Children:
+                                                [
+                                                    new PixUI.FormItem("Target:",
+                                                        new PixUI.Select<AppBoxDesign.EntityMemberInfo>(this._entitySetTarget).Init(
+                                                            {
+                                                                OptionsAsyncGetter: AppBoxClient.Channel.Invoke<AppBoxDesign.EntityMemberInfo[]>(
+                                                                    "sys.DesignService.GetAllEntityRefs",
+                                                                    [this._modelNode.Id])!
+                                                            }))
+                                                ]
+                                        }))
+                            ]
                     })
             });
     }
@@ -111,14 +129,18 @@ export class NewEntityMemberDialog extends PixUI.Dialog {
     public GetArgs(): Nullable<any>[] {
         let memberType = this.GetMemberTypeValue();
         if (memberType == <number><unknown>AppBoxCore.EntityMemberType.EntityField)
-            return [this._modelNode.Id, this._name.Value, memberType, this.GetFieldTypeValue(), this._allowNull.Value
+            return [
+                this._modelNode.Id, this._name.Value, memberType, this.GetFieldTypeValue(), this._allowNull.Value
             ];
         if (memberType == <number><unknown>AppBoxCore.EntityMemberType.EntityRef)
-            return [                //TODO:暂不支持聚合引用
+            return [
+                //TODO:暂不支持聚合引用
                 this._modelNode.Id, this._name.Value, memberType, this.GetRefModelIds(), this._allowNull.Value
             ];
         if (memberType == <number><unknown>AppBoxCore.EntityMemberType.EntitySet)
-            return [this._modelNode.Id, this._name.Value, memberType, this._entitySetTarget.Value!.ModelId, this._entitySetTarget.Value!.MemberId
+            return [
+                this._modelNode.Id, this._name.Value, memberType, this._entitySetTarget.Value!.ModelId,
+                this._entitySetTarget.Value!.MemberId
             ];
 
         throw new System.NotImplementedException();

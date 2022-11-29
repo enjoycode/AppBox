@@ -18,7 +18,101 @@ export class CSharpLanguage implements CodeEditor.ICodeLanguage {
     }
 
 
-    private static readonly TokenMap: System.StringMap<CodeEditor.TokenType> = new System.StringMap<CodeEditor.TokenType>([[";", CodeEditor.TokenType.PunctuationDelimiter], [".", CodeEditor.TokenType.PunctuationDelimiter], [",", CodeEditor.TokenType.PunctuationDelimiter], ["--", CodeEditor.TokenType.Operator], ["-", CodeEditor.TokenType.Operator], ["-=", CodeEditor.TokenType.Operator], ["&", CodeEditor.TokenType.Operator], ["&&", CodeEditor.TokenType.Operator], ["+", CodeEditor.TokenType.Operator], ["++", CodeEditor.TokenType.Operator], ["+=", CodeEditor.TokenType.Operator], ["<", CodeEditor.TokenType.Operator], ["<<", CodeEditor.TokenType.Operator], ["=", CodeEditor.TokenType.Operator], ["==", CodeEditor.TokenType.Operator], ["!", CodeEditor.TokenType.Operator], ["!=", CodeEditor.TokenType.Operator], ["=>", CodeEditor.TokenType.Operator], [">", CodeEditor.TokenType.Operator], [">>", CodeEditor.TokenType.Operator], ["|", CodeEditor.TokenType.Operator], ["||", CodeEditor.TokenType.Operator], ["?", CodeEditor.TokenType.Operator], ["??", CodeEditor.TokenType.Operator], ["^", CodeEditor.TokenType.Operator], ["~", CodeEditor.TokenType.Operator], ["*", CodeEditor.TokenType.Operator], ["/", CodeEditor.TokenType.Operator], ["%", CodeEditor.TokenType.Operator], [":", CodeEditor.TokenType.Operator], ["(", CodeEditor.TokenType.PunctuationBracket], [")", CodeEditor.TokenType.PunctuationBracket], ["[", CodeEditor.TokenType.PunctuationBracket], ["]", CodeEditor.TokenType.PunctuationBracket], ["{", CodeEditor.TokenType.PunctuationBracket], ["}", CodeEditor.TokenType.PunctuationBracket], ["as", CodeEditor.TokenType.Keyword], ["base", CodeEditor.TokenType.Keyword], ["break", CodeEditor.TokenType.Keyword], ["case", CodeEditor.TokenType.Keyword], ["catch", CodeEditor.TokenType.Keyword], ["checked", CodeEditor.TokenType.Keyword], ["class", CodeEditor.TokenType.Keyword], ["continue", CodeEditor.TokenType.Keyword], ["default", CodeEditor.TokenType.Keyword], ["delegate", CodeEditor.TokenType.Keyword], ["do", CodeEditor.TokenType.Keyword], ["else", CodeEditor.TokenType.Keyword], ["enum", CodeEditor.TokenType.Keyword], ["event", CodeEditor.TokenType.Keyword], ["explicit", CodeEditor.TokenType.Keyword], ["finally", CodeEditor.TokenType.Keyword], ["for", CodeEditor.TokenType.Keyword], ["foreach", CodeEditor.TokenType.Keyword], ["goto", CodeEditor.TokenType.Keyword], ["if", CodeEditor.TokenType.Keyword], ["implicit", CodeEditor.TokenType.Keyword], ["interface", CodeEditor.TokenType.Keyword], ["is", CodeEditor.TokenType.Keyword], ["lock", CodeEditor.TokenType.Keyword], ["namespace", CodeEditor.TokenType.Keyword], ["operator", CodeEditor.TokenType.Keyword], ["params", CodeEditor.TokenType.Keyword], ["return", CodeEditor.TokenType.Keyword], ["sizeof", CodeEditor.TokenType.Keyword], ["stackalloc", CodeEditor.TokenType.Keyword], ["struct", CodeEditor.TokenType.Keyword], ["switch", CodeEditor.TokenType.Keyword], ["throw", CodeEditor.TokenType.Keyword], ["try", CodeEditor.TokenType.Keyword], ["typeof", CodeEditor.TokenType.Keyword], ["unchecked", CodeEditor.TokenType.Keyword], ["using", CodeEditor.TokenType.Keyword], ["while", CodeEditor.TokenType.Keyword], ["new", CodeEditor.TokenType.Keyword], ["await", CodeEditor.TokenType.Keyword], ["in", CodeEditor.TokenType.Keyword], ["yield", CodeEditor.TokenType.Keyword], ["get", CodeEditor.TokenType.Keyword], ["set", CodeEditor.TokenType.Keyword], ["when", CodeEditor.TokenType.Keyword], ["out", CodeEditor.TokenType.Keyword], ["ref", CodeEditor.TokenType.Keyword], ["from", CodeEditor.TokenType.Keyword], ["where", CodeEditor.TokenType.Keyword], ["select", CodeEditor.TokenType.Keyword], ["record", CodeEditor.TokenType.Keyword], ["init", CodeEditor.TokenType.Keyword], ["with", CodeEditor.TokenType.Keyword], ["let", CodeEditor.TokenType.Keyword], ["var", CodeEditor.TokenType.Keyword], ["this", CodeEditor.TokenType.Keyword]]);
+    private static readonly TokenMap: System.StringMap<CodeEditor.TokenType> = new System.StringMap<CodeEditor.TokenType>(
+        [
+            [";", CodeEditor.TokenType.PunctuationDelimiter],
+            [".", CodeEditor.TokenType.PunctuationDelimiter],
+            [",", CodeEditor.TokenType.PunctuationDelimiter],
+            ["--", CodeEditor.TokenType.Operator],
+            ["-", CodeEditor.TokenType.Operator],
+            ["-=", CodeEditor.TokenType.Operator],
+            ["&", CodeEditor.TokenType.Operator],
+            ["&&", CodeEditor.TokenType.Operator],
+            ["+", CodeEditor.TokenType.Operator],
+            ["++", CodeEditor.TokenType.Operator],
+            ["+=", CodeEditor.TokenType.Operator],
+            ["<", CodeEditor.TokenType.Operator],
+            ["<<", CodeEditor.TokenType.Operator],
+            ["=", CodeEditor.TokenType.Operator],
+            ["==", CodeEditor.TokenType.Operator],
+            ["!", CodeEditor.TokenType.Operator],
+            ["!=", CodeEditor.TokenType.Operator],
+            ["=>", CodeEditor.TokenType.Operator],
+            [">", CodeEditor.TokenType.Operator],
+            [">>", CodeEditor.TokenType.Operator],
+            ["|", CodeEditor.TokenType.Operator],
+            ["||", CodeEditor.TokenType.Operator],
+            ["?", CodeEditor.TokenType.Operator],
+            ["??", CodeEditor.TokenType.Operator],
+            ["^", CodeEditor.TokenType.Operator],
+            ["~", CodeEditor.TokenType.Operator],
+            ["*", CodeEditor.TokenType.Operator],
+            ["/", CodeEditor.TokenType.Operator],
+            ["%", CodeEditor.TokenType.Operator],
+            [":", CodeEditor.TokenType.Operator],
+            ["(", CodeEditor.TokenType.PunctuationBracket],
+            [")", CodeEditor.TokenType.PunctuationBracket],
+            ["[", CodeEditor.TokenType.PunctuationBracket],
+            ["]", CodeEditor.TokenType.PunctuationBracket],
+            ["{", CodeEditor.TokenType.PunctuationBracket],
+            ["}", CodeEditor.TokenType.PunctuationBracket],
+            ["as", CodeEditor.TokenType.Keyword], //as
+            ["base", CodeEditor.TokenType.Keyword], //base
+            ["break", CodeEditor.TokenType.Keyword], //break
+            ["case", CodeEditor.TokenType.Keyword], //case
+            ["catch", CodeEditor.TokenType.Keyword], //catch
+            ["checked", CodeEditor.TokenType.Keyword], //checked
+            ["class", CodeEditor.TokenType.Keyword], //class
+            ["continue", CodeEditor.TokenType.Keyword], //continue
+            ["default", CodeEditor.TokenType.Keyword], //default
+            ["delegate", CodeEditor.TokenType.Keyword], //delegate
+            ["do", CodeEditor.TokenType.Keyword], //do
+            ["else", CodeEditor.TokenType.Keyword], //else
+            ["enum", CodeEditor.TokenType.Keyword], //enum
+            ["event", CodeEditor.TokenType.Keyword], //event
+            ["explicit", CodeEditor.TokenType.Keyword], //explicit
+            ["finally", CodeEditor.TokenType.Keyword], //finally
+            ["for", CodeEditor.TokenType.Keyword], //for
+            ["foreach", CodeEditor.TokenType.Keyword], //foreach
+            ["goto", CodeEditor.TokenType.Keyword], //goto
+            ["if", CodeEditor.TokenType.Keyword], //if
+            ["implicit", CodeEditor.TokenType.Keyword], //implicit
+            ["interface", CodeEditor.TokenType.Keyword], //interface
+            ["is", CodeEditor.TokenType.Keyword], //is
+            ["lock", CodeEditor.TokenType.Keyword], //lock
+            ["namespace", CodeEditor.TokenType.Keyword], //namespace
+            ["operator", CodeEditor.TokenType.Keyword], //operator
+            ["params", CodeEditor.TokenType.Keyword], //params
+            ["return", CodeEditor.TokenType.Keyword], //return
+            ["sizeof", CodeEditor.TokenType.Keyword], //sizeof
+            ["stackalloc", CodeEditor.TokenType.Keyword], //stackalloc
+            ["struct", CodeEditor.TokenType.Keyword], //struct
+            ["switch", CodeEditor.TokenType.Keyword], //switch
+            ["throw", CodeEditor.TokenType.Keyword], //throw
+            ["try", CodeEditor.TokenType.Keyword], //try
+            ["typeof", CodeEditor.TokenType.Keyword], //typeof
+            ["unchecked", CodeEditor.TokenType.Keyword], //unchecked
+            ["using", CodeEditor.TokenType.Keyword], //using
+            ["while", CodeEditor.TokenType.Keyword], //while
+            ["new", CodeEditor.TokenType.Keyword], //new
+            ["await", CodeEditor.TokenType.Keyword], //await
+            ["in", CodeEditor.TokenType.Keyword], //in
+            ["yield", CodeEditor.TokenType.Keyword], //yield
+            ["get", CodeEditor.TokenType.Keyword], //get
+            ["set", CodeEditor.TokenType.Keyword], //set
+            ["when", CodeEditor.TokenType.Keyword], //when
+            ["out", CodeEditor.TokenType.Keyword], //out
+            ["ref", CodeEditor.TokenType.Keyword], //ref
+            ["from", CodeEditor.TokenType.Keyword], //from
+            ["where", CodeEditor.TokenType.Keyword], //where
+            ["select", CodeEditor.TokenType.Keyword], //select
+            ["record", CodeEditor.TokenType.Keyword], //record
+            ["init", CodeEditor.TokenType.Keyword], //init
+            ["with", CodeEditor.TokenType.Keyword], //with
+            ["let", CodeEditor.TokenType.Keyword], //let
+            ["var", CodeEditor.TokenType.Keyword], //this
+            ["this", CodeEditor.TokenType.Keyword], //this
+        ]);
 
     public IsLeafNode(node: CodeEditor.TSSyntaxNode): boolean {
         let type = node.type;

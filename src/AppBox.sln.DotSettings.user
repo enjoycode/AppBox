@@ -4,7 +4,7 @@
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GetViewWebCodeTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=697df045_002D14af_002D4f01_002Daa83_002D59027f00a55d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GenEntityWebCodeTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=697df045_002D14af_002D4f01_002Daa83_002D59027f00a55d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GenEntityWebCodeTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GenEntityWebCodeTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net6.0::Tests.Design.CodeGenerateTest.GetViewWebCodeTest&lt;/TestId&gt;

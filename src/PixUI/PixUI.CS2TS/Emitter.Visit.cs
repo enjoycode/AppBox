@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,13 +7,14 @@ namespace PixUI.CS2TS
 {
     public partial class Emitter
     {
-        internal void VisitSeparatedList(IReadOnlyList<SyntaxNode> list)
+        internal void VisitSeparatedList<T>(SeparatedSyntaxList<T> list) where T: SyntaxNode
         {
-            for (var i = 0; i < list.Count; i++)
+            foreach (var item in list.GetWithSeparators())
             {
-                if (i != 0)
-                    Write(", ");
-                Visit(list[i]);
+                if (item.IsToken)
+                    VisitToken(item.AsToken());
+                else
+                    Visit(item.AsNode());
             }
         }
 
@@ -149,9 +149,6 @@ namespace PixUI.CS2TS
             throw new NotImplementedException("UsingStatement");
         }
 
-        public override void VisitReturnStatement(ReturnStatementSyntax node) =>
-            ReturnStatementEmitter.Default.Emit(this, node);
-
         #endregion
 
         #region ====Pattern Expression====
@@ -171,12 +168,6 @@ namespace PixUI.CS2TS
 
         public override void VisitInitializerExpression(InitializerExpressionSyntax node) =>
             InitializerExpressionEmitter.Default.Emit(this, node);
-
-        public override void VisitArrayCreationExpression(ArrayCreationExpressionSyntax node) =>
-            ArrayCreationExpressionEmitter.Emit(this, node);
-
-        public override void VisitImplicitArrayCreationExpression(ImplicitArrayCreationExpressionSyntax node) =>
-            ArrayCreationExpressionEmitter.Emit(this, node);
 
         public override void VisitInvocationExpression(InvocationExpressionSyntax node) =>
             InvocationExpressionEmitter.Default.Emit(this, node);

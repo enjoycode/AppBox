@@ -24,8 +24,12 @@ export abstract class Dialog extends PixUI.Popup {
                 Elevation: PixUI.State.op_Implicit_From(20),
                 Child: new PixUI.Column().Init(
                     {
-                        Children: [this.BuildTitle(), new PixUI.Expanded(this.BuildBody()), this.BuildFooter()
-                        ]
+                        Children:
+                            [
+                                this.BuildTitle(),
+                                new PixUI.Expanded(this.BuildBody()),
+                                this.BuildFooter()
+                            ]
                     })
             });
         this._child.Parent = this;
@@ -35,14 +39,19 @@ export abstract class Dialog extends PixUI.Popup {
         return new PixUI.Row().Init(
             {
                 Height: PixUI.State.op_Implicit_From(25),
-                Children: [new PixUI.Container().Init({Width: PixUI.State.op_Implicit_From(35)}), new PixUI.Expanded().Init(
-                    {
-                        Child: new PixUI.Center().Init({Child: new PixUI.Text(this.Title)})
-                    }), new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
-                    {
-                        Style: PixUI.ButtonStyle.Transparent,
-                        OnTap: _ => this.Close(true),
-                    })]
+                Children:
+                    [
+                        new PixUI.Container().Init({Width: PixUI.State.op_Implicit_From(35)}), //TODO: SizeBox
+                        new PixUI.Expanded().Init(
+                            {
+                                Child: new PixUI.Center().Init({Child: new PixUI.Text(this.Title)})
+                            }),
+                        new PixUI.Button(null, PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Close)).Init(
+                            {
+                                Style: PixUI.ButtonStyle.Transparent,
+                                OnTap: _ => this.Close(true),
+                            }),
+                    ]
             });
     }
 
@@ -55,14 +64,18 @@ export abstract class Dialog extends PixUI.Popup {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 20).Init(
                     {
-                        Children: [new PixUI.Expanded(), new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({
-                            Width: PixUI.State.op_Implicit_From(80),
-                            OnTap: _ => this.Close(true)
-                        }), new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({
-                            Width: PixUI.State.op_Implicit_From(80),
-                            OnTap: _ => this.Close(false)
-                        })
-                        ]
+                        Children:
+                            [
+                                new PixUI.Expanded(),
+                                new PixUI.Button(PixUI.State.op_Implicit_From("Cancel")).Init({
+                                    Width: PixUI.State.op_Implicit_From(80),
+                                    OnTap: _ => this.Close(true)
+                                }),
+                                new PixUI.Button(PixUI.State.op_Implicit_From("OK")).Init({
+                                    Width: PixUI.State.op_Implicit_From(80),
+                                    OnTap: _ => this.Close(false)
+                                })
+                            ]
                     })
             });
     }

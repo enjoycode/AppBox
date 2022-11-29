@@ -4,7 +4,8 @@ import * as PixUI from '@/PixUI'
 export abstract class TextBase extends PixUI.Widget {
     protected constructor(text: PixUI.State<string>) {
         super();
-        this.Text = this.Bind(text, this instanceof PixUI.EditableText ? PixUI.BindingOptions.AffectsVisual : PixUI.BindingOptions.AffectsLayout);
+        this.Text = this.Bind(text,
+            this instanceof PixUI.EditableText ? PixUI.BindingOptions.AffectsVisual : PixUI.BindingOptions.AffectsLayout);
     }
 
     #Text: PixUI.State<string>;
@@ -89,7 +90,8 @@ export abstract class TextBase extends PixUI.Widget {
         let fontStyle: Nullable<PixUI.FontStyle> = this._fontWeight == null
             ? null
             : new PixUI.FontStyle(this._fontWeight.Value, CanvasKit.FontSlant.Upright);
-        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, this._maxLines, this.ForceHeight);
+        return PixUI.TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, this._maxLines,
+            this.ForceHeight);
     }
 
     public Layout(availableWidth: number, availableHeight: number) {
@@ -108,7 +110,8 @@ export abstract class TextBase extends PixUI.Widget {
         //https://bugs.chromium.org/p/skia/issues/list?q=Area=%22TextLayout%22
 
         //W = Math.Min(width, _cachedParagraph.LongestLine);
-        this.SetSize(Math.min(width, this._cachedParagraph!.getMaxIntrinsicWidth()), Math.min(height, this._cachedParagraph.getHeight()));
+        this.SetSize(Math.min(width, this._cachedParagraph!.getMaxIntrinsicWidth()),
+            Math.min(height, this._cachedParagraph.getHeight()));
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {

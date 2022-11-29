@@ -68,9 +68,11 @@ export class Card extends PixUI.SingleChildWidget {
         let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(Card.DefaultMargin);
         let padding = this.Padding?.Value ?? PixUI.EdgeInsets.All(0);
 
-        this.Child.Layout(width - margin.Horizontal - padding.Horizontal, height - margin.Vertical - padding.Vertical);
+        this.Child.Layout(width - margin.Horizontal - padding.Horizontal,
+            height - margin.Vertical - padding.Vertical);
         this.Child.SetPosition(margin.Left + padding.Left, margin.Top + padding.Top);
-        this.SetSize(this.Child.W + margin.Horizontal + padding.Horizontal, this.Child.H + margin.Vertical + padding.Vertical);
+        this.SetSize(this.Child.W + margin.Horizontal + padding.Horizontal,
+            this.Child.H + margin.Vertical + padding.Vertical);
     }
 
     public get Clipper(): Nullable<PixUI.IClipper> {
@@ -82,7 +84,8 @@ export class Card extends PixUI.SingleChildWidget {
 
     private GetChildRect(): PixUI.Rect {
         let margin = this._margin?.Value ?? PixUI.EdgeInsets.All(Card.DefaultMargin);
-        return PixUI.Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right, this.H - margin.Top - margin.Bottom);
+        return PixUI.Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right,
+            this.H - margin.Top - margin.Bottom);
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {

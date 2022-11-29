@@ -7,6 +7,10 @@ import * as CodeEditor from '@/CodeEditor'
 /// </summary>
 export class ContextMenuService {
     public static BuildContextMenu(textEditor: CodeEditor.TextEditor): PixUI.MenuItem[] {
-        return [PixUI.MenuItem.Item("Goto Definition", null, () => AppBoxDesign.GotoDefinitionCommand.Default.Execute(textEditor)), PixUI.MenuItem.Divider(), PixUI.MenuItem.Item("Format Document", null, () => AppBoxDesign.FormatDocumentCommand.Default.Execute(textEditor))];
+        return [
+            PixUI.MenuItem.Item("Goto Definition", null, () => AppBoxDesign.GotoDefinitionCommand.Default.Execute(textEditor)),
+            PixUI.MenuItem.Divider(),
+            PixUI.MenuItem.Item("Format Document", null, () => AppBoxDesign.FormatDocumentCommand.Default.Execute(textEditor)),
+        ];
     }
 }

@@ -8,7 +8,8 @@ export class FormatDocumentCommand implements CodeEditor.IEditCommand {
     public async Execute(editor: CodeEditor.TextEditor) {
         let modelIdString = editor.Document.Tag!;
 
-        let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.TextChange[]>("sys.DesignService.FormatDocument", [modelIdString]);
+        let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.TextChange[]>("sys.DesignService.FormatDocument",
+            [modelIdString]);
         if (res == null || res.length == 0) return;
 
         //TODO:暂逐个处理，另UpdateCaretPosition至有效位置

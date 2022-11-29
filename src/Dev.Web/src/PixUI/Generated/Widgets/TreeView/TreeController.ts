@@ -2,7 +2,8 @@ import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 
 export class TreeController<T> {
-    public constructor(nodeBuilder: System.Action2<T, PixUI.TreeNode<T>>, childrenGetter: System.Func2<T, System.IList<T>>) {
+    public constructor(nodeBuilder: System.Action2<T, PixUI.TreeNode<T>>,
+                       childrenGetter: System.Func2<T, System.IList<T>>) {
         this.NodeBuilder = nodeBuilder;
         this.ChildrenGetter = childrenGetter;
     }

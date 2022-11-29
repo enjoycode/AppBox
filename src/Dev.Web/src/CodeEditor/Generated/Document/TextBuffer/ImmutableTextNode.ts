@@ -125,6 +125,7 @@ export class CompositeNode extends Node {
             return this;
 
         // Overlaps head and tail.
-        return CodeEditor.ImmutableText.ConcatNodes(this.head.SubNode(start, cesure), this.tail.SubNode(0, end - cesure));
+        return CodeEditor.ImmutableText.ConcatNodes(this.head.SubNode(start, cesure),
+            this.tail.SubNode(0, end - cesure));
     }
 }

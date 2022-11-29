@@ -29,7 +29,8 @@ export class Root extends PixUI.SingleChildWidget implements PixUI.IRootWidget {
         this.Child!.Layout(this.W, this.H);
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                              affects: PixUI.AffectsByRelayout) {
         //do nothing
     }
 }

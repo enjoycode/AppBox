@@ -25,7 +25,8 @@ export class LineEventArgs {
 }
 
 export class LineLengthChangeEventArgs {
-    public constructor(document: CodeEditor.Document, lineSegment: CodeEditor.LineSegment, lengthDelta: number) {
+    public constructor(document: CodeEditor.Document, lineSegment: CodeEditor.LineSegment,
+                       lengthDelta: number) {
         this.Document = document;
         this.LineSegment = lineSegment;
         this.LengthDelta = lengthDelta;

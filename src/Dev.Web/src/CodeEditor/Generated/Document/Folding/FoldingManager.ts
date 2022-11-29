@@ -81,7 +81,8 @@ export class FoldingManager {
         let foldings = new System.List<CodeEditor.FoldMarker>();
 
         //TODO: check web's BinarySearch
-        let pattern = new CodeEditor.FoldMarker(this._document, lineNumber, column, lineNumber, column, CodeEditor.FoldType.Unspecified, "", false);
+        let pattern = new CodeEditor.FoldMarker(this._document, lineNumber, column, lineNumber, column,
+            CodeEditor.FoldType.Unspecified, "", false);
         let index = this._foldMarker.BinarySearch(pattern, StartComparer.Instance);
         if (index < 0) index = ~index;
 
@@ -96,10 +97,12 @@ export class FoldingManager {
         return foldings;
     }
 
-    public GetFoldingsByEndAfterColumn(lineNumber: number, column: number, forceFolded: boolean): System.List<CodeEditor.FoldMarker> {
+    public GetFoldingsByEndAfterColumn(lineNumber: number, column: number,
+                                       forceFolded: boolean): System.List<CodeEditor.FoldMarker> {
         let foldings = new System.List<CodeEditor.FoldMarker>();
 
-        let pattern = new CodeEditor.FoldMarker(this._document, lineNumber, column, lineNumber, column, CodeEditor.FoldType.Unspecified, "", false);
+        let pattern = new CodeEditor.FoldMarker(this._document, lineNumber, column, lineNumber, column,
+            CodeEditor.FoldType.Unspecified, "", false);
         let index = this._foldMarkerByEnd.BinarySearch(pattern, EndComparer.Instance);
         if (index < 0) index = ~index;
 

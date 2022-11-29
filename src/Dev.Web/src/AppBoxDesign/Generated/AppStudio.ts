@@ -6,21 +6,32 @@ export class AppStudio extends PixUI.View {
         super();
         this.Child = new PixUI.Column().Init(
             {
-                Children: [new AppBoxDesign.MainMenuPad(), new PixUI.Expanded().Init(
-                    {
-                        Child: new PixUI.Row().Init(
+                Children:
+                    [
+                        new AppBoxDesign.MainMenuPad(),
+                        new PixUI.Expanded().Init(
                             {
-                                Children: [new AppBoxDesign.SidePad(), new PixUI.Expanded().Init(
+                                Child: new PixUI.Row().Init(
                                     {
-                                        Child: new PixUI.Column().Init(
-                                            {
-                                                Children: [new PixUI.Expanded().Init({Child: new AppBoxDesign.DesignerPad()}), new AppBoxDesign.BottomPad()]
-                                            })
+                                        Children:
+                                            [
+                                                new AppBoxDesign.SidePad(),
+                                                new PixUI.Expanded().Init(
+                                                    {
+                                                        Child: new PixUI.Column().Init(
+                                                            {
+                                                                Children:
+                                                                    [
+                                                                        new PixUI.Expanded().Init({Child: new AppBoxDesign.DesignerPad()}),
+                                                                        new AppBoxDesign.BottomPad(),
+                                                                    ]
+                                                            })
+                                                    })
+                                            ]
                                     })
-                                ]
-                            })
-                    }), new AppBoxDesign.FooterPad()
-                ]
+                            }),
+                        new AppBoxDesign.FooterPad()
+                    ]
             });
     }
 }

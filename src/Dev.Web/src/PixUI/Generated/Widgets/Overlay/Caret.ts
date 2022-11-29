@@ -44,7 +44,8 @@ export class CaretDecorator extends PixUI.Widget {
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let paint = PixUI.PaintUtils.Shared(this._owner.ColorBuilder(), CanvasKit.PaintStyle.Fill);
         let bounds = this._owner.BoundsBuilder();
-        canvas.drawRect(PixUI.Rect.FromLTWH(bounds.Left, bounds.Top, bounds.Width, bounds.Height), paint);
+        canvas.drawRect(PixUI.Rect.FromLTWH(bounds.Left, bounds.Top, bounds.Width, bounds.Height),
+            paint);
     }
 
     protected OnMounted() {

@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace PixUI.CS2TS
 {
-    internal static class ArrayCreationExpressionEmitter
+    partial class Emitter
     {
-        internal static void Emit(Emitter emitter, ArrayCreationExpressionSyntax node)
+        public override void VisitArrayCreationExpression(ArrayCreationExpressionSyntax node)
         {
             //eg: var array = new int[3];
             if (node.Type.RankSpecifiers.Count > 0 &&
@@ -22,51 +22,70 @@ namespace PixUI.CS2TS
                 var jsArrayType = ArrayTypeEmitter.GetJsNativeArrayType(node.Type);
                 if (jsArrayType != null)
                 {
-                    emitter.Write($"new {jsArrayType}");
+                    Write($"new {jsArrayType}");
                 }
                 else
                 {
-                    emitter.Write("new Array");
-                    if (!emitter.ToJavaScript)
+                    Write("new Array");
+                    if (!ToJavaScript)
                     {
-                        emitter.Write('<');
-                        emitter.Visit(node.Type.ElementType);
-                        emitter.Write('>');
+                        Write('<');
+                        Visit(node.Type.ElementType);
+                        Write('>');
                     }
                 }
 
-                emitter.Write('(');
-                emitter.Visit(node.Type.RankSpecifiers[0].Sizes[0]);
-                emitter.Write(')');
+                Write('(');
+                Visit(node.Type.RankSpecifiers[0].Sizes[0]);
+                Write(')');
 
                 //如果ElementType是值类型必须填充默认值
                 if (jsArrayType == null)
                 {
-                    var elementTypeSymbol =
-                        emitter.SemanticModel.GetSymbolInfo(node.Type.ElementType);
+                    var elementTypeSymbol = SemanticModel.GetSymbolInfo(node.Type.ElementType);
                     if (elementTypeSymbol.Symbol is ITypeSymbol { IsValueType: true })
                     {
-                        emitter.Write(".fill(");
-                        emitter.TryWriteDefaultValueForValueType(node.Type.ElementType, node,
+                        Write(".fill(");
+                        TryWriteDefaultValueForValueType(node.Type.ElementType, node,
                             false);
-                        emitter.Write(')');
+                        Write(')');
                     }
                 }
             }
             else
             {
-                emitter.Write('[');
                 if (node.Initializer != null)
-                    emitter.VisitSeparatedList(node.Initializer.Expressions);
-                emitter.Write(']');
+                {
+                    if (node.Parent is not ReturnStatementSyntax)
+                        WriteTrailingTrivia(node.Type);
+                    EmitArrayInitializer(node.Initializer);
+                }
+                else
+                {
+                    Write("[]");
+                }
             }
         }
 
-        internal static void Emit(Emitter emitter, ImplicitArrayCreationExpressionSyntax node)
+
+        public override void VisitImplicitArrayCreationExpression(ImplicitArrayCreationExpressionSyntax node)
         {
-            emitter.Write('[');
-            emitter.VisitSeparatedList(node.Initializer.Expressions);
-            emitter.Write(']');
+            if (node.Parent is not ReturnStatementSyntax)
+                VisitTrailingTrivia(node.CloseBracketToken);
+            EmitArrayInitializer(node.Initializer);
+        }
+
+        private void EmitArrayInitializer(InitializerExpressionSyntax initializer)
+        {
+            VisitLeadingTrivia(initializer.OpenBraceToken);
+            Write('[');
+            VisitTrailingTrivia(initializer.OpenBraceToken);
+
+            VisitSeparatedList(initializer.Expressions);
+
+            VisitLeadingTrivia(initializer.CloseBraceToken);
+            Write(']');
+            VisitTrailingTrivia(initializer.CloseBraceToken);
         }
     }
 }

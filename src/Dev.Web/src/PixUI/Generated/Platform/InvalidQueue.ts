@@ -28,7 +28,10 @@ export class AffectsByRelayout {
             cy = scrollable.ScrollOffsetY;
         }
 
-        return new PixUI.RepaintArea(new PixUI.Rect(Math.min(this.OldX, this.Widget.X) - cx, Math.min(this.OldY, this.Widget.Y) - cy, Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H))
+        return new PixUI.RepaintArea(new PixUI.Rect(Math.min(this.OldX, this.Widget.X) - cx,
+            Math.min(this.OldY, this.Widget.Y) - cy,
+            Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W),
+            Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H))
         );
     }
 }
@@ -180,7 +183,8 @@ export class InvalidQueue {
                 InvalidQueue.RelayoutWidget(item.Widget, affects);
                 if (!item.RelayoutOnly) {
                     //注意: 以下重绘的是受影响Widget的上级，除非本身是根节点
-                    InvalidQueue.RepaintWidget(context, affects.Widget.Parent ?? affects.Widget, affects.GetDirtyArea());
+                    InvalidQueue.RepaintWidget(context, affects.Widget.Parent ?? affects.Widget,
+                        affects.GetDirtyArea());
                 }
             } else {
                 InvalidQueue.RepaintWidget(context, item.Widget, item.Area);

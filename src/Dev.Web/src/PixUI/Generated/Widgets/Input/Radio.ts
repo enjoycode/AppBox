@@ -3,7 +3,10 @@ import * as PixUI from '@/PixUI'
 export class Radio extends PixUI.Toggleable {
     public constructor(value: PixUI.State<boolean>) {
         super();
-        this.InitState(PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value, v => v, v => value.Value = v ?? false), false);
+        this.InitState(PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value,
+                v => v,
+                v => value.Value = v ?? false),
+            false);
     }
 
 
@@ -33,7 +36,8 @@ export class Radio extends PixUI.Toggleable {
         // inner circle
         if (!this._positionController.IsDismissed) {
             paint.setStyle(CanvasKit.PaintStyle.Fill);
-            canvas.drawCircle(center.Dx, center.Dy, <number><unknown>(Radio._kInnerRadius * this._positionController.Value), paint);
+            canvas.drawCircle(center.Dx, center.Dy,
+                <number><unknown>(Radio._kInnerRadius * this._positionController.Value), paint);
         }
     }
 

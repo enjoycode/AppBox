@@ -12,17 +12,20 @@ export class DesignerPad extends PixUI.View {
 
         this.BgColor = PixUI.State.op_Implicit_From(PixUI.Colors.White);
 
-        this.Child = new PixUI.IfConditional(this._isOpenedAnyDesigner, () => new PixUI.TabView<AppBoxDesign.DesignNodeVO>(AppBoxDesign.DesignStore.DesignerController, DesignerPad.BuildTab, DesignerPad.BuildBody, true, 40).Init(
-            {
-                SelectedTabColor: PixUI.Colors.White,
-                TabBarBgColor: new PixUI.Color(0xFFF3F3F3)
-            }), () => new PixUI.Center().Init({Child: new PixUI.Text(PixUI.State.op_Implicit_From("Welcome to AppBox!"))}));
+        this.Child = new PixUI.IfConditional(this._isOpenedAnyDesigner,
+            () => new PixUI.TabView<AppBoxDesign.DesignNodeVO>(AppBoxDesign.DesignStore.DesignerController, DesignerPad.BuildTab, DesignerPad.BuildBody, true, 40).Init(
+                {
+                    SelectedTabColor: PixUI.Colors.White,
+                    TabBarBgColor: new PixUI.Color(0xFFF3F3F3)
+                }),
+            () => new PixUI.Center().Init({Child: new PixUI.Text(PixUI.State.op_Implicit_From("Welcome to AppBox!"))}));
     }
 
     private readonly _isOpenedAnyDesigner: PixUI.State<boolean> = PixUI.State.op_Implicit_From(false);
 
     private static BuildTab(node: AppBoxDesign.DesignNodeVO, isSelected: PixUI.State<boolean>): PixUI.Widget {
-        let textColor = PixUI.RxComputed.Make1(isSelected, selected => selected ? PixUI.Theme.FocusedColor : PixUI.Colors.Black
+        let textColor = PixUI.RxComputed.Make1(isSelected,
+            selected => selected ? PixUI.Theme.FocusedColor : PixUI.Colors.Black
         );
 
         return new PixUI.Text(node.Label).Init({TextColor: textColor});
@@ -66,7 +69,8 @@ export class DesignerPad extends PixUI.View {
         if (node.Type == AppBoxDesign.DesignNodeType.ModelNode) {
             let modelNode = <AppBoxDesign.ModelNodeVO><unknown>node;
             if (modelNode.ModelType == AppBoxCore.ModelType.Service || modelNode.ModelType == AppBoxCore.ModelType.View)
-                await AppBoxClient.Channel.Invoke("sys.DesignService.CloseDesigner", [(Math.floor(node.Type) & 0xFFFFFFFF), node.Id]);
+                await AppBoxClient.Channel.Invoke("sys.DesignService.CloseDesigner",
+                    [(Math.floor(node.Type) & 0xFFFFFFFF), node.Id]);
         }
     }
 

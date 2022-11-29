@@ -41,11 +41,15 @@ export class BorderRadius {
         if (b == null)
             return BorderRadius.op_Multiply(a, <number><unknown>(1.0 - t));
 
-        return new BorderRadius(PixUI.Radius.Lerp(a.TopLeft, b.TopLeft, t)!, PixUI.Radius.Lerp(a.TopRight, b.TopRight, t)!, PixUI.Radius.Lerp(a.BottomLeft, b.BottomLeft, t)!, PixUI.Radius.Lerp(a.BottomRight, b.BottomRight, t)!);
+        return new BorderRadius(PixUI.Radius.Lerp(a.TopLeft, b.TopLeft, t)!,
+            PixUI.Radius.Lerp(a.TopRight, b.TopRight, t)!,
+            PixUI.Radius.Lerp(a.BottomLeft, b.BottomLeft, t)!,
+            PixUI.Radius.Lerp(a.BottomRight, b.BottomRight, t)!);
     }
 
     public static op_Multiply(pt: BorderRadius, operand: number): BorderRadius {
-        return new BorderRadius(PixUI.Radius.op_Multiply(pt.TopLeft, operand), PixUI.Radius.op_Multiply(pt.TopRight, operand), PixUI.Radius.op_Multiply(pt.BottomLeft, operand), PixUI.Radius.op_Multiply(pt.BottomRight, operand));
+        return new BorderRadius(PixUI.Radius.op_Multiply(pt.TopLeft, operand), PixUI.Radius.op_Multiply(pt.TopRight, operand),
+            PixUI.Radius.op_Multiply(pt.BottomLeft, operand), PixUI.Radius.op_Multiply(pt.BottomRight, operand));
     }
 
     public ToRRect(rect: PixUI.Rect): PixUI.RRect {

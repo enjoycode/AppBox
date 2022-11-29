@@ -10,7 +10,8 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
     public constructor(modelNode: AppBoxDesign.ModelNodeVO) {
         super();
         this.ModelNode = modelNode;
-        this._codeEditorController = new CodeEditor.CodeEditorController(`${modelNode.Label}.cs`, "", AppBoxDesign.RoslynCompletionProvider.Default, modelNode.Id);
+        this._codeEditorController = new CodeEditor.CodeEditorController(`${modelNode.Label}.cs`, "",
+            AppBoxDesign.RoslynCompletionProvider.Default, modelNode.Id);
         this._codeEditorController.ContextMenuBuilder = AppBoxDesign.ContextMenuService.BuildContextMenu;
         this._codeSyncService = new AppBoxDesign.ModelCodeSyncService(0, modelNode.Id);
         this._delayDocChangedTask = new PixUI.DelayTask(300, this.RunDelayTask.bind(this));
@@ -37,7 +38,11 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
     private static BuildEditor(codeEditorController: CodeEditor.CodeEditorController): PixUI.Widget {
         return new PixUI.Column().Init(
             {
-                Children: [ServiceDesigner.BuildActionBar(), new PixUI.Expanded().Init({Child: new CodeEditor.CodeEditorWidget(codeEditorController)})]
+                Children:
+                    [
+                        ServiceDesigner.BuildActionBar(),
+                        new PixUI.Expanded().Init({Child: new CodeEditor.CodeEditorWidget(codeEditorController)}),
+                    ]
             });
     }
 
@@ -49,8 +54,11 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.Only(15, 8, 15, 8)),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Middle, 10).Init(
                     {
-                        Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Run")).Init({Width: PixUI.State.op_Implicit_From(75)}), new PixUI.Button(PixUI.State.op_Implicit_From("Debug")).Init({Width: PixUI.State.op_Implicit_From(75)})
-                        ]
+                        Children:
+                            [
+                                new PixUI.Button(PixUI.State.op_Implicit_From("Run")).Init({Width: PixUI.State.op_Implicit_From(75)}),
+                                new PixUI.Button(PixUI.State.op_Implicit_From("Debug")).Init({Width: PixUI.State.op_Implicit_From(75)})
+                            ]
                     })
             });
     }
@@ -64,7 +72,8 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
         if (this._hasLoadSourceCode) return;
         this._hasLoadSourceCode = true;
 
-        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenCodeModel", [this.ModelNode.Id]);
+        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
+            [this.ModelNode.Id]);
         this._codeEditorController.Document.TextContent = srcCode!;
         //订阅代码变更事件
         this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);
@@ -122,7 +131,8 @@ export class ServiceDesigner extends PixUI.View implements AppBoxDesign.IModelDe
     }
 
     public async RefreshAsync(): Promise<void> {
-        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenCodeModel", [this.ModelNode.Id]);
+        let srcCode = await AppBoxClient.Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
+            [this.ModelNode.Id]);
         this._codeEditorController.Document.DocumentChanged.Remove(this.OnDocumentChanged, this);
         this._codeEditorController.Document.TextContent = srcCode!;
         this._codeEditorController.Document.DocumentChanged.Add(this.OnDocumentChanged, this);

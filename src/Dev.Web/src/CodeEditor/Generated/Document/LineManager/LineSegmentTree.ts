@@ -152,7 +152,8 @@ export class LineSegmentTree {
 
     public GetNode(index: number): CodeEditor.RedBlackTreeNode<RBNode> {
         if (index < 0 || index >= this._tree.Count)
-            throw new System.ArgumentOutOfRangeException("index", "index should be between 0 and " + (this._tree.Count - 1));
+            throw new System.ArgumentOutOfRangeException("index",
+                "index should be between 0 and " + (this._tree.Count - 1));
         let node: CodeEditor.RedBlackTreeNode<RBNode> = this._tree.Root;
         while (true) {
             if (node.Left != null && index < node.Left.Value.Count) {
@@ -172,7 +173,8 @@ export class LineSegmentTree {
 
     private GetNodeByOffset(offset: number): CodeEditor.RedBlackTreeNode<RBNode> {
         if (offset < 0 || offset > this.TotalLength)
-            throw new System.ArgumentOutOfRangeException("offset", "offset should be between 0 and " + this.TotalLength);
+            throw new System.ArgumentOutOfRangeException("offset",
+                "offset should be between 0 and " + this.TotalLength);
         if (offset == this.TotalLength) {
             if (this._tree.Root == null)
                 throw new System.InvalidOperationException("Cannot call GetNodeByOffset while tree is empty.");

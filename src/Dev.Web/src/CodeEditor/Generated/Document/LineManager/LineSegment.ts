@@ -102,7 +102,8 @@ export class LineSegment implements CodeEditor.ISegment {
         // }
     }
 
-    public RemovedLinePart(manager: CodeEditor.LineManager, deferredEventList: CodeEditor.DeferredEventList, startColumn: number, length: number) {
+    public RemovedLinePart(manager: CodeEditor.LineManager, deferredEventList: CodeEditor.DeferredEventList,
+                           startColumn: number, length: number) {
         if (length == 0) return;
 
         this.ClearFoldedLineCache(manager);
@@ -258,7 +259,8 @@ export class LineSegment implements CodeEditor.ISegment {
         return this._cachedParagraph!;
     }
 
-    private BuildParagraphByTokens(pb: PixUI.ParagraphBuilder, editor: CodeEditor.TextEditor, startIndex: number, endIndex: number) {
+    private BuildParagraphByTokens(pb: PixUI.ParagraphBuilder, editor: CodeEditor.TextEditor,
+                                   startIndex: number, endIndex: number) {
         let token = 0;
         let tokenStartColumn = 0;
         let tokenEndColumn = 0;
@@ -296,7 +298,8 @@ export class LineSegment implements CodeEditor.ISegment {
         let preFold: Nullable<CodeEditor.FoldMarker> = null;
 
         while (true) {
-            let starts = editor.Document.FoldingManager.GetFoldedFoldingsWithStartAfterColumn(line, column);
+            let starts = editor.Document.FoldingManager.GetFoldedFoldingsWithStartAfterColumn(line,
+                column);
             if (starts.length <= 0) {
                 if (line == this.LineNumber) {
                     //current line has no fold
@@ -304,7 +307,8 @@ export class LineSegment implements CodeEditor.ISegment {
                 } else {
                     //has no fold follow
                     let endLine = editor.Document.GetLineSegment(preFold!.EndLine);
-                    endLine.BuildParagraphByTokens(pb, editor, preFold!.EndColumn, CodeEditor.TextLocation.MaxColumn);
+                    endLine.BuildParagraphByTokens(pb, editor, preFold!.EndColumn,
+                        CodeEditor.TextLocation.MaxColumn);
                 }
 
                 break;
@@ -330,7 +334,8 @@ export class LineSegment implements CodeEditor.ISegment {
                 //eg: if (xxx) {...} else {...}
                 //             <---> preFold here
                 let endLine = editor.Document.GetLineSegment(preFold!.EndLine);
-                endLine.BuildParagraphByTokens(pb, editor, preFold!.EndColumn, firstFolding.StartColumn);
+                endLine.BuildParagraphByTokens(pb, editor, preFold!.EndColumn,
+                    firstFolding.StartColumn);
                 lineChars += firstFolding.StartColumn - preFold.EndColumn;
             }
 

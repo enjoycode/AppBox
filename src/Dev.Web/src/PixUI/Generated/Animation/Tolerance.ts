@@ -15,7 +15,8 @@ export class Tolerance //TODO: maybe struct
 
     public readonly Velocity: number;
 
-    public constructor(distance: number = Tolerance.EpsilonDefault, time: number = Tolerance.EpsilonDefault, velocity: number = Tolerance.EpsilonDefault) {
+    public constructor(distance: number = Tolerance.EpsilonDefault, time: number = Tolerance.EpsilonDefault,
+                       velocity: number = Tolerance.EpsilonDefault) {
         this.Distance = distance;
         this.Time = time;
         this.Velocity = velocity;

@@ -36,7 +36,8 @@ export class RepaintArea implements IDirtyArea {
     public ToChild(child: PixUI.Widget): Nullable<IDirtyArea> {
         if (child.X == 0 && child.Y == 0) return this;
 
-        let childRect = PixUI.Rect.FromLTWH(this._rect.Left - child.X, this._rect.Top - child.Y, this._rect.Width, this._rect.Height);
+        let childRect = PixUI.Rect.FromLTWH(this._rect.Left - child.X, this._rect.Top - child.Y,
+            this._rect.Width, this._rect.Height);
         return new RepaintArea((childRect).Clone());
     }
 

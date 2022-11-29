@@ -71,10 +71,12 @@ export abstract class DataGridColumn<T> {
         ph.delete();
     }
 
-    public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>, rowIndex: number, cellRect: PixUI.Rect) {
+    public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
+                     rowIndex: number, cellRect: PixUI.Rect) {
     }
 
-    public static BuildCellParagraph(rect: PixUI.Rect, style: PixUI.CellStyle, text: string, maxLines: number): PixUI.Paragraph {
+    public static BuildCellParagraph(rect: PixUI.Rect, style: PixUI.CellStyle,
+                                     text: string, maxLines: number): PixUI.Paragraph {
         let ts = PixUI.MakeTextStyle({
             color: style.Color ?? PixUI.Colors.Black,
             fontSize: style.FontSize,
@@ -109,7 +111,8 @@ export abstract class DataGridColumn<T> {
         return ph;
     }
 
-    public static PaintCellParagraph(canvas: PixUI.Canvas, rect: PixUI.Rect, style: PixUI.CellStyle, paragraph: PixUI.Paragraph) {
+    public static PaintCellParagraph(canvas: PixUI.Canvas, rect: PixUI.Rect, style: PixUI.CellStyle,
+                                     paragraph: PixUI.Paragraph) {
         if (style.VerticalAlignment == PixUI.VerticalAlignment.Middle) {
             let x = rect.Left;
             let y = rect.Top + (rect.Height - paragraph.getHeight()) / 2;
@@ -117,9 +120,11 @@ export abstract class DataGridColumn<T> {
         } else if (style.VerticalAlignment == PixUI.VerticalAlignment.Bottom) {
             let x = rect.Left;
             let y = rect.Bottom;
-            canvas.drawParagraph(paragraph, x + PixUI.CellStyle.CellPadding, y - PixUI.CellStyle.CellPadding - paragraph.getHeight());
+            canvas.drawParagraph(paragraph, x + PixUI.CellStyle.CellPadding,
+                y - PixUI.CellStyle.CellPadding - paragraph.getHeight());
         } else {
-            canvas.drawParagraph(paragraph, rect.Left + PixUI.CellStyle.CellPadding, rect.Top + PixUI.CellStyle.CellPadding);
+            canvas.drawParagraph(paragraph, rect.Left + PixUI.CellStyle.CellPadding,
+                rect.Top + PixUI.CellStyle.CellPadding);
         }
     }
 }

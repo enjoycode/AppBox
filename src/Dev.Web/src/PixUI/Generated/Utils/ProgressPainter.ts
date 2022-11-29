@@ -55,10 +55,13 @@ export class CircularProgressPainter implements System.IDisposable {
         let rotationValue = this._rotationTween.Evaluate(this._controller);
 
         let valueColor = PixUI.Theme.FocusedColor; //default is Theme.Primary
-        CircularProgressPainter.PaintInternal(canvas, indicatorSize, null, headValue, tailValue, offsetValue, rotationValue, 6, valueColor);
+        CircularProgressPainter.PaintInternal(canvas, indicatorSize, null, headValue, tailValue, offsetValue,
+            rotationValue, 6, valueColor);
     }
 
-    private static PaintInternal(canvas: PixUI.Canvas, size: number, value: Nullable<number>, headValue: number, tailValue: number, offsetValue: number, rotationValue: number, strokeWidth: number, valueColor: PixUI.Color, bgColor: Nullable<PixUI.Color> = null) {
+    private static PaintInternal(canvas: PixUI.Canvas, size: number, value: Nullable<number>,
+                                 headValue: number, tailValue: number, offsetValue: number, rotationValue: number,
+                                 strokeWidth: number, valueColor: PixUI.Color, bgColor: Nullable<PixUI.Color> = null) {
         let rect = PixUI.Rect.FromLTWH(0, 0, size, size);
         let arcStart = value != null
             ? CircularProgressPainter._startAngle
@@ -66,7 +69,8 @@ export class CircularProgressPainter implements System.IDisposable {
             offsetValue * 0.5 * Math.PI;
         let arcSweep = value != null
             ? clamp(value, 0.0, 1.0) * CircularProgressPainter._sweep
-            : Math.max(headValue * 3.0 / 2.0 * Math.PI - tailValue * 3.0 / 2.0 * Math.PI, CircularProgressPainter._epsilon);
+            : Math.max(headValue * 3.0 / 2.0 * Math.PI - tailValue * 3.0 / 2.0 * Math.PI,
+                CircularProgressPainter._epsilon);
 
         if (bgColor != null) {
             let bgPaint = PixUI.PaintUtils.Shared(bgColor, CanvasKit.PaintStyle.Stroke, strokeWidth);

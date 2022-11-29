@@ -26,7 +26,8 @@ export class Offset implements System.IEquatable<Offset> {
         if (a == null)
             return new Offset(<number><unknown>(b.Dx * t), <number><unknown>(b.Dy * t));
 
-        return new Offset(PixUI.FloatUtils.Lerp(a.Dx, b.Dx, t), PixUI.FloatUtils.Lerp(a.Dy, b.Dy, t));
+        return new Offset(PixUI.FloatUtils.Lerp(a.Dx, b.Dx, t),
+            PixUI.FloatUtils.Lerp(a.Dy, b.Dy, t));
     }
 
     public Equals(other: Offset): boolean {

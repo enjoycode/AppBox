@@ -70,10 +70,12 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         //根据状态画背景色
         if (this.IsSelected.Value) {
             if (this.TabBar.SelectedColor != null)
-                canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this.TabBar.SelectedColor));
+                canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H),
+                    PixUI.PaintUtils.Shared(this.TabBar.SelectedColor));
         } else if (this._isHover) {
             if (this.TabBar.HoverColor != null)
-                canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this.TabBar.HoverColor));
+                canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H),
+                    PixUI.PaintUtils.Shared(this.TabBar.HoverColor));
         }
 
         if (this.Child == null) return;
@@ -84,6 +86,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
 
         //TODO:暂在这里画指示器，待TabBar实现后移除
         if (this.IsSelected.Value)
-            canvas.drawRect(PixUI.Rect.FromLTWH(0, this.H - 4, this.W, 4), PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor));
+            canvas.drawRect(PixUI.Rect.FromLTWH(0, this.H - 4, this.W, 4),
+                PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor));
     }
 }

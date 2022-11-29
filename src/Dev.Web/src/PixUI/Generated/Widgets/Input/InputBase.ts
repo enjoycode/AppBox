@@ -80,7 +80,8 @@ export abstract class InputBase<T extends PixUI.Widget> extends PixUI.Widget  //
         let border = this._border ?? InputBase.DefaultBorder;
         if (border instanceof PixUI.OutlineInputBorder) {
             const outline = border;
-            return new PixUI.OutlineInputBorder(new PixUI.BorderSide(PixUI.Theme.FocusedColor, PixUI.Theme.FocusedBorderWidth), outline.BorderRadius
+            return new PixUI.OutlineInputBorder(new PixUI.BorderSide(PixUI.Theme.FocusedColor, PixUI.Theme.FocusedBorderWidth),
+                outline.BorderRadius
             );
         }
 
@@ -134,7 +135,8 @@ export abstract class InputBase<T extends PixUI.Widget> extends PixUI.Widget  //
         // 设置子组件位置(暂以editor为中心上下居中对齐, TODO:考虑基线对齐)
         let maxChildHeight = this._editor.H;
         this._prefix?.SetPosition(padding.Left, (maxChildHeight - this._prefix.H) / 2 + padding.Top);
-        this._suffix?.SetPosition(width - padding.Right - this._suffix.W, (maxChildHeight - this._suffix.H) / 2 + padding.Top);
+        this._suffix?.SetPosition(width - padding.Right - this._suffix.W,
+            (maxChildHeight - this._suffix.H) / 2 + padding.Top);
         this._editor.SetPosition(padding.Left + (this._prefix?.W ?? 0), padding.Top + 1);
 
         // 设置自身宽高

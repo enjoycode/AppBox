@@ -82,7 +82,8 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
         this._controller.TotalHeight = totalHeight;
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                              affects: PixUI.AffectsByRelayout) {
         //修改子节点受影响的区域
         affects.OldW = this.W;
         affects.OldH = this.H - child.Y;
@@ -146,7 +147,8 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
         return maxChildWidth;
     }
 
-    public static UpdatePositionAfter<Tn>(child: PixUI.Widget, nodes: System.IList<PixUI.TreeNode<Tn>>, dy: number) {
+    public static UpdatePositionAfter<Tn>(child: PixUI.Widget, nodes: System.IList<PixUI.TreeNode<Tn>>,
+                                          dy: number) {
         let indexOfChild = -1;
         for (let i = 0; i < nodes.length; i++) {
             if (indexOfChild == -1) {

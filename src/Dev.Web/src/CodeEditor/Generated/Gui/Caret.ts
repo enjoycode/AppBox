@@ -140,6 +140,7 @@ export class Caret {
 
         // draw highlight background
         let bgPaint = PixUI.PaintUtils.Shared(this._textEditor.Theme.LineHighlightColor);
-        canvas.drawRect(PixUI.Rect.FromLTWH(textViewArea.Left, cy, textViewArea.Width, fontHeight), bgPaint);
+        canvas.drawRect(PixUI.Rect.FromLTWH(textViewArea.Left, cy, textViewArea.Width, fontHeight),
+            bgPaint);
     }
 }

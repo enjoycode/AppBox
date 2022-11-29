@@ -21,13 +21,16 @@ export class FieldWithOrderDialog extends PixUI.Dialog {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
                 Child: new PixUI.Form().Init(
                     {
-                        Children: [new PixUI.FormItem("EntityField:", new PixUI.Select<AppBoxDesign.EntityMemberVO>(this._selected).Init(
-                            {
-                                Options: this._entityModel.Members
-                                    .Where(m => m.Type == AppBoxCore.EntityMemberType.EntityField)
-                                    .ToArray()
-                            })), new PixUI.FormItem("OrderByDesc:", new PixUI.Checkbox(this._orderByDesc))
-                        ]
+                        Children:
+                            [
+                                new PixUI.FormItem("EntityField:", new PixUI.Select<AppBoxDesign.EntityMemberVO>(this._selected).Init(
+                                    {
+                                        Options: this._entityModel.Members
+                                            .Where(m => m.Type == AppBoxCore.EntityMemberType.EntityField)
+                                            .ToArray()
+                                    })),
+                                new PixUI.FormItem("OrderByDesc:", new PixUI.Checkbox(this._orderByDesc))
+                            ]
                     })
             });
     }

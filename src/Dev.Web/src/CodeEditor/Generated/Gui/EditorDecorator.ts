@@ -61,7 +61,8 @@ export class EditorDecorator extends PixUI.Widget {
                 let yPos = textView.Bounds.Top +
                     textEditor.Document.GetVisibleLine(i) * textView.FontHeight -
                     textEditor.VirtualTop.Y;
-                canvas.drawRect(PixUI.Rect.FromLTWH(startXPos + textView.Bounds.Left, yPos, endXPos - startXPos, textView.FontHeight), paint);
+                canvas.drawRect(PixUI.Rect.FromLTWH(startXPos + textView.Bounds.Left, yPos,
+                    endXPos - startXPos, textView.FontHeight), paint);
             }
         }
 

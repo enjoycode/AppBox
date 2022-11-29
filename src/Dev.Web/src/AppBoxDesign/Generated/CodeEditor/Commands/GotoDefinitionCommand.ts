@@ -10,7 +10,8 @@ export class GotoDefinitionCommand implements CodeEditor.IEditCommand {
         let line = editor.Caret.Line;
         let column = editor.Caret.Column;
 
-        let res = await AppBoxClient.Channel.Invoke<Nullable<AppBoxDesign.ReferenceVO>>("sys.DesignService.GotoDefinition", [modelIdString, line, column]);
+        let res = await AppBoxClient.Channel.Invoke<Nullable<AppBoxDesign.ReferenceVO>>("sys.DesignService.GotoDefinition",
+            [modelIdString, line, column]);
         if (res == null) return;
 
         //找到对应的节点, TODO: 考虑优化当前节点即目标节点

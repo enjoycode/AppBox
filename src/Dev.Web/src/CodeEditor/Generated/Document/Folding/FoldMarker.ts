@@ -9,7 +9,10 @@ export enum FoldType {
 }
 
 export class FoldMarker implements CodeEditor.ISegment, System.IComparable<FoldMarker> {
-    public constructor(document: CodeEditor.Document, startLine: number, startColumn: number, endLine: number, endColumn: number, foldType: FoldType, foldText: Nullable<string> = null, isFolded: boolean = false) {
+    public constructor(document: CodeEditor.Document,
+                       startLine: number, startColumn: number,
+                       endLine: number, endColumn: number, foldType: FoldType,
+                       foldText: Nullable<string> = null, isFolded: boolean = false) {
         this._document = document;
         this.IsFolded = isFolded;
         this._foldType = foldType;

@@ -2,7 +2,8 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class FocusedDecoration {
-    public constructor(widget: PixUI.Widget, focusedBorderBuilder: System.Func1<PixUI.ShapeBorder>, unfocusedBorderBuilder: Nullable<System.Func1<Nullable<PixUI.ShapeBorder>>> = null) {
+    public constructor(widget: PixUI.Widget, focusedBorderBuilder: System.Func1<PixUI.ShapeBorder>,
+                       unfocusedBorderBuilder: Nullable<System.Func1<Nullable<PixUI.ShapeBorder>>> = null) {
         this.Widget = widget;
         this._focusedBorderBuilder = focusedBorderBuilder;
         this._unfocusedBorderBuilder = unfocusedBorderBuilder;

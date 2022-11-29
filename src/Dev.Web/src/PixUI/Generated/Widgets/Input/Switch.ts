@@ -3,7 +3,10 @@ import * as PixUI from '@/PixUI'
 export class Switch extends PixUI.Toggleable {
     public constructor(value: PixUI.State<boolean>) {
         super();
-        this.InitState(PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value, v => v, v => value.Value = v ?? false), false);
+        this.InitState(PixUI.RxComputed.Make1<boolean, Nullable<boolean>>(value,
+                v => v,
+                v => value.Value = v ?? false),
+            false);
     }
 
 
@@ -51,13 +54,18 @@ export class Switch extends PixUI.Toggleable {
         // thumb
         let currentThumbExtension = Switch._kThumbExtension * currentReactionValue;
         let thumbLeft = PixUI.FloatUtils.Lerp(
-            trackRect.Left + Switch._kTrackInnerStart - Switch._kThumbRadius, trackRect.Left + Switch._kTrackInnerEnd - Switch._kThumbRadius - currentThumbExtension, visualPosition
+            trackRect.Left + Switch._kTrackInnerStart - Switch._kThumbRadius,
+            trackRect.Left + Switch._kTrackInnerEnd - Switch._kThumbRadius - currentThumbExtension,
+            visualPosition
         );
         let thumbRight = PixUI.FloatUtils.Lerp(
-            trackRect.Left + Switch._kTrackInnerStart + Switch._kThumbRadius + currentThumbExtension, trackRect.Left + Switch._kTrackInnerEnd + Switch._kThumbRadius, visualPosition
+            trackRect.Left + Switch._kTrackInnerStart + Switch._kThumbRadius + currentThumbExtension,
+            trackRect.Left + Switch._kTrackInnerEnd + Switch._kThumbRadius,
+            visualPosition
         );
         let thumbCenterY = Switch._kTrackHeight / 2.0;
-        let thumbBounds = new PixUI.Rect(thumbLeft, thumbCenterY - Switch._kThumbRadius, thumbRight, thumbCenterY + Switch._kThumbRadius);
+        let thumbBounds = new PixUI.Rect(thumbLeft, thumbCenterY - Switch._kThumbRadius, thumbRight,
+            thumbCenterY + Switch._kThumbRadius);
 
         let clipPath = new CanvasKit.Path();
         clipPath.addRRect(trackRRect);

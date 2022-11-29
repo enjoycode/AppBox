@@ -14,7 +14,11 @@ export class ViewOutlinePad extends PixUI.View {
 
         this.Child = new PixUI.Column().Init(
             {
-                Children: [new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}), new PixUI.TreeView<AppBoxDesign.WidgetTreeNode>(this._treeController)]
+                Children:
+                    [
+                        new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}),
+                        new PixUI.TreeView<AppBoxDesign.WidgetTreeNode>(this._treeController),
+                    ]
             });
     }
 

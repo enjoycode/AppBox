@@ -26,7 +26,8 @@ export class ButtonGroup extends PixUI.MultiChildWidget<PixUI.Button> {
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //clip to round rectangle
-        let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.Button.StandardRadius, PixUI.Button.StandardRadius);
+        let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(0, 0, this.W, this.H),
+            PixUI.Button.StandardRadius, PixUI.Button.StandardRadius);
         let path = new CanvasKit.Path();
         path.addRRect(rrect);
         canvas.save();

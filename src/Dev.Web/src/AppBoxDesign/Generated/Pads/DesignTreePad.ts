@@ -10,7 +10,11 @@ export class DesignTreePad extends PixUI.View {
         super();
         this.Child = new PixUI.Column().Init(
             {
-                Children: [new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}), new PixUI.TreeView<AppBoxDesign.DesignNodeVO>(AppBoxDesign.DesignStore.TreeController)]
+                Children:
+                    [
+                        new PixUI.Input(this._searchKey).Init({Prefix: new PixUI.Icon(PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Search))}),
+                        new PixUI.TreeView<AppBoxDesign.DesignNodeVO>(AppBoxDesign.DesignStore.TreeController),
+                    ]
             });
     }
 
@@ -52,7 +56,7 @@ export class DesignTreePad extends PixUI.View {
             let res = await AppBoxClient.Channel.Invoke<AppBoxDesign.DesignTreeVO>("sys.DesignService.LoadDesignTree");
             AppBoxDesign.DesignStore.TreeController.DataSource = res!.RootNodes;
         } catch (ex: any) {
-            PixUI.Notification.Error(`Can't load design tree: ${ex}`);
+            PixUI.Notification.Error(`Can't load design tree: ${ex.Message}`);
         } finally {
             AppBoxDesign.DesignStore.TreeController.IsLoading = false;
         }

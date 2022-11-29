@@ -31,17 +31,33 @@ export class EntityPropertyPanel extends PixUI.View {
 
         this.Child = new PixUI.Column(PixUI.HorizontalAlignment.Left).Init(
             {
-                Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Entity Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)}), new PixUI.Form().Init(
-                    {
-                        LabelWidth: EntityPropertyPanel._labelWidth,
-                        Children: [new PixUI.FormItem("DataStoreKind:", new PixUI.Input(PixUI.State.op_Implicit_From("SqlStore")).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("DataStoreName:", new PixUI.Input(PixUI.State.op_Implicit_From("Default")).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("Comment:", new PixUI.Input(PixUI.State.op_Implicit_From("")))]
-                    }), new PixUI.IfConditional(isEntityField, () => new PixUI.Text(PixUI.State.op_Implicit_From("EntityField Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)})), new PixUI.IfConditional(isEntityField, () => new PixUI.Form().Init(
-                    {
-                        LabelWidth: EntityPropertyPanel._labelWidth,
-                        Children: [new PixUI.FormItem("Name:", new PixUI.Input(this._rxEntityField.Name)), new PixUI.FormItem("FieldType:", new PixUI.Input(this._rxEntityField.FieldType.AsStateOfString(v => AppBoxCore.EntityFieldType[v]))), new PixUI.FormItem("Comment:", new PixUI.Input(this._rxEntityField.Comment))
-                        ]
-                    }))
-                ]
+                Children:
+                    [
+                        new PixUI.Text(PixUI.State.op_Implicit_From("Entity Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)}),
+                        new PixUI.Form().Init(
+                            {
+                                LabelWidth: EntityPropertyPanel._labelWidth,
+                                Children:
+                                    [
+                                        new PixUI.FormItem("DataStoreKind:", new PixUI.Input(PixUI.State.op_Implicit_From("SqlStore")).Init({Readonly: PixUI.State.op_Implicit_From(true)})),
+                                        new PixUI.FormItem("DataStoreName:", new PixUI.Input(PixUI.State.op_Implicit_From("Default")).Init({Readonly: PixUI.State.op_Implicit_From(true)})),
+                                        new PixUI.FormItem("Comment:", new PixUI.Input(PixUI.State.op_Implicit_From(""))),
+                                    ]
+                            }),
+                        new PixUI.IfConditional(isEntityField,
+                            () => new PixUI.Text(PixUI.State.op_Implicit_From("EntityField Properties:")).Init({FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)})),
+                        new PixUI.IfConditional(isEntityField, () => new PixUI.Form().Init(
+                            {
+                                LabelWidth: EntityPropertyPanel._labelWidth,
+                                Children:
+                                    [
+                                        new PixUI.FormItem("Name:", new PixUI.Input(this._rxEntityField.Name)),
+                                        new PixUI.FormItem("FieldType:",
+                                            new PixUI.Input(this._rxEntityField.FieldType.AsStateOfString(v => AppBoxCore.EntityFieldType[v]))),
+                                        new PixUI.FormItem("Comment:", new PixUI.Input(this._rxEntityField.Comment))
+                                    ]
+                            }))
+                    ]
             });
     }
 

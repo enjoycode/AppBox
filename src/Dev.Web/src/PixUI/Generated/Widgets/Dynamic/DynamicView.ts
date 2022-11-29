@@ -25,7 +25,9 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
         this.Invalidate(PixUI.InvalidAction.Relayout); //这里始终重新布局
     }
 
-    protected AnimateTo(from: PixUI.Widget, to: PixUI.Widget, duration: number, reverse: boolean, enteringBuilder: TransitionBuilder, existingBuilder: Nullable<TransitionBuilder>) {
+    protected AnimateTo(from: PixUI.Widget, to: PixUI.Widget, duration: number, reverse: boolean,
+                        enteringBuilder: TransitionBuilder,
+                        existingBuilder: Nullable<TransitionBuilder>) {
         this._animationFrom = from;
         this._animationTo = to;
 

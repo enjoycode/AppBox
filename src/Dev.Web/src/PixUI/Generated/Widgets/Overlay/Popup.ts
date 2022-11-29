@@ -1,7 +1,8 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
-export type PopupTransitionBuilder = (animation: PixUI.Animation<number>, child: PixUI.Widget, origin: Nullable<PixUI.Offset>) => PixUI.Widget;
+export type PopupTransitionBuilder = (animation: PixUI.Animation<number>, child: PixUI.Widget,
+                                      origin: Nullable<PixUI.Offset>) => PixUI.Widget;
 
 export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
     protected constructor(overlay: PixUI.Overlay) {
@@ -42,7 +43,8 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
         this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    public Show(relativeTo: Nullable<PixUI.Widget> = null, relativeOffset: Nullable<PixUI.Offset> = null, transitionBuilder: Nullable<PopupTransitionBuilder> = null) {
+    public Show(relativeTo: Nullable<PixUI.Widget> = null,
+                relativeOffset: Nullable<PixUI.Offset> = null, transitionBuilder: Nullable<PopupTransitionBuilder> = null) {
         let target: PixUI.Widget = this;
 
         //先计算显示位置
@@ -108,7 +110,9 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
 }
 
 export class PopupTransitionWrap extends PixUI.SingleChildWidget {
-    public constructor(overlay: PixUI.Overlay, isDialog: boolean, proxy: PopupProxy, origin: Nullable<PixUI.Offset>, transitionBuilder: PopupTransitionBuilder) {
+    public constructor(overlay: PixUI.Overlay, isDialog: boolean,
+                       proxy: PopupProxy, origin: Nullable<PixUI.Offset>,
+                       transitionBuilder: PopupTransitionBuilder) {
         super();
         this._overlay = overlay;
         this._isDialog = isDialog;

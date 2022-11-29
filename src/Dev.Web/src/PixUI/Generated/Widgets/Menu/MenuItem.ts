@@ -45,7 +45,8 @@ export class MenuItem {
         return new MenuItem(MenuItemType.Divider);
     }
 
-    private constructor(type: MenuItemType, label: Nullable<string> = null, icon: Nullable<PixUI.IconData> = null, action: Nullable<System.Action> = null, children: Nullable<MenuItem[]> = null, enabled: boolean = true) {
+    private constructor(type: MenuItemType, label: Nullable<string> = null, icon: Nullable<PixUI.IconData> = null,
+                        action: Nullable<System.Action> = null, children: Nullable<MenuItem[]> = null, enabled: boolean = true) {
         this.Type = type;
         this.Label = label;
         this.Icon = icon;

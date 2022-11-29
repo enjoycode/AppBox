@@ -16,7 +16,8 @@ export class ExpandIcon extends PixUI.SingleChildWidget implements PixUI.IMouseR
         this.MouseRegion.PointerDown.Add(value, this);
     }
 
-    public constructor(turns: PixUI.Animation<number>, size: Nullable<PixUI.State<number>> = null, color: Nullable<PixUI.State<PixUI.Color>> = null) {
+    public constructor(turns: PixUI.Animation<number>, size: Nullable<PixUI.State<number>> = null,
+                       color: Nullable<PixUI.State<PixUI.Color>> = null) {
         super();
         this.MouseRegion = new PixUI.MouseRegion();
 

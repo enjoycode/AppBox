@@ -40,7 +40,8 @@ export class OutlineInputBorder extends InputBorder {
         this.#GapPadding = value;
     }
 
-    public constructor(borderSide: Nullable<PixUI.BorderSide> = null, borderRadius: Nullable<PixUI.BorderRadius> = null, gapPadding: number = 4.0) {
+    public constructor(borderSide: Nullable<PixUI.BorderSide> = null,
+                       borderRadius: Nullable<PixUI.BorderRadius> = null, gapPadding: number = 4.0) {
         super(borderSide ?? new PixUI.BorderSide(new PixUI.Color(0xFF9B9B9B)));
         if (gapPadding < 0)
             throw new System.ArgumentOutOfRangeException("gapPadding");

@@ -144,7 +144,8 @@ export class DataGridController<T> {
                 }
 
                 return this.DataView[this._selectedRows[0]];
-            }, newRow => {
+            },
+            newRow => {
                 if (newRow == null) {
                     this.ClearSelection();
                     return;
@@ -152,7 +153,8 @@ export class DataGridController<T> {
 
                 let index = this.DataView!.IndexOf(newRow);
                 this.SelectAt(index);
-            }, false
+            },
+            false
         );
         this.SelectionChanged.Add(() => state.NotifyValueChanged());
 
@@ -432,7 +434,8 @@ export class DataGridController<T> {
     }
 
     public GetScrollClipRect(top: number, height: number): PixUI.Rect {
-        return PixUI.Rect.FromLTWH(this._cachedScrollLeft, top, this._cachedScrollRight - this._cachedScrollLeft, height);
+        return PixUI.Rect.FromLTWH(this._cachedScrollLeft, top, this._cachedScrollRight - this._cachedScrollLeft,
+            height);
     }
 
     public GetCurrentRowRect(): Nullable<PixUI.Rect> {
@@ -450,10 +453,12 @@ export class DataGridController<T> {
         let top = this.TotalHeaderHeight +
             (this._cachedHitInRows.RowIndex - this.VisibleStartRowIndex) *
             this.Theme.RowHeight - this.ScrollDeltaY;
-        return new PixUI.Rect(hitColumn.CachedVisibleLeft + 1, top + 1, hitColumn.CachedVisibleRight - 2, top + this.Theme.RowHeight - 1);
+        return new PixUI.Rect(hitColumn.CachedVisibleLeft + 1, top + 1,
+            hitColumn.CachedVisibleRight - 2, top + this.Theme.RowHeight - 1);
     }
 
-    private GetLeafColumns(column: PixUI.DataGridColumn<T>, leafColumns: System.IList<PixUI.DataGridColumn<T>>, parentFrozen: Nullable<boolean>) {
+    private GetLeafColumns(column: PixUI.DataGridColumn<T>, leafColumns: System.IList<PixUI.DataGridColumn<T>>,
+                           parentFrozen: Nullable<boolean>) {
         if (parentFrozen != null)
             column.Frozen = parentFrozen;
 

@@ -41,11 +41,13 @@ export class ListViewController<T> extends PixUI.WidgetController<ListView<T>> {
 export class ListView<T> extends PixUI.MultiChildWidget<PixUI.Widget> implements PixUI.IScrollable {
     private static readonly $meta_PixUI_IScrollable = true;
 
-    public static From(widgets: System.IList<PixUI.Widget>, controller: Nullable<ListViewController<PixUI.Widget>> = null): ListView<PixUI.Widget> {
+    public static From(widgets: System.IList<PixUI.Widget>,
+                       controller: Nullable<ListViewController<PixUI.Widget>> = null): ListView<PixUI.Widget> {
         return new ListView<PixUI.Widget>((w, i) => w, widgets, controller);
     }
 
-    public constructor(itemBuilder: System.Func3<T, number, PixUI.Widget>, dataSource: Nullable<System.IList<T>> = null, controller: Nullable<ListViewController<T>> = null) {
+    public constructor(itemBuilder: System.Func3<T, number, PixUI.Widget>, dataSource: Nullable<System.IList<T>> = null,
+                       controller: Nullable<ListViewController<T>> = null) {
         super();
         this._itemBuilder = itemBuilder;
         this._controller = controller ?? new ListViewController<T>();

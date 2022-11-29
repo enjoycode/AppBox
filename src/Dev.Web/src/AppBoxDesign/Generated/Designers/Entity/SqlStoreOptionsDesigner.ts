@@ -16,7 +16,11 @@ export class SqlStoreOptionsDesigner extends PixUI.View {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(8)),
                 Child: new PixUI.Row(PixUI.VerticalAlignment.Top, 10).Init(
                     {
-                        Children: [new PixUI.Expanded(this.BuildPrimaryKeysPannel()), new PixUI.Expanded(this.BuildIndexesPannel())]
+                        Children:
+                            [
+                                new PixUI.Expanded(this.BuildPrimaryKeysPannel()),
+                                new PixUI.Expanded(this.BuildIndexesPannel()),
+                            ]
                     })
             });
     }
@@ -32,18 +36,31 @@ export class SqlStoreOptionsDesigner extends PixUI.View {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
                 Child: new PixUI.Column(PixUI.HorizontalAlignment.Left, 10).Init(
                     {
-                        Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Primary Keys:")).Init({
-                            FontSize: PixUI.State.op_Implicit_From(20),
-                            FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)
-                        }), new PixUI.ButtonGroup().Init(
-                            {
-                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Add"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Add)).Init({OnTap: this.OnAddPk.bind(this)}), new PixUI.Button(PixUI.State.op_Implicit_From("Remove"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Remove)).Init({OnTap: this.OnRemovePk.bind(this)})
-                                ]
-                            }), new PixUI.DataGrid<AppBoxCore.FieldWithOrder>(this._pkController).Init(
-                            {
-                                Columns: [new PixUI.DataGridTextColumn<AppBoxCore.FieldWithOrder>("Name", t => this._entityModel.Members.First(m => m.Id == t.MemberId).Name), new PixUI.DataGridCheckboxColumn<AppBoxCore.FieldWithOrder>("OrderByDesc", t => t.OrderByDesc)]
-                            })
-                        ]
+                        Children:
+                            [
+                                new PixUI.Text(PixUI.State.op_Implicit_From("Primary Keys:")).Init({
+                                    FontSize: PixUI.State.op_Implicit_From(20),
+                                    FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)
+                                }),
+                                new PixUI.ButtonGroup().Init(
+                                    {
+                                        Children:
+                                            [
+                                                new PixUI.Button(PixUI.State.op_Implicit_From("Add"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Add)).Init({OnTap: this.OnAddPk.bind(this)}),
+                                                new PixUI.Button(PixUI.State.op_Implicit_From("Remove"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Remove)).Init({OnTap: this.OnRemovePk.bind(this)})
+                                            ]
+                                    }),
+                                new PixUI.DataGrid<AppBoxCore.FieldWithOrder>(this._pkController).Init(
+                                    {
+                                        Columns:
+                                            [
+                                                new PixUI.DataGridTextColumn<AppBoxCore.FieldWithOrder>("Name",
+                                                    t => this._entityModel.Members.First(m => m.Id == t.MemberId).Name),
+                                                new PixUI.DataGridCheckboxColumn<AppBoxCore.FieldWithOrder>("OrderByDesc",
+                                                    t => t.OrderByDesc),
+                                            ]
+                                    })
+                            ]
                     })
             });
     }
@@ -54,17 +71,33 @@ export class SqlStoreOptionsDesigner extends PixUI.View {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(10)),
                 Child: new PixUI.Column(PixUI.HorizontalAlignment.Left, 10).Init(
                     {
-                        Children: [new PixUI.Text(PixUI.State.op_Implicit_From("Indexes:")).Init({
-                            FontSize: PixUI.State.op_Implicit_From(20),
-                            FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)
-                        }), new PixUI.ButtonGroup().Init(
-                            {
-                                Children: [new PixUI.Button(PixUI.State.op_Implicit_From("Add"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Add)), new PixUI.Button(PixUI.State.op_Implicit_From("Remove"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Remove))
-                                ]
-                            }), new PixUI.DataGrid<AppBoxDesign.SqlIndexModelVO>(this._idxController).Init(
-                            {
-                                Columns: [new PixUI.DataGridTextColumn<AppBoxDesign.SqlIndexModelVO>("Name", t => t.Name), new PixUI.DataGridTextColumn<AppBoxDesign.SqlIndexModelVO>("Fields", t => this.GetIndexesFieldsList(t)), new PixUI.DataGridCheckboxColumn<AppBoxDesign.SqlIndexModelVO>("Unique", t => true)]
-                            })]
+                        Children:
+                            [
+                                new PixUI.Text(PixUI.State.op_Implicit_From("Indexes:")).Init({
+                                    FontSize: PixUI.State.op_Implicit_From(20),
+                                    FontWeight: PixUI.State.op_Implicit_From(CanvasKit.FontWeight.Bold)
+                                }),
+                                new PixUI.ButtonGroup().Init(
+                                    {
+                                        Children:
+                                            [
+                                                new PixUI.Button(PixUI.State.op_Implicit_From("Add"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Add)),
+                                                new PixUI.Button(PixUI.State.op_Implicit_From("Remove"), PixUI.State.op_Implicit_From(PixUI.Icons.Filled.Remove))
+                                            ]
+                                    }),
+                                new PixUI.DataGrid<AppBoxDesign.SqlIndexModelVO>(this._idxController).Init(
+                                    {
+                                        Columns:
+                                            [
+                                                new PixUI.DataGridTextColumn<AppBoxDesign.SqlIndexModelVO>("Name",
+                                                    t => t.Name),
+                                                new PixUI.DataGridTextColumn<AppBoxDesign.SqlIndexModelVO>("Fields",
+                                                    t => this.GetIndexesFieldsList(t)),
+                                                new PixUI.DataGridCheckboxColumn<AppBoxDesign.SqlIndexModelVO>("Unique",
+                                                    t => true),
+                                            ]
+                                    }),
+                            ]
                     })
             });
     }
@@ -102,10 +135,13 @@ export class SqlStoreOptionsDesigner extends PixUI.View {
     }
 
     private async ChangePrimaryKeys() {
-        let args = [this._modelId, this._entityModel.SqlStoreOptions.PrimaryKeys.length == 0
-            ? null
-            : this._entityModel.SqlStoreOptions.PrimaryKeys.ToArray()
-        ];
+        let args =
+            [
+                this._modelId,
+                this._entityModel.SqlStoreOptions.PrimaryKeys.length == 0
+                    ? null
+                    : this._entityModel.SqlStoreOptions.PrimaryKeys.ToArray()
+            ];
         try {
             await AppBoxClient.Channel.Invoke("sys.DesignService.ChangePrimaryKeys", args);
         } catch (ex: any) {

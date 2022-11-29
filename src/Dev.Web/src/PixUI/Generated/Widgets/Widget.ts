@@ -245,7 +245,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             scrollOffsetY = scrollable.ScrollOffsetY;
         }
 
-        let hit = child.HitTest(x - child.X + scrollOffsetX, y - child.Y + scrollOffsetY, result);
+        let hit = child.HitTest(x - child.X + scrollOffsetX, y - child.Y + scrollOffsetY,
+            result);
         return hit;
     }
 
@@ -254,7 +255,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return PixUI.RxComputed.Make1(s, getter);
     }
 
-    protected Compute2<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>, getter: System.Func3<T1, T2, TR>, setter: Nullable<System.Action1<TR>> = null): PixUI.RxComputed<TR> {
+    protected Compute2<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>,
+                                   getter: System.Func3<T1, T2, TR>, setter: Nullable<System.Action1<TR>> = null): PixUI.RxComputed<TR> {
         return PixUI.RxComputed.Make2(s1, s2, getter, setter);
     }
 
@@ -262,7 +264,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return this.Rebind(null, newState, options)!;
     }
 
-    protected Rebind<T extends PixUI.StateBase>(oldState: Nullable<T>, newState: Nullable<T>, options: PixUI.BindingOptions = PixUI.BindingOptions.AffectsVisual): Nullable<T> {
+    protected Rebind<T extends PixUI.StateBase>(oldState: Nullable<T>, newState: Nullable<T>,
+                                                options: PixUI.BindingOptions = PixUI.BindingOptions.AffectsVisual): Nullable<T> {
         oldState?.RemoveBinding(this);
 
         if (newState == null) return newState;
@@ -329,7 +332,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             : Math.min(Math.max(0, this.Height.Value), this.CachedAvailableHeight);
     }
 
-    public OnChildSizeChanged(child: Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    public OnChildSizeChanged(child: Widget,
+                              dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
         console.assert(this.AutoSize);
 
         let oldWidth = this.W;
@@ -340,7 +344,8 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this.TryNotifyParentIfSizeChanged(oldWidth, oldHeight, affects);
     }
 
-    public TryNotifyParentIfSizeChanged(oldWidth: number, oldHeight: number, affects: PixUI.AffectsByRelayout) {
+    public TryNotifyParentIfSizeChanged(oldWidth: number, oldHeight: number,
+                                        affects: PixUI.AffectsByRelayout) {
         let dx = this.W - oldWidth;
         let dy = this.H - oldHeight;
         if (dx != 0 || dy != 0) {

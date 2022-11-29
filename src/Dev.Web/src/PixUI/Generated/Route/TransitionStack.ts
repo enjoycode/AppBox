@@ -32,7 +32,8 @@ export class TransitionStack extends PixUI.Widget {
         this._to.SetPosition(0, 0);
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                              affects: PixUI.AffectsByRelayout) {
         //do nothing
     }
 

@@ -21,7 +21,7 @@ public class CodeGenerateTest
     public async Task GetViewWebCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.OrgUnitsView")!;
+        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.EnterpriseView")!;
 
         var res = await GetWebPreview.GenViewWebCode(designHub, modelNode.Id);
         Console.Write(res);

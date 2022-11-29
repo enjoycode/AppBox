@@ -11,7 +11,8 @@ export interface ITabBar {
 }
 
 export class TabBar<T> extends PixUI.Widget implements ITabBar {
-    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Action2<T, PixUI.Tab>, scrollable: boolean = false) {
+    public constructor(controller: PixUI.TabController<T>, tabBuilder: System.Action2<T, PixUI.Tab>,
+                       scrollable: boolean = false) {
         super();
         this._controller = controller;
         this._controller.BindTabBar(this);

@@ -19,7 +19,12 @@ export class PublishDialog extends PixUI.Dialog {
                 Padding: PixUI.State.op_Implicit_From(PixUI.EdgeInsets.All(20)),
                 Child: new PixUI.DataGrid<AppBoxDesign.ChangedModel>(this._dataGridController).Init(
                     {
-                        Columns: [new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelType", v => v.ModelType), new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelId", v => v.ModelId)]
+                        Columns:
+                            [
+                                new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelType",
+                                    v => v.ModelType),
+                                new PixUI.DataGridTextColumn<AppBoxDesign.ChangedModel>("ModelId", v => v.ModelId),
+                            ]
                     })
             });
     }
@@ -49,7 +54,8 @@ export class PublishDialog extends PixUI.Dialog {
 
     private static async PublishAsync() {
         try {
-            await AppBoxClient.Channel.Invoke("sys.DesignService.Publish", ["commit message"]);
+            await AppBoxClient.Channel.Invoke("sys.DesignService.Publish",
+                ["commit message"]);
             PixUI.Notification.Success("发布成功");
         } catch (ex: any) {
             PixUI.Notification.Error(`发布失败: ${ex.Message}`);

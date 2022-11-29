@@ -116,7 +116,8 @@ export class LineManager {
         //deferredEventList.RaiseEvents();
 
         if (this.TotalNumberOfLines != oldNumberOfLines) {
-            this.LineCountChanged.Invoke(new CodeEditor.LineCountChangeEventArgs(this._document, lineStart, this.TotalNumberOfLines - oldNumberOfLines));
+            this.LineCountChanged.Invoke(new CodeEditor.LineCountChangeEventArgs(this._document, lineStart,
+                this.TotalNumberOfLines - oldNumberOfLines));
         }
     }
 
@@ -176,7 +177,8 @@ export class LineManager {
         // possibly remove lines in between if multiple delimiters were deleted
         let charactersRemovedInStartLine: number = startSegmentOffset + startSegment.TotalLength - offset;
         //Debug.Assert(charactersRemovedInStartLine > 0);
-        startSegment.RemovedLinePart(this, deferredEventList, offset - startSegmentOffset, charactersRemovedInStartLine);
+        startSegment.RemovedLinePart(this, deferredEventList,
+            offset - startSegmentOffset, charactersRemovedInStartLine);
 
         let endSegment:
             CodeEditor.LineSegment = this._lineCollection.GetByOffset(offset + length);
@@ -189,10 +191,12 @@ export class LineManager {
 
         let endSegmentOffset = endSegment.Offset;
         let charactersLeftInEndLine = endSegmentOffset + endSegment.TotalLength - (offset + length);
-        endSegment.RemovedLinePart(this, deferredEventList, 0, endSegment.TotalLength - charactersLeftInEndLine);
+        endSegment.RemovedLinePart(this, deferredEventList, 0,
+            endSegment.TotalLength - charactersLeftInEndLine);
         startSegment.MergedWith(endSegment, offset - startSegmentOffset);
         this.SetSegmentLength(
-            startSegment, startSegment.TotalLength -
+            startSegment,
+            startSegment.TotalLength -
             charactersRemovedInStartLine +
             charactersLeftInEndLine);
         startSegment.DelimiterLength = endSegment.DelimiterLength;

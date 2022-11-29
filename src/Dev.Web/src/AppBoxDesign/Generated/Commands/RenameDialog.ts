@@ -4,7 +4,8 @@ import * as AppBoxCore from '@/AppBoxCore'
 import * as PixUI from '@/PixUI'
 
 export class RenameDialog extends PixUI.Dialog {
-    public constructor(referenceType: AppBoxCore.ModelReferenceType, target: string, modelId: string, oldName: string) {
+    public constructor(referenceType: AppBoxCore.ModelReferenceType, target: string, modelId: string,
+                       oldName: string) {
         super();
         this._referenceType = referenceType;
         this._target = PixUI.State.op_Implicit_From(target);
@@ -48,8 +49,12 @@ export class RenameDialog extends PixUI.Dialog {
                 Child: new PixUI.Form().Init(
                     {
                         LabelWidth: 100,
-                        Children: [new PixUI.FormItem("Target:", new PixUI.Input(this._target).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("Old Name:", new PixUI.Input(this._oldName).Init({Readonly: PixUI.State.op_Implicit_From(true)})), new PixUI.FormItem("New Name:", new PixUI.Input(this._newName))
-                        ]
+                        Children:
+                            [
+                                new PixUI.FormItem("Target:", new PixUI.Input(this._target).Init({Readonly: PixUI.State.op_Implicit_From(true)})),
+                                new PixUI.FormItem("Old Name:", new PixUI.Input(this._oldName).Init({Readonly: PixUI.State.op_Implicit_From(true)})),
+                                new PixUI.FormItem("New Name:", new PixUI.Input(this._newName))
+                            ]
                     })
             });
     }
@@ -62,7 +67,8 @@ export class RenameDialog extends PixUI.Dialog {
 
     private async RenameAsync() {
         try {
-            let affects = await AppBoxClient.Channel.Invoke<string[]>("sys.DesignService.Rename", [(Math.floor(this._referenceType) & 0xFFFFFFFF), this._modelId, this._oldName.Value, this._newName.Value]);
+            let affects = await AppBoxClient.Channel.Invoke<string[]>("sys.DesignService.Rename",
+                [(Math.floor(this._referenceType) & 0xFFFFFFFF), this._modelId, this._oldName.Value, this._newName.Value]);
             //通知刷新受影响的节点
             AppBoxDesign.DesignStore.OnRenameDone(this._referenceType, this._modelId, affects!);
             PixUI.Notification.Success("重命名成功");

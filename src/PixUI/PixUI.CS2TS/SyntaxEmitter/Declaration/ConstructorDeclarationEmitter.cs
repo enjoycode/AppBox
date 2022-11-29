@@ -66,7 +66,7 @@ namespace PixUI.CS2TS
             else
             {
                 emitter.WriteLeadingWhitespaceOnly(node);
-                emitter.Write("\t\tsuper();\n");
+                emitter.Write("\tsuper();\n");
             }
         }
     }

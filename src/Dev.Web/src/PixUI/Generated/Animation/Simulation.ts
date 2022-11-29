@@ -27,7 +27,8 @@ export class InterpolationSimulation extends Simulation {
     private readonly _end: number;
     private readonly _curve: PixUI.Curve;
 
-    public constructor(begin: number, end: number, duration: number, curve: PixUI.Curve, scale: number) {
+    public constructor(begin: number, end: number, duration: number, curve: PixUI.Curve,
+                       scale: number) {
         super();
         console.assert(duration > 0);
 
@@ -58,7 +59,8 @@ export class InterpolationSimulation extends Simulation {
 export type DirectionSetter = (direction: PixUI.AnimationDirection) => any;
 
 export class RepeatingSimulation extends Simulation {
-    public constructor(initialValue: number, min: number, max: number, reverse: boolean, period: number, directionSetter: DirectionSetter) {
+    public constructor(initialValue: number, min: number, max: number, reverse: boolean,
+                       period: number, directionSetter: DirectionSetter) {
         super();
         this._min = min;
         this._max = max;

@@ -29,7 +29,8 @@ export class FormItem extends PixUI.Widget {
         this.CachedAvailableWidth = availableWidth;
         this.CachedAvailableHeight = availableHeight;
 
-        this._cachedLabelParagraph ??= PixUI.TextPainter.BuildParagraph(this._label, Number.POSITIVE_INFINITY, PixUI.Theme.DefaultFontSize, PixUI.Colors.Black, null, 1);
+        this._cachedLabelParagraph ??= PixUI.TextPainter.BuildParagraph(this._label, Number.POSITIVE_INFINITY,
+            PixUI.Theme.DefaultFontSize, PixUI.Colors.Black, null, 1);
 
         let lableWidth = (<PixUI.Form><unknown>this.Parent!).LabelWidth + 5;
         this._widget.Layout(availableWidth - lableWidth, availableHeight);
@@ -52,7 +53,8 @@ export class FormItem extends PixUI.Widget {
             x = lableWidth - this._cachedLabelParagraph!.getMaxIntrinsicWidth();
         canvas.save(); //TODO:优化不必要的Save and Clip
         canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, lableWidth, this.H), CanvasKit.ClipOp.Intersect, false);
-        canvas.drawParagraph(this._cachedLabelParagraph!, x, (this.H - this._cachedLabelParagraph!.getHeight()) / 2);
+        canvas.drawParagraph(this._cachedLabelParagraph!, x,
+            (this.H - this._cachedLabelParagraph!.getHeight()) / 2);
         canvas.restore();
 
         //再画Widget

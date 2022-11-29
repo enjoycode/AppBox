@@ -289,7 +289,8 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
         }
     }
 
-    private static Sibling<T>(node: RedBlackTreeNode<T>, parentNode: RedBlackTreeNode<T>): RedBlackTreeNode<T> {
+    private static Sibling<T>(node: RedBlackTreeNode<T>,
+                              parentNode: RedBlackTreeNode<T>): RedBlackTreeNode<T> {
         console.assert(node == null || node.Parent == parentNode);
         if (node == parentNode.Left)
             return parentNode.Right;

@@ -172,7 +172,8 @@ export class SyntaxParser implements System.IDisposable {
 
         let tokenType = this.Language.GetTokenType(node);
         let startOffset = Math.max(node.startIndex / SyntaxParser.ParserEncoding, lineSegment.Offset);
-        let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding, lineSegment.Length);
+        let length = Math.min((node.endIndex - node.startIndex) / SyntaxParser.ParserEncoding,
+            lineSegment.Length);
         lineSegment.AddToken(tokenType, startOffset, length);
     }
 

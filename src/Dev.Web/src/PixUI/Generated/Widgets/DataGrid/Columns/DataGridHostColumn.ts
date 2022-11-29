@@ -14,7 +14,8 @@ export class DataGridHostColumn<T> extends PixUI.DataGridColumn<T> {
 
     private static readonly _cellCacheComparer: PixUI.CellCacheComparer<PixUI.Widget> = new PixUI.CellCacheComparer<PixUI.Widget>();
 
-    public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>, rowIndex: number, cellRect: PixUI.Rect) {
+    public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
+                     rowIndex: number, cellRect: PixUI.Rect) {
         let cellWidget = this.GetCellWidget(rowIndex, controller, cellRect);
         //TODO:对齐cellWidget
         canvas.translate(cellRect.Left, cellRect.Top);
@@ -22,7 +23,8 @@ export class DataGridHostColumn<T> extends PixUI.DataGridColumn<T> {
         canvas.translate(-cellRect.Left, -cellRect.Top);
     }
 
-    private GetCellWidget(rowIndex: number, controller: PixUI.DataGridController<T>, cellRect: PixUI.Rect): PixUI.Widget {
+    private GetCellWidget(rowIndex: number, controller: PixUI.DataGridController<T>,
+                          cellRect: PixUI.Rect): PixUI.Widget {
         let pattern = new PixUI.CellCache<PixUI.Widget>(rowIndex, null);
         let index = this._cellWidgets.BinarySearch(pattern, DataGridHostColumn._cellCacheComparer);
         if (index >= 0)

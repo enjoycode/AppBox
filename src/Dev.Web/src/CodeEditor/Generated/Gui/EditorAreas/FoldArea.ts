@@ -69,8 +69,12 @@ export class FoldArea extends CodeEditor.EditorArea {
         let maxHeight = (Math.floor(((this.Bounds.Height + visibleLineRemainder) / fontHeight + 1)) & 0xFFFFFFFF);
         for (let y = 0; y < maxHeight; ++y) {
             let markerRect = PixUI.Rect.FromLTWH(
-                this.Bounds.Left, this.Bounds.Top + y * fontHeight - visibleLineRemainder, this.Bounds.Width, fontHeight);
-            if (rect.IntersectsWith(markerRect.Left, markerRect.Top, markerRect.Width, markerRect.Height)) {
+                this.Bounds.Left,
+                this.Bounds.Top + y * fontHeight - visibleLineRemainder,
+                this.Bounds.Width,
+                fontHeight);
+            if (rect.IntersectsWith(markerRect.Left, markerRect.Top, markerRect.Width,
+                markerRect.Height)) {
                 //TODO: paint separator line?
                 // canvas.drawLine(ui.Offset(drawingPosition.left, markerRect.top),
                 //     ui.Offset(drawingPosition.left, markerRect.bottom), normalPaint);
@@ -120,17 +124,23 @@ export class FoldArea extends CodeEditor.EditorArea {
                     isFoldEndFromUpperFold = true;
             }
 
-            this.PaintMarker(canvas, PixUI.Rect.FromLTWH(rect.Left + (rect.Width - foldMarkerSize) / 2, foldMarkerYPos, foldMarkerSize, foldMarkerSize), isVisible, isStartSelected);
+            this.PaintMarker(canvas,
+                PixUI.Rect.FromLTWH(rect.Left + (rect.Width - foldMarkerSize) / 2,
+                    foldMarkerYPos, foldMarkerSize, foldMarkerSize),
+                isVisible, isStartSelected);
 
             // paint line above fold marker
             if (isBetween || isFoldEndFromUpperFold) {
-                canvas.drawLine(xPos, rect.Top, xPos, foldMarkerYPos - 1, isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
+                canvas.drawLine(xPos, rect.Top, xPos, foldMarkerYPos - 1,
+                    isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
             }
 
             // paint line below fold marker
             if (isBetween || moreLinedOpenFold) {
                 canvas.drawLine(
-                    xPos, foldMarkerYPos + foldMarkerSize + 1, xPos, rect.Bottom, isEndSelected || (isStartSelected && isVisible) || isBetweenSelected
+                    xPos, foldMarkerYPos + foldMarkerSize + 1,
+                    xPos, rect.Bottom,
+                    isEndSelected || (isStartSelected && isVisible) || isBetweenSelected
                         ? this.GetSelectedPaint()
                         : this.GetNormalPaint());
             }
@@ -140,35 +150,43 @@ export class FoldArea extends CodeEditor.EditorArea {
 
                 // paint fold end marker
                 canvas.drawLine(
-                    xPos, midY, xPos + foldMarkerSize / 2, midY, isEndSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
+                    xPos, midY,
+                    xPos + foldMarkerSize / 2, midY,
+                    isEndSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
 
                 // paint line above fold end marker
                 // must be drawn after fold marker because it might have a different color than the fold marker
-                canvas.drawLine(xPos, rect.Top, xPos, midY, isBetweenSelected || isEndSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
+                canvas.drawLine(xPos, rect.Top, xPos, midY,
+                    isBetweenSelected || isEndSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
 
                 // paint line below fold end marker
                 if (isBetween) {
-                    canvas.drawLine(xPos, midY + 1, xPos, rect.Bottom, isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
+                    canvas.drawLine(xPos, midY + 1, xPos, rect.Bottom,
+                        isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
                 }
             } else if (isBetween) {
                 // just paint the line
-                canvas.drawLine(xPos, rect.Top, xPos, rect.Bottom, isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
+                canvas.drawLine(xPos, rect.Top, xPos, rect.Bottom,
+                    isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
             }
         }
     }
 
     private PaintMarker(canvas: PixUI.Canvas, rect: PixUI.Rect, isOpened: boolean, isSelected: boolean) {
-        canvas.drawRect(PixUI.Rect.FromLTWH(rect.Left, rect.Top, rect.Width, rect.Height), isSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
+        canvas.drawRect(PixUI.Rect.FromLTWH(rect.Left, rect.Top, rect.Width, rect.Height),
+            isSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
 
         let space = rect.Height / 8 + 1;
         let mid = rect.Height / 2 + rect.Height % 2;
 
         // draw minus
-        canvas.drawLine(rect.Left + space, rect.Top + mid, rect.Left + rect.Width - space, rect.Top + mid, this.GetNormalPaint());
+        canvas.drawLine(rect.Left + space, rect.Top + mid, rect.Left + rect.Width - space,
+            rect.Top + mid, this.GetNormalPaint());
 
         // draw plus
         if (!isOpened) {
-            canvas.drawLine(rect.Left + mid, rect.Top + space, rect.Left + mid, rect.Top + rect.Height - space, this.GetNormalPaint());
+            canvas.drawLine(rect.Left + mid, rect.Top + space, rect.Left + mid,
+                rect.Top + rect.Height - space, this.GetNormalPaint());
         }
     }
 }

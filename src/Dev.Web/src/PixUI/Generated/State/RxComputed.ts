@@ -11,20 +11,25 @@ export class RxComputed<T> extends PixUI.State<T> implements PixUI.IStateBindabl
         this._setter = setter;
     }
 
-    public static MakeAsString<TR>(s: PixUI.State<TR>, formatter: Nullable<System.Func2<TR, string>> = null, parser: Nullable<System.Func2<string, TR>> = null): RxComputed<string> {
-        let computed = new RxComputed<string>(formatter == null ? s.toString.bind(s) : () => formatter(s.Value), parser == null ? null : v => s.Value = parser(v)
+    public static MakeAsString<TR>(s: PixUI.State<TR>,
+                                   formatter: Nullable<System.Func2<TR, string>> = null, parser: Nullable<System.Func2<string, TR>> = null): RxComputed<string> {
+        let computed = new RxComputed<string>(formatter == null ? s.toString.bind(s) : () => formatter(s.Value),
+            parser == null ? null : v => s.Value = parser(v)
         );
         s.AddBinding(computed, PixUI.BindingOptions.None);
         return computed;
     }
 
-    public static Make1<TS, TR>(source: PixUI.State<TS>, getter: System.Func2<TS, TR>, setter: Nullable<System.Action1<TR>> = null): RxComputed<TR> {
+    public static Make1<TS, TR>(source: PixUI.State<TS>, getter: System.Func2<TS, TR>,
+                                setter: Nullable<System.Action1<TR>> = null): RxComputed<TR> {
         let computed = new RxComputed<TR>(() => getter(source.Value), setter);
         source.AddBinding(computed, PixUI.BindingOptions.None);
         return computed;
     }
 
-    public static Make2<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>, getter: System.Func3<T1, T2, TR>, setter: Nullable<System.Action1<TR>> = null): RxComputed<TR> {
+    public static Make2<T1, T2, TR>(s1: PixUI.State<T1>, s2: PixUI.State<T2>,
+                                    getter: System.Func3<T1, T2, TR>,
+                                    setter: Nullable<System.Action1<TR>> = null): RxComputed<TR> {
         let computed = new RxComputed<TR>(() => getter(s1.Value, s2.Value), setter);
         s1.AddBinding(computed, PixUI.BindingOptions.None);
         s2.AddBinding(computed, PixUI.BindingOptions.None);

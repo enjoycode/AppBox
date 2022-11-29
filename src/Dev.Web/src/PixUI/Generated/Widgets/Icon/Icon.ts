@@ -31,7 +31,8 @@ export class Icon extends PixUI.Widget {
 
     private OnIconFontLoaded() {
         if (!this.IsMounted) //有时候会作为其他组件的不可访问的子组件
-            this.Parent?.Invalidate(PixUI.InvalidAction.Repaint, new PixUI.RepaintArea(PixUI.Rect.FromLTWH(this.X, this.Y, this.W, this.H)));
+            this.Parent?.Invalidate(PixUI.InvalidAction.Repaint,
+                new PixUI.RepaintArea(PixUI.Rect.FromLTWH(this.X, this.Y, this.W, this.H)));
         else
             this.Invalidate(PixUI.InvalidAction.Repaint);
     }
@@ -46,7 +47,8 @@ export class Icon extends PixUI.Widget {
 
     public Layout(availableWidth: number, availableHeight: number) {
         let size = this._size?.Value ?? PixUI.Theme.DefaultFontSize;
-        this.SetSize(Math.max(0, Math.min(availableWidth, size)), Math.max(0, Math.min(availableHeight, size)));
+        this.SetSize(Math.max(0, Math.min(availableWidth, size)),
+            Math.max(0, Math.min(availableHeight, size)));
     }
 
     public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {

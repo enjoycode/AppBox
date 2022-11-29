@@ -39,7 +39,8 @@ export class DesignStore {
         DesignStore.TreeController.SelectNode(newNode);
     }
 
-    public static OnDeleteNode(node: PixUI.TreeNode<AppBoxDesign.DesignNodeVO>, modelRootNodeIdString: Nullable<string>) {
+    public static OnDeleteNode(node: PixUI.TreeNode<AppBoxDesign.DesignNodeVO>,
+                               modelRootNodeIdString: Nullable<string>) {
         // 移除选中节点打开的设计器
         DesignStore.DesignerController.Remove(node.Data);
         // 从设计树中移除选中的节点
@@ -47,7 +48,8 @@ export class DesignStore {
         DesignStore.TreeController.RemoveNode(node);
     }
 
-    public static OnRenameDone(referenceType: AppBoxCore.ModelReferenceType, modelId: string, affects: string[]) {
+    public static OnRenameDone(referenceType: AppBoxCore.ModelReferenceType, modelId: string,
+                               affects: string[]) {
         //TODO: 如果重命名模型，刷新模型显示文本
         //根据返回结果刷新所有已打开的设计器
         for (let i = 0; i < DesignStore.DesignerController.Count; i++) {
