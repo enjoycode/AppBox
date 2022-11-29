@@ -56,11 +56,17 @@ internal sealed class DesktopPreviewer : View
             var modelNode = _controller.ModelNode;
             var widgetTypeName = $"{modelNode.AppName}.Views.{modelNode.Label.Value}";
             var widgetType = asm.GetType(widgetTypeName);
-            var widget = (Widget)Activator.CreateInstance(widgetType!)!;
+
+            //先判断是否有静态预览方法
+            Widget widget;
+            var previewMethod = widgetType!.GetMethod("Preview", BindingFlags.Static | BindingFlags.Public);
+            if (previewMethod != null)
+                widget = (Widget)previewMethod.Invoke(null, null)!;
+            else
+                widget = (Widget)Activator.CreateInstance(widgetType!)!;
             widget.DebugLabel = asm.FullName;
             sw.Stop();
-            Console.WriteLine(
-                $"Load preview widget: {widget.GetType()}, ms={sw.ElapsedMilliseconds}");
+            Console.WriteLine($"Load preview widget: {widget.GetType()}, ms={sw.ElapsedMilliseconds}");
 
             _containerRef.Widget.Child = widget;
         }

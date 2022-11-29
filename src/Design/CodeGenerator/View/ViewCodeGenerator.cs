@@ -40,6 +40,7 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
         SemanticModel = semanticModel;
         ViewModel = viewModel;
         _typeSymbolCache = new TypeSymbolCache(semanticModel);
+        _thisModelFullName = $"{appName}.Views.{viewModel.Name}";
     }
 
     internal readonly DesignHub DesignHub;
@@ -47,6 +48,7 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
     internal readonly SemanticModel SemanticModel;
     internal readonly ViewModel ViewModel;
     private readonly TypeSymbolCache _typeSymbolCache;
+    private readonly string _thisModelFullName;
 
     /// <summary>
     /// 转换生成运行时的SyntaxTree
@@ -70,7 +72,11 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
     /// 添加使用到的实体或视图模型
     /// </summary>
     /// <param name="fullName">eg: sys.Entities.Customer</param>
-    private void AddUsedModel(string fullName) => _usedModels.Add(fullName);
+    private void AddUsedModel(string fullName)
+    {
+        if (fullName != _thisModelFullName) //排除自己
+            _usedModels.Add(fullName);
+    }
 
     /// <summary>
     /// 根据类型全名称查找是否模型
