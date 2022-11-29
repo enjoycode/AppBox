@@ -1,31 +1,6 @@
 import {Entity} from "@/AppBoxCore";
-import {RxObject, State, StateBase} from "@/PixUI";
+import {RxObject, RxProperty, State, StateBase} from "@/PixUI";
 import {Action2, Func2} from "@/System";
-
-class EntityMemberProxy<TEntity extends Entity, TMember> extends State<TMember> {
-    constructor(rxEntity: RxEntity<TEntity>, getter: Func2<TEntity, TMember>, setter: Action2<TEntity, TMember>) {
-        super();
-        this._rxEntity = rxEntity;
-        this._getter = getter;
-        this._setter = setter;
-    }
-
-    private readonly _rxEntity: RxEntity<TEntity>;
-    private readonly _getter: Func2<TEntity, TMember>;
-    private readonly _setter: Action2<TEntity, TMember>;
-
-    get Readonly(): boolean {
-        return false;
-    }
-
-    get Value(): TMember {
-        return this._getter(this._rxEntity.Target);
-    }
-
-    set Value(v: TMember) {
-        this._setter(this._rxEntity.Target, v);
-    }
-}
 
 export class RxEntity<T extends Entity> extends RxObject<T> {
     constructor(empty: T) {
@@ -42,7 +17,7 @@ export class RxEntity<T extends Entity> extends RxObject<T> {
         let state = this._ds.get(memberId);
         if (state) return <State<TMember>>state;
 
-        let proxy = new EntityMemberProxy(this, getter, setter);
+        let proxy = new RxProperty(() => getter(this._target), v => setter(this._target, v), false);
         this._ds.set(memberId, proxy);
         return proxy;
     }

@@ -18,10 +18,16 @@ export class WebPreviewer extends PixUI.View {
         const url = "/preview/view/" + AppBoxClient.Channel.SessionId + "/" + this._controller.ModelNode.Id + "?v=" + this._version;
         try {
             let module = await import(/* @vite-ignore */url);
-            let widget = new module[this._controller.ModelNode.Label.Value];
+            let previewMethod = module[this._controller.ModelNode.Label.Value]["Preview"];
+            let widget: PixUI.Widget;
+            if (previewMethod)
+                widget = previewMethod();
+            else
+                widget = new module[this._controller.ModelNode.Label.Value];
+
             this.Child = new PixUI.Container().Init({Child: widget});
             this.Invalidate(PixUI.InvalidAction.Relayout);
-            
+
             //Sync outline view
             this._controller.CurrentWidget = widget;
             this._controller.RefreshOutlineAction?.call(this);
