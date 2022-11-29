@@ -1,4 +1,3 @@
-using CodeEditor;
 using NUnit.Framework;
 
 namespace PixUI.UnitTests

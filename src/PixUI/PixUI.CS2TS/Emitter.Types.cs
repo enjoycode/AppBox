@@ -11,28 +11,13 @@ namespace PixUI.CS2TS
 
         internal const string PixUIProjectName = nameof(PixUI);
 
-        private const string TSRenameAttributeFullName = "PixUI.TSRenameAttribute";
-        private const string TSInterfaceOfAttributeFullName = "PixUI.TSInterfaceOfAttribute";
-        private const string TSTypeAttributeName = "TSTypeAttribute";
-        private const string TSInterceptorAttributeFullName = "PixUI.TSInterceptorAttribute";
         internal const string TSTemplateAttributeFullName = "PixUI.TSTemplateAttribute";
         internal const string TSMethodIgnoreAttributeFullName = "PixUI.TSMethodIgnoreAttribute";
-
-        internal const string TSCustomInterceptorAttributeFullName =
-            "PixUI.TSCustomInterceptorAttribute";
-
-        internal const string TSPropertyToGetSetAttributeFullName =
-            "PixUI.TSPropertyToGetSetAttribute";
+        internal const string TSCustomInterceptorAttributeFullName = "PixUI.TSCustomInterceptorAttribute";
+        internal const string TSPropertyToGetSetAttributeFullName = "PixUI.TSPropertyToGetSetAttribute";
 
         internal static bool IsTSTypeAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSType");
-
-        internal static bool IsTSTypeAttribute(INamedTypeSymbol? symbol)
-        {
-            if (symbol == null) return false;
-            return symbol.ContainingNamespace.Name == PixUIProjectName &&
-                   symbol.Name == TSTypeAttributeName;
-        }
 
         internal static bool IsTSRenameAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSRename");
@@ -45,6 +30,9 @@ namespace PixUI.CS2TS
 
         internal static bool IsTSGenericTypeOverloadsAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSGenericTypeOverloads");
+
+        internal static bool IsTSIndexerSetAtAttribute(AttributeSyntax attribute)
+            => IsAttribute(attribute, "TSIndexerSetAt");
 
         private static bool IsAttribute(AttributeSyntax attribute, string shortName)
         {
@@ -84,14 +72,20 @@ namespace PixUI.CS2TS
 
         internal INamedTypeSymbol TypeOfState => _typeSymbolCache.GetTypeByName("PixUI.State`1");
 
-        internal INamedTypeSymbol TypeOfTSInterfaceOfAttribute
-            => _typeSymbolCache.GetTypeByName(TSInterfaceOfAttributeFullName);
+        internal INamedTypeSymbol TypeOfTSTypeAttribute
+            => _typeSymbolCache.GetTypeByName("PixUI.TSTypeAttribute");
 
-        private INamedTypeSymbol TypeOfTSRenameAttribute =>
-            _typeSymbolCache.GetTypeByName(TSRenameAttributeFullName);
+        internal INamedTypeSymbol TypeOfTSInterfaceOfAttribute
+            => _typeSymbolCache.GetTypeByName("PixUI.TSInterfaceOfAttribute");
+
+        private INamedTypeSymbol TypeOfTSRenameAttribute
+            => _typeSymbolCache.GetTypeByName("PixUI.TSRenameAttribute");
 
         private INamedTypeSymbol TypeOfTSInterceptorAttribute =>
-            _typeSymbolCache.GetTypeByName(TSInterceptorAttributeFullName);
+            _typeSymbolCache.GetTypeByName("PixUI.TSInterceptorAttribute");
+
+        internal INamedTypeSymbol TypeOfTSIndexerSetAtAttribute =>
+            _typeSymbolCache.GetTypeByName("PixUI.TSIndexerSetAtAttribute");
 
         #endregion
 
@@ -117,11 +111,10 @@ namespace PixUI.CS2TS
         /// </summary>
         internal void TryRename(ISymbol symbol, ref string name)
         {
-            if (symbol is not IPropertySymbol && symbol is not IFieldSymbol &&
-                symbol is not IMethodSymbol) return;
+            if (symbol is not IPropertySymbol && symbol is not IFieldSymbol && symbol is not IMethodSymbol)
+                return;
 
-            if (symbol is IMethodSymbol method && name == "ToString" &&
-                method.Parameters.Length == 0)
+            if (symbol is IMethodSymbol method && name == "ToString" && method.Parameters.Length == 0)
             {
                 name = "toString";
                 return;
@@ -129,9 +122,7 @@ namespace PixUI.CS2TS
 
             if (symbol.IsSystemNamespace()) return;
 
-            var renameAttribute = symbol.GetAttributes().FirstOrDefault(
-                t => t.AttributeClass != null &&
-                     SymbolEqualityComparer.Default.Equals(t.AttributeClass, TypeOfTSRenameAttribute));
+            var renameAttribute = symbol.TryGetAttribute(TypeOfTSRenameAttribute);
             if (renameAttribute == null) return;
 
             name = renameAttribute.ConstructorArguments[0].Value!.ToString();

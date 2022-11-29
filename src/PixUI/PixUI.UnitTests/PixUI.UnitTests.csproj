@@ -89,4 +89,9 @@
       <None Include="Resources\TestCode\TestLiteral.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Resources\TestCode\TestIndexer.cs" />
+      <EmbeddedResource Include="Resources\TestCode\TestIndexer.cs" />
+    </ItemGroup>
+
 </Project>

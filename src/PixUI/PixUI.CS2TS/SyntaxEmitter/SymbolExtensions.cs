@@ -46,12 +46,9 @@ namespace PixUI.CS2TS
                    SymbolEqualityComparer.Default.Equals(stateType, symbol.OriginalDefinition);
         }
 
-        internal static bool IsTSInterfaceOfAttribute(this ITypeSymbol symbol,
-            INamedTypeSymbol interfaceOfType)
+        internal static bool IsTSInterfaceOfAttribute(this ITypeSymbol symbol, INamedTypeSymbol interfaceOfType)
         {
-            return symbol.GetAttributes().Any(
-                t => t.AttributeClass != null &&
-                     SymbolEqualityComparer.Default.Equals(t.AttributeClass, interfaceOfType));
+            return symbol.TryGetAttribute(interfaceOfType) != null;
         }
 
         internal static bool IsImplements(this ITypeSymbol symbol, ITypeSymbol type)
@@ -86,8 +83,7 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 是否结构体类型，排除系统内置(eg: number or boolean)类型
         /// </summary>
-        internal static bool IsStructType(this TypeInfo typeInfo, out bool isNullable,
-            out bool isReadonly,
+        internal static bool IsStructType(this TypeInfo typeInfo, out bool isNullable, out bool isReadonly,
             INamedTypeSymbol nullableType)
         {
             isNullable = false;
@@ -122,6 +118,12 @@ namespace PixUI.CS2TS
                 SpecialType.System_UInt64 => true,
                 _ => false
             };
+        }
+
+        internal static AttributeData? TryGetAttribute(this ISymbol symbol, INamedTypeSymbol attributeTypeSymbol)
+        {
+            return symbol.GetAttributes().FirstOrDefault(s =>
+                SymbolEqualityComparer.Default.Equals(s.AttributeClass, attributeTypeSymbol));
         }
     }
 }

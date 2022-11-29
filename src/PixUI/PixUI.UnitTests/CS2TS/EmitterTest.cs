@@ -51,7 +51,7 @@ namespace PixUI.UnitTests.CS2TS
 
         [Test]
         public async Task FirstTest() => await Run("TestClass.cs");
-        
+
         [Test]
         public async Task LiteralTest() => await Run("TestLiteral.cs");
 
@@ -147,5 +147,8 @@ namespace PixUI.UnitTests.CS2TS
 
         [Test]
         public async Task CollectionTest() => await Run("TestCollection.cs");
+
+        [Test]
+        public async Task IndexerTest() => await Run("TestIndexer.cs", true);
     }
 }

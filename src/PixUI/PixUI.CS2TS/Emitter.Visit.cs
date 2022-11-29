@@ -82,11 +82,6 @@ namespace PixUI.CS2TS
         public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node) =>
             PropertyDeclarationEmitter.Default.Emit(this, node);
 
-        public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
-        {
-            //TODO:暂不处理，考虑转换为getAt() and setAt();
-        }
-
         public override void VisitMethodDeclaration(MethodDeclarationSyntax node) =>
             MethodDeclarationEmitter.Default.Emit(this, node);
 
@@ -189,9 +184,6 @@ namespace PixUI.CS2TS
 
         public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node) =>
             ElementAccessExpressionEmitter.Emit(this, node);
-
-        public override void VisitAssignmentExpression(AssignmentExpressionSyntax node) =>
-            AssignmentExpressionEmitter.Default.Emit(this, node);
 
         public override void VisitBaseExpression(BaseExpressionSyntax node)
         {

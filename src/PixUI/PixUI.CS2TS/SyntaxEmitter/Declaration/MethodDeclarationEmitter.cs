@@ -132,12 +132,10 @@ namespace PixUI.CS2TS
                 return;
             }
 
-            var attribute =
-                SyntaxExtensions.TryGetAttribute(node.AttributeLists, Emitter.IsTSRenameAttribute);
+            var attribute = SyntaxExtensions.TryGetAttribute(node.AttributeLists, Emitter.IsTSRenameAttribute);
             if (attribute == null) return;
 
-            var nameLiteral =
-                (LiteralExpressionSyntax)attribute.ArgumentList!.Arguments[0].Expression;
+            var nameLiteral = (LiteralExpressionSyntax)attribute.ArgumentList!.Arguments[0].Expression;
             name = nameLiteral.Token.ValueText;
         }
     }

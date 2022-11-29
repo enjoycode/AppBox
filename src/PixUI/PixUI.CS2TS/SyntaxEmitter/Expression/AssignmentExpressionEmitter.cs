@@ -5,41 +5,32 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace PixUI.CS2TS
 {
-    internal sealed class AssignmentExpressionEmitter : SyntaxEmitter<AssignmentExpressionSyntax>
+    partial class Emitter
     {
-        internal static readonly AssignmentExpressionEmitter Default = new();
-
-        private AssignmentExpressionEmitter() { }
-
-        internal override void Emit(Emitter emitter, AssignmentExpressionSyntax node)
+        public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
         {
             //判断是否拦截TSPropertyToGetSet
-            if (node.Left is MemberAccessExpressionSyntax memberAccess)
-            {
-                var symbolInfo = emitter.SemanticModel.GetSymbolInfo(memberAccess.Name);
-                if (emitter.TryGetInterceptor(symbolInfo.Symbol, out var interceptor))
-                {
-                    interceptor!.Emit(emitter, node, symbolInfo.Symbol!);
-                    return;
-                }
-            }
+            if (TryEmitPropertyToSet(node)) return;
 
-            var leftSymbol = emitter.SemanticModel.GetSymbolInfo(node.Left).Symbol;
-            var rightSymbol = emitter.SemanticModel.GetSymbolInfo(node.Right).Symbol;
+            var leftSymbol = SemanticModel.GetSymbolInfo(node.Left).Symbol;
+            var rightSymbol = SemanticModel.GetSymbolInfo(node.Right).Symbol;
 
+            //判断是否需要转换 obj[idx] = xxx to: obj.SetAt(idx, xxx)
+            if (TryEmitIndexerSet(node, leftSymbol, rightSymbol))
+                return;
             //判断是否事件+=或者-=操作
-            if (TryEmitEventAssignment(emitter, node, leftSymbol, rightSymbol))
+            if (TryEmitEventAssignment(node, leftSymbol, rightSymbol))
                 return;
 
-            emitter.Visit(node.Left);
-            emitter.VisitToken(node.OperatorToken);
-            
+            Visit(node.Left);
+            VisitToken(node.OperatorToken);
+
             //right 隐式转换
-            var typeInfo = emitter.SemanticModel.GetTypeInfo(node.Right);
-            emitter.TryImplictConversionOrStructClone(typeInfo, node.Right);
+            var typeInfo = SemanticModel.GetTypeInfo(node.Right);
+            TryImplictConversionOrStructClone(typeInfo, node.Right);
         }
 
-        private static bool TryEmitEventAssignment(Emitter emitter, AssignmentExpressionSyntax node,
+        private bool TryEmitEventAssignment(AssignmentExpressionSyntax node,
             ISymbol? leftSymbol, ISymbol? rightSymbol)
         {
             var kind = node.OperatorToken.Kind();
@@ -49,16 +40,16 @@ namespace PixUI.CS2TS
             var isEvent = leftSymbol is IEventSymbol;
             if (isEvent)
             {
-                emitter.Visit(node.Left);
-                emitter.Write(kind == SyntaxKind.PlusEqualsToken ? ".Add(" : ".Remove(");
-                emitter.IgnoreDelegateBind = true;
-                emitter.Visit(node.Right);
-                emitter.IgnoreDelegateBind = false;
+                Visit(node.Left);
+                Write(kind == SyntaxKind.PlusEqualsToken ? ".Add(" : ".Remove(");
+                IgnoreDelegateBind = true;
+                Visit(node.Right);
+                IgnoreDelegateBind = false;
 
                 //判断是否静态方法,实例方法需要传入实例作为回调的this
                 if (rightSymbol is { IsStatic: false } && node.Right is not LambdaExpressionSyntax)
                 {
-                    emitter.Write(", ");
+                    Write(", ");
 
                     //TODO: check other type of node.Right
                     if (node.Right is MemberAccessExpressionSyntax memberAccess)
@@ -66,15 +57,52 @@ namespace PixUI.CS2TS
                         if (memberAccess.Expression is ObjectCreationExpressionSyntax)
                             throw new NotSupportedException("Can't bind to ObjectCreation");
 
-                        emitter.Visit(memberAccess.Expression);
+                        Visit(memberAccess.Expression);
                     }
                     else
                     {
-                        emitter.Write("this");
+                        Write("this");
                     }
                 }
 
-                emitter.Write(')');
+                Write(')');
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryEmitPropertyToSet(AssignmentExpressionSyntax node)
+        {
+            if (node.Left is MemberAccessExpressionSyntax memberAccess)
+            {
+                var symbolInfo = SemanticModel.GetSymbolInfo(memberAccess.Name);
+                if (TryGetInterceptor(symbolInfo.Symbol, out var interceptor))
+                {
+                    interceptor!.Emit(this, node, symbolInfo.Symbol!);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryEmitIndexerSet(AssignmentExpressionSyntax node, ISymbol? leftSymbol, ISymbol? rightSymbol)
+        {
+            if (leftSymbol is IPropertySymbol { IsIndexer: true } propertySymbol)
+            {
+                var attribute = propertySymbol.SetMethod!.TryGetAttribute(TypeOfTSIndexerSetAtAttribute);
+                if (attribute == null) return false;
+
+                var elementAccess = (ElementAccessExpressionSyntax)node.Left;
+                Visit(elementAccess.Expression);
+                Write(".SetAt(");
+                Visit(elementAccess.ArgumentList.Arguments[0]);
+                Write(',');
+                Visit(node.Right);
+                Write(")");
+                
+                WriteTrailingTrivia(node.Right);
                 return true;
             }
 

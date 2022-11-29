@@ -109,13 +109,10 @@ namespace PixUI.CS2TS
             if (expressionSymbol is INamedTypeSymbol { TypeKind: TypeKind.Enum } typeSymbol &&
                 typeSymbol.ContainingNamespace.Name == Emitter.PixUIProjectName)
             {
-                var attributes = typeSymbol.GetAttributes();
-                if (attributes.Length == 0) return false;
+                var tsTypeAttribute = typeSymbol.TryGetAttribute(emitter.TypeOfTSTypeAttribute);
+                if (tsTypeAttribute == null) return false;
 
-                if (!Emitter.IsTSTypeAttribute(attributes[0].AttributeClass))
-                    return false;
-
-                var tsTypeName = attributes[0].ConstructorArguments[0].Value!.ToString();
+                var tsTypeName = tsTypeAttribute.ConstructorArguments[0].Value!.ToString();
                 if (!tsTypeName.StartsWith("CanvasKit.")) return false;
 
                 emitter.Write(tsTypeName);
