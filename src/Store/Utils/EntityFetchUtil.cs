@@ -27,6 +27,9 @@ namespace AppBoxStore.Utils
             var indexOfDot = path.IndexOf('.');
             if (indexOfDot < 0)
             {
+                //忽略一些特殊字段
+                if (path == SqlStore.TREE_LEVEL) return;
+
                 var member = model.GetMember(path, false);
                 if (member == null)
                 {
