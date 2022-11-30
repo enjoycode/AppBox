@@ -17,17 +17,9 @@ public static class RuntimeContext
 
     public static IUserSession? CurrentSession => Current.CurrentSession;
 
-    public static ApplicationModel GetApplication(int appId)
-    {
-        var task = Current.GetApplicationAsync(appId);
-        return task.IsCompleted ? task.Result : task.AsTask().Result;
-    }
+    public static ApplicationModel GetApplication(int appId) => Current.GetApplication(appId);
 
-    public static T GetModel<T>(ModelId modelId) where T: ModelBase
-    {
-        var task = Current.GetModelAsync<T>(modelId);
-        return task.IsCompleted ? task.Result : task.AsTask().Result;
-    }
+    public static T GetModel<T>(ModelId modelId) where T : ModelBase => Current.GetModel<T>(modelId);
 
     public static ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
         => Current.GetModelAsync<T>(modelId);

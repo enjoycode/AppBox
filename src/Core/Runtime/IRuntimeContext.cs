@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 运行时上下文，用于提供模型容器及服务调用
 /// </summary>
-public interface IRuntimeContext
+public interface IRuntimeContext : IModelContainer
 {
     /// <summary>
     /// 当前用户的会话信息
@@ -31,6 +31,22 @@ public interface IRuntimeContext
     /// 用于发布时更新模型缓存
     /// </summary>
     void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish);
+
+    public ApplicationModel GetApplication(int appId)
+    {
+        var task = GetApplicationAsync(appId);
+        return task.IsCompleted ? task.Result : task.AsTask().Result;
+    }
+
+    public T GetModel<T>(ModelId modelId) where T : ModelBase
+    {
+        var task = GetModelAsync<T>(modelId);
+        return task.IsCompleted ? task.Result : task.AsTask().Result;
+    }
+
+    ApplicationModel IModelContainer.GetApplicationModel(int appId) => GetApplication(appId);
+
+    EntityModel IModelContainer.GetEntityModel(ModelId modelID) => GetEntityModel(modelID);
 }
 
 public interface IHostRuntimeContext : IRuntimeContext
