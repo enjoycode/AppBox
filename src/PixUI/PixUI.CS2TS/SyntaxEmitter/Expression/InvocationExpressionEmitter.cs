@@ -198,8 +198,8 @@ namespace PixUI.CS2TS
             if (!symbol.IsAppBoxServiceMethod()) return false;
 
             //需要检查返回类型内是否包含实体，是则加入引用模型列表内
-            if (emitter.FindModel != null && !symbol.ReturnsVoid)
-                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter.FindModel, emitter.AddUsedModel);
+            if (emitter.AppBoxContext != null && !symbol.ReturnsVoid)
+                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter.AppBoxContext.FindModel, emitter.AddUsedModel);
 
             //开始转换为前端服务调用
             emitter.AddUsedModule("AppBoxClient");
@@ -231,7 +231,8 @@ namespace PixUI.CS2TS
             return true;
         }
 
-        private static bool TryEmitEntityObserve(Emitter emitter, InvocationExpressionSyntax node, IMethodSymbol symbol)
+        private static bool TryEmitEntityObserve(Emitter emitter, InvocationExpressionSyntax node,
+            IMethodSymbol symbol)
         {
             var typeFullName = symbol.ContainingType.ToString();
             if (typeFullName != "AppBoxClient.EntityExtensions" && !typeFullName.StartsWith("AppBoxClient.RxEntity<"))
@@ -245,12 +246,12 @@ namespace PixUI.CS2TS
                 throw new Exception("Only support MemberAccess now.");
 
             var propSymbol = (IPropertySymbol)emitter.SemanticModel.GetSymbolInfo(memberAccess).Symbol!;
-            if (!propSymbol.ContainingType.IsAppBoxEntity(emitter.FindModel!))
+            if (!propSymbol.ContainingType.IsAppBoxEntity(emitter.AppBoxContext!.FindModel))
                 throw new Exception("Must be a Entity");
 
             var entityFullName = propSymbol.ContainingType.ToString();
             var memberName = memberAccess.Name.Identifier.Text;
-            var memberId = emitter.FindEntityMemberId!(entityFullName, memberName);
+            var memberId = emitter.AppBoxContext!.FindEntityMemberId(entityFullName, memberName);
 
             emitter.Visit(node.Expression);
             emitter.Write('(');

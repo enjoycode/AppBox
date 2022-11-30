@@ -30,15 +30,19 @@ internal sealed class GetWebPreview : IDesignHandler
         var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
 
-        // 始终检查语义错误，防止同步过程出现问题
+        // 始终检查语义错误，防止客户端与服务端代码同步过程出现问题
         var semanticModel = await srcDocument.GetSemanticModelAsync();
         var diagnostics = semanticModel!.GetDiagnostics();
         if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
             throw new Exception("Has error");
 
-        var emitter = await Emitter.MakeAsync(translator, srcDocument, true,
+        var appboxCtx = new AppBoxContext(
             fullName => hub.DesignTree.FindModelNodeByFullName(fullName) != null,
-            (entityName, memberName) => ((EntityModel)hub.DesignTree.FindModelNodeByFullName(entityName)!.Model).GetMember(memberName)!.MemberId);
+            (entityName, memberName) =>
+                ((EntityModel)hub.DesignTree.FindModelNodeByFullName(entityName)!.Model)
+                .GetMember(memberName)!.MemberId
+        );
+        var emitter = await Emitter.MakeAsync(translator, srcDocument, true, appboxCtx);
         emitter.Emit();
         var tsCode = emitter.GetTypeScriptCode(true);
 

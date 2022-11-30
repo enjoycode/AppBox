@@ -264,7 +264,8 @@ namespace PixUI.CS2TS
         internal void TryWritePackageName(NameSyntax node, ISymbol symbol)
         {
             //先判断是否模型类，是则特殊处理
-            if (FindModel != null && (symbol.IsAppBoxEntity(FindModel) || symbol.IsAppBoxView(FindModel)))
+            if (AppBoxContext != null &&
+                (symbol.IsAppBoxEntity(AppBoxContext.FindModel) || symbol.IsAppBoxView(AppBoxContext.FindModel)))
             {
                 //写入应用名称作为前缀防止同名, eg: sys_EntityName
                 var appName = symbol.ContainingNamespace.ContainingNamespace.Name;

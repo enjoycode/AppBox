@@ -10,30 +10,27 @@ using RoslynUtils;
 namespace PixUI.CS2TS
 {
     /// <summary>
-    /// 将Roslyn Document转译为TypeScript
+    /// 将Roslyn Document转译为TypeScript或JavaScript
     /// </summary>
     public sealed partial class Emitter : CSharpSyntaxWalker
     {
-        private Emitter(Translator translator, Document document,
-            SemanticModel semanticModel, bool toJavaScript = false,
-            Func<string, bool>? findModel = null,
-            Func<string, string, short>? findEntityMemberId = null)
+        private Emitter(Translator translator, Document document, SemanticModel semanticModel,
+            bool toJavaScript = false, AppBoxContext? appBoxContext = null)
             : base(SyntaxWalkerDepth.Trivia)
         {
             Translator = translator;
             Document = document;
             SemanticModel = semanticModel;
             ToJavaScript = toJavaScript;
-            FindModel = findModel;
-            FindEntityMemberId = findEntityMemberId;
+            AppBoxContext = appBoxContext;
             _typeSymbolCache = new TypeSymbolCache(semanticModel);
         }
 
-        public static async Task<Emitter> MakeAsync(Translator translator, Document document, bool toJavascript = false,
-            Func<string, bool>? findModel = null, Func<string, string, short>? findEntityMemberId = null)
+        public static async Task<Emitter> MakeAsync(Translator translator, Document document,
+            bool toJavascript = false, AppBoxContext? appBoxContext = null)
         {
             var semanticModel = await document.GetSemanticModelAsync();
-            return new Emitter(translator, document, semanticModel!, toJavascript, findModel, findEntityMemberId);
+            return new Emitter(translator, document, semanticModel!, toJavascript, appBoxContext);
         }
 
         private readonly Document Document;
@@ -41,8 +38,7 @@ namespace PixUI.CS2TS
         internal readonly Translator Translator;
         internal readonly bool ToJavaScript; //直接翻译为ES2017
 
-        internal readonly Func<string, bool>? FindModel; //用于AppBox跟踪使用到的模型
-        internal readonly Func<string, string, short>? FindEntityMemberId; //用于AppBox查找实体成员的标识
+        internal readonly AppBoxContext? AppBoxContext;
 
         // 使用到的模块，用于生成文件头import
         private readonly HashSet<string> _usedModules = new HashSet<string>();
