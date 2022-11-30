@@ -14,8 +14,7 @@ internal sealed class GetEntityPreview : IDesignHandler
         if (modelNode == null)
             throw new Exception($"Can't find entity model: {modelId}");
 
-        var jsCode = EntityCodeGenerator.GenWebCode((EntityModel)modelNode.Model,
-            modelNode.AppNode.Model.Name, true);
+        var jsCode = EntityCodeGenerator.GenWebCode((EntityModel)modelNode.Model, hub, true);
         return new ValueTask<AnyValue>(
             AnyValue.From(System.Text.Encoding.UTF8.GetBytes(jsCode))
         );

@@ -333,7 +333,7 @@ internal static class StoreInitiator
         model.AddSysMember(baseType, OrgUnit.BASETYPE_ID);
         var Base = new EntityRefModel(model, nameof(OrgUnit.Base),
             new List<long> { Enterprise.MODELID, Workgroup.MODELID, Employee.MODELID },
-            new[] { id.MemberId }, baseType.MemberId);
+            new[] { id.MemberId }, baseType.MemberId, false);
         model.AddSysMember(Base, OrgUnit.BASE_ID);
 
         var parentId = new EntityFieldModel(model, nameof(OrgUnit.ParentId), fkType, true);

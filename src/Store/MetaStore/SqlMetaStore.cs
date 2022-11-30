@@ -180,8 +180,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildUpdateMetaCommand(cmd, Meta_Model, model.Id.ToString(),
-            MetaSerializer.SerializeMeta(model));
+        BuildUpdateMetaCommand(cmd, Meta_Model, model.Id.ToString(), MetaSerializer.SerializeMeta(model));
         await cmd.ExecuteNonQueryAsync();
     }
 

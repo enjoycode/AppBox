@@ -11,7 +11,7 @@ internal static class EntityCodeGenerator
     /// <summary>
     /// 生成实体模型的Web代码
     /// </summary>
-    internal static string GenWebCode(EntityModel model, string appName, bool forPreview)
+    internal static string GenWebCode(EntityModel model, IModelContainer ctx, bool forPreview)
     {
         var sb = StringBuilderCache.Acquire();
         if (forPreview)
@@ -40,10 +40,10 @@ internal static class EntityCodeGenerator
                     GenWebEntityFieldMember((EntityFieldModel)member, sb);
                     break;
                 case EntityMemberType.EntityRef:
-                    GenWebEntityRefMember((EntityRefModel)member, sb);
+                    GenWebEntityRefMember((EntityRefModel)member, ctx, sb);
                     break;
                 case EntityMemberType.EntitySet:
-                    GenWebEntitySetMember((EntitySetModel)member, sb);
+                    GenWebEntitySetMember((EntitySetModel)member, ctx, sb);
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
@@ -111,8 +111,10 @@ internal static class EntityCodeGenerator
         foreach (var member in model.Members)
         {
             sb.Append("\t\t");
+            var withIfNullCheck = false;
             if (!(member.Type == EntityMemberType.EntityField && !member.AllowNull))
             {
+                withIfNullCheck = true;
                 sb.Append("if (this._");
                 sb.Append(member.Name);
                 sb.Append(" != null");
@@ -156,7 +158,7 @@ internal static class EntityCodeGenerator
                     throw new NotImplementedException(member.Type.ToString());
             }
 
-            if (member.AllowNull) sb.Append(" }\n");
+            if (withIfNullCheck) sb.Append(" }\n");
             else sb.Append('\n');
         }
 
@@ -180,24 +182,91 @@ internal static class EntityCodeGenerator
         sb.Append("}\n");
     }
 
-    private static void GenWebEntityRefMember(EntityRefModel entityRef, StringBuilder sb)
+    private static void GenWebEntityRefMember(EntityRefModel entityRef, IModelContainer ctx, StringBuilder sb)
     {
         var name = entityRef.Name;
         sb.Append($"\t_{name}; ");
         sb.Append($"get {name}() {{return this._{name}}} ");
         sb.Append($"set {name}(value) {{");
-        //TODO: check equals
+        //TODO: check allow null and value == null
         sb.Append($"this._{name}=value;");
-        //TODO: 同步设置引用成员的外键值
+        //同步设置聚合引用类型成员的值及外键成员的值
+        if (entityRef.Owner.DataStoreKind == DataStoreKind.Sql)
+        {
+            if (entityRef.IsAggregationRef)
+            {
+                var typeMember = entityRef.Owner.GetMember(entityRef.TypeMemberId)!;
+                if (entityRef.AllowNull)
+                {
+                    sb.Append("if (value == null) {");
+                    sb.Append($"{typeMember.Name} = null;");
+                    for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
+                    {
+                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
+                        sb.Append($"{fkMember.Name} = null;");
+                    }
+
+                    sb.Append("} else {");
+                }
+
+                sb.Append("switch (value.ModelId) {");
+                foreach (var refModelId in entityRef.RefModelIds)
+                {
+                    var refModel = ctx.GetEntityModel(refModelId);
+                    var refPks = refModel.SqlStoreOptions!.PrimaryKeys;
+
+                    sb.Append($"case {refModelId}n :");
+                    sb.Append($"this.{typeMember.Name} = {refModelId.ToString()}n;");
+                    for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
+                    {
+                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
+                        var pkMember = refModel.GetMember(refPks[i].MemberId)!;
+                        sb.Append($"this.{fkMember.Name} = _{refModel.Name}.{pkMember.Name};");
+                    }
+
+                    sb.Append("break;");
+                }
+
+                sb.Append("default: throw new ArgumentException();");
+                sb.Append('}'); //end switch
+                if (entityRef.AllowNull)
+                    sb.Append('}'); //end if (value == null)
+            }
+            else
+            {
+                var refModel = ctx.GetEntityModel(entityRef.RefModelIds[0]);
+                var refPks = refModel.SqlStoreOptions!.PrimaryKeys;
+                for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
+                {
+                    var fkMember = entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                    var pkMember = refModel.GetMember(refPks[i].MemberId)!;
+                    sb.Append(entityRef.AllowNull
+                        ? $"this.{fkMember.Name} = value?.{pkMember.Name};"
+                        : $"this.{fkMember.Name} = value.{pkMember.Name};");
+                }
+            }
+        }
+        else
+        {
+            throw new NotImplementedException("生成实体的EntityRef成员代码");
+        }
+
         sb.Append($"this.OnPropertyChanged({entityRef.MemberId});");
         sb.Append("}\n");
     }
 
-    private static void GenWebEntitySetMember(EntitySetModel entitySet, StringBuilder sb)
+    private static void GenWebEntitySetMember(EntitySetModel entitySet, IModelContainer ctx, StringBuilder sb)
     {
         var name = entitySet.Name;
+        var refModel = ctx.GetEntityModel(entitySet.RefModelId);
+        var refName = refModel.GetMember(entitySet.RefMemberId)!.Name;
+
         sb.Append($"\t_{name}; ");
-        sb.Append($"get {name}() {{this._{name} ??= new AppBoxCore.EntitySet(); return this._{name};}}");
+        //注意构造EntitySet时暂不需要生成实体工厂委托
+        sb.Append(
+            $"get {name}() {{this._{name} ??= new AppBoxCore.EntitySet((t,toNull) => t.{refName} = toNull ? null : this, null); return this._{name};}}");
     }
 
     #endregion
@@ -300,8 +369,7 @@ internal static class EntityCodeGenerator
         }
     }
 
-    private static void GenEntityRefMember(EntityRefModel entityRef, StringBuilder sb,
-        DesignTree tree)
+    private static void GenEntityRefMember(EntityRefModel entityRef, StringBuilder sb, DesignTree tree)
     {
         var refModelNode = tree.FindModelNode(entityRef.RefModelIds[0])!;
         var typeString = entityRef.IsAggregationRef
@@ -320,37 +388,51 @@ internal static class EntityCodeGenerator
         if (!entityRef.AllowNull) sb.Append(" ?? throw new ArgumentNullException()");
         sb.Append(";\n");
 
-        //同步设置聚合引用类型的成员的值及外键成员的值
+        //同步设置聚合引用类型成员的值及外键成员的值
         if (entityRef.Owner.DataStoreKind == DataStoreKind.Sql)
         {
             if (entityRef.IsAggregationRef)
             {
                 var typeMember = entityRef.Owner.GetMember(entityRef.TypeMemberId)!;
+                if (entityRef.AllowNull)
+                {
+                    sb.Append("\t\t\tif (value == null) {\n");
+                    sb.Append($"\t\t\t\t{typeMember.Name} = null;\n");
+                    for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
+                    {
+                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
+                        sb.Append($"\t\t\t\t{fkMember.Name} = null;\n");
+                    }
+
+                    sb.Append("\t\t\t} else {\n");
+                }
+
                 sb.Append("\t\t\tswitch (value) {\n");
                 foreach (var refModelId in entityRef.RefModelIds)
                 {
                     refModelNode = tree.FindModelNode(refModelId)!;
+                    var refModelAppName = refModelNode.AppNode.Model.Name;
                     var refModel = (EntityModel)refModelNode.Model;
                     var refPks = refModel.SqlStoreOptions!.PrimaryKeys;
 
-                    sb.Append(
-                        $"\t\t\tcase {refModelNode.AppNode.Model.Name}.Entities.{refModel.Name} _{refModel.Name}:\n");
-                    sb.Append($"\t\t\t\t{typeMember.Name} = {refModel.Id.ToString()}L;\n");
+                    sb.Append($"\t\t\tcase {refModelAppName}.Entities.{refModel.Name} _{refModel.Name}:\n");
+                    sb.Append($"\t\t\t\t{typeMember.Name} = {refModel.Id.Value.ToString()}L;\n");
                     for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
                     {
-                        var fkMember =
-                            (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
                         if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
                         var pkMember = refModel.GetMember(refPks[i].MemberId)!;
-                        sb.Append(
-                            $"\t\t\t\t{fkMember.Name} = _{refModel.Name}.{pkMember.Name};\n");
+                        sb.Append($"\t\t\t\t{fkMember.Name} = _{refModel.Name}.{pkMember.Name};\n");
                     }
 
                     sb.Append("\t\t\t\tbreak;\n");
                 }
 
                 sb.Append("\t\t\tdefault: throw new ArgumentException();\n");
-                sb.Append("\t\t\t}\n");
+                sb.Append("\t\t\t}\n"); //end switch (value)
+                if (entityRef.AllowNull)
+                    sb.Append("\t\t\t}\n"); //end if (value == null)
             }
             else
             {

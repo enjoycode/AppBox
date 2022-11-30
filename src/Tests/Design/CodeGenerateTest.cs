@@ -13,7 +13,7 @@ public class CodeGenerateTest
     {
         var designHub = await TestHelper.MockSession();
         var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
-        var code = EntityCodeGenerator.GenWebCode((EntityModel)entityNode.Model, "sys", true);
+        var code = EntityCodeGenerator.GenWebCode((EntityModel)entityNode.Model, designHub, true);
         Console.Write(code);
     }
 
@@ -26,7 +26,7 @@ public class CodeGenerateTest
         var res = await GetWebPreview.GenViewWebCode(designHub, modelNode.Id);
         Console.Write(res);
     }
-    
+
     [Test]
     public async Task GenEntityCodeTest()
     {
