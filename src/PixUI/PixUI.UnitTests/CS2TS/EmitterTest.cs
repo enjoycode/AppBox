@@ -14,7 +14,7 @@ namespace PixUI.UnitTests.CS2TS
         private static async Task<Translator> Run(string srcFileName,
             bool withAttributeFiles = false)
         {
-            const string attrFilesPath = "../../../../PixUI/Platform/Web/Attributes/";
+            const string attrFilesPath = "../../../../PixUI.TSAttributes/";
             const string testFilesPath = "../../../../PixUI.UnitTests/Resources/TestCode/";
             //var content = Resources.LoadString($"Resources.TestCode.{srcFileName}");
 

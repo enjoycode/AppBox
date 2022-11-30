@@ -20,4 +20,8 @@
       <EmbeddedResource Include="Assets\MaterialIconsOutlined.woff2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixUI.TSAttributes\PixUI.TSAttributes.csproj" />
+    </ItemGroup>
+
 </Project>

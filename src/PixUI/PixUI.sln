@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.Demo.Win", "PixUI.Dem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.Demo", "PixUI.Demo\PixUI.Demo.csproj", "{59B0D778-B916-4754-8783-F1ABC5DF73BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.TSAttributes", "PixUI.TSAttributes\PixUI.TSAttributes.csproj", "{B6A4F865-3783-44D1-9282-31680BB17802}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,18 @@ Global
 		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{59B0D778-B916-4754-8783-F1ABC5DF73BB}.Release|ARM64.Build.0 = Release|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.DebugWeb|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.DebugWeb|Any CPU.Build.0 = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.DebugWeb|ARM64.ActiveCfg = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.DebugWeb|ARM64.Build.0 = Debug|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{B6A4F865-3783-44D1-9282-31680BB17802}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
