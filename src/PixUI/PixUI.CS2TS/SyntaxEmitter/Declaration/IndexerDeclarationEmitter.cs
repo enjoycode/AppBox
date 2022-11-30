@@ -20,7 +20,7 @@ namespace PixUI.CS2TS
                 }
                 else if (accessor.Keyword.Kind() == SyntaxKind.SetKeyword)
                 {
-                    var attribute = SyntaxExtensions.TryGetAttribute(accessor.AttributeLists, IsTSIndexerSetAtAttribute);
+                    var attribute = SyntaxExtensions.TryGetAttribute(accessor.AttributeLists, IsTSIndexerSetToMethodAttribute);
                     if (attribute == null) return;
                     
                     WriteLeadingTrivia(node);

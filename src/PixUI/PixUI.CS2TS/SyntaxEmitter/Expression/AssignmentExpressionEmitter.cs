@@ -91,7 +91,7 @@ namespace PixUI.CS2TS
         {
             if (leftSymbol is IPropertySymbol { IsIndexer: true } propertySymbol)
             {
-                var attribute = propertySymbol.SetMethod!.TryGetAttribute(TypeOfTSIndexerSetAtAttribute);
+                var attribute = propertySymbol.SetMethod!.TryGetAttribute(TypeOfTSIndexerSetToMethodAttribute);
                 if (attribute == null) return false;
 
                 var elementAccess = (ElementAccessExpressionSyntax)node.Left;

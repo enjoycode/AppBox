@@ -7,7 +7,7 @@ public class ObjectList
     public string this[int index]
     {
         get => "Hello";
-        [TSIndexerSetAt]
+        [TSIndexerSetToMethod]
         set
         {
             if (value == "Hello")

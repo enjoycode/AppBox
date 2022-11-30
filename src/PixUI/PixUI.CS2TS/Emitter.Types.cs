@@ -31,8 +31,8 @@ namespace PixUI.CS2TS
         internal static bool IsTSGenericTypeOverloadsAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSGenericTypeOverloads");
 
-        internal static bool IsTSIndexerSetAtAttribute(AttributeSyntax attribute)
-            => IsAttribute(attribute, "TSIndexerSetAt");
+        internal static bool IsTSIndexerSetToMethodAttribute(AttributeSyntax attribute)
+            => IsAttribute(attribute, "TSIndexerSetToMethod");
 
         private static bool IsAttribute(AttributeSyntax attribute, string shortName)
         {
@@ -84,8 +84,8 @@ namespace PixUI.CS2TS
         private INamedTypeSymbol TypeOfTSInterceptorAttribute =>
             _typeSymbolCache.GetTypeByName("PixUI.TSInterceptorAttribute");
 
-        internal INamedTypeSymbol TypeOfTSIndexerSetAtAttribute =>
-            _typeSymbolCache.GetTypeByName("PixUI.TSIndexerSetAtAttribute");
+        internal INamedTypeSymbol TypeOfTSIndexerSetToMethodAttribute =>
+            _typeSymbolCache.GetTypeByName("PixUI.TSIndexerSetToMethodAttribute");
 
         #endregion
 
