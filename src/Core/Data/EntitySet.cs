@@ -2,7 +2,10 @@ using System.Collections;
 
 namespace AppBoxCore;
 
-public sealed class EntitySet<T> : IEnumerable<T>, IBinSerializable where T : Entity, new()
+/// <summary>
+/// 实体的EntitySet成员，添加成员时设置关联的EntityRef成员, 记录移除的成员列表
+/// </summary>
+public sealed class EntitySet<T> : IList<T>, IBinSerializable where T : Entity, new()
 {
     /// <summary>
     /// 创建EntitySet实例
@@ -70,15 +73,25 @@ public sealed class EntitySet<T> : IEnumerable<T>, IBinSerializable where T : En
         _entityRefSetter(item, true);
     }
 
-    public T this[int index] => _list[index]; // 为兼容Web只读
+    public T this[int index]
+    {
+        get => _list[index];
+        [PixUI.TSIndexerSetToMethod]
+        set
+        {
+            RemoveInternal(_list[index]);
+            _entityRefSetter(value, false);
+            _list[index] = value;
+        }
+    }
 
     public int Count => _list.Count;
+    public bool IsReadOnly => false;
 
     public int IndexOf(T item) => _list.IndexOf(item);
     public bool Contains(T item) => _list.Contains(item);
-
+    public void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
     public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
-
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
