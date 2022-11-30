@@ -1,9 +1,9 @@
 namespace AppBoxCore;
 
 /// <summary>
-/// 设计时上下文，每个开发者对应一个实例
+/// 设计时或运行时的模型容器
 /// </summary>
-public interface IDesignContext
+public interface IModelContainer
 {
     ApplicationModel GetApplicationModel(int appId);
 

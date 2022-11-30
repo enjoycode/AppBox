@@ -3,7 +3,7 @@ using System.Collections;
 namespace AppBoxCore;
 
 /// <summary>
-/// 实体的EntitySet成员，添加成员时设置关联的EntityRef成员, 记录移除的成员列表
+/// 实体的EntitySet成员，添加项时设置关联的EntityRef成员, 记录移除项的列表
 /// </summary>
 public sealed class EntitySet<T> : IList<T>, IBinSerializable where T : Entity, new()
 {

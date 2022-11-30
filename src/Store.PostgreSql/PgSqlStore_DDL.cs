@@ -11,7 +11,7 @@ namespace AppBoxStore;
 
 partial class PgSqlStore
 {
-    protected override IList<DbCommand> MakeCreateTable(EntityModel model, IDesignContext ctx)
+    protected override IList<DbCommand> MakeCreateTable(EntityModel model, IModelContainer ctx)
     {
         var tableName = model.GetSqlTableName(false, ctx);
         //var funcCmds = new List<DbCommand>();
@@ -74,7 +74,7 @@ partial class PgSqlStore
         return res;
     }
 
-    protected override IList<DbCommand> MakeAlterTable(EntityModel model, IDesignContext ctx)
+    protected override IList<DbCommand> MakeAlterTable(EntityModel model, IModelContainer ctx)
     {
         //TODO:***处理主键变更
 
@@ -250,7 +250,7 @@ partial class PgSqlStore
         return commands;
     }
 
-    protected override DbCommand MakeDropTable(EntityModel model, IDesignContext ctx)
+    protected override DbCommand MakeDropTable(EntityModel model, IModelContainer ctx)
     {
         var tableName = model.GetSqlTableName(true, ctx); //使用旧名称
         return new NpgsqlCommand($"DROP TABLE IF EXISTS \"{tableName}\"");
@@ -331,8 +331,7 @@ partial class PgSqlStore
         }
     }
 
-    private static string BuildForeignKey(EntityRefModel rm, IDesignContext ctx,
-        string tableName)
+    private static string BuildForeignKey(EntityRefModel rm, IModelContainer ctx, string tableName)
     {
         var refModel = ctx.GetEntityModel(rm.RefModelIds[0]);
         //使用模型标识+成员标识作为fk name以减少重命名带来的影响

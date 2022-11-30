@@ -143,7 +143,7 @@ internal static class StoreInitiator
             await EntityStore.InsertEntityAsync(adminou, txn);
             await EntityStore.InsertEntityAsync(testou, txn);
 #else
-        var ctx = new InitDesignContext(app);
+        var ctx = new InitModelContainer(app);
         ctx.AddEntityModel(emploee);
         ctx.AddEntityModel(enterprise);
         ctx.AddEntityModel(workgroup);
@@ -518,12 +518,12 @@ internal static class StoreInitiator
 /// <summary>
 /// 仅用于初始化默认存储
 /// </summary>
-internal sealed class InitDesignContext : IDesignContext
+internal sealed class InitModelContainer : IModelContainer
 {
     private readonly ApplicationModel _sysApp;
     private readonly Dictionary<long, EntityModel> _models;
 
-    public InitDesignContext(ApplicationModel app)
+    public InitModelContainer(ApplicationModel app)
     {
         _sysApp = app;
         _models = new Dictionary<long, EntityModel>(8);

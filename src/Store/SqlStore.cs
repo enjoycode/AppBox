@@ -138,7 +138,7 @@ public abstract class SqlStore
 
     #region ====DDL Methods====
 
-    public async Task CreateTableAsync(EntityModel model, DbTransaction txn, IDesignContext ctx)
+    public async Task CreateTableAsync(EntityModel model, DbTransaction txn, IModelContainer ctx)
     {
         Debug.Assert(txn != null);
         var cmds = MakeCreateTable(model, ctx);
@@ -149,7 +149,7 @@ public abstract class SqlStore
         }
     }
 
-    public async Task AlterTableAsync(EntityModel model, DbTransaction txn, IDesignContext ctx)
+    public async Task AlterTableAsync(EntityModel model, DbTransaction txn, IModelContainer ctx)
     {
         Debug.Assert(txn != null);
         var cmds = MakeAlterTable(model, ctx);
@@ -160,7 +160,7 @@ public abstract class SqlStore
         }
     }
 
-    public async Task DropTableAsync(EntityModel model, DbTransaction txn, IDesignContext ctx)
+    public async Task DropTableAsync(EntityModel model, DbTransaction txn, IModelContainer ctx)
     {
         Debug.Assert(txn != null);
         var cmd = MakeDropTable(model, ctx);
@@ -169,12 +169,12 @@ public abstract class SqlStore
     }
 
     protected internal abstract IList<DbCommand> MakeCreateTable(EntityModel model,
-        IDesignContext ctx);
+        IModelContainer ctx);
 
     protected internal abstract IList<DbCommand> MakeAlterTable(EntityModel model,
-        IDesignContext ctx);
+        IModelContainer ctx);
 
-    protected internal abstract DbCommand MakeDropTable(EntityModel model, IDesignContext ctx);
+    protected internal abstract DbCommand MakeDropTable(EntityModel model, IModelContainer ctx);
 
     #endregion
 

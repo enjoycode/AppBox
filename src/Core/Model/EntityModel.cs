@@ -234,7 +234,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     #region ====Runtime Methods====
 
-    public string GetSqlTableName(bool original, IDesignContext? ctx)
+    public string GetSqlTableName(bool original, IModelContainer? ctx)
     {
         //TODO:暂简单实现
         return original ? OriginalName : Name;

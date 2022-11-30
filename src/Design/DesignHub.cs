@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public sealed class DesignHub : IDesignContext, IDisposable
+public sealed class DesignHub : IModelContainer, IDisposable
 {
     static DesignHub()
     {
@@ -64,7 +64,7 @@ public sealed class DesignHub : IDesignContext, IDisposable
         TypeSystem.Dispose();
     }
 
-    #region ====IDesignContext====
+    #region ====IModelContainer====
 
     public ApplicationModel GetApplicationModel(int appId)
         => DesignTree.FindApplicationNode(appId)!.Model;

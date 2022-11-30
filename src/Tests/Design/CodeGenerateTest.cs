@@ -8,7 +8,7 @@ namespace Tests.Design;
 
 public class CodeGenerateTest
 {
-    [Test]
+    [Test(Description = "测试生成实体模型的Web代码")]
     public async Task GenEntityWebCodeTest()
     {
         var designHub = await TestHelper.MockSession();
