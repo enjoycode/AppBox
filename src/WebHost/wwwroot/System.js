@@ -7,6 +7,15 @@ var __publicField = (obj, key, value) => {
 const IsNullOrEmpty = function(s2) {
   return s2 == null || s2.length === 0;
 };
+const Equals = function(a2, b2) {
+  if (a2 == null && b2 == null)
+    return true;
+  if (a2 == null || b2 == null)
+    return false;
+  if (typeof a2 === "object" && a2.constructor.op_Equality)
+    return a2.constructor.op_Equality(a2, b2);
+  return a2 == b2;
+};
 const OpEquality = function(a2, b2) {
   if (a2 == null && b2 == null)
     return true;
@@ -93,22 +102,25 @@ class Exception extends Error {
   constructor(message) {
     super(message);
   }
+  get Message() {
+    return this.message;
+  }
 }
-class ArgumentException extends Error {
+class ArgumentException extends Exception {
   constructor(message) {
     super(message);
     this.name = `ArgumentException`;
     this.stack = this.stack || new Error().stack;
   }
 }
-class ArgumentNullException extends Error {
+class ArgumentNullException extends Exception {
   constructor(message) {
     super(message);
     this.name = `ArgumentException`;
     this.stack = this.stack || new Error().stack;
   }
 }
-class ArgumentOutOfRangeException extends RangeError {
+class ArgumentOutOfRangeException extends Exception {
   constructor(paramName, msg) {
     super(`${paramName} was out of range.` + msg);
     this.paramName = paramName;
@@ -117,7 +129,7 @@ class ArgumentOutOfRangeException extends RangeError {
     this.stack = this.stack || new Error().stack;
   }
 }
-class IndexOutOfRangeException extends RangeError {
+class IndexOutOfRangeException extends Exception {
   constructor(paramName) {
     super(`${paramName} was out of range. Must be non-negative and less than the size of the collection.`);
     this.paramName = paramName;
@@ -125,16 +137,16 @@ class IndexOutOfRangeException extends RangeError {
     this.stack = this.stack || new Error().stack;
   }
 }
-class NotSupportedException extends Error {
+class NotSupportedException extends Exception {
 }
-class InvalidOperationException extends Error {
+class InvalidOperationException extends Exception {
   constructor(message) {
     super(message);
     this.name = `InvalidOperationException`;
     this.stack = this.stack || new Error().stack;
   }
 }
-class NotImplementedException extends Error {
+class NotImplementedException extends Exception {
   constructor(message) {
     super(message);
     this.name = `NotImplementedException`;
@@ -221,6 +233,36 @@ class Guid {
   }
   get Value() {
     return this._data;
+  }
+  static op_Equality(a2, b2) {
+    for (let i2 = 0; i2 < 16; i2++) {
+      if (a2._data[i2] != b2._data[i2])
+        return false;
+    }
+    return true;
+  }
+  Clone() {
+    return new Guid(this._data);
+  }
+}
+class TaskCompletionSource {
+  constructor() {
+    __publicField(this, "_promise");
+    __publicField(this, "_resolve");
+    __publicField(this, "_reject");
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+  }
+  get Task() {
+    return this._promise;
+  }
+  SetResult(result) {
+    this._resolve(result);
+  }
+  SetException(exception) {
+    this._reject(exception);
   }
 }
 var ParallelGeneratorType = /* @__PURE__ */ ((ParallelGeneratorType2) => {
@@ -1518,6 +1560,9 @@ const select3$1 = (source, key) => {
   }
   return new BasicEnumerable(iterator);
 };
+const cast = (source) => {
+  return source;
+};
 const selectAsync$2 = (source, selector) => {
   if (typeof selector === "function") {
     if (selector.length === 1) {
@@ -2267,6 +2312,12 @@ const bindLinq = (object) => {
   bind(whereAsync$2, "WhereAsync");
   bind(zip$2, "Zip");
   bind(zipAsync$2, "ZipAsync");
+  bind(cast, "Cast");
+  bind((source) => {
+    if (source instanceof List)
+      return source;
+    return new List([...source]);
+  }, "ToList");
 };
 const aggregate$1 = (source, seedOrFunc, func, resultSelector) => {
   if (resultSelector) {
@@ -6451,29 +6502,31 @@ const initializeSystem = () => {
     return Math.min(Math.max(v2, min3), max3);
   };
   Object.defineProperty(String.prototype, "Insert", {
-    value: function Insert(pos, str) {
+    value: function(pos, str) {
       return this.slice(0, pos) + str + this.slice(pos);
-    },
-    writable: true,
-    configurable: true
+    }
   });
   Object.defineProperty(String.prototype, "Remove", {
-    value: function Remove(start, count3) {
+    value: function(start, count3) {
       return this.substring(0, start) + this.substring(start + count3);
-    },
-    writable: true,
-    configurable: true
+    }
   });
   Object.defineProperty(Number.prototype, "CompareTo", {
-    value: function CompareTo(other) {
+    value: function(other) {
       if (this < other)
         return -1;
       if (this > other)
         return 1;
       return 0;
+    }
+  });
+  Object.defineProperty(Object.prototype, "Init", {
+    value: function(props) {
+      Object.assign(this, props);
+      return this;
     },
-    writable: true,
-    configurable: true
+    configurable: true,
+    writable: true
   });
 };
-export { ArgumentException, ArgumentNullException, ArgumentOutOfRangeException, BinarySearch, DateTime, Event, Exception, Guid, IndexOutOfRangeException, InvalidOperationException, IsNullOrEmpty, List, NotImplementedException, NotSupportedException, NumberMap, OpEquality, OpInequality, Random, Stack, StringMap, StringToUint16Array, TimeSpan, initializeSystem };
+export { ArgumentException, ArgumentNullException, ArgumentOutOfRangeException, BinarySearch, DateTime, Equals, Event, Exception, Guid, IndexOutOfRangeException, InvalidOperationException, IsNullOrEmpty, List, NotImplementedException, NotSupportedException, NumberMap, OpEquality, OpInequality, Random, Stack, StringMap, StringToUint16Array, TaskCompletionSource, TimeSpan, initializeSystem };

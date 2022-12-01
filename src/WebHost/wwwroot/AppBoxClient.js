@@ -33,7 +33,8 @@ var __privateWrapper = (obj, member, setter, getter) => {
   };
 };
 var __provider, __socket, __connectDone, __msgIdIndex, __sessionId, __name;
-import { BytesInputStream, BytesOutputStream } from "/AppBoxCore.js";
+import { BytesInputStream, BytesOutputStream, Entity } from "/AppBoxCore.js";
+import { RxObject, RxProperty, ObjectNotifier } from "/PixUI.js";
 class Channel {
   static get SessionId() {
     return __privateGet(this, __provider).SessionId;
@@ -239,4 +240,55 @@ __connectDone = new WeakMap();
 __msgIdIndex = new WeakMap();
 __sessionId = new WeakMap();
 __name = new WeakMap();
-export { Channel, WebChannel };
+class RxEntity extends RxObject {
+  constructor(empty) {
+    super();
+    __publicField(this, "_ds");
+    this._ds = /* @__PURE__ */ new Map();
+    this._target = empty;
+    this._target.PropertyChanged.Add(this.OnTargetPropertyChanged, this);
+  }
+  Observe(memberId, getter, setter) {
+    let state = this._ds.get(memberId);
+    if (state)
+      return state;
+    let proxy = new RxProperty(() => getter(this._target), (v) => setter(this._target, v), false);
+    this._ds.set(memberId, proxy);
+    return proxy;
+  }
+  OnTargetPropertyChanged(memberId) {
+    let state = this._ds.get(memberId);
+    state == null ? void 0 : state.NotifyValueChanged();
+  }
+  OnTargetChanged(old) {
+    old.PropertyChanged.Remove(this.OnTargetPropertyChanged, this);
+    this._target.PropertyChanged.Add(this.OnTargetPropertyChanged, this);
+    this._ds.forEach((state) => {
+      state.NotifyValueChanged();
+    });
+  }
+}
+const initializeAppBoxClient = () => {
+  Object.defineProperty(Entity.prototype, "Observe", {
+    value: function Observe(memberId, getter, setter) {
+      let rxMember = new RxProperty(() => getter(this), (v) => setter(this, v));
+      this.PropertyChanged.Add((mid) => {
+        if (mid === memberId)
+          rxMember.NotifyValueChanged();
+      });
+      return rxMember;
+    },
+    writable: true,
+    configurable: true
+  });
+  Object.defineProperty(ObjectNotifier.prototype, "BindToRxEntity", {
+    value: function BindToRxEntity(rxEntity) {
+      this.OnChange = (t) => {
+        rxEntity.Target = t;
+      };
+    },
+    writable: true,
+    configurable: true
+  });
+};
+export { Channel, RxEntity, WebChannel, initializeAppBoxClient };

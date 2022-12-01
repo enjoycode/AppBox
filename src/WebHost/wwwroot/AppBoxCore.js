@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { DateTime, Guid, NotImplementedException, List, NotSupportedException } from "/System.js";
+import { DateTime, Guid, NotImplementedException, List, NotSupportedException, Event } from "/System.js";
 var ModelType = /* @__PURE__ */ ((ModelType2) => {
   ModelType2[ModelType2["Entity"] = 0] = "Entity";
   ModelType2[ModelType2["Service"] = 1] = "Service";
@@ -23,6 +23,22 @@ var DataStoreKind = /* @__PURE__ */ ((DataStoreKind2) => {
   DataStoreKind2[DataStoreKind2["Blob"] = 3] = "Blob";
   return DataStoreKind2;
 })(DataStoreKind || {});
+var ModelReferenceType = /* @__PURE__ */ ((ModelReferenceType2) => {
+  ModelReferenceType2[ModelReferenceType2["Application"] = 0] = "Application";
+  ModelReferenceType2[ModelReferenceType2["EntityModel"] = 1] = "EntityModel";
+  ModelReferenceType2[ModelReferenceType2["EntityMember"] = 2] = "EntityMember";
+  ModelReferenceType2[ModelReferenceType2["EntityIndex"] = 3] = "EntityIndex";
+  ModelReferenceType2[ModelReferenceType2["ServiceModel"] = 4] = "ServiceModel";
+  ModelReferenceType2[ModelReferenceType2["ServiceMethod"] = 5] = "ServiceMethod";
+  ModelReferenceType2[ModelReferenceType2["EnumModel"] = 6] = "EnumModel";
+  ModelReferenceType2[ModelReferenceType2["EnumModelItem"] = 7] = "EnumModelItem";
+  ModelReferenceType2[ModelReferenceType2["ViewModel"] = 8] = "ViewModel";
+  ModelReferenceType2[ModelReferenceType2["ReportModel"] = 9] = "ReportModel";
+  ModelReferenceType2[ModelReferenceType2["WorkflowModel"] = 10] = "WorkflowModel";
+  ModelReferenceType2[ModelReferenceType2["PermissionModel"] = 11] = "PermissionModel";
+  ModelReferenceType2[ModelReferenceType2["EventModel"] = 12] = "EventModel";
+  return ModelReferenceType2;
+})(ModelReferenceType || {});
 var EntityMemberType = /* @__PURE__ */ ((EntityMemberType2) => {
   EntityMemberType2[EntityMemberType2["EntityField"] = 0] = "EntityField";
   EntityMemberType2[EntityMemberType2["EntityRef"] = 2] = "EntityRef";
@@ -104,7 +120,15 @@ var PayloadType = /* @__PURE__ */ ((PayloadType2) => {
   PayloadType2[PayloadType2["ChangedModel"] = 55] = "ChangedModel";
   PayloadType2[PayloadType2["CodeProblem"] = 56] = "CodeProblem";
   PayloadType2[PayloadType2["FieldWithOrder"] = 57] = "FieldWithOrder";
+  PayloadType2[PayloadType2["EntityFieldVO"] = 58] = "EntityFieldVO";
+  PayloadType2[PayloadType2["EntityRefVO"] = 59] = "EntityRefVO";
+  PayloadType2[PayloadType2["EntitySetVO"] = 60] = "EntitySetVO";
+  PayloadType2[PayloadType2["EntityMemberVO"] = 61] = "EntityMemberVO";
+  PayloadType2[PayloadType2["EntityMemberInfo"] = 62] = "EntityMemberInfo";
+  PayloadType2[PayloadType2["ReferenceVO"] = 63] = "ReferenceVO";
+  PayloadType2[PayloadType2["TextChange"] = 64] = "TextChange";
   PayloadType2[PayloadType2["Entity"] = 90] = "Entity";
+  PayloadType2[PayloadType2["PermissionNode"] = 91] = "PermissionNode";
   return PayloadType2;
 })(PayloadType || {});
 function IsInterfaceOfIBinSerializable(obj) {
@@ -241,7 +265,7 @@ class BytesInputStream {
       case PayloadType.ObjectRef:
         return this.deserialized[this.ReadVariant()];
       case PayloadType.Entity:
-        return this.DeserializeEntity(null);
+        return this.ReadEntity(null);
       case PayloadType.Array:
         return this.ReadArray();
       case PayloadType.List:
@@ -257,13 +281,23 @@ class BytesInputStream {
     obj.ReadFrom(this);
     return obj;
   }
-  DeserializeEntity(creator) {
+  ReadEntity(creator) {
     let modelId = this.ReadLong();
     let f = creator ?? this.EntityFactories.get(modelId);
     let entity = f();
     this.AddToDeserialized(entity);
     entity.ReadFrom(this);
     return entity;
+  }
+  DeserializeEntity(creator) {
+    let payloadType = this.ReadByte();
+    if (payloadType == PayloadType.Null)
+      return null;
+    if (payloadType == PayloadType.ObjectRef)
+      return this.deserialized[this.ReadVariant()];
+    if (payloadType == PayloadType.Entity)
+      return this.ReadEntity(creator);
+    throw new Error("Payload type not match");
   }
   AddToDeserialized(obj) {
     if (!this.deserialized) {
@@ -368,6 +402,7 @@ class BytesInputStream {
     const elementType = this.ReadType();
     let count = this.ReadVariant();
     let list = new List(count);
+    this.AddToDeserialized(list);
     this.ReadCollection(elementType, count, (v) => list.Add(v));
     return list;
   }
@@ -375,6 +410,7 @@ class BytesInputStream {
     const elementType = this.ReadType();
     const count = this.ReadVariant();
     let res = [];
+    this.AddToDeserialized(res);
     this.ReadCollection(elementType, count, (v) => res.push(v));
     return res;
   }
@@ -489,6 +525,8 @@ class BytesOutputStream {
     obj.WriteTo(this);
   }
   SerializeList(obj) {
+    if (this.CheckSerialized(obj))
+      return;
     this.WriteByte(PayloadType.List);
     this.WriteByte(2);
     this.WriteVariant(obj.length);
@@ -497,6 +535,8 @@ class BytesOutputStream {
     }
   }
   SerializeArray(obj) {
+    if (this.CheckSerialized(obj))
+      return;
     this.WriteByte(PayloadType.Array);
     this.WriteByte(2);
     this.WriteVariant(obj.length);
@@ -618,11 +658,119 @@ class BytesOutputStream {
   }
 }
 class Entity {
+  constructor() {
+    __publicField(this, "_ignoreSerializeNavigateMembers", false);
+    __publicField(this, "PropertyChanged", new Event());
+  }
+  IgnoreSerializeNavigateMembers() {
+    this._ignoreSerializeNavigateMembers = true;
+    return this;
+  }
+  OnPropertyChanged(memberId) {
+    this.PropertyChanged.Invoke(memberId);
+  }
   ReadFrom(bs) {
   }
   WriteTo(bs) {
   }
 }
+var PersistentState = /* @__PURE__ */ ((PersistentState2) => {
+  PersistentState2[PersistentState2["Detached"] = 0] = "Detached";
+  PersistentState2[PersistentState2["Unchanged"] = 1] = "Unchanged";
+  PersistentState2[PersistentState2["Modified"] = 2] = "Modified";
+  PersistentState2[PersistentState2["Deleted"] = 3] = "Deleted";
+  return PersistentState2;
+})(PersistentState || {});
 class DbEntity extends Entity {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "_persistentState", 0);
+    __publicField(this, "_changedMembers", null);
+  }
+  get PersistentState() {
+    return this._persistentState;
+  }
+  OnPropertyChanged(memberId) {
+    if (this._persistentState == 1 || this._persistentState == 2) {
+      this._persistentState = 2;
+      if (!this._changedMembers) {
+        this._changedMembers = [];
+      }
+      if (this._changedMembers.indexOf(memberId) < 0) {
+        this._changedMembers.push(memberId);
+      }
+    }
+    super.OnPropertyChanged(memberId);
+  }
+  WriteTo(bs) {
+    bs.WriteByte(this._persistentState);
+    let changesCount = this._changedMembers?.length ?? 0;
+    bs.WriteVariant(changesCount);
+    for (let i = 0; i < changesCount; i++) {
+      bs.WriteShort(this._changedMembers[i]);
+    }
+  }
+  ReadFrom(bs) {
+    this._persistentState = bs.ReadByte();
+    let changesCount = bs.ReadVariant();
+    if (changesCount > 0) {
+      this._changedMembers = [];
+      for (let i = 0; i < changesCount; i++) {
+        this._changedMembers.push(bs.ReadShort());
+      }
+    }
+  }
 }
-export { BytesInputStream, BytesOutputStream, DataStoreKind, DbEntity, Entity, EntityFieldType, EntityMemberType, FieldWithOrder, IsInterfaceOfIBinSerializable, ModelType, PayloadType, TypeSerializer };
+class EntitySet extends List {
+  constructor(entityRefSetter, creator) {
+    super();
+    __publicField(this, "_entityRefSetter");
+    __publicField(this, "_creator");
+    __publicField(this, "_removed", null);
+    this._entityRefSetter = entityRefSetter;
+    this._creator = creator;
+  }
+  Add(item) {
+    this._entityRefSetter(item, false);
+    super.Add(item);
+  }
+  Remove(item) {
+    let res = super.Remove(item);
+    if (res)
+      this.RemoveInternal(item);
+    return res;
+  }
+  RemoveInternal(item) {
+    if (item instanceof DbEntity && item.PersistentState != PersistentState.Detached) {
+      this._removed ?? (this._removed = new List());
+      this._removed.Add(item);
+    }
+    this._entityRefSetter(item, true);
+  }
+  WriteTo(bs) {
+    bs.WriteVariant(this.length);
+    for (const item of this) {
+      bs.Serialize(item);
+    }
+    bs.WriteVariant(this._removed?.length ?? 0);
+    if (this._removed != null) {
+      for (const item of this._removed) {
+        bs.Serialize(item);
+      }
+    }
+  }
+  ReadFrom(bs) {
+    let count = bs.ReadVariant();
+    for (let i = 0; i < count; i++) {
+      super.Add(bs.DeserializeEntity(null));
+    }
+    count = bs.ReadVariant();
+    if (count > 0) {
+      this._removed = new List();
+      for (let i = 0; i < count; i++) {
+        this._removed.Add(bs.DeserializeEntity(null));
+      }
+    }
+  }
+}
+export { BytesInputStream, BytesOutputStream, DataStoreKind, DbEntity, Entity, EntityFieldType, EntityMemberType, EntitySet, FieldWithOrder, IsInterfaceOfIBinSerializable, ModelReferenceType, ModelType, PayloadType, PersistentState, TypeSerializer };

@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 using AppBoxCore;
 using AppBoxStore;
 using AppBoxServer;
-using Microsoft.Extensions.FileProviders;
 
 //临时方案Console输出编码问题
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -13,15 +12,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+var dfOpts = new DefaultFilesOptions();
+dfOpts.DefaultFileNames.Clear();
+dfOpts.DefaultFileNames.Add("index.html");
+app.UseDefaultFiles(dfOpts); //must be called before UseStaticFiles
+app.UseStaticFiles();
+
 app.UseWebSockets();
+app.MapDefaultControllerRoute();
 app.MapControllers();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider =
-        new PhysicalFileProvider(
-            Path.Combine(Path.GetDirectoryName(typeof(RuntimeContext).Assembly.Location)!,
-                "WebRoot"))
-});
 
 // 初始化
 RuntimeContext.Init(new HostRuntimeContext(), new PasswordHasher());

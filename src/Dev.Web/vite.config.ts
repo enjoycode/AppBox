@@ -154,7 +154,7 @@ const libAppBoxCore = defineConfig({
 })
 
 const libAppBoxClient = defineConfig({
-    plugins: [],
+    plugins: [visualizer()],
 
     resolve: {
         alias: [{
@@ -171,10 +171,11 @@ const libAppBoxClient = defineConfig({
             fileName: (format) => 'AppBoxClient.js'
         },
         rollupOptions: {
-            external: [extSystem, extAppBoxCore],
+            external: [extSystem, extPixUI, extAppBoxCore],
             output: {
                 paths: {
                     [extSystem]: '/System.js',
+                    [extPixUI]: '/PixUI.js',
                     [extAppBoxCore]: '/AppBoxCore.js'
                 },
             },

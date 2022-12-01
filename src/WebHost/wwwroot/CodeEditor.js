@@ -69,9 +69,9 @@ class TSEdit {
     __publicField(this, "startIndex", 0);
     __publicField(this, "oldEndIndex", 0);
     __publicField(this, "newEndIndex", 0);
-    __publicField(this, "startPosition", TSPoint.Empty);
-    __publicField(this, "oldEndPosition", TSPoint.Empty);
-    __publicField(this, "newEndPosition", TSPoint.Empty);
+    __publicField(this, "startPosition", TSPoint.Empty.Clone());
+    __publicField(this, "oldEndPosition", TSPoint.Empty.Clone());
+    __publicField(this, "newEndPosition", TSPoint.Empty.Clone());
   }
   Clone() {
     let clone = new TSEdit();
@@ -104,10 +104,6 @@ class RedBlackTreeNode {
     while (node.Right != null)
       node = node.Right;
     return node;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 const _RedBlackTree = class {
@@ -406,10 +402,6 @@ const _RedBlackTree = class {
     this.RemoveAt(it.Clone());
     return true;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let RedBlackTree = _RedBlackTree;
 _Root = new WeakMap();
@@ -516,10 +508,6 @@ class LeafNode extends Node {
   toString() {
     return String.fromCharCode.apply(null, this._data);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CompositeNode extends Node {
   constructor(head, tail) {
@@ -573,10 +561,6 @@ class CompositeNode extends Node {
     if (start == 0 && end == this._count)
       return this;
     return ImmutableText.ConcatNodes(this.head.SubNode(start, cesure), this.tail.SubNode(0, end - cesure));
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 const _ImmutableText = class {
@@ -712,10 +696,6 @@ const _ImmutableText = class {
       }
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let ImmutableText = _ImmutableText;
 __publicField(ImmutableText, "BlockSize", 1 << 6);
@@ -728,10 +708,6 @@ class InnerLeaf {
     __publicField(this, "Offset");
     this.LeafNode = leafNode;
     this.Offset = offset;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class ImmutableTextBuffer {
@@ -768,10 +744,6 @@ class ImmutableTextBuffer {
   CopyTo(dest, offset, count) {
     this._buffer.CopyTo(offset, dest, count);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class ColumnRange {
   constructor(startColumn, endColumn) {
@@ -790,8 +762,8 @@ class ColumnRange {
 class Selection {
   constructor(document, startPosition, endPosition) {
     __publicField(this, "Document");
-    __privateAdd(this, _StartPosition, TextLocation.Empty);
-    __privateAdd(this, _EndPosition, TextLocation.Empty);
+    __privateAdd(this, _StartPosition, TextLocation.Empty.Clone());
+    __privateAdd(this, _EndPosition, TextLocation.Empty.Clone());
     if (TextLocation.op_GreaterThan(startPosition, endPosition))
       throw new System.ArgumentOutOfRangeException();
     this.Document = document;
@@ -828,10 +800,6 @@ class Selection {
   ContainsOffset(offset) {
     return this.Offset <= offset && offset <= this.EndOffset;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 _StartPosition = new WeakMap();
 _EndPosition = new WeakMap();
@@ -840,7 +808,7 @@ class SelectionManager {
     __publicField(this, "_textEditor");
     __publicField(this, "SelectionCollection");
     __publicField(this, "SelectFrom");
-    __publicField(this, "SelectionStart", TextLocation.Empty);
+    __publicField(this, "SelectionStart", TextLocation.Empty.Clone());
     __publicField(this, "SelectionChanged", new System.Event());
     this._textEditor = editor;
     this.SelectionCollection = new System.List();
@@ -906,8 +874,8 @@ class SelectionManager {
   ExtendSelection(oldPosition, newPosition) {
     if (System.OpEquality(oldPosition, newPosition))
       return;
-    let min = TextLocation.Empty;
-    let max = TextLocation.Empty;
+    let min = TextLocation.Empty.Clone();
+    let max = TextLocation.Empty.Clone();
     let oldnewX = newPosition.Column;
     let oldIsGreater = SelectionManager.GreaterEqPos(oldPosition.Clone(), newPosition.Clone());
     if (oldIsGreater) {
@@ -955,10 +923,6 @@ class SelectionManager {
   static GreaterEqPos(p1, p2) {
     return p1.Line > p2.Line || p1.Line == p2.Line && p1.Column >= p2.Column;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 var WhereFrom = /* @__PURE__ */ ((WhereFrom2) => {
   WhereFrom2[WhereFrom2["None"] = 0] = "None";
@@ -971,10 +935,6 @@ class SelectFrom {
     __publicField(this, "Where", 0);
     __publicField(this, "First", 0);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CutCommand {
   Execute(editor) {
@@ -985,20 +945,12 @@ class CutCommand {
       editor.SelectionManager.RemoveSelectedText();
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CopyCommand {
   Execute(editor) {
     let selectedText = editor.SelectionManager.SelectedText;
     if (selectedText.length > 0)
       PixUI.Clipboard.WriteText(selectedText);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class PasteCommand {
@@ -1016,10 +968,6 @@ class PasteCommand {
     }
     editor.InsertOrReplaceString(text);
     editor.Document.UndoStack.EndUndoGroup();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 var FoldType = /* @__PURE__ */ ((FoldType2) => {
@@ -1116,10 +1064,6 @@ class FoldMarker {
   }
   CompareTo(other) {
     return this.Offset != other.Offset ? this.Offset.CompareTo(other.Offset) : this.Length.CompareTo(other.Length);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _FoldText = new WeakMap();
@@ -1241,10 +1185,6 @@ class FoldingManager {
       this._foldMarkerByEnd.Clear();
     }
     this.FoldingsChanged.Invoke();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 const _StartComparer = class {
@@ -1422,13 +1362,102 @@ const _CSharpLanguage = class {
     }
     return result;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let CSharpLanguage = _CSharpLanguage;
-__publicField(CSharpLanguage, "TokenMap", new System.StringMap([[";", TokenType.PunctuationDelimiter], [".", TokenType.PunctuationDelimiter], [",", TokenType.PunctuationDelimiter], ["--", TokenType.Operator], ["-", TokenType.Operator], ["-=", TokenType.Operator], ["&", TokenType.Operator], ["&&", TokenType.Operator], ["+", TokenType.Operator], ["++", TokenType.Operator], ["+=", TokenType.Operator], ["<", TokenType.Operator], ["<<", TokenType.Operator], ["=", TokenType.Operator], ["==", TokenType.Operator], ["!", TokenType.Operator], ["!=", TokenType.Operator], ["=>", TokenType.Operator], [">", TokenType.Operator], [">>", TokenType.Operator], ["|", TokenType.Operator], ["||", TokenType.Operator], ["?", TokenType.Operator], ["??", TokenType.Operator], ["^", TokenType.Operator], ["~", TokenType.Operator], ["*", TokenType.Operator], ["/", TokenType.Operator], ["%", TokenType.Operator], [":", TokenType.Operator], ["(", TokenType.PunctuationBracket], [")", TokenType.PunctuationBracket], ["[", TokenType.PunctuationBracket], ["]", TokenType.PunctuationBracket], ["{", TokenType.PunctuationBracket], ["}", TokenType.PunctuationBracket], ["as", TokenType.Keyword], ["base", TokenType.Keyword], ["break", TokenType.Keyword], ["case", TokenType.Keyword], ["catch", TokenType.Keyword], ["checked", TokenType.Keyword], ["class", TokenType.Keyword], ["continue", TokenType.Keyword], ["default", TokenType.Keyword], ["delegate", TokenType.Keyword], ["do", TokenType.Keyword], ["else", TokenType.Keyword], ["enum", TokenType.Keyword], ["event", TokenType.Keyword], ["explicit", TokenType.Keyword], ["finally", TokenType.Keyword], ["for", TokenType.Keyword], ["foreach", TokenType.Keyword], ["goto", TokenType.Keyword], ["if", TokenType.Keyword], ["implicit", TokenType.Keyword], ["interface", TokenType.Keyword], ["is", TokenType.Keyword], ["lock", TokenType.Keyword], ["namespace", TokenType.Keyword], ["operator", TokenType.Keyword], ["params", TokenType.Keyword], ["return", TokenType.Keyword], ["sizeof", TokenType.Keyword], ["stackalloc", TokenType.Keyword], ["struct", TokenType.Keyword], ["switch", TokenType.Keyword], ["throw", TokenType.Keyword], ["try", TokenType.Keyword], ["typeof", TokenType.Keyword], ["unchecked", TokenType.Keyword], ["using", TokenType.Keyword], ["while", TokenType.Keyword], ["new", TokenType.Keyword], ["await", TokenType.Keyword], ["in", TokenType.Keyword], ["yield", TokenType.Keyword], ["get", TokenType.Keyword], ["set", TokenType.Keyword], ["when", TokenType.Keyword], ["out", TokenType.Keyword], ["ref", TokenType.Keyword], ["from", TokenType.Keyword], ["where", TokenType.Keyword], ["select", TokenType.Keyword], ["record", TokenType.Keyword], ["init", TokenType.Keyword], ["with", TokenType.Keyword], ["let", TokenType.Keyword], ["var", TokenType.Keyword], ["this", TokenType.Keyword]]));
+__publicField(CSharpLanguage, "TokenMap", new System.StringMap([
+  [";", TokenType.PunctuationDelimiter],
+  [".", TokenType.PunctuationDelimiter],
+  [",", TokenType.PunctuationDelimiter],
+  ["--", TokenType.Operator],
+  ["-", TokenType.Operator],
+  ["-=", TokenType.Operator],
+  ["&", TokenType.Operator],
+  ["&&", TokenType.Operator],
+  ["+", TokenType.Operator],
+  ["++", TokenType.Operator],
+  ["+=", TokenType.Operator],
+  ["<", TokenType.Operator],
+  ["<<", TokenType.Operator],
+  ["=", TokenType.Operator],
+  ["==", TokenType.Operator],
+  ["!", TokenType.Operator],
+  ["!=", TokenType.Operator],
+  ["=>", TokenType.Operator],
+  [">", TokenType.Operator],
+  [">>", TokenType.Operator],
+  ["|", TokenType.Operator],
+  ["||", TokenType.Operator],
+  ["?", TokenType.Operator],
+  ["??", TokenType.Operator],
+  ["^", TokenType.Operator],
+  ["~", TokenType.Operator],
+  ["*", TokenType.Operator],
+  ["/", TokenType.Operator],
+  ["%", TokenType.Operator],
+  [":", TokenType.Operator],
+  ["(", TokenType.PunctuationBracket],
+  [")", TokenType.PunctuationBracket],
+  ["[", TokenType.PunctuationBracket],
+  ["]", TokenType.PunctuationBracket],
+  ["{", TokenType.PunctuationBracket],
+  ["}", TokenType.PunctuationBracket],
+  ["as", TokenType.Keyword],
+  ["base", TokenType.Keyword],
+  ["break", TokenType.Keyword],
+  ["case", TokenType.Keyword],
+  ["catch", TokenType.Keyword],
+  ["checked", TokenType.Keyword],
+  ["class", TokenType.Keyword],
+  ["continue", TokenType.Keyword],
+  ["default", TokenType.Keyword],
+  ["delegate", TokenType.Keyword],
+  ["do", TokenType.Keyword],
+  ["else", TokenType.Keyword],
+  ["enum", TokenType.Keyword],
+  ["event", TokenType.Keyword],
+  ["explicit", TokenType.Keyword],
+  ["finally", TokenType.Keyword],
+  ["for", TokenType.Keyword],
+  ["foreach", TokenType.Keyword],
+  ["goto", TokenType.Keyword],
+  ["if", TokenType.Keyword],
+  ["implicit", TokenType.Keyword],
+  ["interface", TokenType.Keyword],
+  ["is", TokenType.Keyword],
+  ["lock", TokenType.Keyword],
+  ["namespace", TokenType.Keyword],
+  ["operator", TokenType.Keyword],
+  ["params", TokenType.Keyword],
+  ["return", TokenType.Keyword],
+  ["sizeof", TokenType.Keyword],
+  ["stackalloc", TokenType.Keyword],
+  ["struct", TokenType.Keyword],
+  ["switch", TokenType.Keyword],
+  ["throw", TokenType.Keyword],
+  ["try", TokenType.Keyword],
+  ["typeof", TokenType.Keyword],
+  ["unchecked", TokenType.Keyword],
+  ["using", TokenType.Keyword],
+  ["while", TokenType.Keyword],
+  ["new", TokenType.Keyword],
+  ["await", TokenType.Keyword],
+  ["in", TokenType.Keyword],
+  ["yield", TokenType.Keyword],
+  ["get", TokenType.Keyword],
+  ["set", TokenType.Keyword],
+  ["when", TokenType.Keyword],
+  ["out", TokenType.Keyword],
+  ["ref", TokenType.Keyword],
+  ["from", TokenType.Keyword],
+  ["where", TokenType.Keyword],
+  ["select", TokenType.Keyword],
+  ["record", TokenType.Keyword],
+  ["init", TokenType.Keyword],
+  ["with", TokenType.Keyword],
+  ["let", TokenType.Keyword],
+  ["var", TokenType.Keyword],
+  ["this", TokenType.Keyword]
+]));
 __publicField(CSharpLanguage, "FoldQuery", `
 body: [
   (declaration_list)
@@ -1609,10 +1638,6 @@ const _SyntaxParser = class {
     (_a = this._oldTree) == null ? void 0 : _a.delete();
     this._parser.delete();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let SyntaxParser = _SyntaxParser;
 _Language = new WeakMap();
@@ -1638,10 +1663,6 @@ class DeferredEventList {
     for (const a of this.textAnchor) {
       a.RaiseDeleted();
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class LineSegment {
@@ -1876,10 +1897,6 @@ class LineSegment {
       return "[LineSegment: (deleted) Length = " + this.Length + ", TotalLength = " + this.TotalLength + ", DelimiterLength = " + this.DelimiterLength + "]";
     return "[LineSegment: LineNumber=" + this.LineNumber + ", Offset = " + this.Offset + ", Length = " + this.Length + ", TotalLength = " + this.TotalLength + ", DelimiterLength = " + this.DelimiterLength + "]";
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 _TotalLength = new WeakMap();
 _DelimiterLength = new WeakMap();
@@ -2108,10 +2125,6 @@ class LineSegmentTree {
   GetEnumeratorForOffset(offset) {
     return new LinesEnumerator(new RedBlackTreeIterator(this.GetNodeByOffset(offset)));
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class LineCountChangeEventArgs {
   constructor(document, start, moved) {
@@ -2306,10 +2319,6 @@ class LineManager {
     }
     return null;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class DelimiterSegment {
   constructor(offset, length) {
@@ -2401,16 +2410,12 @@ class UndoStack {
     this._redostack.Clear();
     this._actionCountInUndoGroup = 0;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class UndoQueue {
   constructor(stack, numops) {
     __publicField(this, "_undoList");
     numops = Math.min(numops, stack.length);
-    this._undoList = [];
+    this._undoList = new Array(numops);
     for (let i = 0; i < numops; ++i) {
       this._undoList[i] = stack.Pop();
     }
@@ -2424,10 +2429,6 @@ class UndoQueue {
     for (let i = this._undoList.length - 1; i >= 0; --i) {
       this._undoList[i].Redo();
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class UndoableDelete {
@@ -2453,10 +2454,6 @@ class UndoableDelete {
     this._document.Remove(this._offset, this._text.length);
     this._document.UndoStack.AcceptChanges = true;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class UndoableInsert {
   constructor(document, offset, text) {
@@ -2480,10 +2477,6 @@ class UndoableInsert {
     this._document.UndoStack.AcceptChanges = false;
     this._document.Insert(this._offset, this._text);
     this._document.UndoStack.AcceptChanges = true;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class UndoableReplace {
@@ -2511,16 +2504,12 @@ class UndoableReplace {
     this._document.Replace(this._offset, this._origText.length, this._text);
     this._document.UndoStack.AcceptChanges = true;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class UndoableSetCaretPosition {
   constructor(stack, pos) {
     __publicField(this, "_stack");
     __publicField(this, "_pos");
-    __publicField(this, "_redoPos", TextLocation.Empty);
+    __publicField(this, "_redoPos", TextLocation.Empty.Clone());
     this._stack = stack;
     this._pos = pos.Clone();
   }
@@ -2532,10 +2521,6 @@ class UndoableSetCaretPosition {
   Redo() {
     this._stack.TextEditor.Caret.Position = this._redoPos.Clone();
     this._stack.TextEditor.SelectionManager.ClearSelection();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 var BracketMatchingStyle = /* @__PURE__ */ ((BracketMatchingStyle2) => {
@@ -2670,10 +2655,6 @@ class TextAnchor {
   toString() {
     return this.IsDeleted ? "[TextAnchor (deleted)]" : `[TextAnchor ${this.Location}]`;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class TextEditorOptions {
   constructor() {
@@ -2704,10 +2685,6 @@ class TextEditorOptions {
     __publicField(this, "LineTerminator", "\n");
     __publicField(this, "AutoInsertCurlyBracket", true);
     __publicField(this, "SupportReadOnlySegments", false);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class DocumentEventArgs {
@@ -2800,6 +2777,12 @@ class Document {
     this.SyntaxParser.EndReplace(offset, length, text.length);
     this.DocumentChanged.Invoke(new DocumentEventArgs(this, offset, length, text));
   }
+  StartUndoGroup() {
+    this.UndoStack.StartUndoGroup();
+  }
+  EndUndoGroup() {
+    this.UndoStack.EndUndoGroup();
+  }
   GetLineNumberForOffset(offset) {
     return this._lineManager.GetLineNumberForOffset(offset);
   }
@@ -2859,10 +2842,6 @@ class Document {
   Dispose() {
     this.SyntaxParser.Dispose();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CustomEditCommand {
   constructor(command) {
@@ -2871,10 +2850,6 @@ class CustomEditCommand {
   }
   Execute(editor) {
     this._command(editor);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class CaretLeft {
@@ -2902,10 +2877,6 @@ class CaretLeft {
     }
     editor.Caret.Position = position.Clone();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CaretRight {
   Execute(editor) {
@@ -2932,10 +2903,6 @@ class CaretRight {
     }
     editor.Caret.Position = position.Clone();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CaretUp {
   Execute(editor) {
@@ -2949,10 +2916,6 @@ class CaretUp {
       editor.Caret.Position = logicalColumn.Location.Clone();
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CaretDown {
   Execute(editor) {
@@ -2965,10 +2928,6 @@ class CaretDown {
       let logicalColumn = editor.TextView.GetLogicalColumn(logicalLine, vx);
       editor.Caret.Position = logicalColumn.Location.Clone();
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class BackspaceCommand {
@@ -2996,20 +2955,12 @@ class BackspaceCommand {
       editor.Caret.Position = editor.Document.OffsetToPosition(caretOffset - 1);
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class TabCommand {
   Execute(editor) {
     let tabIndent = editor.Document.TextEditorOptions.TabIndent;
     let convertToWhitespaces = " ".repeat(tabIndent);
     editor.InsertOrReplaceString(convertToWhitespaces);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class ReturnCommand {
@@ -3024,27 +2975,15 @@ class ReturnCommand {
       editor.InsertOrReplaceString("\n" + " ".repeat(leadingWhiteSpaces));
     editor.Document.UndoStack.EndUndoGroup();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class UndoCommand {
   Execute(editor) {
     editor.Document.UndoStack.Undo();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class RedoCommand {
   Execute(editor) {
     editor.Document.UndoStack.Redo();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class EditorArea {
@@ -3153,6 +3092,23 @@ class TextView extends EditorArea {
     let drawingPos = visualLine.GetXPos(this.TextEditor, logicalLine, logicalColumn);
     return drawingPos - this.TextEditor.VirtualTop.X;
   }
+  HandlePointerDown(x, y, buttons) {
+    let vx = x - this.Bounds.Left;
+    let vy = y - this.Bounds.Top;
+    if (buttons == PixUI.PointerButtons.Left) {
+      let logicalLine = this.GetLogicalLine(vy);
+      let logicalColumn = this.GetLogicalColumn(logicalLine, vx);
+      this.TextEditor.SelectionManager.ClearSelection();
+      this.TextEditor.Caret.Position = logicalColumn.Location.Clone();
+    } else if (buttons == PixUI.PointerButtons.Right) {
+      let contextMenuBuilder = this.TextEditor.Controller.ContextMenuBuilder;
+      if (contextMenuBuilder != null) {
+        let contextMenus = contextMenuBuilder(this.TextEditor);
+        if (contextMenus.length > 0)
+          PixUI.ContextMenu.Show(contextMenus);
+      }
+    }
+  }
   Paint(canvas, rect) {
     if (rect.Width <= 0 || rect.Height <= 0)
       return;
@@ -3181,10 +3137,6 @@ class TextView extends EditorArea {
       let lineParagraph = lineSegment.GetLineParagraph(this.TextEditor);
       canvas.drawParagraph(lineParagraph, lineRect.Left, lineRect.Top + this.Theme.LineSpace);
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _FontHeight = new WeakMap();
@@ -3313,10 +3265,6 @@ class FoldArea extends EditorArea {
       canvas.drawLine(rect.Left + mid, rect.Top + space, rect.Left + mid, rect.Top + rect.Height - space, this.GetNormalPaint());
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class GutterArea extends EditorArea {
   constructor(textEditor) {
@@ -3327,7 +3275,7 @@ class GutterArea extends EditorArea {
     this._numberWidth = this._numberCache[7].getLongestLine();
   }
   GenerateNumberCache() {
-    let cache = [];
+    let cache = new Array(10);
     let ts = PixUI.MakeTextStyle({ color: this.Theme.LineNumberColor });
     for (let i = 0; i < 10; i++) {
       let ps = PixUI.MakeParagraphStyle({ maxLines: 1 });
@@ -3373,10 +3321,6 @@ class GutterArea extends EditorArea {
       canvas.drawParagraph(this._numberCache[hundredPlace], 2 + this._numberWidth, yPos);
     if (lineNumber >= 1e3)
       canvas.drawParagraph(this._numberCache[thousandPlace], 2, yPos);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 var CompletionItemKind = /* @__PURE__ */ ((CompletionItemKind2) => {
@@ -3433,25 +3377,12 @@ class CompletionItemWidget extends PixUI.Widget {
     this.SetSize(availableWidth, availableHeight);
   }
   Paint(canvas, area = null) {
+    var _a;
     let fontSize = 13;
     let x = 2;
     let y = 3;
     this._iconPainter.Paint(canvas, fontSize, PixUI.Colors.Gray, CompletionItemWidget.GetIcon(this._item.Kind), x, y);
-    if (this._paragraph == null) {
-      let ts = PixUI.MakeTextStyle({
-        color: PixUI.Colors.Black,
-        fontSize,
-        heightMultiplier: 1
-      });
-      let ps = PixUI.MakeParagraphStyle({ maxLines: 1, textStyle: ts, heightMultiplier: 1 });
-      let pb = PixUI.MakeParagraphBuilder(ps);
-      pb.pushStyle(ts);
-      pb.addText(this._item.Label);
-      pb.pop();
-      this._paragraph = pb.build();
-      this._paragraph.layout(Number.POSITIVE_INFINITY);
-      pb.delete();
-    }
+    (_a = this._paragraph) != null ? _a : this._paragraph = PixUI.TextPainter.BuildParagraph(this._item.Label, Number.POSITIVE_INFINITY, fontSize, PixUI.Colors.Black, null, 1, true);
     canvas.drawParagraph(this._paragraph, x + 20, y);
   }
   static GetIcon(kind) {
@@ -3464,10 +3395,6 @@ class CompletionItemWidget extends PixUI.Widget {
       default:
         return PixUI.Icons.Filled.Title;
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 const _CompletionContext = class {
@@ -3595,10 +3522,6 @@ const _CompletionContext = class {
   static BuildPopupItem(item, index, isHover, isSelected) {
     return new CompletionItemWidget(item, isSelected);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let CompletionContext = _CompletionContext;
 __publicField(CompletionContext, "StateIdle", 0);
@@ -3701,10 +3624,6 @@ class Caret {
     let bgPaint = PixUI.PaintUtils.Shared(this._textEditor.Theme.LineHighlightColor);
     canvas.drawRect(PixUI.Rect.FromLTWH(textViewArea.Left, cy, textViewArea.Width, fontHeight), bgPaint);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class DirtyLines {
   constructor(controller) {
@@ -3716,14 +3635,13 @@ class DirtyLines {
   Merge(newArea) {
   }
   GetRect() {
-    return this._controller.TextEditor.TextView.Bounds;
+    return PixUI.Rect.Empty;
   }
-  ToChild(childX, childY) {
+  IntersectsWith(child) {
     throw new System.NotSupportedException();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+  ToChild(child) {
+    throw new System.NotSupportedException();
   }
 }
 class TextEditorTheme {
@@ -3745,10 +3663,7 @@ class TextEditorTheme {
       color: new PixUI.Color(4289312711),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenErrorStyle", PixUI.MakeTextStyle({
-      color: PixUI.Colors.Red,
-      heightMultiplier: 1
-    }));
+    __publicField(this, "_tokenErrorStyle", PixUI.MakeTextStyle({ color: PixUI.Colors.Red, heightMultiplier: 1 }));
     __publicField(this, "_tokenTypeStyle", PixUI.MakeTextStyle({
       color: new PixUI.Color(4284996593),
       heightMultiplier: 1
@@ -3802,10 +3717,6 @@ class TextEditorTheme {
       default:
         return this.TextStyle;
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class TextEditor {
@@ -3890,10 +3801,6 @@ class TextEditor {
     }
     this.TextView.Paint(canvas, textRect.Clone());
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class EditorDecorator extends PixUI.Widget {
   constructor(codeEditor) {
@@ -3938,10 +3845,6 @@ class EditorDecorator extends PixUI.Widget {
     }
     canvas.restore();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CodeEditorController extends PixUI.WidgetController {
   constructor(fileName, content, completionProvider = null, tag = null) {
@@ -3950,8 +3853,22 @@ class CodeEditorController extends PixUI.WidgetController {
     __publicField(this, "TextEditor");
     __publicField(this, "Theme");
     __publicField(this, "_completionContext");
-    __publicField(this, "_editActions", new System.NumberMap([[PixUI.Keys.Left, new CaretLeft()], [PixUI.Keys.Right, new CaretRight()], [PixUI.Keys.Up, new CaretUp()], [PixUI.Keys.Down, new CaretDown()], [PixUI.Keys.Back, new BackspaceCommand()], [PixUI.Keys.Return, new ReturnCommand()], [PixUI.Keys.Tab, new TabCommand()], [PixUI.Keys.Control | PixUI.Keys.C, new CopyCommand()], [PixUI.Keys.Control | PixUI.Keys.X, new CutCommand()], [PixUI.Keys.Control | PixUI.Keys.V, new PasteCommand()], [PixUI.Keys.Control | PixUI.Keys.Z, new UndoCommand()], [PixUI.Keys.Control | PixUI.Keys.Y, new RedoCommand()]]));
-    __publicField(this, "_mouseDownPos", PixUI.Point.Empty);
+    __publicField(this, "ContextMenuBuilder");
+    __publicField(this, "_editActions", new System.NumberMap([
+      [PixUI.Keys.Left, new CaretLeft()],
+      [PixUI.Keys.Right, new CaretRight()],
+      [PixUI.Keys.Up, new CaretUp()],
+      [PixUI.Keys.Down, new CaretDown()],
+      [PixUI.Keys.Back, new BackspaceCommand()],
+      [PixUI.Keys.Return, new ReturnCommand()],
+      [PixUI.Keys.Tab, new TabCommand()],
+      [PixUI.Keys.Control | PixUI.Keys.C, new CopyCommand()],
+      [PixUI.Keys.Control | PixUI.Keys.X, new CutCommand()],
+      [PixUI.Keys.Control | PixUI.Keys.V, new PasteCommand()],
+      [PixUI.Keys.Control | PixUI.Keys.Z, new UndoCommand()],
+      [PixUI.Keys.Control | PixUI.Keys.Y, new RedoCommand()]
+    ]));
+    __publicField(this, "_mouseDownPos", PixUI.Point.Empty.Clone());
     __publicField(this, "_gotMouseDown", false);
     __publicField(this, "_doDragDrop", false);
     __publicField(this, "_minSelection", TextLocation.Empty.Clone());
@@ -3978,15 +3895,7 @@ class CodeEditorController extends PixUI.WidgetController {
       this._mouseDownPos = new PixUI.Point(e.X, e.Y);
       this._minSelection = TextLocation.Empty.Clone();
       this._maxSelection = TextLocation.Empty.Clone();
-      let vx = e.X - this.TextEditor.TextView.Bounds.Left;
-      let vy = e.Y - this.TextEditor.TextView.Bounds.Top;
-      if (e.Buttons == PixUI.PointerButtons.Left) {
-        let logicalLine = this.TextEditor.TextView.GetLogicalLine(vy);
-        let logicalColumn = this.TextEditor.TextView.GetLogicalColumn(logicalLine, vx);
-        console.log(`CodeEditor Hit: ${logicalColumn.Location}`);
-        this.TextEditor.SelectionManager.ClearSelection();
-        this.TextEditor.Caret.Position = logicalColumn.Location.Clone();
-      }
+      this.TextEditor.TextView.HandlePointerDown(e.X, e.Y, e.Buttons);
     }
   }
   OnPointerUp(e) {
@@ -4069,14 +3978,19 @@ class CodeEditorController extends PixUI.WidgetController {
     }
   }
   _OnDocumentChanged(e) {
-    let dirtyLines = this.Document.SyntaxParser.GetDirtyLines(this);
-    this.Widget.RequestInvalidate(true, dirtyLines);
+    this.Widget.RequestInvalidate(true, null);
   }
   _OnCaretPositionChanged() {
     if (!this._caretChangedByTextInput) {
       this._completionContext.OnCaretChangedByNoneTextInput();
     }
     this.Widget.RequestInvalidate(false, null);
+  }
+  SetCaret(line, column) {
+    this.TextEditor.Caret.Position = new TextLocation(column, line);
+  }
+  SetSelection(start, end) {
+    this.TextEditor.SelectionManager.SetSelection(start.Clone(), end.Clone());
   }
   static IsSelectableChar(c) {
     return !CodeEditorController.IsWhiteSpace(c);
@@ -4122,10 +4036,6 @@ class CodeEditorController extends PixUI.WidgetController {
     }
     return offset;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class CodeEditorWidget extends PixUI.Widget {
   constructor(controller) {
@@ -4138,7 +4048,7 @@ class CodeEditorWidget extends PixUI.Widget {
     this.FocusNode = new PixUI.FocusNode();
     this.Controller = controller;
     this.Controller.AttachWidget(this);
-    this._decoration = new PixUI.OverlayEntry(new EditorDecorator(this));
+    this._decoration = new EditorDecorator(this);
     this.MouseRegion.PointerDown.Add(this.Controller.OnPointerDown, this.Controller);
     this.MouseRegion.PointerUp.Add(this.Controller.OnPointerUp, this.Controller);
     this.MouseRegion.PointerMove.Add(this.Controller.OnPointerMove, this.Controller);
@@ -4168,7 +4078,7 @@ class CodeEditorWidget extends PixUI.Widget {
     if (all)
       this.Invalidate(PixUI.InvalidAction.Repaint, dirtyArea);
     else
-      this._decoration.Invalidate();
+      this._decoration.Invalidate(PixUI.InvalidAction.Repaint);
   }
   _OnFocusChanged(focused) {
     if (focused)
@@ -4184,7 +4094,8 @@ class CodeEditorWidget extends PixUI.Widget {
     super.OnMounted();
   }
   OnUnmounted() {
-    this._decoration.Remove();
+    if (this._decoration.Parent != null)
+      this._decoration.Parent.Remove(this._decoration);
     super.OnUnmounted();
   }
   get IsOpaque() {
@@ -4201,10 +4112,6 @@ class CodeEditorWidget extends PixUI.Widget {
     canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
     this.Controller.TextEditor.Paint(canvas, new PixUI.Size(this.W, this.H), area);
     canvas.restore();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _MouseRegion = new WeakMap();

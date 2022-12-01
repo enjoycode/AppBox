@@ -22,9 +22,9 @@ var __privateSet = (obj, member, value, setter) => {
   setter ? setter.call(obj, value) : member.set(obj, value);
   return value;
 };
-var _Loading, _Image, _IsHandled, _FocusedWidget, _LastHitWidget, _KeyData, _Buttons, _X, _Y, _DeltaX, _DeltaY, _X2, _Y2, _Dx, _Dy, _Tolerance2, _LastElapsedDuration, _BorderSide2, _BorderRadius2, _GapPadding, _Widget2, _X3, _Y3, _W, _H, _Window, _Flex, _Route, _Navigator, _Text, _MouseRegion, _FocusNode, _Window2, _MouseRegion2, _MouseRegion3, _FocusNode2, _MouseRegion4, _Type, _Children, _MouseRegion5, _MouseRegion6, _SelectedIndex, _Scrollable, _MouseRegion7, _MouseRegion8, _HeaderRows, _HeaderRowHeight, _HasFrozen, _Type2, _Value, _MinValue, _Current, _Window3, _Canvas, _Current2;
+var _Loading, _Image, _IsHandled, _FocusedWidget, _LastHitWidget, _KeyData, _Buttons, _X, _Y, _DeltaX, _DeltaY, _X2, _Y2, _Dx, _Dy, _Tolerance2, _LastElapsedDuration, _BorderSide2, _BorderRadius2, _GapPadding, _Widget2, _X3, _Y3, _W, _H, _Window, _Flex, _Route, _Navigator, _Text, _MouseRegion, _FocusNode, _MouseRegion2, _FocusNode2, _MouseRegion3, _Window2, _MouseRegion4, _MouseRegion5, _FocusNode3, _MouseRegion6, _Type, _Children, _MouseRegion7, _MouseRegion8, _SelectedIndex, _Scrollable, _MouseRegion9, _TreeView2, _LoadingPainter, _MouseRegion10, _HeaderRows, _HeaderRowHeight, _HasFrozen, _Type2, _Value, _MinValue, _Current, _Window3, _Canvas, _Current2, _LastMouseX, _LastMouseY;
 import * as System from "/System.js";
-import { List, initializeSystem } from "/System.js";
+import { List } from "/System.js";
 const _Color = class extends Float32Array {
   constructor(a1, a2, a3, a4) {
     super([0, 0, 0, 0]);
@@ -148,12 +148,30 @@ const _Rect = class extends Float32Array {
   get Height() {
     return this[3] - this[1];
   }
+  get IsEmpty() {
+    return _Rect.op_Equality(this, _Rect.Empty);
+  }
   ContainsPoint(x, y) {
     return x >= this.Left && x < this.Right && y >= this.Top && y < this.Bottom;
   }
   Offset(x, y) {
     this[0] += x;
     this[1] += y;
+    this[2] += x;
+    this[3] += y;
+  }
+  IntersectTo(other) {
+    if (!this.IntersectsWith(other.Left, other.Top, other.Width, other.Height)) {
+      this[0] = 0;
+      this[1] = 0;
+      this[2] = 0;
+      this[3] = 0;
+      return;
+    }
+    this[0] = Math.max(this.Left, other.Left);
+    this[1] = Math.max(this.Top, other.Top);
+    this[2] = Math.min(this.Right, other.Right);
+    this[3] = Math.min(this.Bottom, other.Bottom);
   }
   IntersectsWith(x, y, w, h) {
     return this.Left < x + w && this.Right > x && this.Top < y + h && this.Bottom > y;
@@ -229,6 +247,12 @@ class RRect extends Float32Array {
   Deflate(dx, dy) {
     this.Inflate(-dx, -dy);
   }
+  Shift(dx, dy) {
+    this[0] += dx;
+    this[1] += dy;
+    this[2] += dx;
+    this[3] += dy;
+  }
 }
 class Vector4 extends Float32Array {
   constructor(v1, v2, v3, v4) {
@@ -251,6 +275,9 @@ const _Matrix4 = class extends Float32Array {
   static CreateTranslation(x, y, z) {
     return new _Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1);
   }
+  static CreateScale(x, y, z) {
+    return new _Matrix4(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
+  }
   static TryInvert(other) {
     let res = _Matrix4.CreateEmpty();
     let determinant = res.CopyInverse(other);
@@ -261,6 +288,20 @@ const _Matrix4 = class extends Float32Array {
     this[13] = this[1] * x + this[5] * y + this[9] * z + this[13];
     this[14] = this[2] * x + this[6] * y + this[10] * z + this[14];
     this[15] = this[3] * x + this[7] * y + this[11] * z + this[15];
+  }
+  Scale(x, y = 1, z = 1) {
+    this[0] *= x;
+    this[1] *= x;
+    this[2] *= x;
+    this[3] *= x;
+    this[4] *= y;
+    this[5] *= y;
+    this[6] *= y;
+    this[7] *= y;
+    this[8] *= z;
+    this[9] *= z;
+    this[10] *= z;
+    this[11] *= z;
   }
   RotateZ(angle) {
     let cosAngle = Math.cos(angle);
@@ -491,6 +532,9 @@ function MakeParagraphStyle(ps) {
 function MakeParagraphBuilder(ps) {
   return CanvasKit.ParagraphBuilder.MakeFromFontProvider(ps, FontCollection.Instance.FontProvider);
 }
+function ConvertRadiusToSigma(radius) {
+  return radius > 0 ? 0.57735 * radius + 0.5 : 0;
+}
 class FontStyle {
   constructor(weight, slant) {
     __publicField(this, "weight");
@@ -719,10 +763,6 @@ const _ImageSource = class {
   static FromNetwork(url) {
     throw new System.NotImplementedException();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let ImageSource = _ImageSource;
 _Loading = new WeakMap();
@@ -772,6 +812,9 @@ const _PaintUtils = class {
     _PaintUtils._shared.setStyle(style);
     _PaintUtils._shared.setColor(color != null ? color : Colors.Black);
     _PaintUtils._shared.setStrokeWidth(strokeWidth);
+    _PaintUtils._shared.setStrokeCap(CanvasKit.StrokeCap.Butt);
+    _PaintUtils._shared.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
+    _PaintUtils._shared.setMaskFilter(null);
     _PaintUtils._shared.setAntiAlias(false);
     return _PaintUtils._shared;
   }
@@ -1027,10 +1070,6 @@ class EventHookManager {
       }
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 var EventType = /* @__PURE__ */ ((EventType2) => {
   EventType2[EventType2["PointerDown"] = 0] = "PointerDown";
@@ -1066,7 +1105,7 @@ const _FocusManager = class {
   OnKeyDown(e) {
     if (this.FocusedWidget == null)
       return;
-    _FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e2) => w.FocusNode.RaiseKeyDown(e2));
+    _FocusManager.PropagateEvent(this.FocusedWidget, e, (w, ke) => w.FocusNode.RaiseKeyDown(ke));
     if (!e.IsHandled && e.KeyCode == Keys.Tab) {
       let forward = !e.Shift;
       let found;
@@ -1081,7 +1120,7 @@ const _FocusManager = class {
   OnKeyUp(e) {
     if (this.FocusedWidget == null)
       return;
-    _FocusManager.PropagateEvent(this.FocusedWidget, e, (w, e2) => w.FocusNode.RaiseKeyUp(e2));
+    _FocusManager.PropagateEvent(this.FocusedWidget, e, (w, ke) => w.FocusNode.RaiseKeyUp(ke));
   }
   OnTextInput(text) {
     this.FocusedWidget.FocusNode.RaiseTextInput(text);
@@ -1145,13 +1184,56 @@ const _FocusManager = class {
       return _FocusManager.FindFocusableBackward(container.Parent, container);
     return null;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let FocusManager = _FocusManager;
 _FocusedWidget = new WeakMap();
+class FocusManagerStack {
+  constructor() {
+    __publicField(this, "_stack", new System.List());
+    this._stack.Add(new FocusManager());
+  }
+  Push(manager) {
+    this._stack.Add(manager);
+  }
+  Remove(manager) {
+    if (manager == this._stack[0])
+      throw new System.NotSupportedException();
+    this._stack.Remove(manager);
+  }
+  Focus(widget) {
+    if (widget == null)
+      return;
+    let manager = this.GetFocusManagerByWidget(widget);
+    manager.Focus(widget);
+  }
+  OnKeyDown(e) {
+    this.GetFocusManagerWithFocused().OnKeyDown(e);
+  }
+  OnKeyUp(e) {
+    this.GetFocusManagerWithFocused().OnKeyUp(e);
+  }
+  OnTextInput(text) {
+    this.GetFocusManagerWithFocused().OnTextInput(text);
+  }
+  GetFocusManagerByWidget(widget) {
+    let temp = widget;
+    while (temp.Parent != null) {
+      if (temp.Parent instanceof Popup) {
+        const popup = temp.Parent;
+        return popup.FocusManager;
+      }
+      temp = temp.Parent;
+    }
+    return this._stack[0];
+  }
+  GetFocusManagerWithFocused() {
+    for (let i = this._stack.length - 1; i > 0; i--) {
+      if (this._stack[i].FocusedWidget != null)
+        return this._stack[i];
+    }
+    return this._stack[0];
+  }
+}
 class FocusNode {
   constructor() {
     __publicField(this, "KeyDown", new System.Event());
@@ -1170,10 +1252,6 @@ class FocusNode {
   }
   RaiseTextInput(text) {
     this.TextInput.Invoke(text);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class HitTestResult {
@@ -1286,6 +1364,8 @@ class HitTestResult {
     for (let i = this._path.length - 1; i >= exitTo; i--) {
       this._path[i].Widget.MouseRegion.RaiseHoverChanged(false);
     }
+    if (exitTo > 0)
+      this._path[exitTo - 1].Widget.MouseRegion.RestoreHoverCursor();
   }
   EnterNewRegion(oldResult) {
     if (!this.IsHitAnyMouseRegion)
@@ -1323,10 +1403,6 @@ class HitTestResult {
     this._path.AddRange(other._path);
     this.LastHitWidget = other.LastHitWidget;
     this._transform = other._transform.Clone();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _LastHitWidget = new WeakMap();
@@ -1384,10 +1460,6 @@ class ScrollController {
     }
     return new Offset(this.OffsetX - oldX, this.OffsetY - oldY);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 const _KeyEvent = class extends PropagateEvent {
   constructor(keyData) {
@@ -1416,10 +1488,6 @@ const _KeyEvent = class extends PropagateEvent {
   }
   get Alt() {
     return (this.KeyData & Keys.Alt) == Keys.Alt;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 };
 let KeyEvent = _KeyEvent;
@@ -1457,9 +1525,9 @@ class MouseRegion {
       Cursor.Current = hover ? this.Cursor() : Cursors.Arrow;
     this.HoverChanged.Invoke(hover);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+  RestoreHoverCursor() {
+    if (this.Cursor != null)
+      Cursor.Current = this.Cursor();
   }
 }
 var PointerButtons = /* @__PURE__ */ ((PointerButtons2) => {
@@ -1529,10 +1597,6 @@ const _PointerEvent = class extends PropagateEvent {
     transform.SetRow(2, vector.Clone());
     return transform;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let PointerEvent = _PointerEvent;
 _Buttons = new WeakMap();
@@ -1578,10 +1642,6 @@ const _ScrollEvent = class {
     _ScrollEvent.Default.Dx = dx;
     _ScrollEvent.Default.Dy = dy;
     return _ScrollEvent.Default;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 };
 let ScrollEvent = _ScrollEvent;
@@ -1644,6 +1704,73 @@ class Simulation {
   }
 }
 _Tolerance2 = new WeakMap();
+class InterpolationSimulation extends Simulation {
+  constructor(begin, end, duration, curve, scale) {
+    super();
+    __publicField(this, "_durationInSeconds");
+    __publicField(this, "_begin");
+    __publicField(this, "_end");
+    __publicField(this, "_curve");
+    console.assert(duration > 0);
+    this._begin = begin;
+    this._end = end;
+    this._curve = curve;
+    this._durationInSeconds = duration * scale / 1e3;
+  }
+  X(timeInSeconds) {
+    let t = clamp(timeInSeconds / this._durationInSeconds, 0, 1);
+    if (t == 0)
+      return this._begin;
+    if (t == 1)
+      return this._end;
+    return this._begin + (this._end - this._begin) * this._curve.Transform(t);
+  }
+  Dx(timeInSeconds) {
+    let epsilon = this.Tolerance.Time;
+    return (this.X(timeInSeconds + epsilon) - this.X(timeInSeconds - epsilon)) / (2 * epsilon);
+  }
+  IsDone(timeInSeconds) {
+    return timeInSeconds > this._durationInSeconds;
+  }
+}
+class RepeatingSimulation extends Simulation {
+  constructor(initialValue, min, max, reverse, period, directionSetter) {
+    super();
+    __publicField(this, "_min");
+    __publicField(this, "_max");
+    __publicField(this, "_reverse");
+    __publicField(this, "_directionSetter");
+    __publicField(this, "_periodInSeconds");
+    __publicField(this, "_initialT");
+    this._min = min;
+    this._max = max;
+    this._reverse = reverse;
+    this._directionSetter = directionSetter;
+    this._periodInSeconds = period / 1e3;
+    this._initialT = max == min ? 0 : initialValue / (max - min) * this._periodInSeconds;
+    console.assert(this._periodInSeconds > 0);
+    console.assert(this._initialT >= 0);
+  }
+  X(timeInSeconds) {
+    console.assert(timeInSeconds >= 0);
+    let totalTimeInSeconds = timeInSeconds + this._initialT;
+    let t = totalTimeInSeconds / this._periodInSeconds % 1;
+    let isPlayingReverse = (Math.floor(totalTimeInSeconds / this._periodInSeconds) & 4294967295 & 1) == 1;
+    if (this._reverse && isPlayingReverse) {
+      this._directionSetter(AnimationDirection.Reverse);
+      return DoubleUtils.Lerp(this._max, this._min, t);
+    } else {
+      this._directionSetter(AnimationDirection.Forward);
+      return DoubleUtils.Lerp(this._min, this._max, t);
+    }
+  }
+  Dx(timeInSeconds) {
+    return (this._max - this._min) / this._periodInSeconds;
+  }
+  IsDone(time) {
+    return false;
+  }
+}
 var AnimationDirection = /* @__PURE__ */ ((AnimationDirection2) => {
   AnimationDirection2[AnimationDirection2["Forward"] = 0] = "Forward";
   AnimationDirection2[AnimationDirection2["Reverse"] = 1] = "Reverse";
@@ -1674,7 +1801,7 @@ class AnimationController extends Animation {
     this.Duration = duration;
     this._animationBehavior = behavior;
     this._direction = 0;
-    this._ticker = new Ticker(this.Tick.bind(this));
+    this._ticker = new Ticker(this.OnTick.bind(this));
     this.SetValueInternal(value != null ? value : this.LowerBound);
   }
   get LastElapsedDuration() {
@@ -1712,7 +1839,7 @@ class AnimationController extends Animation {
     this._simulation = null;
     this.LastElapsedDuration = null;
   }
-  Tick(elapsedInSeconds) {
+  OnTick(elapsedInSeconds) {
     if (this._simulation == null)
       return;
     this.LastElapsedDuration = elapsedInSeconds;
@@ -1795,6 +1922,21 @@ class AnimationController extends Animation {
   Reset() {
     this.SetValue(this.LowerBound);
   }
+  Repeat(min = null, max = null, reverse = false, period = null) {
+    min != null ? min : min = this.LowerBound;
+    max != null ? max : max = this.UpperBound;
+    period != null ? period : period = this.Duration;
+    if (period == null)
+      throw new System.Exception("Without an explicit period and with no default Duration.");
+    console.assert(max >= min);
+    console.assert(max <= this.UpperBound && min >= this.LowerBound);
+    this.Stop();
+    this.StartSimulation(new RepeatingSimulation(this._value, min, max, reverse, period, (direction) => {
+      this._direction = direction;
+      this._status = this._direction == 0 ? AnimationStatus.Forward : AnimationStatus.Reverse;
+      this.CheckStatusChanged();
+    }));
+  }
   Dispose() {
     var _a;
     (_a = this._ticker) == null ? void 0 : _a.Stop(true);
@@ -1810,43 +1952,52 @@ class AnimationController extends Animation {
   NotifyValueChanged() {
     this.ValueChanged.Invoke();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 _LastElapsedDuration = new WeakMap();
-class InterpolationSimulation extends Simulation {
-  constructor(begin, end, duration, curve, scale) {
-    super();
-    __publicField(this, "_durationInSeconds");
-    __publicField(this, "_begin");
-    __publicField(this, "_end");
-    __publicField(this, "_curve");
-    console.assert(duration > 0);
-    this._begin = begin;
-    this._end = end;
-    this._curve = curve;
-    this._durationInSeconds = duration * scale / 1e3;
+class OptionalAnimationController extends Animation {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "_parent");
+    __publicField(this, "_value", 0);
+    __publicField(this, "ValueChanged", new System.Event());
+    __publicField(this, "StatusChanged", new System.Event());
   }
-  X(timeInSeconds) {
-    let t = clamp(timeInSeconds / this._durationInSeconds, 0, 1);
-    if (t == 0)
-      return this._begin;
-    if (t == 1)
-      return this._end;
-    return this._begin + (this._end - this._begin) * this._curve.Transform(t);
+  get Parent() {
+    return this._parent;
   }
-  Dx(timeInSeconds) {
-    let epsilon = this.Tolerance.Time;
-    return (this.X(timeInSeconds + epsilon) - this.X(timeInSeconds - epsilon)) / (2 * epsilon);
+  set Parent(value) {
+    if (this._parent === value)
+      return;
+    if (this._parent != null) {
+      this._parent.ValueChanged.Remove(this.OnParentValueChanged, this);
+      this._parent.StatusChanged.Remove(this.OnParentStatusChanged, this);
+    }
+    this._parent = value;
+    if (this._parent != null) {
+      this._parent.ValueChanged.Add(this.OnParentValueChanged, this);
+      this._parent.StatusChanged.Add(this.OnParentStatusChanged, this);
+    }
   }
-  IsDone(timeInSeconds) {
-    return timeInSeconds > this._durationInSeconds;
+  Switch() {
+    this._value = this._value == 0 ? 1 : 0;
+    this.ValueChanged.Invoke();
+    this.StatusChanged.Invoke(this._value == 0 ? AnimationStatus.Dismissed : AnimationStatus.Completed);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+  OnParentValueChanged() {
+    this.ValueChanged.Invoke();
+  }
+  OnParentStatusChanged(s) {
+    this.StatusChanged.Invoke(s);
+  }
+  get Value() {
+    if (this._parent != null)
+      return this._parent.Value;
+    return this._value;
+  }
+  get Status() {
+    if (this._parent != null)
+      return this._parent.Status;
+    return this._value == 0 ? AnimationStatus.Dismissed : AnimationStatus.Completed;
   }
 }
 const _Tolerance = class {
@@ -1877,7 +2028,6 @@ class Ticker {
     return this._isActive;
   }
   Start() {
-    console.assert(this._startTime == null);
     this._startTime = System.DateTime.UtcNow;
     this._animationId++;
     this._isActive = true;
@@ -1902,10 +2052,6 @@ class Ticker {
     this._onTick(System.DateTime.op_Subtraction(timeStamp, this._startTime).TotalSeconds);
     if (this.ShouldScheduleTick)
       this.ScheduleTick(true);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 __publicField(Ticker, "Interval", 16);
@@ -1932,20 +2078,12 @@ class Linear extends Curve {
   TransformInternal(t) {
     return t;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class BounceInOutCurve extends Curve {
   TransformInternal(t) {
     if (t < 0.5)
       return (1 - Curves.Bounce(1 - t * 2)) * 0.5;
     return Curves.Bounce(t * 2 - 1) * 0.5 + 0.5;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class FlippedCurve extends Curve {
@@ -1957,10 +2095,6 @@ class FlippedCurve extends Curve {
   TransformInternal(t) {
     return 1 - this.Curve.Transform(1 - t);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Interval extends Curve {
   constructor(begin, end, curve = null) {
@@ -1968,7 +2102,7 @@ class Interval extends Curve {
     __publicField(this, "_begin");
     __publicField(this, "_end");
     __publicField(this, "_curve");
-    if (!(this._begin >= 0 && this._begin <= 1 && this._end >= 0 && this._end <= 1 && this._end >= this._begin))
+    if (!(begin >= 0 && begin <= 1 && end >= 0 && end <= 1 && end >= begin))
       throw new System.ArgumentOutOfRangeException();
     this._begin = begin;
     this._end = end;
@@ -1980,9 +2114,16 @@ class Interval extends Curve {
       return t;
     return this._curve.Transform(t);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+}
+class SawTooth extends Curve {
+  constructor(count) {
+    super();
+    __publicField(this, "_count");
+    this._count = count;
+  }
+  TransformInternal(t) {
+    t *= this._count;
+    return t - Math.trunc(t);
   }
 }
 const _Cubic = class extends Curve {
@@ -2014,10 +2155,6 @@ const _Cubic = class extends Curve {
         end = midpoint;
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let Cubic = _Cubic;
 __publicField(Cubic, "CubicErrorBound", 1e-3);
@@ -2041,6 +2178,7 @@ class Curves {
 __publicField(Curves, "Linear", new Linear());
 __publicField(Curves, "BounceInOut", new BounceInOutCurve());
 __publicField(Curves, "EaseInOutCubic", new Cubic(0.645, 0.045, 0.355, 1));
+__publicField(Curves, "FastOutSlowIn", new Cubic(0.4, 0, 0.2, 1));
 class Animatable {
   Evaluate(animation) {
     return this.Transform(animation.Value);
@@ -2100,10 +2238,6 @@ class FloatTween extends Tween {
   }
   Lerp(t) {
     return this.Begin + (this.End - this.Begin) * t;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class ColorTween extends Tween {
@@ -2166,10 +2300,6 @@ class CurvedAnimation extends AnimationWithParent {
     }
     return activeCurve.Transform(t);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class ColorUtils {
   static ScaleAlpha(a, factor) {
@@ -2200,6 +2330,16 @@ class FloatUtils {
     return a * (1 - t) + b * t;
   }
 }
+class DoubleUtils {
+  static Lerp(a, b, t) {
+    if (a == b || Number.isNaN(a) && Number.isNaN(b))
+      return a;
+    console.assert(isFinite(a), "Cannot interpolate between finite and non-finite values");
+    console.assert(isFinite(b), "Cannot interpolate between finite and non-finite values");
+    console.assert(isFinite(t), "t must be finite when interpolating between values");
+    return a * (1 - t) + b * t;
+  }
+}
 const _PaintDebugger = class {
   static Switch() {
     _PaintDebugger._enable = !_PaintDebugger._enable;
@@ -2215,15 +2355,70 @@ const _PaintDebugger = class {
 let PaintDebugger = _PaintDebugger;
 __publicField(PaintDebugger, "EnableChanged", new System.Event());
 __publicField(PaintDebugger, "_enable", false);
+const _CircularProgressPainter = class {
+  constructor() {
+    __publicField(this, "_controller");
+    __publicField(this, "_strokeHeadTween", new CurveTween(new Interval(0, 0.5, Curves.FastOutSlowIn)).Chain(new CurveTween(new SawTooth(_CircularProgressPainter._pathCount))));
+    __publicField(this, "_strokeTailTween", new CurveTween(new Interval(0.5, 1, Curves.FastOutSlowIn)).Chain(new CurveTween(new SawTooth(_CircularProgressPainter._pathCount))));
+    __publicField(this, "_offsetTween", new CurveTween(new SawTooth(_CircularProgressPainter._pathCount)));
+    __publicField(this, "_rotationTween", new CurveTween(new SawTooth(_CircularProgressPainter._rotationCount)));
+    this._controller = new AnimationController(_CircularProgressPainter._kIndeterminateCircularDuration);
+  }
+  Dispose() {
+    this._controller.Dispose();
+  }
+  Start(valueChangedAction) {
+    this._controller.ValueChanged.Add(valueChangedAction, this);
+    this._controller.Repeat();
+  }
+  Stop() {
+    this._controller.Stop();
+  }
+  PaintToWidget(target, canvas, indicatorSize = 36) {
+    let dx = (target.W - indicatorSize) / 2;
+    let dy = (target.H - indicatorSize) / 2;
+    canvas.translate(dx, dy);
+    this.Paint(canvas, indicatorSize);
+    canvas.translate(-dx, -dy);
+  }
+  Paint(canvas, indicatorSize) {
+    let headValue = this._strokeHeadTween.Evaluate(this._controller);
+    let tailValue = this._strokeTailTween.Evaluate(this._controller);
+    let offsetValue = this._offsetTween.Evaluate(this._controller);
+    let rotationValue = this._rotationTween.Evaluate(this._controller);
+    let valueColor = Theme.FocusedColor;
+    _CircularProgressPainter.PaintInternal(canvas, indicatorSize, null, headValue, tailValue, offsetValue, rotationValue, 6, valueColor);
+  }
+  static PaintInternal(canvas, size, value, headValue, tailValue, offsetValue, rotationValue, strokeWidth, valueColor, bgColor = null) {
+    let rect = Rect.FromLTWH(0, 0, size, size);
+    let arcStart = value != null ? _CircularProgressPainter._startAngle : _CircularProgressPainter._startAngle + tailValue * 3 / 2 * Math.PI + rotationValue * Math.PI * 2 + offsetValue * 0.5 * Math.PI;
+    let arcSweep = value != null ? clamp(value, 0, 1) * _CircularProgressPainter._sweep : Math.max(headValue * 3 / 2 * Math.PI - tailValue * 3 / 2 * Math.PI, _CircularProgressPainter._epsilon);
+    if (bgColor != null) {
+      let bgPaint = PaintUtils.Shared(bgColor, CanvasKit.PaintStyle.Stroke, strokeWidth);
+      bgPaint.setAntiAlias(true);
+      canvas.drawArc(rect, 0 * 180 / Math.PI, _CircularProgressPainter._sweep * 180 / Math.PI, false, bgPaint);
+    }
+    let paint = PaintUtils.Shared(valueColor, CanvasKit.PaintStyle.Stroke, strokeWidth);
+    paint.setAntiAlias(true);
+    if (value == null)
+      paint.setStrokeCap(CanvasKit.StrokeCap.Square);
+    canvas.drawArc(rect, arcStart * 180 / Math.PI, arcSweep * 180 / Math.PI, false, paint);
+  }
+};
+let CircularProgressPainter = _CircularProgressPainter;
+__publicField(CircularProgressPainter, "_kIndeterminateCircularDuration", 1333 * 2222);
+__publicField(CircularProgressPainter, "_pathCount", _CircularProgressPainter._kIndeterminateCircularDuration / 1333);
+__publicField(CircularProgressPainter, "_rotationCount", _CircularProgressPainter._kIndeterminateCircularDuration / 2222);
+__publicField(CircularProgressPainter, "_twoPi", Math.PI * 2);
+__publicField(CircularProgressPainter, "_epsilon", 1e-3);
+__publicField(CircularProgressPainter, "_sweep", _CircularProgressPainter._twoPi - _CircularProgressPainter._epsilon);
+__publicField(CircularProgressPainter, "_startAngle", -Math.PI / 2);
 class TextPainter {
   static BuildParagraph(text, width, fontSize, color, fontStyle = null, maxLines = 1, forceHeight = false) {
     let ts = MakeTextStyle({ color, fontSize });
     if (fontStyle != null)
       ts.fontStyle = fontStyle;
-    let ps = MakeParagraphStyle({
-      maxLines: Math.floor(maxLines) & 4294967295,
-      textStyle: ts
-    });
+    let ps = MakeParagraphStyle({ maxLines: Math.floor(maxLines) & 4294967295, textStyle: ts });
     if (forceHeight) {
       ts.heightMultiplier = 1;
       ps.heightMultiplier = 1;
@@ -2269,7 +2464,7 @@ class StateBase {
     var _a;
     (_a = this._bindings) == null ? void 0 : _a.RemoveAll((b) => b.Target.deref() === target);
   }
-  OnValueChanged() {
+  NotifyValueChanged() {
     if (this._bindings == null)
       return;
     for (let i = 0; i < this._bindings.length; i++) {
@@ -2298,42 +2493,6 @@ class State extends StateBase {
     return new Rx(value);
   }
 }
-class StateProxy extends State {
-  constructor(source, defaultValue) {
-    super();
-    __publicField(this, "_source");
-    __publicField(this, "_defaultValue");
-    var _a;
-    this._source = source;
-    (_a = this._source) == null ? void 0 : _a.AddBinding(this, BindingOptions.None);
-    this._defaultValue = defaultValue;
-  }
-  set Source(value) {
-    var _a, _b;
-    (_a = this._source) == null ? void 0 : _a.RemoveBinding(this);
-    this._source = value;
-    (_b = this._source) == null ? void 0 : _b.AddBinding(this, BindingOptions.None);
-  }
-  get Readonly() {
-    var _a, _b;
-    return (_b = (_a = this._source) == null ? void 0 : _a.Readonly) != null ? _b : false;
-  }
-  get Value() {
-    return this._source == null ? this._defaultValue : this._source.Value;
-  }
-  set Value(value) {
-    if (this._source == null)
-      throw new System.InvalidOperationException();
-    this._source.Value = value;
-  }
-  OnStateChanged(state, options) {
-    this.OnValueChanged();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
-}
 class Rx extends State {
   constructor(value) {
     super();
@@ -2347,8 +2506,10 @@ class Rx extends State {
     return this._value;
   }
   set Value(value) {
+    if (System.Equals(this._value, value))
+      return;
     this._value = value;
-    this.OnValueChanged();
+    this.NotifyValueChanged();
   }
 }
 class RxComputed extends State {
@@ -2364,8 +2525,8 @@ class RxComputed extends State {
     s.AddBinding(computed, BindingOptions.None);
     return computed;
   }
-  static Make1(source, getter) {
-    let computed = new RxComputed(() => getter(source.Value), null);
+  static Make1(source, getter, setter = null) {
+    let computed = new RxComputed(() => getter(source.Value), setter);
     source.AddBinding(computed, BindingOptions.None);
     return computed;
   }
@@ -2389,7 +2550,7 @@ class RxComputed extends State {
     }
   }
   OnStateChanged(state, options) {
-    this.OnValueChanged();
+    this.NotifyValueChanged();
   }
 }
 class RxList extends StateBase {
@@ -2403,17 +2564,17 @@ class RxList extends StateBase {
   }
   Add(item) {
     this._source.Add(item);
-    this.OnValueChanged();
+    this.NotifyValueChanged();
   }
   Remove(item) {
     let res = this._source.Remove(item);
     if (res)
-      this.OnValueChanged();
+      this.NotifyValueChanged();
     return res;
   }
   Clear() {
     this._source.Clear();
-    this.OnValueChanged();
+    this.NotifyValueChanged();
   }
   Contains(item) {
     return this._source.Contains(item);
@@ -2423,24 +2584,26 @@ class RxList extends StateBase {
   }
   Insert(index, item) {
     this._source.Insert(index, item);
-    this.OnValueChanged();
+    this.NotifyValueChanged();
   }
   RemoveAt(index) {
     this._source.RemoveAt(index);
-    this.OnValueChanged();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+    this.NotifyValueChanged();
   }
 }
 class RxProperty extends State {
-  constructor(getter, setter = null) {
+  constructor(getter, setter = null, autoNotify = true) {
     super();
     __publicField(this, "_getter");
     __publicField(this, "_setter");
     this._getter = getter;
-    this._setter = setter;
+    if (setter == null || !autoNotify)
+      this._setter = setter;
+    else
+      this._setter = (v) => {
+        setter(v);
+        this.NotifyValueChanged();
+      };
   }
   get Readonly() {
     return this._setter == null;
@@ -2452,30 +2615,39 @@ class RxProperty extends State {
     if (this._setter == null)
       throw new System.NotSupportedException();
     this._setter(value);
-    this.OnValueChanged();
-  }
-  NotifyValueChanged() {
-    this.OnValueChanged();
   }
 }
 class RxObject {
   constructor() {
-    __publicField(this, "_object");
+    __publicField(this, "_target");
   }
-  get Object() {
-    return this._object;
+  get Target() {
+    return this._target;
   }
-  set Object(value) {
-    this._object = value;
-    this.OnObjectChanged();
+  set Target(value) {
+    let old = this._target;
+    this._target = value;
+    this.OnTargetChanged(old);
   }
-  OnObjectChanged() {
+  OnTargetChanged(old) {
     const props = Object.getOwnPropertyNames(this);
     for (let prop of props) {
       if (this[prop] instanceof RxProperty) {
         this[prop].NotifyValueChanged();
       }
     }
+  }
+}
+class ObjectNotifier {
+  constructor() {
+    __publicField(this, "_changeHandler");
+  }
+  set OnChange(value) {
+    this._changeHandler = value;
+  }
+  Notify(obj) {
+    var _a;
+    (_a = this._changeHandler) == null ? void 0 : _a.call(this, obj);
   }
 }
 const _Radius = class {
@@ -2614,7 +2786,7 @@ class OutlinedBorder extends ShapeBorder {
 class InputBorder extends ShapeBorder {
   constructor(borderSide) {
     super();
-    __privateAdd(this, _BorderSide2, BorderSide.Empty);
+    __privateAdd(this, _BorderSide2, BorderSide.Empty.Clone());
     this.BorderSide = borderSide != null ? borderSide : BorderSide.Empty;
   }
   get BorderSide() {
@@ -2631,7 +2803,7 @@ _BorderSide2 = new WeakMap();
 const _OutlineInputBorder = class extends InputBorder {
   constructor(borderSide = null, borderRadius = null, gapPadding = 4) {
     super(borderSide != null ? borderSide : new BorderSide(new Color(4288387995)));
-    __privateAdd(this, _BorderRadius2, BorderRadius.Empty);
+    __privateAdd(this, _BorderRadius2, BorderRadius.Empty.Clone());
     __privateAdd(this, _GapPadding, 0);
     if (gapPadding < 0)
       throw new System.ArgumentOutOfRangeException("gapPadding");
@@ -2680,10 +2852,6 @@ const _OutlineInputBorder = class extends InputBorder {
     paint.setAntiAlias(true);
     canvas.drawRRect(outer, paint);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let OutlineInputBorder = _OutlineInputBorder;
 _BorderRadius2 = new WeakMap();
@@ -2710,6 +2878,9 @@ class RoundedRectangleBorder extends OutlinedBorder {
   LerpTo(to, tween, t) {
     throw new System.NotImplementedException();
   }
+  CopyWith(side) {
+    return new RoundedRectangleBorder(side != null ? side : this.Side, this.BorderRadius);
+  }
   Clone() {
     throw new System.NotImplementedException();
   }
@@ -2731,6 +2902,82 @@ class RoundedRectangleBorder extends OutlinedBorder {
     }
   }
 }
+class ClipperOfRect {
+  constructor(rect, antiAlias = false) {
+    __publicField(this, "_area", Rect.Empty.Clone());
+    __publicField(this, "_antiAlias");
+    this._area = rect.Clone();
+    this._antiAlias = antiAlias;
+  }
+  Dispose() {
+  }
+  ApplyToCanvas(canvas) {
+    canvas.clipRect(this._area, CanvasKit.ClipOp.Intersect, this._antiAlias);
+  }
+  get IsEmpty() {
+    return this._area.IsEmpty;
+  }
+  Offset(dx, dy) {
+    this._area.Offset(dx, dy);
+  }
+  GetRect() {
+    return this._area;
+  }
+  GetPath() {
+    throw new System.NotSupportedException();
+  }
+  IntersectWith(to) {
+    if (to instanceof ClipperOfRect) {
+      this._area.IntersectTo(to.GetRect());
+      return this;
+    }
+    if (to instanceof ClipperOfPath) {
+      return to.IntersectWith(this);
+    }
+    throw new System.NotSupportedException();
+  }
+}
+class ClipperOfPath {
+  constructor(path, antiAlias = true) {
+    __publicField(this, "_area");
+    __publicField(this, "_antiAlias");
+    this._area = path;
+    this._antiAlias = antiAlias;
+  }
+  Dispose() {
+    this._area.delete();
+  }
+  ApplyToCanvas(canvas) {
+    canvas.clipPath(this._area, CanvasKit.ClipOp.Intersect, this._antiAlias);
+  }
+  get IsEmpty() {
+    return this._area.isEmpty();
+  }
+  Offset(dx, dy) {
+    this._area.offset(dx, dy);
+  }
+  GetPath() {
+    return this._area;
+  }
+  GetRect() {
+    throw new System.NotSupportedException();
+  }
+  IntersectWith(to) {
+    if (to instanceof ClipperOfRect) {
+      let other = new CanvasKit.Path();
+      other.addRect(to.GetRect());
+      this._area.op(other, CanvasKit.PathOp.Intersect);
+      other.delete();
+      return this;
+    }
+    if (to instanceof ClipperOfPath) {
+      this._area.op(to.GetPath(), CanvasKit.PathOp.Intersect);
+      to.Dispose();
+      return this;
+    }
+    throw new System.NotSupportedException();
+  }
+}
 class Theme {
 }
 __publicField(Theme, "DefaultFontSize", 15);
@@ -2738,6 +2985,7 @@ __publicField(Theme, "FocusedColor", new Color(4280391411));
 __publicField(Theme, "FocusedBorderWidth", 2);
 __publicField(Theme, "CaretColor", new Color(4280391411));
 __publicField(Theme, "AccentColor", new Color(4294410779));
+__publicField(Theme, "DisabledBgColor", new Color(4294309882));
 class WidgetRef {
   constructor() {
     __privateAdd(this, _Widget2, void 0);
@@ -2750,10 +2998,6 @@ class WidgetRef {
   }
   SetWidget(widget) {
     this.Widget = widget;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _Widget2 = new WeakMap();
@@ -2777,6 +3021,9 @@ const _Widget = class {
   }
   get IsOpaque() {
     return false;
+  }
+  get Clipper() {
+    return null;
   }
   set Ref(value) {
     value.SetWidget(this);
@@ -3056,15 +3303,17 @@ const _Widget = class {
     this.PaintChildren(canvas, area);
   }
   PaintChildren(canvas, area = null) {
-    let dirtyRect = area == null ? void 0 : area.GetRect();
     this.VisitChildren((child) => {
       if (child.W <= 0 || child.H <= 0)
         return false;
-      if (dirtyRect != null && !dirtyRect.IntersectsWith(child.X, child.Y, child.W, child.H))
+      if (area != null && !area.IntersectsWith(child))
         return false;
-      canvas.translate(child.X, child.Y);
-      child.Paint(canvas, area == null ? void 0 : area.ToChild(child.X, child.Y));
-      canvas.translate(-child.X, -child.Y);
+      let needTranslate = child.X != 0 || child.Y != 0;
+      if (needTranslate)
+        canvas.translate(child.X, child.Y);
+      child.Paint(canvas, area == null ? void 0 : area.ToChild(child));
+      if (needTranslate)
+        canvas.translate(-child.X, -child.Y);
       PaintDebugger.PaintWidgetBorder(child, canvas);
       return false;
     });
@@ -3226,10 +3475,6 @@ class Root extends SingleChildWidget {
   }
   OnChildSizeChanged(child, dx, dy, affects) {
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 _Window = new WeakMap();
 __publicField(Root, "$meta_PixUI_IRootWidget", true);
@@ -3256,7 +3501,7 @@ class View extends SingleChildWidget {
 class Transform extends SingleChildWidget {
   constructor(transform, origin = null) {
     super();
-    __publicField(this, "_transform", Matrix4.Empty);
+    __publicField(this, "_transform", Matrix4.Empty.Clone());
     __publicField(this, "_origin");
     this.SetTransform(transform.Clone());
     this.Origin = origin;
@@ -3318,10 +3563,6 @@ class Transform extends SingleChildWidget {
     this.PaintChildren(canvas, area);
     canvas.restore();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Center extends SingleChildWidget {
   Layout(availableWidth, availableHeight) {
@@ -3332,10 +3573,6 @@ class Center extends SingleChildWidget {
       this.Child.SetPosition((width - this.Child.W) / 2, (height - this.Child.H) / 2);
     }
     this.SetSize(width, height);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class Container extends SingleChildWidget {
@@ -3358,10 +3595,6 @@ class Container extends SingleChildWidget {
       canvas.drawRect(Rect.FromLTWH(0, 0, this.W, this.H), PaintUtils.Shared(this._bgColor.Value));
     this.PaintChildren(canvas, area);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Expanded extends SingleChildWidget {
   constructor(child = null, flex = 1) {
@@ -3377,14 +3610,15 @@ class Expanded extends SingleChildWidget {
     __privateSet(this, _Flex, value);
   }
   Layout(availableWidth, availableHeight) {
+    var _a, _b, _c, _d;
     this.CachedAvailableWidth = availableWidth;
     this.CachedAvailableHeight = availableHeight;
     if (this.Child != null) {
       this.Child.Layout(availableWidth, availableHeight);
       this.Child.SetPosition(0, 0);
     }
-    let w = this.Parent instanceof Column && this.Child != null ? this.Child.W : availableWidth;
-    let h = this.Parent instanceof Row && this.Child != null ? this.Child.H : availableHeight;
+    let w = this.Parent instanceof Column ? (_b = (_a = this.Child) == null ? void 0 : _a.W) != null ? _b : 0 : availableWidth;
+    let h = this.Parent instanceof Row ? (_d = (_c = this.Child) == null ? void 0 : _c.H) != null ? _d : 0 : availableHeight;
     this.SetSize(w, h);
   }
   OnChildSizeChanged(child, dx, dy, affects) {
@@ -3394,10 +3628,6 @@ class Expanded extends SingleChildWidget {
     let h = this.Parent instanceof Row ? child.H : this.CachedAvailableHeight;
     this.SetSize(w, h);
     this.TryNotifyParentIfSizeChanged(oldWidth, oldHeight, affects);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _Flex = new WeakMap();
@@ -3492,10 +3722,6 @@ class Column extends MultiChildWidget {
     }
     this.TryNotifyParentIfSizeChanged(oldWidth, oldHeight, affects);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Row extends MultiChildWidget {
   constructor(alignment = VerticalAlignment.Middle, spacing = 0) {
@@ -3558,10 +3784,6 @@ class Row extends MultiChildWidget {
     }
     this.SetSize(Math.min(width, totalWidth), maxHeightOfChild);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class ListViewController extends WidgetController {
   constructor(axis = Axis.Vertical) {
@@ -3586,10 +3808,6 @@ class ListViewController extends WidgetController {
     let offset = this.Widget.OnScroll(0, deltaY);
     if (!offset.IsEmpty)
       this.Widget.Root.Window.AfterScrollDone(this.Widget, offset);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 const _ListView = class extends MultiChildWidget {
@@ -3659,10 +3877,6 @@ const _ListView = class extends MultiChildWidget {
       this.Invalidate(InvalidAction.Repaint);
     return offset;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let ListView = _ListView;
 __publicField(ListView, "$meta_PixUI_IScrollable", true);
@@ -3706,7 +3920,7 @@ const _Card = class extends SingleChildWidget {
     this._shape = this.Rebind(this._shape, value, BindingOptions.AffectsLayout);
   }
   Layout(availableWidth, availableHeight) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     let width = this.CacheAndCheckAssignWidth(availableWidth);
     let height = this.CacheAndCheckAssignHeight(availableHeight);
     if (this.Child == null) {
@@ -3714,171 +3928,47 @@ const _Card = class extends SingleChildWidget {
       return;
     }
     let margin = (_b = (_a = this._margin) == null ? void 0 : _a.Value) != null ? _b : EdgeInsets.All(_Card.DefaultMargin);
-    this.Child.Layout(width - margin.Left - margin.Right, height - margin.Top - margin.Bottom);
-    this.Child.SetPosition(margin.Left, margin.Top);
-    this.SetSize(this.Child.W + margin.Left + margin.Right, this.Child.H + margin.Top + margin.Bottom);
+    let padding = (_d = (_c = this.Padding) == null ? void 0 : _c.Value) != null ? _d : EdgeInsets.All(0);
+    this.Child.Layout(width - margin.Horizontal - padding.Horizontal, height - margin.Vertical - padding.Vertical);
+    this.Child.SetPosition(margin.Left + padding.Left, margin.Top + padding.Top);
+    this.SetSize(this.Child.W + margin.Horizontal + padding.Horizontal, this.Child.H + margin.Vertical + padding.Vertical);
+  }
+  get Clipper() {
+    var _a, _b;
+    let shape = (_b = (_a = this._shape) == null ? void 0 : _a.Value) != null ? _b : _Card.DefaultShape;
+    let rect = this.GetChildRect();
+    let path = shape.GetOuterPath(rect);
+    return new ClipperOfPath(path);
+  }
+  GetChildRect() {
+    var _a, _b;
+    let margin = (_b = (_a = this._margin) == null ? void 0 : _a.Value) != null ? _b : EdgeInsets.All(_Card.DefaultMargin);
+    return Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right, this.H - margin.Top - margin.Bottom);
   }
   Paint(canvas, area = null) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     let color = (_b = (_a = this._color) == null ? void 0 : _a.Value) != null ? _b : Colors.White;
     let shadowColor = (_d = (_c = this._shadowColor) == null ? void 0 : _c.Value) != null ? _d : Colors.Black;
     let elevation = (_f = (_e = this._elevation) == null ? void 0 : _e.Value) != null ? _f : 2;
-    let margin = (_h = (_g = this._margin) == null ? void 0 : _g.Value) != null ? _h : EdgeInsets.All(_Card.DefaultMargin);
-    let rect = Rect.FromLTWH(margin.Left, margin.Top, this.W - margin.Left - margin.Right, this.H - margin.Top - margin.Bottom);
-    let shape = (_j = (_i = this._shape) == null ? void 0 : _i.Value) != null ? _j : _Card.DefaultShape;
-    let outer = shape.GetOuterPath(rect);
+    let rect = this.GetChildRect();
+    let shape = (_h = (_g = this._shape) == null ? void 0 : _g.Value) != null ? _h : _Card.DefaultShape;
+    let clipper = this.Clipper;
+    let outer = clipper.GetPath();
     if (elevation > 0) {
       DrawShadow(canvas, outer, shadowColor, elevation, shadowColor.Alpha != 255, this.Root.Window.ScaleFactor);
     }
     canvas.save();
-    canvas.clipPath(outer, CanvasKit.ClipOp.Intersect, true);
+    clipper.ApplyToCanvas(canvas);
     canvas.clear(color);
     shape.Paint(canvas, rect);
     this.PaintChildren(canvas, area);
     canvas.restore();
-    outer.delete();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+    clipper.Dispose();
   }
 };
 let Card = _Card;
 __publicField(Card, "DefaultMargin", 4);
 __publicField(Card, "DefaultShape", new RoundedRectangleBorder(null, BorderRadius.All(Radius.Circular(4))));
-const _RouteSettings = class {
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
-};
-let RouteSettings = _RouteSettings;
-__publicField(RouteSettings, "Empty", new _RouteSettings());
-class Route {
-  constructor(name, builder, enteringBuilder = null, existingBuilder = null, duration = 200, reverseDuration = 200, isDynamic = false) {
-    __publicField(this, "Name");
-    __publicField(this, "Dynamic");
-    __publicField(this, "Builder");
-    __publicField(this, "Duration");
-    __publicField(this, "ReverseDuration");
-    __publicField(this, "EnteringBuilder");
-    __publicField(this, "ExistingBuilder");
-    this.Name = name;
-    this.Dynamic = isDynamic;
-    this.Builder = builder;
-    this.Duration = duration;
-    this.ReverseDuration = reverseDuration;
-    this.EnteringBuilder = enteringBuilder;
-  }
-}
-class TransitionStack extends Widget {
-  constructor(from, to) {
-    super();
-    __publicField(this, "_from");
-    __publicField(this, "_to");
-    this._from = from;
-    this._from.Parent = this;
-    this._to = to;
-    this._to.Parent = this;
-  }
-  VisitChildren(action) {
-    if (!this.IsMounted)
-      return;
-    if (action(this._from))
-      return;
-    action(this._to);
-  }
-  Layout(availableWidth, availableHeight) {
-    this.CachedAvailableWidth = availableWidth;
-    this.CachedAvailableHeight = availableHeight;
-    this.SetSize(availableWidth, availableHeight);
-    this._from.Layout(this.W, this.H);
-    this._from.SetPosition(0, 0);
-    this._to.Layout(this.W, this.H);
-    this._to.SetPosition(0, 0);
-  }
-  OnChildSizeChanged(child, dx, dy, affects) {
-  }
-  Paint(canvas, area = null) {
-    this._from.Paint(canvas, area);
-    this._to.Paint(canvas, area);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
-}
-var RouteChangeAction = /* @__PURE__ */ ((RouteChangeAction2) => {
-  RouteChangeAction2[RouteChangeAction2["Push"] = 0] = "Push";
-  RouteChangeAction2[RouteChangeAction2["Pop"] = 1] = "Pop";
-  return RouteChangeAction2;
-})(RouteChangeAction || {});
-class RouteEntry {
-  constructor(route, settings) {
-    __publicField(this, "_settings");
-    __publicField(this, "_widget");
-    __privateAdd(this, _Route, void 0);
-    this.Route = route;
-    this._settings = settings;
-  }
-  get Route() {
-    return __privateGet(this, _Route);
-  }
-  set Route(value) {
-    __privateSet(this, _Route, value);
-  }
-  GetWidget() {
-    if (this._widget != null)
-      return this._widget;
-    this._widget = this.Route.Builder(this._settings);
-    return this._widget;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
-}
-_Route = new WeakMap();
-class Navigator {
-  constructor(routes) {
-    __publicField(this, "_routes", new System.List());
-    __publicField(this, "_history", new System.List());
-    __publicField(this, "_histroyIndex", -1);
-    __publicField(this, "OnRouteChanged");
-    this._routes.AddRange(routes);
-  }
-  GetCurrentRoute() {
-    if (this._routes.length == 0)
-      return new Text(State.op_Implicit_From("Empty routes"));
-    if (this._history.length != 0)
-      return this._history[this._histroyIndex].GetWidget();
-    let entry = new RouteEntry(this._routes[0], RouteSettings.Empty);
-    this._history.Add(entry);
-    this._histroyIndex = 0;
-    return entry.GetWidget();
-  }
-  PushNamed(name) {
-    var _a;
-    if (this._histroyIndex != this._history.length - 1) {
-      this._history.RemoveRange(this._histroyIndex + 1, this._history.length - this._histroyIndex - 1);
-    }
-    let matchRoute = this._routes.Find((r) => r.Name == name);
-    if (matchRoute == null)
-      throw new System.ArgumentException(`Can't find route: ${name}`);
-    let entry = new RouteEntry(matchRoute, new RouteSettings());
-    this._history.Add(entry);
-    this._histroyIndex++;
-    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 0, matchRoute);
-  }
-  Pop() {
-    var _a;
-    if (this._histroyIndex <= 0)
-      return;
-    let oldEntry = this._history[this._histroyIndex];
-    this._histroyIndex--;
-    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 1, oldEntry.Route);
-  }
-}
 class DynamicView extends SingleChildWidget {
   constructor() {
     super();
@@ -3889,7 +3979,11 @@ class DynamicView extends SingleChildWidget {
     this.IsLayoutTight = false;
   }
   ReplaceTo(to) {
-    this.Root.Window.BeforeDynamicViewChange();
+    if (!this.IsMounted) {
+      this.Child = to;
+      return;
+    }
+    this.Root.Window.BeforeDynamicViewChange(this);
     this.Child = to;
     this.Root.Window.AfterDynamicViewChange(this);
     this.Invalidate(InvalidAction.Relayout);
@@ -3897,7 +3991,7 @@ class DynamicView extends SingleChildWidget {
   AnimateTo(from, to, duration, reverse, enteringBuilder, existingBuilder) {
     this._animationFrom = from;
     this._animationTo = to;
-    this.Root.Window.BeforeDynamicViewChange();
+    this.Root.Window.BeforeDynamicViewChange(this);
     this.CreateAnimationControl(duration, reverse);
     let exsiting = existingBuilder == null ? from : existingBuilder(this._animationController, from);
     let entering = enteringBuilder(this._animationController, to);
@@ -3952,14 +4046,140 @@ class DynamicView extends SingleChildWidget {
     }
     return super.HitTest(x, y, result);
   }
+  get Clipper() {
+    return this.Parent == null ? null : new ClipperOfRect(Rect.FromLTWH(0, 0, this.W, this.H));
+  }
   Paint(canvas, area = null) {
-    if (this.Parent != null) {
+    let clipper = this.Clipper;
+    if (clipper != null) {
       canvas.save();
-      canvas.clipRect(Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
+      clipper.ApplyToCanvas(canvas);
     }
     this.PaintChildren(canvas, area);
-    if (this.Parent != null)
+    if (clipper != null)
       canvas.restore();
+    clipper == null ? void 0 : clipper.Dispose();
+  }
+}
+const _RouteSettings = class {
+};
+let RouteSettings = _RouteSettings;
+__publicField(RouteSettings, "Empty", new _RouteSettings());
+class Route {
+  constructor(name, builder, enteringBuilder = null, existingBuilder = null, duration = 200, reverseDuration = 200, isDynamic = false) {
+    __publicField(this, "Name");
+    __publicField(this, "Dynamic");
+    __publicField(this, "Builder");
+    __publicField(this, "Duration");
+    __publicField(this, "ReverseDuration");
+    __publicField(this, "EnteringBuilder");
+    __publicField(this, "ExistingBuilder");
+    this.Name = name;
+    this.Dynamic = isDynamic;
+    this.Builder = builder;
+    this.Duration = duration;
+    this.ReverseDuration = reverseDuration;
+    this.EnteringBuilder = enteringBuilder;
+  }
+}
+class TransitionStack extends Widget {
+  constructor(from, to) {
+    super();
+    __publicField(this, "_from");
+    __publicField(this, "_to");
+    this._from = from;
+    this._from.Parent = this;
+    this._to = to;
+    this._to.Parent = this;
+  }
+  VisitChildren(action) {
+    if (!this.IsMounted)
+      return;
+    if (action(this._from))
+      return;
+    action(this._to);
+  }
+  Layout(availableWidth, availableHeight) {
+    this.CachedAvailableWidth = availableWidth;
+    this.CachedAvailableHeight = availableHeight;
+    this.SetSize(availableWidth, availableHeight);
+    this._from.Layout(this.W, this.H);
+    this._from.SetPosition(0, 0);
+    this._to.Layout(this.W, this.H);
+    this._to.SetPosition(0, 0);
+  }
+  OnChildSizeChanged(child, dx, dy, affects) {
+  }
+  Paint(canvas, area = null) {
+    this._from.Paint(canvas, area);
+    this._to.Paint(canvas, area);
+  }
+}
+var RouteChangeAction = /* @__PURE__ */ ((RouteChangeAction2) => {
+  RouteChangeAction2[RouteChangeAction2["Push"] = 0] = "Push";
+  RouteChangeAction2[RouteChangeAction2["Pop"] = 1] = "Pop";
+  return RouteChangeAction2;
+})(RouteChangeAction || {});
+class RouteEntry {
+  constructor(route, settings) {
+    __publicField(this, "_settings");
+    __publicField(this, "_widget");
+    __privateAdd(this, _Route, void 0);
+    this.Route = route;
+    this._settings = settings;
+  }
+  get Route() {
+    return __privateGet(this, _Route);
+  }
+  set Route(value) {
+    __privateSet(this, _Route, value);
+  }
+  GetWidget() {
+    if (this._widget != null)
+      return this._widget;
+    this._widget = this.Route.Builder(this._settings);
+    return this._widget;
+  }
+}
+_Route = new WeakMap();
+class Navigator {
+  constructor(routes) {
+    __publicField(this, "_routes", new System.List());
+    __publicField(this, "_history", new System.List());
+    __publicField(this, "_histroyIndex", -1);
+    __publicField(this, "OnRouteChanged");
+    this._routes.AddRange(routes);
+  }
+  GetCurrentRoute() {
+    if (this._routes.length == 0)
+      return new Text(State.op_Implicit_From("Empty routes"));
+    if (this._history.length != 0)
+      return this._history[this._histroyIndex].GetWidget();
+    let entry = new RouteEntry(this._routes[0], RouteSettings.Empty);
+    this._history.Add(entry);
+    this._histroyIndex = 0;
+    return entry.GetWidget();
+  }
+  PushNamed(name) {
+    var _a;
+    if (this._histroyIndex != this._history.length - 1) {
+      this._history.RemoveRange(this._histroyIndex + 1, this._history.length - this._histroyIndex - 1);
+    }
+    let matchRoute = this._routes.Find((r) => r.Name == name);
+    if (matchRoute == null)
+      throw new System.ArgumentException(`Can't find route: ${name}`);
+    let entry = new RouteEntry(matchRoute, new RouteSettings());
+    this._history.Add(entry);
+    this._histroyIndex++;
+    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 0, matchRoute);
+  }
+  Pop() {
+    var _a;
+    if (this._histroyIndex <= 0)
+      return;
+    let oldEntry = this._history[this._histroyIndex];
+    this._histroyIndex--;
+    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 1, oldEntry.Route);
   }
 }
 class RouteView extends DynamicView {
@@ -3993,10 +4213,6 @@ class RouteView extends DynamicView {
       this.AnimateTo(from, to, route.Duration, reverse, route.EnteringBuilder, route.ExistingBuilder);
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 _Navigator = new WeakMap();
 class WhenBuilder {
@@ -4012,20 +4228,14 @@ class WhenBuilder {
       this._cachedWidget = this.Builder();
     return this._cachedWidget;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Conditional extends DynamicView {
-  constructor(state, whens) {
+  constructor(state) {
     super();
     __publicField(this, "_state");
-    __publicField(this, "_whens");
+    __publicField(this, "_whens", new System.List());
     this.IsLayoutTight = true;
     this._state = this.Bind(state, BindingOptions.AffectsLayout);
-    this._whens = whens;
-    this.Child = this.MakeChildByCondition();
   }
   MakeChildByCondition() {
     for (const item of this._whens) {
@@ -4035,6 +4245,12 @@ class Conditional extends DynamicView {
     }
     return null;
   }
+  When(predicate, builder) {
+    var _a;
+    this._whens.Add(new WhenBuilder(predicate, builder));
+    (_a = this.Child) != null ? _a : this.Child = this.MakeChildByCondition();
+    return this;
+  }
   OnStateChanged(state, options) {
     if (state === this._state) {
       let newChild = this.MakeChildByCondition();
@@ -4043,21 +4259,38 @@ class Conditional extends DynamicView {
     }
     super.OnStateChanged(state, options);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class IfConditional extends Conditional {
   constructor(state, trueBuilder, falseBuilder = null) {
-    super(state, falseBuilder == null ? [new WhenBuilder((v) => v, trueBuilder)] : [
-      new WhenBuilder((v) => v, trueBuilder),
-      new WhenBuilder((v) => !v, falseBuilder)
-    ]);
+    super(state);
+    this.When((v) => v, trueBuilder);
+    if (falseBuilder != null)
+      this.When((v) => !v, falseBuilder);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+}
+class FutureBuilder extends DynamicView {
+  constructor(future, doneBuilder, runningBuilder = null) {
+    super();
+    __publicField(this, "_future");
+    __publicField(this, "_doneBuilder");
+    this._future = future;
+    this._doneBuilder = doneBuilder;
+    if (runningBuilder != null)
+      this.ReplaceTo(runningBuilder());
+  }
+  OnMounted() {
+    super.OnMounted();
+    if (!this.HasLayout)
+      this.Run();
+  }
+  async Run() {
+    try {
+      let res = await this._future;
+      this.ReplaceTo(this._doneBuilder(res, null));
+    } catch (ex) {
+      let nullValue = null;
+      this.ReplaceTo(this._doneBuilder(nullValue, ex));
+    }
   }
 }
 class TextBase extends Widget {
@@ -4067,6 +4300,7 @@ class TextBase extends Widget {
     __publicField(this, "_fontSize");
     __publicField(this, "_fontWeight");
     __publicField(this, "_textColor");
+    __publicField(this, "_maxLines", 1);
     __publicField(this, "_cachedParagraph");
     this.Text = this.Bind(text, this instanceof EditableText ? BindingOptions.AffectsVisual : BindingOptions.AffectsLayout);
   }
@@ -4078,6 +4312,9 @@ class TextBase extends Widget {
   }
   get CachedParagraph() {
     return this._cachedParagraph;
+  }
+  get ForceHeight() {
+    return false;
   }
   get FontSize() {
     return this._fontSize;
@@ -4097,6 +4334,19 @@ class TextBase extends Widget {
   set TextColor(value) {
     this._textColor = this.Rebind(this._textColor, value, BindingOptions.AffectsVisual);
   }
+  set MaxLines(value) {
+    var _a;
+    if (value <= 0)
+      throw new System.ArgumentException();
+    if (this._maxLines != value) {
+      this._maxLines = value;
+      if (this.IsMounted) {
+        (_a = this._cachedParagraph) == null ? void 0 : _a.delete();
+        this._cachedParagraph = null;
+        this.Invalidate(InvalidAction.Relayout);
+      }
+    }
+  }
   OnStateChanged(state, options) {
     var _a;
     (_a = this._cachedParagraph) == null ? void 0 : _a.delete();
@@ -4113,16 +4363,20 @@ class TextBase extends Widget {
     var _a, _b;
     let fontSize = (_b = (_a = this._fontSize) == null ? void 0 : _a.Value) != null ? _b : Theme.DefaultFontSize;
     let fontStyle = this._fontWeight == null ? null : new FontStyle(this._fontWeight.Value, CanvasKit.FontSlant.Upright);
-    return TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, 1, this instanceof EditableText);
+    return TextPainter.BuildParagraph(text, width, fontSize, color, fontStyle, this._maxLines, this.ForceHeight);
   }
   Layout(availableWidth, availableHeight) {
     let width = this.CacheAndCheckAssignWidth(availableWidth);
     let height = this.CacheAndCheckAssignHeight(availableHeight);
+    if (this.Text.Value == null || this.Text.Value.length == 0) {
+      this.SetSize(0, 0);
+      return;
+    }
     this.BuildParagraph(this.Text.Value, width);
     this.SetSize(Math.min(width, this._cachedParagraph.getMaxIntrinsicWidth()), Math.min(height, this._cachedParagraph.getHeight()));
   }
   Paint(canvas, area = null) {
-    if (this.Text.Value.length == 0)
+    if (this.Text.Value == null || this.Text.Value.length == 0)
       return;
     if (this._cachedParagraph == null) {
       let width = this.Width == null ? this.CachedAvailableWidth : Math.min(Math.max(0, this.Width.Value), this.CachedAvailableWidth);
@@ -4135,10 +4389,6 @@ _Text = new WeakMap();
 class Text extends TextBase {
   constructor(text) {
     super(text);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class EditableText extends TextBase {
@@ -4186,6 +4436,9 @@ class EditableText extends TextBase {
     var _a, _b;
     return ((_b = (_a = this.FontSize) == null ? void 0 : _a.Value) != null ? _b : Theme.DefaultFontSize) + 4;
   }
+  get ForceHeight() {
+    return true;
+  }
   _OnFocusChanged(focused) {
     this.Focused.Value = focused;
     if (focused) {
@@ -4201,7 +4454,10 @@ class EditableText extends TextBase {
   _OnTextInput(text) {
     if (this.IsReadonly)
       return;
-    this.Text.Value = this.Text.Value.Insert(this._caretPosition, text);
+    if (this.Text.Value != null)
+      this.Text.Value = this.Text.Value.Insert(this._caretPosition, text);
+    else
+      this.Text.Value = text;
     this._caretPosition += text.length;
   }
   _OnPointerDown(theEvent) {
@@ -4269,6 +4525,8 @@ class EditableText extends TextBase {
   TryBuildParagraph() {
     if (this.CachedParagraph != null)
       return;
+    if (this.Text.Value == null || this.Text.Value.length == 0)
+      return;
     let text = this.IsObscure ? "\u25CF".repeat(this.Text.Value.length) : this.Text.Value;
     this.BuildParagraph(text, Number.POSITIVE_INFINITY);
   }
@@ -4291,7 +4549,7 @@ class EditableText extends TextBase {
   }
   Paint(canvas, area = null) {
     var _a;
-    if (this.Text.Value.length == 0) {
+    if (this.Text.Value == null || this.Text.Value.length == 0) {
       if (System.IsNullOrEmpty(this.HintText))
         return;
       (_a = this._hintParagraph) != null ? _a : this._hintParagraph = this.BuildParagraphInternal(this.HintText, Number.POSITIVE_INFINITY, Colors.Gray);
@@ -4303,28 +4561,24 @@ class EditableText extends TextBase {
       canvas.drawParagraph(this.CachedParagraph, 0, 2);
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 _MouseRegion = new WeakMap();
 _FocusNode = new WeakMap();
 __publicField(EditableText, "$meta_PixUI_IMouseRegion", true);
 __publicField(EditableText, "$meta_PixUI_IFocusable", true);
-const _Input = class extends Widget {
-  constructor(text) {
+const _InputBase = class extends Widget {
+  constructor(editor) {
     super();
     __publicField(this, "_prefix");
     __publicField(this, "_suffix");
-    __publicField(this, "_editableText");
+    __publicField(this, "_editor");
     __publicField(this, "_border");
     __publicField(this, "_padding");
     __publicField(this, "_focusedDecoration");
-    this._editableText = new EditableText(text);
-    this._editableText.Parent = this;
+    this._editor = editor;
+    this._editor.Parent = this;
     this._focusedDecoration = new FocusedDecoration(this, this.GetFocusedBorder.bind(this), this.GetUnFocusedBorder.bind(this));
-    this._focusedDecoration.AttachFocusChangedEvent(this._editableText);
+    this._focusedDecoration.AttachFocusChangedEvent(this._editor);
   }
   get Padding() {
     return this._padding;
@@ -4332,16 +4586,13 @@ const _Input = class extends Widget {
   set Padding(value) {
     this._padding = this.Rebind(this._padding, value, BindingOptions.AffectsLayout);
   }
-  get FontSize() {
-    return this._editableText.FontSize;
+  get IsReadonly() {
+    return this.Readonly != null && this.Readonly.Value;
   }
-  set FontSize(value) {
-    this._editableText.FontSize = value;
-  }
-  get Prefix() {
+  get PrefixWidget() {
     return this._prefix;
   }
-  set Prefix(value) {
+  set PrefixWidget(value) {
     if (this._prefix != null)
       this._prefix.Parent = null;
     this._prefix = value;
@@ -4352,10 +4603,10 @@ const _Input = class extends Widget {
       return;
     this.Invalidate(InvalidAction.Relayout);
   }
-  get Suffix() {
+  get SuffixWidget() {
     return this._suffix;
   }
-  set Suffix(value) {
+  set SuffixWidget(value) {
     if (this._suffix != null)
       this._suffix.Parent = null;
     this._suffix = value;
@@ -4366,22 +4617,13 @@ const _Input = class extends Widget {
       return;
     this.Invalidate(InvalidAction.Relayout);
   }
-  set Readonly(value) {
-    this._editableText.Readonly = value;
-  }
-  set IsObscure(value) {
-    this._editableText.IsObscure = value;
-  }
-  set HintText(value) {
-    this._editableText.HintText = value;
-  }
   GetUnFocusedBorder() {
     var _a;
-    return (_a = this._border) != null ? _a : _Input.DefaultBorder;
+    return (_a = this._border) != null ? _a : _InputBase.DefaultBorder;
   }
   GetFocusedBorder() {
     var _a;
-    let border = (_a = this._border) != null ? _a : _Input.DefaultBorder;
+    let border = (_a = this._border) != null ? _a : _InputBase.DefaultBorder;
     if (border instanceof OutlineInputBorder) {
       const outline = border;
       return new OutlineInputBorder(new BorderSide(Theme.FocusedColor, Theme.FocusedBorderWidth), outline.BorderRadius);
@@ -4397,13 +4639,13 @@ const _Input = class extends Widget {
       if (action(this._prefix))
         return;
     }
-    if (action(this._editableText))
+    if (action(this._editor))
       return;
     if (this._suffix != null)
       action(this._suffix);
   }
   Layout(availableWidth, availableHeight) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f;
     let width = this.CacheAndCheckAssignWidth(availableWidth);
     let height = this.CacheAndCheckAssignHeight(availableHeight);
     let padding = (_b = (_a = this._padding) == null ? void 0 : _a.Value) != null ? _b : EdgeInsets.All(4);
@@ -4413,43 +4655,473 @@ const _Input = class extends Widget {
       this.SetSize(width, height);
       return;
     }
-    let fontHeight = this._editableText.FontHeight;
-    height = Math.min(height, fontHeight + padding.Vertical);
-    this.SetSize(width, height);
     if (this._prefix != null) {
-      this._prefix.Layout(lw, fontHeight);
-      this._prefix.SetPosition(padding.Left, padding.Top + (fontHeight - this._prefix.H) / 2);
+      this._prefix.Layout(lw, lh);
       lw -= this._prefix.W;
     }
     if (this._suffix != null) {
-      this._suffix.Layout(lw, fontHeight);
-      this._suffix.SetPosition(width - padding.Right - this._suffix.W, padding.Top + (fontHeight - this._suffix.H) / 2);
+      this._suffix.Layout(lw, lh);
       lw -= this._suffix.W;
     }
-    this._editableText.Layout(lw, lh);
-    this._editableText.SetPosition(padding.Left + ((_d = (_c = this._prefix) == null ? void 0 : _c.W) != null ? _d : 0), padding.Top);
+    this._editor.Layout(lw, lh);
+    let maxChildHeight = this._editor.H;
+    (_c = this._prefix) == null ? void 0 : _c.SetPosition(padding.Left, (maxChildHeight - this._prefix.H) / 2 + padding.Top);
+    (_d = this._suffix) == null ? void 0 : _d.SetPosition(width - padding.Right - this._suffix.W, (maxChildHeight - this._suffix.H) / 2 + padding.Top);
+    this._editor.SetPosition(padding.Left + ((_f = (_e = this._prefix) == null ? void 0 : _e.W) != null ? _f : 0), padding.Top + 1);
+    height = Math.min(height, maxChildHeight + padding.Vertical);
+    this.SetSize(width, height);
   }
   Paint(canvas, area = null) {
     var _a;
     let bounds = Rect.FromLTWH(0, 0, this.W, this.H);
-    let border = (_a = this._border) != null ? _a : _Input.DefaultBorder;
-    border.Paint(canvas, bounds, this._editableText.IsReadonly ? new Color(4294309882) : Colors.White);
+    let border = (_a = this._border) != null ? _a : _InputBase.DefaultBorder;
+    border.Paint(canvas, bounds, this.IsReadonly ? Theme.DisabledBgColor : Colors.White);
     this.PaintChildren(canvas, area);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+};
+let InputBase = _InputBase;
+__publicField(InputBase, "DefaultBorder", new OutlineInputBorder(null, BorderRadius.All(Radius.Circular(4))));
+class Input extends InputBase {
+  constructor(text) {
+    super(new EditableText(text));
+    this.Readonly = State.op_Implicit_From(text.Readonly);
+  }
+  get FontSize() {
+    return this._editor.FontSize;
+  }
+  set FontSize(value) {
+    this._editor.FontSize = value;
+  }
+  set Prefix(value) {
+    this.PrefixWidget = value;
+  }
+  set Suffix(value) {
+    this.SuffixWidget = value;
+  }
+  get Readonly() {
+    return this._editor.Readonly;
+  }
+  set Readonly(value) {
+    this._editor.Readonly = value;
+  }
+  set IsObscure(value) {
+    this._editor.IsObscure = value;
+  }
+  set HintText(value) {
+    this._editor.HintText = value;
+  }
+}
+class Select extends InputBase {
+  constructor(value, filterable = false) {
+    super(filterable ? new EditableText(value.AsStateOfString()) : new SelectText(value.AsStateOfString()));
+    __publicField(this, "_selectedValue");
+    __publicField(this, "_optionBuilder");
+    __publicField(this, "_expandAnimation", new OptionalAnimationController());
+    __publicField(this, "_listPopup");
+    __publicField(this, "_showing", false);
+    __publicField(this, "_labelGetter");
+    __publicField(this, "Options", []);
+    this._selectedValue = value;
+    this.SuffixWidget = new ExpandIcon(new FloatTween(0, 0.5).Animate(this._expandAnimation));
+    if (IsInterfaceOfIMouseRegion(this._editor)) {
+      const mouseRegion = this._editor;
+      mouseRegion.MouseRegion.PointerTap.Add(this.OnEditorTap, this);
+    }
+    if (IsInterfaceOfIFocusable(this._editor)) {
+      const focusable = this._editor;
+      focusable.FocusNode.FocusChanged.Add(this.OnFocusChanged, this);
+    }
+  }
+  set OptionsAsyncGetter(value) {
+    this.GetOptionsAsync(value);
+  }
+  set LabelGetter(value) {
+    this._labelGetter = value;
+  }
+  get Readonly() {
+    if (this._editor instanceof EditableText) {
+      const editableText = this._editor;
+      return editableText.Readonly;
+    }
+    return this._editor.Readonly;
+  }
+  set Readonly(value) {
+    if (this._editor instanceof EditableText) {
+      const editableText = this._editor;
+      editableText.Readonly = value;
+    } else
+      this._editor.Readonly = value;
+  }
+  OnFocusChanged(focused) {
+    if (!focused)
+      this.HidePopup();
+  }
+  OnEditorTap(e) {
+    if (this._showing)
+      this.HidePopup();
+    else
+      this.ShowPopup();
+  }
+  ShowPopup() {
+    var _a;
+    if (this._showing || this.Options.length == 0)
+      return;
+    this._showing = true;
+    let optionBuilder = (_a = this._optionBuilder) != null ? _a : (data, index, isHover, isSelected) => {
+      var _a2;
+      let color = RxComputed.Make1(isSelected, (v) => v ? Colors.White : Colors.Black);
+      return new Text(State.op_Implicit_From(this._labelGetter != null ? this._labelGetter(data) : (_a2 = data == null ? void 0 : data.toString()) != null ? _a2 : "")).Init({ TextColor: color });
+    };
+    this._listPopup = new ListPopup(this.Overlay, optionBuilder, this.W + 8, Theme.DefaultFontSize + 8);
+    this._listPopup.DataSource = new System.List(this.Options);
+    if (this._selectedValue.Value != null)
+      this._listPopup.InitSelect(this._selectedValue.Value);
+    this._listPopup.OnSelectionChanged = this.OnSelectionChanged.bind(this);
+    this._listPopup.Show(this, new Offset(-4, 0), Popup.DefaultTransitionBuilder);
+    this._expandAnimation.Parent = this._listPopup.AnimationController;
+  }
+  HidePopup() {
+    var _a;
+    if (!this._showing)
+      return;
+    this._showing = false;
+    (_a = this._listPopup) == null ? void 0 : _a.Hide();
+    this._listPopup = null;
+  }
+  async GetOptionsAsync(builder) {
+    this.Options = await builder;
+  }
+  OnSelectionChanged(data) {
+    this._showing = false;
+    this._listPopup = null;
+    this._selectedValue.Value = data;
+  }
+}
+class SelectText extends TextBase {
+  constructor(text) {
+    super(text);
+    __privateAdd(this, _MouseRegion2, void 0);
+    __privateAdd(this, _FocusNode2, void 0);
+    __publicField(this, "_readonly");
+    this.MouseRegion = new MouseRegion();
+    this.FocusNode = new FocusNode();
+  }
+  get MouseRegion() {
+    return __privateGet(this, _MouseRegion2);
+  }
+  set MouseRegion(value) {
+    __privateSet(this, _MouseRegion2, value);
+  }
+  get FocusNode() {
+    return __privateGet(this, _FocusNode2);
+  }
+  set FocusNode(value) {
+    __privateSet(this, _FocusNode2, value);
+  }
+  get Readonly() {
+    return this._readonly;
+  }
+  set Readonly(value) {
+    this._readonly = this.Rebind(this._readonly, value, BindingOptions.None);
+  }
+  get ForceHeight() {
+    return true;
+  }
+  Layout(availableWidth, availableHeight) {
+    var _a, _b;
+    let width = this.CacheAndCheckAssignWidth(availableWidth);
+    let height = this.CacheAndCheckAssignHeight(availableHeight);
+    this.BuildParagraph(this.Text.Value, width);
+    let fontHeight = ((_b = (_a = this.FontSize) == null ? void 0 : _a.Value) != null ? _b : Theme.DefaultFontSize) + 4;
+    this.SetSize(width, Math.min(height, fontHeight));
+  }
+  Paint(canvas, area = null) {
+    if (this.Text.Value.length == 0)
+      return;
+    canvas.drawParagraph(this.CachedParagraph, 0, 2);
+  }
+}
+_MouseRegion2 = new WeakMap();
+_FocusNode2 = new WeakMap();
+__publicField(SelectText, "$meta_PixUI_IMouseRegion", true);
+__publicField(SelectText, "$meta_PixUI_IFocusable", true);
+class Toggleable extends Widget {
+  constructor() {
+    super();
+    __publicField(this, "_value");
+    __publicField(this, "_triState", false);
+    __publicField(this, "_positionController");
+    __privateAdd(this, _MouseRegion3, void 0);
+    __publicField(this, "ValueChanged", new System.Event());
+    this.MouseRegion = new MouseRegion(() => Cursors.Hand);
+    this.MouseRegion.PointerTap.Add(this.OnTap, this);
+  }
+  get MouseRegion() {
+    return __privateGet(this, _MouseRegion3);
+  }
+  set MouseRegion(value) {
+    __privateSet(this, _MouseRegion3, value);
+  }
+  InitState(value, tristate) {
+    this._triState = tristate;
+    this._value = this.Bind(value, BindingOptions.AffectsVisual);
+    this._positionController = new AnimationController(100, value.Value != null && value.Value ? 1 : 0);
+    this._positionController.ValueChanged.Add(this.OnPositionValueChanged, this);
+  }
+  OnTap(e) {
+    if (this._value.Value == null || this._value.Value == false)
+      this._value.Value = true;
+    else
+      this._value.Value = false;
+  }
+  AnimateToValue() {
+    if (this._triState) {
+      if (this._value.Value == null || this._value.Value == true) {
+        this._positionController.SetValue(0);
+        this._positionController.Forward();
+      } else
+        this._positionController.Reverse();
+    } else {
+      if (this._value.Value != null && this._value.Value == true)
+        this._positionController.Forward();
+      else
+        this._positionController.Reverse();
+    }
+  }
+  OnPositionValueChanged() {
+    this.Invalidate(InvalidAction.Repaint);
+  }
+  OnStateChanged(state, options) {
+    if (state === this._value) {
+      this.ValueChanged.Invoke(this._value.Value);
+      this.AnimateToValue();
+      return;
+    }
+    super.OnStateChanged(state, options);
+  }
+}
+_MouseRegion3 = new WeakMap();
+__publicField(Toggleable, "$meta_PixUI_IMouseRegion", true);
+const _Switch = class extends Toggleable {
+  constructor(value) {
+    super();
+    this.InitState(RxComputed.Make1(value, (v) => v, (v) => value.Value = v != null ? v : false), false);
+  }
+  Layout(availableWidth, availableHeight) {
+    let width = this.CacheAndCheckAssignWidth(availableWidth);
+    let height = this.CacheAndCheckAssignHeight(availableHeight);
+    this.SetSize(Math.min(width, _Switch._kSwitchWidth), Math.min(height, _Switch._kSwitchHeight));
+  }
+  Paint(canvas, area = null) {
+    canvas.save();
+    canvas.translate(0, (_Switch._kSwitchHeight - _Switch._kTrackHeight) / 2);
+    let currentValue = this._positionController.Value;
+    let currentReactionValue = 0;
+    let visualPosition = currentValue;
+    let activeColor = Theme.AccentColor;
+    let trackColor = new Color(1375731712);
+    let paint = PaintUtils.Shared(Color.Lerp(trackColor, activeColor, currentValue));
+    paint.setAntiAlias(true);
+    let trackRect = Rect.FromLTWH((this.W - _Switch._kTrackWidth) / 2, (this.H - _Switch._kSwitchHeight) / 2, _Switch._kTrackWidth, _Switch._kTrackHeight);
+    let trackRRect = RRect.FromRectAndRadius(trackRect.Clone(), _Switch._kTrackRadius, _Switch._kTrackRadius);
+    canvas.drawRRect(trackRRect, paint);
+    let currentThumbExtension = _Switch._kThumbExtension * currentReactionValue;
+    let thumbLeft = FloatUtils.Lerp(trackRect.Left + _Switch._kTrackInnerStart - _Switch._kThumbRadius, trackRect.Left + _Switch._kTrackInnerEnd - _Switch._kThumbRadius - currentThumbExtension, visualPosition);
+    let thumbRight = FloatUtils.Lerp(trackRect.Left + _Switch._kTrackInnerStart + _Switch._kThumbRadius + currentThumbExtension, trackRect.Left + _Switch._kTrackInnerEnd + _Switch._kThumbRadius, visualPosition);
+    let thumbCenterY = _Switch._kTrackHeight / 2;
+    let thumbBounds = new Rect(thumbLeft, thumbCenterY - _Switch._kThumbRadius, thumbRight, thumbCenterY + _Switch._kThumbRadius);
+    let clipPath = new CanvasKit.Path();
+    clipPath.addRRect(trackRRect);
+    canvas.clipPath(clipPath, CanvasKit.ClipOp.Intersect, true);
+    _Switch.PaintThumb(canvas, thumbBounds.Clone());
+    canvas.restore();
+  }
+  static PaintThumb(canvas, rect) {
+    let shortestSide = Math.min(rect.Width, rect.Height);
+    let rrect = RRect.FromRectAndRadius(rect.Clone(), shortestSide / 2, shortestSide / 2);
+    let paint = PaintUtils.Shared(Color.Empty);
+    paint.setAntiAlias(true);
+    rrect.Shift(0, 3);
+    let shadowColor = new Color(637534208);
+    let blurRadius = 8;
+    paint.setColor(shadowColor);
+    paint.setMaskFilter(CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal, ConvertRadiusToSigma(blurRadius), false));
+    canvas.drawRRect(rrect, paint);
+    shadowColor = new Color(251658240);
+    blurRadius = 1;
+    paint.setColor(shadowColor);
+    paint.setMaskFilter(CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal, ConvertRadiusToSigma(blurRadius), false));
+    canvas.drawRRect(rrect, paint);
+    rrect.Shift(0, -3);
+    rrect.Inflate(0.5, 0.5);
+    paint.setColor(_Switch._kThumbBorderColor);
+    paint.setMaskFilter(null);
+    canvas.drawRRect(rrect, paint);
+    rrect.Deflate(0.5, 0.5);
+    paint.setColor(Colors.White);
+    canvas.drawRRect(rrect, paint);
   }
 };
-let Input = _Input;
-__publicField(Input, "DefaultBorder", new OutlineInputBorder(null, BorderRadius.All(Radius.Circular(4))));
+let Switch = _Switch;
+__publicField(Switch, "_kTrackWidth", 40);
+__publicField(Switch, "_kTrackHeight", 24);
+__publicField(Switch, "_kTrackRadius", _Switch._kTrackHeight / 2);
+__publicField(Switch, "_kTrackInnerStart", _Switch._kTrackHeight / 2);
+__publicField(Switch, "_kTrackInnerEnd", _Switch._kTrackWidth - _Switch._kTrackInnerStart);
+__publicField(Switch, "_kSwitchWidth", _Switch._kTrackWidth + 6);
+__publicField(Switch, "_kSwitchHeight", _Switch._kTrackHeight + 6);
+__publicField(Switch, "_kThumbExtension", 7);
+__publicField(Switch, "_kThumbRadius", _Switch._kTrackHeight / 2 - 2);
+__publicField(Switch, "_kThumbBorderColor", new Color(167772160));
+const _Checkbox = class extends Toggleable {
+  constructor(value) {
+    super();
+    __publicField(this, "_previousValue");
+    __publicField(this, "_shape", new RoundedRectangleBorder(null, BorderRadius.All(Radius.Circular(1))));
+    this._previousValue = value.Value;
+    this.InitState(RxComputed.Make1(value, (v) => v, (v) => value.Value = v != null ? v : false), false);
+    this._positionController.StatusChanged.Add(this.OnPositionStatusChanged, this);
+  }
+  static Tristate(value) {
+    let checkbox = new _Checkbox(_Checkbox._notSetState);
+    checkbox._previousValue = value.Value;
+    checkbox.InitState(value, true);
+    return checkbox;
+  }
+  OnPositionStatusChanged(status) {
+    if (status == AnimationStatus.Completed || status == AnimationStatus.Dismissed)
+      this._previousValue = this._value.Value;
+  }
+  Layout(availableWidth, availableHeight) {
+    let width = this.CacheAndCheckAssignWidth(availableWidth);
+    let height = this.CacheAndCheckAssignHeight(availableHeight);
+    this.SetSize(Math.min(width, _Checkbox._kCheckboxSize), Math.min(height, _Checkbox._kCheckboxSize));
+  }
+  Paint(canvas, area = null) {
+    let origin = new Offset(this.W / 2 - _Checkbox._kEdgeSize / 2, this.H / 2 - _Checkbox._kEdgeSize / 2);
+    let checkColor = Colors.White;
+    let status = this._positionController.Status;
+    let tNormalized = status == AnimationStatus.Forward || status == AnimationStatus.Completed ? this._positionController.Value : 1 - this._positionController.Value;
+    if (this._previousValue == false || this._value.Value == false) {
+      let t = this._value.Value == false ? 1 - tNormalized : tNormalized;
+      let outer = _Checkbox.OuterRectAt(origin, t);
+      let color = _Checkbox.ColorAt(t);
+      let paint = PaintUtils.Shared(color);
+      if (t <= 0.5) {
+        let border = new BorderSide(color, 2);
+        this.DrawBox(canvas, outer, paint, border, false);
+      } else {
+        this.DrawBox(canvas, outer, paint, null, true);
+        let strokePaint = PaintUtils.Shared(checkColor, CanvasKit.PaintStyle.Stroke, _Checkbox._kStrokeWidth);
+        let tShrink = (t - 0.5) * 2;
+        if (this._previousValue == null || this._value.Value == null)
+          _Checkbox.DrawDash(canvas, origin, tShrink, strokePaint);
+        else
+          _Checkbox.DrawCheck(canvas, origin, tShrink, strokePaint);
+      }
+    } else {
+      let outer = _Checkbox.OuterRectAt(origin, 1);
+      let paint = PaintUtils.Shared(_Checkbox.ColorAt(1));
+      this.DrawBox(canvas, outer, paint, null, true);
+      let strokePaint = PaintUtils.Shared(checkColor, CanvasKit.PaintStyle.Stroke, _Checkbox._kStrokeWidth);
+      if (tNormalized <= 0.5) {
+        let tShrink = 1 - tNormalized * 2;
+        if (this._previousValue && this._previousValue)
+          _Checkbox.DrawCheck(canvas, origin, tShrink, strokePaint);
+        else
+          _Checkbox.DrawDash(canvas, origin, tShrink, strokePaint);
+      } else {
+        let tExpand = (tNormalized - 0.5) * 2;
+        if (this._value.Value != null && this._value.Value)
+          _Checkbox.DrawCheck(canvas, origin, tExpand, strokePaint);
+        else
+          _Checkbox.DrawDash(canvas, origin, tExpand, strokePaint);
+      }
+    }
+  }
+  DrawBox(canvas, outer, paint, side, fill) {
+    if (fill)
+      canvas.drawPath(this._shape.GetOuterPath(outer), paint);
+    if (side != null)
+      this._shape.CopyWith(side).Paint(canvas, outer);
+  }
+  static DrawCheck(canvas, origin, t, paint) {
+    console.assert(t >= 0 && t <= 1);
+    let start = new Offset(_Checkbox._kEdgeSize * 0.15, _Checkbox._kEdgeSize * 0.45);
+    let mid = new Offset(_Checkbox._kEdgeSize * 0.4, _Checkbox._kEdgeSize * 0.7);
+    let end = new Offset(_Checkbox._kEdgeSize * 0.85, _Checkbox._kEdgeSize * 0.25);
+    if (t < 0.5) {
+      let strokeT = t * 2;
+      let drawMid = Offset.Lerp(start, mid, strokeT);
+      canvas.drawLine(origin.Dx + start.Dx, origin.Dy + start.Dy, origin.Dx + drawMid.Dx, origin.Dy + drawMid.Dy, paint);
+    } else {
+      let strokeT = (t - 0.5) * 2;
+      let drawEnd = Offset.Lerp(mid, end, strokeT);
+      canvas.drawLine(origin.Dx + start.Dx, origin.Dy + start.Dy, origin.Dx + mid.Dx + 0.8, origin.Dy + mid.Dy + 0.8, paint);
+      canvas.drawLine(origin.Dx + mid.Dx, origin.Dy + mid.Dy, origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy, paint);
+    }
+  }
+  static DrawDash(canvas, origin, t, paint) {
+    console.assert(t >= 0 && t <= 1);
+    let start = new Offset(_Checkbox._kEdgeSize * 0.2, _Checkbox._kEdgeSize * 0.5);
+    let mid = new Offset(_Checkbox._kEdgeSize * 0.5, _Checkbox._kEdgeSize * 0.5);
+    let end = new Offset(_Checkbox._kEdgeSize * 0.8, _Checkbox._kEdgeSize * 0.5);
+    let drawStart = Offset.Lerp(start, mid, 1 - t);
+    let drawEnd = Offset.Lerp(mid, end, t);
+    canvas.drawLine(origin.Dx + drawStart.Dx, origin.Dy + drawStart.Dy, origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy, paint);
+  }
+  static OuterRectAt(origin, t) {
+    let inset = 1 - Math.abs(t - 0.5) * 2;
+    let size = _Checkbox._kEdgeSize - inset * _Checkbox._kStrokeWidth;
+    return Rect.FromLTWH(origin.Dx + inset, origin.Dy + inset, size, size);
+  }
+  static ColorAt(t) {
+    let activeColor = Theme.AccentColor;
+    let inactiveColor = new Color(1375731712);
+    return t >= 0.25 ? activeColor : Color.Lerp(inactiveColor, activeColor, t * 4);
+  }
+};
+let Checkbox = _Checkbox;
+__publicField(Checkbox, "_notSetState", State.op_Implicit_From(false));
+__publicField(Checkbox, "_kCheckboxSize", 30);
+__publicField(Checkbox, "_kEdgeSize", 18);
+__publicField(Checkbox, "_kStrokeWidth", 2);
+const _Radio = class extends Toggleable {
+  constructor(value) {
+    super();
+    this.InitState(RxComputed.Make1(value, (v) => v, (v) => value.Value = v != null ? v : false), false);
+  }
+  Layout(availableWidth, availableHeight) {
+    let width = this.CacheAndCheckAssignWidth(availableWidth);
+    let height = this.CacheAndCheckAssignHeight(availableHeight);
+    this.SetSize(Math.min(width, _Radio._kRadioSize), Math.min(height, _Radio._kRadioSize));
+  }
+  Paint(canvas, area = null) {
+    let center = new Offset(this.W / 2, this.H / 2);
+    let activeColor = Theme.AccentColor;
+    let inactiveColor = new Color(1375731712);
+    let color = Color.Lerp(inactiveColor, activeColor, this._positionController.Value);
+    let paint = PaintUtils.Shared(color, CanvasKit.PaintStyle.Stroke, 2);
+    paint.setAntiAlias(true);
+    canvas.drawCircle(center.Dx, center.Dy, _Radio._kOuterRadius, paint);
+    if (!this._positionController.IsDismissed) {
+      paint.setStyle(CanvasKit.PaintStyle.Fill);
+      canvas.drawCircle(center.Dx, center.Dy, _Radio._kInnerRadius * this._positionController.Value, paint);
+    }
+  }
+};
+let Radio = _Radio;
+__publicField(Radio, "_kRadioSize", 30);
+__publicField(Radio, "_kOuterRadius", 8);
+__publicField(Radio, "_kInnerRadius", 4.5);
 class Overlay extends Widget {
   constructor(window2) {
     super();
+    __publicField(this, "_children");
     __privateAdd(this, _Window2, void 0);
-    __publicField(this, "_entries", new System.List());
     this.Window = window2;
     this.IsMounted = true;
+    this._children = new WidgetList(this);
   }
   get Window() {
     return __privateGet(this, _Window2);
@@ -4458,115 +5130,69 @@ class Overlay extends Widget {
     __privateSet(this, _Window2, value);
   }
   get HasEntry() {
-    return this._entries.length > 0;
+    return this._children.length > 0;
   }
   FindEntry(predicate) {
-    for (const entry of this._entries) {
-      if (predicate(entry))
-        return entry;
-    }
-    return null;
+    return this._children.FirstOrDefault((entry) => predicate(entry));
   }
   Show(entry) {
-    if (this._entries.Contains(entry))
+    if (this._children.Contains(entry))
       return;
-    this._entries.Add(entry);
-    entry.Owner = this;
-    entry.Widget.Parent = this;
-    entry.Widget.Layout(this.Window.Width, this.Window.Height);
+    this._children.Add(entry);
+    entry.Layout(this.Window.Width, this.Window.Height);
     this.Invalidate(InvalidAction.Repaint);
   }
-  ShowBelow(entry, below) {
-    throw new System.NotImplementedException();
-  }
-  ShowAbove(entry, above) {
-    throw new System.NotImplementedException();
-  }
   Remove(entry) {
-    if (!this._entries.Remove(entry))
+    if (!this._children.Remove(entry))
       return;
-    entry.Widget.Parent = null;
     this.Invalidate(InvalidAction.Repaint);
   }
   HitTest(x, y, result) {
-    for (const entry of this._entries) {
-      if (this.HitTestChild(entry.Widget, x, y, result))
+    for (let i = this._children.length - 1; i >= 0; i--) {
+      if (this.HitTestChild(this._children[i], x, y, result))
         break;
     }
     return result.IsHitAnyMouseRegion;
   }
   Layout(availableWidth, availableHeight) {
-    for (const entry of this._entries) {
-      entry.Widget.Layout(availableWidth, availableHeight);
-    }
   }
   Paint(canvas, area = null) {
-    for (const entry of this._entries) {
-      let needTranslate = entry.Widget.X != 0 || entry.Widget.Y != 0;
+    for (const entry of this._children) {
+      let needTranslate = entry.X != 0 || entry.Y != 0;
       if (needTranslate)
-        canvas.translate(entry.Widget.X, entry.Widget.Y);
-      entry.Widget.Paint(canvas, area);
+        canvas.translate(entry.X, entry.Y);
+      entry.Paint(canvas, area);
       if (needTranslate)
-        canvas.translate(-entry.Widget.X, -entry.Widget.Y);
+        canvas.translate(-entry.X, -entry.Y);
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _Window2 = new WeakMap();
 __publicField(Overlay, "$meta_PixUI_IRootWidget", true);
-class OverlayEntry {
-  constructor(widget) {
-    __publicField(this, "Widget");
-    __publicField(this, "Owner");
-    this.Widget = widget;
-  }
-  Invalidate() {
-    var _a;
-    (_a = this.Owner) == null ? void 0 : _a.Invalidate(InvalidAction.Repaint);
-  }
-  UpdatePosition(x, y) {
-    this.Widget.SetPosition(x, y);
-    if (this.Widget.IsMounted)
-      this.Invalidate();
-  }
-  Remove() {
-    var _a;
-    (_a = this.Owner) == null ? void 0 : _a.Remove(this);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
-}
 class Caret {
   constructor(widget, colorBuilder, boundsBuilder) {
     __publicField(this, "_widget");
     __publicField(this, "ColorBuilder");
     __publicField(this, "BoundsBuilder");
-    __publicField(this, "_overlayEntry");
+    __publicField(this, "_decorator");
     this._widget = widget;
     this.ColorBuilder = colorBuilder;
     this.BoundsBuilder = boundsBuilder;
   }
   Show() {
-    var _a, _b;
-    (_a = this._overlayEntry) != null ? _a : this._overlayEntry = new OverlayEntry(new CaretDecorator(this));
-    (_b = this._widget.Overlay) == null ? void 0 : _b.Show(this._overlayEntry);
+    var _a;
+    this._decorator = new CaretDecorator(this);
+    (_a = this._widget.Overlay) == null ? void 0 : _a.Show(this._decorator);
   }
   Hide() {
-    var _a;
-    (_a = this._overlayEntry) == null ? void 0 : _a.Remove();
+    if (this._decorator == null)
+      return;
+    this._decorator.Parent.Remove(this._decorator);
+    this._decorator = null;
   }
   NotifyPositionChanged() {
     var _a;
-    (_a = this._overlayEntry) == null ? void 0 : _a.Invalidate();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+    (_a = this._decorator) == null ? void 0 : _a.Invalidate(InvalidAction.Repaint);
   }
 }
 class CaretDecorator extends Widget {
@@ -4586,17 +5212,13 @@ class CaretDecorator extends Widget {
   }
   OnUnmounted() {
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class FocusedDecoration {
   constructor(widget, focusedBorderBuilder, unfocusedBorderBuilder = null) {
     __publicField(this, "Widget");
     __publicField(this, "_focusedBorderBuilder");
     __publicField(this, "_unfocusedBorderBuilder");
-    __publicField(this, "_overlayEntry");
+    __publicField(this, "_decorator");
     this.Widget = widget;
     this._focusedBorderBuilder = focusedBorderBuilder;
     this._unfocusedBorderBuilder = unfocusedBorderBuilder;
@@ -4610,10 +5232,10 @@ class FocusedDecoration {
   _OnFocusChanged(focused) {
     var _a, _b;
     if (focused) {
-      (_a = this._overlayEntry) != null ? _a : this._overlayEntry = new OverlayEntry(new FocusedDecorator(this));
-      (_b = this.Widget.Overlay) == null ? void 0 : _b.Show(this._overlayEntry);
+      this._decorator = new FocusedDecorator(this);
+      (_a = this.Widget.Overlay) == null ? void 0 : _a.Show(this._decorator);
     } else {
-      this._overlayEntry.Widget.Hide();
+      (_b = this._decorator) == null ? void 0 : _b.Hide();
     }
   }
   GetUnfocusedBorder() {
@@ -4624,17 +5246,14 @@ class FocusedDecoration {
     return this._focusedBorderBuilder();
   }
   StopAndReset() {
-    if (this._overlayEntry == null)
-      return;
-    this._overlayEntry.Widget.Reset();
+    var _a;
+    (_a = this._decorator) == null ? void 0 : _a.Reset();
   }
   RemoveOverlayEntry() {
-    var _a;
-    (_a = this._overlayEntry) == null ? void 0 : _a.Remove();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+    if (this._decorator == null)
+      return;
+    this._decorator.Parent.Remove(this._decorator);
+    this._decorator = null;
   }
 }
 class FocusedDecorator extends Widget {
@@ -4705,10 +5324,6 @@ class FocusedDecorator extends Widget {
     }
     super.Dispose();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class HoverDecoration {
   constructor(widget, shapeBuilder, boundsGetter = null, elevation = 4, hoverColor = null) {
@@ -4717,7 +5332,7 @@ class HoverDecoration {
     __publicField(this, "BoundsGetter");
     __publicField(this, "Elevation");
     __publicField(this, "HoverColor");
-    __publicField(this, "_overlayEntry");
+    __publicField(this, "_decorator");
     this.Widget = widget;
     this.ShapeBuilder = shapeBuilder;
     this.BoundsGetter = boundsGetter;
@@ -4725,13 +5340,15 @@ class HoverDecoration {
     this.HoverColor = hoverColor;
   }
   Show() {
-    var _a, _b;
-    (_a = this._overlayEntry) != null ? _a : this._overlayEntry = new OverlayEntry(new HoverDecorator(this));
-    (_b = this.Widget.Overlay) == null ? void 0 : _b.Show(this._overlayEntry);
+    var _a;
+    this._decorator = new HoverDecorator(this);
+    (_a = this.Widget.Overlay) == null ? void 0 : _a.Show(this._decorator);
   }
   Hide() {
-    var _a;
-    (_a = this._overlayEntry) == null ? void 0 : _a.Remove();
+    if (this._decorator == null)
+      return;
+    this._decorator.Parent.Remove(this._decorator);
+    this._decorator = null;
   }
   AttachHoverChangedEvent(widget) {
     widget.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
@@ -4757,7 +5374,7 @@ class HoverDecorator extends Widget {
   Layout(availableWidth, availableHeight) {
   }
   Paint(canvas, area = null) {
-    let bounds = Rect.Empty;
+    let bounds = Rect.Empty.Clone();
     if (this._owner.BoundsGetter == null) {
       let widget = this._owner.Widget;
       let pt2Win = widget.LocalToWindow(0, 0);
@@ -4781,55 +5398,183 @@ class HoverDecorator extends Widget {
     }
     path.delete();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Popup extends Widget {
   constructor(overlay) {
     super();
-    __publicField(this, "_overlay");
-    __publicField(this, "_overlayEntry");
-    this._overlay = overlay;
-    this._overlayEntry = new OverlayEntry(this);
+    __publicField(this, "Owner");
+    __publicField(this, "FocusManager", new FocusManager());
+    __publicField(this, "_transition");
+    __publicField(this, "_proxy");
+    this.Owner = overlay;
+  }
+  get IsDialog() {
+    return false;
+  }
+  get AnimationController() {
+    var _a;
+    return (_a = this._transition) == null ? void 0 : _a.AnimationController;
   }
   UpdatePosition(x, y) {
-    this._overlayEntry.UpdatePosition(x, y);
+    this.SetPosition(x, y);
+    this.Invalidate(InvalidAction.Repaint);
   }
-  Show(relativeTo = null, relativeOffset = null) {
-    var _a, _b;
+  Show(relativeTo = null, relativeOffset = null, transitionBuilder = null) {
+    var _a, _b, _c;
+    let target = this;
+    let origin = null;
+    let winX = 0;
+    let winY = 0;
     if (relativeTo != null) {
       let winPt = relativeTo.LocalToWindow(0, 0);
       let offsetX = (_a = relativeOffset == null ? void 0 : relativeOffset.Dx) != null ? _a : 0;
       let offsetY = (_b = relativeOffset == null ? void 0 : relativeOffset.Dy) != null ? _b : 0;
-      this.SetPosition(winPt.X + offsetX, winPt.Y + relativeTo.H + offsetY);
+      this._proxy = new PopupProxy(this);
+      target = this._proxy;
+      let popupHeight = this.H;
+      if (winPt.Y + relativeTo.H + offsetY + popupHeight > this.Owner.Window.Height) {
+        winX = winPt.X + offsetX;
+        winY = winPt.Y - offsetY - popupHeight;
+        origin = new Offset(0, popupHeight);
+      } else {
+        winX = winPt.X + offsetX;
+        winY = winPt.Y + relativeTo.H + offsetY;
+      }
     }
-    this._overlay.Window.EventHookManager.Add(this);
-    this._overlay.Show(this._overlayEntry);
+    if (transitionBuilder != null) {
+      (_c = this._proxy) != null ? _c : this._proxy = new PopupProxy(this);
+      this._transition = new PopupTransitionWrap(this.Owner, this.IsDialog, this._proxy, origin, transitionBuilder);
+      this._transition.Forward();
+      target = this._transition;
+    }
+    if (relativeTo != null)
+      target.SetPosition(winX, winY);
+    else if (this.IsDialog)
+      target.SetPosition((this.Owner.Window.Width - this.W) / 2, (this.Owner.Window.Height - this.H) / 2);
+    this.Owner.Window.EventHookManager.Add(this);
+    this.Owner.Window.FocusManagerStack.Push(this.FocusManager);
+    this.Owner.Show(target);
   }
   Hide() {
-    this._overlay.Window.EventHookManager.Remove(this);
-    this._overlay.Remove(this._overlayEntry);
+    this.Owner.Window.EventHookManager.Remove(this);
+    this.Owner.Window.FocusManagerStack.Remove(this.FocusManager);
+    if (this._transition != null) {
+      this._transition.Reverse();
+    } else if (this._proxy != null) {
+      this.Owner.Remove(this._proxy);
+      this._proxy = null;
+    } else {
+      this.Owner.Remove(this);
+    }
   }
   PreviewEvent(type, e) {
     return EventPreviewResult.NotProcessed;
   }
 }
-class ItemState {
+__publicField(Popup, "DefaultTransitionBuilder", (animation, child, origin) => new ScaleYTransition(animation, origin).Init({
+  Child: child
+}));
+__publicField(Popup, "DialogTransitionBuilder", (animation, child, origin) => {
+  let curve = new CurvedAnimation(animation, Curves.EaseInOutCubic);
+  let offsetAnimation = new OffsetTween(new Offset(0, -0.1), new Offset(0, 0)).Animate(curve);
+  return new SlideTransition(offsetAnimation).Init({
+    Child: child
+  });
+});
+class PopupTransitionWrap extends SingleChildWidget {
+  constructor(overlay, isDialog, proxy, origin, transitionBuilder) {
+    super();
+    __publicField(this, "AnimationController");
+    __publicField(this, "_overlay");
+    __publicField(this, "_isDialog");
+    this._overlay = overlay;
+    this._isDialog = isDialog;
+    this.AnimationController = new AnimationController(100);
+    this.AnimationController.StatusChanged.Add(this.OnAnimationStateChanged, this);
+    this.Child = transitionBuilder(this.AnimationController, proxy, origin);
+  }
+  Forward() {
+    this.AnimationController.Forward();
+  }
+  Reverse() {
+    this.AnimationController.Reverse();
+  }
+  OnAnimationStateChanged(status) {
+    if (status == AnimationStatus.Completed) {
+      this._overlay.Window.RunNewHitTest();
+    } else if (status == AnimationStatus.Dismissed) {
+      this._overlay.Remove(this);
+      this._overlay.Window.RunNewHitTest();
+    }
+  }
+  HitTest(x, y, result) {
+    if (this._isDialog) {
+      result.Add(this);
+      this.HitTestChild(this.Child, x, y, result);
+      return true;
+    }
+    return super.HitTest(x, y, result);
+  }
+  Dispose() {
+    this.AnimationController.Dispose();
+    super.Dispose();
+  }
+}
+class PopupProxy extends Widget {
+  constructor(popup) {
+    super();
+    __publicField(this, "_popup");
+    popup.Layout(popup.Owner.Window.Width, popup.Owner.Window.Height);
+    this._popup = popup;
+    this._popup.Parent = this;
+  }
+  VisitChildren(action) {
+    action(this._popup);
+  }
+  ContainsPoint(x, y) {
+    return this._popup.ContainsPoint(x, y);
+  }
+  HitTest(x, y, result) {
+    return this._popup.HitTest(x, y, result);
+  }
+  Layout(availableWidth, availableHeight) {
+    this.SetSize(this._popup.W, this._popup.H);
+  }
+  OnUnmounted() {
+    this._popup.Parent = null;
+    super.OnUnmounted();
+  }
+}
+class ScaleYTransition extends Transform {
+  constructor(animation, origin = null) {
+    super(Matrix4.CreateScale(1, animation.Value, 1), origin);
+    __publicField(this, "_animation");
+    this._animation = animation;
+    this._animation.ValueChanged.Add(this.OnAnimationValueChanged, this);
+  }
+  OnAnimationValueChanged() {
+    this.SetTransform(Matrix4.CreateScale(1, this._animation.Value, 1));
+  }
+}
+const _ItemState = class {
   constructor(hoverState, selectedState) {
     __publicField(this, "HoverState");
     __publicField(this, "SelectedState");
     this.HoverState = hoverState;
     this.SelectedState = selectedState;
   }
-}
+  Clone() {
+    return new _ItemState(this.HoverState, this.SelectedState);
+  }
+};
+let ItemState = _ItemState;
+__publicField(ItemState, "Empty", new _ItemState(State.op_Implicit_From(false), State.op_Implicit_From(false)));
 class ListPopupItemWidget extends SingleChildWidget {
   constructor(index, hoverState, selectedState, onSelect) {
     super();
     __publicField(this, "_hoverState");
     __publicField(this, "_selectedState");
-    __privateAdd(this, _MouseRegion2, void 0);
+    __privateAdd(this, _MouseRegion4, void 0);
     this._hoverState = this.Bind(hoverState);
     this._selectedState = selectedState;
     this.MouseRegion = new MouseRegion(() => Cursors.Hand);
@@ -4837,10 +5582,10 @@ class ListPopupItemWidget extends SingleChildWidget {
     this.MouseRegion.PointerTap.Add((e) => onSelect(index));
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion2);
+    return __privateGet(this, _MouseRegion4);
   }
   set MouseRegion(value) {
-    __privateSet(this, _MouseRegion2, value);
+    __privateSet(this, _MouseRegion4, value);
   }
   Layout(availableWidth, availableHeight) {
     var _a;
@@ -4856,12 +5601,8 @@ class ListPopupItemWidget extends SingleChildWidget {
       canvas.drawRect(Rect.FromLTWH(0, 0, this.W, this.H), PaintUtils.Shared(Theme.AccentColor));
     super.Paint(canvas, area);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
-_MouseRegion2 = new WeakMap();
+_MouseRegion4 = new WeakMap();
 __publicField(ListPopupItemWidget, "$meta_PixUI_IMouseRegion", true);
 class ListPopup extends Popup {
   constructor(overlay, itemBuilder, popupWidth, itemExtent, maxShowItems = 5) {
@@ -4895,7 +5636,7 @@ class ListPopup extends Popup {
   }
   ChangeDataSource(value) {
     if (value != null) {
-      this._itemStates = [];
+      this._itemStates = new Array(value.length).fill(ItemState.Empty.Clone());
       for (let i = 0; i < value.length; i++) {
         this._itemStates[i] = new ItemState(State.op_Implicit_From(false), State.op_Implicit_From(false));
       }
@@ -4917,6 +5658,13 @@ class ListPopup extends Popup {
       this._listViewController.ScrollController.OffsetY = 0;
     }
   }
+  InitSelect(item) {
+    let index = this._listViewController.DataSource.IndexOf(item);
+    if (index < 0)
+      return;
+    this._selectedIndex = index;
+    this._itemStates[this._selectedIndex].SelectedState.Value = true;
+  }
   Select(index, raiseChangedEvent = false) {
     var _a;
     if (this._selectedIndex == index)
@@ -4924,7 +5672,8 @@ class ListPopup extends Popup {
     if (this._selectedIndex >= 0)
       this._itemStates[this._selectedIndex].SelectedState.Value = false;
     this._selectedIndex = index;
-    this._itemStates[this._selectedIndex].SelectedState.Value = true;
+    if (this._selectedIndex >= 0)
+      this._itemStates[this._selectedIndex].SelectedState.Value = true;
     if (raiseChangedEvent)
       (_a = this.OnSelectionChanged) == null ? void 0 : _a.call(this, this.DataSource[index]);
     this.Invalidate(InvalidAction.Repaint);
@@ -4990,55 +5739,104 @@ class ListPopup extends Popup {
     }
     return super.PreviewEvent(type, e);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Dialog extends Popup {
-  constructor(overlay, onClose = null) {
-    super(overlay);
+  constructor(overlay = null) {
+    super(overlay != null ? overlay : UIWindow.Current.Overlay);
     __publicField(this, "_child");
     __publicField(this, "Title", State.op_Implicit_From(""));
-    __publicField(this, "OnClose");
-    this.OnClose = onClose;
+    __publicField(this, "_closeDone");
+  }
+  get IsDialog() {
+    return true;
+  }
+  TryBuildChild() {
+    if (this._child != null)
+      return;
+    this._child = new Card().Init({
+      Elevation: State.op_Implicit_From(20),
+      Child: new Column().Init({
+        Children: [
+          this.BuildTitle(),
+          new Expanded(this.BuildBody()),
+          this.BuildFooter()
+        ]
+      })
+    });
+    this._child.Parent = this;
   }
   BuildTitle() {
     return new Row().Init({
       Height: State.op_Implicit_From(25),
-      Children: [new Container().Init({ Width: State.op_Implicit_From(35) }), new Expanded().Init({
-        Child: new Center().Init({ Child: new Text(this.Title) })
-      }), new Button(null, State.op_Implicit_From(Icons.Filled.Close)).Init({
-        Style: ButtonStyle.Transparent,
-        OnTap: (_) => this.Close(true)
-      })]
+      Children: [
+        new Container().Init({ Width: State.op_Implicit_From(35) }),
+        new Expanded().Init({
+          Child: new Center().Init({ Child: new Text(this.Title) })
+        }),
+        new Button(null, State.op_Implicit_From(Icons.Filled.Close)).Init({
+          Style: ButtonStyle.Transparent,
+          OnTap: (_) => this.Close(true)
+        })
+      ]
     });
+  }
+  BuildFooter() {
+    return new Container().Init({
+      Height: State.op_Implicit_From(Button.DefaultHeight + 20 + 20),
+      Padding: State.op_Implicit_From(EdgeInsets.All(20)),
+      Child: new Row(VerticalAlignment.Middle, 20).Init({
+        Children: [
+          new Expanded(),
+          new Button(State.op_Implicit_From("Cancel")).Init({
+            Width: State.op_Implicit_From(80),
+            OnTap: (_) => this.Close(true)
+          }),
+          new Button(State.op_Implicit_From("OK")).Init({
+            Width: State.op_Implicit_From(80),
+            OnTap: (_) => this.Close(false)
+          })
+        ]
+      })
+    });
+  }
+  Show() {
+    super.Show(null, null, Popup.DialogTransitionBuilder);
+  }
+  ShowAndWaitClose() {
+    this.Show();
+    this._closeDone = new System.TaskCompletionSource();
+    return this._closeDone.Task;
+  }
+  OnClosing(canceled) {
+    return false;
   }
   Close(canceled) {
     var _a;
+    if (this.OnClosing(canceled))
+      return;
     this.Hide();
-    (_a = this.OnClose) == null ? void 0 : _a.call(this, canceled, this.GetResult(canceled));
+    (_a = this._closeDone) == null ? void 0 : _a.SetResult(canceled);
   }
   OnMounted() {
-    if (this._child == null) {
-      this._child = new Card().Init({
-        Elevation: State.op_Implicit_From(20),
-        Child: new Column().Init({
-          Children: [this.BuildTitle(), this.BuildBody()]
-        })
-      });
-      this._child.Parent = this;
-    }
+    this.TryBuildChild();
     super.OnMounted();
   }
   VisitChildren(action) {
     action(this._child);
   }
+  ContainsPoint(x, y) {
+    return true;
+  }
+  HitTest(x, y, result) {
+    result.Add(this);
+    this.HitTestChild(this._child, x, y, result);
+    return true;
+  }
   Layout(availableWidth, availableHeight) {
     var _a, _b, _c, _d;
+    this.TryBuildChild();
     this._child.Layout((_b = (_a = this.Width) == null ? void 0 : _a.Value) != null ? _b : availableWidth, (_d = (_c = this.Height) == null ? void 0 : _c.Value) != null ? _d : availableHeight);
-    this._child.SetPosition((availableWidth - this._child.W) / 2, (availableHeight - this._child.H) / 2);
-    this.SetSize(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+    this.SetSize(this._child.W, this._child.H);
   }
 }
 class NotificationEntry extends SingleChildWidget {
@@ -5084,10 +5882,6 @@ class NotificationEntry extends SingleChildWidget {
     this._controller.Dispose();
     super.Dispose();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 const _Notification = class extends Popup {
   constructor(overlay) {
@@ -5127,8 +5921,8 @@ const _Notification = class extends Popup {
   }
   static Show(icon, text) {
     let win = UIWindow.Current;
-    let exists = win.Overlay.FindEntry((e) => e.Widget instanceof _Notification);
-    let notification = exists == null ? new _Notification(win.Overlay) : exists.Widget;
+    let exists = win.Overlay.FindEntry((e) => e instanceof _Notification);
+    let notification = exists == null ? new _Notification(win.Overlay) : exists;
     if (exists == null)
       notification.Show();
     let entry = new NotificationEntry(icon, text);
@@ -5145,30 +5939,83 @@ const _Notification = class extends Popup {
     _Notification.Show(new Icon(State.op_Implicit_From(Icons.Filled.Info)).Init({
       Size: State.op_Implicit_From(18),
       Color: color
-    }), new Text(State.op_Implicit_From(message)).Init({ TextColor: color }));
+    }), new Text(State.op_Implicit_From(message)).Init({ TextColor: color, MaxLines: 5 }));
   }
   static Success(message) {
     let color = State.op_Implicit_From(Colors.Green);
     _Notification.Show(new Icon(State.op_Implicit_From(Icons.Filled.Error)).Init({
       Size: State.op_Implicit_From(18),
       Color: color
-    }), new Text(State.op_Implicit_From(message)).Init({ TextColor: color }));
+    }), new Text(State.op_Implicit_From(message)).Init({ TextColor: color, MaxLines: 5 }));
   }
   static Error(message) {
     let color = State.op_Implicit_From(Colors.Red);
     _Notification.Show(new Icon(State.op_Implicit_From(Icons.Filled.Error)).Init({
       Size: State.op_Implicit_From(18),
       Color: color
-    }), new Text(State.op_Implicit_From(message)).Init({ TextColor: color }));
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+    }), new Text(State.op_Implicit_From(message)).Init({ TextColor: color, MaxLines: 5 }));
   }
 };
 let Notification = _Notification;
 __publicField(Notification, "_firstOffset", 10);
 __publicField(Notification, "_sepSpace", 2);
+class Inspector extends Widget {
+  constructor() {
+    super();
+    __publicField(this, "_target");
+  }
+  static Show(target) {
+    if (!target.IsMounted)
+      return null;
+    let overlay = target.Overlay;
+    let inspector = overlay.FindEntry((w) => w instanceof Inspector);
+    if (inspector == null) {
+      let instance = new Inspector();
+      instance._target = target;
+      overlay.Show(instance);
+      return instance;
+    } else {
+      let instance = inspector;
+      instance._target = target;
+      instance.Invalidate(InvalidAction.Repaint);
+      return instance;
+    }
+  }
+  Remove() {
+    this.Parent.Remove(this);
+  }
+  HitTest(x, y, result) {
+    return false;
+  }
+  Layout(availableWidth, availableHeight) {
+  }
+  Paint(canvas, area = null) {
+    let path = new System.List();
+    let temp = this._target;
+    while (temp.Parent != null) {
+      path.Add(temp.Parent);
+      temp = temp.Parent;
+    }
+    canvas.save();
+    for (let i = path.length - 1; i >= 0; i--) {
+      temp = path[i];
+      canvas.translate(temp.X, temp.Y);
+      if (IsInterfaceOfIScrollable(temp)) {
+        const scrollable = temp;
+        canvas.translate(-scrollable.ScrollOffsetX, -scrollable.ScrollOffsetY);
+      } else if (temp instanceof Transform) {
+        const transform = temp;
+        canvas.concat(transform.EffectiveTransform.TransponseTo());
+      }
+    }
+    let bounds = Rect.FromLTWH(this._target.X + 0.5, this._target.Y + 0.5, this._target.W - 1, this._target.H - 1);
+    let borderColor = new Color(2155839166);
+    let fillColor = new Color(2159918588);
+    canvas.drawRect(bounds, PaintUtils.Shared(fillColor));
+    canvas.drawRect(bounds, PaintUtils.Shared(borderColor, CanvasKit.PaintStyle.Stroke));
+    canvas.restore();
+  }
+}
 class FadeTransition extends SingleChildWidget {
   constructor(opacity) {
     super();
@@ -5184,10 +6031,6 @@ class FadeTransition extends SingleChildWidget {
     canvas.saveLayer(paint, rect);
     this.PaintChildren(canvas, area);
     canvas.restore();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class RotationTransition extends Transform {
@@ -5219,10 +6062,6 @@ class RotationTransition extends Transform {
     this._turns.ValueChanged.Remove(this.OnTurnChanged, this);
     super.Dispose();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class SlideTransition extends Transform {
   constructor(position) {
@@ -5251,10 +6090,6 @@ class SlideTransition extends Transform {
   Dispose() {
     this._position.ValueChanged.Remove(this.OnPositionChanged, this);
     super.Dispose();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 var ButtonIconPosition = /* @__PURE__ */ ((ButtonIconPosition2) => {
@@ -5287,12 +6122,11 @@ const _Button = class extends Widget {
     __publicField(this, "_textWidget");
     __publicField(this, "_iconWidget");
     __publicField(this, "_hoverDecoration");
-    __privateAdd(this, _MouseRegion3, void 0);
-    __privateAdd(this, _FocusNode2, void 0);
+    __privateAdd(this, _MouseRegion5, void 0);
+    __privateAdd(this, _FocusNode3, void 0);
     this._text = text;
     this._icon = icon;
-    this.Width = State.op_Implicit_From(text == null ? 35 : 120);
-    this.Height = State.op_Implicit_From(35);
+    this.Height = State.op_Implicit_From(_Button.DefaultHeight);
     this.MouseRegion = new MouseRegion(() => Cursors.Hand);
     this.FocusNode = new FocusNode();
     this._hoverDecoration = new HoverDecoration(this, this.GetHoverShaper.bind(this), this.GetHoverBounds.bind(this));
@@ -5319,16 +6153,16 @@ const _Button = class extends Widget {
       this._iconWidget.Size = value;
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion3);
+    return __privateGet(this, _MouseRegion5);
   }
   set MouseRegion(value) {
-    __privateSet(this, _MouseRegion3, value);
+    __privateSet(this, _MouseRegion5, value);
   }
   get FocusNode() {
-    return __privateGet(this, _FocusNode2);
+    return __privateGet(this, _FocusNode3);
   }
   set FocusNode(value) {
-    __privateSet(this, _FocusNode2, value);
+    __privateSet(this, _FocusNode3, value);
   }
   set OnTap(value) {
     this.MouseRegion.PointerTap.Add(value, this);
@@ -5355,19 +6189,20 @@ const _Button = class extends Widget {
     }
   }
   Layout(availableWidth, availableHeight) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
     let width = this.CacheAndCheckAssignWidth(availableWidth);
     let height = this.CacheAndCheckAssignHeight(availableHeight);
-    this.SetSize(width, height);
     this.TryBuildContent();
     (_a = this._iconWidget) == null ? void 0 : _a.Layout(width, height);
     (_d = this._textWidget) == null ? void 0 : _d.Layout(width - ((_c = (_b = this._iconWidget) == null ? void 0 : _b.W) != null ? _c : 0), height);
     let contentWidth = ((_f = (_e = this._iconWidget) == null ? void 0 : _e.W) != null ? _f : 0) + ((_h = (_g = this._textWidget) == null ? void 0 : _g.W) != null ? _h : 0);
-    let contentHeight = Math.max((_j = (_i = this._iconWidget) == null ? void 0 : _i.H) != null ? _j : 0, (_l = (_k = this._textWidget) == null ? void 0 : _k.H) != null ? _l : 0);
+    if (this.Width == null)
+      this.SetSize(Math.max(_Button.DefaultHeight, contentWidth + 16), height);
+    else
+      this.SetSize(width, height);
     let contentOffsetX = (this.W - contentWidth) / 2;
-    (this.H - contentHeight) / 2;
-    (_m = this._iconWidget) == null ? void 0 : _m.SetPosition(contentOffsetX, (this.H - this._iconWidget.H) / 2);
-    (_p = this._textWidget) == null ? void 0 : _p.SetPosition(contentOffsetX + ((_o = (_n = this._iconWidget) == null ? void 0 : _n.W) != null ? _o : 0), (this.H - this._textWidget.H) / 2);
+    (_i = this._iconWidget) == null ? void 0 : _i.SetPosition(contentOffsetX, (this.H - this._iconWidget.H) / 2);
+    (_l = this._textWidget) == null ? void 0 : _l.SetPosition(contentOffsetX + ((_k = (_j = this._iconWidget) == null ? void 0 : _j.W) != null ? _k : 0), (this.H - this._textWidget.H) / 2);
   }
   TryBuildContent() {
     if (this._text == null && this._icon == null)
@@ -5383,10 +6218,7 @@ const _Button = class extends Widget {
       this._textWidget.Parent = this;
     }
     if (this._icon != null && this._iconWidget == null) {
-      this._iconWidget = new Icon(this._icon).Init({
-        Color: this._textColor,
-        Size: this._fontSize
-      });
+      this._iconWidget = new Icon(this._icon).Init({ Color: this._textColor, Size: this._fontSize });
       this._iconWidget.Parent = this;
     }
   }
@@ -5416,12 +6248,11 @@ const _Button = class extends Widget {
       case ButtonShape.Square:
         canvas.drawRect(Rect.FromLTWH(0, 0, this.W, this.H), paint);
         break;
-      case ButtonShape.Standard:
-        {
-          let rrect = RRect.FromRectAndRadius(Rect.FromLTWH(0, 0, this.W, this.H), _Button.StandardRadius, _Button.StandardRadius);
-          canvas.drawRRect(rrect, paint);
-        }
+      case ButtonShape.Standard: {
+        let rrect = RRect.FromRectAndRadius(Rect.FromLTWH(0, 0, this.W, this.H), _Button.StandardRadius, _Button.StandardRadius);
+        canvas.drawRRect(rrect, paint);
         break;
+      }
       default:
         throw new System.NotImplementedException();
     }
@@ -5436,21 +6267,18 @@ const _Button = class extends Widget {
     (_b = this._iconWidget) == null ? void 0 : _b.Dispose();
     super.Dispose();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let Button = _Button;
-_MouseRegion3 = new WeakMap();
-_FocusNode2 = new WeakMap();
+_MouseRegion5 = new WeakMap();
+_FocusNode3 = new WeakMap();
 __publicField(Button, "$meta_PixUI_IMouseRegion", true);
 __publicField(Button, "$meta_PixUI_IFocusable", true);
+__publicField(Button, "DefaultHeight", 30);
 __publicField(Button, "StandardRadius", 4);
 class ExpandIcon extends SingleChildWidget {
   constructor(turns, size = null, color = null) {
     super();
-    __privateAdd(this, _MouseRegion4, void 0);
+    __privateAdd(this, _MouseRegion6, void 0);
     this.MouseRegion = new MouseRegion();
     this.Child = new RotationTransition(turns).Init({
       Child: new Icon(State.op_Implicit_From(Icons.Filled.ExpandMore)).Init({
@@ -5460,21 +6288,51 @@ class ExpandIcon extends SingleChildWidget {
     });
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion4);
+    return __privateGet(this, _MouseRegion6);
   }
   set MouseRegion(value) {
-    __privateSet(this, _MouseRegion4, value);
+    __privateSet(this, _MouseRegion6, value);
   }
   set OnPointerDown(value) {
     this.MouseRegion.PointerDown.Add(value, this);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+}
+_MouseRegion6 = new WeakMap();
+__publicField(ExpandIcon, "$meta_PixUI_IMouseRegion", true);
+class ButtonGroup extends MultiChildWidget {
+  constructor() {
+    super();
+  }
+  Layout(availableWidth, availableHeight) {
+    let width = this.CacheAndCheckAssignWidth(availableWidth);
+    let height = this.CacheAndCheckAssignHeight(availableHeight);
+    let xPos = 0;
+    let buttonHeight = State.op_Implicit_From(Math.min(height, Button.DefaultHeight));
+    for (let i = 0; i < this._children.length; i++) {
+      this._children[i].Height = buttonHeight;
+      this._children[i].Shape = ButtonShape.Square;
+      this._children[i].Layout(Math.max(0, width - xPos), buttonHeight.Value);
+      this._children[i].SetPosition(xPos, 0);
+      xPos += this._children[i].W;
+    }
+    this.SetSize(xPos, buttonHeight.Value);
+  }
+  Paint(canvas, area = null) {
+    let rrect = RRect.FromRectAndRadius(Rect.FromLTWH(0, 0, this.W, this.H), Button.StandardRadius, Button.StandardRadius);
+    let path = new CanvasKit.Path();
+    path.addRRect(rrect);
+    canvas.save();
+    canvas.clipPath(path, CanvasKit.ClipOp.Intersect, true);
+    super.Paint(canvas, area);
+    let paint = PaintUtils.Shared(Colors.White, CanvasKit.PaintStyle.Stroke, 1);
+    for (let i = 1; i < this._children.length; i++) {
+      let x = this._children[i].X - 0.5;
+      canvas.drawLine(x, 0, x, this.H, paint);
+    }
+    canvas.restore();
+    path.delete();
   }
 }
-_MouseRegion4 = new WeakMap();
-__publicField(ExpandIcon, "$meta_PixUI_IMouseRegion", true);
 class IconData {
   constructor(codePoint, fontFamily, assemblyName, assetPath) {
     __publicField(this, "CodePoint");
@@ -11917,10 +12775,6 @@ const _MaterialIcons = class {
   get ZoomOutMap() {
     return new IconData(58731, _MaterialIcons.FontFamily, _MaterialIcons.AssemblyName, _MaterialIcons.AssetPath);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let MaterialIcons = _MaterialIcons;
 __publicField(MaterialIcons, "FontFamily", "Material Icons");
@@ -18278,10 +19132,6 @@ const _MaterialIconsOutlined = class {
   get ZoomOutMap() {
     return new IconData(58731, _MaterialIconsOutlined.FontFamily, _MaterialIconsOutlined.AssemblyName, _MaterialIconsOutlined.AssetPath);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let MaterialIconsOutlined = _MaterialIconsOutlined;
 __publicField(MaterialIconsOutlined, "FontFamily", "Material Icons Outlined");
@@ -18380,10 +19230,6 @@ class Icon extends Widget {
     this._painter.Dispose();
     super.Dispose();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 var MenuItemType = /* @__PURE__ */ ((MenuItemType2) => {
   MenuItemType2[MenuItemType2["MenuItem"] = 0] = "MenuItem";
@@ -18427,10 +19273,6 @@ const _MenuItem = class {
   static Divider() {
     return new _MenuItem(2);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let MenuItem = _MenuItem;
 _Type = new WeakMap();
@@ -18454,34 +19296,40 @@ class MenuController {
   }
   OnMenuItemHoverChanged(item, hover) {
     var _a;
-    if (hover) {
-      if (this._popupMenuStack != null) {
-        if (this._popupMenuStack.TryCloseSome(item))
-          return;
-      }
-      if (item.MenuItem.Type == MenuItemType.SubMenu) {
-        (_a = this._popupMenuStack) != null ? _a : this._popupMenuStack = new PopupMenuStack(item.Overlay, this.CloseAll.bind(this));
-        let popupMenu = new PopupMenu(item, item.Depth + 1, this);
-        let relativeToWinPt = item.LocalToWindow(0, 0);
-        if (item.Parent instanceof PopupMenu)
-          popupMenu.SetPosition(relativeToWinPt.X + item.W, relativeToWinPt.Y);
-        else
-          popupMenu.SetPosition(relativeToWinPt.X, relativeToWinPt.Y + item.H);
-        popupMenu.Layout(item.Root.Window.Width, item.Root.Window.Height);
-        this._popupMenuStack.Add(popupMenu);
-      }
-      if (this._popupMenuStack != null && !this._popupMenuStack.HasChild)
-        this.CloseAll();
+    if (!hover)
+      return;
+    if (this._popupMenuStack != null && this._popupMenuStack.TryCloseSome(item))
+      return;
+    if (item.MenuItem.Type == MenuItemType.SubMenu) {
+      (_a = this._popupMenuStack) != null ? _a : this._popupMenuStack = new PopupMenuStack(item.Overlay, this.CloseAll.bind(this));
+      let popupMenu = new PopupMenu(item, null, item.Depth + 1, this);
+      let relativeToWinPt = item.LocalToWindow(0, 0);
+      if (item.Parent instanceof PopupMenu)
+        popupMenu.SetPosition(relativeToWinPt.X + item.W, relativeToWinPt.Y);
+      else
+        popupMenu.SetPosition(relativeToWinPt.X, relativeToWinPt.Y + item.H);
+      let win = item.Root.Window;
+      popupMenu.Layout(win.Width, win.Height);
+      this._popupMenuStack.Add(popupMenu);
     }
+    if (this._popupMenuStack != null && !this._popupMenuStack.HasChild)
+      this.CloseAll();
+  }
+  ShowContextMenu(menuItems) {
+    var _a;
+    let win = UIWindow.Current;
+    let winX = win.LastMouseX;
+    let winY = win.LastMouseY;
+    (_a = this._popupMenuStack) != null ? _a : this._popupMenuStack = new PopupMenuStack(win.Overlay, this.CloseAll.bind(this));
+    let popupMenu = new PopupMenu(null, menuItems, 1, this);
+    popupMenu.Layout(win.Width, win.Height);
+    popupMenu.SetPosition(winX, winY);
+    this._popupMenuStack.Add(popupMenu);
   }
   CloseAll() {
     var _a;
     (_a = this._popupMenuStack) == null ? void 0 : _a.Hide();
     this._popupMenuStack = null;
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class MainMenu extends Widget {
@@ -18526,10 +19374,6 @@ class MainMenu extends Widget {
       offsetX += child.W;
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 const _MenuItemWidget = class extends Widget {
   constructor(menuItem, depth, inPopup, controller) {
@@ -18541,7 +19385,7 @@ const _MenuItemWidget = class extends Widget {
     __publicField(this, "_label");
     __publicField(this, "_expander");
     __publicField(this, "_isHover", false);
-    __privateAdd(this, _MouseRegion5, void 0);
+    __privateAdd(this, _MouseRegion7, void 0);
     this.Depth = depth;
     this.MenuItem = menuItem;
     this._controller = controller;
@@ -18551,20 +19395,20 @@ const _MenuItemWidget = class extends Widget {
     this.MouseRegion.PointerUp.Add(this._OnPointerUp, this);
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion5);
+    return __privateGet(this, _MouseRegion7);
   }
   set MouseRegion(value) {
-    __privateSet(this, _MouseRegion5, value);
+    __privateSet(this, _MouseRegion7, value);
   }
   BuildChildren(inPopup) {
-    if (this.MenuItem.Type != MenuItemType.Divider) {
-      if (this.MenuItem.Icon != null) {
-        this._icon = new Icon(State.op_Implicit_From(this.MenuItem.Icon)).Init({ Color: this._controller.TextColor });
-        this._icon.Parent = this;
-      }
-      this._label = new Text(State.op_Implicit_From(this.MenuItem.Label)).Init({ TextColor: this._controller.TextColor });
-      this._label.Parent = this;
+    if (this.MenuItem.Type == MenuItemType.Divider)
+      return;
+    if (this.MenuItem.Icon != null) {
+      this._icon = new Icon(State.op_Implicit_From(this.MenuItem.Icon)).Init({ Color: this._controller.TextColor });
+      this._icon.Parent = this;
     }
+    this._label = new Text(State.op_Implicit_From(this.MenuItem.Label)).Init({ TextColor: this._controller.TextColor });
+    this._label.Parent = this;
     if (this.MenuItem.Type == MenuItemType.SubMenu) {
       this._expander = new Icon(State.op_Implicit_From(inPopup ? Icons.Filled.ChevronRight : Icons.Filled.ExpandMore)).Init({ Color: this._controller.TextColor });
       this._expander.Parent = this;
@@ -18577,6 +19421,8 @@ const _MenuItemWidget = class extends Widget {
     this._controller.CloseAll();
   }
   _OnHoverChanged(hover) {
+    if (this.MenuItem.Type == MenuItemType.Divider)
+      return;
     this._isHover = hover;
     this.Invalidate(InvalidAction.Repaint);
     this._controller.OnMenuItemHoverChanged(this, hover);
@@ -18602,6 +19448,10 @@ const _MenuItemWidget = class extends Widget {
   }
   Layout(availableWidth, availableHeight) {
     let offsetX = this._controller.ItemPadding.Left;
+    if (this.MenuItem.Type == MenuItemType.Divider) {
+      this.SetSize(offsetX + 2, 6);
+      return;
+    }
     if (this._icon != null) {
       this._icon.Layout(availableWidth, availableHeight);
       this._icon.SetPosition(offsetX, (availableHeight - this._icon.H) / 2);
@@ -18620,6 +19470,12 @@ const _MenuItemWidget = class extends Widget {
     this.SetSize(offsetX + this._controller.ItemPadding.Right, availableHeight);
   }
   Paint(canvas, area = null) {
+    if (this.MenuItem.Type == MenuItemType.Divider) {
+      let paint = PaintUtils.Shared(Colors.Gray, CanvasKit.PaintStyle.Stroke, 2);
+      let midY = this.H / 2;
+      canvas.drawLine(this._controller.ItemPadding.Left, midY, this.W - this._controller.ItemPadding.Horizontal, midY, paint);
+      return;
+    }
     if (this._isHover) {
       let paint = PaintUtils.Shared(this._controller.HoverColor, CanvasKit.PaintStyle.Fill);
       canvas.drawRect(Rect.FromLTWH(0, 0, this.W, this.H), paint);
@@ -18639,13 +19495,9 @@ const _MenuItemWidget = class extends Widget {
     let labelText = this._label == null ? "" : this._label.Text.Value;
     return `MenuItemWidget["${labelText}"]`;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let MenuItemWidget = _MenuItemWidget;
-_MouseRegion5 = new WeakMap();
+_MouseRegion7 = new WeakMap();
 __publicField(MenuItemWidget, "$meta_PixUI_IMouseRegion", true);
 class PopupMenuStack extends Popup {
   constructor(overlay, closeAll) {
@@ -18666,15 +19518,17 @@ class PopupMenuStack extends Popup {
       this.Invalidate(InvalidAction.Repaint);
   }
   TryCloseSome(newHoverItem) {
-    let lastMenuItem = this._children[this._children.length - 1].Owner;
-    if (lastMenuItem === newHoverItem) {
-      this.CloseTo(newHoverItem.Depth);
-      return true;
+    for (let i = this._children.length - 1; i >= 0; i--) {
+      if (newHoverItem === this._children[i].Owner) {
+        this.CloseTo(newHoverItem.Depth);
+        return true;
+      }
     }
-    if (newHoverItem.Depth == lastMenuItem.Depth) {
+    let lastMenuItem = this._children[this._children.length - 1].Owner;
+    if (newHoverItem.Depth == (lastMenuItem == null ? void 0 : lastMenuItem.Depth)) {
       this.CloseTo(newHoverItem.Depth - 1);
-    } else if (!PopupMenuStack.IsChildOf(newHoverItem, lastMenuItem)) {
-      this.CloseTo(-1);
+    } else if (lastMenuItem != null && !PopupMenuStack.IsChildOf(newHoverItem, lastMenuItem)) {
+      this.CloseTo(newHoverItem.Depth - 1);
     }
     return false;
   }
@@ -18739,21 +19593,24 @@ class PopupMenuStack extends Popup {
     }
     return super.PreviewEvent(type, e);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class PopupMenu extends Widget {
-  constructor(owner, depth, controller) {
+  constructor(owner, items, depth, controller) {
     super();
     __publicField(this, "Owner");
     __publicField(this, "_children");
     __publicField(this, "_controller");
+    if (owner == null && items == null)
+      throw new System.ArgumentNullException();
     this.Owner = owner;
     this._controller = controller;
-    this._children = new System.List(owner.MenuItem.Children.length);
-    this.BuildMenuItemWidgets(owner.MenuItem.Children, depth);
+    if (owner != null) {
+      this._children = new System.List(owner.MenuItem.Children.length);
+      this.BuildMenuItemWidgets(owner.MenuItem.Children, depth);
+    } else {
+      this._children = new System.List(items.length);
+      this.BuildMenuItemWidgets(items, depth);
+    }
   }
   BuildMenuItemWidgets(items, depth) {
     for (const item of items) {
@@ -18806,9 +19663,11 @@ class PopupMenu extends Widget {
     canvas.restore();
     path.delete();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+}
+class ContextMenu {
+  static Show(menuItems) {
+    let controller = new MenuController();
+    controller.ShowContextMenu(menuItems);
   }
 }
 class FormItem extends Widget {
@@ -18849,13 +19708,9 @@ class FormItem extends Widget {
       x = lableWidth - this._cachedLabelParagraph.getMaxIntrinsicWidth();
     canvas.save();
     canvas.clipRect(Rect.FromLTWH(0, 0, lableWidth, this.H), CanvasKit.ClipOp.Intersect, false);
-    canvas.drawParagraph(this._cachedLabelParagraph, x, 0);
+    canvas.drawParagraph(this._cachedLabelParagraph, x, (this.H - this._cachedLabelParagraph.getHeight()) / 2);
     canvas.restore();
     this.PaintChildren(canvas, area);
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class Form extends MultiChildWidget {
@@ -18935,17 +19790,13 @@ class Form extends MultiChildWidget {
     }
     this.SetSize(width, Math.min(y + this._padding.Bottom, height));
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class Tab extends SingleChildWidget {
   constructor() {
     super();
     __publicField(this, "IsSelected", State.op_Implicit_From(false));
     __publicField(this, "_isHover", false);
-    __privateAdd(this, _MouseRegion6, void 0);
+    __privateAdd(this, _MouseRegion8, void 0);
     this.MouseRegion = new MouseRegion(() => Cursors.Hand, false);
     this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
     this.Bind(this.IsSelected, BindingOptions.AffectsVisual);
@@ -18954,10 +19805,10 @@ class Tab extends SingleChildWidget {
     return this.Parent;
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion6);
+    return __privateGet(this, _MouseRegion8);
   }
   set MouseRegion(value) {
-    __privateSet(this, _MouseRegion6, value);
+    __privateSet(this, _MouseRegion8, value);
   }
   set OnTap(value) {
     this.MouseRegion.PointerTap.Add(value, this);
@@ -19001,17 +19852,13 @@ class Tab extends SingleChildWidget {
     if (this.Child == null)
       return;
     canvas.translate(this.Child.X, this.Child.Y);
-    this.Child.Paint(canvas, area == null ? void 0 : area.ToChild(this.Child.X, this.Child.Y));
+    this.Child.Paint(canvas, area == null ? void 0 : area.ToChild(this.Child));
     canvas.translate(-this.Child.X, -this.Child.Y);
     if (this.IsSelected.Value)
       canvas.drawRect(Rect.FromLTWH(0, this.H - 4, this.W, 4), PaintUtils.Shared(Theme.FocusedColor));
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
-_MouseRegion6 = new WeakMap();
+_MouseRegion8 = new WeakMap();
 __publicField(Tab, "$meta_PixUI_IMouseRegion", true);
 class TabController {
   constructor(dataSource) {
@@ -19019,9 +19866,13 @@ class TabController {
     __publicField(this, "_tabBody");
     __publicField(this, "DataSource");
     __privateAdd(this, _SelectedIndex, -1);
+    __publicField(this, "TabSelectChanged", new System.Event());
     __publicField(this, "TabAdded", new System.Event());
     __publicField(this, "TabClosed", new System.Event());
     this.DataSource = dataSource;
+  }
+  get Count() {
+    return this.DataSource.length;
   }
   get SelectedIndex() {
     return __privateGet(this, _SelectedIndex);
@@ -19036,9 +19887,6 @@ class TabController {
     this._tabBody = tabBody;
   }
   OnStateChanged(state, options) {
-  }
-  get Count() {
-    return this.DataSource.length;
   }
   GetAt(index) {
     return this.DataSource[index];
@@ -19057,6 +19905,7 @@ class TabController {
     (_a = this._tabBody) == null ? void 0 : _a.SwitchFrom(oldIndex);
     if (this._tabBar != null)
       this._tabBar.Tabs[this.SelectedIndex].IsSelected.Value = true;
+    this.TabSelectChanged.Invoke(index);
   }
   Add(dataItem) {
     var _a, _b;
@@ -19085,12 +19934,9 @@ class TabController {
         this.SelectAt(newSelectedIndex);
       } else {
         (_c = this._tabBody) == null ? void 0 : _c.ClearBody();
+        this.TabSelectChanged.Invoke(-1);
       }
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _SelectedIndex = new WeakMap();
@@ -19109,6 +19955,12 @@ class TabBar extends Widget {
     this._controller.BindTabBar(this);
     this._tabBuilder = tabBuilder;
     this.Scrollable = scrollable;
+    if (this._controller.DataSource.length == this._tabs.length)
+      return;
+    for (const dataItem of this._controller.DataSource) {
+      this._tabs.Add(this.BuildTab(dataItem));
+    }
+    this._controller.SelectAt(0);
   }
   get Tabs() {
     return this._tabs;
@@ -19132,8 +19984,23 @@ class TabBar extends Widget {
     this._tabs.RemoveAt(index);
     this.Invalidate(InvalidAction.Relayout);
   }
+  BuildTab(dataItem) {
+    let tab = new Tab();
+    this._tabBuilder(dataItem, tab);
+    tab.Parent = this;
+    tab.OnTap = (_) => this.OnTabSelected(tab);
+    return tab;
+  }
   get IsOpaque() {
     return this.BgColor != null && this.BgColor.IsOpaque;
+  }
+  VisitChildren(action) {
+    if (this._tabs.length == 0)
+      return;
+    for (const tab of this._tabs) {
+      if (action(tab))
+        break;
+    }
   }
   HitTest(x, y, result) {
     if (!this.ContainsPoint(x, y))
@@ -19149,7 +20016,6 @@ class TabBar extends Widget {
     return true;
   }
   Layout(availableWidth, availableHeight) {
-    this.TryBuildTabs();
     let width = this.CacheAndCheckAssignWidth(availableWidth);
     let height = this.CacheAndCheckAssignHeight(availableHeight);
     if (this._tabs.length == 0) {
@@ -19173,33 +20039,14 @@ class TabBar extends Widget {
       }
     }
   }
-  TryBuildTabs() {
-    if (this._controller.DataSource.length == this._tabs.length)
-      return;
-    for (const dataItem of this._controller.DataSource) {
-      this._tabs.Add(this.BuildTab(dataItem));
-    }
-    this._controller.SelectAt(0);
-  }
-  BuildTab(dataItem) {
-    let tab = new Tab();
-    this._tabBuilder(dataItem, tab);
-    tab.Parent = this;
-    tab.OnTap = (_) => this.OnTabSelected(tab);
-    return tab;
-  }
   Paint(canvas, area = null) {
     if (this.BgColor != null)
       canvas.drawRect(Rect.FromLTWH(0, 0, this.W, this.H), PaintUtils.Shared(this.BgColor));
     for (const tab of this._tabs) {
       canvas.translate(tab.X, tab.Y);
-      tab.Paint(canvas, area == null ? void 0 : area.ToChild(tab.X, tab.Y));
+      tab.Paint(canvas, area == null ? void 0 : area.ToChild(tab));
       canvas.translate(-tab.X, -tab.Y);
     }
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 _Scrollable = new WeakMap();
@@ -19212,7 +20059,7 @@ class TabBody extends DynamicView {
     this._controller = controller;
     this._controller.BindTabBody(this);
     this._bodyBuilder = bodyBuilder;
-    this._bodies = new System.List([]);
+    this._bodies = new System.List(new Array(this._controller.DataSource.length));
   }
   TryBuildBody() {
     let selectedIndex = this._controller.SelectedIndex;
@@ -19247,10 +20094,6 @@ class TabBody extends DynamicView {
   static BuildDefaultTransition(animation, child, fromOffset, toOffset) {
     let offsetAnimation = new OffsetTween(fromOffset, toOffset).Animate(animation);
     return new SlideTransition(offsetAnimation).Init({ Child: child });
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class TabView extends Widget {
@@ -19312,10 +20155,6 @@ class TabView extends Widget {
     this._tabBody.SetPosition(0, this._tabBar.H);
     this.SetSize(width, height);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class TreeNode extends Widget {
   constructor(data, controller) {
@@ -19326,6 +20165,7 @@ class TreeNode extends Widget {
     __publicField(this, "_children");
     __publicField(this, "IsSelected", State.op_Implicit_From(false));
     __publicField(this, "_color");
+    __publicField(this, "_checkState");
     __publicField(this, "_expandController");
     __publicField(this, "_expandCurve");
     __publicField(this, "_expandArrowAnimation");
@@ -19343,6 +20183,10 @@ class TreeNode extends Widget {
   }
   get Controller() {
     return this._controller;
+  }
+  get Children() {
+    var _a;
+    return (_a = this._children) == null ? void 0 : _a.ToArray();
   }
   set Icon(value) {
     var _a, _b;
@@ -19371,6 +20215,13 @@ class TreeNode extends Widget {
     }
     return depth;
   }
+  get ParentNode() {
+    if (this.Parent == null)
+      return null;
+    if (this.Parent instanceof TreeView)
+      return null;
+    return this.Parent;
+  }
   TryBuildExpandIcon() {
     if (this._expandController != null)
       return;
@@ -19386,7 +20237,7 @@ class TreeNode extends Widget {
     this._animationValue = this._expandController.Value;
     this.Invalidate(InvalidAction.Relayout);
   }
-  TryBuildChildren() {
+  EnsureBuildChildren() {
     if (this.IsLeaf || this._children != null)
       return;
     let childrenList = this._controller.ChildrenGetter(this.Data);
@@ -19394,6 +20245,7 @@ class TreeNode extends Widget {
     for (const child of childrenList) {
       let node = new TreeNode(child, this._controller);
       this._controller.NodeBuilder(child, node);
+      node.TryBuildCheckbox();
       node.Parent = this;
       this._children.Add(node);
     }
@@ -19402,7 +20254,7 @@ class TreeNode extends Widget {
     if (this._children != null && this.HasLayout && this._children.All((t) => t.HasLayout)) {
       return TreeView.CalcMaxChildWidth(this._children);
     }
-    this.TryBuildChildren();
+    this.EnsureBuildChildren();
     let maxWidth = 0;
     let yPos = this._controller.NodeHeight;
     for (let i = 0; i < this._children.length; i++) {
@@ -19492,13 +20344,19 @@ class TreeNode extends Widget {
     let oldWidth = this.W;
     let oldHeight = this.H;
     affects.Widget = this;
-    TreeView.UpdatePositionAfter(child, this._children, dy);
+    affects.OldX += this.X;
+    affects.OldY += this.Y;
+    if (dy != 0 && this._children != null)
+      TreeView.UpdatePositionAfter(child, this._children, dy);
     let newWidth = oldWidth;
     let newHeight = oldHeight + dy;
     if (dx > 0) {
       newWidth = Math.max(child.W, this.W);
     } else if (dx < 0 && child.W - dx == this._controller.TotalWidth) {
-      newWidth = Math.max(TreeView.CalcMaxChildWidth(this._children), this.W);
+      if (this._children == null)
+        newWidth = child.W;
+      else
+        newWidth = Math.max(TreeView.CalcMaxChildWidth(this._children), this.W);
     }
     this.SetSize(newWidth, newHeight);
     this.Parent.OnChildSizeChanged(this, newWidth - oldWidth, newHeight - oldHeight, affects);
@@ -19524,7 +20382,7 @@ class TreeNode extends Widget {
   }
   static PaintChildNode(child, canvas, area) {
     canvas.translate(child.X, child.Y);
-    child.Paint(canvas, area == null ? void 0 : area.ToChild(child.X, child.Y));
+    child.Paint(canvas, area == null ? void 0 : area.ToChild(child));
     canvas.translate(-child.X, -child.Y);
     PaintDebugger.PaintWidgetBorder(child, canvas);
   }
@@ -19532,11 +20390,73 @@ class TreeNode extends Widget {
     let labelText = this._row.Label == null ? "" : this._row.Label.Text.Value;
     return `TreeNode["${labelText}"]`;
   }
+  TryBuildCheckbox() {
+    if (!this.Controller.ShowCheckbox)
+      return;
+    this._checkState = new Rx(false);
+    let checkbox = Checkbox.Tristate(this._checkState);
+    checkbox.ValueChanged.Add(this.OnCheckChanged, this);
+    this._row.Checkbox = checkbox;
+  }
+  OnCheckChanged(value) {
+    if (!this.Controller.SuspendAutoCheck) {
+      this.Controller.SuspendAutoCheck = true;
+      TreeNode.AutoCheckParent(this.ParentNode);
+      TreeNode.AutoCheckChildren(this, value);
+      this.Controller.SuspendAutoCheck = false;
+    }
+    this.Controller.RaiseCheckChanged(this);
+  }
+  static AutoCheckParent(parent) {
+    if (parent == null)
+      return;
+    let allChecked = true;
+    let allUnchecked = true;
+    for (const child of parent._children) {
+      if (child._checkState.Value == null) {
+        allChecked = false;
+        allUnchecked = false;
+        break;
+      } else if (child._checkState.Value == true) {
+        allUnchecked = false;
+      } else {
+        allChecked = false;
+      }
+    }
+    let newValue = null;
+    if (allChecked)
+      newValue = true;
+    else if (allUnchecked)
+      newValue = false;
+    parent._checkState.Value = newValue;
+    TreeNode.AutoCheckParent(parent.ParentNode);
+  }
+  static AutoCheckChildren(node, newValue) {
+    console.assert(newValue);
+    if (node.IsLeaf)
+      return;
+    node.EnsureBuildChildren();
+    if (node._children != null && node._children.length > 0) {
+      for (const child of node._children) {
+        child._checkState.Value = newValue;
+        TreeNode.AutoCheckChildren(child, newValue);
+      }
+    }
+  }
+  SetChecked(value) {
+    if (!this.Controller.ShowCheckbox)
+      throw new System.InvalidOperationException("Not supported");
+    this._checkState.Value = value;
+  }
+  get CheckState() {
+    var _a;
+    return (_a = this._checkState) == null ? void 0 : _a.Value;
+  }
   FindNode(predicate) {
     if (predicate(this.Data))
       return this;
     if (!this.IsLeaf) {
-      this.TryBuildChildren();
+      this.EnsureBuildChildren();
       for (const child of this._children) {
         let found = child.FindNode(predicate);
         if (found != null)
@@ -19560,7 +20480,7 @@ class TreeNode extends Widget {
   InsertChild(index, child) {
     if (this.IsLeaf)
       return;
-    this.TryBuildChildren();
+    this.EnsureBuildChildren();
     let insertIndex = index < 0 ? this._children.length : index;
     this._children.Insert(insertIndex, child);
     let dataChildren = this._controller.ChildrenGetter(this.Data);
@@ -19573,32 +20493,33 @@ class TreeNode extends Widget {
     dataChildren.Remove(child.Data);
     this.HasLayout = false;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 const _TreeNodeRow = class extends Widget {
   constructor() {
     super();
     __publicField(this, "_expander");
+    __publicField(this, "_checkbox");
     __publicField(this, "_icon");
     __publicField(this, "_label");
     __publicField(this, "_isHover", false);
-    __privateAdd(this, _MouseRegion7, void 0);
+    __privateAdd(this, _MouseRegion9, void 0);
     this.MouseRegion = new MouseRegion(null, false);
     this.MouseRegion.HoverChanged.Add(this._OnHoverChanged, this);
     this.MouseRegion.PointerTap.Add(this._OnTap, this);
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion7);
+    return __privateGet(this, _MouseRegion9);
   }
   set MouseRegion(value) {
-    __privateSet(this, _MouseRegion7, value);
+    __privateSet(this, _MouseRegion9, value);
   }
   set ExpandIcon(value) {
     this._expander = value;
     this._expander.Parent = this;
+  }
+  set Checkbox(value) {
+    this._checkbox = value;
+    this._checkbox.Parent = this;
   }
   get Icon() {
     return this._icon;
@@ -19629,10 +20550,18 @@ const _TreeNodeRow = class extends Widget {
     this.Controller.SelectNode(this.TreeNode);
   }
   get IsOpaque() {
-    return this._isHover && this.Controller.HoverColor.Alpha == 255;
+    return this._isHover && this.Controller.HoverColor.IsOpaque;
   }
   ContainsPoint(x, y) {
     return y >= 0 && y < this.H && x >= 0 && x < this.Controller.TreeView.W;
+  }
+  VisitChildren(action) {
+    if (this._checkbox != null)
+      action(this._checkbox);
+    if (this._icon != null)
+      action(this._icon);
+    if (this._label != null)
+      action(this._label);
   }
   HitTest(x, y, result) {
     if (y < 0 || y > this.H)
@@ -19640,6 +20569,8 @@ const _TreeNodeRow = class extends Widget {
     result.Add(this);
     if (this._expander != null)
       this.HitTestChild(this._expander, x, y, result);
+    if (this._checkbox != null)
+      this.HitTestChild(this._checkbox, x, y, result);
     return true;
   }
   Layout(availableWidth, availableHeight) {
@@ -19650,11 +20581,17 @@ const _TreeNodeRow = class extends Widget {
       (_b = this._expander) == null ? void 0 : _b.SetPosition(indentation, (this.Controller.NodeHeight - this._expander.H) / 2);
     }
     indentation += this.Controller.NodeIndent;
-    if (this._icon != null) {
-      this._icon.Layout(this.Controller.NodeHeight, this.Controller.NodeHeight);
-      this._icon.SetPosition(indentation, (this.Controller.NodeHeight - this._icon.H) / 2);
+    if (this.Controller.ShowCheckbox) {
+      this._checkbox.Layout(this.Controller.NodeHeight, this.Controller.NodeHeight);
+      this._checkbox.SetPosition(indentation, (this.Controller.NodeHeight - this._checkbox.H) / 2);
+      indentation += this._checkbox.W;
+    } else {
+      if (this._icon != null) {
+        this._icon.Layout(this.Controller.NodeHeight, this.Controller.NodeHeight);
+        this._icon.SetPosition(indentation, (this.Controller.NodeHeight - this._icon.H) / 2);
+      }
+      indentation += this.Controller.NodeIndent;
     }
-    indentation += this.Controller.NodeIndent;
     if (this._label != null) {
       this._label.Layout(Number.POSITIVE_INFINITY, this.Controller.NodeHeight);
       this._label.SetPosition(indentation, (this.Controller.NodeHeight - this._label.H) / 2);
@@ -19668,7 +20605,10 @@ const _TreeNodeRow = class extends Widget {
       canvas.drawRect(Rect.FromLTWH(0, 0, this.Controller.TreeView.W, this.Controller.NodeHeight), paint);
     }
     _TreeNodeRow.PaintChild(this._expander, canvas);
-    _TreeNodeRow.PaintChild(this._icon, canvas);
+    if (this.Controller.ShowCheckbox)
+      _TreeNodeRow.PaintChild(this._checkbox, canvas);
+    else
+      _TreeNodeRow.PaintChild(this._icon, canvas);
     _TreeNodeRow.PaintChild(this._label, canvas);
   }
   static PaintChild(child, canvas) {
@@ -19683,21 +20623,17 @@ const _TreeNodeRow = class extends Widget {
     let labelText = this._label == null ? "" : this._label.Text.Value;
     return `TreeNodeRow["${labelText}"]`;
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let TreeNodeRow = _TreeNodeRow;
-_MouseRegion7 = new WeakMap();
+_MouseRegion9 = new WeakMap();
 __publicField(TreeNodeRow, "$meta_PixUI_IMouseRegion", true);
 class TreeController {
   constructor(nodeBuilder, childrenGetter) {
-    __publicField(this, "_treeView");
-    __publicField(this, "_dataSource");
+    __privateAdd(this, _TreeView2, void 0);
     __publicField(this, "NodeBuilder");
     __publicField(this, "ChildrenGetter");
     __publicField(this, "Nodes", new System.List());
+    __publicField(this, "ScrollController", new ScrollController(ScrollDirection.Both));
     __publicField(this, "_selectedNodes", new System.List());
     __publicField(this, "SelectionChanged", new System.Event());
     __publicField(this, "HoverColor", new Color(4289374890));
@@ -19705,11 +20641,23 @@ class TreeController {
     __publicField(this, "NodeHeight", 0);
     __publicField(this, "TotalWidth", 0);
     __publicField(this, "TotalHeight", 0);
+    __publicField(this, "ShowCheckbox", false);
+    __publicField(this, "SuspendAutoCheck", false);
+    __publicField(this, "CheckChanged", new System.Event());
+    __publicField(this, "_isLoading", false);
+    __privateAdd(this, _LoadingPainter, void 0);
+    __publicField(this, "_dataSource");
     this.NodeBuilder = nodeBuilder;
     this.ChildrenGetter = childrenGetter;
   }
   get TreeView() {
-    return this._treeView;
+    return __privateGet(this, _TreeView2);
+  }
+  set TreeView(value) {
+    __privateSet(this, _TreeView2, value);
+  }
+  get RootNodes() {
+    return this.Nodes.ToArray();
   }
   get FirstSelectedNode() {
     return this._selectedNodes.length > 0 ? this._selectedNodes[0] : null;
@@ -19717,30 +20665,58 @@ class TreeController {
   get SelectedNodes() {
     return this._selectedNodes.ToArray();
   }
+  RaiseCheckChanged(node) {
+    this.CheckChanged.Invoke(node);
+  }
+  get LoadingPainter() {
+    return __privateGet(this, _LoadingPainter);
+  }
+  set LoadingPainter(value) {
+    __privateSet(this, _LoadingPainter, value);
+  }
+  get IsLoading() {
+    return this._isLoading;
+  }
+  set IsLoading(value) {
+    var _a, _b, _c;
+    if (this._isLoading == value)
+      return;
+    this._isLoading = value;
+    if (this._isLoading) {
+      this.LoadingPainter = new CircularProgressPainter();
+      this.LoadingPainter.Start(() => {
+        var _a2;
+        return (_a2 = this.TreeView) == null ? void 0 : _a2.Invalidate(InvalidAction.Repaint);
+      });
+    } else {
+      (_a = this.LoadingPainter) == null ? void 0 : _a.Stop();
+      (_b = this.LoadingPainter) == null ? void 0 : _b.Dispose();
+      this.LoadingPainter = null;
+    }
+    (_c = this.TreeView) == null ? void 0 : _c.Invalidate(InvalidAction.Repaint);
+  }
   get DataSource() {
     return this._dataSource;
   }
   set DataSource(value) {
     this._dataSource = value;
-    if (this._treeView != null && this._treeView.IsMounted) {
+    if (this.TreeView != null && this.TreeView.IsMounted) {
       this.Nodes.Clear();
-      this.InitNodes(this._treeView);
-      this._treeView.Invalidate(InvalidAction.Relayout);
+      this.InitNodes(this.TreeView);
+      this.TreeView.Invalidate(InvalidAction.Relayout);
     }
   }
   InitNodes(treeView) {
-    this._treeView = treeView;
+    this.TreeView = treeView;
     if (this._dataSource == null)
       return;
     for (const item of this._dataSource) {
       let node = new TreeNode(item, this);
       this.NodeBuilder(item, node);
+      node.TryBuildCheckbox();
       node.Parent = treeView;
       this.Nodes.Add(node);
     }
-  }
-  OnStateChanged(state, options) {
-    throw new System.NotImplementedException();
   }
   FindNode(predicate) {
     for (const child of this.Nodes) {
@@ -19763,7 +20739,7 @@ class TreeController {
   }
   ExpandTo(node) {
     let temp = node.Parent;
-    while (temp != null && !(temp === this._treeView)) {
+    while (temp != null && !(temp === this.TreeView)) {
       let tempNode = temp;
       tempNode.Expand();
       temp = tempNode.Parent;
@@ -19773,11 +20749,11 @@ class TreeController {
     let node = new TreeNode(child, this);
     this.NodeBuilder(child, node);
     if (parentNode == null) {
-      node.Parent = this._treeView;
+      node.Parent = this.TreeView;
       let index = insertIndex < 0 ? this.Nodes.length : insertIndex;
       this.Nodes.Insert(index, node);
       this.DataSource.Insert(index, child);
-      this._treeView.Invalidate(InvalidAction.Relayout);
+      this.TreeView.Invalidate(InvalidAction.Relayout);
     } else {
       node.Parent = parentNode;
       parentNode.InsertChild(insertIndex, node);
@@ -19787,11 +20763,11 @@ class TreeController {
     return node;
   }
   RemoveNode(node) {
-    if (node.Parent === this._treeView) {
+    if (node.Parent === this.TreeView) {
       this.Nodes.Remove(node);
       this.DataSource.Remove(node.Data);
       node.Parent = null;
-      this._treeView.Invalidate(InvalidAction.Relayout);
+      this.TreeView.Invalidate(InvalidAction.Relayout);
     } else {
       let parentNode = node.Parent;
       parentNode.RemoveChild(node);
@@ -19805,18 +20781,23 @@ class TreeController {
       this.SelectionChanged.Invoke();
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+  SetChecked(data, value) {
+    let node = this.FindNode((t) => System.Equals(data, t));
+    if (node == null)
+      throw new System.Exception("Can't find node");
+    node.SetChecked(value);
   }
 }
-class TreeView extends Widget {
-  constructor(controller, nodeHeight = 30) {
+_TreeView2 = new WeakMap();
+_LoadingPainter = new WeakMap();
+const _TreeView = class extends Widget {
+  constructor(controller, showCheckbox = false, nodeHeight = 30) {
     super();
     __publicField(this, "_controller");
     __publicField(this, "_color");
     this._controller = controller;
     this._controller.NodeHeight = nodeHeight;
+    this._controller.ShowCheckbox = showCheckbox;
     this._controller.InitNodes(this);
   }
   get Color() {
@@ -19825,8 +20806,31 @@ class TreeView extends Widget {
   set Color(value) {
     this._color = this.Rebind(this._color, value, BindingOptions.AffectsVisual);
   }
+  set OnCheckChanged(value) {
+    this._controller.CheckChanged.Add(value, this);
+  }
+  get ScrollOffsetX() {
+    return this._controller.ScrollController.OffsetX;
+  }
+  get ScrollOffsetY() {
+    return this._controller.ScrollController.OffsetY;
+  }
+  OnScroll(dx, dy) {
+    if (this._controller.Nodes.length == 0)
+      return Offset.Empty;
+    let maxOffsetX = Math.max(0, this._controller.TotalWidth - this.W);
+    let maxOffsetY = Math.max(0, this._controller.TotalHeight - this.H);
+    let offset = this._controller.ScrollController.OnScroll(dx, dy, maxOffsetX, maxOffsetY);
+    if (!offset.IsEmpty) {
+      this.Invalidate(InvalidAction.Repaint);
+    }
+    return offset;
+  }
   get IsOpaque() {
     return this._color != null && this._color.Value.Alpha == 255;
+  }
+  get Clipper() {
+    return new ClipperOfRect(Rect.FromLTWH(0, 0, this.W, this.H));
   }
   VisitChildren(action) {
     for (const node of this._controller.Nodes) {
@@ -19852,26 +20856,40 @@ class TreeView extends Widget {
   OnChildSizeChanged(child, dx, dy, affects) {
     affects.OldW = this.W;
     affects.OldH = this.H - child.Y;
-    TreeView.UpdatePositionAfter(child, this._controller.Nodes, dy);
+    _TreeView.UpdatePositionAfter(child, this._controller.Nodes, dy);
     if (dx > 0) {
       this._controller.TotalWidth = Math.max(child.W, this._controller.TotalWidth);
     } else if (dx < 0 && child.W - dx == this._controller.TotalWidth) {
-      this._controller.TotalWidth = TreeView.CalcMaxChildWidth(this._controller.Nodes);
+      this._controller.TotalWidth = _TreeView.CalcMaxChildWidth(this._controller.Nodes);
     }
     this._controller.TotalHeight += dy;
   }
   Paint(canvas, area = null) {
-    let needClip = area != null;
-    if (needClip) {
-      canvas.save();
-      canvas.clipRect(area.GetRect(), CanvasKit.ClipOp.Intersect, false);
+    var _a;
+    if (this._controller.IsLoading) {
+      if (this._color != null)
+        canvas.drawRect(Rect.FromLTWH(0, 0, this.W, this.H), PaintUtils.Shared(this._color.Value));
+      this._controller.LoadingPainter.PaintToWidget(this, canvas);
+      return;
     }
-    if (this._color != null) {
+    canvas.save();
+    canvas.clipRect(Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
+    if (this._color != null)
       canvas.drawRect(Rect.FromLTWH(0, 0, this.W, this.H), PaintUtils.Shared(this._color.Value));
+    let dirtyRect = ((_a = area == null ? void 0 : area.GetRect()) != null ? _a : Rect.FromLTWH(0, 0, this.W, this.H)).Clone();
+    for (const node of this._controller.Nodes) {
+      let vx = node.X - this.ScrollOffsetX;
+      let vy = node.Y - this.ScrollOffsetY;
+      if (vy >= dirtyRect.Bottom)
+        break;
+      let vb = vy + node.H;
+      if (vb <= dirtyRect.Top)
+        continue;
+      canvas.translate(vx, vy);
+      node.Paint(canvas, null);
+      canvas.translate(-vx, -vy);
     }
-    this.PaintChildren(canvas, area);
-    if (needClip)
-      canvas.restore();
+    canvas.restore();
   }
   static CalcMaxChildWidth(nodes) {
     let maxChildWidth = 0;
@@ -19892,9 +20910,20 @@ class TreeView extends Widget {
       }
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+};
+let TreeView = _TreeView;
+__publicField(TreeView, "$meta_PixUI_IScrollable", true);
+class CellCache {
+  constructor(rowIndex, item) {
+    __publicField(this, "RowIndex");
+    __publicField(this, "CachedItem");
+    this.RowIndex = rowIndex;
+    this.CachedItem = item;
+  }
+}
+class CellCacheComparer {
+  Compare(x, y) {
+    return x.RowIndex.CompareTo(y.RowIndex);
   }
 }
 class CellStyle {
@@ -19906,10 +20935,6 @@ class CellStyle {
     __publicField(this, "HorizontalAlignment", HorizontalAlignment.Left);
     __publicField(this, "VerticalAlignment", VerticalAlignment.Middle);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 __publicField(CellStyle, "CellPadding", 5);
 class DataGrid extends Widget {
@@ -19917,7 +20942,7 @@ class DataGrid extends Widget {
     super();
     __publicField(this, "_controller");
     __publicField(this, "Theme");
-    __privateAdd(this, _MouseRegion8, void 0);
+    __privateAdd(this, _MouseRegion10, void 0);
     this._controller = controller;
     this._controller.Attach(this);
     this.Theme = theme != null ? theme : DataGridTheme.Default;
@@ -19932,10 +20957,10 @@ class DataGrid extends Widget {
     this._controller.Columns = value;
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion8);
+    return __privateGet(this, _MouseRegion10);
   }
   set MouseRegion(value) {
-    __privateSet(this, _MouseRegion8, value);
+    __privateSet(this, _MouseRegion10, value);
   }
   get ScrollOffsetX() {
     return this._controller.ScrollController.OffsetX;
@@ -19950,9 +20975,22 @@ class DataGrid extends Widget {
     let totalHeaderHeight = this._controller.TotalHeaderHeight;
     let maxOffsetX = Math.max(0, this._controller.TotalColumnsWidth - this.W);
     let maxOffsetY = Math.max(0, totalRowsHeight - (this.H - totalHeaderHeight));
+    let oldVisibleRowStart = this._controller.VisibleStartRowIndex;
+    let visibleRows = this._controller.VisibleRows;
     let offset = this._controller.ScrollController.OnScroll(dx, dy, maxOffsetX, maxOffsetY);
-    if (!offset.IsEmpty)
+    if (!offset.IsEmpty) {
+      if (dy > 0) {
+        let newVisibleRowStart = this._controller.VisibleStartRowIndex;
+        if (newVisibleRowStart != oldVisibleRowStart)
+          this._controller.ClearCacheOnScroll(true, newVisibleRowStart);
+      } else {
+        let oldVisibleRowEnd = oldVisibleRowStart + visibleRows;
+        let newVisibleRowEnd = this._controller.VisibleStartRowIndex + visibleRows;
+        if (oldVisibleRowEnd != newVisibleRowEnd)
+          this._controller.ClearCacheOnScroll(false, newVisibleRowEnd);
+      }
       this.Invalidate(InvalidAction.Repaint);
+    }
     return offset;
   }
   Layout(availableWidth, availableHeight) {
@@ -20013,7 +21051,7 @@ class DataGrid extends Widget {
     this.PaintCellBorder(canvas, cellRect);
     if (column.Parent != null && !paintedGroupColumns.Contains(column.Parent)) {
       let parent = column.Parent;
-      let index = parent.Children.IndexOf(column);
+      let index = parent.Children.indexOf(column);
       let offsetLeft = 0;
       for (let i = 0; i < index; i++) {
         offsetLeft += parent.Children[i].LayoutWidth;
@@ -20073,32 +21111,28 @@ class DataGrid extends Widget {
     canvas.drawRect(cellRect, paint);
   }
   PaintHighlight(canvas) {
-    if (!this.Theme.HighlightingCurrentCell && !this.Theme.HighlightingCurrentRow)
-      return;
-    let cellRect = this._controller.GetCurrentCellRect();
-    if (cellRect == null)
-      return;
     if (this.Theme.HighlightingCurrentRow) {
-      let rowRect = Rect.FromLTWH(0, cellRect.Top, Math.min(this.W, this._controller.TotalColumnsWidth), cellRect.Height);
-      if (this.Theme.HighlightingCurrentCell) {
-        let paint = PaintUtils.Shared(this.Theme.HighlightRowBgColor);
-        canvas.drawRect(rowRect, paint);
-      } else {
-        let paint = PaintUtils.Shared(Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, Theme.FocusedBorderWidth);
-        canvas.drawRect(rowRect, paint);
+      let rowRect = this._controller.GetCurrentRowRect();
+      if (rowRect != null) {
+        if (this.Theme.HighlightingCurrentCell) {
+          let paint = PaintUtils.Shared(this.Theme.HighlightRowBgColor);
+          canvas.drawRect(rowRect, paint);
+        } else {
+          let paint = PaintUtils.Shared(Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, Theme.FocusedBorderWidth);
+          canvas.drawRect(rowRect, paint);
+        }
       }
     }
     if (this.Theme.HighlightingCurrentCell) {
-      let paint = PaintUtils.Shared(Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, Theme.FocusedBorderWidth);
-      canvas.drawRect(cellRect, paint);
+      let cellRect = this._controller.GetCurrentCellRect();
+      if (cellRect != null) {
+        let paint = PaintUtils.Shared(Theme.FocusedColor, CanvasKit.PaintStyle.Stroke, Theme.FocusedBorderWidth);
+        canvas.drawRect(cellRect, paint);
+      }
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
-_MouseRegion8 = new WeakMap();
+_MouseRegion10 = new WeakMap();
 __publicField(DataGrid, "$meta_PixUI_IScrollable", true);
 __publicField(DataGrid, "$meta_PixUI_IMouseRegion", true);
 class DataGridController {
@@ -20126,12 +21160,16 @@ class DataGridController {
   get Theme() {
     return this._owner.Theme;
   }
+  get DataGrid() {
+    return this._owner;
+  }
   get Columns() {
     return this._columns;
   }
   set Columns(value) {
     this._columns = value;
     this.HeaderRows = 1;
+    this._cachedLeafColumns.Clear();
     for (const column of this._columns) {
       this.GetLeafColumns(column, this._cachedLeafColumns, null);
     }
@@ -20172,20 +21210,74 @@ class DataGridController {
   get VisibleStartRowIndex() {
     return Math.floor(Math.trunc(this.ScrollController.OffsetY / this.Theme.RowHeight)) & 4294967295;
   }
+  get VisibleRows() {
+    return Math.floor(Math.ceil(Math.max(0, this.DataGrid.H - this.TotalHeaderHeight) / this.Theme.RowHeight)) & 4294967295;
+  }
   set DataSource(value) {
     var _a;
+    let oldEmpty = this._dataSource == null ? true : this._dataSource.length == 0;
+    let newEmpty = value == null ? true : value.length == 0;
     this._dataSource = value;
+    this.ClearAllCache();
+    if (oldEmpty && newEmpty)
+      return;
     (_a = this._owner) == null ? void 0 : _a.Invalidate(InvalidAction.Repaint);
   }
   get DataView() {
     return this._dataSource;
   }
-  get SelectedRows() {
-    return this._selectedRows.ToArray();
+  get CurrentRowIndex() {
+    return this._selectedRows.length > 0 ? this._selectedRows[0] : -1;
+  }
+  ObserveCurrentRow() {
+    let state = new RxProperty(() => {
+      if (this.DataView == null || this._selectedRows.length == 0) {
+        let nullValue = null;
+        return nullValue;
+      }
+      return this.DataView[this._selectedRows[0]];
+    }, (newRow) => {
+      if (newRow == null) {
+        this.ClearSelection();
+        return;
+      }
+      let index = this.DataView.IndexOf(newRow);
+      this.SelectAt(index);
+    }, false);
+    this.SelectionChanged.Add(() => state.NotifyValueChanged());
+    return state;
+  }
+  SelectAt(index) {
+    let oldRowIndex = this.CurrentRowIndex;
+    let newRowIndex = index;
+    this.TrySelectRow(oldRowIndex, newRowIndex);
+  }
+  ClearSelection() {
+    this._selectedRows.Clear();
+    this._cachedHitInRows = null;
+    this.SelectionChanged.Invoke();
+  }
+  TrySelectRow(oldRowIndex, newRowIndex) {
+    if (oldRowIndex == newRowIndex)
+      return;
+    this._selectedRows.Clear();
+    if (newRowIndex != -1)
+      this._selectedRows.Add(newRowIndex);
+    this.SelectionChanged.Invoke();
   }
   Invalidate() {
     var _a;
     (_a = this._owner) == null ? void 0 : _a.Invalidate(InvalidAction.Repaint);
+  }
+  ClearAllCache() {
+    for (const column of this._cachedLeafColumns) {
+      column.ClearAllCache();
+    }
+  }
+  ClearCacheOnScroll(isScrollDown, rowIndex) {
+    for (const column of this._cachedLeafColumns) {
+      column.ClearCacheOnScroll(isScrollDown, rowIndex);
+    }
   }
   OnPointerMove(e) {
     var _a;
@@ -20207,7 +21299,7 @@ class DataGridController {
           let delta = e.DeltaX;
           let newWidth = col.Width.Value + delta;
           col.Width.ChangeValue(newWidth);
-          col.OnResized();
+          col.ClearAllCache();
           if (delta < 0 && this.ScrollController.OffsetX > 0) {
             this.ScrollController.OffsetX = Math.max(this.ScrollController.OffsetX + delta, 0);
           }
@@ -20222,15 +21314,10 @@ class DataGridController {
     if (e.Y <= this.TotalHeaderHeight) {
       return;
     }
-    let oldRowIndex = this._cachedHitInRows != null ? this._cachedHitInRows.RowIndex : -1;
+    let oldRowIndex = this.CurrentRowIndex;
     this._cachedHitInRows = this.HitTestInRows(e.X, e.Y);
     let newRowIndex = this._cachedHitInRows != null ? this._cachedHitInRows.RowIndex : -1;
-    if (oldRowIndex != newRowIndex) {
-      this._selectedRows.Clear();
-      if (newRowIndex != -1)
-        this._selectedRows.Add(this.DataView[newRowIndex]);
-      this.SelectionChanged.Invoke();
-    }
+    this.TrySelectRow(oldRowIndex, newRowIndex);
     if (this._cachedHitInRows != null && (this._cachedHitInRows.ScrollDeltaX != 0 || this._cachedHitInRows.ScrollDeltaY != 0)) {
       this.ScrollController.OffsetX += this._cachedHitInRows.ScrollDeltaX;
       this.ScrollController.OffsetY += this._cachedHitInRows.ScrollDeltaY;
@@ -20368,12 +21455,18 @@ class DataGridController {
   GetScrollClipRect(top, height) {
     return Rect.FromLTWH(this._cachedScrollLeft, top, this._cachedScrollRight - this._cachedScrollLeft, height);
   }
+  GetCurrentRowRect() {
+    if (this._selectedRows.length == 0)
+      return null;
+    let top = this.TotalHeaderHeight + (this._selectedRows[0] - this.VisibleStartRowIndex) * this.Theme.RowHeight - this.ScrollDeltaY;
+    return new Rect(1, top + 1, this._owner.W - 2, top + this.Theme.RowHeight - 1);
+  }
   GetCurrentCellRect() {
     if (this._cachedHitInRows == null || this._cachedHitInRows.RowIndex == -1)
       return null;
     let hitColumn = this._cachedHitInRows.Column;
     let top = this.TotalHeaderHeight + (this._cachedHitInRows.RowIndex - this.VisibleStartRowIndex) * this.Theme.RowHeight - this.ScrollDeltaY;
-    return new Rect(hitColumn.CachedVisibleLeft, top, hitColumn.CachedVisibleRight, top + this.Theme.RowHeight);
+    return new Rect(hitColumn.CachedVisibleLeft + 1, top + 1, hitColumn.CachedVisibleRight - 2, top + this.Theme.RowHeight - 1);
   }
   GetLeafColumns(column, leafColumns, parentFrozen) {
     if (parentFrozen != null)
@@ -20389,9 +21482,32 @@ class DataGridController {
       leafColumns.Add(column);
     }
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+  Add(item) {
+    var _a;
+    this._dataSource.Add(item);
+    (_a = this._owner) == null ? void 0 : _a.Invalidate(InvalidAction.Repaint);
+  }
+  Remove(item) {
+    let indexInDataView = this.DataView.IndexOf(item);
+    this.RemoveAt(indexInDataView);
+  }
+  RemoveAt(index) {
+    var _a;
+    let rowIndex = index;
+    if (!(this.DataView === this._dataSource)) {
+      let rowInView = this.DataView[index];
+      this.DataView.RemoveAt(index);
+      rowIndex = this._dataSource.IndexOf(rowInView);
+    }
+    this._dataSource.RemoveAt(rowIndex);
+    this.ClearSelection();
+    this.ClearAllCache();
+    (_a = this._owner) == null ? void 0 : _a.Invalidate(InvalidAction.Repaint);
+  }
+  Refresh() {
+    var _a;
+    this.ClearAllCache();
+    (_a = this._owner) == null ? void 0 : _a.Invalidate(InvalidAction.Repaint);
   }
 }
 _HeaderRows = new WeakMap();
@@ -20434,10 +21550,6 @@ const _DataGridTheme = class {
   static get Default() {
     var _a;
     return (_a = _DataGridTheme._default) != null ? _a : _DataGridTheme._default = new _DataGridTheme();
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 };
 let DataGridTheme = _DataGridTheme;
@@ -20495,9 +21607,9 @@ _Type2 = new WeakMap();
 _Value = new WeakMap();
 _MinValue = new WeakMap();
 class DataGridColumn {
-  constructor(label, width = null, headerCellStyle = null, cellStyle = null, cellStyleGetter = null, frozen = false) {
+  constructor(label) {
     __publicField(this, "Label");
-    __publicField(this, "Width");
+    __publicField(this, "Width", ColumnWidth.Auto());
     __publicField(this, "HeaderCellStyle");
     __publicField(this, "CellStyle");
     __publicField(this, "CellStyleGetter");
@@ -20508,11 +21620,6 @@ class DataGridColumn {
     __publicField(this, "CachedVisibleLeft", 0);
     __publicField(this, "CachedVisibleRight", 0);
     this.Label = label;
-    this.Width = width != null ? width : ColumnWidth.Auto();
-    this.HeaderCellStyle = headerCellStyle;
-    this.CellStyle = cellStyle;
-    this.CellStyleGetter = cellStyleGetter;
-    this.Frozen = frozen;
   }
   get HeaderRowIndex() {
     return this.Parent == null ? 0 : this.Parent.HeaderRowIndex + 1;
@@ -20532,9 +21639,11 @@ class DataGridColumn {
       this._cachedWidth = newWidth;
     }
     if (widthChanged)
-      this.OnResized();
+      this.ClearAllCache();
   }
-  OnResized() {
+  ClearAllCache() {
+  }
+  ClearCacheOnScroll(isScrollDown, rowIndex) {
   }
   PaintHeader(canvas, cellRect, theme) {
     var _a;
@@ -20551,7 +21660,35 @@ class DataGridColumn {
   }
   static BuildCellParagraph(rect, style, text, maxLines) {
     var _a;
-    return TextPainter.BuildParagraph(text, rect.Width - CellStyle.CellPadding * 2, style.FontSize, (_a = style.Color) != null ? _a : Colors.Black, new FontStyle(style.FontWeight, CanvasKit.FontSlant.Upright), maxLines, true);
+    let ts = MakeTextStyle({
+      color: (_a = style.Color) != null ? _a : Colors.Black,
+      fontSize: style.FontSize,
+      fontStyle: new FontStyle(style.FontWeight, CanvasKit.FontSlant.Upright),
+      heightMultiplier: 1
+    });
+    let textAlign = CanvasKit.TextAlign.Left;
+    switch (style.HorizontalAlignment) {
+      case HorizontalAlignment.Right:
+        textAlign = CanvasKit.TextAlign.Right;
+        break;
+      case HorizontalAlignment.Center:
+        textAlign = CanvasKit.TextAlign.Center;
+        break;
+    }
+    let ps = MakeParagraphStyle({
+      maxLines: Math.floor(maxLines) & 4294967295,
+      textStyle: ts,
+      heightMultiplier: 1,
+      textAlign
+    });
+    let pb = MakeParagraphBuilder(ps);
+    pb.pushStyle(ts);
+    pb.addText(text);
+    pb.pop();
+    let ph = pb.build();
+    ph.layout(rect.Width - CellStyle.CellPadding * 2);
+    pb.delete();
+    return ph;
   }
   static PaintCellParagraph(canvas, rect, style, paragraph) {
     if (style.VerticalAlignment == VerticalAlignment.Middle) {
@@ -20568,29 +21705,25 @@ class DataGridColumn {
   }
 }
 class DataGridGroupColumn extends DataGridColumn {
-  constructor(label, children, width = null, headerCellStyle = null, frozen = false) {
-    super(label, width, headerCellStyle, null, null, frozen);
+  constructor(label, children) {
+    super(label);
     __publicField(this, "Children");
     this.Children = children;
   }
   get LayoutWidth() {
     return this.Children.Sum((c) => c.LayoutWidth);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
 class DataGridIconColumn extends DataGridColumn {
-  constructor(label, cellValueGetter, width = null, headerCellStyle = null, cellStyle = null, cellStyleGetter = null, frozen = false) {
-    super(label, width, headerCellStyle, cellStyle, cellStyleGetter, frozen);
-    __publicField(this, "CellValueGetter");
-    this.CellValueGetter = cellValueGetter;
+  constructor(label, cellValueGetter) {
+    super(label);
+    __publicField(this, "_cellValueGetter");
+    this._cellValueGetter = cellValueGetter;
   }
   PaintCell(canvas, controller, rowIndex, cellRect) {
     var _a, _b;
     let row = controller.DataView[rowIndex];
-    let icon = this.CellValueGetter(row);
+    let icon = this._cellValueGetter(row);
     if (icon == null)
       return;
     let style = this.CellStyleGetter != null ? this.CellStyleGetter(row, rowIndex) : (_a = this.CellStyle) != null ? _a : controller.Theme.DefaultRowCellStyle;
@@ -20605,15 +21738,12 @@ class DataGridIconColumn extends DataGridColumn {
     iconPainter.Paint(canvas, style.FontSize, (_b = style.Color) != null ? _b : Colors.Black, icon, offsetX, offsetY);
     iconPainter.Dispose();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 }
-class DataGridTextColumn extends DataGridColumn {
-  constructor(label, cellValueGetter, width = null, headerCellStyle = null, cellStyle = null, cellStyleGetter = null, frozen = false) {
-    super(label, width, headerCellStyle, cellStyle, cellStyleGetter, frozen);
+const _DataGridTextColumn = class extends DataGridColumn {
+  constructor(label, cellValueGetter) {
+    super(label);
     __publicField(this, "_cellValueGetter");
+    __publicField(this, "_cellParagraphs", new System.List());
     this._cellValueGetter = cellValueGetter;
   }
   PaintCell(canvas, controller, rowIndex, cellRect) {
@@ -20623,13 +21753,75 @@ class DataGridTextColumn extends DataGridColumn {
     if (System.IsNullOrEmpty(cellValue))
       return;
     let style = this.CellStyleGetter != null ? this.CellStyleGetter(row, rowIndex) : (_a = this.CellStyle) != null ? _a : controller.Theme.DefaultRowCellStyle;
-    let ph = DataGridColumn.BuildCellParagraph(cellRect.Clone(), style, cellValue, 1);
+    let ph = this.GetCellParagraph(rowIndex, controller, cellRect, cellValue, style);
     DataGridColumn.PaintCellParagraph(canvas, cellRect.Clone(), style, ph);
-    ph.delete();
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
+  GetCellParagraph(rowIndex, controller, cellRect, cellValue, style) {
+    let pattern = new CellCache(rowIndex, null);
+    let index = this._cellParagraphs.BinarySearch(pattern, _DataGridTextColumn._cellCacheComparer);
+    if (index >= 0)
+      return this._cellParagraphs[index].CachedItem;
+    index = ~index;
+    controller.DataView[rowIndex];
+    let ph = DataGridColumn.BuildCellParagraph(cellRect.Clone(), style, cellValue, 1);
+    let cellCachedWidget = new CellCache(rowIndex, ph);
+    this._cellParagraphs.Insert(index, cellCachedWidget);
+    return ph;
+  }
+  ClearAllCache() {
+    this._cellParagraphs.Clear();
+  }
+  ClearCacheOnScroll(isScrollDown, rowIndex) {
+    if (isScrollDown)
+      this._cellParagraphs.RemoveAll((t) => t.RowIndex < rowIndex);
+    else
+      this._cellParagraphs.RemoveAll((t) => t.RowIndex >= rowIndex);
+  }
+};
+let DataGridTextColumn = _DataGridTextColumn;
+__publicField(DataGridTextColumn, "_cellCacheComparer", new CellCacheComparer());
+const _DataGridHostColumn = class extends DataGridColumn {
+  constructor(label, cellBuilder) {
+    super(label);
+    __publicField(this, "_cellBuilder");
+    __publicField(this, "_cellWidgets", new System.List());
+    this._cellBuilder = cellBuilder;
+  }
+  PaintCell(canvas, controller, rowIndex, cellRect) {
+    let cellWidget = this.GetCellWidget(rowIndex, controller, cellRect);
+    canvas.translate(cellRect.Left, cellRect.Top);
+    cellWidget.Paint(canvas, null);
+    canvas.translate(-cellRect.Left, -cellRect.Top);
+  }
+  GetCellWidget(rowIndex, controller, cellRect) {
+    let pattern = new CellCache(rowIndex, null);
+    let index = this._cellWidgets.BinarySearch(pattern, _DataGridHostColumn._cellCacheComparer);
+    if (index >= 0)
+      return this._cellWidgets[index].CachedItem;
+    index = ~index;
+    let row = controller.DataView[rowIndex];
+    let cellWidget = this._cellBuilder(row, rowIndex);
+    cellWidget.Parent = controller.DataGrid;
+    cellWidget.Layout(cellRect.Width, cellRect.Height);
+    let cellCachedWidget = new CellCache(rowIndex, cellWidget);
+    this._cellWidgets.Insert(index, cellCachedWidget);
+    return cellWidget;
+  }
+  ClearCacheOnScroll(isScrollDown, rowIndex) {
+    if (isScrollDown)
+      this._cellWidgets.RemoveAll((t) => t.RowIndex < rowIndex);
+    else
+      this._cellWidgets.RemoveAll((t) => t.RowIndex >= rowIndex);
+  }
+};
+let DataGridHostColumn = _DataGridHostColumn;
+__publicField(DataGridHostColumn, "_cellCacheComparer", new CellCacheComparer());
+class DataGridCheckboxColumn extends DataGridHostColumn {
+  constructor(label, cellValueGetter, cellValueSetter = null) {
+    super(label, (data, _) => {
+      let state = new RxProperty(() => cellValueGetter(data), cellValueSetter == null ? null : (v) => cellValueSetter(data, v));
+      return new Checkbox(state);
+    });
   }
 }
 const _Cursor = class {
@@ -20671,20 +21863,65 @@ let Clipboard = _Clipboard;
 __publicField(Clipboard, "_platformClipboard");
 class RepaintArea {
   constructor(rect) {
-    __publicField(this, "Rect");
-    this.Rect = rect.Clone();
+    __publicField(this, "_rect");
+    this._rect = rect.Clone();
   }
   GetRect() {
-    return this.Rect;
+    return this._rect;
   }
   Merge(newArea) {
   }
-  ToChild(childX, childY) {
-    if (childX == 0 && childY == 0)
+  IntersectsWith(child) {
+    return this._rect.IntersectsWith(child.X, child.Y, child.W, child.H);
+  }
+  ToChild(child) {
+    if (child.X == 0 && child.Y == 0)
       return this;
-    let childRect = this.Rect.Clone();
-    childRect.Offset(-childX, -childY);
+    let childRect = Rect.FromLTWH(this._rect.Left - child.X, this._rect.Top - child.Y, this._rect.Width, this._rect.Height);
     return new RepaintArea(childRect.Clone());
+  }
+  toString() {
+    return `RepaintArea[${this._rect}]`;
+  }
+}
+class RepaintChild {
+  constructor(from, to, lastDirtyArea) {
+    __publicField(this, "_lastDirtyArea");
+    __publicField(this, "_path");
+    __publicField(this, "_current", 0);
+    this._lastDirtyArea = lastDirtyArea;
+    this._path = new System.List();
+    let temp = to;
+    while (!(temp === from)) {
+      this._path.Add(temp);
+      temp = temp.Parent;
+    }
+    this._current = this._path.length - 1;
+  }
+  Merge(newArea) {
+    throw new System.NotSupportedException();
+  }
+  IntersectsWith(child) {
+    if (this._current < 0)
+      return false;
+    let cur = this._path[this._current];
+    return cur === child;
+  }
+  GetRect() {
+    let cur = this._path[this._current];
+    return Rect.FromLTWH(cur.X, cur.Y, cur.W, cur.H);
+  }
+  ToChild(child) {
+    this._current--;
+    if (this._current < 0)
+      return this._lastDirtyArea;
+    return this;
+  }
+  toString() {
+    if (this._current < 0)
+      return this._lastDirtyArea == null ? "" : this._lastDirtyArea.toString();
+    let cur = this._path[this._current];
+    return `RepaintChild[${cur}]`;
   }
 }
 const _UIApplication = class {
@@ -20702,7 +21939,7 @@ const _UIApplication = class {
     let widgetsCanvas = window2.GetOffscreenCanvas();
     let overlayCanvas = window2.GetOnscreenCanvas();
     let ctx = PaintContext.Default;
-    ctx.Window = this.MainWindow;
+    ctx.Window = window2;
     let beginTime = System.DateTime.UtcNow;
     if (!window2.WidgetsInvalidQueue.IsEmpty) {
       ctx.Canvas = widgetsCanvas;
@@ -20747,10 +21984,6 @@ const _PaintContext = class {
   set Canvas(value) {
     __privateSet(this, _Canvas, value);
   }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
-  }
 };
 let PaintContext = _PaintContext;
 _Window3 = new WeakMap();
@@ -20765,7 +21998,14 @@ const _AffectsByRelayout = class {
     __publicField(this, "OldH", 0);
   }
   GetDirtyArea() {
-    return new RepaintArea(new Rect(Math.min(this.OldX, this.Widget.X), Math.min(this.OldY, this.Widget.Y), Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H)));
+    let cx = 0;
+    let cy = 0;
+    if (IsInterfaceOfIScrollable(this.Widget.Parent)) {
+      const scrollable = this.Widget.Parent;
+      cx = scrollable.ScrollOffsetX;
+      cy = scrollable.ScrollOffsetY;
+    }
+    return new RepaintArea(new Rect(Math.min(this.OldX, this.Widget.X) - cx, Math.min(this.OldY, this.Widget.Y) - cy, Math.max(this.OldX + this.OldW, this.Widget.X + this.Widget.W), Math.max(this.OldY + this.OldH, this.Widget.Y + this.Widget.H)));
   }
 };
 let AffectsByRelayout = _AffectsByRelayout;
@@ -20782,10 +22022,6 @@ class InvalidWidget {
     __publicField(this, "Level", 0);
     __publicField(this, "RelayoutOnly", false);
     __publicField(this, "Area");
-  }
-  Init(props) {
-    Object.assign(this, props);
-    return this;
   }
 }
 class InvalidQueue {
@@ -20817,8 +22053,9 @@ class InvalidQueue {
     let insertPos = 0;
     let relayoutOnly = false;
     for (const exist of this._queue) {
-      if (exist.Level > level)
+      if (exist.Level > level) {
         break;
+      }
       if (exist.Widget === widget) {
         if (exist.Action < action)
           exist.Action = action;
@@ -20878,6 +22115,8 @@ class InvalidQueue {
     var _a;
     let hasRelayout = false;
     for (const item of this._queue) {
+      if (!item.Widget.IsMounted)
+        continue;
       if (item.Action == 1) {
         hasRelayout = true;
         let affects = AffectsByRelayout.Default;
@@ -20891,7 +22130,7 @@ class InvalidQueue {
     }
     this._queue.Clear();
     if (hasRelayout)
-      context.Window.AfterLayoutChanged();
+      context.Window.RunNewHitTest();
   }
   RelayoutAll() {
     for (const item of this._queue) {
@@ -20914,63 +22153,97 @@ class InvalidQueue {
     widget.TryNotifyParentIfSizeChanged(affects.OldW, affects.OldH, affects);
   }
   static RepaintWidget(ctx, widget, dirtyArea) {
-    var _a, _b, _c, _d;
-    console.log(`Repaint: ${widget} rect=${dirtyArea == null ? void 0 : dirtyArea.GetRect()}`);
     let canvas = ctx.Canvas;
-    if (widget.IsOpaque) {
-      let pt2Win = widget.LocalToWindow(0, 0);
-      canvas.translate(pt2Win.X, pt2Win.Y);
-      widget.Paint(canvas, dirtyArea);
-      canvas.translate(-pt2Win.X, -pt2Win.Y);
+    let x = 0;
+    let y = 0;
+    let opaque = null;
+    let temp = widget;
+    let dirtyRect = (dirtyArea == null ? Rect.FromLTWH(0, 0, widget.W, widget.H) : dirtyArea.GetRect()).Clone();
+    let clipper = new ClipperOfRect(dirtyRect.Clone());
+    let isClipperEmpty = false;
+    let dirtyX = dirtyRect.Left;
+    let dirtyY = dirtyRect.Top;
+    do {
+      let cx = temp.X;
+      let cy = temp.Y;
+      if (IsInterfaceOfIScrollable(temp.Parent)) {
+        const scrollable = temp.Parent;
+        cx -= scrollable.ScrollOffsetX;
+        cy -= scrollable.ScrollOffsetY;
+      } else if (temp.Parent instanceof Transform) {
+        const transform = temp.Parent;
+        let transformed = MatrixUtils.TransformPoint(transform.EffectiveTransform, cx, cy);
+        cx = transformed.Dx;
+        cy = transformed.Dy;
+      }
+      if (opaque == null) {
+        if (temp.IsOpaque) {
+          opaque = temp;
+          x = 0;
+          y = 0;
+        } else {
+          dirtyX += cx;
+          dirtyY += cy;
+        }
+      }
+      let currentClipper = temp.Clipper;
+      if (currentClipper != null) {
+        clipper = currentClipper.IntersectWith(clipper);
+        if (clipper.IsEmpty) {
+          isClipperEmpty = true;
+          break;
+        }
+      }
+      clipper.Offset(cx, cy);
+      x += cx;
+      y += cy;
+      if (temp.Parent == null)
+        break;
+      temp = temp.Parent;
+    } while (true);
+    if (isClipperEmpty) {
+      console.log("\u88C1\u526A\u533A\u57DF\u4E3A\u7A7A\uFF0C\u4E0D\u9700\u8981\u91CD\u7ED8");
       return;
     }
-    let opaque = null;
-    let current = widget;
-    let dx = 0;
-    let dy = 0;
-    while (current.Parent != null) {
-      dx += current.X;
-      dy += current.Y;
-      current = current.Parent;
-      if (current.IsOpaque) {
-        opaque = current;
-        break;
-      }
+    if (opaque == null) {
+      opaque = temp;
+      x = 0;
+      y = 0;
     }
-    opaque != null ? opaque : opaque = current;
-    let dirtyRect = dirtyArea == null ? void 0 : dirtyArea.GetRect();
-    let dirtyX = dx + ((_a = dirtyRect == null ? void 0 : dirtyRect.Left) != null ? _a : 0);
-    let dirtyY = dy + ((_b = dirtyRect == null ? void 0 : dirtyRect.Top) != null ? _b : 0);
-    let dirtyW = (_c = dirtyRect == null ? void 0 : dirtyRect.Width) != null ? _c : widget.W;
-    let dirtyH = (_d = dirtyRect == null ? void 0 : dirtyRect.Height) != null ? _d : widget.H;
-    let dirtyChildRect = Rect.FromLTWH(dirtyX, dirtyY, dirtyW, dirtyH);
+    console.log(`InvalidQueue.Repaint: ${widget} dirty=${dirtyArea} Opaque=${opaque} area={{X=${dirtyX} Y=${dirtyY} W=${dirtyRect.Width} H=${dirtyRect.Height}}}`);
     canvas.save();
-    let opaque2Win = opaque.LocalToWindow(0, 0);
-    canvas.translate(opaque2Win.X, opaque2Win.Y);
-    canvas.clipRect(dirtyChildRect, CanvasKit.ClipOp.Intersect, false);
-    if (opaque === ctx.Window.RootWidget && !opaque.IsOpaque)
-      canvas.clear(ctx.Window.BackgroundColor);
-    opaque.Paint(canvas, new RepaintArea(dirtyChildRect.Clone()));
-    canvas.restore();
+    try {
+      clipper.ApplyToCanvas(canvas);
+      canvas.translate(x, y);
+      if (opaque === ctx.Window.RootWidget && !opaque.IsOpaque)
+        canvas.clear(ctx.Window.BackgroundColor);
+      if (opaque === widget)
+        opaque.Paint(canvas, dirtyArea);
+      else
+        opaque.Paint(canvas, new RepaintChild(opaque, widget, dirtyArea));
+    } catch (ex) {
+      console.log(`InvalidQueue.RepaintWidget Error: ${ex.Message}`);
+    } finally {
+      clipper.Dispose();
+      canvas.restore();
+    }
   }
 }
 const _UIWindow = class {
   constructor(child) {
     __publicField(this, "RootWidget");
-    __publicField(this, "FocusManager");
-    __publicField(this, "EventHookManager");
     __publicField(this, "Overlay");
+    __publicField(this, "FocusManagerStack", new FocusManagerStack());
+    __publicField(this, "EventHookManager", new EventHookManager());
     __publicField(this, "BackgroundColor", Colors.White);
     __publicField(this, "WidgetsInvalidQueue", new InvalidQueue());
     __publicField(this, "OverlayInvalidQueue", new InvalidQueue());
     __publicField(this, "HasPostInvalidateEvent", false);
-    __publicField(this, "_lastMouseX", -1);
-    __publicField(this, "_lastMouseY", -1);
+    __privateAdd(this, _LastMouseX, -1);
+    __privateAdd(this, _LastMouseY, -1);
     __publicField(this, "_oldHitResult", new HitTestResult());
     __publicField(this, "_newHitResult", new HitTestResult());
     __publicField(this, "_hitResultOnPointDown");
-    this.FocusManager = new FocusManager();
-    this.EventHookManager = new EventHookManager();
     this.Overlay = new Overlay(this);
     this.RootWidget = new Root(this, child);
     PaintDebugger.EnableChanged.Add(() => this.RootWidget.Invalidate(InvalidAction.Repaint));
@@ -20985,6 +22258,18 @@ const _UIWindow = class {
   get ScaleFactor() {
     return 1;
   }
+  get LastMouseX() {
+    return __privateGet(this, _LastMouseX);
+  }
+  set LastMouseX(value) {
+    __privateSet(this, _LastMouseX, value);
+  }
+  get LastMouseY() {
+    return __privateGet(this, _LastMouseY);
+  }
+  set LastMouseY(value) {
+    __privateSet(this, _LastMouseY, value);
+  }
   OnFirstShow() {
     this.RootWidget.Layout(this.Width, this.Height);
     this.Overlay.Layout(this.Width, this.Height);
@@ -20997,20 +22282,19 @@ const _UIWindow = class {
     this.Present();
   }
   OnPointerMove(e) {
-    this._lastMouseX = e.X;
-    this._lastMouseY = e.Y;
+    this.LastMouseX = e.X;
+    this.LastMouseY = e.Y;
     if (this._oldHitResult.StillInLastRegion(e.X, e.Y)) {
       this.OldHitTest(e.X, e.Y);
     } else {
       this.NewHitTest(e.X, e.Y);
     }
     this.CompareAndSwapHitTestResult();
-    if (this._oldHitResult.IsHitAnyMouseRegion) {
-      this._oldHitResult.PropagatePointerEvent(e, (w, e2) => w.RaisePointerMove(e2));
-    }
+    if (this._oldHitResult.IsHitAnyMouseRegion)
+      this._oldHitResult.PropagatePointerEvent(e, (w, pe) => w.RaisePointerMove(pe));
   }
   OnPointerMoveOutWindow() {
-    this._lastMouseX = this._lastMouseY = -1;
+    this.LastMouseX = this.LastMouseY = -1;
     this.CompareAndSwapHitTestResult();
   }
   OnPointerDown(pointerEvent) {
@@ -21023,7 +22307,7 @@ const _UIWindow = class {
       return;
     this._hitResultOnPointDown = this._oldHitResult.LastEntry;
     this._oldHitResult.PropagatePointerEvent(pointerEvent, (w, e) => w.RaisePointerDown(e));
-    this.FocusManager.Focus(this._oldHitResult.LastHitWidget);
+    this.FocusManagerStack.Focus(this._oldHitResult.LastHitWidget);
   }
   OnPointerUp(pointerEvent) {
     if (!this._oldHitResult.IsHitAnyMouseRegion)
@@ -21048,13 +22332,13 @@ const _UIWindow = class {
   OnKeyDown(keyEvent) {
     if (this.EventHookManager.HookEvent(EventType.KeyDown, keyEvent))
       return;
-    this.FocusManager.OnKeyDown(keyEvent);
+    this.FocusManagerStack.OnKeyDown(keyEvent);
   }
   OnKeyUp(keyEvent) {
-    this.FocusManager.OnKeyUp(keyEvent);
+    this.FocusManagerStack.OnKeyUp(keyEvent);
   }
   OnTextInput(text) {
-    this.FocusManager.OnTextInput(text);
+    this.FocusManagerStack.OnTextInput(text);
   }
   OldHitTest(winX, winY) {
     let hitTestInOldRegion = true;
@@ -21086,9 +22370,6 @@ const _UIWindow = class {
     this._oldHitResult = this._newHitResult;
     this._newHitResult = temp;
   }
-  BeforeDynamicViewChange() {
-    this.FocusManager.Focus(null);
-  }
   AfterScrollDone(scrollable, offset) {
     if (this._oldHitResult.IsHitAnyWidget && scrollable.IsAnyParentOf(this._oldHitResult.LastHitWidget)) {
       this.AfterScrollDoneInternal(scrollable, offset.Dx, offset.Dy);
@@ -21096,21 +22377,28 @@ const _UIWindow = class {
   }
   AfterScrollDoneInternal(scrollable, dx, dy) {
     console.assert(dx != 0 || dy != 0);
-    let stillInLastRegion = this._oldHitResult.TranslateOnScroll(scrollable, dx, dy, this._lastMouseX, this._lastMouseY);
+    let stillInLastRegion = this._oldHitResult.TranslateOnScroll(scrollable, dx, dy, this.LastMouseX, this.LastMouseY);
     if (stillInLastRegion)
-      this.OldHitTest(this._lastMouseX, this._lastMouseY);
+      this.OldHitTest(this.LastMouseX, this.LastMouseY);
     else
-      this.NewHitTest(this._lastMouseX, this._lastMouseY);
+      this.NewHitTest(this.LastMouseX, this.LastMouseY);
     this.CompareAndSwapHitTestResult();
+  }
+  BeforeDynamicViewChange(dynamicView) {
+    let focusManger = this.FocusManagerStack.GetFocusManagerByWidget(dynamicView);
+    if (focusManger.FocusedWidget == null)
+      return;
+    if (dynamicView.IsAnyParentOf(focusManger.FocusedWidget))
+      focusManger.Focus(null);
   }
   AfterDynamicViewChange(dynamicView) {
     if (!this._oldHitResult.IsHitAnyWidget || !(this._oldHitResult.LastHitWidget === dynamicView))
       return;
-    this.OldHitTest(this._lastMouseX, this._lastMouseY);
+    this.OldHitTest(this.LastMouseX, this.LastMouseY);
     this.CompareAndSwapHitTestResult();
   }
-  AfterLayoutChanged() {
-    this.NewHitTest(this._lastMouseX, this._lastMouseY);
+  RunNewHitTest() {
+    this.NewHitTest(this.LastMouseX, this.LastMouseY);
     this.CompareAndSwapHitTestResult();
   }
   StartTextInput() {
@@ -21122,6 +22410,8 @@ const _UIWindow = class {
 };
 let UIWindow = _UIWindow;
 _Current2 = new WeakMap();
+_LastMouseX = new WeakMap();
+_LastMouseY = new WeakMap();
 __privateAdd(UIWindow, _Current2, void 0);
 function ConvertToButtons(ev) {
   switch (ev.buttons) {
@@ -21289,6 +22579,10 @@ class WebWindow extends UIWindow {
     window.onmouseout = (ev) => {
       this.OnPointerMoveOutWindow();
     };
+    window.oncontextmenu = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+    };
     window.onkeydown = (ev) => {
       this.OnKeyDown(KeyEvent.UseDefault(ConvertToKeys(ev)));
       if (ev.code === "Tab") {
@@ -21385,24 +22679,6 @@ class WebClipboard {
   }
 }
 class WebApplication extends UIApplication {
-  static Init() {
-    initializeSystem();
-    Object.defineProperty(String.prototype, "obs", {
-      get: function() {
-        return new Rx(this);
-      }
-    });
-    Object.defineProperty(Number.prototype, "obs", {
-      get: function() {
-        return new Rx(this);
-      }
-    });
-    Object.defineProperty(Boolean.prototype, "obs", {
-      get: function() {
-        return new Rx(this);
-      }
-    });
-  }
   static Run(rootBuilder) {
     let ckLoad = CanvasKitInit({
       locateFile: (file) => "/" + file
@@ -21430,4 +22706,4 @@ class WebApplication extends UIApplication {
     });
   }
 }
-export { AffectsByRelayout, Animatable, AnimatedEvaluation, Animation, AnimationBehavior, AnimationController, AnimationDirection, AnimationStatus, AnimationWithParent, Axis, Binding, BindingOptions, BorderRadius, BorderSide, BorderStyle, BounceInOutCurve, Button, ButtonIconPosition, ButtonShape, ButtonStyle, Card, Caret, CaretDecorator, CellStyle, Center, ChainedEvaluation, Clipboard, Color, ColorTween, ColorUtils, Colors, Column, ColumnWidth, ColumnWidthType, Conditional, Container, Cubic, Cursor, Cursors, Curve, CurveTween, CurvedAnimation, Curves, DataGrid, DataGridColumn, DataGridController, DataGridGroupColumn, DataGridHitTestResult, DataGridIconColumn, DataGridTextColumn, DataGridTheme, DelayTask, Dialog, DrawShadow, DynamicView, EdgeInsets, EditableText, EventHookManager, EventPreviewResult, EventType, ExpandIcon, Expanded, FadeTransition, FlippedCurve, FloatTween, FloatUtils, FocusManager, FocusNode, FocusedDecoration, FocusedDecorator, FontCollection, FontStyle, Form, FormItem, GetRectForPosition, HitTestEntry, HitTestResult, HorizontalAlignment, HoverDecoration, HoverDecorator, Icon, IconData, IconPainter, Icons, IfConditional, ImageSource, Input, InputBorder, InterpolationSimulation, Interval, InvalidAction, InvalidQueue, InvalidWidget, IsInterfaceOfIFocusable, IsInterfaceOfIMouseRegion, IsInterfaceOfIRootWidget, IsInterfaceOfIScrollable, ItemState, KeyEvent, Keys, Linear, ListPopup, ListPopupItemWidget, ListView, ListViewController, MainMenu, MakeParagraphBuilder, MakeParagraphStyle, MakeTextStyle, MaterialIcons, MaterialIconsOutlined, Matrix4, MatrixUtils, MenuController, MenuItem, MenuItemType, MenuItemWidget, MouseRegion, MultiChildWidget, Navigator, Notification, NotificationEntry, Offset, OffsetTween, OutlineInputBorder, OutlinedBorder, Overlay, OverlayEntry, PaintContext, PaintDebugger, PaintUtils, ParametricCurve, Point, PointerButtons, PointerEvent, Popup, PopupMenu, PopupMenuStack, PropagateEvent, RRect, Radius, Rect, RepaintArea, Root, RotationTransition, RoundedRectangleBorder, Route, RouteChangeAction, RouteEntry, RouteSettings, RouteView, Row, Rx, RxComputed, RxList, RxObject, RxProperty, ScrollController, ScrollDirection, ScrollEvent, ShapeBorder, Simulation, SingleChildWidget, Size, SlideTransition, State, StateBase, StateProxy, Tab, TabBar, TabBody, TabController, TabView, Text, TextBase, TextPainter, Theme, Ticker, Tolerance, Transform, TransitionStack, TreeController, TreeNode, TreeNodeRow, TreeView, Tween, UIApplication, UIWindow, Vector4, VerticalAlignment, View, WebApplication, WhenBuilder, Widget, WidgetController, WidgetList, WidgetRef };
+export { AffectsByRelayout, Animatable, AnimatedEvaluation, Animation, AnimationBehavior, AnimationController, AnimationDirection, AnimationStatus, AnimationWithParent, Axis, Binding, BindingOptions, BorderRadius, BorderSide, BorderStyle, BounceInOutCurve, Button, ButtonGroup, ButtonIconPosition, ButtonShape, ButtonStyle, Card, Caret, CaretDecorator, CellCache, CellCacheComparer, CellStyle, Center, ChainedEvaluation, Checkbox, CircularProgressPainter, Clipboard, ClipperOfPath, ClipperOfRect, Color, ColorTween, ColorUtils, Colors, Column, ColumnWidth, ColumnWidthType, Conditional, Container, ContextMenu, ConvertRadiusToSigma, Cubic, Cursor, Cursors, Curve, CurveTween, CurvedAnimation, Curves, DataGrid, DataGridCheckboxColumn, DataGridColumn, DataGridController, DataGridGroupColumn, DataGridHitTestResult, DataGridHostColumn, DataGridIconColumn, DataGridTextColumn, DataGridTheme, DelayTask, Dialog, DoubleUtils, DrawShadow, DynamicView, EdgeInsets, EditableText, EventHookManager, EventPreviewResult, EventType, ExpandIcon, Expanded, FadeTransition, FlippedCurve, FloatTween, FloatUtils, FocusManager, FocusManagerStack, FocusNode, FocusedDecoration, FocusedDecorator, FontCollection, FontStyle, Form, FormItem, FutureBuilder, GetRectForPosition, HitTestEntry, HitTestResult, HorizontalAlignment, HoverDecoration, HoverDecorator, Icon, IconData, IconPainter, Icons, IfConditional, ImageSource, Input, InputBase, InputBorder, Inspector, InterpolationSimulation, Interval, InvalidAction, InvalidQueue, InvalidWidget, IsInterfaceOfIFocusable, IsInterfaceOfIMouseRegion, IsInterfaceOfIRootWidget, IsInterfaceOfIScrollable, ItemState, KeyEvent, Keys, Linear, ListPopup, ListPopupItemWidget, ListView, ListViewController, MainMenu, MakeParagraphBuilder, MakeParagraphStyle, MakeTextStyle, MaterialIcons, MaterialIconsOutlined, Matrix4, MatrixUtils, MenuController, MenuItem, MenuItemType, MenuItemWidget, MouseRegion, MultiChildWidget, Navigator, Notification, NotificationEntry, ObjectNotifier, Offset, OffsetTween, OptionalAnimationController, OutlineInputBorder, OutlinedBorder, Overlay, PaintContext, PaintDebugger, PaintUtils, ParametricCurve, Point, PointerButtons, PointerEvent, Popup, PopupMenu, PopupMenuStack, PopupProxy, PopupTransitionWrap, PropagateEvent, RRect, Radio, Radius, Rect, RepaintArea, RepaintChild, RepeatingSimulation, Root, RotationTransition, RoundedRectangleBorder, Route, RouteChangeAction, RouteEntry, RouteSettings, RouteView, Row, Rx, RxComputed, RxList, RxObject, RxProperty, SawTooth, ScaleYTransition, ScrollController, ScrollDirection, ScrollEvent, Select, SelectText, ShapeBorder, Simulation, SingleChildWidget, Size, SlideTransition, State, StateBase, Switch, Tab, TabBar, TabBody, TabController, TabView, Text, TextBase, TextPainter, Theme, Ticker, Toggleable, Tolerance, Transform, TransitionStack, TreeController, TreeNode, TreeNodeRow, TreeView, Tween, UIApplication, UIWindow, Vector4, VerticalAlignment, View, WebApplication, WhenBuilder, Widget, WidgetController, WidgetList, WidgetRef };
