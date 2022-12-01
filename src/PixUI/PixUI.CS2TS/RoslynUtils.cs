@@ -18,12 +18,8 @@ namespace RoslynUtils
         private readonly Dictionary<string, INamedTypeSymbol> _typesCache = new();
 
         //internal INamedTypeSymbol TypeOfEntity => GetTypeByName("AppBoxCore.Entity");
-
-        internal INamedTypeSymbol TypeOfIListGeneric =>
-            GetTypeByName("System.Collections.Generic.IList`1");
-
-        internal INamedTypeSymbol TypeOfListGeneric =>
-            GetTypeByName("System.Collections.Generic.List`1");
+        internal INamedTypeSymbol TypeOfIListGeneric => GetTypeByName("System.Collections.Generic.IList`1");
+        internal INamedTypeSymbol TypeOfListGeneric => GetTypeByName("System.Collections.Generic.List`1");
 
         internal INamedTypeSymbol GetTypeByName(string typeName)
         {

@@ -33,6 +33,9 @@ internal static class MetadataReferences
 
     internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUIWeb.dll");
 
+    internal static MetadataReference PixUIAttributesLib =>
+        TryGet("PixUI.Attributes.dll", typeof(PixUI.TSRenameAttribute).Assembly.Location);
+
     internal static MetadataReference AppBoxCoreLib =>
         TryGet("AppBoxCore.dll", typeof(Entity).Assembly.Location);
 

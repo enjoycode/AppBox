@@ -43,7 +43,7 @@ namespace PixUI.CS2TS
             emitter.Visit(node.Expression);
             emitter.Write(")\n");
 
-            var hasDefault = false;
+            //var hasDefault = false;
             foreach (var section in node.Sections)
             {
                 if (section.Labels.Count > 1)
@@ -79,7 +79,7 @@ namespace PixUI.CS2TS
                 }
                 else if (label is DefaultSwitchLabelSyntax defaultLabel)
                 {
-                    hasDefault = true;
+                    //hasDefault = true;
                     emitter.Write(".otherwise(() => {");
                     EmitSectionStatements(emitter, section);
                     emitter.Write("})\n");

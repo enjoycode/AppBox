@@ -88,15 +88,8 @@ namespace PixUI.CS2TS
             emitter.Visit(node.Expression);
             var arg = emitter.GetTempOutput();
 
-            try
-            {
-                var output = string.Format(_template, arg);
-                emitter.Write(output);
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+            var output = string.Format(_template, arg);
+            emitter.Write(output);
         }
     }
 }

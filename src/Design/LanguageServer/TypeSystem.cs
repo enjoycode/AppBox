@@ -125,6 +125,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemCollectionsLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemLinqLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIWebLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIAttributesLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ServiceProxyProjectId))
@@ -155,7 +156,7 @@ internal sealed class TypeSystem : IDisposable
         {
             case ModelType.Entity:
             {
-                var dummyCode = EntityCodeGenerator.GenRuntimeCode(node);
+                var dummyCode = EntityCsGenerator.GenRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
                 break;
             }
@@ -230,7 +231,7 @@ internal sealed class TypeSystem : IDisposable
         {
             case ModelType.Entity:
             {
-                var sourceCode = EntityCodeGenerator.GenRuntimeCode(node);
+                var sourceCode = EntityCsGenerator.GenRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
                 break;
             }

@@ -10,9 +10,9 @@ namespace AppBoxDesign;
 /// <summary>
 /// 转换生成运行时的视图模型的代码,用于调试与桌面端预览
 /// </summary>
-internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
+internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
 {
-    internal static async Task<ViewCodeGenerator> Make(DesignHub hub, ModelNode modelNode)
+    internal static async Task<ViewCsGenerator> Make(DesignHub hub, ModelNode modelNode)
     {
         Debug.Assert(modelNode.Model.ModelType == ModelType.View);
 
@@ -28,11 +28,10 @@ internal sealed partial class ViewCodeGenerator : CSharpSyntaxRewriter
             throw new Exception("Has error");
 
         var appName = modelNode.AppNode.Model.Name;
-        return new ViewCodeGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model);
+        return new ViewCsGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model);
     }
-
-
-    private ViewCodeGenerator(DesignHub hub, string appName, SemanticModel semanticModel,
+    
+    private ViewCsGenerator(DesignHub hub, string appName, SemanticModel semanticModel,
         ViewModel viewModel)
     {
         DesignHub = hub;

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBoxDesign;
 
-internal partial class ViewCodeGenerator
+internal partial class ViewCsGenerator
 {
     public override SyntaxNode? VisitClassDeclaration(ClassDeclarationSyntax node)
     {

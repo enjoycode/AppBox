@@ -17,7 +17,7 @@ internal sealed class GetDesktopPreview : IDesignHandler
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
 
-        var codegen = await ViewCodeGenerator.Make(hub, modelNode);
+        var codegen = await ViewCsGenerator.Make(hub, modelNode);
         var newTree = await codegen.GetRuntimeSyntaxTree();
         //生成视图模型依赖的其他模型的运行时代码
         var usagesTree = await BuildAllUsages(codegen);
@@ -47,7 +47,7 @@ internal sealed class GetDesktopPreview : IDesignHandler
         return AnyValue.From(asmData);
     }
 
-    private static async Task<IEnumerable<SyntaxTree>> BuildAllUsages(ViewCodeGenerator generator)
+    private static async Task<IEnumerable<SyntaxTree>> BuildAllUsages(ViewCsGenerator generator)
     {
         var ctx = new Dictionary<string, SyntaxTree>(); //key = Model's full name
         await generator.BuildUsages(ctx);

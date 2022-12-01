@@ -13,7 +13,7 @@ public class CodeGenerateTest
     {
         var designHub = await TestHelper.MockSession();
         var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
-        var code = EntityCodeGenerator.GenWebCode((EntityModel)entityNode.Model, designHub, true);
+        var code = EntityJsGenerator.GenWebCode((EntityModel)entityNode.Model, designHub, true);
         Console.Write(code);
     }
 
@@ -21,9 +21,9 @@ public class CodeGenerateTest
     public async Task GetViewWebCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.EnterpriseView")!;
+        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.OrgUnitsView")!;
 
-        var res = await GetWebPreview.GenViewWebCode(designHub, modelNode.Id);
+        var res = await ViewJsGenerator.GenViewWebCode(designHub, modelNode.Id);
         Console.Write(res);
     }
 
@@ -32,7 +32,7 @@ public class CodeGenerateTest
     {
         var designHub = await TestHelper.MockSession();
         var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
-        var code = EntityCodeGenerator.GenRuntimeCode(entityNode);
+        var code = EntityCsGenerator.GenRuntimeCode(entityNode);
         Console.Write(code);
     }
 

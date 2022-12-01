@@ -4,7 +4,7 @@ using RoslynUtils;
 
 namespace AppBoxDesign;
 
-internal partial class ViewCodeGenerator
+internal partial class ViewCsGenerator
 {
     public override SyntaxNode? VisitIdentifierName(IdentifierNameSyntax node)
     {

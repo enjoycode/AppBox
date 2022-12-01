@@ -37,7 +37,7 @@ internal static class CodeGeneratorUtil
         if (ctx.ContainsKey(fullName)) return;
 
         //处理自身
-        var code = EntityCodeGenerator.GenRuntimeCode(modelNode);
+        var code = EntityCsGenerator.GenRuntimeCode(modelNode);
         var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, parseOptions);
         ctx.Add(fullName, syntaxTree);
 
