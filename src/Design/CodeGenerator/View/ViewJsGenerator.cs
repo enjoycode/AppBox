@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class ViewJsGenerator
 {
-    internal static async ValueTask<string> GenViewWebCode(DesignHub hub, ModelId modelId)
+    internal static async ValueTask<string> GenViewWebCode(DesignHub hub, ModelId modelId, bool forPreview)
     {
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
@@ -35,7 +35,7 @@ internal static class ViewJsGenerator
         );
         var emitter = await Emitter.MakeAsync(translator, srcDocument, true, appboxCtx);
         emitter.Emit();
-        var tsCode = emitter.GetTypeScriptCode(true);
+        var tsCode = emitter.GetTypeScriptCode(forPreview);
 
         //附加import使用到的模型, 包括实体模型及视图模型
         if (emitter.UsedModels.Count > 0)
@@ -48,12 +48,22 @@ internal static class ViewJsGenerator
                 //根据名称找到相关模型
                 var usedModel = hub.DesignTree.FindModelNodeByFullName(fullName)!;
                 var usedModelName = usedModel.Model.Name;
-                var usedFullName = $"{usedModel.AppNode.Model.Name}_{usedModelName}"; //加应用前缀防止同名
+                var usedModelAppName = usedModel.AppNode.Model.Name;
+                var usedFullName = $"{usedModelAppName}_{usedModelName}"; //加应用前缀防止同名
                 var usedModelType = usedModel.Model.ModelType.ToString();
                 var usedModelId = usedModel.Model.Id;
 
-                sb.Insert(0,
-                    $"import {{{usedModelName} as {usedFullName}}} from '/preview/{usedModelType}/{hub.Session.SessionId}/{usedModelId}'\n");
+                if (forPreview)
+                {
+                    sb.Insert(0,
+                        $"import {{{usedModelName} as {usedFullName}}} from '/preview/{usedModelType}/{hub.Session.SessionId}/{usedModelId}'\n");
+                }
+                else
+                {
+                    sb.Insert(0, usedModel.Model.ModelType == ModelType.View
+                        ? $"import {{{usedModelName} as {usedFullName}}} from '/model/{usedModelType}/{usedModelAppName}.{usedModelName}'\n"
+                        : $"import {{{usedModelName} as {usedFullName}}} from '/model/{usedModelType}/{usedModelId}'\n");
+                }
 
                 //如果是Entity模型附加EntityFactories常量
                 if (usedModel.Model.ModelType == ModelType.Entity)
@@ -87,5 +97,4 @@ internal static class ViewJsGenerator
 
         return tsCode;
     }
-
 }

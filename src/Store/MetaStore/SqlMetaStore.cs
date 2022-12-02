@@ -19,13 +19,14 @@ public sealed class SqlMetaStore : IMetaStore
     public const byte Meta_Application = 0x0C;
     private const byte Meta_Model = 0x0D;
     private const byte Meta_Code = 0x0E;
+
     private const byte Meta_Folder = 0x0F;
-    private const byte Meta_Service_Assembly = 0xA0;
-    private const byte Meta_View_Assembly = 0xA1;
+    //private const byte Meta_Service_Assembly = 0xA0;
+    //private const byte Meta_View_Assembly = 0xA1;
+    //private const byte Meta_App_Assembly = 0xA3;
 
     private const byte Meta_View_Router = 0xA2;
-
-    //private const byte Meta_App_Assembly = 0xA3;
+    
     private const byte Meta_App_Model_Dev_Counter = 0xAC;
     private const byte Meta_App_Model_Usr_Counter = 0xAD;
 
@@ -79,8 +80,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd1 = db.MakeCommand();
         cmd1.Connection = txn.Connection;
         cmd1.Transaction = txn;
-        cmd1.CommandText =
-            $"Select data From {esc}sys.Meta{esc} Where meta={meta} And id='{id}' For Update";
+        cmd1.CommandText = $"Select data From {esc}sys.Meta{esc} Where meta={meta} And id='{id}' For Update";
         await using var reader = await cmd1.ExecuteReaderAsync();
         byte[] counterData;
         var seq = 0;
@@ -353,14 +353,13 @@ public sealed class SqlMetaStore : IMetaStore
     /// 保存编译好的服务组件或视图运行时代码或应用的第三方组件
     /// </summary>
     /// <param name="asmName">
-    /// 服务or视图 eg: sys.HelloService or sys.CustomerView
-    /// 应用 eg: sys.Newtonsoft.Json.dll,注意应用前缀防止不同app冲突
+    /// 1. App引用的第三方组件: eg: "sys.Newtonsoft.Json.dll", 包含app前缀防止冲突
+    /// 2. 服务或视图模型为名称: eg: "sys.HelloService" or "sys.HomePage"
     /// </param>
     /// <param name="asmData">已压缩</param>
     /// <param name="platform">仅适用于应用的第三方组件</param>
-    public async Task UpsertAssemblyAsync(MetaAssemblyType type,
-        string asmName, byte[] asmData, DbTransaction txn,
-        AssemblyPlatform platform = AssemblyPlatform.Common)
+    public async Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
+        DbTransaction txn, AssemblyPlatform platform = AssemblyPlatform.Common)
     {
         var modelType = type switch
         {

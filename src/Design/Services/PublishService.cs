@@ -20,15 +20,23 @@ internal static class PublishService
     {
         foreach (var item in hub.PendingChanges!)
         {
+            //以下重命名的已不需要加入待删除列表，保存模型时已处理
             if (item is ServiceModel sm && sm.PersistentState != PersistentState.Deleted)
             {
                 var asmData = await CompileServiceAsync(hub, sm);
                 var appName = hub.DesignTree.FindApplicationNode(sm.Id.AppId)!.Model.Name;
                 var fullName = $"{appName}.{sm.Name}";
-                //重命名的已不再需要加入待删除列表，保存模型时已处理
+
                 package.ServiceAssemblies.Add(fullName, asmData!);
             }
-            //TODO: 编译转换视图模型的Web代码
+            else if (item is ViewModel vm && vm.PersistentState != PersistentState.Deleted)
+            {
+                var asmData = await CompileViewAsync(hub, vm);
+                var appName = hub.DesignTree.FindApplicationNode(vm.Id.AppId)!.Model.Name;
+                var fullName = $"{appName}.{vm.Name}";
+
+                package.ViewAssemblies.Add(fullName, asmData);
+            }
         }
     }
 
@@ -39,8 +47,7 @@ internal static class PublishService
     /// 4. 刷新DesignTree相应的节点，并删除挂起
     /// 5. 保存递交日志
     /// </summary>
-    internal static async Task PublishAsync(DesignHub hub, PublishPackage package,
-        string commitMessage)
+    internal static async Task PublishAsync(DesignHub hub, PublishPackage package, string commitMessage)
     {
         //先根据依赖关系排序
         package.SortAllModels();
@@ -112,8 +119,7 @@ internal static class PublishService
         var appName = designNode.AppNode.Model.Name;
 
         //获取RoslynDocument并检测语义错误
-        var doc =
-            hub.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
+        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
         var semanticModel = await doc.GetSemanticModelAsync();
         if (semanticModel == null) throw new Exception("Can't get SemanticModel");
         CheckSemanticErrors(semanticModel);
@@ -173,6 +179,18 @@ internal static class PublishService
         CodeGeneratorUtil.CheckEmitResult(emitResult);
 
         return forDebug ? null : asmData;
+    }
+
+    private static async Task<byte[]> CompileViewAsync(DesignHub hub, ViewModel model)
+    {
+        var jsCode = await ViewJsGenerator.GenViewWebCode(hub, model.Id, false);
+        using var dllStream = new MemoryStream(1024);
+        await using (var cs = new BrotliStream(dllStream, CompressionMode.Compress, true))
+        {
+            cs.Write(Encoding.UTF8.GetBytes(jsCode));
+        }
+
+        return dllStream.ToArray();
     }
 
     /// <summary>
@@ -402,16 +420,15 @@ internal static class PublishService
         foreach (var serviceName in package.ServiceAssemblies.Keys)
         {
             var asmData = package.ServiceAssemblies[serviceName];
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName,
-                asmData, txn);
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName, asmData, txn);
         }
 
         //保存视图模型编译好的运行时代码
-        // foreach (var viewName in package.ViewAssemblies.Keys)
-        // {
-        //     var asmData = package.ViewAssemblies[viewName];
-        //     await ModelStore.UpsertAssemblyAsync(MetaAssemblyType.View, viewName, asmData, txn);
-        // }
+        foreach (var viewName in package.ViewAssemblies.Keys)
+        {
+            var asmData = package.ViewAssemblies[viewName];
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.View, viewName, asmData, txn);
+        }
     }
 
     /// <summary>

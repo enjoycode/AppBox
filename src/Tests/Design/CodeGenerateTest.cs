@@ -23,7 +23,7 @@ public class CodeGenerateTest
         var designHub = await TestHelper.MockSession();
         var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.OrgUnitsView")!;
 
-        var res = await ViewJsGenerator.GenViewWebCode(designHub, modelNode.Id);
+        var res = await ViewJsGenerator.GenViewWebCode(designHub, modelNode.Id, true);
         Console.Write(res);
     }
 
