@@ -29,9 +29,9 @@ internal static class MetadataReferences
 
     internal static MetadataReference SystemDataLib => GetSdkLib("System.Data.Common.dll");
 
-    internal static MetadataReference PixUIDesktopLib => GetPixUIDesktopLib("PixUIDesktop.dll");
+    internal static MetadataReference PixUIDesktopLib => GetPixUIDesktopLib("PixUI.dll");
 
-    internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUIWeb.dll");
+    internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUI.dll");
 
     internal static MetadataReference PixUIAttributesLib =>
         TryGet("PixUI.Attributes.dll", typeof(PixUI.TSRenameAttribute).Assembly.Location);
@@ -68,7 +68,7 @@ internal static class MetadataReferences
             $"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}",
             StringComparison.Ordinal);
         var srcPath = currentPath.Substring(0, srcIndex + 5);
-        if (asmName == "PixUIDesktop.dll")
+        if (asmName == "PixUI.dll")
         {
             var fullPath = Path.Combine(srcPath, "PixUI", "PixUI", "bin", "Debug",
                 "netstandard2.1", "PixUI.dll");
@@ -89,7 +89,7 @@ internal static class MetadataReferences
             $"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}",
             StringComparison.Ordinal);
         var srcPath = currentPath.Substring(0, srcIndex + 5);
-        if (asmName == "PixUIWeb.dll")
+        if (asmName == "PixUI.dll")
         {
             var fullPath = Path.Combine(srcPath, "PixUI", "PixUI", "bin", "DebugWeb",
                 "netstandard2.1", "PixUI.dll");
