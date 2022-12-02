@@ -387,10 +387,9 @@ public sealed class SqlMetaStore : IMetaStore
     }
 
     /// <summary>
-    /// 运行时加载服务组件或应用的第三方组件
+    /// 运行时加载压缩过的服务组件或应用的第三方组件
     /// </summary>
     /// <param name="serviceName">eg: sys.HelloService or sys.Newtonsoft.Json.dll</param>
-    /// <returns>压缩过的</returns>
     public async Task<byte[]?> LoadServiceAssemblyAsync(string serviceName)
     {
         //TODO:考虑保存至本地文件，返回路径
@@ -401,15 +400,12 @@ public sealed class SqlMetaStore : IMetaStore
         return await LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
     }
 
-//     internal static async ValueTask<string> LoadViewAssemblyAsync(string viewName)
-//     {
-//         var res = await LoadMetaDataAsync(Meta_View_Assembly, viewName);
-//         if (res == null)
-//             return null;
-//
-//         ModelCodeUtil.DecodeViewRuntimeCode(res, out string runtimeCode);
-//         return runtimeCode;
-//     }
+    /// <summary>
+    /// 运行时加载压缩过的视图模型的JS代码
+    /// </summary>
+    /// <param name="viewName">eg: sys.HomePage</param>
+    public async Task<byte[]?> LoadViewAssemblyAsync(string viewName) 
+        => await LoadMetaDataAsync((byte)MetaAssemblyType.View, viewName);
 
     #endregion
 

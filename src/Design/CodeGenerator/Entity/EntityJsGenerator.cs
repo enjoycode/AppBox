@@ -6,9 +6,9 @@ namespace AppBoxDesign;
 /// <summary>
 /// 生成实体模型的Js代码
 /// </summary>
-internal static class EntityJsGenerator
+public static class EntityJsGenerator
 {
-    internal static string GenWebCode(EntityModel model, IModelContainer ctx, bool forPreview)
+    public static string GenWebCode(EntityModel model, IModelContainer ctx, bool forPreview)
     {
         var sb = StringBuilderCache.Acquire();
         if (forPreview)
@@ -18,7 +18,7 @@ internal static class EntityJsGenerator
             sb.Append("import * as AppBoxCore from '/AppBoxCore.js'\n\n");
 #endif
         else
-            throw new NotImplementedException("Not for preview");
+            sb.Append("import * as AppBoxCore from '/AppBoxCore.js'\n\n");
 
         sb.Append($"export class {model.Name}");
         //根据存储配置继承不同的基类
