@@ -77,7 +77,7 @@ internal static class MetadataReferences
 
         throw new NotImplementedException();
 #else
-        throw new NotImplementedException();
+        return TryGet("PixUI.dll", typeof(MetaStore).Assembly.Location);
 #endif
     }
 
