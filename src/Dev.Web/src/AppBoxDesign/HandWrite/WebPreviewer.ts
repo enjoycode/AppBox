@@ -5,7 +5,6 @@ import * as AppBoxDesign from '@/AppBoxDesign'
 export class WebPreviewer extends PixUI.View {
 
     private readonly _controller: AppBoxDesign.PreviewController;
-    private _version = 0;
 
     public constructor(controller: AppBoxDesign.PreviewController) {
         super();
@@ -14,8 +13,8 @@ export class WebPreviewer extends PixUI.View {
     }
 
     private async Run() {
-        this._version++;
-        const url = "/preview/view/" + AppBoxClient.Channel.SessionId + "/" + this._controller.ModelNode.Id + "?v=" + this._version;
+        let v = Date.now().toString();
+        const url = "/preview/view/" + AppBoxClient.Channel.SessionId + "/" + this._controller.ModelNode.Id + "?v=" + v;
         try {
             let module = await import(/* @vite-ignore */url);
             let previewMethod = module[this._controller.ModelNode.Label.Value]["Preview"];
