@@ -243,24 +243,20 @@ internal sealed class TypeSystem : IDisposable
             case ModelType.Service:
             {
                 var sourceCode = await MetaStore.Provider.LoadModelCodeAsync(model.Id);
-                newSolution =
-                    Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
+                newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
 
                 // 服务模型还需要更新代理类
                 var srcdoc = newSolution.GetDocument(docId)!;
-                var proxyCode =
-                    await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName,
-                        (ServiceModel)model);
+                var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName,
+                    (ServiceModel)model);
                 newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
                     SourceText.From(proxyCode));
                 break;
             }
             case ModelType.Permission:
             {
-                var dummyCode =
-                    PermissionCodeGenerator.GenDummyCode((PermissionModel)model, appName);
-                newSolution =
-                    Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(dummyCode));
+                var dummyCode = PermissionCodeGenerator.GenDummyCode((PermissionModel)model, appName);
+                newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(dummyCode));
                 break;
             }
         }
@@ -280,8 +276,7 @@ internal sealed class TypeSystem : IDisposable
         var appName = node.AppNode.Model.Name;
         var model = (ServiceModel)node.Model;
         var srcdoc = Workspace.CurrentSolution.GetDocument(node.RoslynDocumentId)!;
-        var proxyCode =
-            await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName, model);
+        var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName, model);
         var newSolution = Workspace.CurrentSolution.WithDocumentText(node.ExtRoslynDocumentId!,
             SourceText.From(proxyCode));
         if (!Workspace.TryApplyChanges(newSolution))

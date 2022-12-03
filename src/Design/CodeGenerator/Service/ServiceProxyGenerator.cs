@@ -9,8 +9,7 @@ internal static class ServiceProxyGenerator
     /// <summary>
     /// 生成服务模型的异步代理，用于服务间相互调用
     /// </summary>
-    internal static async Task<string> GenServiceProxyCode(Document document, string appName,
-        ServiceModel model)
+    internal static async Task<string> GenServiceProxyCode(Document document, string appName, ServiceModel model)
     {
         var rootNode = await document.GetSyntaxRootAsync();
 
