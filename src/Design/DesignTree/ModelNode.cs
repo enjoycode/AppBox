@@ -98,8 +98,8 @@ public sealed class ModelNode : DesignNode
 
                 await StagedService.SaveCodeAsync(Model.Id, srcCode);
 
-                //如果是服务模型需要更新服务代理
-                if (Model.ModelType == ModelType.Service)
+                //如果是非新建的服务模型需要更新服务代理(注意用initSrcCode判断是否刚创建的)
+                if (Model.ModelType == ModelType.Service && initSrcCode == null)
                     await typeSystem.UpdateServiceProxyDocumentAsync(this);
             }
         }
