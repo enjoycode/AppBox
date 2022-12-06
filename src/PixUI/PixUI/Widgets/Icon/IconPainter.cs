@@ -20,12 +20,15 @@ namespace PixUI
             if (_cachedFont == null)
             {
                 var typeface = FontCollection.Instance.TryMatchFamilyFromAsset(data.FontFamily);
-                if (typeface == null && !_loading)
+                if (typeface == null)
                 {
-                    _loading = true;
-                    FontCollection.Instance.StartLoadFontFromAsset(data.AssemblyName,
-                        data.AssetPath, data.FontFamily);
-                    FontCollection.Instance.FontChanged += _OnFontChanged;
+                    if (!_loading)
+                    {
+                        _loading = true;
+                        FontCollection.Instance.StartLoadFontFromAsset(data.AssemblyName,
+                            data.AssetPath, data.FontFamily);
+                        FontCollection.Instance.FontChanged += _OnFontChanged;
+                    }
                     return;
                 }
 
