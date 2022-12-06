@@ -7,8 +7,12 @@ export class HomePage extends PixUI.View {
         super();
         let navigator = new PixUI.Navigator(new System.List<PixUI.Route>().Init(
             [
-                new PixUI.Route("Login", s => new AppBoxDesign.LoginPage()),
-                new PixUI.Route("IDE", s => new AppBoxDesign.AppStudio()),
+                new PixUI.Route("Login", async s => {
+                    return new AppBoxDesign.LoginPage();
+                }),
+                new PixUI.Route("IDE", async s => {
+                    return new AppBoxDesign.AppStudio();
+                }),
             ]));
 
         this.Child = new PixUI.RouteView(navigator);

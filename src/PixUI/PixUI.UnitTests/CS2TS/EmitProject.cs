@@ -14,10 +14,12 @@ namespace PixUI.UnitTests.CS2TS
         [Test]
         public async Task EmitPixUI()
         {
+            const string TSAttibutesDllPath =
+                "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
             const string prjPath = "../../../../PixUI/";
             const string outPath = "../../../../../Dev.Web/src/PixUI/Generated/";
 
-            var translator = new Translator("PixUI");
+            var translator = new Translator("PixUI", new[] { TSAttibutesDllPath });
             var workspace = translator.AddSourceFiles(prjPath);
 
             // translator.DumpErrors();
@@ -109,6 +111,8 @@ namespace PixUI.UnitTests.CS2TS
         [Test]
         public async Task EmitAppStudio()
         {
+            const string TSAttibutesDllPath =
+                "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
             const string pixUIDllPath = "../../../../PixUI/bin/DebugWeb/netstandard2.1/PixUI.dll";
             const string codeEditorDllPath =
                 "../../../../PixUI.CodeEditor/bin/DebugWeb/netstandard2.1/PixUI.CodeEditor.dll";
@@ -123,7 +127,7 @@ namespace PixUI.UnitTests.CS2TS
             var translator = new Translator("AppBoxDesign",
                 new[]
                 {
-                    pixUIDllPath, codeEditorDllPath, coreDllPath, clientDllPath
+                    TSAttibutesDllPath, pixUIDllPath, codeEditorDllPath, coreDllPath, clientDllPath
                 });
             var workspace = translator.AddSourceFiles(prjPath);
 

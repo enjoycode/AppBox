@@ -138,14 +138,15 @@ namespace PixUI.CS2TS
                         // var typeName = model.Substring(firstDot + 1, lastDot);
                         // typeName = typeName == "Entities" ? "Entity" : typeName.Substring(0, typeName.Length - 1);
                         var modelName = model[(lastDot + 1)..];
-                        Write($"let {appName}_{modelName} = await import('/model/view/{appName}.{modelName}');");
+                        Write($"let {appName}_{modelName} = (await import('/model/view/{appName}.{modelName}'))['{modelName}'];");
                     }
 
                     Write(temp);
                     Write('}');
                 }
             }
-
+            
+            Write(')');
             return true;
         }
     }

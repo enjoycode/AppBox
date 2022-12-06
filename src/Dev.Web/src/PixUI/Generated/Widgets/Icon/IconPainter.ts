@@ -15,11 +15,13 @@ export class IconPainter implements System.IDisposable {
                  offsetX: number = 0, offsetY: number = 0) {
         if (this._cachedFont == null) {
             let typeface = PixUI.FontCollection.Instance.TryMatchFamilyFromAsset(data.FontFamily);
-            if (typeface == null && !this._loading) {
-                this._loading = true;
-                PixUI.FontCollection.Instance.StartLoadFontFromAsset(data.AssemblyName,
-                    data.AssetPath, data.FontFamily);
-                PixUI.FontCollection.Instance.FontChanged.Add(this._OnFontChanged, this);
+            if (typeface == null) {
+                if (!this._loading) {
+                    this._loading = true;
+                    PixUI.FontCollection.Instance.StartLoadFontFromAsset(data.AssemblyName,
+                        data.AssetPath, data.FontFamily);
+                    PixUI.FontCollection.Instance.FontChanged.Add(this._OnFontChanged, this);
+                }
                 return;
             }
 

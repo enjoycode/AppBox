@@ -1,6 +1,6 @@
 import WebWindow from "./WebWindow";
 import {FontCollection} from "@/PixUI/CanvasKit/FontCollection";
-import {Cursor, Clipboard, Rx, UIApplication, Widget} from "./";
+import {Cursor, Clipboard, UIApplication, Widget} from "./";
 import {WebCursors} from "./WebCursor";
 import {WebClipboard} from "./WebClipboard";
 

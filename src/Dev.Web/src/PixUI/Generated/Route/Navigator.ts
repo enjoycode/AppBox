@@ -1,96 +1,63 @@
-import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import * as System from '@/System'
 
 export enum RouteChangeAction {
+    Init,
     Push,
     Pop
-}
-
-/// <summary>
-/// 路由历史项
-/// </summary>
-export class RouteEntry {
-    private readonly _settings: PixUI.RouteSettings;
-    private _widget: Nullable<PixUI.Widget>;
-
-    #Route: PixUI.Route;
-    public get Route() {
-        return this.#Route;
-    }
-
-    private set Route(value) {
-        this.#Route = value;
-    }
-
-    public constructor(route: PixUI.Route, settings: PixUI.RouteSettings) {
-        this.Route = route;
-        this._settings = settings;
-    }
-
-    public GetWidget(): PixUI.Widget {
-        if (this._widget != null) return this._widget;
-
-        this._widget = this.Route.Builder(this._settings);
-        return this._widget;
-    }
 }
 
 /// <summary>
 /// 路由导航器，与RouteView一对一绑定控制其导航
 /// </summary>
 export class Navigator {
-    private readonly _routes: System.List<PixUI.Route> = new System.List<PixUI.Route>();
-    private readonly _history: System.List<RouteEntry> = new System.List<RouteEntry>();
-    private _histroyIndex: number = -1;
-
-    public OnRouteChanged: Nullable<System.Action2<RouteChangeAction, PixUI.Route>>;
-
-    public constructor(routes: System.IList<PixUI.Route>) {
+    public constructor(routes: System.IEnumerable<PixUI.Route>) {
         this._routes.AddRange(routes);
     }
 
-    public GetCurrentRoute(): PixUI.Widget {
-        if (this._routes.length == 0)
-            return new PixUI.Text(PixUI.State.op_Implicit_From("Empty routes"));
+    private readonly _routes: System.List<PixUI.Route> = new System.List<PixUI.Route>();
+    #Parent: Nullable<Navigator>;
+    public get Parent() {
+        return this.#Parent;
+    }
 
-        if (this._history.length != 0) return this._history[this._histroyIndex].GetWidget();
+    public set Parent(value) {
+        this.#Parent = value;
+    }
 
-        //初始化
-        let entry = new RouteEntry(this._routes[0], PixUI.RouteSettings.Empty);
-        this._history.Add(entry);
-        this._histroyIndex = 0;
-        return entry.GetWidget();
+    public HistoryManager: Nullable<PixUI.RouteHistoryManager>;
+
+    public OnRouteChanged: Nullable<System.Action2<RouteChangeAction, PixUI.RouteHistoryEntry>>;
+
+    public InitRouteWidget() {
+        if (this._routes.length == 0) return;
+
+        //TODO:获取Url指定的路由
+
+        let entry = new PixUI.RouteHistoryEntry(this._routes[0], PixUI.RouteSettings.Empty);
+        this.HistoryManager!.Push(entry);
+        this.OnRouteChanged?.call(this, RouteChangeAction.Init, entry);
     }
 
     public PushNamed(name: string) {
         //TODO:判断当前路由一致（包括动态参数）,是则忽略
 
-        //先清空之后的记录
-        if (this._histroyIndex != this._history.length - 1) {
-            //TODO: dispose will removed widgets
-            this._history.RemoveRange(this._histroyIndex + 1, this._history.length - this._histroyIndex - 1);
-        }
-
         //查找静态路由表
         let matchRoute = this._routes.Find(r => r.Name == name);
-        if (matchRoute == null)
+        if (matchRoute == null) //TODO: 404 not found route
             throw new System.ArgumentException(`Can't find route: ${name}`);
 
         //添加至历史记录
-        let entry = new RouteEntry(matchRoute, new PixUI.RouteSettings());
-        this._history.Add(entry);
-        this._histroyIndex++;
+        let entry = new PixUI.RouteHistoryEntry(matchRoute, PixUI.RouteSettings.Empty);
+        this.HistoryManager!.Push(entry);
 
         //通知变更
-        this.OnRouteChanged?.call(this, RouteChangeAction.Push, matchRoute);
+        this.OnRouteChanged?.call(this, RouteChangeAction.Push, entry);
     }
 
     public Pop() {
-        if (this._histroyIndex <= 0) return;
-
-        let oldEntry = this._history[this._histroyIndex];
-        this._histroyIndex--;
-
-        this.OnRouteChanged?.call(this, RouteChangeAction.Pop, oldEntry.Route);
+        let old = this.HistoryManager!.Pop();
+        if (old != null)
+            this.OnRouteChanged?.call(this, RouteChangeAction.Pop, old);
     }
 }

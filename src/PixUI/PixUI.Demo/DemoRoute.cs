@@ -11,15 +11,15 @@ namespace PixUI.Demo
         {
             var routes = new List<Route>
             {
-                new("page", s => new DemoPage(), BuildDefaultTransition),
-                new("form", s => new DemoForm(), BuildDefaultTransition),
-                new("list", s => new DemoListView(), BuildDefaultTransition),
-                new("animation", s => new DemoAnimation(), BuildDefaultTransition),
-                new("transform", s => new DemoTransform(), BuildDefaultTransition),
-                new("tabview", s => new DemoTabView(), BuildDefaultTransition),
-                new("treeView", s => new DemoTreeView(), BuildDefaultTransition),
-                new("datagrid", s => new DemoDataGrid(), BuildDefaultTransition),
-                new("codeEditor", s => new DemoCodeEditor(), BuildDefaultTransition),
+                new("page", s => new DemoPage(), false, BuildDefaultTransition),
+                new("form", s => new DemoForm(), false, BuildDefaultTransition),
+                new("list", s => new DemoListView(), false, BuildDefaultTransition),
+                new("animation", s => new DemoAnimation(), false, BuildDefaultTransition),
+                new("transform", s => new DemoTransform(), false, BuildDefaultTransition),
+                new("tabview", s => new DemoTabView(), false, BuildDefaultTransition),
+                new("treeView", s => new DemoTreeView(), false, BuildDefaultTransition),
+                new("datagrid", s => new DemoDataGrid(), false, BuildDefaultTransition),
+                new("codeEditor", s => new DemoCodeEditor(), false, BuildDefaultTransition),
             };
             _navigator = new Navigator(routes);
 

@@ -8,7 +8,7 @@ namespace PixUI
         internal static readonly RouteSettings Empty = new RouteSettings();
         //Name or Path and Argument
     }
-    
+
     public delegate Widget RouteWidgetBuilder(RouteSettings settings);
 
     /// <summary>
@@ -40,10 +40,9 @@ namespace PixUI
         /// </summary>
         internal readonly TransitionBuilder? ExistingBuilder;
 
-        public Route(string name, RouteWidgetBuilder builder,
-            TransitionBuilder? enteringBuilder = null,
-            TransitionBuilder? existingBuilder = null,
-            int duration = 200, int reverseDuration = 200, bool isDynamic = false)
+        public Route(string name, RouteWidgetBuilder builder, bool isDynamic = false,
+            TransitionBuilder? enteringBuilder = null, TransitionBuilder? existingBuilder = null,
+            int duration = 200, int reverseDuration = 200)
         {
             //TODO:检查名称有效性
             Name = name;

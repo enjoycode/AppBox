@@ -23,6 +23,13 @@ export abstract class UIWindow {
     public readonly RootWidget: PixUI.Root;
     public readonly Overlay: PixUI.Overlay;
 
+    private _routeHistoryManager: Nullable<PixUI.RouteHistoryManager>;
+
+    public get RouteHistoryManager(): PixUI.RouteHistoryManager {
+        this._routeHistoryManager ??= new PixUI.RouteHistoryManager();
+        return this._routeHistoryManager;
+    }
+
     public readonly FocusManagerStack: PixUI.FocusManagerStack = new PixUI.FocusManagerStack();
     public readonly EventHookManager: PixUI.EventHookManager = new PixUI.EventHookManager();
 

@@ -44,29 +44,29 @@ namespace PixUI
     public sealed class RouteHistoryManager
     {
         private readonly List<RouteHistoryEntry> _history = new List<RouteHistoryEntry>();
-        private int _histroyIndex = -1;
+        private int _historyIndex = -1;
 
         internal bool IsEmpty => _history.Count == 0;
 
         internal void Push(RouteHistoryEntry entry)
         {
             //先清空之后的记录
-            if (_histroyIndex != _history.Count - 1)
+            if (_historyIndex != _history.Count - 1)
             {
                 //TODO: dispose will removed widgets
-                _history.RemoveRange(_histroyIndex + 1, _history.Count - _histroyIndex - 1);
+                _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
             }
 
             _history.Add(entry);
-            _histroyIndex++;
+            _historyIndex++;
         }
 
         internal RouteHistoryEntry? Pop()
         {
-            if (_histroyIndex <= 0) return null;
+            if (_historyIndex <= 0) return null;
 
-            var oldEntry = _history[_histroyIndex];
-            _histroyIndex--;
+            var oldEntry = _history[_historyIndex];
+            _historyIndex--;
             return oldEntry;
         }
     }
