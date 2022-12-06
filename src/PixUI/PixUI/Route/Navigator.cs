@@ -27,7 +27,7 @@ namespace PixUI
         /// <summary>
         /// 路由改变时的通知绑定的RouteView重新Build
         /// </summary>
-        internal Action<RouteChangeAction, Route>? OnRouteChanged;
+        internal Action<RouteChangeAction, RouteHistoryEntry>? OnRouteChanged;
 
         internal void InitRouteWidget()
         {
@@ -37,7 +37,7 @@ namespace PixUI
 
             var entry = new RouteHistoryEntry(_routes[0], RouteSettings.Empty);
             HistoryManager!.Push(entry);
-            OnRouteChanged?.Invoke(RouteChangeAction.Init, entry.Route);
+            OnRouteChanged?.Invoke(RouteChangeAction.Init, entry);
         }
 
         public void PushNamed(string name)
@@ -54,7 +54,7 @@ namespace PixUI
             HistoryManager!.Push(entry);
 
             //通知变更
-            OnRouteChanged?.Invoke(RouteChangeAction.Push, matchRoute);
+            OnRouteChanged?.Invoke(RouteChangeAction.Push, entry);
         }
 
         public void Pop()

@@ -1,17 +1,20 @@
 using System;
+using System.Threading.Tasks;
 
 namespace PixUI
 {
     public sealed class RouteSettings
     {
         internal static readonly RouteSettings Empty = new RouteSettings();
+        //Name or Path and Argument
     }
-
+    
     public delegate Widget RouteWidgetBuilder(RouteSettings settings);
 
     /// <summary>
     /// 路由配置项
     /// </summary>
+    [TSType("PixUI.Route")]
     public sealed class Route
     {
         internal readonly string Name;

@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace PixUI
@@ -12,12 +14,20 @@ namespace PixUI
             Route = route;
             _settings = settings;
         }
-        
+
         private readonly RouteSettings _settings;
         private Widget? _widget;
 
         internal readonly Route Route;
 
+
+#if __WEB__
+        [TSRawScript(@"
+        public GetWidgetAsync() : Promise<PixUI.Widget> {
+            return this.Route.Builder(this._settings);
+        }")]
+        internal Task<Widget> GetWidgetAsync() => throw new Exception();
+#else
         internal Widget GetWidget()
         {
             if (_widget != null) return _widget;
@@ -25,17 +35,17 @@ namespace PixUI
             _widget = Route.Builder(_settings);
             return _widget;
         }
+#endif
     }
-    
+
     /// <summary>
     /// 路由历史管理，一个UIWindow对应一个实例
     /// </summary>
     public sealed class RouteHistoryManager
     {
-        
         private readonly List<RouteHistoryEntry> _history = new List<RouteHistoryEntry>();
         private int _histroyIndex = -1;
-        
+
         internal bool IsEmpty => _history.Count == 0;
 
         internal void Push(RouteHistoryEntry entry)
@@ -51,21 +61,13 @@ namespace PixUI
             _histroyIndex++;
         }
 
-        internal Route? Pop()
+        internal RouteHistoryEntry? Pop()
         {
             if (_histroyIndex <= 0) return null;
 
             var oldEntry = _history[_histroyIndex];
             _histroyIndex--;
-            return oldEntry.Route;
-        }
-
-        /// <summary>
-        /// 用于RouteView.Build时获取当前的Widget
-        /// </summary>
-        internal Widget GetCurrentWidget()
-        {
-            return _history[_histroyIndex].GetWidget();
+            return oldEntry;
         }
     }
 }

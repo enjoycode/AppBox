@@ -154,13 +154,6 @@ namespace PixUI.CS2TS
         #endregion
 
         #region ====Expression====
-
-        public override void VisitImplicitObjectCreationExpression(ImplicitObjectCreationExpressionSyntax node) =>
-            ImplicitObjectCreationEmitter.Default.Emit(this, node);
-
-        public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node) =>
-            ObjectCreationEmitter.Default.Emit(this, node);
-
         public override void VisitInitializerExpression(InitializerExpressionSyntax node) =>
             InitializerExpressionEmitter.Default.Emit(this, node);
 

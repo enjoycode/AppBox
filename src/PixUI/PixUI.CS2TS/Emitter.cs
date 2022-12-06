@@ -63,6 +63,8 @@ namespace PixUI.CS2TS
 
         private readonly Stack<BlockResources> _blockStack = new Stack<BlockResources>();
 
+        private Action<string>? _addUsedModelInterceptor;
+
         public void Emit() => Visit(SemanticModel.SyntaxTree.GetRoot());
 
         /// <summary>
@@ -79,6 +81,13 @@ namespace PixUI.CS2TS
         /// </summary>
         internal void AddUsedModel(string modelFullName)
         {
+            //先判断是否new Route()时被拦截
+            if (_addUsedModelInterceptor != null)
+            {
+                _addUsedModelInterceptor(modelFullName);
+                return;
+            }
+            
             if (!UsedModels.Contains(modelFullName))
                 UsedModels.Add(modelFullName);
         }

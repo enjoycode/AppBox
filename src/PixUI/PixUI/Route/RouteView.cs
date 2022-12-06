@@ -28,7 +28,7 @@ namespace PixUI
             }
             else
             {
-                
+                Navigator.InitRouteWidget(); //TODO:
             }
         }
 
@@ -40,11 +40,21 @@ namespace PixUI
             Navigator.HistoryManager = null;
         }
 
-        private void OnRouteChanged(RouteChangeAction action, Route route)
+#if __WEB__
+        private async void OnRouteChanged(RouteChangeAction action, RouteHistoryEntry newEntry)
+#else
+        private void OnRouteChanged(RouteChangeAction action, RouteHistoryEntry newEntry)
+#endif
         {
             //TODO: stop running transition and check is 404.
 
-            var widget = Navigator.HistoryManager!.GetCurrentWidget();
+#if __WEB__
+            var widget = await newEntry.GetWidgetAsync();
+#else
+            var widget = newEntry.GetWidget();
+#endif
+
+            var route = newEntry.Route;
 
             if (action == RouteChangeAction.Init || route.EnteringBuilder == null)
             {
