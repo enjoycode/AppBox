@@ -193,6 +193,10 @@ export default class WebWindow extends PixUI.UIWindow {
                 ev.preventDefault();
             }
         };
+        
+        window.onpopstate = (ev: PopStateEvent) => {
+            console.log("location: " + document.location + ", state: " + JSON.stringify(ev.state));
+        };
 
         //注意onwheel事件附加在画布元素上
         this._htmlCanvas.onwheel = ev => {

@@ -25,6 +25,17 @@ namespace PixUI
         public readonly Root RootWidget;
         public readonly Overlay Overlay;
 
+        private RouteHistoryManager? _routeHistoryManager;
+
+        internal RouteHistoryManager RouteHistoryManager
+        {
+            get
+            {
+                _routeHistoryManager ??= new RouteHistoryManager();
+                return _routeHistoryManager;
+            }
+        }
+
         internal readonly FocusManagerStack FocusManagerStack = new();
         public readonly EventHookManager EventHookManager = new();
 
@@ -34,8 +45,8 @@ namespace PixUI
         public abstract float Height { get; }
         public virtual float ScaleFactor => 1.0f;
 
-        internal readonly InvalidQueue WidgetsInvalidQueue = new InvalidQueue();
-        internal readonly InvalidQueue OverlayInvalidQueue = new InvalidQueue();
+        internal readonly InvalidQueue WidgetsInvalidQueue = new();
+        internal readonly InvalidQueue OverlayInvalidQueue = new();
         internal bool HasPostInvalidateEvent = false;
 
         #region ----Mouse----
