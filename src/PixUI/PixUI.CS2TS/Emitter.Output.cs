@@ -277,7 +277,7 @@ namespace PixUI.CS2TS
                 Write(appName);
                 Write('_');
 
-                AddUsedModel(symbol.ToString());
+                AppBoxContext.AddUsedModel(symbol.ToString());
                 return;
             }
 

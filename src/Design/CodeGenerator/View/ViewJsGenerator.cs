@@ -46,12 +46,12 @@ internal static class ViewJsGenerator
         var tsCode = emitter.GetTypeScriptCode();
 
         //附加import使用到的模型, 包括实体模型及视图模型
-        if (emitter.UsedModels.Count > 0)
+        if (appboxCtx.UsedModels.Count > 0)
         {
             var sb = StringBuilderCache.Acquire();
             var hasEntityModel = false;
 
-            foreach (var fullName in emitter.UsedModels)
+            foreach (var fullName in appboxCtx.UsedModels)
             {
                 //根据名称找到相关模型
                 var usedModel = hub.DesignTree.FindModelNodeByFullName(fullName)!;

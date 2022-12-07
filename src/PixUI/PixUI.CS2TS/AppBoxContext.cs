@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace PixUI.CS2TS
 {
@@ -43,5 +44,26 @@ namespace PixUI.CS2TS
 #if DEBUG
         internal readonly bool ForViteDev;
 #endif
+        
+        internal Action<string>? AddUsedModelInterceptor;
+        
+        // 使用到的模型，用于生成文件头import
+        public readonly HashSet<string> UsedModels = new ();
+        
+        /// <summary>
+        /// 添加使用到的模型
+        /// </summary>
+        internal void AddUsedModel(string modelFullName)
+        {
+            //先判断是否new Route()时被拦截
+            if (AddUsedModelInterceptor != null)
+            {
+                AddUsedModelInterceptor(modelFullName);
+                return;
+            }
+            
+            if (!UsedModels.Contains(modelFullName))
+                UsedModels.Add(modelFullName);
+        }
     }
 }

@@ -68,7 +68,7 @@ namespace PixUI.CS2TS
                 return false;
 
             var entityType = typeSymbol.TypeArguments[0];
-            AddUsedModel(entityType.ToString());
+            AppBoxContext!.AddUsedModel(entityType.ToString());
             AddUsedModule("AppBoxClient");
 
             VisitToken(node.NewKeyword);
@@ -111,8 +111,9 @@ namespace PixUI.CS2TS
 
                     Write(" => {");
 
+                    //拦截使用到的模型，准备异步import
                     var usedModels = new HashSet<string>();
-                    _addUsedModelInterceptor = model => usedModels.Add(model);
+                    AppBoxContext!.AddUsedModelInterceptor = model => usedModels.Add(model);
 
                     UseTempOutput();
 

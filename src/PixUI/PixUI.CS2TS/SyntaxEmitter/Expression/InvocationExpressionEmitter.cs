@@ -199,7 +199,8 @@ namespace PixUI.CS2TS
 
             //需要检查返回类型内是否包含实体，是则加入引用模型列表内
             if (emitter.AppBoxContext != null && !symbol.ReturnsVoid)
-                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter.AppBoxContext.FindModel, emitter.AddUsedModel);
+                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter.AppBoxContext.FindModel,
+                    emitter.AppBoxContext.AddUsedModel);
 
             //开始转换为前端服务调用
             emitter.AddUsedModule("AppBoxClient");

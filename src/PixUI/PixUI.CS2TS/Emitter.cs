@@ -43,9 +43,6 @@ namespace PixUI.CS2TS
         // 使用到的模块，用于生成文件头import
         private readonly HashSet<string> _usedModules = new HashSet<string>();
 
-        // 使用到的模型，用于生成文件头import
-        public readonly HashSet<string> UsedModels = new HashSet<string>();
-
         // 是否需要输出范型的类型，因为ts不支持如GenericType<T>.SomeStaticMethod()
         internal bool NeedGenericTypeArguments = true;
 
@@ -63,8 +60,6 @@ namespace PixUI.CS2TS
 
         private readonly Stack<BlockResources> _blockStack = new Stack<BlockResources>();
 
-        private Action<string>? _addUsedModelInterceptor;
-
         public void Emit() => Visit(SemanticModel.SyntaxTree.GetRoot());
 
         /// <summary>
@@ -74,22 +69,6 @@ namespace PixUI.CS2TS
         {
             if (!_usedModules.Contains(moduleName))
                 _usedModules.Add(moduleName);
-        }
-
-        /// <summary>
-        /// 添加使用到的模型
-        /// </summary>
-        internal void AddUsedModel(string modelFullName)
-        {
-            //先判断是否new Route()时被拦截
-            if (_addUsedModelInterceptor != null)
-            {
-                _addUsedModelInterceptor(modelFullName);
-                return;
-            }
-            
-            if (!UsedModels.Contains(modelFullName))
-                UsedModels.Add(modelFullName);
         }
 
         internal void AddPublicType(BaseTypeDeclarationSyntax typeDeclarationSyntax)
