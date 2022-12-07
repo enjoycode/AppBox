@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using AppBoxClient;
 using PixUI;
 
@@ -59,6 +58,7 @@ namespace AppBoxDesign
         {
             try
             {
+                await DesignInitializer.TryInit();
                 await Channel.Login(_userName.Value, _password.Value);
                 CurrentNavigator!.PushNamed("IDE");
             }

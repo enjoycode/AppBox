@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using PixUI;
 using AppBoxCore;
 
@@ -9,7 +10,7 @@ namespace AppBoxDesign
     [TSType("AppBoxDesign.DesignInitializer")]
     public static class DesignInitializer
     {
-        public static void Init()
+        static DesignInitializer()
         {
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.EntityModelVO,
                 typeof(EntityModelVO), () => new EntityModelVO()));
@@ -40,5 +41,7 @@ namespace AppBoxDesign
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.TextChange,
                 typeof(TextChange), () => new TextChange()));
         }
+        
+        public static Task TryInit() => Task.CompletedTask; //do noting for native
     }
 }
