@@ -20,7 +20,7 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 获取生成的TypeScript代码
         /// </summary>
-        public string GetTypeScriptCode(bool forAppBoxPreview = false)
+        public string GetTypeScriptCode()
         {
             var sb = _outputs.Pop()!;
 
@@ -37,14 +37,14 @@ namespace PixUI.CS2TS
                 else
                 {
                     //used by AppBox translate Model's js code
-                    if (forAppBoxPreview)
 #if DEBUG
+                    if (AppBoxContext.ForPreview && AppBoxContext.ForViteDev)
                         sb.Insert(0, $"import * as {module} from '/src/{module}/index.ts'\n");
-#else
-                        sb.Insert(0, $"import * as {module} from '/{module}.js'\n");
-#endif
                     else
                         sb.Insert(0, $"import * as {module} from '/{module}.js'\n");
+#else
+                    sb.Insert(0, $"import * as {module} from '/{module}.js'\n");
+#endif
                 }
             }
 

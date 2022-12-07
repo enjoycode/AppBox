@@ -9,7 +9,11 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class ViewJsGenerator
 {
-    internal static async ValueTask<string> GenViewWebCode(DesignHub hub, ModelId modelId, bool forPreview)
+    internal static async ValueTask<string> GenViewWebCode(DesignHub hub, ModelId modelId, bool forPreview
+#if DEBUG
+        , bool forViteDev = false
+#endif
+    )
     {
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
@@ -28,14 +32,18 @@ internal static class ViewJsGenerator
             throw new Exception("Has error");
 
         var appboxCtx = new AppBoxContext(
-            fullName => hub.DesignTree.FindModelNodeByFullName(fullName) != null,
+            fullName => hub.DesignTree.FindModelNodeByFullName(fullName)?.Id,
             (entityName, memberName) =>
                 ((EntityModel)hub.DesignTree.FindModelNodeByFullName(entityName)!.Model)
-                .GetMember(memberName)!.MemberId
+                .GetMember(memberName)!.MemberId,
+            forPreview, hub.Session.SessionId
+#if DEBUG
+            , forViteDev
+#endif
         );
         var emitter = await Emitter.MakeAsync(translator, srcDocument, true, appboxCtx);
         emitter.Emit();
-        var tsCode = emitter.GetTypeScriptCode(forPreview);
+        var tsCode = emitter.GetTypeScriptCode();
 
         //附加import使用到的模型, 包括实体模型及视图模型
         if (emitter.UsedModels.Count > 0)

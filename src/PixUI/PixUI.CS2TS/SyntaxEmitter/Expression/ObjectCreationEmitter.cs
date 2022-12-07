@@ -128,26 +128,39 @@ namespace PixUI.CS2TS
                     }
 
                     var temp = GetTempOutput();
-                    //TODO:判断IDE预览环境
-                    foreach (var model in usedModels)
-                    {
-                        var firstDot = model.IndexOf('.');
-                        var lastDot = model.LastIndexOf('.');
-                        var appName = model[..firstDot];
-                        // TODO: maybe Entity?
-                        // var typeName = model.Substring(firstDot + 1, lastDot);
-                        // typeName = typeName == "Entities" ? "Entity" : typeName.Substring(0, typeName.Length - 1);
-                        var modelName = model[(lastDot + 1)..];
-                        Write($"let {appName}_{modelName} = (await import('/model/view/{appName}.{modelName}'))['{modelName}'];");
-                    }
-
+                    EmitImportAsyncModels(usedModels);
                     Write(temp);
                     Write('}');
                 }
             }
-            
+
             Write(')');
             return true;
+        }
+
+        private void EmitImportAsyncModels(HashSet<string> usedModels)
+        {
+            foreach (var model in usedModels)
+            {
+                var firstDot = model.IndexOf('.');
+                var lastDot = model.LastIndexOf('.');
+                var appName = model[..firstDot];
+                // TODO: maybe Entity?
+                // var typeName = model.Substring(firstDot + 1, lastDot);
+                // typeName = typeName == "Entities" ? "Entity" : typeName.Substring(0, typeName.Length - 1);
+                var modelName = model[(lastDot + 1)..];
+                if (AppBoxContext is { ForPreview: true })
+                {
+                    var modelId = AppBoxContext.FindModelId($"{appName}.Views.{modelName}");
+                    Write(
+                        $"let {appName}_{modelName} = (await import('/preview/view/{AppBoxContext.SessionId}/{modelId}'))['{modelName}'];");
+                }
+                else
+                {
+                    Write(
+                        $"let {appName}_{modelName} = (await import('/model/view/{appName}.{modelName}'))['{modelName}'];");
+                }
+            }
         }
     }
 }

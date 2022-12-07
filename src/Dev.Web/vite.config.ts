@@ -30,7 +30,8 @@ const dev = defineConfig({
             '/preview': {
                 target: 'http://localhost:5137/',
                 secure: false,
-            }
+                headers: { 'ViteDev': 'true' } //加入标记是Vite开发环境
+            },
         }
     }
 });
@@ -187,14 +188,14 @@ const libAppBoxClient = defineConfig({
 
 const AppStudio = defineConfig({
     plugins: [visualizer()],
-    
+
     resolve: {
         alias: [{
             find: '@',
             replacement: resolve(__dirname, 'src')
         }]
     },
-    
+
     base: '/dev',
 
     build: {

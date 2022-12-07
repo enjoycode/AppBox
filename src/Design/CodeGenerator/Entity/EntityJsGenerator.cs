@@ -8,17 +8,22 @@ namespace AppBoxDesign;
 /// </summary>
 public static class EntityJsGenerator
 {
-    public static string GenWebCode(EntityModel model, IModelContainer ctx, bool forPreview)
+    public static string GenWebCode(EntityModel model, IModelContainer ctx, bool forPreview
+#if DEBUG
+        , bool forViteDev = false
+#endif
+    )
     {
         var sb = StringBuilderCache.Acquire();
-        if (forPreview)
+
 #if DEBUG
+        if (forPreview && forViteDev)
             sb.Append("import * as AppBoxCore from '/src/AppBoxCore/index.ts'\n\n");
+        else
+            sb.Append("import * as AppBoxCore from '/AppBoxCore.js'\n\n");
 #else
             sb.Append("import * as AppBoxCore from '/AppBoxCore.js'\n\n");
 #endif
-        else
-            sb.Append("import * as AppBoxCore from '/AppBoxCore.js'\n\n");
 
         sb.Append($"export class {model.Name}");
         //根据存储配置继承不同的基类

@@ -14,7 +14,14 @@ internal sealed class GetWebPreview : IDesignHandler
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var tsCode = await ViewJsGenerator.GenViewWebCode(hub, modelId, true);
+#if DEBUG
+        var forViteDev = args.GetBool();
+#endif
+        var tsCode = await ViewJsGenerator.GenViewWebCode(hub, modelId, true
+#if DEBUG
+            , forViteDev
+#endif
+        );
         return AnyValue.From(Encoding.UTF8.GetBytes(tsCode));
     }
 
