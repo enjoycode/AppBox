@@ -194,6 +194,8 @@ const AppStudio = defineConfig({
             replacement: resolve(__dirname, 'src')
         }]
     },
+    
+    base: '/dev',
 
     build: {
         target: "es2020",
@@ -207,6 +209,9 @@ const AppStudio = defineConfig({
                     [extAppBoxCore]: '/AppBoxCore.js',
                     [extAppBoxClient]: '/AppBoxClient.js'
                 },
+                entryFileNames: '[name].js',
+                chunkFileNames: '[name].js',
+                assetFileNames: '[name].[ext]'
             },
             makeAbsoluteExternalsRelative: false,
         },
