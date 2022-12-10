@@ -16,9 +16,9 @@ namespace PixUI
         protected override void OnMounted()
         {
             base.OnMounted();
-            
+
             // Set current Navigator's Parent & HistoryManager
-            Navigator.Parent = CurrentNavigator;
+            Navigator.Parent = Parent?.CurrentNavigator; //注意是上级的
             Navigator.HistoryManager = Root!.Window.RouteHistoryManager;
             // Set Child to first route widget
             if (Navigator.HistoryManager.IsEmpty)

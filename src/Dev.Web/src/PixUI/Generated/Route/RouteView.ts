@@ -16,7 +16,7 @@ export class RouteView extends PixUI.DynamicView {
         super.OnMounted();
 
         // Set current Navigator's Parent & HistoryManager
-        this.Navigator.Parent = this.CurrentNavigator;
+        this.Navigator.Parent = this.Parent?.CurrentNavigator;
         this.Navigator.HistoryManager = this.Root!.Window.RouteHistoryManager;
         // Set Child to first route widget
         if (this.Navigator.HistoryManager.IsEmpty) {

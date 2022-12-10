@@ -1,10 +1,12 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
+import {P} from "ts-pattern";
 /// <summary>
 /// 路由历史项
 /// </summary>
 export class RouteHistoryEntry {
-    public constructor(route: PixUI.Route, settings: PixUI.RouteSettings) {
+    public constructor(navigator: PixUI.Navigator, route: PixUI.Route, settings: PixUI.RouteSettings) {
+        this.Navigator = navigator;
         this.Route = route;
         this._settings = settings;
     }
@@ -12,6 +14,7 @@ export class RouteHistoryEntry {
     private readonly _settings: PixUI.RouteSettings;
     private _widget: Nullable<PixUI.Widget>;
 
+    public readonly Navigator: PixUI.Navigator;
     public readonly Route: PixUI.Route;
 
     public GetWidgetAsync(): Promise<PixUI.Widget> {
@@ -25,6 +28,10 @@ export class RouteHistoryEntry {
 export class RouteHistoryManager {
     private readonly _history: System.List<RouteHistoryEntry> = new System.List<RouteHistoryEntry>();
     private _historyIndex: number = -1;
+    
+    public get Count(): number {
+        return this._history.length;
+    }
 
     public get IsEmpty(): boolean {
         return this._history.length == 0;
@@ -47,5 +54,14 @@ export class RouteHistoryManager {
         let oldEntry = this._history[this._historyIndex];
         this._historyIndex--;
         return oldEntry;
+    }
+    
+    public Goto(index: number) {
+        if (index < 0 || index >= this._history.length)
+            throw new System.ArgumentOutOfRangeException();
+        
+        let toEntry = this._history[index];
+        this._historyIndex = index;
+        toEntry.Navigator.Goto(toEntry);
     }
 }

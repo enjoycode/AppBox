@@ -196,6 +196,11 @@ export default class WebWindow extends PixUI.UIWindow {
         
         window.onpopstate = (ev: PopStateEvent) => {
             console.log("location: " + document.location + ", state: " + JSON.stringify(ev.state));
+            
+            if (typeof ev.state === 'number')
+            {
+                this.RouteHistoryManager.Goto(ev.state);
+            }
         };
 
         //注意onwheel事件附加在画布元素上
