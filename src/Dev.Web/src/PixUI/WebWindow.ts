@@ -19,8 +19,8 @@ export default class WebWindow extends PixUI.UIWindow {
     private _htmlCanvas: HTMLCanvasElement;
     private _htmlInput: HTMLInputElement | null;
 
-    public constructor(rootWidget: PixUI.Widget) {
-        super(rootWidget);
+    public constructor(rootWidget: PixUI.Widget, routePath: string | null) {
+        super(rootWidget, routePath);
 
         this._webGLVersion = (typeof WebGL2RenderingContext !== 'undefined') ? 2 :
             ((typeof WebGLRenderingContext !== 'undefined') ? 1 : -1);
@@ -177,8 +177,8 @@ export default class WebWindow extends PixUI.UIWindow {
             this.OnPointerMoveOutWindow();
         };
         window.oncontextmenu = ev => {
-          ev.preventDefault();
-          ev.stopPropagation();
+            ev.preventDefault();
+            ev.stopPropagation();
         };
         window.onkeydown = ev => {
             // console.log(`KeyDown: '${ev.key}' keyCode=${ev.code}`)
@@ -193,13 +193,29 @@ export default class WebWindow extends PixUI.UIWindow {
                 ev.preventDefault();
             }
         };
-        
+
+        //TODO:阻止浏览器刷新事件,或者在刷新前保存路由历史记录
+        // window.onbeforeunload = (ev: BeforeUnloadEvent) => {
+        //     ev.preventDefault();
+        //     return false;
+        // };
+
         window.onpopstate = (ev: PopStateEvent) => {
-            console.log("location: " + document.location + ", state: " + JSON.stringify(ev.state));
-            
-            if (typeof ev.state === 'number')
-            {
+            //console.log("location: " + document.location + ", state: " + JSON.stringify(ev.state));
+
+            if (typeof ev.state === 'number') {
+                //浏览器前进或后退跳转的
                 this.RouteHistoryManager.Goto(ev.state);
+            } else {
+                //直接在浏览器地址栏输入的
+                let path = "/";
+                if (document.location.hash.length > 0) {
+                    path = document.location.hash.substring(1);
+                }
+                //同步替换浏览器的历史记录
+                let url = document.location.origin + '/#' + path;
+                history.replaceState(this.RouteHistoryManager.Count, "", url);
+                this.RouteHistoryManager.PushPath(path);
             }
         };
 

@@ -1,45 +1,56 @@
 import * as PixUI from '@/PixUI'
 
 export class RouteView extends PixUI.DynamicView {
-    public constructor(navigator: PixUI.Navigator) {
+    public constructor(navigator: PixUI.Navigator, name?: string | null) {
         super();
+        this.Name = name;
         this.Navigator = navigator;
         this.Navigator.OnRouteChanged = this.OnRouteChanged.bind(this);
-        //Child = Navigator.GetCurrentRoute();
     }
 
     public readonly Navigator: PixUI.Navigator;
+    public readonly Name: string | null;
 
     //OnNavigateIn, OnNavigateOut
 
     protected OnMounted() {
         super.OnMounted();
-
-        // Set current Navigator's Parent & HistoryManager
-        this.Navigator.Parent = this.Parent?.CurrentNavigator;
-        this.Navigator.HistoryManager = this.Root!.Window.RouteHistoryManager;
-        // Set Child to first route widget
-        if (this.Navigator.HistoryManager.IsEmpty) {
-            //根路由或地址栏直接输入的路由 eg: http://aa.com/#/about
-            this.Navigator.InitRouteWidget();
-        } else {
-            this.Navigator.InitRouteWidget(); //TODO:
+        
+        let historyManager = this.Root!.Window.RouteHistoryManager;
+        //尝试向HistoryManager添加第一条记录
+        if (historyManager.Count == 0) {
+            let path = historyManager.AssignedPath ?? '/';
+            let entry = new PixUI.RouteHistoryEntry(path);
+            historyManager.Push(entry);
+            
+            history.replaceState(0, "");
         }
+
+        // Set Navigator's tree & HistoryManager
+        this.Navigator.HistoryManager = historyManager;
+        let parentNavigator = this.Parent?.CurrentNavigator ?? historyManager.RootNavigator;
+        parentNavigator.AttachChild(this.Navigator, this.Name);
+
+        // Set Child widget to match route
+        this.Navigator.InitRouteWidget();
     }
 
     protected OnUnmounted() {
         super.OnUnmounted();
 
-        this.Navigator.Parent = null;
+        // detach from parent navigator
+        let parentNavigator = this.Navigator.Parent;
+        parentNavigator!.DetachChild(this.Navigator);
         this.Navigator.HistoryManager = null;
     }
 
-    private async OnRouteChanged(action: PixUI.RouteChangeAction, newEntry: PixUI.RouteHistoryEntry) {
+    private async OnRouteChanged(action: PixUI.RouteChangeAction) {
         //TODO: stop running transition and check is 404.
 
-        let widget = await newEntry.GetWidgetAsync();
-
-        let route = newEntry.Route;
+        //TODO: if action is Goto, and route is keepalive, try get widget instance from cache,
+        let route = this.Navigator.ActiveRoute;
+        let widget = await route.Builder(PixUI.RouteSettings.Empty);
+        //TODO: if action is not Goto and route is keepalive, add widget instance to cache
 
         if (action == PixUI.RouteChangeAction.Init || route.EnteringBuilder == null) {
             this.ReplaceTo(widget);
@@ -47,8 +58,7 @@ export class RouteView extends PixUI.DynamicView {
             let from = this.Child!;
             from.SuspendingMount = true; //动画开始前挂起
 
-            let to:
-                PixUI.Widget;
+            let to: PixUI.Widget;
             let reverse = action == PixUI.RouteChangeAction.Pop;
             if (reverse) {
                 to = from;

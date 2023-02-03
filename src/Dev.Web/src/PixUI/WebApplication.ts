@@ -31,8 +31,13 @@ export class WebApplication extends UIApplication {
     }
 
     private RunInternal(rootWidget: Widget) {
+        let routePath: string | null = null;
+        //如果浏览器地址栏输入目标路径，则初始化路由的路径
+        if (document.location.hash.length > 0) {
+            routePath = document.location.hash.substring(1);
+        }
         //创建WebWindow
-        let webWindow = new WebWindow(rootWidget);
+        let webWindow = new WebWindow(rootWidget, routePath);
         this.MainWindow = webWindow;
         //开始构建WidgetTree并首秀
         webWindow.OnFirstShow();

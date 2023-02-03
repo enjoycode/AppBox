@@ -1,7 +1,12 @@
 import * as PixUI from '@/PixUI'
 
 export abstract class UIWindow {
-    protected constructor(child: PixUI.Widget) {
+    protected constructor(child: PixUI.Widget, routePath: string | null = null) {
+        //在构建WidgetTree前设置指定的路由路径
+        if (routePath != null) {
+            this.RouteHistoryManager.AssignedPath = routePath;
+        }
+        
         this.Overlay = new PixUI.Overlay(this);
         this.RootWidget = new PixUI.Root(this, child);
 

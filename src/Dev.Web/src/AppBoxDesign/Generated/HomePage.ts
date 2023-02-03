@@ -13,6 +13,10 @@ export class HomePage extends PixUI.View {
                 new PixUI.Route("IDE", async s => {
                     return new AppBoxDesign.AppStudio();
                 }),
+                //TODO:以下测试待移除
+                new PixUI.Route("about", async s => {
+                   return new PixUI.Text(PixUI.State.op_Implicit_From("About"));
+                }),
             ]));
 
         this.Child = new PixUI.RouteView(navigator);
