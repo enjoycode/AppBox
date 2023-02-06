@@ -481,8 +481,7 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 赋值或传参时尝试隐式转换或结构体Clone
         /// </summary>
-        internal void TryImplictConversionOrStructClone(TypeInfo typeInfo,
-            ExpressionSyntax expression)
+        internal void TryImplictConversionOrStructClone(TypeInfo typeInfo, ExpressionSyntax expression)
         {
             if (typeInfo.IsImplictConversionToState(TypeOfState))
             {

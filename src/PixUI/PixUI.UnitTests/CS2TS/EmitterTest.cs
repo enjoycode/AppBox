@@ -106,11 +106,10 @@ namespace PixUI.UnitTests.CS2TS
         public async Task LambdaTest() => await Run("TestLambda.cs");
 
         [Test]
-        public async Task SystemTest() => await Run("TestSystem.cs");
+        public async Task SystemTest() => await Run("TestSystem.cs", true);
 
         [Test]
-        public async Task InterceptorTest() =>
-            await Run("TestInterceptor.cs", true);
+        public async Task InterceptorTest() => await Run("TestInterceptor.cs", true);
 
         [Test]
         public async Task PatternTest() => await Run("TestPattern.cs");
@@ -119,16 +118,13 @@ namespace PixUI.UnitTests.CS2TS
         public async Task SwitchExpressionTest() => await Run("TestSwitchExpression.cs");
 
         [Test]
-        public async Task ConversionOperatorTest() =>
-            await Run("TestConversionOperator.cs", true);
+        public async Task ConversionOperatorTest() => await Run("TestConversionOperator.cs", true);
 
         [Test]
-        public async Task OverrideOperatorTest() =>
-            await Run("TestOverrideOperator.cs");
+        public async Task OverrideOperatorTest() => await Run("TestOverrideOperator.cs");
 
         [Test]
-        public async Task InterfaceOfTest() =>
-            await Run("TestInterfaceOf.cs", true);
+        public async Task InterfaceOfTest() => await Run("TestInterfaceOf.cs", true);
 
         [Test]
         public async Task DisposeTest() => await Run("TestDispose.cs");

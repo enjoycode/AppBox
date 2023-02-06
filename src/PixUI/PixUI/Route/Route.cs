@@ -5,7 +5,9 @@ namespace PixUI
 {
 #if __WEB__
     public delegate Task<Widget> RouteWidgetBuilder(string? arg);
-#else
+#endif
+
+#if !__WEB__
     public delegate Widget RouteWidgetBuilder(string? arg);
 #endif
 

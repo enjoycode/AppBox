@@ -16,9 +16,21 @@ namespace PixUI.CS2TS
             if (node.NameColon != null)
                 throw new EmitException("Named argument not supported", node.Span);
 
-            //判断是否需要隐式类型转换
+
             var typeInfo = emitter.SemanticModel.GetTypeInfo(node.Expression);
+            //先判断是否需要转换charCode为String
+            var charCodeToString = false;
+            if (emitter.CharCodeToString && typeInfo.Type != null && typeInfo.Type.ToString() == "char")
+            {
+                charCodeToString = true;
+                emitter.Write("String.fromCharCode(");
+            }
+
+            //再判断是否需要隐式类型转换
             emitter.TryImplictConversionOrStructClone(typeInfo, node.Expression);
+            
+            if (charCodeToString)
+                emitter.Write(')');
         }
     }
 }

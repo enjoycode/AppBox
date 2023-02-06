@@ -18,6 +18,8 @@ class TestString
         var len = str1.Length;
         var empty = string.Empty;
         var starts = empty.StartsWith("some");
+        var array1 = str1.Split('/');
+        var array2 = str1.Split(ch);
 
         EqualityComparer<int>.Default.Equals(1, 2); //will to System.Equals(1, 2)
     }

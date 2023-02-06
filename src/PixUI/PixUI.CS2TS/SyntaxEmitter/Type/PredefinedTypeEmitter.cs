@@ -17,7 +17,7 @@ namespace PixUI.CS2TS
                 case SyntaxKind.StringKeyword:
                     emitter.Write("string");
                     break;
-                case SyntaxKind.CharKeyword:
+                case SyntaxKind.CharKeyword: //注意char转为number
                 case SyntaxKind.ByteKeyword:
                 case SyntaxKind.SByteKeyword:
                 case SyntaxKind.ShortKeyword:

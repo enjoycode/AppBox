@@ -52,18 +52,16 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 尝试系统类型的拦截
         /// </summary>
-        private static bool TryInterceptorSystem(Emitter emitter, IdentifierNameSyntax node,
-            ISymbol symbol)
+        private static bool TryInterceptorSystem(Emitter emitter, IdentifierNameSyntax node, ISymbol symbol)
         {
-            if (!symbol.IsSystemNamespace() ||
-                !SystemInterceptorMap.TryGetInterceptor(
-                    symbol.ToString(), out var interceptor)) return false;
+            if (!symbol.IsSystemNamespace() || !SystemInterceptorMap.TryGetInterceptor(
+                    symbol.ToString(), out var interceptor))
+                return false;
             interceptor.Emit(emitter, node, symbol);
             return true;
         }
 
-        private static void EmitDelegateBind(Emitter emitter, IdentifierNameSyntax node,
-            ISymbol symbol)
+        private static void EmitDelegateBind(Emitter emitter, IdentifierNameSyntax node, ISymbol symbol)
         {
             emitter.Write(".bind(");
             if (node.Parent is MemberAccessExpressionSyntax memberAccess)

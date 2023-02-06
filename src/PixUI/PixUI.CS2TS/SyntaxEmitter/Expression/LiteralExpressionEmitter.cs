@@ -38,13 +38,8 @@ namespace PixUI.CS2TS
                     emitter.Write("null"); //TODO:
                     break;
                 case SyntaxKind.CharacterLiteralExpression:
-                    // if (emitter.SuspendCharToCode)
-                    //     emitter.Write(node.ToString());
-                    // else
-                    // {
                     int charCode = node.Token.ValueText[0];
                     emitter.Write(charCode.ToString()); //直接转换为编码值
-                    // }
                     break;
                 case SyntaxKind.StringLiteralExpression:
                 {

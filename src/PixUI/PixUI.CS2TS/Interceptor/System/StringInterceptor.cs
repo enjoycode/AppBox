@@ -52,21 +52,23 @@ namespace PixUI.CS2TS
             emitter.Write(')');
         }
 
-        private static void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node,
-            ISymbol symbol)
+        private static void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node, ISymbol symbol)
         {
+            //TODO:验证不支持的转换方法
+            var methodSymbol = (IMethodSymbol)symbol;
             emitter.Visit(node.Expression);
             emitter.VisitToken(node.ArgumentList.OpenParenToken);
+            //需要特殊处理char参数(因会被转为number)，所以需要通过String.fromCharCode()重新转为js字符串
+            //var preCharCodeToString = emitter.CharCodeToString;
+            emitter.CharCodeToString = true;
             emitter.VisitSeparatedList(node.ArgumentList.Arguments);
+            emitter.CharCodeToString = false; //preCharCodeToString;
             emitter.VisitToken(node.ArgumentList.CloseParenToken);
         }
 
-        private static void InterceptMemberAccess(Emitter emitter,
-            MemberAccessExpressionSyntax node,
-            ISymbol symbol)
+        private static void InterceptMemberAccess(Emitter emitter, MemberAccessExpressionSyntax node, ISymbol symbol)
         {
-            if (node.Name.Identifier.Text == "Empty" /*&& (node.Expression.ToString() == "string")*/
-               )
+            if (node.Name.Identifier.Text == "Empty" /*&& (node.Expression.ToString() == "string")*/)
             {
                 emitter.Write("''");
                 return;
@@ -76,17 +78,25 @@ namespace PixUI.CS2TS
             emitter.Write('.');
 
             var name = node.Name.Identifier.Text;
-            if (name == "Length")
+            if (name == "ToLower")
             {
-                emitter.Write("length");
+                emitter.Write("toLowerCase");
+                return;
             }
-            else if (name == "StartsWith")
+
+            if (name == "StartsWith")
             {
                 //TODO: only one argument supported now
                 var invocation = (InvocationExpressionSyntax)node.Parent!;
                 if (invocation.ArgumentList.Arguments.Count > 1)
                     throw new NotSupportedException();
-                emitter.Write("startsWith");
+            }
+
+            //TODO: 除特殊为暂全部转为lowerCamelCase格式
+            if (name != "Insert" && name != "Remove")
+            {
+                emitter.Write(char.ToLower(name[0]));
+                emitter.Write(name.Substring(1));
             }
             else
             {

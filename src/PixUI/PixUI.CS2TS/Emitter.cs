@@ -49,8 +49,8 @@ namespace PixUI.CS2TS
         // 是否忽略委托绑定，事件+= or -=时设为true
         internal bool IgnoreDelegateBind = false;
 
-        // // 用于临时禁止将char字面量转换为js的charCodeAt()
-        // internal bool SuspendCharToCode = false;
+        // 转为参数时是否将charCode的数值转为js的字符串(因为char会统一转换为number)
+        internal bool CharCodeToString = false;
 
         //公开导出的类型
         private readonly List<BaseTypeDeclarationSyntax> _publicTypes = new();
