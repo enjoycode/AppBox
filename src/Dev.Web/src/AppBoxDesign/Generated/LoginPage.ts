@@ -52,7 +52,7 @@ export class LoginPage extends PixUI.View {
         try {
             await DesignInitializer.TryInit();
             await AppBoxClient.Channel.Login(this._userName.Value, this._password.Value);
-            this.CurrentNavigator!.PushNamed("IDE");
+            this.CurrentNavigator!.Push("IDE");
         } catch (ex: any) {
             PixUI.Notification.Error(`登录错误: ${ex.Message}`);
         }
