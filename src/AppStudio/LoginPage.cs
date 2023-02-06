@@ -60,7 +60,7 @@ namespace AppBoxDesign
             {
                 await DesignInitializer.TryInit();
                 await Channel.Login(_userName.Value, _password.Value);
-                CurrentNavigator!.PushNamed("IDE");
+                CurrentNavigator!.Push("IDE");
             }
             catch (Exception ex)
             {

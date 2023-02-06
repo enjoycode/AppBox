@@ -3,18 +3,15 @@ using System.Threading.Tasks;
 
 namespace PixUI
 {
-    public sealed class RouteSettings
-    {
-        internal static readonly RouteSettings Empty = new RouteSettings();
-        //Name or Path and Argument
-    }
-
-    public delegate Widget RouteWidgetBuilder(RouteSettings settings);
+#if __WEB__
+    public delegate Task<Widget> RouteWidgetBuilder(string? arg);
+#else
+    public delegate Widget RouteWidgetBuilder(string? arg);
+#endif
 
     /// <summary>
     /// 路由配置项
     /// </summary>
-    [TSType("PixUI.Route")]
     public sealed class Route
     {
         internal readonly string Name;
@@ -45,7 +42,7 @@ namespace PixUI
             int duration = 200, int reverseDuration = 200)
         {
             //TODO:检查名称有效性
-            Name = name;
+            Name = name.ToLower();
             Dynamic = isDynamic;
             Builder = builder;
             Duration = duration;

@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace PixUI
@@ -9,33 +8,43 @@ namespace PixUI
     /// </summary>
     internal sealed class RouteHistoryEntry
     {
-        internal RouteHistoryEntry(Route route, RouteSettings settings)
+        internal RouteHistoryEntry(string path)
         {
-            Route = route;
-            _settings = settings;
+            Path = path;
         }
 
-        private readonly RouteSettings _settings;
-        private Widget? _widget;
+        internal readonly string Path;
+        //TODO: cache of keepalive widget, think about use Map<PathString, Widget>
+    }
 
-        internal readonly Route Route;
-
-
-#if __WEB__
-        [TSRawScript(@"
-        public GetWidgetAsync() : Promise<PixUI.Widget> {
-            return this.Route.Builder(this._settings);
-        }")]
-        internal Task<Widget> GetWidgetAsync() => throw new Exception();
-#else
-        internal Widget GetWidget()
+    internal sealed class BuildPathContext
+    {
+        public BuildPathContext()
         {
-            if (_widget != null) return _widget;
-
-            _widget = Route.Builder(_settings);
-            return _widget;
+            LeafNamed = new StringMap<Navigator>(new (string, Navigator)[] { });
         }
-#endif
+
+        internal Navigator LeafDefault = null!;
+        internal readonly StringMap<Navigator> LeafNamed;
+
+        internal string GetFullPath()
+        {
+            var fullPath = LeafDefault.Path;
+            if (LeafNamed.size > 0)
+            {
+                fullPath += "?";
+                var first = true;
+                foreach (var key in LeafNamed.keys())
+                {
+                    if (first) first = false;
+                    else fullPath += "&";
+
+                    fullPath += key + "=" + LeafNamed.get(key)!.Path;
+                }
+            }
+
+            return fullPath;
+        }
     }
 
     /// <summary>
@@ -46,9 +55,51 @@ namespace PixUI
         private readonly List<RouteHistoryEntry> _history = new List<RouteHistoryEntry>();
         private int _historyIndex = -1;
 
-        internal bool IsEmpty => _history.Count == 0;
+        internal readonly Navigator RootNavigator = new Navigator(Array.Empty<Route>());
 
-        internal void Push(RouteHistoryEntry entry)
+        internal string? AssignedPath { get; set; }
+
+        internal int Count => _history.Count;
+
+        /// <summary>
+        /// 获取当前路由的全路径
+        /// </summary>
+        internal string GetFullPath()
+        {
+            if (RootNavigator.Children == null || RootNavigator.Children.Count == 0)
+                return "";
+
+            var ctx = new BuildPathContext();
+            BuildFullPath(ctx, RootNavigator);
+            return ctx.GetFullPath();
+        }
+
+        private static void BuildFullPath(BuildPathContext ctx, Navigator navigator)
+        {
+            if (navigator.IsNamed)
+            {
+                ctx.LeafNamed.set(navigator.NameOfRouteView!, navigator);
+            }
+            else if (navigator.IsInNamed)
+            {
+                var named = navigator.GetNamedParent()!;
+                ctx.LeafNamed.set(named.NameOfRouteView!, navigator);
+            }
+            else
+            {
+                ctx.LeafDefault = navigator;
+            }
+
+            if (navigator.Children != null)
+            {
+                foreach (var child in navigator.Children)
+                {
+                    BuildFullPath(ctx, child);
+                }
+            }
+        }
+
+        internal void PushEntry(RouteHistoryEntry entry)
         {
             //先清空之后的记录
             if (_historyIndex != _history.Count - 1)
@@ -66,8 +117,86 @@ namespace PixUI
             if (_historyIndex <= 0) return null;
 
             var oldEntry = _history[_historyIndex];
-            _historyIndex--;
+            Goto(_historyIndex - 1);
             return oldEntry;
+        }
+
+        internal void Goto(int index)
+        {
+            if (index < 0 || index >= this._history.Count)
+                throw new Exception("index out of range");
+
+            var action = index < _historyIndex ? RouteChangeAction.GotoBack : RouteChangeAction.GotoForward;
+            _historyIndex = index;
+            var newEntry = _history[_historyIndex];
+            AssignedPath = newEntry.Path;
+
+            NavigateTo(newEntry.Path, action);
+        }
+
+        public void Push(string fullPath)
+        {
+            //TODO: 验证fullPath start with '/' and convert to lowercase
+            AssignedPath = fullPath;
+            var newEntry = new RouteHistoryEntry(fullPath); //TODO:考虑已存在则改为Goto
+            PushEntry(newEntry);
+
+            NavigateTo(fullPath, RouteChangeAction.Push);
+        }
+
+        private void NavigateTo(string fullPath, RouteChangeAction action)
+        {
+            //从根开始比较
+            var psa = fullPath.Split('?');
+            var defaultPath = psa[0];
+            var defaultPss = defaultPath.Split('/');
+
+            //先比较处理默认路径
+            var navigator = GetDefaultNavigator(RootNavigator);
+            ComparePath(navigator, defaultPss, 1, action);
+            //TODO: 再处理各命名路由的路径
+        }
+
+        private bool ComparePath(Navigator? navigator, string[] pss, int index, RouteChangeAction action)
+        {
+            if (navigator == null) return false;
+
+            var name = pss[index];
+            if (name == "")
+                name = navigator.GetDefaultRoute().Name;
+            string? arg = null;
+            if (navigator.IsDynamic(name))
+            {
+                arg = pss[index + 1];
+                index++;
+            }
+
+            if (name != navigator.ActiveRoute.Name || arg != navigator.ActiveArgument)
+            {
+                navigator.Goto(name, arg, action);
+                return true;
+            }
+
+            if (index == pss.Length - 1)
+                return false;
+            return ComparePath(GetDefaultNavigator(navigator), pss, index + 1, action);
+        }
+
+        /// <summary>
+        /// 获取默认路由（惟一的非命名的）
+        /// </summary>
+        private static Navigator? GetDefaultNavigator(Navigator navigator)
+        {
+            if (navigator.Children == null || navigator.Children.Count == 0)
+                return null;
+
+            for (var i = 0; i < navigator.Children.Count; i++)
+            {
+                if (!navigator.Children[i].IsNamed)
+                    return navigator.Children[i];
+            }
+
+            return null;
         }
     }
 }

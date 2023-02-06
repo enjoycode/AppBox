@@ -21,6 +21,8 @@ namespace System
             }
         }
 
+        public int size => _dictionary.Count;
+
         public V? get(K key)
         {
             _dictionary.TryGetValue(key, out var value);
@@ -36,9 +38,9 @@ namespace System
 
         public bool delete(K key) => _dictionary.Remove(key);
 
-        public ICollection<K> keys => _dictionary.Keys;
+        public ICollection<K> keys() => _dictionary.Keys;
 
-        public ICollection<V> values => _dictionary.Values;
+        public ICollection<V> values() => _dictionary.Values;
     }
 
     [TSType("System.NumberMap")]

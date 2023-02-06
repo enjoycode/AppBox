@@ -5,8 +5,12 @@ namespace PixUI
 {
     public abstract class UIWindow
     {
-        protected UIWindow(Widget child)
+        protected UIWindow(Widget child, string? initRoutePath = null)
         {
+            //在构建WidgetTree前设置初始路由路径
+            if (!string.IsNullOrEmpty(initRoutePath))
+                RouteHistoryManager.AssignedPath = initRoutePath;
+            
             Overlay = new Overlay(this);
             RootWidget = new Root(this, child);
 

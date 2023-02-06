@@ -79,7 +79,6 @@ export * from "./Widgets/Layout/Card";
 export * from "./Widgets/Dynamic/DynamicView"
 
 export * from "./Route/Route";
-export * from "./Route";
 export * from "./Route/RouteHistoryManager"
 export * from "./Route/TransitionStack";
 export * from "./Route/Navigator";

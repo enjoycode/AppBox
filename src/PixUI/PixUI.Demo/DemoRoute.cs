@@ -80,17 +80,17 @@ namespace PixUI.Demo
                         MenuItem.Item("Window")
                     }),
                 }),
-                MenuItem.Item("Form", null, () => _navigator.PushNamed("form")),
-                MenuItem.Item("Animation", null, () => _navigator.PushNamed("animation")),
-                MenuItem.Item("ListView", null, () => _navigator.PushNamed("list")),
-                MenuItem.Item("Transform", null, () => _navigator.PushNamed("transform")),
-                MenuItem.Item("TabView", null, () => _navigator.PushNamed("tabview")),
+                MenuItem.Item("Form", null, () => _navigator.Push("form")),
+                MenuItem.Item("Animation", null, () => _navigator.Push("animation")),
+                MenuItem.Item("ListView", null, () => _navigator.Push("list")),
+                MenuItem.Item("Transform", null, () => _navigator.Push("transform")),
+                MenuItem.Item("TabView", null, () => _navigator.Push("tabview")),
                 MenuItem.Item("TreeView",
-                    Icons.Filled.AccountTree, () => _navigator.PushNamed("treeView")),
+                    Icons.Filled.AccountTree, () => _navigator.Push("treeView")),
                 MenuItem.Item("DataGrid",
-                    Icons.Filled.TableView, () => _navigator.PushNamed("datagrid")),
+                    Icons.Filled.TableView, () => _navigator.Push("datagrid")),
                 MenuItem.Item("CodeEditor",
-                    Icons.Filled.Edit, () => _navigator.PushNamed("codeEditor")),
+                    Icons.Filled.Edit, () => _navigator.Push("codeEditor")),
             };
         }
     }

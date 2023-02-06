@@ -215,7 +215,7 @@ export default class WebWindow extends PixUI.UIWindow {
                 //同步替换浏览器的历史记录
                 let url = document.location.origin + '/#' + path;
                 history.replaceState(this.RouteHistoryManager.Count, "", url);
-                this.RouteHistoryManager.PushPath(path);
+                this.RouteHistoryManager.Push(path);
             }
         };
 
