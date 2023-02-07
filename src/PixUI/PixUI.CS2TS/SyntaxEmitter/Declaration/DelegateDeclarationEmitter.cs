@@ -12,6 +12,9 @@ namespace PixUI.CS2TS
 
         internal override void Emit(Emitter emitter, DelegateDeclarationSyntax node)
         {
+            if (node.IsTSType(out _))
+                return; 
+            
             emitter.WriteLeadingTrivia(node);
             
             var needExport = node.Modifiers.Any(m =>

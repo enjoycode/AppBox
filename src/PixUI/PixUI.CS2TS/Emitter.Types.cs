@@ -111,7 +111,8 @@ namespace PixUI.CS2TS
         /// </summary>
         internal void TryRename(ISymbol symbol, ref string name)
         {
-            if (symbol is not IPropertySymbol && symbol is not IFieldSymbol && symbol is not IMethodSymbol)
+            if (symbol is not IPropertySymbol && symbol is not IFieldSymbol && symbol is not IMethodSymbol &&
+                symbol is not INamedTypeSymbol)
                 return;
 
             if (symbol is IMethodSymbol method && name == "ToString" && method.Parameters.Length == 0)

@@ -2,19 +2,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace PixUI.CS2TS
 {
-    internal sealed class FieldDeclarationEmitter : SyntaxEmitter<FieldDeclarationSyntax>
+    partial class Emitter
     {
-        internal static readonly FieldDeclarationEmitter Default = new();
-
-        private FieldDeclarationEmitter() { }
-
-        internal override void Emit(Emitter emitter, FieldDeclarationSyntax node)
+        public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
         {
-            emitter.WriteLeadingTrivia(node);
+            WriteLeadingTrivia(node);
 
-            emitter.Visit(node.Declaration);
+            Visit(node.Declaration);
 
-            emitter.VisitToken(node.SemicolonToken);
+            VisitToken(node.SemicolonToken);
         }
     }
 }

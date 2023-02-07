@@ -80,6 +80,9 @@ namespace PixUI.CS2TS
         internal static bool IsTSType(this BaseTypeDeclarationSyntax node, out string? tsType)
             => IsTSTypeInternal(node.AttributeLists, out tsType);
 
+        internal static bool IsTSType(this DelegateDeclarationSyntax node, out string? tsType)
+            => IsTSTypeInternal(node.AttributeLists, out tsType);
+
         private static bool IsTSTypeInternal(SyntaxList<AttributeListSyntax> attributes,
             out string? tsType)
         {

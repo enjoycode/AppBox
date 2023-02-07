@@ -52,18 +52,26 @@
 //     }
 // }
 
-namespace MyNamespace
+using PixUI;
+
+namespace PixUI
 {
-#if __WEB__
         /// Delegate for something
-        public delegate int RouteWidgetBuilder(string? arg);
-#else
+        public delegate string RouteWidgetAsyncBuilder(string? arg);
+        [TSType("PixUI.RouteWidgetAsyncBuilder"), TSRename("RouteWidgetAsyncBuilder")]
         public delegate string RouteWidgetBuilder(string? arg);
-#endif
-        
+
         /// <summary>
         /// This is Test Class
         /// Don't use it
         /// </summary>
-        public sealed class MyClass { }
+        public sealed class MyClass
+        {
+                public readonly RouteWidgetBuilder Builder;
+
+                public MyClass(RouteWidgetBuilder builder)
+                {
+                        Builder = builder;
+                }
+        }
 }

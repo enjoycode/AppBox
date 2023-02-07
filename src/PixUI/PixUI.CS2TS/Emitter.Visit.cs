@@ -69,9 +69,6 @@ namespace PixUI.CS2TS
         public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node) =>
             EventFieldDeclarationEmitter.Default.Emit(this, node);
 
-        public override void VisitFieldDeclaration(FieldDeclarationSyntax node) =>
-            FieldDeclarationEmitter.Default.Emit(this, node);
-
         public override void VisitVariableDeclaration(VariableDeclarationSyntax node) =>
             VariableDeclarationEmitter.Default.Emit(this, node);
 
