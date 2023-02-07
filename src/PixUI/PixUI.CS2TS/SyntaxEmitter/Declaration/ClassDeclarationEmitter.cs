@@ -11,13 +11,9 @@ namespace PixUI.CS2TS
         internal override void Emit(Emitter emitter, ClassDeclarationSyntax node)
         {
             if (node.IsTSType(out _))
-                return;
+                return; 
 
-            if (node.HasLeadingTrivia)
-            {
-               var leadingTrivia = node.GetLeadingTrivia();
-               emitter.Write(leadingTrivia.ToString());
-            }
+            emitter.WriteLeadingTrivia(node);
 
             var isGenericTypeOverloads = node.IsGenericOverloadsType(); //TODO: remove
             if (isGenericTypeOverloads)

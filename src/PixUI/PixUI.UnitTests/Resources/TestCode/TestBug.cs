@@ -35,19 +35,35 @@
 //     }
 // }
 
-using PixUI;
+// using PixUI;
+//
+// interface IDirtyArea
+// {
+//     IDirtyArea ToChild();
+// }
+//
+// class BugOfDelegateBind
+// {
+//     void Paint(IDirtyArea area) { }
+//     
+//     void Test(IDirtyArea? area)
+//     {
+//         Paint(area?.ToChild());
+//     }
+// }
 
-interface IDirtyArea
+namespace MyNamespace
 {
-    IDirtyArea ToChild();
-}
-
-class BugOfDelegateBind
-{
-    void Paint(IDirtyArea area) { }
-    
-    void Test(IDirtyArea? area)
-    {
-        Paint(area?.ToChild());
-    }
+#if __WEB__
+        /// Delegate for something
+        public delegate int RouteWidgetBuilder(string? arg);
+#else
+        public delegate string RouteWidgetBuilder(string? arg);
+#endif
+        
+        /// <summary>
+        /// This is Test Class
+        /// Don't use it
+        /// </summary>
+        public sealed class MyClass { }
 }

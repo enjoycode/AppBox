@@ -12,6 +12,8 @@ namespace PixUI.CS2TS
 
         internal override void Emit(Emitter emitter, DelegateDeclarationSyntax node)
         {
+            emitter.WriteLeadingTrivia(node);
+            
             var needExport = node.Modifiers.Any(m =>
                 m.Kind() == SyntaxKind.PublicKeyword || m.Kind() == SyntaxKind.InternalKeyword);
             if (needExport)

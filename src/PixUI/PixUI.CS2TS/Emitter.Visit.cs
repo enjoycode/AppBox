@@ -7,7 +7,7 @@ namespace PixUI.CS2TS
 {
     public partial class Emitter
     {
-        internal void VisitSeparatedList<T>(SeparatedSyntaxList<T> list) where T: SyntaxNode
+        internal void VisitSeparatedList<T>(SeparatedSyntaxList<T> list) where T : SyntaxNode
         {
             foreach (var item in list.GetWithSeparators())
             {
@@ -34,8 +34,7 @@ namespace PixUI.CS2TS
             }
         }
 
-        public override void VisitFileScopedNamespaceDeclaration(
-            FileScopedNamespaceDeclarationSyntax node)
+        public override void VisitFileScopedNamespaceDeclaration(FileScopedNamespaceDeclarationSyntax node)
         {
             //暂不处理Namespace
             foreach (var member in node.Members)
@@ -154,6 +153,7 @@ namespace PixUI.CS2TS
         #endregion
 
         #region ====Expression====
+
         public override void VisitInitializerExpression(InitializerExpressionSyntax node) =>
             InitializerExpressionEmitter.Default.Emit(this, node);
 
@@ -226,7 +226,7 @@ namespace PixUI.CS2TS
                 WriteTrailingTrivia(node);
                 return;
             }
-            
+
             base.VisitPostfixUnaryExpression(node);
         }
 
@@ -267,17 +267,13 @@ namespace PixUI.CS2TS
         private bool _disableVisitTrailingTrivia;
         private bool _disableVisitLeadingTrivia;
 
-        internal void DisableVisitLeadingTrivia() =>
-            _disableVisitLeadingTrivia = true;
+        internal void DisableVisitLeadingTrivia() => _disableVisitLeadingTrivia = true;
 
-        internal void EnableVisitLeadingTrivia() =>
-            _disableVisitLeadingTrivia = false;
+        internal void EnableVisitLeadingTrivia() => _disableVisitLeadingTrivia = false;
 
-        internal void DisableVisitTrailingTrivia() =>
-            _disableVisitTrailingTrivia = true;
+        internal void DisableVisitTrailingTrivia() => _disableVisitTrailingTrivia = true;
 
-        internal void EnableVisitTrailingTrivia() =>
-            _disableVisitTrailingTrivia = false;
+        internal void EnableVisitTrailingTrivia() => _disableVisitTrailingTrivia = false;
 
         public override void VisitToken(SyntaxToken token)
         {
@@ -309,13 +305,17 @@ namespace PixUI.CS2TS
                     Write(' ', trivia.Span.Length);
                     break;
                 case SyntaxKind.SingleLineCommentTrivia:
-                    Write(trivia.ToString());
+                case SyntaxKind.SingleLineDocumentationCommentTrivia:
+                    Write(trivia.ToFullString());
                     break;
                 case SyntaxKind.MultiLineCommentTrivia:
                     break;
-                case SyntaxKind.SingleLineDocumentationCommentTrivia:
-                    break;
                 case SyntaxKind.MultiLineDocumentationCommentTrivia:
+                    break;
+                case SyntaxKind.IfDirectiveTrivia:
+                case SyntaxKind.ElseDirectiveTrivia:
+                case SyntaxKind.EndIfDirectiveTrivia:
+                case SyntaxKind.DisabledTextTrivia:
                     break;
                 default:
                     //TODO:

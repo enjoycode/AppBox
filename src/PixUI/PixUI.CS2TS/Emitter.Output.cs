@@ -63,7 +63,7 @@ namespace PixUI.CS2TS
             sb.Remove(sb.Length - length, length);
         }
 
-        internal void WriteLeadingTrivia(SyntaxNode node) //TODO: remove it
+        internal void WriteLeadingTrivia(SyntaxNode node)
         {
             if (!node.HasLeadingTrivia) return;
 
@@ -81,7 +81,7 @@ namespace PixUI.CS2TS
             Write(' ', whitespace.Span.Length);
         }
 
-        internal void WriteTrailingTrivia(SyntaxNode node) //TODO: remove it
+        internal void WriteTrailingTrivia(SyntaxNode node)
         {
             if (!node.HasTrailingTrivia) return;
 
