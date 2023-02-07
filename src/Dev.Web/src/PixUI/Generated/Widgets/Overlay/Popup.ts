@@ -24,11 +24,17 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
         return this._transition?.AnimationController;
     }
 
+    /// <summary>
+    /// 默认的沿Y缩放的打开动画
+    /// </summary>
     public static readonly DefaultTransitionBuilder: PopupTransitionBuilder = (animation, child, origin) => new ScaleYTransition(animation, origin).Init(
         {
             Child: child
         });
 
+    /// <summary>
+    /// 默认的对话框打开关闭动画
+    /// </summary>
     public static readonly DialogTransitionBuilder: PopupTransitionBuilder = (animation, child, origin) => {
         let curve = new PixUI.CurvedAnimation(animation, PixUI.Curves.EaseInOutCubic);
         let offsetAnimation = new PixUI.OffsetTween(new PixUI.Offset(0, -0.1), new PixUI.Offset(0, 0)).Animate(curve);

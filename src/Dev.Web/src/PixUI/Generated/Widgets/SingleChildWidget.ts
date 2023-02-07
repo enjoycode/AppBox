@@ -39,6 +39,10 @@ export abstract class SingleChildWidget extends PixUI.Widget {
             action(this._child);
     }
 
+    /// <summary>
+    /// 无子组件如果IsLayoutTight==true则设为空,否则充满可用空间;
+    /// 有子组件如果IsLayoutTight==true则设为子组件大小,否则充满可用空间
+    /// </summary>
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);

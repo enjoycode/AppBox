@@ -19,6 +19,9 @@ export class Navigator {
     private readonly _routes: System.List<PixUI.Route> = new System.List<PixUI.Route>();
     public HistoryManager: Nullable<PixUI.RouteHistoryManager>;
 
+    /// <summary>
+    /// 路由改变时的通知绑定的RouteView重新Build
+    /// </summary>
     public OnRouteChanged: Nullable<System.Action1<RouteChangeAction>>;
 
     #Parent: Nullable<Navigator>;
@@ -39,6 +42,9 @@ export class Navigator {
         this.#Children = value;
     }
 
+    /// <summary>
+    /// 命名路由视图的名称
+    /// </summary>
     #NameOfRouteView: Nullable<string>;
     public get NameOfRouteView() {
         return this.#NameOfRouteView;
@@ -120,10 +126,16 @@ export class Navigator {
         this.Children?.Remove(child);
     }
 
+    /// <summary>
+    /// 获取默认路由(第一个路由)
+    /// </summary>
     public GetDefaultRoute(): PixUI.Route {
         return this._routes[0];
     }
 
+    /// <summary>
+    /// 指定名称的路由是否动态路由
+    /// </summary>
     public IsDynamic(name: string): boolean {
         let matchRoute = this._routes.Find(r => r.Name == name);
         if (matchRoute == null) return false;

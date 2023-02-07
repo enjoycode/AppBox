@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 namespace PixUI
 {
 #if __WEB__
-    public delegate Task<Widget> RouteWidgetBuilder(string? arg);
-#else
-    public delegate Widget RouteWidgetBuilder(string? arg);
+    public delegate Task<Widget> RouteWidgetAsyncBuilder(string? arg);
 #endif
+    
+    [TSType("PixUI.RouteWidgetAsyncBuilder"), TSRename("RouteWidgetAsyncBuilder")]
+    public delegate Widget RouteWidgetBuilder(string? arg);
 
     /// <summary>
     /// 路由配置项
@@ -49,5 +50,11 @@ namespace PixUI
             ReverseDuration = reverseDuration;
             EnteringBuilder = enteringBuilder;
         }
+
+#if __WEB__
+        [TSRawScript(
+            "public BuildWidgetAsync(arg: string | null): Promise<PixUI.Widget> { return this.Builder(arg); }")]
+        internal Task<Widget> BuildWidgetAsync(string? arg) => throw new NotSupportedException();
+#endif
     }
 }

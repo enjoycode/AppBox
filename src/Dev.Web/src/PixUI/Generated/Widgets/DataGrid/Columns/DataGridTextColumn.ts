@@ -27,6 +27,9 @@ export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
         PixUI.DataGridColumn.PaintCellParagraph(canvas, (cellRect).Clone(), style, ph);
     }
 
+    /// <summary>
+    /// 从缓存中获取承载的Widget,没有则新建并加入缓存
+    /// </summary>
     private GetCellParagraph(rowIndex: number, controller: PixUI.DataGridController<T>,
                              cellRect: PixUI.Rect, cellValue: string, style: PixUI.CellStyle): PixUI.Paragraph {
         let pattern = new PixUI.CellCache<PixUI.Paragraph>(rowIndex, null);

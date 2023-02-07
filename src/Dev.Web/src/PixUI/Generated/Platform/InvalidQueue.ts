@@ -15,6 +15,9 @@ export class AffectsByRelayout {
     private constructor() {
     }
 
+    /// <summary>
+    /// 计算受影响的Widget的dirty area(新旧的union), 注意相对于上级
+    /// </summary>
     public GetDirtyArea(): PixUI.IDirtyArea {
         //TODO: 考虑Root返回null或现有Bounds
 
@@ -47,6 +50,9 @@ export class InvalidWidget {
     public Level: number = 0;
     public RelayoutOnly: boolean = false;
 
+    /// <summary>
+    /// 用于局部重绘的对象,null表示全部重绘
+    /// </summary>
     public Area: Nullable<PixUI.IDirtyArea>;
 
     public constructor() {
@@ -58,6 +64,11 @@ export class InvalidWidget {
 /// </summary>
 export class InvalidQueue {
 
+    /// <summary>
+    /// Add invalid widget to queue
+    /// 只允许UI thread 添加，动画控制器只向ui thread递交修改状态请求
+    /// </summary>
+    /// <returns>false=widget is not mounted and can't add to queue</returns>
     public static Add(widget: PixUI.Widget, action: InvalidAction, item: Nullable<PixUI.IDirtyArea>): boolean {
         //暂在这里判断Widget是否已挂载
         if (!widget.IsMounted) return false;
@@ -87,6 +98,10 @@ export class InvalidQueue {
         return this._queue.length == 0;
     }
 
+    /// <summary>
+    /// Add dirty widget to queue.
+    /// </summary>
+    /// <returns>true=the first item added to queue</returns>
     private AddInternal(widget: PixUI.Widget, action: InvalidAction, item: Nullable<PixUI.IDirtyArea>) {
         //先尝试合并入现有项
         let level = InvalidQueue.GetLevelToTop(widget);
@@ -170,6 +185,9 @@ export class InvalidQueue {
         return level;
     }
 
+    /// <summary>
+    /// Only for Widgets Tree
+    /// </summary>
     public RenderFrame(context: PixUI.PaintContext) {
         let hasRelayout = false;
 
@@ -199,6 +217,9 @@ export class InvalidQueue {
             context.Window.RunNewHitTest();
     }
 
+    /// <summary>
+    /// Only for overlay
+    /// </summary>
     public RelayoutAll() {
         for (const item of this._queue) {
             if (item.Action == InvalidAction.Relayout) {

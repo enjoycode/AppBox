@@ -47,7 +47,7 @@ export class RouteView extends PixUI.DynamicView {
         //TODO: stop running transition and check is 404.
         //TODO: if action is Goto, and route is keepalive, try get widget instance from cache
         let route = this.Navigator.ActiveRoute;
-        let widget = await route.Builder(this.Navigator.ActiveArgument);
+        let widget = await route.BuildWidgetAsync(this.Navigator.ActiveArgument);
 
         if (action == PixUI.RouteChangeAction.Init || route.EnteringBuilder == null) {
             this.ReplaceTo(widget);

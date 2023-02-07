@@ -12,8 +12,14 @@ export class Radius implements System.IEquatable<Radius> {
         return new Radius(x, y);
     }
 
+    /// <summary>
+    /// The radius value on the horizontal axis.
+    /// </summary>
     public readonly X: number;
 
+    /// <summary>
+    /// The radius value on the vertical axis.
+    /// </summary>
     public readonly Y: number;
 
     private constructor(x: number, y: number) {

@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace PixUI
 {
     public sealed class RouteView : DynamicView
@@ -59,7 +61,7 @@ namespace PixUI
             //TODO: if action is Goto, and route is keepalive, try get widget instance from cache
             var route = Navigator.ActiveRoute;
 #if __WEB__
-            var widget = await route.Builder(Navigator.ActiveArgument);
+            var widget = await route.BuildWidgetAsync(Navigator.ActiveArgument);
 #else
             var widget = route.Builder(Navigator.ActiveArgument);
 #endif

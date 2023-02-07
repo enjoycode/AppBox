@@ -6,6 +6,9 @@ export abstract class DataGridColumn<T> {
         this.Label = label;
     }
 
+    /// <summary>
+    /// 列标题
+    /// </summary>
     public readonly Label: string;
 
     public Width: PixUI.ColumnWidth = PixUI.ColumnWidth.Auto();
@@ -13,6 +16,9 @@ export abstract class DataGridColumn<T> {
     public CellStyle: Nullable<PixUI.CellStyle>;
     public CellStyleGetter: Nullable<System.Func3<T, number, PixUI.CellStyle>>;
 
+    /// <summary>
+    /// 是否冻结列
+    /// </summary>
     public Frozen: boolean = false;
 
     public Parent: Nullable<PixUI.DataGridGroupColumn<T>>;
@@ -31,10 +37,16 @@ export abstract class DataGridColumn<T> {
     public CachedVisibleRight: number = 0;
 
 
+    /// <summary>
+    /// 经过布局计算后的实际像素宽度
+    /// </summary>
     public get LayoutWidth(): number {
         return this.Width.Type == PixUI.ColumnWidthType.Fixed ? this.Width.Value : this._cachedWidth;
     }
 
+    /// <summary>
+    /// 非分组列计算实际像素宽度
+    /// </summary>
     public CalcWidth(leftWidth: number, leftColumns: number) {
         let widthChanged = false;
         if (this.Width.Type == PixUI.ColumnWidthType.Percent) {
@@ -50,12 +62,21 @@ export abstract class DataGridColumn<T> {
         if (widthChanged) this.ClearAllCache();
     }
 
+    /// <summary>
+    /// 改变列宽或重设数据源后清除所有缓存
+    /// </summary>
     public ClearAllCache() {
     }
 
+    /// <summary>
+    /// 滚动后清除相关缓存
+    /// </summary>
     public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
     }
 
+    /// <summary>
+    ///  画标题，允许子类特殊绘制(如CheckBoxColumn)
+    /// </summary>
     public PaintHeader(canvas: PixUI.Canvas, cellRect: PixUI.Rect, theme: PixUI.DataGridTheme) {
         let cellStyle = this.HeaderCellStyle ?? theme.DefaultHeaderCellStyle;
 
@@ -111,6 +132,9 @@ export abstract class DataGridColumn<T> {
         return ph;
     }
 
+    /// <summary>
+    /// 根据上下对齐方式画文本
+    /// </summary>
     public static PaintCellParagraph(canvas: PixUI.Canvas, rect: PixUI.Rect, style: PixUI.CellStyle,
                                      paragraph: PixUI.Paragraph) {
         if (style.VerticalAlignment == PixUI.VerticalAlignment.Middle) {

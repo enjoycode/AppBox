@@ -13,6 +13,9 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
     private _animationTo: Nullable<PixUI.Widget>;
     private _transitionStack: Nullable<PixUI.TransitionStack>;
 
+    /// <summary>
+    /// 直接替换
+    /// </summary>
     protected ReplaceTo(to: Nullable<PixUI.Widget>) {
         if (!this.IsMounted) {
             this.Child = to;
@@ -25,6 +28,9 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
         this.Invalidate(PixUI.InvalidAction.Relayout); //这里始终重新布局
     }
 
+    /// <summary>
+    /// 动画替换
+    /// </summary>
     protected AnimateTo(from: PixUI.Widget, to: PixUI.Widget, duration: number, reverse: boolean,
                         enteringBuilder: TransitionBuilder,
                         existingBuilder: Nullable<TransitionBuilder>) {

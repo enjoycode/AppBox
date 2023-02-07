@@ -134,6 +134,9 @@ export class ListPopup<T> extends PixUI.Popup {
         }
     }
 
+    /// <summary>
+    /// 用于显示前初始化选择的项
+    /// </summary>
     public InitSelect(item: T) {
         let index = this._listViewController.DataSource!.IndexOf(item);
         if (index < 0) return;

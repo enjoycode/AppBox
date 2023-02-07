@@ -51,8 +51,14 @@ export class TabBar<T> extends PixUI.Widget implements ITabBar {
 
     public BgColor: Nullable<PixUI.Color>;
 
+    /// <summary>
+    /// 选中的Tab的背景色
+    /// </summary>
     public SelectedColor: Nullable<PixUI.Color>;
 
+    /// <summary>
+    /// Hover时的背景色
+    /// </summary>
     public HoverColor: Nullable<PixUI.Color>;
 
 

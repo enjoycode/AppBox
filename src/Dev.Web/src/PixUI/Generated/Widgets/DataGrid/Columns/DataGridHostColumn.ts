@@ -23,6 +23,9 @@ export class DataGridHostColumn<T> extends PixUI.DataGridColumn<T> {
         canvas.translate(-cellRect.Left, -cellRect.Top);
     }
 
+    /// <summary>
+    /// 从缓存中获取承载的Widget,没有则新建并加入缓存
+    /// </summary>
     private GetCellWidget(rowIndex: number, controller: PixUI.DataGridController<T>,
                           cellRect: PixUI.Rect): PixUI.Widget {
         let pattern = new PixUI.CellCache<PixUI.Widget>(rowIndex, null);

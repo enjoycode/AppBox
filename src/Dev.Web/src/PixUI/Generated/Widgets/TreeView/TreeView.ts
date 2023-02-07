@@ -16,6 +16,9 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
 
     private _color: Nullable<PixUI.State<PixUI.Color>>;
 
+    /// <summary>
+    /// 背景色
+    /// </summary>
     public get Color(): Nullable<PixUI.State<PixUI.Color>> {
         return this._color;
     }
@@ -138,6 +141,9 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
     }
 
 
+    /// <summary>
+    /// 计算所有子节点的最大宽度
+    /// </summary>
     public static CalcMaxChildWidth<Tn>(nodes: System.IList<PixUI.TreeNode<Tn>>): number {
         let maxChildWidth = 0;
         for (const node of nodes) {
@@ -147,6 +153,9 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
         return maxChildWidth;
     }
 
+    /// <summary>
+    /// 更新指定子节点之后的子节点的Y坐标
+    /// </summary>
     public static UpdatePositionAfter<Tn>(child: PixUI.Widget, nodes: System.IList<PixUI.TreeNode<Tn>>,
                                           dy: number) {
         let indexOfChild = -1;

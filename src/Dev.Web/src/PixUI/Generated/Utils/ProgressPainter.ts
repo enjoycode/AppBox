@@ -40,6 +40,9 @@ export class CircularProgressPainter implements System.IDisposable {
         this._controller.Stop();
     }
 
+    /// <summary>
+    /// 画至目标Widget的中心位置
+    /// </summary>
     public PaintToWidget(target: PixUI.Widget, canvas: PixUI.Canvas, indicatorSize: number = 36) {
         let dx = (target.W - indicatorSize) / 2.0;
         let dy = (target.H - indicatorSize) / 2.0;

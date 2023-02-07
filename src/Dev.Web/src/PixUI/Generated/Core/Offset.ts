@@ -16,6 +16,9 @@ export class Offset implements System.IEquatable<Offset> {
         this.Dy = dy;
     }
 
+    /// <summary>
+    /// Linearly interpolate between two offsets.
+    /// </summary>
     public static Lerp(a: Nullable<Offset>, b: Nullable<Offset>, t: number): Nullable<Offset> {
         if (b == null) {
             if (a == null)

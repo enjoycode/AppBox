@@ -57,6 +57,9 @@ export abstract class Dialog extends PixUI.Popup {
 
     protected abstract BuildBody(): PixUI.Widget ;
 
+    /// <summary>
+    /// 构建对话框的Footer, 必须指定高度
+    /// </summary>
     protected BuildFooter(): PixUI.Widget {
         return new PixUI.Container().Init(
             {
@@ -85,6 +88,10 @@ export abstract class Dialog extends PixUI.Popup {
         super.Show(null, null, PixUI.Popup.DialogTransitionBuilder);
     }
 
+    /// <summary>
+    /// 显示并等待关闭
+    /// </summary>
+    /// <returns>true=canceled</returns>
     public ShowAndWaitClose(): System.Task<boolean> {
         this.Show();
         this._closeDone = new System.TaskCompletionSource<boolean>();
@@ -92,6 +99,10 @@ export abstract class Dialog extends PixUI.Popup {
         return this._closeDone.Task;
     }
 
+    /// <summary>
+    /// 关闭前处理
+    /// </summary>
+    /// <returns>true=abort close</returns>
     protected OnClosing(canceled: boolean): boolean {
         return false;
     }

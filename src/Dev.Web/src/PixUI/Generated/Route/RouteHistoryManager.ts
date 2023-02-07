@@ -52,6 +52,9 @@ export class RouteHistoryManager {
         return this._history.length;
     }
 
+    /// <summary>
+    /// 获取当前路由的全路径
+    /// </summary>
     public GetFullPath(): string {
         if (this.RootNavigator.Children == null || this.RootNavigator.Children.length == 0)
             return "";
@@ -152,6 +155,9 @@ export class RouteHistoryManager {
         return this.ComparePath(RouteHistoryManager.GetDefaultNavigator(navigator), pss, index + 1, action);
     }
 
+    /// <summary>
+    /// 获取默认路由（惟一的非命名的）
+    /// </summary>
     private static GetDefaultNavigator(navigator: PixUI.Navigator): Nullable<PixUI.Navigator> {
         if (navigator.Children == null || navigator.Children.length == 0)
             return null;

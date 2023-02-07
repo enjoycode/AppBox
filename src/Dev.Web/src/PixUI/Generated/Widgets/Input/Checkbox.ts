@@ -146,12 +146,22 @@ export class Checkbox extends PixUI.Toggleable {
             origin.Dx + drawEnd.Dx, origin.Dy + drawEnd.Dy, paint);
     }
 
+    /// <summary>
+    /// The square outer bounds of the checkbox at t, with the specified origin.
+    /// At t == 0.0, the outer rect's size is _kEdgeSize (Checkbox.width)
+    /// At t == 0.5, .. is _kEdgeSize - _kStrokeWidth
+    /// At t == 1.0, .. is _kEdgeSize
+    /// </summary>
     private static OuterRectAt(origin: PixUI.Offset, t: number): PixUI.Rect {
         let inset = 1.0 - Math.abs(t - 0.5) * 2.0;
         let size = Checkbox._kEdgeSize - inset * Checkbox._kStrokeWidth;
         return PixUI.Rect.FromLTWH(origin.Dx + inset, origin.Dy + inset, size, size);
     }
 
+    /// <summary>
+    /// The checkbox's border color if value == false, or its fill color when
+    /// value == true or null.
+    /// </summary>
     private static ColorAt(t: number): PixUI.Color {
         //TODO: fix activeColor and inactiveColor
         let activeColor = PixUI.Theme.AccentColor;

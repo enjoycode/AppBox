@@ -14,5 +14,9 @@ export abstract class OutlinedBorder extends PixUI.ShapeBorder {
         this.Side = side ?? PixUI.BorderSide.Empty;
     }
 
+    /// <summary>
+    /// Returns a copy of this OutlinedBorder that draws its outline with the
+    /// specified [side], if [side] is non-null.
+    /// </summary>
     public abstract CopyWith(side: Nullable<PixUI.BorderSide>): OutlinedBorder ;
 }

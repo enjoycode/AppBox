@@ -2,10 +2,23 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export class CurvedAnimation extends PixUI.AnimationWithParent<number> {
+    /// <summary>
+    /// The curve to use in the forward direction.
+    /// </summary>
     private readonly _curve: PixUI.Curve;
 
+    /// <summary>
+    /// The curve to use in the reverse direction.
+    /// </summary>
     private readonly _reverseCurve: Nullable<PixUI.Curve>;
 
+    /// <summary>
+    /// The direction used to select the current curve.
+    ///
+    /// The curve direction is only reset when we hit the beginning or the end of
+    /// the timeline to avoid discontinuities in the value of any variables this
+    /// animation is used to animate.
+    /// </summary>
     private _curveDirection: Nullable<PixUI.AnimationStatus>;
 
     private get UseForwardCurve(): boolean {

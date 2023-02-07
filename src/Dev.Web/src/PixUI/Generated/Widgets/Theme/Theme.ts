@@ -11,5 +11,8 @@ export class Theme {
 
     public static AccentColor: PixUI.Color = new PixUI.Color(0xFFF7821B);
 
+    /// <summary>
+    /// 禁用的组件的背景色
+    /// </summary>
     public static DisabledBgColor: PixUI.Color = new PixUI.Color(0xFFF5F7FA);
 }

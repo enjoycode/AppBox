@@ -13,6 +13,10 @@ export class Transform extends PixUI.SingleChildWidget {
         this.Origin = origin;
     }
 
+    /// <summary>
+    /// The origin of the coordinate system (relative to the upper left corner of
+    /// this) in which to apply the matrix.
+    /// </summary>
     public get Origin(): Nullable<PixUI.Offset> {
         return this._origin;
     }
@@ -23,11 +27,18 @@ export class Transform extends PixUI.SingleChildWidget {
         this.NeedInvalidate();
     }
 
+    /// <summary>
+    /// 初始化，不激发重绘
+    /// </summary>
     protected InitTransformAndOrigin(value: PixUI.Matrix4, origin: Nullable<PixUI.Offset> = null) {
         this._transform = (value).Clone();
         this._origin = origin;
     }
 
+    /// <summary>
+    /// The matrix to transform the child by during painting.
+    /// The provided value is copied on assignment.
+    /// </summary>
     protected SetTransform(value: PixUI.Matrix4) {
         if (System.OpEquality(this._transform, value)) return;
 

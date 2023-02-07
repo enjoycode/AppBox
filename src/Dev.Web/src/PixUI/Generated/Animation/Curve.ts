@@ -61,10 +61,22 @@ export class FlippedCurve extends Curve {
 /// three seconds later.
 /// </remarks>
 export class Interval extends Curve {
+    /// <summary>
+    /// The largest value for which this interval is 0.0.
+    /// From t=0.0 to t=`begin`, the interval's value is 0.0.
+    /// </summary>
     private readonly _begin: number;
 
+    /// <summary>
+    /// The smallest value for which this interval is 1.0.
+    ///
+    /// From t=`end` to t=1.0, the interval's value is 1.0.
+    /// </summary>
     private readonly _end: number;
 
+    /// <summary>
+    /// The curve to apply between [Begin] and [End].
+    /// </summary>
     private readonly _curve: Curve;
 
     public constructor(begin: number, end: number, curve: Nullable<Curve> = null) {

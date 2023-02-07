@@ -1,8 +1,17 @@
 export enum ColumnWidthType {
+    /// <summary>
+    /// 均分剩余宽度
+    /// </summary>
     Auto,
 
+    /// <summary>
+    /// 按百分比分配剩余宽度
+    /// </summary>
     Percent,
 
+    /// <summary>
+    /// 固定宽度
+    /// </summary>
     Fixed
 }
 

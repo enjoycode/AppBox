@@ -1,7 +1,7 @@
 import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 
-export type RouteWidgetBuilder = (arg: Nullable<string>) => System.Task<PixUI.Widget>;
+export type RouteWidgetAsyncBuilder = (arg: Nullable<string>) => System.Task<PixUI.Widget>;
 
 /// <summary>
 /// 路由配置项
@@ -9,19 +9,28 @@ export type RouteWidgetBuilder = (arg: Nullable<string>) => System.Task<PixUI.Wi
 export class Route {
     public readonly Name: string;
 
+    /// <summary>
+    /// 是否有动态参数 eg: /user/:id
+    /// </summary>
     public readonly Dynamic: boolean;
 
-    public readonly Builder: RouteWidgetBuilder;
+    public readonly Builder: RouteWidgetAsyncBuilder;
 
     public readonly Duration: number;
 
     public readonly ReverseDuration: number;
 
+    /// <summary>
+    /// 进入动画
+    /// </summary>
     public readonly EnteringBuilder: Nullable<PixUI.TransitionBuilder>;
 
+    /// <summary>
+    /// 退出动画
+    /// </summary>
     public readonly ExistingBuilder: Nullable<PixUI.TransitionBuilder>;
 
-    public constructor(name: string, builder: RouteWidgetBuilder, isDynamic: boolean = false,
+    public constructor(name: string, builder: RouteWidgetAsyncBuilder, isDynamic: boolean = false,
                        enteringBuilder: Nullable<PixUI.TransitionBuilder> = null, existingBuilder: Nullable<PixUI.TransitionBuilder> = null,
                        duration: number = 200, reverseDuration: number = 200) {
         //TODO:检查名称有效性
@@ -31,5 +40,9 @@ export class Route {
         this.Duration = duration;
         this.ReverseDuration = reverseDuration;
         this.EnteringBuilder = enteringBuilder;
+    }
+
+    public BuildWidgetAsync(arg: string | null): Promise<PixUI.Widget> {
+        return this.Builder(arg);
     }
 }

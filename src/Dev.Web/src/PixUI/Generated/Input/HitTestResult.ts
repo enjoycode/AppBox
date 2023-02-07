@@ -4,8 +4,14 @@ import * as System from '@/System'
 export class HitTestResult {
     private readonly _path: System.List<HitTestEntry> = new System.List<HitTestEntry>();
 
+    /// <summary>
+    /// 仅用于缓存最后命中的Widget相对于窗体的变换,用于将窗体坐标映射为本地坐标
+    /// </summary>
     private _transform: PixUI.Matrix4 = PixUI.Matrix4.CreateIdentity();
 
+    /// <summary>
+    /// 仅用于缓存最后命中的Widget,不一定是MouseRegion
+    /// </summary>
     #LastHitWidget: Nullable<PixUI.Widget>;
     public get LastHitWidget() {
         return this.#LastHitWidget;
@@ -23,6 +29,10 @@ export class HitTestResult {
         return this.LastHitWidget != null;
     }
 
+    /// <summary>
+    /// 添加命中的Widget
+    /// </summary>
+    /// <returns>true = Widget is opaque MouseRegion</returns>
     public Add(widget: PixUI.Widget): boolean {
         if ((this.LastHitWidget === widget))
             return false; //排除在旧区域中重新HitTest引起的重复加入
@@ -48,6 +58,9 @@ export class HitTestResult {
         return isOpaqueMouseRegion;
     }
 
+    /// <summary>
+    /// 仅用于[Transform] Widget命中子级后转换
+    /// </summary>
     public ConcatLastTransform(transform: PixUI.Matrix4) {
         this._transform.PreConcat(transform);
         if ((this.LastHitWidget === this.LastWidgetWithMouseRegion)) {
@@ -55,6 +68,10 @@ export class HitTestResult {
         }
     }
 
+    /// <summary>
+    /// 滚动时判断是否超出已命中的范围，没有则更新Transform
+    /// </summary>
+    /// <returns>false=已失效，需要重新HitTest</returns>
     public TranslateOnScroll(scrollable: PixUI.Widget, dx: number, dy: number, winX: number,
                              winY: number): boolean {
         //如果scrollable就是LastHitWidget，不需要处理
@@ -77,6 +94,9 @@ export class HitTestResult {
         return contains;
     }
 
+    /// <summary>
+    /// 最后命中的实现了MouseRegion的Widget
+    /// </summary>
     public get LastWidgetWithMouseRegion(): Nullable<PixUI.Widget> {
         return this._path.length == 0 ? null : <PixUI.Widget><unknown>this._path[this._path.length - 1].Widget;
     }
@@ -85,6 +105,9 @@ export class HitTestResult {
         return this._path.length == 0 ? null : this._path[this._path.length - 1];
     }
 
+    /// <summary>
+    /// 检测新坐标是否仍旧在最后一个命中的Widget区域内
+    /// </summary>
     public StillInLastRegion(winX: number, winY: number): boolean {
         if (this.LastHitWidget == null) return false;
 
@@ -101,6 +124,9 @@ export class HitTestResult {
             winY - scrollableToWin.Y);
     }
 
+    /// <summary>
+    /// 在旧区域内重新HitTest
+    /// </summary>
     public HitTestInLastRegion(winX: number, winY: number) {
         let transformed = PixUI.MatrixUtils.TransformPoint(this._transform, winX, winY);
         let isOpaqueMouseRegion = false;
@@ -118,6 +144,9 @@ export class HitTestResult {
         }
     }
 
+    /// <summary>
+    /// 与新的结果比较，激发旧的HoverChanged(false)事件
+    /// </summary>
     public ExitOldRegion(newResult: HitTestResult) {
         if (!this.IsHitAnyMouseRegion) return;
 
@@ -140,6 +169,9 @@ export class HitTestResult {
             this._path[exitTo - 1].Widget.MouseRegion.RestoreHoverCursor();
     }
 
+    /// <summary>
+    /// 与旧的结果比较，激发新的HoverChanged(true)事件
+    /// </summary>
     public EnterNewRegion(oldResult: HitTestResult) {
         if (!this.IsHitAnyMouseRegion) return;
 
@@ -158,6 +190,9 @@ export class HitTestResult {
         }
     }
 
+    /// <summary>
+    /// 向上(冒泡)传播PointerEvent
+    /// </summary>
     public PropagatePointerEvent(e: PixUI.PointerEvent,
                                  handler: System.Action2<PixUI.MouseRegion, PixUI.PointerEvent>) {
         for (let i = this._path.length - 1; i >= 0; i--) {

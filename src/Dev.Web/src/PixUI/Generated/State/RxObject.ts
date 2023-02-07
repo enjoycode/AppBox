@@ -35,6 +35,9 @@ export class RxProperty<T> extends PixUI.State<T> {
 export abstract class RxObject<T extends object> {
     protected _target: T;
 
+    /// <summary>
+    /// 代理的目标对象实例
+    /// </summary>
     public get Target(): T {
         return this._target;
     }

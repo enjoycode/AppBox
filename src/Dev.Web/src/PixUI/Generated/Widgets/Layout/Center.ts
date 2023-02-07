@@ -1,6 +1,9 @@
 import * as PixUI from '@/PixUI'
 
 export class Center extends PixUI.SingleChildWidget {
+    /// <summary>
+    /// 布局充满可用空间
+    /// </summary>
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
