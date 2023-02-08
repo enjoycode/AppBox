@@ -1,3 +1,4 @@
+import {describe, it, expect} from "vitest";
 import {List} from "@/System";
 
 class Base {}
@@ -14,16 +15,15 @@ class Child extends Base {
     }
 }
 
+describe("LinqTests", () => {
 
-describe("Linq tests", () => {
-
-    it("Sum test", () => {
+    it("SumTest", () => {
         let list = new List<number>([1, 2, 3]);
         let sum = list.Sum();
         expect(sum).toEqual(6);
     });
     
-    it("Cast test", () => {
+    it("CastTest", () => {
        let src = new List<Base>([new Child("Eric")]);
        let dest = src.Cast<Child>().ToArray();
        expect(dest[0].Name).toEqual("Eric");

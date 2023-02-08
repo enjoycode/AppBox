@@ -1,3 +1,5 @@
+import {describe, it, expect} from "vitest";
+
 type Func1<T> = () => T;
 type Func2<T1, T2> = (arg1: T1) => T2;
 type Func3<T1, T2, T3> = (arg1: T1, arg2: T2) => T3;

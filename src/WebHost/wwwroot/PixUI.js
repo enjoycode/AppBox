@@ -22,7 +22,7 @@ var __privateSet = (obj, member, value, setter) => {
   setter ? setter.call(obj, value) : member.set(obj, value);
   return value;
 };
-var _Loading, _Image, _IsHandled, _FocusedWidget, _LastHitWidget, _KeyData, _Buttons, _X, _Y, _DeltaX, _DeltaY, _X2, _Y2, _Dx, _Dy, _Tolerance2, _LastElapsedDuration, _BorderSide2, _BorderRadius2, _GapPadding, _Widget2, _X3, _Y3, _W, _H, _Window, _Flex, _Parent, _Text, _MouseRegion, _FocusNode, _MouseRegion2, _FocusNode2, _MouseRegion3, _Window2, _MouseRegion4, _MouseRegion5, _FocusNode3, _MouseRegion6, _Type, _Children, _MouseRegion7, _MouseRegion8, _SelectedIndex, _Scrollable, _MouseRegion9, _TreeView2, _LoadingPainter, _MouseRegion10, _HeaderRows, _HeaderRowHeight, _HasFrozen, _Type2, _Value, _MinValue, _Current, _Window3, _Canvas, _Current2, _LastMouseX, _LastMouseY;
+var _Loading, _Image, _IsHandled, _FocusedWidget, _LastHitWidget, _KeyData, _Buttons, _X, _Y, _DeltaX, _DeltaY, _X2, _Y2, _Dx, _Dy, _Tolerance2, _LastElapsedDuration, _BorderSide2, _BorderRadius2, _GapPadding, _Widget2, _X3, _Y3, _W, _H, _Window, _Flex, _Parent, _Children, _NameOfRouteView, _ActiveRoute, _ActiveArgument, _Text, _MouseRegion, _FocusNode, _MouseRegion2, _FocusNode2, _MouseRegion3, _Window2, _MouseRegion4, _MouseRegion5, _FocusNode3, _MouseRegion6, _Type, _Children2, _MouseRegion7, _MouseRegion8, _SelectedIndex, _Scrollable, _MouseRegion9, _TreeView2, _LoadingPainter, _MouseRegion10, _HeaderRows, _HeaderRowHeight, _HasFrozen, _Type2, _Value, _MinValue, _Current, _Window3, _Canvas, _Current2, _LastMouseX, _LastMouseY;
 import * as System from "/System.js";
 import { List } from "/System.js";
 const _Color = class extends Float32Array {
@@ -4061,49 +4061,87 @@ class DynamicView extends SingleChildWidget {
     clipper == null ? void 0 : clipper.Dispose();
   }
 }
-const _RouteSettings = class {
-};
-let RouteSettings = _RouteSettings;
-__publicField(RouteSettings, "Empty", new _RouteSettings());
 class Route {
   constructor(name, builder, isDynamic = false, enteringBuilder = null, existingBuilder = null, duration = 200, reverseDuration = 200) {
     __publicField(this, "Name");
-    __publicField(this, "Builder");
     __publicField(this, "Dynamic");
-    __publicField(this, "EnteringBuilder");
-    __publicField(this, "ExistingBuilder");
+    __publicField(this, "Builder");
     __publicField(this, "Duration");
     __publicField(this, "ReverseDuration");
-    this.Name = name;
-    this.Builder = builder;
+    __publicField(this, "EnteringBuilder");
+    __publicField(this, "ExistingBuilder");
+    this.Name = name.toLowerCase();
     this.Dynamic = isDynamic;
-    this.EnteringBuilder = enteringBuilder;
-    this.ExistingBuilder = existingBuilder;
+    this.Builder = builder;
     this.Duration = duration;
     this.ReverseDuration = reverseDuration;
+    this.EnteringBuilder = enteringBuilder;
+  }
+  BuildWidgetAsync(arg) {
+    return this.Builder(arg);
   }
 }
 class RouteHistoryEntry {
-  constructor(route, settings) {
-    __publicField(this, "_settings");
-    __publicField(this, "_widget");
-    __publicField(this, "Route");
-    this.Route = route;
-    this._settings = settings;
+  constructor(path) {
+    __publicField(this, "Path");
+    this.Path = path;
   }
-  GetWidgetAsync() {
-    return this.Route.Builder(this._settings);
+}
+class BuildPathContext {
+  constructor() {
+    __publicField(this, "LeafDefault");
+    __publicField(this, "LeafNamed");
+    this.LeafNamed = new System.StringMap([]);
+  }
+  GetFullPath() {
+    let fullPath = this.LeafDefault.Path;
+    if (this.LeafNamed.size > 0) {
+      fullPath += "?";
+      let first = true;
+      for (const key of this.LeafNamed.keys()) {
+        if (first)
+          first = false;
+        else
+          fullPath += "&";
+        fullPath += key + "=" + this.LeafNamed.get(key).Path;
+      }
+    }
+    return fullPath;
   }
 }
 class RouteHistoryManager {
   constructor() {
     __publicField(this, "_history", new System.List());
     __publicField(this, "_historyIndex", -1);
+    __publicField(this, "RootNavigator", new Navigator([]));
+    __publicField(this, "AssignedPath");
   }
-  get IsEmpty() {
-    return this._history.length == 0;
+  get Count() {
+    return this._history.length;
   }
-  Push(entry) {
+  GetFullPath() {
+    if (this.RootNavigator.Children == null || this.RootNavigator.Children.length == 0)
+      return "";
+    let ctx = new BuildPathContext();
+    RouteHistoryManager.BuildFullPath(ctx, this.RootNavigator);
+    return ctx.GetFullPath();
+  }
+  static BuildFullPath(ctx, navigator2) {
+    if (navigator2.IsNamed) {
+      ctx.LeafNamed.set(navigator2.NameOfRouteView, navigator2);
+    } else if (navigator2.IsInNamed) {
+      let named = navigator2.GetNamedParent();
+      ctx.LeafNamed.set(named.NameOfRouteView, navigator2);
+    } else {
+      ctx.LeafDefault = navigator2;
+    }
+    if (navigator2.Children != null) {
+      for (const child of navigator2.Children) {
+        RouteHistoryManager.BuildFullPath(ctx, child);
+      }
+    }
+  }
+  PushEntry(entry) {
     if (this._historyIndex != this._history.length - 1) {
       this._history.RemoveRange(this._historyIndex + 1, this._history.length - this._historyIndex - 1);
     }
@@ -4114,8 +4152,58 @@ class RouteHistoryManager {
     if (this._historyIndex <= 0)
       return null;
     let oldEntry = this._history[this._historyIndex];
-    this._historyIndex--;
+    this.Goto(this._historyIndex - 1);
     return oldEntry;
+  }
+  Goto(index) {
+    if (index < 0 || index >= this._history.length)
+      throw new System.Exception("index out of range");
+    let action = index < this._historyIndex ? RouteChangeAction.GotoBack : RouteChangeAction.GotoForward;
+    this._historyIndex = index;
+    let newEntry = this._history[this._historyIndex];
+    this.AssignedPath = newEntry.Path;
+    this.NavigateTo(newEntry.Path, action);
+  }
+  Push(fullPath) {
+    this.AssignedPath = fullPath;
+    let newEntry = new RouteHistoryEntry(fullPath);
+    this.PushEntry(newEntry);
+    this.NavigateTo(fullPath, RouteChangeAction.Push);
+  }
+  NavigateTo(fullPath, action) {
+    let psa = fullPath.split(String.fromCharCode(63));
+    let defaultPath = psa[0];
+    let defaultPss = defaultPath.split(String.fromCharCode(47));
+    let navigator2 = RouteHistoryManager.GetDefaultNavigator(this.RootNavigator);
+    this.ComparePath(navigator2, defaultPss, 1, action);
+  }
+  ComparePath(navigator2, pss, index, action) {
+    if (navigator2 == null)
+      return false;
+    let name = pss[index];
+    if (name == "")
+      name = navigator2.GetDefaultRoute().Name;
+    let arg = null;
+    if (navigator2.IsDynamic(name)) {
+      arg = pss[index + 1];
+      index++;
+    }
+    if (name != navigator2.ActiveRoute.Name || arg != navigator2.ActiveArgument) {
+      navigator2.Goto(name, arg, action);
+      return true;
+    }
+    if (index == pss.length - 1)
+      return false;
+    return this.ComparePath(RouteHistoryManager.GetDefaultNavigator(navigator2), pss, index + 1, action);
+  }
+  static GetDefaultNavigator(navigator2) {
+    if (navigator2.Children == null || navigator2.Children.length == 0)
+      return null;
+    for (let i = 0; i < navigator2.Children.length; i++) {
+      if (!navigator2.Children[i].IsNamed)
+        return navigator2.Children[i];
+    }
+    return null;
   }
 }
 class TransitionStack extends Widget {
@@ -4154,15 +4242,20 @@ class TransitionStack extends Widget {
 var RouteChangeAction = /* @__PURE__ */ ((RouteChangeAction2) => {
   RouteChangeAction2[RouteChangeAction2["Init"] = 0] = "Init";
   RouteChangeAction2[RouteChangeAction2["Push"] = 1] = "Push";
-  RouteChangeAction2[RouteChangeAction2["Pop"] = 2] = "Pop";
+  RouteChangeAction2[RouteChangeAction2["GotoBack"] = 2] = "GotoBack";
+  RouteChangeAction2[RouteChangeAction2["GotoForward"] = 3] = "GotoForward";
   return RouteChangeAction2;
 })(RouteChangeAction || {});
-class Navigator {
+const _Navigator = class {
   constructor(routes) {
     __publicField(this, "_routes", new System.List());
-    __privateAdd(this, _Parent, void 0);
     __publicField(this, "HistoryManager");
     __publicField(this, "OnRouteChanged");
+    __privateAdd(this, _Parent, void 0);
+    __privateAdd(this, _Children, void 0);
+    __privateAdd(this, _NameOfRouteView, void 0);
+    __privateAdd(this, _ActiveRoute, void 0);
+    __privateAdd(this, _ActiveArgument, void 0);
     this._routes.AddRange(routes);
   }
   get Parent() {
@@ -4171,63 +4264,198 @@ class Navigator {
   set Parent(value) {
     __privateSet(this, _Parent, value);
   }
+  get Children() {
+    return __privateGet(this, _Children);
+  }
+  set Children(value) {
+    __privateSet(this, _Children, value);
+  }
+  get NameOfRouteView() {
+    return __privateGet(this, _NameOfRouteView);
+  }
+  set NameOfRouteView(value) {
+    __privateSet(this, _NameOfRouteView, value);
+  }
+  get ActiveRoute() {
+    return __privateGet(this, _ActiveRoute);
+  }
+  set ActiveRoute(value) {
+    __privateSet(this, _ActiveRoute, value);
+  }
+  get ActiveArgument() {
+    return __privateGet(this, _ActiveArgument);
+  }
+  set ActiveArgument(value) {
+    __privateSet(this, _ActiveArgument, value);
+  }
+  get IsNamed() {
+    return this.NameOfRouteView != null;
+  }
+  get IsInNamed() {
+    return this.GetNamedParent() != null;
+  }
+  GetNamedParent() {
+    let parent = this.Parent;
+    while (parent != null) {
+      if (parent.IsNamed)
+        return parent;
+      parent = parent.Parent;
+    }
+    return null;
+  }
+  get NameAndArgument() {
+    if (!this.ActiveRoute.Dynamic)
+      return this.ActiveRoute.Name;
+    return this.ActiveRoute.Name + "/" + this.ActiveArgument;
+  }
+  get ParentPath() {
+    if (this.Parent == null)
+      return "";
+    if (this.Parent.IsNamed)
+      return this.Parent.NameAndArgument + "/";
+    if (this.Parent.Parent == null)
+      return "/";
+    return this.Parent.ParentPath + this.Parent.NameAndArgument + "/";
+  }
+  get Path() {
+    return this.ParentPath + this.NameAndArgument;
+  }
+  AttachChild(child, nameOfRouteView) {
+    var _a;
+    child.NameOfRouteView = nameOfRouteView;
+    child.Parent = this;
+    (_a = this.Children) != null ? _a : this.Children = new System.List();
+    this.Children.Add(child);
+  }
+  DetachChild(child) {
+    var _a;
+    child.Parent = null;
+    (_a = this.Children) == null ? void 0 : _a.Remove(child);
+  }
+  GetDefaultRoute() {
+    return this._routes[0];
+  }
+  IsDynamic(name) {
+    let matchRoute = this._routes.Find((r) => r.Name == name);
+    if (matchRoute == null)
+      return false;
+    return matchRoute.Dynamic;
+  }
   InitRouteWidget() {
     var _a;
     if (this._routes.length == 0)
       return;
-    let entry = new RouteHistoryEntry(this._routes[0], RouteSettings.Empty);
-    this.HistoryManager.Push(entry);
-    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 0, entry);
+    this.ActiveRoute = this._routes[0];
+    let asnPath = this.HistoryManager.AssignedPath;
+    if (!System.IsNullOrEmpty(asnPath)) {
+      if (this.IsNamed)
+        ;
+      else if (this.IsInNamed)
+        ;
+      else {
+        let parentPath = this.ParentPath;
+        if (asnPath.length > parentPath.length) {
+          let thisPath = asnPath.substring(asnPath.indexOf(parentPath) + 1);
+          let pss = thisPath.split(String.fromCharCode(47));
+          let matchRoute = this._routes.Find((r) => r.Name == pss[0]);
+          if (matchRoute == null)
+            throw new System.Exception("Can't find route: " + pss[0]);
+          this.ActiveRoute = matchRoute;
+          if (this.ActiveRoute.Dynamic && pss.length > 1)
+            this.ActiveArgument = pss[1];
+        }
+      }
+    }
+    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 0);
   }
-  PushNamed(name) {
+  Push(name, arg = null) {
     var _a;
+    name = name.toLowerCase();
+    if (arg != null)
+      arg = arg.toLowerCase();
+    if (name == this.ActiveRoute.Name && arg == this.ActiveArgument)
+      return;
     let matchRoute = this._routes.Find((r) => r.Name == name);
     if (matchRoute == null)
       throw new System.ArgumentException(`Can't find route: ${name}`);
-    let entry = new RouteHistoryEntry(matchRoute, RouteSettings.Empty);
-    this.HistoryManager.Push(entry);
-    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 1, entry);
+    this.ActiveRoute = matchRoute;
+    this.ActiveArgument = arg;
+    let fullPath = this.HistoryManager.GetFullPath();
+    this.HistoryManager.AssignedPath = fullPath;
+    let entry = new RouteHistoryEntry(fullPath);
+    this.HistoryManager.PushEntry(entry);
+    _Navigator.PushWebHistory(fullPath, this.HistoryManager.Count - 1);
+    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 1);
   }
   Pop() {
-    var _a;
-    let old = this.HistoryManager.Pop();
-    if (old != null)
-      (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, 2, old);
+    this.HistoryManager.Pop();
   }
-}
+  Goto(name, arg, action) {
+    var _a;
+    let matchRoute = this._routes.Find((r) => r.Name == name);
+    if (matchRoute == null)
+      throw new System.Exception("Can't find route: " + name);
+    this.ActiveRoute = matchRoute;
+    this.ActiveArgument = arg;
+    (_a = this.OnRouteChanged) == null ? void 0 : _a.call(this, action);
+  }
+  static PushWebHistory(path, index) {
+    let url = document.location.origin + "/#" + path;
+    history.pushState(index, "", url);
+  }
+  static ReplaceWebHistory(path, index) {
+    let url = document.location.origin;
+    if (path != "/")
+      url += "/#" + path;
+    history.replaceState(index, "", url);
+  }
+};
+let Navigator = _Navigator;
 _Parent = new WeakMap();
+_Children = new WeakMap();
+_NameOfRouteView = new WeakMap();
+_ActiveRoute = new WeakMap();
+_ActiveArgument = new WeakMap();
 class RouteView extends DynamicView {
-  constructor(navigator2) {
+  constructor(navigator2, name = null) {
     super();
     __publicField(this, "Navigator");
+    __publicField(this, "Name");
+    this.Name = name;
     this.Navigator = navigator2;
     this.Navigator.OnRouteChanged = this.OnRouteChanged.bind(this);
   }
   OnMounted() {
+    var _a, _b, _c;
     super.OnMounted();
-    this.Navigator.Parent = this.CurrentNavigator;
-    this.Navigator.HistoryManager = this.Root.Window.RouteHistoryManager;
-    if (this.Navigator.HistoryManager.IsEmpty) {
-      this.Navigator.InitRouteWidget();
-    } else {
-      this.Navigator.InitRouteWidget();
+    let historyManager = this.Root.Window.RouteHistoryManager;
+    if (historyManager.Count == 0) {
+      let path = (_a = historyManager.AssignedPath) != null ? _a : "/";
+      let entry = new RouteHistoryEntry(path);
+      historyManager.PushEntry(entry);
+      Navigator.ReplaceWebHistory(path, 0);
     }
+    this.Navigator.HistoryManager = historyManager;
+    let parentNavigator = (_c = (_b = this.Parent) == null ? void 0 : _b.CurrentNavigator) != null ? _c : historyManager.RootNavigator;
+    parentNavigator.AttachChild(this.Navigator, this.Name);
+    this.Navigator.InitRouteWidget();
   }
   OnUnmounted() {
     super.OnUnmounted();
-    this.Navigator.Parent = null;
+    let parentNavigator = this.Navigator.Parent;
+    parentNavigator.DetachChild(this.Navigator);
     this.Navigator.HistoryManager = null;
   }
-  async OnRouteChanged(action, newEntry) {
-    let widget = await newEntry.GetWidgetAsync();
-    let route = newEntry.Route;
+  async OnRouteChanged(action) {
+    let route = this.Navigator.ActiveRoute;
+    let widget = await route.BuildWidgetAsync(this.Navigator.ActiveArgument);
     if (action == RouteChangeAction.Init || route.EnteringBuilder == null) {
       this.ReplaceTo(widget);
     } else {
       let from = this.Child;
       from.SuspendingMount = true;
       let to;
-      let reverse = action == RouteChangeAction.Pop;
+      let reverse = action == RouteChangeAction.GotoBack;
       if (reverse) {
         to = from;
         from = widget;
@@ -19269,7 +19497,7 @@ const _MenuItem = class {
     __publicField(this, "Label");
     __publicField(this, "Enabled", false);
     __publicField(this, "Action");
-    __privateAdd(this, _Children, void 0);
+    __privateAdd(this, _Children2, void 0);
     this.Type = type;
     this.Label = label;
     this.Icon = icon;
@@ -19284,10 +19512,10 @@ const _MenuItem = class {
     __privateSet(this, _Type, value);
   }
   get Children() {
-    return __privateGet(this, _Children);
+    return __privateGet(this, _Children2);
   }
   set Children(value) {
-    __privateSet(this, _Children, value);
+    __privateSet(this, _Children2, value);
   }
   static Item(label, icon = null, action = null) {
     return new _MenuItem(0, label, icon, action);
@@ -19301,7 +19529,7 @@ const _MenuItem = class {
 };
 let MenuItem = _MenuItem;
 _Type = new WeakMap();
-_Children = new WeakMap();
+_Children2 = new WeakMap();
 class MenuController {
   constructor() {
     __publicField(this, "TextColor", State.op_Implicit_From(Colors.Black));
@@ -22255,7 +22483,7 @@ class InvalidQueue {
   }
 }
 const _UIWindow = class {
-  constructor(child) {
+  constructor(child, initRoutePath = null) {
     __publicField(this, "RootWidget");
     __publicField(this, "Overlay");
     __publicField(this, "_routeHistoryManager");
@@ -22270,6 +22498,8 @@ const _UIWindow = class {
     __publicField(this, "_oldHitResult", new HitTestResult());
     __publicField(this, "_newHitResult", new HitTestResult());
     __publicField(this, "_hitResultOnPointDown");
+    if (!System.IsNullOrEmpty(initRoutePath))
+      this.RouteHistoryManager.AssignedPath = initRoutePath;
     this.Overlay = new Overlay(this);
     this.RootWidget = new Root(this, child);
     PaintDebugger.EnableChanged.Add(() => this.RootWidget.Invalidate(InvalidAction.Repaint));
@@ -22492,8 +22722,8 @@ function ConvertToKeys(ev) {
   return keys;
 }
 class WebWindow extends UIWindow {
-  constructor(rootWidget) {
-    super(rootWidget);
+  constructor(rootWidget, routePath) {
+    super(rootWidget, routePath);
     __publicField(this, "_offscreenSurface");
     __publicField(this, "_onscreenSurface");
     __publicField(this, "_offscreenCanvas");
@@ -22627,7 +22857,17 @@ class WebWindow extends UIWindow {
       }
     };
     window.onpopstate = (ev) => {
-      console.log("location: " + document.location + ", state: " + JSON.stringify(ev.state));
+      if (typeof ev.state === "number") {
+        this.RouteHistoryManager.Goto(ev.state);
+      } else {
+        let path = "/";
+        if (document.location.hash.length > 0) {
+          path = document.location.hash.substring(1);
+        }
+        let url = document.location.origin + "/#" + path;
+        history.replaceState(this.RouteHistoryManager.Count, "", url);
+        this.RouteHistoryManager.Push(path);
+      }
     };
     this._htmlCanvas.onwheel = (ev) => {
       ev.preventDefault();
@@ -22730,7 +22970,11 @@ class WebApplication extends UIApplication {
     });
   }
   RunInternal(rootWidget) {
-    let webWindow = new WebWindow(rootWidget);
+    let routePath = null;
+    if (document.location.hash.length > 0) {
+      routePath = document.location.hash.substring(1);
+    }
+    let webWindow = new WebWindow(rootWidget, routePath);
     this.MainWindow = webWindow;
     webWindow.OnFirstShow();
   }
@@ -22740,4 +22984,4 @@ class WebApplication extends UIApplication {
     });
   }
 }
-export { AffectsByRelayout, Animatable, AnimatedEvaluation, Animation, AnimationBehavior, AnimationController, AnimationDirection, AnimationStatus, AnimationWithParent, Axis, Binding, BindingOptions, BorderRadius, BorderSide, BorderStyle, BounceInOutCurve, Button, ButtonGroup, ButtonIconPosition, ButtonShape, ButtonStyle, Card, Caret, CaretDecorator, CellCache, CellCacheComparer, CellStyle, Center, ChainedEvaluation, Checkbox, CircularProgressPainter, Clipboard, ClipperOfPath, ClipperOfRect, Color, ColorTween, ColorUtils, Colors, Column, ColumnWidth, ColumnWidthType, Conditional, Container, ContextMenu, ConvertRadiusToSigma, Cubic, Cursor, Cursors, Curve, CurveTween, CurvedAnimation, Curves, DataGrid, DataGridCheckboxColumn, DataGridColumn, DataGridController, DataGridGroupColumn, DataGridHitTestResult, DataGridHostColumn, DataGridIconColumn, DataGridTextColumn, DataGridTheme, DelayTask, Dialog, DoubleUtils, DrawShadow, DynamicView, EdgeInsets, EditableText, EventHookManager, EventPreviewResult, EventType, ExpandIcon, Expanded, FadeTransition, FlippedCurve, FloatTween, FloatUtils, FocusManager, FocusManagerStack, FocusNode, FocusedDecoration, FocusedDecorator, FontCollection, FontStyle, Form, FormItem, FutureBuilder, GetRectForPosition, HitTestEntry, HitTestResult, HorizontalAlignment, HoverDecoration, HoverDecorator, Icon, IconData, IconPainter, Icons, IfConditional, ImageSource, Input, InputBase, InputBorder, Inspector, InterpolationSimulation, Interval, InvalidAction, InvalidQueue, InvalidWidget, IsInterfaceOfIFocusable, IsInterfaceOfIMouseRegion, IsInterfaceOfIRootWidget, IsInterfaceOfIScrollable, ItemState, KeyEvent, Keys, Linear, ListPopup, ListPopupItemWidget, ListView, ListViewController, MainMenu, MakeParagraphBuilder, MakeParagraphStyle, MakeTextStyle, MaterialIcons, MaterialIconsOutlined, Matrix4, MatrixUtils, MenuController, MenuItem, MenuItemType, MenuItemWidget, MouseRegion, MultiChildWidget, Navigator, Notification, NotificationEntry, ObjectNotifier, Offset, OffsetTween, OptionalAnimationController, OutlineInputBorder, OutlinedBorder, Overlay, PaintContext, PaintDebugger, PaintUtils, ParametricCurve, Point, PointerButtons, PointerEvent, Popup, PopupMenu, PopupMenuStack, PopupProxy, PopupTransitionWrap, PropagateEvent, RRect, Radio, Radius, Rect, RepaintArea, RepaintChild, RepeatingSimulation, Root, RotationTransition, RoundedRectangleBorder, Route, RouteChangeAction, RouteHistoryEntry, RouteHistoryManager, RouteSettings, RouteView, Row, Rx, RxComputed, RxList, RxObject, RxProperty, SawTooth, ScaleYTransition, ScrollController, ScrollDirection, ScrollEvent, Select, SelectText, ShapeBorder, Simulation, SingleChildWidget, Size, SlideTransition, State, StateBase, Switch, Tab, TabBar, TabBody, TabController, TabView, Text, TextBase, TextPainter, Theme, Ticker, Toggleable, Tolerance, Transform, TransitionStack, TreeController, TreeNode, TreeNodeRow, TreeView, Tween, UIApplication, UIWindow, Vector4, VerticalAlignment, View, WebApplication, WhenBuilder, Widget, WidgetController, WidgetList, WidgetRef };
+export { AffectsByRelayout, Animatable, AnimatedEvaluation, Animation, AnimationBehavior, AnimationController, AnimationDirection, AnimationStatus, AnimationWithParent, Axis, Binding, BindingOptions, BorderRadius, BorderSide, BorderStyle, BounceInOutCurve, BuildPathContext, Button, ButtonGroup, ButtonIconPosition, ButtonShape, ButtonStyle, Card, Caret, CaretDecorator, CellCache, CellCacheComparer, CellStyle, Center, ChainedEvaluation, Checkbox, CircularProgressPainter, Clipboard, ClipperOfPath, ClipperOfRect, Color, ColorTween, ColorUtils, Colors, Column, ColumnWidth, ColumnWidthType, Conditional, Container, ContextMenu, ConvertRadiusToSigma, Cubic, Cursor, Cursors, Curve, CurveTween, CurvedAnimation, Curves, DataGrid, DataGridCheckboxColumn, DataGridColumn, DataGridController, DataGridGroupColumn, DataGridHitTestResult, DataGridHostColumn, DataGridIconColumn, DataGridTextColumn, DataGridTheme, DelayTask, Dialog, DoubleUtils, DrawShadow, DynamicView, EdgeInsets, EditableText, EventHookManager, EventPreviewResult, EventType, ExpandIcon, Expanded, FadeTransition, FlippedCurve, FloatTween, FloatUtils, FocusManager, FocusManagerStack, FocusNode, FocusedDecoration, FocusedDecorator, FontCollection, FontStyle, Form, FormItem, FutureBuilder, GetRectForPosition, HitTestEntry, HitTestResult, HorizontalAlignment, HoverDecoration, HoverDecorator, Icon, IconData, IconPainter, Icons, IfConditional, ImageSource, Input, InputBase, InputBorder, Inspector, InterpolationSimulation, Interval, InvalidAction, InvalidQueue, InvalidWidget, IsInterfaceOfIFocusable, IsInterfaceOfIMouseRegion, IsInterfaceOfIRootWidget, IsInterfaceOfIScrollable, ItemState, KeyEvent, Keys, Linear, ListPopup, ListPopupItemWidget, ListView, ListViewController, MainMenu, MakeParagraphBuilder, MakeParagraphStyle, MakeTextStyle, MaterialIcons, MaterialIconsOutlined, Matrix4, MatrixUtils, MenuController, MenuItem, MenuItemType, MenuItemWidget, MouseRegion, MultiChildWidget, Navigator, Notification, NotificationEntry, ObjectNotifier, Offset, OffsetTween, OptionalAnimationController, OutlineInputBorder, OutlinedBorder, Overlay, PaintContext, PaintDebugger, PaintUtils, ParametricCurve, Point, PointerButtons, PointerEvent, Popup, PopupMenu, PopupMenuStack, PopupProxy, PopupTransitionWrap, PropagateEvent, RRect, Radio, Radius, Rect, RepaintArea, RepaintChild, RepeatingSimulation, Root, RotationTransition, RoundedRectangleBorder, Route, RouteChangeAction, RouteHistoryEntry, RouteHistoryManager, RouteView, Row, Rx, RxComputed, RxList, RxObject, RxProperty, SawTooth, ScaleYTransition, ScrollController, ScrollDirection, ScrollEvent, Select, SelectText, ShapeBorder, Simulation, SingleChildWidget, Size, SlideTransition, State, StateBase, Switch, Tab, TabBar, TabBody, TabController, TabView, Text, TextBase, TextPainter, Theme, Ticker, Toggleable, Tolerance, Transform, TransitionStack, TreeController, TreeNode, TreeNodeRow, TreeView, Tween, UIApplication, UIWindow, Vector4, VerticalAlignment, View, WebApplication, WhenBuilder, Widget, WidgetController, WidgetList, WidgetRef };

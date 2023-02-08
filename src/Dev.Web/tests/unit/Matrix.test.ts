@@ -1,3 +1,4 @@
+import {describe, it, expect} from "vitest";
 import {Matrix4} from "../../src/PixUI/CanvasKit/Matrix4";
 
 describe("Matrix Tests", () => {

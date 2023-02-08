@@ -1,3 +1,4 @@
+import {describe, it, expect} from "vitest";
 import {Point} from "../../src/PixUI/CanvasKit/Point";
 import {OpEquality, OpInequality, Equals} from "@/System";
 

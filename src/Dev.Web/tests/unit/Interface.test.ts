@@ -1,3 +1,5 @@
+import {describe, it, expect} from "vitest";
+
 interface IState {
     get Name(): string;
 }
@@ -25,16 +27,6 @@ function IsInterfaceOfState(obj: any): obj is IState {
         && ('Name' in obj && typeof obj['Name'] === "string");
 }
 
-class Point {
-    public readonly X: number;
-    public readonly Y: number;
-
-    constructor(x: number, y: number) {
-        this.X = x;
-        this.Y = y;
-    }
-}
-
 describe("InterfaceOf Tests", () => {
 
     it("InterfaceOf", () => {
@@ -54,13 +46,6 @@ describe("InterfaceOf Tests", () => {
         } else {
             console.log("NO");
         }
-    });
-
-    it("EqualsTest", () => {
-        let a = new Point(1,2);
-        let b = new Point(1, 2);
-        console.log(a == b);
-        //expect(a == b).toEqual(true);
     });
 
 });

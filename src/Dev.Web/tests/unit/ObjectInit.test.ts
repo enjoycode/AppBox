@@ -1,5 +1,4 @@
-import * as System from "@/System";
-
+import {describe, it, expect} from "vitest";
 
 class Person {
     Name: string;
@@ -15,16 +14,9 @@ class Person {
     }
 }
 
-describe("DateTime Tests", () => {
+describe("Object Tests", () => {
 
-    it("Subtract", () => {
-        let date1 = new System.DateTime(2020, 1, 1, 1, 1, 1);
-        let date2 = new System.DateTime(2020, 1, 1, 1, 1, 2);
-        let timespan = date2.Subtract(date1);
-        expect(timespan.TotalSeconds).toEqual(1);
-    });
-
-    it("TypeTest", () => {
+    it("InitTest", () => {
         Object.defineProperty(Object.prototype, "Init", {
             value: function Init(props: Partial<typeof this>): typeof this {
                 Object.assign(this, props);
@@ -34,11 +26,11 @@ describe("DateTime Tests", () => {
             configurable: false,
         })
         let p1 = new Person().Init2({Name: "Rick"});
-        let p2 = new Person().Init({Name: "Rick"});
+        let p2 = (<any>(new Person())).Init({Name: "Eric"});
         p1.Add(p2);
 
-        //expect(p1.Name).toEqual("Rick");
-        //expect(p2.Name).toEqual("Rick");
+        expect(p1.Name).toEqual("Rick");
+        expect(p2.Name).toEqual("Eric");
     });
 
 });
