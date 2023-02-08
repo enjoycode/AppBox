@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\ext\LiveCharts2\src\LiveChartsCore\LiveChartsCore.csproj" />
+      <ProjectReference Include="..\PixUI.TSAttributes\PixUI.TSAttributes.csproj" />
+      <ProjectReference Include="..\PixUI\PixUI.csproj" />
+    </ItemGroup>
+
+</Project>
