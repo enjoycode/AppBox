@@ -41,6 +41,9 @@ namespace PixUI
             SkiaApi.sk_canvas_draw_rect(Handle, &rect, paint.Handle);
         }
 
+        public void DrawRect(float x, float y, float w, float h, Paint paint)
+            => DrawRect(Rect.FromLTWH(x, y, w, h), paint);
+
         public void DrawRRect(RRect rect, Paint paint)
         {
             if (rect == null)

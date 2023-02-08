@@ -39,6 +39,9 @@ namespace PixUI
         [TSRename("drawRect")]
         public void DrawRect(in Rect rect, Paint paint) { }
 
+        [TSTemplate("{0}.drawRect(PixUI.Rect.FromLTWH({1},{2},{3},{4}), {5})")]
+        public void DrawRect(float x, float y, float w, float h, Paint paint) { }
+
         [TSRename("drawRRect")]
         public void DrawRRect(RRect rect, Paint paint) { }
 
