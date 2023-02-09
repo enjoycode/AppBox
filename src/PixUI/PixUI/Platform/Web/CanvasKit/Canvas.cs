@@ -24,6 +24,15 @@ namespace PixUI
         [TSRename("scale")]
         public void Scale(float sx, float sy) { }
 
+        [TSRename("skew")]
+        public void Skew(float sx, float sy) {}
+
+        [TSTemplate("{0}.rotate({1}, 0, 0)")]
+        public void RotateDegrees (float degrees) { }
+        
+        [TSRename("rotate")]
+        public void RotateDegrees (float degrees, float px, float py) {}
+
         [TSTemplate("{0}.concat({1}.TransponseTo())")]
         public void Concat(in Matrix4 matrix) { }
 
@@ -47,6 +56,12 @@ namespace PixUI
 
         [TSRename("drawDRRect")]
         public void DrawDRRect(RRect outer, RRect inner, Paint paint) { }
+
+        [TSRename("drawOval")]
+        public void DrawOval(in Rect rect, Paint paint) {}
+
+        [TSTemplate("{0}.drawOval(new PixUI.Rect({1},{2},{3},{4}), {5})")]
+        public void DrawOval(float cx, float cy, float rx, float ry, Paint paint) {}
         
         [TSRename("drawCircle")]
         public void DrawCircle(float cx, float cy, float radius, Paint paint) {}

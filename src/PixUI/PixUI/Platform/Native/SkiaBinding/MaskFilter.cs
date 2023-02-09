@@ -20,8 +20,8 @@ namespace PixUI
         public static float ConvertSigmaToRadius(float sigma) =>
             sigma > 0.5f ? (sigma - 0.5f) / BlurSigmaScale : 0.0f;
 
-        public static MaskFilter CreateBlur(BlurStyle blurStyle, float sigma)
-            => GetObject(SkiaApi.sk_maskfilter_new_blur(blurStyle, sigma))!;
+        public static MaskFilter? CreateBlur(BlurStyle blurStyle, float sigma)
+            => GetObject(SkiaApi.sk_maskfilter_new_blur(blurStyle, sigma));
     }
 }
 #endif

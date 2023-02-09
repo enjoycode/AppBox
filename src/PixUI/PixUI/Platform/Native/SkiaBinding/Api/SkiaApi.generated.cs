@@ -452,7 +452,7 @@ namespace PixUI
 		
 		// sk_shader_t* sk_bitmap_make_shader(sk_bitmap_t* cbitmap, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* cmatrix)
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_bitmap_make_shader (sk_bitmap_t cbitmap, SKShaderTileMode tmx, SKShaderTileMode tmy, Matrix3* cmatrix);
+		internal static extern sk_shader_t sk_bitmap_make_shader (sk_bitmap_t cbitmap, ShaderTileMode tmx, ShaderTileMode tmy, Matrix3* cmatrix);
 		
 		// sk_bitmap_t* sk_bitmap_new()
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
@@ -908,7 +908,7 @@ namespace PixUI
 		// sk_encoded_image_format_t sk_codec_get_encoded_format(sk_codec_t* codec)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern SKEncodedImageFormat sk_codec_get_encoded_format (sk_codec_t codec);
+		internal static extern EncodedImageFormat sk_codec_get_encoded_format (sk_codec_t codec);
 		
 
 		// int sk_codec_get_frame_count(sk_codec_t* codec)
@@ -1991,7 +1991,7 @@ namespace PixUI
 		// sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_data_t sk_image_encode_specific (sk_image_t cimage, SKEncodedImageFormat encoder, Int32 quality);
+		internal static extern sk_data_t sk_image_encode_specific (sk_image_t cimage, EncodedImageFormat encoder, Int32 quality);
 		
 
 		// sk_alphatype_t sk_image_get_alpha_type(const sk_image_t*)
@@ -2073,7 +2073,7 @@ namespace PixUI
 		// sk_shader_t* sk_image_make_shader(const sk_image_t*, sk_shader_tilemode_t tileX, sk_shader_tilemode_t tileY, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_image_make_shader (sk_image_t param0, SKShaderTileMode tileX, SKShaderTileMode tileY, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_image_make_shader (sk_image_t param0, ShaderTileMode tileX, ShaderTileMode tileY, Matrix3* localMatrix);
 		
 
 		// sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* subset)
@@ -2249,7 +2249,7 @@ namespace PixUI
 		// sk_imagefilter_t* sk_imagefilter_new_blur(float sigmaX, float sigmaY, sk_shader_tilemode_t tileMode, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_imagefilter_t sk_imagefilter_new_blur (Single sigmaX, Single sigmaY, SKShaderTileMode tileMode, sk_imagefilter_t input, sk_imagefilter_croprect_t cropRect);
+		internal static extern sk_imagefilter_t sk_imagefilter_new_blur (Single sigmaX, Single sigmaY, ShaderTileMode tileMode, sk_imagefilter_t input, sk_imagefilter_croprect_t cropRect);
 		
 
 		// sk_imagefilter_t* sk_imagefilter_new_color_filter(sk_colorfilter_t* cf, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect)
@@ -2273,7 +2273,7 @@ namespace PixUI
 		// sk_imagefilter_t* sk_imagefilter_new_displacement_map_effect(sk_color_channel_t xChannelSelector, sk_color_channel_t yChannelSelector, float scale, sk_imagefilter_t* displacement, sk_imagefilter_t* color, const sk_imagefilter_croprect_t* cropRect)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_imagefilter_t sk_imagefilter_new_displacement_map_effect (SKColorChannel xChannelSelector, SKColorChannel yChannelSelector, Single scale, sk_imagefilter_t displacement, sk_imagefilter_t color, sk_imagefilter_croprect_t cropRect);
+		internal static extern sk_imagefilter_t sk_imagefilter_new_displacement_map_effect (ColorChannel xChannelSelector, ColorChannel yChannelSelector, Single scale, sk_imagefilter_t displacement, sk_imagefilter_t color, sk_imagefilter_croprect_t cropRect);
 		
 
 		// sk_imagefilter_t* sk_imagefilter_new_distant_lit_diffuse(const sk_point3_t* direction, sk_color_t lightColor, float surfaceScale, float kd, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect)
@@ -2333,7 +2333,7 @@ namespace PixUI
 		// sk_imagefilter_t* sk_imagefilter_new_matrix_convolution(const sk_isize_t* kernelSize, const float[-1] kernel, float gain, float bias, const sk_ipoint_t* kernelOffset, sk_shader_tilemode_t tileMode, bool convolveAlpha, sk_imagefilter_t* input, const sk_imagefilter_croprect_t* cropRect)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_imagefilter_t sk_imagefilter_new_matrix_convolution (SizeI* kernelSize, Single* kernel, Single gain, Single bias, PointI* kernelOffset, SKShaderTileMode tileMode, [MarshalAs (UnmanagedType.I1)] bool convolveAlpha, sk_imagefilter_t input, sk_imagefilter_croprect_t cropRect);
+		internal static extern sk_imagefilter_t sk_imagefilter_new_matrix_convolution (SizeI* kernelSize, Single* kernel, Single gain, Single bias, PointI* kernelOffset, ShaderTileMode tileMode, [MarshalAs (UnmanagedType.I1)] bool convolveAlpha, sk_imagefilter_t input, sk_imagefilter_croprect_t cropRect);
 		
 
 		// sk_imagefilter_t* sk_imagefilter_new_merge(sk_imagefilter_t*[-1] filters, int count, const sk_imagefilter_croprect_t* cropRect)
@@ -3346,7 +3346,7 @@ namespace PixUI
 		// sk_path_effect_t* sk_path_effect_create_1d_path(const sk_path_t* path, float advance, float phase, sk_path_effect_1d_style_t style)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_path_effect_t sk_path_effect_create_1d_path (sk_path_t path, Single advance, Single phase, SKPath1DPathEffectStyle style);
+		internal static extern sk_path_effect_t sk_path_effect_create_1d_path (sk_path_t path, Single advance, Single phase, Path1DPathEffectStyle style);
 		
 
 		// sk_path_effect_t* sk_path_effect_create_2d_line(float width, const sk_matrix_t* matrix)
@@ -3446,7 +3446,7 @@ namespace PixUI
 		// sk_shader_t* sk_picture_make_shader(sk_picture_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix, const sk_rect_t* tile)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_picture_make_shader (sk_picture_t src, SKShaderTileMode tmx, SKShaderTileMode tmy, Matrix3* localMatrix, Rect* tile);
+		internal static extern sk_shader_t sk_picture_make_shader (sk_picture_t src, ShaderTileMode tmx, ShaderTileMode tmy, Matrix3* localMatrix, Rect* tile);
 		
 
 		// sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t*, const sk_rect_t*)
@@ -3554,7 +3554,7 @@ namespace PixUI
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
 		[return: MarshalAs (UnmanagedType.I1)]
-		internal static extern bool sk_pixmap_encode_image (sk_wstream_t dst, sk_pixmap_t src, SKEncodedImageFormat encoder, Int32 quality);
+		internal static extern bool sk_pixmap_encode_image (sk_wstream_t dst, sk_pixmap_t src, EncodedImageFormat encoder, Int32 quality);
 		
 
 		// bool sk_pixmap_erase_color(const sk_pixmap_t* cpixmap, sk_color_t color, const sk_irect_t* subset)
@@ -4167,13 +4167,13 @@ namespace PixUI
 		// sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t[2] points = 2, const sk_color_t[-1] colors, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_linear_gradient (Point* points, UInt32* colors, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_linear_gradient (Point* points, UInt32* colors, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Matrix3* localMatrix);
 		
 
 		// sk_shader_t* sk_shader_new_linear_gradient_color4f(const sk_point_t[2] points = 2, const sk_color4f_t* colors, const sk_colorspace_t* colorspace, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_linear_gradient_color4f (Point* points, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_linear_gradient_color4f (Point* points, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Matrix3* localMatrix);
 		
 
 		// sk_shader_t* sk_shader_new_perlin_noise_fractal_noise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed, const sk_isize_t* tileSize)
@@ -4197,37 +4197,37 @@ namespace PixUI
 		// sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* center, float radius, const sk_color_t[-1] colors, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_radial_gradient (Point* center, Single radius, UInt32* colors, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_radial_gradient (Point* center, Single radius, UInt32* colors, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Matrix3* localMatrix);
 		
 
 		// sk_shader_t* sk_shader_new_radial_gradient_color4f(const sk_point_t* center, float radius, const sk_color4f_t* colors, const sk_colorspace_t* colorspace, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_radial_gradient_color4f (Point* center, Single radius, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_radial_gradient_color4f (Point* center, Single radius, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Matrix3* localMatrix);
 		
 
 		// sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* center, const sk_color_t[-1] colors, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, float startAngle, float endAngle, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_sweep_gradient (Point* center, UInt32* colors, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Single startAngle, Single endAngle, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_sweep_gradient (Point* center, UInt32* colors, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Single startAngle, Single endAngle, Matrix3* localMatrix);
 		
 
 		// sk_shader_t* sk_shader_new_sweep_gradient_color4f(const sk_point_t* center, const sk_color4f_t* colors, const sk_colorspace_t* colorspace, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, float startAngle, float endAngle, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_sweep_gradient_color4f (Point* center, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Single startAngle, Single endAngle, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_sweep_gradient_color4f (Point* center, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Single startAngle, Single endAngle, Matrix3* localMatrix);
 		
 
 		// sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start, float startRadius, const sk_point_t* end, float endRadius, const sk_color_t[-1] colors, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_two_point_conical_gradient (Point* start, Single startRadius, Point* end, Single endRadius, UInt32* colors, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_two_point_conical_gradient (Point* start, Single startRadius, Point* end, Single endRadius, UInt32* colors, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Matrix3* localMatrix);
 		
 
 		// sk_shader_t* sk_shader_new_two_point_conical_gradient_color4f(const sk_point_t* start, float startRadius, const sk_point_t* end, float endRadius, const sk_color4f_t* colors, const sk_colorspace_t* colorspace, const float[-1] colorPos, int colorCount, sk_shader_tilemode_t tileMode, const sk_matrix_t* localMatrix)
 		
 		[DllImport (SKIA, CallingConvention = CallingConvention.Cdecl)]
-		internal static extern sk_shader_t sk_shader_new_two_point_conical_gradient_color4f (Point* start, Single startRadius, Point* end, Single endRadius, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, SKShaderTileMode tileMode, Matrix3* localMatrix);
+		internal static extern sk_shader_t sk_shader_new_two_point_conical_gradient_color4f (Point* start, Single startRadius, Point* end, Single endRadius, SKColorF* colors, sk_colorspace_t colorspace, Single* colorPos, Int32 colorCount, ShaderTileMode tileMode, Matrix3* localMatrix);
 		
 
 		// void sk_shader_ref(sk_shader_t* shader)

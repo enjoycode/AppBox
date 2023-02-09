@@ -9,7 +9,7 @@ namespace PixUI
 
         public GRBackend Backend => SkiaApi.gr_recording_context_get_backend(Handle).FromNative();
 
-        public int GetMaxSurfaceSampleCount(SKColorType colorType) =>
+        public int GetMaxSurfaceSampleCount(ColorType colorType) =>
             SkiaApi.gr_recording_context_get_max_surface_sample_count_for_color_type(Handle,
                 colorType.ToNative());
 

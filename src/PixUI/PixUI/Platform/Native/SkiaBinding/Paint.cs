@@ -73,12 +73,6 @@ namespace PixUI
             set => SkiaApi.sk_paint_set_blendmode(Handle, value);
         }
 
-        public MaskFilter? MaskFilter
-        {
-            get => MaskFilter.GetObject(SkiaApi.sk_paint_get_maskfilter(Handle));
-            set => SkiaApi.sk_paint_set_maskfilter(Handle, value?.Handle ?? IntPtr.Zero);
-        }
-
         public float StrokeMiter
         {
             get => SkiaApi.sk_paint_get_stroke_miter(Handle);
@@ -95,6 +89,54 @@ namespace PixUI
         {
             get => SkiaApi.sk_paint_get_stroke_join(Handle);
             set => SkiaApi.sk_paint_set_stroke_join(Handle, value);
+        }
+
+        public SKTypeface Typeface
+        {
+            get => throw new NotImplementedException();
+            set
+            {
+                /*TODO:*/
+            }
+        }
+
+        public float TextSize
+        {
+            get => throw new NotImplementedException();
+            set
+            {
+                /*TODO:*/
+            }
+        }
+
+        public Shader? Shader
+        {
+            get => Shader.GetObject(SkiaApi.sk_paint_get_shader(Handle));
+            set => SkiaApi.sk_paint_set_shader(Handle, value?.Handle ?? IntPtr.Zero);
+        }
+
+        public MaskFilter? MaskFilter
+        {
+            get => MaskFilter.GetObject(SkiaApi.sk_paint_get_maskfilter(Handle));
+            set => SkiaApi.sk_paint_set_maskfilter(Handle, value?.Handle ?? IntPtr.Zero);
+        }
+
+        public ColorFilter? ColorFilter
+        {
+            get => ColorFilter.GetObject(SkiaApi.sk_paint_get_colorfilter(Handle));
+            set => SkiaApi.sk_paint_set_colorfilter(Handle, value?.Handle ?? IntPtr.Zero);
+        }
+
+        public ImageFilter? ImageFilter
+        {
+            get => ImageFilter.GetObject(SkiaApi.sk_paint_get_imagefilter(Handle));
+            set => SkiaApi.sk_paint_set_imagefilter(Handle, value?.Handle ?? IntPtr.Zero);
+        }
+
+        public PathEffect? PathEffect
+        {
+            get => PathEffect.GetObject(SkiaApi.sk_paint_get_path_effect(Handle));
+            set => SkiaApi.sk_paint_set_path_effect(Handle, value?.Handle ?? IntPtr.Zero);
         }
 
         #endregion

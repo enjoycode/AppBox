@@ -3,7 +3,7 @@ using System;
 
 namespace PixUI
 {
-    public sealed class SKFontStyle : SKObject, ISKSkipObjectRegistration
+    public sealed class SKFontStyle : SKObject, ISKSkipObjectRegistration //TODO: remove this, CanvasKit not support
     {
         static SKFontStyle()
         {

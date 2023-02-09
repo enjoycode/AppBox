@@ -19,7 +19,7 @@ namespace PixUI
 
         // RASTER DIRECT surface
 
-        public static SKSurface Create(SKImageInfo info, IntPtr pixels, int rowBytes)
+        public static SKSurface Create(ImageInfo info, IntPtr pixels, int rowBytes)
         {
             var cinfo = SKImageInfoNative.FromManaged(ref info);
             return GetObject(SkiaApi.sk_surface_new_raster_direct(&cinfo, (void*)pixels, (IntPtr)rowBytes, 
@@ -30,8 +30,8 @@ namespace PixUI
         // ----GPU BACKEND RENDER TARGET surface----
 
         public static SKSurface? Create(GRRecordingContext context, GRBackendRenderTarget renderTarget,
-            GRSurfaceOrigin origin, SKColorType colorType,
-            SKColorSpace? colorspace, SKSurfaceProperties? props)
+            GRSurfaceOrigin origin, ColorType colorType,
+            ColorSpace? colorspace, SKSurfaceProperties? props)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -43,10 +43,10 @@ namespace PixUI
         }
 
         // ----GPU NEW surface----
-        public static SKSurface? Create(GRRecordingContext context, bool budgeted, SKImageInfo info) =>
+        public static SKSurface? Create(GRRecordingContext context, bool budgeted, ImageInfo info) =>
             Create(context, budgeted, info, 0, GRSurfaceOrigin.TopLeft, null, false);
 
-        public static SKSurface? Create(GRRecordingContext context, bool budgeted, SKImageInfo info,
+        public static SKSurface? Create(GRRecordingContext context, bool budgeted, ImageInfo info,
             int sampleCount, GRSurfaceOrigin origin, SKSurfaceProperties? props, bool shouldCreateWithMips)
         {
             var cinfo = SKImageInfoNative.FromManaged(ref info);

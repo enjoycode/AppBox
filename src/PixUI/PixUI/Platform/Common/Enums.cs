@@ -75,6 +75,35 @@ namespace PixUI
         Luminosity = 28,
     }
 
+    [TSType("CanvasKit.ColorType")]
+    public enum ColorType
+    {
+        //Unknown = 0,
+        Alpha8 = 1,
+        Rgb565 = 2,
+
+        //Argb4444 = 3,
+        Rgba8888 = 4,
+
+        //Rgb888x = 5,
+        Bgra8888 = 6,
+        Rgba1010102 = 7,
+        Rgb101010x = 8,
+        Gray8 = 9,
+        RgbaF16 = 10,
+
+        //RgbaF16Clamped = 11,
+        RgbaF32 = 12,
+        //Rg88 = 13,
+        //AlphaF16 = 14,
+        //RgF16 = 15,
+        //Alpha16 = 16,
+        //Rg1616 = 17,
+        //Rgba16161616 = 18,
+        //Bgra1010102 = 19,
+        //Bgr101010x = 20,
+    }
+
     [TSType("CanvasKit.AlphaType")]
     public enum AlphaType
     {
@@ -204,5 +233,49 @@ namespace PixUI
         /// the widest rect over all the lines.
         /// </summary>
         Max
+    }
+
+    [TSType("CanvasKit.Path1DEffectStyle")]
+    public enum Path1DPathEffectStyle
+    {
+        Translate = 0,
+        Rotate = 1,
+        Morph = 2,
+    }
+
+    [TSType("CanvasKit.TileMode")]
+    public enum ShaderTileMode
+    {
+        Clamp = 0,
+        Repeat = 1,
+        Mirror = 2,
+        Decal = 3,
+    }
+
+    [TSType("CanvasKit.ColorChannel")]
+    public enum ColorChannel
+    {
+        R = 0,
+        G = 1,
+        B = 2,
+        A = 3,
+    }
+
+    [TSType("CanvasKit.EncodedImageFormat")]
+    public enum EncodedImageFormat
+    {
+        // Bmp = 0,
+        // Gif = 1,
+        // Ico = 2,
+        Jpeg = 3,
+        Png = 4,
+
+        // Wbmp = 5,
+        Webp = 6,
+        // Pkm = 7,
+        // Ktx = 8,
+        // Astc = 9,
+        // Dng = 10,
+        // Heif = 11,
     }
 }

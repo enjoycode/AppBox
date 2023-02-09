@@ -51,14 +51,14 @@ namespace PixUI.Platform.Win
             var backBuffer = SkiaApi.gr_d3d_swapchain_get_buffer(_swapchain, index);
             var backendRt = GRBackendRenderTarget.CreateDirect3D(Width, Height, backBuffer);
             var surface = SKSurface.Create(GrContext!, backendRt, GRSurfaceOrigin.TopLeft,
-                SKColorType.Rgba8888, DisplayParams.ColorSpace, DisplayParams.SurfaceProps);
+                ColorType.Rgba8888, DisplayParams.ColorSpace, DisplayParams.SurfaceProps);
             backendRt.Dispose();
             return surface!;
         }
 
         private void CreateOffscreenSurface()
         {
-            var imageInfo = new SKImageInfo(Width, Height, SKColorType.Rgba8888);
+            var imageInfo = new ImageInfo { Width = Width, Height = Height, ColorType = ColorType.Rgba8888 };
             _offscreenSurface = SKSurface.Create(GrContext!, true /*TODO:*/, imageInfo);
             _offscreenCanvas = _offscreenSurface!.Canvas;
             //直接缩放一次OffscreenCanvas，后续就不用处理了

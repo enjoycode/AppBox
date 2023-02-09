@@ -239,20 +239,17 @@ namespace PixUI
         public void RCubicTo(float dx0, float dy0, float dx1, float dy1, float dx2, float dy2) =>
             SkiaApi.sk_path_rcubic_to(Handle, dx0, dy0, dx1, dy1, dx2, dy2);
 
-        public void ArcTo(Point r, float xAxisRotate, SKPathArcSize largeArc,
-            SKPathDirection sweep, Point xy) =>
-            SkiaApi.sk_path_arc_to(Handle, r.X, r.Y, xAxisRotate, largeArc, sweep, xy.X, xy.Y);
-
-        public void ArcTo(float rx, float ry, float xAxisRotate, SKPathArcSize largeArc,
-            SKPathDirection sweep, float x, float y) =>
-            SkiaApi.sk_path_arc_to(Handle, rx, ry, xAxisRotate, largeArc, sweep, x, y);
+        // 修改同CanvasKit一致
+        public void ArcTo(float rx, float ry, float xAxisRotate, bool useSmallArc, bool isCCW, float x, float y) =>
+            SkiaApi.sk_path_arc_to(Handle, rx, ry, xAxisRotate, 
+                useSmallArc ? SKPathArcSize.Small: SKPathArcSize.Large, 
+                isCCW ? SKPathDirection.CounterClockwise : SKPathDirection.Clockwise, x, y);
 
         public void ArcTo(Rect oval, float startAngle, float sweepAngle, bool forceMoveTo) =>
             SkiaApi.sk_path_arc_to_with_oval(Handle, &oval, startAngle, sweepAngle, forceMoveTo);
 
         public void ArcTo(Point point1, Point point2, float radius) =>
-            SkiaApi.sk_path_arc_to_with_points(Handle, point1.X, point1.Y, point2.X, point2.Y,
-                radius);
+            SkiaApi.sk_path_arc_to_with_points(Handle, point1.X, point1.Y, point2.X, point2.Y, radius);
 
         public void ArcTo(float x1, float y1, float x2, float y2, float radius) =>
             SkiaApi.sk_path_arc_to_with_points(Handle, x1, y1, x2, y2, radius);

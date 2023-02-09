@@ -110,22 +110,6 @@ namespace PixUI
         RestorePrevious = 3,
     }
 
-    // sk_color_channel_t
-    public enum SKColorChannel
-    {
-        // R_SK_COLOR_CHANNEL = 0
-        R = 0,
-
-        // G_SK_COLOR_CHANNEL = 1
-        G = 1,
-
-        // B_SK_COLOR_CHANNEL = 2
-        B = 2,
-
-        // A_SK_COLOR_CHANNEL = 3
-        A = 3,
-    }
-
     // sk_colortype_t
     internal enum SKColorTypeNative
     {
@@ -214,46 +198,6 @@ namespace PixUI
 
         // HAS_ALL_SK_CROP_RECT_FLAG = 0x0F
         HasAll = 15,
-    }
-
-    // sk_encoded_image_format_t
-    public enum SKEncodedImageFormat
-    {
-        // BMP_SK_ENCODED_FORMAT = 0
-        Bmp = 0,
-
-        // GIF_SK_ENCODED_FORMAT = 1
-        Gif = 1,
-
-        // ICO_SK_ENCODED_FORMAT = 2
-        Ico = 2,
-
-        // JPEG_SK_ENCODED_FORMAT = 3
-        Jpeg = 3,
-
-        // PNG_SK_ENCODED_FORMAT = 4
-        Png = 4,
-
-        // WBMP_SK_ENCODED_FORMAT = 5
-        Wbmp = 5,
-
-        // WEBP_SK_ENCODED_FORMAT = 6
-        Webp = 6,
-
-        // PKM_SK_ENCODED_FORMAT = 7
-        Pkm = 7,
-
-        // KTX_SK_ENCODED_FORMAT = 8
-        Ktx = 8,
-
-        // ASTC_SK_ENCODED_FORMAT = 9
-        Astc = 9,
-
-        // DNG_SK_ENCODED_FORMAT = 10
-        Dng = 10,
-
-        // HEIF_SK_ENCODED_FORMAT = 11
-        Heif = 11,
     }
 
     // sk_encodedorigin_t
@@ -441,19 +385,6 @@ namespace PixUI
     
         // CCW_SK_PATH_DIRECTION = 1
         CounterClockwise = 1,
-    }
-
-    // sk_path_effect_1d_style_t
-    public enum SKPath1DPathEffectStyle
-    {
-        // TRANSLATE_SK_PATH_EFFECT_1D_STYLE = 0
-        Translate = 0,
-
-        // ROTATE_SK_PATH_EFFECT_1D_STYLE = 1
-        Rotate = 1,
-
-        // MORPH_SK_PATH_EFFECT_1D_STYLE = 2
-        Morph = 2,
     }
 
     // sk_path_effect_trim_mode_t
@@ -654,22 +585,6 @@ namespace PixUI
 
         // COMPLEX_SK_RRECT_TYPE = 5
         Complex = 5,
-    }
-
-    // sk_shader_tilemode_t
-    public enum SKShaderTileMode
-    {
-        // CLAMP_SK_SHADER_TILEMODE = 0
-        Clamp = 0,
-
-        // REPEAT_SK_SHADER_TILEMODE = 1
-        Repeat = 1,
-
-        // MIRROR_SK_SHADER_TILEMODE = 2
-        Mirror = 2,
-
-        // DECAL_SK_SHADER_TILEMODE = 3
-        Decal = 3,
     }
 
     // sk_surfaceprops_flags_t

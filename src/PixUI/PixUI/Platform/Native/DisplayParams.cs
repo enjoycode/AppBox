@@ -3,8 +3,8 @@ namespace PixUI.Platform
 {
     public struct DisplayParams
     {
-        public readonly SKColorType ColorType;
-        public readonly SKColorSpace? ColorSpace;
+        public readonly ColorType ColorType;
+        public readonly ColorSpace? ColorSpace;
         public readonly int MSAASampleCount;
         public readonly SKSurfaceProperties SurfaceProps;
         public readonly bool DisableVsync;

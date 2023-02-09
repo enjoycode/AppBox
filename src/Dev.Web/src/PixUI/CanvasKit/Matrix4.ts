@@ -247,4 +247,7 @@ export class Matrix4 extends Float32Array {
         return true;
     }
 
+    public get IsIdentity(): boolean {
+        return Matrix4.op_Equality(this, Matrix4.CreateIdentity());
+    }
 }

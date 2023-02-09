@@ -15,6 +15,8 @@ namespace PixUI
     [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
     public struct Matrix4 : IEquatable<Matrix4>
     {
+        public bool IsIdentity => Equals(CreateIdentity());
+        
         #region ====Fields====
 
         public float M0 { get; private set; }
@@ -65,28 +67,28 @@ namespace PixUI
             M15 = m15;
         }
 
-        public Matrix4(Matrix3 src)
-        {
-            M0 = src.ScaleX;
-            M1 = src.SkewX;
-            M2 = 0;
-            M3 = src.Persp0;
-
-            M4 = src.SkewY;
-            M5 = src.ScaleY;
-            M6 = 0;
-            M7 = src.Persp1;
-
-            M8 = 0;
-            M9 = 0;
-            M10 = 1;
-            M11 = 0;
-
-            M12 = src.TransX;
-            M13 = src.TransY;
-            M14 = 0;
-            M15 = src.Persp2;
-        }
+        // public Matrix4(Matrix3 src)
+        // {
+        //     M0 = src.ScaleX;
+        //     M1 = src.SkewX;
+        //     M2 = 0;
+        //     M3 = src.Persp0;
+        //
+        //     M4 = src.SkewY;
+        //     M5 = src.ScaleY;
+        //     M6 = 0;
+        //     M7 = src.Persp1;
+        //
+        //     M8 = 0;
+        //     M9 = 0;
+        //     M10 = 1;
+        //     M11 = 0;
+        //
+        //     M12 = src.TransX;
+        //     M13 = src.TransY;
+        //     M14 = 0;
+        //     M15 = src.Persp2;
+        // }
 
         #endregion
 
@@ -128,95 +130,95 @@ namespace PixUI
 
         #region ====FromXXX====
 
-        public static Matrix4 FromRowMajor(ReadOnlySpan<float> src)
-        {
-            var matrix = new Matrix4();
-            matrix.SetRowMajor(src);
-            return matrix;
-        }
-
-        public static Matrix4 FromColumnMajor(ReadOnlySpan<float> src)
-        {
-            var matrix = new Matrix4();
-            matrix.SetColumnMajor(src);
-            return matrix;
-        }
+        // public static Matrix4 FromRowMajor(ReadOnlySpan<float> src)
+        // {
+        //     var matrix = new Matrix4();
+        //     matrix.SetRowMajor(src);
+        //     return matrix;
+        // }
+        //
+        // public static Matrix4 FromColumnMajor(ReadOnlySpan<float> src)
+        // {
+        //     var matrix = new Matrix4();
+        //     matrix.SetColumnMajor(src);
+        //     return matrix;
+        // }
 
         #endregion
 
         #region ====ToXXX====
 
-        public readonly float[] ToColumnMajor()
-        {
-            var dst = new float[16];
-            ToColumnMajor(dst);
-            return dst;
-        }
-
-        public readonly void ToColumnMajor(Span<float> dst)
-        {
-            if (dst == null)
-                throw new ArgumentNullException(nameof(dst));
-            if (dst.Length != 16)
-                throw new ArgumentException("The destination array must be 16 entries.",
-                    nameof(dst));
-
-            dst[0] = M0;
-            dst[1] = M1;
-            dst[2] = M2;
-            dst[3] = M3;
-
-            dst[4] = M4;
-            dst[5] = M5;
-            dst[6] = M6;
-            dst[7] = M7;
-
-            dst[8] = M8;
-            dst[9] = M9;
-            dst[10] = M10;
-            dst[11] = M11;
-
-            dst[12] = M12;
-            dst[13] = M13;
-            dst[14] = M14;
-            dst[15] = M15;
-        }
-
-        public readonly float[] ToRowMajor()
-        {
-            var dst = new float[16];
-            ToRowMajor(dst);
-            return dst;
-        }
-
-        public readonly void ToRowMajor(Span<float> dst)
-        {
-            if (dst == null)
-                throw new ArgumentNullException(nameof(dst));
-            if (dst.Length != 16)
-                throw new ArgumentException("The destination array must be 16 entries.",
-                    nameof(dst));
-
-            dst[0] = M0;
-            dst[1] = M4;
-            dst[2] = M8;
-            dst[3] = M12;
-
-            dst[4] = M1;
-            dst[5] = M5;
-            dst[6] = M9;
-            dst[7] = M13;
-
-            dst[8] = M2;
-            dst[9] = M6;
-            dst[10] = M10;
-            dst[11] = M14;
-
-            dst[12] = M3;
-            dst[13] = M7;
-            dst[14] = M11;
-            dst[15] = M15;
-        }
+        // public readonly float[] ToColumnMajor()
+        // {
+        //     var dst = new float[16];
+        //     ToColumnMajor(dst);
+        //     return dst;
+        // }
+        //
+        // public readonly void ToColumnMajor(Span<float> dst)
+        // {
+        //     if (dst == null)
+        //         throw new ArgumentNullException(nameof(dst));
+        //     if (dst.Length != 16)
+        //         throw new ArgumentException("The destination array must be 16 entries.",
+        //             nameof(dst));
+        //
+        //     dst[0] = M0;
+        //     dst[1] = M1;
+        //     dst[2] = M2;
+        //     dst[3] = M3;
+        //
+        //     dst[4] = M4;
+        //     dst[5] = M5;
+        //     dst[6] = M6;
+        //     dst[7] = M7;
+        //
+        //     dst[8] = M8;
+        //     dst[9] = M9;
+        //     dst[10] = M10;
+        //     dst[11] = M11;
+        //
+        //     dst[12] = M12;
+        //     dst[13] = M13;
+        //     dst[14] = M14;
+        //     dst[15] = M15;
+        // }
+        //
+        // public readonly float[] ToRowMajor()
+        // {
+        //     var dst = new float[16];
+        //     ToRowMajor(dst);
+        //     return dst;
+        // }
+        //
+        // public readonly void ToRowMajor(Span<float> dst)
+        // {
+        //     if (dst == null)
+        //         throw new ArgumentNullException(nameof(dst));
+        //     if (dst.Length != 16)
+        //         throw new ArgumentException("The destination array must be 16 entries.",
+        //             nameof(dst));
+        //
+        //     dst[0] = M0;
+        //     dst[1] = M4;
+        //     dst[2] = M8;
+        //     dst[3] = M12;
+        //
+        //     dst[4] = M1;
+        //     dst[5] = M5;
+        //     dst[6] = M9;
+        //     dst[7] = M13;
+        //
+        //     dst[8] = M2;
+        //     dst[9] = M6;
+        //     dst[10] = M10;
+        //     dst[11] = M14;
+        //
+        //     dst[12] = M3;
+        //     dst[13] = M7;
+        //     dst[14] = M11;
+        //     dst[15] = M15;
+        // }
 
         #endregion
 

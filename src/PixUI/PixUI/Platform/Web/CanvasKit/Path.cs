@@ -23,6 +23,12 @@ namespace PixUI
 
         [TSRename("lineTo")]
         public void LineTo(float x, float y) { }
+
+        [TSRename("arcToOval")]
+        public void ArcTo(Rect oval, float startAngle, float sweepAngle, bool forceMoveTo) { }
+
+        [TSRename("arcToRotated")]
+        public void ArcTo(float rx, float ry, float xAxisRotate, bool useSmallArc, bool isCCW, float x, float y) {}
         
         [TSRename("offset")]
         public void Offset(float dx, float dy) {}

@@ -5,7 +5,7 @@ namespace PixUI
 {
     public sealed class Image : SKObject, ISKReferenceCounted
     {
-        internal Image(IntPtr x, bool owns) : base(x, owns) { }
+        private Image(IntPtr x, bool owns) : base(x, owns) { }
 
         public int Width => SkiaApi.sk_image_get_width(Handle);
 

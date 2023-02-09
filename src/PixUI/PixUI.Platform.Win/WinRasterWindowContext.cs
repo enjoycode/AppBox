@@ -61,7 +61,8 @@ namespace PixUI.Platform.Win
             bmpHeaderInfo->biCompression = 0 /*BI_RGB*/;
             void* pixels = (memPtr + sizeof(BITMAPINFOHEADER)).ToPointer();
 
-            var skImgInfo = new SKImageInfo(w, h, SKColorType.Bgra8888, AlphaType.Premul);
+            var skImgInfo = new ImageInfo
+                { Width = w, Height = h, ColorType = ColorType.Bgra8888, AlphaType = AlphaType.Premul };
             return SKSurface.Create(skImgInfo, new IntPtr(pixels), sizeof(uint) * w);
         }
 
@@ -93,7 +94,7 @@ namespace PixUI.Platform.Win
             var dc = WinApi.Win32GetDC(hWnd);
             //WinApi.Win32BitBlt(dc, 0, 0, Width, Height, new IntPtr(bitsPtr), 0, 0, 0x00CC0020/*SRCCOPY*/);
             WinApi.Win32StretchDIBits(dc, 0, 0, Width, Height, 0, 0, Width, Height,
-                bitsPtr, bmiPtr, 0 /*DIB_RGB_COLORS*/, 0x00CC0020/*SRCCOPY*/);
+                bitsPtr, bmiPtr, 0 /*DIB_RGB_COLORS*/, 0x00CC0020 /*SRCCOPY*/);
             WinApi.Win32ReleaseDC(hWnd, dc);
         }
     }

@@ -133,7 +133,7 @@ namespace PixUI
         public void Submit(bool synchronous = false) =>
             SkiaApi.gr_direct_context_submit(Handle, synchronous);
 
-        public new int GetMaxSurfaceSampleCount(SKColorType colorType) =>
+        public new int GetMaxSurfaceSampleCount(ColorType colorType) =>
             base.GetMaxSurfaceSampleCount(colorType);
 
         //TODO:

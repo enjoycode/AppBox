@@ -23,6 +23,8 @@ namespace PixUI
         public float M14 { get; private set; }
         public float M15 { get; private set; }
 
+        public bool IsIdentity => true;
+
         public static Matrix4 CreateIdentity() => new Matrix4();
 
         public static Matrix4 CreateTranslation(float x, float y, float z) => new Matrix4();
@@ -43,7 +45,7 @@ namespace PixUI
 
         public void SetRow(int row, Vector4 arg) { }
 
-        public bool Equals(Matrix4 other) => true;
+        public bool Equals(in Matrix4 other) => true;
         
         public static bool operator ==(Matrix4 left, Matrix4 right) => left.Equals(right);
 

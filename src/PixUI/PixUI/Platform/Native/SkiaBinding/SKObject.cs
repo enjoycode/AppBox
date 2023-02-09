@@ -50,7 +50,7 @@ namespace PixUI
             //TODO:
             // SkiaSharpVersion.CheckNativeLibraryCompatible (true);
 
-            SKColorSpace.EnsureStaticInstanceAreInitialized();
+            ColorSpace.EnsureStaticInstanceAreInitialized();
             // SKData.EnsureStaticInstanceAreInitialized ();
             // SKFontManager.EnsureStaticInstanceAreInitialized ();
             // SKTypeface.EnsureStaticInstanceAreInitialized ();

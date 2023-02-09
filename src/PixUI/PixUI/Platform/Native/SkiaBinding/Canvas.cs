@@ -9,7 +9,7 @@ namespace PixUI
         // private const int PatchCornerCount = 4;
         // private const int PatchCubicsCount = 12;
         // private const double RadiansCircle = 2.0 * Math.PI;
-        // private const double DegreesCircle = 360.0;
+        private const double DegreesCircle = 360.0;
 
         public readonly SKSurface Surface;
 
@@ -64,6 +64,18 @@ namespace PixUI
                 throw new ArgumentNullException(nameof(paint));
 
             SkiaApi.sk_canvas_draw_drrect(Handle, outer.Handle, inner.Handle, paint.Handle);
+        }
+
+        public void DrawOval(float cx, float cy, float rx, float ry, Paint paint)
+        {
+            DrawOval(new Rect(cx - rx, cy - ry, cx + rx, cy + ry), paint);
+        }
+
+        public void DrawOval(Rect rect, Paint paint)
+        {
+            if (paint == null)
+                throw new ArgumentNullException(nameof(paint));
+            SkiaApi.sk_canvas_draw_oval(Handle, &rect, paint.Handle);
         }
 
         public void DrawCircle(float cx, float cy, float radius, Paint paint)
@@ -161,6 +173,32 @@ namespace PixUI
             if (sx == 1 && sy == 1)
                 return;
             SkiaApi.sk_canvas_scale(Handle, sx, sy);
+        }
+
+        public void Skew(float sx, float sy)
+        {
+            if (sx == 0 && sy == 0)
+                return;
+
+            SkiaApi.sk_canvas_skew(Handle, sx, sy);
+        }
+
+        public void RotateDegrees(float degrees)
+        {
+            if (degrees % DegreesCircle == 0)
+                return;
+
+            SkiaApi.sk_canvas_rotate_degrees(Handle, degrees);
+        }
+
+        public void RotateDegrees(float degrees, float px, float py)
+        {
+            if (degrees % DegreesCircle == 0)
+                return;
+
+            Translate(px, py);
+            RotateDegrees(degrees);
+            Translate(-px, -py);
         }
 
         public void Concat( /*ref*/ Matrix4 matrix)

@@ -62,7 +62,7 @@ namespace PixUI.Platform.Mac
 
             var backendRt = GRBackendRenderTarget.CreateMetal(Width, Height, SampleCount, fbInfo);
             var surface = SKSurface.Create(GrContext!, backendRt, GRSurfaceOrigin.TopLeft,
-                SKColorType.Bgra8888, DisplayParams.ColorSpace, DisplayParams.SurfaceProps);
+                ColorType.Bgra8888, DisplayParams.ColorSpace, DisplayParams.SurfaceProps);
             backendRt.Dispose();
 
             DrawableHandler = currentDrawable;
@@ -74,7 +74,7 @@ namespace PixUI.Platform.Mac
         {
             if (OffscreenCanvas != null) return OffscreenCanvas;
 
-            var imageInfo = new SKImageInfo(Width, Height, SKColorType.Bgra8888);
+            var imageInfo = new ImageInfo {Width = Width, Height = Height, ColorType = ColorType.Bgra8888};
             var surface = SKSurface.Create(GrContext!, true /*TODO:*/, imageInfo);
             OffscreenCanvas = surface!.Canvas;
             //直接缩放一次OffscreenCanvas，后续就不用处理了
