@@ -23,6 +23,7 @@
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
 using LiveChartsCore.SkiaSharpView.Drawing;
+using PixUI;
 
 
 namespace LiveChartsCore.SkiaSharpView.Painting;
@@ -94,7 +95,7 @@ public class SolidColorPaint : Paint
         _skiaPaint ??= new SKPaint();
 
         _skiaPaint.Color = Color;
-        _skiaPaint.IsAntialias = IsAntialias;
+        _skiaPaint.AntiAlias = IsAntialias;
         _skiaPaint.IsStroke = IsStroke;
         _skiaPaint.StrokeCap = StrokeCap;
         _skiaPaint.StrokeJoin = StrokeJoin;
@@ -120,7 +121,7 @@ public class SolidColorPaint : Paint
         if (clip != LvcRectangle.Empty)
         {
             _ = drawingContext.Canvas.Save();
-            drawingContext.Canvas.ClipRect(new SKRect(clip.X, clip.Y, clip.X + clip.Width, clip.Y + clip.Height));
+            drawingContext.Canvas.ClipRect(SKRect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), ClipOp.Intersect, true);
             _drawingContext = drawingContext;
         }
 

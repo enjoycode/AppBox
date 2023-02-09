@@ -139,11 +139,12 @@ public class SkiaSharpDrawingContext : DrawingContext
         if (_clearOnBegingDraw) Canvas.Clear();
         if (Background != SKColor.Empty)
         {
-            Canvas.DrawRect(Info.Rect, new SKPaint { Color = Background });
+            using var paint = new SKPaint { Color = Background };
+            Canvas.DrawRect(SKRect.FromLTWH(0,0, Info.Width, Info.Height), paint);
         }
 
         if (MotionCanvas.StartPoint is null) return;
-        Canvas.Translate(new SKPoint(MotionCanvas.StartPoint.Value.X, MotionCanvas.StartPoint.Value.Y));
+        Canvas.Translate(MotionCanvas.StartPoint.Value.X, MotionCanvas.StartPoint.Value.Y);
     }
 
     /// <inheritdoc cref="DrawingContext.OnEndDraw"/>

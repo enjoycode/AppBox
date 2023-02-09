@@ -104,19 +104,19 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     /// </summary>
     public float LineHeight { get => _lineHeight; set { _lineHeight = value; OnPropertyChanged(); } }
 
-    internal override IPaint<SkiaSharpDrawingContext>?[] GetPaintTasks()
+    protected override IPaint<SkiaSharpDrawingContext>?[] GetPaintTasks()
     {
         return new[] { _paint };
     }
 
-    internal override void AlignToTopLeftCorner()
+    protected override void AlignToTopLeftCorner()
     {
         VerticalAlignment = Align.Start;
         HorizontalAlignment = Align.Start;
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.OnInvalidated(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    protected internal override void OnInvalidated(Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    protected override void OnInvalidated(Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var x = (float)X;
         var y = (float)Y;

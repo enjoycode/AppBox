@@ -63,7 +63,9 @@ public class RoundedRectangleGeometry : SizedGeometry, IRoundedRectangleChartPoi
     /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
     public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
     {
-        context.Canvas.DrawRoundRect(
-            new SKRect { Top = Y, Left = X, Size = new SKSize { Height = Height, Width = Width } }, Rx, Ry, paint);
+        // context.Canvas.DrawRoundRect(
+        //     new SKRect { Top = Y, Left = X, Size = new SKSize { Height = Height, Width = Width } }, Rx, Ry, paint);
+        using var rrect = PixUI.RRect.FromRectAndRadius(SKRect.FromLTWH(X, Y, Width, Height), Rx, Ry);
+        context.Canvas.DrawRRect(rrect, paint);
     }
 }

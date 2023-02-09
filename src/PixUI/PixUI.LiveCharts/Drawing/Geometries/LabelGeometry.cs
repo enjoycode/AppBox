@@ -25,8 +25,6 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
 using LiveChartsCore.SkiaSharpView.Painting;
 
-using SkiaSharp.HarfBuzz;
-
 namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
 
 /// <inheritdoc cref="ILabelGeometry{TDrawingContext}" />
@@ -113,7 +111,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
         using var p = new SKPaint
         {
             Color = drawable.Color,
-            IsAntialias = drawable.IsAntialias,
+            AntiAlias = drawable.IsAntialias,
             IsStroke = drawable.IsStroke,
             StrokeWidth = drawable.StrokeThickness,
             TextSize = TextSize,
@@ -172,46 +170,50 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
 
     private void DrawLine(string content, float yLine, SkiaSharpDrawingContext context, SKPaint paint)
     {
-        if (paint.Typeface is not null)
-        {
-            using var eventTextShaper = new SKShaper(paint.Typeface);
-            context.Canvas.DrawShapedText(content, new SKPoint(X, Y + yLine), paint);
-            return;
-        }
-
-        context.Canvas.DrawText(content, new SKPoint(X, Y + yLine), paint);
+        throw new NotImplementedException();
+        // if (paint.Typeface is not null)
+        // {
+        //     using var eventTextShaper = new SKShaper(paint.Typeface);
+        //     context.Canvas.DrawShapedText(content, new SKPoint(X, Y + yLine), paint);
+        //     return;
+        // }
+        //
+        // context.Canvas.DrawText(content, new SKPoint(X, Y + yLine), paint);
     }
 
     private LvcSize MeasureLines(SKPaint paint)
     {
-        float w = 0f, h = 0f;
-        var lineHeight = GetActualLineHeight(paint);
-
-        foreach (var line in GetLines(Text))
-        {
-            var bounds = new SKRect();
-
-            _ = paint.MeasureText(line, ref bounds);
-
-            if (bounds.Width > w) w = bounds.Width;
-            h += lineHeight;
-        }
-
-        return new LvcSize(w, h);
+        throw new NotImplementedException();
+        // float w = 0f, h = 0f;
+        // var lineHeight = GetActualLineHeight(paint);
+        //
+        // foreach (var line in GetLines(Text))
+        // {
+        //     var bounds = new SKRect();
+        //
+        //     _ = paint.MeasureText(line, ref bounds);
+        //
+        //     if (bounds.Width > w) w = bounds.Width;
+        //     h += lineHeight;
+        // }
+        //
+        // return new LvcSize(w, h);
     }
 
     private float GetActualLineHeight(SKPaint paint)
     {
-        var boundsH = new SKRect();
-        _ = paint.MeasureText("█", ref boundsH);
-        return LineHeight * boundsH.Height;
+        throw new NotImplementedException();
+        // var boundsH = new SKRect();
+        // _ = paint.MeasureText("█", ref boundsH);
+        // return LineHeight * boundsH.Height;
     }
 
     private float GetRawLineHeight(SKPaint paint)
     {
-        var boundsH = new SKRect();
-        _ = paint.MeasureText("█", ref boundsH);
-        return boundsH.Height;
+        throw new NotImplementedException();
+        // var boundsH = new SKRect();
+        // _ = paint.MeasureText("█", ref boundsH);
+        // return boundsH.Height;
     }
 
     private string[] GetLines(string multiLineText)

@@ -55,7 +55,6 @@ public class ColoredRectangleGeometry : SizedGeometry, ISolidColorChartPoint<Ski
         var c = Color;
         paint.Color = new SKColor(c.R, c.G, c.B, c.A);
 
-        context.Canvas.DrawRect(
-            new SKRect { Top = Y, Left = X, Size = new SKSize { Height = Height, Width = Width } }, paint);
+        context.Canvas.DrawRect(X, Y, Width, Height, paint);
     }
 }

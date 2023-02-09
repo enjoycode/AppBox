@@ -70,12 +70,13 @@ public abstract class InMemorySkiaSharpChart
     /// <returns></returns>
     public virtual SKImage GetImage()
     {
-        using var surface = SKSurface.Create(new SKImageInfo(Width, Height));
-        using var canvas = surface.Canvas;
-
-        DrawChart(canvas, surface);
-
-        return surface.Snapshot();
+        throw new NotImplementedException();
+        // using var surface = SKSurface.Create(new SKImageInfo(Width, Height));
+        // using var canvas = surface.Canvas;
+        //
+        // DrawChart(canvas, surface);
+        //
+        // return surface.Snapshot();
     }
 
     /// <summary>
@@ -87,10 +88,11 @@ public abstract class InMemorySkiaSharpChart
     /// <returns></returns>
     public virtual void SaveImage(string path, SKEncodedImageFormat format = SKEncodedImageFormat.Png, int quality = 80)
     {
-        using var image = GetImage();
-        using var data = image.Encode(format, quality);
-        using var stream = File.OpenWrite(path);
-        data.SaveTo(stream);
+        throw new NotImplementedException();
+        // using var image = GetImage();
+        // using var data = image.Encode(format, quality);
+        // using var stream = File.OpenWrite(path);
+        // data.SaveTo(stream);
     }
 
     /// <summary>
@@ -112,24 +114,25 @@ public abstract class InMemorySkiaSharpChart
     /// <exception cref="Exception">Indicates whether the canvas should be cleared when the draw starts, default is false.</exception>
     protected virtual void DrawChart(SKCanvas canvas, SKSurface? surface, bool clearCanvasOnBeginDraw = false)
     {
-        if (CoreChart is null || CoreChart is not Chart<SkiaSharpDrawingContext> skiaChart)
-            throw new Exception("Something is missing :(");
-
-        skiaChart.Canvas.DisableAnimations = true;
-
-        skiaChart.IsLoaded = true;
-        skiaChart.IsFirstDraw = true;
-        skiaChart.Measure();
-
-        skiaChart.Canvas.DrawFrame(
-            new SkiaSharpDrawingContext(
-                CoreCanvas,
-                new SKImageInfo(Width, Height),
-                surface!,
-                canvas,
-                Background,
-                clearCanvasOnBeginDraw));
-
-        skiaChart.Unload();
+        throw new NotImplementedException();
+        // if (CoreChart is null || CoreChart is not Chart<SkiaSharpDrawingContext> skiaChart)
+        //     throw new Exception("Something is missing :(");
+        //
+        // skiaChart.Canvas.DisableAnimations = true;
+        //
+        // skiaChart.IsLoaded = true;
+        // skiaChart.IsFirstDraw = true;
+        // skiaChart.Measure();
+        //
+        // skiaChart.Canvas.DrawFrame(
+        //     new SkiaSharpDrawingContext(
+        //         CoreCanvas,
+        //         new SKImageInfo(Width, Height),
+        //         surface!,
+        //         canvas,
+        //         Background,
+        //         clearCanvasOnBeginDraw));
+        //
+        // skiaChart.Unload();
     }
 }

@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.SkiaSharpView.Drawing;
 
@@ -33,13 +34,14 @@ public class HeatLandSeries : HeatLandSeries<SkiaSharpDrawingContext>
     /// </summary>
     public HeatLandSeries()
     {
-        HeatMap = new[]
-        {
-            LvcColor.FromArgb(255, 179, 229, 252), // cold (min value)
-            LvcColor.FromArgb(255, 2, 136, 209) // hot (max value)
-        };
-
-        if (!LiveCharts.IsConfigured) LiveCharts.Configure(config => config.UseDefaults());
-        IntitializeSeries(LiveCharts.DefaultSettings.GetProvider<SkiaSharpDrawingContext>().GetSolidColorPaint());
+        throw new NotImplementedException();
+        // HeatMap = new[]
+        // {
+        //     LvcColor.FromArgb(255, 179, 229, 252), // cold (min value)
+        //     LvcColor.FromArgb(255, 2, 136, 209) // hot (max value)
+        // };
+        //
+        // if (!LiveCharts.IsConfigured) LiveCharts.Configure(config => config.UseDefaults());
+        // IntitializeSeries(LiveCharts.DefaultSettings.GetProvider<SkiaSharpDrawingContext>().GetSolidColorPaint());
     }
 }

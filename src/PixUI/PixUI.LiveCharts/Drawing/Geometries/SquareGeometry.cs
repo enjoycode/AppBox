@@ -41,7 +41,6 @@ public class SquareGeometry : SizedGeometry
     /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
     public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
     {
-        context.Canvas.DrawRect(
-            new SKRect { Top = Y, Left = X, Size = new SKSize { Height = Width, Width = Width } }, paint);
+        context.Canvas.DrawRect(SKRect.FromLTWH(X, Y, Width, Height), paint);
     }
 }

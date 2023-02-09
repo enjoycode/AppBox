@@ -268,17 +268,18 @@ public abstract class Paint : Animatable, IDisposable, IPaint<SkiaSharpDrawingCo
     /// <returns></returns>
     protected internal SKTypeface GetSKTypeface()
     {
-        // return the defined typeface.
-        if (SKTypeface is not null) return SKTypeface;
-
-        // Obsolete method used in older versions of LiveCahrts...
-        if (_matchesChar is not null) return SKFontManager.Default.MatchCharacter(_matchesChar.Value);
-
-        // create one from the font family.
-        if (FontFamily is not null) return SKTypeface.FromFamilyName(_fontFamily, SKFontStyle ?? new SKFontStyle());
-
-        // other wise ose the globally defined typeface.
-        return LiveChartsSkiaSharp.DefaultSKTypeface ?? SKTypeface.Default;
+        throw new NotImplementedException();
+        // // return the defined typeface.
+        // if (SKTypeface is not null) return SKTypeface;
+        //
+        // // Obsolete method used in older versions of LiveCharts...
+        // if (_matchesChar is not null) return SKFontManager.Default.MatchCharacter(_matchesChar.Value);
+        //
+        // // create one from the font family.
+        // if (FontFamily is not null) return SKTypeface.FromFamilyName(_fontFamily, SKFontStyle ?? new SKFontStyle());
+        //
+        // // other wise ose the globally defined typeface.
+        // return LiveChartsSkiaSharp.DefaultSKTypeface ?? SKTypeface.Default;
     }
 
     private HashSet<IDrawable<SkiaSharpDrawingContext>>? GetGeometriesByCanvas(MotionCanvas<SkiaSharpDrawingContext> canvas)

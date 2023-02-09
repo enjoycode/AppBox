@@ -22,6 +22,7 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.SkiaSharpView.Drawing;
+using PixUI;
 
 
 namespace LiveChartsCore.SkiaSharpView.Painting;
@@ -160,14 +161,9 @@ public class LinearGradientPaint : Paint
         var start = new SKPoint(xf + (xt - xf) * _startPoint.X, yf + (yt - yf) * _startPoint.Y);
         var end = new SKPoint(xf + (xt - xf) * _endPoint.X, yf + (yt - yf) * _endPoint.Y);
 
-        _skiaPaint.Shader = SKShader.CreateLinearGradient(
-                start,
-                end,
-                _gradientStops,
-                _colorPos,
-                _tileMode);
+        _skiaPaint.Shader = SKShader.CreateLinearGradient( start, end, _gradientStops, _colorPos, _tileMode);
 
-        _skiaPaint.IsAntialias = IsAntialias;
+        _skiaPaint.AntiAlias = IsAntialias;
         _skiaPaint.IsStroke = true;
         _skiaPaint.StrokeWidth = StrokeThickness;
         _skiaPaint.StrokeCap = StrokeCap;
@@ -193,7 +189,7 @@ public class LinearGradientPaint : Paint
         if (clip != LvcRectangle.Empty)
         {
             _ = drawingContext.Canvas.Save();
-            drawingContext.Canvas.ClipRect(new SKRect(clip.X, clip.Y, clip.X + clip.Width, clip.Y + clip.Height));
+            drawingContext.Canvas.ClipRect(SKRect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), ClipOp.Intersect, true);
             _drawingContext = drawingContext;
         }
 

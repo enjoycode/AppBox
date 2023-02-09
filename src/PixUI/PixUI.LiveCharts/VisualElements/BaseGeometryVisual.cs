@@ -72,7 +72,7 @@ public abstract class BaseGeometryVisual : VisualElement<SkiaSharpDrawingContext
     }
 
     /// <inheritdoc cref="ChartElement{TDrawingContext}.GetPaintTasks"/>
-    internal override IPaint<SkiaSharpDrawingContext>?[] GetPaintTasks()
+    protected override IPaint<SkiaSharpDrawingContext>?[] GetPaintTasks()
     {
         return new[] { _fill, _stroke };
     }

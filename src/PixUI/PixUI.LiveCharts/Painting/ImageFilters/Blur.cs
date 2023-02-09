@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 using LiveChartsCore.SkiaSharpView.Drawing;
+using PixUI;
 
 
 namespace LiveChartsCore.SkiaSharpView.Painting.ImageFilters;
@@ -34,7 +35,7 @@ public class Blur : ImageFilter
     private readonly float _sigmaX;
     private readonly float _sigmaY;
     private readonly SKImageFilter? _filter = null;
-    private readonly SKImageFilter.CropRect? _cropRect = null;
+    // private readonly SKImageFilter.CropRect? _cropRect = null;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Blur"/> class.
@@ -42,13 +43,12 @@ public class Blur : ImageFilter
     /// <param name="sigmaX">The sigma x.</param>
     /// <param name="sigmaY">The sigma y.</param>
     /// <param name="input">The input.</param>
-    /// <param name="cropRect">The crop rect.</param>
-    public Blur(float sigmaX, float sigmaY, SKImageFilter? input = null, SKImageFilter.CropRect? cropRect = null)
+    public Blur(float sigmaX, float sigmaY, SKImageFilter? input = null/*, SKImageFilter.CropRect? cropRect = null*/)
     {
         _sigmaX = sigmaX;
         _sigmaY = sigmaY;
         _filter = input;
-        _cropRect = cropRect;
+        //_cropRect = cropRect;
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class Blur : ImageFilter
     /// <exception cref="System.NotImplementedException"></exception>
     public override ImageFilter Clone()
     {
-        return new Blur(_sigmaX, _sigmaY, _filter, _cropRect);
+        return new Blur(_sigmaX, _sigmaY, _filter/*, _cropRect*/);
     }
 
     /// <summary>
@@ -68,6 +68,6 @@ public class Blur : ImageFilter
     /// <returns></returns>
     public override void CreateFilter(SkiaSharpDrawingContext drawingContext)
     {
-        SKImageFilter = SKImageFilter.CreateBlur(_sigmaX, _sigmaY, _filter, _cropRect);
+        SKImageFilter = SKImageFilter.CreateBlur(_sigmaX, _sigmaY, ShaderTileMode.Decal, _filter/*, _cropRect*/);
     }
 }

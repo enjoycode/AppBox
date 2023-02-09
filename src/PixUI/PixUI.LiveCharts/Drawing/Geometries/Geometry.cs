@@ -67,7 +67,7 @@ public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, I
         _skewProperty = RegisterMotionProperty(
             new PointMotionProperty(nameof(SkewTransform), new LvcPoint(1, 1)));
         _transformProperty = RegisterMotionProperty(
-            new SKMatrixMotionProperty(nameof(Transform), SKMatrix.Identity));
+            new SKMatrixMotionProperty(nameof(Transform), SKMatrix.CreateIdentity()));
     }
 
     private bool HasTransform => _hasGeometryTransform || _hasTranslate || _hasRotation || _hasScale || _hasSkew || _hasTransform;
@@ -211,7 +211,7 @@ public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, I
             if (_hasTransform)
             {
                 var transform = Transform;
-                context.Canvas.Concat(ref transform);
+                context.Canvas.Concat(/*ref*/ transform);
             }
         }
 

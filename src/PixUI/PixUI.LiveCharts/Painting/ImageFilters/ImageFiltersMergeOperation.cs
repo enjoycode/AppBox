@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using LiveChartsCore.SkiaSharpView.Drawing;
 
 
@@ -32,17 +33,17 @@ namespace LiveChartsCore.SkiaSharpView.Painting.ImageFilters;
 public class ImageFiltersMergeOperation : ImageFilter
 {
     private readonly ImageFilter[] _filters;
-    private readonly SKImageFilter.CropRect? _cropRect = null;
+    // private readonly SKImageFilter.CropRect? _cropRect = null;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ImageFiltersMergeOperation"/> class.
     /// </summary>
     /// <param name="imageFilters">The image filters.</param>
     /// <param name="cropRect">The crop rect.</param>
-    public ImageFiltersMergeOperation(ImageFilter[] imageFilters, SKImageFilter.CropRect? cropRect = null)
+    public ImageFiltersMergeOperation(ImageFilter[] imageFilters/*, SKImageFilter.CropRect? cropRect = null*/)
     {
         _filters = imageFilters;
-        _cropRect = cropRect;
+        // _cropRect = cropRect;
     }
 
     /// <summary>
@@ -52,7 +53,7 @@ public class ImageFiltersMergeOperation : ImageFilter
     /// <exception cref="System.NotImplementedException"></exception>
     public override ImageFilter Clone()
     {
-        return new ImageFiltersMergeOperation(_filters, _cropRect);
+        return new ImageFiltersMergeOperation(_filters/*, _cropRect*/);
     }
 
     /// <summary>
@@ -62,17 +63,18 @@ public class ImageFiltersMergeOperation : ImageFilter
     /// <exception cref="System.NotImplementedException"></exception>
     public override void CreateFilter(SkiaSharpDrawingContext drawingContext)
     {
-        var imageFilters = new SKImageFilter[_filters.Length];
-        var i = 0;
-
-        foreach (var item in _filters)
-        {
-            item.CreateFilter(drawingContext);
-            if (item.SKImageFilter is null) throw new System.Exception("Image filter is not valid");
-            imageFilters[i++] = item.SKImageFilter;
-        }
-
-        SKImageFilter = SKImageFilter.CreateMerge(imageFilters, _cropRect);
+        throw new NotImplementedException();
+        // var imageFilters = new SKImageFilter[_filters.Length];
+        // var i = 0;
+        //
+        // foreach (var item in _filters)
+        // {
+        //     item.CreateFilter(drawingContext);
+        //     if (item.SKImageFilter is null) throw new System.Exception("Image filter is not valid");
+        //     imageFilters[i++] = item.SKImageFilter;
+        // }
+        //
+        // SKImageFilter = SKImageFilter.CreateMerge(imageFilters, _cropRect);
     }
 
     /// <summary>

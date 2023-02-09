@@ -37,7 +37,7 @@ public class DropShadow : ImageFilter
     private readonly float _sigmaY;
     private readonly SKColor _color;
     private readonly SKImageFilter? _filter = null;
-    private readonly SKImageFilter.CropRect? _cropRect = null;
+    // private readonly SKImageFilter.CropRect? _cropRect = null;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DropShadow"/> class.
@@ -48,8 +48,7 @@ public class DropShadow : ImageFilter
     /// <param name="sigmaY">The sigma y.</param>
     /// <param name="color">The color.</param>
     /// <param name="input">The input.</param>
-    /// <param name="cropRect">The crop rect.</param>
-    public DropShadow(float dx, float dy, float sigmaX, float sigmaY, SKColor color, SKImageFilter? input = null, SKImageFilter.CropRect? cropRect = null)
+    public DropShadow(float dx, float dy, float sigmaX, float sigmaY, SKColor color, SKImageFilter? input = null/*, SKImageFilter.CropRect? cropRect = null*/)
     {
         _dx = dx;
         _dy = dy;
@@ -57,7 +56,7 @@ public class DropShadow : ImageFilter
         _sigmaY = sigmaY;
         _color = color;
         _filter = input;
-        _cropRect = cropRect;
+        // _cropRect = cropRect;
     }
 
     /// <summary>
@@ -67,7 +66,7 @@ public class DropShadow : ImageFilter
     /// <exception cref="System.NotImplementedException"></exception>
     public override ImageFilter Clone()
     {
-        return new DropShadow(_dx, _dy, _sigmaX, _sigmaY, _color, _filter, _cropRect);
+        return new DropShadow(_dx, _dy, _sigmaX, _sigmaY, _color, _filter/*, _cropRect*/);
     }
 
     /// <summary>
@@ -76,6 +75,6 @@ public class DropShadow : ImageFilter
     /// <param name="drawingContext">The drawing context.</param>
     public override void CreateFilter(SkiaSharpDrawingContext drawingContext)
     {
-        SKImageFilter = SKImageFilter.CreateDropShadow(_dx, _dy, _sigmaX, _sigmaY, _color, _filter, _cropRect);
+        SKImageFilter = SKImageFilter.CreateDropShadow(_dx, _dy, _sigmaX, _sigmaY, _color, _filter/*, _cropRect*/);
     }
 }
