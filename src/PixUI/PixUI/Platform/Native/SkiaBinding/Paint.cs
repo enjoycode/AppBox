@@ -91,24 +91,6 @@ namespace PixUI
             set => SkiaApi.sk_paint_set_stroke_join(Handle, value);
         }
 
-        public SKTypeface Typeface
-        {
-            get => throw new NotImplementedException();
-            set
-            {
-                /*TODO:*/
-            }
-        }
-
-        public float TextSize
-        {
-            get => throw new NotImplementedException();
-            set
-            {
-                /*TODO:*/
-            }
-        }
-
         public Shader? Shader
         {
             get => Shader.GetObject(SkiaApi.sk_paint_get_shader(Handle));

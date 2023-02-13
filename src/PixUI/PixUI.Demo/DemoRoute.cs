@@ -12,7 +12,8 @@ namespace PixUI.Demo
             var routes = new List<Route>
             {
                 new("page", s => new DemoPage(), false, BuildDefaultTransition),
-                new("form", s => new DemoForm(), false, BuildDefaultTransition),
+                //new("form", s => new DemoForm(), false, BuildDefaultTransition),
+                new("charts", s => new DemoCharts(), false),
                 new("list", s => new DemoListView(), false, BuildDefaultTransition),
                 new("animation", s => new DemoAnimation(), false, BuildDefaultTransition),
                 new("transform", s => new DemoTransform(), false, BuildDefaultTransition),
@@ -80,7 +81,8 @@ namespace PixUI.Demo
                         MenuItem.Item("Window")
                     }),
                 }),
-                MenuItem.Item("Form", null, () => _navigator.Push("form")),
+                // MenuItem.Item("Form", null, () => _navigator.Push("form")),
+                MenuItem.Item("Charts", null, () => _navigator.Push("charts")),
                 MenuItem.Item("Animation", null, () => _navigator.Push("animation")),
                 MenuItem.Item("ListView", null, () => _navigator.Push("list")),
                 MenuItem.Item("Transform", null, () => _navigator.Push("transform")),

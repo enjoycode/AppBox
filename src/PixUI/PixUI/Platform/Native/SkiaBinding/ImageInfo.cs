@@ -57,15 +57,17 @@ namespace PixUI
             //}
         }
 
-        public int Width { get; set; }
+        public ImageInfo() { }
 
-        public int Height { get; set; }
+        public int Width { get; set; } = 0;
 
-        public ColorType ColorType { get; set; }
+        public int Height { get; set; } = 0;
 
-        public AlphaType AlphaType { get; set; }
+        public ColorType ColorType { get; set; } = PlatformColorType;
 
-        public ColorSpace? ColorSpace { get; set; }
+        public AlphaType AlphaType { get; set; } = AlphaType.Premul;
+
+        public ColorSpace? ColorSpace { get; set; } = null;
 
         // public readonly int BytesPerPixel => ColorType.GetBytesPerPixel();
 

@@ -102,7 +102,7 @@ public class SkiaSharpDrawingContext : DrawingContext
     /// <value>
     /// The surface.
     /// </value>
-    public SKSurface Surface { get; set; }
+    public SKSurface Surface { get; set; } //TODO: remove it
 
     /// <summary>
     /// Gets or sets the canvas.
@@ -136,21 +136,23 @@ public class SkiaSharpDrawingContext : DrawingContext
     /// <inheritdoc cref="DrawingContext.OnBegingDraw"/>
     public override void OnBegingDraw()
     {
-        if (_clearOnBegingDraw) Canvas.Clear();
+        //if (_clearOnBegingDraw) Canvas.Clear();
         if (Background != SKColor.Empty)
         {
-            using var paint = new SKPaint { Color = Background };
-            Canvas.DrawRect(SKRect.FromLTWH(0,0, Info.Width, Info.Height), paint);
+            Canvas.DrawRect(SKRect.FromLTWH(0,0, Info.Width, Info.Height), PixUI.PaintUtils.Shared(Background));
         }
 
-        if (MotionCanvas.StartPoint is null) return;
+        if (MotionCanvas.StartPoint == null ||
+            (MotionCanvas.StartPoint.Value.X == 0 &&
+            MotionCanvas.StartPoint.Value.Y == 0)) return;
+
         Canvas.Translate(MotionCanvas.StartPoint.Value.X, MotionCanvas.StartPoint.Value.Y);
     }
 
     /// <inheritdoc cref="DrawingContext.OnEndDraw"/>
     public override void OnEndDraw()
     {
-        if (MotionCanvas.StartPoint is null) return;
-        Canvas.Restore();
+        //if (MotionCanvas.StartPoint == null) return;
+        //Canvas.Restore();
     }
 }

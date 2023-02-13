@@ -84,11 +84,10 @@ public static class LiveChartsSkiaSharp
     /// <returns></returns>
     public static LiveChartsSettings AddSkiaSharp(this LiveChartsSettings settings)
     {
-        throw new NotImplementedException();
-        // // this is obsolete, currently only used in the GeoMap control and will be removed a future version.
-        // LiveCharts.DefaultPaint = DefaultPaint;
-        //
-        // return settings.HasProvider(new SkiaSharpProvider());
+        // this is obsolete, currently only used in the GeoMap control and will be removed a future version.
+        //LiveChartsCore.LiveCharts.DefaultPaint = DefaultPaint;
+
+        return settings.HasProvider(new SkiaSharpProvider());
     }
 
     public static LiveChartsSettings WithGlobalSKTypeface(this LiveChartsSettings settings, SKTypeface typeface)

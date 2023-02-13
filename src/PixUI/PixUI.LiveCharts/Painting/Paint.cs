@@ -268,7 +268,6 @@ public abstract class Paint : Animatable, IDisposable, IPaint<SkiaSharpDrawingCo
     /// <returns></returns>
     protected internal SKTypeface GetSKTypeface()
     {
-        throw new NotImplementedException();
         // // return the defined typeface.
         // if (SKTypeface is not null) return SKTypeface;
         //
@@ -280,6 +279,9 @@ public abstract class Paint : Animatable, IDisposable, IPaint<SkiaSharpDrawingCo
         //
         // // other wise ose the globally defined typeface.
         // return LiveChartsSkiaSharp.DefaultSKTypeface ?? SKTypeface.Default;
+
+        //TODO: return null now
+        return null;
     }
 
     private HashSet<IDrawable<SkiaSharpDrawingContext>>? GetGeometriesByCanvas(MotionCanvas<SkiaSharpDrawingContext> canvas)

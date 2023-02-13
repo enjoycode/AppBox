@@ -114,8 +114,8 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
             AntiAlias = drawable.IsAntialias,
             IsStroke = drawable.IsStroke,
             StrokeWidth = drawable.StrokeThickness,
-            TextSize = TextSize,
-            Typeface = typeface
+            //TextSize = TextSize,
+            //Typeface = typeface
         };
 
         var bounds = MeasureLines(p);
@@ -132,7 +132,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
     /// <inheritdoc cref="Geometry.ApplyCustomGeometryTransform(SkiaSharpDrawingContext)" />
     protected override void ApplyCustomGeometryTransform(SkiaSharpDrawingContext context)
     {
-        context.Paint.TextSize = TextSize;
+        //context.Paint.TextSize = TextSize;
         var size = MeasureLines(context.Paint);
 
         const double toRadians = Math.PI / 180d;
@@ -170,7 +170,6 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
 
     private void DrawLine(string content, float yLine, SkiaSharpDrawingContext context, SKPaint paint)
     {
-        throw new NotImplementedException();
         // if (paint.Typeface is not null)
         // {
         //     using var eventTextShaper = new SKShaper(paint.Typeface);
@@ -179,41 +178,49 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
         // }
         //
         // context.Canvas.DrawText(content, new SKPoint(X, Y + yLine), paint);
+
+        //TODO: 暂简单实现
+        using var para = PixUI.TextPainter.BuildParagraph(content, float.PositiveInfinity, TextSize, paint.Color);
+        context.Canvas.DrawParagraph(para, X, Y + yLine);
     }
 
     private LvcSize MeasureLines(SKPaint paint)
     {
-        throw new NotImplementedException();
-        // float w = 0f, h = 0f;
-        // var lineHeight = GetActualLineHeight(paint);
-        //
-        // foreach (var line in GetLines(Text))
-        // {
-        //     var bounds = new SKRect();
-        //
-        //     _ = paint.MeasureText(line, ref bounds);
-        //
-        //     if (bounds.Width > w) w = bounds.Width;
-        //     h += lineHeight;
-        // }
-        //
-        // return new LvcSize(w, h);
+        float w = 0f, h = 0f;
+        //var lineHeight = GetActualLineHeight(paint);
+
+        foreach (var line in GetLines(Text))
+        {
+            //var bounds = new SKRect();
+            //_ = paint.MeasureText(line, ref bounds);
+            //if (bounds.Width > w) w = bounds.Width;
+            //h += lineHeight;
+
+            //TODO: 暂简单实现
+            using var para = PixUI.TextPainter.BuildParagraph(line, float.PositiveInfinity, TextSize, paint.Color);
+            h += para.Height * LineHeight;
+            if (para.LongestLine > w) w = para.LongestLine;
+        }
+
+        return new LvcSize(w, h);
     }
 
     private float GetActualLineHeight(SKPaint paint)
     {
-        throw new NotImplementedException();
         // var boundsH = new SKRect();
         // _ = paint.MeasureText("█", ref boundsH);
         // return LineHeight * boundsH.Height;
+        //TODO: 暂简单实现
+        return TextSize * LineHeight;
     }
 
     private float GetRawLineHeight(SKPaint paint)
     {
-        throw new NotImplementedException();
         // var boundsH = new SKRect();
         // _ = paint.MeasureText("█", ref boundsH);
         // return boundsH.Height;
+        //TODO: 暂简单实现
+        return TextSize;
     }
 
     private string[] GetLines(string multiLineText)
