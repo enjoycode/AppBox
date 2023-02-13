@@ -16,7 +16,7 @@ using LCC = LiveChartsCore;
 
 namespace PixLiveCharts;
 
-public abstract class ChartView : Widget, IChartView<SkiaSharpDrawingContext>
+public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDrawingContext>
 {
     protected ChartView(IChartTooltip<SkiaSharpDrawingContext>? tooltip,
         IChartLegend<SkiaSharpDrawingContext>? legend)
@@ -37,6 +37,13 @@ public abstract class ChartView : Widget, IChartView<SkiaSharpDrawingContext>
         // core.Measuring += OnCoreMeasuring;
         // core.UpdateStarted += OnCoreUpdateStarted;
         // core.UpdateFinished += OnCoreUpdateFinished;
+
+        MouseRegion = new MouseRegion();
+        MouseRegion.PointerMove += e => core?.InvokePointerMove(new LvcPoint(e.X, e.Y));
+        MouseRegion.HoverChanged += hover =>
+        {
+            if (!hover) core?.InvokePointerLeft();
+        };
     }
 
     #region ====Fields====
@@ -334,6 +341,8 @@ public abstract class ChartView : Widget, IChartView<SkiaSharpDrawingContext>
     #endregion
 
     #region ====Widget Overrides====
+
+    public MouseRegion MouseRegion { get; }
 
     protected override void OnMounted()
     {

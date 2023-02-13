@@ -36,8 +36,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
     /// <summary>
     /// Initializes a new instance of the <see cref="LabelGeometry"/> class.
     /// </summary>
-    public LabelGeometry()
-        : base(true)
+    public LabelGeometry() : base(true)
     {
         _textSizeProperty = RegisterMotionProperty(new FloatMotionProperty(nameof(TextSize), 11));
         _backgroundProperty = RegisterMotionProperty(new ColorMotionProperty(nameof(Background), LvcColor.Empty));
@@ -64,10 +63,18 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
     public string Text { get; set; } = string.Empty;
 
     /// <inheritdoc cref="ILabelGeometry{TDrawingContext}.TextSize" />
-    public float TextSize { get => _textSizeProperty.GetMovement(this); set => _textSizeProperty.SetMovement(value, this); }
+    public float TextSize
+    {
+        get => _textSizeProperty.GetMovement(this);
+        set => _textSizeProperty.SetMovement(value, this);
+    }
 
     /// <inheritdoc cref="ILabelGeometry{TDrawingContext}.Background" />
-    public LvcColor Background { get => _backgroundProperty.GetMovement(this); set => _backgroundProperty.SetMovement(value, this); }
+    public LvcColor Background
+    {
+        get => _backgroundProperty.GetMovement(this);
+        set => _backgroundProperty.SetMovement(value, this);
+    }
 
     /// <inheritdoc cref="ILabelGeometry{TDrawingContext}.Padding" />
     public Padding Padding { get; set; } = new();
@@ -83,11 +90,9 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
         var bg = Background;
         if (bg != LvcColor.Empty)
         {
-            using (var bgPaint = new SKPaint { Color = new SKColor(bg.R, bg.G, bg.B, (byte)(bg.A * Opacity)) })
-            {
-                var p = Padding;
-                context.Canvas.DrawRect(X - p.Left, Y - size.Height + p.Bottom, size.Width, size.Height, bgPaint);
-            }
+            using var bgPaint = new SKPaint { Color = new SKColor(bg.R, bg.G, bg.B, (byte)(bg.A * Opacity)) };
+            var p = Padding;
+            context.Canvas.DrawRect(X - p.Left, Y - size.Height + p.Bottom, size.Width, size.Height, bgPaint);
         }
 
         var lines = GetLines(Text);
@@ -106,7 +111,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
     /// <inheritdoc cref="Geometry.OnMeasure(Paint)" />
     protected override LvcSize OnMeasure(Paint drawable)
     {
-        var typeface = drawable.GetSKTypeface();
+        //var typeface = drawable.GetSKTypeface();
 
         using var p = new SKPaint
         {
@@ -141,17 +146,30 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
 
         switch (VerticalAlign)
         {
-            case Align.Start: h = 1f * size.Height + p.Top; break;
-            case Align.Middle: h = 0.5f * (size.Height + p.Top - p.Bottom); break;
-            case Align.End: h = 0f * size.Height - p.Bottom; break;
+            case Align.Start:
+                h = 1f * size.Height + p.Top;
+                break;
+            case Align.Middle:
+                h = 0.5f * (size.Height + p.Top - p.Bottom);
+                break;
+            case Align.End:
+                h = 0f * size.Height - p.Bottom;
+                break;
             default:
                 break;
         }
+
         switch (HorizontalAlign)
         {
-            case Align.Start: w = 0f * size.Width - p.Left; break;
-            case Align.Middle: w = 0.5f * (size.Width - p.Left + p.Right); break;
-            case Align.End: w = 1 * size.Width + p.Right; break;
+            case Align.Start:
+                w = 0f * size.Width - p.Left;
+                break;
+            case Align.Middle:
+                w = 0.5f * (size.Width - p.Left + p.Right);
+                break;
+            case Align.End:
+                w = 1 * size.Width + p.Right;
+                break;
             default:
                 break;
         }
@@ -181,7 +199,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
 
         //TODO: 暂简单实现
         using var para = PixUI.TextPainter.BuildParagraph(content, float.PositiveInfinity, TextSize, paint.Color);
-        context.Canvas.DrawParagraph(para, X, Y + yLine);
+        context.Canvas.DrawParagraph(para, X, Y + yLine - TextSize);
     }
 
     private LvcSize MeasureLines(SKPaint paint)
@@ -197,7 +215,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
             //h += lineHeight;
 
             //TODO: 暂简单实现
-            using var para = PixUI.TextPainter.BuildParagraph(line, float.PositiveInfinity, TextSize, paint.Color);
+            using var para = PixUI.TextPainter.BuildParagraph(line, float.PositiveInfinity, TextSize, paint.Color, null, 1, true);
             h += para.Height * LineHeight;
             if (para.LongestLine > w) w = para.LongestLine;
         }

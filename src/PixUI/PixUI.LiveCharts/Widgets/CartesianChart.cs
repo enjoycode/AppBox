@@ -67,7 +67,7 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaSharpDra
 
     #endregion
 
-    #region ====Chart Overrides====
+    #region ====ChartView Overrides====
 
     protected override void InitializeCore()
     {
