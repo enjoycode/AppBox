@@ -16,7 +16,6 @@ namespace PixUI.CS2TS
     {
         private readonly Workspace _workspace;
         private readonly ProjectId _projectId;
-        private readonly List<GenericTypeOverloads> _genericOverloads = new();
 
         internal readonly bool IsPixUIProject;
 
@@ -120,91 +119,24 @@ namespace PixUI.CS2TS
             return ((AdhocWorkspace)_workspace).AddDocument(docInfo);
         }
 
-        internal void AddGenericTypeOverloads(TypeDeclarationSyntax node)
-        {
-            var typeName = node.Identifier.Text;
-            var exists = _genericOverloads
-                .SingleOrDefault(t => t.TypeName == typeName);
-            if (exists == null)
-            {
-                exists = new GenericTypeOverloads(typeName);
-                _genericOverloads.Add(exists);
-            }
-
-            exists.Declarations.Add(node);
-        }
-
-        internal void ExportGenericTypeOverloads(StringBuilder output) //TODO: remove, not supported
-        {
-            foreach (var item in _genericOverloads)
-            {
-                //先按类型参数个数排序
-                var nodes = item.Declarations
-                    .OrderBy(t =>
-                        t.TypeParameterList == null ? 0 : t.TypeParameterList.Parameters.Count)
-                    .ToArray();
-
-                var typesMin = nodes.First().TypeParameterList == null
-                    ? 0
-                    : nodes.First().TypeParameterList!.Parameters.Count;
-                var typesMax = nodes.Last().TypeParameterList!.Parameters.Count;
-
-                output.Append("export type ");
-                output.Append(item.TypeName);
-                output.Append('<');
-
-                for (var i = 0; i < typesMax; i++)
-                {
-                    if (i != 0) output.Append(", ");
-
-                    output.Append('T');
-                    output.Append(i + 1);
-
-                    if (i >= typesMin)
-                        output.Append(" = void");
-                }
-
-                output.Append("> = \n");
-
-                for (var i = typesMin; i < typesMax; i++)
-                {
-                    output.Append('\t', i - typesMin + 1);
-                    output.Append('T');
-                    output.Append(i + 1);
-                    output.Append(" extends void ? ");
-
-                    WriteGenericType(output, item.TypeName, i);
-
-                    output.Append(" :\n");
-                    if (i == typesMax - 1) //last one
-                    {
-                        output.Append('\t', i - typesMin + 2);
-                        WriteGenericType(output, item.TypeName, i + 1);
-                    }
-                }
-
-                output.Append(";\n");
-            }
-        }
-
-        private static void WriteGenericType(StringBuilder output, string type, int index)
-        {
-            output.Append(type);
-            output.Append(index);
-            if (index == 0) return;
-
-            output.Append('<');
-
-            for (var i = 0; i < index; i++)
-            {
-                if (i != 0) output.Append(", ");
-
-                output.Append('T');
-                output.Append(i + 1);
-            }
-
-            output.Append('>');
-        }
+        // private static void WriteGenericType(StringBuilder output, string type, int index)
+        // {
+        //     output.Append(type);
+        //     output.Append(index);
+        //     if (index == 0) return;
+        //
+        //     output.Append('<');
+        //
+        //     for (var i = 0; i < index; i++)
+        //     {
+        //         if (i != 0) output.Append(", ");
+        //
+        //         output.Append('T');
+        //         output.Append(i + 1);
+        //     }
+        //
+        //     output.Append('>');
+        // }
 
         internal int DumpErrors()
         {

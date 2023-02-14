@@ -52,7 +52,6 @@
       <Compile Remove="Resources\TestCode\TestInitializer.cs" />
       <None Include="Resources\TestCode\TestInitializer.cs" />
       <Compile Remove="Resources\TestCode\TestGenericTypeOverloads.cs" />
-      <None Include="Resources\TestCode\TestGenericTypeOverloads.cs" />
       <Compile Remove="Resources\TestCode\TestInterceptor.cs" />
       <None Include="Resources\TestCode\TestInterceptor.cs" />
       <Compile Remove="Resources\TestCode\TestMemberAccess.cs" />

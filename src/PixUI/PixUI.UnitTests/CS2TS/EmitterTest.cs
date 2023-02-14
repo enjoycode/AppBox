@@ -11,8 +11,7 @@ namespace PixUI.UnitTests.CS2TS
 {
     public class EmitterTest
     {
-        private static async Task<Translator> Run(string srcFileName,
-            bool withAttributeFiles = false)
+        private static async Task<Translator> Run(string srcFileName, bool withAttributeFiles = false)
         {
             const string attrFilesPath = "../../../../PixUI.TSAttributes/";
             const string testFilesPath = "../../../../PixUI.UnitTests/Resources/TestCode/";
@@ -31,8 +30,7 @@ namespace PixUI.UnitTests.CS2TS
             //加入必须的通用定义
             translator.AddTestFile(System.IO.Path.Combine(testFilesPath, "Common.cs"));
             //加入目标测试文件
-            var document =
-                translator.AddTestFile(System.IO.Path.Combine(testFilesPath, srcFileName));
+            var document = translator.AddTestFile(System.IO.Path.Combine(testFilesPath, srcFileName));
 
             Assert.True(translator.DumpErrors() == 0);
 
@@ -59,15 +57,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task StructTest() => await Run("TestStruct.cs");
 
         [Test]
-        public async Task GenericTypeOverloadsTest()
-        {
-            var translator = await Run("TestGenericTypeOverloads.cs", true);
-
-            Console.WriteLine();
-            var sb = new StringBuilder();
-            translator.ExportGenericTypeOverloads(sb);
-            Console.WriteLine(sb.ToString());
-        }
+        public async Task GenericTypeTest() => await Run("TestGenericTypeOverloads.cs", true);
 
         [Test]
         public async Task MemberAccessTest() => await Run("TestMemberAccess.cs");
@@ -146,8 +136,11 @@ namespace PixUI.UnitTests.CS2TS
 
         [Test]
         public async Task IndexerTest() => await Run("TestIndexer.cs", true);
-        
+
         [Test]
         public async Task ExtensitionTest() => await Run("TestExtension.cs", true);
+
+        [Test]
+        public async Task InnerClassTest() => await Run("TestInnerClass.cs", true);
     }
 }
