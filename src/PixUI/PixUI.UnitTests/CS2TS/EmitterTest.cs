@@ -146,5 +146,8 @@ namespace PixUI.UnitTests.CS2TS
 
         [Test]
         public async Task IndexerTest() => await Run("TestIndexer.cs", true);
+        
+        [Test]
+        public async Task ExtensitionTest() => await Run("TestExtension.cs", true);
     }
 }

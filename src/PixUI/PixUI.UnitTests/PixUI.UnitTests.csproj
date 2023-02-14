@@ -87,6 +87,8 @@
       <None Include="Resources\TestCode\Common.cs" />
       <Compile Remove="Resources\TestCode\TestLiteral.cs" />
       <None Include="Resources\TestCode\TestLiteral.cs" />
+      <Compile Remove="Resources\TestCode\TestExtension.cs" />
+      <None Include="Resources\TestCode\TestExtension.cs" />
     </ItemGroup>
 
     <ItemGroup>

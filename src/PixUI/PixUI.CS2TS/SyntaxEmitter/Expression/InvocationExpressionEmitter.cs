@@ -7,29 +7,25 @@ using RoslynUtils;
 
 namespace PixUI.CS2TS
 {
-    internal sealed class InvocationExpressionEmitter : SyntaxEmitter<InvocationExpressionSyntax>
+    partial class Emitter
     {
-        internal static readonly InvocationExpressionEmitter Default = new();
-
-        private InvocationExpressionEmitter() { }
-
-        internal override void Emit(Emitter emitter, InvocationExpressionSyntax node)
+        public override void VisitInvocationExpression(InvocationExpressionSyntax node)
         {
             //特例处理 eg: nameof(xxx)等
-            if (TryEmitNameof(emitter, node) || TryEmitReferenceEquals(emitter, node) ||
-                TryEmitIsNullOrEmpty(emitter, node) /*TODO: move this to StringInterceptor*/)
+            if (TryEmitNameof(node) || TryEmitReferenceEquals(node) ||
+                TryEmitIsNullOrEmpty(node) /*TODO: move this to StringInterceptor*/)
                 return;
 
-            var symbolInfo = emitter.SemanticModel.GetSymbolInfo(node);
+            var symbolInfo = SemanticModel.GetSymbolInfo(node);
             Debug.Assert(symbolInfo.Symbol is IMethodSymbol);
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol!;
 
             //尝试转换EnumValue.ToString()
-            if (TryEmitEnumToString(emitter, node, methodSymbol))
+            if (TryEmitEnumToString(node, methodSymbol))
                 return;
 
             //尝试Delegate.Invoke
-            if (TryEmitDelegateInvoke(emitter, node, methodSymbol))
+            if (TryEmitDelegateInvoke(node, methodSymbol))
                 return;
 
             //尝试转换系统方法调用, eg: Console.Write(), Math.Max()
@@ -38,89 +34,87 @@ namespace PixUI.CS2TS
                 var systemType = methodSymbol.ContainingType.IsGenericType
                     ? methodSymbol.ContainingType.OriginalDefinition
                     : methodSymbol.ContainingType;
-                if (SystemInterceptorMap.TryGetInterceptor(systemType.ToString(),
-                        out var systemInterceptor))
+                if (SystemInterceptorMap.TryGetInterceptor(systemType.ToString(), out var systemInterceptor))
                 {
-                    emitter.WriteLeadingTrivia(node);
-                    systemInterceptor.Emit(emitter, node, methodSymbol);
+                    WriteLeadingTrivia(node);
+                    systemInterceptor.Emit(this, node, methodSymbol);
                     return;
                 }
             }
 
             //尝试使用拦截器
-            if (emitter.TryGetInterceptor(methodSymbol, out var interceptor))
+            if (TryGetInterceptor(methodSymbol, out var interceptor))
             {
-                interceptor!.Emit(emitter, node, methodSymbol);
+                interceptor!.Emit(this, node, methodSymbol);
                 return;
             }
 
             //尝试特殊处理调用AppBox的服务
-            if (TryEmitInvokeAppBoxService(emitter, node, methodSymbol))
+            if (TryEmitInvokeAppBoxService(node, methodSymbol))
                 return;
             //尝试特殊处理Entity.Observe() or RxEntity.Observe()
-            if (TryEmitEntityObserve(emitter, node, methodSymbol))
+            if (TryEmitEntityObserve(node, methodSymbol))
+                return;
+            //尝试处理扩展方法调用
+            if (TryEmitExtensionMethod(node, methodSymbol))
                 return;
 
-            emitter.NeedGenericTypeArguments = false;
-            emitter.IgnoreDelegateBind = true;
-            emitter.Visit(node.Expression);
-            emitter.IgnoreDelegateBind = false;
-            emitter.NeedGenericTypeArguments = true;
-            emitter.VisitToken(node.ArgumentList.OpenParenToken);
-            emitter.VisitSeparatedList(node.ArgumentList.Arguments);
-            emitter.VisitToken(node.ArgumentList.CloseParenToken);
+            NeedGenericTypeArguments = false;
+            IgnoreDelegateBind = true;
+            Visit(node.Expression);
+            IgnoreDelegateBind = false;
+            NeedGenericTypeArguments = true;
+            VisitToken(node.ArgumentList.OpenParenToken);
+            VisitSeparatedList(node.ArgumentList.Arguments);
+            VisitToken(node.ArgumentList.CloseParenToken);
         }
 
-        private static bool TryEmitEnumToString(Emitter emitter, InvocationExpressionSyntax node,
-            IMethodSymbol symbol)
+        private bool TryEmitEnumToString(InvocationExpressionSyntax node, IMethodSymbol symbol)
         {
-            if (symbol.ContainingType.SpecialType == SpecialType.System_Enum &&
-                symbol.Name == "ToString")
+            if (symbol.ContainingType.SpecialType == SpecialType.System_Enum && symbol.Name == "ToString")
             {
                 var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
-                var enumTypeSymbol =
-                    emitter.SemanticModel.GetTypeInfo(memberAccess.Expression).Type;
+                var enumTypeSymbol = SemanticModel.GetTypeInfo(memberAccess.Expression).Type;
 
-                emitter.WriteTypeSymbol(enumTypeSymbol!, true);
-                emitter.Write('[');
-                emitter.Visit(memberAccess.Expression);
-                emitter.Write(']');
+                WriteTypeSymbol(enumTypeSymbol!, true);
+                Write('[');
+                Visit(memberAccess.Expression);
+                Write(']');
                 return true;
             }
 
             return false;
         }
 
-        private static bool TryEmitNameof(Emitter emitter, InvocationExpressionSyntax node)
+        private bool TryEmitNameof(InvocationExpressionSyntax node)
         {
             if (node.Expression is not IdentifierNameSyntax { Identifier: { Text: "nameof" } })
                 return false;
 
-            emitter.WriteLeadingTrivia(node);
-            emitter.Write('"');
-            emitter.Write(node.ArgumentList.Arguments[0].Expression.ToString());
-            emitter.Write('"');
-            emitter.WriteTrailingTrivia(node);
+            WriteLeadingTrivia(node);
+            Write('"');
+            Write(node.ArgumentList.Arguments[0].Expression.ToString());
+            Write('"');
+            WriteTrailingTrivia(node);
 
             return true;
         }
 
-        private static bool TryEmitIsNullOrEmpty(Emitter emitter, InvocationExpressionSyntax node)
+        private bool TryEmitIsNullOrEmpty(InvocationExpressionSyntax node)
         {
             if (node.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 if (memberAccess.Name.Identifier.Text == "IsNullOrEmpty")
                 {
-                    var typeSymbol = emitter.SemanticModel.GetSymbolInfo(memberAccess.Expression)
-                        .Symbol;
+                    var typeSymbol = SemanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
                     if (typeSymbol is { Name: "String" })
                     {
-                        emitter.AddUsedModule("System");
-                        emitter.WriteLeadingTrivia(node);
-                        emitter.Write("System.IsNullOrEmpty(");
-                        emitter.Visit(node.ArgumentList.Arguments[0]);
-                        emitter.Write(')');
-                        emitter.WriteTrailingTrivia(node);
+                        AddUsedModule("System");
+                        WriteLeadingTrivia(node);
+                        Write("System.IsNullOrEmpty(");
+                        Visit(node.ArgumentList.Arguments[0]);
+                        Write(')');
+                        WriteTrailingTrivia(node);
                         return true;
                     }
                 }
@@ -129,62 +123,60 @@ namespace PixUI.CS2TS
             return false;
         }
 
-        private static bool TryEmitReferenceEquals(Emitter emitter, InvocationExpressionSyntax node)
+        private bool TryEmitReferenceEquals(InvocationExpressionSyntax node)
         {
             //TODO:
             if (node.Expression is IdentifierNameSyntax { Identifier: { Text: "ReferenceEquals" } })
             {
-                emitter.Write('(');
-                emitter.Visit(node.ArgumentList.Arguments[0]);
-                emitter.Write(" === ");
-                emitter.Visit(node.ArgumentList.Arguments[1]);
-                emitter.Write(')');
+                Write('(');
+                Visit(node.ArgumentList.Arguments[0]);
+                Write(" === ");
+                Visit(node.ArgumentList.Arguments[1]);
+                Write(')');
                 return true;
             }
 
             return false;
         }
 
-        private static bool TryEmitDelegateInvoke(Emitter emitter, InvocationExpressionSyntax node,
-            IMethodSymbol symbol)
+        private bool TryEmitDelegateInvoke(InvocationExpressionSyntax node, IMethodSymbol symbol)
         {
             //先判断是否事件
             var isEvent = false;
             var isConditionalAceess = false;
             if (node.Parent is ConditionalAccessExpressionSyntax accessExpressionSyntax)
             {
-                isEvent = emitter.SemanticModel.GetSymbolInfo(accessExpressionSyntax.Expression)
+                isEvent = SemanticModel.GetSymbolInfo(accessExpressionSyntax.Expression)
                     .Symbol is IEventSymbol;
                 isConditionalAceess = true;
             }
             else
             {
-                isEvent =
-                    emitter.SemanticModel.GetSymbolInfo(node.Expression).Symbol is IEventSymbol;
+                isEvent = SemanticModel.GetSymbolInfo(node.Expression).Symbol is IEventSymbol;
             }
 
             if (isEvent || (node.Expression.GetLastToken().Text == "Invoke" &&
-                            symbol.ContainingType.IsInherits(emitter.TypeOfDelegate)))
+                            symbol.ContainingType.IsInherits(TypeOfDelegate)))
             {
                 if (!isEvent)
                 {
-                    emitter.Visit(node.Expression);
+                    Visit(node.Expression);
                     //替换名称 Invoke => call
-                    emitter.RemoveLast(symbol.Name.Length);
-                    emitter.Write("call");
+                    RemoveLast(symbol.Name.Length);
+                    Write("call");
                 }
                 else
                 {
-                    if (isConditionalAceess) emitter.RemoveLast(1); //remove '?'
-                    else emitter.Visit(node.Expression);
-                    emitter.Write(".Invoke");
+                    if (isConditionalAceess) RemoveLast(1); //remove '?'
+                    else Visit(node.Expression);
+                    Write(".Invoke");
                 }
 
-                emitter.VisitToken(node.ArgumentList.OpenParenToken);
+                VisitToken(node.ArgumentList.OpenParenToken);
                 if (!isEvent)
-                    emitter.Write(node.ArgumentList.Arguments.Count > 0 ? "this, " : "this");
-                emitter.VisitSeparatedList(node.ArgumentList.Arguments);
-                emitter.VisitToken(node.ArgumentList.CloseParenToken);
+                    Write(node.ArgumentList.Arguments.Count > 0 ? "this, " : "this");
+                VisitSeparatedList(node.ArgumentList.Arguments);
+                VisitToken(node.ArgumentList.CloseParenToken);
 
                 return true;
             }
@@ -192,48 +184,45 @@ namespace PixUI.CS2TS
             return false;
         }
 
-        private static bool TryEmitInvokeAppBoxService(Emitter emitter,
-            InvocationExpressionSyntax node, IMethodSymbol symbol)
+        private bool TryEmitInvokeAppBoxService(InvocationExpressionSyntax node, IMethodSymbol symbol)
         {
             if (!symbol.IsAppBoxServiceMethod()) return false;
 
             //需要检查返回类型内是否包含实体，是则加入引用模型列表内
-            if (emitter.AppBoxContext != null && !symbol.ReturnsVoid)
-                symbol.ReturnType.CheckTypeHasAppBoxModel(emitter.AppBoxContext.FindModel,
-                    emitter.AppBoxContext.AddUsedModel);
+            if (AppBoxContext != null && !symbol.ReturnsVoid)
+                symbol.ReturnType.CheckTypeHasAppBoxModel(AppBoxContext.FindModel, AppBoxContext.AddUsedModel);
 
             //开始转换为前端服务调用
-            emitter.AddUsedModule("AppBoxClient");
-            emitter.Write("AppBoxClient.Channel.Invoke('");
+            AddUsedModule("AppBoxClient");
+            Write("AppBoxClient.Channel.Invoke('");
             //参数1: 服务名称 eg: sys.HelloService.SayHello
-            emitter.Write(symbol.ContainingNamespace.ContainingNamespace.Name);
-            emitter.Write('.');
-            emitter.Write(symbol.ContainingType.Name);
-            emitter.Write('.');
-            emitter.Write(symbol.Name);
-            emitter.Write("'");
+            Write(symbol.ContainingNamespace.ContainingNamespace.Name);
+            Write('.');
+            Write(symbol.ContainingType.Name);
+            Write('.');
+            Write(symbol.Name);
+            Write("'");
             //参数2: 服务方法参数列表
             if (node.ArgumentList.Arguments.Count > 0)
             {
-                emitter.Write(", [");
-                emitter.VisitSeparatedList(node.ArgumentList.Arguments);
-                emitter.Write(']');
+                Write(", [");
+                VisitSeparatedList(node.ArgumentList.Arguments);
+                Write(']');
             }
             else
             {
-                emitter.Write(", null");
+                Write(", null");
             }
 
             //参数3: 传入根据视图模型引用的实体模型所生成的EntityFactory
-            emitter.Write(", EntityFactories");
+            Write(", EntityFactories");
 
-            emitter.Write(')');
+            Write(')');
 
             return true;
         }
 
-        private static bool TryEmitEntityObserve(Emitter emitter, InvocationExpressionSyntax node,
-            IMethodSymbol symbol)
+        private bool TryEmitEntityObserve(InvocationExpressionSyntax node, IMethodSymbol symbol)
         {
             var typeFullName = symbol.ContainingType.ToString();
             if (typeFullName != "AppBoxClient.EntityExtensions" && !typeFullName.StartsWith("AppBoxClient.RxEntity<"))
@@ -246,23 +235,41 @@ namespace PixUI.CS2TS
             if (argLambda.ExpressionBody is not MemberAccessExpressionSyntax memberAccess)
                 throw new Exception("Only support MemberAccess now.");
 
-            var propSymbol = (IPropertySymbol)emitter.SemanticModel.GetSymbolInfo(memberAccess).Symbol!;
-            if (!propSymbol.ContainingType.IsAppBoxEntity(emitter.AppBoxContext!.FindModel))
+            var propSymbol = (IPropertySymbol)SemanticModel.GetSymbolInfo(memberAccess).Symbol!;
+            if (!propSymbol.ContainingType.IsAppBoxEntity(AppBoxContext!.FindModel))
                 throw new Exception("Must be a Entity");
 
             var entityFullName = propSymbol.ContainingType.ToString();
             var memberName = memberAccess.Name.Identifier.Text;
-            var memberId = emitter.AppBoxContext!.FindEntityMemberId(entityFullName, memberName);
+            var memberId = AppBoxContext!.FindEntityMemberId(entityFullName, memberName);
 
-            emitter.Visit(node.Expression);
-            emitter.Write('(');
-            emitter.Write(memberId.ToString());
-            emitter.Write(',');
-            emitter.Write($"e=>e.{memberName},");
-            emitter.Write($"(e,v)=>e.{memberName}=v");
-            emitter.Write(')');
-            emitter.WriteTrailingTrivia(node);
+            Visit(node.Expression);
+            Write('(');
+            Write(memberId.ToString());
+            Write(',');
+            Write($"e=>e.{memberName},");
+            Write($"(e,v)=>e.{memberName}=v");
+            Write(')');
+            WriteTrailingTrivia(node);
 
+            return true;
+        }
+
+        private bool TryEmitExtensionMethod(InvocationExpressionSyntax node, IMethodSymbol symbol)
+        {
+            if (!symbol.IsExtensionMethod || symbol.IsSystemNamespace() /*暂排除系统库*/)
+                return false;
+            
+            WriteTypeSymbol(symbol.ContainingType, true);
+            Write('.');
+            Write(symbol.Name);
+            
+            VisitToken(node.ArgumentList.OpenParenToken);
+            Visit(((MemberAccessExpressionSyntax)node.Expression).Expression);
+            Write(',');
+            VisitSeparatedList(node.ArgumentList.Arguments);
+            VisitToken(node.ArgumentList.CloseParenToken);
+            
             return true;
         }
     }

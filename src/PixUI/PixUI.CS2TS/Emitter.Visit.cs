@@ -154,9 +154,6 @@ namespace PixUI.CS2TS
         public override void VisitInitializerExpression(InitializerExpressionSyntax node) =>
             InitializerExpressionEmitter.Default.Emit(this, node);
 
-        public override void VisitInvocationExpression(InvocationExpressionSyntax node) =>
-            InvocationExpressionEmitter.Default.Emit(this, node);
-
         public override void VisitArgumentList(ArgumentListSyntax node) =>
             VisitSeparatedList(node.Arguments);
 

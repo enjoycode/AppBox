@@ -31,7 +31,7 @@ namespace LiveChartsCore.SkiaSharpView.Drawing;
 /// Defines a skia sharp drawing context.
 /// </summary>
 /// <seealso cref="DrawingContext" />
-public class SkiaSharpDrawingContext : DrawingContext
+public sealed class SkiaSharpDrawingContext : DrawingContext
 {
     private readonly bool _clearOnBegingDraw;
 
