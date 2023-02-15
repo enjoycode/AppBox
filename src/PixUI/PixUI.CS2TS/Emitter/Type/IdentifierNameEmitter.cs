@@ -29,7 +29,7 @@ namespace PixUI.CS2TS
 
             var name = node.Identifier.Text;
             if (symbol is not ILocalSymbol && symbol is not IParameterSymbol)
-                TryRename(symbol, ref name);
+                TryRenameSymbol(symbol, ref name);
             Write(name);
 
             //转换委托的this绑定

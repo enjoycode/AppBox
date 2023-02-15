@@ -92,7 +92,7 @@ namespace PixUI.CS2TS
             // interface method
             VisitToken(node.SemicolonToken);
         }
-        
+
         /// <summary>
         /// 暂忽略一些特殊方法的转换
         /// </summary>
@@ -129,12 +129,7 @@ namespace PixUI.CS2TS
                 return;
             }
 
-            var attribute = SyntaxExtensions.TryGetAttribute(node.AttributeLists, Emitter.IsTSRenameAttribute);
-            if (attribute == null) return;
-
-            var nameLiteral = (LiteralExpressionSyntax)attribute.ArgumentList!.Arguments[0].Expression;
-            name = nameLiteral.Token.ValueText;
+            TryRenameDeclaration(node.AttributeLists, ref name);
         }
     }
-    
 }

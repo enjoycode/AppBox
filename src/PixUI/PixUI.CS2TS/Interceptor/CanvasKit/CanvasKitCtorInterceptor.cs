@@ -33,7 +33,7 @@ namespace PixUI.CS2TS
 
                         //Do not Visit assignment.Left
                         var memberName = assignment.Left.ToString();
-                        emitter.TryRename(
+                        emitter.TryRenameSymbol(
                             emitter.SemanticModel.GetSymbolInfo(assignment.Left).Symbol!,
                             ref memberName);
                         emitter.Write(memberName);

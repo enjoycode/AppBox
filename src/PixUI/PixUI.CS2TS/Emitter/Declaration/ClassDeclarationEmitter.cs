@@ -21,19 +21,15 @@ namespace PixUI.CS2TS
             if (node.HasAbstractModifier())
                 Write("abstract ");
 
-            // class name, 注意范型类型加入范型参数个数
+            // class name
             VisitToken(node.Keyword);
-            if (node.TypeParameterList != null && node.TypeParameterList.Parameters.Count > 0)
-            {
-                VisitLeadingTrivia(node.Identifier);
-                Write(node.Identifier.Text);
-                Write(node.TypeParameterList.Parameters.Count.ToString());
-                VisitTrailingTrivia(node.Identifier);
-            }
-            else
-            {
-                VisitToken(node.Identifier);
-            }
+            var name = node.Identifier.Text;
+            TryRenameDeclaration(node.AttributeLists, ref name);
+            //TODO: 添加检查类型名称 Translator.AddType();
+            
+            VisitLeadingTrivia(node.Identifier);
+            Write(name);
+            VisitTrailingTrivia(node.Identifier);
 
             // try write generic type parameters
             WriteTypeParameters(node.TypeParameterList, node.ConstraintClauses);

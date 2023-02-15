@@ -293,6 +293,8 @@ namespace PixUI.CS2TS
 
         internal void WriteTypeSymbol(ITypeSymbol typeSymbol, bool withNamespace)
         {
+            //TODO: System type first, eg: string
+            
             if (withNamespace)
             {
                 var rootNamespace = typeSymbol.GetRootNamespace();
@@ -305,7 +307,24 @@ namespace PixUI.CS2TS
                 }
             }
 
-            Write(typeSymbol.Name);
+            var name = typeSymbol.Name;
+            TryRenameSymbol(typeSymbol, ref name);
+            Write(name);
+
+            //TODO: GenericType
+            // if (!ToJavaScript && typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
+            // {
+            //     Write('<');
+            //     var first = true;
+            //     foreach (var typeArgument in namedType.TypeArguments)
+            //     {
+            //         if (first) first = false;
+            //         else Write(',');
+            //         
+            //         WriteTypeSymbol(typeArgument, true);
+            //     }
+            //     Write('>');
+            // }
         }
 
         internal void TryWriteThisOrStaticMemberType(NameSyntax node, ISymbol symbol)

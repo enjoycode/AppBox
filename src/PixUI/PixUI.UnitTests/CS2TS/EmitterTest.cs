@@ -57,7 +57,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task StructTest() => await Run("TestStruct.cs");
 
         [Test]
-        public async Task GenericTypeTest() => await Run("TestGenericTypeOverloads.cs", true);
+        public async Task OverloadsTest() => await Run("TestOverloads.cs", true);
 
         [Test]
         public async Task MemberAccessTest() => await Run("TestMemberAccess.cs");

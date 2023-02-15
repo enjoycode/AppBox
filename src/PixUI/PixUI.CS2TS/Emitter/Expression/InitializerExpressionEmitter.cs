@@ -45,7 +45,7 @@ namespace PixUI.CS2TS
                 {
                     //Do not Visit assignment.Left
                     var memberName = assignment.Left.ToString();
-                    TryRename(ModelExtensions.GetSymbolInfo(SemanticModel, assignment.Left).Symbol!, ref memberName);
+                    TryRenameSymbol(ModelExtensions.GetSymbolInfo(SemanticModel, assignment.Left).Symbol!, ref memberName);
                     Write(memberName);
                     Write(": ");
 

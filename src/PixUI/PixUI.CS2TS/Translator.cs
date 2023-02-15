@@ -16,6 +16,7 @@ namespace PixUI.CS2TS
     {
         private readonly Workspace _workspace;
         private readonly ProjectId _projectId;
+        private readonly HashSet<string> _allTypes = new(); //所有类型的名称，用于判断重复
 
         internal readonly bool IsPixUIProject;
 
@@ -119,25 +120,6 @@ namespace PixUI.CS2TS
             return ((AdhocWorkspace)_workspace).AddDocument(docInfo);
         }
 
-        // private static void WriteGenericType(StringBuilder output, string type, int index)
-        // {
-        //     output.Append(type);
-        //     output.Append(index);
-        //     if (index == 0) return;
-        //
-        //     output.Append('<');
-        //
-        //     for (var i = 0; i < index; i++)
-        //     {
-        //         if (i != 0) output.Append(", ");
-        //
-        //         output.Append('T');
-        //         output.Append(i + 1);
-        //     }
-        //
-        //     output.Append('>');
-        // }
-
         internal int DumpErrors()
         {
             var project = _workspace.CurrentSolution.Projects.First();
@@ -151,6 +133,13 @@ namespace PixUI.CS2TS
 
             return errors.Count(err => err.Severity == DiagnosticSeverity.Error);
         }
-        
+
+        /// <summary>
+        /// 加入处理过的类型，如果包名不一致或名称已存在则抛异常
+        /// </summary>
+        internal void AddType(string rootNamespace, string typeName)
+        {
+            //TODO:判断包名是否一致，判断类型名称是否存在
+        }
     }
 }

@@ -1,12 +1,16 @@
+using PixUI;
+
 public class Function
 {
-    class InnerClass { }
-    void SayHello() {}
-    void SayHello(string name) {}
+    public void SayHello() {}
+    [TSRename("SayHelloByName")]
+    public void SayHello(string name) {}
 }
 
+[TSRename("Function1")]
 public class Function<T1> {}
 
+[TSRename("Function2")]
 public class Function<T1, T2> {}
 
 public class TestClass
@@ -14,14 +18,18 @@ public class TestClass
 
     public void Test()
     {
+        var func = new Function();
         Function<string> func1 = new();
         var func2 = new Function<string, int>();
+
+        func.SayHello();
+        func.SayHello("Rick");
     }
     
 }
 
-//以下不注释报错
-namespace Demo
-{
-    public class Function { }
-}
+//以下不注释报错，类型名称重复
+// namespace Demo
+// {
+//     public class Function { }
+// }

@@ -33,6 +33,7 @@ namespace PixUI.CS2TS
 
         private static bool IsAttribute(AttributeSyntax attribute, string shortName)
         {
+            //TODO:优化
             var name = attribute.Name.ToString();
             if (name == shortName) return true;
 
@@ -102,11 +103,11 @@ namespace PixUI.CS2TS
         }
 
         /// <summary>
-        /// 重命名
+        /// 尝试重命名Symbol
         /// 1.TSRenameAttribute的成员
         /// 2.ToString()
         /// </summary>
-        internal void TryRename(ISymbol symbol, ref string name)
+        internal void TryRenameSymbol(ISymbol symbol, ref string name)
         {
             if (symbol is not IPropertySymbol && symbol is not IFieldSymbol && symbol is not IMethodSymbol &&
                 symbol is not INamedTypeSymbol)
@@ -124,6 +125,18 @@ namespace PixUI.CS2TS
             if (renameAttribute == null) return;
 
             name = renameAttribute.ConstructorArguments[0].Value!.ToString();
+        }
+
+        /// <summary>
+        /// 尝试重命名具备TSRenameAttribute的类型定义
+        /// </summary>
+        internal static void TryRenameDeclaration(SyntaxList<AttributeListSyntax> attributes, ref string name)
+        {
+            var attribute = SyntaxExtensions.TryGetAttribute(attributes, IsTSRenameAttribute);
+            if (attribute == null) return;
+
+            var nameLiteral = (LiteralExpressionSyntax)attribute.ArgumentList!.Arguments[0].Expression;
+            name = nameLiteral.Token.ValueText;
         }
     }
 }

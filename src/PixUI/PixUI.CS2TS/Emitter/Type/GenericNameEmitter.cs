@@ -22,7 +22,7 @@ namespace PixUI.CS2TS
 
             var name = node.Identifier.Text;
             if (symbol != null && symbol is not ILocalSymbol && symbol is not IParameterSymbol)
-                TryRename(symbol, ref name);
+                TryRenameSymbol(symbol, ref name);
             Write(name);
 
             //暂在这里重命名重载的系统类型 eg: Action<T1,T2>
