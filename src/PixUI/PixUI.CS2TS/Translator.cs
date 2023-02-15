@@ -151,20 +151,6 @@ namespace PixUI.CS2TS
 
             return errors.Count(err => err.Severity == DiagnosticSeverity.Error);
         }
-
-        /// <summary>
-        /// 需要导出的范型类型重载
-        /// </summary>
-        private sealed class GenericTypeOverloads //TODO: remove， 干脆不支持
-        {
-            public readonly string TypeName;
-
-            public readonly List<TypeDeclarationSyntax> Declarations = new();
-
-            public GenericTypeOverloads(string typeName)
-            {
-                TypeName = typeName;
-            }
-        }
+        
     }
 }

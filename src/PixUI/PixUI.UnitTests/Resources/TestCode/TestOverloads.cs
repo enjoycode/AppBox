@@ -1,4 +1,9 @@
-public class Function {}
+public class Function
+{
+    class InnerClass { }
+    void SayHello() {}
+    void SayHello(string name) {}
+}
 
 public class Function<T1> {}
 
@@ -13,4 +18,10 @@ public class TestClass
         var func2 = new Function<string, int>();
     }
     
+}
+
+//以下不注释报错
+namespace Demo
+{
+    public class Function { }
 }
