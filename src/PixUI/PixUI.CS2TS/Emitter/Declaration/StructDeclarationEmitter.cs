@@ -9,6 +9,9 @@ namespace PixUI.CS2TS
         {
             if (node.IsTSType(out _))
                 return;
+            
+            //检查成员重载
+            CheckTypeMemberOverloads(node);
 
             var export = node.NeedExport(out var isPublic);
             if (isPublic)
@@ -18,7 +21,13 @@ namespace PixUI.CS2TS
 
             // struct name
             Write("class "); //转换为class
-            VisitToken(node.Identifier);
+            var name = node.Identifier.Text;
+            TryRenameDeclaration(node.AttributeLists, ref name);
+            //TODO: 添加检查类型名称 Translator.AddType();
+            
+            VisitLeadingTrivia(node.Identifier);
+            Write(name);
+            VisitTrailingTrivia(node.Identifier);
 
             // generic type parameters
             WriteTypeParameters(node.TypeParameterList, node.ConstraintClauses);

@@ -34,8 +34,7 @@ namespace PixUI.CS2TS
             return predefined.Keyword.Kind() == SyntaxKind.VoidKeyword;
         }
 
-        internal static BaseTypeSyntax? GetBaseType(this ClassDeclarationSyntax node,
-            SemanticModel semanticModel)
+        internal static BaseTypeSyntax? GetBaseType(this ClassDeclarationSyntax node, SemanticModel semanticModel)
         {
             return node.BaseList?.Types
                 .FirstOrDefault(t => t.IsClassType(semanticModel));

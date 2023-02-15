@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -87,7 +88,7 @@ namespace PixUI.CS2TS
 
         #endregion
 
-        internal bool TryGetInterceptor(ISymbol? symbol, out ITSInterceptor? interceptor)
+        private bool TryGetInterceptor(ISymbol? symbol, out ITSInterceptor? interceptor)
         {
             interceptor = null;
             if (symbol == null || symbol.IsSystemNamespace()) return false;
@@ -130,13 +131,43 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 尝试重命名具备TSRenameAttribute的类型定义
         /// </summary>
-        internal static void TryRenameDeclaration(SyntaxList<AttributeListSyntax> attributes, ref string name)
+        private static bool TryRenameDeclaration(SyntaxList<AttributeListSyntax> attributes, ref string name)
         {
             var attribute = SyntaxExtensions.TryGetAttribute(attributes, IsTSRenameAttribute);
-            if (attribute == null) return;
+            if (attribute == null) return false;
 
             var nameLiteral = (LiteralExpressionSyntax)attribute.ArgumentList!.Arguments[0].Expression;
             name = nameLiteral.Token.ValueText;
+            return true;
+        }
+
+        /// <summary>
+        /// 检查类或结构体的成员重载，如果存在且未标记为TSRenameAttribute则抛出异常
+        /// </summary>
+        private static void CheckTypeMemberOverloads(TypeDeclarationSyntax typeDeclaration)
+        {
+            var ctors = typeDeclaration.Members.OfType<ConstructorDeclarationSyntax>().Count();
+            if (ctors > 1)
+                throw new Exception($"类型[{typeDeclaration.Identifier}]具备构造重载,请重写为工厂方法");
+            // if (ctors.Length > 1)
+            // {
+            //     var renamedCount = ctors.Count(c =>
+            //         SyntaxExtensions.TryGetAttribute(c.AttributeLists, IsTSRenameAttribute) != null);
+            //     if (renamedCount < ctors.Length - 1)
+            //         throw new Exception($"类型[{typeDeclaration.Identifier}]具备构造重载,请用TSRenameAttribute改为工厂方法");
+            // }
+
+            var methods = typeDeclaration.Members.OfType<MethodDeclarationSyntax>()
+                .GroupBy(m => m.Identifier.Text)
+                .Where(g => g.Count() > 1);
+            foreach (var group in methods)
+            {
+                var renamedCount = group.Count(m =>
+                    SyntaxExtensions.TryGetAttribute(m.AttributeLists, IsTSRenameAttribute) != null);
+                if (renamedCount < group.Count() - 1)
+                    throw new Exception(
+                        $"方法[{typeDeclaration.Identifier}.{group.Key}]具备构造重载,请用TSRenameAttribute改变名称");
+            }
         }
     }
 }

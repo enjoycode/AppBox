@@ -2,6 +2,11 @@ using PixUI;
 
 public class Function
 {
+    // private string? _name;
+    // public Function() {}
+    // [TSRename("MakeByName")]
+    // public Function(string name) { _name = name; }
+    
     public void SayHello() {}
     [TSRename("SayHelloByName")]
     public void SayHello(string name) {}

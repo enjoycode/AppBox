@@ -232,8 +232,7 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 尝试写入非空值类型所对应的默认值
         /// </summary>
-        internal void TryWriteDefaultValueForValueType(TypeSyntax typeSyntax, SyntaxNode from,
-            bool withAsign = true)
+        internal void TryWriteDefaultValueForValueType(TypeSyntax typeSyntax, SyntaxNode from, bool withAsign = true)
         {
             if (typeSyntax is NullableTypeSyntax) return;
 
@@ -294,7 +293,7 @@ namespace PixUI.CS2TS
         internal void WriteTypeSymbol(ITypeSymbol typeSymbol, bool withNamespace)
         {
             //TODO: System type first, eg: string
-            
+
             if (withNamespace)
             {
                 var rootNamespace = typeSymbol.GetRootNamespace();
@@ -404,7 +403,7 @@ namespace PixUI.CS2TS
         internal void TryWriteInterfaceOfMeta(TypeDeclarationSyntax node)
         {
             if (node.BaseList == null) return;
-            
+
             //TODO:一些系统接口同样写入类型信息
             foreach (var baseType in node.BaseList.Types)
             {

@@ -52,6 +52,9 @@ namespace PixUI.CS2TS
         // 转为参数时是否将charCode的数值转为js的字符串(因为char会统一转换为number)
         internal bool CharCodeToString = false;
 
+        // // 用于将构造转换为工厂方法时替换this为指定名称
+        // private string? ReplaceThisTo = null;
+
         //公开导出的类型
         private readonly List<BaseTypeDeclarationSyntax> _publicTypes = new();
 

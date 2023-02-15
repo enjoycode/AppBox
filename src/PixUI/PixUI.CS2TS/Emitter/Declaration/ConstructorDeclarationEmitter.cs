@@ -8,14 +8,15 @@ namespace PixUI.CS2TS
     {
         public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
-            //先检查是否有overloads
-            var typeDeclaration = (TypeDeclarationSyntax)node.Parent!;
-            if (typeDeclaration.Members.OfType<ConstructorDeclarationSyntax>().Count() > 1)
-                throw new EmitException("Constructor overloads not supported.", node.Span);
-
             WriteLeadingTrivia(node);
             WriteModifiers(node.Modifiers);
+            // 暂不支持: 判断是否通过TSRenameAttribute标记为工厂方法
+            // var name = node.Identifier.Text;
+            // var toFactory = TryRenameDeclaration(node.AttributeLists, ref name);
+            // Write(toFactory ? $"static {name}" : "constructor");
             Write("constructor");
+
+            // parameters
             VisitToken(node.ParameterList.OpenParenToken);
             VisitSeparatedList(node.ParameterList.Parameters);
             VisitToken(node.ParameterList.CloseParenToken);
@@ -29,9 +30,12 @@ namespace PixUI.CS2TS
             VisitToken(node.Body!.OpenBraceToken);
             EnterBlock(node.Body);
 
+            // try super call for class
+            var typeDeclaration = (TypeDeclarationSyntax)node.Parent!;
             if (typeDeclaration is ClassDeclarationSyntax classDeclaration)
                 EmitSuperCall(classDeclaration, node);
 
+            // body
             foreach (var statement in node.Body!.Statements)
             {
                 Visit(statement);

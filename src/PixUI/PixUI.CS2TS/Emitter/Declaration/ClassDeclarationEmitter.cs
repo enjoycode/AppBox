@@ -8,6 +8,9 @@ namespace PixUI.CS2TS
         {
             if (node.IsTSType(out _))
                 return;
+            
+            //检查成员重载
+            CheckTypeMemberOverloads(node);
 
             WriteLeadingTrivia(node);
 
