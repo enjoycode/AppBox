@@ -12,6 +12,7 @@ namespace PixUI.CS2TS
             //特殊处理 obj is string
             if (opKind == SyntaxKind.IsKeyword)
             {
+                //TODO: 转换 obj is null 为 obj == null
                 NeedGenericTypeArguments = false;
                 WriteIsExpression(node.Left, node.Right);
                 NeedGenericTypeArguments = true;

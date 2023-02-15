@@ -25,6 +25,7 @@ namespace PixUI.CS2TS
                 if (TryInterceptorSystem(node, symbol))
                     return;
                 TryWritePackageName(node, symbol);
+                TryWriteParentTypeOfInnerClass(node, symbol);
             }
 
             var name = node.Identifier.Text;

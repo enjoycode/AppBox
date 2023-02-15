@@ -13,26 +13,38 @@ namespace PixUI.CS2TS
             CheckTypeMemberOverloads(node);
 
             WriteLeadingTrivia(node);
-
-            var export = node.NeedExport(out var isPublic);
-            if (isPublic)
-                AddPublicType(node);
-            if (export)
-                Write("export ");
-
+            
+            //检查是否嵌套类
+            var isInnerClass = node.Parent is ClassDeclarationSyntax;
+            if (!isInnerClass)
+            {
+                var export = node.NeedExport(out var isPublic);
+                if (isPublic)
+                    AddPublicType(node);
+                if (export)
+                    Write("export ");
+            }
+            
             // abstract
             if (node.HasAbstractModifier())
                 Write("abstract ");
 
             // class name
-            VisitToken(node.Keyword);
             var name = node.Identifier.Text;
             TryRenameDeclaration(node.AttributeLists, ref name);
             //TODO: 添加检查类型名称 Translator.AddType();
-            
-            VisitLeadingTrivia(node.Identifier);
-            Write(name);
-            VisitTrailingTrivia(node.Identifier);
+            if (isInnerClass)
+            {
+                WriteModifiers(node.Modifiers);
+                Write($"static {name} = class");
+            }
+            else
+            {
+                VisitToken(node.Keyword);
+                VisitLeadingTrivia(node.Identifier);
+                Write(name);
+                VisitTrailingTrivia(node.Identifier);
+            }
 
             // try write generic type parameters
             WriteTypeParameters(node.TypeParameterList, node.ConstraintClauses);

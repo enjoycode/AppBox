@@ -18,6 +18,7 @@ namespace PixUI.CS2TS
             else if (symbol is INamedTypeSymbol)
             {
                 TryWritePackageName(node, symbol);
+                TryWriteParentTypeOfInnerClass(node, symbol);
             }
 
             var name = node.Identifier.Text;
@@ -25,7 +26,7 @@ namespace PixUI.CS2TS
                 TryRenameSymbol(symbol, ref name);
             Write(name);
 
-            //暂在这里重命名重载的系统类型 eg: Action<T1,T2>
+            //暂在这里重命名重载的系统类型 eg: System.Action<T1,T2>
             if (symbol is { Name: "Action" or "Func" } && symbol.GetRootNamespace()?.Name == "System")
                 Write(node.TypeArgumentList.Arguments.Count.ToString());
 

@@ -265,7 +265,7 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 写入类型的包名称，如果是AppBox的模型则写入应用名称作为前缀
         /// </summary>
-        internal void TryWritePackageName(NameSyntax node, ISymbol symbol)
+        private void TryWritePackageName(NameSyntax node, ISymbol symbol)
         {
             //先判断是否模型类，是则特殊处理
             if (AppBoxContext != null &&
@@ -288,6 +288,24 @@ namespace PixUI.CS2TS
             AddUsedModule(root.Name);
             Write(root.Name);
             Write('.');
+        }
+
+        /// <summary>
+        /// 尝试写嵌套类的上级类的名称, eg: new InnerClass() 转换为 new OuterClass.InnerClass()
+        /// </summary>
+        private void TryWriteParentTypeOfInnerClass(NameSyntax node, ISymbol symbol)
+        {
+            if (symbol.ContainingType is { TypeKind: TypeKind.Class } parent)
+            {
+                if (node.Parent is not QualifiedNameSyntax /*eg: new InnerClass()*/
+                    ||
+                    node.Parent is QualifiedNameSyntax qualified && qualified.Left == node
+                   )
+                {
+                    WriteTypeSymbol(parent, false);
+                    Write('.');
+                }
+            }
         }
 
         internal void WriteTypeSymbol(ITypeSymbol typeSymbol, bool withNamespace)
@@ -451,6 +469,8 @@ namespace PixUI.CS2TS
             //TODO: short path for predefined type
             var typeInfo = SemanticModel.GetTypeInfo(type);
             if (typeInfo.Type == null) throw new Exception();
+            if (typeInfo.Type is INamedTypeSymbol namedType && namedType.IsGenericType)
+                throw new Exception("不支持 obj is GenericType<XXX>");
 
             void VisitName()
             {
@@ -478,7 +498,7 @@ namespace PixUI.CS2TS
                     break;
                 }
                 case TypeKind.Interface:
-                    //TODO:检查指定Interface是否支持，不支持报销并提示需要[TSInterfaceChecker]
+                    //TODO:检查指定Interface是否支持，不支持报错并提示需要[TSInterfaceChecker]
                     var rootNamespace = typeInfo.Type.GetRootNamespace();
                     if (rootNamespace != null)
                     {
