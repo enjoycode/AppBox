@@ -41,10 +41,7 @@ namespace PixUI.CS2TS
         internal readonly AppBoxContext? AppBoxContext;
 
         // 使用到的模块，用于生成文件头import
-        private readonly HashSet<string> _usedModules = new HashSet<string>();
-
-        // // 是否需要输出范型的类型，因为ts不支持如GenericType<T>.SomeStaticMethod()
-        // internal bool NeedGenericTypeArguments = true;
+        private readonly HashSet<string> _usedModules = new();
 
         // 是否忽略委托绑定，事件+= or -=时设为true
         internal bool IgnoreDelegateBind = false;

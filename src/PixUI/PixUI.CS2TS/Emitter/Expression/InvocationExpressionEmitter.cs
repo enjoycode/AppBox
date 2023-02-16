@@ -59,11 +59,9 @@ namespace PixUI.CS2TS
             if (TryEmitExtensionMethod(node, methodSymbol))
                 return;
 
-            //NeedGenericTypeArguments = false;
             IgnoreDelegateBind = true;
             Visit(node.Expression);
             IgnoreDelegateBind = false;
-            //NeedGenericTypeArguments = true;
             VisitToken(node.ArgumentList.OpenParenToken);
             VisitSeparatedList(node.ArgumentList.Arguments);
             VisitToken(node.ArgumentList.CloseParenToken);

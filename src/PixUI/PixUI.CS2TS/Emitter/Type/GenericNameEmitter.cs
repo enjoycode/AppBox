@@ -49,10 +49,7 @@ namespace PixUI.CS2TS
             if (needGenericTypes)
             {
                 VisitToken(node.TypeArgumentList.LessThanToken);
-                // var preNeedGenericTypes = NeedGenericTypeArguments;
-                // NeedGenericTypeArguments = true; //嵌套
                 VisitSeparatedList(node.TypeArgumentList.Arguments);
-                // NeedGenericTypeArguments = preNeedGenericTypes;
                 VisitToken(node.TypeArgumentList.GreaterThanToken);
             }
         }

@@ -12,9 +12,7 @@ namespace PixUI.CS2TS
             //特殊处理 obj is string
             if (opKind == SyntaxKind.IsKeyword)
             {
-                //NeedGenericTypeArguments = false;
                 WriteIsExpression(node.Left, node.Right);
-                //NeedGenericTypeArguments = true;
                 return;
             }
 
