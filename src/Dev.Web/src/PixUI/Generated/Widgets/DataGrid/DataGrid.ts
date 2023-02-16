@@ -186,7 +186,8 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
     private GetHeaderCellRect(column: PixUI.DataGridColumn<T>): PixUI.Rect {
         let rowIndex = column.HeaderRowIndex;
         let cellTop = rowIndex * this._controller.HeaderRowHeight;
-        let cellHeight = column instanceof PixUI.DataGridGroupColumn ? this._controller.HeaderRowHeight
+        let cellHeight = column instanceof PixUI.DataGridGroupColumn<T>
+            ? this._controller.HeaderRowHeight
             : (this._controller.HeaderRows - rowIndex) * this._controller.HeaderRowHeight;
         return PixUI.Rect.FromLTWH(column.CachedLeft, cellTop, column.LayoutWidth, cellHeight);
     }

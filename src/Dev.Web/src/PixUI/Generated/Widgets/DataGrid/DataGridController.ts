@@ -486,7 +486,7 @@ export class DataGridController<T> {
         if (parentFrozen != null)
             column.Frozen = parentFrozen;
 
-        if (column instanceof PixUI.DataGridGroupColumn) {
+        if (column instanceof PixUI.DataGridGroupColumn<T>) {
             const groupColumn = column;
             this.HeaderRows += 1;
             for (const child of groupColumn.Children) {

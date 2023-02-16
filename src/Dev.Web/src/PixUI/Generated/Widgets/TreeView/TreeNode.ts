@@ -68,7 +68,7 @@ export class TreeNode<T> extends PixUI.Widget {
         let temp: PixUI.Widget = this;
         let depth = 0;
         while (true) {
-            if (temp.Parent instanceof PixUI.TreeView)
+            if (temp.Parent instanceof PixUI.TreeView<T>)
                 break;
             depth++;
             temp = temp.Parent!;
@@ -79,7 +79,7 @@ export class TreeNode<T> extends PixUI.Widget {
 
     public get ParentNode(): Nullable<TreeNode<T>> {
         if (this.Parent == null) return null;
-        if (this.Parent instanceof PixUI.TreeView) return null;
+        if (this.Parent instanceof PixUI.TreeView<T>) return null;
         return <TreeNode<T>><unknown>this.Parent;
     }
 
