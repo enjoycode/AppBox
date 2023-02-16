@@ -469,7 +469,7 @@ namespace PixUI.CS2TS
         internal void WriteIsExpression(object name, ExpressionSyntax type)
         {
             //TODO: short path for predefined type
-            //TODO: 转换 obj is null 为 obj == null
+            //obj is null 或 obj is not null 由IsPatternExpressionEmitter预先处理掉
             var typeInfo = SemanticModel.GetTypeInfo(type);
             if (typeInfo.Type == null) throw new Exception();
             if (typeInfo.Type is INamedTypeSymbol namedType && namedType.IsGenericType)
