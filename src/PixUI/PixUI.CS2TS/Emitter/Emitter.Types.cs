@@ -158,6 +158,7 @@ namespace PixUI.CS2TS
             // }
 
             var methods = typeDeclaration.Members.OfType<MethodDeclarationSyntax>()
+                .Where(m => m.Identifier.Text != "Equals") //暂排除
                 .GroupBy(m => m.Identifier.Text)
                 .Where(g => g.Count() > 1);
             foreach (var group in methods)

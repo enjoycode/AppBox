@@ -102,7 +102,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task InterceptorTest() => await Run("TestInterceptor.cs", true);
 
         [Test]
-        public async Task PatternTest() => await Run("TestPattern.cs");
+        public async Task PatternTest() => await Run("TestPattern.cs", true);
 
         [Test]
         public async Task SwitchExpressionTest() => await Run("TestSwitchExpression.cs");
@@ -142,5 +142,8 @@ namespace PixUI.UnitTests.CS2TS
 
         [Test]
         public async Task InnerClassTest() => await Run("TestInnerClass.cs", true);
+        
+        [Test]
+        public async Task IsGenericTypeTest() => await Run("TestIsGenericType.cs", true);
     }
 }

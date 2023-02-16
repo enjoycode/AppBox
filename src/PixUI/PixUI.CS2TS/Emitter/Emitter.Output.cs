@@ -473,7 +473,11 @@ namespace PixUI.CS2TS
             var typeInfo = SemanticModel.GetTypeInfo(type);
             if (typeInfo.Type == null) throw new Exception();
             if (typeInfo.Type is INamedTypeSymbol namedType && namedType.IsGenericType)
-                throw new Exception("不支持 obj is GenericType<XXX>");
+            {
+                //只支持非指定类型的范型参数, eg: obj is GenericType<T>可以但obj is GenericType<string>不支持
+                if (namedType.TypeArguments.Any(t => t is not ITypeParameterSymbol))
+                    throw new Exception("不支持 obj is GenericType<XXX>");
+            }
 
             void VisitName()
             {
@@ -501,7 +505,7 @@ namespace PixUI.CS2TS
                     break;
                 }
                 case TypeKind.Interface:
-                    //TODO:检查指定Interface是否支持，不支持报错并提示需要[TSInterfaceChecker]
+                    //TODO:检查指定Interface是否支持，不支持报错并提示需要[TSInterfaceOfAttribute]
                     var rootNamespace = typeInfo.Type.GetRootNamespace();
                     if (rootNamespace != null)
                     {

@@ -10,7 +10,7 @@ class Cat
     public void Meow() {}
 }
 
-class Test
+class Test<T>
 {
     void IfPattern()
     {
@@ -39,6 +39,8 @@ class Test
             }
             case Cat cat:
                 cat.Meow();
+                break;
+            case Test<T> test:
                 break;
             // case 1:
             // case 2:

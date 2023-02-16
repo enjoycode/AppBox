@@ -40,10 +40,7 @@ namespace PixUI
 
         public bool Equals(Offset other) => Dx == other.Dx && Dy == other.Dy;
 
-        public override bool Equals(object? obj)
-        {
-            return obj is Offset other && Equals(other);
-        }
+        public override bool Equals(object? obj) => obj is Offset other && Equals(other);
 
         public static bool operator ==(Offset left, Offset right) => left.Equals(right);
 

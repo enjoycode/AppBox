@@ -90,6 +90,8 @@
       <None Include="Resources\TestCode\TestExtension.cs" />
       <Compile Remove="Resources\TestCode\TestInnerClass.cs" />
       <None Include="Resources\TestCode\TestInnerClass.cs" />
+      <Compile Remove="Resources\TestCode\TestIsGenericType.cs" />
+      <None Include="Resources\TestCode\TestIsGenericType.cs" />
     </ItemGroup>
 
     <ItemGroup>
