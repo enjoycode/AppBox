@@ -123,7 +123,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task MethodArgsTest() => await Run("TestMethodArgs.cs");
 
         [Test]
-        public async Task EventTest() => await Run("TestEvent.cs");
+        public async Task EventTest() => await Run("TestEvent.cs", true);
 
         [Test]
         public async Task DelegateTest() => await Run("TestDelegate.cs", true);

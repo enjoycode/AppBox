@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics.Tracing;
 
+delegate void NameChangedHandler(object? sender, string name);
+
 abstract class AbstractEventSource
 {
     public abstract event Action? Changed;

@@ -30,6 +30,9 @@ namespace PixUI.CS2TS
                 case SyntaxKind.ObjectKeyword:
                     Write("any");
                     break;
+                case SyntaxKind.VoidKeyword:
+                    Write("void");
+                    break;
                 default:
                     Write("any");
                     break;
