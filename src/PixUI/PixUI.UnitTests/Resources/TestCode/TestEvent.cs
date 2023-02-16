@@ -11,18 +11,18 @@ abstract class AbstractEventSource
 class EventSource
 {
     public event Action<bool>? ValueChanged;
-    public event Action<string> NameChanged;
+    public event NameChangedHandler NameChanged;
 
     public EventSource()
     {
         ValueChanged += OnValueChangedSelf;
-        NameChanged += s => Console.WriteLine(s);
+        NameChanged += (s,e) => Console.WriteLine(e);
     }
 
     public void RaiseValueChanged(bool value)
     {
         ValueChanged?.Invoke(value);
-        NameChanged("NewName");
+        NameChanged(this, "NewName");
     }
     
     private void OnValueChangedSelf(bool value) {}

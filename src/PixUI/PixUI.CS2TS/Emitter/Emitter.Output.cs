@@ -310,7 +310,15 @@ namespace PixUI.CS2TS
 
         internal void WriteTypeSymbol(ITypeSymbol typeSymbol, bool withNamespace)
         {
-            //TODO: System type first, eg: string
+            if (typeSymbol is ITypeParameterSymbol typeParameter)
+            {
+                Write(typeParameter.Name);
+                return;
+            }
+            
+            //System type first, eg: string
+            if (TryWritePredefinedTypeSymbol(typeSymbol))
+                return;
 
             if (withNamespace)
             {
@@ -342,6 +350,33 @@ namespace PixUI.CS2TS
             //     }
             //     Write('>');
             // }
+        }
+
+        private bool TryWritePredefinedTypeSymbol(ITypeSymbol typeSymbol)
+        {
+            var typeName = typeSymbol.SpecialType switch
+            {
+                SpecialType.System_Boolean => "boolean",
+                SpecialType.System_Byte => "number",
+                SpecialType.System_Char => "number",
+                SpecialType.System_Single => "number",
+                SpecialType.System_Double => "number",
+                SpecialType.System_Int16 => "number",
+                SpecialType.System_Int32 => "number",
+                SpecialType.System_Int64 => "bigint",
+                SpecialType.System_UInt16 => "number",
+                SpecialType.System_UInt32 => "number",
+                SpecialType.System_UInt64 => "bigint",
+                SpecialType.System_String => "string",
+                SpecialType.System_Object => "any",
+                _ => null
+            };
+            if (typeName == null) return false;
+
+            if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && typeName != "any")
+                typeName = $"Nullable<{typeName}>";
+            Write(typeName);
+            return true;
         }
 
         internal void TryWriteThisOrStaticMemberType(NameSyntax node, ISymbol symbol)

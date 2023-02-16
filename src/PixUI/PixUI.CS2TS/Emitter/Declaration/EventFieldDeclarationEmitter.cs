@@ -25,13 +25,10 @@ namespace PixUI.CS2TS
             if (type is NullableTypeSyntax nullableTypeSyntax)
                 type = nullableTypeSyntax.ElementType;
 
-            var typeSymbol = SemanticModel.GetSymbolInfo(type).Symbol;
-            // check is System.Action type 并且最多只能有一个事件参数
-            var isActionType = type is GenericNameSyntax
-                ? SymbolEqualityComparer.Default.Equals(TypeOfAction1, typeSymbol?.OriginalDefinition)
-                : SymbolEqualityComparer.Default.Equals(TypeOfAction, typeSymbol);
-            if (!isActionType)
-                throw new Exception("暂只支持最多一个事件参数");
+            var typeSymbol = (INamedTypeSymbol) SemanticModel.GetSymbolInfo(type).Symbol!;
+            var delegateMethod = typeSymbol.DelegateInvokeMethod!;
+            if (delegateMethod.Parameters.Length > 2)
+                throw new Exception("暂只支持最多两个事件参数");
 
             var eventName = node.Declaration.Variables[0].Identifier.Text;
             if (isAbstract)
@@ -39,7 +36,7 @@ namespace PixUI.CS2TS
                 Write("get ");
                 Write(eventName);
                 Write("(): ");
-                WriteEventType(type);
+                WriteEventType(delegateMethod);
                 Write(';');
             }
             else
@@ -47,22 +44,25 @@ namespace PixUI.CS2TS
                 Write("readonly ");
                 Write(eventName);
                 Write(" = new ");
-                WriteEventType(type);
+                WriteEventType(delegateMethod);
                 Write("();");
             }
 
             WriteTrailingTrivia(node);
         }
 
-        private void WriteEventType(TypeSyntax eventType)
+        private void WriteEventType(IMethodSymbol delegateMethod)
         {
             Write("System.Event");
-            if (eventType is GenericNameSyntax genericNameSyntax)
+            if (delegateMethod.Parameters.Length == 0) return;
+            
+            Write('<');
+            for (var i = 0; i < delegateMethod.Parameters.Length; i++)
             {
-                Write('<');
-                Visit(genericNameSyntax.TypeArgumentList.Arguments[0]);
-                Write('>');
+                if (i != 0) Write(", ");
+                WriteTypeSymbol(delegateMethod.Parameters[i].Type, true);
             }
+            Write('>');
         }
     }
 }

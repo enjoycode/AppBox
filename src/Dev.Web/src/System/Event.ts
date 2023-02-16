@@ -1,22 +1,22 @@
-interface IListener<T> {
-    callback: (arg: T) => void,
+interface IListener<T1, T2> {
+    callback: (arg1: T1, arg2: T2) => void,
     target?: WeakRef<any>
 }
 
-export class Event<T = void> {
-    private _listeners?: IListener<T>[];
+export class Event<T1 = void, T2 = void> {
+    private _listeners?: IListener<T1, T2>[];
     private _it: number = -1;
 
-    public Add(listener: (arg: T) => void, caller?: any) {
+    public Add(listener: (arg1: T1, arg2: T2) => void, caller?: any) {
         if (!this._listeners)
             this._listeners = [];
-        let item: IListener<T> = {callback: listener};
+        let item: IListener<T1, T2> = {callback: listener};
         if (caller)
             item.target = new WeakRef<any>(caller);
         this._listeners.push(item);
     }
 
-    public Remove(listener: (arg: T) => void, caller?: any) {
+    public Remove(listener: (arg1: T1, arg2: T2) => void, caller?: any) {
         if (!this._listeners) return;
 
         for (let i = 0; i < this._listeners.length; i++) {
@@ -32,7 +32,7 @@ export class Event<T = void> {
         }
     }
 
-    public Invoke(arg: T) {
+    public Invoke(arg1: T1, arg2: T2) {
         if (!this._listeners) return;
 
         this._it = 0;
@@ -44,7 +44,7 @@ export class Event<T = void> {
             if (notAlive) {
                 this._listeners.splice(this._it, 1);
             } else {
-                item.callback.call(target, arg);
+                item.callback.call(target, arg1, arg2);
                 this._it++;
             }
         }
