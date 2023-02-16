@@ -8,6 +8,7 @@ namespace PixUI.CS2TS
         public override void VisitGenericName(GenericNameSyntax node)
         {
             var symbol = SemanticModel.GetSymbolInfo(node).Symbol;
+            WriteLeadingTrivia(node);
 
             //转换实例成员或静态成员
             if (symbol is IPropertySymbol or IFieldSymbol or IMethodSymbol or IEventSymbol)
@@ -31,13 +32,27 @@ namespace PixUI.CS2TS
                 Write(node.TypeArgumentList.Arguments.Count.ToString());
 
             //写入范型参数，注意: GenericType<T>.StaticMethod<T>()忽略范型类型的参数，但不忽略方法的范型参数
-            if (!ToJavaScript && (NeedGenericTypeArguments || symbol is IMethodSymbol))
+            if (ToJavaScript) return;
+
+            var needGenericTypes = true;
+            if (node.Parent is QualifiedNameSyntax qualified)
+            {
+                if (qualified.GetLastNameFromQualified() != node)
+                    needGenericTypes = false;
+            }
+            else if (node.Parent is MemberAccessExpressionSyntax memberAccess)
+            {
+                if (memberAccess.GetLastMemberFromMemberAccess() != node)
+                    needGenericTypes = false;
+            }
+
+            if (needGenericTypes)
             {
                 VisitToken(node.TypeArgumentList.LessThanToken);
-                var preNeedGenericTypes = NeedGenericTypeArguments;
-                NeedGenericTypeArguments = true; //嵌套
+                // var preNeedGenericTypes = NeedGenericTypeArguments;
+                // NeedGenericTypeArguments = true; //嵌套
                 VisitSeparatedList(node.TypeArgumentList.Arguments);
-                NeedGenericTypeArguments = preNeedGenericTypes;
+                // NeedGenericTypeArguments = preNeedGenericTypes;
                 VisitToken(node.TypeArgumentList.GreaterThanToken);
             }
         }

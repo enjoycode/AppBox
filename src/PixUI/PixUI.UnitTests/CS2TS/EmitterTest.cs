@@ -81,7 +81,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task StaticTest() => await Run("TestStatic.cs");
 
         [Test]
-        public async Task GenericTest() => await Run("TestGeneric.cs");
+        public async Task GenericTest() => await Run("TestGeneric.cs", true);
 
         [Test]
         public async Task IfTest() => await Run("TestIfStatement.cs");

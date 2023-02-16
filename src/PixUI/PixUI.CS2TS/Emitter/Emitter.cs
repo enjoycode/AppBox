@@ -43,8 +43,8 @@ namespace PixUI.CS2TS
         // 使用到的模块，用于生成文件头import
         private readonly HashSet<string> _usedModules = new HashSet<string>();
 
-        // 是否需要输出范型的类型，因为ts不支持如GenericType<T>.SomeStaticMethod()
-        internal bool NeedGenericTypeArguments = true;
+        // // 是否需要输出范型的类型，因为ts不支持如GenericType<T>.SomeStaticMethod()
+        // internal bool NeedGenericTypeArguments = true;
 
         // 是否忽略委托绑定，事件+= or -=时设为true
         internal bool IgnoreDelegateBind = false;
@@ -61,7 +61,7 @@ namespace PixUI.CS2TS
         //专用于处理IfStatement的IsPatternExpression
         internal IsPatternExpressionSyntax? InjectIsPatternExpression = null;
 
-        private readonly Stack<BlockResources> _blockStack = new Stack<BlockResources>();
+        private readonly Stack<BlockResources> _blockStack = new();
 
         public void Emit() => Visit(SemanticModel.SyntaxTree.GetRoot());
 

@@ -12,9 +12,9 @@ namespace PixUI.CS2TS
             if (node.Pattern is not DeclarationPatternSyntax declarationPattern)
                 throw new NotSupportedException(node.ToString());
 
-            NeedGenericTypeArguments = false;
+            //NeedGenericTypeArguments = false;
             WriteIsExpression(node.Expression, declarationPattern.Type);
-            NeedGenericTypeArguments = true;
+            //NeedGenericTypeArguments = true;
 
             InjectIsPatternExpression = node;
         }

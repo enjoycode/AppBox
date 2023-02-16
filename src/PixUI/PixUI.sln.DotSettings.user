@@ -11,6 +11,7 @@
     &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.InnerClassTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.ScanerTest.Test&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.OverloadsTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.GenericTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d46d9afc_002Dc5e7_002D4513_002D9f8a_002D085e4dc39d4c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;

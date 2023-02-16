@@ -464,9 +464,12 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 转换 eg: obj is string
         /// </summary>
+        /// <param name="name">maybe ExpressionSyntax or string</param>
+        /// <param name="type">注意不支持范型类型</param>
         internal void WriteIsExpression(object name, ExpressionSyntax type)
         {
             //TODO: short path for predefined type
+            //TODO: 转换 obj is null 为 obj == null
             var typeInfo = SemanticModel.GetTypeInfo(type);
             if (typeInfo.Type == null) throw new Exception();
             if (typeInfo.Type is INamedTypeSymbol namedType && namedType.IsGenericType)

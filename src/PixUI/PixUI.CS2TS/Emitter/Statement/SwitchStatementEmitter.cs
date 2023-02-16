@@ -58,9 +58,9 @@ namespace PixUI.CS2TS
 
                     //使用.when不使用.with(instanceOf(XXX))是方便重用WriteIsExpression逻辑
                     Write(".when(t => ");
-                    NeedGenericTypeArguments = false;
+                    // NeedGenericTypeArguments = false;
                     WriteIsExpression("t", declaration.Type);
-                    NeedGenericTypeArguments = true;
+                    // NeedGenericTypeArguments = true;
                     Write(", (");
                     Visit(declaration.Designation);
                     Write(": ");

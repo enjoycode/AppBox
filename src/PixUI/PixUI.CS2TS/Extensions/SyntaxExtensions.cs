@@ -48,6 +48,26 @@ namespace PixUI.CS2TS
         }
 
         /// <summary>
+        /// 从Name1.Name2.Name3中获取最后一个Name3
+        /// </summary>
+        internal static NameSyntax GetLastNameFromQualified(this QualifiedNameSyntax qualifiedName)
+        {
+            if (qualifiedName.Parent is QualifiedNameSyntax parent)
+                return parent.GetLastNameFromQualified();
+            return qualifiedName.Right;
+        }
+
+        /// <summary>
+        /// 从Member1.Member2.Member3中获取最后一个Member3
+        /// </summary>
+        internal static ExpressionSyntax GetLastMemberFromMemberAccess(this MemberAccessExpressionSyntax memberAccess)
+        {
+            if (memberAccess.Parent is MemberAccessExpressionSyntax parent)
+                return parent.GetLastMemberFromMemberAccess();
+            return memberAccess.Name;
+        }
+
+        /// <summary>
         /// Check SyntaxNode and ISymbol is in same source file.
         /// </summary>
         /// <param name="node">must in source file</param>
