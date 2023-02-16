@@ -37,8 +37,7 @@ namespace PixUI.CS2TS
             };
 
             //注册自定义拦截器
-            TSInterceptorFactory.RegisterCustomInterceptor("CanvasKitCtor",
-                new CanvasKitCtorInterceptor());
+            TSInterceptorFactory.RegisterCustomInterceptor("CanvasKitCtor", new CanvasKitCtorInterceptor());
         }
 
         public Translator(string projectName, string[]? refDllPaths = null)
@@ -93,7 +92,8 @@ namespace PixUI.CS2TS
                          SearchOption.AllDirectories))
             {
                 var filePath = Path.GetRelativePath(prjPath, fullPath);
-                if (filePath.StartsWith("obj/")) continue;
+                if (filePath.StartsWith("obj/") || filePath.StartsWith("bin/")) continue;
+                if (filePath.EndsWith("AssemblyInfo.cs")) continue;
 
                 var fileName = Path.GetFileName(filePath);
                 var folders = Path.GetDirectoryName(filePath)?.Split(Path.PathSeparator);

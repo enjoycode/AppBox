@@ -109,6 +109,42 @@ namespace PixUI.UnitTests.CS2TS
         }
 
         [Test]
+        public async Task EmitLiveChartsCore()
+        {
+            const string tsDllPath = "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
+            const string prjPath = "../../../../../../ext/LiveCharts2/src/LiveChartsCore";
+            const string outPath = "../../../../../Dev.Web/src/LiveChartsCore/Generated/";
+
+            var translator = new Translator("LiveChartsCore", new[] { tsDllPath });
+            var workspace = translator.AddSourceFiles(prjPath);
+
+            Assert.True(translator.DumpErrors() == 0);
+
+            var sw = Stopwatch.StartNew();
+            foreach (var document in workspace.CurrentSolution.Projects.Single().Documents)
+            {
+                var path = string.Join('/', document.Folders);
+                if (path.StartsWith("Properties")) continue;
+
+                // Console.WriteLine($"{path}/{document.Name}");
+                var emitter = await Emitter.MakeAsync(translator, document);
+                emitter.Emit();
+
+                var fullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(outPath, path));
+                if (!Directory.Exists(fullPath))
+                    Directory.CreateDirectory(fullPath);
+                var filePath = System.IO.Path.Combine(fullPath,
+                    System.IO.Path.GetFileNameWithoutExtension(document.Name) + ".ts");
+                var typeScriptCode = emitter.GetTypeScriptCode();
+                if (!string.IsNullOrEmpty(typeScriptCode))
+                    await File.WriteAllTextAsync(filePath, typeScriptCode);
+            }
+
+            sw.Stop();
+            Console.WriteLine($"耗时: {sw.ElapsedMilliseconds} ms");
+        }
+
+        [Test]
         public async Task EmitAppStudio()
         {
             const string TSAttibutesDllPath =
