@@ -8,9 +8,6 @@ namespace PixUI.CS2TS
     {
         public override void VisitIsPatternExpression(IsPatternExpressionSyntax node)
         {
-            if (node.Parent is not IfStatementSyntax)
-                throw new NotSupportedException(node.ToString());
-
             //暂在这里预先处理 obj is null以及obj is not null
             if (node.Pattern is ConstantPatternSyntax constant1 &&
                 constant1.Expression.Kind() == SyntaxKind.NullLiteralExpression)
@@ -29,6 +26,8 @@ namespace PixUI.CS2TS
                 return;
             }
 
+            if (node.Parent is not IfStatementSyntax)
+                throw new NotSupportedException(node.ToString());
             if (node.Pattern is not DeclarationPatternSyntax declarationPattern)
                 throw new NotSupportedException(node.ToString());
 

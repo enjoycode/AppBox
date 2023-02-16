@@ -92,6 +92,8 @@
       <None Include="Resources\TestCode\TestInnerClass.cs" />
       <Compile Remove="Resources\TestCode\TestIsGenericType.cs" />
       <None Include="Resources\TestCode\TestIsGenericType.cs" />
+      <Compile Remove="Resources\TestCode\TestOverloads.cs" />
+      <None Include="Resources\TestCode\TestOverloads.cs" />
     </ItemGroup>
 
     <ItemGroup>

@@ -40,12 +40,15 @@ namespace PixUI.CS2TS
             TSInterceptorFactory.RegisterCustomInterceptor("CanvasKitCtor", new CanvasKitCtorInterceptor());
         }
 
-        public Translator(string projectName, string[]? refDllPaths = null)
+        public Translator(string projectName, string[]? refDllPaths = null, params string[]? preprocessorSymbols)
         {
             _workspace = new AdhocWorkspace();
             IsPixUIProject = projectName == "PixUI";
             _projectId = ProjectId.CreateNewId();
-            CreateProject(_projectId, projectName, refDllPaths);
+            var preprocessors = new List<string> { "__WEB__" };
+            if (preprocessorSymbols != null)
+                preprocessors.AddRange(preprocessorSymbols);
+            CreateProject(_projectId, projectName, preprocessors, refDllPaths);
         }
 
         /// <summary>
@@ -57,13 +60,14 @@ namespace PixUI.CS2TS
             _projectId = projectId;
         }
 
-        private void CreateProject(ProjectId id, string name, string[]? refDllPaths = null)
+        private void CreateProject(ProjectId id, string name, IEnumerable<string> preprocessorSymbols,
+            string[]? refDllPaths = null)
         {
             var complieOpts = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithNullableContextOptions(NullableContextOptions.Enable);
             var parseOpts = new CSharpParseOptions()
                 .WithLanguageVersion(LanguageVersion.CSharp10)
-                .WithPreprocessorSymbols("__WEB__");
+                .WithPreprocessorSymbols(preprocessorSymbols);
 
             var metaRefs = Refs;
             if (refDllPaths != null)

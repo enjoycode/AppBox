@@ -111,11 +111,19 @@ namespace PixUI.UnitTests.CS2TS
         [Test]
         public async Task EmitLiveChartsCore()
         {
+            var sdkPath = System.IO.Path.GetDirectoryName(typeof(object).Assembly.Location)!;
             const string tsDllPath = "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
+            const string pixUIDllPath = "../../../../PixUI/bin/DebugWeb/netstandard2.1/PixUI.dll"; //暂需要
             const string prjPath = "../../../../../../ext/LiveCharts2/src/LiveChartsCore";
             const string outPath = "../../../../../Dev.Web/src/LiveChartsCore/Generated/";
 
-            var translator = new Translator("LiveChartsCore", new[] { tsDllPath });
+            var translator = new Translator("LiveChartsCore", new[]
+            {
+                tsDllPath, pixUIDllPath,
+                System.IO.Path.Combine(sdkPath, "System.Text.Json.dll"),
+                System.IO.Path.Combine(sdkPath, "System.ComponentModel.dll"),
+                System.IO.Path.Combine(sdkPath, "System.ObjectModel.dll"),
+            }, "NET5_0_OR_GREATER");
             var workspace = translator.AddSourceFiles(prjPath);
 
             Assert.True(translator.DumpErrors() == 0);
