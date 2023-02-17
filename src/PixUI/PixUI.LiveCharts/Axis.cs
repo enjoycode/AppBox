@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.SkiaSharpView.Drawing;
 using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
@@ -27,5 +28,7 @@ using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
 namespace LiveChartsCore.SkiaSharpView;
 
 /// <inheritdoc cref="ICartesianAxis" />
-public class Axis : Axis<SkiaSharpDrawingContext, LabelGeometry, LineGeometry>
-{ }
+public sealed class Axis : Axis<SkiaSharpDrawingContext, LabelGeometry, LineGeometry>
+{
+    public Axis() : base(() => new LabelGeometry(), () => new LineGeometry()) { }
+}

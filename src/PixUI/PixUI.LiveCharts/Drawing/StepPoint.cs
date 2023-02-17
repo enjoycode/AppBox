@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using LiveChartsCore.Drawing;
 
 namespace LiveChartsCore.SkiaSharpView.Drawing;
@@ -29,5 +30,7 @@ namespace LiveChartsCore.SkiaSharpView.Drawing;
 /// </summary>
 /// <typeparam name="TGeometry">The type of the geometry.</typeparam>
 public class StepPoint<TGeometry> : StepLineVisualPoint<SkiaSharpDrawingContext, TGeometry>
-    where TGeometry : class, ISizedVisualChartPoint<SkiaSharpDrawingContext>, new()
-{ }
+    where TGeometry : class, ISizedVisualChartPoint<SkiaSharpDrawingContext>/*, new()*/
+{
+    public StepPoint(Func<TGeometry> visualFactory) : base(visualFactory) { }
+}

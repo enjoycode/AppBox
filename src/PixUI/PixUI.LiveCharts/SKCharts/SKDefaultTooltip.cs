@@ -96,7 +96,7 @@ public class SKDefaultTooltip : IChartTooltip<SkiaSharpDrawingContext>, IImageCo
         if (BackgroundPaint is not null) BackgroundPaint.ZIndex = s_zIndex;
         if (FontPaint is not null) FontPaint.ZIndex = s_zIndex + 1;
 
-        var sp = _stackPanel ??= new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>
+        var sp = _stackPanel ??= new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
         {
             Padding = new Padding(12, 8),
             Orientation = ContainerOrientation.Vertical,
@@ -166,7 +166,7 @@ public class SKDefaultTooltip : IChartTooltip<SkiaSharpDrawingContext>, IImageCo
             HorizontalAlignment = Align.Start
         };
 
-        var sp = new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>
+        var sp = new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
         {
             Padding = new Padding(0, 4),
             VerticalAlignment = Align.Middle,
