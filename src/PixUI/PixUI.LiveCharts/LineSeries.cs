@@ -44,7 +44,7 @@ public sealed class LineSeries<TModel> : LineSeries<TModel, CircleGeometry, Labe
     public LineSeries(bool isStacked = false) 
         : base(() => new CircleGeometry(), () => new LabelGeometry(), 
             () => new CubicBezierAreaGeometry(), 
-            () => new BezierPoint<CircleGeometry>(()=> new CircleGeometry()), 
+            () => new BezierPoint<CircleGeometry>(new CircleGeometry()), 
             isStacked) { }
 }
 

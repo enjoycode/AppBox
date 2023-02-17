@@ -32,5 +32,5 @@ namespace LiveChartsCore.SkiaSharpView.Drawing;
 public class BezierPoint<TGeometry> : BezierVisualPoint<SkiaSharpDrawingContext, TGeometry>
     where TGeometry : class, ISizedVisualChartPoint<SkiaSharpDrawingContext>/*, new()*/
 {
-    public BezierPoint(Func<TGeometry> visualFactory) : base(visualFactory) { }
+    public BezierPoint(TGeometry geometry) : base(geometry) { }
 }

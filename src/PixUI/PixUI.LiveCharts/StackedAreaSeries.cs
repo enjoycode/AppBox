@@ -41,9 +41,8 @@ public sealed class StackedAreaSeries<TModel>
     : StackedAreaSeries<TModel, CircleGeometry, LabelGeometry, SkiaSharpDrawingContext, CubicBezierAreaGeometry,
         BezierPoint<CircleGeometry>>
 {
-    public StackedAreaSeries(): base(() => new CircleGeometry(), () => new LabelGeometry(), 
-        () => new CubicBezierAreaGeometry(), () => new BezierPoint<CircleGeometry>(() => new CircleGeometry()))
-    {}
+    public StackedAreaSeries() : base(() => new CircleGeometry(), () => new LabelGeometry(),
+        () => new CubicBezierAreaGeometry(), () => new BezierPoint<CircleGeometry>(new CircleGeometry())) { }
 }
 
 // /// <summary>

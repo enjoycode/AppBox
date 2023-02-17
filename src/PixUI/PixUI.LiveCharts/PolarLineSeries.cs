@@ -42,7 +42,7 @@ public sealed class PolarLineSeries<TModel> : PolarLineSeries<TModel, CircleGeom
 {
     public PolarLineSeries() : base(() => new CircleGeometry(), () => new LabelGeometry(),
         () => new CubicBezierAreaGeometry(),
-        () => new BezierPoint<CircleGeometry>(() => new CircleGeometry())) { }
+        () => new BezierPoint<CircleGeometry>(new CircleGeometry())) { }
 }
 
 // /// <summary>
