@@ -172,7 +172,7 @@ namespace PixUI.CS2TS
         }
 
         /// <summary>
-        /// Only for generic class or method declaration
+        /// 尝试写入范型参数及约束
         /// </summary>
         internal void WriteTypeParameters(TypeParameterListSyntax? types,
             SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses)
@@ -194,6 +194,9 @@ namespace PixUI.CS2TS
                 var and = false;
                 foreach (var item in constraints)
                 {
+                    if (item is ConstructorConstraintSyntax)
+                        throw new EmitException("不支持范型约束: new()", item.Span);
+                    
                     if (and)
                     {
                         Write(" & ");
@@ -204,7 +207,7 @@ namespace PixUI.CS2TS
                         Write(" extends ");
                     }
 
-                    //TODO:暂只支持TypeConstraintSyntax, 其他待实现 eg: ConstructorConstraintSyntax
+                    //TODO:暂只支持TypeConstraintSyntax, 其他待实现
                     //https://www.typescriptlang.org/docs/handbook/2/generics.html
 
                     DisableVisitTrailingTrivia(); //移除尾部Trivia

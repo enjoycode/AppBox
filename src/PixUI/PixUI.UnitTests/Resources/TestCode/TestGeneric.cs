@@ -1,5 +1,7 @@
 using System;
 
+//class NotSupported<T> where T: new() { }
+
 interface IFactory { }
 
 class Item: IDisposable, IFactory
