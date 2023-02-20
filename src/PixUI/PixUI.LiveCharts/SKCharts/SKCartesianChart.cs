@@ -79,8 +79,8 @@ public class SKCartesianChart : InMemorySkiaSharpChart, ICartesianChartView<Skia
     /// <inheritdoc cref="ICartesianChartView{TDrawingContext}.Core"/>
     public CartesianChart<SkiaSharpDrawingContext> Core { get; }
 
-    /// <inheritdoc cref="IChartView.SyncContext"/>
-    public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
+    // /// <inheritdoc cref="IChartView.SyncContext"/>
+    // public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
 
     /// <inheritdoc cref="ICartesianChartView{TDrawingContext}.XAxes"/>
     public IEnumerable<ICartesianAxis> XAxes { get; set; } = new Axis[] { new() };
@@ -290,8 +290,8 @@ public class SKCartesianChart : InMemorySkiaSharpChart, ICartesianChartView<Skia
         VisualElementsPointerDown?.Invoke(this, new VisualElementsEventArgs<SkiaSharpDrawingContext>(visualElements, pointer));
     }
 
-    void IChartView.Invalidate()
-    {
-        throw new NotImplementedException();
-    }
+    // void IChartView.Invalidate()
+    // {
+    //     throw new NotImplementedException();
+    // }
 }

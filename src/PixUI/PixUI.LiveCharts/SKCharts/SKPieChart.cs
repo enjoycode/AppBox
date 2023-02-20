@@ -76,8 +76,8 @@ public class SKPieChart : InMemorySkiaSharpChart, IPieChartView<SkiaSharpDrawing
     /// <inheritdoc cref="IPieChartView{TDrawingContext}.Core"/>
     public PieChart<SkiaSharpDrawingContext> Core { get; }
 
-    /// <inheritdoc cref="IChartView.SyncContext"/>
-    public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
+    // /// <inheritdoc cref="IChartView.SyncContext"/>
+    // public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
 
     /// <inheritdoc cref="IPieChartView{TDrawingContext}.Series"/>
     public IEnumerable<ISeries> Series { get; set; } = Array.Empty<ISeries>();
@@ -253,8 +253,8 @@ public class SKPieChart : InMemorySkiaSharpChart, IPieChartView<SkiaSharpDrawing
         VisualElementsPointerDown?.Invoke(this, new VisualElementsEventArgs<SkiaSharpDrawingContext>(visualElements, pointer));
     }
 
-    void IChartView.Invalidate()
-    {
-        throw new NotImplementedException();
-    }
+    // void IChartView.Invalidate()
+    // {
+    //     throw new NotImplementedException();
+    // }
 }

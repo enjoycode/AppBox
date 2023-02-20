@@ -139,15 +139,15 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         throw new NotImplementedException();
     }
 
-    public object SyncContext
-    {
-        get => CoreCanvas.Sync;
-        // set
-        // {
-        //     CoreCanvas.Sync = value;
-        //     OnPropertyChanged();
-        // }
-    }
+    // public object SyncContext
+    // {
+    //     get => CoreCanvas.Sync;
+    //     // set
+    //     // {
+    //     //     CoreCanvas.Sync = value;
+    //     //     OnPropertyChanged();
+    //     // }
+    // }
 
     public void InvokeOnUIThread(Action action)
     {
@@ -156,8 +156,8 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         UIApplication.Current.BeginInvoke(action);
     }
 
-    void IChartView.Invalidate() //TODO: rename IChartView.Invalidate()
-        => CoreCanvas.Invalidate();
+    // void IChartView.Invalidate() //TODO: rename IChartView.Invalidate()
+    //     => CoreCanvas.Invalidate();
 
     public IPaint<SkiaSharpDrawingContext>? LegendTextPaint
     {

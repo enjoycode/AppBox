@@ -79,8 +79,8 @@ public class SKPolarChart : InMemorySkiaSharpChart, IPolarChartView<SkiaSharpDra
     /// <inheritdoc cref="IPolarChartView{TDrawingContext}.Core"/>
     public PolarChart<SkiaSharpDrawingContext> Core { get; }
 
-    /// <inheritdoc cref="IChartView.SyncContext"/>
-    public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
+    // /// <inheritdoc cref="IChartView.SyncContext"/>
+    // public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
 
     /// <inheritdoc cref="IPolarChartView{TDrawingContext}.AngleAxes"/>
     public IEnumerable<IPolarAxis> AngleAxes { get; set; } = new[] { new PolarAxis() };
@@ -284,8 +284,8 @@ public class SKPolarChart : InMemorySkiaSharpChart, IPolarChartView<SkiaSharpDra
         VisualElementsPointerDown?.Invoke(this, new VisualElementsEventArgs<SkiaSharpDrawingContext>(visualElements, pointer));
     }
 
-    void IChartView.Invalidate()
-    {
-        throw new NotImplementedException();
-    }
+    // void IChartView.Invalidate()
+    // {
+    //     throw new NotImplementedException();
+    // }
 }
