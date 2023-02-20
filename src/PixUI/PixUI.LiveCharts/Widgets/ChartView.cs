@@ -142,11 +142,11 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
     public object SyncContext
     {
         get => CoreCanvas.Sync;
-        set
-        {
-            CoreCanvas.Sync = value;
-            OnPropertyChanged();
-        }
+        // set
+        // {
+        //     CoreCanvas.Sync = value;
+        //     OnPropertyChanged();
+        // }
     }
 
     public void InvokeOnUIThread(Action action)

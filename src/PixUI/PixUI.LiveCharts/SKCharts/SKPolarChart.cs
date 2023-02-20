@@ -80,7 +80,7 @@ public class SKPolarChart : InMemorySkiaSharpChart, IPolarChartView<SkiaSharpDra
     public PolarChart<SkiaSharpDrawingContext> Core { get; }
 
     /// <inheritdoc cref="IChartView.SyncContext"/>
-    public object SyncContext { get => CoreCanvas.Sync; set => CoreCanvas.Sync = value; }
+    public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
 
     /// <inheritdoc cref="IPolarChartView{TDrawingContext}.AngleAxes"/>
     public IEnumerable<IPolarAxis> AngleAxes { get; set; } = new[] { new PolarAxis() };

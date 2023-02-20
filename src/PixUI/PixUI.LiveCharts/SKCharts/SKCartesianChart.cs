@@ -80,7 +80,7 @@ public class SKCartesianChart : InMemorySkiaSharpChart, ICartesianChartView<Skia
     public CartesianChart<SkiaSharpDrawingContext> Core { get; }
 
     /// <inheritdoc cref="IChartView.SyncContext"/>
-    public object SyncContext { get => CoreCanvas.Sync; set => CoreCanvas.Sync = value; }
+    public object SyncContext { get => CoreCanvas.Sync; /*set => CoreCanvas.Sync = value;*/ }
 
     /// <inheritdoc cref="ICartesianChartView{TDrawingContext}.XAxes"/>
     public IEnumerable<ICartesianAxis> XAxes { get; set; } = new Axis[] { new() };
