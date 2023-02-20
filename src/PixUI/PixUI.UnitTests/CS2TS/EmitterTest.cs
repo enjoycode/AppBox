@@ -145,5 +145,8 @@ namespace PixUI.UnitTests.CS2TS
         
         [Test]
         public async Task IsGenericTypeTest() => await Run("TestIsGenericType.cs", true);
+        
+        [Test]
+        public async Task RefArgTest() => await Run("TestRefArg.cs", true);
     }
 }

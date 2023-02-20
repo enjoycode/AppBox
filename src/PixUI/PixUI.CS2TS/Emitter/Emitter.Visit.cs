@@ -48,33 +48,9 @@ namespace PixUI.CS2TS
             Write(node.Identifier.Text);
         }
 
-        public override void VisitConversionOperatorDeclaration(
-            ConversionOperatorDeclarationSyntax node)
+        public override void VisitConversionOperatorDeclaration( ConversionOperatorDeclarationSyntax node)
         {
             //TODO: 转为静态方法
-        }
-
-        public override void VisitParameter(ParameterSyntax node)
-        {
-            Write(node.Identifier.Text);
-
-            //需要特殊处理抽象方法的默认参数 eg: abstract void SomeMethod(SomeType? para = null);
-            var ignoreDefault = node.Default != null &&
-                                node.Parent?.Parent is MethodDeclarationSyntax methodDeclaration &&
-                                methodDeclaration.HasAbstractModifier();
-            if (!ToJavaScript && ignoreDefault &&
-                node.Default!.Value is LiteralExpressionSyntax literal &&
-                literal.Kind() == SyntaxKind.NullLiteralExpression)
-                Write('?');
-
-            if (!ToJavaScript && node.Type != null)
-            {
-                Write(": ");
-                Visit(node.Type);
-            }
-
-            if (node.Default != null && !ignoreDefault)
-                Visit(node.Default);
         }
 
         #endregion
