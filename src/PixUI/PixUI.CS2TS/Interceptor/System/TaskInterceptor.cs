@@ -46,6 +46,8 @@ namespace PixUI.CS2TS
 
             if (methodName == "Delay")
                 EmitTaskDelay(emitter, node);
+            else if (methodName == "Run")
+                EmitTaskRun(emitter, node);
             else if (methodName == "WhenAny")
                 EmitTaskWhenAny(emitter, node);
             else
@@ -54,9 +56,47 @@ namespace PixUI.CS2TS
 
         private static void EmitTaskDelay(Emitter emitter, InvocationExpressionSyntax node)
         {
-            emitter.Write("new Promise<void>(resolve => setTimeout(() => resolve(),");
+            emitter.Write("new Promise<void>($resolve => setTimeout(() => $resolve(),");
             emitter.Visit(node.ArgumentList);
             emitter.Write("))");
+        }
+
+        private static void EmitTaskRun(Emitter emitter, InvocationExpressionSyntax node)
+        {
+            //目前生成的代码仍旧在UI线程内，将来考虑使用WebWorker来处理
+            emitter.Write("new Promise<void>($resolve => {\n");
+            
+            var expression = node.ArgumentList.Arguments[0].Expression;
+            if (expression is LambdaExpressionSyntax lambdaExpression)
+            {
+                if (lambdaExpression.Block != null)
+                {
+                    foreach (var st in lambdaExpression.Block.Statements)
+                    {
+                        emitter.Visit(st);
+                    }
+                }
+                else
+                {
+                    emitter.WriteLeadingTrivia(node);
+                    emitter.Write('\t');
+                    emitter.Visit(lambdaExpression.Body);
+                    emitter.Write(";\n");
+                }
+            }
+            else
+            {
+                emitter.WriteLeadingTrivia(node);
+                emitter.Write('\t');
+                emitter.Visit(expression);
+                emitter.Write("();\n");
+            }
+            
+            emitter.WriteLeadingTrivia(node);
+            emitter.Write('\t');
+            emitter.Write("$resolve();\n");
+            emitter.WriteLeadingTrivia(node);
+            emitter.Write("})");
         }
 
         private static void EmitTaskWhenAny(Emitter emitter, InvocationExpressionSyntax node)
