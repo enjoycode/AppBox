@@ -148,5 +148,8 @@ namespace PixUI.UnitTests.CS2TS
         
         [Test]
         public async Task RefArgTest() => await Run("TestRefArg.cs", true);
+        
+        [Test]
+        public async Task TaskTest() => await Run("TestTask.cs", true);
     }
 }

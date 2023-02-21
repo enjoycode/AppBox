@@ -62,30 +62,12 @@ namespace PixUI.CS2TS
             return true;
         }
 
-        private static bool IsCollectionType(INamedTypeSymbol type, Emitter emitter)
-        {
-            //先判断本身是否ICollection
-            var isCollection = type.TypeKind == TypeKind.Interface && (
-                SymbolEqualityComparer.Default.Equals(type, emitter.TypeOfICollection)
-                ||
-                SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, emitter.TypeOfICollectionGeneric)
-            );
-            //再判断有无实现ICollection接口
-            if (!isCollection)
-                isCollection = type.AllInterfaces.Any(t =>
-                    SymbolEqualityComparer.Default.Equals(t, emitter.TypeOfICollection)
-                    ||
-                    SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, emitter.TypeOfICollectionGeneric)
-                );
-            return isCollection;
-        }
-
         private bool TryRenameCollectionCountProperty(MemberAccessExpressionSyntax node, ISymbol symbol)
         {
             if (node.Name.Identifier.Text == "Count" && symbol is IPropertySymbol propertySymbol)
             {
                 var type = propertySymbol.ContainingType;
-                var isCollection = IsCollectionType(type, this);
+                var isCollection = IsCollectionType(type);
                 if (isCollection)
                 {
                     Write("length");

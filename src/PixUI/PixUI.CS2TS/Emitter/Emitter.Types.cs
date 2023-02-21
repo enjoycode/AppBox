@@ -87,6 +87,24 @@ namespace PixUI.CS2TS
             _typeSymbolCache.GetTypeByName("PixUI.TSIndexerSetToMethodAttribute");
 
         #endregion
+        
+        internal bool IsCollectionType(INamedTypeSymbol type)
+        {
+            //先判断本身是否ICollection
+            var isCollection = type.TypeKind == TypeKind.Interface && (
+                SymbolEqualityComparer.Default.Equals(type, TypeOfICollection)
+                ||
+                SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypeOfICollectionGeneric)
+            );
+            //再判断有无实现ICollection接口
+            if (!isCollection)
+                isCollection = type.AllInterfaces.Any(t =>
+                    SymbolEqualityComparer.Default.Equals(t, TypeOfICollection)
+                    ||
+                    SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, TypeOfICollectionGeneric)
+                );
+            return isCollection;
+        }
 
         private bool TryGetInterceptor(ISymbol? symbol, out ITSInterceptor? interceptor)
         {
@@ -167,7 +185,7 @@ namespace PixUI.CS2TS
                     SyntaxExtensions.TryGetAttribute(m.AttributeLists, IsTSRenameAttribute) != null);
                 if (renamedCount < group.Count() - 1)
                     throw new Exception(
-                        $"方法[{typeDeclaration.Identifier}.{group.Key}]具备构造重载,请用TSRenameAttribute改变名称");
+                        $"方法[{typeDeclaration.Identifier}.{group.Key}]具备重载,请用TSRenameAttribute改变名称");
             }
         }
     }
