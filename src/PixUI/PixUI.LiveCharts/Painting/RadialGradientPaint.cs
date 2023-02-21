@@ -123,7 +123,7 @@ public class RadialGradientPaint : Paint
                 _tileMode);
 
         _skiaPaint.AntiAlias = IsAntialias;
-        _skiaPaint.IsStroke = true;
+        _skiaPaint.Style = PaintStyle.Stroke;
         _skiaPaint.StrokeWidth = StrokeThickness;
         _skiaPaint.StrokeCap = StrokeCap;
         _skiaPaint.StrokeJoin = StrokeJoin;

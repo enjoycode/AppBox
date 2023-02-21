@@ -23,7 +23,7 @@
 using System;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Painting;
+using Paint = LiveChartsCore.SkiaSharpView.Painting.Paint;
 
 namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
 
@@ -108,7 +108,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
         }
     }
 
-    /// <inheritdoc cref="Geometry.OnMeasure(Paint)" />
+    /// <inheritdoc cref="Geometry.OnMeasure(Painting.Paint)" />
     protected override LvcSize OnMeasure(Paint drawable)
     {
         //var typeface = drawable.GetSKTypeface();
@@ -117,7 +117,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
         {
             Color = drawable.Color,
             AntiAlias = drawable.IsAntialias,
-            IsStroke = drawable.IsStroke,
+            Style = drawable.IsStroke ? SKPaintStyle.Stroke : SKPaintStyle.Fill,
             StrokeWidth = drawable.StrokeThickness,
             //TextSize = TextSize,
             //Typeface = typeface

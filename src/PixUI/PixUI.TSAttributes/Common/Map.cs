@@ -11,11 +11,14 @@ public abstract class MapBase<K, V>
 {
     private readonly Dictionary<K, V> _dictionary = new();
 
-    protected MapBase(ValueTuple<K, V>[] items)
+    protected MapBase(ValueTuple<K, V>[]? items = null)
     {
-        foreach (var entry in items)
+        if (items != null)
         {
-            _dictionary.Add(entry.Item1, entry.Item2);
+            foreach (var entry in items)
+            {
+                _dictionary.Add(entry.Item1, entry.Item2);
+            }
         }
     }
 
@@ -44,17 +47,17 @@ public abstract class MapBase<K, V>
 [TSType("System.NumberMap")]
 public sealed class NumberMap<T> : MapBase<int, T>
 {
-    public NumberMap(ValueTuple<int, T>[] items) : base(items) { }
+    public NumberMap(ValueTuple<int, T>[]? items = null) : base(items) { }
 }
 
 [TSType("System.StringMap")]
 public sealed class StringMap<T> : MapBase<string, T>
 {
-    public StringMap(ValueTuple<string, T>[] items) : base(items) { }
+    public StringMap(ValueTuple<string, T>[]? items = null) : base(items) { }
 }
 
 [TSType("System.ObjectMap")]
 public sealed class ObjectMap<T> : MapBase<object, T>
 {
-    public ObjectMap(ValueTuple<object, T>[] items) : base(items) { }
+    public ObjectMap(ValueTuple<object, T>[]? items = null) : base(items) { }
 }

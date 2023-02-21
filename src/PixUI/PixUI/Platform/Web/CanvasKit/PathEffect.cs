@@ -16,7 +16,7 @@ namespace PixUI
         
         [TSTemplate("CanvasKit.PathEffect.MakePath1D({1},{2},{3},{4})")]
         public static PathEffect Create1DPath(Path path, float advance, float phase,
-            Path1DPathEffectStyle style) => throw new Exception;
+            Path1DPathEffectStyle style) => throw new Exception();
 
         [TSTemplate("CanvasKit.PathEffect.MakeLine2D({1},{2})")]
         public static PathEffect Create2DLine(float width, Matrix3 matrix) => throw new Exception();

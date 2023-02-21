@@ -96,7 +96,7 @@ public class SolidColorPaint : Paint
 
         _skiaPaint.Color = Color;
         _skiaPaint.AntiAlias = IsAntialias;
-        _skiaPaint.IsStroke = IsStroke;
+        _skiaPaint.Style =  IsStroke ? PaintStyle.Stroke : PaintStyle.Fill;
         _skiaPaint.StrokeCap = StrokeCap;
         _skiaPaint.StrokeJoin = StrokeJoin;
         _skiaPaint.StrokeMiter = StrokeMiter;

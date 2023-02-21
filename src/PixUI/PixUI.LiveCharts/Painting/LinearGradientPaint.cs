@@ -164,7 +164,7 @@ public class LinearGradientPaint : Paint
         _skiaPaint.Shader = SKShader.CreateLinearGradient( start, end, _gradientStops, _colorPos, _tileMode);
 
         _skiaPaint.AntiAlias = IsAntialias;
-        _skiaPaint.IsStroke = true;
+        _skiaPaint.Style = PaintStyle.Stroke;
         _skiaPaint.StrokeWidth = StrokeThickness;
         _skiaPaint.StrokeCap = StrokeCap;
         _skiaPaint.StrokeJoin = StrokeJoin;

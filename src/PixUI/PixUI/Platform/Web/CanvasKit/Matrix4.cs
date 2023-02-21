@@ -45,7 +45,7 @@ namespace PixUI
 
         public void SetRow(int row, Vector4 arg) { }
 
-        public bool Equals(in Matrix4 other) => true;
+        public bool Equals(Matrix4 other) => true;
         
         public static bool operator ==(Matrix4 left, Matrix4 right) => left.Equals(right);
 

@@ -43,12 +43,6 @@ namespace PixUI
             }
         }
 
-        public bool IsStroke
-        {
-            get => Style != PaintStyle.Fill;
-            set => Style = value ? PaintStyle.Stroke : PaintStyle.Fill;
-        }
-
         public PaintStyle Style
         {
             get => SkiaApi.sk_paint_get_style(Handle);
