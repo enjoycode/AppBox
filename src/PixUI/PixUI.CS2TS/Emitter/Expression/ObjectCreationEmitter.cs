@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace PixUI.CS2TS
 {
@@ -9,6 +10,16 @@ namespace PixUI.CS2TS
     {
         public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
         {
+            //预先处理 new object()
+            if (node.Type is PredefinedTypeSyntax predefinedType &&
+                predefinedType.Keyword.Kind() == SyntaxKind.ObjectKeyword)
+            {
+                WriteLeadingTrivia(node);
+                Write("{}");
+                WriteTrailingTrivia(node);
+                return;
+            }
+            
             var symbol = SemanticModel.GetSymbolInfo(node).Symbol;
 
             //尝试系统拦截

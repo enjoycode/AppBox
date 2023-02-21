@@ -9,6 +9,7 @@ class Person
 
     public void Test()
     {
+        var obj = new object();
         var p1 = new Person() { Name = "Rick", Age = 100 };
         var p2 = new Person()
         {
