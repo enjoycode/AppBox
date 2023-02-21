@@ -510,6 +510,8 @@ namespace PixUI.CS2TS
             //obj is null 或 obj is not null 由IsPatternExpressionEmitter预先处理掉
             var typeInfo = SemanticModel.GetTypeInfo(type);
             if (typeInfo.Type == null) throw new Exception();
+            if (typeInfo.Type is ITypeParameterSymbol)
+                throw new Exception("不支持is 范型类型,eg: obj is T");
             if (typeInfo.Type is INamedTypeSymbol namedType && namedType.IsGenericType)
             {
                 //只支持非指定类型的范型参数, eg: obj is GenericType<T>可以但obj is GenericType<string>不支持
