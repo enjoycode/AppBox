@@ -9,12 +9,6 @@ namespace PixUI.CS2TS
     {
         public override void VisitCastExpression(CastExpressionSyntax node)
         {
-            if (ToJavaScript)
-            {
-                Visit(node.Expression);
-                return;
-            }
-
             //特殊处理整型转换 eg: (int)someNumber
             if (node.Type is PredefinedTypeSyntax predefinedType)
             {
@@ -40,9 +34,16 @@ namespace PixUI.CS2TS
                             return;
                         case SyntaxKind.LongKeyword:
                         case SyntaxKind.ULongKeyword:
-                            throw new NotImplementedException();
+                            CastToBigInt(node);
+                            return;
                     }
                 }
+            }
+            
+            if (ToJavaScript)
+            {
+                Visit(node.Expression);
+                return;
             }
 
             Write('<');
@@ -59,6 +60,19 @@ namespace PixUI.CS2TS
             Visit(node.Expression);
             Write(") & ");
             Write(mask);
+            Write(')');
+        }
+
+        private void CastToBigInt(CastExpressionSyntax node)
+        {
+            Write("BigInt(");
+            //如果是数值需要先转换为整数, TODO: decimal需要先转换为字符串
+            Visit(node.Expression);
+            var type = SemanticModel.GetTypeInfo(node.Expression).Type!;
+            if (type.SpecialType == SpecialType.System_Double || type.SpecialType == SpecialType.System_Single)
+            {
+                Write(".toFixed(0)");
+            }
             Write(')');
         }
     }

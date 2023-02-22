@@ -77,7 +77,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="ILabelGeometry{TDrawingContext}.Padding" />
-    public Padding Padding { get; set; } = new();
+    public Padding Padding { get; set; } = new (0, 0, 0, 0);
 
     /// <inheritdoc cref="ILabelGeometry{TDrawingContext}.LineHeight" />
     public float LineHeight { get; set; } = 1.75f;

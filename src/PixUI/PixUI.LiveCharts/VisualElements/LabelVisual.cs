@@ -43,7 +43,7 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     internal Align _verticalAlignment = Align.Middle;
     internal Align _horizontalAlignment = Align.Middle;
     internal LvcColor _backgroundColor;
-    internal Padding _padding = new(0);
+    internal Padding _padding = Padding.All(0);
     internal double _rotation;
     internal float _lineHeight = 1.75f;
     internal LvcPoint _translate = new();

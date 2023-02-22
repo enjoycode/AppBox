@@ -30,14 +30,20 @@ public abstract class MapBase<K, V>
         return value;
     }
 
-    public void set(K key, V value)
-    {
-        _dictionary[key] = value;
-    }
-
+    [TSRename("set")]
+    public void Add(K key, V value) => _dictionary.Add(key, value);
+    
+    public void set(K key, V value) =>_dictionary[key] = value;
+    
     public bool has(K key) => _dictionary.ContainsKey(key);
 
+    [TSRename("delete")]
+    public bool Remove(K key) => _dictionary.Remove(key);
+
     public bool delete(K key) => _dictionary.Remove(key);
+
+    [TSRename("clear")]
+    public void Clear() => _dictionary.Clear();
 
     public ICollection<K> keys() => _dictionary.Keys;
 
@@ -48,6 +54,12 @@ public abstract class MapBase<K, V>
 public sealed class NumberMap<T> : MapBase<int, T>
 {
     public NumberMap(ValueTuple<int, T>[]? items = null) : base(items) { }
+}
+
+[TSType("System.DoubleMap")]
+public sealed class DoubleMap<T> : MapBase<double, T>
+{
+    public DoubleMap(ValueTuple<double, T>[]? items = null) : base(items) { }
 }
 
 [TSType("System.StringMap")]

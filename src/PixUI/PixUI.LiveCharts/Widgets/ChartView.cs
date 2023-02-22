@@ -86,7 +86,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
     public IChart CoreChart => core!;
     public bool DesignerMode => false;
 
-    public LvcColor BackColor { get; set; } = LvcColor.FromRGB(255, 255, 255);
+    public LvcColor BackColor { get; set; } = new(255, 255, 255);
 
     public LvcSize ControlSize =>
         // return the full control size as a workaround when the legend is not set.

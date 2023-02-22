@@ -34,7 +34,7 @@ public sealed class DemoCharts : View
     {
         Text = "My Chart Title",
         TextSize = 25,
-        Padding = new Padding(15),
+        Padding = LiveChartsCore.Drawing.Padding.All(15),
         Paint = new SolidColorPaint(Colors.Gray)
     };
 

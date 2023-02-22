@@ -181,7 +181,7 @@ public static class LiveChartsSkiaSharp
 
         if (target.Context is ICartesianChartView<SkiaSharpDrawingContext> cartesianChart)
         {
-            dataCoordinates = cartesianChart.ScalePixelsToData(new LvcPointD(location));
+            dataCoordinates = cartesianChart.ScalePixelsToData(new LvcPointD(location.X, location.Y));
 
             var cartesianSeries = (ICartesianSeries<SkiaSharpDrawingContext>)target.Context.Series;
 
@@ -192,8 +192,8 @@ public static class LiveChartsSkiaSharp
 
                 var drawLocation = cartesianChart.Core.DrawMarginLocation;
                 var drawMarginSize = cartesianChart.Core.DrawMarginSize;
-                var secondaryScale = new Scaler(drawLocation, drawMarginSize, primaryAxis);
-                var primaryScale = new Scaler(drawLocation, drawMarginSize, secondaryAxis);
+                var secondaryScale = Scaler.Make(drawLocation, drawMarginSize, primaryAxis);
+                var primaryScale = Scaler.Make(drawLocation, drawMarginSize, secondaryAxis);
 
                 x = secondaryScale.ToPixels(target.SecondaryValue);
                 y = primaryScale.ToPixels(target.PrimaryValue);
@@ -206,8 +206,8 @@ public static class LiveChartsSkiaSharp
                 var drawLocation = cartesianChart.Core.DrawMarginLocation;
                 var drawMarginSize = cartesianChart.Core.DrawMarginSize;
 
-                var secondaryScale = new Scaler(drawLocation, drawMarginSize, secondaryAxis);
-                var primaryScale = new Scaler(drawLocation, drawMarginSize, primaryAxis);
+                var secondaryScale = Scaler.Make(drawLocation, drawMarginSize, secondaryAxis);
+                var primaryScale = Scaler.Make(drawLocation, drawMarginSize, primaryAxis);
 
                 x = secondaryScale.ToPixels(target.SecondaryValue);
                 y = primaryScale.ToPixels(target.PrimaryValue);
@@ -215,7 +215,7 @@ public static class LiveChartsSkiaSharp
         }
         else if (target.Context is IPolarChartView<SkiaSharpDrawingContext> polarChart)
         {
-            dataCoordinates = polarChart.ScalePixelsToData(new LvcPointD(location));
+            dataCoordinates = polarChart.ScalePixelsToData(new LvcPointD(location.X, location.Y));
 
             var polarSeries = (IPolarSeries<SkiaSharpDrawingContext>)target.Context.Series;
 

@@ -98,7 +98,7 @@ public class SKDefaultTooltip : IChartTooltip<SkiaSharpDrawingContext>, IImageCo
 
         var sp = _stackPanel ??= new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
         {
-            Padding = new Padding(12, 8),
+            Padding = new Padding(12, 8, 12, 8),
             Orientation = ContainerOrientation.Vertical,
             HorizontalAlignment = Align.Start,
             VerticalAlignment = Align.Middle,
@@ -168,7 +168,7 @@ public class SKDefaultTooltip : IChartTooltip<SkiaSharpDrawingContext>, IImageCo
 
         var sp = new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
         {
-            Padding = new Padding(0, 4),
+            Padding = new Padding(0, 4, 0, 4),
             VerticalAlignment = Align.Middle,
             HorizontalAlignment = Align.Middle,
             Children =

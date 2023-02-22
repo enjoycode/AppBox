@@ -10,7 +10,7 @@ namespace PixUI.CS2TS
             if (node.NameColon != null)
                 throw new EmitException("Named argument not supported", node.Span);
             if (node.RefKindKeyword.Kind() == SyntaxKind.OutKeyword)
-                throw new EmitException("out argument not supported", node.Span);
+                throw new EmitException($"out argument not supported at File: {node.SyntaxTree.FilePath}", node.Span);
 
             var isRefArg = node.RefKindKeyword.Kind() == SyntaxKind.RefKeyword;
             var typeInfo = SemanticModel.GetTypeInfo(node.Expression);

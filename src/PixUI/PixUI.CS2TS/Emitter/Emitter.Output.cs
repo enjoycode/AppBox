@@ -195,7 +195,7 @@ namespace PixUI.CS2TS
                 foreach (var item in constraints)
                 {
                     if (item is ConstructorConstraintSyntax)
-                        throw new EmitException("不支持范型约束: new()", item.Span);
+                        throw new EmitException($"不支持范型约束: new() at File: {item.SyntaxTree.FilePath}", item.Span);
                     
                     if (and)
                     {
@@ -511,7 +511,7 @@ namespace PixUI.CS2TS
             var typeInfo = SemanticModel.GetTypeInfo(type);
             if (typeInfo.Type == null) throw new Exception();
             if (typeInfo.Type is ITypeParameterSymbol)
-                throw new Exception("不支持is 范型类型,eg: obj is T");
+                throw new Exception($"不支持is 范型类型,eg: obj is T at File:{type.SyntaxTree.FilePath}");
             if (typeInfo.Type is INamedTypeSymbol namedType && namedType.IsGenericType)
             {
                 //只支持非指定类型的范型参数, eg: obj is GenericType<T>可以但obj is GenericType<string>不支持

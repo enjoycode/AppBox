@@ -1,49 +1,11 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	
-	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d46d9afc_002Dc5e7_002D4513_002D9f8a_002D085e4dc39d4c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=44f3bc08_002D24ed_002D4c9d_002Dacaf_002D12190fc9e68b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="EmitLiveChartsCore" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.TreeSitter.ParserTest.Test1&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.TreeSitter.QueryTest.Test1&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.TreeSitter.QueryTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CodeEditor.DocumentTest.Test1&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CodeEditor.DocumentTest.BuildTokensTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.TreeSitter.ParserTest.CSharpSymbolNames&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CodeEditor.DocumentTest.TokenizeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.DisposeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.EventTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.ConversionOperatorTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.DelegateTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitPixUIProject.EmitPixUI&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.EnumTypeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.OverrideOperatorTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.SystemTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.InterceptorTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.PropertyTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.BugTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.CollectionTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.InitializerTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.FirstTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitProject.EmitCodeEditor&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.Tests.Test2&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitProject.EmitPixUI&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.LiteralTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.MatrixTest.Test3&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.StructTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitProject.EmitAppBoxDev&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.NullableTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitProject.EmitAppStudio&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.MethodArgsTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.GenericTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.PathTest.Test1&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.ConstructorTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.IndexerTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.ExtensitionTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.IsGenericTypeTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.PatternTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitProject.EmitLiveChartsCore&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.RefArgTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.TaskTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.CastTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
+	
+	
+	
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=DATACONSISTENCYTEST/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

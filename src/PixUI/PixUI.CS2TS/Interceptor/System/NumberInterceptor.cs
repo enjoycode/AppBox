@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -36,9 +35,7 @@ namespace PixUI.CS2TS
             emitter.VisitToken(node.ArgumentList.CloseParenToken);
         }
 
-        private static void InterceptMemberAccess(Emitter emitter,
-            MemberAccessExpressionSyntax node,
-            ISymbol symbol)
+        private static void InterceptMemberAccess(Emitter emitter, MemberAccessExpressionSyntax node, ISymbol symbol)
         {
             //TODO:
 
@@ -88,8 +85,20 @@ namespace PixUI.CS2TS
                     case "IsNaN":
                         emitter.Write("Number.isNaN");
                         break;
+                    case "Epsilon":
+                        emitter.Write("Number.Epsilon");
+                        break;
+                    case "IsFinite":
+                        emitter.Write("Number.isFinite");
+                        break;
+                    case "IsInfinity":
+                        emitter.Write("!Number.isFinite");
+                        break;
+                    case "ToString":
+                        emitter.Write("toString");
+                        break;
                     default:
-                        throw new NotImplementedException(node.ToString());
+                        throw new NotImplementedException($"{node} at File: {node.SyntaxTree.FilePath}");
                 }
             }
         }

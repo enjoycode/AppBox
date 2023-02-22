@@ -187,8 +187,8 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaSharpDra
     public LvcPointD ScalePixelsToData(LvcPointD point, int xAxisIndex = 0, int yAxisIndex = 0)
     {
         if (core is not CartesianChart<SkiaSharpDrawingContext> cc) throw new Exception("core not found");
-        var xScaler = new Scaler(cc.DrawMarginLocation, cc.DrawMarginSize, cc.XAxes[xAxisIndex]);
-        var yScaler = new Scaler(cc.DrawMarginLocation, cc.DrawMarginSize, cc.YAxes[yAxisIndex]);
+        var xScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.XAxes[xAxisIndex]);
+        var yScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.YAxes[yAxisIndex]);
 
         return new LvcPointD { X = xScaler.ToChartValues(point.X), Y = yScaler.ToChartValues(point.Y) };
     }
@@ -197,8 +197,8 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaSharpDra
     {
         if (core is not CartesianChart<SkiaSharpDrawingContext> cc) throw new Exception("core not found");
 
-        var xScaler = new Scaler(cc.DrawMarginLocation, cc.DrawMarginSize, cc.XAxes[xAxisIndex]);
-        var yScaler = new Scaler(cc.DrawMarginLocation, cc.DrawMarginSize, cc.YAxes[yAxisIndex]);
+        var xScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.XAxes[xAxisIndex]);
+        var yScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.YAxes[yAxisIndex]);
 
         return new LvcPointD { X = xScaler.ToPixels(point.X), Y = yScaler.ToPixels(point.Y) };
     }

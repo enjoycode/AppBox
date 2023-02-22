@@ -146,7 +146,7 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
 
         _stackPanel ??= new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
         {
-            Padding = new Padding(0),
+            Padding = Padding.All(0),
             HorizontalAlignment = Align.Start,
             VerticalAlignment = Align.Middle,
         };
@@ -183,7 +183,7 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
 
         var sp = new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
         {
-            Padding = new Padding(15, 4),
+            Padding = new Padding(15, 4, 15, 4),
             VerticalAlignment = Align.Middle,
             HorizontalAlignment = Align.Middle,
             Children =

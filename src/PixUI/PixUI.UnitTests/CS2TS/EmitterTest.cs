@@ -151,5 +151,8 @@ namespace PixUI.UnitTests.CS2TS
         
         [Test]
         public async Task TaskTest() => await Run("TestTask.cs", true);
+        
+        [Test]
+        public async Task CastTest() => await Run("TestCast.cs", true);
     }
 }
