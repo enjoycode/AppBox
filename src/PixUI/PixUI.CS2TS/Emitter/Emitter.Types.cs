@@ -47,35 +47,34 @@ namespace PixUI.CS2TS
 
         #region =====Type Symbols====
 
-        internal readonly TypeSymbolCache _typeSymbolCache;
+        private readonly TypeSymbolCache _typeSymbolCache;
 
-        internal INamedTypeSymbol TypeOfICollection =>
+        private INamedTypeSymbol TypeOfICollection =>
             _typeSymbolCache.GetTypeByName("System.Collections.ICollection");
 
-        internal INamedTypeSymbol TypeOfICollectionGeneric =>
+        private INamedTypeSymbol TypeOfICollectionGeneric =>
             _typeSymbolCache.GetTypeByName("System.Collections.Generic.ICollection`1");
 
-        internal INamedTypeSymbol TypeOfIDictionary =>
+        private INamedTypeSymbol TypeOfIDictionary =>
             _typeSymbolCache.GetTypeByName("System.Collections.Generic.IDictionary`2");
 
-        internal INamedTypeSymbol TypeOfNullable =>
-            _typeSymbolCache.GetTypeByName("System.Nullable`1");
+        private INamedTypeSymbol TypeOfIEnumerable =>
+            _typeSymbolCache.GetTypeByName("System.Collections.Generic.IEnumerable`1");
+
+        private INamedTypeSymbol TypeOfNullable => _typeSymbolCache.GetTypeByName("System.Nullable`1");
 
         internal INamedTypeSymbol TypeOfAction => _typeSymbolCache.GetTypeByName("System.Action");
 
-        internal INamedTypeSymbol TypeOfAction1 =>
-            _typeSymbolCache.GetTypeByName("System.Action`1");
+        internal INamedTypeSymbol TypeOfAction1 => _typeSymbolCache.GetTypeByName("System.Action`1");
 
-        internal INamedTypeSymbol TypeOfDelegate =>
-            _typeSymbolCache.GetTypeByName("System.Delegate");
+        private INamedTypeSymbol TypeOfDelegate => _typeSymbolCache.GetTypeByName("System.Delegate");
 
-        internal INamedTypeSymbol TypeOfState => _typeSymbolCache.GetTypeByName("PixUI.State`1");
+        private INamedTypeSymbol TypeOfState => _typeSymbolCache.GetTypeByName("PixUI.State`1");
 
-        internal INamedTypeSymbol TypeOfTSTypeAttribute
-            => _typeSymbolCache.GetTypeByName("PixUI.TSTypeAttribute");
+        private INamedTypeSymbol TypeOfTSTypeAttribute => _typeSymbolCache.GetTypeByName("PixUI.TSTypeAttribute");
 
-        internal INamedTypeSymbol TypeOfTSInterfaceOfAttribute
-            => _typeSymbolCache.GetTypeByName("PixUI.TSInterfaceOfAttribute");
+        private INamedTypeSymbol TypeOfTSInterfaceOfAttribute =>
+            _typeSymbolCache.GetTypeByName("PixUI.TSInterfaceOfAttribute");
 
         private INamedTypeSymbol TypeOfTSRenameAttribute
             => _typeSymbolCache.GetTypeByName("PixUI.TSRenameAttribute");
@@ -83,19 +82,21 @@ namespace PixUI.CS2TS
         private INamedTypeSymbol TypeOfTSInterceptorAttribute =>
             _typeSymbolCache.GetTypeByName("PixUI.TSInterceptorAttribute");
 
-        internal INamedTypeSymbol TypeOfTSIndexerSetToMethodAttribute =>
+        private INamedTypeSymbol TypeOfTSIndexerSetToMethodAttribute =>
             _typeSymbolCache.GetTypeByName("PixUI.TSIndexerSetToMethodAttribute");
 
         #endregion
-        
+
         internal bool IsCollectionType(INamedTypeSymbol type)
         {
             //先判断本身是否ICollection
-            var isCollection = type.TypeKind == TypeKind.Interface && (
-                SymbolEqualityComparer.Default.Equals(type, TypeOfICollection)
-                ||
-                SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypeOfICollectionGeneric)
-            );
+            var isCollection = type.TypeKind == TypeKind.Interface &&
+                               (
+                                   SymbolEqualityComparer.Default.Equals(type, TypeOfICollection)
+                                   ||
+                                   SymbolEqualityComparer.Default.Equals(type.OriginalDefinition,
+                                       TypeOfICollectionGeneric)
+                               );
             //再判断有无实现ICollection接口
             if (!isCollection)
                 isCollection = type.AllInterfaces.Any(t =>
@@ -104,6 +105,16 @@ namespace PixUI.CS2TS
                     SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, TypeOfICollectionGeneric)
                 );
             return isCollection;
+        }
+
+        private bool IsIEnumerableType(INamedTypeSymbol type)
+        {
+            return type.TypeKind == TypeKind.Interface &&
+                   (
+                       SymbolEqualityComparer.Default.Equals(type, TypeOfIEnumerable)
+                       ||
+                       SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypeOfIEnumerable)
+                   );
         }
 
         private bool TryGetInterceptor(ISymbol? symbol, out ITSInterceptor? interceptor)

@@ -65,7 +65,7 @@ namespace PixUI.CS2TS
 
         internal void WriteLeadingTrivia(SyntaxNode node)
         {
-            if (!node.HasLeadingTrivia) return;
+            if (!node.HasLeadingTrivia || _disableVisitLeadingTrivia) return;
 
             foreach (var trivia in node.GetLeadingTrivia())
             {
@@ -75,7 +75,8 @@ namespace PixUI.CS2TS
 
         internal void WriteLeadingWhitespaceOnly(SyntaxNode node)
         {
-            if (!node.HasLeadingTrivia) return;
+            if (!node.HasLeadingTrivia || _disableVisitLeadingTrivia) return;
+            
             var whitespace = node.GetLeadingTrivia()
                 .Last(t => t.Kind() == SyntaxKind.WhitespaceTrivia);
             Write(' ', whitespace.Span.Length);
@@ -83,7 +84,7 @@ namespace PixUI.CS2TS
 
         internal void WriteTrailingTrivia(SyntaxNode node)
         {
-            if (!node.HasTrailingTrivia) return;
+            if (!node.HasTrailingTrivia || _disableVisitTrailingTrivia) return;
 
             foreach (var trivia in node.GetTrailingTrivia())
             {

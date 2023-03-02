@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -72,7 +73,54 @@ namespace PixUI.CS2TS
             // body
             if (node.Body != null)
             {
+                //判断是否yield方法
+                var retunTypeSymbol = SemanticModel.GetSymbolInfo(node.ReturnType).Symbol;
+                var isYieldMethod = retunTypeSymbol is INamedTypeSymbol namedTypeSymbol &&
+                                    IsIEnumerableType(namedTypeSymbol) &&
+                                    node.Body.DescendantNodes().Any(n => n is YieldStatementSyntax);
+
+                if (isYieldMethod)
+                {
+                    AddUsedModule("System");
+                    WriteLeadingWhitespaceOnly(node.Body);
+                    Write("{ const _$generator = function* (");
+                    if (!ToJavaScript)
+                    {
+                        Write("this: ");
+                        Write(node.Ancestors().OfType<TypeDeclarationSyntax>().First().Identifier.Text);
+                        if (node.ParameterList.Parameters.Count > 0) Write(',');
+                    }
+
+                    VisitSeparatedList(node.ParameterList.Parameters);
+                    Write(')');
+                }
+
                 Visit(node.Body);
+
+                if (isYieldMethod)
+                {
+                    WriteLeadingWhitespaceOnly(node.Body);
+                    Write(".bind(this);");
+                    Write("return System.EnumerableFrom(");
+                    if (node.ParameterList.Parameters.Count == 0)
+                    {
+                        Write("_$generator");
+                    }
+                    else
+                    {
+                        Write("() => _$generator(");
+                        var first = true;
+                        foreach (var parameter in node.ParameterList.Parameters)
+                        {
+                            if (first) first = false;
+                            else Write(", ");
+                            Write(parameter.Identifier.Text);
+                        }
+                        Write(')');
+                    }
+                    Write(");}\n");
+                }
+
                 return;
             }
 

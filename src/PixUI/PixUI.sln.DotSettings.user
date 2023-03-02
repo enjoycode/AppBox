@@ -3,6 +3,8 @@
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitProject.EmitLiveChartsCore&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.CastTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.CS2TS.EmitterTest.YieldTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::62959C4B-FF54-4BBB-9A2A-0068CDBAE35A::net6.0::PixUI.UnitTests.PathTest.YieldTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	
