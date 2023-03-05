@@ -8,6 +8,10 @@ namespace PixUI.CS2TS
     {
         public override void VisitParameter(ParameterSyntax node)
         {
+            var isParams = node.Modifiers.Any(m => m.Kind() == SyntaxKind.ParamsKeyword);
+            if (isParams)
+                Write("...");
+            
             Write(node.Identifier.Text);
 
             //需要特殊处理抽象方法的默认参数 eg: abstract void SomeMethod(SomeType? para = null);

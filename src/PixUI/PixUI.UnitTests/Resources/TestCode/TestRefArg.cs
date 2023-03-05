@@ -1,5 +1,7 @@
 class DemoClass
 {
+    void Params(params int[] args) { }
+    
     void CallWithRefArg(ref int arg)
     {
         arg++;
