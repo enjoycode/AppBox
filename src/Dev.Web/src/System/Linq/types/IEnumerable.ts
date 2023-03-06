@@ -115,6 +115,8 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      */
     AverageAsync(selector: (x: TSource) => Promise<number>): Promise<number>
 
+    Cast<TResult>(): IEnumerable<TResult>
+
     /**
      * Concatenates two sequences.
      * @param second The sequence to concatenate to the first sequence.
@@ -171,6 +173,20 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      * @returns An IAsyncEnumerable<T> that contains distinct elements from the source sequence.
      */
     DistinctAsync(comparer: IAsyncEqualityComparer<TSource>): IAsyncEnumerable<TSource>
+
+    /**
+     * Performs a specified action on each element of the Iterable<TSource>
+     * @param action The action to take an each element
+     * @returns A new IEnumerable<T> that executes the action lazily as you iterate.
+     */
+    Each(action: (x: TSource) => void): IEnumerable<TSource>
+
+    /**
+     * Performs a specified action on each element of the Iterable<TSource>
+     * @param action The async action to take an each element
+     * @returns A new IAsyncEnumerable<T> that executes the action lazily as you iterate.
+     */
+    EachAsync(action: (x: TSource) => Promise<void>): IAsyncEnumerable<TSource>
 
     /**
      * Returns the element at a specified index in a sequence.
@@ -245,20 +261,6 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      * otherwise, the first element in source that passes the test specified by predicate.
      */
     FirstOrDefaultAsync(predicate: (x: TSource) => Promise<boolean>): Promise<TSource | null>
-
-    /**
-     * Performs a specified action on each element of the Iterable<TSource>
-     * @param action The action to take an each element
-     * @returns A new IEnumerable<T> that executes the action lazily as you iterate.
-     */
-    Each(action: (x: TSource) => void): IEnumerable<TSource>
-
-    /**
-     * Performs a specified action on each element of the Iterable<TSource>
-     * @param action The async action to take an each element
-     * @returns A new IAsyncEnumerable<T> that executes the action lazily as you iterate.
-     */
-    EachAsync(action: (x: TSource) => Promise<void>): IAsyncEnumerable<TSource>
 
     /**
      * Groups the elements of a sequence according to a specified key selector function.
@@ -521,8 +523,6 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      * An IEnumerable<T> whose elements are the result of invoking the transform function on each element of source.
      */
     Select<TResult>(selector: (x: TSource, index: number) => TResult): IEnumerable<TResult>
-    
-    Cast<TResult>(): IEnumerable<TResult>
 
     /**
      * Projects each element of a sequence into a new form.
@@ -722,7 +722,7 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      * @returns An array of elements
      */
     ToArray(): TSource[]
-    
+
     ToList(): IList<TSource>
 
     /**

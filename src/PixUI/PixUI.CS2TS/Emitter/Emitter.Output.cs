@@ -76,7 +76,7 @@ namespace PixUI.CS2TS
         internal void WriteLeadingWhitespaceOnly(SyntaxNode node)
         {
             if (!node.HasLeadingTrivia || _disableVisitLeadingTrivia) return;
-            
+
             var whitespace = node.GetLeadingTrivia()
                 .Last(t => t.Kind() == SyntaxKind.WhitespaceTrivia);
             Write(' ', whitespace.Span.Length);
@@ -197,7 +197,7 @@ namespace PixUI.CS2TS
                 {
                     if (item is ConstructorConstraintSyntax)
                         throw new EmitException($"不支持范型约束: new() at File: {item.SyntaxTree.FilePath}", item.Span);
-                    
+
                     if (and)
                     {
                         Write(" & ");
@@ -319,7 +319,7 @@ namespace PixUI.CS2TS
                 Write(typeParameter.Name);
                 return;
             }
-            
+
             //System type first, eg: string
             if (TryWritePredefinedTypeSymbol(typeSymbol))
                 return;
@@ -457,18 +457,19 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 类或结构是否实现了标为[TSInterfaceOf]的接口，是则生成标记成员
         /// </summary>
-        internal void TryWriteInterfaceOfMeta(TypeDeclarationSyntax node)
+        private void TryWriteInterfaceOfMeta(TypeDeclarationSyntax node)
         {
             if (node.BaseList == null) return;
 
-            //TODO:一些系统接口同样写入类型信息
+
             foreach (var baseType in node.BaseList.Types)
             {
                 var typeInfo = SemanticModel.GetTypeInfo(baseType.Type);
                 var type = typeInfo.Type!;
-                if (type is not { TypeKind: TypeKind.Interface } || type.IsSystemNamespace())
+                if (type is not { TypeKind: TypeKind.Interface })
                     continue;
-                if (!type.IsTSInterfaceOfAttribute(TypeOfTSInterfaceOfAttribute))
+                //注意目前实现所有系统接口同样写入类型信息
+                if (!(type.IsSystemNamespace() || type.IsTSInterfaceOfAttribute(TypeOfTSInterfaceOfAttribute)))
                     continue;
 
                 Write("private static readonly $meta_");

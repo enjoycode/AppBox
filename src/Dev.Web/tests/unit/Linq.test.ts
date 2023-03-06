@@ -19,16 +19,18 @@ class Child extends Base {
 }
 
 class YieldClass {
-    private c: number = 0;
+    //private c: number = 0;
 
     public Gen(count: number): IEnumerable<number> {
         const generator = function* (this: YieldClass, count: number) {
+            let c = 0;
             while (true) {
-                this.c++;
-                if (this.c > count)
+                c++;
+                if (c > count) {
                     return;
-                else
-                    yield this.c;
+                } else {
+                    yield c;
+                }
             }
         }.bind(this);
         return from(() => generator(count));
@@ -55,7 +57,15 @@ describe("LinqTests", () => {
         for (let item of e) {
             console.log(item);
         }
-        expect(e.Sum()).toEqual(0);
+        expect(e.Sum()).toEqual(55);
+    });
+    
+    it("FirstTest", () => {
+        let c = new YieldClass();
+        let e: IEnumerable<number> = c.Gen(10);
+        let n1 = e.First();
+        let n2 = e.First();
+        expect(n1).toEqual(n2);
     });
 
 });
