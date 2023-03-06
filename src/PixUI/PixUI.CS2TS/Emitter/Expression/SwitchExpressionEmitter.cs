@@ -38,7 +38,7 @@ namespace PixUI.CS2TS
                 else
                 {
                     throw new NotImplementedException(
-                        $"SwitchExpression with {arm.Pattern.GetType()}");
+                        $"SwitchExpression with {arm.Pattern.GetType()} at File:{node.SyntaxTree.FilePath}");
                 }
             }
         }

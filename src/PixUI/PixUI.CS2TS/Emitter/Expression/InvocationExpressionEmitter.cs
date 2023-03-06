@@ -257,6 +257,8 @@ namespace PixUI.CS2TS
         {
             if (!symbol.IsExtensionMethod || symbol.IsSystemNamespace() /*暂排除系统库*/)
                 return false;
+            if (node.Expression is not MemberAccessExpressionSyntax)
+                return false;
             
             WriteTypeSymbol(symbol.ContainingType, true);
             Write('.');
