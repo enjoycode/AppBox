@@ -17,7 +17,8 @@ namespace PixUI.CS2TS
             //转换实例成员或静态成员
             if (symbol is IPropertySymbol or IFieldSymbol or IMethodSymbol or IEventSymbol)
             {
-                TryWriteThisOrStaticMemberType(node, symbol);
+                if (symbol is not IMethodSymbol { MethodKind: MethodKind.LocalFunction })
+                    TryWriteThisOrStaticMemberType(node, symbol);
             }
             //转换类型(添加包名称)
             else if (symbol is INamedTypeSymbol)

@@ -104,6 +104,8 @@
       <None Include="Resources\TestCode\TestCast.cs" />
       <Compile Remove="Resources\TestCode\TestYield.cs" />
       <None Include="Resources\TestCode\TestYield.cs" />
+      <Compile Remove="Resources\TestCode\TestInnerFunction.cs" />
+      <None Include="Resources\TestCode\TestInnerFunction.cs" />
     </ItemGroup>
 
     <ItemGroup>
