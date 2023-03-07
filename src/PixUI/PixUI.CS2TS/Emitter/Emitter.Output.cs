@@ -574,61 +574,77 @@ namespace PixUI.CS2TS
             if (typeInfo.IsImplictConversionToState(TypeOfState))
             {
                 ImplictConversionToState(expression, typeInfo);
+                return;
+            }
+
+            var isNullable = false;
+            var isReadonly = false;
+            var needCloneStruct = expression is not ObjectCreationExpressionSyntax &&
+                                  expression is not InvocationExpressionSyntax &&
+                                  expression is not LiteralExpressionSyntax &&
+                                  typeInfo.IsStructType(out isNullable, out isReadonly, TypeOfNullable);
+            if (isReadonly)
+            {
+                // readonly的结构体始终不需要复制
+                needCloneStruct = false;
             }
             else
             {
-                var isNullable = false;
-                var isReadonly = false;
-                var needCloneStruct = expression is not ObjectCreationExpressionSyntax &&
-                                      expression is not InvocationExpressionSyntax &&
-                                      expression is not LiteralExpressionSyntax &&
-                                      typeInfo.IsStructType(out isNullable, out isReadonly,
-                                          TypeOfNullable);
-                if (isReadonly)
+                //排除除??外的BinaryExpression
+                if (needCloneStruct &&
+                    expression is BinaryExpressionSyntax binaryExpressionSyntax &&
+                    binaryExpressionSyntax.OperatorToken.Kind() !=
+                    SyntaxKind.QuestionQuestionToken)
                 {
-                    // readonly的结构体始终不需要复制
                     needCloneStruct = false;
                 }
-                else
+
+                //排除 aa?.GetSomeStructValue()
+                if (needCloneStruct && expression is ConditionalAccessExpressionSyntax
+                    {
+                        WhenNotNull: InvocationExpressionSyntax
+                    })
                 {
-                    //排除除??外的BinaryExpression
-                    if (needCloneStruct &&
-                        expression is BinaryExpressionSyntax binaryExpressionSyntax &&
-                        binaryExpressionSyntax.OperatorToken.Kind() !=
-                        SyntaxKind.QuestionQuestionToken)
-                    {
-                        needCloneStruct = false;
-                    }
-
-                    //排除 aa?.GetSomeStructValue()
-                    if (needCloneStruct && expression is ConditionalAccessExpressionSyntax
-                        {
-                            WhenNotNull: InvocationExpressionSyntax
-                        })
-                    {
-                        needCloneStruct = false;
-                    }
-
-                    //特殊排除一些方法传参不需要clone, eg: Canvas.DrawRect(in Rect rect)
-                    if (needCloneStruct && expression.Parent is ArgumentSyntax argumentSyntax)
-                    {
-                        var argList = (ArgumentListSyntax)argumentSyntax.Parent!;
-                        var argIndex = argList.Arguments.IndexOf(argumentSyntax);
-                        var symbol = SemanticModel.GetSymbolInfo(argumentSyntax.Parent!.Parent!)
-                            .Symbol;
-                        if (symbol is IMethodSymbol methodSymbol &&
-                            methodSymbol.Parameters[argIndex].RefKind == RefKind.In)
-                            needCloneStruct = false;
-                    }
+                    needCloneStruct = false;
                 }
 
-                //TODO:减少不必要的()对
-                if (needCloneStruct)
-                    Write('(');
-                Visit(expression);
-                if (needCloneStruct)
-                    Write(isNullable ? ")?.Clone()" : ").Clone()");
+                //特殊排除一些方法传参不需要clone, eg: Canvas.DrawRect(in Rect rect)
+                if (needCloneStruct && expression.Parent is ArgumentSyntax argumentSyntax)
+                {
+                    var argList = (ArgumentListSyntax)argumentSyntax.Parent!;
+                    var argIndex = argList.Arguments.IndexOf(argumentSyntax);
+                    var symbol = SemanticModel.GetSymbolInfo(argumentSyntax.Parent!.Parent!).Symbol;
+                    if (symbol is IMethodSymbol methodSymbol &&
+                        methodSymbol.Parameters[argIndex].RefKind == RefKind.In)
+                        needCloneStruct = false;
+                }
             }
+
+            //TODO:减少不必要的()对
+            if (needCloneStruct)
+                Write('(');
+
+            //特殊处理long to number的转换
+            var isLongToNumber = typeInfo is
+            {
+                Type: { SpecialType: SpecialType.System_Int64 or SpecialType.System_UInt64 },
+                ConvertedType:
+                {
+                    SpecialType: SpecialType.System_Int16
+                    or SpecialType.System_Int32 or SpecialType.System_UInt16
+                    or SpecialType.System_UInt32 or SpecialType.System_Single
+                    or SpecialType.System_Double
+                }
+            };
+            if (isLongToNumber)
+                Write("Number(");
+
+            Visit(expression);
+
+            if (isLongToNumber)
+                Write(')');
+            if (needCloneStruct)
+                Write(isNullable ? ")?.Clone()" : ").Clone()");
         }
 
         /// <summary>

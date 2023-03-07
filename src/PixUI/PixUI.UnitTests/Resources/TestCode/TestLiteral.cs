@@ -8,4 +8,9 @@ line2";
         string b = "str";
         string c = $"{a}, {b}";
     }
+
+    void TestLong()
+    {
+        long a = long.MinValue;
+    }
 }

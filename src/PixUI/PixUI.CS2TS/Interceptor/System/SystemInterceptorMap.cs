@@ -20,6 +20,8 @@ namespace PixUI.CS2TS
             { "byte", NumberInterceptor.Default },
             { "float", NumberInterceptor.Default },
             { "double", NumberInterceptor.Default },
+            { "long", NumberInterceptor.Default },
+            //TODO: others
         };
 
         internal static bool TryGetInterceptor(string name, out ITSInterceptor interceptor)

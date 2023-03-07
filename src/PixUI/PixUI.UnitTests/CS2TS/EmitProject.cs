@@ -43,8 +43,9 @@ namespace PixUI.UnitTests.CS2TS
                 var filePath = System.IO.Path.Combine(fullPath,
                     System.IO.Path.GetFileNameWithoutExtension(document.Name) + ".ts");
                 var typeScriptCode = emitter.GetTypeScriptCode();
-                if (!string.IsNullOrEmpty(typeScriptCode))
-                    await File.WriteAllTextAsync(filePath, typeScriptCode);
+                if (string.IsNullOrEmpty(typeScriptCode))
+                    continue;
+                await File.WriteAllTextAsync(filePath, typeScriptCode);
 
                 // add to exports
                 internalExports.Append("export * from './");
@@ -63,8 +64,6 @@ namespace PixUI.UnitTests.CS2TS
             Console.WriteLine($"耗时: {sw.ElapsedMilliseconds} ms");
 
             //save exports file TODO:需要按依赖关系排序输出
-            // translator.ExportGenericTypeOverloads(internalExports);
-            //
             // await File.WriteAllTextAsync(Path.Combine(outPath, "Internal.ts"),
             //     internalExports.ToString());
         }
@@ -128,6 +127,8 @@ namespace PixUI.UnitTests.CS2TS
 
             Assert.True(translator.DumpErrors() == 0);
 
+            var internalExports = new StringBuilder(1024);
+
             var sw = Stopwatch.StartNew();
             foreach (var document in workspace.CurrentSolution.Projects.Single().Documents)
             {
@@ -144,12 +145,29 @@ namespace PixUI.UnitTests.CS2TS
                 var filePath = System.IO.Path.Combine(fullPath,
                     System.IO.Path.GetFileNameWithoutExtension(document.Name) + ".ts");
                 var typeScriptCode = emitter.GetTypeScriptCode();
-                if (!string.IsNullOrEmpty(typeScriptCode))
-                    await File.WriteAllTextAsync(filePath, typeScriptCode);
+                if (string.IsNullOrEmpty(typeScriptCode))
+                    continue;
+                await File.WriteAllTextAsync(filePath, typeScriptCode);
+
+                // add to exports
+                internalExports.Append("export * from './");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    internalExports.Append(path);
+                    internalExports.Append('/');
+                }
+
+                internalExports.Append(System.IO.Path.GetFileNameWithoutExtension(document.Name));
+                internalExports.Append('\'');
+                internalExports.AppendLine();
             }
 
             sw.Stop();
             Console.WriteLine($"耗时: {sw.ElapsedMilliseconds} ms");
+
+            //save exports file TODO:需要按依赖关系排序输出
+            await File.WriteAllTextAsync(System.IO.Path.Combine(outPath, "Internal.ts"),
+                internalExports.ToString());
         }
 
         [Test]

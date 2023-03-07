@@ -272,7 +272,9 @@ namespace PixUI.CS2TS
                     Write("get ");
                     Write(node.Identifier.Text);
                     Write("(): ");
+                    DisableVisitLeadingTrivia();
                     Visit(node.Type);
+                    EnableVisitLeadingTrivia();
                     Write(";\n");
                 }
                 else
@@ -288,7 +290,9 @@ namespace PixUI.CS2TS
                     Write("set ");
                     Write(node.Identifier.Text);
                     Write("(value: ");
+                    DisableVisitLeadingTrivia();
                     Visit(node.Type);
+                    EnableVisitLeadingTrivia();
                     Write(");");
                 }
             }

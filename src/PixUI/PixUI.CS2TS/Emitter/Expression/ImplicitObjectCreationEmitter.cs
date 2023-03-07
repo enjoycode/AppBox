@@ -8,7 +8,15 @@ namespace PixUI.CS2TS
         public override void VisitImplicitObjectCreationExpression(ImplicitObjectCreationExpressionSyntax node)
         {
             var symbol = SemanticModel.GetSymbolInfo(node).Symbol;
-
+            //预先处理 object obj = new();
+            if (symbol is { ContainingType: ITypeSymbol { SpecialType: SpecialType.System_Object } })
+            {
+                WriteLeadingTrivia(node);
+                Write("{}");
+                WriteTrailingTrivia(node);
+                return;
+            }
+            
             //尝试系统拦截
             if (symbol != null && symbol.IsSystemNamespace() &&
                 SystemInterceptorMap.TryGetInterceptor(symbol.ContainingType.ToString(),

@@ -20,7 +20,7 @@ namespace PixUI.CS2TS
                         var lastChar = number[^1];
                         number = lastChar switch
                         {
-                            'f' or 'F' => number[..^1],
+                            'f' or 'F' or 'd' or 'D' => number[..^1],
                             'l' or 'L' => number[..^1] + "n",
                             _ => number
                         };

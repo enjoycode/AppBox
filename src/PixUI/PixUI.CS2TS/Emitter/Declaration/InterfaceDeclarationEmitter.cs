@@ -17,7 +17,12 @@ namespace PixUI.CS2TS
 
             // interface name
             Write("interface ");
-            VisitToken(node.Identifier);
+            var name = node.Identifier.Text;
+            TryRenameDeclaration(node.AttributeLists, ref name);
+            //TODO: 添加检查类型名称 Translator.AddType();
+            VisitLeadingTrivia(node.Identifier);
+            Write(name);
+            VisitTrailingTrivia(node.Identifier);
 
             // generic type parameters
             WriteTypeParameters(node.TypeParameterList, node.ConstraintClauses);

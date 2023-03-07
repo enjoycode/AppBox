@@ -68,8 +68,7 @@ namespace PixUI.CS2TS
                         throw new NotImplementedException();
                 }
             }
-            else if (specialType == SpecialType.System_Single ||
-                     specialType == SpecialType.System_Double)
+            else if (specialType is SpecialType.System_Single or SpecialType.System_Double)
             {
                 switch (name)
                 {
@@ -96,6 +95,20 @@ namespace PixUI.CS2TS
                         break;
                     case "ToString":
                         emitter.Write("toString");
+                        break;
+                    default:
+                        throw new NotImplementedException($"{node} at File: {node.SyntaxTree.FilePath}");
+                }
+            }
+            else if (specialType is SpecialType.System_Int64)
+            {
+                switch (name)
+                {
+                    case "MinValue":
+                        emitter.Write("BigInt('-9223372036854775808')");
+                        break;
+                    case "MaxValue":
+                        emitter.Write("BigInt('9223372036854775807')");
                         break;
                     default:
                         throw new NotImplementedException($"{node} at File: {node.SyntaxTree.FilePath}");

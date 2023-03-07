@@ -11,16 +11,17 @@ namespace PixUI.CS2TS
             var isParams = node.Modifiers.Any(m => m.Kind() == SyntaxKind.ParamsKeyword);
             if (isParams)
                 Write("...");
-            
+
             Write(node.Identifier.Text);
 
-            //需要特殊处理抽象方法的默认参数 eg: abstract void SomeMethod(SomeType? para = null);
+            //需要特殊处理抽象方法的默认参数以及接口方法 eg: abstract void SomeMethod(SomeType? para = null);
             var ignoreDefault = node.Default != null &&
                                 node.Parent?.Parent is MethodDeclarationSyntax methodDeclaration &&
-                                methodDeclaration.HasAbstractModifier();
-            if (!ToJavaScript && ignoreDefault &&
+                                (methodDeclaration.HasAbstractModifier() ||
+                                 methodDeclaration.Parent is InterfaceDeclarationSyntax);
+            if (!ToJavaScript && ignoreDefault /* &&
                 node.Default!.Value is LiteralExpressionSyntax literal &&
-                literal.Kind() == SyntaxKind.NullLiteralExpression)
+                literal.Kind() == SyntaxKind.NullLiteralExpression*/)
                 Write('?');
 
             if (!ToJavaScript && node.Type != null)
@@ -33,6 +34,7 @@ namespace PixUI.CS2TS
                     AddUsedModule("System");
                     Write("System.Ref<");
                 }
+
                 Visit(node.Type);
                 if (isRef)
                     Write('>');
@@ -42,5 +44,4 @@ namespace PixUI.CS2TS
                 Visit(node.Default);
         }
     }
-    
 }

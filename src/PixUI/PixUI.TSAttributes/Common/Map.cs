@@ -24,6 +24,9 @@ public abstract class MapBase<K, V>
 
     public int size => _dictionary.Count;
 
+    public IEnumerable<K> Keys => _dictionary.Keys;
+    public IEnumerable<V> Values => _dictionary.Values;
+
     public V? get(K key)
     {
         _dictionary.TryGetValue(key, out var value);

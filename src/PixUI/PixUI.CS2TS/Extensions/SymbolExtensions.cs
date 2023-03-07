@@ -62,8 +62,7 @@ namespace PixUI.CS2TS
         /// <summary>
         /// 是否需要隐式转换为State<T>类型
         /// </summary>
-        internal static bool IsImplictConversionToState(this TypeInfo typeInfo,
-            INamedTypeSymbol stateType)
+        internal static bool IsImplictConversionToState(this TypeInfo typeInfo, INamedTypeSymbol stateType)
         {
             if (typeInfo.Type == null || typeInfo.ConvertedType == null) return false;
 

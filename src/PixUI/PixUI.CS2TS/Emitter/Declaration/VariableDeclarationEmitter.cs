@@ -9,7 +9,7 @@ namespace PixUI.CS2TS
             WriteLeadingTrivia(node.Type);
 
             //由于TypeScript不支持多变量定义，暂转换为相同的多个定义
-            if (!(node.Parent is FieldDeclarationSyntax | node.Parent is PropertyDeclarationSyntax))
+            if (node.Parent is not (FieldDeclarationSyntax or PropertyDeclarationSyntax))
                 Write("let ");
 
             var multi = false;
@@ -19,6 +19,8 @@ namespace PixUI.CS2TS
                 {
                     //可能上级为for(declaration内)
                     Write(node.Parent is ForStatementSyntax ? ", " : "; ");
+                    if (node.Parent is not (FieldDeclarationSyntax or PropertyDeclarationSyntax or ForStatementSyntax))
+                        Write("let ");
                 }
                 else multi = true;
 

@@ -51,7 +51,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task FirstTest() => await Run("TestClass.cs");
 
         [Test]
-        public async Task LiteralTest() => await Run("TestLiteral.cs");
+        public async Task LiteralTest() => await Run("TestLiteral.cs", true);
 
         [Test]
         public async Task StructTest() => await Run("TestStruct.cs");

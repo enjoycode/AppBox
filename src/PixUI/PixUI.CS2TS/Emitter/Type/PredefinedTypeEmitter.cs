@@ -24,6 +24,10 @@ namespace PixUI.CS2TS
                 case SyntaxKind.DoubleKeyword:
                     Write("number");
                     break;
+                case SyntaxKind.LongKeyword:
+                case SyntaxKind.ULongKeyword:
+                    Write("bigint");
+                    break;
                 case SyntaxKind.BoolKeyword:
                     Write("boolean");
                     break;
