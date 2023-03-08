@@ -41,6 +41,14 @@ export class Rect extends Float32Array {
         return this[3] - this[1];
     }
 
+    public get MidX() {
+        return this.Left + (this.Width / 2);
+    }
+
+    public get MidY() {
+        return this.Top + (this.Height / 2);
+    }
+
     public get IsEmpty(): boolean {
         return Rect.op_Equality(this, Rect.Empty);
     }

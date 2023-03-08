@@ -149,7 +149,7 @@ public class DoughnutGeometry : Geometry, IDoughnutGeometry<SkiaSharpDrawingCont
             var x = pushout * (float)Math.Cos(pushoutAngle * toRadians);
             var y = pushout * (float)Math.Sin(pushoutAngle * toRadians);
 
-            _ = context.Canvas.Save();
+            context.Canvas.Save();
             context.Canvas.Translate(x, y);
         }
 

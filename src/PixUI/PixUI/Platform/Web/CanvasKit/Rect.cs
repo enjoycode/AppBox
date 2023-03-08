@@ -29,6 +29,10 @@ namespace PixUI
         public float Width => 0;
 
         public float Height => 0;
+        
+        public float MidX => 0;
+
+        public float MidY => 0;
 
         public void Offset(float x, float y) { }
 

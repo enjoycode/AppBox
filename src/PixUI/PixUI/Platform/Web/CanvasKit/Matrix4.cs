@@ -6,6 +6,33 @@ namespace PixUI
     [TSType("PixUI.Matrix4")]
     public struct Matrix4 : IEquatable<Matrix4>
     {
+        public Matrix4(
+            float m0, float m1, float m2, float m3,
+            float m4, float m5, float m6, float m7,
+            float m8, float m9, float m10, float m11,
+            float m12, float m13, float m14, float m15)
+        {
+            M0 = m0;
+            M1 = m1;
+            M2 = m2;
+            M3 = m3;
+
+            M4 = m4;
+            M5 = m5;
+            M6 = m6;
+            M7 = m7;
+
+            M8 = m8;
+            M9 = m9;
+            M10 = m10;
+            M11 = m11;
+
+            M12 = m12;
+            M13 = m13;
+            M14 = m14;
+            M15 = m15;
+        }
+        
         public float M0 { get; private set; }
         public float M1 { get; private set; }
         public float M2 { get; private set; }

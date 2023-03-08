@@ -30,11 +30,20 @@ namespace PixUI
         [TSRename("arcToRotated")]
         public void ArcTo(float rx, float ry, float xAxisRotate, bool useSmallArc, bool isCCW, float x, float y) {}
         
+        [TSRename("cubicTo")]
+        public void CubicTo(float x0, float y0, float x1, float y1, float x2, float y2) {}
+        
         [TSRename("offset")]
         public void Offset(float dx, float dy) {}
 
         [TSRename("op")]
         public bool Op(Path other, PathOp pathOp) => true;
+        
+        [TSRename("getBounds")]
+        public Rect GetBounds() => Rect.Empty;
+        
+        [TSRename("close")]
+        public void Close() {}
 
         [TSRename("delete")]
         public void Dispose() { }

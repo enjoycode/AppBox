@@ -15,7 +15,7 @@ namespace PixUI
         private IntPtr _assetFontMgrHandle;
 
         private readonly HashSet<string> _loading = new();
-        private readonly Dictionary<string, SKTypeface> _loaded = new();
+        private readonly Dictionary<string, Typeface> _loaded = new();
 
         internal IntPtr Handle => _fontCollectionHandle;
 
@@ -29,7 +29,7 @@ namespace PixUI
 
         private void RegisterTypefaceToAsset(SKData data, string fontFamily)
         {
-            var typeface = SKTypeface.FromData(data);
+            var typeface = Typeface.FromData(data);
             if (typeface == null)
                 return;
 
@@ -66,7 +66,7 @@ namespace PixUI
         /// <summary>
         /// 仅从资源中匹配，目前仅用于加载Icon及Emoji字体
         /// </summary>
-        public SKTypeface? TryMatchFamilyFromAsset(string familyName)
+        public Typeface? TryMatchFamilyFromAsset(string familyName)
         {
             return _loaded.TryGetValue(familyName, out var typeface) ? typeface : null;
         }

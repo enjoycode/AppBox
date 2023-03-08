@@ -3,12 +3,12 @@ using System;
 
 namespace PixUI
 {
-    public sealed class SKTypeface : SKObject, ISKReferenceCounted
+    public sealed class Typeface : SKObject, ISKReferenceCounted
     {
-        internal static SKTypeface? GetObject(IntPtr handle) =>
-            GetOrAddObject(handle, (h, o) => new SKTypeface(h, o));
+        internal static Typeface? GetObject(IntPtr handle) =>
+            GetOrAddObject(handle, (h, o) => new Typeface(h, o));
 
-        public static SKTypeface? FromData(SKData data, int index = 0)
+        public static Typeface? FromData(SKData data, int index = 0)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -16,7 +16,7 @@ namespace PixUI
             return GetObject(SkiaApi.sk_typeface_create_from_data(data.Handle, index));
         }
 
-        internal SKTypeface(IntPtr handle, bool owns) : base(handle, owns) { }
+        internal Typeface(IntPtr handle, bool owns) : base(handle, owns) { }
 
         public string FamilyName =>
             (string)SKString.GetObject(SkiaApi.sk_typeface_get_family_name(Handle))!;

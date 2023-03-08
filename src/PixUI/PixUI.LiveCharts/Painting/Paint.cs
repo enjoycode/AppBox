@@ -26,14 +26,15 @@ using System.Linq;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
 using LiveCharts.Drawing;
-using LiveCharts.Painting.Effects;
-using LiveCharts.Painting.ImageFilters;
+using PixUI;
+using ImageFilter = LiveCharts.Painting.ImageFilters.ImageFilter;
+using PathEffect = LiveCharts.Painting.Effects.PathEffect;
 
 
 namespace LiveCharts.Painting;
 
 /// <inheritdoc cref="IPaint{TDrawingContext}" />
-public abstract class Paint : Animatable, IDisposable, IPaint<SkiaSharpDrawingContext>
+public abstract class Paint : Animatable, IPaint<SkiaSharpDrawingContext>
 {
     private readonly FloatMotionProperty _strokeMiterTransition;
     private readonly Dictionary<object, HashSet<IDrawable<SkiaSharpDrawingContext>>> _geometriesByCanvas = new();
@@ -102,7 +103,7 @@ public abstract class Paint : Animatable, IDisposable, IPaint<SkiaSharpDrawingCo
     /// Gets or sets the SKTypeface, if null, LiveCharts will build one based on the
     /// <see cref="FontFamily"/> and <see cref="SKFontStyle"/> properties. Default is null.
     /// </summary>
-    public SKTypeface? SKTypeface { get; set; }
+    public Typeface? SKTypeface { get; set; }
 
     /// <summary>
     /// Gets a value indication whether the paint has a custom font.
@@ -266,7 +267,7 @@ public abstract class Paint : Animatable, IDisposable, IPaint<SkiaSharpDrawingCo
     /// Gets a <see cref="SKTypeface"/> from the <see cref="FontFamily"/> property.
     /// </summary>
     /// <returns></returns>
-    protected internal SKTypeface GetSKTypeface()
+    protected internal Typeface GetSKTypeface()
     {
         // // return the defined typeface.
         // if (SKTypeface is not null) return SKTypeface;

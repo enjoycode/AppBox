@@ -40,45 +40,42 @@ public sealed class SkiaSharpDrawingContext : DrawingContext
     /// </summary>
     /// <param name="motionCanvas">The motion canvas.</param>
     /// <param name="info">The information.</param>
-    /// <param name="surface">The surface.</param>
     /// <param name="canvas">The canvas.</param>
     /// <param name="clearOnBegingDraw">Indicates whether the canvas is cleared on frame draw.</param>
     public SkiaSharpDrawingContext(
         MotionCanvas<SkiaSharpDrawingContext> motionCanvas,
         SKImageInfo info,
-        SKSurface surface,
         SKCanvas canvas,
         bool clearOnBegingDraw = true)
     {
         MotionCanvas = motionCanvas;
         Info = info;
-        Surface = surface;
         Canvas = canvas;
         PaintTask = null!;
         Paint = null!;
         _clearOnBegingDraw = clearOnBegingDraw;
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SkiaSharpDrawingContext"/> class.
-    /// </summary>
-    /// <param name="motionCanvas">The motion canvas.</param>
-    /// <param name="info">The information.</param>
-    /// <param name="surface">The surface.</param>
-    /// <param name="canvas">The canvas.</param>
-    /// <param name="background">The background.</param>
-    /// <param name="clearOnBegingDraw">Indicates whether the canvas is cleared on frame draw.</param>
-    public SkiaSharpDrawingContext(
-        MotionCanvas<SkiaSharpDrawingContext> motionCanvas,
-        SKImageInfo info,
-        SKSurface surface,
-        SKCanvas canvas,
-        SKColor background,
-        bool clearOnBegingDraw = true)
-        : this(motionCanvas, info, surface, canvas, clearOnBegingDraw)
-    {
-        Background = background;
-    }
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="SkiaSharpDrawingContext"/> class.
+    // /// </summary>
+    // /// <param name="motionCanvas">The motion canvas.</param>
+    // /// <param name="info">The information.</param>
+    // /// <param name="surface">The surface.</param>
+    // /// <param name="canvas">The canvas.</param>
+    // /// <param name="background">The background.</param>
+    // /// <param name="clearOnBegingDraw">Indicates whether the canvas is cleared on frame draw.</param>
+    // public SkiaSharpDrawingContext(
+    //     MotionCanvas<SkiaSharpDrawingContext> motionCanvas,
+    //     SKImageInfo info,
+    //     SKSurface surface,
+    //     SKCanvas canvas,
+    //     SKColor background,
+    //     bool clearOnBegingDraw = true)
+    //     : this(motionCanvas, info, surface, canvas, clearOnBegingDraw)
+    // {
+    //     Background = background;
+    // }
 
     /// <summary>
     /// Gets or sets the motion canvas.
@@ -96,13 +93,13 @@ public sealed class SkiaSharpDrawingContext : DrawingContext
     /// </value>
     public SKImageInfo Info { get; set; }
 
-    /// <summary>
-    /// Gets or sets the surface.
-    /// </summary>
-    /// <value>
-    /// The surface.
-    /// </value>
-    public SKSurface Surface { get; set; } //TODO: remove it
+    // /// <summary>
+    // /// Gets or sets the surface.
+    // /// </summary>
+    // /// <value>
+    // /// The surface.
+    // /// </value>
+    // public SKSurface Surface { get; set; }
 
     /// <summary>
     /// Gets or sets the canvas.

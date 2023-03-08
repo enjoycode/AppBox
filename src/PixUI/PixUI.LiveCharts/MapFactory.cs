@@ -59,8 +59,13 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
 
         foreach (var layer in layersQuery)
         {
+#if __WEB__
+            var stroke = /*layer.Stroke == LiveChartsCore.LiveCharts.DefaultPaint ? context.View.Stroke :*/ layer.Stroke;
+            var fill = /*layer.Fill == LiveChartsCore.LiveCharts.DefaultPaint ? context.View.Fill :*/ layer.Fill;
+#else            
             var stroke = layer.Stroke == LiveChartsCore.LiveCharts.DefaultPaint ? context.View.Stroke : layer.Stroke;
             var fill = layer.Fill == LiveChartsCore.LiveCharts.DefaultPaint ? context.View.Fill : layer.Fill;
+#endif
 
             if (fill is not null)
             {
@@ -142,7 +147,9 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
 
         foreach (var paint in toRemovePaints)
         {
+#if !__WEB__            
             if (paint == LiveChartsCore.LiveCharts.DefaultPaint) continue;
+#endif
 
             _ = _usedPaints.Remove(paint);
             context.View.Canvas.RemovePaintTask(paint);
@@ -174,8 +181,13 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
 
             foreach (var layer in layersQuery)
             {
+#if __WEB__
+                var stroke = /*layer.Stroke == LiveChartsCore.LiveCharts.DefaultPaint ? _mapView.Stroke :*/ layer.Stroke;
+                var fill = /*layer.Fill == LiveChartsCore.LiveCharts.DefaultPaint ? _mapView.Fill :*/ layer.Fill;
+#else                
                 var stroke = layer.Stroke == LiveChartsCore.LiveCharts.DefaultPaint ? _mapView.Stroke : layer.Stroke;
                 var fill = layer.Fill == LiveChartsCore.LiveCharts.DefaultPaint ? _mapView.Fill : layer.Fill;
+#endif
 
                 foreach (var landDefinition in layer.Lands.Values)
                 {

@@ -2,6 +2,7 @@ export type {
     Canvas,
     Paint,
     PaintStyle,
+    Typeface,
     TextStyle,
     TextAlign,
     ParagraphBuilder,
@@ -9,11 +10,17 @@ export type {
     Paragraph,
     Affinity,
     Image,
+    ImageInfo,
+    ImageFilter,
     Font,
     FontWeight,
     BlendMode,
     Path,
     PathOp,
+    PathEffect,
+    Shader,
+    TileMode,
+    FontStyle,
 } from 'canvaskit-wasm';
 
 export * from './CanvasKit/Color'

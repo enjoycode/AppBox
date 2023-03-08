@@ -7,7 +7,7 @@ namespace PixUI
     {
         private Font(IntPtr handle, bool owns) : base(handle, owns) { }
 
-        public Font(SKTypeface typeface, float size, float scaleX = 1, float skewX = 0)
+        public Font(Typeface typeface, float size, float scaleX = 1, float skewX = 0)
             : this(SkiaApi.sk_font_new_with_values(typeface.Handle, size, scaleX, skewX), true)
         {
             if (Handle == IntPtr.Zero)
@@ -64,9 +64,9 @@ namespace PixUI
             set => SkiaApi.sk_font_set_hinting(Handle, value);
         }
 
-        public SKTypeface? Typeface
+        public Typeface? Typeface
         {
-            get => SKTypeface.GetObject(SkiaApi.sk_font_get_typeface(Handle));
+            get => Typeface.GetObject(SkiaApi.sk_font_get_typeface(Handle));
             set => SkiaApi.sk_font_set_typeface(Handle, value?.Handle ?? IntPtr.Zero);
         }
 

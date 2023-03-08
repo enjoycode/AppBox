@@ -165,7 +165,71 @@ namespace PixUI.UnitTests.CS2TS
             sw.Stop();
             Console.WriteLine($"耗时: {sw.ElapsedMilliseconds} ms");
 
-            //save exports file TODO:需要按依赖关系排序输出
+            //save exports file
+            await File.WriteAllTextAsync(System.IO.Path.Combine(outPath, "Internal.ts"),
+                internalExports.ToString());
+        }
+
+        [Test]
+        public async Task EmitLiveCharts()
+        {
+            var sdkPath = System.IO.Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+            const string tsDllPath = "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
+            const string pixUIDllPath = "../../../../PixUI/bin/DebugWeb/netstandard2.1/PixUI.dll";
+            const string chartsCoreDllPath = "../../../../../../ext/LiveCharts2/src/LiveChartsCore/bin/DebugWeb/netstandard2.1/LiveChartsCore.dll";
+            const string prjPath = "../../../../PixUI.LiveCharts/";
+            const string outPath = "../../../../../Dev.Web/src/LiveCharts/Generated/";
+
+            var translator = new Translator("LiveCharts", new[]
+            {
+                tsDllPath, pixUIDllPath, chartsCoreDllPath,
+                System.IO.Path.Combine(sdkPath, "System.Text.Json.dll"),
+                System.IO.Path.Combine(sdkPath, "System.ComponentModel.dll"),
+                System.IO.Path.Combine(sdkPath, "System.ObjectModel.dll"),
+            }, "NET5_0_OR_GREATER");
+            var workspace = translator.AddSourceFiles(prjPath);
+
+            Assert.True(translator.DumpErrors() == 0);
+
+            var internalExports = new StringBuilder(1024);
+
+            var sw = Stopwatch.StartNew();
+            foreach (var document in workspace.CurrentSolution.Projects.Single().Documents)
+            {
+                var path = string.Join('/', document.Folders);
+                if (path.StartsWith("Properties")) continue;
+
+                // Console.WriteLine($"{path}/{document.Name}");
+                var emitter = await Emitter.MakeAsync(translator, document);
+                emitter.Emit();
+
+                var fullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(outPath, path));
+                if (!Directory.Exists(fullPath))
+                    Directory.CreateDirectory(fullPath);
+                var filePath = System.IO.Path.Combine(fullPath,
+                    System.IO.Path.GetFileNameWithoutExtension(document.Name) + ".ts");
+                var typeScriptCode = emitter.GetTypeScriptCode();
+                if (string.IsNullOrEmpty(typeScriptCode))
+                    continue;
+                await File.WriteAllTextAsync(filePath, typeScriptCode);
+
+                // add to exports
+                internalExports.Append("export * from './");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    internalExports.Append(path);
+                    internalExports.Append('/');
+                }
+
+                internalExports.Append(System.IO.Path.GetFileNameWithoutExtension(document.Name));
+                internalExports.Append('\'');
+                internalExports.AppendLine();
+            }
+
+            sw.Stop();
+            Console.WriteLine($"耗时: {sw.ElapsedMilliseconds} ms");
+
+            //save exports file
             await File.WriteAllTextAsync(System.IO.Path.Combine(outPath, "Internal.ts"),
                 internalExports.ToString());
         }

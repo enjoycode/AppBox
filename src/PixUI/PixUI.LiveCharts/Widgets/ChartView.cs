@@ -379,9 +379,8 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         canvas.ClipRect(Rect.FromLTWH(0, 0, W, H), ClipOp.Intersect, false);
 
         //TODO: fix and cache SkiaSharpDrawingContext instance
-        var drawCtx = new SkiaSharpDrawingContext(CanvasCore,
-            new ImageInfo { Width = (int)W, Height = (int)H },
-            canvas.Surface, canvas);
+        var drawCtx =
+            new SkiaSharpDrawingContext(CanvasCore, new ImageInfo { Width = (int)W, Height = (int)H }, canvas);
         drawCtx.Background = BackColor.AsSKColor();
         CanvasCore.DrawFrame(drawCtx);
 

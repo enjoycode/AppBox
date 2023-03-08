@@ -36,6 +36,10 @@ namespace PixUI
         public Color WithAlpha(byte alpha) => this;
 
         public static Color? Lerp(Color? a, Color? b, double t) => ColorUtils.Lerp(a, b, t);
+        
+        public static bool operator ==(Color left, Color right) => false;
+
+        public static bool operator !=(Color left, Color right) => false;
     }
 }
 #endif

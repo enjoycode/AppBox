@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using LiveCharts.Drawing.Segments;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Geo;
 using LiveChartsCore.Motion;
@@ -120,7 +121,7 @@ public class HeatPathShape : PathGeometry, IHeatPathShape
 
 /// <inheritdoc cref="IPathGeometry{TDrawingContext, TPathArgs}" />
 [Obsolete]
-public class PathGeometry : Drawable, IPathGeometry<SkiaSharpDrawingContext, SKPath>
+public class PathGeometry : Drawable/*, IPathGeometry<SkiaSharpDrawingContext, SKPath>*/
 {
     /// <summary>
     /// The commands

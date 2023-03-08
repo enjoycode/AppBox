@@ -26,6 +26,9 @@ namespace PixUI
 
         [TSTemplate("CanvasKit.PathEffect.MakeDash({1},{2})")]
         public static PathEffect CreateDash(float[] intervals, float phase) => throw new Exception();
+        
+        [TSRename("delete")]
+        public void Dispose() {}
     }
 }
 #endif

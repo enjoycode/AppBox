@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 
+using System;
 
 namespace LiveCharts.Drawing.Geometries;
 
@@ -68,10 +69,14 @@ public class SVGPathGeometry : SizedGeometry
             throw new System.NullReferenceException(
                 $"{nameof(SVG)} property is null and there is not a defined path to draw.");
 
-        _ = context.Canvas.Save();
+        context.Canvas.Save();
 
         var canvas = context.Canvas;
+#if __WEB__
+        var bounds = _svgPath.GetBounds();
+#else        
         _ = _svgPath.GetTightBounds(out var bounds);
+#endif
 
         if (FitToSize)
         {
@@ -102,6 +107,10 @@ public class SVGPathGeometry : SizedGeometry
 
     private void OnSVGPropertyChanged()
     {
+#if __WEB__
+        throw new NotImplementedException();
+#else
         _svgPath = SKPath.ParseSvgPathData(_svg);
+#endif
     }
 }

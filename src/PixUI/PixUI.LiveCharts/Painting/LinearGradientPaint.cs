@@ -152,17 +152,16 @@ public class LinearGradientPaint : Paint
 
         var size = GetDrawRectangleSize(drawingContext);
 
-        var xf = size.Location.X;
+        var xf = size.Left;
         var xt = xf + size.Width;
 
-        var yf = size.Location.Y;
+        var yf = size.Top;
         var yt = yf + size.Height;
 
         var start = new SKPoint(xf + (xt - xf) * _startPoint.X, yf + (yt - yf) * _startPoint.Y);
         var end = new SKPoint(xf + (xt - xf) * _endPoint.X, yf + (yt - yf) * _endPoint.Y);
 
         _skiaPaint.Shader = SKShader.CreateLinearGradient( start, end, _gradientStops, _colorPos, _tileMode);
-
         _skiaPaint.AntiAlias = IsAntialias;
         _skiaPaint.Style = PaintStyle.Stroke;
         _skiaPaint.StrokeWidth = StrokeThickness;
@@ -188,7 +187,7 @@ public class LinearGradientPaint : Paint
         var clip = GetClipRectangle(drawingContext.MotionCanvas);
         if (clip != LvcRectangle.Empty)
         {
-            _ = drawingContext.Canvas.Save();
+            drawingContext.Canvas.Save();
             drawingContext.Canvas.ClipRect(SKRect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), ClipOp.Intersect, true);
             _drawingContext = drawingContext;
         }

@@ -39,6 +39,7 @@ namespace LiveCharts;
 /// </summary>
 public static class LiveChartsSkiaSharp
 {
+#if !__WEB__    
     /// <summary>
     /// Gets the default paint task.
     /// </summary>
@@ -46,6 +47,7 @@ public static class LiveChartsSkiaSharp
     /// The default paint.
     /// </value>
     public static DefaultPaint DefaultPaint { get; } = new();
+#endif
 
     /// <summary>
     /// Gets or sets an SKTypeface instance to use globally on any paint that does not specify any.
@@ -60,7 +62,9 @@ public static class LiveChartsSkiaSharp
     /// </value>
     public static Action<LiveChartsSettings> DefaultPlatformBuilder =>
         (LiveChartsSettings settings) => settings
+#if !__WEB__                
             .AddDefaultMappers()
+#endif
             .AddSkiaSharp()
             .AddLightTheme();
 
@@ -72,7 +76,9 @@ public static class LiveChartsSkiaSharp
     public static LiveChartsSettings UseDefaults(this LiveChartsSettings settings)
     {
         return settings
+#if !__WEB__                
             .AddDefaultMappers()
+#endif
             .AddSkiaSharp()
             .AddLightTheme();
     }

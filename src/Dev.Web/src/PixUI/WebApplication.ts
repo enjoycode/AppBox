@@ -52,4 +52,9 @@ export class WebApplication extends UIApplication {
             // }
         });
     }
+
+    public BeginInvoke(action: () => void): void {
+        setTimeout(action, 0);
+    }
+
 }

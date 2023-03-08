@@ -109,10 +109,10 @@ public class RadialGradientPaint : Paint
         _skiaPaint ??= new SKPaint();
 
         var size = GetDrawRectangleSize(drawingContext);
-        var center = new SKPoint(size.Location.X + _center.X * size.Width, size.Location.Y + _center.Y * size.Height);
-        var r = size.Location.X + size.Width > size.Location.Y + size.Height
-            ? size.Location.Y + size.Height
-            : size.Location.X + size.Width;
+        var center = new SKPoint(size.Left + _center.X * size.Width, size.Top + _center.Y * size.Height);
+        var r = size.Left + size.Width > size.Top + size.Height
+            ? size.Top + size.Height
+            : size.Left + size.Width;
         r *= _radius;
 
         _skiaPaint.Shader = SKShader.CreateRadialGradient(
@@ -147,7 +147,7 @@ public class RadialGradientPaint : Paint
         var clip = GetClipRectangle(drawingContext.MotionCanvas);
         if (clip != LvcRectangle.Empty)
         {
-            _ = drawingContext.Canvas.Save();
+            drawingContext.Canvas.Save();
             drawingContext.Canvas.ClipRect(SKRect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), ClipOp.Intersect, true);
             _drawingContext = drawingContext;
         }

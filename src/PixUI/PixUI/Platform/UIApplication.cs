@@ -13,12 +13,10 @@ namespace PixUI
         /// </summary>
         public abstract void PostInvalidateEvent();
 
-#if !__WEB__
         /// <summary>
         /// Post action on UI thread
         /// </summary>
         public abstract void BeginInvoke(Action action);
-#endif
 
         /// <summary>
         /// 处理main loop内收到的InvalidateEvent

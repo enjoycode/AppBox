@@ -165,7 +165,7 @@ public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, I
     {
         if (HasTransform)
         {
-            _ = context.Canvas.Save();
+            context.Canvas.Save();
 
             var m = OnMeasure(context.PaintTask);
             var o = TransformOrigin;

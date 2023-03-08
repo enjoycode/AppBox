@@ -120,7 +120,7 @@ public class SolidColorPaint : Paint
         var clip = GetClipRectangle(drawingContext.MotionCanvas);
         if (clip != LvcRectangle.Empty)
         {
-            _ = drawingContext.Canvas.Save();
+            drawingContext.Canvas.Save();
             drawingContext.Canvas.ClipRect(SKRect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), ClipOp.Intersect, true);
             _drawingContext = drawingContext;
         }

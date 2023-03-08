@@ -28,6 +28,14 @@ namespace PixUI
 
         [TSPropertyToGetSet] public MaskFilter? MaskFilter { get; set; }
 
+        [TSPropertyToGetSet] public Shader? Shader { get; set; }
+
+        [TSPropertyToGetSet] public ColorFilter? ColorFilter { get; set; }
+
+        [TSPropertyToGetSet] public ImageFilter? ImageFilter { get; set; }
+
+        [TSPropertyToGetSet] public PathEffect? PathEffect { get; set; }
+
         [TSRename("delete")]
         public void Dispose() { }
     }

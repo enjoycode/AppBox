@@ -18,6 +18,7 @@ export abstract class UIApplication {
     /// </summary>
     public abstract PostInvalidateEvent(): void;
 
+    public abstract BeginInvoke(action: System.Action): void;
 
     /// <summary>
     /// 处理main loop内收到的InvalidateEvent
