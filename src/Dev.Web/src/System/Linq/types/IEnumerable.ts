@@ -12,11 +12,12 @@ import {
     SelectorKeyType
 } from "./"
 import {IList} from '../../Collections/IList'
+import {IEnumerator} from "@/System";
 
 /**
  * Iterable type with methods from LINQ.
  */
-export interface IEnumerable<TSource> extends Iterable<TSource> {
+export interface IEnumerable<TSource = any> extends Iterable<TSource> {
     /**
      * Applies an accumulator function over a sequence.
      * @param func An accumulator function to be invoked on each element.
@@ -115,14 +116,12 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
      */
     AverageAsync(selector: (x: TSource) => Promise<number>): Promise<number>
 
-    Cast<TResult>(): IEnumerable<TResult>
-
     /**
      * Concatenates two sequences.
      * @param second The sequence to concatenate to the first sequence.
      * @returns An IEnumerable<T> that contains the concatenated elements of the two sequences.
      */
-    Concatenate(second: IEnumerable<TSource>): IEnumerable<TSource>
+    Concat(second: IEnumerable<TSource>): IEnumerable<TSource>
 
     /**
      * Determines whether a sequence contains a specified element by
@@ -822,4 +821,8 @@ export interface IEnumerable<TSource> extends Iterable<TSource> {
         resultSelector: (x: TSource, y: TSecond) => Promise<TResult>): IAsyncEnumerable<TResult>
 
     [Symbol.iterator](): IterableIterator<TSource>
+
+    Cast<TResult>(): IEnumerable<TResult>
+
+    GetEnumerator(): IEnumerator<TSource>
 }

@@ -41,6 +41,7 @@ const dev = defineConfig({
 const extSystem = resolve(__dirname, 'src/System');
 const extPixUI = resolve(__dirname, 'src/PixUI');
 const extCodeEditor = resolve(__dirname, 'src/CodeEditor');
+const extLiveChartsCore = resolve(__dirname, 'src/LiveChartsCore');
 const extAppBoxCore = resolve(__dirname, 'src/AppBoxCore');
 const extAppBoxClient = resolve(__dirname, 'src/AppBoxClient');
 
@@ -113,6 +114,36 @@ const libCodeEditor = defineConfig({
         },
         rollupOptions: {
             external: [extSystem, extPixUI, "canvaskit"],
+            output: {
+                paths: {
+                    [extSystem]: '/System.js',
+                    [extPixUI]: '/PixUI.js'
+                },
+            },
+            makeAbsoluteExternalsRelative: false,
+        },
+    },
+})
+
+const libLiveChartsCore = defineConfig({
+    plugins: [visualizer()],
+
+    resolve: {
+        alias: [{
+            find: '@',
+            replacement: resolve(__dirname, 'src')
+        }]
+    },
+
+    build: {
+        lib: {
+            entry: resolve(__dirname, 'src/LiveChartsCore/index.ts'),
+            formats: ['es'],
+            name: 'LiveChartsCore',
+            fileName: (format) => 'LiveChartsCore.js'
+        },
+        rollupOptions: {
+            external: [extSystem, extPixUI],
             output: {
                 paths: {
                     [extSystem]: '/System.js',
@@ -230,6 +261,8 @@ export default ({mode}: UserConfig) => {
             return libPixUI;
         case 'libCodeEditor':
             return libCodeEditor;
+        case 'libLiveChartsCore':
+            return libLiveChartsCore;
         case 'libAppBoxCore':
             return libAppBoxCore;
         case 'libAppBoxClient':

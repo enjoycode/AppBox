@@ -81,6 +81,7 @@ import {zipAsync} from "./../sync/_private/zipAsync"
 
 import {List} from "../../Collections/List"
 import {IList} from "../../Collections/IList"
+import {DefaultEnumerator, IEnumerator} from "@/System";
 
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
 
@@ -113,7 +114,7 @@ export const bindLinq = <T, Y extends Iterable<T>>(object: IPrototype<Y>) => {
     bind(asParallel, "AsParallel")
     bind(average, "Average")
     bind(averageAsync, "AverageAsync")
-    bind(concatenate, "Concatenate")
+    bind(concatenate, "Concat")
     bind(contains, "Contains")
     bind(containsAsync, "ContainsAsync")
     bind(count, "Count")
@@ -189,4 +190,7 @@ export const bindLinq = <T, Y extends Iterable<T>>(object: IPrototype<Y>) => {
             return source;
         return new List<TSource>([...source]);
     }, "ToList")
+    bind(<TSource>(source: Iterable<TSource>): IEnumerator<TSource> => {
+        return new DefaultEnumerator(source);
+    }, "GetEnumerator")
 }

@@ -3,6 +3,7 @@ export {from as EnumerableFrom} from "./Linq/sync/static/from";
 
 export * from './Utils'
 
+export * from './Object'
 export * from './Interfaces'
 export * from './Delegates'
 export * from './Event'
@@ -11,11 +12,15 @@ export * from './Exceptions'
 export * from './DateTime'
 export * from './Guid'
 export * from './TaskCompletionSource'
+export * from './Tuple'
+export * from './Stopwatch'
 
 export * from './Collections/IList'
 export * from './Collections/List'
 export * from './Collections/Stack'
 export * from './Collections/Map'
+export * from './Collections/HashSet'
+export * from './Collections/LinkedList'
 
 export * from './InitializeSystem'
 

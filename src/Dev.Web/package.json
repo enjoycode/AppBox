@@ -9,6 +9,7 @@
     "libSystem": "tsc && vite build --mode libSystem",
     "libPixUI": "tsc && vite build --mode libPixUI",
     "libCodeEditor": "tsc && vite build --mode libCodeEditor",
+    "libLiveChartsCore": "tsc && vite build --mode libLiveChartsCore",
     "libAppBoxCore": "tsc && vite build --mode libAppBoxCore",
     "libAppBoxClient": "tsc && vite build --mode libAppBoxClient",
     "AppStudio": "tsc && vite build --mode AppStudio"

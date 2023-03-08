@@ -4,6 +4,11 @@ export const IsNullOrEmpty = function (s?: string): boolean {
     return s == null || s.length === 0;
 }
 
+export const IsNullOrWhiteSpace = function (s?: string): boolean {
+    if (s == null || s.length == 0) return true;
+    return s.trim() == '';
+}
+
 export const Equals = function (a: any, b: any): boolean {
     if (a == null && b == null) return true;
     if (a == null || b == null) return false;

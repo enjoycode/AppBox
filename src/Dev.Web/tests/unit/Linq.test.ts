@@ -3,7 +3,8 @@ import {List} from "@/System";
 import {IEnumerable} from "../../src/System";
 import {from} from "../../src/System/Linq";
 
-class Base {}
+class Base {
+}
 
 class Child extends Base {
     private _name: string;
@@ -51,6 +52,13 @@ describe("LinqTests", () => {
         expect(dest[0].Name).toEqual("Eric");
     });
 
+    it("ConcatTest", () => {
+        let a: IEnumerable<number> = from([1, 2]);
+        let b: IEnumerable<number> = from([3, 4]);
+        let c = a.Concat(b);
+        expect(c.Sum()).toEqual(10);
+    });
+
     it("YieldTest", () => {
         let c = new YieldClass();
         let e: IEnumerable<number> = c.Gen(10);
@@ -59,7 +67,7 @@ describe("LinqTests", () => {
         }
         expect(e.Sum()).toEqual(55);
     });
-    
+
     it("FirstTest", () => {
         let c = new YieldClass();
         let e: IEnumerable<number> = c.Gen(10);

@@ -18,6 +18,10 @@ export class TimeSpan {
         }
     }
 
+    public get Ticks() {
+        return this._ticks; //TODO: fix same with C#
+    }
+
     public get TotalMilliseconds() {
         return this._ticks;
     }
@@ -25,6 +29,12 @@ export class TimeSpan {
     public get TotalSeconds() {
         return this._ticks / TicksPerSecond;
     }
+
+    public static FromMilliseconds(ms: number): TimeSpan {
+        return new TimeSpan(ms);
+    }
+
+    public static readonly Empty = new TimeSpan(0);
 
     public Clone(): TimeSpan {
         return new TimeSpan(this._ticks);
@@ -91,6 +101,8 @@ export class DateTime {
     public Clone(): DateTime {
         return new DateTime(this._date);
     }
+
+    public static readonly Empty = new DateTime(0,0,0);
 
     public toString() {
         return this._date.toString();

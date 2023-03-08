@@ -1,6 +1,6 @@
 import {IEnumerable} from "../Linq";
 
-export interface IList<T> extends IEnumerable<T> {
+export interface IList<T = any> extends IEnumerable<T> {
 
     IndexOf(item: T): number;
 
