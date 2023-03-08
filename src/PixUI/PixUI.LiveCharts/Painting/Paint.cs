@@ -25,12 +25,12 @@ using System.Collections.Generic;
 using System.Linq;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Painting.Effects;
-using LiveChartsCore.SkiaSharpView.Painting.ImageFilters;
+using LiveCharts.Drawing;
+using LiveCharts.Painting.Effects;
+using LiveCharts.Painting.ImageFilters;
 
 
-namespace LiveChartsCore.SkiaSharpView.Painting;
+namespace LiveCharts.Painting;
 
 /// <inheritdoc cref="IPaint{TDrawingContext}" />
 public abstract class Paint : Animatable, IDisposable, IPaint<SkiaSharpDrawingContext>

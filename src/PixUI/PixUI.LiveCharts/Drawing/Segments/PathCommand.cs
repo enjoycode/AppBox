@@ -23,7 +23,7 @@
 using LiveChartsCore.Drawing;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Segments;
+namespace LiveCharts.Drawing.Segments;
 
 /// <inheritdoc cref="IPathCommand{TPathContext}" />
 public abstract class PathCommand : Animatable, IPathCommand<SKPath>

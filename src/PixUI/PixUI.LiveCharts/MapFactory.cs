@@ -26,11 +26,11 @@ using System.Linq;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Geo;
 using LiveChartsCore.Kernel;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
-using LiveChartsCore.SkiaSharpView.Drawing.Segments;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
+using LiveCharts.Drawing.Segments;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a map builder.
@@ -59,8 +59,8 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
 
         foreach (var layer in layersQuery)
         {
-            var stroke = layer.Stroke == LiveCharts.DefaultPaint ? context.View.Stroke : layer.Stroke;
-            var fill = layer.Fill == LiveCharts.DefaultPaint ? context.View.Fill : layer.Fill;
+            var stroke = layer.Stroke == LiveChartsCore.LiveCharts.DefaultPaint ? context.View.Stroke : layer.Stroke;
+            var fill = layer.Fill == LiveChartsCore.LiveCharts.DefaultPaint ? context.View.Fill : layer.Fill;
 
             if (fill is not null)
             {
@@ -93,7 +93,7 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
                             .WithAnimation(animation =>
                                 animation
                                     .WithDuration(TimeSpan.FromMilliseconds(800))
-                                    .WithEasingFunction(EasingFunctions.ExponentialOut));
+                                    .WithEasingFunction(LiveChartsCore.EasingFunctions.ExponentialOut));
                     }
                     else
                     {
@@ -142,7 +142,7 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
 
         foreach (var paint in toRemovePaints)
         {
-            if (paint == LiveCharts.DefaultPaint) continue;
+            if (paint == LiveChartsCore.LiveCharts.DefaultPaint) continue;
 
             _ = _usedPaints.Remove(paint);
             context.View.Canvas.RemovePaintTask(paint);
@@ -156,10 +156,10 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="IMapFactory{TDrawingContext}.ViewTo(GeoMap{TDrawingContext}, object)"/>
-    public void ViewTo(GeoMap<SkiaSharpDrawingContext> sender, object? command) { }
+    public void ViewTo(LiveChartsCore.GeoMap<SkiaSharpDrawingContext> sender, object? command) { }
 
     /// <inheritdoc cref="IMapFactory{TDrawingContext}.Pan(GeoMap{TDrawingContext}, LvcPoint)"/>
-    public void Pan(GeoMap<SkiaSharpDrawingContext> sender, LvcPoint delta) { }
+    public void Pan(LiveChartsCore.GeoMap<SkiaSharpDrawingContext> sender, LvcPoint delta) { }
 
     /// <summary>
     /// Disposes the map factory.
@@ -174,8 +174,8 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
 
             foreach (var layer in layersQuery)
             {
-                var stroke = layer.Stroke == LiveCharts.DefaultPaint ? _mapView.Stroke : layer.Stroke;
-                var fill = layer.Fill == LiveCharts.DefaultPaint ? _mapView.Fill : layer.Fill;
+                var stroke = layer.Stroke == LiveChartsCore.LiveCharts.DefaultPaint ? _mapView.Stroke : layer.Stroke;
+                var fill = layer.Fill == LiveChartsCore.LiveCharts.DefaultPaint ? _mapView.Fill : layer.Fill;
 
                 foreach (var landDefinition in layer.Lands.Values)
                 {

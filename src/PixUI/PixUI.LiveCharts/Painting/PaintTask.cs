@@ -23,7 +23,7 @@
 using System;
 using LiveChartsCore.Drawing;
 
-namespace LiveChartsCore.SkiaSharpView.Painting;
+namespace LiveCharts.Painting;
 
 /// <inheritdoc cref="IPaint{TDrawingContext}" />
 [Obsolete("Renamed to Paint")]

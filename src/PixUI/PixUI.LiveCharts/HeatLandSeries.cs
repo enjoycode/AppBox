@@ -22,12 +22,12 @@
 
 using System;
 using LiveChartsCore.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <inheritdoc cref="HeatLandSeries{TDrawingContext}"/>
-public class HeatLandSeries : HeatLandSeries<SkiaSharpDrawingContext>
+public class HeatLandSeries : LiveChartsCore.HeatLandSeries<SkiaSharpDrawingContext>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="HeatLandSeries"/> class.

@@ -22,7 +22,7 @@
 
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <summary>
 /// Defines a circle geometry.

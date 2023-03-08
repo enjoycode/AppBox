@@ -23,10 +23,10 @@
 using System;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Motion;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Motion;
+using LiveCharts.Painting;
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="IGeometry{TDrawingContext}" />
 public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, IVisualChartPoint<SkiaSharpDrawingContext>

@@ -22,13 +22,13 @@
 
 using System;
 using LiveChartsCore.Kernel.Sketches;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <inheritdoc cref="ICartesianAxis" />
-public sealed class Axis : Axis<SkiaSharpDrawingContext, LabelGeometry, LineGeometry>
+public sealed class Axis : LiveChartsCore.Axis<SkiaSharpDrawingContext, LabelGeometry, LineGeometry>
 {
     public Axis() : base(() => new LabelGeometry(), () => new LineGeometry()) { }
 }

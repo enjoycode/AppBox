@@ -24,7 +24,7 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <summary>
 /// Defines a rounded rectangle geometry.

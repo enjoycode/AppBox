@@ -22,10 +22,10 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a pie series in the user interface.
@@ -37,8 +37,8 @@ namespace LiveChartsCore.SkiaSharpView;
 /// or at the series level 
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
-public sealed class
-    PieSeries<TModel> : PieSeries<TModel, DoughnutGeometry, LabelGeometry, CircleGeometry, SkiaSharpDrawingContext>
+public sealed class PieSeries<TModel> : 
+    LiveChartsCore.PieSeries<TModel, DoughnutGeometry, LabelGeometry, CircleGeometry, SkiaSharpDrawingContext>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="PieSeries{TModel}"/> class.

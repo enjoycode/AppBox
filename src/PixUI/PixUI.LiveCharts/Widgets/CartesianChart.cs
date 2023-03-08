@@ -9,10 +9,10 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
+using LiveCharts.Painting;
 using LiveChartsCore.VisualElements;
 
 namespace PixLiveCharts;
@@ -36,12 +36,12 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaSharpDra
         XAxes = new List<ICartesianAxis>()
         {
             //LiveCharts.DefaultSettings.GetProvider<SkiaSharpDrawingContext>().GetDefaultCartesianAxis()
-            new LiveChartsCore.SkiaSharpView.Axis()
+            new Axis()
         };
         YAxes = new List<ICartesianAxis>()
         {
             //LiveCharts.DefaultSettings.GetProvider<SkiaSharpDrawingContext>().GetDefaultCartesianAxis()
-            new LiveChartsCore.SkiaSharpView.Axis()
+            new Axis()
         };
         Series = new ObservableCollection<ISeries>();
         VisualElements = new ObservableCollection<ChartElement<SkiaSharpDrawingContext>>();
@@ -59,11 +59,11 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaSharpDra
     private readonly CollectionDeepObserver<ICartesianAxis> _yObserver;
     private readonly CollectionDeepObserver<Section<SkiaSharpDrawingContext>> _sectionsObserver;
     private IEnumerable<ISeries> _series = new List<ISeries>();
-    private IEnumerable<ICartesianAxis> _xAxes = new List<LiveChartsCore.SkiaSharpView.Axis> { new() };
-    private IEnumerable<ICartesianAxis> _yAxes = new List<LiveChartsCore.SkiaSharpView.Axis> { new() };
+    private IEnumerable<ICartesianAxis> _xAxes = new List<Axis> { new() };
+    private IEnumerable<ICartesianAxis> _yAxes = new List<Axis> { new() };
     private IEnumerable<Section<SkiaSharpDrawingContext>> _sections = new List<Section<SkiaSharpDrawingContext>>();
     private DrawMarginFrame<SkiaSharpDrawingContext>? _drawMarginFrame;
-    private TooltipFindingStrategy _tooltipFindingStrategy = LiveCharts.DefaultSettings.TooltipFindingStrategy;
+    private TooltipFindingStrategy _tooltipFindingStrategy = LiveChartsCore.LiveCharts.DefaultSettings.TooltipFindingStrategy;
 
     #endregion
 

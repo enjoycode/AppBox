@@ -26,7 +26,7 @@ using LiveChartsCore.Drawing.Segments;
 using LiveChartsCore.Motion;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <summary>
 /// Defines an area geometry.

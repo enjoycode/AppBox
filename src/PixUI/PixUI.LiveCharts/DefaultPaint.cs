@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a default paint task.

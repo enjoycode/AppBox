@@ -22,11 +22,11 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 using PixUI;
 
 
-namespace LiveChartsCore.SkiaSharpView.Painting;
+namespace LiveCharts.Painting;
 
 /// <summary>
 /// Defines a set of geometries that will be painted using a solid color.

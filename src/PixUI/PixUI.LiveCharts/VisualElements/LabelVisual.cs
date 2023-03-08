@@ -24,11 +24,11 @@ using System;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 using LiveChartsCore.VisualElements;
 
-namespace LiveChartsCore.SkiaSharpView.VisualElements;
+namespace LiveCharts.VisualElements;
 
 /// <summary>
 /// Defines a visual element with stroke and fill properties.
@@ -116,7 +116,7 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.OnInvalidated(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    protected override void OnInvalidated(Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var x = (float)X;
         var y = (float)Y;
@@ -174,7 +174,7 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.Measure(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    public override LvcSize Measure(Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    public override LvcSize Measure(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var l = _labelGeometry ?? new LabelGeometry()
         {

@@ -23,7 +23,7 @@
 using System;
 using LiveChartsCore.Drawing;
 
-namespace LiveChartsCore.SkiaSharpView.Drawing;
+namespace LiveCharts.Drawing;
 
 /// <summary>
 /// Defines a bezier point.

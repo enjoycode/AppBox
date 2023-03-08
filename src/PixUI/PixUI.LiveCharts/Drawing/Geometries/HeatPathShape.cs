@@ -27,7 +27,7 @@ using LiveChartsCore.Geo;
 using LiveChartsCore.Motion;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <summary>
 /// Defines a path geometry with a specified color.

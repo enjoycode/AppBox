@@ -23,7 +23,7 @@
 using LiveChartsCore.Drawing.Segments;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <summary>
 /// Defines an area drawn using cubic beziers.

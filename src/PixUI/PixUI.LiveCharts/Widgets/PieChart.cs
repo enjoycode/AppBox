@@ -7,8 +7,8 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts;
+using LiveCharts.Drawing;
 using LiveChartsCore.VisualElements;
 
 namespace PixLiveCharts;

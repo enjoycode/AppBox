@@ -20,15 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a rectangular section in a Cartesian chart.
 /// </summary>
-public sealed class RectangularSection : Section<RectangleGeometry, SkiaSharpDrawingContext>
+public sealed class RectangularSection : LiveChartsCore.Section<RectangleGeometry, SkiaSharpDrawingContext>
 {
     public RectangularSection(): base(() => new RectangleGeometry()) {}
 }

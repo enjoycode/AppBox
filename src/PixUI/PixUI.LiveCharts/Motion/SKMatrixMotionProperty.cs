@@ -23,7 +23,7 @@
 using LiveChartsCore.Motion;
 
 
-namespace LiveChartsCore.SkiaSharpView.Motion;
+namespace LiveCharts.Motion;
 
 /// <summary>
 /// Defines a motion property to handle the <see cref="SKMatrix"/> type.

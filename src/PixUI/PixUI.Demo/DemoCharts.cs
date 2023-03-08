@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using LiveChartsCore;
-using LiveChartsCore.Drawing;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.SkiaSharpView.VisualElements;
+using LiveCharts;
+using LiveCharts.Painting;
+using LiveCharts.VisualElements;
 using PixLiveCharts;
 
 namespace PixUI.Demo;

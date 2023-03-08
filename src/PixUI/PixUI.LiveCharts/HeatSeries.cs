@@ -22,10 +22,10 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a heat series in the user interface.
@@ -37,7 +37,8 @@ namespace LiveChartsCore.SkiaSharpView;
 /// or at the series level 
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
-public sealed class HeatSeries<TModel> : HeatSeries<TModel, ColoredRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
+public sealed class HeatSeries<TModel> 
+    : LiveChartsCore.HeatSeries<TModel, ColoredRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
 {
     public HeatSeries(): base(() => new ColoredRectangleGeometry(), () => new LabelGeometry()) {}
 }

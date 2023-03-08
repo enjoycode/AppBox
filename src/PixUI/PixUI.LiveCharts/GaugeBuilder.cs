@@ -26,18 +26,18 @@ using LiveChartsCore.Defaults;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Drawing;
+using LiveCharts.Painting;
 
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a helper class to build gauges.
 /// </summary>
 public class GaugeBuilder : IGaugeBuilder<SkiaSharpDrawingContext>
 {
-    private readonly Dictionary<ISeries, Tuple<ObservableValue, string?, IPaint<SkiaSharpDrawingContext>?, IPaint<SkiaSharpDrawingContext>?>> _keyValuePairs = new();
+    private readonly Dictionary<LiveChartsCore.ISeries, Tuple<ObservableValue, string?, IPaint<SkiaSharpDrawingContext>?, IPaint<SkiaSharpDrawingContext>?>> _keyValuePairs = new();
     private readonly List<Tuple<ObservableValue, string?, IPaint<SkiaSharpDrawingContext>?, IPaint<SkiaSharpDrawingContext>?>> _tuples = new();
     private List<PieSeries<ObservableValue>>? _builtSeries;
 

@@ -22,10 +22,10 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a stacked area series in the user interface.
@@ -38,7 +38,7 @@ namespace LiveChartsCore.SkiaSharpView;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class StackedAreaSeries<TModel>
-    : StackedAreaSeries<TModel, CircleGeometry, LabelGeometry, SkiaSharpDrawingContext, CubicBezierAreaGeometry,
+    : LiveChartsCore.StackedAreaSeries<TModel, CircleGeometry, LabelGeometry, SkiaSharpDrawingContext, CubicBezierAreaGeometry,
         BezierPoint<CircleGeometry>>
 {
     public StackedAreaSeries() : base(() => new CircleGeometry(), () => new LabelGeometry(),

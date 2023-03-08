@@ -23,10 +23,10 @@
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 using LiveChartsCore.VisualElements;
 
-namespace LiveChartsCore.SkiaSharpView.VisualElements;
+namespace LiveCharts.VisualElements;
 
 /// <summary>
 /// Defines a visual element with stroke and fill properties.

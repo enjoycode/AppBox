@@ -24,7 +24,7 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Segments;
+namespace LiveCharts.Drawing.Segments;
 
 /// <inheritdoc cref="IMoveToPathCommand{TPath}" />
 public class MoveToPathCommand : PathCommand, IMoveToPathCommand<SKPath>

@@ -24,7 +24,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using LiveChartsCore.Geo;
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <summary>
 /// Defines a heat lane.

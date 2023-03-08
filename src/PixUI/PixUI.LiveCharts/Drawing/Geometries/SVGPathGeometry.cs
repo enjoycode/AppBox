@@ -22,7 +22,7 @@
 
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <summary>
 /// Defines a geometry that is built using from a svg path.

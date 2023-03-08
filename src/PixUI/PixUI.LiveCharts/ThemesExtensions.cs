@@ -25,12 +25,12 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Drawing;
+using LiveCharts.Painting;
 using LiveChartsCore.Themes;
 
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines the light theme extensions.
@@ -49,9 +49,9 @@ public static class ThemesExtensions
         return settings
             .HasTheme((Theme<SkiaSharpDrawingContext> theme) =>
             {
-                _ = LiveCharts.DefaultSettings
+                _ = LiveChartsCore.LiveCharts.DefaultSettings
                     .WithAnimationsSpeed(TimeSpan.FromMilliseconds(800))
-                    .WithEasingFunction(EasingFunctions.ExponentialOut);
+                    .WithEasingFunction(LiveChartsCore.EasingFunctions.ExponentialOut);
 
                 var colors = ColorPalletes.MaterialDesign500;
 
@@ -209,9 +209,9 @@ public static class ThemesExtensions
         return settings
             .HasTheme((Theme<SkiaSharpDrawingContext> theme) =>
             {
-                _ = LiveCharts.DefaultSettings
+                _ = LiveChartsCore.LiveCharts.DefaultSettings
                     .WithAnimationsSpeed(TimeSpan.FromMilliseconds(800))
-                    .WithEasingFunction(EasingFunctions.ExponentialOut)
+                    .WithEasingFunction(LiveChartsCore.EasingFunctions.ExponentialOut)
                     .WithTooltipBackgroundPaint(new SolidColorPaint(new SKColor(45, 45, 45)))
                     .WithTooltipTextPaint(new SolidColorPaint(new SKColor(245, 245, 245)));
 
@@ -349,7 +349,7 @@ public static class ThemesExtensions
             });
     }
 
-    private static SKColor GetThemedColor(this ISeries series, LvcColor[] colors)
+    private static SKColor GetThemedColor(this LiveChartsCore.ISeries series, LvcColor[] colors)
     {
         return colors[series.SeriesId % colors.Length].AsSKColor();
     }

@@ -23,9 +23,9 @@
 using System;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using Paint = LiveChartsCore.SkiaSharpView.Painting.Paint;
+using Paint = LiveCharts.Painting.Paint;
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="ILabelGeometry{TDrawingContext}" />
 public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>

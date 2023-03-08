@@ -28,11 +28,11 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Drawing;
+using LiveCharts.Painting;
 
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines the default LiveCharts-SkiaSharp settings
@@ -92,7 +92,7 @@ public static class LiveChartsSkiaSharp
 
     public static LiveChartsSettings WithGlobalSKTypeface(this LiveChartsSettings settings, SKTypeface typeface)
     {
-        if (!LiveCharts.IsConfigured) LiveCharts.Configure(DefaultPlatformBuilder);
+        if (!LiveChartsCore.LiveCharts.IsConfigured) LiveChartsCore.LiveCharts.Configure(DefaultPlatformBuilder);
         DefaultSKTypeface = typeface;
         return settings;
     }

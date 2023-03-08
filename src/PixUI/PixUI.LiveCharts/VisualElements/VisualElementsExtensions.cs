@@ -22,10 +22,10 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 using LiveChartsCore.VisualElements;
 
-namespace LiveChartsCore.SkiaSharpView.VisualElements;
+namespace LiveCharts.VisualElements;
 
 /// <summary>
 /// Defines the visual elements extensions class.

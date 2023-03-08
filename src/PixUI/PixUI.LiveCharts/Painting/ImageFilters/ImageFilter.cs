@@ -21,10 +21,10 @@
 // SOFTWARE.
 
 using System;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 
 
-namespace LiveChartsCore.SkiaSharpView.Painting.ImageFilters;
+namespace LiveCharts.Painting.ImageFilters;
 
 /// <summary>
 /// A wrapper object for skia sharp image filters.

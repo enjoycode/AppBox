@@ -20,10 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 
 
-namespace LiveChartsCore.SkiaSharpView.Painting.ImageFilters;
+namespace LiveCharts.Painting.ImageFilters;
 
 /// <summary>
 /// Creates a drop shadow image filter.

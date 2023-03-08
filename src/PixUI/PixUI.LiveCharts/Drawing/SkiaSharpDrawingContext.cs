@@ -22,10 +22,10 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Painting;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing;
+namespace LiveCharts.Drawing;
 
 /// <summary>
 /// Defines a skia sharp drawing context.

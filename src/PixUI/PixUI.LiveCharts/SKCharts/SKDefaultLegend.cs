@@ -24,15 +24,15 @@ using System.Collections.Generic;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
-using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.SkiaSharpView.SKCharts.Helpers;
-using LiveChartsCore.SkiaSharpView.VisualElements;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
+using LiveCharts.Painting;
+using LiveCharts.SKCharts.Helpers;
+using LiveCharts.VisualElements;
 using LiveChartsCore.VisualElements;
 
 
-namespace LiveChartsCore.SkiaSharpView.SKCharts;
+namespace LiveCharts.SKCharts;
 
 /// <inheritdoc cref="IChartLegend{TDrawingContext}" />
 public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageControl
@@ -81,7 +81,7 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
     /// </summary>
     public double TextSize { get; set; } = 15;
 
-    void IChartLegend<SkiaSharpDrawingContext>.Draw(Chart<SkiaSharpDrawingContext> chart)
+    void IChartLegend<SkiaSharpDrawingContext>.Draw(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart)
     {
         if (chart.Legend is null || chart.LegendPosition == LegendPosition.Hidden) return;
 
@@ -134,7 +134,7 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
         }
     }
 
-    private void BuildLayout(Chart<SkiaSharpDrawingContext> chart)
+    private void BuildLayout(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart)
     {
         if (chart.View.LegendBackgroundPaint is not null) BackgroundPaint = chart.View.LegendBackgroundPaint;
         if (chart.View.LegendTextPaint is not null) FontPaint = chart.View.LegendTextPaint;
@@ -168,7 +168,7 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
     /// <inheritdoc cref="IImageControl.Measure(IChart)"/>
     public void Measure(IChart chart)
     {
-        var skiaChart = (Chart<SkiaSharpDrawingContext>)chart;
+        var skiaChart = (LiveChartsCore.Chart<SkiaSharpDrawingContext>)chart;
         BuildLayout(skiaChart);
         if (_stackPanel is null) return;
         Size = _stackPanel.Measure(skiaChart, null, null);

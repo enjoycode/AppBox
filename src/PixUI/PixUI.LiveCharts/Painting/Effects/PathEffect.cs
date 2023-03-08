@@ -21,10 +21,10 @@
 // SOFTWARE.
 
 using System;
-using LiveChartsCore.SkiaSharpView.Drawing;
+using LiveCharts.Drawing;
 
 
-namespace LiveChartsCore.SkiaSharpView.Painting.Effects;
+namespace LiveCharts.Painting.Effects;
 
 /// <summary>
 /// A wrapper object for skia sharp path effects.

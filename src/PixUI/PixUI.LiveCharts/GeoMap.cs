@@ -23,9 +23,9 @@
 // using System.IO;
 // using System.Threading.Tasks;
 // using LiveChartsCore.Geo;
-// using LiveChartsCore.SkiaSharpView.Drawing;
+// using LiveCharts.Drawing;
 //
-// namespace LiveChartsCore.SkiaSharpView;
+// namespace LiveCharts;
 //
 // /// <inheritdoc cref="CoreMap{TDrawingContext}"/>.
 // public class GeoMapCore : CoreMap<SkiaSharpDrawingContext>

@@ -22,10 +22,10 @@
 
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a stacked column series in the user interface.
@@ -38,7 +38,7 @@ namespace LiveChartsCore.SkiaSharpView;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class StackedColumnSeries<TModel>
-    : StackedColumnSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
+    : LiveChartsCore.StackedColumnSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
 {
     public StackedColumnSeries(): base(() => new RoundedRectangleGeometry(), () => new LabelGeometry()) {}
 }

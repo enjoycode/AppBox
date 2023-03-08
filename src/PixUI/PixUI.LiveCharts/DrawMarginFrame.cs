@@ -20,13 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveCharts.Drawing;
+using LiveCharts.Drawing.Geometries;
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines a visual frame in the draw margin of the chart.
 /// </summary>
-public class DrawMarginFrame : DrawMarginFrame<RectangleGeometry, SkiaSharpDrawingContext>
+public class DrawMarginFrame : LiveChartsCore.DrawMarginFrame<RectangleGeometry, SkiaSharpDrawingContext>
 { }

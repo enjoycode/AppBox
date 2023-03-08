@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 
-namespace LiveChartsCore.SkiaSharpView.SKCharts.Helpers;
+namespace LiveCharts.SKCharts.Helpers;
 
 // Maybe we should go for another alternative instead of using this class..
 internal class DoubleDict<T1, T2>

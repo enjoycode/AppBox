@@ -24,11 +24,11 @@ using LiveChartsCore.Drawing;
 using LiveChartsCore.Geo;
 using LiveChartsCore.Kernel.Providers;
 using LiveChartsCore.Kernel.Sketches;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Drawing;
+using LiveCharts.Painting;
 
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <inheritdoc cref="ChartEngine{TDrawingContext}"/>
 public class SkiaSharpProvider : ChartEngine<SkiaSharpDrawingContext>

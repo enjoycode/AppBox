@@ -23,10 +23,10 @@
 using System;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Painting;
 
 
-namespace LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="ILineGeometry{TDrawingContext}" />
 public class LineGeometry : Geometry, ILineGeometry<SkiaSharpDrawingContext>

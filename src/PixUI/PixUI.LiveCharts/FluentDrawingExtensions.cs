@@ -24,11 +24,11 @@ using System;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.Motion;
-using LiveChartsCore.SkiaSharpView.Drawing;
-using LiveChartsCore.SkiaSharpView.Painting;
+using LiveCharts.Drawing;
+using LiveCharts.Painting;
 
 
-namespace LiveChartsCore.SkiaSharpView;
+namespace LiveCharts;
 
 /// <summary>
 /// Defines the drawing extensions.
@@ -50,7 +50,7 @@ public static class DrawingFluentExtensions
     /// <param name="chart">The chart.</param>
     public static Drawing Draw(this IChartView chart)
     {
-        return Draw(((Chart<SkiaSharpDrawingContext>)chart.CoreChart).Canvas);
+        return Draw(((LiveChartsCore.Chart<SkiaSharpDrawingContext>)chart.CoreChart).Canvas);
     }
 
     /// <summary>

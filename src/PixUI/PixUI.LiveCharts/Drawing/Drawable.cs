@@ -22,7 +22,7 @@
 
 using LiveChartsCore.Drawing;
 
-namespace LiveChartsCore.SkiaSharpView.Drawing;
+namespace LiveCharts.Drawing;
 
 /// <inheritdoc cref="IDrawable{TDrawingContext}" />
 public abstract class Drawable : Animatable, IDrawable<SkiaSharpDrawingContext>
