@@ -1,0 +1,86 @@
+import * as LiveChartsCore from '@/LiveChartsCore'
+
+export class CubicBezierSegment extends LiveChartsCore.Animatable implements LiveChartsCore.IConsecutivePathSegment {
+    private readonly _xiProperty: LiveChartsCore.FloatMotionProperty;
+    private readonly _yiProperty: LiveChartsCore.FloatMotionProperty;
+    private readonly _xmProperty: LiveChartsCore.FloatMotionProperty;
+    private readonly _ymProperty: LiveChartsCore.FloatMotionProperty;
+    private readonly _xjProperty: LiveChartsCore.FloatMotionProperty;
+    private readonly _yjProperty: LiveChartsCore.FloatMotionProperty;
+
+    public constructor() {
+        super();
+        this._xiProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Xi", 0));
+        this._yiProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Yi", 0));
+        this._xmProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Xm", 0));
+        this._ymProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Ym", 0));
+        this._xjProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Xj", 0));
+        this._yjProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Yj", 0));
+    }
+
+    public get Xi(): number {
+        return this._xiProperty.GetMovement(this);
+    }
+
+    public set Xi(value: number) {
+        this._xiProperty.SetMovement(value, this);
+    }
+
+    public get Yi(): number {
+        return this._yiProperty.GetMovement(this);
+    }
+
+    public set Yi(value: number) {
+        this._yiProperty.SetMovement(value, this);
+    }
+
+    public get Xm(): number {
+        return this._xmProperty.GetMovement(this);
+    }
+
+    public set Xm(value: number) {
+        this._xmProperty.SetMovement(value, this);
+    }
+
+    public get Ym(): number {
+        return this._ymProperty.GetMovement(this);
+    }
+
+    public set Ym(value: number) {
+        this._ymProperty.SetMovement(value, this);
+    }
+
+    public get Xj(): number {
+        return this._xjProperty.GetMovement(this);
+    }
+
+    public set Xj(value: number) {
+        this._xjProperty.SetMovement(value, this);
+    }
+
+    public get Yj(): number {
+        return this._yjProperty.GetMovement(this);
+    }
+
+    public set Yj(value: number) {
+        this._yjProperty.SetMovement(value, this);
+    }
+
+    public Id: number = 0;
+
+    Follows(segment: LiveChartsCore.IConsecutivePathSegment) {
+        this.IsValid = segment.IsValid;
+        this.CurrentTime = segment.CurrentTime;
+        this.RemoveOnCompleted = segment.RemoveOnCompleted;
+
+        let xProp = segment.MotionProperties.get("IConsecutivePathSegment.Xj")!;
+        let yProp = segment.MotionProperties.get("IConsecutivePathSegment.Yj")!;
+
+        this.MotionProperties.get("Xi")!.CopyFrom(xProp);
+        this.MotionProperties.get("Xm")!.CopyFrom(xProp);
+        this.MotionProperties.get("Xj")!.CopyFrom(xProp);
+        this.MotionProperties.get("Yi")!.CopyFrom(yProp);
+        this.MotionProperties.get("Ym")!.CopyFrom(yProp);
+        this.MotionProperties.get("Yj")!.CopyFrom(yProp);
+    }
+}
