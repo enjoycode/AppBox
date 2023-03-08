@@ -21,7 +21,10 @@ export interface IComparer<T> {
 //region ====IEnumerator====
 export interface IEnumerator<T = any> {
     get Current(): T;
+
     MoveNext(): boolean;
+
+    Dispose(): void;
 }
 
 export class DefaultEnumerator<T> implements IEnumerator<T> {
@@ -42,6 +45,8 @@ export class DefaultEnumerator<T> implements IEnumerator<T> {
         return res.done === false;
     }
 
+    public Dispose() {
+    }
 }
 
 // export class Enumerable {
@@ -75,6 +80,7 @@ export function IsInterfaceOfIEnumerable<T>(obj: any): obj is IEnumerable<T> {
 export function IsInterfaceOfINotifyPropertyChanged(obj: any): obj is INotifyPropertyChanged {
     return typeof obj === "object" && obj !== null && !Array.isArray(obj) && '$meta_System_INotifyPropertyChanged' in obj.constructor;
 }
+
 //endregion
 
 //region ====INotifyCollectionChanged=====
@@ -101,5 +107,6 @@ export interface INotifyCollectionChanged {
 export function IsInterfaceOfINotifyCollectionChanged(obj: any): obj is INotifyCollectionChanged {
     return typeof obj === "object" && obj !== null && !Array.isArray(obj) && '$meta_System_INotifyCollectionChanged' in obj.constructor;
 }
+
 //endregion
 

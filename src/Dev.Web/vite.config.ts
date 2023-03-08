@@ -136,6 +136,7 @@ const libLiveChartsCore = defineConfig({
     },
 
     build: {
+        target: "es2020",
         lib: {
             entry: resolve(__dirname, 'src/LiveChartsCore/index.ts'),
             formats: ['es'],

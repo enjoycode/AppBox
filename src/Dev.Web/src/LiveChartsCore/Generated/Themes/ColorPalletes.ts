@@ -2,8 +2,7 @@ import * as LiveChartsCore from '@/LiveChartsCore'
 
 export class ColorPalletes {
     public static get FluentDesign(): LiveChartsCore.LvcColor[] {
-        return
-        [
+        return [
             ColorPalletes.RGB(116, 77, 169),
             ColorPalletes.RGB(231, 72, 86),
             ColorPalletes.RGB(255, 140, 0),
@@ -17,8 +16,7 @@ export class ColorPalletes {
     }
 
     public static get MaterialDesign500(): LiveChartsCore.LvcColor[] {
-        return
-        [
+        return [
             ColorPalletes.RGB(33, 150, 243),
             ColorPalletes.RGB(244, 67, 54),
             ColorPalletes.RGB(139, 195, 74),
@@ -32,8 +30,7 @@ export class ColorPalletes {
     }
 
     public static get MaterialDesign200(): LiveChartsCore.LvcColor[] {
-        return
-        [
+        return [
             ColorPalletes.RGB(144, 202, 249),
             ColorPalletes.RGB(239, 154, 154),
             ColorPalletes.RGB(197, 225, 165),
@@ -47,8 +44,7 @@ export class ColorPalletes {
     }
 
     public static get MaterialDesign800(): LiveChartsCore.LvcColor[] {
-        return
-        [
+        return [
             ColorPalletes.RGB(21, 101, 192),
             ColorPalletes.RGB(198, 40, 40),
             ColorPalletes.RGB(85, 139, 47),

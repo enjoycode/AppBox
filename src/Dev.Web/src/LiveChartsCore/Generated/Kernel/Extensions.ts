@@ -244,7 +244,7 @@ export class Extensions {
                                   onDeleteNullPoint: System.Action1<LiveChartsCore.ChartPoint>): System.IEnumerable<System.IEnumerable<LiveChartsCore.ChartPoint>> {
         const _$generator = function* (points: System.IEnumerable<LiveChartsCore.ChartPoint>,
                                        onDeleteNullPoint: System.Action1<LiveChartsCore.ChartPoint>) {
-            let builder = new Extensions.GapsBuilder(points.GetEnumerator());
+            let builder = new GapsBuilder(points.GetEnumerator());
             while (!builder.Finished) yield Extensions.YieldReturnUntilNextNullChartPoint(builder, onDeleteNullPoint);
             builder.Dispose();
         }
@@ -252,12 +252,12 @@ export class Extensions {
         return System.EnumerableFrom(() => _$generator(points, onDeleteNullPoint));
     }
 
-    public static AsSplineData(source: System.IEnumerable<LiveChartsCore.ChartPoint>): System.IEnumerable<Extensions.SplineData> {
+    public static AsSplineData(source: System.IEnumerable<LiveChartsCore.ChartPoint>): System.IEnumerable<SplineData> {
         const _$generator = function* (source: System.IEnumerable<LiveChartsCore.ChartPoint>) {
             let e = source.Where(x => !x.IsEmpty).GetEnumerator();
 
             if (!e.MoveNext()) return;
-            let data = new Extensions.SplineData(e.Current);
+            let data = new SplineData(e.Current);
 
             if (!e.MoveNext()) {
                 yield data;
@@ -284,9 +284,9 @@ export class Extensions {
     }
 
 
-    private static YieldReturnUntilNextNullChartPoint(builder: Extensions.GapsBuilder,
+    private static YieldReturnUntilNextNullChartPoint(builder: GapsBuilder,
                                                       onDeleteNullPoint: System.Action1<LiveChartsCore.ChartPoint>): System.IEnumerable<LiveChartsCore.ChartPoint> {
-        const _$generator = function* (builder: Extensions.GapsBuilder,
+        const _$generator = function* (builder: GapsBuilder,
                                        onDeleteNullPoint: System.Action1<LiveChartsCore.ChartPoint>) {
             while (builder.Enumerator.MoveNext()) {
                 if (builder.Enumerator.Current.IsEmpty) {
@@ -306,54 +306,55 @@ export class Extensions {
         return System.EnumerableFrom(() => _$generator(builder, onDeleteNullPoint));
     }
 
-    private static GapsBuilder = class implements System.IDisposable {
-        private static readonly $meta_System_IDisposable = true;
+}
 
-        public constructor(enumerator: System.IEnumerator<LiveChartsCore.ChartPoint>) {
-            this.Enumerator = enumerator;
-        }
+export class GapsBuilder implements System.IDisposable {
+    private static readonly $meta_System_IDisposable = true;
 
-        #Enumerator: System.IEnumerator<LiveChartsCore.ChartPoint>;
-        public get Enumerator() {
-            return this.#Enumerator;
-        }
-
-        private set Enumerator(value) {
-            this.#Enumerator = value;
-        }
-
-        public IsEmpty: boolean = true;
-
-        public Finished: boolean = false;
-
-        public Dispose() {
-            this.Enumerator.Dispose();
-        }
+    public constructor(enumerator: System.IEnumerator<LiveChartsCore.ChartPoint>) {
+        this.Enumerator = enumerator;
     }
 
-    public static SplineData = class {
-        public constructor(start: LiveChartsCore.ChartPoint) {
-            this.Previous = start;
-            this.Current = start;
-            this.Next = start;
-            this.AfterNext = start;
-        }
+    #Enumerator: System.IEnumerator<LiveChartsCore.ChartPoint>;
+    public get Enumerator() {
+        return this.#Enumerator;
+    }
 
-        public Previous: LiveChartsCore.ChartPoint;
+    private set Enumerator(value) {
+        this.#Enumerator = value;
+    }
 
-        public Current: LiveChartsCore.ChartPoint;
+    public IsEmpty: boolean = true;
 
-        public Next: LiveChartsCore.ChartPoint;
+    public Finished: boolean = false;
 
-        public AfterNext: LiveChartsCore.ChartPoint;
+    public Dispose() {
+        this.Enumerator.Dispose();
+    }
+}
 
-        public IsFirst: boolean = true;
+export class SplineData {
+    public constructor(start: LiveChartsCore.ChartPoint) {
+        this.Previous = start;
+        this.Current = start;
+        this.Next = start;
+        this.AfterNext = start;
+    }
 
-        public GoNext(point: LiveChartsCore.ChartPoint) {
-            this.Previous = this.Current;
-            this.Current = this.Next;
-            this.Next = this.AfterNext;
-            this.AfterNext = point;
-        }
+    public Previous: LiveChartsCore.ChartPoint;
+
+    public Current: LiveChartsCore.ChartPoint;
+
+    public Next: LiveChartsCore.ChartPoint;
+
+    public AfterNext: LiveChartsCore.ChartPoint;
+
+    public IsFirst: boolean = true;
+
+    public GoNext(point: LiveChartsCore.ChartPoint) {
+        this.Previous = this.Current;
+        this.Current = this.Next;
+        this.Next = this.AfterNext;
+        this.AfterNext = point;
     }
 }
