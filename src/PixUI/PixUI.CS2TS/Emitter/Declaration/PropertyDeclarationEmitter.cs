@@ -124,7 +124,9 @@ namespace PixUI.CS2TS
                 if (node.Initializer.Value.Kind() != SyntaxKind.SuppressNullableWarningExpression)
                 {
                     Write(" return ");
+                    var position = GetCurrentOutputPosition();
                     Visit(node.Initializer.Value);
+                    RemoveNewLineAfter(position);
                 }
                 else
                 {
@@ -134,7 +136,9 @@ namespace PixUI.CS2TS
             else if (node.ExpressionBody != null)
             {
                 Write(" return ");
+                var position = GetCurrentOutputPosition();
                 Visit(node.ExpressionBody.Expression);
+                RemoveNewLineAfter(position);
             }
 
             Write("; }");
@@ -223,7 +227,9 @@ namespace PixUI.CS2TS
                     if (item.ExpressionBody != null)
                     {
                         Write(" { return ");
+                        var position = GetCurrentOutputPosition();
                         Visit(item.ExpressionBody.Expression);
+                        RemoveNewLineAfter(position);
                         Write("; }\n");
                     }
                     else

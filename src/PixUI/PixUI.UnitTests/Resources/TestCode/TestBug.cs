@@ -80,6 +80,8 @@ using PixUI;
 
 class MyClass
 {
-    [TSIgnorePropertyDeclaration]
-    public int Age => 100;
+    public string Test(double value)
+    {
+        return value.ToString(); 
+    }
 }

@@ -41,6 +41,13 @@ namespace PixUI.CS2TS
 
             var name = node.Name.Identifier.Text;
 
+            if (name == "ToString")
+            {
+                emitter.Visit(node.Expression);
+                emitter.Write(".toString");
+                return;
+            }
+
             if (name == "IsFinite")
             {
                 emitter.Write("isFinite");
@@ -92,9 +99,6 @@ namespace PixUI.CS2TS
                         break;
                     case "IsInfinity":
                         emitter.Write("!Number.isFinite");
-                        break;
-                    case "ToString":
-                        emitter.Write("toString");
                         break;
                     default:
                         throw new NotImplementedException($"{node} at File: {node.SyntaxTree.FilePath}");
