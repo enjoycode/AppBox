@@ -42,7 +42,9 @@ namespace PixUI.CS2TS
             {
                 if (memberAccess.Name.Identifier.Text == "Empty")
                 {
-                    emitter.Write("[]");
+                    var methodSymbol = (IMethodSymbol)symbol;
+                    var jsArrayType = Emitter.GetJsNativeArrayTypeByElementType(methodSymbol.TypeArguments[0]);
+                    emitter.Write(jsArrayType != null ? $"new {jsArrayType}()" : "[]");
                 }
                 else if (memberAccess.Name.Identifier.Text == "IndexOf")
                 {

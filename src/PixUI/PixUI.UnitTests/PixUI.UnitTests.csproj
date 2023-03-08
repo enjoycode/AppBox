@@ -95,7 +95,6 @@
       <Compile Remove="Resources\TestCode\TestOverloads.cs" />
       <None Include="Resources\TestCode\TestOverloads.cs" />
       <Compile Remove="Resources\TestCode\TestRefArg.cs" />
-      <None Include="Resources\TestCode\TestRefArg.cs" />
       <Compile Remove="Resources\TestCode\TestGenericNew.cs" />
       <None Include="Resources\TestCode\TestGenericNew.cs" />
       <Compile Remove="Resources\TestCode\TestTask.cs" />
@@ -106,6 +105,10 @@
       <None Include="Resources\TestCode\TestYield.cs" />
       <Compile Remove="Resources\TestCode\TestInnerFunction.cs" />
       <None Include="Resources\TestCode\TestInnerFunction.cs" />
+      <Compile Remove="Resources\TestCode\TestLinqSelect.cs" />
+      <None Include="Resources\TestCode\TestLinqSelect.cs" />
+      <Compile Remove="Resources\TestCode\TestRemoveNewLine.cs" />
+      <None Include="Resources\TestCode\TestRemoveNewLine.cs" />
     </ItemGroup>
 
     <ItemGroup>

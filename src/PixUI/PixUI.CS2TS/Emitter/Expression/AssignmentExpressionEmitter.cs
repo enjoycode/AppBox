@@ -22,8 +22,13 @@ namespace PixUI.CS2TS
             if (TryEmitEventAssignment(node, leftSymbol, rightSymbol))
                 return;
 
-            Visit(node.Left);
-            VisitToken(node.OperatorToken);
+            // 排除 _ = someGetValue();
+            if (!(node.Kind() == SyntaxKind.SimpleAssignmentExpression &&
+                  node.Left is IdentifierNameSyntax { Identifier: { Text: "_" } }))
+            {
+                Visit(node.Left);
+                VisitToken(node.OperatorToken);
+            }
 
             //right 隐式转换
             var typeInfo = SemanticModel.GetTypeInfo(node.Right);
@@ -101,7 +106,7 @@ namespace PixUI.CS2TS
                 Write(',');
                 Visit(node.Right);
                 Write(")");
-                
+
                 WriteTrailingTrivia(node.Right);
                 return true;
             }

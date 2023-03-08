@@ -84,10 +84,12 @@ namespace PixUI.CS2TS
                     AddUsedModule("System");
                     WriteLeadingWhitespaceOnly(node.Body);
                     Write("{ const _$generator = function* (");
-                    if (!ToJavaScript)
+                    if (!ToJavaScript && !node.HasStaticModifier())
                     {
                         Write("this: ");
-                        Write(node.Ancestors().OfType<TypeDeclarationSyntax>().First().Identifier.Text);
+                        //暂简单写入any类型
+                        Write("any");
+                        //Write(node.Ancestors().OfType<TypeDeclarationSyntax>().First().Identifier.Text);
                         if (node.ParameterList.Parameters.Count > 0) Write(',');
                     }
 

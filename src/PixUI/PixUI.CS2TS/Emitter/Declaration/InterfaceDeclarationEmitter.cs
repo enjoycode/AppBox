@@ -56,6 +56,18 @@ namespace PixUI.CS2TS
             Write(node.Identifier.Text);
             Write("(obj: any): obj is ");
             Write(node.Identifier.Text);
+            //需要写入范型参数，暂简单写入any类型
+            if (node.TypeParameterList != null)
+            {
+                Write('<');
+                for (var i = 0; i < node.TypeParameterList.Parameters.Count; i++)
+                {
+                    if (i != 0) Write(", ");
+                    Write("any");
+                }
+                Write('>');
+            }
+            
             Write(" {\n");
 
             Write(

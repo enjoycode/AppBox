@@ -16,7 +16,7 @@ namespace PixUI
 
         [TSRename("fontStyle")] public FontStyle FontStyle;
 
-        [TSMethodIgnore]
+        [TSIgnoreMethodInvoke]
         public void Dispose() { }
     }
 

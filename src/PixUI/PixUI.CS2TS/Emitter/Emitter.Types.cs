@@ -13,7 +13,7 @@ namespace PixUI.CS2TS
         internal const string PixUIProjectName = nameof(PixUI);
 
         internal const string TSTemplateAttributeFullName = "PixUI.TSTemplateAttribute";
-        internal const string TSMethodIgnoreAttributeFullName = "PixUI.TSMethodIgnoreAttribute";
+        internal const string TSIgnoreMethodInvokeAttributeFullName = "PixUI.TSIgnoreMethodInvokeAttribute";
         internal const string TSCustomInterceptorAttributeFullName = "PixUI.TSCustomInterceptorAttribute";
         internal const string TSPropertyToGetSetAttributeFullName = "PixUI.TSPropertyToGetSetAttribute";
 
@@ -25,6 +25,9 @@ namespace PixUI.CS2TS
 
         internal static bool IsTSInterfaceOfAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSInterfaceOf");
+
+        internal static bool IsTSIgnorePropertyDeclarationAttribute(AttributeSyntax attribute)
+            => IsAttribute(attribute, "TSIgnorePropertyDeclaration");
 
         internal static bool IsTSRawScriptAttribute(AttributeSyntax attribute)
             => IsAttribute(attribute, "TSRawScript");
@@ -149,7 +152,7 @@ namespace PixUI.CS2TS
                 return;
             }
 
-            if (symbol.IsSystemNamespace()) return;
+            // if (symbol.IsSystemNamespace()) return;
 
             var renameAttribute = symbol.TryGetAttribute(TypeOfTSRenameAttribute);
             if (renameAttribute == null) return;

@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -7,6 +8,12 @@ namespace PixUI.CS2TS
     {
         public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
         {
+            //尝试忽略标为[TSIgnorePropertyDeclaration]的定义
+            if (SyntaxExtensions.TryGetAttribute(node.AttributeLists, IsTSIgnorePropertyDeclarationAttribute) != null)
+            {
+                return;
+            }
+            
             if (node.HasAbstractModifier() || node.Parent is InterfaceDeclarationSyntax)
             {
                 EmitAbstractProperty(node);

@@ -19,13 +19,13 @@ namespace PixUI.CS2TS
                 Write("export ");
 
             Write("type ");
-            Write(node.Identifier.Text);
-            if (node.TypeParameterList != null)
-            {
-                Write('<');
-                VisitSeparatedList(node.TypeParameterList.Parameters);
-                Write('>');
-            }
+            
+            var name = node.Identifier.Text;
+            TryRenameDeclaration(node.AttributeLists, ref name);
+            //TODO: 添加检查类型名称 Translator.AddType();
+            Write(name);
+            
+            WriteTypeParameters(node.TypeParameterList, node.ConstraintClauses);
 
             Write(" = ");
 

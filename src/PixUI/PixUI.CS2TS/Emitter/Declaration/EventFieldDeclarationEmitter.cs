@@ -8,6 +8,8 @@ namespace PixUI.CS2TS
     {
         public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
         {
+            //TODO: fix event declaration in Interface
+            
             AddUsedModule("System"); //always use System module
 
             if (node.IsTSRawScript(out var script))
@@ -60,7 +62,7 @@ namespace PixUI.CS2TS
             for (var i = 0; i < delegateMethod.Parameters.Length; i++)
             {
                 if (i != 0) Write(", ");
-                WriteTypeSymbol(delegateMethod.Parameters[i].Type, true);
+                WriteTypeSymbol(delegateMethod.Parameters[i].Type, true, true);
             }
             Write('>');
         }

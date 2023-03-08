@@ -85,7 +85,7 @@ namespace PixUI.CS2TS
                         emitter.Write("Number.isNaN");
                         break;
                     case "Epsilon":
-                        emitter.Write("Number.Epsilon");
+                        emitter.Write("Number.EPSILON");
                         break;
                     case "IsFinite":
                         emitter.Write("Number.isFinite");
@@ -95,6 +95,20 @@ namespace PixUI.CS2TS
                         break;
                     case "ToString":
                         emitter.Write("toString");
+                        break;
+                    default:
+                        throw new NotImplementedException($"{node} at File: {node.SyntaxTree.FilePath}");
+                }
+            }
+            else if (specialType is SpecialType.System_Int32)
+            {
+                switch (name)
+                {
+                    case "MinValue":
+                        emitter.Write("-2147483648");
+                        break;
+                    case "MaxValue":
+                        emitter.Write("2147483647");
                         break;
                     default:
                         throw new NotImplementedException($"{node} at File: {node.SyntaxTree.FilePath}");

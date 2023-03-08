@@ -24,7 +24,7 @@ namespace PixUI
 
         public void Shift(float dx, float dy) { }
 
-        [TSMethodIgnore]
+        [TSIgnoreMethodInvoke]
         public void Dispose() { }
     }
 }

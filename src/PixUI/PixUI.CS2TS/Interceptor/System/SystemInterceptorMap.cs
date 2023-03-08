@@ -20,6 +20,7 @@ namespace PixUI.CS2TS
             { "byte", NumberInterceptor.Default },
             { "float", NumberInterceptor.Default },
             { "double", NumberInterceptor.Default },
+            { "int", NumberInterceptor.Default },
             { "long", NumberInterceptor.Default },
             //TODO: others
         };

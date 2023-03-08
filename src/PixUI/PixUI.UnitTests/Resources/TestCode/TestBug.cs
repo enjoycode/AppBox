@@ -52,26 +52,34 @@
 //     }
 // }
 
+// using PixUI;
+//
+// namespace PixUI
+// {
+//         /// Delegate for something
+//         public delegate string RouteWidgetAsyncBuilder(string? arg);
+//         [TSType("PixUI.RouteWidgetAsyncBuilder"), TSRename("RouteWidgetAsyncBuilder")]
+//         public delegate string RouteWidgetBuilder(string? arg);
+//
+//         /// <summary>
+//         /// This is Test Class
+//         /// Don't use it
+//         /// </summary>
+//         public sealed class MyClass
+//         {
+//                 public readonly RouteWidgetBuilder Builder;
+//
+//                 public MyClass(RouteWidgetBuilder builder)
+//                 {
+//                         Builder = builder;
+//                 }
+//         }
+// }
+
 using PixUI;
 
-namespace PixUI
+class MyClass
 {
-        /// Delegate for something
-        public delegate string RouteWidgetAsyncBuilder(string? arg);
-        [TSType("PixUI.RouteWidgetAsyncBuilder"), TSRename("RouteWidgetAsyncBuilder")]
-        public delegate string RouteWidgetBuilder(string? arg);
-
-        /// <summary>
-        /// This is Test Class
-        /// Don't use it
-        /// </summary>
-        public sealed class MyClass
-        {
-                public readonly RouteWidgetBuilder Builder;
-
-                public MyClass(RouteWidgetBuilder builder)
-                {
-                        Builder = builder;
-                }
-        }
+    [TSIgnorePropertyDeclaration]
+    public int Age => 100;
 }

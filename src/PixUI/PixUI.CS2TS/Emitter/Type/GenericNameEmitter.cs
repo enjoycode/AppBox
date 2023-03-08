@@ -28,7 +28,7 @@ namespace PixUI.CS2TS
             Write(name);
 
             //暂在这里重命名重载的系统类型 eg: System.Action<T1,T2>
-            if (symbol is { Name: "Action" or "Func" } && symbol.GetRootNamespace()?.Name == "System")
+            if (symbol is { Name: "Action" or "Func" or "Tuple" } && symbol.GetRootNamespace()?.Name == "System")
                 Write(node.TypeArgumentList.Arguments.Count.ToString());
 
             //写入范型参数，注意: GenericType<T>.StaticMethod<T>()忽略范型类型的参数，但不忽略方法的范型参数

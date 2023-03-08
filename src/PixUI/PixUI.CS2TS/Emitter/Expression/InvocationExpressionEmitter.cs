@@ -12,8 +12,7 @@ namespace PixUI.CS2TS
         public override void VisitInvocationExpression(InvocationExpressionSyntax node)
         {
             //特例处理 eg: nameof(xxx)等
-            if (TryEmitNameof(node) || TryEmitReferenceEquals(node) ||
-                TryEmitIsNullOrEmpty(node) /*TODO: move this to StringInterceptor*/)
+            if (TryEmitNameof(node) || TryEmitReferenceEquals(node))
                 return;
 
             var symbolInfo = SemanticModel.GetSymbolInfo(node);
@@ -62,8 +61,37 @@ namespace PixUI.CS2TS
             IgnoreDelegateBind = true;
             Visit(node.Expression);
             IgnoreDelegateBind = false;
+
             VisitToken(node.ArgumentList.OpenParenToken);
-            VisitSeparatedList(node.ArgumentList.Arguments);
+            var argIndex = 0;
+            foreach (var item in node.ArgumentList.Arguments.GetWithSeparators())
+            {
+                if (item.IsToken)
+                {
+                    VisitToken(item.AsToken());
+                    continue;
+                }
+
+                var argNode = (ArgumentSyntax)item.AsNode()!;
+                var isNullArg = argNode.Expression is LiteralExpressionSyntax literal &&
+                                literal.Kind() == SyntaxKind.NullLiteralExpression;
+                //需要判断是否params参数，是则加...前缀
+                if (!isNullArg && methodSymbol.Parameters[argIndex].IsParams)
+                    Write("...");
+
+                Visit(argNode);
+
+                //特殊处理JsNativeArray
+                if (!isNullArg && methodSymbol.Parameters[argIndex].IsParams)
+                {
+                    var jsArrayType = GetJsNativeArrayType(methodSymbol.Parameters[argIndex].Type);
+                    if (jsArrayType != null)
+                        Write(".ToArray()");
+                }
+
+                argIndex++;
+            }
+
             VisitToken(node.ArgumentList.CloseParenToken);
         }
 
@@ -96,29 +124,6 @@ namespace PixUI.CS2TS
             WriteTrailingTrivia(node);
 
             return true;
-        }
-
-        private bool TryEmitIsNullOrEmpty(InvocationExpressionSyntax node)
-        {
-            if (node.Expression is MemberAccessExpressionSyntax memberAccess)
-            {
-                if (memberAccess.Name.Identifier.Text == "IsNullOrEmpty")
-                {
-                    var typeSymbol = SemanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
-                    if (typeSymbol is { Name: "String" })
-                    {
-                        AddUsedModule("System");
-                        WriteLeadingTrivia(node);
-                        Write("System.IsNullOrEmpty(");
-                        Visit(node.ArgumentList.Arguments[0]);
-                        Write(')');
-                        WriteTrailingTrivia(node);
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         private bool TryEmitReferenceEquals(InvocationExpressionSyntax node)
@@ -257,19 +262,19 @@ namespace PixUI.CS2TS
         {
             if (!symbol.IsExtensionMethod || symbol.IsSystemNamespace() /*暂排除系统库*/)
                 return false;
-            if (node.Expression is not MemberAccessExpressionSyntax)
+            if (node.Expression is not MemberAccessExpressionSyntax memberAccess)
                 return false;
-            
+
             WriteTypeSymbol(symbol.ContainingType, true);
             Write('.');
-            Write(symbol.Name);
-            
+            Visit(memberAccess.Name);
+
             VisitToken(node.ArgumentList.OpenParenToken);
-            Visit(((MemberAccessExpressionSyntax)node.Expression).Expression);
+            Visit(memberAccess.Expression);
             Write(',');
             VisitSeparatedList(node.ArgumentList.Arguments);
             VisitToken(node.ArgumentList.CloseParenToken);
-            
+
             return true;
         }
     }

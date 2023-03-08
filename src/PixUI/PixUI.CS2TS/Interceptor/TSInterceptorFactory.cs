@@ -24,8 +24,8 @@ namespace PixUI.CS2TS
                     return new TSTemplateInterceptor(template);
                 case Emitter.TSPropertyToGetSetAttributeFullName:
                     return TSPropertyToGetSetInterceptor.Default;
-                case Emitter.TSMethodIgnoreAttributeFullName:
-                    return TSMethodIngnoreInterceptor.Default;
+                case Emitter.TSIgnoreMethodInvokeAttributeFullName:
+                    return TSIngnoreMethodInvokeInterceptor.Default;
                 case Emitter.TSCustomInterceptorAttributeFullName:
                     var name = attribute.ConstructorArguments[0].Value!.ToString();
                     if (CustomInterceptors.TryGetValue(name, out var interceptor))

@@ -55,7 +55,10 @@ namespace PixUI.CS2TS
         private static void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node, ISymbol symbol)
         {
             //TODO:验证不支持的转换方法
-            var methodSymbol = (IMethodSymbol)symbol;
+            if (TryEmitIsNullOrEmptyOrWhiteSpace(emitter, node))
+                return;
+            
+            // var methodSymbol = (IMethodSymbol)symbol;
             emitter.Visit(node.Expression);
             emitter.VisitToken(node.ArgumentList.OpenParenToken);
             //需要特殊处理char参数(因会被转为number)，所以需要通过String.fromCharCode()重新转为js字符串
@@ -64,6 +67,23 @@ namespace PixUI.CS2TS
             emitter.VisitSeparatedList(node.ArgumentList.Arguments);
             emitter.CharCodeToString = false; //preCharCodeToString;
             emitter.VisitToken(node.ArgumentList.CloseParenToken);
+        }
+
+        private static bool TryEmitIsNullOrEmptyOrWhiteSpace(Emitter emitter, InvocationExpressionSyntax node)
+        {
+            if (node.Expression is not MemberAccessExpressionSyntax memberAccess) return false;
+            var name = memberAccess.Name.Identifier.Text;
+            if (name != "IsNullOrEmpty" && name != "IsNullOrWhiteSpace") return false;
+
+            emitter.AddUsedModule("System");
+            emitter.WriteLeadingTrivia(node);
+            emitter.Write("System.");
+            emitter.Write(name);
+            emitter.Write('(');
+            emitter.Visit(node.ArgumentList.Arguments[0]);
+            emitter.Write(')');
+            emitter.WriteTrailingTrivia(node);
+            return true;
         }
 
         private static void InterceptMemberAccess(Emitter emitter, MemberAccessExpressionSyntax node, ISymbol symbol)

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,6 +9,11 @@ namespace PixUI.CS2TS
     {
         public override void VisitBinaryExpression(BinaryExpressionSyntax node)
         {
+            //判断不支持的表达式 someNullable ?? throw new Exception()
+            if (node.Kind() == SyntaxKind.CoalesceExpression &&
+                (node.Left is ThrowExpressionSyntax || node.Right is ThrowExpressionSyntax))
+                throw new NotSupportedException($"不支持CoalesceExpression抛异常 at File: {node.SyntaxTree.FilePath}");
+            
             var opKind = node.OperatorToken.Kind();
             //特殊处理 obj is string
             if (opKind == SyntaxKind.IsKeyword)

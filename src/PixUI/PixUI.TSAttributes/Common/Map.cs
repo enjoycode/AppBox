@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using PixUI;
 
 namespace System;
@@ -23,6 +24,8 @@ public abstract class MapBase<K, V>
     }
 
     public int size => _dictionary.Count;
+    [TSRename("size")]
+    public int Count => _dictionary.Count;
 
     public IEnumerable<K> Keys => _dictionary.Keys;
     public IEnumerable<V> Values => _dictionary.Values;
@@ -47,6 +50,9 @@ public abstract class MapBase<K, V>
 
     [TSRename("clear")]
     public void Clear() => _dictionary.Clear();
+
+    [TSRename("has")]
+    public bool ContainsKey(K key) => _dictionary.ContainsKey(key);
 
     public ICollection<K> keys() => _dictionary.Keys;
 

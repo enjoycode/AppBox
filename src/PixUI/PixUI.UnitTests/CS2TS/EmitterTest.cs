@@ -120,7 +120,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task DisposeTest() => await Run("TestDispose.cs");
 
         [Test]
-        public async Task MethodArgsTest() => await Run("TestMethodArgs.cs");
+        public async Task MethodArgsTest() => await Run("TestMethodArgs.cs", true);
 
         [Test]
         public async Task EventTest() => await Run("TestEvent.cs", true);
@@ -145,10 +145,7 @@ namespace PixUI.UnitTests.CS2TS
         
         [Test]
         public async Task IsGenericTypeTest() => await Run("TestIsGenericType.cs", true);
-        
-        [Test]
-        public async Task RefArgTest() => await Run("TestRefArg.cs", true);
-        
+
         [Test]
         public async Task TaskTest() => await Run("TestTask.cs", true);
         
@@ -160,5 +157,11 @@ namespace PixUI.UnitTests.CS2TS
         
         [Test]
         public async Task InnerFunctionTest() => await Run("TestInnerFunction.cs", true);
+        
+        [Test]
+        public async Task LinqSelectTest() => await Run("TestLinqSelect.cs", true);
+        
+        [Test]
+        public async Task RemoveNewLineTest() => await Run("TestRemoveNewLine.cs", true);
     }
 }

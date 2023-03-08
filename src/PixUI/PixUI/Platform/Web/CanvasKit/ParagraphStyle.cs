@@ -16,7 +16,7 @@ namespace PixUI
 
         [TSRename("heightMultiplier")] public float Height;
 
-        [TSMethodIgnore]
+        [TSIgnoreMethodInvoke]
         public void Dispose() { }
     }
 }

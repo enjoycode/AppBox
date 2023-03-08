@@ -22,9 +22,13 @@ namespace PixUI.CS2TS
                 if (arm.Pattern is DiscardPatternSyntax)
                 {
                     Write(".otherwise(() => ");
-                    DisableVisitTrailingTrivia();
+                    if (arm.Expression is ThrowExpressionSyntax)
+                        Write('{');
+                    //DisableVisitTrailingTrivia();
                     Visit(arm.Expression);
-                    EnableVisitTrailingTrivia();
+                    //EnableVisitTrailingTrivia();
+                    if (arm.Expression is ThrowExpressionSyntax)
+                        Write('}');
                     Write(")");
                 }
                 else if (arm.Pattern is ConstantPatternSyntax constant)

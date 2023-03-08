@@ -22,12 +22,12 @@ namespace PixUI
     }
 
     /// <summary>
-    /// 用于忽略方法调用, 目前仅用于CanvasKit忽略Dispose
+    /// 忽略方法调用, 目前仅用于CanvasKit忽略Dispose
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class TSMethodIgnoreAttribute : TSInterceptorAttribute
+    public sealed class TSIgnoreMethodInvokeAttribute : TSInterceptorAttribute
     {
-        public TSMethodIgnoreAttribute() { }
+        public TSIgnoreMethodInvokeAttribute() { }
     }
 
     [AttributeUsage(AttributeTargets.Property)]

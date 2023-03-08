@@ -23,9 +23,9 @@ namespace PixUI.CS2TS
             }
         }
 
-        private static void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node,
-            ISymbol symbol)
+        private static void InterceptInvocation(Emitter emitter, InvocationExpressionSyntax node, ISymbol symbol)
         {
+            //TODO:处理Math.Round(num, 3)有指定小数位
             var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
             var methodName = memberAccess.Name.Identifier.Text;
             if (methodName != "Clamp")

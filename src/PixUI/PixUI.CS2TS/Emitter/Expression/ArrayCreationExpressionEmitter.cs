@@ -54,6 +54,10 @@ namespace PixUI.CS2TS
             }
             else
             {
+                var jsArrayType = GetJsNativeArrayType(node.Type);
+                if (jsArrayType != null)
+                    Write($"new {jsArrayType}(");
+
                 if (node.Initializer != null)
                 {
                     if (node.Parent is not ReturnStatementSyntax)
@@ -62,17 +66,28 @@ namespace PixUI.CS2TS
                 }
                 else
                 {
-                    Write("[]");
+                    if (jsArrayType == null)
+                        Write("[]");
                 }
+                
+                if (jsArrayType != null)
+                    Write(')');
             }
         }
 
-
         public override void VisitImplicitArrayCreationExpression(ImplicitArrayCreationExpressionSyntax node)
         {
+            var typeInfo = SemanticModel.GetTypeInfo(node);
+            var jsArrayType = GetJsNativeArrayType(typeInfo.Type!);
+            
             if (node.Parent is not ReturnStatementSyntax)
                 VisitTrailingTrivia(node.CloseBracketToken);
+            
+            if (jsArrayType != null)
+                Write($"new {jsArrayType}(");
             EmitArrayInitializer(node.Initializer);
+            if (jsArrayType != null)
+                Write(')');
         }
 
         private void EmitArrayInitializer(InitializerExpressionSyntax initializer)

@@ -57,6 +57,53 @@ namespace PixUI.CS2TS
 
         internal void Write(string str) => _outputs.Peek().Append(str);
 
+        private int GetCurrentOutputPosition() => _outputs.Peek().Length;
+
+        private void RemoveNewLineBefore(int position)
+        {
+            var output = _outputs.Peek()!;
+            position--;
+            while (true)
+            {
+                if (output[position] == '\n')
+                {
+                    output.Remove(position, 1);
+                    position--;
+                }
+                else if (char.IsWhiteSpace(output[position]))
+                {
+                    position--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 从开始处移除换行符，用于ReturnStatement及SimpleLambda移除之间的换行符
+        /// </summary>
+        private void RemoveNewLineAfter(int position)
+        {
+            var output = _outputs.Peek()!;
+            while (true)
+            {
+                if (output[position] == '\n')
+                {
+                    output.Remove(position, 1);
+                }
+                else if (char.IsWhiteSpace(output[position]))
+                {
+                    position++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
         internal void RemoveLast(int length)
         {
             var sb = _outputs.Peek();
@@ -312,7 +359,7 @@ namespace PixUI.CS2TS
             }
         }
 
-        internal void WriteTypeSymbol(ITypeSymbol typeSymbol, bool withNamespace)
+        internal void WriteTypeSymbol(ITypeSymbol typeSymbol, bool withNamespace, bool withGeneric = false)
         {
             if (typeSymbol is ITypeParameterSymbol typeParameter)
             {
@@ -339,21 +386,20 @@ namespace PixUI.CS2TS
             var name = typeSymbol.Name;
             TryRenameSymbol(typeSymbol, ref name);
             Write(name);
-
-            //TODO: GenericType
-            // if (!ToJavaScript && typeSymbol is INamedTypeSymbol namedType && namedType.IsGenericType)
-            // {
-            //     Write('<');
-            //     var first = true;
-            //     foreach (var typeArgument in namedType.TypeArguments)
-            //     {
-            //         if (first) first = false;
-            //         else Write(',');
-            //         
-            //         WriteTypeSymbol(typeArgument, true);
-            //     }
-            //     Write('>');
-            // }
+            
+            if (!ToJavaScript && withGeneric && typeSymbol is INamedTypeSymbol { IsGenericType: true } namedType)
+            {
+                Write('<');
+                var first = true;
+                foreach (var typeArgument in namedType.TypeArguments)
+                {
+                    if (first) first = false;
+                    else Write(',');
+                    
+                    WriteTypeSymbol(typeArgument, true, true);
+                }
+                Write('>');
+            }
         }
 
         private bool TryWritePredefinedTypeSymbol(ITypeSymbol typeSymbol)

@@ -25,7 +25,9 @@ namespace PixUI.CS2TS
                 // }
 
                 Write(": ");
+                DisableVisitLeadingTrivia();
                 Visit(parent.Type);
+                EnableVisitLeadingTrivia();
             }
 
             if (node.Initializer != null)
