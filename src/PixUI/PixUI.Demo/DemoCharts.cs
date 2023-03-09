@@ -23,7 +23,7 @@ public sealed class DemoCharts : View
     {
         // here you can configure the series assigned to each value.
         s.Name = $"S{value}";
-        s.DataLabelsPaint = new SolidColorPaint(new Color(30, 30, 30));
+        s.DataLabelsPaint = new SolidColorPaint { Color = new Color(30, 30, 30) };
         s.DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Outer;
         //s.DataLabelsFormatter = p => $"{p.PrimaryValue} / {p.StackedValue!.Total} ({p.StackedValue.Share:P2})";
         s.DataLabelsFormatter = p => $"{p.StackedValue.Share:P2}";
@@ -34,7 +34,7 @@ public sealed class DemoCharts : View
         Text = "My Chart Title",
         TextSize = 25,
         Padding = LiveChartsCore.Drawing.Padding.All(15),
-        Paint = new SolidColorPaint(Colors.Gray)
+        Paint = new SolidColorPaint { Color = Colors.Gray }
     };
 
     public DemoCharts()

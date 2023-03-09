@@ -32,7 +32,7 @@ namespace LiveCharts.Drawing.Geometries;
 /// Defines an area geometry.
 /// </summary>
 /// <typeparam name="TSegment">The type of the segment.</typeparam>
-public abstract class VectorGeometry<TSegment> : Drawable, IVectorGeometry<TSegment, SkiaSharpDrawingContext>
+public abstract class VectorGeometry<TSegment> : Drawable, IVectorGeometry<TSegment, SkiaDrawingContext>
     where TSegment : class, IAnimatable, IConsecutivePathSegment
 {
     private readonly FloatMotionProperty _pivotProperty;
@@ -131,8 +131,8 @@ public abstract class VectorGeometry<TSegment> : Drawable, IVectorGeometry<TSegm
         base.CompleteTransition(propertyName);
     }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void Draw(SkiaSharpDrawingContext context)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void Draw(SkiaDrawingContext context)
     {
         if (Commands.Count == 0) return;
 
@@ -182,7 +182,7 @@ public abstract class VectorGeometry<TSegment> : Drawable, IVectorGeometry<TSegm
     /// <param name="context">The context.</param>
     /// <param name="path">The path.</param>
     /// <param name="segment">The segment.</param>
-    protected virtual void OnOpen(SkiaSharpDrawingContext context, SKPath path, TSegment segment)
+    protected virtual void OnOpen(SkiaDrawingContext context, SKPath path, TSegment segment)
     { }
 
     /// <summary>
@@ -191,7 +191,7 @@ public abstract class VectorGeometry<TSegment> : Drawable, IVectorGeometry<TSegm
     /// <param name="context">The context.</param>
     /// <param name="path">The path.</param>
     /// <param name="segment">The segment.</param>
-    protected virtual void OnClose(SkiaSharpDrawingContext context, SKPath path, TSegment segment)
+    protected virtual void OnClose(SkiaDrawingContext context, SKPath path, TSegment segment)
     { }
 
     /// <summary>
@@ -200,6 +200,6 @@ public abstract class VectorGeometry<TSegment> : Drawable, IVectorGeometry<TSegm
     /// <param name="context">The context.</param>
     /// <param name="path">The path.</param>
     /// <param name="segment">The segment.</param>
-    protected virtual void OnDrawSegment(SkiaSharpDrawingContext context, SKPath path, TSegment segment)
+    protected virtual void OnDrawSegment(SkiaDrawingContext context, SKPath path, TSegment segment)
     { }
 }

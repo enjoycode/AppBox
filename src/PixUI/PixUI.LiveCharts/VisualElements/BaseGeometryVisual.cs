@@ -31,12 +31,12 @@ namespace LiveCharts.VisualElements;
 /// <summary>
 /// Defines a visual element with stroke and fill properties.
 /// </summary>
-public abstract class BaseGeometryVisual : VisualElement<SkiaSharpDrawingContext>
+public abstract class BaseGeometryVisual : VisualElement<SkiaDrawingContext>
 {
     private double _width;
     private double _height;
-    private IPaint<SkiaSharpDrawingContext>? _fill;
-    private IPaint<SkiaSharpDrawingContext>? _stroke;
+    private IPaint<SkiaDrawingContext>? _fill;
+    private IPaint<SkiaDrawingContext>? _stroke;
 
     /// <summary>
     /// Gets or sets the height of the rectangle [in Pixels or ChartValues, see <see cref="SizeUnit"/>].
@@ -56,7 +56,7 @@ public abstract class BaseGeometryVisual : VisualElement<SkiaSharpDrawingContext
     /// <summary>
     /// Gets or sets the fill paint.
     /// </summary>
-    public IPaint<SkiaSharpDrawingContext>? Fill
+    public IPaint<SkiaDrawingContext>? Fill
     {
         get => _fill;
         set => SetPaintProperty(ref _fill, value);
@@ -65,14 +65,14 @@ public abstract class BaseGeometryVisual : VisualElement<SkiaSharpDrawingContext
     /// <summary>
     /// Gets or sets the stroke paint.
     /// </summary>
-    public IPaint<SkiaSharpDrawingContext>? Stroke
+    public IPaint<SkiaDrawingContext>? Stroke
     {
         get => _stroke;
         set => SetPaintProperty(ref _stroke, value, true);
     }
 
     /// <inheritdoc cref="ChartElement{TDrawingContext}.GetPaintTasks"/>
-    protected override IPaint<SkiaSharpDrawingContext>?[] GetPaintTasks()
+    protected override IPaint<SkiaDrawingContext>?[] GetPaintTasks()
     {
         return new[] { _fill, _stroke };
     }

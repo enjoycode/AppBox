@@ -30,12 +30,12 @@ namespace LiveCharts.Motion;
 /// </summary>
 public class SKMatrixMotionProperty : MotionProperty<SKMatrix>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SKMatrixMotionProperty"/> class.
-    /// </summary>
-    /// <param name="propertyName">The property name.</param>
-    public SKMatrixMotionProperty(string propertyName)
-        : base(propertyName) { }
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="SKMatrixMotionProperty"/> class.
+    // /// </summary>
+    // /// <param name="propertyName">The property name.</param>
+    // public SKMatrixMotionProperty(string propertyName)
+    //     : base(propertyName) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SKMatrixMotionProperty"/> class.

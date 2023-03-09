@@ -564,7 +564,7 @@ namespace PixUI.CS2TS
             {
                 //只支持非指定类型的范型参数, eg: obj is GenericType<T>可以但obj is GenericType<string>不支持
                 if (namedType.TypeArguments.Any(t => t is not ITypeParameterSymbol))
-                    throw new Exception("不支持 obj is GenericType<XXX>");
+                    throw new Exception($"不支持 obj is GenericType<XXX> at File:{type.SyntaxTree.FilePath}");
             }
 
             void VisitName()

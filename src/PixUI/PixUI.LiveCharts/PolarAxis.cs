@@ -28,7 +28,7 @@ namespace LiveCharts;
 
 /// <inheritdoc cref="ICartesianAxis" />
 public sealed class PolarAxis 
-    : LiveChartsCore.PolarAxis<SkiaSharpDrawingContext, LabelGeometry, LineGeometry, CircleGeometry>
+    : LiveChartsCore.PolarAxis<SkiaDrawingContext, LabelGeometry, LineGeometry, CircleGeometry>
 {
     public PolarAxis() : 
         base(() => new LabelGeometry(), 

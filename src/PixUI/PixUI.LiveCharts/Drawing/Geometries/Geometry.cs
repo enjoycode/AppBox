@@ -29,7 +29,7 @@ using LiveCharts.Painting;
 namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="IGeometry{TDrawingContext}" />
-public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, IVisualChartPoint<SkiaSharpDrawingContext>
+public abstract class Geometry : Drawable, IGeometry<SkiaDrawingContext>, IVisualChartPoint<SkiaDrawingContext>
 {
     private readonly bool _hasGeometryTransform = false;
     private readonly FloatMotionProperty _opacityProperty;
@@ -149,19 +149,19 @@ public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, I
     public float Opacity { get => _opacityProperty.GetMovement(this); set => _opacityProperty.SetMovement(value, this); }
 
     /// <inheritdoc cref="IPaintable{TDrawingContext}.Stroke" />
-    public IPaint<SkiaSharpDrawingContext>? Stroke { get; set; }
+    public IPaint<SkiaDrawingContext>? Stroke { get; set; }
 
     /// <inheritdoc cref="IPaintable{TDrawingContext}.Fill" />
-    public IPaint<SkiaSharpDrawingContext>? Fill { get; set; }
+    public IPaint<SkiaDrawingContext>? Fill { get; set; }
 
     /// <inheritdoc cref="IVisualChartPoint{TDrawingContext}.MainGeometry" />
-    public IGeometry<SkiaSharpDrawingContext> MainGeometry => GetHighlitableGeometry();
+    public IGeometry<SkiaDrawingContext> MainGeometry => GetHighlitableGeometry();
 
     /// <summary>
     /// Draws the geometry in the user interface.
     /// </summary>
     /// <param name="context">The context.</param>
-    public override void Draw(SkiaSharpDrawingContext context)
+    public override void Draw(SkiaDrawingContext context)
     {
         if (HasTransform)
         {
@@ -253,14 +253,14 @@ public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, I
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="paint">The paint.</param>
-    public abstract void OnDraw(SkiaSharpDrawingContext context, SKPaint paint);
+    public abstract void OnDraw(SkiaDrawingContext context, SKPaint paint);
 
     /// <summary>
     /// Measures the geometry.
     /// </summary>
     /// <param name="drawableTask">The drawable task.</param>
     /// <returns>the size of the geometry.</returns>
-    public LvcSize Measure(IPaint<SkiaSharpDrawingContext> drawableTask)
+    public LvcSize Measure(IPaint<SkiaDrawingContext> drawableTask)
     {
         var measure = OnMeasure((Paint)drawableTask);
 
@@ -297,7 +297,7 @@ public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, I
     /// Gets the highlitable geometry.
     /// </summary>
     /// <returns></returns>
-    protected virtual IGeometry<SkiaSharpDrawingContext> GetHighlitableGeometry()
+    protected virtual IGeometry<SkiaDrawingContext> GetHighlitableGeometry()
     {
         return this;
     }
@@ -306,5 +306,5 @@ public abstract class Geometry : Drawable, IGeometry<SkiaSharpDrawingContext>, I
     /// Applies the geometry transform.
     /// </summary>
     /// <param name="context"></param>
-    protected virtual void ApplyCustomGeometryTransform(SkiaSharpDrawingContext context) { }
+    protected virtual void ApplyCustomGeometryTransform(SkiaDrawingContext context) { }
 }

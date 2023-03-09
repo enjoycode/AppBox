@@ -35,7 +35,7 @@ namespace LiveCharts;
 /// </summary>
 /// <seealso cref="IPaint{TDrawingContext}" />
 [Obsolete("This is an obsolete class to make maps work, thgey are out-dated and will behave differently in the future.")]
-public class DefaultPaint : IPaint<SkiaSharpDrawingContext>
+public class DefaultPaint : IPaint<SkiaDrawingContext>
 {
     /// <summary>
     /// Gets or sets a value indicating whether this instance is stroke.
@@ -114,13 +114,13 @@ public class DefaultPaint : IPaint<SkiaSharpDrawingContext>
     /// </summary>
     /// <param name="canvas">The canvas.</param>
     /// <param name="geometry">The geometry.</param>
-    public void AddGeometryToPaintTask(MotionCanvas<SkiaSharpDrawingContext> canvas, IDrawable<SkiaSharpDrawingContext> geometry) { }
+    public void AddGeometryToPaintTask(MotionCanvas<SkiaDrawingContext> canvas, IDrawable<SkiaDrawingContext> geometry) { }
 
     /// <summary>
     /// Clones the task.
     /// </summary>
     /// <returns></returns>
-    public IPaint<SkiaSharpDrawingContext> CloneTask()
+    public IPaint<SkiaDrawingContext> CloneTask()
     {
         return this;
     }
@@ -135,36 +135,36 @@ public class DefaultPaint : IPaint<SkiaSharpDrawingContext>
     /// </summary>
     /// <param name="canvas">The canvas.</param>
     /// <returns></returns>
-    public IEnumerable<IDrawable<SkiaSharpDrawingContext>> GetGeometries(MotionCanvas<SkiaSharpDrawingContext> canvas)
+    public IEnumerable<IDrawable<SkiaDrawingContext>> GetGeometries(MotionCanvas<SkiaDrawingContext> canvas)
     {
-        return Enumerable.Empty<IDrawable<SkiaSharpDrawingContext>>();
+        return Enumerable.Empty<IDrawable<SkiaDrawingContext>>();
     }
 
     /// <summary>
     /// Initializes the task.
     /// </summary>
     /// <param name="context">The context.</param>
-    public void InitializeTask(SkiaSharpDrawingContext context) { }
+    public void InitializeTask(SkiaDrawingContext context) { }
 
     /// <summary>
     /// Removes the geometry from pain task.
     /// </summary>
     /// <param name="canvas">The canvas.</param>
     /// <param name="geometry">The geometry.</param>
-    public void RemoveGeometryFromPainTask(MotionCanvas<SkiaSharpDrawingContext> canvas, IDrawable<SkiaSharpDrawingContext> geometry) { }
+    public void RemoveGeometryFromPainTask(MotionCanvas<SkiaDrawingContext> canvas, IDrawable<SkiaDrawingContext> geometry) { }
 
     /// <summary>
     /// Removes all geometry from paint task.
     /// </summary>
     /// <param name="canvas">The canvas.</param>
-    public void ClearGeometriesFromPaintTask(MotionCanvas<SkiaSharpDrawingContext> canvas) { }
+    public void ClearGeometriesFromPaintTask(MotionCanvas<SkiaDrawingContext> canvas) { }
 
     /// <summary>
     /// Sets the geometries.
     /// </summary>
     /// <param name="canvas">The canvas.</param>
     /// <param name="geometries">The geometries.</param>
-    public void SetGeometries(MotionCanvas<SkiaSharpDrawingContext> canvas, HashSet<IDrawable<SkiaSharpDrawingContext>> geometries) { }
+    public void SetGeometries(MotionCanvas<SkiaDrawingContext> canvas, HashSet<IDrawable<SkiaDrawingContext>> geometries) { }
 
     /// <inheritdoc cref="IAnimatable.SetTransition(Animation?, string[])"/>
     public void SetTransition(Animation? animation, params string[]? propertyName) { }
@@ -176,21 +176,21 @@ public class DefaultPaint : IPaint<SkiaSharpDrawingContext>
     public void CompleteTransition(params string[]? propertyName) { }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.ApplyOpacityMask(TDrawingContext, IPaintable{TDrawingContext})" />
-    public void ApplyOpacityMask(SkiaSharpDrawingContext context, IPaintable<SkiaSharpDrawingContext> geometry) { }
+    public void ApplyOpacityMask(SkiaDrawingContext context, IPaintable<SkiaDrawingContext> geometry) { }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.RestoreOpacityMask(TDrawingContext, IPaintable{TDrawingContext})" />
-    public void RestoreOpacityMask(SkiaSharpDrawingContext context, IPaintable<SkiaSharpDrawingContext> geometry) { }
+    public void RestoreOpacityMask(SkiaDrawingContext context, IPaintable<SkiaDrawingContext> geometry) { }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.GetClipRectangle(MotionCanvas{TDrawingContext})" />
-    public LvcRectangle GetClipRectangle(MotionCanvas<SkiaSharpDrawingContext> canvas)
+    public LvcRectangle GetClipRectangle(MotionCanvas<SkiaDrawingContext> canvas)
     {
         return LvcRectangle.Empty;
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.SetClipRectangle(MotionCanvas{TDrawingContext}, LvcRectangle)" />
-    public void SetClipRectangle(MotionCanvas<SkiaSharpDrawingContext> canvas, LvcRectangle value) { }
+    public void SetClipRectangle(MotionCanvas<SkiaDrawingContext> canvas, LvcRectangle value) { }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.ReleaseCanvas(MotionCanvas{TDrawingContext})" />
-    public void ReleaseCanvas(MotionCanvas<SkiaSharpDrawingContext> canvas) { }
+    public void ReleaseCanvas(MotionCanvas<SkiaDrawingContext> canvas) { }
 }
 #endif

@@ -33,10 +33,10 @@ namespace LiveCharts.VisualElements;
 /// <summary>
 /// Defines a visual element with stroke and fill properties.
 /// </summary>
-public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
+public class LabelVisual : VisualElement<SkiaDrawingContext>
 {
     internal LabelGeometry? _labelGeometry;
-    internal IPaint<SkiaSharpDrawingContext>? _paint;
+    internal IPaint<SkiaDrawingContext>? _paint;
     internal bool _isVirtual = false;
     internal string _text = string.Empty;
     internal double _textSize = 12;
@@ -53,7 +53,7 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     /// <summary>
     /// Gets or sets the fill paint.
     /// </summary>
-    public IPaint<SkiaSharpDrawingContext>? Paint
+    public IPaint<SkiaDrawingContext>? Paint
     {
         get => _paint;
         set => SetPaintProperty(ref _paint, value);
@@ -104,7 +104,7 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     /// </summary>
     public float LineHeight { get => _lineHeight; set { _lineHeight = value; OnPropertyChanged(); } }
 
-    protected override IPaint<SkiaSharpDrawingContext>?[] GetPaintTasks()
+    protected override IPaint<SkiaDrawingContext>?[] GetPaintTasks()
     {
         return new[] { _paint };
     }
@@ -116,7 +116,7 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.OnInvalidated(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var x = (float)X;
         var y = (float)Y;
@@ -174,7 +174,7 @@ public class LabelVisual : VisualElement<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.Measure(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    public override LvcSize Measure(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    public override LvcSize Measure(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var l = _labelGeometry ?? new LabelGeometry()
         {

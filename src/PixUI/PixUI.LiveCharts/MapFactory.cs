@@ -35,21 +35,21 @@ namespace LiveCharts;
 /// <summary>
 /// Defines a map builder.
 /// </summary>
-public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
+public class MapFactory : IMapFactory<SkiaDrawingContext>
 {
     private readonly HashSet<HeatPathShape> _usedPathShapes = new();
-    private readonly HashSet<IPaint<SkiaSharpDrawingContext>> _usedPaints = new();
+    private readonly HashSet<IPaint<SkiaDrawingContext>> _usedPaints = new();
     private readonly HashSet<string> _usedLayers = new();
-    private IGeoMapView<SkiaSharpDrawingContext>? _mapView;
+    private IGeoMapView<SkiaDrawingContext>? _mapView;
 
     /// <inheritdoc cref="IMapFactory{TDrawingContext}.GenerateLands(MapContext{TDrawingContext})"/>
-    public void GenerateLands(MapContext<SkiaSharpDrawingContext> context)
+    public void GenerateLands(MapContext<SkiaDrawingContext> context)
     {
         var projector = context.Projector;
 
         var toRemoveLayers = new HashSet<string>(_usedLayers);
         var toRemovePathShapes = new HashSet<HeatPathShape>(_usedPathShapes);
-        var toRemovePaints = new HashSet<IPaint<SkiaSharpDrawingContext>>(_usedPaints);
+        var toRemovePaints = new HashSet<IPaint<SkiaDrawingContext>>(_usedPaints);
 
         var layersQuery = context.View.ActiveMap.Layers.Values
             .Where(x => x.IsVisible)
@@ -163,10 +163,10 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="IMapFactory{TDrawingContext}.ViewTo(GeoMap{TDrawingContext}, object)"/>
-    public void ViewTo(LiveChartsCore.GeoMap<SkiaSharpDrawingContext> sender, object? command) { }
+    public void ViewTo(LiveChartsCore.GeoMap<SkiaDrawingContext> sender, object? command) { }
 
     /// <inheritdoc cref="IMapFactory{TDrawingContext}.Pan(GeoMap{TDrawingContext}, LvcPoint)"/>
-    public void Pan(LiveChartsCore.GeoMap<SkiaSharpDrawingContext> sender, LvcPoint delta) { }
+    public void Pan(LiveChartsCore.GeoMap<SkiaDrawingContext> sender, LvcPoint delta) { }
 
     /// <summary>
     /// Disposes the map factory.
@@ -193,7 +193,7 @@ public class MapFactory : IMapFactory<SkiaSharpDrawingContext>
                 {
                     foreach (var landData in landDefinition.Data)
                     {
-                        var shape = (IDrawable<SkiaSharpDrawingContext>?)landData.Shape;
+                        var shape = (IDrawable<SkiaDrawingContext>?)landData.Shape;
                         if (shape is null) continue;
 
                         stroke?.RemoveGeometryFromPainTask(_mapView.Canvas, shape);

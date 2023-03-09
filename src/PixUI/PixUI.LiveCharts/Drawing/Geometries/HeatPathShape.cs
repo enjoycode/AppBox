@@ -58,8 +58,8 @@ public class HeatPathShape : PathGeometry, IHeatPathShape
         set => _fillProperty.SetMovement(value, this);
     }
 
-    /// <inheritdoc cref="PathGeometry.Draw(SkiaSharpDrawingContext)"/>
-    public override void Draw(SkiaSharpDrawingContext context)
+    /// <inheritdoc cref="PathGeometry.Draw(SkiaDrawingContext)"/>
+    public override void Draw(SkiaDrawingContext context)
     {
         if (_commands.Count == 0) return;
 
@@ -140,8 +140,8 @@ public class PathGeometry : Drawable/*, IPathGeometry<SkiaSharpDrawingContext, S
     /// <inheritdoc cref="IPathGeometry{TDrawingContext, TPathArgs}.IsClosed" />
     public bool IsClosed { get; set; }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void Draw(SkiaSharpDrawingContext context)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void Draw(SkiaDrawingContext context)
     {
         if (_commands.Count == 0) return;
 

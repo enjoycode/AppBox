@@ -29,8 +29,8 @@ namespace LiveCharts.Drawing;
 /// Defines a step line point.
 /// </summary>
 /// <typeparam name="TGeometry">The type of the geometry.</typeparam>
-public class StepPoint<TGeometry> : StepLineVisualPoint<SkiaSharpDrawingContext, TGeometry>
-    where TGeometry : class, ISizedVisualChartPoint<SkiaSharpDrawingContext>/*, new()*/
+public class StepPoint<TGeometry> : StepLineVisualPoint<SkiaDrawingContext, TGeometry>
+    where TGeometry : class, ISizedVisualChartPoint<SkiaDrawingContext>/*, new()*/
 {
     public StepPoint(Func<TGeometry> visualFactory) : base(visualFactory) { }
 }

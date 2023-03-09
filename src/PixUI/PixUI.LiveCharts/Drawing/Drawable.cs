@@ -25,8 +25,8 @@ using LiveChartsCore.Drawing;
 namespace LiveCharts.Drawing;
 
 /// <inheritdoc cref="IDrawable{TDrawingContext}" />
-public abstract class Drawable : Animatable, IDrawable<SkiaSharpDrawingContext>
+public abstract class Drawable : Animatable, IDrawable<SkiaDrawingContext>
 {
     /// <inheritdoc cref="IDrawable{TDrawingContext}.Draw(TDrawingContext)" />
-    public abstract void Draw(SkiaSharpDrawingContext context);
+    public abstract void Draw(SkiaDrawingContext context);
 }

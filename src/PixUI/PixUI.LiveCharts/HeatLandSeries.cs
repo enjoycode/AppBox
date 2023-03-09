@@ -27,7 +27,7 @@ using LiveCharts.Drawing;
 namespace LiveCharts;
 
 /// <inheritdoc cref="HeatLandSeries{TDrawingContext}"/>
-public class HeatLandSeries : LiveChartsCore.HeatLandSeries<SkiaSharpDrawingContext>
+public class HeatLandSeries : LiveChartsCore.HeatLandSeries<SkiaDrawingContext>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="HeatLandSeries"/> class.

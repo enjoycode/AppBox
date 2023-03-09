@@ -39,7 +39,7 @@ namespace LiveCharts;
 /// </typeparam>
 public sealed class PolarLineSeries<TModel> 
     : LiveChartsCore.PolarLineSeries<TModel, CircleGeometry, LabelGeometry,
-        SkiaSharpDrawingContext, CubicBezierAreaGeometry, BezierPoint<CircleGeometry>>
+        SkiaDrawingContext, CubicBezierAreaGeometry, BezierPoint<CircleGeometry>>
 {
     public PolarLineSeries() : base(() => new CircleGeometry(), () => new LabelGeometry(),
         () => new CubicBezierAreaGeometry(),

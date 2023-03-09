@@ -28,7 +28,7 @@ using LiveCharts.Drawing.Geometries;
 namespace LiveCharts;
 
 /// <inheritdoc cref="ICartesianAxis" />
-public sealed class Axis : LiveChartsCore.Axis<SkiaSharpDrawingContext, LabelGeometry, LineGeometry>
+public sealed class Axis : LiveChartsCore.Axis<SkiaDrawingContext, LabelGeometry, LineGeometry>
 {
     public Axis() : base(() => new LabelGeometry(), () => new LineGeometry()) { }
 }

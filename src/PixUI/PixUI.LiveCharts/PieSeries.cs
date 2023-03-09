@@ -38,7 +38,7 @@ namespace LiveCharts;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class PieSeries<TModel> : 
-    LiveChartsCore.PieSeries<TModel, DoughnutGeometry, LabelGeometry, CircleGeometry, SkiaSharpDrawingContext>
+    LiveChartsCore.PieSeries<TModel, DoughnutGeometry, LabelGeometry, CircleGeometry, SkiaDrawingContext>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="PieSeries{TModel}"/> class.

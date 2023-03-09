@@ -30,7 +30,7 @@ namespace LiveCharts.Drawing.Geometries;
 /// Defines a rounded rectangle geometry.
 /// </summary>
 /// <seealso cref="SizedGeometry" />
-public class RoundedRectangleGeometry : SizedGeometry, IRoundedRectangleChartPoint<SkiaSharpDrawingContext>
+public class RoundedRectangleGeometry : SizedGeometry, IRoundedRectangleChartPoint<SkiaDrawingContext>
 {
     private readonly FloatMotionProperty _rx;
     private readonly FloatMotionProperty _ry;
@@ -60,8 +60,8 @@ public class RoundedRectangleGeometry : SizedGeometry, IRoundedRectangleChartPoi
     /// </value>
     public float Ry { get => _ry.GetMovement(this); set => _ry.SetMovement(value, this); }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         // context.Canvas.DrawRoundRect(
         //     new SKRect { Top = Y, Left = X, Size = new SKSize { Height = Height, Width = Width } }, Rx, Ry, paint);

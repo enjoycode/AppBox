@@ -34,7 +34,7 @@ namespace LiveCharts.VisualElements;
 /// </summary>
 public class VariableGeometryVisual : BaseGeometryVisual
 {
-    private ISizedGeometry<SkiaSharpDrawingContext> _geometry;
+    private ISizedGeometry<SkiaDrawingContext> _geometry;
     private bool _isInitialized;
     private LvcSize _actualSize = new();
     private LvcPoint _targetPosition = new();
@@ -43,7 +43,7 @@ public class VariableGeometryVisual : BaseGeometryVisual
     /// Initializes a new instance of the <see cref="VariableGeometryVisual"/> class.
     /// </summary>
     /// <param name="geometry"></param>
-    public VariableGeometryVisual(ISizedGeometry<SkiaSharpDrawingContext> geometry)
+    public VariableGeometryVisual(ISizedGeometry<SkiaDrawingContext> geometry)
     {
         _geometry = geometry;
     }
@@ -51,7 +51,7 @@ public class VariableGeometryVisual : BaseGeometryVisual
     /// <summary>
     /// Gets or sets the geometry.
     /// </summary>
-    public ISizedGeometry<SkiaSharpDrawingContext> Geometry
+    public ISizedGeometry<SkiaDrawingContext> Geometry
     {
         get => _geometry;
         set
@@ -66,10 +66,10 @@ public class VariableGeometryVisual : BaseGeometryVisual
     /// <summary>
     /// Occurs when the geometry is initialized.
     /// </summary>
-    public event Action<ISizedGeometry<SkiaSharpDrawingContext>>? GeometryIntialized;
+    public event Action<ISizedGeometry<SkiaDrawingContext>>? GeometryIntialized;
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.Measure(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    public override LvcSize Measure(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    public override LvcSize Measure(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var w = (float)Width;
         var h = (float)Height;
@@ -93,7 +93,7 @@ public class VariableGeometryVisual : BaseGeometryVisual
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.OnInvalidated(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var x = (float)X;
         var y = (float)Y;

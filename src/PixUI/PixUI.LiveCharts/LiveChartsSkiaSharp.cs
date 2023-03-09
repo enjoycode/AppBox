@@ -180,16 +180,17 @@ public static class LiveChartsSkiaSharp
     /// <param name="target">The target.</param>
     /// <param name="location">The location.</param>
     /// <returns>The distance in pixels.</returns>
-    public static double GetDistanceTo(this ChartPoint target, LvcPoint location)
+    public static double GetDistanceTo<TDrawingContext>(this ChartPoint target, LvcPoint location)
+        where TDrawingContext: DrawingContext
     {
         LvcPointD dataCoordinates;
         double x, y;
 
-        if (target.Context is ICartesianChartView<SkiaSharpDrawingContext> cartesianChart)
+        if (target.Context is ICartesianChartView<TDrawingContext> cartesianChart)
         {
             dataCoordinates = cartesianChart.ScalePixelsToData(new LvcPointD(location.X, location.Y));
 
-            var cartesianSeries = (ICartesianSeries<SkiaSharpDrawingContext>)target.Context.Series;
+            var cartesianSeries = (ICartesianSeries<SkiaDrawingContext>)target.Context.Series;
 
             if (target.Context.Series.SeriesProperties.HasFlag(SeriesProperties.PrimaryAxisHorizontalOrientation))
             {
@@ -219,11 +220,11 @@ public static class LiveChartsSkiaSharp
                 y = primaryScale.ToPixels(target.PrimaryValue);
             }
         }
-        else if (target.Context is IPolarChartView<SkiaSharpDrawingContext> polarChart)
+        else if (target.Context is IPolarChartView<TDrawingContext> polarChart)
         {
             dataCoordinates = polarChart.ScalePixelsToData(new LvcPointD(location.X, location.Y));
 
-            var polarSeries = (IPolarSeries<SkiaSharpDrawingContext>)target.Context.Series;
+            var polarSeries = (IPolarSeries<SkiaDrawingContext>)target.Context.Series;
 
             var angleAxis = polarChart.Core.AngleAxes[polarSeries.ScalesAngleAt];
             var radiusAxis = polarChart.Core.RadiusAxes[polarSeries.ScalesRadiusAt];

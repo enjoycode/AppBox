@@ -27,7 +27,7 @@ using LiveCharts.Painting;
 namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="ISizedGeometry{TDrawingContext}" />
-public abstract class SizedGeometry : Geometry, ISizedVisualChartPoint<SkiaSharpDrawingContext>
+public abstract class SizedGeometry : Geometry, ISizedVisualChartPoint<SkiaDrawingContext>
 {
     /// <summary>
     /// The width

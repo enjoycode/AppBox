@@ -38,7 +38,7 @@ namespace LiveCharts;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class ScatterSeries<TModel> 
-    : LiveChartsCore.ScatterSeries<TModel, CircleGeometry, LabelGeometry, SkiaSharpDrawingContext>
+    : LiveChartsCore.ScatterSeries<TModel, CircleGeometry, LabelGeometry, SkiaDrawingContext>
 {
     public ScatterSeries(): base(() => new CircleGeometry(), () => new LabelGeometry()){}
 }

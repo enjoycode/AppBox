@@ -61,7 +61,7 @@ public class ImageFiltersMergeOperation : ImageFilter
     /// </summary>
     /// <param name="drawingContext">The drawing context.</param>
     /// <exception cref="System.NotImplementedException"></exception>
-    public override void CreateFilter(SkiaSharpDrawingContext drawingContext)
+    public override void CreateFilter(SkiaDrawingContext drawingContext)
     {
         throw new NotImplementedException();
         // var imageFilters = new SKImageFilter[_filters.Length];

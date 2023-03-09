@@ -73,7 +73,7 @@ public class DropShadow : ImageFilter
     /// Creates the image filter.
     /// </summary>
     /// <param name="drawingContext">The drawing context.</param>
-    public override void CreateFilter(SkiaSharpDrawingContext drawingContext)
+    public override void CreateFilter(SkiaDrawingContext drawingContext)
     {
         SKImageFilter = SKImageFilter.CreateDropShadow(_dx, _dy, _sigmaX, _sigmaY, _color, _filter/*, _cropRect*/);
     }

@@ -39,32 +39,32 @@ public static class DrawingFluentExtensions
     /// Initializes a drawing in the given canvas, it is just a simplified API to draw in the chart.
     /// </summary>
     /// <param name="canvas">The canvas.</param>
-    public static Drawing Draw(this MotionCanvas<SkiaSharpDrawingContext> canvas)
+    public static Drawing Draw(this MotionCanvas<SkiaDrawingContext> canvas)
     {
         return new Drawing(canvas);
     }
 
-    /// <summary>
-    /// Initializes a drawing in the canvas of the given chart.
-    /// </summary>
-    /// <param name="chart">The chart.</param>
-    public static Drawing Draw(this IChartView chart)
-    {
-        return Draw(((LiveChartsCore.Chart<SkiaSharpDrawingContext>)chart.CoreChart).Canvas);
-    }
+    // /// <summary>
+    // /// Initializes a drawing in the canvas of the given chart.
+    // /// </summary>
+    // /// <param name="chart">The chart.</param>
+    // public static Drawing Draw(this IChartView chart)
+    // {
+    //     return Draw(((LiveChartsCore.Chart<SkiaSharpDrawingContext>)chart.CoreChart).Canvas);
+    // }
 
     /// <summary>
     /// Defines the Drawing class.
     /// </summary>
     public class Drawing
     {
-        private IPaint<SkiaSharpDrawingContext>? _selectedPaint;
+        private IPaint<SkiaDrawingContext>? _selectedPaint;
 
         /// <summary>
         /// Initializes a new instance of the Drawing class.
         /// </summary>
         /// <param name="canvas">The canvas.</param>
-        public Drawing(MotionCanvas<SkiaSharpDrawingContext> canvas)
+        public Drawing(MotionCanvas<SkiaDrawingContext> canvas)
         {
             Canvas = canvas;
         }
@@ -72,14 +72,14 @@ public static class DrawingFluentExtensions
         /// <summary>
         /// Gets the canvas.
         /// </summary>
-        public MotionCanvas<SkiaSharpDrawingContext> Canvas { get; }
+        public MotionCanvas<SkiaDrawingContext> Canvas { get; }
 
         /// <summary>
         /// Selects the specified paint.
         /// </summary>
         /// <param name="paint">The paint.</param>
         /// <returns>The current drawing instance.</returns>
-        public Drawing SelectPaint(IPaint<SkiaSharpDrawingContext> paint)
+        public Drawing SelectPaint(IPaint<SkiaDrawingContext> paint)
         {
             _selectedPaint = paint;
             Canvas.AddDrawableTask(_selectedPaint);
@@ -98,7 +98,8 @@ public static class DrawingFluentExtensions
         {
             strokeWidth ??= 1;
             isFill ??= false;
-            var paint = new SolidColorPaint(color, strokeWidth.Value) { IsFill = isFill.Value };
+            var paint = SolidColorPaint.MakeByColorAndStroke(color, strokeWidth.Value);
+            paint.IsFill = isFill.Value;
 
             return SelectPaint(paint);
         }
@@ -123,7 +124,7 @@ public static class DrawingFluentExtensions
         /// </summary>
         /// <param name="drawable">The drawable.</param>
         /// <returns></returns>
-        public Drawing Draw(IDrawable<SkiaSharpDrawingContext> drawable)
+        public Drawing Draw(IDrawable<SkiaDrawingContext> drawable)
         {
             if (_selectedPaint is null)
                 throw new Exception(

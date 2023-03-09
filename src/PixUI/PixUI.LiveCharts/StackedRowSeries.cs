@@ -38,7 +38,7 @@ namespace LiveCharts;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class StackedRowSeries<TModel>
-    : LiveChartsCore.StackedRowSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
+    : LiveChartsCore.StackedRowSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaDrawingContext>
 {
     public StackedRowSeries() : base(() => new RoundedRectangleGeometry(), (() => new LabelGeometry())) { }
 }

@@ -28,7 +28,7 @@ using Paint = LiveCharts.Painting.Paint;
 namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="ILabelGeometry{TDrawingContext}" />
-public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
+public class LabelGeometry : Geometry, ILabelGeometry<SkiaDrawingContext>
 {
     private readonly FloatMotionProperty _textSizeProperty;
     private readonly ColorMotionProperty _backgroundProperty;
@@ -82,8 +82,8 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
     /// <inheritdoc cref="ILabelGeometry{TDrawingContext}.LineHeight" />
     public float LineHeight { get; set; } = 1.75f;
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         var size = OnMeasure(context.PaintTask);
 
@@ -134,8 +134,8 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
         return new LvcSize(bounds.Width + Padding.Left + Padding.Right, bounds.Height + Padding.Top + Padding.Bottom);
     }
 
-    /// <inheritdoc cref="Geometry.ApplyCustomGeometryTransform(SkiaSharpDrawingContext)" />
-    protected override void ApplyCustomGeometryTransform(SkiaSharpDrawingContext context)
+    /// <inheritdoc cref="Geometry.ApplyCustomGeometryTransform(SkiaDrawingContext)" />
+    protected override void ApplyCustomGeometryTransform(SkiaDrawingContext context)
     {
         //context.Paint.TextSize = TextSize;
         var size = MeasureLines(context.Paint);
@@ -186,7 +186,7 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaSharpDrawingContext>
         context.Canvas.Translate((float)xp, (float)yp);
     }
 
-    private void DrawLine(string content, float yLine, SkiaSharpDrawingContext context, SKPaint paint)
+    private void DrawLine(string content, float yLine, SkiaDrawingContext context, SKPaint paint)
     {
         // if (paint.Typeface is not null)
         // {

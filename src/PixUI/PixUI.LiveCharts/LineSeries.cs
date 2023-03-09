@@ -39,7 +39,7 @@ namespace LiveCharts;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class LineSeries<TModel> 
-    : LiveChartsCore.LineSeries<TModel, CircleGeometry, LabelGeometry, SkiaSharpDrawingContext,
+    : LiveChartsCore.LineSeries<TModel, CircleGeometry, LabelGeometry, SkiaDrawingContext,
     CubicBezierAreaGeometry, BezierPoint<CircleGeometry>>
 {
     public LineSeries(bool isStacked = false) 

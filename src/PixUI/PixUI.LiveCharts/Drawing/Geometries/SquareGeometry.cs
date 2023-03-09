@@ -38,8 +38,8 @@ public class SquareGeometry : SizedGeometry
         matchDimensions = true;
     }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         context.Canvas.DrawRect(SKRect.FromLTWH(X, Y, Width, Height), paint);
     }

@@ -29,7 +29,7 @@ using LiveCharts.Painting;
 namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="IDoughnutGeometry{TDrawingContext}" />
-public class DoughnutGeometry : Geometry, IDoughnutGeometry<SkiaSharpDrawingContext>, IDoughnutVisualChartPoint<SkiaSharpDrawingContext>
+public class DoughnutGeometry : Geometry, IDoughnutGeometry<SkiaDrawingContext>, IDoughnutVisualChartPoint<SkiaDrawingContext>
 {
     private readonly FloatMotionProperty _cxProperty;
     private readonly FloatMotionProperty _cyProperty;
@@ -91,7 +91,7 @@ public class DoughnutGeometry : Geometry, IDoughnutGeometry<SkiaSharpDrawingCont
     /// <inheritdoc cref="IDoughnutGeometry{TDrawingContext}.InvertedCornerRadius" />
     public bool InvertedCornerRadius { get; set; }
 
-    internal static Action<DoughnutGeometry, SkiaSharpDrawingContext, SKPaint>? AlternativeDraw { get; set; }
+    internal static Action<DoughnutGeometry, SkiaDrawingContext, SKPaint>? AlternativeDraw { get; set; }
 
     /// <inheritdoc cref="Geometry.OnMeasure(Paint)" />
     protected override LvcSize OnMeasure(Paint paint)
@@ -99,8 +99,8 @@ public class DoughnutGeometry : Geometry, IDoughnutGeometry<SkiaSharpDrawingCont
         return new LvcSize(Width, Height);
     }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         if (AlternativeDraw is not null)
         {

@@ -38,7 +38,7 @@ namespace LiveCharts;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class HeatSeries<TModel> 
-    : LiveChartsCore.HeatSeries<TModel, ColoredRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
+    : LiveChartsCore.HeatSeries<TModel, ColoredRectangleGeometry, LabelGeometry, SkiaDrawingContext>
 {
     public HeatSeries(): base(() => new ColoredRectangleGeometry(), () => new LabelGeometry()) {}
 }

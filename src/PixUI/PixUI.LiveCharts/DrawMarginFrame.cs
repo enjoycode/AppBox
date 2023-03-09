@@ -28,5 +28,5 @@ namespace LiveCharts;
 /// <summary>
 /// Defines a visual frame in the draw margin of the chart.
 /// </summary>
-public class DrawMarginFrame : LiveChartsCore.DrawMarginFrame<RectangleGeometry, SkiaSharpDrawingContext>
+public class DrawMarginFrame : LiveChartsCore.DrawMarginFrame<RectangleGeometry, SkiaDrawingContext>
 { }

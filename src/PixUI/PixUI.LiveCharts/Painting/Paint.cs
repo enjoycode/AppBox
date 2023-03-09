@@ -34,11 +34,16 @@ using PathEffect = LiveCharts.Painting.Effects.PathEffect;
 namespace LiveCharts.Painting;
 
 /// <inheritdoc cref="IPaint{TDrawingContext}" />
-public abstract class Paint : Animatable, IPaint<SkiaSharpDrawingContext>
+public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
 {
     private readonly FloatMotionProperty _strokeMiterTransition;
-    private readonly Dictionary<object, HashSet<IDrawable<SkiaSharpDrawingContext>>> _geometriesByCanvas = new();
+#if __WEB__
+    private readonly ObjectMap<HashSet<IDrawable<SkiaDrawingContext>>> _geometriesByCanvas = new();
+    private readonly ObjectMap<LvcRectangle> _clipRectangles = new();
+#else
+    private readonly Dictionary<object, HashSet<IDrawable<SkiaDrawingContext>>> _geometriesByCanvas = new();
     private readonly Dictionary<object, LvcRectangle> _clipRectangles = new();
+#endif
     private char? _matchesChar = null;
     internal SKPaint? _skiaPaint;
     internal FloatMotionProperty _strokeWidthTransition;
@@ -53,20 +58,15 @@ public abstract class Paint : Animatable, IPaint<SkiaSharpDrawingContext>
         _strokeMiterTransition = RegisterMotionProperty(new FloatMotionProperty(nameof(StrokeMiter), 0f));
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Paint"/> class.
-    /// </summary>
-    /// <param name="color">The color.</param>
-    protected Paint(SKColor color) : this()
-    {
-        Color = color;
-    }
-
     /// <inheritdoc cref="IPaint{TDrawingContext}.ZIndex"/>
     public double ZIndex { get; set; }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.StrokeThickness" />
-    public float StrokeThickness { get => _strokeWidthTransition.GetMovement(this); set => _strokeWidthTransition.SetMovement(value, this); }
+    public float StrokeThickness
+    {
+        get => _strokeWidthTransition.GetMovement(this);
+        set => _strokeWidthTransition.SetMovement(value, this);
+    }
 
     /// <summary>
     /// Gets or sets the style.
@@ -181,12 +181,12 @@ public abstract class Paint : Animatable, IPaint<SkiaSharpDrawingContext>
     public ImageFilter? ImageFilter { get; set; }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.InitializeTask(TDrawingContext)" />
-    public abstract void InitializeTask(SkiaSharpDrawingContext drawingContext);
+    public abstract void InitializeTask(SkiaDrawingContext drawingContext);
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.GetGeometries(MotionCanvas{TDrawingContext})" />
-    public IEnumerable<IDrawable<SkiaSharpDrawingContext>> GetGeometries(MotionCanvas<SkiaSharpDrawingContext> canvas)
+    public IEnumerable<IDrawable<SkiaDrawingContext>> GetGeometries(MotionCanvas<SkiaDrawingContext> canvas)
     {
-        var enumerable = GetGeometriesByCanvas(canvas) ?? Enumerable.Empty<IDrawable<SkiaSharpDrawingContext>>();
+        var enumerable = GetGeometriesByCanvas(canvas) ?? Enumerable.Empty<IDrawable<SkiaDrawingContext>>();
         foreach (var item in enumerable)
         {
             yield return item;
@@ -194,65 +194,86 @@ public abstract class Paint : Animatable, IPaint<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.SetGeometries(MotionCanvas{TDrawingContext}, HashSet{IDrawable{TDrawingContext}})" />
-    public void SetGeometries(MotionCanvas<SkiaSharpDrawingContext> canvas, HashSet<IDrawable<SkiaSharpDrawingContext>> geometries)
+    public void SetGeometries(MotionCanvas<SkiaDrawingContext> canvas,
+        HashSet<IDrawable<SkiaDrawingContext>> geometries)
     {
+#if __WEB__
+        _geometriesByCanvas.set(canvas.Sync, geometries);
+#else
         _geometriesByCanvas[canvas.Sync] = geometries;
+#endif
         IsValid = false;
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.AddGeometryToPaintTask(MotionCanvas{TDrawingContext}, IDrawable{TDrawingContext})" />
-    public void AddGeometryToPaintTask(MotionCanvas<SkiaSharpDrawingContext> canvas, IDrawable<SkiaSharpDrawingContext> geometry)
+    public void AddGeometryToPaintTask(MotionCanvas<SkiaDrawingContext> canvas,
+        IDrawable<SkiaDrawingContext> geometry)
     {
         var g = GetGeometriesByCanvas(canvas);
         if (g is null)
         {
-            g = new HashSet<IDrawable<SkiaSharpDrawingContext>>();
+            g = new HashSet<IDrawable<SkiaDrawingContext>>();
+#if __WEB__
+            _geometriesByCanvas.set(canvas.Sync, g);
+#else
             _geometriesByCanvas[canvas.Sync] = g;
+#endif
         }
+
         _ = g.Add(geometry);
         IsValid = false;
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.RemoveGeometryFromPainTask(MotionCanvas{TDrawingContext}, IDrawable{TDrawingContext})" />
-    public void RemoveGeometryFromPainTask(MotionCanvas<SkiaSharpDrawingContext> canvas, IDrawable<SkiaSharpDrawingContext> geometry)
+    public void RemoveGeometryFromPainTask(MotionCanvas<SkiaDrawingContext> canvas,
+        IDrawable<SkiaDrawingContext> geometry)
     {
         _ = GetGeometriesByCanvas(canvas)?.Remove(geometry);
         IsValid = false;
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.ClearGeometriesFromPaintTask(MotionCanvas{TDrawingContext})"/>
-    public void ClearGeometriesFromPaintTask(MotionCanvas<SkiaSharpDrawingContext> canvas)
+    public void ClearGeometriesFromPaintTask(MotionCanvas<SkiaDrawingContext> canvas)
     {
         GetGeometriesByCanvas(canvas)?.Clear();
         IsValid = false;
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.ReleaseCanvas(MotionCanvas{TDrawingContext})"/>
-    public void ReleaseCanvas(MotionCanvas<SkiaSharpDrawingContext> canvas)
+    public void ReleaseCanvas(MotionCanvas<SkiaDrawingContext> canvas)
     {
         _ = _geometriesByCanvas.Remove(canvas);
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.GetClipRectangle(MotionCanvas{TDrawingContext})" />
-    public LvcRectangle GetClipRectangle(MotionCanvas<SkiaSharpDrawingContext> canvas)
+    public LvcRectangle GetClipRectangle(MotionCanvas<SkiaDrawingContext> canvas)
     {
+#if __WEB__
+        var clip = _clipRectangles.get(canvas.Sync);
+        return clip == null ? LvcRectangle.Empty : clip;
+#else
         return _clipRectangles.TryGetValue(canvas.Sync, out var clip) ? clip : LvcRectangle.Empty;
+#endif
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.SetClipRectangle(MotionCanvas{TDrawingContext}, LvcRectangle)" />
-    public void SetClipRectangle(MotionCanvas<SkiaSharpDrawingContext> canvas, LvcRectangle value)
+    public void SetClipRectangle(MotionCanvas<SkiaDrawingContext> canvas, LvcRectangle value)
     {
+#if __WEB__
+        _clipRectangles.set(canvas.Sync, value);
+#else
         _clipRectangles[canvas.Sync] = value;
+#endif
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.CloneTask" />
-    public abstract IPaint<SkiaSharpDrawingContext> CloneTask();
+    public abstract IPaint<SkiaDrawingContext> CloneTask();
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.ApplyOpacityMask(TDrawingContext, IPaintable{TDrawingContext})" />
-    public abstract void ApplyOpacityMask(SkiaSharpDrawingContext context, IPaintable<SkiaSharpDrawingContext> geometry);
+    public abstract void ApplyOpacityMask(SkiaDrawingContext context, IPaintable<SkiaDrawingContext> geometry);
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.ApplyOpacityMask(TDrawingContext, IPaintable{TDrawingContext})" />
-    public abstract void RestoreOpacityMask(SkiaSharpDrawingContext context, IPaintable<SkiaSharpDrawingContext> geometry);
+    public abstract void RestoreOpacityMask(SkiaDrawingContext context, IPaintable<SkiaDrawingContext> geometry);
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -285,10 +306,12 @@ public abstract class Paint : Animatable, IPaint<SkiaSharpDrawingContext>
         return null;
     }
 
-    private HashSet<IDrawable<SkiaSharpDrawingContext>>? GetGeometriesByCanvas(MotionCanvas<SkiaSharpDrawingContext> canvas)
+    private HashSet<IDrawable<SkiaDrawingContext>>? GetGeometriesByCanvas(MotionCanvas<SkiaDrawingContext> canvas)
     {
-        return _geometriesByCanvas.TryGetValue(canvas.Sync, out var geometries)
-            ? geometries
-            : null;
+#if __WEB__
+        return _geometriesByCanvas.get(canvas.Sync);
+#else
+        return _geometriesByCanvas.TryGetValue(canvas.Sync, out var geometries) ? geometries : null;
+#endif
     }
 }

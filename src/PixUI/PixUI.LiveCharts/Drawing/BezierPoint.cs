@@ -29,8 +29,8 @@ namespace LiveCharts.Drawing;
 /// Defines a bezier point.
 /// </summary>
 /// <typeparam name="TGeometry">The type of the geometry.</typeparam>
-public class BezierPoint<TGeometry> : BezierVisualPoint<SkiaSharpDrawingContext, TGeometry>
-    where TGeometry : class, ISizedVisualChartPoint<SkiaSharpDrawingContext>/*, new()*/
+public class BezierPoint<TGeometry> : BezierVisualPoint<SkiaDrawingContext, TGeometry>
+    where TGeometry : class, ISizedVisualChartPoint<SkiaDrawingContext>/*, new()*/
 {
     public BezierPoint(TGeometry geometry) : base(geometry) { }
 }

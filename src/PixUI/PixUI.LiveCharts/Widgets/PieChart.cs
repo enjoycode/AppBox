@@ -13,10 +13,10 @@ using LiveChartsCore.VisualElements;
 
 namespace PixLiveCharts;
 
-public sealed class PieChart : ChartView, IPieChartView<SkiaSharpDrawingContext>
+public sealed class PieChart : ChartView, IPieChartView<SkiaDrawingContext>
 {
-    public PieChart(IChartTooltip<SkiaSharpDrawingContext>? tooltip = null,
-        IChartLegend<SkiaSharpDrawingContext>? legend = null) : base(tooltip, legend)
+    public PieChart(IChartTooltip<SkiaDrawingContext>? tooltip = null,
+        IChartLegend<SkiaDrawingContext>? legend = null) : base(tooltip, legend)
     {
         _seriesObserver = new CollectionDeepObserver<ISeries>(
             (s, e) => OnPropertyChanged(),
@@ -24,7 +24,7 @@ public sealed class PieChart : ChartView, IPieChartView<SkiaSharpDrawingContext>
             true);
 
         Series = new ObservableCollection<ISeries>();
-        VisualElements = new ObservableCollection<ChartElement<SkiaSharpDrawingContext>>();
+        VisualElements = new ObservableCollection<ChartElement<SkiaDrawingContext>>();
 
         // var c = Controls[0].Controls[0];
         // c.MouseDown += OnMouseDown;
@@ -45,7 +45,7 @@ public sealed class PieChart : ChartView, IPieChartView<SkiaSharpDrawingContext>
 
     protected override void InitializeCore()
     {
-        core = new PieChart<SkiaSharpDrawingContext>(
+        core = new PieChart<SkiaDrawingContext>(
             this, config => config.UseDefaults(), CanvasCore, true);
         if (DesignerMode) return;
         core.Update();
@@ -54,7 +54,7 @@ public sealed class PieChart : ChartView, IPieChartView<SkiaSharpDrawingContext>
     public override IEnumerable<ChartPoint> GetPointsAt(LvcPoint point,
         TooltipFindingStrategy strategy = TooltipFindingStrategy.Automatic)
     {
-        if (core is not PieChart<SkiaSharpDrawingContext> cc) throw new Exception("core not found");
+        if (core is not PieChart<SkiaDrawingContext> cc) throw new Exception("core not found");
 
         if (strategy == TooltipFindingStrategy.Automatic)
             strategy = cc.Series.GetTooltipFindingStrategy();
@@ -62,19 +62,19 @@ public sealed class PieChart : ChartView, IPieChartView<SkiaSharpDrawingContext>
         return cc.Series.SelectMany(series => series.FindHitPoints(cc, point, strategy));
     }
 
-    public override IEnumerable<VisualElement<SkiaSharpDrawingContext>> GetVisualsAt(LvcPoint point)
+    public override IEnumerable<VisualElement<SkiaDrawingContext>> GetVisualsAt(LvcPoint point)
     {
-        return core is not PieChart<SkiaSharpDrawingContext> cc
+        return core is not PieChart<SkiaDrawingContext> cc
             ? throw new Exception("core not found")
             : cc.VisualElements.SelectMany(visual =>
-                ((VisualElement<SkiaSharpDrawingContext>)visual).IsHitBy(core, point));
+                ((VisualElement<SkiaDrawingContext>)visual).IsHitBy(core, point));
     }
 
     #endregion
 
     #region ====IPieChartView====
 
-    public PieChart<SkiaSharpDrawingContext> Core => (PieChart<SkiaSharpDrawingContext>)core!;
+    public PieChart<SkiaDrawingContext> Core => (PieChart<SkiaDrawingContext>)core!;
 
     public IEnumerable<ISeries> Series
     {

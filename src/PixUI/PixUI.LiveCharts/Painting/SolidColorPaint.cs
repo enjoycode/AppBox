@@ -34,39 +34,26 @@ namespace LiveCharts.Painting;
 /// <seealso cref="Paint" />
 public class SolidColorPaint : Paint
 {
-    private SkiaSharpDrawingContext? _drawingContext;
+    private SkiaDrawingContext? _drawingContext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SolidColorPaint"/> class.
     /// </summary>
-    public SolidColorPaint()
-    {
-    }
+    public SolidColorPaint() { }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SolidColorPaint"/> class.
-    /// </summary>
-    /// <param name="color">The color.</param>
-    public SolidColorPaint(SKColor color)
-        : base(color)
-    {
-        Color = color;
-    }
+    public static SolidColorPaint MakeByColor(SKColor color) => new() { Color = color };
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SolidColorPaint"/> class.
-    /// </summary>
-    /// <param name="color">The color.</param>
-    /// <param name="strokeWidth">Width of the stroke.</param>
-    public SolidColorPaint(SKColor color, float strokeWidth)
-        : base(color)
+    public static SolidColorPaint MakeByColorAndStroke(SKColor color, float strokeWidth)
     {
-        _strokeWidthTransition = RegisterMotionProperty(new FloatMotionProperty(nameof(StrokeThickness), strokeWidth));
-        Color = color;
+        var p = new SolidColorPaint();
+        p._strokeWidthTransition =
+            p.RegisterMotionProperty(new FloatMotionProperty(nameof(StrokeThickness), strokeWidth));
+        p.Color = color;
+        return p;
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.CloneTask" />
-    public override IPaint<SkiaSharpDrawingContext> CloneTask()
+    public override IPaint<SkiaDrawingContext> CloneTask()
     {
         var clone = new SolidColorPaint
         {
@@ -90,13 +77,13 @@ public class SolidColorPaint : Paint
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.InitializeTask(TDrawingContext)" />
-    public override void InitializeTask(SkiaSharpDrawingContext drawingContext)
+    public override void InitializeTask(SkiaDrawingContext drawingContext)
     {
         _skiaPaint ??= new SKPaint();
 
         _skiaPaint.Color = Color;
         _skiaPaint.AntiAlias = IsAntialias;
-        _skiaPaint.Style =  IsStroke ? PaintStyle.Stroke : PaintStyle.Fill;
+        _skiaPaint.Style = IsStroke ? PaintStyle.Stroke : PaintStyle.Fill;
         _skiaPaint.StrokeCap = StrokeCap;
         _skiaPaint.StrokeJoin = StrokeJoin;
         _skiaPaint.StrokeMiter = StrokeMiter;
@@ -121,7 +108,8 @@ public class SolidColorPaint : Paint
         if (clip != LvcRectangle.Empty)
         {
             drawingContext.Canvas.Save();
-            drawingContext.Canvas.ClipRect(SKRect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), ClipOp.Intersect, true);
+            drawingContext.Canvas.ClipRect(SKRect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), ClipOp.Intersect,
+                true);
             _drawingContext = drawingContext;
         }
 
@@ -130,7 +118,7 @@ public class SolidColorPaint : Paint
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.ApplyOpacityMask(TDrawingContext, IPaintable{TDrawingContext})" />
-    public override void ApplyOpacityMask(SkiaSharpDrawingContext context, IPaintable<SkiaSharpDrawingContext> geometry)
+    public override void ApplyOpacityMask(SkiaDrawingContext context, IPaintable<SkiaDrawingContext> geometry)
     {
         if (context.PaintTask is null || context.Paint is null) return;
 
@@ -140,7 +128,7 @@ public class SolidColorPaint : Paint
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.RestoreOpacityMask(TDrawingContext, IPaintable{TDrawingContext})" />
-    public override void RestoreOpacityMask(SkiaSharpDrawingContext context, IPaintable<SkiaSharpDrawingContext> geometry)
+    public override void RestoreOpacityMask(SkiaDrawingContext context, IPaintable<SkiaDrawingContext> geometry)
     {
         if (context.PaintTask is null || context.Paint is null) return;
 

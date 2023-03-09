@@ -30,14 +30,14 @@ namespace LiveCharts.Drawing.Geometries;
 /// </summary>
 public class CubicBezierAreaGeometry : VectorGeometry<CubicBezierSegment>
 {
-    /// <inheritdoc cref="VectorGeometry{TSegment}.OnDrawSegment(SkiaSharpDrawingContext, SKPath, TSegment)"/>
-    protected override void OnDrawSegment(SkiaSharpDrawingContext context, SKPath path, CubicBezierSegment segment)
+    /// <inheritdoc cref="VectorGeometry{TSegment}.OnDrawSegment(SkiaDrawingContext, SKPath, TSegment)"/>
+    protected override void OnDrawSegment(SkiaDrawingContext context, SKPath path, CubicBezierSegment segment)
     {
         path.CubicTo(segment.Xi, segment.Yi, segment.Xm, segment.Ym, segment.Xj, segment.Yj);
     }
 
-    /// <inheritdoc cref="VectorGeometry{TSegment}.OnOpen(SkiaSharpDrawingContext, SKPath, TSegment)"/>
-    protected override void OnOpen(SkiaSharpDrawingContext context, SKPath path, CubicBezierSegment segment)
+    /// <inheritdoc cref="VectorGeometry{TSegment}.OnOpen(SkiaDrawingContext, SKPath, TSegment)"/>
+    protected override void OnOpen(SkiaDrawingContext context, SKPath path, CubicBezierSegment segment)
     {
         if (ClosingMethod == LiveChartsCore.Drawing.VectorClosingMethod.NotClosed)
         {
@@ -53,8 +53,8 @@ public class CubicBezierAreaGeometry : VectorGeometry<CubicBezierSegment>
         }
     }
 
-    /// <inheritdoc cref="VectorGeometry{TSegment}.OnClose(SkiaSharpDrawingContext, SKPath, TSegment)"/>
-    protected override void OnClose(SkiaSharpDrawingContext context, SKPath path, CubicBezierSegment segment)
+    /// <inheritdoc cref="VectorGeometry{TSegment}.OnClose(SkiaDrawingContext, SKPath, TSegment)"/>
+    protected override void OnClose(SkiaDrawingContext context, SKPath path, CubicBezierSegment segment)
     {
         if (ClosingMethod == LiveChartsCore.Drawing.VectorClosingMethod.NotClosed) return;
 

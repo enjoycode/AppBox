@@ -30,7 +30,7 @@ namespace LiveCharts.Drawing.Geometries;
 /// <summary>
 /// Defines a candlestick geometry.
 /// </summary>
-public class CandlestickGeometry : Geometry, IFinancialVisualChartPoint<SkiaSharpDrawingContext>
+public class CandlestickGeometry : Geometry, IFinancialVisualChartPoint<SkiaDrawingContext>
 {
     private readonly FloatMotionProperty _wProperty;
     private readonly FloatMotionProperty _oProperty;
@@ -60,8 +60,8 @@ public class CandlestickGeometry : Geometry, IFinancialVisualChartPoint<SkiaShar
     /// <inheritdoc cref="IFinancialGeometry{TDrawingContext}.Low" />
     public float Low { get => _lProperty.GetMovement(this); set => _lProperty.SetMovement(value, this); }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         var w = Width;
         var cx = X + w * 0.5f;

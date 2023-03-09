@@ -35,10 +35,10 @@ public static class VisualElementsExtensions
     /// <summary>
     /// Creates a relative panel control from a given sketch.
     /// </summary>
-    public static RelativePanel<SkiaSharpDrawingContext> AsDrawnControl(
-        this Sketch<SkiaSharpDrawingContext> sketch, int baseZIndex = 10050)
+    public static RelativePanel<SkiaDrawingContext> AsDrawnControl(
+        this Sketch<SkiaDrawingContext> sketch, int baseZIndex = 10050)
     {
-        var relativePanel = new RelativePanel<SkiaSharpDrawingContext>
+        var relativePanel = new RelativePanel<SkiaDrawingContext>
         {
             Size = new LvcSize((float)sketch.Width, (float)sketch.Height)
         };
@@ -47,7 +47,7 @@ public static class VisualElementsExtensions
         {
             foreach (var g in schedule.Geometries)
             {
-                var sizedGeometry = (ISizedGeometry<SkiaSharpDrawingContext>)g;
+                var sizedGeometry = (ISizedGeometry<SkiaDrawingContext>)g;
                 var vgv = new VariableGeometryVisual(sizedGeometry)
                 {
                     Width = sizedGeometry.Width,

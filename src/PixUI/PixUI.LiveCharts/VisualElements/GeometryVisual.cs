@@ -33,7 +33,7 @@ namespace LiveCharts.VisualElements;
 /// Defines a visual element in a chart that draws a rectangle geometry in the user interface.
 /// </summary>
 public class GeometryVisual<TGeometry> : BaseGeometryVisual
-    where TGeometry : ISizedGeometry<SkiaSharpDrawingContext>, new()
+    where TGeometry : ISizedGeometry<SkiaDrawingContext>, new()
 {
     internal TGeometry? _geometry;
     private LvcSize _actualSize = new();
@@ -45,7 +45,7 @@ public class GeometryVisual<TGeometry> : BaseGeometryVisual
     public event Action<TGeometry>? GeometryIntialized;
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.Measure(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    public override LvcSize Measure(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    public override LvcSize Measure(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var w = (float)Width;
         var h = (float)Height;
@@ -69,7 +69,7 @@ public class GeometryVisual<TGeometry> : BaseGeometryVisual
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.OnInvalidated(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
     {
         var x = (float)X;
         var y = (float)Y;

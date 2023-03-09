@@ -44,7 +44,7 @@ public abstract class ImageFilter : IDisposable
     /// Creates the image filter.
     /// </summary>
     /// <param name="drawingContext">The drawing context.</param>
-    public abstract void CreateFilter(SkiaSharpDrawingContext drawingContext);
+    public abstract void CreateFilter(SkiaDrawingContext drawingContext);
 
     /// <summary>
     /// Clones this instance.

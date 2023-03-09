@@ -38,7 +38,7 @@ namespace LiveCharts;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam> data label of every point.
 public sealed class RowSeries<TModel> 
-    : LiveChartsCore.RowSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
+    : LiveChartsCore.RowSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaDrawingContext>
 {
     public RowSeries(): base(() => new RoundedRectangleGeometry(), () => new LabelGeometry()) {}
 }

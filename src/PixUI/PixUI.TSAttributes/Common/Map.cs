@@ -8,11 +8,11 @@ namespace System;
 
 [TSType("Map")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public abstract class MapBase<K, V>
+public class MapBase<K, V>
 {
     private readonly Dictionary<K, V> _dictionary = new();
 
-    protected MapBase(ValueTuple<K, V>[]? items = null)
+    public MapBase(ValueTuple<K, V>[]? items = null)
     {
         if (items != null)
         {
@@ -57,6 +57,17 @@ public abstract class MapBase<K, V>
     public ICollection<K> keys() => _dictionary.Keys;
 
     public ICollection<V> values() => _dictionary.Values;
+
+    public bool TryGetValue(K key, ref V value) //临时方案因暂不支持out
+    {
+        if (_dictionary.TryGetValue(key, out var v))
+        {
+            value = v;
+            return true;
+        }
+
+        return false;
+    }
 }
 
 [TSType("System.NumberMap")]

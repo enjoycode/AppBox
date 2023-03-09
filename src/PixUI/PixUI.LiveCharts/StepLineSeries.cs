@@ -38,7 +38,7 @@ namespace LiveCharts;
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
 public sealed class StepLineSeries<TModel>
-    : LiveChartsCore.StepLineSeries<TModel, CircleGeometry, LabelGeometry, SkiaSharpDrawingContext, StepLineAreaGeometry,
+    : LiveChartsCore.StepLineSeries<TModel, CircleGeometry, LabelGeometry, SkiaDrawingContext, StepLineAreaGeometry,
         StepPoint<CircleGeometry>>
 {
     public StepLineSeries() : base(() => new CircleGeometry(), () => new LabelGeometry(),

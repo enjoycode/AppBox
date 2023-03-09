@@ -38,8 +38,8 @@ public class CircleGeometry : SizedGeometry
         matchDimensions = true;
     }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         var rx = Width / 2f;
         context.Canvas.DrawCircle(X + rx, Y + rx, rx, paint);

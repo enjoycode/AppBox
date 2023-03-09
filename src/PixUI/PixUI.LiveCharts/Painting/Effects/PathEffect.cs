@@ -52,7 +52,7 @@ public abstract class PathEffect : IDisposable
     /// Creates the path effect.
     /// </summary>
     /// <param name="drawingContext">The drawing context.</param>
-    public abstract void CreateEffect(SkiaSharpDrawingContext drawingContext);
+    public abstract void CreateEffect(SkiaDrawingContext drawingContext);
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

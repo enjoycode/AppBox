@@ -28,7 +28,7 @@ namespace LiveCharts;
 /// <summary>
 /// Defines a rectangular section in a Cartesian chart.
 /// </summary>
-public sealed class RectangularSection : LiveChartsCore.Section<RectangleGeometry, SkiaSharpDrawingContext>
+public sealed class RectangularSection : LiveChartsCore.Section<RectangleGeometry, SkiaDrawingContext>
 {
     public RectangularSection(): base(() => new RectangleGeometry()) {}
 }

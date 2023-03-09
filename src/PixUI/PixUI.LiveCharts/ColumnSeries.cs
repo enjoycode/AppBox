@@ -37,7 +37,7 @@ namespace LiveCharts;
 /// or at the series level 
 /// (<see cref="Series{TModel, TVisual, TLabel, TDrawingContext}.Mapping"/>).
 /// </typeparam>
-public class ColumnSeries<TModel> : LiveChartsCore.ColumnSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>
+public class ColumnSeries<TModel> : LiveChartsCore.ColumnSeries<TModel, RoundedRectangleGeometry, LabelGeometry, SkiaDrawingContext>
 {
     public ColumnSeries(): base(() => new RoundedRectangleGeometry(), () => new LabelGeometry()) {}
 }

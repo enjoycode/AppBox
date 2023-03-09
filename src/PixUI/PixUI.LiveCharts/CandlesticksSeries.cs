@@ -39,7 +39,7 @@ namespace LiveCharts;
 /// </typeparam>
 public sealed class CandlesticksSeries<TModel> : LiveChartsCore.FinancialSeries<TModel, CandlestickGeometry, LabelGeometry,
     CircleGeometry,
-    SkiaSharpDrawingContext>
+    SkiaDrawingContext>
 {
     public CandlesticksSeries()
         : base(() => new CandlestickGeometry(),

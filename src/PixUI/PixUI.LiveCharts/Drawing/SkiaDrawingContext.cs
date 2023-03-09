@@ -31,19 +31,19 @@ namespace LiveCharts.Drawing;
 /// Defines a skia sharp drawing context.
 /// </summary>
 /// <seealso cref="DrawingContext" />
-public sealed class SkiaSharpDrawingContext : DrawingContext
+public sealed class SkiaDrawingContext : DrawingContext
 {
     private readonly bool _clearOnBegingDraw;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SkiaSharpDrawingContext"/> class.
+    /// Initializes a new instance of the <see cref="SkiaDrawingContext"/> class.
     /// </summary>
     /// <param name="motionCanvas">The motion canvas.</param>
     /// <param name="info">The information.</param>
     /// <param name="canvas">The canvas.</param>
     /// <param name="clearOnBegingDraw">Indicates whether the canvas is cleared on frame draw.</param>
-    public SkiaSharpDrawingContext(
-        MotionCanvas<SkiaSharpDrawingContext> motionCanvas,
+    public SkiaDrawingContext(
+        MotionCanvas<SkiaDrawingContext> motionCanvas,
         SKImageInfo info,
         SKCanvas canvas,
         bool clearOnBegingDraw = true)
@@ -83,7 +83,7 @@ public sealed class SkiaSharpDrawingContext : DrawingContext
     /// <value>
     /// The motion canvas.
     /// </value>
-    public MotionCanvas<SkiaSharpDrawingContext> MotionCanvas { get; set; }
+    public MotionCanvas<SkiaDrawingContext> MotionCanvas { get; set; }
 
     /// <summary>
     /// Gets or sets the information.

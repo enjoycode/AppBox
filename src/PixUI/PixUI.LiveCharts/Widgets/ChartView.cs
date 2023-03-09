@@ -16,10 +16,10 @@ using LCC = LiveChartsCore;
 
 namespace PixLiveCharts;
 
-public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDrawingContext>
+public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaDrawingContext>
 {
-    protected ChartView(IChartTooltip<SkiaSharpDrawingContext>? tooltip,
-        IChartLegend<SkiaSharpDrawingContext>? legend)
+    protected ChartView(IChartTooltip<SkiaDrawingContext>? tooltip,
+        IChartLegend<SkiaDrawingContext>? legend)
     {
         if (tooltip != null) this.tooltip = tooltip;
         if (legend != null) this.legend = legend;
@@ -29,7 +29,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
 
         InitializeCore();
 
-        _visualsObserver = new CollectionDeepObserver<ChartElement<SkiaSharpDrawingContext>>(
+        _visualsObserver = new CollectionDeepObserver<ChartElement<SkiaDrawingContext>>(
             (s, e) => OnPropertyChanged(),
             (s, e) => OnPropertyChanged(), true);
 
@@ -48,34 +48,34 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
 
     #region ====Fields====
 
-    protected LiveChartsCore.Chart<SkiaSharpDrawingContext>? core;
+    protected LiveChartsCore.Chart<SkiaDrawingContext>? core;
 
-    protected IChartLegend<SkiaSharpDrawingContext>? legend = new SKDefaultLegend();
+    protected IChartLegend<SkiaDrawingContext>? legend = new SKDefaultLegend();
 
-    protected IChartTooltip<SkiaSharpDrawingContext>? tooltip = new SKDefaultTooltip();
+    protected IChartTooltip<SkiaDrawingContext>? tooltip = new SKDefaultTooltip();
 
     private LegendPosition _legendPosition = LiveChartsCore.LiveCharts.DefaultSettings.LegendPosition;
     private Margin? _drawMargin = null;
     private TooltipPosition _tooltipPosition = LiveChartsCore.LiveCharts.DefaultSettings.TooltipPosition;
-    private VisualElement<SkiaSharpDrawingContext>? _title;
-    private readonly CollectionDeepObserver<ChartElement<SkiaSharpDrawingContext>> _visualsObserver;
+    private VisualElement<SkiaDrawingContext>? _title;
+    private readonly CollectionDeepObserver<ChartElement<SkiaDrawingContext>> _visualsObserver;
 
-    private IEnumerable<ChartElement<SkiaSharpDrawingContext>> _visuals =
-        new List<ChartElement<SkiaSharpDrawingContext>>();
+    private IEnumerable<ChartElement<SkiaDrawingContext>> _visuals =
+        new List<ChartElement<SkiaDrawingContext>>();
 
-    private IPaint<SkiaSharpDrawingContext>? _legendTextPaint =
-        (IPaint<SkiaSharpDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.LegendTextPaint;
+    private IPaint<SkiaDrawingContext>? _legendTextPaint =
+        (IPaint<SkiaDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.LegendTextPaint;
 
-    private IPaint<SkiaSharpDrawingContext>? _legendBackgroundPaint =
-        (IPaint<SkiaSharpDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.LegendBackgroundPaint;
+    private IPaint<SkiaDrawingContext>? _legendBackgroundPaint =
+        (IPaint<SkiaDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.LegendBackgroundPaint;
 
     private double? _legendTextSize = LiveChartsCore.LiveCharts.DefaultSettings.LegendTextSize;
 
-    private IPaint<SkiaSharpDrawingContext>? _tooltipTextPaint =
-        (IPaint<SkiaSharpDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.TooltipTextPaint;
+    private IPaint<SkiaDrawingContext>? _tooltipTextPaint =
+        (IPaint<SkiaDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.TooltipTextPaint;
 
-    private IPaint<SkiaSharpDrawingContext>? _tooltipBackgroundPaint =
-        (IPaint<SkiaSharpDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.TooltipBackgroundPaint;
+    private IPaint<SkiaDrawingContext>? _tooltipBackgroundPaint =
+        (IPaint<SkiaDrawingContext>?)LiveChartsCore.LiveCharts.DefaultSettings.TooltipBackgroundPaint;
 
     private double? _tooltipTextSize = LiveChartsCore.LiveCharts.DefaultSettings.TooltipTextSize;
 
@@ -159,7 +159,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
     // void IChartView.Invalidate() //TODO: rename IChartView.Invalidate()
     //     => CoreCanvas.Invalidate();
 
-    public IPaint<SkiaSharpDrawingContext>? LegendTextPaint
+    public IPaint<SkiaDrawingContext>? LegendTextPaint
     {
         get => _legendTextPaint;
         set
@@ -169,7 +169,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         }
     }
 
-    public IPaint<SkiaSharpDrawingContext>? LegendBackgroundPaint
+    public IPaint<SkiaDrawingContext>? LegendBackgroundPaint
     {
         get => _legendBackgroundPaint;
         set
@@ -189,7 +189,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         }
     }
 
-    public IPaint<SkiaSharpDrawingContext>? TooltipTextPaint
+    public IPaint<SkiaDrawingContext>? TooltipTextPaint
     {
         get => _tooltipTextPaint;
         set
@@ -199,7 +199,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         }
     }
 
-    public IPaint<SkiaSharpDrawingContext>? TooltipBackgroundPaint
+    public IPaint<SkiaDrawingContext>? TooltipBackgroundPaint
     {
         get => _tooltipBackgroundPaint;
         set
@@ -219,7 +219,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         }
     }
 
-    public VisualElement<SkiaSharpDrawingContext>? Title
+    public VisualElement<SkiaDrawingContext>? Title
     {
         get => _title;
         set
@@ -229,27 +229,27 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         }
     }
 
-    public event ChartEventHandler<SkiaSharpDrawingContext>? Measuring;
-    public event ChartEventHandler<SkiaSharpDrawingContext>? UpdateStarted;
-    public event ChartEventHandler<SkiaSharpDrawingContext>? UpdateFinished;
-    public event VisualElementHandler<SkiaSharpDrawingContext>? VisualElementsPointerDown;
+    public event ChartEventHandler<SkiaDrawingContext>? Measuring;
+    public event ChartEventHandler<SkiaDrawingContext>? UpdateStarted;
+    public event ChartEventHandler<SkiaDrawingContext>? UpdateFinished;
+    public event VisualElementHandler<SkiaDrawingContext>? VisualElementsPointerDown;
 
     public bool AutoUpdateEnabled { get; set; } = true;
-    public MotionCanvas<SkiaSharpDrawingContext> CoreCanvas => CanvasCore;
+    public MotionCanvas<SkiaDrawingContext> CoreCanvas => CanvasCore;
 
-    public IChartLegend<SkiaSharpDrawingContext>? Legend
+    public IChartLegend<SkiaDrawingContext>? Legend
     {
         get => legend;
         set => legend = value;
     }
 
-    public IChartTooltip<SkiaSharpDrawingContext>? Tooltip
+    public IChartTooltip<SkiaDrawingContext>? Tooltip
     {
         get => tooltip;
         set => tooltip = value;
     }
 
-    public IEnumerable<ChartElement<SkiaSharpDrawingContext>> VisualElements
+    public IEnumerable<ChartElement<SkiaDrawingContext>> VisualElements
     {
         get => _visuals;
         set
@@ -276,7 +276,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
         tooltip.Hide();
     }
 
-    public void OnVisualElementPointerDown(IEnumerable<VisualElement<SkiaSharpDrawingContext>> visualElements,
+    public void OnVisualElementPointerDown(IEnumerable<VisualElement<SkiaDrawingContext>> visualElements,
         LvcPoint pointer)
     {
         throw new NotImplementedException();
@@ -285,16 +285,16 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
     public abstract IEnumerable<ChartPoint> GetPointsAt(LvcPoint point,
         TooltipFindingStrategy strategy = TooltipFindingStrategy.Automatic);
 
-    public abstract IEnumerable<VisualElement<SkiaSharpDrawingContext>> GetVisualsAt(LvcPoint point);
+    public abstract IEnumerable<VisualElement<SkiaDrawingContext>> GetVisualsAt(LvcPoint point);
 
     #endregion
 
     #region ====MotionCanvas====
 
     private bool _isDrawingLoopRunning = false;
-    private List<PaintSchedule<SkiaSharpDrawingContext>> _paintTasksSchedule = new();
+    private List<PaintSchedule<SkiaDrawingContext>> _paintTasksSchedule = new();
 
-    public List<PaintSchedule<SkiaSharpDrawingContext>> PaintTasks
+    public List<PaintSchedule<SkiaDrawingContext>> PaintTasks
     {
         get => _paintTasksSchedule;
         set
@@ -306,9 +306,9 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
 
     public double MaxFps { get; set; } = 65;
 
-    public MotionCanvas<SkiaSharpDrawingContext> CanvasCore { get; } = new();
+    public MotionCanvas<SkiaDrawingContext> CanvasCore { get; } = new();
 
-    private void CanvasCore_Invalidated(MotionCanvas<SkiaSharpDrawingContext> sender) => RunDrawingLoop();
+    private void CanvasCore_Invalidated(MotionCanvas<SkiaDrawingContext> sender) => RunDrawingLoop();
 
     private async void RunDrawingLoop()
     {
@@ -327,7 +327,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
 
     private void OnPaintTasksChanged()
     {
-        var tasks = new HashSet<IPaint<SkiaSharpDrawingContext>>();
+        var tasks = new HashSet<IPaint<SkiaDrawingContext>>();
 
         foreach (var item in _paintTasksSchedule)
         {
@@ -380,7 +380,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaSharpDraw
 
         //TODO: fix and cache SkiaSharpDrawingContext instance
         var drawCtx =
-            new SkiaSharpDrawingContext(CanvasCore, new ImageInfo { Width = (int)W, Height = (int)H }, canvas);
+            new SkiaDrawingContext(CanvasCore, new ImageInfo { Width = (int)W, Height = (int)H }, canvas);
         drawCtx.Background = BackColor.AsSKColor();
         CanvasCore.DrawFrame(drawCtx);
 

@@ -35,21 +35,24 @@ using LiveChartsCore.VisualElements;
 namespace LiveCharts.SKCharts;
 
 /// <inheritdoc cref="IChartLegend{TDrawingContext}" />
-public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageControl
+public class SKDefaultLegend : IChartLegend<SkiaDrawingContext>, IImageControl
 {
     private static readonly int s_zIndex = 10050;
     private ContainerOrientation _orientation = ContainerOrientation.Vertical;
-    private StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>? _stackPanel;
-    private readonly DoubleDict<IChartSeries<SkiaSharpDrawingContext>, VisualElement<SkiaSharpDrawingContext>> _activeSeries = new();
-    private List<VisualElement<SkiaSharpDrawingContext>> _toRemoveSeries = new();
-    private IPaint<SkiaSharpDrawingContext>? _backgroundPaint;
+    private StackPanel<RoundedRectangleGeometry, SkiaDrawingContext>? _stackPanel;
+
+    private readonly DoubleDict<IChartSeries<SkiaDrawingContext>, VisualElement<SkiaDrawingContext>> _activeSeries =
+        new();
+
+    private List<VisualElement<SkiaDrawingContext>> _toRemoveSeries = new();
+    private IPaint<SkiaDrawingContext>? _backgroundPaint;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SKDefaultLegend"/> class.
     /// </summary>
     public SKDefaultLegend()
     {
-        FontPaint = new SolidColorPaint(new SKColor(30, 30, 30, 255));
+        FontPaint = new SolidColorPaint { Color = new SKColor(30, 30, 30, 255) };
     }
 
     /// <inheritdoc cref="IImageControl.Size"/>
@@ -58,12 +61,12 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
     /// <summary>
     /// Gets or sets the legend font paint.
     /// </summary>
-    public IPaint<SkiaSharpDrawingContext>? FontPaint { get; set; }
+    public IPaint<SkiaDrawingContext>? FontPaint { get; set; }
 
     /// <summary>
     /// Gets or sets the background paint.
     /// </summary>
-    public IPaint<SkiaSharpDrawingContext>? BackgroundPaint
+    public IPaint<SkiaDrawingContext>? BackgroundPaint
     {
         get => _backgroundPaint;
         set
@@ -81,7 +84,7 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
     /// </summary>
     public double TextSize { get; set; } = 15;
 
-    void IChartLegend<SkiaSharpDrawingContext>.Draw(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart)
+    void IChartLegend<SkiaDrawingContext>.Draw(LiveChartsCore.Chart<SkiaDrawingContext> chart)
     {
         if (chart.Legend is null || chart.LegendPosition == LegendPosition.Hidden) return;
 
@@ -107,17 +110,20 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
             _stackPanel.X = actualChartSize.Width * 0.5f - Size.Width * 0.5f;
             _stackPanel.Y = -Size.Height;
         }
+
         if (chart.LegendPosition == LegendPosition.Bottom)
         {
             _stackPanel.X = actualChartSize.Width * 0.5f - Size.Width * 0.5f;
             _stackPanel.Y = actualChartSize.Height;
         }
+
         if (chart.LegendPosition == LegendPosition.Left)
         {
             chart.Canvas.StartPoint = new LvcPoint(Size.Width, 0);
             _stackPanel.X = -Size.Width;
             _stackPanel.Y = actualChartSize.Height * 0.5f - Size.Height * 0.5f;
         }
+
         if (chart.LegendPosition == LegendPosition.Right)
         {
             _stackPanel.X = actualChartSize.Width - iDontKnowWhyThis;
@@ -134,7 +140,7 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
         }
     }
 
-    private void BuildLayout(LiveChartsCore.Chart<SkiaSharpDrawingContext> chart)
+    private void BuildLayout(LiveChartsCore.Chart<SkiaDrawingContext> chart)
     {
         if (chart.View.LegendBackgroundPaint is not null) BackgroundPaint = chart.View.LegendBackgroundPaint;
         if (chart.View.LegendTextPaint is not null) FontPaint = chart.View.LegendTextPaint;
@@ -144,17 +150,18 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
             ? ContainerOrientation.Vertical
             : ContainerOrientation.Horizontal;
 
-        _stackPanel ??= new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
-        {
-            Padding = Padding.All(0),
-            HorizontalAlignment = Align.Start,
-            VerticalAlignment = Align.Middle,
-        };
+        _stackPanel ??=
+            new StackPanel<RoundedRectangleGeometry, SkiaDrawingContext>(() => new RoundedRectangleGeometry())
+            {
+                Padding = Padding.All(0),
+                HorizontalAlignment = Align.Start,
+                VerticalAlignment = Align.Middle,
+            };
 
         _stackPanel.Orientation = _orientation;
         _stackPanel.BackgroundPaint = BackgroundPaint;
 
-        _toRemoveSeries = new List<VisualElement<SkiaSharpDrawingContext>>(_stackPanel.Children);
+        _toRemoveSeries = new List<VisualElement<SkiaDrawingContext>>(_stackPanel.Children);
 
         foreach (var series in chart.ChartSeries)
         {
@@ -168,20 +175,20 @@ public class SKDefaultLegend : IChartLegend<SkiaSharpDrawingContext>, IImageCont
     /// <inheritdoc cref="IImageControl.Measure(IChart)"/>
     public void Measure(IChart chart)
     {
-        var skiaChart = (LiveChartsCore.Chart<SkiaSharpDrawingContext>)chart;
+        var skiaChart = (LiveChartsCore.Chart<SkiaDrawingContext>)chart;
         BuildLayout(skiaChart);
         if (_stackPanel is null) return;
         Size = _stackPanel.Measure(skiaChart, null, null);
     }
 
-    private VisualElement<SkiaSharpDrawingContext> GetSeriesVisual(IChartSeries<SkiaSharpDrawingContext> series)
+    private VisualElement<SkiaDrawingContext> GetSeriesVisual(IChartSeries<SkiaDrawingContext> series)
     {
         if (_activeSeries.TryGetValue(series, out var seriesPanel)) return seriesPanel;
 
         var sketch = series.GetMiniatresSketch();
         var relativePanel = sketch.AsDrawnControl();
 
-        var sp = new StackPanel<RoundedRectangleGeometry, SkiaSharpDrawingContext>(() => new RoundedRectangleGeometry())
+        var sp = new StackPanel<RoundedRectangleGeometry, SkiaDrawingContext>(() => new RoundedRectangleGeometry())
         {
             Padding = new Padding(15, 4, 15, 4),
             VerticalAlignment = Align.Middle,

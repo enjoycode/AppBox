@@ -62,8 +62,8 @@ public class SVGPathGeometry : SizedGeometry
     /// </summary>
     public bool FitToSize { get; set; } = false;
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         if (_svgPath is null)
             throw new System.NullReferenceException(

@@ -30,7 +30,7 @@ namespace LiveCharts.Drawing.Geometries;
 /// Defines a rectangle geometry with a specified color.
 /// </summary>
 /// <seealso cref="SizedGeometry" />
-public class ColoredRectangleGeometry : SizedGeometry, ISolidColorChartPoint<SkiaSharpDrawingContext>
+public class ColoredRectangleGeometry : SizedGeometry, ISolidColorChartPoint<SkiaDrawingContext>
 {
     private readonly ColorMotionProperty _colorProperty;
 
@@ -49,8 +49,8 @@ public class ColoredRectangleGeometry : SizedGeometry, ISolidColorChartPoint<Ski
         set => _colorProperty.SetMovement(value, this);
     }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         var c = Color;
         paint.Color = new SKColor(c.R, c.G, c.B, c.A);

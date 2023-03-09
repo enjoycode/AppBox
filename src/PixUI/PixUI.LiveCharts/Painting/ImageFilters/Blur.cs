@@ -66,7 +66,7 @@ public class Blur : ImageFilter
     /// </summary>
     /// <param name="drawingContext">The drawing context.</param>
     /// <returns></returns>
-    public override void CreateFilter(SkiaSharpDrawingContext drawingContext)
+    public override void CreateFilter(SkiaDrawingContext drawingContext)
     {
         SKImageFilter = SKImageFilter.CreateBlur(_sigmaX, _sigmaY, ShaderTileMode.Decal, _filter/*, _cropRect*/);
     }

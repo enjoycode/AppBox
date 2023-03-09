@@ -29,7 +29,7 @@ using LiveCharts.Painting;
 namespace LiveCharts.Drawing.Geometries;
 
 /// <inheritdoc cref="ILineGeometry{TDrawingContext}" />
-public class LineGeometry : Geometry, ILineGeometry<SkiaSharpDrawingContext>
+public class LineGeometry : Geometry, ILineGeometry<SkiaDrawingContext>
 {
     private readonly FloatMotionProperty _x1;
     private readonly FloatMotionProperty _y1;
@@ -49,8 +49,8 @@ public class LineGeometry : Geometry, ILineGeometry<SkiaSharpDrawingContext>
     /// <inheritdoc cref="ILineGeometry{TDrawingContext}.Y1" />
     public float Y1 { get => _y1.GetMovement(this); set => _y1.SetMovement(value, this); }
 
-    /// <inheritdoc cref="Geometry.OnDraw(SkiaSharpDrawingContext, SKPaint)" />
-    public override void OnDraw(SkiaSharpDrawingContext context, SKPaint paint)
+    /// <inheritdoc cref="Geometry.OnDraw(SkiaDrawingContext, SKPaint)" />
+    public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         context.Canvas.DrawLine(X, Y, X1, Y1, paint);
     }

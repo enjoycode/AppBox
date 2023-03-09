@@ -31,10 +31,10 @@ using LiveCharts.Painting;
 namespace LiveCharts;
 
 /// <inheritdoc cref="ChartEngine{TDrawingContext}"/>
-public class SkiaSharpProvider : ChartEngine<SkiaSharpDrawingContext>
+public class SkiaSharpProvider : ChartEngine<SkiaDrawingContext>
 {
     /// <inheritdoc cref="ChartEngine{TDrawingContext}.GetDefaultMapFactory"/>
-    public override IMapFactory<SkiaSharpDrawingContext> GetDefaultMapFactory()
+    public override IMapFactory<SkiaDrawingContext> GetDefaultMapFactory()
     {
         return new MapFactory();
     }
@@ -52,8 +52,8 @@ public class SkiaSharpProvider : ChartEngine<SkiaSharpDrawingContext>
     }
 
     /// <inheritdoc cref="ChartEngine{TDrawingContext}.GetSolidColorPaint(LvcColor)"/>
-    public override IPaint<SkiaSharpDrawingContext> GetSolidColorPaint(LvcColor color)
+    public override IPaint<SkiaDrawingContext> GetSolidColorPaint(LvcColor color)
     {
-        return new SolidColorPaint(new SKColor(color.R, color.G, color.B, color.A));
+        return new SolidColorPaint { Color = new SKColor(color.R, color.G, color.B, color.A) };
     }
 }
