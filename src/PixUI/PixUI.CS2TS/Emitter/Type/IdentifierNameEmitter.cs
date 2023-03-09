@@ -33,7 +33,7 @@ namespace PixUI.CS2TS
             if (symbol is not ILocalSymbol && symbol is not IParameterSymbol)
                 TryRenameSymbol(symbol, ref name);
             Write(name);
-            if (symbol is IParameterSymbol parameter && parameter.RefKind == RefKind.Ref)
+            if (symbol is IParameterSymbol { RefKind: RefKind.Ref })
                 Write(".Value");
 
             //转换委托的this绑定

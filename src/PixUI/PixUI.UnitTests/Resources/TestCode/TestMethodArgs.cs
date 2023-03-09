@@ -23,15 +23,20 @@ abstract class TestMethodArgs
         ParamsArgs3(null);
     }
     
-    public void RefArg(ref int arg)
+    public void RefArg1(ref int arg)
     {
+        RefArg2(ref arg); //这里不用转换
         arg++;
+    }
+
+    public void RefArg2(ref int arg)
+    {
         arg = 32;
     }
 
     public void TestRefArg()
     {
         int v = 3;
-        RefArg(ref v);
+        RefArg1(ref v);
     }
 }
