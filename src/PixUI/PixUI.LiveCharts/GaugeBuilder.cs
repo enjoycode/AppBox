@@ -38,15 +38,10 @@ namespace LiveCharts;
 /// </summary>
 public class GaugeBuilder : IGaugeBuilder<SkiaDrawingContext>
 {
-#if __WEB__
-    private readonly ObjectMap<Tuple<ObservableValue, string?, IPaint<SkiaDrawingContext>?, IPaint<SkiaDrawingContext>?>> _keyValuePairs
- = new();
-#else
-    private readonly
-        Dictionary<LiveChartsCore.ISeries,
+    private readonly Dictionary<
+            LiveChartsCore.ISeries,
             Tuple<ObservableValue, string?, IPaint<SkiaDrawingContext>?, IPaint<SkiaDrawingContext>?>>
         _keyValuePairs = new();
-#endif
     private readonly List<Tuple<ObservableValue, string?, IPaint<SkiaDrawingContext>?, IPaint<SkiaDrawingContext>?>>
         _tuples = new();
 
@@ -614,14 +609,10 @@ public class GaugeBuilder : IGaugeBuilder<SkiaDrawingContext>
     /// <exception cref="NotImplementedException"></exception>
     public void ApplyStylesToSeries(PieSeries<ObservableValue> series)
     {
-#if __WEB__
-        var t = _keyValuePairs.get(series);
-        if (t != null && t.Item3 is not null) series.Fill = t.Item3;
-#else
         if (_keyValuePairs.TryGetValue(series, out var t))
             if (t.Item3 is not null)
                 series.Fill = t.Item3;
-#endif
+
         if (LabelsSize is not null) series.DataLabelsSize = LabelsSize.Value;
         if (LabelsPosition is not null) series.DataLabelsPosition = LabelsPosition.Value;
         if (InnerRadius is not null) series.InnerRadius = InnerRadius.Value;

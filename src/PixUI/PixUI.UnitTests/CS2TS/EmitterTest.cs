@@ -163,5 +163,8 @@ namespace PixUI.UnitTests.CS2TS
         
         [Test]
         public async Task RemoveNewLineTest() => await Run("TestRemoveNewLine.cs", true);
+        
+        [Test]
+        public async Task DictionaryTest() => await Run("TestDictionary.cs", true);
     }
 }

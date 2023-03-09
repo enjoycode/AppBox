@@ -21,25 +21,25 @@ namespace PixUI
     {
         public BuildPathContext()
         {
-            LeafNamed = new StringMap<Navigator>(new (string, Navigator)[] { });
+            LeafNamed = new Dictionary<string, Navigator>();
         }
 
         internal Navigator LeafDefault = null!;
-        internal readonly StringMap<Navigator> LeafNamed;
+        internal readonly Dictionary<string, Navigator> LeafNamed;
 
         internal string GetFullPath()
         {
             var fullPath = LeafDefault.Path;
-            if (LeafNamed.size > 0)
+            if (LeafNamed.Count > 0)
             {
                 fullPath += "?";
                 var first = true;
-                foreach (var key in LeafNamed.keys())
+                foreach (var key in LeafNamed.Keys)
                 {
                     if (first) first = false;
                     else fullPath += "&";
 
-                    fullPath += key + "=" + LeafNamed.get(key)!.Path;
+                    fullPath += key + "=" + LeafNamed[key]!.Path;
                 }
             }
 
@@ -78,12 +78,12 @@ namespace PixUI
         {
             if (navigator.IsNamed)
             {
-                ctx.LeafNamed.set(navigator.NameOfRouteView!, navigator);
+                ctx.LeafNamed.Add(navigator.NameOfRouteView!, navigator);
             }
             else if (navigator.IsInNamed)
             {
                 var named = navigator.GetNamedParent()!;
-                ctx.LeafNamed.set(named.NameOfRouteView!, navigator);
+                ctx.LeafNamed.Add(named.NameOfRouteView!, navigator);
             }
             else
             {

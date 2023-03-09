@@ -14,12 +14,15 @@ namespace PixUI.CS2TS
             var isArray = kind == SyntaxKind.ArrayInitializerExpression;
             var isObject = kind == SyntaxKind.ObjectInitializerExpression;
 
-            //TODO:暂不支持Dictionary初始化
+            //特殊处理Dictionary初始化
             if (kind == SyntaxKind.CollectionInitializerExpression)
             {
                 var typeInfo = SemanticModel.GetTypeInfo(node.Parent!);
-                if (typeInfo.Type!.IsImplements(TypeOfIDictionary))
-                    throw new NotImplementedException("Dictionary initializer");
+                if (IsDictionayType(typeInfo.Type))
+                {
+                    EmitDictionaryInitializer(node);
+                    return;
+                }
             }
 
             if (!isArray)
@@ -69,6 +72,41 @@ namespace PixUI.CS2TS
             Write(isObject ? '}' : ']');
             if (!isArray)
                 Write(')');
+            VisitTrailingTrivia(node.CloseBraceToken);
+        }
+
+        private void EmitDictionaryInitializer(InitializerExpressionSyntax node)
+        {
+            Write(".Init(");
+            
+            VisitLeadingTrivia(node.OpenBraceToken);
+            Write('[');
+            VisitTrailingTrivia(node.OpenBraceToken);
+            
+            var seps = node.Expressions.GetSeparators().ToArray();
+            for (var i = 0; i < node.Expressions.Count; i++)
+            {
+                if (node.Expressions[i] is not InitializerExpressionSyntax initializerExpression)
+                    throw new NotImplementedException();
+
+                WriteLeadingTrivia(initializerExpression);
+                
+                VisitLeadingTrivia(initializerExpression.OpenBraceToken);
+                Write('[');
+                VisitSeparatedList(initializerExpression.Expressions);
+                Write(']');
+                VisitTrailingTrivia(initializerExpression.CloseBraceToken);
+                
+                if (i < seps.Length)
+                {
+                    var sepToken = node.Expressions.GetSeparator(i);
+                    VisitToken(sepToken);
+                }
+            }
+            
+            VisitLeadingTrivia(node.CloseBraceToken);
+            Write( ']');
+            Write(')');
             VisitTrailingTrivia(node.CloseBraceToken);
         }
     }

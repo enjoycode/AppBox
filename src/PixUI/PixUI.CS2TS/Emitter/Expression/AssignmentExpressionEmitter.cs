@@ -94,24 +94,22 @@ namespace PixUI.CS2TS
 
         private bool TryEmitIndexerSet(AssignmentExpressionSyntax node, ISymbol? leftSymbol, ISymbol? rightSymbol)
         {
-            if (leftSymbol is IPropertySymbol { IsIndexer: true } propertySymbol)
-            {
-                var attribute = propertySymbol.SetMethod!.TryGetAttribute(TypeOfTSIndexerSetToMethodAttribute);
-                if (attribute == null) return false;
+            if (leftSymbol is not IPropertySymbol { IsIndexer: true } propertySymbol) return false;
 
-                var elementAccess = (ElementAccessExpressionSyntax)node.Left;
-                Visit(elementAccess.Expression);
-                Write(".SetAt(");
-                Visit(elementAccess.ArgumentList.Arguments[0]);
-                Write(',');
-                Visit(node.Right);
-                Write(")");
+            var isDictionary = IsDictionayType(propertySymbol.ContainingType);
+            var attribute = propertySymbol.SetMethod!.TryGetAttribute(TypeOfTSIndexerSetToMethodAttribute);
+            if (!isDictionary && attribute == null) return false;
 
-                WriteTrailingTrivia(node.Right);
-                return true;
-            }
+            var elementAccess = (ElementAccessExpressionSyntax)node.Left;
+            Visit(elementAccess.Expression);
+            Write(".SetAt(");
+            Visit(elementAccess.ArgumentList.Arguments[0]);
+            Write(',');
+            Visit(node.Right);
+            Write(")");
 
-            return false;
+            WriteTrailingTrivia(node.Right);
+            return true;
         }
     }
 }

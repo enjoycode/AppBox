@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -57,18 +58,17 @@ namespace PixUI.CS2TS
 
         private INamedTypeSymbol TypeOfICollectionGeneric =>
             _typeSymbolCache.GetTypeByName("System.Collections.Generic.ICollection`1");
-
+        
         private INamedTypeSymbol TypeOfIDictionary =>
+            _typeSymbolCache.GetTypeByName("System.Collections.IDictionary");
+
+        private INamedTypeSymbol TypeOfIDictionaryGeneric =>
             _typeSymbolCache.GetTypeByName("System.Collections.Generic.IDictionary`2");
 
         private INamedTypeSymbol TypeOfIEnumerable =>
             _typeSymbolCache.GetTypeByName("System.Collections.Generic.IEnumerable`1");
 
         private INamedTypeSymbol TypeOfNullable => _typeSymbolCache.GetTypeByName("System.Nullable`1");
-
-        internal INamedTypeSymbol TypeOfAction => _typeSymbolCache.GetTypeByName("System.Action");
-
-        internal INamedTypeSymbol TypeOfAction1 => _typeSymbolCache.GetTypeByName("System.Action`1");
 
         private INamedTypeSymbol TypeOfDelegate => _typeSymbolCache.GetTypeByName("System.Delegate");
 
@@ -108,6 +108,28 @@ namespace PixUI.CS2TS
                     SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, TypeOfICollectionGeneric)
                 );
             return isCollection;
+        }
+
+        private bool IsDictionayType(ITypeSymbol? type)
+        {
+            if (type == null) return false;
+            
+            //先判断本身是否
+            var isDictionayType = type.TypeKind == TypeKind.Interface &&
+                               (
+                                   SymbolEqualityComparer.Default.Equals(type, TypeOfIDictionary)
+                                   ||
+                                   SymbolEqualityComparer.Default.Equals(type.OriginalDefinition,
+                                       TypeOfIDictionaryGeneric)
+                               );
+            //再判断有无实现接口
+            if (!isDictionayType)
+                isDictionayType = type.AllInterfaces.Any(t =>
+                    SymbolEqualityComparer.Default.Equals(t, TypeOfIDictionary)
+                    ||
+                    SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, TypeOfIDictionaryGeneric)
+                );
+            return isDictionayType;
         }
 
         private bool IsIEnumerableType(INamedTypeSymbol type)
@@ -152,7 +174,7 @@ namespace PixUI.CS2TS
                 return;
             }
 
-            // if (symbol.IsSystemNamespace()) return;
+            if (symbol.IsSystemNamespace()) return;
 
             var renameAttribute = symbol.TryGetAttribute(TypeOfTSRenameAttribute);
             if (renameAttribute == null) return;

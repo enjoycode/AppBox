@@ -8,8 +8,8 @@ namespace PixUI.CS2TS
     {
         public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
         {
-            var typeInfo = SemanticModel.GetTypeInfo(node.Expression).Type;
-            if (typeInfo is { SpecialType: SpecialType.System_String })
+            var typeSymbol = SemanticModel.GetTypeInfo(node.Expression).Type;
+            if (typeSymbol is { SpecialType: SpecialType.System_String })
             {
                 //TODO:范围判断 eg: str[1^2]
                 Visit(node.Expression);
@@ -17,12 +17,20 @@ namespace PixUI.CS2TS
                 Visit(node.ArgumentList.Arguments[0]);
                 Write(')');
                 WriteTrailingTrivia(node);
+                return;
             }
-            else
+
+            if (IsDictionayType(typeSymbol)) //TODO: 标为TSIndexerGetAt的同样处理
             {
                 Visit(node.Expression);
-                Visit(node.ArgumentList);
+                Write(".GetAt(");
+                Visit(node.ArgumentList.Arguments[0]);
+                Write(')');
+                return;
             }
+
+            Visit(node.Expression);
+            Visit(node.ArgumentList);
         }
     }
 }

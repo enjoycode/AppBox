@@ -19,105 +19,104 @@ namespace CodeEditor
 
         #region ====ITokensProvider====
 
-        private static readonly StringMap<TokenType> TokenMap = new StringMap<TokenType>(
-            new (string, TokenType)[]
-            {
-                (";", TokenType.PunctuationDelimiter),
-                (".", TokenType.PunctuationDelimiter),
-                (",", TokenType.PunctuationDelimiter),
+        private static readonly Dictionary<string, TokenType> TokenMap = new()
+        {
+            { ";", TokenType.PunctuationDelimiter },
+            { ".", TokenType.PunctuationDelimiter },
+            { ",", TokenType.PunctuationDelimiter },
 
-                ("--", TokenType.Operator),
-                ("-", TokenType.Operator),
-                ("-=", TokenType.Operator),
-                ("&", TokenType.Operator),
-                ("&&", TokenType.Operator),
-                ("+", TokenType.Operator),
-                ("++", TokenType.Operator),
-                ("+=", TokenType.Operator),
-                ("<", TokenType.Operator),
-                ("<<", TokenType.Operator),
-                ("=", TokenType.Operator),
-                ("==", TokenType.Operator),
-                ("!", TokenType.Operator),
-                ("!=", TokenType.Operator),
-                ("=>", TokenType.Operator),
-                (">", TokenType.Operator),
-                (">>", TokenType.Operator),
-                ("|", TokenType.Operator),
-                ("||", TokenType.Operator),
-                ("?", TokenType.Operator),
-                ("??", TokenType.Operator),
-                ("^", TokenType.Operator),
-                ("~", TokenType.Operator),
-                ("*", TokenType.Operator),
-                ("/", TokenType.Operator),
-                ("%", TokenType.Operator),
-                (":", TokenType.Operator),
+            { "--", TokenType.Operator },
+            { "-", TokenType.Operator },
+            { "-=", TokenType.Operator },
+            { "&", TokenType.Operator },
+            { "&&", TokenType.Operator },
+            { "+", TokenType.Operator },
+            { "++", TokenType.Operator },
+            { "+=", TokenType.Operator },
+            { "<", TokenType.Operator },
+            { "<<", TokenType.Operator },
+            { "=", TokenType.Operator },
+            { "==", TokenType.Operator },
+            { "!", TokenType.Operator },
+            { "!=", TokenType.Operator },
+            { "=>", TokenType.Operator },
+            { ">", TokenType.Operator },
+            { ">>", TokenType.Operator },
+            { "|", TokenType.Operator },
+            { "||", TokenType.Operator },
+            { "?", TokenType.Operator },
+            { "??", TokenType.Operator },
+            { "^", TokenType.Operator },
+            { "~", TokenType.Operator },
+            { "*", TokenType.Operator },
+            { "/", TokenType.Operator },
+            { "%", TokenType.Operator },
+            { ":", TokenType.Operator },
 
-                ("(", TokenType.PunctuationBracket),
-                (")", TokenType.PunctuationBracket),
-                ("[", TokenType.PunctuationBracket),
-                ("]", TokenType.PunctuationBracket),
-                ("{", TokenType.PunctuationBracket),
-                ("}", TokenType.PunctuationBracket),
+            { "(", TokenType.PunctuationBracket },
+            { ")", TokenType.PunctuationBracket },
+            { "[", TokenType.PunctuationBracket },
+            { "]", TokenType.PunctuationBracket },
+            { "{", TokenType.PunctuationBracket },
+            { "}", TokenType.PunctuationBracket },
 
-                ("as", TokenType.Keyword), //as
-                ("base", TokenType.Keyword), //base
-                ("break", TokenType.Keyword), //break
-                ("case", TokenType.Keyword), //case
-                ("catch", TokenType.Keyword), //catch
-                ("checked", TokenType.Keyword), //checked
-                ("class", TokenType.Keyword), //class
-                ("continue", TokenType.Keyword), //continue
-                ("default", TokenType.Keyword), //default
-                ("delegate", TokenType.Keyword), //delegate
-                ("do", TokenType.Keyword), //do
-                ("else", TokenType.Keyword), //else
-                ("enum", TokenType.Keyword), //enum
-                ("event", TokenType.Keyword), //event
-                ("explicit", TokenType.Keyword), //explicit
-                ("finally", TokenType.Keyword), //finally
-                ("for", TokenType.Keyword), //for
-                ("foreach", TokenType.Keyword), //foreach
-                ("goto", TokenType.Keyword), //goto
-                ("if", TokenType.Keyword), //if
-                ("implicit", TokenType.Keyword), //implicit
-                ("interface", TokenType.Keyword), //interface
-                ("is", TokenType.Keyword), //is
-                ("lock", TokenType.Keyword), //lock
-                ("namespace", TokenType.Keyword), //namespace
-                ("operator", TokenType.Keyword), //operator
-                ("params", TokenType.Keyword), //params
-                ("return", TokenType.Keyword), //return
-                ("sizeof", TokenType.Keyword), //sizeof
-                ("stackalloc", TokenType.Keyword), //stackalloc
-                ("struct", TokenType.Keyword), //struct
-                ("switch", TokenType.Keyword), //switch
-                ("throw", TokenType.Keyword), //throw
-                ("try", TokenType.Keyword), //try
-                ("typeof", TokenType.Keyword), //typeof
-                ("unchecked", TokenType.Keyword), //unchecked
-                ("using", TokenType.Keyword), //using
-                ("while", TokenType.Keyword), //while
-                ("new", TokenType.Keyword), //new
-                ("await", TokenType.Keyword), //await
-                ("in", TokenType.Keyword), //in
-                ("yield", TokenType.Keyword), //yield
-                ("get", TokenType.Keyword), //get
-                ("set", TokenType.Keyword), //set
-                ("when", TokenType.Keyword), //when
-                ("out", TokenType.Keyword), //out
-                ("ref", TokenType.Keyword), //ref
-                ("from", TokenType.Keyword), //from
-                ("where", TokenType.Keyword), //where
-                ("select", TokenType.Keyword), //select
-                ("record", TokenType.Keyword), //record
-                ("init", TokenType.Keyword), //init
-                ("with", TokenType.Keyword), //with
-                ("let", TokenType.Keyword), //let
-                ("var", TokenType.Keyword), //this
-                ("this", TokenType.Keyword), //this
-            });
+            { "as", TokenType.Keyword },
+            { "base", TokenType.Keyword },
+            { "break", TokenType.Keyword },
+            { "case", TokenType.Keyword },
+            { "catch", TokenType.Keyword },
+            { "checked", TokenType.Keyword },
+            { "class", TokenType.Keyword },
+            { "continue", TokenType.Keyword },
+            { "default", TokenType.Keyword },
+            { "delegate", TokenType.Keyword },
+            { "do", TokenType.Keyword },
+            { "else", TokenType.Keyword },
+            { "enum", TokenType.Keyword },
+            { "event", TokenType.Keyword },
+            { "explicit", TokenType.Keyword },
+            { "finally", TokenType.Keyword },
+            { "for", TokenType.Keyword },
+            { "foreach", TokenType.Keyword },
+            { "goto", TokenType.Keyword },
+            { "if", TokenType.Keyword },
+            { "implicit", TokenType.Keyword },
+            { "interface", TokenType.Keyword },
+            { "is", TokenType.Keyword },
+            { "lock", TokenType.Keyword },
+            { "namespace", TokenType.Keyword },
+            { "operator", TokenType.Keyword },
+            { "params", TokenType.Keyword },
+            { "return", TokenType.Keyword },
+            { "sizeof", TokenType.Keyword },
+            { "stackalloc", TokenType.Keyword },
+            { "struct", TokenType.Keyword },
+            { "switch", TokenType.Keyword },
+            { "throw", TokenType.Keyword },
+            { "try", TokenType.Keyword },
+            { "typeof", TokenType.Keyword },
+            { "unchecked", TokenType.Keyword },
+            { "using", TokenType.Keyword },
+            { "while", TokenType.Keyword },
+            { "new", TokenType.Keyword },
+            { "await", TokenType.Keyword },
+            { "in", TokenType.Keyword },
+            { "yield", TokenType.Keyword },
+            { "get", TokenType.Keyword },
+            { "set", TokenType.Keyword },
+            { "when", TokenType.Keyword },
+            { "out", TokenType.Keyword },
+            { "ref", TokenType.Keyword },
+            { "from", TokenType.Keyword },
+            { "where", TokenType.Keyword },
+            { "select", TokenType.Keyword },
+            { "record", TokenType.Keyword },
+            { "init", TokenType.Keyword },
+            { "with", TokenType.Keyword },
+            { "let", TokenType.Keyword },
+            { "var", TokenType.Keyword },
+            { "this", TokenType.Keyword },
+        };
 
         public bool IsLeafNode(TSSyntaxNode node)
         {
@@ -133,8 +132,9 @@ namespace CodeEditor
 
             if (!node.IsNamed())
             {
-                TokenType? res = TokenMap.get(type);
-                return res ?? TokenType.Unknown;
+                if (TokenMap.TryGetValue(type, out var res))
+                    return res;
+                return TokenType.Unknown;
             }
 
             // is named node

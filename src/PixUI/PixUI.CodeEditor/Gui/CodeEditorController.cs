@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using PixUI;
 
 namespace CodeEditor
@@ -30,23 +31,21 @@ namespace CodeEditor
         public Func<TextEditor, MenuItem[]>? ContextMenuBuilder { get; set; }
 
         // 全局命令字典表
-        private readonly NumberMap<IEditCommand> _editActions = new NumberMap<IEditCommand>(
-            new (int, IEditCommand)[]
-            {
-                ((int)Keys.Left, new CaretLeft()),
-                ((int)Keys.Right, new CaretRight()),
-                ((int)Keys.Up, new CaretUp()),
-                ((int)Keys.Down, new CaretDown()),
-                ((int)Keys.Back, new BackspaceCommand()),
-                ((int)Keys.Return, new ReturnCommand()),
-                ((int)Keys.Tab, new TabCommand()),
-                ((int)(Keys.Control | Keys.C), new CopyCommand()),
-                ((int)(Keys.Control | Keys.X), new CutCommand()),
-                ((int)(Keys.Control | Keys.V), new PasteCommand()),
-                ((int)(Keys.Control | Keys.Z), new UndoCommand()),
-                ((int)(Keys.Control | Keys.Y), new RedoCommand()),
-            }
-        );
+        private readonly Dictionary<int, IEditCommand> _editActions = new()
+        {
+            { (int)Keys.Left, new CaretLeft() },
+            { (int)Keys.Right, new CaretRight() },
+            { (int)Keys.Up, new CaretUp() },
+            { (int)Keys.Down, new CaretDown() },
+            { (int)Keys.Back, new BackspaceCommand() },
+            { (int)Keys.Return, new ReturnCommand() },
+            { (int)Keys.Tab, new TabCommand() },
+            { (int)(Keys.Control | Keys.C), new CopyCommand() },
+            { (int)(Keys.Control | Keys.X), new CutCommand() },
+            { (int)(Keys.Control | Keys.V), new PasteCommand() },
+            { (int)(Keys.Control | Keys.Z), new UndoCommand() },
+            { (int)(Keys.Control | Keys.Y), new RedoCommand() },
+        };
 
         #region ====Event Handles====
 
@@ -124,8 +123,7 @@ namespace CodeEditor
             //先预处理一些特殊键
             _completionContext.PreProcessKeyDown(e);
 
-            var cmd = _editActions.get((int)e.KeyData);
-            if (cmd != null)
+            if (_editActions.TryGetValue((int)e.KeyData, out var cmd))
             {
                 cmd.Execute(TextEditor);
                 e.StopPropagate(); //暂全部停止向上传播
@@ -254,6 +252,7 @@ namespace CodeEditor
         #endregion
 
         #region ====Actions====
+
         /// <summary>
         /// 设置光标位置
         /// </summary>
@@ -268,6 +267,7 @@ namespace CodeEditor
         {
             TextEditor.SelectionManager.SetSelection(start, end);
         }
+
         #endregion
 
         #region ====Static Helpers====

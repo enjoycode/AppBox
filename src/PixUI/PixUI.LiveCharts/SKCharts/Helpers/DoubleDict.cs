@@ -27,13 +27,8 @@ namespace LiveCharts.SKCharts.Helpers;
 // Maybe we should go for another alternative instead of using this class..
 internal sealed class DoubleDict<T1, T2> where T1 : notnull where T2 : notnull
 {
-#if __WEB__
-    private readonly System.MapBase<T1, T2> _keys = new();
-    private readonly System.MapBase<T2, T1> _values = new();
-#else
     private readonly Dictionary<T1, T2> _keys = new();
     private readonly Dictionary<T2, T1> _values = new();
-#endif    
 
     public void Add(T1 key, T2 value)
     {
@@ -54,26 +49,15 @@ internal sealed class DoubleDict<T1, T2> where T1 : notnull where T2 : notnull
     //     var r2 = _values.Remove(value);
     //     return r1 & r2;
     // }
-
-#if __WEB__
-    public bool TryGetValue(T1 key, ref T2 value)
-    {
-        return _keys.TryGetValue(key, ref value);
-    }
-
-    public bool TryGetKey(T2 value, ref T1 key)
-    {
-        return _values.TryGetValue(value, ref key);
-    }
-#else
+    
     public bool TryGetValue(T1 key, out T2 value)
     {
         return _keys.TryGetValue(key, out value!);
     }
 
+    [PixUI.TSRename("TryGetKey")]
     public bool TryGetValue(T2 key, out T1 value)
     {
         return _values.TryGetValue(key, out value!);
     }
-#endif    
 }

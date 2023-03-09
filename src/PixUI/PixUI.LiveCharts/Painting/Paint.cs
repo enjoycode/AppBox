@@ -37,13 +37,8 @@ namespace LiveCharts.Painting;
 public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
 {
     private readonly FloatMotionProperty _strokeMiterTransition;
-#if __WEB__
-    private readonly ObjectMap<HashSet<IDrawable<SkiaDrawingContext>>> _geometriesByCanvas = new();
-    private readonly ObjectMap<LvcRectangle> _clipRectangles = new();
-#else
     private readonly Dictionary<object, HashSet<IDrawable<SkiaDrawingContext>>> _geometriesByCanvas = new();
     private readonly Dictionary<object, LvcRectangle> _clipRectangles = new();
-#endif
     private char? _matchesChar = null;
     internal SKPaint? _skiaPaint;
     internal FloatMotionProperty _strokeWidthTransition;
@@ -197,11 +192,7 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
     public void SetGeometries(MotionCanvas<SkiaDrawingContext> canvas,
         HashSet<IDrawable<SkiaDrawingContext>> geometries)
     {
-#if __WEB__
-        _geometriesByCanvas.set(canvas.Sync, geometries);
-#else
         _geometriesByCanvas[canvas.Sync] = geometries;
-#endif
         IsValid = false;
     }
 
@@ -213,11 +204,7 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
         if (g is null)
         {
             g = new HashSet<IDrawable<SkiaDrawingContext>>();
-#if __WEB__
-            _geometriesByCanvas.set(canvas.Sync, g);
-#else
             _geometriesByCanvas[canvas.Sync] = g;
-#endif
         }
 
         _ = g.Add(geometry);
@@ -248,22 +235,13 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
     /// <inheritdoc cref="IPaint{TDrawingContext}.GetClipRectangle(MotionCanvas{TDrawingContext})" />
     public LvcRectangle GetClipRectangle(MotionCanvas<SkiaDrawingContext> canvas)
     {
-#if __WEB__
-        var clip = _clipRectangles.get(canvas.Sync);
-        return clip == null ? LvcRectangle.Empty : clip;
-#else
         return _clipRectangles.TryGetValue(canvas.Sync, out var clip) ? clip : LvcRectangle.Empty;
-#endif
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.SetClipRectangle(MotionCanvas{TDrawingContext}, LvcRectangle)" />
     public void SetClipRectangle(MotionCanvas<SkiaDrawingContext> canvas, LvcRectangle value)
     {
-#if __WEB__
-        _clipRectangles.set(canvas.Sync, value);
-#else
         _clipRectangles[canvas.Sync] = value;
-#endif
     }
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.CloneTask" />
@@ -308,10 +286,6 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
 
     private HashSet<IDrawable<SkiaDrawingContext>>? GetGeometriesByCanvas(MotionCanvas<SkiaDrawingContext> canvas)
     {
-#if __WEB__
-        return _geometriesByCanvas.get(canvas.Sync);
-#else
         return _geometriesByCanvas.TryGetValue(canvas.Sync, out var geometries) ? geometries : null;
-#endif
     }
 }
