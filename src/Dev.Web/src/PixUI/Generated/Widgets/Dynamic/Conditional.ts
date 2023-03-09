@@ -18,9 +18,6 @@ export class WhenBuilder<T> {
     }
 }
 
-/// <summary>
-/// 根据状态条件构建不同的子组件
-/// </summary>
 export class Conditional<T> extends PixUI.DynamicView //where T: IEquatable<T>
 {
     public constructor(state: PixUI.State<T>) {

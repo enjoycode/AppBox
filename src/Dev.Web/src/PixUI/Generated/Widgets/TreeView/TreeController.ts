@@ -22,9 +22,6 @@ export class TreeController<T> {
     public readonly Nodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
     public readonly ScrollController: PixUI.ScrollController = new PixUI.ScrollController(PixUI.ScrollDirection.Both);
 
-    /// <summary>
-    /// 获取根节点只读列表
-    /// </summary>
     public get RootNodes(): PixUI.TreeNode<T>[] {
         return this.Nodes.ToArray();
     }
@@ -32,9 +29,6 @@ export class TreeController<T> {
 
     private readonly _selectedNodes: System.List<PixUI.TreeNode<T>> = new System.List<PixUI.TreeNode<T>>();
 
-    /// <summary>
-    /// 第一个选中的节点
-    /// </summary>
     public get FirstSelectedNode(): Nullable<PixUI.TreeNode<T>> {
         return this._selectedNodes.length > 0 ? this._selectedNodes[0] : null;
     }
@@ -139,9 +133,6 @@ export class TreeController<T> {
         return null;
     }
 
-    /// <summary>
-    /// 选中单个节点
-    /// </summary>
     public SelectNode(node: PixUI.TreeNode<T>) {
         //是否已经选择
         if (this._selectedNodes.length == 1 && (this._selectedNodes[0] === node))

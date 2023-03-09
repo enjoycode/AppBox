@@ -16,14 +16,14 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
 
-    protected readonly activeSeparators: System.ObjectMap<System.DoubleMap<LiveChartsCore.IVisualSeparator<TDrawingContext>>> = new System.ObjectMap();
+    protected readonly activeSeparators: System.Dictionary<LiveChartsCore.IChart, System.Dictionary<number, LiveChartsCore.IVisualSeparator<TDrawingContext>>> = new System.Dictionary();
 
     public _orientation: LiveChartsCore.PolarAxisOrientation = 0;
     private _minStep: number = 0;
     private _dataBounds: Nullable<LiveChartsCore.Bounds> = null;
     private _visibleDataBounds: Nullable<LiveChartsCore.Bounds> = null;
     private _labelsRotation: number = 0;
-
+    //private TTextGeometry? _nameGeometry;
     private _labeler: System.Func2<number, string> = LiveChartsCore.Labelers.Default;
     private _minLimit: Nullable<number> = null;
     private _maxLimit: Nullable<number> = null;
@@ -248,6 +248,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     public readonly Initialized = new System.Event<LiveChartsCore.IPolarAxis>();
 
     public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+        let separators: any;
         let polarChart = <LiveChartsCore.PolarChart<TDrawingContext>><unknown>chart;
 
         if (this._dataBounds == null) throw new System.Exception("DataBounds not found");
@@ -329,22 +330,28 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
 
         let start = Math.trunc(min / s) * s;
 
-        let separators = this.activeSeparators.get(polarChart);
-        if (separators == null) {
-            separators = new System.DoubleMap<LiveChartsCore.IVisualSeparator<TDrawingContext>>();
-            this.activeSeparators.set(polarChart, separators);
+        if (!this.activeSeparators.TryGetValue(polarChart, new System.Out(() => separators, $v => separators = $v))) {
+            separators = new System.Dictionary<number, LiveChartsCore.IVisualSeparator<TDrawingContext>>();
+            this.activeSeparators.SetAt(polarChart, separators);
         }
 
         let measured = new System.HashSet<LiveChartsCore.IVisualSeparator<TDrawingContext>>();
 
         for (let i = start; i <= max; i += s) {
+            let visualSeparator: any;
             if (i < min) continue;
 
+            //if (_orientation == PolarAxisOrientation.Angle && Math.Abs(scaler.GetAngle(i) - b.LabelsAngle) < 10)
+            //    continue;
 
+            // - 1d + 1d is a dummy operation to fix a bug
+            // where i == 0 then calling i.ToString() returns "-0"...
+            // that dummy operation seems to hide that issue
+            // I am not completly sure of what causes that
+            // it seems that the bits storing that number (i) have the negative bit on
             let label = labeler(i - 1 + 1);
 
-            let visualSeparator = separators.get(i);
-            if (visualSeparator == null) {
+            if (!separators.TryGetValue(i, new System.Out(() => visualSeparator, $v => visualSeparator = $v))) {
                 visualSeparator = this._orientation == LiveChartsCore.PolarAxisOrientation.Angle
                     ? new LiveChartsCore.AxisVisualSeprator<TDrawingContext>().Init({Value: i})
                     : new LiveChartsCore.RadialAxisVisualSeparator<TDrawingContext>().Init({Value: i});
@@ -354,7 +361,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                     : scaler.ToPixelsWithAngleInDegrees(<number><unknown>this.LabelsAngle, visualSeparator.Value)).Clone();
 
                 if (this.LabelsPaint != null) {
-                    let textGeometry = this._textGeometryFactory();
+                    let textGeometry = this._textGeometryFactory(); //new TTextGeometry { TextSize = size };
                     textGeometry.TextSize = size;
                     visualSeparator.Label = textGeometry;
                     if (hasRotation) textGeometry.RotateTransform = r;
@@ -378,7 +385,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                 if (this.SeparatorsPaint != null && this.ShowSeparatorLines) {
                     if (visualSeparator instanceof LiveChartsCore.AxisVisualSeprator<TDrawingContext>) {
                         const linearSeparator = visualSeparator;
-                        let lineGeometry = this._lineGeometryFactory();
+                        let lineGeometry = this._lineGeometryFactory(); //new TLineGeometry();
 
                         linearSeparator.Separator = lineGeometry;
                         LiveChartsCore.Extensions.TransitionateProperties(
@@ -397,7 +404,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
 
                     if (visualSeparator instanceof LiveChartsCore.RadialAxisVisualSeparator<TDrawingContext>) {
                         const polarSeparator = visualSeparator;
-                        let circleGeometry = this._circleGeometryFactory();
+                        let circleGeometry = this._circleGeometryFactory(); //new TCircleGeometry();
 
                         polarSeparator.Circle = circleGeometry;
                         LiveChartsCore.Extensions.TransitionateProperties(
@@ -421,7 +428,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                     }
                 }
 
-                separators.set(i, visualSeparator);
+                separators.Add(i, visualSeparator);
             }
 
             if (this.SeparatorsPaint != null && this.ShowSeparatorLines && visualSeparator.Geometry != null)
@@ -450,7 +457,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                     actualRotation += 180;
 
                 visualSeparator.Label.RotateTransform = actualRotation;
-                visualSeparator.Label.Opacity = System.IsNullOrEmpty(label) ? 0 : 1;
+                visualSeparator.Label.Opacity = System.IsNullOrEmpty(label) ? 0 : 1; // workaround to prevent the last label overlaps the first label
 
                 visualSeparator.Label.X = location.X;
                 visualSeparator.Label.Y = location.Y;
@@ -494,19 +501,23 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
             if (visualSeparator.Label != null || visualSeparator.Geometry != null) measured.Add(visualSeparator);
         }
 
-        for (const skey of separators.keys()) {
-            let separator = separators.get(skey)!;
-            if (measured.Contains(separator)) continue;
+        for (const separator of separators) {
+            if (measured.Contains(separator.Value)) continue;
 
-            this.SoftDeleteSeparator(polarChart, separator, scaler);
-            separators.delete(skey);
+            this.SoftDeleteSeparator(polarChart, separator.Value, scaler);
+            separators.Remove(separator.Key);
         }
     }
 
     public GetNameLabelSize(chart: LiveChartsCore.Chart<TDrawingContext>): LiveChartsCore.LvcSize {
         if (this.NamePaint == null || System.IsNullOrEmpty(this.Name)) return new LiveChartsCore.LvcSize(0, 0);
 
-
+        // var textGeometry = new TTextGeometry
+        // {
+        //     Text = Name ?? string.Empty,
+        //     TextSize = (float)NameTextSize,
+        //     Padding = _labelsPadding
+        // };
         let textGeometry = this._textGeometryFactory();
         textGeometry.Text = this.Name ?? '';
         textGeometry.TextSize = <number><unknown>this.NameTextSize;
@@ -554,15 +565,20 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
         let r = <number><unknown>this.LabelsRotation;
 
         for (let i = start; i <= max; i += s) {
-
-
+            // var textGeometry = new TTextGeometry
+            // {
+            //     Text = labeler(i),
+            //     TextSize = ts,
+            //     RotateTransform = r + (_orientation == PolarAxisOrientation.Angle ? scaler.GetAngle(i) - 90 : 0),
+            //     Padding = _labelsPadding
+            // };
             let textGeometry = this._textGeometryFactory();
             textGeometry.Text = labeler(i);
             textGeometry.TextSize = ts;
             textGeometry.RotateTransform =
                 r + (this._orientation == LiveChartsCore.PolarAxisOrientation.Angle ? scaler.GetAngle(i) - 90 : 0);
             textGeometry.Padding = this._labelsPadding;
-            let m = textGeometry.Measure(this.LabelsPaint);
+            let m = textGeometry.Measure(this.LabelsPaint); // TextBrush.MeasureText(labeler(i, axisTick));
 
             let h = <number><unknown>Math.sqrt(Math.pow(m.Width * 0.5, 2) + Math.pow(m.Height * 0.5, 2));
             if (h > totalH) totalH = h;
@@ -589,13 +605,13 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
             this._separatorsPaint.ClearGeometriesFromPaintTask(chart.Canvas);
         }
 
-        this.activeSeparators.delete(chart);
+        this.activeSeparators.Remove(chart);
     }
 
     public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         super.RemoveFromUI(chart);
         this._animatableBounds = null!;
-        this.activeSeparators.delete(chart);
+        this.activeSeparators.Remove(chart);
     }
 
     protected SoftDeleteSeparator(chart: LiveChartsCore.Chart<TDrawingContext>,
@@ -627,8 +643,8 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
         separator.Geometry.RemoveOnCompleted = true;
 
         if (separator.Label != null) {
-
-
+            //separator.Text.X = 0;
+            //separator.Text.Y = 0;
             separator.Label.Opacity = 0;
             separator.Label.RemoveOnCompleted = true;
         }

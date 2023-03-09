@@ -66,13 +66,25 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
             primary = LiveChartsCore.Extensions.GetNextScaler(primaryAxis, cartesianChart);
         }
 
+        // Todo: polar and pie
+        // if (chart is PolarChart<TDrawingContext> pc)
+        // if (chart is PieChart<TDrawingContext> pc)
+        // if (chart is PolarChart<TDrawingContext> pc)
+        // {
+        //     var primaryAxis = pc.AngleAxes[ScalesYAt];
+        //     var secondaryAxis = pc.RadiusAxes[ScalesXAt];
+
+        //     var primary = new PolarScaler(
+        //         chart.DrawMarginLocation, chart.DrawMarginSize, primaryAxis, secondaryAxis, pc.InnerRadius, pc.InitialRotation, pc.TotalAnge);
+        // }
 
         for (const paintTask of this.GetPaintTasks()) {
             if (paintTask == null) continue;
 
             if (cartesianChart != null) {
-
-
+                //paintTask.SetClipRectangle(
+                //    cartesianChart.Canvas,
+                //    new LvcRectangle(cartesianChart.DrawMarginLocation, cartesianChart.DrawMarginSize));
             }
 
             chart.Canvas.AddDrawableTask(paintTask);
@@ -103,8 +115,8 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
         let parentY = 0;
 
         if (this._parent != null) {
-            let xProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.get("_parent.X")!;
-            let yProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.get("_parent.Y")!;
+            let xProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.GetAt("_parent.X");
+            let yProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.GetAt("_parent.Y");
             parentX = xProperty.GetCurrentValue(<LiveChartsCore.Animatable><unknown>this._parent);
             parentY = yProperty.GetCurrentValue(<LiveChartsCore.Animatable><unknown>this._parent);
         }
@@ -123,7 +135,7 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
             let location = this.GetTargetLocation();
             let size = this.GetTargetSize();
 
-
+            // it returns an enumerable because there are more complex types where a visual can contain more than one element
             if (point.X >= location.X && point.X <= location.X + size.Width &&
                 point.Y >= location.Y && point.Y <= location.Y + size.Height)
                 yield this;
@@ -133,6 +145,6 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
     }
 
     public AlignToTopLeftCorner() {
-
+        // just a workaround to align labels as the rest of the geometries.
     }
 }

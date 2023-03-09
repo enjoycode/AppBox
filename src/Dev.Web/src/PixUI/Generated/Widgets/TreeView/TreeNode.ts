@@ -102,9 +102,6 @@ export class TreeNode<T> extends PixUI.Widget {
         this.Invalidate(PixUI.InvalidAction.Relayout); //自身改变高度并通知上级
     }
 
-    /// <summary>
-    /// 确保构建子节点
-    /// </summary>
     public EnsureBuildChildren() {
         if (this.IsLeaf || this._children != null) return;
 
@@ -119,10 +116,6 @@ export class TreeNode<T> extends PixUI.Widget {
         }
     }
 
-    /// <summary>
-    /// 尝试构建并布局子级节点
-    /// </summary>
-    /// <returns>返回最宽的子级节点的宽度</returns>
     private TryBuildAndLayoutChildren(): number {
         if (this._children != null && this.HasLayout && this._children.All(t => t.HasLayout)) {
             return PixUI.TreeView.CalcMaxChildWidth(this._children);
@@ -420,9 +413,6 @@ export class TreeNode<T> extends PixUI.Widget {
             this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
-    /// <summary>
-    /// 插入子节点，并且同步数据源
-    /// </summary>
     public InsertChild(index: number, child: TreeNode<T>) {
         if (this.IsLeaf) return;
 
@@ -437,9 +427,6 @@ export class TreeNode<T> extends PixUI.Widget {
         this.HasLayout = false;
     }
 
-    /// <summary>
-    /// 移除子节点，并且同步数据源
-    /// </summary>
     public RemoveChild(child: TreeNode<T>) {
         this._children!.Remove(child);
         //同步数据

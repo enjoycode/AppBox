@@ -7,8 +7,8 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
     private _heatKnownLength: number = 0;
     private _heatStops: System.List<ColorStop> = new System.List();
     private _heatMap: LiveChartsCore.LvcColor[] = [
-        LiveChartsCore.LvcColor.FromArgb(255, 87, 103, 222),
-        LiveChartsCore.LvcColor.FromArgb(255, 95, 207, 249)
+        LiveChartsCore.LvcColor.FromArgb(255, 87, 103, 222), // cold (min value)
+        LiveChartsCore.LvcColor.FromArgb(255, 95, 207, 249) // hot (max value)
     ];
     private _colorStops: Nullable<Float64Array>;
     private _pointPadding: LiveChartsCore.Padding = LiveChartsCore.Padding.All(4);
@@ -76,7 +76,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
         }
         if (this.DataLabelsPaint != null) {
             this.DataLabelsPaint.ZIndex = actualZIndex + 0.3;
-
+            //DataLabelsPaint.SetClipRectangle(cartesianChart.Canvas, new LvcRectangle(drawLocation, drawMarginSize));
             cartesianChart.Canvas.AddDrawableTask(this.DataLabelsPaint);
         }
 
@@ -125,7 +125,14 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
                     yi = previousPrimaryScale.ToPixels(point.PrimaryValue) - uwp * 0.5;
                 }
 
-
+                // var r = new TVisual
+                // {
+                //     X = xi + p.Left,
+                //     Y = yi + p.Top,
+                //     Width = uws - p.Left - p.Right,
+                //     Height = uwp - p.Top - p.Bottom,
+                //     Color = LvcColor.FromArgb(0, baseColor.R, baseColor.G, baseColor.B)
+                // };
                 let r = this._visualFactory();
                 r.X = xi + p.Left;
                 r.Y = yi + p.Top;
@@ -161,7 +168,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
                 let label = <Nullable<TLabel>><unknown>point.Context.Label;
 
                 if (label == null) {
-
+                    //var l = new TLabel { X = secondary - uws * 0.5f, Y = primary - uws * 0.5f, RotateTransform = (float)DataLabelsRotation };
                     let l = this._labelFactory();
                     l.X = secondary - uws * 0.5;
                     l.Y = primary - uws * 0.5;
@@ -262,13 +269,20 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
             strokeClone.StrokeThickness = LiveChartsCore.Series.MAX_MINIATURE_STROKE_WIDTH;
         }
 
-
+        // var visual = new TVisual
+        // {
+        //     X = st * 0.5f,
+        //     Y = st * 0.5f,
+        //     Height = (float)MiniatureShapeSize,
+        //     Width = (float)MiniatureShapeSize,
+        //     Color = HeatMap[0] // ToDo <- draw the gradient?
+        // };
         let visual = this._visualFactory();
         visual.X = st * 0.5;
         visual.Y = st * 0.5;
         visual.Height = <number><unknown>this.MiniatureShapeSize;
         visual.Width = <number><unknown>this.MiniatureShapeSize;
-        visual.Color = (this.HeatMap[0]).Clone();
+        visual.Color = (this.HeatMap[0]).Clone(); // ToDo <- draw the gradient?
 
         strokeClone.ZIndex = 1;
         schedules.Add(new LiveChartsCore.PaintSchedule<TDrawingContext>(strokeClone, visual));

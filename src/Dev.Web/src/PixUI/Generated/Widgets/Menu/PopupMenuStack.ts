@@ -1,8 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 管理打开的子菜单（可能多级）
-/// </summary>
+
 export class PopupMenuStack extends PixUI.Popup {
     private readonly _closeAll: System.Action;
 
@@ -105,7 +103,7 @@ export class PopupMenuStack extends PixUI.Popup {
     }
 
 
-    public PreviewEvent(type: PixUI.EventType, e: Nullable<any>): PixUI.EventPreviewResult {
+    public PreviewEvent(type: PixUI.EventType, e: any): PixUI.EventPreviewResult {
         //TODO: 判断ESC键及其他
         if (type == PixUI.EventType.PointerDown) {
             let pointerEvent = <PixUI.PointerEvent><unknown>e!;

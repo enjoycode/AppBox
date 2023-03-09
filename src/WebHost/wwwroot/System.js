@@ -4,8 +4,43 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
+class BasicEnumerable {
+  constructor(iterator) {
+    this.iterator = iterator;
+  }
+  [Symbol.iterator]() {
+    return this.iterator();
+  }
+}
+const from = (source) => {
+  const isArrayLike = (x) => {
+    return Array.isArray(x) || typeof x === "object" && typeof x.length === "number" && (x.length === 0 || 0 in x);
+  };
+  const isIterableType = (x) => typeof x === "function";
+  if (isArrayLike(source)) {
+    const generator = function* () {
+      for (let i2 = 0; i2 < source.length; i2++) {
+        yield source[i2];
+      }
+    };
+    return new BasicEnumerable(generator);
+  }
+  if (isIterableType(source)) {
+    return new BasicEnumerable(source);
+  }
+  return new BasicEnumerable(function* () {
+    for (const val of source) {
+      yield val;
+    }
+  });
+};
 const IsNullOrEmpty = function(s2) {
   return s2 == null || s2.length === 0;
+};
+const IsNullOrWhiteSpace = function(s2) {
+  if (s2 == null || s2.length == 0)
+    return true;
+  return s2.trim() == "";
 };
 const Equals = function(a2, b2) {
   if (a2 == null && b2 == null)
@@ -48,56 +83,67 @@ const BinarySearch = function(array, index, length, value, comparer) {
   }
   return ~num1;
 };
-class Event {
-  constructor() {
-    __publicField(this, "_listeners");
-    __publicField(this, "_it", -1);
+var ParallelGeneratorType = /* @__PURE__ */ ((ParallelGeneratorType2) => {
+  ParallelGeneratorType2[ParallelGeneratorType2["PromiseToArray"] = 0] = "PromiseToArray";
+  ParallelGeneratorType2[ParallelGeneratorType2["ArrayOfPromises"] = 1] = "ArrayOfPromises";
+  ParallelGeneratorType2[ParallelGeneratorType2["PromiseOfPromises"] = 2] = "PromiseOfPromises";
+  return ParallelGeneratorType2;
+})(ParallelGeneratorType || {});
+const ErrorString = Object.freeze({
+  MoreThanOneElement: `Sequence contains more than one element`,
+  MoreThanOneMatchingElement: `Sequence contains more than one matching element`,
+  NoElements: `Sequence contains no elements`,
+  NoMatch: `Sequence contains no matching element`
+});
+const StrictEqualityComparer = (x, y2) => x === y2;
+class ArrayEnumerable extends Array {
+}
+class BasicAsyncEnumerable {
+  constructor(iterator) {
+    this.iterator = iterator;
   }
-  Add(listener, caller) {
-    if (!this._listeners)
-      this._listeners = [];
-    let item = { callback: listener };
-    if (caller)
-      item.target = new WeakRef(caller);
-    this._listeners.push(item);
-  }
-  Remove(listener, caller) {
-    if (!this._listeners)
-      return;
-    for (let i2 = 0; i2 < this._listeners.length; i2++) {
-      const item = this._listeners[i2];
-      if (item.target?.deref() === caller && item.callback === listener) {
-        this._listeners.splice(i2, 1);
-        break;
-      }
-    }
-    if (this._it >= 0) {
-      this._it--;
-    }
-  }
-  Invoke(arg) {
-    if (!this._listeners)
-      return;
-    this._it = 0;
-    while (this._it < this._listeners.length) {
-      const item = this._listeners[this._it];
-      const target = item.target?.deref();
-      const notAlive = item.target !== void 0 && target === void 0;
-      if (notAlive) {
-        this._listeners.splice(this._it, 1);
-      } else {
-        item.callback.call(target, arg);
-        this._it++;
-      }
-    }
-    this._it = -1;
+  [Symbol.asyncIterator]() {
+    return this.iterator();
   }
 }
-class Random {
-  Next(min3, max3) {
-    return Math.random() * (max3 - min3) | 0;
+class BasicParallelEnumerable {
+  constructor(dataFunc) {
+    __publicField(this, "dataFunc");
+    this.dataFunc = dataFunc;
+  }
+  [Symbol.asyncIterator]() {
+    const { dataFunc } = this;
+    async function* iterator() {
+      switch (dataFunc.type) {
+        case ParallelGeneratorType.ArrayOfPromises:
+          for (const value of dataFunc.generator()) {
+            yield value;
+          }
+          break;
+        case ParallelGeneratorType.PromiseOfPromises:
+          for (const value of await dataFunc.generator()) {
+            yield value;
+          }
+          break;
+        case ParallelGeneratorType.PromiseToArray:
+        default:
+          for (const value of await dataFunc.generator()) {
+            yield value;
+          }
+          break;
+      }
+    }
+    return iterator();
   }
 }
+const bindArray = (jsArray) => {
+  const arrayEnumerablePrototype = ArrayEnumerable.prototype;
+  const bindToPrototype = jsArray.prototype;
+  const propertyNames = Object.getOwnPropertyNames(arrayEnumerablePrototype);
+  for (const prop of propertyNames) {
+    bindToPrototype[prop] = bindToPrototype[prop] ?? arrayEnumerablePrototype[prop];
+  }
+};
 class Exception extends Error {
   constructor(message) {
     super(message);
@@ -153,187 +199,6 @@ class NotImplementedException extends Exception {
     this.stack = this.stack || new Error().stack;
   }
 }
-const TicksPerSecond = 1e3;
-class TimeSpan {
-  constructor(a1, a2, a3) {
-    __publicField(this, "_ticks");
-    if (a2 == void 0) {
-      this._ticks = a1;
-    } else {
-      this._ticks = TimeSpan.TimeToTicks(a1, a2, a3);
-    }
-  }
-  get TotalMilliseconds() {
-    return this._ticks;
-  }
-  get TotalSeconds() {
-    return this._ticks / TicksPerSecond;
-  }
-  Clone() {
-    return new TimeSpan(this._ticks);
-  }
-  static TimeToTicks(hours, minutes, seconds) {
-    let ticks = (hours * 3600 + minutes * 60 + seconds) * TicksPerSecond;
-    if (ticks > Number.MAX_SAFE_INTEGER)
-      throw new ArgumentOutOfRangeException("all");
-    return ticks;
-  }
-}
-class DateTime {
-  constructor(a1, a2, a3, a4, a5, a6) {
-    __publicField(this, "_date");
-    if (a1 instanceof Date) {
-      this._date = a1;
-    } else if (a4 === void 0) {
-      this._date = new Date(a1, a2, a3);
-    } else {
-      this._date = new Date(a1, a2, a3, a4, a5, a6);
-    }
-  }
-  static get UtcNow() {
-    return new DateTime(new Date());
-  }
-  get Ticks() {
-    return BigInt(this._date.getTime()) * 10000n + 621355968000000000n;
-  }
-  Subtract(other) {
-    if (other instanceof DateTime) {
-      return new TimeSpan(this._date.getTime() - other._date.getTime());
-    } else {
-      let internalTicks = this._date.getTime();
-      let otherTicks = other.TotalMilliseconds;
-      if (internalTicks < otherTicks)
-        throw new ArgumentOutOfRangeException("other");
-      let newTicks = internalTicks - otherTicks;
-      let result = new Date();
-      result.setTime(newTicks);
-      return new DateTime(result);
-    }
-  }
-  static op_Subtraction(v2, other) {
-    if (other instanceof DateTime)
-      return v2.Subtract(other);
-    return v2.Subtract(other);
-  }
-  Clone() {
-    return new DateTime(this._date);
-  }
-  toString() {
-    return this._date.toString();
-  }
-}
-class Guid {
-  constructor(arg) {
-    __publicField(this, "_data");
-    if (arg instanceof Uint8Array) {
-      this._data = arg;
-    } else {
-      throw new Error("\u672A\u5B9E\u73B0");
-    }
-  }
-  get Value() {
-    return this._data;
-  }
-  static op_Equality(a2, b2) {
-    for (let i2 = 0; i2 < 16; i2++) {
-      if (a2._data[i2] != b2._data[i2])
-        return false;
-    }
-    return true;
-  }
-  Clone() {
-    return new Guid(this._data);
-  }
-}
-class TaskCompletionSource {
-  constructor() {
-    __publicField(this, "_promise");
-    __publicField(this, "_resolve");
-    __publicField(this, "_reject");
-    this._promise = new Promise((resolve, reject) => {
-      this._resolve = resolve;
-      this._reject = reject;
-    });
-  }
-  get Task() {
-    return this._promise;
-  }
-  SetResult(result) {
-    this._resolve(result);
-  }
-  SetException(exception) {
-    this._reject(exception);
-  }
-}
-var ParallelGeneratorType = /* @__PURE__ */ ((ParallelGeneratorType2) => {
-  ParallelGeneratorType2[ParallelGeneratorType2["PromiseToArray"] = 0] = "PromiseToArray";
-  ParallelGeneratorType2[ParallelGeneratorType2["ArrayOfPromises"] = 1] = "ArrayOfPromises";
-  ParallelGeneratorType2[ParallelGeneratorType2["PromiseOfPromises"] = 2] = "PromiseOfPromises";
-  return ParallelGeneratorType2;
-})(ParallelGeneratorType || {});
-const ErrorString = Object.freeze({
-  MoreThanOneElement: `Sequence contains more than one element`,
-  MoreThanOneMatchingElement: `Sequence contains more than one matching element`,
-  NoElements: `Sequence contains no elements`,
-  NoMatch: `Sequence contains no matching element`
-});
-const StrictEqualityComparer = (x, y2) => x === y2;
-class ArrayEnumerable extends Array {
-}
-class BasicAsyncEnumerable {
-  constructor(iterator) {
-    this.iterator = iterator;
-  }
-  [Symbol.asyncIterator]() {
-    return this.iterator();
-  }
-}
-class BasicParallelEnumerable {
-  constructor(dataFunc) {
-    __publicField(this, "dataFunc");
-    this.dataFunc = dataFunc;
-  }
-  [Symbol.asyncIterator]() {
-    const { dataFunc } = this;
-    async function* iterator() {
-      switch (dataFunc.type) {
-        case ParallelGeneratorType.ArrayOfPromises:
-          for (const value of dataFunc.generator()) {
-            yield value;
-          }
-          break;
-        case ParallelGeneratorType.PromiseOfPromises:
-          for (const value of await dataFunc.generator()) {
-            yield value;
-          }
-          break;
-        case ParallelGeneratorType.PromiseToArray:
-        default:
-          for (const value of await dataFunc.generator()) {
-            yield value;
-          }
-          break;
-      }
-    }
-    return iterator();
-  }
-}
-class BasicEnumerable {
-  constructor(iterator) {
-    this.iterator = iterator;
-  }
-  [Symbol.iterator]() {
-    return this.iterator();
-  }
-}
-const bindArray = (jsArray) => {
-  const arrayEnumerablePrototype = ArrayEnumerable.prototype;
-  const bindToPrototype = jsArray.prototype;
-  const propertyNames = Object.getOwnPropertyNames(arrayEnumerablePrototype);
-  for (const prop of propertyNames) {
-    bindToPrototype[prop] = bindToPrototype[prop] ?? arrayEnumerablePrototype[prop];
-  }
-};
 const bindArrayEnumerable = () => {
   const { prototype } = ArrayEnumerable;
   const propertyNames = Object.getOwnPropertyNames(BasicEnumerable.prototype);
@@ -2225,6 +2090,71 @@ const zipAsync$2 = (first3, second, resultSelector) => {
   }
   return fromAsync(generator);
 };
+class List extends ArrayEnumerable {
+  constructor(arg) {
+    super();
+    if (arg && typeof arg !== "number") {
+      for (let item of arg) {
+        this.push(item);
+      }
+    }
+  }
+  Init(from2) {
+    for (const item of from2) {
+      this.push(item);
+    }
+    return this;
+  }
+  Add(item) {
+    this.push(item);
+  }
+  AddRange(list) {
+    for (const item of list) {
+      this.push(item);
+    }
+  }
+  Remove(item) {
+    let index = this.indexOf(item);
+    if (index >= 0)
+      this.splice(index, 1);
+    return index >= 0;
+  }
+  RemoveAll(pred) {
+    for (let i2 = this.length - 1; i2 >= 0; i2--) {
+      if (pred(this[i2])) {
+        this.splice(i2, 1);
+      }
+    }
+  }
+  IndexOf(item) {
+    return this.indexOf(item);
+  }
+  Insert(index, item) {
+    this.splice(index, 0, item);
+  }
+  RemoveAt(index) {
+    this.splice(index, 1);
+  }
+  RemoveRange(index, count3) {
+    this.splice(index, count3);
+  }
+  Clear() {
+    this.splice(0);
+  }
+  Find(match) {
+    for (let i2 = 0; i2 < this.length; i2++) {
+      if (match(this[i2]))
+        return this[i2];
+    }
+    return null;
+  }
+  Sort(comparison) {
+    this.sort(comparison);
+  }
+  BinarySearch(item, comparer) {
+    return BinarySearch(this, 0, this.length, item, comparer);
+  }
+}
 const bindLinq = (object) => {
   const prototype = object.prototype;
   const bind = (func, key) => {
@@ -2243,7 +2173,7 @@ const bindLinq = (object) => {
   bind(asParallel$1, "AsParallel");
   bind(average$2, "Average");
   bind(averageAsync$2, "AverageAsync");
-  bind(concatenate$2, "Concatenate");
+  bind(concatenate$2, "Concat");
   bind(contains$2, "Contains");
   bind(containsAsync$2, "ContainsAsync");
   bind(count$2, "Count");
@@ -2318,6 +2248,9 @@ const bindLinq = (object) => {
       return source;
     return new List([...source]);
   }, "ToList");
+  bind((source) => {
+    return new DefaultEnumerator(source);
+  }, "GetEnumerator");
 };
 const aggregate$1 = (source, seedOrFunc, func, resultSelector) => {
   if (resultSelector) {
@@ -6281,69 +6214,337 @@ bindLinq(BasicEnumerable);
 bindLinqAsync(BasicAsyncEnumerable);
 bindLinqParallel(BasicParallelEnumerable);
 bindArrayEnumerable();
-class List extends ArrayEnumerable {
-  constructor(arg) {
-    super();
-    if (arg && typeof arg !== "number") {
-      for (let item of arg) {
-        this.push(item);
-      }
+const isEnumerable = (source) => {
+  if (!source) {
+    return false;
+  }
+  if (source instanceof BasicEnumerable) {
+    return true;
+  }
+  if (source instanceof ArrayEnumerable) {
+    return true;
+  }
+  if (typeof source[Symbol.iterator] !== "function") {
+    return false;
+  }
+  const propertyNames = Object.getOwnPropertyNames(BasicEnumerable.prototype).filter((v2) => v2 !== "constructor");
+  const methods = source.prototype || source;
+  for (const prop of propertyNames) {
+    if (typeof methods[prop] !== "function") {
+      return false;
     }
   }
-  Init(from) {
-    for (const item of from) {
-      this.push(item);
+  return true;
+};
+class DefaultEnumerator {
+  constructor(from2) {
+    __publicField(this, "_it");
+    __publicField(this, "_current");
+    this._it = from2[Symbol.iterator]();
+  }
+  get Current() {
+    return this._current;
+  }
+  MoveNext() {
+    let res = this._it.next();
+    this._current = res.value;
+    return res.done === false;
+  }
+  Dispose() {
+  }
+}
+class PropertyChangedEventArgs {
+  constructor(propertyName) {
+    __publicField(this, "PropertyName");
+    this.PropertyName = propertyName;
+  }
+}
+function IsInterfaceOfIEnumerable(obj) {
+  return isEnumerable(obj);
+}
+function IsInterfaceOfINotifyPropertyChanged(obj) {
+  return typeof obj === "object" && obj !== null && !Array.isArray(obj) && "$meta_System_INotifyPropertyChanged" in obj.constructor;
+}
+var NotifyCollectionChangedAction = /* @__PURE__ */ ((NotifyCollectionChangedAction2) => {
+  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Add"] = 0] = "Add";
+  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Remove"] = 1] = "Remove";
+  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Replace"] = 2] = "Replace";
+  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Move"] = 3] = "Move";
+  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Reset"] = 4] = "Reset";
+  return NotifyCollectionChangedAction2;
+})(NotifyCollectionChangedAction || {});
+class NotifyCollectionChangedEventArgs {
+  constructor() {
+    __publicField(this, "Action");
+    __publicField(this, "NewItems");
+    __publicField(this, "OldItems");
+  }
+}
+function IsInterfaceOfINotifyCollectionChanged(obj) {
+  return typeof obj === "object" && obj !== null && !Array.isArray(obj) && "$meta_System_INotifyCollectionChanged" in obj.constructor;
+}
+class Event {
+  constructor() {
+    __publicField(this, "_listeners");
+    __publicField(this, "_it", -1);
+  }
+  Add(listener, caller) {
+    if (!this._listeners)
+      this._listeners = [];
+    let item = { callback: listener };
+    if (caller)
+      item.target = new WeakRef(caller);
+    this._listeners.push(item);
+  }
+  Remove(listener, caller) {
+    if (!this._listeners)
+      return;
+    for (let i2 = 0; i2 < this._listeners.length; i2++) {
+      const item = this._listeners[i2];
+      if (item.target?.deref() === caller && item.callback === listener) {
+        this._listeners.splice(i2, 1);
+        break;
+      }
+    }
+    if (this._it >= 0) {
+      this._it--;
+    }
+  }
+  Invoke(arg1, arg2) {
+    if (!this._listeners)
+      return;
+    this._it = 0;
+    while (this._it < this._listeners.length) {
+      const item = this._listeners[this._it];
+      const target = item.target?.deref();
+      const notAlive = item.target !== void 0 && target === void 0;
+      if (notAlive) {
+        this._listeners.splice(this._it, 1);
+      } else {
+        item.callback.call(target, arg1, arg2);
+        this._it++;
+      }
+    }
+    this._it = -1;
+  }
+}
+class Random {
+  Next(min3, max3) {
+    return Math.random() * (max3 - min3) | 0;
+  }
+}
+const TicksPerSecond = 1e3;
+const _TimeSpan = class {
+  constructor(a1, a2, a3) {
+    __publicField(this, "_ticks");
+    if (a2 == void 0) {
+      this._ticks = a1;
+    } else {
+      this._ticks = _TimeSpan.TimeToTicks(a1, a2, a3);
+    }
+  }
+  get Ticks() {
+    return this._ticks;
+  }
+  get TotalMilliseconds() {
+    return this._ticks;
+  }
+  get TotalSeconds() {
+    return this._ticks / TicksPerSecond;
+  }
+  static FromMilliseconds(ms) {
+    return new _TimeSpan(ms);
+  }
+  Clone() {
+    return new _TimeSpan(this._ticks);
+  }
+  static TimeToTicks(hours, minutes, seconds) {
+    let ticks = (hours * 3600 + minutes * 60 + seconds) * TicksPerSecond;
+    if (ticks > Number.MAX_SAFE_INTEGER)
+      throw new ArgumentOutOfRangeException("all");
+    return ticks;
+  }
+};
+let TimeSpan = _TimeSpan;
+__publicField(TimeSpan, "Empty", new _TimeSpan(0));
+const _DateTime = class {
+  constructor(a1, a2, a3, a4, a5, a6) {
+    __publicField(this, "_date");
+    if (a1 instanceof Date) {
+      this._date = a1;
+    } else if (a4 === void 0) {
+      this._date = new Date(a1, a2, a3);
+    } else {
+      this._date = new Date(a1, a2, a3, a4, a5, a6);
+    }
+  }
+  static get UtcNow() {
+    return new _DateTime(new Date());
+  }
+  get Ticks() {
+    return BigInt(this._date.getTime()) * 10000n + 621355968000000000n;
+  }
+  Subtract(other) {
+    if (other instanceof _DateTime) {
+      return new TimeSpan(this._date.getTime() - other._date.getTime());
+    } else {
+      let internalTicks = this._date.getTime();
+      let otherTicks = other.TotalMilliseconds;
+      if (internalTicks < otherTicks)
+        throw new ArgumentOutOfRangeException("other");
+      let newTicks = internalTicks - otherTicks;
+      let result = new Date();
+      result.setTime(newTicks);
+      return new _DateTime(result);
+    }
+  }
+  static op_Subtraction(v2, other) {
+    if (other instanceof _DateTime)
+      return v2.Subtract(other);
+    return v2.Subtract(other);
+  }
+  Clone() {
+    return new _DateTime(this._date);
+  }
+  toString() {
+    return this._date.toString();
+  }
+};
+let DateTime = _DateTime;
+__publicField(DateTime, "Empty", new _DateTime(0, 0, 0));
+class Guid {
+  constructor(arg) {
+    __publicField(this, "_data");
+    if (arg instanceof Uint8Array) {
+      this._data = arg;
+    } else {
+      throw new Error("\u672A\u5B9E\u73B0");
+    }
+  }
+  get Value() {
+    return this._data;
+  }
+  static op_Equality(a2, b2) {
+    for (let i2 = 0; i2 < 16; i2++) {
+      if (a2._data[i2] != b2._data[i2])
+        return false;
+    }
+    return true;
+  }
+  Clone() {
+    return new Guid(this._data);
+  }
+}
+class TaskCompletionSource {
+  constructor() {
+    __publicField(this, "_promise");
+    __publicField(this, "_resolve");
+    __publicField(this, "_reject");
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+  }
+  get Task() {
+    return this._promise;
+  }
+  SetResult(result) {
+    this._resolve(result);
+  }
+  SetException(exception) {
+    this._reject(exception);
+  }
+}
+class Tuple2 {
+  constructor(item1, item2) {
+    __publicField(this, "Item1");
+    __publicField(this, "Item2");
+    this.Item1 = item1;
+    this.Item2 = item2;
+  }
+}
+class Stopwatch {
+  constructor() {
+    __publicField(this, "_startTime");
+    __publicField(this, "_stopTime");
+  }
+  Start() {
+    this._startTime = DateTime.UtcNow;
+  }
+  Stop() {
+    this._stopTime = DateTime.UtcNow;
+  }
+  get ElapsedMilliseconds() {
+    if (this._stopTime == null)
+      return BigInt(DateTime.UtcNow.Subtract(this._startTime).TotalMilliseconds);
+    return BigInt(this._stopTime.Subtract(this._startTime).TotalMilliseconds);
+  }
+}
+class KeyValuePair {
+  constructor(key, value) {
+    __publicField(this, "Key");
+    __publicField(this, "Value");
+    this.Key = key;
+    this.Value = value;
+  }
+}
+class Dictionary {
+  constructor(capacity) {
+    __publicField(this, "map", /* @__PURE__ */ new Map());
+  }
+  Init(entries) {
+    for (const entry of entries) {
+      this.map.set(entry[0], entry[1]);
     }
     return this;
   }
-  Add(item) {
-    this.push(item);
+  get length() {
+    return this.map.size;
   }
-  AddRange(list) {
-    for (const item of list) {
-      this.push(item);
+  get Keys() {
+    return from(this.map.keys());
+  }
+  get Values() {
+    return from(this.map.values());
+  }
+  ContainsKey(key) {
+    return this.map.has(key);
+  }
+  GetAt(key) {
+    if (!this.map.has(key))
+      throw new ArgumentException("Key not exists");
+    return this.map.get(key);
+  }
+  SetAt(key, value) {
+    this.map.set(key, value);
+  }
+  TryGetValue(key, value) {
+    let res = this.map.get(key);
+    if (res !== void 0) {
+      value.Value = res;
+      return true;
     }
+    return false;
   }
-  Remove(item) {
-    let index = this.indexOf(item);
-    if (index >= 0)
-      this.splice(index, 1);
-    return index >= 0;
+  Add(key, value) {
+    if (this.map.has(key))
+      throw new ArgumentException("Key already exists");
+    this.map.set(key, value);
   }
-  RemoveAll(pred) {
-    for (let i2 = this.length - 1; i2 >= 0; i2--) {
-      if (pred(this[i2])) {
-        this.splice(i2, 1);
-      }
+  Remove(key) {
+    if (this.map.has(key)) {
+      this.map.delete(key);
+      return true;
     }
-  }
-  IndexOf(item) {
-    return this.indexOf(item);
-  }
-  Insert(index, item) {
-    this.splice(index, 0, item);
-  }
-  RemoveAt(index) {
-    this.splice(index, 1);
-  }
-  RemoveRange(index, count3) {
-    this.splice(index, count3);
+    return false;
   }
   Clear() {
-    this.splice(0);
+    this.map.clear();
   }
-  Find(match) {
-    for (let i2 = 0; i2 < this.length; i2++) {
-      if (match(this[i2]))
-        return this[i2];
+  *[Symbol.iterator]() {
+    for (const entry of this.map.entries()) {
+      yield new KeyValuePair(entry[0], entry[1]);
     }
-    return null;
-  }
-  Sort(comparison) {
-    this.sort(comparison);
-  }
-  BinarySearch(item, comparer) {
-    return BinarySearch(this, 0, this.length, item, comparer);
   }
 }
 class Stack extends List {
@@ -6356,9 +6557,40 @@ class Stack extends List {
     return this.splice(this.length - 1, 1)[0];
   }
 }
-class NumberMap extends Map {
+class HashSet extends Set {
+  Clear() {
+    this.clear();
+  }
+  Add(value) {
+    this.add(value);
+  }
+  Remove(value) {
+    this.delete(value);
+  }
+  get length() {
+    return this.size;
+  }
 }
-class StringMap extends Map {
+class LinkedListNode {
+  constructor() {
+    __publicField(this, "prev");
+    __publicField(this, "next");
+    __publicField(this, "item");
+  }
+  get Value() {
+    return this.item;
+  }
+  set Value(value) {
+    this.item = value;
+  }
+  get Next() {
+    return this.next == null ? null : this.next;
+  }
+  get Previous() {
+    return this.prev == null ? null : this.prev;
+  }
+}
+class LinkedList {
 }
 const e = Symbol("@ts-pattern/matcher"), t = "@ts-pattern/anonymous-select-key", n = (e2) => Boolean(e2 && typeof e2 == "object"), r = (t2) => t2 && !!t2[e], o = (t2, c2, i2) => {
   if (n(t2)) {
@@ -6529,4 +6761,22 @@ const initializeSystem = () => {
     writable: true
   });
 };
-export { ArgumentException, ArgumentNullException, ArgumentOutOfRangeException, BinarySearch, DateTime, Equals, Event, Exception, Guid, IndexOutOfRangeException, InvalidOperationException, IsNullOrEmpty, List, NotImplementedException, NotSupportedException, NumberMap, OpEquality, OpInequality, Random, Stack, StringMap, StringToUint16Array, TaskCompletionSource, TimeSpan, initializeSystem };
+class RefOut {
+  constructor(getter, setter) {
+    __publicField(this, "_getter");
+    __publicField(this, "_setter");
+    this._getter = getter;
+    this._setter = setter;
+  }
+  get Value() {
+    return this._getter();
+  }
+  set Value(v2) {
+    this._setter(v2);
+  }
+}
+class Ref extends RefOut {
+}
+class Out extends RefOut {
+}
+export { ArgumentException, ArgumentNullException, ArgumentOutOfRangeException, BinarySearch, DateTime, DefaultEnumerator, Dictionary, from as EnumerableFrom, Equals, Event, Exception, Guid, HashSet, IndexOutOfRangeException, InvalidOperationException, IsInterfaceOfIEnumerable, IsInterfaceOfINotifyCollectionChanged, IsInterfaceOfINotifyPropertyChanged, IsNullOrEmpty, IsNullOrWhiteSpace, KeyValuePair, LinkedList, LinkedListNode, List, NotImplementedException, NotSupportedException, NotifyCollectionChangedAction, NotifyCollectionChangedEventArgs, OpEquality, OpInequality, Out, PropertyChangedEventArgs, Random, Ref, Stack, Stopwatch, StringToUint16Array, TaskCompletionSource, TimeSpan, Tuple2, initializeSystem };

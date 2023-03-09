@@ -2,30 +2,15 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export interface IDirtyArea {
-    /// <summary>
-    /// 已存在的无效区域合并新的无效区域
-    /// </summary>
     Merge(newArea: Nullable<IDirtyArea>): void;
 
-    /// <summary>
-    /// 获取脏区域的外围
-    /// </summary>
     GetRect(): PixUI.Rect;
 
-    /// <summary>
-    /// 是否与子级相交
-    /// </summary>
     IntersectsWith(child: PixUI.Widget): boolean;
 
-    /// <summary>
-    /// 转换为子级对应的脏区域
-    /// </summary>
     ToChild(child: PixUI.Widget): Nullable<IDirtyArea>;
 }
 
-/// <summary>
-/// 重绘指定Rect的区域
-/// </summary>
 export class RepaintArea implements IDirtyArea {
     private readonly _rect: PixUI.Rect;
 

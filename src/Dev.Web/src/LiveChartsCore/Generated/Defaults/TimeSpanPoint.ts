@@ -7,6 +7,11 @@ export class TimeSpanPoint implements LiveChartsCore.IChartEntity, System.INotif
     private _timeSpan: System.TimeSpan = System.TimeSpan.Empty.Clone();
     private _value: Nullable<number>;
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="TimeSpanPoint"/> class.
+    // /// </summary>
+    // public TimeSpanPoint()
+    // { }
 
     public constructor(timeSpan: System.TimeSpan, value: Nullable<number>) {
         this.TimeSpan = timeSpan;
@@ -33,7 +38,7 @@ export class TimeSpanPoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public EntityIndex: number = 0;
 
-    public ChartPoints: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    public ChartPoints: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
     #Coordinate: LiveChartsCore.Coordinate = LiveChartsCore.Coordinate.Empty;
     public get Coordinate() {

@@ -7,6 +7,11 @@ export class DateTimePoint implements LiveChartsCore.IChartEntity, System.INotif
     private _dateTime: System.DateTime = System.DateTime.Empty.Clone();
     private _value: Nullable<number>;
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="DateTimePoint"/> class.
+    // /// </summary>
+    // public DateTimePoint()
+    // { }
 
     public constructor(dateTime: System.DateTime, value: Nullable<number>) {
         this.DateTime = dateTime;
@@ -34,7 +39,7 @@ export class DateTimePoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public EntityIndex: number = 0;
 
-    public ChartPoints: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    public ChartPoints: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
     #Coordinate: LiveChartsCore.Coordinate = LiveChartsCore.Coordinate.Empty;
     public get Coordinate() {

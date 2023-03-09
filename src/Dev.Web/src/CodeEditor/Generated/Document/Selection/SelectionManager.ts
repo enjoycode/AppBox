@@ -110,8 +110,7 @@ export class SelectionManager {
         // and new position is where it has ended up from a click (both zero based)
         if (System.OpEquality(oldPosition, newPosition)) return;
 
-        let min:
-            CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
+        let min: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
         let max: CodeEditor.TextLocation = CodeEditor.TextLocation.Empty.Clone();
         let oldnewX = newPosition.Column;
         let oldIsGreater = SelectionManager.GreaterEqPos((oldPosition).Clone(), (newPosition).Clone());
@@ -186,9 +185,6 @@ export enum WhereFrom {
     TextArea
 }
 
-/// <summary>
-/// selection initiated from
-/// </summary>
 export class SelectFrom {
     public Where: WhereFrom = WhereFrom.None;
     public First: WhereFrom = WhereFrom.None;

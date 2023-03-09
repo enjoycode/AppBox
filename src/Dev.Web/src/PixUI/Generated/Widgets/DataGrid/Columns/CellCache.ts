@@ -11,6 +11,8 @@ export class CellCache<T> {
 }
 
 export class CellCacheComparer<T> implements System.IComparer<CellCache<T>> {
+    private static readonly $meta_System_IComparer = true;
+
     public Compare(x: CellCache<T>, y: CellCache<T>): number {
         return x.RowIndex.CompareTo(y.RowIndex);
     }

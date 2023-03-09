@@ -2,7 +2,16 @@ import * as System from '@/System'
 import * as LiveChartsCore from '@/LiveChartsCore'
 
 export class ColorMotionProperty extends LiveChartsCore.MotionProperty<LiveChartsCore.LvcColor> {
-
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="ColorMotionProperty"/> class.
+    // /// </summary>
+    // /// <param name="propertyName">Name of the property.</param>
+    // public ColorMotionProperty(string propertyName)
+    //     : base(propertyName)
+    // {
+    //     fromValue = LvcColor.FromArgb(0, 0, 0, 0);
+    //     toValue = LvcColor.FromArgb(0, 0, 0, 0);
+    // }
 
     public constructor(propertyName: string, value: Nullable<LiveChartsCore.LvcColor> = null) {
         super(propertyName);

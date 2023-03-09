@@ -1,8 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 弹出的子菜单，由MenuController创建并加入至其PopupMenuStack内
-/// </summary>
+
 export class PopupMenu extends PixUI.Widget {
     public constructor(owner: Nullable<PixUI.MenuItemWidget>, items: Nullable<PixUI.MenuItem[]>, depth: number, controller: PixUI.MenuController) {
         super();

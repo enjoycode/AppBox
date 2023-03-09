@@ -84,7 +84,8 @@ export class MotionCanvas<TDrawingContext extends LiveChartsCore.DrawingContext>
             for (const tuple of toRemoveGeometries) {
                 tuple.Item1.RemoveGeometryFromPainTask(this, tuple.Item2);
 
-
+                // if we removed at least one geometry, we need to redraw the control
+                // to ensure it is not present in the next frame
                 isValid = false;
             }
 

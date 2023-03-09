@@ -1,8 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 具有多个子级的Widget
-/// </summary>
+
 export abstract class MultiChildWidget<T extends PixUI.Widget> extends PixUI.Widget {
     protected constructor() {
         super();

@@ -18,5 +18,5 @@ export class StepLineVisualPoint<TDrawingContext extends LiveChartsCore.DrawingC
         return this.Geometry?.MainGeometry;
     }
 
-
+    //ISizedGeometry<TDrawingContext> IStepLineVisualChartPoint<TDrawingContext>.Geometry => Geometry;
 }

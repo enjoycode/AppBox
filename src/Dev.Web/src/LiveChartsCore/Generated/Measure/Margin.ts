@@ -15,7 +15,7 @@ export class Margin {
     }
 
     public static get Auto(): number {
-        return NaN;
+        return Number.NaN;
     }
 
     public Left: number = 0;

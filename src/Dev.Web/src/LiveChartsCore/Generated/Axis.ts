@@ -12,7 +12,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     private readonly _lineGeometryFactory: System.Func1<TLineGeometry>;
 
 
-    protected readonly activeSeparators: System.ObjectMap<System.StringMap<LiveChartsCore.AxisVisualSeprator<TDrawingContext>>> = new System.ObjectMap();
+    protected readonly activeSeparators: System.Dictionary<LiveChartsCore.IChart, System.Dictionary<string, LiveChartsCore.AxisVisualSeprator<TDrawingContext>>> = new System.Dictionary();
 
     public _xo: number = 0;
     public _yo: number = 0;
@@ -393,6 +393,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     public readonly Initialized = new System.Event<LiveChartsCore.ICartesianAxis>();
 
     public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+        let separators: any;
 
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
 
@@ -487,10 +488,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         let hasRotation = Math.abs(r) > 0.01;
 
         let start = Math.trunc(min / s) * s;
-        let separators = this.activeSeparators.get(cartesianChart);
-        if (separators == null) {
-            separators = new System.StringMap<LiveChartsCore.AxisVisualSeprator<TDrawingContext>>();
-            this.activeSeparators.set(cartesianChart, separators);
+        if (!this.activeSeparators.TryGetValue(cartesianChart, new System.Out(() => separators, $v => separators = $v))) {
+            separators = new System.Dictionary<string, LiveChartsCore.AxisVisualSeprator<TDrawingContext>>();
+            this.activeSeparators.SetAt(cartesianChart, separators);
         }
 
         if (this.Name != null && this.NamePaint != null)
@@ -520,7 +520,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
             cartesianChart.Canvas.AddDrawableTask(this.ZeroPaint);
 
             if (this._zeroLine == null) {
-                this._zeroLine = this._lineGeometryFactory();
+                this._zeroLine = this._lineGeometryFactory(); //new TLineGeometry();
                 this.ZeroPaint.AddGeometryToPaintTask(cartesianChart.Canvas, this._zeroLine);
                 this.InitializeLine(this._zeroLine, cartesianChart);
                 this.UpdateSeparator(this._zeroLine, x, y, lxi, lxj, lyi, lyj, UpdateMode.UpdateAndComplete);
@@ -531,7 +531,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
 
         if (this.TicksPaint != null && this._drawTicksPath) {
             if (this._ticksPath == null) {
-                this._ticksPath = this._lineGeometryFactory();
+                this._ticksPath = this._lineGeometryFactory(); //new TLineGeometry();
                 this.InitializeLine(this._ticksPath, cartesianChart);
             }
             this.TicksPaint.AddGeometryToPaintTask(cartesianChart.Canvas, this._ticksPath);
@@ -567,6 +567,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         if (!this._separatorsAtCenter && this._orientation == LiveChartsCore.AxisOrientation.Y) sxco = uw * 0.5;
 
         for (let i = start - s; i <= max + s; i += s) {
+            let visualSeparator: any;
             let separatorKey = LiveChartsCore.Labelers.SixRepresentativeDigits(i - 1 + 1);
             let labelContent = i < min || i > max ? '' : this.TryGetLabelOrLogError(labeler, i - 1 + 1);
 
@@ -590,10 +591,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
                 yc = actualScale.ToPixels(i);
             }
 
-            let visualSeparator = separators.get(separatorKey);
-            if (visualSeparator == null) {
+            if (!separators.TryGetValue(separatorKey, new System.Out(() => visualSeparator, $v => visualSeparator = $v))) {
                 visualSeparator = new LiveChartsCore.AxisVisualSeprator<TDrawingContext>().Init({Value: i});
-                separators.set(separatorKey, visualSeparator);
+                separators.Add(separatorKey, visualSeparator);
             }
 
 
@@ -665,8 +665,8 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
 
         }
 
-        for (const separatorKey of separators.keys()) {
-            let separator = separators.get(separatorKey)!;
+        for (const separatorValueKey of separators) {
+            let separator = separatorValueKey.Value;
             if (measured.Contains(separator)) continue;
 
             let x: number = 0;
@@ -692,8 +692,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
                 this.UpdateLabel(
                     separator.Label, x, y + tyco, this.TryGetLabelOrLogError(labeler, separator.Value - 1 + 1), hasRotation, r,
                     UpdateMode.UpdateAndRemove);
-
-            separators.delete(separatorKey);
+            separators.Remove(separatorValueKey.Key);
         }
     }
 
@@ -770,7 +769,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         cartesianChart.Canvas.AddDrawableTask(this.CrosshairPaint);
 
         if (this._crosshairLine == null) {
-            this._crosshairLine = this._lineGeometryFactory();
+            this._crosshairLine = this._lineGeometryFactory(); //new TLineGeometry();
             this.UpdateSeparator(this._crosshairLine, x, y, lxi, lxj, lyi, lyj, UpdateMode.UpdateAndComplete);
         }
         this.CrosshairPaint.AddGeometryToPaintTask(cartesianChart.Canvas, this._crosshairLine);
@@ -790,7 +789,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
             }
             cartesianChart.Canvas.AddDrawableTask(this.CrosshairLabelsPaint);
 
-            this._crosshairLabel ??= this._textGeometryFactory();
+            this._crosshairLabel ??= this._textGeometryFactory(); //new TTextGeometry();
             let labeler = this.Labeler;
             if (this.Labels != null) {
                 labeler = LiveChartsCore.Labelers.BuildNamedLabeler(this.Labels).Function.bind(LiveChartsCore.Labelers.BuildNamedLabeler(this.Labels));
@@ -835,7 +834,15 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     public GetNameLabelSize(chart: LiveChartsCore.Chart<TDrawingContext>): LiveChartsCore.LvcSize {
         if (this.NamePaint == null || System.IsNullOrEmpty(this.Name)) return new LiveChartsCore.LvcSize(0, 0);
 
-
+        // var textGeometry = new TTextGeometry
+        // {
+        //     Text = Name ?? string.Empty,
+        //     TextSize = (float)_nameTextSize,
+        //     RotateTransform = Orientation == AxisOrientation.X
+        //         ? 0
+        //         : InLineNamePlacement ? 0 : -90,
+        //     Padding = NamePadding
+        // };
         let textGeometry = this._textGeometryFactory();
         textGeometry.Text = this.Name ?? '';
         textGeometry.TextSize = <number><unknown>this._nameTextSize;
@@ -873,8 +880,13 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         let r = <number><unknown>this.LabelsRotation;
 
         for (let i = start; i <= max; i += s) {
-
-
+            // var textGeometry = new TTextGeometry
+            // {
+            //     Text = TryGetLabelOrLogError(labeler, i),
+            //     TextSize = ts,
+            //     RotateTransform = r,
+            //     Padding = _padding
+            // };
             let textGeometry = this._textGeometryFactory();
             textGeometry.Text = this.TryGetLabelOrLogError(labeler, i);
             textGeometry.TextSize = ts;
@@ -905,13 +917,13 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
             chart.Canvas.RemovePaintTask(paint);
             paint.ClearGeometriesFromPaintTask(chart.Canvas);
         }
-        this.activeSeparators.delete(chart);
+        this.activeSeparators.Remove(chart);
     }
 
     public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         super.RemoveFromUI(chart);
         this._animatableBounds = null!;
-        this.activeSeparators.delete(chart);
+        this.activeSeparators.Remove(chart);
     }
 
     protected OnPaintChanged(propertyName: Nullable<string>) {
@@ -948,8 +960,13 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         if (max - min == 0) return maxLabelSize;
 
         for (let i = min; i <= max; i += s) {
-
-
+            // var textGeometry = new TTextGeometry
+            // {
+            //     Text = labeler(i),
+            //     TextSize = (float)_textSize,
+            //     RotateTransform = (float)LabelsRotation,
+            //     Padding = _padding
+            // };
             let textGeometry = this._textGeometryFactory();
             textGeometry.Text = labeler(i);
             textGeometry.TextSize = <number><unknown>this._textSize;
@@ -975,8 +992,12 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         let isNew = false;
 
         if (this._nameGeometry == null) {
-
-
+            // _nameGeometry = new TTextGeometry
+            // {
+            //     TextSize = size,
+            //     HorizontalAlign = Align.Middle,
+            //     VerticalAlign = Align.Middle
+            // };
             this._nameGeometry = this._textGeometryFactory();
             this._nameGeometry.TextSize = size;
             this._nameGeometry.HorizontalAlign = LiveChartsCore.Align.Middle;
@@ -1025,7 +1046,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         if (separatorGeometry != null) {
             lineGeometry = separatorGeometry;
         } else {
-            lineGeometry = this._lineGeometryFactory();
+            lineGeometry = this._lineGeometryFactory(); //new TLineGeometry();
             visualSeparator.Separator = lineGeometry;
         }
 
@@ -1037,7 +1058,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         visualSeparator.Subseparators = new Array<TLineGeometry>(this._subSections);
 
         for (let j = 0; j < this._subSections; j++) {
-            let subSeparator = this._lineGeometryFactory();
+            let subSeparator = this._lineGeometryFactory();//new TLineGeometry();
             visualSeparator.Subseparators[j] = subSeparator;
             this.InitializeTick(visualSeparator, cartesianChart, subSeparator);
         }
@@ -1061,7 +1082,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         if (subTickGeometry != null) {
             tickGeometry = subTickGeometry;
         } else {
-            tickGeometry = this._lineGeometryFactory();
+            tickGeometry = this._lineGeometryFactory(); //new TLineGeometry();
             visualSeparator.Tick = tickGeometry;
         }
         LiveChartsCore.Extensions.TransitionateProperties(
@@ -1079,7 +1100,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         visualSeparator.Subticks = new Array<TLineGeometry>(this._subSections);
 
         for (let j = 0; j < this._subSections; j++) {
-            let subTick = this._lineGeometryFactory();
+            let subTick = this._lineGeometryFactory(); //new TLineGeometry();
             visualSeparator.Subticks[j] = subTick;
             this.InitializeTick(visualSeparator, cartesianChart, subTick);
         }
@@ -1090,7 +1111,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
                            size: number,
                            hasRotation: boolean,
                            r: number) {
-
+        // var textGeometry = new TTextGeometry { TextSize = size };
         let textGeometry = this._textGeometryFactory();
         textGeometry.TextSize = size;
 
@@ -1209,8 +1230,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
 
             if (actualAlignment == LiveChartsCore.Align.Start) {
                 if (hasRotation && this._labelsPaint != null) {
-
-
+                    // var notRotatedSize =
+                    //     new TTextGeometry { TextSize = (float)_textSize, Padding = _padding, Text = text }
+                    //     .Measure(_labelsPaint);
                     let textGeometry = this._textGeometryFactory();
                     textGeometry.Text = text;
                     textGeometry.TextSize = <number><unknown>this._textSize;
@@ -1225,8 +1247,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
                 label.HorizontalAlign = LiveChartsCore.Align.Start;
             } else {
                 if (hasRotation && this._labelsPaint != null) {
-
-
+                    // var notRotatedSize =
+                    //     new TTextGeometry { TextSize = (float)_textSize, Padding = _padding, Text = text }
+                    //     .Measure(_labelsPaint);
                     let textGeometry = this._textGeometryFactory();
                     textGeometry.Text = text;
                     textGeometry.TextSize = <number><unknown>this._textSize;
@@ -1253,8 +1276,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
 
             if (actualAlignment == LiveChartsCore.Align.Start) {
                 if (hasRotation && this._labelsPaint != null) {
-
-
+                    // var notRotatedSize =
+                    //     new TTextGeometry { TextSize = (float)_textSize, Padding = _padding, Text = text }
+                    //     .Measure(_labelsPaint);
                     let textGeometry = this._textGeometryFactory();
                     textGeometry.Text = text;
                     textGeometry.TextSize = <number><unknown>this._textSize;
@@ -1275,8 +1299,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
                 }
             } else {
                 if (hasRotation && this._labelsPaint != null) {
-
-
+                    // var notRotatedSize =
+                    //     new TTextGeometry { TextSize = (float)_textSize, Padding = _padding, Text = text }
+                    //     .Measure(_labelsPaint);
                     let textGeometry = this._textGeometryFactory();
                     textGeometry.Text = text;
                     textGeometry.TextSize = <number><unknown>this._textSize;
@@ -1333,7 +1358,12 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         }
     }
 
-
+    // private enum UpdateMode
+    // {
+    //     Update,
+    //     UpdateAndComplete,
+    //     UpdateAndRemove
+    // }
 }
 
 enum UpdateMode {

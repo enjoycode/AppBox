@@ -10,6 +10,11 @@ export class FinancialPoint implements LiveChartsCore.IChartEntity, System.INoti
     private _low: Nullable<number>;
     private _date: System.DateTime = System.DateTime.Empty.Clone();
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="FinancialPoint"/> class.
+    // /// </summary>
+    // public FinancialPoint()
+    // { }
 
     public constructor(date: System.DateTime, high: Nullable<number>, open: Nullable<number>, close: Nullable<number>, low: Nullable<number>) {
         this.Date = date;
@@ -66,7 +71,7 @@ export class FinancialPoint implements LiveChartsCore.IChartEntity, System.INoti
 
     public EntityIndex: number = 0;
 
-    public ChartPoints: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    public ChartPoints: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
     #Coordinate: LiveChartsCore.Coordinate = LiveChartsCore.Coordinate.Empty;
     public get Coordinate() {

@@ -37,7 +37,8 @@ export class SemicircleHoverArea extends LiveChartsCore.HoverArea {
         startAngle %= 360;
         if (startAngle < 0) startAngle += 360;
 
-
+        // -0.01 is a work around to avoid the case where the last slice (360) would be converted to 0 also
+        // UPDATE: this should not be necessary anymore? based on: https://github.com/beto-rodriguez/LiveCharts2/issues/623
         let endAngle = this.EndAngle - 0.01;
         endAngle %= 360;
         if (endAngle < 0) endAngle += 360;
@@ -57,6 +58,9 @@ export class SemicircleHoverArea extends LiveChartsCore.HoverArea {
                 r < this.Radius;
         }
 
+        // angles are normalized (from 0 to 360)
+        // so in cases where (for example) angles start in 350 and end in 370 (actually 10)
+        // then the previous condition will never be true.
 
         if (beta < startAngle) beta += 360;
 

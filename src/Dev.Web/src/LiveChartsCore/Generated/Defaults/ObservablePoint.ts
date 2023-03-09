@@ -7,6 +7,11 @@ export class ObservablePoint implements LiveChartsCore.IChartEntity, System.INot
     private _x: Nullable<number>;
     private _y: Nullable<number>;
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="ObservablePoint"/> class.
+    // /// </summary>
+    // public ObservablePoint()
+    // { }
 
     public constructor(x: Nullable<number>, y: Nullable<number>) {
         this.X = x;
@@ -33,7 +38,7 @@ export class ObservablePoint implements LiveChartsCore.IChartEntity, System.INot
 
     public EntityIndex: number = 0;
 
-    public ChartPoints: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    public ChartPoints: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
     #Coordinate: LiveChartsCore.Coordinate = LiveChartsCore.Coordinate.Empty;
     public get Coordinate() {

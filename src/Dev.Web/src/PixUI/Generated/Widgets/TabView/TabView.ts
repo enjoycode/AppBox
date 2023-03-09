@@ -1,8 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 包装TabBar及TabBody
-/// </summary>
+
 export class TabView<T> extends PixUI.Widget {
     public constructor(controller: PixUI.TabController<T>,
                        tabBuilder: System.Func3<T, PixUI.State<boolean>, PixUI.Widget>,

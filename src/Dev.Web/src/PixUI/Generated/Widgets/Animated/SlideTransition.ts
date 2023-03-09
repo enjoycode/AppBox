@@ -1,15 +1,5 @@
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// Animates the position of a widget relative to its normal position.
-/// </summary>
-/// <remarks>
-/// The translation is expressed as an Offset scaled to the child's size.
-/// For example, an Offset with a dx of 0.25 will result in a horizontal
-/// translation of one quarter the width of the child.
-///
-/// By default, the offsets are applied in the coordinate system of the canvas
-/// (so positive x offsets move the child towards the right).
-/// </remarks>
+
 export class SlideTransition extends PixUI.Transform {
     private readonly _position: PixUI.Animation<PixUI.Offset>;
     private _offsetX: number = 0;

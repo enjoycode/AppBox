@@ -6,6 +6,20 @@ export class RectangleHoverArea extends LiveChartsCore.HoverArea {
         super();
     }
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="RectangleHoverArea"/> class.
+    // /// </summary>
+    // /// <param name="x">The x.</param>
+    // /// <param name="y">The y.</param>
+    // /// <param name="width">The width.</param>
+    // /// <param name="height">The height.</param>
+    // public RectangleHoverArea(float x, float y, float width, float height)
+    // {
+    //     X = x;
+    //     Y = y;
+    //     Width = width;
+    //     Height = height;
+    // }
 
     public X: number = 0;
 
@@ -31,7 +45,7 @@ export class RectangleHoverArea extends LiveChartsCore.HoverArea {
     }
 
     public IsPointerOver(pointerLocation: LiveChartsCore.LvcPoint, strategy: LiveChartsCore.TooltipFindingStrategy): boolean {
-
+        // at least one pixel to fire the tooltip.
         let w = this.Width < 1 ? 1 : this.Width;
         let h = this.Height < 1 ? 1 : this.Height;
 

@@ -1,8 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 用于动态视图切换动画
-/// </summary>
+
 export class TransitionStack extends PixUI.Widget {
     private readonly _from: PixUI.Widget;
     private readonly _to: PixUI.Widget;

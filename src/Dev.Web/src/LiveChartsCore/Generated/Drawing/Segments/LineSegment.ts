@@ -53,12 +53,12 @@ export class LineSegment extends LiveChartsCore.Animatable implements LiveCharts
         this.CurrentTime = segment.CurrentTime;
         this.RemoveOnCompleted = segment.RemoveOnCompleted;
 
-        let xProp = segment.MotionProperties.get("IConsecutivePathSegment.Xj")!;
-        let yProp = segment.MotionProperties.get("IConsecutivePathSegment.Yj")!;
+        let xProp = segment.MotionProperties.GetAt("IConsecutivePathSegment.Xj");
+        let yProp = segment.MotionProperties.GetAt("IConsecutivePathSegment.Yj");
 
-        this.MotionProperties.get("Xi")!.CopyFrom(xProp);
-        this.MotionProperties.get("Xj")!.CopyFrom(xProp);
-        this.MotionProperties.get("Yi")!.CopyFrom(yProp);
-        this.MotionProperties.get("Yj")!.CopyFrom(yProp);
+        this.MotionProperties.GetAt("Xi").CopyFrom(xProp);
+        this.MotionProperties.GetAt("Xj").CopyFrom(xProp);
+        this.MotionProperties.GetAt("Yi").CopyFrom(yProp);
+        this.MotionProperties.GetAt("Yj").CopyFrom(yProp);
     }
 }

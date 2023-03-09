@@ -10,6 +10,126 @@ export class Scaler {
     private readonly _deltaPx: number;
     private readonly _orientation: LiveChartsCore.AxisOrientation;
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="Scaler"/> class.
+    // /// </summary>
+    // /// <param name="drawMarginLocation">The draw margin location.</param>
+    // /// <param name="drawMarginSize">Size of the draw margin.</param>
+    // /// <param name="axis">The axis.</param>
+    // /// <param name="bounds">Indicates the bounds to use.</param>
+    // /// <exception cref="Exception">The axis is not ready to be scaled.</exception>
+    // public Scaler(
+    //     LvcPoint drawMarginLocation,
+    //     LvcSize drawMarginSize,
+    //     ICartesianAxis axis,
+    //     Bounds? bounds = null)
+    // {
+    //     if (axis.Orientation == AxisOrientation.Unknown) throw new Exception("The axis is not ready to be scaled.");
+    //
+    //     _orientation = axis.Orientation;
+    //
+    //     var actualBounds = axis.DataBounds;
+    //     var actualVisibleBounds = axis.VisibleDataBounds;
+    //     var maxLimit = axis.MaxLimit;
+    //     var minLimit = axis.MinLimit;
+    //
+    //     if (bounds != null)
+    //     {
+    //         actualBounds = bounds;
+    //         actualVisibleBounds = bounds;
+    //         minLimit = null;
+    //         maxLimit = null;
+    //     }
+    //
+    //     if (double.IsInfinity(actualBounds.Delta) || double.IsInfinity(actualVisibleBounds.Delta))
+    //     {
+    //         MaxVal = 0;
+    //         MinVal = 0;
+    //         _deltaVal = 0;
+    //
+    //         if (axis.Orientation == AxisOrientation.X)
+    //         {
+    //             _minPx = drawMarginLocation.X;
+    //             _maxPx = drawMarginLocation.X + drawMarginSize.Width;
+    //             _deltaPx = _maxPx - _minPx;
+    //         }
+    //         else
+    //         {
+    //             _minPx = drawMarginLocation.Y;
+    //             _maxPx = drawMarginLocation.Y + drawMarginSize.Height;
+    //             _deltaPx = _maxPx - _minPx;
+    //         }
+    //
+    //         _m = 0;
+    //         _mInv = 0;
+    //
+    //         return;
+    //     }
+    //
+    //     if (axis.Orientation == AxisOrientation.X)
+    //     {
+    //         _minPx = drawMarginLocation.X;
+    //         _maxPx = drawMarginLocation.X + drawMarginSize.Width;
+    //         _deltaPx = _maxPx - _minPx;
+    //
+    //         MaxVal = axis.IsInverted ? actualBounds.Min : actualBounds.Max;
+    //         MinVal = axis.IsInverted ? actualBounds.Max : actualBounds.Min;
+    //
+    //         if (maxLimit is not null || minLimit is not null)
+    //         {
+    //             MaxVal = axis.IsInverted ? minLimit ?? MinVal : maxLimit ?? MaxVal;
+    //             MinVal = axis.IsInverted ? maxLimit ?? MaxVal : minLimit ?? MinVal;
+    //         }
+    //         else
+    //         {
+    //             var visibleMax = axis.IsInverted ? actualVisibleBounds.Min : actualVisibleBounds.Max;
+    //             var visibleMin = axis.IsInverted ? actualVisibleBounds.Max : actualVisibleBounds.Min;
+    //
+    //             if (visibleMax != MaxVal || visibleMin != MinVal)
+    //             {
+    //                 MaxVal = visibleMax;
+    //                 MinVal = visibleMin;
+    //             }
+    //         }
+    //
+    //         _deltaVal = MaxVal - MinVal;
+    //     }
+    //     else
+    //     {
+    //         _minPx = drawMarginLocation.Y;
+    //         _maxPx = drawMarginLocation.Y + drawMarginSize.Height;
+    //         _deltaPx = _maxPx - _minPx;
+    //
+    //         MaxVal = axis.IsInverted ? actualBounds.Max : actualBounds.Min;
+    //         MinVal = axis.IsInverted ? actualBounds.Min : actualBounds.Max;
+    //
+    //         if (maxLimit is not null || minLimit is not null)
+    //         {
+    //             MaxVal = axis.IsInverted ? maxLimit ?? MinVal : minLimit ?? MaxVal;
+    //             MinVal = axis.IsInverted ? minLimit ?? MaxVal : maxLimit ?? MinVal;
+    //         }
+    //         else
+    //         {
+    //             var visibleMax = axis.IsInverted ? actualVisibleBounds.Max : actualVisibleBounds.Min;
+    //             var visibleMin = axis.IsInverted ? actualVisibleBounds.Min : actualVisibleBounds.Max;
+    //
+    //             if (visibleMax != MaxVal || visibleMin != MinVal)
+    //             {
+    //                 MaxVal = visibleMax;
+    //                 MinVal = visibleMin;
+    //             }
+    //         }
+    //
+    //         _deltaVal = MaxVal - MinVal;
+    //     }
+    //
+    //     _m = _deltaPx / _deltaVal;
+    //     _mInv = 1 / _m;
+    //
+    //     if (!double.IsNaN(_m) && !double.IsInfinity(_m)) return;
+    //     _m = 0;
+    //     _mInv = 0;
+    // }
 
     private constructor(minPx: number, maxPx: number, deltaPx: number, deltaVal: number, m: number, mInv: number,
                         orientation: LiveChartsCore.AxisOrientation) {

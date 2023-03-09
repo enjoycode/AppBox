@@ -4,7 +4,7 @@ import * as System from '@/System'
 export class EventHookManager {
     private readonly _hookRefs: System.List<WeakRef<any>> = new System.List<WeakRef<any>>();
 
-    public HookEvent(type: PixUI.EventType, e: Nullable<any>): boolean {
+    public HookEvent(type: PixUI.EventType, e: any): boolean {
         if (this._hookRefs.length == 0) return false;
 
         let r = PixUI.EventPreviewResult.NotProcessed;

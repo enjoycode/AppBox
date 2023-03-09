@@ -177,7 +177,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         }
         if (this.DataLabelsPaint != null) {
             this.DataLabelsPaint.ZIndex = 1000 + actualZIndex + 0.3;
-
+            //DataLabelsPaint.SetClipRectangle(pieChart.Canvas, new LvcRectangle(drawLocation, drawMarginSize));
             pieChart.Canvas.AddDrawableTask(this.DataLabelsPaint);
         }
 
@@ -288,8 +288,20 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
             }
 
             if (visual == null) {
-
-
+                // var p = new TVisual
+                // {
+                //     CenterX = cx,
+                //     CenterY = cy,
+                //     X = cx,
+                //     Y = cy,
+                //     Width = 0,
+                //     Height = 0,
+                //     StartAngle = (float)(pieChart.IsFirstDraw ? initialRotation : start + initialRotation),
+                //     SweepAngle = 0,
+                //     PushOut = 0,
+                //     InnerRadius = 0,
+                //     CornerRadius = 0
+                // };
                 let p = this._visualFactory();
                 p.CenterX = cx;
                 p.CenterY = cy;
@@ -350,7 +362,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
             if (this.DataLabelsPaint != null && point.PrimaryValue >= 0) {
                 let label = <Nullable<TLabel>><unknown>point.Context.Label;
 
-
+                // middleAngle = startAngle + (sweepAngle/2);
                 let middleAngle = <number><unknown>(start + initialRotation + sweep * 0.5);
 
                 let actualRotation = r +
@@ -361,7 +373,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
                     actualRotation += 180;
 
                 if (label == null) {
-
+                    //var l = new TLabel { X = cx, Y = cy, RotateTransform = actualRotation };
                     let l = this._labelFactory();
                     l.X = cx;
                     l.Y = cy;
@@ -430,7 +442,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
             i++;
         }
 
-        let u = LiveChartsCore.Scaler.MakeDefault();
+        let u = LiveChartsCore.Scaler.MakeDefault(); // dummy scaler, this is not used in the SoftDeleteOrDisposePoint method.
         pointsCleanup.CollectPoints(this.everFetched, pieChart.View, u, u, this.SoftDeleteOrDisposePoint.bind(this));
     }
 
@@ -570,7 +582,8 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
                 break;
         }
 
-
+        //angle %= 360;
+        //if (angle < 0) angle += 360;
         angle *= toRadians;
 
         return new LiveChartsCore.LvcPoint(<number><unknown>(centerX + Math.cos(angle) * radius),

@@ -14,7 +14,7 @@ export interface IAnimatable {
 
     set RemoveOnCompleted(value: boolean);
 
-    get MotionProperties(): System.StringMap<LiveChartsCore.IMotionProperty>;
+    get MotionProperties(): System.Dictionary<string, LiveChartsCore.IMotionProperty>;
 
 
     SetTransition(animation: Nullable<LiveChartsCore.Animation>, ...propertyName: Nullable<string[]>): void;

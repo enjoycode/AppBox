@@ -69,8 +69,9 @@ export class PieChart<TDrawingContext extends LiveChartsCore.DrawingContext> ext
 
     public Measure() {
 
-        if (!this.IsLoaded) return;
-
+        if (!this.IsLoaded) return; // <- prevents a visual glitch where the visual call the measure method
+        // while they are not visible, the problem is when the control is visible again
+        // the animations are not as expected because previously it ran in an invalid case.
 
         this.InvokeOnMeasuring();
 
@@ -84,7 +85,7 @@ export class PieChart<TDrawingContext extends LiveChartsCore.DrawingContext> ext
         let viewDrawMargin = this._chartView.DrawMargin;
         this.ControlSize = (this._chartView.ControlSize).Clone();
 
-
+        //var actualSeries = (_chartView.Series ?? Enumerable.Empty<ISeries>()).Where(x => x.IsVisible);
         let actualSeries: System.IEnumerable<LiveChartsCore.ISeries> = this._chartView.Series == null
             ? [] : this._chartView.Series.Where(x => x.IsVisible);
 
@@ -156,7 +157,8 @@ export class PieChart<TDrawingContext extends LiveChartsCore.DrawingContext> ext
 
         this.SetDrawMargin((this.ControlSize).Clone(), actualMargin);
 
-
+        // invalid dimensions, probably the chart is too small
+        // or it is initializing in the UI and has no dimensions yet
         if (this.DrawMarginSize.Width <= 0 || this.DrawMarginSize.Height <= 0) return;
 
         this.UpdateBounds();

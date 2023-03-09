@@ -71,24 +71,11 @@ export class PointerEvent extends PixUI.PropagateEvent {
         return PointerEvent.Default;
     }
 
-    /// <summary>
-    /// 仅用于向上传播事件时转换为Widget的本地坐标
-    /// </summary>
     public SetPoint(x: number, y: number) {
         this.X = x;
         this.Y = y;
     }
 
-    /// <summary>
-    /// Removes the "perspective" component from `transform`.
-    /// </summary>
-    /// <remarks>
-    /// When applying the resulting transform matrix to a point with a
-    /// z-coordinate of zero (which is generally assumed for all points
-    /// represented by an [Offset]), the other coordinates will get transformed as
-    /// before, but the new z-coordinate is going to be zero again. This is
-    /// achieved by setting the third column and third row of the matrix to "0, 0, 1, 0".
-    /// </remarks>
     public static RemovePerspectiveTransform(transform: PixUI.Matrix4): PixUI.Matrix4 {
         let vector = new PixUI.Vector4(0, 0, 1, 0);
         transform.SetColumn(2, (vector).Clone());

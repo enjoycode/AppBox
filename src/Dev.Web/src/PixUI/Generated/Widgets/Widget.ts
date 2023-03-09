@@ -2,26 +2,18 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export abstract class Widget implements PixUI.IStateBindable, System.IDisposable {
+    private static readonly $meta_System_IDisposable = true;
     // 绑定的状态列表,目前仅用于dispose时解除绑定关系
     private _states: Nullable<System.List<PixUI.StateBase>>;
 
-    /// <summary>
-    /// 是否不透明的
-    /// </summary>
     public get IsOpaque(): boolean {
         return false;
     }
 
-    /// <summary>
-    /// 裁剪区域
-    /// </summary>
     public get Clipper(): Nullable<PixUI.IClipper> {
         return null;
     }
 
-    /// <summary>
-    /// 调试标签
-    /// </summary>
     public DebugLabel: Nullable<string>;
 
     public set Ref(value: PixUI.IWidgetRef) {
@@ -41,9 +33,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             this._flag &= ~(mask);
     }
 
-    /// <summary>
-    /// 用于移动组件上下级关系时，临时禁止激发OnMount/OnUnmount
-    /// </summary>
     public get SuspendingMount(): boolean {
         return (this._flag & Widget.SuspendingMountMask) == Widget.SuspendingMountMask;
     }
@@ -52,9 +41,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this.SetFlagValue(value, Widget.SuspendingMountMask);
     }
 
-    /// <summary>
-    /// 用于一些只需要布局一次的组件判断是否已经布局过，以减少布局计算
-    /// </summary>
     protected get HasLayout(): boolean {
         return (this._flag & Widget.HasLayoutMask) == Widget.HasLayoutMask;
     }
@@ -63,9 +49,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this.SetFlagValue(value, Widget.HasLayoutMask);
     }
 
-    /// <summary>
-    /// 容器类布局时计算本身大小，如true则尽量收缩为子级的大小
-    /// </summary>
     public get IsLayoutTight(): boolean {
         return (this._flag & Widget.LayoutTightMask) == Widget.LayoutTightMask;
     }
@@ -77,9 +60,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
-    /// <summary>
-    /// 是否挂载至WidgetTree
-    /// </summary>
     public get IsMounted(): boolean {
         return (this._flag & Widget.MountedMask) == Widget.MountedMask;
     }
@@ -119,9 +99,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this.#Y = value;
     }
 
-    /// <summary>
-    /// 布局计算后的可视宽度
-    /// </summary>
     #W: number = 0;
     public get W() {
         return this.#W;
@@ -131,9 +108,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this.#W = value;
     }
 
-    /// <summary>
-    /// 布局计算后的可视高度
-    /// </summary>
     #H: number = 0;
     public get H() {
         return this.#H;
@@ -143,15 +117,12 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this.#H = value;
     }
 
-    public CachedAvailableWidth: number = NaN; //TODO:考虑移到有子级的内
-    public CachedAvailableHeight: number = NaN;
+    public CachedAvailableWidth: number = Number.NaN; //TODO:考虑移到有子级的内
+    public CachedAvailableHeight: number = Number.NaN;
 
     private _width: Nullable<PixUI.State<number>>;
     private _height: Nullable<PixUI.State<number>>;
 
-    /// <summary>
-    /// 指定的宽度
-    /// </summary>
     public get Width(): Nullable<PixUI.State<number>> {
         return this._width;
     }
@@ -160,9 +131,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this._width = this.Rebind(this._width, value, PixUI.BindingOptions.AffectsLayout);
     }
 
-    /// <summary>
-    /// 指定的高度
-    /// </summary>
     public get Height(): Nullable<PixUI.State<number>> {
         return this._height;
     }
@@ -171,9 +139,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this._height = this.Rebind(this._height, value, PixUI.BindingOptions.AffectsLayout);
     }
 
-    /// <summary>
-    /// 是否布局计算出来的大小，即非同时指定宽高
-    /// </summary>
     protected get AutoSize(): boolean {
         return this._width == null || this._height == null;
     }
@@ -214,9 +179,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         }
     }
 
-    /// <summary>
-    /// 根节点，null意味尚未挂载至WidgetTree
-    /// </summary>
     public get Root(): Nullable<PixUI.IRootWidget> {
         if (this._parent != null)
             return this._parent.Root;
@@ -227,18 +189,12 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return null;
     }
 
-    /// <summary>
-    /// 获取当前的路由导航
-    /// </summary>
     public get CurrentNavigator(): Nullable<PixUI.Navigator> {
         let routeView = this.FindParent(w => w instanceof PixUI.RouteView);
         if (routeView == null) return null;
         return (<PixUI.RouteView><unknown>routeView).Navigator;
     }
 
-    /// <summary>
-    /// 遍历处理每个子级, 遍历子项时返回true停止
-    /// </summary>
     public VisitChildren(action: System.Func2<Widget, boolean>) {
     }
 
@@ -254,16 +210,10 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return found;
     }
 
-    /// <summary>
-    /// 根据条件向上(包括自己)查找
-    /// </summary>
     public FindParent(predicate: System.Predicate<Widget>): Nullable<Widget> {
         return predicate(this) ? this : this._parent?.FindParent(predicate);
     }
 
-    /// <summary>
-    /// 当前Widget是否指定Widget的任意上级
-    /// </summary>
     public IsAnyParentOf(child: Nullable<Widget>): boolean {
         if (child?.Parent == null) return false;
         return (child.Parent === this) || this.IsAnyParentOf(child.Parent);
@@ -274,9 +224,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return x >= 0 && x < this.W && y >= 0 && y < this.H;
     }
 
-    /// <summary>
-    /// 检测命中的MouseRegion
-    /// </summary>
     public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (!this.ContainsPoint(x, y)) return false;
 
@@ -314,16 +261,10 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         return PixUI.RxComputed.Make2(s1, s2, getter, setter);
     }
 
-    /// <summary>
-    /// 绑定状态至Widget
-    /// </summary>
     protected Bind<T extends PixUI.StateBase>(newState: T, options: PixUI.BindingOptions = PixUI.BindingOptions.AffectsVisual): T {
         return this.Rebind(null, newState, options)!;
     }
 
-    /// <summary>
-    /// 重新绑定状态
-    /// </summary>
     protected Rebind<T extends PixUI.StateBase>(oldState: Nullable<T>, newState: Nullable<T>,
                                                 options: PixUI.BindingOptions = PixUI.BindingOptions.AffectsVisual): Nullable<T> {
         oldState?.RemoveBinding(this);
@@ -378,9 +319,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             this.SetSize(width, height);
     }
 
-    /// <summary>
-    /// 缓存可用宽度，并根据是否指定宽度取指定值与可用值的小值
-    /// </summary>
     protected CacheAndCheckAssignWidth(availableWidth: number): number {
         this.CachedAvailableWidth = Math.max(0, availableWidth);
         return this.Width == null
@@ -388,9 +326,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             : Math.min(Math.max(0, this.Width.Value), this.CachedAvailableWidth);
     }
 
-    /// <summary>
-    /// 缓存可用高度，并根据是否指定高度取指定值与可用值的小值
-    /// </summary>
     protected CacheAndCheckAssignHeight(availableHeight: number): number {
         this.CachedAvailableHeight = Math.max(0, availableHeight);
         return this.Height == null
@@ -398,9 +333,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
             : Math.min(Math.max(0, this.Height.Value), this.CachedAvailableHeight);
     }
 
-    /// <summary>
-    /// 子项尺寸变更后通知父项更新布局, 子类重写更新布局以减少布局计算
-    /// </summary>
     public OnChildSizeChanged(child: Widget,
                               dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
         console.assert(this.AutoSize);
@@ -413,9 +345,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         this.TryNotifyParentIfSizeChanged(oldWidth, oldHeight, affects);
     }
 
-    /// <summary>
-    /// 如果自己的尺寸发生变更且上级是AutoSize的则通知上级
-    /// </summary>
     public TryNotifyParentIfSizeChanged(oldWidth: number, oldHeight: number,
                                         affects: PixUI.AffectsByRelayout) {
         let dx = this.W - oldWidth;
@@ -431,9 +360,6 @@ export abstract class Widget implements PixUI.IStateBindable, System.IDisposable
         }
     }
 
-    /// <summary>
-    /// 映射组件的本地坐标至窗体坐标
-    /// </summary>
     public LocalToWindow(x: number, y: number): PixUI.Point {
         let temp: Nullable<Widget> = this;
         while (temp != null) {

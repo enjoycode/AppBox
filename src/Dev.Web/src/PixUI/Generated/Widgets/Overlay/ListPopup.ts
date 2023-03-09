@@ -63,9 +63,6 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
     }
 }
 
-/// <summary>
-/// 列表弹窗，可通过键盘或鼠标选择指定项，并且支持条件过滤
-/// </summary>
 export class ListPopup<T> extends PixUI.Popup {
     public constructor(overlay: PixUI.Overlay,
                        itemBuilder: ListPopupItemBuilder<T>,
@@ -134,9 +131,6 @@ export class ListPopup<T> extends PixUI.Popup {
         }
     }
 
-    /// <summary>
-    /// 用于显示前初始化选择的项
-    /// </summary>
     public InitSelect(item: T) {
         let index = this._listViewController.DataSource!.IndexOf(item);
         if (index < 0) return;
@@ -165,7 +159,7 @@ export class ListPopup<T> extends PixUI.Popup {
     public UpdateFilter(predicate: System.Predicate<T>) {
         this.Invalidate(PixUI.InvalidAction.Relayout); //强制自己重新布局
         // @ts-ignore
-        this.ChangeDataSource(this._fullDataSource?.Where(t => predicate(t)).ToArray());
+        this.ChangeDataSource(this._fullDataSource?.Where(t => predicate(t)).ToList());
     }
 
     public ClearFilter() {
@@ -217,7 +211,7 @@ export class ListPopup<T> extends PixUI.Popup {
     }
 
 
-    public PreviewEvent(type: PixUI.EventType, e: Nullable<any>): PixUI.EventPreviewResult {
+    public PreviewEvent(type: PixUI.EventType, e: any): PixUI.EventPreviewResult {
         if (type == PixUI.EventType.KeyDown) {
             let keyEvent = <PixUI.KeyEvent><unknown>e!;
             if (keyEvent.KeyCode == PixUI.Keys.Up) {

@@ -70,7 +70,7 @@ export class Extensions {
             if (foundPoint.Context.HoverArea == null) continue;
             foundPoint.Context.HoverArea.SuggestTooltipPlacement(placementContext);
             found = true;
-            break;
+            break; // we only care about the first one.
         }
 
         return found
@@ -239,7 +239,6 @@ export class Extensions {
         return System.EnumerableFrom(() => _$generator(source, predicate));
     }
 
-
     public static SplitByNullGaps(points: System.IEnumerable<LiveChartsCore.ChartPoint>,
                                   onDeleteNullPoint: System.Action1<LiveChartsCore.ChartPoint>): System.IEnumerable<System.IEnumerable<LiveChartsCore.ChartPoint>> {
         const _$generator = function* (points: System.IEnumerable<LiveChartsCore.ChartPoint>,
@@ -293,7 +292,7 @@ export class Extensions {
                     let wasEmpty = builder.IsEmpty;
                     builder.IsEmpty = true;
                     onDeleteNullPoint(builder.Enumerator.Current);
-                    if (!wasEmpty) return;
+                    if (!wasEmpty) return; // if there are no points then do not return an empty enumerable...
                 } else {
                     yield builder.Enumerator.Current;
                     builder.IsEmpty = false;

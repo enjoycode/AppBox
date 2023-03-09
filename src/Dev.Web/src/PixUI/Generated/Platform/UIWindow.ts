@@ -16,9 +16,6 @@ export abstract class UIWindow {
     }
 
 
-    /// <summary>
-    /// 当前激活的窗体
-    /// </summary>
     static #Current: UIWindow;
     public static get Current() {
         return UIWindow.#Current;
@@ -83,14 +80,8 @@ export abstract class UIWindow {
     private _hitResultOnPointDown: Nullable<PixUI.HitTestEntry>;
 
 
-    /// <summary>
-    /// 获取Onscreen画布, 用于绘制Overlay并显示
-    /// </summary>
     public abstract GetOnscreenCanvas(): PixUI.Canvas ;
 
-    /// <summary>
-    /// 获取Offscreen画布，用于绘布不常变化的Widgets
-    /// </summary>
     public abstract GetOffscreenCanvas(): PixUI.Canvas ;
 
     public abstract FlushOffscreenSurface(): void;
@@ -98,9 +89,6 @@ export abstract class UIWindow {
     public abstract DrawOffscreenSurface(): void;
 
 
-    /// <summary>
-    /// 窗体首次呈现
-    /// </summary>
     public OnFirstShow() {
         this.RootWidget.Layout(this.Width, this.Height);
         this.Overlay.Layout(this.Width, this.Height);
@@ -118,9 +106,6 @@ export abstract class UIWindow {
         this.Present();
     }
 
-    /// <summary>
-    /// 呈现已渲染好的当前帧
-    /// </summary>
     public abstract Present(): void;
 
 
@@ -248,9 +233,6 @@ export abstract class UIWindow {
         this._newHitResult = temp;
     }
 
-    /// <summary>
-    /// 仅用于程序滚动后重设之前缓存的HitTest结果
-    /// </summary>
     public AfterScrollDone(scrollable: PixUI.Widget, offset: PixUI.Offset) {
         //判断旧HitResult是否隶属于当前IScrollable的子级
         if (this._oldHitResult.IsHitAnyWidget &&
@@ -270,9 +252,6 @@ export abstract class UIWindow {
         this.CompareAndSwapHitTestResult();
     }
 
-    /// <summary>
-    /// 目前仅用于DynamicView改变前取消FocusedWidget
-    /// </summary>
     public BeforeDynamicViewChange(dynamicView: PixUI.DynamicView) {
         //判断当前Focused是否DynamicView的子级，是则取消Focus状态
         let focusManger = this.FocusManagerStack.GetFocusManagerByWidget(dynamicView);
@@ -282,9 +261,6 @@ export abstract class UIWindow {
             focusManger.Focus(null);
     }
 
-    /// <summary>
-    /// 目前仅用于DynamicView改变内容后，重设之前缓存的HitTest结果
-    /// </summary>
     public AfterDynamicViewChange(dynamicView: PixUI.DynamicView) {
         if (!this._oldHitResult.IsHitAnyWidget ||
             !(this._oldHitResult.LastHitWidget === dynamicView)) return;
@@ -294,9 +270,6 @@ export abstract class UIWindow {
         this.CompareAndSwapHitTestResult();
     }
 
-    /// <summary>
-    /// 布局变更后或Popup弹出关闭后重新进行
-    /// </summary>
     public RunNewHitTest() {
         //始终重新开始检测，因为旧的命中的位置可能已改变
         this.NewHitTest(this.LastMouseX, this.LastMouseY);

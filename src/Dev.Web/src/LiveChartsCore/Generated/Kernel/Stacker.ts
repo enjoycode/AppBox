@@ -2,9 +2,9 @@ import * as System from '@/System'
 import * as LiveChartsCore from '@/LiveChartsCore'
 
 export class Stacker<TDrawingContext extends LiveChartsCore.DrawingContext> {
-    private readonly _stackPositions: System.ObjectMap<number> = new System.ObjectMap();
-    private readonly _stack: System.List<System.DoubleMap<LiveChartsCore.StackedValue>> = new System.List();
-    private readonly _totals: System.DoubleMap<LiveChartsCore.StackedTotal> = new System.DoubleMap();
+    private readonly _stackPositions: System.Dictionary<LiveChartsCore.IChartSeries<TDrawingContext>, number> = new System.Dictionary();
+    private readonly _stack: System.List<System.Dictionary<number, LiveChartsCore.StackedValue>> = new System.List();
+    private readonly _totals: System.Dictionary<number, LiveChartsCore.StackedTotal> = new System.Dictionary();
     private _stackCount: number = 0;
     private _knownMaxLenght: number = 0;
 
@@ -16,18 +16,19 @@ export class Stacker<TDrawingContext extends LiveChartsCore.DrawingContext> {
     }
 
     public GetSeriesStackPosition(series: LiveChartsCore.IChartSeries<TDrawingContext>): number {
-        let i: Nullable<number> = this._stackPositions.get(series);
-        if (i == null) {
-            let n = new System.DoubleMap<LiveChartsCore.StackedValue>();
+        let i: any;
+        if (!this._stackPositions.TryGetValue(series, new System.Out(() => i, $v => i = $v))) {
+            let n = new System.Dictionary<number, LiveChartsCore.StackedValue>(this._knownMaxLenght);
             this._stack.Add(n);
             i = this._stackCount++;
-            this._stackPositions.set(series, i);
+            this._stackPositions.SetAt(series, i);
         }
 
         return i;
     }
 
     public StackPoint(point: LiveChartsCore.ChartPoint, seriesStackPosition: number): number {
+        let currentStack: any;
         let index = point.SecondaryValue;
         let value = point.PrimaryValue;
         let positiveStart = 0;
@@ -37,11 +38,11 @@ export class Stacker<TDrawingContext extends LiveChartsCore.DrawingContext> {
             let ssp = seriesStackPosition;
             let found = false;
 
-
+            // keep diging until you find a stack in the same position.
             while (ssp >= 0 && !found && ssp - 1 >= 0) {
+                let previousActiveStack: any;
                 let stackCol = this._stack[ssp - 1];
-                let previousActiveStack = stackCol.get(index);
-                if (previousActiveStack != null) {
+                if (stackCol.TryGetValue(index, new System.Out(() => previousActiveStack, $v => previousActiveStack = $v))) {
                     positiveStart = previousActiveStack.End;
                     negativeStart = previousActiveStack.NegativeEnd;
                     found = true;
@@ -53,8 +54,8 @@ export class Stacker<TDrawingContext extends LiveChartsCore.DrawingContext> {
 
         let si = this._stack[seriesStackPosition];
 
-        let currentStack = si.get(point.SecondaryValue);
-        if (currentStack == null) {
+        if (!si.TryGetValue(point.SecondaryValue, new System.Out(() => currentStack, $v => currentStack = $v))) {
+            let _: any;
             currentStack = new LiveChartsCore.StackedValue().Init(
                 {
                     Start: positiveStart,
@@ -62,21 +63,21 @@ export class Stacker<TDrawingContext extends LiveChartsCore.DrawingContext> {
                     NegativeStart: negativeStart,
                     NegativeEnd: negativeStart
                 });
-            si.set(index, currentStack);
-            if (!this._totals.has(index)) this._totals.set(index, new LiveChartsCore.StackedTotal());
+            si.Add(index, currentStack);
+            if (!this._totals.TryGetValue(index, new System.Out(() => _, $v => _ = $v))) this._totals.Add(index, new LiveChartsCore.StackedTotal());
             this._knownMaxLenght++;
         }
 
         if (value >= 0) {
             currentStack.End += value;
-            let positiveTotal = this._totals.get(index)!.Positive + value;
-            this._totals.get(index)!.Positive = positiveTotal;
+            let positiveTotal = this._totals.GetAt(index).Positive + value;
+            this._totals.GetAt(index).Positive = positiveTotal;
 
             return positiveTotal;
         } else {
             currentStack.NegativeEnd += value;
-            let negativeTotal = this._totals.get(index)!.Negative + value;
-            this._totals.get(index)!.Negative = negativeTotal;
+            let negativeTotal = this._totals.GetAt(index).Negative + value;
+            this._totals.GetAt(index).Negative = negativeTotal;
 
             return negativeTotal;
         }
@@ -84,16 +85,16 @@ export class Stacker<TDrawingContext extends LiveChartsCore.DrawingContext> {
 
     public GetStack(point: LiveChartsCore.ChartPoint, seriesStackPosition: number): LiveChartsCore.StackedValue {
         let index = point.SecondaryValue;
-        let p = this._stack[seriesStackPosition].get(index);
+        let p = this._stack[seriesStackPosition].GetAt(index);
 
         return new LiveChartsCore.StackedValue().Init(
             {
                 Start: p.Start,
                 End: p.End,
-                Total: this._totals.get(index)!.Positive,
+                Total: this._totals.GetAt(index).Positive,
                 NegativeStart: p.NegativeStart,
                 NegativeEnd: p.NegativeEnd,
-                NegativeTotal: this._totals.get(index)!.Negative
+                NegativeTotal: this._totals.GetAt(index).Negative
             });
     }
 }

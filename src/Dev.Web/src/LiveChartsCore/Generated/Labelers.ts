@@ -24,7 +24,7 @@ export class Labelers {
     }
 
     public static FormatCurrency(value: number, thousands: string, decimals: string, symbol: string): string {
-
+        //TODO:
         return value.toString();
     }
 
@@ -33,7 +33,7 @@ export class Labelers {
     }
 
     private static Log10_6(value: number): string {
-
+        //TODO:
         return value.toString();
     }
 }

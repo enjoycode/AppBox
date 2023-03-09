@@ -50,33 +50,11 @@ export class FlippedCurve extends Curve {
     }
 }
 
-/// <summary>
-/// A curve that is 0.0 until [begin], then curved (according to [curve]) from
-/// 0.0 at [begin] to 1.0 at [end], then remains 1.0 past [end].
-/// </summary>
-/// <remarks>
-/// An [Interval] can be used to delay an animation. For example, a six second
-/// animation that uses an [Interval] with its [begin] set to 0.5 and its [end]
-/// set to 1.0 will essentially become a three-second animation that starts
-/// three seconds later.
-/// </remarks>
 export class Interval extends Curve {
-    /// <summary>
-    /// The largest value for which this interval is 0.0.
-    /// From t=0.0 to t=`begin`, the interval's value is 0.0.
-    /// </summary>
     private readonly _begin: number;
 
-    /// <summary>
-    /// The smallest value for which this interval is 1.0.
-    ///
-    /// From t=`end` to t=1.0, the interval's value is 1.0.
-    /// </summary>
     private readonly _end: number;
 
-    /// <summary>
-    /// The curve to apply between [Begin] and [End].
-    /// </summary>
     private readonly _curve: Curve;
 
     public constructor(begin: number, end: number, curve: Nullable<Curve> = null) {
@@ -97,13 +75,6 @@ export class Interval extends Curve {
     }
 }
 
-/// <summary>
-/// A sawtooth curve that repeats a given number of times over the unit interval.
-/// </summary>
-/// <remarks>
-/// The curve rises linearly from 0.0 to 1.0 and then falls discontinuously back
-/// to 0.0 each iteration.
-/// </remarks>
 export class SawTooth extends Curve {
     public constructor(count: number) {
         super();

@@ -2,6 +2,7 @@ import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 
 export class Radius implements System.IEquatable<Radius> {
+    private static readonly $meta_System_IEquatable = true;
     public static readonly Empty: Radius = new Radius(0, 0);
 
     public static Circular(radius: number): Radius {
@@ -12,14 +13,8 @@ export class Radius implements System.IEquatable<Radius> {
         return new Radius(x, y);
     }
 
-    /// <summary>
-    /// The radius value on the horizontal axis.
-    /// </summary>
     public readonly X: number;
 
-    /// <summary>
-    /// The radius value on the vertical axis.
-    /// </summary>
     public readonly Y: number;
 
     private constructor(x: number, y: number) {

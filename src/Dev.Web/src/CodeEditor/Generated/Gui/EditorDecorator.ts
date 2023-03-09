@@ -1,8 +1,6 @@
 import * as CodeEditor from '@/CodeEditor'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 专用于在Overlay绘制光标、高亮及选择区等
-/// </summary>
+
 export class EditorDecorator extends PixUI.Widget {
     public constructor(codeEditor: CodeEditor.CodeEditorWidget) {
         super();

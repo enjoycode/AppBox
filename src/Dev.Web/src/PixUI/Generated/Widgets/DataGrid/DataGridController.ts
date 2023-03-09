@@ -41,9 +41,6 @@ export class DataGridController<T> {
     }
 
 
-    /// <summary>
-    /// Header的行数，不包含分组列始终为1
-    /// </summary>
     #HeaderRows: number = 1;
     public get HeaderRows() {
         return this.#HeaderRows;
@@ -74,9 +71,6 @@ export class DataGridController<T> {
         return this._cachedLeafColumns.Sum(c => c.LayoutWidth);
     }
 
-    /// <summary>
-    /// 是否包含冻结列
-    /// </summary>
     #HasFrozen: boolean = false;
     public get HasFrozen() {
         return this.#HasFrozen;
@@ -90,16 +84,10 @@ export class DataGridController<T> {
         return this.ScrollController.OffsetY % this.Theme.RowHeight;
     }
 
-    /// <summary>
-    /// 第一行可见行索引号
-    /// </summary>
     public get VisibleStartRowIndex(): number {
         return (Math.floor(Math.trunc(this.ScrollController.OffsetY / this.Theme.RowHeight)) & 0xFFFFFFFF);
     }
 
-    /// <summary>
-    /// 可见行总数
-    /// </summary>
     public get VisibleRows(): number {
         return (Math.floor(Math.ceil(Math.max(0, this.DataGrid.H - this.TotalHeaderHeight) / this.Theme.RowHeight)) & 0xFFFFFFFF);
     }
@@ -148,13 +136,10 @@ export class DataGridController<T> {
         return this._selectedRows.length > 0 ? this._selectedRows[0] : -1;
     }
 
-    /// <summary>
-    /// 返回监测当前选择的行的状态
-    /// </summary>
     public ObserveCurrentRow(): PixUI.State<Nullable<T>> {
         let state = new PixUI.RxProperty<Nullable<T>>(() => {
                 if (this.DataView == null || this._selectedRows.length == 0) {
-                    let nullValue: Nullable<any> = null;
+                    let nullValue: any = null;
                     return <Nullable<T>><unknown>nullValue; //Don't use default(T) for Web
                 }
 
@@ -327,9 +312,6 @@ export class DataGridController<T> {
     }
 
 
-    /// <summary>
-    ///  计算所有列宽度
-    /// </summary>
     public CalcColumnsWidth(widgetSize: PixUI.Size, force: boolean = false) {
         let needCalc = this._cachedWidgetSize.Width != widgetSize.Width;
         if (this.ScrollController.OffsetX > 0 && widgetSize.Width > this._cachedWidgetSize.Width) {
@@ -366,9 +348,6 @@ export class DataGridController<T> {
         }
     }
 
-    /// <summary>
-    /// 计算可视列及其位置
-    /// </summary>
     public LayoutVisibleColumns(size: PixUI.Size): System.IList<PixUI.DataGridColumn<T>> {
         this._cachedVisibleColumns.Clear();
 
@@ -466,9 +445,6 @@ export class DataGridController<T> {
         return new PixUI.Rect(1, top + 1, this._owner!.W - 2, top + this.Theme.RowHeight - 1);
     }
 
-    /// <summary>
-    /// 获取当前选择的单元格的边框
-    /// </summary>
     public GetCurrentCellRect(): Nullable<PixUI.Rect> {
         if (this._cachedHitInRows == null || this._cachedHitInRows.RowIndex == -1)
             return null;
@@ -524,9 +500,6 @@ export class DataGridController<T> {
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    /// <summary>
-    /// 清除缓存并重绘
-    /// </summary>
     public Refresh() {
         this.ClearAllCache();
         this._owner?.Invalidate(PixUI.InvalidAction.Repaint);

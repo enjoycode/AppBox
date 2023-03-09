@@ -300,7 +300,7 @@ const _RedBlackTree = class {
       }
     }
   }
-  static Sibling(node, parentNode) {
+  static Sibling2(node, parentNode) {
     console.assert(node == null || node.Parent == parentNode);
     if (node == parentNode.Left)
       return parentNode.Right;
@@ -314,7 +314,7 @@ const _RedBlackTree = class {
     console.assert(node == null || node.Parent == parentNode);
     if (parentNode == null)
       return;
-    let sibling = _RedBlackTree.Sibling(node, parentNode);
+    let sibling = _RedBlackTree.Sibling2(node, parentNode);
     if (sibling.Color == _RedBlackTree.RED) {
       parentNode.Color = _RedBlackTree.RED;
       sibling.Color = _RedBlackTree.BLACK;
@@ -322,7 +322,7 @@ const _RedBlackTree = class {
         this.RotateLeft(parentNode);
       else
         this.RotateRight(parentNode);
-      sibling = _RedBlackTree.Sibling(node, parentNode);
+      sibling = _RedBlackTree.Sibling2(node, parentNode);
     }
     if (parentNode.Color == _RedBlackTree.BLACK && sibling.Color == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Left) == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Right) == _RedBlackTree.BLACK) {
       sibling.Color = _RedBlackTree.RED;
@@ -343,7 +343,7 @@ const _RedBlackTree = class {
       sibling.Right.Color = _RedBlackTree.BLACK;
       this.RotateLeft(sibling);
     }
-    sibling = _RedBlackTree.Sibling(node, parentNode);
+    sibling = _RedBlackTree.Sibling2(node, parentNode);
     sibling.Color = parentNode.Color;
     parentNode.Color = _RedBlackTree.BLACK;
     if (node == parentNode.Left) {
@@ -627,7 +627,7 @@ const _ImmutableText = class {
   toString() {
     return this._root.toString();
   }
-  ToString(offset, length) {
+  GetString(offset, length) {
     let data = new Uint16Array(length);
     this.CopyTo(offset, data, length);
     return String.fromCharCode.apply(null, data);
@@ -725,7 +725,7 @@ class ImmutableTextBuffer {
     return this._buffer.GetText(offset, 1).GetCharAt(0);
   }
   GetText(offset, length) {
-    return this._buffer.ToString(offset, length);
+    return this._buffer.GetString(offset, length);
   }
   Insert(offset, text) {
     this._buffer = this._buffer.InsertText(offset, text);
@@ -745,7 +745,7 @@ class ImmutableTextBuffer {
     this._buffer.CopyTo(offset, dest, count);
   }
 }
-class ColumnRange {
+const _ColumnRange = class {
   constructor(startColumn, endColumn) {
     __publicField(this, "StartColumn");
     __publicField(this, "EndColumn");
@@ -756,9 +756,11 @@ class ColumnRange {
     return this.StartColumn == other.StartColumn && this.EndColumn == other.EndColumn;
   }
   Clone() {
-    return new ColumnRange(this.StartColumn, this.EndColumn);
+    return new _ColumnRange(this.StartColumn, this.EndColumn);
   }
-}
+};
+let ColumnRange = _ColumnRange;
+__publicField(ColumnRange, "$meta_System_IEquatable", true);
 class Selection {
   constructor(document, startPosition, endPosition) {
     __publicField(this, "Document");
@@ -1067,6 +1069,7 @@ class FoldMarker {
   }
 }
 _FoldText = new WeakMap();
+__publicField(FoldMarker, "$meta_System_IComparable", true);
 class FoldingManager {
   constructor(document) {
     __publicField(this, "_document");
@@ -1195,6 +1198,7 @@ const _StartComparer = class {
   }
 };
 let StartComparer = _StartComparer;
+__publicField(StartComparer, "$meta_System_IComparer", true);
 __publicField(StartComparer, "Instance", new _StartComparer());
 const _EndComparer = class {
   Compare(x, y) {
@@ -1204,6 +1208,7 @@ const _EndComparer = class {
   }
 };
 let EndComparer = _EndComparer;
+__publicField(EndComparer, "$meta_System_IComparer", true);
 __publicField(EndComparer, "Instance", new _EndComparer());
 var TokenType = /* @__PURE__ */ ((TokenType2) => {
   TokenType2[TokenType2["Unknown"] = 0] = "Unknown";
@@ -1262,8 +1267,10 @@ const _CSharpLanguage = class {
     if (type == "Error")
       return TokenType.Unknown;
     if (!node.isNamed()) {
-      let res = _CSharpLanguage.TokenMap.get(type);
-      return res != null ? res : TokenType.Unknown;
+      let res;
+      if (_CSharpLanguage.TokenMap.TryGetValue(type, new System.Out(() => res, ($v) => res = $v)))
+        return res;
+      return TokenType.Unknown;
     }
     switch (type) {
       case "identifier":
@@ -1364,7 +1371,7 @@ const _CSharpLanguage = class {
   }
 };
 let CSharpLanguage = _CSharpLanguage;
-__publicField(CSharpLanguage, "TokenMap", new System.StringMap([
+__publicField(CSharpLanguage, "TokenMap", new System.Dictionary().Init([
   [";", TokenType.PunctuationDelimiter],
   [".", TokenType.PunctuationDelimiter],
   [",", TokenType.PunctuationDelimiter],
@@ -1641,6 +1648,7 @@ const _SyntaxParser = class {
 };
 let SyntaxParser = _SyntaxParser;
 _Language = new WeakMap();
+__publicField(SyntaxParser, "$meta_System_IDisposable", true);
 __publicField(SyntaxParser, "ParserEncoding", 1);
 class DeferredEventList {
   constructor() {
@@ -2598,6 +2606,8 @@ const _TextLocation = class {
   }
 };
 let TextLocation = _TextLocation;
+__publicField(TextLocation, "$meta_System_IComparable", true);
+__publicField(TextLocation, "$meta_System_IEquatable", true);
 __publicField(TextLocation, "MaxColumn", 16777215);
 __publicField(TextLocation, "Empty", new _TextLocation(-1, -1));
 var AnchorMovementType = /* @__PURE__ */ ((AnchorMovementType2) => {
@@ -2647,7 +2657,7 @@ class TextAnchor {
   }
   Delete(deferredEventList) {
     this.lineSegment = null;
-    deferredEventList.AddDeletedAnchor(this);
+    deferredEventList.Value.AddDeletedAnchor(this);
   }
   RaiseDeleted() {
     this.Deleted.Invoke();
@@ -2843,6 +2853,7 @@ class Document {
     this.SyntaxParser.Dispose();
   }
 }
+__publicField(Document, "$meta_System_IDisposable", true);
 class CustomEditCommand {
   constructor(command) {
     __publicField(this, "_command");
@@ -3655,10 +3666,7 @@ class TextEditorTheme {
     __publicField(this, "LineBgColor", new PixUI.Color(4281414453));
     __publicField(this, "BracketHighlightPaint", new CanvasKit.Paint());
     __publicField(this, "LineNumberColor", new PixUI.Color(4284506982));
-    __publicField(this, "TextStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4289312711),
-      heightMultiplier: 1
-    }));
+    __publicField(this, "TextStyle", PixUI.MakeTextStyle({ color: new PixUI.Color(4289312711), heightMultiplier: 1 }));
     __publicField(this, "FoldedTextStyle", PixUI.MakeTextStyle({
       color: new PixUI.Color(4289312711),
       heightMultiplier: 1
@@ -3854,7 +3862,7 @@ class CodeEditorController extends PixUI.WidgetController {
     __publicField(this, "Theme");
     __publicField(this, "_completionContext");
     __publicField(this, "ContextMenuBuilder");
-    __publicField(this, "_editActions", new System.NumberMap([
+    __publicField(this, "_editActions", new System.Dictionary().Init([
       [PixUI.Keys.Left, new CaretLeft()],
       [PixUI.Keys.Right, new CaretRight()],
       [PixUI.Keys.Up, new CaretUp()],
@@ -3922,9 +3930,9 @@ class CodeEditorController extends PixUI.WidgetController {
     return offset;
   }
   OnKeyDown(e) {
+    let cmd;
     this._completionContext.PreProcessKeyDown(e);
-    let cmd = this._editActions.get(Math.floor(e.KeyData) & 4294967295);
-    if (cmd != null) {
+    if (this._editActions.TryGetValue(Math.floor(e.KeyData) & 4294967295, new System.Out(() => cmd, ($v) => cmd = $v))) {
       cmd.Execute(this.TextEditor);
       e.StopPropagate();
     }

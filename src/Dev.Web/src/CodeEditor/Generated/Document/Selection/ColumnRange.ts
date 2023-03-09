@@ -1,6 +1,8 @@
 import * as System from '@/System'
 
 export class ColumnRange implements System.IEquatable<ColumnRange> {
+    private static readonly $meta_System_IEquatable = true;
+
     public constructor(startColumn: number, endColumn: number) {
         this.StartColumn = startColumn;
         this.EndColumn = endColumn;

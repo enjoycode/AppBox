@@ -75,10 +75,10 @@ export class LineSegment implements CodeEditor.ISegment {
     // void AddAnchor(TextAnchor anchor)
     // {
     // 	Debug.Assert(anchor.Line == this);
-    // 	
+    //
     // 	if (anchors == null)
     // 		anchors = new Util.WeakCollection<TextAnchor>();
-    // 	
+    //
     // 	anchors.Add(anchor);
     // }
 
@@ -168,7 +168,7 @@ export class LineSegment implements CodeEditor.ISegment {
         // 			a.Line = followingLine;
         // 			followingLine.AddAnchor(a);
         // 			a.ColumnNumber -= this.Length;
-        // 			
+        //
         // 			if (movedAnchors == null)
         // 				movedAnchors = new List<TextAnchor>();
         // 			movedAnchors.Add(a);

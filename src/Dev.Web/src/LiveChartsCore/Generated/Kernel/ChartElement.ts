@@ -46,7 +46,7 @@ export abstract class ChartElement<TDrawingContext extends LiveChartsCore.Drawin
 
         if (reference.Value != null) {
             reference.Value.IsStroke = isStroke;
-            reference.Value.IsFill = !isStroke;
+            reference.Value.IsFill = !isStroke; // seems unnecessary ????
             if (!isStroke) reference.Value.StrokeThickness = 0;
         }
 
@@ -64,6 +64,10 @@ export abstract class ChartElement<TDrawingContext extends LiveChartsCore.Drawin
     }
 
     protected CanSetProperty(propertyName: string): boolean {
+        // a property can be set if:
+        // 1. it is an user action (not set by a theme).
+        // or
+        // 2. the user has not set the property.
         return !this._isInternalSet
             ||
             !this._userSets.Contains(propertyName);
@@ -77,7 +81,7 @@ export abstract class ChartElement<TDrawingContext extends LiveChartsCore.Drawin
     }
 
     protected OnPropertyChanged(propertyName: Nullable<string> = null) {
-
+        // only invoke property change event when the user set the property.
         if (this._isInternalSet) return;
 
         if (propertyName == null)

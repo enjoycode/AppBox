@@ -2,10 +2,8 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export enum AnimationDirection {
-    /// The animation is running from beginning to end.
     Forward,
 
-    /// The animation is running backwards, from end to beginning.
     Reverse
 }
 
@@ -18,16 +16,8 @@ export class AnimationController extends PixUI.Animation<number> {
     private _value: number = 0;
     private _status: PixUI.AnimationStatus = 0;
 
-    /// <summary>
-    /// 持续时间，单位：毫秒
-    /// </summary>
     public Duration: Nullable<number>;
 
-    /// <summary>
-    /// The length of time this animation should last when going in [reverse].
-    /// The value of [duration] is used if [reverseDuration] is not specified or
-    /// set to null.
-    /// </summary>
     public ReverseDuration: Nullable<number>;
 
     private _direction: AnimationDirection = 0;
@@ -36,12 +26,6 @@ export class AnimationController extends PixUI.Animation<number> {
 
     private _ticker: Nullable<PixUI.Ticker>;
 
-    /// <summary>
-    /// The amount of time that has passed between the time the animation started
-    /// and the most recent tick of the animation.
-    ///
-    /// If the controller is not animating, the last elapsed duration is null.
-    /// </summary>
     #LastElapsedDuration: Nullable<number>;
     public get LastElapsedDuration() {
         return this.#LastElapsedDuration;
@@ -155,7 +139,7 @@ export class AnimationController extends PixUI.Animation<number> {
                 this.ReverseDuration == null));
 
             let range = this.UpperBound - this.LowerBound;
-            let remainingFraction = isFinite(range) ? Math.abs(target - this._value) / range : 1.0;
+            let remainingFraction = Number.isFinite(range) ? Math.abs(target - this._value) / range : 1.0;
             let directionDuration = this._direction == AnimationDirection.Reverse && this.ReverseDuration != null
                 ? this.ReverseDuration : this.Duration!;
             simulationDuration = (Math.floor((directionDuration * remainingFraction)) & 0xFFFFFFFF);
@@ -220,10 +204,6 @@ export class AnimationController extends PixUI.Animation<number> {
         this.SetValue(this.LowerBound);
     }
 
-    /// <summary>
-    /// Starts running this animation in the forward direction, and
-    /// restarts the animation when it completes.
-    /// </summary>
     public Repeat(min: Nullable<number> = null, max: Nullable<number> = null, reverse: boolean = false,
                   period: Nullable<number> = null) {
         min ??= this.LowerBound;
@@ -270,9 +250,6 @@ export class AnimationController extends PixUI.Animation<number> {
 
 }
 
-/// <summary>
-/// 可选动画控制，如果不指定上级，则在0或1之间直接切换
-/// </summary>
 export class OptionalAnimationController extends PixUI.Animation<number> {
     private _parent: Nullable<PixUI.Animation<number>>;
     private _value: number = 0;
@@ -297,9 +274,6 @@ export class OptionalAnimationController extends PixUI.Animation<number> {
         }
     }
 
-    /// <summary>
-    /// 切换值及状态
-    /// </summary>
     public Switch() {
         this._value = this._value == 0 ? 1 : 0;
         this.ValueChanged.Invoke();

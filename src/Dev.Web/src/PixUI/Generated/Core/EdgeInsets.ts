@@ -1,6 +1,7 @@
 import * as System from '@/System'
 
 export class EdgeInsets implements System.IEquatable<EdgeInsets> {
+    private static readonly $meta_System_IEquatable = true;
     public readonly Left: number;
     public readonly Top: number;
     public readonly Right: number;

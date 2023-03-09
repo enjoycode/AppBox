@@ -18,7 +18,7 @@ export class CubicBezierEasingFunction {
             return CubicBezierEasingFunction.LinearEasing;
         }
 
-
+        // Pre compute samples table
         let sampleValues = new Float32Array(CubicBezierEasingFunction.s_kSplineTableSize);
         for (let i = 0; i < CubicBezierEasingFunction.s_kSplineTableSize; ++i) {
             sampleValues[i] = CubicBezierEasingFunction.CalcBezier(i * CubicBezierEasingFunction.s_kSampleStepSize, mX1, mX2);
@@ -34,7 +34,7 @@ export class CubicBezierEasingFunction {
             }
             --currentSample;
 
-
+            // Interpolate to provide an initial guess for t
             let dist = (aX - sampleValues[currentSample]) / (sampleValues[currentSample + 1] - sampleValues[currentSample]);
             let guessForT = intervalStart + dist * CubicBezierEasingFunction.s_kSampleStepSize;
 
@@ -45,8 +45,11 @@ export class CubicBezierEasingFunction {
         }
 
         return (t) => {
-
-
+            // Because JavaScript number are imprecise, we should guarantee the extremes are right.
+            //if (t == 0f || t == 1f)
+            //{
+            //    return t;
+            //}
             return CubicBezierEasingFunction.CalcBezier(getTForX(t), mY1, mY2);
         };
     }

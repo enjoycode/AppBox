@@ -55,8 +55,7 @@ export class RouteView extends PixUI.DynamicView {
             let from = this.Child!;
             from.SuspendingMount = true; //动画开始前挂起
 
-            let to:
-                PixUI.Widget;
+            let to: PixUI.Widget;
             let reverse = action == PixUI.RouteChangeAction.GotoBack;
             if (reverse) {
                 to = from;

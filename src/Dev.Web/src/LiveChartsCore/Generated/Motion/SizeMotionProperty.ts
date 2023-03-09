@@ -1,7 +1,13 @@
 import * as LiveChartsCore from '@/LiveChartsCore'
 
 export class SizeMotionProperty extends LiveChartsCore.MotionProperty<LiveChartsCore.LvcSize> {
-
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="SizeMotionProperty"/> class.
+    // /// </summary>
+    // /// <param name="propertyName">Name of the property.</param>
+    // public SizeMotionProperty(string propertyName)
+    //     : base(propertyName)
+    // { }
 
     public constructor(propertyName: string, value: LiveChartsCore.LvcSize) {
         super(propertyName);

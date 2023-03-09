@@ -108,7 +108,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
         }
         if (this.DataLabelsPaint != null) {
             this.DataLabelsPaint.ZIndex = actualZIndex + 0.3;
-
+            //DataLabelsPaint.SetClipRectangle(cartesianChart.Canvas, new LvcRectangle(drawLocation, drawMarginSize));
             cartesianChart.Canvas.AddDrawableTask(this.DataLabelsPaint);
         }
 
@@ -129,7 +129,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
                 if (visual != null) {
                     visual.X = secondary - uwm;
                     visual.Width = uw;
-                    visual.Y = middle;
+                    visual.Y = middle; // y coordinate is the highest
                     visual.Open = middle;
                     visual.Close = middle;
                     visual.Low = middle;
@@ -155,7 +155,15 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
                     hi = cartesianChart.IsZoomingOrPanning ? bp : 0;
                 }
 
-
+                // var r = new TVisual
+                // {
+                //     X = xi,
+                //     Width = uwi,
+                //     Y = middle, // y == high
+                //     Open = middle,
+                //     Close = middle,
+                //     Low = middle
+                // };
                 let r = this._visualFactory();
                 r.X = xi;
                 r.Width = uwi;
@@ -205,7 +213,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
                 let label = <Nullable<TLabel>><unknown>point.Context.Label;
 
                 if (label == null) {
-
+                    //var l = new TLabel { X = secondary - uwm, Y = high, RotateTransform = (float)DataLabelsRotation };
                     let l = this._labelFactory();
                     l.X = secondary - uwm;
                     l.Y = high;
@@ -256,6 +264,10 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
         let ts = tickSecondary.Value * this.DataPadding.X;
         let tp = tickPrimary.Value * this.DataPadding.Y;
 
+        // using different methods for both primary and secondary axis seems to be the best solution
+        // if this the following 2 lines needs to be changed again, please ensure that the following test passes:
+        // https://github.com/beto-rodriguez/LiveCharts2/issues/522
+        // https://github.com/beto-rodriguez/LiveCharts2/issues/642
 
         if (rawBaseBounds.VisibleSecondaryBounds.Delta == 0) ts = secondaryAxis.UnitWidth * this.DataPadding.X;
         if (rawBaseBounds.VisiblePrimaryBounds.Delta == 0) tp = rawBaseBounds.VisiblePrimaryBounds.Max * 0.25;

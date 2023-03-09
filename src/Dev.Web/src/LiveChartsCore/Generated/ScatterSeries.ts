@@ -45,7 +45,7 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
         }
         if (this.DataLabelsPaint != null) {
             this.DataLabelsPaint.ZIndex = actualZIndex + 0.3;
-
+            //DataLabelsPaint.SetClipRectangle(cartesianChart.Canvas, new LvcRectangle(drawLocation, drawMarginSize));
             cartesianChart.Canvas.AddDrawableTask(this.DataLabelsPaint);
         }
 
@@ -88,8 +88,13 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
             }
 
             if (visual == null) {
-
-
+                // var r = new TVisual
+                // {
+                //     X = x,
+                //     Y = y,
+                //     Width = 0,
+                //     Height = 0
+                // };
                 let r = this._visualFactory();
                 r.X = x;
                 r.Y = y;
@@ -128,7 +133,7 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
                 if (LiveChartsCore.IsInterfaceOfILabelGeometry(point.Context.Label))
                     label = (point.Context.Label as LiveChartsCore.ILabelGeometry<TDrawingContext>)!;
                 else {
-
+                    //var l = new TLabel { X = x - hgs, Y = y - hgs, RotateTransform = (float)DataLabelsRotation };
                     let l = this._labelFactory();
                     l.X = x - hgs;
                     l.Y = y - hgs;

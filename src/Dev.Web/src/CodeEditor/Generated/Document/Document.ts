@@ -2,6 +2,8 @@ import * as CodeEditor from '@/CodeEditor'
 import * as System from '@/System'
 
 export class Document implements System.IDisposable {
+    private static readonly $meta_System_IDisposable = true;
+
     public constructor(fileName: string, tag: Nullable<string> = null) {
         this._fileName = fileName;
         this.Tag = tag;

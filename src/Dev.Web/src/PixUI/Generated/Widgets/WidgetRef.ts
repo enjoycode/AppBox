@@ -1,7 +1,5 @@
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// Widget实例的引用
-/// </summary>
+
 export class WidgetRef<T extends PixUI.Widget> implements IWidgetRef {
     #Widget: Nullable<T>;
     public get Widget() {

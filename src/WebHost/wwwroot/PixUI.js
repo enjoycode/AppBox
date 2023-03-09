@@ -148,6 +148,12 @@ const _Rect = class extends Float32Array {
   get Height() {
     return this[3] - this[1];
   }
+  get MidX() {
+    return this.Left + this.Width / 2;
+  }
+  get MidY() {
+    return this.Top + this.Height / 2;
+  }
   get IsEmpty() {
     return _Rect.op_Equality(this, _Rect.Empty);
   }
@@ -467,6 +473,9 @@ const _Matrix4 = class extends Float32Array {
     }
     return true;
   }
+  get IsIdentity() {
+    return _Matrix4.op_Equality(this, _Matrix4.CreateIdentity());
+  }
 };
 let Matrix4 = _Matrix4;
 __publicField(Matrix4, "Empty", _Matrix4.CreateEmpty());
@@ -667,7 +676,7 @@ class WidgetList extends List {
     this.splice(0);
   }
 }
-class EdgeInsets {
+const _EdgeInsets = class {
   constructor(left, top, right, bottom) {
     __publicField(this, "Left");
     __publicField(this, "Top");
@@ -685,13 +694,13 @@ class EdgeInsets {
     return this.Top + this.Bottom;
   }
   static All(value) {
-    return new EdgeInsets(value, value, value, value);
+    return new _EdgeInsets(value, value, value, value);
   }
   static Only(left, top, right, bottom) {
-    return new EdgeInsets(left, top, right, bottom);
+    return new _EdgeInsets(left, top, right, bottom);
   }
   Clone() {
-    return new EdgeInsets(this.Left, this.Top, this.Right, this.Bottom);
+    return new _EdgeInsets(this.Left, this.Top, this.Right, this.Bottom);
   }
   static op_Equality(left, right) {
     return left.Equals(right);
@@ -702,7 +711,9 @@ class EdgeInsets {
   Equals(other) {
     return this.Left == other.Left && this.Top == other.Top && this.Right == other.Right && this.Bottom == other.Bottom;
   }
-}
+};
+let EdgeInsets = _EdgeInsets;
+__publicField(EdgeInsets, "$meta_System_IEquatable", true);
 var Axis = /* @__PURE__ */ ((Axis2) => {
   Axis2[Axis2["Horizontal"] = 0] = "Horizontal";
   Axis2[Axis2["Vertical"] = 1] = "Vertical";
@@ -804,6 +815,7 @@ const _Offset = class {
   }
 };
 let Offset = _Offset;
+__publicField(Offset, "$meta_System_IEquatable", true);
 __publicField(Offset, "Empty", new _Offset(0, 0));
 const _PaintUtils = class {
   static Shared(color = null, style = CanvasKit.PaintStyle.Fill, strokeWidth = 1) {
@@ -1874,7 +1886,7 @@ class AnimationController extends Animation {
       console.assert(!(this.Duration == null && this._direction == 0));
       console.assert(!(this.Duration == null && this._direction == 1 && this.ReverseDuration == null));
       let range = this.UpperBound - this.LowerBound;
-      let remainingFraction = isFinite(range) ? Math.abs(target - this._value) / range : 1;
+      let remainingFraction = Number.isFinite(range) ? Math.abs(target - this._value) / range : 1;
       let directionDuration = this._direction == 1 && this.ReverseDuration != null ? this.ReverseDuration : this.Duration;
       simulationDuration = Math.floor(directionDuration * remainingFraction) & 4294967295;
     } else if (target == this._value) {
@@ -2334,9 +2346,9 @@ class DoubleUtils {
   static Lerp(a, b, t) {
     if (a == b || Number.isNaN(a) && Number.isNaN(b))
       return a;
-    console.assert(isFinite(a), "Cannot interpolate between finite and non-finite values");
-    console.assert(isFinite(b), "Cannot interpolate between finite and non-finite values");
-    console.assert(isFinite(t), "t must be finite when interpolating between values");
+    console.assert(Number.isFinite(a), "Cannot interpolate between finite and non-finite values");
+    console.assert(Number.isFinite(b), "Cannot interpolate between finite and non-finite values");
+    console.assert(Number.isFinite(t), "t must be finite when interpolating between values");
     return a * (1 - t) + b * t;
   }
 }
@@ -2406,6 +2418,7 @@ const _CircularProgressPainter = class {
   }
 };
 let CircularProgressPainter = _CircularProgressPainter;
+__publicField(CircularProgressPainter, "$meta_System_IDisposable", true);
 __publicField(CircularProgressPainter, "_kIndeterminateCircularDuration", 1333 * 2222);
 __publicField(CircularProgressPainter, "_pathCount", _CircularProgressPainter._kIndeterminateCircularDuration / 1333);
 __publicField(CircularProgressPainter, "_rotationCount", _CircularProgressPainter._kIndeterminateCircularDuration / 2222);
@@ -2685,6 +2698,7 @@ const _Radius = class {
   }
 };
 let Radius = _Radius;
+__publicField(Radius, "$meta_System_IEquatable", true);
 __publicField(Radius, "Empty", new _Radius(0, 0));
 var BorderStyle = /* @__PURE__ */ ((BorderStyle2) => {
   BorderStyle2[BorderStyle2["None"] = 0] = "None";
@@ -3013,8 +3027,8 @@ const _Widget = class {
     __privateAdd(this, _Y3, 0);
     __privateAdd(this, _W, 0);
     __privateAdd(this, _H, 0);
-    __publicField(this, "CachedAvailableWidth", NaN);
-    __publicField(this, "CachedAvailableHeight", NaN);
+    __publicField(this, "CachedAvailableWidth", Number.NaN);
+    __publicField(this, "CachedAvailableHeight", Number.NaN);
     __publicField(this, "_width");
     __publicField(this, "_height");
     __publicField(this, "_parent");
@@ -3354,6 +3368,7 @@ _X3 = new WeakMap();
 _Y3 = new WeakMap();
 _W = new WeakMap();
 _H = new WeakMap();
+__publicField(Widget, "$meta_System_IDisposable", true);
 __publicField(Widget, "MountedMask", 1);
 __publicField(Widget, "HasLayoutMask", 2);
 __publicField(Widget, "LayoutTightMask", 1 << 3);
@@ -4091,19 +4106,19 @@ class BuildPathContext {
   constructor() {
     __publicField(this, "LeafDefault");
     __publicField(this, "LeafNamed");
-    this.LeafNamed = new System.StringMap([]);
+    this.LeafNamed = new System.Dictionary();
   }
   GetFullPath() {
     let fullPath = this.LeafDefault.Path;
-    if (this.LeafNamed.size > 0) {
+    if (this.LeafNamed.length > 0) {
       fullPath += "?";
       let first = true;
-      for (const key of this.LeafNamed.keys()) {
+      for (const key of this.LeafNamed.Keys) {
         if (first)
           first = false;
         else
           fullPath += "&";
-        fullPath += key + "=" + this.LeafNamed.get(key).Path;
+        fullPath += key + "=" + this.LeafNamed.GetAt(key).Path;
       }
     }
     return fullPath;
@@ -4128,10 +4143,10 @@ class RouteHistoryManager {
   }
   static BuildFullPath(ctx, navigator2) {
     if (navigator2.IsNamed) {
-      ctx.LeafNamed.set(navigator2.NameOfRouteView, navigator2);
+      ctx.LeafNamed.Add(navigator2.NameOfRouteView, navigator2);
     } else if (navigator2.IsInNamed) {
       let named = navigator2.GetNamedParent();
-      ctx.LeafNamed.set(named.NameOfRouteView, navigator2);
+      ctx.LeafNamed.Add(named.NameOfRouteView, navigator2);
     } else {
       ctx.LeafDefault = navigator2;
     }
@@ -5932,7 +5947,7 @@ class ListPopup extends Popup {
   UpdateFilter(predicate) {
     var _a;
     this.Invalidate(InvalidAction.Relayout);
-    this.ChangeDataSource((_a = this._fullDataSource) == null ? void 0 : _a.Where((t) => predicate(t)).ToArray());
+    this.ChangeDataSource((_a = this._fullDataSource) == null ? void 0 : _a.Where((t) => predicate(t)).ToList());
   }
   ClearFilter() {
     this.Invalidate(InvalidAction.Relayout);
@@ -6123,7 +6138,7 @@ class NotificationEntry extends SingleChildWidget {
       this.Parent.RemoveEntry(this);
   }
   async StartHide() {
-    await new Promise((resolve) => setTimeout(() => resolve(), 3e3));
+    await new Promise(($resolve) => setTimeout(() => $resolve(), 3e3));
     this._controller.Reverse();
   }
   StartShow() {
@@ -6462,10 +6477,7 @@ const _Button = class extends Widget {
       this._textColor = State.op_Implicit_From(this.Style == ButtonStyle.Solid ? Colors.White : Colors.Black);
     }
     if (this._text != null && this._textWidget == null) {
-      this._textWidget = new Text(this._text).Init({
-        TextColor: this._textColor,
-        FontSize: this._fontSize
-      });
+      this._textWidget = new Text(this._text).Init({ TextColor: this._textColor, FontSize: this._fontSize });
       this._textWidget.Parent = this;
     }
     if (this._icon != null && this._iconWidget == null) {
@@ -19433,6 +19445,7 @@ class IconPainter {
     (_a = this._cachedFont) == null ? void 0 : _a.delete();
   }
 }
+__publicField(IconPainter, "$meta_System_IDisposable", true);
 class Icon extends Widget {
   constructor(data) {
     super();
@@ -21179,6 +21192,7 @@ class CellCacheComparer {
     return x.RowIndex.CompareTo(y.RowIndex);
   }
 }
+__publicField(CellCacheComparer, "$meta_System_IComparer", true);
 class CellStyle {
   constructor() {
     __publicField(this, "Color");
@@ -22982,6 +22996,9 @@ class WebApplication extends UIApplication {
     requestAnimationFrame(() => {
       this.OnInvalidateRequest();
     });
+  }
+  BeginInvoke(action) {
+    setTimeout(action, 0);
   }
 }
 export { AffectsByRelayout, Animatable, AnimatedEvaluation, Animation, AnimationBehavior, AnimationController, AnimationDirection, AnimationStatus, AnimationWithParent, Axis, Binding, BindingOptions, BorderRadius, BorderSide, BorderStyle, BounceInOutCurve, BuildPathContext, Button, ButtonGroup, ButtonIconPosition, ButtonShape, ButtonStyle, Card, Caret, CaretDecorator, CellCache, CellCacheComparer, CellStyle, Center, ChainedEvaluation, Checkbox, CircularProgressPainter, Clipboard, ClipperOfPath, ClipperOfRect, Color, ColorTween, ColorUtils, Colors, Column, ColumnWidth, ColumnWidthType, Conditional, Container, ContextMenu, ConvertRadiusToSigma, Cubic, Cursor, Cursors, Curve, CurveTween, CurvedAnimation, Curves, DataGrid, DataGridCheckboxColumn, DataGridColumn, DataGridController, DataGridGroupColumn, DataGridHitTestResult, DataGridHostColumn, DataGridIconColumn, DataGridTextColumn, DataGridTheme, DelayTask, Dialog, DoubleUtils, DrawShadow, DynamicView, EdgeInsets, EditableText, EventHookManager, EventPreviewResult, EventType, ExpandIcon, Expanded, FadeTransition, FlippedCurve, FloatTween, FloatUtils, FocusManager, FocusManagerStack, FocusNode, FocusedDecoration, FocusedDecorator, FontCollection, FontStyle, Form, FormItem, FutureBuilder, GetRectForPosition, HitTestEntry, HitTestResult, HorizontalAlignment, HoverDecoration, HoverDecorator, Icon, IconData, IconPainter, Icons, IfConditional, ImageSource, Input, InputBase, InputBorder, Inspector, InterpolationSimulation, Interval, InvalidAction, InvalidQueue, InvalidWidget, IsInterfaceOfIFocusable, IsInterfaceOfIMouseRegion, IsInterfaceOfIRootWidget, IsInterfaceOfIScrollable, ItemState, KeyEvent, Keys, Linear, ListPopup, ListPopupItemWidget, ListView, ListViewController, MainMenu, MakeParagraphBuilder, MakeParagraphStyle, MakeTextStyle, MaterialIcons, MaterialIconsOutlined, Matrix4, MatrixUtils, MenuController, MenuItem, MenuItemType, MenuItemWidget, MouseRegion, MultiChildWidget, Navigator, Notification, NotificationEntry, ObjectNotifier, Offset, OffsetTween, OptionalAnimationController, OutlineInputBorder, OutlinedBorder, Overlay, PaintContext, PaintDebugger, PaintUtils, ParametricCurve, Point, PointerButtons, PointerEvent, Popup, PopupMenu, PopupMenuStack, PopupProxy, PopupTransitionWrap, PropagateEvent, RRect, Radio, Radius, Rect, RepaintArea, RepaintChild, RepeatingSimulation, Root, RotationTransition, RoundedRectangleBorder, Route, RouteChangeAction, RouteHistoryEntry, RouteHistoryManager, RouteView, Row, Rx, RxComputed, RxList, RxObject, RxProperty, SawTooth, ScaleYTransition, ScrollController, ScrollDirection, ScrollEvent, Select, SelectText, ShapeBorder, Simulation, SingleChildWidget, Size, SlideTransition, State, StateBase, Switch, Tab, TabBar, TabBody, TabController, TabView, Text, TextBase, TextPainter, Theme, Ticker, Toggleable, Tolerance, Transform, TransitionStack, TreeController, TreeNode, TreeNodeRow, TreeView, Tween, UIApplication, UIWindow, Vector4, VerticalAlignment, View, WebApplication, WhenBuilder, Widget, WidgetController, WidgetList, WidgetRef };

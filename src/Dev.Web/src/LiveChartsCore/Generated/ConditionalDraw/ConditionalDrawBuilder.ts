@@ -28,7 +28,7 @@ export class ConditionalPaintBuilder<TModel, TVisual extends object & LiveCharts
 
         let isTriggered = this._whenPredicate.call(this, point);
         let canvas = (<LiveChartsCore.Chart<TDrawingContext>><unknown>point.Context.Chart.CoreChart).Canvas;
-        let drawable = <Nullable<LiveChartsCore.IDrawable<TDrawingContext>>><unknown>point.Visual.MainGeometry;
+        let drawable = <Nullable<LiveChartsCore.IDrawable<TDrawingContext>>><unknown>point.Visual.MainGeometry; // see note #20221909
         if (drawable == null) return;
 
         if (!this._isPaintInCanvas) {

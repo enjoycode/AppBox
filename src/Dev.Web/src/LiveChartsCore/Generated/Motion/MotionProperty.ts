@@ -51,7 +51,8 @@ export abstract class MotionProperty<T> implements LiveChartsCore.IMotionPropert
         this.fromValue = this.GetMovement(animatable);
         this.toValue = value;
         if (this.Animation != null) {
-            if (animatable.CurrentTime == BigInt('-9223372036854775808')) {
+            if (animatable.CurrentTime == BigInt('-9223372036854775808')) // the animatable is not in the canvas yet.
+            {
                 this._requiresToInitialize = true;
             } else {
                 this._startTime = animatable.CurrentTime;
@@ -65,8 +66,9 @@ export abstract class MotionProperty<T> implements LiveChartsCore.IMotionPropert
     }
 
     public GetMovement(animatable: LiveChartsCore.Animatable): T {
-
-
+        // For some reason JITter can't remove value type boxing when started under PerfView Run command
+        // Emitted IL has boxing originally, but JITter should be able to optimize it to 'false' or 'Nullable<T>.HasValue'
+        // When s_canBeNull is false JITter should remove second check from generated code
         let fromValueIsNull = this.fromValue == null;
         if (this.Animation == null || this.Animation.EasingFunction == null || fromValueIsNull || this.IsCompleted) return this.OnGetMovement(1);
 
@@ -76,7 +78,7 @@ export abstract class MotionProperty<T> implements LiveChartsCore.IMotionPropert
             this._requiresToInitialize = false;
         }
 
-
+        // at this points we are sure that the animatable has not finished at least with this property.
         animatable.IsValid = false;
 
         let t1: number = Number(animatable.CurrentTime - this._startTime);
@@ -84,7 +86,7 @@ export abstract class MotionProperty<T> implements LiveChartsCore.IMotionPropert
         let p = t1 / t2;
 
         if (p >= 1) {
-
+            // at this point the animation is completed
             p = 1;
             this.Animation._animationCompletedCount++;
             this.IsCompleted = this.Animation._repeatTimes != 2147483647 && this.Animation._repeatTimes < this.Animation._animationCompletedCount;

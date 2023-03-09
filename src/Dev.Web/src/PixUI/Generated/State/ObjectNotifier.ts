@@ -1,7 +1,5 @@
 import * as System from '@/System'
-/// <summary>
-/// 用于通知对象实例的变更
-/// </summary>
+
 export class ObjectNotifier<T extends object> {
     private _changeHandler: Nullable<System.Action1<T>>;
 

@@ -1,9 +1,7 @@
 import * as System from '@/System'
 import * as CodeEditor from '@/CodeEditor'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 需要重新绘制的行范围[StartLine, EndLine)
-/// </summary>
+
 export class DirtyLines implements PixUI.IDirtyArea {
     public constructor(controller: CodeEditor.CodeEditorController) {
         this._controller = controller;

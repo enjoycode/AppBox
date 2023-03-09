@@ -9,6 +9,8 @@ export enum FoldType {
 }
 
 export class FoldMarker implements CodeEditor.ISegment, System.IComparable<FoldMarker> {
+    private static readonly $meta_System_IComparable = true;
+
     public constructor(document: CodeEditor.Document,
                        startLine: number, startColumn: number,
                        endLine: number, endColumn: number, foldType: FoldType,

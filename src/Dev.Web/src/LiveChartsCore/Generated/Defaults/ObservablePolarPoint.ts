@@ -7,6 +7,11 @@ export class ObservablePolarPoint implements LiveChartsCore.IChartEntity, System
     private _angle: Nullable<number>;
     private _radius: Nullable<number>;
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="ObservablePoint"/> class.
+    // /// </summary>
+    // public ObservablePolarPoint()
+    // { }
 
     public constructor(angle: Nullable<number>, radius: Nullable<number>) {
         this.Angle = angle;
@@ -33,7 +38,7 @@ export class ObservablePolarPoint implements LiveChartsCore.IChartEntity, System
 
     public EntityIndex: number = 0;
 
-    public ChartPoints: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    public ChartPoints: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
     #Coordinate: LiveChartsCore.Coordinate = LiveChartsCore.Coordinate.Empty;
     public get Coordinate() {

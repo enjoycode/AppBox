@@ -2,6 +2,8 @@ import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 
 export class IconPainter implements System.IDisposable {
+    private static readonly $meta_System_IDisposable = true;
+
     public constructor(onFontLoaded: System.Action) {
         this._onFontLoaded = onFontLoaded;
     }

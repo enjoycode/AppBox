@@ -3,15 +3,9 @@ import * as System from '@/System'
 
 export type RouteWidgetAsyncBuilder = (arg: Nullable<string>) => System.Task<PixUI.Widget>;
 
-/// <summary>
-/// 路由配置项
-/// </summary>
 export class Route {
     public readonly Name: string;
 
-    /// <summary>
-    /// 是否有动态参数 eg: /user/:id
-    /// </summary>
     public readonly Dynamic: boolean;
 
     public readonly Builder: RouteWidgetAsyncBuilder;
@@ -20,14 +14,8 @@ export class Route {
 
     public readonly ReverseDuration: number;
 
-    /// <summary>
-    /// 进入动画
-    /// </summary>
     public readonly EnteringBuilder: Nullable<PixUI.TransitionBuilder>;
 
-    /// <summary>
-    /// 退出动画
-    /// </summary>
     public readonly ExistingBuilder: Nullable<PixUI.TransitionBuilder>;
 
     public constructor(name: string, builder: RouteWidgetAsyncBuilder, isDynamic: boolean = false,

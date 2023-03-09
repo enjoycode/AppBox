@@ -20,7 +20,7 @@ export type {
     PathEffect,
     Shader,
     TileMode,
-    FontStyle,
+    // FontStyle, do not export
 } from 'canvaskit-wasm';
 
 export * from './CanvasKit/Color'

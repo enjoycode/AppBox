@@ -36,9 +36,6 @@ export interface IRedBlackTreeHost<T> extends System.IComparer<T> {
     UpdateAfterRotateRight(node: RedBlackTreeNode<T>): void;
 }
 
-/// <summary>
-/// Description of RedBlackTree.
-/// </summary>
 export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
     public constructor(host: Host) {
         if (host == null) throw new System.ArgumentNullException("host");
@@ -289,8 +286,7 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
         }
     }
 
-    private static Sibling<T>(node: RedBlackTreeNode<T>,
-                              parentNode: RedBlackTreeNode<T>): RedBlackTreeNode<T> {
+    private static Sibling2<T>(node: RedBlackTreeNode<T>, parentNode: RedBlackTreeNode<T>): RedBlackTreeNode<T> {
         console.assert(node == null || node.Parent == parentNode);
         if (node == parentNode.Left)
             return parentNode.Right;
@@ -311,7 +307,7 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
             return;
 
         // warning: node may be null
-        let sibling: RedBlackTreeNode<T> = RedBlackTree.Sibling(node, parentNode);
+        let sibling: RedBlackTreeNode<T> = RedBlackTree.Sibling2(node, parentNode);
         if (sibling.Color == RedBlackTree.RED) {
             parentNode.Color = RedBlackTree.RED;
             sibling.Color = RedBlackTree.BLACK;
@@ -320,7 +316,7 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
             else
                 this.RotateRight(parentNode);
 
-            sibling = RedBlackTree.Sibling(node, parentNode); // update value of sibling after rotation
+            sibling = RedBlackTree.Sibling2(node, parentNode); // update value of sibling after rotation
         }
 
         if (parentNode.Color == RedBlackTree.BLACK
@@ -357,7 +353,7 @@ export class RedBlackTree<T, Host extends IRedBlackTreeHost<T>> {
             this.RotateLeft(sibling);
         }
 
-        sibling = RedBlackTree.Sibling(node, parentNode); // update value of sibling after rotation
+        sibling = RedBlackTree.Sibling2(node, parentNode); // update value of sibling after rotation
 
         sibling.Color = parentNode.Color;
         parentNode.Color = RedBlackTree.BLACK;

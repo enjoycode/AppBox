@@ -24,17 +24,11 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
         return this._transition?.AnimationController;
     }
 
-    /// <summary>
-    /// 默认的沿Y缩放的打开动画
-    /// </summary>
     public static readonly DefaultTransitionBuilder: PopupTransitionBuilder = (animation, child, origin) => new ScaleYTransition(animation, origin).Init(
         {
             Child: child
         });
 
-    /// <summary>
-    /// 默认的对话框打开关闭动画
-    /// </summary>
     public static readonly DialogTransitionBuilder: PopupTransitionBuilder = (animation, child, origin) => {
         let curve = new PixUI.CurvedAnimation(animation, PixUI.Curves.EaseInOutCubic);
         let offsetAnimation = new PixUI.OffsetTween(new PixUI.Offset(0, -0.1), new PixUI.Offset(0, 0)).Animate(curve);
@@ -110,7 +104,7 @@ export abstract class Popup extends PixUI.Widget implements PixUI.IEventHook {
         }
     }
 
-    public PreviewEvent(type: PixUI.EventType, e: Nullable<any>): PixUI.EventPreviewResult {
+    public PreviewEvent(type: PixUI.EventType, e: any): PixUI.EventPreviewResult {
         return PixUI.EventPreviewResult.NotProcessed;
     }
 }
@@ -166,9 +160,6 @@ export class PopupTransitionWrap extends PixUI.SingleChildWidget {
     }
 }
 
-/// <summary>
-/// 相当于Popup的占位，布局时不用再计算Popup
-/// </summary>
 export class PopupProxy extends PixUI.Widget {
     public constructor(popup: Popup) {
         super();

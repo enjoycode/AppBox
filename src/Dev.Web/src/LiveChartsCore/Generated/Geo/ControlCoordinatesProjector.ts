@@ -23,12 +23,32 @@ export class ControlCoordinatesProjector extends LiveChartsCore.MapProjector {
     }
 
     public ToMap(point: Float64Array): Float32Array {
-
+        // simplified formula
         return new Float32Array([
             <number><unknown>(this._ox + (point[0] + 180) / 360 * this._w),
             <number><unknown>(this._oy + (90 - point[1]) / 180 * this._h)
         ]);
 
+        // the following code explains the formula better:
 
+        //var x = point[0];
+        //var y = point[1];
+
+        // 1. to Cartesian coordinates
+
+        //x += 180;
+        //y = 90 - y;
+
+        // 2. fit to map size
+
+        //x = x / 360d * _w;
+        //y = y / 180d * _h;
+
+        // 3. add the offset
+        //return new[]
+        //{
+        //    (float)x + _ox,
+        //    (float)y + _oy
+        //};
     }
 }

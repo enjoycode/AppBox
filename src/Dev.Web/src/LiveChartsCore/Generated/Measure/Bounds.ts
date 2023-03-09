@@ -2,6 +2,20 @@ export class Bounds {
     public constructor() {
     }
 
+    // /// <summary>
+    // /// Creates a new instance of the <see cref="Bounds"/> class. based on the given <see cref="Bounds"/>.
+    // /// </summary>
+    // /// <param name="bounds"></param>
+    // public Bounds(Bounds bounds)
+    // {
+    //     IsEmpty = bounds.IsEmpty;
+    //     Max = bounds.Max;
+    //     Min = bounds.Min;
+    //     PaddingMax = bounds.PaddingMax;
+    //     PaddingMin = bounds.PaddingMin;
+    //     RequestedGeometrySize = bounds.RequestedGeometrySize;
+    //     MinDelta = bounds.MinDelta;
+    // }
 
     #IsEmpty: boolean = true;
     public get IsEmpty() {

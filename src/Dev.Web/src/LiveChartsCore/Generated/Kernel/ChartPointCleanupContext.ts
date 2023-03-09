@@ -23,7 +23,12 @@ export class ChartPointCleanupContext {
                          disposeAction: System.Action3<LiveChartsCore.ChartPoint, LiveChartsCore.Scaler, LiveChartsCore.Scaler>) {
         if (this._toDeleteCount == 0) return;
 
+        // It would be nice to have System.Buffers installed to use rented buffer
+        // Or we can probably use single cached buffer since all calculations are running on GUI thread
+        // At least we don't allocate when there is nothing to remove
+        // And allocate only as much as we need to remove
 
+        // Based on https://github.com/beto-rodriguez/LiveCharts2/pull/792#discussion_r1039650806
         let toDeletePoints = points.Where(p => p.RemoveOnCompleted);
 
         for (const p of toDeletePoints) {
@@ -39,7 +44,12 @@ export class ChartPointCleanupContext {
                                  disposeAction: System.Action2<LiveChartsCore.ChartPoint, LiveChartsCore.PolarScaler>) {
         if (this._toDeleteCount == 0) return;
 
+        // It would be nice to have System.Buffers installed to use rented buffer
+        // Or we can probably use single cached buffer since all calculations are running on GUI thread
+        // At least we don't allocate when there is nothing to remove
+        // And allocate only as much as we need to remove
 
+        // Based on https://github.com/beto-rodriguez/LiveCharts2/pull/792#discussion_r1039650806
         let toDeletePoints = points.Where(p => p.RemoveOnCompleted);
 
         for (const p of toDeletePoints) {

@@ -16,7 +16,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
     private _pointerPreviousPanningPosition: LiveChartsCore.LvcPoint = (new LiveChartsCore.LvcPoint(-10, -10)).Clone();
     private _isPanning: boolean = false;
     private _isPointerIn: boolean = false;
-    private readonly _activePoints: System.ObjectMap<any> = new System.ObjectMap();
+    private readonly _activePoints: System.Dictionary<LiveChartsCore.ChartPoint, any> = new System.Dictionary();
     private _previousSize: LiveChartsCore.LvcSize = LiveChartsCore.LvcSize.Empty.Clone();
 
 
@@ -269,7 +269,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
         this.IsLoaded = false;
         this._everMeasuredElements.Clear();
         this._toDeleteElements.Clear();
-        this._activePoints.clear();
+        this._activePoints.Clear();
         this.Canvas.Dispose();
     }
 
@@ -277,7 +277,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
         for (const point of this._activePoints.Keys.ToArray()) {
             let cp = <LiveChartsCore.ChartPoint><unknown>point;
             cp.Context.Series.OnPointerLeft(cp);
-            this._activePoints.delete(point);
+            this._activePoints.Remove(point);
         }
 
         this.Canvas.Invalidate();
@@ -288,7 +288,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
 
         let strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(this.ChartSeries,);
 
-
+        // fire the series event.
         for (const series of this.ChartSeries) {
             if (!series.RequiresFindClosestOnPointerDown) continue;
 
@@ -298,11 +298,12 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
             series.OnDataPointerDown(this.View, points, (point).Clone());
         }
 
-
+        // fire the chart event.
         let iterablePoints = this.ChartSeries.SelectMany(x => x.FindHitPoints(this, (point).Clone(), strategy));
         this.View.OnDataPointerDown(iterablePoints, (point).Clone());
 
-
+        // fire the visual elements event.
+        // ToDo: VisualElements should be of type VisualElement<T>
         let iterableVisualElements = this.VisualElements.Cast<LiveChartsCore.VisualElement<TDrawingContext>>().SelectMany(x => x.IsHitBy(this, (point).Clone()));
         this.View.OnVisualElementPointerDown(iterableVisualElements, (point).Clone());
     }
@@ -421,7 +422,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
         for (const visual of this._toDeleteElements) {
             if (LiveChartsCore.IsInterfaceOfISeries(visual)) {
                 const series = visual;
-
+                // series delete softly and animate as they leave the UI.
                 series.SoftDeleteOrDispose(this.View);
             } else {
                 visual.RemoveFromUI(this);
@@ -436,7 +437,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
         if (this.Legend != null && (this.SeriesMiniatureChanged(seriesInLegend, this.LegendPosition) || this.SizeChanged())) {
             if (LiveChartsCore.IsInterfaceOfIImageControl(this.Legend)) {
                 const imageLegend = this.Legend;
-
+                // this is the preferred method (drawn legends)
                 imageLegend.Measure(this);
 
                 if (this.LegendPosition == LiveChartsCore.LegendPosition.Left || this.LegendPosition == LiveChartsCore.LegendPosition.Right)
@@ -445,7 +446,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
                 if (this.LegendPosition == LiveChartsCore.LegendPosition.Top || this.LegendPosition == LiveChartsCore.LegendPosition.Bottom)
                     this.ControlSize = (new LiveChartsCore.LvcSize(this.ControlSize.Width, this.ControlSize.Height - imageLegend.Size.Height)).Clone();
 
-
+                // reset for cases when legend is hidden or changes postion
                 this.Canvas.StartPoint = new LiveChartsCore.LvcPoint(0, 0);
 
                 this.Legend.Draw(this);
@@ -455,8 +456,8 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
                 for (const series of this.PreviousSeriesAtLegend.Cast<LiveChartsCore.ISeries>()) series.PaintsChanged = false;
                 this._preserveFirstDraw = this.IsFirstDraw;
             } else {
-
-
+                // the legend is drawn by the UI framework... lets return and wait for it to draw/measure it.
+                // maybe we should wait for the legend to draw and then draw the chart?
                 this.Legend.Draw(this);
                 this.PreviousLegendPosition = this.LegendPosition;
                 this.PreviousSeriesAtLegend = seriesInLegend;
@@ -475,10 +476,15 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
                 {
                     if (this._pointerPosition.X < this.DrawMarginLocation.X || this._pointerPosition.X > this.DrawMarginLocation.X + this.DrawMarginSize.Width ||
                         this._pointerPosition.Y < this.DrawMarginLocation.Y || this._pointerPosition.Y > this.DrawMarginLocation.Y + this.DrawMarginSize.Height) {
-
+                        // reject tooltip logic when the pointer is outside the draw margin
                         return;
                     }
 
+
+                    // TODO:
+                    // all this needs a performance review...
+                    // it should not be critical, should not be even close to be the 'bottle neck' in a case where
+                    // we face performance issues.
 
                     let points = this.FindHoveredPointsBy((this._pointerPosition).Clone());
                     if (!points.Any()) {
@@ -487,19 +493,18 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
                         return;
                     }
 
-                    if (this._activePoints.size > 0 && points.All(x => this._activePoints.has(x))) return;
+                    if (this._activePoints.length > 0 && points.All(x => this._activePoints.ContainsKey(x))) return;
 
                     let o = {};
                     for (const tooltipPoint of points) {
                         tooltipPoint.Context.Series.OnPointerEnter(tooltipPoint);
-                        this._activePoints.set(tooltipPoint, o);
+                        this._activePoints.SetAt(tooltipPoint, o);
                     }
 
                     for (const point of this._activePoints.Keys.ToArray()) {
-                        if (this._activePoints.get(point) == o) continue;
-                        let cp = <LiveChartsCore.ChartPoint><unknown>point;
-                        cp.Context.Series.OnPointerLeft(cp);
-                        this._activePoints.delete(point);
+                        if (this._activePoints.GetAt(point) == o) continue;
+                        point.Context.Series.OnPointerLeft(point);
+                        this._activePoints.Remove(point);
                     }
 
                     if (this.TooltipPosition != LiveChartsCore.TooltipPosition.Hidden) this.Tooltip?.Show(points, this);
@@ -522,7 +527,8 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
                     let dx = this._pointerPanningPosition.X - this._pointerPreviousPanningPosition.X;
                     let dy = this._pointerPanningPosition.Y - this._pointerPreviousPanningPosition.Y;
 
-
+                    // we need to send a dummy value indicating the direction (val > 0)
+                    // so the core is able to bounce the panning when the user reaches the limit.
                     if (dx == 0) dx = this._pointerPanningStartPosition.X - this._pointerPanningPosition.X > 0 ? -0.01 : 0.01;
                     if (dy == 0) dy = this._pointerPanningStartPosition.Y - this._pointerPanningPosition.Y > 0 ? -0.01 : 0.01;
 

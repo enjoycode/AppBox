@@ -1,6 +1,8 @@
 import * as System from '@/System'
 
 export class TextLocation implements System.IComparable<TextLocation>, System.IEquatable<TextLocation> {
+    private static readonly $meta_System_IComparable = true;
+    private static readonly $meta_System_IEquatable = true;
     public static readonly MaxColumn: number = 0xFFFFFF; //int.MaxValue;
 
     public static readonly Empty: TextLocation = new TextLocation(-1, -1);

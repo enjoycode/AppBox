@@ -69,7 +69,8 @@ export class Column extends PixUI.MultiChildWidget<PixUI.Widget> {
             let childX = match(this._alignment)
                 .with(PixUI.HorizontalAlignment.Right, () => maxWidthOfChild - child.W)
                 .with(PixUI.HorizontalAlignment.Center, () => (maxWidthOfChild - child.W) / 2)
-                .otherwise(() => 0);
+                .otherwise(() => 0
+                );
             child.SetPosition(childX, totalHeight);
 
             totalHeight += child.H;
@@ -109,14 +110,15 @@ export class Column extends PixUI.MultiChildWidget<PixUI.Widget> {
                 let childX = match(this._alignment)
                     .with(PixUI.HorizontalAlignment.Right, () => this.W - item.W)
                     .with(PixUI.HorizontalAlignment.Center, () => (this.W - item.W) / 2)
-                    .otherwise(() => 0);
+                    .otherwise(() => 0
+                    );
                 item.SetPosition(childX, item.Y);
             }
         }
 
         if (dy != 0) {
             if (this._totalFlex > 0) {
-                //TODO: recalc expanded and layout 
+                //TODO: recalc expanded and layout
                 throw new System.NotImplementedException();
             } else {
                 let indexOfChild = this._children.IndexOf(child);

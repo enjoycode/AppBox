@@ -11,14 +11,8 @@ export function IsInterfaceOfIMouseRegion(obj: any): obj is IMouseRegion {
 }
 
 export class MouseRegion {
-    /// <summary>
-    /// Hover时的Cursor
-    /// </summary>
     public readonly Cursor: Nullable<System.Func1<PixUI.Cursor>>;
 
-    /// <summary>
-    /// false会继续检测子级嵌套的MouseRegion
-    /// </summary>
     public readonly Opaque: boolean;
 
     public readonly PointerDown = new System.Event<PixUI.PointerEvent>();

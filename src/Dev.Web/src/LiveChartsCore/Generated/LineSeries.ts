@@ -2,8 +2,8 @@ import * as System from '@/System'
 import * as LiveChartsCore from '@/LiveChartsCore'
 
 export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVisualChartPoint<TDrawingContext>, TLabel extends object & LiveChartsCore.ILabelGeometry<TDrawingContext>, TDrawingContext extends LiveChartsCore.DrawingContext, TPathGeometry extends LiveChartsCore.IVectorGeometry<LiveChartsCore.CubicBezierSegment, TDrawingContext>, TVisualPoint extends LiveChartsCore.BezierVisualPoint<TDrawingContext, TVisual>> extends LiveChartsCore.StrokeAndFillCartesianSeries<TModel, TVisualPoint, TLabel, TDrawingContext> implements LiveChartsCore.ILineSeries<TDrawingContext> {
-    public readonly _fillPathHelperDictionary: System.ObjectMap<System.List<TPathGeometry>> = new System.ObjectMap();
-    public readonly _strokePathHelperDictionary: System.ObjectMap<System.List<TPathGeometry>> = new System.ObjectMap();
+    public readonly _fillPathHelperDictionary: System.Dictionary<any, System.List<TPathGeometry>> = new System.Dictionary();
+    public readonly _strokePathHelperDictionary: System.Dictionary<any, System.List<TPathGeometry>> = new System.Dictionary();
     private _lineSmoothness: number = 0.65;
     private _geometrySize: number = 14;
     private _enableNullSplitting: boolean = true;
@@ -70,6 +70,8 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
     }
 
     public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+        let strokePathHelperContainer: any;
+        let fillPathHelperContainer: any;
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
         let primaryAxis = cartesianChart.YAxes[this.ScalesYAt];
         let secondaryAxis = cartesianChart.XAxes[this.ScalesXAt];
@@ -86,9 +88,12 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         let sw = this.Stroke?.StrokeThickness ?? 0;
         let p = primaryScale.ToPixels(this.pivot);
 
-
+        // Note #240222
+        // the following cases probably have a similar performance impact
+        // this options were necessary at some older point when _enableNullSplitting = false could improve performance
+        // ToDo: Check this out, maybe this is unnecessary now and we should just go for the first approach all the times.
         let segments = this._enableNullSplitting
-            ? LiveChartsCore.Extensions.SplitByNullGaps(this.Fetch(cartesianChart), point => this.DeleteNullPoint(point, secondaryScale, primaryScale))
+            ? LiveChartsCore.Extensions.SplitByNullGaps(this.Fetch(cartesianChart), point => this.DeleteNullPoint(point, secondaryScale, primaryScale)) // calling this method is probably as expensive as the line bellow
             : new System.List<System.IEnumerable<LiveChartsCore.ChartPoint>>().Init([this.Fetch(cartesianChart)]);
 
         let stacker = (this.SeriesProperties & LiveChartsCore.SeriesProperties.Stacked) == LiveChartsCore.SeriesProperties.Stacked
@@ -98,8 +103,10 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         let actualZIndex = this.ZIndex == 0 ? (<LiveChartsCore.ISeries><unknown>this).SeriesId : this.ZIndex;
 
         if (stacker != null) {
-
-
+            // Note# 010621
+            // easy workaround to set an automatic and valid z-index for stacked area series
+            // the problem of this solution is that the user needs to set z-indexes above 1000
+            // if the user needs to add more series to the chart.
             actualZIndex = 1000 - stacker.Position;
             if (this.Fill != null) this.Fill.ZIndex = actualZIndex;
             if (this.Stroke != null) this.Stroke.ZIndex = actualZIndex;
@@ -108,16 +115,14 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         let dls = <number><unknown>this.DataLabelsSize;
         let pointsCleanup = LiveChartsCore.ChartPointCleanupContext.For(this.everFetched);
 
-        let strokePathHelperContainer = this._strokePathHelperDictionary.get(chart.Canvas.Sync);
-        if (strokePathHelperContainer == null) {
+        if (!this._strokePathHelperDictionary.TryGetValue(chart.Canvas.Sync, new System.Out(() => strokePathHelperContainer, $v => strokePathHelperContainer = $v))) {
             strokePathHelperContainer = new System.List<TPathGeometry>();
-            this._strokePathHelperDictionary.set(chart.Canvas.Sync, strokePathHelperContainer);
+            this._strokePathHelperDictionary.SetAt(chart.Canvas.Sync, strokePathHelperContainer);
         }
 
-        let fillPathHelperContainer = this._fillPathHelperDictionary.get(chart.Canvas.Sync);
-        if (fillPathHelperContainer == null) {
+        if (!this._fillPathHelperDictionary.TryGetValue(chart.Canvas.Sync, new System.Out(() => fillPathHelperContainer, $v => fillPathHelperContainer = $v))) {
             fillPathHelperContainer = new System.List<TPathGeometry>();
-            this._fillPathHelperDictionary.set(chart.Canvas.Sync, fillPathHelperContainer);
+            this._fillPathHelperDictionary.SetAt(chart.Canvas.Sync, fillPathHelperContainer);
         }
 
         let uwx = secondaryScale.MeasureInPixels(secondaryAxis.UnitWidth);
@@ -132,7 +137,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
 
             if (segmentI >= fillPathHelperContainer.length) {
                 isNew = true;
-                fillPath = this._pathGeometryFactory();
+                fillPath = this._pathGeometryFactory(); //new TPathGeometry { ClosingMethod = VectorClosingMethod.CloseToPivot };
                 fillPath.ClosingMethod = LiveChartsCore.VectorClosingMethod.CloseToPivot;
                 fillPathHelperContainer.Add(fillPath);
             } else {
@@ -141,7 +146,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
 
             if (segmentI >= strokePathHelperContainer.length) {
                 isNew = true;
-                strokePath = this._pathGeometryFactory();
+                strokePath = this._pathGeometryFactory(); //new TPathGeometry { ClosingMethod = VectorClosingMethod.NotClosed };
                 strokePath.ClosingMethod = LiveChartsCore.VectorClosingMethod.NotClosed;
                 strokePathHelperContainer.Add(strokePath);
             } else {
@@ -195,7 +200,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                 let visual = <Nullable<TVisualPoint>><unknown>data.TargetPoint.Context.Visual;
 
                 if (visual == null) {
-                    let v = this._visualPointFactory();
+                    let v = this._visualPointFactory(); //new TVisualPoint();
                     visual = v;
 
                     if (this.IsFirstDraw) {
@@ -235,10 +240,8 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                 let x = secondaryScale.ToPixels(data.TargetPoint.SecondaryValue);
                 let y = primaryScale.ToPixels(data.TargetPoint.PrimaryValue + s);
 
-                visual.Geometry.MotionProperties.get("visual.Geometry.X")!
-                    .CopyFrom(visual.Bezier.MotionProperties.get("visual.Bezier.Xj")!);
-                visual.Geometry.MotionProperties.get("visual.Geometry.Y")!
-                    .CopyFrom(visual.Bezier.MotionProperties.get("visual.Bezier.Yj")!);
+                visual.Geometry.MotionProperties.GetAt("visual.Geometry.X").CopyFrom(visual.Bezier.MotionProperties.GetAt("visual.Bezier.Xj"));
+                visual.Geometry.MotionProperties.GetAt("visual.Geometry.Y").CopyFrom(visual.Bezier.MotionProperties.GetAt("visual.Bezier.Yj"));
                 visual.Geometry.TranslateTransform = new LiveChartsCore.LvcPoint(-hgs, -hgs);
 
                 visual.Geometry.Width = gs;
@@ -263,7 +266,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                     let label = <Nullable<TLabel>><unknown>data.TargetPoint.Context.Label;
 
                     if (label == null) {
-
+                        //var l = new TLabel { X = x - hgs, Y = p - hgs, RotateTransform = (float)DataLabelsRotation };
                         let l = this._labelFactory();
                         l.X = x - hgs;
                         l.Y = p - hgs;
@@ -336,7 +339,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
 
         if (this.DataLabelsPaint != null) {
             cartesianChart.Canvas.AddDrawableTask(this.DataLabelsPaint);
-
+            //DataLabelsPaint.SetClipRectangle(cartesianChart.Canvas, new LvcRectangle(drawLocation, drawMarginSize));
             this.DataLabelsPaint.ZIndex = actualZIndex + 0.5;
         }
 
@@ -383,14 +386,14 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         let canvas = (<LiveChartsCore.ICartesianChartView<TDrawingContext>><unknown>chart).CoreCanvas;
 
         if (this.Fill != null) {
-            for (const activeChartContainer of this._fillPathHelperDictionary.values())
-                for (const pathHelper of activeChartContainer)
+            for (const activeChartContainer of this._fillPathHelperDictionary)
+                for (const pathHelper of activeChartContainer.Value)
                     this.Fill.RemoveGeometryFromPainTask(canvas, pathHelper);
         }
 
         if (this.Stroke != null) {
-            for (const activeChartContainer of this._strokePathHelperDictionary.values())
-                for (const pathHelper of activeChartContainer)
+            for (const activeChartContainer of this._strokePathHelperDictionary)
+                for (const pathHelper of activeChartContainer.Value)
                     this.Stroke.RemoveGeometryFromPainTask(canvas, pathHelper);
         }
 
@@ -400,8 +403,8 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
 
     public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         super.RemoveFromUI(chart);
-        this._fillPathHelperDictionary.delete(chart.Canvas.Sync);
-        this._strokePathHelperDictionary.delete(chart.Canvas.Sync);
+        this._fillPathHelperDictionary.Remove(chart.Canvas.Sync);
+        this._strokePathHelperDictionary.Remove(chart.Canvas.Sync);
     }
 
     public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {

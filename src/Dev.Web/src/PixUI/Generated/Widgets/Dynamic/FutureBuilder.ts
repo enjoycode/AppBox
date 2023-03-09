@@ -29,7 +29,7 @@ export class FutureBuilder<T> extends PixUI.DynamicView {
             // @ts-ignore
             this.ReplaceTo(this._doneBuilder(res, null));
         } catch (ex: any) {
-            let nullValue: Nullable<any> = null; //Don't use default(T) for web
+            let nullValue: any = null; //Don't use default(T) for web
             this.ReplaceTo(this._doneBuilder(<Nullable<T>><unknown>nullValue, ex));
         }
     }

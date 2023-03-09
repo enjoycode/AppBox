@@ -116,7 +116,7 @@ export abstract class BarSeries<TModel, TVisual extends object & LiveChartsCore.
             this.uwm = 0.5 * this.uw;
             this.cp = barSeries.IgnoresBarPosition ? 0 : (pos - count / 2) * this.uw + this.uwm;
 
-
+            // apply the pading
             this.uw -= padding;
             this.cp += padding * 0.5;
 

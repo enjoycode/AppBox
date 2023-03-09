@@ -13,16 +13,10 @@ export abstract class UIApplication {
         UIApplication.#Current = value;
     }
 
-    /// <summary>
-    /// Post invalidate event to main loop, maybe called by none UI thread
-    /// </summary>
     public abstract PostInvalidateEvent(): void;
 
     public abstract BeginInvoke(action: System.Action): void;
 
-    /// <summary>
-    /// 处理main loop内收到的InvalidateEvent
-    /// </summary>
     protected OnInvalidateRequest() {
         let window = this.MainWindow; //TODO:根据事件判断哪个UIWindow
         let widgetsCanvas = window.GetOffscreenCanvas();

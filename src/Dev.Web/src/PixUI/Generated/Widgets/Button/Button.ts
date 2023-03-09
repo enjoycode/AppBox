@@ -103,9 +103,6 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
     }
 
 
-    /// <summary>
-    /// 没有指定宽高充满可用空间, 仅指定高则使用Icon+Text的宽度
-    /// </summary>
     public Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
@@ -136,10 +133,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         }
 
         if (this._text != null && this._textWidget == null) {
-            this._textWidget = new PixUI.Text(this._text).Init({
-                TextColor: this._textColor,
-                FontSize: this._fontSize
-            });
+            this._textWidget = new PixUI.Text(this._text).Init({TextColor: this._textColor, FontSize: this._fontSize});
             this._textWidget.Parent = this;
         }
 

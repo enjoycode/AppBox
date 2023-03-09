@@ -1,9 +1,6 @@
 import * as PixUI from '@/PixUI'
 
 export class Expanded extends PixUI.SingleChildWidget {
-    /// <summary>
-    /// Must > 0
-    /// </summary>
     #Flex: number = 1;
     public get Flex() {
         return this.#Flex;

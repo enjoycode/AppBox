@@ -77,7 +77,13 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
         if (this._backgroundGeometry == null) {
             let cp = this.GetPositionRelativeToParent();
 
-
+            // _backgroundGeometry = new TBackgroundGemetry
+            // {
+            //     X = cp.X,
+            //     Y = cp.Y,
+            //     Width = controlSize.Width,
+            //     Height = controlSize.Height
+            // };
             this._backgroundGeometry = this._backgroundGeometryFactory();
             this._backgroundGeometry.X = cp.X;
             this._backgroundGeometry.Y = cp.Y;
@@ -90,7 +96,9 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
                 .CompleteCurrentTransitions();
         }
 
-
+        // force the background to have at least an invisible geometry
+        // we use this geometry in the motion canvas to track the position
+        // of the stack panel as the time and animations elapse.
         this.BackgroundPaint ??= LiveChartsCore.LiveCharts.DefaultSettings
             .GetProvider<TDrawingContext>()
             .GetSolidColorPaint(new LiveChartsCore.LvcColor(0, 0, 0, 0));

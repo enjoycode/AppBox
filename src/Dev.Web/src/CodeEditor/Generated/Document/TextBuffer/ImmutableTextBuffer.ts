@@ -21,7 +21,7 @@ export class ImmutableTextBuffer implements CodeEditor.ITextBuffer {
     }
 
     public GetText(offset: number, length: number): string {
-        return this._buffer.ToString(offset, length);
+        return this._buffer.GetString(offset, length);
     }
 
     public Insert(offset: number, text: string) {

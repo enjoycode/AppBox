@@ -1,7 +1,5 @@
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 每个窗体的根节点
-/// </summary>
+
 export class Root extends PixUI.SingleChildWidget implements PixUI.IRootWidget {
     private static readonly $meta_PixUI_IRootWidget = true;
     #Window: PixUI.UIWindow;

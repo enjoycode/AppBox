@@ -2,6 +2,7 @@ import * as CodeEditor from '@/CodeEditor'
 import * as System from '@/System'
 
 export class SyntaxParser implements System.IDisposable {
+    private static readonly $meta_System_IDisposable = true;
     public static readonly ParserEncoding: number = 1;
 
     public constructor(document: CodeEditor.Document) {

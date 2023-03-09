@@ -1,8 +1,6 @@
 import * as PixUI from '@/PixUI'
 import * as System from '@/System'
-/// <summary>
-/// 路由历史项
-/// </summary>
+
 export class RouteHistoryEntry {
     public constructor(path: string) {
         this.Path = path;
@@ -14,22 +12,22 @@ export class RouteHistoryEntry {
 
 export class BuildPathContext {
     public constructor() {
-        this.LeafNamed = new System.StringMap<PixUI.Navigator>([]);
+        this.LeafNamed = new System.Dictionary<string, PixUI.Navigator>();
     }
 
     public LeafDefault: PixUI.Navigator;
-    public readonly LeafNamed: System.StringMap<PixUI.Navigator>;
+    public readonly LeafNamed: System.Dictionary<string, PixUI.Navigator>;
 
     public GetFullPath(): string {
         let fullPath = this.LeafDefault.Path;
-        if (this.LeafNamed.size > 0) {
+        if (this.LeafNamed.length > 0) {
             fullPath += "?";
             let first = true;
-            for (const key of this.LeafNamed.keys()) {
+            for (const key of this.LeafNamed.Keys) {
                 if (first) first = false;
                 else fullPath += "&";
 
-                fullPath += key + "=" + this.LeafNamed.get(key)!.Path;
+                fullPath += key + "=" + this.LeafNamed.GetAt(key)!.Path;
             }
         }
 
@@ -37,9 +35,6 @@ export class BuildPathContext {
     }
 }
 
-/// <summary>
-/// 路由历史管理，一个UIWindow对应一个实例
-/// </summary>
 export class RouteHistoryManager {
     private readonly _history: System.List<RouteHistoryEntry> = new System.List<RouteHistoryEntry>();
     private _historyIndex: number = -1;
@@ -52,9 +47,6 @@ export class RouteHistoryManager {
         return this._history.length;
     }
 
-    /// <summary>
-    /// 获取当前路由的全路径
-    /// </summary>
     public GetFullPath(): string {
         if (this.RootNavigator.Children == null || this.RootNavigator.Children.length == 0)
             return "";
@@ -66,10 +58,10 @@ export class RouteHistoryManager {
 
     private static BuildFullPath(ctx: BuildPathContext, navigator: PixUI.Navigator) {
         if (navigator.IsNamed) {
-            ctx.LeafNamed.set(navigator.NameOfRouteView!, navigator);
+            ctx.LeafNamed.Add(navigator.NameOfRouteView!, navigator);
         } else if (navigator.IsInNamed) {
             let named = navigator.GetNamedParent()!;
-            ctx.LeafNamed.set(named.NameOfRouteView!, navigator);
+            ctx.LeafNamed.Add(named.NameOfRouteView!, navigator);
         } else {
             ctx.LeafDefault = navigator;
         }
@@ -155,9 +147,6 @@ export class RouteHistoryManager {
         return this.ComparePath(RouteHistoryManager.GetDefaultNavigator(navigator), pss, index + 1, action);
     }
 
-    /// <summary>
-    /// 获取默认路由（惟一的非命名的）
-    /// </summary>
     private static GetDefaultNavigator(navigator: PixUI.Navigator): Nullable<PixUI.Navigator> {
         if (navigator.Children == null || navigator.Children.length == 0)
             return null;

@@ -29,6 +29,10 @@ export class VectorManager<TSegment extends LiveChartsCore.IConsecutivePathSegme
             this.AreaGeometry.RemoveCommand(this._nextNode.Previous);
         }
 
+        // at this points "_nextNode" is:
+        // the next node after "segment"
+        // or it could also be "segment"
+        // or null in case there are no more segments.
 
         if (this._nextNode == null) {
             if (this._currentNode != null && followsPrevious) segment.Follows(this._currentNode.Value);
@@ -37,9 +41,9 @@ export class VectorManager<TSegment extends LiveChartsCore.IConsecutivePathSegme
         }
 
         if (this._nextNode.Value.Id == segment.Id) {
-            if (!System.Object.Equals(this._nextNode.Value, segment)) {
+            if (!System.Equals(this._nextNode.Value, segment)) {
                 if (followsPrevious) segment.Follows(this._nextNode.Value);
-                this._nextNode.Value = segment;
+                this._nextNode.Value = segment; // <- ensure it is the same instance
             }
             this._currentNode = this._nextNode;
             this._nextNode = this._currentNode.Next;
@@ -72,7 +76,7 @@ export class VectorManager<TSegment extends LiveChartsCore.IConsecutivePathSegme
             c = c.Next;
         }
 
-
+        //Trace.WriteLine(a);
     }
 }
 

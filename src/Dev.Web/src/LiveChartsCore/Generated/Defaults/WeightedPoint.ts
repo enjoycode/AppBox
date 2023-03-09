@@ -8,6 +8,11 @@ export class WeightedPoint implements LiveChartsCore.IChartEntity, System.INotif
     private _y: Nullable<number>;
     private _weight: Nullable<number>;
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="WeightedPoint"/> class.
+    // /// </summary>
+    // public WeightedPoint()
+    // { }
 
     public constructor(x: Nullable<number>, y: Nullable<number>, weight: Nullable<number>) {
         this.X = x;
@@ -46,7 +51,7 @@ export class WeightedPoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public EntityIndex: number = 0;
 
-    public ChartPoints: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    public ChartPoints: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
     #Coordinate: LiveChartsCore.Coordinate = LiveChartsCore.Coordinate.Empty;
     public get Coordinate() {

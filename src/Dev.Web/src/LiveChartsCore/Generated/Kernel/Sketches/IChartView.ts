@@ -42,10 +42,18 @@ export interface IChartView {
 
     OnDataPointerDown(points: System.IEnumerable<LiveChartsCore.ChartPoint>, pointer: LiveChartsCore.LvcPoint): void;
 
+    // /// <summary>
+    // /// Gets or sets the Synchronization Context, use this property to
+    // /// use an external object to handle multi threading synchronization.
+    // /// </summary>
+    // object SyncContext { get; /*set;*/ }
 
     InvokeOnUIThread(action: System.Action): void;
 
-
+    // /// <summary>
+    // /// Invalidates the control.
+    // /// </summary>
+    // void Invalidate();
 }
 
 export interface IChartView1<TDrawingContext extends LiveChartsCore.DrawingContext> extends IChartView {

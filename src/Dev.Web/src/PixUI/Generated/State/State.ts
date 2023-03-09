@@ -2,9 +2,6 @@ import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 
 export interface IStateBindable {
-    /// <summary>
-    /// 绑定的状态发生变更
-    /// </summary>
     OnStateChanged(state: StateBase, options: PixUI.BindingOptions): void;
 }
 
@@ -51,17 +48,11 @@ export abstract class State<T> extends StateBase {
         return this.Value?.toString() ?? '';
     }
 
-    /// <summary>
-    /// 转换为State&lt;string&gt;的计算属性
-    /// </summary>
     public AsStateOfString(formatter: Nullable<System.Func2<T, string>> = null,
                            parser: Nullable<System.Func2<string, T>> = null): State<string> {
         return PixUI.RxComputed.MakeAsString(this, formatter, parser);
     }
 
-    /// <summary>
-    /// 转换为State&lt;bool&gt;的计算属性
-    /// </summary>
     public AsStateOfBool(getter: System.Func2<T, boolean>): State<boolean> {
         return PixUI.RxComputed.Make1<T, boolean>(this, getter);
     }

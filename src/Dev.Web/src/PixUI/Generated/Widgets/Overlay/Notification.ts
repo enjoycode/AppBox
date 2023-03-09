@@ -43,7 +43,7 @@ export class NotificationEntry extends PixUI.SingleChildWidget {
     }
 
     private async StartHide() {
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 3000));
+        await new Promise<void>($resolve => setTimeout(() => $resolve(), 3000));
         this._controller.Reverse();
     }
 

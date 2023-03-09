@@ -158,6 +158,7 @@ export class FoldingManager {
 }
 
 export class StartComparer implements System.IComparer<CodeEditor.FoldMarker> {
+    private static readonly $meta_System_IComparer = true;
     public static readonly Instance: StartComparer = new StartComparer();
 
     public Compare(x: CodeEditor.FoldMarker, y: CodeEditor.FoldMarker): number {
@@ -167,6 +168,7 @@ export class StartComparer implements System.IComparer<CodeEditor.FoldMarker> {
 }
 
 export class EndComparer implements System.IComparer<CodeEditor.FoldMarker> {
+    private static readonly $meta_System_IComparer = true;
     public static readonly Instance: EndComparer = new EndComparer();
 
     public Compare(x: CodeEditor.FoldMarker, y: CodeEditor.FoldMarker): number {

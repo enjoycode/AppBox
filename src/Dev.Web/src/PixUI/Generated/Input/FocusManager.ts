@@ -1,8 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 管理输入焦点，UIWindow及每个显示的Popup各自拥有一个实例管理各自的焦点
-/// </summary>
+
 export class FocusManager {
     #FocusedWidget: Nullable<PixUI.Widget>;
     public get FocusedWidget() {
@@ -128,9 +126,6 @@ export class FocusManager {
     }
 }
 
-/// <summary>
-/// 每个UIWindow对应一个实例，管理当前窗体的FocusManger
-/// </summary>
 export class FocusManagerStack {
     public constructor() {
         this._stack.Add(new FocusManager()); // for UIWindow

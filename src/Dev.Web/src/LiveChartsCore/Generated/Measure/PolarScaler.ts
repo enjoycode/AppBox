@@ -37,6 +37,11 @@ export class PolarScaler {
             actualRadiusVisibleBounds = radiusAxis.VisibleDataBounds;
         }
 
+        //var actualAngleBounds = usePreviousScale ? angleAxis.PreviousDataBounds : angleAxis.DataBounds;
+        //var actualAngleVisibleBounds = usePreviousScale ? angleAxis.PreviousVisibleDataBounds : angleAxis.VisibleDataBounds;
+
+        //var actualRadiusBounds = usePreviousScale ? radiusAxis.PreviousDataBounds : radiusAxis.DataBounds;
+        //var actualRadiusVisibleBounds = usePreviousScale ? radiusAxis.PreviousVisibleDataBounds : radiusAxis.VisibleDataBounds;
 
         if (actualAngleBounds == null || actualAngleVisibleBounds == null) throw new System.Exception("angle bounds not found");
         if (actualRadiusBounds == null || actualRadiusVisibleBounds == null) throw new System.Exception("radius bounds not found");
@@ -49,9 +54,9 @@ export class PolarScaler {
         this._deltaRadius = this.MaxRadius - this.MinRadius;
 
         let minDimension = drawMarginSize.Width < drawMarginSize.Height ? drawMarginSize.Width : drawMarginSize.Height;
-        this._innerRadiusOffset = innerRadius;
+        this._innerRadiusOffset = innerRadius; // innerRadius;
         this.InnerRadius = innerRadius;
-        this._outerRadiusOffset = 0;
+        this._outerRadiusOffset = 0; //drawMagrinLocation.X; // We should also check for the top, right and bottom bounds.
         this._scalableRadius = minDimension * 0.5 - this._innerRadiusOffset - this._outerRadiusOffset;
 
         this.MinAngle = angleAxis.MinLimit ?? actualAngleBounds.Min;

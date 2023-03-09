@@ -20,10 +20,7 @@ export class TextEditorTheme {
 
     public LineNumberColor: PixUI.Color = new PixUI.Color(0xFF606366);
 
-    public TextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
-        color: new PixUI.Color(0xFFA9B7C7),
-        heightMultiplier: 1
-    });
+    public TextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({color: new PixUI.Color(0xFFA9B7C7), heightMultiplier: 1});
 
     public FoldedTextStyle: PixUI.TextStyle = PixUI.MakeTextStyle({
         color: new PixUI.Color(0xFFA9B7C7),

@@ -1,8 +1,6 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
-/// <summary>
-/// 弹出选择列表，仅支持单选
-/// </summary>
+
 export class Select<T> extends PixUI.InputBase<PixUI.Widget> {
     public constructor(value: PixUI.State<Nullable<T>>, filterable: boolean = false) {
         super(filterable

@@ -13,10 +13,23 @@ export class ChartPoint {
         this.Context = new LiveChartsCore.ChartPointContext(chart, series, entity);
     }
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="ChartPoint"/> class.
+    // /// </summary>
+    // /// <param name="point">The point.</param>
+    // protected ChartPoint(ChartPoint point) : this(point.Context.Chart, point.Context.Series, point.Context.Entity)
+    // {
+    //     IsLocalEmpty = point.IsLocalEmpty;
+    // }
+
+    // private ChartPoint()
+    // {
+    //     Context = ChartPointContext.MakeDefault();
+    // }
 
     public static get Empty(): ChartPoint {
         return new ChartPoint(null!, null!, new LiveChartsCore.MappedChartEntity()).Init({IsLocalEmpty: true});
-    }
+    } //new() { IsLocalEmpty = true };
 
     public get IsEmpty(): boolean {
         return this.IsLocalEmpty || this.Context.Entity.Coordinate.IsEmpty;
@@ -94,18 +107,20 @@ export class ChartPoint {
     public RemoveOnCompleted: boolean = false;
 
     public DistanceTo(point: LiveChartsCore.LvcPoint): number {
-        return this.Context.HoverArea?.DistanceTo((point).Clone()) ?? NaN;
+        return this.Context.HoverArea?.DistanceTo((point).Clone()) ?? Number.NaN;
     }
 
     private OnCoordinateChanged(coordinate: LiveChartsCore.Coordinate) {
-
-
+        // ToDo:
+        // how can this be improved???
+        // does this have a significant performance impact?
         this._localCoordinate = coordinate;
     }
 }
 
 export class ChartPoint3<TModel, TVisual, TLabel> extends ChartPoint {
-    public constructor(point: ChartPoint) {
+    public constructor(point: ChartPoint)  //base(point)
+    {
         super(point.Context.Chart, point.Context.Series, point.Context.Entity);
         this.IsLocalEmpty = point.IsLocalEmptyInternal;
 

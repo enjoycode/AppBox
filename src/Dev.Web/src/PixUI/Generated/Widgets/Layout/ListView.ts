@@ -21,9 +21,6 @@ export class ListViewController<T> extends PixUI.WidgetController<ListView<T>> {
         this.Widget.OnDataSourceChanged();
     }
 
-    /// <summary>
-    /// 滚动指定索引的子组件至可视区域
-    /// </summary>
     public ScrollTo(index: number) {
         let toChild = this.Widget.GetChildAt(index);
 

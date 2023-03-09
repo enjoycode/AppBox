@@ -10,12 +10,12 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
     private _stackedRowsCount: number = 0;
     private _areBarsIndexed: boolean = false;
 
-    private readonly _columnPositions: System.ObjectMap<number> = new System.ObjectMap();
-    private readonly _rowPositions: System.ObjectMap<number> = new System.ObjectMap();
-    private readonly _stackColumnPositions: System.NumberMap<number> = new System.NumberMap();
-    private readonly _stackRowsPositions: System.NumberMap<number> = new System.NumberMap();
+    private readonly _columnPositions: System.Dictionary<LiveChartsCore.IChartSeries<TDrawingContext>, number> = new System.Dictionary();
+    private readonly _rowPositions: System.Dictionary<LiveChartsCore.IChartSeries<TDrawingContext>, number> = new System.Dictionary();
+    private readonly _stackColumnPositions: System.Dictionary<number, number> = new System.Dictionary();
+    private readonly _stackRowsPositions: System.Dictionary<number, number> = new System.Dictionary();
 
-    private readonly _stackers: System.StringMap<LiveChartsCore.Stacker<TDrawingContext>> = new System.StringMap();
+    private readonly _stackers: System.Dictionary<string, LiveChartsCore.Stacker<TDrawingContext>> = new System.Dictionary();
 
     public constructor(series: System.IEnumerable<LiveChartsCore.IChartSeries<TDrawingContext>>) {
         this._series = series;
@@ -23,9 +23,9 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
 
 
     public GetColumnPostion(series: LiveChartsCore.IChartSeries<TDrawingContext>): number {
-        if (this._areBarsIndexed) return this._columnPositions.get(series);
+        if (this._areBarsIndexed) return this._columnPositions.GetAt(series);
         this.IndexBars();
-        return this._columnPositions.get(series);
+        return this._columnPositions.GetAt(series);
     }
 
     public GetColumnSeriesCount(): number {
@@ -35,9 +35,9 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public GetRowPostion(series: LiveChartsCore.IChartSeries<TDrawingContext>): number {
-        if (this._areBarsIndexed) return this._rowPositions.get(series);
+        if (this._areBarsIndexed) return this._rowPositions.GetAt(series);
         this.IndexBars();
-        return this._rowPositions.get(series);
+        return this._rowPositions.GetAt(series);
     }
 
     public GetRowSeriesCount(): number {
@@ -47,9 +47,9 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public GetStackedColumnPostion(series: LiveChartsCore.IChartSeries<TDrawingContext>): number {
-        if (this._areBarsIndexed) return this._stackColumnPositions.get(series.GetStackGroup());
+        if (this._areBarsIndexed) return this._stackColumnPositions.GetAt(series.GetStackGroup());
         this.IndexBars();
-        return this._stackColumnPositions.get(series.GetStackGroup());
+        return this._stackColumnPositions.GetAt(series.GetStackGroup());
     }
 
     public GetStackedColumnSeriesCount(): number {
@@ -59,9 +59,9 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public GetStackedRowPostion(series: LiveChartsCore.IChartSeries<TDrawingContext>): number {
-        if (this._areBarsIndexed) return this._stackRowsPositions.get(series.GetStackGroup());
+        if (this._areBarsIndexed) return this._stackRowsPositions.GetAt(series.GetStackGroup());
         this.IndexBars();
-        return this._stackRowsPositions.get(series.GetStackGroup());
+        return this._stackRowsPositions.GetAt(series.GetStackGroup());
     }
 
     public GetStackedRowSeriesCount(): number {
@@ -81,23 +81,24 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
 
             if (LiveChartsCore.Extensions.IsColumnSeries(item,)) {
                 if (!LiveChartsCore.Extensions.IsStackedSeries(item,)) {
-                    this._columnPositions.set(item, this._columnsCount++);
+                    this._columnPositions.SetAt(item, this._columnsCount++);
                     continue;
                 }
 
-                if (!this._stackColumnPositions.has(item.GetStackGroup()))
-                    this._stackColumnPositions.set(item.GetStackGroup(), this._stackedColumnsCount++);
+                if (!this._stackColumnPositions.ContainsKey(item.GetStackGroup()))
+                    this._stackColumnPositions.SetAt(item.GetStackGroup(), this._stackedColumnsCount++);
+
                 continue;
             }
 
             if (LiveChartsCore.Extensions.IsRowSeries(item,)) {
                 if (!LiveChartsCore.Extensions.IsRowSeries(item,)) {
-                    this._rowPositions.set(item, this._rowsCount++);
+                    this._rowPositions.SetAt(item, this._rowsCount++);
                     continue;
                 }
 
-                if (!this._stackRowsPositions.has(item.GetStackGroup()))
-                    this._stackRowsPositions.set(item.GetStackGroup(), this._stackedRowsCount++);
+                if (!this._stackRowsPositions.ContainsKey(item.GetStackGroup()))
+                    this._stackRowsPositions.SetAt(item.GetStackGroup(), this._stackedRowsCount++);
 
                 continue;
             }
@@ -121,12 +122,12 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     private GetStacker(series: LiveChartsCore.IChartSeries<TDrawingContext>, stackGroup: number): LiveChartsCore.Stacker<TDrawingContext> {
+        let stacker: any;
         let key = `${series.SeriesProperties}.${stackGroup}`;
 
-        let stacker = this._stackers.get(key);
-        if (stacker == null) {
+        if (!this._stackers.TryGetValue(key, new System.Out(() => stacker, $v => stacker = $v))) {
             stacker = new LiveChartsCore.Stacker<TDrawingContext>();
-            this._stackers.set(key, stacker);
+            this._stackers.Add(key, stacker);
         }
 
         return stacker;

@@ -13,6 +13,10 @@ export class KeyValuePair<TKey, TValue> {
 export class Dictionary<TKey = any, TValue = any> {
     //TODO:暂简单用js map实现，待重写与C#一致
 
+    public constructor(capacity?: number) {
+        //暂忽略capacity
+    }
+
     private readonly map: Map<TKey, TValue> = new Map<TKey, TValue>();
 
     public Init(entries: readonly (readonly [TKey, TValue])[]): Dictionary<TKey, TValue> {
@@ -22,7 +26,7 @@ export class Dictionary<TKey = any, TValue = any> {
         return this;
     }
 
-    public get Count() { //Maybe length?
+    public get length() {
         return this.map.size;
     }
 
@@ -32,6 +36,10 @@ export class Dictionary<TKey = any, TValue = any> {
 
     public get Values(): IEnumerable<TValue> {
         return EnumerableFrom(this.map.values());
+    }
+
+    public ContainsKey(key: TKey): boolean {
+        return this.map.has(key);
     }
 
     public GetAt(key: TKey): TValue {
@@ -65,6 +73,10 @@ export class Dictionary<TKey = any, TValue = any> {
             return true;
         }
         return false;
+    }
+
+    public Clear(): void {
+        this.map.clear();
     }
 
     *[Symbol.iterator](): IterableIterator<KeyValuePair<TKey, TValue>> {

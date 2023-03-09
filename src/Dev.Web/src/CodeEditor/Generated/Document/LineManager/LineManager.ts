@@ -180,8 +180,7 @@ export class LineManager {
         startSegment.RemovedLinePart(this, deferredEventList,
             offset - startSegmentOffset, charactersRemovedInStartLine);
 
-        let endSegment:
-            CodeEditor.LineSegment = this._lineCollection.GetByOffset(offset + length);
+        let endSegment: CodeEditor.LineSegment = this._lineCollection.GetByOffset(offset + length);
         if (endSegment == startSegment) {
             // special case: we are removing a part of the last line up to the
             // end of the document

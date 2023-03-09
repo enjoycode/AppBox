@@ -278,8 +278,9 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
 
     public Measure() {
 
-        if (!this.IsLoaded) return;
-
+        if (!this.IsLoaded) return; // <- prevents a visual glitch where the visual call the measure method
+        // while they are not visible, the problem is when the control is visible again
+        // the animations are not as expected because previously it ran in an invalid case.
 
         this.InvokeOnMeasuring();
 
@@ -312,7 +313,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         this.AnimationsSpeed = this._chartView.AnimationsSpeed;
         this.EasingFunction = this._chartView.EasingFunction;
 
-
+        //var actualSeries = (_chartView.Series ?? Enumerable.Empty<ISeries>()).Where(x => x.IsVisible);
         let actualSeries: System.IEnumerable<LiveChartsCore.ISeries> = this._chartView.Series == null
             ? [] : this._chartView.Series.Where(x => x.IsVisible);
 
@@ -327,7 +328,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         this.SeriesContext = new LiveChartsCore.SeriesContext<TDrawingContext>(this.Series);
         let isNewTheme = LiveChartsCore.LiveCharts.DefaultSettings.CurrentThemeId != this.ThemeId;
 
-
+        // restart axes bounds and meta data
         for (const axis of this.XAxes) {
             let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
             ce._isInternalSet = true;
@@ -351,7 +352,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
             if (axis.CrosshairPaint != null) this._crosshair.Add(axis);
         }
 
-
+        // get seriesBounds
         this.SetDrawMargin((this.ControlSize).Clone(), LiveChartsCore.Margin.Empty());
         for (const series of this.Series) {
             if (series.SeriesId == -1) series.SeriesId = this._nextSeries++;
@@ -377,6 +378,8 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
             ce._isInternalSet = false;
         }
 
+
+        // prevent the bounds are not empty...
 
         for (const axis of this.XAxes) {
             let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
@@ -425,7 +428,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         let seriesInLegend = this.Series.Where(x => x.IsVisibleAtLegend).ToArray();
         this.DrawLegend(seriesInLegend);
 
-
+        // calculate draw margin
         let title = this.View.Title;
         let m = LiveChartsCore.Margin.Empty();
         let ts: number = 0;
@@ -459,7 +462,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                 if (axis.InLineNamePlacement) {
                     let h = s.Height > ns.Height ? s.Height : ns.Height;
 
-
+                    // X Bottom
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, this.ControlSize.Height - h), new LiveChartsCore.LvcSize(ns.Width, h));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, axis.NameDesiredSize.Y - h), new LiveChartsCore.LvcSize(this.ControlSize.Width, s.Height));
 
@@ -468,7 +471,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                     m.Bottom = bs;
                     m.Left = ns.Width;
                 } else {
-
+                    // X Bottom
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, this.ControlSize.Height - bs - ns.Height), new LiveChartsCore.LvcSize(this.ControlSize.Width, ns.Height));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, axis.NameDesiredSize.Y - s.Height), new LiveChartsCore.LvcSize(this.ControlSize.Width, s.Height));
 
@@ -482,7 +485,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                 if (axis.InLineNamePlacement) {
                     let h = s.Height > ns.Height ? s.Height : ns.Height;
 
-
+                    // X Bottom
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, 0), new LiveChartsCore.LvcSize(ns.Width, h));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, axis.NameDesiredSize.Y - h), new LiveChartsCore.LvcSize(this.ControlSize.Width, s.Height));
 
@@ -491,7 +494,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                     m.Top = ts;
                     m.Left = ns.Width;
                 } else {
-
+                    // X Top
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, ts), new LiveChartsCore.LvcSize(this.ControlSize.Width, ns.Height));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(0, ts + ns.Height), new LiveChartsCore.LvcSize(this.ControlSize.Width, s.Height));
 
@@ -524,7 +527,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                 if (axis.InLineNamePlacement) {
                     if (w < ns.Width) w = ns.Width;
 
-
+                    // Y Left
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(ls, 0), new LiveChartsCore.LvcSize(ns.Width, ns.Height));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(ls, 0), new LiveChartsCore.LvcSize(s.Width, this.ControlSize.Height));
 
@@ -533,7 +536,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                     m.Top = ns.Height;
                     m.Left = ls;
                 } else {
-
+                    // Y Left
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(ls, 0), new LiveChartsCore.LvcSize(ns.Width, this.ControlSize.Height));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(ls + ns.Width, 0), new LiveChartsCore.LvcSize(s.Width, this.ControlSize.Height));
 
@@ -551,7 +554,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                 if (axis.InLineNamePlacement) {
                     if (w < ns.Width) w = ns.Width;
 
-
+                    // Y Left
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(this.ControlSize.Width - rs - ns.Width, 0), new LiveChartsCore.LvcSize(ns.Width, ns.Height));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(axis.NameDesiredSize.X - s.Width, 0), new LiveChartsCore.LvcSize(s.Width, this.ControlSize.Height));
 
@@ -560,7 +563,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                     m.Top = ns.Height;
                     m.Right = rs;
                 } else {
-
+                    // Y Right
                     axis.NameDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(this.ControlSize.Width - rs - ns.Width, 0), new LiveChartsCore.LvcSize(ns.Width, this.ControlSize.Height));
                     axis.LabelsDesiredSize = new LiveChartsCore.LvcRectangle(new LiveChartsCore.LvcPoint(axis.NameDesiredSize.X - s.Width, 0), new LiveChartsCore.LvcSize(s.Width, this.ControlSize.Height));
 
@@ -582,7 +585,8 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
 
         this.SetDrawMargin((this.ControlSize).Clone(), actualMargin);
 
-
+        // invalid dimensions, probably the chart is too small
+        // or it is initializing in the UI and has no dimensions yet
         if (this.DrawMarginSize.Width <= 0 || this.DrawMarginSize.Height <= 0) return;
 
         this.UpdateBounds();
@@ -604,10 +608,10 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                 axis.DataBounds.Max = axis.DataBounds.Max + c;
             }
 
-
+            // apply padding
             if (axis.MinLimit == null) {
                 let s = LiveChartsCore.Scaler.Make((this.DrawMarginLocation).Clone(), (this.DrawMarginSize).Clone(), axis);
-
+                // correction by geometry size
                 let p = Math.abs(s.ToChartValues(axis.DataBounds.RequestedGeometrySize) - s.ToChartValues(0));
                 if (axis.DataBounds.PaddingMin > p) p = axis.DataBounds.PaddingMin;
                 let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
@@ -617,10 +621,10 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                 ce._isInternalSet = false;
             }
 
-
+            // apply padding
             if (axis.MaxLimit == null) {
                 let s = LiveChartsCore.Scaler.Make((this.DrawMarginLocation).Clone(), (this.DrawMarginSize).Clone(), axis);
-
+                // correction by geometry size
                 let p = Math.abs(s.ToChartValues(axis.DataBounds.RequestedGeometrySize) - s.ToChartValues(0));
                 if (axis.DataBounds.PaddingMax > p) p = axis.DataBounds.PaddingMax;
                 let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
@@ -631,16 +635,16 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
             }
 
             if (axis.IsVisible) this.AddVisual(<LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis);
-            (<LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis).RemoveOldPaints(this.View);
-
+            (<LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis).RemoveOldPaints(this.View); // <- this is probably obsolete.
+            // the probable issue is the "IsVisible" property
         }
         for (const section of this.Sections) this.AddVisual(section);
         for (const visual of this.VisualElements) this.AddVisual(visual);
         for (const series of this.Series) this.AddVisual(<LiveChartsCore.ChartElement<TDrawingContext>><unknown>series);
 
         if (this._previousDrawMarginFrame != null && this._chartView.DrawMarginFrame != this._previousDrawMarginFrame) {
-
-
+            // probably obsolete?
+            // this should be handled by the RegisterAndInvalidateVisual() method.
             this._previousDrawMarginFrame.RemoveFromUI(this);
             this._previousDrawMarginFrame = null;
         }

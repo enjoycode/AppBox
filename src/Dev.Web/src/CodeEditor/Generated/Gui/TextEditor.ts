@@ -1,9 +1,7 @@
 import * as System from '@/System'
 import * as PixUI from '@/PixUI'
 import * as CodeEditor from '@/CodeEditor'
-/// <summary>
-/// 代码编辑器的总管，管理各个可视区域、光标、选择等
-/// </summary>
+
 export class TextEditor {
     public constructor(controller: CodeEditor.CodeEditorController) {
         this.Controller = controller;

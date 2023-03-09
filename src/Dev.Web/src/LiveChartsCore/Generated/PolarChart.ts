@@ -94,8 +94,9 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
     }
 
     public Measure() {
-        if (!this.IsLoaded) return;
-
+        if (!this.IsLoaded) return; // <- prevents a visual glitch where the visual call the measure method
+        // while they are not visible, the problem is when the control is visible again
+        // the animations are not as expected because previously it ran in an invalid case.
 
         this.InvokeOnMeasuring();
 
@@ -129,7 +130,7 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
         this.InnerRadius = <number><unknown>this._chartView.InnerRadius;
         this.InitialRotation = <number><unknown>this._chartView.InitialRotation;
 
-
+        //var actualSeries = (_chartView.Series ?? Enumerable.Empty<ISeries>()).Where(x => x.IsVisible);
         let actualSeries: System.IEnumerable<LiveChartsCore.ISeries> = this._chartView.Series == null
             ? [] : this._chartView.Series.Where(x => x.IsVisible);
 
@@ -143,7 +144,7 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
         this.SeriesContext = new LiveChartsCore.SeriesContext<TDrawingContext>(this.Series);
         let isNewTheme = LiveChartsCore.LiveCharts.DefaultSettings.CurrentThemeId != this.ThemeId;
 
-
+        // restart axes bounds and meta data
         for (const axis of this.AngleAxes) {
             let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
             ce._isInternalSet = true;
@@ -165,7 +166,7 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
             ce._isInternalSet = false;
         }
 
-
+        // get seriesBounds
         this.SetDrawMargin((this.ControlSize).Clone(), LiveChartsCore.Margin.Empty());
         for (const series of this.Series) {
             if (series.SeriesId == -1) series.SeriesId = this._nextSeries++;
@@ -190,6 +191,8 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
             primaryAxis.VisibleDataBounds.AppendValueByBounds(seriesBounds.PrimaryBounds);
         }
 
+
+        // prevent the bounds are not empty...
 
         for (const axis of this.AngleAxes) {
             let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
@@ -240,6 +243,7 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
         let seriesInLegend = this.Series.Where(x => x.IsVisibleAtLegend).ToArray();
         this.DrawLegend(seriesInLegend);
 
+        // calculate draw margin
 
         if (this.FitToBounds) {
             let mt: number = 0;
@@ -286,11 +290,20 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
             let dt = cy - mt;
             let db = cy - mb;
 
+            // so the idea is...
+
+            // we know the distance of the most left point to the left border (dl)
+            // the most right point to the right border (dr)
+            // the most bottom point to the bottom border (db)
+            // the most top point to the top border (dt)
+
+            // then to "easily" fit the plot to the data bounds, we create a negative margin for our draw margin
+            // then the scaler will luckily handle it.
 
             let fitMargin = new LiveChartsCore.Margin(-dl, -dt, -dr, -db);
             this.SetDrawMargin((this.ControlSize).Clone(), fitMargin);
         } else {
-
+            // calculate draw margin
             let m = LiveChartsCore.Margin.Empty();
             let ts = 0;
             if (this.View.Title != null) {
@@ -315,7 +328,7 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
                 let ns = drawablePlane.GetNameLabelSize(this);
                 let s = drawablePlane.GetPossibleSize(this);
 
-                let radius = s.Height;
+                let radius = s.Height; // <- this type needs to be changed... it is not the height it is the radius.
 
                 axis.Ro = m.Top + radius;
 
@@ -335,13 +348,14 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
                     axis.VisibleDataBounds.Max = axis.VisibleDataBounds.Max + c;
                 }
 
-
+                // the angle axis does not require padding?? I think it does not
             }
 
             this.SetDrawMargin((this.ControlSize).Clone(), m);
         }
 
-
+        // invalid dimensions, probably the chart is too small
+        // or it is initializing in the UI and has no dimensions yet
         if (this.DrawMarginSize.Width <= 0 || this.DrawMarginSize.Height <= 0) return;
 
         this.UpdateBounds();
@@ -363,9 +377,9 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
                 axis.DataBounds.Max = axis.DataBounds.Max + c;
             }
 
-
+            // apply padding
             if (axis.MinLimit == null) {
-
+                // correction by geometry size
                 let p = 0;
                 if (axis.DataBounds.PaddingMin > p) p = axis.DataBounds.PaddingMin;
                 let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
@@ -375,10 +389,10 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
                 ce._isInternalSet = false;
             }
 
-
+            // apply padding
             if (axis.MaxLimit == null) {
-
-                let p = 0;
+                // correction by geometry size
+                let p = 0; // Math.Abs(s.ToChartValues(axis.DataBounds.RequestedGeometrySize) - s.ToChartValues(0));
                 if (axis.DataBounds.PaddingMax > p) p = axis.DataBounds.PaddingMax;
                 let ce = <LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis;
                 ce._isInternalSet = true;
@@ -388,8 +402,8 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
             }
 
             if (axis.IsVisible) this.AddVisual(<LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis);
-            (<LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis).RemoveOldPaints(this.View);
-
+            (<LiveChartsCore.ChartElement<TDrawingContext>><unknown>axis).RemoveOldPaints(this.View); // <- this is probably obsolete.
+            // the probable issue is the "IsVisible" property
         }
 
         for (const visual of this.VisualElements) this.AddVisual(visual);

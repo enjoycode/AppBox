@@ -2,6 +2,7 @@ import * as PixUI from '@/PixUI'
 import * as System from '@/System'
 
 export class Offset implements System.IEquatable<Offset> {
+    private static readonly $meta_System_IEquatable = true;
     public static readonly Empty: Offset = new Offset(0, 0);
 
     public readonly Dx: number;
@@ -16,9 +17,6 @@ export class Offset implements System.IEquatable<Offset> {
         this.Dy = dy;
     }
 
-    /// <summary>
-    /// Linearly interpolate between two offsets.
-    /// </summary>
     public static Lerp(a: Nullable<Offset>, b: Nullable<Offset>, t: number): Nullable<Offset> {
         if (b == null) {
             if (a == null)

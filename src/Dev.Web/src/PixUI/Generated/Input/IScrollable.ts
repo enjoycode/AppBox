@@ -7,10 +7,6 @@ export interface IScrollable {
     get ScrollOffsetY(): number;
 
 
-    /// <summary>
-    /// 处理滚动事件的偏移量
-    /// </summary>
-    /// <returns>实际滚动的偏移量</returns>
     OnScroll(dx: number, dy: number): PixUI.Offset;
 }
 
@@ -36,10 +32,6 @@ export class ScrollController {
         this.Direction = direction;
     }
 
-    /// <summary>
-    /// 默认的滚动行为
-    /// </summary>
-    /// <returns>实际滚动的偏移量</returns>
     public OnScroll(dx: number, dy: number, maxOffsetX: number, maxOffsetY: number): PixUI.Offset {
         let oldX = this.OffsetX;
         let oldY = this.OffsetY;

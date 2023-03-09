@@ -44,7 +44,7 @@ export class RowSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVis
         }
         if (this.DataLabelsPaint != null) {
             this.DataLabelsPaint.ZIndex = actualZIndex + 0.3;
-
+            //DataLabelsPaint.SetClipRectangle(cartesianChart.Canvas, new LvcRectangle(drawLocation, drawMarginSize));
             cartesianChart.Canvas.AddDrawableTask(this.DataLabelsPaint);
         }
 
@@ -91,7 +91,13 @@ export class RowSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVis
                     hi = cartesianChart.IsZoomingOrPanning ? bp : 0;
                 }
 
-
+                // var r = new TVisual
+                // {
+                //     X = pi,
+                //     Y = yi,
+                //     Width = hi,
+                //     Height = uwi
+                // };
                 let r = this._visualFactory();
                 r.X = pi;
                 r.Y = yi;
@@ -160,7 +166,7 @@ export class RowSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVis
                 let label = <Nullable<TLabel>><unknown>point.Context.Label;
 
                 if (label == null) {
-
+                    //var l = new TLabel { X = helper.p, Y = secondary - helper.uwm + helper.cp, RotateTransform = (float)DataLabelsRotation };
                     let l = this._labelFactory();
                     l.X = helper.p;
                     l.Y = secondary - helper.uwm + helper.cp;

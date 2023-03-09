@@ -7,6 +7,11 @@ export class ObservableValue implements LiveChartsCore.IChartEntity, System.INot
     private _value: Nullable<number>;
     private _entityIndex: number = 0;
 
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="ObservableValue"/> class.
+    // /// </summary>
+    // public ObservableValue()
+    // { }
 
     public constructor(value: Nullable<number>) {
         this.Value = value;
@@ -26,14 +31,14 @@ export class ObservableValue implements LiveChartsCore.IChartEntity, System.INot
     }
 
     public set EntityIndex(value: number) {
-
-
+        // the coordinate of this type depends on the index of element in the data collection.
+        // we update the coordinate if the index changed.
         if (value == this._entityIndex) return;
         this._entityIndex = value;
         this.OnCoordinateChanged();
     }
 
-    public ChartPoints: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    public ChartPoints: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
     #Coordinate: LiveChartsCore.Coordinate = LiveChartsCore.Coordinate.Empty;
     public get Coordinate() {

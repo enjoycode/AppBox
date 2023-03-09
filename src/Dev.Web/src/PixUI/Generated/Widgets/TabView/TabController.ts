@@ -55,9 +55,6 @@ export class TabController<T> implements PixUI.IStateBindable {
         return this.DataSource.IndexOf(dataItem);
     }
 
-    /// <summary>
-    /// 选择指定的Tab
-    /// </summary>
     public SelectAt(index: number, byTapTab: boolean = false) {
         if (index < 0 || index == this.SelectedIndex) return;
 

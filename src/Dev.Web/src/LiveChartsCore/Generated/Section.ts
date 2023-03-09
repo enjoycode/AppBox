@@ -144,8 +144,13 @@ export abstract class Section2<TSizedGeometry extends LiveChartsCore.ISizedGeome
             this.Fill.ZIndex = this.ZIndex ?? -2.5;
 
             if (this._fillSizedGeometry == null) {
-
-
+                // _fillSizedGeometry = new TSizedGeometry
+                // {
+                //     X = xi,
+                //     Y = yi,
+                //     Width = xj - xi,
+                //     Height = yj - yi
+                // };
                 this._fillSizedGeometry = this._sizedGeometryFactory();
                 this._fillSizedGeometry.X = xi;
                 this._fillSizedGeometry.Y = yi;
@@ -179,8 +184,13 @@ export abstract class Section2<TSizedGeometry extends LiveChartsCore.ISizedGeome
             this.Stroke.ZIndex = this.ZIndex ?? 0;
 
             if (this._strokeSizedGeometry == null) {
-
-
+                // _strokeSizedGeometry = new TSizedGeometry
+                // {
+                //     X = xi,
+                //     Y = yi,
+                //     Width = xj - xi,
+                //     Height = yj - yi
+                // };
                 this._strokeSizedGeometry = this._sizedGeometryFactory();
                 this._strokeSizedGeometry.X = xi;
                 this._strokeSizedGeometry.Y = yi;

@@ -81,7 +81,7 @@ export class HeatLandSeries<TDrawingContext extends LiveChartsCore.DrawingContex
         }
 
         let heatStops = LiveChartsCore.HeatFunctions.BuildColorStops(this.HeatMap, this.ColorStops);
-
+        //var shapeContext = new MapShapeContext<TDrawingContext>(context.View, _heatPaint, heatStops, bounds);
         let toRemove = new System.HashSet<LiveChartsCore.LandDefinition>(this._everUsed);
 
         if (this.Lands != null) {

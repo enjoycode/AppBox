@@ -7,9 +7,6 @@ export enum AnchorMovementType {
     AfterInsertion
 }
 
-/// <summary>
-/// An anchor that can be put into a document and moves around when the document is changed.
-/// </summary>
 export class TextAnchor {
     private static AnchorDeletedError(): System.Exception {
         return new System.InvalidOperationException("The text containing the anchor was deleted");
@@ -61,11 +58,11 @@ export class TextAnchor {
 
     public readonly Deleted = new System.Event();
 
-    public Delete(deferredEventList: CodeEditor.DeferredEventList) {
+    public Delete(deferredEventList: System.Ref<CodeEditor.DeferredEventList>) {
         // we cannot fire an event here because this method is called while the LineManager adjusts the
         // lineCollection, so an event handler could see inconsistent state
         this.lineSegment = null;
-        deferredEventList.AddDeletedAnchor(this);
+        deferredEventList.Value.AddDeletedAnchor(this);
     }
 
     public RaiseDeleted() {

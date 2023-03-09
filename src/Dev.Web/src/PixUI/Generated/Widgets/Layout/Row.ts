@@ -68,7 +68,8 @@ export class Row extends PixUI.MultiChildWidget<PixUI.Widget> {
             let childY = match(this._alignment)
                 .with(PixUI.VerticalAlignment.Bottom, () => maxHeightOfChild - child.H)
                 .with(PixUI.VerticalAlignment.Middle, () => (maxHeightOfChild - child.H) / 2)
-                .otherwise(() => 0);
+                .otherwise(() => 0
+                );
             child.SetPosition(totalWidth, childY);
 
             totalWidth += child.W;

@@ -55,6 +55,10 @@ export abstract class CartesianSeries<TModel, TVisual extends object & LiveChart
         let ts = tickSecondary.Value * this.DataPadding.X;
         let tp = tickPrimary.Value * this.DataPadding.Y;
 
+        // using different methods for both primary and secondary axis seems to be the best solution
+        // if this the following 2 lines needs to be changed again, please ensure that the following test passes:
+        // https://github.com/beto-rodriguez/LiveCharts2/issues/522
+        // https://github.com/beto-rodriguez/LiveCharts2/issues/642
 
         if (rawBaseBounds.VisibleSecondaryBounds.Delta == 0) ts = secondaryAxis.UnitWidth * this.DataPadding.X;
         if (rawBaseBounds.VisiblePrimaryBounds.Delta == 0) tp = rawBaseBounds.VisiblePrimaryBounds.Max * 0.25;

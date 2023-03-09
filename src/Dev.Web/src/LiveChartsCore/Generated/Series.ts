@@ -233,6 +233,10 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
         this.ChartPointPointerDown.Invoke(chart, new LiveChartsCore.ChartPoint3<TModel, TVisual, TLabel>(LiveChartsCore.Extensions.FindClosestTo<TModel, TVisual, TLabel>(points, (pointer).Clone())!));
     }
 
+    // IEnumerable<ChartPoint> ISeries.Fetch(IChart chart)
+    // {
+    //     return Fetch(chart);
+    // }
 
     FindHitPoints(chart: LiveChartsCore.IChart, pointerPosition: LiveChartsCore.LvcPoint, strategy: LiveChartsCore.TooltipFindingStrategy): System.IEnumerable<LiveChartsCore.ChartPoint> {
         let motionCanvas = <LiveChartsCore.MotionCanvas<TDrawingContext>><unknown>chart.Canvas;
@@ -248,7 +252,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
 
         let s = (Math.floor(strategy) & 0xFFFFFFFF);
         if (s >= 4 && s <= 6) {
-
+            // if select closest...
             query = LiveChartsCore.Extensions.SelectFirst(query
                     .Select(x => {
                         return {distance: x.DistanceTo((pointerPosition).Clone()), point: x}

@@ -13,8 +13,8 @@ export abstract class Animatable implements LiveChartsCore.IAnimatable {
 
     public RemoveOnCompleted: boolean = false;
 
-    public get MotionProperties(): System.StringMap<LiveChartsCore.IMotionProperty> {
-        return new System.StringMap();
+    public get MotionProperties(): System.Dictionary<string, LiveChartsCore.IMotionProperty> {
+        return new System.Dictionary();
     }
 
     public SetTransition(animation: Nullable<LiveChartsCore.Animation>, ...propertyName: Nullable<string[]>) {
@@ -22,7 +22,7 @@ export abstract class Animatable implements LiveChartsCore.IAnimatable {
         if (propertyName == null || propertyName.length == 0) propertyName = this.MotionProperties.Keys.ToArray();
 
         for (const name of propertyName) {
-            this.MotionProperties.get(name)!.Animation = a;
+            this.MotionProperties.GetAt(name).Animation = a;
         }
     }
 
@@ -30,7 +30,7 @@ export abstract class Animatable implements LiveChartsCore.IAnimatable {
         if (propertyName == null || propertyName.length == 0) propertyName = this.MotionProperties.Keys.ToArray();
 
         for (const name of propertyName) {
-            this.MotionProperties.get(name)!.Animation = null;
+            this.MotionProperties.GetAt(name).Animation = null;
         }
     }
 
@@ -38,8 +38,8 @@ export abstract class Animatable implements LiveChartsCore.IAnimatable {
         if (propertyName == null || propertyName.length == 0) propertyName = this.MotionProperties.Keys.ToArray();
 
         for (const property of propertyName) {
-            let transitionProperty = this.MotionProperties.get(property);
-            if (transitionProperty == null)
+            let transitionProperty: any;
+            if (!this.MotionProperties.TryGetValue(property, new System.Out(() => transitionProperty, $v => transitionProperty = $v)))
                 throw new System.Exception(`The property ${property} is not a transition property of this instance.`);
 
             if (transitionProperty.Animation == null) continue;
@@ -48,7 +48,7 @@ export abstract class Animatable implements LiveChartsCore.IAnimatable {
     }
 
     protected RegisterMotionProperty<T extends LiveChartsCore.IMotionProperty>(motionProperty: T): T {
-        this.MotionProperties.set(motionProperty.PropertyName, motionProperty);
+        this.MotionProperties.SetAt(motionProperty.PropertyName, motionProperty);
         return motionProperty;
     }
 }

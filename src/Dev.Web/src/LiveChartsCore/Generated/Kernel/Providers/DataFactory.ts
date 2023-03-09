@@ -4,7 +4,7 @@ import * as LiveChartsCore from '@/LiveChartsCore'
 export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingContext> {
 
     private _isTModelChartEntity: boolean = false;
-    private readonly _chartRefEntityMap: System.ObjectMap<System.ObjectMap<LiveChartsCore.MappedChartEntity>> = new System.ObjectMap();
+    private readonly _chartRefEntityMap: System.Dictionary<any, System.Dictionary<TModel, LiveChartsCore.MappedChartEntity>> = new System.Dictionary();
     private _series: Nullable<LiveChartsCore.ISeries>;
 
     private PreviousKnownBounds: LiveChartsCore.DimensionalBounds = new LiveChartsCore.DimensionalBounds(true);
@@ -21,12 +21,17 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
             this._series = series;
 
             for (const value of this.GetEntities(series, chart)) {
+                let point: any;
                 if (value == null) {
                     yield LiveChartsCore.ChartPoint.Empty;
                     continue;
                 }
 
-                yield value.ChartPoints?.get(chart.View) ?? LiveChartsCore.ChartPoint.Empty;
+                if (value.ChartPoints != null && value.ChartPoints!.TryGetValue(chart.View, new System.Out(() => point, $v => point = $v)))
+                    yield point;
+                else
+                    yield LiveChartsCore.ChartPoint.Empty;
+                //yield return value.ChartPoints?.GetPointForView(chart.View) ?? ChartPoint.Empty;
             }
         }
             .bind(this);
@@ -34,16 +39,16 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
     }
 
     public DisposePoint(point: LiveChartsCore.ChartPoint) {
+        let d: any;
         if (this._isTModelChartEntity) return;
 
         let canvas = <LiveChartsCore.MotionCanvas<TDrawingContext>><unknown>point.Context.Chart.CoreChart.Canvas;
-
-        let d = this._chartRefEntityMap.get(canvas.Sync);
+        this._chartRefEntityMap.TryGetValue(canvas.Sync, new System.Out(() => d, $v => d = $v));
         let map = d;
         if (map == null) return;
         let src = <Nullable<TModel>><unknown>point.Context.DataSource;
         if (src == null) return;
-        map.delete(src);
+        map.Remove(src);
     }
 
     public Dispose(chart: LiveChartsCore.IChart) {
@@ -51,7 +56,7 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
         if (this._isTModelChartEntity) return;
 
         let canvas = <LiveChartsCore.MotionCanvas<TDrawingContext>><unknown>chart.Canvas;
-        this._chartRefEntityMap.delete(canvas.Sync);
+        this._chartRefEntityMap.Remove(canvas.Sync);
     }
 
     public GetCartesianBounds(chart: LiveChartsCore.Chart<TDrawingContext>,
@@ -199,19 +204,18 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
             let index = 0;
 
             for (const entity of entities) {
+                let point: any;
                 if (entity == null) {
                     index++;
                     yield new LiveChartsCore.MappedChartEntity();
                     continue;
                 }
 
-                entity.ChartPoints ??= new System.ObjectMap<LiveChartsCore.ChartPoint>();
-                let point = entity.ChartPoints.get(chart.View);
-                if (point == null) {
+                entity.ChartPoints ??= new System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>();
+                if (!entity.ChartPoints.TryGetValue(chart.View, new System.Out(() => point, $v => point = $v))) {
                     point = new LiveChartsCore.ChartPoint(chart.View, series, entity);
-                    entity.ChartPoints.set(chart.View, point);
+                    entity.ChartPoints.SetAt(chart.View, point);
                 }
-
 
                 point.Context.DataSource = entity;
                 entity.EntityIndex = index++;
@@ -226,6 +230,7 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
 
     private EnumerateByRefEntities(series: LiveChartsCore.ISeries1<TModel>, chart: LiveChartsCore.IChart): System.IEnumerable<Nullable<LiveChartsCore.IChartEntity>> {
         const _$generator = function* (this: any, series: LiveChartsCore.ISeries1<TModel>, chart: LiveChartsCore.IChart) {
+            let d: any;
             if (series.Values == null) return;
 
             let canvas = <LiveChartsCore.MotionCanvas<TDrawingContext>><unknown>chart.Canvas;
@@ -233,30 +238,32 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
             if (mapper == null) throw new System.Exception("series has no mapper");
             let index = 0;
 
-            let d = this._chartRefEntityMap.get(canvas.Sync);
-            if (d == null) {
-                d = new System.ObjectMap<LiveChartsCore.MappedChartEntity>();
-                this._chartRefEntityMap.set(canvas.Sync, d);
+            if (!this._chartRefEntityMap.TryGetValue(canvas.Sync, new System.Out(() => d, $v => d = $v))) {
+                d = new System.Dictionary<TModel, LiveChartsCore.MappedChartEntity>();
+                this._chartRefEntityMap.SetAt(canvas.Sync, d);
             }
+
             let IndexEntityMap = d;
 
             for (const item of series.Values) {
+                let entity: any;
+                let point: any;
                 if (item == null) {
                     yield new LiveChartsCore.MappedChartEntity();
                     index++;
                     continue;
                 }
 
-                let entity = IndexEntityMap.get(item);
-                if (entity == null) {
-                    entity = new LiveChartsCore.MappedChartEntity().Init({ChartPoints: new System.ObjectMap<LiveChartsCore.ChartPoint>()});
-                    IndexEntityMap.set(item, entity);
+                if (!IndexEntityMap.TryGetValue(item, new System.Out(() => entity, $v => entity = $v))) {
+                    IndexEntityMap.SetAt(item, entity = new LiveChartsCore.MappedChartEntity().Init(
+                        {
+                            ChartPoints: new System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>()
+                        }));
                 }
 
-                let point = entity.ChartPoints.get(chart.View);
-                if (point == null) {
+                if (!entity.ChartPoints!.TryGetValue(chart.View, new System.Out(() => point, $v => point = $v))) {
                     point = new LiveChartsCore.ChartPoint(chart.View, series, entity);
-                    entity.ChartPoints.set(chart.View, point);
+                    entity.ChartPoints.SetAt(chart.View, point);
                 }
 
                 point.Context.DataSource = item;

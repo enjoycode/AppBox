@@ -35,9 +35,6 @@ export class TabBody<T> extends PixUI.DynamicView {
         this._bodies.RemoveAt(index);
     }
 
-    /// <summary>
-    /// 从旧TabBody切换至新的
-    /// </summary>
     public SwitchFrom(oldIndex: number) {
         let newIndex = this._controller.SelectedIndex;
         let to = this.TryBuildBody();
@@ -57,9 +54,6 @@ export class TabBody<T> extends PixUI.DynamicView {
         }
     }
 
-    /// <summary>
-    /// 用于移除最后一个后清空Body内容
-    /// </summary>
     public ClearBody() {
         this.ReplaceTo(null);
     }

@@ -87,7 +87,7 @@ export class CollectionDeepObserver<T> {
                     }
                     break;
                 case System.NotifyCollectionChangedAction.Move:
-
+                    // ignored.
                     break;
                 default:
                     break;

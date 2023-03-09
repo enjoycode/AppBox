@@ -14,15 +14,15 @@ export class MapLayer<TDrawingContext extends LiveChartsCore.DrawingContext> {
 
     public IsVisible: boolean = true;
 
-    public Stroke: Nullable<LiveChartsCore.IPaint<TDrawingContext>>;
+    public Stroke: Nullable<LiveChartsCore.IPaint<TDrawingContext>>; //= (IPaint<TDrawingContext>)LiveCharts.DefaultPaint;
 
-    public Fill: Nullable<LiveChartsCore.IPaint<TDrawingContext>>;
+    public Fill: Nullable<LiveChartsCore.IPaint<TDrawingContext>>; //= (IPaint<TDrawingContext>)LiveCharts.DefaultPaint;
 
     public Max: Float64Array = new Float64Array();
 
     public Min: Float64Array = new Float64Array();
 
-    #Lands: System.StringMap<LiveChartsCore.LandDefinition> = new System.StringMap();
+    #Lands: System.Dictionary<string, LiveChartsCore.LandDefinition> = new System.Dictionary();
     public get Lands() {
         return this.#Lands;
     }

@@ -41,3 +41,7 @@ export interface ICartesianChartView<TDrawingContext extends LiveChartsCore.Draw
 
     ScaleDataToPixels(point: LiveChartsCore.LvcPointD, xAxisIndex?: number, yAxisIndex?: number): LiveChartsCore.LvcPointD;
 }
+
+export function IsInterfaceOfICartesianChartView(obj: any): obj is ICartesianChartView<any> {
+    return typeof obj === "object" && obj !== null && !Array.isArray(obj) && '$meta_LiveChartsCore_ICartesianChartView' in obj.constructor;
+}

@@ -17,5 +17,5 @@ export class BezierVisualPoint<TDrawingContext extends LiveChartsCore.DrawingCon
         return this.Geometry?.MainGeometry;
     }
 
-
+    //ISizedGeometry<TDrawingContext> ICubicBezierVisualChartPoint<TDrawingContext>.Geometry => Geometry;
 }

@@ -2,8 +2,8 @@ import * as System from '@/System'
 import * as LiveChartsCore from '@/LiveChartsCore'
 
 export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVisualChartPoint<TDrawingContext>, TLabel extends object & LiveChartsCore.ILabelGeometry<TDrawingContext>, TDrawingContext extends LiveChartsCore.DrawingContext, TPathGeometry extends LiveChartsCore.IVectorGeometry<LiveChartsCore.CubicBezierSegment, TDrawingContext>, TVisualPoint extends LiveChartsCore.BezierVisualPoint<TDrawingContext, TVisual>> extends LiveChartsCore.ChartSeries<TModel, TVisualPoint, TLabel, TDrawingContext> implements LiveChartsCore.IPolarLineSeries<TDrawingContext>, LiveChartsCore.IPolarSeries<TDrawingContext> {
-    private readonly _fillPathHelperDictionary: System.ObjectMap<System.List<TPathGeometry>> = new System.ObjectMap();
-    private readonly _strokePathHelperDictionary: System.ObjectMap<System.List<TPathGeometry>> = new System.ObjectMap();
+    private readonly _fillPathHelperDictionary: System.Dictionary<any, System.List<TPathGeometry>> = new System.Dictionary();
+    private readonly _strokePathHelperDictionary: System.Dictionary<any, System.List<TPathGeometry>> = new System.Dictionary();
     private _lineSmoothness: number = 0.65;
     private _geometrySize: number = 14;
     private _enableNullSplitting: boolean = true;
@@ -124,6 +124,8 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+        let strokePathHelperContainer: any;
+        let fillPathHelperContainer: any;
         let polarChart = <LiveChartsCore.PolarChart<TDrawingContext>><unknown>chart;
         let angleAxis = polarChart.AngleAxes[this.ScalesAngleAt];
         let radiusAxis = polarChart.RadiusAxes[this.ScalesRadiusAt];
@@ -151,8 +153,9 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         let actualZIndex = this.ZIndex == 0 ? (<LiveChartsCore.ISeries><unknown>this).SeriesId : this.ZIndex;
 
         if (stacker != null) {
-
-
+            // easy workaround to set an automatic and valid z-index for stacked area series
+            // the problem of this solution is that the user needs to set z-indexes above 1000
+            // if the user needs to add more series to the chart.
             actualZIndex = 1000 - stacker.Position;
             if (this.Fill != null) this.Fill.ZIndex = actualZIndex;
             if (this.Stroke != null) this.Stroke.ZIndex = actualZIndex;
@@ -163,16 +166,14 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         let segmentI = 0;
         let pointsCleanup = LiveChartsCore.ChartPointCleanupContext.For(this.everFetched);
 
-        let strokePathHelperContainer = this._strokePathHelperDictionary.get(chart.Canvas.Sync);
-        if (strokePathHelperContainer == null) {
+        if (!this._strokePathHelperDictionary.TryGetValue(chart.Canvas.Sync, new System.Out(() => strokePathHelperContainer, $v => strokePathHelperContainer = $v))) {
             strokePathHelperContainer = new System.List<TPathGeometry>();
-            this._strokePathHelperDictionary.set(chart.Canvas.Sync, strokePathHelperContainer);
+            this._strokePathHelperDictionary.SetAt(chart.Canvas.Sync, strokePathHelperContainer);
         }
 
-        let fillPathHelperContainer = this._fillPathHelperDictionary.get(chart.Canvas.Sync);
-        if (fillPathHelperContainer == null) {
+        if (!this._fillPathHelperDictionary.TryGetValue(chart.Canvas.Sync, new System.Out(() => fillPathHelperContainer, $v => fillPathHelperContainer = $v))) {
             fillPathHelperContainer = new System.List<TPathGeometry>();
-            this._fillPathHelperDictionary.set(chart.Canvas.Sync, fillPathHelperContainer);
+            this._fillPathHelperDictionary.SetAt(chart.Canvas.Sync, fillPathHelperContainer);
         }
 
         for (const item of strokePathHelperContainer) item.ClearCommands();
@@ -197,9 +198,9 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
             let strokePath: TPathGeometry;
 
             if (segmentI >= fillPathHelperContainer.length) {
-                fillPath = this._pathGeometryFactory();
+                fillPath = this._pathGeometryFactory(); //new TPathGeometry { ClosingMethod = VectorClosingMethod.NotClosed };
                 fillPath.ClosingMethod = LiveChartsCore.VectorClosingMethod.NotClosed;
-                strokePath = this._pathGeometryFactory();
+                strokePath = this._pathGeometryFactory(); //new TPathGeometry { ClosingMethod = VectorClosingMethod.NotClosed };
                 strokePath.ClosingMethod = LiveChartsCore.VectorClosingMethod.NotClosed;
                 fillPathHelperContainer.Add(fillPath);
                 strokePathHelperContainer.Add(strokePath);
@@ -235,7 +236,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
                 let visual = <Nullable<TVisualPoint>><unknown>data.TargetPoint.Context.Visual;
 
                 if (visual == null) {
-                    let v = this._visualPointFactory();
+                    let v = this._visualPointFactory(); //new TVisualPoint();
 
                     visual = v;
 
@@ -306,7 +307,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
                         actualRotation += 180;
 
                     if (label == null) {
-
+                        //var l = new TLabel { X = x - hgs, Y = scaler.CenterY - hgs, RotateTransform = (float)actualRotation };
                         let l = this._labelFactory();
                         l.X = x - hgs;
                         l.Y = scaler.CenterY - hgs;
@@ -368,7 +369,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
 
         if (this.DataLabelsPaint != null) {
             polarChart.Canvas.AddDrawableTask(this.DataLabelsPaint);
-
+            //DataLabelsPaint.SetClipRectangle(polarChart.Canvas, new LvcRectangle(drawLocation, drawMarginSize));
             this.DataLabelsPaint.ZIndex = actualZIndex + 0.5;
         }
 
@@ -630,14 +631,14 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         let canvas = (<LiveChartsCore.IPolarChartView<TDrawingContext>><unknown>chart).CoreCanvas;
 
         if (this.Fill != null) {
-            for (const activeChartContainer of this._fillPathHelperDictionary.values())
-                for (const pathHelper of activeChartContainer)
+            for (const activeChartContainer of this._fillPathHelperDictionary)
+                for (const pathHelper of activeChartContainer.Value)
                     this.Fill.RemoveGeometryFromPainTask(canvas, pathHelper);
         }
 
         if (this.Stroke != null) {
-            for (const activeChartContainer of this._strokePathHelperDictionary.values())
-                for (const pathHelper of activeChartContainer)
+            for (const activeChartContainer of this._strokePathHelperDictionary)
+                for (const pathHelper of activeChartContainer.Value)
                     this.Stroke.RemoveGeometryFromPainTask(canvas, pathHelper);
         }
 

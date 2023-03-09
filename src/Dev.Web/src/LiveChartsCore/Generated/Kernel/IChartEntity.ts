@@ -6,9 +6,9 @@ export interface IChartEntity {
 
     set EntityIndex(value: number);
 
-    get ChartPoints(): Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>;
+    get ChartPoints(): Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>;
 
-    set ChartPoints(value: Nullable<System.ObjectMap<LiveChartsCore.ChartPoint>>);
+    set ChartPoints(value: Nullable<System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>>);
 
     get Coordinate(): LiveChartsCore.Coordinate;
 

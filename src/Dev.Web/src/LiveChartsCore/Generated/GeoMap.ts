@@ -141,7 +141,7 @@ export class GeoMap<TDrawingContext extends LiveChartsCore.DrawingContext> {
 
             if (this.View.Stroke != null) {
                 if (this.View.Stroke.ZIndex == 0) this.View.Stroke.ZIndex = 2;
-                this.View.Stroke.IsStroke = true;
+                this.View.Stroke.IsStroke = true; // ToDo: why both properties? IsStroke? IsFill?
                 this.View.Stroke.IsFill = false;
                 this.View.Canvas.AddDrawableTask(this.View.Stroke);
             }
@@ -154,7 +154,7 @@ export class GeoMap<TDrawingContext extends LiveChartsCore.DrawingContext> {
                 this.View.Canvas.RemovePaintTask(this._previousFill);
 
             if (this.View.Fill != null) {
-                this.View.Fill.IsStroke = false;
+                this.View.Fill.IsStroke = false; // ToDo: why both properties? IsStroke? IsFill?
                 this.View.Fill.IsFill = true;
                 this.View.Canvas.AddDrawableTask(this.View.Fill);
             }
@@ -211,7 +211,7 @@ export class GeoMap<TDrawingContext extends LiveChartsCore.DrawingContext> {
     }
 
     private Chart_PointerLeft() {
-
+        // ...?
     }
 
     private Chart_PointerUp(pointerPosition: LiveChartsCore.LvcPoint) {

@@ -72,9 +72,6 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         this._controller.OnMenuItemHoverChanged(this, hover);
     }
 
-    /// <summary>
-    /// 用于PopMenu计算完所有子节点宽度后重设
-    /// </summary>
     public ResetWidth(newWidth: number) {
         this.SetSize(newWidth, this.H);
         //右对齐快键指示orExpandIcon
