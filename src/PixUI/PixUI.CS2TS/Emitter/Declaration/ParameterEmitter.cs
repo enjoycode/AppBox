@@ -29,14 +29,15 @@ namespace PixUI.CS2TS
                 Write(": ");
                 //如果是ref参数，转换为System.Ref
                 var isRef = node.Modifiers.Any(m => m.Kind() == SyntaxKind.RefKeyword);
-                if (isRef)
+                var isOut = node.Modifiers.Any(m => m.Kind() == SyntaxKind.OutKeyword);
+                if (isRef || isOut)
                 {
                     AddUsedModule("System");
-                    Write("System.Ref<");
+                    Write( isRef ? "System.Ref<" : "System.Out<");
                 }
 
                 Visit(node.Type);
-                if (isRef)
+                if (isRef || isOut)
                     Write('>');
             }
 

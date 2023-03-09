@@ -97,6 +97,10 @@ class Person {
 * pattern
 
 ```c#
+var isPerson = obj is Person person;
+```
+
+```c#
 if (obj is not Expanded expanded) {}
 ```
 

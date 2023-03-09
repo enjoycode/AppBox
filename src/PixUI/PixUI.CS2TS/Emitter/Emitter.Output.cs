@@ -57,6 +57,8 @@ namespace PixUI.CS2TS
 
         internal void Write(string str) => _outputs.Peek().Append(str);
 
+        private StringBuilder GetCurrentOutput() => _outputs.Peek();
+
         private int GetCurrentOutputPosition() => _outputs.Peek().Length;
 
         private void RemoveNewLineBefore(int position)

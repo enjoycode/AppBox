@@ -39,4 +39,16 @@ abstract class TestMethodArgs
         int v = 3;
         RefArg1(ref v);
     }
+
+    public bool OutArg(out int arg)
+    {
+        arg = 32;
+        return true;
+    }
+    
+    public void TestOutArg()
+    {
+        if (OutArg(out var value))
+            System.Console.WriteLine(value);
+    }
 }

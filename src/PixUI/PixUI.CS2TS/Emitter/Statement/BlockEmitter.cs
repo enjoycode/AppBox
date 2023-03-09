@@ -5,8 +5,7 @@ namespace PixUI.CS2TS
 {
     partial class Emitter
     {
-        public override void VisitBlock(BlockSyntax node) =>
-            BlockEmitter.Default.Emit(this, node);
+        public override void VisitBlock(BlockSyntax node) => BlockEmitter.Default.Emit(this, node);
     }
 
     internal sealed class BlockEmitter
@@ -36,6 +35,8 @@ namespace PixUI.CS2TS
             if (!_forSwitchPattern)
                 emitter.VisitToken(node.OpenBraceToken);
 
+            emitter.SetBlockInjectPosition();
+
             if (_injectFirstStatement != null)
             {
                 emitter.WriteLeadingWhitespaceOnly(node);
@@ -43,7 +44,7 @@ namespace PixUI.CS2TS
                 emitter.Write(_injectFirstStatement);
                 emitter.Write('\n');
 
-                emitter.InjectIsPatternExpression = null; //must reset it
+                emitter.InjectIsPatternForIfStatement = null; //must reset it
             }
 
             var statements = node.Statements;

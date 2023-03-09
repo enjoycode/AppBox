@@ -26,14 +26,15 @@ namespace PixUI.CS2TS
                 return;
             }
 
+            // 此语法暂不支持 eg: var isPerson = obj is Person person;
             if (node.Parent is not IfStatementSyntax)
                 throw new NotSupportedException(node.ToString());
             if (node.Pattern is not DeclarationPatternSyntax declarationPattern)
                 throw new NotSupportedException(node.ToString());
 
             WriteIsExpression(node.Expression, declarationPattern.Type);
-
-            InjectIsPatternExpression = node;
+            
+            InjectIsPatternForIfStatement = node;
         }
     }
 }

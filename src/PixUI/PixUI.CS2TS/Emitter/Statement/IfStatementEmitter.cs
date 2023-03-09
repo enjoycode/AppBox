@@ -22,7 +22,7 @@ namespace PixUI.CS2TS
             Visit(node.Condition);
             VisitToken(node.CloseParenToken);
 
-            if (InjectIsPatternExpression != null)
+            if (InjectIsPatternForIfStatement != null)
             {
                 var inject = GetInject(); //eg: const dog = obj;
 
@@ -42,7 +42,7 @@ namespace PixUI.CS2TS
                     WriteLeadingWhitespaceOnly(node);
                     Write("}\n");
 
-                    InjectIsPatternExpression = null; //must reset it
+                    InjectIsPatternForIfStatement = null; //must reset it
                 }
             }
             else
@@ -57,11 +57,11 @@ namespace PixUI.CS2TS
         {
             UseTempOutput();
 
-            var declaration = (DeclarationPatternSyntax)InjectIsPatternExpression!.Pattern;
+            var declaration = (DeclarationPatternSyntax)InjectIsPatternForIfStatement!.Pattern;
             Write("const ");
             Visit(declaration.Designation);
             Write(" = ");
-            Visit(InjectIsPatternExpression!.Expression);
+            Visit(InjectIsPatternForIfStatement!.Expression);
             Write(';');
 
             return GetTempOutput();
