@@ -11,11 +11,14 @@ namespace PixUI.UnitTests.CS2TS
 {
     public class EmitProject
     {
+        private const string TSAttibutesDllPath =
+            "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
+
+        private const string PixUIDllPath = "../../../../PixUI/bin/DebugWeb/netstandard2.1/PixUI.dll";
+
         [Test]
         public async Task EmitPixUI()
         {
-            const string TSAttibutesDllPath =
-                "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
             const string prjPath = "../../../../PixUI/";
             const string outPath = "../../../../../Dev.Web/src/PixUI/Generated/";
 
@@ -71,11 +74,10 @@ namespace PixUI.UnitTests.CS2TS
         [Test]
         public async Task EmitCodeEditor()
         {
-            const string pixUIDllPath = "../../../../PixUI/bin/DebugWeb/netstandard2.1/PixUI.dll";
             const string prjPath = "../../../../PixUI.CodeEditor/";
             const string outPath = "../../../../../Dev.Web/src/CodeEditor/Generated/";
 
-            var translator = new Translator("CodeEditor", new[] { pixUIDllPath });
+            var translator = new Translator("CodeEditor", new[] { TSAttibutesDllPath, PixUIDllPath });
             var workspace = translator.AddSourceFiles(prjPath);
 
             Assert.True(translator.DumpErrors() == 0);
@@ -176,7 +178,8 @@ namespace PixUI.UnitTests.CS2TS
             var sdkPath = System.IO.Path.GetDirectoryName(typeof(object).Assembly.Location)!;
             const string tsDllPath = "../../../../PixUI.TSAttributes/bin/Debug/netstandard2.1/PixUI.TSAttributes.dll";
             const string pixUIDllPath = "../../../../PixUI/bin/DebugWeb/netstandard2.1/PixUI.dll";
-            const string chartsCoreDllPath = "../../../../../../ext/LiveCharts2/src/LiveChartsCore/bin/DebugWeb/netstandard2.1/LiveChartsCore.dll";
+            const string chartsCoreDllPath =
+                "../../../../../../ext/LiveCharts2/src/LiveChartsCore/bin/DebugWeb/netstandard2.1/LiveChartsCore.dll";
             const string prjPath = "../../../../PixUI.LiveCharts/";
             const string outPath = "../../../../../Dev.Web/src/LiveCharts/Generated/";
 

@@ -430,8 +430,8 @@ namespace CodeEditor
             }
         }
 
-        static RedBlackTreeNode<T> Sibling<T>(RedBlackTreeNode<T> node,
-            RedBlackTreeNode<T> parentNode)
+        [PixUI.TSRename("Sibling2")]
+        static RedBlackTreeNode<T> Sibling<T>(RedBlackTreeNode<T> node, RedBlackTreeNode<T> parentNode)
         {
             Debug.Assert(node == null || node.Parent == parentNode);
             if (node == parentNode.Left)

@@ -175,7 +175,7 @@ namespace PixUI
         {
             Invalidate(InvalidAction.Relayout); //强制自己重新布局
             // @ts-ignore
-            ChangeDataSource(_fullDataSource?.Where(t => predicate(t)).ToArray());
+            ChangeDataSource(_fullDataSource?.Where(t => predicate(t)).ToList());
         }
 
         public void ClearFilter()

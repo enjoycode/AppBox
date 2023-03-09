@@ -157,8 +157,9 @@ namespace PixUI.CS2TS
                     Write(' ', trivia.Span.Length);
                     break;
                 case SyntaxKind.SingleLineCommentTrivia:
+                    Write(trivia.ToString()); // @ts-ignore需要
+                    break;
                 case SyntaxKind.SingleLineDocumentationCommentTrivia:
-                    // Write(trivia.ToFullString());
                     break;
                 case SyntaxKind.MultiLineCommentTrivia:
                 case SyntaxKind.MultiLineDocumentationCommentTrivia:

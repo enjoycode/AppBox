@@ -185,14 +185,14 @@ namespace CodeEditor
         public override string ToString() => _root.ToString();
 
         [TSRawScript(@"
-        public ToString(offset: number, length: number): string {
+        public GetString(offset: number, length: number): string {
             let data = new Uint16Array(length);
             this.CopyTo(offset, data, length);
             // @ts-ignore
             return String.fromCharCode.apply(null, data);
         }
 ")]
-        public string ToString(int offset, int length)
+        public string GetString(int offset, int length)
         {
 #if __WEB__
             throw new Exception();

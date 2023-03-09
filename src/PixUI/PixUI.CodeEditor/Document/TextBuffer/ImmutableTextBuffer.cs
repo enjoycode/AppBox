@@ -18,7 +18,7 @@ namespace CodeEditor
             => _buffer.GetText(offset, 1).GetCharAt(0);
 
         public string GetText(int offset, int length)
-            => _buffer.ToString(offset, length);
+            => _buffer.GetString(offset, length);
 
         public void Insert(int offset, string text)
             => _buffer = _buffer.InsertText(offset, text);

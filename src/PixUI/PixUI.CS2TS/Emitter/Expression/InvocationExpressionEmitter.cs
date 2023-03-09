@@ -11,13 +11,17 @@ namespace PixUI.CS2TS
     {
         public override void VisitInvocationExpression(InvocationExpressionSyntax node)
         {
-            //特例处理 eg: nameof(xxx)等
-            if (TryEmitNameof(node) || TryEmitReferenceEquals(node))
+            //特例处理nameof(xxx)
+            if (TryEmitNameof(node))
                 return;
 
             var symbolInfo = SemanticModel.GetSymbolInfo(node);
             Debug.Assert(symbolInfo.Symbol is IMethodSymbol);
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol!;
+
+            //特殊处理Equals(a,b) or ReferenceEquals(a,b)
+            if (TryEmitEquals(node, methodSymbol))
+                return;
 
             //尝试转换EnumValue.ToString()
             if (TryEmitEnumToString(node, methodSymbol))
@@ -126,14 +130,26 @@ namespace PixUI.CS2TS
             return true;
         }
 
-        private bool TryEmitReferenceEquals(InvocationExpressionSyntax node)
+        private bool TryEmitEquals(InvocationExpressionSyntax node, IMethodSymbol methodSymbol)
         {
-            //TODO:
-            if (node.Expression is IdentifierNameSyntax { Identifier: { Text: "ReferenceEquals" } })
+            if (node.Expression is IdentifierNameSyntax
+                {
+                    Identifier: { Text: "ReferenceEquals" or "Equals" }
+                } identifier
+                &&
+                methodSymbol.ContainingType.SpecialType == SpecialType.System_Object)
             {
+                WriteLeadingTrivia(node);
+                var isEquals = identifier.Identifier.Text == "Equals";
+                if (isEquals)
+                {
+                    AddUsedModule("System");
+                    Write("System.Equals");
+                }
+                
                 Write('(');
                 Visit(node.ArgumentList.Arguments[0]);
-                Write(" === ");
+                Write(isEquals ? ", " : " === ");
                 Visit(node.ArgumentList.Arguments[1]);
                 Write(')');
                 return true;

@@ -373,7 +373,7 @@ namespace PixUI.CS2TS
             if (TryWritePredefinedTypeSymbol(typeSymbol))
                 return;
 
-            if (withNamespace)
+            if (withNamespace && typeSymbol.Name != "Nullable")
             {
                 var rootNamespace = typeSymbol.GetRootNamespace();
                 if (rootNamespace != null)

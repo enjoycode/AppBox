@@ -48,15 +48,11 @@ namespace PixUI.CS2TS
                 return;
             }
 
-            if (name == "IsFinite")
+            if (name == "CompareTo")
             {
-                emitter.Write("isFinite");
-                return;
-            }
-
-            if (name == "NaN")
-            {
-                emitter.Write("NaN");
+                emitter.Visit(node.Expression);
+                emitter.Write('.');
+                emitter.Write(name);
                 return;
             }
 
@@ -87,6 +83,9 @@ namespace PixUI.CS2TS
                         break;
                     case "PositiveInfinity":
                         emitter.Write("Number.POSITIVE_INFINITY");
+                        break;
+                    case "NaN":
+                        emitter.Write("Number.NaN");
                         break;
                     case "IsNaN":
                         emitter.Write("Number.isNaN");

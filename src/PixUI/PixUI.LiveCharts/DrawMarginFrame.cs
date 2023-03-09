@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using LiveCharts.Drawing;
 using LiveCharts.Drawing.Geometries;
 
@@ -29,4 +30,6 @@ namespace LiveCharts;
 /// Defines a visual frame in the draw margin of the chart.
 /// </summary>
 public class DrawMarginFrame : LiveChartsCore.DrawMarginFrame<RectangleGeometry, SkiaDrawingContext>
-{ }
+{
+    public DrawMarginFrame() : base(() => new RectangleGeometry()) { }
+}

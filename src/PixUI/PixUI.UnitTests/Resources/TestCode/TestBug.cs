@@ -82,6 +82,11 @@ class MyClass
 {
     public string Test(double value)
     {
+        object b = 32;
+        object c = 33;
+        Equals(value, b);
+        ReferenceEquals(b, c);
+        
         return value.ToString(); 
     }
 }
