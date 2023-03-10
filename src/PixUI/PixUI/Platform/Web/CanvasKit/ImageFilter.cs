@@ -7,7 +7,7 @@ namespace PixUI
         //TODO:
 
         [TSTemplate("CanvasKit.ImageFilter.MakeBlur({1},{2},{3},{4})")]
-        public static ImageFilter? CreateBlur(float sigmaX, float sigmaY, ShaderTileMode tileMode,
+        public static ImageFilter? CreateBlur(float sigmaX, float sigmaY, TileMode tileMode,
             ImageFilter? input) => throw new System.Exception();
 
         [TSTemplate("CanvasKit.ImageFilter.MakeDropShadow({1},{2},{3},{4},{5},{6})")]

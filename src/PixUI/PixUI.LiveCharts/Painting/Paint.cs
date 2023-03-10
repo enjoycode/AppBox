@@ -69,7 +69,7 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
     /// <value>
     /// The style.
     /// </value>
-    public SKPaintStyle Style { get; set; }
+    public SKPaintStyle Style { get; set; } = PaintStyle.Fill;
 
     /// <inheritdoc cref="IPaint{TDrawingContext}.IsStroke" />
     public bool IsStroke { get; set; }
@@ -84,8 +84,10 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
         set
         {
             _fontFamily = value;
+#if !__WEB__            
             if (!(_fontFamily?.Contains(LiveChartsSkiaSharp.SkiaFontMatchChar) ?? false)) return;
             _matchesChar = Convert.ToChar(_fontFamily.Split('|')[1]);
+#endif            
         }
     }
 
@@ -121,7 +123,7 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
     /// <value>
     /// The stroke cap.
     /// </value>
-    public SKStrokeCap StrokeCap { get; set; }
+    public SKStrokeCap StrokeCap { get; set; } = StrokeCap.Butt;
 
     /// <summary>
     /// Gets or sets the stroke join.
@@ -129,7 +131,7 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
     /// <value>
     /// The stroke join.
     /// </value>
-    public SKStrokeJoin StrokeJoin { get; set; }
+    public SKStrokeJoin StrokeJoin { get; set; } = StrokeJoin.Miter;
 
     /// <summary>
     /// Gets or sets the stroke miter.
@@ -181,7 +183,9 @@ public abstract class Paint : Animatable, IPaint<SkiaDrawingContext>
     /// <inheritdoc cref="IPaint{TDrawingContext}.GetGeometries(MotionCanvas{TDrawingContext})" />
     public IEnumerable<IDrawable<SkiaDrawingContext>> GetGeometries(MotionCanvas<SkiaDrawingContext> canvas)
     {
-        var enumerable = GetGeometriesByCanvas(canvas) ?? Enumerable.Empty<IDrawable<SkiaDrawingContext>>();
+        var enumerable = GetGeometriesByCanvas(canvas); /*?? Array.Empty<IDrawable<SkiaDrawingContext>>();*/
+        if (enumerable == null) yield break;
+        
         foreach (var item in enumerable)
         {
             yield return item;

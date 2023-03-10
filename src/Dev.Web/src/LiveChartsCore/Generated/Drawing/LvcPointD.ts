@@ -1,7 +1,7 @@
 import * as System from '@/System'
 
 export class LvcPointD {
-    public constructor(x: number, y: number) {
+    public constructor(x: number = 0, y: number = 0) {
         this.X = x;
         this.Y = y;
     }
@@ -16,5 +16,11 @@ export class LvcPointD {
 
     public static op_Inequality(l: LvcPointD, r: LvcPointD): boolean {
         return !(System.OpEquality(l, r));
+    }
+
+    public static readonly Empty: LvcPointD = (new LvcPointD(0, 0)).Clone();
+
+    public Clone(): LvcPointD {
+        return new LvcPointD(this.X, this.Y);
     }
 }

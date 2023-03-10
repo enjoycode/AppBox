@@ -24,14 +24,14 @@ export class Switch extends PixUI.Toggleable {
     private static readonly _kThumbRadius: number = Switch._kTrackHeight / 2 - 2;
     private static readonly _kThumbBorderColor: PixUI.Color = new PixUI.Color(0x0A000000);
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
         this.SetSize(Math.min(width, Switch._kSwitchWidth), Math.min(height, Switch._kSwitchHeight));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         canvas.save();
         canvas.translate(0, (Switch._kSwitchHeight - Switch._kTrackHeight) / 2);
 

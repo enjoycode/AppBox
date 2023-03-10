@@ -9,7 +9,7 @@ export class RotationTransition extends PixUI.Transform {
         this._turns.ValueChanged.Add(this.OnTurnChanged, this);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         super.Layout(availableWidth, availableHeight);
         //根据子组件大小计算并初始化偏移量
         let originX = 0;
@@ -33,7 +33,7 @@ export class RotationTransition extends PixUI.Transform {
         this.SetTransform(this.CalcTransform());
     }
 
-    public Dispose() {
+    Dispose() {
         this._turns.ValueChanged.Remove(this.OnTurnChanged, this);
         super.Dispose();
     }

@@ -52,15 +52,15 @@ export class HoverDecorator extends PixUI.Widget {
         this._shape = owner.ShapeBuilder();
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         return false; //Can't hit
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //do nothing
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let bounds: PixUI.Rect = PixUI.Rect.Empty.Clone();
         if (this._owner.BoundsGetter == null) {
             let widget = this._owner.Widget;

@@ -21,11 +21,11 @@ export abstract class DrawMarginFrame<TDrawingContext extends LiveChartsCore.Dra
         this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value);
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._stroke, this._fill];
     }
 
-    protected OnPaintChanged(propertyName: Nullable<string>) {
+    OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
         this.OnPropertyChanged(propertyName);
     }
@@ -42,7 +42,7 @@ export abstract class DrawMarginFrame2<TSizedGeometry extends LiveChartsCore.ISi
     private _strokeSizedGeometry: Nullable<TSizedGeometry>;
     private _isInitialized: boolean = false;
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let drawLocation = (chart.DrawMarginLocation).Clone();
         let drawMarginSize = (chart.DrawMarginSize).Clone();
 

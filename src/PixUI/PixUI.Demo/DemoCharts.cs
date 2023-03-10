@@ -4,7 +4,6 @@ using LiveChartsCore.Measure;
 using LiveCharts;
 using LiveCharts.Painting;
 using LiveCharts.VisualElements;
-using PixLiveCharts;
 
 namespace PixUI.Demo;
 

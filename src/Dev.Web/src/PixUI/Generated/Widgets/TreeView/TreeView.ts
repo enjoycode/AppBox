@@ -50,21 +50,21 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
     }
 
 
-    public get IsOpaque(): boolean {
+    get IsOpaque(): boolean {
         return this._color != null && this._color.Value.Alpha == 0xFF;
     }
 
-    public get Clipper(): Nullable<PixUI.IClipper> {
+    get Clipper(): Nullable<PixUI.IClipper> {
         return new PixUI.ClipperOfRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         for (const node of this._controller.Nodes) {
             if (action(node)) break;
         }
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
         this.SetSize(width, height);
@@ -82,8 +82,8 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
         this._controller.TotalHeight = totalHeight;
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
-                              affects: PixUI.AffectsByRelayout) {
+    OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                       affects: PixUI.AffectsByRelayout) {
         //修改子节点受影响的区域
         affects.OldW = this.W;
         affects.OldH = this.H - child.Y;
@@ -105,7 +105,7 @@ export class TreeView<T> extends PixUI.Widget implements PixUI.IScrollable {
         this._controller.TotalHeight += dy;
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this._controller.IsLoading) {
             if (this._color != null)
                 canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this._color.Value));

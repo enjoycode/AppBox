@@ -12,8 +12,8 @@ export class DataGridHostColumn<T> extends PixUI.DataGridColumn<T> {
 
     private static readonly _cellCacheComparer: PixUI.CellCacheComparer<PixUI.Widget> = new PixUI.CellCacheComparer<PixUI.Widget>();
 
-    public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
-                     rowIndex: number, cellRect: PixUI.Rect) {
+    PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
+              rowIndex: number, cellRect: PixUI.Rect) {
         let cellWidget = this.GetCellWidget(rowIndex, controller, cellRect);
         //TODO:对齐cellWidget
         canvas.translate(cellRect.Left, cellRect.Top);
@@ -39,7 +39,7 @@ export class DataGridHostColumn<T> extends PixUI.DataGridColumn<T> {
         return cellWidget;
     }
 
-    public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
+    ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
         if (isScrollDown)
             this._cellWidgets.RemoveAll(t => t.RowIndex < rowIndex);
         else

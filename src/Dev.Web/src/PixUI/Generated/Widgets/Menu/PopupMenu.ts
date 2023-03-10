@@ -30,13 +30,13 @@ export class PopupMenu extends PixUI.Widget {
         }
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         for (const child of this._children) {
             if (action(child)) break;
         }
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         if (this.HasLayout) return;
         this.HasLayout = true;
 
@@ -67,7 +67,7 @@ export class PopupMenu extends PixUI.Widget {
         this.SetSize(maxChildWidth, offsetY);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //画背景及阴影
         let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), 4, 4);
         let path = new CanvasKit.Path();

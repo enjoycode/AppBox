@@ -243,8 +243,14 @@ public class LabelGeometry : Geometry, ILabelGeometry<SkiaDrawingContext>
 
     private string[] GetLines(string multiLineText)
     {
+#if __WEB__
+        return string.IsNullOrEmpty(multiLineText)
+            ? Array.Empty<string>()
+            : multiLineText.Split('\n');
+#else
         return string.IsNullOrEmpty(multiLineText)
             ? Array.Empty<string>()
             : multiLineText.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+#endif        
     }
 }

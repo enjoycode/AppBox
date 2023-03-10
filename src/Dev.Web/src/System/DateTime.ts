@@ -30,6 +30,10 @@ export class TimeSpan {
         return this._ticks / TicksPerSecond;
     }
 
+    public static FromSeconds(ss: number): TimeSpan {
+        return new TimeSpan(ss * TicksPerSecond);
+    }
+
     public static FromMilliseconds(ms: number): TimeSpan {
         return new TimeSpan(ms);
     }
@@ -102,7 +106,7 @@ export class DateTime {
         return new DateTime(this._date);
     }
 
-    public static readonly Empty = new DateTime(0,0,0);
+    public static readonly Empty = new DateTime(0, 0, 0);
 
     public toString() {
         return this._date.toString();

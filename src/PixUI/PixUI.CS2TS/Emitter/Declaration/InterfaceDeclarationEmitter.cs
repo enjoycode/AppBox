@@ -45,17 +45,17 @@ namespace PixUI.CS2TS
             VisitToken(node.CloseBraceToken);
 
             //如果有[TSInterfaceOf]特性，生成相关的代码
-            TryEmitInterfaceOf(node);
+            TryEmitInterfaceOf(node, name /*maybe renamed*/);
         }
 
-        private void TryEmitInterfaceOf(InterfaceDeclarationSyntax node)
+        private void TryEmitInterfaceOf(InterfaceDeclarationSyntax node, string name)
         {
             if (!node.IsTSInterfaceOf()) return;
 
             Write("export function IsInterfaceOf");
-            Write(node.Identifier.Text);
+            Write(name);
             Write("(obj: any): obj is ");
-            Write(node.Identifier.Text);
+            Write(name);
             //需要写入范型参数，暂简单写入any类型
             if (node.TypeParameterList != null)
             {
@@ -83,7 +83,7 @@ namespace PixUI.CS2TS
                 Write('_');
             }
 
-            Write(node.Identifier.Text);
+            Write(name);
             Write("' in obj.constructor;\n}\n");
         }
     }

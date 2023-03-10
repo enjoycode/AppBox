@@ -16,7 +16,7 @@ export class FutureBuilder<T> extends PixUI.DynamicView {
     private readonly _future: System.Task<T>;
     private readonly _doneBuilder: System.Func3<Nullable<T>, Nullable<System.Exception>, Nullable<PixUI.Widget>>;
 
-    protected OnMounted() {
+    OnMounted() {
         super.OnMounted();
 
         if (!this.HasLayout)

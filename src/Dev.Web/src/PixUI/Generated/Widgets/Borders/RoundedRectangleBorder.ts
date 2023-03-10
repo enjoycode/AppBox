@@ -9,7 +9,7 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
         this.BorderRadius = borderRadius ?? PixUI.BorderRadius.Empty;
     }
 
-    public GetOuterPath(rect: PixUI.Rect): PixUI.Path {
+    GetOuterPath(rect: PixUI.Rect): PixUI.Path {
         let rrect = this.BorderRadius.ToRRect(rect);
         rrect.Deflate(this.Side.Width, this.Side.Width);
         let path = new CanvasKit.Path();
@@ -17,26 +17,26 @@ export class RoundedRectangleBorder extends PixUI.OutlinedBorder {
         return path;
     }
 
-    public GetInnerPath(rect: PixUI.Rect): PixUI.Path {
+    GetInnerPath(rect: PixUI.Rect): PixUI.Path {
         let rrect = this.BorderRadius.ToRRect(rect);
         let path = new CanvasKit.Path();
         path.addRRect(rrect);
         return path;
     }
 
-    public LerpTo(to: Nullable<PixUI.ShapeBorder>, tween: PixUI.ShapeBorder, t: number) {
+    LerpTo(to: Nullable<PixUI.ShapeBorder>, tween: PixUI.ShapeBorder, t: number) {
         throw new System.NotImplementedException();
     }
 
-    public CopyWith(side: Nullable<PixUI.BorderSide>): PixUI.OutlinedBorder {
+    CopyWith(side: Nullable<PixUI.BorderSide>): PixUI.OutlinedBorder {
         return new RoundedRectangleBorder(side ?? this.Side, this.BorderRadius);
     }
 
-    public Clone(): PixUI.ShapeBorder {
+    Clone(): PixUI.ShapeBorder {
         throw new System.NotImplementedException();
     }
 
-    public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect, fillColor: Nullable<PixUI.Color> = null) {
+    Paint(canvas: PixUI.Canvas, rect: PixUI.Rect, fillColor: Nullable<PixUI.Color> = null) {
         if (this.Side.Style == PixUI.BorderStyle.None)
             return;
 

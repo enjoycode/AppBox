@@ -154,7 +154,7 @@ export class TreeNode<T> extends PixUI.Widget {
     }
 
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (action(this._row)) return;
 
         if (!this.IsLeaf && this.IsExpanded && this._children != null) {
@@ -164,11 +164,11 @@ export class TreeNode<T> extends PixUI.Widget {
         }
     }
 
-    public ContainsPoint(x: number, y: number): boolean {
+    ContainsPoint(x: number, y: number): boolean {
         return y >= 0 && y < this.H;
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         //只需要判断坐标Y来确定是否命中行
         if (y < 0 || y > this.H) return false;
 
@@ -189,7 +189,7 @@ export class TreeNode<T> extends PixUI.Widget {
         return true;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //先处理是否由动画引起的高度改变
         if (this.IsExpanding || this.IsCollapsing) {
             //根据动画值计算需要展开的高度
@@ -234,8 +234,8 @@ export class TreeNode<T> extends PixUI.Widget {
         }
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
-                              affects: PixUI.AffectsByRelayout) {
+    OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                       affects: PixUI.AffectsByRelayout) {
         let oldWidth = this.W;
         let oldHeight = this.H;
         affects.Widget = this;
@@ -266,7 +266,7 @@ export class TreeNode<T> extends PixUI.Widget {
         this.Parent!.OnChildSizeChanged(this, newWidth - oldWidth, newHeight - oldHeight, affects);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.IsExpanding || this.IsCollapsing) //need clip expanding area
         {
             canvas.save();
@@ -300,7 +300,7 @@ export class TreeNode<T> extends PixUI.Widget {
         PixUI.PaintDebugger.PaintWidgetBorder(child, canvas);
     }
 
-    public toString(): string {
+    toString(): string {
         let labelText = this._row.Label == null ? "" : this._row.Label.Text.Value;
         return `TreeNode[\"${labelText}\"]`;
     }

@@ -15,7 +15,7 @@ export class Column extends PixUI.MultiChildWidget<PixUI.Widget> {
         this.DebugLabel = debugLabel;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -80,8 +80,8 @@ export class Column extends PixUI.MultiChildWidget<PixUI.Widget> {
         this.SetSize(maxWidthOfChild, Math.min(height, totalHeight));
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget,
-                              dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
+    OnChildSizeChanged(child: PixUI.Widget,
+                       dx: number, dy: number, affects: PixUI.AffectsByRelayout) {
         console.assert(this.AutoSize);
 
         let oldWidth = this.W;

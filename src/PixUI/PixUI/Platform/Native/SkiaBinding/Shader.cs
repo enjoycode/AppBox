@@ -13,7 +13,7 @@ namespace PixUI
         //TODO: others，另外注意参数需与CanvasKit一致
 
         public static Shader? CreateLinearGradient(Point start, Point end, Color[] colors, float[]? colorPos,
-            ShaderTileMode mode)
+            TileMode mode)
         {
             if (colors == null)
                 throw new ArgumentNullException(nameof(colors));
@@ -30,7 +30,7 @@ namespace PixUI
         }
 
         public static Shader? CreateRadialGradient(Point center, float radius, Color[] colors, float[]? colorPos,
-            ShaderTileMode mode)
+            TileMode mode)
         {
             if (colors == null)
                 throw new ArgumentNullException(nameof(colors));

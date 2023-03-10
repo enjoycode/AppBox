@@ -34,11 +34,11 @@ public class SVGPathGeometry : SizedGeometry
     private string _svg = string.Empty;
     internal SKPath? _svgPath;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SVGPathGeometry"/> class.
-    /// </summary>
-    public SVGPathGeometry() : base()
-    { }
+    // /// <summary>
+    // /// Initializes a new instance of the <see cref="SVGPathGeometry"/> class.
+    // /// </summary>
+    // public SVGPathGeometry() : base()
+    // { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SVGPathGeometry"/> class.
@@ -66,8 +66,7 @@ public class SVGPathGeometry : SizedGeometry
     public override void OnDraw(SkiaDrawingContext context, SKPaint paint)
     {
         if (_svgPath is null)
-            throw new System.NullReferenceException(
-                $"{nameof(SVG)} property is null and there is not a defined path to draw.");
+            throw new Exception( $"{nameof(SVG)} property is null and there is not a defined path to draw.");
 
         context.Canvas.Save();
 

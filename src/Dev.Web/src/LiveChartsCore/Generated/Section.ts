@@ -96,11 +96,11 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
 
     public readonly PropertyChanged = new System.Event<any, System.PropertyChangedEventArgs>();
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._stroke, this._fill];
     }
 
-    protected OnPaintChanged(propertyName: Nullable<string>) {
+    OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
         this.OnPropertyChanged(propertyName);
     }
@@ -123,7 +123,7 @@ export abstract class Section2<TSizedGeometry extends LiveChartsCore.ISizedGeome
 
     public _strokeSizedGeometry: Nullable<TSizedGeometry>;
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let drawLocation = (chart.DrawMarginLocation).Clone();
         let drawMarginSize = (chart.DrawMarginSize).Clone();
 

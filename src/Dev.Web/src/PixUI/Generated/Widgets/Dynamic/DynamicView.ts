@@ -92,7 +92,7 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
     }
 
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         //如果在动画切换过程中，不继续尝试HitTest子级，因为缓存的HitTestResult.LastTransform如终是动画开始前的
         if (this._animationController != null &&
             this._animationController.Status != PixUI.AnimationStatus.Dismissed &&
@@ -105,11 +105,11 @@ export abstract class DynamicView extends PixUI.SingleChildWidget {
         return super.HitTest(x, y, result);
     }
 
-    public get Clipper(): Nullable<PixUI.IClipper> {
+    get Clipper(): Nullable<PixUI.IClipper> {
         return this.Parent == null ? null : new PixUI.ClipperOfRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //TODO:暂简单clip
         let clipper = this.Clipper;
         if (clipper != null) {

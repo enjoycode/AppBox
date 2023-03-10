@@ -8,7 +8,7 @@ export class FadeTransition extends PixUI.SingleChildWidget {
         this._opacity = opacity;
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this._opacity.Value == 0 || this.Child == null)
             return;
 

@@ -1,4 +1,5 @@
-﻿// // The MIT License(MIT)
+﻿#if !__WEB__
+// // The MIT License(MIT)
 // //
 // // Copyright(c) 2021 Alberto Rodriguez Orozco & LiveCharts Contributors
 // //
@@ -75,3 +76,4 @@
 //         return Task.Run(() => new GeoMapCore(Maps.GetMapFromStreamReader<SkiaSharpDrawingContext>(stream)));
 //     }
 // }
+#endif

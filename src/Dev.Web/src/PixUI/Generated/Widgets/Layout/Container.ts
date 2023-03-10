@@ -8,7 +8,7 @@ export class Container extends PixUI.SingleChildWidget {
 
     private _bgColor: Nullable<PixUI.State<PixUI.Color>>;
 
-    public get IsOpaque(): boolean {
+    get IsOpaque(): boolean {
         return this._bgColor != null && this._bgColor.Value.IsOpaque;
     }
 
@@ -20,7 +20,7 @@ export class Container extends PixUI.SingleChildWidget {
         this._bgColor = this.Rebind(this._bgColor, value, PixUI.BindingOptions.AffectsVisual);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this._bgColor != null)
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(this._bgColor.Value));
 

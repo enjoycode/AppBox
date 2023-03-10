@@ -24,7 +24,7 @@ export class ColorMotionProperty extends LiveChartsCore.MotionProperty<LiveChart
         }
     }
 
-    protected OnGetMovement(progress: number): LiveChartsCore.LvcColor {
+    OnGetMovement(progress: number): LiveChartsCore.LvcColor {
         return System.OpEquality(this.toValue, LiveChartsCore.LvcColor.Empty
         ) ? LiveChartsCore.LvcColor.Empty
             : LiveChartsCore.LvcColor.FromArgb(

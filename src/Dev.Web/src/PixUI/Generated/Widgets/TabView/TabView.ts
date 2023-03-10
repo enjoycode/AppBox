@@ -64,12 +64,12 @@ export class TabView<T> extends PixUI.Widget {
         this._tabBar.HoverColor = value;
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (action(this._tabBar)) return;
         action(this._tabBody);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //TODO:支持上、下、左、右布局
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);

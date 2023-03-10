@@ -51,7 +51,7 @@ export class NotificationEntry extends PixUI.SingleChildWidget {
         this._controller.Forward();
     }
 
-    public Dispose() {
+    Dispose() {
         this._controller.Dispose();
         super.Dispose();
     }
@@ -79,13 +79,13 @@ export class Notification extends PixUI.Popup {
     }
 
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         for (const child of this._children) {
             if (action(child)) break;
         }
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         for (const child of this._children) {
             if (this.HitTestChild(child, x, y, result)) return true;
         }
@@ -93,11 +93,11 @@ export class Notification extends PixUI.Popup {
         return false;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //do nothing,加入前已经手动布局过
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         for (const child of this._children) {
             canvas.translate(child.X, child.Y);
             child.Paint(canvas, area);

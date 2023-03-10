@@ -8,7 +8,7 @@ export class DataGridGroupColumn<T> extends PixUI.DataGridColumn<T> {
 
     public readonly Children: PixUI.DataGridColumn<T>[];
 
-    public get LayoutWidth(): number {
+    get LayoutWidth(): number {
         return this.Children.Sum(c => c.LayoutWidth);
     }
 }

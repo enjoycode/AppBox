@@ -11,7 +11,7 @@ using LiveCharts;
 using LiveCharts.Drawing;
 using LiveChartsCore.VisualElements;
 
-namespace PixLiveCharts;
+namespace LiveCharts;
 
 public sealed class PieChart : ChartView, IPieChartView<SkiaDrawingContext>
 {
@@ -54,7 +54,11 @@ public sealed class PieChart : ChartView, IPieChartView<SkiaDrawingContext>
     public override IEnumerable<ChartPoint> GetPointsAt(LvcPoint point,
         TooltipFindingStrategy strategy = TooltipFindingStrategy.Automatic)
     {
+#if __WEB__
+        var cc = (PieChart<SkiaDrawingContext>)core;
+#else
         if (core is not PieChart<SkiaDrawingContext> cc) throw new Exception("core not found");
+#endif        
 
         if (strategy == TooltipFindingStrategy.Automatic)
             strategy = cc.Series.GetTooltipFindingStrategy();
@@ -64,10 +68,16 @@ public sealed class PieChart : ChartView, IPieChartView<SkiaDrawingContext>
 
     public override IEnumerable<VisualElement<SkiaDrawingContext>> GetVisualsAt(LvcPoint point)
     {
+#if __WEB__
+        var cc = (PieChart<SkiaDrawingContext>)core;
+        return cc.VisualElements.SelectMany(visual =>
+                ((VisualElement<SkiaDrawingContext>)visual).IsHitBy(core, point));
+#else
         return core is not PieChart<SkiaDrawingContext> cc
             ? throw new Exception("core not found")
             : cc.VisualElements.SelectMany(visual =>
                 ((VisualElement<SkiaDrawingContext>)visual).IsHitBy(core, point));
+#endif        
     }
 
     #endregion

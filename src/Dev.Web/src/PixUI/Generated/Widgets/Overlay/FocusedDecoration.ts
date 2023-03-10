@@ -83,15 +83,15 @@ export class FocusedDecorator extends PixUI.Widget {
         this._controller?.Reset();
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         return false; // Can't hit
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //do nothing
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let widget = this._owner.Widget;
         let pt2Win = widget.LocalToWindow(0, 0);
         let bounds = PixUI.Rect.FromLTWH(pt2Win.X, pt2Win.Y, widget.W, widget.H);
@@ -104,7 +104,7 @@ export class FocusedDecorator extends PixUI.Widget {
         this._tween!.Paint(canvas, bounds);
     }
 
-    protected OnMounted() {
+    OnMounted() {
         if (this._from == null) return;
 
         if (this._controller == null) {
@@ -127,7 +127,7 @@ export class FocusedDecorator extends PixUI.Widget {
         }
     }
 
-    public Dispose() {
+    Dispose() {
         if (this._controller != null) {
             this._controller.ValueChanged.Remove(this.OnAnimationValueChanged, this);
             this._controller.StatusChanged.Remove(this.OnAnimationStateChanged, this);

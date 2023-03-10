@@ -15,7 +15,7 @@ export class SizeMotionProperty extends LiveChartsCore.MotionProperty<LiveCharts
         this.toValue = (value).Clone();
     }
 
-    protected OnGetMovement(progress: number): LiveChartsCore.LvcSize {
+    OnGetMovement(progress: number): LiveChartsCore.LvcSize {
         return new LiveChartsCore.LvcSize(this.fromValue.Width + progress * (this.toValue.Width - this.fromValue.Width),
             this.fromValue.Height + progress * (this.toValue.Height - this.fromValue.Height));
     }

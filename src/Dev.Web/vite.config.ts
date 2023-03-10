@@ -156,6 +156,38 @@ const libLiveChartsCore = defineConfig({
     },
 })
 
+const libLiveCharts = defineConfig({
+    plugins: [visualizer()],
+
+    resolve: {
+        alias: [{
+            find: '@',
+            replacement: resolve(__dirname, 'src')
+        }]
+    },
+
+    build: {
+        target: "es2020",
+        lib: {
+            entry: resolve(__dirname, 'src/LiveCharts/index.ts'),
+            formats: ['es'],
+            name: 'LiveCharts',
+            fileName: (format) => 'LiveCharts.js'
+        },
+        rollupOptions: {
+            external: [extSystem, extPixUI, extLiveChartsCore],
+            output: {
+                paths: {
+                    [extSystem]: '/System.js',
+                    [extPixUI]: '/PixUI.js',
+                    [extLiveChartsCore]: '/LiveChartsCore.js',
+                },
+            },
+            makeAbsoluteExternalsRelative: false,
+        },
+    },
+})
+
 const libAppBoxCore = defineConfig({
     plugins: [],
 
@@ -264,6 +296,8 @@ export default ({mode}: UserConfig) => {
             return libCodeEditor;
         case 'libLiveChartsCore':
             return libLiveChartsCore;
+        case 'libLiveCharts':
+            return libLiveCharts;
         case 'libAppBoxCore':
             return libAppBoxCore;
         case 'libAppBoxClient':

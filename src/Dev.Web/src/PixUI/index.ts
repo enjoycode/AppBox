@@ -20,6 +20,8 @@ export type {
     PathEffect,
     Shader,
     TileMode,
+    StrokeCap,
+    StrokeJoin,
     // FontStyle, do not export
 } from 'canvaskit-wasm';
 

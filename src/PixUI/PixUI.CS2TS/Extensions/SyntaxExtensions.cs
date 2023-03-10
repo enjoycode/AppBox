@@ -102,6 +102,9 @@ namespace PixUI.CS2TS
         internal static bool IsTSType(this DelegateDeclarationSyntax node, out string? tsType)
             => IsTSTypeInternal(node.AttributeLists, out tsType);
 
+        internal static bool IsTSType(this ParameterSyntax node, out string? tsType)
+            => IsTSTypeInternal(node.AttributeLists, out tsType);
+
         private static bool IsTSTypeInternal(SyntaxList<AttributeListSyntax> attributes,
             out string? tsType)
         {
@@ -110,7 +113,7 @@ namespace PixUI.CS2TS
             var tsTypeAttribute = TryGetAttribute(attributes, Emitter.IsTSTypeAttribute);
             if (tsTypeAttribute == null) return false;
 
-            tsType = tsTypeAttribute.ArgumentList!.Arguments[0].Expression.ToString();
+            tsType = ((LiteralExpressionSyntax)tsTypeAttribute.ArgumentList!.Arguments[0].Expression).Token.ValueText;
             return true;
         }
 

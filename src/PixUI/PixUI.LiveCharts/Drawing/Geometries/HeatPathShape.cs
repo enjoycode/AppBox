@@ -30,95 +30,6 @@ using LiveChartsCore.Motion;
 
 namespace LiveCharts.Drawing.Geometries;
 
-/// <summary>
-/// Defines a path geometry with a specified color.
-/// </summary>
-/// <seealso cref="PathGeometry" />
-public class HeatPathShape : PathGeometry, IHeatPathShape
-{
-    private readonly ColorMotionProperty _fillProperty;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="HeatPathShape"/> class.
-    /// </summary>
-    public HeatPathShape() : base()
-    {
-        _fillProperty = RegisterMotionProperty(new ColorMotionProperty(nameof(FillColor), LvcColor.Empty));
-    }
-
-    /// <summary>
-    /// Gets or sets the color of the fill.
-    /// </summary>
-    /// <value>
-    /// The color of the fill.
-    /// </value>
-    public LvcColor FillColor
-    {
-        get => _fillProperty.GetMovement(this);
-        set => _fillProperty.SetMovement(value, this);
-    }
-
-    /// <inheritdoc cref="PathGeometry.Draw(SkiaDrawingContext)"/>
-    public override void Draw(SkiaDrawingContext context)
-    {
-        if (_commands.Count == 0) return;
-
-        var toRemoveSegments = new List<IPathCommand<SKPath>>();
-
-        using var path = new SKPath();
-        var isValid = true;
-
-        foreach (var segment in _commands)
-        {
-            segment.IsValid = true;
-            segment.Execute(path, CurrentTime, this);
-            isValid = isValid && segment.IsValid;
-
-            if (segment.IsValid && segment.RemoveOnCompleted) toRemoveSegments.Add(segment);
-        }
-
-        foreach (var segment in toRemoveSegments)
-        {
-            _ = _commands.Remove(segment);
-            isValid = false;
-        }
-
-        if (IsClosed) path.Close();
-
-        var originalColor = context.Paint.Color;
-        var originalStyle = context.Paint.Style;
-
-        var fill = FillColor;
-
-        if (fill != LvcColor.Empty)
-        {
-            context.Paint.Color = fill.AsSKColor();
-            context.Paint.Style = SKPaintStyle.Fill;
-        }
-
-        context.Canvas.DrawPath(path, context.Paint);
-
-        if (fill != LvcColor.Empty)
-        {
-            context.Paint.Color = originalColor;
-            context.Paint.Style = originalStyle;
-        }
-
-        if (!isValid) IsValid = false;
-    }
-
-    /// <inheritdoc cref="IAnimatable.CompleteTransition(string[])" />
-    public override void CompleteTransition(params string[]? propertyName)
-    {
-        foreach (var item in _commands)
-        {
-            item.CompleteTransition(propertyName);
-        }
-
-        base.CompleteTransition(propertyName);
-    }
-}
-
 /// <inheritdoc cref="IPathGeometry{TDrawingContext, TPathArgs}" />
 [Obsolete]
 public class PathGeometry : Drawable/*, IPathGeometry<SkiaSharpDrawingContext, SKPath>*/
@@ -214,12 +125,12 @@ public class PathGeometry : Drawable/*, IPathGeometry<SkiaSharpDrawingContext, S
         return _commands.Remove(command);
     }
 
-    /// <inheritdoc cref="IPathGeometry{TDrawingContext, TPathArgs}.RemoveCommand(LinkedListNode{IPathCommand{TPathArgs}})" />
-    public void RemoveCommand(LinkedListNode<IPathCommand<SKPath>> node)
-    {
-        IsValid = false;
-        _commands.Remove(node);
-    }
+    // /// <inheritdoc cref="IPathGeometry{TDrawingContext, TPathArgs}.RemoveCommand(LinkedListNode{IPathCommand{TPathArgs}})" />
+    // public void RemoveCommand(LinkedListNode<IPathCommand<SKPath>> node)
+    // {
+    //     IsValid = false;
+    //     _commands.Remove(node);
+    // }
 
     /// <inheritdoc cref="IPathGeometry{TDrawingContext, TPathArgs}.ClearCommands" />
     public void ClearCommands()
@@ -239,3 +150,97 @@ public class PathGeometry : Drawable/*, IPathGeometry<SkiaSharpDrawingContext, S
         base.CompleteTransition(propertyName);
     }
 }
+
+/// <summary>
+/// Defines a path geometry with a specified color.
+/// </summary>
+/// <seealso cref="PathGeometry" />
+public class HeatPathShape : PathGeometry, IHeatPathShape
+{
+    private readonly ColorMotionProperty _fillProperty;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HeatPathShape"/> class.
+    /// </summary>
+    public HeatPathShape() : base()
+    {
+        _fillProperty = RegisterMotionProperty(new ColorMotionProperty(nameof(FillColor), LvcColor.Empty));
+    }
+
+    /// <summary>
+    /// Gets or sets the color of the fill.
+    /// </summary>
+    /// <value>
+    /// The color of the fill.
+    /// </value>
+    public LvcColor FillColor
+    {
+        get => _fillProperty.GetMovement(this);
+        set => _fillProperty.SetMovement(value, this);
+    }
+
+    /// <inheritdoc cref="PathGeometry.Draw(SkiaDrawingContext)"/>
+    public override void Draw(SkiaDrawingContext context)
+    {
+        if (_commands.Count == 0) return;
+
+        var toRemoveSegments = new List<IPathCommand<SKPath>>();
+
+        using var path = new SKPath();
+        var isValid = true;
+
+        foreach (var segment in _commands)
+        {
+            segment.IsValid = true;
+            segment.Execute(path, CurrentTime, this);
+            isValid = isValid && segment.IsValid;
+
+            if (segment.IsValid && segment.RemoveOnCompleted) toRemoveSegments.Add(segment);
+        }
+
+        foreach (var segment in toRemoveSegments)
+        {
+            _ = _commands.Remove(segment);
+            isValid = false;
+        }
+
+        if (IsClosed) path.Close();
+
+        var originalColor = context.Paint.Color;
+#if !__WEB__        
+        var originalStyle = context.Paint.Style; //TODO: CanvasKit暂不支持getStyle()
+#endif        
+
+        var fill = FillColor;
+
+        if (fill != LvcColor.Empty)
+        {
+            context.Paint.Color = fill.AsSKColor();
+            context.Paint.Style = SKPaintStyle.Fill;
+        }
+
+        context.Canvas.DrawPath(path, context.Paint);
+
+        if (fill != LvcColor.Empty)
+        {
+            context.Paint.Color = originalColor;
+#if !__WEB__            
+            context.Paint.Style = originalStyle; //TODO: CanvasKit暂不支持getStyle()
+#endif            
+        }
+
+        if (!isValid) IsValid = false;
+    }
+
+    /// <inheritdoc cref="IAnimatable.CompleteTransition(string[])" />
+    public override void CompleteTransition(params string[]? propertyName)
+    {
+        foreach (var item in _commands)
+        {
+            item.CompleteTransition(propertyName);
+        }
+
+        base.CompleteTransition(propertyName);
+    }
+}
+

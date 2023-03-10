@@ -33,11 +33,17 @@ namespace LiveCharts.VisualElements;
 /// Defines a visual element in a chart that draws a rectangle geometry in the user interface.
 /// </summary>
 public class GeometryVisual<TGeometry> : BaseGeometryVisual
-    where TGeometry : ISizedGeometry<SkiaDrawingContext>, new()
+    where TGeometry : ISizedGeometry<SkiaDrawingContext>/*, new()*/
 {
+    public GeometryVisual(Func<TGeometry> geometryFactory)
+    {
+        _geometryFactory = geometryFactory;
+    }
+
     internal TGeometry? _geometry;
     private LvcSize _actualSize = new();
     private LvcPoint _targetLocation = new();
+    private readonly Func<TGeometry> _geometryFactory;
 
     /// <summary>
     /// Occurs when the geometry is initialized.
@@ -90,13 +96,17 @@ public class GeometryVisual<TGeometry> : BaseGeometryVisual
         {
             var cp = GetPositionRelativeToParent();
 
-            _geometry = new TGeometry
-            {
-                X = cp.X,
-                Y = cp.Y,
-                Width = _actualSize.Width,
-                Height = _actualSize.Height
-            };
+            _geometry = _geometryFactory(); /*new TGeometry*/
+            _geometry.X = cp.X;
+            _geometry.Y = cp.Y;
+            _geometry.Width = _actualSize.Width;
+            _geometry.Height = _actualSize.Height;
+            // {
+            //     X = cp.X,
+            //     Y = cp.Y,
+            //     Width = _actualSize.Width,
+            //     Height = _actualSize.Height
+            // };
             GeometryIntialized?.Invoke(_geometry);
 
             _ = _geometry

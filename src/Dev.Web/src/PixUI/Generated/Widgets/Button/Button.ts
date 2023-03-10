@@ -103,7 +103,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
     }
 
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -143,7 +143,7 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         }
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         this.PaintShape(canvas);
 
         if (this._iconWidget != null) {
@@ -183,12 +183,12 @@ export class Button extends PixUI.Widget implements PixUI.IMouseRegion, PixUI.IF
         }
     }
 
-    protected OnUnmounted() {
+    OnUnmounted() {
         super.OnUnmounted();
         this._hoverDecoration.Hide();
     }
 
-    public Dispose() {
+    Dispose() {
         this._textWidget?.Dispose();
         this._iconWidget?.Dispose();
         super.Dispose();

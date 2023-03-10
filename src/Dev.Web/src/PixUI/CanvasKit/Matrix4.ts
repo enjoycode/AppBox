@@ -13,6 +13,70 @@ export class Matrix4 extends Float32Array {
         super([m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15]);
     }
 
+    public get M0() {
+        return this[0];
+    }
+
+    public get M1() {
+        return this[1];
+    }
+
+    public get M2() {
+        return this[2];
+    }
+
+    public get M3() {
+        return this[3];
+    }
+
+    public get M4() {
+        return this[4];
+    }
+
+    public get M5() {
+        return this[5];
+    }
+
+    public get M6() {
+        return this[6];
+    }
+
+    public get M7() {
+        return this[7];
+    }
+
+    public get M8() {
+        return this[8];
+    }
+
+    public get M9() {
+        return this[9];
+    }
+
+    public get M10() {
+        return this[10];
+    }
+
+    public get M11() {
+        return this[11];
+    }
+
+    public get M12() {
+        return this[12];
+    }
+
+    public get M13() {
+        return this[13];
+    }
+
+    public get M14() {
+        return this[14];
+    }
+
+    public get M15() {
+        return this[15];
+    }
+
     public static CreateEmpty(): Matrix4 {
         return new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }

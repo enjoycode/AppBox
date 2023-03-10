@@ -14,7 +14,7 @@ export class RouteView extends PixUI.DynamicView {
 
     //OnNavigateIn, OnNavigateOut
 
-    protected OnMounted() {
+    OnMounted() {
         super.OnMounted();
 
         let historyManager = this.Root!.Window.RouteHistoryManager;
@@ -34,7 +34,7 @@ export class RouteView extends PixUI.DynamicView {
         this.Navigator.InitRouteWidget();
     }
 
-    protected OnUnmounted() {
+    OnUnmounted() {
         super.OnUnmounted();
 
         //detach from parent navigator

@@ -44,7 +44,7 @@ export abstract class State<T> extends StateBase {
     public abstract get Value(): T ;
     public abstract set Value(value: T);
 
-    public toString(): string {
+    toString(): string {
         return this.Value?.toString() ?? '';
     }
 

@@ -17,6 +17,10 @@ export class Rect extends Float32Array {
         return new Rect(left, top, width + left, height + top);
     }
 
+    public static FromFloat32Array(array: Float32Array): Rect {
+        return new Rect(array[0], array[1], array[2], array[3]);
+    }
+
     public get Left() {
         return this[0];
     }

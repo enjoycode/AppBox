@@ -61,7 +61,7 @@ export abstract class Toggleable extends PixUI.Widget implements PixUI.IMouseReg
         this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
+    OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         if ((state === this._value)) {
             this.ValueChanged.Invoke(this._value.Value);
             this.AnimateToValue();

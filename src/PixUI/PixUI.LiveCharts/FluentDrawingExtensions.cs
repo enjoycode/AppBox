@@ -39,9 +39,9 @@ public static class DrawingFluentExtensions
     /// Initializes a drawing in the given canvas, it is just a simplified API to draw in the chart.
     /// </summary>
     /// <param name="canvas">The canvas.</param>
-    public static Drawing Draw(this MotionCanvas<SkiaDrawingContext> canvas)
+    public static DrawingCanvas Draw(this MotionCanvas<SkiaDrawingContext> canvas)
     {
-        return new Drawing(canvas);
+        return new DrawingCanvas(canvas);
     }
 
     // /// <summary>
@@ -52,87 +52,87 @@ public static class DrawingFluentExtensions
     // {
     //     return Draw(((LiveChartsCore.Chart<SkiaSharpDrawingContext>)chart.CoreChart).Canvas);
     // }
+}
+
+/// <summary>
+/// Defines the Drawing class.
+/// </summary>
+public sealed class DrawingCanvas
+{
+    private IPaint<SkiaDrawingContext>? _selectedPaint;
 
     /// <summary>
-    /// Defines the Drawing class.
+    /// Initializes a new instance of the Drawing class.
     /// </summary>
-    public class Drawing
+    /// <param name="canvas">The canvas.</param>
+    public DrawingCanvas(MotionCanvas<SkiaDrawingContext> canvas)
     {
-        private IPaint<SkiaDrawingContext>? _selectedPaint;
+        Canvas = canvas;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the Drawing class.
-        /// </summary>
-        /// <param name="canvas">The canvas.</param>
-        public Drawing(MotionCanvas<SkiaDrawingContext> canvas)
-        {
-            Canvas = canvas;
-        }
+    /// <summary>
+    /// Gets the canvas.
+    /// </summary>
+    public MotionCanvas<SkiaDrawingContext> Canvas { get; }
 
-        /// <summary>
-        /// Gets the canvas.
-        /// </summary>
-        public MotionCanvas<SkiaDrawingContext> Canvas { get; }
+    /// <summary>
+    /// Selects the specified paint.
+    /// </summary>
+    /// <param name="paint">The paint.</param>
+    /// <returns>The current drawing instance.</returns>
+    public DrawingCanvas SelectPaint(IPaint<SkiaDrawingContext> paint)
+    {
+        _selectedPaint = paint;
+        Canvas.AddDrawableTask(_selectedPaint);
 
-        /// <summary>
-        /// Selects the specified paint.
-        /// </summary>
-        /// <param name="paint">The paint.</param>
-        /// <returns>The current drawing instance.</returns>
-        public Drawing SelectPaint(IPaint<SkiaDrawingContext> paint)
-        {
-            _selectedPaint = paint;
-            Canvas.AddDrawableTask(_selectedPaint);
+        return this;
+    }
 
-            return this;
-        }
+    /// <summary>
+    /// Selects the specified color.
+    /// </summary>
+    /// <param name="color">The color to draw with.</param>
+    /// <param name="strokeWidth">The stroke width.</param>
+    /// <param name="isFill">Indicates whether the geometries are filled with the specified color.</param>
+    /// <returns>The current drawing instance.</returns>
+    public DrawingCanvas SelectColor(SKColor color, float? strokeWidth = null, bool? isFill = null)
+    {
+        strokeWidth ??= 1;
+        isFill ??= false;
+        var paint = SolidColorPaint.MakeByColorAndStroke(color, strokeWidth.Value);
+        paint.IsFill = isFill.Value;
 
-        /// <summary>
-        /// Selects the specified color.
-        /// </summary>
-        /// <param name="color">The color to draw with.</param>
-        /// <param name="strokeWidth">The stroke width.</param>
-        /// <param name="isFill">Indicates whether the geometries are filled with the specified color.</param>
-        /// <returns>The current drawing instance.</returns>
-        public Drawing SelectColor(SKColor color, float? strokeWidth = null, bool? isFill = null)
-        {
-            strokeWidth ??= 1;
-            isFill ??= false;
-            var paint = SolidColorPaint.MakeByColorAndStroke(color, strokeWidth.Value);
-            paint.IsFill = isFill.Value;
+        return SelectPaint(paint);
+    }
 
-            return SelectPaint(paint);
-        }
+    /// <summary>
+    /// Sets the clip rectangle of the selected paint.
+    /// </summary>
+    /// <returns></returns>
+    public DrawingCanvas SetClip(LvcRectangle? clipRectangle)
+    {
+        if (clipRectangle is null) return this;
+        if (_selectedPaint is null)
+            throw new Exception(
+                "There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
 
-        /// <summary>
-        /// Sets the clip rectangle of the selected paint.
-        /// </summary>
-        /// <returns></returns>
-        public Drawing SetClip(LvcRectangle? clipRectangle)
-        {
-            if (clipRectangle is null) return this;
-            if (_selectedPaint is null)
-                throw new Exception(
-                    "There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
+        _selectedPaint.SetClipRectangle(Canvas, clipRectangle.Value);
+        return this;
+    }
 
-            _selectedPaint.SetClipRectangle(Canvas, clipRectangle.Value);
-            return this;
-        }
+    /// <summary>
+    /// Draws the specified object.
+    /// </summary>
+    /// <param name="drawable">The drawable.</param>
+    /// <returns></returns>
+    public DrawingCanvas Draw(IDrawable<SkiaDrawingContext> drawable)
+    {
+        if (_selectedPaint is null)
+            throw new Exception(
+                "There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
 
-        /// <summary>
-        /// Draws the specified object.
-        /// </summary>
-        /// <param name="drawable">The drawable.</param>
-        /// <returns></returns>
-        public Drawing Draw(IDrawable<SkiaDrawingContext> drawable)
-        {
-            if (_selectedPaint is null)
-                throw new Exception(
-                    "There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
+        _selectedPaint.AddGeometryToPaintTask(Canvas, drawable);
 
-            _selectedPaint.AddGeometryToPaintTask(Canvas, drawable);
-
-            return this;
-        }
+        return this;
     }
 }

@@ -62,7 +62,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
         this.SetPaintProperty(new System.Ref(() => this._downFill, $v => this._downFill = $v), value);
     }
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
         let primaryAxis = cartesianChart.YAxes[this.ScalesYAt];
         let secondaryAxis = cartesianChart.XAxes[this.ScalesXAt];
@@ -252,7 +252,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
             this.everFetched, cartesianChart.View, primaryScale, secondaryScale, this.SoftDeleteOrDisposePoint.bind(this));
     }
 
-    public GetBounds(chart: LiveChartsCore.CartesianChart<TDrawingContext>, secondaryAxis: LiveChartsCore.ICartesianAxis, primaryAxis: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {
+    GetBounds(chart: LiveChartsCore.CartesianChart<TDrawingContext>, secondaryAxis: LiveChartsCore.ICartesianAxis, primaryAxis: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {
         let rawBounds = this.DataFactory.GetFinancialBounds(chart, this, secondaryAxis, primaryAxis);
         if (rawBounds.HasData) return rawBounds;
 
@@ -325,11 +325,11 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
         return new LiveChartsCore.SeriesBounds(dimensionalBounds, false);
     }
 
-    protected GetRequestedSecondaryOffset(): number {
+    GetRequestedSecondaryOffset(): number {
         return 0.5;
     }
 
-    protected SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
+    SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
         let chart = chartPoint.Context.Chart;
 
         let visual = (chartPoint.Context.Visual as TVisual)!;
@@ -348,7 +348,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
             .CompleteCurrentTransitions();
     }
 
-    public SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
+    SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
         let visual = <Nullable<TVisual>><unknown>point.Context.Visual;
         if (visual == null) return;
         if (this.DataFactory == null) throw new System.Exception("Data provider not found");
@@ -380,16 +380,16 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
         label.RemoveOnCompleted = true;
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._upFill, this._upStroke, this._downFill, this._downStroke, this.DataLabelsPaint, this.hoverPaint];
     }
 
-    protected OnPaintChanged(propertyName: Nullable<string>) {
+    OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
         this.OnPropertyChanged();
     }
 
-    public MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
+    MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
         if (series instanceof FinancialSeries<TModel, TVisual, TLabel, TMiniatureGeometry, TDrawingContext>) {
             const financial = series;
             return this.Name == series.Name &&
@@ -399,7 +399,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
         return false;
     }
 
-    public GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
+    GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
         let schedules = new System.List<LiveChartsCore.PaintSchedule<TDrawingContext>>();
 
         if (this.UpStroke != null) schedules.Add(this.BuildMiniatureSchedule(this.UpStroke, this._miniatureGeometryFactory()));

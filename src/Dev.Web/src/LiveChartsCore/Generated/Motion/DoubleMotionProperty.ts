@@ -18,7 +18,7 @@ export class DoubleMotionProperty extends LiveChartsCore.MotionProperty<number> 
         this.toValue = value;
     }
 
-    protected OnGetMovement(progress: number): number {
+    OnGetMovement(progress: number): number {
         return this.fromValue + progress * (this.toValue - this.fromValue);
     }
 }

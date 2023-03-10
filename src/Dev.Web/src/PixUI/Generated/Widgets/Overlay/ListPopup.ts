@@ -45,7 +45,7 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
         this.#MouseRegion = value;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //始终为上级指定的宽高
         let fixedWidth = this.Width!.Value;
         let fixedHeight = this.Height!.Value;
@@ -53,7 +53,7 @@ export class ListPopupItemWidget extends PixUI.SingleChildWidget implements PixU
         this.SetSize(fixedWidth, fixedHeight);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this._selectedState.Value)
             canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), PixUI.PaintUtils.Shared(PixUI.Theme.FocusedColor));
         else if (this._hoverState.Value)
@@ -193,11 +193,11 @@ export class ListPopup<T> extends PixUI.Popup {
     }
 
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         action(this._child);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         if (this.DataSource == null) return;
 
         //计算弹窗的高度
@@ -211,7 +211,7 @@ export class ListPopup<T> extends PixUI.Popup {
     }
 
 
-    public PreviewEvent(type: PixUI.EventType, e: any): PixUI.EventPreviewResult {
+    PreviewEvent(type: PixUI.EventType, e: any): PixUI.EventPreviewResult {
         if (type == PixUI.EventType.KeyDown) {
             let keyEvent = <PixUI.KeyEvent><unknown>e!;
             if (keyEvent.KeyCode == PixUI.Keys.Up) {

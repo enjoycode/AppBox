@@ -12,7 +12,7 @@ export abstract class Tween<T> extends PixUI.Animatable<T> {
 
     public abstract Lerp(t: number): T ;
 
-    public Transform(t: number): T {
+    Transform(t: number): T {
         if (t == 0.0) return this.Begin!;
         if (t == 1.0) return this.End!;
         return this.Lerp(t)!;
@@ -24,7 +24,7 @@ export class FloatTween extends Tween<number> {
         super(begin, end);
     }
 
-    public Lerp(t: number): number {
+    Lerp(t: number): number {
         return <number><unknown>(this.Begin! + (this.End! - this.Begin!) * t);
     }
 }
@@ -34,7 +34,7 @@ export class ColorTween extends Tween<PixUI.Color> {
         super(begin, end);
     }
 
-    public Lerp(t: number): PixUI.Color {
+    Lerp(t: number): PixUI.Color {
         return PixUI.Color.Lerp(this.Begin, this.End, t)!;
     }
 }
@@ -44,7 +44,7 @@ export class OffsetTween extends Tween<PixUI.Offset> {
         super(begin, end);
     }
 
-    public Lerp(t: number): PixUI.Offset {
+    Lerp(t: number): PixUI.Offset {
         return PixUI.Offset.Lerp(this.Begin, this.End, t)!;
     }
 }

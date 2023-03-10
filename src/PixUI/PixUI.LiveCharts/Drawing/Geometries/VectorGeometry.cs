@@ -99,12 +99,12 @@ public abstract class VectorGeometry<TSegment> : Drawable, IVectorGeometry<TSegm
         return Commands.Contains(segment);
     }
 
-    /// <inheritdoc cref="IVectorGeometry{TSegment, TDrawingContext}.RemoveCommand(TSegment)" />
-    public bool RemoveCommand(TSegment command)
-    {
-        IsValid = false;
-        return Commands.Remove(command);
-    }
+    // /// <inheritdoc cref="IVectorGeometry{TSegment, TDrawingContext}.RemoveCommand(TSegment)" />
+    // public bool RemoveCommand(TSegment command)
+    // {
+    //     IsValid = false;
+    //     return Commands.Remove(command);
+    // }
 
     /// <inheritdoc cref="IVectorGeometry{TSegment, TDrawingContext}.RemoveCommand(LinkedListNode{TSegment})" />
     public void RemoveCommand(LinkedListNode<TSegment> node)

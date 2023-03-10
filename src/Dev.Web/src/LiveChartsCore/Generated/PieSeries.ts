@@ -144,7 +144,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value);
     }
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let pieChart = <LiveChartsCore.PieChart<TDrawingContext>><unknown>chart;
 
         let drawLocation = (pieChart.DrawMarginLocation).Clone();
@@ -450,7 +450,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         return this.DataFactory.GetPieBounds(chart, this).Bounds;
     }
 
-    public GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
+    GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
         let schedules = new System.List<LiveChartsCore.PaintSchedule<TDrawingContext>>();
 
         if (this.Fill != null) schedules.Add(this.BuildMiniatureSchedule(this.Fill, this._miniatureGeometryFactory()));
@@ -464,15 +464,15 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
             });
     }
 
-    public GetStackGroup(): number {
+    GetStackGroup(): number {
         return 0;
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._fill, this._stroke, this.DataLabelsPaint, this.hoverPaint];
     }
 
-    protected WhenPointerEnters(point: LiveChartsCore.ChartPoint) {
+    WhenPointerEnters(point: LiveChartsCore.ChartPoint) {
         super.WhenPointerEnters(point);
 
         let visual = <Nullable<TVisual>><unknown>point.Context.Visual;
@@ -480,7 +480,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         visual.PushOut = <number><unknown>this.HoverPushout;
     }
 
-    protected WhenPointerLeaves(point: LiveChartsCore.ChartPoint) {
+    WhenPointerLeaves(point: LiveChartsCore.ChartPoint) {
         super.WhenPointerLeaves(point);
 
         let visual = <Nullable<TVisual>><unknown>point.Context.Visual;
@@ -488,7 +488,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         visual.PushOut = <number><unknown>this.Pushout;
     }
 
-    public MiniatureEquals(instance: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
+    MiniatureEquals(instance: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
         if (instance instanceof PieSeries<TModel, TVisual, TLabel, TMiniatureGeometry, TDrawingContext>) {
             const pieSeries = instance;
             return this.Name == pieSeries.Name && this.Fill == pieSeries.Fill && this.Stroke == pieSeries.Stroke;
@@ -496,7 +496,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         return false;
     }
 
-    protected SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
+    SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
         if (this.IsFillSeries) return;
 
         let isGauge = (this.SeriesProperties & LiveChartsCore.SeriesProperties.Gauge) == LiveChartsCore.SeriesProperties.Gauge;
@@ -590,7 +590,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
             <number><unknown>(centerY + Math.sin(angle) * radius));
     }
 
-    public SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
+    SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
         let core = (<LiveChartsCore.IPieChartView<TDrawingContext>><unknown>chart).Core;
         let u = LiveChartsCore.Scaler.MakeDefault();
 

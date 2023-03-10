@@ -69,7 +69,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         this.SetPaintProperty(new System.Ref(() => this._geometryStroke, $v => this._geometryStroke = $v), value, true);
     }
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let strokePathHelperContainer: any;
         let fillPathHelperContainer: any;
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
@@ -349,11 +349,11 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         this.IsFirstDraw = false;
     }
 
-    protected GetRequestedGeometrySize(): number {
+    GetRequestedGeometrySize(): number {
         return (this.GeometrySize + (this.GeometryStroke?.StrokeThickness ?? 0)) * 0.5;
     }
 
-    public MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
+    MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
         if (series instanceof LineSeries<TModel, TVisual, TLabel, TDrawingContext, TPathGeometry, TVisualPoint>) {
             const lineSeries = series;
             return this.Name == series.Name &&
@@ -364,7 +364,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         return false;
     }
 
-    public GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
+    GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
         let schedules = new System.List<LiveChartsCore.PaintSchedule<TDrawingContext>>();
 
         if (this.GeometryFill != null) schedules.Add(this.BuildMiniatureSchedule(this.GeometryFill, this._visualFactory()));
@@ -381,7 +381,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
             });
     }
 
-    public SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
+    SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
         super.SoftDeleteOrDispose(chart);
         let canvas = (<LiveChartsCore.ICartesianChartView<TDrawingContext>><unknown>chart).CoreCanvas;
 
@@ -401,13 +401,13 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         if (this.GeometryStroke != null) canvas.RemovePaintTask(this.GeometryStroke);
     }
 
-    public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         super.RemoveFromUI(chart);
         this._fillPathHelperDictionary.Remove(chart.Canvas.Sync);
         this._strokePathHelperDictionary.Remove(chart.Canvas.Sync);
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this.Stroke, this.Fill, this._geometryFill, this._geometryStroke, this.DataLabelsPaint, this.hoverPaint];
     }
 
@@ -496,7 +496,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         return System.EnumerableFrom(() => _$generator(points, stacker));
     }
 
-    protected SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
+    SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
         let chart = chartPoint.Context.Chart;
 
         let visual = (chartPoint.Context.Visual as TVisualPoint)!;
@@ -527,7 +527,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
             .CompleteCurrentTransitions();
     }
 
-    public SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
+    SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
         let visual = <Nullable<TVisualPoint>><unknown>point.Context.Visual;
         if (visual == null) return;
         if (this.DataFactory == null) throw new System.Exception("Data provider not found");

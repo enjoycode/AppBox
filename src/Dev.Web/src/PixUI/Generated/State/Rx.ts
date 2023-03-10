@@ -9,15 +9,15 @@ export class Rx<T> extends PixUI.State<T> {
 
     private _value: T;
 
-    public get Readonly(): boolean {
+    get Readonly(): boolean {
         return false;
     }
 
-    public get Value(): T {
+    get Value(): T {
         return this._value;
     }
 
-    public set Value(value: T) {
+    set Value(value: T) {
         if (System.Equals(this._value, value)) return;
         this._value = value;
         this.NotifyValueChanged();

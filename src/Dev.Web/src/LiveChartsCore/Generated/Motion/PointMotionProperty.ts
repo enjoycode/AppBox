@@ -15,7 +15,7 @@ export class PointMotionProperty extends LiveChartsCore.MotionProperty<LiveChart
         this.toValue = (value).Clone();
     }
 
-    protected OnGetMovement(progress: number): LiveChartsCore.LvcPoint {
+    OnGetMovement(progress: number): LiveChartsCore.LvcPoint {
         return new LiveChartsCore.LvcPoint(this.fromValue.X + progress * (this.toValue.X - this.fromValue.X),
             this.fromValue.Y + progress * (this.toValue.Y - this.fromValue.Y));
     }

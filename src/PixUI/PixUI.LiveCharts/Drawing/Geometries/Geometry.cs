@@ -273,7 +273,11 @@ public abstract class Geometry : Drawable, IGeometry<SkiaDrawingContext>, IVisua
             if (r < 0) r += 360;
 
             if (r > 180) r = 360 - r;
+#if __WEB__
+            if (r > 90 && r <= 180) r = 180 - r;
+#else
             if (r is > 90 and <= 180) r = 180 - r;
+#endif            
 
             var rRadians = r * toRadias;
 

@@ -38,7 +38,7 @@ export class RepaintArea implements IDirtyArea {
         return new RepaintArea((childRect).Clone());
     }
 
-    public toString(): string {
+    toString(): string {
         return `RepaintArea[${this._rect}]`;
     }
 }
@@ -82,7 +82,7 @@ export class RepaintChild implements IDirtyArea {
         return this;
     }
 
-    public toString(): string {
+    toString(): string {
         if (this._current < 0)
             return this._lastDirtyArea == null ? '' : this._lastDirtyArea.toString();
 

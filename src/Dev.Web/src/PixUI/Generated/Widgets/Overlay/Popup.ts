@@ -143,7 +143,7 @@ export class PopupTransitionWrap extends PixUI.SingleChildWidget {
         }
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (this._isDialog) {
             //always hit dialog
             result.Add(this);
@@ -154,7 +154,7 @@ export class PopupTransitionWrap extends PixUI.SingleChildWidget {
         return super.HitTest(x, y, result);
     }
 
-    public Dispose() {
+    Dispose() {
         this.AnimationController.Dispose();
         super.Dispose();
     }
@@ -172,24 +172,24 @@ export class PopupProxy extends PixUI.Widget {
 
     private readonly _popup: Popup;
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         action(this._popup);
     }
 
-    public ContainsPoint(x: number, y: number): boolean {
+    ContainsPoint(x: number, y: number): boolean {
         return this._popup.ContainsPoint(x, y);
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         return this._popup.HitTest(x, y, result);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //popup已经布局过,只需要设置自身大小等于popup的大小
         this.SetSize(this._popup.W, this._popup.H);
     }
 
-    protected OnUnmounted() {
+    OnUnmounted() {
         this._popup.Parent = null;
         super.OnUnmounted();
     }

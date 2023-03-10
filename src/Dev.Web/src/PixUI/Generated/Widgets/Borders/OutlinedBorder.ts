@@ -3,7 +3,7 @@ import * as PixUI from '@/PixUI'
 export abstract class OutlinedBorder extends PixUI.ShapeBorder {
     public readonly Side: PixUI.BorderSide;
 
-    public get Dimensions(): PixUI.EdgeInsets {
+    get Dimensions(): PixUI.EdgeInsets {
         return PixUI.EdgeInsets.All(this.Side.Width);
     }
 

@@ -51,7 +51,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
         this.SetProperty(new System.Ref(() => this._pointPadding, $v => this._pointPadding = $v), value);
     }
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         this._paintTaks ??= LiveChartsCore.LiveCharts.DefaultSettings.GetProvider<TDrawingContext>().GetSolidColorPaint();
 
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
@@ -203,21 +203,21 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
             this.everFetched, cartesianChart.View, primaryScale, secondaryScale, this.SoftDeleteOrDisposePoint.bind(this));
     }
 
-    public GetBounds(chart: LiveChartsCore.CartesianChart<TDrawingContext>, secondaryAxis: LiveChartsCore.ICartesianAxis, primaryAxis: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {
+    GetBounds(chart: LiveChartsCore.CartesianChart<TDrawingContext>, secondaryAxis: LiveChartsCore.ICartesianAxis, primaryAxis: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {
         let seriesBounds = super.GetBounds(chart, secondaryAxis, primaryAxis);
         this._weightBounds = seriesBounds.Bounds.TertiaryBounds;
         return seriesBounds;
     }
 
-    protected GetRequestedSecondaryOffset(): number {
+    GetRequestedSecondaryOffset(): number {
         return 0.5;
     }
 
-    protected GetRequestedPrimaryOffset(): number {
+    GetRequestedPrimaryOffset(): number {
         return 0.5;
     }
 
-    protected SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
+    SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
         let chart = chartPoint.Context.Chart;
 
         let visual = (chartPoint.Context.Visual as TVisual)!;
@@ -235,7 +235,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
             .CompleteCurrentTransitions();
     }
 
-    public SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
+    SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
         let visual = <Nullable<TVisual>><unknown>point.Context.Visual;
         if (visual == null) return;
         if (this.DataFactory == null) throw new System.Exception("Data provider not found");
@@ -258,7 +258,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
         label.RemoveOnCompleted = true;
     }
 
-    public GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
+    GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
         let schedules = new System.List<LiveChartsCore.PaintSchedule<TDrawingContext>>();
 
         let strokeClone = LiveChartsCore.LiveCharts.DefaultSettings.GetProvider<TDrawingContext>().GetSolidColorPaint();
@@ -295,7 +295,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
             });
     }
 
-    public MiniatureEquals(instance: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
+    MiniatureEquals(instance: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
         if (instance instanceof HeatSeries<TModel, TVisual, TLabel, TDrawingContext>) {
             const hSeries = instance;
             return this.Name == instance.Name && this.HeatMap == hSeries.HeatMap;
@@ -303,7 +303,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
         return false;
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._paintTaks, this.hoverPaint];
     }
 }

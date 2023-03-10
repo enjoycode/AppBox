@@ -12,7 +12,7 @@ export class Row extends PixUI.MultiChildWidget<PixUI.Widget> {
         this._spacing = spacing;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 

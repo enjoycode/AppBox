@@ -26,7 +26,7 @@ export class ChainedEvaluation<T> extends Animatable<T> {
         this._evaluatable = evaluatable;
     }
 
-    public Transform(t: number): T {
+    Transform(t: number): T {
         return this._evaluatable.Transform(this._parent.Transform(t));
     }
 }

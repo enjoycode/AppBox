@@ -22,7 +22,7 @@ export class ControlCoordinatesProjector extends LiveChartsCore.MapProjector {
         return new Float32Array([2, 1]);
     }
 
-    public ToMap(point: Float64Array): Float32Array {
+    ToMap(point: Float64Array): Float32Array {
         // simplified formula
         return new Float32Array([
             <number><unknown>(this._ox + (point[0] + 180) / 360 * this._w),

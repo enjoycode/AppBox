@@ -22,7 +22,7 @@ export class MercatorProjector extends LiveChartsCore.MapProjector {
         return new Float32Array([1, 1]);
     }
 
-    public ToMap(point: Float64Array): Float32Array {
+    ToMap(point: Float64Array): Float32Array {
         let lat = point[1];
         let lon = point[0];
 

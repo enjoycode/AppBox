@@ -10,20 +10,20 @@ export class RelativePanel<TDrawingContext extends LiveChartsCore.DrawingContext
         return new System.HashSet();
     }
 
-    public GetTargetLocation(): LiveChartsCore.LvcPoint {
+    GetTargetLocation(): LiveChartsCore.LvcPoint {
         return this._targetPosition;
     }
 
-    public GetTargetSize(): LiveChartsCore.LvcSize {
+    GetTargetSize(): LiveChartsCore.LvcSize {
         return this.Size;
     }
 
-    public Measure(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>): LiveChartsCore.LvcSize {
+    Measure(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>): LiveChartsCore.LvcSize {
         for (const child of this.Children) child.Measure(chart, primaryScaler, secondaryScaler);
         return this.GetTargetSize();
     }
 
-    public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         for (const child of this.Children) {
             child.RemoveFromUI(chart);
         }
@@ -31,7 +31,7 @@ export class RelativePanel<TDrawingContext extends LiveChartsCore.DrawingContext
         super.RemoveFromUI(chart);
     }
 
-    public OnInvalidated(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>) {
+    OnInvalidated(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>) {
         this._targetPosition = (new LiveChartsCore.LvcPoint(<number><unknown>this.X + this._xc, <number><unknown>this.Y + this._yc)).Clone();
 
         for (const child of this.Children) {
@@ -44,7 +44,7 @@ export class RelativePanel<TDrawingContext extends LiveChartsCore.DrawingContext
         }
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [];
     }
 }

@@ -39,19 +39,19 @@ export class InterpolationSimulation extends Simulation {
         this._durationInSeconds = duration * scale / 1000;
     }
 
-    public X(timeInSeconds: number): number {
+    X(timeInSeconds: number): number {
         let t = clamp(timeInSeconds / this._durationInSeconds, 0.0, 1.0);
         if (t == 0.0) return this._begin;
         if (t == 1.0) return this._end;
         return this._begin + (this._end - this._begin) * this._curve.Transform(t);
     }
 
-    public Dx(timeInSeconds: number): number {
+    Dx(timeInSeconds: number): number {
         let epsilon = this.Tolerance.Time;
         return (this.X(timeInSeconds + epsilon) - this.X(timeInSeconds - epsilon)) / (2 * epsilon);
     }
 
-    public IsDone(timeInSeconds: number): boolean {
+    IsDone(timeInSeconds: number): boolean {
         return timeInSeconds > this._durationInSeconds;
     }
 }
@@ -82,7 +82,7 @@ export class RepeatingSimulation extends Simulation {
     private readonly _periodInSeconds: number;
     private readonly _initialT: number;
 
-    public X(timeInSeconds: number): number {
+    X(timeInSeconds: number): number {
         console.assert(timeInSeconds >= 0);
 
         let totalTimeInSeconds = timeInSeconds + this._initialT;
@@ -98,11 +98,11 @@ export class RepeatingSimulation extends Simulation {
         }
     }
 
-    public Dx(timeInSeconds: number): number {
+    Dx(timeInSeconds: number): number {
         return (this._max - this._min) / this._periodInSeconds;
     }
 
-    public IsDone(time: number): boolean {
+    IsDone(time: number): boolean {
         return false;
     }
 }

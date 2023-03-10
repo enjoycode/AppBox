@@ -15,7 +15,7 @@ using LiveCharts.Drawing.Geometries;
 using LiveCharts.Painting;
 using LiveChartsCore.VisualElements;
 
-namespace PixLiveCharts;
+namespace LiveCharts;
 
 public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaDrawingContext>
 {
@@ -90,7 +90,11 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaDrawingC
     public override IEnumerable<ChartPoint> GetPointsAt(LvcPoint point,
         TooltipFindingStrategy strategy = TooltipFindingStrategy.Automatic)
     {
+#if __WEB__
+        var cc = (CartesianChart<SkiaDrawingContext>)core;
+#else
         if (core is not CartesianChart<SkiaDrawingContext> cc) throw new Exception("core not found");
+#endif        
 
         if (strategy == TooltipFindingStrategy.Automatic)
             strategy = cc.Series.GetTooltipFindingStrategy();
@@ -100,10 +104,16 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaDrawingC
 
     public override IEnumerable<VisualElement<SkiaDrawingContext>> GetVisualsAt(LvcPoint point)
     {
+#if __WEB__
+        var cc = (CartesianChart<SkiaDrawingContext>)core;
+        return cc.VisualElements.SelectMany(visual =>
+                ((VisualElement<SkiaDrawingContext>)visual).IsHitBy(core, point));
+#else
         return core is not CartesianChart<SkiaDrawingContext> cc
             ? throw new Exception("core not found")
             : cc.VisualElements.SelectMany(visual =>
                 ((VisualElement<SkiaDrawingContext>)visual).IsHitBy(core, point));
+#endif        
     }
 
     #endregion
@@ -186,21 +196,29 @@ public sealed class CartesianChart : ChartView, ICartesianChartView<SkiaDrawingC
 
     public LvcPointD ScalePixelsToData(LvcPointD point, int xAxisIndex = 0, int yAxisIndex = 0)
     {
+#if __WEB__
+        var cc = (CartesianChart<SkiaDrawingContext>)core;
+#else
         if (core is not CartesianChart<SkiaDrawingContext> cc) throw new Exception("core not found");
+#endif        
         var xScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.XAxes[xAxisIndex]);
         var yScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.YAxes[yAxisIndex]);
 
-        return new LvcPointD { X = xScaler.ToChartValues(point.X), Y = yScaler.ToChartValues(point.Y) };
+        return new LvcPointD(xScaler.ToChartValues(point.X), yScaler.ToChartValues(point.Y));
     }
 
     public LvcPointD ScaleDataToPixels(LvcPointD point, int xAxisIndex = 0, int yAxisIndex = 0)
     {
+#if __WEB__
+        var cc = (CartesianChart<SkiaDrawingContext>)core;
+#else
         if (core is not CartesianChart<SkiaDrawingContext> cc) throw new Exception("core not found");
+#endif        
 
         var xScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.XAxes[xAxisIndex]);
         var yScaler = Scaler.Make(cc.DrawMarginLocation, cc.DrawMarginSize, cc.YAxes[yAxisIndex]);
 
-        return new LvcPointD { X = xScaler.ToPixels(point.X), Y = yScaler.ToPixels(point.Y) };
+        return new LvcPointD(xScaler.ToPixels(point.X), yScaler.ToPixels(point.Y));
     }
 
     #endregion

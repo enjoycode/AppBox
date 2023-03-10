@@ -17,7 +17,7 @@ namespace PixUI
                 foreground?.Handle ?? IntPtr.Zero, IntPtr.Zero));
         }
 
-        public static ImageFilter? CreateBlur(float sigmaX, float sigmaY, ShaderTileMode tileMode,
+        public static ImageFilter? CreateBlur(float sigmaX, float sigmaY, TileMode tileMode,
             ImageFilter? input) =>
             GetObject(SkiaApi.sk_imagefilter_new_blur(sigmaX, sigmaY, tileMode,
                 input?.Handle ?? IntPtr.Zero, IntPtr.Zero));

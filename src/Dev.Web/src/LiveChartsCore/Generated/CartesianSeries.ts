@@ -132,7 +132,7 @@ export abstract class CartesianSeries<TModel, TVisual extends object & LiveChart
         return false;
     }
 
-    public SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
+    SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
         let core = (<LiveChartsCore.ICartesianChartView<TDrawingContext>><unknown>chart).Core;
 
         let secondaryAxis = core.XAxes.length > this.ScalesXAt ? core.XAxes[this.ScalesXAt] : null;

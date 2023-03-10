@@ -51,7 +51,7 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
 
     public readonly PropertyChanged = new System.Event<any, System.PropertyChangedEventArgs>();
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let primary: Nullable<LiveChartsCore.Scaler> = null;
         let secondary: Nullable<LiveChartsCore.Scaler> = null;
 
@@ -99,7 +99,7 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
 
     public abstract GetTargetSize(): LiveChartsCore.LvcSize ;
 
-    protected OnPaintChanged(propertyName: Nullable<string>) {
+    OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
         this.OnPropertyChanged(propertyName);
     }

@@ -57,6 +57,10 @@ export interface ICartesianAxis extends LiveChartsCore.IPlane, System.INotifyPro
 
 }
 
+export function IsInterfaceOfICartesianAxis(obj: any): obj is ICartesianAxis {
+    return typeof obj === "object" && obj !== null && !Array.isArray(obj) && '$meta_LiveChartsCore_ICartesianAxis' in obj.constructor;
+}
+
 export interface ICartesianAxis1<TDrawingContext extends LiveChartsCore.DrawingContext> extends ICartesianAxis {
     get SubseparatorsPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>;
 
@@ -99,4 +103,8 @@ export interface ICartesianAxis1<TDrawingContext extends LiveChartsCore.DrawingC
     set CrosshairSnapEnabled(value: boolean);
 
     InvalidateCrosshair(chart: LiveChartsCore.Chart<TDrawingContext>, pointerPosition: LiveChartsCore.LvcPoint): void;
+}
+
+export function IsInterfaceOfICartesianAxis1(obj: any): obj is ICartesianAxis1<any> {
+    return typeof obj === "object" && obj !== null && !Array.isArray(obj) && '$meta_LiveChartsCore_ICartesianAxis1' in obj.constructor;
 }

@@ -47,7 +47,7 @@ export class Offset implements System.IEquatable<Offset> {
         return new Offset(this.Dx, this.Dy);
     }
 
-    public toString(): string {
+    toString(): string {
         return `{{Dx=${this.Dx}, Dy=${this.Dy}}}`;
     }
 }

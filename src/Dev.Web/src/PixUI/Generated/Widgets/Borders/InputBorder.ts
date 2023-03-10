@@ -11,7 +11,7 @@ export abstract class InputBorder extends PixUI.ShapeBorder {
         this.#BorderSide = value;
     }
 
-    public get Dimensions(): PixUI.EdgeInsets {
+    get Dimensions(): PixUI.EdgeInsets {
         return PixUI.EdgeInsets.All(this.BorderSide.Width);
     }
 
@@ -50,15 +50,15 @@ export class OutlineInputBorder extends InputBorder {
         this.GapPadding = gapPadding;
     }
 
-    public GetOuterPath(rect: PixUI.Rect): PixUI.Path {
+    GetOuterPath(rect: PixUI.Rect): PixUI.Path {
         throw new System.NotImplementedException();
     }
 
-    public GetInnerPath(rect: PixUI.Rect): PixUI.Path {
+    GetInnerPath(rect: PixUI.Rect): PixUI.Path {
         throw new System.NotImplementedException();
     }
 
-    public LerpTo(to: Nullable<PixUI.ShapeBorder>, tween: PixUI.ShapeBorder, t: number) {
+    LerpTo(to: Nullable<PixUI.ShapeBorder>, tween: PixUI.ShapeBorder, t: number) {
         if (to instanceof OutlineInputBorder) {
             const other = to;
             let temp = <OutlineInputBorder><unknown>tween;
@@ -70,11 +70,11 @@ export class OutlineInputBorder extends InputBorder {
         }
     }
 
-    public Clone(): PixUI.ShapeBorder {
+    Clone(): PixUI.ShapeBorder {
         return new OutlineInputBorder(this.BorderSide, this.BorderRadius, this.GapPadding);
     }
 
-    public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect, fillColor: Nullable<PixUI.Color> = null) {
+    Paint(canvas: PixUI.Canvas, rect: PixUI.Rect, fillColor: Nullable<PixUI.Color> = null) {
         let outer = this.BorderRadius.ToRRect(rect);
         outer.Deflate(this.BorderSide.Width / 2, this.BorderSide.Width / 2);
 

@@ -223,7 +223,7 @@ public class LinearGradientPaint : Paint
         var clip = GetClipRectangle(drawingContext.MotionCanvas);
 
         return clip == LvcRectangle.Empty
-            ? new SKRect(0, 0, drawingContext.Info.Width, drawingContext.Info.Width)
+            ? new SKRect(0, 0, drawingContext.Width, drawingContext.Width)
             : new SKRect(clip.X, clip.Y, clip.X + clip.Width, clip.Y + clip.Height);
     }
 }

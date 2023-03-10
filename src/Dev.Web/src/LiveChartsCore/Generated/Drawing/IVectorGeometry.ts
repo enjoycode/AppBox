@@ -27,7 +27,11 @@ export interface IVectorGeometry<TSegment extends LiveChartsCore.IConsecutivePat
 
     AddBefore(node: System.LinkedListNode<TSegment>, command: TSegment): System.LinkedListNode<TSegment>;
 
-    RemoveCommand(command: TSegment): boolean;
+    // /// <summary>
+    // /// Removes a path command.
+    // /// </summary>
+    // /// <param name="command">The command.</param>
+    // bool RemoveCommand(TSegment command);
 
     RemoveCommand(node: System.LinkedListNode<TSegment>): void;
 

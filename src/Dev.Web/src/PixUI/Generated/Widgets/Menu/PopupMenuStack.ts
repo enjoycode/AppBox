@@ -76,13 +76,13 @@ export class PopupMenuStack extends PixUI.Popup {
     }
 
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         for (const child of this._children) {
             if (action(child)) break;
         }
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         for (const child of this._children) {
             if (this.HitTestChild(child, x, y, result)) return true;
         }
@@ -90,11 +90,11 @@ export class PopupMenuStack extends PixUI.Popup {
         return false;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //do nothing,每个弹出的子菜单在加入前已经手动布局过
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         for (const child of this._children) {
             canvas.translate(child.X, child.Y);
             child.Paint(canvas, area);
@@ -103,7 +103,7 @@ export class PopupMenuStack extends PixUI.Popup {
     }
 
 
-    public PreviewEvent(type: PixUI.EventType, e: any): PixUI.EventPreviewResult {
+    PreviewEvent(type: PixUI.EventType, e: any): PixUI.EventPreviewResult {
         //TODO: 判断ESC键及其他
         if (type == PixUI.EventType.PointerDown) {
             let pointerEvent = <PixUI.PointerEvent><unknown>e!;

@@ -135,6 +135,7 @@ public static class LiveChartsSkiaSharp
         return new LvcColor(color.Red, color.Green, color.Blue, color.Alpha);
     }
 
+#if !__WEB__    
     /// <summary>
     /// Gets the <see cref="SkiaFontMatchChar"/> key.
     /// </summary>
@@ -151,6 +152,7 @@ public static class LiveChartsSkiaSharp
     {
         return $"{SkiaFontMatchChar}|{@char}";
     }
+#endif    
 
     /// <summary>
     /// Converts an IEnumerable to an ObservableCollection of pie series.
@@ -192,7 +194,11 @@ public static class LiveChartsSkiaSharp
 
             var cartesianSeries = (ICartesianSeries<SkiaDrawingContext>)target.Context.Series;
 
+#if __WEB__
+            if ((target.Context.Series.SeriesProperties & SeriesProperties.PrimaryAxisHorizontalOrientation) == SeriesProperties.PrimaryAxisHorizontalOrientation)
+#else
             if (target.Context.Series.SeriesProperties.HasFlag(SeriesProperties.PrimaryAxisHorizontalOrientation))
+#endif                
             {
                 var primaryAxis = cartesianChart.Core.YAxes[cartesianSeries.ScalesYAt];
                 var secondaryAxis = cartesianChart.Core.XAxes[cartesianSeries.ScalesXAt];

@@ -34,14 +34,14 @@ export class Checkbox extends PixUI.Toggleable {
     private static readonly _kEdgeSize: number = 18;
     private static readonly _kStrokeWidth: number = 2.0;
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
         this.SetSize(Math.min(width, Checkbox._kCheckboxSize), Math.min(height, Checkbox._kCheckboxSize));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let origin = new PixUI.Offset(this.W / 2 - Checkbox._kEdgeSize / 2, this.H / 2 - Checkbox._kEdgeSize / 2);
         let checkColor = PixUI.Colors.White; //TODO:
 

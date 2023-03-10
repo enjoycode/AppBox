@@ -29,7 +29,7 @@ namespace PixUI.CS2TS
                 TryWriteParentTypeOfInnerClass(node, symbol);
             }
 
-            var name = node.Identifier.Text;
+            var name = symbol.Name; //可能using改了名称,不能用node.Identifier.Text;
             if (symbol is not ILocalSymbol && symbol is not IParameterSymbol)
                 TryRenameSymbol(symbol, ref name);
             Write(name);
@@ -37,7 +37,7 @@ namespace PixUI.CS2TS
                 Write(".Value");
 
             //转换委托的this绑定
-            if (!IgnoreDelegateBind && !symbol.IsStatic && symbol is IMethodSymbol)
+            if (!IgnoreDelegateBind && symbol is IMethodSymbol && !symbol.IsStatic)
             {
                 var typeInfo = SemanticModel.GetTypeInfo(node);
                 if (typeInfo.ConvertedType is { TypeKind: TypeKind.Delegate })

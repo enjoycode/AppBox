@@ -13,13 +13,13 @@ export class TransitionStack extends PixUI.Widget {
         this._to.Parent = this;
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (!this.IsMounted) return;
         if (action(this._from)) return;
         action(this._to);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         this.CachedAvailableWidth = availableWidth;
         this.CachedAvailableHeight = availableHeight;
         this.SetSize(availableWidth, availableHeight);
@@ -30,12 +30,12 @@ export class TransitionStack extends PixUI.Widget {
         this._to.SetPosition(0, 0);
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
-                              affects: PixUI.AffectsByRelayout) {
+    OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                       affects: PixUI.AffectsByRelayout) {
         //do nothing
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         this._from.Paint(canvas, area);
         this._to.Paint(canvas, area);
     }

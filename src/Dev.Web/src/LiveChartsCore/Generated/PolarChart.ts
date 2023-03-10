@@ -79,21 +79,21 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
         this.#InitialRotation = value;
     }
 
-    public get ChartSeries(): System.IEnumerable<LiveChartsCore.IChartSeries<TDrawingContext>> {
+    get ChartSeries(): System.IEnumerable<LiveChartsCore.IChartSeries<TDrawingContext>> {
         return this.Series;
     }
 
-    public get View(): LiveChartsCore.IChartView1<TDrawingContext> {
+    get View(): LiveChartsCore.IChartView1<TDrawingContext> {
         return this._chartView;
     }
 
-    public FindHoveredPointsBy(pointerPosition: LiveChartsCore.LvcPoint): System.IEnumerable<LiveChartsCore.ChartPoint> {
+    FindHoveredPointsBy(pointerPosition: LiveChartsCore.LvcPoint): System.IEnumerable<LiveChartsCore.ChartPoint> {
         return this.ChartSeries
             .Where(series => series.IsHoverable)
             .SelectMany(series => series.FindHitPoints(this, (pointerPosition).Clone(), LiveChartsCore.TooltipFindingStrategy.CompareAll));
     }
 
-    public Measure() {
+    Measure() {
         if (!this.IsLoaded) return; // <- prevents a visual glitch where the visual call the measure method
         // while they are not visible, the problem is when the control is visible again
         // the animations are not as expected because previously it ran in an invalid case.
@@ -442,7 +442,7 @@ export class PolarChart<TDrawingContext extends LiveChartsCore.DrawingContext> e
         return new Float64Array([r.X, r.Y]);
     }
 
-    public Unload() {
+    Unload() {
         super.Unload();
         this.IsFirstDraw = true;
     }

@@ -22,11 +22,11 @@ export class Input extends PixUI.InputBase<PixUI.EditableText> {
         this.SuffixWidget = value;
     }
 
-    public get Readonly(): Nullable<PixUI.State<boolean>> {
+    get Readonly(): Nullable<PixUI.State<boolean>> {
         return this._editor.Readonly;
     }
 
-    public set Readonly(value: Nullable<PixUI.State<boolean>>) {
+    set Readonly(value: Nullable<PixUI.State<boolean>>) {
         this._editor.Readonly = value;
     }
 

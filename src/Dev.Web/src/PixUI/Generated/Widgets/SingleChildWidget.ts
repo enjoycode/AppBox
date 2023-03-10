@@ -32,12 +32,12 @@ export abstract class SingleChildWidget extends PixUI.Widget {
             this._child.Parent = this;
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (this._child != null)
             action(this._child);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -62,8 +62,8 @@ export abstract class SingleChildWidget extends PixUI.Widget {
             this.SetSize(width, height);
     }
 
-    public OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
-                              affects: PixUI.AffectsByRelayout) {
+    OnChildSizeChanged(child: PixUI.Widget, dx: number, dy: number,
+                       affects: PixUI.AffectsByRelayout) {
         console.assert(this.AutoSize);
 
         if (!this.IsLayoutTight) return; //do nothing when not IsLayoutTight

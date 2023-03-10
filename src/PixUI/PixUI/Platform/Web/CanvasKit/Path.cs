@@ -39,7 +39,7 @@ namespace PixUI
         [TSRename("op")]
         public bool Op(Path other, PathOp pathOp) => true;
         
-        [TSRename("getBounds")]
+        [TSTemplate("PixUI.Rect.FromFloat32Array({0}.getBounds())")]
         public Rect GetBounds() => Rect.Empty;
         
         [TSRename("close")]

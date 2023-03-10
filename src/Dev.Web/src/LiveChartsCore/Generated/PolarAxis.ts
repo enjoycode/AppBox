@@ -247,7 +247,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
 
     public readonly Initialized = new System.Event<LiveChartsCore.IPolarAxis>();
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let separators: any;
         let polarChart = <LiveChartsCore.PolarChart<TDrawingContext>><unknown>chart;
 
@@ -608,7 +608,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
         this.activeSeparators.Remove(chart);
     }
 
-    public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         super.RemoveFromUI(chart);
         this._animatableBounds = null!;
         this.activeSeparators.Remove(chart);
@@ -650,12 +650,12 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
         }
     }
 
-    protected OnPaintChanged(propertyName: Nullable<string>) {
+    OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
         this.OnPropertyChanged(propertyName);
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._separatorsPaint, this._labelsPaint, this._namePaint];
     }
 }

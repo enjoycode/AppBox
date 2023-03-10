@@ -20,7 +20,7 @@ export class SemicircleHoverArea extends LiveChartsCore.HoverArea {
         return this;
     }
 
-    public DistanceTo(point: LiveChartsCore.LvcPoint): number {
+    DistanceTo(point: LiveChartsCore.LvcPoint): number {
         let a = (this.StartAngle + this.EndAngle) * 0.5;
         let r = this.Radius * 0.5;
 
@@ -32,7 +32,7 @@ export class SemicircleHoverArea extends LiveChartsCore.HoverArea {
         return Math.sqrt(Math.pow(point.X - x, 2) + Math.pow(point.Y - y, 2));
     }
 
-    public IsPointerOver(pointerLocation: LiveChartsCore.LvcPoint, strategy: LiveChartsCore.TooltipFindingStrategy): boolean {
+    IsPointerOver(pointerLocation: LiveChartsCore.LvcPoint, strategy: LiveChartsCore.TooltipFindingStrategy): boolean {
         let startAngle = this.StartAngle;
         startAngle %= 360;
         if (startAngle < 0) startAngle += 360;
@@ -69,7 +69,7 @@ export class SemicircleHoverArea extends LiveChartsCore.HoverArea {
             r < this.Radius;
     }
 
-    public SuggestTooltipPlacement(context: LiveChartsCore.TooltipPlacementContext) {
+    SuggestTooltipPlacement(context: LiveChartsCore.TooltipPlacementContext) {
         let angle = (this.StartAngle + this.EndAngle) / 2;
         context.PieX = this.CenterX + <number><unknown>Math.cos(angle * (Math.PI / 180)) * this.Radius;
         context.PieY = this.CenterY + <number><unknown>Math.sin(angle * (Math.PI / 180)) * this.Radius;

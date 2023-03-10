@@ -53,7 +53,7 @@ export class Transform extends PixUI.SingleChildWidget {
         return result;
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         //不要检查ContainsPoint,可能变换出范围
         if (this.Child == null) return false;
 
@@ -80,7 +80,7 @@ export class Transform extends PixUI.SingleChildWidget {
         return hitChild;
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.Child == null) return;
 
         canvas.save();

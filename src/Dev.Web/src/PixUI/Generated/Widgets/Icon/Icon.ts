@@ -37,7 +37,7 @@ export class Icon extends PixUI.Widget {
             this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
+    OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         if ((state === this._data) || (state === this._size)) {
             this._painter.Reset();
         }
@@ -45,19 +45,19 @@ export class Icon extends PixUI.Widget {
         super.OnStateChanged(state, options);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let size = this._size?.Value ?? PixUI.Theme.DefaultFontSize;
         this.SetSize(Math.max(0, Math.min(availableWidth, size)),
             Math.max(0, Math.min(availableHeight, size)));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let size = this._size?.Value ?? PixUI.Theme.DefaultFontSize;
         let color = this._color?.Value ?? new PixUI.Color(0xff5f6368);
         this._painter.Paint(canvas, size, color, this._data.Value);
     }
 
-    public Dispose() {
+    Dispose() {
         this._painter.Dispose();
         super.Dispose();
     }

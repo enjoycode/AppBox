@@ -2,6 +2,8 @@ import * as System from '@/System'
 import * as LiveChartsCore from '@/LiveChartsCore'
 
 export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext, TTextGeometry extends LiveChartsCore.ILabelGeometry<TDrawingContext>, TLineGeometry extends object & LiveChartsCore.ILineGeometry<TDrawingContext>> extends LiveChartsCore.ChartElement<TDrawingContext> implements LiveChartsCore.ICartesianAxis1<TDrawingContext>, LiveChartsCore.IPlane1<TDrawingContext> {
+    private static readonly $meta_LiveChartsCore_ICartesianAxis = true;
+
     protected constructor(textGeometryFactory: System.Func1<TTextGeometry>, lineGeometryFactory: System.Func1<TLineGeometry>) {
         super();
         this._textGeometryFactory = textGeometryFactory;
@@ -392,7 +394,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
 
     public readonly Initialized = new System.Event<LiveChartsCore.ICartesianAxis>();
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let separators: any;
 
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
@@ -920,18 +922,18 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         this.activeSeparators.Remove(chart);
     }
 
-    public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         super.RemoveFromUI(chart);
         this._animatableBounds = null!;
         this.activeSeparators.Remove(chart);
     }
 
-    protected OnPaintChanged(propertyName: Nullable<string>) {
+    OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
         this.OnPropertyChanged(propertyName);
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._separatorsPaint, this._labelsPaint, this._namePaint, this._zeroPaint, this._ticksPaint, this._subticksPaint, this._subseparatorsPaint];
     }
 

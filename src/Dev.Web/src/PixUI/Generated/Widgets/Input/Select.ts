@@ -37,7 +37,7 @@ export class Select<T> extends PixUI.InputBase<PixUI.Widget> {
         this._labelGetter = value;
     }
 
-    public get Readonly(): Nullable<PixUI.State<boolean>> {
+    get Readonly(): Nullable<PixUI.State<boolean>> {
         if (this._editor instanceof PixUI.EditableText) {
             const editableText = this._editor;
             return editableText.Readonly;
@@ -45,7 +45,7 @@ export class Select<T> extends PixUI.InputBase<PixUI.Widget> {
         return (<SelectText><unknown>this._editor).Readonly;
     }
 
-    public set Readonly(value: Nullable<PixUI.State<boolean>>) {
+    set Readonly(value: Nullable<PixUI.State<boolean>>) {
         if (this._editor instanceof PixUI.EditableText) {
             const editableText = this._editor;
             editableText.Readonly = value;
@@ -143,11 +143,11 @@ export class SelectText extends PixUI.TextBase implements PixUI.IMouseRegion, Pi
         this._readonly = this.Rebind(this._readonly, value, PixUI.BindingOptions.None);
     }
 
-    protected get ForceHeight(): boolean {
+    get ForceHeight(): boolean {
         return true;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -157,7 +157,7 @@ export class SelectText extends PixUI.TextBase implements PixUI.IMouseRegion, Pi
         this.SetSize(width, Math.min(height, fontHeight));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.Text.Value.length == 0) return;
         canvas.drawParagraph(this.CachedParagraph!, 0, 2);
     }

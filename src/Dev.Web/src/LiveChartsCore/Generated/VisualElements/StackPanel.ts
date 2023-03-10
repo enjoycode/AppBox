@@ -32,11 +32,11 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
         this.SetPaintProperty(new System.Ref(() => this._backgroundPaint, $v => this._backgroundPaint = $v), value);
     }
 
-    public GetTargetLocation(): LiveChartsCore.LvcPoint {
+    GetTargetLocation(): LiveChartsCore.LvcPoint {
         return this._targetPosition;
     }
 
-    public GetTargetSize(): LiveChartsCore.LvcSize {
+    GetTargetSize(): LiveChartsCore.LvcSize {
         let size = (this.Orientation == LiveChartsCore.ContainerOrientation.Horizontal
             ? this.Children.Aggregate(new LiveChartsCore.LvcSize(0, 0), (current, next) => {
                 let size = next.GetTargetSize();
@@ -54,12 +54,12 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
         return new LiveChartsCore.LvcSize(this.Padding.Left + this.Padding.Right + size.Width, this.Padding.Top + this.Padding.Bottom + size.Height);
     }
 
-    public Measure(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>): LiveChartsCore.LvcSize {
+    Measure(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>): LiveChartsCore.LvcSize {
         for (const child of this.Children) child.Measure(chart, primaryScaler, secondaryScaler);
         return this.GetTargetSize();
     }
 
-    public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         for (const child of this.Children) {
             child.RemoveFromUI(chart);
         }
@@ -67,7 +67,7 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
         super.RemoveFromUI(chart);
     }
 
-    public OnInvalidated(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>) {
+    OnInvalidated(chart: LiveChartsCore.Chart<TDrawingContext>, primaryScaler: Nullable<LiveChartsCore.Scaler>, secondaryScaler: Nullable<LiveChartsCore.Scaler>) {
         let xl = this.Padding.Left;
         let yl = this.Padding.Top;
 
@@ -159,7 +159,7 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
         }
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._backgroundPaint];
     }
 }

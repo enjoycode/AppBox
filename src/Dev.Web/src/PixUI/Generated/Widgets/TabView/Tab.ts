@@ -38,7 +38,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
             this.Invalidate(PixUI.InvalidAction.Repaint);
     }
 
-    public get IsOpaque(): boolean {
+    get IsOpaque(): boolean {
         if (this.IsSelected.Value)
             return this.TabBar.SelectedColor != null && this.TabBar.SelectedColor.IsOpaque;
         if (this._isHover)
@@ -46,7 +46,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         return false;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -66,7 +66,7 @@ export class Tab extends PixUI.SingleChildWidget implements PixUI.IMouseRegion {
         }
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //根据状态画背景色
         if (this.IsSelected.Value) {
             if (this.TabBar.SelectedColor != null)

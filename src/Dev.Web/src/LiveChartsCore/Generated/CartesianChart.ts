@@ -64,7 +64,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         this.#Sections = value;
     }
 
-    public get ChartSeries(): System.IEnumerable<LiveChartsCore.IChartSeries<TDrawingContext>> {
+    get ChartSeries(): System.IEnumerable<LiveChartsCore.IChartSeries<TDrawingContext>> {
         return this.Series;
     }
 
@@ -77,11 +77,11 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         this.#IsZoomingOrPanning = value;
     }
 
-    public get View(): LiveChartsCore.IChartView1<TDrawingContext> {
+    get View(): LiveChartsCore.IChartView1<TDrawingContext> {
         return this._chartView;
     }
 
-    public FindHoveredPointsBy(pointerPosition: LiveChartsCore.LvcPoint): System.IEnumerable<LiveChartsCore.ChartPoint> {
+    FindHoveredPointsBy(pointerPosition: LiveChartsCore.LvcPoint): System.IEnumerable<LiveChartsCore.ChartPoint> {
         let actualStrategy = this.TooltipFindingStrategy;
 
         if (actualStrategy == LiveChartsCore.TooltipFindingStrategy.Automatic)
@@ -276,7 +276,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         this.IsZoomingOrPanning = true;
     }
 
-    public Measure() {
+    Measure() {
 
         if (!this.IsLoaded) return; // <- prevents a visual glitch where the visual call the measure method
         // while they are not visible, the problem is when the control is visible again
@@ -677,7 +677,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         this.Canvas.Invalidate();
     }
 
-    public Unload() {
+    Unload() {
         super.Unload();
         this._crosshair = new System.HashSet();
         this.IsFirstDraw = true;
@@ -685,7 +685,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
 
     private _sectionZoomingStart: Nullable<LiveChartsCore.LvcPoint> = null;
 
-    public InvokePointerDown(point: LiveChartsCore.LvcPoint, isSecondaryAction: boolean) {
+    InvokePointerDown(point: LiveChartsCore.LvcPoint, isSecondaryAction: boolean) {
         if (isSecondaryAction && this._zoomMode != LiveChartsCore.ZoomAndPanMode.None) {
             this._sectionZoomingStart = (point).Clone();
 
@@ -719,7 +719,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         super.InvokePointerDown((point).Clone(), isSecondaryAction);
     }
 
-    public InvokePointerMove(point: LiveChartsCore.LvcPoint) {
+    InvokePointerMove(point: LiveChartsCore.LvcPoint) {
         for (const axis of this._crosshair) {
             axis.InvalidateCrosshair(this, (point).Clone());
         }
@@ -746,7 +746,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         super.InvokePointerMove((point).Clone());
     }
 
-    public InvokePointerUp(point: LiveChartsCore.LvcPoint, isSecondaryAction: boolean) {
+    InvokePointerUp(point: LiveChartsCore.LvcPoint, isSecondaryAction: boolean) {
         if (this._sectionZoomingStart != null) {
             let xy = Math.sqrt(Math.pow(point.X - this._sectionZoomingStart.X, 2) + Math.pow(point.Y - this._sectionZoomingStart.Y, 2));
             if (xy < 15) {

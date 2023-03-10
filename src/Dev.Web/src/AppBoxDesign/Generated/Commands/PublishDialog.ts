@@ -29,7 +29,7 @@ export class PublishDialog extends PixUI.Dialog {
             });
     }
 
-    protected OnMounted() {
+    OnMounted() {
         super.OnMounted();
         //开始加载变更项
         this.LoadChanges();

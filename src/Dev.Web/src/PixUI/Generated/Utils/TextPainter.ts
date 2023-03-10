@@ -2,8 +2,8 @@ import * as PixUI from '@/PixUI'
 
 export class TextPainter {
     public static BuildParagraph(text: string, width: number,
-                                 fontSize: number, color: PixUI.Color, fontStyle: Nullable<PixUI.FontStyle> = null,
-                                 maxLines: number = 1, forceHeight: boolean = false): PixUI.Paragraph {
+                                 fontSize: number, color: PixUI.Color | Float32Array,
+                                 fontStyle: Nullable<PixUI.FontStyle> = null, maxLines: number = 1, forceHeight: boolean = false): PixUI.Paragraph {
         let ts = PixUI.MakeTextStyle({color: color, fontSize: fontSize});
         if (fontStyle != null)
             ts.fontStyle = fontStyle;

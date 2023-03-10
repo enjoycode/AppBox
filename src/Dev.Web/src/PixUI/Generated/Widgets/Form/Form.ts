@@ -54,7 +54,7 @@ export class Form extends PixUI.MultiChildWidget<PixUI.FormItem> {
     }
 
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 

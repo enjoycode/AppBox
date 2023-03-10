@@ -285,7 +285,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
         return this.DataLabelsFormatter(new LiveChartsCore.ChartPoint3<TModel, TVisual, TLabel>(point));
     }
 
-    public RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    RemoveFromUI(chart: LiveChartsCore.Chart<TDrawingContext>) {
         super.RemoveFromUI(chart);
         this.DataFactory?.Dispose(chart);
         this._dataFactory = null;
@@ -371,7 +371,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
         this.ChartPointPointerHoverLost.Invoke(point.Context.Chart, new LiveChartsCore.ChartPoint3<TModel, TVisual, TLabel>(point));
     }
 
-    protected OnPaintChanged(propertyName: Nullable<string>) {
+    OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
         this.OnMiniatureChanged();
         (<LiveChartsCore.ISeries><unknown>this).PaintsChanged = true;

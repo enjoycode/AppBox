@@ -6,6 +6,10 @@ export interface IDisposable {
     Dispose(): void;
 }
 
+export function IsInterfaceOfIDisposable(obj: any): obj is IDisposable {
+    return typeof obj === "object" && obj !== null && !Array.isArray(obj) && '$meta_System_IDisposable' in obj.constructor;
+}
+
 export interface IEquatable<T> {
     Equals(other: T): boolean;
 }

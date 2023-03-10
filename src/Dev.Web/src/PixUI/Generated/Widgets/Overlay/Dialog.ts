@@ -11,7 +11,7 @@ export abstract class Dialog extends PixUI.Popup {
     protected readonly Title: PixUI.State<string> = PixUI.State.op_Implicit_From("");
     private _closeDone: Nullable<System.TaskCompletionSource<boolean>>;
 
-    protected get IsDialog(): boolean {
+    get IsDialog(): boolean {
         return true;
     }
 
@@ -104,7 +104,7 @@ export abstract class Dialog extends PixUI.Popup {
     }
 
 
-    protected OnMounted() {
+    OnMounted() {
         //由于转换为Web后，继承自Dialog构造的初始化顺序问题, 所以在这里构建WidgetTree
         // class SomeDialog extends Dialog<string> {
         //      private State<string> _someState = "Hello";
@@ -116,22 +116,22 @@ export abstract class Dialog extends PixUI.Popup {
         super.OnMounted();
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         action(this._child!);
     }
 
-    public ContainsPoint(x: number, y: number): boolean {
+    ContainsPoint(x: number, y: number): boolean {
         return true;
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         //always hit dialog
         result.Add(this);
         this.HitTestChild(this._child!, x, y, result);
         return true;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         this.TryBuildChild();
         this._child!.Layout(this.Width?.Value ?? availableWidth, this.Height?.Value ?? availableHeight);
         //不用设置_child位置,显示时设置自身位置，另外不能设置自身大小为无限，因为弹出动画需要

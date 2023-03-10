@@ -1,7 +1,7 @@
 import * as PixUI from '@/PixUI'
 
 export class Center extends PixUI.SingleChildWidget {
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 

@@ -39,43 +39,22 @@ public sealed class SkiaDrawingContext : DrawingContext
     /// Initializes a new instance of the <see cref="SkiaDrawingContext"/> class.
     /// </summary>
     /// <param name="motionCanvas">The motion canvas.</param>
-    /// <param name="info">The information.</param>
     /// <param name="canvas">The canvas.</param>
     /// <param name="clearOnBegingDraw">Indicates whether the canvas is cleared on frame draw.</param>
     public SkiaDrawingContext(
         MotionCanvas<SkiaDrawingContext> motionCanvas,
-        SKImageInfo info,
+        int width, int height,
         SKCanvas canvas,
         bool clearOnBegingDraw = true)
     {
         MotionCanvas = motionCanvas;
-        Info = info;
+        Width = width;
+        Height = height;
         Canvas = canvas;
         PaintTask = null!;
         Paint = null!;
         _clearOnBegingDraw = clearOnBegingDraw;
     }
-
-    // /// <summary>
-    // /// Initializes a new instance of the <see cref="SkiaSharpDrawingContext"/> class.
-    // /// </summary>
-    // /// <param name="motionCanvas">The motion canvas.</param>
-    // /// <param name="info">The information.</param>
-    // /// <param name="surface">The surface.</param>
-    // /// <param name="canvas">The canvas.</param>
-    // /// <param name="background">The background.</param>
-    // /// <param name="clearOnBegingDraw">Indicates whether the canvas is cleared on frame draw.</param>
-    // public SkiaSharpDrawingContext(
-    //     MotionCanvas<SkiaSharpDrawingContext> motionCanvas,
-    //     SKImageInfo info,
-    //     SKSurface surface,
-    //     SKCanvas canvas,
-    //     SKColor background,
-    //     bool clearOnBegingDraw = true)
-    //     : this(motionCanvas, info, surface, canvas, clearOnBegingDraw)
-    // {
-    //     Background = background;
-    // }
 
     /// <summary>
     /// Gets or sets the motion canvas.
@@ -85,13 +64,9 @@ public sealed class SkiaDrawingContext : DrawingContext
     /// </value>
     public MotionCanvas<SkiaDrawingContext> MotionCanvas { get; set; }
 
-    /// <summary>
-    /// Gets or sets the information.
-    /// </summary>
-    /// <value>
-    /// The information.
-    /// </value>
-    public SKImageInfo Info { get; set; }
+    public int Width { get; set; }
+    
+    public int Height { get; set; }
 
     // /// <summary>
     // /// Gets or sets the surface.
@@ -136,7 +111,7 @@ public sealed class SkiaDrawingContext : DrawingContext
         //if (_clearOnBegingDraw) Canvas.Clear();
         if (Background != SKColor.Empty)
         {
-            Canvas.DrawRect(SKRect.FromLTWH(0,0, Info.Width, Info.Height), PixUI.PaintUtils.Shared(Background));
+            Canvas.DrawRect(SKRect.FromLTWH(0,0, Width, Height), PixUI.PaintUtils.Shared(Background));
         }
 
         if (MotionCanvas.StartPoint == null ||

@@ -572,7 +572,11 @@ public class GaugeBuilder : IGaugeBuilder<SkiaDrawingContext>
     /// <returns></returns>
     public void ApplyStyles(PieSeries<ObservableValue> series)
     {
+#if __WEB__
+        if ((series.SeriesProperties & SeriesProperties.GaugeFill) == SeriesProperties.GaugeFill)
+#else
         if (series.SeriesProperties.HasFlag(SeriesProperties.GaugeFill))
+#endif            
         {
             ApplyStylesToFill(series);
             return;

@@ -13,8 +13,8 @@ export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
 
     private static readonly _cellCacheComparer: PixUI.CellCacheComparer<PixUI.Paragraph> = new PixUI.CellCacheComparer<PixUI.Paragraph>();
 
-    public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
-                     rowIndex: number, cellRect: PixUI.Rect) {
+    PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
+              rowIndex: number, cellRect: PixUI.Rect) {
         let row = controller.DataView![rowIndex];
         let cellValue = this._cellValueGetter(row);
         if (System.IsNullOrEmpty(cellValue)) return;
@@ -43,11 +43,11 @@ export class DataGridTextColumn<T> extends PixUI.DataGridColumn<T> {
         return ph;
     }
 
-    public ClearAllCache() {
+    ClearAllCache() {
         this._cellParagraphs.Clear();
     }
 
-    public ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
+    ClearCacheOnScroll(isScrollDown: boolean, rowIndex: number) {
         if (isScrollDown)
             this._cellParagraphs.RemoveAll(t => t.RowIndex < rowIndex);
         else

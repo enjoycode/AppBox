@@ -327,7 +327,7 @@ public static class ThemesExtensions
                         polarLine.Name = $"Series #{polarLine.SeriesId + 1}";
                         polarLine.GeometrySize = 12;
                         polarLine.GeometryStroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-                        polarLine.GeometryFill = SolidColorPaint.MakeByColor(new SKColor());
+                        polarLine.GeometryFill = SolidColorPaint.MakeByColor(new SKColor(0));
                         polarLine.Stroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
                         polarLine.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(50));
                     })

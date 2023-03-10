@@ -8,13 +8,13 @@ export class ImageBox extends PixUI.Widget {
         this._imgSrc = this.Bind(imgSrc, PixUI.BindingOptions.AffectsLayout);
     }
 
-    public get IsOpaque(): boolean {
+    get IsOpaque(): boolean {
         //根据图像是否透明来返回
         if (this._imgSrc.Value.Loading && this._imgSrc.Value.Image == null) return false;
         return this._imgSrc.Value.Image!.getImageInfo().alphaType == CanvasKit.AlphaType.Opaque;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -22,7 +22,7 @@ export class ImageBox extends PixUI.Widget {
         this.SetSize(width, height);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this._imgSrc.Value.Loading) {
             //TODO: paint loading widget
             return;

@@ -29,7 +29,7 @@ export abstract class AnimationWithParent<T> extends Animation<T> {
         this.Parent = parent;
     }
 
-    public get Status(): PixUI.AnimationStatus {
+    get Status(): PixUI.AnimationStatus {
         return this.Parent.Status;
     }
 
@@ -50,7 +50,7 @@ export class AnimatedEvaluation<T> extends AnimationWithParent<T> {
         this._evaluatable = evaluatable;
     }
 
-    public get Value(): T {
+    get Value(): T {
         return this._evaluatable.Evaluate(this.Parent);
     }
 }

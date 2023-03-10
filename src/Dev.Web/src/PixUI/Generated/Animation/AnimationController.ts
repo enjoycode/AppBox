@@ -54,11 +54,11 @@ export class AnimationController extends PixUI.Animation<number> {
         return this._ticker != null && this._ticker.IsActive;
     }
 
-    public get Status(): PixUI.AnimationStatus {
+    get Status(): PixUI.AnimationStatus {
         return this._status;
     }
 
-    public get Value(): number {
+    get Value(): number {
         return this._value;
     }
 
@@ -233,8 +233,8 @@ export class AnimationController extends PixUI.Animation<number> {
     }
 
 
-    public readonly ValueChanged = new System.Event();
-    public readonly StatusChanged = new System.Event<PixUI.AnimationStatus>();
+    readonly ValueChanged = new System.Event();
+    readonly StatusChanged = new System.Event<PixUI.AnimationStatus>();
 
     private CheckStatusChanged() {
         let newStatus = this._status;
@@ -290,15 +290,15 @@ export class OptionalAnimationController extends PixUI.Animation<number> {
         this.StatusChanged.Invoke(s);
     }
 
-    public readonly ValueChanged = new System.Event();
-    public readonly StatusChanged = new System.Event<PixUI.AnimationStatus>();
+    readonly ValueChanged = new System.Event();
+    readonly StatusChanged = new System.Event<PixUI.AnimationStatus>();
 
-    public get Value(): number {
+    get Value(): number {
         if (this._parent != null) return this._parent.Value;
         return this._value;
     }
 
-    public get Status(): PixUI.AnimationStatus {
+    get Status(): PixUI.AnimationStatus {
         if (this._parent != null) return this._parent.Status;
         return this._value == 0 ? PixUI.AnimationStatus.Dismissed : PixUI.AnimationStatus.Completed;
     }

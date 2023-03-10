@@ -146,9 +146,15 @@ public class SKDefaultLegend : IChartLegend<SkiaDrawingContext>, IImageControl
         if (chart.View.LegendTextPaint is not null) FontPaint = chart.View.LegendTextPaint;
         if (chart.View.LegendTextSize is not null) TextSize = chart.View.LegendTextSize.Value;
 
+#if __WEB__
+        _orientation = chart.LegendPosition == LegendPosition.Left || chart.LegendPosition == LegendPosition.Right
+            ? ContainerOrientation.Vertical
+            : ContainerOrientation.Horizontal;
+#else
         _orientation = chart.LegendPosition is LegendPosition.Left or LegendPosition.Right
             ? ContainerOrientation.Vertical
             : ContainerOrientation.Horizontal;
+#endif        
 
         _stackPanel ??=
             new StackPanel<RoundedRectangleGeometry, SkiaDrawingContext>(() => new RoundedRectangleGeometry())
@@ -193,6 +199,7 @@ public class SKDefaultLegend : IChartLegend<SkiaDrawingContext>, IImageControl
             Padding = new Padding(15, 4, 15, 4),
             VerticalAlignment = Align.Middle,
             HorizontalAlignment = Align.Middle,
+#if !__WEB__            
             Children =
             {
                 relativePanel,
@@ -206,7 +213,20 @@ public class SKDefaultLegend : IChartLegend<SkiaDrawingContext>, IImageControl
                     HorizontalAlignment = Align.Start
                 }
             }
+#endif            
         };
+#if __WEB__        
+        sp.Children.Add(relativePanel);
+        sp.Children.Add(new LabelVisual
+        {
+            Text = series.Name ?? string.Empty,
+            Paint = FontPaint,
+            TextSize = TextSize,
+            Padding = new Padding(8, 0, 0, 0),
+            VerticalAlignment = Align.Start,
+            HorizontalAlignment = Align.Start
+        });
+#endif
 
         _ = _stackPanel?.Children.Add(sp);
         _activeSeries.Add(series, sp);

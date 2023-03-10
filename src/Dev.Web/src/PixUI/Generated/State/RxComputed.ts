@@ -36,15 +36,15 @@ export class RxComputed<T> extends PixUI.State<T> implements PixUI.IStateBindabl
         return computed;
     }
 
-    public get Readonly(): boolean {
+    get Readonly(): boolean {
         return this._setter == null;
     }
 
-    public get Value(): T {
+    get Value(): T {
         return this._getter();
     }
 
-    public set Value(value: T) {
+    set Value(value: T) {
         try {
             this._setter?.call(this, value);
         } catch (e: any) {

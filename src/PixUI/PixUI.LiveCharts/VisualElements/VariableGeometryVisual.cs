@@ -69,7 +69,8 @@ public class VariableGeometryVisual : BaseGeometryVisual
     public event Action<ISizedGeometry<SkiaDrawingContext>>? GeometryIntialized;
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.Measure(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    public override LvcSize Measure(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    public override LvcSize Measure(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler,
+        Scaler? secondaryScaler)
     {
         var w = (float)Width;
         var h = (float)Height;
@@ -93,7 +94,8 @@ public class VariableGeometryVisual : BaseGeometryVisual
     }
 
     /// <inheritdoc cref="VisualElement{TDrawingContext}.OnInvalidated(Chart{TDrawingContext}, Scaler, Scaler)"/>
-    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler, Scaler? secondaryScaler)
+    protected override void OnInvalidated(LiveChartsCore.Chart<SkiaDrawingContext> chart, Scaler? primaryScaler,
+        Scaler? secondaryScaler)
     {
         var x = (float)X;
         var y = (float)Y;

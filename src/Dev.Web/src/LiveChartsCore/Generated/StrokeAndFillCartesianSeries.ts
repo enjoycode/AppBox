@@ -25,11 +25,11 @@ export abstract class StrokeAndFillCartesianSeries<TModel, TVisual extends objec
         this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value);
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this._stroke, this._fill, this.hoverPaint, this.DataLabelsPaint];
     }
 
-    public MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
+    MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
         if (series instanceof StrokeAndFillCartesianSeries<TModel, TVisual, TLabel, TDrawingContext>) {
             const sfSeries = series;
             return this.Name == series.Name && !(<LiveChartsCore.ISeries><unknown>this).PaintsChanged && this.Fill == sfSeries.Fill && this.Stroke == sfSeries.Stroke;

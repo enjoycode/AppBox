@@ -81,7 +81,7 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         }
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         //need for lazy load icon font
         if (this._icon != null)
             action(this._icon);
@@ -89,13 +89,13 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
             action(this._expander);
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (!this.ContainsPoint(x, y)) return false;
         result.Add(this);
         return true;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let offsetX = this._controller.ItemPadding.Left;
 
         if (this.MenuItem.Type == PixUI.MenuItemType.Divider) {
@@ -124,7 +124,7 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         this.SetSize(offsetX + this._controller.ItemPadding.Right, availableHeight);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.MenuItem.Type == PixUI.MenuItemType.Divider) {
             let paint = PixUI.PaintUtils.Shared(PixUI.Colors.Gray, CanvasKit.PaintStyle.Stroke, 2);
             let midY = this.H / 2;
@@ -150,7 +150,7 @@ export class MenuItemWidget extends PixUI.Widget implements PixUI.IMouseRegion {
         canvas.translate(-child.X, -child.Y);
     }
 
-    public toString(): string {
+    toString(): string {
         let labelText = this._label == null ? "" : this._label.Text.Value;
         return `MenuItemWidget[\"${labelText}\"]`;
     }

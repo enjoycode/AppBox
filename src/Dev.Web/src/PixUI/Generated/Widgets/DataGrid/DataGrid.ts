@@ -79,7 +79,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
     }
 
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -87,7 +87,7 @@ export class DataGrid<T> extends PixUI.Widget implements PixUI.IScrollable, PixU
         this._controller.CalcColumnsWidth(new PixUI.Size(width, height));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let size = new PixUI.Size(this.W, this.H);
         //clip first
         canvas.save();

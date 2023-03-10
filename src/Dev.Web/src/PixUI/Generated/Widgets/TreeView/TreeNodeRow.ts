@@ -75,21 +75,21 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
     }
 
 
-    public get IsOpaque(): boolean {
+    get IsOpaque(): boolean {
         return this._isHover && this.Controller.HoverColor.IsOpaque;
     }
 
-    public ContainsPoint(x: number, y: number): boolean {
+    ContainsPoint(x: number, y: number): boolean {
         return y >= 0 && y < this.H && x >= 0 && x < this.Controller.TreeView!.W;
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (this._checkbox != null) action(this._checkbox);
         if (this._icon != null) action(this._icon);
         if (this._label != null) action(this._label);
     }
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         if (y < 0 || y > this.H) return false;
 
         result.Add(this);
@@ -103,7 +103,7 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         return true;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let indentation = this.TreeNode.Depth * this.Controller.NodeIndent;
 
         // ExpandIcon
@@ -136,7 +136,7 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         this.SetSize(indentation, this.Controller.NodeHeight);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //TODO: only paint expand icon when dirty area is not null
         //Console.WriteLine($"重绘TreeNodeRow[{_label?.Text.Value}]: isHover = {_isHover}");
 
@@ -165,7 +165,7 @@ export class TreeNodeRow<T> extends PixUI.Widget implements PixUI.IMouseRegion {
         PixUI.PaintDebugger.PaintWidgetBorder(child, canvas);
     }
 
-    public toString(): string {
+    toString(): string {
         let labelText = this._label == null ? "" : this._label.Text.Value;
         return `TreeNodeRow[\"${labelText}\"]`;
     }

@@ -9,7 +9,7 @@ export class RowSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVis
             visualFactory, labelFactory);
     }
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
         let primaryAxis = cartesianChart.YAxes[this.ScalesYAt];
         let secondaryAxis = cartesianChart.XAxes[this.ScalesXAt];
@@ -205,15 +205,15 @@ export class RowSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVis
             this.everFetched, cartesianChart.View, primaryScale, secondaryScale, this.SoftDeleteOrDisposePoint.bind(this));
     }
 
-    protected GetRequestedSecondaryOffset(): number {
+    GetRequestedSecondaryOffset(): number {
         return 0.5;
     }
 
-    protected GetIsInvertedBounds(): boolean {
+    GetIsInvertedBounds(): boolean {
         return true;
     }
 
-    protected SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
+    SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
         let chart = chartPoint.Context.Chart;
 
         let visual = (chartPoint.Context.Visual as TVisual)!;
@@ -230,7 +230,7 @@ export class RowSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVis
             .CompleteCurrentTransitions();
     }
 
-    public SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
+    SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
         let visual = <Nullable<TVisual>><unknown>point.Context.Visual;
         if (visual == null) return;
         if (this.DataFactory == null) throw new System.Exception("Data provider not found");

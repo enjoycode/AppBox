@@ -69,7 +69,7 @@ export abstract class TextBase extends PixUI.Widget {
         }
     }
 
-    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
+    OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         //TODO: fast update font size or color use skia paragraph
         this._cachedParagraph?.delete();
         this._cachedParagraph = null;
@@ -94,7 +94,7 @@ export abstract class TextBase extends PixUI.Widget {
             this.ForceHeight);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -114,7 +114,7 @@ export abstract class TextBase extends PixUI.Widget {
             Math.min(height, this._cachedParagraph.getHeight()));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.Text.Value == null || this.Text.Value.length == 0) return;
 
         if (this._cachedParagraph == null) //可能颜色改变后导致的缓存丢失，可以简单重建

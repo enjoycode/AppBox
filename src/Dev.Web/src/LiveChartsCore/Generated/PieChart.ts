@@ -25,11 +25,11 @@ export class PieChart<TDrawingContext extends LiveChartsCore.DrawingContext> ext
         this.#Series = value;
     }
 
-    public get ChartSeries(): System.IEnumerable<LiveChartsCore.IChartSeries<TDrawingContext>> {
+    get ChartSeries(): System.IEnumerable<LiveChartsCore.IChartSeries<TDrawingContext>> {
         return this.Series.Where(x => !x.IsFillSeries);
     }
 
-    public get View(): LiveChartsCore.IChartView1<TDrawingContext> {
+    get View(): LiveChartsCore.IChartView1<TDrawingContext> {
         return this._chartView;
     }
 
@@ -60,14 +60,14 @@ export class PieChart<TDrawingContext extends LiveChartsCore.DrawingContext> ext
         this.#PushoutBounds = value;
     }
 
-    public FindHoveredPointsBy(pointerPosition: LiveChartsCore.LvcPoint): System.IEnumerable<LiveChartsCore.ChartPoint> {
+    FindHoveredPointsBy(pointerPosition: LiveChartsCore.LvcPoint): System.IEnumerable<LiveChartsCore.ChartPoint> {
         return this._chartView.Series
             .Where(series => LiveChartsCore.IsInterfaceOfIPieSeries(series) && !(<LiveChartsCore.IPieSeries<TDrawingContext>><unknown>series).IsFillSeries)
             .Where(series => series.IsHoverable)
             .SelectMany(series => series.FindHitPoints(this, (pointerPosition).Clone(), LiveChartsCore.TooltipFindingStrategy.CompareAll));
     }
 
-    public Measure() {
+    Measure() {
 
         if (!this.IsLoaded) return; // <- prevents a visual glitch where the visual call the measure method
         // while they are not visible, the problem is when the control is visible again
@@ -185,7 +185,7 @@ export class PieChart<TDrawingContext extends LiveChartsCore.DrawingContext> ext
         this.Canvas.Invalidate();
     }
 
-    public Unload() {
+    Unload() {
         super.Unload();
         this.IsFirstDraw = true;
     }

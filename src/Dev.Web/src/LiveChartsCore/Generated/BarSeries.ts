@@ -57,7 +57,7 @@ export abstract class BarSeries<TModel, TVisual extends object & LiveChartsCore.
         this.SetProperty(new System.Ref(() => this._ry, $v => this._ry = $v), value);
     }
 
-    public GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
+    GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
         let schedules = new System.List<LiveChartsCore.PaintSchedule<TDrawingContext>>();
 
         if (this.Fill != null) schedules.Add(this.BuildMiniatureSchedule(this.Fill, this._visualFactory()));

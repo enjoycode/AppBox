@@ -9,8 +9,8 @@ export class DataGridIconColumn<T> extends PixUI.DataGridColumn<T> {
 
     private readonly _cellValueGetter: System.Func2<T, Nullable<PixUI.IconData>>;
 
-    public PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
-                     rowIndex: number, cellRect: PixUI.Rect) {
+    PaintCell(canvas: PixUI.Canvas, controller: PixUI.DataGridController<T>,
+              rowIndex: number, cellRect: PixUI.Rect) {
         let row = controller.DataView![rowIndex];
         let icon = this._cellValueGetter(row);
         if (icon == null) return;

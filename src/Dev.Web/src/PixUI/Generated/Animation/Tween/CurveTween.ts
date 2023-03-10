@@ -8,7 +8,7 @@ export class CurveTween extends PixUI.Animatable<number> {
         this._curve = curve;
     }
 
-    public Transform(t: number): number {
+    Transform(t: number): number {
         if (t == 0.0 || t == 1.0) {
             console.assert(Math.round(this._curve.Transform(t)) == t);
             return t;

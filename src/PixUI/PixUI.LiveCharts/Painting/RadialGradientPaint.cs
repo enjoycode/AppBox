@@ -195,7 +195,7 @@ public class RadialGradientPaint : Paint
         var clip = GetClipRectangle(drawingContext.MotionCanvas);
 
         return clip == LvcRectangle.Empty
-            ? new SKRect(0, 0, drawingContext.Info.Width, drawingContext.Info.Width)
+            ? new SKRect(0, 0, drawingContext.Width, drawingContext.Width)
             : new SKRect(clip.X, clip.Y, clip.Width, clip.Height);
     }
 }

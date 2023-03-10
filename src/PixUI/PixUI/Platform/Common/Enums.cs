@@ -244,7 +244,7 @@ namespace PixUI
     }
 
     [TSType("CanvasKit.TileMode")]
-    public enum ShaderTileMode
+    public enum TileMode
     {
         Clamp = 0,
         Repeat = 1,

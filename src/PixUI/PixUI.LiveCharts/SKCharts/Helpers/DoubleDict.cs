@@ -25,7 +25,10 @@ using System.Collections.Generic;
 namespace LiveCharts.SKCharts.Helpers;
 
 // Maybe we should go for another alternative instead of using this class..
-internal sealed class DoubleDict<T1, T2> where T1 : notnull where T2 : notnull
+internal sealed class DoubleDict<T1, T2> 
+#if !__WEB__
+    where T1 : notnull where T2 : notnull
+#endif
 {
     private readonly Dictionary<T1, T2> _keys = new();
     private readonly Dictionary<T2, T1> _values = new();
@@ -40,7 +43,7 @@ internal sealed class DoubleDict<T1, T2> where T1 : notnull where T2 : notnull
     {
         var r2 = _values.Remove(_keys[key]);
         var r1 = _keys.Remove(key);
-        return r1 & r2;
+        return r1 && r2;
     }
 
     // public bool Remove(T2 value)

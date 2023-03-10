@@ -71,7 +71,7 @@ export class ListView<T> extends PixUI.MultiChildWidget<PixUI.Widget> implements
             this.Invalidate(PixUI.InvalidAction.Relayout);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -86,7 +86,7 @@ export class ListView<T> extends PixUI.MultiChildWidget<PixUI.Widget> implements
         this.SetSize(width, height);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         canvas.save();
         canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
 

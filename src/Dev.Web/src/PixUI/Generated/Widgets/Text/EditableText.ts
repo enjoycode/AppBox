@@ -61,7 +61,7 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         return (this.FontSize?.Value ?? PixUI.Theme.DefaultFontSize) + 4;
     }
 
-    protected get ForceHeight(): boolean {
+    get ForceHeight(): boolean {
         return true;
     }
 
@@ -178,7 +178,7 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         this.BuildParagraph(text, Number.POSITIVE_INFINITY);
     }
 
-    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
+    OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         if ((state === this._readonly)) {
             if (this.IsReadonly)
                 this.Root?.Window.StopTextInput();
@@ -190,7 +190,7 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         super.OnStateChanged(state, options);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -198,7 +198,7 @@ export class EditableText extends PixUI.TextBase implements PixUI.IMouseRegion, 
         this.SetSize(width, Math.min(height, this.FontHeight));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         if (this.Text.Value == null || this.Text.Value.length == 0) {
             if (System.IsNullOrEmpty(this.HintText)) return;
 

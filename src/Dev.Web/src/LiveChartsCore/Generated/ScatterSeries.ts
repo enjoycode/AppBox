@@ -22,7 +22,7 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
 
     public GeometrySize: number = 24;
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let cartesianChart = <LiveChartsCore.CartesianChart<TDrawingContext>><unknown>chart;
         let primaryAxis = cartesianChart.YAxes[this.ScalesYAt];
         let secondaryAxis = cartesianChart.XAxes[this.ScalesXAt];
@@ -169,13 +169,13 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
         pointsCleanup.CollectPoints(this.everFetched, cartesianChart.View, yScale, xScale, this.SoftDeleteOrDisposePoint.bind(this));
     }
 
-    public GetBounds(chart: LiveChartsCore.CartesianChart<TDrawingContext>, secondaryAxis: LiveChartsCore.ICartesianAxis, primaryAxis: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {
+    GetBounds(chart: LiveChartsCore.CartesianChart<TDrawingContext>, secondaryAxis: LiveChartsCore.ICartesianAxis, primaryAxis: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {
         let seriesBounds = super.GetBounds(chart, secondaryAxis, primaryAxis);
         this._weightBounds = seriesBounds.Bounds.TertiaryBounds;
         return seriesBounds;
     }
 
-    public GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
+    GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
         let schedules = new System.List<LiveChartsCore.PaintSchedule<TDrawingContext>>();
 
         if (this.Fill != null) schedules.Add(this.BuildMiniatureSchedule(this.Fill, this._visualFactory()));
@@ -189,7 +189,7 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
             });
     }
 
-    protected SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
+    SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
         let visual = <Nullable<TVisual>><unknown>chartPoint.Context.Visual;
         let chart = chartPoint.Context.Chart;
 
@@ -207,7 +207,7 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
             .CompleteCurrentTransitions();
     }
 
-    public SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
+    SoftDeleteOrDisposePoint(point: LiveChartsCore.ChartPoint, primaryScale: LiveChartsCore.Scaler, secondaryScale: LiveChartsCore.Scaler) {
         let visual = <Nullable<TVisual>><unknown>point.Context.Visual;
         if (visual == null) return;
         if (this.DataFactory == null) throw new System.Exception("Data provider not found");

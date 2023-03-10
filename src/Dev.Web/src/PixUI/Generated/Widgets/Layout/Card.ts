@@ -56,7 +56,7 @@ export class Card extends PixUI.SingleChildWidget {
     //TODO:方形框无Margin且不透明背景
     //protected internal override bool IsOpaque => _color != null && _color.Value.Alpha == 0;
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -75,7 +75,7 @@ export class Card extends PixUI.SingleChildWidget {
             this.Child.H + margin.Vertical + padding.Vertical);
     }
 
-    public get Clipper(): Nullable<PixUI.IClipper> {
+    get Clipper(): Nullable<PixUI.IClipper> {
         let shape = this._shape?.Value ?? Card.DefaultShape;
         let rect = this.GetChildRect();
         let path = shape.GetOuterPath(rect);
@@ -88,7 +88,7 @@ export class Card extends PixUI.SingleChildWidget {
             this.H - margin.Top - margin.Bottom);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let color = this._color?.Value ?? PixUI.Colors.White;
         let shadowColor = this._shadowColor?.Value ?? PixUI.Colors.Black;
         let elevation = this._elevation?.Value ?? 2;

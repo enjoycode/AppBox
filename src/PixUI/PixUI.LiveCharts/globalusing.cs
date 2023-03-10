@@ -13,5 +13,5 @@ global using SKShader = PixUI.Shader;
 global using SKCanvas = PixUI.Canvas;
 global using SKStrokeCap = PixUI.StrokeCap;
 global using SKStrokeJoin = PixUI.StrokeJoin;
-global using SKShaderTileMode = PixUI.ShaderTileMode;
+global using SKShaderTileMode = PixUI.TileMode;
 global using SKFontStyle = PixUI.FontStyle;

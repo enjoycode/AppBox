@@ -47,7 +47,7 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
     }
 
 
-    public HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
+    HitTest(x: number, y: number, result: PixUI.HitTestResult): boolean {
         for (let i = this._children.length - 1; i >= 0; i--) //倒序
         {
             if (this.HitTestChild(this._children[i], x, y, result))
@@ -57,11 +57,11 @@ export class Overlay extends PixUI.Widget implements PixUI.IRootWidget {
         return result.IsHitAnyMouseRegion;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         //do nothing, children will layout on Show()
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         for (const entry of this._children) {
             // if (entry.Widget.W <= 0 || entry.Widget.H <= 0)
             //     continue;

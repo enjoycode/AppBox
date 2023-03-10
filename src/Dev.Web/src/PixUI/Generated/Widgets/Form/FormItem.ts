@@ -21,11 +21,11 @@ export class FormItem extends PixUI.Widget {
     private _cachedLabelParagraph: Nullable<PixUI.Paragraph>;
 
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         action(this._widget);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         this.CachedAvailableWidth = availableWidth;
         this.CachedAvailableHeight = availableHeight;
 
@@ -39,7 +39,7 @@ export class FormItem extends PixUI.Widget {
         this.SetSize(availableWidth, Math.max(this._cachedLabelParagraph.getHeight(), this._widget.H));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //TODO: 考虑画边框
 
         let parent = <PixUI.Form><unknown>this.Parent!;

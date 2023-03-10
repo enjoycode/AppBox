@@ -20,6 +20,7 @@ export * from './Collections/Dictionary'
 export * from './Collections/Stack'
 export * from './Collections/HashSet'
 export * from './Collections/LinkedList'
+export * from './Collections/ObservableCollection'
 
 export * from './InitializeSystem'
 

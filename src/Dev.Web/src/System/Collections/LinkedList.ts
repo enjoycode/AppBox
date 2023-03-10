@@ -1,3 +1,5 @@
+import {KeyValuePair} from "@/System";
+
 export class LinkedListNode<T> {
     private prev: LinkedListNode<T> | null;
     private next: LinkedListNode<T> | null;
@@ -21,4 +23,48 @@ export class LinkedListNode<T> {
 
 export class LinkedList<T> {
     //TODO:
+
+    public get length(): number {
+        throw new Error();
+    }
+
+    public get First(): LinkedListNode<T> {
+        throw new Error();
+    }
+
+    public get Last(): LinkedListNode<T> {
+        throw new Error();
+    }
+
+    public Contains(item: T): boolean {
+        throw new Error();
+    }
+
+    public AddLast(item: T): LinkedListNode<T> {
+        throw new Error();
+    }
+
+    public AddFirst(item: T): LinkedListNode<T> {
+        throw new Error();
+    }
+
+    public AddAfter(node: LinkedListNode<T>, item: T): LinkedListNode<T> {
+        throw new Error();
+    }
+
+    public AddBefore(node: LinkedListNode<T>, item: T): LinkedListNode<T> {
+        throw new Error();
+    }
+
+    public Remove(node: LinkedListNode<T> | T): boolean {
+        throw new Error();
+    }
+
+    public Clear(): void {
+        throw new Error();
+    }
+
+    *[Symbol.iterator](): IterableIterator<T> {
+        throw new Error();
+    }
 }

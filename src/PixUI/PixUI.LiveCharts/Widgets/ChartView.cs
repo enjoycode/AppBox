@@ -14,7 +14,7 @@ using LiveChartsCore.VisualElements;
 using PixUI;
 using LCC = LiveChartsCore;
 
-namespace PixLiveCharts;
+namespace LiveCharts;
 
 public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaDrawingContext>
 {
@@ -88,12 +88,17 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaDrawingCo
 
     public LvcColor BackColor { get; set; } = new(255, 255, 255);
 
-    public LvcSize ControlSize =>
-        // return the full control size as a workaround when the legend is not set.
-        // for some reason WinForms has not loaded the correct size at this point when the control loads.
-        LegendPosition == LegendPosition.Hidden
-            ? new LvcSize { Width = W, Height = H }
-            : new LvcSize { Width = W, Height = H };
+    public LvcSize ControlSize
+    {
+        get
+        {
+            // return the full control size as a workaround when the legend is not set.
+            // for some reason WinForms has not loaded the correct size at this point when the control loads.
+            return LegendPosition == LegendPosition.Hidden
+                ? new LvcSize { Width = W, Height = H }
+                : new LvcSize { Width = W, Height = H };
+        }
+    }
 
     public Margin? DrawMargin
     {
@@ -319,7 +324,7 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaDrawingCo
         while (!CanvasCore.IsValid)
         {
             Invalidate(InvalidAction.Repaint);
-            await Task.Delay(ts);
+            await Task.Delay((int)ts.TotalMilliseconds);
         }
 
         _isDrawingLoopRunning = false;
@@ -378,9 +383,8 @@ public abstract class ChartView : Widget, IMouseRegion, IChartView<SkiaDrawingCo
         canvas.Save();
         canvas.ClipRect(Rect.FromLTWH(0, 0, W, H), ClipOp.Intersect, false);
 
-        //TODO: fix and cache SkiaSharpDrawingContext instance
-        var drawCtx =
-            new SkiaDrawingContext(CanvasCore, new ImageInfo { Width = (int)W, Height = (int)H }, canvas);
+        //TODO: cache SkiaSharpDrawingContext instance
+        var drawCtx = new SkiaDrawingContext(CanvasCore, (int)W, (int)H, canvas);
         drawCtx.Background = BackColor.AsSKColor();
         CanvasCore.DrawFrame(drawCtx);
 

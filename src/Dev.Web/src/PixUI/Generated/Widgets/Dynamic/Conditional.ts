@@ -48,7 +48,7 @@ export class Conditional<T> extends PixUI.DynamicView //where T: IEquatable<T>
         return this;
     }
 
-    public OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
+    OnStateChanged(state: PixUI.StateBase, options: PixUI.BindingOptions) {
         if ((state === this._state)) {
             let newChild = this.MakeChildByCondition();
             this.ReplaceTo(newChild);

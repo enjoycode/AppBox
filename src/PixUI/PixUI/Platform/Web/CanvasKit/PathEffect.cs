@@ -24,7 +24,7 @@ namespace PixUI
         [TSTemplate("CanvasKit.PathEffect.MakePath2D({1},{2})")]
         public static PathEffect Create2DPath(Matrix3 matrix, Path path) => throw new Exception();
 
-        [TSTemplate("CanvasKit.PathEffect.MakeDash({1},{2})")]
+        [TSTemplate("CanvasKit.PathEffect.MakeDash(Array.from({1}),{2})")]
         public static PathEffect CreateDash(float[] intervals, float phase) => throw new Exception();
         
         [TSRename("delete")]

@@ -37,7 +37,7 @@ export class CurvedAnimation extends PixUI.AnimationWithParent<number> {
         }
     }
 
-    public get Value(): number {
+    get Value(): number {
         let activeCurve = this.UseForwardCurve ? this._curve : this._reverseCurve;
         let t = this.Parent.Value;
         if (activeCurve == null) return t;

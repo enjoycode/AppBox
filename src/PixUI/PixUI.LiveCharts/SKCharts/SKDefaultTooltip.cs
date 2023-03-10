@@ -173,12 +173,18 @@ public class SKDefaultTooltip : IChartTooltip<SkiaDrawingContext>, IImageControl
             Padding = new Padding(0, 4, 0, 4),
             VerticalAlignment = Align.Middle,
             HorizontalAlignment = Align.Middle,
+#if !__WEB__
             Children =
             {
                 relativePanel,
                 label
             }
+#endif
         };
+#if __WEB__
+        sp.Children.Add(relativePanel);
+        sp.Children.Add(label);
+#endif
 
         _ = _stackPanel?.Children.Add(sp);
         var seriesVisual = new SeriesVisual(point.Context.Series, sp, label);
@@ -186,23 +192,23 @@ public class SKDefaultTooltip : IChartTooltip<SkiaDrawingContext>, IImageControl
 
         return seriesVisual;
     }
+}
 
-    private class SeriesVisual
+internal sealed class SeriesVisual
+{
+    public SeriesVisual(
+        LiveChartsCore.ISeries series,
+        StackPanel<RoundedRectangleGeometry, SkiaDrawingContext> stackPanel,
+        LabelVisual label)
     {
-        public SeriesVisual(
-            LiveChartsCore.ISeries series,
-            StackPanel<RoundedRectangleGeometry, SkiaDrawingContext> stackPanel,
-            LabelVisual label)
-        {
-            Series = series;
-            Visual = stackPanel;
-            LabelVisual = label;
-        }
-
-        public LiveChartsCore.ISeries Series { get; }
-
-        public StackPanel<RoundedRectangleGeometry, SkiaDrawingContext> Visual { get; }
-
-        public LabelVisual LabelVisual { get; set; }
+        Series = series;
+        Visual = stackPanel;
+        LabelVisual = label;
     }
+
+    public LiveChartsCore.ISeries Series { get; }
+
+    public StackPanel<RoundedRectangleGeometry, SkiaDrawingContext> Visual { get; }
+
+    public LabelVisual LabelVisual { get; set; }
 }

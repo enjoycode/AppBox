@@ -76,17 +76,16 @@
 //         }
 // }
 
-using PixUI;
+using AliasClass = MyClass;
 
-class MyClass
+class MyClass {}
+
+class TestClass
 {
-    public string Test(double value)
+    private string? name;
+    void Test()
     {
-        object b = 32;
-        object c = 33;
-        Equals(value, b);
-        ReferenceEquals(b, c);
-        
-        return value.ToString(); 
+        name = "Rick";
+        var obj = new AliasClass();
     }
 }

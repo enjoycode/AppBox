@@ -89,12 +89,12 @@ export abstract class InputBase<T extends PixUI.Widget> extends PixUI.Widget  //
     }
 
 
-    protected OnUnmounted() {
+    OnUnmounted() {
         this._focusedDecoration.StopAndReset();
         super.OnUnmounted();
     }
 
-    public VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
+    VisitChildren(action: System.Func2<PixUI.Widget, boolean>) {
         if (this._prefix != null)
             if (action(this._prefix))
                 return;
@@ -105,7 +105,7 @@ export abstract class InputBase<T extends PixUI.Widget> extends PixUI.Widget  //
             action(this._suffix);
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
         let padding = this._padding?.Value ?? PixUI.EdgeInsets.All(4);
@@ -144,7 +144,7 @@ export abstract class InputBase<T extends PixUI.Widget> extends PixUI.Widget  //
         this.SetSize(width, height);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let bounds = PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
         let border = this._border ?? InputBase.DefaultBorder;
 

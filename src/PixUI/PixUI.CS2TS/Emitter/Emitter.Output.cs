@@ -147,14 +147,18 @@ namespace PixUI.CS2TS
 
             if (!ToJavaScript)
             {
-                if (modifiers.Any(m =>
-                        m.Kind() == SyntaxKind.PublicKeyword ||
-                        m.Kind() == SyntaxKind.InternalKeyword))
-                    Write("public ");
-                else if (modifiers.Any(m => m.Kind() == SyntaxKind.ProtectedKeyword))
-                    Write("protected ");
-                else
-                    Write("private ");
+                //排除override的
+                if (modifiers.All(m => m.Kind() != SyntaxKind.OverrideKeyword))
+                {
+                    if (modifiers.Any(m =>
+                            m.Kind() == SyntaxKind.PublicKeyword ||
+                            m.Kind() == SyntaxKind.InternalKeyword))
+                        Write("public ");
+                    else if (modifiers.Any(m => m.Kind() == SyntaxKind.ProtectedKeyword))
+                        Write("protected ");
+                    else
+                        Write("private ");
+                }
             }
 
             if (modifiers.Any(m => m.Kind() == SyntaxKind.ConstKeyword))
@@ -606,7 +610,10 @@ namespace PixUI.CS2TS
                     }
 
                     Write("IsInterfaceOf");
-                    Write(typeInfo.Type.Name);
+                    var intefaceTypeName = typeInfo.Type.Name;
+                    TryRenameSymbol(typeInfo.Type, ref intefaceTypeName);
+                    Write(intefaceTypeName); //Write(typeInfo.Type.Name);
+                    
                     Write('(');
                     VisitName();
                     Write(')');

@@ -16,7 +16,7 @@ export abstract class Curve extends ParametricCurve<number> {
         return new FlippedCurve(this);
     }
 
-    public Transform(t: number): number {
+    Transform(t: number): number {
         if (t == 0.0 || t == 1.0) return t;
 
         return super.Transform(t);
@@ -24,13 +24,13 @@ export abstract class Curve extends ParametricCurve<number> {
 }
 
 export class Linear extends Curve {
-    protected TransformInternal(t: number): number {
+    TransformInternal(t: number): number {
         return t;
     }
 }
 
 export class BounceInOutCurve extends Curve {
-    protected TransformInternal(t: number): number {
+    TransformInternal(t: number): number {
         if (t < 0.5)
             return (1.0 - Curves.Bounce(1.0 - t * 2.0)) * 0.5;
         return Curves.Bounce(t * 2.0 - 1.0) * 0.5 + 0.5;
@@ -45,7 +45,7 @@ export class FlippedCurve extends Curve {
         this.Curve = curve;
     }
 
-    protected TransformInternal(t: number): number {
+    TransformInternal(t: number): number {
         return 1.0 - this.Curve.Transform(1.0 - t);
     }
 }
@@ -67,7 +67,7 @@ export class Interval extends Curve {
         this._curve = curve ?? Curves.Linear;
     }
 
-    protected TransformInternal(t: number): number {
+    TransformInternal(t: number): number {
         t = clamp((t - this._begin) / (this._end - this._begin), 0, 1);
         if (t == 0.0 || t == 1.0)
             return t;
@@ -84,7 +84,7 @@ export class SawTooth extends Curve {
     // The number of repetitions of the sawtooth pattern in the unit interval.
     private readonly _count: number;
 
-    protected TransformInternal(t: number): number {
+    TransformInternal(t: number): number {
         t *= this._count;
         return t - Math.trunc(t);
     }
@@ -112,7 +112,7 @@ export class Cubic extends Curve {
             m * m * m;
     }
 
-    protected TransformInternal(t: number): number {
+    TransformInternal(t: number): number {
         let start = 0.0;
         let end = 1.0;
         while (true) {

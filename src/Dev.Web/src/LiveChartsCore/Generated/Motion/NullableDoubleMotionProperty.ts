@@ -18,7 +18,7 @@ export class NullableDoubleMotionProperty extends LiveChartsCore.MotionProperty<
         this.toValue = value;
     }
 
-    protected OnGetMovement(progress: number): Nullable<number> {
+    OnGetMovement(progress: number): Nullable<number> {
         return this.fromValue == null || this.toValue == null ? this.toValue
             : this.fromValue + progress * (this.toValue - this.fromValue);
     }

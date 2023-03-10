@@ -123,7 +123,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value);
     }
 
-    public Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
+    Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
         let strokePathHelperContainer: any;
         let fillPathHelperContainer: any;
         let polarChart = <LiveChartsCore.PolarChart<TDrawingContext>><unknown>chart;
@@ -429,7 +429,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
             false);
     }
 
-    public GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
+    GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {
         let schedules = new System.List<LiveChartsCore.PaintSchedule<TDrawingContext>>();
 
         if (this.GeometryFill != null) schedules.Add(this.BuildMiniatureSchedule(this.GeometryFill, this._visualFactory()));
@@ -446,7 +446,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
             });
     }
 
-    public MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
+    MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {
         if (series instanceof LiveChartsCore.StrokeAndFillCartesianSeries<TModel, TVisual, TLabel, TDrawingContext>) {
             const sfSeries = series;
             return this.Name == series.Name && this.Fill == sfSeries.Fill && this.Stroke == sfSeries.Stroke;
@@ -554,7 +554,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         return System.EnumerableFrom(() => _$generator(points, scaler, stacker));
     }
 
-    protected SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
+    SetDefaultPointTransitions(chartPoint: LiveChartsCore.ChartPoint) {
         let chart = chartPoint.Context.Chart;
 
         let visual = (chartPoint.Context.Visual as TVisualPoint)!;
@@ -608,7 +608,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         label.RemoveOnCompleted = true;
     }
 
-    public SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
+    SoftDeleteOrDispose(chart: LiveChartsCore.IChartView) {
         let core = (<LiveChartsCore.IPolarChartView<TDrawingContext>><unknown>chart).Core;
 
         let scale = new LiveChartsCore.PolarScaler((core.DrawMarginLocation).Clone(), (core.DrawMarginSize).Clone(), core.AngleAxes[this.ScalesAngleAt], core.RadiusAxes[this.ScalesRadiusAt],
@@ -648,7 +648,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         this.OnVisibilityChanged();
     }
 
-    public GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
+    GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {
         return [this.Stroke, this.Fill, this._geometryFill, this._geometryStroke, this.DataLabelsPaint, this.hoverPaint];
     }
 

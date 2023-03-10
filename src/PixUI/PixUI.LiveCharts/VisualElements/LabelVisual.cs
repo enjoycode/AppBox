@@ -103,12 +103,12 @@ public class LabelVisual : VisualElement<SkiaDrawingContext>
     /// Gets or sets the line height [times the text measured height].
     /// </summary>
     public float LineHeight { get => _lineHeight; set { _lineHeight = value; OnPropertyChanged(); } }
-
+    
     protected override IPaint<SkiaDrawingContext>?[] GetPaintTasks()
     {
         return new[] { _paint };
     }
-
+    
     protected override void AlignToTopLeftCorner()
     {
         VerticalAlignment = Align.Start;

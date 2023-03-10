@@ -27,16 +27,21 @@ namespace PixUI.CS2TS
             if (!ToJavaScript && node.Type != null)
             {
                 Write(": ");
-                //如果是ref参数，转换为System.Ref
+                //如果是ref或out参数，转换为System.Ref or System.Out
                 var isRef = node.Modifiers.Any(m => m.Kind() == SyntaxKind.RefKeyword);
                 var isOut = node.Modifiers.Any(m => m.Kind() == SyntaxKind.OutKeyword);
                 if (isRef || isOut)
                 {
                     AddUsedModule("System");
-                    Write( isRef ? "System.Ref<" : "System.Out<");
+                    Write(isRef ? "System.Ref<" : "System.Out<");
                 }
 
-                Visit(node.Type);
+                //如果标记为TSTypeAttribute，转换为相应的类型
+                if (node.IsTSType(out var tsType))
+                    Write(tsType!);
+                else
+                    Visit(node.Type);
+
                 if (isRef || isOut)
                     Write('>');
             }

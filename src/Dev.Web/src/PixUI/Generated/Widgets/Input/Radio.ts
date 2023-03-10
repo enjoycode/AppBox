@@ -14,14 +14,14 @@ export class Radio extends PixUI.Toggleable {
     private static readonly _kOuterRadius: number = 8;
     private static readonly _kInnerRadius: number = 4.5;
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
         this.SetSize(Math.min(width, Radio._kRadioSize), Math.min(height, Radio._kRadioSize));
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let center = new PixUI.Offset(this.W / 2, this.H / 2);
 
         let activeColor = PixUI.Theme.AccentColor;

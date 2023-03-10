@@ -18,15 +18,15 @@ export class RxProperty<T> extends PixUI.State<T> {
     private readonly _getter: System.Func1<T>;
     private readonly _setter: Nullable<System.Action1<T>>;
 
-    public get Readonly(): boolean {
+    get Readonly(): boolean {
         return this._setter == null;
     }
 
-    public get Value(): T {
+    get Value(): T {
         return this._getter();
     }
 
-    public set Value(value: T) {
+    set Value(value: T) {
         if (this._setter == null) throw new System.NotSupportedException();
         this._setter(value);
     }

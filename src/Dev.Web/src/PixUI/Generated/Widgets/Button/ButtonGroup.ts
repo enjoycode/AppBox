@@ -6,7 +6,7 @@ export class ButtonGroup extends PixUI.MultiChildWidget<PixUI.Button> {
     }
 
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
 
@@ -24,7 +24,7 @@ export class ButtonGroup extends PixUI.MultiChildWidget<PixUI.Button> {
         this.SetSize(xPos, buttonHeight.Value);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         //clip to round rectangle
         let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(0, 0, this.W, this.H),
             PixUI.Button.StandardRadius, PixUI.Button.StandardRadius);
