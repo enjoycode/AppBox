@@ -33,6 +33,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUI.dll");
 
+    internal static MetadataReference PixUILiveChartsLib => GetPixUIWebLib("PixUI.LiveCharts.dll");
+
     internal static MetadataReference PixUIAttributesLib =>
         TryGet("PixUI.Attributes.dll", typeof(PixUI.TSRenameAttribute).Assembly.Location);
 
@@ -93,6 +95,13 @@ internal static class MetadataReferences
         {
             var fullPath = Path.Combine(srcPath, "PixUI", "PixUI", "bin", "DebugWeb",
                 "netstandard2.1", "PixUI.dll");
+            return TryGet(asmName, fullPath);
+        }
+
+        if (asmName == "PixUI.LiveCharts.dll")
+        {
+            var fullPath = Path.Combine(srcPath, "PixUI", "PixUI.LiveCharts", "bin", "DebugWeb",
+                "netstandard2.1", "PixUI.LiveCharts.dll");
             return TryGet(asmName, fullPath);
         }
 

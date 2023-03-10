@@ -92,7 +92,6 @@ export class TabController<T> implements PixUI.IStateBindable {
         this.DataSource.RemoveAt(index);
         this._tabBar?.OnRemoveAt(index);
         this._tabBody?.OnRemoveAt(index);
-        this.TabClosed.Invoke(dataItem);
 
         //原本是选中的那个，移除后选择新的
         if (isSelected) {
@@ -105,6 +104,9 @@ export class TabController<T> implements PixUI.IStateBindable {
                 this.TabSelectChanged.Invoke(-1);
             }
         }
+        
+        //最后激发TabClosed事件
+        this.TabClosed.Invoke(dataItem);
     }
 
 }

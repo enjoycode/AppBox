@@ -85,7 +85,6 @@ namespace PixUI
             DataSource.RemoveAt(index);
             _tabBar?.OnRemoveAt(index);
             _tabBody?.OnRemoveAt(index);
-            TabClosed?.Invoke(dataItem);
 
             //原本是选中的那个，移除后选择新的
             if (isSelected)
@@ -102,6 +101,9 @@ namespace PixUI
                     TabSelectChanged?.Invoke(-1);
                 }
             }
+            
+            //最后激发TabClosed事件
+            TabClosed?.Invoke(dataItem);
         }
 
         #endregion
