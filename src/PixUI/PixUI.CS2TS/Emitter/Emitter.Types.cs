@@ -58,7 +58,7 @@ namespace PixUI.CS2TS
 
         private INamedTypeSymbol TypeOfICollectionGeneric =>
             _typeSymbolCache.GetTypeByName("System.Collections.Generic.ICollection`1");
-        
+
         private INamedTypeSymbol TypeOfIDictionary =>
             _typeSymbolCache.GetTypeByName("System.Collections.IDictionary");
 
@@ -69,6 +69,9 @@ namespace PixUI.CS2TS
             _typeSymbolCache.GetTypeByName("System.Collections.Generic.IEnumerable`1");
 
         private INamedTypeSymbol TypeOfNullable => _typeSymbolCache.GetTypeByName("System.Nullable`1");
+
+        private INamedTypeSymbol TypeOfCallerMemberName =>
+            _typeSymbolCache.GetTypeByName("System.Runtime.CompilerServices.CallerMemberNameAttribute");
 
         private INamedTypeSymbol TypeOfDelegate => _typeSymbolCache.GetTypeByName("System.Delegate");
 
@@ -113,15 +116,15 @@ namespace PixUI.CS2TS
         private bool IsDictionayType(ITypeSymbol? type)
         {
             if (type == null) return false;
-            
+
             //先判断本身是否
             var isDictionayType = type.TypeKind == TypeKind.Interface &&
-                               (
-                                   SymbolEqualityComparer.Default.Equals(type, TypeOfIDictionary)
-                                   ||
-                                   SymbolEqualityComparer.Default.Equals(type.OriginalDefinition,
-                                       TypeOfIDictionaryGeneric)
-                               );
+                                  (
+                                      SymbolEqualityComparer.Default.Equals(type, TypeOfIDictionary)
+                                      ||
+                                      SymbolEqualityComparer.Default.Equals(type.OriginalDefinition,
+                                          TypeOfIDictionaryGeneric)
+                                  );
             //再判断有无实现接口
             if (!isDictionayType)
                 isDictionayType = type.AllInterfaces.Any(t =>
@@ -141,6 +144,9 @@ namespace PixUI.CS2TS
                        SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypeOfIEnumerable)
                    );
         }
+
+        private bool HasCallerMemberNameAttribute(IParameterSymbol symbol)
+            => symbol.TryGetAttribute(TypeOfCallerMemberName) != null;
 
         private bool TryGetInterceptor(ISymbol? symbol, out ITSInterceptor? interceptor)
         {

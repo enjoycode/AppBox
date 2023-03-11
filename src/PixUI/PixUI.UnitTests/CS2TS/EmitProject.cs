@@ -168,8 +168,8 @@ namespace PixUI.UnitTests.CS2TS
             Console.WriteLine($"耗时: {sw.ElapsedMilliseconds} ms");
 
             //save exports file
-            await File.WriteAllTextAsync(System.IO.Path.Combine(outPath, "Internal.ts"),
-                internalExports.ToString());
+            // await File.WriteAllTextAsync(System.IO.Path.Combine(outPath, "Internal.ts"),
+            //     internalExports.ToString());
         }
 
         [Test]
@@ -233,8 +233,8 @@ namespace PixUI.UnitTests.CS2TS
             Console.WriteLine($"耗时: {sw.ElapsedMilliseconds} ms");
 
             //save exports file
-            await File.WriteAllTextAsync(System.IO.Path.Combine(outPath, "Internal.ts"),
-                internalExports.ToString());
+            // await File.WriteAllTextAsync(System.IO.Path.Combine(outPath, "Internal.ts"),
+            //     internalExports.ToString());
         }
 
         [Test]

@@ -76,16 +76,23 @@
 //         }
 // }
 
-using AliasClass = MyClass;
-
-class MyClass {}
+using System.Runtime.CompilerServices;
 
 class TestClass
 {
-    private string? name;
+
+    void OnNameChanged([CallerMemberName] string? name = null){}
+
+    string Name
+    {
+        set
+        {
+            OnNameChanged();
+        }
+    }
+
     void Test()
     {
-        name = "Rick";
-        var obj = new AliasClass();
+        OnNameChanged();
     }
 }

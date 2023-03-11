@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -66,6 +67,7 @@ namespace PixUI.CS2TS
             Visit(node.Expression);
             IgnoreDelegateBind = false;
 
+            // Arguments
             VisitToken(node.ArgumentList.OpenParenToken);
             var argIndex = 0;
             foreach (var item in node.ArgumentList.Arguments.GetWithSeparators())
@@ -85,7 +87,7 @@ namespace PixUI.CS2TS
 
                 Visit(argNode);
 
-                //特殊处理JsNativeArray
+                //特殊处理params的JsNativeArray
                 if (!isNullArg && methodSymbol.Parameters[argIndex].IsParams)
                 {
                     var jsArrayType = GetJsNativeArrayType(methodSymbol.Parameters[argIndex].Type);
@@ -96,7 +98,29 @@ namespace PixUI.CS2TS
                 argIndex++;
             }
 
+            //如果参数数量不一致，特殊处理eg: OnPropertyChanged([CallerMemberName] name = null)之类
+            if (node.ArgumentList.Arguments.Count != methodSymbol.Parameters.Length)
+            {
+                //TODO: 注意暂只实现紧邻的一个参数为CallerMemberName的
+                var nextParameter = methodSymbol.Parameters[node.ArgumentList.Arguments.Count];
+                if (HasCallerMemberNameAttribute(nextParameter))
+                {
+                    if (node.ArgumentList.Arguments.Count > 0) Write(", ");
+                    Write('"');
+                    Write(FindCallerMemberName(node));
+                    Write('"');
+                }
+            }
+
             VisitToken(node.ArgumentList.CloseParenToken);
+        }
+
+        private string FindCallerMemberName(InvocationExpressionSyntax node)
+        {
+            var callerMember = node.Ancestors().First(n => n is PropertyDeclarationSyntax or MethodDeclarationSyntax);
+            return callerMember is PropertyDeclarationSyntax property
+                ? property.Identifier.Text
+                : ((MethodDeclarationSyntax)callerMember).Identifier.Text;
         }
 
         private bool TryEmitEnumToString(InvocationExpressionSyntax node, IMethodSymbol symbol)
@@ -121,9 +145,18 @@ namespace PixUI.CS2TS
             if (node.Expression is not IdentifierNameSyntax { Identifier: { Text: "nameof" } })
                 return false;
 
+            string name;
+            var exp = node.ArgumentList.Arguments[0].Expression;
+            if (exp is IdentifierNameSyntax identifierName)
+                name = identifierName.Identifier.Text;
+            else if (exp is MemberAccessExpressionSyntax memberAccess)
+                name = memberAccess.Name.Identifier.Text;
+            else
+                throw new NotImplementedException();
+
             WriteLeadingTrivia(node);
             Write('"');
-            Write(node.ArgumentList.Arguments[0].Expression.ToString());
+            Write(name);
             Write('"');
             WriteTrailingTrivia(node);
 
@@ -146,7 +179,7 @@ namespace PixUI.CS2TS
                     AddUsedModule("System");
                     Write("System.Equals");
                 }
-                
+
                 Write('(');
                 Visit(node.ArgumentList.Arguments[0]);
                 Write(isEquals ? ", " : " === ");
