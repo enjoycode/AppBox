@@ -11,7 +11,7 @@ export abstract class Node {
 
     public abstract SubNode(start: number, end: number): Node ;
 
-    public toString(): string {
+    toString(): string {
         throw new System.NotImplementedException();
     }
 
@@ -28,20 +28,20 @@ export class LeafNode extends Node {
 
     private readonly _data: Uint16Array;
 
-    public get Length(): number {
+    get Length(): number {
         return this._data.length;
     }
 
-    public GetCharAt(index: number): number {
+    GetCharAt(index: number): number {
         return this._data[index];
     }
 
-    public CopyTo(srcOffset: number, dest: Uint16Array, count: number) {
+    CopyTo(srcOffset: number, dest: Uint16Array, count: number) {
         let src = this._data.subarray(srcOffset, srcOffset + count);
         dest.set(src);
     }
 
-    public SubNode(start: number, end: number): Node {
+    SubNode(start: number, end: number): Node {
         if (start == 0 && end == this.Length)
             return this;
 
@@ -68,11 +68,11 @@ export class CompositeNode extends Node {
     public readonly head: Node;
     public readonly tail: Node;
 
-    public get Length(): number {
+    get Length(): number {
         return this._count;
     }
 
-    public GetCharAt(index: number): number {
+    GetCharAt(index: number): number {
         let headLength = this.head.Length;
         return index < headLength
             ? this.head.GetCharAt(index)
@@ -99,7 +99,7 @@ export class CompositeNode extends Node {
         return this; // Tail not a composite, cannot rotate.
     }
 
-    public CopyTo(srcOffset: number, dest: Uint16Array, count: number) {
+    CopyTo(srcOffset: number, dest: Uint16Array, count: number) {
         let cesure = this.head.Length;
         if (srcOffset + count <= cesure) {
             this.head.CopyTo(srcOffset, dest, count);
@@ -113,7 +113,7 @@ export class CompositeNode extends Node {
         }
     }
 
-    public SubNode(start: number, end: number): Node {
+    SubNode(start: number, end: number): Node {
         let cesure = this.head.Length;
         if (end <= cesure)
             return this.head.SubNode(start, end);

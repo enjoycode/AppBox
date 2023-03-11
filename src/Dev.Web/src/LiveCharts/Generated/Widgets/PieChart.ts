@@ -27,7 +27,7 @@ export class PieChart extends LiveCharts.ChartView implements LiveChartsCore.IPi
 
 
     InitializeCore() {
-        this.core = new LiveChartsCore.PieChart<LiveCharts.SkiaDrawingContext>(this, config => LiveCharts.LiveChartsSkiaSharp.UseDefaults(config,), this.CanvasCore, true);
+        this.core = new LiveChartsCore.PieChart<LiveCharts.SkiaDrawingContext>(this, config => LiveCharts.LiveChartsSkiaSharp.UseDefaults(config), this.CanvasCore, true);
         if (this.DesignerMode) return;
         this.core.Update();
     }
@@ -37,7 +37,7 @@ export class PieChart extends LiveCharts.ChartView implements LiveChartsCore.IPi
         let cc = <LiveChartsCore.PieChart<LiveCharts.SkiaDrawingContext>><unknown>this.core;
 
         if (strategy == LiveChartsCore.TooltipFindingStrategy.Automatic)
-            strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(cc.Series,);
+            strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(cc.Series);
 
         return cc.Series.SelectMany(series => series.FindHitPoints(cc, (point).Clone(), strategy));
     }

@@ -65,7 +65,7 @@ export class GeometryVisual<TGeometry extends LiveChartsCore.ISizedGeometry<Live
             // };
             this.GeometryIntialized.Invoke(this._geometry);
             LiveChartsCore.Extensions.TransitionateProperties(this._geometry
-                ,)
+            )
                 .WithAnimationFromChart(chart)
                 .CompleteCurrentTransitions();
         }
@@ -75,7 +75,7 @@ export class GeometryVisual<TGeometry extends LiveChartsCore.ISizedGeometry<Live
         this._geometry.Width = this._actualSize.Width;
         this._geometry.Height = this._actualSize.Height;
 
-        let drawing = LiveCharts.DrawingFluentExtensions.Draw(chart.Canvas,);
+        let drawing = LiveCharts.DrawingFluentExtensions.Draw(chart.Canvas);
         if (this.Fill != null) drawing.SelectPaint(this.Fill).Draw(this._geometry);
         if (this.Stroke != null) drawing.SelectPaint(this.Stroke).Draw(this._geometry);
     }

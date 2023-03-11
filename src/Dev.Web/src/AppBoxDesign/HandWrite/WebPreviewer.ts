@@ -16,7 +16,7 @@ export class WebPreviewer extends PixUI.View {
         let v = Date.now().toString();
         const url = "/preview/view/" + AppBoxClient.Channel.SessionId + "/" + this._controller.ModelNode.Id + "?v=" + v;
         try {
-            let module = await import(/* @vite-ignore */url);
+            let module = await import(/* @vite-ignore */ url);
             let previewMethod = module[this._controller.ModelNode.Label.Value]["Preview"];
             let widget: PixUI.Widget;
             if (previewMethod)

@@ -95,7 +95,7 @@ export class ImmutableText {
         }
     }
 
-    public toString(): string {
+    toString(): string {
         return this._root.toString();
     }
 

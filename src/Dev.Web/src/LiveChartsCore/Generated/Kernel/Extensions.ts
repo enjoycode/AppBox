@@ -10,9 +10,12 @@ export class Extensions {
                                                                                             chart: LiveChartsCore.Chart<TDrawingContext>): LiveChartsCore.LvcPoint {
         let location: Nullable<LiveChartsCore.LvcPoint> = null;
 
-        if (chart instanceof LiveChartsCore.CartesianChart<TDrawingContext> || chart instanceof LiveChartsCore.PolarChart<TDrawingContext>)
+        //前端esbuild暂不支持 (obj instanceof xxx || obj instanceof yyy)
+        if (chart instanceof LiveChartsCore.CartesianChart<TDrawingContext>)
             location = Extensions._getCartesianTooltipLocation(foundPoints, chart.TooltipPosition, (tooltipSize).Clone(), (chart.DrawMarginSize).Clone());
-        if (chart instanceof LiveChartsCore.PieChart<TDrawingContext>)
+        else if (chart instanceof LiveChartsCore.PolarChart<TDrawingContext>)
+            location = Extensions._getCartesianTooltipLocation(foundPoints, chart.TooltipPosition, (tooltipSize).Clone(), (chart.DrawMarginSize).Clone());
+        else if (chart instanceof LiveChartsCore.PieChart<TDrawingContext>)
             location = Extensions._getPieTooltipLocation(foundPoints, (tooltipSize).Clone());
 
         if (location == null) throw new System.Exception("location not supported");

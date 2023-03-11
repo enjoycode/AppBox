@@ -9,11 +9,11 @@ export class EditorDecorator extends PixUI.Widget {
 
     private readonly _codeEditor: CodeEditor.CodeEditorWidget;
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         this.SetSize(0, 0);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let textEditor = this._codeEditor.Controller.TextEditor;
 
         //TODO:解决转场动画过程中超出绘制范围

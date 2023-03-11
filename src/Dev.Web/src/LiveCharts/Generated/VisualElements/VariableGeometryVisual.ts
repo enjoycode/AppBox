@@ -72,7 +72,7 @@ export class VariableGeometryVisual extends LiveCharts.BaseGeometryVisual {
 
             this.GeometryIntialized.Invoke(this.Geometry);
             LiveChartsCore.Extensions.TransitionateProperties(this.Geometry
-                ,)
+            )
                 .WithAnimationFromChart(chart)
                 .CompleteCurrentTransitions();
 
@@ -84,7 +84,7 @@ export class VariableGeometryVisual extends LiveCharts.BaseGeometryVisual {
         this.Geometry.Width = this._actualSize.Width;
         this.Geometry.Height = this._actualSize.Height;
 
-        let drawing = LiveCharts.DrawingFluentExtensions.Draw(chart.Canvas,);
+        let drawing = LiveCharts.DrawingFluentExtensions.Draw(chart.Canvas);
         if (this.Fill != null) drawing.SelectPaint(this.Fill).Draw(this.Geometry);
         if (this.Stroke != null) drawing.SelectPaint(this.Stroke).Draw(this.Geometry);
     }

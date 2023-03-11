@@ -85,7 +85,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         let actualStrategy = this.TooltipFindingStrategy;
 
         if (actualStrategy == LiveChartsCore.TooltipFindingStrategy.Automatic)
-            actualStrategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(this.Series,);
+            actualStrategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(this.Series);
 
         return this.ChartSeries
             .Where(series => series.IsHoverable)

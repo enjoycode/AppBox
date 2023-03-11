@@ -8,13 +8,14 @@ export class LiveChartsSkiaSharp {
     public static DefaultSKTypeface: Nullable<PixUI.Typeface>;
 
     public static get DefaultPlatformBuilder(): System.Action1<LiveChartsCore.LiveChartsSettings> {
-        return (settings: LiveChartsCore.LiveChartsSettings) => 
-            LiveCharts.ThemesExtensions.AddLightTheme(LiveCharts.LiveChartsSkiaSharp.AddSkiaSharp(settings));
+        return (settings: LiveChartsCore.LiveChartsSettings) => LiveCharts.ThemesExtensions.AddLightTheme(LiveCharts.LiveChartsSkiaSharp.AddSkiaSharp(settings
+            )
+        );
     }
 
     public static UseDefaults(settings: LiveChartsCore.LiveChartsSettings): LiveChartsCore.LiveChartsSettings {
-        return LiveCharts.ThemesExtensions.AddLightTheme(
-            LiveCharts.LiveChartsSkiaSharp.AddSkiaSharp(settings)
+        return LiveCharts.ThemesExtensions.AddLightTheme(LiveCharts.LiveChartsSkiaSharp.AddSkiaSharp(settings
+            )
         );
     }
 

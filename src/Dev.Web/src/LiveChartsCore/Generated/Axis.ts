@@ -820,7 +820,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
                                                                              allSeries: System.IEnumerable<LiveChartsCore.ICartesianSeries<T>>): Nullable<LiveChartsCore.ChartPoint> {
         let closestPoint: Nullable<LiveChartsCore.ChartPoint> = null;
         for (const series of allSeries) {
-            let hitpoints = series.FindHitPoints(cartesianChart, (pointerPosition).Clone(), LiveChartsCore.Extensions.GetTooltipFindingStrategy(allSeries,));
+            let hitpoints = series.FindHitPoints(cartesianChart, (pointerPosition).Clone(), LiveChartsCore.Extensions.GetTooltipFindingStrategy(allSeries));
             let hitpoint = hitpoints.FirstOrDefault();
             if (hitpoint == null) continue;
 

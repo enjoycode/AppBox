@@ -35,8 +35,13 @@ export class MotionCanvas<TDrawingContext extends LiveChartsCore.DrawingContext>
         return this._sync;
     }
 
-    public get Trackers(): System.HashSet<LiveChartsCore.IAnimatable> {
-        return new System.HashSet<LiveChartsCore.IAnimatable>();
+    #Trackers: System.HashSet<LiveChartsCore.IAnimatable> = new System.HashSet<LiveChartsCore.IAnimatable>();
+    public get Trackers() {
+        return this.#Trackers;
+    }
+
+    private set Trackers(value) {
+        this.#Trackers = value;
     }
 
     public DrawFrame(context: TDrawingContext) {

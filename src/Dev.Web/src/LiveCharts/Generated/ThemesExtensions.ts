@@ -266,6 +266,6 @@ export class ThemesExtensions {
     }
 
     private static GetThemedColor(series: LiveChartsCore.ISeries, colors: LiveChartsCore.LvcColor[]): PixUI.Color {
-        return LiveCharts.LiveChartsSkiaSharp.AsSKColor(colors[series.SeriesId % colors.length],);
+        return LiveCharts.LiveChartsSkiaSharp.AsSKColor(colors[series.SeriesId % colors.length]);
     }
 }

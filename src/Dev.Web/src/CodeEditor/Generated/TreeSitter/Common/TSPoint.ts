@@ -20,7 +20,7 @@ export class TSPoint {
         return new TSPoint(location.Line, location.Column * CodeEditor.SyntaxParser.ParserEncoding);
     }
 
-    public toString(): string {
+    toString(): string {
         return `(${this.row}, ${this.column})`;
     }
 }

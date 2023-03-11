@@ -12,7 +12,7 @@ export class RBNode {
         this.TotalLength = lineSegment.TotalLength;
     }
 
-    public toString(): string {
+    toString(): string {
         return "[RBNode count=" + this.Count + " totalLength=" + this.TotalLength
             + " lineSegment.LineNumber=" + this.LineSegment.LineNumber
             + " lineSegment.Offset=" + this.LineSegment.Offset

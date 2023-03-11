@@ -69,7 +69,7 @@ export class TextAnchor {
         this.Deleted.Invoke();
     }
 
-    public toString(): string {
+    toString(): string {
         return this.IsDeleted ? "[TextAnchor (deleted)]" : `[TextAnchor ${this.Location}]`;
     }
 }

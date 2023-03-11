@@ -15,8 +15,13 @@ export class LiveCharts {
         LiveCharts.#IsConfigured = value;
     }
 
-    public static get DefaultSettings(): LiveChartsCore.LiveChartsSettings {
-        return new LiveChartsCore.LiveChartsSettings();
+    static #DefaultSettings: LiveChartsCore.LiveChartsSettings = new LiveChartsCore.LiveChartsSettings();
+    public static get DefaultSettings() {
+        return LiveCharts.#DefaultSettings;
+    }
+
+    private static set DefaultSettings(value) {
+        LiveCharts.#DefaultSettings = value;
     }
 
 

@@ -77,10 +77,10 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
         this._stackedRowsCount = 0;
 
         for (const item of this._series) {
-            if (!LiveChartsCore.Extensions.IsBarSeries(item,)) continue;
+            if (!LiveChartsCore.Extensions.IsBarSeries(item)) continue;
 
-            if (LiveChartsCore.Extensions.IsColumnSeries(item,)) {
-                if (!LiveChartsCore.Extensions.IsStackedSeries(item,)) {
+            if (LiveChartsCore.Extensions.IsColumnSeries(item)) {
+                if (!LiveChartsCore.Extensions.IsStackedSeries(item)) {
                     this._columnPositions.SetAt(item, this._columnsCount++);
                     continue;
                 }
@@ -91,8 +91,8 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
                 continue;
             }
 
-            if (LiveChartsCore.Extensions.IsRowSeries(item,)) {
-                if (!LiveChartsCore.Extensions.IsRowSeries(item,)) {
+            if (LiveChartsCore.Extensions.IsRowSeries(item)) {
+                if (!LiveChartsCore.Extensions.IsRowSeries(item)) {
                     this._rowPositions.SetAt(item, this._rowsCount++);
                     continue;
                 }
@@ -109,7 +109,7 @@ export class SeriesContext<TDrawingContext extends LiveChartsCore.DrawingContext
 
 
     public GetStackPosition(series: LiveChartsCore.IChartSeries<TDrawingContext>, stackGroup: number): Nullable<LiveChartsCore.StackPosition<TDrawingContext>> {
-        if (!LiveChartsCore.Extensions.IsStackedSeries(series,)) return null;
+        if (!LiveChartsCore.Extensions.IsStackedSeries(series)) return null;
 
         let s = this.GetStacker(series, stackGroup);
 

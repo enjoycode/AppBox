@@ -144,7 +144,7 @@ export class HeatPathShape extends PathGeometry implements LiveChartsCore.IHeatP
         let fill = (this.FillColor).Clone();
 
         if (System.OpInequality(fill, LiveChartsCore.LvcColor.Empty)) {
-            context.Paint.setColor(LiveCharts.LiveChartsSkiaSharp.AsSKColor(fill,));
+            context.Paint.setColor(LiveCharts.LiveChartsSkiaSharp.AsSKColor(fill));
             context.Paint.setStyle(CanvasKit.PaintStyle.Fill);
         }
 

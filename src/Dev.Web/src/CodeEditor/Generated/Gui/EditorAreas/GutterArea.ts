@@ -28,11 +28,11 @@ export class GutterArea extends CodeEditor.EditorArea {
         return cache;
     }
 
-    public get Size(): PixUI.Size {
+    get Size(): PixUI.Size {
         return new PixUI.Size(this._numberWidth * 5, -1);
     }
 
-    public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
+    Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
         if (rect.Width <= 0 || rect.Height <= 0) return;
 
         // background

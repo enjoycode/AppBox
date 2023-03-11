@@ -3,12 +3,22 @@ import * as PixUI from '@/PixUI'
 export class MenuController {
     public readonly TextColor: PixUI.State<PixUI.Color> = PixUI.State.op_Implicit_From(PixUI.Colors.Black);
 
-    public get ItemPadding(): PixUI.EdgeInsets {
-        return PixUI.EdgeInsets.Only(8, 5, 8, 5);
+    #ItemPadding: PixUI.EdgeInsets = PixUI.EdgeInsets.Only(8, 5, 8, 5);
+    public get ItemPadding() {
+        return this.#ItemPadding;
     }
 
-    public get PopupItemHeight(): number {
-        return 30;
+    private set ItemPadding(value) {
+        this.#ItemPadding = value;
+    }
+
+    #PopupItemHeight: number = 30;
+    public get PopupItemHeight() {
+        return this.#PopupItemHeight;
+    }
+
+    private set PopupItemHeight(value) {
+        this.#PopupItemHeight = value;
     }
 
     public BackgroundColor: PixUI.Color = new PixUI.Color(200, 200, 200);

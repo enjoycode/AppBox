@@ -64,7 +64,7 @@ export class CartesianChart extends LiveCharts.ChartView implements LiveChartsCo
         zoomingSectionPaint.AddGeometryToPaintTask(this.CanvasCore, zoomingSection);
         this.CanvasCore.AddDrawableTask(zoomingSectionPaint);
 
-        this.core = new LiveChartsCore.CartesianChart<LiveCharts.SkiaDrawingContext>(this, config => LiveCharts.LiveChartsSkiaSharp.UseDefaults(config,), this.CanvasCore, zoomingSection);
+        this.core = new LiveChartsCore.CartesianChart<LiveCharts.SkiaDrawingContext>(this, config => LiveCharts.LiveChartsSkiaSharp.UseDefaults(config), this.CanvasCore, zoomingSection);
         if ((<LiveChartsCore.IChartView><unknown>this).DesignerMode) return;
         this.core.Update();
     }
@@ -74,7 +74,7 @@ export class CartesianChart extends LiveCharts.ChartView implements LiveChartsCo
         let cc = <LiveChartsCore.CartesianChart<LiveCharts.SkiaDrawingContext>><unknown>this.core;
 
         if (strategy == LiveChartsCore.TooltipFindingStrategy.Automatic)
-            strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(cc.Series,);
+            strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(cc.Series);
 
         return cc.Series.SelectMany(series => series.FindHitPoints(cc, (point).Clone(), strategy));
     }

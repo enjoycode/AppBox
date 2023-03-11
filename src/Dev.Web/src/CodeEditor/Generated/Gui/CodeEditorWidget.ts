@@ -72,29 +72,29 @@ export class CodeEditorWidget extends PixUI.Widget implements PixUI.IMouseRegion
         return this.Controller.OnScroll(dx, dy);
     }
 
-    protected OnMounted() {
+    OnMounted() {
         this.Overlay!.Show(this._decoration);
         super.OnMounted();
     }
 
-    protected OnUnmounted() {
+    OnUnmounted() {
         if (this._decoration.Parent != null)
             (<PixUI.Overlay><unknown>this._decoration.Parent).Remove(this._decoration);
         super.OnUnmounted();
     }
 
 
-    public get IsOpaque(): boolean {
+    get IsOpaque(): boolean {
         return true;
     }
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         let width = this.CacheAndCheckAssignWidth(availableWidth);
         let height = this.CacheAndCheckAssignHeight(availableHeight);
         this.SetSize(width, height);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let clipRect = PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
         canvas.save();
         canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);

@@ -405,7 +405,7 @@ export class LineSegment implements CodeEditor.ISegment {
     }
 
 
-    public toString(): string {
+    toString(): string {
         if (this.IsDeleted)
             return "[LineSegment: (deleted) Length = " + this.Length + ", TotalLength = " +
                 this.TotalLength + ", DelimiterLength = " + this.DelimiterLength + "]";

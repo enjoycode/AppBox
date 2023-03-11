@@ -12,8 +12,13 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
     private _backgroundPaint: Nullable<LiveChartsCore.IPaint<TDrawingContext>>;
     private _backgroundGeometry: Nullable<TBackgroundGemetry>;
 
-    public get Children(): System.HashSet<LiveChartsCore.VisualElement<TDrawingContext>> {
-        return new System.HashSet();
+    #Children: System.HashSet<LiveChartsCore.VisualElement<TDrawingContext>> = new System.HashSet();
+    public get Children() {
+        return this.#Children;
+    }
+
+    private set Children(value) {
+        this.#Children = value;
     }
 
     public Orientation: LiveChartsCore.ContainerOrientation = 0;
@@ -91,7 +96,7 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
             this._backgroundGeometry.Height = controlSize.Height;
             LiveChartsCore.Extensions.TransitionateProperties(
                 this._backgroundGeometry
-                ,)
+            )
                 .WithAnimationFromChart(chart)
                 .CompleteCurrentTransitions();
         }

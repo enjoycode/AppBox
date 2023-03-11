@@ -60,8 +60,13 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
     public readonly PanGesture = new System.Event<LiveChartsCore.PanGestureEventArgs>();
 
 
-    public get ActualBounds(): LiveChartsCore.AnimatableContainer {
-        return new LiveChartsCore.AnimatableContainer();
+    #ActualBounds: LiveChartsCore.AnimatableContainer = new LiveChartsCore.AnimatableContainer();
+    public get ActualBounds() {
+        return this.#ActualBounds;
+    }
+
+    private set ActualBounds(value) {
+        this.#ActualBounds = value;
     }
 
     #MeasureWork: any = {};
@@ -286,7 +291,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
     public InvokePointerDown(point: LiveChartsCore.LvcPoint, isSecondaryAction: boolean) {
         this.PointerDown.Invoke((point).Clone());
 
-        let strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(this.ChartSeries,);
+        let strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(this.ChartSeries);
 
         // fire the series event.
         for (const series of this.ChartSeries) {

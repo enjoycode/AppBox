@@ -415,7 +415,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                      stacker: Nullable<LiveChartsCore.StackPosition<TDrawingContext>>): System.IEnumerable<LiveChartsCore.BezierData> {
         const _$generator = function* (this: any, points: System.IEnumerable<LiveChartsCore.ChartPoint>,
                                        stacker: Nullable<LiveChartsCore.StackPosition<TDrawingContext>>) {
-            for (const item of LiveChartsCore.Extensions.AsSplineData(points,)) {
+            for (const item of LiveChartsCore.Extensions.AsSplineData(points)) {
                 if (item.IsFirst) {
                     let c = item.Current;
 

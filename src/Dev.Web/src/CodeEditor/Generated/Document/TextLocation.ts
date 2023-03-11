@@ -19,7 +19,7 @@ export class TextLocation implements System.IComparable<TextLocation>, System.IE
         return this.Column <= 0 && this.Line <= 0;
     }
 
-    public toString(): string {
+    toString(): string {
         return `(Line ${this.Line}, Col ${this.Column})`;
     }
 

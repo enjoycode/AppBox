@@ -148,7 +148,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
                     Padding: this.Padding
                 });
             LiveChartsCore.Extensions.TransitionateProperties(this._labelGeometry
-                ,)
+            )
                 .WithAnimationFromChart(chart)
                 .CompleteCurrentTransitions();
         }
@@ -165,7 +165,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
         this._labelGeometry.Padding = this.Padding;
         this._labelGeometry.LineHeight = this.LineHeight;
 
-        let drawing = LiveCharts.DrawingFluentExtensions.Draw(chart.Canvas,);
+        let drawing = LiveCharts.DrawingFluentExtensions.Draw(chart.Canvas);
         if (this.Paint != null) drawing.SelectPaint(this.Paint).Draw(this._labelGeometry);
     }
 

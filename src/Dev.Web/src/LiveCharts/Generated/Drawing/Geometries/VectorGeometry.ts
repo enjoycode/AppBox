@@ -11,8 +11,13 @@ export abstract class VectorGeometry<TSegment extends object & LiveChartsCore.IA
         this._pivotProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Pivot", 0));
     }
 
-    protected get Commands(): System.LinkedList<TSegment> {
-        return new System.LinkedList();
+    #Commands: System.LinkedList<TSegment> = new System.LinkedList();
+    protected get Commands() {
+        return this.#Commands;
+    }
+
+    private set Commands(value) {
+        this.#Commands = value;
     }
 
     public get FirstCommand(): Nullable<System.LinkedListNode<TSegment>> {

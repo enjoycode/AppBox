@@ -25,15 +25,15 @@ export class FoldArea extends CodeEditor.EditorArea {
         return false;
     }
 
-    public get Size(): PixUI.Size {
+    get Size(): PixUI.Size {
         return new PixUI.Size(this.TextEditor.TextView.FontHeight, -1);
     }
 
-    public get IsVisible(): boolean {
+    get IsVisible(): boolean {
         return this.TextEditor.Document.TextEditorOptions.EnableFolding;
     }
 
-    public HandlePointerDown(x: number, y: number, buttons: PixUI.PointerButtons) {
+    HandlePointerDown(x: number, y: number, buttons: PixUI.PointerButtons) {
         let physicalLine = (Math.floor(((y + this.TextEditor.VirtualTop.Y) / this.TextEditor.TextView.FontHeight)) & 0xFFFFFFFF);
         let realLine = this.Document.GetFirstLogicalLine(physicalLine);
         if (realLine < 0 || realLine + 1 >= this.Document.TotalNumberOfLines)
@@ -57,7 +57,7 @@ export class FoldArea extends CodeEditor.EditorArea {
         }
     }
 
-    public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
+    Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
         if (rect.Width <= 0 || rect.Height <= 0) return;
 
         //background

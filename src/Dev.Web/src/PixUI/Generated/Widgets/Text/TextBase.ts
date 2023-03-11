@@ -28,8 +28,13 @@ export abstract class TextBase extends PixUI.Widget {
         return this._cachedParagraph;
     }
 
-    protected get ForceHeight(): boolean {
-        return false;
+    #ForceHeight: boolean = false;
+    protected get ForceHeight() {
+        return this.#ForceHeight;
+    }
+
+    private set ForceHeight(value) {
+        this.#ForceHeight = value;
     }
 
     public get FontSize(): Nullable<PixUI.State<number>> {

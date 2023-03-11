@@ -104,7 +104,7 @@ export class TabController<T> implements PixUI.IStateBindable {
                 this.TabSelectChanged.Invoke(-1);
             }
         }
-        
+
         //最后激发TabClosed事件
         this.TabClosed.Invoke(dataItem);
     }

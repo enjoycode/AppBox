@@ -13,7 +13,7 @@ export abstract class ChartView extends PixUI.Widget implements PixUI.IMouseRegi
         if (legend != null) this.legend = legend;
 
         if (!LiveChartsCore.LiveCharts.IsConfigured)
-            LiveChartsCore.LiveCharts.Configure(config => LiveCharts.LiveChartsSkiaSharp.UseDefaults(config,));
+            LiveChartsCore.LiveCharts.Configure(config => LiveCharts.LiveChartsSkiaSharp.UseDefaults(config));
 
         this.InitializeCore();
 
@@ -276,8 +276,13 @@ export abstract class ChartView extends PixUI.Widget implements PixUI.IMouseRegi
 
     public MaxFps: number = 65;
 
-    public get CanvasCore(): LiveChartsCore.MotionCanvas<LiveCharts.SkiaDrawingContext> {
-        return new LiveChartsCore.MotionCanvas();
+    #CanvasCore: LiveChartsCore.MotionCanvas<LiveCharts.SkiaDrawingContext> = new LiveChartsCore.MotionCanvas();
+    public get CanvasCore() {
+        return this.#CanvasCore;
+    }
+
+    private set CanvasCore(value) {
+        this.#CanvasCore = value;
     }
 
     private CanvasCore_Invalidated(sender: LiveChartsCore.MotionCanvas<LiveCharts.SkiaDrawingContext>) {
@@ -352,7 +357,7 @@ export abstract class ChartView extends PixUI.Widget implements PixUI.IMouseRegi
 
         //TODO: cache SkiaSharpDrawingContext instance
         let drawCtx = new LiveCharts.SkiaDrawingContext(this.CanvasCore, (Math.floor(this.W) & 0xFFFFFFFF), (Math.floor(this.H) & 0xFFFFFFFF), canvas);
-        drawCtx.Background = LiveCharts.LiveChartsSkiaSharp.AsSKColor(this.BackColor,);
+        drawCtx.Background = LiveCharts.LiveChartsSkiaSharp.AsSKColor(this.BackColor);
         this.CanvasCore.DrawFrame(drawCtx);
 
         canvas.restore();

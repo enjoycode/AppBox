@@ -128,7 +128,7 @@ export class SKDefaultLegend implements LiveChartsCore.IChartLegend<LiveCharts.S
         if (this._activeSeries.TryGetValue(series, new System.Out(() => seriesPanel, $v => seriesPanel = $v))) return seriesPanel;
 
         let sketch = series.GetMiniatresSketch();
-        let relativePanel = LiveCharts.VisualElementsExtensions.AsDrawnControl(sketch,);
+        let relativePanel = LiveCharts.VisualElementsExtensions.AsDrawnControl(sketch);
 
         let sp = new LiveChartsCore.StackPanel<LiveCharts.RoundedRectangleGeometry, LiveCharts.SkiaDrawingContext>(() => new LiveCharts.RoundedRectangleGeometry()).Init(
             {

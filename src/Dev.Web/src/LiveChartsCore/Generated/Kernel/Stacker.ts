@@ -11,8 +11,13 @@ export class Stacker<TDrawingContext extends LiveChartsCore.DrawingContext> {
     public constructor() {
     }
 
-    public get MaxLength(): number {
-        return 0;
+    #MaxLength: number = 0;
+    public get MaxLength() {
+        return this.#MaxLength;
+    }
+
+    private set MaxLength(value) {
+        this.#MaxLength = value;
     }
 
     public GetSeriesStackPosition(series: LiveChartsCore.IChartSeries<TDrawingContext>): number {

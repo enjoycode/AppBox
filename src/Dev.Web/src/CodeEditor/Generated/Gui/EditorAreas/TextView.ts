@@ -111,7 +111,7 @@ export class TextView extends CodeEditor.EditorArea {
         return drawingPos - this.TextEditor.VirtualTop.X;
     }
 
-    public HandlePointerDown(x: number, y: number, buttons: PixUI.PointerButtons) {
+    HandlePointerDown(x: number, y: number, buttons: PixUI.PointerButtons) {
         let vx = x - this.Bounds.Left;
         let vy = y - this.Bounds.Top;
         if (buttons == PixUI.PointerButtons.Left) {
@@ -134,7 +134,7 @@ export class TextView extends CodeEditor.EditorArea {
         }
     }
 
-    public Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
+    Paint(canvas: PixUI.Canvas, rect: PixUI.Rect) {
         if (rect.Width <= 0 || rect.Height <= 0) return;
 
         let horizontalDelta = this.TextEditor.VirtualTop.X;

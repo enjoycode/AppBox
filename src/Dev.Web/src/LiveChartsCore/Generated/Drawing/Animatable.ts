@@ -13,8 +13,13 @@ export abstract class Animatable implements LiveChartsCore.IAnimatable {
 
     public RemoveOnCompleted: boolean = false;
 
-    public get MotionProperties(): System.Dictionary<string, LiveChartsCore.IMotionProperty> {
-        return new System.Dictionary();
+    #MotionProperties: System.Dictionary<string, LiveChartsCore.IMotionProperty> = new System.Dictionary();
+    public get MotionProperties() {
+        return this.#MotionProperties;
+    }
+
+    private set MotionProperties(value) {
+        this.#MotionProperties = value;
     }
 
     public SetTransition(animation: Nullable<LiveChartsCore.Animation>, ...propertyName: Nullable<string[]>) {

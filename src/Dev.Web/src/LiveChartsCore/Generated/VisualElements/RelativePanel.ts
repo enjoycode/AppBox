@@ -6,8 +6,13 @@ export class RelativePanel<TDrawingContext extends LiveChartsCore.DrawingContext
 
     public Size: LiveChartsCore.LvcSize = LiveChartsCore.LvcSize.Empty.Clone();
 
-    public get Children(): System.HashSet<LiveChartsCore.VisualElement<TDrawingContext>> {
-        return new System.HashSet();
+    #Children: System.HashSet<LiveChartsCore.VisualElement<TDrawingContext>> = new System.HashSet();
+    public get Children() {
+        return this.#Children;
+    }
+
+    private set Children(value) {
+        this.#Children = value;
     }
 
     GetTargetLocation(): LiveChartsCore.LvcPoint {

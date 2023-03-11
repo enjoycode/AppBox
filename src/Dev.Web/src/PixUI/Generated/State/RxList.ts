@@ -3,8 +3,13 @@ import * as PixUI from '@/PixUI'
 
 // @ts-ignore for IList implements
 export class RxList<T> extends PixUI.StateBase {
-    get Readonly(): boolean {
-        return true;
+    #Readonly: boolean = true;
+    get Readonly() {
+        return this.#Readonly;
+    }
+
+    private set Readonly(value) {
+        this.#Readonly = value;
     }
 
     private readonly _source: System.IList<T>;

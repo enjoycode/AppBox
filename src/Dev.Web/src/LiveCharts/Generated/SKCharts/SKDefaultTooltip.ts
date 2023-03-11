@@ -106,7 +106,7 @@ export class SKDefaultTooltip implements LiveChartsCore.IChartTooltip<LiveCharts
         }
 
         let sketch = (<LiveChartsCore.IChartSeries<LiveCharts.SkiaDrawingContext>><unknown>point.Context.Series).GetMiniatresSketch();
-        let relativePanel = LiveCharts.VisualElementsExtensions.AsDrawnControl(sketch,);
+        let relativePanel = LiveCharts.VisualElementsExtensions.AsDrawnControl(sketch);
 
         let label = new LiveCharts.LabelVisual().Init(
             {

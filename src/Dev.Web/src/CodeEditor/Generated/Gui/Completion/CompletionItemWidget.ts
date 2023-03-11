@@ -14,11 +14,11 @@ export class CompletionItemWidget extends PixUI.Widget {
     private readonly _iconPainter: PixUI.IconPainter;
     private _paragraph: Nullable<PixUI.Paragraph>; //TODO: use TextPainter
 
-    public Layout(availableWidth: number, availableHeight: number) {
+    Layout(availableWidth: number, availableHeight: number) {
         this.SetSize(availableWidth, availableHeight);
     }
 
-    public Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
+    Paint(canvas: PixUI.Canvas, area: Nullable<PixUI.IDirtyArea> = null) {
         let fontSize: number = 13;
         let x: number = 2;
         let y: number = 3;
