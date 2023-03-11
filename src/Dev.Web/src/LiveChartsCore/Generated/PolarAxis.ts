@@ -71,7 +71,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set NameTextSize(value: number) {
-        this.SetProperty(new System.Ref(() => this._nameTextSize, $v => this._nameTextSize = $v), value);
+        this.SetProperty(new System.Ref(() => this._nameTextSize, $v => this._nameTextSize = $v), value, "NameTextSize");
     }
 
     public get NamePadding(): LiveChartsCore.Padding {
@@ -79,7 +79,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set NamePadding(value: LiveChartsCore.Padding) {
-        this.SetProperty(new System.Ref(() => this._namePadding, $v => this._namePadding = $v), value);
+        this.SetProperty(new System.Ref(() => this._namePadding, $v => this._namePadding = $v), value, "NamePadding");
     }
 
     public get Orientation(): LiveChartsCore.PolarAxisOrientation {
@@ -91,7 +91,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set LabelsAngle(value: number) {
-        this.SetProperty(new System.Ref(() => this._labelsAngle, $v => this._labelsAngle = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsAngle, $v => this._labelsAngle = $v), value, "LabelsAngle");
     }
 
     public get Labeler(): System.Func2<number, string> {
@@ -99,7 +99,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set Labeler(value: System.Func2<number, string>) {
-        this.SetProperty(new System.Ref(() => this._labeler, $v => this._labeler = $v), value);
+        this.SetProperty(new System.Ref(() => this._labeler, $v => this._labeler = $v), value, "Labeler");
     }
 
     public get MinStep(): number {
@@ -107,7 +107,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set MinStep(value: number) {
-        this.SetProperty(new System.Ref(() => this._minStep, $v => this._minStep = $v), value);
+        this.SetProperty(new System.Ref(() => this._minStep, $v => this._minStep = $v), value, "MinStep");
     }
 
     public get ForceStepToMin(): boolean {
@@ -115,7 +115,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set ForceStepToMin(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._forceStepToMin, $v => this._forceStepToMin = $v), value);
+        this.SetProperty(new System.Ref(() => this._forceStepToMin, $v => this._forceStepToMin = $v), value, "ForceStepToMin");
     }
 
     public get MinLimit(): Nullable<number> {
@@ -123,7 +123,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set MinLimit(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._minLimit, $v => this._minLimit = $v), value);
+        this.SetProperty(new System.Ref(() => this._minLimit, $v => this._minLimit = $v), value, "MinLimit");
     }
 
     public get MaxLimit(): Nullable<number> {
@@ -131,7 +131,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set MaxLimit(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._maxLimit, $v => this._maxLimit = $v), value);
+        this.SetProperty(new System.Ref(() => this._maxLimit, $v => this._maxLimit = $v), value, "MaxLimit");
     }
 
     public get UnitWidth(): number {
@@ -139,7 +139,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set UnitWidth(value: number) {
-        this.SetProperty(new System.Ref(() => this._unitWidth, $v => this._unitWidth = $v), value);
+        this.SetProperty(new System.Ref(() => this._unitWidth, $v => this._unitWidth = $v), value, "UnitWidth");
     }
 
     public get LabelsRotation(): number {
@@ -147,7 +147,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set LabelsRotation(value: number) {
-        this.SetProperty(new System.Ref(() => this._labelsRotation, $v => this._labelsRotation = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsRotation, $v => this._labelsRotation = $v), value, "LabelsRotation");
     }
 
     public get TextSize(): number {
@@ -155,7 +155,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set TextSize(value: number) {
-        this.SetProperty(new System.Ref(() => this._textSize, $v => this._textSize = $v), value);
+        this.SetProperty(new System.Ref(() => this._textSize, $v => this._textSize = $v), value, "TextSize");
     }
 
     public Labels: Nullable<System.IList<string>>;
@@ -165,7 +165,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set LabelsPadding(value: LiveChartsCore.Padding) {
-        this.SetProperty(new System.Ref(() => this._labelsPadding, $v => this._labelsPadding = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsPadding, $v => this._labelsPadding = $v), value, "LabelsPadding");
     }
 
     public get LabelsVerticalAlignment(): LiveChartsCore.Align {
@@ -173,7 +173,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set LabelsVerticalAlignment(value: LiveChartsCore.Align) {
-        this.SetProperty(new System.Ref(() => this._labelsVerticalAlign, $v => this._labelsVerticalAlign = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsVerticalAlign, $v => this._labelsVerticalAlign = $v), value, "LabelsVerticalAlignment");
     }
 
     public get LabelsHorizontalAlignment(): LiveChartsCore.Align {
@@ -181,7 +181,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set LabelsHorizontalAlignment(value: LiveChartsCore.Align) {
-        this.SetProperty(new System.Ref(() => this._labelsHorizontalAlign, $v => this._labelsHorizontalAlign = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsHorizontalAlign, $v => this._labelsHorizontalAlign = $v), value, "LabelsHorizontalAlignment");
     }
 
     public get LabelsBackground(): LiveChartsCore.LvcColor {
@@ -189,7 +189,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set LabelsBackground(value: LiveChartsCore.LvcColor) {
-        this.SetProperty(new System.Ref(() => this._labelsBackground, $v => this._labelsBackground = $v), (value).Clone());
+        this.SetProperty(new System.Ref(() => this._labelsBackground, $v => this._labelsBackground = $v), (value).Clone(), "LabelsBackground");
     }
 
     public get ShowSeparatorLines(): boolean {
@@ -197,7 +197,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set ShowSeparatorLines(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._showSeparatorLines, $v => this._showSeparatorLines = $v), value);
+        this.SetProperty(new System.Ref(() => this._showSeparatorLines, $v => this._showSeparatorLines = $v), value, "ShowSeparatorLines");
     }
 
     public get IsVisible(): boolean {
@@ -205,7 +205,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set IsVisible(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value);
+        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value, "IsVisible");
     }
 
     public get IsInverted(): boolean {
@@ -213,7 +213,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set IsInverted(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isInverted, $v => this._isInverted = $v), value);
+        this.SetProperty(new System.Ref(() => this._isInverted, $v => this._isInverted = $v), value, "IsInverted");
     }
 
     public get NamePaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -237,7 +237,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set SeparatorsPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._separatorsPaint, $v => this._separatorsPaint = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._separatorsPaint, $v => this._separatorsPaint = $v), value, true, "SeparatorsPaint");
     }
 
     public AnimationsSpeed: Nullable<System.TimeSpan>;
@@ -271,7 +271,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
 
         if (!this._animatableBounds.HasPreviousState) {
             LiveChartsCore.Extensions.TransitionateProperties(this._animatableBounds
-                , "_animatableBounds.MinLimit", "_animatableBounds.MaxLimit")
+                , "MinLimit", "MaxLimit")
                 .WithAnimationBuilder(animation =>
                     animation
                         .WithDuration(this.AnimationsSpeed ?? polarChart.AnimationsSpeed)
@@ -367,10 +367,10 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                     if (hasRotation) textGeometry.RotateTransform = r;
                     LiveChartsCore.Extensions.TransitionateProperties(
                         textGeometry
-                        , "textGeometry.X",
-                        "textGeometry.Y",
-                        "textGeometry.RotateTransform",
-                        "textGeometry.Opacity")
+                        , "X",
+                        "Y",
+                        "RotateTransform",
+                        "Opacity")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? polarChart.AnimationsSpeed)
@@ -390,9 +390,9 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                         linearSeparator.Separator = lineGeometry;
                         LiveChartsCore.Extensions.TransitionateProperties(
                             lineGeometry
-                            , "lineGeometry.X", "lineGeometry.X1",
-                            "lineGeometry.Y", "lineGeometry.Y1",
-                            "lineGeometry.Opacity")
+                            , "X", "X1",
+                            "Y", "Y1",
+                            "Opacity")
                             .WithAnimationBuilder(animation =>
                                 animation
                                     .WithDuration(this.AnimationsSpeed ?? polarChart.AnimationsSpeed)
@@ -409,9 +409,9 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                         polarSeparator.Circle = circleGeometry;
                         LiveChartsCore.Extensions.TransitionateProperties(
                             circleGeometry
-                            , "circleGeometry.X", "circleGeometry.Y",
-                            "circleGeometry.Width", "circleGeometry.Height",
-                            "circleGeometry.Opacity")
+                            , "X", "Y",
+                            "Width", "Height",
+                            "Opacity")
                             .WithAnimationBuilder(animation =>
                                 animation
                                     .WithDuration(this.AnimationsSpeed ?? polarChart.AnimationsSpeed)

@@ -31,7 +31,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
     }
 
     public set GeometrySize(value: number) {
-        this.SetProperty(new System.Ref(() => this._geometrySize, $v => this._geometrySize = $v), <number><unknown>value);
+        this.SetProperty(new System.Ref(() => this._geometrySize, $v => this._geometrySize = $v), <number><unknown>value, "GeometrySize");
     }
 
     public get LineSmoothness(): number {
@@ -42,7 +42,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         let v = value;
         if (value > 1) v = 1;
         if (value < 0) v = 0;
-        this.SetProperty(new System.Ref(() => this._lineSmoothness, $v => this._lineSmoothness = $v), <number><unknown>v);
+        this.SetProperty(new System.Ref(() => this._lineSmoothness, $v => this._lineSmoothness = $v), <number><unknown>v, "LineSmoothness");
     }
 
     public get EnableNullSplitting(): boolean {
@@ -50,7 +50,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
     }
 
     public set EnableNullSplitting(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._enableNullSplitting, $v => this._enableNullSplitting = $v), value);
+        this.SetProperty(new System.Ref(() => this._enableNullSplitting, $v => this._enableNullSplitting = $v), value, "EnableNullSplitting");
     }
 
     public get GeometryFill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -66,7 +66,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
     }
 
     public set GeometryStroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._geometryStroke, $v => this._geometryStroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._geometryStroke, $v => this._geometryStroke = $v), value, true, "GeometryStroke");
     }
 
     Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
@@ -163,7 +163,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                 this.Fill.SetClipRectangle(cartesianChart.Canvas, new LiveChartsCore.LvcRectangle((drawLocation).Clone(), (drawMarginSize).Clone()));
                 fillPath.Pivot = p;
                 if (isNew) {
-                    LiveChartsCore.Extensions.TransitionateProperties(fillPath, "fillPath.Pivot")
+                    LiveChartsCore.Extensions.TransitionateProperties(fillPath, "Pivot")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -178,7 +178,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                 this.Stroke.SetClipRectangle(cartesianChart.Canvas, new LiveChartsCore.LvcRectangle((drawLocation).Clone(), (drawMarginSize).Clone()));
                 strokePath.Pivot = p;
                 if (isNew) {
-                    LiveChartsCore.Extensions.TransitionateProperties(strokePath, "strokePath.Pivot")
+                    LiveChartsCore.Extensions.TransitionateProperties(strokePath, "Pivot")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -240,8 +240,8 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                 let x = secondaryScale.ToPixels(data.TargetPoint.SecondaryValue);
                 let y = primaryScale.ToPixels(data.TargetPoint.PrimaryValue + s);
 
-                visual.Geometry.MotionProperties.GetAt("visual.Geometry.X").CopyFrom(visual.Bezier.MotionProperties.GetAt("visual.Bezier.Xj"));
-                visual.Geometry.MotionProperties.GetAt("visual.Geometry.Y").CopyFrom(visual.Bezier.MotionProperties.GetAt("visual.Bezier.Yj"));
+                visual.Geometry.MotionProperties.GetAt("X").CopyFrom(visual.Bezier.MotionProperties.GetAt("Xj"));
+                visual.Geometry.MotionProperties.GetAt("Y").CopyFrom(visual.Bezier.MotionProperties.GetAt("Yj"));
                 visual.Geometry.TranslateTransform = new LiveChartsCore.LvcPoint(-hgs, -hgs);
 
                 visual.Geometry.Width = gs;
@@ -271,7 +271,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                         l.X = x - hgs;
                         l.Y = p - hgs;
                         l.RotateTransform = <number><unknown>this.DataLabelsRotation;
-                        LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                        LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                             .WithAnimationBuilder(animation =>
                                 animation
                                     .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -502,11 +502,11 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
         let visual = (chartPoint.Context.Visual as TVisualPoint)!;
         LiveChartsCore.Extensions.TransitionateProperties(
             visual.Geometry
-            , "visual.Geometry.X",
-            "visual.Geometry.Y",
-            "visual.Geometry.Width",
-            "visual.Geometry.Height",
-            "visual.Geometry.TranslateTransform")
+            , "X",
+            "Y",
+            "Width",
+            "Height",
+            "TranslateTransform")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)
@@ -514,12 +514,12 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
             .CompleteCurrentTransitions();
         LiveChartsCore.Extensions.TransitionateProperties(
             visual.Bezier
-            , "visual.Bezier.Xi",
-            "visual.Bezier.Yi",
-            "visual.Bezier.Xm",
-            "visual.Bezier.Ym",
-            "visual.Bezier.Xj",
-            "visual.Bezier.Yj")
+            , "Xi",
+            "Yi",
+            "Xm",
+            "Ym",
+            "Xj",
+            "Yj")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)

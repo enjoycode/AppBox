@@ -24,7 +24,7 @@ export class TimeSpanPoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public set TimeSpan(value: System.TimeSpan) {
         this._timeSpan = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("TimeSpan");
     }
 
     public get Value(): Nullable<number> {
@@ -33,7 +33,7 @@ export class TimeSpanPoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public set Value(value: Nullable<number>) {
         this._value = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Value");
     }
 
     public EntityIndex: number = 0;

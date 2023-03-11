@@ -19,7 +19,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set Stroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true, "Stroke");
     }
 
     public get Fill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -35,7 +35,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set IsVisible(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value);
+        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value, "IsVisible");
     }
 
     public get Xi(): Nullable<number> {
@@ -43,7 +43,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set Xi(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._xi, $v => this._xi = $v), value);
+        this.SetProperty(new System.Ref(() => this._xi, $v => this._xi = $v), value, "Xi");
     }
 
     public get Xj(): Nullable<number> {
@@ -51,7 +51,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set Xj(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._xj, $v => this._xj = $v), value);
+        this.SetProperty(new System.Ref(() => this._xj, $v => this._xj = $v), value, "Xj");
     }
 
     public get Yi(): Nullable<number> {
@@ -59,7 +59,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set Yi(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._yi, $v => this._yi = $v), value);
+        this.SetProperty(new System.Ref(() => this._yi, $v => this._yi = $v), value, "Yi");
     }
 
     public get Yj(): Nullable<number> {
@@ -67,7 +67,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set Yj(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._yj, $v => this._yj = $v), value);
+        this.SetProperty(new System.Ref(() => this._yj, $v => this._yj = $v), value, "Yj");
     }
 
     public get ScalesXAt(): number {
@@ -75,7 +75,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set ScalesXAt(value: number) {
-        this.SetProperty(new System.Ref(() => this._scalesXAt, $v => this._scalesXAt = $v), value);
+        this.SetProperty(new System.Ref(() => this._scalesXAt, $v => this._scalesXAt = $v), value, "ScalesXAt");
     }
 
     public get ScalesYAt(): number {
@@ -83,7 +83,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set ScalesYAt(value: number) {
-        this.SetProperty(new System.Ref(() => this._scalesYAt, $v => this._scalesYAt = $v), value);
+        this.SetProperty(new System.Ref(() => this._scalesYAt, $v => this._scalesYAt = $v), value, "ScalesYAt");
     }
 
     public get ZIndex(): Nullable<number> {
@@ -91,7 +91,7 @@ export abstract class Section<TDrawingContext extends LiveChartsCore.DrawingCont
     }
 
     public set ZIndex(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._zIndex, $v => this._zIndex = $v), value);
+        this.SetProperty(new System.Ref(() => this._zIndex, $v => this._zIndex = $v), value, "ZIndex");
     }
 
     public readonly PropertyChanged = new System.Event<any, System.PropertyChangedEventArgs>();
@@ -158,10 +158,10 @@ export abstract class Section2<TSizedGeometry extends LiveChartsCore.ISizedGeome
                 this._fillSizedGeometry.Height = yj - yi;
                 LiveChartsCore.Extensions.TransitionateProperties(
                     this._fillSizedGeometry
-                    , "_fillSizedGeometry.X",
-                    "_fillSizedGeometry.Width",
-                    "_fillSizedGeometry.Y",
-                    "_fillSizedGeometry.Height")
+                    , "X",
+                    "Width",
+                    "Y",
+                    "Height")
                     .WithAnimationBuilder(animation =>
                         animation
                             .WithDuration(chart.AnimationsSpeed)
@@ -198,10 +198,10 @@ export abstract class Section2<TSizedGeometry extends LiveChartsCore.ISizedGeome
                 this._strokeSizedGeometry.Height = yj - yi;
                 LiveChartsCore.Extensions.TransitionateProperties(
                     this._strokeSizedGeometry
-                    , "_strokeSizedGeometry.X",
-                    "_strokeSizedGeometry.Width",
-                    "_strokeSizedGeometry.Y",
-                    "_strokeSizedGeometry.Height")
+                    , "X",
+                    "Width",
+                    "Y",
+                    "Height")
                     .WithAnimationBuilder(animation =>
                         animation
                             .WithDuration(chart.AnimationsSpeed)

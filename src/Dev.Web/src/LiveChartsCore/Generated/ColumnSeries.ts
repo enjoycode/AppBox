@@ -171,7 +171,7 @@ export abstract class ColumnSeries<TModel, TVisual extends object & LiveChartsCo
                     l.X = secondary - helper.uwm + helper.cp;
                     l.Y = helper.p;
                     l.RotateTransform = <number><unknown>this.DataLabelsRotation;
-                    LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                    LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -215,10 +215,10 @@ export abstract class ColumnSeries<TModel, TVisual extends object & LiveChartsCo
         let visual = (chartPoint.Context.Visual as TVisual)!;
         LiveChartsCore.Extensions.TransitionateProperties(
             visual
-            , "visual.X",
-            "visual.Width",
-            "visual.Y",
-            "visual.Height")
+            , "X",
+            "Width",
+            "Y",
+            "Height")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)

@@ -125,7 +125,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set NameTextSize(value: number) {
-        this.SetProperty(new System.Ref(() => this._nameTextSize, $v => this._nameTextSize = $v), value);
+        this.SetProperty(new System.Ref(() => this._nameTextSize, $v => this._nameTextSize = $v), value, "NameTextSize");
     }
 
     public get NamePadding(): LiveChartsCore.Padding {
@@ -133,7 +133,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set NamePadding(value: LiveChartsCore.Padding) {
-        this.SetProperty(new System.Ref(() => this._namePadding, $v => this._namePadding = $v), value);
+        this.SetProperty(new System.Ref(() => this._namePadding, $v => this._namePadding = $v), value, "NamePadding");
     }
 
     public get LabelsAlignment(): Nullable<LiveChartsCore.Align> {
@@ -141,7 +141,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set LabelsAlignment(value: Nullable<LiveChartsCore.Align>) {
-        this.SetProperty(new System.Ref(() => this._labelsAlignment, $v => this._labelsAlignment = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsAlignment, $v => this._labelsAlignment = $v), value, "LabelsAlignment");
     }
 
     public get Orientation(): LiveChartsCore.AxisOrientation {
@@ -153,7 +153,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set Padding(value: LiveChartsCore.Padding) {
-        this.SetProperty(new System.Ref(() => this._padding, $v => this._padding = $v), value);
+        this.SetProperty(new System.Ref(() => this._padding, $v => this._padding = $v), value, "Padding");
     }
 
     public get Labeler(): System.Func2<number, string> {
@@ -161,7 +161,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set Labeler(value: System.Func2<number, string>) {
-        this.SetProperty(new System.Ref(() => this._labeler, $v => this._labeler = $v), value);
+        this.SetProperty(new System.Ref(() => this._labeler, $v => this._labeler = $v), value, "Labeler");
     }
 
     public get MinStep(): number {
@@ -169,7 +169,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set MinStep(value: number) {
-        this.SetProperty(new System.Ref(() => this._minStep, $v => this._minStep = $v), value);
+        this.SetProperty(new System.Ref(() => this._minStep, $v => this._minStep = $v), value, "MinStep");
     }
 
     public get ForceStepToMin(): boolean {
@@ -177,7 +177,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set ForceStepToMin(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._forceStepToMin, $v => this._forceStepToMin = $v), value);
+        this.SetProperty(new System.Ref(() => this._forceStepToMin, $v => this._forceStepToMin = $v), value, "ForceStepToMin");
     }
 
     public get MinLimit(): Nullable<number> {
@@ -185,7 +185,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set MinLimit(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._minLimit, $v => this._minLimit = $v), value);
+        this.SetProperty(new System.Ref(() => this._minLimit, $v => this._minLimit = $v), value, "MinLimit");
     }
 
     public get MaxLimit(): Nullable<number> {
@@ -193,7 +193,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set MaxLimit(value: Nullable<number>) {
-        this.SetProperty(new System.Ref(() => this._maxLimit, $v => this._maxLimit = $v), value);
+        this.SetProperty(new System.Ref(() => this._maxLimit, $v => this._maxLimit = $v), value, "MaxLimit");
     }
 
     public get UnitWidth(): number {
@@ -201,7 +201,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set UnitWidth(value: number) {
-        this.SetProperty(new System.Ref(() => this._unitWidth, $v => this._unitWidth = $v), value);
+        this.SetProperty(new System.Ref(() => this._unitWidth, $v => this._unitWidth = $v), value, "UnitWidth");
     }
 
     public get Position(): LiveChartsCore.AxisPosition {
@@ -209,7 +209,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set Position(value: LiveChartsCore.AxisPosition) {
-        this.SetProperty(new System.Ref(() => this._position, $v => this._position = $v), value);
+        this.SetProperty(new System.Ref(() => this._position, $v => this._position = $v), value, "Position");
     }
 
     public get LabelsRotation(): number {
@@ -217,7 +217,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set LabelsRotation(value: number) {
-        this.SetProperty(new System.Ref(() => this._labelsRotation, $v => this._labelsRotation = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsRotation, $v => this._labelsRotation = $v), value, "LabelsRotation");
     }
 
     public get TextSize(): number {
@@ -225,7 +225,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set TextSize(value: number) {
-        this.SetProperty(new System.Ref(() => this._textSize, $v => this._textSize = $v), value);
+        this.SetProperty(new System.Ref(() => this._textSize, $v => this._textSize = $v), value, "TextSize");
     }
 
     public Labels: Nullable<System.IList<string>>;
@@ -235,7 +235,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set ShowSeparatorLines(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._showSeparatorLines, $v => this._showSeparatorLines = $v), value);
+        this.SetProperty(new System.Ref(() => this._showSeparatorLines, $v => this._showSeparatorLines = $v), value, "ShowSeparatorLines");
     }
 
     public get IsVisible(): boolean {
@@ -243,7 +243,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set IsVisible(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value);
+        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value, "IsVisible");
     }
 
     public get IsInverted(): boolean {
@@ -251,7 +251,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set IsInverted(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isInverted, $v => this._isInverted = $v), value);
+        this.SetProperty(new System.Ref(() => this._isInverted, $v => this._isInverted = $v), value, "IsInverted");
     }
 
     public get SeparatorsAtCenter(): boolean {
@@ -259,7 +259,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set SeparatorsAtCenter(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._separatorsAtCenter, $v => this._separatorsAtCenter = $v), value);
+        this.SetProperty(new System.Ref(() => this._separatorsAtCenter, $v => this._separatorsAtCenter = $v), value, "SeparatorsAtCenter");
     }
 
     public get TicksAtCenter(): boolean {
@@ -267,7 +267,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set TicksAtCenter(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._ticksAtCenter, $v => this._ticksAtCenter = $v), value);
+        this.SetProperty(new System.Ref(() => this._ticksAtCenter, $v => this._ticksAtCenter = $v), value, "TicksAtCenter");
     }
 
     public get NamePaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -291,7 +291,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set SeparatorsPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._separatorsPaint, $v => this._separatorsPaint = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._separatorsPaint, $v => this._separatorsPaint = $v), value, true, "SeparatorsPaint");
     }
 
     public get SubseparatorsPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -299,7 +299,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set SubseparatorsPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._subseparatorsPaint, $v => this._subseparatorsPaint = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._subseparatorsPaint, $v => this._subseparatorsPaint = $v), value, true, "SubseparatorsPaint");
     }
 
     public get DrawTicksPath(): boolean {
@@ -307,7 +307,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set DrawTicksPath(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._drawTicksPath, $v => this._drawTicksPath = $v), value);
+        this.SetProperty(new System.Ref(() => this._drawTicksPath, $v => this._drawTicksPath = $v), value, "DrawTicksPath");
     }
 
     public get TicksPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -315,7 +315,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set TicksPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._ticksPaint, $v => this._ticksPaint = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._ticksPaint, $v => this._ticksPaint = $v), value, true, "TicksPaint");
     }
 
     public get SubticksPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -323,7 +323,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set SubticksPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._subticksPaint, $v => this._subticksPaint = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._subticksPaint, $v => this._subticksPaint = $v), value, true, "SubticksPaint");
     }
 
     public get ZeroPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -331,7 +331,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set ZeroPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._zeroPaint, $v => this._zeroPaint = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._zeroPaint, $v => this._zeroPaint = $v), value, true, "ZeroPaint");
     }
 
     public get CrosshairPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -339,7 +339,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set CrosshairPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._crosshairPaint, $v => this._crosshairPaint = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._crosshairPaint, $v => this._crosshairPaint = $v), value, true, "CrosshairPaint");
     }
 
     public get CrosshairLabelsPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -359,7 +359,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set CrosshairSnapEnabled(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._crosshairSnapEnabled, $v => this._crosshairSnapEnabled = $v), value);
+        this.SetProperty(new System.Ref(() => this._crosshairSnapEnabled, $v => this._crosshairSnapEnabled = $v), value, "CrosshairSnapEnabled");
     }
 
     public get TextBrush(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -389,7 +389,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set InLineNamePlacement(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._inLineNamePlacement, $v => this._inLineNamePlacement = $v), value);
+        this.SetProperty(new System.Ref(() => this._inLineNamePlacement, $v => this._inLineNamePlacement = $v), value, "InLineNamePlacement");
     }
 
     public readonly Initialized = new System.Event<LiveChartsCore.ICartesianAxis>();
@@ -1006,8 +1006,8 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
             this._nameGeometry.VerticalAlign = LiveChartsCore.Align.Middle;
             LiveChartsCore.Extensions.TransitionateProperties(
                 this._nameGeometry
-                , "_nameGeometry.X",
-                "_nameGeometry.Y")
+                , "X",
+                "Y")
                 .WithAnimationBuilder(animation =>
                     animation
                         .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -1069,9 +1069,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     private InitializeLine(lineGeometry: LiveChartsCore.ILineGeometry<TDrawingContext>, cartesianChart: LiveChartsCore.CartesianChart<TDrawingContext>) {
         LiveChartsCore.Extensions.TransitionateProperties(
             lineGeometry
-            , "lineGeometry.X", "lineGeometry.X1",
-            "lineGeometry.Y", "lineGeometry.Y1",
-            "lineGeometry.Opacity")
+            , "X", "X1",
+            "Y", "Y1",
+            "Opacity")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -1089,9 +1089,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         }
         LiveChartsCore.Extensions.TransitionateProperties(
             tickGeometry
-            , "tickGeometry.X", "tickGeometry.X1",
-            "tickGeometry.Y", "tickGeometry.Y1",
-            "tickGeometry.Opacity")
+            , "X", "X1",
+            "Y", "Y1",
+            "Opacity")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -1121,9 +1121,9 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         if (hasRotation) textGeometry.RotateTransform = r;
         LiveChartsCore.Extensions.TransitionateProperties(
             textGeometry
-            , "textGeometry.X",
-            "textGeometry.Y",
-            "textGeometry.Opacity")
+            , "X",
+            "Y",
+            "Opacity")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)

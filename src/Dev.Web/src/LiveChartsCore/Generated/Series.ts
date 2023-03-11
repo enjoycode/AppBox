@@ -63,7 +63,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set Name(value: Nullable<string>) {
-        this.SetProperty(new System.Ref(() => this._name, $v => this._name = $v), value);
+        this.SetProperty(new System.Ref(() => this._name, $v => this._name = $v), value, "Name");
     }
 
     public get Values(): Nullable<System.IEnumerable<TModel>> {
@@ -74,7 +74,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
         this._observer?.Dispose(this._values);
         this._observer?.Initialize(value);
         this._values = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Values");
     }
 
 
@@ -83,7 +83,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set Pivot(value: number) {
-        this.SetProperty(new System.Ref(() => this.pivot, $v => this.pivot = $v), <number><unknown>value);
+        this.SetProperty(new System.Ref(() => this.pivot, $v => this.pivot = $v), <number><unknown>value, "Pivot");
     }
 
     public get Mapping(): Nullable<System.Action2<TModel, LiveChartsCore.ChartPoint>> {
@@ -91,7 +91,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set Mapping(value: Nullable<System.Action2<TModel, LiveChartsCore.ChartPoint>>) {
-        this.SetProperty(new System.Ref(() => this._mapping, $v => this._mapping = $v), value);
+        this.SetProperty(new System.Ref(() => this._mapping, $v => this._mapping = $v), value, "Mapping");
     }
 
     SeriesId: number = -1;
@@ -121,7 +121,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set ZIndex(value: number) {
-        this.SetProperty(new System.Ref(() => this._zIndex, $v => this._zIndex = $v), value);
+        this.SetProperty(new System.Ref(() => this._zIndex, $v => this._zIndex = $v), value, "ZIndex");
     }
 
     public get TooltipLabelFormatter(): System.Func2<LiveChartsCore.ChartPoint3<TModel, TVisual, TLabel>, string> {
@@ -129,7 +129,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set TooltipLabelFormatter(value: System.Func2<LiveChartsCore.ChartPoint3<TModel, TVisual, TLabel>, string>) {
-        this.SetProperty(new System.Ref(() => this._tooltipLabelFormatter, $v => this._tooltipLabelFormatter = $v), value);
+        this.SetProperty(new System.Ref(() => this._tooltipLabelFormatter, $v => this._tooltipLabelFormatter = $v), value, "TooltipLabelFormatter");
     }
 
     public get DataLabelsFormatter(): System.Func2<LiveChartsCore.ChartPoint3<TModel, TVisual, TLabel>, string> {
@@ -137,7 +137,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set DataLabelsFormatter(value: System.Func2<LiveChartsCore.ChartPoint3<TModel, TVisual, TLabel>, string>) {
-        this.SetProperty(new System.Ref(() => this._dataLabelsFormatter, $v => this._dataLabelsFormatter = $v), value);
+        this.SetProperty(new System.Ref(() => this._dataLabelsFormatter, $v => this._dataLabelsFormatter = $v), value, "DataLabelsFormatter");
     }
 
     public get IsVisible(): boolean {
@@ -145,7 +145,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set IsVisible(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value);
+        this.SetProperty(new System.Ref(() => this._isVisible, $v => this._isVisible = $v), value, "IsVisible");
     }
 
     public IsHoverable: boolean = true;
@@ -155,7 +155,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set IsVisibleAtLegend(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isVisibleAtLegend, $v => this._isVisibleAtLegend = $v), value);
+        this.SetProperty(new System.Ref(() => this._isVisibleAtLegend, $v => this._isVisibleAtLegend = $v), value, "IsVisibleAtLegend");
     }
 
     public get DataPadding(): LiveChartsCore.LvcPoint {
@@ -163,7 +163,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set DataPadding(value: LiveChartsCore.LvcPoint) {
-        this.SetProperty(new System.Ref(() => this._dataPadding, $v => this._dataPadding = $v), (value).Clone());
+        this.SetProperty(new System.Ref(() => this._dataPadding, $v => this._dataPadding = $v), (value).Clone(), "DataPadding");
     }
 
     public get AnimationsSpeed(): Nullable<System.TimeSpan> {
@@ -171,7 +171,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set AnimationsSpeed(value: Nullable<System.TimeSpan>) {
-        this.SetProperty(new System.Ref(() => this._animationsSpeed, $v => this._animationsSpeed = $v), value);
+        this.SetProperty(new System.Ref(() => this._animationsSpeed, $v => this._animationsSpeed = $v), value, "AnimationsSpeed");
     }
 
     public get EasingFunction(): Nullable<System.Func2<number, number>> {
@@ -179,7 +179,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     public set EasingFunction(value: Nullable<System.Func2<number, number>>) {
-        this.SetProperty(new System.Ref(() => this._easingFunction, $v => this._easingFunction = $v), value);
+        this.SetProperty(new System.Ref(() => this._easingFunction, $v => this._easingFunction = $v), value, "EasingFunction");
     }
 
     public get DataFactory(): LiveChartsCore.DataFactory<TModel, TDrawingContext> {
@@ -206,7 +206,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     public set MiniatureShapeSize(value: number) {
         this._miniatureShapeSize = value;
         this.OnMiniatureChanged();
-        this.SetProperty(new System.Ref(() => this._miniatureShapeSize, $v => this._miniatureShapeSize = $v), value);
+        this.SetProperty(new System.Ref(() => this._miniatureShapeSize, $v => this._miniatureShapeSize = $v), value, "MiniatureShapeSize");
     }
 
     public get CanvasSchedule(): LiveChartsCore.Sketch<TDrawingContext> {
@@ -214,7 +214,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
     }
 
     protected set CanvasSchedule(value: LiveChartsCore.Sketch<TDrawingContext>) {
-        this.SetProperty(new System.Ref(() => this._miniatureSketch, $v => this._miniatureSketch = $v), value);
+        this.SetProperty(new System.Ref(() => this._miniatureSketch, $v => this._miniatureSketch = $v), value, "CanvasSchedule");
     }
 
     public readonly VisibilityChanged = new System.Event<LiveChartsCore.ISeries>();

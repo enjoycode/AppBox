@@ -30,7 +30,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
     }
 
     public set EnableNullSplitting(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._enableNullSplitting, $v => this._enableNullSplitting = $v), value);
+        this.SetProperty(new System.Ref(() => this._enableNullSplitting, $v => this._enableNullSplitting = $v), value, "EnableNullSplitting");
     }
 
     public get GeometrySize(): number {
@@ -38,7 +38,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
     }
 
     public set GeometrySize(value: number) {
-        this.SetProperty(new System.Ref(() => this._geometrySize, $v => this._geometrySize = $v), <number><unknown>value);
+        this.SetProperty(new System.Ref(() => this._geometrySize, $v => this._geometrySize = $v), <number><unknown>value, "GeometrySize");
     }
 
     public get GeometryFill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -54,7 +54,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
     }
 
     public set GeometryStroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._geometryStroke, $v => this._geometryStroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._geometryStroke, $v => this._geometryStroke = $v), value, true, "GeometryStroke");
     }
 
     Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
@@ -140,7 +140,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
                 this.Fill.SetClipRectangle(cartesianChart.Canvas, new LiveChartsCore.LvcRectangle((drawLocation).Clone(), (drawMarginSize).Clone()));
                 fillPath.Pivot = p;
                 if (isNew) {
-                    LiveChartsCore.Extensions.TransitionateProperties(fillPath, "fillPath.Pivot")
+                    LiveChartsCore.Extensions.TransitionateProperties(fillPath, "Pivot")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -155,7 +155,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
                 this.Stroke.SetClipRectangle(cartesianChart.Canvas, new LiveChartsCore.LvcRectangle((drawLocation).Clone(), (drawMarginSize).Clone()));
                 strokePath.Pivot = p;
                 if (isNew) {
-                    LiveChartsCore.Extensions.TransitionateProperties(strokePath, "strokePath.Pivot")
+                    LiveChartsCore.Extensions.TransitionateProperties(strokePath, "Pivot")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -212,8 +212,8 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
                 let x = secondaryScale.ToPixels(point.SecondaryValue);
                 let y = primaryScale.ToPixels(point.PrimaryValue + s);
 
-                visual.Geometry.MotionProperties.GetAt("visual.Geometry.X").CopyFrom(visual.StepSegment.MotionProperties.GetAt("visual.StepSegment.Xj"));
-                visual.Geometry.MotionProperties.GetAt("visual.Geometry.Y").CopyFrom(visual.StepSegment.MotionProperties.GetAt("visual.StepSegment.Yj"));
+                visual.Geometry.MotionProperties.GetAt("X").CopyFrom(visual.StepSegment.MotionProperties.GetAt("Xj"));
+                visual.Geometry.MotionProperties.GetAt("Y").CopyFrom(visual.StepSegment.MotionProperties.GetAt("Yj"));
                 visual.Geometry.TranslateTransform = new LiveChartsCore.LvcPoint(-hgs, -hgs);
 
                 visual.Geometry.Width = gs;
@@ -242,7 +242,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
                         l.X = x - hgs;
                         l.Y = p - hgs;
                         l.RotateTransform = <number><unknown>this.DataLabelsRotation;
-                        LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                        LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                             .WithAnimationBuilder(animation =>
                                 animation
                                     .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -351,11 +351,11 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
         let visual = (chartPoint.Context.Visual as TVisualPoint)!;
         LiveChartsCore.Extensions.TransitionateProperties(
             visual.Geometry
-            , "visual.Geometry.X",
-            "visual.Geometry.Y",
-            "visual.Geometry.Width",
-            "visual.Geometry.Height",
-            "visual.Geometry.TranslateTransform")
+            , "X",
+            "Y",
+            "Width",
+            "Height",
+            "TranslateTransform")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)
@@ -363,10 +363,10 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
             .CompleteCurrentTransitions();
         LiveChartsCore.Extensions.TransitionateProperties(
             visual.StepSegment
-            , "visual.StepSegment.Xi",
-            "visual.StepSegment.Yi",
-            "visual.StepSegment.Xj",
-            "visual.StepSegment.Yj")
+            , "Xi",
+            "Yi",
+            "Xj",
+            "Yj")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)

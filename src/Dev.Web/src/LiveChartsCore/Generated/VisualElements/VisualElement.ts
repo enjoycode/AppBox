@@ -17,7 +17,7 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
 
     public set X(value: number) {
         this._x = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("X");
     }
 
     public get Y(): number {
@@ -26,7 +26,7 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
 
     public set Y(value: number) {
         this._y = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Y");
     }
 
     public LocationUnit: LiveChartsCore.MeasureUnit = LiveChartsCore.MeasureUnit.Pixels;
@@ -37,7 +37,7 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
 
     public set ScalesXAt(value: number) {
         this._scalesXAt = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("ScalesXAt");
     }
 
     public get ScalesYAt(): number {
@@ -46,7 +46,7 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
 
     public set ScalesYAt(value: number) {
         this._scalesYAt = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("ScalesYAt");
     }
 
     public readonly PropertyChanged = new System.Event<any, System.PropertyChangedEventArgs>();
@@ -115,8 +115,8 @@ export abstract class VisualElement<TDrawingContext extends LiveChartsCore.Drawi
         let parentY = 0;
 
         if (this._parent != null) {
-            let xProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.GetAt("_parent.X");
-            let yProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.GetAt("_parent.Y");
+            let xProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.GetAt("X");
+            let yProperty = <LiveChartsCore.FloatMotionProperty><unknown>this._parent.MotionProperties.GetAt("Y");
             parentX = xProperty.GetCurrentValue(<LiveChartsCore.Animatable><unknown>this._parent);
             parentY = yProperty.GetCurrentValue(<LiveChartsCore.Animatable><unknown>this._parent);
         }

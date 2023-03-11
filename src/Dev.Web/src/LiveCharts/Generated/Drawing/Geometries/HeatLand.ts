@@ -30,7 +30,7 @@ export class HeatLand implements LiveChartsCore.IWeigthedMapLand {
 
     public set Value(value: number) {
         this._value = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Value");
     }
 
     protected OnPropertyChanged(propertyName: Nullable<string> = null) {

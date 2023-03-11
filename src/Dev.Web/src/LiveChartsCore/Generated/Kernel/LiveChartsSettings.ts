@@ -52,7 +52,7 @@ export class LiveChartsSettings {
 
     public GetProvider<TDrawingContext extends LiveChartsCore.DrawingContext>(): LiveChartsCore.ChartEngine<TDrawingContext> {
         if (this._currentProvider == null)
-            throw new System.NotImplementedException(`There is no a ${"ChartEngine<TDrawingContext>"} registered.`);
+            throw new System.NotImplementedException(`There is no a ${"ChartEngine"} registered.`);
 
         return <LiveChartsCore.ChartEngine<TDrawingContext>><unknown>this._currentProvider;
     }

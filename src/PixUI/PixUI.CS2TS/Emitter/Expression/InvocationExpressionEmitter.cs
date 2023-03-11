@@ -145,14 +145,14 @@ namespace PixUI.CS2TS
             if (node.Expression is not IdentifierNameSyntax { Identifier: { Text: "nameof" } })
                 return false;
 
-            string name;
             var exp = node.ArgumentList.Arguments[0].Expression;
-            if (exp is IdentifierNameSyntax identifierName)
-                name = identifierName.Identifier.Text;
-            else if (exp is MemberAccessExpressionSyntax memberAccess)
-                name = memberAccess.Name.Identifier.Text;
-            else
-                throw new NotImplementedException();
+            var name = exp switch
+            {
+                IdentifierNameSyntax identifierName => identifierName.Identifier.Text,
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text,
+                GenericNameSyntax genericName => genericName.Identifier.Text,
+                _ => throw new NotImplementedException()
+            };
 
             WriteLeadingTrivia(node);
             Write('"');

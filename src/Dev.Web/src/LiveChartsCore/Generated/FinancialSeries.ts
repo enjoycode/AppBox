@@ -27,7 +27,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set MaxBarWidth(value: number) {
-        this.SetProperty(new System.Ref(() => this._maxBarWidth, $v => this._maxBarWidth = $v), value);
+        this.SetProperty(new System.Ref(() => this._maxBarWidth, $v => this._maxBarWidth = $v), value, "MaxBarWidth");
     }
 
     public get UpStroke(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -35,7 +35,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set UpStroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._upStroke, $v => this._upStroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._upStroke, $v => this._upStroke = $v), value, true, "UpStroke");
     }
 
     public get UpFill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -51,7 +51,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set DownStroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._downStroke, $v => this._downStroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._downStroke, $v => this._downStroke = $v), value, true, "DownStroke");
     }
 
     public get DownFill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -218,7 +218,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
                     l.X = secondary - uwm;
                     l.Y = high;
                     l.RotateTransform = <number><unknown>this.DataLabelsRotation;
-                    LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                    LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -335,12 +335,12 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
         let visual = (chartPoint.Context.Visual as TVisual)!;
         LiveChartsCore.Extensions.TransitionateProperties(
             visual
-            , "visual.X",
-            "visual.Width",
-            "visual.Y",
-            "visual.Open",
-            "visual.Close",
-            "visual.Low")
+            , "X",
+            "Width",
+            "Y",
+            "Open",
+            "Close",
+            "Low")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)
@@ -386,7 +386,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
 
     OnPaintChanged(propertyName: Nullable<string>) {
         super.OnPaintChanged(propertyName);
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("OnPaintChanged");
     }
 
     MiniatureEquals(series: LiveChartsCore.IChartSeries<TDrawingContext>): boolean {

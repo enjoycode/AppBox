@@ -14,7 +14,7 @@ export class StackedRowSeries<TModel, TVisual extends object & LiveChartsCore.IR
 
     public set StackGroup(value: number) {
         this._stackGroup = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("StackGroup");
     }
 
     GetStackGroup(): number {

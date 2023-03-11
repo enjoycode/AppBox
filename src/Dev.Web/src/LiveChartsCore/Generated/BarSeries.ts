@@ -22,7 +22,7 @@ export abstract class BarSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set Padding(value: number) {
-        this.SetProperty(new System.Ref(() => this._pading, $v => this._pading = $v), value);
+        this.SetProperty(new System.Ref(() => this._pading, $v => this._pading = $v), value, "Padding");
     }
 
     public get MaxBarWidth(): number {
@@ -30,7 +30,7 @@ export abstract class BarSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set MaxBarWidth(value: number) {
-        this.SetProperty(new System.Ref(() => this._maxBarWidth, $v => this._maxBarWidth = $v), value);
+        this.SetProperty(new System.Ref(() => this._maxBarWidth, $v => this._maxBarWidth = $v), value, "MaxBarWidth");
     }
 
     public get IgnoresBarPosition(): boolean {
@@ -38,7 +38,7 @@ export abstract class BarSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set IgnoresBarPosition(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._ignoresBarPosition, $v => this._ignoresBarPosition = $v), value);
+        this.SetProperty(new System.Ref(() => this._ignoresBarPosition, $v => this._ignoresBarPosition = $v), value, "IgnoresBarPosition");
     }
 
     public get Rx(): number {
@@ -46,7 +46,7 @@ export abstract class BarSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set Rx(value: number) {
-        this.SetProperty(new System.Ref(() => this._rx, $v => this._rx = $v), value);
+        this.SetProperty(new System.Ref(() => this._rx, $v => this._rx = $v), value, "Rx");
     }
 
     public get Ry(): number {
@@ -54,7 +54,7 @@ export abstract class BarSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set Ry(value: number) {
-        this.SetProperty(new System.Ref(() => this._ry, $v => this._ry = $v), value);
+        this.SetProperty(new System.Ref(() => this._ry, $v => this._ry = $v), value, "Ry");
     }
 
     GetMiniatresSketch(): LiveChartsCore.Sketch<TDrawingContext> {

@@ -14,7 +14,7 @@ export abstract class BaseGeometryVisual extends LiveChartsCore.VisualElement<Li
 
     public set Width(value: number) {
         this._width = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Width");
     }
 
     public get Height(): number {
@@ -23,7 +23,7 @@ export abstract class BaseGeometryVisual extends LiveChartsCore.VisualElement<Li
 
     public set Height(value: number) {
         this._height = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Height");
     }
 
     public SizeUnit: LiveChartsCore.MeasureUnit = LiveChartsCore.MeasureUnit.Pixels;
@@ -41,7 +41,7 @@ export abstract class BaseGeometryVisual extends LiveChartsCore.VisualElement<Li
     }
 
     public set Stroke(value: Nullable<LiveChartsCore.IPaint<LiveCharts.SkiaDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true, "Stroke");
     }
 
     GetPaintTasks(): Nullable<LiveChartsCore.IPaint<LiveCharts.SkiaDrawingContext>>[] {

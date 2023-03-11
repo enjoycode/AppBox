@@ -24,7 +24,7 @@ export abstract class ChartSeries<TModel, TVisual extends object & LiveChartsCor
     }
 
     public set DataLabelsSize(value: number) {
-        this.SetProperty(new System.Ref(() => this._dataLabelsSize, $v => this._dataLabelsSize = $v), value);
+        this.SetProperty(new System.Ref(() => this._dataLabelsSize, $v => this._dataLabelsSize = $v), value, "DataLabelsSize");
     }
 
     public get DataLabelsRotation(): number {
@@ -32,7 +32,7 @@ export abstract class ChartSeries<TModel, TVisual extends object & LiveChartsCor
     }
 
     public set DataLabelsRotation(value: number) {
-        this.SetProperty(new System.Ref(() => this._dataLabelsRotation, $v => this._dataLabelsRotation = $v), value);
+        this.SetProperty(new System.Ref(() => this._dataLabelsRotation, $v => this._dataLabelsRotation = $v), value, "DataLabelsRotation");
     }
 
     public get DataLabelsPadding(): LiveChartsCore.Padding {
@@ -40,7 +40,7 @@ export abstract class ChartSeries<TModel, TVisual extends object & LiveChartsCor
     }
 
     public set DataLabelsPadding(value: LiveChartsCore.Padding) {
-        this.SetProperty(new System.Ref(() => this._dataLabelsPadding, $v => this._dataLabelsPadding = $v), value);
+        this.SetProperty(new System.Ref(() => this._dataLabelsPadding, $v => this._dataLabelsPadding = $v), value, "DataLabelsPadding");
     }
 
     #IsFirstDraw: boolean = true;

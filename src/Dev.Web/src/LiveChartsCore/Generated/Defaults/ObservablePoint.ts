@@ -24,7 +24,7 @@ export class ObservablePoint implements LiveChartsCore.IChartEntity, System.INot
 
     public set X(value: Nullable<number>) {
         this._x = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("X");
     }
 
     public get Y(): Nullable<number> {
@@ -33,7 +33,7 @@ export class ObservablePoint implements LiveChartsCore.IChartEntity, System.INot
 
     public set Y(value: Nullable<number>) {
         this._y = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Y");
     }
 
     public EntityIndex: number = 0;

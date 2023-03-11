@@ -1,1 +1,1 @@
-export * from './Generated/Internals'
+export * from './Internals'

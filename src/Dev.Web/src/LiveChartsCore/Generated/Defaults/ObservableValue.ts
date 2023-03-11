@@ -23,7 +23,7 @@ export class ObservableValue implements LiveChartsCore.IChartEntity, System.INot
 
     public set Value(value: Nullable<number>) {
         this._value = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Value");
     }
 
     public get EntityIndex(): number {

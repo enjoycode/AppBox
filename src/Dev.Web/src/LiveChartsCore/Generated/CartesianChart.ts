@@ -109,7 +109,7 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
         speed = 1 - speed;
 
         if (scaleFactor != null && direction != LiveChartsCore.ZoomDirection.DefinedByScaleFactor)
-            throw new System.InvalidOperationException(`When the scale factor is defined, the zoom direction must be ${"ZoomDirection.DefinedByScaleFactor"}... ` +
+            throw new System.InvalidOperationException(`When the scale factor is defined, the zoom direction must be ${"DefinedByScaleFactor"}... ` +
                 `it just makes sense.`);
 
         let m = direction == LiveChartsCore.ZoomDirection.ZoomIn ? speed : 1 / speed;

@@ -37,7 +37,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set Stroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true, "Stroke");
     }
 
     public get Fill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -53,7 +53,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set GeometrySize(value: number) {
-        this.SetProperty(new System.Ref(() => this._geometrySize, $v => this._geometrySize = $v), <number><unknown>value);
+        this.SetProperty(new System.Ref(() => this._geometrySize, $v => this._geometrySize = $v), <number><unknown>value, "GeometrySize");
     }
 
     public get ScalesAngleAt(): number {
@@ -61,7 +61,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set ScalesAngleAt(value: number) {
-        this.SetProperty(new System.Ref(() => this._scalesAngleAt, $v => this._scalesAngleAt = $v), value);
+        this.SetProperty(new System.Ref(() => this._scalesAngleAt, $v => this._scalesAngleAt = $v), value, "ScalesAngleAt");
     }
 
     public get ScalesRadiusAt(): number {
@@ -69,7 +69,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set ScalesRadiusAt(value: number) {
-        this.SetProperty(new System.Ref(() => this._scalesRadiusAt, $v => this._scalesRadiusAt = $v), value);
+        this.SetProperty(new System.Ref(() => this._scalesRadiusAt, $v => this._scalesRadiusAt = $v), value, "ScalesRadiusAt");
     }
 
     public get LineSmoothness(): number {
@@ -80,7 +80,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         let v = value;
         if (value > 1) v = 1;
         if (value < 0) v = 0;
-        this.SetProperty(new System.Ref(() => this._lineSmoothness, $v => this._lineSmoothness = $v), <number><unknown>v);
+        this.SetProperty(new System.Ref(() => this._lineSmoothness, $v => this._lineSmoothness = $v), <number><unknown>v, "LineSmoothness");
     }
 
     public get EnableNullSplitting(): boolean {
@@ -88,7 +88,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set EnableNullSplitting(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._enableNullSplitting, $v => this._enableNullSplitting = $v), value);
+        this.SetProperty(new System.Ref(() => this._enableNullSplitting, $v => this._enableNullSplitting = $v), value, "EnableNullSplitting");
     }
 
     public get GeometryFill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -104,7 +104,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set GeometryStroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._geometryStroke, $v => this._geometryStroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._geometryStroke, $v => this._geometryStroke = $v), value, true, "GeometryStroke");
     }
 
     public get IsClosed(): boolean {
@@ -112,7 +112,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set IsClosed(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isClosed, $v => this._isClosed = $v), value);
+        this.SetProperty(new System.Ref(() => this._isClosed, $v => this._isClosed = $v), value, "IsClosed");
     }
 
     public get DataLabelsPosition(): LiveChartsCore.PolarLabelsPosition {
@@ -120,7 +120,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set DataLabelsPosition(value: LiveChartsCore.PolarLabelsPosition) {
-        this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value, "DataLabelsPosition");
     }
 
     Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
@@ -312,7 +312,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
                         l.X = x - hgs;
                         l.Y = scaler.CenterY - hgs;
                         l.RotateTransform = actualRotation;
-                        LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                        LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                             .WithAnimationBuilder(animation =>
                                 animation
                                     .WithDuration(this.AnimationsSpeed ?? polarChart.AnimationsSpeed)
@@ -560,10 +560,10 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
         let visual = (chartPoint.Context.Visual as TVisualPoint)!;
         LiveChartsCore.Extensions.TransitionateProperties(
             visual.Geometry
-            , "visual.Geometry.X",
-            "visual.Geometry.Y",
-            "visual.Geometry.Width",
-            "visual.Geometry.Height")
+            , "X",
+            "Y",
+            "Width",
+            "Height")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)
@@ -571,12 +571,12 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
             .CompleteCurrentTransitions();
         LiveChartsCore.Extensions.TransitionateProperties(
             visual.Bezier
-            , "visual.Bezier.Xi",
-            "visual.Bezier.Yi",
-            "visual.Bezier.Xm",
-            "visual.Bezier.Ym",
-            "visual.Bezier.Xj",
-            "visual.Bezier.Yj")
+            , "Xi",
+            "Yi",
+            "Xm",
+            "Ym",
+            "Xj",
+            "Yj")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)

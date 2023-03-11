@@ -28,7 +28,7 @@ export class HeatLandSeries<TDrawingContext extends LiveChartsCore.DrawingContex
 
     public set HeatMap(value: LiveChartsCore.LvcColor[]) {
         this._heatMap = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("HeatMap");
     }
 
     public get ColorStops(): Nullable<Float64Array> {
@@ -37,7 +37,7 @@ export class HeatLandSeries<TDrawingContext extends LiveChartsCore.DrawingContex
 
     public set ColorStops(value: Nullable<Float64Array>) {
         this._colorStops = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("ColorStops");
     }
 
     public get Lands(): Nullable<System.IEnumerable<LiveChartsCore.IWeigthedMapLand>> {
@@ -48,7 +48,7 @@ export class HeatLandSeries<TDrawingContext extends LiveChartsCore.DrawingContex
         this._observer?.Dispose(this._lands);
         this._observer?.Initialize(value);
         this._lands = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Lands");
     }
 
     public get IsVisible(): boolean {
@@ -57,7 +57,7 @@ export class HeatLandSeries<TDrawingContext extends LiveChartsCore.DrawingContex
 
     public set IsVisible(value: boolean) {
         this._isVisible = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("IsVisible");
     }
 
     public Measure(context: LiveChartsCore.MapContext<TDrawingContext>) {

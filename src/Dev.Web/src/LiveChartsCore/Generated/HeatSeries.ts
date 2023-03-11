@@ -32,7 +32,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
 
     public set HeatMap(value: LiveChartsCore.LvcColor[]) {
         this.OnMiniatureChanged();
-        this.SetProperty(new System.Ref(() => this._heatMap, $v => this._heatMap = $v), value);
+        this.SetProperty(new System.Ref(() => this._heatMap, $v => this._heatMap = $v), value, "HeatMap");
     }
 
     public get ColorStops(): Nullable<Float64Array> {
@@ -40,7 +40,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
     }
 
     public set ColorStops(value: Nullable<Float64Array>) {
-        this.SetProperty(new System.Ref(() => this._colorStops, $v => this._colorStops = $v), value);
+        this.SetProperty(new System.Ref(() => this._colorStops, $v => this._colorStops = $v), value, "ColorStops");
     }
 
     public get PointPadding(): LiveChartsCore.Padding {
@@ -48,7 +48,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
     }
 
     public set PointPadding(value: LiveChartsCore.Padding) {
-        this.SetProperty(new System.Ref(() => this._pointPadding, $v => this._pointPadding = $v), value);
+        this.SetProperty(new System.Ref(() => this._pointPadding, $v => this._pointPadding = $v), value, "PointPadding");
     }
 
     Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
@@ -173,7 +173,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
                     l.X = secondary - uws * 0.5;
                     l.Y = primary - uws * 0.5;
                     l.RotateTransform = <number><unknown>this.DataLabelsRotation;
-                    LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                    LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -223,11 +223,11 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
         let visual = (chartPoint.Context.Visual as TVisual)!;
         LiveChartsCore.Extensions.TransitionateProperties(
             visual
-            , "visual.X",
-            "visual.Width",
-            "visual.Y",
-            "visual.Height",
-            "visual.Color")
+            , "X",
+            "Width",
+            "Y",
+            "Height",
+            "Color")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)

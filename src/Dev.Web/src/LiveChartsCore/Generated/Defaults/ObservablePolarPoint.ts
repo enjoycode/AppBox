@@ -24,7 +24,7 @@ export class ObservablePolarPoint implements LiveChartsCore.IChartEntity, System
 
     public set Angle(value: Nullable<number>) {
         this._angle = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Angle");
     }
 
     public get Radius(): Nullable<number> {
@@ -33,7 +33,7 @@ export class ObservablePolarPoint implements LiveChartsCore.IChartEntity, System
 
     public set Radius(value: Nullable<number>) {
         this._radius = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Radius");
     }
 
     public EntityIndex: number = 0;

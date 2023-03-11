@@ -26,7 +26,7 @@ export class WeightedPoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public set X(value: Nullable<number>) {
         this._x = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("X");
     }
 
     public get Y(): Nullable<number> {
@@ -35,7 +35,7 @@ export class WeightedPoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public set Y(value: Nullable<number>) {
         this._y = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Y");
     }
 
     public get Weight(): Nullable<number> {
@@ -44,7 +44,7 @@ export class WeightedPoint implements LiveChartsCore.IChartEntity, System.INotif
 
     public set Weight(value: Nullable<number>) {
         this._weight = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Weight");
     }
 
     public readonly PropertyChanged = new System.Event<any, System.PropertyChangedEventArgs>();

@@ -37,7 +37,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set Stroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true, "Stroke");
     }
 
     public get Fill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -53,7 +53,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set Pushout(value: number) {
-        this.SetProperty(new System.Ref(() => this._pushout, $v => this._pushout = $v), value);
+        this.SetProperty(new System.Ref(() => this._pushout, $v => this._pushout = $v), value, "Pushout");
     }
 
     public get InnerRadius(): number {
@@ -61,7 +61,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set InnerRadius(value: number) {
-        this.SetProperty(new System.Ref(() => this._innerRadius, $v => this._innerRadius = $v), value);
+        this.SetProperty(new System.Ref(() => this._innerRadius, $v => this._innerRadius = $v), value, "InnerRadius");
     }
 
     public get MaxOuterRadius(): number {
@@ -69,7 +69,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set MaxOuterRadius(value: number) {
-        this.SetProperty(new System.Ref(() => this._maxOuterRadius, $v => this._maxOuterRadius = $v), value);
+        this.SetProperty(new System.Ref(() => this._maxOuterRadius, $v => this._maxOuterRadius = $v), value, "MaxOuterRadius");
     }
 
     public get HoverPushout(): number {
@@ -77,7 +77,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set HoverPushout(value: number) {
-        this.SetProperty(new System.Ref(() => this._hoverPushout, $v => this._hoverPushout = $v), value);
+        this.SetProperty(new System.Ref(() => this._hoverPushout, $v => this._hoverPushout = $v), value, "HoverPushout");
     }
 
     public get RelativeInnerRadius(): number {
@@ -85,7 +85,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set RelativeInnerRadius(value: number) {
-        this.SetProperty(new System.Ref(() => this._innerPadding, $v => this._innerPadding = $v), value);
+        this.SetProperty(new System.Ref(() => this._innerPadding, $v => this._innerPadding = $v), value, "RelativeInnerRadius");
     }
 
     public get RelativeOuterRadius(): number {
@@ -93,7 +93,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set RelativeOuterRadius(value: number) {
-        this.SetProperty(new System.Ref(() => this._outerPadding, $v => this._outerPadding = $v), value);
+        this.SetProperty(new System.Ref(() => this._outerPadding, $v => this._outerPadding = $v), value, "RelativeOuterRadius");
     }
 
     public get MaxRadialColumnWidth(): number {
@@ -101,7 +101,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set MaxRadialColumnWidth(value: number) {
-        this.SetProperty(new System.Ref(() => this._maxRadialColW, $v => this._maxRadialColW = $v), value);
+        this.SetProperty(new System.Ref(() => this._maxRadialColW, $v => this._maxRadialColW = $v), value, "MaxRadialColumnWidth");
     }
 
     public get RadialAlign(): LiveChartsCore.RadialAlignment {
@@ -109,7 +109,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set RadialAlign(value: LiveChartsCore.RadialAlignment) {
-        this.SetProperty(new System.Ref(() => this._radialAlign, $v => this._radialAlign = $v), value);
+        this.SetProperty(new System.Ref(() => this._radialAlign, $v => this._radialAlign = $v), value, "RadialAlign");
     }
 
     public get CornerRadius(): number {
@@ -117,7 +117,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set CornerRadius(value: number) {
-        this.SetProperty(new System.Ref(() => this._cornerRadius, $v => this._cornerRadius = $v), value);
+        this.SetProperty(new System.Ref(() => this._cornerRadius, $v => this._cornerRadius = $v), value, "CornerRadius");
     }
 
     public get InvertedCornerRadius(): boolean {
@@ -125,7 +125,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set InvertedCornerRadius(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._invertedCornerRadius, $v => this._invertedCornerRadius = $v), value);
+        this.SetProperty(new System.Ref(() => this._invertedCornerRadius, $v => this._invertedCornerRadius = $v), value, "InvertedCornerRadius");
     }
 
     public get IsFillSeries(): boolean {
@@ -133,7 +133,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set IsFillSeries(value: boolean) {
-        this.SetProperty(new System.Ref(() => this._isFillSeries, $v => this._isFillSeries = $v), value);
+        this.SetProperty(new System.Ref(() => this._isFillSeries, $v => this._isFillSeries = $v), value, "IsFillSeries");
     }
 
     public get DataLabelsPosition(): LiveChartsCore.PolarLabelsPosition {
@@ -141,7 +141,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     }
 
     public set DataLabelsPosition(value: LiveChartsCore.PolarLabelsPosition) {
-        this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value, "DataLabelsPosition");
     }
 
     Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {
@@ -378,7 +378,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
                     l.X = cx;
                     l.Y = cy;
                     l.RotateTransform = actualRotation;
-                    LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                    LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? pieChart.AnimationsSpeed)
@@ -506,9 +506,9 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         let visual = (chartPoint.Context.Visual as TVisual)!;
         LiveChartsCore.Extensions.TransitionateProperties(
             visual
-            , "visual.StartAngle",
-            "visual.SweepAngle",
-            "visual.PushOut")
+            , "StartAngle",
+            "SweepAngle",
+            "PushOut")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)
@@ -518,13 +518,13 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
         if ((this.SeriesProperties & LiveChartsCore.SeriesProperties.Gauge) == 0)
             LiveChartsCore.Extensions.TransitionateProperties(
                 visual
-                , "visual.CenterX",
-                "visual.CenterY",
-                "visual.X",
-                "visual.Y",
-                "visual.InnerRadius",
-                "visual.Width",
-                "visual.Height")
+                , "CenterX",
+                "CenterY",
+                "X",
+                "Y",
+                "InnerRadius",
+                "Width",
+                "Height")
                 .WithAnimationBuilder(animation =>
                     animation
                         .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)

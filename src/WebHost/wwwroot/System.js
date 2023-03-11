@@ -6236,6 +6236,9 @@ const isEnumerable = (source) => {
   }
   return true;
 };
+function IsInterfaceOfIDisposable(obj) {
+  return typeof obj === "object" && obj !== null && !Array.isArray(obj) && "$meta_System_IDisposable" in obj.constructor;
+}
 class DefaultEnumerator {
   constructor(from2) {
     __publicField(this, "_it");
@@ -6352,6 +6355,9 @@ const _TimeSpan = class {
   get TotalSeconds() {
     return this._ticks / TicksPerSecond;
   }
+  static FromSeconds(ss) {
+    return new _TimeSpan(ss * TicksPerSecond);
+  }
   static FromMilliseconds(ms) {
     return new _TimeSpan(ms);
   }
@@ -6461,6 +6467,18 @@ class Tuple2 {
     __publicField(this, "Item2");
     this.Item1 = item1;
     this.Item2 = item2;
+  }
+}
+class Tuple4 {
+  constructor(item1, item2, item3, item4) {
+    __publicField(this, "Item1");
+    __publicField(this, "Item2");
+    __publicField(this, "Item3");
+    __publicField(this, "Item4");
+    this.Item1 = item1;
+    this.Item2 = item2;
+    this.Item3 = item3;
+    this.Item4 = item4;
   }
 }
 class Stopwatch {
@@ -6591,6 +6609,41 @@ class LinkedListNode {
   }
 }
 class LinkedList {
+  get length() {
+    throw new Error();
+  }
+  get First() {
+    throw new Error();
+  }
+  get Last() {
+    throw new Error();
+  }
+  Contains(item) {
+    throw new Error();
+  }
+  AddLast(item) {
+    throw new Error();
+  }
+  AddFirst(item) {
+    throw new Error();
+  }
+  AddAfter(node, item) {
+    throw new Error();
+  }
+  AddBefore(node, item) {
+    throw new Error();
+  }
+  Remove(node) {
+    throw new Error();
+  }
+  Clear() {
+    throw new Error();
+  }
+  *[Symbol.iterator]() {
+    throw new Error();
+  }
+}
+class ObservableCollection extends List {
 }
 const e = Symbol("@ts-pattern/matcher"), t = "@ts-pattern/anonymous-select-key", n = (e2) => Boolean(e2 && typeof e2 == "object"), r = (t2) => t2 && !!t2[e], o = (t2, c2, i2) => {
   if (n(t2)) {
@@ -6779,4 +6832,4 @@ class Ref extends RefOut {
 }
 class Out extends RefOut {
 }
-export { ArgumentException, ArgumentNullException, ArgumentOutOfRangeException, BinarySearch, DateTime, DefaultEnumerator, Dictionary, from as EnumerableFrom, Equals, Event, Exception, Guid, HashSet, IndexOutOfRangeException, InvalidOperationException, IsInterfaceOfIEnumerable, IsInterfaceOfINotifyCollectionChanged, IsInterfaceOfINotifyPropertyChanged, IsNullOrEmpty, IsNullOrWhiteSpace, KeyValuePair, LinkedList, LinkedListNode, List, NotImplementedException, NotSupportedException, NotifyCollectionChangedAction, NotifyCollectionChangedEventArgs, OpEquality, OpInequality, Out, PropertyChangedEventArgs, Random, Ref, Stack, Stopwatch, StringToUint16Array, TaskCompletionSource, TimeSpan, Tuple2, initializeSystem };
+export { ArgumentException, ArgumentNullException, ArgumentOutOfRangeException, BinarySearch, DateTime, DefaultEnumerator, Dictionary, from as EnumerableFrom, Equals, Event, Exception, Guid, HashSet, IndexOutOfRangeException, InvalidOperationException, IsInterfaceOfIDisposable, IsInterfaceOfIEnumerable, IsInterfaceOfINotifyCollectionChanged, IsInterfaceOfINotifyPropertyChanged, IsNullOrEmpty, IsNullOrWhiteSpace, KeyValuePair, LinkedList, LinkedListNode, List, NotImplementedException, NotSupportedException, NotifyCollectionChangedAction, NotifyCollectionChangedEventArgs, ObservableCollection, OpEquality, OpInequality, Out, PropertyChangedEventArgs, Random, Ref, Stack, Stopwatch, StringToUint16Array, TaskCompletionSource, TimeSpan, Tuple2, Tuple4, initializeSystem };

@@ -21,7 +21,7 @@ export class VariableGeometryVisual extends LiveCharts.BaseGeometryVisual {
         if (this._geometry == value) return;
         this._geometry = value;
         this._isInitialized = false;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Geometry");
     }
 
     public readonly GeometryIntialized = new System.Event<LiveChartsCore.ISizedGeometry<LiveCharts.SkiaDrawingContext>>();

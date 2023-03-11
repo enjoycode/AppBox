@@ -10,7 +10,7 @@ export abstract class DrawMarginFrame<TDrawingContext extends LiveChartsCore.Dra
     }
 
     public set Stroke(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true);
+        this.SetPaintProperty(new System.Ref(() => this._stroke, $v => this._stroke = $v), value, true, "Stroke");
     }
 
     public get Fill(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -78,8 +78,8 @@ export abstract class DrawMarginFrame2<TSizedGeometry extends LiveChartsCore.ISi
             if (this._fillSizedGeometry != null) {
                 LiveChartsCore.Extensions.TransitionateProperties(
                     this._fillSizedGeometry
-                    , "_fillSizedGeometry.X", "_fillSizedGeometry.Y",
-                    "_fillSizedGeometry.Width", "_fillSizedGeometry.Height")
+                    , "X", "Y",
+                    "Width", "Height")
                     .WithAnimationBuilder(animation =>
                         animation
                             .WithDuration(chart.AnimationsSpeed)
@@ -89,8 +89,8 @@ export abstract class DrawMarginFrame2<TSizedGeometry extends LiveChartsCore.ISi
             if (this._strokeSizedGeometry != null) {
                 LiveChartsCore.Extensions.TransitionateProperties(
                     this._strokeSizedGeometry
-                    , "_fillSizedGeometry.X", "_fillSizedGeometry.Y",
-                    "_fillSizedGeometry.Width", "_fillSizedGeometry.Height")
+                    , "X", "Y",
+                    "Width", "Height")
                     .WithAnimationBuilder(animation =>
                         animation
                             .WithDuration(chart.AnimationsSpeed)

@@ -30,7 +30,7 @@ export class FinancialPoint implements LiveChartsCore.IChartEntity, System.INoti
 
     public set Date(value: System.DateTime) {
         this._date = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Date");
     }
 
     public get High(): Nullable<number> {
@@ -39,7 +39,7 @@ export class FinancialPoint implements LiveChartsCore.IChartEntity, System.INoti
 
     public set High(value: Nullable<number>) {
         this._high = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("High");
     }
 
     public get Open(): Nullable<number> {
@@ -48,7 +48,7 @@ export class FinancialPoint implements LiveChartsCore.IChartEntity, System.INoti
 
     public set Open(value: Nullable<number>) {
         this._open = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Open");
     }
 
     public get Close(): Nullable<number> {
@@ -57,7 +57,7 @@ export class FinancialPoint implements LiveChartsCore.IChartEntity, System.INoti
 
     public set Close(value: Nullable<number>) {
         this._close = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Close");
     }
 
     public get Low(): Nullable<number> {
@@ -66,7 +66,7 @@ export class FinancialPoint implements LiveChartsCore.IChartEntity, System.INoti
 
     public set Low(value: Nullable<number>) {
         this._low = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Low");
     }
 
     public EntityIndex: number = 0;

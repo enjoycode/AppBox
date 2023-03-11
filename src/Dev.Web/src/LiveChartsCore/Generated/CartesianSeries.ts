@@ -16,7 +16,7 @@ export abstract class CartesianSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set ScalesXAt(value: number) {
-        this.SetProperty(new System.Ref(() => this._scalesXAt, $v => this._scalesXAt = $v), value);
+        this.SetProperty(new System.Ref(() => this._scalesXAt, $v => this._scalesXAt = $v), value, "ScalesXAt");
     }
 
     public get ScalesYAt(): number {
@@ -24,7 +24,7 @@ export abstract class CartesianSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set ScalesYAt(value: number) {
-        this.SetProperty(new System.Ref(() => this._scalesYAt, $v => this._scalesYAt = $v), value);
+        this.SetProperty(new System.Ref(() => this._scalesYAt, $v => this._scalesYAt = $v), value, "ScalesYAt");
     }
 
     public get DataLabelsPosition(): LiveChartsCore.DataLabelsPosition {
@@ -32,7 +32,7 @@ export abstract class CartesianSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set DataLabelsPosition(value: LiveChartsCore.DataLabelsPosition) {
-        this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value);
+        this.SetProperty(new System.Ref(() => this._labelsPosition, $v => this._labelsPosition = $v), value, "DataLabelsPosition");
     }
 
     public get DataLabelsTranslate(): Nullable<LiveChartsCore.LvcPoint> {
@@ -40,7 +40,7 @@ export abstract class CartesianSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set DataLabelsTranslate(value: Nullable<LiveChartsCore.LvcPoint>) {
-        this.SetProperty(new System.Ref(() => this._labelsTranslate, $v => this._labelsTranslate = $v), (value)?.Clone());
+        this.SetProperty(new System.Ref(() => this._labelsTranslate, $v => this._labelsTranslate = $v), (value)?.Clone(), "DataLabelsTranslate");
     }
 
     public GetBounds(chart: LiveChartsCore.CartesianChart<TDrawingContext>, secondaryAxis: LiveChartsCore.ICartesianAxis, primaryAxis: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {

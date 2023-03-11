@@ -73,8 +73,8 @@ export class CubicBezierSegment extends LiveChartsCore.Animatable implements Liv
         this.CurrentTime = segment.CurrentTime;
         this.RemoveOnCompleted = segment.RemoveOnCompleted;
 
-        let xProp = segment.MotionProperties.GetAt("IConsecutivePathSegment.Xj");
-        let yProp = segment.MotionProperties.GetAt("IConsecutivePathSegment.Yj");
+        let xProp = segment.MotionProperties.GetAt("Xj");
+        let yProp = segment.MotionProperties.GetAt("Yj");
 
         this.MotionProperties.GetAt("Xi").CopyFrom(xProp);
         this.MotionProperties.GetAt("Xm").CopyFrom(xProp);

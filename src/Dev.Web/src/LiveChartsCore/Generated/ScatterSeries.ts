@@ -138,7 +138,7 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
                     l.X = x - hgs;
                     l.Y = y - hgs;
                     l.RotateTransform = <number><unknown>this.DataLabelsRotation;
-                    LiveChartsCore.Extensions.TransitionateProperties(l, "l.X", "l.Y")
+                    LiveChartsCore.Extensions.TransitionateProperties(l, "X", "Y")
                         .WithAnimationBuilder(animation =>
                             animation
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
@@ -196,10 +196,10 @@ export class ScatterSeries<TModel, TVisual extends object & LiveChartsCore.ISize
         if (visual == null) throw new System.Exception("Unable to initialize the point instance.");
         LiveChartsCore.Extensions.TransitionateProperties(
             visual
-            , "visual.X",
-            "visual.Y",
-            "visual.Width",
-            "visual.Height")
+            , "X",
+            "Y",
+            "Width",
+            "Height")
             .WithAnimationBuilder(animation =>
                 animation
                     .WithDuration(this.AnimationsSpeed ?? chart.AnimationsSpeed)

@@ -45,7 +45,7 @@ export class MapFactory implements LiveChartsCore.IMapFactory<LiveCharts.SkiaDra
                     if (landData.Shape == null) {
                         landData.Shape = shape = new LiveCharts.HeatPathShape().Init({IsClosed: true});
                         LiveChartsCore.Extensions.TransitionateProperties(shape
-                            , "HeatPathShape.FillColor")
+                            , "FillColor")
                             .WithAnimationBuilder(animation =>
                                 animation
                                     .WithDuration(System.TimeSpan.FromMilliseconds(800))

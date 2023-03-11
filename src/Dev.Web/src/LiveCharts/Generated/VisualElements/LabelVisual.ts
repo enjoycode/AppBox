@@ -32,7 +32,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set Text(value: string) {
         this._text = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Text");
     }
 
     public get TextSize(): number {
@@ -41,7 +41,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set TextSize(value: number) {
         this._textSize = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("TextSize");
     }
 
     public get Rotation(): number {
@@ -50,7 +50,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set Rotation(value: number) {
         this._rotation = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Rotation");
     }
 
     public get Translate(): LiveChartsCore.LvcPoint {
@@ -59,7 +59,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set Translate(value: LiveChartsCore.LvcPoint) {
         this._translate = (value).Clone();
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Translate");
     }
 
     public get VerticalAlignment(): LiveChartsCore.Align {
@@ -68,7 +68,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set VerticalAlignment(value: LiveChartsCore.Align) {
         this._verticalAlignment = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("VerticalAlignment");
     }
 
     public get HorizontalAlignment(): LiveChartsCore.Align {
@@ -77,7 +77,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set HorizontalAlignment(value: LiveChartsCore.Align) {
         this._horizontalAlignment = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("HorizontalAlignment");
     }
 
     public get BackgroundColor(): LiveChartsCore.LvcColor {
@@ -86,7 +86,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set BackgroundColor(value: LiveChartsCore.LvcColor) {
         this._backgroundColor = (value).Clone();
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("BackgroundColor");
     }
 
     public get Padding(): LiveChartsCore.Padding {
@@ -95,7 +95,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set Padding(value: LiveChartsCore.Padding) {
         this._padding = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("Padding");
     }
 
     public get LineHeight(): number {
@@ -104,7 +104,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
 
     public set LineHeight(value: number) {
         this._lineHeight = value;
-        this.OnPropertyChanged();
+        this.OnPropertyChanged("LineHeight");
     }
 
     GetPaintTasks(): Nullable<LiveChartsCore.IPaint<LiveCharts.SkiaDrawingContext>>[] {
