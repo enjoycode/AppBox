@@ -72,7 +72,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task NullableTest() => await Run("TestNullable.cs");
 
         [Test]
-        public async Task PropertyTest() => await Run("TestProperty.cs");
+        public async Task PropertyTest() => await Run("TestProperty.cs", true);
 
         [Test]
         public async Task InheritsTest() => await Run("TestInherits.cs");

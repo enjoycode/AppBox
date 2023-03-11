@@ -24,7 +24,7 @@ namespace PixUI.CS2TS
                     EmitAutoProperty(node, false);
                 else if (isReadonly) //eg: public string Name {get;}
                     EmitReadonlyAutoProperty(node);
-                else
+                else //eg: public string Name {get; set;}
                     EmitAutoPropertyToField(node);
             }
             else
@@ -89,6 +89,9 @@ namespace PixUI.CS2TS
             }
         }
 
+        /// <summary>
+        /// 简单转换AutoProperty为Field, eg: string Name {get; set;} 转换为 Name: string;
+        /// </summary>
         private void EmitAutoPropertyToField(PropertyDeclarationSyntax node)
         {
             WriteLeadingTrivia(node);
@@ -105,7 +108,14 @@ namespace PixUI.CS2TS
             // eg: public string Name {get;}
             if (node.Initializer == null && node.ExpressionBody == null)
             {
-                EmitAutoProperty(node, true);
+                EmitAutoProperty(node, true/*需要生成默认的private set*/);
+                return;
+            }
+
+            // eg: public string Name {get;} = "Hello";
+            if (node.Initializer != null)
+            {
+                EmitAutoProperty(node, true /*同上*/);
                 return;
             }
 
@@ -118,22 +128,8 @@ namespace PixUI.CS2TS
             Write("(): ");
             Visit(node.Type);
             Write(" {");
-
-            if (node.Initializer != null)
-            {
-                if (node.Initializer.Value.Kind() != SyntaxKind.SuppressNullableWarningExpression)
-                {
-                    Write(" return ");
-                    var position = GetCurrentOutputPosition();
-                    Visit(node.Initializer.Value);
-                    RemoveNewLineAfter(position);
-                }
-                else
-                {
-                    Write(" throw new Error()");
-                }
-            }
-            else if (node.ExpressionBody != null)
+            
+            if (node.ExpressionBody != null)
             {
                 Write(" return ");
                 var position = GetCurrentOutputPosition();
@@ -145,7 +141,7 @@ namespace PixUI.CS2TS
             WriteTrailingTrivia(node);
         }
 
-        private void EmitAutoProperty(PropertyDeclarationSyntax node, bool forGetOnly)
+        private void EmitAutoProperty(PropertyDeclarationSyntax node, bool needPrivateSetter)
         {
             var fieldName = $"#{node.Identifier.Text}";
 
@@ -176,8 +172,9 @@ namespace PixUI.CS2TS
                 else
                     EmitAutoPropertySetter(node, isStatic, fieldName);
             }
-
-            if (forGetOnly)
+            
+            //特殊情况 eg: public string Name {get;} 需要生成private set，因C#构造内支持设置readonly属性值
+            if (needPrivateSetter) 
             {
                 WriteLeadingWhitespaceOnly(node);
                 Write("private ");

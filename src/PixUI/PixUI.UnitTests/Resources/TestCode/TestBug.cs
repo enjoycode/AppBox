@@ -76,23 +76,7 @@
 //         }
 // }
 
-using System.Runtime.CompilerServices;
-
-class TestClass
+class Settings
 {
-
-    void OnNameChanged([CallerMemberName] string? name = null){}
-
-    string Name
-    {
-        set
-        {
-            OnNameChanged();
-        }
-    }
-
-    void Test()
-    {
-        OnNameChanged();
-    }
+    private static Settings Default { get; } = new();
 }

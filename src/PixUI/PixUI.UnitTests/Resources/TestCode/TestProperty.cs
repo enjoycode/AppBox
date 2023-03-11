@@ -5,6 +5,13 @@ abstract class Nameable
 
 class Person : Nameable
 {
+    public Person()
+    {
+        //构造内允许初始化readonly AutoProperty
+        GetOnlyProperty = "NewValue";
+        IsMan = false;
+    }
+    
     public string GetOnlyProperty { get; }
     
     public override string Name { get; set; }
