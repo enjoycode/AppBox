@@ -33,7 +33,7 @@ export abstract class BaseGeometryVisual extends LiveChartsCore.VisualElement<Li
     }
 
     public set Fill(value: Nullable<LiveChartsCore.IPaint<LiveCharts.SkiaDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value, undefined, "Fill");
     }
 
     public get Stroke(): Nullable<LiveChartsCore.IPaint<LiveCharts.SkiaDrawingContext>> {

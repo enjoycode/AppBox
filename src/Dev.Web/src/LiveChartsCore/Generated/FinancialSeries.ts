@@ -43,7 +43,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set UpFill(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._upFill, $v => this._upFill = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._upFill, $v => this._upFill = $v), value, undefined, "UpFill");
     }
 
     public get DownStroke(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -59,7 +59,7 @@ export abstract class FinancialSeries<TModel, TVisual extends object & LiveChart
     }
 
     public set DownFill(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._downFill, $v => this._downFill = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._downFill, $v => this._downFill = $v), value, undefined, "DownFill");
     }
 
     Invalidate(chart: LiveChartsCore.Chart<TDrawingContext>) {

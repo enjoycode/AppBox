@@ -99,16 +99,28 @@ namespace PixUI.CS2TS
             }
 
             //如果参数数量不一致，特殊处理eg: OnPropertyChanged([CallerMemberName] name = null)之类
-            if (node.ArgumentList.Arguments.Count != methodSymbol.Parameters.Length)
+            var argsCount = node.ArgumentList.Arguments.Count();
+            if (argsCount != methodSymbol.Parameters.Length)
             {
-                //TODO: 注意暂只实现紧邻的一个参数为CallerMemberName的
-                var nextParameter = methodSymbol.Parameters[node.ArgumentList.Arguments.Count];
-                if (HasCallerMemberNameAttribute(nextParameter))
+                //判断有无[CallerMemberName]的参数
+                var hasCallerMemberName = methodSymbol.Parameters.Skip(argsCount).Any(HasCallerMemberNameAttribute);
+                if (hasCallerMemberName)
                 {
-                    if (node.ArgumentList.Arguments.Count > 0) Write(", ");
-                    Write('"');
-                    Write(FindCallerMemberName(node));
-                    Write('"');
+                    if (argsCount > 0) Write(", ");
+                    for (var i = argsCount; i < methodSymbol.Parameters.Length; i++)
+                    {
+                        if (i > argsCount) Write(", ");
+                        var para = methodSymbol.Parameters[i];
+                        if (HasCallerMemberNameAttribute(para))
+                        {
+                            Write('"');
+                            Write(FindCallerMemberName(node));
+                            Write('"');
+                            break; //后续的暂可以忽略了
+                        }
+
+                        Write("undefined"); //可以简单用undefined代替默认值
+                    }
                 }
             }
 
@@ -325,6 +337,7 @@ namespace PixUI.CS2TS
                 Write(',');
                 VisitSeparatedList(node.ArgumentList.Arguments);
             }
+
             VisitToken(node.ArgumentList.CloseParenToken);
 
             return true;

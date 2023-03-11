@@ -45,7 +45,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set Fill(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value, undefined, "Fill");
     }
 
     public get GeometrySize(): number {
@@ -96,7 +96,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
     }
 
     public set GeometryFill(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._geometryFill, $v => this._geometryFill = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._geometryFill, $v => this._geometryFill = $v), value, undefined, "GeometryFill");
     }
 
     public get GeometryStroke(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {

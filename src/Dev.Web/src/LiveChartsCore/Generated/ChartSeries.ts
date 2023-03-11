@@ -16,7 +16,7 @@ export abstract class ChartSeries<TModel, TVisual extends object & LiveChartsCor
     }
 
     public set DataLabelsPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._dataLabelsPaint, $v => this._dataLabelsPaint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._dataLabelsPaint, $v => this._dataLabelsPaint = $v), value, undefined, "DataLabelsPaint");
     }
 
     public get DataLabelsSize(): number {

@@ -34,7 +34,7 @@ export class StackPanel<TBackgroundGemetry extends LiveChartsCore.ISizedGeometry
     }
 
     public set BackgroundPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._backgroundPaint, $v => this._backgroundPaint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._backgroundPaint, $v => this._backgroundPaint = $v), value, undefined, "BackgroundPaint");
     }
 
     GetTargetLocation(): LiveChartsCore.LvcPoint {

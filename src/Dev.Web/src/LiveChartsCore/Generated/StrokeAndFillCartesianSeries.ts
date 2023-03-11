@@ -22,7 +22,7 @@ export abstract class StrokeAndFillCartesianSeries<TModel, TVisual extends objec
     }
 
     public set Fill(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._fill, $v => this._fill = $v), value, undefined, "Fill");
     }
 
     GetPaintTasks(): Nullable<LiveChartsCore.IPaint<TDrawingContext>>[] {

@@ -23,7 +23,7 @@ export class LabelVisual extends LiveChartsCore.VisualElement<LiveCharts.SkiaDra
     }
 
     public set Paint(value: Nullable<LiveChartsCore.IPaint<LiveCharts.SkiaDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._paint, $v => this._paint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._paint, $v => this._paint = $v), value, undefined, "Paint");
     }
 
     public get Text(): string {

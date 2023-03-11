@@ -221,7 +221,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set NamePaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._namePaint, $v => this._namePaint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._namePaint, $v => this._namePaint = $v), value, undefined, "NamePaint");
     }
 
     public get LabelsPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -229,7 +229,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
     }
 
     public set LabelsPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._labelsPaint, $v => this._labelsPaint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._labelsPaint, $v => this._labelsPaint = $v), value, undefined, "LabelsPaint");
     }
 
     public get SeparatorsPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {

@@ -58,7 +58,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
     }
 
     public set GeometryFill(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._geometryFill, $v => this._geometryFill = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._geometryFill, $v => this._geometryFill = $v), value, undefined, "GeometryFill");
     }
 
     public get GeometryStroke(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {

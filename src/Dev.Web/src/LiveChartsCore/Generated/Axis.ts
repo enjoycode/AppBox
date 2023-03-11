@@ -275,7 +275,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set NamePaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._namePaint, $v => this._namePaint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._namePaint, $v => this._namePaint = $v), value, undefined, "NamePaint");
     }
 
     public get LabelsPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -283,7 +283,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set LabelsPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._labelsPaint, $v => this._labelsPaint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._labelsPaint, $v => this._labelsPaint = $v), value, undefined, "LabelsPaint");
     }
 
     public get SeparatorsPaint(): Nullable<LiveChartsCore.IPaint<TDrawingContext>> {
@@ -347,7 +347,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
     }
 
     public set CrosshairLabelsPaint(value: Nullable<LiveChartsCore.IPaint<TDrawingContext>>) {
-        this.SetPaintProperty(new System.Ref(() => this._crosshairLabelsPaint, $v => this._crosshairLabelsPaint = $v), value);
+        this.SetPaintProperty(new System.Ref(() => this._crosshairLabelsPaint, $v => this._crosshairLabelsPaint = $v), value, undefined, "CrosshairLabelsPaint");
     }
 
     public CrosshairLabelsBackground: Nullable<LiveChartsCore.LvcColor>;

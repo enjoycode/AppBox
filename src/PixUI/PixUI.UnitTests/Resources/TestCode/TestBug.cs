@@ -76,7 +76,14 @@
 //         }
 // }
 
-class Settings
+using System.Runtime.CompilerServices;
+
+class BugClass
 {
-    private static Settings Default { get; } = new();
+    void Hello(int v = 0, [CallerMemberName] string? name = null) {}
+
+    void Test()
+    {
+        Hello();
+    }
 }
