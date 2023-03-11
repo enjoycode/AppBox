@@ -320,8 +320,11 @@ namespace PixUI.CS2TS
 
             VisitToken(node.ArgumentList.OpenParenToken);
             Visit(memberAccess.Expression);
-            Write(',');
-            VisitSeparatedList(node.ArgumentList.Arguments);
+            if (node.ArgumentList.Arguments.Count > 0)
+            {
+                Write(',');
+                VisitSeparatedList(node.ArgumentList.Arguments);
+            }
             VisitToken(node.ArgumentList.CloseParenToken);
 
             return true;
