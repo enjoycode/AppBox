@@ -21,6 +21,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference SystemLinqLib => GetSdkLib("System.Linq.dll");
 
+    internal static MetadataReference SystemObjectModelLib => GetSdkLib("System.ObjectModel.dll");
+
     internal static MetadataReference SystemRuntimeLib => GetSdkLib("System.Runtime.dll");
 
     internal static MetadataReference SystemCollectionsLib => GetSdkLib("System.Collections.dll");
@@ -32,8 +34,10 @@ internal static class MetadataReferences
     internal static MetadataReference PixUIDesktopLib => GetPixUIDesktopLib("PixUI.dll");
 
     internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUI.dll");
+    
+    internal static MetadataReference LiveChartsCoreWebLib => GetPixUIWebLib("LiveChartsCore.dll");
 
-    internal static MetadataReference PixUILiveChartsLib => GetPixUIWebLib("PixUI.LiveCharts.dll");
+    internal static MetadataReference PixUILiveChartsWebLib => GetPixUIWebLib("PixUI.LiveCharts.dll");
 
     internal static MetadataReference PixUIAttributesLib =>
         TryGet("PixUI.Attributes.dll", typeof(PixUI.TSRenameAttribute).Assembly.Location);
@@ -88,8 +92,7 @@ internal static class MetadataReferences
 #if DEBUG
         var currentPath = Directory.GetCurrentDirectory();
         var srcIndex = currentPath.IndexOf(
-            $"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}",
-            StringComparison.Ordinal);
+            $"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
         var srcPath = currentPath.Substring(0, srcIndex + 5);
         if (asmName == "PixUI.dll")
         {
@@ -105,7 +108,8 @@ internal static class MetadataReferences
             return TryGet(asmName, fullPath);
         }
 
-        throw new NotImplementedException();
+        var appPath = Path.GetDirectoryName(typeof(MetadataReferences).Assembly.Location)!;
+        return TryGet(asmName, Path.Combine(appPath, "WebLibs", asmName));
 #else
         var appPath = Path.GetDirectoryName(typeof(MetadataReferences).Assembly.Location)!;
         return TryGet(asmName, Path.Combine(appPath, "WebLibs", asmName));

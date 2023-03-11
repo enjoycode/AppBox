@@ -3,8 +3,8 @@ import * as PixUI from '@/PixUI'
 import {DesignInitializer} from "@/AppBoxDesign";
 
 export class LoginPage extends PixUI.View {
-    private readonly _userName: PixUI.State<string> = PixUI.State.op_Implicit_From("");
-    private readonly _password: PixUI.State<string> = PixUI.State.op_Implicit_From("");
+    private readonly _userName: PixUI.State<string> = PixUI.State.op_Implicit_From("Admin");
+    private readonly _password: PixUI.State<string> = PixUI.State.op_Implicit_From("760wb");
     private readonly _inputSize: PixUI.State<number> = PixUI.State.op_Implicit_From(20);
 
     public constructor() {
