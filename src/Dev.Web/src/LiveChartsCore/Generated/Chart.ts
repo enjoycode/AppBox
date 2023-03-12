@@ -396,7 +396,7 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
 
         if (this.IsFirstDraw) {
             LiveChartsCore.Extensions.TransitionateProperties(this.ActualBounds
-                , null)
+            )
                 .WithAnimationBuilder(animation =>
                     animation
                         .WithDuration(this.AnimationsSpeed)

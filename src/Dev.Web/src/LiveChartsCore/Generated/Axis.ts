@@ -411,7 +411,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
 
         if (!this._animatableBounds.HasPreviousState) {
             LiveChartsCore.Extensions.TransitionateProperties(this._animatableBounds
-                , null)
+            )
                 .WithAnimationBuilder(animation =>
                     animation
                         .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)

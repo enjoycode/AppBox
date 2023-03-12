@@ -69,6 +69,12 @@ namespace PixUI.CS2TS
 
             // Arguments
             VisitToken(node.ArgumentList.OpenParenToken);
+            EmitInvocationArgs(node, methodSymbol, false);
+            VisitToken(node.ArgumentList.CloseParenToken);
+        }
+
+        private void EmitInvocationArgs(InvocationExpressionSyntax node, IMethodSymbol methodSymbol, bool firstSep)
+        {
             var argsCount = node.ArgumentList.Arguments.Count;
             if (argsCount > 0)
             {
@@ -94,6 +100,11 @@ namespace PixUI.CS2TS
                     if (isParams && isNullArg)
                         break;
 
+                    if (firstSep)
+                    {
+                        Write(", ");
+                        firstSep = false;
+                    }
                     if (sepToken.HasValue)
                         VisitToken(sepToken.Value);
 
@@ -143,8 +154,6 @@ namespace PixUI.CS2TS
                     }
                 }
             }
-
-            VisitToken(node.ArgumentList.CloseParenToken);
         }
 
         private static string FindCallerMemberName(InvocationExpressionSyntax node)
@@ -352,12 +361,7 @@ namespace PixUI.CS2TS
 
             VisitToken(node.ArgumentList.OpenParenToken);
             Visit(memberAccess.Expression);
-            if (node.ArgumentList.Arguments.Count > 0)
-            {
-                Write(',');
-                VisitSeparatedList(node.ArgumentList.Arguments);
-            }
-
+            EmitInvocationArgs(node, symbol, true);
             VisitToken(node.ArgumentList.CloseParenToken);
 
             return true;
