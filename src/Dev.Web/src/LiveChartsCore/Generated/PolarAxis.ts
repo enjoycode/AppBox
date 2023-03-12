@@ -379,7 +379,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                     textGeometry.X = l.X;
                     textGeometry.Y = l.Y;
                     textGeometry.Opacity = 0;
-                    textGeometry.CompleteTransition(null);
+                    textGeometry.CompleteTransition();
                 }
 
                 if (this.SeparatorsPaint != null && this.ShowSeparatorLines) {
@@ -399,7 +399,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                                     .WithEasingFunction(this.EasingFunction ?? polarChart.EasingFunction));
 
                         lineGeometry.Opacity = 0;
-                        lineGeometry.CompleteTransition(null);
+                        lineGeometry.CompleteTransition();
                     }
 
                     if (visualSeparator instanceof LiveChartsCore.RadialAxisVisualSeparator<TDrawingContext>) {
@@ -424,7 +424,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                         polarSeparator.Circle.Width = radius * 2;
                         polarSeparator.Circle.Height = radius * 2;
                         circleGeometry.Opacity = 0;
-                        circleGeometry.CompleteTransition(null);
+                        circleGeometry.CompleteTransition();
                     }
                 }
 
@@ -462,7 +462,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                 visualSeparator.Label.X = location.X;
                 visualSeparator.Label.Y = location.Y;
 
-                if (!this._animatableBounds.HasPreviousState) visualSeparator.Label.CompleteTransition(null);
+                if (!this._animatableBounds.HasPreviousState) visualSeparator.Label.CompleteTransition();
             }
 
             if (visualSeparator.Geometry != null) {
@@ -476,7 +476,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                         lineSepartator.Separator.Y = innerPos.Y;
                         lineSepartator.Separator.Y1 = location.Y;
 
-                        if (!this._animatableBounds.HasPreviousState) lineSepartator.Separator.CompleteTransition(null);
+                        if (!this._animatableBounds.HasPreviousState) lineSepartator.Separator.CompleteTransition();
                     }
                 }
 
@@ -491,7 +491,7 @@ export abstract class PolarAxis<TDrawingContext extends LiveChartsCore.DrawingCo
                         polarSeparator.Circle.Width = radius * 2;
                         polarSeparator.Circle.Height = radius * 2;
 
-                        if (!this._animatableBounds.HasPreviousState) polarSeparator.Circle.CompleteTransition(null);
+                        if (!this._animatableBounds.HasPreviousState) polarSeparator.Circle.CompleteTransition();
                     }
                 }
 

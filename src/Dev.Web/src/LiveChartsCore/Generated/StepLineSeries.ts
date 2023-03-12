@@ -248,7 +248,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
                                     .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
                                     .WithEasingFunction(this.EasingFunction ?? cartesianChart.EasingFunction));
 
-                        l.CompleteTransition(null);
+                        l.CompleteTransition();
                         label = l;
                         point.Context.Label = l;
                     }
@@ -381,7 +381,7 @@ export class StepLineSeries<TModel, TVisual extends object & LiveChartsCore.ISiz
 
         let chartView = <LiveChartsCore.ICartesianChartView<TDrawingContext>><unknown>point.Context.Chart;
         if (chartView.Core.IsZoomingOrPanning) {
-            visual.Geometry.CompleteTransition(null);
+            visual.Geometry.CompleteTransition();
             visual.Geometry.RemoveOnCompleted = true;
             this.DataFactory.DisposePoint(point);
             return;

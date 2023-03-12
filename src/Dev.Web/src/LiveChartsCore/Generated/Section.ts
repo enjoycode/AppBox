@@ -167,7 +167,7 @@ export abstract class Section2<TSizedGeometry extends LiveChartsCore.ISizedGeome
                             .WithDuration(chart.AnimationsSpeed)
                             .WithEasingFunction(chart.EasingFunction));
 
-                this._fillSizedGeometry.CompleteTransition(null);
+                this._fillSizedGeometry.CompleteTransition();
             }
 
             this._fillSizedGeometry.X = xi;
@@ -207,7 +207,7 @@ export abstract class Section2<TSizedGeometry extends LiveChartsCore.ISizedGeome
                             .WithDuration(chart.AnimationsSpeed)
                             .WithEasingFunction(chart.EasingFunction));
 
-                this._strokeSizedGeometry.CompleteTransition(null);
+                this._strokeSizedGeometry.CompleteTransition();
             }
 
             this._strokeSizedGeometry.X = xi;

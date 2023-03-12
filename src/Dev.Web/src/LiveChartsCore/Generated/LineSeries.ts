@@ -277,7 +277,7 @@ export class LineSeries<TModel, TVisual extends object & LiveChartsCore.ISizedVi
                                     .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
                                     .WithEasingFunction(this.EasingFunction ?? cartesianChart.EasingFunction));
 
-                        l.CompleteTransition(null);
+                        l.CompleteTransition();
                         label = l;
                         data.TargetPoint.Context.Label = l;
                     }

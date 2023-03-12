@@ -318,7 +318,7 @@ export class PolarLineSeries<TModel, TVisual extends object & LiveChartsCore.ISi
                                     .WithDuration(this.AnimationsSpeed ?? polarChart.AnimationsSpeed)
                                     .WithEasingFunction(this.EasingFunction ?? polarChart.EasingFunction));
 
-                        l.CompleteTransition(null);
+                        l.CompleteTransition();
                         label = l;
                         data.TargetPoint.Context.Label = l;
                     }

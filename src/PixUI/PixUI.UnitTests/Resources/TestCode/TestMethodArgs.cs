@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 abstract class TestMethodArgs
 {
     TestMethodArgs(int? num = null) {}
@@ -15,12 +17,13 @@ abstract class TestMethodArgs
     public void TestParamsArgs()
     {
         var args1 = new string[] { "a", "b" };
-        ParamsArgs2(args1); //ParamsArgs2(...args);
+        ParamsArgs2(args1); //ParamsArgs2(...args1);
 
         var args2 = new int[] { 1, 2 };
         ParamsArgs1(args2); //ParamsArgs1(...args2.ToArray())
 
-        ParamsArgs3(null);
+        ParamsArgs3(1, 2); //不转换
+        ParamsArgs3(null); //转换时移除null参数
     }
     
     public void RefArg1(ref int arg)
@@ -50,5 +53,12 @@ abstract class TestMethodArgs
     {
         if (OutArg(out var value))
             System.Console.WriteLine(value);
+    }
+    
+    public void WithCallerMemberNameParameter(int v = 0, [CallerMemberName] string? name = null) {}
+
+    public void TestCallerMemberNameParameter()
+    {
+        WithCallerMemberNameParameter(); //WithCallerMemberNameParameter(undefined, "TestCallerMemberNameParameter");
     }
 }

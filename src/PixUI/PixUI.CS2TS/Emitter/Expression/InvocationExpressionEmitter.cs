@@ -69,37 +69,57 @@ namespace PixUI.CS2TS
 
             // Arguments
             VisitToken(node.ArgumentList.OpenParenToken);
-            var argIndex = 0;
-            foreach (var item in node.ArgumentList.Arguments.GetWithSeparators())
+            var argsCount = node.ArgumentList.Arguments.Count;
+            if (argsCount > 0)
             {
-                if (item.IsToken)
+                var argIndex = 0;
+                var lastParameterIndex = methodSymbol.Parameters.Length - 1;
+                var lastIsParams = methodSymbol.Parameters[lastParameterIndex].IsParams;
+                SyntaxToken? sepToken = null;
+                foreach (var item in node.ArgumentList.Arguments.GetWithSeparators())
                 {
-                    VisitToken(item.AsToken());
-                    continue;
+                    if (item.IsToken)
+                    {
+                        sepToken = item.AsToken(); //VisitToken(item.AsToken());
+                        continue;
+                    }
+
+                    var argNode = (ArgumentSyntax)item.AsNode()!;
+                    var isNullArg = argNode.Expression is LiteralExpressionSyntax literal &&
+                                    literal.Kind() == SyntaxKind.NullLiteralExpression;
+                    var isArrayArg = false;
+                    var isParams = lastIsParams && argIndex >= lastParameterIndex;
+
+                    //特殊处理null赋值给params
+                    if (isParams && isNullArg)
+                        break;
+
+                    if (sepToken.HasValue)
+                        VisitToken(sepToken.Value);
+
+                    //需要判断是否params参数且当前是数组，是则加...前缀
+                    if (isParams && !isNullArg)
+                    {
+                        isArrayArg = SemanticModel.GetTypeInfo(argNode.Expression).Type?.Kind == SymbolKind.ArrayType;
+                        if (isArrayArg)
+                            Write("...");
+                    }
+
+                    Visit(argNode);
+
+                    //特殊处理params的JsNativeArray，需要重新转换回数组
+                    if (isParams && !isNullArg && isArrayArg)
+                    {
+                        var jsArrayType = GetJsNativeArrayType(methodSymbol.Parameters[lastParameterIndex].Type);
+                        if (jsArrayType != null)
+                            Write(".ToArray()");
+                    }
+
+                    argIndex++;
                 }
-
-                var argNode = (ArgumentSyntax)item.AsNode()!;
-                var isNullArg = argNode.Expression is LiteralExpressionSyntax literal &&
-                                literal.Kind() == SyntaxKind.NullLiteralExpression;
-                //需要判断是否params参数，是则加...前缀
-                if (!isNullArg && methodSymbol.Parameters[argIndex].IsParams)
-                    Write("...");
-
-                Visit(argNode);
-
-                //特殊处理params的JsNativeArray
-                if (!isNullArg && methodSymbol.Parameters[argIndex].IsParams)
-                {
-                    var jsArrayType = GetJsNativeArrayType(methodSymbol.Parameters[argIndex].Type);
-                    if (jsArrayType != null)
-                        Write(".ToArray()");
-                }
-
-                argIndex++;
             }
 
             //如果参数数量不一致，特殊处理eg: OnPropertyChanged([CallerMemberName] name = null)之类
-            var argsCount = node.ArgumentList.Arguments.Count();
             if (argsCount != methodSymbol.Parameters.Length)
             {
                 //判断有无[CallerMemberName]的参数
@@ -127,7 +147,7 @@ namespace PixUI.CS2TS
             VisitToken(node.ArgumentList.CloseParenToken);
         }
 
-        private string FindCallerMemberName(InvocationExpressionSyntax node)
+        private static string FindCallerMemberName(InvocationExpressionSyntax node)
         {
             var callerMember = node.Ancestors().First(n => n is PropertyDeclarationSyntax or MethodDeclarationSyntax);
             return callerMember is PropertyDeclarationSyntax property

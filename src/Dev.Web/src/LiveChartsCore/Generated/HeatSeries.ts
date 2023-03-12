@@ -179,7 +179,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
                                 .WithDuration(this.AnimationsSpeed ?? cartesianChart.AnimationsSpeed)
                                 .WithEasingFunction(this.EasingFunction ?? cartesianChart.EasingFunction));
 
-                    l.CompleteTransition(null);
+                    l.CompleteTransition();
                     label = l;
                     point.Context.Label = l;
                 }
@@ -242,7 +242,7 @@ export abstract class HeatSeries<TModel, TVisual extends object & LiveChartsCore
 
         let chartView = <LiveChartsCore.ICartesianChartView<TDrawingContext>><unknown>point.Context.Chart;
         if (chartView.Core.IsZoomingOrPanning) {
-            visual.CompleteTransition(null);
+            visual.CompleteTransition();
             visual.RemoveOnCompleted = true;
             this.DataFactory.DisposePoint(point);
             return;

@@ -384,7 +384,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
                                 .WithDuration(this.AnimationsSpeed ?? pieChart.AnimationsSpeed)
                                 .WithEasingFunction(this.EasingFunction ?? pieChart.EasingFunction));
 
-                    l.CompleteTransition(null);
+                    l.CompleteTransition();
                     label = l;
                     point.Context.Label = l;
                 }

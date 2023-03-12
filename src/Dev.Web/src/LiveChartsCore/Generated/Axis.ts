@@ -552,7 +552,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
                 this._ticksPath.Y1 = lyj;
             }
 
-            if (!this._animatableBounds.HasPreviousState) this._ticksPath.CompleteTransition(null);
+            if (!this._animatableBounds.HasPreviousState) this._ticksPath.CompleteTransition();
         }
         if (this.TicksPaint != null && this._ticksPath != null && !this._drawTicksPath)
             this.TicksPaint.RemoveGeometryFromPainTask(cartesianChart.Canvas, this._ticksPath);
@@ -1039,7 +1039,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
             }
         }
 
-        if (isNew) this._nameGeometry.CompleteTransition(null);
+        if (isNew) this._nameGeometry.CompleteTransition();
     }
 
     private InitializeSeparator(visualSeparator: LiveChartsCore.AxisVisualSeprator<TDrawingContext>, cartesianChart: LiveChartsCore.CartesianChart<TDrawingContext>, separatorGeometry: Nullable<TLineGeometry> = null) {
@@ -1339,7 +1339,7 @@ export abstract class Axis<TDrawingContext extends LiveChartsCore.DrawingContext
         switch (mode) {
             case UpdateMode.UpdateAndComplete:
                 if (this._animatableBounds.HasPreviousState) geometry.Opacity = 0;
-                geometry.CompleteTransition(null);
+                geometry.CompleteTransition();
                 break;
             case UpdateMode.UpdateAndRemove:
                 geometry.Opacity = 0;
