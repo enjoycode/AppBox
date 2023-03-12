@@ -27,8 +27,8 @@ export function GetRectForPosition(ph: Paragraph, pos: number,
                                    heightStyle: RectHeightStyle, widthStyle: RectWidthStyle): TextBox {
     let list: any = ph.getRectsForRange(pos, pos + 1, heightStyle, widthStyle);
     let res = new TextBox();
-    res.Rect = new Rect(list[0][0], list[0][1], list[0][2], list[0][3]);
-    res.Direction = list[0].direction === 1 ? CanvasKit.TextDirection.LTR : CanvasKit.TextDirection.RTL;
+    res.Rect = new Rect(list[0].rect[0], list[0].rect[1], list[0].rect[2], list[0].rect[3]);
+    res.Direction = list[0].dir === 1 ? CanvasKit.TextDirection.LTR : CanvasKit.TextDirection.RTL;
     return res;
 }
 

@@ -10,4 +10,9 @@ export class Size {
     public Clone(): Size {
         return new Size(this.Width, this.Height);
     }
+
+    public static op_Equality(a: Size, b: Size): boolean {
+        if (a === b) return true;
+        return a.Width == b.Width && a.Height == b.Height;
+    }
 }

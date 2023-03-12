@@ -56,6 +56,11 @@ export class Color extends Float32Array {
         return new Color(this.Red, this.Green, this.Blue, this.Alpha);
     }
 
+    public static op_Equality(a: Color, b: Color): boolean {
+        if (a === b) return true;
+        return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3];
+    }
+
     public static Lerp(a: Nullable<Color>, b: Nullable<Color>, t: number): Nullable<Color> {
         return PixUI.ColorUtils.Lerp(a, b, t);
     }
