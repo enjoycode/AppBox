@@ -22,9 +22,9 @@ export class LandData {
         this.BoundsHypotenuse = Math.sqrt(Math.pow(this.MaxBounds[0] - this.MinBounds[0], 2) + Math.pow(this.MaxBounds[1] - this.MinBounds[1], 2));
     }
 
-    public MaxBounds: Float64Array = new Float64Array([Number.MIN_VALUE, Number.MIN_VALUE]);
+    public MaxBounds: Float64Array = new Float64Array([-1.7976931348623157E+308/*DoubleMin*/, -1.7976931348623157E+308/*DoubleMin*/]);
 
-    public MinBounds: Float64Array = new Float64Array([Number.MAX_VALUE, Number.MAX_VALUE]);
+    public MinBounds: Float64Array = new Float64Array([1.7976931348623157E+308/*DoubleMax*/, 1.7976931348623157E+308/*DoubleMax*/]);
 
     #BoundsHypotenuse: number = 0;
     public get BoundsHypotenuse() {

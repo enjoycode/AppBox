@@ -65,10 +65,10 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
                               plane2: LiveChartsCore.IPlane): LiveChartsCore.SeriesBounds {
         let stack = chart.SeriesContext.GetStackPosition(series, series.GetStackGroup());
 
-        let xMin = plane1.MinLimit ?? Number.MIN_VALUE;
-        let xMax = plane1.MaxLimit ?? Number.MAX_VALUE;
-        let yMin = plane2.MinLimit ?? Number.MIN_VALUE;
-        let yMax = plane2.MaxLimit ?? Number.MAX_VALUE;
+        let xMin = plane1.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/;
+        let xMax = plane1.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/;
+        let yMin = plane2.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/;
+        let yMax = plane2.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/;
 
         let hasData = false;
 
@@ -115,10 +115,10 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
                               series: LiveChartsCore.IChartSeries<TDrawingContext>,
                               x: LiveChartsCore.ICartesianAxis,
                               y: LiveChartsCore.ICartesianAxis): LiveChartsCore.SeriesBounds {
-        let xMin = x.MinLimit ?? Number.MIN_VALUE;
-        let xMax = x.MaxLimit ?? Number.MAX_VALUE;
-        let yMin = y.MinLimit ?? Number.MIN_VALUE;
-        let yMax = y.MaxLimit ?? Number.MAX_VALUE;
+        let xMin = x.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/;
+        let xMax = x.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/;
+        let yMin = y.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/;
+        let yMax = y.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/;
 
         let hasData = false;
 

@@ -777,8 +777,8 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                         xMin = xi;
                     }
 
-                    if (xMax > (x.MaxLimit ?? Number.MAX_VALUE)) xMax = x.MaxLimit ?? Number.MAX_VALUE;
-                    if (xMin < (x.MinLimit ?? Number.MIN_VALUE)) xMin = x.MinLimit ?? Number.MIN_VALUE;
+                    if (xMax > (x.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/)) xMax = x.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/;
+                    if (xMin < (x.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/)) xMin = x.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/;
 
                     let min = x.MinZoomDelta ?? x.DataBounds.MinDelta * 3;
 
@@ -816,8 +816,8 @@ export class CartesianChart<TDrawingContext extends LiveChartsCore.DrawingContex
                         yMin = yi;
                     }
 
-                    if (yMax > (y.MaxLimit ?? Number.MAX_VALUE)) yMax = y.MaxLimit ?? Number.MAX_VALUE;
-                    if (yMin < (y.MinLimit ?? Number.MIN_VALUE)) yMin = y.MinLimit ?? Number.MIN_VALUE;
+                    if (yMax > (y.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/)) yMax = y.MaxLimit ?? 1.7976931348623157E+308/*DoubleMax*/;
+                    if (yMin < (y.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/)) yMin = y.MinLimit ?? -1.7976931348623157E+308/*DoubleMin*/;
 
                     let min = y.MinZoomDelta ?? y.DataBounds.MinDelta * 3;
 

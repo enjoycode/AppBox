@@ -45,9 +45,9 @@ export class LandDefinition {
         this.#HCenter = value;
     }
 
-    public MaxBounds: Float64Array = new Float64Array([Number.MIN_VALUE, Number.MIN_VALUE]);
+    public MaxBounds: Float64Array = new Float64Array([-1.7976931348623157E+308/*DoubleMin*/, -1.7976931348623157E+308/*DoubleMin*/]);
 
-    public MinBounds: Float64Array = new Float64Array([Number.MAX_VALUE, Number.MAX_VALUE]);
+    public MinBounds: Float64Array = new Float64Array([1.7976931348623157E+308/*DoubleMax*/, 1.7976931348623157E+308/*DoubleMax*/]);
 
     public Data: LiveChartsCore.LandData[] = [];
 }

@@ -11,7 +11,7 @@ export abstract class PieSeries<TModel, TVisual extends object & LiveChartsCore.
     private _hoverPushout: number = 20;
     private _innerPadding: number = 0;
     private _outerPadding: number = 0;
-    private _maxRadialColW: number = Number.MAX_VALUE;
+    private _maxRadialColW: number = 1.7976931348623157E+308/*DoubleMax*/;
     private _cornerRadius: number = 0;
     private _radialAlign: LiveChartsCore.RadialAlignment = LiveChartsCore.RadialAlignment.Outer;
     private _invertedCornerRadius: boolean = false;

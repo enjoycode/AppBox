@@ -73,13 +73,14 @@ namespace PixUI.CS2TS
             }
             else if (specialType is SpecialType.System_Single or SpecialType.System_Double)
             {
+                var isDouble = specialType is SpecialType.System_Double;
                 switch (name)
                 {
                     case "MinValue":
-                        emitter.Write("Number.MIN_VALUE");
+                        emitter.Write(isDouble ? "-1.7976931348623157E+308/*DoubleMin*/" :  "-3.4028235E+38/*FloatMin*/");
                         break;
                     case "MaxValue":
-                        emitter.Write("Number.MAX_VALUE");
+                        emitter.Write(isDouble ? "1.7976931348623157E+308/*DoubleMax*/" : "3.4028235E+38/*FloatMax*/");
                         break;
                     case "PositiveInfinity":
                         emitter.Write("Number.POSITIVE_INFINITY");

@@ -1,11 +1,11 @@
 export class TooltipPlacementContext {
-    public MostTop: number = Number.MAX_VALUE;
+    public MostTop: number = 3.4028235E+38/*FloatMax*/;
 
-    public MostBottom: number = Number.MIN_VALUE;
+    public MostBottom: number = -3.4028235E+38/*FloatMin*/;
 
-    public MostRight: number = Number.MIN_VALUE;
+    public MostRight: number = -3.4028235E+38/*FloatMin*/;
 
-    public MostLeft: number = Number.MAX_VALUE;
+    public MostLeft: number = 3.4028235E+38/*FloatMax*/;
 
     public PieX: number = 0;
 

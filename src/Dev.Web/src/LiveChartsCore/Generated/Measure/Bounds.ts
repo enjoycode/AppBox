@@ -26,7 +26,7 @@ export class Bounds {
         this.#IsEmpty = value;
     }
 
-    #Max: number = Number.MIN_VALUE;
+    #Max: number = -3.4028235E+38/*FloatMin*/;
     public get Max() {
         return this.#Max;
     }
@@ -35,7 +35,7 @@ export class Bounds {
         this.#Max = value;
     }
 
-    #Min: number = Number.MAX_VALUE;
+    #Min: number = 3.4028235E+38/*FloatMax*/;
     public get Min() {
         return this.#Min;
     }
@@ -75,7 +75,7 @@ export class Bounds {
         return this.Max - this.Min;
     }
 
-    #MinDelta: number = Number.MAX_VALUE;
+    #MinDelta: number = 1.7976931348623157E+308/*DoubleMax*/;
     public get MinDelta() {
         return this.#MinDelta;
     }
