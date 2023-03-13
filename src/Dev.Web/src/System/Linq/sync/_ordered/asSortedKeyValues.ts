@@ -13,6 +13,7 @@ export function* asSortedKeyValues<TSource, TKey>(
     keySelector: (x: TSource) => TKey,
     ascending: boolean,
     comparer?: IComparer<TKey>) {
+    //TODO:在这里考虑实现默认的Comparer
     const map = asKeyMap(source, keySelector)
     const sortedKeys = [...map.keys()].sort(comparer ? comparer : undefined)
 

@@ -53,7 +53,7 @@ export class MotionCanvas<TDrawingContext extends LiveChartsCore.DrawingContext>
 
             let toRemoveGeometries = new System.List<System.Tuple2<LiveChartsCore.IPaint<TDrawingContext>, LiveChartsCore.IDrawable<TDrawingContext>>>();
 
-            for (const task of this._paintTasks.OrderBy(x => x.ZIndex)) {
+            for (const task of this._paintTasks.OrderBy(x => x.ZIndex, System.NumberComparer)) {
                 if (this.DisableAnimations) task.CompleteTransition();
                 task.IsValid = true;
                 task.CurrentTime = frameTime;

@@ -70,6 +70,8 @@ namespace PixUI.CS2TS
             // Arguments
             VisitToken(node.ArgumentList.OpenParenToken);
             EmitInvocationArgs(node, methodSymbol, false);
+            //暂在这里处理排序类方法的比较器 eg: aa.OrderBy((float n) => n)转为 aa.OrderBy(n=>n, System.NumberComparer)
+            TryEmitComparerArgForSortMethod(node, methodSymbol);
             VisitToken(node.ArgumentList.CloseParenToken);
         }
 
@@ -105,6 +107,7 @@ namespace PixUI.CS2TS
                         Write(", ");
                         firstSep = false;
                     }
+
                     if (sepToken.HasValue)
                         VisitToken(sepToken.Value);
 
@@ -153,6 +156,22 @@ namespace PixUI.CS2TS
                         Write("undefined"); //可以简单用undefined代替默认值
                     }
                 }
+            }
+        }
+
+        private void TryEmitComparerArgForSortMethod(InvocationExpressionSyntax node, IMethodSymbol symbol)
+        {
+            //暂只处理Linq.OrderBy
+            if (symbol.Name != "OrderBy" && symbol.Name != "OrderByDescending") return;
+            if (!IsIEnumerableType(symbol.ReceiverType)) return;
+            if (symbol.Parameters.Length != 1) return; //已经指定IComparer，由VisitArgument时转换处理
+
+            //目前只处理数字类型，TODO: 待判断是否实现IComparable
+            var argType = SemanticModel.GetTypeInfo(node.ArgumentList.Arguments[0].Expression).ConvertedType;
+            if (argType is INamedTypeSymbol namedType && namedType.TypeArguments[1].IsNumber())
+            {
+                AddUsedModule("System");
+                Write(", System.NumberComparer");
             }
         }
 

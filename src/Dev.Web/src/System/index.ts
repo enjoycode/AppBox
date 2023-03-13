@@ -1,5 +1,5 @@
 export type {IEnumerable} from './Linq'
-export {from as EnumerableFrom} from "./Linq/sync/static/from";
+export {NumberComparer, from as EnumerableFrom} from './Linq'
 
 export * from './Utils'
 

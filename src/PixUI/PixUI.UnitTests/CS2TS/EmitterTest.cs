@@ -159,7 +159,7 @@ namespace PixUI.UnitTests.CS2TS
         public async Task InnerFunctionTest() => await Run("TestInnerFunction.cs", true);
         
         [Test]
-        public async Task LinqSelectTest() => await Run("TestLinqSelect.cs", true);
+        public async Task LinqTest() => await Run("TestLinq.cs", true);
         
         [Test]
         public async Task RemoveNewLineTest() => await Run("TestRemoveNewLine.cs", true);

@@ -279,6 +279,8 @@ export abstract class Chart<TDrawingContext extends LiveChartsCore.DrawingContex
     }
 
     public ClearTooltipData() {
+        if (this._activePoints.length == 0) return; //Rick
+
         for (const point of this._activePoints.Keys.ToArray()) {
             let cp = <LiveChartsCore.ChartPoint><unknown>point;
             cp.Context.Series.OnPointerLeft(cp);

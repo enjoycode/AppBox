@@ -257,7 +257,7 @@ export abstract class Series<TModel, TVisual extends object & LiveChartsCore.IVi
                     .Select(x => {
                         return {distance: x.DistanceTo((pointerPosition).Clone()), point: x}
                     })
-                    .OrderBy(x => x.distance)
+                    .OrderBy(x => x.distance, System.NumberComparer)
                 , x => x.point);
         }
 

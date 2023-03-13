@@ -100,7 +100,7 @@ namespace PixUI.CS2TS
             return type.TypeKind == TypeKind.Struct;
         }
 
-        private static bool IsNumber(this ITypeSymbol symbol)
+        public static bool IsNumber(this ITypeSymbol symbol)
         {
             return symbol.SpecialType switch
             {

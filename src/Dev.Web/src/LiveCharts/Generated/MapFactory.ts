@@ -17,7 +17,7 @@ export class MapFactory implements LiveChartsCore.IMapFactory<LiveCharts.SkiaDra
 
         let layersQuery = context.View.ActiveMap.Layers.Values
             .Where(x => x.IsVisible)
-            .OrderByDescending(x => x.ProcessIndex);
+            .OrderByDescending(x => x.ProcessIndex, System.NumberComparer);
 
         this._mapView = context.View;
 
@@ -109,7 +109,7 @@ export class MapFactory implements LiveChartsCore.IMapFactory<LiveCharts.SkiaDra
         if (this._mapView != null) {
             let layersQuery = this._mapView.ActiveMap.Layers.Values
                 .Where(x => x.IsVisible)
-                .OrderByDescending(x => x.ProcessIndex);
+                .OrderByDescending(x => x.ProcessIndex, System.NumberComparer);
 
             for (const layer of layersQuery) {
                 let stroke = layer.Stroke;

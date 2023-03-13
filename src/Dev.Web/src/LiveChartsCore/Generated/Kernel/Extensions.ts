@@ -194,7 +194,7 @@ export class Extensions {
                     point: p
                 }
             })
-            .OrderBy(p => p.distance)
+            .OrderBy(p => p.distance, System.NumberComparer)
             .FirstOrDefault()?.point;
     }
 
@@ -209,7 +209,7 @@ export class Extensions {
                 visual
             };
         })
-            .OrderBy(p => p.distance)
+            .OrderBy(p => p.distance, System.NumberComparer)
             .FirstOrDefault()?.visual;
     }
 

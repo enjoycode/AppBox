@@ -46,6 +46,11 @@ describe("LinqTests", () => {
         expect(sum).toEqual(6);
     });
 
+    it("OrderByTest", () => {
+        let src = from([0, 0.1, 1.1, 1000.3, 1002.3, 10049, 1005.3, 10050, 10051, 1006.3, 2.1, 3.1]);
+        let dest = src.OrderBy(n => n).ToArray();
+    });
+
     it("CastTest", () => {
         let src = new List<Base>([new Child("Eric")]);
         let dest = src.Cast<Child>().ToArray();

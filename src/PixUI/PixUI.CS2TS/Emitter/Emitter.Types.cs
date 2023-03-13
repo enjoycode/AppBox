@@ -135,8 +135,10 @@ namespace PixUI.CS2TS
             return isDictionayType;
         }
 
-        private bool IsIEnumerableType(INamedTypeSymbol type)
+        private bool IsIEnumerableType(ITypeSymbol? type)
         {
+            if (type == null) return false;
+            
             return type.TypeKind == TypeKind.Interface &&
                    (
                        SymbolEqualityComparer.Default.Equals(type, TypeOfIEnumerable)

@@ -106,7 +106,6 @@
       <Compile Remove="Resources\TestCode\TestInnerFunction.cs" />
       <None Include="Resources\TestCode\TestInnerFunction.cs" />
       <Compile Remove="Resources\TestCode\TestLinqSelect.cs" />
-      <None Include="Resources\TestCode\TestLinqSelect.cs" />
       <Compile Remove="Resources\TestCode\TestRemoveNewLine.cs" />
       <None Include="Resources\TestCode\TestRemoveNewLine.cs" />
       <Compile Remove="Resources\TestCode\TestDictionary.cs" />
