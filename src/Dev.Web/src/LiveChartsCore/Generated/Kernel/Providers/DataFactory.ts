@@ -4,7 +4,7 @@ import * as LiveChartsCore from '@/LiveChartsCore'
 export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingContext> {
 
     private _isTModelChartEntity: boolean = false;
-    private readonly _chartRefEntityMap: System.Dictionary<any, System.Dictionary<TModel, LiveChartsCore.MappedChartEntity>> = new System.Dictionary();
+    private readonly _chartIndexEntityMap: System.Dictionary<any, System.Dictionary<number, LiveChartsCore.MappedChartEntity>> = new System.Dictionary();
     private _series: Nullable<LiveChartsCore.ISeries>;
 
     private PreviousKnownBounds: LiveChartsCore.DimensionalBounds = new LiveChartsCore.DimensionalBounds(true);
@@ -43,12 +43,10 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
         if (this._isTModelChartEntity) return;
 
         let canvas = <LiveChartsCore.MotionCanvas<TDrawingContext>><unknown>point.Context.Chart.CoreChart.Canvas;
-        this._chartRefEntityMap.TryGetValue(canvas.Sync, new System.Out(() => d, $v => d = $v));
+        this._chartIndexEntityMap.TryGetValue(canvas.Sync, new System.Out(() => d, $v => d = $v));
         let map = d;
         if (map == null) return;
-        let src = <Nullable<TModel>><unknown>point.Context.DataSource;
-        if (src == null) return;
-        map.Remove(src);
+        map.Remove(point.Context.Entity.EntityIndex);
     }
 
     public Dispose(chart: LiveChartsCore.IChart) {
@@ -56,7 +54,7 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
         if (this._isTModelChartEntity) return;
 
         let canvas = <LiveChartsCore.MotionCanvas<TDrawingContext>><unknown>chart.Canvas;
-        this._chartRefEntityMap.Remove(canvas.Sync);
+        this._chartIndexEntityMap.Remove(canvas.Sync);
     }
 
     public GetCartesianBounds(chart: LiveChartsCore.Chart<TDrawingContext>,
@@ -194,7 +192,7 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
         this._isTModelChartEntity = LiveChartsCore.IsInterfaceOfIChartEntity(series.Values!.First(t => t != null));
         return this._isTModelChartEntity
             ? this.EnumerateChartEntities(series, chart)
-            : this.EnumerateByRefEntities(series, chart);
+            : this.EnumerateByValEntities(series, chart);
     }
 
     private EnumerateChartEntities(series: LiveChartsCore.ISeries1<TModel>, chart: LiveChartsCore.IChart): System.IEnumerable<LiveChartsCore.IChartEntity> {
@@ -227,22 +225,21 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
         return System.EnumerableFrom(() => _$generator(series, chart));
     }
 
-
-    private EnumerateByRefEntities(series: LiveChartsCore.ISeries1<TModel>, chart: LiveChartsCore.IChart): System.IEnumerable<Nullable<LiveChartsCore.IChartEntity>> {
+    private EnumerateByValEntities(series: LiveChartsCore.ISeries1<TModel>, chart: LiveChartsCore.IChart): System.IEnumerable<Nullable<LiveChartsCore.IChartEntity>> {
         const _$generator = function* (this: any, series: LiveChartsCore.ISeries1<TModel>, chart: LiveChartsCore.IChart) {
             let d: any;
             if (series.Values == null) return;
 
             let canvas = <LiveChartsCore.MotionCanvas<TDrawingContext>><unknown>chart.Canvas;
+            DataFactory.TrySetMapperForNumberSeries(series);
             let mapper = series.Mapping;
             if (mapper == null) throw new System.Exception("series has no mapper");
             let index = 0;
-
-            if (!this._chartRefEntityMap.TryGetValue(canvas.Sync, new System.Out(() => d, $v => d = $v))) {
-                d = new System.Dictionary<TModel, LiveChartsCore.MappedChartEntity>();
-                this._chartRefEntityMap.SetAt(canvas.Sync, d);
+            this._chartIndexEntityMap.TryGetValue(canvas.Sync, new System.Out(() => d, $v => d = $v));
+            if (d == null) {
+                d = new System.Dictionary<number, LiveChartsCore.MappedChartEntity>();
+                this._chartIndexEntityMap.SetAt(canvas.Sync, d);
             }
-
             let IndexEntityMap = d;
 
             for (const item of series.Values) {
@@ -254,8 +251,8 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
                     continue;
                 }
 
-                if (!IndexEntityMap.TryGetValue(item, new System.Out(() => entity, $v => entity = $v))) {
-                    IndexEntityMap.SetAt(item, entity = new LiveChartsCore.MappedChartEntity().Init(
+                if (!IndexEntityMap.TryGetValue(index, new System.Out(() => entity, $v => entity = $v))) {
+                    IndexEntityMap.SetAt(index, entity = new LiveChartsCore.MappedChartEntity().Init(
                         {
                             ChartPoints: new System.Dictionary<LiveChartsCore.IChartView, LiveChartsCore.ChartPoint>()
                         }));
@@ -277,5 +274,17 @@ export class DataFactory<TModel, TDrawingContext extends LiveChartsCore.DrawingC
         }
             .bind(this);
         return System.EnumerableFrom(() => _$generator(series, chart));
+    }
+
+    private static TrySetMapperForNumberSeries(series: any) {
+        if (series.Mapping != null) return;
+
+        let first = series.Values.First(t => t != null);
+        if (typeof first === 'number') {
+            series.Mapping = (n, p) => {
+                p.PrimaryValue = n == null ? 0 : n;
+                p.SecondaryValue = p.Context.Entity.EntityIndex;
+            }
+        }
     }
 }
