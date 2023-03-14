@@ -1,6350 +1,3882 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-class BasicEnumerable {
-  constructor(iterator) {
-    this.iterator = iterator;
+var ht = Object.defineProperty;
+var wt = (n, e, t) => e in n ? ht(n, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : n[e] = t;
+var p = (n, e, t) => (wt(n, typeof e != "symbol" ? e + "" : e, t), t);
+var c = /* @__PURE__ */ ((n) => (n[n.PromiseToArray = 0] = "PromiseToArray", n[n.ArrayOfPromises = 1] = "ArrayOfPromises", n[n.PromiseOfPromises = 2] = "PromiseOfPromises", n))(c || {});
+const u = Object.freeze({
+  MoreThanOneElement: "Sequence contains more than one element",
+  MoreThanOneMatchingElement: "Sequence contains more than one matching element",
+  NoElements: "Sequence contains no elements",
+  NoMatch: "Sequence contains no matching element"
+}), oc = (n, e) => n - e, d = (n, e) => n === e;
+class j extends Array {
+}
+class h {
+  constructor(e) {
+    this.iterator = e;
+  }
+  [Symbol.asyncIterator]() {
+    return this.iterator();
+  }
+}
+class w {
+  constructor(e) {
+    p(this, "dataFunc");
+    this.dataFunc = e;
+  }
+  [Symbol.asyncIterator]() {
+    const { dataFunc: e } = this;
+    async function* t() {
+      switch (e.type) {
+        case c.ArrayOfPromises:
+          for (const r of e.generator())
+            yield r;
+          break;
+        case c.PromiseOfPromises:
+          for (const r of await e.generator())
+            yield r;
+          break;
+        case c.PromiseToArray:
+        default:
+          for (const r of await e.generator())
+            yield r;
+          break;
+      }
+    }
+    return t();
+  }
+}
+class g {
+  constructor(e) {
+    this.iterator = e;
   }
   [Symbol.iterator]() {
     return this.iterator();
   }
 }
-const from = (source) => {
-  const isArrayLike = (x) => {
-    return Array.isArray(x) || typeof x === "object" && typeof x.length === "number" && (x.length === 0 || 0 in x);
-  };
-  const isIterableType = (x) => typeof x === "function";
-  if (isArrayLike(source)) {
-    const generator = function* () {
-      for (let i2 = 0; i2 < source.length; i2++) {
-        yield source[i2];
-      }
-    };
-    return new BasicEnumerable(generator);
-  }
-  if (isIterableType(source)) {
-    return new BasicEnumerable(source);
-  }
-  return new BasicEnumerable(function* () {
-    for (const val of source) {
-      yield val;
-    }
-  });
+const S = (n) => {
+  const e = j.prototype, t = n.prototype, r = Object.getOwnPropertyNames(e);
+  for (const s of r)
+    t[s] = t[s] ?? e[s];
 };
-const IsNullOrEmpty = function(s2) {
-  return s2 == null || s2.length === 0;
-};
-const IsNullOrWhiteSpace = function(s2) {
-  if (s2 == null || s2.length == 0)
-    return true;
-  return s2.trim() == "";
-};
-const Equals = function(a2, b2) {
-  if (a2 == null && b2 == null)
-    return true;
-  if (a2 == null || b2 == null)
-    return false;
-  if (typeof a2 === "object" && a2.constructor.op_Equality)
-    return a2.constructor.op_Equality(a2, b2);
-  return a2 == b2;
-};
-const OpEquality = function(a2, b2) {
-  if (a2 == null && b2 == null)
-    return true;
-  if (a2 == null || b2 == null)
-    return false;
-  return a2.constructor.op_Equality(a2, b2);
-};
-const OpInequality = function(a2, b2) {
-  return !OpEquality(a2, b2);
-};
-const StringToUint16Array = function(str) {
-  let buf = new Uint16Array(str.length);
-  for (let i2 = 0; i2 < str.length; i2++) {
-    buf[i2] = str.charCodeAt(i2);
-  }
-  return buf;
-};
-const BinarySearch = function(array, index, length, value, comparer) {
-  let num1 = index;
-  let num2 = index + length - 1;
-  while (num1 <= num2) {
-    let index1 = num1 + (num2 - num1 >> 1);
-    let num3 = comparer.Compare(array[index1], value);
-    if (num3 == 0)
-      return index1;
-    if (num3 < 0)
-      num1 = index1 + 1;
-    else
-      num2 = index1 - 1;
-  }
-  return ~num1;
-};
-var ParallelGeneratorType = /* @__PURE__ */ ((ParallelGeneratorType2) => {
-  ParallelGeneratorType2[ParallelGeneratorType2["PromiseToArray"] = 0] = "PromiseToArray";
-  ParallelGeneratorType2[ParallelGeneratorType2["ArrayOfPromises"] = 1] = "ArrayOfPromises";
-  ParallelGeneratorType2[ParallelGeneratorType2["PromiseOfPromises"] = 2] = "PromiseOfPromises";
-  return ParallelGeneratorType2;
-})(ParallelGeneratorType || {});
-const ErrorString = Object.freeze({
-  MoreThanOneElement: `Sequence contains more than one element`,
-  MoreThanOneMatchingElement: `Sequence contains more than one matching element`,
-  NoElements: `Sequence contains no elements`,
-  NoMatch: `Sequence contains no matching element`
-});
-const StrictEqualityComparer = (x, y2) => x === y2;
-class ArrayEnumerable extends Array {
-}
-class BasicAsyncEnumerable {
-  constructor(iterator) {
-    this.iterator = iterator;
-  }
-  [Symbol.asyncIterator]() {
-    return this.iterator();
-  }
-}
-class BasicParallelEnumerable {
-  constructor(dataFunc) {
-    __publicField(this, "dataFunc");
-    this.dataFunc = dataFunc;
-  }
-  [Symbol.asyncIterator]() {
-    const { dataFunc } = this;
-    async function* iterator() {
-      switch (dataFunc.type) {
-        case ParallelGeneratorType.ArrayOfPromises:
-          for (const value of dataFunc.generator()) {
-            yield value;
-          }
-          break;
-        case ParallelGeneratorType.PromiseOfPromises:
-          for (const value of await dataFunc.generator()) {
-            yield value;
-          }
-          break;
-        case ParallelGeneratorType.PromiseToArray:
-        default:
-          for (const value of await dataFunc.generator()) {
-            yield value;
-          }
-          break;
-      }
-    }
-    return iterator();
-  }
-}
-const bindArray = (jsArray) => {
-  const arrayEnumerablePrototype = ArrayEnumerable.prototype;
-  const bindToPrototype = jsArray.prototype;
-  const propertyNames = Object.getOwnPropertyNames(arrayEnumerablePrototype);
-  for (const prop of propertyNames) {
-    bindToPrototype[prop] = bindToPrototype[prop] ?? arrayEnumerablePrototype[prop];
-  }
-};
-class Exception extends Error {
-  constructor(message) {
-    super(message);
+class B extends Error {
+  constructor(e) {
+    super(e);
   }
   get Message() {
     return this.message;
   }
 }
-class ArgumentException extends Exception {
-  constructor(message) {
-    super(message);
-    this.name = `ArgumentException`;
-    this.stack = this.stack || new Error().stack;
+class H extends B {
+  constructor(e) {
+    super(e), this.name = "ArgumentException", this.stack = this.stack || new Error().stack;
   }
 }
-class ArgumentNullException extends Exception {
-  constructor(message) {
-    super(message);
-    this.name = `ArgumentException`;
-    this.stack = this.stack || new Error().stack;
+class ac extends B {
+  constructor(e) {
+    super(e), this.name = "ArgumentException", this.stack = this.stack || new Error().stack;
   }
 }
-class ArgumentOutOfRangeException extends Exception {
-  constructor(paramName, msg) {
-    super(`${paramName} was out of range.` + msg);
-    this.paramName = paramName;
-    this.msg = msg;
-    this.name = `ArgumentOutOfRangeException`;
-    this.stack = this.stack || new Error().stack;
+class E extends B {
+  constructor(e, t) {
+    super(`${e} was out of range.` + t), this.paramName = e, this.msg = t, this.name = "ArgumentOutOfRangeException", this.stack = this.stack || new Error().stack;
   }
 }
-class IndexOutOfRangeException extends Exception {
-  constructor(paramName) {
-    super(`${paramName} was out of range. Must be non-negative and less than the size of the collection.`);
-    this.paramName = paramName;
-    this.name = `IndexOutOfRangeException`;
-    this.stack = this.stack || new Error().stack;
+class ic extends B {
+  constructor(e) {
+    super(`${e} was out of range. Must be non-negative and less than the size of the collection.`), this.paramName = e, this.name = "IndexOutOfRangeException", this.stack = this.stack || new Error().stack;
   }
 }
-class NotSupportedException extends Exception {
+class cc extends B {
 }
-class InvalidOperationException extends Exception {
-  constructor(message) {
-    super(message);
-    this.name = `InvalidOperationException`;
-    this.stack = this.stack || new Error().stack;
+class f extends B {
+  constructor(e) {
+    super(e), this.name = "InvalidOperationException", this.stack = this.stack || new Error().stack;
   }
 }
-class NotImplementedException extends Exception {
-  constructor(message) {
-    super(message);
-    this.name = `NotImplementedException`;
-    this.stack = this.stack || new Error().stack;
+class lc extends B {
+  constructor(e) {
+    super(e), this.name = "NotImplementedException", this.stack = this.stack || new Error().stack;
   }
 }
-const bindArrayEnumerable = () => {
-  const { prototype } = ArrayEnumerable;
-  const propertyNames = Object.getOwnPropertyNames(BasicEnumerable.prototype);
-  for (const prop of propertyNames) {
-    prototype[prop] = prototype[prop] ?? BasicEnumerable.prototype[prop];
-  }
-  prototype.All = function(predicate) {
-    return this.every(predicate);
-  };
-  prototype.Any = function(predicate) {
-    if (predicate) {
-      return this.some(predicate);
-    } else {
-      return this.length !== 0;
-    }
-  };
-  prototype.Count = function(predicate) {
-    if (predicate) {
-      let count3 = 0;
-      for (let i2 = 0; i2 < this.length; i2++) {
-        if (predicate(this[i2]) === true) {
-          count3++;
-        }
-      }
-      return count3;
-    } else {
+const gt = () => {
+  const { prototype: n } = j, e = Object.getOwnPropertyNames(g.prototype);
+  for (const t of e)
+    n[t] = n[t] ?? g.prototype[t];
+  n.All = function(t) {
+    return this.every(t);
+  }, n.Any = function(t) {
+    return t ? this.some(t) : this.length !== 0;
+  }, n.Count = function(t) {
+    if (t) {
+      let r = 0;
+      for (let s = 0; s < this.length; s++)
+        t(this[s]) === !0 && r++;
+      return r;
+    } else
       return this.length;
-    }
-  };
-  prototype.ElementAt = function(index) {
-    if (index < 0 || index >= this.length) {
-      throw new ArgumentOutOfRangeException("index");
-    }
-    return this[index];
-  };
-  prototype.ElementAtOrDefault = function(index) {
-    return this[index] || null;
-  };
-  prototype.First = function(predicate) {
-    if (predicate) {
-      const value = this.find(predicate);
-      if (value === void 0) {
-        throw new InvalidOperationException(ErrorString.NoMatch);
-      } else {
-        return value;
-      }
+  }, n.ElementAt = function(t) {
+    if (t < 0 || t >= this.length)
+      throw new E("index");
+    return this[t];
+  }, n.ElementAtOrDefault = function(t) {
+    return this[t] || null;
+  }, n.First = function(t) {
+    if (t) {
+      const r = this.find(t);
+      if (r === void 0)
+        throw new f(u.NoMatch);
+      return r;
     } else {
-      if (this.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      }
+      if (this.length === 0)
+        throw new f(u.NoElements);
       return this[0];
     }
-  };
-  prototype.FirstOrDefault = function(predicate) {
-    if (predicate) {
-      const value = this.find(predicate);
-      if (value === void 0) {
-        return null;
-      } else {
-        return value;
-      }
-    } else {
+  }, n.FirstOrDefault = function(t) {
+    if (t) {
+      const r = this.find(t);
+      return r === void 0 ? null : r;
+    } else
       return this.length === 0 ? null : this[0];
-    }
-  };
-  prototype.Last = function(predicate) {
-    if (predicate) {
-      for (let i2 = this.length - 1; i2 >= 0; i2--) {
-        const value = this[i2];
-        if (predicate(value) === true) {
-          return value;
-        }
+  }, n.Last = function(t) {
+    if (t) {
+      for (let r = this.length - 1; r >= 0; r--) {
+        const s = this[r];
+        if (t(s) === !0)
+          return s;
       }
-      throw new InvalidOperationException(ErrorString.NoMatch);
+      throw new f(u.NoMatch);
     } else {
-      if (this.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      }
+      if (this.length === 0)
+        throw new f(u.NoElements);
       return this[this.length - 1];
     }
-  };
-  prototype.LastOrDefault = function(predicate) {
-    if (predicate) {
-      for (let i2 = this.length - 1; i2 >= 0; i2--) {
-        const value = this[i2];
-        if (predicate(value) === true) {
-          return value;
-        }
+  }, n.LastOrDefault = function(t) {
+    if (t) {
+      for (let r = this.length - 1; r >= 0; r--) {
+        const s = this[r];
+        if (t(s) === !0)
+          return s;
       }
       return null;
-    } else {
+    } else
       return this.length === 0 ? null : this[this.length - 1];
-    }
-  };
-  prototype.Max = function(selector) {
-    if (this.length === 0) {
-      throw new InvalidOperationException(ErrorString.NoElements);
-    }
-    if (selector) {
-      let max3 = Number.NEGATIVE_INFINITY;
-      for (let i2 = 0; i2 < this.length; i2++) {
-        max3 = Math.max(selector(this[i2]), max3);
-      }
-      return max3;
-    } else {
+  }, n.Max = function(t) {
+    if (this.length === 0)
+      throw new f(u.NoElements);
+    if (t) {
+      let r = Number.NEGATIVE_INFINITY;
+      for (let s = 0; s < this.length; s++)
+        r = Math.max(t(this[s]), r);
+      return r;
+    } else
       return Math.max.apply(null, this);
-    }
-  };
-  prototype.Min = function(selector) {
-    if (this.length === 0) {
-      throw new InvalidOperationException(ErrorString.NoElements);
-    }
-    if (selector) {
-      let min3 = Number.POSITIVE_INFINITY;
-      for (let i2 = 0; i2 < this.length; i2++) {
-        min3 = Math.min(selector(this[i2]), min3);
-      }
-      return min3;
-    } else {
+  }, n.Min = function(t) {
+    if (this.length === 0)
+      throw new f(u.NoElements);
+    if (t) {
+      let r = Number.POSITIVE_INFINITY;
+      for (let s = 0; s < this.length; s++)
+        r = Math.min(t(this[s]), r);
+      return r;
+    } else
       return Math.min.apply(null, this);
-    }
+  }, n.Reverse = function() {
+    return Array.prototype.reverse.apply(this), this;
   };
-  prototype.Reverse = function() {
-    Array.prototype.reverse.apply(this);
-    return this;
-  };
-};
-const aggregate$2 = (source, seedOrFunc, func, resultSelector) => {
-  if (resultSelector) {
-    if (!func) {
-      throw new ReferenceError(`TAccumulate function is undefined`);
-    }
-    return aggregate3$2(source, seedOrFunc, func, resultSelector);
-  } else if (func) {
-    return aggregate2$2(source, seedOrFunc, func);
-  } else {
-    return aggregate1$2(source, seedOrFunc);
-  }
-};
-const aggregate1$2 = (source, func) => {
-  let aggregateValue;
-  for (const value of source) {
-    if (aggregateValue) {
-      aggregateValue = func(aggregateValue, value);
-    } else {
-      aggregateValue = value;
-    }
-  }
-  if (aggregateValue === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return aggregateValue;
-};
-const aggregate2$2 = (source, seed, func) => {
-  let aggregateValue = seed;
-  for (const value of source) {
-    aggregateValue = func(aggregateValue, value);
-  }
-  return aggregateValue;
-};
-const aggregate3$2 = (source, seed, func, resultSelector) => {
-  let aggregateValue = seed;
-  for (const value of source) {
-    aggregateValue = func(aggregateValue, value);
-  }
-  return resultSelector(aggregateValue);
-};
-const all$2 = (source, predicate) => {
-  for (const item of source) {
-    if (predicate(item) === false) {
-      return false;
-    }
-  }
-  return true;
-};
-const allAsync$2 = async (source, predicate) => {
-  for (const item of source) {
-    if (await predicate(item) === false) {
-      return false;
-    }
-  }
-  return true;
-};
-const any$2 = (source, predicate) => {
-  if (predicate) {
-    return any2$2(source, predicate);
-  } else {
-    return any1$2(source);
-  }
-};
-const any1$2 = (source) => {
-  for (const _ of source) {
-    return true;
-  }
-  return false;
-};
-const any2$2 = (source, predicate) => {
-  for (const item of source) {
-    if (predicate(item) === true) {
-      return true;
-    }
-  }
-  return false;
-};
-const anyAsync$2 = async (source, predicate) => {
-  for (const item of source) {
-    if (await predicate(item) === true) {
-      return true;
-    }
-  }
-  return false;
-};
-const fromAsync = (promisesOrIterable) => {
-  if (Array.isArray(promisesOrIterable)) {
-    if (promisesOrIterable.length === 0) {
-      throw new InvalidOperationException(ErrorString.NoElements);
-    }
-    return new BasicAsyncEnumerable(async function* () {
-      for await (const value of promisesOrIterable) {
-        yield value;
-      }
+}, mt = (n, e, t, r) => {
+  if (r) {
+    if (!t)
+      throw new ReferenceError("TAccumulate function is undefined");
+    return dt(n, e, t, r);
+  } else
+    return t ? At(n, e, t) : pt(n, e);
+}, pt = (n, e) => {
+  let t;
+  for (const r of n)
+    t ? t = e(t, r) : t = r;
+  if (t === void 0)
+    throw new f(u.NoElements);
+  return t;
+}, At = (n, e, t) => {
+  let r = e;
+  for (const s of n)
+    r = t(r, s);
+  return r;
+}, dt = (n, e, t, r) => {
+  let s = e;
+  for (const o of n)
+    s = t(s, o);
+  return r(s);
+}, vt = (n, e) => {
+  for (const t of n)
+    if (e(t) === !1)
+      return !1;
+  return !0;
+}, Pt = async (n, e) => {
+  for (const t of n)
+    if (await e(t) === !1)
+      return !1;
+  return !0;
+}, kt = (n, e) => e ? Tt(n, e) : $t(n), $t = (n) => {
+  for (const e of n)
+    return !0;
+  return !1;
+}, Tt = (n, e) => {
+  for (const t of n)
+    if (e(t) === !0)
+      return !0;
+  return !1;
+}, Ot = async (n, e) => {
+  for (const t of n)
+    if (await e(t) === !0)
+      return !0;
+  return !1;
+}, A = (n) => {
+  if (Array.isArray(n)) {
+    if (n.length === 0)
+      throw new f(u.NoElements);
+    return new h(async function* () {
+      for await (const e of n)
+        yield e;
     });
-  } else {
-    return new BasicAsyncEnumerable(promisesOrIterable);
+  } else
+    return new h(n);
+}, It = (n) => {
+  async function* e() {
+    for (const t of n)
+      yield t;
   }
-};
-const asAsync$1 = (source) => {
-  async function* generator() {
-    for (const value of source) {
-      yield value;
-    }
-  }
-  return fromAsync(generator);
-};
-const fromParallel = (type, generator) => {
-  return new BasicParallelEnumerable({
-    generator,
-    type
-  });
-};
-const asParallel$1 = (source) => {
-  const generator = async () => {
-    const array = [];
-    for (const value of source) {
-      array.push(value);
-    }
-    return array;
+  return A(e);
+}, it = (n, e) => new w({
+  generator: e,
+  type: n
+}), Mt = (n) => {
+  const e = async () => {
+    const t = [];
+    for (const r of n)
+      t.push(r);
+    return t;
   };
-  return fromParallel(ParallelGeneratorType.PromiseToArray, generator);
-};
-const average$2 = (source, selector) => {
-  if (selector) {
-    return average2$1(source, selector);
-  } else {
-    return average1$1(source);
+  return it(c.PromiseToArray, e);
+}, Et = (n, e) => e ? xt(n, e) : bt(n), bt = (n) => {
+  let e, t;
+  for (const r of n)
+    e = (e || 0) + r, t = (t || 0) + 1;
+  if (e === void 0)
+    throw new f(u.NoElements);
+  return e / t;
+}, xt = (n, e) => {
+  let t, r;
+  for (const s of n)
+    t = (t || 0) + e(s), r = (r || 0) + 1;
+  if (t === void 0)
+    throw new f(u.NoElements);
+  return t / r;
+}, St = async (n, e) => {
+  let t, r;
+  for (const s of n)
+    t = (t || 0) + await e(s), r = (r || 0) + 1;
+  if (t === void 0)
+    throw new f(u.NoElements);
+  return t / r;
+}, Nt = (n, e) => {
+  function* t() {
+    yield* n, yield* e;
   }
-};
-const average1$1 = (source) => {
-  let value;
-  let count3;
-  for (const item of source) {
-    value = (value || 0) + item;
-    count3 = (count3 || 0) + 1;
+  return new g(t);
+}, Vt = (n, e, t = d) => {
+  for (const r of n)
+    if (t(e, r))
+      return !0;
+  return !1;
+}, Dt = async (n, e, t) => {
+  for (const r of n)
+    if (await t(e, r))
+      return !0;
+  return !1;
+}, Ft = (n, e) => e ? Bt(n, e) : _t(n), _t = (n) => {
+  let e = 0;
+  for (const t of n)
+    e++;
+  return e;
+}, Bt = (n, e) => {
+  let t = 0;
+  for (const r of n)
+    e(r) === !0 && t++;
+  return t;
+}, Rt = async (n, e) => {
+  let t = 0;
+  for (const r of n)
+    await e(r) === !0 && t++;
+  return t;
+}, Wt = (n, e = d) => {
+  function* t() {
+    const r = [];
+    for (const s of n)
+      r.find((a) => e(a, s)) || (r.push(s), yield s);
   }
-  if (value === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return value / count3;
-};
-const average2$1 = (source, func) => {
-  let value;
-  let count3;
-  for (const item of source) {
-    value = (value || 0) + func(item);
-    count3 = (count3 || 0) + 1;
-  }
-  if (value === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return value / count3;
-};
-const averageAsync$2 = async (source, selector) => {
-  let value;
-  let count3;
-  for (const item of source) {
-    value = (value || 0) + await selector(item);
-    count3 = (count3 || 0) + 1;
-  }
-  if (value === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return value / count3;
-};
-const concatenate$2 = (first3, second) => {
-  function* iterator() {
-    yield* first3;
-    yield* second;
-  }
-  return new BasicEnumerable(iterator);
-};
-const contains$2 = (source, value, comparer = StrictEqualityComparer) => {
-  for (const item of source) {
-    if (comparer(value, item)) {
-      return true;
-    }
-  }
-  return false;
-};
-const containsAsync$2 = async (source, value, comparer) => {
-  for (const item of source) {
-    if (await comparer(value, item)) {
-      return true;
-    }
-  }
-  return false;
-};
-const count$2 = (source, predicate) => {
-  if (predicate) {
-    return count2$2(source, predicate);
-  } else {
-    return count1$2(source);
-  }
-};
-const count1$2 = (source) => {
-  let count3 = 0;
-  for (const _ of source) {
-    count3++;
-  }
-  return count3;
-};
-const count2$2 = (source, predicate) => {
-  let count3 = 0;
-  for (const value of source) {
-    if (predicate(value) === true) {
-      count3++;
-    }
-  }
-  return count3;
-};
-const countAsync$2 = async (source, predicate) => {
-  let count3 = 0;
-  for (const value of source) {
-    if (await predicate(value) === true) {
-      count3++;
-    }
-  }
-  return count3;
-};
-const distinct$2 = (source, comparer = StrictEqualityComparer) => {
-  function* iterator() {
-    const distinctElements = [];
-    for (const item of source) {
-      const foundItem = distinctElements.find((x) => comparer(x, item));
-      if (!foundItem) {
-        distinctElements.push(item);
-        yield item;
-      }
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const distinctAsync$2 = (source, comparer) => {
-  async function* iterator() {
-    const distinctElements = [];
-    outerLoop:
-      for (const item of source) {
-        for (const distinctElement of distinctElements) {
-          const found = await comparer(distinctElement, item);
-          if (found) {
-            continue outerLoop;
-          }
-        }
-        distinctElements.push(item);
-        yield item;
+  return new g(t);
+}, Kt = (n, e) => {
+  async function* t() {
+    const r = [];
+    t:
+      for (const s of n) {
+        for (const o of r)
+          if (await e(o, s))
+            continue t;
+        r.push(s), yield s;
       }
   }
-  return fromAsync(iterator);
-};
-const each$2 = (source, action) => {
-  function* generator() {
-    for (const value of source) {
-      action(value);
-      yield value;
-    }
+  return A(t);
+}, jt = (n, e) => {
+  function* t() {
+    for (const r of n)
+      e(r), yield r;
   }
-  return new BasicEnumerable(generator);
-};
-const eachAsync$2 = (source, action) => {
-  async function* generator() {
-    for (const value of source) {
-      await action(value);
-      yield value;
-    }
+  return new g(t);
+}, qt = (n, e) => {
+  async function* t() {
+    for (const r of n)
+      await e(r), yield r;
   }
-  return fromAsync(generator);
-};
-const elementAt$2 = (source, index) => {
-  if (index < 0) {
-    throw new ArgumentOutOfRangeException("index");
-  }
-  let i2 = 0;
-  for (const item of source) {
-    if (index === i2++) {
-      return item;
-    }
-  }
-  throw new ArgumentOutOfRangeException("index");
-};
-const elementAtOrDefault$2 = (source, index) => {
-  let i2 = 0;
-  for (const item of source) {
-    if (index === i2++) {
-      return item;
-    }
-  }
+  return A(t);
+}, Lt = (n, e) => {
+  if (e < 0)
+    throw new E("index");
+  let t = 0;
+  for (const r of n)
+    if (e === t++)
+      return r;
+  throw new E("index");
+}, Ct = (n, e) => {
+  let t = 0;
+  for (const r of n)
+    if (e === t++)
+      return r;
   return null;
-};
-const except$2 = (first3, second, comparer = StrictEqualityComparer) => {
-  function* iterator() {
-    const secondArray = [...second];
-    for (const firstItem of first3) {
-      let exists = false;
-      for (let j = 0; j < secondArray.length; j++) {
-        const secondItem = secondArray[j];
-        if (comparer(firstItem, secondItem) === true) {
-          exists = true;
+}, zt = (n, e, t = d) => {
+  function* r() {
+    const s = [...e];
+    for (const o of n) {
+      let a = !1;
+      for (let i = 0; i < s.length; i++) {
+        const l = s[i];
+        if (t(o, l) === !0) {
+          a = !0;
           break;
         }
       }
-      if (exists === false) {
-        yield firstItem;
-      }
+      a === !1 && (yield o);
     }
   }
-  return new BasicEnumerable(iterator);
-};
-const exceptAsync$2 = (first3, second, comparer) => {
-  async function* iterator() {
-    const secondArray = [...second];
-    for (const firstItem of first3) {
-      let exists = false;
-      for (let j = 0; j < secondArray.length; j++) {
-        const secondItem = secondArray[j];
-        if (await comparer(firstItem, secondItem) === true) {
-          exists = true;
+  return new g(r);
+}, Ut = (n, e, t) => {
+  async function* r() {
+    const s = [...e];
+    for (const o of n) {
+      let a = !1;
+      for (let i = 0; i < s.length; i++) {
+        const l = s[i];
+        if (await t(o, l) === !0) {
+          a = !0;
           break;
         }
       }
-      if (exists === false) {
-        yield firstItem;
-      }
+      a === !1 && (yield o);
     }
   }
-  return fromAsync(iterator);
-};
-const first$2 = (source, predicate) => {
-  if (predicate) {
-    return first2$2(source, predicate);
-  } else {
-    return first1$2(source);
-  }
-};
-const first1$2 = (source) => {
-  const first3 = source[Symbol.iterator]().next();
-  if (first3.done === true) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return first3.value;
-};
-const first2$2 = (source, predicate) => {
-  for (const value of source) {
-    if (predicate(value) === true) {
-      return value;
-    }
-  }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const firstAsync$2 = async (source, predicate) => {
-  for (const value of source) {
-    if (await predicate(value) === true) {
-      return value;
-    }
-  }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const firstOrDefault$2 = (source, predicate) => {
-  if (predicate) {
-    return firstOrDefault2$2(source, predicate);
-  } else {
-    return firstOrDefault1$2(source);
-  }
-};
-const firstOrDefault1$2 = (source) => {
-  const first3 = source[Symbol.iterator]().next();
-  return first3.value || null;
-};
-const firstOrDefault2$2 = (source, predicate) => {
-  for (const value of source) {
-    if (predicate(value) === true) {
-      return value;
-    }
-  }
+  return A(r);
+}, Gt = (n, e) => e ? Zt(n, e) : Yt(n), Yt = (n) => {
+  const e = n[Symbol.iterator]().next();
+  if (e.done === !0)
+    throw new f(u.NoElements);
+  return e.value;
+}, Zt = (n, e) => {
+  for (const t of n)
+    if (e(t) === !0)
+      return t;
+  throw new f(u.NoMatch);
+}, Jt = async (n, e) => {
+  for (const t of n)
+    if (await e(t) === !0)
+      return t;
+  throw new f(u.NoMatch);
+}, Ht = (n, e) => e ? Qt(n, e) : Xt(n), Xt = (n) => n[Symbol.iterator]().next().value || null, Qt = (n, e) => {
+  for (const t of n)
+    if (e(t) === !0)
+      return t;
+  return null;
+}, te = async (n, e) => {
+  for (const t of n)
+    if (await e(t) === !0)
+      return t;
   return null;
 };
-const firstOrDefaultAsync$2 = async (source, predicate) => {
-  for (const value of source) {
-    if (await predicate(value) === true) {
-      return value;
-    }
-  }
-  return null;
-};
-class Grouping extends ArrayEnumerable {
-  constructor(key, startingItem) {
+class v extends j {
+  constructor(t, r) {
     super(1);
-    __publicField(this, "key");
-    this.key = key;
-    this[0] = startingItem;
+    p(this, "key");
+    this.key = t, this[0] = r;
   }
 }
-const groupBy_0$2 = (source, keySelector, comparer) => {
-  return function* generate() {
-    const keyMap = new Array();
-    for (const value of source) {
-      const key = keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (comparer(group.key, key)) {
-          group.push(value);
-          found = true;
+const ee = (n, e, t) => function* () {
+  const s = new Array();
+  for (const o of n) {
+    const a = e(o);
+    let i = !1;
+    for (let l = 0; l < s.length; l++) {
+      const y = s[l];
+      if (t(y.key, a)) {
+        y.push(o), i = !0;
+        break;
+      }
+    }
+    i === !1 && s.push(new v(a, o));
+  }
+  for (const o of s)
+    yield o;
+}, ne = (n, e) => function* () {
+  const r = {};
+  for (const s of n) {
+    const o = e(s), a = r[o];
+    a ? a.push(s) : r[o] = new v(o, s);
+  }
+  for (const s in r)
+    yield r[s];
+}, re = (n, e, t) => {
+  function* r() {
+    const s = {};
+    for (const o of n) {
+      const a = e(o), i = s[a], l = t(o);
+      i ? i.push(l) : s[a] = new v(a, l);
+    }
+    for (const o in s)
+      yield s[o];
+  }
+  return new g(r);
+}, se = (n, e, t, r) => {
+  function* s() {
+    const o = new Array();
+    for (const a of n) {
+      const i = e(a);
+      let l = !1;
+      for (let y = 0; y < o.length; y++) {
+        const m = o[y];
+        if (r(m.key, i)) {
+          m.push(t(a)), l = !0;
           break;
         }
       }
-      if (found === false) {
-        keyMap.push(new Grouping(key, value));
+      if (l === !1) {
+        const y = t(a);
+        o.push(new v(i, y));
       }
     }
-    for (const keyValue of keyMap) {
-      yield keyValue;
-    }
-  };
-};
-const groupBy_0_Simple$2 = (source, keySelector) => {
-  return function* iterator() {
-    const keyMap = {};
-    for (const value of source) {
-      const key = keySelector(value);
-      const grouping = keyMap[key];
-      if (grouping) {
-        grouping.push(value);
-      } else {
-        keyMap[key] = new Grouping(key, value);
-      }
-    }
-    for (const value in keyMap) {
-      yield keyMap[value];
-    }
-  };
-};
-const groupBy_1_Simple = (source, keySelector, elementSelector) => {
-  function* generate() {
-    const keyMap = {};
-    for (const value of source) {
-      const key = keySelector(value);
-      const grouping = keyMap[key];
-      const element = elementSelector(value);
-      if (grouping) {
-        grouping.push(element);
-      } else {
-        keyMap[key] = new Grouping(key, element);
-      }
-    }
-    for (const value in keyMap) {
-      yield keyMap[value];
-    }
+    for (const a of o)
+      yield a;
   }
-  return new BasicEnumerable(generate);
-};
-const groupBy_1 = (source, keySelector, elementSelector, comparer) => {
-  function* generate() {
-    const keyMap = new Array();
-    for (const value of source) {
-      const key = keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (comparer(group.key, key)) {
-          group.push(elementSelector(value));
-          found = true;
+  return new g(s);
+}, oe = (n, e, t) => {
+  let r;
+  return t ? r = ee(
+    n,
+    e,
+    t
+  ) : r = ne(
+    n,
+    e
+  ), new g(r);
+}, ae = (n, e, t) => t ? ce(n, e, t) : ie(
+  n,
+  e
+), ie = (n, e) => {
+  async function* t() {
+    const r = {};
+    for (const s of n) {
+      const o = await e(s), a = r[o];
+      a ? a.push(s) : r[o] = new v(o, s);
+    }
+    for (const s in r)
+      yield r[s];
+  }
+  return A(t);
+}, ce = (n, e, t) => {
+  async function* r() {
+    const s = new Array();
+    for (const o of n) {
+      const a = await e(o);
+      let i = !1;
+      for (let l = 0; l < s.length; l++) {
+        const y = s[l];
+        if (await t(y.key, a) === !0) {
+          y.push(o), i = !0;
           break;
         }
       }
-      if (found === false) {
-        const element = elementSelector(value);
-        keyMap.push(new Grouping(key, element));
-      }
+      i === !1 && s.push(new v(a, o));
     }
-    for (const keyValue of keyMap) {
-      yield keyValue;
-    }
+    for (const o of s)
+      yield o;
   }
-  return new BasicEnumerable(generate);
-};
-const groupBy$2 = (source, keySelector, comparer) => {
-  let iterable;
-  if (comparer) {
-    iterable = groupBy_0$2(source, keySelector, comparer);
-  } else {
-    iterable = groupBy_0_Simple$2(source, keySelector);
-  }
-  return new BasicEnumerable(iterable);
-};
-const groupByAsync$2 = (source, keySelector, comparer) => {
-  if (comparer) {
-    return groupByAsync_0$2(source, keySelector, comparer);
-  } else {
-    return groupByAsync_0_Simple$2(source, keySelector);
-  }
-};
-const groupByAsync_0_Simple$2 = (source, keySelector) => {
-  async function* iterator() {
-    const keyMap = {};
-    for (const value of source) {
-      const key = await keySelector(value);
-      const grouping = keyMap[key];
-      if (grouping) {
-        grouping.push(value);
-      } else {
-        keyMap[key] = new Grouping(key, value);
-      }
-    }
-    for (const value in keyMap) {
-      yield keyMap[value];
-    }
-  }
-  return fromAsync(iterator);
-};
-const groupByAsync_0$2 = (source, keySelector, comparer) => {
-  async function* generate() {
-    const keyMap = new Array();
-    for (const value of source) {
-      const key = await keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (await comparer(group.key, key) === true) {
-          group.push(value);
-          found = true;
-          break;
-        }
-      }
-      if (found === false) {
-        keyMap.push(new Grouping(key, value));
-      }
-    }
-    for (const keyValue of keyMap) {
-      yield keyValue;
-    }
-  }
-  return fromAsync(generate);
-};
-const groupByWithSel$2 = (source, keySelector, elementSelector, comparer) => {
-  if (comparer) {
-    return groupBy_1(source, keySelector, elementSelector, comparer);
-  } else {
-    return groupBy_1_Simple(source, keySelector, elementSelector);
-  }
-};
-const intersect$2 = (first3, second, comparer = StrictEqualityComparer) => {
-  function* iterator() {
-    const firstResults = [...first3.Distinct(comparer)];
-    if (firstResults.length === 0) {
+  return A(r);
+}, le = (n, e, t, r) => r ? se(
+  n,
+  e,
+  t,
+  r
+) : re(
+  n,
+  e,
+  t
+), ue = (n, e, t = d) => {
+  function* r() {
+    const s = [...n.Distinct(t)];
+    if (s.length === 0)
       return;
-    }
-    const secondResults = [...second];
-    for (let i2 = 0; i2 < firstResults.length; i2++) {
-      const firstValue = firstResults[i2];
-      for (let j = 0; j < secondResults.length; j++) {
-        const secondValue = secondResults[j];
-        if (comparer(firstValue, secondValue) === true) {
-          yield firstValue;
+    const o = [...e];
+    for (let a = 0; a < s.length; a++) {
+      const i = s[a];
+      for (let l = 0; l < o.length; l++) {
+        const y = o[l];
+        if (t(i, y) === !0) {
+          yield i;
           break;
         }
       }
     }
   }
-  return new BasicEnumerable(iterator);
-};
-const intersectAsync$2 = (first3, second, comparer) => {
-  async function* iterator() {
-    const firstResults = [];
-    for await (const item of first3.DistinctAsync(comparer)) {
-      firstResults.push(item);
-    }
-    if (firstResults.length === 0) {
+  return new g(r);
+}, fe = (n, e, t) => {
+  async function* r() {
+    const s = [];
+    for await (const a of n.DistinctAsync(t))
+      s.push(a);
+    if (s.length === 0)
       return;
-    }
-    const secondResults = [...second];
-    for (let i2 = 0; i2 < firstResults.length; i2++) {
-      const firstValue = firstResults[i2];
-      for (let j = 0; j < secondResults.length; j++) {
-        const secondValue = secondResults[j];
-        if (await comparer(firstValue, secondValue) === true) {
-          yield firstValue;
+    const o = [...e];
+    for (let a = 0; a < s.length; a++) {
+      const i = s[a];
+      for (let l = 0; l < o.length; l++) {
+        const y = o[l];
+        if (await t(i, y) === !0) {
+          yield i;
           break;
         }
       }
     }
   }
-  return fromAsync(iterator);
-};
-const join$2 = (outer, inner, outerKeySelector, innerKeySelector, resultSelector, comparer = StrictEqualityComparer) => {
-  function* iterator() {
-    const innerArray = [...inner];
-    for (const o2 of outer) {
-      const outerKey = outerKeySelector(o2);
-      for (const i2 of innerArray) {
-        const innerKey = innerKeySelector(i2);
-        if (comparer(outerKey, innerKey) === true) {
-          yield resultSelector(o2, i2);
-        }
+  return A(r);
+}, ye = (n, e, t, r, s, o = d) => {
+  function* a() {
+    const i = [...e];
+    for (const l of n) {
+      const y = t(l);
+      for (const m of i) {
+        const T = r(m);
+        o(y, T) === !0 && (yield s(l, m));
       }
     }
   }
-  return new BasicEnumerable(iterator);
+  return new g(a);
+}, he = (n, e) => e ? ge(n, e) : we(n), we = (n) => {
+  let e;
+  for (const t of n)
+    e = t;
+  if (!e)
+    throw new f(u.NoElements);
+  return e;
+}, ge = (n, e) => {
+  let t;
+  for (const r of n)
+    e(r) === !0 && (t = r);
+  if (!t)
+    throw new f(u.NoMatch);
+  return t;
+}, me = async (n, e) => {
+  let t;
+  for (const r of n)
+    await e(r) === !0 && (t = r);
+  if (!t)
+    throw new f(u.NoMatch);
+  return t;
+}, pe = (n, e) => e ? de(n, e) : Ae(n), Ae = (n) => {
+  let e = null;
+  for (const t of n)
+    e = t;
+  return e;
+}, de = (n, e) => {
+  let t = null;
+  for (const r of n)
+    e(r) === !0 && (t = r);
+  return t;
+}, ve = async (n, e) => {
+  let t = null;
+  for (const r of n)
+    await e(r) === !0 && (t = r);
+  return t;
+}, Pe = (n, e) => e ? $e(n, e) : ke(n), ke = (n) => {
+  let e = null;
+  for (const t of n)
+    e = Math.max(e || Number.NEGATIVE_INFINITY, t);
+  if (e === null)
+    throw new f(u.NoElements);
+  return e;
+}, $e = (n, e) => {
+  let t = null;
+  for (const r of n)
+    t = Math.max(t || Number.NEGATIVE_INFINITY, e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, Te = async (n, e) => {
+  let t = null;
+  for (const r of n)
+    t = Math.max(t || Number.NEGATIVE_INFINITY, await e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, Oe = (n, e) => e ? Me(n, e) : Ie(n), Ie = (n) => {
+  let e = null;
+  for (const t of n)
+    e = Math.min(e || Number.POSITIVE_INFINITY, t);
+  if (e === null)
+    throw new f(u.NoElements);
+  return e;
+}, Me = (n, e) => {
+  let t = null;
+  for (const r of n)
+    t = Math.min(t || Number.POSITIVE_INFINITY, e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, Ee = async (n, e) => {
+  let t = null;
+  for (const r of n)
+    t = Math.min(t || Number.POSITIVE_INFINITY, await e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, be = (n, e) => {
+  const t = typeof e == "string" ? (s) => typeof s === e : (s) => s instanceof e;
+  function* r() {
+    for (const s of n)
+      t(s) && (yield s);
+  }
+  return new g(r);
+}, xe = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for await (const r of n) {
+    const s = await e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
+  }
+  return t;
 };
-const last$2 = (source, predicate) => {
-  if (predicate) {
-    return last2$2(source, predicate);
-  } else {
-    return last1$2(source);
-  }
-};
-const last1$2 = (source) => {
-  let lastItem;
-  for (const value of source) {
-    lastItem = value;
-  }
-  if (!lastItem) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return lastItem;
-};
-const last2$2 = (source, predicate) => {
-  let lastItem;
-  for (const value of source) {
-    if (predicate(value) === true) {
-      lastItem = value;
-    }
-  }
-  if (!lastItem) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
-  }
-  return lastItem;
-};
-const lastAsync$2 = async (source, predicate) => {
-  let last3;
-  for (const value of source) {
-    if (await predicate(value) === true) {
-      last3 = value;
-    }
-  }
-  if (!last3) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
-  }
-  return last3;
-};
-const lastOrDefault$2 = (source, predicate) => {
-  if (predicate) {
-    return lastOrDefault2$2(source, predicate);
-  } else {
-    return lastOrDefault1$2(source);
-  }
-};
-const lastOrDefault1$2 = (source) => {
-  let last3 = null;
-  for (const value of source) {
-    last3 = value;
-  }
-  return last3;
-};
-const lastOrDefault2$2 = (source, predicate) => {
-  let last3 = null;
-  for (const value of source) {
-    if (predicate(value) === true) {
-      last3 = value;
-    }
-  }
-  return last3;
-};
-const lastOrDefaultAsync$2 = async (source, predicate) => {
-  let last3 = null;
-  for (const value of source) {
-    if (await predicate(value) === true) {
-      last3 = value;
-    }
-  }
-  return last3;
-};
-const max$2 = (source, selector) => {
-  if (selector) {
-    return max2$1(source, selector);
-  } else {
-    return max1$1(source);
-  }
-};
-const max1$1 = (source) => {
-  let maxItem = null;
-  for (const item of source) {
-    maxItem = Math.max(maxItem || Number.NEGATIVE_INFINITY, item);
-  }
-  if (maxItem === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return maxItem;
-  }
-};
-const max2$1 = (source, selector) => {
-  let maxItem = null;
-  for (const item of source) {
-    maxItem = Math.max(maxItem || Number.NEGATIVE_INFINITY, selector(item));
-  }
-  if (maxItem === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return maxItem;
-  }
-};
-const maxAsync$2 = async (source, selector) => {
-  let max3 = null;
-  for (const item of source) {
-    max3 = Math.max(max3 || Number.NEGATIVE_INFINITY, await selector(item));
-  }
-  if (max3 === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return max3;
-  }
-};
-const min$2 = (source, selector) => {
-  if (selector) {
-    return min2$1(source, selector);
-  } else {
-    return min1$1(source);
-  }
-};
-const min1$1 = (source) => {
-  let minItem = null;
-  for (const item of source) {
-    minItem = Math.min(minItem || Number.POSITIVE_INFINITY, item);
-  }
-  if (minItem === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return minItem;
-  }
-};
-const min2$1 = (source, selector) => {
-  let minItem = null;
-  for (const item of source) {
-    minItem = Math.min(minItem || Number.POSITIVE_INFINITY, selector(item));
-  }
-  if (minItem === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return minItem;
-  }
-};
-const minAsync$2 = async (source, selector) => {
-  let min3 = null;
-  for (const item of source) {
-    min3 = Math.min(min3 || Number.POSITIVE_INFINITY, await selector(item));
-  }
-  if (min3 === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return min3;
-  }
-};
-const ofType$2 = (source, type) => {
-  const typeCheck = typeof type === "string" ? (x) => typeof x === type : (x) => x instanceof type;
-  function* iterator() {
-    for (const item of source) {
-      if (typeCheck(item)) {
-        yield item;
-      }
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const asAsyncKeyMap$1 = async (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for await (const item of source) {
-    const key = await keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
-  }
-  return map;
-};
-async function* asAsyncSortedKeyValues$1(source, keySelector, ascending, comparer) {
-  const map = await asAsyncKeyMap$1(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* Se(n, e, t, r) {
+  const s = await xe(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-const asAsyncKeyMapSync$1 = async (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const item of source) {
-    const key = await keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const Ne = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = await e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-async function* asAsyncSortedKeyValuesSync$1(source, keySelector, ascending, comparer) {
-  const map = await asAsyncKeyMapSync$1(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* Ve(n, e, t, r) {
+  const s = await Ne(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-const asKeyMap$2 = async (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for await (const item of source) {
-    const key = keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const De = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for await (const r of n) {
+    const s = e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-async function* asSortedKeyValues$2(source, keySelector, ascending, comparer) {
-  const map = await asKeyMap$2(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* Fe(n, e, t, r) {
+  const s = await De(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-const asKeyMapSync$1 = (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const item of source) {
-    const key = keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const _e = (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-function* asSortedKeyValuesSync$1(source, keySelector, ascending, comparer) {
-  const map = asKeyMapSync$1(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+function* Be(n, e, t, r) {
+  const s = _e(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-class OrderedAsyncEnumerable extends BasicAsyncEnumerable {
-  constructor(orderedPairs) {
+class O extends h {
+  constructor(e) {
     super(async function* () {
-      for await (const orderedPair of orderedPairs()) {
-        yield* orderedPair;
-      }
-    });
-    this.orderedPairs = orderedPairs;
+      for await (const t of e())
+        yield* t;
+    }), this.orderedPairs = e;
   }
-  static generateAsync(source, keySelector, ascending, comparer) {
-    let orderedPairs;
-    if (source instanceof OrderedAsyncEnumerable) {
-      orderedPairs = async function* () {
-        for await (const pair of source.orderedPairs()) {
-          yield* asAsyncSortedKeyValuesSync$1(pair, keySelector, ascending, comparer);
-        }
-      };
-    } else {
-      orderedPairs = () => asAsyncSortedKeyValues$1(source, keySelector, ascending, comparer);
-    }
-    return new OrderedAsyncEnumerable(orderedPairs);
+  static generateAsync(e, t, r, s) {
+    let o;
+    return e instanceof O ? o = async function* () {
+      for await (const a of e.orderedPairs())
+        yield* Ve(a, t, r, s);
+    } : o = () => Se(e, t, r, s), new O(o);
   }
-  static generate(source, keySelector, ascending, comparer) {
-    let orderedPairs;
-    if (source instanceof OrderedAsyncEnumerable) {
-      orderedPairs = async function* () {
-        for await (const pair of source.orderedPairs()) {
-          yield* asSortedKeyValuesSync$1(pair, keySelector, ascending, comparer);
-        }
-      };
-    } else {
-      orderedPairs = () => asSortedKeyValues$2(source, keySelector, ascending, comparer);
-    }
-    return new OrderedAsyncEnumerable(orderedPairs);
+  static generate(e, t, r, s) {
+    let o;
+    return e instanceof O ? o = async function* () {
+      for await (const a of e.orderedPairs())
+        yield* Be(a, t, r, s);
+    } : o = () => Fe(e, t, r, s), new O(o);
   }
-  ThenBy(keySelector, comparer) {
-    return OrderedAsyncEnumerable.generate(this, keySelector, true, comparer);
+  ThenBy(e, t) {
+    return O.generate(this, e, !0, t);
   }
-  ThenByAsync(keySelector, comparer) {
-    return OrderedAsyncEnumerable.generateAsync(this, keySelector, true, comparer);
+  ThenByAsync(e, t) {
+    return O.generateAsync(this, e, !0, t);
   }
-  ThenByDescending(keySelector, comparer) {
-    return OrderedAsyncEnumerable.generate(this, keySelector, false, comparer);
+  ThenByDescending(e, t) {
+    return O.generate(this, e, !1, t);
   }
-  ThenByDescendingAsync(keySelector, comparer) {
-    return OrderedAsyncEnumerable.generateAsync(this, keySelector, false, comparer);
+  ThenByDescendingAsync(e, t) {
+    return O.generateAsync(this, e, !1, t);
   }
 }
-const asKeyMap$1 = (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const item of source) {
-    const key = keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const Re = (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-function* asSortedKeyValues$1(source, keySelector, ascending, comparer) {
-  const map = asKeyMap$1(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+function* X(n, e, t, r) {
+  const s = Re(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-const asKeyMapAsync = async (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const item of source) {
-    const key = await keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const We = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = await e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-async function* asSortedKeyValuesAsync(source, keySelector, ascending, comparer) {
-  const map = await asKeyMapAsync(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* Q(n, e, t, r) {
+  const s = await We(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-class OrderedEnumerable extends BasicEnumerable {
-  constructor(orderedPairs) {
+class M extends g {
+  constructor(e) {
     super(function* () {
-      for (const orderedPair of orderedPairs()) {
-        yield* orderedPair;
-      }
-    });
-    this.orderedPairs = orderedPairs;
+      for (const t of e())
+        yield* t;
+    }), this.orderedPairs = e;
   }
-  static generate(source, keySelector, ascending, comparer) {
-    let orderedPairs;
-    if (source instanceof OrderedEnumerable) {
-      orderedPairs = function* () {
-        for (const pair of source.orderedPairs()) {
-          yield* asSortedKeyValues$1(pair, keySelector, ascending, comparer);
-        }
-      };
-    } else {
-      orderedPairs = () => asSortedKeyValues$1(source, keySelector, ascending, comparer);
-    }
-    return new OrderedEnumerable(orderedPairs);
+  static generate(e, t, r, s) {
+    let o;
+    return e instanceof M ? o = function* () {
+      for (const a of e.orderedPairs())
+        yield* X(a, t, r, s);
+    } : o = () => X(e, t, r, s), new M(o);
   }
-  static generateAsync(source, keySelector, ascending, comparer) {
-    let orderedPairs;
-    if (source instanceof OrderedEnumerable) {
-      orderedPairs = async function* () {
-        for (const pair of source.orderedPairs()) {
-          yield* asSortedKeyValuesAsync(pair, keySelector, ascending, comparer);
-        }
-      };
-    } else {
-      orderedPairs = () => asSortedKeyValuesAsync(source, keySelector, ascending, comparer);
-    }
-    return new OrderedAsyncEnumerable(orderedPairs);
+  static generateAsync(e, t, r, s) {
+    let o;
+    return e instanceof M ? o = async function* () {
+      for (const a of e.orderedPairs())
+        yield* Q(a, t, r, s);
+    } : o = () => Q(e, t, r, s), new O(o);
   }
-  ThenBy(keySelector, comparer) {
-    return OrderedEnumerable.generate(this, keySelector, true, comparer);
+  ThenBy(e, t) {
+    return M.generate(this, e, !0, t);
   }
-  ThenByAsync(keySelector, comparer) {
-    return OrderedEnumerable.generateAsync(this, keySelector, true, comparer);
+  ThenByAsync(e, t) {
+    return M.generateAsync(this, e, !0, t);
   }
-  ThenByDescending(keySelector, comparer) {
-    return OrderedEnumerable.generate(this, keySelector, false, comparer);
+  ThenByDescending(e, t) {
+    return M.generate(this, e, !1, t);
   }
-  ThenByDescendingAsync(keySelector, comparer) {
-    return OrderedEnumerable.generateAsync(this, keySelector, false, comparer);
+  ThenByDescendingAsync(e, t) {
+    return M.generateAsync(this, e, !1, t);
   }
 }
-const orderBy$2 = (source, keySelector, comparer) => {
-  return OrderedEnumerable.generate(source, keySelector, true, comparer);
-};
-const orderByAsync$2 = (source, keySelector, comparer) => {
-  return OrderedEnumerable.generateAsync(source, keySelector, true, comparer);
-};
-const orderByDescending$2 = (source, keySelector, comparer) => {
-  return OrderedEnumerable.generate(source, keySelector, false, comparer);
-};
-const orderByDescendingAsync$2 = (source, keySelector, comparer) => {
-  return OrderedEnumerable.generateAsync(source, keySelector, false, comparer);
-};
-const partition$2 = (source, predicate) => {
-  const fail = [];
-  const pass = [];
-  for (const value of source) {
-    if (predicate(value) === true) {
-      pass.push(value);
-    } else {
-      fail.push(value);
+const Ke = (n, e, t) => M.generate(n, e, !0, t), je = (n, e, t) => M.generateAsync(n, e, !0, t), qe = (n, e, t) => M.generate(n, e, !1, t), Le = (n, e, t) => M.generateAsync(n, e, !1, t), Ce = (n, e) => {
+  const t = [], r = [];
+  for (const s of n)
+    e(s) === !0 ? r.push(s) : t.push(s);
+  return [r, t];
+}, ze = async (n, e) => {
+  const t = [], r = [];
+  for (const s of n)
+    await e(s) === !0 ? r.push(s) : t.push(s);
+  return [r, t];
+}, Ue = (n) => {
+  function* e() {
+    const t = [...n];
+    for (let r = t.length - 1; r >= 0; r--)
+      yield t[r];
+  }
+  return new g(e);
+}, Ge = (n, e) => {
+  if (typeof e == "function") {
+    const { length: t } = e;
+    return t === 1 ? Ye(n, e) : Ze(n, e);
+  } else
+    return Je(n, e);
+}, Ye = (n, e) => {
+  function* t() {
+    for (const r of n)
+      yield e(r);
+  }
+  return new g(t);
+}, Ze = (n, e) => {
+  function* t() {
+    let r = 0;
+    for (const s of n)
+      yield e(s, r), r++;
+  }
+  return new g(t);
+}, Je = (n, e) => {
+  function* t() {
+    for (const r of n)
+      yield r[e];
+  }
+  return new g(t);
+}, He = (n) => n, Xe = (n, e) => typeof e == "function" ? e.length === 1 ? Qe(n, e) : tn(n, e) : en(n, e), Qe = (n, e) => {
+  async function* t() {
+    for (const r of n)
+      yield e(r);
+  }
+  return A(t);
+}, tn = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for (const s of n)
+      yield e(s, r), r++;
+  }
+  return A(t);
+}, en = (n, e) => {
+  async function* t() {
+    for (const r of n)
+      yield r[e];
+  }
+  return A(t);
+}, nn = (n, e) => typeof e == "function" ? e.length === 1 ? rn(n, e) : sn(n, e) : on(n, e), rn = (n, e) => {
+  function* t() {
+    for (const r of n)
+      for (const s of e(r))
+        yield s;
+  }
+  return new g(t);
+}, sn = (n, e) => {
+  function* t() {
+    let r = 0;
+    for (const s of n) {
+      for (const o of e(s, r))
+        yield o;
+      r++;
     }
   }
-  return [pass, fail];
-};
-const partitionAsync$2 = async (source, predicate) => {
-  const fail = [];
-  const pass = [];
-  for (const value of source) {
-    if (await predicate(value) === true) {
-      pass.push(value);
-    } else {
-      fail.push(value);
+  return new g(t);
+}, on = (n, e) => {
+  function* t() {
+    for (const r of n)
+      for (const s of r[e])
+        yield s;
+  }
+  return new g(t);
+}, an = (n, e) => e.length === 1 ? cn(n, e) : ln(n, e), cn = (n, e) => {
+  async function* t() {
+    for (const r of n) {
+      const s = await e(r);
+      for (const o of s)
+        yield o;
     }
   }
-  return [pass, fail];
-};
-const reverse$2 = (source) => {
-  function* iterator() {
-    const array = [...source];
-    for (let i2 = array.length - 1; i2 >= 0; i2--) {
-      yield array[i2];
+  return A(t);
+}, ln = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for (const s of n) {
+      const o = await e(s, r);
+      for (const a of o)
+        yield a;
+      r++;
     }
   }
-  return new BasicEnumerable(iterator);
-};
-const select$2 = (source, selector) => {
-  if (typeof selector === "function") {
-    const { length } = selector;
-    if (length === 1) {
-      return select1$1(source, selector);
-    } else {
-      return select2$1(source, selector);
+  return A(t);
+}, un = (n, e, t = d) => {
+  const r = n[Symbol.iterator](), s = e[Symbol.iterator]();
+  let o = r.next(), a = s.next();
+  for (; !o.done && !a.done; ) {
+    if (!t(o.value, a.value))
+      return !1;
+    o = r.next(), a = s.next();
+  }
+  return o.done === !0 && a.done === !0;
+}, fn = async (n, e, t) => {
+  const r = n[Symbol.iterator](), s = e[Symbol.iterator]();
+  let o = r.next(), a = s.next();
+  for (; !o.done && !a.done; ) {
+    if (await t(o.value, a.value) === !1)
+      return !1;
+    o = r.next(), a = s.next();
+  }
+  return o.done === !0 && a.done === !0;
+}, yn = (n, e) => e ? wn(n, e) : hn(n), hn = (n) => {
+  let e = !1, t = null;
+  for (const r of n) {
+    if (e === !0)
+      throw new f(u.MoreThanOneElement);
+    e = !0, t = r;
+  }
+  if (e === !1)
+    throw new f(u.NoElements);
+  return t;
+}, wn = (n, e) => {
+  let t = !1, r = null;
+  for (const s of n)
+    if (e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      t = !0, r = s;
     }
-  } else {
-    return select3$1(source, selector);
-  }
-};
-const select1$1 = (source, selector) => {
-  function* iterator() {
-    for (const value of source) {
-      yield selector(value);
+  if (t === !1)
+    throw new f(u.NoMatch);
+  return r;
+}, gn = async (n, e) => {
+  let t = !1, r = null;
+  for (const s of n)
+    if (await e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      t = !0, r = s;
     }
+  if (t === !1)
+    throw new f(u.NoMatch);
+  return r;
+}, mn = (n, e) => e ? An(n, e) : pn(n), pn = (n) => {
+  let e = !1, t = null;
+  for (const r of n) {
+    if (e === !0)
+      throw new f(u.MoreThanOneElement);
+    e = !0, t = r;
   }
-  return new BasicEnumerable(iterator);
-};
-const select2$1 = (source, selector) => {
-  function* iterator() {
-    let index = 0;
-    for (const value of source) {
-      yield selector(value, index);
-      index++;
+  return t;
+}, An = (n, e) => {
+  let t = !1, r = null;
+  for (const s of n)
+    if (e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      t = !0, r = s;
     }
-  }
-  return new BasicEnumerable(iterator);
-};
-const select3$1 = (source, key) => {
-  function* iterator() {
-    for (const value of source) {
-      yield value[key];
+  return r;
+}, dn = async (n, e) => {
+  let t = !1, r = null;
+  for (const s of n)
+    if (await e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneElement);
+      t = !0, r = s;
     }
+  return r;
+}, vn = (n, e) => {
+  function* t() {
+    let r = 0;
+    for (const s of n)
+      r++ >= e && (yield s);
   }
-  return new BasicEnumerable(iterator);
-};
-const cast = (source) => {
-  return source;
-};
-const selectAsync$2 = (source, selector) => {
-  if (typeof selector === "function") {
-    if (selector.length === 1) {
-      return selectAsync1$1(source, selector);
-    } else {
-      return selectAsync2$1(source, selector);
-    }
-  } else {
-    return selectAsync3(source, selector);
+  return new g(t);
+}, Pn = (n, e) => e.length === 1 ? kn(n, e) : $n(n, e), kn = (n, e) => {
+  function* t() {
+    let r = !0;
+    for (const s of n)
+      r === !1 ? yield s : e(s) === !1 && (r = !1, yield s);
   }
-};
-const selectAsync1$1 = (source, selector) => {
-  async function* iterator() {
-    for (const value of source) {
-      yield selector(value);
-    }
+  return new g(t);
+}, $n = (n, e) => {
+  function* t() {
+    let r = 0, s = !0;
+    for (const o of n)
+      s === !1 ? yield o : e(o, r) === !1 && (s = !1, yield o), r++;
   }
-  return fromAsync(iterator);
-};
-const selectAsync2$1 = (source, selector) => {
-  async function* iterator() {
-    let index = 0;
-    for (const value of source) {
-      yield selector(value, index);
-      index++;
-    }
+  return new g(t);
+}, Tn = (n, e) => e.length === 1 ? On(n, e) : In(n, e), On = (n, e) => {
+  async function* t() {
+    let r = !0;
+    for (const s of n)
+      r === !1 ? yield s : await e(s) === !1 && (r = !1, yield s);
   }
-  return fromAsync(iterator);
-};
-const selectAsync3 = (source, key) => {
-  async function* iterator() {
-    for (const value of source) {
-      yield value[key];
-    }
+  return A(t);
+}, In = (n, e) => {
+  async function* t() {
+    let r = 0, s = !0;
+    for (const o of n)
+      s === !1 ? yield o : await e(o, r) === !1 && (s = !1, yield o), r++;
   }
-  return fromAsync(iterator);
-};
-const selectMany$2 = (source, selector) => {
-  if (typeof selector === "function") {
-    if (selector.length === 1) {
-      return selectMany1$1(source, selector);
-    } else {
-      return selectMany2$1(source, selector);
-    }
-  } else {
-    return selectMany3$1(source, selector);
-  }
-};
-const selectMany1$1 = (source, selector) => {
-  function* iterator() {
-    for (const value of source) {
-      for (const selectorValue of selector(value)) {
-        yield selectorValue;
-      }
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const selectMany2$1 = (source, selector) => {
-  function* iterator() {
-    let index = 0;
-    for (const value of source) {
-      for (const selectorValue of selector(value, index)) {
-        yield selectorValue;
-      }
-      index++;
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const selectMany3$1 = (source, selector) => {
-  function* iterator() {
-    for (const value of source) {
-      for (const selectorValue of value[selector]) {
-        yield selectorValue;
-      }
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const selectManyAsync$2 = (source, selector) => {
-  if (selector.length === 1) {
-    return selectManyAsync1(source, selector);
-  } else {
-    return selectManyAsync2(source, selector);
-  }
-};
-const selectManyAsync1 = (source, selector) => {
-  async function* generator() {
-    for (const value of source) {
-      const innerValues = await selector(value);
-      for (const innerValue of innerValues) {
-        yield innerValue;
-      }
-    }
-  }
-  return fromAsync(generator);
-};
-const selectManyAsync2 = (source, selector) => {
-  async function* generator() {
-    let index = 0;
-    for (const value of source) {
-      const innerValues = await selector(value, index);
-      for (const innerValue of innerValues) {
-        yield innerValue;
-      }
-      index++;
-    }
-  }
-  return fromAsync(generator);
-};
-const sequenceEquals$2 = (first3, second, comparer = StrictEqualityComparer) => {
-  const firstIterator = first3[Symbol.iterator]();
-  const secondIterator = second[Symbol.iterator]();
-  let firstResult = firstIterator.next();
-  let secondResult = secondIterator.next();
-  while (!firstResult.done && !secondResult.done) {
-    if (!comparer(firstResult.value, secondResult.value)) {
-      return false;
-    }
-    firstResult = firstIterator.next();
-    secondResult = secondIterator.next();
-  }
-  return firstResult.done === true && secondResult.done === true;
-};
-const sequenceEqualsAsync$2 = async (first3, second, comparer) => {
-  const firstIterator = first3[Symbol.iterator]();
-  const secondIterator = second[Symbol.iterator]();
-  let firstResult = firstIterator.next();
-  let secondResult = secondIterator.next();
-  while (!firstResult.done && !secondResult.done) {
-    if (await comparer(firstResult.value, secondResult.value) === false) {
-      return false;
-    }
-    firstResult = firstIterator.next();
-    secondResult = secondIterator.next();
-  }
-  return firstResult.done === true && secondResult.done === true;
-};
-const single$2 = (source, predicate) => {
-  if (predicate) {
-    return single2$2(source, predicate);
-  } else {
-    return single1$2(source);
-  }
-};
-const single1$2 = (source) => {
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of source) {
-    if (hasValue === true) {
-      throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-    } else {
-      hasValue = true;
-      singleValue = value;
-    }
-  }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return singleValue;
-};
-const single2$2 = (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of source) {
-    if (predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
-  }
-  return singleValue;
-};
-const singleAsync$2 = async (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of source) {
-    if (await predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
-  }
-  return singleValue;
-};
-const singleOrDefault$2 = (source, predicate) => {
-  if (predicate) {
-    return singleOrDefault2$2(source, predicate);
-  } else {
-    return singleOrDefault1$2(source);
-  }
-};
-const singleOrDefault1$2 = (source) => {
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of source) {
-    if (hasValue === true) {
-      throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-    } else {
-      hasValue = true;
-      singleValue = value;
-    }
-  }
-  return singleValue;
-};
-const singleOrDefault2$2 = (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of source) {
-    if (predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  return singleValue;
-};
-const singleOrDefaultAsync$2 = async (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of source) {
-    if (await predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  return singleValue;
-};
-const skip$2 = (source, count3) => {
-  function* iterator() {
-    let i2 = 0;
-    for (const item of source) {
-      if (i2++ >= count3) {
-        yield item;
-      }
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const skipWhile$2 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return skipWhile1$1(source, predicate);
-  } else {
-    return skipWhile2$1(source, predicate);
-  }
-};
-const skipWhile1$1 = (source, predicate) => {
-  function* iterator() {
-    let skip2 = true;
-    for (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (predicate(item) === false) {
-        skip2 = false;
-        yield item;
-      }
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const skipWhile2$1 = (source, predicate) => {
-  function* iterator() {
-    let index = 0;
-    let skip2 = true;
-    for (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (predicate(item, index) === false) {
-        skip2 = false;
-        yield item;
-      }
-      index++;
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const skipWhileAsync$2 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return skipWhileAsync1$1(source, predicate);
-  } else {
-    return skipWhileAsync2$1(source, predicate);
-  }
-};
-const skipWhileAsync1$1 = (source, predicate) => {
-  async function* iterator() {
-    let skip2 = true;
-    for (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (await predicate(item) === false) {
-        skip2 = false;
-        yield item;
-      }
-    }
-  }
-  return fromAsync(iterator);
-};
-const skipWhileAsync2$1 = (source, predicate) => {
-  async function* iterator() {
-    let index = 0;
-    let skip2 = true;
-    for (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (await predicate(item, index) === false) {
-        skip2 = false;
-        yield item;
-      }
-      index++;
-    }
-  }
-  return fromAsync(iterator);
-};
-const sum$2 = (source, selector) => {
-  if (selector) {
-    return sum2$2(source, selector);
-  } else {
-    return sum1$2(source);
-  }
-};
-const sum1$2 = (source) => {
-  let total = 0;
-  for (const value of source) {
-    total += value;
-  }
-  return total;
-};
-const sum2$2 = (source, selector) => {
-  let total = 0;
-  for (const value of source) {
-    total += selector(value);
-  }
-  return total;
-};
-const sumAsync$2 = async (source, selector) => {
-  let sum3 = 0;
-  for (const value of source) {
-    sum3 += await selector(value);
-  }
-  return sum3;
-};
-const take$2 = (source, amount) => {
-  function* iterator() {
-    let amountLeft = amount > 0 ? amount : 0;
-    for (const item of source) {
-      if (amountLeft-- === 0) {
+  return A(t);
+}, Mn = (n, e) => e ? bn(n, e) : En(n), En = (n) => {
+  let e = 0;
+  for (const t of n)
+    e += t;
+  return e;
+}, bn = (n, e) => {
+  let t = 0;
+  for (const r of n)
+    t += e(r);
+  return t;
+}, xn = async (n, e) => {
+  let t = 0;
+  for (const r of n)
+    t += await e(r);
+  return t;
+}, Sn = (n, e) => {
+  function* t() {
+    let r = e > 0 ? e : 0;
+    for (const s of n) {
+      if (r-- === 0)
         break;
-      } else {
-        yield item;
-      }
+      yield s;
     }
   }
-  return new BasicEnumerable(iterator);
-};
-const takeWhile$2 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return takeWhile1$1(source, predicate);
-  } else {
-    return takeWhile2$1(source, predicate);
-  }
-};
-const takeWhile1$1 = (source, predicate) => {
-  function* iterator() {
-    for (const item of source) {
-      if (predicate(item)) {
-        yield item;
-      } else {
+  return new g(t);
+}, Nn = (n, e) => e.length === 1 ? Vn(n, e) : Dn(n, e), Vn = (n, e) => {
+  function* t() {
+    for (const r of n)
+      if (e(r))
+        yield r;
+      else
         break;
-      }
-    }
   }
-  return new BasicEnumerable(iterator);
-};
-const takeWhile2$1 = (source, predicate) => {
-  function* iterator() {
-    let index = 0;
-    for (const item of source) {
-      if (predicate(item, index++)) {
-        yield item;
-      } else {
+  return new g(t);
+}, Dn = (n, e) => {
+  function* t() {
+    let r = 0;
+    for (const s of n)
+      if (e(s, r++))
+        yield s;
+      else
         break;
-      }
-    }
   }
-  return new BasicEnumerable(iterator);
-};
-const takeWhileAsync$2 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return takeWhileAsync1$1(source, predicate);
-  } else {
-    return takeWhileAsync2$1(source, predicate);
-  }
-};
-const takeWhileAsync1$1 = (source, predicate) => {
-  async function* iterator() {
-    for (const item of source) {
-      if (await predicate(item)) {
-        yield item;
-      } else {
+  return new g(t);
+}, Fn = (n, e) => e.length === 1 ? _n(n, e) : Bn(n, e), _n = (n, e) => {
+  async function* t() {
+    for (const r of n)
+      if (await e(r))
+        yield r;
+      else
         break;
-      }
-    }
   }
-  return fromAsync(iterator);
-};
-const takeWhileAsync2$1 = (source, predicate) => {
-  async function* iterator() {
-    let index = 0;
-    for (const item of source) {
-      if (await predicate(item, index++)) {
-        yield item;
-      } else {
+  return A(t);
+}, Bn = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for (const s of n)
+      if (await e(s, r++))
+        yield s;
+      else
         break;
-      }
-    }
   }
-  return fromAsync(iterator);
-};
-const toArray$2 = (source) => {
-  return [...source];
-};
-const toMap$2 = (source, selector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const value of source) {
-    const key = selector(value);
-    const array = map.get(key);
-    if (array === void 0) {
-      map.set(key, [value]);
-    } else {
-      array.push(value);
-    }
+  return A(t);
+}, Rn = (n) => [...n], Wn = (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = e(r), o = t.get(s);
+    o === void 0 ? t.set(s, [r]) : o.push(r);
   }
-  return map;
-};
-const toMapAsync$2 = async (source, selector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const value of source) {
-    const key = await selector(value);
-    const array = map.get(key);
-    if (array === void 0) {
-      map.set(key, [value]);
-    } else {
-      array.push(value);
-    }
+  return t;
+}, Kn = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = await e(r), o = t.get(s);
+    o === void 0 ? t.set(s, [r]) : o.push(r);
   }
-  return map;
-};
-const toObject$2 = (source, selector) => {
-  const map = {};
-  for (const value of source) {
-    map[selector(value)] = value;
+  return t;
+}, jn = (n, e) => {
+  const t = {};
+  for (const r of n)
+    t[e(r)] = r;
+  return t;
+}, qn = async (n, e) => {
+  const t = {};
+  for (const r of n)
+    t[await e(r)] = r;
+  return t;
+}, Ln = (n) => new Set(n), Cn = (n, e, t) => t ? Un(n, e, t) : zn(n, e), zn = (n, e) => {
+  function* t() {
+    const r = /* @__PURE__ */ new Set();
+    for (const s of n)
+      r.has(s) === !1 && (yield s, r.add(s));
+    for (const s of e)
+      r.has(s) === !1 && (yield s, r.add(s));
   }
-  return map;
-};
-const toObjectAsync$2 = async (source, selector) => {
-  const map = {};
-  for (const value of source) {
-    map[await selector(value)] = value;
-  }
-  return map;
-};
-const toSet$2 = (source) => {
-  return new Set(source);
-};
-const union$2 = (first3, second, comparer) => {
-  if (comparer) {
-    return union2$2(first3, second, comparer);
-  } else {
-    return union1$2(first3, second);
-  }
-};
-const union1$2 = (first3, second) => {
-  function* iterator() {
-    const set = /* @__PURE__ */ new Set();
-    for (const item of first3) {
-      if (set.has(item) === false) {
-        yield item;
-        set.add(item);
-      }
-    }
-    for (const item of second) {
-      if (set.has(item) === false) {
-        yield item;
-        set.add(item);
-      }
-    }
-  }
-  return new BasicEnumerable(iterator);
-};
-const union2$2 = (first3, second, comparer) => {
-  function* iterator() {
-    const result = [];
-    for (const source of [first3, second]) {
-      for (const value of source) {
-        let exists = false;
-        for (const resultValue of result) {
-          if (comparer(value, resultValue) === true) {
-            exists = true;
+  return new g(t);
+}, Un = (n, e, t) => {
+  function* r() {
+    const s = [];
+    for (const o of [n, e])
+      for (const a of o) {
+        let i = !1;
+        for (const l of s)
+          if (t(a, l) === !0) {
+            i = !0;
             break;
           }
-        }
-        if (exists === false) {
-          yield value;
-          result.push(value);
-        }
+        i === !1 && (yield a, s.push(a));
       }
-    }
   }
-  return new BasicEnumerable(iterator);
-};
-const unionAsync$2 = (first3, second, comparer) => {
-  async function* iterator() {
-    const result = [];
-    for (const source of [first3, second]) {
-      for (const value of source) {
-        let exists = false;
-        for (const resultValue of result) {
-          if (await comparer(value, resultValue) === true) {
-            exists = true;
+  return new g(r);
+}, Gn = (n, e, t) => {
+  async function* r() {
+    const s = [];
+    for (const o of [n, e])
+      for (const a of o) {
+        let i = !1;
+        for (const l of s)
+          if (await t(a, l) === !0) {
+            i = !0;
             break;
           }
-        }
-        if (exists === false) {
-          yield value;
-          result.push(value);
-        }
+        i === !1 && (yield a, s.push(a));
       }
-    }
   }
-  return fromAsync(iterator);
-};
-const where$2 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return where1$1(source, predicate);
-  } else {
-    return where2$1(source, predicate);
+  return A(r);
+}, Yn = (n, e) => e.length === 1 ? Zn(n, e) : Jn(n, e), Zn = (n, e) => {
+  function* t() {
+    for (const r of n)
+      e(r) === !0 && (yield r);
   }
-};
-const where1$1 = (source, predicate) => {
-  function* iterator() {
-    for (const item of source) {
-      if (predicate(item) === true) {
-        yield item;
-      }
-    }
+  return new g(t);
+}, Jn = (n, e) => {
+  function* t() {
+    let r = 0;
+    for (const s of n)
+      e(s, r++) === !0 && (yield s);
   }
-  return new BasicEnumerable(iterator);
-};
-const where2$1 = (source, predicate) => {
-  function* iterator() {
-    let i2 = 0;
-    for (const item of source) {
-      if (predicate(item, i2++) === true) {
-        yield item;
-      }
-    }
+  return new g(t);
+}, Hn = (n, e) => e.length === 1 ? Xn(n, e) : Qn(n, e), Xn = (n, e) => {
+  async function* t() {
+    for (const r of n)
+      await e(r) === !0 && (yield r);
   }
-  return new BasicEnumerable(iterator);
-};
-const whereAsync$2 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return whereAsync1$1(source, predicate);
-  } else {
-    return whereAsync2$1(source, predicate);
+  return A(t);
+}, Qn = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for (const s of n)
+      await e(s, r++) === !0 && (yield s);
   }
-};
-const whereAsync1$1 = (source, predicate) => {
-  async function* generator() {
-    for (const item of source) {
-      if (await predicate(item) === true) {
-        yield item;
-      }
-    }
-  }
-  return fromAsync(generator);
-};
-const whereAsync2$1 = (source, predicate) => {
-  async function* generator() {
-    let i2 = 0;
-    for (const item of source) {
-      if (await predicate(item, i2++) === true) {
-        yield item;
-      }
-    }
-  }
-  return fromAsync(generator);
-};
-const zip$2 = (source, second, resultSelector) => {
-  if (resultSelector) {
-    return zip2$2(source, second, resultSelector);
-  } else {
-    return zip1$2(source, second);
-  }
-};
-const zip1$2 = (source, second) => {
-  function* iterator() {
-    const firstIterator = source[Symbol.iterator]();
-    const secondIterator = second[Symbol.iterator]();
-    while (true) {
-      const a2 = firstIterator.next();
-      const b2 = secondIterator.next();
-      if (a2.done && b2.done) {
+  return A(t);
+}, tr = (n, e, t) => t ? nr(n, e, t) : er(n, e), er = (n, e) => {
+  function* t() {
+    const r = n[Symbol.iterator](), s = e[Symbol.iterator]();
+    for (; ; ) {
+      const o = r.next(), a = s.next();
+      if (o.done && a.done)
         break;
-      } else {
-        yield [a2.value, b2.value];
-      }
+      yield [o.value, a.value];
     }
   }
-  return new BasicEnumerable(iterator);
-};
-const zip2$2 = (source, second, resultSelector) => {
-  function* iterator() {
-    const firstIterator = source[Symbol.iterator]();
-    const secondIterator = second[Symbol.iterator]();
-    while (true) {
-      const a2 = firstIterator.next();
-      const b2 = secondIterator.next();
-      if (a2.done && b2.done) {
+  return new g(t);
+}, nr = (n, e, t) => {
+  function* r() {
+    const s = n[Symbol.iterator](), o = e[Symbol.iterator]();
+    for (; ; ) {
+      const a = s.next(), i = o.next();
+      if (a.done && i.done)
         break;
-      } else {
-        yield resultSelector(a2.value, b2.value);
-      }
+      yield t(a.value, i.value);
     }
   }
-  return new BasicEnumerable(iterator);
-};
-const zipAsync$2 = (first3, second, resultSelector) => {
-  async function* generator() {
-    const firstIterator = first3[Symbol.iterator]();
-    const secondIterator = second[Symbol.iterator]();
-    while (true) {
-      const a2 = firstIterator.next();
-      const b2 = secondIterator.next();
-      if (a2.done && b2.done) {
+  return new g(r);
+}, rr = (n, e, t) => {
+  async function* r() {
+    const s = n[Symbol.iterator](), o = e[Symbol.iterator]();
+    for (; ; ) {
+      const a = s.next(), i = o.next();
+      if (a.done && i.done)
         break;
-      } else {
-        yield resultSelector(a2.value, b2.value);
-      }
+      yield t(a.value, i.value);
     }
   }
-  return fromAsync(generator);
+  return A(r);
+}, uc = function(n) {
+  return n == null || n.length === 0;
+}, fc = function(n) {
+  return n == null || n.length == 0 ? !0 : n.trim() == "";
+}, yc = function(n, e) {
+  return n == null && e == null ? !0 : n == null || e == null ? !1 : typeof n == "object" && n.constructor.op_Equality ? n.constructor.op_Equality(n, e) : n == e;
+}, sr = function(n, e) {
+  return n == null && e == null ? !0 : n == null || e == null ? !1 : n.constructor.op_Equality(n, e);
+}, hc = function(n, e) {
+  return !sr(n, e);
+}, wc = function(n) {
+  let e = new Uint16Array(n.length);
+  for (let t = 0; t < n.length; t++)
+    e[t] = n.charCodeAt(t);
+  return e;
+}, or = function(n, e, t, r, s) {
+  let o = e, a = e + t - 1;
+  for (; o <= a; ) {
+    let i = o + (a - o >> 1), l = s.Compare(n[i], r);
+    if (l == 0)
+      return i;
+    l < 0 ? o = i + 1 : a = i - 1;
+  }
+  return ~o;
 };
-class List extends ArrayEnumerable {
-  constructor(arg) {
-    super();
-    if (arg && typeof arg !== "number") {
-      for (let item of arg) {
-        this.push(item);
-      }
-    }
+class z extends j {
+  constructor(e) {
+    if (super(), e && typeof e != "number")
+      for (let t of e)
+        this.push(t);
   }
-  Init(from2) {
-    for (const item of from2) {
-      this.push(item);
-    }
+  Init(e) {
+    for (const t of e)
+      this.push(t);
     return this;
   }
-  Add(item) {
-    this.push(item);
+  Add(e) {
+    this.push(e);
   }
-  AddRange(list) {
-    for (const item of list) {
-      this.push(item);
-    }
+  AddRange(e) {
+    for (const t of e)
+      this.push(t);
   }
-  Remove(item) {
-    let index = this.indexOf(item);
-    if (index >= 0)
-      this.splice(index, 1);
-    return index >= 0;
+  Remove(e) {
+    let t = this.indexOf(e);
+    return t >= 0 && this.splice(t, 1), t >= 0;
   }
-  RemoveAll(pred) {
-    for (let i2 = this.length - 1; i2 >= 0; i2--) {
-      if (pred(this[i2])) {
-        this.splice(i2, 1);
-      }
-    }
+  RemoveAll(e) {
+    for (let t = this.length - 1; t >= 0; t--)
+      e(this[t]) && this.splice(t, 1);
   }
-  IndexOf(item) {
-    return this.indexOf(item);
+  IndexOf(e) {
+    return this.indexOf(e);
   }
-  Insert(index, item) {
-    this.splice(index, 0, item);
+  Insert(e, t) {
+    this.splice(e, 0, t);
   }
-  RemoveAt(index) {
-    this.splice(index, 1);
+  RemoveAt(e) {
+    this.splice(e, 1);
   }
-  RemoveRange(index, count3) {
-    this.splice(index, count3);
+  RemoveRange(e, t) {
+    this.splice(e, t);
   }
   Clear() {
     this.splice(0);
   }
-  Find(match) {
-    for (let i2 = 0; i2 < this.length; i2++) {
-      if (match(this[i2]))
-        return this[i2];
-    }
+  Find(e) {
+    for (let t = 0; t < this.length; t++)
+      if (e(this[t]))
+        return this[t];
     return null;
   }
-  Sort(comparison) {
-    this.sort(comparison);
+  Sort(e) {
+    this.sort(e);
   }
-  BinarySearch(item, comparer) {
-    return BinarySearch(this, 0, this.length, item, comparer);
+  BinarySearch(e, t) {
+    return or(this, 0, this.length, e, t);
   }
 }
-const bindLinq = (object) => {
-  const prototype = object.prototype;
-  const bind = (func, key) => {
-    const wrapped = function(...params) {
-      return func(this, ...params);
+const Y = (n) => {
+  const e = n.prototype, t = (r, s) => {
+    const o = function(...a) {
+      return r(this, ...a);
     };
-    Object.defineProperty(wrapped, "length", { value: func.length - 1 });
-    prototype[key] = wrapped;
+    Object.defineProperty(o, "length", { value: r.length - 1 }), e[s] = o;
   };
-  bind(aggregate$2, "Aggregate");
-  bind(all$2, "All");
-  bind(allAsync$2, "AllAsync");
-  bind(any$2, "Any");
-  bind(anyAsync$2, "AnyAsync");
-  bind(asAsync$1, "AsAsync");
-  bind(asParallel$1, "AsParallel");
-  bind(average$2, "Average");
-  bind(averageAsync$2, "AverageAsync");
-  bind(concatenate$2, "Concat");
-  bind(contains$2, "Contains");
-  bind(containsAsync$2, "ContainsAsync");
-  bind(count$2, "Count");
-  bind(countAsync$2, "CountAsync");
-  bind(distinct$2, "Distinct");
-  bind(distinctAsync$2, "DistinctAsync");
-  bind(each$2, "Each");
-  bind(eachAsync$2, "EachAsync");
-  bind(elementAt$2, "ElementAt");
-  bind(elementAtOrDefault$2, "ElementAtOrDefault");
-  bind(except$2, "Except");
-  bind(exceptAsync$2, "ExceptAsync");
-  bind(first$2, "First");
-  bind(firstAsync$2, "FirstAsync");
-  bind(firstOrDefault$2, "FirstOrDefault");
-  bind(firstOrDefaultAsync$2, "FirstOrDefaultAsync");
-  bind(groupBy$2, "GroupBy");
-  bind(groupByAsync$2, "GroupByAsync");
-  bind(groupByWithSel$2, "GroupByWithSel");
-  bind(intersect$2, "Intersect");
-  bind(intersectAsync$2, "IntersectAsync");
-  bind(join$2, "JoinByKey");
-  bind(last$2, "Last");
-  bind(lastAsync$2, "LastAsync");
-  bind(lastOrDefault$2, "LastOrDefault");
-  bind(lastOrDefaultAsync$2, "LastOrDefaultAsync");
-  bind(max$2, "Max");
-  bind(maxAsync$2, "MaxAsync");
-  bind(min$2, "Min");
-  bind(minAsync$2, "MinAsync");
-  bind(ofType$2, "OfType");
-  bind(orderBy$2, "OrderBy");
-  bind(orderByAsync$2, "OrderByAsync");
-  bind(orderByDescending$2, "OrderByDescending");
-  bind(orderByDescendingAsync$2, "OrderByDescendingAsync");
-  bind(reverse$2, "Reverse");
-  bind(select$2, "Select");
-  bind(selectAsync$2, "SelectAsync");
-  bind(selectMany$2, "SelectMany");
-  bind(selectManyAsync$2, "SelectManyAsync");
-  bind(sequenceEquals$2, "SequenceEquals");
-  bind(sequenceEqualsAsync$2, "SequenceEqualsAsync");
-  bind(single$2, "Single");
-  bind(singleAsync$2, "SingleAsync");
-  bind(singleOrDefault$2, "SingleOrDefault");
-  bind(singleOrDefaultAsync$2, "SingleOrDefaultAsync");
-  bind(skip$2, "Skip");
-  bind(skipWhile$2, "SkipWhile");
-  bind(skipWhileAsync$2, "SkipWhileAsync");
-  bind(sum$2, "Sum");
-  bind(sumAsync$2, "SumAsync");
-  bind(take$2, "Take");
-  bind(takeWhile$2, "TakeWhile");
-  bind(takeWhileAsync$2, "TakeWhileAsync");
-  bind(toArray$2, "ToArray");
-  bind(toMap$2, "ToMap");
-  bind(toMapAsync$2, "ToMapAsync");
-  bind(toObject$2, "ToObject");
-  bind(toObjectAsync$2, "ToObjectAsync");
-  bind(partition$2, "Partition");
-  bind(partitionAsync$2, "PartitionAsync");
-  bind(toSet$2, "ToSet");
-  bind(union$2, "Union");
-  bind(unionAsync$2, "UnionAsync");
-  bind(where$2, "Where");
-  bind(whereAsync$2, "WhereAsync");
-  bind(zip$2, "Zip");
-  bind(zipAsync$2, "ZipAsync");
-  bind(cast, "Cast");
-  bind((source) => {
-    if (source instanceof List)
-      return source;
-    return new List([...source]);
-  }, "ToList");
-  bind((source) => {
-    return new DefaultEnumerator(source);
-  }, "GetEnumerator");
-};
-const aggregate$1 = (source, seedOrFunc, func, resultSelector) => {
-  if (resultSelector) {
-    if (!func) {
-      throw new ReferenceError(`TAccumulate function is undefined`);
-    }
-    return aggregate3$1(source, seedOrFunc, func, resultSelector);
-  } else if (func) {
-    return aggregate2$1(source, seedOrFunc, func);
-  } else {
-    return aggregate1$1(source, seedOrFunc);
-  }
-};
-const aggregate1$1 = async (source, func) => {
-  let aggregateValue;
-  for await (const value of source) {
-    if (aggregateValue) {
-      aggregateValue = func(aggregateValue, value);
-    } else {
-      aggregateValue = value;
-    }
-  }
-  if (aggregateValue === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return aggregateValue;
-};
-const aggregate2$1 = async (source, seed, func) => {
-  let aggregateValue = seed;
-  for await (const value of source) {
-    aggregateValue = func(aggregateValue, value);
-  }
-  return aggregateValue;
-};
-const aggregate3$1 = async (source, seed, func, resultSelector) => {
-  let aggregateValue = seed;
-  for await (const value of source) {
-    aggregateValue = func(aggregateValue, value);
-  }
-  return resultSelector(aggregateValue);
-};
-const all$1 = async (source, predicate) => {
-  for await (const item of source) {
-    if (predicate(item) === false) {
-      return false;
-    }
-  }
-  return true;
-};
-const allAsync$1 = async (source, predicate) => {
-  for await (const item of source) {
-    if (await predicate(item) === false) {
-      return false;
-    }
-  }
-  return true;
-};
-const any$1 = (source, predicate) => {
-  if (predicate) {
-    return any2$1(source, predicate);
-  } else {
-    return any1$1(source);
-  }
-};
-const any1$1 = async (source) => {
-  for await (const _ of source) {
-    return true;
-  }
-  return false;
-};
-const any2$1 = async (source, predicate) => {
-  for await (const item of source) {
-    if (predicate(item) === true) {
-      return true;
-    }
-  }
-  return false;
-};
-const anyAsync$1 = async (source, predicate) => {
-  for await (const item of source) {
-    if (await predicate(item) === true) {
-      return true;
-    }
-  }
-  return false;
-};
-const asParallel = (source) => {
-  const generator = async () => {
-    const data = [];
-    for await (const value of source) {
-      data.push(value);
-    }
-    return data;
+  t(mt, "Aggregate"), t(vt, "All"), t(Pt, "AllAsync"), t(kt, "Any"), t(Ot, "AnyAsync"), t(It, "AsAsync"), t(Mt, "AsParallel"), t(Et, "Average"), t(St, "AverageAsync"), t(Nt, "Concat"), t(Vt, "Contains"), t(Dt, "ContainsAsync"), t(Ft, "Count"), t(Rt, "CountAsync"), t(Wt, "Distinct"), t(Kt, "DistinctAsync"), t(jt, "Each"), t(qt, "EachAsync"), t(Lt, "ElementAt"), t(Ct, "ElementAtOrDefault"), t(zt, "Except"), t(Ut, "ExceptAsync"), t(Gt, "First"), t(Jt, "FirstAsync"), t(Ht, "FirstOrDefault"), t(te, "FirstOrDefaultAsync"), t(oe, "GroupBy"), t(ae, "GroupByAsync"), t(le, "GroupByWithSel"), t(ue, "Intersect"), t(fe, "IntersectAsync"), t(ye, "JoinByKey"), t(he, "Last"), t(me, "LastAsync"), t(pe, "LastOrDefault"), t(ve, "LastOrDefaultAsync"), t(Pe, "Max"), t(Te, "MaxAsync"), t(Oe, "Min"), t(Ee, "MinAsync"), t(be, "OfType"), t(Ke, "OrderBy"), t(je, "OrderByAsync"), t(qe, "OrderByDescending"), t(Le, "OrderByDescendingAsync"), t(Ue, "Reverse"), t(Ge, "Select"), t(Xe, "SelectAsync"), t(nn, "SelectMany"), t(an, "SelectManyAsync"), t(un, "SequenceEquals"), t(fn, "SequenceEqualsAsync"), t(yn, "Single"), t(gn, "SingleAsync"), t(mn, "SingleOrDefault"), t(dn, "SingleOrDefaultAsync"), t(vn, "Skip"), t(Pn, "SkipWhile"), t(Tn, "SkipWhileAsync"), t(Mn, "Sum"), t(xn, "SumAsync"), t(Sn, "Take"), t(Nn, "TakeWhile"), t(Fn, "TakeWhileAsync"), t(Rn, "ToArray"), t(Wn, "ToMap"), t(Kn, "ToMapAsync"), t(jn, "ToObject"), t(qn, "ToObjectAsync"), t(Ce, "Partition"), t(ze, "PartitionAsync"), t(Ln, "ToSet"), t(Cn, "Union"), t(Gn, "UnionAsync"), t(Yn, "Where"), t(Hn, "WhereAsync"), t(tr, "Zip"), t(rr, "ZipAsync"), t(He, "Cast"), t((r) => r instanceof z ? r : new z([...r]), "ToList"), t((r) => new zi(r), "GetEnumerator");
+}, ar = (n, e, t, r) => {
+  if (r) {
+    if (!t)
+      throw new ReferenceError("TAccumulate function is undefined");
+    return lr(n, e, t, r);
+  } else
+    return t ? cr(n, e, t) : ir(n, e);
+}, ir = async (n, e) => {
+  let t;
+  for await (const r of n)
+    t ? t = e(t, r) : t = r;
+  if (t === void 0)
+    throw new f(u.NoElements);
+  return t;
+}, cr = async (n, e, t) => {
+  let r = e;
+  for await (const s of n)
+    r = t(r, s);
+  return r;
+}, lr = async (n, e, t, r) => {
+  let s = e;
+  for await (const o of n)
+    s = t(s, o);
+  return r(s);
+}, ur = async (n, e) => {
+  for await (const t of n)
+    if (e(t) === !1)
+      return !1;
+  return !0;
+}, fr = async (n, e) => {
+  for await (const t of n)
+    if (await e(t) === !1)
+      return !1;
+  return !0;
+}, yr = (n, e) => e ? wr(n, e) : hr(n), hr = async (n) => {
+  for await (const e of n)
+    return !0;
+  return !1;
+}, wr = async (n, e) => {
+  for await (const t of n)
+    if (e(t) === !0)
+      return !0;
+  return !1;
+}, gr = async (n, e) => {
+  for await (const t of n)
+    if (await e(t) === !0)
+      return !0;
+  return !1;
+}, mr = (n) => {
+  const e = async () => {
+    const t = [];
+    for await (const r of n)
+      t.push(r);
+    return t;
   };
-  return fromParallel(ParallelGeneratorType.PromiseToArray, generator);
-};
-const average$1 = (source, selector) => {
-  if (selector) {
-    return average2(source, selector);
-  } else {
-    return average1(source);
+  return it(c.PromiseToArray, e);
+}, pr = (n, e) => e ? dr(n, e) : Ar(n), Ar = async (n) => {
+  let e, t;
+  for await (const r of n)
+    e = (e || 0) + r, t = (t || 0) + 1;
+  if (e === void 0)
+    throw new f(u.NoElements);
+  return e / t;
+}, dr = async (n, e) => {
+  let t, r;
+  for await (const s of n)
+    t = (t || 0) + e(s), r = (r || 0) + 1;
+  if (t === void 0)
+    throw new f(u.NoElements);
+  return t / r;
+}, vr = async (n, e) => {
+  let t, r;
+  for await (const s of n)
+    t = (t || 0) + await e(s), r = (r || 0) + 1;
+  if (t === void 0)
+    throw new f(u.NoElements);
+  return t / r;
+}, Pr = (n, e) => {
+  async function* t() {
+    yield* n, yield* e;
   }
-};
-const average1 = async (source) => {
-  let value;
-  let count3;
-  for await (const item of source) {
-    value = (value || 0) + item;
-    count3 = (count3 || 0) + 1;
+  return new h(t);
+}, kr = async (n, e, t = d) => {
+  for await (const r of n)
+    if (t(e, r))
+      return !0;
+  return !1;
+}, $r = async (n, e, t) => {
+  for await (const r of n)
+    if (await t(e, r))
+      return !0;
+  return !1;
+}, Tr = (n, e) => e ? Ir(n, e) : Or(n), Or = async (n) => {
+  let e = 0;
+  for await (const t of n)
+    e++;
+  return e;
+}, Ir = async (n, e) => {
+  let t = 0;
+  for await (const r of n)
+    e(r) === !0 && t++;
+  return t;
+}, Mr = async (n, e) => {
+  let t = 0;
+  for await (const r of n)
+    await e(r) === !0 && t++;
+  return t;
+}, Er = (n, e = d) => {
+  async function* t() {
+    const r = [];
+    for await (const s of n)
+      r.find((a) => e(a, s)) || (r.push(s), yield s);
   }
-  if (value === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return value / count3;
-};
-const average2 = async (source, func) => {
-  let value;
-  let count3;
-  for await (const item of source) {
-    value = (value || 0) + func(item);
-    count3 = (count3 || 0) + 1;
-  }
-  if (value === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return value / count3;
-};
-const averageAsync$1 = async (source, selector) => {
-  let value;
-  let count3;
-  for await (const item of source) {
-    value = (value || 0) + await selector(item);
-    count3 = (count3 || 0) + 1;
-  }
-  if (value === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return value / count3;
-};
-const concatenate$1 = (first3, second) => {
-  async function* iterator() {
-    yield* first3;
-    yield* second;
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const contains$1 = async (source, value, comparer = StrictEqualityComparer) => {
-  for await (const item of source) {
-    if (comparer(value, item)) {
-      return true;
-    }
-  }
-  return false;
-};
-const containsAsync$1 = async (source, value, comparer) => {
-  for await (const item of source) {
-    if (await comparer(value, item)) {
-      return true;
-    }
-  }
-  return false;
-};
-const count$1 = (source, predicate) => {
-  if (predicate) {
-    return count2$1(source, predicate);
-  } else {
-    return count1$1(source);
-  }
-};
-const count1$1 = async (source) => {
-  let total = 0;
-  for await (const _ of source) {
-    total++;
-  }
-  return total;
-};
-const count2$1 = async (source, predicate) => {
-  let total = 0;
-  for await (const value of source) {
-    if (predicate(value) === true) {
-      total++;
-    }
-  }
-  return total;
-};
-const countAsync$1 = async (source, predicate) => {
-  let count3 = 0;
-  for await (const value of source) {
-    if (await predicate(value) === true) {
-      count3++;
-    }
-  }
-  return count3;
-};
-const distinct$1 = (source, comparer = StrictEqualityComparer) => {
-  async function* iterator() {
-    const distinctElements = [];
-    for await (const item of source) {
-      const foundItem = distinctElements.find((x) => comparer(x, item));
-      if (!foundItem) {
-        distinctElements.push(item);
-        yield item;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const distinctAsync$1 = (source, comparer) => {
-  async function* iterator() {
-    const distinctElements = [];
-    outerLoop:
-      for await (const item of source) {
-        for (const distinctElement of distinctElements) {
-          const found = await comparer(distinctElement, item);
-          if (found) {
-            continue outerLoop;
-          }
-        }
-        distinctElements.push(item);
-        yield item;
+  return new h(t);
+}, br = (n, e) => {
+  async function* t() {
+    const r = [];
+    t:
+      for await (const s of n) {
+        for (const o of r)
+          if (await e(o, s))
+            continue t;
+        r.push(s), yield s;
       }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const each$1 = (source, action) => {
-  async function* iterator() {
-    for await (const value of source) {
-      action(value);
-      yield value;
-    }
+  return new h(t);
+}, xr = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      e(r), yield r;
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const eachAsync$1 = (source, action) => {
-  async function* iterator() {
-    for await (const value of source) {
-      await action(value);
-      yield value;
-    }
+  return new h(t);
+}, Sr = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      await e(r), yield r;
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const elementAt$1 = async (source, index) => {
-  if (index < 0) {
-    throw new ArgumentOutOfRangeException("index");
-  }
-  let i2 = 0;
-  for await (const item of source) {
-    if (index === i2++) {
-      return item;
-    }
-  }
-  throw new ArgumentOutOfRangeException("index");
-};
-const elementAtOrDefault$1 = async (source, index) => {
-  let i2 = 0;
-  for await (const item of source) {
-    if (index === i2++) {
-      return item;
-    }
-  }
+  return new h(t);
+}, Nr = async (n, e) => {
+  if (e < 0)
+    throw new E("index");
+  let t = 0;
+  for await (const r of n)
+    if (e === t++)
+      return r;
+  throw new E("index");
+}, Vr = async (n, e) => {
+  let t = 0;
+  for await (const r of n)
+    if (e === t++)
+      return r;
   return null;
-};
-const except$1 = (first3, second, comparer = StrictEqualityComparer) => {
-  async function* iterator() {
-    const secondArray = [];
-    for await (const x of second) {
-      secondArray.push(x);
-    }
-    for await (const firstItem of first3) {
-      let exists = false;
-      for (let j = 0; j < secondArray.length; j++) {
-        const secondItem = secondArray[j];
-        if (comparer(firstItem, secondItem) === true) {
-          exists = true;
+}, Dr = (n, e, t = d) => {
+  async function* r() {
+    const s = [];
+    for await (const o of e)
+      s.push(o);
+    for await (const o of n) {
+      let a = !1;
+      for (let i = 0; i < s.length; i++) {
+        const l = s[i];
+        if (t(o, l) === !0) {
+          a = !0;
           break;
         }
       }
-      if (exists === false) {
-        yield firstItem;
-      }
+      a === !1 && (yield o);
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const exceptAsync$1 = (first3, second, comparer) => {
-  async function* iterator() {
-    const secondArray = [];
-    for await (const x of second) {
-      secondArray.push(x);
-    }
-    for await (const firstItem of first3) {
-      let exists = false;
-      for (let j = 0; j < secondArray.length; j++) {
-        const secondItem = secondArray[j];
-        if (await comparer(firstItem, secondItem) === true) {
-          exists = true;
+  return new h(r);
+}, Fr = (n, e, t) => {
+  async function* r() {
+    const s = [];
+    for await (const o of e)
+      s.push(o);
+    for await (const o of n) {
+      let a = !1;
+      for (let i = 0; i < s.length; i++) {
+        const l = s[i];
+        if (await t(o, l) === !0) {
+          a = !0;
           break;
         }
       }
-      if (exists === false) {
-        yield firstItem;
-      }
+      a === !1 && (yield o);
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const first$1 = (source, predicate) => {
-  if (predicate) {
-    return first2$1(source, predicate);
-  } else {
-    return first1$1(source);
-  }
-};
-const first1$1 = async (source) => {
-  const firstElement = await source[Symbol.asyncIterator]().next();
-  if (firstElement.done === true) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return firstElement.value;
-};
-const first2$1 = async (source, predicate) => {
-  for await (const value of source) {
-    if (predicate(value) === true) {
-      return value;
-    }
-  }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const firstAsync$1 = async (source, predicate) => {
-  for await (const value of source) {
-    if (await predicate(value) === true) {
-      return value;
-    }
-  }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const firstOrDefault$1 = (source, predicate) => {
-  if (predicate) {
-    return firstOrDefault2$1(source, predicate);
-  } else {
-    return firstOrDefault1$1(source);
-  }
-};
-const firstOrDefault1$1 = async (source) => {
-  const first3 = await source[Symbol.asyncIterator]().next();
-  return first3.value || null;
-};
-const firstOrDefault2$1 = async (source, predicate) => {
-  for await (const value of source) {
-    if (predicate(value) === true) {
-      return value;
-    }
-  }
+  return new h(r);
+}, _r = (n, e) => e ? Rr(n, e) : Br(n), Br = async (n) => {
+  const e = await n[Symbol.asyncIterator]().next();
+  if (e.done === !0)
+    throw new f(u.NoElements);
+  return e.value;
+}, Rr = async (n, e) => {
+  for await (const t of n)
+    if (e(t) === !0)
+      return t;
+  throw new f(u.NoMatch);
+}, Wr = async (n, e) => {
+  for await (const t of n)
+    if (await e(t) === !0)
+      return t;
+  throw new f(u.NoMatch);
+}, Kr = (n, e) => e ? qr(n, e) : jr(n), jr = async (n) => (await n[Symbol.asyncIterator]().next()).value || null, qr = async (n, e) => {
+  for await (const t of n)
+    if (e(t) === !0)
+      return t;
   return null;
-};
-const firstOrDefaultAsync$1 = async (source, predicate) => {
-  for await (const value of source) {
-    if (await predicate(value) === true) {
-      return value;
-    }
-  }
+}, Lr = async (n, e) => {
+  for await (const t of n)
+    if (await e(t) === !0)
+      return t;
   return null;
-};
-const groupBy$1 = (source, keySelector, comparer) => {
-  if (comparer) {
-    return groupBy_0$1(source, keySelector, comparer);
-  } else {
-    return groupBy_0_Simple$1(source, keySelector);
-  }
-};
-const groupBy_0$1 = (source, keySelector, comparer) => {
-  async function* generate() {
-    const keyMap = new Array();
-    for await (const value of source) {
-      const key = keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (comparer(group.key, key)) {
-          group.push(value);
-          found = true;
+}, Cr = (n, e, t) => t ? zr(
+  n,
+  e,
+  t
+) : Ur(
+  n,
+  e
+), zr = (n, e, t) => {
+  async function* r() {
+    const s = new Array();
+    for await (const o of n) {
+      const a = e(o);
+      let i = !1;
+      for (let l = 0; l < s.length; l++) {
+        const y = s[l];
+        if (t(y.key, a)) {
+          y.push(o), i = !0;
           break;
         }
       }
-      if (found === false) {
-        keyMap.push(new Grouping(key, value));
-      }
+      i === !1 && s.push(new v(a, o));
     }
-    for (const g2 of keyMap) {
-      yield g2;
-    }
+    for (const o of s)
+      yield o;
   }
-  return new BasicAsyncEnumerable(generate);
-};
-const groupBy_0_Simple$1 = (source, keySelector) => {
-  async function* iterator() {
-    const keyMap = {};
-    for await (const value of source) {
-      const key = keySelector(value);
-      const grouping = keyMap[key];
-      if (grouping) {
-        grouping.push(value);
-      } else {
-        keyMap[key] = new Grouping(key, value);
-      }
+  return new h(r);
+}, Ur = (n, e) => {
+  async function* t() {
+    const r = {};
+    for await (const s of n) {
+      const o = e(s), a = r[o];
+      a ? a.push(s) : r[o] = new v(o, s);
     }
-    for (const value in keyMap) {
-      yield keyMap[value];
-    }
+    for (const s in r)
+      yield r[s];
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const groupByAsync$1 = (source, keySelector, comparer) => {
-  if (comparer) {
-    return groupByAsync_0$1(source, keySelector, comparer);
-  } else {
-    return groupByAsync_0_Simple$1(source, keySelector);
-  }
-};
-const groupByAsync_0_Simple$1 = (source, keySelector) => {
-  async function* iterator() {
-    const keyMap = {};
-    for await (const value of source) {
-      const key = await keySelector(value);
-      const grouping = keyMap[key];
-      if (grouping) {
-        grouping.push(value);
-      } else {
-        keyMap[key] = new Grouping(key, value);
-      }
+  return new h(t);
+}, Gr = (n, e, t) => t ? Zr(n, e, t) : Yr(
+  n,
+  e
+), Yr = (n, e) => {
+  async function* t() {
+    const r = {};
+    for await (const s of n) {
+      const o = await e(s), a = r[o];
+      a ? a.push(s) : r[o] = new v(o, s);
     }
-    for (const value in keyMap) {
-      yield keyMap[value];
-    }
+    for (const s in r)
+      yield r[s];
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const groupByAsync_0$1 = (source, keySelector, comparer) => {
-  async function* generate() {
-    const keyMap = new Array();
-    for await (const value of source) {
-      const key = await keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (await comparer(group.key, key) === true) {
-          group.push(value);
-          found = true;
+  return new h(t);
+}, Zr = (n, e, t) => {
+  async function* r() {
+    const s = new Array();
+    for await (const o of n) {
+      const a = await e(o);
+      let i = !1;
+      for (let l = 0; l < s.length; l++) {
+        const y = s[l];
+        if (await t(y.key, a) === !0) {
+          y.push(o), i = !0;
           break;
         }
       }
-      if (found === false) {
-        keyMap.push(new Grouping(key, value));
-      }
+      i === !1 && s.push(new v(a, o));
     }
-    for (const keyValue of keyMap) {
-      yield keyValue;
-    }
+    for (const o of s)
+      yield o;
   }
-  return new BasicAsyncEnumerable(generate);
-};
-const groupByWithSel$1 = (source, keySelector, elementSelector, comparer) => {
-  if (comparer) {
-    return groupBy1$1(source, keySelector, elementSelector, comparer);
-  } else {
-    return groupBy1Simple$1(source, keySelector, elementSelector);
-  }
-};
-const groupBy1Simple$1 = (source, keySelector, elementSelector) => {
-  async function* generate() {
-    const keyMap = {};
-    for await (const value of source) {
-      const key = keySelector(value);
-      const grouping = keyMap[key];
-      const element = elementSelector(value);
-      if (grouping) {
-        grouping.push(element);
-      } else {
-        keyMap[key] = new Grouping(key, element);
-      }
+  return new h(r);
+}, Jr = (n, e, t, r) => r ? Xr(
+  n,
+  e,
+  t,
+  r
+) : Hr(
+  n,
+  e,
+  t
+), Hr = (n, e, t) => {
+  async function* r() {
+    const s = {};
+    for await (const o of n) {
+      const a = e(o), i = s[a], l = t(o);
+      i ? i.push(l) : s[a] = new v(a, l);
     }
-    for (const value in keyMap) {
-      yield keyMap[value];
-    }
+    for (const o in s)
+      yield s[o];
   }
-  return new BasicAsyncEnumerable(generate);
-};
-const groupBy1$1 = (source, keySelector, elementSelector, comparer) => {
-  async function* generate() {
-    const keyMap = new Array();
-    for await (const value of source) {
-      const key = keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (comparer(group.key, key)) {
-          group.push(elementSelector(value));
-          found = true;
+  return new h(r);
+}, Xr = (n, e, t, r) => {
+  async function* s() {
+    const o = new Array();
+    for await (const a of n) {
+      const i = e(a);
+      let l = !1;
+      for (let y = 0; y < o.length; y++) {
+        const m = o[y];
+        if (r(m.key, i)) {
+          m.push(t(a)), l = !0;
           break;
         }
       }
-      if (found === false) {
-        const element = elementSelector(value);
-        keyMap.push(new Grouping(key, element));
+      if (l === !1) {
+        const y = t(a);
+        o.push(new v(i, y));
       }
     }
-    for (const value of keyMap) {
-      yield value;
-    }
+    for (const a of o)
+      yield a;
   }
-  return new BasicAsyncEnumerable(generate);
-};
-const intersect$1 = (first3, second, comparer = StrictEqualityComparer) => {
-  async function* iterator() {
-    const firstResults = await first3.Distinct(comparer).ToArray();
-    if (firstResults.length === 0) {
+  return new h(s);
+}, Qr = (n, e, t = d) => {
+  async function* r() {
+    const s = await n.Distinct(t).ToArray();
+    if (s.length === 0)
       return;
-    }
-    const secondResults = await second.ToArray();
-    for (let i2 = 0; i2 < firstResults.length; i2++) {
-      const firstValue = firstResults[i2];
-      for (let j = 0; j < secondResults.length; j++) {
-        const secondValue = secondResults[j];
-        if (comparer(firstValue, secondValue) === true) {
-          yield firstValue;
+    const o = await e.ToArray();
+    for (let a = 0; a < s.length; a++) {
+      const i = s[a];
+      for (let l = 0; l < o.length; l++) {
+        const y = o[l];
+        if (t(i, y) === !0) {
+          yield i;
           break;
         }
       }
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const intersectAsync$1 = (first3, second, comparer) => {
-  async function* iterator() {
-    const firstResults = await first3.DistinctAsync(comparer).ToArray();
-    if (firstResults.length === 0) {
+  return new h(r);
+}, ts = (n, e, t) => {
+  async function* r() {
+    const s = await n.DistinctAsync(t).ToArray();
+    if (s.length === 0)
       return;
-    }
-    const secondResults = await second.ToArray();
-    for (let i2 = 0; i2 < firstResults.length; i2++) {
-      const firstValue = firstResults[i2];
-      for (let j = 0; j < secondResults.length; j++) {
-        const secondValue = secondResults[j];
-        if (await comparer(firstValue, secondValue) === true) {
-          yield firstValue;
+    const o = await e.ToArray();
+    for (let a = 0; a < s.length; a++) {
+      const i = s[a];
+      for (let l = 0; l < o.length; l++) {
+        const y = o[l];
+        if (await t(i, y) === !0) {
+          yield i;
           break;
         }
       }
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const join$1 = (outer, inner, outerKeySelector, innerKeySelector, resultSelector, comparer = StrictEqualityComparer) => {
-  async function* iterator() {
-    const innerArray = [];
-    for await (const i2 of inner) {
-      innerArray.push(i2);
-    }
-    for await (const o2 of outer) {
-      const outerKey = outerKeySelector(o2);
-      for (const i2 of innerArray) {
-        const innerKey = innerKeySelector(i2);
-        if (comparer(outerKey, innerKey) === true) {
-          yield resultSelector(o2, i2);
-        }
+  return new h(r);
+}, es = (n, e, t, r, s, o = d) => {
+  async function* a() {
+    const i = [];
+    for await (const l of e)
+      i.push(l);
+    for await (const l of n) {
+      const y = t(l);
+      for (const m of i) {
+        const T = r(m);
+        o(y, T) === !0 && (yield s(l, m));
       }
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const last$1 = (source, predicate) => {
-  if (predicate) {
-    return last2$1(source, predicate);
-  } else {
-    return last1$1(source);
+  return new h(a);
+}, ns = (n, e) => e ? ss(n, e) : rs(n), rs = async (n) => {
+  let e = null;
+  for await (const t of n)
+    e = t;
+  if (!e)
+    throw new f(u.NoElements);
+  return e;
+}, ss = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    e(r) === !0 && (t = r);
+  if (!t)
+    throw new f(u.NoMatch);
+  return t;
+}, os = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    await e(r) === !0 && (t = r);
+  if (!t)
+    throw new f(u.NoMatch);
+  return t;
+}, as = (n, e) => e ? cs(n, e) : is(n), is = async (n) => {
+  let e = null;
+  for await (const t of n)
+    e = t;
+  return e;
+}, cs = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    e(r) === !0 && (t = r);
+  return t;
+}, ls = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    await e(r) === !0 && (t = r);
+  return t;
+}, us = (n, e) => e ? ys(n, e) : fs(n), fs = async (n) => {
+  let e = null;
+  for await (const t of n)
+    e = Math.max(e || Number.NEGATIVE_INFINITY, t);
+  if (e === null)
+    throw new f(u.NoElements);
+  return e;
+}, ys = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    t = Math.max(t || Number.NEGATIVE_INFINITY, e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, hs = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    t = Math.max(t || Number.NEGATIVE_INFINITY, await e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, ws = (n, e) => e ? ms(n, e) : gs(n), gs = async (n) => {
+  let e = null;
+  for await (const t of n)
+    e = Math.min(e || Number.POSITIVE_INFINITY, t);
+  if (e === null)
+    throw new f(u.NoElements);
+  return e;
+}, ms = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    t = Math.min(t || Number.POSITIVE_INFINITY, e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, ps = async (n, e) => {
+  let t = null;
+  for await (const r of n)
+    t = Math.min(t || Number.POSITIVE_INFINITY, await e(r));
+  if (t === null)
+    throw new f(u.NoElements);
+  return t;
+}, As = (n, e) => {
+  const t = typeof e == "string" ? (s) => typeof s === e : (s) => s instanceof e;
+  async function* r() {
+    for await (const s of n)
+      t(s) && (yield s);
   }
-};
-const last1$1 = async (source) => {
-  let lastItem = null;
-  for await (const value of source) {
-    lastItem = value;
+  return new h(r);
+}, ds = (n, e, t) => O.generate(n, e, !0, t), vs = (n, e, t) => O.generateAsync(n, e, !0, t), Ps = (n, e, t) => O.generate(n, e, !1, t), ks = (n, e, t) => O.generateAsync(n, e, !1, t), $s = async (n, e) => {
+  const t = [], r = [];
+  for await (const s of n)
+    e(s) === !0 ? r.push(s) : t.push(s);
+  return [r, t];
+}, Ts = async (n, e) => {
+  const t = [], r = [];
+  for await (const s of n)
+    await e(s) === !0 ? r.push(s) : t.push(s);
+  return [r, t];
+}, Os = (n) => {
+  async function* e() {
+    const t = [];
+    for await (const r of n)
+      t.push(r);
+    for (let r = t.length - 1; r >= 0; r--)
+      yield t[r];
   }
-  if (!lastItem) {
-    throw new InvalidOperationException(ErrorString.NoElements);
+  return new h(e);
+}, Is = (n, e) => typeof e == "function" ? e.length === 1 ? Ms(n, e) : Es(n, e) : bs(n, e), Ms = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      yield e(r);
   }
-  return lastItem;
-};
-const last2$1 = async (source, predicate) => {
-  let lastItem = null;
-  for await (const value of source) {
-    if (predicate(value) === true) {
-      lastItem = value;
+  return new h(t);
+}, Es = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for await (const s of n)
+      yield e(s, r), r++;
+  }
+  return new h(t);
+}, bs = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      yield r[e];
+  }
+  return new h(t);
+}, xs = (n, e) => typeof e == "string" ? Ns(n, e) : Ss(n, e), Ss = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      yield e(r);
+  }
+  return new h(t);
+}, Ns = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      yield r[e];
+  }
+  return new h(t);
+}, Vs = (n, e) => typeof e == "function" ? e.length === 1 ? Ds(n, e) : Fs(n, e) : _s(n, e), Ds = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      for (const s of e(r))
+        yield s;
+  }
+  return new h(t);
+}, Fs = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for await (const s of n) {
+      for (const o of e(s, r))
+        yield o;
+      r++;
     }
   }
-  if (!lastItem) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
+  return new h(t);
+}, _s = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      for (const s of r[e])
+        yield s;
   }
-  return lastItem;
-};
-const lastAsync$1 = async (source, predicate) => {
-  let last3 = null;
-  for await (const value of source) {
-    if (await predicate(value) === true) {
-      last3 = value;
-    }
-  }
-  if (!last3) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
-  }
-  return last3;
-};
-const lastOrDefault$1 = (source, predicate) => {
-  if (predicate) {
-    return lastOrDefault2$1(source, predicate);
-  } else {
-    return lastOrDefault1$1(source);
-  }
-};
-const lastOrDefault1$1 = async (source) => {
-  let last3 = null;
-  for await (const value of source) {
-    last3 = value;
-  }
-  return last3;
-};
-const lastOrDefault2$1 = async (source, predicate) => {
-  let last3 = null;
-  for await (const value of source) {
-    if (predicate(value) === true) {
-      last3 = value;
-    }
-  }
-  return last3;
-};
-const lastOrDefaultAsync$1 = async (source, predicate) => {
-  let last3 = null;
-  for await (const value of source) {
-    if (await predicate(value) === true) {
-      last3 = value;
-    }
-  }
-  return last3;
-};
-const max$1 = (source, selector) => {
-  if (selector) {
-    return max2(source, selector);
-  } else {
-    return max1(source);
-  }
-};
-const max1 = async (source) => {
-  let maxItem = null;
-  for await (const item of source) {
-    maxItem = Math.max(maxItem || Number.NEGATIVE_INFINITY, item);
-  }
-  if (maxItem === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return maxItem;
-  }
-};
-const max2 = async (source, selector) => {
-  let maxItem = null;
-  for await (const item of source) {
-    maxItem = Math.max(maxItem || Number.NEGATIVE_INFINITY, selector(item));
-  }
-  if (maxItem === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return maxItem;
-  }
-};
-const maxAsync$1 = async (source, selector) => {
-  let max3 = null;
-  for await (const item of source) {
-    max3 = Math.max(max3 || Number.NEGATIVE_INFINITY, await selector(item));
-  }
-  if (max3 === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return max3;
-  }
-};
-const min$1 = (source, selector) => {
-  if (selector) {
-    return min2(source, selector);
-  } else {
-    return min1(source);
-  }
-};
-const min1 = async (source) => {
-  let minValue = null;
-  for await (const item of source) {
-    minValue = Math.min(minValue || Number.POSITIVE_INFINITY, item);
-  }
-  if (minValue === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return minValue;
-  }
-};
-const min2 = async (source, selector) => {
-  let minValue = null;
-  for await (const item of source) {
-    minValue = Math.min(minValue || Number.POSITIVE_INFINITY, selector(item));
-  }
-  if (minValue === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return minValue;
-  }
-};
-const minAsync$1 = async (source, selector) => {
-  let min3 = null;
-  for await (const item of source) {
-    min3 = Math.min(min3 || Number.POSITIVE_INFINITY, await selector(item));
-  }
-  if (min3 === null) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  } else {
-    return min3;
-  }
-};
-const ofType$1 = (source, type) => {
-  const typeCheck = typeof type === "string" ? (x) => typeof x === type : (x) => x instanceof type;
-  async function* iterator() {
-    for await (const item of source) {
-      if (typeCheck(item)) {
-        yield item;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const orderBy$1 = (source, keySelector, comparer) => {
-  return OrderedAsyncEnumerable.generate(source, keySelector, true, comparer);
-};
-const orderByAsync$1 = (source, keySelector, comparer) => {
-  return OrderedAsyncEnumerable.generateAsync(source, keySelector, true, comparer);
-};
-const orderByDescending$1 = (source, keySelector, comparer) => {
-  return OrderedAsyncEnumerable.generate(source, keySelector, false, comparer);
-};
-const orderByDescendingAsync$1 = (source, keySelector, comparer) => {
-  return OrderedAsyncEnumerable.generateAsync(source, keySelector, false, comparer);
-};
-const partition$1 = async (source, predicate) => {
-  const fail = [];
-  const pass = [];
-  for await (const value of source) {
-    if (predicate(value) === true) {
-      pass.push(value);
-    } else {
-      fail.push(value);
-    }
-  }
-  return [pass, fail];
-};
-const partitionAsync$1 = async (source, predicate) => {
-  const fail = [];
-  const pass = [];
-  for await (const value of source) {
-    if (await predicate(value) === true) {
-      pass.push(value);
-    } else {
-      fail.push(value);
-    }
-  }
-  return [pass, fail];
-};
-const reverse$1 = (source) => {
-  async function* iterator() {
-    const values = [];
-    for await (const value of source) {
-      values.push(value);
-    }
-    for (let i2 = values.length - 1; i2 >= 0; i2--) {
-      yield values[i2];
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const select$1 = (source, selector) => {
-  if (typeof selector === "function") {
-    if (selector.length === 1) {
-      return select1(source, selector);
-    } else {
-      return select2(source, selector);
-    }
-  } else {
-    return select3(source, selector);
-  }
-};
-const select1 = (source, selector) => {
-  async function* iterator() {
-    for await (const value of source) {
-      yield selector(value);
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const select2 = (source, selector) => {
-  async function* iterator() {
-    let index = 0;
-    for await (const value of source) {
-      yield selector(value, index);
-      index++;
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const select3 = (source, key) => {
-  async function* iterator() {
-    for await (const value of source) {
-      yield value[key];
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const selectAsync$1 = (source, selector) => {
-  if (typeof selector === "string") {
-    return selectAsync2(source, selector);
-  } else {
-    return selectAsync1(source, selector);
-  }
-};
-const selectAsync1 = (source, selector) => {
-  async function* iterator() {
-    for await (const value of source) {
-      yield selector(value);
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const selectAsync2 = (source, key) => {
-  async function* iterator() {
-    for await (const value of source) {
-      yield value[key];
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const selectMany$1 = (source, selector) => {
-  if (typeof selector === "function") {
-    if (selector.length === 1) {
-      return selectMany1(source, selector);
-    } else {
-      return selectMany2(source, selector);
-    }
-  } else {
-    return selectMany3(source, selector);
-  }
-};
-const selectMany1 = (source, selector) => {
-  async function* iterator() {
-    for await (const value of source) {
-      for (const selectorValue of selector(value)) {
-        yield selectorValue;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const selectMany2 = (source, selector) => {
-  async function* iterator() {
-    let index = 0;
-    for await (const value of source) {
-      for (const selectorValue of selector(value, index)) {
-        yield selectorValue;
-      }
-      index++;
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const selectMany3 = (source, selector) => {
-  async function* iterator() {
-    for await (const value of source) {
-      for (const selectorValue of value[selector]) {
-        yield selectorValue;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const selectManyAsync$1 = (source, selector) => {
-  if (selector.length === 1) {
-    const iterator = async function* () {
-      for await (const value of source) {
-        const many = await selector(value);
-        for (const innerValue of many) {
-          yield innerValue;
-        }
+  return new h(t);
+}, Bs = (n, e) => {
+  if (e.length === 1) {
+    const t = async function* () {
+      for await (const r of n) {
+        const s = await e(r);
+        for (const o of s)
+          yield o;
       }
     };
-    return new BasicAsyncEnumerable(iterator);
+    return new h(t);
   } else {
-    const iterator = async function* () {
-      let index = 0;
-      for await (const value of source) {
-        const many = await selector(value, index);
-        for (const innerValue of many) {
-          yield innerValue;
-        }
-        index++;
+    const t = async function* () {
+      let r = 0;
+      for await (const s of n) {
+        const o = await e(s, r);
+        for (const a of o)
+          yield a;
+        r++;
       }
     };
-    return new BasicAsyncEnumerable(iterator);
+    return new h(t);
   }
-};
-const sequenceEquals$1 = async (first3, second, comparer = StrictEqualityComparer) => {
-  const firstIterator = first3[Symbol.asyncIterator]();
-  const secondIterator = second[Symbol.asyncIterator]();
-  let results = await Promise.all([firstIterator.next(), secondIterator.next()]);
-  let firstResult = results[0];
-  let secondResult = results[1];
-  while (!firstResult.done && !secondResult.done) {
-    if (!comparer(firstResult.value, secondResult.value)) {
-      return false;
+}, Rs = async (n, e, t = d) => {
+  const r = n[Symbol.asyncIterator](), s = e[Symbol.asyncIterator]();
+  let o = await Promise.all([r.next(), s.next()]), a = o[0], i = o[1];
+  for (; !a.done && !i.done; ) {
+    if (!t(a.value, i.value))
+      return !1;
+    o = await Promise.all([r.next(), s.next()]), a = o[0], i = o[1];
+  }
+  return a.done === !0 && i.done === !0;
+}, Ws = async (n, e, t) => {
+  const r = n[Symbol.asyncIterator](), s = e[Symbol.asyncIterator]();
+  let o = await Promise.all([r.next(), s.next()]), a = o[0], i = o[1];
+  for (; !a.done && !i.done; ) {
+    if (await t(a.value, i.value) === !1)
+      return !1;
+    o = await Promise.all([r.next(), s.next()]), a = o[0], i = o[1];
+  }
+  return a.done === !0 && i.done === !0;
+}, Ks = (n, e) => e ? qs(n, e) : js(n), js = async (n) => {
+  let e = !1, t = null;
+  for await (const r of n) {
+    if (e === !0)
+      throw new f(u.MoreThanOneElement);
+    e = !0, t = r;
+  }
+  if (e === !1)
+    throw new f(u.NoElements);
+  return t;
+}, qs = async (n, e) => {
+  let t = !1, r = null;
+  for await (const s of n)
+    if (e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      t = !0, r = s;
     }
-    results = await Promise.all([firstIterator.next(), secondIterator.next()]);
-    firstResult = results[0];
-    secondResult = results[1];
-  }
-  return firstResult.done === true && secondResult.done === true;
-};
-const sequenceEqualsAsync$1 = async (first3, second, comparer) => {
-  const firstIterator = first3[Symbol.asyncIterator]();
-  const secondIterator = second[Symbol.asyncIterator]();
-  let results = await Promise.all([firstIterator.next(), secondIterator.next()]);
-  let firstResult = results[0];
-  let secondResult = results[1];
-  while (!firstResult.done && !secondResult.done) {
-    if (await comparer(firstResult.value, secondResult.value) === false) {
-      return false;
+  if (t === !1)
+    throw new f(u.NoMatch);
+  return r;
+}, Ls = async (n, e) => {
+  let t = !1, r = null;
+  for await (const s of n)
+    if (await e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      t = !0, r = s;
     }
-    results = await Promise.all([firstIterator.next(), secondIterator.next()]);
-    firstResult = results[0];
-    secondResult = results[1];
+  if (t === !1)
+    throw new f(u.NoMatch);
+  return r;
+}, Cs = (n, e) => e ? Us(n, e) : zs(n), zs = async (n) => {
+  let e = !1, t = null;
+  for await (const r of n) {
+    if (e === !0)
+      throw new f(u.MoreThanOneElement);
+    e = !0, t = r;
   }
-  return firstResult.done === true && secondResult.done === true;
-};
-const single$1 = (source, predicate) => {
-  if (predicate) {
-    return single2$1(source, predicate);
-  } else {
-    return single1$1(source);
-  }
-};
-const single1$1 = async (source) => {
-  let hasValue = false;
-  let singleValue = null;
-  for await (const value of source) {
-    if (hasValue === true) {
-      throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-    } else {
-      hasValue = true;
-      singleValue = value;
+  return t;
+}, Us = async (n, e) => {
+  let t = !1, r = null;
+  for await (const s of n)
+    if (e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      t = !0, r = s;
     }
-  }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return singleValue;
-};
-const single2$1 = async (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for await (const value of source) {
-    if (predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
+  return r;
+}, Gs = async (n, e) => {
+  let t = !1, r = null;
+  for await (const s of n)
+    if (await e(s)) {
+      if (t === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      t = !0, r = s;
     }
+  return r;
+}, Ys = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for await (const s of n)
+      r++ >= e && (yield s);
   }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
+  return new h(t);
+}, Zs = (n, e) => e.length === 1 ? Js(n, e) : Hs(n, e), Js = (n, e) => {
+  async function* t() {
+    let r = !0;
+    for await (const s of n)
+      r === !1 ? yield s : e(s) === !1 && (r = !1, yield s);
   }
-  return singleValue;
-};
-const singleAsync$1 = async (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for await (const value of source) {
-    if (await predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
+  return new h(t);
+}, Hs = (n, e) => {
+  async function* t() {
+    let r = 0, s = !0;
+    for await (const o of n)
+      s === !1 ? yield o : e(o, r) === !1 && (s = !1, yield o), r++;
   }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
+  return new h(t);
+}, Xs = (n, e) => e.length === 1 ? Qs(n, e) : to(n, e), Qs = (n, e) => {
+  async function* t() {
+    let r = !0;
+    for await (const s of n)
+      r === !1 ? yield s : await e(s) === !1 && (r = !1, yield s);
   }
-  return singleValue;
-};
-const singleOrDefault$1 = (source, predicate) => {
-  if (predicate) {
-    return singleOrDefault2$1(source, predicate);
-  } else {
-    return singleOrDefault1$1(source);
+  return new h(t);
+}, to = (n, e) => {
+  async function* t() {
+    let r = 0, s = !0;
+    for await (const o of n)
+      s === !1 ? yield o : await e(o, r) === !1 && (s = !1, yield o), r++;
   }
-};
-const singleOrDefault1$1 = async (source) => {
-  let hasValue = false;
-  let singleValue = null;
-  for await (const value of source) {
-    if (hasValue === true) {
-      throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-    } else {
-      hasValue = true;
-      singleValue = value;
-    }
-  }
-  return singleValue;
-};
-const singleOrDefault2$1 = async (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for await (const value of source) {
-    if (predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  return singleValue;
-};
-const singleOrDefaultAsync$1 = async (source, predicate) => {
-  let hasValue = false;
-  let singleValue = null;
-  for await (const value of source) {
-    if (await predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  return singleValue;
-};
-const skip$1 = (source, count3) => {
-  async function* iterator() {
-    let i2 = 0;
-    for await (const item of source) {
-      if (i2++ >= count3) {
-        yield item;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const skipWhile$1 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return skipWhile1(source, predicate);
-  } else {
-    return skipWhile2(source, predicate);
-  }
-};
-const skipWhile1 = (source, predicate) => {
-  async function* iterator() {
-    let skip2 = true;
-    for await (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (predicate(item) === false) {
-        skip2 = false;
-        yield item;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const skipWhile2 = (source, predicate) => {
-  async function* iterator() {
-    let index = 0;
-    let skip2 = true;
-    for await (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (predicate(item, index) === false) {
-        skip2 = false;
-        yield item;
-      }
-      index++;
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const skipWhileAsync$1 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return skipWhileAsync1(source, predicate);
-  } else {
-    return skipWhileAsync2(source, predicate);
-  }
-};
-const skipWhileAsync1 = (source, predicate) => {
-  async function* iterator() {
-    let skip2 = true;
-    for await (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (await predicate(item) === false) {
-        skip2 = false;
-        yield item;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const skipWhileAsync2 = (source, predicate) => {
-  async function* iterator() {
-    let index = 0;
-    let skip2 = true;
-    for await (const item of source) {
-      if (skip2 === false) {
-        yield item;
-      } else if (await predicate(item, index) === false) {
-        skip2 = false;
-        yield item;
-      }
-      index++;
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const sum$1 = (source, selector) => {
-  if (selector) {
-    return sum2$1(source, selector);
-  } else {
-    return sum1$1(source);
-  }
-};
-const sum1$1 = async (source) => {
-  let total = 0;
-  for await (const value of source) {
-    total += value;
-  }
-  return total;
-};
-const sum2$1 = async (source, selector) => {
-  let total = 0;
-  for await (const value of source) {
-    total += selector(value);
-  }
-  return total;
-};
-const sumAsync$1 = async (source, selector) => {
-  let sum3 = 0;
-  for await (const value of source) {
-    sum3 += await selector(value);
-  }
-  return sum3;
-};
-const take$1 = (source, amount) => {
-  async function* iterator() {
-    let amountLeft = amount > 0 ? amount : 0;
-    for await (const item of source) {
-      if (amountLeft-- === 0) {
+  return new h(t);
+}, eo = (n, e) => e ? ro(n, e) : no(n), no = async (n) => {
+  let e = 0;
+  for await (const t of n)
+    e += t;
+  return e;
+}, ro = async (n, e) => {
+  let t = 0;
+  for await (const r of n)
+    t += e(r);
+  return t;
+}, so = async (n, e) => {
+  let t = 0;
+  for await (const r of n)
+    t += await e(r);
+  return t;
+}, oo = (n, e) => {
+  async function* t() {
+    let r = e > 0 ? e : 0;
+    for await (const s of n) {
+      if (r-- === 0)
         break;
-      } else {
-        yield item;
-      }
+      yield s;
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const takeWhile$1 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return takeWhile1(source, predicate);
-  } else {
-    return takeWhile2(source, predicate);
-  }
-};
-const takeWhile1 = (source, predicate) => {
-  async function* iterator() {
-    for await (const item of source) {
-      if (predicate(item)) {
-        yield item;
-      } else {
+  return new h(t);
+}, ao = (n, e) => e.length === 1 ? io(n, e) : co(n, e), io = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      if (e(r))
+        yield r;
+      else
         break;
-      }
-    }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const takeWhile2 = (source, predicate) => {
-  async function* iterator() {
-    let index = 0;
-    for await (const item of source) {
-      if (predicate(item, index++)) {
-        yield item;
-      } else {
+  return new h(t);
+}, co = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for await (const s of n)
+      if (e(s, r++))
+        yield s;
+      else
         break;
-      }
-    }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const takeWhileAsync$1 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return takeWhileAsync1(source, predicate);
-  } else {
-    return takeWhileAsync2(source, predicate);
-  }
-};
-const takeWhileAsync1 = (source, predicate) => {
-  async function* iterator() {
-    for await (const item of source) {
-      if (await predicate(item)) {
-        yield item;
-      } else {
+  return new h(t);
+}, lo = (n, e) => e.length === 1 ? uo(n, e) : fo(n, e), uo = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      if (await e(r))
+        yield r;
+      else
         break;
-      }
-    }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const takeWhileAsync2 = (source, predicate) => {
-  async function* iterator() {
-    let index = 0;
-    for await (const item of source) {
-      if (await predicate(item, index++)) {
-        yield item;
-      } else {
+  return new h(t);
+}, fo = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for await (const s of n)
+      if (await e(s, r++))
+        yield s;
+      else
         break;
-      }
-    }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const toArray$1 = async (source) => {
-  const array = [];
-  for await (const item of source) {
-    array.push(item);
+  return new h(t);
+}, yo = async (n) => {
+  const e = [];
+  for await (const t of n)
+    e.push(t);
+  return e;
+}, ho = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for await (const r of n) {
+    const s = e(r), o = t.get(s);
+    o === void 0 ? t.set(s, [r]) : o.push(r);
   }
-  return array;
-};
-const toMap$1 = async (source, selector) => {
-  const map = /* @__PURE__ */ new Map();
-  for await (const value of source) {
-    const key = selector(value);
-    const array = map.get(key);
-    if (array === void 0) {
-      map.set(key, [value]);
-    } else {
-      array.push(value);
-    }
+  return t;
+}, wo = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for await (const r of n) {
+    const s = await e(r), o = t.get(s);
+    o === void 0 ? t.set(s, [r]) : o.push(r);
   }
-  return map;
-};
-const toMapAsync$1 = async (source, selector) => {
-  const map = /* @__PURE__ */ new Map();
-  for await (const value of source) {
-    const key = await selector(value);
-    const array = map.get(key);
-    if (array === void 0) {
-      map.set(key, [value]);
-    } else {
-      array.push(value);
-    }
+  return t;
+}, go = async (n, e) => {
+  const t = {};
+  for await (const r of n)
+    t[e(r)] = r;
+  return t;
+}, mo = async (n, e) => {
+  const t = {};
+  for await (const r of n)
+    t[await e(r)] = r;
+  return t;
+}, po = async (n) => {
+  const e = /* @__PURE__ */ new Set();
+  for await (const t of n)
+    e.add(t);
+  return e;
+}, Ao = (n, e, t) => t ? Po(n, e, t) : vo(n, e), vo = (n, e) => {
+  async function* t() {
+    const r = /* @__PURE__ */ new Set();
+    for await (const s of n)
+      r.has(s) === !1 && (yield s, r.add(s));
+    for await (const s of e)
+      r.has(s) === !1 && (yield s, r.add(s));
   }
-  return map;
-};
-const toObject$1 = async (source, selector) => {
-  const map = {};
-  for await (const value of source) {
-    map[selector(value)] = value;
-  }
-  return map;
-};
-const toObjectAsync$1 = async (source, selector) => {
-  const map = {};
-  for await (const value of source) {
-    map[await selector(value)] = value;
-  }
-  return map;
-};
-const toSet$1 = async (source) => {
-  const set = /* @__PURE__ */ new Set();
-  for await (const item of source) {
-    set.add(item);
-  }
-  return set;
-};
-const union$1 = (first3, second, comparer) => {
-  if (comparer) {
-    return union2$1(first3, second, comparer);
-  } else {
-    return union1$1(first3, second);
-  }
-};
-const union1$1 = (first3, second) => {
-  async function* iterator() {
-    const set = /* @__PURE__ */ new Set();
-    for await (const item of first3) {
-      if (set.has(item) === false) {
-        yield item;
-        set.add(item);
-      }
-    }
-    for await (const item of second) {
-      if (set.has(item) === false) {
-        yield item;
-        set.add(item);
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const union2$1 = (first3, second, comparer) => {
-  async function* iterator() {
-    const result = [];
-    for (const source of [first3, second]) {
-      for await (const value of source) {
-        let exists = false;
-        for (const resultValue of result) {
-          if (comparer(value, resultValue) === true) {
-            exists = true;
+  return new h(t);
+}, Po = (n, e, t) => {
+  async function* r() {
+    const s = [];
+    for (const o of [n, e])
+      for await (const a of o) {
+        let i = !1;
+        for (const l of s)
+          if (t(a, l) === !0) {
+            i = !0;
             break;
           }
-        }
-        if (exists === false) {
-          yield value;
-          result.push(value);
-        }
+        i === !1 && (yield a, s.push(a));
       }
-    }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const unionAsync$1 = (first3, second, comparer) => {
-  async function* iterator() {
-    const result = [];
-    for (const source of [first3, second]) {
-      for await (const value of source) {
-        let exists = false;
-        for (const resultValue of result) {
-          if (await comparer(value, resultValue) === true) {
-            exists = true;
+  return new h(r);
+}, ko = (n, e, t) => {
+  async function* r() {
+    const s = [];
+    for (const o of [n, e])
+      for await (const a of o) {
+        let i = !1;
+        for (const l of s)
+          if (await t(a, l) === !0) {
+            i = !0;
             break;
           }
-        }
-        if (exists === false) {
-          yield value;
-          result.push(value);
-        }
+        i === !1 && (yield a, s.push(a));
       }
-    }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const where$1 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return where1(source, predicate);
-  } else {
-    return where2(source, predicate);
+  return new h(r);
+}, $o = (n, e) => e.length === 1 ? To(n, e) : Oo(n, e), To = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      e(r) === !0 && (yield r);
   }
-};
-const where1 = (source, predicate) => {
-  async function* iterator() {
-    for await (const item of source) {
-      if (predicate(item) === true) {
-        yield item;
-      }
-    }
+  return new h(t);
+}, Oo = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for await (const s of n)
+      e(s, r++) === !0 && (yield s);
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const where2 = (source, predicate) => {
-  async function* iterator() {
-    let i2 = 0;
-    for await (const item of source) {
-      if (predicate(item, i2++) === true) {
-        yield item;
-      }
-    }
+  return new h(t);
+}, Io = (n, e) => e.length === 1 ? Mo(n, e) : Eo(n, e), Mo = (n, e) => {
+  async function* t() {
+    for await (const r of n)
+      await e(r) === !0 && (yield r);
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const whereAsync$1 = (source, predicate) => {
-  if (predicate.length === 1) {
-    return whereAsync1(source, predicate);
-  } else {
-    return whereAsync2(source, predicate);
+  return new h(t);
+}, Eo = (n, e) => {
+  async function* t() {
+    let r = 0;
+    for await (const s of n)
+      await e(s, r++) === !0 && (yield s);
   }
-};
-const whereAsync1 = (source, predicate) => {
-  async function* iterator() {
-    for await (const item of source) {
-      if (await predicate(item) === true) {
-        yield item;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const whereAsync2 = (source, predicate) => {
-  async function* iterator() {
-    let i2 = 0;
-    for await (const item of source) {
-      if (await predicate(item, i2++) === true) {
-        yield item;
-      }
-    }
-  }
-  return new BasicAsyncEnumerable(iterator);
-};
-const zip$1 = (first3, second, resultSelector) => {
-  if (resultSelector) {
-    return zip2$1(first3, second, resultSelector);
-  } else {
-    return zip1$1(first3, second);
-  }
-};
-const zip1$1 = (source, second) => {
-  async function* iterator() {
-    const firstIterator = source[Symbol.asyncIterator]();
-    const secondIterator = second[Symbol.asyncIterator]();
-    while (true) {
-      const result = await Promise.all([firstIterator.next(), secondIterator.next()]);
-      const a2 = result[0];
-      const b2 = result[1];
-      if (a2.done && b2.done) {
+  return new h(t);
+}, bo = (n, e, t) => t ? So(n, e, t) : xo(n, e), xo = (n, e) => {
+  async function* t() {
+    const r = n[Symbol.asyncIterator](), s = e[Symbol.asyncIterator]();
+    for (; ; ) {
+      const o = await Promise.all([r.next(), s.next()]), a = o[0], i = o[1];
+      if (a.done && i.done)
         break;
-      } else {
-        yield [a2.value, b2.value];
-      }
+      yield [a.value, i.value];
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const zip2$1 = (source, second, resultSelector) => {
-  async function* iterator() {
-    const firstIterator = source[Symbol.asyncIterator]();
-    const secondIterator = second[Symbol.asyncIterator]();
-    while (true) {
-      const result = await Promise.all([firstIterator.next(), secondIterator.next()]);
-      const a2 = result[0];
-      const b2 = result[1];
-      if (a2.done && b2.done) {
+  return new h(t);
+}, So = (n, e, t) => {
+  async function* r() {
+    const s = n[Symbol.asyncIterator](), o = e[Symbol.asyncIterator]();
+    for (; ; ) {
+      const a = await Promise.all([s.next(), o.next()]), i = a[0], l = a[1];
+      if (i.done && l.done)
         break;
-      } else {
-        yield resultSelector(a2.value, b2.value);
-      }
+      yield t(i.value, l.value);
     }
   }
-  return new BasicAsyncEnumerable(iterator);
-};
-const zipAsync$1 = (first3, second, resultSelector) => {
-  async function* generator() {
-    const firstIterator = first3[Symbol.asyncIterator]();
-    const secondIterator = second[Symbol.asyncIterator]();
-    while (true) {
-      const results = await Promise.all([firstIterator.next(), secondIterator.next()]);
-      const firstNext = results[0];
-      const secondNext = results[1];
-      if (firstNext.done || secondNext.done) {
+  return new h(r);
+}, No = (n, e, t) => {
+  async function* r() {
+    const s = n[Symbol.asyncIterator](), o = e[Symbol.asyncIterator]();
+    for (; ; ) {
+      const a = await Promise.all([s.next(), o.next()]), i = a[0], l = a[1];
+      if (i.done || l.done)
         break;
-      } else {
-        yield resultSelector(firstNext.value, secondNext.value);
-      }
+      yield t(i.value, l.value);
     }
   }
-  return new BasicAsyncEnumerable(generator);
-};
-const bindLinqAsync = (object) => {
-  const prototype = object.prototype;
-  const bind = (func, key) => {
-    const wrapped = function(...params) {
-      return func(this, ...params);
+  return new h(r);
+}, Vo = (n) => {
+  const e = n.prototype, t = (r, s) => {
+    const o = function(...a) {
+      return r(this, ...a);
     };
-    Object.defineProperty(wrapped, "length", { value: func.length - 1 });
-    prototype[key] = wrapped;
+    Object.defineProperty(o, "length", { value: r.length - 1 }), e[s] = o;
   };
-  bind(aggregate$1, "Aggregate");
-  bind(all$1, "All");
-  bind(allAsync$1, "AllAsync");
-  bind(any$1, "Any");
-  bind(anyAsync$1, "AnyAsync");
-  bind(asParallel, "AsParallel");
-  bind(average$1, "Average");
-  bind(averageAsync$1, "AverageAsync");
-  bind(concatenate$1, "Concatenate");
-  bind(contains$1, "Contains");
-  bind(containsAsync$1, "ContainsAsync");
-  bind(count$1, "Count");
-  bind(countAsync$1, "CountAsync");
-  bind(distinct$1, "Distinct");
-  bind(distinctAsync$1, "DistinctAsync");
-  bind(each$1, "Each");
-  bind(eachAsync$1, "EachAsync");
-  bind(elementAt$1, "ElementAt");
-  bind(elementAtOrDefault$1, "ElementAtOrDefault");
-  bind(except$1, "Except");
-  bind(exceptAsync$1, "ExceptAsync");
-  bind(first$1, "First");
-  bind(firstAsync$1, "FirstAsync");
-  bind(firstOrDefault$1, "FirstOrDefault");
-  bind(firstOrDefaultAsync$1, "FirstOrDefaultAsync");
-  bind(groupBy$1, "GroupBy");
-  bind(groupByAsync$1, "GroupByAsync");
-  bind(groupByWithSel$1, "GroupByWithSel");
-  bind(intersect$1, "Intersect");
-  bind(intersectAsync$1, "IntersectAsync");
-  bind(join$1, "JoinByKey");
-  bind(last$1, "Last");
-  bind(lastAsync$1, "LastAsync");
-  bind(lastOrDefault$1, "LastOrDefault");
-  bind(lastOrDefaultAsync$1, "LastOrDefaultAsync");
-  bind(max$1, "Max");
-  bind(maxAsync$1, "MaxAsync");
-  bind(min$1, "Min");
-  bind(minAsync$1, "MinAsync");
-  bind(ofType$1, "OfType");
-  bind(orderBy$1, "OrderBy");
-  bind(orderByAsync$1, "OrderByAsync");
-  bind(orderByDescending$1, "OrderByDescending");
-  bind(orderByDescendingAsync$1, "OrderByDescendingAsync");
-  bind(partition$1, "Partition");
-  bind(partitionAsync$1, "PartitionAsync");
-  bind(reverse$1, "Reverse");
-  bind(select$1, "Select");
-  bind(selectAsync$1, "SelectAsync");
-  bind(selectMany$1, "SelectMany");
-  bind(selectManyAsync$1, "SelectManyAsync");
-  bind(sequenceEquals$1, "SequenceEquals");
-  bind(sequenceEqualsAsync$1, "SequenceEqualsAsync");
-  bind(single$1, "Single");
-  bind(singleAsync$1, "SingleAsync");
-  bind(singleOrDefault$1, "SingleOrDefault");
-  bind(singleOrDefaultAsync$1, "SingleOrDefaultAsync");
-  bind(skip$1, "Skip");
-  bind(skipWhile$1, "SkipWhile");
-  bind(skipWhileAsync$1, "SkipWhileAsync");
-  bind(sum$1, "Sum");
-  bind(sumAsync$1, "SumAsync");
-  bind(take$1, "Take");
-  bind(takeWhile$1, "TakeWhile");
-  bind(takeWhileAsync$1, "TakeWhileAsync");
-  bind(toArray$1, "ToArray");
-  bind(toMap$1, "ToMap");
-  bind(toMapAsync$1, "ToMapAsync");
-  bind(toObject$1, "ToObject");
-  bind(toObjectAsync$1, "ToObjectAsync");
-  bind(toSet$1, "ToSet");
-  bind(union$1, "Union");
-  bind(unionAsync$1, "UnionAsync");
-  bind(where$1, "Where");
-  bind(whereAsync$1, "WhereAsync");
-  bind(zip$1, "Zip");
-  bind(zipAsync$1, "ZipAsync");
-};
-const aggregate = (source, seedOrFunc, func, resultSelector) => {
-  if (resultSelector) {
-    if (!func) {
-      throw new ReferenceError(`TAccumulate function is undefined`);
-    }
-    return aggregate3(source, seedOrFunc, func, resultSelector);
-  } else if (func) {
-    return aggregate2(source, seedOrFunc, func);
-  } else {
-    return aggregate1(source, seedOrFunc);
+  t(ar, "Aggregate"), t(ur, "All"), t(fr, "AllAsync"), t(yr, "Any"), t(gr, "AnyAsync"), t(mr, "AsParallel"), t(pr, "Average"), t(vr, "AverageAsync"), t(Pr, "Concatenate"), t(kr, "Contains"), t($r, "ContainsAsync"), t(Tr, "Count"), t(Mr, "CountAsync"), t(Er, "Distinct"), t(br, "DistinctAsync"), t(xr, "Each"), t(Sr, "EachAsync"), t(Nr, "ElementAt"), t(Vr, "ElementAtOrDefault"), t(Dr, "Except"), t(Fr, "ExceptAsync"), t(_r, "First"), t(Wr, "FirstAsync"), t(Kr, "FirstOrDefault"), t(Lr, "FirstOrDefaultAsync"), t(Cr, "GroupBy"), t(Gr, "GroupByAsync"), t(Jr, "GroupByWithSel"), t(Qr, "Intersect"), t(ts, "IntersectAsync"), t(es, "JoinByKey"), t(ns, "Last"), t(os, "LastAsync"), t(as, "LastOrDefault"), t(ls, "LastOrDefaultAsync"), t(us, "Max"), t(hs, "MaxAsync"), t(ws, "Min"), t(ps, "MinAsync"), t(As, "OfType"), t(ds, "OrderBy"), t(vs, "OrderByAsync"), t(Ps, "OrderByDescending"), t(ks, "OrderByDescendingAsync"), t($s, "Partition"), t(Ts, "PartitionAsync"), t(Os, "Reverse"), t(Is, "Select"), t(xs, "SelectAsync"), t(Vs, "SelectMany"), t(Bs, "SelectManyAsync"), t(Rs, "SequenceEquals"), t(Ws, "SequenceEqualsAsync"), t(Ks, "Single"), t(Ls, "SingleAsync"), t(Cs, "SingleOrDefault"), t(Gs, "SingleOrDefaultAsync"), t(Ys, "Skip"), t(Zs, "SkipWhile"), t(Xs, "SkipWhileAsync"), t(eo, "Sum"), t(so, "SumAsync"), t(oo, "Take"), t(ao, "TakeWhile"), t(lo, "TakeWhileAsync"), t(yo, "ToArray"), t(ho, "ToMap"), t(wo, "ToMapAsync"), t(go, "ToObject"), t(mo, "ToObjectAsync"), t(po, "ToSet"), t(Ao, "Union"), t(ko, "UnionAsync"), t($o, "Where"), t(Io, "WhereAsync"), t(bo, "Zip"), t(No, "ZipAsync");
+}, Do = (n, e, t, r) => {
+  if (r) {
+    if (!t)
+      throw new ReferenceError("TAccumulate function is undefined");
+    return Bo(n, e, t, r);
+  } else
+    return t ? _o(n, e, t) : Fo(n, e);
+}, Fo = async (n, e) => {
+  let t;
+  for await (const r of n)
+    t ? t = e(t, r) : t = r;
+  if (t === void 0)
+    throw new f(u.NoElements);
+  return t;
+}, _o = async (n, e, t) => {
+  let r = e;
+  for await (const s of n)
+    r = t(r, s);
+  return r;
+}, Bo = async (n, e, t, r) => {
+  let s = e;
+  for await (const o of n)
+    s = t(s, o);
+  return r(s);
+}, $ = (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray:
+      return {
+        generator: () => t.generator().then((s) => {
+          const o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = e(s[a]);
+          return o;
+        }),
+        type: c.PromiseToArray
+      };
+    case c.ArrayOfPromises:
+      return {
+        generator: () => {
+          const s = t.generator(), o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = s[a].then(e);
+          return o;
+        },
+        type: c.ArrayOfPromises
+      };
+    case c.PromiseOfPromises:
+      return {
+        generator: async () => {
+          const s = await t.generator(), o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = s[a].then(e);
+          return o;
+        },
+        type: c.PromiseOfPromises
+      };
   }
-};
-const aggregate1 = async (source, func) => {
-  let aggregateValue;
-  for await (const value of source) {
-    if (aggregateValue) {
-      aggregateValue = func(aggregateValue, value);
-    } else {
-      aggregateValue = value;
-    }
+}, Ro = (n, e) => {
+  const t = $(n, (r) => {
+    if (!e(r))
+      throw new Error(String(!1));
+    return !0;
+  });
+  switch (t.type) {
+    case c.PromiseToArray:
+      return t.generator().then(() => !0, () => !1);
+    case c.ArrayOfPromises:
+      return Promise.all(t.generator()).then(() => !0, () => !1);
+    case c.PromiseOfPromises:
+      return t.generator().then(Promise.all.bind(Promise)).then(() => !0, () => !1);
   }
-  if (aggregateValue === void 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
+}, P = (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray:
+      return {
+        generator: async () => {
+          const s = await t.generator(), o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = e(s[a]);
+          return o;
+        },
+        type: c.PromiseOfPromises
+      };
+    case c.ArrayOfPromises:
+      return {
+        generator: () => t.generator().map(async (o) => {
+          const a = await o;
+          return await e(a);
+        }),
+        type: c.ArrayOfPromises
+      };
+    case c.PromiseOfPromises:
+      return {
+        generator: async () => (await t.generator()).map((o) => o.then(e)),
+        type: c.PromiseOfPromises
+      };
   }
-  return aggregateValue;
-};
-const aggregate2 = async (source, seed, func) => {
-  let aggregateValue = seed;
-  for await (const value of source) {
-    aggregateValue = func(aggregateValue, value);
+}, Wo = (n, e) => {
+  const t = P(n, async (r) => {
+    if (await e(r) === !1)
+      throw new Error(String(!1));
+    return !0;
+  });
+  switch (t.type) {
+    case c.ArrayOfPromises:
+      return Promise.all(t.generator()).then(() => !0, () => !1);
+    case c.PromiseOfPromises:
+      return t.generator().then(Promise.all.bind(Promise)).then(() => !0, () => !1);
   }
-  return aggregateValue;
-};
-const aggregate3 = async (source, seed, func, resultSelector) => {
-  let aggregateValue = seed;
-  for await (const value of source) {
-    aggregateValue = func(aggregateValue, value);
+}, Ko = (n, e) => e ? qo(n, e) : jo(n), jo = async (n) => {
+  const e = n.dataFunc;
+  let t;
+  switch (e.type) {
+    case c.ArrayOfPromises:
+      return t = e.generator(), t.length !== 0;
+    case c.PromiseToArray:
+    case c.PromiseOfPromises:
+      return t = await e.generator(), t.length !== 0;
   }
-  return resultSelector(aggregateValue);
-};
-const nextIteration = (source, onfulfilled) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const generator = () => dataFunc.generator().then((x) => {
-        const convValues = new Array(x.length);
-        for (let i2 = 0; i2 < x.length; i2++) {
-          convValues[i2] = onfulfilled(x[i2]);
-        }
-        return convValues;
+}, qo = async (n, e) => {
+  const t = $(n, e);
+  let r;
+  switch (t.type) {
+    case c.PromiseToArray:
+      return r = await t.generator(), r.includes(!0);
+    case c.ArrayOfPromises:
+      return r = await Promise.all(t.generator()), r.includes(!0);
+    case c.PromiseOfPromises:
+      return r = await Promise.all(await t.generator()), r.includes(!0);
+  }
+}, Lo = async (n, e) => {
+  const t = P(n, e);
+  let r;
+  switch (t.type) {
+    case c.ArrayOfPromises:
+      return r = t.generator(), r.length === 0 ? !1 : new Promise((o, a) => {
+        let i = 0;
+        for (const l of r)
+          l.then((y) => {
+            i++, y ? o(!0) : i === r.length && o(!1);
+          }, a);
       });
-      return {
-        generator,
-        type: ParallelGeneratorType.PromiseToArray
-      };
-    }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const generator = () => {
-        const previousData = dataFunc.generator();
-        const newPromises = new Array(previousData.length);
-        for (let i2 = 0; i2 < previousData.length; i2++) {
-          newPromises[i2] = previousData[i2].then(onfulfilled);
-        }
-        return newPromises;
-      };
-      return {
-        generator,
-        type: ParallelGeneratorType.ArrayOfPromises
-      };
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const generator = async () => {
-        const previousData = await dataFunc.generator();
-        const newPromises = new Array(previousData.length);
-        for (let i2 = 0; i2 < previousData.length; i2++) {
-          newPromises[i2] = previousData[i2].then(onfulfilled);
-        }
-        return newPromises;
-      };
-      return {
-        generator,
-        type: ParallelGeneratorType.PromiseOfPromises
-      };
-    }
+    case c.PromiseOfPromises:
+      return r = await t.generator(), Promise.length === 0 ? !1 : (await Promise.all(r)).includes(!0);
   }
-};
-const all = (source, predicate) => {
-  const nextIter = nextIteration(source, (x) => {
-    if (!predicate(x)) {
-      throw new Error(String(false));
-    }
-    return true;
-  });
-  switch (nextIter.type) {
-    case ParallelGeneratorType.PromiseToArray:
-      return nextIter.generator().then(() => true, () => false);
-    case ParallelGeneratorType.ArrayOfPromises:
-      return Promise.all(nextIter.generator()).then(() => true, () => false);
-    case ParallelGeneratorType.PromiseOfPromises:
-      return nextIter.generator().then(Promise.all.bind(Promise)).then(() => true, () => false);
+}, Co = (n) => {
+  async function* e() {
+    for await (const t of n)
+      yield t;
   }
-};
-const nextIterationAsync = (source, onfulfilled) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const generator = async () => {
-        const results = await dataFunc.generator();
-        const newPromises = new Array(results.length);
-        for (let i2 = 0; i2 < results.length; i2++) {
-          newPromises[i2] = onfulfilled(results[i2]);
-        }
-        return newPromises;
-      };
-      return {
-        generator,
-        type: ParallelGeneratorType.PromiseOfPromises
-      };
-    }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const generator = () => {
-        const promises = dataFunc.generator();
-        return promises.map(async (promise) => {
-          const value = await promise;
-          return await onfulfilled(value);
-        });
-      };
-      return {
-        generator,
-        type: ParallelGeneratorType.ArrayOfPromises
-      };
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const generator = async () => {
-        const promises = await dataFunc.generator();
-        return promises.map((promise) => promise.then(onfulfilled));
-      };
-      return {
-        generator,
-        type: ParallelGeneratorType.PromiseOfPromises
-      };
-    }
+  return A(e);
+}, k = async (n) => {
+  switch (n.type) {
+    case c.PromiseToArray:
+      return await n.generator();
+    case c.ArrayOfPromises:
+      return await Promise.all(n.generator());
+    case c.PromiseOfPromises:
+      const e = await n.generator();
+      return await Promise.all(e);
   }
-};
-const allAsync = (source, predicate) => {
-  const nextIter = nextIterationAsync(source, async (x) => {
-    if (await predicate(x) === false) {
-      throw new Error(String(false));
-    }
-    return true;
-  });
-  switch (nextIter.type) {
-    case ParallelGeneratorType.ArrayOfPromises:
-      return Promise.all(nextIter.generator()).then(() => true, () => false);
-    case ParallelGeneratorType.PromiseOfPromises:
-      return nextIter.generator().then(Promise.all.bind(Promise)).then(() => true, () => false);
-  }
-};
-const any = (source, predicate) => {
-  if (predicate) {
-    return any2(source, predicate);
-  } else {
-    return any1(source);
-  }
-};
-const any1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  let values;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.ArrayOfPromises:
-      values = dataFunc.generator();
-      return values.length !== 0;
-    case ParallelGeneratorType.PromiseToArray:
-    case ParallelGeneratorType.PromiseOfPromises:
-      values = await dataFunc.generator();
-      return values.length !== 0;
-  }
-};
-const any2 = async (source, predicate) => {
-  const dataFunc = nextIteration(source, predicate);
-  let values;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray:
-      values = await dataFunc.generator();
-      return values.includes(true);
-    case ParallelGeneratorType.ArrayOfPromises:
-      values = await Promise.all(dataFunc.generator());
-      return values.includes(true);
-    case ParallelGeneratorType.PromiseOfPromises:
-      values = await Promise.all(await dataFunc.generator());
-      return values.includes(true);
-  }
-};
-const anyAsync = async (source, predicate) => {
-  const nextIter = nextIterationAsync(source, predicate);
-  let promises;
-  switch (nextIter.type) {
-    case ParallelGeneratorType.ArrayOfPromises:
-      promises = nextIter.generator();
-      if (promises.length === 0) {
-        return false;
-      }
-      return new Promise((resolve, reject) => {
-        let resolvedCount = 0;
-        for (const promise of promises) {
-          promise.then((value) => {
-            resolvedCount++;
-            if (value) {
-              resolve(true);
-            } else if (resolvedCount === promises.length) {
-              resolve(false);
-            }
-          }, reject);
-        }
-      });
-    case ParallelGeneratorType.PromiseOfPromises:
-      promises = await nextIter.generator();
-      if (Promise.length === 0) {
-        return false;
-      }
-      const values = await Promise.all(promises);
-      return values.includes(true);
-  }
-};
-const asAsync = (source) => {
-  async function* generator() {
-    for await (const value of source) {
-      yield value;
-    }
-  }
-  return fromAsync(generator);
-};
-const typeDataToArray = async (dataFunc) => {
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray:
-      return await dataFunc.generator();
-    case ParallelGeneratorType.ArrayOfPromises:
-      return await Promise.all(dataFunc.generator());
-    case ParallelGeneratorType.PromiseOfPromises:
-      const data = await dataFunc.generator();
-      return await Promise.all(data);
-  }
-};
-const average = async (source, selector) => {
-  let data;
-  if (selector) {
-    data = nextIteration(source, selector);
-  } else {
-    data = source.dataFunc;
-  }
-  const values = await typeDataToArray(data);
-  if (values.length === 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  let sum3 = 0;
-  for (const item of values) {
-    sum3 += item;
-  }
-  return sum3 / values.length;
-};
-const averageAsync = async (source, selector) => {
-  const nextIter = nextIterationAsync(source, selector);
-  const values = await typeDataToArray(nextIter);
-  if (values.length === 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  let value = 0;
-  for (const selectedValue of values) {
-    value += selectedValue;
-  }
-  return value / values.length;
-};
-const concatenate = (first3, second) => {
-  const generator = async () => {
-    const [firstData, secondData] = await Promise.all([first3.ToArray(), second.ToArray()]);
-    return [...firstData, ...secondData];
+}, zo = async (n, e) => {
+  let t;
+  e ? t = $(n, e) : t = n.dataFunc;
+  const r = await k(t);
+  if (r.length === 0)
+    throw new f(u.NoElements);
+  let s = 0;
+  for (const o of r)
+    s += o;
+  return s / r.length;
+}, Uo = async (n, e) => {
+  const t = P(n, e), r = await k(t);
+  if (r.length === 0)
+    throw new f(u.NoElements);
+  let s = 0;
+  for (const o of r)
+    s += o;
+  return s / r.length;
+}, Go = (n, e) => {
+  const t = async () => {
+    const [r, s] = await Promise.all([n.ToArray(), e.ToArray()]);
+    return [...r, ...s];
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const contains = async (source, value, comparer = StrictEqualityComparer) => {
-  let values;
-  if (comparer) {
-    values = nextIteration(source, (x) => comparer(value, x));
-  } else {
-    values = nextIteration(source, (x) => x === value);
+}, Yo = async (n, e, t = d) => {
+  let r;
+  switch (t ? r = $(n, (s) => t(e, s)) : r = $(n, (s) => s === e), r.type) {
+    case c.PromiseToArray:
+      return (await r.generator()).some((o) => o);
+    case c.ArrayOfPromises:
+      return (await Promise.all(r.generator())).some((o) => o);
+    case c.PromiseOfPromises:
+      return (await Promise.all(await r.generator())).some((o) => o);
   }
-  switch (values.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const data = await values.generator();
-      return data.some((x) => x);
-    }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const data = await Promise.all(values.generator());
-      return data.some((x) => x);
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const data = await Promise.all(await values.generator());
-      return data.some((x) => x);
-    }
+}, Zo = async (n, e, t) => {
+  const r = P(n, (s) => t(e, s));
+  switch (r.type) {
+    case c.ArrayOfPromises:
+      return (await Promise.all(r.generator())).some((o) => o);
+    case c.PromiseOfPromises:
+      return (await Promise.all(await r.generator())).some((o) => o);
   }
-};
-const containsAsync = async (source, value, comparer) => {
-  const values = nextIterationAsync(source, (x) => comparer(value, x));
-  switch (values.type) {
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const data = await Promise.all(values.generator());
-      return data.some((x) => x);
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const data = await Promise.all(await values.generator());
-      return data.some((x) => x);
-    }
+}, Jo = (n, e) => e ? Xo(n, e) : Ho(n), Ho = async (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.PromiseToArray:
+    case c.PromiseOfPromises:
+      return (await n.ToArray()).length;
+    case c.ArrayOfPromises:
+      return e.generator().length;
   }
-};
-const count = (source, predicate) => {
-  if (predicate) {
-    return count2(source, predicate);
-  } else {
-    return count1(source);
-  }
-};
-const count1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray:
-    case ParallelGeneratorType.PromiseOfPromises:
-      const arrayData = await source.ToArray();
-      return arrayData.length;
-    case ParallelGeneratorType.ArrayOfPromises:
-      const promises = dataFunc.generator();
-      return promises.length;
-  }
-};
-const count2 = async (source, predicate) => {
-  const values = await source.ToArray();
-  let totalCount = 0;
-  for (let i2 = 0; i2 < values.length; i2++) {
-    if (predicate(values[i2]) === true) {
-      totalCount++;
-    }
-  }
-  return totalCount;
-};
-const countAsync = async (source, predicate) => {
-  const data = nextIterationAsync(source, predicate);
-  let countPromise;
-  switch (data.type) {
-    case ParallelGeneratorType.ArrayOfPromises:
-      countPromise = Promise.all(data.generator());
+}, Xo = async (n, e) => {
+  const t = await n.ToArray();
+  let r = 0;
+  for (let s = 0; s < t.length; s++)
+    e(t[s]) === !0 && r++;
+  return r;
+}, Qo = async (n, e) => {
+  const t = P(n, e);
+  let r;
+  switch (t.type) {
+    case c.ArrayOfPromises:
+      r = Promise.all(t.generator());
       break;
-    case ParallelGeneratorType.PromiseOfPromises:
-      countPromise = Promise.all(await data.generator());
+    case c.PromiseOfPromises:
+      r = Promise.all(await t.generator());
       break;
   }
-  let totalCount = 0;
-  for (const value of await countPromise) {
-    if (value) {
-      totalCount++;
-    }
-  }
-  return totalCount;
-};
-const distinct = (source, comparer = StrictEqualityComparer) => {
-  const generator = async () => {
-    const distinctElements = [];
-    for (const item of await source.ToArray()) {
-      const foundItem = distinctElements.find((x) => comparer(x, item));
-      if (!foundItem) {
-        distinctElements.push(item);
-      }
-    }
-    return distinctElements;
+  let s = 0;
+  for (const o of await r)
+    o && s++;
+  return s;
+}, ta = (n, e = d) => {
+  const t = async () => {
+    const r = [];
+    for (const s of await n.ToArray())
+      r.find((a) => e(a, s)) || r.push(s);
+    return r;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const distinctAsync = (source, comparer) => {
-  const generator = async () => {
-    const distinctElements = [];
-    outerLoop:
-      for (const item of await source.ToArray()) {
-        for (const distinctElement of distinctElements) {
-          const found = await comparer(distinctElement, item);
-          if (found) {
-            continue outerLoop;
-          }
-        }
-        distinctElements.push(item);
+}, ea = (n, e) => {
+  const t = async () => {
+    const r = [];
+    t:
+      for (const s of await n.ToArray()) {
+        for (const o of r)
+          if (await e(o, s))
+            continue t;
+        r.push(s);
       }
-    return distinctElements;
+    return r;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const each = (source, action) => {
-  return new BasicParallelEnumerable(nextIteration(source, (x) => {
-    action(x);
-    return x;
-  }));
-};
-const eachAsync = (source, action) => {
-  const dataFunc = nextIterationAsync(source, async (x) => {
-    await action(x);
-    return x;
-  });
-  return new BasicParallelEnumerable(dataFunc);
-};
-const elementAt = async (source, index) => {
-  if (index < 0) {
-    throw new ArgumentOutOfRangeException("index");
-  }
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      if (index >= values.length) {
-        throw new ArgumentOutOfRangeException("index");
-      } else {
-        return values[index];
-      }
+}, na = (n, e) => new w($(n, (t) => (e(t), t))), ra = (n, e) => {
+  const t = P(n, async (r) => (await e(r), r));
+  return new w(t);
+}, sa = async (n, e) => {
+  if (e < 0)
+    throw new E("index");
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray: {
+      const r = await t.generator();
+      if (e >= r.length)
+        throw new E("index");
+      return r[e];
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      if (index >= promises.length) {
-        throw new ArgumentOutOfRangeException("index");
-      } else {
-        return await promises[index];
-      }
+    case c.ArrayOfPromises: {
+      const r = t.generator();
+      if (e >= r.length)
+        throw new E("index");
+      return await r[e];
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      if (index >= promises.length) {
-        throw new ArgumentOutOfRangeException("index");
-      } else {
-        return await promises[index];
-      }
+    case c.PromiseOfPromises: {
+      const r = await t.generator();
+      if (e >= r.length)
+        throw new E("index");
+      return await r[e];
     }
   }
-};
-const elementAtOrDefault = async (source, index) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      if (index >= values.length) {
-        return null;
-      } else {
-        return values[index];
-      }
+}, oa = async (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray: {
+      const r = await t.generator();
+      return e >= r.length ? null : r[e];
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      if (index >= promises.length) {
-        return null;
-      } else {
-        return await promises[index];
-      }
+    case c.ArrayOfPromises: {
+      const r = t.generator();
+      return e >= r.length ? null : await r[e];
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      if (index >= promises.length) {
-        return null;
-      } else {
-        return await promises[index];
-      }
+    case c.PromiseOfPromises: {
+      const r = await t.generator();
+      return e >= r.length ? null : await r[e];
     }
   }
-};
-const except = (first3, second, comparer = StrictEqualityComparer) => {
-  const generator = async () => {
-    const [firstValues, secondValues] = await Promise.all([first3.ToArray(), second.ToArray()]);
-    const resultValues = [];
-    for (const firstItem of firstValues) {
-      let exists = false;
-      for (let j = 0; j < secondValues.length; j++) {
-        const secondItem = secondValues[j];
-        if (comparer(firstItem, secondItem) === true) {
-          exists = true;
+}, aa = (n, e, t = d) => {
+  const r = async () => {
+    const [s, o] = await Promise.all([n.ToArray(), e.ToArray()]), a = [];
+    for (const i of s) {
+      let l = !1;
+      for (let y = 0; y < o.length; y++) {
+        const m = o[y];
+        if (t(i, m) === !0) {
+          l = !0;
           break;
         }
       }
-      if (exists === false) {
-        resultValues.push(firstItem);
-      }
+      l === !1 && a.push(i);
     }
-    return resultValues;
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const exceptAsync = (first3, second, comparer) => {
-  const generator = async () => {
-    const [firstValues, secondValues] = await Promise.all([first3.ToArray(), second.ToArray()]);
-    const resultValues = [];
-    for (const firstItem of firstValues) {
-      let exists = false;
-      for (let j = 0; j < secondValues.length; j++) {
-        const secondItem = secondValues[j];
-        if (await comparer(firstItem, secondItem) === true) {
-          exists = true;
+}, ia = (n, e, t) => {
+  const r = async () => {
+    const [s, o] = await Promise.all([n.ToArray(), e.ToArray()]), a = [];
+    for (const i of s) {
+      let l = !1;
+      for (let y = 0; y < o.length; y++) {
+        const m = o[y];
+        if (await t(i, m) === !0) {
+          l = !0;
           break;
         }
       }
-      if (exists === false) {
-        resultValues.push(firstItem);
-      }
+      l === !1 && a.push(i);
     }
-    return resultValues;
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const toArray = (source) => {
-  return typeDataToArray(source.dataFunc);
-};
-const first = (source, predicate) => {
-  if (predicate) {
-    return first2(source, predicate);
-  } else {
-    return first1(source);
-  }
-};
-const first1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      if (values.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      } else {
-        return values[0];
-      }
+}, D = (n) => k(n.dataFunc), ca = (n, e) => e ? ua(n, e) : la(n), la = async (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.PromiseToArray: {
+      const t = await e.generator();
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return t[0];
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      if (promises.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      } else {
-        return await promises[0];
-      }
+    case c.ArrayOfPromises: {
+      const t = e.generator();
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return await t[0];
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      if (promises.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      } else {
-        return await promises[0];
-      }
+    case c.PromiseOfPromises: {
+      const t = await e.generator();
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return await t[0];
     }
   }
-};
-const first2 = async (source, predicate) => {
-  const data = await toArray(source);
-  for (const value of data) {
-    if (predicate(value) === true) {
-      return value;
+}, ua = async (n, e) => {
+  const t = await D(n);
+  for (const r of t)
+    if (e(r) === !0)
+      return r;
+  throw new f(u.NoMatch);
+}, fa = async (n, e) => {
+  const t = await D(n);
+  for (const r of t)
+    if (await e(r) === !0)
+      return r;
+  throw new f(u.NoMatch);
+}, ya = (n, e) => e ? wa(n, e) : ha(n), ha = async (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.PromiseToArray: {
+      const t = await e.generator();
+      return t.length === 0 ? null : t[0];
+    }
+    case c.ArrayOfPromises: {
+      const t = e.generator();
+      return t.length === 0 ? null : await t[0];
+    }
+    case c.PromiseOfPromises: {
+      const t = await e.generator();
+      return t.length === 0 ? null : await t[0];
     }
   }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const firstAsync = async (source, predicate) => {
-  const data = await toArray(source);
-  for (const value of data) {
-    if (await predicate(value) === true) {
-      return value;
-    }
-  }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const firstOrDefault = (source, predicate) => {
-  if (predicate) {
-    return firstOrDefault2(source, predicate);
-  } else {
-    return firstOrDefault1(source);
-  }
-};
-const firstOrDefault1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      if (values.length === 0) {
-        return null;
-      } else {
-        return values[0];
-      }
-    }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      if (promises.length === 0) {
-        return null;
-      } else {
-        return await promises[0];
-      }
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      if (promises.length === 0) {
-        return null;
-      } else {
-        return await promises[0];
-      }
-    }
-  }
-};
-const firstOrDefault2 = async (source, predicate) => {
-  const data = await toArray(source);
-  for (const value of data) {
-    if (predicate(value) === true) {
-      return value;
-    }
-  }
+}, wa = async (n, e) => {
+  const t = await D(n);
+  for (const r of t)
+    if (e(r) === !0)
+      return r;
   return null;
-};
-const firstOrDefaultAsync = async (source, predicate) => {
-  const data = await toArray(source);
-  for (const value of data) {
-    if (await predicate(value) === true) {
-      return value;
-    }
-  }
+}, ga = async (n, e) => {
+  const t = await D(n);
+  for (const r of t)
+    if (await e(r) === !0)
+      return r;
   return null;
-};
-const groupBy = (source, keySelector, comparer) => {
-  if (comparer) {
-    return groupBy_0(source, keySelector, comparer);
-  } else {
-    return groupBy_0_Simple(source, keySelector);
-  }
-};
-const groupBy_0_Simple = (source, keySelector) => {
-  const generator = async () => {
-    const keyMap = {};
-    for (const value of await source.ToArray()) {
-      const key = keySelector(value);
-      const grouping = keyMap[key];
-      if (grouping) {
-        grouping.push(value);
-      } else {
-        keyMap[key] = new Grouping(key, value);
-      }
+}, ma = (n, e, t) => t ? Aa(
+  n,
+  e,
+  t
+) : pa(
+  n,
+  e
+), pa = (n, e) => {
+  const t = async () => {
+    const r = {};
+    for (const o of await n.ToArray()) {
+      const a = e(o), i = r[a];
+      i ? i.push(o) : r[a] = new v(a, o);
     }
-    const results = new Array();
-    for (const value in keyMap) {
-      results.push(keyMap[value]);
-    }
-    return results;
+    const s = new Array();
+    for (const o in r)
+      s.push(r[o]);
+    return s;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const groupBy_0 = (source, keySelector, comparer) => {
-  const generator = async () => {
-    const keyMap = new Array();
-    for (const value of await source.ToArray()) {
-      const key = keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (comparer(group.key, key)) {
-          group.push(value);
-          found = true;
+}, Aa = (n, e, t) => {
+  const r = async () => {
+    const s = new Array();
+    for (const a of await n.ToArray()) {
+      const i = e(a);
+      let l = !1;
+      for (let y = 0; y < s.length; y++) {
+        const m = s[y];
+        if (t(m.key, i)) {
+          m.push(a), l = !0;
           break;
         }
       }
-      if (found === false) {
-        keyMap.push(new Grouping(key, value));
-      }
+      l === !1 && s.push(new v(i, a));
     }
-    const results = new Array();
-    for (const g2 of keyMap) {
-      results.push(g2);
-    }
-    return results;
+    const o = new Array();
+    for (const a of s)
+      o.push(a);
+    return o;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const groupByAsync = (source, keySelector, comparer) => {
-  if (comparer) {
-    return groupByAsync_0(source, keySelector, comparer);
-  } else {
-    return groupByAsync_0_Simple(source, keySelector);
-  }
-};
-const groupByAsync_0 = (source, keySelector, comparer) => {
-  const generator = async () => {
-    const typedData = nextIterationAsync(source, async (value) => {
-      const key = await keySelector(value);
-      return [key, value];
-    });
-    let values;
-    switch (typedData.type) {
-      case ParallelGeneratorType.ArrayOfPromises:
-        values = await Promise.all(typedData.generator());
+}, da = (n, e, t) => t ? va(
+  n,
+  e,
+  t
+) : Pa(
+  n,
+  e
+), va = (n, e, t) => {
+  const r = async () => {
+    const s = P(n, async (l) => [await e(l), l]);
+    let o;
+    switch (s.type) {
+      case c.ArrayOfPromises:
+        o = await Promise.all(s.generator());
         break;
-      case ParallelGeneratorType.PromiseOfPromises:
-        values = await Promise.all(await typedData.generator());
+      case c.PromiseOfPromises:
+        o = await Promise.all(await s.generator());
         break;
     }
-    const keyMap = new Array();
-    for (const [key, value] of values) {
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (await comparer(group.key, key) === true) {
-          group.push(value);
-          found = true;
+    const a = new Array();
+    for (const [l, y] of o) {
+      let m = !1;
+      for (let T = 0; T < a.length; T++) {
+        const W = a[T];
+        if (await t(W.key, l) === !0) {
+          W.push(y), m = !0;
           break;
         }
       }
-      if (found === false) {
-        keyMap.push(new Grouping(key, value));
-      }
+      m === !1 && a.push(new v(l, y));
     }
-    const results = new Array();
-    for (const g2 of keyMap) {
-      results.push(g2);
-    }
-    return results;
+    const i = new Array();
+    for (const l of a)
+      i.push(l);
+    return i;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const groupByAsync_0_Simple = (source, keySelector) => {
-  const generator = async () => {
-    const typedData = nextIterationAsync(source, async (value) => {
-      const key = await keySelector(value);
-      return [key, value];
-    });
-    let values;
-    switch (typedData.type) {
-      case ParallelGeneratorType.ArrayOfPromises:
-        values = await Promise.all(typedData.generator());
+}, Pa = (n, e) => {
+  const t = async () => {
+    const r = P(n, async (i) => [await e(i), i]);
+    let s;
+    switch (r.type) {
+      case c.ArrayOfPromises:
+        s = await Promise.all(r.generator());
         break;
-      case ParallelGeneratorType.PromiseOfPromises:
-        values = await Promise.all(await typedData.generator());
+      case c.PromiseOfPromises:
+        s = await Promise.all(await r.generator());
         break;
     }
-    const keyMap = {};
-    for (const [key, value] of values) {
-      const grouping = keyMap[key];
-      if (grouping) {
-        grouping.push(value);
-      } else {
-        keyMap[key] = new Grouping(key, value);
-      }
+    const o = {};
+    for (const [i, l] of s) {
+      const y = o[i];
+      y ? y.push(l) : o[i] = new v(i, l);
     }
-    const results = new Array();
-    for (const value in keyMap) {
-      results.push(keyMap[value]);
-    }
-    return results;
+    const a = new Array();
+    for (const i in o)
+      a.push(o[i]);
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const groupByWithSel = (source, keySelector, elementSelector, comparer) => {
-  if (comparer) {
-    return groupBy1(source, keySelector, elementSelector, comparer);
-  } else {
-    return groupBy1Simple(source, keySelector, elementSelector);
-  }
-};
-const groupBy1 = (source, keySelector, elementSelector, comparer) => {
-  const generator = async () => {
-    const keyMap = new Array();
-    for await (const value of source) {
-      const key = keySelector(value);
-      let found = false;
-      for (let i2 = 0; i2 < keyMap.length; i2++) {
-        const group = keyMap[i2];
-        if (comparer(group.key, key)) {
-          group.push(elementSelector(value));
-          found = true;
+}, ka = (n, e, t, r) => r ? $a(
+  n,
+  e,
+  t,
+  r
+) : Ta(
+  n,
+  e,
+  t
+), $a = (n, e, t, r) => {
+  const s = async () => {
+    const o = new Array();
+    for await (const i of n) {
+      const l = e(i);
+      let y = !1;
+      for (let m = 0; m < o.length; m++) {
+        const T = o[m];
+        if (r(T.key, l)) {
+          T.push(t(i)), y = !0;
           break;
         }
       }
-      if (found === false) {
-        const element = elementSelector(value);
-        keyMap.push(new Grouping(key, element));
+      if (y === !1) {
+        const m = t(i);
+        o.push(new v(l, m));
       }
     }
-    const results = new Array();
-    for (const value of keyMap) {
-      results.push(value);
-    }
-    return results;
+    const a = new Array();
+    for (const i of o)
+      a.push(i);
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: s,
+    type: c.PromiseToArray
   });
-};
-const groupBy1Simple = (source, keySelector, elementSelector) => {
-  const generator = async () => {
-    const keyMap = {};
-    for (const value of await source.ToArray()) {
-      const key = keySelector(value);
-      const grouping = keyMap[key];
-      const element = elementSelector(value);
-      if (grouping) {
-        grouping.push(element);
-      } else {
-        keyMap[key] = new Grouping(key, element);
-      }
+}, Ta = (n, e, t) => {
+  const r = async () => {
+    const s = {};
+    for (const a of await n.ToArray()) {
+      const i = e(a), l = s[i], y = t(a);
+      l ? l.push(y) : s[i] = new v(i, y);
     }
-    const results = new Array();
-    for (const value in keyMap) {
-      results.push(keyMap[value]);
-    }
-    return results;
+    const o = new Array();
+    for (const a in s)
+      o.push(s[a]);
+    return o;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const intersect = (first3, second, comparer = StrictEqualityComparer) => {
-  const generator = async () => {
-    const firstResults = await first3.Distinct(comparer).ToArray();
-    if (firstResults.length === 0) {
+}, Oa = (n, e, t = d) => {
+  const r = async () => {
+    const s = await n.Distinct(t).ToArray();
+    if (s.length === 0)
       return [];
-    }
-    const secondResults = await second.ToArray();
-    const results = new Array();
-    for (let i2 = 0; i2 < firstResults.length; i2++) {
-      const firstValue = firstResults[i2];
-      for (let j = 0; j < secondResults.length; j++) {
-        const secondValue = secondResults[j];
-        if (comparer(firstValue, secondValue) === true) {
-          results.push(firstValue);
+    const o = await e.ToArray(), a = new Array();
+    for (let i = 0; i < s.length; i++) {
+      const l = s[i];
+      for (let y = 0; y < o.length; y++) {
+        const m = o[y];
+        if (t(l, m) === !0) {
+          a.push(l);
           break;
         }
       }
     }
-    return results;
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const intersectAsync = (first3, second, comparer) => {
-  const generator = async () => {
-    const firstResults = await first3.DistinctAsync(comparer).ToArray();
-    if (firstResults.length === 0) {
+}, Ia = (n, e, t) => {
+  const r = async () => {
+    const s = await n.DistinctAsync(t).ToArray();
+    if (s.length === 0)
       return [];
-    }
-    const secondResults = await second.ToArray();
-    const results = new Array();
-    for (let i2 = 0; i2 < firstResults.length; i2++) {
-      const firstValue = firstResults[i2];
-      for (let j = 0; j < secondResults.length; j++) {
-        const secondValue = secondResults[j];
-        if (await comparer(firstValue, secondValue) === true) {
-          results.push(firstValue);
+    const o = await e.ToArray(), a = new Array();
+    for (let i = 0; i < s.length; i++) {
+      const l = s[i];
+      for (let y = 0; y < o.length; y++) {
+        const m = o[y];
+        if (await t(l, m) === !0) {
+          a.push(l);
           break;
         }
       }
     }
-    return results;
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const join = (outer, inner, outerKeySelector, innerKeySelector, resultSelector, comparer = StrictEqualityComparer) => {
-  const generator = async () => {
-    const [innerArray, outerArray] = await Promise.all([inner.ToArray(), outer.ToArray()]);
-    const results = new Array();
-    for (const o2 of outerArray) {
-      const outerKey = outerKeySelector(o2);
-      for (const i2 of innerArray) {
-        const innerKey = innerKeySelector(i2);
-        if (comparer(outerKey, innerKey) === true) {
-          results.push(resultSelector(o2, i2));
-        }
+}, Ma = (n, e, t, r, s, o = d) => {
+  const a = async () => {
+    const [i, l] = await Promise.all([e.ToArray(), n.ToArray()]), y = new Array();
+    for (const m of l) {
+      const T = t(m);
+      for (const W of i) {
+        const yt = r(W);
+        o(T, yt) === !0 && y.push(s(m, W));
       }
     }
-    return results;
+    return y;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: a,
+    type: c.PromiseToArray
   });
-};
-const last = (source, predicate) => {
-  if (predicate) {
-    return last2(source, predicate);
-  } else {
-    return last1(source);
-  }
-};
-const last1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      if (values.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      } else {
-        return values[values.length - 1];
-      }
+}, Ea = (n, e) => e ? xa(n, e) : ba(n), ba = async (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.PromiseToArray: {
+      const t = await e.generator();
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return t[t.length - 1];
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      if (promises.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      } else {
-        return await promises[promises.length - 1];
-      }
+    case c.ArrayOfPromises: {
+      const t = e.generator();
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return await t[t.length - 1];
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      if (promises.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      } else {
-        return await promises[promises.length - 1];
-      }
+    case c.PromiseOfPromises: {
+      const t = await e.generator();
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return await t[t.length - 1];
     }
   }
-};
-const last2 = async (source, predicate) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      for (let i2 = values.length - 1; i2 >= 0; i2--) {
-        const value = values[i2];
-        if (predicate(value)) {
-          return value;
-        }
+}, xa = async (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = r[s];
+        if (e(o))
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (predicate(value)) {
-          return value;
-        }
+    case c.ArrayOfPromises: {
+      const r = t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (e(o))
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (predicate(value)) {
-          return value;
-        }
+    case c.PromiseOfPromises: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (e(o))
+          return o;
       }
       break;
     }
   }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const lastAsync = async (source, predicate) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      for (let i2 = values.length - 1; i2 >= 0; i2--) {
-        const value = values[i2];
-        if (await predicate(value) === true) {
-          return value;
-        }
+  throw new f(u.NoMatch);
+}, Sa = async (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = r[s];
+        if (await e(o) === !0)
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (await predicate(value) === true) {
-          return value;
-        }
+    case c.ArrayOfPromises: {
+      const r = t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (await e(o) === !0)
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (await predicate(value) === true) {
-          return value;
-        }
+    case c.PromiseOfPromises: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (await e(o) === !0)
+          return o;
       }
       break;
     }
   }
-  throw new InvalidOperationException(ErrorString.NoMatch);
-};
-const lastOrDefault = (source, predicate) => {
-  if (predicate) {
-    return lastOrDefault2(source, predicate);
-  } else {
-    return lastOrDefault1(source);
-  }
-};
-const lastOrDefault1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      if (values.length === 0) {
-        return null;
-      } else {
-        return values[values.length - 1];
-      }
+  throw new f(u.NoMatch);
+}, Na = (n, e) => e ? Da(n, e) : Va(n), Va = async (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.PromiseToArray: {
+      const t = await e.generator();
+      return t.length === 0 ? null : t[t.length - 1];
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      if (promises.length === 0) {
-        return null;
-      } else {
-        return await promises[promises.length - 1];
-      }
+    case c.ArrayOfPromises: {
+      const t = e.generator();
+      return t.length === 0 ? null : await t[t.length - 1];
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      if (promises.length === 0) {
-        return null;
-      } else {
-        return await promises[promises.length - 1];
-      }
+    case c.PromiseOfPromises: {
+      const t = await e.generator();
+      return t.length === 0 ? null : await t[t.length - 1];
     }
   }
-};
-const lastOrDefault2 = async (source, predicate) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      for (let i2 = values.length - 1; i2 >= 0; i2--) {
-        const value = values[i2];
-        if (predicate(value)) {
-          return value;
-        }
+}, Da = async (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = r[s];
+        if (e(o))
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (predicate(value)) {
-          return value;
-        }
+    case c.ArrayOfPromises: {
+      const r = t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (e(o))
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (predicate(value)) {
-          return value;
-        }
+    case c.PromiseOfPromises: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (e(o))
+          return o;
       }
       break;
     }
   }
   return null;
-};
-const lastOrDefaultAsync = async (source, predicate) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const values = await dataFunc.generator();
-      for (let i2 = values.length - 1; i2 >= 0; i2--) {
-        const value = values[i2];
-        if (await predicate(value) === true) {
-          return value;
-        }
+}, Fa = async (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = r[s];
+        if (await e(o) === !0)
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const promises = dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (await predicate(value) === true) {
-          return value;
-        }
+    case c.ArrayOfPromises: {
+      const r = t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (await e(o) === !0)
+          return o;
       }
       break;
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const promises = await dataFunc.generator();
-      for (let i2 = promises.length - 1; i2 >= 0; i2--) {
-        const value = await promises[i2];
-        if (await predicate(value) === true) {
-          return value;
-        }
+    case c.PromiseOfPromises: {
+      const r = await t.generator();
+      for (let s = r.length - 1; s >= 0; s--) {
+        const o = await r[s];
+        if (await e(o) === !0)
+          return o;
       }
       break;
     }
   }
   return null;
-};
-const max = async (source, selector) => {
-  let dataFunc;
-  if (selector) {
-    dataFunc = nextIteration(source, selector);
-  } else {
-    dataFunc = source.dataFunc;
-  }
-  const data = await typeDataToArray(dataFunc);
-  if (data.length === 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return Math.max.apply(null, data);
-};
-const maxAsync = async (source, selector) => {
-  const dataFunc = nextIterationAsync(source, selector);
-  const maxInfo = await typeDataToArray(dataFunc);
-  if (maxInfo.length === 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return Math.max.apply(null, maxInfo);
-};
-const min = async (source, selector) => {
-  let dataFunc;
-  if (selector) {
-    dataFunc = nextIteration(source, selector);
-  } else {
-    dataFunc = source.dataFunc;
-  }
-  const data = await typeDataToArray(dataFunc);
-  if (data.length === 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return Math.min.apply(null, data);
-};
-const minAsync = async (source, selector) => {
-  const dataFunc = nextIterationAsync(source, selector);
-  const maxInfo = await typeDataToArray(dataFunc);
-  if (maxInfo.length === 0) {
-    throw new InvalidOperationException(ErrorString.NoElements);
-  }
-  return Math.min.apply(null, maxInfo);
-};
-const ofType = (source, type) => {
-  const typeCheck = typeof type === "string" ? (x) => [typeof x === type, x] : (x) => [x instanceof type, x];
-  const generator = async () => {
-    const dataFunc = nextIteration(source, typeCheck);
-    const values = await typeDataToArray(dataFunc);
-    const filteredValues = [];
-    for (const [pass, value] of values) {
-      if (pass) {
-        filteredValues.push(value);
-      }
-    }
-    return filteredValues;
+}, _a = async (n, e) => {
+  let t;
+  e ? t = $(n, e) : t = n.dataFunc;
+  const r = await k(t);
+  if (r.length === 0)
+    throw new f(u.NoElements);
+  return Math.max.apply(null, r);
+}, Ba = async (n, e) => {
+  const t = P(n, e), r = await k(t);
+  if (r.length === 0)
+    throw new f(u.NoElements);
+  return Math.max.apply(null, r);
+}, Ra = async (n, e) => {
+  let t;
+  e ? t = $(n, e) : t = n.dataFunc;
+  const r = await k(t);
+  if (r.length === 0)
+    throw new f(u.NoElements);
+  return Math.min.apply(null, r);
+}, Wa = async (n, e) => {
+  const t = P(n, e), r = await k(t);
+  if (r.length === 0)
+    throw new f(u.NoElements);
+  return Math.min.apply(null, r);
+}, Ka = (n, e) => {
+  const t = typeof e == "string" ? (s) => [typeof s === e, s] : (s) => [s instanceof e, s], r = async () => {
+    const s = $(n, t), o = await k(s), a = [];
+    for (const [i, l] of o)
+      i && a.push(l);
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const asAsyncKeyMap = async (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for await (const item of source) {
-    const key = await keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+}, ja = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for await (const r of n) {
+    const s = await e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-async function* asAsyncSortedKeyValues(source, keySelector, ascending, comparer) {
-  const map = await asAsyncKeyMap(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* qa(n, e, t, r) {
+  const s = await ja(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-const asAsyncKeyMapSync = async (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const item of source) {
-    const key = await keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const La = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = await e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-async function* asAsyncSortedKeyValuesSync(source, keySelector, ascending, comparer) {
-  const map = await asAsyncKeyMapSync(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* Ca(n, e, t, r) {
+  const s = await La(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-const asKeyMap = async (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for await (const item of source) {
-    const key = keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const za = async (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for await (const r of n) {
+    const s = e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-async function* asSortedKeyValues(source, keySelector, ascending, comparer) {
-  const map = await asKeyMap(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* Ua(n, e, t, r) {
+  const s = await za(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-const asKeyMapSync = (source, keySelector) => {
-  const map = /* @__PURE__ */ new Map();
-  for (const item of source) {
-    const key = keySelector(item);
-    const currentMapping = map.get(key);
-    if (currentMapping) {
-      currentMapping.push(item);
-    } else {
-      map.set(key, [item]);
-    }
+const Ga = (n, e) => {
+  const t = /* @__PURE__ */ new Map();
+  for (const r of n) {
+    const s = e(r), o = t.get(s);
+    o ? o.push(r) : t.set(s, [r]);
   }
-  return map;
+  return t;
 };
-async function* asSortedKeyValuesSync(source, keySelector, ascending, comparer) {
-  const map = asKeyMapSync(source, keySelector);
-  const sortedKeys = [...map.keys()].sort(comparer ? comparer : void 0);
-  if (ascending) {
-    for (let i2 = 0; i2 < sortedKeys.length; i2++) {
-      yield map.get(sortedKeys[i2]);
-    }
-  } else {
-    for (let i2 = sortedKeys.length - 1; i2 >= 0; i2--) {
-      yield map.get(sortedKeys[i2]);
-    }
-  }
+async function* Ya(n, e, t, r) {
+  const s = Ga(n, e), o = [...s.keys()].sort(r || void 0);
+  if (t)
+    for (let a = 0; a < o.length; a++)
+      yield s.get(o[a]);
+  else
+    for (let a = o.length - 1; a >= 0; a--)
+      yield s.get(o[a]);
 }
-class OrderedParallelEnumerable extends BasicParallelEnumerable {
-  constructor(orderedPairs) {
+class I extends w {
+  constructor(e) {
     super({
       generator: async () => {
-        const asyncVals = orderedPairs();
-        const array = [];
-        for await (const val of asyncVals) {
-          array.push(...val);
-        }
-        return array;
+        const t = e(), r = [];
+        for await (const s of t)
+          r.push(...s);
+        return r;
       },
-      type: ParallelGeneratorType.PromiseToArray
-    });
-    this.orderedPairs = orderedPairs;
+      type: c.PromiseToArray
+    }), this.orderedPairs = e;
   }
-  static generateAsync(source, keySelector, ascending, comparer) {
-    let orderedPairs;
-    if (source instanceof OrderedParallelEnumerable) {
-      orderedPairs = async function* () {
-        for await (const pair of source.orderedPairs()) {
-          yield* asAsyncSortedKeyValuesSync(pair, keySelector, ascending, comparer);
-        }
-      };
-    } else {
-      orderedPairs = () => asAsyncSortedKeyValues(source, keySelector, ascending, comparer);
-    }
-    return new OrderedParallelEnumerable(orderedPairs);
+  static generateAsync(e, t, r, s) {
+    let o;
+    return e instanceof I ? o = async function* () {
+      for await (const a of e.orderedPairs())
+        yield* Ca(a, t, r, s);
+    } : o = () => qa(e, t, r, s), new I(o);
   }
-  static generate(source, keySelector, ascending, comparer) {
-    let orderedPairs;
-    if (source instanceof OrderedParallelEnumerable) {
-      orderedPairs = async function* () {
-        for await (const pair of source.orderedPairs()) {
-          yield* asSortedKeyValuesSync(pair, keySelector, ascending, comparer);
-        }
-      };
-    } else {
-      orderedPairs = () => asSortedKeyValues(source, keySelector, ascending, comparer);
-    }
-    return new OrderedParallelEnumerable(orderedPairs);
+  static generate(e, t, r, s) {
+    let o;
+    return e instanceof I ? o = async function* () {
+      for await (const a of e.orderedPairs())
+        yield* Ya(a, t, r, s);
+    } : o = () => Ua(e, t, r, s), new I(o);
   }
-  ThenBy(keySelector, comparer) {
-    return OrderedParallelEnumerable.generate(this, keySelector, true, comparer);
+  ThenBy(e, t) {
+    return I.generate(this, e, !0, t);
   }
-  ThenByAsync(keySelector, comparer) {
-    return OrderedParallelEnumerable.generateAsync(this, keySelector, true, comparer);
+  ThenByAsync(e, t) {
+    return I.generateAsync(this, e, !0, t);
   }
-  ThenByDescending(keySelector, comparer) {
-    return OrderedParallelEnumerable.generate(this, keySelector, false, comparer);
+  ThenByDescending(e, t) {
+    return I.generate(this, e, !1, t);
   }
-  ThenByDescendingAsync(keySelector, comparer) {
-    return OrderedParallelEnumerable.generateAsync(this, keySelector, false, comparer);
+  ThenByDescendingAsync(e, t) {
+    return I.generateAsync(this, e, !1, t);
   }
 }
-const orderBy = (source, keySelector, comparer) => {
-  return OrderedParallelEnumerable.generate(source, keySelector, true, comparer);
-};
-const orderByAsync = (source, keySelector, comparer) => {
-  return OrderedParallelEnumerable.generateAsync(source, keySelector, true, comparer);
-};
-const orderByDescending = (source, keySelector, comparer) => {
-  return OrderedParallelEnumerable.generate(source, keySelector, false, comparer);
-};
-const orderByDescendingAsync = (source, keySelector, comparer) => {
-  return OrderedParallelEnumerable.generateAsync(source, keySelector, false, comparer);
-};
-const partition = async (source, predicate) => {
-  const dataFunc = nextIteration(source, (value) => {
-    return [predicate(value), value];
-  });
-  const values = await typeDataToArray(dataFunc);
-  const fail = [];
-  const pass = [];
-  for (const [passed, value] of values) {
-    if (passed) {
-      pass.push(value);
-    } else {
-      fail.push(value);
-    }
-  }
-  return [pass, fail];
-};
-const partitionAsync = async (source, predicate) => {
-  const dataFunc = nextIterationAsync(source, async (value) => {
-    const passed = await predicate(value);
-    return [passed, value];
-  });
-  const values = await typeDataToArray(dataFunc);
-  const fail = [];
-  const pass = [];
-  for (const [passed, value] of values) {
-    if (passed) {
-      pass.push(value);
-    } else {
-      fail.push(value);
-    }
-  }
-  return [pass, fail];
-};
-const reverse = (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const generator = () => {
-        return dataFunc.generator().reverse();
-      };
-      return new BasicParallelEnumerable({
-        generator,
-        type: dataFunc.type
+const Za = (n, e, t) => I.generate(n, e, !0, t), Ja = (n, e, t) => I.generateAsync(n, e, !0, t), Ha = (n, e, t) => I.generate(n, e, !1, t), Xa = (n, e, t) => I.generateAsync(n, e, !1, t), Qa = async (n, e) => {
+  const t = $(n, (a) => [e(a), a]), r = await k(t), s = [], o = [];
+  for (const [a, i] of r)
+    a ? o.push(i) : s.push(i);
+  return [o, s];
+}, ti = async (n, e) => {
+  const t = P(n, async (a) => [await e(a), a]), r = await k(t), s = [], o = [];
+  for (const [a, i] of r)
+    a ? o.push(i) : s.push(i);
+  return [o, s];
+}, ei = (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.ArrayOfPromises: {
+      const t = () => e.generator().reverse();
+      return new w({
+        generator: t,
+        type: e.type
       });
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const generator = async () => {
-        const array = await dataFunc.generator();
-        return array.reverse();
-      };
-      return new BasicParallelEnumerable({
-        generator,
-        type: dataFunc.type
+    case c.PromiseOfPromises: {
+      const t = async () => (await e.generator()).reverse();
+      return new w({
+        generator: t,
+        type: e.type
       });
     }
-    case ParallelGeneratorType.PromiseToArray: {
-      const generator = async () => {
-        const array = await dataFunc.generator();
-        return array.reverse();
-      };
-      return new BasicParallelEnumerable({
-        generator,
-        type: dataFunc.type
+    case c.PromiseToArray: {
+      const t = async () => (await e.generator()).reverse();
+      return new w({
+        generator: t,
+        type: e.type
       });
     }
   }
-};
-const nextIterationWithIndex = (source, onfulfilled) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const generator = () => dataFunc.generator().then((x) => {
-        const convValues = new Array(x.length);
-        for (let i2 = 0; i2 < x.length; i2++) {
-          convValues[i2] = onfulfilled(x[i2], i2);
-        }
-        return convValues;
-      });
+}, ct = (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray:
       return {
-        generator,
-        type: ParallelGeneratorType.PromiseToArray
+        generator: () => t.generator().then((s) => {
+          const o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = e(s[a], a);
+          return o;
+        }),
+        type: c.PromiseToArray
       };
-    }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const generator = () => {
-        const previousData = dataFunc.generator();
-        const newPromises = new Array(previousData.length);
-        for (let i2 = 0; i2 < previousData.length; i2++) {
-          newPromises[i2] = previousData[i2].then((value) => {
-            return onfulfilled(value, i2);
-          });
-        }
-        return newPromises;
-      };
+    case c.ArrayOfPromises:
       return {
-        generator,
-        type: ParallelGeneratorType.ArrayOfPromises
+        generator: () => {
+          const s = t.generator(), o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = s[a].then((i) => e(i, a));
+          return o;
+        },
+        type: c.ArrayOfPromises
       };
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const generator = async () => {
-        const previousData = await dataFunc.generator();
-        const newPromises = new Array(previousData.length);
-        for (let i2 = 0; i2 < previousData.length; i2++) {
-          newPromises[i2] = previousData[i2].then((value) => onfulfilled(value, i2));
-        }
-        return newPromises;
-      };
+    case c.PromiseOfPromises:
       return {
-        generator,
-        type: ParallelGeneratorType.PromiseOfPromises
+        generator: async () => {
+          const s = await t.generator(), o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = s[a].then((i) => e(i, a));
+          return o;
+        },
+        type: c.PromiseOfPromises
       };
-    }
   }
-};
-const select = (source, key) => {
-  if (typeof key === "function") {
-    if (key.length === 1) {
-      return new BasicParallelEnumerable(nextIteration(source, key));
-    } else {
-      return new BasicParallelEnumerable(nextIterationWithIndex(source, key));
-    }
-  } else {
-    return new BasicParallelEnumerable(nextIteration(source, (x) => x[key]));
-  }
-};
-const nextIterationWithIndexAsync = (source, onfulfilled) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const generator = async () => {
-        const results = await dataFunc.generator();
-        const newPromises = new Array(results.length);
-        for (let i2 = 0; i2 < results.length; i2++) {
-          newPromises[i2] = onfulfilled(results[i2], i2);
-        }
-        return newPromises;
-      };
+}, ni = (n, e) => typeof e == "function" ? e.length === 1 ? new w($(n, e)) : new w(ct(n, e)) : new w($(n, (t) => t[e])), J = (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray:
       return {
-        generator,
-        type: ParallelGeneratorType.PromiseOfPromises
+        generator: async () => {
+          const s = await t.generator(), o = new Array(s.length);
+          for (let a = 0; a < s.length; a++)
+            o[a] = e(s[a], a);
+          return o;
+        },
+        type: c.PromiseOfPromises
       };
-    }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const generator = () => dataFunc.generator().map((promise, index) => promise.then((x) => onfulfilled(x, index)));
+    case c.ArrayOfPromises:
       return {
-        generator,
-        type: ParallelGeneratorType.ArrayOfPromises
+        generator: () => t.generator().map((s, o) => s.then((a) => e(a, o))),
+        type: c.ArrayOfPromises
       };
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const generator = async () => {
-        const promises = await dataFunc.generator();
-        return promises.map((promise, index) => promise.then((x) => onfulfilled(x, index)));
-      };
+    case c.PromiseOfPromises:
       return {
-        generator,
-        type: ParallelGeneratorType.PromiseOfPromises
+        generator: async () => (await t.generator()).map((o, a) => o.then((i) => e(i, a))),
+        type: c.PromiseOfPromises
       };
-    }
   }
-};
-const selectAsync = (source, keyOrSelector) => {
-  let generator;
-  if (typeof keyOrSelector === "function") {
-    if (keyOrSelector.length === 1) {
-      generator = nextIterationAsync(source, keyOrSelector);
-    } else {
-      generator = nextIterationWithIndexAsync(source, keyOrSelector);
-    }
-  } else {
-    generator = nextIterationAsync(source, (x) => x[keyOrSelector]);
-  }
-  return new BasicParallelEnumerable(generator);
-};
-const selectMany = (source, selector) => {
-  const generator = async () => {
-    let values;
-    if (typeof selector === "function") {
-      if (selector.length === 1) {
-        values = nextIteration(source, selector);
-      } else {
-        values = nextIterationWithIndex(source, selector);
-      }
-    } else {
-      values = nextIteration(source, (x) => x[selector]);
-    }
-    const valuesArray = [];
-    switch (values.type) {
-      case ParallelGeneratorType.PromiseToArray: {
-        for (const outer of await values.generator()) {
-          for (const y2 of outer) {
-            valuesArray.push(y2);
-          }
-        }
+}, ri = (n, e) => {
+  let t;
+  return typeof e == "function" ? e.length === 1 ? t = P(n, e) : t = J(n, e) : t = P(n, (r) => r[e]), new w(t);
+}, si = (n, e) => {
+  const t = async () => {
+    let r;
+    typeof e == "function" ? e.length === 1 ? r = $(n, e) : r = ct(n, e) : r = $(n, (o) => o[e]);
+    const s = [];
+    switch (r.type) {
+      case c.PromiseToArray: {
+        for (const o of await r.generator())
+          for (const a of o)
+            s.push(a);
         break;
       }
-      case ParallelGeneratorType.ArrayOfPromises: {
-        for (const outer of values.generator()) {
-          for (const y2 of await outer) {
-            valuesArray.push(y2);
-          }
-        }
+      case c.ArrayOfPromises: {
+        for (const o of r.generator())
+          for (const a of await o)
+            s.push(a);
         break;
       }
-      case ParallelGeneratorType.PromiseOfPromises: {
-        for (const outer of await values.generator()) {
-          for (const y2 of await outer) {
-            valuesArray.push(y2);
-          }
-        }
+      case c.PromiseOfPromises: {
+        for (const o of await r.generator())
+          for (const a of await o)
+            s.push(a);
         break;
       }
     }
-    return valuesArray;
+    return s;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const selectManyAsync = (source, selector) => {
-  const generator = async () => {
-    let values;
-    if (selector.length === 1) {
-      values = nextIterationAsync(source, selector);
-    } else {
-      values = nextIterationWithIndexAsync(source, selector);
-    }
-    const valuesArray = [];
-    switch (values.type) {
-      case ParallelGeneratorType.ArrayOfPromises: {
-        for (const outer of values.generator()) {
-          for (const y2 of await outer) {
-            valuesArray.push(y2);
-          }
-        }
+}, oi = (n, e) => {
+  const t = async () => {
+    let r;
+    e.length === 1 ? r = P(n, e) : r = J(n, e);
+    const s = [];
+    switch (r.type) {
+      case c.ArrayOfPromises: {
+        for (const o of r.generator())
+          for (const a of await o)
+            s.push(a);
         break;
       }
-      case ParallelGeneratorType.PromiseOfPromises: {
-        for (const outer of await values.generator()) {
-          for (const y2 of await outer) {
-            valuesArray.push(y2);
-          }
-        }
+      case c.PromiseOfPromises: {
+        for (const o of await r.generator())
+          for (const a of await o)
+            s.push(a);
         break;
       }
     }
-    return valuesArray;
+    return s;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const sequenceEquals = async (first3, second, comparer = StrictEqualityComparer) => {
-  const firstArray = await first3.ToArray();
-  const secondArray = await second.ToArray();
-  if (firstArray.length !== secondArray.length) {
-    return false;
+}, ai = async (n, e, t = d) => {
+  const r = await n.ToArray(), s = await e.ToArray();
+  if (r.length !== s.length)
+    return !1;
+  for (let o = 0; o < r.length; o++) {
+    const a = r[o], i = s[o];
+    if (t(a, i) === !1)
+      return !1;
   }
-  for (let i2 = 0; i2 < firstArray.length; i2++) {
-    const firstResult = firstArray[i2];
-    const secondResult = secondArray[i2];
-    if (comparer(firstResult, secondResult) === false) {
-      return false;
+  return !0;
+}, ii = async (n, e, t) => {
+  const r = await n.ToArray(), s = await e.ToArray();
+  if (r.length !== s.length)
+    return !1;
+  for (let o = 0; o < r.length; o++) {
+    const a = r[o], i = s[o];
+    if (await t(a, i) === !1)
+      return !1;
+  }
+  return !0;
+}, ci = (n, e) => e ? ui(n, e) : li(n), li = async (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.PromiseToArray: {
+      const t = await e.generator();
+      if (t.length > 1)
+        throw new f(u.MoreThanOneElement);
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return t[0];
+    }
+    case c.ArrayOfPromises: {
+      const t = e.generator();
+      if (t.length > 1)
+        throw new f(u.MoreThanOneElement);
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return t[0];
+    }
+    case c.PromiseOfPromises: {
+      const t = await e.generator();
+      if (t.length > 1)
+        throw new f(u.MoreThanOneElement);
+      if (t.length === 0)
+        throw new f(u.NoElements);
+      return await t[0];
     }
   }
-  return true;
-};
-const sequenceEqualsAsync = async (first3, second, comparer) => {
-  const firstArray = await first3.ToArray();
-  const secondArray = await second.ToArray();
-  if (firstArray.length !== secondArray.length) {
-    return false;
-  }
-  for (let i2 = 0; i2 < firstArray.length; i2++) {
-    const firstResult = firstArray[i2];
-    const secondResult = secondArray[i2];
-    if (await comparer(firstResult, secondResult) === false) {
-      return false;
+}, ui = async (n, e) => {
+  const t = await D(n);
+  let r = !1, s = null;
+  for (const o of t)
+    if (e(o)) {
+      if (r === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      r = !0, s = o;
+    }
+  if (r === !1)
+    throw new f(u.NoMatch);
+  return s;
+}, fi = async (n, e) => {
+  const t = await D(n);
+  let r = !1, s = null;
+  for (const o of t)
+    if (await e(o) === !0) {
+      if (r === !0)
+        throw new f(u.MoreThanOneMatchingElement);
+      r = !0, s = o;
+    }
+  if (r === !1)
+    throw new f(u.NoMatch);
+  return s;
+}, yi = (n, e) => e ? wi(n, e) : hi(n), hi = async (n) => {
+  const e = n.dataFunc;
+  switch (e.type) {
+    case c.PromiseToArray: {
+      const t = await e.generator();
+      if (t.length > 1)
+        throw new f(u.MoreThanOneElement);
+      return t.length === 0 ? null : t[0];
+    }
+    case c.ArrayOfPromises: {
+      const t = e.generator();
+      if (t.length > 1)
+        throw new f(u.MoreThanOneElement);
+      return t.length === 0 ? null : t[0];
+    }
+    case c.PromiseOfPromises: {
+      const t = await e.generator();
+      if (t.length > 1)
+        throw new f(u.MoreThanOneElement);
+      return t.length === 0 ? null : await t[0];
     }
   }
-  return true;
-};
-const single = (source, predicate) => {
-  if (predicate) {
-    return single2(source, predicate);
-  } else {
-    return single1(source);
-  }
-};
-const single1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const results = await dataFunc.generator();
-      if (results.length > 1) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else if (results.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      }
-      return results[0];
+}, wi = async (n, e) => {
+  const t = await D(n);
+  let r = !1, s = null;
+  for (const o of t)
+    if (e(o)) {
+      if (r === !0)
+        throw new f(u.MoreThanOneElement);
+      r = !0, s = o;
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const results = dataFunc.generator();
-      if (results.length > 1) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else if (results.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      }
-      return results[0];
+  return s;
+}, gi = async (n, e) => {
+  const t = await D(n);
+  let r = !1, s = null;
+  for (const o of t)
+    if (await e(o) === !0) {
+      if (r === !0)
+        throw new f(u.MoreThanOneElement);
+      r = !0, s = o;
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const results = await dataFunc.generator();
-      if (results.length > 1) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else if (results.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      }
-      return await results[0];
-    }
-  }
-};
-const single2 = async (source, predicate) => {
-  const results = await toArray(source);
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of results) {
-    if (predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
-  }
-  return singleValue;
-};
-const singleAsync = async (source, predicate) => {
-  const results = await toArray(source);
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of results) {
-    if (await predicate(value) === true) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneMatchingElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  if (hasValue === false) {
-    throw new InvalidOperationException(ErrorString.NoMatch);
-  }
-  return singleValue;
-};
-const singleOrDefault = (source, predicate) => {
-  if (predicate) {
-    return singleOrDefault2(source, predicate);
-  } else {
-    return singleOrDefault1(source);
-  }
-};
-const singleOrDefault1 = async (source) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const results = await dataFunc.generator();
-      if (results.length > 1) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else if (results.length === 0) {
-        return null;
-      }
-      return results[0];
-    }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const results = dataFunc.generator();
-      if (results.length > 1) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else if (results.length === 0) {
-        return null;
-      }
-      return results[0];
-    }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const results = await dataFunc.generator();
-      if (results.length > 1) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else if (results.length === 0) {
-        return null;
-      }
-      return await results[0];
-    }
-  }
-};
-const singleOrDefault2 = async (source, predicate) => {
-  const results = await toArray(source);
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of results) {
-    if (predicate(value)) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  return singleValue;
-};
-const singleOrDefaultAsync = async (source, predicate) => {
-  const results = await toArray(source);
-  let hasValue = false;
-  let singleValue = null;
-  for (const value of results) {
-    if (await predicate(value) === true) {
-      if (hasValue === true) {
-        throw new InvalidOperationException(ErrorString.MoreThanOneElement);
-      } else {
-        hasValue = true;
-        singleValue = value;
-      }
-    }
-  }
-  return singleValue;
-};
-const skip = (source, count3) => {
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.PromiseToArray: {
-      const generator = async () => (await dataFunc.generator()).slice(count3);
-      return new BasicParallelEnumerable({
-        generator,
-        type: ParallelGeneratorType.PromiseToArray
+  return s;
+}, mi = (n, e) => {
+  const t = n.dataFunc;
+  switch (t.type) {
+    case c.PromiseToArray: {
+      const r = async () => (await t.generator()).slice(e);
+      return new w({
+        generator: r,
+        type: c.PromiseToArray
       });
     }
-    case ParallelGeneratorType.ArrayOfPromises: {
-      const generator = () => dataFunc.generator().slice(count3);
-      return new BasicParallelEnumerable({
-        generator,
-        type: ParallelGeneratorType.ArrayOfPromises
+    case c.ArrayOfPromises: {
+      const r = () => t.generator().slice(e);
+      return new w({
+        generator: r,
+        type: c.ArrayOfPromises
       });
     }
-    case ParallelGeneratorType.PromiseOfPromises: {
-      const generator = async () => {
-        const dataInner = await dataFunc.generator();
-        return dataInner.slice(count3);
+    case c.PromiseOfPromises: {
+      const s = {
+        generator: async () => (await t.generator()).slice(e),
+        type: c.PromiseOfPromises
       };
-      const dataFuncNew = {
-        generator,
-        type: ParallelGeneratorType.PromiseOfPromises
-      };
-      return new BasicParallelEnumerable(dataFuncNew);
+      return new w(s);
     }
   }
-};
-const skipWhile = (source, predicate) => {
-  const generator = async () => {
-    const values = await source.ToArray();
-    let i2 = 0;
-    for (; i2 < values.length; i2++) {
-      const value = values[i2];
-      if (predicate(value, i2) === false) {
+}, pi = (n, e) => {
+  const t = async () => {
+    const r = await n.ToArray();
+    let s = 0;
+    for (; s < r.length; s++) {
+      const a = r[s];
+      if (e(a, s) === !1)
         break;
-      }
     }
-    const returnedValues = [];
-    for (; i2 < values.length; i2++) {
-      returnedValues.push(values[i2]);
-    }
-    return returnedValues;
+    const o = [];
+    for (; s < r.length; s++)
+      o.push(r[s]);
+    return o;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const skipWhileAsync = (source, predicate) => {
-  const generator = async () => {
-    const values = await source.ToArray();
-    let i2 = 0;
-    for (; i2 < values.length; i2++) {
-      const value = values[i2];
-      if (await predicate(value, i2) === false) {
+}, Ai = (n, e) => {
+  const t = async () => {
+    const r = await n.ToArray();
+    let s = 0;
+    for (; s < r.length; s++) {
+      const a = r[s];
+      if (await e(a, s) === !1)
         break;
-      }
     }
-    const returnedValues = [];
-    for (; i2 < values.length; i2++) {
-      returnedValues.push(values[i2]);
-    }
-    return returnedValues;
+    const o = [];
+    for (; s < r.length; s++)
+      o.push(r[s]);
+    return o;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const sum = (source, selector) => {
-  if (selector) {
-    return sum2(source, selector);
-  } else {
-    return sum1(source);
-  }
-};
-const sum1 = async (source) => {
-  let totalSum = 0;
-  for (const value of await source.ToArray()) {
-    totalSum += value;
-  }
-  return totalSum;
-};
-const sum2 = async (source, selector) => {
-  let total = 0;
-  for (const value of await source.ToArray()) {
-    total += selector(value);
-  }
-  return total;
-};
-const sumAsync = async (source, selector) => {
-  const dataFunc = nextIterationAsync(source, selector);
-  const values = await typeDataToArray(dataFunc);
-  let sum3 = 0;
-  for (const value of values) {
-    sum3 += value;
-  }
-  return sum3;
-};
-const take = (source, amount) => {
-  const amountLeft = amount > 0 ? amount : 0;
-  const dataFunc = source.dataFunc;
-  switch (dataFunc.type) {
-    case ParallelGeneratorType.ArrayOfPromises:
-      const generator1 = () => dataFunc.generator().splice(0, amountLeft);
-      return new BasicParallelEnumerable({
-        generator: generator1,
-        type: ParallelGeneratorType.ArrayOfPromises
+}, di = (n, e) => e ? Pi(n, e) : vi(n), vi = async (n) => {
+  let e = 0;
+  for (const t of await n.ToArray())
+    e += t;
+  return e;
+}, Pi = async (n, e) => {
+  let t = 0;
+  for (const r of await n.ToArray())
+    t += e(r);
+  return t;
+}, ki = async (n, e) => {
+  const t = P(n, e), r = await k(t);
+  let s = 0;
+  for (const o of r)
+    s += o;
+  return s;
+}, $i = (n, e) => {
+  const t = e > 0 ? e : 0, r = n.dataFunc;
+  switch (r.type) {
+    case c.ArrayOfPromises:
+      const s = () => r.generator().splice(0, t);
+      return new w({
+        generator: s,
+        type: c.ArrayOfPromises
       });
-    case ParallelGeneratorType.PromiseOfPromises:
-      const generator2 = () => dataFunc.generator().then((x) => x.splice(0, amountLeft));
-      return new BasicParallelEnumerable({
-        generator: generator2,
-        type: ParallelGeneratorType.PromiseOfPromises
+    case c.PromiseOfPromises:
+      const o = () => r.generator().then((i) => i.splice(0, t));
+      return new w({
+        generator: o,
+        type: c.PromiseOfPromises
       });
-    case ParallelGeneratorType.PromiseToArray:
+    case c.PromiseToArray:
     default:
-      const generator3 = () => dataFunc.generator().then((x) => x.splice(0, amountLeft));
-      return new BasicParallelEnumerable({
-        generator: generator3,
-        type: ParallelGeneratorType.PromiseToArray
+      const a = () => r.generator().then((i) => i.splice(0, t));
+      return new w({
+        generator: a,
+        type: c.PromiseToArray
       });
   }
-};
-const takeWhile = (source, predicate) => {
-  const generator = async () => {
-    const values = await source.ToArray();
-    const results = new Array();
-    if (predicate.length === 1) {
-      for (const value of values) {
-        if (predicate(value) === true) {
-          results.push(value);
-        } else {
+}, Ti = (n, e) => {
+  const t = async () => {
+    const r = await n.ToArray(), s = new Array();
+    if (e.length === 1)
+      for (const o of r)
+        if (e(o) === !0)
+          s.push(o);
+        else
           break;
-        }
-      }
-    } else {
-      for (let i2 = 0; i2 < values.length; i2++) {
-        const value = values[i2];
-        if (predicate(value, i2) === true) {
-          results.push(value);
-        } else {
+    else
+      for (let o = 0; o < r.length; o++) {
+        const a = r[o];
+        if (e(a, o) === !0)
+          s.push(a);
+        else
           break;
-        }
       }
-    }
-    return results;
+    return s;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const takeWhileAsync = (source, predicate) => {
-  const generator = async () => {
-    const values = await source.ToArray();
-    const results = new Array();
-    if (predicate.length === 1) {
-      const sPredicate = predicate;
-      for (const value of values) {
-        if (await sPredicate(value) === true) {
-          results.push(value);
-        } else {
+}, Oi = (n, e) => {
+  const t = async () => {
+    const r = await n.ToArray(), s = new Array();
+    if (e.length === 1) {
+      const o = e;
+      for (const a of r)
+        if (await o(a) === !0)
+          s.push(a);
+        else
           break;
-        }
-      }
-    } else {
-      for (let i2 = 0; i2 < values.length; i2++) {
-        const value = values[i2];
-        if (await predicate(value, i2) === true) {
-          results.push(value);
-        } else {
+    } else
+      for (let o = 0; o < r.length; o++) {
+        const a = r[o];
+        if (await e(a, o) === !0)
+          s.push(a);
+        else
           break;
-        }
       }
-    }
-    return results;
+    return s;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const toMap = async (source, selector) => {
-  const map = /* @__PURE__ */ new Map();
-  const dataFunc = nextIteration(source, (value) => {
-    const key = selector(value);
-    return [key, value];
-  });
-  const keyValues = await typeDataToArray(dataFunc);
-  for (const [key, value] of keyValues) {
-    const array = map.get(key);
-    if (array === void 0) {
-      map.set(key, [value]);
-    } else {
-      array.push(value);
-    }
+}, Ii = async (n, e) => {
+  const t = /* @__PURE__ */ new Map(), r = $(n, (o) => [e(o), o]), s = await k(r);
+  for (const [o, a] of s) {
+    const i = t.get(o);
+    i === void 0 ? t.set(o, [a]) : i.push(a);
   }
-  return map;
-};
-const toMapAsync = async (source, selector) => {
-  const map = /* @__PURE__ */ new Map();
-  const dataFunc = nextIterationAsync(source, async (value) => {
-    const key = await selector(value);
-    return [key, value];
-  });
-  const keyValues = await typeDataToArray(dataFunc);
-  for (const [key, value] of keyValues) {
-    const array = map.get(key);
-    if (array === void 0) {
-      map.set(key, [value]);
-    } else {
-      array.push(value);
-    }
+  return t;
+}, Mi = async (n, e) => {
+  const t = /* @__PURE__ */ new Map(), r = P(n, async (o) => [await e(o), o]), s = await k(r);
+  for (const [o, a] of s) {
+    const i = t.get(o);
+    i === void 0 ? t.set(o, [a]) : i.push(a);
   }
-  return map;
-};
-const toObject = async (source, selector) => {
-  const dataFunc = source.dataFunc;
-  const values = await typeDataToArray(dataFunc);
-  const map = {};
-  for (const value of values) {
-    map[selector(value)] = value;
-  }
-  return map;
-};
-const toObjectAsync = async (source, selector) => {
-  const dataFunc = nextIterationAsync(source, async (value) => {
-    const key = await selector(value);
-    return [key, value];
-  });
-  const keyValues = await typeDataToArray(dataFunc);
-  const map = {};
-  for (const [key, value] of keyValues) {
-    map[key] = value;
-  }
-  return map;
-};
-const toSet = async (source) => {
-  const dataFunc = source.dataFunc;
-  const values = await typeDataToArray(dataFunc);
-  return new Set(values);
-};
-const union = (first3, second, comparer) => {
-  if (comparer) {
-    return union2(first3, second, comparer);
-  } else {
-    return union1(first3, second);
-  }
-};
-const union1 = (first3, second) => {
-  const generator = async () => {
-    const set = /* @__PURE__ */ new Set();
-    const secondPromise = second.ToArray();
-    for await (const item of first3) {
-      if (set.has(item) === false) {
-        set.add(item);
-      }
-    }
-    const secondValues = await secondPromise;
-    for (const item of secondValues) {
-      if (set.has(item) === false) {
-        set.add(item);
-      }
-    }
-    return [...set.keys()];
+  return t;
+}, Ei = async (n, e) => {
+  const t = n.dataFunc, r = await k(t), s = {};
+  for (const o of r)
+    s[e(o)] = o;
+  return s;
+}, bi = async (n, e) => {
+  const t = P(n, async (o) => [await e(o), o]), r = await k(t), s = {};
+  for (const [o, a] of r)
+    s[o] = a;
+  return s;
+}, xi = async (n) => {
+  const e = n.dataFunc, t = await k(e);
+  return new Set(t);
+}, Si = (n, e, t) => t ? Vi(n, e, t) : Ni(n, e), Ni = (n, e) => {
+  const t = async () => {
+    const r = /* @__PURE__ */ new Set(), s = e.ToArray();
+    for await (const a of n)
+      r.has(a) === !1 && r.add(a);
+    const o = await s;
+    for (const a of o)
+      r.has(a) === !1 && r.add(a);
+    return [...r.keys()];
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const union2 = (first3, second, comparer) => {
-  const generator = async () => {
-    const result = [];
-    const values = await Promise.all([first3.ToArray(), second.ToArray()]);
-    for (const source of values) {
-      for (const value of source) {
-        let exists = false;
-        for (const resultValue of result) {
-          if (comparer(value, resultValue) === true) {
-            exists = true;
+}, Vi = (n, e, t) => {
+  const r = async () => {
+    const s = [], o = await Promise.all([n.ToArray(), e.ToArray()]);
+    for (const a of o)
+      for (const i of a) {
+        let l = !1;
+        for (const y of s)
+          if (t(i, y) === !0) {
+            l = !0;
             break;
           }
-        }
-        if (exists === false) {
-          result.push(value);
-        }
+        l === !1 && s.push(i);
       }
-    }
-    return result;
+    return s;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const unionAsync = (first3, second, comparer) => {
-  const generator = async () => {
-    const result = [];
-    const values = await Promise.all([first3.ToArray(), second.ToArray()]);
-    for (const source of values) {
-      for (const value of source) {
-        let exists = false;
-        for (const resultValue of result) {
-          if (await comparer(value, resultValue) === true) {
-            exists = true;
+}, Di = (n, e, t) => {
+  const r = async () => {
+    const s = [], o = await Promise.all([n.ToArray(), e.ToArray()]);
+    for (const a of o)
+      for (const i of a) {
+        let l = !1;
+        for (const y of s)
+          if (await t(i, y) === !0) {
+            l = !0;
             break;
           }
-        }
-        if (exists === false) {
-          result.push(value);
-        }
+        l === !1 && s.push(i);
       }
+    return s;
+  };
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
+  });
+}, Fi = (n, e) => {
+  const t = async () => (await n.ToArray()).filter(e);
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
+  });
+}, _i = (n, e) => {
+  const t = async () => {
+    const r = J(n, async (a, i) => [await e(a, i), a]), s = await k(r), o = [];
+    for (const [a, i] of s)
+      a && o.push(i);
+    return o;
+  };
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
+  });
+}, Bi = (n, e, t) => t ? Wi(n, e, t) : Ri(n, e), Ri = (n, e) => {
+  const t = async () => {
+    const [r, s] = await Promise.all([n.ToArray(), e.ToArray()]), o = r.length > s.length ? r.length : s.length, a = new Array(o);
+    for (let i = 0; i < o; i++) {
+      const l = r[i], y = s[i];
+      a[i] = [l, y];
     }
-    return result;
+    return a;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: t,
+    type: c.PromiseToArray
   });
-};
-const where = (source, predicate) => {
-  const generator = async () => {
-    const values = await source.ToArray();
-    return values.filter(predicate);
-  };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
-  });
-};
-const whereAsync = (source, predicate) => {
-  const generator = async () => {
-    const dataFunc = nextIterationWithIndexAsync(source, async (value, index) => {
-      const keep = await predicate(value, index);
-      return [keep, value];
-    });
-    const valuesAsync = await typeDataToArray(dataFunc);
-    const filteredValues = [];
-    for (const [keep, value] of valuesAsync) {
-      if (keep) {
-        filteredValues.push(value);
-      }
+}, Wi = (n, e, t) => {
+  const r = async () => {
+    const [s, o] = await Promise.all([n.ToArray(), e.ToArray()]), a = s.length > o.length ? s.length : o.length, i = new Array(a);
+    for (let l = 0; l < a; l++) {
+      const y = s[l], m = o[l];
+      i[l] = t(y, m);
     }
-    return filteredValues;
+    return i;
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const zip = (first3, second, resultSelector) => {
-  if (resultSelector) {
-    return zip2(first3, second, resultSelector);
-  } else {
-    return zip1(first3, second);
-  }
-};
-const zip1 = (source, second) => {
-  const generator = async () => {
-    const [left, right] = await Promise.all([source.ToArray(), second.ToArray()]);
-    const maxLength = left.length > right.length ? left.length : right.length;
-    const results = new Array(maxLength);
-    for (let i2 = 0; i2 < maxLength; i2++) {
-      const a2 = left[i2];
-      const b2 = right[i2];
-      results[i2] = [a2, b2];
+}, Ki = (n, e, t) => {
+  const r = async () => {
+    const [s, o] = await Promise.all([n.ToArray(), e.ToArray()]), a = s.length > o.length ? s.length : o.length, i = new Array(a);
+    for (let l = 0; l < a; l++) {
+      const y = s[l], m = o[l];
+      i[l] = t(y, m);
     }
-    return results;
+    return Promise.all(i);
   };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
+  return new w({
+    generator: r,
+    type: c.PromiseToArray
   });
-};
-const zip2 = (source, second, resultSelector) => {
-  const generator = async () => {
-    const [left, right] = await Promise.all([source.ToArray(), second.ToArray()]);
-    const maxLength = left.length > right.length ? left.length : right.length;
-    const results = new Array(maxLength);
-    for (let i2 = 0; i2 < maxLength; i2++) {
-      const a2 = left[i2];
-      const b2 = right[i2];
-      results[i2] = resultSelector(a2, b2);
-    }
-    return results;
-  };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
-  });
-};
-const zipAsync = (first3, second, resultSelector) => {
-  const generator = async () => {
-    const [left, right] = await Promise.all([first3.ToArray(), second.ToArray()]);
-    const maxLength = left.length > right.length ? left.length : right.length;
-    const resultPromises = new Array(maxLength);
-    for (let i2 = 0; i2 < maxLength; i2++) {
-      const a2 = left[i2];
-      const b2 = right[i2];
-      resultPromises[i2] = resultSelector(a2, b2);
-    }
-    return Promise.all(resultPromises);
-  };
-  return new BasicParallelEnumerable({
-    generator,
-    type: ParallelGeneratorType.PromiseToArray
-  });
-};
-const bindLinqParallel = (object) => {
-  const prototype = object.prototype;
-  const bind = (func, key) => {
-    const wrapped = function(...params) {
-      return func(this, ...params);
+}, ji = (n) => {
+  const e = n.prototype, t = (r, s) => {
+    const o = function(...a) {
+      return r(this, ...a);
     };
-    Object.defineProperty(wrapped, "length", { value: func.length - 1 });
-    prototype[key] = wrapped;
+    Object.defineProperty(o, "length", { value: r.length - 1 }), e[s] = o;
   };
-  bind(aggregate, "Aggregate");
-  bind(all, "All");
-  bind(allAsync, "AllAsync");
-  bind(any, "Any");
-  bind(anyAsync, "AnyAsync");
-  bind(asAsync, "AsAsync");
-  bind(average, "Average");
-  bind(averageAsync, "AverageAsync");
-  bind(concatenate, "Concatenate");
-  bind(contains, "Contains");
-  bind(containsAsync, "ContainsAsync");
-  bind(count, "Count");
-  bind(countAsync, "CountAsync");
-  bind(distinct, "Distinct");
-  bind(distinctAsync, "DistinctAsync");
-  bind(each, "Each");
-  bind(eachAsync, "EachAsync");
-  bind(elementAt, "ElementAt");
-  bind(elementAtOrDefault, "ElementAtOrDefault");
-  bind(except, "Except");
-  bind(exceptAsync, "ExceptAsync");
-  bind(first, "First");
-  bind(firstAsync, "FirstAsync");
-  bind(firstOrDefault, "FirstOrDefault");
-  bind(firstOrDefaultAsync, "FirstOrDefaultAsync");
-  bind(groupBy, "GroupBy");
-  bind(groupByAsync, "GroupByAsync");
-  bind(groupByWithSel, "GroupByWithSel");
-  bind(intersect, "Intersect");
-  bind(intersectAsync, "IntersectAsync");
-  bind(join, "JoinByKey");
-  bind(last, "Last");
-  bind(lastAsync, "LastAsync");
-  bind(lastOrDefault, "LastOrDefault");
-  bind(lastOrDefaultAsync, "LastOrDefaultAsync");
-  bind(max, "Max");
-  bind(maxAsync, "MaxAsync");
-  bind(min, "Min");
-  bind(minAsync, "MinAsync");
-  bind(ofType, "OfType");
-  bind(orderBy, "OrderBy");
-  bind(orderByAsync, "OrderByAsync");
-  bind(orderByDescending, "OrderByDescending");
-  bind(orderByDescendingAsync, "OrderByDescendingAsync");
-  bind(partition, "Partition");
-  bind(partitionAsync, "PartitionAsync");
-  bind(reverse, "Reverse");
-  bind(select, "Select");
-  bind(selectAsync, "SelectAsync");
-  bind(selectMany, "SelectMany");
-  bind(selectManyAsync, "SelectManyAsync");
-  bind(sequenceEquals, "SequenceEquals");
-  bind(sequenceEqualsAsync, "SequenceEqualsAsync");
-  bind(single, "Single");
-  bind(singleAsync, "SingleAsync");
-  bind(singleOrDefault, "SingleOrDefault");
-  bind(singleOrDefaultAsync, "SingleOrDefaultAsync");
-  bind(skip, "Skip");
-  bind(skipWhile, "SkipWhile");
-  bind(skipWhileAsync, "SkipWhileAsync");
-  bind(sum, "Sum");
-  bind(sumAsync, "SumAsync");
-  bind(take, "Take");
-  bind(takeWhile, "TakeWhile");
-  bind(takeWhileAsync, "TakeWhileAsync");
-  bind(toArray, "ToArray");
-  bind(toMap, "ToMap");
-  bind(toMapAsync, "ToMapAsync");
-  bind(toObject, "ToObject");
-  bind(toObjectAsync, "ToObjectAsync");
-  bind(toSet, "ToSet");
-  bind(union, "Union");
-  bind(unionAsync, "UnionAsync");
-  bind(where, "Where");
-  bind(whereAsync, "WhereAsync");
-  bind(zip, "Zip");
-  bind(zipAsync, "ZipAsync");
-};
-const bindString = () => {
-  const prototype = String.prototype;
-  const propertyNames = Object.getOwnPropertyNames(BasicEnumerable.prototype);
-  for (const prop of propertyNames) {
-    prototype[prop] = prototype[prop] ?? BasicEnumerable.prototype[prop];
-  }
-  prototype.First = function(predicate) {
-    if (predicate) {
-      for (let i2 = 0; i2 < this.length; i2++) {
-        const value = this[i2];
-        if (predicate(value) === true) {
-          return value;
-        }
+  t(Do, "Aggregate"), t(Ro, "All"), t(Wo, "AllAsync"), t(Ko, "Any"), t(Lo, "AnyAsync"), t(Co, "AsAsync"), t(zo, "Average"), t(Uo, "AverageAsync"), t(Go, "Concatenate"), t(Yo, "Contains"), t(Zo, "ContainsAsync"), t(Jo, "Count"), t(Qo, "CountAsync"), t(ta, "Distinct"), t(ea, "DistinctAsync"), t(na, "Each"), t(ra, "EachAsync"), t(sa, "ElementAt"), t(oa, "ElementAtOrDefault"), t(aa, "Except"), t(ia, "ExceptAsync"), t(ca, "First"), t(fa, "FirstAsync"), t(ya, "FirstOrDefault"), t(ga, "FirstOrDefaultAsync"), t(ma, "GroupBy"), t(da, "GroupByAsync"), t(ka, "GroupByWithSel"), t(Oa, "Intersect"), t(Ia, "IntersectAsync"), t(Ma, "JoinByKey"), t(Ea, "Last"), t(Sa, "LastAsync"), t(Na, "LastOrDefault"), t(Fa, "LastOrDefaultAsync"), t(_a, "Max"), t(Ba, "MaxAsync"), t(Ra, "Min"), t(Wa, "MinAsync"), t(Ka, "OfType"), t(Za, "OrderBy"), t(Ja, "OrderByAsync"), t(Ha, "OrderByDescending"), t(Xa, "OrderByDescendingAsync"), t(Qa, "Partition"), t(ti, "PartitionAsync"), t(ei, "Reverse"), t(ni, "Select"), t(ri, "SelectAsync"), t(si, "SelectMany"), t(oi, "SelectManyAsync"), t(ai, "SequenceEquals"), t(ii, "SequenceEqualsAsync"), t(ci, "Single"), t(fi, "SingleAsync"), t(yi, "SingleOrDefault"), t(gi, "SingleOrDefaultAsync"), t(mi, "Skip"), t(pi, "SkipWhile"), t(Ai, "SkipWhileAsync"), t(di, "Sum"), t(ki, "SumAsync"), t($i, "Take"), t(Ti, "TakeWhile"), t(Oi, "TakeWhileAsync"), t(D, "ToArray"), t(Ii, "ToMap"), t(Mi, "ToMapAsync"), t(Ei, "ToObject"), t(bi, "ToObjectAsync"), t(xi, "ToSet"), t(Si, "Union"), t(Di, "UnionAsync"), t(Fi, "Where"), t(_i, "WhereAsync"), t(Bi, "Zip"), t(Ki, "ZipAsync");
+}, qi = () => {
+  const n = String.prototype, e = Object.getOwnPropertyNames(g.prototype);
+  for (const t of e)
+    n[t] = n[t] ?? g.prototype[t];
+  n.First = function(t) {
+    if (t) {
+      for (let r = 0; r < this.length; r++) {
+        const s = this[r];
+        if (t(s) === !0)
+          return s;
       }
-      throw new InvalidOperationException(ErrorString.NoMatch);
+      throw new f(u.NoMatch);
     }
-    if (this.length === 0) {
-      throw new InvalidOperationException(ErrorString.NoElements);
-    }
+    if (this.length === 0)
+      throw new f(u.NoElements);
     return this[0];
-  };
-  prototype.FirstOrDefault = function(predicate) {
-    if (predicate) {
-      for (let i2 = 0; i2 < this.length; i2++) {
-        const value = this[i2];
-        if (predicate(value) === true) {
-          return value;
-        }
+  }, n.FirstOrDefault = function(t) {
+    if (t) {
+      for (let r = 0; r < this.length; r++) {
+        const s = this[r];
+        if (t(s) === !0)
+          return s;
       }
       return null;
     }
     return this.length === 0 ? null : this[0];
-  };
-  prototype.Count = function(predicate) {
-    if (predicate) {
-      let count3 = 0;
-      for (let i2 = 0; i2 < this.length; i2++) {
-        if (predicate(this[i2]) === true) {
-          count3++;
-        }
-      }
-      return count3;
-    } else {
+  }, n.Count = function(t) {
+    if (t) {
+      let r = 0;
+      for (let s = 0; s < this.length; s++)
+        t(this[s]) === !0 && r++;
+      return r;
+    } else
       return this.length;
-    }
-  };
-  prototype.ElementAt = function(index) {
-    if (index < 0 || index >= this.length) {
-      throw new ArgumentOutOfRangeException("index");
-    }
-    return this[index];
-  };
-  prototype.ElementAtOrDefault = function(index) {
-    return this[index] || null;
-  };
-  prototype.Last = function(predicate) {
-    if (predicate) {
-      for (let i2 = this.length - 1; i2 >= 0; i2--) {
-        const value = this[i2];
-        if (predicate(value) === true) {
-          return value;
-        }
+  }, n.ElementAt = function(t) {
+    if (t < 0 || t >= this.length)
+      throw new E("index");
+    return this[t];
+  }, n.ElementAtOrDefault = function(t) {
+    return this[t] || null;
+  }, n.Last = function(t) {
+    if (t) {
+      for (let r = this.length - 1; r >= 0; r--) {
+        const s = this[r];
+        if (t(s) === !0)
+          return s;
       }
-      throw new InvalidOperationException(ErrorString.NoMatch);
+      throw new f(u.NoMatch);
     } else {
-      if (this.length === 0) {
-        throw new InvalidOperationException(ErrorString.NoElements);
-      }
+      if (this.length === 0)
+        throw new f(u.NoElements);
       return this[this.length - 1];
     }
-  };
-  prototype.LastOrDefault = function(predicate) {
-    if (predicate) {
-      for (let i2 = this.length - 1; i2 >= 0; i2--) {
-        const value = this[i2];
-        if (predicate(value) === true) {
-          return value;
-        }
+  }, n.LastOrDefault = function(t) {
+    if (t) {
+      for (let r = this.length - 1; r >= 0; r--) {
+        const s = this[r];
+        if (t(s) === !0)
+          return s;
       }
       return null;
-    } else {
+    } else
       return this.length === 0 ? null : this[this.length - 1];
+  }, n.Reverse = function() {
+    const t = this;
+    function* r() {
+      for (let s = t.length - 1; s >= 0; s--)
+        yield t[s];
     }
+    return new g(r);
   };
-  prototype.Reverse = function() {
-    const outer = this;
-    function* generator() {
-      for (let i2 = outer.length - 1; i2 >= 0; i2--) {
-        yield outer[i2];
-      }
-    }
-    return new BasicEnumerable(generator);
-  };
+}, Li = () => {
+  Y(Map), Y(Set), qi(), S(Array), S(Int8Array), S(Int16Array), S(Int32Array), S(Uint8Array), S(Uint8ClampedArray), S(Uint16Array), S(Uint32Array), S(Float32Array), S(Float64Array);
 };
-const initializeLinq = () => {
-  bindLinq(Map);
-  bindLinq(Set);
-  bindString();
-  bindArray(Array);
-  bindArray(Int8Array);
-  bindArray(Int16Array);
-  bindArray(Int32Array);
-  bindArray(Uint8Array);
-  bindArray(Uint8ClampedArray);
-  bindArray(Uint16Array);
-  bindArray(Uint32Array);
-  bindArray(Float32Array);
-  bindArray(Float64Array);
+Y(g);
+Vo(h);
+ji(w);
+gt();
+const tt = (n) => {
+  const e = (r) => Array.isArray(r) || typeof r == "object" && typeof r.length == "number" && (r.length === 0 || 0 in r), t = (r) => typeof r == "function";
+  if (e(n)) {
+    const r = function* () {
+      for (let s = 0; s < n.length; s++)
+        yield n[s];
+    };
+    return new g(r);
+  }
+  return t(n) ? new g(n) : new g(function* () {
+    for (const r of n)
+      yield r;
+  });
+}, Ci = (n) => {
+  if (!n)
+    return !1;
+  if (n instanceof g || n instanceof j)
+    return !0;
+  if (typeof n[Symbol.iterator] != "function")
+    return !1;
+  const e = Object.getOwnPropertyNames(g.prototype).filter((r) => r !== "constructor"), t = n.prototype || n;
+  for (const r of e)
+    if (typeof t[r] != "function")
+      return !1;
+  return !0;
 };
-bindLinq(BasicEnumerable);
-bindLinqAsync(BasicAsyncEnumerable);
-bindLinqParallel(BasicParallelEnumerable);
-bindArrayEnumerable();
-const isEnumerable = (source) => {
-  if (!source) {
-    return false;
-  }
-  if (source instanceof BasicEnumerable) {
-    return true;
-  }
-  if (source instanceof ArrayEnumerable) {
-    return true;
-  }
-  if (typeof source[Symbol.iterator] !== "function") {
-    return false;
-  }
-  const propertyNames = Object.getOwnPropertyNames(BasicEnumerable.prototype).filter((v2) => v2 !== "constructor");
-  const methods = source.prototype || source;
-  for (const prop of propertyNames) {
-    if (typeof methods[prop] !== "function") {
-      return false;
-    }
-  }
-  return true;
-};
-function IsInterfaceOfIDisposable(obj) {
-  return typeof obj === "object" && obj !== null && !Array.isArray(obj) && "$meta_System_IDisposable" in obj.constructor;
+function gc(n) {
+  return typeof n == "object" && n !== null && !Array.isArray(n) && "$meta_System_IDisposable" in n.constructor;
 }
-class DefaultEnumerator {
-  constructor(from2) {
-    __publicField(this, "_it");
-    __publicField(this, "_current");
-    this._it = from2[Symbol.iterator]();
+class zi {
+  constructor(e) {
+    p(this, "_it");
+    p(this, "_current");
+    this._it = e[Symbol.iterator]();
   }
   get Current() {
     return this._current;
   }
   MoveNext() {
-    let res = this._it.next();
-    this._current = res.value;
-    return res.done === false;
+    let e = this._it.next();
+    return this._current = e.value, e.done === !1;
   }
   Dispose() {
   }
 }
-class PropertyChangedEventArgs {
-  constructor(propertyName) {
-    __publicField(this, "PropertyName");
-    this.PropertyName = propertyName;
+class mc {
+  constructor(e) {
+    p(this, "PropertyName");
+    this.PropertyName = e;
   }
 }
-function IsInterfaceOfIEnumerable(obj) {
-  return isEnumerable(obj);
+function pc(n) {
+  return Ci(n);
 }
-function IsInterfaceOfINotifyPropertyChanged(obj) {
-  return typeof obj === "object" && obj !== null && !Array.isArray(obj) && "$meta_System_INotifyPropertyChanged" in obj.constructor;
+function Ac(n) {
+  return typeof n == "object" && n !== null && !Array.isArray(n) && "$meta_System_INotifyPropertyChanged" in n.constructor;
 }
-var NotifyCollectionChangedAction = /* @__PURE__ */ ((NotifyCollectionChangedAction2) => {
-  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Add"] = 0] = "Add";
-  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Remove"] = 1] = "Remove";
-  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Replace"] = 2] = "Replace";
-  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Move"] = 3] = "Move";
-  NotifyCollectionChangedAction2[NotifyCollectionChangedAction2["Reset"] = 4] = "Reset";
-  return NotifyCollectionChangedAction2;
-})(NotifyCollectionChangedAction || {});
-class NotifyCollectionChangedEventArgs {
+var Ui = /* @__PURE__ */ ((n) => (n[n.Add = 0] = "Add", n[n.Remove = 1] = "Remove", n[n.Replace = 2] = "Replace", n[n.Move = 3] = "Move", n[n.Reset = 4] = "Reset", n))(Ui || {});
+class dc {
   constructor() {
-    __publicField(this, "Action");
-    __publicField(this, "NewItems");
-    __publicField(this, "OldItems");
+    p(this, "Action");
+    p(this, "NewItems");
+    p(this, "OldItems");
   }
 }
-function IsInterfaceOfINotifyCollectionChanged(obj) {
-  return typeof obj === "object" && obj !== null && !Array.isArray(obj) && "$meta_System_INotifyCollectionChanged" in obj.constructor;
+function vc(n) {
+  return typeof n == "object" && n !== null && !Array.isArray(n) && "$meta_System_INotifyCollectionChanged" in n.constructor;
 }
-class Event {
+class Pc {
   constructor() {
-    __publicField(this, "_listeners");
-    __publicField(this, "_it", -1);
+    p(this, "_listeners");
+    p(this, "_it", -1);
   }
-  Add(listener, caller) {
-    if (!this._listeners)
-      this._listeners = [];
-    let item = { callback: listener };
-    if (caller)
-      item.target = new WeakRef(caller);
-    this._listeners.push(item);
+  Add(e, t) {
+    this._listeners || (this._listeners = []);
+    let r = { callback: e };
+    t && (r.target = new WeakRef(t)), this._listeners.push(r);
   }
-  Remove(listener, caller) {
-    if (!this._listeners)
-      return;
-    for (let i2 = 0; i2 < this._listeners.length; i2++) {
-      const item = this._listeners[i2];
-      if (item.target?.deref() === caller && item.callback === listener) {
-        this._listeners.splice(i2, 1);
-        break;
+  Remove(e, t) {
+    if (!!this._listeners) {
+      for (let r = 0; r < this._listeners.length; r++) {
+        const s = this._listeners[r];
+        if (s.target?.deref() === t && s.callback === e) {
+          this._listeners.splice(r, 1);
+          break;
+        }
       }
-    }
-    if (this._it >= 0) {
-      this._it--;
+      this._it >= 0 && this._it--;
     }
   }
-  Invoke(arg1, arg2) {
-    if (!this._listeners)
-      return;
-    this._it = 0;
-    while (this._it < this._listeners.length) {
-      const item = this._listeners[this._it];
-      const target = item.target?.deref();
-      const notAlive = item.target !== void 0 && target === void 0;
-      if (notAlive) {
-        this._listeners.splice(this._it, 1);
-      } else {
-        item.callback.call(target, arg1, arg2);
-        this._it++;
+  Invoke(e, t) {
+    if (!!this._listeners) {
+      for (this._it = 0; this._it < this._listeners.length; ) {
+        const r = this._listeners[this._it], s = r.target?.deref();
+        r.target !== void 0 && s === void 0 ? this._listeners.splice(this._it, 1) : (r.callback.call(s, e, t), this._it++);
       }
+      this._it = -1;
     }
-    this._it = -1;
   }
 }
-class Random {
-  Next(min3, max3) {
-    return Math.random() * (max3 - min3) | 0;
+class kc {
+  Next(e, t) {
+    return Math.random() * (t - e) | 0;
   }
 }
-const TicksPerSecond = 1e3;
-const _TimeSpan = class {
-  constructor(a1, a2, a3) {
-    __publicField(this, "_ticks");
-    if (a2 == void 0) {
-      this._ticks = a1;
-    } else {
-      this._ticks = _TimeSpan.TimeToTicks(a1, a2, a3);
-    }
+const G = 1e3, _ = class {
+  constructor(e, t, r) {
+    p(this, "_ticks");
+    t == null ? this._ticks = e : this._ticks = _.TimeToTicks(e, t, r);
   }
   get Ticks() {
     return this._ticks;
@@ -6353,221 +3885,190 @@ const _TimeSpan = class {
     return this._ticks;
   }
   get TotalSeconds() {
-    return this._ticks / TicksPerSecond;
+    return this._ticks / G;
   }
-  static FromSeconds(ss) {
-    return new _TimeSpan(ss * TicksPerSecond);
+  static FromSeconds(e) {
+    return new _(e * G);
   }
-  static FromMilliseconds(ms) {
-    return new _TimeSpan(ms);
+  static FromMilliseconds(e) {
+    return new _(e);
   }
   Clone() {
-    return new _TimeSpan(this._ticks);
+    return new _(this._ticks);
   }
-  static TimeToTicks(hours, minutes, seconds) {
-    let ticks = (hours * 3600 + minutes * 60 + seconds) * TicksPerSecond;
-    if (ticks > Number.MAX_SAFE_INTEGER)
-      throw new ArgumentOutOfRangeException("all");
-    return ticks;
+  static TimeToTicks(e, t, r) {
+    let s = (e * 3600 + t * 60 + r) * G;
+    if (s > Number.MAX_SAFE_INTEGER)
+      throw new E("all");
+    return s;
   }
 };
-let TimeSpan = _TimeSpan;
-__publicField(TimeSpan, "Empty", new _TimeSpan(0));
-const _DateTime = class {
-  constructor(a1, a2, a3, a4, a5, a6) {
-    __publicField(this, "_date");
-    if (a1 instanceof Date) {
-      this._date = a1;
-    } else if (a4 === void 0) {
-      this._date = new Date(a1, a2, a3);
-    } else {
-      this._date = new Date(a1, a2, a3, a4, a5, a6);
-    }
+let q = _;
+p(q, "Empty", new _(0));
+const F = class {
+  constructor(e, t, r, s, o, a) {
+    p(this, "_date");
+    e instanceof Date ? this._date = e : s === void 0 ? this._date = new Date(e, t, r) : this._date = new Date(e, t, r, s, o, a);
   }
   static get UtcNow() {
-    return new _DateTime(new Date());
+    return new F(new Date());
   }
   get Ticks() {
     return BigInt(this._date.getTime()) * 10000n + 621355968000000000n;
   }
-  Subtract(other) {
-    if (other instanceof _DateTime) {
-      return new TimeSpan(this._date.getTime() - other._date.getTime());
-    } else {
-      let internalTicks = this._date.getTime();
-      let otherTicks = other.TotalMilliseconds;
-      if (internalTicks < otherTicks)
-        throw new ArgumentOutOfRangeException("other");
-      let newTicks = internalTicks - otherTicks;
-      let result = new Date();
-      result.setTime(newTicks);
-      return new _DateTime(result);
+  Subtract(e) {
+    if (e instanceof F)
+      return new q(this._date.getTime() - e._date.getTime());
+    {
+      let t = this._date.getTime(), r = e.TotalMilliseconds;
+      if (t < r)
+        throw new E("other");
+      let s = t - r, o = new Date();
+      return o.setTime(s), new F(o);
     }
   }
-  static op_Subtraction(v2, other) {
-    if (other instanceof _DateTime)
-      return v2.Subtract(other);
-    return v2.Subtract(other);
+  static op_Subtraction(e, t) {
+    return t instanceof F, e.Subtract(t);
   }
   Clone() {
-    return new _DateTime(this._date);
+    return new F(this._date);
   }
   toString() {
     return this._date.toString();
   }
 };
-let DateTime = _DateTime;
-__publicField(DateTime, "Empty", new _DateTime(0, 0, 0));
-class Guid {
-  constructor(arg) {
-    __publicField(this, "_data");
-    if (arg instanceof Uint8Array) {
-      this._data = arg;
-    } else {
+let R = F;
+p(R, "Empty", new F(0, 0, 0));
+class lt {
+  constructor(e) {
+    p(this, "_data");
+    if (e instanceof Uint8Array)
+      this._data = e;
+    else
       throw new Error("\u672A\u5B9E\u73B0");
-    }
   }
   get Value() {
     return this._data;
   }
-  static op_Equality(a2, b2) {
-    for (let i2 = 0; i2 < 16; i2++) {
-      if (a2._data[i2] != b2._data[i2])
-        return false;
-    }
-    return true;
+  static op_Equality(e, t) {
+    for (let r = 0; r < 16; r++)
+      if (e._data[r] != t._data[r])
+        return !1;
+    return !0;
   }
   Clone() {
-    return new Guid(this._data);
+    return new lt(this._data);
   }
 }
-class TaskCompletionSource {
+class $c {
   constructor() {
-    __publicField(this, "_promise");
-    __publicField(this, "_resolve");
-    __publicField(this, "_reject");
-    this._promise = new Promise((resolve, reject) => {
-      this._resolve = resolve;
-      this._reject = reject;
+    p(this, "_promise");
+    p(this, "_resolve");
+    p(this, "_reject");
+    this._promise = new Promise((e, t) => {
+      this._resolve = e, this._reject = t;
     });
   }
   get Task() {
     return this._promise;
   }
-  SetResult(result) {
-    this._resolve(result);
+  SetResult(e) {
+    this._resolve(e);
   }
-  SetException(exception) {
-    this._reject(exception);
-  }
-}
-class Tuple2 {
-  constructor(item1, item2) {
-    __publicField(this, "Item1");
-    __publicField(this, "Item2");
-    this.Item1 = item1;
-    this.Item2 = item2;
+  SetException(e) {
+    this._reject(e);
   }
 }
-class Tuple4 {
-  constructor(item1, item2, item3, item4) {
-    __publicField(this, "Item1");
-    __publicField(this, "Item2");
-    __publicField(this, "Item3");
-    __publicField(this, "Item4");
-    this.Item1 = item1;
-    this.Item2 = item2;
-    this.Item3 = item3;
-    this.Item4 = item4;
+class Tc {
+  constructor(e, t) {
+    p(this, "Item1");
+    p(this, "Item2");
+    this.Item1 = e, this.Item2 = t;
   }
 }
-class Stopwatch {
+class Oc {
+  constructor(e, t, r, s) {
+    p(this, "Item1");
+    p(this, "Item2");
+    p(this, "Item3");
+    p(this, "Item4");
+    this.Item1 = e, this.Item2 = t, this.Item3 = r, this.Item4 = s;
+  }
+}
+class Ic {
   constructor() {
-    __publicField(this, "_startTime");
-    __publicField(this, "_stopTime");
+    p(this, "_startTime");
+    p(this, "_stopTime");
   }
   Start() {
-    this._startTime = DateTime.UtcNow;
+    this._startTime = R.UtcNow;
   }
   Stop() {
-    this._stopTime = DateTime.UtcNow;
+    this._stopTime = R.UtcNow;
   }
   get ElapsedMilliseconds() {
-    if (this._stopTime == null)
-      return BigInt(DateTime.UtcNow.Subtract(this._startTime).TotalMilliseconds);
-    return BigInt(this._stopTime.Subtract(this._startTime).TotalMilliseconds);
+    return this._stopTime == null ? BigInt(R.UtcNow.Subtract(this._startTime).TotalMilliseconds) : BigInt(this._stopTime.Subtract(this._startTime).TotalMilliseconds);
   }
 }
-class KeyValuePair {
-  constructor(key, value) {
-    __publicField(this, "Key");
-    __publicField(this, "Value");
-    this.Key = key;
-    this.Value = value;
+class Gi {
+  constructor(e, t) {
+    p(this, "Key");
+    p(this, "Value");
+    this.Key = e, this.Value = t;
   }
 }
-class Dictionary {
-  constructor(capacity) {
-    __publicField(this, "map", /* @__PURE__ */ new Map());
+class Mc {
+  constructor(e) {
+    p(this, "map", /* @__PURE__ */ new Map());
   }
-  Init(entries) {
-    for (const entry of entries) {
-      this.map.set(entry[0], entry[1]);
-    }
+  Init(e) {
+    for (const t of e)
+      this.map.set(t[0], t[1]);
     return this;
   }
   get length() {
     return this.map.size;
   }
   get Keys() {
-    return from(this.map.keys());
+    return tt(this.map.keys());
   }
   get Values() {
-    return from(this.map.values());
+    return tt(this.map.values());
   }
-  ContainsKey(key) {
-    return this.map.has(key);
+  ContainsKey(e) {
+    return this.map.has(e);
   }
-  GetAt(key) {
-    if (!this.map.has(key))
-      throw new ArgumentException("Key not exists");
-    return this.map.get(key);
+  GetAt(e) {
+    if (!this.map.has(e))
+      throw new H("Key not exists");
+    return this.map.get(e);
   }
-  SetAt(key, value) {
-    this.map.set(key, value);
+  SetAt(e, t) {
+    this.map.set(e, t);
   }
-  TryGetValue(key, value) {
-    let res = this.map.get(key);
-    if (res !== void 0) {
-      value.Value = res;
-      return true;
-    }
-    return false;
+  TryGetValue(e, t) {
+    let r = this.map.get(e);
+    return r !== void 0 ? (t.Value = r, !0) : !1;
   }
-  Add(key, value) {
-    if (this.map.has(key))
-      throw new ArgumentException("Key already exists");
-    this.map.set(key, value);
+  Add(e, t) {
+    if (this.map.has(e))
+      throw new H("Key already exists");
+    this.map.set(e, t);
   }
-  Remove(key) {
-    if (this.map.has(key)) {
-      this.map.delete(key);
-      return true;
-    }
-    return false;
+  Remove(e) {
+    return this.map.has(e) ? (this.map.delete(e), !0) : !1;
   }
   Clear() {
     this.map.clear();
   }
   *[Symbol.iterator]() {
-    for (const entry of this.map.entries()) {
-      yield new KeyValuePair(entry[0], entry[1]);
-    }
+    for (const e of this.map.entries())
+      yield new Gi(e[0], e[1]);
   }
 }
-class Stack extends List {
-  Push(item) {
-    this.Add(item);
+class Ec extends z {
+  Push(e) {
+    this.Add(e);
   }
   Pop() {
     if (this.length === 0)
@@ -6575,261 +4076,315 @@ class Stack extends List {
     return this.splice(this.length - 1, 1)[0];
   }
 }
-class HashSet extends Set {
+class bc extends Set {
   Clear() {
     this.clear();
   }
-  Add(value) {
-    this.add(value);
+  Add(e) {
+    this.add(e);
   }
-  Remove(value) {
-    this.delete(value);
+  Remove(e) {
+    this.delete(e);
   }
   get length() {
     return this.size;
   }
 }
-class LinkedListNode {
-  constructor() {
-    __publicField(this, "prev");
-    __publicField(this, "next");
-    __publicField(this, "item");
+class Yi {
+  constructor(e, t = null) {
+    p(this, "prev");
+    p(this, "next");
+    p(this, "list");
+    p(this, "item");
+    this.item = e, this.list = t;
   }
   get Value() {
     return this.item;
   }
-  set Value(value) {
-    this.item = value;
+  set Value(e) {
+    this.item = e;
   }
   get Next() {
-    return this.next == null ? null : this.next;
+    return this.next == null || this.next === this.list.head ? null : this.next;
   }
   get Previous() {
-    return this.prev == null ? null : this.prev;
+    return this.prev == null || this === this.list.head ? null : this.prev;
+  }
+  Invalidate() {
+    this.list = null, this.next = null, this.prev = null;
   }
 }
-class LinkedList {
+class xc {
+  constructor() {
+    p(this, "head");
+    p(this, "count", 0);
+  }
   get length() {
-    throw new Error();
+    return this.count;
   }
   get First() {
-    throw new Error();
+    return this.head;
   }
   get Last() {
+    return this.head.prev;
+  }
+  Contains(e) {
     throw new Error();
   }
-  Contains(item) {
+  AddLast(e) {
+    let t = new Yi(e, this);
+    return this.head == null ? this.InternalInsertNodeToEmptyList(t) : this.InternalInsertNodeBefore(this.head, t), t;
+  }
+  AddFirst(e) {
     throw new Error();
   }
-  AddLast(item) {
+  AddAfter(e, t) {
     throw new Error();
   }
-  AddFirst(item) {
+  AddBefore(e, t) {
     throw new Error();
   }
-  AddAfter(node, item) {
-    throw new Error();
+  InternalInsertNodeBefore(e, t) {
+    t.next = e, t.prev = e.prev, e.prev.next = t, e.prev = t, this.count++;
   }
-  AddBefore(node, item) {
-    throw new Error();
+  InternalInsertNodeToEmptyList(e) {
+    e.next = e, e.prev = e, this.head = e, this.count++;
   }
-  Remove(node) {
+  Remove(e) {
     throw new Error();
   }
   Clear() {
     throw new Error();
   }
   *[Symbol.iterator]() {
-    throw new Error();
+    if (this.head == null)
+      return;
+    let e = this.head;
+    for (; ; )
+      if (yield e.Value, e = e.next, e == null || e === this.head)
+        return;
   }
 }
-class ObservableCollection extends List {
+class Sc extends z {
 }
-const e = Symbol("@ts-pattern/matcher"), t = "@ts-pattern/anonymous-select-key", n = (e2) => Boolean(e2 && typeof e2 == "object"), r = (t2) => t2 && !!t2[e], o = (t2, c2, i2) => {
-  if (n(t2)) {
-    if (r(t2)) {
-      const n2 = t2[e](), { matched: r2, selections: o2 = {} } = n2.match(c2);
-      return r2 && Object.keys(o2).forEach((e2) => i2(e2, o2[e2])), r2;
+const x = Symbol("@ts-pattern/matcher"), U = "@ts-pattern/anonymous-select-key", Z = (n) => Boolean(n && typeof n == "object"), L = (n) => n && !!n[x], b = (n, e, t) => {
+  if (Z(n)) {
+    if (L(n)) {
+      const r = n[x](), { matched: s, selections: o = {} } = r.match(e);
+      return s && Object.keys(o).forEach((a) => t(a, o[a])), s;
     }
-    if (!n(c2))
-      return false;
-    if (Array.isArray(t2))
-      return !!Array.isArray(c2) && t2.length === c2.length && t2.every((e2, t3) => o(e2, c2[t3], i2));
-    if (t2 instanceof Map)
-      return c2 instanceof Map && Array.from(t2.keys()).every((e2) => o(t2.get(e2), c2.get(e2), i2));
-    if (t2 instanceof Set) {
-      if (!(c2 instanceof Set))
-        return false;
-      if (t2.size === 0)
-        return c2.size === 0;
-      if (t2.size === 1) {
-        const [e2] = Array.from(t2.values());
-        return r(e2) ? Array.from(c2.values()).every((t3) => o(e2, t3, i2)) : c2.has(e2);
+    if (!Z(e))
+      return !1;
+    if (Array.isArray(n))
+      return !!Array.isArray(e) && n.length === e.length && n.every((r, s) => b(r, e[s], t));
+    if (n instanceof Map)
+      return e instanceof Map && Array.from(n.keys()).every((r) => b(n.get(r), e.get(r), t));
+    if (n instanceof Set) {
+      if (!(e instanceof Set))
+        return !1;
+      if (n.size === 0)
+        return e.size === 0;
+      if (n.size === 1) {
+        const [r] = Array.from(n.values());
+        return L(r) ? Array.from(e.values()).every((s) => b(r, s, t)) : e.has(r);
       }
-      return Array.from(t2.values()).every((e2) => c2.has(e2));
+      return Array.from(n.values()).every((r) => e.has(r));
     }
-    return Object.keys(t2).every((n2) => {
-      const s2 = t2[n2];
-      return (n2 in c2 || r(a2 = s2) && a2[e]().matcherType === "optional") && o(s2, c2[n2], i2);
-      var a2;
+    return Object.keys(n).every((r) => {
+      const s = n[r];
+      return (r in e || L(o = s) && o[x]().matcherType === "optional") && b(s, e[r], t);
+      var o;
     });
   }
-  return Object.is(c2, t2);
-}, c = (t2) => {
-  var o2, s2, a2;
-  return n(t2) ? r(t2) ? (o2 = (s2 = (a2 = t2[e]()).getSelectionKeys) == null ? void 0 : s2.call(a2)) != null ? o2 : [] : Array.isArray(t2) ? i(t2, c) : i(Object.values(t2), c) : [];
-}, i = (e2, t2) => e2.reduce((e3, n2) => e3.concat(t2(n2)), []);
-function s(t2) {
-  return { [e]: () => ({ match: (e2) => {
-    let n2 = {};
-    const r2 = (e3, t3) => {
-      n2[e3] = t3;
+  return Object.is(e, n);
+}, V = (n) => {
+  var e, t, r;
+  return Z(n) ? L(n) ? (e = (t = (r = n[x]()).getSelectionKeys) == null ? void 0 : t.call(r)) != null ? e : [] : Array.isArray(n) ? K(n, V) : K(Object.values(n), V) : [];
+}, K = (n, e) => n.reduce((t, r) => t.concat(e(r)), []);
+function et(n) {
+  return { [x]: () => ({ match: (e) => {
+    let t = {};
+    const r = (s, o) => {
+      t[s] = o;
     };
-    return e2 === void 0 ? (c(t2).forEach((e3) => r2(e3, void 0)), { matched: true, selections: n2 }) : { matched: o(t2, e2, r2), selections: n2 };
-  }, getSelectionKeys: () => c(t2), matcherType: "optional" }) };
+    return e === void 0 ? (V(n).forEach((s) => r(s, void 0)), { matched: !0, selections: t }) : { matched: b(n, e, r), selections: t };
+  }, getSelectionKeys: () => V(n), matcherType: "optional" }) };
 }
-function a(t2) {
-  return { [e]: () => ({ match: (e2) => {
-    if (!Array.isArray(e2))
-      return { matched: false };
-    let n2 = {};
-    const r2 = (e3, t3) => {
-      n2[e3] = (n2[e3] || []).concat([t3]);
+function nt(n) {
+  return { [x]: () => ({ match: (e) => {
+    if (!Array.isArray(e))
+      return { matched: !1 };
+    let t = {};
+    const r = (s, o) => {
+      t[s] = (t[s] || []).concat([o]);
     };
-    return { matched: e2.every((e3) => o(t2, e3, r2)), selections: n2 };
-  }, getSelectionKeys: () => c(t2) }) };
+    return { matched: e.every((s) => b(n, s, r)), selections: t };
+  }, getSelectionKeys: () => V(n) }) };
 }
-function u(...t2) {
-  return { [e]: () => ({ match: (e2) => {
-    let n2 = {};
-    const r2 = (e3, t3) => {
-      n2[e3] = t3;
+function rt(...n) {
+  return { [x]: () => ({ match: (e) => {
+    let t = {};
+    const r = (s, o) => {
+      t[s] = o;
     };
-    return { matched: t2.every((t3) => o(t3, e2, r2)), selections: n2 };
-  }, getSelectionKeys: () => i(t2, c), matcherType: "and" }) };
+    return { matched: n.every((s) => b(s, e, r)), selections: t };
+  }, getSelectionKeys: () => K(n, V), matcherType: "and" }) };
 }
-function l(...t2) {
-  return { [e]: () => ({ match: (e2) => {
-    let n2 = {};
-    const r2 = (e3, t3) => {
-      n2[e3] = t3;
+function st(...n) {
+  return { [x]: () => ({ match: (e) => {
+    let t = {};
+    const r = (s, o) => {
+      t[s] = o;
     };
-    return i(t2, c).forEach((e3) => r2(e3, void 0)), { matched: t2.some((t3) => o(t3, e2, r2)), selections: n2 };
-  }, getSelectionKeys: () => i(t2, c), matcherType: "or" }) };
+    return K(n, V).forEach((s) => r(s, void 0)), { matched: n.some((s) => b(s, e, r)), selections: t };
+  }, getSelectionKeys: () => K(n, V), matcherType: "or" }) };
 }
-function h(t2) {
-  return { [e]: () => ({ match: (e2) => ({ matched: !o(t2, e2, () => {
+function ot(n) {
+  return { [x]: () => ({ match: (e) => ({ matched: !b(n, e, () => {
   }) }), getSelectionKeys: () => [], matcherType: "not" }) };
 }
-function f(t2) {
-  return { [e]: () => ({ match: (e2) => ({ matched: Boolean(t2(e2)) }) }) };
+function N(n) {
+  return { [x]: () => ({ match: (e) => ({ matched: Boolean(n(e)) }) }) };
 }
-function y(...n2) {
-  const r2 = typeof n2[0] == "string" ? n2[0] : void 0, i2 = n2.length === 2 ? n2[1] : typeof n2[0] == "string" ? void 0 : n2[0];
-  return { [e]: () => ({ match: (e2) => {
-    let n3 = { [r2 != null ? r2 : t]: e2 };
-    return { matched: i2 === void 0 || o(i2, e2, (e3, t2) => {
-      n3[e3] = t2;
-    }), selections: n3 };
-  }, getSelectionKeys: () => [r2 != null ? r2 : t].concat(i2 === void 0 ? [] : c(i2)) }) };
+function at(...n) {
+  const e = typeof n[0] == "string" ? n[0] : void 0, t = n.length === 2 ? n[1] : typeof n[0] == "string" ? void 0 : n[0];
+  return { [x]: () => ({ match: (r) => {
+    let s = { [e ?? U]: r };
+    return { matched: t === void 0 || b(t, r, (o, a) => {
+      s[o] = a;
+    }), selections: s };
+  }, getSelectionKeys: () => [e ?? U].concat(t === void 0 ? [] : V(t)) }) };
 }
-const m = f(function(e2) {
-  return true;
-}), g = m, p = f(function(e2) {
-  return typeof e2 == "string";
-}), d = f(function(e2) {
-  return typeof e2 == "number";
-}), v = f(function(e2) {
-  return typeof e2 == "boolean";
-}), b = f(function(e2) {
-  return typeof e2 == "bigint";
-}), A = f(function(e2) {
-  return typeof e2 == "symbol";
-}), S = f(function(e2) {
-  return e2 == null;
+const ut = N(function(n) {
+  return !0;
+}), Zi = ut, Ji = N(function(n) {
+  return typeof n == "string";
+}), Hi = N(function(n) {
+  return typeof n == "number";
+}), Xi = N(function(n) {
+  return typeof n == "boolean";
+}), Qi = N(function(n) {
+  return typeof n == "bigint";
+}), tc = N(function(n) {
+  return typeof n == "symbol";
+}), ec = N(function(n) {
+  return n == null;
 });
-var w = { __proto__: null, optional: s, array: a, intersection: u, union: l, not: h, when: f, select: y, any: m, _: g, string: p, number: d, boolean: v, bigint: b, symbol: A, nullish: S, instanceOf: function(e2) {
-  return f(function(e3) {
-    return (t2) => t2 instanceof e3;
-  }(e2));
+var nc = { __proto__: null, optional: et, array: nt, intersection: rt, union: st, not: ot, when: N, select: at, any: ut, _: Zi, string: Ji, number: Hi, boolean: Xi, bigint: Qi, symbol: tc, nullish: ec, instanceOf: function(n) {
+  return N(function(e) {
+    return (t) => t instanceof e;
+  }(n));
 }, typed: function() {
-  return { array: a, optional: s, intersection: u, union: l, not: h, select: y, when: f };
+  return { array: nt, optional: et, intersection: rt, union: st, not: ot, select: at, when: N };
 } };
-const K = (e2) => O(e2, []), O = (e2, n2) => {
-  const r2 = () => {
-    const t2 = n2.find(({ test: t3 }) => t3(e2));
-    if (!t2) {
-      let t3;
+const rc = (n) => C(n, []), C = (n, e) => {
+  const t = () => {
+    const r = e.find(({ test: s }) => s(n));
+    if (!r) {
+      let s;
       try {
-        t3 = JSON.stringify(e2);
-      } catch (n3) {
-        t3 = e2;
+        s = JSON.stringify(n);
+      } catch {
+        s = n;
       }
-      throw new Error(`Pattern matching error: no pattern matches value ${t3}`);
+      throw new Error(`Pattern matching error: no pattern matches value ${s}`);
     }
-    return t2.handler(t2.select(e2), e2);
+    return r.handler(r.select(n), n);
   };
-  return { with(...r3) {
-    const c2 = r3[r3.length - 1], i2 = [], s2 = [];
-    r3.length === 3 && typeof r3[1] == "function" ? (i2.push(r3[0]), s2.push(r3[1])) : i2.push(...r3.slice(0, r3.length - 1));
-    let a2 = {};
-    return O(e2, n2.concat([{ test: (e3) => Boolean(i2.some((t2) => o(t2, e3, (e4, t3) => {
-      a2[e4] = t3;
-    })) && s2.every((t2) => t2(e3))), handler: c2, select: (e3) => Object.keys(a2).length ? t in a2 ? a2[t] : a2 : e3 }]));
-  }, when: (t2, r3) => O(e2, n2.concat([{ test: t2, handler: r3, select: (e3) => e3 }])), otherwise: (t2) => O(e2, n2.concat([{ test: () => true, handler: t2, select: (e3) => e3 }])).run(), exhaustive: () => r2(), run: r2 };
-};
-const initializeSystem = () => {
-  initializeLinq();
-  let win = window;
-  win.match = K;
-  win.when = w.when;
-  win.clamp = function(v2, min3, max3) {
-    return Math.min(Math.max(v2, min3), max3);
-  };
-  Object.defineProperty(String.prototype, "Insert", {
-    value: function(pos, str) {
-      return this.slice(0, pos) + str + this.slice(pos);
+  return { with(...r) {
+    const s = r[r.length - 1], o = [], a = [];
+    r.length === 3 && typeof r[1] == "function" ? (o.push(r[0]), a.push(r[1])) : o.push(...r.slice(0, r.length - 1));
+    let i = {};
+    return C(n, e.concat([{ test: (l) => Boolean(o.some((y) => b(y, l, (m, T) => {
+      i[m] = T;
+    })) && a.every((y) => y(l))), handler: s, select: (l) => Object.keys(i).length ? U in i ? i[U] : i : l }]));
+  }, when: (r, s) => C(n, e.concat([{ test: r, handler: s, select: (o) => o }])), otherwise: (r) => C(n, e.concat([{ test: () => !0, handler: r, select: (s) => s }])).run(), exhaustive: () => t(), run: t };
+}, Nc = () => {
+  Li();
+  let n = window;
+  n.match = rc, n.when = nc.when, n.clamp = function(e, t, r) {
+    return Math.min(Math.max(e, t), r);
+  }, Object.defineProperty(String.prototype, "Insert", {
+    value: function(e, t) {
+      return this.slice(0, e) + t + this.slice(e);
     }
-  });
-  Object.defineProperty(String.prototype, "Remove", {
-    value: function(start, count3) {
-      return this.substring(0, start) + this.substring(start + count3);
+  }), Object.defineProperty(String.prototype, "Remove", {
+    value: function(e, t) {
+      return this.substring(0, e) + this.substring(e + t);
     }
-  });
-  Object.defineProperty(Number.prototype, "CompareTo", {
-    value: function(other) {
-      if (this < other)
-        return -1;
-      if (this > other)
-        return 1;
-      return 0;
+  }), Object.defineProperty(Number.prototype, "CompareTo", {
+    value: function(e) {
+      return this < e ? -1 : this > e ? 1 : 0;
     }
-  });
-  Object.defineProperty(Object.prototype, "Init", {
-    value: function(props) {
-      Object.assign(this, props);
-      return this;
+  }), Object.defineProperty(Object.prototype, "Init", {
+    value: function(e) {
+      return Object.assign(this, e), this;
     },
-    configurable: true,
-    writable: true
+    configurable: !0,
+    writable: !0
   });
 };
-class RefOut {
-  constructor(getter, setter) {
-    __publicField(this, "_getter");
-    __publicField(this, "_setter");
-    this._getter = getter;
-    this._setter = setter;
+class ft {
+  constructor(e, t) {
+    p(this, "_getter");
+    p(this, "_setter");
+    this._getter = e, this._setter = t;
   }
   get Value() {
     return this._getter();
   }
-  set Value(v2) {
-    this._setter(v2);
+  set Value(e) {
+    this._setter(e);
   }
 }
-class Ref extends RefOut {
+class Vc extends ft {
 }
-class Out extends RefOut {
+class Dc extends ft {
 }
-export { ArgumentException, ArgumentNullException, ArgumentOutOfRangeException, BinarySearch, DateTime, DefaultEnumerator, Dictionary, from as EnumerableFrom, Equals, Event, Exception, Guid, HashSet, IndexOutOfRangeException, InvalidOperationException, IsInterfaceOfIDisposable, IsInterfaceOfIEnumerable, IsInterfaceOfINotifyCollectionChanged, IsInterfaceOfINotifyPropertyChanged, IsNullOrEmpty, IsNullOrWhiteSpace, KeyValuePair, LinkedList, LinkedListNode, List, NotImplementedException, NotSupportedException, NotifyCollectionChangedAction, NotifyCollectionChangedEventArgs, ObservableCollection, OpEquality, OpInequality, Out, PropertyChangedEventArgs, Random, Ref, Stack, Stopwatch, StringToUint16Array, TaskCompletionSource, TimeSpan, Tuple2, Tuple4, initializeSystem };
+export {
+  H as ArgumentException,
+  ac as ArgumentNullException,
+  E as ArgumentOutOfRangeException,
+  or as BinarySearch,
+  R as DateTime,
+  zi as DefaultEnumerator,
+  Mc as Dictionary,
+  tt as EnumerableFrom,
+  yc as Equals,
+  Pc as Event,
+  B as Exception,
+  lt as Guid,
+  bc as HashSet,
+  ic as IndexOutOfRangeException,
+  f as InvalidOperationException,
+  gc as IsInterfaceOfIDisposable,
+  pc as IsInterfaceOfIEnumerable,
+  vc as IsInterfaceOfINotifyCollectionChanged,
+  Ac as IsInterfaceOfINotifyPropertyChanged,
+  uc as IsNullOrEmpty,
+  fc as IsNullOrWhiteSpace,
+  Gi as KeyValuePair,
+  xc as LinkedList,
+  Yi as LinkedListNode,
+  z as List,
+  lc as NotImplementedException,
+  cc as NotSupportedException,
+  Ui as NotifyCollectionChangedAction,
+  dc as NotifyCollectionChangedEventArgs,
+  oc as NumberComparer,
+  Sc as ObservableCollection,
+  sr as OpEquality,
+  hc as OpInequality,
+  Dc as Out,
+  mc as PropertyChangedEventArgs,
+  kc as Random,
+  Vc as Ref,
+  Ec as Stack,
+  Ic as Stopwatch,
+  wc as StringToUint16Array,
+  $c as TaskCompletionSource,
+  q as TimeSpan,
+  Tc as Tuple2,
+  Oc as Tuple4,
+  Nc as initializeSystem
+};

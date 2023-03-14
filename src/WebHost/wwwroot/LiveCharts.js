@@ -1,1980 +1,1614 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
+var _t = Object.defineProperty;
+var wt = (u, i, t) => i in u ? _t(u, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : u[i] = t;
+var o = (u, i, t) => (wt(u, typeof i != "symbol" ? i + "" : i, t), t), ot = (u, i, t) => {
+  if (!i.has(u))
+    throw TypeError("Cannot " + t);
 };
-var __accessCheck = (obj, member, msg) => {
-  if (!member.has(obj))
-    throw TypeError("Cannot " + msg);
-};
-var __privateGet = (obj, member, getter) => {
-  __accessCheck(obj, member, "read from private field");
-  return getter ? getter.call(obj) : member.get(obj);
-};
-var __privateAdd = (obj, member, value) => {
-  if (member.has(obj))
+var R = (u, i, t) => (ot(u, i, "read from private field"), t ? t.call(u) : i.get(u)), A = (u, i, t) => {
+  if (i.has(u))
     throw TypeError("Cannot add the same private member more than once");
-  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-};
-var __privateSet = (obj, member, value, setter) => {
-  __accessCheck(obj, member, "write to private field");
-  setter ? setter.call(obj, value) : member.set(obj, value);
-  return value;
-};
-var _Canvas, _Size, _Series, _Visual, _MouseRegion;
-import * as System from "/System.js";
-import * as PixUI from "/PixUI.js";
-import * as LiveChartsCore from "/LiveChartsCore.js";
-class DoubleDict {
+  i instanceof WeakSet ? i.add(u) : i.set(u, t);
+}, I = (u, i, t, s) => (ot(u, i, "write to private field"), s ? s.call(u, t) : i.set(u, t), t);
+import * as l from "/System.js";
+import * as d from "/PixUI.js";
+import * as n from "/LiveChartsCore.js";
+class ft {
   constructor() {
-    __publicField(this, "_keys", new System.Dictionary());
-    __publicField(this, "_values", new System.Dictionary());
+    o(this, "_keys", new l.Dictionary());
+    o(this, "_values", new l.Dictionary());
   }
-  Add(key, value) {
-    this._keys.Add(key, value);
-    this._values.Add(value, key);
+  Add(i, t) {
+    this._keys.Add(i, t), this._values.Add(t, i);
   }
-  Remove(key) {
-    let r2 = this._values.Remove(this._keys.GetAt(key));
-    let r1 = this._keys.Remove(key);
-    return r1 && r2;
+  Remove(i) {
+    let t = this._values.Remove(this._keys.GetAt(i));
+    return this._keys.Remove(i) && t;
   }
-  TryGetValue(key, value) {
-    return this._keys.TryGetValue(key, value);
+  TryGetValue(i, t) {
+    return this._keys.TryGetValue(i, t);
   }
-  TryGetKey(key, value) {
-    return this._values.TryGetValue(key, value);
+  TryGetKey(i, t) {
+    return this._values.TryGetValue(i, t);
   }
 }
-class SkiaDrawingContext extends LiveChartsCore.DrawingContext {
-  constructor(motionCanvas, width, height, canvas, clearOnBegingDraw = true) {
+class Mt extends n.DrawingContext {
+  constructor(t, s, r, e, a = !0) {
     super();
-    __publicField(this, "_clearOnBegingDraw");
-    __publicField(this, "MotionCanvas");
-    __publicField(this, "Width", 0);
-    __publicField(this, "Height", 0);
-    __publicField(this, "Canvas");
-    __publicField(this, "PaintTask");
-    __publicField(this, "Paint");
-    __publicField(this, "Background", PixUI.Color.Empty);
-    this.MotionCanvas = motionCanvas;
-    this.Width = width;
-    this.Height = height;
-    this.Canvas = canvas;
-    this.PaintTask = null;
-    this.Paint = null;
-    this._clearOnBegingDraw = clearOnBegingDraw;
+    o(this, "_clearOnBegingDraw");
+    o(this, "MotionCanvas");
+    o(this, "Width", 0);
+    o(this, "Height", 0);
+    o(this, "Canvas");
+    o(this, "PaintTask");
+    o(this, "Paint");
+    o(this, "Background", d.Color.Empty);
+    this.MotionCanvas = t, this.Width = s, this.Height = r, this.Canvas = e, this.PaintTask = null, this.Paint = null, this._clearOnBegingDraw = a;
   }
   OnBegingDraw() {
-    if (System.OpInequality(this.Background, PixUI.Color.Empty)) {
-      this.Canvas.drawRect(PixUI.Rect.FromLTWH(0, 0, this.Width, this.Height), PixUI.PaintUtils.Shared(this.Background));
-    }
-    if (this.MotionCanvas.StartPoint == null || this.MotionCanvas.StartPoint.X == 0 && this.MotionCanvas.StartPoint.Y == 0)
-      return;
-    this.Canvas.translate(this.MotionCanvas.StartPoint.X, this.MotionCanvas.StartPoint.Y);
+    l.OpInequality(this.Background, d.Color.Empty) && this.Canvas.drawRect(d.Rect.FromLTWH(0, 0, this.Width, this.Height), d.PaintUtils.Shared(this.Background)), !(this.MotionCanvas.StartPoint == null || this.MotionCanvas.StartPoint.X == 0 && this.MotionCanvas.StartPoint.Y == 0) && this.Canvas.translate(this.MotionCanvas.StartPoint.X, this.MotionCanvas.StartPoint.Y);
   }
   OnEndDraw() {
   }
 }
-class LineSeries extends LiveChartsCore.LineSeries {
-  constructor(isStacked = false) {
-    super(() => new CircleGeometry(), () => new LabelGeometry(), () => new CubicBezierAreaGeometry(), () => new BezierPoint(new CircleGeometry()), isStacked);
+class Ht extends n.LineSeries {
+  constructor(i = !1) {
+    super(
+      () => new w(),
+      () => new S(),
+      () => new tt(),
+      () => new Q(new w()),
+      i
+    );
   }
 }
-class RowSeries extends LiveChartsCore.RowSeries {
+class Bt extends n.RowSeries {
   constructor() {
-    super(() => new RoundedRectangleGeometry(), () => new LabelGeometry());
+    super(() => new T(), () => new S());
   }
 }
-class StepLineSeries extends LiveChartsCore.StepLineSeries {
+class Wt extends n.StepLineSeries {
   constructor() {
-    super(() => new CircleGeometry(), () => new LabelGeometry(), () => new StepLineAreaGeometry(), () => new StepPoint(() => new CircleGeometry()));
+    super(
+      () => new w(),
+      () => new S(),
+      () => new gt(),
+      () => new dt(() => new w())
+    );
   }
 }
-class HeatLandSeries extends LiveChartsCore.HeatLandSeries {
+class Et extends n.HeatLandSeries {
   constructor() {
-    super();
-    throw new System.NotImplementedException();
+    throw super(), new l.NotImplementedException();
   }
 }
-class PieSeries extends LiveChartsCore.PieSeries {
-  constructor(isGauge = false, isGaugeFill = false) {
-    super(() => new DoughnutGeometry(), () => new LabelGeometry(), () => new CircleGeometry(), isGauge, isGaugeFill);
+class q extends n.PieSeries {
+  constructor(i = !1, t = !1) {
+    super(
+      () => new X(),
+      () => new S(),
+      () => new w(),
+      i,
+      t
+    );
   }
 }
-class CandlesticksSeries extends LiveChartsCore.FinancialSeries {
+class Yt extends n.FinancialSeries {
   constructor() {
-    super(() => new CandlestickGeometry(), () => new LabelGeometry(), () => new CircleGeometry());
+    super(
+      () => new Ot(),
+      () => new S(),
+      () => new w()
+    );
   }
 }
-class HeatSeries extends LiveChartsCore.HeatSeries {
+class Xt extends n.HeatSeries {
   constructor() {
-    super(() => new ColoredRectangleGeometry(), () => new LabelGeometry());
+    super(() => new zt(), () => new S());
   }
 }
-class ScatterSeries extends LiveChartsCore.ScatterSeries {
+class Kt extends n.ScatterSeries {
   constructor() {
-    super(() => new CircleGeometry(), () => new LabelGeometry());
+    super(() => new w(), () => new S());
   }
 }
-class StackedAreaSeries extends LiveChartsCore.StackedAreaSeries {
+class Nt extends n.StackedAreaSeries {
   constructor() {
-    super(() => new CircleGeometry(), () => new LabelGeometry(), () => new CubicBezierAreaGeometry(), () => new BezierPoint(new CircleGeometry()));
+    super(
+      () => new w(),
+      () => new S(),
+      () => new tt(),
+      () => new Q(new w())
+    );
   }
 }
-class StackedRowSeries extends LiveChartsCore.StackedRowSeries {
+class Ut extends n.StackedRowSeries {
   constructor() {
-    super(() => new RoundedRectangleGeometry(), () => new LabelGeometry());
+    super(() => new T(), () => new S());
   }
 }
-class StackedColumnSeries extends LiveChartsCore.StackedColumnSeries {
+class $t extends n.StackedColumnSeries {
   constructor() {
-    super(() => new RoundedRectangleGeometry(), () => new LabelGeometry());
+    super(() => new T(), () => new S());
   }
 }
-class DrawingFluentExtensions {
-  static Draw(canvas) {
-    return new DrawingCanvas(canvas);
+class J {
+  static Draw(i) {
+    return new vt(i);
   }
 }
-class DrawingCanvas {
-  constructor(canvas) {
-    __publicField(this, "_selectedPaint");
-    __privateAdd(this, _Canvas, void 0);
-    this.Canvas = canvas;
+var V;
+class vt {
+  constructor(i) {
+    o(this, "_selectedPaint");
+    A(this, V, void 0);
+    this.Canvas = i;
   }
   get Canvas() {
-    return __privateGet(this, _Canvas);
+    return R(this, V);
   }
-  set Canvas(value) {
-    __privateSet(this, _Canvas, value);
+  set Canvas(i) {
+    I(this, V, i);
   }
-  SelectPaint(paint) {
-    this._selectedPaint = paint;
-    this.Canvas.AddDrawableTask(this._selectedPaint);
-    return this;
+  SelectPaint(i) {
+    return this._selectedPaint = i, this.Canvas.AddDrawableTask(this._selectedPaint), this;
   }
-  SelectColor(color, strokeWidth = null, isFill = null) {
-    strokeWidth ?? (strokeWidth = 1);
-    isFill ?? (isFill = false);
-    let paint = SolidColorPaint.MakeByColorAndStroke(color, strokeWidth);
-    paint.IsFill = isFill;
-    return this.SelectPaint(paint);
+  SelectColor(i, t = null, s = null) {
+    t ?? (t = 1), s ?? (s = !1);
+    let r = c.MakeByColorAndStroke(i, t);
+    return r.IsFill = s, this.SelectPaint(r);
   }
-  SetClip(clipRectangle) {
-    if (clipRectangle == null)
+  SetClip(i) {
+    if (i == null)
       return this;
     if (this._selectedPaint == null)
-      throw new System.Exception("There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
-    this._selectedPaint.SetClipRectangle(this.Canvas, clipRectangle.Clone());
-    return this;
+      throw new l.Exception("There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
+    return this._selectedPaint.SetClipRectangle(this.Canvas, i.Clone()), this;
   }
-  Draw(drawable) {
+  Draw(i) {
     if (this._selectedPaint == null)
-      throw new System.Exception("There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
-    this._selectedPaint.AddGeometryToPaintTask(this.Canvas, drawable);
-    return this;
+      throw new l.Exception("There is no paint selected, please select a paint (By calling a Select method) to add the geometry to.");
+    return this._selectedPaint.AddGeometryToPaintTask(this.Canvas, i), this;
   }
 }
-_Canvas = new WeakMap();
-class RectangularSection extends LiveChartsCore.Section2 {
+V = new WeakMap();
+class jt extends n.Section2 {
   constructor() {
-    super(() => new RectangleGeometry());
+    super(() => new et());
   }
 }
-class PolarAxis extends LiveChartsCore.PolarAxis {
+class kt extends n.PolarAxis {
   constructor() {
-    super(() => new LabelGeometry(), () => new LineGeometry(), () => new CircleGeometry());
+    super(
+      () => new S(),
+      () => new mt(),
+      () => new w()
+    );
   }
 }
-class Axis extends LiveChartsCore.Axis {
+class L extends n.Axis {
   constructor() {
-    super(() => new LabelGeometry(), () => new LineGeometry());
+    super(() => new S(), () => new mt());
   }
 }
-class MapFactory {
+class Tt {
   constructor() {
-    __publicField(this, "_usedPathShapes", new System.HashSet());
-    __publicField(this, "_usedPaints", new System.HashSet());
-    __publicField(this, "_usedLayers", new System.HashSet());
-    __publicField(this, "_mapView");
+    o(this, "_usedPathShapes", new l.HashSet());
+    o(this, "_usedPaints", new l.HashSet());
+    o(this, "_usedLayers", new l.HashSet());
+    o(this, "_mapView");
   }
-  GenerateLands(context) {
-    let projector = context.Projector;
-    let toRemoveLayers = new System.HashSet(this._usedLayers);
-    let toRemovePathShapes = new System.HashSet(this._usedPathShapes);
-    let toRemovePaints = new System.HashSet(this._usedPaints);
-    let layersQuery = context.View.ActiveMap.Layers.Values.Where((x) => x.IsVisible).OrderByDescending((x) => x.ProcessIndex);
-    this._mapView = context.View;
-    for (const layer of layersQuery) {
-      let stroke = layer.Stroke;
-      let fill = layer.Fill;
-      if (fill != null) {
-        context.View.Canvas.AddDrawableTask(fill);
-        this._usedPaints.Add(fill);
-        toRemovePaints.Remove(fill);
-      }
-      if (stroke != null) {
-        context.View.Canvas.AddDrawableTask(stroke);
-        this._usedPaints.Add(stroke);
-        toRemovePaints.Remove(stroke);
-      }
-      this._usedLayers.Add(layer.Name);
-      toRemoveLayers.Remove(layer.Name);
-      for (const landDefinition of layer.Lands.Values) {
-        for (const landData of landDefinition.Data) {
-          let shape;
-          if (landData.Shape == null) {
-            landData.Shape = shape = new HeatPathShape().Init({ IsClosed: true });
-            LiveChartsCore.Extensions.TransitionateProperties(shape, "FillColor").WithAnimationBuilder((animation) => animation.WithDuration(System.TimeSpan.FromMilliseconds(800)).WithEasingFunction(LiveChartsCore.EasingFunctions.ExponentialOut));
-          } else {
-            shape = landData.Shape;
-          }
-          this._usedPathShapes.Add(shape);
-          toRemovePathShapes.Remove(shape);
-          stroke?.AddGeometryToPaintTask(context.View.Canvas, shape);
-          fill?.AddGeometryToPaintTask(context.View.Canvas, shape);
-          shape.ClearCommands();
-          let isFirst = true;
-          for (const point of landData.Coordinates) {
-            let p = projector.ToMap(new Float64Array([point.X, point.Y]));
-            let x = p[0];
-            let y = p[1];
-            if (isFirst) {
-              shape.AddLast(new MoveToPathCommand().Init({ X: x, Y: y }));
-              isFirst = false;
+  GenerateLands(i) {
+    let t = i.Projector, s = new l.HashSet(this._usedLayers), r = new l.HashSet(this._usedPathShapes), e = new l.HashSet(this._usedPaints), a = i.View.ActiveMap.Layers.Values.Where((h) => h.IsVisible).OrderByDescending((h) => h.ProcessIndex, l.NumberComparer);
+    this._mapView = i.View;
+    for (const h of a) {
+      let g = h.Stroke, C = h.Fill;
+      C != null && (i.View.Canvas.AddDrawableTask(C), this._usedPaints.Add(C), e.Remove(C)), g != null && (i.View.Canvas.AddDrawableTask(g), this._usedPaints.Add(g), e.Remove(g)), this._usedLayers.Add(h.Name), s.Remove(h.Name);
+      for (const m of h.Lands.Values)
+        for (const P of m.Data) {
+          let y;
+          P.Shape == null ? (P.Shape = y = new Vt().Init({ IsClosed: !0 }), n.Extensions.TransitionateProperties(
+            y,
+            "FillColor"
+          ).WithAnimationBuilder((_) => _.WithDuration(l.TimeSpan.FromMilliseconds(800)).WithEasingFunction(n.EasingFunctions.ExponentialOut))) : y = P.Shape, this._usedPathShapes.Add(y), r.Remove(y), g?.AddGeometryToPaintTask(i.View.Canvas, y), C?.AddGeometryToPaintTask(i.View.Canvas, y), y.ClearCommands();
+          let f = !0;
+          for (const _ of P.Coordinates) {
+            let v = t.ToMap(new Float64Array([_.X, _.Y])), k = v[0], rt = v[1];
+            if (f) {
+              y.AddLast(new Lt().Init({ X: k, Y: rt })), f = !1;
               continue;
             }
-            shape.AddLast(new LineSegment().Init({ X: x, Y: y }));
+            y.AddLast(new xt().Init({ X: k, Y: rt }));
           }
         }
-      }
-      for (const shape of toRemovePathShapes) {
-        stroke?.RemoveGeometryFromPainTask(context.View.Canvas, shape);
-        fill?.RemoveGeometryFromPainTask(context.View.Canvas, shape);
-        shape.ClearCommands();
-        this._usedPathShapes.Remove(shape);
-      }
+      for (const m of r)
+        g?.RemoveGeometryFromPainTask(i.View.Canvas, m), C?.RemoveGeometryFromPainTask(i.View.Canvas, m), m.ClearCommands(), this._usedPathShapes.Remove(m);
     }
-    for (const paint of toRemovePaints) {
-      this._usedPaints.Remove(paint);
-      context.View.Canvas.RemovePaintTask(paint);
-    }
-    for (const layerName of toRemoveLayers) {
-      context.MapFile.Layers.Remove(layerName);
-      this._usedLayers.Remove(layerName);
-    }
+    for (const h of e)
+      this._usedPaints.Remove(h), i.View.Canvas.RemovePaintTask(h);
+    for (const h of s)
+      i.MapFile.Layers.Remove(h), this._usedLayers.Remove(h);
   }
-  ViewTo(sender, command) {
+  ViewTo(i, t) {
   }
-  Pan(sender, delta) {
+  Pan(i, t) {
   }
   Dispose() {
     if (this._mapView != null) {
-      let layersQuery = this._mapView.ActiveMap.Layers.Values.Where((x) => x.IsVisible).OrderByDescending((x) => x.ProcessIndex);
-      for (const layer of layersQuery) {
-        let stroke = layer.Stroke;
-        let fill = layer.Fill;
-        for (const landDefinition of layer.Lands.Values) {
-          for (const landData of landDefinition.Data) {
-            let shape = landData.Shape;
-            if (shape == null)
-              continue;
-            stroke?.RemoveGeometryFromPainTask(this._mapView.Canvas, shape);
-            fill?.AddGeometryToPaintTask(this._mapView.Canvas, shape);
-            landData.Shape = null;
+      let i = this._mapView.ActiveMap.Layers.Values.Where((t) => t.IsVisible).OrderByDescending((t) => t.ProcessIndex, l.NumberComparer);
+      for (const t of i) {
+        let s = t.Stroke, r = t.Fill;
+        for (const e of t.Lands.Values)
+          for (const a of e.Data) {
+            let h = a.Shape;
+            h != null && (s?.RemoveGeometryFromPainTask(this._mapView.Canvas, h), r?.AddGeometryToPaintTask(this._mapView.Canvas, h), a.Shape = null);
           }
-        }
-        for (const paint of this._usedPaints) {
-          this._mapView.Canvas.RemovePaintTask(paint);
-          paint.ClearGeometriesFromPaintTask(this._mapView.Canvas);
-        }
-        this._mapView.Canvas.RemovePaintTask(stroke);
-        this._mapView.Canvas.RemovePaintTask(fill);
+        for (const e of this._usedPaints)
+          this._mapView.Canvas.RemovePaintTask(e), e.ClearGeometriesFromPaintTask(this._mapView.Canvas);
+        this._mapView.Canvas.RemovePaintTask(s), this._mapView.Canvas.RemovePaintTask(r);
       }
     }
-    this._usedPathShapes.Clear();
-    this._usedLayers.Clear();
-    this._usedPaints.Clear();
+    this._usedPathShapes.Clear(), this._usedLayers.Clear(), this._usedPaints.Clear();
   }
 }
-class SkiaSharpProvider extends LiveChartsCore.ChartEngine {
+class Rt extends n.ChartEngine {
   GetDefaultMapFactory() {
-    return new MapFactory();
+    return new Tt();
   }
   GetDefaultCartesianAxis() {
-    return new Axis();
+    return new L();
   }
   GetDefaultPolarAxis() {
-    return new PolarAxis();
+    return new kt();
   }
-  GetSolidColorPaint(color) {
-    return new SolidColorPaint().Init({ Color: new PixUI.Color(color.R, color.G, color.B, color.A) });
+  GetSolidColorPaint(i) {
+    return new c().Init({ Color: new d.Color(i.R, i.G, i.B, i.A) });
   }
 }
-class DrawMarginFrame extends LiveChartsCore.DrawMarginFrame2 {
+class qt extends n.DrawMarginFrame2 {
   constructor() {
-    super(() => new RectangleGeometry());
+    super(() => new et());
   }
 }
-const _LiveChartsSkiaSharp = class {
+const x = class {
   static get DefaultPlatformBuilder() {
-    return (settings) => ThemesExtensions.AddLightTheme(_LiveChartsSkiaSharp.AddSkiaSharp(settings));
+    return (i) => p.AddLightTheme(
+      x.AddSkiaSharp(
+        i
+      )
+    );
   }
-  static UseDefaults(settings) {
-    return ThemesExtensions.AddLightTheme(_LiveChartsSkiaSharp.AddSkiaSharp(settings));
+  static UseDefaults(i) {
+    return p.AddLightTheme(
+      x.AddSkiaSharp(
+        i
+      )
+    );
   }
-  static AddSkiaSharp(settings) {
-    return settings.HasProvider(new SkiaSharpProvider());
+  static AddSkiaSharp(i) {
+    return i.HasProvider(new Rt());
   }
-  static WithGlobalSKTypeface(settings, typeface) {
-    if (!LiveChartsCore.LiveCharts.IsConfigured)
-      LiveChartsCore.LiveCharts.Configure(_LiveChartsSkiaSharp.DefaultPlatformBuilder);
-    _LiveChartsSkiaSharp.DefaultSKTypeface = typeface;
-    return settings;
+  static WithGlobalSKTypeface(i, t) {
+    return n.LiveCharts.IsConfigured || n.LiveCharts.Configure(x.DefaultPlatformBuilder), x.DefaultSKTypeface = t, i;
   }
-  static AsSKColor(color, alphaOverrides = null) {
-    return new PixUI.Color(color.R, color.G, color.B, alphaOverrides ?? color.A);
+  static AsSKColor(i, t = null) {
+    return new d.Color(i.R, i.G, i.B, t ?? i.A);
   }
-  static WithOpacity(color, opacity) {
-    return LiveChartsCore.LvcColor.FromColorWithAlpha(opacity, color.Clone());
+  static WithOpacity(i, t) {
+    return n.LvcColor.FromColorWithAlpha(t, i.Clone());
   }
-  static AsLvcColor(color) {
-    return new LiveChartsCore.LvcColor(color.Red, color.Green, color.Blue, color.Alpha);
+  static AsLvcColor(i) {
+    return new n.LvcColor(i.Red, i.Green, i.Blue, i.Alpha);
   }
-  static AsLiveChartsPieSeries(source, buider = null) {
-    buider ?? (buider = (instance, series) => {
-    });
-    return new System.ObservableCollection(source.Select((instance) => {
-      let series = new PieSeries().Init({ Values: new System.ObservableCollection().Init([instance]) });
-      buider(instance, series);
-      return series;
+  static AsLiveChartsPieSeries(i, t = null) {
+    return t ?? (t = (s, r) => {
+    }), new l.ObservableCollection(i.Select((s) => {
+      let r = new q().Init({ Values: new l.ObservableCollection().Init([s]) });
+      return t(s, r), r;
     }).ToArray());
   }
-  static GetDistanceTo(target, location) {
-    let dataCoordinates = LiveChartsCore.LvcPointD.Empty.Clone();
-    let x = 0;
-    let y = 0;
-    if (LiveChartsCore.IsInterfaceOfICartesianChartView(target.Context)) {
-      const cartesianChart = target.Context;
-      dataCoordinates = cartesianChart.ScalePixelsToData(new LiveChartsCore.LvcPointD(location.X, location.Y));
-      let cartesianSeries = target.Context.Series;
-      if ((target.Context.Series.SeriesProperties & LiveChartsCore.SeriesProperties.PrimaryAxisHorizontalOrientation) == LiveChartsCore.SeriesProperties.PrimaryAxisHorizontalOrientation) {
-        let primaryAxis = cartesianChart.Core.YAxes[cartesianSeries.ScalesYAt];
-        let secondaryAxis = cartesianChart.Core.XAxes[cartesianSeries.ScalesXAt];
-        let drawLocation = cartesianChart.Core.DrawMarginLocation.Clone();
-        let drawMarginSize = cartesianChart.Core.DrawMarginSize.Clone();
-        let secondaryScale = LiveChartsCore.Scaler.Make(drawLocation.Clone(), drawMarginSize.Clone(), primaryAxis);
-        let primaryScale = LiveChartsCore.Scaler.Make(drawLocation.Clone(), drawMarginSize.Clone(), secondaryAxis);
-        x = secondaryScale.ToPixels(target.SecondaryValue);
-        y = primaryScale.ToPixels(target.PrimaryValue);
+  static GetDistanceTo(i, t) {
+    let s = n.LvcPointD.Empty.Clone(), r = 0, e = 0;
+    if (n.IsInterfaceOfICartesianChartView(i.Context)) {
+      const C = i.Context;
+      s = C.ScalePixelsToData(new n.LvcPointD(t.X, t.Y));
+      let m = i.Context.Series;
+      if ((i.Context.Series.SeriesProperties & n.SeriesProperties.PrimaryAxisHorizontalOrientation) == n.SeriesProperties.PrimaryAxisHorizontalOrientation) {
+        let P = C.Core.YAxes[m.ScalesYAt], y = C.Core.XAxes[m.ScalesXAt], f = C.Core.DrawMarginLocation.Clone(), _ = C.Core.DrawMarginSize.Clone(), v = n.Scaler.Make(f.Clone(), _.Clone(), P), k = n.Scaler.Make(f.Clone(), _.Clone(), y);
+        r = v.ToPixels(i.SecondaryValue), e = k.ToPixels(i.PrimaryValue);
       } else {
-        let primaryAxis = cartesianChart.Core.YAxes[cartesianSeries.ScalesXAt];
-        let secondaryAxis = cartesianChart.Core.XAxes[cartesianSeries.ScalesYAt];
-        let drawLocation = cartesianChart.Core.DrawMarginLocation.Clone();
-        let drawMarginSize = cartesianChart.Core.DrawMarginSize.Clone();
-        let secondaryScale = LiveChartsCore.Scaler.Make(drawLocation.Clone(), drawMarginSize.Clone(), secondaryAxis);
-        let primaryScale = LiveChartsCore.Scaler.Make(drawLocation.Clone(), drawMarginSize.Clone(), primaryAxis);
-        x = secondaryScale.ToPixels(target.SecondaryValue);
-        y = primaryScale.ToPixels(target.PrimaryValue);
+        let P = C.Core.YAxes[m.ScalesXAt], y = C.Core.XAxes[m.ScalesYAt], f = C.Core.DrawMarginLocation.Clone(), _ = C.Core.DrawMarginSize.Clone(), v = n.Scaler.Make(f.Clone(), _.Clone(), y), k = n.Scaler.Make(f.Clone(), _.Clone(), P);
+        r = v.ToPixels(i.SecondaryValue), e = k.ToPixels(i.PrimaryValue);
       }
-    } else if (LiveChartsCore.IsInterfaceOfIPolarChartView(target.Context)) {
-      const polarChart = target.Context;
-      dataCoordinates = polarChart.ScalePixelsToData(new LiveChartsCore.LvcPointD(location.X, location.Y));
-      let polarSeries = target.Context.Series;
-      let angleAxis = polarChart.Core.AngleAxes[polarSeries.ScalesAngleAt];
-      let radiusAxis = polarChart.Core.RadiusAxes[polarSeries.ScalesRadiusAt];
-      let drawLocation = polarChart.Core.DrawMarginLocation.Clone();
-      let drawMarginSize = polarChart.Core.DrawMarginSize.Clone();
-      let scaler = new LiveChartsCore.PolarScaler(drawLocation.Clone(), drawMarginSize.Clone(), angleAxis, radiusAxis, polarChart.Core.InnerRadius, polarChart.Core.InitialRotation, polarChart.Core.TotalAnge);
-      let scaled = scaler.ToPixelsFromCharPoint(target);
-      x = scaled.X;
-      y = scaled.Y;
-    } else {
-      throw new System.NotImplementedException();
-    }
-    let dx = dataCoordinates.X - x;
-    let dy = dataCoordinates.Y - y;
-    let distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    return distance;
+    } else if (n.IsInterfaceOfIPolarChartView(i.Context)) {
+      const C = i.Context;
+      s = C.ScalePixelsToData(new n.LvcPointD(t.X, t.Y));
+      let m = i.Context.Series, P = C.Core.AngleAxes[m.ScalesAngleAt], y = C.Core.RadiusAxes[m.ScalesRadiusAt], f = C.Core.DrawMarginLocation.Clone(), _ = C.Core.DrawMarginSize.Clone(), k = new n.PolarScaler(
+        f.Clone(),
+        _.Clone(),
+        P,
+        y,
+        C.Core.InnerRadius,
+        C.Core.InitialRotation,
+        C.Core.TotalAnge
+      ).ToPixelsFromCharPoint(i);
+      r = k.X, e = k.Y;
+    } else
+      throw new l.NotImplementedException();
+    let a = s.X - r, h = s.Y - e;
+    return Math.sqrt(Math.pow(a, 2) + Math.pow(h, 2));
   }
 };
-let LiveChartsSkiaSharp = _LiveChartsSkiaSharp;
-__publicField(LiveChartsSkiaSharp, "DefaultSKTypeface");
-class BaseGeometryVisual extends LiveChartsCore.VisualElement {
+let M = x;
+o(M, "DefaultSKTypeface");
+class at extends n.VisualElement {
   constructor() {
     super(...arguments);
-    __publicField(this, "_width", 0);
-    __publicField(this, "_height", 0);
-    __publicField(this, "_fill");
-    __publicField(this, "_stroke");
-    __publicField(this, "SizeUnit", LiveChartsCore.MeasureUnit.Pixels);
+    o(this, "_width", 0);
+    o(this, "_height", 0);
+    o(this, "_fill");
+    o(this, "_stroke");
+    o(this, "SizeUnit", n.MeasureUnit.Pixels);
   }
   get Width() {
     return this._width;
   }
-  set Width(value) {
-    this._width = value;
-    this.OnPropertyChanged("Width");
+  set Width(t) {
+    this._width = t, this.OnPropertyChanged("Width");
   }
   get Height() {
     return this._height;
   }
-  set Height(value) {
-    this._height = value;
-    this.OnPropertyChanged("Height");
+  set Height(t) {
+    this._height = t, this.OnPropertyChanged("Height");
   }
   get Fill() {
     return this._fill;
   }
-  set Fill(value) {
-    this.SetPaintProperty(new System.Ref(() => this._fill, ($v) => this._fill = $v), value);
+  set Fill(t) {
+    this.SetPaintProperty(new l.Ref(() => this._fill, (s) => this._fill = s), t, void 0, "Fill");
   }
   get Stroke() {
     return this._stroke;
   }
-  set Stroke(value) {
-    this.SetPaintProperty(new System.Ref(() => this._stroke, ($v) => this._stroke = $v), value, true, "Stroke");
+  set Stroke(t) {
+    this.SetPaintProperty(new l.Ref(() => this._stroke, (s) => this._stroke = s), t, !0, "Stroke");
   }
   GetPaintTasks() {
     return [this._fill, this._stroke];
   }
-  OnPaintChanged(propertyName) {
-    super.OnPaintChanged(propertyName);
-    this.OnPropertyChanged(propertyName);
+  OnPaintChanged(t) {
+    super.OnPaintChanged(t), this.OnPropertyChanged(t);
   }
 }
-class LabelVisual extends LiveChartsCore.VisualElement {
+class lt extends n.VisualElement {
   constructor() {
     super(...arguments);
-    __publicField(this, "_labelGeometry");
-    __publicField(this, "_paint");
-    __publicField(this, "_isVirtual", false);
-    __publicField(this, "_text", "");
-    __publicField(this, "_textSize", 12);
-    __publicField(this, "_verticalAlignment", LiveChartsCore.Align.Middle);
-    __publicField(this, "_horizontalAlignment", LiveChartsCore.Align.Middle);
-    __publicField(this, "_backgroundColor", LiveChartsCore.LvcColor.Empty.Clone());
-    __publicField(this, "_padding", LiveChartsCore.Padding.All(0));
-    __publicField(this, "_rotation", 0);
-    __publicField(this, "_lineHeight", 1.75);
-    __publicField(this, "_translate", new LiveChartsCore.LvcPoint().Clone());
-    __publicField(this, "_actualSize", new LiveChartsCore.LvcSize().Clone());
-    __publicField(this, "_targetPosition", new LiveChartsCore.LvcPoint().Clone());
+    o(this, "_labelGeometry");
+    o(this, "_paint");
+    o(this, "_isVirtual", !1);
+    o(this, "_text", "");
+    o(this, "_textSize", 12);
+    o(this, "_verticalAlignment", n.Align.Middle);
+    o(this, "_horizontalAlignment", n.Align.Middle);
+    o(this, "_backgroundColor", n.LvcColor.Empty.Clone());
+    o(this, "_padding", n.Padding.All(0));
+    o(this, "_rotation", 0);
+    o(this, "_lineHeight", 1.75);
+    o(this, "_translate", new n.LvcPoint().Clone());
+    o(this, "_actualSize", new n.LvcSize().Clone());
+    o(this, "_targetPosition", new n.LvcPoint().Clone());
   }
   get Paint() {
     return this._paint;
   }
-  set Paint(value) {
-    this.SetPaintProperty(new System.Ref(() => this._paint, ($v) => this._paint = $v), value);
+  set Paint(t) {
+    this.SetPaintProperty(new l.Ref(() => this._paint, (s) => this._paint = s), t, void 0, "Paint");
   }
   get Text() {
     return this._text;
   }
-  set Text(value) {
-    this._text = value;
-    this.OnPropertyChanged("Text");
+  set Text(t) {
+    this._text = t, this.OnPropertyChanged("Text");
   }
   get TextSize() {
     return this._textSize;
   }
-  set TextSize(value) {
-    this._textSize = value;
-    this.OnPropertyChanged("TextSize");
+  set TextSize(t) {
+    this._textSize = t, this.OnPropertyChanged("TextSize");
   }
   get Rotation() {
     return this._rotation;
   }
-  set Rotation(value) {
-    this._rotation = value;
-    this.OnPropertyChanged("Rotation");
+  set Rotation(t) {
+    this._rotation = t, this.OnPropertyChanged("Rotation");
   }
   get Translate() {
     return this._translate;
   }
-  set Translate(value) {
-    this._translate = value.Clone();
-    this.OnPropertyChanged("Translate");
+  set Translate(t) {
+    this._translate = t.Clone(), this.OnPropertyChanged("Translate");
   }
   get VerticalAlignment() {
     return this._verticalAlignment;
   }
-  set VerticalAlignment(value) {
-    this._verticalAlignment = value;
-    this.OnPropertyChanged("VerticalAlignment");
+  set VerticalAlignment(t) {
+    this._verticalAlignment = t, this.OnPropertyChanged("VerticalAlignment");
   }
   get HorizontalAlignment() {
     return this._horizontalAlignment;
   }
-  set HorizontalAlignment(value) {
-    this._horizontalAlignment = value;
-    this.OnPropertyChanged("HorizontalAlignment");
+  set HorizontalAlignment(t) {
+    this._horizontalAlignment = t, this.OnPropertyChanged("HorizontalAlignment");
   }
   get BackgroundColor() {
     return this._backgroundColor;
   }
-  set BackgroundColor(value) {
-    this._backgroundColor = value.Clone();
-    this.OnPropertyChanged("BackgroundColor");
+  set BackgroundColor(t) {
+    this._backgroundColor = t.Clone(), this.OnPropertyChanged("BackgroundColor");
   }
   get Padding() {
     return this._padding;
   }
-  set Padding(value) {
-    this._padding = value;
-    this.OnPropertyChanged("Padding");
+  set Padding(t) {
+    this._padding = t, this.OnPropertyChanged("Padding");
   }
   get LineHeight() {
     return this._lineHeight;
   }
-  set LineHeight(value) {
-    this._lineHeight = value;
-    this.OnPropertyChanged("LineHeight");
+  set LineHeight(t) {
+    this._lineHeight = t, this.OnPropertyChanged("LineHeight");
   }
   GetPaintTasks() {
     return [this._paint];
   }
   AlignToTopLeftCorner() {
-    this.VerticalAlignment = LiveChartsCore.Align.Start;
-    this.HorizontalAlignment = LiveChartsCore.Align.Start;
+    this.VerticalAlignment = n.Align.Start, this.HorizontalAlignment = n.Align.Start;
   }
-  OnInvalidated(chart, primaryScaler, secondaryScaler) {
-    let x = this.X;
-    let y = this.Y;
-    if (this.LocationUnit == LiveChartsCore.MeasureUnit.ChartValues) {
-      if (primaryScaler == null || secondaryScaler == null)
-        throw new System.Exception(`You can not use ${LiveChartsCore.MeasureUnit.ChartValues} scale at this element.`);
-      x = secondaryScaler.ToPixels(x);
-      y = primaryScaler.ToPixels(y);
+  OnInvalidated(t, s, r) {
+    let e = this.X, a = this.Y;
+    if (this.LocationUnit == n.MeasureUnit.ChartValues) {
+      if (s == null || r == null)
+        throw new l.Exception(`You can not use ${n.MeasureUnit.ChartValues} scale at this element.`);
+      e = r.ToPixels(e), a = s.ToPixels(a);
     }
-    this._targetPosition = new LiveChartsCore.LvcPoint(this.X + this._xc, this.Y + this._yc).Clone();
-    this.Measure(chart, primaryScaler, secondaryScaler);
-    if (this._labelGeometry == null) {
-      let cp = this.GetPositionRelativeToParent();
-      this._labelGeometry = new LabelGeometry().Init({
+    if (this._targetPosition = new n.LvcPoint(this.X + this._xc, this.Y + this._yc).Clone(), this.Measure(t, s, r), this._labelGeometry == null) {
+      let g = this.GetPositionRelativeToParent();
+      this._labelGeometry = new S().Init(
+        {
+          Text: this.Text,
+          TextSize: this.TextSize,
+          X: g.X,
+          Y: g.Y,
+          RotateTransform: this.Rotation,
+          TranslateTransform: this.Translate.Clone(),
+          VerticalAlign: this.VerticalAlignment,
+          HorizontalAlign: this.HorizontalAlignment,
+          Background: this.BackgroundColor.Clone(),
+          Padding: this.Padding
+        }
+      ), n.Extensions.TransitionateProperties(
+        this._labelGeometry
+      ).WithAnimationFromChart(t).CompleteCurrentTransitions();
+    }
+    this._labelGeometry.Text = this.Text, this._labelGeometry.TextSize = this.TextSize, this._labelGeometry.X = e + this._xc, this._labelGeometry.Y = a + this._yc, this._labelGeometry.RotateTransform = this.Rotation, this._labelGeometry.TranslateTransform = this.Translate.Clone(), this._labelGeometry.VerticalAlign = this.VerticalAlignment, this._labelGeometry.HorizontalAlign = this.HorizontalAlignment, this._labelGeometry.Background = this.BackgroundColor.Clone(), this._labelGeometry.Padding = this.Padding, this._labelGeometry.LineHeight = this.LineHeight;
+    let h = J.Draw(t.Canvas);
+    this.Paint != null && h.SelectPaint(this.Paint).Draw(this._labelGeometry);
+  }
+  Measure(t, s, r) {
+    let e = this._labelGeometry ?? new S().Init(
+      {
         Text: this.Text,
         TextSize: this.TextSize,
-        X: cp.X,
-        Y: cp.Y,
         RotateTransform: this.Rotation,
         TranslateTransform: this.Translate.Clone(),
         VerticalAlign: this.VerticalAlignment,
         HorizontalAlign: this.HorizontalAlignment,
         Background: this.BackgroundColor.Clone(),
         Padding: this.Padding
-      });
-      LiveChartsCore.Extensions.TransitionateProperties(this._labelGeometry).WithAnimationFromChart(chart).CompleteCurrentTransitions();
-    }
-    this._labelGeometry.Text = this.Text;
-    this._labelGeometry.TextSize = this.TextSize;
-    this._labelGeometry.X = x + this._xc;
-    this._labelGeometry.Y = y + this._yc;
-    this._labelGeometry.RotateTransform = this.Rotation;
-    this._labelGeometry.TranslateTransform = this.Translate.Clone();
-    this._labelGeometry.VerticalAlign = this.VerticalAlignment;
-    this._labelGeometry.HorizontalAlign = this.HorizontalAlignment;
-    this._labelGeometry.Background = this.BackgroundColor.Clone();
-    this._labelGeometry.Padding = this.Padding;
-    this._labelGeometry.LineHeight = this.LineHeight;
-    let drawing = DrawingFluentExtensions.Draw(chart.Canvas);
-    if (this.Paint != null)
-      drawing.SelectPaint(this.Paint).Draw(this._labelGeometry);
-  }
-  Measure(chart, primaryScaler, secondaryScaler) {
-    let l = this._labelGeometry ?? new LabelGeometry().Init({
-      Text: this.Text,
-      TextSize: this.TextSize,
-      RotateTransform: this.Rotation,
-      TranslateTransform: this.Translate.Clone(),
-      VerticalAlign: this.VerticalAlignment,
-      HorizontalAlign: this.HorizontalAlignment,
-      Background: this.BackgroundColor.Clone(),
-      Padding: this.Padding
-    });
-    return this._actualSize = (this._paint == null ? new LiveChartsCore.LvcSize() : l.Measure(this._paint)).Clone();
+      }
+    );
+    return this._actualSize = (this._paint == null ? new n.LvcSize() : e.Measure(this._paint)).Clone();
   }
   GetTargetSize() {
     return this._actualSize;
   }
   GetTargetLocation() {
-    let x = this._targetPosition.X;
-    let y = this._targetPosition.Y;
-    x += this.Translate.X;
-    y += this.Translate.Y;
-    let size = this.GetTargetSize();
-    if (this.HorizontalAlignment == LiveChartsCore.Align.Middle)
-      x -= size.Width * 0.5;
-    if (this.HorizontalAlignment == LiveChartsCore.Align.End)
-      x -= size.Width;
-    if (this.VerticalAlignment == LiveChartsCore.Align.Middle)
-      y -= size.Height * 0.5;
-    if (this.VerticalAlignment == LiveChartsCore.Align.End)
-      y -= size.Height;
-    return new LiveChartsCore.LvcPoint(x, y);
+    let t = this._targetPosition.X, s = this._targetPosition.Y;
+    t += this.Translate.X, s += this.Translate.Y;
+    let r = this.GetTargetSize();
+    return this.HorizontalAlignment == n.Align.Middle && (t -= r.Width * 0.5), this.HorizontalAlignment == n.Align.End && (t -= r.Width), this.VerticalAlignment == n.Align.Middle && (s -= r.Height * 0.5), this.VerticalAlignment == n.Align.End && (s -= r.Height), new n.LvcPoint(t, s);
   }
 }
-class GeometryVisual extends BaseGeometryVisual {
-  constructor(geometryFactory) {
+class Jt extends at {
+  constructor(t) {
     super();
-    __publicField(this, "_geometry");
-    __publicField(this, "_actualSize", new LiveChartsCore.LvcSize().Clone());
-    __publicField(this, "_targetLocation", new LiveChartsCore.LvcPoint().Clone());
-    __publicField(this, "_geometryFactory");
-    __publicField(this, "GeometryIntialized", new System.Event());
-    this._geometryFactory = geometryFactory;
+    o(this, "_geometry");
+    o(this, "_actualSize", new n.LvcSize().Clone());
+    o(this, "_targetLocation", new n.LvcPoint().Clone());
+    o(this, "_geometryFactory");
+    o(this, "GeometryIntialized", new l.Event());
+    this._geometryFactory = t;
   }
-  Measure(chart, primaryScaler, secondaryScaler) {
-    let w = this.Width;
-    let h = this.Height;
-    if (this.SizeUnit == LiveChartsCore.MeasureUnit.ChartValues) {
-      if (primaryScaler == null || secondaryScaler == null)
-        throw new System.Exception(`You can not use ${LiveChartsCore.MeasureUnit.ChartValues} scale at this element.`);
-      w = secondaryScaler.MeasureInPixels(w);
-      h = primaryScaler.MeasureInPixels(h);
+  Measure(t, s, r) {
+    let e = this.Width, a = this.Height;
+    if (this.SizeUnit == n.MeasureUnit.ChartValues) {
+      if (s == null || r == null)
+        throw new l.Exception(`You can not use ${n.MeasureUnit.ChartValues} scale at this element.`);
+      e = r.MeasureInPixels(e), a = s.MeasureInPixels(a);
     }
-    return this._actualSize = new LiveChartsCore.LvcSize(w, h);
+    return this._actualSize = new n.LvcSize(e, a);
   }
   GetTargetSize() {
     return this._actualSize;
   }
-  OnInvalidated(chart, primaryScaler, secondaryScaler) {
-    let x = this.X;
-    let y = this.Y;
-    if (this.LocationUnit == LiveChartsCore.MeasureUnit.ChartValues) {
-      if (primaryScaler == null || secondaryScaler == null)
-        throw new System.Exception(`You can not use ${LiveChartsCore.MeasureUnit.ChartValues} scale at this element.`);
-      x = secondaryScaler.ToPixels(x);
-      y = primaryScaler.ToPixels(y);
+  OnInvalidated(t, s, r) {
+    let e = this.X, a = this.Y;
+    if (this.LocationUnit == n.MeasureUnit.ChartValues) {
+      if (s == null || r == null)
+        throw new l.Exception(`You can not use ${n.MeasureUnit.ChartValues} scale at this element.`);
+      e = r.ToPixels(e), a = s.ToPixels(a);
     }
-    this._targetLocation = new LiveChartsCore.LvcPoint(this.X + this._xc, this.Y + this._yc).Clone();
-    this.Measure(chart, primaryScaler, secondaryScaler);
-    if (this._geometry == null) {
-      let cp = this.GetPositionRelativeToParent();
-      this._geometry = this._geometryFactory();
-      this._geometry.X = cp.X;
-      this._geometry.Y = cp.Y;
-      this._geometry.Width = this._actualSize.Width;
-      this._geometry.Height = this._actualSize.Height;
-      this.GeometryIntialized.Invoke(this._geometry);
-      LiveChartsCore.Extensions.TransitionateProperties(this._geometry).WithAnimationFromChart(chart).CompleteCurrentTransitions();
+    if (this._targetLocation = new n.LvcPoint(this.X + this._xc, this.Y + this._yc).Clone(), this.Measure(t, s, r), this._geometry == null) {
+      let g = this.GetPositionRelativeToParent();
+      this._geometry = this._geometryFactory(), this._geometry.X = g.X, this._geometry.Y = g.Y, this._geometry.Width = this._actualSize.Width, this._geometry.Height = this._actualSize.Height, this.GeometryIntialized.Invoke(this._geometry), n.Extensions.TransitionateProperties(
+        this._geometry
+      ).WithAnimationFromChart(t).CompleteCurrentTransitions();
     }
-    this._geometry.X = x + this._xc;
-    this._geometry.Y = y + this._yc;
-    this._geometry.Width = this._actualSize.Width;
-    this._geometry.Height = this._actualSize.Height;
-    let drawing = DrawingFluentExtensions.Draw(chart.Canvas);
-    if (this.Fill != null)
-      drawing.SelectPaint(this.Fill).Draw(this._geometry);
-    if (this.Stroke != null)
-      drawing.SelectPaint(this.Stroke).Draw(this._geometry);
+    this._geometry.X = e + this._xc, this._geometry.Y = a + this._yc, this._geometry.Width = this._actualSize.Width, this._geometry.Height = this._actualSize.Height;
+    let h = J.Draw(t.Canvas);
+    this.Fill != null && h.SelectPaint(this.Fill).Draw(this._geometry), this.Stroke != null && h.SelectPaint(this.Stroke).Draw(this._geometry);
   }
   GetTargetLocation() {
     return this._targetLocation;
   }
 }
-class VariableGeometryVisual extends BaseGeometryVisual {
-  constructor(geometry) {
+class At extends at {
+  constructor(t) {
     super();
-    __publicField(this, "_geometry");
-    __publicField(this, "_isInitialized", false);
-    __publicField(this, "_actualSize", new LiveChartsCore.LvcSize().Clone());
-    __publicField(this, "_targetPosition", new LiveChartsCore.LvcPoint().Clone());
-    __publicField(this, "GeometryIntialized", new System.Event());
-    this._geometry = geometry;
+    o(this, "_geometry");
+    o(this, "_isInitialized", !1);
+    o(this, "_actualSize", new n.LvcSize().Clone());
+    o(this, "_targetPosition", new n.LvcPoint().Clone());
+    o(this, "GeometryIntialized", new l.Event());
+    this._geometry = t;
   }
   get Geometry() {
     return this._geometry;
   }
-  set Geometry(value) {
-    if (this._geometry == value)
-      return;
-    this._geometry = value;
-    this._isInitialized = false;
-    this.OnPropertyChanged("Geometry");
+  set Geometry(t) {
+    this._geometry != t && (this._geometry = t, this._isInitialized = !1, this.OnPropertyChanged("Geometry"));
   }
-  Measure(chart, primaryScaler, secondaryScaler) {
-    let w = this.Width;
-    let h = this.Height;
-    if (this.SizeUnit == LiveChartsCore.MeasureUnit.ChartValues) {
-      if (primaryScaler == null || secondaryScaler == null)
-        throw new System.Exception(`You can not use ${LiveChartsCore.MeasureUnit.ChartValues} scale at this element.`);
-      w = secondaryScaler.MeasureInPixels(w);
-      h = primaryScaler.MeasureInPixels(h);
+  Measure(t, s, r) {
+    let e = this.Width, a = this.Height;
+    if (this.SizeUnit == n.MeasureUnit.ChartValues) {
+      if (s == null || r == null)
+        throw new l.Exception(`You can not use ${n.MeasureUnit.ChartValues} scale at this element.`);
+      e = r.MeasureInPixels(e), a = s.MeasureInPixels(a);
     }
-    return this._actualSize = new LiveChartsCore.LvcSize(w, h);
+    return this._actualSize = new n.LvcSize(e, a);
   }
   GetTargetSize() {
     return this._actualSize;
   }
-  OnInvalidated(chart, primaryScaler, secondaryScaler) {
-    let x = this.X;
-    let y = this.Y;
-    if (this.LocationUnit == LiveChartsCore.MeasureUnit.ChartValues) {
-      if (primaryScaler == null || secondaryScaler == null)
-        throw new System.Exception(`You can not use ${LiveChartsCore.MeasureUnit.ChartValues} scale at this element.`);
-      x = secondaryScaler.ToPixels(x);
-      y = primaryScaler.ToPixels(y);
+  OnInvalidated(t, s, r) {
+    let e = this.X, a = this.Y;
+    if (this.LocationUnit == n.MeasureUnit.ChartValues) {
+      if (s == null || r == null)
+        throw new l.Exception(`You can not use ${n.MeasureUnit.ChartValues} scale at this element.`);
+      e = r.ToPixels(e), a = s.ToPixels(a);
     }
-    this._targetPosition = new LiveChartsCore.LvcPoint(this.X + this._xc, this.Y + this._yc).Clone();
-    this.Measure(chart, primaryScaler, secondaryScaler);
-    if (!this._isInitialized) {
-      let cp = this.GetPositionRelativeToParent();
-      this.Geometry.X = cp.X;
-      this.Geometry.Y = cp.Y;
-      this.Geometry.Width = this._actualSize.Width;
-      this.Geometry.Height = this._actualSize.Height;
-      this.GeometryIntialized.Invoke(this.Geometry);
-      LiveChartsCore.Extensions.TransitionateProperties(this.Geometry).WithAnimationFromChart(chart).CompleteCurrentTransitions();
-      this._isInitialized = true;
+    if (this._targetPosition = new n.LvcPoint(this.X + this._xc, this.Y + this._yc).Clone(), this.Measure(t, s, r), !this._isInitialized) {
+      let g = this.GetPositionRelativeToParent();
+      this.Geometry.X = g.X, this.Geometry.Y = g.Y, this.Geometry.Width = this._actualSize.Width, this.Geometry.Height = this._actualSize.Height, this.GeometryIntialized.Invoke(this.Geometry), n.Extensions.TransitionateProperties(
+        this.Geometry
+      ).WithAnimationFromChart(t).CompleteCurrentTransitions(), this._isInitialized = !0;
     }
-    this.Geometry.X = x + this._xc;
-    this.Geometry.Y = y + this._yc;
-    this.Geometry.Width = this._actualSize.Width;
-    this.Geometry.Height = this._actualSize.Height;
-    let drawing = DrawingFluentExtensions.Draw(chart.Canvas);
-    if (this.Fill != null)
-      drawing.SelectPaint(this.Fill).Draw(this.Geometry);
-    if (this.Stroke != null)
-      drawing.SelectPaint(this.Stroke).Draw(this.Geometry);
+    this.Geometry.X = e + this._xc, this.Geometry.Y = a + this._yc, this.Geometry.Width = this._actualSize.Width, this.Geometry.Height = this._actualSize.Height;
+    let h = J.Draw(t.Canvas);
+    this.Fill != null && h.SelectPaint(this.Fill).Draw(this.Geometry), this.Stroke != null && h.SelectPaint(this.Stroke).Draw(this.Geometry);
   }
   GetTargetLocation() {
     return this._targetPosition;
   }
 }
-class VisualElementsExtensions {
-  static AsDrawnControl(sketch, baseZIndex = 10050) {
-    let relativePanel = new LiveChartsCore.RelativePanel().Init({
-      Size: new LiveChartsCore.LvcSize(sketch.Width, sketch.Height)
-    });
-    for (const schedule of sketch.PaintSchedules) {
-      for (const g of schedule.Geometries) {
-        let sizedGeometry = g;
-        let vgv = new VariableGeometryVisual(sizedGeometry).Init({
-          Width: sizedGeometry.Width,
-          Height: sizedGeometry.Height
-        });
-        schedule.PaintTask.ZIndex = schedule.PaintTask.ZIndex + 1 + baseZIndex;
-        if (schedule.PaintTask.IsFill)
-          vgv.Fill = schedule.PaintTask;
-        if (schedule.PaintTask.IsStroke)
-          vgv.Stroke = schedule.PaintTask;
-        relativePanel.Children.Add(vgv);
+class ht {
+  static AsDrawnControl(i, t = 10050) {
+    let s = new n.RelativePanel().Init(
+      {
+        Size: new n.LvcSize(i.Width, i.Height)
       }
-    }
-    return relativePanel;
+    );
+    for (const r of i.PaintSchedules)
+      for (const e of r.Geometries) {
+        let a = e, h = new At(a).Init(
+          {
+            Width: a.Width,
+            Height: a.Height
+          }
+        );
+        r.PaintTask.ZIndex = r.PaintTask.ZIndex + 1 + t, r.PaintTask.IsFill && (h.Fill = r.PaintTask), r.PaintTask.IsStroke && (h.Stroke = r.PaintTask), s.Children.Add(h);
+      }
+    return s;
   }
 }
-class StackedStepAreaSeries extends LiveChartsCore.StackedStepAreaSeries {
+class Zt extends n.StackedStepAreaSeries {
   constructor() {
-    super(() => new CircleGeometry(), () => new LabelGeometry(), () => new StepLineAreaGeometry(), () => new StepPoint(() => new CircleGeometry()));
+    super(
+      () => new w(),
+      () => new S(),
+      () => new gt(),
+      () => new dt(() => new w())
+    );
   }
 }
-class ColumnSeries extends LiveChartsCore.ColumnSeries {
+class Qt extends n.ColumnSeries {
   constructor() {
-    super(() => new RoundedRectangleGeometry(), () => new LabelGeometry());
+    super(() => new T(), () => new S());
   }
 }
-class ThemesExtensions {
-  static AddLightTheme(settings, additionalStyles = null) {
-    return settings.HasTheme((theme) => {
-      LiveChartsCore.LiveCharts.DefaultSettings.WithAnimationsSpeed(System.TimeSpan.FromMilliseconds(800)).WithEasingFunction(LiveChartsCore.EasingFunctions.ExponentialOut);
-      let colors = LiveChartsCore.ColorPalletes.MaterialDesign500;
-      LiveChartsCore.LiveChartsStylerExtensions.HasRuleForGaugeFillSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForGaugeSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForPolarLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForPieSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForScatterSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForFinancialSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForHeatSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStackedStepLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStackedBarSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForBarSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStackedLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStepLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForAxes(theme, (axis) => {
-        axis.TextSize = 16;
-        axis.ShowSeparatorLines = true;
-        axis.NamePaint = new SolidColorPaint().Init({ Color: new PixUI.Color(35, 35, 35) });
-        axis.LabelsPaint = new SolidColorPaint().Init({ Color: new PixUI.Color(70, 70, 70) });
-        if (LiveChartsCore.IsInterfaceOfICartesianAxis(axis)) {
-          const cartesian = axis;
-          axis.SeparatorsPaint = cartesian.Orientation == LiveChartsCore.AxisOrientation.X ? null : new SolidColorPaint().Init({ Color: new PixUI.Color(235, 235, 235) });
-          cartesian.Padding = LiveChartsCore.Padding.All(12);
-        } else {
-          axis.SeparatorsPaint = new SolidColorPaint().Init({ Color: new PixUI.Color(235, 235, 235) });
+class p {
+  static AddLightTheme(i, t = null) {
+    return i.HasTheme((s) => {
+      n.LiveCharts.DefaultSettings.WithAnimationsSpeed(l.TimeSpan.FromMilliseconds(800)).WithEasingFunction(n.EasingFunctions.ExponentialOut);
+      let r = n.ColorPalletes.MaterialDesign500;
+      n.LiveChartsStylerExtensions.HasRuleForGaugeFillSeries(
+        n.LiveChartsStylerExtensions.HasRuleForGaugeSeries(
+          n.LiveChartsStylerExtensions.HasRuleForPolarLineSeries(
+            n.LiveChartsStylerExtensions.HasRuleForPieSeries(
+              n.LiveChartsStylerExtensions.HasRuleForScatterSeries(
+                n.LiveChartsStylerExtensions.HasRuleForFinancialSeries(
+                  n.LiveChartsStylerExtensions.HasRuleForHeatSeries(
+                    n.LiveChartsStylerExtensions.HasRuleForStackedStepLineSeries(
+                      n.LiveChartsStylerExtensions.HasRuleForStackedBarSeries(
+                        n.LiveChartsStylerExtensions.HasRuleForBarSeries(
+                          n.LiveChartsStylerExtensions.HasRuleForStackedLineSeries(
+                            n.LiveChartsStylerExtensions.HasRuleForStepLineSeries(
+                              n.LiveChartsStylerExtensions.HasRuleForLineSeries(
+                                n.LiveChartsStylerExtensions.HasRuleForAxes(
+                                  s,
+                                  (e) => {
+                                    if (e.TextSize = 16, e.ShowSeparatorLines = !0, e.NamePaint = new c().Init({ Color: new d.Color(35, 35, 35) }), e.LabelsPaint = new c().Init({ Color: new d.Color(70, 70, 70) }), n.IsInterfaceOfICartesianAxis(e)) {
+                                      const a = e;
+                                      e.SeparatorsPaint = a.Orientation == n.AxisOrientation.X ? null : new c().Init({ Color: new d.Color(235, 235, 235) }), a.Padding = n.Padding.All(12);
+                                    } else
+                                      e.SeparatorsPaint = new c().Init({ Color: new d.Color(235, 235, 235) });
+                                  }
+                                ),
+                                (e) => {
+                                  let a = p.GetThemedColor(e, r);
+                                  e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 12, e.GeometryStroke = c.MakeByColorAndStroke(a, 4), e.GeometryFill = c.MakeByColor(new d.Color(250, 250, 250)), e.Stroke = c.MakeByColorAndStroke(a, 4), e.Fill = c.MakeByColor(a.WithAlpha(50));
+                                }
+                              ),
+                              (e) => {
+                                let a = p.GetThemedColor(e, r);
+                                e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 12, e.GeometryStroke = c.MakeByColorAndStroke(a, 4), e.GeometryFill = c.MakeByColor(new d.Color(250, 250, 250)), e.Stroke = c.MakeByColorAndStroke(a, 4), e.Fill = c.MakeByColor(a.WithAlpha(50));
+                              }
+                            ),
+                            (e) => {
+                              let a = p.GetThemedColor(e, r);
+                              e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 0, e.GeometryStroke = null, e.GeometryFill = null, e.Stroke = null, e.Fill = c.MakeByColor(a);
+                            }
+                          ),
+                          (e) => {
+                            let a = p.GetThemedColor(e, r);
+                            e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a), e.Rx = 4, e.Ry = 4;
+                          }
+                        ),
+                        (e) => {
+                          let a = p.GetThemedColor(e, r);
+                          e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a), e.Rx = 0, e.Ry = 0;
+                        }
+                      ),
+                      (e) => {
+                        let a = p.GetThemedColor(e, r);
+                        e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 0, e.GeometryStroke = null, e.GeometryFill = null, e.Stroke = null, e.Fill = c.MakeByColor(a);
+                      }
+                    ),
+                    (e) => {
+                    }
+                  ),
+                  (e) => {
+                    e.Name = `Series #${e.SeriesId + 1}`, e.UpFill = c.MakeByColor(new d.Color(139, 195, 74, 255)), e.UpStroke = c.MakeByColorAndStroke(new d.Color(139, 195, 74, 255), 3), e.DownFill = c.MakeByColor(new d.Color(239, 83, 80, 255)), e.DownStroke = c.MakeByColorAndStroke(new d.Color(239, 83, 80, 255), 3);
+                  }
+                ),
+                (e) => {
+                  let a = p.GetThemedColor(e, r);
+                  e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a.WithAlpha(200));
+                }
+              ),
+              (e) => {
+                let a = p.GetThemedColor(e, r);
+                e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a);
+              }
+            ),
+            (e) => {
+              let a = p.GetThemedColor(e, r);
+              e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 12, e.GeometryStroke = c.MakeByColorAndStroke(a, 4), e.GeometryFill = c.MakeByColor(new d.Color(250, 250, 250)), e.Stroke = c.MakeByColorAndStroke(a, 4), e.Fill = c.MakeByColor(a.WithAlpha(50));
+            }
+          ),
+          (e) => {
+            let a = p.GetThemedColor(e, r);
+            e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a), e.DataLabelsPosition = n.PolarLabelsPosition.ChartCenter, e.DataLabelsPaint = c.MakeByColor(new d.Color(70, 70, 70));
+          }
+        ),
+        (e) => {
+          e.Fill = c.MakeByColor(new d.Color(30, 30, 30, 10));
         }
-      }), (lineSeries) => {
-        let color = ThemesExtensions.GetThemedColor(lineSeries, colors);
-        lineSeries.Name = `Series #${lineSeries.SeriesId + 1}`;
-        lineSeries.GeometrySize = 12;
-        lineSeries.GeometryStroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        lineSeries.GeometryFill = SolidColorPaint.MakeByColor(new PixUI.Color(250, 250, 250));
-        lineSeries.Stroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        lineSeries.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(50));
-      }), (steplineSeries) => {
-        let color = ThemesExtensions.GetThemedColor(steplineSeries, colors);
-        steplineSeries.Name = `Series #${steplineSeries.SeriesId + 1}`;
-        steplineSeries.GeometrySize = 12;
-        steplineSeries.GeometryStroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        steplineSeries.GeometryFill = SolidColorPaint.MakeByColor(new PixUI.Color(250, 250, 250));
-        steplineSeries.Stroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        steplineSeries.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(50));
-      }), (stackedLine) => {
-        let color = ThemesExtensions.GetThemedColor(stackedLine, colors);
-        stackedLine.Name = `Series #${stackedLine.SeriesId + 1}`;
-        stackedLine.GeometrySize = 0;
-        stackedLine.GeometryStroke = null;
-        stackedLine.GeometryFill = null;
-        stackedLine.Stroke = null;
-        stackedLine.Fill = SolidColorPaint.MakeByColor(color);
-      }), (barSeries) => {
-        let color = ThemesExtensions.GetThemedColor(barSeries, colors);
-        barSeries.Name = `Series #${barSeries.SeriesId + 1}`;
-        barSeries.Stroke = null;
-        barSeries.Fill = SolidColorPaint.MakeByColor(color);
-        barSeries.Rx = 4;
-        barSeries.Ry = 4;
-      }), (stackedBarSeries) => {
-        let color = ThemesExtensions.GetThemedColor(stackedBarSeries, colors);
-        stackedBarSeries.Name = `Series #${stackedBarSeries.SeriesId + 1}`;
-        stackedBarSeries.Stroke = null;
-        stackedBarSeries.Fill = SolidColorPaint.MakeByColor(color);
-        stackedBarSeries.Rx = 0;
-        stackedBarSeries.Ry = 0;
-      }), (stackedStep) => {
-        let color = ThemesExtensions.GetThemedColor(stackedStep, colors);
-        stackedStep.Name = `Series #${stackedStep.SeriesId + 1}`;
-        stackedStep.GeometrySize = 0;
-        stackedStep.GeometryStroke = null;
-        stackedStep.GeometryFill = null;
-        stackedStep.Stroke = null;
-        stackedStep.Fill = SolidColorPaint.MakeByColor(color);
-      }), (heatSeries) => {
-      }), (financialSeries) => {
-        financialSeries.Name = `Series #${financialSeries.SeriesId + 1}`;
-        financialSeries.UpFill = SolidColorPaint.MakeByColor(new PixUI.Color(139, 195, 74, 255));
-        financialSeries.UpStroke = SolidColorPaint.MakeByColorAndStroke(new PixUI.Color(139, 195, 74, 255), 3);
-        financialSeries.DownFill = SolidColorPaint.MakeByColor(new PixUI.Color(239, 83, 80, 255));
-        financialSeries.DownStroke = SolidColorPaint.MakeByColorAndStroke(new PixUI.Color(239, 83, 80, 255), 3);
-      }), (scatterSeries) => {
-        let color = ThemesExtensions.GetThemedColor(scatterSeries, colors);
-        scatterSeries.Name = `Series #${scatterSeries.SeriesId + 1}`;
-        scatterSeries.Stroke = null;
-        scatterSeries.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(200));
-      }), (pieSeries) => {
-        let color = ThemesExtensions.GetThemedColor(pieSeries, colors);
-        pieSeries.Name = `Series #${pieSeries.SeriesId + 1}`;
-        pieSeries.Stroke = null;
-        pieSeries.Fill = SolidColorPaint.MakeByColor(color);
-      }), (polarLine) => {
-        let color = ThemesExtensions.GetThemedColor(polarLine, colors);
-        polarLine.Name = `Series #${polarLine.SeriesId + 1}`;
-        polarLine.GeometrySize = 12;
-        polarLine.GeometryStroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        polarLine.GeometryFill = SolidColorPaint.MakeByColor(new PixUI.Color(250, 250, 250));
-        polarLine.Stroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        polarLine.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(50));
-      }), (gaugeSeries) => {
-        let color = ThemesExtensions.GetThemedColor(gaugeSeries, colors);
-        gaugeSeries.Name = `Series #${gaugeSeries.SeriesId + 1}`;
-        gaugeSeries.Stroke = null;
-        gaugeSeries.Fill = SolidColorPaint.MakeByColor(color);
-        gaugeSeries.DataLabelsPosition = LiveChartsCore.PolarLabelsPosition.ChartCenter;
-        gaugeSeries.DataLabelsPaint = SolidColorPaint.MakeByColor(new PixUI.Color(70, 70, 70));
-      }), (gaugeFill) => {
-        gaugeFill.Fill = SolidColorPaint.MakeByColor(new PixUI.Color(30, 30, 30, 10));
-      });
-      additionalStyles?.call(this, theme);
+      ), t?.call(this, s);
     });
   }
-  static AddDarkTheme(settings, additionalStyles = null) {
-    return settings.HasTheme((theme) => {
-      LiveChartsCore.LiveCharts.DefaultSettings.WithAnimationsSpeed(System.TimeSpan.FromMilliseconds(800)).WithEasingFunction(LiveChartsCore.EasingFunctions.ExponentialOut).WithTooltipBackgroundPaint(SolidColorPaint.MakeByColor(new PixUI.Color(45, 45, 45))).WithTooltipTextPaint(SolidColorPaint.MakeByColor(new PixUI.Color(245, 245, 245)));
-      let colors = LiveChartsCore.ColorPalletes.MaterialDesign200;
-      LiveChartsCore.LiveChartsStylerExtensions.HasRuleForGaugeFillSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForGaugeSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForPolarLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForFinancialSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForHeatSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStackedStepLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForPieSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStackedBarSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForBarSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStackedLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForStepLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForLineSeries(LiveChartsCore.LiveChartsStylerExtensions.HasRuleForAxes(theme, (axis) => {
-        axis.TextSize = 16;
-        axis.ShowSeparatorLines = true;
-        axis.NamePaint = SolidColorPaint.MakeByColor(new PixUI.Color(235, 235, 235));
-        axis.LabelsPaint = SolidColorPaint.MakeByColor(new PixUI.Color(200, 200, 200));
-        if (LiveChartsCore.IsInterfaceOfICartesianAxis(axis)) {
-          const cartesian = axis;
-          axis.SeparatorsPaint = cartesian.Orientation == LiveChartsCore.AxisOrientation.X ? null : SolidColorPaint.MakeByColor(new PixUI.Color(90, 90, 90));
-          cartesian.Padding = LiveChartsCore.Padding.All(12);
-        } else {
-          axis.SeparatorsPaint = SolidColorPaint.MakeByColor(new PixUI.Color(90, 90, 90));
+  static AddDarkTheme(i, t = null) {
+    return i.HasTheme((s) => {
+      n.LiveCharts.DefaultSettings.WithAnimationsSpeed(l.TimeSpan.FromMilliseconds(800)).WithEasingFunction(n.EasingFunctions.ExponentialOut).WithTooltipBackgroundPaint(c.MakeByColor(new d.Color(45, 45, 45))).WithTooltipTextPaint(c.MakeByColor(new d.Color(245, 245, 245)));
+      let r = n.ColorPalletes.MaterialDesign200;
+      n.LiveChartsStylerExtensions.HasRuleForGaugeFillSeries(
+        n.LiveChartsStylerExtensions.HasRuleForGaugeSeries(
+          n.LiveChartsStylerExtensions.HasRuleForPolarLineSeries(
+            n.LiveChartsStylerExtensions.HasRuleForFinancialSeries(
+              n.LiveChartsStylerExtensions.HasRuleForHeatSeries(
+                n.LiveChartsStylerExtensions.HasRuleForStackedStepLineSeries(
+                  n.LiveChartsStylerExtensions.HasRuleForPieSeries(
+                    n.LiveChartsStylerExtensions.HasRuleForStackedBarSeries(
+                      n.LiveChartsStylerExtensions.HasRuleForBarSeries(
+                        n.LiveChartsStylerExtensions.HasRuleForStackedLineSeries(
+                          n.LiveChartsStylerExtensions.HasRuleForStepLineSeries(
+                            n.LiveChartsStylerExtensions.HasRuleForLineSeries(
+                              n.LiveChartsStylerExtensions.HasRuleForAxes(
+                                s,
+                                (e) => {
+                                  if (e.TextSize = 16, e.ShowSeparatorLines = !0, e.NamePaint = c.MakeByColor(new d.Color(235, 235, 235)), e.LabelsPaint = c.MakeByColor(new d.Color(200, 200, 200)), n.IsInterfaceOfICartesianAxis(e)) {
+                                    const a = e;
+                                    e.SeparatorsPaint = a.Orientation == n.AxisOrientation.X ? null : c.MakeByColor(new d.Color(90, 90, 90)), a.Padding = n.Padding.All(12);
+                                  } else
+                                    e.SeparatorsPaint = c.MakeByColor(new d.Color(90, 90, 90));
+                                }
+                              ),
+                              (e) => {
+                                let a = p.GetThemedColor(e, r);
+                                e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 12, e.GeometryStroke = c.MakeByColorAndStroke(a, 4), e.GeometryFill = c.MakeByColor(new d.Color(30, 30, 30)), e.Stroke = c.MakeByColorAndStroke(a, 4), e.Fill = c.MakeByColor(a.WithAlpha(50));
+                              }
+                            ),
+                            (e) => {
+                              let a = p.GetThemedColor(e, r);
+                              e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 12, e.GeometryStroke = c.MakeByColorAndStroke(a, 4), e.GeometryFill = c.MakeByColor(new d.Color(30, 30, 30)), e.Stroke = c.MakeByColorAndStroke(a, 4), e.Fill = c.MakeByColor(a.WithAlpha(50));
+                            }
+                          ),
+                          (e) => {
+                            let a = p.GetThemedColor(e, r);
+                            e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 0, e.GeometryStroke = null, e.GeometryFill = null, e.Stroke = null, e.Fill = c.MakeByColor(a);
+                          }
+                        ),
+                        (e) => {
+                          let a = p.GetThemedColor(e, r);
+                          e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a), e.Rx = 4, e.Ry = 4;
+                        }
+                      ),
+                      (e) => {
+                        let a = p.GetThemedColor(e, r);
+                        e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a), e.Rx = 0, e.Ry = 0;
+                      }
+                    ),
+                    (e) => {
+                      let a = p.GetThemedColor(e, r);
+                      e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a);
+                    }
+                  ),
+                  (e) => {
+                    let a = p.GetThemedColor(e, r);
+                    e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 0, e.GeometryStroke = null, e.GeometryFill = null, e.Stroke = null, e.Fill = c.MakeByColor(a);
+                  }
+                ),
+                (e) => {
+                }
+              ),
+              (e) => {
+                e.Name = `Series #${e.SeriesId + 1}`, e.UpFill = c.MakeByColor(new d.Color(139, 195, 74, 255)), e.UpStroke = c.MakeByColorAndStroke(new d.Color(139, 195, 74, 255), 3), e.DownFill = c.MakeByColor(new d.Color(239, 83, 80, 255)), e.DownStroke = c.MakeByColorAndStroke(new d.Color(239, 83, 80, 255), 3);
+              }
+            ),
+            (e) => {
+              let a = p.GetThemedColor(e, r);
+              e.Name = `Series #${e.SeriesId + 1}`, e.GeometrySize = 12, e.GeometryStroke = c.MakeByColorAndStroke(a, 4), e.GeometryFill = c.MakeByColor(new d.Color(0)), e.Stroke = c.MakeByColorAndStroke(a, 4), e.Fill = c.MakeByColor(a.WithAlpha(50));
+            }
+          ),
+          (e) => {
+            let a = p.GetThemedColor(e, r);
+            e.Name = `Series #${e.SeriesId + 1}`, e.Stroke = null, e.Fill = c.MakeByColor(a), e.DataLabelsPaint = c.MakeByColor(new d.Color(200, 200, 200));
+          }
+        ),
+        (e) => {
+          e.Fill = c.MakeByColor(new d.Color(255, 255, 255, 30));
         }
-      }), (lineSeries) => {
-        let color = ThemesExtensions.GetThemedColor(lineSeries, colors);
-        lineSeries.Name = `Series #${lineSeries.SeriesId + 1}`;
-        lineSeries.GeometrySize = 12;
-        lineSeries.GeometryStroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        lineSeries.GeometryFill = SolidColorPaint.MakeByColor(new PixUI.Color(30, 30, 30));
-        lineSeries.Stroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        lineSeries.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(50));
-      }), (steplineSeries) => {
-        let color = ThemesExtensions.GetThemedColor(steplineSeries, colors);
-        steplineSeries.Name = `Series #${steplineSeries.SeriesId + 1}`;
-        steplineSeries.GeometrySize = 12;
-        steplineSeries.GeometryStroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        steplineSeries.GeometryFill = SolidColorPaint.MakeByColor(new PixUI.Color(30, 30, 30));
-        steplineSeries.Stroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        steplineSeries.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(50));
-      }), (stackedLine) => {
-        let color = ThemesExtensions.GetThemedColor(stackedLine, colors);
-        stackedLine.Name = `Series #${stackedLine.SeriesId + 1}`;
-        stackedLine.GeometrySize = 0;
-        stackedLine.GeometryStroke = null;
-        stackedLine.GeometryFill = null;
-        stackedLine.Stroke = null;
-        stackedLine.Fill = SolidColorPaint.MakeByColor(color);
-      }), (barSeries) => {
-        let color = ThemesExtensions.GetThemedColor(barSeries, colors);
-        barSeries.Name = `Series #${barSeries.SeriesId + 1}`;
-        barSeries.Stroke = null;
-        barSeries.Fill = SolidColorPaint.MakeByColor(color);
-        barSeries.Rx = 4;
-        barSeries.Ry = 4;
-      }), (stackedBarSeries) => {
-        let color = ThemesExtensions.GetThemedColor(stackedBarSeries, colors);
-        stackedBarSeries.Name = `Series #${stackedBarSeries.SeriesId + 1}`;
-        stackedBarSeries.Stroke = null;
-        stackedBarSeries.Fill = SolidColorPaint.MakeByColor(color);
-        stackedBarSeries.Rx = 0;
-        stackedBarSeries.Ry = 0;
-      }), (pieSeries) => {
-        let color = ThemesExtensions.GetThemedColor(pieSeries, colors);
-        pieSeries.Name = `Series #${pieSeries.SeriesId + 1}`;
-        pieSeries.Stroke = null;
-        pieSeries.Fill = SolidColorPaint.MakeByColor(color);
-      }), (stackedStep) => {
-        let color = ThemesExtensions.GetThemedColor(stackedStep, colors);
-        stackedStep.Name = `Series #${stackedStep.SeriesId + 1}`;
-        stackedStep.GeometrySize = 0;
-        stackedStep.GeometryStroke = null;
-        stackedStep.GeometryFill = null;
-        stackedStep.Stroke = null;
-        stackedStep.Fill = SolidColorPaint.MakeByColor(color);
-      }), (heatSeries) => {
-      }), (financialSeries) => {
-        financialSeries.Name = `Series #${financialSeries.SeriesId + 1}`;
-        financialSeries.UpFill = SolidColorPaint.MakeByColor(new PixUI.Color(139, 195, 74, 255));
-        financialSeries.UpStroke = SolidColorPaint.MakeByColorAndStroke(new PixUI.Color(139, 195, 74, 255), 3);
-        financialSeries.DownFill = SolidColorPaint.MakeByColor(new PixUI.Color(239, 83, 80, 255));
-        financialSeries.DownStroke = SolidColorPaint.MakeByColorAndStroke(new PixUI.Color(239, 83, 80, 255), 3);
-      }), (polarLine) => {
-        let color = ThemesExtensions.GetThemedColor(polarLine, colors);
-        polarLine.Name = `Series #${polarLine.SeriesId + 1}`;
-        polarLine.GeometrySize = 12;
-        polarLine.GeometryStroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        polarLine.GeometryFill = SolidColorPaint.MakeByColor(new PixUI.Color(0));
-        polarLine.Stroke = SolidColorPaint.MakeByColorAndStroke(color, 4);
-        polarLine.Fill = SolidColorPaint.MakeByColor(color.WithAlpha(50));
-      }), (gaugeSeries) => {
-        let color = ThemesExtensions.GetThemedColor(gaugeSeries, colors);
-        gaugeSeries.Name = `Series #${gaugeSeries.SeriesId + 1}`;
-        gaugeSeries.Stroke = null;
-        gaugeSeries.Fill = SolidColorPaint.MakeByColor(color);
-        gaugeSeries.DataLabelsPaint = SolidColorPaint.MakeByColor(new PixUI.Color(200, 200, 200));
-      }), (gaugeFill) => {
-        gaugeFill.Fill = SolidColorPaint.MakeByColor(new PixUI.Color(255, 255, 255, 30));
-      });
-      additionalStyles?.call(this, theme);
+      ), t?.call(this, s);
     });
   }
-  static GetThemedColor(series, colors) {
-    return LiveChartsSkiaSharp.AsSKColor(colors[series.SeriesId % colors.length]);
+  static GetThemedColor(i, t) {
+    return M.AsSKColor(t[i.SeriesId % t.length]);
   }
 }
-class PolarLineSeries extends LiveChartsCore.PolarLineSeries {
+class te extends n.PolarLineSeries {
   constructor() {
-    super(() => new CircleGeometry(), () => new LabelGeometry(), () => new CubicBezierAreaGeometry(), () => new BezierPoint(new CircleGeometry()));
+    super(
+      () => new w(),
+      () => new S(),
+      () => new tt(),
+      () => new Q(new w())
+    );
   }
 }
-class GaugeBuilder {
+class ee {
   constructor() {
-    __publicField(this, "_keyValuePairs", new System.Dictionary());
-    __publicField(this, "_tuples", new System.List());
-    __publicField(this, "_builtSeries");
-    __publicField(this, "_radialAlign", null);
-    __publicField(this, "_innerRadius", null);
-    __publicField(this, "_offsetRadius", null);
-    __publicField(this, "_backgroundInnerRadius", null);
-    __publicField(this, "_backgroundOffsetRadius", null);
-    __publicField(this, "_backgroundCornerRadius", null);
-    __publicField(this, "_cornerRadius", null);
-    __publicField(this, "_background", null);
-    __publicField(this, "_labelsSize", null);
-    __publicField(this, "_labelsPosition", null);
-    __publicField(this, "_backgroundMaxRadialColumnWidth", null);
-    __publicField(this, "_maxColumnWidth", null);
-    __publicField(this, "_labelFormatter", (point) => point.PrimaryValue.toString());
+    o(this, "_keyValuePairs", new l.Dictionary());
+    o(this, "_tuples", new l.List());
+    o(this, "_builtSeries");
+    o(this, "_radialAlign", null);
+    o(this, "_innerRadius", null);
+    o(this, "_offsetRadius", null);
+    o(this, "_backgroundInnerRadius", null);
+    o(this, "_backgroundOffsetRadius", null);
+    o(this, "_backgroundCornerRadius", null);
+    o(this, "_cornerRadius", null);
+    o(this, "_background", null);
+    o(this, "_labelsSize", null);
+    o(this, "_labelsPosition", null);
+    o(this, "_backgroundMaxRadialColumnWidth", null);
+    o(this, "_maxColumnWidth", null);
+    o(this, "_labelFormatter", (i) => i.PrimaryValue.toString());
   }
   get InnerRadius() {
     return this._innerRadius;
   }
-  set InnerRadius(value) {
-    this._innerRadius = value;
-    this.OnPopertyChanged();
+  set InnerRadius(i) {
+    this._innerRadius = i, this.OnPopertyChanged();
   }
-  WithInnerRadius(value) {
-    this.InnerRadius = value;
-    return this;
+  WithInnerRadius(i) {
+    return this.InnerRadius = i, this;
   }
   get OffsetRadius() {
     return this._offsetRadius;
   }
-  set OffsetRadius(value) {
-    this._offsetRadius = value;
-    this.OnPopertyChanged();
+  set OffsetRadius(i) {
+    this._offsetRadius = i, this.OnPopertyChanged();
   }
-  WithOffsetRadius(value) {
-    this.OffsetRadius = value;
-    return this;
+  WithOffsetRadius(i) {
+    return this.OffsetRadius = i, this;
   }
   get MaxColumnWidth() {
     return this._maxColumnWidth;
   }
-  set MaxColumnWidth(value) {
-    this._maxColumnWidth = value;
-    this.OnPopertyChanged();
+  set MaxColumnWidth(i) {
+    this._maxColumnWidth = i, this.OnPopertyChanged();
   }
-  WithMaxColumnWidth(value) {
-    this.MaxColumnWidth = value;
-    return this;
+  WithMaxColumnWidth(i) {
+    return this.MaxColumnWidth = i, this;
   }
   get CornerRadius() {
     return this._cornerRadius;
   }
-  set CornerRadius(value) {
-    this._cornerRadius = value;
-    this.OnPopertyChanged();
+  set CornerRadius(i) {
+    this._cornerRadius = i, this.OnPopertyChanged();
   }
-  WithCornerRadius(value) {
-    this.CornerRadius = value;
-    return this;
+  WithCornerRadius(i) {
+    return this.CornerRadius = i, this;
   }
   get RadialAlign() {
     return this._radialAlign;
   }
-  set RadialAlign(value) {
-    this._radialAlign = value;
-    this.OnPopertyChanged();
+  set RadialAlign(i) {
+    this._radialAlign = i, this.OnPopertyChanged();
   }
-  WithRadialAlign(value) {
-    this.RadialAlign = value;
-    return this;
+  WithRadialAlign(i) {
+    return this.RadialAlign = i, this;
   }
   get BackgroundInnerRadius() {
     return this._backgroundInnerRadius;
   }
-  set BackgroundInnerRadius(value) {
-    this._backgroundInnerRadius = value;
-    this.OnPopertyChanged();
+  set BackgroundInnerRadius(i) {
+    this._backgroundInnerRadius = i, this.OnPopertyChanged();
   }
-  WithBackgroundInnerRadius(value) {
-    this.BackgroundInnerRadius = value;
-    return this;
+  WithBackgroundInnerRadius(i) {
+    return this.BackgroundInnerRadius = i, this;
   }
   get BackgroundOffsetRadius() {
     return this._backgroundOffsetRadius;
   }
-  set BackgroundOffsetRadius(value) {
-    this._backgroundOffsetRadius = value;
-    this.OnPopertyChanged();
+  set BackgroundOffsetRadius(i) {
+    this._backgroundOffsetRadius = i, this.OnPopertyChanged();
   }
-  WithBackgroundOffsetRadius(value) {
-    this.BackgroundOffsetRadius = value;
-    return this;
+  WithBackgroundOffsetRadius(i) {
+    return this.BackgroundOffsetRadius = i, this;
   }
   get BackgroundMaxRadialColumnWidth() {
     return this._backgroundMaxRadialColumnWidth;
   }
-  set BackgroundMaxRadialColumnWidth(value) {
-    this._backgroundMaxRadialColumnWidth = value;
-    this.OnPopertyChanged();
+  set BackgroundMaxRadialColumnWidth(i) {
+    this._backgroundMaxRadialColumnWidth = i, this.OnPopertyChanged();
   }
-  WithBackgroundMaxRadialColumnWidth(value) {
-    this.BackgroundMaxRadialColumnWidth = value;
-    return this;
+  WithBackgroundMaxRadialColumnWidth(i) {
+    return this.BackgroundMaxRadialColumnWidth = i, this;
   }
   get BackgroundCornerRadius() {
     return this._backgroundCornerRadius;
   }
-  set BackgroundCornerRadius(value) {
-    this._backgroundCornerRadius = value;
-    this.OnPopertyChanged();
+  set BackgroundCornerRadius(i) {
+    this._backgroundCornerRadius = i, this.OnPopertyChanged();
   }
-  WithBackgroundCornerRadius(value) {
-    this.BackgroundMaxRadialColumnWidth = value;
-    return this;
+  WithBackgroundCornerRadius(i) {
+    return this.BackgroundMaxRadialColumnWidth = i, this;
   }
   get Background() {
     return this._background;
   }
-  set Background(value) {
-    this._background = value;
-    this.OnPopertyChanged();
+  set Background(i) {
+    this._background = i, this.OnPopertyChanged();
   }
-  WithBackground(value) {
-    this.Background = value;
-    return this;
+  WithBackground(i) {
+    return this.Background = i, this;
   }
   get LabelsSize() {
     return this._labelsSize;
   }
-  set LabelsSize(value) {
-    this._labelsSize = value;
-    this.OnPopertyChanged();
+  set LabelsSize(i) {
+    this._labelsSize = i, this.OnPopertyChanged();
   }
-  WithLabelsSize(value) {
-    this.LabelsSize = value;
-    return this;
+  WithLabelsSize(i) {
+    return this.LabelsSize = i, this;
   }
   get LabelsPosition() {
     return this._labelsPosition;
   }
-  set LabelsPosition(value) {
-    this._labelsPosition = value;
-    this.OnPopertyChanged();
+  set LabelsPosition(i) {
+    this._labelsPosition = i, this.OnPopertyChanged();
   }
-  WithLabelsPosition(value) {
-    this.LabelsPosition = value;
-    return this;
+  WithLabelsPosition(i) {
+    return this.LabelsPosition = i, this;
   }
   get LabelFormatter() {
     return this._labelFormatter;
   }
-  set LabelFormatter(value) {
-    this._labelFormatter = value;
-    this.OnPopertyChanged();
+  set LabelFormatter(i) {
+    this._labelFormatter = i, this.OnPopertyChanged();
   }
-  WithLabelFormatter(value) {
-    this.LabelFormatter = value;
-    return this;
+  WithLabelFormatter(i) {
+    return this.LabelFormatter = i, this;
   }
-  AddValue1(value, seriesName, seriesPaint, labelsPaint = null) {
-    this._tuples.Add(new System.Tuple4(value, seriesName, seriesPaint, labelsPaint));
-    return this;
+  AddValue1(i, t, s, r = null) {
+    return this._tuples.Add(
+      new l.Tuple4(i, t, s, r)
+    ), this;
   }
-  AddValue2(value, seriesName, seriesColor, labelsColor = null) {
-    labelsColor ?? (labelsColor = new PixUI.Color(35, 35, 35));
-    return this.AddValue1(value, seriesName, new SolidColorPaint().Init({ Color: seriesColor }), new SolidColorPaint().Init({ Color: labelsColor }));
+  AddValue2(i, t, s, r = null) {
+    return r ?? (r = new d.Color(35, 35, 35)), this.AddValue1(
+      i,
+      t,
+      new c().Init({ Color: s }),
+      new c().Init({ Color: r })
+    );
   }
-  AddValue3(value, seriesName, seriesColor, labelsColor = null) {
-    return this.AddValue2(new LiveChartsCore.ObservableValue(value), seriesName, seriesColor, labelsColor);
+  AddValue3(i, t, s, r = null) {
+    return this.AddValue2(new n.ObservableValue(i), t, s, r);
   }
-  AddValue4(value) {
-    return this.AddValue1(value, null, null, null);
+  AddValue4(i) {
+    return this.AddValue1(i, null, null, null);
   }
-  AddValue5(value) {
-    return this.AddValue4(new LiveChartsCore.ObservableValue(value));
+  AddValue5(i) {
+    return this.AddValue4(new n.ObservableValue(i));
   }
-  AddValue6(value, seriesName) {
-    return this.AddValue1(value, seriesName, null, null);
+  AddValue6(i, t) {
+    return this.AddValue1(i, t, null, null);
   }
-  AddValue7(value, seriesName) {
-    return this.AddValue6(new LiveChartsCore.ObservableValue(value), seriesName);
+  AddValue7(i, t) {
+    return this.AddValue6(new n.ObservableValue(i), t);
   }
   BuildSeries() {
-    let series = new System.List();
-    let i = 0;
-    for (const item of this._tuples) {
-      let list = new System.List();
-      while (list.length < this._tuples.length - 1) {
-        list.Add(new LiveChartsCore.ObservableValue(null));
-      }
-      list.Insert(i, item.Item1);
-      let sf = new PieSeries(true).Init({
-        ZIndex: i + 1,
-        Values: list,
-        Name: item.Item2,
-        HoverPushout: 0
-      });
-      if (item.Item3 != null)
-        sf.Fill = item.Item3;
-      if (item.Item4 != null)
-        sf.DataLabelsPaint = item.Item4;
-      if (this.LabelFormatter != null)
-        sf.DataLabelsFormatter = this.LabelFormatter;
-      sf.Stroke;
-      this.ApplyStyles(sf);
-      series.Add(sf);
-      this._keyValuePairs.Add(sf, item);
-      i++;
+    let i = new l.List(), t = 0;
+    for (const e of this._tuples) {
+      let a = new l.List();
+      for (; a.length < this._tuples.length - 1; )
+        a.Add(new n.ObservableValue(null));
+      a.Insert(t, e.Item1);
+      let h = new q(!0).Init(
+        {
+          ZIndex: t + 1,
+          Values: a,
+          Name: e.Item2,
+          HoverPushout: 0
+        }
+      );
+      e.Item3 != null && (h.Fill = e.Item3), e.Item4 != null && (h.DataLabelsPaint = e.Item4), this.LabelFormatter != null && (h.DataLabelsFormatter = this.LabelFormatter), h.Stroke, this.ApplyStyles(h), i.Add(h), this._keyValuePairs.Add(h, e), t++;
     }
-    let fillSeriesValues = new System.List();
-    while (fillSeriesValues.length < this._tuples.length)
-      fillSeriesValues.Add(new LiveChartsCore.ObservableValue(0));
-    let s = new PieSeries(true, true).Init({
-      ZIndex: -1,
-      IsFillSeries: true,
-      Values: fillSeriesValues
-    });
-    this.ApplyStyles(s);
-    series.Add(s);
-    this._builtSeries = series;
-    return series;
+    let s = new l.List();
+    for (; s.length < this._tuples.length; )
+      s.Add(new n.ObservableValue(0));
+    let r = new q(!0, !0).Init(
+      {
+        ZIndex: -1,
+        IsFillSeries: !0,
+        Values: s
+      }
+    );
+    return this.ApplyStyles(r), i.Add(r), this._builtSeries = i, i;
   }
-  ApplyStyles(series) {
-    if ((series.SeriesProperties & LiveChartsCore.SeriesProperties.GaugeFill) == LiveChartsCore.SeriesProperties.GaugeFill) {
-      this.ApplyStylesToFill(series);
+  ApplyStyles(i) {
+    if ((i.SeriesProperties & n.SeriesProperties.GaugeFill) == n.SeriesProperties.GaugeFill) {
+      this.ApplyStylesToFill(i);
       return;
     }
-    this.ApplyStylesToSeries(series);
+    this.ApplyStylesToSeries(i);
   }
-  ApplyStylesToFill(series) {
-    if (this.Background != null)
-      series.Fill = this.Background;
-    if (this.BackgroundInnerRadius != null)
-      series.InnerRadius = this.BackgroundInnerRadius;
-    if (this.BackgroundOffsetRadius != null) {
-      series.RelativeOuterRadius = this.BackgroundOffsetRadius;
-      series.RelativeInnerRadius = this.BackgroundOffsetRadius;
-    }
-    if (this.BackgroundMaxRadialColumnWidth != null)
-      series.MaxRadialColumnWidth = this.BackgroundMaxRadialColumnWidth;
-    if (this.RadialAlign != null)
-      series.RadialAlign = this.RadialAlign;
+  ApplyStylesToFill(i) {
+    this.Background != null && (i.Fill = this.Background), this.BackgroundInnerRadius != null && (i.InnerRadius = this.BackgroundInnerRadius), this.BackgroundOffsetRadius != null && (i.RelativeOuterRadius = this.BackgroundOffsetRadius, i.RelativeInnerRadius = this.BackgroundOffsetRadius), this.BackgroundMaxRadialColumnWidth != null && (i.MaxRadialColumnWidth = this.BackgroundMaxRadialColumnWidth), this.RadialAlign != null && (i.RadialAlign = this.RadialAlign);
   }
-  ApplyStylesToSeries(series) {
+  ApplyStylesToSeries(i) {
     let t;
-    if (this._keyValuePairs.TryGetValue(series, new System.Out(() => t, ($v) => t = $v))) {
-      if (t.Item3 != null)
-        series.Fill = t.Item3;
-    }
-    if (this.LabelsSize != null)
-      series.DataLabelsSize = this.LabelsSize;
-    if (this.LabelsPosition != null)
-      series.DataLabelsPosition = this.LabelsPosition;
-    if (this.InnerRadius != null)
-      series.InnerRadius = this.InnerRadius;
-    if (this.OffsetRadius != null) {
-      series.RelativeInnerRadius = this.OffsetRadius;
-      series.RelativeOuterRadius = this.OffsetRadius;
-    }
-    if (this.MaxColumnWidth != null)
-      series.MaxRadialColumnWidth = this.MaxColumnWidth;
-    if (this.RadialAlign != null)
-      series.RadialAlign = this.RadialAlign;
-    series.DataLabelsFormatter = this.LabelFormatter;
+    this._keyValuePairs.TryGetValue(i, new l.Out(() => t, (s) => t = s)) && t.Item3 != null && (i.Fill = t.Item3), this.LabelsSize != null && (i.DataLabelsSize = this.LabelsSize), this.LabelsPosition != null && (i.DataLabelsPosition = this.LabelsPosition), this.InnerRadius != null && (i.InnerRadius = this.InnerRadius), this.OffsetRadius != null && (i.RelativeInnerRadius = this.OffsetRadius, i.RelativeOuterRadius = this.OffsetRadius), this.MaxColumnWidth != null && (i.MaxRadialColumnWidth = this.MaxColumnWidth), this.RadialAlign != null && (i.RadialAlign = this.RadialAlign), i.DataLabelsFormatter = this.LabelFormatter;
   }
   OnPopertyChanged() {
-    if (this._builtSeries == null)
-      return;
-    for (const item of this._builtSeries) {
-      this.ApplyStyles(item);
-    }
+    if (this._builtSeries != null)
+      for (const i of this._builtSeries)
+        this.ApplyStyles(i);
   }
 }
-class SKMatrixMotionProperty extends LiveChartsCore.MotionProperty {
-  constructor(propertyName, matrix) {
-    super(propertyName);
-    this.fromValue = matrix.Clone();
-    this.toValue = matrix.Clone();
+class It extends n.MotionProperty {
+  constructor(i, t) {
+    super(i), this.fromValue = t.Clone(), this.toValue = t.Clone();
   }
-  OnGetMovement(progress) {
-    return new PixUI.Matrix4(this.fromValue.M0 + progress * (this.toValue.M0 - this.fromValue.M0), this.fromValue.M1 + progress * (this.toValue.M1 - this.fromValue.M1), this.fromValue.M2 + progress * (this.toValue.M2 - this.fromValue.M2), this.fromValue.M3 + progress * (this.toValue.M3 - this.fromValue.M3), this.fromValue.M4 + progress * (this.toValue.M4 - this.fromValue.M4), this.fromValue.M5 + progress * (this.toValue.M5 - this.fromValue.M5), this.fromValue.M6 + progress * (this.toValue.M6 - this.fromValue.M6), this.fromValue.M7 + progress * (this.toValue.M7 - this.fromValue.M7), this.fromValue.M8 + progress * (this.toValue.M8 - this.fromValue.M8), this.fromValue.M9 + progress * (this.toValue.M9 - this.fromValue.M9), this.fromValue.M10 + progress * (this.toValue.M10 - this.fromValue.M10), this.fromValue.M11 + progress * (this.toValue.M11 - this.fromValue.M11), this.fromValue.M12 + progress * (this.toValue.M12 - this.fromValue.M12), this.fromValue.M13 + progress * (this.toValue.M13 - this.fromValue.M13), this.fromValue.M14 + progress * (this.toValue.M14 - this.fromValue.M14), this.fromValue.M15 + progress * (this.toValue.M15 - this.fromValue.M15));
+  OnGetMovement(i) {
+    return new d.Matrix4(
+      this.fromValue.M0 + i * (this.toValue.M0 - this.fromValue.M0),
+      this.fromValue.M1 + i * (this.toValue.M1 - this.fromValue.M1),
+      this.fromValue.M2 + i * (this.toValue.M2 - this.fromValue.M2),
+      this.fromValue.M3 + i * (this.toValue.M3 - this.fromValue.M3),
+      this.fromValue.M4 + i * (this.toValue.M4 - this.fromValue.M4),
+      this.fromValue.M5 + i * (this.toValue.M5 - this.fromValue.M5),
+      this.fromValue.M6 + i * (this.toValue.M6 - this.fromValue.M6),
+      this.fromValue.M7 + i * (this.toValue.M7 - this.fromValue.M7),
+      this.fromValue.M8 + i * (this.toValue.M8 - this.fromValue.M8),
+      this.fromValue.M9 + i * (this.toValue.M9 - this.fromValue.M9),
+      this.fromValue.M10 + i * (this.toValue.M10 - this.fromValue.M10),
+      this.fromValue.M11 + i * (this.toValue.M11 - this.fromValue.M11),
+      this.fromValue.M12 + i * (this.toValue.M12 - this.fromValue.M12),
+      this.fromValue.M13 + i * (this.toValue.M13 - this.fromValue.M13),
+      this.fromValue.M14 + i * (this.toValue.M14 - this.fromValue.M14),
+      this.fromValue.M15 + i * (this.toValue.M15 - this.fromValue.M15)
+    );
   }
 }
-class Paint extends LiveChartsCore.Animatable {
+class $ extends n.Animatable {
   constructor() {
     super();
-    __publicField(this, "_strokeMiterTransition");
-    __publicField(this, "_geometriesByCanvas", new System.Dictionary());
-    __publicField(this, "_clipRectangles", new System.Dictionary());
-    __publicField(this, "_matchesChar", null);
-    __publicField(this, "_skiaPaint");
-    __publicField(this, "_strokeWidthTransition");
-    __publicField(this, "_fontFamily");
-    __publicField(this, "ZIndex", 0);
-    __publicField(this, "Style", CanvasKit.PaintStyle.Fill);
-    __publicField(this, "IsStroke", false);
-    __publicField(this, "IsFill", false);
-    __publicField(this, "SKFontStyle");
-    __publicField(this, "SKTypeface");
-    __publicField(this, "IsAntialias", true);
-    __publicField(this, "StrokeCap", CanvasKit.StrokeCap.Butt);
-    __publicField(this, "StrokeJoin", CanvasKit.StrokeJoin.Miter);
-    __publicField(this, "Color", PixUI.Color.Empty.Clone());
-    __publicField(this, "IsPaused", false);
-    __publicField(this, "PathEffect");
-    __publicField(this, "ImageFilter");
-    this._strokeWidthTransition = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("StrokeThickness", 0));
-    this._strokeMiterTransition = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("StrokeMiter", 0));
+    o(this, "_strokeMiterTransition");
+    o(this, "_geometriesByCanvas", new l.Dictionary());
+    o(this, "_clipRectangles", new l.Dictionary());
+    o(this, "_matchesChar", null);
+    o(this, "_skiaPaint");
+    o(this, "_strokeWidthTransition");
+    o(this, "_fontFamily");
+    o(this, "ZIndex", 0);
+    o(this, "Style", CanvasKit.PaintStyle.Fill);
+    o(this, "IsStroke", !1);
+    o(this, "IsFill", !1);
+    o(this, "SKFontStyle");
+    o(this, "SKTypeface");
+    o(this, "IsAntialias", !0);
+    o(this, "StrokeCap", CanvasKit.StrokeCap.Butt);
+    o(this, "StrokeJoin", CanvasKit.StrokeJoin.Miter);
+    o(this, "Color", d.Color.Empty.Clone());
+    o(this, "IsPaused", !1);
+    o(this, "PathEffect");
+    o(this, "ImageFilter");
+    this._strokeWidthTransition = this.RegisterMotionProperty(new n.FloatMotionProperty("StrokeThickness", 0)), this._strokeMiterTransition = this.RegisterMotionProperty(new n.FloatMotionProperty("StrokeMiter", 0));
   }
   get StrokeThickness() {
     return this._strokeWidthTransition.GetMovement(this);
   }
-  set StrokeThickness(value) {
-    this._strokeWidthTransition.SetMovement(value, this);
+  set StrokeThickness(t) {
+    this._strokeWidthTransition.SetMovement(t, this);
   }
   get FontFamily() {
     return this._fontFamily;
   }
-  set FontFamily(value) {
-    this._fontFamily = value;
+  set FontFamily(t) {
+    this._fontFamily = t;
   }
   get HasCustomFont() {
-    return LiveChartsSkiaSharp.DefaultSKTypeface != null || this.FontFamily != null || this.SKTypeface != null || this.SKFontStyle != null;
+    return M.DefaultSKTypeface != null || this.FontFamily != null || this.SKTypeface != null || this.SKFontStyle != null;
   }
   get StrokeMiter() {
     return this._strokeMiterTransition.GetMovement(this);
   }
-  set StrokeMiter(value) {
-    this._strokeMiterTransition.SetMovement(value, this);
+  set StrokeMiter(t) {
+    this._strokeMiterTransition.SetMovement(t, this);
   }
-  GetGeometries(canvas) {
-    const _$generator = function* (canvas2) {
-      let enumerable = this.GetGeometriesByCanvas(canvas2);
-      if (enumerable == null)
-        return;
-      for (const item of enumerable) {
-        yield item;
-      }
+  GetGeometries(t) {
+    const s = function* (r) {
+      let e = this.GetGeometriesByCanvas(r);
+      if (e != null)
+        for (const a of e)
+          yield a;
     }.bind(this);
-    return System.EnumerableFrom(() => _$generator(canvas));
+    return l.EnumerableFrom(() => s(t));
   }
-  SetGeometries(canvas, geometries) {
-    this._geometriesByCanvas.SetAt(canvas.Sync, geometries);
-    this.IsValid = false;
+  SetGeometries(t, s) {
+    this._geometriesByCanvas.SetAt(t.Sync, s), this.IsValid = !1;
   }
-  AddGeometryToPaintTask(canvas, geometry) {
-    let g = this.GetGeometriesByCanvas(canvas);
-    if (g == null) {
-      g = new System.HashSet();
-      this._geometriesByCanvas.SetAt(canvas.Sync, g);
-    }
-    g.Add(geometry);
-    this.IsValid = false;
+  AddGeometryToPaintTask(t, s) {
+    let r = this.GetGeometriesByCanvas(t);
+    r == null && (r = new l.HashSet(), this._geometriesByCanvas.SetAt(t.Sync, r)), r.Add(s), this.IsValid = !1;
   }
-  RemoveGeometryFromPainTask(canvas, geometry) {
-    this.GetGeometriesByCanvas(canvas)?.Remove(geometry);
-    this.IsValid = false;
+  RemoveGeometryFromPainTask(t, s) {
+    this.GetGeometriesByCanvas(t)?.Remove(s), this.IsValid = !1;
   }
-  ClearGeometriesFromPaintTask(canvas) {
-    this.GetGeometriesByCanvas(canvas)?.Clear();
-    this.IsValid = false;
+  ClearGeometriesFromPaintTask(t) {
+    this.GetGeometriesByCanvas(t)?.Clear(), this.IsValid = !1;
   }
-  ReleaseCanvas(canvas) {
-    this._geometriesByCanvas.Remove(canvas);
+  ReleaseCanvas(t) {
+    this._geometriesByCanvas.Remove(t);
   }
-  GetClipRectangle(canvas) {
-    let clip;
-    return this._clipRectangles.TryGetValue(canvas.Sync, new System.Out(() => clip, ($v) => clip = $v)) ? clip : LiveChartsCore.LvcRectangle.Empty;
+  GetClipRectangle(t) {
+    let s;
+    return this._clipRectangles.TryGetValue(t.Sync, new l.Out(() => s, (r) => s = r)) ? s : n.LvcRectangle.Empty;
   }
-  SetClipRectangle(canvas, value) {
-    this._clipRectangles.SetAt(canvas.Sync, value);
+  SetClipRectangle(t, s) {
+    this._clipRectangles.SetAt(t.Sync, s);
   }
   Dispose() {
-    this._skiaPaint?.delete();
-    this._skiaPaint = null;
+    this._skiaPaint?.delete(), this._skiaPaint = null;
   }
   GetSKTypeface() {
     return null;
   }
-  GetGeometriesByCanvas(canvas) {
-    let geometries;
-    return this._geometriesByCanvas.TryGetValue(canvas.Sync, new System.Out(() => geometries, ($v) => geometries = $v)) ? geometries : null;
+  GetGeometriesByCanvas(t) {
+    let s;
+    return this._geometriesByCanvas.TryGetValue(t.Sync, new l.Out(() => s, (r) => s = r)) ? s : null;
   }
 }
-const _LinearGradientPaint = class extends Paint {
-  constructor(gradientStops, startPoint, endPoint, colorPos = null, tileMode = CanvasKit.TileMode.Repeat) {
+const nt = class extends $ {
+  constructor(t, s, r, e = null, a = CanvasKit.TileMode.Repeat) {
     super();
-    __publicField(this, "_gradientStops");
-    __publicField(this, "_startPoint");
-    __publicField(this, "_endPoint");
-    __publicField(this, "_colorPos");
-    __publicField(this, "_tileMode");
-    __publicField(this, "_drawingContext");
-    this._gradientStops = gradientStops;
-    this._startPoint = startPoint.Clone();
-    this._endPoint = endPoint.Clone();
-    this._colorPos = colorPos;
-    this._tileMode = tileMode;
+    o(this, "_gradientStops");
+    o(this, "_startPoint");
+    o(this, "_endPoint");
+    o(this, "_colorPos");
+    o(this, "_tileMode");
+    o(this, "_drawingContext");
+    this._gradientStops = t, this._startPoint = s.Clone(), this._endPoint = r.Clone(), this._colorPos = e, this._tileMode = a;
   }
   CloneTask() {
-    return new _LinearGradientPaint(this._gradientStops, this._startPoint.Clone(), this._endPoint.Clone(), this._colorPos, this._tileMode).Init({
-      Style: this.Style,
-      IsStroke: this.IsStroke,
-      IsFill: this.IsFill,
-      Color: this.Color,
-      IsAntialias: this.IsAntialias,
-      StrokeThickness: this.StrokeThickness,
-      StrokeCap: this.StrokeCap,
-      StrokeJoin: this.StrokeJoin,
-      StrokeMiter: this.StrokeMiter,
-      FontFamily: this.FontFamily,
-      SKFontStyle: this.SKFontStyle,
-      SKTypeface: this.SKTypeface,
-      PathEffect: this.PathEffect?.Clone(),
-      ImageFilter: this.ImageFilter?.Clone()
-    });
+    return new nt(this._gradientStops, this._startPoint.Clone(), this._endPoint.Clone(), this._colorPos, this._tileMode).Init(
+      {
+        Style: this.Style,
+        IsStroke: this.IsStroke,
+        IsFill: this.IsFill,
+        Color: this.Color,
+        IsAntialias: this.IsAntialias,
+        StrokeThickness: this.StrokeThickness,
+        StrokeCap: this.StrokeCap,
+        StrokeJoin: this.StrokeJoin,
+        StrokeMiter: this.StrokeMiter,
+        FontFamily: this.FontFamily,
+        SKFontStyle: this.SKFontStyle,
+        SKTypeface: this.SKTypeface,
+        PathEffect: this.PathEffect?.Clone(),
+        ImageFilter: this.ImageFilter?.Clone()
+      }
+    );
   }
-  ApplyOpacityMask(context, geometry) {
-    throw new System.NotImplementedException();
+  ApplyOpacityMask(t, s) {
+    throw new l.NotImplementedException();
   }
-  RestoreOpacityMask(context, geometry) {
-    throw new System.NotImplementedException();
+  RestoreOpacityMask(t, s) {
+    throw new l.NotImplementedException();
   }
-  InitializeTask(drawingContext) {
+  InitializeTask(t) {
     this._skiaPaint ?? (this._skiaPaint = new CanvasKit.Paint());
-    let size = this.GetDrawRectangleSize(drawingContext);
-    let xf = size.Left;
-    let xt = xf + size.Width;
-    let yf = size.Top;
-    let yt = yf + size.Height;
-    let start = new PixUI.Point(xf + (xt - xf) * this._startPoint.X, yf + (yt - yf) * this._startPoint.Y);
-    let end = new PixUI.Point(xf + (xt - xf) * this._endPoint.X, yf + (yt - yf) * this._endPoint.Y);
-    this._skiaPaint.setShader(CanvasKit.Shader.MakeLinearGradient(start.Clone(), end.Clone(), this._gradientStops, this._colorPos == null ? null : Array.from(this._colorPos), this._tileMode));
-    this._skiaPaint.setAntiAlias(this.IsAntialias);
-    this._skiaPaint.setStyle(CanvasKit.PaintStyle.Stroke);
-    this._skiaPaint.setStrokeWidth(this.StrokeThickness);
-    this._skiaPaint.setStrokeCap(this.StrokeCap);
-    this._skiaPaint.setStrokeJoin(this.StrokeJoin);
-    this._skiaPaint.setStrokeMiter(this.StrokeMiter);
-    this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill);
-    if (this.PathEffect != null) {
-      this.PathEffect.CreateEffect(drawingContext);
-      this._skiaPaint.setPathEffect(this.PathEffect.SKPathEffect);
-    }
-    if (this.ImageFilter != null) {
-      this.ImageFilter.CreateFilter(drawingContext);
-      this._skiaPaint.setImageFilter(this.ImageFilter.SKImageFilter);
-    }
-    let clip = this.GetClipRectangle(drawingContext.MotionCanvas);
-    if (System.OpInequality(clip, LiveChartsCore.LvcRectangle.Empty)) {
-      drawingContext.Canvas.save();
-      drawingContext.Canvas.clipRect(PixUI.Rect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), CanvasKit.ClipOp.Intersect, true);
-      this._drawingContext = drawingContext;
-    }
-    drawingContext.Paint = this._skiaPaint;
-    drawingContext.PaintTask = this;
+    let s = this.GetDrawRectangleSize(t), r = s.Left, e = r + s.Width, a = s.Top, h = a + s.Height, g = new d.Point(r + (e - r) * this._startPoint.X, a + (h - a) * this._startPoint.Y), C = new d.Point(r + (e - r) * this._endPoint.X, a + (h - a) * this._endPoint.Y);
+    this._skiaPaint.setShader(CanvasKit.Shader.MakeLinearGradient(g.Clone(), C.Clone(), this._gradientStops, this._colorPos == null ? null : Array.from(this._colorPos), this._tileMode)), this._skiaPaint.setAntiAlias(this.IsAntialias), this._skiaPaint.setStyle(CanvasKit.PaintStyle.Stroke), this._skiaPaint.setStrokeWidth(this.StrokeThickness), this._skiaPaint.setStrokeCap(this.StrokeCap), this._skiaPaint.setStrokeJoin(this.StrokeJoin), this._skiaPaint.setStrokeMiter(this.StrokeMiter), this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill), this.PathEffect != null && (this.PathEffect.CreateEffect(t), this._skiaPaint.setPathEffect(this.PathEffect.SKPathEffect)), this.ImageFilter != null && (this.ImageFilter.CreateFilter(t), this._skiaPaint.setImageFilter(this.ImageFilter.SKImageFilter));
+    let m = this.GetClipRectangle(t.MotionCanvas);
+    l.OpInequality(m, n.LvcRectangle.Empty) && (t.Canvas.save(), t.Canvas.clipRect(d.Rect.FromLTWH(m.X, m.Y, m.Width, m.Height), CanvasKit.ClipOp.Intersect, !0), this._drawingContext = t), t.Paint = this._skiaPaint, t.PaintTask = this;
   }
   Dispose() {
-    this.PathEffect?.Dispose();
-    this.ImageFilter?.Dispose();
-    if (this._drawingContext != null && System.OpInequality(this.GetClipRectangle(this._drawingContext.MotionCanvas), LiveChartsCore.LvcRectangle.Empty)) {
-      this._drawingContext.Canvas.restore();
-      this._drawingContext = null;
-    }
-    super.Dispose();
+    this.PathEffect?.Dispose(), this.ImageFilter?.Dispose(), this._drawingContext != null && l.OpInequality(this.GetClipRectangle(this._drawingContext.MotionCanvas), n.LvcRectangle.Empty) && (this._drawingContext.Canvas.restore(), this._drawingContext = null), super.Dispose();
   }
-  GetDrawRectangleSize(drawingContext) {
-    let clip = this.GetClipRectangle(drawingContext.MotionCanvas);
-    return System.OpEquality(clip, LiveChartsCore.LvcRectangle.Empty) ? new PixUI.Rect(0, 0, drawingContext.Width, drawingContext.Width) : new PixUI.Rect(clip.X, clip.Y, clip.X + clip.Width, clip.Y + clip.Height);
+  GetDrawRectangleSize(t) {
+    let s = this.GetClipRectangle(t.MotionCanvas);
+    return l.OpEquality(
+      s,
+      n.LvcRectangle.Empty
+    ) ? new d.Rect(0, 0, t.Width, t.Width) : new d.Rect(s.X, s.Y, s.X + s.Width, s.Y + s.Height);
   }
 };
-let LinearGradientPaint = _LinearGradientPaint;
-__publicField(LinearGradientPaint, "s_defaultStartPoint", new PixUI.Point(0, 0.5).Clone());
-__publicField(LinearGradientPaint, "s_defaultEndPoint", new PixUI.Point(1, 0.5).Clone());
-class SolidColorPaint extends Paint {
+let Y = nt;
+o(Y, "s_defaultStartPoint", new d.Point(0, 0.5).Clone()), o(Y, "s_defaultEndPoint", new d.Point(1, 0.5).Clone());
+class c extends $ {
   constructor() {
     super();
-    __publicField(this, "_drawingContext");
+    o(this, "_drawingContext");
   }
-  static MakeByColor(color) {
-    return new SolidColorPaint().Init({ Color: color });
+  static MakeByColor(t) {
+    return new c().Init({ Color: t });
   }
-  static MakeByColorAndStroke(color, strokeWidth) {
-    let p = new SolidColorPaint();
-    p._strokeWidthTransition = p.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("StrokeThickness", strokeWidth));
-    p.Color = color;
-    return p;
+  static MakeByColorAndStroke(t, s) {
+    let r = new c();
+    return r._strokeWidthTransition = r.RegisterMotionProperty(new n.FloatMotionProperty("StrokeThickness", s)), r.Color = t, r;
   }
   CloneTask() {
-    let clone = new SolidColorPaint().Init({
-      Style: this.Style,
-      IsStroke: this.IsStroke,
-      IsFill: this.IsFill,
-      Color: this.Color,
-      IsAntialias: this.IsAntialias,
-      StrokeThickness: this.StrokeThickness,
-      StrokeCap: this.StrokeCap,
-      StrokeJoin: this.StrokeJoin,
-      StrokeMiter: this.StrokeMiter,
-      FontFamily: this.FontFamily,
-      SKFontStyle: this.SKFontStyle,
-      SKTypeface: this.SKTypeface,
-      PathEffect: this.PathEffect?.Clone(),
-      ImageFilter: this.ImageFilter?.Clone()
-    });
-    return clone;
+    return new c().Init(
+      {
+        Style: this.Style,
+        IsStroke: this.IsStroke,
+        IsFill: this.IsFill,
+        Color: this.Color,
+        IsAntialias: this.IsAntialias,
+        StrokeThickness: this.StrokeThickness,
+        StrokeCap: this.StrokeCap,
+        StrokeJoin: this.StrokeJoin,
+        StrokeMiter: this.StrokeMiter,
+        FontFamily: this.FontFamily,
+        SKFontStyle: this.SKFontStyle,
+        SKTypeface: this.SKTypeface,
+        PathEffect: this.PathEffect?.Clone(),
+        ImageFilter: this.ImageFilter?.Clone()
+      }
+    );
   }
-  InitializeTask(drawingContext) {
-    this._skiaPaint ?? (this._skiaPaint = new CanvasKit.Paint());
-    this._skiaPaint.setColor(this.Color);
-    this._skiaPaint.setAntiAlias(this.IsAntialias);
-    this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill);
-    this._skiaPaint.setStrokeCap(this.StrokeCap);
-    this._skiaPaint.setStrokeJoin(this.StrokeJoin);
-    this._skiaPaint.setStrokeMiter(this.StrokeMiter);
-    this._skiaPaint.setStrokeWidth(this.StrokeThickness);
-    this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill);
-    if (this.PathEffect != null) {
-      this.PathEffect.CreateEffect(drawingContext);
-      this._skiaPaint.setPathEffect(this.PathEffect.SKPathEffect);
-    }
-    if (this.ImageFilter != null) {
-      this.ImageFilter.CreateFilter(drawingContext);
-      this._skiaPaint.setImageFilter(this.ImageFilter.SKImageFilter);
-    }
-    let clip = this.GetClipRectangle(drawingContext.MotionCanvas);
-    if (System.OpInequality(clip, LiveChartsCore.LvcRectangle.Empty)) {
-      drawingContext.Canvas.save();
-      drawingContext.Canvas.clipRect(PixUI.Rect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), CanvasKit.ClipOp.Intersect, true);
-      this._drawingContext = drawingContext;
-    }
-    drawingContext.Paint = this._skiaPaint;
-    drawingContext.PaintTask = this;
+  InitializeTask(t) {
+    this._skiaPaint ?? (this._skiaPaint = new CanvasKit.Paint()), this._skiaPaint.setColor(this.Color), this._skiaPaint.setAntiAlias(this.IsAntialias), this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill), this._skiaPaint.setStrokeCap(this.StrokeCap), this._skiaPaint.setStrokeJoin(this.StrokeJoin), this._skiaPaint.setStrokeMiter(this.StrokeMiter), this._skiaPaint.setStrokeWidth(this.StrokeThickness), this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill), this.PathEffect != null && (this.PathEffect.CreateEffect(t), this._skiaPaint.setPathEffect(this.PathEffect.SKPathEffect)), this.ImageFilter != null && (this.ImageFilter.CreateFilter(t), this._skiaPaint.setImageFilter(this.ImageFilter.SKImageFilter));
+    let s = this.GetClipRectangle(t.MotionCanvas);
+    l.OpInequality(s, n.LvcRectangle.Empty) && (t.Canvas.save(), t.Canvas.clipRect(
+      d.Rect.FromLTWH(s.X, s.Y, s.Width, s.Height),
+      CanvasKit.ClipOp.Intersect,
+      !0
+    ), this._drawingContext = t), t.Paint = this._skiaPaint, t.PaintTask = this;
   }
-  ApplyOpacityMask(context, geometry) {
-    if (context.PaintTask == null || context.Paint == null)
+  ApplyOpacityMask(t, s) {
+    if (t.PaintTask == null || t.Paint == null)
       return;
-    let baseColor = context.PaintTask.Color;
-    context.Paint.setColor(new PixUI.Color(baseColor.Red, baseColor.Green, baseColor.Blue, Math.floor(255 * geometry.Opacity) & 255));
+    let r = t.PaintTask.Color;
+    t.Paint.setColor(new d.Color(r.Red, r.Green, r.Blue, Math.floor(255 * s.Opacity) & 255));
   }
-  RestoreOpacityMask(context, geometry) {
-    if (context.PaintTask == null || context.Paint == null)
+  RestoreOpacityMask(t, s) {
+    if (t.PaintTask == null || t.Paint == null)
       return;
-    let baseColor = context.PaintTask.Color;
-    context.Paint.setColor(baseColor);
+    let r = t.PaintTask.Color;
+    t.Paint.setColor(r);
   }
   Dispose() {
-    this.PathEffect?.Dispose();
-    this.ImageFilter?.Dispose();
-    if (this._drawingContext != null && System.OpInequality(this.GetClipRectangle(this._drawingContext.MotionCanvas), LiveChartsCore.LvcRectangle.Empty)) {
-      this._drawingContext.Canvas.restore();
-      this._drawingContext = null;
-    }
-    super.Dispose();
+    this.PathEffect?.Dispose(), this.ImageFilter?.Dispose(), this._drawingContext != null && l.OpInequality(this.GetClipRectangle(this._drawingContext.MotionCanvas), n.LvcRectangle.Empty) && (this._drawingContext.Canvas.restore(), this._drawingContext = null), super.Dispose();
   }
 }
-class PaintTask extends Paint {
+class ie extends $ {
 }
-class RadialGradientPaint extends Paint {
-  constructor(gradientStops, center = null, radius = 0.5, colorPos = null, tileMode = CanvasKit.TileMode.Repeat) {
+class ut extends $ {
+  constructor(t, s = null, r = 0.5, e = null, a = CanvasKit.TileMode.Repeat) {
     super();
-    __publicField(this, "_drawingContext");
-    __publicField(this, "_gradientStops");
-    __publicField(this, "_center");
-    __publicField(this, "_radius");
-    __publicField(this, "_colorPos");
-    __publicField(this, "_tileMode");
-    this._gradientStops = gradientStops;
-    if (center == null)
-      this._center = new PixUI.Point(0.5, 0.5);
-    this._radius = radius;
-    this._colorPos = colorPos;
-    this._tileMode = tileMode;
+    o(this, "_drawingContext");
+    o(this, "_gradientStops");
+    o(this, "_center");
+    o(this, "_radius");
+    o(this, "_colorPos");
+    o(this, "_tileMode");
+    this._gradientStops = t, s == null && (this._center = new d.Point(0.5, 0.5)), this._radius = r, this._colorPos = e, this._tileMode = a;
   }
   CloneTask() {
-    return new RadialGradientPaint(this._gradientStops, this._center.Clone(), this._radius, this._colorPos, this._tileMode).Init({
-      Style: this.Style,
-      IsStroke: this.IsStroke,
-      IsFill: this.IsFill,
-      Color: this.Color,
-      IsAntialias: this.IsAntialias,
-      StrokeThickness: this.StrokeThickness,
-      StrokeCap: this.StrokeCap,
-      StrokeJoin: this.StrokeJoin,
-      StrokeMiter: this.StrokeMiter,
-      FontFamily: this.FontFamily,
-      SKFontStyle: this.SKFontStyle,
-      SKTypeface: this.SKTypeface,
-      PathEffect: this.PathEffect?.Clone(),
-      ImageFilter: this.ImageFilter?.Clone()
-    });
+    return new ut(this._gradientStops, this._center.Clone(), this._radius, this._colorPos, this._tileMode).Init(
+      {
+        Style: this.Style,
+        IsStroke: this.IsStroke,
+        IsFill: this.IsFill,
+        Color: this.Color,
+        IsAntialias: this.IsAntialias,
+        StrokeThickness: this.StrokeThickness,
+        StrokeCap: this.StrokeCap,
+        StrokeJoin: this.StrokeJoin,
+        StrokeMiter: this.StrokeMiter,
+        FontFamily: this.FontFamily,
+        SKFontStyle: this.SKFontStyle,
+        SKTypeface: this.SKTypeface,
+        PathEffect: this.PathEffect?.Clone(),
+        ImageFilter: this.ImageFilter?.Clone()
+      }
+    );
   }
-  InitializeTask(drawingContext) {
+  InitializeTask(t) {
     this._skiaPaint ?? (this._skiaPaint = new CanvasKit.Paint());
-    let size = this.GetDrawRectangleSize(drawingContext);
-    let center = new PixUI.Point(size.Left + this._center.X * size.Width, size.Top + this._center.Y * size.Height);
-    let r = size.Left + size.Width > size.Top + size.Height ? size.Top + size.Height : size.Left + size.Width;
-    r *= this._radius;
-    this._skiaPaint.setShader(CanvasKit.Shader.MakeRadialGradient(center.Clone(), r, this._gradientStops, this._colorPos == null ? null : Array.from(this._colorPos), this._tileMode));
-    this._skiaPaint.setAntiAlias(this.IsAntialias);
-    this._skiaPaint.setStyle(CanvasKit.PaintStyle.Stroke);
-    this._skiaPaint.setStrokeWidth(this.StrokeThickness);
-    this._skiaPaint.setStrokeCap(this.StrokeCap);
-    this._skiaPaint.setStrokeJoin(this.StrokeJoin);
-    this._skiaPaint.setStrokeMiter(this.StrokeMiter);
-    this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill);
-    if (this.PathEffect != null) {
-      this.PathEffect.CreateEffect(drawingContext);
-      this._skiaPaint.setPathEffect(this.PathEffect.SKPathEffect);
-    }
-    if (this.ImageFilter != null) {
-      this.ImageFilter.CreateFilter(drawingContext);
-      this._skiaPaint.setImageFilter(this.ImageFilter.SKImageFilter);
-    }
-    let clip = this.GetClipRectangle(drawingContext.MotionCanvas);
-    if (System.OpInequality(clip, LiveChartsCore.LvcRectangle.Empty)) {
-      drawingContext.Canvas.save();
-      drawingContext.Canvas.clipRect(PixUI.Rect.FromLTWH(clip.X, clip.Y, clip.Width, clip.Height), CanvasKit.ClipOp.Intersect, true);
-      this._drawingContext = drawingContext;
-    }
-    drawingContext.Paint = this._skiaPaint;
-    drawingContext.PaintTask = this;
+    let s = this.GetDrawRectangleSize(t), r = new d.Point(s.Left + this._center.X * s.Width, s.Top + this._center.Y * s.Height), e = s.Left + s.Width > s.Top + s.Height ? s.Top + s.Height : s.Left + s.Width;
+    e *= this._radius, this._skiaPaint.setShader(CanvasKit.Shader.MakeRadialGradient(r.Clone(), e, this._gradientStops, this._colorPos == null ? null : Array.from(this._colorPos), this._tileMode)), this._skiaPaint.setAntiAlias(this.IsAntialias), this._skiaPaint.setStyle(CanvasKit.PaintStyle.Stroke), this._skiaPaint.setStrokeWidth(this.StrokeThickness), this._skiaPaint.setStrokeCap(this.StrokeCap), this._skiaPaint.setStrokeJoin(this.StrokeJoin), this._skiaPaint.setStrokeMiter(this.StrokeMiter), this._skiaPaint.setStyle(this.IsStroke ? CanvasKit.PaintStyle.Stroke : CanvasKit.PaintStyle.Fill), this.PathEffect != null && (this.PathEffect.CreateEffect(t), this._skiaPaint.setPathEffect(this.PathEffect.SKPathEffect)), this.ImageFilter != null && (this.ImageFilter.CreateFilter(t), this._skiaPaint.setImageFilter(this.ImageFilter.SKImageFilter));
+    let a = this.GetClipRectangle(t.MotionCanvas);
+    l.OpInequality(a, n.LvcRectangle.Empty) && (t.Canvas.save(), t.Canvas.clipRect(d.Rect.FromLTWH(a.X, a.Y, a.Width, a.Height), CanvasKit.ClipOp.Intersect, !0), this._drawingContext = t), t.Paint = this._skiaPaint, t.PaintTask = this;
   }
-  RestoreOpacityMask(context, geometry) {
-    throw new System.NotImplementedException();
+  RestoreOpacityMask(t, s) {
+    throw new l.NotImplementedException();
   }
-  ApplyOpacityMask(context, geometry) {
-    throw new System.NotImplementedException();
+  ApplyOpacityMask(t, s) {
+    throw new l.NotImplementedException();
   }
   Dispose() {
-    this.PathEffect?.Dispose();
-    this.ImageFilter?.Dispose();
-    if (this._drawingContext != null && System.OpInequality(this.GetClipRectangle(this._drawingContext.MotionCanvas), LiveChartsCore.LvcRectangle.Empty)) {
-      this._drawingContext.Canvas.restore();
-      this._drawingContext = null;
-    }
-    super.Dispose();
+    this.PathEffect?.Dispose(), this.ImageFilter?.Dispose(), this._drawingContext != null && l.OpInequality(this.GetClipRectangle(this._drawingContext.MotionCanvas), n.LvcRectangle.Empty) && (this._drawingContext.Canvas.restore(), this._drawingContext = null), super.Dispose();
   }
-  GetDrawRectangleSize(drawingContext) {
-    let clip = this.GetClipRectangle(drawingContext.MotionCanvas);
-    return System.OpEquality(clip, LiveChartsCore.LvcRectangle.Empty) ? new PixUI.Rect(0, 0, drawingContext.Width, drawingContext.Width) : new PixUI.Rect(clip.X, clip.Y, clip.Width, clip.Height);
+  GetDrawRectangleSize(t) {
+    let s = this.GetClipRectangle(t.MotionCanvas);
+    return l.OpEquality(
+      s,
+      n.LvcRectangle.Empty
+    ) ? new d.Rect(0, 0, t.Width, t.Width) : new d.Rect(s.X, s.Y, s.Width, s.Height);
   }
 }
-const _SKDefaultLegend = class {
+const K = class {
   constructor() {
-    __publicField(this, "_orientation", LiveChartsCore.ContainerOrientation.Vertical);
-    __publicField(this, "_stackPanel");
-    __publicField(this, "_activeSeries", new DoubleDict());
-    __publicField(this, "_toRemoveSeries", new System.List());
-    __publicField(this, "_backgroundPaint");
-    __publicField(this, "Size", LiveChartsCore.LvcSize.Empty.Clone());
-    __publicField(this, "FontPaint");
-    __publicField(this, "TextSize", 15);
-    this.FontPaint = new SolidColorPaint().Init({ Color: new PixUI.Color(30, 30, 30, 255) });
+    o(this, "_orientation", n.ContainerOrientation.Vertical);
+    o(this, "_stackPanel");
+    o(this, "_activeSeries", new ft());
+    o(this, "_toRemoveSeries", new l.List());
+    o(this, "_backgroundPaint");
+    o(this, "Size", n.LvcSize.Empty.Clone());
+    o(this, "FontPaint");
+    o(this, "TextSize", 15);
+    this.FontPaint = new c().Init({ Color: new d.Color(30, 30, 30, 255) });
   }
   get BackgroundPaint() {
     return this._backgroundPaint;
   }
-  set BackgroundPaint(value) {
-    this._backgroundPaint = value;
-    if (value != null) {
-      value.IsFill = true;
+  set BackgroundPaint(i) {
+    this._backgroundPaint = i, i != null && (i.IsFill = !0);
+  }
+  Draw(i) {
+    if (i.Legend == null || i.LegendPosition == n.LegendPosition.Hidden || (this.Measure(i), this._stackPanel == null))
+      return;
+    this.BackgroundPaint != null && (this.BackgroundPaint.ZIndex = K.s_zIndex), this.FontPaint != null && (this.FontPaint.ZIndex = K.s_zIndex + 1);
+    let t = i.ControlSize.Clone(), s = 17;
+    i.LegendPosition == n.LegendPosition.Top && (i.Canvas.StartPoint = new n.LvcPoint(0, this.Size.Height), this._stackPanel.X = t.Width * 0.5 - this.Size.Width * 0.5, this._stackPanel.Y = -this.Size.Height), i.LegendPosition == n.LegendPosition.Bottom && (this._stackPanel.X = t.Width * 0.5 - this.Size.Width * 0.5, this._stackPanel.Y = t.Height), i.LegendPosition == n.LegendPosition.Left && (i.Canvas.StartPoint = new n.LvcPoint(this.Size.Width, 0), this._stackPanel.X = -this.Size.Width, this._stackPanel.Y = t.Height * 0.5 - this.Size.Height * 0.5), i.LegendPosition == n.LegendPosition.Right && (this._stackPanel.X = t.Width - s, this._stackPanel.Y = t.Height * 0.5 - this.Size.Height * 0.5), i.AddVisual(this._stackPanel);
+    for (const r of this._toRemoveSeries) {
+      let e;
+      this._stackPanel.Children.Remove(r), i.RemoveVisual(r), this._activeSeries.TryGetKey(r, new l.Out(() => e, (a) => e = a)) && this._activeSeries.Remove(e);
     }
   }
-  Draw(chart) {
-    if (chart.Legend == null || chart.LegendPosition == LiveChartsCore.LegendPosition.Hidden)
-      return;
-    this.Measure(chart);
-    if (this._stackPanel == null)
-      return;
-    if (this.BackgroundPaint != null)
-      this.BackgroundPaint.ZIndex = _SKDefaultLegend.s_zIndex;
-    if (this.FontPaint != null)
-      this.FontPaint.ZIndex = _SKDefaultLegend.s_zIndex + 1;
-    let actualChartSize = chart.ControlSize.Clone();
-    let iDontKnowWhyThis = 17;
-    if (chart.LegendPosition == LiveChartsCore.LegendPosition.Top) {
-      chart.Canvas.StartPoint = new LiveChartsCore.LvcPoint(0, this.Size.Height);
-      this._stackPanel.X = actualChartSize.Width * 0.5 - this.Size.Width * 0.5;
-      this._stackPanel.Y = -this.Size.Height;
-    }
-    if (chart.LegendPosition == LiveChartsCore.LegendPosition.Bottom) {
-      this._stackPanel.X = actualChartSize.Width * 0.5 - this.Size.Width * 0.5;
-      this._stackPanel.Y = actualChartSize.Height;
-    }
-    if (chart.LegendPosition == LiveChartsCore.LegendPosition.Left) {
-      chart.Canvas.StartPoint = new LiveChartsCore.LvcPoint(this.Size.Width, 0);
-      this._stackPanel.X = -this.Size.Width;
-      this._stackPanel.Y = actualChartSize.Height * 0.5 - this.Size.Height * 0.5;
-    }
-    if (chart.LegendPosition == LiveChartsCore.LegendPosition.Right) {
-      this._stackPanel.X = actualChartSize.Width - iDontKnowWhyThis;
-      this._stackPanel.Y = actualChartSize.Height * 0.5 - this.Size.Height * 0.5;
-    }
-    chart.AddVisual(this._stackPanel);
-    for (const visual of this._toRemoveSeries) {
-      let series;
-      this._stackPanel.Children.Remove(visual);
-      chart.RemoveVisual(visual);
-      if (this._activeSeries.TryGetKey(visual, new System.Out(() => series, ($v) => series = $v)))
-        this._activeSeries.Remove(series);
-    }
-  }
-  BuildLayout(chart) {
-    if (chart.View.LegendBackgroundPaint != null)
-      this.BackgroundPaint = chart.View.LegendBackgroundPaint;
-    if (chart.View.LegendTextPaint != null)
-      this.FontPaint = chart.View.LegendTextPaint;
-    if (chart.View.LegendTextSize != null)
-      this.TextSize = chart.View.LegendTextSize;
-    this._orientation = chart.LegendPosition == LiveChartsCore.LegendPosition.Left || chart.LegendPosition == LiveChartsCore.LegendPosition.Right ? LiveChartsCore.ContainerOrientation.Vertical : LiveChartsCore.ContainerOrientation.Horizontal;
-    this._stackPanel ?? (this._stackPanel = new LiveChartsCore.StackPanel(() => new RoundedRectangleGeometry()).Init({
-      Padding: LiveChartsCore.Padding.All(0),
-      HorizontalAlignment: LiveChartsCore.Align.Start,
-      VerticalAlignment: LiveChartsCore.Align.Middle
-    }));
-    this._stackPanel.Orientation = this._orientation;
-    this._stackPanel.BackgroundPaint = this.BackgroundPaint;
-    this._toRemoveSeries = new System.List(this._stackPanel.Children);
-    for (const series of chart.ChartSeries) {
-      if (!series.IsVisibleAtLegend)
+  BuildLayout(i) {
+    i.View.LegendBackgroundPaint != null && (this.BackgroundPaint = i.View.LegendBackgroundPaint), i.View.LegendTextPaint != null && (this.FontPaint = i.View.LegendTextPaint), i.View.LegendTextSize != null && (this.TextSize = i.View.LegendTextSize), this._orientation = i.LegendPosition == n.LegendPosition.Left || i.LegendPosition == n.LegendPosition.Right ? n.ContainerOrientation.Vertical : n.ContainerOrientation.Horizontal, this._stackPanel ?? (this._stackPanel = new n.StackPanel(() => new T()).Init(
+      {
+        Padding: n.Padding.All(0),
+        HorizontalAlignment: n.Align.Start,
+        VerticalAlignment: n.Align.Middle
+      }
+    )), this._stackPanel.Orientation = this._orientation, this._stackPanel.BackgroundPaint = this.BackgroundPaint, this._toRemoveSeries = new l.List(this._stackPanel.Children);
+    for (const t of i.ChartSeries) {
+      if (!t.IsVisibleAtLegend)
         continue;
-      let seriesMiniatureVisual = this.GetSeriesVisual(series);
-      this._toRemoveSeries.Remove(seriesMiniatureVisual);
+      let s = this.GetSeriesVisual(t);
+      this._toRemoveSeries.Remove(s);
     }
   }
-  Measure(chart) {
-    let skiaChart = chart;
-    this.BuildLayout(skiaChart);
-    if (this._stackPanel == null)
-      return;
-    this.Size = this._stackPanel.Measure(skiaChart, null, null);
+  Measure(i) {
+    let t = i;
+    this.BuildLayout(t), this._stackPanel != null && (this.Size = this._stackPanel.Measure(t, null, null));
   }
-  GetSeriesVisual(series) {
-    let seriesPanel;
-    if (this._activeSeries.TryGetValue(series, new System.Out(() => seriesPanel, ($v) => seriesPanel = $v)))
-      return seriesPanel;
-    let sketch = series.GetMiniatresSketch();
-    let relativePanel = VisualElementsExtensions.AsDrawnControl(sketch);
-    let sp = new LiveChartsCore.StackPanel(() => new RoundedRectangleGeometry()).Init({
-      Padding: new LiveChartsCore.Padding(15, 4, 15, 4),
-      VerticalAlignment: LiveChartsCore.Align.Middle,
-      HorizontalAlignment: LiveChartsCore.Align.Middle
-    });
-    sp.Children.Add(relativePanel);
-    sp.Children.Add(new LabelVisual().Init({
-      Text: series.Name ?? "",
-      Paint: this.FontPaint,
-      TextSize: this.TextSize,
-      Padding: new LiveChartsCore.Padding(8, 0, 0, 0),
-      VerticalAlignment: LiveChartsCore.Align.Start,
-      HorizontalAlignment: LiveChartsCore.Align.Start
-    }));
-    this._stackPanel?.Children.Add(sp);
-    this._activeSeries.Add(series, sp);
-    return sp;
+  GetSeriesVisual(i) {
+    let t;
+    if (this._activeSeries.TryGetValue(i, new l.Out(() => t, (a) => t = a)))
+      return t;
+    let s = i.GetMiniatresSketch(), r = ht.AsDrawnControl(s), e = new n.StackPanel(() => new T()).Init(
+      {
+        Padding: new n.Padding(15, 4, 15, 4),
+        VerticalAlignment: n.Align.Middle,
+        HorizontalAlignment: n.Align.Middle
+      }
+    );
+    return e.Children.Add(r), e.Children.Add(new lt().Init(
+      {
+        Text: i.Name ?? "",
+        Paint: this.FontPaint,
+        TextSize: this.TextSize,
+        Padding: new n.Padding(8, 0, 0, 0),
+        VerticalAlignment: n.Align.Start,
+        HorizontalAlignment: n.Align.Start
+      }
+    )), this._stackPanel?.Children.Add(e), this._activeSeries.Add(i, e), e;
   }
 };
-let SKDefaultLegend = _SKDefaultLegend;
-__publicField(SKDefaultLegend, "$meta_LiveChartsCore_IImageControl", true);
-__publicField(SKDefaultLegend, "s_zIndex", 10050);
-const _SKDefaultTooltip = class {
+let O = K;
+o(O, "$meta_LiveChartsCore_IImageControl", !0), o(O, "s_zIndex", 10050);
+var z;
+const N = class {
   constructor() {
-    __publicField(this, "_chart");
-    __publicField(this, "_backgroundPaint");
-    __publicField(this, "_stackPanel");
-    __publicField(this, "_seriesVisualsMap", new System.Dictionary());
-    __privateAdd(this, _Size, LiveChartsCore.LvcSize.Empty.Clone());
-    __publicField(this, "FontPaint");
-    __publicField(this, "TextSize", 16);
-    this.FontPaint = new SolidColorPaint().Init({ Color: new PixUI.Color(28, 49, 58) });
-    this.BackgroundPaint = new SolidColorPaint().Init({
-      Color: new PixUI.Color(240, 240, 240),
-      ImageFilter: new DropShadow(2, 2, 2, 2, new PixUI.Color(30, 30, 30, 60))
-    });
+    o(this, "_chart");
+    o(this, "_backgroundPaint");
+    o(this, "_stackPanel");
+    o(this, "_seriesVisualsMap", new l.Dictionary());
+    A(this, z, n.LvcSize.Empty.Clone());
+    o(this, "FontPaint");
+    o(this, "TextSize", 16);
+    this.FontPaint = new c().Init({ Color: new d.Color(28, 49, 58) }), this.BackgroundPaint = new c().Init(
+      {
+        Color: new d.Color(240, 240, 240),
+        ImageFilter: new it(2, 2, 2, 2, new d.Color(30, 30, 30, 60))
+      }
+    );
   }
   get Size() {
-    return __privateGet(this, _Size);
+    return R(this, z);
   }
-  set Size(value) {
-    __privateSet(this, _Size, value);
+  set Size(i) {
+    I(this, z, i);
   }
   get BackgroundPaint() {
     return this._backgroundPaint;
   }
-  set BackgroundPaint(value) {
-    this._backgroundPaint = value;
-    if (value != null) {
-      value.IsFill = true;
-    }
+  set BackgroundPaint(i) {
+    this._backgroundPaint = i, i != null && (i.IsFill = !0);
   }
-  Show(foundPoints, chart) {
-    this._chart = chart;
-    if (chart.View.TooltipBackgroundPaint != null)
-      this.BackgroundPaint = chart.View.TooltipBackgroundPaint;
-    if (chart.View.TooltipTextPaint != null)
-      this.FontPaint = chart.View.TooltipTextPaint;
-    if (chart.View.TooltipTextSize != null)
-      this.TextSize = chart.View.TooltipTextSize;
-    if (this.BackgroundPaint != null)
-      this.BackgroundPaint.ZIndex = _SKDefaultTooltip.s_zIndex;
-    if (this.FontPaint != null)
-      this.FontPaint.ZIndex = _SKDefaultTooltip.s_zIndex + 1;
-    let sp = this._stackPanel ?? (this._stackPanel = new LiveChartsCore.StackPanel(() => new RoundedRectangleGeometry()).Init({
-      Padding: new LiveChartsCore.Padding(12, 8, 12, 8),
-      Orientation: LiveChartsCore.ContainerOrientation.Vertical,
-      HorizontalAlignment: LiveChartsCore.Align.Start,
-      VerticalAlignment: LiveChartsCore.Align.Middle,
-      BackgroundPaint: this.BackgroundPaint
-    }));
-    let toRemoveSeries = new System.List(this._seriesVisualsMap.Values);
-    for (const point of foundPoints) {
-      let seriesMiniatureVisual = this.GetSeriesVisual(point);
-      toRemoveSeries.Remove(seriesMiniatureVisual);
+  Show(i, t) {
+    this._chart = t, t.View.TooltipBackgroundPaint != null && (this.BackgroundPaint = t.View.TooltipBackgroundPaint), t.View.TooltipTextPaint != null && (this.FontPaint = t.View.TooltipTextPaint), t.View.TooltipTextSize != null && (this.TextSize = t.View.TooltipTextSize), this.BackgroundPaint != null && (this.BackgroundPaint.ZIndex = N.s_zIndex), this.FontPaint != null && (this.FontPaint.ZIndex = N.s_zIndex + 1);
+    let s = this._stackPanel ?? (this._stackPanel = new n.StackPanel(() => new T()).Init(
+      {
+        Padding: new n.Padding(12, 8, 12, 8),
+        Orientation: n.ContainerOrientation.Vertical,
+        HorizontalAlignment: n.Align.Start,
+        VerticalAlignment: n.Align.Middle,
+        BackgroundPaint: this.BackgroundPaint
+      }
+    )), r = new l.List(this._seriesVisualsMap.Values);
+    for (const a of i) {
+      let h = this.GetSeriesVisual(a);
+      r.Remove(h);
     }
-    this.Measure(chart);
-    let location = LiveChartsCore.Extensions.GetTooltipLocation(foundPoints, this.Size.Clone(), chart);
-    this._stackPanel.X = location.X;
-    this._stackPanel.Y = location.Y;
-    for (const seriesVisual of toRemoveSeries) {
-      this._stackPanel.Children.Remove(seriesVisual.Visual);
-      chart.RemoveVisual(seriesVisual.Visual);
-      this._seriesVisualsMap.Remove(seriesVisual.Series);
-    }
-    chart.AddVisual(sp);
+    this.Measure(t);
+    let e = n.Extensions.GetTooltipLocation(i, this.Size.Clone(), t);
+    this._stackPanel.X = e.X, this._stackPanel.Y = e.Y;
+    for (const a of r)
+      this._stackPanel.Children.Remove(a.Visual), t.RemoveVisual(a.Visual), this._seriesVisualsMap.Remove(a.Series);
+    t.AddVisual(s);
   }
   Hide() {
-    if (this._chart == null || this._stackPanel == null)
-      return;
-    this._chart.RemoveVisual(this._stackPanel);
+    this._chart == null || this._stackPanel == null || this._chart.RemoveVisual(this._stackPanel);
   }
-  Measure(chart) {
-    if (this._stackPanel == null)
-      return;
-    this.Size = this._stackPanel.Measure(chart, null, null);
+  Measure(i) {
+    this._stackPanel != null && (this.Size = this._stackPanel.Measure(i, null, null));
   }
-  GetSeriesVisual(point) {
-    let visual;
-    if (this._seriesVisualsMap.TryGetValue(point.Context.Series, new System.Out(() => visual, ($v) => visual = $v))) {
-      if (this._chart == null)
-        return visual;
-      visual.LabelVisual.Text = point.AsTooltipString;
-      visual.LabelVisual.Invalidate(this._chart);
-      return visual;
-    }
-    let sketch = point.Context.Series.GetMiniatresSketch();
-    let relativePanel = VisualElementsExtensions.AsDrawnControl(sketch);
-    let label = new LabelVisual().Init({
-      Text: point.AsTooltipString,
-      Paint: this.FontPaint,
-      TextSize: this.TextSize,
-      Padding: new LiveChartsCore.Padding(8, 0, 0, 0),
-      VerticalAlignment: LiveChartsCore.Align.Start,
-      HorizontalAlignment: LiveChartsCore.Align.Start
-    });
-    let sp = new LiveChartsCore.StackPanel(() => new RoundedRectangleGeometry()).Init({
-      Padding: new LiveChartsCore.Padding(0, 4, 0, 4),
-      VerticalAlignment: LiveChartsCore.Align.Middle,
-      HorizontalAlignment: LiveChartsCore.Align.Middle
-    });
-    sp.Children.Add(relativePanel);
-    sp.Children.Add(label);
-    this._stackPanel?.Children.Add(sp);
-    let seriesVisual = new SeriesVisual(point.Context.Series, sp, label);
-    this._seriesVisualsMap.Add(point.Context.Series, seriesVisual);
-    return seriesVisual;
+  GetSeriesVisual(i) {
+    let t;
+    if (this._seriesVisualsMap.TryGetValue(i.Context.Series, new l.Out(() => t, (g) => t = g)))
+      return this._chart == null || (t.LabelVisual.Text = i.AsTooltipString, t.LabelVisual.Invalidate(this._chart)), t;
+    let s = i.Context.Series.GetMiniatresSketch(), r = ht.AsDrawnControl(s), e = new lt().Init(
+      {
+        Text: i.AsTooltipString,
+        Paint: this.FontPaint,
+        TextSize: this.TextSize,
+        Padding: new n.Padding(8, 0, 0, 0),
+        VerticalAlignment: n.Align.Start,
+        HorizontalAlignment: n.Align.Start
+      }
+    ), a = new n.StackPanel(() => new T()).Init(
+      {
+        Padding: new n.Padding(0, 4, 0, 4),
+        VerticalAlignment: n.Align.Middle,
+        HorizontalAlignment: n.Align.Middle
+      }
+    );
+    a.Children.Add(r), a.Children.Add(e), this._stackPanel?.Children.Add(a);
+    let h = new Ft(i.Context.Series, a, e);
+    return this._seriesVisualsMap.Add(i.Context.Series, h), h;
   }
 };
-let SKDefaultTooltip = _SKDefaultTooltip;
-_Size = new WeakMap();
-__publicField(SKDefaultTooltip, "$meta_LiveChartsCore_IImageControl", true);
-__publicField(SKDefaultTooltip, "s_zIndex", 10050);
-class SeriesVisual {
-  constructor(series, stackPanel, label) {
-    __privateAdd(this, _Series, void 0);
-    __privateAdd(this, _Visual, void 0);
-    __publicField(this, "LabelVisual");
-    this.Series = series;
-    this.Visual = stackPanel;
-    this.LabelVisual = label;
+let G = N;
+z = new WeakMap(), o(G, "$meta_LiveChartsCore_IImageControl", !0), o(G, "s_zIndex", 10050);
+var D, b;
+class Ft {
+  constructor(i, t, s) {
+    A(this, D, void 0);
+    A(this, b, void 0);
+    o(this, "LabelVisual");
+    this.Series = i, this.Visual = t, this.LabelVisual = s;
   }
   get Series() {
-    return __privateGet(this, _Series);
+    return R(this, D);
   }
-  set Series(value) {
-    __privateSet(this, _Series, value);
+  set Series(i) {
+    I(this, D, i);
   }
   get Visual() {
-    return __privateGet(this, _Visual);
+    return R(this, b);
   }
-  set Visual(value) {
-    __privateSet(this, _Visual, value);
-  }
-}
-_Series = new WeakMap();
-_Visual = new WeakMap();
-class Drawable extends LiveChartsCore.Animatable {
-}
-class BezierPoint extends LiveChartsCore.BezierVisualPoint {
-  constructor(geometry) {
-    super(geometry);
+  set Visual(i) {
+    I(this, b, i);
   }
 }
-class StepPoint extends LiveChartsCore.StepLineVisualPoint {
-  constructor(visualFactory) {
-    super(visualFactory);
+D = new WeakMap(), b = new WeakMap();
+class Z extends n.Animatable {
+}
+class Q extends n.BezierVisualPoint {
+  constructor(i) {
+    super(i);
   }
 }
-class PathCommand extends LiveChartsCore.Animatable {
+class dt extends n.StepLineVisualPoint {
+  constructor(i) {
+    super(i);
+  }
+}
+class ct extends n.Animatable {
   constructor() {
     super(...arguments);
-    __publicField(this, "Id", 0);
+    o(this, "Id", 0);
   }
 }
-class LineSegment extends PathCommand {
+class xt extends ct {
   constructor() {
     super();
-    __publicField(this, "_xProperty");
-    __publicField(this, "_yProperty");
-    this._xProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("X", 0));
-    this._yProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Y", 0));
+    o(this, "_xProperty");
+    o(this, "_yProperty");
+    this._xProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("X", 0)), this._yProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Y", 0));
   }
   get X() {
     return this._xProperty.GetMovement(this);
   }
-  set X(value) {
-    this._xProperty.SetMovement(value, this);
+  set X(t) {
+    this._xProperty.SetMovement(t, this);
   }
   get Y() {
     return this._yProperty.GetMovement(this);
   }
-  set Y(value) {
-    this._yProperty.SetMovement(value, this);
+  set Y(t) {
+    this._yProperty.SetMovement(t, this);
   }
-  Execute(path, currentTime, pathGeometry) {
-    this.CurrentTime = currentTime;
-    path.lineTo(this.X, this.Y);
+  Execute(t, s, r) {
+    this.CurrentTime = s, t.lineTo(this.X, this.Y);
   }
 }
-class MoveToPathCommand extends PathCommand {
+class Lt extends ct {
   constructor() {
     super();
-    __publicField(this, "_xProperty");
-    __publicField(this, "_yProperty");
-    this._xProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("X", 0));
-    this._yProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Y", 0));
+    o(this, "_xProperty");
+    o(this, "_yProperty");
+    this._xProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("X", 0)), this._yProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Y", 0));
   }
   get X() {
     return this._xProperty.GetMovement(this);
   }
-  set X(value) {
-    this._xProperty.SetMovement(value, this);
+  set X(t) {
+    this._xProperty.SetMovement(t, this);
   }
   get Y() {
     return this._yProperty.GetMovement(this);
   }
-  set Y(value) {
-    this._yProperty.SetMovement(value, this);
+  set Y(t) {
+    this._yProperty.SetMovement(t, this);
   }
-  Execute(path, currentTime, pathGeometry) {
-    path.moveTo(this.X, this.Y);
+  Execute(t, s, r) {
+    t.moveTo(this.X, this.Y);
   }
 }
-class Geometry extends Drawable {
-  constructor(hasGeometryTransform = false) {
+class E extends Z {
+  constructor(t = !1) {
     super();
-    __publicField(this, "_hasGeometryTransform", false);
-    __publicField(this, "_opacityProperty");
-    __publicField(this, "_xProperty");
-    __publicField(this, "_yProperty");
-    __publicField(this, "_rotationProperty");
-    __publicField(this, "_transformOriginProperty");
-    __publicField(this, "_scaleProperty");
-    __publicField(this, "_skewProperty");
-    __publicField(this, "_translateProperty");
-    __publicField(this, "_transformProperty");
-    __publicField(this, "_hasTransform", false);
-    __publicField(this, "_hasRotation", false);
-    __publicField(this, "_hasScale", false);
-    __publicField(this, "_hasSkew", false);
-    __publicField(this, "_hasTranslate", false);
-    __publicField(this, "Stroke");
-    __publicField(this, "Fill");
-    this._hasGeometryTransform = hasGeometryTransform;
-    this._xProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("X", 0));
-    this._yProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Y", 0));
-    this._opacityProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Opacity", 1));
-    this._transformOriginProperty = this.RegisterMotionProperty(new LiveChartsCore.PointMotionProperty("TransformOrigin", new LiveChartsCore.LvcPoint(0.5, 0.5)));
-    this._translateProperty = this.RegisterMotionProperty(new LiveChartsCore.PointMotionProperty("TranslateTransform", new LiveChartsCore.LvcPoint(0, 0)));
-    this._rotationProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("RotateTransform", 0));
-    this._scaleProperty = this.RegisterMotionProperty(new LiveChartsCore.PointMotionProperty("ScaleTransform", new LiveChartsCore.LvcPoint(1, 1)));
-    this._skewProperty = this.RegisterMotionProperty(new LiveChartsCore.PointMotionProperty("SkewTransform", new LiveChartsCore.LvcPoint(1, 1)));
-    this._transformProperty = this.RegisterMotionProperty(new SKMatrixMotionProperty("Transform", PixUI.Matrix4.CreateIdentity()));
+    o(this, "_hasGeometryTransform", !1);
+    o(this, "_opacityProperty");
+    o(this, "_xProperty");
+    o(this, "_yProperty");
+    o(this, "_rotationProperty");
+    o(this, "_transformOriginProperty");
+    o(this, "_scaleProperty");
+    o(this, "_skewProperty");
+    o(this, "_translateProperty");
+    o(this, "_transformProperty");
+    o(this, "_hasTransform", !1);
+    o(this, "_hasRotation", !1);
+    o(this, "_hasScale", !1);
+    o(this, "_hasSkew", !1);
+    o(this, "_hasTranslate", !1);
+    o(this, "Stroke");
+    o(this, "Fill");
+    this._hasGeometryTransform = t, this._xProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("X", 0)), this._yProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Y", 0)), this._opacityProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Opacity", 1)), this._transformOriginProperty = this.RegisterMotionProperty(
+      new n.PointMotionProperty("TransformOrigin", new n.LvcPoint(0.5, 0.5))
+    ), this._translateProperty = this.RegisterMotionProperty(
+      new n.PointMotionProperty("TranslateTransform", new n.LvcPoint(0, 0))
+    ), this._rotationProperty = this.RegisterMotionProperty(
+      new n.FloatMotionProperty("RotateTransform", 0)
+    ), this._scaleProperty = this.RegisterMotionProperty(
+      new n.PointMotionProperty("ScaleTransform", new n.LvcPoint(1, 1))
+    ), this._skewProperty = this.RegisterMotionProperty(
+      new n.PointMotionProperty("SkewTransform", new n.LvcPoint(1, 1))
+    ), this._transformProperty = this.RegisterMotionProperty(
+      new It("Transform", d.Matrix4.CreateIdentity())
+    );
   }
   get HasTransform() {
     return this._hasGeometryTransform || this._hasTranslate || this._hasRotation || this._hasScale || this._hasSkew || this._hasTransform;
@@ -1982,166 +1616,116 @@ class Geometry extends Drawable {
   get X() {
     return this._xProperty.GetMovement(this);
   }
-  set X(value) {
-    this._xProperty.SetMovement(value, this);
+  set X(t) {
+    this._xProperty.SetMovement(t, this);
   }
   get Y() {
     return this._yProperty.GetMovement(this);
   }
-  set Y(value) {
-    this._yProperty.SetMovement(value, this);
+  set Y(t) {
+    this._yProperty.SetMovement(t, this);
   }
   get TransformOrigin() {
     return this._transformOriginProperty.GetMovement(this);
   }
-  set TransformOrigin(value) {
-    this._transformOriginProperty.SetMovement(value.Clone(), this);
+  set TransformOrigin(t) {
+    this._transformOriginProperty.SetMovement(t.Clone(), this);
   }
   get TranslateTransform() {
     return this._translateProperty.GetMovement(this);
   }
-  set TranslateTransform(value) {
-    this._translateProperty.SetMovement(value.Clone(), this);
-    this._hasTranslate = value.X != 0 || value.Y != 0;
+  set TranslateTransform(t) {
+    this._translateProperty.SetMovement(t.Clone(), this), this._hasTranslate = t.X != 0 || t.Y != 0;
   }
   get RotateTransform() {
     return this._rotationProperty.GetMovement(this);
   }
-  set RotateTransform(value) {
-    this._rotationProperty.SetMovement(value, this);
-    this._hasRotation = value != 0;
+  set RotateTransform(t) {
+    this._rotationProperty.SetMovement(t, this), this._hasRotation = t != 0;
   }
   get ScaleTransform() {
     return this._scaleProperty.GetMovement(this);
   }
-  set ScaleTransform(value) {
-    this._scaleProperty.SetMovement(value.Clone(), this);
-    this._hasScale = value.X != 1 || value.Y != 1;
+  set ScaleTransform(t) {
+    this._scaleProperty.SetMovement(t.Clone(), this), this._hasScale = t.X != 1 || t.Y != 1;
   }
   get SkewTransform() {
     return this._skewProperty.GetMovement(this);
   }
-  set SkewTransform(value) {
-    this._skewProperty.SetMovement(value.Clone(), this);
-    this._hasSkew = value.X != 0 || value.Y != 0;
+  set SkewTransform(t) {
+    this._skewProperty.SetMovement(t.Clone(), this), this._hasSkew = t.X != 0 || t.Y != 0;
   }
   get Transform() {
     return this._transformProperty.GetMovement(this);
   }
-  set Transform(value) {
-    this._transformProperty.SetMovement(value.Clone(), this);
-    this._hasTransform = !value.IsIdentity;
+  set Transform(t) {
+    this._transformProperty.SetMovement(t.Clone(), this), this._hasTransform = !t.IsIdentity;
   }
   get Opacity() {
     return this._opacityProperty.GetMovement(this);
   }
-  set Opacity(value) {
-    this._opacityProperty.SetMovement(value, this);
+  set Opacity(t) {
+    this._opacityProperty.SetMovement(t, this);
   }
   get MainGeometry() {
     return this.GetHighlitableGeometry();
   }
-  Draw(context) {
+  Draw(t) {
     if (this.HasTransform) {
-      context.Canvas.save();
-      let m = this.OnMeasure(context.PaintTask);
-      let o = this.TransformOrigin.Clone();
-      let p = new PixUI.Point(this.X, this.Y);
-      let xo = m.Width * o.X;
-      let yo = m.Height * o.Y;
-      if (this._hasGeometryTransform) {
-        this.ApplyCustomGeometryTransform(context);
-      }
-      if (this._hasRotation) {
-        context.Canvas.translate(p.X + xo, p.Y + yo);
-        context.Canvas.rotate(this.RotateTransform, 0, 0);
-        context.Canvas.translate(-p.X - xo, -p.Y - yo);
-      }
-      if (this._hasTranslate) {
-        let translate = this.TranslateTransform.Clone();
-        context.Canvas.translate(translate.X, translate.Y);
+      t.Canvas.save();
+      let e = this.OnMeasure(t.PaintTask), a = this.TransformOrigin.Clone(), h = new d.Point(this.X, this.Y), g = e.Width * a.X, C = e.Height * a.Y;
+      if (this._hasGeometryTransform && this.ApplyCustomGeometryTransform(t), this._hasRotation && (t.Canvas.translate(h.X + g, h.Y + C), t.Canvas.rotate(this.RotateTransform, 0, 0), t.Canvas.translate(-h.X - g, -h.Y - C)), this._hasTranslate) {
+        let m = this.TranslateTransform.Clone();
+        t.Canvas.translate(m.X, m.Y);
       }
       if (this._hasScale) {
-        let scale = this.ScaleTransform.Clone();
-        context.Canvas.translate(p.X + xo, p.Y + yo);
-        context.Canvas.scale(scale.X, scale.Y);
-        context.Canvas.translate(-p.X - xo, -p.Y - yo);
+        let m = this.ScaleTransform.Clone();
+        t.Canvas.translate(h.X + g, h.Y + C), t.Canvas.scale(m.X, m.Y), t.Canvas.translate(-h.X - g, -h.Y - C);
       }
       if (this._hasSkew) {
-        let skew = this.SkewTransform.Clone();
-        context.Canvas.translate(p.X + xo, p.Y + yo);
-        context.Canvas.skew(skew.X, skew.Y);
-        context.Canvas.translate(-p.X - xo, -p.Y - yo);
+        let m = this.SkewTransform.Clone();
+        t.Canvas.translate(h.X + g, h.Y + C), t.Canvas.skew(m.X, m.Y), t.Canvas.translate(-h.X - g, -h.Y - C);
       }
       if (this._hasTransform) {
-        let transform = this.Transform.Clone();
-        context.Canvas.concat(transform.TransponseTo());
+        let m = this.Transform.Clone();
+        t.Canvas.concat(m.TransponseTo());
       }
     }
-    let originalStroke = null;
-    if (context.PaintTask.IsStroke && this.Stroke != null) {
-      this.Stroke.IsStroke = true;
-      originalStroke = context.Paint;
-      this.Stroke.InitializeTask(context);
-    }
-    let originalFill = null;
-    if (!context.PaintTask.IsStroke && this.Fill != null) {
-      this.Fill.IsStroke = false;
-      originalFill = context.Paint;
-      this.Fill.InitializeTask(context);
-    }
-    if (this.Opacity != 1)
-      context.PaintTask.ApplyOpacityMask(context, this);
-    this.OnDraw(context, context.Paint);
-    if (this.Opacity != 1)
-      context.PaintTask.RestoreOpacityMask(context, this);
-    if (context.PaintTask.IsStroke && this.Stroke != null) {
-      this.Stroke.Dispose();
-      if (originalStroke != null)
-        context.Paint = originalStroke;
-    }
-    if (!context.PaintTask.IsStroke && this.Fill != null) {
-      this.Fill.Dispose();
-      if (originalFill != null)
-        context.Paint = originalFill;
-    }
-    if (this.HasTransform)
-      context.Canvas.restore();
+    let s = null;
+    t.PaintTask.IsStroke && this.Stroke != null && (this.Stroke.IsStroke = !0, s = t.Paint, this.Stroke.InitializeTask(t));
+    let r = null;
+    !t.PaintTask.IsStroke && this.Fill != null && (this.Fill.IsStroke = !1, r = t.Paint, this.Fill.InitializeTask(t)), this.Opacity != 1 && t.PaintTask.ApplyOpacityMask(t, this), this.OnDraw(t, t.Paint), this.Opacity != 1 && t.PaintTask.RestoreOpacityMask(t, this), t.PaintTask.IsStroke && this.Stroke != null && (this.Stroke.Dispose(), s != null && (t.Paint = s)), !t.PaintTask.IsStroke && this.Fill != null && (this.Fill.Dispose(), r != null && (t.Paint = r)), this.HasTransform && t.Canvas.restore();
   }
-  Measure(drawableTask) {
-    let measure = this.OnMeasure(drawableTask);
-    let r = this.RotateTransform;
+  Measure(t) {
+    let s = this.OnMeasure(t), r = this.RotateTransform;
     if (Math.abs(r) > 0) {
-      let toRadias = Math.PI / 180;
-      r %= 360;
-      if (r < 0)
-        r += 360;
-      if (r > 180)
-        r = 360 - r;
-      if (r > 90 && r <= 180)
-        r = 180 - r;
-      let rRadians = r * toRadias;
-      let w = Math.cos(rRadians) * measure.Width + Math.sin(rRadians) * measure.Height;
-      let h = Math.sin(rRadians) * measure.Width + Math.cos(rRadians) * measure.Height;
-      measure = new LiveChartsCore.LvcSize(w, h);
+      let e = Math.PI / 180;
+      r %= 360, r < 0 && (r += 360), r > 180 && (r = 360 - r), r > 90 && r <= 180 && (r = 180 - r);
+      let a = r * e, h = Math.cos(a) * s.Width + Math.sin(a) * s.Height, g = Math.sin(a) * s.Width + Math.cos(a) * s.Height;
+      s = new n.LvcSize(h, g);
     }
-    return measure;
+    return s;
   }
   GetHighlitableGeometry() {
     return this;
   }
-  ApplyCustomGeometryTransform(context) {
+  ApplyCustomGeometryTransform(t) {
   }
 }
-class VectorGeometry extends Drawable {
+var H;
+class Ct extends Z {
   constructor() {
     super();
-    __publicField(this, "_pivotProperty");
-    __publicField(this, "ClosingMethod", 0);
-    this._pivotProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Pivot", 0));
+    o(this, "_pivotProperty");
+    A(this, H, new l.LinkedList());
+    o(this, "ClosingMethod", 0);
+    this._pivotProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Pivot", 0));
   }
   get Commands() {
-    return new System.LinkedList();
+    return R(this, H);
+  }
+  set Commands(t) {
+    I(this, H, t);
   }
   get FirstCommand() {
     return this.Commands.First;
@@ -2155,457 +1739,373 @@ class VectorGeometry extends Drawable {
   get Pivot() {
     return this._pivotProperty.GetMovement(this);
   }
-  set Pivot(value) {
-    this._pivotProperty.SetMovement(value, this);
+  set Pivot(t) {
+    this._pivotProperty.SetMovement(t, this);
   }
-  AddLast(command) {
-    this.IsValid = false;
-    return this.Commands.AddLast(command);
+  AddLast(t) {
+    return this.IsValid = !1, this.Commands.AddLast(t);
   }
-  AddFirst(command) {
-    this.IsValid = false;
-    return this.Commands.AddFirst(command);
+  AddFirst(t) {
+    return this.IsValid = !1, this.Commands.AddFirst(t);
   }
-  AddAfter(node, command) {
-    this.IsValid = false;
-    return this.Commands.AddAfter(node, command);
+  AddAfter(t, s) {
+    return this.IsValid = !1, this.Commands.AddAfter(t, s);
   }
-  AddBefore(node, command) {
-    this.IsValid = false;
-    return this.Commands.AddBefore(node, command);
+  AddBefore(t, s) {
+    return this.IsValid = !1, this.Commands.AddBefore(t, s);
   }
-  ContainsCommand(segment) {
-    return this.Commands.Contains(segment);
+  ContainsCommand(t) {
+    return this.Commands.Contains(t);
   }
-  RemoveCommand(node) {
-    this.IsValid = false;
-    this.Commands.Remove(node);
+  RemoveCommand(t) {
+    this.IsValid = !1, this.Commands.Remove(t);
   }
   ClearCommands() {
-    this.IsValid = false;
-    this.Commands.Clear();
+    this.IsValid = !1, this.Commands.Clear();
   }
-  CompleteTransition(...propertyName) {
-    for (const segment of this.Commands) {
-      segment.CompleteTransition(...propertyName);
-    }
-    super.CompleteTransition(...propertyName);
+  CompleteTransition(...t) {
+    for (const s of this.Commands)
+      s.CompleteTransition(...t);
+    super.CompleteTransition(...t);
   }
-  Draw(context) {
+  Draw(t) {
     if (this.Commands.length == 0)
       return;
-    let toRemoveSegments = new System.List();
-    let path = new CanvasKit.Path();
-    let isValid = true;
-    let currentTime = this.CurrentTime;
-    let isFirst = true;
-    let last = null;
-    for (const segment of this.Commands) {
-      segment.IsValid = true;
-      segment.CurrentTime = currentTime;
-      if (isFirst) {
-        isFirst = false;
-        this.OnOpen(context, path, segment);
-      }
-      this.OnDrawSegment(context, path, segment);
-      isValid = isValid && segment.IsValid;
-      if (segment.IsValid && segment.RemoveOnCompleted)
-        toRemoveSegments.Add(segment);
-      last = segment;
-    }
-    for (const segment of toRemoveSegments) {
-      this.Commands.Remove(segment);
-      isValid = false;
-    }
-    if (last != null)
-      this.OnClose(context, path, last);
-    context.Canvas.drawPath(path, context.Paint);
-    if (!isValid)
-      this.IsValid = false;
-    path.delete();
+    let s = new l.List(), r = new CanvasKit.Path(), e = !0, a = this.CurrentTime, h = !0, g = null;
+    for (const C of this.Commands)
+      C.IsValid = !0, C.CurrentTime = a, h && (h = !1, this.OnOpen(t, r, C)), this.OnDrawSegment(t, r, C), e = e && C.IsValid, C.IsValid && C.RemoveOnCompleted && s.Add(C), g = C;
+    for (const C of s)
+      this.Commands.Remove(C), e = !1;
+    g != null && this.OnClose(t, r, g), t.Canvas.drawPath(r, t.Paint), e || (this.IsValid = !1), r.delete();
   }
-  OnOpen(context, path, segment) {
+  OnOpen(t, s, r) {
   }
-  OnClose(context, path, segment) {
+  OnClose(t, s, r) {
   }
-  OnDrawSegment(context, path, segment) {
+  OnDrawSegment(t, s, r) {
   }
 }
-class SizedGeometry extends Geometry {
+H = new WeakMap();
+class F extends E {
   constructor() {
     super();
-    __publicField(this, "widthProperty");
-    __publicField(this, "heightProperty");
-    __publicField(this, "matchDimensions", false);
-    this.widthProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Width", 0));
-    this.heightProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Height", 0));
+    o(this, "widthProperty");
+    o(this, "heightProperty");
+    o(this, "matchDimensions", !1);
+    this.widthProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Width", 0)), this.heightProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Height", 0));
   }
   get Width() {
     return this.widthProperty.GetMovement(this);
   }
-  set Width(value) {
-    this.widthProperty.SetMovement(value, this);
+  set Width(t) {
+    this.widthProperty.SetMovement(t, this);
   }
   get Height() {
     return this.matchDimensions ? this.widthProperty.GetMovement(this) : this.heightProperty.GetMovement(this);
   }
-  set Height(value) {
+  set Height(t) {
     if (this.matchDimensions) {
-      this.widthProperty.SetMovement(value, this);
+      this.widthProperty.SetMovement(t, this);
       return;
     }
-    this.heightProperty.SetMovement(value, this);
+    this.heightProperty.SetMovement(t, this);
   }
-  OnMeasure(paint) {
-    return new LiveChartsCore.LvcSize(this.Width, this.Height);
+  OnMeasure(t) {
+    return new n.LvcSize(this.Width, this.Height);
   }
 }
-class CubicBezierAreaGeometry extends VectorGeometry {
-  OnDrawSegment(context, path, segment) {
-    path.cubicTo(segment.Xi, segment.Yi, segment.Xm, segment.Ym, segment.Xj, segment.Yj);
+class tt extends Ct {
+  OnDrawSegment(i, t, s) {
+    t.cubicTo(s.Xi, s.Yi, s.Xm, s.Ym, s.Xj, s.Yj);
   }
-  OnOpen(context, path, segment) {
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.NotClosed) {
-      path.moveTo(segment.Xi, segment.Yi);
+  OnOpen(i, t, s) {
+    if (this.ClosingMethod == n.VectorClosingMethod.NotClosed) {
+      t.moveTo(s.Xi, s.Yi);
       return;
     }
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.CloseToPivot) {
-      path.moveTo(segment.Xi, this.Pivot);
-      path.lineTo(segment.Xi, segment.Yi);
+    if (this.ClosingMethod == n.VectorClosingMethod.CloseToPivot) {
+      t.moveTo(s.Xi, this.Pivot), t.lineTo(s.Xi, s.Yi);
       return;
     }
   }
-  OnClose(context, path, segment) {
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.NotClosed)
-      return;
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.CloseToPivot) {
-      path.lineTo(segment.Xj, this.Pivot);
-      path.close();
+  OnClose(i, t, s) {
+    if (this.ClosingMethod != n.VectorClosingMethod.NotClosed && this.ClosingMethod == n.VectorClosingMethod.CloseToPivot) {
+      t.lineTo(s.Xj, this.Pivot), t.close();
       return;
     }
   }
 }
-class HeatLand {
+class se {
   constructor() {
-    __publicField(this, "_value", 0);
-    __publicField(this, "PropertyChanged", new System.Event());
-    __publicField(this, "Name", "");
+    o(this, "_value", 0);
+    o(this, "PropertyChanged", new l.Event());
+    o(this, "Name", "");
   }
   get Value() {
     return this._value;
   }
-  set Value(value) {
-    this._value = value;
-    this.OnPropertyChanged("Value");
+  set Value(i) {
+    this._value = i, this.OnPropertyChanged("Value");
   }
-  OnPropertyChanged(propertyName = null) {
-    this.PropertyChanged.Invoke(this, new System.PropertyChangedEventArgs(propertyName));
+  OnPropertyChanged(i = null) {
+    this.PropertyChanged.Invoke(this, new l.PropertyChangedEventArgs(i));
   }
 }
-class LabelGeometry extends Geometry {
+class S extends E {
   constructor() {
-    super(true);
-    __publicField(this, "_textSizeProperty");
-    __publicField(this, "_backgroundProperty");
-    __publicField(this, "VerticalAlign", LiveChartsCore.Align.Middle);
-    __publicField(this, "HorizontalAlign", LiveChartsCore.Align.Middle);
-    __publicField(this, "Text", "");
-    __publicField(this, "Padding", new LiveChartsCore.Padding(0, 0, 0, 0));
-    __publicField(this, "LineHeight", 1.75);
-    this._textSizeProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("TextSize", 11));
-    this._backgroundProperty = this.RegisterMotionProperty(new LiveChartsCore.ColorMotionProperty("Background", LiveChartsCore.LvcColor.Empty.Clone()));
-    this.TransformOrigin = new LiveChartsCore.LvcPoint(0, 0);
+    super(!0);
+    o(this, "_textSizeProperty");
+    o(this, "_backgroundProperty");
+    o(this, "VerticalAlign", n.Align.Middle);
+    o(this, "HorizontalAlign", n.Align.Middle);
+    o(this, "Text", "");
+    o(this, "Padding", new n.Padding(0, 0, 0, 0));
+    o(this, "LineHeight", 1.75);
+    this._textSizeProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("TextSize", 11)), this._backgroundProperty = this.RegisterMotionProperty(new n.ColorMotionProperty("Background", n.LvcColor.Empty.Clone())), this.TransformOrigin = new n.LvcPoint(0, 0);
   }
   get TextSize() {
     return this._textSizeProperty.GetMovement(this);
   }
-  set TextSize(value) {
-    this._textSizeProperty.SetMovement(value, this);
+  set TextSize(t) {
+    this._textSizeProperty.SetMovement(t, this);
   }
   get Background() {
     return this._backgroundProperty.GetMovement(this);
   }
-  set Background(value) {
-    this._backgroundProperty.SetMovement(value.Clone(), this);
+  set Background(t) {
+    this._backgroundProperty.SetMovement(t.Clone(), this);
   }
-  OnDraw(context, paint) {
-    let size = this.OnMeasure(context.PaintTask);
-    let bg = this.Background.Clone();
-    if (System.OpInequality(bg, LiveChartsCore.LvcColor.Empty)) {
-      let bgPaint = new CanvasKit.Paint();
-      let p = this.Padding;
-      context.Canvas.drawRect(PixUI.Rect.FromLTWH(this.X - p.Left, this.Y - size.Height + p.Bottom, size.Width, size.Height), bgPaint);
-      bgPaint.delete();
+  OnDraw(t, s) {
+    let r = this.OnMeasure(t.PaintTask), e = this.Background.Clone();
+    if (l.OpInequality(e, n.LvcColor.Empty)) {
+      let m = new CanvasKit.Paint(), P = this.Padding;
+      t.Canvas.drawRect(d.Rect.FromLTWH(this.X - P.Left, this.Y - r.Height + P.Bottom, r.Width, r.Height), m), m.delete();
     }
-    let lines = this.GetLines(this.Text);
-    let linesCount = lines.length;
-    let lineNumber = 0;
-    let lhd = (this.GetActualLineHeight(paint) - this.GetRawLineHeight(paint)) * 0.5;
-    for (const line of lines) {
-      let ph = ++lineNumber / linesCount * size.Height;
-      let yLine = ph - size.Height;
-      this.DrawLine(line, yLine - lhd, context, paint);
+    let a = this.GetLines(this.Text), h = a.length, g = 0, C = (this.GetActualLineHeight(s) - this.GetRawLineHeight(s)) * 0.5;
+    for (const m of a) {
+      let y = ++g / h * r.Height - r.Height;
+      this.DrawLine(m, y - C, t, s);
     }
   }
-  OnMeasure(drawable) {
-    let p = new CanvasKit.Paint();
-    let bounds = this.MeasureLines(p);
-    p.delete();
-    return new LiveChartsCore.LvcSize(bounds.Width + this.Padding.Left + this.Padding.Right, bounds.Height + this.Padding.Top + this.Padding.Bottom);
+  OnMeasure(t) {
+    let s = new CanvasKit.Paint(), r = this.MeasureLines(s);
+    return s.delete(), new n.LvcSize(r.Width + this.Padding.Left + this.Padding.Right, r.Height + this.Padding.Top + this.Padding.Bottom);
   }
-  ApplyCustomGeometryTransform(context) {
-    let size = this.MeasureLines(context.Paint);
-    let toRadians = Math.PI / 180;
-    let p = this.Padding;
-    let w = 0.5;
-    let h = 0.5;
+  ApplyCustomGeometryTransform(t) {
+    let s = this.MeasureLines(t.Paint), r = Math.PI / 180, e = this.Padding, a = 0.5, h = 0.5;
     switch (this.VerticalAlign) {
-      case LiveChartsCore.Align.Start:
-        h = 1 * size.Height + p.Top;
+      case n.Align.Start:
+        h = 1 * s.Height + e.Top;
         break;
-      case LiveChartsCore.Align.Middle:
-        h = 0.5 * (size.Height + p.Top - p.Bottom);
+      case n.Align.Middle:
+        h = 0.5 * (s.Height + e.Top - e.Bottom);
         break;
-      case LiveChartsCore.Align.End:
-        h = 0 * size.Height - p.Bottom;
+      case n.Align.End:
+        h = 0 * s.Height - e.Bottom;
         break;
     }
     switch (this.HorizontalAlign) {
-      case LiveChartsCore.Align.Start:
-        w = 0 * size.Width - p.Left;
+      case n.Align.Start:
+        a = 0 * s.Width - e.Left;
         break;
-      case LiveChartsCore.Align.Middle:
-        w = 0.5 * (size.Width - p.Left + p.Right);
+      case n.Align.Middle:
+        a = 0.5 * (s.Width - e.Left + e.Right);
         break;
-      case LiveChartsCore.Align.End:
-        w = 1 * size.Width + p.Right;
+      case n.Align.End:
+        a = 1 * s.Width + e.Right;
         break;
     }
-    let rotation = this.RotateTransform;
-    rotation = rotation * toRadians;
-    let xp = -Math.cos(rotation) * w + -Math.sin(rotation) * h;
-    let yp = -Math.sin(rotation) * w + Math.cos(rotation) * h;
-    context.Canvas.translate(xp, yp);
+    let g = this.RotateTransform;
+    g = g * r;
+    let C = -Math.cos(g) * a + -Math.sin(g) * h, m = -Math.sin(g) * a + Math.cos(g) * h;
+    t.Canvas.translate(C, m);
   }
-  DrawLine(content, yLine, context, paint) {
-    let para = PixUI.TextPainter.BuildParagraph(content, Number.POSITIVE_INFINITY, this.TextSize, paint.getColor());
-    context.Canvas.drawParagraph(para, this.X, this.Y + yLine - this.TextSize);
-    para.delete();
+  DrawLine(t, s, r, e) {
+    let a = d.TextPainter.BuildParagraph(t, Number.POSITIVE_INFINITY, this.TextSize, e.getColor());
+    r.Canvas.drawParagraph(a, this.X, this.Y + s - this.TextSize), a.delete();
   }
-  MeasureLines(paint) {
-    let w = 0;
-    let h = 0;
-    for (const line of this.GetLines(this.Text)) {
-      let para = PixUI.TextPainter.BuildParagraph(line, Number.POSITIVE_INFINITY, this.TextSize, paint.getColor(), null, 1, true);
-      h += para.getHeight() * this.LineHeight;
-      if (para.getLongestLine() > w)
-        w = para.getLongestLine();
-      para.delete();
+  MeasureLines(t) {
+    let s = 0, r = 0;
+    for (const e of this.GetLines(this.Text)) {
+      let a = d.TextPainter.BuildParagraph(e, Number.POSITIVE_INFINITY, this.TextSize, t.getColor(), null, 1, !0);
+      r += a.getHeight() * this.LineHeight, a.getLongestLine() > s && (s = a.getLongestLine()), a.delete();
     }
-    return new LiveChartsCore.LvcSize(w, h);
+    return new n.LvcSize(s, r);
   }
-  GetActualLineHeight(paint) {
+  GetActualLineHeight(t) {
     return this.TextSize * this.LineHeight;
   }
-  GetRawLineHeight(paint) {
+  GetRawLineHeight(t) {
     return this.TextSize;
   }
-  GetLines(multiLineText) {
-    return System.IsNullOrEmpty(multiLineText) ? [] : multiLineText.split(String.fromCharCode(10));
+  GetLines(t) {
+    return l.IsNullOrEmpty(t) ? [] : t.split(String.fromCharCode(10));
   }
 }
-__publicField(LabelGeometry, "$meta_LiveChartsCore_ILabelGeometry", true);
-class StepLineAreaGeometry extends VectorGeometry {
+o(S, "$meta_LiveChartsCore_ILabelGeometry", !0);
+class gt extends Ct {
   constructor() {
     super(...arguments);
-    __publicField(this, "_isFirst", true);
+    o(this, "_isFirst", !0);
   }
-  OnDrawSegment(context, path, segment) {
+  OnDrawSegment(t, s, r) {
     if (this._isFirst) {
-      this._isFirst = false;
+      this._isFirst = !1;
       return;
     }
-    path.lineTo(segment.Xj, segment.Yi);
-    path.lineTo(segment.Xj, segment.Yj);
+    s.lineTo(r.Xj, r.Yi), s.lineTo(r.Xj, r.Yj);
   }
-  OnOpen(context, path, segment) {
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.NotClosed) {
-      path.moveTo(segment.Xj, segment.Yj);
+  OnOpen(t, s, r) {
+    if (this.ClosingMethod == n.VectorClosingMethod.NotClosed) {
+      s.moveTo(r.Xj, r.Yj);
       return;
     }
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.CloseToPivot) {
-      path.moveTo(segment.Xj, this.Pivot);
-      path.lineTo(segment.Xj, segment.Yj);
+    if (this.ClosingMethod == n.VectorClosingMethod.CloseToPivot) {
+      s.moveTo(r.Xj, this.Pivot), s.lineTo(r.Xj, r.Yj);
       return;
     }
   }
-  OnClose(context, path, segment) {
-    this._isFirst = true;
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.NotClosed)
-      return;
-    if (this.ClosingMethod == LiveChartsCore.VectorClosingMethod.CloseToPivot) {
-      path.lineTo(segment.Xj, this.Pivot);
-      path.close();
+  OnClose(t, s, r) {
+    if (this._isFirst = !0, this.ClosingMethod != n.VectorClosingMethod.NotClosed && this.ClosingMethod == n.VectorClosingMethod.CloseToPivot) {
+      s.lineTo(r.Xj, this.Pivot), s.close();
       return;
     }
   }
 }
-class SVGPathGeometry extends SizedGeometry {
-  constructor(svgPath) {
+class ne extends F {
+  constructor(t) {
     super();
-    __publicField(this, "_svg", "");
-    __publicField(this, "_svgPath");
-    __publicField(this, "FitToSize", false);
-    this._svgPath = svgPath;
+    o(this, "_svg", "");
+    o(this, "_svgPath");
+    o(this, "FitToSize", !1);
+    this._svgPath = t;
   }
   get SVG() {
     return this._svg;
   }
-  set SVG(value) {
-    this._svg = value;
-    this.OnSVGPropertyChanged();
+  set SVG(t) {
+    this._svg = t, this.OnSVGPropertyChanged();
   }
-  OnDraw(context, paint) {
+  OnDraw(t, s) {
     if (this._svgPath == null)
-      throw new System.Exception(`${"SVG"} property is null and there is not a defined path to draw.`);
-    context.Canvas.save();
-    let canvas = context.Canvas;
-    let bounds = PixUI.Rect.FromFloat32Array(this._svgPath.getBounds());
-    if (this.FitToSize) {
-      canvas.translate(this.X + this.Width / 2, this.Y + this.Height / 2);
-      canvas.scale(this.Width / (bounds.Width + paint.getStrokeWidth()), this.Height / (bounds.Height + paint.getStrokeWidth()));
-      canvas.translate(-bounds.MidX, -bounds.MidY);
-    } else {
-      let maxB = bounds.Width < bounds.Height ? bounds.Height : bounds.Width;
-      canvas.translate(this.X + this.Width / 2, this.Y + this.Height / 2);
-      canvas.scale(this.Width / (maxB + paint.getStrokeWidth()), this.Height / (maxB + paint.getStrokeWidth()));
-      canvas.translate(-bounds.MidX, -bounds.MidY);
+      throw new l.Exception("SVG property is null and there is not a defined path to draw.");
+    t.Canvas.save();
+    let r = t.Canvas, e = d.Rect.FromFloat32Array(this._svgPath.getBounds());
+    if (this.FitToSize)
+      r.translate(this.X + this.Width / 2, this.Y + this.Height / 2), r.scale(
+        this.Width / (e.Width + s.getStrokeWidth()),
+        this.Height / (e.Height + s.getStrokeWidth())
+      ), r.translate(-e.MidX, -e.MidY);
+    else {
+      let a = e.Width < e.Height ? e.Height : e.Width;
+      r.translate(this.X + this.Width / 2, this.Y + this.Height / 2), r.scale(
+        this.Width / (a + s.getStrokeWidth()),
+        this.Height / (a + s.getStrokeWidth())
+      ), r.translate(-e.MidX, -e.MidY);
     }
-    canvas.drawPath(this._svgPath, paint);
-    context.Canvas.restore();
+    r.drawPath(this._svgPath, s), t.Canvas.restore();
   }
   OnSVGPropertyChanged() {
-    throw new System.NotImplementedException();
+    throw new l.NotImplementedException();
   }
 }
-class RoundedRectangleGeometry extends SizedGeometry {
+class T extends F {
   constructor() {
     super();
-    __publicField(this, "_rx");
-    __publicField(this, "_ry");
-    this._rx = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Rx", 8));
-    this._ry = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Ry", 8));
+    o(this, "_rx");
+    o(this, "_ry");
+    this._rx = this.RegisterMotionProperty(new n.FloatMotionProperty("Rx", 8)), this._ry = this.RegisterMotionProperty(new n.FloatMotionProperty("Ry", 8));
   }
   get Rx() {
     return this._rx.GetMovement(this);
   }
-  set Rx(value) {
-    this._rx.SetMovement(value, this);
+  set Rx(t) {
+    this._rx.SetMovement(t, this);
   }
   get Ry() {
     return this._ry.GetMovement(this);
   }
-  set Ry(value) {
-    this._ry.SetMovement(value, this);
+  set Ry(t) {
+    this._ry.SetMovement(t, this);
   }
-  OnDraw(context, paint) {
-    let rrect = PixUI.RRect.FromRectAndRadius(PixUI.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), this.Rx, this.Ry);
-    context.Canvas.drawRRect(rrect, paint);
+  OnDraw(t, s) {
+    let r = d.RRect.FromRectAndRadius(d.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), this.Rx, this.Ry);
+    t.Canvas.drawRRect(r, s);
   }
 }
-__publicField(RoundedRectangleGeometry, "$meta_LiveChartsCore_IRoundedRectangleChartPoint", true);
-class LineGeometry extends Geometry {
+o(T, "$meta_LiveChartsCore_IRoundedRectangleChartPoint", !0);
+class mt extends E {
   constructor() {
     super();
-    __publicField(this, "_x1");
-    __publicField(this, "_y1");
-    this._x1 = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("X1", 0));
-    this._y1 = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Y1", 0));
+    o(this, "_x1");
+    o(this, "_y1");
+    this._x1 = this.RegisterMotionProperty(new n.FloatMotionProperty("X1", 0)), this._y1 = this.RegisterMotionProperty(new n.FloatMotionProperty("Y1", 0));
   }
   get X1() {
     return this._x1.GetMovement(this);
   }
-  set X1(value) {
-    this._x1.SetMovement(value, this);
+  set X1(t) {
+    this._x1.SetMovement(t, this);
   }
   get Y1() {
     return this._y1.GetMovement(this);
   }
-  set Y1(value) {
-    this._y1.SetMovement(value, this);
+  set Y1(t) {
+    this._y1.SetMovement(t, this);
   }
-  OnDraw(context, paint) {
-    context.Canvas.drawLine(this.X, this.Y, this.X1, this.Y1, paint);
+  OnDraw(t, s) {
+    t.Canvas.drawLine(this.X, this.Y, this.X1, this.Y1, s);
   }
-  OnMeasure(drawable) {
-    return new LiveChartsCore.LvcSize(Math.abs(this.X1 - this.X), Math.abs(this.Y1 - this.Y));
+  OnMeasure(t) {
+    return new n.LvcSize(Math.abs(this.X1 - this.X), Math.abs(this.Y1 - this.Y));
   }
 }
-class CandlestickGeometry extends Geometry {
+class Ot extends E {
   constructor() {
     super();
-    __publicField(this, "_wProperty");
-    __publicField(this, "_oProperty");
-    __publicField(this, "_cProperty");
-    __publicField(this, "_lProperty");
-    this._wProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Width", 0));
-    this._oProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Open", 0));
-    this._cProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Close", 0));
-    this._lProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Low", 0));
+    o(this, "_wProperty");
+    o(this, "_oProperty");
+    o(this, "_cProperty");
+    o(this, "_lProperty");
+    this._wProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Width", 0)), this._oProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Open", 0)), this._cProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Close", 0)), this._lProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Low", 0));
   }
   get Width() {
     return this._wProperty.GetMovement(this);
   }
-  set Width(value) {
-    this._wProperty.SetMovement(value, this);
+  set Width(t) {
+    this._wProperty.SetMovement(t, this);
   }
   get Open() {
     return this._oProperty.GetMovement(this);
   }
-  set Open(value) {
-    this._oProperty.SetMovement(value, this);
+  set Open(t) {
+    this._oProperty.SetMovement(t, this);
   }
   get Close() {
     return this._cProperty.GetMovement(this);
   }
-  set Close(value) {
-    this._cProperty.SetMovement(value, this);
+  set Close(t) {
+    this._cProperty.SetMovement(t, this);
   }
   get Low() {
     return this._lProperty.GetMovement(this);
   }
-  set Low(value) {
-    this._lProperty.SetMovement(value, this);
+  set Low(t) {
+    this._lProperty.SetMovement(t, this);
   }
-  OnDraw(context, paint) {
-    let w = this.Width;
-    let cx = this.X + w * 0.5;
-    let h = this.Y;
-    let o = this.Open;
-    let c = this.Close;
-    let l = this.Low;
-    let yi = 0;
-    let yj = 0;
-    if (o > c) {
-      yi = c;
-      yj = o;
-    } else {
-      yi = o;
-      yj = c;
-    }
-    context.Canvas.drawLine(cx, h, cx, yi, paint);
-    context.Canvas.drawRect(PixUI.Rect.FromLTWH(this.X, yi, w, Math.abs(o - c)), paint);
-    context.Canvas.drawLine(cx, yj, cx, l, paint);
+  OnDraw(t, s) {
+    let r = this.Width, e = this.X + r * 0.5, a = this.Y, h = this.Open, g = this.Close, C = this.Low, m = 0, P = 0;
+    h > g ? (m = g, P = h) : (m = h, P = g), t.Canvas.drawLine(e, a, e, m, s), t.Canvas.drawRect(d.Rect.FromLTWH(this.X, m, r, Math.abs(h - g)), s), t.Canvas.drawLine(e, P, e, C, s);
   }
-  OnMeasure(paintTaks) {
-    return new LiveChartsCore.LvcSize(this.Width, Math.abs(this.Low - this.Y));
+  OnMeasure(t) {
+    return new n.LvcSize(this.Width, Math.abs(this.Low - this.Y));
   }
 }
-class PathGeometry extends Drawable {
+class Gt extends Z {
   constructor() {
     super(...arguments);
-    __publicField(this, "_commands", new System.LinkedList());
-    __publicField(this, "IsClosed", false);
+    o(this, "_commands", new l.LinkedList());
+    o(this, "IsClosed", !1);
   }
   get FirstCommand() {
     return this._commands.First;
@@ -2616,520 +2116,436 @@ class PathGeometry extends Drawable {
   get CountCommands() {
     return this._commands.length;
   }
-  Draw(context) {
+  Draw(t) {
     if (this._commands.length == 0)
       return;
-    let toRemoveSegments = new System.List();
-    let path = new CanvasKit.Path();
-    let isValid = true;
-    for (const segment of this._commands) {
-      segment.IsValid = true;
-      segment.Execute(path, this.CurrentTime, this);
-      isValid = isValid && segment.IsValid;
-      if (segment.IsValid && segment.RemoveOnCompleted)
-        toRemoveSegments.Add(segment);
-    }
-    for (const segment of toRemoveSegments) {
-      this._commands.Remove(segment);
-      isValid = false;
-    }
-    if (this.IsClosed)
-      path.close();
-    context.Canvas.drawPath(path, context.Paint);
-    if (!isValid)
-      this.IsValid = false;
-    path.delete();
+    let s = new l.List(), r = new CanvasKit.Path(), e = !0;
+    for (const a of this._commands)
+      a.IsValid = !0, a.Execute(r, this.CurrentTime, this), e = e && a.IsValid, a.IsValid && a.RemoveOnCompleted && s.Add(a);
+    for (const a of s)
+      this._commands.Remove(a), e = !1;
+    this.IsClosed && r.close(), t.Canvas.drawPath(r, t.Paint), e || (this.IsValid = !1), r.delete();
   }
-  AddLast(command) {
-    this.IsValid = false;
-    return this._commands.AddLast(command);
+  AddLast(t) {
+    return this.IsValid = !1, this._commands.AddLast(t);
   }
-  AddFirst(command) {
-    this.IsValid = false;
-    return this._commands.AddFirst(command);
+  AddFirst(t) {
+    return this.IsValid = !1, this._commands.AddFirst(t);
   }
-  AddAfter(node, command) {
-    this.IsValid = false;
-    return this._commands.AddAfter(node, command);
+  AddAfter(t, s) {
+    return this.IsValid = !1, this._commands.AddAfter(t, s);
   }
-  AddBefore(node, command) {
-    this.IsValid = false;
-    return this._commands.AddBefore(node, command);
+  AddBefore(t, s) {
+    return this.IsValid = !1, this._commands.AddBefore(t, s);
   }
-  ContainsCommand(segment) {
-    return this._commands.Contains(segment);
+  ContainsCommand(t) {
+    return this._commands.Contains(t);
   }
-  RemoveCommand(command) {
-    this.IsValid = false;
-    return this._commands.Remove(command);
+  RemoveCommand(t) {
+    return this.IsValid = !1, this._commands.Remove(t);
   }
   ClearCommands() {
     this._commands.Clear();
   }
-  CompleteTransition(...propertyName) {
-    for (const segment of this._commands) {
-      segment.CompleteTransition(...propertyName);
-    }
-    super.CompleteTransition(...propertyName);
+  CompleteTransition(...t) {
+    for (const s of this._commands)
+      s.CompleteTransition(...t);
+    super.CompleteTransition(...t);
   }
 }
-class HeatPathShape extends PathGeometry {
+class Vt extends Gt {
   constructor() {
     super();
-    __publicField(this, "_fillProperty");
-    this._fillProperty = this.RegisterMotionProperty(new LiveChartsCore.ColorMotionProperty("FillColor", LiveChartsCore.LvcColor.Empty.Clone()));
+    o(this, "_fillProperty");
+    this._fillProperty = this.RegisterMotionProperty(new n.ColorMotionProperty("FillColor", n.LvcColor.Empty.Clone()));
   }
   get FillColor() {
     return this._fillProperty.GetMovement(this);
   }
-  set FillColor(value) {
-    this._fillProperty.SetMovement(value.Clone(), this);
+  set FillColor(t) {
+    this._fillProperty.SetMovement(t.Clone(), this);
   }
-  Draw(context) {
+  Draw(t) {
     if (this._commands.length == 0)
       return;
-    let toRemoveSegments = new System.List();
-    let path = new CanvasKit.Path();
-    let isValid = true;
-    for (const segment of this._commands) {
-      segment.IsValid = true;
-      segment.Execute(path, this.CurrentTime, this);
-      isValid = isValid && segment.IsValid;
-      if (segment.IsValid && segment.RemoveOnCompleted)
-        toRemoveSegments.Add(segment);
-    }
-    for (const segment of toRemoveSegments) {
-      this._commands.Remove(segment);
-      isValid = false;
-    }
-    if (this.IsClosed)
-      path.close();
-    let originalColor = context.Paint.getColor();
-    let fill = this.FillColor.Clone();
-    if (System.OpInequality(fill, LiveChartsCore.LvcColor.Empty)) {
-      context.Paint.setColor(LiveChartsSkiaSharp.AsSKColor(fill));
-      context.Paint.setStyle(CanvasKit.PaintStyle.Fill);
-    }
-    context.Canvas.drawPath(path, context.Paint);
-    if (System.OpInequality(fill, LiveChartsCore.LvcColor.Empty)) {
-      context.Paint.setColor(originalColor);
-    }
-    if (!isValid)
-      this.IsValid = false;
-    path.delete();
+    let s = new l.List(), r = new CanvasKit.Path(), e = !0;
+    for (const g of this._commands)
+      g.IsValid = !0, g.Execute(r, this.CurrentTime, this), e = e && g.IsValid, g.IsValid && g.RemoveOnCompleted && s.Add(g);
+    for (const g of s)
+      this._commands.Remove(g), e = !1;
+    this.IsClosed && r.close();
+    let a = t.Paint.getColor(), h = this.FillColor.Clone();
+    l.OpInequality(h, n.LvcColor.Empty) && (t.Paint.setColor(M.AsSKColor(h)), t.Paint.setStyle(CanvasKit.PaintStyle.Fill)), t.Canvas.drawPath(r, t.Paint), l.OpInequality(h, n.LvcColor.Empty) && t.Paint.setColor(a), e || (this.IsValid = !1), r.delete();
   }
-  CompleteTransition(...propertyName) {
-    for (const item of this._commands) {
-      item.CompleteTransition(...propertyName);
-    }
-    super.CompleteTransition(...propertyName);
+  CompleteTransition(...t) {
+    for (const s of this._commands)
+      s.CompleteTransition(...t);
+    super.CompleteTransition(...t);
   }
 }
-const _DoughnutGeometry = class extends Geometry {
+const U = class extends E {
   constructor() {
     super();
-    __publicField(this, "_cxProperty");
-    __publicField(this, "_cyProperty");
-    __publicField(this, "_wProperty");
-    __publicField(this, "_hProperty");
-    __publicField(this, "_startProperty");
-    __publicField(this, "_sweepProperty");
-    __publicField(this, "_pushoutProperty");
-    __publicField(this, "_innerRadiusProperty");
-    __publicField(this, "_cornerRadiusProperty");
-    __publicField(this, "InvertedCornerRadius", false);
-    this._cxProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("CenterX"));
-    this._cyProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("CenterY"));
-    this._wProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Width"));
-    this._hProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("Height"));
-    this._startProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("StartAngle"));
-    this._sweepProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("SweepAngle"));
-    this._pushoutProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("PushOut"));
-    this._innerRadiusProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("InnerRadius"));
-    this._cornerRadiusProperty = this.RegisterMotionProperty(new LiveChartsCore.FloatMotionProperty("CornerRadius"));
+    o(this, "_cxProperty");
+    o(this, "_cyProperty");
+    o(this, "_wProperty");
+    o(this, "_hProperty");
+    o(this, "_startProperty");
+    o(this, "_sweepProperty");
+    o(this, "_pushoutProperty");
+    o(this, "_innerRadiusProperty");
+    o(this, "_cornerRadiusProperty");
+    o(this, "InvertedCornerRadius", !1);
+    this._cxProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("CenterX")), this._cyProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("CenterY")), this._wProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Width")), this._hProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("Height")), this._startProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("StartAngle")), this._sweepProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("SweepAngle")), this._pushoutProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("PushOut")), this._innerRadiusProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("InnerRadius")), this._cornerRadiusProperty = this.RegisterMotionProperty(new n.FloatMotionProperty("CornerRadius"));
   }
   get CenterX() {
     return this._cxProperty.GetMovement(this);
   }
-  set CenterX(value) {
-    this._cxProperty.SetMovement(value, this);
+  set CenterX(t) {
+    this._cxProperty.SetMovement(t, this);
   }
   get CenterY() {
     return this._cyProperty.GetMovement(this);
   }
-  set CenterY(value) {
-    this._cyProperty.SetMovement(value, this);
+  set CenterY(t) {
+    this._cyProperty.SetMovement(t, this);
   }
   get Width() {
     return this._wProperty.GetMovement(this);
   }
-  set Width(value) {
-    this._wProperty.SetMovement(value, this);
+  set Width(t) {
+    this._wProperty.SetMovement(t, this);
   }
   get Height() {
     return this._hProperty.GetMovement(this);
   }
-  set Height(value) {
-    this._hProperty.SetMovement(value, this);
+  set Height(t) {
+    this._hProperty.SetMovement(t, this);
   }
   get StartAngle() {
     return this._startProperty.GetMovement(this);
   }
-  set StartAngle(value) {
-    this._startProperty.SetMovement(value, this);
+  set StartAngle(t) {
+    this._startProperty.SetMovement(t, this);
   }
   get SweepAngle() {
     return this._sweepProperty.GetMovement(this);
   }
-  set SweepAngle(value) {
-    this._sweepProperty.SetMovement(value, this);
+  set SweepAngle(t) {
+    this._sweepProperty.SetMovement(t, this);
   }
   get PushOut() {
     return this._pushoutProperty.GetMovement(this);
   }
-  set PushOut(value) {
-    this._pushoutProperty.SetMovement(value, this);
+  set PushOut(t) {
+    this._pushoutProperty.SetMovement(t, this);
   }
   get InnerRadius() {
     return this._innerRadiusProperty.GetMovement(this);
   }
-  set InnerRadius(value) {
-    this._innerRadiusProperty.SetMovement(value, this);
+  set InnerRadius(t) {
+    this._innerRadiusProperty.SetMovement(t, this);
   }
   get CornerRadius() {
     return this._cornerRadiusProperty.GetMovement(this);
   }
-  set CornerRadius(value) {
-    this._cornerRadiusProperty.SetMovement(value, this);
+  set CornerRadius(t) {
+    this._cornerRadiusProperty.SetMovement(t, this);
   }
-  OnMeasure(paint) {
-    return new LiveChartsCore.LvcSize(this.Width, this.Height);
+  OnMeasure(t) {
+    return new n.LvcSize(this.Width, this.Height);
   }
-  OnDraw(context, paint) {
-    if (_DoughnutGeometry.AlternativeDraw != null) {
-      _DoughnutGeometry.AlternativeDraw(this, context, paint);
+  OnDraw(t, s) {
+    if (U.AlternativeDraw != null) {
+      U.AlternativeDraw(this, t, s);
       return;
     }
     if (this.CornerRadius > 0)
-      throw new System.NotImplementedException(`${"CornerRadius"} is not implemented.`);
-    let path = new CanvasKit.Path();
-    let cx = this.CenterX;
-    let cy = this.CenterY;
-    let wedge = this.InnerRadius;
-    let r = this.Width * 0.5;
-    let startAngle = this.StartAngle;
-    let sweepAngle = this.SweepAngle;
-    let toRadians = Math.PI / 180;
-    let pushout = this.PushOut;
-    path.moveTo(cx + Math.cos(startAngle * toRadians) * wedge, cy + Math.sin(startAngle * toRadians) * wedge);
-    path.lineTo(cx + Math.cos(startAngle * toRadians) * r, cy + Math.sin(startAngle * toRadians) * r);
-    path.arcToOval(PixUI.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), startAngle, sweepAngle, false);
-    path.lineTo(cx + Math.cos((sweepAngle + startAngle) * toRadians) * wedge, cy + Math.sin((sweepAngle + startAngle) * toRadians) * wedge);
-    path.arcToRotated(wedge, wedge, 0, sweepAngle > 180 ? false : true, true, cx + Math.cos(startAngle * toRadians) * wedge, cy + Math.sin(startAngle * toRadians) * wedge);
-    path.close();
-    if (pushout > 0) {
-      let pushoutAngle = startAngle + 0.5 * sweepAngle;
-      let x = pushout * Math.cos(pushoutAngle * toRadians);
-      let y = pushout * Math.sin(pushoutAngle * toRadians);
-      context.Canvas.save();
-      context.Canvas.translate(x, y);
+      throw new l.NotImplementedException("CornerRadius is not implemented.");
+    let r = new CanvasKit.Path(), e = this.CenterX, a = this.CenterY, h = this.InnerRadius, g = this.Width * 0.5, C = this.StartAngle, m = this.SweepAngle, P = Math.PI / 180, y = this.PushOut;
+    if (r.moveTo(
+      e + Math.cos(C * P) * h,
+      a + Math.sin(C * P) * h
+    ), r.lineTo(
+      e + Math.cos(C * P) * g,
+      a + Math.sin(C * P) * g
+    ), r.arcToOval(
+      d.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height),
+      C,
+      m,
+      !1
+    ), r.lineTo(
+      e + Math.cos((m + C) * P) * h,
+      a + Math.sin((m + C) * P) * h
+    ), r.arcToRotated(
+      h,
+      h,
+      0,
+      !(m > 180),
+      !0,
+      e + Math.cos(C * P) * h,
+      a + Math.sin(C * P) * h
+    ), r.close(), y > 0) {
+      let f = C + 0.5 * m, _ = y * Math.cos(f * P), v = y * Math.sin(f * P);
+      t.Canvas.save(), t.Canvas.translate(_, v);
     }
-    context.Canvas.drawPath(path, context.Paint);
-    if (pushout > 0)
-      context.Canvas.restore();
-    path.delete();
+    t.Canvas.drawPath(r, t.Paint), y > 0 && t.Canvas.restore(), r.delete();
   }
 };
-let DoughnutGeometry = _DoughnutGeometry;
-__publicField(DoughnutGeometry, "AlternativeDraw");
-class RectangleGeometry extends SizedGeometry {
+let X = U;
+o(X, "AlternativeDraw");
+class et extends F {
   constructor() {
     super();
   }
-  OnDraw(context, paint) {
-    context.Canvas.drawRect(PixUI.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), paint);
+  OnDraw(i, t) {
+    i.Canvas.drawRect(d.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), t);
   }
 }
-class OvalGeometry extends SizedGeometry {
+class re extends F {
   constructor() {
     super();
   }
-  OnDraw(context, paint) {
-    let rx = this.Width / 2;
-    let ry = this.Height / 2;
-    context.Canvas.drawOval(new PixUI.Rect(this.X + rx, this.Y + ry, rx, ry), paint);
+  OnDraw(i, t) {
+    let s = this.Width / 2, r = this.Height / 2;
+    i.Canvas.drawOval(new d.Rect(this.X + s, this.Y + r, s, r), t);
   }
 }
-class ColoredRectangleGeometry extends SizedGeometry {
+class zt extends F {
   constructor() {
     super();
-    __publicField(this, "_colorProperty");
-    this._colorProperty = this.RegisterMotionProperty(new LiveChartsCore.ColorMotionProperty("Color"));
+    o(this, "_colorProperty");
+    this._colorProperty = this.RegisterMotionProperty(new n.ColorMotionProperty("Color"));
   }
   get Color() {
     return this._colorProperty.GetMovement(this);
   }
-  set Color(value) {
-    this._colorProperty.SetMovement(value.Clone(), this);
+  set Color(t) {
+    this._colorProperty.SetMovement(t.Clone(), this);
   }
-  OnDraw(context, paint) {
-    let c = this.Color.Clone();
-    paint.setColor(new PixUI.Color(c.R, c.G, c.B, c.A));
-    context.Canvas.drawRect(PixUI.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), paint);
-  }
-}
-class CircleGeometry extends SizedGeometry {
-  constructor() {
-    super();
-    this.matchDimensions = true;
-  }
-  OnDraw(context, paint) {
-    let rx = this.Width / 2;
-    context.Canvas.drawCircle(this.X + rx, this.Y + rx, rx, paint);
+  OnDraw(t, s) {
+    let r = this.Color.Clone();
+    s.setColor(new d.Color(r.R, r.G, r.B, r.A)), t.Canvas.drawRect(d.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), s);
   }
 }
-class SquareGeometry extends SizedGeometry {
+class w extends F {
   constructor() {
-    super();
-    this.matchDimensions = true;
+    super(), this.matchDimensions = !0;
   }
-  OnDraw(context, paint) {
-    context.Canvas.drawRect(PixUI.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), paint);
+  OnDraw(i, t) {
+    let s = this.Width / 2;
+    i.Canvas.drawCircle(this.X + s, this.Y + s, s, t);
   }
 }
-class ImageFilter {
+class oe extends F {
   constructor() {
-    __publicField(this, "SKImageFilter");
+    super(), this.matchDimensions = !0;
+  }
+  OnDraw(i, t) {
+    i.Canvas.drawRect(d.Rect.FromLTWH(this.X, this.Y, this.Width, this.Height), t);
+  }
+}
+class j {
+  constructor() {
+    o(this, "SKImageFilter");
   }
   Dispose() {
-    if (this.SKImageFilter == null)
-      return;
-    this.SKImageFilter.delete();
-    this.SKImageFilter = null;
+    this.SKImageFilter != null && (this.SKImageFilter.delete(), this.SKImageFilter = null);
   }
 }
-__publicField(ImageFilter, "$meta_System_IDisposable", true);
-class ImageFiltersMergeOperation extends ImageFilter {
-  constructor(imageFilters) {
+o(j, "$meta_System_IDisposable", !0);
+class Pt extends j {
+  constructor(t) {
     super();
-    __publicField(this, "_filters");
-    this._filters = imageFilters;
+    o(this, "_filters");
+    this._filters = t;
   }
   Clone() {
-    return new ImageFiltersMergeOperation(this._filters);
+    return new Pt(this._filters);
   }
-  CreateFilter(drawingContext) {
-    throw new System.NotImplementedException();
+  CreateFilter(t) {
+    throw new l.NotImplementedException();
   }
   Dispose() {
-    for (const item of this._filters) {
-      item.Dispose();
-    }
+    for (const t of this._filters)
+      t.Dispose();
   }
 }
-class DropShadow extends ImageFilter {
-  constructor(dx, dy, sigmaX, sigmaY, color, input = null) {
+class it extends j {
+  constructor(t, s, r, e, a, h = null) {
     super();
-    __publicField(this, "_dx");
-    __publicField(this, "_dy");
-    __publicField(this, "_sigmaX");
-    __publicField(this, "_sigmaY");
-    __publicField(this, "_color");
-    __publicField(this, "_filter", null);
-    this._dx = dx;
-    this._dy = dy;
-    this._sigmaX = sigmaX;
-    this._sigmaY = sigmaY;
-    this._color = color;
-    this._filter = input;
+    o(this, "_dx");
+    o(this, "_dy");
+    o(this, "_sigmaX");
+    o(this, "_sigmaY");
+    o(this, "_color");
+    o(this, "_filter", null);
+    this._dx = t, this._dy = s, this._sigmaX = r, this._sigmaY = e, this._color = a, this._filter = h;
   }
   Clone() {
-    return new DropShadow(this._dx, this._dy, this._sigmaX, this._sigmaY, this._color, this._filter);
+    return new it(this._dx, this._dy, this._sigmaX, this._sigmaY, this._color, this._filter);
   }
-  CreateFilter(drawingContext) {
+  CreateFilter(t) {
     this.SKImageFilter = CanvasKit.ImageFilter.MakeDropShadow(this._dx, this._dy, this._sigmaX, this._sigmaY, this._color, this._filter);
   }
 }
-class Blur extends ImageFilter {
-  constructor(sigmaX, sigmaY, input = null) {
+class yt extends j {
+  constructor(t, s, r = null) {
     super();
-    __publicField(this, "_sigmaX");
-    __publicField(this, "_sigmaY");
-    __publicField(this, "_filter", null);
-    this._sigmaX = sigmaX;
-    this._sigmaY = sigmaY;
-    this._filter = input;
+    o(this, "_sigmaX");
+    o(this, "_sigmaY");
+    o(this, "_filter", null);
+    this._sigmaX = t, this._sigmaY = s, this._filter = r;
   }
   Clone() {
-    return new Blur(this._sigmaX, this._sigmaY, this._filter);
+    return new yt(this._sigmaX, this._sigmaY, this._filter);
   }
-  CreateFilter(drawingContext) {
+  CreateFilter(t) {
     this.SKImageFilter = CanvasKit.ImageFilter.MakeBlur(this._sigmaX, this._sigmaY, CanvasKit.TileMode.Decal, this._filter);
   }
 }
-class PathEffect {
+class pt {
   constructor() {
-    __publicField(this, "SKPathEffect");
+    o(this, "SKPathEffect");
   }
   Dispose() {
-    if (this.SKPathEffect == null)
-      return;
-    this.SKPathEffect.delete();
-    this.SKPathEffect = null;
+    this.SKPathEffect != null && (this.SKPathEffect.delete(), this.SKPathEffect = null);
   }
 }
-__publicField(PathEffect, "$meta_System_IDisposable", true);
-class DashEffect extends PathEffect {
-  constructor(dashArray, phase = 0) {
+o(pt, "$meta_System_IDisposable", !0);
+class St extends pt {
+  constructor(t, s = 0) {
     super();
-    __publicField(this, "_dashArray");
-    __publicField(this, "_phase", 0);
-    this._dashArray = dashArray;
-    this._phase = phase;
+    o(this, "_dashArray");
+    o(this, "_phase", 0);
+    this._dashArray = t, this._phase = s;
   }
   Clone() {
-    return new DashEffect(this._dashArray, this._phase);
+    return new St(this._dashArray, this._phase);
   }
-  CreateEffect(drawingContext) {
+  CreateEffect(t) {
     this.SKPathEffect = CanvasKit.PathEffect.MakeDash(Array.from(this._dashArray), this._phase);
   }
 }
-class ChartView extends PixUI.Widget {
-  constructor(tooltip, legend) {
+var B, W;
+class st extends d.Widget {
+  constructor(t, s) {
     super();
-    __publicField(this, "core");
-    __publicField(this, "legend", new SKDefaultLegend());
-    __publicField(this, "tooltip", new SKDefaultTooltip());
-    __publicField(this, "_legendPosition", LiveChartsCore.LiveCharts.DefaultSettings.LegendPosition);
-    __publicField(this, "_drawMargin", null);
-    __publicField(this, "_tooltipPosition", LiveChartsCore.LiveCharts.DefaultSettings.TooltipPosition);
-    __publicField(this, "_title");
-    __publicField(this, "_visualsObserver");
-    __publicField(this, "_visuals", new System.List());
-    __publicField(this, "_legendTextPaint", LiveChartsCore.LiveCharts.DefaultSettings.LegendTextPaint);
-    __publicField(this, "_legendBackgroundPaint", LiveChartsCore.LiveCharts.DefaultSettings.LegendBackgroundPaint);
-    __publicField(this, "_legendTextSize", LiveChartsCore.LiveCharts.DefaultSettings.LegendTextSize);
-    __publicField(this, "_tooltipTextPaint", LiveChartsCore.LiveCharts.DefaultSettings.TooltipTextPaint);
-    __publicField(this, "_tooltipBackgroundPaint", LiveChartsCore.LiveCharts.DefaultSettings.TooltipBackgroundPaint);
-    __publicField(this, "_tooltipTextSize", LiveChartsCore.LiveCharts.DefaultSettings.TooltipTextSize);
-    __publicField(this, "BackColor", new LiveChartsCore.LvcColor(255, 255, 255));
-    __publicField(this, "AnimationsSpeed", LiveChartsCore.LiveCharts.DefaultSettings.AnimationsSpeed);
-    __publicField(this, "EasingFunction", LiveChartsCore.LiveCharts.DefaultSettings.EasingFunction);
-    __publicField(this, "UpdaterThrottler", LiveChartsCore.LiveCharts.DefaultSettings.UpdateThrottlingTimeout);
-    __publicField(this, "DataPointerDown", new System.Event());
-    __publicField(this, "ChartPointPointerDown", new System.Event());
-    __publicField(this, "Measuring", new System.Event());
-    __publicField(this, "UpdateStarted", new System.Event());
-    __publicField(this, "UpdateFinished", new System.Event());
-    __publicField(this, "VisualElementsPointerDown", new System.Event());
-    __publicField(this, "AutoUpdateEnabled", true);
-    __publicField(this, "_isDrawingLoopRunning", false);
-    __publicField(this, "_paintTasksSchedule", new System.List());
-    __publicField(this, "MaxFps", 65);
-    __privateAdd(this, _MouseRegion, void 0);
-    if (tooltip != null)
-      this.tooltip = tooltip;
-    if (legend != null)
-      this.legend = legend;
-    if (!LiveChartsCore.LiveCharts.IsConfigured)
-      LiveChartsCore.LiveCharts.Configure((config) => LiveChartsSkiaSharp.UseDefaults(config));
-    this.InitializeCore();
-    this._visualsObserver = new LiveChartsCore.CollectionDeepObserver((s, e) => this.OnPropertyChanged(), (s, e) => this.OnPropertyChanged(), true);
-    if (this.core == null)
-      throw new System.Exception("Core not found!");
-    this.MouseRegion = new PixUI.MouseRegion();
-    this.MouseRegion.PointerMove.Add((e) => this.core?.InvokePointerMove(new LiveChartsCore.LvcPoint(e.X, e.Y)));
-    this.MouseRegion.HoverChanged.Add((hover) => {
-      if (!hover)
-        this.core?.InvokePointerLeft();
+    o(this, "core");
+    o(this, "legend", new O());
+    o(this, "tooltip", new G());
+    o(this, "_legendPosition", n.LiveCharts.DefaultSettings.LegendPosition);
+    o(this, "_drawMargin", null);
+    o(this, "_tooltipPosition", n.LiveCharts.DefaultSettings.TooltipPosition);
+    o(this, "_title");
+    o(this, "_visualsObserver");
+    o(this, "_visuals", new l.List());
+    o(this, "_legendTextPaint", n.LiveCharts.DefaultSettings.LegendTextPaint);
+    o(this, "_legendBackgroundPaint", n.LiveCharts.DefaultSettings.LegendBackgroundPaint);
+    o(this, "_legendTextSize", n.LiveCharts.DefaultSettings.LegendTextSize);
+    o(this, "_tooltipTextPaint", n.LiveCharts.DefaultSettings.TooltipTextPaint);
+    o(this, "_tooltipBackgroundPaint", n.LiveCharts.DefaultSettings.TooltipBackgroundPaint);
+    o(this, "_tooltipTextSize", n.LiveCharts.DefaultSettings.TooltipTextSize);
+    o(this, "BackColor", new n.LvcColor(255, 255, 255));
+    o(this, "AnimationsSpeed", n.LiveCharts.DefaultSettings.AnimationsSpeed);
+    o(this, "EasingFunction", n.LiveCharts.DefaultSettings.EasingFunction);
+    o(this, "UpdaterThrottler", n.LiveCharts.DefaultSettings.UpdateThrottlingTimeout);
+    o(this, "DataPointerDown", new l.Event());
+    o(this, "ChartPointPointerDown", new l.Event());
+    o(this, "Measuring", new l.Event());
+    o(this, "UpdateStarted", new l.Event());
+    o(this, "UpdateFinished", new l.Event());
+    o(this, "VisualElementsPointerDown", new l.Event());
+    o(this, "AutoUpdateEnabled", !0);
+    o(this, "_isDrawingLoopRunning", !1);
+    o(this, "_paintTasksSchedule", new l.List());
+    o(this, "MaxFps", 65);
+    A(this, B, new n.MotionCanvas());
+    A(this, W, void 0);
+    if (t != null && (this.tooltip = t), s != null && (this.legend = s), n.LiveCharts.IsConfigured || n.LiveCharts.Configure((r) => M.UseDefaults(r)), this.InitializeCore(), this._visualsObserver = new n.CollectionDeepObserver(
+      (r, e) => this.OnPropertyChanged(),
+      (r, e) => this.OnPropertyChanged(),
+      !0
+    ), this.core == null)
+      throw new l.Exception("Core not found!");
+    this.MouseRegion = new d.MouseRegion(), this.MouseRegion.PointerMove.Add((r) => this.core?.InvokePointerMove(new n.LvcPoint(r.X, r.Y))), this.MouseRegion.HoverChanged.Add((r) => {
+      r || this.core?.InvokePointerLeft();
     });
   }
   get CoreChart() {
     return this.core;
   }
   get DesignerMode() {
-    return false;
+    return !1;
   }
   get ControlSize() {
-    return this.LegendPosition == LiveChartsCore.LegendPosition.Hidden ? new LiveChartsCore.LvcSize().Init({ Width: this.W, Height: this.H }) : new LiveChartsCore.LvcSize().Init({ Width: this.W, Height: this.H });
+    return this.LegendPosition == n.LegendPosition.Hidden ? new n.LvcSize().Init({ Width: this.W, Height: this.H }) : new n.LvcSize().Init({ Width: this.W, Height: this.H });
   }
   get DrawMargin() {
     return this._drawMargin;
   }
-  set DrawMargin(value) {
-    this._drawMargin = value;
-    this.OnPropertyChanged();
+  set DrawMargin(t) {
+    this._drawMargin = t, this.OnPropertyChanged();
   }
   get LegendPosition() {
     return this._legendPosition;
   }
-  set LegendPosition(value) {
-    this._legendPosition = value;
-    this.OnPropertyChanged();
+  set LegendPosition(t) {
+    this._legendPosition = t, this.OnPropertyChanged();
   }
   get TooltipPosition() {
     return this._tooltipPosition;
   }
-  set TooltipPosition(value) {
-    this._tooltipPosition = value;
-    this.OnPropertyChanged();
+  set TooltipPosition(t) {
+    this._tooltipPosition = t, this.OnPropertyChanged();
   }
-  OnDataPointerDown(points, pointer) {
-    throw new System.NotImplementedException();
+  OnDataPointerDown(t, s) {
+    throw new l.NotImplementedException();
   }
-  InvokeOnUIThread(action) {
-    if (!this.IsMounted)
-      return;
-    PixUI.UIApplication.Current.BeginInvoke(action);
+  InvokeOnUIThread(t) {
+    !this.IsMounted || d.UIApplication.Current.BeginInvoke(t);
   }
   get LegendTextPaint() {
     return this._legendTextPaint;
   }
-  set LegendTextPaint(value) {
-    this._legendTextPaint = value;
-    this.OnPropertyChanged();
+  set LegendTextPaint(t) {
+    this._legendTextPaint = t, this.OnPropertyChanged();
   }
   get LegendBackgroundPaint() {
     return this._legendBackgroundPaint;
   }
-  set LegendBackgroundPaint(value) {
-    this._legendBackgroundPaint = value;
-    this.OnPropertyChanged();
+  set LegendBackgroundPaint(t) {
+    this._legendBackgroundPaint = t, this.OnPropertyChanged();
   }
   get LegendTextSize() {
     return this._legendTextSize;
   }
-  set LegendTextSize(value) {
-    this._legendTextSize = value;
-    this.OnPropertyChanged();
+  set LegendTextSize(t) {
+    this._legendTextSize = t, this.OnPropertyChanged();
   }
   get TooltipTextPaint() {
     return this._tooltipTextPaint;
   }
-  set TooltipTextPaint(value) {
-    this._tooltipTextPaint = value;
-    this.OnPropertyChanged();
+  set TooltipTextPaint(t) {
+    this._tooltipTextPaint = t, this.OnPropertyChanged();
   }
   get TooltipBackgroundPaint() {
     return this._tooltipBackgroundPaint;
   }
-  set TooltipBackgroundPaint(value) {
-    this._tooltipBackgroundPaint = value;
-    this.OnPropertyChanged();
+  set TooltipBackgroundPaint(t) {
+    this._tooltipBackgroundPaint = t, this.OnPropertyChanged();
   }
   get TooltipTextSize() {
     return this._tooltipTextSize;
   }
-  set TooltipTextSize(value) {
-    this._tooltipTextSize = value;
-    this.OnPropertyChanged();
+  set TooltipTextSize(t) {
+    this._tooltipTextSize = t, this.OnPropertyChanged();
   }
   get Title() {
     return this._title;
   }
-  set Title(value) {
-    this._title = value;
-    this.OnPropertyChanged();
+  set Title(t) {
+    this._title = t, this.OnPropertyChanged();
   }
   get CoreCanvas() {
     return this.CanvasCore;
@@ -3137,143 +2553,112 @@ class ChartView extends PixUI.Widget {
   get Legend() {
     return this.legend;
   }
-  set Legend(value) {
-    this.legend = value;
+  set Legend(t) {
+    this.legend = t;
   }
   get Tooltip() {
     return this.tooltip;
   }
-  set Tooltip(value) {
-    this.tooltip = value;
+  set Tooltip(t) {
+    this.tooltip = t;
   }
   get VisualElements() {
     return this._visuals;
   }
-  set VisualElements(value) {
-    this._visualsObserver?.Dispose(this._visuals);
-    this._visualsObserver?.Initialize(value);
-    this._visuals = value;
-    this.OnPropertyChanged();
+  set VisualElements(t) {
+    this._visualsObserver?.Dispose(this._visuals), this._visualsObserver?.Initialize(t), this._visuals = t, this.OnPropertyChanged();
   }
-  ShowTooltip(points) {
-    if (this.tooltip == null || this.core == null)
-      return;
-    this.tooltip.Show(points, this.core);
+  ShowTooltip(t) {
+    this.tooltip == null || this.core == null || this.tooltip.Show(t, this.core);
   }
   HideTooltip() {
-    if (this.tooltip == null || this.core == null)
-      return;
-    this.core.ClearTooltipData();
-    this.tooltip.Hide();
+    this.tooltip == null || this.core == null || (this.core.ClearTooltipData(), this.tooltip.Hide());
   }
-  OnVisualElementPointerDown(visualElements, pointer) {
-    throw new System.NotImplementedException();
+  OnVisualElementPointerDown(t, s) {
+    throw new l.NotImplementedException();
   }
   get PaintTasks() {
     return this._paintTasksSchedule;
   }
-  set PaintTasks(value) {
-    this._paintTasksSchedule = value;
-    this.OnPaintTasksChanged();
+  set PaintTasks(t) {
+    this._paintTasksSchedule = t, this.OnPaintTasksChanged();
   }
   get CanvasCore() {
-    return new LiveChartsCore.MotionCanvas();
+    return R(this, B);
   }
-  CanvasCore_Invalidated(sender) {
+  set CanvasCore(t) {
+    I(this, B, t);
+  }
+  CanvasCore_Invalidated(t) {
     this.RunDrawingLoop();
   }
   async RunDrawingLoop() {
     if (this._isDrawingLoopRunning)
       return;
-    this._isDrawingLoopRunning = true;
-    let ts = System.TimeSpan.FromSeconds(1 / this.MaxFps);
-    while (!this.CanvasCore.IsValid) {
-      this.Invalidate(PixUI.InvalidAction.Repaint);
-      await new Promise(($resolve) => setTimeout(() => $resolve(), Math.floor(ts.TotalMilliseconds) & 4294967295));
-    }
-    this._isDrawingLoopRunning = false;
+    this._isDrawingLoopRunning = !0;
+    let t = l.TimeSpan.FromSeconds(1 / this.MaxFps);
+    for (; !this.CanvasCore.IsValid; )
+      this.Invalidate(d.InvalidAction.Repaint), await new Promise((s) => setTimeout(() => s(), Math.floor(t.TotalMilliseconds) & 4294967295));
+    this._isDrawingLoopRunning = !1;
   }
   OnPaintTasksChanged() {
-    let tasks = new System.HashSet();
-    for (const item of this._paintTasksSchedule) {
-      item.PaintTask.SetGeometries(this.CanvasCore, item.Geometries);
-      tasks.Add(item.PaintTask);
-    }
-    this.CanvasCore.SetPaintTasks(tasks);
+    let t = new l.HashSet();
+    for (const s of this._paintTasksSchedule)
+      s.PaintTask.SetGeometries(this.CanvasCore, s.Geometries), t.Add(s.PaintTask);
+    this.CanvasCore.SetPaintTasks(t);
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion);
+    return R(this, W);
   }
-  set MouseRegion(value) {
-    __privateSet(this, _MouseRegion, value);
+  set MouseRegion(t) {
+    I(this, W, t);
   }
   OnMounted() {
-    super.OnMounted();
-    this.core?.Load();
-    this.CanvasCore.Invalidated.Add(this.CanvasCore_Invalidated, this);
+    super.OnMounted(), this.core?.Load(), this.CanvasCore.Invalidated.Add(this.CanvasCore_Invalidated, this);
   }
   OnUnmounted() {
-    super.OnUnmounted();
-    this.CanvasCore.Invalidated.Remove(this.CanvasCore_Invalidated, this);
-    this.CanvasCore.Dispose();
-    if (System.IsInterfaceOfIDisposable(this.tooltip)) {
-      const disposableTooltip = this.tooltip;
-      disposableTooltip.Dispose();
-    }
-    this.core?.Unload();
-    this.OnUnloading();
+    super.OnUnmounted(), this.CanvasCore.Invalidated.Remove(this.CanvasCore_Invalidated, this), this.CanvasCore.Dispose(), l.IsInterfaceOfIDisposable(this.tooltip) && this.tooltip.Dispose(), this.core?.Unload(), this.OnUnloading();
   }
-  Layout(availableWidth, availableHeight) {
-    let width = this.CacheAndCheckAssignWidth(availableWidth);
-    let height = this.CacheAndCheckAssignHeight(availableHeight);
-    this.SetSize(width, height);
+  Layout(t, s) {
+    let r = this.CacheAndCheckAssignWidth(t), e = this.CacheAndCheckAssignHeight(s);
+    this.SetSize(r, e);
   }
-  Paint(canvas, area = null) {
-    canvas.save();
-    canvas.clipRect(PixUI.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, false);
-    let drawCtx = new SkiaDrawingContext(this.CanvasCore, Math.floor(this.W) & 4294967295, Math.floor(this.H) & 4294967295, canvas);
-    drawCtx.Background = LiveChartsSkiaSharp.AsSKColor(this.BackColor);
-    this.CanvasCore.DrawFrame(drawCtx);
-    canvas.restore();
+  Paint(t, s = null) {
+    t.save(), t.clipRect(d.Rect.FromLTWH(0, 0, this.W, this.H), CanvasKit.ClipOp.Intersect, !1);
+    let r = new Mt(this.CanvasCore, Math.floor(this.W) & 4294967295, Math.floor(this.H) & 4294967295, t);
+    r.Background = M.AsSKColor(this.BackColor), this.CanvasCore.DrawFrame(r), t.restore();
   }
   OnUnloading() {
   }
   OnPropertyChanged() {
-    if (this.core == null || this.DesignerMode)
-      return;
-    this.core.Update();
+    this.core == null || this.DesignerMode || this.core.Update();
   }
 }
-_MouseRegion = new WeakMap();
-__publicField(ChartView, "$meta_PixUI_IMouseRegion", true);
-class PieChart extends ChartView {
-  constructor(tooltip = null, legend = null) {
-    super(tooltip, legend);
-    __publicField(this, "_seriesObserver");
-    __publicField(this, "_series", new System.List());
-    __publicField(this, "_isClockwise", true);
-    __publicField(this, "_initialRotation", 0);
-    __publicField(this, "_maxAngle", 360);
-    __publicField(this, "_total");
-    this._seriesObserver = new LiveChartsCore.CollectionDeepObserver((s, e) => this.OnPropertyChanged(), (s, e) => this.OnPropertyChanged(), true);
-    this.Series = new System.ObservableCollection();
-    this.VisualElements = new System.ObservableCollection();
+B = new WeakMap(), W = new WeakMap(), o(st, "$meta_PixUI_IMouseRegion", !0);
+class ae extends st {
+  constructor(t = null, s = null) {
+    super(t, s);
+    o(this, "_seriesObserver");
+    o(this, "_series", new l.List());
+    o(this, "_isClockwise", !0);
+    o(this, "_initialRotation", 0);
+    o(this, "_maxAngle", 360);
+    o(this, "_total");
+    this._seriesObserver = new n.CollectionDeepObserver(
+      (r, e) => this.OnPropertyChanged(),
+      (r, e) => this.OnPropertyChanged(),
+      !0
+    ), this.Series = new l.ObservableCollection(), this.VisualElements = new l.ObservableCollection();
   }
   InitializeCore() {
-    this.core = new LiveChartsCore.PieChart(this, (config) => LiveChartsSkiaSharp.UseDefaults(config), this.CanvasCore, true);
-    if (this.DesignerMode)
-      return;
-    this.core.Update();
+    this.core = new n.PieChart(this, (t) => M.UseDefaults(t), this.CanvasCore, !0), !this.DesignerMode && this.core.Update();
   }
-  GetPointsAt(point, strategy = LiveChartsCore.TooltipFindingStrategy.Automatic) {
-    let cc = this.core;
-    if (strategy == LiveChartsCore.TooltipFindingStrategy.Automatic)
-      strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(cc.Series);
-    return cc.Series.SelectMany((series) => series.FindHitPoints(cc, point.Clone(), strategy));
+  GetPointsAt(t, s = n.TooltipFindingStrategy.Automatic) {
+    let r = this.core;
+    return s == n.TooltipFindingStrategy.Automatic && (s = n.Extensions.GetTooltipFindingStrategy(r.Series)), r.Series.SelectMany((e) => e.FindHitPoints(r, t.Clone(), s));
   }
-  GetVisualsAt(point) {
-    let cc = this.core;
-    return cc.VisualElements.SelectMany((visual) => visual.IsHitBy(this.core, point.Clone()));
+  GetVisualsAt(t) {
+    return this.core.VisualElements.SelectMany((r) => r.IsHitBy(this.core, t.Clone()));
   }
   get Core() {
     return this.core;
@@ -3281,92 +2666,83 @@ class PieChart extends ChartView {
   get Series() {
     return this._series;
   }
-  set Series(value) {
-    this._seriesObserver?.Dispose(this._series);
-    this._seriesObserver?.Initialize(value);
-    this._series = value;
-    this.OnPropertyChanged();
+  set Series(t) {
+    this._seriesObserver?.Dispose(this._series), this._seriesObserver?.Initialize(t), this._series = t, this.OnPropertyChanged();
   }
   get InitialRotation() {
     return this._initialRotation;
   }
-  set InitialRotation(value) {
-    this._initialRotation = value;
-    this.OnPropertyChanged();
+  set InitialRotation(t) {
+    this._initialRotation = t, this.OnPropertyChanged();
   }
   get MaxAngle() {
     return this._maxAngle;
   }
-  set MaxAngle(value) {
-    this._maxAngle = value;
-    this.OnPropertyChanged();
+  set MaxAngle(t) {
+    this._maxAngle = t, this.OnPropertyChanged();
   }
   get Total() {
     return this._total;
   }
-  set Total(value) {
-    this._total = value;
-    this.OnPropertyChanged();
+  set Total(t) {
+    this._total = t, this.OnPropertyChanged();
   }
   get IsClockwise() {
     return this._isClockwise;
   }
-  set IsClockwise(value) {
-    this._isClockwise = value;
-    this.OnPropertyChanged();
+  set IsClockwise(t) {
+    this._isClockwise = t, this.OnPropertyChanged();
   }
 }
-class CartesianChart extends ChartView {
-  constructor(tooltip = null, legend = null) {
-    super(tooltip, legend);
-    __publicField(this, "_seriesObserver");
-    __publicField(this, "_xObserver");
-    __publicField(this, "_yObserver");
-    __publicField(this, "_sectionsObserver");
-    __publicField(this, "_series", new System.List());
-    __publicField(this, "_xAxes", new System.List().Init([new Axis()]));
-    __publicField(this, "_yAxes", new System.List().Init([new Axis()]));
-    __publicField(this, "_sections", new System.List());
-    __publicField(this, "_drawMarginFrame");
-    __publicField(this, "_tooltipFindingStrategy", LiveChartsCore.LiveCharts.DefaultSettings.TooltipFindingStrategy);
-    __publicField(this, "ZoomMode", LiveChartsCore.LiveCharts.DefaultSettings.ZoomMode);
-    __publicField(this, "ZoomingSpeed", LiveChartsCore.LiveCharts.DefaultSettings.ZoomSpeed);
-    this._seriesObserver = new LiveChartsCore.CollectionDeepObserver(this.OnDeepCollectionChanged.bind(this), this.OnDeepCollectionPropertyChanged.bind(this), true);
-    this._xObserver = new LiveChartsCore.CollectionDeepObserver(this.OnDeepCollectionChanged.bind(this), this.OnDeepCollectionPropertyChanged.bind(this), true);
-    this._yObserver = new LiveChartsCore.CollectionDeepObserver(this.OnDeepCollectionChanged.bind(this), this.OnDeepCollectionPropertyChanged.bind(this), true);
-    this._sectionsObserver = new LiveChartsCore.CollectionDeepObserver(this.OnDeepCollectionChanged.bind(this), this.OnDeepCollectionPropertyChanged.bind(this), true);
-    this.XAxes = new System.List().Init([
-      new Axis()
-    ]);
-    this.YAxes = new System.List().Init([
-      new Axis()
-    ]);
-    this.Series = new System.ObservableCollection();
-    this.VisualElements = new System.ObservableCollection();
+class Dt extends st {
+  constructor(t = null, s = null) {
+    super(t, s);
+    o(this, "_seriesObserver");
+    o(this, "_xObserver");
+    o(this, "_yObserver");
+    o(this, "_sectionsObserver");
+    o(this, "_series", new l.List());
+    o(this, "_xAxes", new l.List().Init([new L()]));
+    o(this, "_yAxes", new l.List().Init([new L()]));
+    o(this, "_sections", new l.List());
+    o(this, "_drawMarginFrame");
+    o(this, "_tooltipFindingStrategy", n.LiveCharts.DefaultSettings.TooltipFindingStrategy);
+    o(this, "ZoomMode", n.LiveCharts.DefaultSettings.ZoomMode);
+    o(this, "ZoomingSpeed", n.LiveCharts.DefaultSettings.ZoomSpeed);
+    this._seriesObserver = new n.CollectionDeepObserver(this.OnDeepCollectionChanged.bind(this), this.OnDeepCollectionPropertyChanged.bind(this), !0), this._xObserver = new n.CollectionDeepObserver(
+      this.OnDeepCollectionChanged.bind(this),
+      this.OnDeepCollectionPropertyChanged.bind(this),
+      !0
+    ), this._yObserver = new n.CollectionDeepObserver(
+      this.OnDeepCollectionChanged.bind(this),
+      this.OnDeepCollectionPropertyChanged.bind(this),
+      !0
+    ), this._sectionsObserver = new n.CollectionDeepObserver(this.OnDeepCollectionChanged.bind(this), this.OnDeepCollectionPropertyChanged.bind(this), !0), this.XAxes = new l.List().Init(
+      [
+        new L()
+      ]
+    ), this.YAxes = new l.List().Init(
+      [
+        new L()
+      ]
+    ), this.Series = new l.ObservableCollection(), this.VisualElements = new l.ObservableCollection();
   }
   InitializeCore() {
-    let zoomingSection = new RectangleGeometry();
-    let zoomingSectionPaint = new SolidColorPaint().Init({
-      IsFill: true,
-      Color: new PixUI.Color(33, 150, 243, 50),
-      ZIndex: 2147483647
-    });
-    zoomingSectionPaint.AddGeometryToPaintTask(this.CanvasCore, zoomingSection);
-    this.CanvasCore.AddDrawableTask(zoomingSectionPaint);
-    this.core = new LiveChartsCore.CartesianChart(this, (config) => LiveChartsSkiaSharp.UseDefaults(config), this.CanvasCore, zoomingSection);
-    if (this.DesignerMode)
-      return;
-    this.core.Update();
+    let t = new et(), s = new c().Init(
+      {
+        IsFill: !0,
+        Color: new d.Color(33, 150, 243, 50),
+        ZIndex: 2147483647
+      }
+    );
+    s.AddGeometryToPaintTask(this.CanvasCore, t), this.CanvasCore.AddDrawableTask(s), this.core = new n.CartesianChart(this, (r) => M.UseDefaults(r), this.CanvasCore, t), !this.DesignerMode && this.core.Update();
   }
-  GetPointsAt(point, strategy = LiveChartsCore.TooltipFindingStrategy.Automatic) {
-    let cc = this.core;
-    if (strategy == LiveChartsCore.TooltipFindingStrategy.Automatic)
-      strategy = LiveChartsCore.Extensions.GetTooltipFindingStrategy(cc.Series);
-    return cc.Series.SelectMany((series) => series.FindHitPoints(cc, point.Clone(), strategy));
+  GetPointsAt(t, s = n.TooltipFindingStrategy.Automatic) {
+    let r = this.core;
+    return s == n.TooltipFindingStrategy.Automatic && (s = n.Extensions.GetTooltipFindingStrategy(r.Series)), r.Series.SelectMany((e) => e.FindHitPoints(r, t.Clone(), s));
   }
-  GetVisualsAt(point) {
-    let cc = this.core;
-    return cc.VisualElements.SelectMany((visual) => visual.IsHitBy(this.core, point.Clone()));
+  GetVisualsAt(t) {
+    return this.core.VisualElements.SelectMany((r) => r.IsHitBy(this.core, t.Clone()));
   }
   get Core() {
     return this.core;
@@ -3374,71 +2750,129 @@ class CartesianChart extends ChartView {
   get XAxes() {
     return this._xAxes;
   }
-  set XAxes(value) {
-    this._xObserver?.Dispose(this._xAxes);
-    this._xObserver?.Initialize(value);
-    this._xAxes = value;
-    this.OnPropertyChanged();
+  set XAxes(t) {
+    this._xObserver?.Dispose(this._xAxes), this._xObserver?.Initialize(t), this._xAxes = t, this.OnPropertyChanged();
   }
   get YAxes() {
     return this._yAxes;
   }
-  set YAxes(value) {
-    this._yObserver?.Dispose(this._yAxes);
-    this._yObserver?.Initialize(value);
-    this._yAxes = value;
-    this.OnPropertyChanged();
+  set YAxes(t) {
+    this._yObserver?.Dispose(this._yAxes), this._yObserver?.Initialize(t), this._yAxes = t, this.OnPropertyChanged();
   }
   get Sections() {
     return this._sections;
   }
-  set Sections(value) {
-    this._sectionsObserver?.Dispose(this._sections);
-    this._sectionsObserver?.Initialize(value);
-    this._sections = value;
-    this.OnPropertyChanged();
+  set Sections(t) {
+    this._sectionsObserver?.Dispose(this._sections), this._sectionsObserver?.Initialize(t), this._sections = t, this.OnPropertyChanged();
   }
   get Series() {
     return this._series;
   }
-  set Series(value) {
-    this._seriesObserver?.Dispose(this._series);
-    this._seriesObserver?.Initialize(value);
-    this._series = value;
-    this.OnPropertyChanged();
+  set Series(t) {
+    this._seriesObserver?.Dispose(this._series), this._seriesObserver?.Initialize(t), this._series = t, this.OnPropertyChanged();
   }
   get DrawMarginFrame() {
     return this._drawMarginFrame;
   }
-  set DrawMarginFrame(value) {
-    this._drawMarginFrame = value;
-    this.OnPropertyChanged();
+  set DrawMarginFrame(t) {
+    this._drawMarginFrame = t, this.OnPropertyChanged();
   }
   get TooltipFindingStrategy() {
     return this._tooltipFindingStrategy;
   }
-  set TooltipFindingStrategy(value) {
-    this._tooltipFindingStrategy = value;
+  set TooltipFindingStrategy(t) {
+    this._tooltipFindingStrategy = t, this.OnPropertyChanged();
+  }
+  ScalePixelsToData(t, s = 0, r = 0) {
+    let e = this.core, a = n.Scaler.Make(e.DrawMarginLocation.Clone(), e.DrawMarginSize.Clone(), e.XAxes[s]), h = n.Scaler.Make(e.DrawMarginLocation.Clone(), e.DrawMarginSize.Clone(), e.YAxes[r]);
+    return new n.LvcPointD(a.ToChartValues(t.X), h.ToChartValues(t.Y));
+  }
+  ScaleDataToPixels(t, s = 0, r = 0) {
+    let e = this.core, a = n.Scaler.Make(e.DrawMarginLocation.Clone(), e.DrawMarginSize.Clone(), e.XAxes[s]), h = n.Scaler.Make(e.DrawMarginLocation.Clone(), e.DrawMarginSize.Clone(), e.YAxes[r]);
+    return new n.LvcPointD(a.ToPixels(t.X), h.ToPixels(t.Y));
+  }
+  OnDeepCollectionChanged(t, s) {
     this.OnPropertyChanged();
   }
-  ScalePixelsToData(point, xAxisIndex = 0, yAxisIndex = 0) {
-    let cc = this.core;
-    let xScaler = LiveChartsCore.Scaler.Make(cc.DrawMarginLocation.Clone(), cc.DrawMarginSize.Clone(), cc.XAxes[xAxisIndex]);
-    let yScaler = LiveChartsCore.Scaler.Make(cc.DrawMarginLocation.Clone(), cc.DrawMarginSize.Clone(), cc.YAxes[yAxisIndex]);
-    return new LiveChartsCore.LvcPointD(xScaler.ToChartValues(point.X), yScaler.ToChartValues(point.Y));
-  }
-  ScaleDataToPixels(point, xAxisIndex = 0, yAxisIndex = 0) {
-    let cc = this.core;
-    let xScaler = LiveChartsCore.Scaler.Make(cc.DrawMarginLocation.Clone(), cc.DrawMarginSize.Clone(), cc.XAxes[xAxisIndex]);
-    let yScaler = LiveChartsCore.Scaler.Make(cc.DrawMarginLocation.Clone(), cc.DrawMarginSize.Clone(), cc.YAxes[yAxisIndex]);
-    return new LiveChartsCore.LvcPointD(xScaler.ToPixels(point.X), yScaler.ToPixels(point.Y));
-  }
-  OnDeepCollectionChanged(sender, e) {
-    this.OnPropertyChanged();
-  }
-  OnDeepCollectionPropertyChanged(sender, e) {
+  OnDeepCollectionPropertyChanged(t, s) {
     this.OnPropertyChanged();
   }
 }
-__publicField(CartesianChart, "$meta_LiveChartsCore_ICartesianChartView", true);
-export { Axis, BaseGeometryVisual, BezierPoint, Blur, CandlestickGeometry, CandlesticksSeries, CartesianChart, ChartView, CircleGeometry, ColoredRectangleGeometry, ColumnSeries, CubicBezierAreaGeometry, DashEffect, DoubleDict, DoughnutGeometry, DrawMarginFrame, Drawable, DrawingCanvas, DrawingFluentExtensions, DropShadow, GaugeBuilder, Geometry, GeometryVisual, HeatLand, HeatLandSeries, HeatPathShape, HeatSeries, ImageFilter, ImageFiltersMergeOperation, LabelGeometry, LabelVisual, LineGeometry, LineSegment, LineSeries, LinearGradientPaint, LiveChartsSkiaSharp, MapFactory, MoveToPathCommand, OvalGeometry, Paint, PaintTask, PathCommand, PathEffect, PathGeometry, PieChart, PieSeries, PolarAxis, PolarLineSeries, RadialGradientPaint, RectangleGeometry, RectangularSection, RoundedRectangleGeometry, RowSeries, SKDefaultLegend, SKDefaultTooltip, SKMatrixMotionProperty, SVGPathGeometry, ScatterSeries, SeriesVisual, SizedGeometry, SkiaDrawingContext, SkiaSharpProvider, SolidColorPaint, SquareGeometry, StackedAreaSeries, StackedColumnSeries, StackedRowSeries, StackedStepAreaSeries, StepLineAreaGeometry, StepLineSeries, StepPoint, ThemesExtensions, VariableGeometryVisual, VectorGeometry, VisualElementsExtensions };
+o(Dt, "$meta_LiveChartsCore_ICartesianChartView", !0);
+export {
+  L as Axis,
+  at as BaseGeometryVisual,
+  Q as BezierPoint,
+  yt as Blur,
+  Ot as CandlestickGeometry,
+  Yt as CandlesticksSeries,
+  Dt as CartesianChart,
+  st as ChartView,
+  w as CircleGeometry,
+  zt as ColoredRectangleGeometry,
+  Qt as ColumnSeries,
+  tt as CubicBezierAreaGeometry,
+  St as DashEffect,
+  ft as DoubleDict,
+  X as DoughnutGeometry,
+  qt as DrawMarginFrame,
+  Z as Drawable,
+  vt as DrawingCanvas,
+  J as DrawingFluentExtensions,
+  it as DropShadow,
+  ee as GaugeBuilder,
+  E as Geometry,
+  Jt as GeometryVisual,
+  se as HeatLand,
+  Et as HeatLandSeries,
+  Vt as HeatPathShape,
+  Xt as HeatSeries,
+  j as ImageFilter,
+  Pt as ImageFiltersMergeOperation,
+  S as LabelGeometry,
+  lt as LabelVisual,
+  mt as LineGeometry,
+  xt as LineSegment,
+  Ht as LineSeries,
+  Y as LinearGradientPaint,
+  M as LiveChartsSkiaSharp,
+  Tt as MapFactory,
+  Lt as MoveToPathCommand,
+  re as OvalGeometry,
+  $ as Paint,
+  ie as PaintTask,
+  ct as PathCommand,
+  pt as PathEffect,
+  Gt as PathGeometry,
+  ae as PieChart,
+  q as PieSeries,
+  kt as PolarAxis,
+  te as PolarLineSeries,
+  ut as RadialGradientPaint,
+  et as RectangleGeometry,
+  jt as RectangularSection,
+  T as RoundedRectangleGeometry,
+  Bt as RowSeries,
+  O as SKDefaultLegend,
+  G as SKDefaultTooltip,
+  It as SKMatrixMotionProperty,
+  ne as SVGPathGeometry,
+  Kt as ScatterSeries,
+  Ft as SeriesVisual,
+  F as SizedGeometry,
+  Mt as SkiaDrawingContext,
+  Rt as SkiaSharpProvider,
+  c as SolidColorPaint,
+  oe as SquareGeometry,
+  Nt as StackedAreaSeries,
+  $t as StackedColumnSeries,
+  Ut as StackedRowSeries,
+  Zt as StackedStepAreaSeries,
+  gt as StepLineAreaGeometry,
+  Wt as StepLineSeries,
+  dt as StepPoint,
+  p as ThemesExtensions,
+  At as VariableGeometryVisual,
+  Ct as VectorGeometry,
+  ht as VisualElementsExtensions
+};

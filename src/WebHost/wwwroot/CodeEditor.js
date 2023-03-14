@@ -1,426 +1,259 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
+var Xt = Object.defineProperty;
+var qt = (r, t, e) => t in r ? Xt(r, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : r[t] = e;
+var o = (r, t, e) => (qt(r, typeof t != "symbol" ? t + "" : t, e), e), Dt = (r, t, e) => {
+  if (!t.has(r))
+    throw TypeError("Cannot " + e);
 };
-var __accessCheck = (obj, member, msg) => {
-  if (!member.has(obj))
-    throw TypeError("Cannot " + msg);
-};
-var __privateGet = (obj, member, getter) => {
-  __accessCheck(obj, member, "read from private field");
-  return getter ? getter.call(obj) : member.get(obj);
-};
-var __privateAdd = (obj, member, value) => {
-  if (member.has(obj))
+var w = (r, t, e) => (Dt(r, t, "read from private field"), e ? e.call(r) : t.get(r)), x = (r, t, e) => {
+  if (t.has(r))
     throw TypeError("Cannot add the same private member more than once");
-  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-};
-var __privateSet = (obj, member, value, setter) => {
-  __accessCheck(obj, member, "write to private field");
-  setter ? setter.call(obj, value) : member.set(obj, value);
-  return value;
-};
-var _Root, _Count, _Node, _StartPosition, _EndPosition, _FoldText, _Language, _TotalLength, _DelimiterLength, _CachedFolds, _FontHeight, _MouseRegion, _FocusNode;
-import * as System from "/System.js";
-import * as PixUI from "/PixUI.js";
-class ParserInput {
-  constructor(textBuffer) {
-    __publicField(this, "_textBuffer");
-    __publicField(this, "_readBuffer");
-    this._textBuffer = textBuffer;
-    this._readBuffer = new Uint16Array(1024);
+  t instanceof WeakSet ? t.add(r) : t.set(r, e);
+}, E = (r, t, e, i) => (Dt(r, t, "write to private field"), i ? i.call(r, e) : t.set(r, e), e);
+import * as c from "/System.js";
+import * as u from "/PixUI.js";
+class Yt {
+  constructor(t) {
+    o(this, "_textBuffer");
+    o(this, "_readBuffer");
+    this._textBuffer = t, this._readBuffer = new Uint16Array(1024);
   }
-  Read(startIndex, startPoint, endIndex) {
-    console.log(`ParserInput.Read: ${startIndex} ${startPoint} ${endIndex}`);
-    const offset = startIndex;
-    if (offset >= this._textBuffer.Length)
+  Read(t, e, i) {
+    console.log(`ParserInput.Read: ${t} ${e} ${i}`);
+    const n = t;
+    if (n >= this._textBuffer.Length)
       return null;
-    let count = Math.min(this._readBuffer.length, this._textBuffer.Length - offset);
-    if (endIndex) {
-      count = Math.min(count, endIndex - startIndex);
-    }
-    this._textBuffer.CopyTo(this._readBuffer, offset, count);
-    return String.fromCharCode.apply(null, this._readBuffer.subarray(0, count));
+    let s = Math.min(this._readBuffer.length, this._textBuffer.Length - n);
+    return i && (s = Math.min(s, i - t)), this._textBuffer.CopyTo(this._readBuffer, n, s), String.fromCharCode.apply(null, this._readBuffer.subarray(0, s));
   }
 }
-const _TSPoint = class {
-  constructor(row, column) {
-    __publicField(this, "row");
-    __publicField(this, "column");
-    this.row = Math.floor(row) & 4294967295;
-    this.column = Math.floor(column) & 4294967295;
+const $ = class {
+  constructor(t, e) {
+    o(this, "row");
+    o(this, "column");
+    this.row = Math.floor(t) & 4294967295, this.column = Math.floor(e) & 4294967295;
   }
   Clone() {
-    return new _TSPoint(Math.floor(this.row) & 4294967295, Math.floor(this.column) & 4294967295);
+    return new $(Math.floor(this.row) & 4294967295, Math.floor(this.column) & 4294967295);
   }
-  static FromLocation(location) {
-    return new _TSPoint(location.Line, location.Column * SyntaxParser.ParserEncoding);
+  static FromLocation(t) {
+    return new $(t.Line, t.Column * B.ParserEncoding);
   }
   toString() {
     return `(${this.row}, ${this.column})`;
   }
 };
-let TSPoint = _TSPoint;
-__publicField(TSPoint, "Empty", new _TSPoint(0, 0));
-class TSEdit {
+let p = $;
+o(p, "Empty", new $(0, 0));
+class xt {
   constructor() {
-    __publicField(this, "startIndex", 0);
-    __publicField(this, "oldEndIndex", 0);
-    __publicField(this, "newEndIndex", 0);
-    __publicField(this, "startPosition", TSPoint.Empty.Clone());
-    __publicField(this, "oldEndPosition", TSPoint.Empty.Clone());
-    __publicField(this, "newEndPosition", TSPoint.Empty.Clone());
+    o(this, "startIndex", 0);
+    o(this, "oldEndIndex", 0);
+    o(this, "newEndIndex", 0);
+    o(this, "startPosition", p.Empty.Clone());
+    o(this, "oldEndPosition", p.Empty.Clone());
+    o(this, "newEndPosition", p.Empty.Clone());
   }
   Clone() {
-    let clone = new TSEdit();
-    clone.startIndex = this.startIndex;
-    clone.oldEndIndex = this.oldEndIndex;
-    clone.newEndIndex = this.newEndIndex;
-    clone.startPosition = this.startPosition;
-    clone.oldEndPosition = this.oldEndPosition;
-    clone.newEndPosition = this.newEndPosition;
-    return clone;
+    let t = new xt();
+    return t.startIndex = this.startIndex, t.oldEndIndex = this.oldEndIndex, t.newEndIndex = this.newEndIndex, t.startPosition = this.startPosition, t.oldEndPosition = this.oldEndPosition, t.newEndPosition = this.newEndPosition, t;
   }
 }
-class RedBlackTreeNode {
-  constructor(val) {
-    __publicField(this, "Left");
-    __publicField(this, "Right");
-    __publicField(this, "Parent");
-    __publicField(this, "Value");
-    __publicField(this, "Color", false);
-    this.Value = val;
+class Vt {
+  constructor(t) {
+    o(this, "Left");
+    o(this, "Right");
+    o(this, "Parent");
+    o(this, "Value");
+    o(this, "Color", !1);
+    this.Value = t;
   }
   get LeftMost() {
-    let node = this;
-    while (node.Left != null)
-      node = node.Left;
-    return node;
+    let t = this;
+    for (; t.Left != null; )
+      t = t.Left;
+    return t;
   }
   get RightMost() {
-    let node = this;
-    while (node.Right != null)
-      node = node.Right;
-    return node;
+    let t = this;
+    for (; t.Right != null; )
+      t = t.Right;
+    return t;
   }
 }
-const _RedBlackTree = class {
-  constructor(host) {
-    __publicField(this, "_host");
-    __privateAdd(this, _Root, void 0);
-    __privateAdd(this, _Count, 0);
-    if (host == null)
-      throw new System.ArgumentNullException("host");
-    this._host = host;
+var Z, J;
+const g = class {
+  constructor(t) {
+    o(this, "_host");
+    x(this, Z, void 0);
+    x(this, J, 0);
+    if (t == null)
+      throw new c.ArgumentNullException("host");
+    this._host = t;
   }
   get Root() {
-    return __privateGet(this, _Root);
+    return w(this, Z);
   }
-  set Root(value) {
-    __privateSet(this, _Root, value);
+  set Root(t) {
+    E(this, Z, t);
   }
   get Count() {
-    return __privateGet(this, _Count);
+    return w(this, J);
   }
-  set Count(value) {
-    __privateSet(this, _Count, value);
+  set Count(t) {
+    E(this, J, t);
   }
   Clear() {
-    this.Root = null;
-    this.Count = 0;
+    this.Root = null, this.Count = 0;
   }
-  Add(item) {
-    this.AddInternal(new RedBlackTreeNode(item));
+  Add(t) {
+    this.AddInternal(new Vt(t));
   }
-  AddInternal(newNode) {
-    console.assert(newNode.Color == _RedBlackTree.BLACK);
-    if (this.Root == null) {
-      this.Count = 1;
-      this.Root = newNode;
+  AddInternal(t) {
+    if (console.assert(t.Color == g.BLACK), this.Root == null) {
+      this.Count = 1, this.Root = t;
       return;
     }
-    let parentNode = this.Root;
-    while (true) {
-      if (this._host.Compare(newNode.Value, parentNode.Value) <= 0) {
-        if (parentNode.Left == null) {
-          this.InsertAsLeft(parentNode, newNode);
+    let e = this.Root;
+    for (; ; )
+      if (this._host.Compare(t.Value, e.Value) <= 0) {
+        if (e.Left == null) {
+          this.InsertAsLeft(e, t);
           return;
         }
-        parentNode = parentNode.Left;
+        e = e.Left;
       } else {
-        if (parentNode.Right == null) {
-          this.InsertAsRight(parentNode, newNode);
+        if (e.Right == null) {
+          this.InsertAsRight(e, t);
           return;
         }
-        parentNode = parentNode.Right;
+        e = e.Right;
       }
-    }
   }
-  InsertAsLeft(parentNode, newNode) {
-    console.assert(parentNode.Left == null);
-    parentNode.Left = newNode;
-    newNode.Parent = parentNode;
-    newNode.Color = _RedBlackTree.RED;
-    this._host.UpdateAfterChildrenChange(parentNode);
-    this.FixTreeOnInsert(newNode);
-    this.Count++;
+  InsertAsLeft(t, e) {
+    console.assert(t.Left == null), t.Left = e, e.Parent = t, e.Color = g.RED, this._host.UpdateAfterChildrenChange(t), this.FixTreeOnInsert(e), this.Count++;
   }
-  InsertAsRight(parentNode, newNode) {
-    console.assert(parentNode.Right == null);
-    parentNode.Right = newNode;
-    newNode.Parent = parentNode;
-    newNode.Color = _RedBlackTree.RED;
-    this._host.UpdateAfterChildrenChange(parentNode);
-    this.FixTreeOnInsert(newNode);
-    this.Count++;
+  InsertAsRight(t, e) {
+    console.assert(t.Right == null), t.Right = e, e.Parent = t, e.Color = g.RED, this._host.UpdateAfterChildrenChange(t), this.FixTreeOnInsert(e), this.Count++;
   }
-  FixTreeOnInsert(node) {
-    console.assert(node != null);
-    console.assert(node.Color == _RedBlackTree.RED);
-    console.assert(node.Left == null || node.Left.Color == _RedBlackTree.BLACK);
-    console.assert(node.Right == null || node.Right.Color == _RedBlackTree.BLACK);
-    let parentNode = node.Parent;
-    if (parentNode == null) {
-      node.Color = _RedBlackTree.BLACK;
+  FixTreeOnInsert(t) {
+    console.assert(t != null), console.assert(t.Color == g.RED), console.assert(t.Left == null || t.Left.Color == g.BLACK), console.assert(t.Right == null || t.Right.Color == g.BLACK);
+    let e = t.Parent;
+    if (e == null) {
+      t.Color = g.BLACK;
       return;
     }
-    if (parentNode.Color == _RedBlackTree.BLACK) {
+    if (e.Color == g.BLACK)
+      return;
+    let i = e.Parent, n = this.Sibling(e);
+    if (n != null && n.Color == g.RED) {
+      e.Color = g.BLACK, n.Color = g.BLACK, i.Color = g.RED, this.FixTreeOnInsert(i);
       return;
     }
-    let grandparentNode = parentNode.Parent;
-    let uncleNode = this.Sibling(parentNode);
-    if (uncleNode != null && uncleNode.Color == _RedBlackTree.RED) {
-      parentNode.Color = _RedBlackTree.BLACK;
-      uncleNode.Color = _RedBlackTree.BLACK;
-      grandparentNode.Color = _RedBlackTree.RED;
-      this.FixTreeOnInsert(grandparentNode);
-      return;
-    }
-    if (node == parentNode.Right && parentNode == grandparentNode.Left) {
-      this.RotateLeft(parentNode);
-      node = node.Left;
-    } else if (node == parentNode.Left && parentNode == grandparentNode.Right) {
-      this.RotateRight(parentNode);
-      node = node.Right;
-    }
-    parentNode = node.Parent;
-    grandparentNode = parentNode.Parent;
-    parentNode.Color = _RedBlackTree.BLACK;
-    grandparentNode.Color = _RedBlackTree.RED;
-    if (node == parentNode.Left && parentNode == grandparentNode.Left) {
-      this.RotateRight(grandparentNode);
-    } else {
-      console.assert(node == parentNode.Right && parentNode == grandparentNode.Right);
-      this.RotateLeft(grandparentNode);
-    }
+    t == e.Right && e == i.Left ? (this.RotateLeft(e), t = t.Left) : t == e.Left && e == i.Right && (this.RotateRight(e), t = t.Right), e = t.Parent, i = e.Parent, e.Color = g.BLACK, i.Color = g.RED, t == e.Left && e == i.Left ? this.RotateRight(i) : (console.assert(t == e.Right && e == i.Right), this.RotateLeft(i));
   }
-  ReplaceNode(replacedNode, newNode) {
-    if (replacedNode.Parent == null) {
-      console.assert(replacedNode == this.Root);
-      this.Root = newNode;
-    } else {
-      if (replacedNode.Parent.Left == replacedNode)
-        replacedNode.Parent.Left = newNode;
-      else
-        replacedNode.Parent.Right = newNode;
-    }
-    if (newNode != null) {
-      newNode.Parent = replacedNode.Parent;
-    }
-    replacedNode.Parent = null;
+  ReplaceNode(t, e) {
+    t.Parent == null ? (console.assert(t == this.Root), this.Root = e) : t.Parent.Left == t ? t.Parent.Left = e : t.Parent.Right = e, e != null && (e.Parent = t.Parent), t.Parent = null;
   }
-  RotateLeft(p) {
-    let q = p.Right;
-    console.assert(q != null);
-    console.assert(q.Parent == p);
-    this.ReplaceNode(p, q);
-    p.Right = q.Left;
-    if (p.Right != null)
-      p.Right.Parent = p;
-    q.Left = p;
-    p.Parent = q;
-    this._host.UpdateAfterRotateLeft(p);
+  RotateLeft(t) {
+    let e = t.Right;
+    console.assert(e != null), console.assert(e.Parent == t), this.ReplaceNode(t, e), t.Right = e.Left, t.Right != null && (t.Right.Parent = t), e.Left = t, t.Parent = e, this._host.UpdateAfterRotateLeft(t);
   }
-  RotateRight(p) {
-    let q = p.Left;
-    console.assert(q != null);
-    console.assert(q.Parent == p);
-    this.ReplaceNode(p, q);
-    p.Left = q.Right;
-    if (p.Left != null)
-      p.Left.Parent = p;
-    q.Right = p;
-    p.Parent = q;
-    this._host.UpdateAfterRotateRight(p);
+  RotateRight(t) {
+    let e = t.Left;
+    console.assert(e != null), console.assert(e.Parent == t), this.ReplaceNode(t, e), t.Left = e.Right, t.Left != null && (t.Left.Parent = t), e.Right = t, t.Parent = e, this._host.UpdateAfterRotateRight(t);
   }
-  Sibling(node) {
-    return node == node.Parent.Left ? node.Parent.Right : node.Parent.Left;
+  Sibling(t) {
+    return t == t.Parent.Left ? t.Parent.Right : t.Parent.Left;
   }
-  RemoveAt(iterator) {
-    let node = iterator.Node;
-    if (node == null)
-      throw new System.ArgumentException("Invalid iterator");
-    while (node.Parent != null)
-      node = node.Parent;
-    if (node != this.Root)
-      throw new System.ArgumentException("Iterator does not belong to this tree");
-    this.RemoveNode(iterator.Node);
+  RemoveAt(t) {
+    let e = t.Node;
+    if (e == null)
+      throw new c.ArgumentException("Invalid iterator");
+    for (; e.Parent != null; )
+      e = e.Parent;
+    if (e != this.Root)
+      throw new c.ArgumentException("Iterator does not belong to this tree");
+    this.RemoveNode(t.Node);
   }
-  RemoveNode(removedNode) {
-    var _a;
-    if (removedNode.Left != null && removedNode.Right != null) {
-      let leftMost = removedNode.Right.LeftMost;
-      this.RemoveNode(leftMost);
-      this.ReplaceNode(removedNode, leftMost);
-      leftMost.Left = removedNode.Left;
-      if (leftMost.Left != null)
-        leftMost.Left.Parent = leftMost;
-      leftMost.Right = removedNode.Right;
-      if (leftMost.Right != null)
-        leftMost.Right.Parent = leftMost;
-      leftMost.Color = removedNode.Color;
-      this._host.UpdateAfterChildrenChange(leftMost);
-      if (leftMost.Parent != null)
-        this._host.UpdateAfterChildrenChange(leftMost.Parent);
+  RemoveNode(t) {
+    var n;
+    if (t.Left != null && t.Right != null) {
+      let s = t.Right.LeftMost;
+      this.RemoveNode(s), this.ReplaceNode(t, s), s.Left = t.Left, s.Left != null && (s.Left.Parent = s), s.Right = t.Right, s.Right != null && (s.Right.Parent = s), s.Color = t.Color, this._host.UpdateAfterChildrenChange(s), s.Parent != null && this._host.UpdateAfterChildrenChange(s.Parent);
       return;
     }
     this.Count--;
-    let parentNode = removedNode.Parent;
-    let childNode = (_a = removedNode.Left) != null ? _a : removedNode.Right;
-    this.ReplaceNode(removedNode, childNode);
-    if (parentNode != null)
-      this._host.UpdateAfterChildrenChange(parentNode);
-    if (removedNode.Color == _RedBlackTree.BLACK) {
-      if (childNode != null && childNode.Color == _RedBlackTree.RED) {
-        childNode.Color = _RedBlackTree.BLACK;
-      } else {
-        this.FixTreeOnDelete(childNode, parentNode);
-      }
-    }
+    let e = t.Parent, i = (n = t.Left) != null ? n : t.Right;
+    this.ReplaceNode(t, i), e != null && this._host.UpdateAfterChildrenChange(e), t.Color == g.BLACK && (i != null && i.Color == g.RED ? i.Color = g.BLACK : this.FixTreeOnDelete(i, e));
   }
-  static Sibling2(node, parentNode) {
-    console.assert(node == null || node.Parent == parentNode);
-    if (node == parentNode.Left)
-      return parentNode.Right;
-    else
-      return parentNode.Left;
+  static Sibling2(t, e) {
+    return console.assert(t == null || t.Parent == e), t == e.Left ? e.Right : e.Left;
   }
-  static GetColor(node) {
-    return node != null ? node.Color : _RedBlackTree.BLACK;
+  static GetColor(t) {
+    return t != null ? t.Color : g.BLACK;
   }
-  FixTreeOnDelete(node, parentNode) {
-    console.assert(node == null || node.Parent == parentNode);
-    if (parentNode == null)
+  FixTreeOnDelete(t, e) {
+    if (console.assert(t == null || t.Parent == e), e == null)
       return;
-    let sibling = _RedBlackTree.Sibling2(node, parentNode);
-    if (sibling.Color == _RedBlackTree.RED) {
-      parentNode.Color = _RedBlackTree.RED;
-      sibling.Color = _RedBlackTree.BLACK;
-      if (node == parentNode.Left)
-        this.RotateLeft(parentNode);
-      else
-        this.RotateRight(parentNode);
-      sibling = _RedBlackTree.Sibling2(node, parentNode);
-    }
-    if (parentNode.Color == _RedBlackTree.BLACK && sibling.Color == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Left) == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Right) == _RedBlackTree.BLACK) {
-      sibling.Color = _RedBlackTree.RED;
-      this.FixTreeOnDelete(parentNode, parentNode.Parent);
+    let i = g.Sibling2(t, e);
+    if (i.Color == g.RED && (e.Color = g.RED, i.Color = g.BLACK, t == e.Left ? this.RotateLeft(e) : this.RotateRight(e), i = g.Sibling2(t, e)), e.Color == g.BLACK && i.Color == g.BLACK && g.GetColor(i.Left) == g.BLACK && g.GetColor(i.Right) == g.BLACK) {
+      i.Color = g.RED, this.FixTreeOnDelete(e, e.Parent);
       return;
     }
-    if (parentNode.Color == _RedBlackTree.RED && sibling.Color == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Left) == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Right) == _RedBlackTree.BLACK) {
-      sibling.Color = _RedBlackTree.RED;
-      parentNode.Color = _RedBlackTree.BLACK;
+    if (e.Color == g.RED && i.Color == g.BLACK && g.GetColor(i.Left) == g.BLACK && g.GetColor(i.Right) == g.BLACK) {
+      i.Color = g.RED, e.Color = g.BLACK;
       return;
     }
-    if (node == parentNode.Left && sibling.Color == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Left) == _RedBlackTree.RED && _RedBlackTree.GetColor(sibling.Right) == _RedBlackTree.BLACK) {
-      sibling.Color = _RedBlackTree.RED;
-      sibling.Left.Color = _RedBlackTree.BLACK;
-      this.RotateRight(sibling);
-    } else if (node == parentNode.Right && sibling.Color == _RedBlackTree.BLACK && _RedBlackTree.GetColor(sibling.Right) == _RedBlackTree.RED && _RedBlackTree.GetColor(sibling.Left) == _RedBlackTree.BLACK) {
-      sibling.Color = _RedBlackTree.RED;
-      sibling.Right.Color = _RedBlackTree.BLACK;
-      this.RotateLeft(sibling);
-    }
-    sibling = _RedBlackTree.Sibling2(node, parentNode);
-    sibling.Color = parentNode.Color;
-    parentNode.Color = _RedBlackTree.BLACK;
-    if (node == parentNode.Left) {
-      if (sibling.Right != null) {
-        console.assert(sibling.Right.Color == _RedBlackTree.RED);
-        sibling.Right.Color = _RedBlackTree.BLACK;
-      }
-      this.RotateLeft(parentNode);
-    } else {
-      if (sibling.Left != null) {
-        console.assert(sibling.Left.Color == _RedBlackTree.RED);
-        sibling.Left.Color = _RedBlackTree.BLACK;
-      }
-      this.RotateRight(parentNode);
-    }
+    t == e.Left && i.Color == g.BLACK && g.GetColor(i.Left) == g.RED && g.GetColor(i.Right) == g.BLACK ? (i.Color = g.RED, i.Left.Color = g.BLACK, this.RotateRight(i)) : t == e.Right && i.Color == g.BLACK && g.GetColor(i.Right) == g.RED && g.GetColor(i.Left) == g.BLACK && (i.Color = g.RED, i.Right.Color = g.BLACK, this.RotateLeft(i)), i = g.Sibling2(t, e), i.Color = e.Color, e.Color = g.BLACK, t == e.Left ? (i.Right != null && (console.assert(i.Right.Color == g.RED), i.Right.Color = g.BLACK), this.RotateLeft(e)) : (i.Left != null && (console.assert(i.Left.Color == g.RED), i.Left.Color = g.BLACK), this.RotateRight(e));
   }
-  Find(item) {
-    let it = this.LowerBound(item);
-    while (it.IsValid && this._host.Compare(it.Current, item) == 0) {
-      if (this._host.Equals(it.Current, item))
-        return it;
-      it.MoveNext();
+  Find(t) {
+    let e = this.LowerBound(t);
+    for (; e.IsValid && this._host.Compare(e.Current, t) == 0; ) {
+      if (this._host.Equals(e.Current, t))
+        return e;
+      e.MoveNext();
     }
-    return new RedBlackTreeIterator(null);
+    return new M(null);
   }
-  LowerBound(item) {
-    let node = this.Root;
-    let resultNode = null;
-    while (node != null) {
-      if (this._host.Compare(node.Value, item) < 0) {
-        node = node.Right;
-      } else {
-        resultNode = node;
-        node = node.Left;
-      }
-    }
-    return new RedBlackTreeIterator(resultNode);
+  LowerBound(t) {
+    let e = this.Root, i = null;
+    for (; e != null; )
+      this._host.Compare(e.Value, t) < 0 ? e = e.Right : (i = e, e = e.Left);
+    return new M(i);
   }
-  UpperBound(item) {
-    let it = this.LowerBound(item);
-    while (it.IsValid && this._host.Compare(it.Current, item) == 0) {
-      it.MoveNext();
-    }
-    return it;
+  UpperBound(t) {
+    let e = this.LowerBound(t);
+    for (; e.IsValid && this._host.Compare(e.Current, t) == 0; )
+      e.MoveNext();
+    return e;
   }
   Begin() {
-    return this.Root == null ? new RedBlackTreeIterator(null) : new RedBlackTreeIterator(this.Root.LeftMost);
+    return this.Root == null ? new M(null) : new M(this.Root.LeftMost);
   }
-  Contains(item) {
-    return this.Find(item).IsValid;
+  Contains(t) {
+    return this.Find(t).IsValid;
   }
-  Remove(item) {
-    let it = this.Find(item);
-    if (!it.IsValid)
-      return false;
-    this.RemoveAt(it.Clone());
-    return true;
+  Remove(t) {
+    let e = this.Find(t);
+    return e.IsValid ? (this.RemoveAt(e.Clone()), !0) : !1;
   }
 };
-let RedBlackTree = _RedBlackTree;
-_Root = new WeakMap();
-_Count = new WeakMap();
-__publicField(RedBlackTree, "RED", true);
-__publicField(RedBlackTree, "BLACK", false);
-const _RedBlackTreeIterator = class {
-  constructor(node) {
-    __privateAdd(this, _Node, void 0);
-    this.Node = node;
+let q = g;
+Z = new WeakMap(), J = new WeakMap(), o(q, "RED", !0), o(q, "BLACK", !1);
+var tt;
+const Rt = class {
+  constructor(t) {
+    x(this, tt, void 0);
+    this.Node = t;
   }
   get Node() {
-    return __privateGet(this, _Node);
+    return w(this, tt);
   }
-  set Node(value) {
-    __privateSet(this, _Node, value);
+  set Node(t) {
+    E(this, tt, t);
   }
   Clone() {
-    return new _RedBlackTreeIterator(this.Node);
+    return new Rt(this.Node);
   }
   get IsValid() {
     return this.Node != null;
@@ -428,292 +261,250 @@ const _RedBlackTreeIterator = class {
   get Current() {
     if (this.Node != null)
       return this.Node.Value;
-    throw new System.InvalidOperationException();
+    throw new c.InvalidOperationException();
   }
   MoveNext() {
     if (this.Node == null)
-      return false;
-    if (this.Node.Right != null) {
+      return !1;
+    if (this.Node.Right != null)
       this.Node = this.Node.Right.LeftMost;
-    } else {
-      let oldNode;
-      do {
-        oldNode = this.Node;
-        this.Node = this.Node.Parent;
-      } while (this.Node != null && this.Node.Right == oldNode);
+    else {
+      let t;
+      do
+        t = this.Node, this.Node = this.Node.Parent;
+      while (this.Node != null && this.Node.Right == t);
     }
     return this.Node != null;
   }
   MoveBack() {
     if (this.Node == null)
-      return false;
-    if (this.Node.Left != null) {
+      return !1;
+    if (this.Node.Left != null)
       this.Node = this.Node.Left.RightMost;
-    } else {
-      let oldNode;
-      do {
-        oldNode = this.Node;
-        this.Node = this.Node.Parent;
-      } while (this.Node != null && this.Node.Left == oldNode);
+    else {
+      let t;
+      do
+        t = this.Node, this.Node = this.Node.Parent;
+      while (this.Node != null && this.Node.Left == t);
     }
     return this.Node != null;
   }
 };
-let RedBlackTreeIterator = _RedBlackTreeIterator;
-_Node = new WeakMap();
-const _TextUtils = class {
-  static IsUtf16Surrogate(value) {
-    return (value & 63488) == 55296;
+let M = Rt;
+tt = new WeakMap();
+const Q = class {
+  static IsUtf16Surrogate(t) {
+    return (t & 63488) == 55296;
   }
-  static IsUnicodeDirectionality(value) {
-    return value == 8207 || value == 8206;
+  static IsUnicodeDirectionality(t) {
+    return t == 8207 || t == 8206;
   }
-  static IsMultiCodeUnit(codeUnit) {
-    return _TextUtils.IsUtf16Surrogate(codeUnit) || codeUnit == _TextUtils.ZwjUtf16 || _TextUtils.IsUnicodeDirectionality(codeUnit);
+  static IsMultiCodeUnit(t) {
+    return Q.IsUtf16Surrogate(t) || t == Q.ZwjUtf16 || Q.IsUnicodeDirectionality(t);
   }
 };
-let TextUtils = _TextUtils;
-__publicField(TextUtils, "ZwjUtf16", Math.floor(8205) & 255);
-class Node {
+let ct = Q;
+o(ct, "ZwjUtf16", Math.floor(8205) & 255);
+class Nt {
   toString() {
-    throw new System.NotImplementedException();
+    throw new c.NotImplementedException();
   }
-  SubSequence(start, end) {
-    return this.SubNode(start, end);
+  SubSequence(t, e) {
+    return this.SubNode(t, e);
   }
 }
-class LeafNode extends Node {
-  constructor(data) {
+class b extends Nt {
+  constructor(e) {
     super();
-    __publicField(this, "_data");
-    this._data = data;
+    o(this, "_data");
+    this._data = e;
   }
   get Length() {
     return this._data.length;
   }
-  GetCharAt(index) {
-    return this._data[index];
+  GetCharAt(e) {
+    return this._data[e];
   }
-  CopyTo(srcOffset, dest, count) {
-    let src = this._data.subarray(srcOffset, srcOffset + count);
-    dest.set(src);
+  CopyTo(e, i, n) {
+    let s = this._data.subarray(e, e + n);
+    i.set(s);
   }
-  SubNode(start, end) {
-    if (start == 0 && end == this.Length)
+  SubNode(e, i) {
+    if (e == 0 && i == this.Length)
       return this;
-    let subArray = new Uint16Array(end - start);
-    subArray.set(this._data.subarray(start, end));
-    return new LeafNode(subArray);
+    let n = new Uint16Array(i - e);
+    return n.set(this._data.subarray(e, i)), new b(n);
   }
   toString() {
     return String.fromCharCode.apply(null, this._data);
   }
 }
-class CompositeNode extends Node {
-  constructor(head, tail) {
+class F extends Nt {
+  constructor(e, i) {
     super();
-    __publicField(this, "_count");
-    __publicField(this, "head");
-    __publicField(this, "tail");
-    this._count = head.Length + tail.Length;
-    this.head = head;
-    this.tail = tail;
+    o(this, "_count");
+    o(this, "head");
+    o(this, "tail");
+    this._count = e.Length + i.Length, this.head = e, this.tail = i;
   }
   get Length() {
     return this._count;
   }
-  GetCharAt(index) {
-    let headLength = this.head.Length;
-    return index < headLength ? this.head.GetCharAt(index) : this.tail.GetCharAt(index - headLength);
+  GetCharAt(e) {
+    let i = this.head.Length;
+    return e < i ? this.head.GetCharAt(e) : this.tail.GetCharAt(e - i);
   }
   RotateRight() {
-    if (this.head instanceof CompositeNode) {
-      const p = this.head;
-      return new CompositeNode(p.head, new CompositeNode(p.tail, this.tail));
+    if (this.head instanceof F) {
+      const e = this.head;
+      return new F(e.head, new F(e.tail, this.tail));
     }
     return this;
   }
   RotateLeft() {
-    if (this.tail instanceof CompositeNode) {
-      const q = this.tail;
-      return new CompositeNode(new CompositeNode(this.head, q.head), q.tail);
+    if (this.tail instanceof F) {
+      const e = this.tail;
+      return new F(new F(this.head, e.head), e.tail);
     }
     return this;
   }
-  CopyTo(srcOffset, dest, count) {
-    let cesure = this.head.Length;
-    if (srcOffset + count <= cesure) {
-      this.head.CopyTo(srcOffset, dest, count);
-    } else if (srcOffset >= cesure) {
-      this.tail.CopyTo(srcOffset - cesure, dest, count);
-    } else {
-      let headChunkSize = cesure - srcOffset;
-      this.head.CopyTo(srcOffset, dest, headChunkSize);
-      this.tail.CopyTo(0, dest.subarray(headChunkSize), count - headChunkSize);
+  CopyTo(e, i, n) {
+    let s = this.head.Length;
+    if (e + n <= s)
+      this.head.CopyTo(e, i, n);
+    else if (e >= s)
+      this.tail.CopyTo(e - s, i, n);
+    else {
+      let l = s - e;
+      this.head.CopyTo(e, i, l), this.tail.CopyTo(0, i.subarray(l), n - l);
     }
   }
-  SubNode(start, end) {
-    let cesure = this.head.Length;
-    if (end <= cesure)
-      return this.head.SubNode(start, end);
-    if (start >= cesure)
-      return this.tail.SubNode(start - cesure, end - cesure);
-    if (start == 0 && end == this._count)
-      return this;
-    return ImmutableText.ConcatNodes(this.head.SubNode(start, cesure), this.tail.SubNode(0, end - cesure));
+  SubNode(e, i) {
+    let n = this.head.Length;
+    return i <= n ? this.head.SubNode(e, i) : e >= n ? this.tail.SubNode(e - n, i - n) : e == 0 && i == this._count ? this : k.ConcatNodes(
+      this.head.SubNode(e, n),
+      this.tail.SubNode(0, i - n)
+    );
   }
 }
-const _ImmutableText = class {
-  constructor(node) {
-    __publicField(this, "_root");
-    __publicField(this, "_hash", 0);
-    __publicField(this, "myLastLeaf");
-    this._root = node;
+const m = class {
+  constructor(t) {
+    o(this, "_root");
+    o(this, "_hash", 0);
+    o(this, "myLastLeaf");
+    this._root = t;
   }
   get Length() {
     return this._root.Length;
   }
-  GetCharAt(index) {
-    if (this._root instanceof LeafNode)
-      return this._root.GetCharAt(index);
-    let leaf = this.myLastLeaf;
-    if (leaf == null || index < leaf.Offset || index >= leaf.Offset + leaf.LeafNode.Length) {
-      this.myLastLeaf = leaf = this.FindLeaf(index, 0);
-    }
-    return leaf.LeafNode.GetCharAt(index - leaf.Offset);
+  GetCharAt(t) {
+    if (this._root instanceof b)
+      return this._root.GetCharAt(t);
+    let e = this.myLastLeaf;
+    return (e == null || t < e.Offset || t >= e.Offset + e.LeafNode.Length) && (this.myLastLeaf = e = this.FindLeaf(t, 0)), e.LeafNode.GetCharAt(t - e.Offset);
   }
-  static FromString(str) {
-    return new _ImmutableText(new LeafNode(System.StringToUint16Array(str)));
+  static FromString(t) {
+    return new m(new b(c.StringToUint16Array(t)));
   }
-  Concat(that) {
-    return that.Length == 0 ? this : this.Length == 0 ? that : new _ImmutableText(_ImmutableText.ConcatNodes(this.EnsureChunked()._root, that.EnsureChunked()._root));
+  Concat(t) {
+    return t.Length == 0 ? this : this.Length == 0 ? t : new m(m.ConcatNodes(this.EnsureChunked()._root, t.EnsureChunked()._root));
   }
-  InsertText(index, txt) {
-    return this.GetText(0, index).Concat(_ImmutableText.FromString(txt)).Concat(this.SubText(index));
+  InsertText(t, e) {
+    return this.GetText(0, t).Concat(m.FromString(e)).Concat(this.SubText(t));
   }
-  RemoveText(start, count) {
-    if (count == 0)
+  RemoveText(t, e) {
+    if (e == 0)
       return this;
-    let end = start + count;
-    if (end > this.Length)
-      throw new System.IndexOutOfRangeException();
-    return this.EnsureChunked().GetText(0, start).Concat(this.SubText(end));
+    let i = t + e;
+    if (i > this.Length)
+      throw new c.IndexOutOfRangeException();
+    return this.EnsureChunked().GetText(0, t).Concat(this.SubText(i));
   }
-  GetText(start, count) {
-    let end = start + count;
-    if (start < 0 || start > end || end > this.Length) {
-      throw new System.IndexOutOfRangeException(" start :" + start + " end :" + end + " needs to be between 0 <= " + this.Length);
-    }
-    if (start == 0 && end == this.Length) {
-      return this;
-    }
-    if (start == end) {
-      return _ImmutableText.Empty;
-    }
-    return new _ImmutableText(this._root.SubNode(start, end));
+  GetText(t, e) {
+    let i = t + e;
+    if (t < 0 || t > i || i > this.Length)
+      throw new c.IndexOutOfRangeException(" start :" + t + " end :" + i + " needs to be between 0 <= " + this.Length);
+    return t == 0 && i == this.Length ? this : t == i ? m.Empty : new m(this._root.SubNode(t, i));
   }
-  CopyTo(srcOffset, dest, count) {
-    this.VerifyRange(srcOffset, count);
-    this._root.CopyTo(srcOffset, dest, count);
+  CopyTo(t, e, i) {
+    this.VerifyRange(t, i), this._root.CopyTo(t, e, i);
   }
-  VerifyRange(startIndex, length) {
-    if (startIndex < 0 || startIndex > this.Length) {
-      throw new System.ArgumentOutOfRangeException("startIndex", `0 <= startIndex <= ${this.Length}`);
-    }
-    if (length < 0 || startIndex + length > this.Length) {
-      throw new System.ArgumentOutOfRangeException("length", `0 <= length, startIndex(${startIndex})+length(${length}) <= ${length} `);
-    }
+  VerifyRange(t, e) {
+    if (t < 0 || t > this.Length)
+      throw new c.ArgumentOutOfRangeException(
+        "startIndex",
+        `0 <= startIndex <= ${this.Length}`
+      );
+    if (e < 0 || t + e > this.Length)
+      throw new c.ArgumentOutOfRangeException(
+        "length",
+        `0 <= length, startIndex(${t})+length(${e}) <= ${e} `
+      );
   }
   toString() {
     return this._root.toString();
   }
-  GetString(offset, length) {
-    let data = new Uint16Array(length);
-    this.CopyTo(offset, data, length);
-    return String.fromCharCode.apply(null, data);
+  GetString(t, e) {
+    let i = new Uint16Array(e);
+    return this.CopyTo(t, i, e), String.fromCharCode.apply(null, i);
   }
-  SubText(start) {
-    return this.GetText(start, this.Length - start);
+  SubText(t) {
+    return this.GetText(t, this.Length - t);
   }
   EnsureChunked() {
-    if (this.Length > _ImmutableText.BlockSize && this._root instanceof LeafNode) {
-      return new _ImmutableText(_ImmutableText.NodeOf(this._root, 0, this.Length));
-    }
-    return this;
+    return this.Length > m.BlockSize && this._root instanceof b ? new m(m.NodeOf(this._root, 0, this.Length)) : this;
   }
-  static NodeOf(node, offset, length) {
-    if (length <= _ImmutableText.BlockSize) {
-      return node.SubNode(offset, offset + length);
-    }
-    let half = length + _ImmutableText.BlockSize >> 1 & _ImmutableText.BlockMask;
-    return new CompositeNode(_ImmutableText.NodeOf(node, offset, half), _ImmutableText.NodeOf(node, offset + half, length - half));
+  static NodeOf(t, e, i) {
+    if (i <= m.BlockSize)
+      return t.SubNode(e, e + i);
+    let n = i + m.BlockSize >> 1 & m.BlockMask;
+    return new F(
+      m.NodeOf(t, e, n),
+      m.NodeOf(t, e + n, i - n)
+    );
   }
-  static ConcatNodes(node1, node2) {
-    let length = node1.Length + node2.Length;
-    if (length <= _ImmutableText.BlockSize) {
-      let mergedArray = new Uint16Array(node1.Length + node2.Length);
-      node1.CopyTo(0, mergedArray, node1.Length);
-      node2.CopyTo(0, mergedArray.subarray(node1.Length), node2.Length);
-      return new LeafNode(mergedArray);
+  static ConcatNodes(t, e) {
+    if (t.Length + e.Length <= m.BlockSize) {
+      let l = new Uint16Array(t.Length + e.Length);
+      return t.CopyTo(0, l, t.Length), e.CopyTo(0, l.subarray(t.Length), e.Length), new b(l);
     }
-    let head = node1;
-    let tail = node2;
-    if (head.Length << 1 < tail.Length && tail instanceof CompositeNode) {
-      let compositeTail = tail;
-      if (compositeTail.head.Length > compositeTail.tail.Length) {
-        tail = compositeTail.RotateRight();
-      }
-      head = _ImmutableText.ConcatNodes(head, compositeTail.head);
-      tail = compositeTail.tail;
-    } else {
-      if (tail.Length << 1 < head.Length && head instanceof CompositeNode) {
-        let compositeHead = head;
-        if (compositeHead.tail.Length > compositeHead.head.Length) {
-          head = compositeHead.RotateLeft();
-        }
-        tail = _ImmutableText.ConcatNodes(compositeHead.tail, tail);
-        head = compositeHead.head;
-      }
+    let n = t, s = e;
+    if (n.Length << 1 < s.Length && s instanceof F) {
+      let l = s;
+      l.head.Length > l.tail.Length && (s = l.RotateRight()), n = m.ConcatNodes(n, l.head), s = l.tail;
+    } else if (s.Length << 1 < n.Length && n instanceof F) {
+      let l = n;
+      l.tail.Length > l.head.Length && (n = l.RotateLeft()), s = m.ConcatNodes(l.tail, s), n = l.head;
     }
-    return new CompositeNode(head, tail);
+    return new F(n, s);
   }
-  FindLeaf(index, offset) {
-    let node = this._root;
-    while (true) {
-      if (index >= node.Length)
-        throw new System.IndexOutOfRangeException();
-      if (node instanceof LeafNode) {
-        const leafNode = node;
-        return new InnerLeaf(leafNode, offset);
+  FindLeaf(t, e) {
+    let i = this._root;
+    for (; ; ) {
+      if (t >= i.Length)
+        throw new c.IndexOutOfRangeException();
+      if (i instanceof b) {
+        const s = i;
+        return new zt(s, e);
       }
-      let composite = node;
-      if (index < composite.head.Length) {
-        node = composite.head;
-      } else {
-        offset += composite.head.Length;
-        index -= composite.head.Length;
-        node = composite.tail;
-      }
+      let n = i;
+      t < n.head.Length ? i = n.head : (e += n.head.Length, t -= n.head.Length, i = n.tail);
     }
   }
 };
-let ImmutableText = _ImmutableText;
-__publicField(ImmutableText, "BlockSize", 1 << 6);
-__publicField(ImmutableText, "BlockMask", ~(_ImmutableText.BlockSize - 1));
-__publicField(ImmutableText, "EmptyNode", new LeafNode(new Uint16Array(0)));
-__publicField(ImmutableText, "Empty", new _ImmutableText(_ImmutableText.EmptyNode));
-class InnerLeaf {
-  constructor(leafNode, offset) {
-    __publicField(this, "LeafNode");
-    __publicField(this, "Offset");
-    this.LeafNode = leafNode;
-    this.Offset = offset;
+let k = m;
+o(k, "BlockSize", 1 << 6), o(k, "BlockMask", ~(m.BlockSize - 1)), o(k, "EmptyNode", new b(new Uint16Array(0))), o(k, "Empty", new m(m.EmptyNode));
+class zt {
+  constructor(t, e) {
+    o(this, "LeafNode");
+    o(this, "Offset");
+    this.LeafNode = t, this.Offset = e;
   }
 }
-class ImmutableTextBuffer {
-  constructor(buffer = null) {
-    __publicField(this, "_buffer");
-    this._buffer = buffer != null ? buffer : ImmutableText.Empty;
+class $t {
+  constructor(t = null) {
+    o(this, "_buffer");
+    this._buffer = t != null ? t : k.Empty;
   }
   get ImmutableText() {
     return this._buffer;
@@ -721,68 +512,64 @@ class ImmutableTextBuffer {
   get Length() {
     return this._buffer.Length;
   }
-  GetCharAt(offset) {
-    return this._buffer.GetText(offset, 1).GetCharAt(0);
+  GetCharAt(t) {
+    return this._buffer.GetText(t, 1).GetCharAt(0);
   }
-  GetText(offset, length) {
-    return this._buffer.GetString(offset, length);
+  GetText(t, e) {
+    return this._buffer.GetString(t, e);
   }
-  Insert(offset, text) {
-    this._buffer = this._buffer.InsertText(offset, text);
+  Insert(t, e) {
+    this._buffer = this._buffer.InsertText(t, e);
   }
-  Remove(offset, length) {
-    this._buffer = this._buffer.RemoveText(offset, length);
+  Remove(t, e) {
+    this._buffer = this._buffer.RemoveText(t, e);
   }
-  Replace(offset, length, text) {
-    this._buffer = this._buffer.RemoveText(offset, length);
-    if (!System.IsNullOrEmpty(text))
-      this._buffer = this._buffer.InsertText(offset, text);
+  Replace(t, e, i) {
+    this._buffer = this._buffer.RemoveText(t, e), c.IsNullOrEmpty(i) || (this._buffer = this._buffer.InsertText(t, i));
   }
-  SetContent(text) {
-    this._buffer = ImmutableText.FromString(text);
+  SetContent(t) {
+    this._buffer = k.FromString(t);
   }
-  CopyTo(dest, offset, count) {
-    this._buffer.CopyTo(offset, dest, count);
+  CopyTo(t, e, i) {
+    this._buffer.CopyTo(e, t, i);
   }
 }
-const _ColumnRange = class {
-  constructor(startColumn, endColumn) {
-    __publicField(this, "StartColumn");
-    __publicField(this, "EndColumn");
-    this.StartColumn = startColumn;
-    this.EndColumn = endColumn;
+const Gt = class {
+  constructor(t, e) {
+    o(this, "StartColumn");
+    o(this, "EndColumn");
+    this.StartColumn = t, this.EndColumn = e;
   }
-  Equals(other) {
-    return this.StartColumn == other.StartColumn && this.EndColumn == other.EndColumn;
+  Equals(t) {
+    return this.StartColumn == t.StartColumn && this.EndColumn == t.EndColumn;
   }
   Clone() {
-    return new _ColumnRange(this.StartColumn, this.EndColumn);
+    return new Gt(this.StartColumn, this.EndColumn);
   }
 };
-let ColumnRange = _ColumnRange;
-__publicField(ColumnRange, "$meta_System_IEquatable", true);
-class Selection {
-  constructor(document, startPosition, endPosition) {
-    __publicField(this, "Document");
-    __privateAdd(this, _StartPosition, TextLocation.Empty.Clone());
-    __privateAdd(this, _EndPosition, TextLocation.Empty.Clone());
-    if (TextLocation.op_GreaterThan(startPosition, endPosition))
-      throw new System.ArgumentOutOfRangeException();
-    this.Document = document;
-    this.StartPosition = startPosition.Clone();
-    this.EndPosition = endPosition.Clone();
+let St = Gt;
+o(St, "$meta_System_IEquatable", !0);
+var et, it;
+class Qt {
+  constructor(t, e, i) {
+    o(this, "Document");
+    x(this, et, L.Empty.Clone());
+    x(this, it, L.Empty.Clone());
+    if (L.op_GreaterThan(e, i))
+      throw new c.ArgumentOutOfRangeException();
+    this.Document = t, this.StartPosition = e.Clone(), this.EndPosition = i.Clone();
   }
   get StartPosition() {
-    return __privateGet(this, _StartPosition);
+    return w(this, et);
   }
-  set StartPosition(value) {
-    __privateSet(this, _StartPosition, value);
+  set StartPosition(t) {
+    E(this, et, t);
   }
   get EndPosition() {
-    return __privateGet(this, _EndPosition);
+    return w(this, it);
   }
-  set EndPosition(value) {
-    __privateSet(this, _EndPosition, value);
+  set EndPosition(t) {
+    E(this, it, t);
   }
   get Offset() {
     return this.Document.PositionToOffset(this.StartPosition.Clone());
@@ -794,458 +581,310 @@ class Selection {
     return this.EndOffset - this.Offset;
   }
   get IsEmpty() {
-    return System.OpEquality(this.StartPosition, this.EndPosition);
+    return c.OpEquality(this.StartPosition, this.EndPosition);
   }
   get SelectedText() {
     return this.Length <= 0 ? "" : this.Document.GetText(this.Offset, this.Length);
   }
-  ContainsOffset(offset) {
-    return this.Offset <= offset && offset <= this.EndOffset;
+  ContainsOffset(t) {
+    return this.Offset <= t && t <= this.EndOffset;
   }
 }
-_StartPosition = new WeakMap();
-_EndPosition = new WeakMap();
-class SelectionManager {
-  constructor(editor) {
-    __publicField(this, "_textEditor");
-    __publicField(this, "SelectionCollection");
-    __publicField(this, "SelectFrom");
-    __publicField(this, "SelectionStart", TextLocation.Empty.Clone());
-    __publicField(this, "SelectionChanged", new System.Event());
-    this._textEditor = editor;
-    this.SelectionCollection = new System.List();
-    this.SelectFrom = new SelectFrom();
-    this.SelectionStart = TextLocation.Empty.Clone();
+et = new WeakMap(), it = new WeakMap();
+class D {
+  constructor(t) {
+    o(this, "_textEditor");
+    o(this, "SelectionCollection");
+    o(this, "SelectFrom");
+    o(this, "SelectionStart", L.Empty.Clone());
+    o(this, "SelectionChanged", new c.Event());
+    this._textEditor = t, this.SelectionCollection = new c.List(), this.SelectFrom = new jt(), this.SelectionStart = L.Empty.Clone();
   }
   get HasSomethingSelected() {
     return this.SelectionCollection.length > 0;
   }
   get SelectionIsReadonly() {
-    return false;
+    return !1;
   }
   get SelectedText() {
     if (!this.HasSomethingSelected)
       return "";
     if (this.SelectionCollection.length == 1)
       return this.SelectionCollection[0].SelectedText;
-    let res = "";
-    for (const selection of this.SelectionCollection) {
-      res += selection.SelectedText;
-    }
-    return res;
+    let t = "";
+    for (const e of this.SelectionCollection)
+      t += e.SelectedText;
+    return t;
   }
-  SetSelection(startPosition, endPosition) {
-    if (this.SelectionCollection.length == 1 && System.OpEquality(this.SelectionCollection[0].StartPosition, startPosition) && System.OpEquality(this.SelectionCollection[0].EndPosition, endPosition))
-      return;
-    this.SelectionCollection.Clear();
-    this.SelectionCollection.Add(new Selection(this._textEditor.Document, startPosition.Clone(), endPosition.Clone()));
-    this.SelectionChanged.Invoke();
+  SetSelection(t, e) {
+    this.SelectionCollection.length == 1 && c.OpEquality(this.SelectionCollection[0].StartPosition, t) && c.OpEquality(this.SelectionCollection[0].EndPosition, e) || (this.SelectionCollection.Clear(), this.SelectionCollection.Add(new Qt(
+      this._textEditor.Document,
+      t.Clone(),
+      e.Clone()
+    )), this.SelectionChanged.Invoke());
   }
   ClearSelection() {
-    let mousePos = this._textEditor.PointerPos.Clone();
+    let t = this._textEditor.PointerPos.Clone();
     this.SelectFrom.First = this.SelectFrom.Where;
-    let newSelectionStart = this._textEditor.TextView.GetLogicalPosition(mousePos.X - this._textEditor.TextView.Bounds.Left, mousePos.Y - this._textEditor.TextView.Bounds.Top);
-    if (this.SelectFrom.Where == WhereFrom.Gutter) {
-      newSelectionStart.Column = 0;
-    }
-    if (newSelectionStart.Line >= this._textEditor.Document.TotalNumberOfLines) {
-      newSelectionStart.Line = this._textEditor.Document.TotalNumberOfLines - 1;
-      newSelectionStart.Column = this._textEditor.Document.GetLineSegment(this._textEditor.Document.TotalNumberOfLines - 1).Length;
-    }
-    this.SelectionStart = newSelectionStart.Clone();
-    this.SelectionCollection.Clear();
-    this.SelectionChanged.Invoke();
+    let e = this._textEditor.TextView.GetLogicalPosition(
+      t.X - this._textEditor.TextView.Bounds.Left,
+      t.Y - this._textEditor.TextView.Bounds.Top
+    );
+    this.SelectFrom.Where == O.Gutter && (e.Column = 0), e.Line >= this._textEditor.Document.TotalNumberOfLines && (e.Line = this._textEditor.Document.TotalNumberOfLines - 1, e.Column = this._textEditor.Document.GetLineSegment(this._textEditor.Document.TotalNumberOfLines - 1).Length), this.SelectionStart = e.Clone(), this.SelectionCollection.Clear(), this.SelectionChanged.Invoke();
   }
   RemoveSelectedText() {
     if (this.SelectionIsReadonly) {
       this.ClearSelection();
       return;
     }
-    let oneLine = true;
-    for (const s of this.SelectionCollection) {
-      if (oneLine) {
-        let lineBegin = s.StartPosition.Line;
-        if (lineBegin != s.EndPosition.Line)
-          oneLine = false;
-      }
-      let offset = s.Offset;
-      this._textEditor.Document.Remove(offset, s.Length);
+    let t = !0;
+    for (const e of this.SelectionCollection) {
+      t && e.StartPosition.Line != e.EndPosition.Line && (t = !1);
+      let i = e.Offset;
+      this._textEditor.Document.Remove(i, e.Length);
     }
     this.ClearSelection();
   }
-  ExtendSelection(oldPosition, newPosition) {
-    if (System.OpEquality(oldPosition, newPosition))
+  ExtendSelection(t, e) {
+    if (c.OpEquality(t, e))
       return;
-    let min = TextLocation.Empty.Clone();
-    let max = TextLocation.Empty.Clone();
-    let oldnewX = newPosition.Column;
-    let oldIsGreater = SelectionManager.GreaterEqPos(oldPosition.Clone(), newPosition.Clone());
-    if (oldIsGreater) {
-      min = newPosition.Clone();
-      max = oldPosition.Clone();
-    } else {
-      min = oldPosition.Clone();
-      max = newPosition.Clone();
-    }
-    if (System.OpEquality(min, max))
+    let i = L.Empty.Clone(), n = L.Empty.Clone(), s = e.Column;
+    if (D.GreaterEqPos(t.Clone(), e.Clone()) ? (i = e.Clone(), n = t.Clone()) : (i = t.Clone(), n = e.Clone()), c.OpEquality(i, n))
       return;
     if (!this.HasSomethingSelected) {
-      this.SetSelection(min.Clone(), max.Clone());
-      if (this.SelectFrom.Where == WhereFrom.None)
-        this.SelectionStart = oldPosition.Clone();
+      this.SetSelection(i.Clone(), n.Clone()), this.SelectFrom.Where == O.None && (this.SelectionStart = t.Clone());
       return;
     }
-    let selection = this.SelectionCollection[0];
-    if (this.SelectFrom.Where == WhereFrom.Gutter) {
-      newPosition.Column = 0;
-    }
-    if (SelectionManager.GreaterEqPos(newPosition.Clone(), this.SelectionStart.Clone())) {
-      selection.StartPosition = this.SelectionStart.Clone();
-      if (this.SelectFrom.Where == WhereFrom.Gutter) {
-        selection.EndPosition = new TextLocation(this._textEditor.Caret.Column, this._textEditor.Caret.Line);
-      } else {
-        newPosition.Column = oldnewX;
-        selection.EndPosition = newPosition.Clone();
-      }
-    } else {
-      if (this.SelectFrom.Where == WhereFrom.Gutter && this.SelectFrom.First == WhereFrom.Gutter) {
-        selection.EndPosition = this.NextValidPosition(this.SelectionStart.Line);
-      } else {
-        selection.EndPosition = this.SelectionStart.Clone();
-      }
-      selection.StartPosition = newPosition.Clone();
-    }
-    this.SelectionChanged.Invoke();
+    let h = this.SelectionCollection[0];
+    this.SelectFrom.Where == O.Gutter && (e.Column = 0), D.GreaterEqPos(e.Clone(), this.SelectionStart.Clone()) ? (h.StartPosition = this.SelectionStart.Clone(), this.SelectFrom.Where == O.Gutter ? h.EndPosition = new L(this._textEditor.Caret.Column, this._textEditor.Caret.Line) : (e.Column = s, h.EndPosition = e.Clone())) : (this.SelectFrom.Where == O.Gutter && this.SelectFrom.First == O.Gutter ? h.EndPosition = this.NextValidPosition(this.SelectionStart.Line) : h.EndPosition = this.SelectionStart.Clone(), h.StartPosition = e.Clone()), this.SelectionChanged.Invoke();
   }
-  NextValidPosition(line) {
-    if (line < this._textEditor.Document.TotalNumberOfLines - 1)
-      return new TextLocation(0, line + 1);
-    return new TextLocation(this._textEditor.Document.GetLineSegment(this._textEditor.Document.TotalNumberOfLines - 1).Length + 1, line);
+  NextValidPosition(t) {
+    return t < this._textEditor.Document.TotalNumberOfLines - 1 ? new L(0, t + 1) : new L(
+      this._textEditor.Document.GetLineSegment(this._textEditor.Document.TotalNumberOfLines - 1).Length + 1,
+      t
+    );
   }
-  static GreaterEqPos(p1, p2) {
-    return p1.Line > p2.Line || p1.Line == p2.Line && p1.Column >= p2.Column;
+  static GreaterEqPos(t, e) {
+    return t.Line > e.Line || t.Line == e.Line && t.Column >= e.Column;
   }
 }
-var WhereFrom = /* @__PURE__ */ ((WhereFrom2) => {
-  WhereFrom2[WhereFrom2["None"] = 0] = "None";
-  WhereFrom2[WhereFrom2["Gutter"] = 1] = "Gutter";
-  WhereFrom2[WhereFrom2["TextArea"] = 2] = "TextArea";
-  return WhereFrom2;
-})(WhereFrom || {});
-class SelectFrom {
+var O = /* @__PURE__ */ ((r) => (r[r.None = 0] = "None", r[r.Gutter = 1] = "Gutter", r[r.TextArea = 2] = "TextArea", r))(O || {});
+class jt {
   constructor() {
-    __publicField(this, "Where", 0);
-    __publicField(this, "First", 0);
+    o(this, "Where", 0);
+    o(this, "First", 0);
   }
 }
-class CutCommand {
-  Execute(editor) {
-    let selectedText = editor.SelectionManager.SelectedText;
-    if (selectedText.length > 0) {
-      PixUI.Clipboard.WriteText(selectedText);
-      editor.Caret.Position = editor.SelectionManager.SelectionCollection[0].StartPosition.Clone();
-      editor.SelectionManager.RemoveSelectedText();
-    }
+class Zt {
+  Execute(t) {
+    let e = t.SelectionManager.SelectedText;
+    e.length > 0 && (u.Clipboard.WriteText(e), t.Caret.Position = t.SelectionManager.SelectionCollection[0].StartPosition.Clone(), t.SelectionManager.RemoveSelectedText());
   }
 }
-class CopyCommand {
-  Execute(editor) {
-    let selectedText = editor.SelectionManager.SelectedText;
-    if (selectedText.length > 0)
-      PixUI.Clipboard.WriteText(selectedText);
+class Jt {
+  Execute(t) {
+    let e = t.SelectionManager.SelectedText;
+    e.length > 0 && u.Clipboard.WriteText(e);
   }
 }
-class PasteCommand {
-  Execute(editor) {
-    PasteCommand.ExecInternal(editor);
+class Et {
+  Execute(t) {
+    Et.ExecInternal(t);
   }
-  static async ExecInternal(editor) {
-    let text = await PixUI.Clipboard.ReadText();
-    if (System.IsNullOrEmpty(text))
-      return;
-    editor.Document.UndoStack.StartUndoGroup();
-    if (editor.SelectionManager.HasSomethingSelected) {
-      editor.Caret.Position = editor.SelectionManager.SelectionCollection[0].StartPosition.Clone();
-      editor.SelectionManager.RemoveSelectedText();
-    }
-    editor.InsertOrReplaceString(text);
-    editor.Document.UndoStack.EndUndoGroup();
+  static async ExecInternal(t) {
+    let e = await u.Clipboard.ReadText();
+    c.IsNullOrEmpty(e) || (t.Document.UndoStack.StartUndoGroup(), t.SelectionManager.HasSomethingSelected && (t.Caret.Position = t.SelectionManager.SelectionCollection[0].StartPosition.Clone(), t.SelectionManager.RemoveSelectedText()), t.InsertOrReplaceString(e), t.Document.UndoStack.EndUndoGroup());
   }
 }
-var FoldType = /* @__PURE__ */ ((FoldType2) => {
-  FoldType2[FoldType2["Unspecified"] = 0] = "Unspecified";
-  FoldType2[FoldType2["MemberBody"] = 1] = "MemberBody";
-  FoldType2[FoldType2["Region"] = 2] = "Region";
-  FoldType2[FoldType2["TypeBody"] = 3] = "TypeBody";
-  return FoldType2;
-})(FoldType || {});
-class FoldMarker {
-  constructor(document, startLine, startColumn, endLine, endColumn, foldType, foldText = null, isFolded = false) {
-    __publicField(this, "_document");
-    __publicField(this, "IsFolded", false);
-    __publicField(this, "_foldType", 0);
-    __privateAdd(this, _FoldText, "");
-    __publicField(this, "_startLine", -1);
-    __publicField(this, "_startColumn", 0);
-    __publicField(this, "_endLine", -1);
-    __publicField(this, "_endColumn", 0);
-    __publicField(this, "_offset", 0);
-    __publicField(this, "_length", 0);
-    this._document = document;
-    this.IsFolded = isFolded;
-    this._foldType = foldType;
-    this.FoldText = System.IsNullOrEmpty(foldText) ? "..." : foldText;
-    startLine = Math.min(this._document.TotalNumberOfLines - 1, Math.max(startLine, 0));
-    let startLineSegment = this._document.GetLineSegment(startLine);
-    endLine = Math.min(document.TotalNumberOfLines - 1, Math.max(endLine, 0));
-    let endLineSegment = this._document.GetLineSegment(endLine);
-    this._offset = startLineSegment.Offset + Math.min(startColumn, startLineSegment.Length);
-    this._length = endLineSegment.Offset + Math.min(endColumn, endLineSegment.Length) - this._offset;
+var gt = /* @__PURE__ */ ((r) => (r[r.Unspecified = 0] = "Unspecified", r[r.MemberBody = 1] = "MemberBody", r[r.Region = 2] = "Region", r[r.TypeBody = 3] = "TypeBody", r))(gt || {}), nt;
+class Lt {
+  constructor(t, e, i, n, s, l, h = null, d = !1) {
+    o(this, "_document");
+    o(this, "IsFolded", !1);
+    o(this, "_foldType", 0);
+    x(this, nt, "");
+    o(this, "_startLine", -1);
+    o(this, "_startColumn", 0);
+    o(this, "_endLine", -1);
+    o(this, "_endColumn", 0);
+    o(this, "_offset", 0);
+    o(this, "_length", 0);
+    this._document = t, this.IsFolded = d, this._foldType = l, this.FoldText = c.IsNullOrEmpty(h) ? "..." : h, e = Math.min(this._document.TotalNumberOfLines - 1, Math.max(e, 0));
+    let f = this._document.GetLineSegment(e);
+    n = Math.min(t.TotalNumberOfLines - 1, Math.max(n, 0));
+    let C = this._document.GetLineSegment(n);
+    this._offset = f.Offset + Math.min(i, f.Length), this._length = C.Offset + Math.min(s, C.Length) - this._offset;
   }
   get FoldText() {
-    return __privateGet(this, _FoldText);
+    return w(this, nt);
   }
-  set FoldText(value) {
-    __privateSet(this, _FoldText, value);
+  set FoldText(t) {
+    E(this, nt, t);
   }
   get Offset() {
     return this._offset;
   }
-  set Offset(value) {
-    this._offset = value;
-    this._startLine = this._endLine = -1;
+  set Offset(t) {
+    this._offset = t, this._startLine = this._endLine = -1;
   }
   get Length() {
     return this._length;
   }
-  set Length(value) {
-    this._length = value;
-    this._endLine = -1;
+  set Length(t) {
+    this._length = t, this._endLine = -1;
   }
   get StartLine() {
-    if (this._startLine < 0)
-      this.GetStartPointForOffset(this.Offset);
-    return this._startLine;
+    return this._startLine < 0 && this.GetStartPointForOffset(this.Offset), this._startLine;
   }
   get StartColumn() {
-    if (this._startLine < 0)
-      this.GetStartPointForOffset(this.Offset);
-    return this._startColumn;
+    return this._startLine < 0 && this.GetStartPointForOffset(this.Offset), this._startColumn;
   }
   get EndLine() {
-    if (this._endLine < 0)
-      this.GetEndPointForOffset(this.Offset + this.Length);
-    return this._endLine;
+    return this._endLine < 0 && this.GetEndPointForOffset(this.Offset + this.Length), this._endLine;
   }
   get EndColumn() {
-    if (this._endLine < 0)
-      this.GetEndPointForOffset(this.Offset + this.Length);
-    return this._endColumn;
+    return this._endLine < 0 && this.GetEndPointForOffset(this.Offset + this.Length), this._endColumn;
   }
-  GetStartPointForOffset(offset) {
-    if (offset > this._document.TextLength) {
-      this._startLine = this._document.TotalNumberOfLines + 1;
-      this._startColumn = 1;
-    } else if (offset < 0) {
-      this._startLine = this._startColumn = -1;
-    } else {
-      this._startLine = this._document.GetLineNumberForOffset(offset);
-      this._startColumn = offset - this._document.GetLineSegment(this._startLine).Offset;
-    }
+  GetStartPointForOffset(t) {
+    t > this._document.TextLength ? (this._startLine = this._document.TotalNumberOfLines + 1, this._startColumn = 1) : t < 0 ? this._startLine = this._startColumn = -1 : (this._startLine = this._document.GetLineNumberForOffset(t), this._startColumn = t - this._document.GetLineSegment(this._startLine).Offset);
   }
-  GetEndPointForOffset(offset) {
-    if (offset > this._document.TextLength) {
-      this._endLine = this._document.TotalNumberOfLines + 1;
-      this._endColumn = 1;
-    } else if (offset < 0) {
-      this._endLine = this._endColumn = -1;
-    } else {
-      this._endLine = this._document.GetLineNumberForOffset(offset);
-      this._endColumn = offset - this._document.GetLineSegment(this._endLine).Offset;
-    }
+  GetEndPointForOffset(t) {
+    t > this._document.TextLength ? (this._endLine = this._document.TotalNumberOfLines + 1, this._endColumn = 1) : t < 0 ? this._endLine = this._endColumn = -1 : (this._endLine = this._document.GetLineNumberForOffset(t), this._endColumn = t - this._document.GetLineSegment(this._endLine).Offset);
   }
-  CompareTo(other) {
-    return this.Offset != other.Offset ? this.Offset.CompareTo(other.Offset) : this.Length.CompareTo(other.Length);
+  CompareTo(t) {
+    return this.Offset != t.Offset ? this.Offset.CompareTo(t.Offset) : this.Length.CompareTo(t.Length);
   }
 }
-_FoldText = new WeakMap();
-__publicField(FoldMarker, "$meta_System_IComparable", true);
-class FoldingManager {
-  constructor(document) {
-    __publicField(this, "_document");
-    __publicField(this, "_foldMarker", new System.List());
-    __publicField(this, "_foldMarkerByEnd", new System.List());
-    __publicField(this, "FoldingsChanged", new System.Event());
-    this._document = document;
+nt = new WeakMap(), o(Lt, "$meta_System_IComparable", !0);
+class te {
+  constructor(t) {
+    o(this, "_document");
+    o(this, "_foldMarker", new c.List());
+    o(this, "_foldMarkerByEnd", new c.List());
+    o(this, "FoldingsChanged", new c.Event());
+    this._document = t;
   }
   RaiseFoldingsChanged() {
     this.FoldingsChanged.Invoke();
   }
-  IsLineVisible(lineNumber) {
-    let contains = this.GetFoldingsContainsLineNumber(lineNumber);
-    for (const fm of contains) {
-      if (fm.IsFolded)
-        return false;
-    }
-    return true;
+  IsLineVisible(t) {
+    let e = this.GetFoldingsContainsLineNumber(t);
+    for (const i of e)
+      if (i.IsFolded)
+        return !1;
+    return !0;
   }
   GetTopLevelFoldedFoldings() {
-    let foldings = new System.List();
-    let end = new TextLocation(0, 0);
-    for (const fm of this._foldMarker) {
-      if (fm.IsFolded && (fm.StartLine > end.Line || fm.StartLine == end.Line && fm.StartColumn >= end.Column)) {
-        foldings.Add(fm);
-        end = new TextLocation(fm.EndColumn, fm.EndLine);
-      }
-    }
-    return foldings;
+    let t = new c.List(), e = new L(0, 0);
+    for (const i of this._foldMarker)
+      i.IsFolded && (i.StartLine > e.Line || i.StartLine == e.Line && i.StartColumn >= e.Column) && (t.Add(i), e = new L(i.EndColumn, i.EndLine));
+    return t;
   }
-  GetFoldingsWithStart(lineNumber) {
-    return this.GetFoldingsByStartAfterColumn(lineNumber, -1, false);
+  GetFoldingsWithStart(t) {
+    return this.GetFoldingsByStartAfterColumn(t, -1, !1);
   }
-  GetFoldingsContainsLineNumber(lineNumber) {
-    let foldings = new System.List();
-    for (const fm of this._foldMarker) {
-      if (fm.StartLine < lineNumber && lineNumber < fm.EndLine)
-        foldings.Add(fm);
-    }
-    return foldings;
+  GetFoldingsContainsLineNumber(t) {
+    let e = new c.List();
+    for (const i of this._foldMarker)
+      i.StartLine < t && t < i.EndLine && e.Add(i);
+    return e;
   }
-  GetFoldingsWithEnd(lineNumber) {
-    return this.GetFoldingsByEndAfterColumn(lineNumber, 0, false);
+  GetFoldingsWithEnd(t) {
+    return this.GetFoldingsByEndAfterColumn(t, 0, !1);
   }
-  GetFoldedFoldingsWithStartAfterColumn(lineNumber, column) {
-    return this.GetFoldingsByStartAfterColumn(lineNumber, column, true);
+  GetFoldedFoldingsWithStartAfterColumn(t, e) {
+    return this.GetFoldingsByStartAfterColumn(t, e, !0);
   }
-  GetFoldedFoldingsWithStart(lineNumber) {
-    return this.GetFoldingsByStartAfterColumn(lineNumber, -1, true);
+  GetFoldedFoldingsWithStart(t) {
+    return this.GetFoldingsByStartAfterColumn(t, -1, !0);
   }
-  GetFoldedFoldingsWithEnd(lineNumber) {
-    return this.GetFoldingsByEndAfterColumn(lineNumber, 0, true);
+  GetFoldedFoldingsWithEnd(t) {
+    return this.GetFoldingsByEndAfterColumn(t, 0, !0);
   }
-  GetFoldingsByStartAfterColumn(lineNumber, column, forceFolded) {
-    let foldings = new System.List();
-    let pattern = new FoldMarker(this._document, lineNumber, column, lineNumber, column, FoldType.Unspecified, "", false);
-    let index = this._foldMarker.BinarySearch(pattern, StartComparer.Instance);
-    if (index < 0)
-      index = ~index;
-    for (; index < this._foldMarker.length; index++) {
-      let fm = this._foldMarker[index];
-      if (fm.StartLine < lineNumber || fm.StartLine > lineNumber)
+  GetFoldingsByStartAfterColumn(t, e, i) {
+    let n = new c.List(), s = new Lt(
+      this._document,
+      t,
+      e,
+      t,
+      e,
+      gt.Unspecified,
+      "",
+      !1
+    ), l = this._foldMarker.BinarySearch(s, Y.Instance);
+    for (l < 0 && (l = ~l); l < this._foldMarker.length; l++) {
+      let h = this._foldMarker[l];
+      if (h.StartLine < t || h.StartLine > t)
         break;
-      if (fm.StartColumn <= column)
-        continue;
-      if (!forceFolded || fm.IsFolded)
-        foldings.Add(fm);
+      h.StartColumn <= e || (!i || h.IsFolded) && n.Add(h);
     }
-    return foldings;
+    return n;
   }
-  GetFoldingsByEndAfterColumn(lineNumber, column, forceFolded) {
-    let foldings = new System.List();
-    let pattern = new FoldMarker(this._document, lineNumber, column, lineNumber, column, FoldType.Unspecified, "", false);
-    let index = this._foldMarkerByEnd.BinarySearch(pattern, EndComparer.Instance);
-    if (index < 0)
-      index = ~index;
-    for (; index < this._foldMarkerByEnd.length; index++) {
-      let fm = this._foldMarkerByEnd[index];
-      if (fm.EndLine < lineNumber || fm.EndLine > lineNumber)
+  GetFoldingsByEndAfterColumn(t, e, i) {
+    let n = new c.List(), s = new Lt(
+      this._document,
+      t,
+      e,
+      t,
+      e,
+      gt.Unspecified,
+      "",
+      !1
+    ), l = this._foldMarkerByEnd.BinarySearch(s, H.Instance);
+    for (l < 0 && (l = ~l); l < this._foldMarkerByEnd.length; l++) {
+      let h = this._foldMarkerByEnd[l];
+      if (h.EndLine < t || h.EndLine > t)
         break;
-      if (fm.EndColumn <= column)
-        continue;
-      if (!forceFolded || fm.IsFolded)
-        foldings.Add(fm);
+      h.EndColumn <= e || (!i || h.IsFolded) && n.Add(h);
     }
-    return foldings;
+    return n;
   }
-  UpdateFoldings(newFoldings) {
-    if (newFoldings != null && newFoldings.length != 0) {
-      newFoldings.Sort((a, b) => a.CompareTo(b));
-      if (this._foldMarker.length == newFoldings.length) {
-        for (let i = 0; i < this._foldMarker.length; ++i) {
-          newFoldings[i].IsFolded = this._foldMarker[i].IsFolded;
+  UpdateFoldings(t) {
+    if (t != null && t.length != 0)
+      if (t.Sort((e, i) => e.CompareTo(i)), this._foldMarker.length == t.length) {
+        for (let e = 0; e < this._foldMarker.length; ++e)
+          t[e].IsFolded = this._foldMarker[e].IsFolded;
+        this._foldMarker = t;
+      } else
+        for (let e = 0, i = 0; e < this._foldMarker.length && i < t.length; ) {
+          let n = t[i].CompareTo(this._foldMarker[e]);
+          n > 0 ? ++e : (n == 0 && (t[i].IsFolded = this._foldMarker[e].IsFolded), ++i);
         }
-        this._foldMarker = newFoldings;
-      } else {
-        for (let i = 0, j = 0; i < this._foldMarker.length && j < newFoldings.length; ) {
-          let n = newFoldings[j].CompareTo(this._foldMarker[i]);
-          if (n > 0) {
-            ++i;
-          } else {
-            if (n == 0) {
-              newFoldings[j].IsFolded = this._foldMarker[i].IsFolded;
-            }
-            ++j;
-          }
-        }
-      }
-    }
-    if (newFoldings != null) {
-      this._foldMarker = newFoldings;
-      this._foldMarkerByEnd = new System.List(newFoldings);
-      this._foldMarkerByEnd.Sort((a, b) => EndComparer.Instance.Compare(a, b));
-    } else {
-      this._foldMarker.Clear();
-      this._foldMarkerByEnd.Clear();
-    }
-    this.FoldingsChanged.Invoke();
+    t != null ? (this._foldMarker = t, this._foldMarkerByEnd = new c.List(t), this._foldMarkerByEnd.Sort((e, i) => H.Instance.Compare(e, i))) : (this._foldMarker.Clear(), this._foldMarkerByEnd.Clear()), this.FoldingsChanged.Invoke();
   }
 }
-const _StartComparer = class {
-  Compare(x, y) {
-    if (x.StartLine < y.StartLine)
-      return -1;
-    return x.StartLine == y.StartLine ? x.StartColumn.CompareTo(y.StartColumn) : 1;
+const Ft = class {
+  Compare(t, e) {
+    return t.StartLine < e.StartLine ? -1 : t.StartLine == e.StartLine ? t.StartColumn.CompareTo(e.StartColumn) : 1;
   }
 };
-let StartComparer = _StartComparer;
-__publicField(StartComparer, "$meta_System_IComparer", true);
-__publicField(StartComparer, "Instance", new _StartComparer());
-const _EndComparer = class {
-  Compare(x, y) {
-    if (x.EndLine < y.EndLine)
-      return -1;
-    return x.EndLine == y.EndLine ? x.EndColumn.CompareTo(y.EndColumn) : 1;
+let Y = Ft;
+o(Y, "$meta_System_IComparer", !0), o(Y, "Instance", new Ft());
+const It = class {
+  Compare(t, e) {
+    return t.EndLine < e.EndLine ? -1 : t.EndLine == e.EndLine ? t.EndColumn.CompareTo(e.EndColumn) : 1;
   }
 };
-let EndComparer = _EndComparer;
-__publicField(EndComparer, "$meta_System_IComparer", true);
-__publicField(EndComparer, "Instance", new _EndComparer());
-var TokenType = /* @__PURE__ */ ((TokenType2) => {
-  TokenType2[TokenType2["Unknown"] = 0] = "Unknown";
-  TokenType2[TokenType2["WhiteSpace"] = 1] = "WhiteSpace";
-  TokenType2[TokenType2["Error"] = 2] = "Error";
-  TokenType2[TokenType2["Module"] = 3] = "Module";
-  TokenType2[TokenType2["Type"] = 4] = "Type";
-  TokenType2[TokenType2["BuiltinType"] = 5] = "BuiltinType";
-  TokenType2[TokenType2["LiteralNumber"] = 6] = "LiteralNumber";
-  TokenType2[TokenType2["LiteralString"] = 7] = "LiteralString";
-  TokenType2[TokenType2["Constant"] = 8] = "Constant";
-  TokenType2[TokenType2["Keyword"] = 9] = "Keyword";
-  TokenType2[TokenType2["Comment"] = 10] = "Comment";
-  TokenType2[TokenType2["PunctuationDelimiter"] = 11] = "PunctuationDelimiter";
-  TokenType2[TokenType2["PunctuationBracket"] = 12] = "PunctuationBracket";
-  TokenType2[TokenType2["Operator"] = 13] = "Operator";
-  TokenType2[TokenType2["Variable"] = 14] = "Variable";
-  TokenType2[TokenType2["Function"] = 15] = "Function";
-  return TokenType2;
-})(TokenType || {});
-class CodeToken {
-  static Make(type, startColumn) {
-    return (Math.floor(type) & 4294967295) << 24 | startColumn;
+let H = It;
+o(H, "$meta_System_IComparer", !0), o(H, "Instance", new It());
+var a = /* @__PURE__ */ ((r) => (r[r.Unknown = 0] = "Unknown", r[r.WhiteSpace = 1] = "WhiteSpace", r[r.Error = 2] = "Error", r[r.Module = 3] = "Module", r[r.Type = 4] = "Type", r[r.BuiltinType = 5] = "BuiltinType", r[r.LiteralNumber = 6] = "LiteralNumber", r[r.LiteralString = 7] = "LiteralString", r[r.Constant = 8] = "Constant", r[r.Keyword = 9] = "Keyword", r[r.Comment = 10] = "Comment", r[r.PunctuationDelimiter = 11] = "PunctuationDelimiter", r[r.PunctuationBracket = 12] = "PunctuationBracket", r[r.Operator = 13] = "Operator", r[r.Variable = 14] = "Variable", r[r.Function = 15] = "Function", r))(a || {});
+class G {
+  static Make(t, e) {
+    return (Math.floor(t) & 4294967295) << 24 | e;
   }
-  static GetTokenStartColumn(token) {
-    return token & 16777215;
+  static GetTokenStartColumn(t) {
+    return t & 16777215;
   }
-  static GetTokenType(token) {
-    return token >> 24;
+  static GetTokenType(t) {
+    return t >> 24;
   }
 }
-const _CSharpLanguage = class {
+const U = class {
   constructor() {
-    __publicField(this, "_foldQuery");
+    o(this, "_foldQuery");
   }
-  GetAutoColsingPairs(ch) {
-    switch (ch) {
+  GetAutoColsingPairs(t) {
+    switch (t) {
       case 123:
         return 125;
       case 91:
@@ -1258,54 +897,52 @@ const _CSharpLanguage = class {
         return null;
     }
   }
-  IsLeafNode(node) {
-    let type = node.type;
-    return type == "modifier" || type == "string_literal" || type == "character_literal";
+  IsLeafNode(t) {
+    let e = t.type;
+    return e == "modifier" || e == "string_literal" || e == "character_literal";
   }
-  GetTokenType(node) {
-    let type = node.type;
-    if (type == "Error")
-      return TokenType.Unknown;
-    if (!node.isNamed()) {
-      let res;
-      if (_CSharpLanguage.TokenMap.TryGetValue(type, new System.Out(() => res, ($v) => res = $v)))
-        return res;
-      return TokenType.Unknown;
+  GetTokenType(t) {
+    let e = t.type;
+    if (e == "Error")
+      return a.Unknown;
+    if (!t.isNamed()) {
+      let i;
+      return U.TokenMap.TryGetValue(e, new c.Out(() => i, (n) => i = n)) ? i : a.Unknown;
     }
-    switch (type) {
+    switch (e) {
       case "identifier":
-        return _CSharpLanguage.GetIdentifierTokenType(node);
+        return U.GetIdentifierTokenType(t);
       case "implicit_type":
       case "pointer_type":
       case "function_pointer_type":
       case "predefined_type":
-        return TokenType.BuiltinType;
+        return a.BuiltinType;
       case "real_literal":
       case "integer_literal":
-        return TokenType.LiteralNumber;
+        return a.LiteralNumber;
       case "string_literal":
       case "character_literal":
-        return TokenType.LiteralString;
+        return a.LiteralString;
       case "null_literal":
       case "boolean_literal":
-        return TokenType.Constant;
+        return a.Constant;
       case "modifier":
       case "void_keyword":
-        return TokenType.Keyword;
+        return a.Keyword;
       case "comment":
-        return TokenType.Comment;
+        return a.Comment;
       default:
-        return TokenType.Unknown;
+        return a.Unknown;
     }
   }
-  static GetIdentifierTokenType(node) {
-    let parentType = node.parent.type;
-    if (parentType == "Error")
-      return TokenType.Unknown;
-    switch (parentType) {
+  static GetIdentifierTokenType(t) {
+    let e = t.parent.type;
+    if (e == "Error")
+      return a.Unknown;
+    switch (e) {
       case "namespace_declaration":
       case "using_directive":
-        return TokenType.Module;
+        return a.Module;
       case "class_declaration":
       case "interface_declaration":
       case "enum_declaration":
@@ -1316,156 +953,143 @@ const _CSharpLanguage = class {
       case "generic_name":
       case "array_type":
       case "base_list":
-        return TokenType.Type;
+        return a.Type;
       case "argument":
       case "variable_declarator":
       case "property_declaration":
-        return TokenType.Variable;
+        return a.Variable;
       case "method_declaration":
-        return TokenType.Function;
+        return a.Function;
       case "qualified_name":
-        return _CSharpLanguage.GetIdentifierTypeFromQualifiedName(node);
+        return U.GetIdentifierTypeFromQualifiedName(t);
       case "member_access_expression":
-        return _CSharpLanguage.GetIdentifierTypeFromMemberAccess(node);
+        return U.GetIdentifierTypeFromMemberAccess(t);
       default:
-        return TokenType.Unknown;
+        return a.Unknown;
     }
   }
-  static GetIdentifierTypeFromQualifiedName(node) {
-    var _a, _b;
-    if (((_a = node.parent.parent) == null ? void 0 : _a.type) == "qualified_name")
-      return TokenType.Module;
-    if (((_b = node.parent.parent) == null ? void 0 : _b.type) == "assignment_expression")
-      return TokenType.Variable;
-    return node.nextNamedSibling == null ? TokenType.Type : TokenType.Module;
+  static GetIdentifierTypeFromQualifiedName(t) {
+    var e, i;
+    return ((e = t.parent.parent) == null ? void 0 : e.type) == "qualified_name" ? a.Module : ((i = t.parent.parent) == null ? void 0 : i.type) == "assignment_expression" ? a.Variable : t.nextNamedSibling == null ? a.Type : a.Module;
   }
-  static GetIdentifierTypeFromMemberAccess(node) {
-    if (node.parent.parent.type == "invocation_expression")
-      return TokenType.Function;
-    return node.nextNamedSibling == null ? TokenType.Variable : TokenType.Type;
+  static GetIdentifierTypeFromMemberAccess(t) {
+    return t.parent.parent.type == "invocation_expression" ? a.Function : t.nextNamedSibling == null ? a.Variable : a.Type;
   }
-  GenerateFoldMarkers(document) {
-    var _a;
-    let syntaxParser = document.SyntaxParser;
-    if (syntaxParser.RootNode == null)
+  GenerateFoldMarkers(t) {
+    var l;
+    let e = t.SyntaxParser;
+    if (e.RootNode == null)
       return null;
-    (_a = this._foldQuery) != null ? _a : this._foldQuery = syntaxParser.CreateQuery(_CSharpLanguage.FoldQuery);
-    let captures = this._foldQuery.captures(syntaxParser.RootNode);
-    let lastNodeId = 0;
-    let result = new System.List(captures.length);
-    for (const capture of captures) {
-      if (lastNodeId == capture.node.id)
+    (l = this._foldQuery) != null || (this._foldQuery = e.CreateQuery(U.FoldQuery));
+    let i = this._foldQuery.captures(e.RootNode), n = 0, s = new c.List(i.length);
+    for (const h of i) {
+      if (n == h.node.id)
         continue;
-      lastNodeId = capture.node.id;
-      let node = capture.node;
-      if (node.startPosition.row == node.endPosition.row)
+      n = h.node.id;
+      let d = h.node;
+      if (d.startPosition.row == d.endPosition.row)
         continue;
-      let startIndex = node.startIndex / SyntaxParser.ParserEncoding;
-      let endIndex = node.endIndex / SyntaxParser.ParserEncoding;
-      let mark = new FoldMarker(document, 0, 0, 0, 0, FoldType.TypeBody, "{...}");
-      mark.Offset = startIndex;
-      mark.Length = endIndex - startIndex;
-      result.Add(mark);
+      let f = d.startIndex / B.ParserEncoding, C = d.endIndex / B.ParserEncoding, S = new Lt(t, 0, 0, 0, 0, gt.TypeBody, "{...}");
+      S.Offset = f, S.Length = C - f, s.Add(S);
     }
-    return result;
+    return s;
   }
 };
-let CSharpLanguage = _CSharpLanguage;
-__publicField(CSharpLanguage, "TokenMap", new System.Dictionary().Init([
-  [";", TokenType.PunctuationDelimiter],
-  [".", TokenType.PunctuationDelimiter],
-  [",", TokenType.PunctuationDelimiter],
-  ["--", TokenType.Operator],
-  ["-", TokenType.Operator],
-  ["-=", TokenType.Operator],
-  ["&", TokenType.Operator],
-  ["&&", TokenType.Operator],
-  ["+", TokenType.Operator],
-  ["++", TokenType.Operator],
-  ["+=", TokenType.Operator],
-  ["<", TokenType.Operator],
-  ["<<", TokenType.Operator],
-  ["=", TokenType.Operator],
-  ["==", TokenType.Operator],
-  ["!", TokenType.Operator],
-  ["!=", TokenType.Operator],
-  ["=>", TokenType.Operator],
-  [">", TokenType.Operator],
-  [">>", TokenType.Operator],
-  ["|", TokenType.Operator],
-  ["||", TokenType.Operator],
-  ["?", TokenType.Operator],
-  ["??", TokenType.Operator],
-  ["^", TokenType.Operator],
-  ["~", TokenType.Operator],
-  ["*", TokenType.Operator],
-  ["/", TokenType.Operator],
-  ["%", TokenType.Operator],
-  [":", TokenType.Operator],
-  ["(", TokenType.PunctuationBracket],
-  [")", TokenType.PunctuationBracket],
-  ["[", TokenType.PunctuationBracket],
-  ["]", TokenType.PunctuationBracket],
-  ["{", TokenType.PunctuationBracket],
-  ["}", TokenType.PunctuationBracket],
-  ["as", TokenType.Keyword],
-  ["base", TokenType.Keyword],
-  ["break", TokenType.Keyword],
-  ["case", TokenType.Keyword],
-  ["catch", TokenType.Keyword],
-  ["checked", TokenType.Keyword],
-  ["class", TokenType.Keyword],
-  ["continue", TokenType.Keyword],
-  ["default", TokenType.Keyword],
-  ["delegate", TokenType.Keyword],
-  ["do", TokenType.Keyword],
-  ["else", TokenType.Keyword],
-  ["enum", TokenType.Keyword],
-  ["event", TokenType.Keyword],
-  ["explicit", TokenType.Keyword],
-  ["finally", TokenType.Keyword],
-  ["for", TokenType.Keyword],
-  ["foreach", TokenType.Keyword],
-  ["goto", TokenType.Keyword],
-  ["if", TokenType.Keyword],
-  ["implicit", TokenType.Keyword],
-  ["interface", TokenType.Keyword],
-  ["is", TokenType.Keyword],
-  ["lock", TokenType.Keyword],
-  ["namespace", TokenType.Keyword],
-  ["operator", TokenType.Keyword],
-  ["params", TokenType.Keyword],
-  ["return", TokenType.Keyword],
-  ["sizeof", TokenType.Keyword],
-  ["stackalloc", TokenType.Keyword],
-  ["struct", TokenType.Keyword],
-  ["switch", TokenType.Keyword],
-  ["throw", TokenType.Keyword],
-  ["try", TokenType.Keyword],
-  ["typeof", TokenType.Keyword],
-  ["unchecked", TokenType.Keyword],
-  ["using", TokenType.Keyword],
-  ["while", TokenType.Keyword],
-  ["new", TokenType.Keyword],
-  ["await", TokenType.Keyword],
-  ["in", TokenType.Keyword],
-  ["yield", TokenType.Keyword],
-  ["get", TokenType.Keyword],
-  ["set", TokenType.Keyword],
-  ["when", TokenType.Keyword],
-  ["out", TokenType.Keyword],
-  ["ref", TokenType.Keyword],
-  ["from", TokenType.Keyword],
-  ["where", TokenType.Keyword],
-  ["select", TokenType.Keyword],
-  ["record", TokenType.Keyword],
-  ["init", TokenType.Keyword],
-  ["with", TokenType.Keyword],
-  ["let", TokenType.Keyword],
-  ["var", TokenType.Keyword],
-  ["this", TokenType.Keyword]
-]));
-__publicField(CSharpLanguage, "FoldQuery", `
+let z = U;
+o(z, "TokenMap", new c.Dictionary().Init([
+  [";", a.PunctuationDelimiter],
+  [".", a.PunctuationDelimiter],
+  [",", a.PunctuationDelimiter],
+  ["--", a.Operator],
+  ["-", a.Operator],
+  ["-=", a.Operator],
+  ["&", a.Operator],
+  ["&&", a.Operator],
+  ["+", a.Operator],
+  ["++", a.Operator],
+  ["+=", a.Operator],
+  ["<", a.Operator],
+  ["<<", a.Operator],
+  ["=", a.Operator],
+  ["==", a.Operator],
+  ["!", a.Operator],
+  ["!=", a.Operator],
+  ["=>", a.Operator],
+  [">", a.Operator],
+  [">>", a.Operator],
+  ["|", a.Operator],
+  ["||", a.Operator],
+  ["?", a.Operator],
+  ["??", a.Operator],
+  ["^", a.Operator],
+  ["~", a.Operator],
+  ["*", a.Operator],
+  ["/", a.Operator],
+  ["%", a.Operator],
+  [":", a.Operator],
+  ["(", a.PunctuationBracket],
+  [")", a.PunctuationBracket],
+  ["[", a.PunctuationBracket],
+  ["]", a.PunctuationBracket],
+  ["{", a.PunctuationBracket],
+  ["}", a.PunctuationBracket],
+  ["as", a.Keyword],
+  ["base", a.Keyword],
+  ["break", a.Keyword],
+  ["case", a.Keyword],
+  ["catch", a.Keyword],
+  ["checked", a.Keyword],
+  ["class", a.Keyword],
+  ["continue", a.Keyword],
+  ["default", a.Keyword],
+  ["delegate", a.Keyword],
+  ["do", a.Keyword],
+  ["else", a.Keyword],
+  ["enum", a.Keyword],
+  ["event", a.Keyword],
+  ["explicit", a.Keyword],
+  ["finally", a.Keyword],
+  ["for", a.Keyword],
+  ["foreach", a.Keyword],
+  ["goto", a.Keyword],
+  ["if", a.Keyword],
+  ["implicit", a.Keyword],
+  ["interface", a.Keyword],
+  ["is", a.Keyword],
+  ["lock", a.Keyword],
+  ["namespace", a.Keyword],
+  ["operator", a.Keyword],
+  ["params", a.Keyword],
+  ["return", a.Keyword],
+  ["sizeof", a.Keyword],
+  ["stackalloc", a.Keyword],
+  ["struct", a.Keyword],
+  ["switch", a.Keyword],
+  ["throw", a.Keyword],
+  ["try", a.Keyword],
+  ["typeof", a.Keyword],
+  ["unchecked", a.Keyword],
+  ["using", a.Keyword],
+  ["while", a.Keyword],
+  ["new", a.Keyword],
+  ["await", a.Keyword],
+  ["in", a.Keyword],
+  ["yield", a.Keyword],
+  ["get", a.Keyword],
+  ["set", a.Keyword],
+  ["when", a.Keyword],
+  ["out", a.Keyword],
+  ["ref", a.Keyword],
+  ["from", a.Keyword],
+  ["where", a.Keyword],
+  ["select", a.Keyword],
+  ["record", a.Keyword],
+  ["init", a.Keyword],
+  ["with", a.Keyword],
+  ["let", a.Keyword],
+  ["var", a.Keyword],
+  ["this", a.Keyword]
+])), o(z, "FoldQuery", `
 body: [
   (declaration_list)
   (switch_body)
@@ -1482,206 +1106,158 @@ initializer: [
 
 (block) @fold
 `);
-const _SyntaxParser = class {
-  constructor(document) {
-    __publicField(this, "_document");
-    __publicField(this, "_parser");
-    __privateAdd(this, _Language, void 0);
-    __publicField(this, "_oldTree");
-    __publicField(this, "_edit", new TSEdit());
-    __publicField(this, "_startLineOfChanged", 0);
-    __publicField(this, "_endLineOfChanged", 0);
-    this._document = document;
-    let language = TSCSharpLanguage.Get();
-    this._parser = new window.TreeSitter();
-    this._parser.setLanguage(language);
-    this.Language = new CSharpLanguage();
+var ot;
+const T = class {
+  constructor(t) {
+    o(this, "_document");
+    o(this, "_parser");
+    x(this, ot, void 0);
+    o(this, "_oldTree");
+    o(this, "_edit", new xt());
+    o(this, "_startLineOfChanged", 0);
+    o(this, "_endLineOfChanged", 0);
+    this._document = t;
+    let e = Kt.Get();
+    this._parser = new window.TreeSitter(), this._parser.setLanguage(e), this.Language = new z();
   }
   get Language() {
-    return __privateGet(this, _Language);
+    return w(this, ot);
   }
-  set Language(value) {
-    __privateSet(this, _Language, value);
+  set Language(t) {
+    E(this, ot, t);
   }
   get RootNode() {
-    var _a;
-    return (_a = this._oldTree) == null ? void 0 : _a.rootNode;
+    var t;
+    return (t = this._oldTree) == null ? void 0 : t.rootNode;
   }
-  BeginInsert(offset, length) {
-    let startLocation = this._document.OffsetToPosition(offset);
-    this._edit.startIndex = (Math.floor(offset) & 4294967295) * _SyntaxParser.ParserEncoding;
-    this._edit.oldEndIndex = this._edit.startIndex;
-    this._edit.newEndIndex = this._edit.startIndex + (Math.floor(length) & 4294967295) * _SyntaxParser.ParserEncoding;
-    this._edit.startPosition = TSPoint.FromLocation(startLocation.Clone());
-    this._edit.oldEndPosition = this._edit.startPosition;
+  BeginInsert(t, e) {
+    let i = this._document.OffsetToPosition(t);
+    this._edit.startIndex = (Math.floor(t) & 4294967295) * T.ParserEncoding, this._edit.oldEndIndex = this._edit.startIndex, this._edit.newEndIndex = this._edit.startIndex + (Math.floor(e) & 4294967295) * T.ParserEncoding, this._edit.startPosition = p.FromLocation(i.Clone()), this._edit.oldEndPosition = this._edit.startPosition;
   }
-  EndInsert(offset, length) {
-    let endLocation = this._document.OffsetToPosition(offset + length);
-    this._edit.newEndPosition = TSPoint.FromLocation(endLocation.Clone());
-    this._oldTree.edit(this._edit.Clone());
-    this.Parse(false);
-    this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
+  EndInsert(t, e) {
+    let i = this._document.OffsetToPosition(t + e);
+    this._edit.newEndPosition = p.FromLocation(i.Clone()), this._oldTree.edit(this._edit.Clone()), this.Parse(!1), this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
   }
-  BeginRemove(offset, length) {
-    let startLocation = this._document.OffsetToPosition(offset);
-    let endLocation = this._document.OffsetToPosition(offset + length);
-    this._edit.startIndex = (Math.floor(offset) & 4294967295) * _SyntaxParser.ParserEncoding;
-    this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(length) & 4294967295) * _SyntaxParser.ParserEncoding;
-    this._edit.newEndIndex = this._edit.startIndex;
-    this._edit.startPosition = TSPoint.FromLocation(startLocation.Clone());
-    this._edit.oldEndPosition = TSPoint.FromLocation(endLocation.Clone());
-    this._edit.newEndPosition = this._edit.startPosition;
+  BeginRemove(t, e) {
+    let i = this._document.OffsetToPosition(t), n = this._document.OffsetToPosition(t + e);
+    this._edit.startIndex = (Math.floor(t) & 4294967295) * T.ParserEncoding, this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(e) & 4294967295) * T.ParserEncoding, this._edit.newEndIndex = this._edit.startIndex, this._edit.startPosition = p.FromLocation(i.Clone()), this._edit.oldEndPosition = p.FromLocation(n.Clone()), this._edit.newEndPosition = this._edit.startPosition;
   }
   EndRemove() {
-    this._oldTree.edit(this._edit.Clone());
-    this.Parse(false);
-    this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
+    this._oldTree.edit(this._edit.Clone()), this.Parse(!1), this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
   }
-  BeginReplace(offset, length, textLenght) {
-    let startLocation = this._document.OffsetToPosition(offset);
-    let endLocation = this._document.OffsetToPosition(offset + length);
-    this._edit.startIndex = (Math.floor(offset) & 4294967295) * _SyntaxParser.ParserEncoding;
-    this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(length) & 4294967295) * _SyntaxParser.ParserEncoding;
-    this._edit.newEndIndex = this._edit.startIndex + (Math.floor((textLenght - length) * _SyntaxParser.ParserEncoding) & 4294967295);
-    this._edit.startPosition = TSPoint.FromLocation(startLocation.Clone());
-    this._edit.oldEndPosition = TSPoint.FromLocation(endLocation.Clone());
+  BeginReplace(t, e, i) {
+    let n = this._document.OffsetToPosition(t), s = this._document.OffsetToPosition(t + e);
+    this._edit.startIndex = (Math.floor(t) & 4294967295) * T.ParserEncoding, this._edit.oldEndIndex = this._edit.startIndex + (Math.floor(e) & 4294967295) * T.ParserEncoding, this._edit.newEndIndex = this._edit.startIndex + (Math.floor((i - e) * T.ParserEncoding) & 4294967295), this._edit.startPosition = p.FromLocation(n.Clone()), this._edit.oldEndPosition = p.FromLocation(s.Clone());
   }
-  EndReplace(offset, length, textLength) {
-    let endLocation = this._document.OffsetToPosition(offset + (textLength - length));
-    this._edit.newEndPosition = TSPoint.FromLocation(endLocation.Clone());
-    this._oldTree.edit(this._edit.Clone());
-    this.Parse(false);
-    this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
+  EndReplace(t, e, i) {
+    let n = this._document.OffsetToPosition(t + (i - e));
+    this._edit.newEndPosition = p.FromLocation(n.Clone()), this._oldTree.edit(this._edit.Clone()), this.Parse(!1), this.Tokenize(this._startLineOfChanged, this._endLineOfChanged);
   }
-  Parse(reset) {
-    let input = new ParserInput(this._document.TextBuffer);
-    let newTree = this._parser.parse(input.Read.bind(input), reset === true ? null : this._oldTree);
-    if (this._oldTree && !reset) {
-      let changes = newTree.getChangedRanges(this._oldTree);
-      this._oldTree.delete();
-      this._startLineOfChanged = this._edit.startPosition.row;
-      this._endLineOfChanged = this._startLineOfChanged + 1;
-      for (const range of changes) {
-        this._startLineOfChanged = Math.min(this._startLineOfChanged, range.startPosition.row);
-        this._endLineOfChanged = Math.max(this._endLineOfChanged, range.endPosition.row);
-      }
+  Parse(t) {
+    let e = new Yt(this._document.TextBuffer), i = this._parser.parse(e.Read.bind(e), t === !0 ? null : this._oldTree);
+    if (this._oldTree && !t) {
+      let s = i.getChangedRanges(this._oldTree);
+      this._oldTree.delete(), this._startLineOfChanged = this._edit.startPosition.row, this._endLineOfChanged = this._startLineOfChanged + 1;
+      for (const l of s)
+        this._startLineOfChanged = Math.min(this._startLineOfChanged, l.startPosition.row), this._endLineOfChanged = Math.max(this._endLineOfChanged, l.endPosition.row);
     }
-    this._oldTree = newTree;
-    let foldMarkers = this.Language.GenerateFoldMarkers(this._document);
-    this._document.FoldingManager.UpdateFoldings(foldMarkers);
+    this._oldTree = i;
+    let n = this.Language.GenerateFoldMarkers(this._document);
+    this._document.FoldingManager.UpdateFoldings(n);
   }
-  Tokenize(startLine, endLine) {
-    for (let i = startLine; i < endLine; i++) {
+  Tokenize(t, e) {
+    for (let i = t; i < e; i++)
       this.TokenizeLine(i);
-    }
   }
-  TokenizeLine(line) {
-    let lineSegment = this._document.GetLineSegment(line);
-    let lineLength = lineSegment.Length;
-    if (lineLength == 0)
+  TokenizeLine(t) {
+    let e = this._document.GetLineSegment(t), i = e.Length;
+    if (i == 0)
       return;
-    let lineStartPoint = new TSPoint(line, 0);
-    let lineEndPoint = new TSPoint(line, lineLength * _SyntaxParser.ParserEncoding);
-    let lineNode = this._oldTree.rootNode.namedDescendantForPosition(lineStartPoint, lineEndPoint);
-    lineSegment.BeginTokenize();
-    if (_SyntaxParser.ContainsFullLine(lineNode, lineSegment)) {
-      this.VisitNode(lineNode, lineSegment);
-    } else {
-      lineSegment.AddToken(TokenType.Unknown, lineSegment.Offset, lineSegment.Length);
-    }
-    lineSegment.EndTokenize();
+    let n = new p(t, 0), s = new p(t, i * T.ParserEncoding), l = this._oldTree.rootNode.namedDescendantForPosition(n, s);
+    e.BeginTokenize(), T.ContainsFullLine(l, e) ? this.VisitNode(l, e) : e.AddToken(a.Unknown, e.Offset, e.Length), e.EndTokenize();
   }
-  VisitChildren(node, lineSegment) {
-    for (const child of node.children) {
-      if (_SyntaxParser.BeforeLine(child, lineSegment))
-        continue;
-      if (_SyntaxParser.AfterLine(child, lineSegment))
-        break;
-      this.VisitNode(child, lineSegment);
-    }
+  VisitChildren(t, e) {
+    for (const i of t.children)
+      if (!T.BeforeLine(i, e)) {
+        if (T.AfterLine(i, e))
+          break;
+        this.VisitNode(i, e);
+      }
   }
-  VisitNode(node, lineSegment) {
-    let childrenCount = node.childCount;
-    if (!this.Language.IsLeafNode(node) && childrenCount > 0) {
-      this.VisitChildren(node, lineSegment);
+  VisitNode(t, e) {
+    let i = t.childCount;
+    if (!this.Language.IsLeafNode(t) && i > 0) {
+      this.VisitChildren(t, e);
       return;
     }
-    if (node.endIndex <= node.startIndex)
+    if (t.endIndex <= t.startIndex)
       return;
-    let tokenType = this.Language.GetTokenType(node);
-    let startOffset = Math.max(node.startIndex / _SyntaxParser.ParserEncoding, lineSegment.Offset);
-    let length = Math.min((node.endIndex - node.startIndex) / _SyntaxParser.ParserEncoding, lineSegment.Length);
-    lineSegment.AddToken(tokenType, startOffset, length);
+    let n = this.Language.GetTokenType(t), s = Math.max(t.startIndex / T.ParserEncoding, e.Offset), l = Math.min(
+      (t.endIndex - t.startIndex) / T.ParserEncoding,
+      e.Length
+    );
+    e.AddToken(n, s, l);
   }
-  static ContainsFullLine(node, lineSegment) {
-    let nodeStartOffset = node.startIndex / _SyntaxParser.ParserEncoding;
-    let nodeEndOffset = node.endIndex / _SyntaxParser.ParserEncoding;
-    return nodeStartOffset <= lineSegment.Offset && lineSegment.Offset + lineSegment.Length <= nodeEndOffset;
+  static ContainsFullLine(t, e) {
+    let i = t.startIndex / T.ParserEncoding, n = t.endIndex / T.ParserEncoding;
+    return i <= e.Offset && e.Offset + e.Length <= n;
   }
-  static BeforeLine(node, lineSegment) {
-    let nodeEndOffset = node.endIndex / _SyntaxParser.ParserEncoding;
-    return nodeEndOffset < lineSegment.Offset;
+  static BeforeLine(t, e) {
+    return t.endIndex / T.ParserEncoding < e.Offset;
   }
-  static AfterLine(node, lineSegment) {
-    let nodeStartOffset = node.startIndex / _SyntaxParser.ParserEncoding;
-    return nodeStartOffset > lineSegment.Offset + lineSegment.Length;
+  static AfterLine(t, e) {
+    return t.startIndex / T.ParserEncoding > e.Offset + e.Length;
   }
-  CreateQuery(scm) {
-    return this._parser.getLanguage().query(scm);
+  CreateQuery(t) {
+    return this._parser.getLanguage().query(t);
   }
-  GetDirtyLines(controller) {
-    return new DirtyLines(controller).Init({
-      StartLine: this._startLineOfChanged,
-      EndLine: this._endLineOfChanged
-    });
+  GetDirtyLines(t) {
+    return new Fe(t).Init(
+      {
+        StartLine: this._startLineOfChanged,
+        EndLine: this._endLineOfChanged
+      }
+    );
   }
   DumpTree() {
-    if (this._oldTree == null)
-      console.log("No parsed tree.");
-    console.log(this._oldTree.rootNode);
+    this._oldTree == null && console.log("No parsed tree."), console.log(this._oldTree.rootNode);
   }
   Dispose() {
-    var _a;
-    (_a = this._oldTree) == null ? void 0 : _a.delete();
-    this._parser.delete();
+    var t;
+    (t = this._oldTree) == null || t.delete(), this._parser.delete();
   }
 };
-let SyntaxParser = _SyntaxParser;
-_Language = new WeakMap();
-__publicField(SyntaxParser, "$meta_System_IDisposable", true);
-__publicField(SyntaxParser, "ParserEncoding", 1);
-class DeferredEventList {
+let B = T;
+ot = new WeakMap(), o(B, "$meta_System_IDisposable", !0), o(B, "ParserEncoding", 1);
+class ee {
   constructor() {
-    __publicField(this, "removedLines");
-    __publicField(this, "textAnchor");
+    o(this, "removedLines");
+    o(this, "textAnchor");
   }
-  AddRemovedLine(line) {
-    var _a;
-    (_a = this.removedLines) != null ? _a : this.removedLines = new System.List();
-    this.removedLines.Add(line);
+  AddRemovedLine(t) {
+    var e;
+    (e = this.removedLines) != null || (this.removedLines = new c.List()), this.removedLines.Add(t);
   }
-  AddDeletedAnchor(anchor) {
-    var _a;
-    (_a = this.textAnchor) != null ? _a : this.textAnchor = new System.List();
-    this.textAnchor.Add(anchor);
+  AddDeletedAnchor(t) {
+    var e;
+    (e = this.textAnchor) != null || (this.textAnchor = new c.List()), this.textAnchor.Add(t);
   }
   RaiseEvents() {
-    if (this.textAnchor == null)
-      return;
-    for (const a of this.textAnchor) {
-      a.RaiseDeleted();
-    }
+    if (this.textAnchor != null)
+      for (const t of this.textAnchor)
+        t.RaiseDeleted();
   }
 }
-class LineSegment {
+var rt, st, lt;
+class At {
   constructor() {
-    __publicField(this, "TreeEntry", LinesEnumerator.Invalid.Clone());
-    __privateAdd(this, _TotalLength, 0);
-    __privateAdd(this, _DelimiterLength, 0);
-    __publicField(this, "_lineTokens");
-    __publicField(this, "_tokenColumnIndex", 0);
-    __publicField(this, "_cachedParagraph");
-    __privateAdd(this, _CachedFolds, void 0);
+    o(this, "TreeEntry", V.Invalid.Clone());
+    x(this, rt, 0);
+    x(this, st, 0);
+    o(this, "_lineTokens");
+    o(this, "_tokenColumnIndex", 0);
+    o(this, "_cachedParagraph");
+    x(this, lt, void 0);
   }
   get IsDeleted() {
     return !this.TreeEntry.IsValid;
@@ -1692,288 +1268,199 @@ class LineSegment {
   get Offset() {
     return this.TreeEntry.CurrentOffset;
   }
-  set Offset(value) {
-    throw new System.NotSupportedException();
+  set Offset(t) {
+    throw new c.NotSupportedException();
   }
   get Length() {
     return this.TotalLength - this.DelimiterLength;
   }
-  set Length(value) {
-    throw new System.NotSupportedException();
+  set Length(t) {
+    throw new c.NotSupportedException();
   }
   get TotalLength() {
-    return __privateGet(this, _TotalLength);
+    return w(this, rt);
   }
-  set TotalLength(value) {
-    __privateSet(this, _TotalLength, value);
+  set TotalLength(t) {
+    E(this, rt, t);
   }
   get DelimiterLength() {
-    return __privateGet(this, _DelimiterLength);
+    return w(this, st);
   }
-  set DelimiterLength(value) {
-    __privateSet(this, _DelimiterLength, value);
+  set DelimiterLength(t) {
+    E(this, st, t);
   }
   get CachedFolds() {
-    return __privateGet(this, _CachedFolds);
+    return w(this, lt);
   }
-  set CachedFolds(value) {
-    __privateSet(this, _CachedFolds, value);
+  set CachedFolds(t) {
+    E(this, lt, t);
   }
-  InsertedLinePart(manager, startColumn, length) {
-    if (length == 0)
-      return;
-    this.ClearFoldedLineCache(manager);
+  InsertedLinePart(t, e, i) {
+    i != 0 && this.ClearFoldedLineCache(t);
   }
-  RemovedLinePart(manager, deferredEventList, startColumn, length) {
-    if (length == 0)
-      return;
-    this.ClearFoldedLineCache(manager);
+  RemovedLinePart(t, e, i, n) {
+    n != 0 && this.ClearFoldedLineCache(t);
   }
-  Deleted(deferredEventList) {
-    this.TreeEntry = LinesEnumerator.Invalid.Clone();
+  Deleted(t) {
+    this.TreeEntry = V.Invalid.Clone();
   }
-  MergedWith(deletedLine, firstLineLength) {
+  MergedWith(t, e) {
   }
-  SplitTo(followingLine) {
+  SplitTo(t) {
   }
   BeginTokenize() {
-    this.ClearCachedParagraph();
-    this._lineTokens = new System.List();
-    this._tokenColumnIndex = 0;
+    this.ClearCachedParagraph(), this._lineTokens = new c.List(), this._tokenColumnIndex = 0;
   }
-  AddToken(type, offset, length) {
-    let column = offset - this.Offset;
-    if (column > this._tokenColumnIndex) {
-      this._lineTokens.Add(CodeToken.Make(TokenType.WhiteSpace, this._tokenColumnIndex));
-      this._tokenColumnIndex = column;
-    }
-    this._lineTokens.Add(CodeToken.Make(type, column));
-    this._tokenColumnIndex += length;
+  AddToken(t, e, i) {
+    let n = e - this.Offset;
+    n > this._tokenColumnIndex && (this._lineTokens.Add(G.Make(a.WhiteSpace, this._tokenColumnIndex)), this._tokenColumnIndex = n), this._lineTokens.Add(G.Make(t, n)), this._tokenColumnIndex += i;
   }
   EndTokenize() {
-    if (this._tokenColumnIndex < this.Length) {
-      this._lineTokens.Add(CodeToken.Make(TokenType.WhiteSpace, this._tokenColumnIndex));
-    }
+    this._tokenColumnIndex < this.Length && this._lineTokens.Add(G.Make(a.WhiteSpace, this._tokenColumnIndex));
   }
-  GetTokenAt(column) {
+  GetTokenAt(t) {
     if (this._lineTokens == null)
       return null;
-    let tokenEndColumn = this.Length;
+    let e = this.Length;
     for (let i = this._lineTokens.length - 1; i >= 0; i--) {
-      let token = this._lineTokens[i];
-      let tokenStartColumn = CodeToken.GetTokenStartColumn(token);
-      if (tokenStartColumn < column && column <= tokenEndColumn) {
-        return token;
-      }
-      tokenEndColumn = tokenStartColumn;
+      let n = this._lineTokens[i], s = G.GetTokenStartColumn(n);
+      if (s < t && t <= e)
+        return n;
+      e = s;
     }
     return null;
   }
   GetLeadingWhiteSpaces() {
-    if (this._lineTokens == null)
-      return 0;
-    let firstTokenType = CodeToken.GetTokenType(this._lineTokens[0]);
-    if (firstTokenType != TokenType.WhiteSpace)
-      return 0;
-    return this._lineTokens.length > 1 ? CodeToken.GetTokenStartColumn(this._lineTokens[1]) : this.Length;
+    return this._lineTokens == null || G.GetTokenType(this._lineTokens[0]) != a.WhiteSpace ? 0 : this._lineTokens.length > 1 ? G.GetTokenStartColumn(this._lineTokens[1]) : this.Length;
   }
-  GetLineParagraph(editor) {
+  GetLineParagraph(t) {
     if (this._cachedParagraph != null)
       return this._cachedParagraph;
-    let ps = PixUI.MakeParagraphStyle({ maxLines: 1, heightMultiplier: 1 });
-    let pb = PixUI.MakeParagraphBuilder(ps);
+    let e = u.MakeParagraphStyle({ maxLines: 1, heightMultiplier: 1 }), i = u.MakeParagraphBuilder(e);
     if (this._lineTokens == null || this.Length == 0) {
-      let lineText = editor.Document.GetText(this.Offset, this.Length);
-      pb.pushStyle(editor.Theme.TextStyle);
-      pb.addText(lineText);
-    } else {
-      if (editor.Document.TextEditorOptions.EnableFolding)
-        this.BuildParagraphByFoldings(pb, editor);
-      else
-        this.BuildParagraphByTokens(pb, editor, 0, this.Length);
-    }
-    this._cachedParagraph = pb.build();
-    this._cachedParagraph.layout(Number.POSITIVE_INFINITY);
-    pb.delete();
-    return this._cachedParagraph;
+      let n = t.Document.GetText(this.Offset, this.Length);
+      i.pushStyle(t.Theme.TextStyle), i.addText(n);
+    } else
+      t.Document.TextEditorOptions.EnableFolding ? this.BuildParagraphByFoldings(i, t) : this.BuildParagraphByTokens(i, t, 0, this.Length);
+    return this._cachedParagraph = i.build(), this._cachedParagraph.layout(Number.POSITIVE_INFINITY), i.delete(), this._cachedParagraph;
   }
-  BuildParagraphByTokens(pb, editor, startIndex, endIndex) {
-    let token = 0;
-    let tokenStartColumn = 0;
-    let tokenEndColumn = 0;
-    let tokenOffset = 0;
-    for (let i = 0; i < this._lineTokens.length; i++) {
-      token = this._lineTokens[i];
-      tokenStartColumn = CodeToken.GetTokenStartColumn(token);
-      tokenEndColumn = i == this._lineTokens.length - 1 ? this.Length : CodeToken.GetTokenStartColumn(this._lineTokens[i + 1]);
-      if (startIndex >= tokenEndColumn)
+  BuildParagraphByTokens(t, e, i, n) {
+    let s = 0, l = 0, h = 0, d = 0;
+    for (let f = 0; f < this._lineTokens.length; f++) {
+      if (s = this._lineTokens[f], l = G.GetTokenStartColumn(s), h = f == this._lineTokens.length - 1 ? this.Length : G.GetTokenStartColumn(this._lineTokens[f + 1]), i >= h)
         continue;
-      tokenOffset = editor.Document.PositionToOffset(new TextLocation(tokenStartColumn, this.LineNumber));
-      let tokenText = editor.Document.GetText(tokenOffset, tokenEndColumn - tokenStartColumn);
-      pb.pushStyle(editor.Theme.GetTokenStyle(CodeToken.GetTokenType(token)));
-      pb.addText(tokenText);
-      pb.pop();
-      if (tokenEndColumn >= endIndex)
+      d = e.Document.PositionToOffset(
+        new L(l, this.LineNumber)
+      );
+      let C = e.Document.GetText(d, h - l);
+      if (t.pushStyle(e.Theme.GetTokenStyle(G.GetTokenType(s))), t.addText(C), t.pop(), h >= n)
         break;
     }
   }
-  BuildParagraphByFoldings(pb, editor) {
-    var _a;
-    let line = this.LineNumber;
-    let column = -1;
-    let lineChars = 0;
-    let preFold = null;
-    while (true) {
-      let starts = editor.Document.FoldingManager.GetFoldedFoldingsWithStartAfterColumn(line, column);
-      if (starts.length <= 0) {
-        if (line == this.LineNumber) {
-          this.BuildParagraphByTokens(pb, editor, 0, TextLocation.MaxColumn);
-        } else {
-          let endLine = editor.Document.GetLineSegment(preFold.EndLine);
-          endLine.BuildParagraphByTokens(pb, editor, preFold.EndColumn, TextLocation.MaxColumn);
-        }
+  BuildParagraphByFoldings(t, e) {
+    var h;
+    let i = this.LineNumber, n = -1, s = 0, l = null;
+    for (; ; ) {
+      let d = e.Document.FoldingManager.GetFoldedFoldingsWithStartAfterColumn(
+        i,
+        n
+      );
+      if (d.length <= 0) {
+        i == this.LineNumber ? this.BuildParagraphByTokens(t, e, 0, L.MaxColumn) : e.Document.GetLineSegment(l.EndLine).BuildParagraphByTokens(
+          t,
+          e,
+          l.EndColumn,
+          L.MaxColumn
+        );
         break;
       }
-      let firstFolding = starts[0];
-      for (const fm of starts) {
-        if (fm.StartColumn < firstFolding.StartColumn)
-          firstFolding = fm;
-      }
-      starts.Clear();
-      if (line == this.LineNumber) {
-        if (firstFolding.StartColumn > 0) {
-          this.BuildParagraphByTokens(pb, editor, 0, firstFolding.StartColumn);
-          lineChars += firstFolding.StartColumn;
-        }
-      } else {
-        let endLine = editor.Document.GetLineSegment(preFold.EndLine);
-        endLine.BuildParagraphByTokens(pb, editor, preFold.EndColumn, firstFolding.StartColumn);
-        lineChars += firstFolding.StartColumn - preFold.EndColumn;
-      }
-      pb.pushStyle(editor.Theme.FoldedTextStyle);
-      pb.addText(firstFolding.FoldText);
-      pb.pop();
-      (_a = this.CachedFolds) != null ? _a : this.CachedFolds = new System.List();
-      this.CachedFolds.Add(new CachedFoldInfo(lineChars, firstFolding));
-      lineChars += firstFolding.FoldText.length;
-      column = firstFolding.EndColumn;
-      line = firstFolding.EndLine;
-      preFold = firstFolding;
-      if (line >= editor.Document.TotalNumberOfLines) {
+      let f = d[0];
+      for (const C of d)
+        C.StartColumn < f.StartColumn && (f = C);
+      if (d.Clear(), i == this.LineNumber ? f.StartColumn > 0 && (this.BuildParagraphByTokens(t, e, 0, f.StartColumn), s += f.StartColumn) : (e.Document.GetLineSegment(l.EndLine).BuildParagraphByTokens(
+        t,
+        e,
+        l.EndColumn,
+        f.StartColumn
+      ), s += f.StartColumn - l.EndColumn), t.pushStyle(e.Theme.FoldedTextStyle), t.addText(f.FoldText), t.pop(), (h = this.CachedFolds) != null || (this.CachedFolds = new c.List()), this.CachedFolds.Add(new ie(s, f)), s += f.FoldText.length, n = f.EndColumn, i = f.EndLine, l = f, i >= e.Document.TotalNumberOfLines)
         break;
-      }
     }
   }
-  GetXPos(editor, line, column) {
-    let para = this.GetLineParagraph(editor);
-    if (line == this.LineNumber) {
-      if (column == 0)
+  GetXPos(t, e, i) {
+    let n = this.GetLineParagraph(t);
+    if (e == this.LineNumber) {
+      if (i == 0)
         return 0;
-      let columnStart = column - 1;
-      if (column > 1 && TextUtils.IsMultiCodeUnit(editor.Document.GetCharAt(this.Offset + column - 2))) {
-        columnStart -= 1;
-      }
-      let box1 = PixUI.GetRectForPosition(para, columnStart, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
-      return box1.Rect.Right;
+      let h = i - 1;
+      return i > 1 && ct.IsMultiCodeUnit(t.Document.GetCharAt(this.Offset + i - 2)) && (h -= 1), u.GetRectForPosition(n, h, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight).Rect.Right;
     }
-    let offsetInLine = -1;
-    for (const fold of this.CachedFolds) {
-      if (line == fold.FoldMarker.EndLine) {
-        offsetInLine = fold.LineEnd + column - fold.FoldMarker.EndColumn;
+    let s = -1;
+    for (const h of this.CachedFolds)
+      if (e == h.FoldMarker.EndLine) {
+        s = h.LineEnd + i - h.FoldMarker.EndColumn;
         break;
       }
-    }
-    let box2 = PixUI.GetRectForPosition(para, offsetInLine - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
-    return box2.Rect.Right;
+    return u.GetRectForPosition(n, s - 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight).Rect.Right;
   }
   ClearCachedParagraph() {
-    var _a;
-    (_a = this._cachedParagraph) == null ? void 0 : _a.delete();
-    this._cachedParagraph = null;
-    this.CachedFolds = null;
+    var t;
+    (t = this._cachedParagraph) == null || t.delete(), this._cachedParagraph = null, this.CachedFolds = null;
   }
-  ClearFoldedLineCache(manager) {
-    let thisLine = this.LineNumber;
-    let visibleLine = manager.GetVisibleLine(thisLine);
-    let logicalLine = manager.GetFirstLogicalLine(visibleLine);
-    if (logicalLine != thisLine) {
-      manager.GetLineSegment(logicalLine).ClearCachedParagraph();
-    }
+  ClearFoldedLineCache(t) {
+    let e = this.LineNumber, i = t.GetVisibleLine(e), n = t.GetFirstLogicalLine(i);
+    n != e && t.GetLineSegment(n).ClearCachedParagraph();
   }
   toString() {
-    if (this.IsDeleted)
-      return "[LineSegment: (deleted) Length = " + this.Length + ", TotalLength = " + this.TotalLength + ", DelimiterLength = " + this.DelimiterLength + "]";
-    return "[LineSegment: LineNumber=" + this.LineNumber + ", Offset = " + this.Offset + ", Length = " + this.Length + ", TotalLength = " + this.TotalLength + ", DelimiterLength = " + this.DelimiterLength + "]";
+    return this.IsDeleted ? "[LineSegment: (deleted) Length = " + this.Length + ", TotalLength = " + this.TotalLength + ", DelimiterLength = " + this.DelimiterLength + "]" : "[LineSegment: LineNumber=" + this.LineNumber + ", Offset = " + this.Offset + ", Length = " + this.Length + ", TotalLength = " + this.TotalLength + ", DelimiterLength = " + this.DelimiterLength + "]";
   }
 }
-_TotalLength = new WeakMap();
-_DelimiterLength = new WeakMap();
-_CachedFolds = new WeakMap();
-class CachedFoldInfo {
-  constructor(lineStart, foldMarker) {
-    __publicField(this, "LineStart");
-    __publicField(this, "FoldMarker");
-    this.LineStart = lineStart;
-    this.FoldMarker = foldMarker;
+rt = new WeakMap(), st = new WeakMap(), lt = new WeakMap();
+class ie {
+  constructor(t, e) {
+    o(this, "LineStart");
+    o(this, "FoldMarker");
+    this.LineStart = t, this.FoldMarker = e;
   }
   get LineEnd() {
     return this.LineStart + this.FoldMarker.FoldText.length;
   }
 }
-class RBNode {
-  constructor(lineSegment) {
-    __publicField(this, "LineSegment");
-    __publicField(this, "Count", 0);
-    __publicField(this, "TotalLength", 0);
-    this.LineSegment = lineSegment;
-    this.Count = 1;
-    this.TotalLength = lineSegment.TotalLength;
+class bt {
+  constructor(t) {
+    o(this, "LineSegment");
+    o(this, "Count", 0);
+    o(this, "TotalLength", 0);
+    this.LineSegment = t, this.Count = 1, this.TotalLength = t.TotalLength;
   }
   toString() {
     return "[RBNode count=" + this.Count + " totalLength=" + this.TotalLength + " lineSegment.LineNumber=" + this.LineSegment.LineNumber + " lineSegment.Offset=" + this.LineSegment.Offset + " lineSegment.TotalLength=" + this.LineSegment.TotalLength + " lineSegment.DelimiterLength=" + this.LineSegment.DelimiterLength + "]";
   }
 }
-class RBHost {
-  Compare(x, y) {
-    throw new System.NotImplementedException();
+class Bt {
+  Compare(t, e) {
+    throw new c.NotImplementedException();
   }
-  Equals(a, b) {
-    throw new System.NotImplementedException();
+  Equals(t, e) {
+    throw new c.NotImplementedException();
   }
-  UpdateAfterChildrenChange(node) {
-    let count = 1;
-    let totalLength = node.Value.LineSegment.TotalLength;
-    if (node.Left != null) {
-      count += node.Left.Value.Count;
-      totalLength += node.Left.Value.TotalLength;
-    }
-    if (node.Right != null) {
-      count += node.Right.Value.Count;
-      totalLength += node.Right.Value.TotalLength;
-    }
-    if (count != node.Value.Count || totalLength != node.Value.TotalLength) {
-      node.Value.Count = count;
-      node.Value.TotalLength = totalLength;
-      if (node.Parent != null)
-        this.UpdateAfterChildrenChange(node.Parent);
-    }
+  UpdateAfterChildrenChange(t) {
+    let e = 1, i = t.Value.LineSegment.TotalLength;
+    t.Left != null && (e += t.Left.Value.Count, i += t.Left.Value.TotalLength), t.Right != null && (e += t.Right.Value.Count, i += t.Right.Value.TotalLength), (e != t.Value.Count || i != t.Value.TotalLength) && (t.Value.Count = e, t.Value.TotalLength = i, t.Parent != null && this.UpdateAfterChildrenChange(t.Parent));
   }
-  UpdateAfterRotateLeft(node) {
-    this.UpdateAfterChildrenChange(node);
-    this.UpdateAfterChildrenChange(node.Parent);
+  UpdateAfterRotateLeft(t) {
+    this.UpdateAfterChildrenChange(t), this.UpdateAfterChildrenChange(t.Parent);
   }
-  UpdateAfterRotateRight(node) {
-    this.UpdateAfterChildrenChange(node);
-    this.UpdateAfterChildrenChange(node.Parent);
+  UpdateAfterRotateRight(t) {
+    this.UpdateAfterChildrenChange(t), this.UpdateAfterChildrenChange(t.Parent);
   }
 }
-const _LinesEnumerator = class {
-  constructor(it) {
-    __publicField(this, "Iterator");
-    this.Iterator = it.Clone();
+const K = class {
+  constructor(t) {
+    o(this, "Iterator");
+    this.Iterator = t.Clone();
   }
   Clone() {
-    return new _LinesEnumerator(this.Iterator.Clone());
+    return new K(this.Iterator.Clone());
   }
   get Current() {
     return this.Iterator.Current.LineSegment;
@@ -1983,13 +1470,13 @@ const _LinesEnumerator = class {
   }
   get CurrentIndex() {
     if (this.Iterator.Node == null)
-      throw new System.InvalidOperationException();
-    return _LinesEnumerator.GetIndexFromNode(this.Iterator.Node);
+      throw new c.InvalidOperationException();
+    return K.GetIndexFromNode(this.Iterator.Node);
   }
   get CurrentOffset() {
     if (this.Iterator.Node == null)
-      throw new System.InvalidOperationException();
-    return _LinesEnumerator.GetOffsetFromNode(this.Iterator.Node);
+      throw new c.InvalidOperationException();
+    return K.GetOffsetFromNode(this.Iterator.Node);
   }
   MoveNext() {
     return this.Iterator.MoveNext();
@@ -1997,353 +1484,289 @@ const _LinesEnumerator = class {
   MoveBack() {
     return this.Iterator.MoveBack();
   }
-  static GetIndexFromNode(node) {
-    let index = node.Left != null ? node.Left.Value.Count : 0;
-    while (node.Parent != null) {
-      if (node == node.Parent.Right) {
-        if (node.Parent.Left != null)
-          index += node.Parent.Left.Value.Count;
-        index++;
-      }
-      node = node.Parent;
-    }
-    return index;
+  static GetIndexFromNode(t) {
+    let e = t.Left != null ? t.Left.Value.Count : 0;
+    for (; t.Parent != null; )
+      t == t.Parent.Right && (t.Parent.Left != null && (e += t.Parent.Left.Value.Count), e++), t = t.Parent;
+    return e;
   }
-  static GetOffsetFromNode(node) {
-    let offset = node.Left != null ? node.Left.Value.TotalLength : 0;
-    while (node.Parent != null) {
-      if (node == node.Parent.Right) {
-        if (node.Parent.Left != null)
-          offset += node.Parent.Left.Value.TotalLength;
-        offset += node.Parent.Value.LineSegment.TotalLength;
-      }
-      node = node.Parent;
-    }
-    return offset;
+  static GetOffsetFromNode(t) {
+    let e = t.Left != null ? t.Left.Value.TotalLength : 0;
+    for (; t.Parent != null; )
+      t == t.Parent.Right && (t.Parent.Left != null && (e += t.Parent.Left.Value.TotalLength), e += t.Parent.Value.LineSegment.TotalLength), t = t.Parent;
+    return e;
   }
 };
-let LinesEnumerator = _LinesEnumerator;
-__publicField(LinesEnumerator, "Invalid", new _LinesEnumerator(new RedBlackTreeIterator(null)));
-class LineSegmentTree {
+let V = K;
+o(V, "Invalid", new K(new M(null)));
+class ne {
   constructor() {
-    __publicField(this, "_tree", new RedBlackTree(new RBHost()));
+    o(this, "_tree", new q(new Bt()));
     this.Clear();
   }
-  GetNode(index) {
-    if (index < 0 || index >= this._tree.Count)
-      throw new System.ArgumentOutOfRangeException("index", "index should be between 0 and " + (this._tree.Count - 1));
-    let node = this._tree.Root;
-    while (true) {
-      if (node.Left != null && index < node.Left.Value.Count) {
-        node = node.Left;
-      } else {
-        if (node.Left != null) {
-          index -= node.Left.Value.Count;
-        }
-        if (index == 0)
-          return node;
-        index--;
-        node = node.Right;
+  GetNode(t) {
+    if (t < 0 || t >= this._tree.Count)
+      throw new c.ArgumentOutOfRangeException(
+        "index",
+        "index should be between 0 and " + (this._tree.Count - 1)
+      );
+    let e = this._tree.Root;
+    for (; ; )
+      if (e.Left != null && t < e.Left.Value.Count)
+        e = e.Left;
+      else {
+        if (e.Left != null && (t -= e.Left.Value.Count), t == 0)
+          return e;
+        t--, e = e.Right;
       }
-    }
   }
-  GetNodeByOffset(offset) {
-    if (offset < 0 || offset > this.TotalLength)
-      throw new System.ArgumentOutOfRangeException("offset", "offset should be between 0 and " + this.TotalLength);
-    if (offset == this.TotalLength) {
+  GetNodeByOffset(t) {
+    if (t < 0 || t > this.TotalLength)
+      throw new c.ArgumentOutOfRangeException(
+        "offset",
+        "offset should be between 0 and " + this.TotalLength
+      );
+    if (t == this.TotalLength) {
       if (this._tree.Root == null)
-        throw new System.InvalidOperationException("Cannot call GetNodeByOffset while tree is empty.");
+        throw new c.InvalidOperationException("Cannot call GetNodeByOffset while tree is empty.");
       return this._tree.Root.RightMost;
     }
-    let node = this._tree.Root;
-    while (true) {
-      if (node.Left != null && offset < node.Left.Value.TotalLength) {
-        node = node.Left;
-      } else {
-        if (node.Left != null) {
-          offset -= node.Left.Value.TotalLength;
-        }
-        offset -= node.Value.LineSegment.TotalLength;
-        if (offset < 0)
-          return node;
-        node = node.Right;
+    let e = this._tree.Root;
+    for (; ; )
+      if (e.Left != null && t < e.Left.Value.TotalLength)
+        e = e.Left;
+      else {
+        if (e.Left != null && (t -= e.Left.Value.TotalLength), t -= e.Value.LineSegment.TotalLength, t < 0)
+          return e;
+        e = e.Right;
       }
-    }
   }
-  GetByOffset(offset) {
-    return this.GetNodeByOffset(offset).Value.LineSegment;
+  GetByOffset(t) {
+    return this.GetNodeByOffset(t).Value.LineSegment;
   }
   get TotalLength() {
     return this._tree.Root == null ? 0 : this._tree.Root.Value.TotalLength;
   }
-  SetSegmentLength(segment, newTotalLength) {
-    if (segment == null)
-      throw new System.ArgumentNullException("segment");
-    let node = segment.TreeEntry.Iterator.Node;
-    segment.TotalLength = newTotalLength;
-    new RBHost().UpdateAfterChildrenChange(node);
+  SetSegmentLength(t, e) {
+    if (t == null)
+      throw new c.ArgumentNullException("segment");
+    let i = t.TreeEntry.Iterator.Node;
+    t.TotalLength = e, new Bt().UpdateAfterChildrenChange(i);
   }
-  RemoveSegment(segment) {
-    this._tree.RemoveAt(segment.TreeEntry.Iterator.Clone());
+  RemoveSegment(t) {
+    this._tree.RemoveAt(t.TreeEntry.Iterator.Clone());
   }
-  InsertSegmentAfter(segment, length) {
-    let newSegment = new LineSegment();
-    newSegment.TotalLength = length;
-    newSegment.DelimiterLength = segment.DelimiterLength;
-    newSegment.TreeEntry = this.InsertAfter(segment.TreeEntry.Iterator.Node, newSegment);
-    return newSegment;
+  InsertSegmentAfter(t, e) {
+    let i = new At();
+    return i.TotalLength = e, i.DelimiterLength = t.DelimiterLength, i.TreeEntry = this.InsertAfter(t.TreeEntry.Iterator.Node, i), i;
   }
-  InsertAfter(node, newSegment) {
-    let newNode = new RedBlackTreeNode(new RBNode(newSegment));
-    if (node.Right == null) {
-      this._tree.InsertAsRight(node, newNode);
-    } else {
-      this._tree.InsertAsLeft(node.Right.LeftMost, newNode);
-    }
-    return new LinesEnumerator(new RedBlackTreeIterator(newNode));
+  InsertAfter(t, e) {
+    let i = new Vt(new bt(e));
+    return t.Right == null ? this._tree.InsertAsRight(t, i) : this._tree.InsertAsLeft(t.Right.LeftMost, i), new V(new M(i));
   }
   get Count() {
     return this._tree.Count;
   }
-  GetAt(index) {
-    return this.GetNode(index).Value.LineSegment;
+  GetAt(t) {
+    return this.GetNode(t).Value.LineSegment;
   }
-  IndexOf(item) {
-    let index = item.LineNumber;
-    if (index < 0 || index >= this.Count)
-      return -1;
-    if (item != this.GetAt(index))
-      return -1;
-    return index;
+  IndexOf(t) {
+    let e = t.LineNumber;
+    return e < 0 || e >= this.Count || t != this.GetAt(e) ? -1 : e;
   }
   Clear() {
     this._tree.Clear();
-    let emptySegment = new LineSegment();
-    emptySegment.TotalLength = 0;
-    emptySegment.DelimiterLength = 0;
-    this._tree.Add(new RBNode(emptySegment));
-    emptySegment.TreeEntry = this.GetEnumeratorForIndex(0);
+    let t = new At();
+    t.TotalLength = 0, t.DelimiterLength = 0, this._tree.Add(new bt(t)), t.TreeEntry = this.GetEnumeratorForIndex(0);
   }
-  Contains(item) {
-    return this.IndexOf(item) >= 0;
+  Contains(t) {
+    return this.IndexOf(t) >= 0;
   }
-  GetEnumeratorForIndex(index) {
-    return new LinesEnumerator(new RedBlackTreeIterator(this.GetNode(index)));
+  GetEnumeratorForIndex(t) {
+    return new V(new M(this.GetNode(t)));
   }
-  GetEnumeratorForOffset(offset) {
-    return new LinesEnumerator(new RedBlackTreeIterator(this.GetNodeByOffset(offset)));
+  GetEnumeratorForOffset(t) {
+    return new V(new M(this.GetNodeByOffset(t)));
   }
 }
-class LineCountChangeEventArgs {
-  constructor(document, start, moved) {
-    __publicField(this, "Document");
-    __publicField(this, "Start");
-    __publicField(this, "Moved");
-    this.Document = document;
-    this.Start = start;
-    this.Moved = moved;
+class oe {
+  constructor(t, e, i) {
+    o(this, "Document");
+    o(this, "Start");
+    o(this, "Moved");
+    this.Document = t, this.Start = e, this.Moved = i;
   }
 }
-class LineEventArgs {
-  constructor(document, lineSegment) {
-    __publicField(this, "Document");
-    __publicField(this, "LineSegment");
-    this.Document = document;
-    this.LineSegment = lineSegment;
+class Ae {
+  constructor(t, e) {
+    o(this, "Document");
+    o(this, "LineSegment");
+    this.Document = t, this.LineSegment = e;
   }
 }
-class LineLengthChangeEventArgs {
-  constructor(document, lineSegment, lengthDelta) {
-    __publicField(this, "Document");
-    __publicField(this, "LineSegment");
-    __publicField(this, "LengthDelta");
-    this.Document = document;
-    this.LineSegment = lineSegment;
-    this.LengthDelta = lengthDelta;
+class re {
+  constructor(t, e, i) {
+    o(this, "Document");
+    o(this, "LineSegment");
+    o(this, "LengthDelta");
+    this.Document = t, this.LineSegment = e, this.LengthDelta = i;
   }
 }
-class LineManager {
-  constructor(document) {
-    __publicField(this, "_document");
-    __publicField(this, "_lineCollection");
-    __publicField(this, "LineLengthChanged", new System.Event());
-    __publicField(this, "LineCountChanged", new System.Event());
-    __publicField(this, "LineDeleted", new System.Event());
-    this._document = document;
-    this._lineCollection = new LineSegmentTree();
+class Ct {
+  constructor(t) {
+    o(this, "_document");
+    o(this, "_lineCollection");
+    o(this, "LineLengthChanged", new c.Event());
+    o(this, "LineCountChanged", new c.Event());
+    o(this, "LineDeleted", new c.Event());
+    this._document = t, this._lineCollection = new ne();
   }
   get TotalNumberOfLines() {
     return this._lineCollection.Count;
   }
-  GetLineNumberForOffset(offset) {
-    return this.GetLineSegmentForOffset(offset).LineNumber;
+  GetLineNumberForOffset(t) {
+    return this.GetLineSegmentForOffset(t).LineNumber;
   }
-  GetLineSegmentForOffset(offset) {
-    return this._lineCollection.GetByOffset(offset);
+  GetLineSegmentForOffset(t) {
+    return this._lineCollection.GetByOffset(t);
   }
-  GetLineSegment(lineNumber) {
-    return this._lineCollection.GetNode(lineNumber).Value.LineSegment;
+  GetLineSegment(t) {
+    return this._lineCollection.GetNode(t).Value.LineSegment;
   }
-  GetFirstLogicalLine(visibleLineNumber) {
+  GetFirstLogicalLine(t) {
     if (!this._document.TextEditorOptions.EnableFolding)
-      return visibleLineNumber;
-    let v = 0;
-    let foldEnd = 0;
-    let foldings = this._document.FoldingManager.GetTopLevelFoldedFoldings();
-    for (const fm of foldings) {
-      if (fm.StartLine >= foldEnd) {
-        if (v + fm.StartLine - foldEnd >= visibleLineNumber)
+      return t;
+    let e = 0, i = 0, n = this._document.FoldingManager.GetTopLevelFoldedFoldings();
+    for (const s of n)
+      if (s.StartLine >= i) {
+        if (e + s.StartLine - i >= t)
           break;
-        v += fm.StartLine - foldEnd;
-        foldEnd = fm.EndLine;
+        e += s.StartLine - i, i = s.EndLine;
       }
-    }
-    foldings.Clear();
-    return foldEnd + visibleLineNumber - v;
+    return n.Clear(), i + t - e;
   }
-  GetVisibleLine(logicalLineNumber) {
+  GetVisibleLine(t) {
     if (!this._document.TextEditorOptions.EnableFolding)
-      return logicalLineNumber;
-    let visibleLine = 0;
-    let foldEnd = 0;
-    let foldings = this._document.FoldingManager.GetTopLevelFoldedFoldings();
-    for (const fm of foldings) {
-      if (fm.StartLine >= logicalLineNumber)
+      return t;
+    let e = 0, i = 0, n = this._document.FoldingManager.GetTopLevelFoldedFoldings();
+    for (const s of n) {
+      if (s.StartLine >= t)
         break;
-      if (fm.StartLine >= foldEnd) {
-        visibleLine += fm.StartLine - foldEnd;
-        if (fm.EndLine > logicalLineNumber)
-          return visibleLine;
-        foldEnd = fm.EndLine;
+      if (s.StartLine >= i) {
+        if (e += s.StartLine - i, s.EndLine > t)
+          return e;
+        i = s.EndLine;
       }
     }
-    foldings.Clear();
-    visibleLine += logicalLineNumber - foldEnd;
-    return visibleLine;
+    return n.Clear(), e += t - i, e;
   }
-  SetContent(text) {
-    this._lineCollection.Clear();
-    if (!System.IsNullOrEmpty(text)) {
-      this.Replace(0, 0, text);
-    }
+  SetContent(t) {
+    this._lineCollection.Clear(), c.IsNullOrEmpty(t) || this.Replace(0, 0, t);
   }
-  Insert(offset, text) {
-    this.Replace(offset, 0, text);
+  Insert(t, e) {
+    this.Replace(t, 0, e);
   }
-  Remove(offset, length) {
-    this.Replace(offset, length, "");
+  Remove(t, e) {
+    this.Replace(t, e, "");
   }
-  Replace(offset, length, text) {
-    let lineStart = this.GetLineNumberForOffset(offset);
-    let oldNumberOfLines = this.TotalNumberOfLines;
-    let deferredEventList = new DeferredEventList();
-    this.RemoveInternal(deferredEventList, offset, length);
-    if (!System.IsNullOrEmpty(text)) {
-      this.InsertInternal(offset, text);
-    }
-    if (this.TotalNumberOfLines != oldNumberOfLines) {
-      this.LineCountChanged.Invoke(new LineCountChangeEventArgs(this._document, lineStart, this.TotalNumberOfLines - oldNumberOfLines));
-    }
+  Replace(t, e, i) {
+    let n = this.GetLineNumberForOffset(t), s = this.TotalNumberOfLines, l = new ee();
+    this.RemoveInternal(l, t, e), c.IsNullOrEmpty(i) || this.InsertInternal(t, i), this.TotalNumberOfLines != s && this.LineCountChanged.Invoke(new oe(
+      this._document,
+      n,
+      this.TotalNumberOfLines - s
+    ));
   }
-  InsertInternal(offset, text) {
-    let segment = this._lineCollection.GetByOffset(offset);
-    let ds = LineManager.NextDelimiter(text, 0);
-    if (ds == null) {
-      segment.InsertedLinePart(this, offset - segment.Offset, text.length);
-      this.SetSegmentLength(segment, segment.TotalLength + text.length);
+  InsertInternal(t, e) {
+    let i = this._lineCollection.GetByOffset(t), n = Ct.NextDelimiter(e, 0);
+    if (n == null) {
+      i.InsertedLinePart(this, t - i.Offset, e.length), this.SetSegmentLength(i, i.TotalLength + e.length);
       return;
     }
-    let firstLine = segment;
-    firstLine.InsertedLinePart(this, offset - firstLine.Offset, ds.Offset);
-    let lastDelimiterEnd = 0;
-    while (ds != null) {
-      let lineBreakOffset = offset + ds.Offset + ds.Length;
-      let segmentOffset = segment.Offset;
-      let lengthAfterInsertionPos = segmentOffset + segment.TotalLength - (offset + lastDelimiterEnd);
-      this._lineCollection.SetSegmentLength(segment, lineBreakOffset - segmentOffset);
-      let newSegment = this._lineCollection.InsertSegmentAfter(segment, lengthAfterInsertionPos);
-      segment.DelimiterLength = ds.Length;
-      segment = newSegment;
-      lastDelimiterEnd = ds.Offset + ds.Length;
-      ds = LineManager.NextDelimiter(text, lastDelimiterEnd);
+    let s = i;
+    s.InsertedLinePart(this, t - s.Offset, n.Offset);
+    let l = 0;
+    for (; n != null; ) {
+      let h = t + n.Offset + n.Length, d = i.Offset, f = d + i.TotalLength - (t + l);
+      this._lineCollection.SetSegmentLength(i, h - d);
+      let C = this._lineCollection.InsertSegmentAfter(i, f);
+      i.DelimiterLength = n.Length, i = C, l = n.Offset + n.Length, n = Ct.NextDelimiter(e, l);
     }
-    firstLine.SplitTo(segment);
-    if (lastDelimiterEnd != text.length) {
-      segment.InsertedLinePart(this, 0, text.length - lastDelimiterEnd);
-      this.SetSegmentLength(segment, segment.TotalLength + text.length - lastDelimiterEnd);
-    }
+    s.SplitTo(i), l != e.length && (i.InsertedLinePart(this, 0, e.length - l), this.SetSegmentLength(
+      i,
+      i.TotalLength + e.length - l
+    ));
   }
-  RemoveInternal(deferredEventList, offset, length) {
-    if (length == 0)
+  RemoveInternal(t, e, i) {
+    if (i == 0)
       return;
-    let it = this._lineCollection.GetEnumeratorForOffset(offset);
-    let startSegment = it.Current;
-    let startSegmentOffset = startSegment.Offset;
-    if (offset + length < startSegmentOffset + startSegment.TotalLength) {
-      startSegment.RemovedLinePart(this, deferredEventList, offset - startSegmentOffset, length);
-      this.SetSegmentLength(startSegment, startSegment.TotalLength - length);
-      return;
-    }
-    let charactersRemovedInStartLine = startSegmentOffset + startSegment.TotalLength - offset;
-    startSegment.RemovedLinePart(this, deferredEventList, offset - startSegmentOffset, charactersRemovedInStartLine);
-    let endSegment = this._lineCollection.GetByOffset(offset + length);
-    if (endSegment == startSegment) {
-      this.SetSegmentLength(startSegment, startSegment.TotalLength - length);
+    let n = this._lineCollection.GetEnumeratorForOffset(e), s = n.Current, l = s.Offset;
+    if (e + i < l + s.TotalLength) {
+      s.RemovedLinePart(
+        this,
+        t,
+        e - l,
+        i
+      ), this.SetSegmentLength(s, s.TotalLength - i);
       return;
     }
-    let endSegmentOffset = endSegment.Offset;
-    let charactersLeftInEndLine = endSegmentOffset + endSegment.TotalLength - (offset + length);
-    endSegment.RemovedLinePart(this, deferredEventList, 0, endSegment.TotalLength - charactersLeftInEndLine);
-    startSegment.MergedWith(endSegment, offset - startSegmentOffset);
-    this.SetSegmentLength(startSegment, startSegment.TotalLength - charactersRemovedInStartLine + charactersLeftInEndLine);
-    startSegment.DelimiterLength = endSegment.DelimiterLength;
-    it.MoveNext();
-    let segmentToRemove;
-    do {
-      segmentToRemove = it.Current;
-      it.MoveNext();
-      this._lineCollection.RemoveSegment(segmentToRemove);
-      segmentToRemove.Deleted(deferredEventList);
-    } while (segmentToRemove != endSegment);
-  }
-  SetSegmentLength(segment, newTotalLength) {
-    let delta = newTotalLength - segment.TotalLength;
-    if (delta == 0)
+    let h = l + s.TotalLength - e;
+    s.RemovedLinePart(
+      this,
+      t,
+      e - l,
+      h
+    );
+    let d = this._lineCollection.GetByOffset(e + i);
+    if (d == s) {
+      this.SetSegmentLength(s, s.TotalLength - i);
       return;
-    this._lineCollection.SetSegmentLength(segment, newTotalLength);
-    this.LineLengthChanged.Invoke(new LineLengthChangeEventArgs(this._document, segment, delta));
+    }
+    let C = d.Offset + d.TotalLength - (e + i);
+    d.RemovedLinePart(
+      this,
+      t,
+      0,
+      d.TotalLength - C
+    ), s.MergedWith(d, e - l), this.SetSegmentLength(
+      s,
+      s.TotalLength - h + C
+    ), s.DelimiterLength = d.DelimiterLength, n.MoveNext();
+    let S;
+    do
+      S = n.Current, n.MoveNext(), this._lineCollection.RemoveSegment(S), S.Deleted(t);
+    while (S != d);
   }
-  static NextDelimiter(text, offset) {
-    for (let i = offset; i < text.length; i++) {
-      switch (text.charCodeAt(i)) {
+  SetSegmentLength(t, e) {
+    let i = e - t.TotalLength;
+    i != 0 && (this._lineCollection.SetSegmentLength(t, e), this.LineLengthChanged.Invoke(new re(this._document, t, i)));
+  }
+  static NextDelimiter(t, e) {
+    for (let i = e; i < t.length; i++)
+      switch (t.charCodeAt(i)) {
         case 13:
-          if (i + 1 < text.length && text.charCodeAt(i + 1) == 10)
-            return new DelimiterSegment(i, 2);
-          else
-            return new DelimiterSegment(i, 1);
+          return i + 1 < t.length && t.charCodeAt(i + 1) == 10 ? new Tt(i, 2) : new Tt(i, 1);
         case 10:
-          return new DelimiterSegment(i, 1);
+          return new Tt(i, 1);
       }
-    }
     return null;
   }
 }
-class DelimiterSegment {
-  constructor(offset, length) {
-    __publicField(this, "Offset");
-    __publicField(this, "Length");
-    this.Offset = offset;
-    this.Length = length;
+class Tt {
+  constructor(t, e) {
+    o(this, "Offset");
+    o(this, "Length");
+    this.Offset = t, this.Length = e;
   }
 }
-class UndoStack {
+class se {
   constructor() {
-    __publicField(this, "_undostack", new System.Stack());
-    __publicField(this, "_redostack", new System.Stack());
-    __publicField(this, "TextEditor");
-    __publicField(this, "_undoGroupDepth", 0);
-    __publicField(this, "_actionCountInUndoGroup", 0);
-    __publicField(this, "AcceptChanges", true);
+    o(this, "_undostack", new c.Stack());
+    o(this, "_redostack", new c.Stack());
+    o(this, "TextEditor");
+    o(this, "_undoGroupDepth", 0);
+    o(this, "_actionCountInUndoGroup", 0);
+    o(this, "AcceptChanges", !0);
   }
   get CanUndo() {
     return this._undostack.length > 0;
@@ -2358,212 +1781,129 @@ class UndoStack {
     return this._redostack.length;
   }
   StartUndoGroup() {
-    if (this._undoGroupDepth == 0) {
-      this._actionCountInUndoGroup = 0;
-    }
-    this._undoGroupDepth++;
+    this._undoGroupDepth == 0 && (this._actionCountInUndoGroup = 0), this._undoGroupDepth++;
   }
   EndUndoGroup() {
     if (this._undoGroupDepth == 0)
-      throw new System.InvalidOperationException("There are no open undo groups");
-    this._undoGroupDepth--;
-    if (this._undoGroupDepth == 0 && this._actionCountInUndoGroup > 1) {
-      let op = new UndoQueue(this._undostack, this._actionCountInUndoGroup);
-      this._undostack.Push(op);
+      throw new c.InvalidOperationException("There are no open undo groups");
+    if (this._undoGroupDepth--, this._undoGroupDepth == 0 && this._actionCountInUndoGroup > 1) {
+      let t = new le(this._undostack, this._actionCountInUndoGroup);
+      this._undostack.Push(t);
     }
   }
   AssertNoUndoGroupOpen() {
-    if (this._undoGroupDepth != 0) {
-      this._undoGroupDepth = 0;
-      throw new System.InvalidOperationException("No undo group should be open at this point");
-    }
+    if (this._undoGroupDepth != 0)
+      throw this._undoGroupDepth = 0, new c.InvalidOperationException("No undo group should be open at this point");
   }
   Undo() {
-    this.AssertNoUndoGroupOpen();
-    if (this._undostack.length > 0) {
-      let uedit = this._undostack.Pop();
-      this._redostack.Push(uedit);
-      uedit.Undo();
+    if (this.AssertNoUndoGroupOpen(), this._undostack.length > 0) {
+      let t = this._undostack.Pop();
+      this._redostack.Push(t), t.Undo();
     }
   }
   Redo() {
-    this.AssertNoUndoGroupOpen();
-    if (this._redostack.length > 0) {
-      let uedit = this._redostack.Pop();
-      this._undostack.Push(uedit);
-      uedit.Redo();
+    if (this.AssertNoUndoGroupOpen(), this._redostack.length > 0) {
+      let t = this._redostack.Pop();
+      this._undostack.Push(t), t.Redo();
     }
   }
-  Push(operation) {
-    if (operation == null)
-      throw new System.ArgumentNullException("operation");
-    if (this.AcceptChanges) {
-      this.StartUndoGroup();
-      this._undostack.Push(operation);
-      this._actionCountInUndoGroup++;
-      if (this.TextEditor != null) {
-        this._undostack.Push(new UndoableSetCaretPosition(this, this.TextEditor.Caret.Position.Clone()));
-        this._actionCountInUndoGroup++;
-      }
-      this.EndUndoGroup();
-      this.ClearRedoStack();
-    }
+  Push(t) {
+    if (t == null)
+      throw new c.ArgumentNullException("operation");
+    this.AcceptChanges && (this.StartUndoGroup(), this._undostack.Push(t), this._actionCountInUndoGroup++, this.TextEditor != null && (this._undostack.Push(new de(this, this.TextEditor.Caret.Position.Clone())), this._actionCountInUndoGroup++), this.EndUndoGroup(), this.ClearRedoStack());
   }
   ClearRedoStack() {
     this._redostack.Clear();
   }
   ClearAll() {
-    this.AssertNoUndoGroupOpen();
-    this._undostack.Clear();
-    this._redostack.Clear();
-    this._actionCountInUndoGroup = 0;
+    this.AssertNoUndoGroupOpen(), this._undostack.Clear(), this._redostack.Clear(), this._actionCountInUndoGroup = 0;
   }
 }
-class UndoQueue {
-  constructor(stack, numops) {
-    __publicField(this, "_undoList");
-    numops = Math.min(numops, stack.length);
-    this._undoList = new Array(numops);
-    for (let i = 0; i < numops; ++i) {
-      this._undoList[i] = stack.Pop();
-    }
+class le {
+  constructor(t, e) {
+    o(this, "_undoList");
+    e = Math.min(e, t.length), this._undoList = new Array(e);
+    for (let i = 0; i < e; ++i)
+      this._undoList[i] = t.Pop();
   }
   Undo() {
-    for (let i = 0; i < this._undoList.length; ++i) {
-      this._undoList[i].Undo();
-    }
+    for (let t = 0; t < this._undoList.length; ++t)
+      this._undoList[t].Undo();
   }
   Redo() {
-    for (let i = this._undoList.length - 1; i >= 0; --i) {
-      this._undoList[i].Redo();
-    }
+    for (let t = this._undoList.length - 1; t >= 0; --t)
+      this._undoList[t].Redo();
   }
 }
-class UndoableDelete {
-  constructor(document, offset, text) {
-    __publicField(this, "_document");
-    __publicField(this, "_offset");
-    __publicField(this, "_text");
-    this._document = document;
-    this._offset = offset;
-    this._text = text;
+class ae {
+  constructor(t, e, i) {
+    o(this, "_document");
+    o(this, "_offset");
+    o(this, "_text");
+    this._document = t, this._offset = e, this._text = i;
   }
   Undo() {
-    var _a;
-    (_a = this._document.UndoStack.TextEditor) == null ? void 0 : _a.SelectionManager.ClearSelection();
-    this._document.UndoStack.AcceptChanges = false;
-    this._document.Insert(this._offset, this._text);
-    this._document.UndoStack.AcceptChanges = true;
+    var t;
+    (t = this._document.UndoStack.TextEditor) == null || t.SelectionManager.ClearSelection(), this._document.UndoStack.AcceptChanges = !1, this._document.Insert(this._offset, this._text), this._document.UndoStack.AcceptChanges = !0;
   }
   Redo() {
-    var _a;
-    (_a = this._document.UndoStack.TextEditor) == null ? void 0 : _a.SelectionManager.ClearSelection();
-    this._document.UndoStack.AcceptChanges = false;
-    this._document.Remove(this._offset, this._text.length);
-    this._document.UndoStack.AcceptChanges = true;
+    var t;
+    (t = this._document.UndoStack.TextEditor) == null || t.SelectionManager.ClearSelection(), this._document.UndoStack.AcceptChanges = !1, this._document.Remove(this._offset, this._text.length), this._document.UndoStack.AcceptChanges = !0;
   }
 }
-class UndoableInsert {
-  constructor(document, offset, text) {
-    __publicField(this, "_document");
-    __publicField(this, "_offset");
-    __publicField(this, "_text");
-    this._document = document;
-    this._offset = offset;
-    this._text = text;
+class he {
+  constructor(t, e, i) {
+    o(this, "_document");
+    o(this, "_offset");
+    o(this, "_text");
+    this._document = t, this._offset = e, this._text = i;
   }
   Undo() {
-    var _a;
-    (_a = this._document.UndoStack.TextEditor) == null ? void 0 : _a.SelectionManager.ClearSelection();
-    this._document.UndoStack.AcceptChanges = false;
-    this._document.Remove(this._offset, this._text.length);
-    this._document.UndoStack.AcceptChanges = true;
+    var t;
+    (t = this._document.UndoStack.TextEditor) == null || t.SelectionManager.ClearSelection(), this._document.UndoStack.AcceptChanges = !1, this._document.Remove(this._offset, this._text.length), this._document.UndoStack.AcceptChanges = !0;
   }
   Redo() {
-    var _a;
-    (_a = this._document.UndoStack.TextEditor) == null ? void 0 : _a.SelectionManager.ClearSelection();
-    this._document.UndoStack.AcceptChanges = false;
-    this._document.Insert(this._offset, this._text);
-    this._document.UndoStack.AcceptChanges = true;
+    var t;
+    (t = this._document.UndoStack.TextEditor) == null || t.SelectionManager.ClearSelection(), this._document.UndoStack.AcceptChanges = !1, this._document.Insert(this._offset, this._text), this._document.UndoStack.AcceptChanges = !0;
   }
 }
-class UndoableReplace {
-  constructor(document, offset, origText, text) {
-    __publicField(this, "_document");
-    __publicField(this, "_offset");
-    __publicField(this, "_text");
-    __publicField(this, "_origText");
-    this._document = document;
-    this._offset = offset;
-    this._text = text;
-    this._origText = origText;
+class ue {
+  constructor(t, e, i, n) {
+    o(this, "_document");
+    o(this, "_offset");
+    o(this, "_text");
+    o(this, "_origText");
+    this._document = t, this._offset = e, this._text = n, this._origText = i;
   }
   Undo() {
-    var _a;
-    (_a = this._document.UndoStack.TextEditor) == null ? void 0 : _a.SelectionManager.ClearSelection();
-    this._document.UndoStack.AcceptChanges = false;
-    this._document.Replace(this._offset, this._text.length, this._origText);
-    this._document.UndoStack.AcceptChanges = true;
+    var t;
+    (t = this._document.UndoStack.TextEditor) == null || t.SelectionManager.ClearSelection(), this._document.UndoStack.AcceptChanges = !1, this._document.Replace(this._offset, this._text.length, this._origText), this._document.UndoStack.AcceptChanges = !0;
   }
   Redo() {
-    var _a;
-    (_a = this._document.UndoStack.TextEditor) == null ? void 0 : _a.SelectionManager.ClearSelection();
-    this._document.UndoStack.AcceptChanges = false;
-    this._document.Replace(this._offset, this._origText.length, this._text);
-    this._document.UndoStack.AcceptChanges = true;
+    var t;
+    (t = this._document.UndoStack.TextEditor) == null || t.SelectionManager.ClearSelection(), this._document.UndoStack.AcceptChanges = !1, this._document.Replace(this._offset, this._origText.length, this._text), this._document.UndoStack.AcceptChanges = !0;
   }
 }
-class UndoableSetCaretPosition {
-  constructor(stack, pos) {
-    __publicField(this, "_stack");
-    __publicField(this, "_pos");
-    __publicField(this, "_redoPos", TextLocation.Empty.Clone());
-    this._stack = stack;
-    this._pos = pos.Clone();
+class de {
+  constructor(t, e) {
+    o(this, "_stack");
+    o(this, "_pos");
+    o(this, "_redoPos", L.Empty.Clone());
+    this._stack = t, this._pos = e.Clone();
   }
   Undo() {
-    this._redoPos = this._stack.TextEditor.Caret.Position.Clone();
-    this._stack.TextEditor.Caret.Position = this._pos.Clone();
-    this._stack.TextEditor.SelectionManager.ClearSelection();
+    this._redoPos = this._stack.TextEditor.Caret.Position.Clone(), this._stack.TextEditor.Caret.Position = this._pos.Clone(), this._stack.TextEditor.SelectionManager.ClearSelection();
   }
   Redo() {
-    this._stack.TextEditor.Caret.Position = this._redoPos.Clone();
-    this._stack.TextEditor.SelectionManager.ClearSelection();
+    this._stack.TextEditor.Caret.Position = this._redoPos.Clone(), this._stack.TextEditor.SelectionManager.ClearSelection();
   }
 }
-var BracketMatchingStyle = /* @__PURE__ */ ((BracketMatchingStyle2) => {
-  BracketMatchingStyle2[BracketMatchingStyle2["Before"] = 0] = "Before";
-  BracketMatchingStyle2[BracketMatchingStyle2["After"] = 1] = "After";
-  return BracketMatchingStyle2;
-})(BracketMatchingStyle || {});
-var LineViewerStyle = /* @__PURE__ */ ((LineViewerStyle2) => {
-  LineViewerStyle2[LineViewerStyle2["None"] = 0] = "None";
-  LineViewerStyle2[LineViewerStyle2["FullRow"] = 1] = "FullRow";
-  return LineViewerStyle2;
-})(LineViewerStyle || {});
-var IndentStyle = /* @__PURE__ */ ((IndentStyle2) => {
-  IndentStyle2[IndentStyle2["None"] = 0] = "None";
-  IndentStyle2[IndentStyle2["Auto"] = 1] = "Auto";
-  IndentStyle2[IndentStyle2["Smart"] = 2] = "Smart";
-  return IndentStyle2;
-})(IndentStyle || {});
-var BracketHighlightingStyle = /* @__PURE__ */ ((BracketHighlightingStyle2) => {
-  BracketHighlightingStyle2[BracketHighlightingStyle2["None"] = 0] = "None";
-  BracketHighlightingStyle2[BracketHighlightingStyle2["OnBracket"] = 1] = "OnBracket";
-  BracketHighlightingStyle2[BracketHighlightingStyle2["AfterBracket"] = 2] = "AfterBracket";
-  return BracketHighlightingStyle2;
-})(BracketHighlightingStyle || {});
-var DocumentSelectionMode = /* @__PURE__ */ ((DocumentSelectionMode2) => {
-  DocumentSelectionMode2[DocumentSelectionMode2["Normal"] = 0] = "Normal";
-  DocumentSelectionMode2[DocumentSelectionMode2["Additive"] = 1] = "Additive";
-  return DocumentSelectionMode2;
-})(DocumentSelectionMode || {});
-const _TextLocation = class {
-  constructor(column, line) {
-    __publicField(this, "Line", 0);
-    __publicField(this, "Column", 0);
-    this.Line = line;
-    this.Column = column;
+var Ut = /* @__PURE__ */ ((r) => (r[r.Before = 0] = "Before", r[r.After = 1] = "After", r))(Ut || {}), Wt = /* @__PURE__ */ ((r) => (r[r.None = 0] = "None", r[r.FullRow = 1] = "FullRow", r))(Wt || {}), vt = /* @__PURE__ */ ((r) => (r[r.None = 0] = "None", r[r.Auto = 1] = "Auto", r[r.Smart = 2] = "Smart", r))(vt || {}), ce = /* @__PURE__ */ ((r) => (r[r.None = 0] = "None", r[r.OnBracket = 1] = "OnBracket", r[r.AfterBracket = 2] = "AfterBracket", r))(ce || {}), Pt = /* @__PURE__ */ ((r) => (r[r.Normal = 0] = "Normal", r[r.Additive = 1] = "Additive", r))(Pt || {});
+const j = class {
+  constructor(t, e) {
+    o(this, "Line", 0);
+    o(this, "Column", 0);
+    this.Line = e, this.Column = t;
   }
   get IsEmpty() {
     return this.Column <= 0 && this.Line <= 0;
@@ -2571,69 +1911,49 @@ const _TextLocation = class {
   toString() {
     return `(Line ${this.Line}, Col ${this.Column})`;
   }
-  Equals(other) {
-    return System.OpEquality(this, other);
+  Equals(t) {
+    return c.OpEquality(this, t);
   }
-  static op_Equality(a, b) {
-    return a.Column == b.Column && a.Line == b.Line;
+  static op_Equality(t, e) {
+    return t.Column == e.Column && t.Line == e.Line;
   }
-  static op_Inequality(a, b) {
-    return a.Column != b.Column || a.Line != b.Line;
+  static op_Inequality(t, e) {
+    return t.Column != e.Column || t.Line != e.Line;
   }
-  static op_LessThan(a, b) {
-    if (a.Line < b.Line)
-      return true;
-    if (a.Line == b.Line)
-      return a.Column < b.Column;
-    return false;
+  static op_LessThan(t, e) {
+    return t.Line < e.Line ? !0 : t.Line == e.Line ? t.Column < e.Column : !1;
   }
-  static op_GreaterThan(a, b) {
-    if (a.Line > b.Line)
-      return true;
-    if (a.Line == b.Line)
-      return a.Column > b.Column;
-    return false;
+  static op_GreaterThan(t, e) {
+    return t.Line > e.Line ? !0 : t.Line == e.Line ? t.Column > e.Column : !1;
   }
   Clone() {
-    return new _TextLocation(this.Column, this.Line);
+    return new j(this.Column, this.Line);
   }
-  CompareTo(other) {
-    if (System.OpEquality(this, other))
-      return 0;
-    if (_TextLocation.op_LessThan(this, other))
-      return -1;
-    return 1;
+  CompareTo(t) {
+    return c.OpEquality(this, t) ? 0 : j.op_LessThan(this, t) ? -1 : 1;
   }
 };
-let TextLocation = _TextLocation;
-__publicField(TextLocation, "$meta_System_IComparable", true);
-__publicField(TextLocation, "$meta_System_IEquatable", true);
-__publicField(TextLocation, "MaxColumn", 16777215);
-__publicField(TextLocation, "Empty", new _TextLocation(-1, -1));
-var AnchorMovementType = /* @__PURE__ */ ((AnchorMovementType2) => {
-  AnchorMovementType2[AnchorMovementType2["BeforeInsertion"] = 0] = "BeforeInsertion";
-  AnchorMovementType2[AnchorMovementType2["AfterInsertion"] = 1] = "AfterInsertion";
-  return AnchorMovementType2;
-})(AnchorMovementType || {});
-class TextAnchor {
-  constructor(lineSegment, columnNumber) {
-    __publicField(this, "lineSegment");
-    __publicField(this, "columnNumber", 0);
-    __publicField(this, "MovementType", 0);
-    __publicField(this, "Deleted", new System.Event());
-    this.lineSegment = lineSegment;
-    this.columnNumber = columnNumber;
+let L = j;
+o(L, "$meta_System_IComparable", !0), o(L, "$meta_System_IEquatable", !0), o(L, "MaxColumn", 16777215), o(L, "Empty", new j(-1, -1));
+var fe = /* @__PURE__ */ ((r) => (r[r.BeforeInsertion = 0] = "BeforeInsertion", r[r.AfterInsertion = 1] = "AfterInsertion", r))(fe || {});
+class wt {
+  constructor(t, e) {
+    o(this, "lineSegment");
+    o(this, "columnNumber", 0);
+    o(this, "MovementType", 0);
+    o(this, "Deleted", new c.Event());
+    this.lineSegment = t, this.columnNumber = e;
   }
   static AnchorDeletedError() {
-    return new System.InvalidOperationException("The text containing the anchor was deleted");
+    return new c.InvalidOperationException("The text containing the anchor was deleted");
   }
   get Line() {
     if (this.lineSegment == null)
-      throw TextAnchor.AnchorDeletedError();
+      throw wt.AnchorDeletedError();
     return this.lineSegment;
   }
-  set Line(value) {
-    this.lineSegment = value;
+  set Line(t) {
+    this.lineSegment = t;
   }
   get IsDeleted() {
     return this.lineSegment == null;
@@ -2643,21 +1963,20 @@ class TextAnchor {
   }
   get ColumnNumber() {
     if (this.lineSegment == null)
-      throw TextAnchor.AnchorDeletedError();
+      throw wt.AnchorDeletedError();
     return this.columnNumber;
   }
-  set ColumnNumber(value) {
-    this.columnNumber = value;
+  set ColumnNumber(t) {
+    this.columnNumber = t;
   }
   get Location() {
-    return new TextLocation(this.ColumnNumber, this.LineNumber);
+    return new L(this.ColumnNumber, this.LineNumber);
   }
   get Offset() {
     return this.Line.Offset + this.columnNumber;
   }
-  Delete(deferredEventList) {
-    this.lineSegment = null;
-    deferredEventList.Value.AddDeletedAnchor(this);
+  Delete(t) {
+    this.lineSegment = null, t.Value.AddDeletedAnchor(this);
   }
   RaiseDeleted() {
     this.Deleted.Invoke();
@@ -2666,73 +1985,64 @@ class TextAnchor {
     return this.IsDeleted ? "[TextAnchor (deleted)]" : `[TextAnchor ${this.Location}]`;
   }
 }
-class TextEditorOptions {
+class ge {
   constructor() {
-    __publicField(this, "TabIndent", 4);
-    __publicField(this, "IndentationSize", 4);
-    __publicField(this, "IndentStyle", IndentStyle.Smart);
-    __publicField(this, "DocumentSelectionMode", DocumentSelectionMode.Normal);
-    __publicField(this, "BracketMatchingStyle", BracketMatchingStyle.After);
-    __publicField(this, "AllowCaretBeyondEOL", false);
-    __publicField(this, "CaretLine", false);
-    __publicField(this, "ShowMatchingBracket", true);
-    __publicField(this, "ShowLineNumbers", true);
-    __publicField(this, "ShowSpaces", false);
-    __publicField(this, "ShowTabs", false);
-    __publicField(this, "ShowEOLMarker", false);
-    __publicField(this, "ShowInvalidLines", false);
-    __publicField(this, "IsIconBarVisible", false);
-    __publicField(this, "EnableFolding", true);
-    __publicField(this, "ShowHorizontalRuler", false);
-    __publicField(this, "ShowVerticalRuler", false);
-    __publicField(this, "ConvertTabsToSpaces", false);
-    __publicField(this, "MouseWheelScrollDown", true);
-    __publicField(this, "MouseWheelTextZoom", true);
-    __publicField(this, "HideMouseCursor", false);
-    __publicField(this, "CutCopyWholeLine", true);
-    __publicField(this, "VerticalRulerRow", 80);
-    __publicField(this, "LineViewerStyle", LineViewerStyle.None);
-    __publicField(this, "LineTerminator", "\n");
-    __publicField(this, "AutoInsertCurlyBracket", true);
-    __publicField(this, "SupportReadOnlySegments", false);
+    o(this, "TabIndent", 4);
+    o(this, "IndentationSize", 4);
+    o(this, "IndentStyle", vt.Smart);
+    o(this, "DocumentSelectionMode", Pt.Normal);
+    o(this, "BracketMatchingStyle", Ut.After);
+    o(this, "AllowCaretBeyondEOL", !1);
+    o(this, "CaretLine", !1);
+    o(this, "ShowMatchingBracket", !0);
+    o(this, "ShowLineNumbers", !0);
+    o(this, "ShowSpaces", !1);
+    o(this, "ShowTabs", !1);
+    o(this, "ShowEOLMarker", !1);
+    o(this, "ShowInvalidLines", !1);
+    o(this, "IsIconBarVisible", !1);
+    o(this, "EnableFolding", !0);
+    o(this, "ShowHorizontalRuler", !1);
+    o(this, "ShowVerticalRuler", !1);
+    o(this, "ConvertTabsToSpaces", !1);
+    o(this, "MouseWheelScrollDown", !0);
+    o(this, "MouseWheelTextZoom", !0);
+    o(this, "HideMouseCursor", !1);
+    o(this, "CutCopyWholeLine", !0);
+    o(this, "VerticalRulerRow", 80);
+    o(this, "LineViewerStyle", Wt.None);
+    o(this, "LineTerminator", `
+`);
+    o(this, "AutoInsertCurlyBracket", !0);
+    o(this, "SupportReadOnlySegments", !1);
   }
 }
-class DocumentEventArgs {
-  constructor(document, offset, length, text) {
-    __publicField(this, "Document");
-    __publicField(this, "Offset");
-    __publicField(this, "Length");
-    __publicField(this, "Text");
-    this.Document = document;
-    this.Offset = offset;
-    this.Length = length;
-    this.Text = text;
+class dt {
+  constructor(t, e, i, n) {
+    o(this, "Document");
+    o(this, "Offset");
+    o(this, "Length");
+    o(this, "Text");
+    this.Document = t, this.Offset = e, this.Length = i, this.Text = n;
   }
 }
-class Document {
-  constructor(fileName, tag = null) {
-    __publicField(this, "_fileName", "");
-    __publicField(this, "Tag");
-    __publicField(this, "_lineManager");
-    __publicField(this, "TextBuffer");
-    __publicField(this, "SyntaxParser");
-    __publicField(this, "FoldingManager");
-    __publicField(this, "TextEditorOptions");
-    __publicField(this, "UndoStack");
-    __publicField(this, "Readonly", false);
-    __publicField(this, "DocumentChanged", new System.Event());
-    this._fileName = fileName;
-    this.Tag = tag;
-    this.TextBuffer = new ImmutableTextBuffer();
-    this._lineManager = new LineManager(this);
-    this.SyntaxParser = new SyntaxParser(this);
-    this.FoldingManager = new FoldingManager(this);
-    this.TextEditorOptions = new TextEditorOptions();
-    this.UndoStack = new UndoStack();
+class Ht {
+  constructor(t, e = null) {
+    o(this, "_fileName", "");
+    o(this, "Tag");
+    o(this, "_lineManager");
+    o(this, "TextBuffer");
+    o(this, "SyntaxParser");
+    o(this, "FoldingManager");
+    o(this, "TextEditorOptions");
+    o(this, "UndoStack");
+    o(this, "Readonly", !1);
+    o(this, "DocumentChanged", new c.Event());
+    this._fileName = t, this.Tag = e, this.TextBuffer = new $t(), this._lineManager = new Ct(this), this.SyntaxParser = new B(this), this.FoldingManager = new te(this), this.TextEditorOptions = new ge(), this.UndoStack = new se();
   }
   get HasSyntaxError() {
-    var _a, _b;
-    return (_b = (_a = this.SyntaxParser.RootNode) == null ? void 0 : _a.hasError()) != null ? _b : false;
+    var t, e;
+    return (e = (t = this.SyntaxParser.RootNode) == null ? void 0 : t.hasError()) != null ? e : !1;
   }
   get TextLength() {
     return this.TextBuffer.Length;
@@ -2743,49 +2053,23 @@ class Document {
   get TextContent() {
     return this.GetText(0, this.TextBuffer.Length);
   }
-  set TextContent(value) {
-    this.TextBuffer.SetContent(value);
-    this._lineManager.SetContent(value);
-    this.UndoStack.ClearAll();
-    this.SyntaxParser.Parse(true);
-    this.SyntaxParser.Tokenize(0, this.TotalNumberOfLines);
-    this.DocumentChanged.Invoke(new DocumentEventArgs(this, 0, 0, value));
+  set TextContent(t) {
+    this.TextBuffer.SetContent(t), this._lineManager.SetContent(t), this.UndoStack.ClearAll(), this.SyntaxParser.Parse(!0), this.SyntaxParser.Tokenize(0, this.TotalNumberOfLines), this.DocumentChanged.Invoke(new dt(this, 0, 0, t));
   }
-  GetCharAt(offset) {
-    return this.TextBuffer.GetCharAt(offset);
+  GetCharAt(t) {
+    return this.TextBuffer.GetCharAt(t);
   }
-  GetText(offset, length) {
-    return this.TextBuffer.GetText(offset, length);
+  GetText(t, e) {
+    return this.TextBuffer.GetText(t, e);
   }
-  Insert(offset, text) {
-    if (this.Readonly)
-      return;
-    this.SyntaxParser.BeginInsert(offset, text.length);
-    this.TextBuffer.Insert(offset, text);
-    this._lineManager.Insert(offset, text);
-    this.UndoStack.Push(new UndoableInsert(this, offset, text));
-    this.SyntaxParser.EndInsert(offset, text.length);
-    this.DocumentChanged.Invoke(new DocumentEventArgs(this, offset, 0, text));
+  Insert(t, e) {
+    this.Readonly || (this.SyntaxParser.BeginInsert(t, e.length), this.TextBuffer.Insert(t, e), this._lineManager.Insert(t, e), this.UndoStack.Push(new he(this, t, e)), this.SyntaxParser.EndInsert(t, e.length), this.DocumentChanged.Invoke(new dt(this, t, 0, e)));
   }
-  Remove(offset, length) {
-    if (this.Readonly)
-      return;
-    this.SyntaxParser.BeginRemove(offset, length);
-    this.UndoStack.Push(new UndoableDelete(this, offset, this.GetText(offset, length)));
-    this.TextBuffer.Remove(offset, length);
-    this._lineManager.Remove(offset, length);
-    this.SyntaxParser.EndRemove();
-    this.DocumentChanged.Invoke(new DocumentEventArgs(this, offset, length, ""));
+  Remove(t, e) {
+    this.Readonly || (this.SyntaxParser.BeginRemove(t, e), this.UndoStack.Push(new ae(this, t, this.GetText(t, e))), this.TextBuffer.Remove(t, e), this._lineManager.Remove(t, e), this.SyntaxParser.EndRemove(), this.DocumentChanged.Invoke(new dt(this, t, e, "")));
   }
-  Replace(offset, length, text) {
-    if (this.Readonly)
-      return;
-    this.SyntaxParser.BeginReplace(offset, length, text.length);
-    this.UndoStack.Push(new UndoableReplace(this, offset, this.GetText(offset, length), text));
-    this.TextBuffer.Replace(offset, length, text);
-    this._lineManager.Replace(offset, length, text);
-    this.SyntaxParser.EndReplace(offset, length, text.length);
-    this.DocumentChanged.Invoke(new DocumentEventArgs(this, offset, length, text));
+  Replace(t, e, i) {
+    this.Readonly || (this.SyntaxParser.BeginReplace(t, e, i.length), this.UndoStack.Push(new ue(this, t, this.GetText(t, e), i)), this.TextBuffer.Replace(t, e, i), this._lineManager.Replace(t, e, i), this.SyntaxParser.EndReplace(t, e, i.length), this.DocumentChanged.Invoke(new dt(this, t, e, i)));
   }
   StartUndoGroup() {
     this.UndoStack.StartUndoGroup();
@@ -2793,215 +2077,153 @@ class Document {
   EndUndoGroup() {
     this.UndoStack.EndUndoGroup();
   }
-  GetLineNumberForOffset(offset) {
-    return this._lineManager.GetLineNumberForOffset(offset);
+  GetLineNumberForOffset(t) {
+    return this._lineManager.GetLineNumberForOffset(t);
   }
-  GetLineSegmentForOffset(offset) {
-    return this._lineManager.GetLineSegmentForOffset(offset);
+  GetLineSegmentForOffset(t) {
+    return this._lineManager.GetLineSegmentForOffset(t);
   }
-  GetLineSegment(lineNumber) {
-    return this._lineManager.GetLineSegment(lineNumber);
+  GetLineSegment(t) {
+    return this._lineManager.GetLineSegment(t);
   }
-  GetFirstLogicalLine(lineNumber) {
-    return this._lineManager.GetFirstLogicalLine(lineNumber);
+  GetFirstLogicalLine(t) {
+    return this._lineManager.GetFirstLogicalLine(t);
   }
-  GetVisibleLine(lineNumber) {
-    return this._lineManager.GetVisibleLine(lineNumber);
+  GetVisibleLine(t) {
+    return this._lineManager.GetVisibleLine(t);
   }
-  OffsetToPosition(offset) {
-    let lineNumber = this.GetLineNumberForOffset(offset);
-    let line = this.GetLineSegment(lineNumber);
-    return new TextLocation(offset - line.Offset, lineNumber);
+  OffsetToPosition(t) {
+    let e = this.GetLineNumberForOffset(t), i = this.GetLineSegment(e);
+    return new L(t - i.Offset, e);
   }
-  PositionToOffset(position) {
-    if (position.Line >= this.TotalNumberOfLines)
+  PositionToOffset(t) {
+    if (t.Line >= this.TotalNumberOfLines)
       return 0;
-    let line = this.GetLineSegment(position.Line);
-    return Math.min(this.TextLength, line.Offset + Math.min(line.Length, position.Column));
+    let e = this.GetLineSegment(t.Line);
+    return Math.min(this.TextLength, e.Offset + Math.min(e.Length, t.Column));
   }
-  UpdateSegmentsOnDocumentChanged(list, e) {
-    let removedCharacters = e.Length > 0 ? e.Length : 0;
-    let insertedCharacters = System.IsNullOrEmpty(e.Text) ? 0 : e.Text.length;
-    for (let i = 0; i < list.length; ++i) {
-      let s = list[i];
-      let segmentStart = s.Offset;
-      let segmentEnd = s.Offset + s.Length;
-      if (e.Offset <= segmentStart) {
-        segmentStart -= removedCharacters;
-        if (segmentStart < e.Offset)
-          segmentStart = e.Offset;
-      }
-      if (e.Offset < segmentEnd) {
-        segmentEnd -= removedCharacters;
-        if (segmentEnd < e.Offset)
-          segmentEnd = e.Offset;
-      }
-      if (segmentStart == segmentEnd) {
-        list.RemoveAt(i);
-        --i;
+  UpdateSegmentsOnDocumentChanged(t, e) {
+    let i = e.Length > 0 ? e.Length : 0, n = c.IsNullOrEmpty(e.Text) ? 0 : e.Text.length;
+    for (let s = 0; s < t.length; ++s) {
+      let l = t[s], h = l.Offset, d = l.Offset + l.Length;
+      if (e.Offset <= h && (h -= i, h < e.Offset && (h = e.Offset)), e.Offset < d && (d -= i, d < e.Offset && (d = e.Offset)), h == d) {
+        t.RemoveAt(s), --s;
         continue;
       }
-      if (e.Offset <= segmentStart)
-        segmentStart += insertedCharacters;
-      if (e.Offset < segmentEnd)
-        segmentEnd += insertedCharacters;
-      s.Offset = segmentStart;
-      s.Length = segmentEnd - segmentStart;
+      e.Offset <= h && (h += n), e.Offset < d && (d += n), l.Offset = h, l.Length = d - h;
     }
   }
   Dispose() {
     this.SyntaxParser.Dispose();
   }
 }
-__publicField(Document, "$meta_System_IDisposable", true);
-class CustomEditCommand {
-  constructor(command) {
-    __publicField(this, "_command");
-    this._command = command;
+o(Ht, "$meta_System_IDisposable", !0);
+class be {
+  constructor(t) {
+    o(this, "_command");
+    this._command = t;
   }
-  Execute(editor) {
-    this._command(editor);
+  Execute(t) {
+    this._command(t);
   }
 }
-class CaretLeft {
-  Execute(editor) {
-    let position = editor.Caret.Position.Clone();
-    let foldings = editor.Document.FoldingManager.GetFoldedFoldingsWithEnd(position.Line);
-    let justBeforeCaret = null;
-    for (const fm of foldings) {
-      if (fm.EndColumn == position.Column) {
-        justBeforeCaret = fm;
+class Le {
+  Execute(t) {
+    let e = t.Caret.Position.Clone(), i = t.Document.FoldingManager.GetFoldedFoldingsWithEnd(e.Line), n = null;
+    for (const s of i)
+      if (s.EndColumn == e.Column) {
+        n = s;
         break;
       }
+    if (n != null)
+      e.Line = n.StartLine, e.Column = n.StartColumn;
+    else if (e.Column > 0)
+      e.Column -= 1;
+    else if (e.Line > 0) {
+      let s = t.Document.GetLineSegment(e.Line - 1);
+      e.Column = s.Length, e.Line = e.Line - 1;
     }
-    if (justBeforeCaret != null) {
-      position.Line = justBeforeCaret.StartLine;
-      position.Column = justBeforeCaret.StartColumn;
-    } else {
-      if (position.Column > 0) {
-        position.Column -= 1;
-      } else if (position.Line > 0) {
-        let lineAbove = editor.Document.GetLineSegment(position.Line - 1);
-        position.Column = lineAbove.Length;
-        position.Line = position.Line - 1;
-      }
-    }
-    editor.Caret.Position = position.Clone();
+    t.Caret.Position = e.Clone();
   }
 }
-class CaretRight {
-  Execute(editor) {
-    let curLine = editor.Document.GetLineSegment(editor.Caret.Line);
-    let position = editor.Caret.Position.Clone();
-    let foldings = editor.Document.FoldingManager.GetFoldedFoldingsWithStart(position.Line);
-    let justBehindCaret = null;
-    for (const fm of foldings) {
-      if (fm.StartColumn == position.Column) {
-        justBehindCaret = fm;
+class Ce {
+  Execute(t) {
+    let e = t.Document.GetLineSegment(t.Caret.Line), i = t.Caret.Position.Clone(), n = t.Document.FoldingManager.GetFoldedFoldingsWithStart(i.Line), s = null;
+    for (const l of n)
+      if (l.StartColumn == i.Column) {
+        s = l;
         break;
       }
-    }
-    if (justBehindCaret != null) {
-      position.Line = justBehindCaret.EndLine;
-      position.Column = justBehindCaret.EndColumn;
-    } else {
-      if (position.Column < curLine.Length || editor.Document.TextEditorOptions.AllowCaretBeyondEOL) {
-        position.Column += 1;
-      } else if (position.Column + 1 < editor.Document.TotalNumberOfLines) {
-        position.Line += 1;
-        position.Column = 0;
-      }
-    }
-    editor.Caret.Position = position.Clone();
+    s != null ? (i.Line = s.EndLine, i.Column = s.EndColumn) : i.Column < e.Length || t.Document.TextEditorOptions.AllowCaretBeyondEOL ? i.Column += 1 : i.Column + 1 < t.Document.TotalNumberOfLines && (i.Line += 1, i.Column = 0), t.Caret.Position = i.Clone();
   }
 }
-class CaretUp {
-  Execute(editor) {
-    let position = editor.Caret.Position.Clone();
-    let visualLine = editor.Document.GetVisibleLine(position.Line);
-    if (visualLine > 0) {
-      let vx = editor.TextView.GetDrawingXPos(position.Line, position.Column) + editor.VirtualTop.X;
-      let vy = editor.TextView.Bounds.Top + (visualLine - 1) * editor.TextView.FontHeight - editor.VirtualTop.Y;
-      let logicalLine = editor.TextView.GetLogicalLine(vy);
-      let logicalColumn = editor.TextView.GetLogicalColumn(logicalLine, vx);
-      editor.Caret.Position = logicalColumn.Location.Clone();
+class me {
+  Execute(t) {
+    let e = t.Caret.Position.Clone(), i = t.Document.GetVisibleLine(e.Line);
+    if (i > 0) {
+      let n = t.TextView.GetDrawingXPos(e.Line, e.Column) + t.VirtualTop.X, s = t.TextView.Bounds.Top + (i - 1) * t.TextView.FontHeight - t.VirtualTop.Y, l = t.TextView.GetLogicalLine(s), h = t.TextView.GetLogicalColumn(l, n);
+      t.Caret.Position = h.Location.Clone();
     }
   }
 }
-class CaretDown {
-  Execute(editor) {
-    let position = editor.Caret.Position.Clone();
-    let visualLine = editor.Document.GetVisibleLine(position.Line);
-    if (visualLine < editor.Document.GetVisibleLine(editor.Document.TotalNumberOfLines)) {
-      let vx = editor.TextView.GetDrawingXPos(position.Line, position.Column) + editor.VirtualTop.X;
-      let vy = editor.TextView.Bounds.Top + (visualLine + 1) * editor.TextView.FontHeight - editor.VirtualTop.Y;
-      let logicalLine = editor.TextView.GetLogicalLine(vy);
-      let logicalColumn = editor.TextView.GetLogicalColumn(logicalLine, vx);
-      editor.Caret.Position = logicalColumn.Location.Clone();
+class Se {
+  Execute(t) {
+    let e = t.Caret.Position.Clone(), i = t.Document.GetVisibleLine(e.Line);
+    if (i < t.Document.GetVisibleLine(t.Document.TotalNumberOfLines)) {
+      let n = t.TextView.GetDrawingXPos(e.Line, e.Column) + t.VirtualTop.X, s = t.TextView.Bounds.Top + (i + 1) * t.TextView.FontHeight - t.VirtualTop.Y, l = t.TextView.GetLogicalLine(s), h = t.TextView.GetLogicalColumn(l, n);
+      t.Caret.Position = h.Location.Clone();
     }
   }
 }
-class BackspaceCommand {
-  Execute(editor) {
-    if (editor.SelectionManager.HasSomethingSelected) {
-      editor.DeleteSelection();
+class Te {
+  Execute(t) {
+    if (t.SelectionManager.HasSomethingSelected) {
+      t.DeleteSelection();
       return;
     }
-    let caretOffset = editor.Caret.Offset;
-    if (caretOffset <= 0)
+    let e = t.Caret.Offset;
+    if (e <= 0)
       return;
-    let curLineNr = editor.Document.GetLineNumberForOffset(caretOffset);
-    let curLine = editor.Document.GetLineSegment(curLineNr);
-    let curLineOffset = curLine.Offset;
-    if (curLineOffset == caretOffset) {
-      let preLine = editor.Document.GetLineSegment(curLineNr - 1);
-      let preLineEndOffset = preLine.Offset + preLine.Length;
-      editor.Document.Remove(preLineEndOffset, curLineOffset - preLineEndOffset);
-      editor.Caret.Position = new TextLocation(preLine.Length, curLineNr - 1);
+    let i = t.Document.GetLineNumberForOffset(e), s = t.Document.GetLineSegment(i).Offset;
+    if (s == e) {
+      let l = t.Document.GetLineSegment(i - 1), h = l.Offset + l.Length;
+      t.Document.Remove(h, s - h), t.Caret.Position = new L(l.Length, i - 1);
     } else {
-      let ch = editor.Document.GetCharAt(caretOffset - 1);
-      let closingPair = editor.Document.SyntaxParser.Language.GetAutoColsingPairs(ch);
-      let len = closingPair != null && closingPair == editor.Document.GetCharAt(caretOffset) ? 2 : 1;
-      editor.Document.Remove(caretOffset - 1, len);
-      editor.Caret.Position = editor.Document.OffsetToPosition(caretOffset - 1);
+      let l = t.Document.GetCharAt(e - 1), h = t.Document.SyntaxParser.Language.GetAutoColsingPairs(l), d = h != null && h == t.Document.GetCharAt(e) ? 2 : 1;
+      t.Document.Remove(e - 1, d), t.Caret.Position = t.Document.OffsetToPosition(e - 1);
     }
   }
 }
-class TabCommand {
-  Execute(editor) {
-    let tabIndent = editor.Document.TextEditorOptions.TabIndent;
-    let convertToWhitespaces = " ".repeat(tabIndent);
-    editor.InsertOrReplaceString(convertToWhitespaces);
+class _e {
+  Execute(t) {
+    let e = t.Document.TextEditorOptions.TabIndent, i = " ".repeat(e);
+    t.InsertOrReplaceString(i);
   }
 }
-class ReturnCommand {
-  Execute(editor) {
-    editor.Document.UndoStack.StartUndoGroup();
-    let curLine = editor.Caret.Line;
-    let curLineSegment = editor.Document.GetLineSegment(curLine);
-    let leadingWhiteSpaces = curLineSegment.GetLeadingWhiteSpaces();
-    if (leadingWhiteSpaces == 0)
-      editor.InsertOrReplaceString("\n");
-    else
-      editor.InsertOrReplaceString("\n" + " ".repeat(leadingWhiteSpaces));
-    editor.Document.UndoStack.EndUndoGroup();
+class pe {
+  Execute(t) {
+    t.Document.UndoStack.StartUndoGroup();
+    let e = t.Caret.Line, n = t.Document.GetLineSegment(e).GetLeadingWhiteSpaces();
+    n == 0 ? t.InsertOrReplaceString(`
+`) : t.InsertOrReplaceString(`
+` + " ".repeat(n)), t.Document.UndoStack.EndUndoGroup();
   }
 }
-class UndoCommand {
-  Execute(editor) {
-    editor.Document.UndoStack.Undo();
+class we {
+  Execute(t) {
+    t.Document.UndoStack.Undo();
   }
 }
-class RedoCommand {
-  Execute(editor) {
-    editor.Document.UndoStack.Redo();
+class xe {
+  Execute(t) {
+    t.Document.UndoStack.Redo();
   }
 }
-class EditorArea {
-  constructor(textEditor) {
-    __publicField(this, "TextEditor");
-    __publicField(this, "Bounds", PixUI.Rect.Empty);
-    this.TextEditor = textEditor;
+class Ot {
+  constructor(t) {
+    o(this, "TextEditor");
+    o(this, "Bounds", u.Rect.Empty);
+    this.TextEditor = t;
   }
   get Theme() {
     return this.TextEditor.Theme;
@@ -3010,26 +2232,27 @@ class EditorArea {
     return this.TextEditor.Document;
   }
   get IsVisible() {
-    return true;
+    return !0;
   }
   get Size() {
-    return new PixUI.Size(-1, -1);
+    return new u.Size(-1, -1);
   }
-  HandlePointerDown(x, y, buttons) {
+  HandlePointerDown(t, e, i) {
   }
 }
-class TextView extends EditorArea {
-  constructor(textEditor) {
-    super(textEditor);
-    __publicField(this, "_spaceWidth", 10);
-    __privateAdd(this, _FontHeight, 0);
-    this.FontHeight = textEditor.Theme.FontSize + textEditor.Theme.LineSpace * 2;
+var at;
+class Ee extends Ot {
+  constructor(e) {
+    super(e);
+    o(this, "_spaceWidth", 10);
+    x(this, at, 0);
+    this.FontHeight = e.Theme.FontSize + e.Theme.LineSpace * 2;
   }
   get FontHeight() {
-    return __privateGet(this, _FontHeight);
+    return w(this, at);
   }
-  set FontHeight(value) {
-    __privateSet(this, _FontHeight, value);
+  set FontHeight(e) {
+    E(this, at, e);
   }
   get VisibleLineCount() {
     return 1 + (Math.floor(Math.round(this.Bounds.Height / this.FontHeight)) & 4294967295);
@@ -3040,543 +2263,468 @@ class TextView extends EditorArea {
   get FirstVisibleLine() {
     return this.Document.GetFirstLogicalLine(Math.floor(this.TextEditor.VirtualTop.Y / this.FontHeight) & 4294967295);
   }
-  set FirstVisibleLine(value) {
-    if (this.FirstVisibleLine != value) {
-      this.TextEditor.VirtualTop = new PixUI.Point(this.TextEditor.VirtualTop.X, this.Document.GetVisibleLine(value) * this.FontHeight);
-    }
+  set FirstVisibleLine(e) {
+    this.FirstVisibleLine != e && (this.TextEditor.VirtualTop = new u.Point(
+      this.TextEditor.VirtualTop.X,
+      this.Document.GetVisibleLine(e) * this.FontHeight
+    ));
   }
   get FirstPhysicalLine() {
     return Math.floor(this.TextEditor.VirtualTop.Y / this.FontHeight) & 4294967295;
   }
-  GetLogicalPosition(visualPosX, visualPosY) {
-    return this.GetLogicalColumn(this.GetLogicalLine(visualPosY), visualPosX).Location;
+  GetLogicalPosition(e, i) {
+    return this.GetLogicalColumn(this.GetLogicalLine(i), e).Location;
   }
-  GetLogicalColumn(lineNumber, visualPosX) {
-    visualPosX += this.TextEditor.VirtualTop.X;
-    if (lineNumber >= this.Document.TotalNumberOfLines) {
-      return new LogicalColumnInfo(new TextLocation(Math.floor(visualPosX / this._spaceWidth) & 4294967295, lineNumber), null);
-    }
-    if (visualPosX <= 0) {
-      return new LogicalColumnInfo(new TextLocation(0, lineNumber), null);
-    }
-    let line = this.Document.GetLineSegment(lineNumber);
-    let inFoldMarker = null;
-    let para = line.GetLineParagraph(this.TextEditor);
-    let columnInLine = para.getGlyphPositionAtCoordinate(visualPosX, 1).pos;
-    let column = columnInLine;
-    if (line.CachedFolds != null && column > line.CachedFolds[0].LineStart) {
-      for (const fold of line.CachedFolds) {
-        if (columnInLine < fold.LineStart)
+  GetLogicalColumn(e, i) {
+    if (i += this.TextEditor.VirtualTop.X, e >= this.Document.TotalNumberOfLines)
+      return new _t(
+        new L(Math.floor(i / this._spaceWidth) & 4294967295, e),
+        null
+      );
+    if (i <= 0)
+      return new _t(new L(0, e), null);
+    let n = this.Document.GetLineSegment(e), s = null, h = n.GetLineParagraph(this.TextEditor).getGlyphPositionAtCoordinate(i, 1).pos, d = h;
+    if (n.CachedFolds != null && d > n.CachedFolds[0].LineStart)
+      for (const f of n.CachedFolds) {
+        if (h < f.LineStart)
           break;
-        if (columnInLine >= fold.LineStart && columnInLine < fold.LineEnd) {
-          inFoldMarker = fold.FoldMarker;
-          lineNumber = fold.FoldMarker.EndLine;
-          column = fold.FoldMarker.EndColumn;
+        if (h >= f.LineStart && h < f.LineEnd) {
+          s = f.FoldMarker, e = f.FoldMarker.EndLine, d = f.FoldMarker.EndColumn;
           break;
-        } else if (columnInLine >= fold.LineEnd) {
-          lineNumber = fold.FoldMarker.EndLine;
-          column = fold.FoldMarker.EndColumn + (columnInLine - fold.LineEnd);
-        }
+        } else
+          h >= f.LineEnd && (e = f.FoldMarker.EndLine, d = f.FoldMarker.EndColumn + (h - f.LineEnd));
       }
-    }
-    return new LogicalColumnInfo(new TextLocation(column, lineNumber), inFoldMarker);
+    return new _t(new L(d, e), s);
   }
-  GetLogicalLine(visualPosY) {
-    let clickedVisualLine = Math.max(0, Math.floor((visualPosY + this.TextEditor.VirtualTop.Y) / this.FontHeight) & 4294967295);
-    return this.Document.GetFirstLogicalLine(clickedVisualLine);
+  GetLogicalLine(e) {
+    let i = Math.max(0, Math.floor((e + this.TextEditor.VirtualTop.Y) / this.FontHeight) & 4294967295);
+    return this.Document.GetFirstLogicalLine(i);
   }
-  GetDrawingXPos(logicalLine, logicalColumn) {
-    let foldings = this.Document.FoldingManager.GetTopLevelFoldedFoldings();
-    let foldedLineNumber = -1;
-    for (let i = foldings.length - 1; i >= 0; i--) {
-      let f = foldings[i];
-      if (foldedLineNumber >= 0) {
-        if (f.EndLine == foldedLineNumber)
-          foldedLineNumber = f.StartLine;
+  GetDrawingXPos(e, i) {
+    let n = this.Document.FoldingManager.GetTopLevelFoldedFoldings(), s = -1;
+    for (let d = n.length - 1; d >= 0; d--) {
+      let f = n[d];
+      if (s >= 0)
+        if (f.EndLine == s)
+          s = f.StartLine;
         else
           break;
-      } else if (f.StartLine == logicalLine || f.EndLine == logicalLine) {
-        foldedLineNumber = f.StartLine;
-      }
+      else
+        (f.StartLine == e || f.EndLine == e) && (s = f.StartLine);
     }
-    let visualLine = foldedLineNumber < 0 ? this.Document.GetLineSegment(logicalLine) : this.Document.GetLineSegment(foldedLineNumber);
-    let drawingPos = visualLine.GetXPos(this.TextEditor, logicalLine, logicalColumn);
-    return drawingPos - this.TextEditor.VirtualTop.X;
+    return (s < 0 ? this.Document.GetLineSegment(e) : this.Document.GetLineSegment(s)).GetXPos(this.TextEditor, e, i) - this.TextEditor.VirtualTop.X;
   }
-  HandlePointerDown(x, y, buttons) {
-    let vx = x - this.Bounds.Left;
-    let vy = y - this.Bounds.Top;
-    if (buttons == PixUI.PointerButtons.Left) {
-      let logicalLine = this.GetLogicalLine(vy);
-      let logicalColumn = this.GetLogicalColumn(logicalLine, vx);
-      this.TextEditor.SelectionManager.ClearSelection();
-      this.TextEditor.Caret.Position = logicalColumn.Location.Clone();
-    } else if (buttons == PixUI.PointerButtons.Right) {
-      let contextMenuBuilder = this.TextEditor.Controller.ContextMenuBuilder;
-      if (contextMenuBuilder != null) {
-        let contextMenus = contextMenuBuilder(this.TextEditor);
-        if (contextMenus.length > 0)
-          PixUI.ContextMenu.Show(contextMenus);
+  HandlePointerDown(e, i, n) {
+    let s = e - this.Bounds.Left, l = i - this.Bounds.Top;
+    if (n == u.PointerButtons.Left) {
+      let h = this.GetLogicalLine(l), d = this.GetLogicalColumn(h, s);
+      this.TextEditor.SelectionManager.ClearSelection(), this.TextEditor.Caret.Position = d.Location.Clone();
+    } else if (n == u.PointerButtons.Right) {
+      let h = this.TextEditor.Controller.ContextMenuBuilder;
+      if (h != null) {
+        let d = h(this.TextEditor);
+        d.length > 0 && u.ContextMenu.Show(d);
       }
     }
   }
-  Paint(canvas, rect) {
-    if (rect.Width <= 0 || rect.Height <= 0)
+  Paint(e, i) {
+    if (i.Width <= 0 || i.Height <= 0)
       return;
-    let horizontalDelta = this.TextEditor.VirtualTop.X;
-    if (horizontalDelta > 0) {
-      canvas.save();
-      canvas.clipRect(this.Bounds, CanvasKit.ClipOp.Intersect, false);
-    }
-    let paint = PixUI.PaintUtils.Shared(this.Theme.TextBgColor);
-    canvas.drawRect(rect, paint);
-    let maxLines = Math.floor((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1) & 4294967295;
-    this.PaintLines(canvas, maxLines);
-    if (horizontalDelta > 0)
-      canvas.restore();
+    let n = this.TextEditor.VirtualTop.X;
+    n > 0 && (e.save(), e.clipRect(this.Bounds, CanvasKit.ClipOp.Intersect, !1));
+    let s = u.PaintUtils.Shared(this.Theme.TextBgColor);
+    e.drawRect(i, s);
+    let l = Math.floor((this.Bounds.Height + this.VisibleLineDrawingRemainder) / this.FontHeight + 1) & 4294967295;
+    this.PaintLines(e, l), n > 0 && e.restore();
   }
-  PaintLines(canvas, maxLines) {
-    let horizontalDelta = this.TextEditor.VirtualTop.X;
-    for (let y = 0; y < maxLines; y++) {
-      let lineRect = PixUI.Rect.FromLTWH(this.Bounds.Left - horizontalDelta, this.Bounds.Top + y * this.FontHeight - this.VisibleLineDrawingRemainder, this.Bounds.Width + horizontalDelta, this.FontHeight);
-      let currentLine = this.Document.GetFirstLogicalLine(this.Document.GetVisibleLine(this.FirstVisibleLine) + y);
-      if (currentLine >= this.Document.TotalNumberOfLines)
+  PaintLines(e, i) {
+    let n = this.TextEditor.VirtualTop.X;
+    for (let s = 0; s < i; s++) {
+      let l = u.Rect.FromLTWH(
+        this.Bounds.Left - n,
+        this.Bounds.Top + s * this.FontHeight - this.VisibleLineDrawingRemainder,
+        this.Bounds.Width + n,
+        this.FontHeight
+      ), h = this.Document.GetFirstLogicalLine(
+        this.Document.GetVisibleLine(this.FirstVisibleLine) + s
+      );
+      if (h >= this.Document.TotalNumberOfLines)
         return;
-      let lineSegment = this.Document.GetLineSegment(currentLine);
-      if (lineSegment.Length == 0)
+      let d = this.Document.GetLineSegment(h);
+      if (d.Length == 0)
         continue;
-      let lineParagraph = lineSegment.GetLineParagraph(this.TextEditor);
-      canvas.drawParagraph(lineParagraph, lineRect.Left, lineRect.Top + this.Theme.LineSpace);
+      let f = d.GetLineParagraph(this.TextEditor);
+      e.drawParagraph(f, l.Left, l.Top + this.Theme.LineSpace);
     }
   }
 }
-_FontHeight = new WeakMap();
-class LogicalColumnInfo {
-  constructor(location, inFoldMarker) {
-    __publicField(this, "Location");
-    __publicField(this, "InFoldMarker");
-    this.Location = location.Clone();
-    this.InFoldMarker = inFoldMarker;
+at = new WeakMap();
+class _t {
+  constructor(t, e) {
+    o(this, "Location");
+    o(this, "InFoldMarker");
+    this.Location = t.Clone(), this.InFoldMarker = e;
   }
 }
-class FoldArea extends EditorArea {
-  constructor(textEditor) {
-    super(textEditor);
-    __publicField(this, "_selectedFoldLine", -1);
+class Pe extends Ot {
+  constructor(e) {
+    super(e);
+    o(this, "_selectedFoldLine", -1);
   }
   GetNormalPaint() {
-    return PixUI.PaintUtils.Shared(new PixUI.Color(200, 200, 200, 255), CanvasKit.PaintStyle.Stroke, 1);
+    return u.PaintUtils.Shared(new u.Color(200, 200, 200, 255), CanvasKit.PaintStyle.Stroke, 1);
   }
   GetSelectedPaint() {
-    return PixUI.PaintUtils.Shared(new PixUI.Color(200, 200, 200, 255), CanvasKit.PaintStyle.Stroke, 1.5);
+    return u.PaintUtils.Shared(new u.Color(200, 200, 200, 255), CanvasKit.PaintStyle.Stroke, 1.5);
   }
-  SelectedFoldingFrom(list) {
-    for (const fm of list) {
-      if (this._selectedFoldLine == fm.StartLine)
-        return true;
-    }
-    return false;
+  SelectedFoldingFrom(e) {
+    for (const i of e)
+      if (this._selectedFoldLine == i.StartLine)
+        return !0;
+    return !1;
   }
   get Size() {
-    return new PixUI.Size(this.TextEditor.TextView.FontHeight, -1);
+    return new u.Size(this.TextEditor.TextView.FontHeight, -1);
   }
   get IsVisible() {
     return this.TextEditor.Document.TextEditorOptions.EnableFolding;
   }
-  HandlePointerDown(x, y, buttons) {
-    let physicalLine = Math.floor((y + this.TextEditor.VirtualTop.Y) / this.TextEditor.TextView.FontHeight) & 4294967295;
-    let realLine = this.Document.GetFirstLogicalLine(physicalLine);
-    if (realLine < 0 || realLine + 1 >= this.Document.TotalNumberOfLines)
+  HandlePointerDown(e, i, n) {
+    let s = Math.floor((i + this.TextEditor.VirtualTop.Y) / this.TextEditor.TextView.FontHeight) & 4294967295, l = this.Document.GetFirstLogicalLine(s);
+    if (l < 0 || l + 1 >= this.Document.TotalNumberOfLines)
       return;
-    let foldings = this.Document.FoldingManager.GetFoldingsWithStart(realLine);
-    for (const fm of foldings) {
-      fm.IsFolded = !fm.IsFolded;
-    }
-    let line = this.Document.GetLineSegment(realLine);
-    line.ClearCachedParagraph();
-    this.TextEditor.Caret.UpdateCaretPosition();
-    if (foldings.length > 0) {
-      this.Document.FoldingManager.RaiseFoldingsChanged();
-      this.TextEditor.Controller.Widget.RequestInvalidate(true, null);
-    }
+    let h = this.Document.FoldingManager.GetFoldingsWithStart(l);
+    for (const f of h)
+      f.IsFolded = !f.IsFolded;
+    this.Document.GetLineSegment(l).ClearCachedParagraph(), this.TextEditor.Caret.UpdateCaretPosition(), h.length > 0 && (this.Document.FoldingManager.RaiseFoldingsChanged(), this.TextEditor.Controller.Widget.RequestInvalidate(!0, null));
   }
-  Paint(canvas, rect) {
-    if (rect.Width <= 0 || rect.Height <= 0)
+  Paint(e, i) {
+    if (i.Width <= 0 || i.Height <= 0)
       return;
-    let paint = PixUI.PaintUtils.Shared(this.TextEditor.Theme.TextBgColor);
-    canvas.drawRect(rect, paint);
-    let fontHeight = this.TextEditor.TextView.FontHeight;
-    let visibleLineRemainder = this.TextEditor.TextView.VisibleLineDrawingRemainder;
-    let maxHeight = Math.floor((this.Bounds.Height + visibleLineRemainder) / fontHeight + 1) & 4294967295;
-    for (let y = 0; y < maxHeight; ++y) {
-      let markerRect = PixUI.Rect.FromLTWH(this.Bounds.Left, this.Bounds.Top + y * fontHeight - visibleLineRemainder, this.Bounds.Width, fontHeight);
-      if (rect.IntersectsWith(markerRect.Left, markerRect.Top, markerRect.Width, markerRect.Height)) {
-        let currentLine = this.Document.GetFirstLogicalLine(this.TextEditor.TextView.FirstPhysicalLine + y);
-        if (currentLine < this.Document.TotalNumberOfLines) {
-          this.PaintFoldMarker(canvas, currentLine, markerRect.Clone());
-        }
+    let n = u.PaintUtils.Shared(this.TextEditor.Theme.TextBgColor);
+    e.drawRect(i, n);
+    let s = this.TextEditor.TextView.FontHeight, l = this.TextEditor.TextView.VisibleLineDrawingRemainder, h = Math.floor((this.Bounds.Height + l) / s + 1) & 4294967295;
+    for (let d = 0; d < h; ++d) {
+      let f = u.Rect.FromLTWH(
+        this.Bounds.Left,
+        this.Bounds.Top + d * s - l,
+        this.Bounds.Width,
+        s
+      );
+      if (i.IntersectsWith(
+        f.Left,
+        f.Top,
+        f.Width,
+        f.Height
+      )) {
+        let C = this.Document.GetFirstLogicalLine(this.TextEditor.TextView.FirstPhysicalLine + d);
+        C < this.Document.TotalNumberOfLines && this.PaintFoldMarker(e, C, f.Clone());
       }
     }
   }
-  PaintFoldMarker(canvas, lineNumber, rect) {
-    let foldingManager = this.Document.FoldingManager;
-    let foldingsWithStart = foldingManager.GetFoldingsWithStart(lineNumber);
-    let foldingsBetween = foldingManager.GetFoldingsContainsLineNumber(lineNumber);
-    let foldingsWithEnd = foldingManager.GetFoldingsWithEnd(lineNumber);
-    let isFoldStart = foldingsWithStart.length > 0;
-    let isBetween = foldingsBetween.length > 0;
-    let isFoldEnd = foldingsWithEnd.length > 0;
-    let isStartSelected = this.SelectedFoldingFrom(foldingsWithStart);
-    let isBetweenSelected = this.SelectedFoldingFrom(foldingsBetween);
-    let isEndSelected = this.SelectedFoldingFrom(foldingsWithEnd);
-    let foldMarkerSize = this.TextEditor.TextView.FontHeight * 0.57;
-    foldMarkerSize -= foldMarkerSize % 2;
-    let foldMarkerYPos = rect.Top + (rect.Height - foldMarkerSize) / 2;
-    let xPos = rect.Left + (rect.Width - foldMarkerSize) / 2 + foldMarkerSize / 2;
-    if (isFoldStart) {
-      let isVisible = true;
-      let moreLinedOpenFold = false;
-      for (const fm of foldingsWithStart) {
-        if (fm.IsFolded)
-          isVisible = false;
-        else
-          moreLinedOpenFold = fm.EndLine > fm.StartLine;
-      }
-      let isFoldEndFromUpperFold = false;
-      for (const fm of foldingsWithEnd) {
-        if (fm.EndLine > fm.StartLine && !fm.IsFolded)
-          isFoldEndFromUpperFold = true;
-      }
-      this.PaintMarker(canvas, PixUI.Rect.FromLTWH(rect.Left + (rect.Width - foldMarkerSize) / 2, foldMarkerYPos, foldMarkerSize, foldMarkerSize), isVisible, isStartSelected);
-      if (isBetween || isFoldEndFromUpperFold) {
-        canvas.drawLine(xPos, rect.Top, xPos, foldMarkerYPos - 1, isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
-      }
-      if (isBetween || moreLinedOpenFold) {
-        canvas.drawLine(xPos, foldMarkerYPos + foldMarkerSize + 1, xPos, rect.Bottom, isEndSelected || isStartSelected && isVisible || isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
-      }
-    } else {
-      if (isFoldEnd) {
-        let midY = rect.Top + rect.Height / 2;
-        canvas.drawLine(xPos, midY, xPos + foldMarkerSize / 2, midY, isEndSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
-        canvas.drawLine(xPos, rect.Top, xPos, midY, isBetweenSelected || isEndSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
-        if (isBetween) {
-          canvas.drawLine(xPos, midY + 1, xPos, rect.Bottom, isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
-        }
-      } else if (isBetween) {
-        canvas.drawLine(xPos, rect.Top, xPos, rect.Bottom, isBetweenSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
-      }
-    }
+  PaintFoldMarker(e, i, n) {
+    let s = this.Document.FoldingManager, l = s.GetFoldingsWithStart(i), h = s.GetFoldingsContainsLineNumber(i), d = s.GetFoldingsWithEnd(i), f = l.length > 0, C = h.length > 0, S = d.length > 0, W = this.SelectedFoldingFrom(l), R = this.SelectedFoldingFrom(h), X = this.SelectedFoldingFrom(d), I = this.TextEditor.TextView.FontHeight * 0.57;
+    I -= I % 2;
+    let mt = n.Top + (n.Height - I) / 2, y = n.Left + (n.Width - I) / 2 + I / 2;
+    if (f) {
+      let A = !0, Mt = !1;
+      for (const N of l)
+        N.IsFolded ? A = !1 : Mt = N.EndLine > N.StartLine;
+      let kt = !1;
+      for (const N of d)
+        N.EndLine > N.StartLine && !N.IsFolded && (kt = !0);
+      this.PaintMarker(
+        e,
+        u.Rect.FromLTWH(
+          n.Left + (n.Width - I) / 2,
+          mt,
+          I,
+          I
+        ),
+        A,
+        W
+      ), (C || kt) && e.drawLine(
+        y,
+        n.Top,
+        y,
+        mt - 1,
+        R ? this.GetSelectedPaint() : this.GetNormalPaint()
+      ), (C || Mt) && e.drawLine(
+        y,
+        mt + I + 1,
+        y,
+        n.Bottom,
+        X || W && A || R ? this.GetSelectedPaint() : this.GetNormalPaint()
+      );
+    } else if (S) {
+      let A = n.Top + n.Height / 2;
+      e.drawLine(
+        y,
+        A,
+        y + I / 2,
+        A,
+        X ? this.GetSelectedPaint() : this.GetNormalPaint()
+      ), e.drawLine(
+        y,
+        n.Top,
+        y,
+        A,
+        R || X ? this.GetSelectedPaint() : this.GetNormalPaint()
+      ), C && e.drawLine(
+        y,
+        A + 1,
+        y,
+        n.Bottom,
+        R ? this.GetSelectedPaint() : this.GetNormalPaint()
+      );
+    } else
+      C && e.drawLine(
+        y,
+        n.Top,
+        y,
+        n.Bottom,
+        R ? this.GetSelectedPaint() : this.GetNormalPaint()
+      );
   }
-  PaintMarker(canvas, rect, isOpened, isSelected) {
-    canvas.drawRect(PixUI.Rect.FromLTWH(rect.Left, rect.Top, rect.Width, rect.Height), isSelected ? this.GetSelectedPaint() : this.GetNormalPaint());
-    let space = rect.Height / 8 + 1;
-    let mid = rect.Height / 2 + rect.Height % 2;
-    canvas.drawLine(rect.Left + space, rect.Top + mid, rect.Left + rect.Width - space, rect.Top + mid, this.GetNormalPaint());
-    if (!isOpened) {
-      canvas.drawLine(rect.Left + mid, rect.Top + space, rect.Left + mid, rect.Top + rect.Height - space, this.GetNormalPaint());
-    }
+  PaintMarker(e, i, n, s) {
+    e.drawRect(
+      u.Rect.FromLTWH(i.Left, i.Top, i.Width, i.Height),
+      s ? this.GetSelectedPaint() : this.GetNormalPaint()
+    );
+    let l = i.Height / 8 + 1, h = i.Height / 2 + i.Height % 2;
+    e.drawLine(
+      i.Left + l,
+      i.Top + h,
+      i.Left + i.Width - l,
+      i.Top + h,
+      this.GetNormalPaint()
+    ), n || e.drawLine(
+      i.Left + h,
+      i.Top + l,
+      i.Left + h,
+      i.Top + i.Height - l,
+      this.GetNormalPaint()
+    );
   }
 }
-class GutterArea extends EditorArea {
-  constructor(textEditor) {
-    super(textEditor);
-    __publicField(this, "_numberCache");
-    __publicField(this, "_numberWidth");
-    this._numberCache = this.GenerateNumberCache();
-    this._numberWidth = this._numberCache[7].getLongestLine();
+class Oe extends Ot {
+  constructor(e) {
+    super(e);
+    o(this, "_numberCache");
+    o(this, "_numberWidth");
+    this._numberCache = this.GenerateNumberCache(), this._numberWidth = this._numberCache[7].getLongestLine();
   }
   GenerateNumberCache() {
-    let cache = new Array(10);
-    let ts = PixUI.MakeTextStyle({ color: this.Theme.LineNumberColor });
-    for (let i = 0; i < 10; i++) {
-      let ps = PixUI.MakeParagraphStyle({ maxLines: 1 });
-      let pb = PixUI.MakeParagraphBuilder(ps);
-      pb.pushStyle(ts);
-      pb.addText(i.toString());
-      let ph = pb.build();
-      ph.layout(Number.MAX_VALUE);
-      cache[i] = ph;
-      pb.delete();
+    let e = new Array(10), i = u.MakeTextStyle({ color: this.Theme.LineNumberColor });
+    for (let n = 0; n < 10; n++) {
+      let s = u.MakeParagraphStyle({ maxLines: 1 }), l = u.MakeParagraphBuilder(s);
+      l.pushStyle(i), l.addText(n.toString());
+      let h = l.build();
+      h.layout(Number.MAX_VALUE), e[n] = h, l.delete();
     }
-    return cache;
+    return e;
   }
   get Size() {
-    return new PixUI.Size(this._numberWidth * 5, -1);
+    return new u.Size(this._numberWidth * 5, -1);
   }
-  Paint(canvas, rect) {
-    if (rect.Width <= 0 || rect.Height <= 0)
+  Paint(e, i) {
+    if (i.Width <= 0 || i.Height <= 0)
       return;
-    let paint = PixUI.PaintUtils.Shared(this.Theme.LineBgColor);
-    canvas.drawRect(rect, paint);
-    let lineHeight = this.TextEditor.TextView.FontHeight;
-    let visibleLineRemainder = this.TextEditor.TextView.VisibleLineDrawingRemainder;
-    let maxHeight = (Math.floor((this.Bounds.Height + visibleLineRemainder) / lineHeight) & 4294967295) + 1;
-    for (let y = 0; y < maxHeight; y++) {
-      let yPos = this.Bounds.Top + lineHeight * y - visibleLineRemainder + this.Theme.LineSpace;
-      if (rect.IntersectsWith(this.Bounds.Left, yPos, this.Bounds.Width, lineHeight)) {
-        let curLine = this.Document.GetFirstLogicalLine(this.Document.GetVisibleLine(this.TextEditor.TextView.FirstVisibleLine) + y);
-        if (curLine < this.Document.TotalNumberOfLines)
-          this.DrawLineNumber(canvas, curLine + 1, yPos);
+    let n = u.PaintUtils.Shared(this.Theme.LineBgColor);
+    e.drawRect(i, n);
+    let s = this.TextEditor.TextView.FontHeight, l = this.TextEditor.TextView.VisibleLineDrawingRemainder, h = (Math.floor((this.Bounds.Height + l) / s) & 4294967295) + 1;
+    for (let d = 0; d < h; d++) {
+      let f = this.Bounds.Top + s * d - l + this.Theme.LineSpace;
+      if (i.IntersectsWith(this.Bounds.Left, f, this.Bounds.Width, s)) {
+        let C = this.Document.GetFirstLogicalLine(
+          this.Document.GetVisibleLine(this.TextEditor.TextView.FirstVisibleLine) + d
+        );
+        C < this.Document.TotalNumberOfLines && this.DrawLineNumber(e, C + 1, f);
       }
     }
   }
-  DrawLineNumber(canvas, lineNumber, yPos) {
-    let unitPlace = lineNumber % 10;
-    let tenPlace = (Math.floor(lineNumber / 10) & 4294967295) % 10;
-    let hundredPlace = (Math.floor(lineNumber / 100) & 4294967295) % 10;
-    let thousandPlace = (Math.floor(lineNumber / 1e3) & 4294967295) % 10;
-    canvas.drawParagraph(this._numberCache[unitPlace], 2 + this._numberWidth * 3, yPos);
-    if (lineNumber >= 10)
-      canvas.drawParagraph(this._numberCache[tenPlace], 2 + this._numberWidth * 2, yPos);
-    if (lineNumber >= 100)
-      canvas.drawParagraph(this._numberCache[hundredPlace], 2 + this._numberWidth, yPos);
-    if (lineNumber >= 1e3)
-      canvas.drawParagraph(this._numberCache[thousandPlace], 2, yPos);
+  DrawLineNumber(e, i, n) {
+    let s = i % 10, l = (Math.floor(i / 10) & 4294967295) % 10, h = (Math.floor(i / 100) & 4294967295) % 10, d = (Math.floor(i / 1e3) & 4294967295) % 10;
+    e.drawParagraph(this._numberCache[s], 2 + this._numberWidth * 3, n), i >= 10 && e.drawParagraph(this._numberCache[l], 2 + this._numberWidth * 2, n), i >= 100 && e.drawParagraph(this._numberCache[h], 2 + this._numberWidth, n), i >= 1e3 && e.drawParagraph(this._numberCache[d], 2, n);
   }
 }
-var CompletionItemKind = /* @__PURE__ */ ((CompletionItemKind2) => {
-  CompletionItemKind2[CompletionItemKind2["Method"] = 0] = "Method";
-  CompletionItemKind2[CompletionItemKind2["Function"] = 1] = "Function";
-  CompletionItemKind2[CompletionItemKind2["Constructor"] = 2] = "Constructor";
-  CompletionItemKind2[CompletionItemKind2["Field"] = 3] = "Field";
-  CompletionItemKind2[CompletionItemKind2["Variable"] = 4] = "Variable";
-  CompletionItemKind2[CompletionItemKind2["Class"] = 5] = "Class";
-  CompletionItemKind2[CompletionItemKind2["Struct"] = 6] = "Struct";
-  CompletionItemKind2[CompletionItemKind2["Interface"] = 7] = "Interface";
-  CompletionItemKind2[CompletionItemKind2["Module"] = 8] = "Module";
-  CompletionItemKind2[CompletionItemKind2["Property"] = 9] = "Property";
-  CompletionItemKind2[CompletionItemKind2["Event"] = 10] = "Event";
-  CompletionItemKind2[CompletionItemKind2["Operator"] = 11] = "Operator";
-  CompletionItemKind2[CompletionItemKind2["Unit"] = 12] = "Unit";
-  CompletionItemKind2[CompletionItemKind2["Value"] = 13] = "Value";
-  CompletionItemKind2[CompletionItemKind2["Constant"] = 14] = "Constant";
-  CompletionItemKind2[CompletionItemKind2["Enum"] = 15] = "Enum";
-  CompletionItemKind2[CompletionItemKind2["EnumMember"] = 16] = "EnumMember";
-  CompletionItemKind2[CompletionItemKind2["Keyword"] = 17] = "Keyword";
-  CompletionItemKind2[CompletionItemKind2["Text"] = 18] = "Text";
-  CompletionItemKind2[CompletionItemKind2["Color"] = 19] = "Color";
-  CompletionItemKind2[CompletionItemKind2["File"] = 20] = "File";
-  CompletionItemKind2[CompletionItemKind2["Reference"] = 21] = "Reference";
-  CompletionItemKind2[CompletionItemKind2["CustomColor"] = 22] = "CustomColor";
-  CompletionItemKind2[CompletionItemKind2["Folder"] = 23] = "Folder";
-  CompletionItemKind2[CompletionItemKind2["TypeParameter"] = 24] = "TypeParameter";
-  CompletionItemKind2[CompletionItemKind2["User"] = 25] = "User";
-  CompletionItemKind2[CompletionItemKind2["Issue"] = 26] = "Issue";
-  CompletionItemKind2[CompletionItemKind2["Snippet"] = 27] = "Snippet";
-  return CompletionItemKind2;
-})(CompletionItemKind || {});
-class CompletionWord {
-  constructor(offset, word) {
-    __publicField(this, "Offset");
-    __publicField(this, "Word");
-    this.Offset = offset;
-    this.Word = word;
+var ft = /* @__PURE__ */ ((r) => (r[r.Method = 0] = "Method", r[r.Function = 1] = "Function", r[r.Constructor = 2] = "Constructor", r[r.Field = 3] = "Field", r[r.Variable = 4] = "Variable", r[r.Class = 5] = "Class", r[r.Struct = 6] = "Struct", r[r.Interface = 7] = "Interface", r[r.Module = 8] = "Module", r[r.Property = 9] = "Property", r[r.Event = 10] = "Event", r[r.Operator = 11] = "Operator", r[r.Unit = 12] = "Unit", r[r.Value = 13] = "Value", r[r.Constant = 14] = "Constant", r[r.Enum = 15] = "Enum", r[r.EnumMember = 16] = "EnumMember", r[r.Keyword = 17] = "Keyword", r[r.Text = 18] = "Text", r[r.Color = 19] = "Color", r[r.File = 20] = "File", r[r.Reference = 21] = "Reference", r[r.CustomColor = 22] = "CustomColor", r[r.Folder = 23] = "Folder", r[r.TypeParameter = 24] = "TypeParameter", r[r.User = 25] = "User", r[r.Issue = 26] = "Issue", r[r.Snippet = 27] = "Snippet", r))(ft || {});
+class ye {
+  constructor(t, e) {
+    o(this, "Offset");
+    o(this, "Word");
+    this.Offset = t, this.Word = e;
   }
 }
-class CompletionItemWidget extends PixUI.Widget {
-  constructor(item, isSelected) {
+class yt extends u.Widget {
+  constructor(e, i) {
     super();
-    __publicField(this, "_item");
-    __publicField(this, "_isSelected");
-    __publicField(this, "_iconPainter");
-    __publicField(this, "_paragraph");
-    this._item = item;
-    this._isSelected = isSelected;
-    this._iconPainter = new PixUI.IconPainter(() => this.Invalidate(PixUI.InvalidAction.Repaint));
+    o(this, "_item");
+    o(this, "_isSelected");
+    o(this, "_iconPainter");
+    o(this, "_paragraph");
+    this._item = e, this._isSelected = i, this._iconPainter = new u.IconPainter(() => this.Invalidate(u.InvalidAction.Repaint));
   }
-  Layout(availableWidth, availableHeight) {
-    this.SetSize(availableWidth, availableHeight);
+  Layout(e, i) {
+    this.SetSize(e, i);
   }
-  Paint(canvas, area = null) {
-    var _a;
-    let fontSize = 13;
-    let x = 2;
-    let y = 3;
-    this._iconPainter.Paint(canvas, fontSize, PixUI.Colors.Gray, CompletionItemWidget.GetIcon(this._item.Kind), x, y);
-    (_a = this._paragraph) != null ? _a : this._paragraph = PixUI.TextPainter.BuildParagraph(this._item.Label, Number.POSITIVE_INFINITY, fontSize, PixUI.Colors.Black, null, 1, true);
-    canvas.drawParagraph(this._paragraph, x + 20, y);
+  Paint(e, i = null) {
+    var h;
+    let n = 13, s = 2, l = 3;
+    this._iconPainter.Paint(e, n, u.Colors.Gray, yt.GetIcon(this._item.Kind), s, l), (h = this._paragraph) != null || (this._paragraph = u.TextPainter.BuildParagraph(
+      this._item.Label,
+      Number.POSITIVE_INFINITY,
+      n,
+      u.Colors.Black,
+      null,
+      1,
+      !0
+    )), e.drawParagraph(this._paragraph, s + 20, l);
   }
-  static GetIcon(kind) {
-    switch (kind) {
-      case CompletionItemKind.Function:
-      case CompletionItemKind.Method:
-        return PixUI.Icons.Filled.Functions;
-      case CompletionItemKind.Event:
-        return PixUI.Icons.Filled.Bolt;
+  static GetIcon(e) {
+    switch (e) {
+      case ft.Function:
+      case ft.Method:
+        return u.Icons.Filled.Functions;
+      case ft.Event:
+        return u.Icons.Filled.Bolt;
       default:
-        return PixUI.Icons.Filled.Title;
+        return u.Icons.Filled.Title;
     }
   }
 }
-const _CompletionContext = class {
-  constructor(controller, provider) {
-    __publicField(this, "_controller");
-    __publicField(this, "_provider");
-    __publicField(this, "_completionStartOffset", -1);
-    __publicField(this, "_startByTriggerChar", false);
-    __publicField(this, "_completionWindow");
-    __publicField(this, "_state", _CompletionContext.StateIdle);
-    this._controller = controller;
-    this._provider = provider;
+const P = class {
+  constructor(t, e) {
+    o(this, "_controller");
+    o(this, "_provider");
+    o(this, "_completionStartOffset", -1);
+    o(this, "_startByTriggerChar", !1);
+    o(this, "_completionWindow");
+    o(this, "_state", P.StateIdle);
+    this._controller = t, this._provider = e;
   }
-  RunCompletion(value) {
+  RunCompletion(t) {
     if (this._provider == null)
       return;
-    let word = this.GetWordAtPosition(this._controller.TextEditor.Caret.Position);
-    if (this._state == _CompletionContext.StateShow) {
-      if (word == null) {
+    let e = this.GetWordAtPosition(this._controller.TextEditor.Caret.Position);
+    if (this._state == P.StateShow)
+      if (e == null)
         this.HideCompletionWindow();
-      } else {
+      else {
         this.UpdateFilter();
         return;
       }
-    }
-    if (word != null) {
-      this._completionStartOffset = word.Offset;
-      this._startByTriggerChar = false;
-      this._state = _CompletionContext.StateShow;
-      this.RunInternal(word.Word);
-    } else {
-      let triggerChar = value.charCodeAt(value.length - 1);
-      if (this._provider.TriggerCharacters.Contains(triggerChar)) {
-        this._completionStartOffset = this._controller.TextEditor.Caret.Offset;
-        this._startByTriggerChar = true;
-        this._state = _CompletionContext.StateShow;
-        this.RunInternal("");
-      }
+    if (e != null)
+      this._completionStartOffset = e.Offset, this._startByTriggerChar = !1, this._state = P.StateShow, this.RunInternal(e.Word);
+    else {
+      let i = t.charCodeAt(t.length - 1);
+      this._provider.TriggerCharacters.Contains(i) && (this._completionStartOffset = this._controller.TextEditor.Caret.Offset, this._startByTriggerChar = !0, this._state = P.StateShow, this.RunInternal(""));
     }
   }
-  async RunInternal(filter) {
-    let items = await this._provider.ProvideCompletionItems(this._controller.Document, this._controller.TextEditor.Caret.Offset, filter);
-    this.ShowCompletionWindow(items, "");
+  async RunInternal(t) {
+    let e = await this._provider.ProvideCompletionItems(
+      this._controller.Document,
+      this._controller.TextEditor.Caret.Offset,
+      t
+    );
+    this.ShowCompletionWindow(e, "");
   }
-  GetWordAtPosition(pos) {
-    let lineSegment = this._controller.Document.GetLineSegment(pos.Line);
-    let token = lineSegment.GetTokenAt(pos.Column);
-    if (token == null)
+  GetWordAtPosition(t) {
+    let e = this._controller.Document.GetLineSegment(t.Line), i = e.GetTokenAt(t.Column);
+    if (i == null)
       return null;
-    let tokenType = CodeToken.GetTokenType(token);
-    if (tokenType == TokenType.Comment || tokenType == TokenType.Constant || tokenType == TokenType.LiteralNumber || tokenType == TokenType.LiteralString || tokenType == TokenType.PunctuationBracket || tokenType == TokenType.PunctuationDelimiter || tokenType == TokenType.WhiteSpace || tokenType == TokenType.Operator)
+    let n = G.GetTokenType(i);
+    if (n == a.Comment || n == a.Constant || n == a.LiteralNumber || n == a.LiteralString || n == a.PunctuationBracket || n == a.PunctuationDelimiter || n == a.WhiteSpace || n == a.Operator)
       return null;
-    let tokenStartColumn = CodeToken.GetTokenStartColumn(token);
-    let len = pos.Column - tokenStartColumn;
-    if (len <= 0)
+    let s = G.GetTokenStartColumn(i), l = t.Column - s;
+    if (l <= 0)
       return null;
-    let offset = lineSegment.Offset + tokenStartColumn;
-    let tokenWord = this._controller.Document.GetText(offset, len);
-    return new CompletionWord(offset, tokenWord);
+    let h = e.Offset + s, d = this._controller.Document.GetText(h, l);
+    return new ye(h, d);
   }
-  ShowCompletionWindow(list, filter) {
-    if (list == null || list.length == 0) {
-      this._state = _CompletionContext.StateIdle;
+  ShowCompletionWindow(t, e) {
+    if (t == null || t.length == 0) {
+      this._state = P.StateIdle;
       return;
     }
-    if (this._completionWindow == null) {
-      this._completionWindow = new PixUI.ListPopup(this._controller.Widget.Overlay, _CompletionContext.BuildPopupItem, 250, 18, 8);
-      this._completionWindow.OnSelectionChanged = this.OnCompletionDone.bind(this);
-    }
-    this._completionWindow.DataSource = list;
-    this._completionWindow.TrySelectFirst();
-    let caret = this._controller.TextEditor.Caret;
-    let lineHeight = this._controller.TextEditor.TextView.FontHeight;
-    let pt2Win = this._controller.Widget.LocalToWindow(0, 0);
-    this._completionWindow.UpdatePosition(caret.CanvasPosX + pt2Win.X - 8, caret.CanvasPosY + lineHeight + pt2Win.Y);
-    this._completionWindow.Show();
+    this._completionWindow == null && (this._completionWindow = new u.ListPopup(
+      this._controller.Widget.Overlay,
+      P.BuildPopupItem,
+      250,
+      18,
+      8
+    ), this._completionWindow.OnSelectionChanged = this.OnCompletionDone.bind(this)), this._completionWindow.DataSource = t, this._completionWindow.TrySelectFirst();
+    let i = this._controller.TextEditor.Caret, n = this._controller.TextEditor.TextView.FontHeight, s = this._controller.Widget.LocalToWindow(0, 0);
+    this._completionWindow.UpdatePosition(
+      i.CanvasPosX + s.X - 8,
+      i.CanvasPosY + n + s.Y
+    ), this._completionWindow.Show();
   }
   HideCompletionWindow() {
-    var _a;
-    (_a = this._completionWindow) == null ? void 0 : _a.Hide();
-    this._state = _CompletionContext.StateIdle;
+    var t;
+    (t = this._completionWindow) == null || t.Hide(), this._state = P.StateIdle;
   }
   UpdateFilter() {
-    var _a, _b;
-    let filter = this._controller.Document.GetText(this._completionStartOffset, this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
-    (_a = this._completionWindow) == null ? void 0 : _a.UpdateFilter((t) => t.Label.startsWith(filter));
-    (_b = this._completionWindow) == null ? void 0 : _b.TrySelectFirst();
+    var e, i;
+    let t = this._controller.Document.GetText(
+      this._completionStartOffset,
+      this._controller.TextEditor.Caret.Offset - this._completionStartOffset
+    );
+    (e = this._completionWindow) == null || e.UpdateFilter((n) => n.Label.startsWith(t)), (i = this._completionWindow) == null || i.TrySelectFirst();
   }
   ClearFilter() {
-    var _a, _b;
-    (_a = this._completionWindow) == null ? void 0 : _a.ClearFilter();
-    (_b = this._completionWindow) == null ? void 0 : _b.TrySelectFirst();
+    var t, e;
+    (t = this._completionWindow) == null || t.ClearFilter(), (e = this._completionWindow) == null || e.TrySelectFirst();
   }
   OnCaretChangedByNoneTextInput() {
-    if (this._state != _CompletionContext.StateSuspendHide) {
+    if (this._state != P.StateSuspendHide) {
       this.HideCompletionWindow();
       return;
     }
-    let caret = this._controller.TextEditor.Caret;
-    if (caret.Offset <= this._completionStartOffset) {
-      if (caret.Offset == this._completionStartOffset && this._startByTriggerChar) {
-        this._state = _CompletionContext.StateShow;
-        this.ClearFilter();
-      } else {
-        this.HideCompletionWindow();
-      }
-    } else {
-      this._state = _CompletionContext.StateShow;
-      this.UpdateFilter();
-    }
+    let t = this._controller.TextEditor.Caret;
+    t.Offset <= this._completionStartOffset ? t.Offset == this._completionStartOffset && this._startByTriggerChar ? (this._state = P.StateShow, this.ClearFilter()) : this.HideCompletionWindow() : (this._state = P.StateShow, this.UpdateFilter());
   }
-  PreProcessKeyDown(e) {
-    if (this._state == _CompletionContext.StateShow) {
-      if (e.KeyCode == PixUI.Keys.Back)
-        this._state = _CompletionContext.StateSuspendHide;
-    }
+  PreProcessKeyDown(t) {
+    this._state == P.StateShow && t.KeyCode == u.Keys.Back && (this._state = P.StateSuspendHide);
   }
-  OnCompletionDone(item) {
-    var _a;
-    this.HideCompletionWindow();
-    if (item == null)
-      return;
-    this._controller.TextEditor.InsertOrReplaceString((_a = item.InsertText) != null ? _a : item.Label, this._controller.TextEditor.Caret.Offset - this._completionStartOffset);
+  OnCompletionDone(t) {
+    var e;
+    this.HideCompletionWindow(), t != null && this._controller.TextEditor.InsertOrReplaceString(
+      (e = t.InsertText) != null ? e : t.Label,
+      this._controller.TextEditor.Caret.Offset - this._completionStartOffset
+    );
   }
-  static BuildPopupItem(item, index, isHover, isSelected) {
-    return new CompletionItemWidget(item, isSelected);
+  static BuildPopupItem(t, e, i, n) {
+    return new yt(t, n);
   }
 };
-let CompletionContext = _CompletionContext;
-__publicField(CompletionContext, "StateIdle", 0);
-__publicField(CompletionContext, "StateShow", 1);
-__publicField(CompletionContext, "StateSuspendHide", 2);
-var CaretMode = /* @__PURE__ */ ((CaretMode2) => {
-  CaretMode2[CaretMode2["InsertMode"] = 0] = "InsertMode";
-  CaretMode2[CaretMode2["OverwriteMode"] = 1] = "OverwriteMode";
-  return CaretMode2;
-})(CaretMode || {});
-class Caret {
-  constructor(editor) {
-    __publicField(this, "_textEditor");
-    __publicField(this, "_line", 0);
-    __publicField(this, "_column", 0);
-    __publicField(this, "_caretPosX", 0);
-    __publicField(this, "_caretPosY", 0);
-    __publicField(this, "_currentPos", new TextLocation(-1, -1));
-    __publicField(this, "_desiredXPos", 0);
-    __publicField(this, "Mode", 0);
-    __publicField(this, "PositionChanged", new System.Event());
-    this._textEditor = editor;
+let v = P;
+o(v, "StateIdle", 0), o(v, "StateShow", 1), o(v, "StateSuspendHide", 2);
+var Re = /* @__PURE__ */ ((r) => (r[r.InsertMode = 0] = "InsertMode", r[r.OverwriteMode = 1] = "OverwriteMode", r))(Re || {});
+class Ge {
+  constructor(t) {
+    o(this, "_textEditor");
+    o(this, "_line", 0);
+    o(this, "_column", 0);
+    o(this, "_caretPosX", 0);
+    o(this, "_caretPosY", 0);
+    o(this, "_currentPos", new L(-1, -1));
+    o(this, "_desiredXPos", 0);
+    o(this, "Mode", 0);
+    o(this, "PositionChanged", new c.Event());
+    this._textEditor = t;
   }
   get Line() {
     return this._line;
   }
-  set Line(value) {
-    if (this._line != value) {
-      this._line = value;
-      this.ValidateCaretPos();
-      this.UpdateCaretPosition();
-      this.OnPositionChanged();
-    }
+  set Line(t) {
+    this._line != t && (this._line = t, this.ValidateCaretPos(), this.UpdateCaretPosition(), this.OnPositionChanged());
   }
   get Column() {
     return this._column;
   }
-  set Column(value) {
-    if (this._column != value) {
-      this._column = value;
-      this.ValidateCaretPos();
-      this.UpdateCaretPosition();
-      this.OnPositionChanged();
-    }
+  set Column(t) {
+    this._column != t && (this._column = t, this.ValidateCaretPos(), this.UpdateCaretPosition(), this.OnPositionChanged());
   }
   get CanvasPosX() {
     return this._textEditor.TextView.Bounds.Left + this._caretPosX - this._textEditor.VirtualTop.X - 0.5;
@@ -3585,163 +2733,148 @@ class Caret {
     return this._textEditor.TextView.Bounds.Top + this._caretPosY - this._textEditor.VirtualTop.Y;
   }
   get Position() {
-    return new TextLocation(this._column, this._line);
+    return new L(this._column, this._line);
   }
-  set Position(value) {
-    if (this._line != value.Line || this._column != value.Column) {
-      this._line = value.Line;
-      this._column = value.Column;
-      this.UpdateCaretPosition();
-      this.OnPositionChanged();
-    }
+  set Position(t) {
+    (this._line != t.Line || this._column != t.Column) && (this._line = t.Line, this._column = t.Column, this.UpdateCaretPosition(), this.OnPositionChanged());
   }
   get Offset() {
     return this._textEditor.Document.PositionToOffset(this.Position.Clone());
   }
-  ValidatePosition(pos) {
-    let line = Math.max(0, Math.min(this._textEditor.Document.TotalNumberOfLines - 1, pos.Line));
-    let column = Math.max(0, pos.Column);
-    if (column >= TextLocation.MaxColumn || !this._textEditor.Document.TextEditorOptions.AllowCaretBeyondEOL) {
-      let lineSegment = this._textEditor.Document.GetLineSegment(line);
-      column = Math.min(column, lineSegment.Length);
+  ValidatePosition(t) {
+    let e = Math.max(0, Math.min(this._textEditor.Document.TotalNumberOfLines - 1, t.Line)), i = Math.max(0, t.Column);
+    if (i >= L.MaxColumn || !this._textEditor.Document.TextEditorOptions.AllowCaretBeyondEOL) {
+      let n = this._textEditor.Document.GetLineSegment(e);
+      i = Math.min(i, n.Length);
     }
-    return new TextLocation(column, line);
+    return new L(i, e);
   }
   ValidateCaretPos() {
-    this._line = Math.max(0, Math.min(this._textEditor.Document.TotalNumberOfLines - 1, this._line));
-    this._column = Math.max(0, this._column);
-    if (this._column >= TextLocation.MaxColumn || !this._textEditor.Document.TextEditorOptions.AllowCaretBeyondEOL) {
-      let lineSegment = this._textEditor.Document.GetLineSegment(this._line);
-      this._column = Math.min(this._column, lineSegment.Length);
+    if (this._line = Math.max(0, Math.min(this._textEditor.Document.TotalNumberOfLines - 1, this._line)), this._column = Math.max(0, this._column), this._column >= L.MaxColumn || !this._textEditor.Document.TextEditorOptions.AllowCaretBeyondEOL) {
+      let t = this._textEditor.Document.GetLineSegment(this._line);
+      this._column = Math.min(this._column, t.Length);
     }
   }
   UpdateCaretPosition() {
-    this.ValidateCaretPos();
-    this._caretPosX = this._textEditor.TextView.GetDrawingXPos(this._line, this._column) + this._textEditor.VirtualTop.X;
-    this._caretPosY = this._textEditor.Document.GetVisibleLine(this._line) * this._textEditor.TextView.FontHeight;
+    this.ValidateCaretPos(), this._caretPosX = this._textEditor.TextView.GetDrawingXPos(this._line, this._column) + this._textEditor.VirtualTop.X, this._caretPosY = this._textEditor.Document.GetVisibleLine(this._line) * this._textEditor.TextView.FontHeight;
   }
   OnPositionChanged() {
     this.PositionChanged.Invoke();
   }
-  Paint(canvas) {
-    let fontHeight = this._textEditor.TextView.FontHeight;
-    let textViewArea = this._textEditor.TextView.Bounds.Clone();
-    let cx = this.CanvasPosX;
-    let cy = this.CanvasPosY;
-    if (cx >= textViewArea.Left - 0.5) {
-      let paint = PixUI.PaintUtils.Shared(this._textEditor.Theme.CaretColor);
-      canvas.drawRect(PixUI.Rect.FromLTWH(cx, cy, 2, fontHeight), paint);
+  Paint(t) {
+    let e = this._textEditor.TextView.FontHeight, i = this._textEditor.TextView.Bounds.Clone(), n = this.CanvasPosX, s = this.CanvasPosY;
+    if (n >= i.Left - 0.5) {
+      let h = u.PaintUtils.Shared(this._textEditor.Theme.CaretColor);
+      t.drawRect(u.Rect.FromLTWH(n, s, 2, e), h);
     }
-    let bgPaint = PixUI.PaintUtils.Shared(this._textEditor.Theme.LineHighlightColor);
-    canvas.drawRect(PixUI.Rect.FromLTWH(textViewArea.Left, cy, textViewArea.Width, fontHeight), bgPaint);
+    let l = u.PaintUtils.Shared(this._textEditor.Theme.LineHighlightColor);
+    t.drawRect(
+      u.Rect.FromLTWH(i.Left, s, i.Width, e),
+      l
+    );
   }
 }
-class DirtyLines {
-  constructor(controller) {
-    __publicField(this, "_controller");
-    __publicField(this, "StartLine", 0);
-    __publicField(this, "EndLine", 0);
-    this._controller = controller;
+class Fe {
+  constructor(t) {
+    o(this, "_controller");
+    o(this, "StartLine", 0);
+    o(this, "EndLine", 0);
+    this._controller = t;
   }
-  Merge(newArea) {
+  Merge(t) {
   }
   GetRect() {
-    return PixUI.Rect.Empty;
+    return u.Rect.Empty;
   }
-  IntersectsWith(child) {
-    throw new System.NotSupportedException();
+  IntersectsWith(t) {
+    throw new c.NotSupportedException();
   }
-  ToChild(child) {
-    throw new System.NotSupportedException();
+  ToChild(t) {
+    throw new c.NotSupportedException();
   }
 }
-class TextEditorTheme {
+class Ie {
   constructor() {
-    __publicField(this, "FontSize", 15);
-    __publicField(this, "LineSpace", 2);
-    __publicField(this, "CaretColor", PixUI.Colors.Red);
-    __publicField(this, "LineHighlightColor", new PixUI.Color(150, 150, 150, 20));
-    __publicField(this, "SelectionColor", new PixUI.Color(167, 209, 255, 50));
-    __publicField(this, "TextBgColor", new PixUI.Color(4281019179));
-    __publicField(this, "LineBgColor", new PixUI.Color(4281414453));
-    __publicField(this, "BracketHighlightPaint", new CanvasKit.Paint());
-    __publicField(this, "LineNumberColor", new PixUI.Color(4284506982));
-    __publicField(this, "TextStyle", PixUI.MakeTextStyle({ color: new PixUI.Color(4289312711), heightMultiplier: 1 }));
-    __publicField(this, "FoldedTextStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4289312711),
+    o(this, "FontSize", 15);
+    o(this, "LineSpace", 2);
+    o(this, "CaretColor", u.Colors.Red);
+    o(this, "LineHighlightColor", new u.Color(150, 150, 150, 20));
+    o(this, "SelectionColor", new u.Color(167, 209, 255, 50));
+    o(this, "TextBgColor", new u.Color(4281019179));
+    o(this, "LineBgColor", new u.Color(4281414453));
+    o(this, "BracketHighlightPaint", new CanvasKit.Paint());
+    o(this, "LineNumberColor", new u.Color(4284506982));
+    o(this, "TextStyle", u.MakeTextStyle({ color: new u.Color(4289312711), heightMultiplier: 1 }));
+    o(this, "FoldedTextStyle", u.MakeTextStyle({
+      color: new u.Color(4289312711),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenErrorStyle", PixUI.MakeTextStyle({ color: PixUI.Colors.Red, heightMultiplier: 1 }));
-    __publicField(this, "_tokenTypeStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4284996593),
+    o(this, "_tokenErrorStyle", u.MakeTextStyle({ color: u.Colors.Red, heightMultiplier: 1 }));
+    o(this, "_tokenTypeStyle", u.MakeTextStyle({
+      color: new u.Color(4284996593),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenNumberStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4285109949),
+    o(this, "_tokenNumberStyle", u.MakeTextStyle({
+      color: new u.Color(4285109949),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenStringStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4288201593),
+    o(this, "_tokenStringStyle", u.MakeTextStyle({
+      color: new u.Color(4288201593),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenKeywordStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4291590439),
+    o(this, "_tokenKeywordStyle", u.MakeTextStyle({
+      color: new u.Color(4291590439),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenCommentStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4284454991),
+    o(this, "_tokenCommentStyle", u.MakeTextStyle({
+      color: new u.Color(4284454991),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenVariableStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4292897909),
+    o(this, "_tokenVariableStyle", u.MakeTextStyle({
+      color: new u.Color(4292897909),
       heightMultiplier: 1
     }));
-    __publicField(this, "_tokenFunctionStyle", PixUI.MakeTextStyle({
-      color: new PixUI.Color(4294952803),
+    o(this, "_tokenFunctionStyle", u.MakeTextStyle({
+      color: new u.Color(4294952803),
       heightMultiplier: 1
     }));
   }
-  GetTokenStyle(tokenType) {
-    switch (tokenType) {
-      case TokenType.Error:
+  GetTokenStyle(t) {
+    switch (t) {
+      case a.Error:
         return this._tokenErrorStyle;
-      case TokenType.Type:
+      case a.Type:
         return this._tokenTypeStyle;
-      case TokenType.BuiltinType:
+      case a.BuiltinType:
         return this._tokenTypeStyle;
-      case TokenType.LiteralNumber:
+      case a.LiteralNumber:
         return this._tokenNumberStyle;
-      case TokenType.LiteralString:
+      case a.LiteralString:
         return this._tokenStringStyle;
-      case TokenType.Constant:
-      case TokenType.Keyword:
+      case a.Constant:
+      case a.Keyword:
         return this._tokenKeywordStyle;
-      case TokenType.Comment:
+      case a.Comment:
         return this._tokenCommentStyle;
-      case TokenType.Variable:
+      case a.Variable:
         return this._tokenVariableStyle;
-      case TokenType.Function:
+      case a.Function:
         return this._tokenFunctionStyle;
       default:
         return this.TextStyle;
     }
   }
 }
-class TextEditor {
-  constructor(controller) {
-    __publicField(this, "Controller");
-    __publicField(this, "Caret");
-    __publicField(this, "SelectionManager");
-    __publicField(this, "TextView");
-    __publicField(this, "LeftAreas");
-    __publicField(this, "_virtualTop", PixUI.Point.Empty.Clone());
-    __publicField(this, "PointerPos", PixUI.Point.Empty.Clone());
-    this.Controller = controller;
-    this.Controller.Document.UndoStack.TextEditor = this;
-    this.Caret = new Caret(this);
-    this.SelectionManager = new SelectionManager(this);
-    this.TextView = new TextView(this);
-    this.LeftAreas = [new GutterArea(this), new FoldArea(this)];
+class Me {
+  constructor(t) {
+    o(this, "Controller");
+    o(this, "Caret");
+    o(this, "SelectionManager");
+    o(this, "TextView");
+    o(this, "LeftAreas");
+    o(this, "_virtualTop", u.Point.Empty.Clone());
+    o(this, "PointerPos", u.Point.Empty.Clone());
+    this.Controller = t, this.Controller.Document.UndoStack.TextEditor = this, this.Caret = new Ge(this), this.SelectionManager = new D(this), this.TextView = new Ee(this), this.LeftAreas = [new Oe(this), new Pe(this)];
   }
   get Theme() {
     return this.Controller.Theme;
@@ -3752,329 +2885,242 @@ class TextEditor {
   get VirtualTop() {
     return this._virtualTop;
   }
-  set VirtualTop(value) {
-    let newVirtualTop = new PixUI.Point(Math.max(0, value.X), Math.min(this.MaxVScrollValue, Math.max(0, value.Y)));
-    if (System.OpInequality(this._virtualTop, newVirtualTop))
-      this._virtualTop = newVirtualTop.Clone();
+  set VirtualTop(t) {
+    let e = new u.Point(
+      Math.max(0, t.X),
+      Math.min(this.MaxVScrollValue, Math.max(0, t.Y))
+    );
+    c.OpInequality(this._virtualTop, e) && (this._virtualTop = e.Clone());
   }
   get MaxVScrollValue() {
     return (this.Document.GetVisibleLine(this.Document.TotalNumberOfLines - 1) + 1 + this.TextView.VisibleLineCount * 2 / 3) * this.TextView.FontHeight;
   }
-  InsertOrReplaceString(text, replaceOffset = 0) {
-    this.Document.UndoStack.StartUndoGroup();
-    if (this.Document.TextEditorOptions.DocumentSelectionMode == DocumentSelectionMode.Normal && this.SelectionManager.HasSomethingSelected) {
-      this.Caret.Position = this.SelectionManager.SelectionCollection[0].StartPosition.Clone();
-      this.SelectionManager.RemoveSelectedText();
+  InsertOrReplaceString(t, e = 0) {
+    this.Document.UndoStack.StartUndoGroup(), this.Document.TextEditorOptions.DocumentSelectionMode == Pt.Normal && this.SelectionManager.HasSomethingSelected && (this.Caret.Position = this.SelectionManager.SelectionCollection[0].StartPosition.Clone(), this.SelectionManager.RemoveSelectedText());
+    let i = this.Document.GetLineSegment(this.Caret.Line);
+    if (i.Length < this.Caret.Column) {
+      let n = this.Caret.Column - i.Length;
+      t = " ".repeat(n) + t;
     }
-    let caretLine = this.Document.GetLineSegment(this.Caret.Line);
-    if (caretLine.Length < this.Caret.Column) {
-      let whiteSpaceLength = this.Caret.Column - caretLine.Length;
-      text = " ".repeat(whiteSpaceLength) + text;
-    }
-    if (replaceOffset == 0) {
-      this.Document.Insert(this.Caret.Offset, text);
-      this.Caret.Position = this.Document.OffsetToPosition(this.Caret.Offset + text.length);
-    } else {
-      this.Document.Replace(this.Caret.Offset - replaceOffset, replaceOffset, text);
-      if (replaceOffset == text.length) {
-        this.Caret.UpdateCaretPosition();
-      } else {
-        this.Caret.Position = new TextLocation(this.Caret.Position.Column - replaceOffset + text.length, this.Caret.Position.Line);
-      }
-    }
-    this.Document.UndoStack.EndUndoGroup();
+    e == 0 ? (this.Document.Insert(this.Caret.Offset, t), this.Caret.Position = this.Document.OffsetToPosition(this.Caret.Offset + t.length)) : (this.Document.Replace(this.Caret.Offset - e, e, t), e == t.length ? this.Caret.UpdateCaretPosition() : this.Caret.Position = new L(
+      this.Caret.Position.Column - e + t.length,
+      this.Caret.Position.Line
+    )), this.Document.UndoStack.EndUndoGroup();
   }
   DeleteSelection() {
-    if (this.SelectionManager.SelectionIsReadonly)
-      return;
-    this.Caret.Position = this.SelectionManager.SelectionCollection[0].StartPosition.Clone();
-    this.SelectionManager.RemoveSelectedText();
+    this.SelectionManager.SelectionIsReadonly || (this.Caret.Position = this.SelectionManager.SelectionCollection[0].StartPosition.Clone(), this.SelectionManager.RemoveSelectedText());
   }
-  Paint(canvas, size, dirtyArea) {
-    let currentXPos = 0;
-    let currentYPos = 0;
-    for (const area of this.LeftAreas) {
-      if (!area.IsVisible)
+  Paint(t, e, i) {
+    let n = 0, s = 0;
+    for (const h of this.LeftAreas) {
+      if (!h.IsVisible)
         continue;
-      let areaRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, area.Size.Width, size.Height - currentYPos);
-      if (System.OpInequality(areaRect, area.Bounds)) {
-        area.Bounds = areaRect.Clone();
-      }
-      currentXPos += area.Bounds.Width;
-      area.Paint(canvas, areaRect.Clone());
+      let d = u.Rect.FromLTWH(
+        n,
+        s,
+        h.Size.Width,
+        e.Height - s
+      );
+      c.OpInequality(d, h.Bounds) && (h.Bounds = d.Clone()), n += h.Bounds.Width, h.Paint(t, d.Clone());
     }
-    let textRect = PixUI.Rect.FromLTWH(currentXPos, currentYPos, size.Width - currentXPos, size.Height - currentYPos);
-    if (System.OpInequality(textRect, this.TextView.Bounds)) {
-      this.TextView.Bounds = textRect.Clone();
-    }
-    this.TextView.Paint(canvas, textRect.Clone());
+    let l = u.Rect.FromLTWH(
+      n,
+      s,
+      e.Width - n,
+      e.Height - s
+    );
+    c.OpInequality(l, this.TextView.Bounds) && (this.TextView.Bounds = l.Clone()), this.TextView.Paint(t, l.Clone());
   }
 }
-class EditorDecorator extends PixUI.Widget {
-  constructor(codeEditor) {
+class ke extends u.Widget {
+  constructor(e) {
     super();
-    __publicField(this, "_codeEditor");
-    this._codeEditor = codeEditor;
+    o(this, "_codeEditor");
+    this._codeEditor = e;
   }
-  Layout(availableWidth, availableHeight) {
+  Layout(e, i) {
     this.SetSize(0, 0);
   }
-  Paint(canvas, area = null) {
-    let textEditor = this._codeEditor.Controller.TextEditor;
-    canvas.save();
-    let pt2Win = this._codeEditor.LocalToWindow(0, 0);
-    canvas.translate(pt2Win.X, pt2Win.Y);
-    canvas.clipRect(textEditor.TextView.Bounds, CanvasKit.ClipOp.Intersect, false);
-    textEditor.Caret.Paint(canvas);
-    let textView = textEditor.TextView;
-    let paint = PixUI.PaintUtils.Shared(textEditor.Theme.SelectionColor);
-    for (const selection of textEditor.SelectionManager.SelectionCollection) {
-      let startLine = selection.StartPosition.Line;
-      let endLine = selection.EndPosition.Line;
-      for (let i = startLine; i <= endLine; i++) {
-        if (!textEditor.Document.FoldingManager.IsLineVisible(i))
+  Paint(e, i = null) {
+    let n = this._codeEditor.Controller.TextEditor;
+    e.save();
+    let s = this._codeEditor.LocalToWindow(0, 0);
+    e.translate(s.X, s.Y), e.clipRect(n.TextView.Bounds, CanvasKit.ClipOp.Intersect, !1), n.Caret.Paint(e);
+    let l = n.TextView, h = u.PaintUtils.Shared(n.Theme.SelectionColor);
+    for (const d of n.SelectionManager.SelectionCollection) {
+      let f = d.StartPosition.Line, C = d.EndPosition.Line;
+      for (let S = f; S <= C; S++) {
+        if (!n.Document.FoldingManager.IsLineVisible(S))
           continue;
-        let startXPos = 0;
-        let endXPos = 0;
-        if (i == startLine) {
-          startXPos = textView.GetDrawingXPos(i, selection.StartPosition.Column);
-          if (i == endLine)
-            endXPos = textView.GetDrawingXPos(i, selection.EndPosition.Column);
-          else
-            endXPos = textView.Bounds.Width;
-        } else if (i == endLine) {
-          endXPos = textView.GetDrawingXPos(i, selection.EndPosition.Column);
-        } else {
-          endXPos = textView.Bounds.Width;
-        }
-        let yPos = textView.Bounds.Top + textEditor.Document.GetVisibleLine(i) * textView.FontHeight - textEditor.VirtualTop.Y;
-        canvas.drawRect(PixUI.Rect.FromLTWH(startXPos + textView.Bounds.Left, yPos, endXPos - startXPos, textView.FontHeight), paint);
+        let W = 0, R = 0;
+        S == f && (W = l.GetDrawingXPos(S, d.StartPosition.Column)), S == C ? R = l.GetDrawingXPos(S, d.EndPosition.Column) : R = l.Bounds.Width;
+        let X = l.Bounds.Top + n.Document.GetVisibleLine(S) * l.FontHeight - n.VirtualTop.Y;
+        e.drawRect(u.Rect.FromLTWH(
+          W + l.Bounds.Left,
+          X,
+          R - W,
+          l.FontHeight
+        ), h);
       }
     }
-    canvas.restore();
+    e.restore();
   }
 }
-class CodeEditorController extends PixUI.WidgetController {
-  constructor(fileName, content, completionProvider = null, tag = null) {
+class _ extends u.WidgetController {
+  constructor(e, i, n = null, s = null) {
     super();
-    __publicField(this, "Document");
-    __publicField(this, "TextEditor");
-    __publicField(this, "Theme");
-    __publicField(this, "_completionContext");
-    __publicField(this, "ContextMenuBuilder");
-    __publicField(this, "_editActions", new System.Dictionary().Init([
-      [PixUI.Keys.Left, new CaretLeft()],
-      [PixUI.Keys.Right, new CaretRight()],
-      [PixUI.Keys.Up, new CaretUp()],
-      [PixUI.Keys.Down, new CaretDown()],
-      [PixUI.Keys.Back, new BackspaceCommand()],
-      [PixUI.Keys.Return, new ReturnCommand()],
-      [PixUI.Keys.Tab, new TabCommand()],
-      [PixUI.Keys.Control | PixUI.Keys.C, new CopyCommand()],
-      [PixUI.Keys.Control | PixUI.Keys.X, new CutCommand()],
-      [PixUI.Keys.Control | PixUI.Keys.V, new PasteCommand()],
-      [PixUI.Keys.Control | PixUI.Keys.Z, new UndoCommand()],
-      [PixUI.Keys.Control | PixUI.Keys.Y, new RedoCommand()]
+    o(this, "Document");
+    o(this, "TextEditor");
+    o(this, "Theme");
+    o(this, "_completionContext");
+    o(this, "ContextMenuBuilder");
+    o(this, "_editActions", new c.Dictionary().Init([
+      [u.Keys.Left, new Le()],
+      [u.Keys.Right, new Ce()],
+      [u.Keys.Up, new me()],
+      [u.Keys.Down, new Se()],
+      [u.Keys.Back, new Te()],
+      [u.Keys.Return, new pe()],
+      [u.Keys.Tab, new _e()],
+      [u.Keys.Control | u.Keys.C, new Jt()],
+      [u.Keys.Control | u.Keys.X, new Zt()],
+      [u.Keys.Control | u.Keys.V, new Et()],
+      [u.Keys.Control | u.Keys.Z, new we()],
+      [u.Keys.Control | u.Keys.Y, new xe()]
     ]));
-    __publicField(this, "_mouseDownPos", PixUI.Point.Empty.Clone());
-    __publicField(this, "_gotMouseDown", false);
-    __publicField(this, "_doDragDrop", false);
-    __publicField(this, "_minSelection", TextLocation.Empty.Clone());
-    __publicField(this, "_maxSelection", TextLocation.Empty.Clone());
-    __publicField(this, "_caretChangedByTextInput", false);
-    this.Theme = new TextEditorTheme();
-    this.Document = new Document(fileName, tag);
-    this.TextEditor = new TextEditor(this);
-    this._completionContext = new CompletionContext(this, completionProvider);
-    this.Document.TextContent = content;
-    this.Document.DocumentChanged.Add(this._OnDocumentChanged, this);
-    this.TextEditor.Caret.PositionChanged.Add(this._OnCaretPositionChanged, this);
+    o(this, "_mouseDownPos", u.Point.Empty.Clone());
+    o(this, "_gotMouseDown", !1);
+    o(this, "_doDragDrop", !1);
+    o(this, "_minSelection", L.Empty.Clone());
+    o(this, "_maxSelection", L.Empty.Clone());
+    o(this, "_caretChangedByTextInput", !1);
+    this.Theme = new Ie(), this.Document = new Ht(e, s), this.TextEditor = new Me(this), this._completionContext = new v(this, n), this.Document.TextContent = i, this.Document.DocumentChanged.Add(this._OnDocumentChanged, this), this.TextEditor.Caret.PositionChanged.Add(this._OnCaretPositionChanged, this);
   }
   OnPointerDown(e) {
-    this.TextEditor.PointerPos.X = e.X;
-    this.TextEditor.PointerPos.Y = e.Y;
-    for (const area of this.TextEditor.LeftAreas) {
-      if (area.Bounds.ContainsPoint(e.X, e.Y))
-        area.HandlePointerDown(e.X, e.Y, e.Buttons);
-    }
-    if (this.TextEditor.TextView.Bounds.ContainsPoint(e.X, e.Y)) {
-      this._gotMouseDown = true;
-      this.TextEditor.SelectionManager.SelectFrom.Where = WhereFrom.TextArea;
-      this._mouseDownPos = new PixUI.Point(e.X, e.Y);
-      this._minSelection = TextLocation.Empty.Clone();
-      this._maxSelection = TextLocation.Empty.Clone();
-      this.TextEditor.TextView.HandlePointerDown(e.X, e.Y, e.Buttons);
-    }
+    this.TextEditor.PointerPos.X = e.X, this.TextEditor.PointerPos.Y = e.Y;
+    for (const i of this.TextEditor.LeftAreas)
+      i.Bounds.ContainsPoint(e.X, e.Y) && i.HandlePointerDown(e.X, e.Y, e.Buttons);
+    this.TextEditor.TextView.Bounds.ContainsPoint(e.X, e.Y) && (this._gotMouseDown = !0, this.TextEditor.SelectionManager.SelectFrom.Where = O.TextArea, this._mouseDownPos = new u.Point(e.X, e.Y), this._minSelection = L.Empty.Clone(), this._maxSelection = L.Empty.Clone(), this.TextEditor.TextView.HandlePointerDown(e.X, e.Y, e.Buttons));
   }
   OnPointerUp(e) {
-    this.TextEditor.SelectionManager.SelectFrom.Where = WhereFrom.None;
-    this._gotMouseDown = false;
-    this._mouseDownPos = new PixUI.Point(-1, -1);
+    this.TextEditor.SelectionManager.SelectFrom.Where = O.None, this._gotMouseDown = !1, this._mouseDownPos = new u.Point(-1, -1);
   }
   OnPointerMove(e) {
-    this.TextEditor.PointerPos.X = e.X;
-    this.TextEditor.PointerPos.Y = e.Y;
-    if (e.Buttons == PixUI.PointerButtons.Left) {
-      if (this._gotMouseDown && this.TextEditor.SelectionManager.SelectFrom.Where == WhereFrom.TextArea) {
-        this.ExtendSelectionToPointer();
-      }
-    }
+    this.TextEditor.PointerPos.X = e.X, this.TextEditor.PointerPos.Y = e.Y, e.Buttons == u.PointerButtons.Left && this._gotMouseDown && this.TextEditor.SelectionManager.SelectFrom.Where == O.TextArea && this.ExtendSelectionToPointer();
   }
-  OnScroll(dx, dy) {
-    let oldX = this.TextEditor.VirtualTop.X;
-    let oldY = this.TextEditor.VirtualTop.Y;
-    this.TextEditor.VirtualTop = new PixUI.Point(oldX + dx, oldY + dy);
-    let offset = new PixUI.Offset(this.TextEditor.VirtualTop.X - oldX, this.TextEditor.VirtualTop.Y - oldY);
-    if (offset.Dx != 0 || offset.Dy != 0)
-      this.Widget.RequestInvalidate(true, null);
-    return offset;
+  OnScroll(e, i) {
+    let n = this.TextEditor.VirtualTop.X, s = this.TextEditor.VirtualTop.Y;
+    this.TextEditor.VirtualTop = new u.Point(n + e, s + i);
+    let l = new u.Offset(this.TextEditor.VirtualTop.X - n, this.TextEditor.VirtualTop.Y - s);
+    return (l.Dx != 0 || l.Dy != 0) && this.Widget.RequestInvalidate(!0, null), l;
   }
   OnKeyDown(e) {
-    let cmd;
-    this._completionContext.PreProcessKeyDown(e);
-    if (this._editActions.TryGetValue(Math.floor(e.KeyData) & 4294967295, new System.Out(() => cmd, ($v) => cmd = $v))) {
-      cmd.Execute(this.TextEditor);
-      e.StopPropagate();
-    }
+    let i;
+    this._completionContext.PreProcessKeyDown(e), this._editActions.TryGetValue(Math.floor(e.KeyData) & 4294967295, new c.Out(() => i, (n) => i = n)) && (i.Execute(this.TextEditor), e.StopPropagate());
   }
-  OnTextInput(text) {
-    this._caretChangedByTextInput = true;
-    let closingPair = text.length == 1 ? this.Document.SyntaxParser.Language.GetAutoColsingPairs(text.charCodeAt(0)) : null;
-    if (closingPair == null) {
-      this.TextEditor.InsertOrReplaceString(text, 0);
-    } else {
-      this.TextEditor.InsertOrReplaceString(text + String.fromCharCode(closingPair).repeat(1), 0);
-      let oldPosition = this.TextEditor.Caret.Position.Clone();
-      this.TextEditor.Caret.Position = new TextLocation(oldPosition.Column - 1, oldPosition.Line);
+  OnTextInput(e) {
+    this._caretChangedByTextInput = !0;
+    let i = e.length == 1 ? this.Document.SyntaxParser.Language.GetAutoColsingPairs(e.charCodeAt(0)) : null;
+    if (i == null)
+      this.TextEditor.InsertOrReplaceString(e, 0);
+    else {
+      this.TextEditor.InsertOrReplaceString(e + String.fromCharCode(i).repeat(1), 0);
+      let n = this.TextEditor.Caret.Position.Clone();
+      this.TextEditor.Caret.Position = new L(n.Column - 1, n.Line);
     }
-    this._caretChangedByTextInput = false;
-    this._completionContext.RunCompletion(text);
+    this._caretChangedByTextInput = !1, this._completionContext.RunCompletion(e);
   }
   ExtendSelectionToPointer() {
-    let mousePos = this.TextEditor.PointerPos.Clone();
-    let realMousePos = this.TextEditor.TextView.GetLogicalPosition(Math.max(0, mousePos.X - this.TextEditor.TextView.Bounds.Left), mousePos.Y - this.TextEditor.TextView.Bounds.Top);
-    realMousePos.Line;
-    let oldPos = this.TextEditor.Caret.Position.Clone();
-    if (System.OpEquality(oldPos, realMousePos) && this.TextEditor.SelectionManager.SelectFrom.Where != WhereFrom.Gutter)
-      return;
-    if (this.TextEditor.SelectionManager.SelectFrom.Where == WhereFrom.Gutter) {
-      if (realMousePos.Line < this.TextEditor.SelectionManager.SelectionStart.Line) {
-        this.TextEditor.Caret.Position = new TextLocation(0, realMousePos.Line);
-      } else {
-        this.TextEditor.Caret.Position = this.TextEditor.SelectionManager.NextValidPosition(realMousePos.Line);
-      }
-    } else {
-      this.TextEditor.Caret.Position = realMousePos.Clone();
-    }
-    if (!this._minSelection.IsEmpty && this.TextEditor.SelectionManager.HasSomethingSelected && this.TextEditor.SelectionManager.SelectFrom.Where == WhereFrom.TextArea) {
-      this.TextEditor.SelectionManager.SelectionCollection[0];
-      let min = (SelectionManager.GreaterEqPos(this._minSelection.Clone(), this._maxSelection.Clone()) ? this._maxSelection : this._minSelection).Clone();
-      let max = (SelectionManager.GreaterEqPos(this._minSelection.Clone(), this._maxSelection.Clone()) ? this._minSelection : this._maxSelection).Clone();
-      if (SelectionManager.GreaterEqPos(max.Clone(), realMousePos.Clone()) && SelectionManager.GreaterEqPos(realMousePos.Clone(), min.Clone())) {
-        this.TextEditor.SelectionManager.SetSelection(min.Clone(), max.Clone());
-      } else if (SelectionManager.GreaterEqPos(max.Clone(), realMousePos.Clone())) {
-        let moff = this.TextEditor.Document.PositionToOffset(realMousePos.Clone());
-        min = this.TextEditor.Document.OffsetToPosition(CodeEditorController.FindWordStart(this.TextEditor.Document, moff));
-        this.TextEditor.SelectionManager.SetSelection(min.Clone(), max.Clone());
-      } else {
-        let moff = this.TextEditor.Document.PositionToOffset(realMousePos.Clone());
-        max = this.TextEditor.Document.OffsetToPosition(CodeEditorController.FindWordEnd(this.TextEditor.Document, moff));
-        this.TextEditor.SelectionManager.SetSelection(min.Clone(), max.Clone());
-      }
-    } else {
-      this.TextEditor.SelectionManager.ExtendSelection(oldPos.Clone(), this.TextEditor.Caret.Position.Clone());
-    }
+    let e = this.TextEditor.PointerPos.Clone(), i = this.TextEditor.TextView.GetLogicalPosition(
+      Math.max(0, e.X - this.TextEditor.TextView.Bounds.Left),
+      e.Y - this.TextEditor.TextView.Bounds.Top
+    );
+    i.Line;
+    let n = this.TextEditor.Caret.Position.Clone();
+    if (!(c.OpEquality(n, i) && this.TextEditor.SelectionManager.SelectFrom.Where != O.Gutter))
+      if (this.TextEditor.SelectionManager.SelectFrom.Where == O.Gutter ? i.Line < this.TextEditor.SelectionManager.SelectionStart.Line ? this.TextEditor.Caret.Position = new L(0, i.Line) : this.TextEditor.Caret.Position = this.TextEditor.SelectionManager.NextValidPosition(i.Line) : this.TextEditor.Caret.Position = i.Clone(), !this._minSelection.IsEmpty && this.TextEditor.SelectionManager.HasSomethingSelected && this.TextEditor.SelectionManager.SelectFrom.Where == O.TextArea) {
+        this.TextEditor.SelectionManager.SelectionCollection[0];
+        let s = (D.GreaterEqPos(this._minSelection.Clone(), this._maxSelection.Clone()) ? this._maxSelection : this._minSelection).Clone(), l = (D.GreaterEqPos(this._minSelection.Clone(), this._maxSelection.Clone()) ? this._minSelection : this._maxSelection).Clone();
+        if (D.GreaterEqPos(l.Clone(), i.Clone()) && D.GreaterEqPos(i.Clone(), s.Clone()))
+          this.TextEditor.SelectionManager.SetSelection(s.Clone(), l.Clone());
+        else if (D.GreaterEqPos(l.Clone(), i.Clone())) {
+          let h = this.TextEditor.Document.PositionToOffset(i.Clone());
+          s = this.TextEditor.Document.OffsetToPosition(_.FindWordStart(this.TextEditor.Document, h)), this.TextEditor.SelectionManager.SetSelection(s.Clone(), l.Clone());
+        } else {
+          let h = this.TextEditor.Document.PositionToOffset(i.Clone());
+          l = this.TextEditor.Document.OffsetToPosition(_.FindWordEnd(this.TextEditor.Document, h)), this.TextEditor.SelectionManager.SetSelection(s.Clone(), l.Clone());
+        }
+      } else
+        this.TextEditor.SelectionManager.ExtendSelection(n.Clone(), this.TextEditor.Caret.Position.Clone());
   }
   _OnDocumentChanged(e) {
-    this.Widget.RequestInvalidate(true, null);
+    this.Widget.RequestInvalidate(!0, null);
   }
   _OnCaretPositionChanged() {
-    if (!this._caretChangedByTextInput) {
-      this._completionContext.OnCaretChangedByNoneTextInput();
-    }
-    this.Widget.RequestInvalidate(false, null);
+    this._caretChangedByTextInput || this._completionContext.OnCaretChangedByNoneTextInput(), this.Widget.RequestInvalidate(!1, null);
   }
-  SetCaret(line, column) {
-    this.TextEditor.Caret.Position = new TextLocation(column, line);
+  SetCaret(e, i) {
+    this.TextEditor.Caret.Position = new L(i, e);
   }
-  SetSelection(start, end) {
-    this.TextEditor.SelectionManager.SetSelection(start.Clone(), end.Clone());
+  SetSelection(e, i) {
+    this.TextEditor.SelectionManager.SetSelection(e.Clone(), i.Clone());
   }
-  static IsSelectableChar(c) {
-    return !CodeEditorController.IsWhiteSpace(c);
+  static IsSelectableChar(e) {
+    return !_.IsWhiteSpace(e);
   }
-  static IsWhiteSpace(c) {
-    return c == 32;
+  static IsWhiteSpace(e) {
+    return e == 32;
   }
-  static FindWordStart(document, offset) {
-    let line = document.GetLineSegmentForOffset(offset);
-    if (offset > 0 && CodeEditorController.IsWhiteSpace(document.GetCharAt(offset - 1)) && CodeEditorController.IsWhiteSpace(document.GetCharAt(offset))) {
-      while (offset > line.Offset && CodeEditorController.IsWhiteSpace(document.GetCharAt(offset - 1))) {
-        --offset;
-      }
-    } else if (CodeEditorController.IsSelectableChar(document.GetCharAt(offset)) || offset > 0 && CodeEditorController.IsWhiteSpace(document.GetCharAt(offset)) && CodeEditorController.IsSelectableChar(document.GetCharAt(offset - 1))) {
-      while (offset > line.Offset && CodeEditorController.IsSelectableChar(document.GetCharAt(offset - 1))) {
-        --offset;
-      }
-    } else {
-      if (offset > 0 && !CodeEditorController.IsWhiteSpace(document.GetCharAt(offset - 1)) && !CodeEditorController.IsSelectableChar(document.GetCharAt(offset - 1))) {
-        return Math.max(0, offset - 1);
-      }
-    }
-    return offset;
+  static FindWordStart(e, i) {
+    let n = e.GetLineSegmentForOffset(i);
+    if (i > 0 && _.IsWhiteSpace(e.GetCharAt(i - 1)) && _.IsWhiteSpace(e.GetCharAt(i)))
+      for (; i > n.Offset && _.IsWhiteSpace(e.GetCharAt(i - 1)); )
+        --i;
+    else if (_.IsSelectableChar(e.GetCharAt(i)) || i > 0 && _.IsWhiteSpace(e.GetCharAt(i)) && _.IsSelectableChar(e.GetCharAt(i - 1)))
+      for (; i > n.Offset && _.IsSelectableChar(e.GetCharAt(i - 1)); )
+        --i;
+    else if (i > 0 && !_.IsWhiteSpace(e.GetCharAt(i - 1)) && !_.IsSelectableChar(e.GetCharAt(i - 1)))
+      return Math.max(0, i - 1);
+    return i;
   }
-  static FindWordEnd(document, offset) {
-    let line = document.GetLineSegmentForOffset(offset);
-    if (line.Length == 0)
-      return offset;
-    let endPos = line.Offset + line.Length;
-    offset = Math.min(offset, endPos - 1);
-    if (CodeEditorController.IsSelectableChar(document.GetCharAt(offset))) {
-      while (offset < endPos && CodeEditorController.IsSelectableChar(document.GetCharAt(offset))) {
-        ++offset;
-      }
-    } else if (CodeEditorController.IsWhiteSpace(document.GetCharAt(offset))) {
-      if (offset > 0 && CodeEditorController.IsWhiteSpace(document.GetCharAt(offset - 1))) {
-        while (offset < endPos && CodeEditorController.IsWhiteSpace(document.GetCharAt(offset))) {
-          ++offset;
-        }
-      }
-    } else {
-      return Math.max(0, offset + 1);
-    }
-    return offset;
+  static FindWordEnd(e, i) {
+    let n = e.GetLineSegmentForOffset(i);
+    if (n.Length == 0)
+      return i;
+    let s = n.Offset + n.Length;
+    if (i = Math.min(i, s - 1), _.IsSelectableChar(e.GetCharAt(i)))
+      for (; i < s && _.IsSelectableChar(e.GetCharAt(i)); )
+        ++i;
+    else if (_.IsWhiteSpace(e.GetCharAt(i))) {
+      if (i > 0 && _.IsWhiteSpace(e.GetCharAt(i - 1)))
+        for (; i < s && _.IsWhiteSpace(e.GetCharAt(i)); )
+          ++i;
+    } else
+      return Math.max(0, i + 1);
+    return i;
   }
 }
-class CodeEditorWidget extends PixUI.Widget {
-  constructor(controller) {
+var ht, ut;
+class pt extends u.Widget {
+  constructor(e) {
     super();
-    __publicField(this, "Controller");
-    __publicField(this, "_decoration");
-    __privateAdd(this, _MouseRegion, void 0);
-    __privateAdd(this, _FocusNode, void 0);
-    this.MouseRegion = new PixUI.MouseRegion();
-    this.FocusNode = new PixUI.FocusNode();
-    this.Controller = controller;
-    this.Controller.AttachWidget(this);
-    this._decoration = new EditorDecorator(this);
-    this.MouseRegion.PointerDown.Add(this.Controller.OnPointerDown, this.Controller);
-    this.MouseRegion.PointerUp.Add(this.Controller.OnPointerUp, this.Controller);
-    this.MouseRegion.PointerMove.Add(this.Controller.OnPointerMove, this.Controller);
-    this.FocusNode.FocusChanged.Add(this._OnFocusChanged, this);
-    this.FocusNode.KeyDown.Add(this.Controller.OnKeyDown, this.Controller);
-    this.FocusNode.TextInput.Add(this.Controller.OnTextInput, this.Controller);
+    o(this, "Controller");
+    o(this, "_decoration");
+    x(this, ht, void 0);
+    x(this, ut, void 0);
+    this.MouseRegion = new u.MouseRegion(), this.FocusNode = new u.FocusNode(), this.Controller = e, this.Controller.AttachWidget(this), this._decoration = new ke(this), this.MouseRegion.PointerDown.Add(this.Controller.OnPointerDown, this.Controller), this.MouseRegion.PointerUp.Add(this.Controller.OnPointerUp, this.Controller), this.MouseRegion.PointerMove.Add(this.Controller.OnPointerMove, this.Controller), this.FocusNode.FocusChanged.Add(this._OnFocusChanged, this), this.FocusNode.KeyDown.Add(this.Controller.OnKeyDown, this.Controller), this.FocusNode.TextInput.Add(this.Controller.OnTextInput, this.Controller);
   }
   get MouseRegion() {
-    return __privateGet(this, _MouseRegion);
+    return w(this, ht);
   }
-  set MouseRegion(value) {
-    __privateSet(this, _MouseRegion, value);
+  set MouseRegion(e) {
+    E(this, ht, e);
   }
   get FocusNode() {
-    return __privateGet(this, _FocusNode);
+    return w(this, ut);
   }
-  set FocusNode(value) {
-    __privateSet(this, _FocusNode, value);
+  set FocusNode(e) {
+    E(this, ut, e);
   }
   get ScrollOffsetX() {
     return this.Controller.TextEditor.VirtualTop.X;
@@ -4082,58 +3128,129 @@ class CodeEditorWidget extends PixUI.Widget {
   get ScrollOffsetY() {
     return this.Controller.TextEditor.VirtualTop.Y;
   }
-  RequestInvalidate(all, dirtyArea) {
-    if (all)
-      this.Invalidate(PixUI.InvalidAction.Repaint, dirtyArea);
-    else
-      this._decoration.Invalidate(PixUI.InvalidAction.Repaint);
+  RequestInvalidate(e, i) {
+    e ? this.Invalidate(u.InvalidAction.Repaint, i) : this._decoration.Invalidate(u.InvalidAction.Repaint);
   }
-  _OnFocusChanged(focused) {
-    if (focused)
-      this.Root.Window.StartTextInput();
-    else
-      this.Root.Window.StopTextInput();
+  _OnFocusChanged(e) {
+    e ? this.Root.Window.StartTextInput() : this.Root.Window.StopTextInput();
   }
-  OnScroll(dx, dy) {
-    return this.Controller.OnScroll(dx, dy);
+  OnScroll(e, i) {
+    return this.Controller.OnScroll(e, i);
   }
   OnMounted() {
-    this.Overlay.Show(this._decoration);
-    super.OnMounted();
+    this.Overlay.Show(this._decoration), super.OnMounted();
   }
   OnUnmounted() {
-    if (this._decoration.Parent != null)
-      this._decoration.Parent.Remove(this._decoration);
-    super.OnUnmounted();
+    this._decoration.Parent != null && this._decoration.Parent.Remove(this._decoration), super.OnUnmounted();
   }
   get IsOpaque() {
-    return true;
+    return !0;
   }
-  Layout(availableWidth, availableHeight) {
-    let width = this.CacheAndCheckAssignWidth(availableWidth);
-    let height = this.CacheAndCheckAssignHeight(availableHeight);
-    this.SetSize(width, height);
+  Layout(e, i) {
+    let n = this.CacheAndCheckAssignWidth(e), s = this.CacheAndCheckAssignHeight(i);
+    this.SetSize(n, s);
   }
-  Paint(canvas, area = null) {
-    let clipRect = PixUI.Rect.FromLTWH(0, 0, this.W, this.H);
-    canvas.save();
-    canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
-    this.Controller.TextEditor.Paint(canvas, new PixUI.Size(this.W, this.H), area);
-    canvas.restore();
+  Paint(e, i = null) {
+    let n = u.Rect.FromLTWH(0, 0, this.W, this.H);
+    e.save(), e.clipRect(n, CanvasKit.ClipOp.Intersect, !1), this.Controller.TextEditor.Paint(e, new u.Size(this.W, this.H), i), e.restore();
   }
 }
-_MouseRegion = new WeakMap();
-_FocusNode = new WeakMap();
-__publicField(CodeEditorWidget, "$meta_PixUI_IMouseRegion", true);
-__publicField(CodeEditorWidget, "$meta_PixUI_IFocusable", true);
-__publicField(CodeEditorWidget, "$meta_PixUI_IScrollable", true);
-class TSCSharpLanguage {
-  static Init(csharp) {
-    this._csharp = csharp;
+ht = new WeakMap(), ut = new WeakMap(), o(pt, "$meta_PixUI_IMouseRegion", !0), o(pt, "$meta_PixUI_IFocusable", !0), o(pt, "$meta_PixUI_IScrollable", !0);
+class Kt {
+  static Init(t) {
+    this._csharp = t;
   }
   static Get() {
     return this._csharp;
   }
 }
-__publicField(TSCSharpLanguage, "_csharp");
-export { AnchorMovementType, BackspaceCommand, BracketHighlightingStyle, BracketMatchingStyle, CSharpLanguage, CachedFoldInfo, Caret, CaretDown, CaretLeft, CaretMode, CaretRight, CaretUp, CodeEditorController, CodeEditorWidget, CodeToken, ColumnRange, CompletionContext, CompletionItemKind, CompletionItemWidget, CompletionWord, CompositeNode, CopyCommand, CustomEditCommand, CutCommand, DeferredEventList, DelimiterSegment, DirtyLines, Document, DocumentEventArgs, DocumentSelectionMode, EditorArea, EditorDecorator, EndComparer, FoldArea, FoldMarker, FoldType, FoldingManager, GutterArea, ImmutableText, ImmutableTextBuffer, IndentStyle, InnerLeaf, LeafNode, LineCountChangeEventArgs, LineEventArgs, LineLengthChangeEventArgs, LineManager, LineSegment, LineSegmentTree, LineViewerStyle, LinesEnumerator, LogicalColumnInfo, Node, ParserInput, PasteCommand, RBHost, RBNode, RedBlackTree, RedBlackTreeIterator, RedBlackTreeNode, RedoCommand, ReturnCommand, SelectFrom, Selection, SelectionManager, StartComparer, SyntaxParser, TSCSharpLanguage, TSEdit, TSPoint, TabCommand, TextAnchor, TextEditor, TextEditorOptions, TextEditorTheme, TextLocation, TextUtils, TextView, TokenType, UndoCommand, UndoQueue, UndoStack, UndoableDelete, UndoableInsert, UndoableReplace, UndoableSetCaretPosition, WhereFrom };
+o(Kt, "_csharp");
+export {
+  fe as AnchorMovementType,
+  Te as BackspaceCommand,
+  ce as BracketHighlightingStyle,
+  Ut as BracketMatchingStyle,
+  z as CSharpLanguage,
+  ie as CachedFoldInfo,
+  Ge as Caret,
+  Se as CaretDown,
+  Le as CaretLeft,
+  Re as CaretMode,
+  Ce as CaretRight,
+  me as CaretUp,
+  _ as CodeEditorController,
+  pt as CodeEditorWidget,
+  G as CodeToken,
+  St as ColumnRange,
+  v as CompletionContext,
+  ft as CompletionItemKind,
+  yt as CompletionItemWidget,
+  ye as CompletionWord,
+  F as CompositeNode,
+  Jt as CopyCommand,
+  be as CustomEditCommand,
+  Zt as CutCommand,
+  ee as DeferredEventList,
+  Tt as DelimiterSegment,
+  Fe as DirtyLines,
+  Ht as Document,
+  dt as DocumentEventArgs,
+  Pt as DocumentSelectionMode,
+  Ot as EditorArea,
+  ke as EditorDecorator,
+  H as EndComparer,
+  Pe as FoldArea,
+  Lt as FoldMarker,
+  gt as FoldType,
+  te as FoldingManager,
+  Oe as GutterArea,
+  k as ImmutableText,
+  $t as ImmutableTextBuffer,
+  vt as IndentStyle,
+  zt as InnerLeaf,
+  b as LeafNode,
+  oe as LineCountChangeEventArgs,
+  Ae as LineEventArgs,
+  re as LineLengthChangeEventArgs,
+  Ct as LineManager,
+  At as LineSegment,
+  ne as LineSegmentTree,
+  Wt as LineViewerStyle,
+  V as LinesEnumerator,
+  _t as LogicalColumnInfo,
+  Nt as Node,
+  Yt as ParserInput,
+  Et as PasteCommand,
+  Bt as RBHost,
+  bt as RBNode,
+  q as RedBlackTree,
+  M as RedBlackTreeIterator,
+  Vt as RedBlackTreeNode,
+  xe as RedoCommand,
+  pe as ReturnCommand,
+  jt as SelectFrom,
+  Qt as Selection,
+  D as SelectionManager,
+  Y as StartComparer,
+  B as SyntaxParser,
+  Kt as TSCSharpLanguage,
+  xt as TSEdit,
+  p as TSPoint,
+  _e as TabCommand,
+  wt as TextAnchor,
+  Me as TextEditor,
+  ge as TextEditorOptions,
+  Ie as TextEditorTheme,
+  L as TextLocation,
+  ct as TextUtils,
+  Ee as TextView,
+  a as TokenType,
+  we as UndoCommand,
+  le as UndoQueue,
+  se as UndoStack,
+  ae as UndoableDelete,
+  he as UndoableInsert,
+  ue as UndoableReplace,
+  de as UndoableSetCaretPosition,
+  O as WhereFrom
+};
