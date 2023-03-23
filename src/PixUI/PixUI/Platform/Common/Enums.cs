@@ -278,4 +278,15 @@ namespace PixUI
         // Dng = 10,
         // Heif = 11,
     }
+
+    [TSType("CanvasKit.PlaceholderAlignment")]
+    public enum PlaceholderAlignment
+    {
+        Baseline,
+        AboveBaseline,
+        BelowBaseline,
+        Top,
+        Bottom,
+        Middle
+    }
 }

@@ -15,14 +15,14 @@ namespace PixUI
         [TSRename("addText")]
         public void AddText(string text) { }
 
+        [TSRename("addPlaceholder")]
+        public void AddPlaceholder(float width, float height, PlaceholderAlignment alignment) { }
+
         [TSRename("pop")]
         public void Pop() { }
 
         [TSRename("build")]
-        public Paragraph Build()
-        {
-            throw new NotSupportedException();
-        }
+        public Paragraph Build() => throw new Exception();
 
         [TSRename("delete")]
         public void Dispose() { }
