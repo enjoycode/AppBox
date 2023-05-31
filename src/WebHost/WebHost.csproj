@@ -14,8 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Client.UI\Client.UI.csproj" />
-      <ProjectReference Include="..\Client\Client.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Design\Design.csproj" />
       <ProjectReference Include="..\Server\Server.csproj" />
@@ -25,17 +23,26 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="WebLibs" />
+      <Folder Include="ViewLibs\" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="WebLibs\PixUI.dll">
+      <None Update="ViewLibs\LiveChartsCore.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="WebLibs\LiveChartsCore.dll">
+      <None Update="ViewLibs\PixUI.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="WebLibs\PixUI.LiveCharts.dll">
+      <None Update="ViewLibs\PixUI.LiveCharts.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="ViewLibs\PixUI.TSAttributes.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="ViewLibs\AppBoxClient.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="ViewLibs\AppBoxClientUI.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

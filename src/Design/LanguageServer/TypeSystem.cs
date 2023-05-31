@@ -72,8 +72,6 @@ internal sealed class TypeSystem : IDisposable
     /// </summary>
     private void InitWorkspace()
     {
-        var webParseOptions = ParseOptions.WithPreprocessorSymbols("__WEB__");
-
         var modelProjectInfo = ProjectInfo.Create(ModelProjectId, VersionStamp.Create(),
             "ModelProject", "ModelProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
@@ -81,9 +79,9 @@ internal sealed class TypeSystem : IDisposable
             VersionStamp.Create(),
             "ServiceProxyProject", "ServiceProxyProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
-        var webViewsProjectInfo = ProjectInfo.Create(WebViewsProjectId, VersionStamp.Create(),
+        var viewsProjectInfo = ProjectInfo.Create(WebViewsProjectId, VersionStamp.Create(),
             "ViewsProject", "ViewsProject", LanguageNames.CSharp, null, null,
-            DllCompilationOptions, webParseOptions);
+            DllCompilationOptions, ParseOptions);
         var serviceBaseProjectInfo = ProjectInfo.Create(ServiceBaseProjectId,
             VersionStamp.Create(),
             "ServiceBaseProject", "ServiceBaseProject", LanguageNames.CSharp, null, null,
@@ -117,18 +115,18 @@ internal sealed class TypeSystem : IDisposable
                 .AddProjectReference(ServiceBaseProjectId, new ProjectReference(ModelProjectId))
                 .AddDocument(DocumentId.CreateNewId(ServiceBaseProjectId), "ServiceBase.cs",
                     Resources.GetString("DummyCode.ServiceBaseDummyCode.cs"))
-                //专用于Web视图模型的工程
-                .AddProject(webViewsProjectInfo)
+                //视图模型的工程
+                .AddProject(viewsProjectInfo)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.NetstandardLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemCollectionsLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemLinqLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemObjectModelLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIWebLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUILib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIAttributesLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.LiveChartsCoreWebLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUILiveChartsWebLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.LiveChartsCoreLib)
+                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUILiveChartsLib)
                 .AddMetadataReference(WebViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(WebViewsProjectId, new ProjectReference(ServiceProxyProjectId))

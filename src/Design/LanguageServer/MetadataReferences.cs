@@ -11,8 +11,8 @@ internal static class MetadataReferences
 {
     private static readonly Dictionary<string, MetadataReference> MetaRefs = new();
 
-    internal static readonly string SdkPath =
-        Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+    internal static readonly string SdkPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+    private static readonly string AppPath = Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!;
 
     internal static readonly MetadataReference CoreLib =
         MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
@@ -31,34 +31,24 @@ internal static class MetadataReferences
 
     internal static MetadataReference SystemDataLib => GetSdkLib("System.Data.Common.dll");
 
-    internal static MetadataReference PixUIDesktopLib => GetPixUIDesktopLib("PixUI.dll");
+    internal static MetadataReference PixUILib => TryGetViewLib("PixUI.dll");
 
-    internal static MetadataReference PixUIWebLib => GetPixUIWebLib("PixUI.dll");
-    
-    internal static MetadataReference LiveChartsCoreWebLib => GetPixUIWebLib("LiveChartsCore.dll");
+    internal static MetadataReference LiveChartsCoreLib => TryGetViewLib("LiveChartsCore.dll");
 
-    internal static MetadataReference PixUILiveChartsWebLib => GetPixUIWebLib("PixUI.LiveCharts.dll");
+    internal static MetadataReference PixUILiveChartsLib => TryGetViewLib("PixUI.LiveCharts.dll");
 
-    internal static MetadataReference PixUIAttributesLib =>
-        TryGet("PixUI.Attributes.dll", typeof(PixUI.TSRenameAttribute).Assembly.Location);
+    internal static MetadataReference PixUIAttributesLib => //TODO: remove
+        TryGetViewLib("PixUI.TSAttributes.dll");
 
     internal static MetadataReference AppBoxCoreLib =>
         TryGet("AppBoxCore.dll", typeof(Entity).Assembly.Location);
 
-    internal static MetadataReference AppBoxClientLib =>
-        TryGet("AppBoxClient.dll",
-            Path.Combine(Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!,
-                "AppBoxClient.dll"));
+    internal static MetadataReference AppBoxClientLib => TryGetViewLib("AppBoxClient.dll");
 
-    internal static MetadataReference AppBoxClientUILib =>
-        TryGet("AppBoxClientUI.dll",
-            Path.Combine(Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!,
-                "AppBoxClientUI.dll"));
+    internal static MetadataReference AppBoxClientUILib => TryGetViewLib("AppBoxClientUI.dll");
 
     internal static MetadataReference AppBoxServerLib =>
-        TryGet("AppBoxServer.dll",
-            Path.Combine(Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!,
-                "AppBoxServer.dll"));
+        TryGet("AppBoxServer.dll", Path.Combine(AppPath, "AppBoxServer.dll"));
 
     internal static MetadataReference AppBoxStoreLib =>
         TryGet("AppBoxStore.dll", typeof(MetaStore).Assembly.Location);
@@ -66,55 +56,8 @@ internal static class MetadataReferences
     private static MetadataReference GetSdkLib(string asmName) =>
         TryGet(asmName, Path.Combine(SdkPath, asmName));
 
-    private static MetadataReference GetPixUIDesktopLib(string asmName)
-    {
-#if DEBUG
-        var currentPath = Directory.GetCurrentDirectory();
-        var srcIndex = currentPath.IndexOf(
-            $"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}",
-            StringComparison.Ordinal);
-        var srcPath = currentPath.Substring(0, srcIndex + 5);
-        if (asmName == "PixUI.dll")
-        {
-            var fullPath = Path.Combine(srcPath, "PixUI", "PixUI", "bin", "Debug",
-                "netstandard2.1", "PixUI.dll");
-            return TryGet(asmName, fullPath);
-        }
-
-        throw new NotImplementedException();
-#else
-        return TryGet("PixUI.dll", typeof(MetaStore).Assembly.Location);
-#endif
-    }
-
-    private static MetadataReference GetPixUIWebLib(string asmName)
-    {
-#if DEBUG
-        var currentPath = Directory.GetCurrentDirectory();
-        var srcIndex = currentPath.IndexOf(
-            $"{Path.DirectorySeparatorChar}src{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
-        var srcPath = currentPath.Substring(0, srcIndex + 5);
-        if (asmName == "PixUI.dll")
-        {
-            var fullPath = Path.Combine(srcPath, "PixUI", "PixUI", "bin", "DebugWeb",
-                "netstandard2.1", "PixUI.dll");
-            return TryGet(asmName, fullPath);
-        }
-
-        if (asmName == "PixUI.LiveCharts.dll")
-        {
-            var fullPath = Path.Combine(srcPath, "PixUI", "PixUI.LiveCharts", "bin", "DebugWeb",
-                "netstandard2.1", "PixUI.LiveCharts.dll");
-            return TryGet(asmName, fullPath);
-        }
-
-        var appPath = Path.GetDirectoryName(typeof(MetadataReferences).Assembly.Location)!;
-        return TryGet(asmName, Path.Combine(appPath, "WebLibs", asmName));
-#else
-        var appPath = Path.GetDirectoryName(typeof(MetadataReferences).Assembly.Location)!;
-        return TryGet(asmName, Path.Combine(appPath, "WebLibs", asmName));
-#endif
-    }
+    private static MetadataReference TryGetViewLib(string asmName) =>
+        TryGet(asmName, Path.Combine(AppPath, "ViewLibs", asmName));
 
     private static MetadataReference TryGet(string asmName, string fullPath)
     {
