@@ -1,3 +1,4 @@
+using AppBoxClient;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using PixUI;
@@ -22,6 +23,9 @@ public class Program
     [JSInvokable]
     public static async Task Run(int glHandle, int width, int height, float ratio, string? routePath)
     {
+        //初始化通讯
+        Channel.Init(new WebSocketChannel(new Uri("ws://localhost:5137/ws"))); //TODO: fix uri
+        
         //初始化默认字体
         await using var fontDataStream =
             await BlazorApplication.HttpClient.GetStreamAsync("/fonts/MiSans-Regular.woff2");
