@@ -18,7 +18,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PixUI\PixUI.TSAttributes\PixUI.TSAttributes.csproj" />
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.TSAttributes\PixUI.TSAttributes.csproj" />
         <ProjectReference Include="..\Tools\SerializationGenerator\SerializationGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 

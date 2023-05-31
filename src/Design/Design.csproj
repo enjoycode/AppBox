@@ -18,8 +18,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CS2TS\PixUI.CS2TS.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\PixUI\PixUI.CS2TS\PixUI.CS2TS.csproj" />
       <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>
 
@@ -53,7 +53,7 @@
       <Compile Include="..\AppStudio\Data\SqlStoreOptionsVO.cs">
         <Link>Data\SqlStoreOptionsVO.cs</Link>
       </Compile>
-      <Compile Include="..\PixUI\PixUI.CS2TS\RoslynUtils.cs">
+      <Compile Include="..\..\ext\PixUI\src\PixUI.CS2TS\RoslynUtils.cs">
         <Link>CodeGenerator\RoslynUtils.cs</Link>
       </Compile>
       <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />

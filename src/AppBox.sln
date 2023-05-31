@@ -5,9 +5,9 @@ VisualStudioVersion = 17.3.32714.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppStudio", "AppStudio\AppStudio.csproj", "{1E78621B-3432-4C22-A7B8-EDF093D8A479}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI", "PixUI\PixUI\PixUI.csproj", "{418E1E7E-4990-4FDD-83F4-82A988898CD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI", "..\ext\PixUI\src\PixUI\PixUI.csproj", "{418E1E7E-4990-4FDD-83F4-82A988898CD4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.CodeEditor", "PixUI\PixUI.CodeEditor\PixUI.CodeEditor.csproj", "{18CF6F65-92E9-443B-894A-D54959FD2375}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.CodeEditor", "..\ext\PixUI\src\PixUI.CodeEditor\PixUI.CodeEditor.csproj", "{18CF6F65-92E9-443B-894A-D54959FD2375}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{19FE4329-7FEB-4971-899B-D51F8BA8DDAC}"
 EndProject
@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Design", "Design\Design.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{A4D07B9D-CAE6-460F-8C10-D076A5D1C097}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.CS2TS", "PixUI\PixUI.CS2TS\PixUI.CS2TS.csproj", "{0B8F5D4A-BD5C-44A5-A0F3-590DB3548F0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.CS2TS", "..\ext\PixUI\src\PixUI.CS2TS\PixUI.CS2TS.csproj", "{0B8F5D4A-BD5C-44A5-A0F3-590DB3548F0D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store", "Store\Store.csproj", "{E0544545-2D6D-456A-ABE1-A70442D21C91}"
 EndProject
@@ -35,11 +35,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializationGenerator", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppStudio.Win", "AppStudio.Win\AppStudio.Win.csproj", "{C32F360B-20B1-4EC8-8D84-295F6E26596D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.Platform.Win", "PixUI\PixUI.Platform.Win\PixUI.Platform.Win.csproj", "{33252219-697A-43E1-AB47-159DB8A1CB66}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixUI.Platform.Win", "..\ext\PixUI\src\PixUI.Platform.Win\PixUI.Platform.Win.csproj", "{33252219-697A-43E1-AB47-159DB8A1CB66}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStudio.Mac", "AppStudio.Mac\AppStudio.Mac.csproj", "{33C29182-8988-4802-AA1C-C3C71B6A0893}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Platform.Mac", "PixUI\PixUI.Platform.Mac\PixUI.Platform.Mac.csproj", "{676FF0F1-F172-409C-B078-09B08614455F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Platform.Mac", "..\ext\PixUI\src\PixUI.Platform.Mac\PixUI.Platform.Mac.csproj", "{676FF0F1-F172-409C-B078-09B08614455F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{0ED46167-AD7B-4F13-9D2D-887AFA826AA3}"
 EndProject
@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Initiator", "Store.In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.UI", "Client.UI\Client.UI.csproj", "{C949A94B-D79A-4522-948A-484942ACB570}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.TSAttributes", "PixUI\PixUI.TSAttributes\PixUI.TSAttributes.csproj", "{E3A74558-4249-422B-8BBB-5BDC0C5FCAF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.TSAttributes", "..\ext\PixUI\src\PixUI.TSAttributes\PixUI.TSAttributes.csproj", "{E3A74558-4249-422B-8BBB-5BDC0C5FCAF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

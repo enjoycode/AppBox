@@ -1,4 +1,3 @@
-[submodule "ext/LiveCharts2"]
-	path = ext/LiveCharts2
-	url = git@github.com:enjoycode/LiveCharts2.git
-	branch = PixUI
+[submodule "ext/PixUI"]
+	path = ext/PixUI
+	url = git@github.com:enjoycode/PixUI.git

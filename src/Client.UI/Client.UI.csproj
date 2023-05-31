@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\PixUI\PixUI\PixUI.csproj" />
     </ItemGroup>
 
 </Project>
