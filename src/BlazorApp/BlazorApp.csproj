@@ -27,6 +27,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\ext\PixUI\ext\LiveCharts2\src\LiveChartsCore\LiveChartsCore.csproj" />
+      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj" />
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
       <ProjectReference Include="..\AppStudio\AppStudio.csproj" />
     </ItemGroup>

@@ -10,8 +10,8 @@ public sealed class IndexPage : SingleChildWidget
     {
         var routes = new List<Route>
         {
-            new("home", s => new DemoHome()),
             new("dev", s => new AppBoxDesign.HomePage()),
+            new("home", s => new DemoHome()),
         };
         _navigator = new Navigator(routes);
 

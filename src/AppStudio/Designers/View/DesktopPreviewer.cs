@@ -48,7 +48,9 @@ internal sealed class DesktopPreviewer : View
 
         try
         {
-            var sw = Stopwatch.StartNew();
+#if DEBUG
+            var ts = Stopwatch.GetTimestamp();
+#endif
             var asmData = await Channel.Invoke<byte[]>("sys.DesignService.GetDesktopPreview",
                 new object?[] { _controller.ModelNode.Id });
             _assemblyLoader = new ViewAssemblyLoader();
@@ -65,8 +67,11 @@ internal sealed class DesktopPreviewer : View
             else
                 widget = (Widget)Activator.CreateInstance(widgetType!)!;
             widget.DebugLabel = asm.FullName;
-            sw.Stop();
-            Console.WriteLine($"Load preview widget: {widget.GetType()}, ms={sw.ElapsedMilliseconds}");
+
+#if DEBUG
+            Console.WriteLine(
+                $"Load preview widget: {widget.GetType()}, ms={Stopwatch.GetElapsedTime(ts).TotalMilliseconds}");
+#endif
 
             _containerRef.Widget.Child = widget;
         }
