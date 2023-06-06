@@ -72,4 +72,38 @@ internal static class MetadataReferences
 
         return res;
     }
+    
+    internal static IEnumerable<MetadataReference> GetEntitiesAssemblyReferences()
+    {
+        var deps = new List<MetadataReference>
+        {
+            MetadataReferences.CoreLib,
+            MetadataReferences.NetstandardLib,
+            MetadataReferences.SystemRuntimeLib,
+            MetadataReferences.SystemDataLib,
+            MetadataReferences.AppBoxCoreLib,
+        };
+        return deps;
+    }
+    
+    internal static IEnumerable<MetadataReference> GetViewsAssemblyReferences()
+    {
+        var deps = new List<MetadataReference>
+        {
+            MetadataReferences.CoreLib,
+            MetadataReferences.NetstandardLib,
+            MetadataReferences.SystemRuntimeLib,
+            MetadataReferences.SystemObjectModelLib,
+            MetadataReferences.SystemDataLib,
+            MetadataReferences.SystemCollectionsLib,
+            MetadataReferences.SystemLinqLib,
+            MetadataReferences.PixUILib,
+            MetadataReferences.LiveChartsCoreLib,
+            MetadataReferences.PixUILiveChartsLib,
+            MetadataReferences.AppBoxCoreLib,
+            MetadataReferences.AppBoxClientLib,
+            MetadataReferences.AppBoxClientUILib
+        };
+        return deps;
+    }
 }

@@ -33,7 +33,7 @@ internal sealed class GetDesktopPreview : IDesignHandler
 
         //开始编译运行时代码
         var compilation = CSharpCompilation.Create(null)
-            .AddReferences(GetViewModelReferences())
+            .AddReferences(MetadataReferences.GetViewsAssemblyReferences())
             .AddSyntaxTrees(newTree, usingAndVersionTree)
             .WithOptions(options);
         // if (usagesTree.Any())
@@ -52,26 +52,5 @@ internal sealed class GetDesktopPreview : IDesignHandler
         var ctx = new Dictionary<string, SyntaxTree>(); //key = Model's full name
         await generator.BuildUsages(ctx);
         return ctx.Values;
-    }
-
-    private static IEnumerable<MetadataReference> GetViewModelReferences()
-    {
-        var deps = new List<MetadataReference>
-        {
-            MetadataReferences.CoreLib,
-            MetadataReferences.NetstandardLib,
-            MetadataReferences.SystemRuntimeLib,
-            MetadataReferences.SystemObjectModelLib,
-            MetadataReferences.SystemDataLib,
-            MetadataReferences.SystemCollectionsLib,
-            MetadataReferences.SystemLinqLib,
-            MetadataReferences.PixUILib,
-            MetadataReferences.LiveChartsCoreLib,
-            MetadataReferences.PixUILiveChartsLib,
-            MetadataReferences.AppBoxCoreLib,
-            MetadataReferences.AppBoxClientLib,
-            MetadataReferences.AppBoxClientUILib
-        };
-        return deps;
     }
 }

@@ -16,7 +16,7 @@ public sealed class ModelNode : DesignNode
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId);
                 break;
             case ModelType.View:
-                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.WebViewsProjectId);
+                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ViewsProjectId);
                 break;
             case ModelType.Service:
                 ServiceProjectId = ProjectId.CreateNewId();

@@ -17,7 +17,7 @@ internal sealed class TypeSystem : IDisposable
         Workspace = new ModelWorkspace(new HostServicesAggregator());
 
         ModelProjectId = ProjectId.CreateNewId();
-        WebViewsProjectId = ProjectId.CreateNewId();
+        ViewsProjectId = ProjectId.CreateNewId();
         ServiceBaseProjectId = ProjectId.CreateNewId();
         ServiceProxyProjectId = ProjectId.CreateNewId();
 
@@ -40,7 +40,7 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 用于Web的视图模型的虚拟工程标识
     /// </summary>
-    internal readonly ProjectId WebViewsProjectId;
+    internal readonly ProjectId ViewsProjectId;
 
     /// <summary>
     /// 服务模型的通用虚拟工程标识
@@ -79,7 +79,7 @@ internal sealed class TypeSystem : IDisposable
             VersionStamp.Create(),
             "ServiceProxyProject", "ServiceProxyProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
-        var viewsProjectInfo = ProjectInfo.Create(WebViewsProjectId, VersionStamp.Create(),
+        var viewsProjectInfo = ProjectInfo.Create(ViewsProjectId, VersionStamp.Create(),
             "ViewsProject", "ViewsProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
         var serviceBaseProjectInfo = ProjectInfo.Create(ServiceBaseProjectId,
@@ -117,22 +117,22 @@ internal sealed class TypeSystem : IDisposable
                     Resources.GetString("DummyCode.ServiceBaseDummyCode.cs"))
                 //视图模型的工程
                 .AddProject(viewsProjectInfo)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.CoreLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.NetstandardLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemRuntimeLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemCollectionsLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemLinqLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.SystemObjectModelLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUILib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUIAttributesLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.LiveChartsCoreLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.PixUILiveChartsLib)
-                .AddMetadataReference(WebViewsProjectId, MetadataReferences.AppBoxCoreLib)
-                .AddProjectReference(WebViewsProjectId, new ProjectReference(ModelProjectId))
-                .AddProjectReference(WebViewsProjectId, new ProjectReference(ServiceProxyProjectId))
-                .AddDocument(DocumentId.CreateNewId(WebViewsProjectId), "ViewBase.cs",
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.CoreLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.NetstandardLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemCollectionsLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemLinqLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemObjectModelLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUIAttributesLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.LiveChartsCoreLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILiveChartsLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.AppBoxCoreLib)
+                .AddProjectReference(ViewsProjectId, new ProjectReference(ModelProjectId))
+                .AddProjectReference(ViewsProjectId, new ProjectReference(ServiceProxyProjectId))
+                .AddDocument(DocumentId.CreateNewId(ViewsProjectId), "ViewBase.cs",
                     Resources.GetString("DummyCode.ViewBaseDummyCode.cs"))
-                .AddDocument(DocumentId.CreateNewId(WebViewsProjectId), "GlobalUsing.cs",
+                .AddDocument(DocumentId.CreateNewId(ViewsProjectId), "GlobalUsing.cs",
                     CodeUtil.ViewGlobalUsings())
             ;
 

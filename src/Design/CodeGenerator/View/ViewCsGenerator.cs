@@ -17,7 +17,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
         Debug.Assert(modelNode.Model.ModelType == ModelType.View);
 
         //开始转换编译视图模型的运行时代码
-        var srcPrjId = hub.TypeSystem.WebViewsProjectId;
+        var srcPrjId = hub.TypeSystem.ViewsProjectId;
         var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
 
@@ -30,9 +30,8 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
         var appName = modelNode.AppNode.Model.Name;
         return new ViewCsGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model);
     }
-    
-    private ViewCsGenerator(DesignHub hub, string appName, SemanticModel semanticModel,
-        ViewModel viewModel)
+
+    private ViewCsGenerator(DesignHub hub, string appName, SemanticModel semanticModel, ViewModel viewModel)
     {
         DesignHub = hub;
         AppName = appName;
@@ -56,8 +55,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     {
         var newRootNode = Visit(await SemanticModel.SyntaxTree.GetRootAsync());
         var docName = $"{AppName}.Views.{ViewModel.Name}";
-        return SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs",
-            encoding: Encoding.UTF8);
+        return SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs", encoding: Encoding.UTF8);
     }
 
     #region ====Usages====

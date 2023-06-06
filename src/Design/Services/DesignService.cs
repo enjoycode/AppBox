@@ -13,6 +13,7 @@ public sealed class DesignService : IService
         { nameof(DeleteNode), new DeleteNode() },
         { nameof(Rename), new Rename() },
         { nameof(FindUsages), new FindUsages() },
+        { nameof(BuildApp), new BuildApp() },
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
         { nameof(CheckoutNode), new CheckoutNode() },

@@ -23,6 +23,8 @@ namespace AppBoxDesign
 
         public static readonly Action PublishCommand = () => new PublishDialog().Show();
 
+        public static readonly Action BuildAppCommand = BuildApp;
+
         public static readonly Action NotImplCommand = () => Notification.Error("暂未实现");
 
         /// <summary>
@@ -151,6 +153,19 @@ namespace AppBoxDesign
             if (canceled) return;
 
             modelNode.Label.Value = dlg.GetNewName();
+        }
+
+        private static async void BuildApp()
+        {
+            try
+            {
+                await Channel.Invoke("sys.DesignService.BuildApp", new object?[] { true });
+                Notification.Success($"构建应用成功");
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"构建应用失败: {ex.Message}");
+            }
         }
     }
 }

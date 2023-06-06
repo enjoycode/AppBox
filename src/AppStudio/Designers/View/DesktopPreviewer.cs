@@ -105,6 +105,9 @@ internal sealed class ViewAssemblyLoader : AssemblyLoadContext //TODO: move to A
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
+        #if DEBUG
+        Console.WriteLine($"ViewAssemblyLoader.Load: {assemblyName.Name}");
+        #endif
         //TODO:加载依赖的实体及视图组件
         return null;
     }

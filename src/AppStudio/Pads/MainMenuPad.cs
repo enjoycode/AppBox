@@ -55,6 +55,10 @@ namespace AppBoxDesign
                     MenuItem.Item("Delete", Icons.Filled.DeleteForever, Commands.DeleteCommand),
                     MenuItem.Item("Publish", Icons.Filled.Publish, Commands.PublishCommand),
                 }),
+                MenuItem.SubMenu("Apps", Icons.Filled.Apps, new MenuItem[]
+                {
+                    MenuItem.Item("Build", Icons.Filled.Build, Commands.BuildAppCommand),
+                }),
                 MenuItem.Item("Tools", Icons.Filled.Handyman),
                 MenuItem.Item("AppStore", Icons.Filled.Store),
                 MenuItem.Item("About", Icons.Filled.Help),

@@ -20,7 +20,7 @@ internal static class ViewJsGenerator
             throw new Exception($"Can't find view model: {modelId}");
 
         //开始转换生成视图模型的js代码
-        var srcPrjId = hub.TypeSystem.WebViewsProjectId;
+        var srcPrjId = hub.TypeSystem.ViewsProjectId;
         var translator = new Translator(hub.TypeSystem.Workspace, srcPrjId);
         var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;

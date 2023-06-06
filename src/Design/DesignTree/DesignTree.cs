@@ -26,6 +26,8 @@ public sealed class DesignTree : IBinSerializable
 
     public IList<DesignNode> RootNodes => _rootNodes;
 
+    internal ApplicationRootNode AppRootNode => _appRootNode;
+
     #region ====Load Methods====
 
     public async Task LoadAsync()
