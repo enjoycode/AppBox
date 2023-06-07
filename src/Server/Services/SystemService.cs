@@ -158,6 +158,14 @@ internal sealed class SystemService : IService
     }
 
     /// <summary>
+    /// 获取运行时客户端应用的程序集
+    /// </summary>
+    /// <param name="assemblyName">eg: sys.Views</param>
+    /// <returns>压缩过的程序集</returns>
+    private static Task<byte[]?> GetAppAssembly(string assemblyName) =>
+        MetaStore.Provider.LoadViewAssemblyAsync(assemblyName);
+
+    /// <summary>
     /// Only for test
     /// </summary>
     private ValueTask<string> Hello(string name)
@@ -171,6 +179,8 @@ internal sealed class SystemService : IService
         {
             _ when method.Span.SequenceEqual(nameof(Login)) => AnyValue.From(
                 await Login(args.GetString()!, args.GetString()!)),
+            _ when method.Span.SequenceEqual(nameof(GetAppAssembly)) => AnyValue.From(
+                await GetAppAssembly(args.GetString()!)),
             _ when method.Span.SequenceEqual(nameof(LoadPermissionTree)) => AnyValue.From(
                 await LoadPermissionTree()),
             _ when method.Span.SequenceEqual(nameof(SavePermission)) => AnyValue.From(

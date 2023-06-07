@@ -56,6 +56,13 @@ public interface IMetaStore
     Task<string> LoadModelCodeAsync(ModelId modelId);
 
     /// <summary>
+    /// 加载客户端应用的程序集
+    /// </summary>
+    /// <param name="assemblyName">eg: sys.Views</param>
+    /// <returns>压缩过的程序集</returns>
+    Task<byte[]?> LoadAppAssemblyAsync(string assemblyName);
+
+    /// <summary>
     /// 运行时加载压缩过的服务组件或应用的第三方组件
     /// </summary>
     /// <param name="serviceName">eg: sys.HelloService or sys.Newtonsoft.Json.dll</param>

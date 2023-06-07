@@ -25,7 +25,8 @@ internal sealed class BuildApp : IDesignHandler
             //生成实体模型程序集
             var entityRootNode = appNode.FindModelRootNode(ModelType.Entity);
             var entityModels = entityRootNode.GetAllModelNodes();
-            var entitiesMetadataReference = await BuildEntitiesAssembly(hub, appNode.Model.Name, entityModels, appAssemblies);
+            var entitiesMetadataReference =
+                await BuildEntitiesAssembly(hub, appNode.Model.Name, entityModels, appAssemblies);
 
             //生成视图模型程序集
             var viewRootNode = appNode.FindModelRootNode(ModelType.View);
@@ -42,13 +43,12 @@ internal sealed class BuildApp : IDesignHandler
         }
 
         await txn.CommitAsync();
-        
+
         return AnyValue.From(true);
     }
 
     private static async Task<MetadataReference?> BuildEntitiesAssembly(DesignHub hub, string appName,
-        IList<ModelNode> models,
-        Dictionary<string, byte[]> appAssemblies)
+        IList<ModelNode> models, Dictionary<string, byte[]> appAssemblies)
     {
         if (models.Count == 0) return null;
 

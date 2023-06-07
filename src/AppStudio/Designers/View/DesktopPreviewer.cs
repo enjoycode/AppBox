@@ -90,7 +90,7 @@ internal sealed class DesktopPreviewer : View
     }
 }
 
-internal sealed class ViewAssemblyLoader : AssemblyLoadContext //TODO: move to AppBoxClient
+internal sealed class ViewAssemblyLoader : AssemblyLoadContext
 {
     public ViewAssemblyLoader() : base(true) { }
 
@@ -108,7 +108,7 @@ internal sealed class ViewAssemblyLoader : AssemblyLoadContext //TODO: move to A
         #if DEBUG
         Console.WriteLine($"ViewAssemblyLoader.Load: {assemblyName.Name}");
         #endif
-        //TODO:加载依赖的实体及视图组件
+        //目前实现是所有依赖的其他模型已经打包入预览用的程序集
         return null;
     }
 }

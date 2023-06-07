@@ -26,7 +26,7 @@ public sealed class SqlMetaStore : IMetaStore
     //private const byte Meta_App_Assembly = 0xA3;
 
     private const byte Meta_View_Router = 0xA2;
-    
+
     private const byte Meta_App_Model_Dev_Counter = 0xAC;
     private const byte Meta_App_Model_Usr_Counter = 0xAD;
 
@@ -386,26 +386,29 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
+    public Task<byte[]?> LoadAppAssemblyAsync(string assemblyName)
+        => LoadMetaDataAsync((byte)MetaAssemblyType.Application, assemblyName);
+
     /// <summary>
     /// 运行时加载压缩过的服务组件或应用的第三方组件
     /// </summary>
     /// <param name="serviceName">eg: sys.HelloService or sys.Newtonsoft.Json.dll</param>
-    public async Task<byte[]?> LoadServiceAssemblyAsync(string serviceName)
+    public Task<byte[]?> LoadServiceAssemblyAsync(string serviceName)
     {
         //TODO:考虑保存至本地文件，返回路径
         //暂通过判断有无扩展名来区别是服务的组件还是第三方的组件
         if (serviceName.Length >= 4 &&
             serviceName.AsSpan(serviceName.Length - 4).SequenceEqual(".dll"))
-            return await LoadMetaDataAsync((byte)MetaAssemblyType.Application, serviceName);
-        return await LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
+            return LoadMetaDataAsync((byte)MetaAssemblyType.Application, serviceName);
+        return LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
     }
 
     /// <summary>
     /// 运行时加载压缩过的视图模型的JS代码
     /// </summary>
     /// <param name="viewName">eg: sys.HomePage</param>
-    public async Task<byte[]?> LoadViewAssemblyAsync(string viewName) 
-        => await LoadMetaDataAsync((byte)MetaAssemblyType.View, viewName);
+    public Task<byte[]?> LoadViewAssemblyAsync(string viewName)
+        => LoadMetaDataAsync((byte)MetaAssemblyType.View, viewName);
 
     #endregion
 
@@ -557,8 +560,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var conn = await db.OpenConnectionAsync();
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
-        cmd.CommandText =
-            $"Select data From {esc}sys.Meta{esc} Where meta={metaType} And id='{id}'";
+        cmd.CommandText = $"Select data From {esc}sys.Meta{esc} Where meta={metaType} And id='{id}'";
         Log.Debug(cmd.CommandText);
         await using var reader = await cmd.ExecuteReaderAsync();
         byte[]? metaData = null;
