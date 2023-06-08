@@ -65,6 +65,8 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     /// </summary>
     private readonly HashSet<string> _usedModels = new();
 
+    internal ICollection<string> UsedModels => _usedModels;
+
     /// <summary>
     /// 添加使用到的实体或视图模型
     /// </summary>
@@ -86,7 +88,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     }
 
     /// <summary>
-    /// 获取使用的其他模型生成的运行时代码
+    /// 获取使用的其他模型生成的运行时代码，目前仅用于设计时预览打包依赖模型
     /// </summary>
     internal async Task BuildUsages(Dictionary<string, SyntaxTree> ctx)
     {
