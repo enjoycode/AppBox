@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO.Compression;
 using AppBoxCore;
 using AppBoxStore;
@@ -18,6 +19,7 @@ internal sealed class BuildApp : IDesignHandler
 
         var force = args.GetBool(); //是否强制生成,目前保留
         var ctx = new BuildContext(hub);
+        var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
 
         for (var i = 0; i < hub.DesignTree.AppRootNode.Children.Count; i++)
         {
@@ -28,9 +30,18 @@ internal sealed class BuildApp : IDesignHandler
             {
                 await AnalyseView(ctx, viewModelNode);
             }
-            
+
             //附加视图程序集依赖的实体程序集
-            
+            foreach (var viewModelNode in viewModels)
+            {
+                await AddUsedEntitiesToViewAssembly(ctx, viewModelNode);
+            }
+
+            //构建视图模型所依赖的所有程序集(直接及间接的)，用于前端LazyLoad
+            foreach (var viewModelNode in viewModels)
+            {
+                BuildViewAssemblyMap(ctx, viewAssemblyMap, viewModelNode);
+            }
         }
 
         //保存入元数据
@@ -147,6 +158,45 @@ internal sealed class BuildApp : IDesignHandler
         }
 
         links.EndBuildLink();
+    }
+
+    private static async ValueTask AddUsedEntitiesToViewAssembly(BuildContext ctx, ModelNode viewModelNode)
+    {
+        var exists = ctx.HasAssemblyInfo(viewModelNode.Model.Id, out var viewAssemblyInfo);
+        Debug.Assert(exists);
+
+        var viewModelInfo = await ctx.GetOrMakeModelInfo(viewModelNode);
+        var usedEntities = viewModelInfo.Usages.Where(n => n.Model.ModelType == ModelType.Entity);
+        foreach (var usedEntity in usedEntities)
+        {
+            exists = ctx.HasAssemblyInfo(usedEntity.Model.Id, out var entityAssemblyInfo);
+            Debug.Assert(exists);
+
+            viewAssemblyInfo.TryAddDependency(entityAssemblyInfo);
+        }
+    }
+
+    private static void BuildViewAssemblyMap(BuildContext ctx, Dictionary<ModelNode, List<AssemblyInfo>> map,
+        ModelNode viewModelNode)
+    {
+        var exists = ctx.HasAssemblyInfo(viewModelNode.Model.Id, out var viewAssemblyInfo);
+        Debug.Assert(exists);
+
+        var all = new List<AssemblyInfo>();
+        RecursiveBuildViewAssembies(viewAssemblyInfo, all);
+        map.Add(viewModelNode, all);
+    }
+
+    private static void RecursiveBuildViewAssembies(AssemblyInfo assemblyInfo, List<AssemblyInfo> all)
+    {
+        var exists = all.Exists(a => a.Id == assemblyInfo.Id);
+        if (!exists)
+            all.Add(assemblyInfo);
+
+        foreach (var dependency in assemblyInfo.Dependencies)
+        {
+            RecursiveBuildViewAssembies(dependency, all);
+        }
     }
 
     // private static async Task<MetadataReference?> BuildEntitiesAssembly(DesignHub hub, string appName,
@@ -266,6 +316,10 @@ internal sealed class BuildContext
     private readonly Dictionary<ModelId, AssemblyInfo> _assemblyInfos = new();
     private readonly Dictionary<ModelId, ModelInfo> _modelCache = new();
 
+    private int _assemblyid = 0;
+
+    internal int MakeAssemblyId() => Interlocked.Increment(ref _assemblyid);
+
     internal void AddModelToAssembly(ModelId modelId, AssemblyInfo assemblyInfo) =>
         _assemblyInfos.Add(modelId, assemblyInfo);
 
@@ -378,10 +432,14 @@ internal sealed class LinksContext
 
 internal sealed class AssemblyInfo
 {
-    private readonly List<ModelInfo> _modelInfos = new();
-    private readonly List<AssemblyInfo> _dependencies = new();
+    public AssemblyInfo(int id)
+    {
+        Id = id;
+    }
 
-    public IList<ModelInfo> ModelInfos => _modelInfos;
+    private readonly List<ModelInfo> _modelInfos = new();
+    public int Id { get; }
+    public List<AssemblyInfo> Dependencies { get; } = new();
 
     /// <summary>
     /// 添加模型并更新BuildContext的字典表
@@ -394,12 +452,10 @@ internal sealed class AssemblyInfo
 
     public bool Contains(ModelId modelId) => _modelInfos.Any(m => m.ModelId == modelId);
 
-    public ModelInfo GetModelInfo(ModelId modelId) => _modelInfos.First(t => t.ModelId == modelId);
-
-    public void AddDependency(AssemblyInfo used)
+    public void TryAddDependency(AssemblyInfo used)
     {
-        //TODO: 排除重复加入
-        _dependencies.Add(used);
+        if (!Dependencies.Exists(a => a.Id == used.Id))
+            Dependencies.Add(used);
     }
 }
 
@@ -523,15 +579,15 @@ internal sealed class ModelLinks : List<ModelInfo>
                 //调用者已处理了 A -> B -> C
                 //现在处理      A -> B -> D 中的B,那么需要继续处理D以合并B依赖的D
 
-                prev?.AddDependency(exists);
+                prev?.TryAddDependency(exists);
                 prev = exists;
                 continue;
             }
 
-            var current = new AssemblyInfo();
+            var current = new AssemblyInfo(ctx.MakeAssemblyId());
             current.AddModel(modelInfo, ctx);
 
-            prev?.AddDependency(current);
+            prev?.TryAddDependency(current);
             prev = current;
         }
 
@@ -562,14 +618,14 @@ internal sealed class ModelLinks : List<ModelInfo>
         }
         else
         {
-            assemblyInfo = new AssemblyInfo();
+            assemblyInfo = new AssemblyInfo(ctx.MakeAssemblyId());
             for (var i = circle.FromIndex; i <= circle.ToIndex; i++)
             {
                 assemblyInfo.AddModel(this[i], ctx);
             }
         }
 
-        prev?.AddDependency(assemblyInfo);
+        prev?.TryAddDependency(assemblyInfo);
         return assemblyInfo!;
     }
 }
