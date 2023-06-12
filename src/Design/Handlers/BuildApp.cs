@@ -55,7 +55,7 @@ internal sealed class BuildApp : IDesignHandler
         //压缩保存
         await using var txn = await SqlStore.Default.BeginTransactionAsync();
         //先清除旧的
-        await MetaStore.Provider.DeleteAllAppAssemblies(txn);
+        await MetaStore.Provider.DeleteAllAppAssembliesAsync(txn);
         //保存程序集
         foreach (var assemblyInfo in allAssemblies)
         {
@@ -441,10 +441,9 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
 
     public byte[] CompressAssemblyData()
     {
-        using var input = new MemoryStream(_asmData!);
         using var output = new MemoryStream(1024);
-        using var zipStream = new BrotliStream(output, CompressionMode.Compress);
-        input.CopyTo(zipStream);
+        using var zipStream = new DeflateStream(output, CompressionMode.Compress); //Blazor暂不支持Brotli
+        zipStream.Write(_asmData!);
         zipStream.Flush();
         return output.ToArray();
     }

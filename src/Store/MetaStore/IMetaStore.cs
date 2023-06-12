@@ -63,9 +63,16 @@ public interface IMetaStore
     Task<byte[]?> LoadAppAssemblyAsync(string assemblyName);
 
     /// <summary>
+    /// 加载视图模型所依赖的所有程序集列表
+    /// </summary>
+    /// <param name="viewModelName">eg: sys.HomePage</param>
+    /// <returns>json data: ["A","B"]</returns>
+    Task<byte[]?> LoadViewAssembliesAsync(string viewModelName);
+
+    /// <summary>
     /// 删除所有应用的程序集
     /// </summary>
-    Task DeleteAllAppAssemblies(DbTransaction txn);
+    Task DeleteAllAppAssembliesAsync(DbTransaction txn);
 
     /// <summary>
     /// 运行时加载压缩过的服务组件或应用的第三方组件

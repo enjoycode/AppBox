@@ -158,12 +158,15 @@ internal sealed class SystemService : IService
     }
 
     /// <summary>
-    /// 获取运行时客户端应用的程序集
+    /// 获取运行时视图模型所依赖的所有程序集
     /// </summary>
-    /// <param name="assemblyName">eg: sys.Views</param>
-    /// <returns>压缩过的程序集</returns>
-    private static Task<byte[]?> GetAppAssembly(string assemblyName) =>
-        MetaStore.Provider.LoadViewAssemblyAsync(assemblyName);
+    /// <param name="viewModelName">eg: sys.HomePage</param>
+    /// <returns>json: ["A","B"]</returns>
+    private static Task<byte[]?> GetViewAssemblies(string viewModelName) =>
+        MetaStore.Provider.LoadViewAssembliesAsync(viewModelName);
+
+    private static Task<byte[]?> LoadAppAssembly(string assemblyName) =>
+        MetaStore.Provider.LoadAppAssemblyAsync(assemblyName);
 
     /// <summary>
     /// Only for test
@@ -179,8 +182,10 @@ internal sealed class SystemService : IService
         {
             _ when method.Span.SequenceEqual(nameof(Login)) => AnyValue.From(
                 await Login(args.GetString()!, args.GetString()!)),
-            _ when method.Span.SequenceEqual(nameof(GetAppAssembly)) => AnyValue.From(
-                await GetAppAssembly(args.GetString()!)),
+            _ when method.Span.SequenceEqual(nameof(GetViewAssemblies)) => AnyValue.From(
+                await GetViewAssemblies(args.GetString()!)),
+            _ when method.Span.SequenceEqual(nameof(LoadAppAssembly)) => AnyValue.From(
+                await LoadAppAssembly(args.GetString()!)),
             _ when method.Span.SequenceEqual(nameof(LoadPermissionTree)) => AnyValue.From(
                 await LoadPermissionTree()),
             _ when method.Span.SequenceEqual(nameof(SavePermission)) => AnyValue.From(

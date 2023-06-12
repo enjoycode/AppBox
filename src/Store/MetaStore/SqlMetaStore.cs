@@ -387,10 +387,13 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
+    public Task<byte[]?> LoadViewAssembliesAsync(string viewModelName)
+        => LoadMetaDataAsync((byte)MetaAssemblyType.ViewAssemblies, viewModelName);
+
     public Task<byte[]?> LoadAppAssemblyAsync(string assemblyName)
         => LoadMetaDataAsync((byte)MetaAssemblyType.Application, assemblyName);
 
-    public async Task DeleteAllAppAssemblies(DbTransaction txn)
+    public async Task DeleteAllAppAssembliesAsync(DbTransaction txn)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
