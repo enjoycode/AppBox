@@ -364,6 +364,7 @@ public sealed class SqlMetaStore : IMetaStore
         var modelType = type switch
         {
             MetaAssemblyType.Application => (byte)platform,
+            MetaAssemblyType.ViewAssemblies => (byte)ModelType.View,
             MetaAssemblyType.Service => (byte)ModelType.Service,
             MetaAssemblyType.View => (byte)ModelType.View,
             _ => throw new ArgumentException("Not supported MetaAssemblyType")
@@ -388,6 +389,17 @@ public sealed class SqlMetaStore : IMetaStore
 
     public Task<byte[]?> LoadAppAssemblyAsync(string assemblyName)
         => LoadMetaDataAsync((byte)MetaAssemblyType.Application, assemblyName);
+
+    public async Task DeleteAllAppAssemblies(DbTransaction txn)
+    {
+        await using var cmd = SqlStore.Default.MakeCommand();
+        cmd.Connection = txn.Connection;
+        cmd.Transaction = txn;
+        var esc = SqlStore.Default.NameEscaper;
+        cmd.CommandText =
+            $"Delete From {esc}sys.Meta{esc} Where meta={(byte)MetaAssemblyType.Application} Or meta={(byte)MetaAssemblyType.ViewAssemblies}";
+        await cmd.ExecuteNonQueryAsync();
+    }
 
     /// <summary>
     /// 运行时加载压缩过的服务组件或应用的第三方组件

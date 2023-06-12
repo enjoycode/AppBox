@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Text.Json;
 using AppBoxCore;
 using AppBoxStore;
 using Microsoft.CodeAnalysis;
@@ -17,7 +18,7 @@ internal sealed class BuildApp : IDesignHandler
         //TODO:*****目前简单实现，待实现从HomePage的路由表开始分析引用关系，仅生成用到的模型的程序集
         //TODO:检查签出情况，如有其他签出返回警告
 
-        var force = args.GetBool(); //是否强制生成,目前保留
+        _ = args.GetBool(); //是否强制生成,目前保留
         var ctx = new BuildContext(hub);
         var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
 
@@ -44,15 +45,34 @@ internal sealed class BuildApp : IDesignHandler
             }
         }
 
-        //保存入元数据
-        // await using var txn = await SqlStore.Default.BeginTransactionAsync();
-        // foreach (var kv in appAssemblies)
-        // {
-        //     Log.Debug($"Assembly: {kv.Key} 压缩后: {kv.Value.Length}");
-        //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Application, kv.Key, kv.Value, txn);
-        // }
-        //
-        // await txn.CommitAsync();
+        //编译所有程序集
+        var allAssemblies = ctx.GetAllAssemblies();
+        foreach (var assemblyInfo in allAssemblies)
+        {
+            assemblyInfo.TryCompile();
+        }
+
+        //压缩保存
+        await using var txn = await SqlStore.Default.BeginTransactionAsync();
+        //先清除旧的
+        await MetaStore.Provider.DeleteAllAppAssemblies(txn);
+        //保存程序集
+        foreach (var assemblyInfo in allAssemblies)
+        {
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Application, assemblyInfo.AssemblyName,
+                assemblyInfo.CompressAssemblyData(), txn);
+        }
+
+        //保存视图模型对应的所有程序集的映射
+        foreach (var kv in viewAssemblyMap)
+        {
+            var viewModelName = $"{kv.Key.AppNode.Model.Name}.{kv.Key.Model.Name}";
+            //暂用json编码
+            var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, viewModelName, jsonData, txn);
+        }
+
+        await txn.CommitAsync();
 
         return AnyValue.From(true);
     }
@@ -198,106 +218,6 @@ internal sealed class BuildApp : IDesignHandler
             RecursiveBuildViewAssembies(dependency, all);
         }
     }
-
-    // private static async Task<MetadataReference?> BuildEntitiesAssembly(DesignHub hub, string appName,
-    //     IList<ModelNode> models, Dictionary<string, byte[]> appAssemblies)
-    // {
-    //     if (models.Count == 0) return null;
-    //
-    //     var srcPrjId = hub.TypeSystem.ModelProjectId;
-    //     var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
-    //
-    //     var syntaxTrees = new List<SyntaxTree>();
-    //
-    //     foreach (var modelNode in models)
-    //     {
-    //         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
-    //         var semanticModel = await srcDocument.GetSemanticModelAsync();
-    //         syntaxTrees.Add(semanticModel!.SyntaxTree);
-    //     }
-    //
-    //     var version = (int)(DateTime.Now - DateTime.UnixEpoch).TotalSeconds;
-    //     var asmVersion = $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
-    //     syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(
-    //         $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]")
-    //     );
-    //
-    //     var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
-    //         .WithNullableContextOptions(NullableContextOptions.Enable)
-    //         .WithOptimizationLevel(OptimizationLevel.Release);
-    //
-    //     //开始编译运行时代码
-    //     var compilation = CSharpCompilation.Create(null)
-    //         .AddReferences(MetadataReferences.GetEntitiesAssemblyReferences())
-    //         .AddSyntaxTrees(syntaxTrees)
-    //         .WithOptions(options);
-    //
-    //     using var dllStream = new MemoryStream(1024);
-    //     var emitResult = compilation.Emit(dllStream);
-    //     CodeGeneratorUtil.CheckEmitResult(emitResult);
-    //
-    //     //先压缩
-    //     dllStream.Position = 0;
-    //     using var os = new MemoryStream(1024);
-    //     await using var cs = new BrotliStream(os, CompressionMode.Compress, true);
-    //     await dllStream.CopyToAsync(cs);
-    //     await cs.FlushAsync();
-    //     var asmData = os.ToArray();
-    //     appAssemblies.Add($"{appName}.Entities", asmData);
-    //
-    //     //再创建MetadataReference
-    //     dllStream.Position = 0;
-    //     var entitiesMetadataReference = MetadataReference.CreateFromStream(dllStream);
-    //     return entitiesMetadataReference;
-    // }
-    //
-    // private static async Task BuildViewsAssembly(DesignHub hub, string appName, IList<ModelNode> models,
-    //     Dictionary<string, byte[]> appAssemblies, MetadataReference? entitiesMetadataReference)
-    // {
-    //     if (models.Count == 0) return;
-    //
-    //     var srcPrjId = hub.TypeSystem.ViewsProjectId;
-    //     var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
-    //
-    //     var syntaxTrees = new List<SyntaxTree>();
-    //
-    //     foreach (var modelNode in models)
-    //     {
-    //         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
-    //         var semanticModel = await srcDocument.GetSemanticModelAsync();
-    //         var codegen = await ViewCsGenerator.Make(hub, modelNode);
-    //         var newTree = await codegen.GetRuntimeSyntaxTree();
-    //         syntaxTrees.Add(newTree);
-    //     }
-    //
-    //     var version = (int)(DateTime.Now - DateTime.UnixEpoch).TotalSeconds;
-    //     var asmVersion = $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
-    //     syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(
-    //         CodeUtil.ViewGlobalUsings() +
-    //         $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]")
-    //     );
-    //
-    //     var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
-    //         .WithNullableContextOptions(NullableContextOptions.Enable)
-    //         .WithOptimizationLevel(OptimizationLevel.Release);
-    //
-    //     //开始编译运行时代码
-    //     var compilation = CSharpCompilation.Create(null)
-    //         .AddReferences(MetadataReferences.GetViewsAssemblyReferences())
-    //         .AddSyntaxTrees(syntaxTrees)
-    //         .WithOptions(options);
-    //     if (entitiesMetadataReference != null)
-    //         compilation = compilation.AddReferences(entitiesMetadataReference);
-    //
-    //     using var dllStream = new MemoryStream(1024);
-    //     await using var cs = new BrotliStream(dllStream, CompressionMode.Compress, true);
-    //     var emitResult = compilation.Emit(cs);
-    //     await cs.FlushAsync();
-    //     CodeGeneratorUtil.CheckEmitResult(emitResult);
-    //
-    //     var asmData = dllStream.ToArray();
-    //     appAssemblies.Add($"{appName}.Views", asmData);
-    // }
 }
 
 internal sealed class BuildContext
@@ -382,6 +302,8 @@ internal sealed class BuildContext
 
         return usages;
     }
+
+    public IList<AssemblyInfo> GetAllAssemblies() => _assemblyInfos.Values.Distinct().ToArray();
 }
 
 internal sealed class LinksContext
@@ -408,7 +330,9 @@ internal sealed class LinksContext
 
     public bool CheckCircleLink(ModelInfo modelInfo)
     {
-        var current = _currentStack.Peek()!;
+        if (!_currentStack.TryPeek(out var current))
+            return false;
+
         var index = current.IndexOf(modelInfo);
         if (index < 0) return false;
 
@@ -430,7 +354,7 @@ internal sealed class LinksContext
     }
 }
 
-internal sealed class AssemblyInfo
+internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
 {
     public AssemblyInfo(int id)
     {
@@ -438,8 +362,10 @@ internal sealed class AssemblyInfo
     }
 
     private readonly List<ModelInfo> _modelInfos = new();
+    private byte[]? _asmData;
     public int Id { get; }
     public List<AssemblyInfo> Dependencies { get; } = new();
+    public string AssemblyName => Id.ToString("X");
 
     /// <summary>
     /// 添加模型并更新BuildContext的字典表
@@ -457,6 +383,75 @@ internal sealed class AssemblyInfo
         if (!Dependencies.Exists(a => a.Id == used.Id))
             Dependencies.Add(used);
     }
+
+    public void TryCompile()
+    {
+        if (_asmData != null) return;
+
+        //TODO:暂只支持View及Entity
+        var isViewAssembly = _modelInfos[0].ModelId.Type == ModelType.View;
+
+        var syntaxTrees = new List<SyntaxTree>();
+        foreach (var modelInfo in _modelInfos)
+        {
+            syntaxTrees.Add(modelInfo.SyntaxTree);
+        }
+
+        var version = (int)(DateTime.Now - DateTime.UnixEpoch).TotalSeconds;
+        var asmVersion = $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
+        syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(
+            isViewAssembly
+                ? CodeUtil.ViewGlobalUsings()
+                : ""
+                  + $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]")
+        );
+
+        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
+            .WithNullableContextOptions(NullableContextOptions.Enable)
+            .WithOptimizationLevel(OptimizationLevel.Release);
+
+        //开始编译运行时代码
+        var compilation = CSharpCompilation.Create(AssemblyName)
+            .AddReferences(isViewAssembly
+                ? MetadataReferences.GetViewsAssemblyReferences()
+                : MetadataReferences.GetEntitiesAssemblyReferences())
+            .AddSyntaxTrees(syntaxTrees)
+            .WithOptions(options);
+
+        //附加依赖的模型程序集
+        foreach (var dependency in Dependencies)
+        {
+            compilation = compilation.AddReferences(dependency.GetMetadataReference());
+        }
+
+        using var dllStream = new MemoryStream(1024);
+        var emitResult = compilation.Emit(dllStream);
+        CodeGeneratorUtil.CheckEmitResult(emitResult);
+
+        _asmData = dllStream.ToArray();
+    }
+
+    public MetadataReference GetMetadataReference()
+    {
+        if (_asmData == null)
+            TryCompile();
+
+        return MetadataReference.CreateFromStream(new MemoryStream(_asmData!));
+    }
+
+    public byte[] CompressAssemblyData()
+    {
+        using var input = new MemoryStream(_asmData!);
+        using var output = new MemoryStream(1024);
+        using var zipStream = new BrotliStream(output, CompressionMode.Compress);
+        input.CopyTo(zipStream);
+        zipStream.Flush();
+        return output.ToArray();
+    }
+
+    public bool Equals(AssemblyInfo x, AssemblyInfo y) => x.Id == y.Id;
+
+    public int GetHashCode(AssemblyInfo obj) => Id;
 }
 
 internal sealed class ModelInfo
@@ -464,16 +459,15 @@ internal sealed class ModelInfo
     public ModelInfo(ModelNode modelNode, SyntaxTree syntaxTree, IList<ModelNode> usages)
     {
         _modelNode = modelNode;
-        _syntaxTree = syntaxTree;
-        _usages = usages;
+        SyntaxTree = syntaxTree;
+        Usages = usages;
     }
 
     private readonly ModelNode _modelNode;
-    private readonly SyntaxTree _syntaxTree;
-    private readonly IList<ModelNode> _usages;
 
     public ModelId ModelId => _modelNode.Model.Id;
-    public IList<ModelNode> Usages => _usages;
+    public IList<ModelNode> Usages { get; }
+    public SyntaxTree SyntaxTree { get; }
 }
 
 internal sealed class ModelLinks : List<ModelInfo>

@@ -58,9 +58,14 @@ public interface IMetaStore
     /// <summary>
     /// 加载客户端应用的程序集
     /// </summary>
-    /// <param name="assemblyName">eg: sys.Views</param>
+    /// <param name="assemblyName">16进制编码的序号</param>
     /// <returns>压缩过的程序集</returns>
     Task<byte[]?> LoadAppAssemblyAsync(string assemblyName);
+
+    /// <summary>
+    /// 删除所有应用的程序集
+    /// </summary>
+    Task DeleteAllAppAssemblies(DbTransaction txn);
 
     /// <summary>
     /// 运行时加载压缩过的服务组件或应用的第三方组件
