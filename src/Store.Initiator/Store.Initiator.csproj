@@ -15,6 +15,20 @@
     <ItemGroup>
       <Compile Remove="Resources\Views\PermissionTreeView.cs" />
       <EmbeddedResource Include="Resources\Views\PermissionTreeView.cs" />
+      <Compile Remove="Resources\Views\HomePage.cs" />
+      <EmbeddedResource Include="Resources\Views\HomePage.cs" />
+      <Compile Remove="Resources\Views\EmployeeView.cs" />
+      <EmbeddedResource Include="Resources\Views\EmployeeView.cs" />
+      <Compile Remove="Resources\Views\EnterpriseView.cs" />
+      <EmbeddedResource Include="Resources\Views\EnterpriseView.cs" />
+      <Compile Remove="Resources\Views\OrgUnitsView.cs" />
+      <EmbeddedResource Include="Resources\Views\OrgUnitsView.cs" />
+      <Compile Remove="Resources\Views\WorkgroupView.cs" />
+      <EmbeddedResource Include="Resources\Views\WorkgroupView.cs" />
+      <Compile Remove="Resources\Services\OrgUnitService.cs" />
+      <EmbeddedResource Include="Resources\Services\OrgUnitService.cs" />
+      <None Remove="Resources\Services\OrgUnitService.dll" />
+      <EmbeddedResource Include="Resources\Services\OrgUnitService.dll" />
     </ItemGroup>
 
 </Project>

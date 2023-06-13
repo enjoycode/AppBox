@@ -46,6 +46,7 @@ public sealed class PermissionTreeView : View
         {
             var list = await sys.Services.SystemService.LoadPermissionTree();
             _treeController.DataSource = list;
+            OnCurrentChanged(); //强制刷新
         }
         catch(Exception ex)
         {
@@ -55,7 +56,7 @@ public sealed class PermissionTreeView : View
     
     private void OnCurrentChanged()
     {
-        if (_current.Value == null) return; //TODO: clear all checked
+        if (_current == null || _current.Value == null) return; //TODO: clear all checked
         
         _suspendChecking = true;
         foreach(var node in _treeController.RootNodes)
@@ -66,12 +67,12 @@ public sealed class PermissionTreeView : View
     }
     
     // 用户勾选改变权限节点
-    private void OnCheckChanged(TreeNode<PermissionNode> node, bool? value)
+    private void OnCheckChanged(TreeNode<PermissionNode> node)
     {
         if (_suspendChecking || _current.Value == null || node.Data.ModelId == null) return;
         
         var ou = _current.Value;
-        if (value != null && value.Value) // false -> true
+        if (node.CheckState != null && node.CheckState.Value) // false -> true
         {
             //先移除当前组织所有已经具备相同权限的下级
             LoopRemoveChildPermission(ou, node.Data);
@@ -106,13 +107,13 @@ public sealed class PermissionTreeView : View
                 cur = cur.Parent;
             }
             _treeController.SetChecked(node.Data, false);
+            return;
         }
-        else if (node.Children != null)
+        
+        node.EnsureBuildChildren(); //必须确保已构建
+        foreach(var child in node.Children!)
         {
-            foreach(var child in node.Children)
-            {
-                LoopCheckNodes(child);
-            }
+            LoopCheckNodes(child);
         }
     }
 

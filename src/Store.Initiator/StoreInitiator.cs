@@ -82,7 +82,7 @@ internal static class StoreInitiator
 
         //事务保存
 #if FUTURE
-            var txn = await Transaction.BeginAsync();
+        var txn = await Transaction.BeginAsync();
 #endif
         await MetaStore.Provider.UpsertFolderAsync(entityRootFolder, txn);
         await MetaStore.Provider.UpsertFolderAsync(viewRootFolder, txn);
@@ -94,21 +94,21 @@ internal static class StoreInitiator
         await MetaStore.Provider.InsertModelAsync(staged, txn);
         await MetaStore.Provider.InsertModelAsync(checkout, txn);
 
-// #if FUTURE
-//             await CreateServiceModel("OrgUnitService", 1, null, true, txn);
-// #else
-//         await CreateServiceModel("OrgUnitService", 1, null, false, txn);
-// #endif
+#if FUTURE
+        await CreateServiceModel("OrgUnitService", 1, null, true, txn);
+#else
+        await CreateServiceModel("OrgUnitService", 1, null, false, txn);
+#endif
 //         await CreateServiceModel("MetricService", 2, null, false, txn,
 //             new List<string> { "Newtonsoft.Json", "System.Private.Uri", "System.Net.Http" });
-//
-//         await CreateViewModel("Home", 1, null, txn);
-//         await CreateViewModel("EnterpriseView", 2, viewOrgUnitsFolder.Id, txn);
-//         await CreateViewModel("WorkgroupView", 3, viewOrgUnitsFolder.Id, txn);
-//         await CreateViewModel("EmploeeView", 4, viewOrgUnitsFolder.Id, txn);
-//         await CreateViewModel("PermissionTree", 5, viewOrgUnitsFolder.Id, txn);
-//         await CreateViewModel("OrgUnits", 6, viewOrgUnitsFolder.Id, txn);
-//
+
+        await CreateViewModel("HomePage", 1, null, txn);
+        await CreateViewModel("EnterpriseView", 2, viewOrgUnitsFolder.Id, txn);
+        await CreateViewModel("WorkgroupView", 3, viewOrgUnitsFolder.Id, txn);
+        await CreateViewModel("EmployeeView", 4, viewOrgUnitsFolder.Id, txn);
+        await CreateViewModel("PermissionTreeView", 5, viewOrgUnitsFolder.Id, txn);
+        await CreateViewModel("OrgUnitsView", 6, viewOrgUnitsFolder.Id, txn);
+
 //         await CreateViewModel("CpuUsages", 7, viewMetricsFolder.Id, txn);
 //         await CreateViewModel("MemUsages", 8, viewMetricsFolder.Id, txn);
 //         await CreateViewModel("NetTraffic", 9, viewMetricsFolder.Id, txn);
@@ -134,14 +134,14 @@ internal static class StoreInitiator
         runtime.InjectModel(checkout);
 
 #if FUTURE
-            await EntityStore.InsertEntityAsync(defaultEnterprise, txn);
-            await EntityStore.InsertEntityAsync(itdept, txn);
-            await EntityStore.InsertEntityAsync(admin, txn);
-            await EntityStore.InsertEntityAsync(test, txn);
-            await EntityStore.InsertEntityAsync(entou, txn);
-            await EntityStore.InsertEntityAsync(itdeptou, txn);
-            await EntityStore.InsertEntityAsync(adminou, txn);
-            await EntityStore.InsertEntityAsync(testou, txn);
+        await EntityStore.InsertEntityAsync(defaultEnterprise, txn);
+        await EntityStore.InsertEntityAsync(itdept, txn);
+        await EntityStore.InsertEntityAsync(admin, txn);
+        await EntityStore.InsertEntityAsync(test, txn);
+        await EntityStore.InsertEntityAsync(entou, txn);
+        await EntityStore.InsertEntityAsync(itdeptou, txn);
+        await EntityStore.InsertEntityAsync(adminou, txn);
+        await EntityStore.InsertEntityAsync(testou, txn);
 #else
         var ctx = new InitModelContainer(app);
         ctx.AddEntityModel(emploee);
@@ -170,8 +170,7 @@ internal static class StoreInitiator
 
         //添加权限模型在保存OU实例之后
         var admin_permission =
-            new PermissionModel(
-                ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS), "Admin");
+            new PermissionModel(ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS), "Admin");
         admin_permission.Comment = "System administrator";
 #if FUTURE
             admin_permission.OrgUnits.Add(adminou.Id);
@@ -179,9 +178,7 @@ internal static class StoreInitiator
         admin_permission.OrgUnits.Add(adminou.Id);
 #endif
         var developer_permission =
-            new PermissionModel(
-                ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS),
-                "Developer");
+            new PermissionModel(ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS), "Developer");
         developer_permission.Comment = "System developer";
 #if FUTURE
             developer_permission.OrgUnits.Add(itdeptou.Id);
@@ -199,8 +196,7 @@ internal static class StoreInitiator
     private static EntityModel CreateEmploeeModel(ApplicationModel app)
     {
 #if FUTURE
-            var emploee =
- new EntityModel(Consts.SYS_EMPLOEE_MODEL_ID, Consts.EMPLOEE, EntityStoreType.StoreWithMvcc);
+        var emploee = new EntityModel(Consts.SYS_EMPLOEE_MODEL_ID, Consts.EMPLOEE, EntityStoreType.StoreWithMvcc);
 #else
         var emploee = new EntityModel(Employee.MODELID, nameof(Employee));
         emploee.BindToSqlStore(SqlStore.DefaultSqlStoreId);
@@ -238,10 +234,10 @@ internal static class StoreInitiator
 
         //Add indexes
 #if FUTURE
-            var ui_account = new EntityIndexModel(emploee, "UI_Account", true,
-                                                       new FieldWithOrder[] { new FieldWithOrder(Consts.EMPLOEE_ACCOUNT_ID) },
-                                                       new ushort[] { Consts.EMPLOEE_PASSWORD_ID });
-            emploee.SysStoreOptions.AddSysIndex(emploee, ui_account, Consts.EMPLOEE_UI_ACCOUNT_ID);
+        var ui_account = new EntityIndexModel(emploee, "UI_Account", true,
+                                                   new FieldWithOrder[] { new FieldWithOrder(Consts.EMPLOEE_ACCOUNT_ID) },
+                                                   new ushort[] { Consts.EMPLOEE_PASSWORD_ID });
+        emploee.SysStoreOptions.AddSysIndex(emploee, ui_account, Consts.EMPLOEE_UI_ACCOUNT_ID);
 #else
         var ui_account = new SqlIndexModel(emploee, "UI_Account", true,
             new[] { new FieldWithOrder(Employee.ACCOUNT_ID) },
@@ -391,8 +387,7 @@ internal static class StoreInitiator
     private static EntityModel CreateCheckoutModel(ApplicationModel app)
     {
 #if FUTURE
-            var model =
- new EntityModel(Consts.SYS_CHECKOUT_MODEL_ID, "Checkout", EntityStoreType.StoreWithoutMvcc);
+        var model = new EntityModel(Consts.SYS_CHECKOUT_MODEL_ID, "Checkout", EntityStoreType.StoreWithoutMvcc);
 #else
         var model = new EntityModel(Checkout.MODELID, nameof(Checkout));
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
@@ -421,13 +416,13 @@ internal static class StoreInitiator
 
         //Add indexes
 #if FUTURE
-            var ui_nodeType_targetId = new EntityIndexModel(model, "UI_NodeType_TargetId", true,
-                                                            new FieldWithOrder[]
-            {
-                new FieldWithOrder(Consts.CHECKOUT_NODETYPE_ID),
-                new FieldWithOrder(Consts.CHECKOUT_TARGETID_ID)
-            });
-            model.SysStoreOptions.AddSysIndex(model, ui_nodeType_targetId, Consts.CHECKOUT_UI_NODETYPE_TARGETID_ID);
+        var ui_nodeType_targetId = new EntityIndexModel(model, "UI_NodeType_TargetId", true,
+                                                        new FieldWithOrder[]
+        {
+            new FieldWithOrder(Consts.CHECKOUT_NODETYPE_ID),
+            new FieldWithOrder(Consts.CHECKOUT_TARGETID_ID)
+        });
+        model.SysStoreOptions.AddSysIndex(model, ui_nodeType_targetId, Consts.CHECKOUT_UI_NODETYPE_TARGETID_ID);
 #else
         var ui_nodeType_targetId = new SqlIndexModel(model, "UI_NodeType_TargetId", true,
             new[]
@@ -448,70 +443,51 @@ internal static class StoreInitiator
         return model;
     }
 
-//     private static async Task CreateServiceModel(string name, ulong idIndex, Guid? folderId,
-//         bool forceFuture,
-// #if FUTURE
-//             Transaction txn,
-// #else
-//         System.Data.Common.DbTransaction txn,
-// #endif
-//         List<string> references = null)
-//     {
-//         var modelId = ((ulong)Consts.SYS_APP_ID << IdUtil.MODELID_APPID_OFFSET)
-//                       | ((ulong)ModelType.Service << IdUtil.MODELID_TYPE_OFFSET) |
-//                       (idIndex << IdUtil.MODELID_SEQ_OFFSET);
-//         var model = new ServiceModel(modelId, name) { FolderId = folderId };
-//         if (references != null)
-//             model.References.AddRange(references);
-//         await ModelStore.InsertModelAsync(model, txn);
-//
-//         var codeRes = forceFuture
-//             ? $"Resources.Services.{name}_Future.cs"
-//             : $"Resources.Services.{name}.cs";
-//         var asmRes = forceFuture
-//             ? $"Resources.Services.{name}_Future.dll"
-//             : $"Resources.Services.{name}.dll";
-//
-//         var serviceCode = Resources.GetString(codeRes);
-//         var codeData = ModelCodeUtil.EncodeServiceCode(serviceCode, null);
-//         await ModelStore.UpsertModelCodeAsync(model.Id, codeData, txn);
-//
-//         var asmData = Resources.GetBytes(asmRes);
-//         await ModelStore.UpsertAssemblyAsync(MetaAssemblyType.Service, $"sys.{name}", asmData, txn);
-//     }
+    private static async Task CreateServiceModel(string name, int idIndex, Guid? folderId, bool forceFuture,
+#if FUTURE
+        Transaction txn,
+#else
+        System.Data.Common.DbTransaction txn,
+#endif
+        List<string>? references = null)
+    {
+        var modelId = ModelId.Make(Consts.SYS_APP_ID, ModelType.Service, idIndex, ModelLayer.SYS);
+        var model = new ServiceModel(modelId, name) { FolderId = folderId };
+        // if (references != null) //TODO:
+        //     model.References.AddRange(references);
+        await MetaStore.Provider.InsertModelAsync(model, txn);
 
-//     private static async Task CreateViewModel(string name, ulong idIndex, Guid? folderId,
-// #if FUTURE
-//             Transaction txn,
-// #else
-//         System.Data.Common.DbTransaction txn,
-// #endif
-//         string routePath = null)
-//     {
-//         var modelId = ((ulong)Consts.SYS_APP_ID << IdUtil.MODELID_APPID_OFFSET)
-//                       | ((ulong)ModelType.View << IdUtil.MODELID_TYPE_OFFSET) |
-//                       (idIndex << IdUtil.MODELID_SEQ_OFFSET);
-//         var model = new ViewModel(modelId, name) { FolderId = folderId };
-//         if (!string.IsNullOrEmpty(routePath))
-//         {
-//             model.Flag = ViewModelFlag.ListInRouter;
-//             model.RoutePath = routePath;
-//             await ModelStore.UpsertViewRoute($"sys.{model.Name}", model.RouteStoredPath, txn);
-//         }
-//
-//         await ModelStore.InsertModelAsync(model, txn);
-//
-//         var templateCode = Resources.GetString($"Resources.Views.{name}.html");
-//         var scriptCode = Resources.GetString($"Resources.Views.{name}.js");
-//         var styleCode = Resources.GetString($"Resources.Views.{name}.css");
-//         var codeData = ModelCodeUtil.EncodeViewCode(templateCode, scriptCode, styleCode);
-//         await ModelStore.UpsertModelCodeAsync(model.Id, codeData, txn);
-//
-//         var runtimeCode = Resources.GetString($"Resources.Views.{name}.json");
-//         var runtimeCodeData = ModelCodeUtil.EncodeViewRuntimeCode(runtimeCode);
-//         await ModelStore.UpsertAssemblyAsync(MetaAssemblyType.View, $"sys.{name}", runtimeCodeData,
-//             txn);
-//     }
+        var codeRes = forceFuture
+            ? $"Resources.Services.{name}_Future.cs"
+            : $"Resources.Services.{name}.cs";
+        var asmRes = forceFuture
+            ? $"Resources.Services.{name}_Future.dll"
+            : $"Resources.Services.{name}.dll";
+
+        var serviceCode = Resources.GetString(codeRes);
+        var codeData = ModelCodeUtil.CompressCode(serviceCode);
+        await MetaStore.Provider.UpsertModelCodeAsync(model.Id, codeData, txn);
+
+        var asmData = Resources.GetBytes(asmRes);
+        await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, $"sys.{name}", asmData, txn);
+    }
+
+    private static async Task CreateViewModel(string name, int idIndex, Guid? folderId,
+#if FUTURE
+        Transaction txn
+#else
+        System.Data.Common.DbTransaction txn
+#endif
+    )
+    {
+        var modelId = ModelId.Make(Consts.SYS_APP_ID, ModelType.View, idIndex, ModelLayer.SYS);
+        var model = new ViewModel(modelId, name) { FolderId = folderId };
+        await MetaStore.Provider.InsertModelAsync(model, txn);
+
+        var viewCode = Resources.GetString($"Resources.Views.{name}.cs");
+        var codeData = ModelCodeUtil.CompressCode(viewCode);
+        await MetaStore.Provider.UpsertModelCodeAsync(model.Id, codeData, txn);
+    }
 }
 
 #if !FUTURE
