@@ -3,6 +3,11 @@ using AppBoxCore;
 
 namespace AppBoxClient;
 
+public interface IHomePage
+{
+    void InjectRoute(RouteBase route);
+}
+
 public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
 {
     public State<TMember> Observe<TMember>(Func<T, TMember> getter)
