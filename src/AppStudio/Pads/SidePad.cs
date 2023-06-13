@@ -32,14 +32,14 @@ namespace AppBoxDesign
                             {
                                 Children = new Widget[]
                                 {
-                                    BuildButton(Icons.Filled.Folder, SidePadType.DesignTree),
-                                    BuildButton(Icons.Filled.AccountTree, SidePadType.Outline),
-                                    BuildButton(Icons.Filled.Build, SidePadType.Toolbox),
-                                    BuildButton(Icons.Filled.Settings, SidePadType.Settings),
+                                    BuildButton(MaterialIcons.Folder, SidePadType.DesignTree),
+                                    BuildButton(MaterialIcons.AccountTree, SidePadType.Outline),
+                                    BuildButton(MaterialIcons.Build, SidePadType.Toolbox),
+                                    BuildButton(MaterialIcons.Settings, SidePadType.Settings),
                                 }
                             }
                         },
-                        BuildButton(Icons.Filled.ArrowLeft)
+                        BuildButton(MaterialIcons.ArrowLeft)
                     }
                 }
             };

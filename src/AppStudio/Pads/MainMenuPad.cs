@@ -30,38 +30,38 @@ namespace AppBoxDesign
         {
             return new MenuItem[]
             {
-                MenuItem.SubMenu("DataStore", Icons.Filled.Dns, new MenuItem[]
+                MenuItem.SubMenu("DataStore", MaterialIcons.Dns, new MenuItem[]
                 {
                     MenuItem.Item("Add DataStore", null, Commands.NotImplCommand),
                     MenuItem.Item("Remove DataStore", null, Commands.NotImplCommand),
                 }),
-                MenuItem.SubMenu("New", Icons.Filled.CreateNewFolder, new MenuItem[]
+                MenuItem.SubMenu("New", MaterialIcons.CreateNewFolder, new MenuItem[]
                 {
-                    MenuItem.Item("Application", Icons.Filled.Widgets, Commands.NotImplCommand),
-                    MenuItem.Item("Folder", Icons.Filled.Folder, Commands.NotImplCommand),
-                    MenuItem.Item("Entity", Icons.Filled.TableChart, Commands.NewEntityCommand),
-                    MenuItem.Item("Service", Icons.Filled.Settings, Commands.NewServiceCommand),
-                    MenuItem.Item("View", Icons.Filled.Wysiwyg, Commands.NewViewCommand),
-                    MenuItem.Item("Report", Icons.Filled.PieChart, Commands.NotImplCommand),
-                    MenuItem.Item("Enum", Icons.Filled.ViewList, Commands.NotImplCommand),
-                    MenuItem.Item("Permission", Icons.Filled.Lock, Commands.NotImplCommand),
+                    MenuItem.Item("Application", MaterialIcons.Widgets, Commands.NotImplCommand),
+                    MenuItem.Item("Folder", MaterialIcons.Folder, Commands.NotImplCommand),
+                    MenuItem.Item("Entity", MaterialIcons.TableChart, Commands.NewEntityCommand),
+                    MenuItem.Item("Service", MaterialIcons.Settings, Commands.NewServiceCommand),
+                    MenuItem.Item("View", MaterialIcons.Wysiwyg, Commands.NewViewCommand),
+                    MenuItem.Item("Report", MaterialIcons.PieChart, Commands.NotImplCommand),
+                    MenuItem.Item("Enum", MaterialIcons.ViewList, Commands.NotImplCommand),
+                    MenuItem.Item("Permission", MaterialIcons.Lock, Commands.NotImplCommand),
                 }),
-                MenuItem.SubMenu("Models", Icons.Filled.Widgets, new MenuItem[]
+                MenuItem.SubMenu("Models", MaterialIcons.Widgets, new MenuItem[]
                 {
-                    MenuItem.Item("Save", Icons.Filled.Save, Commands.SaveCommand),
-                    MenuItem.Item("Checkout", Icons.Filled.CheckCircle, Commands.CheckoutCommand),
-                    MenuItem.Item("Rename", Icons.Filled.DriveFileRenameOutline,
+                    MenuItem.Item("Save", MaterialIcons.Save, Commands.SaveCommand),
+                    MenuItem.Item("Checkout", MaterialIcons.CheckCircle, Commands.CheckoutCommand),
+                    MenuItem.Item("Rename", MaterialIcons.DriveFileRenameOutline,
                         Commands.RenameCommand),
-                    MenuItem.Item("Delete", Icons.Filled.DeleteForever, Commands.DeleteCommand),
-                    MenuItem.Item("Publish", Icons.Filled.Publish, Commands.PublishCommand),
+                    MenuItem.Item("Delete", MaterialIcons.DeleteForever, Commands.DeleteCommand),
+                    MenuItem.Item("Publish", MaterialIcons.Publish, Commands.PublishCommand),
                 }),
-                MenuItem.SubMenu("Apps", Icons.Filled.Apps, new MenuItem[]
+                MenuItem.SubMenu("Apps", MaterialIcons.Apps, new MenuItem[]
                 {
-                    MenuItem.Item("Build", Icons.Filled.Build, Commands.BuildAppCommand),
+                    MenuItem.Item("Build", MaterialIcons.Build, Commands.BuildAppCommand),
                 }),
-                MenuItem.Item("Tools", Icons.Filled.Handyman),
-                MenuItem.Item("AppStore", Icons.Filled.Store),
-                MenuItem.Item("About", Icons.Filled.Help),
+                MenuItem.Item("Tools", MaterialIcons.Handyman),
+                MenuItem.Item("AppStore", MaterialIcons.Store),
+                MenuItem.Item("About", MaterialIcons.Help),
             };
         }
     }

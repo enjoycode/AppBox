@@ -14,7 +14,7 @@ namespace AppBoxDesign
             {
                 Children = new Widget[]
                 {
-                    new Input(_searchKey) { Prefix = new Icon(Icons.Filled.Search) },
+                    new Input(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
                     new TreeView<DesignNodeVO>(DesignStore.TreeController),
                 }
             };
@@ -35,11 +35,11 @@ namespace AppBoxDesign
         {
             switch (data.Type)
             {
-                case DesignNodeType.DataStoreNode: return Icons.Filled.Storage;
-                case DesignNodeType.ApplicationNode: return Icons.Filled.Widgets;
+                case DesignNodeType.DataStoreNode: return MaterialIcons.Storage;
+                case DesignNodeType.ApplicationNode: return MaterialIcons.Widgets;
                 case DesignNodeType.ModelNode:
                     return IconUtil.GetIconForModelType(((ModelNodeVO)data).ModelType);
-                default: return Icons.Filled.Folder;
+                default: return MaterialIcons.Folder;
             }
         }
 

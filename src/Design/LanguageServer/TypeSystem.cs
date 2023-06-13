@@ -124,6 +124,8 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemLinqLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemObjectModelLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUIWidgetsLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.MaterialIconsLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUIAttributesLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.LiveChartsCoreLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILiveChartsLib)

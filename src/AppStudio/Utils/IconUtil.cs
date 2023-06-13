@@ -9,13 +9,13 @@ internal static class IconUtil
     {
         switch (modelType)
         {
-            case ModelType.Entity: return Icons.Filled.TableChart;
-            case ModelType.Service: return Icons.Filled.Settings;
-            case ModelType.View: return Icons.Filled.Wysiwyg;
-            case ModelType.Report: return Icons.Filled.PieChart;
-            case ModelType.Enum: return Icons.Filled.ViewList;
-            case ModelType.Permission: return Icons.Filled.Lock;
-            default: return Icons.Filled.TableChart;
+            case ModelType.Entity: return MaterialIcons.TableChart;
+            case ModelType.Service: return MaterialIcons.Settings;
+            case ModelType.View: return MaterialIcons.Wysiwyg;
+            case ModelType.Report: return MaterialIcons.PieChart;
+            case ModelType.Enum: return MaterialIcons.ViewList;
+            case ModelType.Permission: return MaterialIcons.Lock;
+            default: return MaterialIcons.TableChart;
         }
     }
 }

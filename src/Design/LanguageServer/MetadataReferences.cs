@@ -33,6 +33,10 @@ internal static class MetadataReferences
 
     internal static MetadataReference PixUILib => TryGetViewLib("PixUI.dll");
 
+    internal static MetadataReference PixUIWidgetsLib => TryGetViewLib("PixUI.Widgets.dll");
+
+    internal static MetadataReference MaterialIconsLib => TryGetViewLib("PixUI.MaterialIcons.dll");
+
     internal static MetadataReference LiveChartsCoreLib => TryGetViewLib("LiveChartsCore.dll");
 
     internal static MetadataReference PixUILiveChartsLib => TryGetViewLib("PixUI.LiveCharts.dll");
@@ -72,37 +76,39 @@ internal static class MetadataReferences
 
         return res;
     }
-    
+
     internal static IEnumerable<MetadataReference> GetEntitiesAssemblyReferences()
     {
         var deps = new List<MetadataReference>
         {
-            MetadataReferences.CoreLib,
-            MetadataReferences.NetstandardLib,
-            MetadataReferences.SystemRuntimeLib,
-            MetadataReferences.SystemDataLib,
-            MetadataReferences.AppBoxCoreLib,
+            CoreLib,
+            NetstandardLib,
+            SystemRuntimeLib,
+            SystemDataLib,
+            AppBoxCoreLib,
         };
         return deps;
     }
-    
+
     internal static IEnumerable<MetadataReference> GetViewsAssemblyReferences()
     {
         var deps = new List<MetadataReference>
         {
-            MetadataReferences.CoreLib,
-            MetadataReferences.NetstandardLib,
-            MetadataReferences.SystemRuntimeLib,
-            MetadataReferences.SystemObjectModelLib,
-            MetadataReferences.SystemDataLib,
-            MetadataReferences.SystemCollectionsLib,
-            MetadataReferences.SystemLinqLib,
-            MetadataReferences.PixUILib,
-            MetadataReferences.LiveChartsCoreLib,
-            MetadataReferences.PixUILiveChartsLib,
-            MetadataReferences.AppBoxCoreLib,
-            MetadataReferences.AppBoxClientLib,
-            MetadataReferences.AppBoxClientUILib
+            CoreLib,
+            NetstandardLib,
+            SystemRuntimeLib,
+            SystemObjectModelLib,
+            SystemDataLib,
+            SystemCollectionsLib,
+            SystemLinqLib,
+            PixUILib,
+            PixUIWidgetsLib,
+            MaterialIconsLib,
+            LiveChartsCoreLib,
+            PixUILiveChartsLib,
+            AppBoxCoreLib,
+            AppBoxClientLib,
+            AppBoxClientUILib
         };
         return deps;
     }

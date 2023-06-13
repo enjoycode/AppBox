@@ -41,12 +41,12 @@ namespace AppBoxDesign
                         new Input(_userName)
                         {
                             HintText = "Account", FontSize = _inputSize,
-                            Prefix = new Icon(Icons.Filled.Person) { Size = _inputSize },
+                            Prefix = new Icon(MaterialIcons.Person) { Size = _inputSize },
                         },
                         new Input(_password)
                         {
                             IsObscure = true, HintText = "Password", FontSize = _inputSize,
-                            Prefix = new Icon(Icons.Filled.Lock) { Size = _inputSize },
+                            Prefix = new Icon(MaterialIcons.Lock) { Size = _inputSize },
                         },
                         new Button("Login") { Width = 120, OnTap = e => OnLogin() }
                     }

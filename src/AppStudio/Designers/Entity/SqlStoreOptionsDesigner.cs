@@ -48,8 +48,8 @@ internal sealed class SqlStoreOptionsDesigner : View
                     {
                         Children = new[]
                         {
-                            new Button("Add", Icons.Filled.Add) { OnTap = OnAddPk },
-                            new Button("Remove", Icons.Filled.Remove) { OnTap = OnRemovePk }
+                            new Button("Add", MaterialIcons.Add) { OnTap = OnAddPk },
+                            new Button("Remove", MaterialIcons.Remove) { OnTap = OnRemovePk }
                         }
                     },
                     new DataGrid<FieldWithOrder>(_pkController)
@@ -81,8 +81,8 @@ internal sealed class SqlStoreOptionsDesigner : View
                     {
                         Children = new[]
                         {
-                            new Button("Add", Icons.Filled.Add),
-                            new Button("Remove", Icons.Filled.Remove)
+                            new Button("Add", MaterialIcons.Add),
+                            new Button("Remove", MaterialIcons.Remove)
                         }
                     },
                     new DataGrid<SqlIndexModelVO>(_idxController)

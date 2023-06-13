@@ -60,13 +60,13 @@ namespace AppBoxDesign
                             {
                                 Children = new[]
                                 {
-                                    new Button("Add", Icons.Filled.Add)
+                                    new Button("Add", MaterialIcons.Add)
                                         { OnTap = OnAddMember },
-                                    new Button("Remove", Icons.Filled.Delete)
+                                    new Button("Remove", MaterialIcons.Delete)
                                         { OnTap = OnDeleteMember },
-                                    new Button("Rename", Icons.Filled.Edit)
+                                    new Button("Rename", MaterialIcons.Edit)
                                         { OnTap = OnRenameMember },
-                                    new Button("Usages", Icons.Filled.Link)
+                                    new Button("Usages", MaterialIcons.Link)
                                         { OnTap = OnFindUsages },
                                 }
                             }),

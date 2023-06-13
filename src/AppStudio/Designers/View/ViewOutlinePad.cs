@@ -19,7 +19,7 @@ internal sealed class ViewOutlinePad : View
         {
             Children = new Widget[]
             {
-                new Input(_searchKey) { Prefix = new Icon(Icons.Filled.Search) },
+                new Input(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
                 new TreeView<WidgetTreeNode>(_treeController),
             }
         };
@@ -46,7 +46,7 @@ internal sealed class ViewOutlinePad : View
 
     private static void BuildTreeNode(WidgetTreeNode data, TreeNode<WidgetTreeNode> node)
     {
-        node.Icon = new Icon(Icons.Filled.Folder);
+        node.Icon = new Icon(MaterialIcons.Folder);
         node.Label = new Text(data.Widget.ToString());
         node.IsLeaf = data.Children.Count == 0;
         node.IsExpanded = !node.IsLeaf;
