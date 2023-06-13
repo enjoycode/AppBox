@@ -62,40 +62,6 @@ internal static class StagedService
         return data == null ? null : ModelCodeUtil.DecompressCode(data);
     }
 
-    /// <summary>
-    /// 专用于保存视图模型的Web运行时代码
-    /// </summary>
-    internal static Task SaveViewWebCodeAsync(ModelId modelId, string runtimeCode)
-    {
-        if (string.IsNullOrEmpty(runtimeCode))
-            return Task.CompletedTask;
-
-        var data = ModelCodeUtil.CompressCode(runtimeCode);
-        return SaveAsync(StagedType.ViewRuntimeCode, modelId.ToString(), data);
-    }
-
-    /// <summary>
-    /// 专用于加载视图模型的Web运行时代码
-    /// </summary>
-    internal static async Task<string?> LoadViewWebCode(ModelId viewModelId)
-    {
-        var developerID = RuntimeContext.CurrentSession!.LeafOrgUnitId;
-
-#if FUTURE
-            var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
-            q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID &
-                     q.GetString(Consts.STAGED_MODELID_ID) == viewModelId.ToString() &
-                     q.GetByte(Consts.STAGED_TYPE_ID) == (byte)StagedType.ViewRuntimeCode);
-#else
-        var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t["DeveloperId"] == developerID &
-                     t["Model"] == viewModelId.ToString() &
-                     t["Type"] == (byte)StagedType.ViewRuntimeCode);
-#endif
-        var res = await q.ToListAsync();
-        return res.Count == 0 ? null : ModelCodeUtil.DecompressCode(res[0].Data);
-    }
-
     private static async Task SaveAsync(StagedType type, string modelId, byte[] data)
     {
         var developerID = RuntimeContext.CurrentSession!.LeafOrgUnitId;
@@ -239,7 +205,6 @@ internal enum StagedType : byte
     Model = 0, //模型序列化数据
     Folder, //文件夹
     SourceCode, //服务模型或视图模型的源代码 //TODO:考虑按类型分开
-    ViewRuntimeCode, //仅用于视图模型前端编译好的运行时脚本代码
 }
 
 internal sealed class StagedItems
@@ -274,12 +239,6 @@ internal sealed class StagedItems
                     Items[i] = new StagedSourceCode { ModelId = modelId, CodeData = data };
                     break;
                 }
-                case StagedType.ViewRuntimeCode:
-                {
-                    ModelId modelId = staged[i].ModelIdString;
-                    Items[i] = new StagedViewRuntimeCode { ModelId = modelId, CodeData = data };
-                }
-                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -351,12 +310,6 @@ internal sealed class StagedItems
     }
 
     internal sealed class StagedSourceCode
-    {
-        public ModelId ModelId;
-        public byte[] CodeData;
-    }
-
-    internal sealed class StagedViewRuntimeCode
     {
         public ModelId ModelId;
         public byte[] CodeData;

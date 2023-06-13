@@ -28,15 +28,6 @@ internal sealed class Publish : IDesignHandler
                 case StagedItems.StagedSourceCode code:
                     package.SourceCodes.Add(code.ModelId, code.CodeData);
                     break;
-                case StagedItems.StagedViewRuntimeCode viewAsm:
-                {
-                    //先找到名称
-                    var viewModelNode =
-                        hub.DesignTree.FindModelNode(viewAsm.ModelId)!;
-                    var asmName = $"{viewModelNode.AppNode.Model.Name}.{viewModelNode.Model.Name}";
-                    package.ViewAssemblies.Add(asmName, viewAsm.CodeData);
-                }
-                    break;
                 default:
                     Log.Warn($"Unknown pending change: {change.GetType()}");
                     break;

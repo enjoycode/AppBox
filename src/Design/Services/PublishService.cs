@@ -29,14 +29,15 @@ internal static class PublishService
 
                 package.ServiceAssemblies.Add(fullName, asmData!);
             }
-            else if (item is ViewModel vm && vm.PersistentState != PersistentState.Deleted)
-            {
-                var asmData = await CompileViewAsync(hub, vm);
-                var appName = hub.DesignTree.FindApplicationNode(vm.Id.AppId)!.Model.Name;
-                var fullName = $"{appName}.{vm.Name}";
-
-                package.ViewAssemblies.Add(fullName, asmData);
-            }
+            // 暂保留转换视图模型为JS
+            // else if (item is ViewModel vm && vm.PersistentState != PersistentState.Deleted)
+            // {
+            //     var asmData = await CompileViewAsync(hub, vm);
+            //     var appName = hub.DesignTree.FindApplicationNode(vm.Id.AppId)!.Model.Name;
+            //     var fullName = $"{appName}.{vm.Name}";
+            //
+            //     package.ViewAssemblies.Add(fullName, asmData);
+            // }
         }
     }
 
@@ -181,17 +182,18 @@ internal static class PublishService
         return forDebug ? null : asmData;
     }
 
-    private static async Task<byte[]> CompileViewAsync(DesignHub hub, ViewModel model)
-    {
-        var jsCode = await ViewJsGenerator.GenViewWebCode(hub, model.Id, false);
-        using var dllStream = new MemoryStream(1024);
-        await using (var cs = new BrotliStream(dllStream, CompressionMode.Compress, true))
-        {
-            cs.Write(Encoding.UTF8.GetBytes(jsCode));
-        }
-
-        return dllStream.ToArray();
-    }
+    // 暂保留编译视图模型为JS
+    // private static async Task<byte[]> CompileViewAsync(DesignHub hub, ViewModel model)
+    // {
+    //     var jsCode = await ViewJsGenerator.GenViewWebCode(hub, model.Id, false);
+    //     using var dllStream = new MemoryStream(1024);
+    //     await using (var cs = new BrotliStream(dllStream, CompressionMode.Compress, true))
+    //     {
+    //         cs.Write(Encoding.UTF8.GetBytes(jsCode));
+    //     }
+    //
+    //     return dllStream.ToArray();
+    // }
 
     /// <summary>
     /// 检查服务模型的设计时代码是否有语义错误
@@ -310,18 +312,6 @@ internal static class PublishService
                         //     await cqlStore.CreateTableAsync(em);
                         // }
                     }
-                    // else if (model.ModelType == ModelType.View) //TODO:暂在这里保存视图模型的路由
-                    // {
-                    //     var viewModel = (ViewModel)model;
-                    //     if ((viewModel.Flag & ViewModelFlag.ListInRouter) ==
-                    //         ViewModelFlag.ListInRouter)
-                    //     {
-                    //         var app = hub.DesignTree.FindApplicationNode(model.AppId);
-                    //         var viewName = $"{app.Model.Name}.{viewModel.Name}";
-                    //         await ModelStore.UpsertViewRoute(viewName, viewModel.RouteStoredPath,
-                    //             txn);
-                    //     }
-                    // }
 
                     break;
                 }
@@ -346,25 +336,6 @@ internal static class PublishService
                         // }
                     }
                     //TODO:服务模型重命名删除旧的Assembly
-                    // else if (model.ModelType == ModelType.View)
-                    // {
-                    //     var viewModel = (ViewModel)model;
-                    //     var app = hub.DesignTree.FindApplicationNode(model.AppId);
-                    //     if ((viewModel.Flag & ViewModelFlag.ListInRouter) ==
-                    //         ViewModelFlag.ListInRouter)
-                    //     {
-                    //         var viewName = $"{app.Model.Name}.{viewModel.Name}";
-                    //         //TODO:判断重命名删除旧的
-                    //         await ModelStore.UpsertViewRoute(viewName, viewModel.RouteStoredPath,
-                    //             txn);
-                    //     }
-                    //     else
-                    //     {
-                    //         var oldViewName = $"{app.Model.Name}.{viewModel.OriginalName}";
-                    //         await ModelStore.DeleteViewRoute(oldViewName, txn);
-                    //     }
-                    // }
-
                     break;
                 }
                 case PersistentState.Deleted:
@@ -400,9 +371,7 @@ internal static class PublishService
                         var app = hub.DesignTree.FindApplicationNode(model.AppId)!;
                         var oldViewName = $"{app.Model.Name}.{model.OriginalName}";
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
-                        // await ModelStore.DeleteAssemblyAsync(MetaAssemblyType.View, oldViewName,
-                        //     txn);
-                        // await ModelStore.DeleteViewRoute(oldViewName, txn);
+                        // await ModelStore.DeleteAssemblyAsync(MetaAssemblyType.View, oldViewName, txn);
                     }
                 }
                     break;
@@ -423,12 +392,12 @@ internal static class PublishService
             await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName, asmData, txn);
         }
 
-        //保存视图模型编译好的运行时代码
-        foreach (var viewName in package.ViewAssemblies.Keys)
-        {
-            var asmData = package.ViewAssemblies[viewName];
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.View, viewName, asmData, txn);
-        }
+        //暂保留保存视图模型编译好的运行时代码
+        // foreach (var viewName in package.ViewAssemblies.Keys)
+        // {
+        //     var asmData = package.ViewAssemblies[viewName];
+        //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.View, viewName, asmData, txn);
+        // }
     }
 
     /// <summary>

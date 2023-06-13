@@ -7,28 +7,27 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class PublishPackage
 {
-    internal readonly List<ModelBase> Models = new List<ModelBase>();
+    internal readonly List<ModelBase> Models = new();
 
     /// <summary>
     /// 需要保存或删除的模型根文件夹
     /// </summary>
-    internal readonly List<ModelFolder> Folders = new List<ModelFolder>();
+    internal readonly List<ModelFolder> Folders = new();
 
     /// <summary>
     /// 新建或更新的模型的虚拟代码，Key=ModelId
     /// </summary>
-    internal readonly Dictionary<ModelId, byte[]> SourceCodes = new Dictionary<ModelId, byte[]>();
+    internal readonly Dictionary<ModelId, byte[]> SourceCodes = new();
 
     /// <summary>
     /// 新建或更新的编译好的服务组件, Key=xxx.XXXX
     /// </summary>
-    internal readonly Dictionary<string, byte[]> ServiceAssemblies =
-        new Dictionary<string, byte[]>();
+    internal readonly Dictionary<string, byte[]> ServiceAssemblies = new();
 
-    /// <summary>
-    /// 新建或更新的视图组件, Key=xxx.XXXX
-    /// </summary>
-    internal readonly Dictionary<string, byte[]> ViewAssemblies = new Dictionary<string, byte[]>();
+    // /// <summary>
+    // /// 新建或更新的视图组件, Key=xxx.XXXX
+    // /// </summary>
+    // internal readonly Dictionary<string, byte[]> ViewAssemblies = new();
 
     /// <summary>
     /// 根据引用依赖关系排序
