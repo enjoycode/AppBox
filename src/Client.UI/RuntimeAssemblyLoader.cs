@@ -47,7 +47,7 @@ public static class AppAssembiles
             var data = await Channel.Invoke<byte[]?>("sys.SystemService.LoadAppAssembly", new object?[] { asmName });
             if (data == null)
                 throw new Exception($"Can't load assembly: {asmName}");
-            
+
             using var input = new MemoryStream(data);
             using var output = new MemoryStream();
             await using var cs = new DeflateStream(input, CompressionMode.Decompress, true);
@@ -84,6 +84,9 @@ internal sealed class AppAssemblyLoader : AssemblyLoadContext
         if (!_loaded.TryGetValue(assemblyName, out var data))
             throw new Exception("Can't find assembly data");
 
+#if DEBUG
+        Console.WriteLine($"AppAssemblyLoader.LoadViewAssembly: {assemblyName}");
+#endif
         var assembly = LoadFromStream(new MemoryStream((byte[])data));
         _loaded[assemblyName] = assembly;
         return assembly;

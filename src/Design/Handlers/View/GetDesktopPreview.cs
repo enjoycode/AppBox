@@ -17,7 +17,7 @@ internal sealed class GetDesktopPreview : IDesignHandler
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");
 
-        var codegen = await ViewCsGenerator.Make(hub, modelNode);
+        var codegen = await ViewCsGenerator.Make(hub, modelNode, true);
         var newTree = await codegen.GetRuntimeSyntaxTree();
         //生成视图模型依赖的其他模型的运行时代码
         var usagesTree = await BuildAllUsages(codegen);

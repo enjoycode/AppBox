@@ -262,7 +262,7 @@ internal sealed class BuildContext
         }
         else if (modelNode.Model.ModelType == ModelType.View)
         {
-            var codegen = await ViewCsGenerator.Make(Hub, modelNode);
+            var codegen = await ViewCsGenerator.Make(Hub, modelNode, false);
             var newTree = await codegen.GetRuntimeSyntaxTree();
             var usedModels = codegen.UsedModels.Select(fullName => Hub.DesignTree.FindModelNodeByFullName(fullName)!);
             var modelInfo = new ModelInfo(modelNode, newTree, usedModels.ToList());

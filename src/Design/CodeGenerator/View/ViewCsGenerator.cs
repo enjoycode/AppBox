@@ -12,7 +12,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
 {
-    internal static async Task<ViewCsGenerator> Make(DesignHub hub, ModelNode modelNode)
+    internal static async Task<ViewCsGenerator> Make(DesignHub hub, ModelNode modelNode, bool forPreview)
     {
         Debug.Assert(modelNode.Model.ModelType == ModelType.View);
 
@@ -28,10 +28,11 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
             throw new Exception("Has error");
 
         var appName = modelNode.AppNode.Model.Name;
-        return new ViewCsGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model);
+        return new ViewCsGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model, forPreview);
     }
 
-    private ViewCsGenerator(DesignHub hub, string appName, SemanticModel semanticModel, ViewModel viewModel)
+    private ViewCsGenerator(DesignHub hub, string appName, SemanticModel semanticModel, ViewModel viewModel,
+        bool forPreview)
     {
         DesignHub = hub;
         AppName = appName;
@@ -39,6 +40,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
         ViewModel = viewModel;
         _typeSymbolCache = new TypeSymbolCache(semanticModel);
         _thisModelFullName = $"{appName}.Views.{viewModel.Name}";
+        _forPreview = forPreview;
     }
 
     internal readonly DesignHub DesignHub;
@@ -47,6 +49,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     internal readonly ViewModel ViewModel;
     private readonly TypeSymbolCache _typeSymbolCache;
     private readonly string _thisModelFullName;
+    private readonly bool _forPreview;
 
     /// <summary>
     /// 转换生成运行时的SyntaxTree
@@ -110,7 +113,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
             }
             else if (modelType == ModelType.View)
             {
-                var codeGen = await Make(DesignHub, modelNode);
+                var codeGen = await Make(DesignHub, modelNode, _forPreview);
                 ctx.Add(usedModel, await codeGen.GetRuntimeSyntaxTree());
                 await codeGen.BuildUsages(ctx);
             }
