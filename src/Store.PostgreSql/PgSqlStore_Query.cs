@@ -85,7 +85,7 @@ partial class PgSqlStore
         var q = (ISqlEntityQuery)ctx.CurrentQuery;
         var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
         ctx.Append('"');
-        ctx.Append(model.GetSqlTableName(false, null));
+        ctx.Append(model.SqlStoreOptions!.GetSqlTableName(false, null));
         ctx.Append("\" ");
         ctx.Append(q.AliasName);
         // }
@@ -177,7 +177,7 @@ partial class PgSqlStore
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
         var q = (ISqlEntityQuery)query;
         var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
-        ctx.AppendWithNameEscaper(model.GetSqlTableName(false, null));
+        ctx.AppendWithNameEscaper(model.SqlStoreOptions!.GetSqlTableName(false, null));
         ctx.Append(" AS ");
         ctx.Append(q.AliasName);
 
@@ -204,7 +204,7 @@ partial class PgSqlStore
 
         //From 2
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-        ctx.AppendWithNameEscaper(model.GetSqlTableName(false, null));
+        ctx.AppendWithNameEscaper(model.SqlStoreOptions.GetSqlTableName(false, null));
         ctx.Append(" AS ");
         ctx.Append(q.AliasName);
 
@@ -251,7 +251,7 @@ partial class PgSqlStore
     {
         //设置上下文
         ctx.BeginBuildQuery(query);
-    
+
         ctx.Append("With RECURSIVE cte (\"Id\",\"ParentId\",\"Text\",\"Level\") As (Select ");
         //Select Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildSelect);
@@ -261,7 +261,7 @@ partial class PgSqlStore
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
         var q = (ISqlEntityQuery)query;
         var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
-        ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
+        ctx.AppendFormat("\"{0}\" As {1}", model.SqlStoreOptions!.GetSqlTableName(false, null), q.AliasName);
         //Where Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildWhere);
         if (!Equals(null, query.Filter))
@@ -269,10 +269,10 @@ partial class PgSqlStore
             ctx.Append(" Where ");
             BuildExpression(query.Filter, ctx);
         }
-    
+
         //End 1
         ctx.CurrentQueryInfo.EndBuidQuery(); //ctx.EndBuildQuery(query);
-    
+
         //Union all
         ctx.SetBuildStep(BuildQueryStep.BuildSelect);
         ctx.Append(" Union All Select ");
@@ -281,10 +281,10 @@ partial class PgSqlStore
         ctx.Append("\"Level\" + 1 From ");
         //From 2
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-        ctx.AppendFormat("\"{0}\" As {1}", model.GetSqlTableName(false, null), q.AliasName);
+        ctx.AppendFormat("\"{0}\" As {1}", model.SqlStoreOptions!.GetSqlTableName(false, null), q.AliasName);
         //Inner Join 
         ctx.Append(" Inner Join cte as d On d.\"ParentId\"=t.\"Id\") Select * From cte");
-    
+
         //End 1
         ctx.EndBuildQuery(query, true);
     }

@@ -28,7 +28,10 @@ internal sealed class NewEntityModel : IDesignHandler
                         throw new Exception("Can't find DataStore");
                     var storeModel = ((DataStoreNode)storeNode).Model;
                     if (storeModel.Kind == DataStoreKind.Sql)
-                        entityModel.BindToSqlStore(storeModel.Id);
+                    {
+                        var appNode = hub.DesignTree.FindApplicationNode(id.AppId);
+                        entityModel.BindToSqlStore(storeModel.Id, appNode!.Model.Name + '.');
+                    }
                     else
                         throw new NotImplementedException();
                 }

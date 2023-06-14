@@ -8,14 +8,14 @@ internal static class Resources
 
     internal static string GetString(string res)
     {
-        var stream = resAssembly.GetManifestResourceStream("AppBoxStore.Initiator." + res);
+        var stream = resAssembly.GetManifestResourceStream("AppBoxStore." + res);
         var reader = new System.IO.StreamReader(stream!);
         return reader.ReadToEnd();
     }
 
     internal static byte[] GetBytes(string res)
     {
-        var stream = resAssembly.GetManifestResourceStream("AppBoxStore.Initiator." + res);
+        var stream = resAssembly.GetManifestResourceStream("AppBoxStore." + res);
         byte[] bytes = new byte[stream!.Length];
         _ = stream.Read(bytes, 0, bytes.Length);
         return bytes;

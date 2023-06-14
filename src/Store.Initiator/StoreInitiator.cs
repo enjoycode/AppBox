@@ -199,7 +199,7 @@ internal static class StoreInitiator
         var emploee = new EntityModel(Consts.SYS_EMPLOEE_MODEL_ID, Consts.EMPLOEE, EntityStoreType.StoreWithMvcc);
 #else
         var emploee = new EntityModel(Employee.MODELID, nameof(Employee));
-        emploee.BindToSqlStore(SqlStore.DefaultSqlStoreId);
+        emploee.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 
         var id = new EntityFieldModel(emploee, nameof(Employee.Id), EntityFieldType.Guid, false);
         emploee.AddSysMember(id, Employee.ID_ID);
@@ -255,7 +255,7 @@ internal static class StoreInitiator
  new EntityModel(Consts.SYS_ENTERPRISE_MODEL_ID, Consts.ENTERPRISE, EntityStoreType.StoreWithMvcc);
 #else
         var model = new EntityModel(Enterprise.MODELID, nameof(Enterprise));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 
         var id = new EntityFieldModel(model, nameof(Enterprise.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Enterprise.ID_ID);
@@ -283,7 +283,7 @@ internal static class StoreInitiator
  new EntityModel(Consts.SYS_WORKGROUP_MODEL_ID, Consts.WORKGROUP, EntityStoreType.StoreWithMvcc);
 #else
         var model = new EntityModel(Workgroup.MODELID, nameof(Workgroup));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 
         var id = new EntityFieldModel(model, nameof(Workgroup.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Workgroup.ID_ID);
@@ -310,7 +310,7 @@ internal static class StoreInitiator
 #else
         fkType = EntityFieldType.Guid;
         var model = new EntityModel(OrgUnit.MODELID, nameof(OrgUnit));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 
         var id = new EntityFieldModel(model, nameof(OrgUnit.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, OrgUnit.ID_ID);
@@ -352,7 +352,7 @@ internal static class StoreInitiator
  new EntityModel(Consts.SYS_STAGED_MODEL_ID, "StagedModel", EntityStoreType.StoreWithoutMvcc);
 #else
         var model = new EntityModel(StagedModel.MODELID, nameof(StagedModel));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 
 #endif
 
@@ -390,7 +390,7 @@ internal static class StoreInitiator
         var model = new EntityModel(Consts.SYS_CHECKOUT_MODEL_ID, "Checkout", EntityStoreType.StoreWithoutMvcc);
 #else
         var model = new EntityModel(Checkout.MODELID, nameof(Checkout));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId);
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 #endif
 
         var nodeType = new EntityFieldModel(model, "NodeType", EntityFieldType.Byte, false);

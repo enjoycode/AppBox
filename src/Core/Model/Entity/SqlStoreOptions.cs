@@ -7,10 +7,11 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         _owner = owner;
     }
 
-    public SqlStoreOptions(EntityModel owner, long storeModelId)
+    public SqlStoreOptions(EntityModel owner, long storeModelId, string? tableNamePrefix)
     {
         _owner = owner;
         _storeModelId = storeModelId;
+        _tableNamePrefix = tableNamePrefix;
     }
 
     private byte _devIndexIdSeq;
@@ -18,6 +19,8 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     private const short MAX_INDEX_ID = 32; //2的5次方, 2bit Layer，1bit惟一标志
 
     private readonly EntityModel _owner;
+    private string? _originalTableNamePrefix;
+    private string? _tableNamePrefix;
     private long _storeModelId; //映射的DataStoreModel的标识
     private FieldWithOrder[]? _primaryKeys;
     private bool _primaryKeysHasChanged = false;
@@ -33,6 +36,18 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     public FieldWithOrder[] PrimaryKeys => _primaryKeys!;
 
     public IList<SqlIndexModel> Indexes => _indexes!;
+
+    private bool IsTableNamePrefixChanged
+    {
+        get
+        {
+            if (_originalTableNamePrefix == null && _tableNamePrefix == null)
+                return false;
+            return _originalTableNamePrefix != _tableNamePrefix;
+        }
+    }
+
+    public bool IsTableNameChanged => _owner.IsNameChanged || IsTableNamePrefixChanged;
 
     #region ====Runtime Methods====
 
@@ -54,6 +69,16 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         }
 
         return false;
+    }
+
+    public string GetSqlTableName(bool original, IModelContainer? ctx)
+    {
+        //TODO:考虑其他命名规则，如直接用Id作为表名
+        if (!original)
+            return string.IsNullOrEmpty(_tableNamePrefix) ? _owner.Name : $"{_tableNamePrefix}{_owner.Name}";
+        return string.IsNullOrEmpty(_originalTableNamePrefix)
+            ? _owner.OriginalName
+            : $"{_originalTableNamePrefix}{_owner.OriginalName}";
     }
 
     #endregion
@@ -120,6 +145,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     public void WriteTo(IOutputStream ws)
     {
         ws.WriteLong(_storeModelId);
+        ws.WriteString(_tableNamePrefix);
 
         //写入主键
         ws.WriteVariant(_primaryKeys?.Length ?? 0);
@@ -146,6 +172,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             ws.WriteByte(_devIndexIdSeq);
             ws.WriteByte(_usrIndexIdSeq);
             ws.WriteBool(_primaryKeysHasChanged);
+            ws.WriteString(_originalTableNamePrefix);
         }
 
         ws.WriteFieldEnd(); //保留
@@ -154,6 +181,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     public void ReadFrom(IInputStream rs)
     {
         _storeModelId = rs.ReadLong();
+        _tableNamePrefix = rs.ReadString();
 
         //读取主键
         var count = rs.ReadVariant();
@@ -184,6 +212,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             _devIndexIdSeq = rs.ReadByte();
             _usrIndexIdSeq = rs.ReadByte();
             _primaryKeysHasChanged = rs.ReadBool();
+            _originalTableNamePrefix = rs.ReadString();
         }
 
         rs.ReadVariant(); //保留

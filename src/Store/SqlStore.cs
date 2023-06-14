@@ -481,7 +481,7 @@ public abstract class SqlStore
     {
         var cmd = MakeCommand();
         var sb = StringBuilderCache.Acquire();
-        var tableName = model.GetSqlTableName(false, null);
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, null);
 
         //TODO:仅select非主键的字段
         sb.Append("Select * From ");
@@ -504,7 +504,7 @@ public abstract class SqlStore
         var entityMemberWriter = new DbCommandParameterWriter(cmd);
         var sb = StringBuilderCache.Acquire();
         sb.Append("Insert Into ");
-        sb.AppendWithNameEscaper(model.GetSqlTableName(false, null), NameEscaper);
+        sb.AppendWithNameEscaper(model.SqlStoreOptions!.GetSqlTableName(false, null), NameEscaper);
         sb.Append(" (");
 
         var parasCount = 0; //用于判断有没有写入字段值
@@ -543,7 +543,7 @@ public abstract class SqlStore
         var cmd = MakeCommand();
         var entityMemberWriter = new DbCommandParameterWriter(cmd);
         var sb = StringBuilderCache.Acquire();
-        var tableName = model.GetSqlTableName(false, null);
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, null);
 
         sb.Append("Update ");
         sb.AppendWithNameEscaper(tableName, NameEscaper);
@@ -584,7 +584,7 @@ public abstract class SqlStore
     {
         var cmd = MakeCommand();
         var sb = StringBuilderCache.Acquire();
-        var tableName = model.GetSqlTableName(false, null);
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, null);
 
         sb.Append($"Delete From {NameEscaper}{tableName}{NameEscaper} Where ");
         //根据主键生成条件

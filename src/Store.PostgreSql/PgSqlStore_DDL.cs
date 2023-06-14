@@ -13,7 +13,7 @@ partial class PgSqlStore
 {
     protected override IList<DbCommand> MakeCreateTable(EntityModel model, IModelContainer ctx)
     {
-        var tableName = model.GetSqlTableName(false, ctx);
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, ctx);
         //var funcCmds = new List<DbCommand>();
         var fks = new List<string>(); //引用外键集合
 
@@ -78,7 +78,7 @@ partial class PgSqlStore
     {
         //TODO:***处理主键变更
 
-        var tableName = model.GetSqlTableName(false, ctx);
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, ctx);
 
         StringBuilder sb;
         var needCommand = false; //用于判断是否需要处理NpgsqlCommand
@@ -86,11 +86,10 @@ partial class PgSqlStore
         var commands = new List<DbCommand>();
         //List<DbCommand> funcCmds = new List<DbCommand>();
         //先处理表名称有没有变更，后续全部使用新名称
-        if (model.IsNameChanged)
+        if (model.SqlStoreOptions.IsTableNameChanged) //TODO:应判断存储选项的表名称是否改变
         {
-            var oldTableName = model.GetSqlTableName(true, ctx);
-            var renameTableCmd =
-                new NpgsqlCommand($"ALTER TABLE \"{oldTableName}\" RENAME TO \"{tableName}\"");
+            var oldTableName = model.SqlStoreOptions!.GetSqlTableName(true, ctx);
+            var renameTableCmd = new NpgsqlCommand($"ALTER TABLE \"{oldTableName}\" RENAME TO \"{tableName}\"");
             commands.Add(renameTableCmd);
         }
 
@@ -252,7 +251,7 @@ partial class PgSqlStore
 
     protected override DbCommand MakeDropTable(EntityModel model, IModelContainer ctx)
     {
-        var tableName = model.GetSqlTableName(true, ctx); //使用旧名称
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(true, ctx); //使用旧名称
         return new NpgsqlCommand($"DROP TABLE IF EXISTS \"{tableName}\"");
     }
 
@@ -345,7 +344,7 @@ partial class PgSqlStore
             rsb.Append($"\"{fk.SqlColName}\"");
         }
 
-        rsb.Append($") REFERENCES \"{refModel.GetSqlTableName(false, ctx)}\" ("); //引用目标使用新名称
+        rsb.Append($") REFERENCES \"{refModel.SqlStoreOptions!.GetSqlTableName(false, ctx)}\" ("); //引用目标使用新名称
         for (var i = 0; i < refModel.SqlStoreOptions!.PrimaryKeys.Length; i++)
         {
             var pk = (EntityFieldModel)refModel.GetMember(

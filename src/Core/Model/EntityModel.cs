@@ -76,9 +76,9 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     #region ====Design Methods====
 
-    internal void BindToSqlStore(long storeId)
+    internal void BindToSqlStore(long storeId, string? tableNamePrefix)
     {
-        _storeOptions = new SqlStoreOptions(this, storeId);
+        _storeOptions = new SqlStoreOptions(this, storeId, tableNamePrefix);
     }
 
     /// <summary>
@@ -228,40 +228,6 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         //         act.AddModelReferences(list, referenceType, modelID, memberName);
         //     }
         // }
-    }
-
-    #endregion
-
-    #region ====Runtime Methods====
-
-    public string GetSqlTableName(bool original, IModelContainer? ctx)
-    {
-        //TODO:暂简单实现
-        return original ? OriginalName : Name;
-//         Debug.Assert(SqlStoreOptions != null);
-// #if FUTURE
-//             return Name; //暂直接返回名称
-// #else
-//         if (!original && _sqlTableName_cached != null)
-//             return _sqlTableName_cached;
-//
-//         var name = original ? OriginalName : Name;
-//         //TODO:根据规则生成，另注意默认存储使用默认规则
-//         //if ((SqlStoreOptions.DataStoreModel.NameRules & DataStoreNameRules.AppPrefixForTable)
-//         //    == DataStoreNameRules.AppPrefixForTable)
-//         //{
-//         ApplicationModel app = ctx == null ? RuntimeContext.Current.GetApplicationModelAsync(AppId).Result
-//             : ctx.GetApplicationModel(AppId);
-//         if (original) return $"{app.Name}.{name}";
-//
-//         _sqlTableName_cached = $"{app.Name}.{name}";
-//         //}
-//         //else
-//         //{
-//         //    _sqlTableName_cached = name;
-//         //}
-//         return _sqlTableName_cached;
-// #endif
     }
 
     #endregion
