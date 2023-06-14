@@ -17,15 +17,15 @@ public class CodeGenerateTest
         Console.Write(code);
     }
 
-    [Test(Description = "测试生成视图模型的Web预览代码")]
-    public async Task GetViewWebCodeTest()
-    {
-        var designHub = await TestHelper.MockSession();
-        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
-
-        var res = await ViewJsGenerator.GenViewWebCode(designHub, modelNode.Id, true);
-        Console.Write(res);
-    }
+    // [Test(Description = "测试生成视图模型的Web预览代码")]
+    // public async Task GetViewWebCodeTest()
+    // {
+    //     var designHub = await TestHelper.MockSession();
+    //     var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
+    //
+    //     var res = await ViewJsGenerator.GenViewWebCode(designHub, modelNode.Id, true);
+    //     Console.Write(res);
+    // }
 
     [Test]
     public async Task GenEntityCodeTest()

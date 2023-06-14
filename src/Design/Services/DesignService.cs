@@ -37,7 +37,7 @@ public sealed class DesignService : IService
         { nameof(NewServiceModel), new NewServiceModel() },
         // View
         { nameof(NewViewModel), new NewViewModel() },
-        { nameof(GetWebPreview), new GetWebPreview() },
+        // { nameof(GetWebPreview), new GetWebPreview() },
         { nameof(GetDesktopPreview), new GetDesktopPreview() },
     };
 
