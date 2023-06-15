@@ -47,6 +47,17 @@ public sealed class SqlQueryTest
     }
 
     [Test]
+    public async Task ToListDynamicTest()
+    {
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        q.Where(t => t[nameof(Employee.Name)] == "Admin");
+        var list = await q.ToListAsync(r => new { Id = r.ReadGuidMember(0), Name = r.ReadStringMember(1) },
+            q.T["Id"], q.T["Name"]);
+        Assert.True(list.Count == 1);
+        Assert.True(list[0].Name == "Admin");
+    }
+
+    [Test]
     public async Task ToTreeTest()
     {
         var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);

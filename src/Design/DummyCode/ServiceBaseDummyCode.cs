@@ -62,15 +62,23 @@ namespace AppBoxStore
         [QueryMethod()]
         public SqlQuery<T> Where(Func<T, bool> condition) => this;
 
+        public Task<T?> ToSingleAsync() => null;
+
         /// <summary>
         /// 执行查询并转换为列表
         /// </summary>
-        public Task<IList<T>> ToListAsync() => throw new Exception();
+        public Task<IList<T>> ToListAsync() => null;
+
+        /// <summary>
+        /// 执行查询并转换为匿名类列表
+        /// </summary>
+        [QueryMethod()]
+        public Task<IList<TResult>> ToListAsync<TResult>(Func<TSource, TResult> selector) => null;
 
         /// <summary>
         /// 执行查询并转换为树状结构
         /// </summary>
         [QueryMethod()]
-        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => throw new Exception();
+        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => null;
     }
 }

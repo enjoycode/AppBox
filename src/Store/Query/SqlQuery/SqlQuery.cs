@@ -266,12 +266,59 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     }
 
     /// <summary>
+    /// 动态查询，返回匿名类列表
+    /// </summary>
+    public async Task<IList<TResult>> ToListAsync<TResult>(Func<SqlRowReader, TResult> selector,
+        params SqlSelectItem[] selectItem)
+    {
+        if (selectItem == null || selectItem.Length <= 0)
+            throw new ArgumentException("must select some one");
+        //if (SkipSize > -1 && !HasSortItems)
+        //    throw new ArgumentException("Paged query must has sort items."); //TODO:加入默认主键排序
+
+        Purpose = QueryPurpose.ToList;
+
+        if (_selects != null)
+            _selects.Clear();
+        for (int i = 0; i < selectItem.Length; i++)
+        {
+            AddSelectItem(selectItem[i].Target);
+        }
+
+        //递交查询
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
+        await using var cmd = db.BuildQuery(this);
+        await using var conn = db.MakeConnection();
+        await conn.OpenAsync();
+        cmd.Connection = conn;
+        Log.Debug(cmd.CommandText);
+
+        var list = new List<TResult>();
+        try
+        {
+            await using var reader = await cmd.ExecuteReaderAsync();
+            var rr = new SqlRowReader(reader);
+            while (await reader.ReadAsync())
+            {
+                list.Add(selector(rr));
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            throw;
+        }
+
+        return list;
+    }
+
+    /// <summary>
     /// 返回树状结构的实体集合
     /// </summary>
     /// <param name="childrenMember">eg: t => t["Children"]</param>
     /// <returns></returns>
-    public async Task<IList<TEntity>> ToTreeAsync(
-        Func<EntityExpression, EntityPathExpression> childrenMember)
+    public async Task<IList<TEntity>> ToTreeAsync(Func<EntityExpression, EntityPathExpression> childrenMember)
     {
         Purpose = QueryPurpose.ToTree;
         var children = (EntitySetExpression)childrenMember(T);
