@@ -96,9 +96,7 @@ public sealed class SqlUpdateCommand : SqlQueryBase, ISqlQuery
         return Output(selector, selects(this));
     }
 
-    public Task<int> ExecAsync() => ExecAsync(null);
-
-    public async Task<int> ExecAsync(DbTransaction? txn)
+    public async Task<int> ExecAsync(DbTransaction? txn = null)
     {
         var entityModel = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
         var db = SqlStore.Get(entityModel.SqlStoreOptions!.StoreModelId);

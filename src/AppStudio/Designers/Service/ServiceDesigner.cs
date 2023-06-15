@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AppBoxClient;
 using CodeEditor;
@@ -29,7 +30,7 @@ namespace AppBoxDesign
 
         private ReferenceVO? _pendingGoto;
 
-        private static Widget BuildEditor(CodeEditorController codeEditorController)
+        private Widget BuildEditor(CodeEditorController codeEditorController)
         {
             return new Column()
             {
@@ -41,7 +42,7 @@ namespace AppBoxDesign
             };
         }
 
-        private static Widget BuildActionBar()
+        private Widget BuildActionBar()
         {
             return new Container()
             {
@@ -51,7 +52,7 @@ namespace AppBoxDesign
                 {
                     Children = new Widget[]
                     {
-                        new Button("Run") { Width = 75 },
+                        new Button("Run") { Width = 75, OnTap = OnRunMethod },
                         new Button("Debug") { Width = 75 }
                     }
                 }
@@ -142,6 +143,49 @@ namespace AppBoxDesign
             _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
             _codeEditorController.Document.TextContent = srcCode!;
             _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+        }
+
+        /// <summary>
+        /// 获取光标位置的服务方法
+        /// </summary>
+        private async Task<JsonObject?> GetMethodInfo()
+        {
+            try
+            {
+                var methodInfo = (await Channel.Invoke<string>("sys.DesignService.GetServiceMethod",
+                    new object?[] { ModelNode.Id, _codeEditorController.GetCaretOffset() }))!;
+                return (JsonObject)JsonNode.Parse(methodInfo)!;
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"无法获取服务方法: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async void OnRunMethod(PointerEvent e)
+        {
+            var json = await GetMethodInfo();
+            if (json == null) return;
+
+            //TODO:暂简单实现且不支持带参数的调用(显示对话框设置参数并显示调用结果)
+            try
+            {
+                var paras = (JsonArray)json["Args"]!;
+                if (paras.Count > 0)
+                    throw new Exception("暂未实现带参数的服务方法调用");
+
+                var serviceMethod = $"{ModelNode.AppName}.{ModelNode.Label}.{json["Name"]}";
+                var res = await Channel.Invoke<object?>(serviceMethod);
+                if (res != null)
+                {
+                    Log.Info($"调用服务方法结果: {System.Text.Json.JsonSerializer.Serialize(res)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Notification.Error($"调用服务方法错误: {ex.Message}");
+            }
         }
     }
 }

@@ -342,8 +342,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
                 .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId))
-                .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs",
-                    CodeUtil.ServiceGlobalUsings())
+                .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs", CodeUtil.ServiceGlobalUsings())
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))

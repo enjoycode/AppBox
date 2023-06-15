@@ -131,16 +131,14 @@ internal static class PublishService
         //Log.Debug(newRootNode.ToFullString());
 
         var docName = $"{appName}.Services.{model.Name}";
-        var newTree = SyntaxFactory.SyntaxTree(newRootNode,
-            path: docName + ".cs", encoding: Encoding.UTF8);
+        var newTree = SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs", encoding: Encoding.UTF8);
 
         //生成服务模型依赖的其他模型的运行时代码
         var usagesTree = codegen.GetUsagesTree();
 
         //注意：必须添加并更改版本号，否则服务端Assembly.Load始终是旧版 
         var newModelVersion = model.Version + 1; //用于消除版本差
-        var asmVersion =
-            $"{newModelVersion >> 24}.{(newModelVersion >> 16) & 0xFF}.{newModelVersion & 0xFFFF}";
+        var asmVersion = $"{newModelVersion >> 24}.{(newModelVersion >> 16) & 0xFF}.{newModelVersion & 0xFFFF}";
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
             CodeUtil.ServiceGlobalUsings() +
             $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
@@ -335,6 +333,7 @@ internal static class PublishService
                         //     await cqlStore.AlterTableAsync(em);
                         // }
                     }
+
                     //TODO:服务模型重命名删除旧的Assembly
                     break;
                 }

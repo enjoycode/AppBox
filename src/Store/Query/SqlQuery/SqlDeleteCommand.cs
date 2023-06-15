@@ -33,9 +33,7 @@ public sealed class SqlDeleteCommand : SqlQueryBase, ISqlQuery
         return this;
     }
 
-    public Task<int> ExecAsync() => ExecAsync(null);
-
-    public async Task<int> ExecAsync(DbTransaction? txn)
+    public async Task<int> ExecAsync(DbTransaction? txn = null)
     {
         var entityModel = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
         var db = SqlStore.Get(entityModel.SqlStoreOptions!.StoreModelId);

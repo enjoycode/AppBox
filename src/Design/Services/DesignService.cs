@@ -35,6 +35,7 @@ public sealed class DesignService : IService
         { nameof(GetEntityPreview), new GetEntityPreview() },
         // Service
         { nameof(NewServiceModel), new NewServiceModel() },
+        { nameof(GetServiceMethod), new GetServiceMethod() },
         // View
         { nameof(NewViewModel), new NewViewModel() },
         // { nameof(GetWebPreview), new GetWebPreview() },

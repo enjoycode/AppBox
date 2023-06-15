@@ -30,8 +30,7 @@ internal partial class ServiceCodeGenerator
         return base.VisitSimpleLambdaExpression(node);
     }
 
-    public override SyntaxNode? VisitParenthesizedLambdaExpression(
-        ParenthesizedLambdaExpressionSyntax node)
+    public override SyntaxNode? VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node)
     {
         if (queryMethodCtx.HasAny)
         {
@@ -71,14 +70,11 @@ internal partial class ServiceCodeGenerator
                 if (initializer.NameEquals != null)
                     sb.Append(initializer.NameEquals.Name.Identifier.ValueText);
                 else
-                    sb.Append(((MemberAccessExpressionSyntax)initializer.Expression).Name
-                        .Identifier.ValueText);
+                    sb.Append(((MemberAccessExpressionSyntax)initializer.Expression).Name.Identifier.ValueText);
                 sb.Append("=r.Get");
-                var expSymbol = ModelExtensions
-                    .GetSymbolInfo(SemanticModel, initializer.Expression).Symbol;
+                var expSymbol = ModelExtensions.GetSymbolInfo(SemanticModel, initializer.Expression).Symbol;
                 var expType = TypeHelper.GetSymbolType(expSymbol);
-                var typeString =
-                    TypeHelper.GetEntityMemberTypeString(expType, out var isNullable);
+                var typeString = TypeHelper.GetEntityMemberTypeString(expType, out var isNullable);
                 if (isNullable) sb.Append("Nullable");
                 sb.Append(typeString);
                 sb.Append('(');
@@ -97,8 +93,7 @@ internal partial class ServiceCodeGenerator
             {
                 var initializer = aoc.Initializers[i];
                 var argExpression = (ExpressionSyntax)initializer.Expression.Accept(this)!;
-                if (initializer.NameEquals !=
-                    null) //TODO:***检查是否还需要转换为SelectAs("XXX")，因前面已按序号获取
+                if (initializer.NameEquals != null) //TODO:***检查是否还需要转换为SelectAs("XXX")，因前面已按序号获取
                 {
                     var selectAsMethodName =
                         (SimpleNameSyntax)SyntaxFactory.ParseName("SelectAs");
@@ -107,8 +102,7 @@ internal partial class ServiceCodeGenerator
                         selectAsMethodName);
                     var selectAsArgs = SyntaxFactory.ParseArgumentList(
                         $"(\"{initializer.NameEquals.Name.Identifier.ValueText}\")");
-                    argExpression =
-                        SyntaxFactory.InvocationExpression(selectAsMethod, selectAsArgs);
+                    argExpression = SyntaxFactory.InvocationExpression(selectAsMethod, selectAsArgs);
                 }
 
                 var arg = SyntaxFactory.Argument(argExpression);
@@ -149,8 +143,7 @@ internal partial class ServiceCodeGenerator
         }
         else
         {
-            throw new NotImplementedException(
-                $"动态查询方法的第一个参数[{lambda.Body.GetType().Name}]暂未实现");
+            throw new NotImplementedException($"动态查询方法的第一个参数[{lambda.Body.GetType().Name}]暂未实现");
         }
 
         return SyntaxFactory.ArgumentList(args);

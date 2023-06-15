@@ -28,11 +28,16 @@ namespace AppBoxStore
     #region ====虚拟代码转运行时代码的Attributes====
 
     [AttributeUsage(AttributeTargets.Constructor)]
-    internal sealed class GenericCreateAttribute : Attribute { }
+    internal sealed class GenericCreateAttribute : Attribute
+    {
+        public GenericCreateAttribute(bool toNoneGeneric){}
+    }
 
     [AttributeUsage(AttributeTargets.Method)]
     internal sealed class QueryMethodAttribute : Attribute { }
-
+    
+    [AttributeUsage(AttributeTargets.Class)]
+    internal sealed class NoneGenericAttribute : Attribute { }
     #endregion
 
     public static class SqlEntityExtensions
@@ -56,29 +61,68 @@ namespace AppBoxStore
 
     public sealed class SqlQuery<T> where T : SqlEntity, new()
     {
-        [GenericCreate]
+        [GenericCreate(false)]
         public SqlQuery() { }
 
         [QueryMethod()]
         public SqlQuery<T> Where(Func<T, bool> condition) => this;
 
-        public Task<T?> ToSingleAsync() => null;
+        public Task<T?> ToSingleAsync() => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为列表
         /// </summary>
-        public Task<IList<T>> ToListAsync() => null;
+        public Task<IList<T>> ToListAsync() => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为匿名类列表
         /// </summary>
         [QueryMethod()]
-        public Task<IList<TResult>> ToListAsync<TResult>(Func<TSource, TResult> selector) => null;
+        public Task<IList<TResult>> ToListAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为树状结构
         /// </summary>
         [QueryMethod()]
-        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => null;
+        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => throw new Exception();
+    }
+
+    [NoneGeneric]
+    public sealed class SqlUpdateCommand<T> where T : SqlEntity
+    {
+        [GenericCreate(true)]
+        public SqlUpdateCommand(){}
+
+        [QueryMethod()]
+        public SqlUpdateCommand<T> Where(Func<T, bool> condition) => this;
+
+        [QueryMethod()]
+        public SqlUpdateCommand<T> Update(Action<T> setter) => this;
+
+        [QueryMethod()]
+        public UpdateOutputs<TResult> Output<TResult>(Func<T, TResult> selector) => throw new Exception();
+
+        public async Task<int> ExecAsync(DbTransaction? txn = null) => throw new Exception();
+        
+        public sealed class UpdateOutputs<T>
+        {
+            private UpdateOutputs() { }
+
+            public T this[int index] => default(T);
+
+            public int Count => 0;
+        }
+    }
+
+    [NoneGeneric]
+    public sealed class SqlDeleteCommand<T> where T : SqlEntity
+    {
+        [GenericCreate(true)]
+        public SqlDeleteCommand(){}
+        
+        [QueryMethod()]
+        public SqlDeleteCommand<T> Where(Func<T, bool> condition) => this;
+        
+        public async Task<int> ExecAsync(DbTransaction? txn = null) => throw new Exception();
     }
 }
