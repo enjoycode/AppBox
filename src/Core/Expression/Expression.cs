@@ -40,35 +40,21 @@ public abstract class Expression
 
     #region ====特定类型方法====
 
-    public Expression Contains(Expression value)
-    {
-        return new BinaryExpression(this, value, BinaryOperatorType.Like);
-    }
+    public Expression Contains(Expression value) => new BinaryExpression(this, value, BinaryOperatorType.Like);
 
-    public Expression Assign(Expression value)
-    {
-        return new BinaryExpression(this, value, BinaryOperatorType.Assign);
-    }
+    /// <summary>
+    /// 相当于expA = expB, 因无法重写=操作符
+    /// </summary>
+    public Expression Assign(Expression value) => new BinaryExpression(this, value, BinaryOperatorType.Assign);
 
-    public BinaryExpression In(Expression list)
-    {
-        return new BinaryExpression(this, list, BinaryOperatorType.In);
-    }
+    public BinaryExpression In(Expression list) => new(this, list, BinaryOperatorType.In);
 
-    public BinaryExpression In(IEnumerable list)
-    {
-        return new BinaryExpression(this, new PrimitiveExpression(list), BinaryOperatorType.In);
-    }
+    public BinaryExpression In(IEnumerable list) => new(this, new PrimitiveExpression(list), BinaryOperatorType.In);
 
-    public BinaryExpression NotIn(Expression list)
-    {
-        return new BinaryExpression(this, list, BinaryOperatorType.NotIn);
-    }
+    public BinaryExpression NotIn(Expression list) => new(this, list, BinaryOperatorType.NotIn);
 
-    public BinaryExpression NotIn(IEnumerable list)
-    {
-        return new BinaryExpression(this, new PrimitiveExpression(list), BinaryOperatorType.NotIn);
-    }
+    public BinaryExpression NotIn(IEnumerable list) =>
+        new(this, new PrimitiveExpression(list), BinaryOperatorType.NotIn);
 
     #endregion
 

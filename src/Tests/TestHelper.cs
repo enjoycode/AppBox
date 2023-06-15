@@ -17,10 +17,9 @@ public static class TestHelper
     public static void TryInitDefaultStore()
     {
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) != 0) return;
-        
+
         RuntimeContext.Init(new HostRuntimeContext(), null);
-        SqlStore.InitDefault("AppBoxStore.PostgreSql", "AppBoxStore.PgSqlStore",
-            ConnectionString);
+        SqlStore.InitDefault("AppBoxStore.PostgreSql", "AppBoxStore.PgSqlStore", ConnectionString);
         MetaStore.Init(new SqlMetaStore());
     }
 

@@ -253,6 +253,67 @@ public abstract class SqlStore
         }
     }
 
+    public async Task<int> UpdateAsync(SqlUpdateCommand updateCommand, EntityModel model, DbTransaction? txn = null)
+    {
+        //暂不支持无条件更新，以防止误操作
+        if (AppBoxCore.Expression.IsNull(updateCommand.Filter))
+            throw new NotSupportedException("Update must assign Where condition");
+
+        var cmd = BuildUpdateCommand(updateCommand, model);
+        cmd.Connection = txn != null ? txn.Connection : MakeConnection();
+        cmd.Transaction = txn;
+        if (txn == null)
+            await cmd.Connection.OpenAsync();
+        Log.Debug(cmd.CommandText);
+
+        var effects = 0;
+        //执行命令
+        if (updateCommand.OutputItems != null && UseReaderForOutput) //返回字段通过DbReader读取
+        {
+            try
+            {
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    effects++;
+                    updateCommand.SetOutputs!(new SqlRowReader(reader));
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+                throw;
+            }
+            finally
+            {
+                if (txn == null) cmd.Connection.Dispose();
+            }
+        }
+        else
+        {
+            try
+            {
+                effects = await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+                throw;
+            }
+            finally
+            {
+                if (txn == null) cmd.Connection.Dispose();
+            }
+
+            if (updateCommand.OutputItems != null)
+            {
+                throw new NotImplementedException(); //TODO:读取输出参数值
+            }
+        }
+
+        return effects;
+    }
+
     /// <summary>
     /// 仅适用于删除具备主键的实体，否则使用SqlDeleteCommand明确指定条件删除
     /// </summary>
@@ -267,7 +328,7 @@ public abstract class SqlStore
             throw new InvalidOperationException("Can't delete entity from sqlstore");
         if (!model.SqlStoreOptions.HasPrimaryKeys)
             throw new InvalidOperationException("Can't delete entity without primary key");
-        
+
         entity.AsDeleted(); //先标为待删除状态
 
         var cmd = BuildDeleteCommand(entity, model);
@@ -282,6 +343,34 @@ public abstract class SqlStore
             var res = await cmd.ExecuteNonQueryAsync();
             entity.AcceptChanges();
             return res;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            throw;
+        }
+        finally
+        {
+            if (txn == null) cmd.Connection.Dispose();
+        }
+    }
+
+    public async Task<int> DeleteAsync(SqlDeleteCommand deleteCommand, EntityModel model, DbTransaction? txn = null)
+    {
+        //暂不支持无条件删除，以防止误操作
+        if (AppBoxCore.Expression.IsNull(deleteCommand.Filter))
+            throw new NotSupportedException("Delete must assign Where condition");
+
+        var cmd = BuildDeleteCommand(deleteCommand, model);
+        cmd.Connection = txn != null ? txn.Connection : MakeConnection();
+        cmd.Transaction = txn;
+        if (txn == null)
+            await cmd.Connection.OpenAsync();
+        Log.Debug(cmd.CommandText);
+        //执行命令
+        try
+        {
+            return await cmd.ExecuteNonQueryAsync();
         }
         catch (Exception ex)
         {
@@ -580,6 +669,8 @@ public abstract class SqlStore
         return cmd;
     }
 
+    protected abstract DbCommand BuildUpdateCommand(SqlUpdateCommand cmd, EntityModel model);
+
     protected internal virtual DbCommand BuildDeleteCommand(SqlEntity entity, EntityModel model)
     {
         var cmd = MakeCommand();
@@ -593,6 +684,8 @@ public abstract class SqlStore
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
     }
+
+    protected abstract DbCommand BuildDeleteCommand(SqlDeleteCommand cmd, EntityModel model);
 
     /// <summary>
     /// 根据实体的主键生成Where条件
@@ -617,13 +710,6 @@ public abstract class SqlStore
         }
     }
 
-    // protected internal abstract DbCommand BuildDeleteCommand(SqlDeleteCommand deleteCommand);
-
-    // /// <summary>
-    // /// 将SqlUpdateCommand转换为sql
-    // /// </summary>
-    // protected internal abstract DbCommand BuidUpdateCommand(SqlUpdateCommand updateCommand);
-
     protected internal abstract DbCommand BuildQuery(ISqlSelectQuery query);
 
     #endregion
@@ -631,7 +717,7 @@ public abstract class SqlStore
 
 public static class StringBuilderExtensions
 {
-    public static void AppendWithNameEscaper(this StringBuilder sb, string name, string escaper)
+    public static void AppendWithNameEscaper(this StringBuilder sb, string name, string /*TODO: char*/ escaper)
     {
         sb.Append(escaper);
         sb.Append(name);

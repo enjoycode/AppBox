@@ -32,7 +32,7 @@ public sealed class EntityExpression : EntityPathExpression
         }
     }
 
-    public long ModelID { get; private set; }
+    public ModelId ModelID { get; private set; }
 
     //TODO:考虑实现AddToCache，用于下属成员反序列化时自动加入Cache内
     private Dictionary<string, EntityPathExpression>? _cache;
@@ -106,7 +106,7 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// New Root EntityExpression
     /// </summary>
-    public EntityExpression(long modelID, object? user) : base(null, null)
+    public EntityExpression(ModelId modelID, object? user) : base(null, null)
     {
         ModelID = modelID;
         _user = user;
@@ -115,8 +115,7 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// New EntityRefModel's EntityExpression
     /// </summary>
-    internal EntityExpression(string name, long modelID, EntityExpression owner)
-        : base(name, owner)
+    internal EntityExpression(string name, ModelId modelID, EntityExpression owner) : base(name, owner)
     {
         ModelID = modelID;
     }

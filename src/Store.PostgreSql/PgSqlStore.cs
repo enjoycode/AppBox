@@ -27,7 +27,7 @@ public sealed partial class PgSqlStore : SqlStore
     public override string ParameterPrefix => "@";
     public override string BlobType => "bytea";
     public override bool IsAtomicUpsertSupported => true;
-    public override bool UseReaderForOutput => false;
+    public override bool UseReaderForOutput => true;
 
     public override DbConnection MakeConnection() => new NpgsqlConnection(_connectionString);
 
