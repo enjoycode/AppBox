@@ -13,9 +13,16 @@ internal sealed class QueryMethod
 
     public bool InLambdaExpression;
 
-    public ParameterSyntax[]? LambdaParameters; 
+    public ParameterSyntax[]? LambdaParameters; //eg: (t, j1, j2) => {}
 
-    //internal bool IsIncludeMethod => MethodName == "Include" || MethodName == "ThenInclude";
+    //需要保留参数，仅Join及Include相关
+    public bool HoldLambdaArgs => MethodName == "LeftJoin"
+                                  || MethodName == "RightJoin"
+                                  || MethodName == "InnerJoin"
+                                  || MethodName == "FullJoin"
+                                  || IsIncludeMethod;
+
+    internal bool IsIncludeMethod => MethodName == "Include" || MethodName == "ThenInclude";
 
     internal bool IsDynamicMethod => MethodName == "ToListAsync" || MethodName == "Output";
 

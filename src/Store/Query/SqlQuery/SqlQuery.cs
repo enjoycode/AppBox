@@ -266,24 +266,40 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     }
 
     /// <summary>
+    /// 动态查询，专用于虚拟代码转换后(无Join)
+    /// </summary>
+    public Task<IList<TResult>> ToListAsync<TResult>(Func<SqlRowReader, TResult> selector,
+        Func<EntityExpression, IEnumerable<Expression>> selects) =>
+        ToListAsync(selector, selects(T));
+
+    public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join,
+        Func<SqlRowReader, TResult> selector,
+        Func<EntityExpression, ISqlQueryJoin, Expression[]> selects) =>
+        ToListAsync(selector, selects(T, join));
+
+    public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join1, ISqlQueryJoin join2,
+        Func<SqlRowReader, TResult> selector,
+        Func<EntityExpression, ISqlQueryJoin, ISqlQueryJoin, Expression[]> selects) =>
+        ToListAsync(selector, selects(T, join1, join2));
+
+    /// <summary>
     /// 动态查询，返回匿名类列表
     /// </summary>
-    public async Task<IList<TResult>> ToListAsync<TResult>(Func<SqlRowReader, TResult> selector,
-        params SqlSelectItem[] selectItem)
+    private async Task<IList<TResult>> ToListAsync<TResult>(Func<SqlRowReader, TResult> selector,
+        IEnumerable<Expression> selectItem)
     {
-        if (selectItem == null || selectItem.Length <= 0)
-            throw new ArgumentException("must select some one");
         //if (SkipSize > -1 && !HasSortItems)
         //    throw new ArgumentException("Paged query must has sort items."); //TODO:加入默认主键排序
 
         Purpose = QueryPurpose.ToList;
 
-        if (_selects != null)
-            _selects.Clear();
-        for (int i = 0; i < selectItem.Length; i++)
+        _selects?.Clear();
+        foreach (var item in selectItem)
         {
-            AddSelectItem(selectItem[i].Target);
+            AddSelectItem(new SqlSelectItemExpression(item));
         }
+        if(_selects!.Count == 0)
+            throw new ArgumentException("must select some one");
 
         //递交查询
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);

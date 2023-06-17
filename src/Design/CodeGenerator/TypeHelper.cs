@@ -77,76 +77,64 @@ internal static class TypeHelper
 
     internal static string GetEntityMemberTypeString(ITypeSymbol valueTypeSymbol, out bool isNullable)
     {
-        throw new NotImplementedException();
-        // isNullable = false;
-        // var valueTypeString = valueTypeSymbol.ToString();
-        // //先处理一些特殊类型
-        // if (valueTypeString.AsSpan().EndsWith("?")) //nullable
-        // {
-        //     valueTypeString = valueTypeString.Remove(valueTypeString.Length - 1, 1);
-        //     isNullable = true;
-        // }
-        // else if (valueTypeString.AsSpan().StartsWith(Type_EntityList)) //TODO:暂简单判断
-        //     valueTypeString = RuntimeType_EntityList;
+        isNullable = false;
+        var valueTypeString = valueTypeSymbol.ToString();
+        //先处理一些特殊类型
+        if (valueTypeString.AsSpan().EndsWith("?")) //nullable
+        {
+            valueTypeString = valueTypeString.Remove(valueTypeString.Length - 1, 1);
+            isNullable = true;
+        }
+        // else if (valueTypeString.AsSpan().StartsWith("EntitySet")) //TODO:暂简单判断
+        //     valueTypeString = "EntitySet";
         // else if (IsEntityClass(valueTypeSymbol as INamedTypeSymbol))
-        //     valueTypeString = RuntimeType_Entity;
-        //
-        // string type;
-        // switch (valueTypeString)
-        // {
-        //     case "short":
-        //         type = "Short";
-        //         break;
-        //     case "int":
-        //         type = "Int";
-        //         break;
-        //     case "long":
-        //         type = "Long";
-        //         break;
-        //     case "bool":
-        //         type = "Bool";
-        //         break;
-        //     case "byte":
-        //         type = "Byte";
-        //         break;
-        //     case "float":
-        //         type = "Float";
-        //         break;
-        //     case "double":
-        //         type = "Double";
-        //         break;
-        //     case "decimal":
-        //         type = "Decimal";
-        //         break;
-        //     case "System.Guid":
-        //     case "Guid":
-        //         type = "Guid";
-        //         break;
-        //     case "System.DateTime":
-        //     case "DateTime":
-        //         type = "DateTime";
-        //         break;
-        //     case "byte[]":
-        //         type = "Bytes";
-        //         break;
-        //     case "string":
-        //         type = "String";
-        //         break;
-        //     case "EntityId":
-        //         type = "EntityId";
-        //         break;
-        //     case RuntimeType_Entity:
-        //         type = "EntityRef";
-        //         break;
-        //     case RuntimeType_EntityList:
-        //         type = "EntitySet";
-        //         break;
-        //     default: //other enum
-        //         type = "Int32";
-        //         break;
-        // }
-        //
-        // return type;
+        //     valueTypeString = "RuntimeType_Entity";
+        
+        string type;
+        switch (valueTypeString)
+        {
+            case "int":
+                type = "Int";
+                break;
+            case "long":
+                type = "Long";
+                break;
+            case "bool":
+                type = "Bool";
+                break;
+            case "byte":
+                type = "Byte";
+                break;
+            case "float":
+                type = "Float";
+                break;
+            case "double":
+                type = "Double";
+                break;
+            case "decimal":
+                type = "Decimal";
+                break;
+            case "System.Guid":
+            case "Guid":
+                type = "Guid";
+                break;
+            case "System.DateTime":
+            case "DateTime":
+                type = "DateTime";
+                break;
+            case "byte[]":
+                type = "Binary";
+                break;
+            case "string":
+                type = "String";
+                break;
+            default: //other enum
+                throw new NotImplementedException();
+                //type = "Int32";
+                break;
+        }
+        
+        return type;
     }
 
     internal static ITypeSymbol? GetSymbolType(ISymbol symbol)

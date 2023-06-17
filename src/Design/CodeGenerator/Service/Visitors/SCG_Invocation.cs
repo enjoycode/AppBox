@@ -36,9 +36,8 @@ internal partial class ServiceCodeGenerator
             if (queryMethodCtx.Current.MethodName == "ToScalarAsync")
             {
                 var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
-                var newGenericName =
-                    (SimpleNameSyntax)SyntaxFactory.ParseName(
-                        $"ToScalarAsync<{methodSymbol!.TypeArguments[0]}>");
+                var newGenericName = (SimpleNameSyntax)SyntaxFactory.ParseName(
+                    $"ToScalarAsync<{methodSymbol!.TypeArguments[0]}>");
                 memberAccess = memberAccess.WithName(newGenericName);
                 res = ((InvocationExpressionSyntax)res).WithExpression(memberAccess);
             }

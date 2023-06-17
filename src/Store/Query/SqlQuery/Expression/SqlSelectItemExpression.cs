@@ -3,7 +3,7 @@ using AppBoxCore;
 
 namespace AppBoxStore;
 
-public sealed class SqlSelectItemExpression : Expression
+public sealed class SqlSelectItemExpression : Expression //TODO: rename to SqlSelectItem
 {
     public SqlSelectItemExpression(Expression expression)
     {

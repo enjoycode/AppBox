@@ -28,7 +28,7 @@ internal partial class ServiceCodeGenerator
                     .WithTriviaFrom(node);
             }
         }
-        
+
         //拦截器处理
         var expSymbol = SemanticModel.GetSymbolInfo(node).Symbol;
         if (expSymbol != null)
@@ -41,8 +41,7 @@ internal partial class ServiceCodeGenerator
         return base.VisitMemberAccessExpression(node);
     }
 
-    private static IdentifierNameSyntax? FindIndentifierForMemberAccessExpression(
-        MemberAccessExpressionSyntax node)
+    private static IdentifierNameSyntax? FindIndentifierForMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
         while (true)
         {
@@ -87,8 +86,7 @@ internal partial class ServiceCodeGenerator
         {
             if (node.Expression is IdentifierNameSyntax)
             {
-                sb.Insert(0,
-                    $"{targetIdentifier.Identifier.ValueText}[\"{node.Name.Identifier.ValueText}\"]");
+                sb.Insert(0, $"{targetIdentifier.Identifier.ValueText}[\"{node.Name.Identifier.ValueText}\"]");
             }
             else if (node.Expression is MemberAccessExpressionSyntax memberAccess)
             {
@@ -96,13 +94,11 @@ internal partial class ServiceCodeGenerator
 
                 //判断是否实体成员
                 var symbol = SemanticModel.GetSymbolInfo(node).Symbol!;
-                var modelNode =
-                    DesignHub.DesignTree.FindModelNodeByFullName(symbol.ContainingType.ToString())!;
+                var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(symbol.ContainingType.ToString())!;
                 var model = (EntityModel)modelNode.Model;
                 var isEntityMember = model.GetMember(symbol.Name, false) != null;
 
-                sb.AppendFormat(isEntityMember ? "[\"{0}\"]" : ".{0}",
-                    node.Name.Identifier.ValueText);
+                sb.AppendFormat(isEntityMember ? "[\"{0}\"]" : ".{0}", node.Name.Identifier.ValueText);
             }
         }
     }
