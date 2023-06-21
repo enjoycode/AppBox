@@ -17,16 +17,16 @@ public sealed class OrgUnitsView : View
                 BuildBody(),
             }
         };
-        
+
         LoadOrgTree();
     }
-    
+
     private readonly TreeController<OrgUnit> _orgTreeController;
-    private readonly TabController<string> _tabController = new (new List<string>{"组织单元属性", "权限设置"});
+    private readonly TabController<string> _tabController = new(new List<string> { "组织单元属性", "权限设置" });
     private readonly State<OrgUnit?> _selectedOU = new Rx<OrgUnit?>(null);
-    private readonly RxEntity<Enterprise> _entNotifier = new ();
-    private readonly RxEntity<Workgroup> _wkgNotifier = new ();
-    private readonly RxEntity<Employee> _empNotifier = new ();
+    private readonly RxEntity<Enterprise> _entNotifier = new();
+    private readonly RxEntity<Workgroup> _wkgNotifier = new();
+    private readonly RxEntity<Employee> _empNotifier = new();
 
     private Widget BuildCmdBar()
     {
@@ -34,13 +34,14 @@ public sealed class OrgUnitsView : View
         {
             Child = new Container
             {
-                Height = 40, Padding = EdgeInsets.All(5),
+                Height = 40,
+                Padding = EdgeInsets.All(5),
                 Child = new ButtonGroup
                 {
                     Children =
                     {
                         new Button("新建组", MaterialIcons.Group) { OnTap = OnNewWorkgroup },
-                        new Button("新建员工", MaterialIcons.Person),
+                        new Button("新建员工", MaterialIcons.Person) { OnTap = OnNewEmployee },
                         new Button("保存", MaterialIcons.Save) { OnTap = OnSave },
                         new Button("删除", MaterialIcons.Delete)
                     }
@@ -48,7 +49,7 @@ public sealed class OrgUnitsView : View
             }
         };
     }
-    
+
     private Widget BuildBody()
     {
         return new Card
@@ -70,7 +71,7 @@ public sealed class OrgUnitsView : View
             }
         };
     }
-    
+
     private void BuildTreeNode(OrgUnit data, TreeNode<OrgUnit> node)
     {
         node.Label = new Text(data.Observe(e => e.Name));
@@ -92,28 +93,28 @@ public sealed class OrgUnitsView : View
             node.IsLeaf = true;
         }
     }
-    
+
     private Widget BuildTab(string data, State<bool> isSelected)
     {
         return new Text(data);
     }
-    
+
     private Widget BuildTabBody(string data)
     {
         if (data == "组织单元属性")
         {
             return new Conditional<OrgUnit?>(_selectedOU)
-                .When(t => t != null && t.BaseType == Enterprise.MODELID, 
+                .When(t => t != null && t.BaseType == Enterprise.MODELID,
                     () => new sys.Views.EnterpriseView(_entNotifier))
-                .When(t => t != null && t.BaseType == Workgroup.MODELID, 
+                .When(t => t != null && t.BaseType == Workgroup.MODELID,
                     () => new sys.Views.WorkgroupView(_wkgNotifier))
-                .When(t => t != null && t.BaseType == Employee.MODELID, 
+                .When(t => t != null && t.BaseType == Employee.MODELID,
                     () => new sys.Views.EmployeeView(_empNotifier));
-        }    
+        }
 
-        return new sys.Views.PermissionTreeView {CurrentOU = _selectedOU};
+        return new sys.Views.PermissionTreeView { CurrentOU = _selectedOU };
     }
-    
+
     private async void LoadOrgTree()
     {
         try
@@ -126,16 +127,16 @@ public sealed class OrgUnitsView : View
         }
         catch (Exception ex)
         {
-            Notification.Error($"无法加载组织结构: {ex }");
+            Notification.Error($"无法加载组织结构: {ex}");
         }
     }
-    
+
     private async void OnOrgUnitChanged()
     {
         var ou = _orgTreeController.FirstSelectedNode?.Data;
         _selectedOU.Value = ou;
         if (ou == null) return;
-        
+
         if (ou.Base == null) //尚未加载过
         {
             if (ou.BaseType == Enterprise.MODELID)
@@ -153,15 +154,25 @@ public sealed class OrgUnitsView : View
         else
             _empNotifier.Target = (Employee)ou.Base!;
     }
-    
+
     private async void OnNewWorkgroup(PointerEvent e)
     {
         if (!CheckForCreate()) return;
-        
+
         var parentNode = _orgTreeController.FirstSelectedNode;
         var parentOU = _selectedOU.Value!;
         var newOU = await sys.Services.OrgUnitService.NewWorkgroup(parentOU.Id);
         //TODO:暂加入至最后一个位置
+        _orgTreeController.InsertNode(newOU, parentNode);
+    }
+
+    private async void OnNewEmployee(PointerEvent e)
+    {
+        if (!CheckForCreate()) return;
+
+        var parentNode = _orgTreeController.FirstSelectedNode;
+        var parentOU = _selectedOU.Value!;
+        var newOU = await sys.Services.OrgUnitService.NewEmployee(parentOU.Id);
         _orgTreeController.InsertNode(newOU, parentNode);
     }
 
@@ -177,19 +188,24 @@ public sealed class OrgUnitsView : View
             Notification.Error("请选择非员工节点作为上级");
             return false;
         }
-        
+
         return true;
     }
-    
+
     private async void OnSave(PointerEvent e)
     {
         var ou = _selectedOU.Value;
         if (ou == null) return;
-        
+
         if (ou.Base is Workgroup workgroup)
         {
-            await sys.Services.OrgUnitService.SaveWorkgroup(workgroup, ou.IgnoreSerializeNavigateMembers());
+            await sys.Services.OrgUnitService.SaveWorkgroup(workgroup, ou.Id, ou.Name);
             ou.Name = workgroup.Name;
+        }
+        else if (ou.Base is Employee employee)
+        {
+            await sys.Services.OrgUnitService.SaveEmployee(employee, ou.Id, ou.Name);
+            ou.Name = employee.Name;
         }
     }
 }
