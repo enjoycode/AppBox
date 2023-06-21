@@ -11,7 +11,7 @@ public sealed class OrgUnitsView : View
 
         Child = new Column
         {
-            Children = new Widget[]
+            Children =
             {
                 BuildCmdBar(),
                 BuildBody(),
@@ -37,7 +37,7 @@ public sealed class OrgUnitsView : View
                 Height = 40, Padding = EdgeInsets.All(5),
                 Child = new ButtonGroup
                 {
-                    Children = new []
+                    Children =
                     {
                         new Button("新建组", MaterialIcons.Group) { OnTap = OnNewWorkgroup },
                         new Button("新建员工", MaterialIcons.Person),
@@ -55,7 +55,7 @@ public sealed class OrgUnitsView : View
         {
             Child = new Row
             {
-                Children = new Widget[]
+                Children =
                 {
                     new Container
                     {

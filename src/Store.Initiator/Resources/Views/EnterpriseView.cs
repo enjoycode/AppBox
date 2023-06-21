@@ -12,7 +12,7 @@ public sealed class EnterpriseView : View
         {
             Padding = EdgeInsets.All(10),
             LabelWidth = 50,
-            Children = new FormItem[]
+            Children =
             {
                 new ("名称:", new Input(state.Observe(e => e.Name))),
                 new ("地址:", new Input(state.Observe(e => e.Address)!)),

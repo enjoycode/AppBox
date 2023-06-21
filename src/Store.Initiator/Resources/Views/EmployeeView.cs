@@ -12,7 +12,7 @@ public sealed class EmployeeView : View
         {
             Padding = EdgeInsets.All(10),
             LabelWidth = 50,
-            Children = new FormItem[]
+            Children =
             {
                 new ("姓名:", new Input(state.Observe(e => e.Name)))
             }
