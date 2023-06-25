@@ -20,6 +20,8 @@ public sealed class SqlSubQuery : Expression, ISqlQueryJoin
 
     public ISqlSelectQuery Target { get; }
 
+    public EntityPathExpression this[string name] => throw new NotSupportedException();
+
     public IList<SqlSelectItemExpression> T => Target.Selects!;
 
     public bool HasJoins => _joins != null && _joins.Count > 0;

@@ -413,36 +413,33 @@ partial class PgSqlStore
     /// </summary>
     private void BuildJoins(IList<SqlJoin> joins, BuildQueryContext ctx)
     {
-        throw new NotImplementedException();
-        // foreach (var item in joins)
-        // {
-        //     //先处理当前的联接
-        //     ctx.Append(GetJoinString(item.JoinType));
-        //     if (item.Right is SqlQueryJoin)
-        //     {
-        //         var j = (SqlQueryJoin)item.Right;
-        //         var jModel = Runtime.RuntimeContext.Current.GetModelAsync<EntityModel>(j.T.ModelID)
-        //             .Result;
-        //         ctx.AppendFormat("\"{0}\" {1} On ", jModel.GetSqlTableName(false, null),
-        //             j.AliasName);
-        //         BuildExpression(item.OnConditon, ctx);
-        //
-        //         //再处理手工联接的自动联接
-        //         ctx.BuildQueryAutoJoins(j);
-        //     }
-        //     else //否则表示联接对象是SubQuery，注意：子查询没有自动联接
-        //     {
-        //         SqlSubQuery sq = (SqlSubQuery)item.Right;
-        //         ctx.Append("(");
-        //         BuildNormalQuery(sq.Target, ctx);
-        //         ctx.AppendFormat(") As {0} On ", ((SqlQueryBase)sq.Target).AliasName);
-        //         BuildExpression(item.OnConditon, ctx);
-        //     }
-        //
-        //     //最后递归当前联接的右部是否还有手工的联接项
-        //     if (item.Right.HasJoins)
-        //         BuildJoins(item.Right.Joins, ctx);
-        // }
+        foreach (var item in joins)
+        {
+            //先处理当前的联接
+            ctx.Append(GetJoinString(item.JoinType));
+            if (item.Right is SqlQueryJoin j)
+            {
+                var jModel = RuntimeContext.GetModel<EntityModel>(j.T.ModelID);
+                ctx.AppendFormat("\"{0}\" {1} On ", jModel.SqlStoreOptions!.GetSqlTableName(false, null),
+                    j.AliasName);
+                BuildExpression(item.OnConditon, ctx);
+
+                //再处理手工联接的自动联接
+                ctx.BuildQueryAutoJoins(j);
+            }
+            else //否则表示联接对象是SubQuery，注意：子查询没有自动联接
+            {
+                SqlSubQuery sq = (SqlSubQuery)item.Right;
+                ctx.Append("(");
+                BuildNormalQuery(sq.Target, ctx);
+                ctx.AppendFormat(") As {0} On ", ((SqlQueryBase)sq.Target).AliasName);
+                BuildExpression(item.OnConditon, ctx);
+            }
+
+            //最后递归当前联接的右部是否还有手工的联接项
+            if (item.Right.HasJoins)
+                BuildJoins(item.Right.Joins, ctx);
+        }
     }
 
     #region ====Build Expression Methods====

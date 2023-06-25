@@ -136,95 +136,54 @@ public abstract class Expression
 
     #region ====隐式转换====
 
-    public static implicit operator Expression(byte[] val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(byte[] val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(bool val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(bool val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(bool? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(bool? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
-    public static implicit operator Expression(char val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(char val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(char? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(char? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
-    public static implicit operator Expression(DateTime val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(DateTime val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(DateTime? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(DateTime? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
-    public static implicit operator Expression(decimal val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(decimal val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(decimal? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(decimal? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
-    public static implicit operator Expression(Guid val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(Guid val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(Guid? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(Guid? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
-    public static implicit operator Expression(int val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(int val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(int? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(int? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
-    public static implicit operator Expression(string val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(long val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(float val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(long? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
-    public static implicit operator Expression(float? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(string val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(double val)
-    {
-        return new PrimitiveExpression(val);
-    }
+    public static implicit operator Expression(float val) => new PrimitiveExpression(val);
 
-    public static implicit operator Expression(double? val)
-    {
-        return val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-    }
+    public static implicit operator Expression(float? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+
+    public static implicit operator Expression(double val) => new PrimitiveExpression(val);
+
+    public static implicit operator Expression(double? val) =>
+        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
 
     #endregion
 

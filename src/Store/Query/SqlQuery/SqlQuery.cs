@@ -38,6 +38,8 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     /// </summary>
     public EntityExpression T { get; }
 
+    public override EntityPathExpression this[string name] => T[name];
+
     /// <summary>
     /// 筛选器
     /// </summary>
@@ -48,8 +50,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     /// </summary>
     private SqlIncluder? _rootIncluder;
 
-    public IList<SqlSelectItemExpression>? Selects
-        => _selects ??= new List<SqlSelectItemExpression>();
+    public IList<SqlSelectItemExpression>? Selects => _selects ??= new List<SqlSelectItemExpression>();
 
     public IList<SqlSortItem> SortItems => _sortItems ??= new List<SqlSortItem>();
 
@@ -161,36 +162,6 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     //     return reader.GetInt32(0);
     // }
 
-    // public async Task<Entity> ToSingleAsync()
-    // {
-    //     Purpose = QueryPurpose.ToSingleEntity;
-    //
-    //     //添加选择项
-    //     var model = await RuntimeContext.Current.GetModelAsync<EntityModel>(T.ModelID);
-    //     AddAllSelects(this, model, T, null);
-    //     if (_rootIncluder != null)
-    //         await _rootIncluder.AddSelects(this, model);
-    //
-    //     //递交查询
-    //     var db = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
-    //     var cmd = db.BuildQuery(this);
-    //     using var conn = db.MakeConnection();
-    //     await conn.OpenAsync();
-    //     cmd.Connection = conn;
-    //     Log.Debug(cmd.CommandText);
-    //
-    //     using var reader = await cmd.ExecuteReaderAsync();
-    //     Entity res = null;
-    //     if (await reader.ReadAsync())
-    //     {
-    //         res = FillEntity(model, reader);
-    //     }
-    //
-    //     if (_rootIncluder != null)
-    //         await _rootIncluder.LoadEntitySets(db, res, null); //TODO:fix txn
-    //     return res;
-    // }
-
     // public T ToScalar<T>(SqlSelectItem expression)
     // {
     //     throw new NotImplementedException();
@@ -274,12 +245,12 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join,
         Func<SqlRowReader, TResult> selector,
-        Func<EntityExpression, ISqlQueryJoin, Expression[]> selects) =>
+        Func<EntityExpression, ISqlQueryJoin, IEnumerable<Expression>> selects) =>
         ToListAsync(selector, selects(T, join));
 
     public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join1, ISqlQueryJoin join2,
         Func<SqlRowReader, TResult> selector,
-        Func<EntityExpression, ISqlQueryJoin, ISqlQueryJoin, Expression[]> selects) =>
+        Func<EntityExpression, ISqlQueryJoin, ISqlQueryJoin, IEnumerable<Expression>> selects) =>
         ToListAsync(selector, selects(T, join1, join2));
 
     /// <summary>
@@ -298,7 +269,8 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         {
             AddSelectItem(new SqlSelectItemExpression(item));
         }
-        if(_selects!.Count == 0)
+
+        if (_selects!.Count == 0)
             throw new ArgumentException("must select some one");
 
         //递交查询
@@ -528,6 +500,12 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     public SqlQuery<TEntity> Where(Func<EntityExpression, Expression> condition)
     {
         Filter = condition(T);
+        return this;
+    }
+
+    public SqlQuery<TEntity> Where(ISqlQueryJoin join, Func<EntityExpression, ISqlQueryJoin, Expression> condition)
+    {
+        Filter = condition(T, join);
         return this;
     }
 

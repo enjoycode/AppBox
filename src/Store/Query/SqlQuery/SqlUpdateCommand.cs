@@ -22,7 +22,7 @@ public sealed class SqlUpdateCommand : SqlQueryBase, ISqlQuery
     /// </summary>
     public EntityExpression T { get; }
 
-    public EntityPathExpression this[string name] => T[name];
+    public override EntityPathExpression this[string name] => T[name];
 
     /// <summary>
     /// 筛选器

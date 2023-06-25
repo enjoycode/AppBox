@@ -1,7 +1,5 @@
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
-using AppBoxCore;
 using AppBoxStore;
 using AppBoxStore.Entities;
 using NUnit.Framework;
@@ -74,5 +72,22 @@ public sealed class SqlQueryTest
         var path = await q.ToTreePathAsync(t => t[nameof(OrgUnit.Parent)], t => t[nameof(OrgUnit.Name)]);
         Assert.True(path != null);
         Console.WriteLine(path);
+    }
+
+    [Test]
+    public async Task JoinTest()
+    {
+        var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
+        var j = new SqlQueryJoin(Employee.MODELID);
+        q.LeftJoin(j, (ou, emp) => ou["Id"] == emp["Id"]);
+
+        var list = await q
+            .Where(j, (ou, emp) => ou["BaseType"] == Employee.MODELID & emp["Name"] == "Admin")
+            .ToListAsync(j,
+                r => new { Id = r.ReadGuidMember(0), Name = r.ReadStringMember(1) },
+                (ou, emp) => new[] { ou["Id"], emp["Name"] });
+
+        Assert.True(list.Count == 1);
+        Assert.AreEqual("Admin", list[0].Name);
     }
 }
