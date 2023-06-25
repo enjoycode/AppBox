@@ -7,24 +7,34 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class QueryMethod
 {
-    public string MethodName = null!;
+    public QueryMethod(string methodName, int parameterCount, bool isSystemQuery = false)
+    {
+        MethodName = methodName;
+        ParameterCount = parameterCount;
+        IsSystemQuery = isSystemQuery;
+    }
 
-    public bool IsSystemQuery; //标明是否系统存储查询，否则表示其他如Sql查询
+    public readonly string MethodName;
+
+    /// <summary>
+    /// 查询方法的参数个数，用于附加判断是否动态查询
+    /// </summary>
+    public readonly int ParameterCount;
+
+    /// <summary>
+    /// 保留: 标明是否系统存储查询，否则表示其他如Sql查询
+    /// </summary>
+    public readonly bool IsSystemQuery;
 
     public bool InLambdaExpression;
 
     public ParameterSyntax[]? LambdaParameters; //eg: (t, j1, j2) => {}
 
-    //需要保留参数，仅Join及Include相关
-    public bool HoldLambdaArgs => MethodName == "LeftJoin"
-                                  || MethodName == "RightJoin"
-                                  || MethodName == "InnerJoin"
-                                  || MethodName == "FullJoin"
-                                  || IsIncludeMethod;
-
-    internal bool IsIncludeMethod => MethodName == "Include" || MethodName == "ThenInclude";
-
-    internal bool IsDynamicMethod => MethodName == "ToListAsync" || MethodName == "Output";
+    /// <summary>
+    /// 是否动态查询方法，最后一个参数会转换为两个参数
+    /// </summary>
+    internal bool IsDynamicMethod => MethodName == "Output" || MethodName == "ToScalarAsync" ||
+                                     (MethodName == "ToListAsync" && ParameterCount > 0);
 
     internal bool IsLambdaParameter(IdentifierNameSyntax identifier)
     {

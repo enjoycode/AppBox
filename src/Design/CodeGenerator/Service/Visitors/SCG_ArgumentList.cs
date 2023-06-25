@@ -6,32 +6,24 @@ namespace AppBoxDesign;
 
 internal partial class ServiceCodeGenerator
 {
-    //TODO: remove this
-
     public override SyntaxNode? VisitArgumentList(ArgumentListSyntax node)
     {
-        //注意：相关Query.XXXJoin(join, (u, j1) => u.ID == j1.OtherID)不处理，因本身需要之前的参数
-        if (queryMethodCtx.HasAny && !queryMethodCtx.Current.HoldLambdaArgs &&
-            !queryMethodCtx.Current.InLambdaExpression)
+        //因动态查询方法的最后一个参数会被转换为两个参数，所以需要特殊处理
+        if (queryMethodCtx is { HasAny: true, Current: { InLambdaExpression: false, IsDynamicMethod: true } })
         {
             var args = new SeparatedSyntaxList<ArgumentSyntax>();
-            //eg: q.Where(join1, (u, j1) => u.ID == j1.OtherID)
-            //注意：只处理最后一个参数，即移除之前的参数，如上示例中的join1参数，最后的Lambda由VisitQueryMethodLambdaExpression处理
-            var newArgNode = node.Arguments[node.Arguments.Count - 1].Expression.Accept(this)!;
-
-            //eg: q.ToList(join1, (t, j1) => new {t.ID, t.Name, j1.Address})
-            //需要处理 new {XX,XX,XX}为参数列表
-            if ((queryMethodCtx.Current.MethodName == "ToScalarAsync"
-                 || queryMethodCtx.Current.MethodName == "ToListAsync"
-                 || queryMethodCtx.Current.MethodName == "Output")
-                && newArgNode is ArgumentListSyntax argList)
+            for (var i = 0; i < node.Arguments.Count; i++)
             {
-                //已被VisitQueryMethodLambdaExpression转换为ArgumentListSyntax
-                args = args.AddRange(argList.Arguments);
-            }
-            else
-            {
-                args = args.Add(SyntaxFactory.Argument((ExpressionSyntax)newArgNode));
+                if (i == node.Arguments.Count - 1)
+                {
+                    //已被VisitQueryMethodLambdaExpression转换为ArgumentListSyntax
+                    var lastArgs = (ArgumentListSyntax)node.Arguments[i].Expression.Accept(this)!;
+                    args = args.AddRange(lastArgs.Arguments);
+                }
+                else
+                {
+                    args = args.Add((ArgumentSyntax)node.Arguments[i].Accept(this)!);
+                }
             }
 
             return SyntaxFactory.ArgumentList(args);

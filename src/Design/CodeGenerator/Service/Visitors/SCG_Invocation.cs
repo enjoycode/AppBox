@@ -20,11 +20,7 @@ internal partial class ServiceCodeGenerator
         if (isQueryMethod)
         {
             //设置当前查询方法上下文
-            var queryMethod = new QueryMethod()
-            {
-                IsSystemQuery = false, //TODO: fix
-                MethodName = methodSymbol!.Name,
-            };
+            var queryMethod = new QueryMethod(methodSymbol!.Name, methodSymbol.Parameters.Length);
             queryMethodCtx.Push(queryMethod);
         }
 

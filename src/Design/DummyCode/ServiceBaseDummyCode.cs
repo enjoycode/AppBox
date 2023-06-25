@@ -36,7 +36,7 @@ namespace AppBoxStore
     [AttributeUsage(AttributeTargets.Method)]
     internal sealed class QueryMethodAttribute : Attribute { }
     
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     internal sealed class NoneGenericAttribute : Attribute { }
     #endregion
 
@@ -58,14 +58,46 @@ namespace AppBoxStore
     {
         public Task<DbTransaction> BeginTransactionAsync() => throw new Exception();
     }
+    
+    [NoneGeneric]
+    public interface ISqlQueryJoin<T> {}
 
-    public sealed class SqlQuery<T> where T : SqlEntity, new()
+    public static class SqlQueryJoinExtensions
+    {
+        [QueryMethod()]
+        public static ISqlQueryJoin<TJoin> InnerJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
+            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+        
+        [QueryMethod()]
+        public static ISqlQueryJoin<TJoin> LeftJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
+            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+        
+        [QueryMethod()]
+        public static ISqlQueryJoin<TJoin> RightJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
+            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+        
+        [QueryMethod()]
+        public static ISqlQueryJoin<TJoin> FullJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
+            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+    }
+
+    [NoneGeneric]
+    public sealed class SqlQueryJoin<T> : ISqlQueryJoin<T> where T : SqlEntity
+    {
+        [GenericCreate(true)]
+        public SqlQueryJoin(){}
+    }
+
+    public sealed class SqlQuery<T> : ISqlQueryJoin<T> where T : SqlEntity, new()
     {
         [GenericCreate(false)]
         public SqlQuery() { }
 
         [QueryMethod()]
         public SqlQuery<T> Where(Func<T, bool> condition) => this;
+
+        [QueryMethod()]
+        public SqlQuery<T> Where<TJoin>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, bool> condition) => this;
 
         public Task<T?> ToSingleAsync() => throw new Exception();
 
@@ -80,6 +112,10 @@ namespace AppBoxStore
         [QueryMethod()]
         public Task<IList<TResult>> ToListAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
 
+        [QueryMethod()]
+        public Task<IList<TResult>> ToListAsync<TJoin, TResult>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, TResult> selector) =>
+            throw new Exception();
+
         /// <summary>
         /// 执行查询并转换为树状结构
         /// </summary>
@@ -88,7 +124,7 @@ namespace AppBoxStore
     }
 
     [NoneGeneric]
-    public sealed class SqlUpdateCommand<T> where T : SqlEntity
+    public sealed class SqlUpdateCommand<T> : ISqlQueryJoin<T> where T : SqlEntity
     {
         [GenericCreate(true)]
         public SqlUpdateCommand(){}
@@ -115,7 +151,7 @@ namespace AppBoxStore
     }
 
     [NoneGeneric]
-    public sealed class SqlDeleteCommand<T> where T : SqlEntity
+    public sealed class SqlDeleteCommand<T> : ISqlQueryJoin<T> where T : SqlEntity
     {
         [GenericCreate(true)]
         public SqlDeleteCommand(){}
