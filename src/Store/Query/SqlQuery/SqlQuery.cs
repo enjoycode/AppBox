@@ -76,7 +76,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     #region ----GroupBy属性----
 
-    public SqlSelectItemExpression[]? GroupByKeys { get; private set; }
+    public IList<SqlSelectItemExpression>? GroupByKeys { get; private set; }
 
     public Expression? HavingFilter { get; private set; }
 
@@ -545,20 +545,14 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     #region ====GroupBy Methods====
 
-    // public SqlQuery GroupBy(params SqlSelectItem[] groupKeys)
-    // {
-    //     if (groupKeys == null || groupKeys.Length <= 0)
-    //         throw new ArgumentException("must select some one");
-    //
-    //     GroupByKeys = new SqlSelectItemExpression[groupKeys.Length];
-    //     for (int i = 0; i < GroupByKeys.Length; i++)
-    //     {
-    //         groupKeys[i].Target.Owner = this;
-    //         GroupByKeys[i] = groupKeys[i].Target;
-    //     }
-    //
-    //     return this;
-    // }
+    public SqlQuery<TEntity> GroupBy(Func<EntityExpression, Expression> select)
+    {
+        GroupByKeys ??= new List<SqlSelectItemExpression>();
+        var item = new SqlSelectItemExpression(select(T)) { Owner = this };
+        GroupByKeys.Add(item);
+
+        return this;
+    }
 
     public SqlQuery<TEntity> Having(Func<EntityExpression, Expression> condition)
     {

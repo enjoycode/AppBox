@@ -58,6 +58,21 @@ namespace AppBoxStore
     {
         public Task<DbTransaction> BeginTransactionAsync() => throw new Exception();
     }
+
+    public static class SqlFunc
+    {
+        public static int Sum(int field) { return 0; }
+
+        public static long Sum(long field) { return 0; }
+
+        public static int Avg(int field) { return 0; }
+
+        public static long Avg(long field) { return 0; }
+
+        // public static bool In<T>(this T source, IEnumerable<T> list) { return true; }
+        //
+        // public static bool NotIn<T>(this T source, IEnumerable<T> list) { return true; }
+    }
     
     [NoneGeneric]
     public interface ISqlQueryJoin<T> {}
@@ -121,6 +136,12 @@ namespace AppBoxStore
         /// </summary>
         [QueryMethod()]
         public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => throw new Exception();
+
+        [QueryMethod()]
+        public SqlQuery<T> GroupBy<TResult>(Func<T, TResult> keySelector) => this;
+
+        [QueryMethod()]
+        public SqlQuery<T> Having(Func<T, bool> condition) => this;
     }
 
     [NoneGeneric]

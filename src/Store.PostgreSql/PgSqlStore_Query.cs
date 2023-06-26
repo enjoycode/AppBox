@@ -339,12 +339,12 @@ partial class PgSqlStore
 
     private void BuildGroupBy(ISqlSelectQuery query, BuildQueryContext ctx)
     {
-        if (query.GroupByKeys == null || query.GroupByKeys.Length == 0)
+        if (query.GroupByKeys == null || query.GroupByKeys.Count == 0)
             return;
 
         ctx.CurrentQueryInfo.BuildStep = BuildQueryStep.BuildGroupBy;
         ctx.Append(" Group By ");
-        for (int i = 0; i < query.GroupByKeys.Length; i++)
+        for (int i = 0; i < query.GroupByKeys.Count; i++)
         {
             if (i != 0) ctx.Append(",");
             BuildExpression(query.GroupByKeys[i], ctx);
@@ -354,7 +354,7 @@ partial class PgSqlStore
         {
             ctx.CurrentQueryInfo.BuildStep = BuildQueryStep.BuildHaving;
             ctx.Append(" Having ");
-            BuildExpression(query.HavingFilter, ctx);
+            BuildExpression(query.HavingFilter!, ctx);
         }
 
         if (query.HasSortItems)
@@ -469,9 +469,9 @@ partial class PgSqlStore
             // case ExpressionType.SubQueryExpression:
             //     BuildSubQuery((SqlSubQuery)exp, ctx);
             //     break;
-            // case ExpressionType.DbFuncExpression:
-            //     BuidDbFuncExpression((DbFuncExpression)exp, ctx);
-            //     break;
+            case ExpressionType.DbFuncExpression:
+                BuidDbFuncExpression((SqlFunc)exp, ctx);
+                break;
             // case ExpressionType.DbParameterExpression:
             //     BuildDbParameterExpression((DbParameterExpression)exp, ctx);
             //     break;
@@ -479,8 +479,7 @@ partial class PgSqlStore
             //    BuildInvocationExpression((InvocationExpression)exp, ctx);
             //    break;
             default:
-                throw new NotSupportedException(
-                    $"Not Supported Expression Type [{exp.Type.ToString()}] for Query.");
+                throw new NotSupportedException($"Not Supported Expression Type [{exp.Type.ToString()}] for Query.");
         }
     }
 
@@ -603,20 +602,20 @@ partial class PgSqlStore
         }
     }
 
-    // private void BuidDbFuncExpression(DbFuncExpression exp, BuildQueryContext ctx)
-    // {
-    //     ctx.Append($"{exp.Name.ToString()}(");
-    //     if (exp.Parameters != null)
-    //     {
-    //         for (int i = 0; i < exp.Parameters.Length; i++)
-    //         {
-    //             if (i != 0) ctx.Append(",");
-    //             BuildExpression(exp.Parameters[i], ctx);
-    //         }
-    //     }
-    //
-    //     ctx.Append(")");
-    // }
+    private void BuidDbFuncExpression(SqlFunc exp, BuildQueryContext ctx)
+    {
+        ctx.Append($"{exp.Name}(");
+        if (exp.Arguments != null)
+        {
+            for (var i = 0; i < exp.Arguments.Length; i++)
+            {
+                if (i != 0) ctx.Append(",");
+                BuildExpression(exp.Arguments[i], ctx);
+            }
+        }
+
+        ctx.Append(')');
+    }
 
     // private void BuildDbParameterExpression(DbParameterExpression exp, BuildQueryContext ctx)
     // {

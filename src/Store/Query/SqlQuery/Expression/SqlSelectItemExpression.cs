@@ -20,7 +20,7 @@ public sealed class SqlSelectItemExpression : Expression //TODO: rename to SqlSe
                 break;
             default:
                 Expression = expression;
-                AliasName = "unnamed";
+                AliasName = "unnamed"; //TODO: keep null?
                 break;
         }
     }

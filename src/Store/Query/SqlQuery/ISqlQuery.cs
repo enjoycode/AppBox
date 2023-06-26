@@ -33,7 +33,7 @@ public interface ISqlSelectQuery : ISqlQuery
     /// <summary>
     /// 分组字段
     /// </summary>
-    SqlSelectItemExpression[]? GroupByKeys { get; }
+    IList<SqlSelectItemExpression>? GroupByKeys { get; }
 
     /// <summary>
     /// 分组过滤条件

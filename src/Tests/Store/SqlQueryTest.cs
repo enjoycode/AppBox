@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using AppBoxCore;
 using AppBoxStore;
 using AppBoxStore.Entities;
 using NUnit.Framework;
@@ -89,5 +90,16 @@ public sealed class SqlQueryTest
 
         Assert.True(list.Count == 1);
         Assert.AreEqual("Admin", list[0].Name);
+    }
+
+    [Test]
+    public async Task GroupByTest()
+    {
+        var q = new SqlQuery<Checkout>(Checkout.MODELID);
+        q.GroupBy(t => t["NodeType"])
+            .Having(t => SqlFunc.Sum(t["Version"]) > 0);
+        var list = await q.ToListAsync(
+            r => new { NodeType = r.ReadByteMember(0), Count = r.ReadIntMember(1) },
+            (t) => new[] { t["NodeType"], SqlFunc.Sum(t["Version"]) });
     }
 }
