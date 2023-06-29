@@ -21,16 +21,15 @@ namespace AppBoxDesign
         /// 模型树控制器
         /// </summary>
         internal static readonly TreeController<DesignNodeVO> TreeController =
-            new TreeController<DesignNodeVO>(DesignTreePad.BuildTreeNode, n => n.Children!);
+            new(DesignTreePad.BuildTreeNode, n => n.Children!);
 
         /// <summary>
         /// 设计器控制器
         /// </summary>
-        internal static readonly TabController<DesignNodeVO> DesignerController =
-            new TabController<DesignNodeVO>(new List<DesignNodeVO>());
+        internal static readonly TabController<DesignNodeVO> DesignerController = new(new List<DesignNodeVO>());
 
         internal static readonly TabController<string> BottomPadController =
-            new TabController<string>(new List<string>()
+            new(new List<string>
             {
                 "Problems", "Usages", "Output"
             });
@@ -38,14 +37,12 @@ namespace AppBoxDesign
         /// <summary>
         ///  问题列表控制器
         /// </summary>
-        internal static readonly DataGridController<CodeProblem> ProblemsController =
-            new DataGridController<CodeProblem>();
+        internal static readonly DataGridController<CodeProblem> ProblemsController = new();
 
         /// <summary>
         /// 引用列表控制器
         /// </summary>
-        internal static readonly DataGridController<ReferenceVO> UsagesController =
-            new DataGridController<ReferenceVO>();
+        internal static readonly DataGridController<ReferenceVO> UsagesController = new();
 
         internal static IDesigner? ActiveDesigner
         {
@@ -78,8 +75,7 @@ namespace AppBoxDesign
         /// <summary>
         /// 删除成功返回后刷新
         /// </summary>
-        internal static void OnDeleteNode(TreeNode<DesignNodeVO> node,
-            string? modelRootNodeIdString)
+        internal static void OnDeleteNode(TreeNode<DesignNodeVO> node, string? modelRootNodeIdString)
         {
             // 移除选中节点打开的设计器
             DesignerController.Remove(node.Data);
@@ -88,8 +84,7 @@ namespace AppBoxDesign
             TreeController.RemoveNode(node);
         }
 
-        internal static void OnRenameDone(ModelReferenceType referenceType, string modelId,
-            string[] affects)
+        internal static void OnRenameDone(ModelReferenceType referenceType, string modelId, string[] affects)
         {
             //TODO: 如果重命名模型，刷新模型显示文本
             //根据返回结果刷新所有已打开的设计器
@@ -117,6 +112,13 @@ namespace AppBoxDesign
         {
             UsagesController.DataSource = usages;
             BottomPadController.SelectAt(1);
+        }
+
+        internal static void GotoProblem(CodeProblem problem)
+        {
+            var designer = ActiveDesigner; //TODO:暂仅限当前激活的设计器
+            if (designer is ICodeDesigner codeDesigner)
+                codeDesigner.GotoProblem(problem);
         }
 
         /// <summary>
@@ -183,6 +185,5 @@ namespace AppBoxDesign
         }
 
         #endregion
-
     }
 }

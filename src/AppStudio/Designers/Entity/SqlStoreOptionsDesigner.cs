@@ -54,7 +54,7 @@ internal sealed class SqlStoreOptionsDesigner : View
                     },
                     new DataGrid<FieldWithOrder>(_pkController)
                     {
-                        Columns = new DataGridColumn<FieldWithOrder>[]
+                        Columns =
                         {
                             new DataGridTextColumn<FieldWithOrder>("Name",
                                 t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
@@ -87,7 +87,7 @@ internal sealed class SqlStoreOptionsDesigner : View
                     },
                     new DataGrid<SqlIndexModelVO>(_idxController)
                     {
-                        Columns = new DataGridColumn<SqlIndexModelVO>[]
+                        Columns =
                         {
                             new DataGridTextColumn<SqlIndexModelVO>("Name",
                                 t => t.Name),

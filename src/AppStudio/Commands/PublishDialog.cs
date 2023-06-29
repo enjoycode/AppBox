@@ -24,10 +24,9 @@ namespace AppBoxDesign
                 Padding = EdgeInsets.All(20),
                 Child = new DataGrid<ChangedModel>(_dataGridController)
                 {
-                    Columns = new DataGridColumn<ChangedModel>[]
+                    Columns =
                     {
-                        new DataGridTextColumn<ChangedModel>("ModelType",
-                            v => v.ModelType),
+                        new DataGridTextColumn<ChangedModel>("ModelType", v => v.ModelType),
                         new DataGridTextColumn<ChangedModel>("ModelId", v => v.ModelId),
                     }
                 }
@@ -67,8 +66,7 @@ namespace AppBoxDesign
         {
             try
             {
-                await Channel.Invoke("sys.DesignService.Publish",
-                    new object?[] { "commit message" });
+                await Channel.Invoke("sys.DesignService.Publish", new object?[] { "commit message" });
                 Notification.Success("发布成功");
             }
             catch (Exception ex)

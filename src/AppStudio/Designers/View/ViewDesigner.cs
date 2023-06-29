@@ -7,7 +7,7 @@ using PixUI;
 
 namespace AppBoxDesign
 {
-    internal sealed class ViewDesigner : View, IModelDesigner
+    internal sealed class ViewDesigner : View, ICodeDesigner
     {
         public ViewDesigner(ModelNodeVO modelNode)
         {
@@ -35,7 +35,7 @@ namespace AppBoxDesign
         private readonly PreviewController _previewController;
         private readonly DelayTask _delayDocChangedTask;
         private bool _hasLoadSourceCode = false;
-        
+
         private ReferenceVO? _pendingGoto;
 
         private static Widget BuildEditor(CodeEditorController codeEditorController)
@@ -132,6 +132,17 @@ namespace AppBoxDesign
                 _pendingGoto = reference;
             else
                 GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, reference);
+        }
+
+        public void GotoProblem(CodeProblem problem)
+        {
+            _codeEditorController.SetCaret(problem.StartLine, problem.StartColumn);
+            if (problem.StartLine == problem.EndLine && problem.StartColumn == problem.EndColumn)
+                _codeEditorController.ClearSelection();
+            else
+                _codeEditorController.SetSelection(
+                    new TextLocation(problem.StartColumn, problem.StartLine),
+                    new TextLocation(problem.EndColumn, problem.EndLine));
         }
 
         public Task SaveAsync()

@@ -1,67 +1,74 @@
-using System.Collections.Generic;
 using PixUI;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+internal sealed class BottomPad : View
 {
-    internal sealed class BottomPad : View
+    public BottomPad()
     {
-        public BottomPad()
+        Child = new Container()
         {
-            Child = new Container()
+            Height = 190,
+            Child = new TabView<string>(DesignStore.BottomPadController, BuildTab, BuildBody,
+                false, 40)
             {
-                Height = 190,
-                Child = new TabView<string>(DesignStore.BottomPadController, BuildTab, BuildBody,
-                    false, 40)
+                SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3)
+            },
+        };
+    }
+
+    private static Widget BuildTab(string title, State<bool> isSelected)
+    {
+        var textColor = RxComputed<Color>.Make(isSelected,
+            selected => selected ? Theme.FocusedColor : Colors.Black
+        );
+
+        return new Text(title) { TextColor = textColor };
+    }
+
+    private static Widget BuildBody(string title)
+    {
+        if (title == "Problems")
+        {
+            return new DataGrid<CodeProblem>(DesignStore.ProblemsController)
+            {
+                Columns =
                 {
-                    SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3)
-                },
+                    //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
+                    new DataGridTextColumn<CodeProblem>("Position", p => p.Position)
+                        { Width = ColumnWidth.Fixed(180) },
+                    new DataGridTextColumn<CodeProblem>("Message", p => p.Message),
+                    new DataGridButtonColumn<CodeProblem>("Goto",
+                        (p, _) => new Button(icon: MaterialIcons.NextPlan)
+                        {
+                            Style = ButtonStyle.Transparent,
+                            Shape = ButtonShape.Pills,
+                            FontSize = 20,
+                            OnTap = _ => DesignStore.GotoProblem(p)
+                        },
+                        ColumnWidth.Fixed(80)),
+                }
             };
         }
 
-        private static Widget BuildTab(string title, State<bool> isSelected)
+        if (title == "Usages")
         {
-            var textColor = RxComputed<Color>.Make(isSelected,
-                selected => selected ? Theme.FocusedColor : Colors.Black
-            );
-
-            return new Text(title) { TextColor = textColor };
-        }
-
-        private static Widget BuildBody(string title)
-        {
-            if (title == "Problems")
+            return new DataGrid<ReferenceVO>(DesignStore.UsagesController)
             {
-                return new DataGrid<CodeProblem>(DesignStore.ProblemsController)
+                Columns =
                 {
-                    Columns = new DataGridColumn<CodeProblem>[]
-                    {
-                        //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
-                        new DataGridTextColumn<CodeProblem>("Position", p => p.Position)
-                            { Width = ColumnWidth.Fixed(180) },
-                        new DataGridTextColumn<CodeProblem>("Message", p => p.Message),
-                    }
-                };
-            }
-
-            if (title == "Usages")
-            {
-                return new DataGrid<ReferenceVO>(DesignStore.UsagesController)
-                {
-                    Columns = new DataGridColumn<ReferenceVO>[]
-                    {
-                        new DataGridTextColumn<ReferenceVO>("Model", u => u.ModelName),
-                        new DataGridTextColumn<ReferenceVO>("Location", u => u.Location),
-                        //TODO: goto button column
-                    }
-                };
-            }
-
-            return new Container()
-            {
-                Padding = EdgeInsets.All(10),
-                BgColor = Colors.White,
-                Child = new Text(title),
+                    new DataGridTextColumn<ReferenceVO>("Model", u => u.ModelName),
+                    new DataGridTextColumn<ReferenceVO>("Location", u => u.Location),
+                    //TODO: goto button column
+                }
             };
         }
+
+        return new Container()
+        {
+            Padding = EdgeInsets.All(10),
+            BgColor = Colors.White,
+            Child = new Text(title),
+        };
     }
 }

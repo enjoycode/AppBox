@@ -12,8 +12,7 @@ namespace AppBoxDesign
         internal bool IsError;
         internal string Message;
 
-        internal string Position =>
-            $"[{StartLine + 1}, {StartColumn}] - [{EndLine + 1}, {EndColumn}]";
+        internal string Position => $"[{StartLine + 1}, {StartColumn}] - [{EndLine + 1}, {EndColumn}]";
 
 
 #if __APPBOXDESIGN__

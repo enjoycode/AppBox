@@ -8,7 +8,7 @@ using PixUI;
 
 namespace AppBoxDesign
 {
-    internal sealed class ServiceDesigner : View, IModelDesigner
+    internal sealed class ServiceDesigner : View, ICodeDesigner
     {
         public ServiceDesigner(ModelNodeVO modelNode)
         {
@@ -129,6 +129,17 @@ namespace AppBoxDesign
                 _pendingGoto = reference;
             else
                 GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, reference);
+        }
+
+        public void GotoProblem(CodeProblem problem)
+        {
+            _codeEditorController.SetCaret(problem.StartLine, problem.StartColumn);
+            if (problem.StartLine == problem.EndLine && problem.StartColumn == problem.EndColumn)
+                _codeEditorController.ClearSelection();
+            else
+                _codeEditorController.SetSelection(
+                    new TextLocation(problem.StartColumn, problem.StartLine),
+                    new TextLocation(problem.EndColumn, problem.EndLine));
         }
 
         public Task SaveAsync()

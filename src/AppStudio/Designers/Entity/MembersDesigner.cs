@@ -18,7 +18,7 @@ namespace AppBoxDesign
                     {
                         Child = new DataGrid<EntityMemberVO>(membersController)
                         {
-                            Columns = new DataGridColumn<EntityMemberVO>[]
+                            Columns =
                             {
                                 new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name)
                                     { Width = ColumnWidth.Fixed(150) },
