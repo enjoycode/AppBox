@@ -98,13 +98,6 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return this;
     }
 
-    // public SqlQuery<TEntity>  Page(int pageSize, int pageIndex) //TODO:remove it
-    // {
-    //     TakeSize = pageSize;
-    //     SkipSize = pageIndex * pageSize;
-    //     return this;
-    // }
-
     #endregion
 
     #region ====Include Methods====
