@@ -24,8 +24,10 @@ namespace AppBoxClient
         private string? _name;
         private int _msgIdIndex = 0;
 
-        private readonly ConcurrentDictionary<int, TaskCompletionSource<MessageReadStream>>
-            _pendingRequests = new();
+        private readonly ConcurrentDictionary<int, PooledTaskSource<MessageReadStream>> _pendingRequests = new();
+
+        private readonly ObjectPool<PooledTaskSource<MessageReadStream>> _pooledTaskSource =
+            PooledTaskSource<MessageReadStream>.Create(8);
 
         //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
         private BytesSegment? _pendingResponse;
@@ -34,7 +36,7 @@ namespace AppBoxClient
         {
             //add to wait list
             var msgId = MakeMsgId();
-            var promise = new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
+            var promise = _pooledTaskSource.Allocate();
             _pendingRequests.TryAdd(msgId, promise);
 
             //serialize request
@@ -55,10 +57,11 @@ namespace AppBoxClient
             MessageWriteStream.Return(ws);
             await SendMessage(reqData);
 
-            var rs = await promise.Task;
+            var rs = await promise.WaitAsync();
             if (entityFactories != null)
                 rs.Context.SetEntityFactories(entityFactories);
             _pendingRequests.TryRemove(msgId, out _);
+            _pooledTaskSource.Free(promise);
 
             // deserialize response
             var errorCode = (InvokeErrorCode)rs.ReadByte();
@@ -89,8 +92,7 @@ namespace AppBoxClient
         {
             //add to wait list
             var msgId = MakeMsgId();
-            var promise =
-                new TaskCompletionSource<MessageReadStream>(); //TODO: use CompletionSourcePool
+            var promise = _pooledTaskSource.Allocate();
             _pendingRequests.TryAdd(msgId, promise);
 
             //serialize request
@@ -105,8 +107,9 @@ namespace AppBoxClient
             MessageWriteStream.Return(ws);
             await SendMessage(reqData);
 
-            var rs = await promise.Task;
+            var rs = await promise.WaitAsync();
             _pendingRequests.TryRemove(msgId, out _);
+            _pooledTaskSource.Free(promise);
 
             // deserialize response
             var loginOk = rs.ReadBool();
@@ -147,8 +150,7 @@ namespace AppBoxClient
             while (true)
             {
                 var segment = BytesSegment.Rent();
-                var res = await _clientWebSocket.ReceiveAsync(segment.Buffer,
-                    CancellationToken.None);
+                var res = await _clientWebSocket.ReceiveAsync(segment.Buffer, CancellationToken.None);
                 segment.Length = res.Count;
 
                 if (res.EndOfMessage)
