@@ -9,8 +9,7 @@ internal sealed class BottomPad : View
         Child = new Container()
         {
             Height = 190,
-            Child = new TabView<string>(DesignStore.BottomPadController, BuildTab, BuildBody,
-                false, 40)
+            Child = new TabView<string>(DesignStore.BottomPadController, BuildTab, BuildBody, false, 40)
             {
                 SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3)
             },
@@ -59,7 +58,15 @@ internal sealed class BottomPad : View
                 {
                     new DataGridTextColumn<ReferenceVO>("Model", u => u.ModelName),
                     new DataGridTextColumn<ReferenceVO>("Location", u => u.Location),
-                    //TODO: goto button column
+                    new DataGridButtonColumn<ReferenceVO>("Goto",
+                        (p, _) => new Button(icon: MaterialIcons.NextPlan)
+                        {
+                            Style = ButtonStyle.Transparent,
+                            Shape = ButtonShape.Pills,
+                            FontSize = 20,
+                            OnTap = _ => DesignStore.GotoReference(p)
+                        },
+                        ColumnWidth.Fixed(80))
                 }
             };
         }

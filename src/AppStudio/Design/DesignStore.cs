@@ -114,6 +114,13 @@ namespace AppBoxDesign
             BottomPadController.SelectAt(1);
         }
 
+        internal static void GotoReference(ReferenceVO reference)
+        {
+            var node = FindDesignNodeById(reference.ModelId);
+            if (node != null)
+                OpenOrActiveDesigner(node, reference);
+        }
+
         internal static void GotoProblem(CodeProblem problem)
         {
             var designer = ActiveDesigner; //TODO:暂仅限当前激活的设计器

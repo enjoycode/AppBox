@@ -76,6 +76,21 @@ namespace AppBoxDesign
             //订阅代码变更事件
             _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
 
+            // TODO: 待实现NextTick后改回来，因代码编辑器视图可能还未布局绘制过
+            // if (_pendingGoto != null)
+            // {
+            //    NextTick(() => {
+            //      GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
+            //      _pendingGoto = null;
+            //    };
+            // }
+        }
+
+        public override void Paint(Canvas canvas, IDirtyArea? area = null)
+        {
+            base.Paint(canvas, area);
+            
+            //TODO:临时方案，待实现NextTick后移除
             if (_pendingGoto != null)
             {
                 GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
