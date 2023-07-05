@@ -7,7 +7,7 @@ public static class CodeUtil
 {
     private static readonly string[] _keywords = { "private", "protected" };
 
-    private static readonly string[] _reservedEntityMemberNames = { "ModelId" };
+    private static readonly string[] _reservedEntityMemberNames = { "ModelId", "MODELID", "Target" };
 
     public static bool IsValidIdentifier(string value)
     {

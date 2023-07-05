@@ -36,6 +36,15 @@ public class CodeGenerateTest
         Console.Write(code);
     }
 
+    [Test(Description = "测试生成响应实体类虚拟代码")]
+    public async Task GenRxEntityCodeTest()
+    {
+        var designHub = await TestHelper.MockSession();
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
+        var code = EntityCsGenerator.GenRxEntityCode(entityNode);
+        Console.Write(code);
+    }
+
     [Test(Description = "测试生成权限模型虚拟代码")]
     public async Task GenPermissionCodeTest()
     {
@@ -46,12 +55,22 @@ public class CodeGenerateTest
         Console.WriteLine(code);
     }
 
+    [Test]
+    public async Task GenViewRuntimeCodeTest()
+    {
+        var designHub = await TestHelper.MockSession();
+        var node = designHub.DesignTree.FindModelNodeByFullName("sys.Views.OrgUnitsView")!;
+        var generator = await ViewCsGenerator.Make(designHub, node, false);
+        var syntaxTree = await generator.GetRuntimeSyntaxTree();
+        Console.WriteLine(syntaxTree.ToString());
+    }
+
     [Test(Description = "测试生成服务的运行时代码")]
     public async Task GenServiceRuntimeCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var serviceModel = (ServiceModel)
-            designHub.DesignTree.FindModelNodeByFullName("sys.Services.TestService")!.Model;
+        var serviceModel =
+            (ServiceModel)designHub.DesignTree.FindModelNodeByFullName("sys.Services.TestService")!.Model;
         var res = await PublishService.CompileServiceAsync(designHub, serviceModel);
         Assert.True(res != null);
     }

@@ -15,7 +15,7 @@ internal partial class ViewCsGenerator
         if (methodSymbol != null && methodSymbol.IsAppBoxServiceMethod())
             return VisitInvokeAppBoxService(node, methodSymbol);
         //转换处理Entity.Observe() or RxEntity.Observe()
-        if (methodSymbol != null && methodSymbol.Name == "Observe")
+        if (methodSymbol is { Name: "Observe" })
         {
             var typeFullName = methodSymbol.ContainingType.ToString();
             if (typeFullName == "AppBoxClient.EntityExtensions" || typeFullName.StartsWith("AppBoxClient.RxEntity<"))

@@ -98,8 +98,7 @@ public sealed class ModelRootNode : DesignNode
         var node = new ModelNode(model, DesignTree!.DesignHub);
         DesignTree.BindCheckoutInfo(node, model.PersistentState == PersistentState.Detached);
 
-        if (node.Model.FolderId.HasValue &&
-            _folders.TryGetValue(node.Model.FolderId.Value, out var folderNode))
+        if (node.Model.FolderId.HasValue && _folders.TryGetValue(node.Model.FolderId.Value, out var folderNode))
         {
             folderNode.Children.Add(node);
         }
@@ -127,7 +126,7 @@ public sealed class ModelRootNode : DesignNode
 
     public ModelNode? FindModelNodeByName(ReadOnlyMemory<char> name)
         => _models.Values.FirstOrDefault(t => t.Model.Name.AsSpan().SequenceEqual(name.Span));
-    
+
     public ModelNode[] GetAllModelNodes() => _models.Values.ToArray();
 
     #endregion

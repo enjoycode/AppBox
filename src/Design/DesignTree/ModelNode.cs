@@ -14,6 +14,7 @@ public sealed class ModelNode : DesignNode
         {
             case ModelType.Entity:
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId);
+                ExtRoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ViewsProjectId /*暂直接放在视图工程内*/);
                 break;
             case ModelType.View:
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ViewsProjectId);
@@ -21,8 +22,7 @@ public sealed class ModelNode : DesignNode
             case ModelType.Service:
                 ServiceProjectId = ProjectId.CreateNewId();
                 RoslynDocumentId = DocumentId.CreateNewId(ServiceProjectId);
-                ExtRoslynDocumentId =
-                    DocumentId.CreateNewId(hub.TypeSystem.ServiceProxyProjectId);
+                ExtRoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ServiceProxyProjectId);
                 break;
             case ModelType.Permission:
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ServiceBaseProjectId);
@@ -43,7 +43,7 @@ public sealed class ModelNode : DesignNode
     public readonly ProjectId? ServiceProjectId;
 
     /// <summary>
-    /// 扩展的RoslynDocument标识，服务模型为代理，实体模型为服务端存储扩展
+    /// 扩展的RoslynDocument标识，服务模型为代理，实体模型为前端响应实体类
     /// </summary>
     public readonly DocumentId? ExtRoslynDocumentId;
 

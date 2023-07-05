@@ -6,7 +6,7 @@ public sealed class EnterpriseView : View
 {
     public static EnterpriseView Preview() => new(new());
 
-    public EnterpriseView(RxEntity<Enterprise> state)
+    public EnterpriseView(RxEnterprise state)
     {
         Child = new Form
         {
@@ -14,8 +14,8 @@ public sealed class EnterpriseView : View
             LabelWidth = 50,
             Children =
             {
-                new ("名称:", new Input(state.Observe(e => e.Name))),
-                new ("地址:", new Input(state.Observe(e => e.Address)!)),
+                new ("名称:", new Input(state.Name)),
+                new ("地址:", new Input(state.Address!)),
             }
         };
     }

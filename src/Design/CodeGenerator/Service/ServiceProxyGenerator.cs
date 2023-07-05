@@ -25,11 +25,10 @@ internal static class ServiceProxyGenerator
             sb.Append(usingDirectiveSyntax);
         }
 
-        sb.Append("namespace ");
-        sb.AppendFormat("{0}.Services", appName);
-        sb.Append("{ public static class ");
+        sb.Append($"\nnamespace {appName}.Services;\n");
+        sb.Append("public static class ");
         sb.Append(model.Name);
-        sb.Append("{ ");
+        sb.Append("{\n");
 
         var methods = rootNode
             .DescendantNodes().OfType<ClassDeclarationSyntax>().First()
@@ -77,10 +76,10 @@ internal static class ServiceProxyGenerator
                 sb.Append(method.ParameterList.Parameters[i]);
             }
 
-            sb.Append("){throw new Exception();}");
+            sb.Append(") => throw new Exception();\n");
         }
 
-        sb.Append("}}");
+        sb.Append("}");
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 }

@@ -6,7 +6,7 @@ public sealed class EmployeeView : View
 {
     public static EmployeeView Preview() => new(new());
 
-    public EmployeeView(RxEntity<Employee> state)
+    public EmployeeView(RxEmployee state)
     {
         Child = new Form
         {
@@ -14,14 +14,14 @@ public sealed class EmployeeView : View
             LabelWidth = 50,
             Children =
             {
-                new ("姓名:", new Input(state.Observe(e => e.Name))),
-                new ("生日:", new DatePicker(state.Observe(e => e.Birthday))),
+                new ("姓名:", new Input(state.Name)),
+                new ("生日:", new DatePicker(state.Birthday)),
                 new ("性别:", new Row { Children =
                 {
                     new Text("男"),
-                    new Radio(state.Observe(e => e.Male)),
+                    new Radio(state.Male),
                     new Text("女"),
-                    new Radio(state.Observe(e => e.Male).ToStateOfBoolReversed())
+                    new Radio(state.Male.ToReversed())
                 }})
             }
         };

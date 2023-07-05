@@ -17,8 +17,7 @@ internal partial class ServiceCodeGenerator
 
             var methodName = (SimpleNameSyntax)SyntaxFactory.ParseName("Assign");
             var assignMethod =
-                SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, left,
-                    methodName);
+                SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, left, methodName);
             var arg1 = SyntaxFactory.Argument(right);
             var argList = SyntaxFactory.ArgumentList().AddArguments(arg1);
             return SyntaxFactory.InvocationExpression(assignMethod, argList);

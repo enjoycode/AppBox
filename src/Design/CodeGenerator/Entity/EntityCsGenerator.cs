@@ -9,6 +9,53 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class EntityCsGenerator
 {
+    internal static string GenRxEntityCode(ModelNode modelNode)
+    {
+        var appName = modelNode.AppNode.Model.Name;
+        var model = (EntityModel)modelNode.Model;
+
+        var sb = StringBuilderCache.Acquire();
+        sb.Append("using System;\n");
+        sb.Append("using System.Collections.Generic;\n");
+        sb.Append("using System.Threading.Tasks;\n");
+        sb.Append("using AppBoxCore;\n\n");
+        sb.Append($"namespace {appName}.Entities;\n");
+
+        sb.Append($"public sealed class Rx{model.Name}");
+        sb.Append("\n{\n"); //class start
+
+        // Target Property
+        sb.Append($"public {model.Name} Target {{get;set;}}\n");
+
+        // 实体成员
+        foreach (var member in model.Members)
+        {
+            switch (member.Type)
+            {
+                case EntityMemberType.EntityField:
+                    GenRxEntityFieldMember((EntityFieldModel)member, sb);
+                    break;
+                // TODO:
+                // case EntityMemberType.EntityRef:
+                //     break;
+                // case EntityMemberType.EntitySet:
+                //     break;
+                // default:
+                //     throw new NotImplementedException(member.Type.ToString());
+            }
+        }
+
+        sb.Append("}\n"); //class end
+        return StringBuilderCache.GetStringAndRelease(sb);
+    }
+
+    private static void GenRxEntityFieldMember(EntityFieldModel field, StringBuilder sb)
+    {
+        sb.Append("public State<");
+        sb.Append(GetEntityFieldTypeString(field));
+        sb.Append($"> {field.Name} => throw new Exception();\n");
+    }
+
     internal static string GenRuntimeCode(ModelNode modelNode)
     {
         var appName = modelNode.AppNode.Model.Name;

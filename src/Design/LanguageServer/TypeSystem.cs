@@ -24,7 +24,7 @@ internal sealed class TypeSystem : IDisposable
         InitWorkspace();
     }
 
-    //统一AsseblyName,方便ModelProject InternalVisibleTo
+    //统一AssemblyName,方便ModelProject InternalVisibleTo
     private const string DesignTimeServiceAssemblyName = "DesignTimeService";
 
     private readonly string ModelBaseCode =
@@ -161,6 +161,10 @@ internal sealed class TypeSystem : IDisposable
             {
                 var dummyCode = EntityCsGenerator.GenRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
+
+                //RxEntity虚拟代码生成
+                var rxEntityCode = EntityCsGenerator.GenRxEntityCode(node);
+                newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, rxEntityCode);
                 break;
             }
             case ModelType.View:
@@ -179,8 +183,7 @@ internal sealed class TypeSystem : IDisposable
 
                 //服务代理的代码生成
                 var srcDoc = newSolution.GetDocument(docId)!;
-                var proxyCode =
-                    await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
+                var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(srcDoc, appName, (ServiceModel)model);
                 newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, proxyCode);
                 break;
             }
@@ -250,10 +253,8 @@ internal sealed class TypeSystem : IDisposable
 
                 // 服务模型还需要更新代理类
                 var srcdoc = newSolution.GetDocument(docId)!;
-                var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName,
-                    (ServiceModel)model);
-                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!,
-                    SourceText.From(proxyCode));
+                var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName, (ServiceModel)model);
+                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!, SourceText.From(proxyCode));
                 break;
             }
             case ModelType.Permission:

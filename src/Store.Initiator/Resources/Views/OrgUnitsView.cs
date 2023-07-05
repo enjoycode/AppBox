@@ -24,9 +24,9 @@ public sealed class OrgUnitsView : View
     private readonly TreeController<OrgUnit> _orgTreeController;
     private readonly TabController<string> _tabController = new(new List<string> { "组织单元属性", "权限设置" });
     private readonly State<OrgUnit?> _selectedOU = new Rx<OrgUnit?>(null);
-    private readonly RxEntity<Enterprise> _entNotifier = new();
-    private readonly RxEntity<Workgroup> _wkgNotifier = new();
-    private readonly RxEntity<Employee> _empNotifier = new();
+    private readonly RxEnterprise _entNotifier = new();
+    private readonly RxWorkgroup _wkgNotifier = new();
+    private readonly RxEmployee _empNotifier = new();
 
     private Widget BuildCmdBar()
     {

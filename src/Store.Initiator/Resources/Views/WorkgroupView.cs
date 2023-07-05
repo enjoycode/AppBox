@@ -6,7 +6,7 @@ public sealed class WorkgroupView : View
 {
     public static WorkgroupView Preview() => new(new());
 
-    public WorkgroupView(RxEntity<Workgroup> state)
+    public WorkgroupView(RxWorkgroup state)
     {
         Child = new Form
         {
@@ -14,7 +14,7 @@ public sealed class WorkgroupView : View
             LabelWidth = 50,
             Children =
             {
-                new ("名称:", new Input(state.Observe(e => e.Name))),
+                new ("名称:", new Input(state.Name)),
             }
         };
     }
