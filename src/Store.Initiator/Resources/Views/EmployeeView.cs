@@ -14,7 +14,8 @@ public sealed class EmployeeView : View
             LabelWidth = 50,
             Children =
             {
-                new ("姓名:", new Input(state.Observe(e => e.Name)))
+                new ("姓名:", new Input(state.Observe(e => e.Name))),
+                new ("生日:", new DatePicker(state.Observe(e => e.Birthday)))
             }
         };
     }

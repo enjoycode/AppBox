@@ -37,10 +37,10 @@ public readonly struct SqlRowReader : IEntityMemberReader
 
     public long? ReadNullableLongMember(int flags) => _dataReader.IsDBNull(flags) ? null : _dataReader.GetInt64(flags);
 
-    public DateTime ReadDateTimeMember(int flags) => _dataReader.GetDateTime(flags);
+    public DateTime ReadDateTimeMember(int flags) => _dataReader.GetDateTime(flags).ToLocalTime();
 
     public DateTime? ReadNullableDateTimeMember(int flags) =>
-        _dataReader.IsDBNull(flags) ? null : _dataReader.GetDateTime(flags);
+        _dataReader.IsDBNull(flags) ? null : _dataReader.GetDateTime(flags).ToLocalTime();
 
     public Guid ReadGuidMember(int flags) => _dataReader.GetGuid(flags);
 
