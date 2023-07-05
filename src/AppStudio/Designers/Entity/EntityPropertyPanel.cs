@@ -30,7 +30,7 @@ internal sealed class EntityPropertyPanel : View
         _selectedMember = Bind(selectedMember, BindingOptions.None);
         _rxEntityField = new RxEntityField((EntityFieldVO?)_selectedMember.Value);
         var isEntityField = _selectedMember
-            .AsStateOfBool(v => v != null && v.Type == EntityMemberType.EntityField);
+            .ToStateOfBool(v => v != null && v.Type == EntityMemberType.EntityField);
 
         Child = new Column(HorizontalAlignment.Left)
         {
@@ -56,7 +56,7 @@ internal sealed class EntityPropertyPanel : View
                     {
                         new FormItem("Name:", new Input(_rxEntityField.Name)),
                         new FormItem("FieldType:",
-                            new Input(_rxEntityField.FieldType.AsStateOfString(v => v.ToString()))),
+                            new Input(_rxEntityField.FieldType.ToStateOfString(v => v.ToString()))),
                         new FormItem("Comment:", new Input(_rxEntityField.Comment))
                     }
                 })

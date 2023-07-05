@@ -55,7 +55,7 @@ namespace AppBoxDesign
                                 new Button("Data") { Width = 75 },
                             }
                         },
-                        new IfConditional(_activePad.AsStateOfBool(i => i == 0),
+                        new IfConditional(_activePad.ToStateOfBool(i => i == 0),
                             () => new ButtonGroup()
                             {
                                 Children = new[]

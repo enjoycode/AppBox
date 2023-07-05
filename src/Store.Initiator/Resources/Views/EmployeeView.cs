@@ -15,7 +15,14 @@ public sealed class EmployeeView : View
             Children =
             {
                 new ("姓名:", new Input(state.Observe(e => e.Name))),
-                new ("生日:", new DatePicker(state.Observe(e => e.Birthday)))
+                new ("生日:", new DatePicker(state.Observe(e => e.Birthday))),
+                new ("性别:", new Row { Children =
+                {
+                    new Text("男"),
+                    new Radio(state.Observe(e => e.Male)),
+                    new Text("女"),
+                    new Radio(state.Observe(e => e.Male).ToStateOfBoolReversed())
+                }})
             }
         };
     }
