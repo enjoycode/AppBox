@@ -113,5 +113,10 @@ public sealed class ModelNode : DesignNode
         base.WriteTo(ws);
 
         ws.WriteByte((byte)Model.ModelType);
+        
+        if (Model is ViewModel viewModel) //视图模型写入附加的视图类型标识
+            ws.WriteByte((byte)viewModel.ViewType);
+        else
+            ws.WriteByte(0);
     }
 }

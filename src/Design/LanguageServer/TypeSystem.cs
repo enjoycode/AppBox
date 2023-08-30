@@ -169,8 +169,16 @@ internal sealed class TypeSystem : IDisposable
             }
             case ModelType.View:
             {
-                var sourceCode = await LoadSourceCode(initSrcCode, node);
-                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
+                var viewModel = (ViewModel)model;
+                if (viewModel.ViewType == ViewModelType.PixUI)
+                {
+                    var sourceCode = await LoadSourceCode(initSrcCode, node);
+                    newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
+                }
+                else if (viewModel.ViewType == ViewModelType.PixUIDynamic)
+                {
+                    //TODO:
+                }
                 break;
             }
             case ModelType.Service:
@@ -205,7 +213,7 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 获取模型节点代码，如果是新建的节点使用初始化代码，如果是已签出的先尝试从Staged中获取，最后从MetaStore获取
     /// </summary>
-    private static async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
+    internal static async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
     {
         var sourceCode = initSrcCode;
         if (string.IsNullOrEmpty(sourceCode))

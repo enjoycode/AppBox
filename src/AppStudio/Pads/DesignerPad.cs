@@ -1,3 +1,4 @@
+using System;
 using AppBoxClient;
 using AppBoxCore;
 using PixUI;
@@ -46,9 +47,20 @@ namespace AppBoxDesign
                         node.Designer = entityDesigner;
                         return entityDesigner;
                     case ModelType.View:
-                        var viewDesigner = new ViewDesigner(modelNode);
-                        node.Designer = viewDesigner;
-                        return viewDesigner;
+                        if (modelNode.Tag == 0)
+                        {
+                            var viewDesigner = new ViewDesigner(modelNode);
+                            node.Designer = viewDesigner;
+                            return viewDesigner;
+                        }
+                        else if (modelNode.Tag == 1)
+                        {
+                            var viewDesigner = new ViewDynamicDesigner(modelNode);
+                            node.Designer = viewDesigner;
+                            return viewDesigner;
+                        }
+                        else
+                            throw new Exception();
                     case ModelType.Service:
                         var designer = new ServiceDesigner(modelNode);
                         node.Designer = designer;
@@ -78,8 +90,8 @@ namespace AppBoxDesign
             {
                 var modelNode = (ModelNodeVO)node;
                 if (modelNode.ModelType == ModelType.Service || modelNode.ModelType == ModelType.View)
-                    await Channel.Invoke("sys.DesignService.CloseDesigner", new object?[]
-                        { (int)node.Type, node.Id });
+                    await Channel.Invoke("sys.DesignService.CloseDesigner",
+                        new object?[] { (int)node.Type, node.Id });
             }
         }
 

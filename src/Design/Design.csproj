@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>AppBoxDesign</AssemblyName>
         <RootNamespace>AppBoxDesign</RootNamespace>
-        <LangVersion>10</LangVersion>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

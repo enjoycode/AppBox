@@ -3,17 +3,17 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class NewEntityDialog : Dialog
+public sealed class NewViewDialog : Dialog
 {
-    public NewEntityDialog()
+    public NewViewDialog()
     {
         Width = 300;
         Height = 210;
-        Title.Value = "New Entity";
+        Title.Value = "New View";
     }
 
     private readonly State<string> _name = "";
-    private readonly State<DataStoreNodeVO?> _store = new RxValue<DataStoreNodeVO?>(null);
+    private readonly State<bool> _isDynamic = false;
 
     protected override Widget BuildBody()
     {
@@ -30,9 +30,15 @@ internal sealed class NewEntityDialog : Dialog
                         Children = new[]
                         {
                             new FormItem("Name:", new TextInput(_name)),
-                            new FormItem("DataStore:", new Select<DataStoreNodeVO>(_store)
+                            new FormItem("Type:", new Row
                             {
-                                Options = GetAllDataStores()
+                                Children =
+                                {
+                                    new Text("Code"),
+                                    new Radio(_isDynamic.ToReversed()),
+                                    new Text("Dynamic"),
+                                    new Radio(_isDynamic)
+                                }
                             })
                         }
                     }
@@ -53,27 +59,11 @@ internal sealed class NewEntityDialog : Dialog
         var selectedNode = DesignStore.TreeController.FirstSelectedNode;
         if (selectedNode == null) return;
 
-        var args = new object?[]
-        {
-            (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value,
-            _store.Value == null ? null : _store.Value.Id
-        };
+        var service = "sys.DesignService.NewViewModel";
+        var args = new object[] { (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value, _isDynamic.Value };
 
-        var res = await Channel.Invoke<NewNodeResult>("sys.DesignService.NewEntityModel", args);
+        var res = await Channel.Invoke<NewNodeResult>(service, args);
         //根据返回结果同步添加新节点
         DesignStore.OnNewNode(res!);
-    }
-
-    private static DataStoreNodeVO[] GetAllDataStores()
-    {
-        var dataStoreRootNode = (DataStoreRootNodeVO)DesignStore.TreeController.DataSource![0];
-        var list = new DataStoreNodeVO[dataStoreRootNode.Children!.Count + 1];
-        list[0] = DataStoreNodeVO.None;
-        for (var i = 1; i < list.Length; i++)
-        {
-            list[i] = (DataStoreNodeVO)dataStoreRootNode.Children[i - 1];
-        }
-
-        return list;
     }
 }

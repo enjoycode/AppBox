@@ -11,7 +11,7 @@ namespace AppBoxDesign
 
         public static readonly Action NewServiceCommand = () => new NewDialog("Service").Show();
 
-        public static readonly Action NewViewCommand = () => new NewDialog("View").Show();
+        public static readonly Action NewViewCommand = () => new NewViewDialog().Show();
 
         public static readonly Action CheckoutCommand = Checkout;
 

@@ -16,12 +16,13 @@ public enum ViewModelType
 [BinSerializable(BinSerializePolicy.Compact, true)]
 public sealed partial class ViewModel : ModelBase
 {
-    [Field(1)] private ViewModelType _type;
-
     public ViewModel() { }
 
-    public ViewModel(ModelId id, string name) : base(id, name)
+    public ViewModel(ModelId id, string name, ViewModelType type = ViewModelType.PixUI) : base(id, name)
     {
         Debug.Assert(id.Type == ModelType.View);
+        ViewType = type;
     }
+
+    [Field(1)] public ViewModelType ViewType { get; private set; }
 }

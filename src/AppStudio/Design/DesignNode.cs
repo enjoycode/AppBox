@@ -181,10 +181,16 @@ namespace AppBoxDesign
 
         public ModelType ModelType { get; private set; }
 
+        /// <summary>
+        /// 目前仅用于视图模型的类型
+        /// </summary>
+        public byte Tag { get; private set; }
+
         public override void ReadFrom(IInputStream rs)
         {
             base.ReadFrom(rs);
             ModelType = (ModelType)rs.ReadByte();
+            Tag = rs.ReadByte();
         }
     }
 }
