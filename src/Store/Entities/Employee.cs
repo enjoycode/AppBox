@@ -116,8 +116,7 @@ internal sealed class Employee : SqlEntity
                 ws.WriteBinaryMember(id, _password, flags);
                 break;
             default:
-                throw new SerializationException(SerializationError.UnknownEntityMember,
-                    nameof(Employee));
+                throw new SerializationException(SerializationError.UnknownEntityMember, nameof(Employee));
         }
     }
 
@@ -144,8 +143,7 @@ internal sealed class Employee : SqlEntity
                 _password = rs.ReadBinaryMember(flags);
                 break;
             default:
-                throw new SerializationException(SerializationError.UnknownEntityMember,
-                    nameof(Employee));
+                throw new SerializationException(SerializationError.UnknownEntityMember, nameof(Employee));
         }
     }
 
