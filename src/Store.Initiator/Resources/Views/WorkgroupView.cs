@@ -14,7 +14,7 @@ public sealed class WorkgroupView : View
             LabelWidth = 50,
             Children =
             {
-                new ("名称:", new Input(state.Name)),
+                new ("名称:", new TextInput(state.Name)),
             }
         };
     }

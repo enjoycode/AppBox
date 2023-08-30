@@ -14,8 +14,8 @@ public sealed class EnterpriseView : View
             LabelWidth = 50,
             Children =
             {
-                new ("名称:", new Input(state.Name)),
-                new ("地址:", new Input(state.Address!)),
+                new ("名称:", new TextInput(state.Name)),
+                new ("地址:", new TextInput(state.Address!)),
             }
         };
     }

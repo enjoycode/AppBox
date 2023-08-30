@@ -24,8 +24,8 @@ internal sealed class NewEntityMemberDialog : Dialog
     private readonly State<bool> _allowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
-    private readonly State<ModelNodeVO?> _entityRefTarget = new Rx<ModelNodeVO?>(null);
-    private readonly State<EntityMemberInfo?> _entitySetTarget = new Rx<EntityMemberInfo?>(null);
+    private readonly State<ModelNodeVO?> _entityRefTarget = new RxValue<ModelNodeVO?>(null);
+    private readonly State<EntityMemberInfo?> _entitySetTarget = new RxValue<EntityMemberInfo?>(null);
 
     protected override Widget BuildBody()
     {
@@ -42,7 +42,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                         Padding = EdgeInsets.Only(5, 5, 5, 0),
                         Children = new[]
                         {
-                            new FormItem("Name:", new Input(_name)),
+                            new FormItem("Name:", new TextInput(_name)),
                             new FormItem("MemberType:", new Select<string>(_memberType!)
                             {
                                 Options = MemberTypes

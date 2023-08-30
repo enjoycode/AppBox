@@ -50,9 +50,9 @@ internal sealed class RenameDialog : Dialog
                 LabelWidth = 100,
                 Children = new[]
                 {
-                    new FormItem("Target:", new Input(_target) { Readonly = true }),
-                    new FormItem("Old Name:", new Input(_oldName) { Readonly = true }),
-                    new FormItem("New Name:", new Input(_newName))
+                    new FormItem("Target:", new TextInput(_target) { Readonly = true }),
+                    new FormItem("Old Name:", new TextInput(_oldName) { Readonly = true }),
+                    new FormItem("New Name:", new TextInput(_newName))
                 }
             }
         };

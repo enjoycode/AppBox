@@ -45,7 +45,7 @@ public sealed class MockStateListener : IStateBindable
 
     private readonly string _name;
     
-    public void OnStateChanged(StateBase state, BindingOptions options)
+    public void OnStateChanged(State state, BindingOptions options)
     {
         Console.WriteLine($"MockStateListener: [{_name}] value changed.");
     }

@@ -13,7 +13,7 @@ internal sealed class NewEntityDialog : Dialog
     }
 
     private readonly State<string> _name = "";
-    private readonly State<DataStoreNodeVO?> _store = new Rx<DataStoreNodeVO?>(null);
+    private readonly State<DataStoreNodeVO?> _store = new RxValue<DataStoreNodeVO?>(null);
 
     protected override Widget BuildBody()
     {
@@ -29,7 +29,7 @@ internal sealed class NewEntityDialog : Dialog
                         LabelWidth = 80,
                         Children = new[]
                         {
-                            new FormItem("Name:", new Input(_name)),
+                            new FormItem("Name:", new TextInput(_name)),
                             new FormItem("DataStore:", new Select<DataStoreNodeVO>(_store)
                             {
                                 Options = GetAllDataStores()

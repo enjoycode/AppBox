@@ -14,7 +14,7 @@ namespace AppBoxDesign
             {
                 Children = new Widget[]
                 {
-                    new Input(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
+                    new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
                     new TreeView<DesignNodeVO>(DesignStore.TreeController),
                 }
             };

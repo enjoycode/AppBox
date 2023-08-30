@@ -30,7 +30,7 @@ public sealed class PermissionTreeView : View
         node.IsExpanded = data.Children != null && data.Children.Count > 0;
     }
     
-    public override void OnStateChanged(StateBase state, BindingOptions opts)
+    public override void OnStateChanged(State state, BindingOptions opts)
     {
         if (ReferenceEquals(state, _current))
         {

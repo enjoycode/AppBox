@@ -16,7 +16,7 @@ internal sealed class FieldWithOrderDialog : Dialog
     }
 
     private readonly EntityModelVO _entityModel;
-    private readonly State<EntityMemberVO?> _selected = new Rx<EntityMemberVO?>(null);
+    private readonly State<EntityMemberVO?> _selected = new RxValue<EntityMemberVO?>(null);
     private readonly State<bool> _orderByDesc = false;
 
     protected override Widget BuildBody()

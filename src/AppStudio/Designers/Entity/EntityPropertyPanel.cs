@@ -9,14 +9,14 @@ internal sealed class RxEntityField : RxObject<EntityFieldVO>
     {
         _target = target;
 
-        Name = new RxProperty<string>(() => Target.Name);
-        FieldType = new RxProperty<EntityFieldType>(() => Target.FieldType);
-        Comment = new RxProperty<string>(() => Target.Comment ?? string.Empty, v => Target.Comment = v);
+        Name = new RxProxy<string>(() => Target.Name);
+        FieldType = new RxProxy<EntityFieldType>(() => Target.FieldType);
+        Comment = new RxProxy<string>(() => Target.Comment ?? string.Empty, v => Target.Comment = v);
     }
 
-    public readonly RxProperty<string> Name;
-    public readonly RxProperty<EntityFieldType> FieldType;
-    public readonly RxProperty<string> Comment;
+    public readonly RxProxy<string> Name;
+    public readonly RxProxy<EntityFieldType> FieldType;
+    public readonly RxProxy<string> Comment;
 }
 
 /// <summary>
@@ -42,9 +42,9 @@ internal sealed class EntityPropertyPanel : View
                     LabelWidth = _labelWidth,
                     Children = new[]
                     {
-                        new FormItem("DataStoreKind:", new Input("SqlStore") { Readonly = true }),
-                        new FormItem("DataStoreName:", new Input("Default") { Readonly = true }),
-                        new FormItem("Comment:", new Input("")),
+                        new FormItem("DataStoreKind:", new TextInput("SqlStore") { Readonly = true }),
+                        new FormItem("DataStoreName:", new TextInput("Default") { Readonly = true }),
+                        new FormItem("Comment:", new TextInput("")),
                     }
                 },
                 new IfConditional(isEntityField,
@@ -54,10 +54,10 @@ internal sealed class EntityPropertyPanel : View
                     LabelWidth = _labelWidth,
                     Children = new[]
                     {
-                        new FormItem("Name:", new Input(_rxEntityField.Name)),
+                        new FormItem("Name:", new TextInput(_rxEntityField.Name)),
                         new FormItem("FieldType:",
-                            new Input(_rxEntityField.FieldType.ToStateOfString(v => v.ToString()))),
-                        new FormItem("Comment:", new Input(_rxEntityField.Comment))
+                            new TextInput(_rxEntityField.FieldType.ToStateOfString(v => v.ToString()))),
+                        new FormItem("Comment:", new TextInput(_rxEntityField.Comment))
                     }
                 })
             }
@@ -69,7 +69,7 @@ internal sealed class EntityPropertyPanel : View
     private readonly State<EntityMemberVO?> _selectedMember;
     private readonly RxEntityField _rxEntityField;
 
-    public override void OnStateChanged(StateBase state, BindingOptions options)
+    public override void OnStateChanged(State state, BindingOptions options)
     {
         if (ReferenceEquals(state, _selectedMember))
         {

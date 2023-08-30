@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AppBoxClient;
 using PixUI;
 
@@ -25,7 +24,7 @@ namespace AppBoxDesign
             return new Container()
             {
                 Padding = EdgeInsets.All(20),
-                Child = new Input(_name) { HintText = "Please input name" }
+                Child = new TextInput(_name) { HintText = "Please input name" }
             };
         }
 

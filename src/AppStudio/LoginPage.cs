@@ -38,12 +38,12 @@ namespace AppBoxDesign
                     Children = new Widget[]
                     {
                         new Text("Welcome") { FontSize = 50 },
-                        new Input(_userName)
+                        new TextInput(_userName)
                         {
                             HintText = "Account", FontSize = _inputSize,
                             Prefix = new Icon(MaterialIcons.Person) { Size = _inputSize },
                         },
-                        new Input(_password)
+                        new TextInput(_password)
                         {
                             IsObscure = true, HintText = "Password", FontSize = _inputSize,
                             Prefix = new Icon(MaterialIcons.Lock) { Size = _inputSize },

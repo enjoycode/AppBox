@@ -14,7 +14,7 @@ public sealed class EmployeeView : View
             LabelWidth = 50,
             Children =
             {
-                new ("姓名:", new Input(state.Name)),
+                new ("姓名:", new TextInput(state.Name)),
                 new ("生日:", new DatePicker(state.Birthday)),
                 new ("性别:", new Row { Children =
                 {

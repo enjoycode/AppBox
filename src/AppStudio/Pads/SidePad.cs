@@ -49,8 +49,8 @@ namespace AppBoxDesign
         {
             var color = _buttonColor;
             if (type != null)
-                color = Compute(DesignStore.ActiveSidePad,
-                    s => s == type ? new Color(0xFF4AC5EA) : new Color(0xFF6A7785));
+                color = DesignStore.ActiveSidePad.ToComputed(s =>
+                    s == type ? new Color(0xFF4AC5EA) : new Color(0xFF6A7785));
 
             return new Button(null, icon)
             {

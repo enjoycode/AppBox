@@ -18,7 +18,7 @@ public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
         if (_ds.TryGetValue(memberId, out var state))
             return (State<TMember>)state;
 
-        var proxy = new RxProperty<TMember>(
+        var proxy = new RxProxy<TMember>(
             () => getter(Target),
             v => setter(Target, v),
             false
@@ -27,7 +27,7 @@ public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
         return proxy;
     }
 
-    private readonly Dictionary<short, StateBase> _ds = new();
+    private readonly Dictionary<short, State> _ds = new();
 
     private void OnTargetPropertyChanged(short memberId)
     {
@@ -54,7 +54,7 @@ public static class EntityExtensions
         Func<TEntity, TMember> getter, Action<TEntity, TMember> setter)
         where TEntity : Entity
     {
-        var rxMember = new RxProperty<TMember>(() => getter(entity), v => setter(entity, v), false);
+        var rxMember = new RxProxy<TMember>(() => getter(entity), v => setter(entity, v), false);
         entity.PropertyChanged += mid =>
         {
             if (mid == memberId) rxMember.NotifyValueChanged();
