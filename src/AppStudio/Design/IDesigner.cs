@@ -24,6 +24,11 @@ internal interface IModelDesigner : IDesigner
     /// 获取大纲视图
     /// </summary>
     Widget? GetOutlinePad();
+
+    /// <summary>
+    /// 获取工具箱视图
+    /// </summary>
+    Widget? GetToolboxPad();
 }
     
 internal interface ICodeDesigner : IModelDesigner

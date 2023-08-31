@@ -87,8 +87,8 @@ namespace AppBoxDesign
 
                     _entityModel = model;
                     _membersController.DataSource = _entityModel!.Members
-                    .Where(m => !m.IsForeignKeyMember) //暂不显示EntityRef的外键
-                    .ToList();
+                        .Where(m => !m.IsForeignKeyMember) //暂不显示EntityRef的外键
+                        .ToList();
 
                     if (_pendingGoto != null)
                     {
@@ -97,12 +97,12 @@ namespace AppBoxDesign
                     }
 
                     return new Conditional<int>(_activePad)
-                    .When(t => t == 0,
-                        () => new MembersDesigner(_entityModel!, _membersController, _selectedMember))
-                    .When(t => t == 1,
-                        () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id));
+                        .When(t => t == 0,
+                            () => new MembersDesigner(_entityModel!, _membersController, _selectedMember))
+                        .When(t => t == 1,
+                            () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id));
                 }
-          );
+            );
 
         #region ====Event Handlers====
 
@@ -206,6 +206,8 @@ namespace AppBoxDesign
 
         public Widget? GetOutlinePad() => null;
 
+        public Widget? GetToolboxPad() => null;
+
         public void GotoDefinition(ReferenceVO reference)
         {
             if (string.IsNullOrEmpty(reference.Location)) return; //不需要跳转
@@ -225,7 +227,7 @@ namespace AppBoxDesign
 
         public Task SaveAsync()
         {
-            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });
+            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id, null });
         }
 
         public Task RefreshAsync()

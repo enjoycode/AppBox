@@ -74,7 +74,7 @@ public sealed class ModelNode : DesignNode
     /// <summary>
     /// 保存模型节点(包括相关代码)
     /// </summary>
-    public async Task SaveAsync(string? initSrcCode)
+    public async Task SaveAsync(string? initOrNewSrcCode)
     {
         if (!IsCheckoutByMe) throw new Exception("ModelNode has not checkout");
 
@@ -88,7 +88,7 @@ public sealed class ModelNode : DesignNode
             if (Model.ModelType == ModelType.Service || Model.ModelType == ModelType.View)
             {
                 string srcCode;
-                if (initSrcCode != null) srcCode = initSrcCode;
+                if (initOrNewSrcCode != null) srcCode = initOrNewSrcCode;
                 else
                 {
                     var doc = typeSystem.Workspace.CurrentSolution.GetDocument(RoslynDocumentId)!;
@@ -99,7 +99,7 @@ public sealed class ModelNode : DesignNode
                 await StagedService.SaveCodeAsync(Model.Id, srcCode);
 
                 //如果是非新建的服务模型需要更新服务代理(注意用initSrcCode判断是否刚创建的)
-                if (Model.ModelType == ModelType.Service && initSrcCode == null)
+                if (Model.ModelType == ModelType.Service && initOrNewSrcCode == null)
                     await typeSystem.UpdateServiceProxyDocumentAsync(this);
             }
         }

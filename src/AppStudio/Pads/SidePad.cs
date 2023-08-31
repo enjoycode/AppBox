@@ -73,7 +73,7 @@ namespace AppBoxDesign
         {
             Child = new Row
             {
-                Children = new Widget[]
+                Children =
                 {
                     new NaviBar(),
                     new Container

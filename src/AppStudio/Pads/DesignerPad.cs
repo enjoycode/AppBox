@@ -49,7 +49,7 @@ namespace AppBoxDesign
                     case ModelType.View:
                         if (modelNode.Tag == 0)
                         {
-                            var viewDesigner = new ViewDesigner(modelNode);
+                            var viewDesigner = new ViewCodeDesigner(modelNode);
                             node.Designer = viewDesigner;
                             return viewDesigner;
                         }

@@ -1,4 +1,6 @@
+using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AppBoxClient;
 using PixUI;
@@ -11,6 +13,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     public ViewDynamicDesigner(ModelNodeVO modelNode)
     {
         ModelNode = modelNode;
+        _toolboxPad = new Toolbox(_designController);
 
         Child = new Column
         {
@@ -26,8 +29,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                     {
                         Children =
                         {
-                            new Button("Add"),
-                            new Button("Remove"),
+                            new Button("Add") { OnTap = OnAdd },
+                            new Button("Remove") { OnTap = OnRemove },
                         }
                     }
                 },
@@ -46,6 +49,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
     private readonly DesignController _designController = new();
     private bool _hasLoadSourceCode = false;
+    private readonly Widget _toolboxPad;
 
     public ModelNodeVO ModelNode { get; }
 
@@ -71,7 +75,14 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
     public Task SaveAsync()
     {
-        throw new System.NotImplementedException();
+        //TODO:直接传输utf8 bytes
+        using var ms = new MemoryStream();
+        using var writer = new Utf8JsonWriter(ms);
+        _designController.Write(writer);
+        writer.Flush();
+        var json = Encoding.UTF8.GetString(ms.ToArray());
+
+        return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id, json });
     }
 
     public Task RefreshAsync()
@@ -84,8 +95,20 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         throw new System.NotImplementedException();
     }
 
-    public Widget? GetOutlinePad()
+    public Widget? GetOutlinePad() => null;
+
+    public Widget? GetToolboxPad() => _toolboxPad;
+
+    private void OnAdd(PointerEvent e)
     {
-        return null;
+        if (_designController.FirstSelected == null) return;
+
+        var meta = _designController.CurrentToolboxItem;
+        if (meta == null) return;
+
+        var active = _designController.FirstSelected!;
+        active.OnDrop(meta);
     }
+
+    private void OnRemove(PointerEvent e) => _designController.DeleteElements();
 }

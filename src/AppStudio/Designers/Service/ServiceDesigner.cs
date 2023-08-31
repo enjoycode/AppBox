@@ -120,6 +120,8 @@ namespace AppBoxDesign
 
         public Widget? GetOutlinePad() => null;
 
+        public Widget? GetToolboxPad() => null;
+
         public void GotoDefinition(ReferenceVO reference)
         {
             if (reference.Offset < 0) return; //无需跳转
@@ -144,7 +146,7 @@ namespace AppBoxDesign
 
         public Task SaveAsync()
         {
-            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id });
+            return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id, null });
         }
 
         public async Task RefreshAsync()

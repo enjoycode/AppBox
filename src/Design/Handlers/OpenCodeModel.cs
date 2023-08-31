@@ -8,8 +8,6 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class OpenCodeModel : IDesignHandler
 {
-    internal static readonly OpenCodeModel Instance = new OpenCodeModel();
-
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
