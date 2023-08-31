@@ -14,6 +14,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     {
         ModelNode = modelNode;
         _toolboxPad = new Toolbox(_designController);
+        _outlinePad = new DynamicOutlinePad(_designController);
 
         Child = new Column
         {
@@ -48,8 +49,9 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     }
 
     private readonly DesignController _designController = new();
+    private readonly Toolbox _toolboxPad;
+    private readonly DynamicOutlinePad _outlinePad;
     private bool _hasLoadSourceCode = false;
-    private readonly Widget _toolboxPad;
 
     public ModelNodeVO ModelNode { get; }
 
@@ -95,7 +97,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         throw new System.NotImplementedException();
     }
 
-    public Widget? GetOutlinePad() => null;
+    public Widget? GetOutlinePad() => _outlinePad;
 
     public Widget? GetToolboxPad() => _toolboxPad;
 
@@ -108,7 +110,14 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
         var active = _designController.FirstSelected!;
         active.OnDrop(meta);
+
+        _outlinePad.RefreshOutline(); //TODO: remove when impl DesignController.RefreshOutline
     }
 
-    private void OnRemove(PointerEvent e) => _designController.DeleteElements();
+    private void OnRemove(PointerEvent e)
+    {
+        _designController.DeleteElements();
+
+        _outlinePad.RefreshOutline(); //TODO: remove when impl DesignController.RefreshOutline
+    }
 }

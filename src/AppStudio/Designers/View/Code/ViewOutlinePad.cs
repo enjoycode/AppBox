@@ -27,8 +27,7 @@ internal sealed class ViewOutlinePad : View
 
     private readonly PreviewController _previewController;
 
-    private readonly TreeController<WidgetTreeNode> _treeController =
-        new TreeController<WidgetTreeNode>(BuildTreeNode, n => n.Children);
+    private readonly TreeController<WidgetTreeNode> _treeController = new(BuildTreeNode, n => n.Children);
 
     private readonly State<string> _searchKey = "";
     private Inspector? _inspector = null;
@@ -38,6 +37,7 @@ internal sealed class ViewOutlinePad : View
     {
         _previewController.RefreshOutlineAction = BuildWidgetTree;
     }
+
     protected override void OnUnmounted()
     {
         ClearInspector();
@@ -55,8 +55,7 @@ internal sealed class ViewOutlinePad : View
     private void BuildWidgetTree()
     {
         ClearInspector();
-        _treeController.DataSource = new List<WidgetTreeNode>()
-            { _previewController.GetWidgetTree()! };
+        _treeController.DataSource = new List<WidgetTreeNode>() { _previewController.GetWidgetTree()! };
     }
 
     private void ClearInspector()

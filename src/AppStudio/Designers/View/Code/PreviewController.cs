@@ -55,6 +55,5 @@ internal sealed class PreviewController
 
     public void Invalidate() => _invalidateAction?.Invoke();
 
-    public WidgetTreeNode? GetWidgetTree() =>
-        CurrentWidget == null ? null : new WidgetTreeNode(CurrentWidget);
+    public WidgetTreeNode? GetWidgetTree() => CurrentWidget == null ? null : new WidgetTreeNode(CurrentWidget);
 }
