@@ -41,7 +41,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                     Children =
                     {
                         new Expanded { Child = new DesignCanvas(_designController) },
-                        new Container { Width = 220, Child = new PropertyPanel(_designController) }
+                        new Container { Width = 260, Child = new PropertyPanel(_designController) }
                     }
                 },
             }

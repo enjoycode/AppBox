@@ -12,7 +12,7 @@ namespace AppBoxDesign
         {
             Child = new Column
             {
-                Children = new Widget[]
+                Children =
                 {
                     new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
                     new TreeView<DesignNodeVO>(DesignStore.TreeController),

@@ -8,21 +8,21 @@ namespace AppBoxDesign
         {
             Child = new Column
             {
-                Children = new Widget[]
+                Children =
                 {
                     new MainMenuPad(),
                     new Expanded
                     {
                         Child = new Row
                         {
-                            Children = new Widget[]
+                            Children =
                             {
                                 new SidePad(),
                                 new Expanded()
                                 {
                                     Child = new Column()
                                     {
-                                        Children = new Widget[]
+                                        Children =
                                         {
                                             new Expanded() { Child = new DesignerPad() },
                                             new BottomPad(),

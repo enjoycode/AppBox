@@ -24,7 +24,7 @@ namespace AppBoxDesign
                 BgColor = new Color(43, 49, 56),
                 Child = new Column
                 {
-                    Children = new Widget[]
+                    Children =
                     {
                         new Expanded
                         {

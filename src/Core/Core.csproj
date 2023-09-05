@@ -22,4 +22,5 @@
         <ProjectReference Include="..\Tools\SerializationGenerator\SerializationGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
+
 </Project>
