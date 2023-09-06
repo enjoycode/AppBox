@@ -10,6 +10,16 @@ namespace AppBoxDesign;
 
 internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
+    static ViewDynamicDesigner()
+    {
+        // 初始化一些动态视图设计时的委托
+        if (DesignSettings.GetDataSetEditor == null)
+        {
+            DesignSettings.GetDataSetEditor = (state) => new DataSetEditDialog(state);
+            DesignSettings.MakeDataSetSettings = () => new DataSetSettings();
+        }
+    }
+
     public ViewDynamicDesigner(ModelNodeVO modelNode)
     {
         ModelNode = modelNode;
