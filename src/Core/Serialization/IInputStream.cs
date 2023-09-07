@@ -130,10 +130,46 @@ public static class InputStreamExtensions
         return res;
     }
 
+    public static float ReadFloat(this IInputStream s)
+    {
+        float res = 0f;
+        unsafe
+        {
+            var span = new Span<byte>(&res, 4);
+            s.ReadBytes(span);
+        }
+
+        return res;
+    }
+
+    public static double ReadDouble(this IInputStream s)
+    {
+        double res = 0;
+        unsafe
+        {
+            var span = new Span<byte>(&res, 8);
+            s.ReadBytes(span);
+        }
+
+        return res;
+    }
+
     public static DateTime ReadDateTime(this IInputStream s)
     {
         var ticks = s.ReadLong();
         return new DateTime(ticks);
+    }
+
+    public static decimal ReadDecimal(this IInputStream s)
+    {
+        decimal res = 0;
+        unsafe
+        {
+            var span = new Span<byte>(&res, 16);
+            s.ReadBytes(span);
+        }
+
+        return res;
     }
 
     public static Guid ReadGuid(this IInputStream s)

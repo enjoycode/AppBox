@@ -6,10 +6,9 @@ namespace Tests.Core;
 
 public sealed class SerializationTest
 {
-    private static readonly EntityFactory[] _entityFactories =
-        { new(TestEntity.MODELID, typeof(TestEntity)) };
+    private static readonly EntityFactory[] _entityFactories = { new(TestEntity.MODELID, typeof(TestEntity)) };
 
-    private static BytesSegment Serialize<T>(T obj)
+    internal static BytesSegment Serialize<T>(T obj)
     {
         var writer = MessageWriteStream.Rent();
         writer.Serialize(obj);
@@ -18,7 +17,7 @@ public sealed class SerializationTest
         return segment;
     }
 
-    private static object? Deserialize(BytesSegment data, EntityFactory[]? factories = null)
+    internal static object? Deserialize(BytesSegment data, EntityFactory[]? factories = null)
     {
         var reader = MessageReadStream.Rent(data.First!);
         if (factories != null)
@@ -123,7 +122,7 @@ public sealed class SerializationTest
 
         var data = Serialize(ou1);
 
-        var dest = (AppBoxStore.Entities.OrgUnit) Deserialize(data,
+        var dest = (AppBoxStore.Entities.OrgUnit)Deserialize(data,
             new EntityFactory[] { new(AppBoxStore.Entities.OrgUnit.MODELID, typeof(AppBoxStore.Entities.OrgUnit)) })!;
         Assert.AreEqual(dest.Name, ou1.Name);
         Assert.AreEqual(dest.Children!.Count, 1);

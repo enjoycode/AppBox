@@ -154,6 +154,7 @@ public abstract class TypeSerializer
         //运行时类型
         RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode),
             () => new PermissionNode()));
+        RegisterKnownType(new BinSerializer(PayloadType.DataSet, typeof(DynamicDataSet), () => new DynamicDataSet()));
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);

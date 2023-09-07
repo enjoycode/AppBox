@@ -267,8 +267,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     private async Task<DynamicDataSet> ToDataSetInternal(Func<SqlRowReader, DynamicEntity> selector,
         DynamicFieldInfo[] fields, IEnumerable<Expression> selectItem)
     {
-        var ds = new DynamicDataSet();
-
+        var ds = new DynamicDataSet(fields);
         await ToListCore(selector, selectItem, e => ds.Add(e));
         return ds;
     }

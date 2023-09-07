@@ -196,9 +196,36 @@ public static class OutputStreamExtensions
         }
     }
 
+    public static void WriteFloat(this IOutputStream s, float value)
+    {
+        unsafe
+        {
+            var span = new Span<byte>(&value, 4);
+            s.WriteBytes(span);
+        }
+    }
+
+    public static void WriteDouble(this IOutputStream s, double value)
+    {
+        unsafe
+        {
+            var span = new Span<byte>(&value, 8);
+            s.WriteBytes(span);
+        }
+    }
+
     public static void WriteDateTime(this IOutputStream s, DateTime value)
     {
         s.WriteLong(value.Ticks);
+    }
+
+    public static void WriteDecimal(this IOutputStream s, decimal value)
+    {
+        unsafe
+        {
+            var span = new Span<byte>(&value, 16);
+            s.WriteBytes(span);
+        }
     }
 
     public static void WriteGuid(this IOutputStream s, Guid value)
@@ -380,8 +407,7 @@ public static class OutputStreamExtensions
         if (serializer == null)
         {
             Log.Error($"Can't find serializer for: {type.FullName}");
-            throw new SerializationException(SerializationError.CanNotFindSerializer,
-                type.FullName);
+            throw new SerializationException(SerializationError.CanNotFindSerializer, type.FullName);
         }
 
         //检查是否已经序列化过
