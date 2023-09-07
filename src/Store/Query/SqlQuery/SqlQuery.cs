@@ -234,23 +234,47 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     /// </summary>
     public Task<IList<TResult>> ToListAsync<TResult>(Func<SqlRowReader, TResult> selector,
         Func<EntityExpression, IEnumerable<Expression>> selects) =>
-        ToListAsync(selector, selects(T));
+        ToListInternal(selector, selects(T));
 
     public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join,
         Func<SqlRowReader, TResult> selector,
         Func<EntityExpression, ISqlQueryJoin, IEnumerable<Expression>> selects) =>
-        ToListAsync(selector, selects(T, join));
+        ToListInternal(selector, selects(T, join));
 
     public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join1, ISqlQueryJoin join2,
         Func<SqlRowReader, TResult> selector,
         Func<EntityExpression, ISqlQueryJoin, ISqlQueryJoin, IEnumerable<Expression>> selects) =>
-        ToListAsync(selector, selects(T, join1, join2));
+        ToListInternal(selector, selects(T, join1, join2));
 
     /// <summary>
     /// 动态查询，返回匿名类列表
     /// </summary>
-    private async Task<IList<TResult>> ToListAsync<TResult>(Func<SqlRowReader, TResult> selector,
+    private async Task<IList<TResult>> ToListInternal<TResult>(Func<SqlRowReader, TResult> selector,
         IEnumerable<Expression> selectItem)
+    {
+        var list = new List<TResult>();
+        await ToListCore(selector, selectItem, r => list.Add(r));
+        return list;
+    }
+
+    public Task<DynamicDataSet> ToDataSetAsync(Func<SqlRowReader, DynamicEntity> selector,
+        DynamicFieldInfo[] fields, Func<EntityExpression, IEnumerable<Expression>> selects) =>
+        ToDataSetInternal(selector, fields, selects(T));
+
+    /// <summary>
+    /// 动态查询，返回动态数据集
+    /// </summary>
+    private async Task<DynamicDataSet> ToDataSetInternal(Func<SqlRowReader, DynamicEntity> selector,
+        DynamicFieldInfo[] fields, IEnumerable<Expression> selectItem)
+    {
+        var ds = new DynamicDataSet();
+
+        await ToListCore(selector, selectItem, e => ds.Add(e));
+        return ds;
+    }
+
+    private async Task ToListCore<TResult>(Func<SqlRowReader, TResult> selector,
+        IEnumerable<Expression> selectItem, Action<TResult> addItem)
     {
         //if (SkipSize > -1 && !HasSortItems)
         //    throw new ArgumentException("Paged query must has sort items."); //TODO:加入默认主键排序
@@ -282,7 +306,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
             var rr = new SqlRowReader(reader);
             while (await reader.ReadAsync())
             {
-                list.Add(selector(rr));
+                addItem(selector(rr));
             }
         }
         catch (Exception ex)
@@ -290,8 +314,6 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
             Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
             throw;
         }
-
-        return list;
     }
 
     /// <summary>

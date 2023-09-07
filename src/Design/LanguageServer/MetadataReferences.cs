@@ -112,4 +112,39 @@ internal static class MetadataReferences
         };
         return deps;
     }
+
+    /// <summary>
+    /// 获取服务模型的依赖引用
+    /// </summary>
+    internal static IEnumerable<MetadataReference> GetServiceModelReferences(ServiceModel model)
+    {
+        var deps = new List<MetadataReference>
+        {
+            MetadataReferences.CoreLib,
+            MetadataReferences.NetstandardLib,
+            MetadataReferences.SystemRuntimeLib,
+            MetadataReferences.SystemLinqLib,
+            // MetadataReferences.SystemRuntimeExtLib,
+            // MetadataReferences.SystemTasksLib,
+            MetadataReferences.SystemDataLib,
+            MetadataReferences.SystemCollectionsLib,
+            // MetadataReferences.ComponentModelPrimitivesLib,
+            //MetadataReferences.ComponentModelLib,
+            //MetadataReferences.SystemBuffersLib,
+            MetadataReferences.AppBoxCoreLib,
+            MetadataReferences.AppBoxServerLib,
+            MetadataReferences.AppBoxStoreLib
+        };
+
+        if (model.HasReference) //添加其他引用
+        {
+            throw new NotImplementedException("ServiceModel has references");
+            // for (int i = 0; i < model.References.Count; i++)
+            // {
+            //     deps.Add(MetadataReferences.Get($"{model.References[i]}.dll", appName));
+            // }
+        }
+
+        return deps;
+    }
 }

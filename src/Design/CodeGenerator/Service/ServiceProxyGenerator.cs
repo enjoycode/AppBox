@@ -19,6 +19,7 @@ internal static class ServiceProxyGenerator
         sb.Append("using System.Linq;\n");
         sb.Append("using System.Collections.Generic;\n");
         sb.Append("using System.Threading.Tasks;\n");
+        sb.Append("using AppBoxCore;\n");
         var usings = rootNode!.DescendantNodes().OfType<UsingDirectiveSyntax>().ToArray();
         foreach (var usingDirectiveSyntax in usings)
         {

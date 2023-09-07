@@ -8,10 +8,11 @@ public sealed class DynamicObjectTest
     [Test]
     public void DynamicTest()
     {
-        var obj = new DynamicEntity
+        int? v = null;
+        DynamicEntity obj = new()
         {
             ["Name"] = "Rick",
-            ["Score"] = 100
+            ["Score"] = v ?? DynamicField.Empty,
         };
 
         string? name = obj["Name"];

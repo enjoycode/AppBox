@@ -142,13 +142,13 @@ internal static class PublishService
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
             CodeUtil.ServiceGlobalUsings() +
             $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
-        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
+        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary /*, false*/)
             .WithNullableContextOptions(NullableContextOptions.Enable)
             .WithOptimizationLevel(forDebug ? OptimizationLevel.Debug : OptimizationLevel.Release);
 
         //开始编译运行时代码
         var compilation = CSharpCompilation.Create(docName)
-            .AddReferences(GetServiceModelReferences(model))
+            .AddReferences(MetadataReferences.GetServiceModelReferences(model))
             .AddSyntaxTrees(newTree, usingAndVersionTree)
             .WithOptions(options);
         if (usagesTree != null)
@@ -216,40 +216,6 @@ internal static class PublishService
 
         if (hasError)
             throw new Exception(sb.ToString());
-    }
-
-    /// <summary>
-    /// 获取服务模型的依赖引用
-    /// </summary>
-    private static IEnumerable<MetadataReference> GetServiceModelReferences(ServiceModel model)
-    {
-        var deps = new List<MetadataReference>
-        {
-            MetadataReferences.CoreLib,
-            MetadataReferences.NetstandardLib,
-            MetadataReferences.SystemRuntimeLib,
-            MetadataReferences.SystemLinqLib,
-            // MetadataReferences.SystemRuntimeExtLib,
-            // MetadataReferences.SystemTasksLib,
-            MetadataReferences.SystemDataLib,
-            // MetadataReferences.ComponentModelPrimitivesLib,
-            //MetadataReferences.ComponentModelLib,
-            //MetadataReferences.SystemBuffersLib,
-            MetadataReferences.AppBoxCoreLib,
-            MetadataReferences.AppBoxServerLib,
-            MetadataReferences.AppBoxStoreLib
-        };
-
-        if (model.HasReference) //添加其他引用
-        {
-            throw new NotImplementedException("ServiceModel has references");
-            // for (int i = 0; i < model.References.Count; i++)
-            // {
-            //     deps.Add(MetadataReferences.Get($"{model.References[i]}.dll", appName));
-            // }
-        }
-
-        return deps;
     }
 
     private static async ValueTask<DbTransaction> MakeOtherStoreTxn(long storeId,
@@ -367,8 +333,8 @@ internal static class PublishService
                     }
                     else if (model.ModelType == ModelType.View)
                     {
-                        var app = hub.DesignTree.FindApplicationNode(model.AppId)!;
-                        var oldViewName = $"{app.Model.Name}.{model.OriginalName}";
+                        // var app = hub.DesignTree.FindApplicationNode(model.AppId)!;
+                        // var oldViewName = $"{app.Model.Name}.{model.OriginalName}";
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
                         // await ModelStore.DeleteAssemblyAsync(MetaAssemblyType.View, oldViewName, txn);
                     }
