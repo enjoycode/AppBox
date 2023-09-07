@@ -154,6 +154,8 @@ public struct DynamicField
         var type = _flag & DynamicFieldFlag.TypeMask;
         switch (type)
         {
+            case DynamicFieldFlag.Empty:
+                break;
             case DynamicFieldFlag.String:
                 ws.WriteString((string?)_ObjectValue);
                 break;
