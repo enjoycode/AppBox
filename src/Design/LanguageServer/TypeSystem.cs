@@ -334,6 +334,7 @@ internal sealed class TypeSystem : IDisposable
             MetadataReferences.SystemRuntimeLib,
             MetadataReferences.SystemLinqLib,
             MetadataReferences.SystemDataLib,
+            MetadataReferences.SystemCollectionsLib,
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
         };
 
