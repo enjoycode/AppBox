@@ -63,8 +63,12 @@ public sealed class DynamicCartesianChart : SingleChildWidget
             Values = (DynamicDataSet?)(await dynamicView.GetDataSet(line.DataSetName)),
             Mapping = (obj, point) =>
             {
-                point.PrimaryValue = obj[line.FieldName].ToDouble();
-                point.SecondaryValue = point.Context.Entity.EntityIndex;
+                var v = obj[line.FieldName].ToDouble();
+                if (v.HasValue)
+                {
+                    point.PrimaryValue = v.Value;
+                    point.SecondaryValue = point.Context.Entity.EntityIndex;
+                }
             }
         };
 

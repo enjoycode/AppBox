@@ -62,7 +62,7 @@ public struct DynamicField
     /// <summary>
     /// 主要用于Chart转换为相应的ChartPoint
     /// </summary>
-    public double ToDouble()
+    public double? ToDouble()
     {
         var type = _flag & DynamicFieldFlag.TypeMask;
         return type switch
@@ -75,7 +75,7 @@ public struct DynamicField
             DynamicFieldFlag.Float => FloatValue,
             DynamicFieldFlag.Double => DoubleValue,
             DynamicFieldFlag.Decimal => (double)DecimalValue,
-            _ => double.NaN
+            _ => null
         };
     }
 
