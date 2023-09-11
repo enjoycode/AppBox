@@ -31,6 +31,8 @@ public sealed class DynamicCartesianChart : SingleChildWidget
 
     private async void OnSeriesChanged()
     {
+        if (!IsMounted) return;
+
         if (_series != null)
         {
             var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
@@ -73,5 +75,13 @@ public sealed class DynamicCartesianChart : SingleChildWidget
         };
 
         return res;
+    }
+
+    protected override void OnMounted()
+    {
+        base.OnMounted();
+
+        if (_series != null /*&& _chart.Series == null*/)
+            OnSeriesChanged();
     }
 }
