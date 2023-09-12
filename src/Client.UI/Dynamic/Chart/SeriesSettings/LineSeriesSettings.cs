@@ -10,6 +10,8 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
 {
     public override string Type => "Line";
 
+    public double LineSmoothness { get; set; } = 0.65f;
+
     public override CartesianSeriesSettings Clone()
     {
         return new LineSeriesSettings() { DataSet = DataSet, Field = Field, Name = Name };
@@ -21,6 +23,7 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
         {
             Name = Name ?? Field,
             Values = (DynamicDataSet?)(await dynamicView.GetDataSet(DataSet)),
+            LineSmoothness = LineSmoothness,
             Mapping = (obj, point) =>
             {
                 var v = obj[Field].ToDouble();

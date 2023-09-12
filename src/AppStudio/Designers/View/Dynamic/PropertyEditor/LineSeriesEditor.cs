@@ -20,6 +20,8 @@ internal sealed class LineSeriesEditor : SingleChildWidget
         dataset.Listen(OnDataSetChanged);
         var yField = new RxProxy<string?>(() => state.Value.Field, v => state.Value.Field = v);
         yField.Listen(v => RefreshCurrentRow());
+        var smoothness = new RxProxy<double>(() => ((LineSeriesSettings)state.Value).LineSmoothness,
+            v => ((LineSeriesSettings)state.Value).LineSmoothness = v);
 
         var allDataSet = designController.GetAllDataSet().Select(s => s.Name).ToArray();
 
@@ -29,7 +31,8 @@ internal sealed class LineSeriesEditor : SingleChildWidget
             Children =
             {
                 new FormItem("DataSet", new Select<string>(dataset) { Options = allDataSet }),
-                new FormItem("YField", new Select<string>(yField) { Ref = _yFieldRef })
+                new FormItem("YField", new Select<string>(yField) { Ref = _yFieldRef }),
+                new FormItem("Smoothness", new NumberInput<double>(smoothness)), //TODO: use Slider
             }
         };
 

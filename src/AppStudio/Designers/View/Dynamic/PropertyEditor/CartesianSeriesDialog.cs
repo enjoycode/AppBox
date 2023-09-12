@@ -17,6 +17,7 @@ internal sealed class CartesianSeriesDialog : Dialog
         _designController = designController;
         _dataGridController.DataSource = list;
         _current = _dataGridController.ObserveCurrentRow();
+        _current.Value = list.Count > 0 ? list[0] : null; //select the first row
     }
 
     private readonly List<CartesianSeriesSettings> _list;
