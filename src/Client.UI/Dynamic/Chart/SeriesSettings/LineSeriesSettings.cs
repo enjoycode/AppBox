@@ -10,20 +10,25 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
 {
     public override string Type => "Line";
 
-    public double LineSmoothness { get; set; } = 0.65f;
+    public double? Smoothness { get; set; }
+
+    public bool Fill { get; set; } = true;
 
     public override CartesianSeriesSettings Clone()
     {
-        return new LineSeriesSettings() { DataSet = DataSet, Field = Field, Name = Name };
+        return new LineSeriesSettings()
+        {
+            DataSet = DataSet, Field = Field, Name = Name, Smoothness = Smoothness, Fill = Fill
+        };
     }
 
     public override async Task<ISeries> Build(IDynamicView dynamicView)
     {
-        return new LineSeries<DynamicEntity>
+        var res = new LineSeries<DynamicEntity>
         {
             Name = Name ?? Field,
             Values = (DynamicDataSet?)(await dynamicView.GetDataSet(DataSet)),
-            LineSmoothness = LineSmoothness,
+            LineSmoothness = Smoothness ?? 0.65f,
             Mapping = (obj, point) =>
             {
                 var v = obj[Field].ToDouble();
@@ -34,5 +39,10 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
                 }
             }
         };
+
+        if (Smoothness.HasValue) res.LineSmoothness = Smoothness.Value;
+        if (!Fill) res.Fill = null;
+
+        return res;
     }
 }
