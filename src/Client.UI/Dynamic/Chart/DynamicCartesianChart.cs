@@ -39,42 +39,14 @@ public sealed class DynamicCartesianChart : SingleChildWidget
             if (dynamicView == null)
                 throw new NotImplementedException();
 
-            var runtimeSeries = new ISeries<DynamicEntity>[_series.Length];
+            var runtimeSeries = new ISeries[_series.Length];
             for (var i = 0; i < _series.Length; i++)
             {
-                if (_series[i] is LineSeriesSettings line)
-                {
-                    runtimeSeries[i] = await BuildLineSeries(line, dynamicView);
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
+                runtimeSeries[i] = await _series[i].Build(dynamicView);
             }
 
             _chart.Series = runtimeSeries;
         }
-    }
-
-    private static async ValueTask<ISeries<DynamicEntity>> BuildLineSeries(LineSeriesSettings line,
-        IDynamicView dynamicView)
-    {
-        var res = new LineSeries<DynamicEntity>
-        {
-            Name = line.Name ?? line.FieldName,
-            Values = (DynamicDataSet?)(await dynamicView.GetDataSet(line.DataSetName)),
-            Mapping = (obj, point) =>
-            {
-                var v = obj[line.FieldName].ToDouble();
-                if (v.HasValue)
-                {
-                    point.PrimaryValue = v.Value;
-                    point.SecondaryValue = point.Context.Entity.EntityIndex;
-                }
-            }
-        };
-
-        return res;
     }
 
     protected override void OnMounted()

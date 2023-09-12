@@ -7,12 +7,12 @@ namespace AppBoxDesign
     internal sealed class MembersDesigner : View
     {
         public MembersDesigner(EntityModelVO entityModel,
-            DataGridController<EntityMemberVO> membersController, 
+            DataGridController<EntityMemberVO> membersController,
             State<EntityMemberVO?> selectedMember)
         {
             Child = new Row()
             {
-                Children = new Widget[]
+                Children =
                 {
                     new Expanded()
                     {
@@ -24,11 +24,9 @@ namespace AppBoxDesign
                                     { Width = ColumnWidth.Fixed(150) },
                                 new DataGridTextColumn<EntityMemberVO>("Type", MemberTypeToString)
                                     { Width = ColumnWidth.Fixed(200) },
-                                new DataGridCheckboxColumn<EntityMemberVO>("AllowNull",
-                                        v => v.AllowNull)
+                                new DataGridCheckboxColumn<EntityMemberVO>("AllowNull", v => v.AllowNull)
                                     { Width = ColumnWidth.Fixed(90) },
-                                new DataGridTextColumn<EntityMemberVO>("Comment",
-                                    v => v.Comment ?? string.Empty),
+                                new DataGridTextColumn<EntityMemberVO>("Comment", v => v.Comment ?? string.Empty),
                             }
                         },
                     },

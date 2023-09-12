@@ -6,5 +6,5 @@ namespace AppBoxClient.Dynamic;
 [JsonDerivedType(typeof(LineSeriesSettings), typeDiscriminator: "Line")]
 public abstract class CartesianSeriesSettings : ChartSeriesSettings
 {
-    
+    public abstract CartesianSeriesSettings Clone();
 }

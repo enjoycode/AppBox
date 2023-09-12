@@ -10,4 +10,8 @@ public readonly struct DynamicFieldInfo
 
     public readonly string Name;
     public readonly DynamicFieldFlag Type;
+
+    public bool IsNumber => (byte)Type >= 4 && (byte)Type <= 10;
+
+    public bool IsDateTime => Type == DynamicFieldFlag.DateTime;
 }
