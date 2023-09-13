@@ -26,8 +26,10 @@ internal sealed class CartesianSeriesDialog : Dialog
     private readonly DesignController _designController;
     private readonly State<string?> _typeName = "Line";
     private readonly DataGridController<CartesianSeriesSettings> _dataGridController = new();
+
     private readonly State<CartesianSeriesSettings?> _current;
     private readonly State<LineSeriesSettings> _currentLine = new LineSeriesSettings();
+    private readonly State<ColumnSeriesSettings> _currentColumn = new ColumnSeriesSettings();
 
     protected override Widget BuildBody()
     {
@@ -87,6 +89,8 @@ internal sealed class CartesianSeriesDialog : Dialog
                         Child = new Conditional<CartesianSeriesSettings?>(_current)
                             .When(r => r?.Type == "Line",
                                 () => new LineSeriesEditor(_currentLine, _dataGridController, _designController))
+                            .When(r => r?.Type == "Column",
+                                () => new ColumnSeriesEditor(_currentColumn, _dataGridController, _designController))
                     }
                 }
             ),
@@ -99,23 +103,30 @@ internal sealed class CartesianSeriesDialog : Dialog
 
         if (_current.Value.Type == "Line")
             _currentLine.Value = (LineSeriesSettings)_current.Value;
+        else if (_current.Value.Type == "Column")
+            _currentColumn.Value = (ColumnSeriesSettings)_current.Value;
     }
 
     private void OnAddSeries()
     {
         if (string.IsNullOrEmpty(_typeName.Value)) return;
 
-        var allDataSet = _designController.GetAllDataSet();
-        var firstDataSet = allDataSet.FirstOrDefault();
-        switch (_typeName.Value)
+        CartesianSeriesSettings? newSeries = _typeName.Value switch
         {
-            case "Line":
-                var lineSeries = new LineSeriesSettings();
-                if (firstDataSet != null)
-                    lineSeries.DataSet = firstDataSet.Name;
-                _dataGridController.Add(lineSeries);
-                _current.Value = lineSeries; // select the new one
-                break;
+            "Line" => new LineSeriesSettings(),
+            "Column" => new ColumnSeriesSettings(),
+            _ => null
+        };
+
+        if (newSeries != null)
+        {
+            var allDataSet = _designController.GetAllDataSet();
+            var firstDataSet = allDataSet.FirstOrDefault();
+
+            if (firstDataSet != null)
+                newSeries.DataSet = firstDataSet.Name;
+            _dataGridController.Add(newSeries);
+            _current.Value = newSeries; // select the new one
         }
     }
 
