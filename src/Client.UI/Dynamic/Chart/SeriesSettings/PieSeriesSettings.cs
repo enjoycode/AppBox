@@ -17,5 +17,7 @@ public sealed class PieSeriesSettings
     /// </summary>
     public string? Name { get; set; } = null!;
 
+    public double? InnerRadius { get; set; }
+
     public PieSeriesSettings Clone() => new() { DataSet = DataSet, Field = Field, Name = Name };
 }

@@ -30,6 +30,7 @@ internal sealed class PieSeriesDialog : Dialog
         dataset.Listen(OnDataSetChanged);
         var yField = new RxProxy<string?>(() => _state.Field, v => _state.Field = v ?? string.Empty);
         var name = new RxProxy<string?>(() => _state.Name, v => _state.Name = v);
+        var innerRadius = new RxProxy<double?>(() => _state.InnerRadius, v => _state.InnerRadius = v);
 
         var allDataSet = _designController.GetAllDataSet().Select(s => s.Name).ToArray();
         var body = new Container
@@ -41,7 +42,8 @@ internal sealed class PieSeriesDialog : Dialog
                 {
                     new FormItem("DataSet", new Select<string>(dataset) { Options = allDataSet }),
                     new FormItem("Field", new Select<string>(yField) { Ref = _yFieldRef }),
-                    new FormItem("Name", new Select<string>(name) { Ref = _nameRef })
+                    new FormItem("Name", new Select<string>(name) { Ref = _nameRef }),
+                    new FormItem("InnerRadius", new NumberInput<double>(innerRadius)),
                 }
             }
         };

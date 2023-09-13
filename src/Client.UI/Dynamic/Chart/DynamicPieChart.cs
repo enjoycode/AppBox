@@ -39,14 +39,16 @@ public sealed class DynamicPieChart : SingleChildWidget
             if (dynamicView == null)
                 throw new NotImplementedException();
 
-            var values = (DynamicDataSet?)await dynamicView.GetDataSet(_series.DataSet);
-            if (values != null)
+            var ds = (DynamicDataSet?)await dynamicView.GetDataSet(_series.DataSet);
+            if (ds != null)
             {
-                var runtimeSeries = values.Select(e =>
+                var runtimeSeries = ds.Select(e =>
                 {
                     var s = new PieSeries<double?>() { Values = new[] { e[_series.Field].ToDouble() } };
                     if (!string.IsNullOrEmpty(s.Name))
                         s.Name = e[_series.Name!].ToString();
+                    if (_series.InnerRadius.HasValue)
+                        s.InnerRadius = _series.InnerRadius.Value;
                     return s;
                 });
 
