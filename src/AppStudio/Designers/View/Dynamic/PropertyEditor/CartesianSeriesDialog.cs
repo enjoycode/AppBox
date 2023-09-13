@@ -55,7 +55,7 @@ internal sealed class CartesianSeriesDialog : Dialog
                 Children =
                 {
                     new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAddSeries() },
-                    new Button(icon: MaterialIcons.Remove),
+                    new Button(icon: MaterialIcons.Remove) { OnTap = _ => OnRemoveSeries() },
                     new Button(icon: MaterialIcons.ArrowUpward),
                     new Button(icon: MaterialIcons.ArrowDownward)
                 }
@@ -113,10 +113,17 @@ internal sealed class CartesianSeriesDialog : Dialog
                 var lineSeries = new LineSeriesSettings();
                 if (firstDataSet != null)
                     lineSeries.DataSet = firstDataSet.Name;
-                _list.Add(lineSeries);
+                _dataGridController.Add(lineSeries);
                 _current.Value = lineSeries; // select the new one
-                _dataGridController.Refresh();
                 break;
         }
+    }
+
+    private void OnRemoveSeries()
+    {
+        if (_current.Value == null) return;
+
+        _dataGridController.Remove(_current.Value);
+        _dataGridController.TrySelectFirstRow();
     }
 }

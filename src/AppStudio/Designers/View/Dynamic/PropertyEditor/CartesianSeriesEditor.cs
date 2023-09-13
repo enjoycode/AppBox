@@ -25,7 +25,9 @@ internal sealed class CartesianSeriesEditor : SingleChildWidget
 
         //编辑副本
         var list = new List<CartesianSeriesSettings>();
-        list.AddRange(_state.Value.Select(t => t.Clone()));
+        if (_state.Value is { Length: > 0 })
+            list.AddRange(_state.Value.Select(t => t.Clone()));
+
         var dlg = new CartesianSeriesDialog(list, DesignController);
         var canceled = await dlg.ShowAndWaitClose();
         if (canceled) return;

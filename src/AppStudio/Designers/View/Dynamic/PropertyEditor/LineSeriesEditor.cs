@@ -44,7 +44,7 @@ internal sealed class LineSeriesEditor : SingleChildWidget
             }
         };
 
-        // OnDataSetChanged(dataset.Value);
+        OnDataSetChanged(dataset.Value);
     }
 
     private readonly DesignController _designController;
