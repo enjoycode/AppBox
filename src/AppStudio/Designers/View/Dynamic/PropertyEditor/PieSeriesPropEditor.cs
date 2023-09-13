@@ -1,3 +1,4 @@
+using System.Linq;
 using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
@@ -19,25 +20,22 @@ internal sealed class PieSeriesPropEditor : SingleChildWidget
 
     private async void OnTap(PointerEvent e)
     {
-        //TODO: test now
-        _state.Value = new PieSeriesSettings()
+        var designController = DesignController;
+        if (designController == null) return;
+
+        //编辑副本
+        var newOrCloned = _state.Value ?? new PieSeriesSettings();
+        if (string.IsNullOrEmpty(newOrCloned.DataSet))
         {
-            DataSet = "orders",
-            Field = "Sales",
-            Name = "Month",
-        };
-        
-        // if (DesignController == null) return;
-        //
-        // //编辑副本
-        // var list = new List<CartesianSeriesSettings>();
-        // if (_state.Value is { Length: > 0 })
-        //     list.AddRange(_state.Value.Select(t => t.Clone()));
-        //
-        // var dlg = new CartesianSeriesDialog(list, DesignController);
-        // var canceled = await dlg.ShowAndWaitClose();
-        // if (canceled) return;
-        //
-        // _state.Value = list.ToArray();
+            var firstDataSet = designController.GetAllDataSet().FirstOrDefault();
+            if (firstDataSet != null)
+                newOrCloned.DataSet = firstDataSet.Name;
+        }
+
+        var dlg = new PieSeriesDialog(newOrCloned, designController);
+        var canceled = await dlg.ShowAndWaitClose();
+        if (canceled) return;
+
+        _state.Value = newOrCloned;
     }
 }

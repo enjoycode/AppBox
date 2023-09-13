@@ -16,4 +16,6 @@ public sealed class PieSeriesSettings
     /// 对应数据集的名称字段 eg: 月份
     /// </summary>
     public string? Name { get; set; } = null!;
+
+    public PieSeriesSettings Clone() => new() { DataSet = DataSet, Field = Field, Name = Name };
 }
