@@ -58,8 +58,8 @@ internal sealed class CartesianSeriesDialog : Dialog
                 {
                     new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAddSeries() },
                     new Button(icon: MaterialIcons.Remove) { OnTap = _ => OnRemoveSeries() },
-                    new Button(icon: MaterialIcons.ArrowUpward),
-                    new Button(icon: MaterialIcons.ArrowDownward)
+                    new Button(icon: MaterialIcons.ArrowUpward) { OnTap = _ => OnMoveUp() },
+                    new Button(icon: MaterialIcons.ArrowDownward) { OnTap = _ => OnMoveDown() }
                 }
             }
         }
@@ -136,5 +136,31 @@ internal sealed class CartesianSeriesDialog : Dialog
 
         _dataGridController.Remove(_current.Value);
         _dataGridController.TrySelectFirstRow();
+    }
+
+    private void OnMoveUp()
+    {
+        var curIndex = _dataGridController.CurrentRowIndex;
+        if (curIndex <= 0) return;
+
+        var cur = _list[curIndex];
+        _list.RemoveAt(curIndex);
+        _list.Insert(curIndex - 1, cur);
+
+        _dataGridController.SelectAt(curIndex - 1);
+        _dataGridController.Refresh();
+    }
+
+    private void OnMoveDown()
+    {
+        var curIndex = _dataGridController.CurrentRowIndex;
+        if (curIndex < 0 || curIndex == _list.Count - 1) return;
+
+        var cur = _list[curIndex];
+        _list.RemoveAt(curIndex);
+        _list.Insert(curIndex + 1, cur);
+
+        _dataGridController.SelectAt(curIndex + 1);
+        _dataGridController.Refresh();
     }
 }
