@@ -55,5 +55,6 @@ public sealed class DynamicCartesianChart : SingleChildWidget
 
         if (_series != null /*&& _chart.Series == null*/)
             OnSeriesChanged();
+        //TODO: else 填充mock series
     }
 }

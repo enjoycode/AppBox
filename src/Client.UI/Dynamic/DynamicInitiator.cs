@@ -20,7 +20,11 @@ public sealed class DynamicInitiator
         DynamicWidgetManager.Register(
             DynamicWidgetMeta.Make<DynamicPieChart>(MaterialIcons.PieChart,
                 catalog: "Chart",
-                name: "PieChart"));
+                name: "PieChart",
+                properties: new DynamicPropertyMeta[]
+                {
+                    new("Series", typeof(PieSeriesSettings), true),
+                }));
     }
 
     public static void TryInit() { }

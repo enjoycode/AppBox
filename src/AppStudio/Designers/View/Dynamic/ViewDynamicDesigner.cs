@@ -26,7 +26,9 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
             DynamicInitiator.TryInit();
             // 初始化其他属性编辑器
             PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesEditor>(true);
+                .RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
+            PixUI.Dynamic.Design.PropertyEditor
+                .RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
         }
     }
 

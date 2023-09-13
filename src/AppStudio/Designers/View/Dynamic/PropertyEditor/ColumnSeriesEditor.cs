@@ -4,7 +4,7 @@ using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign.PropertyEditor;
 
-internal sealed class ColumnSeriesEditor : SeriesEditor<ColumnSeriesSettings>
+internal sealed class ColumnSeriesEditor : CartesianSeriesEditor<ColumnSeriesSettings>
 {
     public ColumnSeriesEditor(State<ColumnSeriesSettings> state,
         DataGridController<CartesianSeriesSettings> dataGridController, DesignController designController)
