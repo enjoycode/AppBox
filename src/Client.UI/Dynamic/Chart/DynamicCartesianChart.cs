@@ -53,8 +53,12 @@ public sealed class DynamicCartesianChart : SingleChildWidget
     {
         base.OnMounted();
 
+        if (Parent is IDesignElement)
+            _chart.EasingFunction = null; //disable animation in design time
+
         if (_series != null /*&& _chart.Series == null*/)
             OnSeriesChanged();
-        //TODO: else 填充mock series
+        else
+            _chart.Series = new ISeries[] { new ColumnSeries<float>() { Values = new float[] { 1, 2, 3, 4, 5, 6 } } };
     }
 }
