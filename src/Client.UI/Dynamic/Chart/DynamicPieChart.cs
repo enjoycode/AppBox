@@ -1,6 +1,5 @@
 using System;
-using System.Linq;
-using AppBoxCore;
+using System.Collections.Generic;
 using LiveCharts;
 using LiveChartsCore;
 using PixUI;
@@ -36,24 +35,21 @@ public sealed class DynamicPieChart : SingleChildWidget
         if (_series != null)
         {
             var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
-            if (dynamicView == null)
-                throw new NotImplementedException();
+            if (dynamicView == null) return;
 
-            var ds = (DynamicDataSet?)await dynamicView.GetDataSet(_series.DataSet);
-            if (ds != null)
+            try
             {
-                var runtimeSeries = ds.Select(e =>
-                {
-                    var s = new PieSeries<double?>() { Values = new[] { e[_series.Field].ToDouble() } };
-                    if (!string.IsNullOrEmpty(s.Name))
-                        s.Name = e[_series.Name!].ToString();
-                    if (_series.InnerRadius.HasValue)
-                        s.InnerRadius = _series.InnerRadius.Value;
-                    return s;
-                });
-
+                var runtimeSeries = await _series.Build(dynamicView);
                 _chart.Series = runtimeSeries;
             }
+            catch (Exception e)
+            {
+                Notification.Error($"获取数据集错误: {e.Message}");
+            }
+        }
+        else
+        {
+            _chart.Series = MakeMockSeries();
         }
     }
 
@@ -64,9 +60,16 @@ public sealed class DynamicPieChart : SingleChildWidget
         if (Parent is IDesignElement)
             _chart.EasingFunction = null; //disable animation in design time
 
-        if (_series != null /*&& _chart.Series == null*/)
-            OnSeriesChanged();
-        else
-            _chart.Series = (new float[] { 1, 2, 3, 4, 5, 6 }).AsLiveChartsPieSeries();
+        OnSeriesChanged();
     }
+
+    private static IEnumerable<ISeries> MakeMockSeries() => new PieSeries<float>[]
+    {
+        new() { Values = new[] { 1f } },
+        new() { Values = new[] { 2f } },
+        new() { Values = new[] { 3f } },
+        new() { Values = new[] { 4f } },
+        new() { Values = new[] { 5f } },
+        new() { Values = new[] { 6f } },
+    };
 }

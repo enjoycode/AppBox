@@ -1,3 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AppBoxCore;
+using LiveCharts;
+using LiveChartsCore;
+using PixUI.Dynamic;
+using Log = PixUI.Log;
+
 namespace AppBoxClient.Dynamic;
 
 public sealed class PieSeriesSettings
@@ -20,4 +30,33 @@ public sealed class PieSeriesSettings
     public double? InnerRadius { get; set; }
 
     public PieSeriesSettings Clone() => new() { DataSet = DataSet, Field = Field, Name = Name };
+
+    public async Task<IEnumerable<ISeries>> Build(IDynamicView dynamicView)
+    {
+        var ds = (DynamicDataSet?)await dynamicView.GetDataSet(DataSet);
+        if (ds == null) return Array.Empty<ISeries>();
+
+        try
+        {
+            var runtimeSeries = ds.Select(e =>
+            {
+                var s = new PieSeries<double?>()
+                {
+                    Values = new[] { e[Field].ToDouble() }
+                };
+                if (!string.IsNullOrEmpty(s.Name))
+                    s.Name = e[Name!].ToString();
+                if (InnerRadius.HasValue)
+                    s.InnerRadius = InnerRadius.Value;
+                return s;
+            });
+
+            return runtimeSeries;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e.Message);
+            return Array.Empty<ISeries>();
+        }
+    }
 }

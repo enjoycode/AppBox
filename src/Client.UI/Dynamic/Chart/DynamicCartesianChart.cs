@@ -1,6 +1,5 @@
 using System;
-using System.Threading.Tasks;
-using AppBoxCore;
+using System.Collections.Generic;
 using LiveCharts;
 using LiveChartsCore;
 using PixUI;
@@ -47,6 +46,10 @@ public sealed class DynamicCartesianChart : SingleChildWidget
 
             _chart.Series = runtimeSeries;
         }
+        else
+        {
+            _chart.Series = MakeMockSeries();
+        }
     }
 
     protected override void OnMounted()
@@ -56,9 +59,9 @@ public sealed class DynamicCartesianChart : SingleChildWidget
         if (Parent is IDesignElement)
             _chart.EasingFunction = null; //disable animation in design time
 
-        if (_series != null /*&& _chart.Series == null*/)
-            OnSeriesChanged();
-        else
-            _chart.Series = new ISeries[] { new ColumnSeries<float>() { Values = new float[] { 1, 2, 3, 4, 5, 6 } } };
+        OnSeriesChanged();
     }
+
+    private static IEnumerable<ISeries> MakeMockSeries() =>
+        new ISeries[] { new ColumnSeries<float>() { Values = new float[] { 1, 2, 3, 4, 5, 6 } } };
 }
