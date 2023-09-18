@@ -21,7 +21,17 @@ public sealed class AxisSettings
     /// </summary>
     public string? Formatter { get; set; }
 
-    public AxisSettings Clone() => new() { Name = Name, DataSet = DataSet, Labels = Labels, Formatter = Formatter };
+    public double? MinStep { get; set; }
+
+    public bool ForceStepToMin { get; set; }
+
+    public double? TextSize { get; set; }
+
+    public AxisSettings Clone() => new()
+    {
+        Name = Name, DataSet = DataSet, Labels = Labels, Formatter = Formatter,
+        MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
+    };
 
     public async ValueTask<LiveCharts.Axis> Buid(IDynamicView dynamicView)
     {
@@ -30,6 +40,14 @@ public sealed class AxisSettings
         // {
         //     res.Labeler = v => string.Format(null, Formatter, v);
         // }
+
+        if (TextSize.HasValue) res.TextSize = TextSize.Value;
+        if (MinStep.HasValue) res.MinStep = MinStep.Value;
+        if (ForceStepToMin)
+        {
+            if (!MinStep.HasValue) res.MinStep = 1;
+            res.ForceStepToMin = ForceStepToMin;
+        }
 
         if (!string.IsNullOrEmpty(DataSet) && !string.IsNullOrEmpty(Labels))
         {

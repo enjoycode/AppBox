@@ -29,6 +29,18 @@ internal sealed class AxesEditor : SingleChildWidget
         {
             if (state.Value != null) state.Value.Labels = v;
         });
+        var textSize = new RxProxy<double?>(() => state.Value?.TextSize, v =>
+        {
+            if (state.Value != null) state.Value.TextSize = v;
+        });
+        var minStep = new RxProxy<double?>(() => state.Value?.MinStep, v =>
+        {
+            if (state.Value != null) state.Value.MinStep = v;
+        });
+        var forceMinStep = new RxProxy<bool>(() => state.Value?.ForceStepToMin ?? false, v =>
+        {
+            if (state.Value != null) state.Value.ForceStepToMin = v;
+        });
 
         dataset.Listen(OnDataSetChanged);
         labels.Listen(v => RefreshCurrentRow());
@@ -37,6 +49,9 @@ internal sealed class AxesEditor : SingleChildWidget
             name.NotifyValueChanged();
             dataset.NotifyValueChanged();
             labels.NotifyValueChanged();
+            textSize.NotifyValueChanged();
+            minStep.NotifyValueChanged();
+            forceMinStep.NotifyValueChanged();
         });
 
         var allDataSet = designController.GetAllDataSet().Select(s => s.Name).ToArray();
@@ -45,11 +60,14 @@ internal sealed class AxesEditor : SingleChildWidget
             new("Name", new TextInput(name)),
             new("DataSet", new Select<string>(dataset) { Options = allDataSet }),
             new("Labels", new Select<string>(labels) { Ref = _labelsRef }),
+            new("TextSize", new NumberInput<double>(textSize)),
+            new("MinStep", new NumberInput<double>(minStep)),
+            new("ForceMinStep", new Checkbox(forceMinStep)),
         };
 
         Child = new Form
         {
-            LabelWidth = 90,
+            LabelWidth = 100,
             Children = formItems,
         };
 
