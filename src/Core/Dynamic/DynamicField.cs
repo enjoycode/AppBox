@@ -59,6 +59,18 @@ public struct DynamicField
         }
     }
 
+    public string? StringValue
+    {
+        get
+        {
+            if (!HasValue) return null;
+            var type = _flag & DynamicFieldFlag.TypeMask;
+            if (type != DynamicFieldFlag.String)
+                throw new NotSupportedException();
+            return (string)_ObjectValue!;
+        }
+    }
+
     /// <summary>
     /// 主要用于Chart转换为相应的ChartPoint
     /// </summary>

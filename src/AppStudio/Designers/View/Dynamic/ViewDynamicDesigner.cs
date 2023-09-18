@@ -28,6 +28,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
             PixUI.Dynamic.Design.PropertyEditor
                 .RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
             PixUI.Dynamic.Design.PropertyEditor
+                .RegisterClassValueEditor<AxisSettings[], AxesPropEditor>(true);
+            PixUI.Dynamic.Design.PropertyEditor
                 .RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
         }
     }

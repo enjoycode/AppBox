@@ -16,6 +16,8 @@ public sealed class DynamicInitiator
                 properties: new DynamicPropertyMeta[]
                 {
                     new("Series", typeof(CartesianSeriesSettings[]), true),
+                    new("XAxes", typeof(AxisSettings[]), true),
+                    new("YAxes", typeof(AxisSettings[]), true)
                 }));
         DynamicWidgetManager.Register(
             DynamicWidgetMeta.Make<DynamicPieChart>(MaterialIcons.PieChart,
