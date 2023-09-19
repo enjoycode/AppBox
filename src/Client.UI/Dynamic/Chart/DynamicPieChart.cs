@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using LiveCharts;
+using LiveCharts.Painting;
 using LiveChartsCore;
+using LiveChartsCore.Measure;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -26,6 +28,12 @@ public sealed class DynamicPieChart : SingleChildWidget
             _series = value;
             OnSeriesChanged();
         }
+    }
+
+    public LegendPosition LegendPosition
+    {
+        get => _chart.LegendPosition;
+        set => _chart.LegendPosition = value;
     }
 
     private async void OnSeriesChanged()
@@ -59,7 +67,7 @@ public sealed class DynamicPieChart : SingleChildWidget
 
         if (Parent is IDesignElement)
             _chart.EasingFunction = null; //disable animation in design time
-
+        
         OnSeriesChanged();
     }
 

@@ -58,7 +58,7 @@ public sealed class AxisSettings
                 if (ds == null || index < 0 || index >= ds.Count)
                     return string.Empty;
 
-                return ds[index][Labels].StringValue ?? string.Empty;
+                return ds[index][Labels].ToStringValue();
             };
         }
 

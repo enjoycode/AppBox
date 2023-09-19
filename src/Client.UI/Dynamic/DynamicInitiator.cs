@@ -1,5 +1,6 @@
 using AppBoxCore;
 using LiveChartsCore;
+using LiveChartsCore.Measure;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -26,6 +27,7 @@ public sealed class DynamicInitiator
                 properties: new DynamicPropertyMeta[]
                 {
                     new("Series", typeof(PieSeriesSettings), true),
+                    new("LegendPosition", typeof(LegendPosition), false),
                 }));
     }
 

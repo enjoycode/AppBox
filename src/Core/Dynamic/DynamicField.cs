@@ -91,6 +91,27 @@ public struct DynamicField
         };
     }
 
+    public string ToStringValue()
+    {
+        var type = _flag & DynamicFieldFlag.TypeMask;
+        return type switch
+        {
+            DynamicFieldFlag.String => $"{(string)_ObjectValue!}",
+            DynamicFieldFlag.Binary => StringUtil.ToHexString((byte[])_ObjectValue!)!,
+            DynamicFieldFlag.Bool => BoolValue.ToString(),
+            DynamicFieldFlag.Byte => ByteValue.ToString(),
+            DynamicFieldFlag.Short => ShortValue.ToString(),
+            DynamicFieldFlag.Int => IntValue.ToString(),
+            DynamicFieldFlag.Long => LongValue.ToString(),
+            DynamicFieldFlag.Float => FloatValue.ToString(CultureInfo.InvariantCulture),
+            DynamicFieldFlag.Double => DoubleValue.ToString(CultureInfo.InvariantCulture),
+            DynamicFieldFlag.DateTime => DateTimeValue.ToString(CultureInfo.InvariantCulture),
+            DynamicFieldFlag.Decimal => DecimalValue.ToString(CultureInfo.InvariantCulture),
+            DynamicFieldFlag.Guid => $"{GuidValue.ToString()}",
+            _ => string.Empty
+        };
+    }
+
     public override string ToString()
     {
         var type = _flag & DynamicFieldFlag.TypeMask;

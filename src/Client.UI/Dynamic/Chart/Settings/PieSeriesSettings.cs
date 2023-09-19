@@ -4,7 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AppBoxCore;
 using LiveCharts;
+using LiveCharts.Painting;
 using LiveChartsCore;
+using LiveChartsCore.Drawing;
+using LiveChartsCore.Measure;
+using PixUI;
 using PixUI.Dynamic;
 using Log = PixUI.Log;
 
@@ -44,12 +48,15 @@ public sealed class PieSeriesSettings
                 {
                     Values = new[] { e[Field].ToDouble() }
                 };
-                if (!string.IsNullOrEmpty(s.Name))
-                    s.Name = e[Name!].ToString();
+                if (!string.IsNullOrEmpty(Name))
+                    s.Name = e[Name!].ToStringValue();
                 if (InnerRadius.HasValue)
                     s.InnerRadius = InnerRadius.Value;
+                // s.DataLabelsPaint = new SolidColorPaint { Color = Colors.Black };
+                // s.DataLabelsPosition = PolarLabelsPosition.Outer;
+                // s.DataLabelsFormatter = point => $"{point.StackedValue?.Share:P0}";
                 return s;
-            });
+            }).ToArray() /*Must ToArray()*/;
 
             return runtimeSeries;
         }
