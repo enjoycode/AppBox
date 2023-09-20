@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Xml;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -61,12 +62,10 @@ internal static class ModelCodeUtil
         if (bytesRead != 4) throw new Exception("Read total chars error");
 
         //再解压代码
-        var len = data.Length - 4;
-        var res = new byte[len];
         using var ds = new BrotliStream(ms, CompressionMode.Decompress, true);
-        bytesRead = ds.Read(res);
-        if (bytesRead != len) throw new Exception("Read utf8 bytes error");
+        using var output = new MemoryStream(1024);
+        ds.CopyTo(output);
 
-        return res;
+        return output.ToArray();
     }
 }

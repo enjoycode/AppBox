@@ -14,7 +14,12 @@ namespace PixUI;
 /// </summary>
 public sealed class DynamicWidget : DynamicView, IDynamicView
 {
-    public DynamicWidget(long viewModelId)
+    static DynamicWidget()
+    {
+        DynamicInitiator.TryInit();
+    }
+
+    public DynamicWidget(long viewModelId /*, IDictionary<string, object?>? initProps = null*/)
     {
         _viewModelId = viewModelId;
     }
