@@ -47,4 +47,26 @@ internal static class ModelCodeUtil
         });
         return res;
     }
+
+    /// <summary>
+    /// 仅解压代码为utf8字节数组，不转换为字符串
+    /// </summary>
+    internal static unsafe byte[] DecompressCodeToUtf8Bytes(byte[] data)
+    {
+        using var ms = new MemoryStream(data);
+        //先读取字符数
+        var chars = 0;
+        var span = new Span<byte>(&chars, 4);
+        var bytesRead = ms.Read(span);
+        if (bytesRead != 4) throw new Exception("Read total chars error");
+
+        //再解压代码
+        var len = data.Length - 4;
+        var res = new byte[len];
+        using var ds = new BrotliStream(ms, CompressionMode.Decompress, true);
+        bytesRead = ds.Read(res);
+        if (bytesRead != len) throw new Exception("Read utf8 bytes error");
+
+        return res;
+    }
 }

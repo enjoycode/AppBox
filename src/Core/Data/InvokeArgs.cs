@@ -106,6 +106,13 @@ public readonly struct InvokeArgs
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
 
+    public long GetLong()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.Int64) return _stream.ReadLong();
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
     public DateTime GetDateTime()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();

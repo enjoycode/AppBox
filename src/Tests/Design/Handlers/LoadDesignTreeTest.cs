@@ -18,4 +18,14 @@ public sealed class LoadDesignTreeTest
         await designHub.DesignTree.LoadAsync();
         Console.WriteLine("Done.");
     }
+    
+    [Test]
+    public async Task TestGetModelId()
+    {
+        var designHub = await TestHelper.MockSession();
+
+        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.DemoDynamic")!;
+        long modelId = modelNode.Model.Id;
+        Console.WriteLine(modelId);
+    }
 }

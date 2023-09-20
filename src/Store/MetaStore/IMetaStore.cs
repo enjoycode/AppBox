@@ -56,6 +56,12 @@ public interface IMetaStore
     Task<string> LoadModelCodeAsync(ModelId modelId);
 
     /// <summary>
+    /// 用于运行时加载动态视图模型的json配置
+    /// </summary>
+    /// <returns>utf8 bytes</returns>
+    Task<byte[]?> LoadDynamicViewJsonAsync(ModelId viewModelId);
+
+    /// <summary>
     /// 加载客户端应用的程序集
     /// </summary>
     /// <param name="assemblyName">16进制编码的序号</param>

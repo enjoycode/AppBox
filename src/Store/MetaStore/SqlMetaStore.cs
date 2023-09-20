@@ -269,6 +269,17 @@ public sealed class SqlMetaStore : IMetaStore
         return ModelCodeUtil.DecompressCode(data!);
     }
 
+    /// <summary>
+    /// 用于运行时加载动态视图模型的json配置
+    /// </summary>
+    /// <returns>utf8 bytes</returns>
+    public async Task<byte[]?> LoadDynamicViewJsonAsync(ModelId viewModelId)
+    {
+        var data = await LoadMetaDataAsync(Meta_Code, viewModelId.ToString());
+        if (data == null || data.Length == 0) return null;
+        return ModelCodeUtil.DecompressCodeToUtf8Bytes(data);
+    }
+
     // /// <summary>
     // /// 加载指定应用的第三方组件列表，仅用于设计时前端绑定
     // /// </summary>

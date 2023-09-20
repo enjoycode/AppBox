@@ -158,40 +158,24 @@ internal sealed class SystemService : IService
     }
 
     /// <summary>
-    /// 获取运行时视图模型所依赖的所有程序集
-    /// </summary>
-    /// <param name="viewModelName">eg: sys.HomePage</param>
-    /// <returns>json: ["A","B"]</returns>
-    private static Task<byte[]?> GetViewAssemblies(string viewModelName) =>
-        MetaStore.Provider.LoadViewAssembliesAsync(viewModelName);
-
-    private static Task<byte[]?> LoadAppAssembly(string assemblyName) =>
-        MetaStore.Provider.LoadAppAssemblyAsync(assemblyName);
-
-    /// <summary>
     /// Only for test
     /// </summary>
-    private ValueTask<string> Hello(string name)
+    private static ValueTask<string> Hello(string name)
     {
         return new ValueTask<string>($"Hello {name}");
     }
 
     public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
     {
-        return method switch
+        return method.Span switch
         {
-            _ when method.Span.SequenceEqual(nameof(Login)) => AnyValue.From(
-                await Login(args.GetString()!, args.GetString()!)),
-            _ when method.Span.SequenceEqual(nameof(GetViewAssemblies)) => AnyValue.From(
-                await GetViewAssemblies(args.GetString()!)),
-            _ when method.Span.SequenceEqual(nameof(LoadAppAssembly)) => AnyValue.From(
-                await LoadAppAssembly(args.GetString()!)),
-            _ when method.Span.SequenceEqual(nameof(LoadPermissionTree)) => AnyValue.From(
-                await LoadPermissionTree()),
-            _ when method.Span.SequenceEqual(nameof(SavePermission)) => AnyValue.From(
-                await SavePermission(args.GetString()!, args.GetArray<Guid>())),
-            _ when method.Span.SequenceEqual(nameof(Hello)) => AnyValue.From(
-                await Hello(args.GetString()!)),
+            nameof(Login) => AnyValue.From(await Login(args.GetString()!, args.GetString()!)),
+            "GetViewAssemblies" => AnyValue.From(await MetaStore.Provider.LoadViewAssembliesAsync(args.GetString()!)),
+            "LoadAppAssembly" => AnyValue.From(await MetaStore.Provider.LoadAppAssemblyAsync(args.GetString()!)),
+            "LoadDynamicViewJson" => AnyValue.From(await MetaStore.Provider.LoadDynamicViewJsonAsync(args.GetLong())),
+            nameof(LoadPermissionTree) => AnyValue.From(await LoadPermissionTree()),
+            nameof(SavePermission) => AnyValue.From(await SavePermission(args.GetString()!, args.GetArray<Guid>())),
+            nameof(Hello) => AnyValue.From(await Hello(args.GetString()!)),
             _ => throw new Exception($"Can't find method: {method}")
         };
     }
