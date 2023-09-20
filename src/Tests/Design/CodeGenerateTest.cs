@@ -59,7 +59,7 @@ public class CodeGenerateTest
     public async Task GenViewRuntimeCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var node = designHub.DesignTree.FindModelNodeByFullName("sys.Views.OrgUnitsView")!;
+        var node = designHub.DesignTree.FindModelNodeByFullName("sys.Views.Demo1")!;
         var generator = await ViewCsGenerator.Make(designHub, node, false);
         var syntaxTree = await generator.GetRuntimeSyntaxTree();
         Console.WriteLine(syntaxTree.ToString());

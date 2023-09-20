@@ -177,7 +177,9 @@ internal sealed class TypeSystem : IDisposable
                 }
                 else if (viewModel.ViewType == ViewModelType.PixUIDynamic)
                 {
-                    //TODO:
+                    //动态视图只需要简单生成虚拟代码
+                    var sourceCode = $"namespace {appName}.Views; public sealed class {model.Name}: PixUI.Widget {{}}";
+                    newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
                 }
 
                 break;
