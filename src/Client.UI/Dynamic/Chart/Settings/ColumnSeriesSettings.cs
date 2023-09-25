@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AppBoxCore;
 using LiveCharts;
 using LiveChartsCore;
+using LiveChartsCore.Kernel;
 using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
@@ -29,8 +30,7 @@ public sealed class ColumnSeriesSettings : CartesianSeriesSettings
                 var v = obj[Field].ToDouble();
                 if (v.HasValue)
                 {
-                    point.PrimaryValue = v.Value;
-                    point.SecondaryValue = point.Context.Entity.EntityIndex;
+                    point.Coordinate = new Coordinate(point.Index, v.Value);
                 }
             }
         };
