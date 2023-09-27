@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using AppBoxCore;
 using PixUI;
@@ -47,18 +48,19 @@ public sealed class DataSetSettings : IDynamicDataSetStateValue
 
     #region ====Runtime DataSet====
 
-    private bool _hasFetch = false;
-    private object? _fetchedDataSet;
+    private int _fetchFlag = 0;
+    private Task<DynamicDataSet?> _fetchTask = null!;
 
     public async ValueTask<object?> GetRuntimeDataSet()
     {
-        if (_hasFetch) return _fetchedDataSet;
+        if (Interlocked.CompareExchange(ref _fetchFlag, 1, 0) == 0)
+        {
+            _fetchTask = Channel.Invoke<DynamicDataSet>(Service); //TODO: args
+        }
 
         try
         {
-            _fetchedDataSet = await Channel.Invoke<DynamicDataSet>(Service); //TODO: args
-            _hasFetch = true;
-            return _fetchedDataSet;
+            return await _fetchTask;
         }
         catch (Exception e)
         {

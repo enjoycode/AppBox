@@ -18,6 +18,7 @@
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net7.0::Tests.ClientUI.ChartSeriesSerializationTest.Test1&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net7.0::Tests.Core.EntityTest.StringFormatTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net7.0::Tests.Design.Handlers.LoadDesignTreeTest.TestGetModelId&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net7.0::Tests.Core.EntityTest.MultiWaitTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	
