@@ -26,7 +26,9 @@ internal sealed class BuildApp : IDesignHandler
         {
             var appNode = hub.DesignTree.AppRootNode.Children[i];
             var viewRootNode = appNode.FindModelRootNode(ModelType.View);
-            var viewModels = viewRootNode.GetAllModelNodes();
+            var viewModels = viewRootNode.GetAllModelNodes()
+                .Where(n => ((ViewModel)n.Model).ViewType == ViewModelType.PixUI) //仅代码视图模型
+                .ToArray();
             foreach (var viewModelNode in viewModels)
             {
                 await AnalyseView(ctx, viewModelNode);
