@@ -3,11 +3,9 @@ using CodeEditor;
 
 namespace AppBoxDesign;
 
-internal sealed class FormatDocumentCommand : IEditCommand
+internal static class FormatDocumentCommand
 {
-    internal static readonly FormatDocumentCommand Default = new();
-
-    public async void Execute(TextEditor editor)
+    public static async void Execute(TextEditor editor)
     {
         var modelIdString = editor.Document.Tag!;
 

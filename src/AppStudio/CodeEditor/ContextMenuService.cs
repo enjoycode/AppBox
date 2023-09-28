@@ -10,11 +10,11 @@ internal static class ContextMenuService
 {
     internal static MenuItem[] BuildContextMenu(DesignStore designStore, TextEditor textEditor)
     {
-        return new MenuItem[]
+        return new[]
         {
-            MenuItem.Item("Goto Definition", null, () => new GotoDefinitionCommand(designStore).Execute(textEditor)),
+            MenuItem.Item("Goto Definition", null, () => GotoDefinitionCommand.Execute(designStore, textEditor)),
             MenuItem.Divider(),
-            MenuItem.Item("Format Document", null, () => FormatDocumentCommand.Default.Execute(textEditor)),
+            MenuItem.Item("Format Document", null, () => FormatDocumentCommand.Execute(textEditor)),
         };
     }
 }

@@ -4,16 +4,9 @@ using CodeEditor;
 
 namespace AppBoxDesign;
 
-internal sealed class GotoDefinitionCommand : IEditCommand
+internal static class GotoDefinitionCommand
 {
-    public GotoDefinitionCommand(DesignStore designStore)
-    {
-        _designStore = designStore;
-    }
-
-    private readonly DesignStore _designStore;
-
-    public async void Execute(TextEditor editor)
+    public static async void Execute(DesignStore designStore, TextEditor editor)
     {
         var modelIdString = editor.Document.Tag!;
         var line = editor.Caret.Line;
@@ -24,9 +17,9 @@ internal sealed class GotoDefinitionCommand : IEditCommand
         if (res == null) return;
 
         //找到对应的节点, TODO: 考虑优化当前节点即目标节点
-        var node = _designStore.FindDesignNodeById(res.ModelId);
+        var node = designStore.FindDesignNodeById(res.ModelId);
         if (node != null)
-            _designStore.OpenOrActiveDesigner(node, res); //打开或激活节点
+            designStore.OpenOrActiveDesigner(node, res); //打开或激活节点
     }
 
     internal static void RunOnCodeEditor(CodeEditorController controller, ReferenceVO reference)
