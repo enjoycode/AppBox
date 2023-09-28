@@ -4,17 +4,21 @@ namespace AppBoxDesign;
 
 internal sealed class BottomPad : View
 {
-    public BottomPad()
+    public BottomPad(DesignStore designStore)
     {
+        _designStore = designStore;
+        
         Child = new Container()
         {
             Height = 190,
-            Child = new TabView<string>(DesignStore.BottomPadController, BuildTab, BuildBody, false, 40)
+            Child = new TabView<string>(_designStore.BottomPadController, BuildTab, BuildBody, false, 40)
             {
                 SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3)
             },
         };
     }
+
+    private readonly DesignStore _designStore;
 
     private static Widget BuildTab(string title, State<bool> isSelected)
     {
@@ -25,11 +29,11 @@ internal sealed class BottomPad : View
         return new Text(title) { TextColor = textColor };
     }
 
-    private static Widget BuildBody(string title)
+    private Widget BuildBody(string title)
     {
         if (title == "Problems")
         {
-            return new DataGrid<CodeProblem>(DesignStore.ProblemsController)
+            return new DataGrid<CodeProblem>(_designStore.ProblemsController)
             {
                 Columns =
                 {
@@ -43,7 +47,7 @@ internal sealed class BottomPad : View
                             Style = ButtonStyle.Transparent,
                             Shape = ButtonShape.Pills,
                             FontSize = 20,
-                            OnTap = _ => DesignStore.GotoProblem(p)
+                            OnTap = _ => _designStore.GotoProblem(p)
                         },
                         ColumnWidth.Fixed(80)),
                 }
@@ -52,7 +56,7 @@ internal sealed class BottomPad : View
 
         if (title == "Usages")
         {
-            return new DataGrid<ReferenceVO>(DesignStore.UsagesController)
+            return new DataGrid<ReferenceVO>(_designStore.UsagesController)
             {
                 Columns =
                 {
@@ -64,7 +68,7 @@ internal sealed class BottomPad : View
                             Style = ButtonStyle.Transparent,
                             Shape = ButtonShape.Pills,
                             FontSize = 20,
-                            OnTap = _ => DesignStore.GotoReference(p)
+                            OnTap = _ => _designStore.GotoReference(p)
                         },
                         ColumnWidth.Fixed(80))
                 }

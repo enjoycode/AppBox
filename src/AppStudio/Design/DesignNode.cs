@@ -137,12 +137,12 @@ namespace AppBoxDesign
             ModelRootNode = modelRootNode;
         }
 
-        public readonly ModelRootNodeVO ModelRootNode;
+        public ModelRootNodeVO ModelRootNode { get; internal set; }
 
         public override DesignNodeType Type => DesignNodeType.FolderNode;
 
-        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
-        public override IList<DesignNodeVO>? Children => _children;
+        private readonly List<DesignNodeVO> _children = new();
+        public override IList<DesignNodeVO> Children => _children;
 
         public override void ReadFrom(IInputStream rs)
         {
@@ -173,7 +173,7 @@ namespace AppBoxDesign
             ModelRootNode = modelRootNode;
         }
 
-        public readonly ModelRootNodeVO ModelRootNode;
+        public ModelRootNodeVO ModelRootNode { get; internal set; }
 
         public string AppName => ModelRootNode.ApplicationNode.Label.Value;
 

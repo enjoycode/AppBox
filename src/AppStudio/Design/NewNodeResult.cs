@@ -1,60 +1,79 @@
 using System;
+using System.Diagnostics;
 using AppBoxCore;
 using PixUI;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+internal sealed class NewNodeResult : IBinSerializable
 {
-    internal sealed class NewNodeResult : IBinSerializable
+    public NewNodeResult() { }
+
+    public DesignNodeType ParentNodeType { get; private set; }
+    public string ParentNodeId { get; private set; } = null!;
+    public DesignNodeVO NewNode { get; private set; } = null!;
+    public string? RootNodeId { get; private set; }
+    public int InsertIndex { get; private set; }
+
+    public TreeNode<DesignNodeVO> ParentNode { get; private set; } = null!;
+
+    public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
+
+    public void ReadFrom(IInputStream rs)
     {
-        public DesignNodeType ParentNodeType { get; private set; }
-        public string ParentNodeId { get; private set; } = null!;
-        public DesignNodeVO NewNode { get; private set; } = null!;
-        public string? RootNodeId { get; private set; }
-        public int InsertIndex { get; private set; }
+        ParentNodeType = (DesignNodeType)rs.ReadByte();
+        ParentNodeId = rs.ReadString()!;
+        RootNodeId = rs.ReadString();
+        InsertIndex = rs.ReadInt();
 
-        public TreeNode<DesignNodeVO> ParentNode { get; private set; } = null!;
-
-        public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
-
-        public void ReadFrom(IInputStream rs)
+        var newNodeType = (DesignNodeType)rs.ReadByte();
+        ModelRootNodeVO modelRootNode = null!;
+        NewNode = newNodeType switch
         {
-            ParentNodeType = (DesignNodeType)rs.ReadByte();
-            ParentNodeId = rs.ReadString()!;
-            RootNodeId = rs.ReadString();
-            InsertIndex = rs.ReadInt();
+            DesignNodeType.FolderNode => new FolderNodeVO(modelRootNode),
+            DesignNodeType.ModelNode => new ModelNodeVO(modelRootNode),
+            DesignNodeType.DataStoreNode => new DataStoreNodeVO(),
+            _ => throw new NotSupportedException()
+        };
 
-            //find parent node
-            ParentNode = DesignStore.TreeController.FindNode(
-                n => n.Type == ParentNodeType && n.Id == ParentNodeId)!;
+        NewNode.ReadFrom(rs);
+    }
 
-            var newNodeType = (DesignNodeType)rs.ReadByte();
-            switch (newNodeType)
-            {
-                case DesignNodeType.FolderNode:
-                    NewNode = new FolderNodeVO(GetModelRootNode(ParentNode));
-                    break;
-                case DesignNodeType.ModelNode:
-                    NewNode = new ModelNodeVO(GetModelRootNode(ParentNode));
-                    break;
-                case DesignNodeType.DataStoreNode:
-                    NewNode = new DataStoreNodeVO();
-                    break;
-                default:
-                    throw new NotSupportedException();
-            }
+    /// <summary>
+    /// 新建的节点反序列化后映射至模型树
+    /// </summary>
+    internal void ResolveToTree(DesignStore designStore)
+    {
+        ParentNode = designStore.TreeController.FindNode(
+            n => n.Type == ParentNodeType && n.Id == ParentNodeId)!;
+        ResolveNodeToTree(NewNode, GetModelRootNode(ParentNode));
+    }
 
-            NewNode.ReadFrom(rs);
-        }
-
-        private static ModelRootNodeVO GetModelRootNode(TreeNode<DesignNodeVO> parentNode)
+    private static void ResolveNodeToTree(DesignNodeVO node, ModelRootNodeVO modelRootNode)
+    {
+        if (node is FolderNodeVO folderNode)
         {
-            switch (parentNode.Data.Type)
-            {
-                case DesignNodeType.ModelRootNode: return (ModelRootNodeVO)parentNode.Data;
-                case DesignNodeType.FolderNode:
-                    return ((FolderNodeVO)parentNode.Data).ModelRootNode;
-                default: throw new NotSupportedException();
-            }
+            folderNode.ModelRootNode = modelRootNode;
+            Debug.Assert(folderNode.Children.Count == 0);
+            // 以下不需要，新建的没有子节点
+            // foreach (var childNode in folderNode.Children)
+            // {
+            //     ResolveNodeToTree(childNode, modelRootNode);
+            // }
         }
+        else if (node is ModelNodeVO modelNode)
+        {
+            modelNode.ModelRootNode = modelRootNode;
+        }
+    }
+
+    private static ModelRootNodeVO GetModelRootNode(TreeNode<DesignNodeVO> parentNode)
+    {
+        return parentNode.Data.Type switch
+        {
+            DesignNodeType.ModelRootNode => (ModelRootNodeVO)parentNode.Data,
+            DesignNodeType.FolderNode => ((FolderNodeVO)parentNode.Data).ModelRootNode,
+            _ => throw new NotSupportedException()
+        };
     }
 }

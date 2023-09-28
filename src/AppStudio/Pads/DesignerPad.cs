@@ -7,16 +7,17 @@ namespace AppBoxDesign
 {
     internal sealed class DesignerPad : View
     {
-        public DesignerPad()
+        public DesignerPad(DesignStore designStore)
         {
-            DesignStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
-            DesignStore.DesignerController.TabAdded += OnDesignerOpened;
-            DesignStore.DesignerController.TabClosed += OnDesignerClosed;
+            _designStore = designStore;
+            _designStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
+            _designStore.DesignerController.TabAdded += OnDesignerOpened;
+            _designStore.DesignerController.TabClosed += OnDesignerClosed;
 
             BgColor = Colors.White;
 
             Child = new IfConditional(_isOpenedAnyDesigner,
-                () => new TabView<DesignNodeVO>(DesignStore.DesignerController, BuildTab, BuildBody, true, 40)
+                () => new TabView<DesignNodeVO>(_designStore.DesignerController, BuildTab, BuildBody, true, 40)
                 {
                     SelectedTabColor = Colors.White,
                     TabBarBgColor = new Color(0xFFF3F3F3)
@@ -24,6 +25,7 @@ namespace AppBoxDesign
                 () => new Center { Child = new Text("Welcome to AppBox!") });
         }
 
+        private readonly DesignStore _designStore;
         private readonly State<bool> _isOpenedAnyDesigner = false;
 
         private static Widget BuildTab(DesignNodeVO node, State<bool> isSelected)
@@ -35,7 +37,7 @@ namespace AppBoxDesign
             return new Text(node.Label) { TextColor = textColor };
         }
 
-        private static Widget BuildBody(DesignNodeVO node)
+        private Widget BuildBody(DesignNodeVO node)
         {
             if (node.Type == DesignNodeType.ModelNode)
             {
@@ -43,13 +45,13 @@ namespace AppBoxDesign
                 switch (modelNode.ModelType)
                 {
                     case ModelType.Entity:
-                        var entityDesigner = new EntityDesigner(modelNode);
+                        var entityDesigner = new EntityDesigner(_designStore, modelNode);
                         node.Designer = entityDesigner;
                         return entityDesigner;
                     case ModelType.View:
                         if (modelNode.Tag == 0)
                         {
-                            var viewDesigner = new ViewCodeDesigner(modelNode);
+                            var viewDesigner = new ViewCodeDesigner(_designStore, modelNode);
                             node.Designer = viewDesigner;
                             return viewDesigner;
                         }
@@ -62,7 +64,7 @@ namespace AppBoxDesign
                         else
                             throw new Exception();
                     case ModelType.Service:
-                        var designer = new ServiceDesigner(modelNode);
+                        var designer = new ServiceDesigner(_designStore, modelNode);
                         node.Designer = designer;
                         return designer;
                 }
@@ -78,12 +80,12 @@ namespace AppBoxDesign
 
         private void OnDesignerOpened(DesignNodeVO node)
         {
-            _isOpenedAnyDesigner.Value = DesignStore.DesignerController.Count > 0;
+            _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
         }
 
         private async void OnDesignerClosed(DesignNodeVO node)
         {
-            _isOpenedAnyDesigner.Value = DesignStore.DesignerController.Count > 0;
+            _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
 
             node.Designer = null;
             if (node.Type == DesignNodeType.ModelNode)
@@ -95,12 +97,12 @@ namespace AppBoxDesign
             }
         }
 
-        private static void OnTreeSelectionChanged()
+        private void OnTreeSelectionChanged()
         {
-            var currentNode = DesignStore.TreeController.FirstSelectedNode;
-            if (currentNode != null && currentNode.Data is ModelNodeVO)
+            var currentNode = _designStore.TreeController.FirstSelectedNode;
+            if (currentNode is { Data: ModelNodeVO })
             {
-                DesignStore.OpenOrActiveDesigner(currentNode.Data, null);
+                _designStore.OpenOrActiveDesigner(currentNode.Data, null);
             }
         }
     }

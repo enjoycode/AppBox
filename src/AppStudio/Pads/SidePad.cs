@@ -14,9 +14,12 @@ namespace AppBoxDesign
     {
         private readonly State<Color> _buttonColor = Colors.White;
         private readonly State<float> _buttonSize = 25;
+        private readonly DesignStore _designStore;
 
-        public NaviBar()
+        public NaviBar(DesignStore designStore)
         {
+            _designStore = designStore;
+
             Child = new Container
             {
                 Padding = EdgeInsets.Only(5, 0, 0, 0),
@@ -49,7 +52,7 @@ namespace AppBoxDesign
         {
             var color = _buttonColor;
             if (type != null)
-                color = DesignStore.ActiveSidePad.ToComputed(s =>
+                color = _designStore.ActiveSidePad.ToComputed(s =>
                     s == type ? new Color(0xFF4AC5EA) : new Color(0xFF6A7785));
 
             return new Button(null, icon)
@@ -63,28 +66,28 @@ namespace AppBoxDesign
         private void OnClick(SidePadType? type)
         {
             if (type != null)
-                DesignStore.ActiveSidePad.Value = type.Value;
+                _designStore.ActiveSidePad.Value = type.Value;
         }
     }
 
     internal sealed class SidePad : View
     {
-        public SidePad()
+        public SidePad(DesignStore designStore)
         {
             Child = new Row
             {
                 Children =
                 {
-                    new NaviBar(),
+                    new NaviBar(designStore),
                     new Container
                     {
                         DebugLabel = "SidePad",
                         Padding = EdgeInsets.All(5),
                         Width = 250, BgColor = new Color(0xFFF3F3F3),
-                        Child = new Conditional<SidePadType>(DesignStore.ActiveSidePad)
-                            .When(t => t == SidePadType.DesignTree, () => new DesignTreePad())
-                            .When(t => t == SidePadType.Outline, () => new OutlinePad())
-                            .When(t => t == SidePadType.Toolbox, () => new ToolboxPad())
+                        Child = new Conditional<SidePadType>(designStore.ActiveSidePad)
+                            .When(t => t == SidePadType.DesignTree, () => new DesignTreePad(designStore))
+                            .When(t => t == SidePadType.Outline, () => new OutlinePad(designStore))
+                            .When(t => t == SidePadType.Toolbox, () => new ToolboxPad(designStore))
                             .When(t => t == SidePadType.Settings, () => new SettingsPad())
                     }
                 }

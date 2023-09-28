@@ -8,11 +8,11 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class ContextMenuService
 {
-    internal static MenuItem[] BuildContextMenu(TextEditor textEditor)
+    internal static MenuItem[] BuildContextMenu(DesignStore designStore, TextEditor textEditor)
     {
         return new MenuItem[]
         {
-            MenuItem.Item("Goto Definition", null, () => GotoDefinitionCommand.Default.Execute(textEditor)),
+            MenuItem.Item("Goto Definition", null, () => new GotoDefinitionCommand(designStore).Execute(textEditor)),
             MenuItem.Divider(),
             MenuItem.Item("Format Document", null, () => FormatDocumentCommand.Default.Execute(textEditor)),
         };

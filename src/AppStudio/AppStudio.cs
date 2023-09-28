@@ -1,40 +1,41 @@
 using PixUI;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+public sealed class AppStudio : View
 {
-    public sealed class AppStudio : View
+    public AppStudio()
     {
-        public AppStudio()
+        Child = new Column
         {
-            Child = new Column
+            Children =
             {
-                Children =
+                new MainMenuPad(DesignStore),
+                new Expanded
                 {
-                    new MainMenuPad(),
-                    new Expanded
+                    Child = new Row
                     {
-                        Child = new Row
+                        Children =
                         {
-                            Children =
+                            new SidePad(DesignStore),
+                            new Expanded()
                             {
-                                new SidePad(),
-                                new Expanded()
+                                Child = new Column()
                                 {
-                                    Child = new Column()
+                                    Children =
                                     {
-                                        Children =
-                                        {
-                                            new Expanded() { Child = new DesignerPad() },
-                                            new BottomPad(),
-                                        }
+                                        new Expanded() { Child = new DesignerPad(DesignStore) },
+                                        new BottomPad(DesignStore),
                                     }
                                 }
                             }
                         }
-                    },
-                    new FooterPad()
-                }
-            };
-        }
+                    }
+                },
+                new FooterPad()
+            }
+        };
     }
+
+    internal readonly DesignStore DesignStore = new();
 }

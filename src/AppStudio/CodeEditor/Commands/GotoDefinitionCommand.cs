@@ -6,7 +6,12 @@ namespace AppBoxDesign;
 
 internal sealed class GotoDefinitionCommand : IEditCommand
 {
-    internal static readonly GotoDefinitionCommand Default = new();
+    public GotoDefinitionCommand(DesignStore designStore)
+    {
+        _designStore = designStore;
+    }
+
+    private readonly DesignStore _designStore;
 
     public async void Execute(TextEditor editor)
     {
@@ -19,9 +24,9 @@ internal sealed class GotoDefinitionCommand : IEditCommand
         if (res == null) return;
 
         //找到对应的节点, TODO: 考虑优化当前节点即目标节点
-        var node = DesignStore.FindDesignNodeById(res.ModelId);
+        var node = _designStore.FindDesignNodeById(res.ModelId);
         if (node != null)
-            DesignStore.OpenOrActiveDesigner(node, res); //打开或激活节点
+            _designStore.OpenOrActiveDesigner(node, res); //打开或激活节点
     }
 
     internal static void RunOnCodeEditor(CodeEditorController controller, ReferenceVO reference)

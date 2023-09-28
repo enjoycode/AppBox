@@ -5,13 +5,15 @@ namespace AppBoxDesign;
 
 internal sealed class NewEntityDialog : Dialog
 {
-    public NewEntityDialog()
+    public NewEntityDialog(DesignStore designStore)
     {
+        _designStore = designStore;
         Width = 300;
         Height = 210;
         Title.Value = "New Entity";
     }
 
+    private readonly DesignStore _designStore;
     private readonly State<string> _name = "";
     private readonly State<DataStoreNodeVO?> _store = new RxValue<DataStoreNodeVO?>(null);
 
@@ -50,7 +52,7 @@ internal sealed class NewEntityDialog : Dialog
 
     private async void CreateAsync()
     {
-        var selectedNode = DesignStore.TreeController.FirstSelectedNode;
+        var selectedNode = _designStore.TreeController.FirstSelectedNode;
         if (selectedNode == null) return;
 
         var args = new object?[]
@@ -60,13 +62,14 @@ internal sealed class NewEntityDialog : Dialog
         };
 
         var res = await Channel.Invoke<NewNodeResult>("sys.DesignService.NewEntityModel", args);
+        res!.ResolveToTree(_designStore);
         //根据返回结果同步添加新节点
-        DesignStore.OnNewNode(res!);
+        _designStore.OnNewNode(res!);
     }
 
-    private static DataStoreNodeVO[] GetAllDataStores()
+    private DataStoreNodeVO[] GetAllDataStores()
     {
-        var dataStoreRootNode = (DataStoreRootNodeVO)DesignStore.TreeController.DataSource![0];
+        var dataStoreRootNode = (DataStoreRootNodeVO)_designStore.TreeController.DataSource![0];
         var list = new DataStoreNodeVO[dataStoreRootNode.Children!.Count + 1];
         list[0] = DataStoreNodeVO.None;
         for (var i = 1; i < list.Length; i++)

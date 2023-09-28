@@ -9,13 +9,14 @@ namespace AppBoxDesign;
 
 internal sealed class ViewCodeDesigner : View, ICodeDesigner
 {
-    public ViewCodeDesigner(ModelNodeVO modelNode)
+    public ViewCodeDesigner(DesignStore designStore, ModelNodeVO modelNode)
     {
+        _designStore = designStore;
         ModelNode = modelNode;
         _previewController = new PreviewController(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
             RoslynCompletionProvider.Default, modelNode.Id);
-        _codeEditorController.ContextMenuBuilder = ContextMenuService.BuildContextMenu;
+        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
         _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
         _delayDocChangedTask = new DelayTask(300, RunDelayTask);
 
@@ -30,6 +31,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     }
 
     public ModelNodeVO ModelNode { get; }
+    private readonly DesignStore _designStore;
     private readonly CodeEditorController _codeEditorController;
     private readonly ModelCodeSyncService _codeSyncService;
     private readonly PreviewController _previewController;
@@ -106,7 +108,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 
         var problems = await Channel.Invoke<IList<CodeProblem>>("sys.DesignService.GetProblems",
             new object?[] { false, ModelNode.Id });
-        DesignStore.UpdateProblems(ModelNode, problems!);
+        _designStore.UpdateProblems(ModelNode, problems!);
 
         if (!problems!.Any(p => p.IsError))
             _previewController.Invalidate();

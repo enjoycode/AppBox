@@ -8,8 +8,9 @@ namespace AppBoxDesign;
 
 internal sealed class NewEntityMemberDialog : Dialog
 {
-    public NewEntityMemberDialog(ModelNodeVO modelNode)
+    public NewEntityMemberDialog(DesignStore designStore, ModelNodeVO modelNode)
     {
+        _designStore = designStore;
         _modelNode = modelNode;
         Width = 380;
         Height = 280;
@@ -19,6 +20,7 @@ internal sealed class NewEntityMemberDialog : Dialog
     private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
     private static readonly string[] FieldTypes = { "String", "Int", "Long", "Float", "Double" };
 
+    private readonly DesignStore _designStore;
     private readonly ModelNodeVO _modelNode;
     private readonly State<string> _name = string.Empty;
     private readonly State<bool> _allowNull = false;
@@ -70,7 +72,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                                 new FormItem("Target:",
                                     new Select<ModelNodeVO>(_entityRefTarget)
                                     {
-                                        Options = DesignStore.GetAllEntityNodes().ToArray()
+                                        Options = _designStore.GetAllEntityNodes().ToArray()
                                     }),
                                 new FormItem("AllowNull:", new Checkbox(_allowNull))
                             }

@@ -10,8 +10,9 @@ namespace AppBoxDesign
 {
     internal sealed class EntityDesigner : View, IModelDesigner
     {
-        public EntityDesigner(ModelNodeVO modelNode)
+        public EntityDesigner(DesignStore designStore, ModelNodeVO modelNode)
         {
+            _designStore = designStore;
             ModelNode = modelNode;
             _selectedMember = _membersController.ObserveCurrentRow();
 
@@ -25,6 +26,7 @@ namespace AppBoxDesign
             };
         }
 
+        private readonly DesignStore _designStore;
         public ModelNodeVO ModelNode { get; }
         private readonly State<int> _activePad = 0; //当前的设计面板
         private EntityModelVO? _entityModel;
@@ -108,7 +110,7 @@ namespace AppBoxDesign
 
         private async void OnAddMember(PointerEvent e)
         {
-            var dlg = new NewEntityMemberDialog(ModelNode);
+            var dlg = new NewEntityMemberDialog(_designStore, ModelNode);
             var canceled = await dlg.ShowAndWaitClose();
             if (canceled) return;
 
@@ -173,7 +175,7 @@ namespace AppBoxDesign
 
             var oldName = _selectedMember.Value.Name;
             var target = $"{ModelNode.Label}.{oldName}";
-            var dlg = new RenameDialog(ModelReferenceType.EntityMember,
+            var dlg = new RenameDialog(_designStore, ModelReferenceType.EntityMember,
                 target, ModelNode.Id, oldName);
             var canceled = await dlg.ShowAndWaitClose();
             if (canceled) return;
@@ -194,7 +196,7 @@ namespace AppBoxDesign
             {
                 var res = await Channel.Invoke<IList<ReferenceVO>>("sys.DesignService.FindUsages",
                     args);
-                DesignStore.UpdateUsages(res!);
+                _designStore.UpdateUsages(res!);
             }
             catch (Exception ex)
             {

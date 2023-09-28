@@ -3,15 +3,17 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-public sealed class NewViewDialog : Dialog
+internal sealed class NewViewDialog : Dialog
 {
-    public NewViewDialog()
+    public NewViewDialog(DesignStore designStore)
     {
+        _designStore = designStore;
         Width = 300;
         Height = 210;
         Title.Value = "New View";
     }
 
+    private readonly DesignStore _designStore;
     private readonly State<string> _name = "";
     private readonly State<bool> _isDynamic = false;
 
@@ -56,14 +58,15 @@ public sealed class NewViewDialog : Dialog
 
     private async void CreateAsync()
     {
-        var selectedNode = DesignStore.TreeController.FirstSelectedNode;
+        var selectedNode = _designStore.TreeController.FirstSelectedNode;
         if (selectedNode == null) return;
 
         var service = "sys.DesignService.NewViewModel";
         var args = new object[] { (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value, _isDynamic.Value };
 
         var res = await Channel.Invoke<NewNodeResult>(service, args);
+        res!.ResolveToTree(_designStore);
         //根据返回结果同步添加新节点
-        DesignStore.OnNewNode(res!);
+        _designStore.OnNewNode(res!);
     }
 }
