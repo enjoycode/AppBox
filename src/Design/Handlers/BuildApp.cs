@@ -71,7 +71,11 @@ internal sealed class BuildApp : IDesignHandler
             var viewModelName = $"{kv.Key.AppNode.Model.Name}.{kv.Key.Model.Name}";
             //暂用json编码
             var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, viewModelName, jsonData, txn);
+            var asmFlag = ctx.GetModelInfo(kv.Key).IsDynamicWidget
+                ? AssemblyFlag.ViewAssemblyDynamic
+                : AssemblyFlag.ViewAssemblyNormal;
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, viewModelName, jsonData, txn,
+                asmFlag);
         }
 
         await txn.CommitAsync();
@@ -267,7 +271,7 @@ internal sealed class BuildContext
             var codegen = await ViewCsGenerator.Make(Hub, modelNode, false);
             var newTree = await codegen.GetRuntimeSyntaxTree();
             var usedModels = codegen.UsedModels.Select(fullName => Hub.DesignTree.FindModelNodeByFullName(fullName)!);
-            var modelInfo = new ModelInfo(modelNode, newTree, usedModels.ToList());
+            var modelInfo = new ModelInfo(modelNode, newTree, usedModels.ToList(), codegen.IsDynamicWidget);
             _modelCache.Add(modelInfo.ModelId, modelInfo);
             return modelInfo;
         }
@@ -276,6 +280,8 @@ internal sealed class BuildContext
             throw new NotImplementedException();
         }
     }
+
+    internal ModelInfo GetModelInfo(ModelNode modelNode) => _modelCache[modelNode.Model.Id];
 
     private List<ModelNode> GetEntityUsages(EntityModel entityModel)
     {
@@ -393,12 +399,7 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         //TODO:暂只支持View及Entity
         var isViewAssembly = _modelInfos[0].ModelId.Type == ModelType.View;
 
-        var syntaxTrees = new List<SyntaxTree>();
-        foreach (var modelInfo in _modelInfos)
-        {
-            syntaxTrees.Add(modelInfo.SyntaxTree);
-        }
-
+        var syntaxTrees = _modelInfos.Select(modelInfo => modelInfo.SyntaxTree).ToList();
         var version = (int)(DateTime.Now - DateTime.UnixEpoch).TotalSeconds;
         var asmVersion = $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
         syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(
@@ -457,16 +458,18 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
 
 internal sealed class ModelInfo
 {
-    public ModelInfo(ModelNode modelNode, SyntaxTree syntaxTree, IList<ModelNode> usages)
+    public ModelInfo(ModelNode modelNode, SyntaxTree syntaxTree, IList<ModelNode> usages, bool isDynamicWidget = false)
     {
-        _modelNode = modelNode;
+        ModelNode = modelNode;
         SyntaxTree = syntaxTree;
         Usages = usages;
+        IsDynamicWidget = isDynamicWidget;
     }
 
-    private readonly ModelNode _modelNode;
+    internal readonly ModelNode ModelNode;
+    internal readonly bool IsDynamicWidget;
 
-    public ModelId ModelId => _modelNode.Model.Id;
+    public ModelId ModelId => ModelNode.Model.Id;
     public IList<ModelNode> Usages { get; }
     public SyntaxTree SyntaxTree { get; }
 }

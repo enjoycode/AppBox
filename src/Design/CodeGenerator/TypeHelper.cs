@@ -89,7 +89,7 @@ internal static class TypeHelper
         //     valueTypeString = "EntitySet";
         // else if (IsEntityClass(valueTypeSymbol as INamedTypeSymbol))
         //     valueTypeString = "RuntimeType_Entity";
-        
+
         string type;
         switch (valueTypeString)
         {
@@ -133,7 +133,7 @@ internal static class TypeHelper
                 //type = "Int32";
                 break;
         }
-        
+
         return type;
     }
 
@@ -148,5 +148,17 @@ internal static class TypeHelper
             IFieldSymbol fieldSymbol => fieldSymbol.Type,
             _ => null
         };
+    }
+    
+    internal static AttributeSyntax? TryGetAttribute(SyntaxList<AttributeListSyntax> attributes,
+        Predicate<AttributeSyntax> checker)
+    {
+        if (attributes.Count == 0) return null;
+
+        var attribute = attributes
+            .SelectMany(t => t.Attributes)
+            .SingleOrDefault(t => checker(t));
+
+        return attribute;
     }
 }

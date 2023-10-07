@@ -65,10 +65,13 @@ public enum EntityFieldType : byte
 /// <summary>
 /// 第三方组件所适用的平台
 /// </summary>
-public enum AssemblyPlatform : byte
+public enum AssemblyFlag : byte
 {
-    Common,
-    Linux,
-    Windows,
-    MacOS,
+    PlatformAll,
+    PlatformLinux,
+    PlatformWindows,
+    PlatformMacOS,
+    
+    ViewAssemblyNormal,
+    ViewAssemblyDynamic,
 }

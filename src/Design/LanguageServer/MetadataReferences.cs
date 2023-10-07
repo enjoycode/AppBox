@@ -41,6 +41,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference PixUILiveChartsLib => TryGetViewLib("PixUI.LiveCharts.dll");
 
+    internal static MetadataReference PixUIDynamicLib => TryGetViewLib("PixUI.Dynamic.dll");
+
     internal static MetadataReference PixUIAttributesLib => //TODO: remove
         TryGetViewLib("PixUI.TSAttributes.dll");
 
@@ -90,7 +92,8 @@ internal static class MetadataReferences
         return deps;
     }
 
-    internal static IEnumerable<MetadataReference> GetViewsAssemblyReferences()
+    internal static IEnumerable<MetadataReference> GetViewsAssemblyReferences(
+        bool usedLiveCharts = true, bool usedDynamic = true)
     {
         var deps = new List<MetadataReference>
         {
@@ -104,12 +107,22 @@ internal static class MetadataReferences
             PixUILib,
             PixUIWidgetsLib,
             MaterialIconsLib,
-            LiveChartsCoreLib,
-            PixUILiveChartsLib,
             AppBoxCoreLib,
             AppBoxClientLib,
             AppBoxClientUILib
         };
+
+        if (usedLiveCharts)
+        {
+            deps.Add(LiveChartsCoreLib);
+            deps.Add(PixUILiveChartsLib);
+        }
+
+        if (usedDynamic)
+        {
+            deps.Add(PixUIDynamicLib);
+        }
+
         return deps;
     }
 

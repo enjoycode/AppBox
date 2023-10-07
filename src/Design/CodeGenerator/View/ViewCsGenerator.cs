@@ -50,6 +50,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     private readonly TypeSymbolCache _typeSymbolCache;
     private readonly string _thisModelFullName;
     private readonly bool _forPreview;
+    internal bool IsDynamicWidget;
 
     /// <summary>
     /// 转换生成运行时的SyntaxTree

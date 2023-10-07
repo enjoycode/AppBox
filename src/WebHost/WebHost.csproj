@@ -51,6 +51,9 @@
       <None Update="ViewLibs\PixUI.MaterialIcons.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="ViewLibs\PixUI.Dynamic.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

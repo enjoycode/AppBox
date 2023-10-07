@@ -368,14 +368,14 @@ public sealed class SqlMetaStore : IMetaStore
     /// 2. 服务或视图模型为名称: eg: "sys.HelloService" or "sys.HomePage"
     /// </param>
     /// <param name="asmData">已压缩</param>
-    /// <param name="platform">仅适用于应用的第三方组件</param>
+    /// <param name="flag">仅适用于应用的第三方程序集</param>
     public async Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
-        DbTransaction txn, AssemblyPlatform platform = AssemblyPlatform.Common)
+        DbTransaction txn, AssemblyFlag flag = AssemblyFlag.PlatformAll)
     {
         var modelType = type switch
         {
-            MetaAssemblyType.Application => (byte)platform,
-            MetaAssemblyType.ViewAssemblies => (byte)ModelType.View,
+            MetaAssemblyType.Application => (byte)flag,
+            MetaAssemblyType.ViewAssemblies => (byte)flag,
             MetaAssemblyType.Service => (byte)ModelType.Service,
             MetaAssemblyType.View => (byte)ModelType.View,
             _ => throw new ArgumentException("Not supported MetaAssemblyType")
