@@ -61,17 +61,3 @@ public enum EntityFieldType : byte
     Float = 15,
     Double = 16,
 }
-
-/// <summary>
-/// 第三方组件所适用的平台
-/// </summary>
-public enum AssemblyFlag : byte
-{
-    PlatformAll,
-    PlatformLinux,
-    PlatformWindows,
-    PlatformMacOS,
-    
-    ViewAssemblyNormal,
-    ViewAssemblyDynamic,
-}
