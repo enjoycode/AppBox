@@ -11,14 +11,17 @@ public static class DynamicInitiator
     private static int _initFlag = 0;
     private static Task _initTask = null!;
 
-    public static Task TryInitAsync()
+    public static async Task<bool> TryInitAsync()
     {
+        var res = false;
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) == 0)
         {
             _initTask = Init();
+            res = true;
         }
 
-        return _initTask;
+        await _initTask;
+        return res;
     }
 
     private static async Task Init()
@@ -42,8 +45,14 @@ public static class DynamicInitiator
                 new("LegendPosition", typeof(LegendPosition), false),
             });
 
-        //注册视图模型
+        //注册标为动态组件的视图模型
         var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");
-        Log.Debug(widgets[0]);
+        foreach (var viewModelName in widgets!)
+        {
+            var widgetType = await AppAssembiles.TryGetViewType(viewModelName);
+            if (widgetType == null) continue;
+
+            DynamicWidgetManager.Register(widgetType, true);
+        }
     }
 }

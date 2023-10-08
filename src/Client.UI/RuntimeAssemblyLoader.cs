@@ -17,6 +17,7 @@ public static class AppAssembiles
 {
     private static readonly AppAssemblyLoader _loader = new();
     private static readonly Dictionary<string, Func<Widget>> _viewCreator = new();
+    private static readonly Dictionary<string, Type> _viewTypes = new();
 
     /// <summary>
     /// 创建视图模型的实例，如果尚未加载程序集则从服务端加载所有依赖的程序集
@@ -27,6 +28,17 @@ public static class AppAssembiles
         //TODO: catch exception and return ErrorWidget
         if (_viewCreator.TryGetValue(viewModelName, out var exists))
             return exists();
+
+        var widgetType = await GetViewType(viewModelName);
+        var creator = () => (Widget)Activator.CreateInstance(widgetType)!;
+        _viewCreator.Add(viewModelName, creator);
+        return creator();
+    }
+
+    private static async Task<Type> GetViewType(string viewModelName)
+    {
+        if (_viewTypes.TryGetValue(viewModelName, out var exists))
+            return exists;
 
         //从服务端获取所有依赖的程序集
         var asmJson = await Channel.Invoke<byte[]?>("sys.SystemService.GetViewAssemblies",
@@ -65,14 +77,29 @@ public static class AppAssembiles
         var widgetType = viewAsm.GetType(viewFullName);
         if (widgetType == null)
             throw new Exception($"Can't find widget type: {viewFullName}");
-        var creator = () => (Widget)Activator.CreateInstance(widgetType)!;
-        _viewCreator.Add(viewModelName, creator);
-        return creator();
+        _viewTypes.Add(viewModelName, widgetType);
+        return widgetType;
+    }
+
+    internal static async Task<Type?> TryGetViewType(string viewModelName)
+    {
+        try
+        {
+            var res = await GetViewType(viewModelName);
+            return res;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn(ex.Message);
+            return null;
+        }
     }
 }
 
 internal sealed class AppAssemblyLoader : AssemblyLoadContext
 {
+    public AppAssemblyLoader() : base(true) { }
+
     private readonly Dictionary<string, object> _loaded = new();
 
     public bool HasLoad(string assemblyName) => _loaded.ContainsKey(assemblyName);
@@ -84,9 +111,8 @@ internal sealed class AppAssemblyLoader : AssemblyLoadContext
         if (!_loaded.TryGetValue(assemblyName, out var data))
             throw new Exception("Can't find assembly data");
 
-#if DEBUG
-        Console.WriteLine($"AppAssemblyLoader.LoadViewAssembly: {assemblyName}");
-#endif
+        Log.Debug($"Begin load: {assemblyName}");
+
         var assembly = LoadFromStream(new MemoryStream((byte[])data));
         _loaded[assemblyName] = assembly;
         return assembly;
@@ -96,9 +122,7 @@ internal sealed class AppAssemblyLoader : AssemblyLoadContext
     {
         if (assemblyName.Name != null && _loaded.TryGetValue(assemblyName.Name, out var data))
         {
-#if DEBUG
-            Console.WriteLine($"AppAssemblyLoader.Load: {assemblyName.Name}");
-#endif
+            Log.Debug($"Begin load: {assemblyName.Name}");
             if (data is Assembly assembly) return assembly;
 
             assembly = LoadFromStream(new MemoryStream((byte[])data));

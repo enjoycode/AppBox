@@ -85,7 +85,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         if (_hasLoadSourceCode) return;
         _hasLoadSourceCode = true;
 
-        await DynamicInitiator.TryInitAsync();
+        if (await DynamicInitiator.TryInitAsync())
+            _toolboxPad.Rebuild();
 
         //TODO:直接获取utf8 bytes
         var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel", new object[] { ModelNode.Id });
