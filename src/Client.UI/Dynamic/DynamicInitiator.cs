@@ -9,19 +9,16 @@ namespace AppBoxClient.Dynamic;
 public static class DynamicInitiator
 {
     private static int _initFlag = 0;
-    private static Task _initTask;
+    private static Task _initTask = null!;
 
-    public static async Task<bool> TryInitAsync()
+    public static Task TryInitAsync()
     {
-        var res = false;
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) == 0)
         {
             _initTask = Init();
-            res = true;
         }
 
-        await _initTask;
-        return res;
+        return _initTask;
     }
 
     private static async Task Init()
@@ -44,7 +41,7 @@ public static class DynamicInitiator
                 new("Series", typeof(PieSeriesSettings), true),
                 new("LegendPosition", typeof(LegendPosition), false),
             });
-        
+
         //注册视图模型
         var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");
         Log.Debug(widgets[0]);
