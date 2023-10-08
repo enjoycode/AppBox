@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.IO;
-using System.IO.Compression;
 using System.Threading.Tasks;
 using AppBoxCore;
 
@@ -526,6 +524,26 @@ public sealed class SqlMetaStore : IMetaStore
                 }
                 default: throw new NotImplementedException();
             }
+        }
+
+        return list.ToArray();
+    }
+
+    public async Task<string[]> LoadDynamicWidgetsAsync()
+    {
+        var db = SqlStore.Default;
+        var esc = db.NameEscaper;
+        await using var conn = await db.OpenConnectionAsync();
+        await using var cmd = db.MakeCommand();
+        cmd.Connection = conn;
+        cmd.CommandText =
+            $"Select id From {esc}sys.Meta{esc} Where meta={(byte)MetaAssemblyType.ViewAssemblies} And model={(byte)AssemblyFlag.ViewAssemblyDynamic}";
+        Log.Debug(cmd.CommandText);
+        await using var reader = await cmd.ExecuteReaderAsync();
+        var list = new List<string>();
+        while (await reader.ReadAsync())
+        {
+            list.Add(reader.GetString(0));
         }
 
         return list.ToArray();

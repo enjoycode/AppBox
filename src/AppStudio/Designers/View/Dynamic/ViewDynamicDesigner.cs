@@ -4,9 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
-using AppBoxCore;
 using AppBoxDesign.PropertyEditor;
-using LiveChartsCore;
 using PixUI;
 using PixUI.Dynamic.Design;
 
@@ -14,26 +12,6 @@ namespace AppBoxDesign;
 
 internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
-    static ViewDynamicDesigner()
-    {
-        if (DesignSettings.GetDataSetEditor == null)
-        {
-            // 初始化一些动态视图设计时的委托
-            DesignSettings.GetDataSetEditor = (state) => new DataSetEditDialog(state);
-            DesignSettings.MakeDataSetSettings = () => new DataSetSettings();
-
-            // 初始化其他动态组件
-            DynamicInitiator.TryInit();
-            // 初始化其他属性编辑器
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<AxisSettings[], AxesPropEditor>(true);
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
-        }
-    }
-
     public ViewDynamicDesigner(ModelNodeVO modelNode)
     {
         ModelNode = modelNode;
@@ -89,6 +67,20 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     {
         if (_hasLoadSourceCode) return;
         _hasLoadSourceCode = true;
+
+        if (await DynamicInitiator.TryInitAsync())
+        {
+            // 初始化一些动态视图设计时的委托
+            DesignSettings.GetDataSetEditor = (state) => new DataSetEditDialog(state);
+            DesignSettings.MakeDataSetSettings = () => new DataSetSettings();
+            // 初始化其他属性编辑器
+            PixUI.Dynamic.Design.PropertyEditor
+                .RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
+            PixUI.Dynamic.Design.PropertyEditor
+                .RegisterClassValueEditor<AxisSettings[], AxesPropEditor>(true);
+            PixUI.Dynamic.Design.PropertyEditor
+                .RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
+        }
 
         //TODO:直接获取utf8 bytes
         var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel", new object[] { ModelNode.Id });

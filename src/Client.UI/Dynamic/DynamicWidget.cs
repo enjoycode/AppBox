@@ -14,11 +14,6 @@ namespace PixUI;
 /// </summary>
 public sealed class DynamicWidget : DynamicView, IDynamicView
 {
-    static DynamicWidget()
-    {
-        DynamicInitiator.TryInit();
-    }
-
     public DynamicWidget(long viewModelId /*, IDictionary<string, object?>? initProps = null*/)
     {
         _viewModelId = viewModelId;
@@ -40,6 +35,8 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
 
     private async void LoadAsync()
     {
+        await DynamicInitiator.TryInitAsync();
+        
         //TODO:考虑缓存加载过的json配置
         var json = await Channel.Invoke<byte[]?>(
             "sys.SystemService.LoadDynamicViewJson", new object?[] { _viewModelId });

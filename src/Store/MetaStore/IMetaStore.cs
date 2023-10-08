@@ -38,6 +38,11 @@ public interface IMetaStore
     Task<byte[]?> LoadMetaDataAsync(byte metaType, string id);
 
     Task<T[]> LoadMetasAsync<T>(byte metaType) where T : IBinSerializable;
+
+    /// <summary>
+    /// 加载所有标为动态组件的视图模型的名称，用于设计时注册动态组件至工具箱
+    /// </summary>
+    Task<string[]> LoadDynamicWidgetsAsync();
 }
 
 public static class MetaStoreExtensions

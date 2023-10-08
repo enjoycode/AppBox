@@ -173,6 +173,7 @@ internal sealed class SystemService : IService
             "GetViewAssemblies" => AnyValue.From(await MetaStore.Provider.LoadViewAssembliesAsync(args.GetString()!)),
             "LoadAppAssembly" => AnyValue.From(await MetaStore.Provider.LoadAppAssemblyAsync(args.GetString()!)),
             "LoadDynamicViewJson" => AnyValue.From(await MetaStore.Provider.LoadDynamicViewJsonAsync(args.GetLong())),
+            "LoadDynamicWidgets" => AnyValue.From(await MetaStore.Provider.LoadDynamicWidgetsAsync()),
             nameof(LoadPermissionTree) => AnyValue.From(await LoadPermissionTree()),
             nameof(SavePermission) => AnyValue.From(await SavePermission(args.GetString()!, args.GetArray<Guid>())),
             nameof(Hello) => AnyValue.From(await Hello(args.GetString()!)),
