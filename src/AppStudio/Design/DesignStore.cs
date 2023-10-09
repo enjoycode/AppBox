@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using AppBoxClient.Dynamic;
 using AppBoxCore;
 using PixUI;
 
@@ -149,6 +151,15 @@ internal sealed class DesignStore
 
         if (gotoReference != null)
             node.Designer!.GotoDefinition(gotoReference);
+    }
+
+    /// <summary>
+    /// 构建应用后重新构建动态组件的工具箱
+    /// </summary>
+    internal Task RebuildDynamicToolbox(/*TODO: 变更列表*/)
+    {
+        //TODO:**暂简单实现，应根据变更列表重新注册动态组件，同时重新刷新所有打开的相关设计器
+        return DynamicInitiator.RebuildDynamicToolbox();
     }
 
     #endregion

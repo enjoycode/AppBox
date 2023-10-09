@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using PixUI;
 
@@ -15,7 +16,7 @@ namespace AppBoxClient;
 /// </summary>
 public static class AppAssembiles
 {
-    private static readonly AppAssemblyLoader _loader = new();
+    private static AppAssemblyLoader _loader = new();
     private static readonly Dictionary<string, Func<Widget>> _viewCreator = new();
     private static readonly Dictionary<string, Type> _viewTypes = new();
 
@@ -93,6 +94,14 @@ public static class AppAssembiles
             Log.Warn(ex.Message);
             return null;
         }
+    }
+
+    internal static void Reset()
+    {
+        var old = Interlocked.Exchange(ref _loader, new AppAssemblyLoader());
+        _viewTypes.Clear();
+        _viewCreator.Clear();
+        old.Unload();
     }
 }
 

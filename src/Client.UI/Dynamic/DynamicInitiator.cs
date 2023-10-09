@@ -55,4 +55,19 @@ public static class DynamicInitiator
             DynamicWidgetManager.Register(widgetType, true);
         }
     }
+
+    public static async Task RebuildDynamicToolbox()
+    {
+        AppAssembiles.Reset(); //TODO:暂简单清除
+        
+        var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");
+        foreach (var viewModelName in widgets!)
+        {
+            var widgetType = await AppAssembiles.TryGetViewType(viewModelName);
+            if (widgetType == null) continue;
+
+            DynamicWidgetManager.Register(widgetType, true);
+        }
+        //TODO：DynamicWidgetManager移除不存在的
+    }
 }

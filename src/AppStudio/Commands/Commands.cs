@@ -19,6 +19,7 @@ internal sealed class Commands
         RenameCommand = Rename;
         DeleteCommand = Delete;
         PublishCommand = () => new PublishDialog().Show();
+        BuildAppCommand = BuildApp;
         NotImplCommand = () => Notification.Error("暂未实现");
     }
 
@@ -31,7 +32,7 @@ internal sealed class Commands
     public readonly Action RenameCommand;
     public readonly Action DeleteCommand;
     public readonly Action PublishCommand;
-    public readonly Action BuildAppCommand = BuildApp;
+    public readonly Action BuildAppCommand;
     public readonly Action NotImplCommand;
 
     /// <summary>
@@ -162,12 +163,17 @@ internal sealed class Commands
         modelNode.Label.Value = dlg.GetNewName();
     }
 
-    private static async void BuildApp()
+    /// <summary>
+    /// 构建前端应用的程序集
+    /// </summary>
+    private async void BuildApp()
     {
         try
         {
             await Channel.Invoke("sys.DesignService.BuildApp", new object?[] { true });
             Notification.Success($"构建应用成功");
+            //TODO:**暂在这里重新构建动态组件工具箱
+            await _designStore.RebuildDynamicToolbox();
         }
         catch (Exception ex)
         {
