@@ -21,6 +21,8 @@
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Design\Design.csproj" />
       <ProjectReference Include="..\Server\Server.csproj" />
+      <ProjectReference Include="..\Store.Initiator\Store.Initiator.csproj" />
+      <ProjectReference Include="..\Store.OracleSql\Store.OracleSql.csproj" />
       <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj" />
       <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>

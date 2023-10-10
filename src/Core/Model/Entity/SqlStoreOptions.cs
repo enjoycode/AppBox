@@ -7,11 +7,12 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         _owner = owner;
     }
 
-    public SqlStoreOptions(EntityModel owner, long storeModelId, string? tableNamePrefix)
+    public SqlStoreOptions(EntityModel owner, long storeModelId, string? tableNamePrefix, string? schema = null)
     {
         _owner = owner;
         _storeModelId = storeModelId;
         _tableNamePrefix = tableNamePrefix;
+        _schema = schema;
     }
 
     private byte _devIndexIdSeq;
@@ -21,6 +22,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     private readonly EntityModel _owner;
     private string? _originalTableNamePrefix;
     private string? _tableNamePrefix;
+    private string? _schema;
     private long _storeModelId; //映射的DataStoreModel的标识
     private FieldWithOrder[]? _primaryKeys;
     private bool _primaryKeysHasChanged = false;
@@ -81,6 +83,10 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             : $"{_originalTableNamePrefix}{_owner.OriginalName}";
     }
 
+    public string GetFullSqlTableName(bool original, IModelContainer? ctx)
+    {
+        return $"{(string.IsNullOrEmpty(_schema) ? $"\"{_schema}\"." : "")}\"{_originalTableNamePrefix}{_owner.OriginalName}\"";
+    }
     #endregion
 
     #region ====Design Methods====

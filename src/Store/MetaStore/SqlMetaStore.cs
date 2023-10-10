@@ -212,6 +212,7 @@ public sealed class SqlMetaStore : IMetaStore
         BuildInsertMetaCommand(cmd, Meta_Folder, id, ModelType_Folder,
             MetaSerializer.SerializeMeta(folder),
             true);
+        cmd.CommandText = $"BEGIN {cmd.CommandText} END;";
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -248,6 +249,7 @@ public sealed class SqlMetaStore : IMetaStore
         cmd.Transaction = txn;
         BuildDeleteMetaCommand(cmd, Meta_Code, id);
         BuildInsertMetaCommand(cmd, Meta_Code, id, (byte)modelId.Type, codeData, true);
+        cmd.CommandText = $"BEGIN {cmd.CommandText} END;";
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -375,6 +377,7 @@ public sealed class SqlMetaStore : IMetaStore
         cmd.Transaction = txn;
         BuildDeleteMetaCommand(cmd, (byte)type, asmName);
         BuildInsertMetaCommand(cmd, (byte)type, asmName, modelType, asmData, true);
+        cmd.CommandText = $"BEGIN {cmd.CommandText} END;";
         await cmd.ExecuteNonQueryAsync();
     }
 

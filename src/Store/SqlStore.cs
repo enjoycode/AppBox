@@ -690,7 +690,7 @@ public abstract class SqlStore
     /// <summary>
     /// 根据实体的主键生成Where条件
     /// </summary>
-    private void BuildWhereForEntityPKS(SqlEntity entity, EntityModel model, DbCommand cmd,
+    protected void BuildWhereForEntityPKS(SqlEntity entity, EntityModel model, DbCommand cmd,
         StringBuilder sb)
     {
         var entityMemberWriter = new DbCommandParameterWriter(cmd);

@@ -1,16 +1,14 @@
+﻿using AppBoxCore;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using AppBoxCore;
+using System.Text;
 
 namespace AppBoxStore;
 
-/// <summary>
-/// 用于将实体成员转换为DbCommand的参数
-/// </summary>
-internal readonly struct DbCommandParameterWriter : IEntityMemberWriter
+internal readonly struct OracleDbCommandParameterWriter : IEntityMemberWriter
 {
-    public DbCommandParameterWriter(DbCommand command)
+    public OracleDbCommandParameterWriter(DbCommand command)
     {
         _command = command;
     }
@@ -29,8 +27,6 @@ internal readonly struct DbCommandParameterWriter : IEntityMemberWriter
     {
         var para = _command.CreateParameter();
         para.ParameterName = $"p{_command.Parameters.Count}";
-        //para.DbType = System.Data.DbType.Boolean;
-        //para.Value = value == null ? DBNull.Value : value;
         para.Value = value == null ? DBNull.Value : (value.Value ? 1 : 0);
         _command.Parameters.Add(para);
     }
