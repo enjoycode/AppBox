@@ -22,6 +22,8 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
     private readonly long _viewModelId;
     private bool _hasLoaded;
     private List<DynamicState>? _states;
+    private DynamicBackground? _background;
+    private Image? _cachedImage;
 
     protected override void OnMounted()
     {
@@ -33,10 +35,21 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
         }
     }
 
+    public override void Paint(Canvas canvas, IDirtyArea? area = null)
+    {
+        if (_background != null && _background.ImageData != null)
+        {
+            _cachedImage ??= Image.FromEncodedData(_background.ImageData);
+            canvas.DrawImage(_cachedImage!, Rect.FromLTWH(0, 0, W, H));
+        }
+
+        base.Paint(canvas, area);
+    }
+
     private async void LoadAsync()
     {
         await DynamicInitiator.TryInitAsync();
-        
+
         //TODO:考虑缓存加载过的json配置
         var json = await Channel.Invoke<byte[]?>(
             "sys.SystemService.LoadDynamicViewJson", new object?[] { _viewModelId });
@@ -70,6 +83,9 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
             var propName = reader.GetString();
             switch (propName)
             {
+                case "Background":
+                    ReadBackground(ref reader);
+                    break;
                 case "State":
                     ReadStates(ref reader);
                     break;
@@ -81,6 +97,11 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
 
         if (root == null) throw new Exception();
         return root;
+    }
+
+    private void ReadBackground(ref Utf8JsonReader reader)
+    {
+        _background = JsonSerializer.Deserialize<DynamicBackground>(ref reader);
     }
 
     private void ReadStates(ref Utf8JsonReader reader)

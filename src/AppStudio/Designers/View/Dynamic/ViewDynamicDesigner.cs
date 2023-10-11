@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -51,6 +52,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                         {
                             new Button("Add") { OnTap = OnAdd },
                             new Button("Remove") { OnTap = OnRemove },
+                            new Button("Background") {OnTap = OnSetBackground},
                         }
                     }
                 },
@@ -141,5 +143,15 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         _designController.DeleteElements();
 
         _outlinePad.RefreshOutline(); //TODO: remove when impl DesignController.RefreshOutline
+    }
+
+    private async void OnSetBackground(PointerEvent e)
+    {
+        var dlg = new BackgroundDialog();
+        var canceled = await dlg.ShowAndWaitClose();
+        if (canceled) return;
+
+        var bg = dlg.GetBackground();
+        _designController.Background = bg;
     }
 }
