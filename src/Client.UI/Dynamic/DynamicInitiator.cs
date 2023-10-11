@@ -43,6 +43,7 @@ public static class DynamicInitiator
             {
                 new("Series", typeof(PieSeriesSettings), true),
                 new("LegendPosition", typeof(LegendPosition), false),
+                new("LegendColor", typeof(Color), true),
             });
 
         //注册标为动态组件的视图模型
@@ -59,7 +60,7 @@ public static class DynamicInitiator
     public static async Task RebuildDynamicToolbox()
     {
         AppAssembiles.Reset(); //TODO:暂简单清除
-        
+
         var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");
         foreach (var viewModelName in widgets!)
         {

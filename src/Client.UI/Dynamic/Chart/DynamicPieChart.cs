@@ -36,6 +36,19 @@ public sealed class DynamicPieChart : SingleChildWidget
         set => _chart.LegendPosition = value;
     }
 
+    public Color? LegendColor
+    {
+        get
+        {
+            if (_chart.LegendTextPaint is SolidColorPaint solidColorPaint)
+                return solidColorPaint.Color;
+            return null;
+        }
+        set => _chart.LegendTextPaint = value.HasValue
+            ? new SolidColorPaint() { Color = value.Value }
+            : SolidColorPaint.MakeByColor(new Color(30, 30, 30, 255));
+    }
+
     private async void OnSeriesChanged()
     {
         if (!IsMounted) return;
@@ -67,7 +80,7 @@ public sealed class DynamicPieChart : SingleChildWidget
 
         if (Parent is IDesignElement)
             _chart.EasingFunction = null; //disable animation in design time
-        
+
         OnSeriesChanged();
     }
 
