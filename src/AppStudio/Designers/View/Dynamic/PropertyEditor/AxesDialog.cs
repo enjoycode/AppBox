@@ -11,7 +11,7 @@ internal sealed class AxesDialog : Dialog
     {
         Title.Value = "Chart Axes";
         Width = 580;
-        Height = 400;
+        Height = 420;
 
         _list = list;
         _designController = designController;

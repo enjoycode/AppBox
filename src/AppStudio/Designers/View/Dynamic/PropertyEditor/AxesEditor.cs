@@ -29,6 +29,10 @@ internal sealed class AxesEditor : SingleChildWidget
         {
             if (state.Value != null) state.Value.Labels = v;
         });
+        var labelsColor = new RxProxy<Color?>(() => state.Value?.LabelsColor, v =>
+        {
+            if (state.Value != null) state.Value.LabelsColor = v;
+        });
         var textSize = new RxProxy<double?>(() => state.Value?.TextSize, v =>
         {
             if (state.Value != null) state.Value.TextSize = v;
@@ -49,6 +53,7 @@ internal sealed class AxesEditor : SingleChildWidget
             name.NotifyValueChanged();
             dataset.NotifyValueChanged();
             labels.NotifyValueChanged();
+            labelsColor.NotifyValueChanged();
             textSize.NotifyValueChanged();
             minStep.NotifyValueChanged();
             forceMinStep.NotifyValueChanged();
@@ -60,6 +65,7 @@ internal sealed class AxesEditor : SingleChildWidget
             new("Name", new TextInput(name)),
             new("DataSet", new Select<string>(dataset) { Options = allDataSet }),
             new("Labels", new Select<string>(labels) { Ref = _labelsRef }),
+            new("LabelsColor", new ColorEditor(labelsColor)),
             new("TextSize", new NumberInput<double>(textSize)),
             new("MinStep", new NumberInput<double>(minStep)),
             new("ForceMinStep", new Checkbox(forceMinStep)),

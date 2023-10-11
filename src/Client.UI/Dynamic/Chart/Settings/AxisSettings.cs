@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using AppBoxCore;
+using LiveCharts.Painting;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -16,6 +17,8 @@ public sealed class AxisSettings
     /// </summary>
     public string? Labels { get; set; }
 
+    public Color? LabelsColor { get; set; }
+
     /// <summary>
     /// 标签自定义格式化模版(暂保留)
     /// </summary>
@@ -29,7 +32,8 @@ public sealed class AxisSettings
 
     public AxisSettings Clone() => new()
     {
-        Name = Name, DataSet = DataSet, Labels = Labels, Formatter = Formatter,
+        Name = Name, DataSet = DataSet, Labels = Labels,
+        LabelsColor = LabelsColor, Formatter = Formatter,
         MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
     };
 
@@ -42,6 +46,7 @@ public sealed class AxisSettings
         // }
 
         if (TextSize.HasValue) res.TextSize = TextSize.Value;
+        if (LabelsColor.HasValue) res.LabelsPaint = new SolidColorPaint { Color = LabelsColor.Value };
         if (MinStep.HasValue) res.MinStep = MinStep.Value;
         if (ForceStepToMin)
         {
