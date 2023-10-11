@@ -88,7 +88,7 @@ internal sealed class AxesDialog : Dialog
 
     private void OnAddAxis()
     {
-        var newAxis = new AxisSettings() { Name = "XAxis" };
+        var newAxis = new AxisSettings() { Name = "AxisName" };
         _dataGridController.Add(newAxis);
         _current.Value = newAxis; // select the new one
     }

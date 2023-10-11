@@ -60,8 +60,10 @@ public sealed class DynamicCartesianChart : SingleChildWidget
         Axis[] axes;
         if (isX)
         {
-            if (_xAxes == null)
-                axes = Array.Empty<Axis>();
+            if (_xAxes == null || _xAxes.Length == 0)
+            {
+                axes = new[] { new Axis() };
+            }
             else
             {
                 var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
@@ -79,8 +81,10 @@ public sealed class DynamicCartesianChart : SingleChildWidget
         }
         else
         {
-            if (_yAxes == null)
-                axes = Array.Empty<Axis>();
+            if (_yAxes == null || _yAxes.Length == 0)
+            {
+                axes = new[] { new Axis() };
+            }
             else
             {
                 var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
