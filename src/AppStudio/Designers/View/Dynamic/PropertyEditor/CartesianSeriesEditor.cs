@@ -19,14 +19,14 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
         _designController = designController;
 
         var dataset = new RxProxy<string?>(() => state.Value.DataSet, v => state.Value.DataSet = v ?? string.Empty);
-        dataset.Listen(OnDataSetChanged);
+        _datasetListener = dataset.Listen(OnDataSetChanged);
         var yField = new RxProxy<string?>(() => state.Value.Field, v => state.Value.Field = v ?? string.Empty);
-        yField.Listen(v => RefreshCurrentRow());
+        _yFieldListener = yField.Listen(v => RefreshCurrentRow());
 
         // ReSharper disable once VirtualMemberCallInConstructor
         var extProps = GetExtProps(state).ToArray();
 
-        state.Listen(_ =>
+        _stateListener = state.Listen(_ =>
         {
             dataset.NotifyValueChanged();
             yField.NotifyValueChanged();
@@ -56,6 +56,12 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
     private readonly DesignController _designController;
     private readonly DataGridController<CartesianSeriesSettings> _dataGridController;
     private readonly WidgetRef<Select<string>> _yFieldRef = new();
+
+    // ReSharper disable NotAccessedField.Local
+    private readonly IStateBindable _datasetListener;
+    private readonly IStateBindable _yFieldListener;
+    private readonly IStateBindable _stateListener;
+    // ReSharper restore NotAccessedField.Local
 
     protected virtual IEnumerable<ValueTuple<string, State, Widget>> GetExtProps(State<T> state)
     {

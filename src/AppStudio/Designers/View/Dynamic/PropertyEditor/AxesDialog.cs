@@ -13,14 +13,14 @@ internal sealed class AxesDialog : Dialog
         Width = 580;
         Height = 420;
 
-        _list = list;
+        // _list = list;
         _designController = designController;
         _dataGridController.DataSource = list;
         _current = _dataGridController.ObserveCurrentRow();
         _current.Value = list.Count > 0 ? list[0] : null; //select the first row
     }
 
-    private readonly List<AxisSettings> _list;
+    // private readonly List<AxisSettings> _list;
     private readonly DesignController _designController;
     private readonly DataGridController<AxisSettings> _dataGridController = new();
     private readonly State<AxisSettings?> _current;

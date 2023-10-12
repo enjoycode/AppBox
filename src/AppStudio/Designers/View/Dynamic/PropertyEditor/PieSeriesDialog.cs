@@ -24,10 +24,13 @@ internal sealed class PieSeriesDialog : Dialog
     private readonly WidgetRef<Select<string>> _yFieldRef = new();
     private readonly WidgetRef<Select<string>> _nameRef = new();
 
+    // ReSharper disable once NotAccessedField.Local
+    private IStateBindable _datasetListner;
+
     protected override Widget BuildBody()
     {
         var dataset = new RxProxy<string?>(() => _state.DataSet, v => _state.DataSet = v ?? string.Empty);
-        dataset.Listen(OnDataSetChanged);
+        _datasetListner = dataset.Listen(OnDataSetChanged);
         var yField = new RxProxy<string?>(() => _state.Field, v => _state.Field = v ?? string.Empty);
         var name = new RxProxy<string?>(() => _state.Name, v => _state.Name = v);
         var innerRadius = new RxProxy<double?>(() => _state.InnerRadius, v => _state.InnerRadius = v);

@@ -46,9 +46,10 @@ internal sealed class AxesEditor : SingleChildWidget
             if (state.Value != null) state.Value.ForceStepToMin = v;
         });
 
-        dataset.Listen(OnDataSetChanged);
-        labels.Listen(v => RefreshCurrentRow());
-        state.Listen(_ =>
+        _dataSetListener = dataset.Listen(OnDataSetChanged);
+        _nameListener = name.Listen(v => RefreshCurrentRow());
+        _labelsListener = labels.Listen(v => RefreshCurrentRow());
+        _stateListener = state.Listen(_ =>
         {
             name.NotifyValueChanged();
             dataset.NotifyValueChanged();
@@ -83,6 +84,13 @@ internal sealed class AxesEditor : SingleChildWidget
     private readonly DesignController _designController;
     private readonly DataGridController<AxisSettings> _dataGridController;
     private readonly WidgetRef<Select<string>> _labelsRef = new();
+
+    // ReSharper disable NotAccessedField.Local
+    private readonly IStateBindable _dataSetListener;
+    private readonly IStateBindable _nameListener;
+    private readonly IStateBindable _labelsListener;
+    private readonly IStateBindable _stateListener;
+    // ReSharper restore NotAccessedField.Local
 
     private async void OnDataSetChanged(string? dsName)
     {
