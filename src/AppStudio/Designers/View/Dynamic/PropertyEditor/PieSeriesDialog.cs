@@ -24,13 +24,10 @@ internal sealed class PieSeriesDialog : Dialog
     private readonly WidgetRef<Select<string>> _yFieldRef = new();
     private readonly WidgetRef<Select<string>> _nameRef = new();
 
-    // ReSharper disable once NotAccessedField.Local
-    private IStateBindable _datasetListner;
-
     protected override Widget BuildBody()
     {
         var dataset = new RxProxy<string?>(() => _state.DataSet, v => _state.DataSet = v ?? string.Empty);
-        _datasetListner = dataset.Listen(OnDataSetChanged);
+        dataset.AddListener(OnDataSetChanged);
         var yField = new RxProxy<string?>(() => _state.Field, v => _state.Field = v ?? string.Empty);
         var name = new RxProxy<string?>(() => _state.Name, v => _state.Name = v);
         var innerRadius = new RxProxy<double?>(() => _state.InnerRadius, v => _state.InnerRadius = v);
@@ -51,12 +48,13 @@ internal sealed class PieSeriesDialog : Dialog
             }
         };
 
-        OnDataSetChanged(_state.DataSet);
+        OnDataSetChanged(dataset);
         return body;
     }
 
-    private async void OnDataSetChanged(string? dsName)
+    private async void OnDataSetChanged(State state)
     {
+        var dsName = ((State<string?>)state).Value;
         if (string.IsNullOrEmpty(dsName)) return;
 
         var dsState = _designController.FindState(dsName);

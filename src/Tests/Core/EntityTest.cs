@@ -24,11 +24,11 @@ public sealed class EntityTest
         var entity = new TestEntity { Name = "Rick" };
 
         var rxName1 = entity.Observe(1, e => e.Name, (e, v) => e.Name = v);
-        rxName1.Listen(v => Console.WriteLine($"MockStateListener: [{v}] value changed."));
+        rxName1.AddListener(v => Console.WriteLine($"MockStateListener: [{v}] value changed."));
 
         var rxEntity = new RxEntity<TestEntity> { Target = entity };
         var rxName2 = rxEntity.Observe(1, e => e.Name, (e, v) => e.Name = v);
-        rxName2.Listen(v => Console.WriteLine($"MockStateListener: [{v}] value changed."));
+        rxName2.AddListener(v => Console.WriteLine($"MockStateListener: [{v}] value changed."));
 
         entity.Name = "Eric";
         Assert.True(entity.Name == rxName1.Value && entity.Name == rxName2.Value);

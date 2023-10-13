@@ -27,7 +27,7 @@ internal sealed class EntityPropertyPanel : View
     public EntityPropertyPanel(EntityModelVO entityModel, State<EntityMemberVO?> selectedMember)
     {
         _entityModel = entityModel;
-        _selectedMember = Bind(selectedMember, BindingOptions.None);
+        _selectedMember = Bind(selectedMember, OnSelectedMemberChanged);
         _rxEntityField = new RxEntityField((EntityFieldVO?)_selectedMember.Value);
         var isEntityField = _selectedMember
             .ToStateOfBool(v => v != null && v.Type == EntityMemberType.EntityField);
@@ -69,19 +69,9 @@ internal sealed class EntityPropertyPanel : View
     private readonly State<EntityMemberVO?> _selectedMember;
     private readonly RxEntityField _rxEntityField;
 
-    public override void OnStateChanged(State state, BindingOptions options)
+    private void OnSelectedMemberChanged(State state)
     {
-        if (ReferenceEquals(state, _selectedMember))
-        {
-            if (_selectedMember.Value != null)
-            {
-                if (_selectedMember.Value.Type == EntityMemberType.EntityField)
-                    _rxEntityField.Target = (EntityFieldVO)_selectedMember.Value;
-            }
-
-            return;
-        }
-
-        base.OnStateChanged(state, options);
+        if (_selectedMember.Value is EntityFieldVO entityFieldVO)
+            _rxEntityField.Target = entityFieldVO;
     }
 }
