@@ -140,7 +140,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
     private void OnRemove(PointerEvent e)
     {
-        _designController.DeleteElements();
+        var cmd = new DeleteElementsCommand();
+        cmd.Run(_designController);
 
         _outlinePad.RefreshOutline(); //TODO: remove when impl DesignController.RefreshOutline
     }
