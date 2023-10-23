@@ -20,7 +20,7 @@ public sealed class PermissionTreeView : View
     
     public State<OrgUnit?> CurrentOU
     {
-        set => _current = Rebind(_current, value, BindingOptions.None)!;
+        set => _current = Bind(_current, value, s => OnCurrentChanged())!;
     }
     
     private static void BuildTreeNode(PermissionNode data, TreeNode<PermissionNode> node)
@@ -28,16 +28,6 @@ public sealed class PermissionTreeView : View
         node.Label = new Text(data.Name);
         node.IsLeaf = data.Children == null;
         node.IsExpanded = data.Children != null && data.Children.Count > 0;
-    }
-    
-    public override void OnStateChanged(State state, BindingOptions opts)
-    {
-        if (ReferenceEquals(state, _current))
-        {
-            OnCurrentChanged();
-            return;
-        }
-        base.OnStateChanged(state, opts);
     }
     
     private async void LoadTreeAsync()

@@ -23,12 +23,10 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
 
         //始终检查语义错误，防止同步过程出现问题
         var semanticModel = await srcDocument.GetSemanticModelAsync();
-        var diagnostics = semanticModel!.GetDiagnostics();
-        if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
-            throw new Exception("Has error");
+        CodeGeneratorUtil.CheckSemantic(semanticModel!);
 
         var appName = modelNode.AppNode.Model.Name;
-        return new ViewCsGenerator(hub, appName, semanticModel, (ViewModel)modelNode.Model, forPreview);
+        return new ViewCsGenerator(hub, appName, semanticModel!, (ViewModel)modelNode.Model, forPreview);
     }
 
     private ViewCsGenerator(DesignHub hub, string appName, SemanticModel semanticModel, ViewModel viewModel,

@@ -8,6 +8,22 @@ namespace AppBoxDesign;
 
 internal static class CodeGeneratorUtil
 {
+    internal static void CheckSemantic(SemanticModel semanticModel)
+    {
+        var diagnostics = semanticModel.GetDiagnostics();
+        if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
+        {
+            var sb = new StringBuilder("语义错误:\n");
+            foreach (var error in diagnostics.Where(t => t.Severity == DiagnosticSeverity.Error))
+            {
+                sb.Append(error);
+                sb.AppendLine();
+            }
+
+            throw new Exception(sb.ToString());
+        }
+    }
+
     /// <summary>
     /// 检查编译是否成功，不成功则抛出异常
     /// </summary>
@@ -15,8 +31,7 @@ internal static class CodeGeneratorUtil
     {
         if (emitResult.Success) return;
 
-        var sb = new StringBuilder("编译错误:");
-        sb.AppendLine();
+        var sb = new StringBuilder("编译错误:\n");
         for (var i = 0; i < emitResult.Diagnostics.Length; i++)
         {
             var error = emitResult.Diagnostics[i];
