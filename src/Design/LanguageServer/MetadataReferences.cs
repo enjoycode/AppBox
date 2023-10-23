@@ -21,6 +21,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference SystemLinqLib => GetSdkLib("System.Linq.dll");
 
+    internal static MetadataReference SystemJsonLib => GetSdkLib("System.Text.Json.dll");
+
     internal static MetadataReference SystemObjectModelLib => GetSdkLib("System.ObjectModel.dll");
 
     internal static MetadataReference SystemRuntimeLib => GetSdkLib("System.Runtime.dll");
@@ -104,6 +106,7 @@ internal static class MetadataReferences
             SystemDataLib,
             SystemCollectionsLib,
             SystemLinqLib,
+            SystemJsonLib,
             PixUILib,
             PixUIWidgetsLib,
             MaterialIconsLib,
@@ -133,20 +136,20 @@ internal static class MetadataReferences
     {
         var deps = new List<MetadataReference>
         {
-            MetadataReferences.CoreLib,
-            MetadataReferences.NetstandardLib,
-            MetadataReferences.SystemRuntimeLib,
-            MetadataReferences.SystemLinqLib,
-            // MetadataReferences.SystemRuntimeExtLib,
-            // MetadataReferences.SystemTasksLib,
-            MetadataReferences.SystemDataLib,
-            MetadataReferences.SystemCollectionsLib,
-            // MetadataReferences.ComponentModelPrimitivesLib,
-            //MetadataReferences.ComponentModelLib,
-            //MetadataReferences.SystemBuffersLib,
-            MetadataReferences.AppBoxCoreLib,
-            MetadataReferences.AppBoxServerLib,
-            MetadataReferences.AppBoxStoreLib
+            CoreLib,
+            NetstandardLib,
+            SystemRuntimeLib,
+            SystemLinqLib,
+            // SystemRuntimeExtLib,
+            // SystemTasksLib,
+            SystemDataLib,
+            SystemCollectionsLib,
+            // ComponentModelPrimitivesLib,
+            // ComponentModelLib,
+            // SystemBuffersLib,
+            AppBoxCoreLib,
+            AppBoxServerLib,
+            AppBoxStoreLib
         };
 
         if (model.HasReference) //添加其他引用
