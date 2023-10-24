@@ -23,6 +23,7 @@ internal sealed class DynamicOutlinePad : View
     public DynamicOutlinePad(DesignController designController)
     {
         _designController = designController;
+        _designController.OutlineChanged += RefreshOutline;
         _treeController.SelectionChanged += OnSelectedWidget;
 
         Child = new Column
@@ -56,12 +57,12 @@ internal sealed class DynamicOutlinePad : View
     private static void BuildTreeNode(DesignElementTreeNode data, TreeNode<DesignElementTreeNode> node)
     {
         node.Icon = new Icon(MaterialIcons.Folder);
-        node.Label = new Text(data.Element.Meta?.Name ?? string.Empty);
+        node.Label = new Text(data.Element.Meta?.Name ?? "Placeholder");
         node.IsLeaf = data.Children.Count == 0;
         node.IsExpanded = !node.IsLeaf;
     }
 
-    public void RefreshOutline()
+    private void RefreshOutline()
     {
         if (IsMounted) BuildWidgetTree();
     }
@@ -69,7 +70,9 @@ internal sealed class DynamicOutlinePad : View
     private void BuildWidgetTree()
     {
         ClearInspector();
-        _treeController.DataSource = new List<DesignElementTreeNode> { new(_designController.RootElement) };
+        _treeController.DataSource = _designController.RootElement.Meta == null
+            ? null
+            : new List<DesignElementTreeNode> { new(_designController.RootElement) };
     }
 
     private void ClearInspector()

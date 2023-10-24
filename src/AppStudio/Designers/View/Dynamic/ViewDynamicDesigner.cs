@@ -52,7 +52,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                         {
                             new Button("Add") { OnTap = OnAdd },
                             new Button("Remove") { OnTap = OnRemove },
-                            new Button("Background") {OnTap = OnSetBackground},
+                            new Button("Background") { OnTap = OnSetBackground },
                         }
                     }
                 },
@@ -134,16 +134,12 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
         var active = _designController.FirstSelected!;
         active.OnDrop(meta);
-
-        _outlinePad.RefreshOutline(); //TODO: remove when impl DesignController.RefreshOutline
     }
 
     private void OnRemove(PointerEvent e)
     {
         var cmd = new DeleteElementsCommand();
         cmd.Run(_designController);
-
-        _outlinePad.RefreshOutline(); //TODO: remove when impl DesignController.RefreshOutline
     }
 
     private async void OnSetBackground(PointerEvent e)
