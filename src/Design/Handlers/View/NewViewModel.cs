@@ -21,7 +21,8 @@ internal sealed class NewViewModel : IDesignHandler
                              "Root": {
                                "Type": "Center",
                                "Child": {
-                                 "Type": "Button"
+                                 "Type": "Button",
+                                 "Text": { "Const": "Button" }
                                }
                              }
                            }
