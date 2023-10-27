@@ -17,6 +17,11 @@
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Resources\Galaxy.webp" />
+      <EmbeddedResource Include="Resources\Galaxy.webp" />
+    </ItemGroup>
+
 
 
 
