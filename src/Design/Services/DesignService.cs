@@ -17,6 +17,7 @@ public sealed class DesignService : IService
         // Tree
         { nameof(LoadDesignTree), new LoadDesignTree() },
         { nameof(CheckoutNode), new CheckoutNode() },
+        { nameof(NewFolder), new NewFolder() },
         // Code
         { nameof(ChangeBuffer), new ChangeBuffer() },
         { nameof(GetProblems), new GetProblems() },

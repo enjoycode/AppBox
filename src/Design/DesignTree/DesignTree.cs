@@ -223,6 +223,31 @@ public sealed class DesignTree : IBinSerializable
 
         return FindNewModelParentNode(node.Parent, newModelType);
     }
+    
+    /// <summary>
+    /// 根据当前选择的节点查找新建文件夹节点的上级节点
+    /// </summary>
+    public static DesignNode? FindNewFolderParentNode(DesignNode selected, out int appID, out ModelType modelType)
+    {
+        appID = 0;
+        modelType = ModelType.Entity;
+
+        if (selected is ModelRootNode rootNode)
+        {
+            appID = ((ApplicationNode)rootNode.Parent!).Model.Id;
+            modelType = rootNode.TargetType;
+            return selected;
+        }
+        if (selected.Type == DesignNodeType.FolderNode)
+        {
+            var folder = ((FolderNode)selected).Folder;
+            appID = folder.AppId;
+            modelType = folder.TargetModelType;
+            return selected;
+        }
+
+        return null;
+    }
 
     /// <summary>
     /// 向上递归查找指定节点所属的应用节点

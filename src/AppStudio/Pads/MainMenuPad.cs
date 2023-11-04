@@ -38,7 +38,7 @@ internal sealed class MainMenuPad : View
             MenuItem.SubMenu("New", MaterialIcons.CreateNewFolder, new[]
             {
                 MenuItem.Item("Application", MaterialIcons.Widgets, cmds.NotImplCommand),
-                MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NotImplCommand),
+                MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NewFolderCommand),
                 MenuItem.Item("Entity", MaterialIcons.TableChart, cmds.NewEntityCommand),
                 MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand),
                 MenuItem.Item("View", MaterialIcons.Wysiwyg, cmds.NewViewCommand),

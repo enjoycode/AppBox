@@ -11,6 +11,7 @@ internal sealed class Commands
     {
         _designStore = designStore;
 
+        NewFolderCommand = () => new NewDialog(_designStore, "Folder").Show();
         NewEntityCommand = () => new NewEntityDialog(_designStore).Show();
         NewServiceCommand = () => new NewDialog(_designStore, "Service").Show();
         NewViewCommand = () => new NewViewDialog(_designStore).Show();
@@ -24,6 +25,7 @@ internal sealed class Commands
     }
 
     private readonly DesignStore _designStore;
+    public readonly Action NewFolderCommand;
     public readonly Action NewEntityCommand;
     public readonly Action NewServiceCommand;
     public readonly Action NewViewCommand;
