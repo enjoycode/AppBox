@@ -57,6 +57,22 @@ internal readonly struct DbCommandParameterWriter : IEntityMemberWriter
         _command.Parameters.Add(para);
     }
 
+    public void WriteFloatMember(short id, float? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value == null ? DBNull.Value : value;
+        _command.Parameters.Add(para);
+    }
+
+    public void WriteDoubleMember(short id, double? value, int flags)
+    {
+        var para = _command.CreateParameter();
+        para.ParameterName = $"p{_command.Parameters.Count}";
+        para.Value = value == null ? DBNull.Value : value;
+        _command.Parameters.Add(para);
+    }
+
     public void WriteDateTimeMember(short id, DateTime? value, int flags)
     {
         var para = _command.CreateParameter();

@@ -23,6 +23,10 @@ public interface IEntityMemberWriter
 
     void WriteLongMember(short id, long? value, int flags);
 
+    void WriteFloatMember(short id, float? value, int flags);
+
+    void WriteDoubleMember(short id, double? value, int flags);
+
     void WriteDateTimeMember(short id, DateTime? value, int flags);
 
     void WriteGuidMember(short id, Guid? value, int flags);

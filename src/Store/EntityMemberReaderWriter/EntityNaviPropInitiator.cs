@@ -27,6 +27,10 @@ internal struct EntityNaviPropInitiator : IEntityMemberReader
 
     public long ReadLongMember(int flags) => throw new NotSupportedException();
 
+    public float ReadFloatMember(int flags) => throw new NotSupportedException();
+
+    public double ReadDoubleMember(int flags) => throw new NotSupportedException();
+
     public DateTime ReadDateTimeMember(int flags) => throw new NotSupportedException();
 
     public Guid ReadGuidMember(int flags) => throw new NotSupportedException();

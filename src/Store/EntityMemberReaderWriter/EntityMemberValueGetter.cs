@@ -35,6 +35,12 @@ internal struct EntityMemberValueGetter : IEntityMemberWriter
     public void WriteLongMember(short id, long? value, int flags)
         => Value = value == null ? AnyValue.Empty : AnyValue.From(value.Value);
 
+    public void WriteFloatMember(short id, float? value, int flags)
+        => Value = value == null ? AnyValue.Empty : AnyValue.From(value.Value);
+
+    public void WriteDoubleMember(short id, double? value, int flags)
+        => Value = value == null ? AnyValue.Empty : AnyValue.From(value.Value);
+
     public void WriteDateTimeMember(short id, DateTime? value, int flags)
         => Value = value == null ? AnyValue.Empty : AnyValue.From(value.Value);
 

@@ -92,6 +92,38 @@ public interface IOutputStream : IEntityMemberWriter
         }
     }
 
+    void IEntityMemberWriter.WriteFloatMember(short id, float? value, int flags)
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteFloat(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    void IEntityMemberWriter.WriteDoubleMember(short id, double? value, int flags)
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.WriteDouble(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     void IEntityMemberWriter.WriteDateTimeMember(short id, DateTime? value, int flags)
     {
         var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;

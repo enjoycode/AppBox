@@ -47,6 +47,20 @@ public interface IInputStream : IEntityMemberReader
         throw new NotImplementedException();
     }
 
+    float IEntityMemberReader.ReadFloatMember(int flags)
+    {
+        if (flags == 0) return this.ReadFloat();
+
+        throw new NotImplementedException();
+    }
+
+    double IEntityMemberReader.ReadDoubleMember(int flags)
+    {
+        if (flags == 0) return this.ReadDouble();
+
+        throw new NotImplementedException();
+    }
+
     DateTime IEntityMemberReader.ReadDateTimeMember(int flags)
     {
         if (flags == 0) return this.ReadDateTime();

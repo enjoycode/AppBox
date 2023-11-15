@@ -14,6 +14,10 @@ public interface IEntityMemberReader
 
     long ReadLongMember(int flags);
 
+    float ReadFloatMember(int flags);
+
+    double ReadDoubleMember(int flags);
+
     DateTime ReadDateTimeMember(int flags);
 
     Guid ReadGuidMember(int flags);

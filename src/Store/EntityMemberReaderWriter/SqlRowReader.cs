@@ -37,6 +37,16 @@ public readonly struct SqlRowReader : IEntityMemberReader
 
     public long? ReadNullableLongMember(int flags) => _dataReader.IsDBNull(flags) ? null : _dataReader.GetInt64(flags);
 
+    public float ReadFloatMember(int flags) => _dataReader.GetFloat(flags);
+
+    public float? ReadNullableFloatMember(int flags) =>
+        _dataReader.IsDBNull(flags) ? null : _dataReader.GetFloat(flags);
+
+    public double ReadDoubleMember(int flags) => _dataReader.GetDouble(flags);
+
+    public double? ReadNullableDoubleMember(int flags) =>
+        _dataReader.IsDBNull(flags) ? null : _dataReader.GetDouble(flags);
+
     public DateTime ReadDateTimeMember(int flags) => _dataReader.GetDateTime(flags).ToLocalTime();
 
     public DateTime? ReadNullableDateTimeMember(int flags) =>
