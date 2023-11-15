@@ -47,6 +47,10 @@
         <Link>ViewLibs\PixUI.dll</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <Content Include="..\WebHost\ViewLibs\PixUI.Dynamic.dll">
+        <Link>ViewLibs\PixUI.Dynamic.dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
       <Content Include="..\WebHost\ViewLibs\PixUI.LiveCharts.dll">
         <Link>ViewLibs\PixUI.LiveCharts.dll</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
