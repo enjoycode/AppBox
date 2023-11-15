@@ -34,6 +34,14 @@ namespace AppBoxClient
         void InjectRoute(RouteBase route);
     }
 
+    public static class Channel
+    {
+        public static Task Login(string user, string password, object? external = null)
+            => throw new Exception();
+
+        public static Task Logout() => throw new Exception();
+    }
+
     public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
     {
         public State<TMember> Observe<TMember>(Func<T, TMember> getter)
