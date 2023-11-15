@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
@@ -46,15 +47,10 @@ public static class AppAssembiles
             new object?[] { viewModelName });
         if (asmJson == null) throw new Exception($"Can't find view: {viewModelName}");
         var asmNames = JsonSerializer.Deserialize<string[]>(asmJson);
-        if (asmNames == null) throw new Exception();
+        if (asmNames == null || asmNames.Length == 0) 
+            throw new Exception($"获取视图模型[{viewModelName}]的程序集列表失败");
 
-        var needLoads = new List<string>();
-        foreach (var asmName in asmNames)
-        {
-            if (!_loader.HasLoad(asmName))
-                needLoads.Add(asmName);
-        }
-
+        var needLoads = asmNames.Where(asmName => !_loader.HasLoad(asmName));
         foreach (var asmName in needLoads)
         {
             var data = await Channel.Invoke<byte[]?>("sys.SystemService.LoadAppAssembly", new object?[] { asmName });
@@ -71,7 +67,7 @@ public static class AppAssembiles
         }
 
         //开始加载程序集
-        var viewAsm = _loader.LoadViewAssembly(needLoads[0]);
+        var viewAsm = _loader.GetOrLoadViewAssembly(asmNames[0]);
 
         var names = viewModelName.Split('.');
         var viewFullName = $"{names[0]}.Views.{names[1]}";
@@ -115,10 +111,12 @@ internal sealed class AppAssemblyLoader : AssemblyLoadContext
 
     public void AddAssemblyData(string assemblyName, byte[] data) => _loaded.Add(assemblyName, data);
 
-    public Assembly LoadViewAssembly(string assemblyName)
+    public Assembly GetOrLoadViewAssembly(string assemblyName)
     {
         if (!_loaded.TryGetValue(assemblyName, out var data))
             throw new Exception("Can't find assembly data");
+
+        if (data is Assembly loaded) return loaded;
 
         Log.Debug($"Begin load: {assemblyName}");
 
