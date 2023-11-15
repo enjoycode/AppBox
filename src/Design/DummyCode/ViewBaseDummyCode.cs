@@ -32,6 +32,8 @@ namespace AppBoxClient
     public interface IHomePage
     {
         void InjectRoute(RouteBase route);
+        
+        Navigator? Navigator { get; }
     }
 
     public static class Channel
