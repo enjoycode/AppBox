@@ -27,9 +27,18 @@ app.MapControllers();
 RuntimeContext.Init(new HostRuntimeContext(), new PasswordHasher());
 #if !FUTURE
 // 加载默认SqlStore
-SqlStore.InitDefault(app.Configuration["DefaultSqlStore:Assembly"],
-    app.Configuration["DefaultSqlStore:Type"],
-    app.Configuration["DefaultSqlStore:ConnectionString"]);
+try
+{
+    SqlStore.InitDefault(app.Configuration["DefaultSqlStore:Assembly"]!,
+        app.Configuration["DefaultSqlStore:Type"]!,
+        app.Configuration["DefaultSqlStore:ConnectionString"]!);
+}
+catch (Exception e)
+{
+    Console.WriteLine($"Init default store error: {e.Message}");
+    return;
+}
+
 // 尝试初始化存储, 初始化失败直接终止进程
 MetaStore.Init(new SqlMetaStore());
 await SqlStoreInitiator.TryInitStoreAsync();

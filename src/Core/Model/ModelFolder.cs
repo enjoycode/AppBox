@@ -15,7 +15,14 @@ public sealed class ModelFolder : IBinSerializable
 
     public ModelFolder? Parent { get; internal set; }
 
-    public int AppId { get; private set; }
+    /// <summary>
+    /// 应用标识号，仅根文件夹存储值
+    /// </summary>
+    public int AppId
+    {
+        get => Parent?.AppId ?? _appId;
+        private set => _appId = value;
+    }
 
     public ModelType TargetModelType { get; private set; }
 
@@ -29,6 +36,7 @@ public sealed class ModelFolder : IBinSerializable
     public int Version { get; internal set; } //TODO: remove?
 
     private List<ModelFolder>? _children;
+    private int _appId;
 
     public List<ModelFolder> Children
     {
