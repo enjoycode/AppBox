@@ -120,8 +120,8 @@ internal sealed class SqlStoreOptionsDesigner : View
     private async void OnAddPk(PointerEvent e)
     {
         var dlg = new FieldWithOrderDialog( _entityModel);
-        var canceled = await dlg.ShowAndWaitClose();
-        if (canceled) return;
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
         
         var fieldWithOrder = dlg.GetResult();
         if (fieldWithOrder == null) return;

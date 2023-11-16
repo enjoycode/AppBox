@@ -60,11 +60,11 @@ internal sealed class RenameDialog : Dialog
         };
     }
 
-    protected override bool OnClosing(bool canceled)
+    protected override bool OnClosing(string result)
     {
-        if (!canceled)
+        if (result == DialogResult.OK)
             RenameAsync();
-        return base.OnClosing(canceled);
+        return base.OnClosing(result);
     }
 
     private async void RenameAsync()

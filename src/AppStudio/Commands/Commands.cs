@@ -159,8 +159,8 @@ internal sealed class Commands
 
         var dlg = new RenameDialog(_designStore, referenceType, modelNode.Label.Value, modelNode.Id,
             modelNode.Label.Value);
-        var canceled = await dlg.ShowAndWaitClose();
-        if (canceled) return;
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
 
         modelNode.Label.Value = dlg.GetNewName();
     }

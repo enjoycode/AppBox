@@ -49,11 +49,11 @@ internal sealed class NewViewDialog : Dialog
         };
     }
 
-    protected override bool OnClosing(bool canceled)
+    protected override bool OnClosing(string result)
     {
-        if (!canceled && !string.IsNullOrEmpty(_name.Value))
+        if (result == DialogResult.OK && !string.IsNullOrEmpty(_name.Value))
             CreateAsync();
-        return base.OnClosing(canceled);
+        return base.OnClosing(result);
     }
 
     private async void CreateAsync()

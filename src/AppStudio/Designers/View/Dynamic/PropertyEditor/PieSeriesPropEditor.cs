@@ -33,8 +33,8 @@ internal sealed class PieSeriesPropEditor : SingleChildWidget
         }
 
         var dlg = new PieSeriesDialog(newOrCloned, designController);
-        var canceled = await dlg.ShowAndWaitClose();
-        if (canceled) return;
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
 
         _state.Value = newOrCloned;
     }

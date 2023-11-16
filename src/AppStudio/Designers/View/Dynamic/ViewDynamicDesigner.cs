@@ -145,8 +145,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     private async void OnSetBackground(PointerEvent e)
     {
         var dlg = new BackgroundDialog();
-        var canceled = await dlg.ShowAndWaitClose();
-        if (canceled) return;
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
 
         var bg = dlg.GetBackground();
         _designController.Background = bg;

@@ -29,8 +29,8 @@ internal sealed class AxesPropEditor : SingleChildWidget
             list.AddRange(_state.Value.Select(t => t.Clone()));
 
         var dlg = new AxesDialog(list, DesignController);
-        var canceled = await dlg.ShowAndWaitClose();
-        if (canceled) return;
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
 
         _state.Value = list.ToArray();
     }

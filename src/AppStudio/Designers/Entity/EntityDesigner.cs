@@ -111,8 +111,8 @@ namespace AppBoxDesign
         private async void OnAddMember(PointerEvent e)
         {
             var dlg = new NewEntityMemberDialog(_designStore, ModelNode);
-            var canceled = await dlg.ShowAndWaitClose();
-            if (canceled) return;
+            var dlgResult = await dlg.ShowAsync();
+            if (dlgResult != DialogResult.OK) return;
 
             try
             {
@@ -177,8 +177,8 @@ namespace AppBoxDesign
             var target = $"{ModelNode.Label}.{oldName}";
             var dlg = new RenameDialog(_designStore, ModelReferenceType.EntityMember,
                 target, ModelNode.Id, oldName);
-            var canceled = await dlg.ShowAndWaitClose();
-            if (canceled) return;
+            var dlgResult = await dlg.ShowAsync();
+            if (dlgResult != DialogResult.OK) return;
 
             //同步重命名的成员名称
             _selectedMember.Value.Name = dlg.GetNewName();

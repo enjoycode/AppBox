@@ -26,7 +26,7 @@ internal sealed class FieldWithOrderDialog : Dialog
             Padding = EdgeInsets.All(20),
             Child = new Form()
             {
-                Children = new[]
+                Children =
                 {
                     new FormItem("EntityField:", new Select<EntityMemberVO>(_selected)
                     {
