@@ -60,8 +60,8 @@ internal sealed class BottomPad : View
             {
                 Columns =
                 {
-                    new DataGridTextColumn<ReferenceVO>("Model", u => u.ModelName),
-                    new DataGridTextColumn<ReferenceVO>("Location", u => u.Location),
+                    new DataGridTextColumn<ReferenceVO>("Model", u => u.ModelName ?? string.Empty),
+                    new DataGridTextColumn<ReferenceVO>("Location", u => u.Location ?? string.Empty),
                     new DataGridButtonColumn<ReferenceVO>("Goto",
                         (p, _) => new Button(icon: MaterialIcons.NextPlan)
                         {

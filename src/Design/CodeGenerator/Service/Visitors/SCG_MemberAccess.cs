@@ -91,14 +91,23 @@ internal partial class ServiceCodeGenerator
             else if (node.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 BuildQueryMethodMemberAccess(memberAccess, targetIdentifier, sb);
-
-                //判断是否实体成员
+                
                 var symbol = SemanticModel.GetSymbolInfo(node).Symbol!;
-                var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(symbol.ContainingType.ToString())!;
-                var model = (EntityModel)modelNode.Model;
-                var isEntityMember = model.GetMember(symbol.Name, false) != null;
+                //判断是否方法调用 eg: t.Name.Contains
+                //TODO:暂简单处理，应转换或排除不支持的方法
+                if (symbol is IMethodSymbol methodSymbol)
+                {
+                    sb.Append($".{methodSymbol.Name}");
+                }
+                else
+                {
+                    //判断是否实体成员
+                    var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(symbol.ContainingType.ToString())!;
+                    var model = (EntityModel)modelNode.Model;
+                    var isEntityMember = model.GetMember(symbol.Name, false) != null;
 
-                sb.AppendFormat(isEntityMember ? "[\"{0}\"]" : ".{0}", node.Name.Identifier.ValueText);
+                    sb.AppendFormat(isEntityMember ? "[\"{0}\"]" : ".{0}", node.Name.Identifier.ValueText);
+                }
             }
         }
     }
