@@ -340,6 +340,7 @@ internal sealed class TypeSystem : IDisposable
             MetadataReferences.SystemDataLib,
             MetadataReferences.SystemCollectionsLib,
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
+            MetadataReferences.OracleLib, //TODO: 临时使用待移除
         };
 
         if (model.HasReference) //添加其他引用

@@ -62,6 +62,10 @@ internal static class MetadataReferences
 
     internal static MetadataReference AppBoxStoreLib =>
         TryGet("AppBoxStore.dll", typeof(MetaStore).Assembly.Location);
+    
+    //TODO:***** 临时使用，待移除
+    internal static MetadataReference OracleLib =>
+        TryGet("Oracle.ManagedDataAccess.dll", Path.Combine(AppPath, "Oracle.ManagedDataAccess.dll"));
 
     private static MetadataReference GetSdkLib(string asmName) =>
         TryGet(asmName, Path.Combine(SdkPath, asmName));
@@ -152,7 +156,8 @@ internal static class MetadataReferences
             // SystemBuffersLib,
             AppBoxCoreLib,
             AppBoxServerLib,
-            AppBoxStoreLib
+            AppBoxStoreLib,
+            OracleLib, //TODO:***** 临时使用待移除
         };
 
         if (model.HasReference) //添加其他引用
