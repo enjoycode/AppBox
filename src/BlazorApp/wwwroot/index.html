@@ -251,9 +251,11 @@
 
         CreateCanvas()
         CreateInput()
+        let wsp = document.location.protocol.startsWith("https") ? "wss://" : "ws://"
+        let wsurl = wsp + document.location.host + "/ws"
         let glHandel = GetGLContext()
         let routePath = document.location.hash.length > 0 ? document.location.hash.substring(1) : null
-        await DotNet.invokeMethodAsync(_asmName, "Run", glHandel, window.innerWidth, window.innerHeight, window.devicePixelRatio, routePath)
+        await DotNet.invokeMethodAsync(_asmName, "Run", wsurl, glHandel, window.innerWidth, window.innerHeight, window.devicePixelRatio, routePath)
         BindEvents()
     }
 </script>
