@@ -10,7 +10,7 @@
         <WasmIcuDataFileName>icudt.dat</WasmIcuDataFileName>
         <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
         <EmccExtraCFlags>-s USE_WEBGL2=1 -s MAX_WEBGL_VERSION=2</EmccExtraCFlags>
-        <EmccExtraLDFlags>-lGL -sEXPORTED_RUNTIME_METHODS=['GL','print','ccall','cwrap','setValue','getValue','UTF8ToString','UTF8ArrayToString']</EmccExtraLDFlags>
+        <EmccExtraLDFlags>-s ERROR_ON_UNDEFINED_SYMBOLS=0 -lGL -sEXPORTED_RUNTIME_METHODS=['GL','print','ccall','cwrap','setValue','getValue','UTF8ToString','UTF8ArrayToString']</EmccExtraLDFlags>
         <RootNamespace>AppBox.BlazorApp</RootNamespace>
         <AssemblyName>AppBox.BlazorApp</AssemblyName>
     </PropertyGroup>
