@@ -33,14 +33,62 @@ public static class Program
         FontCollection.Instance.RegisterTypefaceToAsset(fontData!, FontCollection.DefaultFamilyName, false);
 
         //加载HomePage
-        var homePage = await AppAssembiles.MakeViewWidgetAsync("sys.HomePage");
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (homePage is IHomePage mainRoutes)
-        {
-            var devRoute = new Route("dev", s => new AppBoxDesign.HomePage());
-            mainRoutes.InjectRoute(devRoute);
-        }
+        var homePage = new HomePage();
+        // var homePage = await AppAssembiles.MakeViewWidgetAsync("sys.HomePage");
+        // // ReSharper disable once SuspiciousTypeConversion.Global
+        // if (homePage is IHomePage mainRoutes)
+        // {
+        //     var devRoute = new Route("dev", s => new AppBoxDesign.HomePage());
+        //     mainRoutes.InjectRoute(devRoute);
+        // }
 
         BlazorApplication.Run(() => homePage, glHandle, width, height, ratio, routePath);
+    }
+}
+
+public class HomePage : RouteView
+{
+    private static readonly Navigator _navigator = new(new RouteBase[]
+    {
+        new Route("welcome", a => new Center() { Child = new Text("Welcome")}),
+        new Route("db", a => new Center() {Child = new Text("Dashboard")}),
+        new Route("biz", a => new BizHomePage())
+    });
+    
+    public HomePage() : base(_navigator) { }
+
+    public Navigator Navigator => _navigator;
+}
+
+public class BizHomePage : View
+{
+    public BizHomePage()
+    {
+        var navigator = new Navigator(new RouteBase[]
+        {
+            new Route("welcome", a => new Center() {Child = new Text("Welcome to Biz")}),
+        });
+        
+        Child = new Column
+        {
+            Children =
+            {
+                new Row
+                {
+                    Children =
+                    {
+                        new Button("大屏") {OnTap = GotoDB}
+                    }
+                },
+                new Expanded(new RouteView(navigator))
+            }
+        };
+    }
+
+    private void GotoDB(PointerEvent e)
+    {
+        // var homePage = (HomePage) (((SingleChildWidget)Root!).Child!);
+        // homePage.Navigator.Push("db");
+        Root?.Window.NavigateTo("/db");
     }
 }
