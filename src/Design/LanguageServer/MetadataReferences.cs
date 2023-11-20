@@ -67,6 +67,15 @@ internal static class MetadataReferences
     internal static MetadataReference OracleLib =>
         TryGet("Oracle.ManagedDataAccess.dll", Path.Combine(AppPath, "Oracle.ManagedDataAccess.dll"));
 
+    internal static MetadataReference SystemComponentModelLib
+        => GetSdkLib("System.ComponentModel.dll");
+
+    internal static MetadataReference SystemComponentModelPrimitivesLib
+        => GetSdkLib("System.ComponentModel.Primitives.dll");
+
+    internal static MetadataReference SystemComponentModelTypeConverterLib
+        => GetSdkLib("System.ComponentModel.TypeConverter.dll");
+
     private static MetadataReference GetSdkLib(string asmName) =>
         TryGet(asmName, Path.Combine(SdkPath, asmName));
 
@@ -157,7 +166,11 @@ internal static class MetadataReferences
             AppBoxCoreLib,
             AppBoxServerLib,
             AppBoxStoreLib,
-            OracleLib, //TODO:***** 临时使用待移除
+            //TODO:***** 临时使用待移除
+            OracleLib,
+            SystemComponentModelLib,
+            SystemComponentModelPrimitivesLib,
+            SystemComponentModelTypeConverterLib
         };
 
         if (model.HasReference) //添加其他引用
