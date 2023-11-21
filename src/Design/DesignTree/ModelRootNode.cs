@@ -56,6 +56,15 @@ public sealed class ModelRootNode : DesignNode
         _models.Remove(node.Model.Id);
     }
 
+    internal void RemoveFolder(FolderNode node)
+    {
+        if (node.Parent is FolderNode folderNode)
+            folderNode.Children.Remove(node);
+        else
+            Children.Remove(node);
+        _folders.Remove(node.Folder.Id);
+    }
+
     /// <summary>
     /// 仅用于设计树从顶级开始递归添加文件夹节点
     /// </summary>

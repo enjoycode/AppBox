@@ -15,12 +15,14 @@ internal sealed class DeleteNode : IDesignHandler
         if (deleteNode == null)
             throw new Exception("Can't find node");
         if (!(deleteNode is ModelNode || deleteNode is ApplicationNode ||
-              deleteNode is FolderNode folderNode && folderNode.Children.Count == 0))
+              deleteNode is FolderNode { Children.Count: 0 }))
             throw new Exception("Can not delete it.");
 
         DesignNode? rootNode;
         if (deleteNode is ModelNode modelNode)
             rootNode = await DeleteModelNode(hub, modelNode);
+        else if (deleteNode is FolderNode folderNode)
+            rootNode = await DeleteFolderNode(hub, folderNode);
         else
             throw new NotImplementedException();
 
@@ -93,5 +95,30 @@ internal sealed class DeleteNode : IDesignHandler
             hub.TypeSystem.RemoveDocument(node.ExtRoslynDocumentId);
         if (node.ServiceProjectId != null) //注意：服务模型移除整个虚拟项目
             hub.TypeSystem.RemoveServiceProject(node.ServiceProjectId);
+    }
+
+    private static async Task<DesignNode?> DeleteFolderNode(DesignHub hub, FolderNode node)
+    {
+        //查找ModelRootNode
+        var modelRootNode = hub.DesignTree.FindModelRootNode(node.Folder.AppId, node.Folder.TargetModelType)!;
+        var rootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
+        // 尝试签出根节点
+        var rootCheckout = await modelRootNode.CheckoutAsync();
+        if (!rootCheckout)
+            throw new Exception("Can't checkout node.");
+        // 注意：如果自动签出了模型根节点，当前选择的节点需要重新指向，因为Node.Checkout()时已重新加载
+        if (!rootNodeHasCheckout)
+            node = modelRootNode.FindFolderNode(node.Folder.Id) ?? throw new Exception("所选节点已不存在，请刷新");
+
+        var folder = node.Folder;
+        if (folder.Parent == null) throw new NotImplementedException();
+
+        folder.Remove();
+        await node.SaveAsync();
+
+        //移除对应的节点
+        modelRootNode.RemoveFolder(node);
+
+        return rootNodeHasCheckout ? null : modelRootNode;
     }
 }
