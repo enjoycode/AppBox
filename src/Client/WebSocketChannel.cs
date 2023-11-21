@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Text;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,12 +12,14 @@ namespace AppBoxClient
         public WebSocketChannel(Uri serverUri)
         {
             _serverUri = serverUri;
-            _clientWebSocket = new ClientWebSocket();
-            _ = Task.Run(ConnectAndStartReceive);
+            Task.Run(TryConnect);
         }
 
+        private ClientWebSocket _clientWebSocket = null!;
+        private int _connectStatus = 0;
+        private Task _connectTask = null!;
         private readonly Uri _serverUri;
-        private readonly ClientWebSocket _clientWebSocket;
+
         private int _sessionId;
         private string? _name;
         private int _msgIdIndex = 0;
@@ -134,25 +134,57 @@ namespace AppBoxClient
 
         private int MakeMsgId() => Interlocked.Increment(ref _msgIdIndex);
 
-        private async Task ConnectAndStartReceive()
+        private async ValueTask TryConnect()
         {
-            try
+            var oldStatus = Interlocked.CompareExchange(ref _connectStatus, 1, 0);
+            if (oldStatus == 0)
             {
-                await _clientWebSocket.ConnectAsync(_serverUri, CancellationToken.None);
+                _clientWebSocket = new ClientWebSocket();
+                _connectTask = _clientWebSocket.ConnectAsync(_serverUri, CancellationToken.None);
+                try
+                {
+                    await _connectTask;
+                    StartReceive(_clientWebSocket);
+                    Interlocked.Exchange(ref _connectStatus, 2);
+                }
+                catch (Exception e)
+                {
+                    Interlocked.Exchange(ref _connectStatus, 0);
+                    throw new Exception($"Can't connect to websocket: {e.Message}");
+                }
             }
-            catch (Exception ex)
+            else if (oldStatus == 1)
             {
-                Console.WriteLine($"Can't connect to uri: {_serverUri} errors:\n{ex.Message}");
-                return;
+                await _connectTask;
             }
+        }
 
+        private async void StartReceive(WebSocket webSocket)
+        {
             //TODO:暂简单实现
-            while (true)
+            while (webSocket.State == WebSocketState.Open)
             {
                 var segment = BytesSegment.Rent();
-                var res = await _clientWebSocket.ReceiveAsync(segment.Buffer, CancellationToken.None);
-                segment.Length = res.Count;
+                WebSocketReceiveResult res;
+                try
+                {
+                    res = await webSocket.ReceiveAsync(segment.Buffer, CancellationToken.None);
+                }
+                catch (Exception e)
+                {
+                    BytesSegment.ReturnOne(segment);
+                    OnClose($"Websocket receive error: {e.Message}");
+                    break;
+                }
 
+                if (res.MessageType == WebSocketMessageType.Close)
+                {
+                    BytesSegment.ReturnOne(segment);
+                    OnClose("Websocket receive error: Close");
+                    break;
+                }
+
+                segment.Length = res.Count;
                 if (res.EndOfMessage)
                 {
                     if (_pendingResponse != null)
@@ -171,21 +203,24 @@ namespace AppBoxClient
                 }
                 else
                 {
-                    if (_pendingResponse != null)
-                    {
-                        _pendingResponse.Append(segment);
-                    }
-
+                    _pendingResponse?.Append(segment);
                     _pendingResponse = segment;
                 }
             }
         }
 
+        private void OnClose(string reason)
+        {
+            Console.WriteLine(reason);
+            //TODO: clean pending request
+            Interlocked.Exchange(ref _connectStatus, 0);
+        }
+
         private async Task SendMessage(BytesSegment data)
         {
-            //TODO: check connection state
+            await TryConnect();
 
-            BytesSegment cur = data;
+            var cur = data;
             do
             {
                 var isEnd = cur.Next == null;
@@ -193,8 +228,7 @@ namespace AppBoxClient
                     CancellationToken.None);
                 if (isEnd)
                     break;
-                else
-                    cur = (BytesSegment)cur.Next!;
+                cur = (BytesSegment)cur.Next!;
             } while (true);
 
             BytesSegment.ReturnAll(data);

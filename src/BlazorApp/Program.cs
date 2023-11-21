@@ -38,6 +38,7 @@ public static class Program
         // ReSharper disable once SuspiciousTypeConversion.Global
         if (homePage is IHomePage mainRoutes)
         {
+            //TODO: lazy load AppBoxDesign assembly
             var devRoute = new Route("dev", s => new AppBoxDesign.HomePage());
             mainRoutes.InjectRoute(devRoute);
         }
