@@ -365,7 +365,7 @@ partial class PgSqlStore
                 model.SqlStoreOptions.Indexes.Where(t => t.PersistentState == PersistentState.Deleted);
             foreach (var index in deletedIndexes)
             {
-                commands.Add( new NpgsqlCommand($"DROP INDEX IF EXISTS \"IX_{model.Id}_{index.IndexId}\""));
+                commands.Add(new NpgsqlCommand($"DROP INDEX IF EXISTS \"IX_{model.Id}_{index.IndexId}\""));
             }
         }
 

@@ -38,15 +38,8 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public IList<SqlIndexModel> Indexes => _indexes!;
 
-    private bool IsTableNamePrefixChanged
-    {
-        get
-        {
-            if (_originalTableNamePrefix == null && _tableNamePrefix == null)
-                return false;
-            return _originalTableNamePrefix != _tableNamePrefix;
-        }
-    }
+    private bool IsTableNamePrefixChanged =>
+        _originalTableNamePrefix != null && _originalTableNamePrefix != _tableNamePrefix;
 
     public bool IsTableNameChanged => _owner.IsNameChanged || IsTableNamePrefixChanged;
 
@@ -125,6 +118,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public void AcceptChanges()
     {
+        _originalTableNamePrefix = null;
         PrimaryKeysHasChanged = false;
 
         if (HasIndexes)
