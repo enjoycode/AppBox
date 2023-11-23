@@ -168,11 +168,9 @@ public abstract class SqlStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    protected internal abstract IList<DbCommand> MakeCreateTable(EntityModel model,
-        IModelContainer ctx);
+    protected internal abstract IList<DbCommand> MakeCreateTable(EntityModel model, IModelContainer ctx);
 
-    protected internal abstract IList<DbCommand> MakeAlterTable(EntityModel model,
-        IModelContainer ctx);
+    protected internal abstract IList<DbCommand> MakeAlterTable(EntityModel model, IModelContainer ctx);
 
     protected internal abstract DbCommand MakeDropTable(EntityModel model, IModelContainer ctx);
 

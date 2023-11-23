@@ -23,12 +23,13 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     private string? _tableNamePrefix;
     private long _storeModelId; //映射的DataStoreModel的标识
     private FieldWithOrder[]? _primaryKeys;
-    private bool _primaryKeysHasChanged = false;
     private IList<SqlIndexModel>? _indexes;
 
     public DataStoreKind Kind => DataStoreKind.Sql;
 
     public long StoreModelId => _storeModelId;
+
+    public bool PrimaryKeysHasChanged { get; private set; }
 
     public bool HasIndexes => _indexes != null && _indexes.Count > 0;
     public bool HasPrimaryKeys => _primaryKeys != null && _primaryKeys.Length > 0;
@@ -99,7 +100,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             }
         }
 
-        _primaryKeysHasChanged = true;
+        PrimaryKeysHasChanged = true;
         _owner.OnPropertyChanged();
     }
 
@@ -124,7 +125,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public void AcceptChanges()
     {
-        //PrimaryKeysHasChanged = false;
+        PrimaryKeysHasChanged = false;
 
         if (HasIndexes)
         {
@@ -171,7 +172,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         {
             ws.WriteByte(_devIndexIdSeq);
             ws.WriteByte(_usrIndexIdSeq);
-            ws.WriteBool(_primaryKeysHasChanged);
+            ws.WriteBool(PrimaryKeysHasChanged);
             ws.WriteString(_originalTableNamePrefix);
         }
 
@@ -211,7 +212,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         {
             _devIndexIdSeq = rs.ReadByte();
             _usrIndexIdSeq = rs.ReadByte();
-            _primaryKeysHasChanged = rs.ReadBool();
+            PrimaryKeysHasChanged = rs.ReadBool();
             _originalTableNamePrefix = rs.ReadString();
         }
 

@@ -44,18 +44,8 @@ partial class PgSqlStore
         //Build PrimaryKey
         if (model.SqlStoreOptions!.HasPrimaryKeys)
         {
-            //使用模型标识作为PK名称以避免重命名影响
             sb.AppendLine();
-            sb.Append($"ALTER TABLE \"{tableName}\" ADD CONSTRAINT \"PK_{model.Id}\"");
-            sb.Append(" PRIMARY KEY (");
-            foreach (var pk in model.SqlStoreOptions.PrimaryKeys)
-            {
-                var mm = (EntityFieldModel)model.GetMember(pk.MemberId, true)!;
-                sb.Append($"\"{mm.SqlColName}\",");
-            }
-
-            sb.Remove(sb.Length - 1, 1);
-            sb.Append(");");
+            BuildPrimaryKey(model, tableName, sb, false);
         }
 
         //加入EntityRef引用外键
@@ -65,8 +55,7 @@ partial class PgSqlStore
             sb.AppendLine(fks[i]);
         }
 
-        var res = new List<DbCommand>();
-        res.Add(new NpgsqlCommand(StringBuilderCache.GetStringAndRelease(sb)));
+        var res = new List<DbCommand> { new NpgsqlCommand(StringBuilderCache.GetStringAndRelease(sb)) };
 
         //Build Indexes
         BuildIndexes(model, res, tableName);
@@ -76,13 +65,10 @@ partial class PgSqlStore
 
     protected override IList<DbCommand> MakeAlterTable(EntityModel model, IModelContainer ctx)
     {
-        //TODO:***处理主键变更
-
         var tableName = model.SqlStoreOptions!.GetSqlTableName(false, ctx);
 
-        StringBuilder sb;
         var needCommand = false; //用于判断是否需要处理NpgsqlCommand
-        var fks = new List<string>(); //引用外键列表
+        var foreignKeys = new List<string>(); //引用外键列表
         var commands = new List<DbCommand>();
         //List<DbCommand> funcCmds = new List<DbCommand>();
         //先处理表名称有没有变更，后续全部使用新名称
@@ -101,7 +87,7 @@ partial class PgSqlStore
         {
             #region ----删除的成员----
 
-            sb = StringBuilderCache.Acquire();
+            var sb = StringBuilderCache.Acquire();
             foreach (var m in deletedMembers)
             {
                 if (m.Type == EntityMemberType.EntityField)
@@ -116,21 +102,21 @@ partial class PgSqlStore
                     if (!rm.IsAggregationRef)
                     {
                         var fkName = $"FK_{rm.Owner.Id}_{rm.MemberId}"; //TODO:特殊处理DbFirst导入表的外键约束名称
-                        fks.Add($"ALTER TABLE \"{tableName}\" DROP CONSTRAINT \"{fkName}\";");
+                        foreignKeys.Add($"ALTER TABLE \"{tableName}\" DROP CONSTRAINT \"{fkName}\";");
                     }
                 }
             }
 
-            var cmdText = StringBuilderCache.GetStringAndRelease(sb);
             if (needCommand)
             {
                 //加入删除的外键SQL
-                for (int i = 0; i < fks.Count; i++)
+                for (int i = 0; i < foreignKeys.Count; i++)
                 {
-                    sb.Insert(0, fks[i]);
+                    sb.Insert(0, foreignKeys[i]);
                     sb.AppendLine();
                 }
 
+                var cmdText = StringBuilderCache.GetStringAndRelease(sb);
                 commands.Add(new NpgsqlCommand(cmdText));
             }
 
@@ -139,7 +125,7 @@ partial class PgSqlStore
 
         //reset
         needCommand = false;
-        fks.Clear();
+        foreignKeys.Clear();
 
         //处理新增的成员
         var addedMembers = model.Members
@@ -149,7 +135,7 @@ partial class PgSqlStore
         {
             #region ----新增的成员----
 
-            sb = StringBuilderCache.Acquire();
+            var sb = StringBuilderCache.Acquire();
             foreach (var m in addedMembers)
             {
                 if (m.Type == EntityMemberType.EntityField)
@@ -164,7 +150,7 @@ partial class PgSqlStore
                     var rm = (EntityRefModel)m;
                     if (!rm.IsAggregationRef) //只有非聚合引合创建外键
                     {
-                        fks.Add(BuildForeignKey(rm, ctx, tableName));
+                        foreignKeys.Add(BuildForeignKey(rm, ctx, tableName));
                         //考虑CreateGetTreeNodeChildsDbFuncCommand
                     }
                 }
@@ -174,9 +160,9 @@ partial class PgSqlStore
             {
                 //加入外键约束
                 sb.AppendLine();
-                for (var i = 0; i < fks.Count; i++)
+                for (var i = 0; i < foreignKeys.Count; i++)
                 {
-                    sb.AppendLine(fks[i]);
+                    sb.AppendLine(foreignKeys[i]);
                 }
 
                 var cmdText = StringBuilderCache.GetStringAndRelease(sb);
@@ -188,7 +174,7 @@ partial class PgSqlStore
 
         //reset
         needCommand = false;
-        fks.Clear();
+        foreignKeys.Clear();
 
         //处理修改的成员
         var changedMembers = model.Members
@@ -206,7 +192,7 @@ partial class PgSqlStore
                     //先处理数据类型变更，变更类型或者变更AllowNull或者变更默认值
                     if (dfm.IsFieldTypeChanged)
                     {
-                        sb = StringBuilderCache.Acquire();
+                        var sb = StringBuilderCache.Acquire();
                         sb.AppendFormat("ALTER TABLE \"{0}\" ALTER COLUMN ", tableName);
                         BuildFieldDefine(dfm, sb, true);
 
@@ -241,6 +227,14 @@ partial class PgSqlStore
             }
 
             #endregion
+        }
+
+        //处理主键变更
+        if (model.SqlStoreOptions.PrimaryKeysHasChanged)
+        {
+            var sb = StringBuilderCache.Acquire();
+            BuildPrimaryKey(model, tableName, sb, true);
+            commands.Add(new NpgsqlCommand(StringBuilderCache.GetStringAndRelease(sb)));
         }
 
         //处理索引变更
@@ -368,12 +362,10 @@ partial class PgSqlStore
         if (model.PersistentState != PersistentState.Detached)
         {
             var deletedIndexes =
-                model.SqlStoreOptions.Indexes.Where(t =>
-                    t.PersistentState == PersistentState.Deleted);
+                model.SqlStoreOptions.Indexes.Where(t => t.PersistentState == PersistentState.Deleted);
             foreach (var index in deletedIndexes)
             {
-                commands.Add(
-                    new NpgsqlCommand($"DROP INDEX IF EXISTS \"IX_{model.Id}_{index.IndexId}\""));
+                commands.Add( new NpgsqlCommand($"DROP INDEX IF EXISTS \"IX_{model.Id}_{index.IndexId}\""));
             }
         }
 
@@ -398,6 +390,37 @@ partial class PgSqlStore
         }
 
         //暂不处理改变的索引
+    }
+
+    private static void BuildPrimaryKey(EntityModel model, string tableName, StringBuilder sb, bool forAlter)
+    {
+        var pkName = $"PK_{model.Id}"; //使用模型标识作为PK名称以避免重命名影响
+        sb.Append($"ALTER TABLE \"{tableName}\" ");
+
+        if (forAlter)
+        {
+            sb.Append($"DROP CONSTRAINT IF EXISTS \"{pkName}\"");
+            if (model.SqlStoreOptions!.HasPrimaryKeys)
+            {
+                sb.Append(',');
+            }
+            else
+            {
+                sb.Append(';');
+                return;
+            }
+        }
+
+        sb.Append($" ADD CONSTRAINT \"{pkName}\"");
+        sb.Append(" PRIMARY KEY (");
+        foreach (var pk in model.SqlStoreOptions!.PrimaryKeys)
+        {
+            var mm = (EntityFieldModel)model.GetMember(pk.MemberId, true)!;
+            sb.Append($"\"{mm.SqlColName}\",");
+        }
+
+        sb.Remove(sb.Length - 1, 1);
+        sb.Append(");");
     }
 
     #endregion
