@@ -18,7 +18,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
         Child = new Column()
         {
-            Children = new[]
+            Children =
             {
                 BuildActionBar(),
                 new Expanded() { Child = BuildBody() },

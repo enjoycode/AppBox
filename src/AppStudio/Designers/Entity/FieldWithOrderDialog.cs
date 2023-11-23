@@ -19,26 +19,23 @@ internal sealed class FieldWithOrderDialog : Dialog
     private readonly State<EntityMemberVO?> _selected = new RxValue<EntityMemberVO?>(null);
     private readonly State<bool> _orderByDesc = false;
 
-    protected override Widget BuildBody()
+    protected override Widget BuildBody() => new Container
     {
-        return new Container
+        Padding = EdgeInsets.All(20),
+        Child = new Form
         {
-            Padding = EdgeInsets.All(20),
-            Child = new Form()
+            Children =
             {
-                Children =
+                new FormItem("EntityField:", new Select<EntityMemberVO>(_selected)
                 {
-                    new FormItem("EntityField:", new Select<EntityMemberVO>(_selected)
-                    {
-                        Options = _entityModel.Members
-                            .Where(m => m.Type == EntityMemberType.EntityField)
-                            .ToArray()
-                    }),
-                    new FormItem("OrderByDesc:", new Checkbox(_orderByDesc))
-                }
+                    Options = _entityModel.Members
+                        .Where(m => m.Type == EntityMemberType.EntityField)
+                        .ToArray()
+                }),
+                new FormItem("OrderByDesc:", new Checkbox(_orderByDesc))
             }
-        };
-    }
+        }
+    };
 
     internal FieldWithOrder? GetResult()
     {

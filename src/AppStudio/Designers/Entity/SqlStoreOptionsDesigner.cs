@@ -15,12 +15,12 @@ internal sealed class SqlStoreOptionsDesigner : View
         _pkController.DataSource = _entityModel.SqlStoreOptions.PrimaryKeys;
         _idxController.DataSource = _entityModel.SqlStoreOptions.Indexes;
 
-        Child = new Container()
+        Child = new Container
         {
             Padding = EdgeInsets.All(8),
             Child = new Row(VerticalAlignment.Top, 10)
             {
-                Children = new Widget[]
+                Children =
                 {
                     new Expanded(BuildPrimaryKeysPannel()),
                     new Expanded(BuildIndexesPannel()),
@@ -34,73 +34,64 @@ internal sealed class SqlStoreOptionsDesigner : View
     private readonly DataGridController<FieldWithOrder> _pkController = new();
     private readonly DataGridController<SqlIndexModelVO> _idxController = new();
 
-    private Widget BuildPrimaryKeysPannel()
+    private Widget BuildPrimaryKeysPannel() => new Card
     {
-        return new Card()
+        Padding = EdgeInsets.All(10),
+        Child = new Column(HorizontalAlignment.Left, 10)
         {
-            Padding = EdgeInsets.All(10),
-            Child = new Column(HorizontalAlignment.Left, 10)
+            Children =
             {
-                Children = new Widget[]
+                new Text("Primary Keys:") { FontSize = 20, FontWeight = FontWeight.Bold },
+                new ButtonGroup()
                 {
-                    new Text("Primary Keys:") { FontSize = 20, FontWeight = FontWeight.Bold },
-                    new ButtonGroup()
+                    Children =
                     {
-                        Children = new[]
-                        {
-                            new Button("Add", MaterialIcons.Add) { OnTap = OnAddPk },
-                            new Button("Remove", MaterialIcons.Remove) { OnTap = OnRemovePk }
-                        }
-                    },
-                    new DataGrid<FieldWithOrder>(_pkController)
+                        new Button("Add", MaterialIcons.Add) { OnTap = OnAddPk },
+                        new Button("Remove", MaterialIcons.Remove) { OnTap = OnRemovePk }
+                    }
+                },
+                new DataGrid<FieldWithOrder>(_pkController)
+                {
+                    Columns =
                     {
-                        Columns =
-                        {
-                            new DataGridTextColumn<FieldWithOrder>("Name",
-                                t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
-                            new DataGridCheckboxColumn<FieldWithOrder>("OrderByDesc",
-                                t => t.OrderByDesc),
-                        }
+                        new DataGridTextColumn<FieldWithOrder>("Name",
+                            t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
+                        new DataGridCheckboxColumn<FieldWithOrder>("OrderByDesc",
+                            t => t.OrderByDesc),
                     }
                 }
             }
-        };
-    }
+        }
+    };
 
-    private Widget BuildIndexesPannel()
+    private Widget BuildIndexesPannel() => new Card
     {
-        return new Card()
+        Padding = EdgeInsets.All(10),
+        Child = new Column(HorizontalAlignment.Left, 10)
         {
-            Padding = EdgeInsets.All(10),
-            Child = new Column(HorizontalAlignment.Left, 10)
+            Children =
             {
-                Children = new Widget[]
+                new Text("Indexes:") { FontSize = 20, FontWeight = FontWeight.Bold },
+                new ButtonGroup
                 {
-                    new Text("Indexes:") { FontSize = 20, FontWeight = FontWeight.Bold },
-                    new ButtonGroup()
+                    Children =
                     {
-                        Children = new[]
-                        {
-                            new Button("Add", MaterialIcons.Add),
-                            new Button("Remove", MaterialIcons.Remove)
-                        }
-                    },
-                    new DataGrid<SqlIndexModelVO>(_idxController)
+                        new Button("Add", MaterialIcons.Add),
+                        new Button("Remove", MaterialIcons.Remove)
+                    }
+                },
+                new DataGrid<SqlIndexModelVO>(_idxController)
+                {
+                    Columns =
                     {
-                        Columns =
-                        {
-                            new DataGridTextColumn<SqlIndexModelVO>("Name",
-                                t => t.Name),
-                            new DataGridTextColumn<SqlIndexModelVO>("Fields",
-                                t => GetIndexesFieldsList(t)),
-                            new DataGridCheckboxColumn<SqlIndexModelVO>("Unique",
-                                t => true),
-                        }
-                    },
-                }
+                        new DataGridTextColumn<SqlIndexModelVO>("Name", t => t.Name),
+                        new DataGridTextColumn<SqlIndexModelVO>("Fields", GetIndexesFieldsList),
+                        new DataGridCheckboxColumn<SqlIndexModelVO>("Unique", t => true),
+                    }
+                },
             }
-        };
-    }
+        }
+    };
 
     private string GetIndexesFieldsList(SqlIndexModelVO indexMode)
     {
@@ -119,13 +110,13 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private async void OnAddPk(PointerEvent e)
     {
-        var dlg = new FieldWithOrderDialog( _entityModel);
+        var dlg = new FieldWithOrderDialog(_entityModel);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
-        
+
         var fieldWithOrder = dlg.GetResult();
         if (fieldWithOrder == null) return;
-        
+
         _pkController.Add(fieldWithOrder.Value);
         ChangePrimaryKeys();
     }
