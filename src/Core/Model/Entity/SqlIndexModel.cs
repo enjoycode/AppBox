@@ -5,7 +5,7 @@ public sealed class SqlIndexModel : IndexModelBase
     internal SqlIndexModel(EntityModel owner) : base(owner) {}
 
     public SqlIndexModel(EntityModel owner, string name, bool unique,
-        FieldWithOrder[] fields, short[]? storingFields = null)
+        OrderedField[] fields, short[]? storingFields = null)
         : base(owner, name, unique, fields, storingFields) { }
 
     public override void WriteTo(IOutputStream ws)

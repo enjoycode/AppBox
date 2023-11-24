@@ -7,7 +7,7 @@ internal sealed class ChangePrimaryKeys : IDesignHandler
     public ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var pks = args.GetArray<FieldWithOrder>();
+        var pks = args.GetArray<OrderedField>();
 
         var node = hub.DesignTree.FindModelNode(modelId);
         if (node == null)

@@ -37,9 +37,9 @@ internal sealed class FieldWithOrderDialog : Dialog
         }
     };
 
-    internal FieldWithOrder? GetResult()
+    internal OrderedField? GetResult()
     {
         if (_selected.Value == null) return null;
-        return new FieldWithOrder(_selected.Value.Id, _orderByDesc.Value);
+        return new OrderedField(_selected.Value.Id, _orderByDesc.Value);
     }
 }

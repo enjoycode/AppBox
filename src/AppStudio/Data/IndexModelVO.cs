@@ -8,7 +8,7 @@ public abstract class IndexModelVO : IBinSerializable
     public byte IndexId { get; protected set; }
     public string Name { get; protected set; } = null!;
     public bool Unique { get; protected set; }
-    public FieldWithOrder[] Fields { get; protected set; } = null!;
+    public OrderedField[] Fields { get; protected set; } = null!;
 
 #if __APPBOXDESIGN__
     public void WriteTo(IOutputStream ws)
@@ -33,7 +33,7 @@ public abstract class IndexModelVO : IBinSerializable
         IndexId = rs.ReadByte();
         Name = rs.ReadString()!;
         Unique = rs.ReadBool();
-        Fields = new FieldWithOrder[rs.ReadVariant()];
+        Fields = new OrderedField[rs.ReadVariant()];
         for (var i = 0; i < Fields.Length; i++)
         {
             Fields[i].ReadFrom(rs);

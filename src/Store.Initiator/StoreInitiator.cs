@@ -204,7 +204,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(emploee, nameof(Employee.Id), EntityFieldType.Guid, false);
         emploee.AddSysMember(id, Employee.ID_ID);
         //add pk
-        emploee.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
+        emploee.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
 #endif
 
         //Add members
@@ -240,7 +240,7 @@ internal static class StoreInitiator
         emploee.SysStoreOptions.AddSysIndex(emploee, ui_account, Consts.EMPLOEE_UI_ACCOUNT_ID);
 #else
         var ui_account = new SqlIndexModel(emploee, "UI_Account", true,
-            new[] { new FieldWithOrder(Employee.ACCOUNT_ID) },
+            new[] { new OrderedField(Employee.ACCOUNT_ID) },
             new[] { Employee.PASSWORD_ID });
         emploee.SqlStoreOptions.AddIndex(ui_account);
 #endif
@@ -260,7 +260,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(model, nameof(Enterprise.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Enterprise.ID_ID);
         //add pk
-        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
+        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
 #endif
 
         var name = new EntityFieldModel(model, nameof(Enterprise.Name), EntityFieldType.String, false);
@@ -288,7 +288,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(model, nameof(Workgroup.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Workgroup.ID_ID);
         //add pk
-        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
+        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
 #endif
 
         var name = new EntityFieldModel(model, nameof(Workgroup.Name), EntityFieldType.String, false);
@@ -315,7 +315,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(model, nameof(OrgUnit.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, OrgUnit.ID_ID);
         //add pk
-        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new FieldWithOrder(id.MemberId) });
+        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
 #endif
 
         var name = new EntityFieldModel(model, nameof(OrgUnit.Name), EntityFieldType.String, false);
@@ -375,9 +375,9 @@ internal static class StoreInitiator
         //add pk
         model.SqlStoreOptions!.SetPrimaryKeys(new[]
         {
-            new FieldWithOrder(devId.MemberId),
-            new FieldWithOrder(type.MemberId),
-            new FieldWithOrder(modelId.MemberId)
+            new OrderedField(devId.MemberId),
+            new OrderedField(type.MemberId),
+            new OrderedField(modelId.MemberId)
         });
 #endif
 
@@ -427,17 +427,17 @@ internal static class StoreInitiator
         var ui_nodeType_targetId = new SqlIndexModel(model, "UI_NodeType_TargetId", true,
             new[]
             {
-                new FieldWithOrder(Checkout.NODETYPE_ID),
-                new FieldWithOrder(Checkout.TARGET_ID)
+                new OrderedField(Checkout.NODETYPE_ID),
+                new OrderedField(Checkout.TARGET_ID)
             });
         model.SqlStoreOptions!.AddIndex(ui_nodeType_targetId);
 
         //add pk
         model.SqlStoreOptions.SetPrimaryKeys(new[]
         {
-            new FieldWithOrder(devId.MemberId),
-            new FieldWithOrder(nodeType.MemberId),
-            new FieldWithOrder(targetId.MemberId)
+            new OrderedField(devId.MemberId),
+            new OrderedField(nodeType.MemberId),
+            new OrderedField(targetId.MemberId)
         });
 #endif
         return model;

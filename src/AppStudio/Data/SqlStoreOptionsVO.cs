@@ -8,7 +8,7 @@ public sealed class SqlStoreOptionsVO
 {
     public long StoreModelId { get; private set; }
 
-    public IList<FieldWithOrder> PrimaryKeys { get; private set; } = null!;
+    public IList<OrderedField> PrimaryKeys { get; private set; } = null!;
 
     public IList<SqlIndexModelVO> Indexes { get; private set; } = null!;
 
@@ -18,8 +18,8 @@ public sealed class SqlStoreOptionsVO
         var vo = new SqlStoreOptionsVO();
         vo.StoreModelId = options.StoreModelId;
         vo.PrimaryKeys = options.HasPrimaryKeys
-            ? new List<FieldWithOrder>(options.PrimaryKeys)
-            : new List<FieldWithOrder>();
+            ? new List<OrderedField>(options.PrimaryKeys)
+            : new List<OrderedField>();
         vo.Indexes = new List<SqlIndexModelVO>();
         if (options.HasIndexes)
         {
@@ -52,10 +52,10 @@ public sealed class SqlStoreOptionsVO
     {
         StoreModelId = rs.ReadLong();
         var pkCount = rs.ReadVariant();
-        PrimaryKeys = new List<FieldWithOrder>();
+        PrimaryKeys = new List<OrderedField>();
         for (var i = 0; i < pkCount; i++)
         {
-            var pk = new FieldWithOrder();
+            var pk = new OrderedField();
             pk.ReadFrom(rs);
             PrimaryKeys.Add(pk);
         }

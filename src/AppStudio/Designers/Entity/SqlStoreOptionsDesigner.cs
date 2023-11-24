@@ -31,7 +31,7 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private readonly EntityModelVO _entityModel;
     private readonly string _modelId;
-    private readonly DataGridController<FieldWithOrder> _pkController = new();
+    private readonly DataGridController<OrderedField> _pkController = new();
     private readonly DataGridController<SqlIndexModelVO> _idxController = new();
 
     private Widget BuildPrimaryKeysPannel() => new Card
@@ -50,13 +50,13 @@ internal sealed class SqlStoreOptionsDesigner : View
                         new Button("Remove", MaterialIcons.Remove) { OnTap = OnRemovePk }
                     }
                 },
-                new DataGrid<FieldWithOrder>(_pkController)
+                new DataGrid<OrderedField>(_pkController)
                 {
                     Columns =
                     {
-                        new DataGridTextColumn<FieldWithOrder>("Name",
+                        new DataGridTextColumn<OrderedField>("Name",
                             t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
-                        new DataGridCheckboxColumn<FieldWithOrder>("OrderByDesc",
+                        new DataGridCheckboxColumn<OrderedField>("OrderByDesc",
                             t => t.OrderByDesc),
                     }
                 }

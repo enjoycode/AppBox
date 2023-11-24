@@ -9,7 +9,7 @@ public abstract class IndexModelBase : IBinSerializable
     public byte IndexId { get; private set; }
     public string Name { get; private set; } = null!;
     public bool Unique { get; private set; }
-    public FieldWithOrder[] Fields { get; private set; } = null!;
+    public OrderedField[] Fields { get; private set; } = null!;
 
     /// <summary>
     /// 索引覆盖字段
@@ -28,7 +28,7 @@ public abstract class IndexModelBase : IBinSerializable
     }
 
     protected IndexModelBase(EntityModel owner, string name, bool unique,
-        FieldWithOrder[] fields, short[]? storingFields = null)
+        OrderedField[] fields, short[]? storingFields = null)
     {
         Owner = owner;
         Name = name;
@@ -99,7 +99,7 @@ public abstract class IndexModelBase : IBinSerializable
 
         //Fields
         var count = rs.ReadVariant();
-        Fields = new FieldWithOrder[count];
+        Fields = new OrderedField[count];
         for (var i = 0; i < count; i++)
         {
             Fields[i].ReadFrom(rs);

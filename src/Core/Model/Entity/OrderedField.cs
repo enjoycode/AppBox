@@ -3,12 +3,12 @@ namespace AppBoxCore;
 /// <summary>
 /// 带排序标志的实体成员标识,用于主键或索引等
 /// </summary>
-public struct FieldWithOrder : IBinSerializable
+public struct OrderedField : IBinSerializable
 {
     public short MemberId { get; private set; }
     public bool OrderByDesc { get; private set; }
 
-    public FieldWithOrder(short memberId, bool orderByDesc = false)
+    public OrderedField(short memberId, bool orderByDesc = false)
     {
         MemberId = memberId;
         OrderByDesc = orderByDesc;
