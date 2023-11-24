@@ -40,6 +40,7 @@ public enum ModelType : byte
 public enum EntityMemberType : byte
 {
     EntityField,
+    EntityFieldTracker = 1,
     EntityRef = 2,
     EntitySet = 3,
 }

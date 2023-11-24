@@ -289,25 +289,20 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         rs.ReadVariant(); //保留
     }
 
-    private EntityMemberModel MakeMemberByType(byte memberType)
+    private EntityMemberModel MakeMemberByType(byte memberType) => (EntityMemberType)memberType switch
     {
-        return (EntityMemberType)memberType switch
-        {
-            EntityMemberType.EntityField => new EntityFieldModel(this),
-            EntityMemberType.EntityRef => new EntityRefModel(this),
-            EntityMemberType.EntitySet => new EntitySetModel(this),
-            _ => throw new NotImplementedException(memberType.ToString())
-        };
-    }
+        EntityMemberType.EntityField => new EntityFieldModel(this),
+        EntityMemberType.EntityFieldTracker => new FieldTrackerModel(this),
+        EntityMemberType.EntityRef => new EntityRefModel(this),
+        EntityMemberType.EntitySet => new EntitySetModel(this),
+        _ => throw new NotImplementedException(memberType.ToString())
+    };
 
-    private IEntityStoreOptions MakeStoreOptionsByType(byte type)
+    private IEntityStoreOptions MakeStoreOptionsByType(byte type) => (DataStoreKind)type switch
     {
-        return (DataStoreKind)type switch
-        {
-            DataStoreKind.Sql => new SqlStoreOptions(this),
-            _ => throw new NotImplementedException(type.ToString())
-        };
-    }
+        DataStoreKind.Sql => new SqlStoreOptions(this),
+        _ => throw new NotImplementedException(type.ToString())
+    };
 
     #endregion
 
