@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using AppBoxCore;
 
 namespace AppBoxDesign;
@@ -8,7 +7,7 @@ public sealed class SqlStoreOptionsVO
 {
     public long StoreModelId { get; private set; }
 
-    public IList<OrderedField> PrimaryKeys { get; private set; } = null!;
+    public IList<PrimaryKeyField> PrimaryKeys { get; private set; } = null!;
 
     public IList<SqlIndexModelVO> Indexes { get; private set; } = null!;
 
@@ -18,8 +17,8 @@ public sealed class SqlStoreOptionsVO
         var vo = new SqlStoreOptionsVO();
         vo.StoreModelId = options.StoreModelId;
         vo.PrimaryKeys = options.HasPrimaryKeys
-            ? new List<OrderedField>(options.PrimaryKeys)
-            : new List<OrderedField>();
+            ? new List<PrimaryKeyField>(options.PrimaryKeys)
+            : new List<PrimaryKeyField>();
         vo.Indexes = new List<SqlIndexModelVO>();
         if (options.HasIndexes)
         {
@@ -52,10 +51,10 @@ public sealed class SqlStoreOptionsVO
     {
         StoreModelId = rs.ReadLong();
         var pkCount = rs.ReadVariant();
-        PrimaryKeys = new List<OrderedField>();
+        PrimaryKeys = new List<PrimaryKeyField>();
         for (var i = 0; i < pkCount; i++)
         {
-            var pk = new OrderedField();
+            var pk = new PrimaryKeyField();
             pk.ReadFrom(rs);
             PrimaryKeys.Add(pk);
         }

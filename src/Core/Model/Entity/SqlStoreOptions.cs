@@ -22,7 +22,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     private string? _originalTableNamePrefix;
     private string? _tableNamePrefix;
     private long _storeModelId; //映射的DataStoreModel的标识
-    private OrderedField[]? _primaryKeys;
+    private PrimaryKeyField[]? _primaryKeys;
     private IList<SqlIndexModel>? _indexes;
 
     public DataStoreKind Kind => DataStoreKind.Sql;
@@ -34,7 +34,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     public bool HasIndexes => _indexes != null && _indexes.Count > 0;
     public bool HasPrimaryKeys => _primaryKeys != null && _primaryKeys.Length > 0;
 
-    public OrderedField[] PrimaryKeys => _primaryKeys!;
+    public PrimaryKeyField[] PrimaryKeys => _primaryKeys!;
 
     public IList<SqlIndexModel> Indexes => _indexes!;
 
@@ -82,7 +82,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     #region ====Design Methods====
 
-    public void SetPrimaryKeys(OrderedField[]? fields)
+    public void SetPrimaryKeys(PrimaryKeyField[]? fields)
     {
         _owner.CheckDesignMode();
         _primaryKeys = fields;
@@ -92,7 +92,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         {
             foreach (var pk in fields)
             {
-                _owner.GetMember(pk.MemberId, true)!.SetAllowNull(false);
+                _owner.GetMember(pk.MemberId)!.SetAllowNull(false);
             }
         }
 
@@ -185,7 +185,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         var count = rs.ReadVariant();
         if (count > 0)
         {
-            _primaryKeys = new OrderedField[count];
+            _primaryKeys = new PrimaryKeyField[count];
             for (var i = 0; i < count; i++)
             {
                 _primaryKeys[i].ReadFrom(rs);

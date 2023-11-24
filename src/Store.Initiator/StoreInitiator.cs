@@ -204,7 +204,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(emploee, nameof(Employee.Id), EntityFieldType.Guid, false);
         emploee.AddSysMember(id, Employee.ID_ID);
         //add pk
-        emploee.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
+        emploee.SqlStoreOptions!.SetPrimaryKeys(new[] { new PrimaryKeyField(id.MemberId) });
 #endif
 
         //Add members
@@ -260,7 +260,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(model, nameof(Enterprise.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Enterprise.ID_ID);
         //add pk
-        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
+        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new PrimaryKeyField(id.MemberId) });
 #endif
 
         var name = new EntityFieldModel(model, nameof(Enterprise.Name), EntityFieldType.String, false);
@@ -288,7 +288,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(model, nameof(Workgroup.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Workgroup.ID_ID);
         //add pk
-        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
+        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new PrimaryKeyField(id.MemberId) });
 #endif
 
         var name = new EntityFieldModel(model, nameof(Workgroup.Name), EntityFieldType.String, false);
@@ -315,7 +315,7 @@ internal static class StoreInitiator
         var id = new EntityFieldModel(model, nameof(OrgUnit.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, OrgUnit.ID_ID);
         //add pk
-        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new OrderedField(id.MemberId) });
+        model.SqlStoreOptions!.SetPrimaryKeys(new[] { new PrimaryKeyField(id.MemberId) });
 #endif
 
         var name = new EntityFieldModel(model, nameof(OrgUnit.Name), EntityFieldType.String, false);
@@ -375,9 +375,9 @@ internal static class StoreInitiator
         //add pk
         model.SqlStoreOptions!.SetPrimaryKeys(new[]
         {
-            new OrderedField(devId.MemberId),
-            new OrderedField(type.MemberId),
-            new OrderedField(modelId.MemberId)
+            new PrimaryKeyField(devId.MemberId),
+            new PrimaryKeyField(type.MemberId),
+            new PrimaryKeyField(modelId.MemberId)
         });
 #endif
 
@@ -435,9 +435,9 @@ internal static class StoreInitiator
         //add pk
         model.SqlStoreOptions.SetPrimaryKeys(new[]
         {
-            new OrderedField(devId.MemberId),
-            new OrderedField(nodeType.MemberId),
-            new OrderedField(targetId.MemberId)
+            new PrimaryKeyField(devId.MemberId),
+            new PrimaryKeyField(nodeType.MemberId),
+            new PrimaryKeyField(targetId.MemberId)
         });
 #endif
         return model;

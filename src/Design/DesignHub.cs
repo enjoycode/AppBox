@@ -32,7 +32,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ReferenceVO,
             typeof(ReferenceVO)));
 
-        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.FieldWithOrder,
+        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.OrderedField,
             typeof(OrderedField), () => new OrderedField()));
     }
 

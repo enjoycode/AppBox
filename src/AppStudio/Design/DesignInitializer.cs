@@ -34,14 +34,16 @@ namespace AppBoxDesign
                 typeof(CompletionItem), () => new CompletionItem()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ChangedModel,
                 typeof(ChangedModel), () => new ChangedModel()));
-            TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.FieldWithOrder,
+            TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.OrderedField,
                 typeof(OrderedField), () => new OrderedField()));
+            TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField,
+                typeof(PrimaryKeyField), () => new PrimaryKeyField()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ReferenceVO,
                 typeof(ReferenceVO), () => new ReferenceVO()));
             TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.TextChange,
                 typeof(TextChange), () => new TextChange()));
         }
-        
+
         public static Task TryInit() => Task.CompletedTask; //do noting for native
     }
 }

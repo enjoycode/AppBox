@@ -13,7 +13,7 @@ internal sealed class SqlStoreOptionsDesigner : View
         _entityModel = entityModel;
         _modelId = modelId;
         _pkController.DataSource = _entityModel.SqlStoreOptions.PrimaryKeys;
-        _idxController.DataSource = _entityModel.SqlStoreOptions.Indexes;
+        _ixController.DataSource = _entityModel.SqlStoreOptions.Indexes;
 
         Child = new Container
         {
@@ -31,8 +31,8 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private readonly EntityModelVO _entityModel;
     private readonly string _modelId;
-    private readonly DataGridController<OrderedField> _pkController = new();
-    private readonly DataGridController<SqlIndexModelVO> _idxController = new();
+    private readonly DataGridController<PrimaryKeyField> _pkController = new();
+    private readonly DataGridController<SqlIndexModelVO> _ixController = new();
 
     private Widget BuildPrimaryKeysPannel() => new Card
     {
@@ -50,13 +50,13 @@ internal sealed class SqlStoreOptionsDesigner : View
                         new Button("Remove", MaterialIcons.Remove) { OnTap = OnRemovePk }
                     }
                 },
-                new DataGrid<OrderedField>(_pkController)
+                new DataGrid<PrimaryKeyField>(_pkController)
                 {
                     Columns =
                     {
-                        new DataGridTextColumn<OrderedField>("Name",
+                        new DataGridTextColumn<PrimaryKeyField>("Name",
                             t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
-                        new DataGridCheckboxColumn<OrderedField>("OrderByDesc",
+                        new DataGridCheckboxColumn<PrimaryKeyField>("OrderByDesc",
                             t => t.OrderByDesc),
                     }
                 }
@@ -80,7 +80,7 @@ internal sealed class SqlStoreOptionsDesigner : View
                         new Button("Remove", MaterialIcons.Remove)
                     }
                 },
-                new DataGrid<SqlIndexModelVO>(_idxController)
+                new DataGrid<SqlIndexModelVO>(_ixController)
                 {
                     Columns =
                     {
@@ -110,6 +110,7 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private async void OnAddPk(PointerEvent e)
     {
+        //TODO: fix use spec dialog
         var dlg = new FieldWithOrderDialog(_entityModel);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
@@ -117,7 +118,8 @@ internal sealed class SqlStoreOptionsDesigner : View
         var fieldWithOrder = dlg.GetResult();
         if (fieldWithOrder == null) return;
 
-        _pkController.Add(fieldWithOrder.Value);
+        var pkField = new PrimaryKeyField(fieldWithOrder.Value.MemberId, fieldWithOrder.Value.OrderByDesc);
+        _pkController.Add(pkField);
         ChangePrimaryKeys();
     }
 

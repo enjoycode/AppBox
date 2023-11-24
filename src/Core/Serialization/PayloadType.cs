@@ -43,7 +43,7 @@ namespace AppBoxCore
         NewNodeResult = 54,
         ChangedModel = 55,
         CodeProblem = 56,
-        FieldWithOrder = 57,
+        OrderedField = 57,
         EntityFieldVO = 58,
         EntityRefVO = 59,
         EntitySetVO = 60,
@@ -51,6 +51,7 @@ namespace AppBoxCore
         EntityMemberInfo = 62,
         ReferenceVO = 63,
         TextChange = 64,
+        PrimaryKeyField = 65,
 
         //----运行时相关类型----
         Entity = 90,
