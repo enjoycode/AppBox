@@ -23,6 +23,11 @@ public sealed class FieldTrackerModel : EntityMemberModel
 
     internal override void SetAllowNull(bool value) => throw new NotSupportedException();
 
+    /// <summary>
+    /// 目标是否可修改的主键字段
+    /// </summary>
+    public bool IsUsedForChangeablePK => Target.IsPrimaryKey;
+
     #region ====Serialization====
 
     public override void WriteTo(IOutputStream ws)

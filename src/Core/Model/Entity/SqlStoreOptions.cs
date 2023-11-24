@@ -47,10 +47,11 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     #region ====Runtime Methods====
 
-    public bool IsPrimaryKey(short memberId)
-    {
-        return _primaryKeys != null && _primaryKeys.Any(t => t.MemberId == memberId);
-    }
+    public bool IsPrimaryKey(short memberId) =>
+        _primaryKeys != null && _primaryKeys.Any(t => t.MemberId == memberId);
+
+    public bool IsChangeablePrimaryKey(short memberId) =>
+        _primaryKeys != null && _primaryKeys.Any(pk => pk.MemberId == memberId && pk.AllowChange);
 
     public bool IsUsedByIndexes(short memberId)
     {

@@ -79,6 +79,9 @@ internal static class EntityCsGenerator
                 case EntityMemberType.EntityField:
                     GenEntityFieldMember((EntityFieldModel)member, sb);
                     break;
+                case EntityMemberType.EntityFieldTracker:
+                    GenFieldTrackerMember((FieldTrackerModel)member, sb);
+                    break;
                 case EntityMemberType.EntityRef:
                     GenEntityRefMember((EntityRefModel)member, sb, modelNode.DesignTree!);
                     break;
@@ -89,6 +92,9 @@ internal static class EntityCsGenerator
                     throw new NotImplementedException(member.Type.ToString());
             }
         }
+        
+        // override AcceptTrackerChanges()
+        GenOverrideAcceptTrackerChanges(model, sb);
 
         // override ModelId
         sb.Append($"public const long MODELID={model.Id.Value}L;\n");
@@ -132,21 +138,54 @@ internal static class EntityCsGenerator
             sb.Append("\t\tset\n");
             sb.Append("\t\t{\n"); //prop set start
 
-            //暂判断是主键且非新建状态抛异常
-            if (field.IsPrimaryKey)
+            //判断是主键且不可修改且非新建状态抛异常
+            var isPK = field.IsPrimaryKey;
+            var isChangeablePK = field.IsChangeablePrimaryKey;
+            if (isPK && !isChangeablePK)
             {
                 sb.Append(
-                    "\t\t\tif (PersistentState != PersistentState.Detached) throw new NotSupportedException();\n");
+                    "\t\t\tif (PersistentState != PersistentState.Detached) throw new NotSupportedException(\"不可修改的主键字段\");\n");
             }
 
             sb.Append($"\t\t\tif (_{field.Name} == value) return;\n");
+
+            //如果存在相应的跟踪值成员，则先跟踪旧值
+            var tracker = field.Owner.Members.SingleOrDefault(m =>
+                m is FieldTrackerModel tracker && tracker.TargetMemberId == field.MemberId);
+            if (tracker != null)
+                sb.Append($"\t\t\t{tracker.Name} = _{field.Name};\n");
+
             sb.Append($"\t\t\t_{field.Name} = value;\n");
-            //TODO:如果是主键调用OnPkChanged()跟踪旧值
             sb.Append($"\t\t\tOnPropertyChanged({field.MemberId});\n");
             sb.Append("\t\t}\n"); //prop set end
 
             sb.Append("\t}\n"); //prop end
         }
+    }
+
+    private static void GenFieldTrackerMember(FieldTrackerModel tracker, StringBuilder sb)
+    {
+        var target = tracker.Target;
+        var targetTypeString = GetEntityFieldTypeString(target);
+        var typeString = targetTypeString;
+        if (!target.AllowNull) typeString = targetTypeString + "?"; //始终允许null
+
+        sb.Append($"\tprivate {typeString} _{tracker.Name};\n");
+        sb.Append($"\tpublic {targetTypeString} {tracker.Name}\n");
+        sb.Append("\t{\n"); //prop start
+        sb.Append($"\t\tget => _{tracker.Name} ?? _{target.Name};\n");
+
+        sb.Append("\t\tprivate set\n"); //不允许公开访问
+        sb.Append("\t\t{\n"); //prop set start
+
+        //判断新建状态直接退出
+        sb.Append("\t\t\tif (PersistentState == PersistentState.Detached) return;\n");
+        //判断是否已存在旧值
+        sb.Append($"\t\t\tif (_{tracker.Name} != null) return;\n");
+        sb.Append($"\t\t\t_{tracker.Name} = value;\n");
+
+        sb.Append("\t\t}\n"); //prop set end
+        sb.Append("\t}\n"); //prop end
     }
 
     private static void GenEntityRefMember(EntityRefModel entityRef, StringBuilder sb, DesignTree tree)
@@ -260,6 +299,21 @@ internal static class EntityCsGenerator
         sb.Append("\t}\n"); //prop end
     }
 
+    private static void GenOverrideAcceptTrackerChanges(EntityModel model, StringBuilder sb)
+    {
+        var trackers = model.Members
+            .Where(m => m.Type == EntityMemberType.EntityFieldTracker)
+            .Cast<FieldTrackerModel>().ToArray();
+        if(trackers.Length == 0) return;
+        
+        sb.Append("protected override void AcceptTrackerChanges(){\n");
+        foreach (var tracker in trackers)
+        {
+            sb.Append($"\t_{tracker.Name} = null;\n");
+        }
+        sb.Append("}\n"); //end method
+    }
+
     private static void GenOverrideWriteMember(EntityModel model, StringBuilder sb)
     {
         sb.Append("protected override void WriteMember<T>(short id, ref T ws, int flags){\n");
@@ -305,6 +359,7 @@ internal static class EntityCsGenerator
             switch (member.Type)
             {
                 case EntityMemberType.EntityField:
+                case EntityMemberType.EntityFieldTracker:
                     sb.Append("(flags);break;\n");
                     break;
                 case EntityMemberType.EntityRef:
@@ -348,7 +403,7 @@ internal static class EntityCsGenerator
 
                     break;
                 }
-                default: throw new NotImplementedException();
+                default: throw new NotImplementedException(member.Type.ToString());
             }
         }
 

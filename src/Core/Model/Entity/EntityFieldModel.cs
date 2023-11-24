@@ -48,6 +48,9 @@ public sealed class EntityFieldModel : EntityMemberModel
     public bool IsPrimaryKey =>
         Owner.SqlStoreOptions != null && Owner.SqlStoreOptions.IsPrimaryKey(MemberId);
 
+    public bool IsChangeablePrimaryKey =>
+        Owner.SqlStoreOptions != null && Owner.SqlStoreOptions.IsChangeablePrimaryKey(MemberId);
+
     /// <summary>
     /// 保留用于根据规则生成Sql列的名称, eg:相同前缀、命名规则等
     /// </summary>

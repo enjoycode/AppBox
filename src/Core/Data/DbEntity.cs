@@ -18,7 +18,7 @@ public abstract class DbEntity : Entity
             if (_changedMembers.IndexOf(memberId) < 0)
                 _changedMembers.Add(memberId);
         }
-        
+
         base.OnPropertyChanged(memberId);
     }
 
@@ -30,12 +30,20 @@ public abstract class DbEntity : Entity
     /// </summary>
     public void AcceptChanges()
     {
+        //accept Tracker member changes first
+        if (PersistentState != PersistentState.Detached)
+            AcceptTrackerChanges();
+
         _changedMembers = null;
         PersistentState = PersistentState == PersistentState.Deleted
             ? PersistentState.Detached
             : PersistentState.Unchanged;
-        //TODO: accept Tracker member change?
     }
+
+    /// <summary>
+    /// 如果有跟踪成员，子类重写重置所有跟踪成员值=null
+    /// </summary>
+    protected virtual void AcceptTrackerChanges() { }
 
     /// <summary>
     /// Only for DbStore.Delete()

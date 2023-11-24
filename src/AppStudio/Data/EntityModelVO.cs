@@ -240,6 +240,14 @@ namespace AppBoxDesign
                     case EntityMemberType.EntitySet:
                         vo.Members.Add(EntitySetVO.From((EntitySetModel)memberModel));
                         break;
+                    case EntityMemberType.EntityFieldTracker:
+                    {
+                        var tracker = (FieldTrackerModel)memberModel;
+                        //用于跟踪主键的不加入列表传至前端
+                        if (!tracker.IsUsedForChangeablePK)
+                            throw new NotImplementedException();
+                    }
+                        break;
                     default: throw new NotImplementedException();
                 }
             }
