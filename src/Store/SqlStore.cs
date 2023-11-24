@@ -574,7 +574,7 @@ public abstract class SqlStore
         sb.Append("Select * From ");
         sb.AppendWithNameEscaper(tableName, NameEscaper);
         sb.Append(" Where");
-        BuildWhereForEntityPKS(entity, model, cmd, sb);
+        BuildWhereForEntityPKS(entity, model, cmd, sb, true);
         sb.Append(" Limit 1");
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
@@ -642,7 +642,6 @@ public abstract class SqlStore
             if (mm.Type != EntityMemberType.EntityField) continue;
 
             var dfm = (EntityFieldModel)mm;
-            if (dfm.IsPrimaryKey) continue; //跳过主键
             if (!entity.IsMemberChanged(dfm.MemberId)) continue; //字段值无改变
 
             entity.WriteMember(mm.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
@@ -661,7 +660,7 @@ public abstract class SqlStore
 
         //根据主键生成条件
         sb.Append(" Where ");
-        BuildWhereForEntityPKS(entity, model, cmd, sb);
+        BuildWhereForEntityPKS(entity, model, cmd, sb, false);
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
@@ -677,7 +676,7 @@ public abstract class SqlStore
 
         sb.Append($"Delete From {NameEscaper}{tableName}{NameEscaper} Where ");
         //根据主键生成条件
-        BuildWhereForEntityPKS(entity, model, cmd, sb);
+        BuildWhereForEntityPKS(entity, model, cmd, sb, false);
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
@@ -689,15 +688,18 @@ public abstract class SqlStore
     /// 根据实体的主键生成Where条件
     /// </summary>
     private void BuildWhereForEntityPKS(SqlEntity entity, EntityModel model, DbCommand cmd,
-        StringBuilder sb)
+        StringBuilder sb, bool forFetch)
     {
         var entityMemberWriter = new DbCommandParameterWriter(cmd);
         for (var i = 0; i < model.SqlStoreOptions!.PrimaryKeys.Length; i++)
         {
             var pk = model.SqlStoreOptions.PrimaryKeys[i];
-            var mm = (EntityFieldModel)model.GetMember(pk.MemberId, true)!;
+            var mm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
 
-            entity.WriteMember(pk.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
+            var memberId = pk.MemberId;
+            if (!forFetch && pk.AllowChange && entity.IsMemberChanged(pk.MemberId))
+                memberId = pk.TrackerMemberId; //注意更新或删除时可修改主键字段写入原始值
+            entity.WriteMember(memberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
 
             if (i != 0) sb.Append(" And");
             sb.Append(' ');
