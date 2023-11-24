@@ -43,6 +43,8 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public bool IsTableNameChanged => _owner.IsNameChanged || IsTableNamePrefixChanged;
 
+    private string? OriginalTableNamePrefix => _originalTableNamePrefix ?? _tableNamePrefix;
+
     #region ====Runtime Methods====
 
     public bool IsPrimaryKey(short memberId)
@@ -67,12 +69,13 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public string GetSqlTableName(bool original, IModelContainer? ctx)
     {
-        //TODO:考虑其他命名规则，如直接用Id作为表名
+        //TODO:考虑其他命名规则，如直接用Id作为表名或直接指定表名
         if (!original)
             return string.IsNullOrEmpty(_tableNamePrefix) ? _owner.Name : $"{_tableNamePrefix}{_owner.Name}";
-        return string.IsNullOrEmpty(_originalTableNamePrefix)
+
+        return string.IsNullOrEmpty(OriginalTableNamePrefix)
             ? _owner.OriginalName
-            : $"{_originalTableNamePrefix}{_owner.OriginalName}";
+            : $"{OriginalTableNamePrefix}{_owner.OriginalName}";
     }
 
     #endregion
