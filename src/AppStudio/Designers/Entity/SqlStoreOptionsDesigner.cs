@@ -112,16 +112,14 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private async void OnAddPk(PointerEvent e)
     {
-        //TODO: fix use spec dialog
-        var dlg = new FieldWithOrderDialog(_entityModel);
+        var dlg = new NewPKFieldDialog(_entityModel);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
-        var fieldWithOrder = dlg.GetResult();
-        if (fieldWithOrder == null) return;
+        var pkField = dlg.GetResult();
+        if (pkField == null) return;
 
-        var pkField = new PrimaryKeyField(fieldWithOrder.Value.MemberId, fieldWithOrder.Value.OrderByDesc);
-        _pkController.Add(pkField);
+        _pkController.Add(pkField.Value);
         ChangePrimaryKeys();
     }
 

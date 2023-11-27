@@ -1,23 +1,23 @@
-using System;
 using System.Linq;
 using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class FieldWithOrderDialog : Dialog
+internal sealed class NewPKFieldDialog : Dialog
 {
-    public FieldWithOrderDialog(EntityModelVO entityModel)
+    public NewPKFieldDialog(EntityModelVO entityModel)
     {
         _entityModel = entityModel;
+        Title.Value = "New Primary Key Field";
         Width = 380;
-        Height = 200;
-        Title.Value = "EntityFieldWithOrder";
+        Height = 250;
     }
 
     private readonly EntityModelVO _entityModel;
     private readonly State<EntityMemberVO?> _selected = new RxValue<EntityMemberVO?>(null);
     private readonly State<bool> _orderByDesc = false;
+    private readonly State<bool> _allowChange = true;
 
     protected override Widget BuildBody() => new Container
     {
@@ -26,20 +26,21 @@ internal sealed class FieldWithOrderDialog : Dialog
         {
             Children =
             {
-                new FormItem("EntityField:", new Select<EntityMemberVO>(_selected)
+                new("EntityField:", new Select<EntityMemberVO>(_selected)
                 {
                     Options = _entityModel.Members
                         .Where(m => m.Type == EntityMemberType.EntityField)
                         .ToArray()
                 }),
-                new FormItem("OrderByDesc:", new Checkbox(_orderByDesc))
+                new("OrderByDesc:", new Checkbox(_orderByDesc)),
+                new("AllowChange:", new Checkbox(_allowChange))
             }
         }
     };
 
-    internal OrderedField? GetResult()
+    internal PrimaryKeyField? GetResult()
     {
         if (_selected.Value == null) return null;
-        return new OrderedField(_selected.Value.Id, _orderByDesc.Value);
+        return new PrimaryKeyField(_selected.Value.Id, _allowChange.Value, _orderByDesc.Value);
     }
 }
