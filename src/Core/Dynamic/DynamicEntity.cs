@@ -10,6 +10,8 @@ public sealed class DynamicEntity
         set => _properties[name] = value; //TODO:变更标记
     }
 
+    public bool HasValue(string name) => _properties.ContainsKey(name) && _properties[name].HasValue;
+
     public override string ToString()
     {
         var sb = StringBuilderCache.Acquire();
@@ -25,6 +27,7 @@ public sealed class DynamicEntity
             sb.Append(": ");
             sb.Append(kv.Value.ToString());
         }
+
         sb.Append('}');
         return StringBuilderCache.GetStringAndRelease(sb);
     }
