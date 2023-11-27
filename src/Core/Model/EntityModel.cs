@@ -128,8 +128,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         CheckDesignMode();
 
         //如果实体是新建的或成员是新建的直接移除
-        if (PersistentState == PersistentState.Detached ||
-            member.PersistentState == PersistentState.Detached)
+        if (PersistentState == PersistentState.Detached || member.PersistentState == PersistentState.Detached)
         {
             if (member is EntityRefModel entityRef)
             {
@@ -140,6 +139,15 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
                 if (entityRef.IsAggregationRef)
                     _members.Remove(GetMember(entityRef.TypeMemberId)!);
+            }
+            else if (member is EntityFieldModel)
+            {
+                //同时删除可能存在的跟踪成员
+                var tracker = _members
+                    .SingleOrDefault(m => m.Type == EntityMemberType.EntityFieldTracker &&
+                                          ((FieldTrackerModel)m).TargetMemberId == member.MemberId);
+                if (tracker != null)
+                    _members.Remove(tracker);
             }
 
             _members.Remove(member);
@@ -157,6 +165,14 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
             if (entityRefModel.IsAggregationRef)
                 GetMember(entityRefModel.TypeMemberId)!.AsDeleted();
+        }
+        else if (member is EntityFieldModel)
+        {
+            //同时删除可能存在的跟踪成员
+            var tracker = _members
+                .SingleOrDefault(m => m.Type == EntityMemberType.EntityFieldTracker &&
+                                      ((FieldTrackerModel)m).TargetMemberId == member.MemberId);
+            tracker?.AsDeleted();
         }
 
         ChangeSchemaVersion();

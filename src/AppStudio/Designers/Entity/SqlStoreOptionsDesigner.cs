@@ -58,6 +58,8 @@ internal sealed class SqlStoreOptionsDesigner : View
                             t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
                         new DataGridCheckboxColumn<PrimaryKeyField>("OrderByDesc",
                             t => t.OrderByDesc),
+                        new DataGridCheckboxColumn<PrimaryKeyField>("AllowChange",
+                            t => t.AllowChange),
                     }
                 }
             }

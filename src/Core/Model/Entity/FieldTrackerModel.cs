@@ -1,5 +1,8 @@
 namespace AppBoxCore;
 
+/// <summary>
+/// 跟踪字段值变化的成员，存储变更前的原始值
+/// </summary>
 public sealed class FieldTrackerModel : EntityMemberModel
 {
     internal FieldTrackerModel(EntityModel owner) : this(owner, string.Empty, 0) { }
