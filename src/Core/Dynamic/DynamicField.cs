@@ -93,6 +93,8 @@ public struct DynamicField
 
     public string ToStringValue()
     {
+        if (!HasValue) return string.Empty;
+            
         var type = _flag & DynamicFieldFlag.TypeMask;
         return type switch
         {

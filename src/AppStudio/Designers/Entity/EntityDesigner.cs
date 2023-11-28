@@ -51,7 +51,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
                     {
                         new Button("Members") { Width = 75, OnTap = _ => _activePad.Value = 0 },
                         new Button("Options") { Width = 75, OnTap = _ => _activePad.Value = 1 },
-                        new Button("Data") { Width = 75 },
+                        new Button("Data") { Width = 75, OnTap = _ => _activePad.Value = 2 },
                     }
                 },
                 new IfConditional(_activePad.ToStateOfBool(i => i == 0), () => new ButtonGroup
@@ -93,7 +93,9 @@ internal sealed class EntityDesigner : View, IModelDesigner
                 .When(t => t == 0,
                     () => new MembersDesigner(_entityModel!, _membersController, _selectedMember))
                 .When(t => t == 1,
-                    () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id));
+                    () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id))
+                .When(t => t == 2,
+                    () => new EntityRowsView(ModelNode.Id));
         }
     );
 

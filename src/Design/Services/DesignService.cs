@@ -34,6 +34,7 @@ public sealed class DesignService : IService
         { nameof(ChangePrimaryKeys), new ChangePrimaryKeys() },
         { nameof(GetAllEntityRefs), new GetAllEntityRefs() },
         { nameof(GetEntityPreview), new GetEntityPreview() },
+        { nameof(GetEntityRows), new GetEntityRows() },
         // Service
         { nameof(NewServiceModel), new NewServiceModel() },
         { nameof(GetServiceMethod), new GetServiceMethod() },
