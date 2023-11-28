@@ -261,22 +261,7 @@ internal static class PublishService
                 {
                     await MetaStore.Provider.InsertModelAsync(model, txn);
                     if (model.ModelType == ModelType.Entity)
-                    {
-                        var em = (EntityModel)model;
-                        if (em.SqlStoreOptions != null) //映射至第三方数据库的需要创建相应的表
-                        {
-                            var sqlStore = SqlStore.Get(em.SqlStoreOptions.StoreModelId);
-                            var sqlTxn = await MakeOtherStoreTxn(em.SqlStoreOptions.StoreModelId,
-                                otherStoreTxns);
-                            await sqlStore.CreateTableAsync(em, sqlTxn, hub);
-                        }
-                        // else if (em.CqlStoreOptions != null)
-                        // {
-                        //     var cqlStore = CqlStore.Get(em.CqlStoreOptions.StoreModelId);
-                        //     await cqlStore.CreateTableAsync(em);
-                        // }
-                    }
-
+                        await TryCreateTable(hub, (EntityModel)model, otherStoreTxns);
                     break;
                 }
                 case PersistentState.Unchanged: //TODO:临时
@@ -284,21 +269,7 @@ internal static class PublishService
                 {
                     await MetaStore.Provider.UpdateModelAsync(model, txn, hub.GetApplicationModel);
                     if (model.ModelType == ModelType.Entity)
-                    {
-                        var em = (EntityModel)model;
-                        if (em.SqlStoreOptions != null) //映射至第三方数据库的需要变更表
-                        {
-                            var sqlStore = SqlStore.Get(em.SqlStoreOptions.StoreModelId);
-                            var sqlTxn = await MakeOtherStoreTxn(em.SqlStoreOptions.StoreModelId,
-                                otherStoreTxns);
-                            await sqlStore.AlterTableAsync(em, sqlTxn, hub);
-                        }
-                        // else if (em.CqlStoreOptions != null)
-                        // {
-                        //     var cqlStore = CqlStore.Get(em.CqlStoreOptions.StoreModelId);
-                        //     await cqlStore.AlterTableAsync(em);
-                        // }
-                    }
+                        await TryAlterTable(hub, (EntityModel)model, otherStoreTxns);
 
                     //TODO:服务模型重命名删除旧的Assembly
                     break;
@@ -309,19 +280,7 @@ internal static class PublishService
 
                     if (model.ModelType == ModelType.Entity)
                     {
-                        var em = (EntityModel)model;
-                        if (em.SqlStoreOptions != null) //映射至第三方数据库的需要删除相应的表
-                        {
-                            var sqlStore = SqlStore.Get(em.SqlStoreOptions.StoreModelId);
-                            var sqlTxn = await MakeOtherStoreTxn(em.SqlStoreOptions.StoreModelId,
-                                otherStoreTxns);
-                            await sqlStore.DropTableAsync(em, sqlTxn, hub);
-                        }
-                        // else if (em.CqlStoreOptions != null)
-                        // {
-                        //     var cqlStore = CqlStore.Get(em.CqlStoreOptions.StoreModelId);
-                        //     await cqlStore.DropTableAsync(em);
-                        // }
+                        await TryDropTable(hub, (EntityModel)model, otherStoreTxns);
                     }
                     //判断模型类型删除相关代码及编译好的组件
                     else if (model.ModelType == ModelType.Service)
@@ -365,6 +324,68 @@ internal static class PublishService
         // }
     }
 
+    private static bool IsDbFirstSqlStore(DesignHub hub, EntityModel model)
+    {
+        var storeId = ((ulong)model.SqlStoreOptions!.StoreModelId).ToString();
+        if (hub.DesignTree.FindNode(DesignNodeType.DataStoreNode, storeId) is not DataStoreNode storeNode)
+            throw new Exception("Can't find DataStore node for Entity");
+        return storeNode.Model.IsDbFirst;
+    }
+
+    private static async ValueTask TryCreateTable(DesignHub hub, EntityModel model,
+        IDictionary<long, DbTransaction> otherStoreTxns)
+    {
+        if (model.SqlStoreOptions != null) //映射至第三方数据库的需要创建相应的表
+        {
+            if (IsDbFirstSqlStore(hub, model)) return; //忽略DbFirst
+
+            var sqlStore = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
+            var sqlTxn = await MakeOtherStoreTxn(model.SqlStoreOptions.StoreModelId, otherStoreTxns);
+            await sqlStore.CreateTableAsync(model, sqlTxn, hub);
+        }
+        // else if (em.CqlStoreOptions != null)
+        // {
+        //     var cqlStore = CqlStore.Get(em.CqlStoreOptions.StoreModelId);
+        //     await cqlStore.CreateTableAsync(em);
+        // }
+    }
+
+    private static async ValueTask TryAlterTable(DesignHub hub, EntityModel model,
+        IDictionary<long, DbTransaction> otherStoreTxns)
+    {
+        if (model.SqlStoreOptions != null) //映射至第三方数据库的需要变更表
+        {
+            if (IsDbFirstSqlStore(hub, model)) return; //忽略DbFirst
+
+            var sqlStore = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
+            var sqlTxn = await MakeOtherStoreTxn(model.SqlStoreOptions.StoreModelId, otherStoreTxns);
+            await sqlStore.AlterTableAsync(model, sqlTxn, hub);
+        }
+        // else if (em.CqlStoreOptions != null)
+        // {
+        //     var cqlStore = CqlStore.Get(em.CqlStoreOptions.StoreModelId);
+        //     await cqlStore.AlterTableAsync(em);
+        // }
+    }
+
+    private static async ValueTask TryDropTable(DesignHub hub, EntityModel model,
+        IDictionary<long, DbTransaction> otherStoreTxns)
+    {
+        if (model.SqlStoreOptions != null) //映射至第三方数据库的需要删除相应的表
+        {
+            if (IsDbFirstSqlStore(hub, model)) return; //忽略DbFirst
+            
+            var sqlStore = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
+            var sqlTxn = await MakeOtherStoreTxn(model.SqlStoreOptions.StoreModelId, otherStoreTxns);
+            await sqlStore.DropTableAsync(model, sqlTxn, hub);
+        }
+        // else if (em.CqlStoreOptions != null)
+        // {
+        //     var cqlStore = CqlStore.Get(em.CqlStoreOptions.StoreModelId);
+        //     await cqlStore.DropTableAsync(em);
+        // }
+    }
+
     /// <summary>
     /// 通知各节点模型缓存失效
     /// </summary>
@@ -373,10 +394,14 @@ internal static class PublishService
         if (package.Models.Count == 0)
             return;
 
-        var others = package.Models.Where(t => t.ModelType != ModelType.Service).Select(t => t.Id)
+        var others = package.Models
+            .Where(t => t.ModelType != ModelType.Service)
+            .Select(t => t.Id)
             .ToArray();
-        var serviceModels = package.Models.Where(t => t.ModelType == ModelType.Service)
-            .Cast<ServiceModel>().ToArray();
+        var serviceModels = package.Models
+            .Where(t => t.ModelType == ModelType.Service)
+            .Cast<ServiceModel>()
+            .ToArray();
         var services = new string[serviceModels.Length];
         for (var i = 0; i < serviceModels.Length; i++)
         {
