@@ -34,7 +34,7 @@ public static class DynamicInitiator
             name: "Table",
             properties: new DynamicPropertyMeta[]
             {
-                new("DataSet", typeof(string), false, editor: "DataSetSelect"),
+                new("DataSet", typeof(string), false, editorName: "DataSetSelect"),
             });
         
         //注册图表动态组件

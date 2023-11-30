@@ -12,10 +12,10 @@ internal sealed class AxesEditor : SingleChildWidget
 {
     public AxesEditor(State<AxisSettings?> state,
         DataGridController<AxisSettings> dataGridController,
-        DesignController designController)
+        DesignElement element)
     {
         _dataGridController = dataGridController;
-        _designController = designController;
+        _element = element;
 
         var name = new RxProxy<string>(() => state.Value?.Name ?? string.Empty, v =>
         {
@@ -60,13 +60,13 @@ internal sealed class AxesEditor : SingleChildWidget
             forceMinStep.NotifyValueChanged();
         });
 
-        var allDataSet = designController.GetAllDataSet().Select(s => s.Name).ToArray();
+        var allDataSet = _element.Controller.GetAllDataSet().Select(s => s.Name).ToArray();
         var formItems = new List<FormItem>
         {
             new("Name", new TextInput(name)),
             new("DataSet", new Select<string>(dataset) { Options = allDataSet }),
             new("Labels", new Select<string>(labels) { Ref = _labelsRef }),
-            new("LabelsColor", new ColorEditor(labelsColor, designController)),
+            new("LabelsColor", new ColorEditor(labelsColor, _element)),
             new("TextSize", new NumberInput<double>(textSize)),
             new("MinStep", new NumberInput<double>(minStep)),
             new("ForceMinStep", new Checkbox(forceMinStep)),
@@ -81,7 +81,7 @@ internal sealed class AxesEditor : SingleChildWidget
         OnDataSetChanged(dataset);
     }
 
-    private readonly DesignController _designController;
+    private readonly DesignElement _element;
     private readonly DataGridController<AxisSettings> _dataGridController;
     private readonly WidgetRef<Select<string>> _labelsRef = new();
 
@@ -90,7 +90,7 @@ internal sealed class AxesEditor : SingleChildWidget
         var dsName = ((State<string?>)state).Value;
         if (string.IsNullOrEmpty(dsName)) return;
 
-        var dsState = _designController.FindState(dsName);
+        var dsState = _element.Controller.FindState(dsName);
         var dsSettings = dsState!.Value as IDynamicDataSetStateValue;
         if (dsSettings == null) return;
 

@@ -7,7 +7,7 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class PieSeriesPropEditor : ValueEditorBase
 {
-    public PieSeriesPropEditor(State<PieSeriesSettings?> state, DesignController controller) : base(controller)
+    public PieSeriesPropEditor(State<PieSeriesSettings?> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
@@ -21,12 +21,12 @@ internal sealed class PieSeriesPropEditor : ValueEditorBase
         var newOrCloned = _state.Value ?? new PieSeriesSettings();
         if (string.IsNullOrEmpty(newOrCloned.DataSet))
         {
-            var firstDataSet = Controller.GetAllDataSet().FirstOrDefault();
+            var firstDataSet = Element.Controller.GetAllDataSet().FirstOrDefault();
             if (firstDataSet != null)
                 newOrCloned.DataSet = firstDataSet.Name;
         }
 
-        var dlg = new PieSeriesDialog(newOrCloned, Controller);
+        var dlg = new PieSeriesDialog(newOrCloned, Element.Controller);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

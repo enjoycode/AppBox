@@ -7,21 +7,21 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class AxesDialog : Dialog
 {
-    public AxesDialog(List<AxisSettings> list, DesignController designController)
+    public AxesDialog(List<AxisSettings> list, DesignElement element)
     {
         Title.Value = "Chart Axes";
         Width = 580;
         Height = 420;
 
         // _list = list;
-        _designController = designController;
+        _element = element;
         _dataGridController.DataSource = list;
         _current = _dataGridController.ObserveCurrentRow();
         _current.Value = list.Count > 0 ? list[0] : null; //select the first row
     }
 
     // private readonly List<AxisSettings> _list;
-    private readonly DesignController _designController;
+    private readonly DesignElement _element;
     private readonly DataGridController<AxisSettings> _dataGridController = new();
     private readonly State<AxisSettings?> _current;
 
@@ -79,7 +79,7 @@ internal sealed class AxesDialog : Dialog
                 {
                     Child = new Container
                     {
-                        Child = new AxesEditor(_current, _dataGridController, _designController)
+                        Child = new AxesEditor(_current, _dataGridController, _element)
                     }
                 }
             ),

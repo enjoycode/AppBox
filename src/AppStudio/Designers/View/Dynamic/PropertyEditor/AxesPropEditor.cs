@@ -8,7 +8,7 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class AxesPropEditor : ValueEditorBase
 {
-    public AxesPropEditor(State<AxisSettings[]> state, DesignController controller) : base(controller)
+    public AxesPropEditor(State<AxisSettings[]> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
@@ -23,7 +23,7 @@ internal sealed class AxesPropEditor : ValueEditorBase
         if (_state.Value is { Length: > 0 })
             list.AddRange(_state.Value.Select(t => t.Clone()));
 
-        var dlg = new AxesDialog(list, Controller);
+        var dlg = new AxesDialog(list, Element);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

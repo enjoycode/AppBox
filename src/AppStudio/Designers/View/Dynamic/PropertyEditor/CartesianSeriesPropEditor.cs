@@ -8,8 +8,7 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class CartesianSeriesPropEditor : ValueEditorBase
 {
-    public CartesianSeriesPropEditor(State<CartesianSeriesSettings[]> state, DesignController controller) :
-        base(controller)
+    public CartesianSeriesPropEditor(State<CartesianSeriesSettings[]> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
@@ -24,7 +23,7 @@ internal sealed class CartesianSeriesPropEditor : ValueEditorBase
         if (_state.Value is { Length: > 0 })
             list.AddRange(_state.Value.Select(t => t.Clone()));
 
-        var dlg = new CartesianSeriesDialog(list, Controller);
+        var dlg = new CartesianSeriesDialog(list, Element.Controller);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

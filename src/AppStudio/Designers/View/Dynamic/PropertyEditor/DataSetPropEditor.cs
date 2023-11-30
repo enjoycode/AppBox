@@ -9,13 +9,13 @@ namespace AppBoxDesign.PropertyEditor;
 /// </summary>
 internal sealed class DataSetPropEditor : ValueEditorBase
 {
-    public DataSetPropEditor(State<string?> state, DesignController controller) : base(controller)
+    public DataSetPropEditor(State<string?> state, DesignElement element) : base(element)
     {
         //TODO:监听DesignController.StatesChanged事件更新选项列表
 
         Child = new Select<string>(state)
         {
-            Options = controller.GetAllDataSet().Select(d => d.Name).ToArray()
+            Options = element.Controller.GetAllDataSet().Select(d => d.Name).ToArray()
         };
     }
 }
