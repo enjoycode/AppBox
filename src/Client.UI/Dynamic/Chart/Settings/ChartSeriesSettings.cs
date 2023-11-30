@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using AppBoxCore;
 using LiveChartsCore;
 using PixUI.Dynamic;
 
@@ -8,11 +9,6 @@ namespace AppBoxClient.Dynamic;
 public abstract class ChartSeriesSettings
 {
     [JsonIgnore] public abstract string Type { get; }
-
-    /// <summary>
-    /// 对应的数据集名称
-    /// </summary>
-    public string DataSet { get; set; } = null!;
 
     /// <summary>
     /// 对应数据集的字段名
@@ -27,5 +23,5 @@ public abstract class ChartSeriesSettings
     /// <summary>
     /// 生成运行时的Series
     /// </summary>
-    public abstract Task<ISeries> Build(IDynamicView dynamicView);
+    public abstract ISeries Build(IDynamicView dynamicView, DynamicDataSet dataSet);
 }

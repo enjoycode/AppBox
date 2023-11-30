@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AppBoxCore;
 using LiveCharts;
 using LiveCharts.Painting;
 using LiveChartsCore;
@@ -9,7 +10,7 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class DynamicPieChart : SingleChildWidget
+public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
 {
     public DynamicPieChart()
     {
@@ -19,6 +20,8 @@ public sealed class DynamicPieChart : SingleChildWidget
 
     private readonly PieChart _chart;
     private PieSeriesSettings? _series;
+
+    public string? DataSet { get; set; }
 
     public PieSeriesSettings? Series
     {
@@ -55,12 +58,13 @@ public sealed class DynamicPieChart : SingleChildWidget
 
         if (_series != null)
         {
-            var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
-            if (dynamicView == null) return;
+            if (string.IsNullOrEmpty(DataSet)) return;
+            if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
+            if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
             try
             {
-                var runtimeSeries = await _series.Build(dynamicView);
+                var runtimeSeries = _series.Build(dynamicView, dataset);
                 _chart.Series = runtimeSeries;
             }
             catch (Exception e)
@@ -83,6 +87,14 @@ public sealed class DynamicPieChart : SingleChildWidget
 
         OnSeriesChanged();
     }
+
+    #region ====IDataSetBinder====
+
+    string IDataSetBinder.DataSetPropertyName => nameof(DataSet);
+
+    void IDataSetBinder.OnDataSetChanged() => Series = null;
+
+    #endregion
 
     private static IEnumerable<ISeries> MakeMockSeries() => new PieSeries<float>[]
     {

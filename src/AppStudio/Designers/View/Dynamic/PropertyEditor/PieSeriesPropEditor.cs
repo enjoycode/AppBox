@@ -17,16 +17,18 @@ internal sealed class PieSeriesPropEditor : ValueEditorBase
 
     private async void OnTap(PointerEvent e)
     {
-        //编辑副本
-        var newOrCloned = _state.Value ?? new PieSeriesSettings();
-        if (string.IsNullOrEmpty(newOrCloned.DataSet))
+        //先判断有没有设置DataSet
+        Element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSet), out var datasetValue);
+        if (datasetValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
         {
-            var firstDataSet = Element.Controller.GetAllDataSet().FirstOrDefault();
-            if (firstDataSet != null)
-                newOrCloned.DataSet = firstDataSet.Name;
+            Notification.Warn("尚未设置DataSet");
+            return;
         }
 
-        var dlg = new PieSeriesDialog(newOrCloned, Element.Controller);
+        //编辑副本
+        var newOrCloned = _state.Value ?? new PieSeriesSettings();
+
+        var dlg = new PieSeriesDialog(newOrCloned, Element);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

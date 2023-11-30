@@ -19,16 +19,16 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
     {
         return new LineSeriesSettings()
         {
-            DataSet = DataSet, Field = Field, Name = Name, Smoothness = Smoothness, Fill = Fill
+            Field = Field, Name = Name, Smoothness = Smoothness, Fill = Fill
         };
     }
 
-    public override async Task<ISeries> Build(IDynamicView dynamicView)
+    public override ISeries Build(IDynamicView dynamicView, DynamicDataSet dataset)
     {
         var res = new LineSeries<DynamicEntity>
         {
             Name = Name ?? Field,
-            Values = (DynamicDataSet?)(await dynamicView.GetDataSet(DataSet)),
+            Values = dataset,
             LineSmoothness = Smoothness ?? 0.65f,
             Mapping = (obj, point) =>
             {

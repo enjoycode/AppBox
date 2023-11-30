@@ -8,14 +8,14 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class CartesianSeriesDialog : Dialog
 {
-    public CartesianSeriesDialog(List<CartesianSeriesSettings> list, DesignController designController)
+    public CartesianSeriesDialog(List<CartesianSeriesSettings> list, DesignElement element)
     {
         Title.Value = "Cartesian Series";
         Width = 580;
         Height = 400;
 
         _list = list;
-        _designController = designController;
+        _element = element;
         _dataGridController.DataSource = list;
         _dataGridController.SelectionChanged += OnCurrentChanged;
         _current = _dataGridController.ObserveCurrentRow();
@@ -23,7 +23,7 @@ internal sealed class CartesianSeriesDialog : Dialog
     }
 
     private readonly List<CartesianSeriesSettings> _list;
-    private readonly DesignController _designController;
+    private readonly DesignElement _element;
     private readonly State<string?> _typeName = "Line";
     private readonly DataGridController<CartesianSeriesSettings> _dataGridController = new();
 
@@ -88,9 +88,9 @@ internal sealed class CartesianSeriesDialog : Dialog
                     {
                         Child = new Conditional<CartesianSeriesSettings?>(_current)
                             .When(r => r?.Type == "Line",
-                                () => new LineSeriesEditor(_currentLine, _dataGridController, _designController))
+                                () => new LineSeriesEditor(_currentLine, _dataGridController, _element))
                             .When(r => r?.Type == "Column",
-                                () => new ColumnSeriesEditor(_currentColumn, _dataGridController, _designController))
+                                () => new ColumnSeriesEditor(_currentColumn, _dataGridController, _element))
                     }
                 }
             ),
@@ -120,11 +120,6 @@ internal sealed class CartesianSeriesDialog : Dialog
 
         if (newSeries != null)
         {
-            var allDataSet = _designController.GetAllDataSet();
-            var firstDataSet = allDataSet.FirstOrDefault();
-
-            if (firstDataSet != null)
-                newSeries.DataSet = firstDataSet.Name;
             _dataGridController.Add(newSeries);
             _current.Value = newSeries; // select the new one
         }

@@ -1,6 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using AppBoxCore;
 using LiveCharts;
 using LiveChartsCore;
 using PixUI;
@@ -9,7 +8,7 @@ using Axis = LiveCharts.Axis;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class DynamicCartesianChart : SingleChildWidget
+public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
 {
     public DynamicCartesianChart()
     {
@@ -22,6 +21,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget
     private AxisSettings[]? _xAxes;
     private AxisSettings[]? _yAxes;
 
+    public string? DataSet { get; set; }
 
     public CartesianSeriesSettings[]? Series
     {
@@ -66,14 +66,14 @@ public sealed class DynamicCartesianChart : SingleChildWidget
             }
             else
             {
-                var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
-                if (dynamicView == null)
-                    throw new NotImplementedException();
+                if (string.IsNullOrEmpty(DataSet)) return;
+                if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
+                if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
                 axes = new Axis[_xAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
                 {
-                    axes[i] = await _xAxes[i].Buid(dynamicView);
+                    axes[i] = _xAxes[i].Buid(dynamicView, dataset);
                 }
             }
 
@@ -87,14 +87,14 @@ public sealed class DynamicCartesianChart : SingleChildWidget
             }
             else
             {
-                var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
-                if (dynamicView == null)
-                    throw new NotImplementedException();
+                if (string.IsNullOrEmpty(DataSet)) return;
+                if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
+                if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
                 axes = new Axis[_yAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
                 {
-                    axes[i] = await _yAxes[i].Buid(dynamicView);
+                    axes[i] = _yAxes[i].Buid(dynamicView, dataset);
                 }
             }
 
@@ -108,14 +108,14 @@ public sealed class DynamicCartesianChart : SingleChildWidget
 
         if (_series != null)
         {
-            var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
-            if (dynamicView == null)
-                throw new NotImplementedException();
+            if (string.IsNullOrEmpty(DataSet)) return;
+            if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
+            if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
             var runtimeSeries = new ISeries[_series.Length];
             for (var i = 0; i < _series.Length; i++)
             {
-                runtimeSeries[i] = await _series[i].Build(dynamicView);
+                runtimeSeries[i] = _series[i].Build(dynamicView, dataset);
             }
 
             _chart.Series = runtimeSeries;
@@ -137,6 +137,19 @@ public sealed class DynamicCartesianChart : SingleChildWidget
         if (_xAxes != null) OnAxesChanged(true);
         if (_yAxes != null) OnAxesChanged(false);
     }
+
+    #region ====IDataSetBinder====
+
+    string IDataSetBinder.DataSetPropertyName => nameof(DataSet);
+
+    void IDataSetBinder.OnDataSetChanged()
+    {
+        Series = null;
+        XAxes = null;
+        YAxes = null;
+    }
+
+    #endregion
 
     private static IEnumerable<ISeries> MakeMockSeries() =>
         new ISeries[] { new ColumnSeries<float>() { Values = new float[] { 1, 2, 3, 4, 5, 6 } } };

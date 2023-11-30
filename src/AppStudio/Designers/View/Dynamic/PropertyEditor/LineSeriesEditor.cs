@@ -12,7 +12,7 @@ internal sealed class LineSeriesEditor : CartesianSeriesEditor<LineSeriesSetting
 {
     public LineSeriesEditor(State<LineSeriesSettings> state,
         DataGridController<CartesianSeriesSettings> dataGridController,
-        DesignController designController) : base(state, dataGridController, designController) { }
+        DesignElement element) : base(state, dataGridController, element) { }
 
     protected override IEnumerable<(string, State, Widget)> GetExtProps(State<LineSeriesSettings> state)
     {

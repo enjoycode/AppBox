@@ -7,6 +7,7 @@ namespace AppBoxDesign.PropertyEditor;
 internal sealed class ColumnSeriesEditor : CartesianSeriesEditor<ColumnSeriesSettings>
 {
     public ColumnSeriesEditor(State<ColumnSeriesSettings> state,
-        DataGridController<CartesianSeriesSettings> dataGridController, DesignController designController)
-        : base(state, dataGridController, designController) { }
+        DataGridController<CartesianSeriesSettings> dataGridController,
+        DesignElement element)
+        : base(state, dataGridController, element) { }
 }

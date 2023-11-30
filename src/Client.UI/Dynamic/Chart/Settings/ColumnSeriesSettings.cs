@@ -15,16 +15,16 @@ public sealed class ColumnSeriesSettings : CartesianSeriesSettings
     {
         return new ColumnSeriesSettings()
         {
-            DataSet = DataSet, Field = Field, Name = Name
+            Field = Field, Name = Name
         };
     }
 
-    public override async Task<ISeries> Build(IDynamicView dynamicView)
+    public override ISeries Build(IDynamicView dynamicView, DynamicDataSet dataset)
     {
         var res = new ColumnSeries<DynamicEntity>()
         {
             Name = Name ?? Field,
-            Values = (DynamicDataSet?)(await dynamicView.GetDataSet(DataSet)),
+            Values = dataset,
             Mapping = (obj, point) =>
             {
                 var v = obj[Field].ToDouble();

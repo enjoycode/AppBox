@@ -17,7 +17,7 @@ public sealed class DynamicTable : SingleChildWidget
     /// <summary>
     /// 绑定的数据集名称
     /// </summary>
-    public string DataSet { get; set; } = null!;
+    public string? DataSet { get; set; }
 
     public ColumnSettings[]? Columns
     {

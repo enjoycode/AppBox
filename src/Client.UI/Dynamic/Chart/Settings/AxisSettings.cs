@@ -10,8 +10,6 @@ public sealed class AxisSettings
 {
     public string? Name { get; set; }
 
-    public string? DataSet { get; set; }
-
     /// <summary>
     /// 数据集的标签字段
     /// </summary>
@@ -32,12 +30,12 @@ public sealed class AxisSettings
 
     public AxisSettings Clone() => new()
     {
-        Name = Name, DataSet = DataSet, Labels = Labels,
+        Name = Name, Labels = Labels,
         LabelsColor = LabelsColor, Formatter = Formatter,
         MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
     };
 
-    public async ValueTask<LiveCharts.Axis> Buid(IDynamicView dynamicView)
+    public LiveCharts.Axis Buid(IDynamicView dynamicView, DynamicDataSet dataset)
     {
         var res = new LiveCharts.Axis();
         // if (!string.IsNullOrEmpty(Formatter))
@@ -54,16 +52,15 @@ public sealed class AxisSettings
             res.ForceStepToMin = ForceStepToMin;
         }
 
-        if (!string.IsNullOrEmpty(DataSet) && !string.IsNullOrEmpty(Labels))
+        if (!string.IsNullOrEmpty(Labels))
         {
-            var ds = (DynamicDataSet?)(await dynamicView.GetDataSet(DataSet));
             res.Labeler = v =>
             {
                 var index = (int)v;
-                if (ds == null || index < 0 || index >= ds.Count)
+                if (index < 0 || index >= dataset.Count)
                     return string.Empty;
 
-                return ds[index][Labels].ToStringValue();
+                return dataset[index][Labels].ToStringValue();
             };
         }
 

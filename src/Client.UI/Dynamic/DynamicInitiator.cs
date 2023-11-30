@@ -11,6 +11,8 @@ public static class DynamicInitiator
     private static int _initFlag = 0;
     private static Task _initTask = null!;
 
+    private const string DataSetEditorName = "DataSetSelect";
+
     public static async Task<bool> TryInitAsync()
     {
         var res = false;
@@ -34,7 +36,7 @@ public static class DynamicInitiator
             name: "Table",
             properties: new DynamicPropertyMeta[]
             {
-                new("DataSet", typeof(string), false, editorName: "DataSetSelect"),
+                new("DataSet", typeof(string), true, editorName: DataSetEditorName),
             });
         
         //注册图表动态组件
@@ -43,6 +45,7 @@ public static class DynamicInitiator
             name: "CartesianChart",
             properties: new DynamicPropertyMeta[]
             {
+                new("DataSet", typeof(string), true, editorName: DataSetEditorName),
                 new("Series", typeof(CartesianSeriesSettings[]), true),
                 new("XAxes", typeof(AxisSettings[]), true),
                 new("YAxes", typeof(AxisSettings[]), true)
@@ -52,6 +55,7 @@ public static class DynamicInitiator
             name: "PieChart",
             properties: new DynamicPropertyMeta[]
             {
+                new("DataSet", typeof(string), true, editorName: DataSetEditorName),
                 new("Series", typeof(PieSeriesSettings), true),
                 new("LegendPosition", typeof(LegendPosition), false),
                 new("LegendColor", typeof(Color), true),

@@ -21,10 +21,6 @@ internal sealed class AxesEditor : SingleChildWidget
         {
             if (state.Value != null) state.Value.Name = v;
         });
-        var dataset = new RxProxy<string?>(() => state.Value?.DataSet, v =>
-        {
-            if (state.Value != null) state.Value.DataSet = v;
-        });
         var labels = new RxProxy<string?>(() => state.Value?.Labels, v =>
         {
             if (state.Value != null) state.Value.Labels = v;
@@ -45,14 +41,12 @@ internal sealed class AxesEditor : SingleChildWidget
         {
             if (state.Value != null) state.Value.ForceStepToMin = v;
         });
-
-        dataset.AddListener(OnDataSetChanged);
+        
         name.AddListener(v => RefreshCurrentRow());
         labels.AddListener(v => RefreshCurrentRow());
         state.AddListener(_ =>
         {
             name.NotifyValueChanged();
-            dataset.NotifyValueChanged();
             labels.NotifyValueChanged();
             labelsColor.NotifyValueChanged();
             textSize.NotifyValueChanged();
@@ -64,7 +58,6 @@ internal sealed class AxesEditor : SingleChildWidget
         var formItems = new List<FormItem>
         {
             new("Name", new TextInput(name)),
-            new("DataSet", new Select<string>(dataset) { Options = allDataSet }),
             new("Labels", new Select<string>(labels) { Ref = _labelsRef }),
             new("LabelsColor", new ColorEditor(labelsColor, _element)),
             new("TextSize", new NumberInput<double>(textSize)),
@@ -77,25 +70,26 @@ internal sealed class AxesEditor : SingleChildWidget
             LabelWidth = 100,
             Children = formItems,
         };
-
-        OnDataSetChanged(dataset);
     }
 
     private readonly DesignElement _element;
     private readonly DataGridController<AxisSettings> _dataGridController;
     private readonly WidgetRef<Select<string>> _labelsRef = new();
 
-    private async void OnDataSetChanged(State state)
+    protected override void OnMounted() => FetchDataSetFields();
+
+    private async void FetchDataSetFields()
     {
-        var dsName = ((State<string?>)state).Value;
-        if (string.IsNullOrEmpty(dsName)) return;
+        _element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSet), out var datasetValue);
+        if (datasetValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
+        {
+            Notification.Warn("尚未设置DataSet");
+            return;
+        }
 
         var dsState = _element.Controller.FindState(dsName);
-        var dsSettings = dsState!.Value as IDynamicDataSetStateValue;
-        if (dsSettings == null) return;
-
-        var ds = await dsSettings.GetRuntimeDataSet() as DynamicDataSet;
-        if (ds == null) return;
+        if (dsState?.Value is not IDynamicDataSetStateValue dsSettings) return;
+        if (await dsSettings.GetRuntimeDataSet() is not DynamicDataSet ds) return;
 
         var strings = ds.Fields.Where(f => f.IsString).Select(f => f.Name).ToArray();
         _labelsRef.Widget!.Options = strings;
