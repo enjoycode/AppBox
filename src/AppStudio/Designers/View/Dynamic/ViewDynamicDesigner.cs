@@ -22,6 +22,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
             DesignSettings.MakeDataSetSettings = () => new DataSetSettings();
             // 初始化其他属性编辑器
             PixUI.Dynamic.Design.PropertyEditor
+                .RegisterClassValueEditor<string, DataSetPropEditor>(false, "DataSetSelect");
+            PixUI.Dynamic.Design.PropertyEditor
                 .RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
             PixUI.Dynamic.Design.PropertyEditor
                 .RegisterClassValueEditor<AxisSettings[], AxesPropEditor>(true);

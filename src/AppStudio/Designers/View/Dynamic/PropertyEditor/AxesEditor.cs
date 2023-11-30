@@ -66,7 +66,7 @@ internal sealed class AxesEditor : SingleChildWidget
             new("Name", new TextInput(name)),
             new("DataSet", new Select<string>(dataset) { Options = allDataSet }),
             new("Labels", new Select<string>(labels) { Ref = _labelsRef }),
-            new("LabelsColor", new ColorEditor(labelsColor)),
+            new("LabelsColor", new ColorEditor(labelsColor, designController)),
             new("TextSize", new NumberInput<double>(textSize)),
             new("MinStep", new NumberInput<double>(minStep)),
             new("ForceMinStep", new Checkbox(forceMinStep)),

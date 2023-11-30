@@ -6,9 +6,9 @@ using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign.PropertyEditor;
 
-internal sealed class AxesPropEditor : SingleChildWidget
+internal sealed class AxesPropEditor : ValueEditorBase
 {
-    public AxesPropEditor(State<AxisSettings[]> state)
+    public AxesPropEditor(State<AxisSettings[]> state, DesignController controller) : base(controller)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
@@ -16,19 +16,14 @@ internal sealed class AxesPropEditor : SingleChildWidget
 
     private readonly State<AxisSettings[]> _state;
 
-    private DesignController? DesignController =>
-        Parent is PixUI.Dynamic.Design.PropertyEditor propertyEditor ? propertyEditor.DesignController : null;
-
     private async void OnTap(PointerEvent e)
     {
-        if (DesignController == null) return;
-
         //编辑副本
         var list = new List<AxisSettings>();
         if (_state.Value is { Length: > 0 })
             list.AddRange(_state.Value.Select(t => t.Clone()));
 
-        var dlg = new AxesDialog(list, DesignController);
+        var dlg = new AxesDialog(list, Controller);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

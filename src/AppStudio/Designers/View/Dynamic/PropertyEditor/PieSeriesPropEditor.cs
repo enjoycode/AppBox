@@ -5,9 +5,9 @@ using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign.PropertyEditor;
 
-internal sealed class PieSeriesPropEditor : SingleChildWidget
+internal sealed class PieSeriesPropEditor : ValueEditorBase
 {
-    public PieSeriesPropEditor(State<PieSeriesSettings?> state)
+    public PieSeriesPropEditor(State<PieSeriesSettings?> state, DesignController controller) : base(controller)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
@@ -15,24 +15,18 @@ internal sealed class PieSeriesPropEditor : SingleChildWidget
 
     private readonly State<PieSeriesSettings?> _state;
 
-    private DesignController? DesignController =>
-        Parent is PixUI.Dynamic.Design.PropertyEditor propertyEditor ? propertyEditor.DesignController : null;
-
     private async void OnTap(PointerEvent e)
     {
-        var designController = DesignController;
-        if (designController == null) return;
-
         //编辑副本
         var newOrCloned = _state.Value ?? new PieSeriesSettings();
         if (string.IsNullOrEmpty(newOrCloned.DataSet))
         {
-            var firstDataSet = designController.GetAllDataSet().FirstOrDefault();
+            var firstDataSet = Controller.GetAllDataSet().FirstOrDefault();
             if (firstDataSet != null)
                 newOrCloned.DataSet = firstDataSet.Name;
         }
 
-        var dlg = new PieSeriesDialog(newOrCloned, designController);
+        var dlg = new PieSeriesDialog(newOrCloned, Controller);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

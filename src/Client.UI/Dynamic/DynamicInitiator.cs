@@ -26,9 +26,20 @@ public static class DynamicInitiator
 
     private static async Task Init()
     {
+        var dataCatalog = "Data";
+        
+        //注册表格动态组件
+        DynamicWidgetManager.Register<DynamicTable>(MaterialIcons.GridOn,
+            catalog: dataCatalog,
+            name: "Table",
+            properties: new DynamicPropertyMeta[]
+            {
+                new("DataSet", typeof(string), false, editor: "DataSetSelect"),
+            });
+        
         //注册图表动态组件
         DynamicWidgetManager.Register<DynamicCartesianChart>(MaterialIcons.BarChart,
-            catalog: "Chart",
+            catalog: dataCatalog,
             name: "CartesianChart",
             properties: new DynamicPropertyMeta[]
             {
@@ -37,7 +48,7 @@ public static class DynamicInitiator
                 new("YAxes", typeof(AxisSettings[]), true)
             });
         DynamicWidgetManager.Register<DynamicPieChart>(MaterialIcons.PieChart,
-            catalog: "Chart",
+            catalog: dataCatalog,
             name: "PieChart",
             properties: new DynamicPropertyMeta[]
             {

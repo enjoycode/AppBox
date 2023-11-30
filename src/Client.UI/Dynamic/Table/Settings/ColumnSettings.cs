@@ -1,13 +1,14 @@
+using System.Text.Json.Serialization;
 using AppBoxCore;
 using PixUI;
 
-namespace AppBoxClient.Dynamic.Settings;
+namespace AppBoxClient.Dynamic;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
+[JsonDerivedType(typeof(TextColumnSettings), typeDiscriminator: "Type")]
 public abstract class ColumnSettings
 {
-    public string Label { get; set; }
-    
-    public string Field { get; set; }
+    public string Label { get; set; } = string.Empty;
 
-    protected abstract DataGridColumn<DynamicEntity> BuildColumn();
+    protected internal abstract DataGridColumn<DynamicEntity> BuildColumn();
 }
