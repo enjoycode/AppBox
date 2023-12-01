@@ -7,7 +7,7 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class AxesDialog : Dialog
 {
-    public AxesDialog(List<AxisSettings> list, DesignElement element)
+    public AxesDialog(List<ChartAxisSettings> list, DesignElement element)
     {
         Title.Value = "Chart Axes";
         Width = 580;
@@ -22,8 +22,8 @@ internal sealed class AxesDialog : Dialog
 
     // private readonly List<AxisSettings> _list;
     private readonly DesignElement _element;
-    private readonly DataGridController<AxisSettings> _dataGridController = new();
-    private readonly State<AxisSettings?> _current;
+    private readonly DataGridController<ChartAxisSettings> _dataGridController = new();
+    private readonly State<ChartAxisSettings?> _current;
 
     protected override Widget BuildBody()
     {
@@ -64,13 +64,13 @@ internal sealed class AxesDialog : Dialog
         {
             new Card
             {
-                Child = new DataGrid<AxisSettings>(_dataGridController)
+                Child = new DataGrid<ChartAxisSettings>(_dataGridController)
                 {
                     Width = 250,
                     Columns =
                     {
-                        new DataGridTextColumn<AxisSettings>("Name", c => c.Name ?? string.Empty),
-                        new DataGridTextColumn<AxisSettings>("Labels", c => c.Labels ?? string.Empty)
+                        new DataGridTextColumn<ChartAxisSettings>("Name", c => c.Name ?? string.Empty),
+                        new DataGridTextColumn<ChartAxisSettings>("Labels", c => c.Labels ?? string.Empty)
                     }
                 }
             },
@@ -88,7 +88,7 @@ internal sealed class AxesDialog : Dialog
 
     private void OnAddAxis()
     {
-        var newAxis = new AxisSettings() { Name = "AxisName" };
+        var newAxis = new ChartAxisSettings() { Name = "AxisName" };
         _dataGridController.Add(newAxis);
         _current.Value = newAxis; // select the new one
     }

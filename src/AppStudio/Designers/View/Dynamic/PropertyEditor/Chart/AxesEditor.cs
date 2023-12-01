@@ -10,8 +10,8 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class AxesEditor : SingleChildWidget
 {
-    public AxesEditor(State<AxisSettings?> state,
-        DataGridController<AxisSettings> dataGridController,
+    public AxesEditor(State<ChartAxisSettings?> state,
+        DataGridController<ChartAxisSettings> dataGridController,
         DesignElement element)
     {
         _dataGridController = dataGridController;
@@ -73,7 +73,7 @@ internal sealed class AxesEditor : SingleChildWidget
     }
 
     private readonly DesignElement _element;
-    private readonly DataGridController<AxisSettings> _dataGridController;
+    private readonly DataGridController<ChartAxisSettings> _dataGridController;
     private readonly WidgetRef<Select<string>> _labelsRef = new();
 
     protected override void OnMounted() => FetchDataSetFields();

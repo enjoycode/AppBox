@@ -18,8 +18,8 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
 
     private readonly CartesianChart _chart;
     private CartesianSeriesSettings[]? _series;
-    private AxisSettings[]? _xAxes;
-    private AxisSettings[]? _yAxes;
+    private ChartAxisSettings[]? _xAxes;
+    private ChartAxisSettings[]? _yAxes;
 
     public string? DataSet { get; set; }
 
@@ -33,7 +33,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
         }
     }
 
-    public AxisSettings[]? XAxes
+    public ChartAxisSettings[]? XAxes
     {
         get => _xAxes;
         set
@@ -43,7 +43,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
         }
     }
 
-    public AxisSettings[]? YAxes
+    public ChartAxisSettings[]? YAxes
     {
         get => _yAxes;
         set

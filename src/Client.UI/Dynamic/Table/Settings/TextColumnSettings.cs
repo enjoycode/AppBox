@@ -4,7 +4,7 @@ using PixUI;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class TextColumnSettings : ColumnSettings
+public sealed class TextColumnSettings : TableColumnSettings
 {
     public string Field { get; set; } = string.Empty;
 

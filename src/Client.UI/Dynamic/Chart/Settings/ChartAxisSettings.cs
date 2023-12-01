@@ -6,7 +6,7 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class AxisSettings
+public sealed class ChartAxisSettings
 {
     public string? Name { get; set; }
 
@@ -28,7 +28,7 @@ public sealed class AxisSettings
 
     public double? TextSize { get; set; }
 
-    public AxisSettings Clone() => new()
+    public ChartAxisSettings Clone() => new()
     {
         Name = Name, Labels = Labels,
         LabelsColor = LabelsColor, Formatter = Formatter,

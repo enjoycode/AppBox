@@ -4,7 +4,7 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class DynamicTable : SingleChildWidget
+public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
 {
     public DynamicTable()
     {
@@ -12,14 +12,14 @@ public sealed class DynamicTable : SingleChildWidget
     }
 
     private readonly DataGridController<DynamicEntity> _dgController = new();
-    private ColumnSettings[]? _columns;
+    private TableColumnSettings[]? _columns;
 
     /// <summary>
     /// 绑定的数据集名称
     /// </summary>
     public string? DataSet { get; set; }
 
-    public ColumnSettings[]? Columns
+    public TableColumnSettings[]? Columns
     {
         get => _columns;
         set
@@ -69,4 +69,12 @@ public sealed class DynamicTable : SingleChildWidget
 
         base.Paint(canvas, area);
     }
+
+    #region ====IDataSetBinder====
+
+    string IDataSetBinder.DataSetPropertyName => nameof(DataSet);
+
+    void IDataSetBinder.OnDataSetChanged() { }
+
+    #endregion
 }

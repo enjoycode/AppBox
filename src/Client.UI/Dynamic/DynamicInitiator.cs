@@ -37,6 +37,7 @@ public static class DynamicInitiator
             properties: new DynamicPropertyMeta[]
             {
                 new("DataSet", typeof(string), true, editorName: DataSetEditorName),
+                new("Columns", typeof(TableColumnSettings[]), true),
             });
         
         //注册图表动态组件
@@ -47,8 +48,8 @@ public static class DynamicInitiator
             {
                 new("DataSet", typeof(string), true, editorName: DataSetEditorName),
                 new("Series", typeof(CartesianSeriesSettings[]), true),
-                new("XAxes", typeof(AxisSettings[]), true),
-                new("YAxes", typeof(AxisSettings[]), true)
+                new("XAxes", typeof(ChartAxisSettings[]), true),
+                new("YAxes", typeof(ChartAxisSettings[]), true)
             });
         DynamicWidgetManager.Register<DynamicPieChart>(MaterialIcons.PieChart,
             catalog: dataCatalog,

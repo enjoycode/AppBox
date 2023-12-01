@@ -31,21 +31,18 @@ internal sealed class CartesianSeriesDialog : Dialog
     private readonly State<LineSeriesSettings> _currentLine = new LineSeriesSettings();
     private readonly State<ColumnSeriesSettings> _currentColumn = new ColumnSeriesSettings();
 
-    protected override Widget BuildBody()
+    protected override Widget BuildBody() => new Container
     {
-        return new Container
+        Padding = EdgeInsets.All(20),
+        Child = new Column(alignment: HorizontalAlignment.Left, spacing: 5)
         {
-            Padding = EdgeInsets.All(20),
-            Child = new Column(alignment: HorizontalAlignment.Left, spacing: 5)
+            Children =
             {
-                Children =
-                {
-                    BuildToolbar(),
-                    BuildContent(),
-                }
+                BuildToolbar(),
+                BuildContent(),
             }
-        };
-    }
+        }
+    };
 
     private Row BuildToolbar() => new Row(spacing: 5)
     {

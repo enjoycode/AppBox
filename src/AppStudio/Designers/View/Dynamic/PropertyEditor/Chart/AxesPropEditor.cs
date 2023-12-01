@@ -8,13 +8,13 @@ namespace AppBoxDesign.PropertyEditor;
 
 internal sealed class AxesPropEditor : ValueEditorBase
 {
-    public AxesPropEditor(State<AxisSettings[]> state, DesignElement element) : base(element)
+    public AxesPropEditor(State<ChartAxisSettings[]> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
     }
 
-    private readonly State<AxisSettings[]> _state;
+    private readonly State<ChartAxisSettings[]> _state;
 
     private async void OnTap(PointerEvent e)
     {
@@ -27,7 +27,7 @@ internal sealed class AxesPropEditor : ValueEditorBase
         }
         
         //编辑副本
-        var list = new List<AxisSettings>();
+        var list = new List<ChartAxisSettings>();
         if (_state.Value is { Length: > 0 })
             list.AddRange(_state.Value.Select(t => t.Clone()));
 
