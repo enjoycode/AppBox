@@ -5,13 +5,15 @@ using PixUI;
 
 namespace AppBoxClient;
 
-public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
+public sealed class RxEntity<T> : RxObjectBase<T> where T : Entity, new()
 {
     public RxEntity()
     {
         _target = new T();
         _target.PropertyChanged += OnTargetPropertyChanged;
     }
+    
+    private readonly Dictionary<short, State> _ds = new();
 
     public State<TMember> Observe<TMember>(short memberId, Func<T, TMember> getter, Action<T, TMember> setter)
     {
@@ -26,8 +28,6 @@ public sealed class RxEntity<T> : RxObject<T> where T : Entity, new()
         _ds[memberId] = proxy;
         return proxy;
     }
-
-    private readonly Dictionary<short, State> _ds = new();
 
     private void OnTargetPropertyChanged(short memberId)
     {
@@ -60,14 +60,5 @@ public static class EntityExtensions
             if (mid == memberId) rxMember.NotifyValueChanged();
         };
         return rxMember;
-    }
-}
-
-public static class ObjectNotifierExtensions
-{
-    public static void BindToRxEntity<T>(this ObjectNotifier<T> notifier, RxEntity<T> rxEntity)
-        where T : Entity, new()
-    {
-        notifier.OnChange = t => rxEntity.Target = t;
     }
 }

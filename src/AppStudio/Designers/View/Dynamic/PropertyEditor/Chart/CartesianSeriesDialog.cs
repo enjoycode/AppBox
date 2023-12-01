@@ -31,6 +31,8 @@ internal sealed class CartesianSeriesDialog : Dialog
     private readonly State<LineSeriesSettings> _currentLine = new LineSeriesSettings();
     private readonly State<ColumnSeriesSettings> _currentColumn = new ColumnSeriesSettings();
 
+    #region ====Build Widget Tree====
+
     protected override Widget BuildBody() => new Container
     {
         Padding = EdgeInsets.All(20),
@@ -94,6 +96,8 @@ internal sealed class CartesianSeriesDialog : Dialog
         }
     };
 
+    #endregion
+    
     private void OnCurrentChanged()
     {
         if (_current.Value == null) return;

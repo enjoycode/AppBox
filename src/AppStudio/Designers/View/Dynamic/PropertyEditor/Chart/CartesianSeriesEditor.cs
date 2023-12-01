@@ -20,7 +20,7 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
 
         var name = new RxProxy<string?>(() => state.Value.Name, v => state.Value.Name = v);
         var field = new RxProxy<string?>(() => state.Value.Field, v => state.Value.Field = v ?? string.Empty);
-        field.AddListener(v => RefreshCurrentRow());
+        field.AddListener(_ => RefreshCurrentRow());
 
         // ReSharper disable once VirtualMemberCallInConstructor
         var extProps = GetExtProps(state).ToArray();

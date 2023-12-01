@@ -1,9 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using AppBoxClient.Dynamic;
-using AppBoxCore;
 using PixUI;
-using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign.PropertyEditor;

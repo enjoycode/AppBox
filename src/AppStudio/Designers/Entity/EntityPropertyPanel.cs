@@ -3,7 +3,7 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class RxEntityField : RxObject<EntityFieldVO>
+internal sealed class RxEntityField : RxObjectBase<EntityFieldVO>
 {
     public RxEntityField(EntityFieldVO? target)
     {
@@ -26,25 +26,24 @@ internal sealed class EntityPropertyPanel : View
 {
     public EntityPropertyPanel(EntityModelVO entityModel, State<EntityMemberVO?> selectedMember)
     {
-        _entityModel = entityModel;
         _selectedMember = Bind(selectedMember, OnSelectedMemberChanged);
         _rxEntityField = new RxEntityField((EntityFieldVO?)_selectedMember.Value);
         var isEntityField = _selectedMember
-            .ToStateOfBool(v => v != null && v.Type == EntityMemberType.EntityField);
+            .ToStateOfBool(v => v is { Type: EntityMemberType.EntityField });
 
         Child = new Column(HorizontalAlignment.Left)
         {
-            Children = new Widget[]
+            Children =
             {
                 new Text("Entity Properties:") { FontWeight = FontWeight.Bold },
                 new Form()
                 {
                     LabelWidth = _labelWidth,
-                    Children = new[]
+                    Children =
                     {
-                        new FormItem("DataStoreKind:", new TextInput("SqlStore") { Readonly = true }),
-                        new FormItem("DataStoreName:", new TextInput("Default") { Readonly = true }),
-                        new FormItem("Comment:", new TextInput("")),
+                        new ("DataStoreKind:", new TextInput("SqlStore") { Readonly = true }),
+                        new ("DataStoreName:", new TextInput("Default") { Readonly = true }),
+                        new ("Comment:", new TextInput("")),
                     }
                 },
                 new IfConditional(isEntityField,
@@ -52,12 +51,11 @@ internal sealed class EntityPropertyPanel : View
                 new IfConditional(isEntityField, () => new Form()
                 {
                     LabelWidth = _labelWidth,
-                    Children = new[]
+                    Children =
                     {
-                        new FormItem("Name:", new TextInput(_rxEntityField.Name)),
-                        new FormItem("FieldType:",
-                            new TextInput(_rxEntityField.FieldType.ToStateOfString(v => v.ToString()))),
-                        new FormItem("Comment:", new TextInput(_rxEntityField.Comment))
+                        new ("Name:", new TextInput(_rxEntityField.Name)),
+                        new ("FieldType:", new TextInput(_rxEntityField.FieldType.ToStateOfString())),
+                        new ("Comment:", new TextInput(_rxEntityField.Comment))
                     }
                 })
             }
@@ -65,7 +63,6 @@ internal sealed class EntityPropertyPanel : View
     }
 
     private const float _labelWidth = 120f;
-    private readonly EntityModelVO _entityModel;
     private readonly State<EntityMemberVO?> _selectedMember;
     private readonly RxEntityField _rxEntityField;
 
