@@ -16,7 +16,7 @@ internal sealed class DesignStore
     {
         Commands = new Commands(this);
     }
-    
+
     #region ====State and Controllers====
 
     internal readonly Commands Commands;
@@ -29,8 +29,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 模型树控制器
     /// </summary>
-    internal readonly TreeController<DesignNodeVO> TreeController =
-        new(DesignTreePad.BuildTreeNode, n => n.Children!);
+    internal readonly TreeController<DesignNodeVO> TreeController = new();
 
     /// <summary>
     /// 设计器控制器
@@ -156,7 +155,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 构建应用后重新构建动态组件的工具箱
     /// </summary>
-    internal Task RebuildDynamicToolbox(/*TODO: 变更列表*/)
+    internal Task RebuildDynamicToolbox( /*TODO: 变更列表*/)
     {
         //TODO:**暂简单实现，应根据变更列表重新注册动态组件，同时重新刷新所有打开的相关设计器
         return DynamicInitiator.RebuildDynamicToolbox();

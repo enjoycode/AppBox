@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>AppBoxStudio</AssemblyName>
         <RootNamespace>AppBoxDesign</RootNamespace>
-        <LangVersion>10</LangVersion>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

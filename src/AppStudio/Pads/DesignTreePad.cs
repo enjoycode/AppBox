@@ -18,20 +18,23 @@ internal sealed class DesignTreePad : View
             Children =
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<DesignNodeVO>(_designStore.TreeController),
+                new TreeView<DesignNodeVO>(_designStore.TreeController)
+                {
+                    NodeBuilder = BuildTreeNode, ChildrenGetter = n => n.Children!
+                },
             }
         };
     }
 
-    internal static void BuildTreeNode(DesignNodeVO data, TreeNode<DesignNodeVO> node)
+    private static void BuildTreeNode(TreeNode<DesignNodeVO> node)
     {
+        var data = node.Data;
         node.Icon = new Icon(GetIconForNode(data));
         node.Label = new Text(data.Label);
-        node.IsLeaf = data.Type == DesignNodeType.ModelNode ||
-                      data.Type == DesignNodeType.DataStoreNode;
-        node.IsExpanded = data.Type == DesignNodeType.DataStoreRootNode ||
-                          data.Type == DesignNodeType.ApplicationRoot ||
-                          data.Type == DesignNodeType.ApplicationNode;
+        node.IsLeaf = data.Type is DesignNodeType.ModelNode or DesignNodeType.DataStoreNode;
+        node.IsExpanded = data.Type is DesignNodeType.DataStoreRootNode
+            or DesignNodeType.ApplicationRoot
+            or DesignNodeType.ApplicationNode;
     }
 
     private static IconData GetIconForNode(DesignNodeVO data)

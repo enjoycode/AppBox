@@ -31,13 +31,17 @@ internal sealed class DynamicOutlinePad : View
             Children =
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<DesignElementTreeNode>(_treeController),
+                new TreeView<DesignElementTreeNode>(_treeController)
+                {
+                    NodeBuilder = BuildTreeNode,
+                    ChildrenGetter = n => n.Children
+                },
             }
         };
     }
 
     private readonly DesignController _designController;
-    private readonly TreeController<DesignElementTreeNode> _treeController = new(BuildTreeNode, n => n.Children);
+    private readonly TreeController<DesignElementTreeNode> _treeController = new();
 
     private readonly State<string> _searchKey = "";
     private Inspector? _inspector = null;
@@ -54,8 +58,9 @@ internal sealed class DynamicOutlinePad : View
         base.OnUnmounted();
     }
 
-    private static void BuildTreeNode(DesignElementTreeNode data, TreeNode<DesignElementTreeNode> node)
+    private static void BuildTreeNode(TreeNode<DesignElementTreeNode> node)
     {
+        var data = node.Data;
         node.Icon = new Icon(MaterialIcons.Folder);
         node.Label = new Text(data.Element.Meta?.Name ?? "Placeholder");
         node.IsLeaf = data.Children.Count == 0;

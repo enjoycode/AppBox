@@ -20,14 +20,18 @@ internal sealed class ViewOutlinePad : View
             Children = new Widget[]
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<WidgetTreeNode>(_treeController),
+                new TreeView<WidgetTreeNode>(_treeController)
+                {
+                    NodeBuilder = BuildTreeNode,
+                    ChildrenGetter = n => n.Children
+                },
             }
         };
     }
 
     private readonly PreviewController _previewController;
 
-    private readonly TreeController<WidgetTreeNode> _treeController = new(BuildTreeNode, n => n.Children);
+    private readonly TreeController<WidgetTreeNode> _treeController = new();
 
     private readonly State<string> _searchKey = "";
     private Inspector? _inspector = null;
@@ -44,8 +48,9 @@ internal sealed class ViewOutlinePad : View
         _previewController.RefreshOutlineAction = null;
     }
 
-    private static void BuildTreeNode(WidgetTreeNode data, TreeNode<WidgetTreeNode> node)
+    private static void BuildTreeNode(TreeNode<WidgetTreeNode> node)
     {
+        var data = node.Data;
         node.Icon = new Icon(MaterialIcons.Folder);
         node.Label = new Text(data.Widget.ToString());
         node.IsLeaf = data.Children.Count == 0;
