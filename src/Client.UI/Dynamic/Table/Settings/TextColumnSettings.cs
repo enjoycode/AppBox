@@ -6,6 +6,8 @@ namespace AppBoxClient.Dynamic;
 
 public sealed class TextColumnSettings : TableColumnSettings
 {
+    public override string Type => "Text";
+    
     public string Field { get; set; } = string.Empty;
 
     protected internal override DataGridColumn<DynamicEntity> BuildColumn()
@@ -13,4 +15,7 @@ public sealed class TextColumnSettings : TableColumnSettings
         return new DataGridTextColumn<DynamicEntity>(Label,
             t => t.HasValue(Field) ? t[Field].ToStringValue() : string.Empty);
     }
+
+    public override TableColumnSettings Clone() =>
+        new TextColumnSettings { Label = Label, Field = Field };
 }

@@ -8,7 +8,11 @@ namespace AppBoxClient.Dynamic;
 [JsonDerivedType(typeof(TextColumnSettings), typeDiscriminator: "Text")]
 public abstract class TableColumnSettings
 {
+    [JsonIgnore] public abstract string Type { get; }
+    
     public string Label { get; set; } = string.Empty;
 
     protected internal abstract DataGridColumn<DynamicEntity> BuildColumn();
+
+    public abstract TableColumnSettings Clone();
 }
