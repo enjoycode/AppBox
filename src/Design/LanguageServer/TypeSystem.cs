@@ -57,14 +57,14 @@ internal sealed class TypeSystem : IDisposable
             .WithNullableContextOptions(NullableContextOptions.Enable);
 
     private static readonly CSharpParseOptions ParseOptions =
-        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10);
+        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11);
 
     internal static readonly CSharpParseOptions ServiceParseOptions =
-        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10)
+        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11)
             .WithPreprocessorSymbols("__RUNTIME__", "__HOSTRUNTIME__");
 
     internal static readonly CSharpParseOptions ViewParseOptions =
-        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp10)
+        new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11)
             .WithPreprocessorSymbols("__RUNTIME__");
 
     /// <summary>
