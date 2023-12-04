@@ -35,9 +35,10 @@ internal sealed class TableColumnsDialog : Dialog
 
     #region ====Build Widget Tree====
 
-    private static void BuildTreeNode(TreeNodeType node)
+    private void BuildTreeNode(TreeNodeType node)
     {
         var s = node.Data;
+        node.IsSelected.Value = s == _treeController.DataSource![0];
         node.IsExpanded = true;
         node.IsLeaf = s is not GroupColumnSettings;
         node.Label = new Text(s.Observe(nameof(s.Label), () => s.Label));

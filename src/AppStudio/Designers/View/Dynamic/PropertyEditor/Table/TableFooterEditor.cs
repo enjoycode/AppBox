@@ -21,7 +21,7 @@ internal sealed class TableFooterEditor : SingleChildWidget
 
         Child = new Form()
         {
-            LabelWidth = 95,
+            LabelWidth = 98,
             Children =
             {
                 new("Type:", new EnumSelect<TableFooterCellType>(type)),
