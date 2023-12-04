@@ -31,6 +31,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                 .RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
             PixUI.Dynamic.Design.PropertyEditor
                 .RegisterClassValueEditor<TableColumnSettings[], TableColumnsPropEditor>(true);
+            PixUI.Dynamic.Design.PropertyEditor
+                .RegisterClassValueEditor<TableFooterCell[], TableFooterPropEditor>(true);
         }
     }
 

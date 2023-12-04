@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
@@ -8,12 +9,14 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
 {
     public DynamicTable()
     {
-        Child = new DataGrid<DynamicEntity>(_dgController);
+        Child = new DataGrid<DynamicEntity>(Controller);
     }
 
-    private readonly DataGridController<DynamicEntity> _dgController = new();
     private TableColumnSettings[]? _columns;
+    private TableFooterCell[]? _footer;
 
+    [JsonIgnore] internal DataGridController<DynamicEntity> Controller { get; } = new();
+    
     /// <summary>
     /// 绑定的数据集名称
     /// </summary>
@@ -29,15 +32,40 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         }
     }
 
+    public TableFooterCell[]? Footer
+    {
+        get => _footer;
+        set
+        {
+            _footer = value;
+            OnFooterChanged();
+        }
+    }
+
     private void OnColumnsChanged()
     {
-        _dgController.Columns.Clear();
+        Controller.Columns.Clear();
         if (_columns != null)
         {
             foreach (var column in _columns)
             {
-                _dgController.Columns.Add(column.BuildColumn());
+                Controller.Columns.Add(column.BuildColumn());
             }
+        }
+    }
+
+    private void OnFooterChanged()
+    {
+        Controller.DataGrid.FooterCells = null;
+        if (_footer is { Length: > 0 })
+        {
+            var cells = new DataGridFooterCell[_footer.Length];
+            for (var i = 0; i < cells.Length; i++)
+            {
+                cells[i] = _footer[i].Build(this);
+            }
+
+            Controller.DataGrid.FooterCells = cells;
         }
     }
 
@@ -51,7 +79,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         var ds = (DynamicDataSet?)await dynamicView.GetDataSet(DataSet);
         if (ds == null) return;
 
-        _dgController.DataSource = ds;
+        Controller.DataSource = ds;
     }
 
     public override void Paint(Canvas canvas, IDirtyArea? area = null)
@@ -74,7 +102,11 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
 
     string IDataSetBinder.DataSetPropertyName => nameof(DataSet);
 
-    void IDataSetBinder.OnDataSetChanged() { }
+    void IDataSetBinder.OnDataSetChanged()
+    {
+        _columns = null;
+        _footer = null;
+    }
 
     #endregion
 }

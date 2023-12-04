@@ -29,7 +29,7 @@ public static class DynamicInitiator
     private static async Task Init()
     {
         var dataCatalog = "Data";
-        
+
         //注册表格动态组件
         DynamicWidgetManager.Register<DynamicTable>(MaterialIcons.GridOn,
             catalog: dataCatalog,
@@ -38,8 +38,9 @@ public static class DynamicInitiator
             {
                 new("DataSet", typeof(string), true, editorName: DataSetEditorName),
                 new("Columns", typeof(TableColumnSettings[]), true),
+                new("Footer", typeof(TableFooterCell[]), true),
             });
-        
+
         //注册图表动态组件
         DynamicWidgetManager.Register<DynamicCartesianChart>(MaterialIcons.BarChart,
             catalog: dataCatalog,

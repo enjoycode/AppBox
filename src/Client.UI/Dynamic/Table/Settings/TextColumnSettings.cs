@@ -5,7 +5,7 @@ using PixUI;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class TextColumnSettings : TableColumnSettings
+public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
 {
     [JsonIgnore] public override string Type => Text;
 
