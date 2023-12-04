@@ -30,17 +30,23 @@ internal sealed class TableColumnsDialog : Dialog
 
     private readonly State<TreeNodeType?> _currentNode = State<TreeNodeType?>.Default();
     private readonly RxObject<TextColumnSettings> _currentText = new();
+    private readonly RxObject<GroupColumnSettings> _currentGroup = new();
 
     #region ====Build Widget Tree====
 
-    private static void BuildTreeNode(TreeNode<TableColumnSettings> node)
+    private static void BuildTreeNode(TreeNodeType node)
     {
         var s = node.Data;
         node.IsExpanded = true;
-        node.IsLeaf = true;
+        node.IsLeaf = s is not GroupColumnSettings;
         node.Label = new Text(s.Observe(nameof(s.Label), () => s.Label));
-        if (s is TextColumnSettings)
-            node.Icon = new(MaterialIcons.Title);
+        node.Icon = s switch
+        {
+            TextColumnSettings => new(MaterialIcons.Title),
+            RowNumColumnSettings => new(MaterialIcons.FormatListNumbered),
+            GroupColumnSettings => new(MaterialIcons.TableChart),
+            _ => new(MaterialIcons.List)
+        };
     }
 
     protected override Widget BuildBody() => new Container
@@ -56,17 +62,21 @@ internal sealed class TableColumnsDialog : Dialog
         }
     };
 
-    private Row BuildToolbar() => new Row(spacing: 5)
+    private Row BuildToolbar() => new(spacing: 5)
     {
         Children =
         {
-            new Select<string>(_typeName) { Width = 180, Options = new[] { "Text", "RowNum" } },
+            new Select<string>(_typeName)
+            {
+                Width = 180,
+                Options = new[] { TableColumnSettings.Text, TableColumnSettings.Group, TableColumnSettings.RowNum }
+            },
             new ButtonGroup
             {
                 Children =
                 {
                     new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAddColumn() },
-                    new Button(icon: MaterialIcons.Remove) /*{ OnTap = _ => OnRemoveSeries() }*/,
+                    new Button(icon: MaterialIcons.Remove) { OnTap = _ => OnRemoveColumn() },
                     new Button(icon: MaterialIcons.ArrowUpward) /*{ OnTap = _ => OnMoveUp() }*/,
                     new Button(icon: MaterialIcons.ArrowDownward) /*{ OnTap = _ => OnMoveDown()*/
                 }
@@ -74,7 +84,7 @@ internal sealed class TableColumnsDialog : Dialog
         }
     };
 
-    private Row BuildContent() => new Row(VerticalAlignment.Top)
+    private Row BuildContent() => new(VerticalAlignment.Top)
     {
         Children =
         {
@@ -84,7 +94,7 @@ internal sealed class TableColumnsDialog : Dialog
                 Child = new TreeView<TableColumnSettings>(_treeController)
                 {
                     NodeBuilder = BuildTreeNode,
-                    ChildrenGetter = s => new List<TableColumnSettings>()
+                    ChildrenGetter = s => ((GroupColumnSettings)s).Children
                 }
             },
 
@@ -93,10 +103,10 @@ internal sealed class TableColumnsDialog : Dialog
                     Child = new Container
                     {
                         Child = new Conditional<TreeNodeType?>(_currentNode)
-                            .When(r => r?.Data.Type == "Text",
+                            .When(r => r?.Data.Type == TableColumnSettings.Text,
                                 () => new TextColumnEditor(_currentText, _element))
-                        //         .When(r => r?.Type == "Column",
-                        //             () => new ColumnSeriesEditor(_currentColumn, _dataGridController, _element))
+                            .When(r => r?.Data.Type == TableColumnSettings.Group,
+                                () => new GroupColumnEditor(_currentGroup))
                     }
                 }
             ),
@@ -108,8 +118,11 @@ internal sealed class TableColumnsDialog : Dialog
     private void OnSelectedTreeNode()
     {
         var node = _treeController.FirstSelectedNode;
-        if (node?.Data.Type == "Text")
-            _currentText.Target = (TextColumnSettings)node.Data;
+        var type = node?.Data.Type;
+        if (type == TableColumnSettings.Text)
+            _currentText.Target = (TextColumnSettings)node!.Data;
+        else if (type == TableColumnSettings.Group)
+            _currentGroup.Target = (GroupColumnSettings)node!.Data;
 
         _currentNode.Value = node;
     }
@@ -120,14 +133,38 @@ internal sealed class TableColumnsDialog : Dialog
 
         TableColumnSettings? newColumn = _typeName.Value switch
         {
-            "Text" => new TextColumnSettings() { Label = "标题" },
+            TableColumnSettings.Text => new TextColumnSettings { Label = "标题" },
+            TableColumnSettings.Group => new GroupColumnSettings { Label = "标题" },
+            TableColumnSettings.RowNum => new RowNumColumnSettings { Label = "行号" },
             _ => null
         };
 
-        if (newColumn != null)
+        if (newColumn == null) return;
+
+        TreeNodeType? parentNode = null;
+        var insertIndex = -1;
+        var currentNode = _currentNode.Value;
+        if (currentNode != null)
         {
-            var newNode = _treeController.InsertNode(newColumn);
-            _treeController.SelectNode(newNode);
+            if (currentNode.Data is GroupColumnSettings)
+                parentNode = currentNode;
+            else
+            {
+                parentNode = currentNode.ParentNode;
+                if (parentNode != null)
+                    insertIndex = parentNode.IndexOf(currentNode) + 1;
+            }
         }
+
+        var newNode = _treeController.InsertNode(newColumn, parentNode, insertIndex);
+        _treeController.SelectNode(newNode);
+    }
+
+    private void OnRemoveColumn()
+    {
+        var currentNode = _currentNode.Value;
+        if (currentNode == null) return;
+
+        _treeController.RemoveNode(currentNode);
     }
 }

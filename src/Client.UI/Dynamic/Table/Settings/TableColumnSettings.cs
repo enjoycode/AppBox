@@ -8,9 +8,15 @@ using PixUI;
 namespace AppBoxClient.Dynamic;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
-[JsonDerivedType(typeof(TextColumnSettings), typeDiscriminator: "Text")]
+[JsonDerivedType(typeof(TextColumnSettings), typeDiscriminator: Text)]
+[JsonDerivedType(typeof(GroupColumnSettings), typeDiscriminator: Group)]
+[JsonDerivedType(typeof(RowNumColumnSettings), typeDiscriminator: RowNum)]
 public abstract class TableColumnSettings : INotifyPropertyChanged
 {
+    public const string Text = "Text";
+    public const string Group = "Group";
+    public const string RowNum = "RowNum";
+
     [JsonIgnore] public abstract string Type { get; }
 
     private string _label = string.Empty;

@@ -95,11 +95,19 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
             _toolboxPad.Rebuild();
 
         //TODO:直接获取utf8 bytes
-        var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel", new object[] { ModelNode.Id });
-        if (srcCode != null)
+        try
         {
-            var jsonData = Encoding.UTF8.GetBytes(srcCode);
-            _designController.Load(jsonData);
+            var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
+                new object[] { ModelNode.Id });
+            if (srcCode != null)
+            {
+                var jsonData = Encoding.UTF8.GetBytes(srcCode);
+                _designController.Load(jsonData);
+            }
+        }
+        catch (Exception e)
+        {
+            Notification.Error($"无法加载动态视图: {e.Message}");
         }
     }
 
