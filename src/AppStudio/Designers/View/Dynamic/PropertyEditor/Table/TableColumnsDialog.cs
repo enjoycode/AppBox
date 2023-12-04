@@ -45,7 +45,7 @@ internal sealed class TableColumnsDialog : Dialog
         {
             TextColumnSettings => new(MaterialIcons.Title),
             RowNumColumnSettings => new(MaterialIcons.FormatListNumbered),
-            GroupColumnSettings => new(MaterialIcons.TableChart),
+            GroupColumnSettings => new(MaterialIcons.ViewQuilt),
             _ => new(MaterialIcons.List)
         };
     }

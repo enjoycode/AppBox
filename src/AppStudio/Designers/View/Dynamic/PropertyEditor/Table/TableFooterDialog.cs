@@ -31,7 +31,7 @@ internal sealed class TableFooterDialog : Dialog
         node.IsExpanded = true;
         node.IsLeaf = true;
         node.Label = new Text(s.Observe(nameof(s.Type), () => s.Type.ToString()));
-        node.Icon = new(MaterialIcons.ViewComfy);
+        node.Icon = new(MaterialIcons.Functions);
     }
 
     protected override Widget BuildBody() => new Container
