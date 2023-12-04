@@ -17,10 +17,23 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         set => SetField(ref _field, value);
     }
 
-    protected internal override DataGridColumn<DynamicEntity> BuildColumn() =>
-        new DataGridTextColumn<DynamicEntity>(Label,
-            t => t.HasValue(Field) ? t[Field].ToStringValue() : string.Empty);
+    protected internal override DataGridColumn<DynamicEntity> BuildColumn()
+    {
+        var cellStyle = new CellStyle
+            { HorizontalAlignment = HorizontalAlignment, VerticalAlignment = VerticalAlignment };
+        return new DataGridTextColumn<DynamicEntity>(Label,
+            t => t.HasValue(Field) ? t[Field].ToStringValue() : string.Empty)
+        {
+            Width = Width,
+            CellStyle = cellStyle,
+        };
+    }
 
     public override TableColumnSettings Clone() =>
-        new TextColumnSettings { Label = Label, Field = Field };
+        new TextColumnSettings
+        {
+            Label = Label, Width = Width, Field = Field,
+            HorizontalAlignment = HorizontalAlignment,
+            VerticalAlignment = VerticalAlignment
+        };
 }

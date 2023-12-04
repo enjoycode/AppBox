@@ -20,11 +20,32 @@ public abstract class TableColumnSettings : INotifyPropertyChanged
     [JsonIgnore] public abstract string Type { get; }
 
     private string _label = string.Empty;
+    private string _width = string.Empty;
+    private HorizontalAlignment _horizontalAlignment;
+    private VerticalAlignment _verticalAlignment;
 
     public string Label
     {
         get => _label;
         set => SetField(ref _label, value);
+    }
+
+    public string Width
+    {
+        get => _width;
+        set => SetField(ref _width, value);
+    }
+
+    public HorizontalAlignment HorizontalAlignment
+    {
+        get => _horizontalAlignment;
+        set => SetField(ref _horizontalAlignment, value);
+    }
+
+    public VerticalAlignment VerticalAlignment
+    {
+        get => _verticalAlignment;
+        set => SetField(ref _verticalAlignment, value);
     }
 
     protected internal abstract DataGridColumn<DynamicEntity> BuildColumn();

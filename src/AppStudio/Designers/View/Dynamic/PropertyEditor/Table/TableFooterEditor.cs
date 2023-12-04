@@ -24,12 +24,7 @@ internal sealed class TableFooterEditor : SingleChildWidget
             LabelWidth = 95,
             Children =
             {
-                new("Type:", new Select<string>(type.ToComputed(
-                    c => c.ToString(),
-                    v => type.Value = Enum.Parse<TableFooterCellType>(v))!)
-                {
-                    Options = Enum.GetNames(typeof(TableFooterCellType))
-                }),
+                new("Type:", new EnumSelect<TableFooterCellType>(type)),
                 new("BeginColumn:", new NumberInput<int>(begin)),
                 new("EndColumn:", new NumberInput<int>(end)),
                 new("Text:", new TextInput(text)),

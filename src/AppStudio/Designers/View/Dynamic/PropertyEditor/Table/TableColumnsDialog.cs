@@ -31,6 +31,7 @@ internal sealed class TableColumnsDialog : Dialog
     private readonly State<TreeNodeType?> _currentNode = State<TreeNodeType?>.Default();
     private readonly RxObject<TextColumnSettings> _currentText = new();
     private readonly RxObject<GroupColumnSettings> _currentGroup = new();
+    private readonly RxObject<RowNumColumnSettings> _currentRowNum = new();
 
     #region ====Build Widget Tree====
 
@@ -106,7 +107,9 @@ internal sealed class TableColumnsDialog : Dialog
                             .When(r => r?.Data.Type == TableColumnSettings.Text,
                                 () => new TextColumnEditor(_currentText, _element))
                             .When(r => r?.Data.Type == TableColumnSettings.Group,
-                                () => new GroupColumnEditor(_currentGroup))
+                                () => new TableColumnEditor<GroupColumnSettings>(_currentGroup, _element))
+                            .When(r => r?.Data.Type == TableColumnSettings.RowNum,
+                                () => new TableColumnEditor<RowNumColumnSettings>(_currentRowNum, _element))
                     }
                 }
             ),
@@ -119,10 +122,18 @@ internal sealed class TableColumnsDialog : Dialog
     {
         var node = _treeController.FirstSelectedNode;
         var type = node?.Data.Type;
-        if (type == TableColumnSettings.Text)
-            _currentText.Target = (TextColumnSettings)node!.Data;
-        else if (type == TableColumnSettings.Group)
-            _currentGroup.Target = (GroupColumnSettings)node!.Data;
+        switch (type)
+        {
+            case TableColumnSettings.Text:
+                _currentText.Target = (TextColumnSettings)node!.Data;
+                break;
+            case TableColumnSettings.Group:
+                _currentGroup.Target = (GroupColumnSettings)node!.Data;
+                break;
+            case TableColumnSettings.RowNum:
+                _currentRowNum.Target = (RowNumColumnSettings)node!.Data;
+                break;
+        }
 
         _currentNode.Value = node;
     }
@@ -135,7 +146,8 @@ internal sealed class TableColumnsDialog : Dialog
         {
             TableColumnSettings.Text => new TextColumnSettings { Label = "标题" },
             TableColumnSettings.Group => new GroupColumnSettings { Label = "标题" },
-            TableColumnSettings.RowNum => new RowNumColumnSettings { Label = "行号" },
+            TableColumnSettings.RowNum => new RowNumColumnSettings
+                { Label = "行号", HorizontalAlignment = HorizontalAlignment.Center },
             _ => null
         };
 
