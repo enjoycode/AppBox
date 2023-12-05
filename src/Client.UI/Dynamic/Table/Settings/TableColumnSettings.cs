@@ -22,7 +22,7 @@ public abstract class TableColumnSettings : INotifyPropertyChanged
     private string _label = string.Empty;
     private string _width = string.Empty;
     private HorizontalAlignment _horizontalAlignment;
-    private VerticalAlignment _verticalAlignment;
+    private VerticalAlignment _verticalAlignment = VerticalAlignment.Middle;
 
     public string Label
     {
