@@ -147,6 +147,7 @@ public abstract class TypeSerializer
         RegisterKnownType(new ShortSerializer());
         RegisterKnownType(new IntSerializer());
         RegisterKnownType(new LongSerializer());
+        RegisterKnownType(new DateTimeSerializer());
         RegisterKnownType(new GuidSerializer());
         RegisterKnownType(new StringSerializer());
         //Collection
