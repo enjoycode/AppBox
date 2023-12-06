@@ -178,7 +178,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
             {
                 var propMeta = meta.GetPropertyMeta(propName);
                 var propValue = DynamicValue.Read(ref reader, propMeta);
-                propMeta.SetRuntimeValue(meta, result, propValue);
+                propMeta.SetRuntimeValue(meta, result, propValue, this);
             }
         }
 
@@ -200,14 +200,30 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
 
     #endregion
 
+    #region =====IDynamicView====
+
     ValueTask<object?> IDynamicView.GetDataSet(string name)
     {
         if (_states == null) return new ValueTask<object?>();
 
-        var state = _states.FirstOrDefault(s => s.Name == name);
+        var state = _states.SingleOrDefault(s => s.Name == name);
         if (state == null || state.Type != DynamicStateType.DataSet || state.Value == null)
             return new ValueTask<object?>();
 
         return ((IDynamicDataSetState)state.Value).GetRuntimeDataSet();
     }
+
+    State IDynamicView.GetState(string name)
+    {
+        if (_states == null) throw new Exception($"Can't find state: {name}");
+
+        var state = _states.SingleOrDefault(s => s.Name == name);
+        if (state == null)
+            throw new Exception($"Can't find state: {name}");
+        if (state.Type == DynamicStateType.DataSet)
+            throw new Exception($"State is DataSet: {name}");
+        return ((IDynamicValueState)state.Value!).GetRuntimeValue(state);
+    }
+
+    #endregion
 }

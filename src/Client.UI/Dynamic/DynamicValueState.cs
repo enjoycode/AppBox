@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PixUI.Dynamic;
 
@@ -11,8 +12,52 @@ public enum DynamicStateValueSource
 
 public sealed class DynamicValueState : IDynamicValueState
 {
+    [JsonIgnore] private State? _runtimeValue;
+    private object? _value;
+
     public DynamicStateValueSource Source { get; set; }
-    public object? Value { get; set; }
+
+    /// <summary>
+    /// 设计时状态值
+    /// </summary>
+    public object? Value
+    {
+        get => _value;
+        set
+        {
+            _value = value;
+            _runtimeValue?.NotifyValueChanged();
+        }
+    }
+    
+    public State GetRuntimeValue(DynamicState state)
+    {
+        if (_runtimeValue != null) return _runtimeValue;
+
+        //暂用RxProxy<>包装Value,考虑入参确定运行时使用RxValue<>
+        switch (state.Type)
+        {
+            case DynamicStateType.String:
+                _runtimeValue = new RxProxy<string>(() => (Value as string) ?? string.Empty, v => Value = v);
+                break;
+            case DynamicStateType.Int:
+                _runtimeValue = state.AllowNull
+                    ? new RxProxy<int?>(() => (int?)Value, v => Value = v)
+                    : new RxProxy<int>(() => Value == null ? default : (int)Value, v => Value = v);
+                break;
+            case DynamicStateType.DateTime:
+                _runtimeValue = state.AllowNull
+                    ? new RxProxy<DateTime?>(() => (DateTime?)Value, v => Value = v)
+                    : new RxProxy<DateTime>(() => Value == null ? default : (DateTime)Value, v => Value = v);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        return _runtimeValue;
+    }
+
+    #region ====Serialization====
 
     public void WriteTo(Utf8JsonWriter writer)
     {
@@ -48,22 +93,10 @@ public sealed class DynamicValueState : IDynamicValueState
         if (Source == DynamicStateValueSource.Expression)
             throw new NotImplementedException();
 
-        var valueType = state.Type switch
-        {
-            DynamicStateType.Int => typeof(int),
-            DynamicStateType.String => typeof(string),
-            DynamicStateType.DateTime => typeof(DateTime),
-            _ => throw new NotImplementedException()
-        };
-        if (state.AllowNull && state.Type != DynamicStateType.String)
-            valueType = typeof(Nullable<>).MakeGenericType(valueType);
-
+        var valueType = state.GetValueStateValueType();
         Value = JsonSerializer.Deserialize(ref reader, valueType);
         reader.Read(); // }
     }
 
-    public object? GetRuntimeValue()
-    {
-        throw new NotImplementedException();
-    }
+    #endregion
 }
