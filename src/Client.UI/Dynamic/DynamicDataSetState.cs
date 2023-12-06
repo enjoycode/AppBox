@@ -12,7 +12,7 @@ namespace AppBoxClient.Dynamic;
 /// <summary>
 /// 数据集的配置信息
 /// </summary>
-public sealed class DataSetSettings : IDynamicDataSetStateValue
+public sealed class DynamicDataSetState : IDynamicDataSetState
 {
     /// <summary>
     /// 获取数据集的服务方法 eg: sys.OrderService.GetOrders
@@ -44,7 +44,6 @@ public sealed class DataSetSettings : IDynamicDataSetStateValue
 
         reader.Read(); //}
     }
-
 
     #region ====Runtime DataSet====
 

@@ -7,6 +7,7 @@ using AppBoxClient;
 using AppBoxClient.Dynamic;
 using AppBoxDesign.PropertyEditor;
 using PixUI;
+using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign;
@@ -15,11 +16,13 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
     static ViewDynamicDesigner()
     {
-        if (DesignSettings.GetDataSetEditor == null)
+        if (DesignSettings.GetDataSetStateEditor == null)
         {
             // 初始化一些动态视图设计时的委托
-            DesignSettings.GetDataSetEditor = (state) => new DataSetEditDialog(state);
-            DesignSettings.MakeDataSetSettings = () => new DataSetSettings();
+            DesignSettings.GetDataSetStateEditor = state => new DataSetStateEditDialog(state);
+            DesignSettings.MakeDataSetState = () => new DynamicDataSetState();
+            DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
+            DesignSettings.MakeValueState = () => new DynamicValueState();
             // 初始化其他属性编辑器
             PixUI.Dynamic.Design.PropertyEditor
                 .RegisterClassValueEditor<string, DataSetPropEditor>(false, "DataSetSelect");

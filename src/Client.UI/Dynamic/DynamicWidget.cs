@@ -128,7 +128,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
 
         if (type == DynamicStateType.DataSet)
         {
-            var ds = new DataSetSettings();
+            var ds = new DynamicDataSetState();
             ds.ReadFrom(ref reader);
             var state = new DynamicState() { Name = name, Type = type, Value = ds };
             states.Add(state);
@@ -208,6 +208,6 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
         if (state == null || state.Type != DynamicStateType.DataSet || state.Value == null)
             return new ValueTask<object?>();
 
-        return ((IDynamicDataSetStateValue)state.Value).GetRuntimeDataSet();
+        return ((IDynamicDataSetState)state.Value).GetRuntimeDataSet();
     }
 }

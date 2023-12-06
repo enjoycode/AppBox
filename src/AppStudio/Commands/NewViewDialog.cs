@@ -36,10 +36,10 @@ internal sealed class NewViewDialog : Dialog
                             {
                                 Children =
                                 {
-                                    new Text("Code"),
                                     new Radio(_isDynamic.ToReversed()),
+                                    new Text("Code"),
+                                    new Radio(_isDynamic),
                                     new Text("Dynamic"),
-                                    new Radio(_isDynamic)
                                 }
                             })
                         }
