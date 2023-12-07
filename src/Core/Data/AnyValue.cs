@@ -89,9 +89,10 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
 
     public static AnyValue From(string v) => new() { _ObjectValue = v, Type = AnyValueType.Object };
 
-    public static AnyValue From(object v) => new() { _ObjectValue = v, Type = AnyValueType.Object };
+    public static AnyValue From(object? v) =>
+        v == null ? Empty : new() { _ObjectValue = v, Type = AnyValueType.Object };
 
-    public static AnyValue From(Action<IOutputStream> streamWriter) => 
+    public static AnyValue From(Action<IOutputStream> streamWriter) =>
         new() { _ObjectValue = streamWriter, Type = AnyValueType.Stream };
 
     #endregion
@@ -125,8 +126,29 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
             case AnyValueType.Byte:
                 bs.Serialize(ByteValue);
                 break;
+            case AnyValueType.Int16:
+                bs.Serialize(ShortValue);
+                break;
             case AnyValueType.Int32:
                 bs.Serialize(IntValue);
+                break;
+            case AnyValueType.Int64:
+                bs.Serialize(LongValue);
+                break;
+            case AnyValueType.Float:
+                bs.Serialize(FloatValue);
+                break;
+            case AnyValueType.Double:
+                bs.Serialize(DoubleValue);
+                break;
+            case AnyValueType.Decimal:
+                bs.Serialize(DecimalValue);
+                break;
+            case AnyValueType.DateTime:
+                bs.Serialize(DateTimeValue);
+                break;
+            case AnyValueType.Guid:
+                bs.Serialize(GuidValue);
                 break;
             case AnyValueType.Object:
                 bs.Serialize(_ObjectValue);

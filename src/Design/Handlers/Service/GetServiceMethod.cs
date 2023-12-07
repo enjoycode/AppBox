@@ -2,7 +2,6 @@ using System.Text;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.FindSymbols;
-using Microsoft.CodeAnalysis.Text;
 
 namespace AppBoxDesign;
 
@@ -35,18 +34,15 @@ internal sealed class GetServiceMethod : IDesignHandler
             throw new Exception("Not a public service method");
 
         var method = symbol as IMethodSymbol;
-        var sb = new StringBuilder("{\"Name\":\"");
-        sb.Append(method!.Name);
-        sb.Append("\", \"Args\":[");
+
+        var methodParameters = new ServiceMethodParameterInfo[method!.Parameters.Length];
         for (var i = 0; i < method.Parameters.Length; i++)
         {
-            sb.AppendFormat("{{\"Name\":\"{0}\",\"Type\":\"{1}\"}}", method.Parameters[i].Name,
-                method.Parameters[i].Type);
-            if (i != method.Parameters.Length - 1)
-                sb.Append(",");
+            methodParameters[i] = new ServiceMethodParameterInfo
+                { Name = method.Parameters[i].Name, Type = method.Parameters[i].Type.ToString()! };
         }
 
-        sb.Append("]}");
-        return sb.ToString();
+        var methodInfo = new ServiceMethodInfo { Name = method!.Name, Args = methodParameters };
+        return AnyValue.From(new JsonResult(methodInfo));
     }
 }

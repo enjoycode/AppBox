@@ -471,10 +471,52 @@ public static class OutputStreamExtensions
         s.WriteByte(value);
     }
 
+    public static void Serialize(this IOutputStream s, short value)
+    {
+        s.WriteByte((byte)PayloadType.Int16);
+        s.WriteShort(value);
+    }
+
     public static void Serialize(this IOutputStream s, int value)
     {
         s.WriteByte((byte)PayloadType.Int32);
         s.WriteInt(value);
+    }
+
+    public static void Serialize(this IOutputStream s, long value)
+    {
+        s.WriteByte((byte)PayloadType.Int64);
+        s.WriteLong(value);
+    }
+
+    public static void Serialize(this IOutputStream s, float value)
+    {
+        s.WriteByte((byte)PayloadType.Float);
+        s.WriteFloat(value);
+    }
+
+    public static void Serialize(this IOutputStream s, double value)
+    {
+        s.WriteByte((byte)PayloadType.Double);
+        s.WriteDouble(value);
+    }
+
+    public static void Serialize(this IOutputStream s, decimal value)
+    {
+        s.WriteByte((byte)PayloadType.Decimal);
+        s.WriteDecimal(value);
+    }
+
+    public static void Serialize(this IOutputStream s, DateTime value)
+    {
+        s.WriteByte((byte)PayloadType.DateTime);
+        s.WriteDateTime(value);
+    }
+
+    public static void Serialize(this IOutputStream s, Guid value)
+    {
+        s.WriteByte((byte)PayloadType.Guid);
+        s.WriteGuid(value);
     }
 
     public static void Serialize(this IOutputStream s, Entity? value)

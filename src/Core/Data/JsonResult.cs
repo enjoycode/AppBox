@@ -27,6 +27,7 @@ public sealed class JsonResult : IBinSerializable
 
     public void WriteTo(IOutputStream ws)
     {
+        //TODO:判断_value是否实现自定义Json序列化接口，是则直接写入流
         //TODO:暂简单实现，待实现流式写入
         var bytes = JsonSerializer.SerializeToUtf8Bytes(_value);
         ws.WriteVariant(bytes.Length);

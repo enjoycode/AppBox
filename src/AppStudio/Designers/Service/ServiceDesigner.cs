@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AppBoxClient;
+using AppBoxCore;
 using CodeEditor;
 using PixUI;
+using Log = PixUI.Log;
 
 namespace AppBoxDesign;
 
@@ -163,13 +165,13 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
     /// <summary>
     /// 获取光标位置的服务方法
     /// </summary>
-    private async Task<JsonObject?> GetMethodInfo()
+    private async Task<JsonResult?> GetMethodInfo()
     {
         try
         {
-            var methodInfo = (await Channel.Invoke<string>("sys.DesignService.GetServiceMethod",
+            var jsonResult = (await Channel.Invoke<JsonResult>("sys.DesignService.GetServiceMethod",
                 new object?[] { ModelNode.Id, _codeEditorController.GetCaretOffset() }))!;
-            return (JsonObject)JsonNode.Parse(methodInfo)!;
+            return jsonResult;
         }
         catch (Exception ex)
         {
@@ -182,15 +184,17 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
     {
         var json = await GetMethodInfo();
         if (json == null) return;
-
-        //TODO:暂简单实现且不支持带参数的调用(显示对话框设置参数并显示调用结果)
+        
         try
         {
-            var paras = (JsonArray)json["Args"]!;
-            if (paras.Count > 0)
+            var methodInfo = json.ParseTo<ServiceMethodInfo>();
+            if (methodInfo == null) return;
+            
+            //TODO:暂简单实现且不支持带参数的调用(显示对话框设置参数并显示调用结果)
+            if (methodInfo.Args.Length > 0)
                 throw new Exception("暂未实现带参数的服务方法调用");
 
-            var serviceMethod = $"{ModelNode.AppName}.{ModelNode.Label}.{json["Name"]}";
+            var serviceMethod = $"{ModelNode.AppName}.{ModelNode.Label}.{methodInfo.Name}";
             var res = await Channel.Invoke<object?>(serviceMethod);
             if (res != null)
             {
