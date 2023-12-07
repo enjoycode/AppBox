@@ -71,7 +71,7 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
 
         var dsState = _element.Controller.FindState(dsName);
         if (dsState?.Value is not IDynamicDataSetState dsSettings) return;
-        if (await dsSettings.GetRuntimeDataSet() is not DynamicDataSet ds) return;
+        if (await dsSettings.GetRuntimeDataSet(_element.Controller.DesignCanvas) is not DynamicDataSet ds) return;
 
         var numbers = ds.Fields.Where(f => f.IsNumber).Select(f => f.Name).ToArray();
         //var numbersAndDates = ds.Fields.Where(f => f.IsNumber || f.IsDateTime).Select(f => f.Name).ToArray();

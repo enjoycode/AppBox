@@ -10,7 +10,7 @@ using Log = AppBoxCore.Log;
 
 namespace AppBoxDesign;
 
-//TODO: 暂简单实现: 1.服务选择；2.服务参数填充等;
+//TODO: 暂简单实现: 服务选择
 
 internal sealed class DataSetStateEditDialog : Dialog
 {

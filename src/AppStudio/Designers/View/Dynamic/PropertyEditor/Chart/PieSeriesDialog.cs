@@ -60,7 +60,7 @@ internal sealed class PieSeriesDialog : Dialog
 
         var dsState = _element.Controller.FindState(dsName);
         if (dsState?.Value is not IDynamicDataSetState dsSettings) return;
-        if (await dsSettings.GetRuntimeDataSet() is not DynamicDataSet ds) return;
+        if (await dsSettings.GetRuntimeDataSet(_element.Controller.DesignCanvas) is not DynamicDataSet ds) return;
 
         var numbers = ds.Fields.Where(f => f.IsNumber).Select(f => f.Name).ToArray();
         _fieldRef.Widget!.Options = numbers;

@@ -50,11 +50,20 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
     private int _fetchFlag = 0;
     private Task<DynamicDataSet?> _fetchTask = null!;
 
-    public async ValueTask<object?> GetRuntimeDataSet()
+    public async ValueTask<object?> GetRuntimeDataSet(IDynamicView dynamicView)
     {
         if (Interlocked.CompareExchange(ref _fetchFlag, 1, 0) == 0)
         {
-            _fetchTask = Channel.Invoke<DynamicDataSet>(Service); //TODO: args
+            object?[]? args = null;
+            if (Arguments is { Count: > 0 })
+            {
+                args = new object? [Arguments.Count];
+                for (var i = 0; i < args.Length; i++)
+                {
+                    args[i] = dynamicView.GetState(Arguments[i]).BoxedValue;
+                }
+            }
+            _fetchTask = Channel.Invoke<DynamicDataSet>(Service, args);
         }
 
         try
