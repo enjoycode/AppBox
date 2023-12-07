@@ -113,6 +113,20 @@ public readonly struct InvokeArgs
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
 
+    public float GetFloat()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.Float) return _stream.ReadFloat();
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+    
+    public double GetDouble()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        if (payloadType == PayloadType.Double) return _stream.ReadDouble();
+        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
     public DateTime GetDateTime()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();

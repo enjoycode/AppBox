@@ -1,6 +1,6 @@
-using System.Text;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace AppBoxDesign;
@@ -12,10 +12,19 @@ internal sealed class GetServiceMethod : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var modelID = args.GetString()!;
-        var position = args.GetInt();
+        var getByPosition = args.GetBool();
+        ServiceMethodInfo res;
+        if (getByPosition)
+            res = await GetByPosition(hub, args.GetString()!, args.GetInt());
+        else
+            res = await GetByName(hub, args.GetString()!);
 
-        var modelNode = hub.DesignTree.FindModelNode(modelID);
+        return AnyValue.From(new JsonResult(res));
+    }
+
+    private static async Task<ServiceMethodInfo> GetByPosition(DesignHub hub, string modelId, int position)
+    {
+        var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception("Can't find service model node");
 
@@ -23,6 +32,33 @@ internal sealed class GetServiceMethod : IDesignHandler
         var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
         var semanticModel = await doc!.GetSemanticModelAsync();
         var symbol = await SymbolFinder.FindSymbolAtPositionAsync(semanticModel!, position, hub.TypeSystem.Workspace);
+        return GetBySymbol(symbol, modelNode);
+    }
+
+    private static async Task<ServiceMethodInfo> GetByName(DesignHub hub, string methodPath)
+    {
+        //methodName eg: sys.OrderService.GetOrders
+        var sr = methodPath.Split('.');
+        var fullName = $"{sr[0]}.Services.{sr[1]}";
+        var methodName = sr[2];
+        var modelNode = hub.DesignTree.FindModelNodeByFullName(fullName);
+        if (modelNode == null)
+            throw new Exception("Can't find service model node");
+
+        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
+        var semanticModel = await doc!.GetSemanticModelAsync();
+        var rootNode = await doc!.GetSyntaxRootAsync();
+        var method = rootNode!.DescendantNodes()
+            .OfType<MethodDeclarationSyntax>()
+            .FirstOrDefault(m => m.Identifier.Text == methodName);
+        if (method == null) throw new Exception($"Can't find method: {methodName}");
+
+        var symbol = semanticModel!.GetDeclaredSymbol(method);
+        return GetBySymbol(symbol, modelNode);
+    }
+
+    private static ServiceMethodInfo GetBySymbol(ISymbol? symbol, ModelNode modelNode)
+    {
         if (symbol == null)
             throw new Exception("Can't find service method");
         if (symbol.Kind != SymbolKind.Method)
@@ -43,6 +79,6 @@ internal sealed class GetServiceMethod : IDesignHandler
         }
 
         var methodInfo = new ServiceMethodInfo { Name = method!.Name, Args = methodParameters };
-        return AnyValue.From(new JsonResult(methodInfo));
+        return methodInfo;
     }
 }

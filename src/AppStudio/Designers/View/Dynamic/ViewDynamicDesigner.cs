@@ -19,7 +19,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         if (DesignSettings.GetDataSetStateEditor == null)
         {
             // 初始化一些动态视图设计时的委托
-            DesignSettings.GetDataSetStateEditor = state => new DataSetStateEditDialog(state);
+            DesignSettings.GetDataSetStateEditor = (c, s) => new DataSetStateEditDialog(c, s);
             DesignSettings.MakeDataSetState = () => new DynamicDataSetState();
             DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
             DesignSettings.MakeValueState = () => new DynamicValueState();

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
@@ -170,7 +169,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
         try
         {
             var jsonResult = (await Channel.Invoke<JsonResult>("sys.DesignService.GetServiceMethod",
-                new object?[] { ModelNode.Id, _codeEditorController.GetCaretOffset() }))!;
+                new object?[] { true, ModelNode.Id, _codeEditorController.GetCaretOffset() }))!;
             return jsonResult;
         }
         catch (Exception ex)
@@ -184,12 +183,12 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
     {
         var json = await GetMethodInfo();
         if (json == null) return;
-        
+
         try
         {
             var methodInfo = json.ParseTo<ServiceMethodInfo>();
             if (methodInfo == null) return;
-            
+
             //TODO:暂简单实现且不支持带参数的调用(显示对话框设置参数并显示调用结果)
             if (methodInfo.Args.Length > 0)
                 throw new Exception("暂未实现带参数的服务方法调用");
