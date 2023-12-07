@@ -31,7 +31,7 @@ namespace AppBoxCore
         ObjectRef = 22,
 
         /** 未知类型 */
-        JsonObject = 23,
+        JsonResult = 23,
 
         /** 其他未知类型 */
         Object = 24,

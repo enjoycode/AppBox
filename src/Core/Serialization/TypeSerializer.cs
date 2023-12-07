@@ -150,6 +150,7 @@ public abstract class TypeSerializer
         RegisterKnownType(new DateTimeSerializer());
         RegisterKnownType(new GuidSerializer());
         RegisterKnownType(new StringSerializer());
+        RegisterKnownType(new BinSerializer(PayloadType.JsonResult, typeof(JsonResult), () => new JsonResult()));
         //Collection
         RegisterKnownType(new ArraySerializer());
         RegisterKnownType(new ListSerializer());
@@ -168,15 +169,12 @@ public abstract class TypeSerializer
     /// </summary>
     public static void RegisterKnownType(TypeSerializer serializer)
     {
-        if (KnownTypes.ContainsKey(serializer.TargetType))
+        if (!KnownTypes.TryAdd(serializer.TargetType, serializer))
             throw new ArgumentException("Already exists type: " + serializer.TargetType.FullName);
 
-        KnownTypes.Add(serializer.TargetType, serializer);
         if (serializer.PayloadType == PayloadType.ExtKnownType)
-            throw
-                new NotImplementedException(); //extKnownTypesIndexer.Add(serializer.ExtKnownTypeID, serializer);
-        else
-            SysKnownTypesIndexer.Add(serializer.PayloadType, serializer);
+            throw new NotImplementedException(); //extKnownTypesIndexer.Add(serializer.ExtKnownTypeID, serializer);
+        SysKnownTypesIndexer.Add(serializer.PayloadType, serializer);
     }
 
     /// <summary>
