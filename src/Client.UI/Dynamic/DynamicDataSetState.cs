@@ -17,19 +17,30 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
     /// <summary>
     /// 获取数据集的服务方法 eg: sys.OrderService.GetOrders
     /// </summary>
-    public string Service { get; set; } = null!;
+    public string Service { get; set; } = string.Empty;
 
     /// <summary>
     /// 服务方法的参数所指向的动态视图的状态的名称
     /// </summary>
-    public IList<string>? Arguments { get; set; }
+    public string?[] Arguments { get; set; } = Array.Empty<string?>();
 
     public void WriteTo(Utf8JsonWriter writer)
     {
         writer.WriteStartObject();
 
         writer.WriteString(nameof(Service), Service);
-        //TODO: arguments
+
+        if (Arguments.Length > 0)
+        {
+            writer.WritePropertyName(nameof(Arguments));
+            writer.WriteStartArray();
+            for (var i = 0; i < Arguments.Length; i++)
+            {
+                writer.WriteStringValue(Arguments[i]);
+            }
+
+            writer.WriteEndArray();
+        }
 
         writer.WriteEndObject();
     }
@@ -41,6 +52,21 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
         reader.Read(); //Service
         reader.Read();
         Service = reader.GetString()!;
+
+        reader.Read(); //Arguments or EndObject
+        if (reader.TokenType == JsonTokenType.EndObject) 
+            return;
+        
+        var args = new List<string?>();
+        reader.Read(); //[
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndArray)
+                break;
+            args.Add(reader.GetString());
+        }
+        
+        Arguments = args.ToArray();
 
         reader.Read(); //}
     }
@@ -55,14 +81,16 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
         if (Interlocked.CompareExchange(ref _fetchFlag, 1, 0) == 0)
         {
             object?[]? args = null;
-            if (Arguments is { Count: > 0 })
+            if (Arguments.Length > 0)
             {
-                args = new object? [Arguments.Count];
+                args = new object? [Arguments.Length];
                 for (var i = 0; i < args.Length; i++)
                 {
-                    args[i] = dynamicView.GetState(Arguments[i]).BoxedValue;
+                    if (!string.IsNullOrEmpty(Arguments[i]))
+                        args[i] = dynamicView.GetState(Arguments[i]!).BoxedValue;
                 }
             }
+
             _fetchTask = Channel.Invoke<DynamicDataSet>(Service, args);
         }
 

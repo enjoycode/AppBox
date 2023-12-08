@@ -80,11 +80,11 @@ internal sealed class DataSetStateEditDialog : Dialog
             new DataGridHostColumn<ServiceMethodParameterInfo>("State", (para, index) =>
             {
                 var rs = new RxProxy<string?>(
-                    () => _dataSetState.Arguments?[index],
+                    () => index < 0 || index >= _dataSetState.Arguments.Length ? null : _dataSetState.Arguments[index],
                     v =>
                     {
-                        if (_dataSetState.Arguments != null)
-                            _dataSetState.Arguments[index] = v ?? string.Empty;
+                        if (index >= 0 && index < _dataSetState.Arguments.Length)
+                            _dataSetState.Arguments[index] = v;
                     });
 
                 string[] options;
@@ -117,7 +117,7 @@ internal sealed class DataSetStateEditDialog : Dialog
     private async void FetchMethodInfo(bool byTap)
     {
         if (byTap)
-            _dataSetState.Arguments = null;
+            _dataSetState.Arguments = Array.Empty<string?>();
 
         ServiceMethodInfo methodInfo;
         try
@@ -134,7 +134,7 @@ internal sealed class DataSetStateEditDialog : Dialog
 
         //先重置参数列表
         if (byTap)
-            _dataSetState.Arguments = new string[methodInfo.Args.Length];
+            _dataSetState.Arguments = new string?[methodInfo.Args.Length];
         //再绑定数据
         _dgController.DataSource = methodInfo.Args;
     }
