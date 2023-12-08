@@ -6,11 +6,10 @@ using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
-using Log = AppBoxCore.Log;
 
 namespace AppBoxDesign;
 
-//TODO: 暂简单实现: 服务选择
+//TODO: 服务选择
 
 internal sealed class DataSetStateEditDialog : Dialog
 {
@@ -139,4 +138,11 @@ internal sealed class DataSetStateEditDialog : Dialog
         //再绑定数据
         _dgController.DataSource = methodInfo.Args;
     }
+
+    // protected override bool OnClosing(string result)
+    // {
+    //     if (result != DialogResult.OK) return false;
+    //     
+    //     //检查是否全部绑定参数
+    // }
 }

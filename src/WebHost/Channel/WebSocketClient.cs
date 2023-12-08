@@ -39,11 +39,10 @@ internal sealed class WebSocketClient
 
         //开始读取并处理消息
         var reader = MessageReadStream.Rent(frame.First!);
-        var msgId = int.MinValue;
         try
         {
             var msgType = (MessageType)reader.ReadByte();
-            msgId = reader.ReadInt();
+            var msgId = reader.ReadInt();
 
             switch (msgType)
             {
@@ -123,7 +122,7 @@ internal sealed class WebSocketClient
         HostRuntimeContext.SetCurrentSession(WebSession);
 
         //调用服务
-        var result = AnyValue.Empty;
+        AnyValue result;
         var errorCode = InvokeErrorCode.None;
         var service = "";
         try

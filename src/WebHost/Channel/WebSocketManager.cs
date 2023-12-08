@@ -31,8 +31,7 @@ internal static class WebSocketManager
             ValueWebSocketReceiveResult result;
             try
             {
-                result = await webSocket.ReceiveAsync(frame.Buffer.AsMemory(),
-                    CancellationToken.None);
+                result = await webSocket.ReceiveAsync(frame.Buffer.AsMemory(), CancellationToken.None);
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
                     BytesSegment.ReturnOne(frame);
@@ -88,7 +87,7 @@ internal static class WebSocketManager
         AnonymousLock.EnterWriteLock();
         Anonymous.Remove(client);
         AnonymousLock.ExitWriteLock();
-        
+
         ClientsLock.EnterWriteLock();
         //kick old session
         if (Clients.TryGetValue(session.SessionId, out var oldClient))

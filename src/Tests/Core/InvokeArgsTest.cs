@@ -25,4 +25,26 @@ public class InvokeArgsTest
         var dest = args.GetList<int>();
         Assert.True(dest is { Count: 3 });
     }
+
+    [Test]
+    public void GetWhenNothingToRead()
+    {
+        var ws = MessageWriteStream.Rent();
+        ws.WriteByte((byte)MessageType.InvokeRequest);
+        ws.WriteInt(1);
+        ws.WriteString("sys.OrderService.GetOrders2");
+        var reqData = ws.FinishWrite();
+        MessageWriteStream.Return(ws);
+
+        var rs = MessageReadStream.Rent(reqData.First!);
+        rs.ReadByte(); //MsgType
+        rs.ReadInt(); //MsgId
+        var service = rs.ReadString();
+
+        // var args = InvokeArgs.From(rs);
+        // args.GetObject();
+        Assert.Throws<SerializationException>(() => rs.Deserialize());
+
+        MessageReadStream.Return(rs);
+    }
 }

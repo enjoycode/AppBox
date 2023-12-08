@@ -2,14 +2,19 @@ namespace AppBoxCore;
 
 public sealed class DynamicDataSet : List<DynamicEntity>, IBinSerializable
 {
-    public DynamicDataSet() { }
+    internal DynamicDataSet() { }
 
     public DynamicDataSet(DynamicFieldInfo[] fields)
     {
         Fields = fields;
     }
 
-    public DynamicFieldInfo[] Fields { get; private set; }
+    public static DynamicDataSet From<T>(IList<T> entityList) where T : Entity
+    {
+        throw new NotImplementedException();
+    }
+
+    public DynamicFieldInfo[] Fields { get; private set; } = null!;
 
     public void WriteTo(IOutputStream ws)
     {

@@ -211,7 +211,7 @@ namespace AppBoxClient
 
         private void OnClose(string reason)
         {
-            Console.WriteLine(reason);
+            Log.Info($"Closed by reason: {reason}");
             //TODO: clean pending request
             Interlocked.Exchange(ref _connectStatus, 0);
         }
@@ -224,7 +224,7 @@ namespace AppBoxClient
             do
             {
                 var isEnd = cur.Next == null;
-                await _clientWebSocket.SendAsync(cur.Buffer, WebSocketMessageType.Binary, isEnd,
+                await _clientWebSocket.SendAsync(cur.Memory, WebSocketMessageType.Binary, isEnd,
                     CancellationToken.None);
                 if (isEnd)
                     break;

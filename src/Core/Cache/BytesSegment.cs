@@ -11,8 +11,7 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>
 {
     #region ====Static Pool====
 
-    private static readonly ObjectPool<BytesSegment> Pools =
-        new ObjectPool<BytesSegment>(() => new BytesSegment(), 256); //TODO: check count
+    private static readonly ObjectPool<BytesSegment> Pools = new(() => new BytesSegment(), 256); //TODO: check count
 
     private const int FrameSize = 216; //注意: 等于MessageChunk的数据部分大小
 
@@ -85,7 +84,6 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>
     /// 链表的第一个缓存块
     /// </summary>
     public BytesSegment? First { get; private set; }
-
 
     /// <summary>
     /// 注意调用前必须先正确设置当前包的长度
