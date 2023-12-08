@@ -11,7 +11,7 @@ internal sealed class GetEntityPreview : IDesignHandler
     {
         ModelId modelId = args.GetString()!;
 #if DEBUG
-        var forViteDev = args.GetBool();
+        var forViteDev = args.GetBool()!.Value;
 #endif
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)

@@ -9,7 +9,7 @@ internal sealed class NewEntityModel : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var selectedNodeType = (DesignNodeType)args.GetInt();
+        var selectedNodeType = (DesignNodeType)args.GetInt()!.Value;
         var selectedNodeId = args.GetString()!;
         var name = args.GetString()!;
         var storeId = args.GetString();

@@ -12,10 +12,10 @@ internal sealed class GetServiceMethod : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var getByPosition = args.GetBool();
+        var getByPosition = args.GetBool()!.Value;
         ServiceMethodInfo res;
         if (getByPosition)
-            res = await GetByPosition(hub, args.GetString()!, args.GetInt());
+            res = await GetByPosition(hub, args.GetString()!, args.GetInt()!.Value);
         else
             res = await GetByName(hub, args.GetString()!);
 

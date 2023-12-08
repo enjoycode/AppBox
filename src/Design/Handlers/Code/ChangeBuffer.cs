@@ -7,11 +7,11 @@ internal sealed class ChangeBuffer : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var targetType = args.GetInt();
+        var targetType = args.GetInt()!.Value;
         var targetId = args.GetString()!;
-        var offset = args.GetInt();
-        var length = args.GetInt();
-        var text = args.GetString();
+        var offset = args.GetInt()!.Value;
+        var length = args.GetInt()!.Value;
+        var text = args.GetString()!;
 
         if (targetType != 0) throw new NotImplementedException("非模型代码变更");
 

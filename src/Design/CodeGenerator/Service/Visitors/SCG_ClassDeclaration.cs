@@ -43,19 +43,19 @@ internal partial class ServiceCodeGenerator
         sb.Append(
             "async ValueTask<AppBoxCore.AnyValue> AppBoxCore.IService.InvokeAsync(ReadOnlyMemory<char> method, AppBoxCore.InvokeArgs args) {\n");
         sb.Append("args.SetEntityFactories(_entityFactories);\n");
-        sb.Append("switch(method) {\n");
+        sb.Append("switch(method.Span) {\n");
 
         foreach (var method in _publicMethods)
         {
-            sb.AppendFormat("case ReadOnlyMemory<char> s when s.Span.SequenceEqual(\"{0}\"):",
-                method.Identifier.ValueText);
+            var methodName = method.Identifier.ValueText;
+            sb.Append("case ");
+            sb.Append('"');
+            sb.Append(methodName);
+            sb.Append('"');
+            sb.Append(':');
             //插入验证权限代码
-            if (_publicMethodsInvokePermissions.TryGetValue(method.Identifier.ValueText,
-                    out var invokePermissionCode))
-            {
-                sb.AppendFormat("\nif (!({0})) throw new System.Exception(\"无调用服务方法的权限\");\n",
-                    invokePermissionCode);
-            }
+            if (_publicMethodsInvokePermissions.TryGetValue(methodName, out var invokePermissionCode))
+                sb.AppendFormat("\nif (!({0})) throw new System.Exception(\"无调用服务方法的权限\");\n", invokePermissionCode);
 
             //插入调用代码
             //TODO:暂简单判断有无返回值，应直接判断是否Awaitable，另处理同步方法调用
@@ -66,7 +66,7 @@ internal partial class ServiceCodeGenerator
             var isReturnVoid = method.IsReturnVoid() || isReturnVoidTask;
             if (!isReturnVoid) sb.Append("return AppBoxCore.AnyValue.From(");
             if (isReturnTask) sb.Append("await ");
-            sb.Append(method.Identifier.ValueText);
+            sb.Append(methodName);
             sb.Append('(');
             for (var i = 0; i < method.ParameterList.Parameters.Count; i++)
             {
@@ -89,17 +89,30 @@ internal partial class ServiceCodeGenerator
     private string GenArgsGetMethod(TypeSyntax argType)
     {
         var typeSymbol = (ITypeSymbol)SemanticModel.GetSymbolInfo(argType).Symbol!;
+        //先判断是否Nullable<T>
+        var isNullable = false;
         var specType = typeSymbol.SpecialType;
+        if (typeSymbol.IsValueType &&
+            typeSymbol is INamedTypeSymbol
+            {
+                IsGenericType: true, OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+            } namedType)
+        {
+            isNullable = true;
+            specType = namedType.TypeArguments[0].SpecialType;
+        }
+
         switch (specType)
         {
-            case SpecialType.System_Boolean: return "args.GetBool()";
-            case SpecialType.System_Byte: return "args.GetByte()";
-            case SpecialType.System_Int16: return "args.GetShort()";
-            case SpecialType.System_Int32: return "args.GetInt()";
-            case SpecialType.System_Int64: return "args.GetLong()";
-            case SpecialType.System_DateTime: return "args.GetDateTime()";
-            case SpecialType.System_Single: return "args.GetFloat()";
-            case SpecialType.System_Double: return "args.GetDouble()";
+            case SpecialType.System_Boolean: return isNullable ? "args.GetBool()" : "args.GetBool()!.Value";
+            case SpecialType.System_Byte: return isNullable ? "args.GetByte()" : "args.GetByte()!.Value";
+            case SpecialType.System_Int16: return isNullable ? "args.GetShort()" : "args.GetShort()!.Value";
+            case SpecialType.System_Int32: return isNullable ? "args.GetInt()" : "args.GetInt()!.Value";
+            case SpecialType.System_Int64: return isNullable ? "args.GetLong()" : "args.GetLong()!.Value";
+            case SpecialType.System_DateTime: return isNullable ? "args.GetDateTime()" : "args.GetDateTime()!.Value";
+            case SpecialType.System_Single: return isNullable ? "args.GetFloat()" : "args.GetFloat()!.Value";
+            case SpecialType.System_Double: return isNullable ? "args.GetDouble()" : "args.GetDouble()!.Value";
+            case SpecialType.System_Decimal: return isNullable ? "args.GetDecimal()" : "args.GetDecimal()!.Value";
             case SpecialType.System_String: return "args.GetString()";
         }
 

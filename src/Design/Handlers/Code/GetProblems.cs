@@ -10,7 +10,7 @@ internal sealed class GetProblems : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var isExpression = args.GetBool();
+        var isExpression = args.GetBool()!.Value;
         if (isExpression)
             throw new NotImplementedException();
 

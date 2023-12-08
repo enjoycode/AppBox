@@ -18,7 +18,7 @@ internal sealed class BuildApp : IDesignHandler
         //TODO:*****目前简单实现，待实现从HomePage的路由表开始分析引用关系，仅生成用到的模型的程序集
         //TODO:检查签出情况，如有其他签出返回警告
 
-        _ = args.GetBool(); //是否强制生成,目前保留
+        _ = args.GetBool()!.Value; //是否强制生成,目前保留
         var ctx = new BuildContext(hub);
         var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
 

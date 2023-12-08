@@ -9,7 +9,7 @@ internal sealed class CloseDesigner : IDesignHandler
 {
     public ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var nodeType = (DesignNodeType)args.GetInt();
+        var nodeType = (DesignNodeType)args.GetInt()!.Value;
         var nodeId = args.GetString();
 
         if (nodeType == DesignNodeType.ModelNode)

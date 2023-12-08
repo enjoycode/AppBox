@@ -12,7 +12,7 @@ internal sealed class CheckoutNode : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var nodeType = (DesignNodeType)args.GetInt();
+        var nodeType = (DesignNodeType)args.GetInt()!.Value;
         var nodeId = args.GetString()!;
 
         var node = hub.DesignTree.FindNode(nodeType, nodeId);

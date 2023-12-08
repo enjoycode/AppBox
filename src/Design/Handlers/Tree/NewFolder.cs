@@ -7,7 +7,7 @@ internal sealed class NewFolder : IDesignHandler
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         //读取参数
-        var selectedNodeType = (DesignNodeType)args.GetInt();
+        var selectedNodeType = (DesignNodeType)args.GetInt()!.Value;
         var selectedNodeId = args.GetString();
         var name = args.GetString();
 

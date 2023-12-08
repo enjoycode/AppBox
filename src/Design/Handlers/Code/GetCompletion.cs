@@ -37,9 +37,9 @@ internal sealed class GetCompletion : IDesignHandler
 
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var targetType = args.GetInt();
+        var targetType = args.GetInt()!.Value;
         var targetId = args.GetString()!;
-        var offset = args.GetInt();
+        var offset = args.GetInt()!.Value;
         var wordToComplete = args.GetString() ?? "";
 
         if (targetType != 0) throw new NotImplementedException("非模型代码智能提示");

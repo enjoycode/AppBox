@@ -70,7 +70,7 @@ public class CodeGenerateTest
     {
         var designHub = await TestHelper.MockSession();
         var serviceModel =
-            (ServiceModel)designHub.DesignTree.FindModelNodeByFullName("sys.Services.楼盘位置服务")!.Model;
+            (ServiceModel)designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!.Model;
         var res = await PublishService.CompileServiceAsync(designHub, serviceModel);
         Assert.True(res != null);
     }

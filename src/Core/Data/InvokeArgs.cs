@@ -81,64 +81,107 @@ public readonly struct InvokeArgs
 
     #endregion
 
-    #region ====GetXXX Methods====
+    #region ====GetXXX Methods(所有均返回可为空的类型)====
 
-    public bool GetBool()
+    public bool? GetBool()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.BooleanTrue) return true;
-        if (payloadType == PayloadType.BooleanFalse) return false;
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.BooleanTrue => true,
+            PayloadType.BooleanFalse => false,
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
 
-    public short GetShort()
+    public short? GetShort()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.Int16) return _stream.ReadShort();
-        if (payloadType == PayloadType.Int32) return (short)_stream.ReadInt();
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.Int16 => _stream.ReadShort(),
+            PayloadType.Int32 => (short)_stream.ReadInt(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
 
-    public int GetInt()
+    public int? GetInt()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.Int32) return _stream.ReadInt();
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.Int32 => _stream.ReadInt(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
 
-    public long GetLong()
+    public long? GetLong()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.Int64) return _stream.ReadLong();
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.Int64 => _stream.ReadLong(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
 
-    public float GetFloat()
+    public float? GetFloat()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.Float) return _stream.ReadFloat();
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.Float => _stream.ReadFloat(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
     
-    public double GetDouble()
+    public double? GetDouble()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.Double) return _stream.ReadDouble();
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.Double => _stream.ReadDouble(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
 
-    public DateTime GetDateTime()
+    public decimal? GetDecimal()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.DateTime) return _stream.ReadDateTime();
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.Double => _stream.ReadDecimal(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
 
-    public Guid GetGuid()
+    public DateTime? GetDateTime()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.Guid) return _stream.ReadGuid();
-        throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.DateTime => _stream.ReadDateTime(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
+    }
+
+    public Guid? GetGuid()
+    {
+        var payloadType = (PayloadType)_stream!.ReadByte();
+        return payloadType switch
+        {
+            PayloadType.Null => null,
+            PayloadType.Guid => _stream.ReadGuid(),
+            _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+        };
     }
 
     public string? GetString()

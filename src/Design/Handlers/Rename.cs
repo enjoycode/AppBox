@@ -6,7 +6,7 @@ internal sealed class Rename : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var referenceType = (ModelReferenceType)args.GetInt();
+        var referenceType = (ModelReferenceType)args.GetInt()!.Value;
         ModelId modelId = args.GetString()!;
         var oldName = args.GetString()!;
         var newName = args.GetString()!;

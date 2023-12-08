@@ -9,7 +9,7 @@ internal sealed class GetSignatures : IDesignHandler
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var offset = args.GetInt();
+        var offset = args.GetInt()!.Value;
 
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)

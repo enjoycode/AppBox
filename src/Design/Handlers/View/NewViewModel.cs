@@ -6,10 +6,10 @@ internal sealed class NewViewModel : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var selectedNodeType = (DesignNodeType)args.GetInt();
+        var selectedNodeType = (DesignNodeType)args.GetInt()!.Value;
         var selectedNodeId = args.GetString()!;
         var name = args.GetString()!;
-        var isDynamic = args.GetBool();
+        var isDynamic = args.GetBool()!.Value;
 
         if (isDynamic)
         {

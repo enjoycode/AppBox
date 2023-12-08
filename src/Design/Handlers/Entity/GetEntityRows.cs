@@ -12,7 +12,7 @@ internal sealed class GetEntityRows : IDesignHandler
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
         ModelId modelId = args.GetString()!;
-        var pageSize = args.GetInt();
+        var pageSize = args.GetInt()!.Value;
 
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)

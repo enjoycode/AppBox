@@ -9,7 +9,7 @@ internal sealed class DeleteNode : IDesignHandler
 {
     public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
     {
-        var selectedNodeType = (DesignNodeType)args.GetInt();
+        var selectedNodeType = (DesignNodeType)args.GetInt()!.Value;
         var selectedNodeIdString = args.GetString()!;
         var deleteNode = hub.DesignTree.FindNode(selectedNodeType, selectedNodeIdString);
         if (deleteNode == null)

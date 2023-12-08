@@ -11,7 +11,7 @@ internal sealed class NewEntityMember : IDesignHandler
     {
         ModelId modelId = args.GetString()!;
         var memberName = args.GetString()!;
-        var entityMemberType = (EntityMemberType)args.GetInt();
+        var entityMemberType = (EntityMemberType)args.GetInt()!.Value;
 
         var node = hub.DesignTree.FindModelNode(modelId);
         if (node == null)
@@ -45,8 +45,8 @@ internal sealed class NewEntityMember : IDesignHandler
     private static EntityMemberVO[] NewEntityField(EntityModel model, string name,
         ref InvokeArgs args)
     {
-        var fieldType = (EntityFieldType)args.GetInt();
-        var allowNull = args.GetBool();
+        var fieldType = (EntityFieldType)args.GetInt()!.Value;
+        var allowNull = args.GetBool()!.Value;
 
         var field = new EntityFieldModel(model, name, fieldType, allowNull);
         model.AddMember(field);
@@ -59,7 +59,7 @@ internal sealed class NewEntityMember : IDesignHandler
         ref InvokeArgs args)
     {
         var refIds = args.GetArray<string>()!;
-        var allowNull = args.GetBool();
+        var allowNull = args.GetBool()!.Value;
         if (refIds.Length == 0)
             throw new ArgumentException("EntityRef target is empty");
 
@@ -149,7 +149,7 @@ internal sealed class NewEntityMember : IDesignHandler
         ref InvokeArgs args)
     {
         ModelId refModelId = args.GetString()!;
-        var refMemberId = args.GetShort();
+        var refMemberId = args.GetShort()!.Value;
 
         //验证引用目标是否存在
         var target = hub.DesignTree.FindModelNode(refModelId);
