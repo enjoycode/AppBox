@@ -12,15 +12,25 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         Child = new DataGrid<DynamicEntity>(Controller);
     }
 
+    private string? _dataset;
     private TableColumnSettings[]? _columns;
     private TableFooterCell[]? _footer;
 
     [JsonIgnore] internal DataGridController<DynamicEntity> Controller { get; } = new();
-    
+
     /// <summary>
     /// 绑定的数据集名称
     /// </summary>
-    public string? DataSet { get; set; }
+    public string? DataSet
+    {
+        get => _dataset;
+        set
+        {
+            _dataset = value;
+            if (IsMounted)
+                Fetch();
+        }
+    }
 
     public TableColumnSettings[]? Columns
     {
@@ -73,12 +83,16 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
 
     private async void Fetch()
     {
+        if (string.IsNullOrEmpty(DataSet))
+        {
+            Controller.DataSource = null;
+            return;
+        }
+
         var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
         if (dynamicView == null) return;
 
         var ds = (DynamicDataSet?)await dynamicView.GetDataSet(DataSet);
-        if (ds == null) return;
-
         Controller.DataSource = ds;
     }
 

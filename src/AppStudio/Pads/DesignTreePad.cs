@@ -18,10 +18,7 @@ internal sealed class DesignTreePad : View
             Children =
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<DesignNodeVO>(_designStore.TreeController)
-                {
-                    NodeBuilder = BuildTreeNode, ChildrenGetter = n => n.Children!
-                },
+                new TreeView<DesignNodeVO>(_designStore.TreeController, BuildTreeNode, n => n.Children!),
             }
         };
     }

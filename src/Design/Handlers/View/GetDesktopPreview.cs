@@ -25,8 +25,9 @@ internal sealed class GetDesktopPreview : IDesignHandler
         var version = (int)(DateTime.Now - DateTime.UnixEpoch).TotalSeconds;
         var asmVersion = $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
-            CodeUtil.ViewGlobalUsings() +
-            $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
+            CodeUtil.ViewGlobalUsings() + //[assembly:TargetFramework(".NETStandard, Version = v2.1")]
+            $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]",
+            TypeSystem.ParseOptions);
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
             .WithNullableContextOptions(NullableContextOptions.Enable)
             .WithOptimizationLevel(OptimizationLevel.Debug);

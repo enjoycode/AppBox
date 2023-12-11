@@ -25,10 +25,9 @@ internal sealed class TableFooterDialog : Dialog
 
     #region ====Build Widget Tree====
 
-    private void BuildTreeNode(TreeNodeType node)
+    private static void BuildTreeNode(TreeNodeType node)
     {
         var s = node.Data;
-        node.IsSelected.Value = s == _treeController.DataSource![0];
         node.IsExpanded = true;
         node.IsLeaf = true;
         node.Label = new Text(s.Observe(nameof(s.Type), () => s.Type.ToString()));
@@ -70,11 +69,8 @@ internal sealed class TableFooterDialog : Dialog
             new Card
             {
                 Width = 250,
-                Child = new TreeView<TableFooterCell>(_treeController)
-                {
-                    NodeBuilder = BuildTreeNode,
-                    ChildrenGetter = _ => Array.Empty<TableFooterCell>()
-                }
+                Child = new TreeView<TableFooterCell>(_treeController, BuildTreeNode,
+                    _ => Array.Empty<TableFooterCell>())
             },
 
             new Expanded(new Card { Child = new Container { Child = new TableFooterEditor(_current) } }),

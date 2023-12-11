@@ -31,11 +31,7 @@ internal sealed class DynamicOutlinePad : View
             Children =
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<DesignElementTreeNode>(_treeController)
-                {
-                    NodeBuilder = BuildTreeNode,
-                    ChildrenGetter = n => n.Children
-                },
+                new TreeView<DesignElementTreeNode>(_treeController, BuildTreeNode, n => n.Children),
             }
         };
     }

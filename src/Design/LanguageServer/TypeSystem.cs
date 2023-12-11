@@ -56,7 +56,7 @@ internal sealed class TypeSystem : IDisposable
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
             .WithNullableContextOptions(NullableContextOptions.Enable);
 
-    private static readonly CSharpParseOptions ParseOptions =
+    internal static readonly CSharpParseOptions ParseOptions =
         new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11);
 
     internal static readonly CSharpParseOptions ServiceParseOptions =
@@ -122,6 +122,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemCollectionsLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemLinqLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemLinqExpressionsLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemJsonLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.SystemObjectModelLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILib)

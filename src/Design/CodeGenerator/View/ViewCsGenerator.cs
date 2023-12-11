@@ -57,7 +57,10 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     {
         var newRootNode = Visit(await SemanticModel.SyntaxTree.GetRootAsync());
         var docName = $"{AppName}.Views.{ViewModel.Name}";
-        return SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs", encoding: Encoding.UTF8);
+        return SyntaxFactory.SyntaxTree(newRootNode, 
+            options: TypeSystem.ParseOptions, 
+            path: docName + ".cs",
+            encoding: Encoding.UTF8);
     }
 
     #region ====Usages====

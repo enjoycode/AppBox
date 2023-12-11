@@ -21,6 +21,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference SystemLinqLib => GetSdkLib("System.Linq.dll");
 
+    internal static MetadataReference SystemLinqExpressionsLib => GetSdkLib("System.Linq.Expressions.dll");
+
     internal static MetadataReference SystemJsonLib => GetSdkLib("System.Text.Json.dll");
 
     internal static MetadataReference SystemObjectModelLib => GetSdkLib("System.ObjectModel.dll");
@@ -106,6 +108,7 @@ internal static class MetadataReferences
             SystemDataLib,
             SystemCollectionsLib,
             SystemLinqLib,
+            SystemLinqExpressionsLib,
             SystemJsonLib,
             PixUILib,
             PixUIWidgetsLib,

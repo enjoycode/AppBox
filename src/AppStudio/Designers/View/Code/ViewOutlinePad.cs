@@ -20,11 +20,7 @@ internal sealed class ViewOutlinePad : View
             Children = new Widget[]
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<WidgetTreeNode>(_treeController)
-                {
-                    NodeBuilder = BuildTreeNode,
-                    ChildrenGetter = n => n.Children
-                },
+                new TreeView<WidgetTreeNode>(_treeController, BuildTreeNode, n => n.Children),
             }
         };
     }

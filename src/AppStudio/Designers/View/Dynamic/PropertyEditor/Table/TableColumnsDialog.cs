@@ -35,10 +35,9 @@ internal sealed class TableColumnsDialog : Dialog
 
     #region ====Build Widget Tree====
 
-    private void BuildTreeNode(TreeNodeType node)
+    private static void BuildTreeNode(TreeNodeType node)
     {
         var s = node.Data;
-        node.IsSelected.Value = s == _treeController.DataSource![0];
         node.IsExpanded = true;
         node.IsLeaf = s is not GroupColumnSettings;
         node.Label = new Text(s.Observe(nameof(s.Label), () => s.Label));
@@ -93,11 +92,8 @@ internal sealed class TableColumnsDialog : Dialog
             new Card
             {
                 Width = 250,
-                Child = new TreeView<TableColumnSettings>(_treeController)
-                {
-                    NodeBuilder = BuildTreeNode,
-                    ChildrenGetter = s => ((GroupColumnSettings)s).Children
-                }
+                Child = new TreeView<TableColumnSettings>(_treeController, BuildTreeNode,
+                    s => ((GroupColumnSettings)s).Children)
             },
 
             new Expanded(new Card

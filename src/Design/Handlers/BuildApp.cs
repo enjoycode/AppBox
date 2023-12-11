@@ -405,8 +405,8 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(
             isViewAssembly
                 ? CodeUtil.ViewGlobalUsings()
-                : ""
-                  + $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]")
+                : "" +
+                  $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]")
         );
 
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
