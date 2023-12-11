@@ -15,14 +15,11 @@ internal sealed class TableColumnsDialog : Dialog
         Width = 580;
         Height = 400;
 
-        _list = list;
         _element = element;
-
-        _treeController.DataSource = _list;
+        _treeController.DataSource = list;
         _treeController.SelectionChanged += OnSelectedTreeNode;
     }
 
-    private readonly List<TableColumnSettings> _list;
     private readonly DesignElement _element;
 
     private readonly TreeController<TableColumnSettings> _treeController = new();
@@ -114,6 +111,14 @@ internal sealed class TableColumnsDialog : Dialog
     };
 
     #endregion
+
+    protected override void OnMounted()
+    {
+        base.OnMounted();
+        // 默认选中第一个节点
+        if (_treeController.RootNodes.Length > 0)
+            _treeController.SelectNode(_treeController.RootNodes[0]);
+    }
 
     private void OnSelectedTreeNode()
     {
