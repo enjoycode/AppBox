@@ -9,25 +9,24 @@ public sealed class PermissionTreeView : View
     {
         _treeController.CheckChanged += OnCheckChanged;    
 
-        Child = new TreeView<PermissionNode>(_treeController, true);
+        Child = new TreeView<PermissionNode>(_treeController, BuildTreeNode, d => d.Children!, true);
         LoadTreeAsync();
     }
     
     private State<OrgUnit?> _current = null!;
     private bool _suspendChecking = false;
-    private readonly TreeController<PermissionNode> _treeController = new (
-        BuildTreeNode, data => data.Children!);
+    private readonly TreeController<PermissionNode> _treeController = new ();
     
     public State<OrgUnit?> CurrentOU
     {
         set => _current = Bind(_current, value, s => OnCurrentChanged())!;
     }
     
-    private static void BuildTreeNode(PermissionNode data, TreeNode<PermissionNode> node)
+    private static void BuildTreeNode(TreeNode<PermissionNode> node)
     {
-        node.Label = new Text(data.Name);
-        node.IsLeaf = data.Children == null;
-        node.IsExpanded = data.Children != null && data.Children.Count > 0;
+        node.Label = new Text(node.Data.Name);
+        node.IsLeaf = node.Data.Children == null;
+        node.IsExpanded = node.Data.Children != null && node.Data.Children.Count > 0;
     }
     
     private async void LoadTreeAsync()

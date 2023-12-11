@@ -266,7 +266,8 @@ internal sealed class BuildContext
             _modelCache.Add(modelInfo.ModelId, modelInfo);
             return modelInfo;
         }
-        else if (modelNode.Model.ModelType == ModelType.View)
+
+        if (modelNode.Model.ModelType == ModelType.View)
         {
             var codegen = await ViewCsGenerator.Make(Hub, modelNode, false);
             var newTree = await codegen.GetRuntimeSyntaxTree();
@@ -275,10 +276,8 @@ internal sealed class BuildContext
             _modelCache.Add(modelInfo.ModelId, modelInfo);
             return modelInfo;
         }
-        else
-        {
-            throw new NotImplementedException();
-        }
+
+        throw new NotImplementedException();
     }
 
     internal ModelInfo GetModelInfo(ModelNode modelNode) => _modelCache[modelNode.Model.Id];
@@ -406,7 +405,8 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
             isViewAssembly
                 ? CodeUtil.ViewGlobalUsings()
                 : "" +
-                  $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]")
+                  $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]",
+            TypeSystem.ParseOptions)
         );
 
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)

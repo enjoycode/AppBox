@@ -18,10 +18,10 @@ public sealed class EmployeeView : View
                 new ("生日:", new DatePicker(state.Birthday)),
                 new ("性别:", new Row { Children =
                 {
-                    new Text("男"),
                     new Radio(state.Male),
+                    new Text("男"),
+                    new Radio(state.Male.ToReversed()),
                     new Text("女"),
-                    new Radio(state.Male.ToReversed())
                 }})
             }
         };

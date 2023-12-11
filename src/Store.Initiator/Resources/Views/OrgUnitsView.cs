@@ -6,7 +6,7 @@ public sealed class OrgUnitsView : View
 {
     public OrgUnitsView()
     {
-        _orgTreeController = new TreeController<OrgUnit>(BuildTreeNode, data => data.Children!);
+        _orgTreeController = new TreeController<OrgUnit>();
         _orgTreeController.SelectionChanged += OnOrgUnitChanged;
 
         Child = new Column
@@ -61,7 +61,7 @@ public sealed class OrgUnitsView : View
                     new Container
                     {
                         Width = 150,
-                        Child = new TreeView<OrgUnit>(_orgTreeController)
+                        Child = new TreeView<OrgUnit>(_orgTreeController, BuildTreeNode, d=>d.Children!)
                     },
                     new Container
                     {
@@ -72,16 +72,16 @@ public sealed class OrgUnitsView : View
         };
     }
 
-    private void BuildTreeNode(OrgUnit data, TreeNode<OrgUnit> node)
+    private void BuildTreeNode(TreeNode<OrgUnit> node)
     {
-        node.Label = new Text(data.Observe(e => e.Name));
-        if (data.BaseType == Enterprise.MODELID)
+        node.Label = new Text(node.Data.Observe(e => e.Name));
+        if (node.Data.BaseType == Enterprise.MODELID)
         {
             node.Icon = new Icon(MaterialIcons.Home);
             node.IsLeaf = false;
             node.IsExpanded = true;
         }
-        else if (data.BaseType == Workgroup.MODELID)
+        else if (node.Data.BaseType == Workgroup.MODELID)
         {
             node.Icon = new Icon(MaterialIcons.Folder);
             node.IsLeaf = false;
@@ -105,7 +105,7 @@ public sealed class OrgUnitsView : View
         {
             return new Conditional<OrgUnit?>(_selectedOU)
                 .When(t => t != null && t.BaseType == Enterprise.MODELID,
-                    () => new sys.Views.EnterpriseView(_entNotifier))
+                    () =>  new sys.Views.EnterpriseView(_entNotifier))
                 .When(t => t != null && t.BaseType == Workgroup.MODELID,
                     () => new sys.Views.WorkgroupView(_wkgNotifier))
                 .When(t => t != null && t.BaseType == Employee.MODELID,
@@ -121,8 +121,6 @@ public sealed class OrgUnitsView : View
         {
             var list = await sys.Services.OrgUnitService.LoadTree();
             _orgTreeController.DataSource = list;
-            //选中根节点
-            //var rootNode = _orgTreeController.FindNode(t => t.Id == list[0].Id)!;
             _orgTreeController.SelectNode(_orgTreeController.RootNodes[0]);
         }
         catch (Exception ex)
@@ -135,6 +133,7 @@ public sealed class OrgUnitsView : View
     {
         var ou = _orgTreeController.FirstSelectedNode?.Data;
         _selectedOU.Value = ou;
+        
         if (ou == null) return;
 
         if (ou.Base == null) //尚未加载过
