@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using AppBoxCore;
 using LiveCharts;
 using LiveChartsCore;
@@ -21,7 +22,26 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
     private ChartAxisSettings[]? _xAxes;
     private ChartAxisSettings[]? _yAxes;
 
-    public string? DataSet { get; set; }
+    private string? _dataset;
+    [JsonIgnore] private IDynamicContext? _dynamicContext;
+
+    public string? DataSet
+    {
+        get => _dataset;
+        set
+        {
+            //设计时改变了重置并取消监听数据集变更
+            if (IsMounted && !string.IsNullOrEmpty(_dataset))
+            {
+                Series = null;
+                XAxes = null;
+                YAxes = null;
+                _dynamicContext?.UnbindToDataSet(this, _dataset);
+            }
+
+            _dataset = value;
+        }
+    }
 
     public CartesianSeriesSettings[]? Series
     {
@@ -66,14 +86,13 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
             }
             else
             {
-                if (string.IsNullOrEmpty(DataSet)) return;
-                if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
-                if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+                if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
+                if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
                 axes = new Axis[_xAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
                 {
-                    axes[i] = _xAxes[i].Buid(dynamicView, dataset);
+                    axes[i] = _xAxes[i].Buid(_dynamicContext, dataset);
                 }
             }
 
@@ -87,14 +106,13 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
             }
             else
             {
-                if (string.IsNullOrEmpty(DataSet)) return;
-                if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
-                if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+                if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
+                if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
                 axes = new Axis[_yAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
                 {
-                    axes[i] = _yAxes[i].Buid(dynamicView, dataset);
+                    axes[i] = _yAxes[i].Buid(_dynamicContext, dataset);
                 }
             }
 
@@ -108,14 +126,13 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
 
         if (_series != null)
         {
-            if (string.IsNullOrEmpty(DataSet)) return;
-            if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
-            if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+            if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
+            if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
             var runtimeSeries = new ISeries[_series.Length];
             for (var i = 0; i < _series.Length; i++)
             {
-                runtimeSeries[i] = _series[i].Build(dynamicView, dataset);
+                runtimeSeries[i] = _series[i].Build(_dynamicContext, dataset);
             }
 
             _chart.Series = runtimeSeries;
@@ -133,21 +150,25 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
         if (Parent is IDesignElement)
             _chart.EasingFunction = null; //disable animation in design time
 
+        //监听目标数据集变更
+        _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
+        _dynamicContext?.BindToDataSet(this, _dataset);
+
         OnSeriesChanged();
         if (_xAxes != null) OnAxesChanged(true);
         if (_yAxes != null) OnAxesChanged(false);
     }
 
+    protected override void OnUnmounted()
+    {
+        //取消监听数据集变更
+        _dynamicContext?.UnbindToDataSet(this, _dataset);
+        base.OnUnmounted();
+    }
+
     #region ====IDataSetBinder====
 
-    string IDataSetBinder.DataSetPropertyName => nameof(DataSet);
-
-    void IDataSetBinder.OnDataSetChanged()
-    {
-        Series = null;
-        XAxes = null;
-        YAxes = null;
-    }
+    void IDataSetBinder.OnDataSetValueChanged() => OnSeriesChanged();
 
     #endregion
 

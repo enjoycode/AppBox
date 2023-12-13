@@ -15,6 +15,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
     private string? _dataset;
     private TableColumnSettings[]? _columns;
     private TableFooterCell[]? _footer;
+    [JsonIgnore] private IDynamicContext? _dynamicContext;
 
     [JsonIgnore] internal DataGridController<DynamicEntity> Controller { get; } = new();
 
@@ -26,7 +27,16 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         get => _dataset;
         set
         {
+            //设计时改变了重置并取消监听数据集变更
+            if (IsMounted && !string.IsNullOrEmpty(_dataset))
+            {
+                _columns = null;
+                _footer = null;
+                _dynamicContext?.UnbindToDataSet(this, _dataset);
+            }
+
             _dataset = value;
+
             if (IsMounted)
                 Fetch();
         }
@@ -79,7 +89,22 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         }
     }
 
-    protected override void OnMounted() => Fetch();
+    protected override void OnMounted()
+    {
+        base.OnMounted();
+        //监听目标数据集变更
+        _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
+        _dynamicContext?.BindToDataSet(this, _dataset);
+        //填充数据集
+        Fetch();
+    }
+
+    protected override void OnUnmounted()
+    {
+        //取消监听数据集变更
+        _dynamicContext?.UnbindToDataSet(this, _dataset);
+        base.OnUnmounted();
+    }
 
     private async void Fetch()
     {
@@ -89,10 +114,9 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
             return;
         }
 
-        var dynamicView = FindParent(w => w is IDynamicView) as IDynamicView;
-        if (dynamicView == null) return;
+        if (_dynamicContext == null) return;
 
-        var ds = (DynamicDataSet?)await dynamicView.GetDataSet(DataSet);
+        var ds = (DynamicDataSet?)await _dynamicContext.GetDataSet(DataSet);
         Controller.DataSource = ds;
     }
 
@@ -114,13 +138,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
 
     #region ====IDataSetBinder====
 
-    string IDataSetBinder.DataSetPropertyName => nameof(DataSet);
-
-    void IDataSetBinder.OnDataSetChanged()
-    {
-        _columns = null;
-        _footer = null;
-    }
+    void IDataSetBinder.OnDataSetValueChanged() => Fetch();
 
     #endregion
 }

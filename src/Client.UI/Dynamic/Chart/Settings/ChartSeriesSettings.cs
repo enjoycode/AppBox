@@ -23,5 +23,5 @@ public abstract class ChartSeriesSettings
     /// <summary>
     /// 生成运行时的Series
     /// </summary>
-    public abstract ISeries Build(IDynamicView dynamicView, DynamicDataSet dataSet);
+    public abstract ISeries Build(IDynamicContext dynamicContext, DynamicDataSet dataSet);
 }

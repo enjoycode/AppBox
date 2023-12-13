@@ -23,7 +23,7 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicView dynamicView, DynamicDataSet dataset)
+    public override ISeries Build(IDynamicContext dynamicContext, DynamicDataSet dataset)
     {
         var res = new LineSeries<DynamicEntity>
         {

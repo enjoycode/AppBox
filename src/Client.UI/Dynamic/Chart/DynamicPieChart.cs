@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using AppBoxCore;
 using LiveCharts;
 using LiveCharts.Painting;
@@ -20,8 +21,24 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
 
     private readonly PieChart _chart;
     private PieSeriesSettings? _series;
+    private string? _dataset;
+    [JsonIgnore] private IDynamicContext? _dynamicContext;
 
-    public string? DataSet { get; set; }
+    public string? DataSet
+    {
+        get => _dataset;
+        set
+        {
+            //设计时改变了重置并取消监听数据集变更
+            if (IsMounted && !string.IsNullOrEmpty(_dataset))
+            {
+                Series = null;
+                _dynamicContext?.UnbindToDataSet(this, _dataset);
+            }
+
+            _dataset = value;
+        }
+    }
 
     public PieSeriesSettings? Series
     {
@@ -58,13 +75,12 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
 
         if (_series != null)
         {
-            if (string.IsNullOrEmpty(DataSet)) return;
-            if (FindParent(w => w is IDynamicView) is not IDynamicView dynamicView) return;
-            if (await dynamicView.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+            if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
+            if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
 
             try
             {
-                var runtimeSeries = _series.Build(dynamicView, dataset);
+                var runtimeSeries = _series.Build(_dynamicContext, dataset);
                 _chart.Series = runtimeSeries;
             }
             catch (Exception e)
@@ -84,15 +100,24 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
 
         if (Parent is IDesignElement)
             _chart.EasingFunction = null; //disable animation in design time
+        
+        //监听目标数据集变更
+        _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
+        _dynamicContext?.BindToDataSet(this, _dataset);
 
         OnSeriesChanged();
+    }
+    
+    protected override void OnUnmounted()
+    {
+        //取消监听数据集变更
+        _dynamicContext?.UnbindToDataSet(this, _dataset);
+        base.OnUnmounted();
     }
 
     #region ====IDataSetBinder====
 
-    string IDataSetBinder.DataSetPropertyName => nameof(DataSet);
-
-    void IDataSetBinder.OnDataSetChanged() => Series = null;
+    void IDataSetBinder.OnDataSetValueChanged() => OnSeriesChanged();
 
     #endregion
 

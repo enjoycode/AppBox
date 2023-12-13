@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Text.Json;
+using PixUI;
 using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic.Events;
@@ -42,8 +43,21 @@ public sealed class FetchDataSet : IEventAction
         }
     }
 
-    public void Run(IDynamicView dynamicView, object? eventArg = null)
+    public void Run(IDynamicContext dynamicContext, object? eventArg = null)
     {
-        throw new System.NotImplementedException();
+        var state = dynamicContext.FindState(DataSet);
+        if (state == null)
+        {
+            Notification.Error($"Can't find DataSet: {DataSet}");
+            return;
+        }
+
+        if (state.Value is not DynamicDataSetState ds)
+        {
+            Notification.Error($"Value is not a DataSet: {DataSet}");
+            return;
+        }
+        
+        ds.Reset();
     }
 }

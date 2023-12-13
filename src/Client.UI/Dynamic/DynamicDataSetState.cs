@@ -24,6 +24,10 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
     /// </summary>
     public string?[] Arguments { get; set; } = Array.Empty<string?>();
 
+    public event Action? DataSetValueChanged;
+
+    #region ====Serialization====
+
     public void WriteTo(Utf8JsonWriter writer)
     {
         writer.WriteStartObject();
@@ -54,9 +58,9 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
         Service = reader.GetString()!;
 
         reader.Read(); //Arguments or EndObject
-        if (reader.TokenType == JsonTokenType.EndObject) 
+        if (reader.TokenType == JsonTokenType.EndObject)
             return;
-        
+
         var args = new List<string?>();
         reader.Read(); //[
         while (reader.Read())
@@ -65,18 +69,20 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
                 break;
             args.Add(reader.GetString());
         }
-        
+
         Arguments = args.ToArray();
 
         reader.Read(); //}
     }
 
+    #endregion
+
     #region ====Runtime DataSet====
 
-    private int _fetchFlag = 0;
+    private int _fetchFlag;
     private Task<DynamicDataSet?> _fetchTask = null!;
 
-    public async ValueTask<object?> GetRuntimeDataSet(IDynamicView dynamicView)
+    public async ValueTask<object?> GetRuntimeDataSet(IDynamicContext dynamicContext)
     {
         if (Interlocked.CompareExchange(ref _fetchFlag, 1, 0) == 0)
         {
@@ -87,7 +93,7 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
                 for (var i = 0; i < args.Length; i++)
                 {
                     if (!string.IsNullOrEmpty(Arguments[i]))
-                        args[i] = dynamicView.GetState(Arguments[i]!).BoxedValue;
+                        args[i] = dynamicContext.GetState(Arguments[i]!).BoxedValue;
                 }
             }
 
@@ -103,6 +109,15 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
             Notification.Error("填充数据集错误: " + e.Message);
             return null;
         }
+    }
+
+    /// <summary>
+    /// 清除数据加载状态并通知相关的绑定者刷新数据
+    /// </summary>
+    public void Reset()
+    {
+        Interlocked.Exchange(ref _fetchFlag, 0);
+        DataSetValueChanged?.Invoke();
     }
 
     #endregion

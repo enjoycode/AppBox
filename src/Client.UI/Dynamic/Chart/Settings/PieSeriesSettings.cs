@@ -30,7 +30,7 @@ public sealed class PieSeriesSettings
 
     public PieSeriesSettings Clone() => new() { Field = Field, Name = Name };
 
-    public IEnumerable<ISeries> Build(IDynamicView dynamicView, DynamicDataSet dataset)
+    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DynamicDataSet dataset)
     {
         try
         {

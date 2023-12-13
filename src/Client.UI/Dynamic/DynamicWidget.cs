@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
 using PixUI.Dynamic;
@@ -12,7 +12,7 @@ namespace PixUI;
 /// <summary>
 /// 解析动态视图模型生成相应的组件
 /// </summary>
-public sealed class DynamicWidget : DynamicView, IDynamicView
+public sealed class DynamicWidget : DynamicView, IDynamicContext
 {
     public DynamicWidget(long viewModelId /*, IDictionary<string, object?>? initProps = null*/)
     {
@@ -24,6 +24,8 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
     private List<DynamicState>? _states;
     private DynamicBackground? _background;
     private Image? _cachedImage;
+
+    DynamicState? IDynamicContext.FindState(string name) => _states?.SingleOrDefault(s => s.Name == name);
 
     protected override void OnMounted()
     {
@@ -90,7 +92,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
                     ReadStates(ref reader);
                     break;
                 case "Root":
-                    root = ReadWidget(ref reader, null, string.Empty);
+                    root = ReadWidget(ref reader, string.Empty);
                     break;
             }
         }
@@ -122,26 +124,45 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
     {
         reader.Read(); //{
         reader.Read(); //Type prop
-        reader.Read();
+        reader.Read(); //Type value
         var type = Enum.Parse<DynamicStateType>(reader.GetString()!);
-        reader.Read(); //Value prop
+        var state = new DynamicState { Name = name, Type = type };
 
         if (type == DynamicStateType.DataSet)
         {
-            var ds = new DynamicDataSetState();
-            ds.ReadFrom(ref reader);
-            var state = new DynamicState() { Name = name, Type = type, Value = ds };
-            states.Add(state);
+            reader.Read(); //Value prop
+            var peekReader = reader;
+            if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
+            {
+                var ds = new DynamicDataSetState();
+                ds.ReadFrom(ref reader);
+                state.Value = ds;
+            }
         }
         else
         {
-            throw new NotImplementedException();
+            //AllowNull
+            reader.Read(); //AllowNull prop
+            reader.Read(); //AllowNull value
+            state.AllowNull = reader.GetBoolean();
+
+            //Value
+            reader.Read(); //Value prop
+            var peekReader = reader;
+            if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
+            {
+                var vs = new DynamicValueState();
+                vs.ReadFrom(ref reader, state);
+                state.Value = vs;
+            }
         }
 
         reader.Read(); //}
+
+        states.Add(state);
     }
 
-    private Widget ReadWidget(ref Utf8JsonReader reader, DynamicWidgetMeta? parentMeta, string slotName)
+    private Widget ReadWidget(ref Utf8JsonReader reader, string slotName)
     {
         Widget result = null!;
         DynamicWidgetMeta meta = null!;
@@ -160,17 +181,17 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
             }
             else if (propName == "Events")
             {
-                throw new NotImplementedException();
+                ReadEvents(ref reader, result);
             }
             else if (meta.IsSlot(propName, out var childSlot))
             {
                 if (childSlot!.ContainerType == ContainerType.MultiChild)
                 {
-                    ReadWidgetArray(ref reader, meta, result, childSlot);
+                    ReadWidgetArray(ref reader, result, childSlot);
                 }
                 else
                 {
-                    var child = ReadWidget(ref reader, meta, childSlot!.PropertyName);
+                    var child = ReadWidget(ref reader, childSlot!.PropertyName);
                     childSlot.SetChild(result, child);
                 }
             }
@@ -185,46 +206,51 @@ public sealed class DynamicWidget : DynamicView, IDynamicView
         return result;
     }
 
-    private void ReadWidgetArray(ref Utf8JsonReader reader, DynamicWidgetMeta parentMeta, Widget parent,
-        ContainerSlot childrenSlot)
+    private void ReadEvents(ref Utf8JsonReader reader, Widget widget)
+    {
+        reader.Read(); //{
+
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndObject) break;
+
+            var eventName = reader.GetString()!;
+            var eventAction = ReadEventAction(ref reader);
+            //绑定事件, TODO:*****暂简单实现只支持Button.OnTap
+            if (widget is Button button && eventName == nameof(Button.OnTap))
+            {
+                button.OnTap = _ => eventAction.Run(this);
+            }
+            else
+            {
+                throw new NotImplementedException("Bind Event to Widget");
+            }
+        }
+    }
+
+    private static IEventAction ReadEventAction(ref Utf8JsonReader reader)
+    {
+        reader.Read(); //{
+        reader.Read(); // Handler prop
+        Debug.Assert(reader.GetString() == "Handler");
+        reader.Read(); // Handler value
+        var handler = reader.GetString()!;
+        //根据类型创建实例
+        var res = DynamicWidgetManager.EventActionManager.Create(handler);
+        res.ReadProperties(ref reader);
+        return res;
+    }
+
+    private void ReadWidgetArray(ref Utf8JsonReader reader, Widget parent, ContainerSlot childrenSlot)
     {
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndArray) break;
             if (reader.TokenType != JsonTokenType.StartObject) continue;
 
-            var child = ReadWidget(ref reader, parentMeta, childrenSlot.PropertyName);
+            var child = ReadWidget(ref reader, childrenSlot.PropertyName);
             childrenSlot.AddChild(parent, child);
         }
-    }
-
-    #endregion
-
-    #region =====IDynamicView====
-
-    ValueTask<object?> IDynamicView.GetDataSet(string name)
-    {
-        if (_states == null) return new ValueTask<object?>();
-
-        var state = _states.SingleOrDefault(s => s.Name == name);
-        if (state == null || state.Type != DynamicStateType.DataSet || state.Value == null)
-            return new ValueTask<object?>();
-
-        return ((IDynamicDataSetState)state.Value).GetRuntimeDataSet(this);
-    }
-
-    State IDynamicView.GetState(string name)
-    {
-        var state = _states?.SingleOrDefault(s => s.Name == name);
-        if (state == null)
-#if DEBUG
-            throw new Exception($"Can't find state: {name}");
-#else
-            return State.Empty;
-#endif
-        if (state.Type == DynamicStateType.DataSet)
-            throw new Exception($"State is DataSet: {name}");
-        return ((IDynamicValueState)state.Value!).GetRuntimeValue(state);
     }
 
     #endregion

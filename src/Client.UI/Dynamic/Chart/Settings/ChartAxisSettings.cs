@@ -35,7 +35,7 @@ public sealed class ChartAxisSettings
         MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
     };
 
-    public LiveCharts.Axis Buid(IDynamicView dynamicView, DynamicDataSet dataset)
+    public LiveCharts.Axis Buid(IDynamicContext dynamicContext, DynamicDataSet dataset)
     {
         var res = new LiveCharts.Axis();
         // if (!string.IsNullOrEmpty(Formatter))
