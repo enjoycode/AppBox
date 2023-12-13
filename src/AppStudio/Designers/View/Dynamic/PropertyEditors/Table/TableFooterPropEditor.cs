@@ -1,21 +1,22 @@
+using System.Collections.Generic;
 using System.Linq;
 using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
-internal sealed class PieSeriesPropEditor : ValueEditorBase
+internal sealed class TableFooterPropEditor : ValueEditorBase
 {
-    public PieSeriesPropEditor(State<PieSeriesSettings?> state, DesignElement element) : base(element)
+    public TableFooterPropEditor(State<TableFooterCell[]?> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
     }
 
-    private readonly State<PieSeriesSettings?> _state;
+    private readonly State<TableFooterCell[]?> _state;
 
-    private async void OnTap(PointerEvent e)
+    private async void OnTap(PointerEvent _)
     {
         //先判断有没有设置DataSet
         Element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSet), out var datasetValue);
@@ -26,12 +27,14 @@ internal sealed class PieSeriesPropEditor : ValueEditorBase
         }
 
         //编辑副本
-        var newOrCloned = _state.Value ?? new PieSeriesSettings();
+        var list = new List<TableFooterCell>();
+        if (_state.Value is { Length: > 0 })
+            list.AddRange(_state.Value.Select(t => t.Clone()));
 
-        var dlg = new PieSeriesDialog(newOrCloned, Element);
+        var dlg = new TableFooterDialog(list);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
-        _state.Value = newOrCloned;
+        _state.Value = list.Count > 0 ? list.ToArray() : null;
     }
 }

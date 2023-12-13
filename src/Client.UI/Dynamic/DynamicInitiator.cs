@@ -6,6 +6,9 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
+/// <summary>
+/// 初始化设计时及运行时的动态组件
+/// </summary>
 public static class DynamicInitiator
 {
     private static int _initFlag = 0;
@@ -28,7 +31,10 @@ public static class DynamicInitiator
 
     private static async Task Init()
     {
-        var dataCatalog = "Data";
+        const string dataCatalog = "Data";
+
+        //初始化事件行为管理器
+        DynamicWidgetManager.TryInitEventActionManager(() => new EventActionManager());
 
         //注册表格动态组件
         DynamicWidgetManager.Register<DynamicTable>(MaterialIcons.GridOn,

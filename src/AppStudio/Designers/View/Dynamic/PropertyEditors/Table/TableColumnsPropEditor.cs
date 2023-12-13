@@ -4,17 +4,17 @@ using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
-internal sealed class TableFooterPropEditor : ValueEditorBase
+internal sealed class TableColumnsPropEditor : ValueEditorBase
 {
-    public TableFooterPropEditor(State<TableFooterCell[]?> state, DesignElement element) : base(element)
+    public TableColumnsPropEditor(State<TableColumnSettings[]> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
     }
 
-    private readonly State<TableFooterCell[]?> _state;
+    private readonly State<TableColumnSettings[]> _state;
 
     private async void OnTap(PointerEvent _)
     {
@@ -27,14 +27,14 @@ internal sealed class TableFooterPropEditor : ValueEditorBase
         }
 
         //编辑副本
-        var list = new List<TableFooterCell>();
+        var list = new List<TableColumnSettings>();
         if (_state.Value is { Length: > 0 })
             list.AddRange(_state.Value.Select(t => t.Clone()));
 
-        var dlg = new TableFooterDialog(list);
+        var dlg = new TableColumnsDialog(list, Element);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
-        _state.Value = list.Count > 0 ? list.ToArray() : null;
+        _state.Value = list.ToArray();
     }
 }

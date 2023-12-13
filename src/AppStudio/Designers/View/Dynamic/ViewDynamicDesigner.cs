@@ -5,7 +5,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
-using AppBoxDesign.PropertyEditor;
+using AppBoxClient.Dynamic.Events;
+using AppBoxDesign.EventEditors;
+using AppBoxDesign.PropertyEditors;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
@@ -16,27 +18,23 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
     static ViewDynamicDesigner()
     {
-        if (DesignSettings.GetDataSetStateEditor == null)
-        {
-            // 初始化一些动态视图设计时的委托
-            DesignSettings.GetDataSetStateEditor = (c, s) => new DataSetStateEditDialog(c, s);
-            DesignSettings.MakeDataSetState = () => new DynamicDataSetState();
-            DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
-            DesignSettings.MakeValueState = () => new DynamicValueState();
-            // 初始化其他属性编辑器
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<string, DataSetPropEditor>(false, "DataSetSelect");
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<ChartAxisSettings[], AxesPropEditor>(true);
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<TableColumnSettings[], TableColumnsPropEditor>(true);
-            PixUI.Dynamic.Design.PropertyEditor
-                .RegisterClassValueEditor<TableFooterCell[], TableFooterPropEditor>(true);
-        }
+        if (DesignSettings.GetDataSetStateEditor != null) return;
+
+        // 初始化一些动态视图设计时的委托
+        DesignSettings.GetEventEditor = (element, meta) => new EventEditDialog(element, meta);
+        DesignSettings.GetDataSetStateEditor = (c, s) => new DataSetStateEditDialog(c, s);
+        DesignSettings.MakeDataSetState = () => new DynamicDataSetState();
+        DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
+        DesignSettings.MakeValueState = () => new DynamicValueState();
+        // 初始化其他属性编辑器
+        PropertyEditor.RegisterClassValueEditor<string, DataSetPropEditor>(false, "DataSetSelect");
+        PropertyEditor.RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
+        PropertyEditor.RegisterClassValueEditor<ChartAxisSettings[], AxesPropEditor>(true);
+        PropertyEditor.RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
+        PropertyEditor.RegisterClassValueEditor<TableColumnSettings[], TableColumnsPropEditor>(true);
+        PropertyEditor.RegisterClassValueEditor<TableFooterCell[], TableFooterPropEditor>(true);
+        // 初始化其他事件编辑器
+        EventEditor.Register(nameof(FetchDataSet), (e, m, a) => new FetchDataSetEditor(e, m, a));
     }
 
     public ViewDynamicDesigner(ModelNodeVO modelNode)

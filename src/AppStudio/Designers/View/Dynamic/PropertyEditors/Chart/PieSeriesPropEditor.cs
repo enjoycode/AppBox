@@ -1,20 +1,19 @@
-using System.Collections.Generic;
 using System.Linq;
 using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
-internal sealed class AxesPropEditor : ValueEditorBase
+internal sealed class PieSeriesPropEditor : ValueEditorBase
 {
-    public AxesPropEditor(State<ChartAxisSettings[]> state, DesignElement element) : base(element)
+    public PieSeriesPropEditor(State<PieSeriesSettings?> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
     }
 
-    private readonly State<ChartAxisSettings[]> _state;
+    private readonly State<PieSeriesSettings?> _state;
 
     private async void OnTap(PointerEvent e)
     {
@@ -25,16 +24,14 @@ internal sealed class AxesPropEditor : ValueEditorBase
             Notification.Warn("尚未设置DataSet");
             return;
         }
-        
-        //编辑副本
-        var list = new List<ChartAxisSettings>();
-        if (_state.Value is { Length: > 0 })
-            list.AddRange(_state.Value.Select(t => t.Clone()));
 
-        var dlg = new AxesDialog(list, Element);
+        //编辑副本
+        var newOrCloned = _state.Value ?? new PieSeriesSettings();
+
+        var dlg = new PieSeriesDialog(newOrCloned, Element);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
-        _state.Value = list.ToArray();
+        _state.Value = newOrCloned;
     }
 }

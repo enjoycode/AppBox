@@ -5,7 +5,7 @@ using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
 internal class TableColumnEditor<T> : SingleChildWidget where T : TableColumnSettings, new()
 {

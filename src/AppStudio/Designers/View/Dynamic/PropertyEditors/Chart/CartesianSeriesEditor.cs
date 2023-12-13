@@ -7,7 +7,7 @@ using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
 internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : CartesianSeriesSettings
 {

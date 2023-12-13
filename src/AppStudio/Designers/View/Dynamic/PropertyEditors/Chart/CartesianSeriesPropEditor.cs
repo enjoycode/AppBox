@@ -4,19 +4,19 @@ using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
-internal sealed class TableColumnsPropEditor : ValueEditorBase
+internal sealed class CartesianSeriesPropEditor : ValueEditorBase
 {
-    public TableColumnsPropEditor(State<TableColumnSettings[]> state, DesignElement element) : base(element)
+    public CartesianSeriesPropEditor(State<CartesianSeriesSettings[]> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
     }
 
-    private readonly State<TableColumnSettings[]> _state;
+    private readonly State<CartesianSeriesSettings[]> _state;
 
-    private async void OnTap(PointerEvent _)
+    private async void OnTap(PointerEvent e)
     {
         //先判断有没有设置DataSet
         Element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSet), out var datasetValue);
@@ -25,13 +25,13 @@ internal sealed class TableColumnsPropEditor : ValueEditorBase
             Notification.Warn("尚未设置DataSet");
             return;
         }
-
+        
         //编辑副本
-        var list = new List<TableColumnSettings>();
+        var list = new List<CartesianSeriesSettings>();
         if (_state.Value is { Length: > 0 })
             list.AddRange(_state.Value.Select(t => t.Clone()));
 
-        var dlg = new TableColumnsDialog(list, Element);
+        var dlg = new CartesianSeriesDialog(list, Element);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

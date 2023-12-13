@@ -2,7 +2,7 @@ using System.Linq;
 using PixUI;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
 /// <summary>
 /// 用于下拉选择所有DataSet

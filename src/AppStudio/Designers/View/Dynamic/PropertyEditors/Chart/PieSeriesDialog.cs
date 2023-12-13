@@ -5,7 +5,7 @@ using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
 
-namespace AppBoxDesign.PropertyEditor;
+namespace AppBoxDesign.PropertyEditors;
 
 internal sealed class PieSeriesDialog : Dialog
 {
