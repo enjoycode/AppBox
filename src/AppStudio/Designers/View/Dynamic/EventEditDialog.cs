@@ -18,7 +18,6 @@ internal sealed class EventEditDialog : Dialog
         _element = element;
         _eventMeta = eventMeta;
         _treeController.SelectionChanged += OnSelectNode;
-        FetchTreeDataSource();
     }
 
     private readonly DesignElement _element;
@@ -55,6 +54,12 @@ internal sealed class EventEditDialog : Dialog
         node.Icon = node.Data.IsGroup ? new Icon(MaterialIcons.Folder) : new Icon(MaterialIcons.Bolt);
     }
 
+    protected override void OnMounted()
+    {
+        base.OnMounted();
+        FetchTreeDataSource();
+    }
+
     private void FetchTreeDataSource()
     {
         var groups = DynamicWidgetManager.EventActionManager
@@ -72,7 +77,13 @@ internal sealed class EventEditDialog : Dialog
         _treeController.DataSource = nodes;
 
         //尝试选中节点
-        //TODO:
+        if (_element.Data.TryGetEventValue(_eventMeta.Name, out var eventValue))
+        {
+            var exists = _treeController.FindNode(
+                n => !n.IsGroup && n.EventActionInfo.ActionName == eventValue.Action.ActionName);
+            if (exists != null)
+                _treeController.SelectNode(exists);
+        }
     }
 
     private void OnSelectNode()
@@ -87,7 +98,9 @@ internal sealed class EventEditDialog : Dialog
         var actionName = node.Data.EventActionInfo.ActionName;
         try
         {
-            _currentAction = DynamicWidgetManager.EventActionManager.Create(actionName);
+            _currentAction = _element.Data.TryGetEventValue(_eventMeta.Name, out var eventValue)
+                ? eventValue.Action
+                : DynamicWidgetManager.EventActionManager.Create(actionName);
         }
         catch (Exception)
         {
