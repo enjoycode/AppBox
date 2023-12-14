@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
@@ -205,6 +206,18 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
 
         return result;
     }
+    
+    private void ReadWidgetArray(ref Utf8JsonReader reader, Widget parent, ContainerSlot childrenSlot)
+    {
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndArray) break;
+            if (reader.TokenType != JsonTokenType.StartObject) continue;
+
+            var child = ReadWidget(ref reader, childrenSlot.PropertyName);
+            childrenSlot.AddChild(parent, child);
+        }
+    }
 
     private void ReadEvents(ref Utf8JsonReader reader, Widget widget)
     {
@@ -216,15 +229,16 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
 
             var eventName = reader.GetString()!;
             var eventAction = ReadEventAction(ref reader);
-            //绑定事件, TODO:*****暂简单实现只支持Button.OnTap
-            if (widget is Button button && eventName == nameof(Button.OnTap))
-            {
-                button.OnTap = _ => eventAction.Run(this);
-            }
-            else
-            {
-                throw new NotImplementedException("Bind Event to Widget");
-            }
+            //绑定事件
+            
+            // if (widget is Button button && eventName == nameof(Button.OnTap))
+            // {
+            //     button.OnTap = _ => eventAction.Run(this);
+            // }
+            // else
+            // {
+            //     throw new NotImplementedException("Bind Event to Widget");
+            // }
         }
     }
 
@@ -241,16 +255,18 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         return res;
     }
 
-    private void ReadWidgetArray(ref Utf8JsonReader reader, Widget parent, ContainerSlot childrenSlot)
+    private void BindEventAction(Widget widget, string eventName, IEventAction eventAction)
     {
-        while (reader.Read())
+        var widgetType = widget.GetType();
+        var eventPropInfo = widgetType.GetProperty(eventName, BindingFlags.Public | BindingFlags.Instance);
+        if (eventPropInfo == null)
         {
-            if (reader.TokenType == JsonTokenType.EndArray) break;
-            if (reader.TokenType != JsonTokenType.StartObject) continue;
-
-            var child = ReadWidget(ref reader, childrenSlot.PropertyName);
-            childrenSlot.AddChild(parent, child);
+            Notification.Error($"Can't find event: {widgetType.Name}.{eventName}");
+            return;
         }
+
+        var actionType = eventPropInfo.PropertyType;
+        
     }
 
     #endregion
