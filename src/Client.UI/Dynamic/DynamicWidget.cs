@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
+using AppBoxClient.Utils;
 using PixUI.Dynamic;
 
 namespace PixUI;
@@ -93,7 +95,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
                     ReadStates(ref reader);
                     break;
                 case "Root":
-                    root = ReadWidget(ref reader, string.Empty);
+                    root = ReadWidget(ref reader /*, string.Empty*/);
                     break;
             }
         }
@@ -163,7 +165,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         states.Add(state);
     }
 
-    private Widget ReadWidget(ref Utf8JsonReader reader, string slotName)
+    private Widget ReadWidget(ref Utf8JsonReader reader /*, string slotName*/)
     {
         Widget result = null!;
         DynamicWidgetMeta meta = null!;
@@ -192,7 +194,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
                 }
                 else
                 {
-                    var child = ReadWidget(ref reader, childSlot!.PropertyName);
+                    var child = ReadWidget(ref reader /*, childSlot!.PropertyName*/);
                     childSlot.SetChild(result, child);
                 }
             }
@@ -206,7 +208,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
 
         return result;
     }
-    
+
     private void ReadWidgetArray(ref Utf8JsonReader reader, Widget parent, ContainerSlot childrenSlot)
     {
         while (reader.Read())
@@ -214,7 +216,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             if (reader.TokenType == JsonTokenType.EndArray) break;
             if (reader.TokenType != JsonTokenType.StartObject) continue;
 
-            var child = ReadWidget(ref reader, childrenSlot.PropertyName);
+            var child = ReadWidget(ref reader /*, childrenSlot.PropertyName*/);
             childrenSlot.AddChild(parent, child);
         }
     }
@@ -230,15 +232,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             var eventName = reader.GetString()!;
             var eventAction = ReadEventAction(ref reader);
             //绑定事件
-            
-            // if (widget is Button button && eventName == nameof(Button.OnTap))
-            // {
-            //     button.OnTap = _ => eventAction.Run(this);
-            // }
-            // else
-            // {
-            //     throw new NotImplementedException("Bind Event to Widget");
-            // }
+            BindEventAction(widget, eventName, eventAction);
         }
     }
 
@@ -257,6 +251,13 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
 
     private void BindEventAction(Widget widget, string eventName, IEventAction eventAction)
     {
+        //short path for Button.OnTap
+        if (widget is Button button && eventName == nameof(Button.OnTap))
+        {
+            button.OnTap = e => eventAction.Run(this, e);
+            return;
+        }
+
         var widgetType = widget.GetType();
         var eventPropInfo = widgetType.GetProperty(eventName, BindingFlags.Public | BindingFlags.Instance);
         if (eventPropInfo == null)
@@ -266,7 +267,35 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         }
 
         var actionType = eventPropInfo.PropertyType;
-        
+        var parameterTypes = DelegateTypeUtils.GetDelegateParameterTypes(actionType);
+        var runMethodInfo = typeof(IEventAction).GetMethod(nameof(IEventAction.Run))!;
+
+        var contextArg = Expression.Parameter(typeof(IDynamicContext), "context");
+        var widgetArg = Expression.Parameter(typeof(Widget), "widget");
+        var eventActionArg = Expression.Parameter(typeof(IEventAction), "eventAction");
+        ParameterExpression[]? runParameters = null;
+        if (parameterTypes.Length > 0)
+        {
+            runParameters = new ParameterExpression[parameterTypes.Length];
+            for (var i = 0; i < runParameters.Length; i++)
+            {
+                runParameters[i] = Expression.Parameter(parameterTypes[i]);
+            }
+        }
+
+        // eg: _ => eventAction.Run(context, null)
+        var runExpression = Expression.Lambda(actionType,
+            Expression.Call(eventActionArg, runMethodInfo, contextArg, Expression.Constant(null)),
+            runParameters);
+
+        var castWidget = Expression.Convert(widgetArg, widgetType);
+        var memberAccess = Expression.MakeMemberAccess(castWidget, eventPropInfo);
+        var assignExpression = Expression.Assign(memberAccess, runExpression);
+        // eg: ((Button)widget).OnTap = _ => eventAction.Run(context, null)
+        var lambda = Expression.Lambda<Action<IDynamicContext, Widget, IEventAction>>(
+                assignExpression, contextArg, widgetArg, eventActionArg)
+            .Compile(); //TODO: maybe cache (WidgetType, eventName) => compiled lambda
+        lambda(this, widget, eventAction);
     }
 
     #endregion

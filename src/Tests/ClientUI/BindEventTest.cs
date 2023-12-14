@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using AppBoxClient.Dynamic.Events;
+using AppBoxClient.Utils;
 using NUnit.Framework;
 using PixUI;
 using PixUI.Dynamic;
@@ -28,11 +29,12 @@ public class BindEventTest
         }
 
         var actionType = eventPropInfo.PropertyType;
-        var parameterTypes = GetDelegateParameterTypes(actionType);
+        var parameterTypes = DelegateTypeUtils.GetDelegateParameterTypes(actionType);
         var runMethodInfo = typeof(IEventAction).GetMethod(nameof(IEventAction.Run))!;
         
         //构建Run表达式, eg:  _ => eventAction.Run(context)
         var contextArg = Expression.Parameter(typeof(IDynamicContext), "context");
+        var widgetArg = Expression.Parameter(typeof(Widget), "widget");
         var eventActionArg = Expression.Parameter(typeof(IEventAction), "eventAction");
         ParameterExpression[]? runParameters = null;
         if (parameterTypes.Length > 0)
@@ -43,37 +45,20 @@ public class BindEventTest
                 runParameters[i] = Expression.Parameter(parameterTypes[i]);
             }
         }
+        
+        // eg: _ => eventAction.Run(context, null)
+        var runExpression = Expression.Lambda(actionType,
+            Expression.Call(eventActionArg, runMethodInfo, contextArg, Expression.Constant(null)), 
+            runParameters);
 
-        var runExpression = Expression.Lambda(actionType,Expression.Call(eventActionArg, runMethodInfo, contextArg), runParameters);
+        var castWidget = Expression.Convert(widgetArg, widgetType);
+        var memberAccess = Expression.MakeMemberAccess(castWidget, eventPropInfo);
+        var assignExpression = Expression.Assign(memberAccess, runExpression);
+
+        var lambda = Expression.Lambda<Action<IDynamicContext, Widget, IEventAction>>(
+            assignExpression, contextArg, widgetArg, eventActionArg);
+            //.Compile();
     }
     
-    private static Type[] GetDelegateParameterTypes(Type d)
-    {
-        if (d.BaseType != typeof(MulticastDelegate))
-            throw new ArgumentException("Not a delegate.", nameof(d));
-
-        var invoke = d.GetMethod("Invoke");
-        if (invoke == null)
-            throw new ArgumentException("Not a delegate.", nameof(d));
-
-        ParameterInfo[] parameters = invoke.GetParameters();
-        Type[] typeParameters = new Type[parameters.Length];
-        for (int i = 0; i < parameters.Length; i++)
-        {
-            typeParameters[i] = parameters[i].ParameterType;
-        }
-        return typeParameters;
-    }
-
-    private static Type GetDelegateReturnType(Type d)
-    {
-        if (d.BaseType != typeof(MulticastDelegate))
-            throw new ArgumentException("Not a delegate.", nameof(d));
-
-        var invoke = d.GetMethod("Invoke");
-        if (invoke == null)
-            throw new ArgumentException("Not a delegate.", nameof(d));
-
-        return invoke.ReturnType;
-    }
+    
 }
