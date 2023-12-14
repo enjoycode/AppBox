@@ -211,6 +211,12 @@
     function OnTextInput(s) {
         DotNet.invokeMethod(_asmName, "OnTextInput", s)
     }
+    
+    function SetInputRect(x, y, w, h) {
+        _htmlInput.style.left = x
+        _htmlInput.style.top = y + h
+        _htmlInput.style.width = w
+    }
 
     function StopTextInput() {
         _htmlInput.blur();
@@ -234,7 +240,7 @@
             DotNet.invokeMethod(_asmName, "OnInvalidate")
         });
     }
-
+    
     async function ClipboardWriteText(text) {
         await navigator.clipboard.writeText(text)
     }
@@ -256,7 +262,10 @@
         let wsurl = "ws://localhost:5137/ws"
         let glHandel = GetGLContext()
         let routePath = document.location.hash.length > 0 ? document.location.hash.substring(1) : null
-        await DotNet.invokeMethodAsync(_asmName, "Run", wsurl, glHandel, window.innerWidth, window.innerHeight, window.devicePixelRatio, routePath)
+        let isMacOS = navigator.userAgent.includes("Mac")
+        await DotNet.invokeMethodAsync(_asmName, "Run", wsurl, glHandel, 
+            window.innerWidth, window.innerHeight, window.devicePixelRatio, 
+            routePath, isMacOS)
         BindEvents()
     }
 </script>

@@ -21,7 +21,8 @@ public static class Program
     }
 
     [JSInvokable]
-    public static async Task Run(string wsurl, int glHandle, int width, int height, float ratio, string? routePath)
+    public static async Task Run(string wsurl, int glHandle, int width, int height, float ratio,
+        string? routePath, bool isMacOS)
     {
         //初始化通讯
         Channel.Init(new WebSocketChannel(new Uri(wsurl)));
@@ -43,7 +44,7 @@ public static class Program
             mainRoutes.InjectRoute(devRoute);
         }
 
-        BlazorApplication.Run(() => homePage, glHandle, width, height, ratio, routePath);
+        BlazorApplication.Run(() => homePage, glHandle, width, height, ratio, routePath, isMacOS);
     }
 }
 
