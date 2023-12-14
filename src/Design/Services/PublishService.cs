@@ -131,7 +131,9 @@ internal static class PublishService
         //Log.Debug(newRootNode.ToFullString());
 
         var docName = $"{appName}.Services.{model.Name}";
-        var newTree = SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs", encoding: Encoding.UTF8);
+        var newTree = SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs", 
+            options: TypeSystem.ParseOptions,
+            encoding: Encoding.UTF8);
 
         //生成服务模型依赖的其他模型的运行时代码
         var usagesTree = codegen.GetUsagesTree();
@@ -141,7 +143,8 @@ internal static class PublishService
         var asmVersion = $"{newModelVersion >> 24}.{(newModelVersion >> 16) & 0xFF}.{newModelVersion & 0xFFFF}";
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
             CodeUtil.ServiceGlobalUsings() +
-            $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly:TargetFramework(\".NETStandard, Version = v2.1\")][assembly: AssemblyVersion(\"{asmVersion}\")]");
+            $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]",
+            TypeSystem.ParseOptions);
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary /*, false*/)
             .WithNullableContextOptions(NullableContextOptions.Enable)
             .WithOptimizationLevel(forDebug ? OptimizationLevel.Debug : OptimizationLevel.Release);
@@ -374,7 +377,7 @@ internal static class PublishService
         if (model.SqlStoreOptions != null) //映射至第三方数据库的需要删除相应的表
         {
             if (IsDbFirstSqlStore(hub, model)) return; //忽略DbFirst
-            
+
             var sqlStore = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
             var sqlTxn = await MakeOtherStoreTxn(model.SqlStoreOptions.StoreModelId, otherStoreTxns);
             await sqlStore.DropTableAsync(model, sqlTxn, hub);
