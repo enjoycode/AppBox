@@ -29,7 +29,7 @@ public sealed class DynamicValueState : IDynamicValueState
             _runtimeValue?.NotifyValueChanged();
         }
     }
-    
+
     public State GetRuntimeValue(DynamicState state)
     {
         if (_runtimeValue != null) return _runtimeValue;
@@ -93,8 +93,14 @@ public sealed class DynamicValueState : IDynamicValueState
         if (Source == DynamicStateValueSource.Expression)
             throw new NotImplementedException();
 
-        var valueType = state.GetValueStateValueType();
-        Value = JsonSerializer.Deserialize(ref reader, valueType);
+        var peekReader = reader; // maybe null when not AllowNull, eg: Value: {"Primitive": null}
+        peekReader.Read();
+        if (peekReader.TokenType != JsonTokenType.Null)
+        {
+            var valueType = state.GetValueStateValueType();
+            Value = JsonSerializer.Deserialize(ref reader, valueType);
+        }
+
         reader.Read(); // }
     }
 
