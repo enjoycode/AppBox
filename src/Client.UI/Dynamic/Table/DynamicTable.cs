@@ -15,6 +15,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
     private string? _dataset;
     private TableColumnSettings[]? _columns;
     private TableFooterCell[]? _footer;
+    private TableStyles? _styles;
     [JsonIgnore] private IDynamicContext? _dynamicContext;
 
     [JsonIgnore] internal DataGridController<DynamicEntity> Controller { get; } = new();
@@ -59,6 +60,16 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         {
             _footer = value;
             OnFooterChanged();
+        }
+    }
+
+    public TableStyles? Styles
+    {
+        get => _styles;
+        set
+        {
+            _styles = value;
+            Controller.DataGrid.Theme = _styles == null ? DataGridTheme.Default : _styles.ToRuntimeStyles();
         }
     }
 

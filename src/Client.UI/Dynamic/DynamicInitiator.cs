@@ -45,6 +45,7 @@ public static class DynamicInitiator
                 new("DataSet", typeof(string), true, editorName: DataSetEditorName),
                 new("Columns", typeof(TableColumnSettings[]), true),
                 new("Footer", typeof(TableFooterCell[]), true),
+                new("Styles", typeof(TableStyles), true),
             });
 
         //注册图表动态组件

@@ -33,6 +33,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         PropertyEditor.RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<TableColumnSettings[], TableColumnsPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<TableFooterCell[], TableFooterPropEditor>(true);
+        PropertyEditor.RegisterClassValueEditor<TableStyles, TableStylesPropEditor>(true);
         // 初始化其他事件编辑器
         EventEditor.Register(nameof(FetchDataSet), (e, m, a) => new FetchDataSetEditor(e, m, a));
     }
