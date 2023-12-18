@@ -18,8 +18,11 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
     {
         var field = Column.Observe(nameof(TextColumnSettings.Field),
             s => s.Field, (s, v) => s.Field = v);
+        var autoMergeCells = Column.Observe(nameof(TextColumnSettings.AutoMergeCells),
+            s => s.AutoMergeCells, (s, v) => s.AutoMergeCells = v);
 
         yield return ("Field:", field, new Select<string>(field!) { Ref = _fieldRef });
+        yield return ("MergeCells:", autoMergeCells, new Switch(autoMergeCells));
     }
 
     protected override void OnMounted() => FetchDataSetFields();

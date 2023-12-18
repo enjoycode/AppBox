@@ -10,8 +10,10 @@ internal sealed class TableStylesDialog : Dialog
     {
         Title.Value = "Table Styles";
         Width = 350;
-        Height = 450;
+        Height = 380;
+        
         _styles = styles;
+        _element = element;
     }
 
     private readonly TableStyles _styles;
