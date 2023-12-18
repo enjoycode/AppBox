@@ -18,6 +18,8 @@ internal sealed class TableFooterEditor : SingleChildWidget
             s => s.EndColumn, (s, v) => s.EndColumn = v);
         var text = obj.Observe(nameof(TableFooterCell.Text),
             s => s.Text, (s, v) => s.Text = v);
+        var decimals = obj.Observe(nameof(TableFooterCell.Decimals),
+            s => s.Decimals, (s, v) => s.Decimals = v);
 
         Child = new Form()
         {
@@ -28,6 +30,7 @@ internal sealed class TableFooterEditor : SingleChildWidget
                 new("BeginColumn:", new NumberInput<int>(begin)),
                 new("EndColumn:", new NumberInput<int>(end)),
                 new("Text:", new TextInput(text)),
+                new("Decimals:", new NumberInput<int>(decimals)),
             }
         };
     }

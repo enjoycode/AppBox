@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using AppBoxCore;
@@ -21,6 +22,7 @@ public sealed class TableFooterCell : INotifyPropertyChanged
     private int _endColumn;
     private string _text = string.Empty;
     private TableFooterCellType _type;
+    private int _decimals;
 
     public int BeginColumn
     {
@@ -46,8 +48,14 @@ public sealed class TableFooterCell : INotifyPropertyChanged
         set => SetField(ref _type, value);
     }
 
+    public int Decimals
+    {
+        get => _decimals;
+        set => SetField(ref _decimals, value);
+    }
+
     public TableFooterCell Clone() => new()
-        { BeginColumn = BeginColumn, EndColumn = EndColumn, Text = Text, Type = Type };
+        { BeginColumn = BeginColumn, EndColumn = EndColumn, Text = Text, Type = Type, Decimals = Decimals };
 
     internal DataGridFooterCell Build(DynamicTable table)
     {
@@ -89,13 +97,14 @@ public sealed class TableFooterCell : INotifyPropertyChanged
             return "0";
 
         Func<DynamicEntity, double> getFieldValue = t => t.HasValue(fieldName) ? (t[fieldName].ToDouble() ?? 0.0) : 0.0;
-        var agg = 0.0;
-        if (Type == TableFooterCellType.Sum)
-            agg = dataView.Sum(getFieldValue);
-        else if (Type == TableFooterCellType.Avg)
-            agg = dataView.Average(getFieldValue);
+        var agg = Type switch
+        {
+            TableFooterCellType.Sum => dataView.Sum(getFieldValue),
+            TableFooterCellType.Avg => dataView.Average(getFieldValue),
+            _ => 0.0
+        };
 
-        return agg.ToString();
+        return _decimals >= 0 ? agg.ToString($"F{_decimals}") : agg.ToString(CultureInfo.InvariantCulture);
     }
 
     private static void GetLeafColumns(TableColumnSettings column, List<TableColumnSettings> leafColumns)
