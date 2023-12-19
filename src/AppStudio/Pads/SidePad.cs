@@ -24,7 +24,7 @@ namespace AppBoxDesign
             {
                 Padding = EdgeInsets.Only(5, 0, 0, 0),
                 Width = 45,
-                BgColor = new Color(43, 49, 56),
+                FillColor = new Color(43, 49, 56),
                 Child = new Column
                 {
                     Children =
@@ -83,7 +83,7 @@ namespace AppBoxDesign
                     {
                         DebugLabel = "SidePad",
                         Padding = EdgeInsets.All(5),
-                        Width = 250, BgColor = new Color(0xFFF3F3F3),
+                        Width = 250, FillColor = new Color(0xFFF3F3F3),
                         Child = new Conditional<SidePadType>(designStore.ActiveSidePad)
                             .When(t => t == SidePadType.DesignTree, () => new DesignTreePad(designStore))
                             .When(t => t == SidePadType.Outline, () => new OutlinePad(designStore))

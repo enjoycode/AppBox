@@ -54,9 +54,9 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 
     private static Widget BuildActionBar()
     {
-        return new Container()
+        return new Container
         {
-            BgColor = new Color(0xFF3C3C3C), Height = 40,
+            FillColor = new Color(0xFF3C3C3C), Height = 40,
             Padding = EdgeInsets.Only(15, 8, 15, 8),
             Child = new Row(VerticalAlignment.Middle, 10)
             {

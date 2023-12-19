@@ -38,7 +38,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private Widget BuildActionBar() => new Container
     {
-        BgColor = new Color(0xFFF5F7FA),
+        FillColor = new Color(0xFFF5F7FA),
         Height = 45,
         Padding = EdgeInsets.All(8),
         Child = new Row(VerticalAlignment.Middle, 10)

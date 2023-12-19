@@ -31,7 +31,7 @@ internal sealed class MembersDesigner : View
                 },
                 new Container()
                 {
-                    BgColor = new Color(0xFFF3F3F3),
+                    FillColor = new Color(0xFFF3F3F3),
                     Width = 280,
                     Child = new EntityPropertyPanel(entityModel, selectedMember)
                 }

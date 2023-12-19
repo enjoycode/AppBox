@@ -8,7 +8,7 @@ internal sealed class MainMenuPad : View
     {
         Child = new Container
         {
-            Height = 45, BgColor = _bgColor,
+            Height = 45, FillColor = _bgColor,
             Child = new Row
             {
                 Children =

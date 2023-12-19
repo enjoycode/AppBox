@@ -26,7 +26,7 @@ internal sealed class EntityPropertyPanel : View
 {
     public EntityPropertyPanel(EntityModelVO entityModel, State<EntityMemberVO?> selectedMember)
     {
-        _selectedMember = Bind(selectedMember, OnSelectedMemberChanged);
+        Bind(ref _selectedMember!, selectedMember, OnSelectedMemberChanged);
         _rxEntityField = new RxEntityField((EntityFieldVO?)_selectedMember.Value);
         var isEntityField = _selectedMember
             .ToStateOfBool(v => v is { Type: EntityMemberType.EntityField });
@@ -41,9 +41,9 @@ internal sealed class EntityPropertyPanel : View
                     LabelWidth = _labelWidth,
                     Children =
                     {
-                        new ("DataStoreKind:", new TextInput("SqlStore") { Readonly = true }),
-                        new ("DataStoreName:", new TextInput("Default") { Readonly = true }),
-                        new ("Comment:", new TextInput("")),
+                        new("DataStoreKind:", new TextInput("SqlStore") { Readonly = true }),
+                        new("DataStoreName:", new TextInput("Default") { Readonly = true }),
+                        new("Comment:", new TextInput("")),
                     }
                 },
                 new IfConditional(isEntityField,
@@ -53,9 +53,9 @@ internal sealed class EntityPropertyPanel : View
                     LabelWidth = _labelWidth,
                     Children =
                     {
-                        new ("Name:", new TextInput(_rxEntityField.Name)),
-                        new ("FieldType:", new TextInput(_rxEntityField.FieldType.ToStateOfString())),
-                        new ("Comment:", new TextInput(_rxEntityField.Comment))
+                        new("Name:", new TextInput(_rxEntityField.Name)),
+                        new("FieldType:", new TextInput(_rxEntityField.FieldType.ToStateOfString())),
+                        new("Comment:", new TextInput(_rxEntityField.Comment))
                     }
                 })
             }

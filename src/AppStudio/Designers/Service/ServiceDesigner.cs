@@ -49,7 +49,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
     {
         return new Container()
         {
-            BgColor = new Color(0xFF3C3C3C), Height = 40,
+            FillColor = new Color(0xFF3C3C3C), Height = 40,
             Padding = EdgeInsets.Only(15, 8, 15, 8),
             Child = new Row(VerticalAlignment.Middle, 10)
             {

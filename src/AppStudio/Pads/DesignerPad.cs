@@ -14,7 +14,7 @@ namespace AppBoxDesign
             _designStore.DesignerController.TabAdded += OnDesignerOpened;
             _designStore.DesignerController.TabClosed += OnDesignerClosed;
 
-            BgColor = Colors.White;
+            FillColor = Colors.White;
 
             Child = new IfConditional(_isOpenedAnyDesigner,
                 () => new TabView<DesignNodeVO>(_designStore.DesignerController, BuildTab, BuildBody, true, 40)
@@ -73,7 +73,7 @@ namespace AppBoxDesign
             return new Container()
             {
                 Padding = EdgeInsets.All(10),
-                BgColor = Colors.White,
+                FillColor = Colors.White,
                 Child = new Text(node.Label),
             };
         }

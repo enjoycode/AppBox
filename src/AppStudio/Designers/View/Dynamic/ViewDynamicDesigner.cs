@@ -53,7 +53,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                 {
                     Height = 40,
                     Padding = EdgeInsets.All(5),
-                    BgColor = Colors.Gray,
+                    FillColor = Colors.Gray,
                     Child = new Row(VerticalAlignment.Middle, 5f)
                     {
                         Children =

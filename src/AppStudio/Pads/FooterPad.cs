@@ -9,7 +9,7 @@ namespace AppBoxDesign
             Child = new Container
             {
                 Height = 25,
-                BgColor = new Color(0xFFCC653A),
+                FillColor = new Color(0xFFCC653A),
                 Child = new Center
                 {
                     Child = new Text("enjoycode@icloud.com") { TextColor = Colors.White }

@@ -78,7 +78,7 @@ internal sealed class BottomPad : View
         return new Container()
         {
             Padding = EdgeInsets.All(10),
-            BgColor = Colors.White,
+            FillColor = Colors.White,
             Child = new Text(title),
         };
     }
