@@ -21,12 +21,12 @@ public sealed class WebSession : IDeveloperSession, IDisposable
     public bool IsExternal => false;
     public string Tag => string.Empty;
 
-    public int SessionId { get; } = 0;
+    public int SessionId { get; }
 
     public int Levels => _treePath.Level;
 
-    public Guid LeafOrgUnitId => Guid.Empty;
-    public Guid EmploeeId => Guid.Empty;
+    public Guid LeafOrgUnitId => (Guid)_treePath[0].Id;
+    public Guid EmploeeId => LeafOrgUnitId;
     public Guid ExternalId => Guid.Empty;
 
     public TreePathNode this[int index] => _treePath[index];
