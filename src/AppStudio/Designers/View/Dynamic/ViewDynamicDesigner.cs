@@ -80,7 +80,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     private readonly DesignController _designController = new();
     private readonly Toolbox _toolboxPad;
     private readonly DynamicOutlinePad _outlinePad;
-    private bool _hasLoadSourceCode = false;
+    private bool _hasLoadSourceCode;
 
     public ModelNodeVO ModelNode { get; }
 
@@ -129,12 +129,12 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
     public Task RefreshAsync()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void GotoDefinition(ReferenceVO reference)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public Widget? GetOutlinePad() => _outlinePad;
