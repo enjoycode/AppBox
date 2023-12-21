@@ -69,7 +69,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         set
         {
             _styles = value;
-            Controller.DataGrid.Theme = _styles == null ? DataGridTheme.Default : _styles.ToRuntimeStyles();
+            Controller.Theme = _styles == null ? DataGridTheme.Default : _styles.ToRuntimeStyles();
         }
     }
 
@@ -139,7 +139,8 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
             var borderColor = DataGridTheme.Default.BorderColor;
 
             DataGridPainter.PaintCellBorder(canvas, rect, borderColor);
-            using var ph = DataGridPainter.BuildCellParagraph(rect, CellStyle.AlignCenter(), "No Columns for Table", 1);
+            using var ph = DataGridPainter.BuildCellParagraph(rect, CellStyle.AlignCenter(),
+                Controller.Theme.DefaultRowCellStyle, "No Columns for Table", 1);
             DataGridPainter.PaintCellParagraph(canvas, rect, DataGridTheme.Default.DefaultRowCellStyle, ph);
             return;
         }
