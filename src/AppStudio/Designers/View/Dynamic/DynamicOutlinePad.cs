@@ -90,6 +90,8 @@ internal sealed class DynamicOutlinePad : View
             return;
         }
 
-        _inspector = Inspector.Show(_treeController.FirstSelectedNode.Data.Element);
+        var element = _treeController.FirstSelectedNode.Data.Element;
+        _inspector = Inspector.Show(element);
+        _designController.Select(element); //同时选中
     }
 }

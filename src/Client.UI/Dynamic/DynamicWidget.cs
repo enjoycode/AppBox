@@ -179,7 +179,21 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             if (propName == "Type")
             {
                 reader.Read();
-                meta = DynamicWidgetManager.GetByName(reader.GetString()!);
+                var type = reader.GetString();
+                if (string.IsNullOrEmpty(type))
+                {
+                    //element is a placeholder
+                    reader.Read();
+                    reader.Read();
+                    var width = reader.GetSingle();
+                    reader.Read();
+                    reader.Read();
+                    var height = reader.GetSingle();
+                    result = new Container { Width = width, Height = height };
+                    continue;
+                }
+
+                meta = DynamicWidgetManager.GetByName(type);
                 result = meta.CreateInstance();
             }
             else if (propName == "Events")
