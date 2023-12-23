@@ -81,7 +81,7 @@ internal static class PublishService
             {
                 var sqlConn = sqlTxn.Connection;
                 await sqlTxn.CommitAsync();
-                sqlConn.Dispose();
+                sqlConn?.Dispose();
             }
 
 #if FUTURE
@@ -123,7 +123,7 @@ internal static class PublishService
         var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
         var semanticModel = await doc.GetSemanticModelAsync();
         if (semanticModel == null) throw new Exception("Can't get SemanticModel");
-        CheckSemanticErrors(semanticModel);
+        CodeGeneratorUtil.CheckSemantic(semanticModel, designNode);
 
         //转换服务模型的虚拟代码为运行时代码
         var codegen = new ServiceCodeGenerator(hub, appName, semanticModel, model);
@@ -131,7 +131,7 @@ internal static class PublishService
         //Log.Debug(newRootNode.ToFullString());
 
         var docName = $"{appName}.Services.{model.Name}";
-        var newTree = SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs", 
+        var newTree = SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs",
             options: TypeSystem.ParseOptions,
             encoding: Encoding.UTF8);
 
@@ -196,33 +196,7 @@ internal static class PublishService
     //     return dllStream.ToArray();
     // }
 
-    /// <summary>
-    /// 检查服务模型的设计时代码是否有语义错误
-    /// </summary>
-    private static void CheckSemanticErrors(SemanticModel semanticModel)
-    {
-        var diagnostics = semanticModel.GetDiagnostics();
-        if (diagnostics.Length <= 0) return;
-
-        var hasError = false;
-        var sb = new StringBuilder("语义错误:");
-        sb.AppendLine();
-        for (var i = 0; i < diagnostics.Length; i++)
-        {
-            var error = diagnostics[i];
-            if (error.WarningLevel != 0) continue;
-
-            hasError = true;
-            sb.AppendFormat("{0}. {1} {2}{3}", i + 1, error.WarningLevel,
-                error.GetMessage(), Environment.NewLine);
-        }
-
-        if (hasError)
-            throw new Exception(sb.ToString());
-    }
-
-    private static async ValueTask<DbTransaction> MakeOtherStoreTxn(long storeId,
-        IDictionary<long, DbTransaction> txns)
+    private static async ValueTask<DbTransaction> MakeOtherStoreTxn(long storeId, IDictionary<long, DbTransaction> txns)
     {
         if (!txns.TryGetValue(storeId, out var txn))
         {

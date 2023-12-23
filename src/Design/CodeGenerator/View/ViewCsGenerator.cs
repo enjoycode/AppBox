@@ -23,7 +23,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
 
         //始终检查语义错误，防止同步过程出现问题
         var semanticModel = await srcDocument.GetSemanticModelAsync();
-        CodeGeneratorUtil.CheckSemantic(semanticModel!);
+        CodeGeneratorUtil.CheckSemantic(semanticModel!, modelNode);
 
         var appName = modelNode.AppNode.Model.Name;
         return new ViewCsGenerator(hub, appName, semanticModel!, (ViewModel)modelNode.Model, forPreview);
@@ -57,8 +57,8 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     {
         var newRootNode = Visit(await SemanticModel.SyntaxTree.GetRootAsync());
         var docName = $"{AppName}.Views.{ViewModel.Name}";
-        return SyntaxFactory.SyntaxTree(newRootNode, 
-            options: TypeSystem.ParseOptions, 
+        return SyntaxFactory.SyntaxTree(newRootNode,
+            options: TypeSystem.ParseOptions,
             path: docName + ".cs",
             encoding: Encoding.UTF8);
     }

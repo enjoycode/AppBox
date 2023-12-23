@@ -8,20 +8,42 @@ namespace AppBoxDesign;
 
 internal static class CodeGeneratorUtil
 {
-    internal static void CheckSemantic(SemanticModel semanticModel)
+    /// <summary>
+    /// 检查语义错误，不成功抛出异常
+    /// </summary>
+    internal static void CheckSemantic(SemanticModel semanticModel, ModelNode modelNode)
     {
         var diagnostics = semanticModel.GetDiagnostics();
-        if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
-        {
-            var sb = new StringBuilder("语义错误:\n");
-            foreach (var error in diagnostics.Where(t => t.Severity == DiagnosticSeverity.Error))
-            {
-                sb.Append(error);
-                sb.AppendLine();
-            }
+        if (diagnostics.Length <= 0) return;
 
-            throw new Exception(sb.ToString());
+        var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (errors.Length <= 0) return;
+        
+        var sb = new StringBuilder("语义错误:");
+        sb.AppendLine();
+        for (var i = 0; i < errors.Length; i++)
+        {
+            var error = errors[i];
+            var lineSpan = error.Location.GetLineSpan();
+
+            sb.Append(i + 1);
+            sb.Append(". ");
+            sb.Append(modelNode.AppNode.Model.Name);
+            sb.Append('.');
+            sb.Append(modelNode.Model.Name);
+            sb.Append('[');
+            sb.Append(lineSpan.StartLinePosition.Line + 1);
+            sb.Append(',');
+            sb.Append(lineSpan.StartLinePosition.Character);
+            sb.Append("]-[");
+            sb.Append(lineSpan.EndLinePosition.Line + 1);
+            sb.Append(',');
+            sb.Append(lineSpan.EndLinePosition.Character);
+            sb.Append("]: ");
+            sb.AppendLine(error.GetMessage());
         }
+
+        throw new Exception(sb.ToString());
     }
 
     /// <summary>
