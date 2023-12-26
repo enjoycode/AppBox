@@ -12,7 +12,7 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
 {
     public TextColumnEditor(RxObject<TextColumnSettings> obj, DesignElement element) : base(obj, element) { }
 
-    private readonly WidgetRef<Select<string>> _fieldRef = new();
+    private Select<string> _fieldRef = null!;
 
     protected override IEnumerable<(string, State, Widget)> GetExtProps()
     {
@@ -21,7 +21,7 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
         var autoMergeCells = Column.Observe(nameof(TextColumnSettings.AutoMergeCells),
             s => s.AutoMergeCells, (s, v) => s.AutoMergeCells = v);
 
-        yield return ("Field:", field, new Select<string>(field!) { Ref = _fieldRef });
+        yield return ("Field:", field, new Select<string>(field!).RefBy(ref _fieldRef));
         yield return ("MergeCells:", autoMergeCells, new Switch(autoMergeCells));
     }
 
@@ -41,6 +41,6 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
         if (await dsSettings.GetRuntimeDataSet(Element.Controller.DesignCanvas) is not DynamicDataSet ds) return;
 
         var fields = ds.Fields.Select(f => f.Name).ToArray();
-        _fieldRef.Widget!.Options = fields;
+        _fieldRef.Options = fields;
     }
 }

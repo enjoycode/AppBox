@@ -16,18 +16,14 @@ internal sealed class DesktopPreviewer : View
         _controller = controller;
         _controller.InvalidateAction = Run;
 
-        Child = new Container()
-        {
-            Ref = _containerRef,
-            Child = _loading,
-        };
+        Child = new Container { Child = _loading }.RefBy(ref _containerRef);
     }
 
     private readonly PreviewController _controller;
-    private readonly WidgetRef<Container> _containerRef = new();
+    private readonly Container _containerRef = null!;
     private ViewAssemblyLoader? _assemblyLoader;
     private static readonly Widget _loading = new Center { Child = new Text("Loading....") };
-    private bool _hasLoaded = false;
+    private bool _hasLoaded;
 
     protected override void OnMounted()
     {
@@ -41,8 +37,8 @@ internal sealed class DesktopPreviewer : View
 
     private async void Run()
     {
-        _containerRef.Widget!.Child?.Dispose();
-        _containerRef.Widget!.Child = null;
+        _containerRef.Child?.Dispose();
+        _containerRef.Child = null;
         _assemblyLoader?.Unload();
         _assemblyLoader = null;
 
@@ -65,7 +61,7 @@ internal sealed class DesktopPreviewer : View
             if (previewMethod != null)
                 widget = (Widget)previewMethod.Invoke(null, null)!;
             else
-                widget = (Widget)Activator.CreateInstance(widgetType!)!;
+                widget = (Widget)Activator.CreateInstance(widgetType)!;
             widget.DebugLabel = asm.FullName;
 
 #if DEBUG
@@ -73,19 +69,19 @@ internal sealed class DesktopPreviewer : View
                 $"Load preview widget: {widget.GetType()}, ms={Stopwatch.GetElapsedTime(ts).TotalMilliseconds}");
 #endif
 
-            _containerRef.Widget.Child = widget;
+            _containerRef.Child = widget;
         }
         catch (Exception e)
         {
-            _containerRef.Widget.Child = new Center
+            _containerRef.Child = new Center
             {
                 Child = new Text($"Has Error:\n{e.Message}") { MaxLines = 20 }
             };
         }
 
-        _containerRef.Widget.Invalidate(InvalidAction.Relayout);
+        _containerRef.Relayout();
         //Sync outline view
-        _controller.CurrentWidget = _containerRef.Widget.Child;
+        _controller.CurrentWidget = _containerRef.Child;
         _controller.RefreshOutlineAction?.Invoke();
     }
 }
@@ -105,9 +101,9 @@ internal sealed class ViewAssemblyLoader : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        #if DEBUG
+#if DEBUG
         Console.WriteLine($"ViewAssemblyLoader.Load: {assemblyName.Name}");
-        #endif
+#endif
         //目前实现是所有依赖的其他模型已经打包入预览用的程序集
         return null;
     }

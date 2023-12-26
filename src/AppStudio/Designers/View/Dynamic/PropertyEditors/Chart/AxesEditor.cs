@@ -41,9 +41,9 @@ internal sealed class AxesEditor : SingleChildWidget
         {
             if (state.Value != null) state.Value.ForceStepToMin = v;
         });
-        
-        name.AddListener(v => RefreshCurrentRow());
-        labels.AddListener(v => RefreshCurrentRow());
+
+        name.AddListener(_ => RefreshCurrentRow());
+        labels.AddListener(_ => RefreshCurrentRow());
         state.AddListener(_ =>
         {
             name.NotifyValueChanged();
@@ -54,11 +54,10 @@ internal sealed class AxesEditor : SingleChildWidget
             forceMinStep.NotifyValueChanged();
         });
 
-        var allDataSet = _element.Controller.GetAllDataSet().Select(s => s.Name).ToArray();
         var formItems = new List<FormItem>
         {
             new("Name", new TextInput(name)),
-            new("Labels", new Select<string>(labels) { Ref = _labelsRef }),
+            new("Labels", new Select<string>(labels).RefBy(ref _labelsRef)),
             new("LabelsColor", new ColorEditor(labelsColor, _element)),
             new("TextSize", new NumberInput<double>(textSize)),
             new("MinStep", new NumberInput<double>(minStep)),
@@ -74,7 +73,7 @@ internal sealed class AxesEditor : SingleChildWidget
 
     private readonly DesignElement _element;
     private readonly DataGridController<ChartAxisSettings> _dataGridController;
-    private readonly WidgetRef<Select<string>> _labelsRef = new();
+    private readonly Select<string> _labelsRef = null!;
 
     protected override void OnMounted() => FetchDataSetFields();
 
@@ -92,7 +91,7 @@ internal sealed class AxesEditor : SingleChildWidget
         if (await dsSettings.GetRuntimeDataSet(_element.Controller.DesignCanvas) is not DynamicDataSet ds) return;
 
         var strings = ds.Fields.Where(f => f.IsString).Select(f => f.Name).ToArray();
-        _labelsRef.Widget!.Options = strings;
+        _labelsRef.Options = strings;
     }
 
     private void RefreshCurrentRow() //TODO:待DataGrid实现绑定单元格状态后移除

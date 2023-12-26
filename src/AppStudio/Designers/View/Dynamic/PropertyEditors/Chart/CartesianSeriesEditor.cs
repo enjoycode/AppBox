@@ -38,7 +38,7 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
         var formItems = new List<FormItem>
         {
             new("Name", new TextInput(name.ToNoneNullable())),
-            new("Field", new Select<string>(field) { Ref = _fieldRef }),
+            new("Field", new Select<string>(field).RefBy(ref _fieldRef)),
         };
         formItems.AddRange(extProps.Select(prop => new FormItem(prop.Item1, prop.Item3)));
 
@@ -51,7 +51,7 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
 
     private readonly DesignElement _element;
     private readonly DataGridController<CartesianSeriesSettings> _dataGridController;
-    private readonly WidgetRef<Select<string>> _fieldRef = new();
+    private readonly Select<string> _fieldRef = null!;
 
     protected virtual IEnumerable<ValueTuple<string, State, Widget>> GetExtProps(State<T> state)
     {
@@ -75,7 +75,7 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
 
         var numbers = ds.Fields.Where(f => f.IsNumber).Select(f => f.Name).ToArray();
         //var numbersAndDates = ds.Fields.Where(f => f.IsNumber || f.IsDateTime).Select(f => f.Name).ToArray();
-        _fieldRef.Widget!.Options = numbers;
+        _fieldRef.Options = numbers;
     }
 
     private void RefreshCurrentRow() //TODO:待DataGrid实现绑定单元格状态后移除

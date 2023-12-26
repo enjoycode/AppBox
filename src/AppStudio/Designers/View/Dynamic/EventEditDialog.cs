@@ -23,7 +23,7 @@ internal sealed class EventEditDialog : Dialog
     private readonly DesignElement _element;
     private readonly DynamicEventMeta _eventMeta;
     private readonly TreeController<ActionNode> _treeController = new();
-    private readonly WidgetRef<DynamicView> _editorView = new();
+    private DynamicView _editorView = null!;
     private IEventAction? _currentAction;
 
     protected override Widget BuildBody() => new Container
@@ -38,9 +38,9 @@ internal sealed class EventEditDialog : Dialog
                     Width = 250,
                     Child = new TreeView<ActionNode>(_treeController, BuildTreeNode, d => d.Children)
                 },
-                new Card()
+                new Card
                 {
-                    Child = new DynamicView { Ref = _editorView }
+                    Child = new DynamicView().RefBy(ref _editorView)
                 }
             }
         }
@@ -120,7 +120,7 @@ internal sealed class EventEditDialog : Dialog
         SwitchActionEditor(editor);
     }
 
-    private void SwitchActionEditor(Widget? editor) => _editorView.Widget!.ReplaceTo(editor);
+    private void SwitchActionEditor(Widget? editor) => _editorView.ReplaceTo(editor);
 
     protected override bool OnClosing(string result)
     {
