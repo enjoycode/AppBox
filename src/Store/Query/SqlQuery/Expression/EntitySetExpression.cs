@@ -1,6 +1,8 @@
+using System;
 using System.Text;
+using AppBoxCore;
 
-namespace AppBoxCore;
+namespace AppBoxStore;
 
 public sealed class EntitySetExpression : EntityPathExpression
 {
@@ -27,7 +29,7 @@ public sealed class EntitySetExpression : EntityPathExpression
         }
     }
 
-    public override void ToCode(StringBuilder sb, string? preTabs)
+    public override void ToCode(StringBuilder sb, int preTabs)
     {
         Owner!.ToCode(sb, preTabs);
         sb.Append(".");

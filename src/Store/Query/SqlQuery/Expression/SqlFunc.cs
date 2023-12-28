@@ -17,7 +17,7 @@ public sealed class SqlFunc : Expression
 
     public override ExpressionType Type => ExpressionType.DbFuncExpression;
 
-    public override void ToCode(StringBuilder sb, string? preTabs) => sb.Append($"{Name}()"); //TODO:
+    public override void ToCode(StringBuilder sb, int preTabs) => sb.Append($"{Name}()"); //TODO:
 
     public static Expression Sum(Expression field) => new SqlFunc("Sum", field);
 

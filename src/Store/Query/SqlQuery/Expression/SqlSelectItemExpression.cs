@@ -39,7 +39,7 @@ public sealed class SqlSelectItemExpression : Expression //TODO: rename to SqlSe
 
     public override ExpressionType Type => ExpressionType.SelectItemExpression;
 
-    public override void ToCode(StringBuilder sb, string? preTabs)
+    public override void ToCode(StringBuilder sb, int preTabs)
     {
         Expression.ToCode(sb, preTabs);
         sb.Append(" As ");

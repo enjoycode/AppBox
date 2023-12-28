@@ -82,7 +82,7 @@ public sealed class BinaryExpression : Expression
 //             return System.Linq.Expressions.Expression.MakeBinary(type, left, right);
 //         }
 
-    public override void ToCode(StringBuilder sb, string? preTabs)
+    public override void ToCode(StringBuilder sb, int preTabs)
     {
         //Todo:判断In,Like等特殊语法进行方法转换，否则解析器无法解析
         if (BinaryType == BinaryOperatorType.Like)

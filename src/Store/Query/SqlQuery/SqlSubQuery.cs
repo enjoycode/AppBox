@@ -30,7 +30,7 @@ public sealed class SqlSubQuery : Expression, ISqlQueryJoin
 
     public override ExpressionType Type => ExpressionType.SubQueryExpression;
 
-    public override void ToCode(StringBuilder sb, string? preTabs)
+    public override void ToCode(StringBuilder sb, int preTabs)
     {
         sb.AppendFormat("SubQuery({0})", Target); //TODO: fix target.ToCode
     }

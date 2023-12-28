@@ -25,7 +25,7 @@ public sealed class PrimitiveExpression : Expression
     //     return System.Linq.Expressions.Expression.Constant(Value); //TODO: null & type
     // }
 
-    public override void ToCode(StringBuilder sb, string? preTabs)
+    public override void ToCode(StringBuilder sb, int preTabs)
     {
         if (Value == null)
         {

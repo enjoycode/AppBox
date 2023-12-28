@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Text;
+using AppBoxCore;
 
-namespace AppBoxCore;
+namespace AppBoxStore;
 
 public sealed class EntityExpression : EntityPathExpression
 {
@@ -145,19 +148,19 @@ public sealed class EntityExpression : EntityPathExpression
                && target.User == User && Equals(target.Owner, Owner);
     }
 
-    public override void ToCode(StringBuilder sb, string? preTabs)
+    public override void ToCode(StringBuilder sb, int preTabs)
     {
         if (Equals(Owner, null))
         {
             if (string.IsNullOrEmpty(AliasName))
-                sb.Append("t");
+                sb.Append('t');
             else
                 sb.Append(AliasName);
         }
         else
         {
             Owner.ToCode(sb, preTabs);
-            sb.AppendFormat(".{0}", Name);
+            sb.Append($".{Name}");
         }
     }
 

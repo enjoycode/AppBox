@@ -7,6 +7,16 @@ public abstract class Expression
 {
     public abstract ExpressionType Type { get; }
 
+    /// <summary>
+    /// 转换为用于表达式编辑器的代码
+    /// </summary>
+    public abstract void ToCode(StringBuilder sb, int preTabs);
+
+    //TODO:直接参考FastExpressionCompiler emit code，省掉一次转换
+    public virtual LinqExpression ToLinqExpression(IExpressionContext ctx) => throw new NotSupportedException();
+
+    public static bool IsNull(Expression? exp) => Equals(exp, null);
+
     #region ====Overrides====
 
     public override int GetHashCode()
@@ -14,7 +24,7 @@ public abstract class Expression
         return ToString().GetHashCode();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return ReferenceEquals(this, obj);
     }
@@ -22,19 +32,9 @@ public abstract class Expression
     public override string ToString()
     {
         var sb = StringBuilderCache.Acquire();
-        ToCode(sb, null);
+        ToCode(sb, 0);
         return StringBuilderCache.GetStringAndRelease(sb);
     }
-
-    /// <summary>
-    /// 转换为用于表达式编辑器的代码
-    /// </summary>
-    public abstract void ToCode(StringBuilder sb, string? preTabs);
-
-    //TODO:待重构实现Emit il后移除
-    //public abstract System.Linq.Expressions.Expression ToLinqExpression(IExpressionContext ctx);
-
-    //TODO:直接参考FastExpressionCompiler emit code
 
     #endregion
 
@@ -184,12 +184,6 @@ public abstract class Expression
 
     public static implicit operator Expression(double? val) =>
         val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
-
-    #endregion
-
-    #region ====Static Help Methods====
-
-    public static bool IsNull(Expression? exp) => Equals(exp, null);
 
     #endregion
 }
