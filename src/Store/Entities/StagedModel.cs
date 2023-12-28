@@ -26,11 +26,7 @@ internal sealed class StagedModel : SqlEntity
     public byte[] Data
     {
         get => _data;
-        set
-        {
-            _data = value;
-            OnPropertyChanged(DATA_ID);
-        }
+        set => SetField(ref _data, value, DATA_ID);
     }
 
     #region ====Overrides====

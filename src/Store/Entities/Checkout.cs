@@ -27,21 +27,13 @@ internal sealed class Checkout : SqlEntity
     public string DeveloperName
     {
         get => _developerName;
-        set
-        {
-            _developerName = value;
-            OnPropertyChanged(DEVELOPERNAME_ID);
-        }
+        set => SetField(ref _developerName, value, DEVELOPERNAME_ID);
     }
 
     public int Version
     {
         get => _version;
-        set
-        {
-            _version = value;
-            OnPropertyChanged(VERSION_ID);
-        }
+        set => SetField(ref _version, value, VERSION_ID);
     }
 
     #region ====Overrides====

@@ -33,9 +33,9 @@ public sealed class PrimitiveExpression : Expression
             return;
         }
 
-        if (Value is bool)
+        if (Value is bool boolean)
         {
-            sb.Append((bool)Value == true ? "true" : "false");
+            sb.Append(boolean ? "true" : "false");
             return;
         }
 

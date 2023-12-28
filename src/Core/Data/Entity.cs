@@ -20,6 +20,13 @@ public abstract class Entity : IBinSerializable
     #region ====PropertyChanged====
 
     public event Action<short>? PropertyChanged;
+    
+    protected void SetField<T>(ref T field, T value, short memberId)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return;
+        field = value;
+        OnPropertyChanged(memberId);
+    }
 
     protected virtual void OnPropertyChanged(short memberId) => PropertyChanged?.Invoke(memberId);
 

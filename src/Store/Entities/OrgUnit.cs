@@ -21,12 +21,7 @@ internal sealed class OrgUnit : SqlEntity
     public Guid? ParentId
     {
         get => _parentId;
-        set
-        {
-            if (_parentId == value) return;
-            _parentId = value;
-            OnPropertyChanged(PARENTID_ID);
-        }
+        set => SetField(ref _parentId, value, PARENTID_ID);
     }
 
     public OrgUnit? Parent
@@ -35,14 +30,14 @@ internal sealed class OrgUnit : SqlEntity
         set
         {
             _parent = value;
-            _parentId = _parent?.Id;
+            ParentId = _parent?.Id;
         }
     }
 
     public string Name
     {
         get => _name;
-        set => _name = value;
+        set => SetField(ref _name, value, NAME_ID);
     }
 
     public SqlEntity? Base

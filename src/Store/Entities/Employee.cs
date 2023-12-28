@@ -24,56 +24,31 @@ internal sealed class Employee : SqlEntity
     public string Name
     {
         get => _name;
-        set
-        {
-            if (_name == value) return;
-            _name = value;
-            OnPropertyChanged(NAME_ID);
-        }
+        set => SetField(ref _name, value, NAME_ID);
     }
 
     public bool Male
     {
         get => _male;
-        set
-        {
-            if (_male == value) return;
-            _male = value;
-            OnPropertyChanged(MALE_ID);
-        }
+        set => SetField(ref _male, value, MALE_ID);
     }
 
     public DateTime Birthday
     {
         get => _birthday;
-        set
-        {
-            if (_birthday == value) return;
-            _birthday = value;
-            OnPropertyChanged(BIRTHDAY_ID);
-        }
+        set => SetField(ref _birthday, value, BIRTHDAY_ID);
     }
 
     public string? Account
     {
         get => _account;
-        set
-        {
-            if (_account == value) return;
-            _account = value;
-            OnPropertyChanged(ACCOUNT_ID);
-        }
+        set => SetField(ref _account, value, ACCOUNT_ID);
     }
 
     public byte[]? Password
     {
         get => _password;
-        set
-        {
-            if (_password == value) return;
-            _password = value;
-            OnPropertyChanged(PASSWORD_ID);
-        }
+        set => SetField(ref _password, value, PASSWORD_ID);
     }
 
     #region ====Overrides====
@@ -87,8 +62,7 @@ internal sealed class Employee : SqlEntity
     internal const short ACCOUNT_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short PASSWORD_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
 
-    private static readonly short[] MemberIds =
-        { ID_ID, NAME_ID, MALE_ID, BIRTHDAY_ID, ACCOUNT_ID, PASSWORD_ID };
+    private static readonly short[] MemberIds = { ID_ID, NAME_ID, MALE_ID, BIRTHDAY_ID, ACCOUNT_ID, PASSWORD_ID };
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;

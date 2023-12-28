@@ -20,12 +20,7 @@ internal sealed class Workgroup : SqlEntity
     public string Name
     {
         get => _name;
-        set
-        {
-            if (_name == value) return;
-            _name = value;
-            OnPropertyChanged(NAME_ID);
-        }
+        set => SetField(ref _name, value, NAME_ID);
     }
 
     #region ====Overrides====
