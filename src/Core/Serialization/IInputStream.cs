@@ -386,8 +386,7 @@ public static class InputStreamExtensions
         else
             serializer = TypeSerializer.GetSerializer(payloadType);
         if (serializer == null)
-            throw new SerializationException(SerializationError.CanNotFindSerializer,
-                payloadType.ToString());
+            throw new SerializationException(SerializationError.CanNotFindSerializer, payloadType.ToString());
 
         //读取附加类型信息并创建实例
         if (serializer.Creator == null &&

@@ -5,6 +5,13 @@ namespace AppBoxCore;
 
 public abstract class Expression
 {
+    //关于LinqExpression的一些限制
+    //https://github.com/bartdesmet/ExpressionFutures/tree/master/CSharpExpressions
+    // eg: System.Linq.Expressions.Expression<Func<Task<int>>> f = async () => await Task.FromResult(42);
+    
+    /// <summary>
+    /// 表达式节点类型
+    /// </summary>
     public abstract ExpressionType Type { get; }
 
     /// <summary>
@@ -12,8 +19,13 @@ public abstract class Expression
     /// </summary>
     public abstract void ToCode(StringBuilder sb, int preTabs);
 
+    /// <summary>
+    /// 获取运行时类型
+    /// </summary>
+    public virtual Type GetRuntimeType(IExpressionContext ctx) => throw new NotSupportedException();
+
     //TODO:直接参考FastExpressionCompiler emit code，省掉一次转换
-    public virtual LinqExpression ToLinqExpression(IExpressionContext ctx) => throw new NotSupportedException();
+    public virtual LinqExpression? ToLinqExpression(IExpressionContext ctx) => throw new NotSupportedException();
 
     public static bool IsNull(Expression? exp) => Equals(exp, null);
 

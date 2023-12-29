@@ -2,17 +2,13 @@ namespace AppBoxCore;
 
 public enum ExpressionType : byte
 {
-    EntityExpression,
-    EntityFieldExpression,  
-    EntitySetExpression,
-    //AggregationRefFieldExpression,
-    //EnumItemExpression,
-    KVFieldExpression,
-    PrimitiveExpression,
-
-    BinaryExpression,
-    GroupExpression,
-
+    PrimitiveExpression = 0,
+    TypeExpression = 1,
+    BinaryExpression = 2,
+    GroupExpression = 3,
+    MemberAccessExpression = 4,
+    //InvocationExpression,
+    //LambdaExpression,
     //BlockExpression,
     //EventAction,
     //AssignmentExpression,
@@ -20,15 +16,20 @@ public enum ExpressionType : byte
     //MemberAccessExpression,
     //IfStatementExpression,
     //LocalDeclaration,
-    //TypeExpression,
 
-    SubQueryExpression,   //TODO: rename
+    EntityExpression = 200,
+    EntityFieldExpression,
+    EntitySetExpression,
+    KVFieldExpression,
+    
+    //AggregationRefFieldExpression,
+    //EnumItemExpression,
+
+    SubQueryExpression, //TODO: rename
     SelectItemExpression, //TODO: rename
-
-    //InvocationExpression,
+    
     DbFuncExpression,
     DbParameterExpression,
-    //LambdaExpression,
 
     //FormCreationExpression,
     //ArrayCreationExpression,

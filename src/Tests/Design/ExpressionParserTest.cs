@@ -1,8 +1,8 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
+using AppBoxCore;
+using AppBoxDesign.CodeGenerator;
 using NUnit.Framework;
+using LinqExp = System.Linq.Expressions.Expression;
 
 namespace Tests.Design;
 
@@ -11,34 +11,28 @@ public class ExpressionParserTest
     [Test]
     public void ParseTest()
     {
-        const string code = @"using System;
-public static class Expression
-{
-    private static int v = 1;
-    public static object? Method()
-    {
-        //return DateTime.Now;
-        return v;
-    }
-}
-";
+        const string code = """
+                            using System;
+                            public static class Expression
+                            {
+                                public static object? Method()
+                                {
+                                    return System.DateTime.Now;
+                                }
+                            }
+                            """;
 
-        var parseOptions = new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11);
-        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-            .WithNullableContextOptions(NullableContextOptions.Enable);
+        var exp = ExpressionParser.ParseCode(code);
+        //var expString = exp.ToString();
+        var ctx = new ExpressionContext();
+        var body = exp.ToLinqExpression(ctx)!;
+        var lambda = LinqExp.Lambda<Func<DateTime>>(body);
+        var func = lambda.Compile();
+        var res = func();
 
-        var tree = CSharpSyntaxTree.ParseText(code, parseOptions);
-        var root = tree.GetCompilationUnitRoot();
-        var compilation = CSharpCompilation.Create("Expression", options: compilationOptions)
-            .AddReferences(MetadataReference.CreateFromFile(typeof(string).Assembly.Location))
-            .AddSyntaxTrees(tree);
-        var semanticModel = compilation.GetSemanticModel(tree);
-        var diagnostics = semanticModel.GetDiagnostics();
-
-        var returnNode = root.DescendantNodes()
-            .OfType<ReturnStatementSyntax>()
-            .Single();
-        // var memberAccess = (MemberAccessExpressionSyntax) returnNode.Expression!;
-        // var symbolInfo = semanticModel.GetSymbolInfo(memberAccess.Expression);
+        // var lambda = FastExp.Lambda<Func<DateTime>>(exp.ToLinqExpression(ctx));
+        // var func = lambda.CompileFast();
+        // var res = func();
+        Assert.True(res.Year == DateTime.Today.Year);
     }
 }

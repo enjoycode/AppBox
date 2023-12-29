@@ -22,9 +22,5 @@
         <ProjectReference Include="..\Tools\SerializationGenerator\SerializationGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="FastExpressionCompiler.LightExpression" Version="4.0.1" />
-    </ItemGroup>
-
 
 </Project>

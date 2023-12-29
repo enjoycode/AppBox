@@ -36,6 +36,8 @@ namespace AppBoxCore
         /** 其他未知类型 */
         Object = 24,
 
+        Expression = 25,
+
         //----设计时及模型相关----
         EntityModelVO = 51,
         DesignTree = 52,

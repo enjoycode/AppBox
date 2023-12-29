@@ -1,5 +1,5 @@
-#if USE_LINQ_EXPRESSION
-global using LinqExpression = System.Linq.Expressions;
-#else
+#if USE_FAST_EXPRESSION
 global using LinqExpression = FastExpressionCompiler.LightExpression.Expression;
+#else
+global using LinqExpression = System.Linq.Expressions.Expression;
 #endif
