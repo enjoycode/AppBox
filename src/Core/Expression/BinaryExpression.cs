@@ -21,8 +21,8 @@ public sealed class BinaryExpression : Expression
     public BinaryExpression(Expression leftOperator, Expression rightOperator,
         BinaryOperatorType operatorType)
     {
-        LeftOperand = Equals(null, leftOperator) ? new PrimitiveExpression(null) : leftOperator;
-        RightOperand = Equals(null, rightOperator) ? new PrimitiveExpression(null) : rightOperator;
+        LeftOperand = Equals(null, leftOperator) ? new ConstantExpression(null) : leftOperator;
+        RightOperand = Equals(null, rightOperator) ? new ConstantExpression(null) : rightOperator;
         BinaryType = operatorType;
     }
 

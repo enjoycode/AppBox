@@ -31,5 +31,5 @@ public sealed class SqlFunc : Expression
         new(field, subQuery, BinaryOperatorType.In);
 
     public static BinaryExpression In(Expression field, IList list) =>
-        new(field, new PrimitiveExpression(list), BinaryOperatorType.In);
+        new(field, new ConstantExpression(list), BinaryOperatorType.In);
 }

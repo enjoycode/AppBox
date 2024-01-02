@@ -61,12 +61,12 @@ public abstract class Expression
 
     public BinaryExpression In(Expression list) => new(this, list, BinaryOperatorType.In);
 
-    public BinaryExpression In(IEnumerable list) => new(this, new PrimitiveExpression(list), BinaryOperatorType.In);
+    public BinaryExpression In(IEnumerable list) => new(this, new ConstantExpression(list), BinaryOperatorType.In);
 
     public BinaryExpression NotIn(Expression list) => new(this, list, BinaryOperatorType.NotIn);
 
     public BinaryExpression NotIn(IEnumerable list) =>
-        new(this, new PrimitiveExpression(list), BinaryOperatorType.NotIn);
+        new(this, new ConstantExpression(list), BinaryOperatorType.NotIn);
 
     #endregion
 
@@ -148,54 +148,54 @@ public abstract class Expression
 
     #region ====隐式转换====
 
-    public static implicit operator Expression(byte[] val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(byte[] val) => new ConstantExpression(val);
 
-    public static implicit operator Expression(bool val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(bool val) => new ConstantExpression(val);
 
     public static implicit operator Expression(bool? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(char val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(char val) => new ConstantExpression(val);
 
     public static implicit operator Expression(char? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(DateTime val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(DateTime val) => new ConstantExpression(val);
 
     public static implicit operator Expression(DateTime? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(decimal val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(decimal val) => new ConstantExpression(val);
 
     public static implicit operator Expression(decimal? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(Guid val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(Guid val) => new ConstantExpression(val);
 
     public static implicit operator Expression(Guid? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(int val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(int val) => new ConstantExpression(val);
 
     public static implicit operator Expression(int? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(long val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(long val) => new ConstantExpression(val);
 
     public static implicit operator Expression(long? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(string val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(string val) => new ConstantExpression(val);
 
-    public static implicit operator Expression(float val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(float val) => new ConstantExpression(val);
 
     public static implicit operator Expression(float? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
-    public static implicit operator Expression(double val) => new PrimitiveExpression(val);
+    public static implicit operator Expression(double val) => new ConstantExpression(val);
 
     public static implicit operator Expression(double? val) =>
-        val.HasValue ? new PrimitiveExpression(val.Value) : new PrimitiveExpression(null);
+        val.HasValue ? new ConstantExpression(val.Value) : new ConstantExpression(null);
 
     #endregion
 }

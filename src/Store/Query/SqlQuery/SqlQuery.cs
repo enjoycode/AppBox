@@ -337,7 +337,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         {
             foreach (var fk in TreeParentMember.FKMemberIds)
             {
-                AndWhere(t => t[model.GetMember(fk)!.Name] == new PrimitiveExpression(null));
+                AndWhere(t => t[model.GetMember(fk)!.Name] == new ConstantExpression(null));
             }
         }
 

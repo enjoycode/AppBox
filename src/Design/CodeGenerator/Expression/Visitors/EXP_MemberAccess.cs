@@ -11,7 +11,7 @@ internal partial class ExpressionParser
     {
         var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
 
-        var owner = Visit(node.Expression);
+        var owner = node.Expression.Accept(this);
         if (Expression.IsNull(owner)) //namespace now, eg: System.DateTime
         {
             if (symbol is INamedTypeSymbol namedTypeSymbol)

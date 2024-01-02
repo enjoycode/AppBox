@@ -461,7 +461,7 @@ partial class PgSqlStore
                 BuildBinaryExpression((BinaryExpression)exp, ctx);
                 break;
             case ExpressionType.PrimitiveExpression:
-                BuildPrimitiveExpression((PrimitiveExpression)exp, ctx);
+                BuildPrimitiveExpression((ConstantExpression)exp, ctx);
                 break;
             case ExpressionType.SelectItemExpression:
                 BuildSelectItem((SqlSelectItemExpression)exp, ctx);
@@ -490,7 +490,7 @@ partial class PgSqlStore
     //     ctx.Append(")");
     // }
 
-    private void BuildPrimitiveExpression(PrimitiveExpression exp, BuildQueryContext ctx)
+    private void BuildPrimitiveExpression(ConstantExpression exp, BuildQueryContext ctx)
     {
         if (exp.Value == null)
         {
@@ -574,7 +574,7 @@ partial class PgSqlStore
 
         //判断是否在处理条件中
         if (exp.RightOperand.Type == ExpressionType.PrimitiveExpression
-            && ((PrimitiveExpression)exp.RightOperand).Value == null
+            && ((ConstantExpression)exp.RightOperand).Value == null
             && ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildWhere)
         {
             if (exp.BinaryType == BinaryOperatorType.Equal)
@@ -591,7 +591,7 @@ partial class PgSqlStore
             //右操作数
             //暂在这里特殊处理Like通配符
             if (exp.BinaryType == BinaryOperatorType.Like &&
-                exp.RightOperand is PrimitiveExpression pattern)
+                exp.RightOperand is ConstantExpression pattern)
             {
                 ctx.AppendFormat("@{0}", ctx.GetParameterName($"%{pattern.Value}%"));
             }
@@ -735,7 +735,7 @@ partial class PgSqlStore
                 return fieldModel.FieldType == EntityFieldType.String;
             }
             case ExpressionType.PrimitiveExpression:
-                return ((PrimitiveExpression)exp).Value is string;
+                return ((ConstantExpression)exp).Value is string;
             //case ExpressionType.InvocationExpression:
             //    throw new NotImplementedException(); //TODO:根据系统函数判断
             default:

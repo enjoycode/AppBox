@@ -7,6 +7,7 @@ public enum ExpressionType : byte
     BinaryExpression = 2,
     GroupExpression = 3,
     MemberAccessExpression = 4,
+    MethodCallExpression = 5,
     //InvocationExpression,
     //LambdaExpression,
     //BlockExpression,

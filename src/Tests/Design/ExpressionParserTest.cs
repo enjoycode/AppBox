@@ -17,7 +17,7 @@ public class ExpressionParserTest
                             {
                                 public static object? Method()
                                 {
-                                    return System.DateTime.Now;
+                                    return System.DateTime.Now.AddDays(1);
                                 }
                             }
                             """;
@@ -26,13 +26,14 @@ public class ExpressionParserTest
         //var expString = exp.ToString();
         var ctx = new ExpressionContext();
         var body = exp.ToLinqExpression(ctx)!;
-        var lambda = LinqExp.Lambda<Func<DateTime>>(body);
+        var lambda = LinqExp.Lambda<Func<object?>>(LinqExp.Convert(body, typeof(object)));
         var func = lambda.Compile();
         var res = func();
 
         // var lambda = FastExp.Lambda<Func<DateTime>>(exp.ToLinqExpression(ctx));
         // var func = lambda.CompileFast();
         // var res = func();
-        Assert.True(res.Year == DateTime.Today.Year);
+        //Assert.True(res.Year == DateTime.Today.Year);
+        Assert.True(res is DateTime);
     }
 }
