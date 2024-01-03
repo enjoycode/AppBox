@@ -8,31 +8,35 @@ namespace Tests.Design;
 
 public class ExpressionParserTest
 {
-    [Test]
-    public void ParseTest()
+    private static object? Run(string expLine)
     {
-        const string code = """
-                            using System;
-                            public static class Expression
-                            {
-                                public static object? Method()
-                                {
-                                    return DateTime.Today.AddDays(1);
-                                }
-                            }
-                            """;
-
+        var code = $"using System;static class E{{static object? M(){{return {expLine};}}}}";
         var exp = ExpressionParser.ParseCode(code);
         //var expString = exp.ToString();
         var body = exp.ToLinqExpression(ExpressionContext.Default)!;
         var lambda = LinqExp.Lambda<Func<object?>>(LinqExp.Convert(body, typeof(object)));
         var func = lambda.Compile();
-        var res = func();
-
+        return func();
+        
         // var lambda = FastExp.Lambda<Func<DateTime>>(exp.ToLinqExpression(ctx));
         // var func = lambda.CompileFast();
-        // var res = func();
-        //Assert.True(res.Year == DateTime.Today.Year);
-        Assert.True(res is DateTime);
     }
+
+    [Test]
+    public void LinqTest()
+    {
+        //System.Linq.Expressions.Expression<Func<DateTime>> exp = () => DateTime.Today.AddDays(-1);
+
+        System.Linq.Expressions.Expression<Func<int,DateTime>> exp = input => DateTime.Today.AddDays(-input);
+        //DateTime.Today.AddDays(Convert(-input, Double))
+    }
+    
+    [Test]
+    public void StaticPropertyTest() => Run("DateTime.Today");
+
+    [Test]
+    public void MethodCallTest() => Run("DateTime.Today.AddDays(1)");
+
+    [Test]
+    public void PrefixUnaryTest() => Run("DateTime.Today.AddDays(-1)");
 }

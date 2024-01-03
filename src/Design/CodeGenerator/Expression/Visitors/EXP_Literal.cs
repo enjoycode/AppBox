@@ -12,9 +12,7 @@ internal partial class ExpressionParser
         var typeInfo = _semanticModel.GetTypeInfo(node);
         TypeExpression? convertedType = null;
         if (!SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeInfo.ConvertedType))
-        {
             convertedType = MakeTypeExpression((INamedTypeSymbol)typeInfo.ConvertedType!);
-        }
 
         return new ConstantExpression(node.Token.Value, convertedType);
     }
