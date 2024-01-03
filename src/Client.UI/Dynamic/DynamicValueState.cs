@@ -1,18 +1,28 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AppBoxCore;
 
 namespace PixUI.Dynamic;
 
 public enum DynamicStateValueSource
 {
+    /// <summary>
+    /// 常量值
+    /// </summary>
     Primitive,
+
+    /// <summary>
+    /// 表达式值
+    /// </summary>
     Expression
 }
 
 public sealed class DynamicValueState : IDynamicValueState
 {
-    [JsonIgnore] private State? _runtimeValue;
+    [JsonIgnore] private State? _runtimeState;
+    [JsonIgnore] private object? _expressionValue;
+    [JsonIgnore] private IDynamicContext? _cachedContext; //Only for Expression
     private object? _value;
 
     public DynamicStateValueSource Source { get; set; }
@@ -25,36 +35,95 @@ public sealed class DynamicValueState : IDynamicValueState
         get => _value;
         set
         {
+            //这里只会由设计时设置
             _value = value;
-            _runtimeValue?.NotifyValueChanged();
+            if (_runtimeState != null)
+            {
+                if (Source == DynamicStateValueSource.Expression)
+                    InitExpressionValue(_cachedContext!);
+                _runtimeState.NotifyValueChanged();
+            }
         }
     }
 
-    public State GetRuntimeValue(DynamicState state)
+    [JsonIgnore]
+    private object? ProxyValue
     {
-        if (_runtimeValue != null) return _runtimeValue;
+        get => Source == DynamicStateValueSource.Expression ? _expressionValue : _value;
+        set
+        {
+            if (Source == DynamicStateValueSource.Expression)
+                _expressionValue = value;
+            else
+                _value = value;
+            _runtimeState?.NotifyValueChanged();
+        }
+    }
 
-        //暂用RxProxy<>包装Value,考虑入参确定运行时使用RxValue<>
+    /// <summary>
+    /// 设置表达式值
+    /// </summary>
+    private void InitExpressionValue(IDynamicContext ctx)
+    {
+        _cachedContext = ctx;
+
+        if (_value == null) return;
+        if (_value is not Expression expression)
+        {
+            Notification.Error("状态值非表达式");
+            return;
+        }
+
+        try
+        {
+            var body = expression.ToLinqExpression(ExpressionContext.Default)!;
+            var convertedBody = System.Linq.Expressions.Expression.Convert(body, typeof(object));
+            var lambda = System.Linq.Expressions.Expression.Lambda<Func<object?>>(convertedBody);
+            var func = lambda.Compile();
+            _expressionValue = func();
+        }
+        catch (Exception)
+        {
+            Notification.Error("无法编译表达式");
+        }
+    }
+
+    public object? GetDesignValue(IDynamicContext ctx)
+    {
+        if (Source == DynamicStateValueSource.Expression && _expressionValue == null)
+            InitExpressionValue(ctx);
+        return ProxyValue;
+    }
+
+    public State GetRuntimeState(IDynamicContext ctx, DynamicState state)
+    {
+        if (_runtimeState != null) return _runtimeState;
+
+        if (Source == DynamicStateValueSource.Expression)
+            InitExpressionValue(ctx);
+
+        //暂用RxProxy<>包装Value,考虑根据上下文确定运行时使用RxValue<>
         switch (state.Type)
         {
             case DynamicStateType.String:
-                _runtimeValue = new RxProxy<string>(() => (Value as string) ?? string.Empty, v => Value = v);
+                _runtimeState = new RxProxy<string>(() => (ProxyValue as string) ?? string.Empty, v => ProxyValue = v);
                 break;
             case DynamicStateType.Int:
-                _runtimeValue = state.AllowNull
-                    ? new RxProxy<int?>(() => (int?)Value, v => Value = v)
-                    : new RxProxy<int>(() => Value == null ? default : (int)Value, v => Value = v);
+                _runtimeState = state.AllowNull
+                    ? new RxProxy<int?>(() => (int?)ProxyValue, v => ProxyValue = v)
+                    : new RxProxy<int>(() => ProxyValue == null ? default : (int)ProxyValue, v => ProxyValue = v);
                 break;
             case DynamicStateType.DateTime:
-                _runtimeValue = state.AllowNull
-                    ? new RxProxy<DateTime?>(() => (DateTime?)Value, v => Value = v)
-                    : new RxProxy<DateTime>(() => Value == null ? default : (DateTime)Value, v => Value = v);
+                _runtimeState = state.AllowNull
+                    ? new RxProxy<DateTime?>(() => (DateTime?)ProxyValue, v => ProxyValue = v)
+                    : new RxProxy<DateTime>(() => ProxyValue == null ? default : (DateTime)ProxyValue,
+                        v => ProxyValue = v);
                 break;
             default:
                 throw new NotImplementedException();
         }
 
-        return _runtimeValue;
+        return _runtimeState;
     }
 
     #region ====Serialization====
@@ -72,9 +141,9 @@ public sealed class DynamicValueState : IDynamicValueState
         writer.WritePropertyName(propName);
 
         if (Source == DynamicStateValueSource.Expression)
-            throw new NotImplementedException();
-
-        JsonSerializer.Serialize(writer, Value);
+            ExpressionSerialization.SerializeToJson(writer, _value as Expression);
+        else
+            JsonSerializer.Serialize(writer, _value);
         writer.WriteEndObject();
     }
 
@@ -91,14 +160,18 @@ public sealed class DynamicValueState : IDynamicValueState
         };
 
         if (Source == DynamicStateValueSource.Expression)
-            throw new NotImplementedException();
-
-        var peekReader = reader; // maybe null when not AllowNull, eg: Value: {"Primitive": null}
-        peekReader.Read();
-        if (peekReader.TokenType != JsonTokenType.Null)
         {
-            var valueType = state.GetValueStateValueType();
-            Value = JsonSerializer.Deserialize(ref reader, valueType);
+            _value = ExpressionSerialization.DeserializeFromJson(ref reader);
+        }
+        else
+        {
+            var peekReader = reader; // maybe null when not AllowNull, eg: Value: {"Primitive": null}
+            peekReader.Read();
+            if (peekReader.TokenType != JsonTokenType.Null)
+            {
+                var valueType = state.GetValueStateValueType();
+                _value = JsonSerializer.Deserialize(ref reader, valueType);
+            }
         }
 
         reader.Read(); // }

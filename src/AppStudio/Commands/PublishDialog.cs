@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AppBoxClient;
 using PixUI;
 
@@ -55,7 +56,7 @@ internal sealed class PublishDialog : Dialog
         }
     }
 
-    protected override bool OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(string result)
     {
         if (result == DialogResult.OK) //TODO: check no items to publish
             PublishAsync();

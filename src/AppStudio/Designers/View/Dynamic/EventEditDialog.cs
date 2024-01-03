@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
@@ -122,12 +123,12 @@ internal sealed class EventEditDialog : Dialog
 
     private void SwitchActionEditor(Widget? editor) => _editorView.ReplaceTo(editor);
 
-    protected override bool OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(string result)
     {
-        if (result != DialogResult.OK || _currentAction == null) return false;
+        if (result != DialogResult.OK || _currentAction == null) return new ValueTask<bool>(false);
 
         _element.Data.SetEventValue(_eventMeta.Name, _currentAction);
-        return false;
+        return new ValueTask<bool>(false);
     }
 
     #region ====ActionNode====

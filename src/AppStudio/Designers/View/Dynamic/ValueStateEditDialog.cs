@@ -1,4 +1,7 @@
 using System;
+using System.Threading.Tasks;
+using AppBoxClient;
+using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -53,16 +56,27 @@ internal sealed class ValueStateEditDialog : Dialog
         }
     };
 
-    protected override bool OnClosing(string result)
+    protected override async ValueTask<bool> OnClosing(string result)
     {
         if (result != DialogResult.OK) return false;
 
         //关闭前转换值或表达式
         if (_valuestate.Source == DynamicStateValueSource.Expression)
         {
-            //TODO: use DesignService parse string to Expression
-            Notification.Error("表达式暂未实现");
-            return true;
+            //TODO: 根据状态类型正确处理返回类型
+            var code = $"using System;static class E{{static object? M(){{return {_value.Value};}}}}";
+            try
+            {
+                var exp = await Channel.Invoke<Expression>("sys.DesignService.ParseExpression",
+                    new object?[] { code });
+                _valuestate.Value = exp;
+                return false;
+            }
+            catch (Exception)
+            {
+                Notification.Warn("无法解析表达式");
+                return true;
+            }
         }
 
         // convert string to value

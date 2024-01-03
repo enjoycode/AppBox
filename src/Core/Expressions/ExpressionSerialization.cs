@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace AppBoxCore;
 
 public static class ExpressionSerialization
@@ -61,6 +63,23 @@ public static class ExpressionSerialization
             res[i] = item;
         }
 
+        return res;
+    }
+
+    public static void SerializeToJson(Utf8JsonWriter jsonWriter, Expression? expression)
+    {
+        using var ms = new MemoryWriteStream();
+        ms.Serialize(expression);
+        var bytes = ms.Data;
+        jsonWriter.WriteBase64StringValue(bytes);
+    }
+
+    public static Expression? DeserializeFromJson(ref Utf8JsonReader jsonReader)
+    {
+        jsonReader.Read();
+        var bytes = jsonReader.GetBytesFromBase64();
+        using var ms = new MemoryReadStream(bytes);
+        var res = ms.Deserialize() as Expression;
         return res;
     }
 }

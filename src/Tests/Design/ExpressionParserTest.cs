@@ -17,15 +17,14 @@ public class ExpressionParserTest
                             {
                                 public static object? Method()
                                 {
-                                    return System.DateTime.Now.AddDays(1);
+                                    return DateTime.Today.AddDays(1);
                                 }
                             }
                             """;
 
         var exp = ExpressionParser.ParseCode(code);
         //var expString = exp.ToString();
-        var ctx = new ExpressionContext();
-        var body = exp.ToLinqExpression(ctx)!;
+        var body = exp.ToLinqExpression(ExpressionContext.Default)!;
         var lambda = LinqExp.Lambda<Func<object?>>(LinqExp.Convert(body, typeof(object)));
         var func = lambda.Compile();
         var res = func();

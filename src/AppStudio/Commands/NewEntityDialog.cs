@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using AppBoxClient;
 using PixUI;
 
@@ -43,7 +44,7 @@ internal sealed class NewEntityDialog : Dialog
         };
     }
 
-    protected override bool OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(string result)
     {
         if (result == DialogResult.OK && !string.IsNullOrEmpty(_name.Value))
             CreateAsync();

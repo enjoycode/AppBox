@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
 using PixUI;
@@ -60,7 +61,7 @@ internal sealed class RenameDialog : Dialog
         };
     }
 
-    protected override bool OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(string result)
     {
         if (result == DialogResult.OK)
             RenameAsync();

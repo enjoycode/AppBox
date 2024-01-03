@@ -35,7 +35,8 @@ public sealed class MethodCallExpression : Expression
             for (var i = 0; i < Arguments.Length; i++)
             {
                 if (i != 0) sb.Append(", ");
-                Arguments[i].ToCode(sb, preTabs);
+                if (!IsNull(Arguments[i])) //maybe null on some error
+                    Arguments[i].ToCode(sb, preTabs);
             }
         }
 

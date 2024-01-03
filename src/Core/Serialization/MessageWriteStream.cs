@@ -4,8 +4,7 @@ public sealed class MessageWriteStream : IOutputStream
 {
     #region ====Static Pool====
 
-    private static readonly ObjectPool<MessageWriteStream> Pool =
-        new ObjectPool<MessageWriteStream>(() => new MessageWriteStream(), 16);
+    private static readonly ObjectPool<MessageWriteStream> Pool = new(() => new MessageWriteStream(), 16);
 
     public static MessageWriteStream Rent()
     {

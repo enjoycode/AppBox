@@ -1,4 +1,3 @@
-
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,6 +13,9 @@ internal partial class ExpressionParser
 
         if (symbol is INamespaceSymbol)
             return null;
+
+        if (symbol is INamedTypeSymbol namedTypeSymbol)
+            return MakeTypeExpression(namedTypeSymbol);
 
         throw new NotImplementedException();
     }

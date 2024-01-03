@@ -9,6 +9,8 @@ public interface IExpressionContext
 
 public class ExpressionContext : IExpressionContext
 {
+    public static readonly ExpressionContext Default = new();
+
     private Dictionary<string, Type> _knownTypes = new()
     {
         { "bool", typeof(bool) },
