@@ -16,11 +16,13 @@ public sealed class MethodCallExpression : Expression
 
     public override ExpressionType Type => ExpressionType.MethodCallExpression;
 
-    public Expression Target { get; } = null!;
+    public Expression Target { get; private set; } = null!;
 
-    public string MethodName { get; } = null!;
+    public string MethodName { get; private set; } = null!;
 
-    public Expression[]? Arguments { get; }
+    public Expression[]? Arguments { get; private set; }
+
+    public TypeExpression[]? GenericArguments { get; private set; }
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
@@ -60,5 +62,21 @@ public sealed class MethodCallExpression : Expression
         }
 
         return LinqExpression.Call(target, MethodName, null /*TODO:*/, args);
+    }
+
+    protected internal override void WriteTo(IOutputStream writer)
+    {
+        writer.Serialize(Target);
+        writer.WriteString(MethodName);
+        writer.WriteExpressionArray(Arguments);
+        writer.WriteTypeExpressionArray(GenericArguments);
+    }
+
+    protected internal override void ReadFrom(IInputStream reader)
+    {
+        Target = (Expression)reader.Deserialize()!;
+        MethodName = reader.ReadString()!;
+        Arguments = reader.ReadExpressionArray();
+        GenericArguments = reader.ReadTypeExpressionArray();
     }
 }

@@ -2,7 +2,7 @@ namespace AppBoxCore;
 
 public enum ExpressionType : byte
 {
-    PrimitiveExpression = 0,
+    ConstantExpression = 0,
     TypeExpression = 1,
     BinaryExpression = 2,
     GroupExpression = 3,

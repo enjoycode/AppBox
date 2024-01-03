@@ -434,6 +434,12 @@ public static class OutputStreamExtensions
             return;
         }
 
+        if (value is Expression expression)
+        {
+            s.Serialize(expression);
+            return;
+        }
+
         var type = value.GetType();
         var serializer = TypeSerializer.GetSerializer(type);
         if (serializer == null)
@@ -533,6 +539,22 @@ public static class OutputStreamExtensions
         s.WriteByte((byte)PayloadType.Entity);
         s.WriteLong(value.ModelId);
         ((IBinSerializable)value).WriteTo(s);
+    }
+
+    public static void Serialize(this IOutputStream s, Expression? value)
+    {
+        if (Expression.IsNull(value))
+        {
+            s.WriteByte((byte)PayloadType.Null);
+            return;
+        }
+
+        if (CheckSerialized(s, value!)) return;
+        
+        s.Context.AddToSerialized(value!);
+        s.WriteByte((byte)PayloadType.Expression);
+        s.WriteByte((byte)value!.Type);
+        value.WriteTo(s);
     }
 
     #endregion

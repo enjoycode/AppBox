@@ -460,7 +460,7 @@ partial class PgSqlStore
             case ExpressionType.BinaryExpression:
                 BuildBinaryExpression((BinaryExpression)exp, ctx);
                 break;
-            case ExpressionType.PrimitiveExpression:
+            case ExpressionType.ConstantExpression:
                 BuildPrimitiveExpression((ConstantExpression)exp, ctx);
                 break;
             case ExpressionType.SelectItemExpression:
@@ -573,7 +573,7 @@ partial class PgSqlStore
         BuildExpression(exp.LeftOperand, ctx);
 
         //判断是否在处理条件中
-        if (exp.RightOperand.Type == ExpressionType.PrimitiveExpression
+        if (exp.RightOperand.Type == ExpressionType.ConstantExpression
             && ((ConstantExpression)exp.RightOperand).Value == null
             && ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildWhere)
         {
@@ -734,7 +734,7 @@ partial class PgSqlStore
                 var fieldModel = (EntityFieldModel)model.GetMember(e.Name, true);
                 return fieldModel.FieldType == EntityFieldType.String;
             }
-            case ExpressionType.PrimitiveExpression:
+            case ExpressionType.ConstantExpression:
                 return ((ConstantExpression)exp).Value is string;
             //case ExpressionType.InvocationExpression:
             //    throw new NotImplementedException(); //TODO:根据系统函数判断

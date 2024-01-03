@@ -16,11 +16,11 @@ public sealed class MemberAccessExpression : Expression
 
     public override ExpressionType Type => ExpressionType.MemberAccessExpression;
 
-    public Expression Expression { get; } = null!;
+    public Expression Expression { get; private set; } = null!;
 
-    public string MemberName { get; } = null!;
+    public string MemberName { get; private set; } = null!;
 
-    public bool IsField { get; }
+    public bool IsField { get; private set; }
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
@@ -37,5 +37,19 @@ public sealed class MemberAccessExpression : Expression
             throw new Exception($"Can't find member: {type.FullName}.{MemberName}");
 
         return LinqExpression.MakeMemberAccess(Expression.ToLinqExpression(ctx), memberInfo);
+    }
+
+    protected internal override void WriteTo(IOutputStream writer)
+    {
+        writer.Serialize(Expression);
+        writer.WriteString(MemberName);
+        writer.WriteBool(IsField);
+    }
+
+    protected internal override void ReadFrom(IInputStream reader)
+    {
+        Expression = (Expression)reader.Deserialize()!;
+        MemberName = reader.ReadString()!;
+        IsField = reader.ReadBool();
     }
 }

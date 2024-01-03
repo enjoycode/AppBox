@@ -378,6 +378,7 @@ public static class InputStreamExtensions
             case PayloadType.BooleanFalse: return false;
             case PayloadType.ObjectRef: return s.Context.GetDeserialized(s.ReadVariant());
             case PayloadType.Entity: return s.ReadEntity<Entity>(null);
+            case PayloadType.Expression: return s.ReadExpression();
         }
 
         TypeSerializer? serializer;
@@ -447,6 +448,15 @@ public static class InputStreamExtensions
         s.Context.AddToDeserialized(entity);
         ((IBinSerializable)entity).ReadFrom(s);
         return (T)entity;
+    }
+
+    private static Expression ReadExpression(this IInputStream s)
+    {
+        var expType = (ExpressionType)s.ReadByte();
+        var exp = ExpressionFactory.Make(expType);
+        s.Context.AddToDeserialized(exp);
+        exp.ReadFrom(s);
+        return exp;
     }
 
     #endregion

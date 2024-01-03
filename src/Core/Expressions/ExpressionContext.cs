@@ -25,12 +25,12 @@ public class ExpressionContext : IExpressionContext
     {
         //TODO:暂简单实现,maybe use cache
 
-        if (_knownTypes.TryGetValue(typeExpression.TypeFullName, out var sysType))
+        if (_knownTypes.TryGetValue(typeExpression.TypeName, out var sysType))
             return sysType;
 
-        var type = Type.GetType(typeExpression.TypeFullName);
+        var type = Type.GetType(typeExpression.TypeName);
         if (type == null)
-            throw new Exception($"Can't find type: {typeExpression.TypeFullName} ");
+            throw new Exception($"Can't find type: {typeExpression.TypeName} ");
 
         return type;
     }

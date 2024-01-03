@@ -8,7 +8,7 @@ public abstract class Expression
     //关于LinqExpression的一些限制
     //https://github.com/bartdesmet/ExpressionFutures/tree/master/CSharpExpressions
     // eg: System.Linq.Expressions.Expression<Func<Task<int>>> f = async () => await Task.FromResult(42);
-    
+
     /// <summary>
     /// 表达式节点类型
     /// </summary>
@@ -28,6 +28,14 @@ public abstract class Expression
     public virtual LinqExpression? ToLinqExpression(IExpressionContext ctx) => throw new NotSupportedException();
 
     public static bool IsNull(Expression? exp) => Equals(exp, null);
+
+    #region ====Serialization====
+
+    protected internal virtual void WriteTo(IOutputStream writer) => throw new NotSupportedException();
+
+    protected internal virtual void ReadFrom(IInputStream reader) => throw new NotSupportedException();
+
+    #endregion
 
     #region ====Overrides====
 

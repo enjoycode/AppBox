@@ -16,11 +16,11 @@ public sealed class ConstantExpression : Expression
         ConvertedType = convertedType;
     }
 
-    public object? Value { get; }
+    public object? Value { get; private set; }
 
-    public TypeExpression? ConvertedType { get; }
+    public TypeExpression? ConvertedType { get; private set; }
 
-    public override ExpressionType Type => ExpressionType.PrimitiveExpression;
+    public override ExpressionType Type => ExpressionType.ConstantExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
@@ -70,5 +70,17 @@ public sealed class ConstantExpression : Expression
         if (IsNull(ConvertedType))
             return LinqExpression.Constant(Value);
         return LinqExpression.Convert(LinqExpression.Constant(Value), ctx.ResolveType(ConvertedType!));
+    }
+
+    protected internal override void WriteTo(IOutputStream writer)
+    {
+        writer.Serialize(ConvertedType);
+        writer.Serialize(Value);
+    }
+
+    protected internal override void ReadFrom(IInputStream reader)
+    {
+        ConvertedType = reader.Deserialize() as TypeExpression;
+        Value = reader.Deserialize();
     }
 }
