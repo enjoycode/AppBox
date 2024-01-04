@@ -7,11 +7,13 @@ public sealed class MethodCallExpression : Expression
 {
     internal MethodCallExpression() { }
 
-    public MethodCallExpression(Expression target, string methodName, Expression[]? arguments = null)
+    public MethodCallExpression(Expression target, string methodName, Expression[]? arguments = null,
+        TypeExpression? convertedType = null)
     {
         Target = target;
         MethodName = methodName;
         Arguments = arguments;
+        ConvertedType = convertedType;
     }
 
     public override ExpressionType Type => ExpressionType.MethodCallExpression;
@@ -23,6 +25,8 @@ public sealed class MethodCallExpression : Expression
     public Expression[]? Arguments { get; private set; }
 
     public TypeExpression[]? GenericArguments { get; private set; }
+
+    public TypeExpression? ConvertedType { get; private set; }
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
@@ -55,14 +59,20 @@ public sealed class MethodCallExpression : Expression
             }
         }
 
-        var target = Target.ToLinqExpression(ctx);
-        if (target == null) //static method
+        LinqExpression res;
+        if (Target is TypeExpression typeInfo) //static method call
         {
-            var targetType = Target.GetRuntimeType(ctx);
-            return LinqExpression.Call(targetType, MethodName, null /*TODO:*/, args);
+            var type = ctx.ResolveType(typeInfo);
+            res = LinqExpression.Call(type, MethodName, null /*TODO:*/, args);
+        }
+        else
+        {
+            //instance method call
+            var target = Target.ToLinqExpression(ctx)!;
+            res = LinqExpression.Call(target, MethodName, null /*TODO:*/, args);
         }
 
-        return LinqExpression.Call(target, MethodName, null /*TODO:*/, args);
+        return TryConvert(res, ConvertedType, ctx);
     }
 
     protected internal override void WriteTo(IOutputStream writer)
@@ -71,6 +81,7 @@ public sealed class MethodCallExpression : Expression
         writer.WriteString(MethodName);
         writer.WriteExpressionArray(Arguments);
         writer.WriteTypeExpressionArray(GenericArguments);
+        writer.Serialize(ConvertedType);
     }
 
     protected internal override void ReadFrom(IInputStream reader)
@@ -79,5 +90,6 @@ public sealed class MethodCallExpression : Expression
         MethodName = reader.ReadString()!;
         Arguments = reader.ReadExpressionArray();
         GenericArguments = reader.ReadTypeExpressionArray();
+        ConvertedType = reader.Deserialize() as TypeExpression;
     }
 }

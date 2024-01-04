@@ -9,14 +9,10 @@ internal partial class ExpressionParser
 {
     public override Expression? VisitBinaryExpression(BinaryExpressionSyntax node)
     {
-        var typeInfo = _semanticModel.GetTypeInfo(node);
-        TypeExpression? convertedType = null;
-        if (!SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeInfo.ConvertedType))
-            convertedType = MakeTypeExpression((INamedTypeSymbol)typeInfo.ConvertedType!);
-
         var left = node.Left.Accept(this)!;
         var right = node.Right.Accept(this)!;
         var op = GetOperator(node.OperatorToken);
+        var convertedType = GetConvertedType(node);
 
         return new BinaryExpression(left, right, op, convertedType);
     }

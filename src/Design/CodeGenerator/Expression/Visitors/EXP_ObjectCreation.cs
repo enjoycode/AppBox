@@ -22,6 +22,7 @@ internal partial class ExpressionParser
             }
         }
 
-        return new NewExpression(typeExp, args);
+        var convertedType = GetConvertedType(node);
+        return new NewExpression(typeExp, args, convertedType);
     }
 }

@@ -6,15 +6,18 @@ public sealed class NewExpression : Expression
 {
     internal NewExpression() { }
 
-    public NewExpression(TypeExpression type, Expression[]? arguments = null)
+    public NewExpression(TypeExpression type, Expression[]? arguments = null, TypeExpression? convertedType = null)
     {
         TargetType = type;
         Arguments = arguments;
+        ConvertedType = convertedType;
     }
 
     public TypeExpression TargetType { get; private set; } = null!;
 
     public Expression[]? Arguments { get; private set; }
+
+    public TypeExpression? ConvertedType { get; private set; }
 
     public override ExpressionType Type => ExpressionType.NewExpression;
 
@@ -38,7 +41,6 @@ public sealed class NewExpression : Expression
 
     public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
     {
-        var objectType = TargetType.GetRuntimeType(ctx);
         var argTypes = Array.Empty<Type>();
         LinqExpression[]? args = null;
         if (Arguments is { Length: > 0 })
@@ -48,18 +50,20 @@ public sealed class NewExpression : Expression
             for (var i = 0; i < Arguments.Length; i++)
             {
                 args[i] = Arguments[i].ToLinqExpression(ctx)!;
-                argTypes[i] = args[i].Type; // Arguments[i].GetRuntimeType(ctx);
+                argTypes[i] = args[i].Type;
             }
         }
 
+        var objectType = ctx.ResolveType(TargetType);
         var ctorInfo = objectType.GetConstructor(argTypes);
-        return LinqExpression.New(ctorInfo!, args);
+        return TryConvert(LinqExpression.New(ctorInfo!, args), ConvertedType, ctx);
     }
 
     protected internal override void WriteTo(IOutputStream writer)
     {
         TargetType.WriteTo(writer);
         writer.WriteExpressionArray(Arguments);
+        writer.Serialize(ConvertedType);
         writer.WriteVariant(0); //保留
     }
 
@@ -68,6 +72,7 @@ public sealed class NewExpression : Expression
         TargetType = new TypeExpression();
         TargetType.ReadFrom(reader);
         Arguments = reader.ReadExpressionArray();
+        ConvertedType = reader.Deserialize() as TypeExpression;
         reader.ReadVariant(); //保留
     }
 }

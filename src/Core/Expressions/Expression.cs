@@ -19,15 +19,15 @@ public abstract class Expression
     /// </summary>
     public abstract void ToCode(StringBuilder sb, int preTabs);
 
-    /// <summary>
-    /// 获取运行时类型
-    /// </summary>
-    public virtual Type GetRuntimeType(IExpressionContext ctx) =>
-        throw new NotSupportedException(GetType().FullName);
-
     //TODO:直接参考FastExpressionCompiler emit code，省掉一次转换
+    /// <summary>
+    /// 转换为Linq的表达式
+    /// </summary>
     public virtual LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
         throw new NotSupportedException(GetType().FullName);
+
+    protected static LinqExpression TryConvert(LinqExpression exp, TypeExpression? toType, IExpressionContext ctx) =>
+        IsNull(toType) ? exp : LinqExpression.Convert(exp, ctx.ResolveType(toType!));
 
     public static bool IsNull(Expression? exp) => Equals(exp, null);
 

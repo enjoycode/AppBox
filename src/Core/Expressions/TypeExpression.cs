@@ -21,8 +21,6 @@ public sealed class TypeExpression : Expression
 
     public TypeExpression[]? GenericArguments { get; private set; }
 
-    public override Type GetRuntimeType(IExpressionContext ctx) => ctx.ResolveType(this);
-
     public override void ToCode(StringBuilder sb, int preTabs)
     {
         sb.Append(TypeName.StartsWith("System.") ? TypeName.AsSpan(7) : TypeName);
@@ -30,8 +28,6 @@ public sealed class TypeExpression : Expression
         if (GenericArguments is { Length: > 0 })
             throw new NotImplementedException();
     }
-
-    public override LinqExpression? ToLinqExpression(IExpressionContext ctx) => null;
 
     protected internal override void WriteTo(IOutputStream writer)
     {

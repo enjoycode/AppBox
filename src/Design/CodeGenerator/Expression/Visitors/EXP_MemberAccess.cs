@@ -18,14 +18,11 @@ internal partial class ExpressionParser
             {
                 return MakeTypeExpression(namedTypeSymbol);
             }
-            else
-            {
-                throw new NotImplementedException();
-            }
+
+            throw new NotImplementedException();
         }
-        else
-        {
-            return new MemberAccessExpression(owner!, node.Name.Identifier.Text, symbol is IFieldSymbol);
-        }
+
+        var convertedType = GetConvertedType(node);
+        return new MemberAccessExpression(owner!, node.Name.Identifier.Text, symbol is IFieldSymbol, convertedType);
     }
 }

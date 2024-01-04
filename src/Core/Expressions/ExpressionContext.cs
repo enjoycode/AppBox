@@ -11,15 +11,20 @@ public class ExpressionContext : IExpressionContext
 {
     public static readonly ExpressionContext Default = new();
 
-    private Dictionary<string, Type> _knownTypes = new()
+    private readonly Dictionary<string, Type> _knownTypes = new()
     {
         { "bool", typeof(bool) },
         { "byte", typeof(byte) },
+        { "sbyte", typeof(sbyte) },
         { "short", typeof(short) },
+        { "ushort", typeof(ushort) },
         { "int", typeof(int) },
+        { "uint", typeof(uint) },
         { "long", typeof(long) },
+        { "ulong", typeof(ulong) },
         { "float", typeof(float) },
         { "double", typeof(double) },
+        { "char", typeof(char) },
         { "string", typeof(string) },
         { "object", typeof(object) },
     };

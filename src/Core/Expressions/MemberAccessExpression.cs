@@ -7,11 +7,13 @@ public sealed class MemberAccessExpression : Expression
 {
     internal MemberAccessExpression() { }
 
-    public MemberAccessExpression(Expression expression, string memberName, bool isField)
+    public MemberAccessExpression(Expression expression, string memberName, bool isField,
+        TypeExpression? convertedType = null)
     {
         Expression = expression;
         MemberName = memberName;
         IsField = isField;
+        ConvertedType = convertedType;
     }
 
     public override ExpressionType Type => ExpressionType.MemberAccessExpression;
@@ -22,20 +24,7 @@ public sealed class MemberAccessExpression : Expression
 
     public bool IsField { get; private set; }
 
-    private MemberInfo GetMemberInfo(IExpressionContext ctx)
-    {
-        var type = Expression.GetRuntimeType(ctx);
-        MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
-        if (memberInfo == null)
-            throw new Exception($"Can't find member: {type.FullName}.{MemberName}");
-        return memberInfo;
-    }
-
-    public override Type GetRuntimeType(IExpressionContext ctx)
-    {
-        var memberInfo = GetMemberInfo(ctx);
-        return IsField ? ((FieldInfo)memberInfo).FieldType : ((PropertyInfo)memberInfo).PropertyType;
-    }
+    public TypeExpression? ConvertedType { get; private set; }
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
@@ -46,8 +35,22 @@ public sealed class MemberAccessExpression : Expression
 
     public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
     {
-        var memberInfo = GetMemberInfo(ctx);
-        return LinqExpression.MakeMemberAccess(Expression.ToLinqExpression(ctx), memberInfo);
+        LinqExpression res;
+        if (Expression is TypeExpression typeInfo) //static member access
+        {
+            var type = ctx.ResolveType(typeInfo);
+            MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
+            res = LinqExpression.MakeMemberAccess(null, memberInfo!);
+        }
+        else //instance member access
+        {
+            var instance = Expression.ToLinqExpression(ctx);
+            var type = instance!.Type;
+            MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
+            res = LinqExpression.MakeMemberAccess(instance, memberInfo!);
+        }
+
+        return TryConvert(res, ConvertedType, ctx);
     }
 
     protected internal override void WriteTo(IOutputStream writer)
@@ -55,6 +58,7 @@ public sealed class MemberAccessExpression : Expression
         writer.Serialize(Expression);
         writer.WriteString(MemberName);
         writer.WriteBool(IsField);
+        writer.Serialize(ConvertedType);
     }
 
     protected internal override void ReadFrom(IInputStream reader)
@@ -62,5 +66,6 @@ public sealed class MemberAccessExpression : Expression
         Expression = (Expression)reader.Deserialize()!;
         MemberName = reader.ReadString()!;
         IsField = reader.ReadBool();
+        ConvertedType = reader.Deserialize() as TypeExpression;
     }
 }

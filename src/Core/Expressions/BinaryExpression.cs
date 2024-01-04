@@ -59,9 +59,7 @@ public sealed class BinaryExpression : Expression
         var op = GetLinqExpressionType();
 
         LinqExpression res = LinqExpression.MakeBinary(op, left, right);
-        if (!IsNull(ConvertedType))
-            res = LinqExpression.Convert(res, ctx.ResolveType(ConvertedType!));
-        return res;
+        return TryConvert(res, ConvertedType, ctx);
     }
 
 //         public override System.Linq.Expressions.Expression ToLinqExpression(IExpressionContext ctx)
@@ -96,11 +94,6 @@ public sealed class BinaryExpression : Expression
 //             System.Linq.Expressions.ExpressionType type;
 //             return System.Linq.Expressions.Expression.MakeBinary(type, left, right);
 //         }
-
-    public override Type GetRuntimeType(IExpressionContext ctx)
-    {
-        return !IsNull(ConvertedType) ? ctx.ResolveType(ConvertedType!) : LeftOperand.GetRuntimeType(ctx);
-    }
 
     private LinqExpressionType GetLinqExpressionType() => BinaryType switch
     {

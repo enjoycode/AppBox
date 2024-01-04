@@ -38,7 +38,8 @@ public class ExpressionParserTest
         //LinqExps.Expression<Func<object>> exp = () => new List<string>();
 
         //LinqExps.Expression<Func<int, float, object>> exp = (a, b) => a >= b;
-        LinqExps.Expression<Func<int, DateTime>> exp = v => DateTime.Today.AddDays(v + 2);
+        //LinqExps.Expression<Func<int, DateTime>> exp = v => DateTime.Today.AddDays(v + 2);
+        LinqExps.Expression<Func<bool>> exp = () => Equals(new DateTime(1977, 3, 16), new DateTime(1977, 3, 16));
 
         var func = exp.Compile();
     }
@@ -49,17 +50,23 @@ public class ExpressionParserTest
     [Test]
     public void InstancePropertyTest() => Run<int>("DateTime.Today.Year");
 
-    [Test]
-    public void MethodCallTest() => Run<DateTime>("DateTime.Today.AddDays(1 + 1)");
+    [Test(Description = "方法参数是Binary且需要转换")]
+    public void MethodCallTest1() => Run<DateTime>("DateTime.Today.AddDays(1 + 1)");
 
     [Test(Description = "方法参数是MemberAccess且需要转换")]
     public void MethodCallTest2() => Run<DateTime>("DateTime.Today.AddDays(DateTime.Today.Year)");
 
-    [Test]
+    [Test(Description = "方法参数是MethodCall且需要转换")]
+    public void MethodCallTest3() => Run<DateTime>("DateTime.Today.AddDays(int.Parse(\"1\"))");
+
+    [Test(Description = "方法参数是New且需要转换")]
+    public void MethodCallTest4() => Assert.True(Run<bool>("Equals(new DateTime(1977,3,1), new DateTime(1977,3,1))"));
+
+    [Test(Description = "PrefixUnary如果是Literal直接转换为Constant")]
     public void PrefixUnaryTest() => Run<DateTime>("DateTime.Today.AddDays(-1)");
 
     [Test]
-    public void NewTest() => Run<DateTime>("new DateTime(1977,3,16)");
+    public void NewTest() => Assert.True(Run<DateTime>("new DateTime(1977,3,16)") == new DateTime(1977, 3, 16));
 
     [Test]
     public void BinaryTest1() => Assert.True(Run<float>("3 + 2.6f") == 3 + 2.6f);

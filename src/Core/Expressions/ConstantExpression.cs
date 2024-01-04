@@ -88,20 +88,8 @@ public sealed class ConstantExpression : Expression
         throw new NotSupportedException();
     }
 
-    public override Type GetRuntimeType(IExpressionContext ctx)
-    {
-        if (!IsNull(ConvertedType))
-            return ctx.ResolveType(ConvertedType!);
-
-        return Value == null ? typeof(object)/*TODO:*/ : Value.GetType();
-    }
-
-    public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
-    {
-        if (IsNull(ConvertedType))
-            return LinqExpression.Constant(Value);
-        return LinqExpression.Convert(LinqExpression.Constant(Value), ctx.ResolveType(ConvertedType!));
-    }
+    public override LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
+        TryConvert(LinqExpression.Constant(Value), ConvertedType, ctx);
 
     protected internal override void WriteTo(IOutputStream writer)
     {

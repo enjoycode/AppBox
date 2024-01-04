@@ -12,11 +12,6 @@ internal partial class ExpressionParser
         //特殊处理 eg: -1 转换为ConstantExpression
         if (node.Operand is LiteralExpressionSyntax literal && node.OperatorToken.IsKind(SyntaxKind.MinusToken))
         {
-            var typeInfo = _semanticModel.GetTypeInfo(node);
-            TypeExpression? convertedType = null;
-            if (!SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeInfo.ConvertedType))
-                convertedType = MakeTypeExpression((INamedTypeSymbol)typeInfo.ConvertedType!);
-
             var value = literal.Token.Value;
             // ReSharper disable once HeapView.BoxingAllocation
             value = value switch
@@ -36,6 +31,7 @@ internal partial class ExpressionParser
             // var method = type.GetMethod("op_UnaryNegation", BindingFlags.Static | BindingFlags.Public);
             // value = method!.Invoke(null, new[] { value });
 
+            var convertedType = GetConvertedType(node);
             return new ConstantExpression(value, convertedType);
         }
 
