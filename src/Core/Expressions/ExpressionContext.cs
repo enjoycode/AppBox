@@ -21,6 +21,7 @@ public class ExpressionContext : IExpressionContext
         { "float", typeof(float) },
         { "double", typeof(double) },
         { "string", typeof(string) },
+        { "object", typeof(object) },
     };
 
     public Type ResolveType(TypeExpression typeExpression)

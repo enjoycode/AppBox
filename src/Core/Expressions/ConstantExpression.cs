@@ -36,14 +36,45 @@ public sealed class ConstantExpression : Expression
             return;
         }
 
-        if (Value is int || Value is decimal || Value is byte || Value is float)
+        if (Value is byte or sbyte or short or ushort or int or uint or double)
         {
             sb.Append(Value);
             return;
         }
 
-        if (Value is string || Value is char || Value is Guid || Value is DateTime)
+        if (Value is float)
         {
+            sb.Append(Value);
+            sb.Append('f');
+            return;
+        }
+
+        if (Value is decimal)
+        {
+            sb.Append(Value);
+            sb.Append('m');
+            return;
+        }
+
+        if (Value is string)
+        {
+            sb.Append('"');
+            sb.Append(Value);
+            sb.Append('"');
+            return;
+        }
+
+        if (Value is char)
+        {
+            sb.Append('\'');
+            sb.Append(Value);
+            sb.Append('\'');
+            return;
+        }
+
+        if (Value is Guid || Value is DateTime)
+        {
+            //TODO:
             sb.AppendFormat("\"{0}\"", Value);
             return;
         }
@@ -62,7 +93,7 @@ public sealed class ConstantExpression : Expression
         if (!IsNull(ConvertedType))
             return ctx.ResolveType(ConvertedType!);
 
-        return Value == null ? typeof(object) : Value.GetType();
+        return Value == null ? typeof(object)/*TODO:*/ : Value.GetType();
     }
 
     public override LinqExpression? ToLinqExpression(IExpressionContext ctx)

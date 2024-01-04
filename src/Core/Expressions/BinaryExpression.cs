@@ -2,33 +2,67 @@ using System.Text;
 
 namespace AppBoxCore;
 
+using LinqExpressionType = System.Linq.Expressions.ExpressionType;
+
 public sealed class BinaryExpression : Expression
 {
+    internal BinaryExpression() { }
+
+    public BinaryExpression(Expression leftOperator, Expression rightOperator,
+        BinaryOperatorType operatorType, TypeExpression? convertedType = null)
+    {
+        LeftOperand = Equals(null, leftOperator) ? new ConstantExpression(null) : leftOperator;
+        RightOperand = Equals(null, rightOperator) ? new ConstantExpression(null) : rightOperator;
+        BinaryType = operatorType;
+        ConvertedType = convertedType;
+    }
+
     #region ====Properties====
 
-    public Expression LeftOperand { get; private set; }
+    public Expression LeftOperand { get; private set; } = null!;
 
     public BinaryOperatorType BinaryType { get; private set; }
 
-    public Expression RightOperand { get; private set; }
+    public Expression RightOperand { get; private set; } = null!;
+
+    public TypeExpression? ConvertedType { get; private set; }
 
     public override ExpressionType Type => ExpressionType.BinaryExpression;
 
     #endregion
 
-    #region ====Ctor====
+    #region ====Overrides Methods====
 
-    public BinaryExpression(Expression leftOperator, Expression rightOperator,
-        BinaryOperatorType operatorType)
+    public override void ToCode(StringBuilder sb, int preTabs)
     {
-        LeftOperand = Equals(null, leftOperator) ? new ConstantExpression(null) : leftOperator;
-        RightOperand = Equals(null, rightOperator) ? new ConstantExpression(null) : rightOperator;
-        BinaryType = operatorType;
+        //Todo:判断In,Like等特殊语法进行方法转换，否则解析器无法解析
+        if (BinaryType == BinaryOperatorType.Like)
+        {
+            sb.Append("f.Contains(");
+            LeftOperand.ToCode(sb, preTabs);
+            sb.Append(",");
+            RightOperand.ToCode(sb, preTabs);
+            sb.Append(")");
+        }
+        else
+        {
+            LeftOperand.ToCode(sb, preTabs);
+            sb.AppendFormat(" {0} ", GetBinaryOperatorTypeString());
+            RightOperand.ToCode(sb, preTabs);
+        }
     }
 
-    #endregion
+    public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
+    {
+        var left = LeftOperand.ToLinqExpression(ctx)!;
+        var right = RightOperand.ToLinqExpression(ctx)!;
+        var op = GetLinqExpressionType();
 
-    #region ====Overrides Methods====
+        LinqExpression res = LinqExpression.MakeBinary(op, left, right);
+        if (!IsNull(ConvertedType))
+            res = LinqExpression.Convert(res, ctx.ResolveType(ConvertedType!));
+        return res;
+    }
 
 //         public override System.Linq.Expressions.Expression ToLinqExpression(IExpressionContext ctx)
 //         {
@@ -60,72 +94,69 @@ public sealed class BinaryExpression : Expression
 // #endif
 //
 //             System.Linq.Expressions.ExpressionType type;
-//             switch (BinaryType)
-//             {
-//                 case BinaryOperatorType.Equal:
-//                     type = System.Linq.Expressions.ExpressionType.Equal; break;
-//                 case BinaryOperatorType.NotEqual:
-//                     type = System.Linq.Expressions.ExpressionType.NotEqual; break;
-//                 case BinaryOperatorType.Greater:
-//                     type = System.Linq.Expressions.ExpressionType.GreaterThan; break;
-//                 case BinaryOperatorType.GreaterOrEqual:
-//                     type = System.Linq.Expressions.ExpressionType.GreaterThanOrEqual; break;
-//                 case BinaryOperatorType.Less:
-//                     type = System.Linq.Expressions.ExpressionType.LessThan; break;
-//                 case BinaryOperatorType.LessOrEqual:
-//                     type = System.Linq.Expressions.ExpressionType.LessThanOrEqual; break;
-//                 default:
-//                     throw ExceptionHelper.NotImplemented();
-//             }
-//
-//
 //             return System.Linq.Expressions.Expression.MakeBinary(type, left, right);
 //         }
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override Type GetRuntimeType(IExpressionContext ctx)
     {
-        //Todo:判断In,Like等特殊语法进行方法转换，否则解析器无法解析
-        if (BinaryType == BinaryOperatorType.Like)
-        {
-            sb.Append("f.Contains(");
-            LeftOperand.ToCode(sb, preTabs);
-            sb.Append(",");
-            RightOperand.ToCode(sb, preTabs);
-            sb.Append(")");
-        }
-        else
-        {
-            LeftOperand.ToCode(sb, preTabs);
-            sb.AppendFormat(" {0} ", GetBinaryOperatorTypeString());
-            RightOperand.ToCode(sb, preTabs);
-        }
+        return !IsNull(ConvertedType) ? ctx.ResolveType(ConvertedType!) : LeftOperand.GetRuntimeType(ctx);
     }
 
-    private string GetBinaryOperatorTypeString()
+    private LinqExpressionType GetLinqExpressionType() => BinaryType switch
     {
-        return BinaryType switch
-        {
-            BinaryOperatorType.BitwiseAnd => "&",
-            BinaryOperatorType.BitwiseOr => "|",
-            BinaryOperatorType.BitwiseXor => "Xor",
-            BinaryOperatorType.Divide => "/",
-            BinaryOperatorType.Equal => "==",
-            BinaryOperatorType.Greater => ">",
-            BinaryOperatorType.GreaterOrEqual => ">=",
-            BinaryOperatorType.In => "In",
-            BinaryOperatorType.Is => "Is",
-            BinaryOperatorType.IsNot => "IsNot",
-            BinaryOperatorType.Less => "<",
-            BinaryOperatorType.LessOrEqual => "<=",
-            BinaryOperatorType.Like => "Like",
-            BinaryOperatorType.Minus => "-",
-            BinaryOperatorType.Modulo => "Mod",
-            BinaryOperatorType.Multiply => "*",
-            BinaryOperatorType.NotEqual => "!=",
-            BinaryOperatorType.Plus => "+",
-            BinaryOperatorType.As => "as",
-            _ => throw new NotSupportedException()
-        };
+        BinaryOperatorType.Plus => LinqExpressionType.Add,
+        BinaryOperatorType.Minus => LinqExpressionType.Subtract,
+        BinaryOperatorType.Multiply => LinqExpressionType.Multiply,
+        BinaryOperatorType.Divide => LinqExpressionType.Divide,
+        BinaryOperatorType.Equal => LinqExpressionType.Equal,
+        BinaryOperatorType.NotEqual => LinqExpressionType.NotEqual,
+        BinaryOperatorType.Greater => LinqExpressionType.GreaterThan,
+        BinaryOperatorType.GreaterOrEqual => LinqExpressionType.GreaterThanOrEqual,
+        BinaryOperatorType.Less => LinqExpressionType.LessThan,
+        BinaryOperatorType.LessOrEqual => LinqExpressionType.LessThanOrEqual,
+        _ => throw new NotImplementedException()
+    };
+
+    private string GetBinaryOperatorTypeString() => BinaryType switch
+    {
+        BinaryOperatorType.BitwiseAnd => "&",
+        BinaryOperatorType.BitwiseOr => "|",
+        BinaryOperatorType.BitwiseXor => "Xor",
+        BinaryOperatorType.Divide => "/",
+        BinaryOperatorType.Equal => "==",
+        BinaryOperatorType.Greater => ">",
+        BinaryOperatorType.GreaterOrEqual => ">=",
+        BinaryOperatorType.In => "In",
+        BinaryOperatorType.Is => "Is",
+        BinaryOperatorType.IsNot => "IsNot",
+        BinaryOperatorType.Less => "<",
+        BinaryOperatorType.LessOrEqual => "<=",
+        BinaryOperatorType.Like => "Like",
+        BinaryOperatorType.Minus => "-",
+        BinaryOperatorType.Modulo => "Mod",
+        BinaryOperatorType.Multiply => "*",
+        BinaryOperatorType.NotEqual => "!=",
+        BinaryOperatorType.Plus => "+",
+        BinaryOperatorType.As => "as",
+        _ => throw new NotSupportedException()
+    };
+
+    protected internal override void WriteTo(IOutputStream writer)
+    {
+        writer.Serialize(LeftOperand);
+        writer.Serialize(RightOperand);
+        writer.WriteByte((byte)BinaryType);
+        writer.Serialize(ConvertedType);
+        writer.WriteVariant(0); //保留
+    }
+
+    protected internal override void ReadFrom(IInputStream reader)
+    {
+        LeftOperand = (Expression)reader.Deserialize()!;
+        RightOperand = (Expression)reader.Deserialize()!;
+        BinaryType = (BinaryOperatorType)reader.ReadByte();
+        ConvertedType = reader.Deserialize() as TypeExpression;
+        reader.ReadVariant(); //保留
     }
 
     #endregion

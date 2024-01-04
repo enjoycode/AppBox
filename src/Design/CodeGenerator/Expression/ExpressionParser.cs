@@ -31,6 +31,9 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
             .AddSyntaxTrees(tree);
         var semanticModel = compilation.GetSemanticModel(tree);
         var diagnostics = semanticModel.GetDiagnostics();
+        var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
+        if (errors > 0)
+            throw new Exception("表达式存在语义错误");
 
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
         if (methodDecl.Body != null && methodDecl.Body.Statements.Count > 1)
@@ -38,7 +41,7 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
 
         if (methodDecl.ExpressionBody != null)
             throw new NotImplementedException("Parse expression body");
-        
+
         var firstStatement = methodDecl.Body!.Statements.FirstOrDefault();
         if (firstStatement is not ReturnStatementSyntax returnNode)
             throw new Exception("表达式方法不是单行返回语句");
