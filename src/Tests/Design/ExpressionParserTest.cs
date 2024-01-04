@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AppBoxCore;
 using AppBoxDesign.CodeGenerator;
 using NUnit.Framework;
@@ -17,7 +18,7 @@ public class ExpressionParserTest
         var lambda = LinqExp.Lambda<Func<object?>>(LinqExp.Convert(body, typeof(object)));
         var func = lambda.Compile();
         return func();
-        
+
         // var lambda = FastExp.Lambda<Func<DateTime>>(exp.ToLinqExpression(ctx));
         // var func = lambda.CompileFast();
     }
@@ -25,18 +26,30 @@ public class ExpressionParserTest
     [Test]
     public void LinqTest()
     {
+        System.Linq.Expressions.Expression<Func<object>> exp = () => DateTime.Today.Year;
         //System.Linq.Expressions.Expression<Func<DateTime>> exp = () => DateTime.Today.AddDays(-1);
 
-        System.Linq.Expressions.Expression<Func<int,DateTime>> exp = input => DateTime.Today.AddDays(-input);
+        //System.Linq.Expressions.Expression<Func<int,DateTime>> exp = input => DateTime.Today.AddDays(-input);
         //DateTime.Today.AddDays(Convert(-input, Double))
+
+        //System.Linq.Expressions.Expression<Func<object>> exp = () => new { Name = "Rick" };
+        //System.Linq.Expressions.Expression<Func<object>> exp = () => new List<string>();
+        
+        var func = exp.Compile();
     }
-    
+
     [Test]
     public void StaticPropertyTest() => Run("DateTime.Today");
+    
+    [Test]
+    public void InstancePropertyTest() => Run("DateTime.Today.Year");
 
     [Test]
     public void MethodCallTest() => Run("DateTime.Today.AddDays(1)");
 
     [Test]
     public void PrefixUnaryTest() => Run("DateTime.Today.AddDays(-1)");
+
+    [Test]
+    public void NewTest() => Run("new DateTime(1977,3,16)");
 }

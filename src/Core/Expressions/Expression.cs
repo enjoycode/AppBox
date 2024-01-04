@@ -22,18 +22,22 @@ public abstract class Expression
     /// <summary>
     /// 获取运行时类型
     /// </summary>
-    public virtual Type GetRuntimeType(IExpressionContext ctx) => throw new NotSupportedException();
+    public virtual Type GetRuntimeType(IExpressionContext ctx) =>
+        throw new NotSupportedException(GetType().FullName);
 
     //TODO:直接参考FastExpressionCompiler emit code，省掉一次转换
-    public virtual LinqExpression? ToLinqExpression(IExpressionContext ctx) => throw new NotSupportedException();
+    public virtual LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
+        throw new NotSupportedException(GetType().FullName);
 
     public static bool IsNull(Expression? exp) => Equals(exp, null);
 
     #region ====Serialization====
 
-    protected internal virtual void WriteTo(IOutputStream writer) => throw new NotSupportedException();
+    protected internal virtual void WriteTo(IOutputStream writer) =>
+        throw new NotSupportedException(GetType().FullName);
 
-    protected internal virtual void ReadFrom(IInputStream reader) => throw new NotSupportedException();
+    protected internal virtual void ReadFrom(IInputStream reader) =>
+        throw new NotSupportedException(GetType().FullName);
 
     #endregion
 

@@ -22,6 +22,21 @@ public sealed class MemberAccessExpression : Expression
 
     public bool IsField { get; private set; }
 
+    private MemberInfo GetMemberInfo(IExpressionContext ctx)
+    {
+        var type = Expression.GetRuntimeType(ctx);
+        MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
+        if (memberInfo == null)
+            throw new Exception($"Can't find member: {type.FullName}.{MemberName}");
+        return memberInfo;
+    }
+
+    public override Type GetRuntimeType(IExpressionContext ctx)
+    {
+        var memberInfo = GetMemberInfo(ctx);
+        return IsField ? ((FieldInfo)memberInfo).FieldType : ((PropertyInfo)memberInfo).PropertyType;
+    }
+
     public override void ToCode(StringBuilder sb, int preTabs)
     {
         Expression.ToCode(sb, preTabs);
@@ -31,11 +46,7 @@ public sealed class MemberAccessExpression : Expression
 
     public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
     {
-        var type = Expression.GetRuntimeType(ctx);
-        MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
-        if (memberInfo == null)
-            throw new Exception($"Can't find member: {type.FullName}.{MemberName}");
-
+        var memberInfo = GetMemberInfo(ctx);
         return LinqExpression.MakeMemberAccess(Expression.ToLinqExpression(ctx), memberInfo);
     }
 
