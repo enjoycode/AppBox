@@ -10,7 +10,6 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
     public ExpressionParser(SemanticModel semanticModel)
     {
         _semanticModel = semanticModel;
-        var d = System.DateTime.Today;
     }
 
     private readonly SemanticModel _semanticModel;

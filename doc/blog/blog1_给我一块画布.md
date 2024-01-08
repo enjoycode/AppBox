@@ -33,7 +33,7 @@ public class DemoCounter : View
     {
         Child = new Column
         {
-            Children = new Widget[]
+            Children =
             {
                 new Text(_counter.AsStateOfString()/*绑定至组件*/),
                 new Button("+") { OnTap = e => _counter.Value+=1/*改变状态值*/ }
@@ -60,7 +60,7 @@ public class DemoAnimation : View
         
         Child = new Column
         {
-            Children = new Widget[]
+            Children =
             {
                 new Button("播放动画") { OnTap = e => _controller.Forward() },
                 new SlideTransition(_offsetAnimation)
