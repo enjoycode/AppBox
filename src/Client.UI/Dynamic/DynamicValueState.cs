@@ -172,6 +172,10 @@ public sealed class DynamicValueState : IDynamicValueState
                 var valueType = state.GetValueStateValueType();
                 _value = JsonSerializer.Deserialize(ref reader, valueType);
             }
+            else
+            {
+                reader.Read(); //null
+            }
         }
 
         reader.Read(); // }

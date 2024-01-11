@@ -141,6 +141,10 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
                 ds.ReadFrom(ref reader);
                 state.Value = ds;
             }
+            else
+            {
+                reader.Read(); //Value null
+            }
         }
         else
         {
@@ -157,6 +161,10 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
                 var vs = new DynamicValueState();
                 vs.ReadFrom(ref reader, state);
                 state.Value = vs;
+            }
+            else
+            {
+                reader.Read(); //Value null
             }
         }
 
