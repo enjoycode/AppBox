@@ -111,8 +111,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         }
         catch (Exception e)
         {
-            Notification.Error($"无法加载动态视图: {e.Message}");
             Log.Warn($"无法加载动态视图:\n {e.StackTrace}");
+            Notification.Error($"无法加载动态视图: {e.Message}");
         }
     }
 
