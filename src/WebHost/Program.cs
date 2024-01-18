@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using AppBoxCore;
 using AppBoxStore;
 using AppBoxServer;
-using Microsoft.AspNetCore.StaticFiles;
+using AppBoxWebHost;
 
 //临时方案Console输出编码问题
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -14,19 +14,14 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-var dfOpts = new DefaultFilesOptions();
-dfOpts.DefaultFileNames.Clear();
-dfOpts.DefaultFileNames.Add("index.html");
-app.UseDefaultFiles(dfOpts); //must be called before UseStaticFiles
-
-//TODO: 暂简单设置for blazor，待BlazorApp升级为.net8后移除
-var fileTypeProvider = new FileExtensionContentTypeProvider();
-fileTypeProvider.Mappings[".blat"] = "application/octet-stream";
-fileTypeProvider.Mappings[".dll"] = "application/octet-stream";
-fileTypeProvider.Mappings[".dat"] = "application/octet-stream";
+var defaultFilesOptions = new DefaultFilesOptions();
+defaultFilesOptions.DefaultFileNames.Clear();
+defaultFilesOptions.DefaultFileNames.Add("index.html");
+app.UseDefaultFiles(defaultFilesOptions);
+app.UsePrecompressedPrecompressedBlazor();
 app.UseStaticFiles(new StaticFileOptions
 {
-    ContentTypeProvider = fileTypeProvider
+    ContentTypeProvider = new PrecompressedContentTypeProvider()
 });
 
 app.UseWebSockets();

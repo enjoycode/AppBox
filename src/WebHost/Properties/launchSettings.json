@@ -12,9 +12,10 @@
     "WebHost": {
       "commandName": "Project",
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7166;http://localhost:5137",
+      "applicationUrl": "https://localhost:7166;http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_CONTENTROOT": ""
       }
     },
     "IIS Express": {
