@@ -17,15 +17,21 @@ public sealed class AppStudio : View
                     {
                         Children =
                         {
-                            new SidePad(DesignStore),
+                            new NaviBar(DesignStore),
                             new Expanded()
                             {
-                                Child = new Column()
+                                Child = new Splitter
                                 {
-                                    Children =
+                                    Fixed = Splitter.FixedPanel.Panel1,
+                                    Distance = 250,
+                                    Panel1 = new SidePad(DesignStore),
+                                    Panel2 = new Splitter
                                     {
-                                        new Expanded() { Child = new DesignerPad(DesignStore) },
-                                        new BottomPad(DesignStore),
+                                        Orientation = Axis.Vertical,
+                                        Fixed = Splitter.FixedPanel.Panel2,
+                                        Distance = 190,
+                                        Panel1 = new DesignerPad(DesignStore),
+                                        Panel2 = new BottomPad(DesignStore)
                                     }
                                 }
                             }
@@ -37,5 +43,5 @@ public sealed class AppStudio : View
         };
     }
 
-    internal readonly DesignStore DesignStore = new();
+    private readonly DesignStore DesignStore = new();
 }

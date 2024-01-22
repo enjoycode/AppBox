@@ -6,40 +6,40 @@ using AppBoxClient;
 using CodeEditor;
 using PixUI;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+/// <summary>
+/// 用于同步客户端代码编辑器的变更至服务端
+/// </summary>
+internal sealed class ModelCodeSyncService
 {
-    /// <summary>
-    /// 用于同步客户端代码编辑器的变更至服务端
-    /// </summary>
-    internal sealed class ModelCodeSyncService
+    private readonly int _targetType;
+    private readonly string _targetId;
+    private int _submittingFlag = 0;
+    private readonly List<ChangeItem> _queue = new List<ChangeItem>();
+
+    public ModelCodeSyncService(int targetType, string targetId)
     {
-        private readonly int _targetType;
-        private readonly string _targetId;
-        private int _submittingFlag = 0;
-        private readonly List<ChangeItem> _queue = new List<ChangeItem>();
+        _targetType = targetType;
+        _targetId = targetId;
+    }
 
-        public ModelCodeSyncService(int targetType, string targetId)
-        {
-            _targetType = targetType;
-            _targetId = targetId;
-        }
-
-        public void OnDocumentChanged(DocumentEventArgs e)
-        {
+    public void OnDocumentChanged(DocumentEventArgs e)
+    {
 #if __WEB__
             _queue.Add(new ChangeItem(e.Offset, e.Length, e.Text));
 #else
-            lock (_queue)
-            {
-                _queue.Add(new ChangeItem(e.Offset, e.Length, e.Text));
-            }
+        lock (_queue)
+        {
+            _queue.Add(new ChangeItem(e.Offset, e.Length, e.Text));
+        }
 #endif
 
-            StartSubmit();
-        }
+        StartSubmit();
+    }
 
-        private async void StartSubmit()
-        {
+    private async void StartSubmit()
+    {
 #if __WEB__
             if (_submittingFlag != 0) return;
             _submittingFlag = 1;
@@ -54,47 +54,46 @@ namespace AppBoxDesign
             }   
             _submittingFlag = 0;
 #else
-            if (Interlocked.CompareExchange(ref _submittingFlag, 1, 0) != 0)
-                return;
+        if (Interlocked.CompareExchange(ref _submittingFlag, 1, 0) != 0)
+            return;
 
-            while (true)
+        while (true)
+        {
+            ChangeItem item;
+            lock (_queue)
             {
-                ChangeItem item;
-                lock (_queue)
-                {
-                    item = _queue[0];
-                }
+                item = _queue[0];
+            }
 
-                await Channel.Invoke("sys.DesignService.ChangeBuffer", new object[]
-                {
-                    _targetType, _targetId, item.Offset, item.Length, item.Text
-                });
+            await Channel.Invoke("sys.DesignService.ChangeBuffer", new object[]
+            {
+                _targetType, _targetId, item.Offset, item.Length, item.Text
+            });
 
-                lock (_queue)
+            lock (_queue)
+            {
+                _queue.RemoveAt(0);
+                if (_queue.Count == 0)
                 {
-                    _queue.RemoveAt(0);
-                    if (_queue.Count == 0)
-                    {
-                        Interlocked.Exchange(ref _submittingFlag, 0);
-                        break;
-                    }
+                    Interlocked.Exchange(ref _submittingFlag, 0);
+                    break;
                 }
             }
+        }
 #endif
-        }
     }
+}
 
-    internal readonly struct ChangeItem
+internal readonly struct ChangeItem
+{
+    public readonly int Offset;
+    public readonly int Length;
+    public readonly string Text;
+
+    public ChangeItem(int offset, int length, string text)
     {
-        public readonly int Offset;
-        public readonly int Length;
-        public readonly string Text;
-
-        public ChangeItem(int offset, int length, string text)
-        {
-            Offset = offset;
-            Length = length;
-            Text = text;
-        }
+        Offset = offset;
+        Length = length;
+        Text = text;
     }
 }

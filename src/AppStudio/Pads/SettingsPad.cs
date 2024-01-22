@@ -1,12 +1,11 @@
 using PixUI;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+internal sealed class SettingsPad : View
 {
-    internal sealed class SettingsPad : View
+    public SettingsPad()
     {
-        public SettingsPad()
-        {
-            Child = new Text("Settings");
-        }
+        Child = new Text("Settings");
     }
 }

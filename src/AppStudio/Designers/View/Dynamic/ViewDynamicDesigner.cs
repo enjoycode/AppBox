@@ -65,13 +65,12 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                     }
                 },
                 // Designer
-                new Row
+                new Splitter
                 {
-                    Children =
-                    {
-                        new Expanded { Child = new DesignCanvas(_designController) },
-                        new Container { Width = 260, Child = new PropertyPanel(_designController) }
-                    }
+                    Fixed = Splitter.FixedPanel.Panel2,
+                    Distance = 260,
+                    Panel1 = new DesignCanvas(_designController),
+                    Panel2 = new PropertyPanel(_designController),
                 },
             }
         };

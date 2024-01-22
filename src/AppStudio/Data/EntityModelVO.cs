@@ -2,20 +2,20 @@ using System;
 using System.Collections.Generic;
 using AppBoxCore;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+public abstract class EntityMemberVO : IBinSerializable
 {
-    public abstract class EntityMemberVO : IBinSerializable
-    {
-        public abstract EntityMemberType Type { get; }
-        public short Id { get; private set; }
-        public string Name { get; set; } = null!;
-        public bool AllowNull { get; set; }
-        public string? Comment { get; set; }
+    public abstract EntityMemberType Type { get; }
+    public short Id { get; private set; }
+    public string Name { get; set; } = null!;
+    public bool AllowNull { get; set; }
+    public string? Comment { get; set; }
 
-        public bool IsForeignKeyMember => Type == EntityMemberType.EntityField
-                                          && ((EntityFieldVO)this).IsForeignKey;
+    public bool IsForeignKeyMember => Type == EntityMemberType.EntityField
+                                      && ((EntityFieldVO)this).IsForeignKey;
 
-        public override string ToString() => Name;
+    public override string ToString() => Name;
 
 #if __APPBOXDESIGN__
         protected void FetchFrom(EntityMemberModel model)
@@ -37,28 +37,28 @@ namespace AppBoxDesign
         public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
 
 #else
-        public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
+    public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
 
-        public virtual void ReadFrom(IInputStream rs)
-        {
-            Id = rs.ReadShort();
-            Name = rs.ReadString()!;
-            AllowNull = rs.ReadBool();
-            Comment = rs.ReadString();
-        }
-
-#endif
+    public virtual void ReadFrom(IInputStream rs)
+    {
+        Id = rs.ReadShort();
+        Name = rs.ReadString()!;
+        AllowNull = rs.ReadBool();
+        Comment = rs.ReadString();
     }
 
-    public sealed class EntityFieldVO : EntityMemberVO
-    {
-        public override EntityMemberType Type => EntityMemberType.EntityField;
+#endif
+}
 
-        public EntityFieldType FieldType { get; private set; }
-        public bool IsForeignKey { get; private set; }
-        public long? EnumModelId { get; set; }
-        public int Length { get; set; }
-        public int Decimals { get; set; }
+public sealed class EntityFieldVO : EntityMemberVO
+{
+    public override EntityMemberType Type => EntityMemberType.EntityField;
+
+    public EntityFieldType FieldType { get; private set; }
+    public bool IsForeignKey { get; private set; }
+    public long? EnumModelId { get; set; }
+    public int Length { get; set; }
+    public int Decimals { get; set; }
 
 #if __APPBOXDESIGN__
         internal static EntityFieldVO From(EntityFieldModel model)
@@ -86,29 +86,29 @@ namespace AppBoxDesign
         }
 
 #else
-        public override void ReadFrom(IInputStream rs)
-        {
-            base.ReadFrom(rs);
-            FieldType = (EntityFieldType)rs.ReadByte();
-            IsForeignKey = rs.ReadBool();
-            if (FieldType == EntityFieldType.Enum)
-                EnumModelId = rs.ReadLong();
-            Length = rs.ReadVariant();
-            Decimals = rs.ReadVariant();
-        }
-
-#endif
+    public override void ReadFrom(IInputStream rs)
+    {
+        base.ReadFrom(rs);
+        FieldType = (EntityFieldType)rs.ReadByte();
+        IsForeignKey = rs.ReadBool();
+        if (FieldType == EntityFieldType.Enum)
+            EnumModelId = rs.ReadLong();
+        Length = rs.ReadVariant();
+        Decimals = rs.ReadVariant();
     }
 
-    public sealed class EntityRefVO : EntityMemberVO
-    {
-        public override EntityMemberType Type => EntityMemberType.EntityRef;
+#endif
+}
 
-        public readonly IList<long> RefModelIds = new List<long>();
-        public short[] FKMemberIds { get; private set; } = null!;
-        public bool IsReverse { get; set; }
-        public bool IsAggregationRef { get; set; }
-        public bool IsForeignKeyConstraint { get; set; }
+public sealed class EntityRefVO : EntityMemberVO
+{
+    public override EntityMemberType Type => EntityMemberType.EntityRef;
+
+    public readonly IList<long> RefModelIds = new List<long>();
+    public short[] FKMemberIds { get; private set; } = null!;
+    public bool IsReverse { get; set; }
+    public bool IsAggregationRef { get; set; }
+    public bool IsForeignKeyConstraint { get; set; }
 
 #if __APPBOXDESIGN__
         internal static EntityRefVO From(EntityRefModel model)
@@ -148,35 +148,35 @@ namespace AppBoxDesign
         }
 
 #else
-        public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom(IInputStream rs)
+    {
+        base.ReadFrom(rs);
+        IsReverse = rs.ReadBool();
+        IsAggregationRef = rs.ReadBool();
+        IsForeignKeyConstraint = rs.ReadBool();
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            base.ReadFrom(rs);
-            IsReverse = rs.ReadBool();
-            IsAggregationRef = rs.ReadBool();
-            IsForeignKeyConstraint = rs.ReadBool();
-            var count = rs.ReadVariant();
-            for (var i = 0; i < count; i++)
-            {
-                RefModelIds.Add(rs.ReadLong());
-            }
-
-            count = rs.ReadVariant();
-            FKMemberIds = new short[count];
-            for (var i = 0; i < count; i++)
-            {
-                FKMemberIds[i] = rs.ReadShort();
-            }
+            RefModelIds.Add(rs.ReadLong());
         }
 
-#endif
+        count = rs.ReadVariant();
+        FKMemberIds = new short[count];
+        for (var i = 0; i < count; i++)
+        {
+            FKMemberIds[i] = rs.ReadShort();
+        }
     }
 
-    public sealed class EntitySetVO : EntityMemberVO
-    {
-        public override EntityMemberType Type => EntityMemberType.EntitySet;
+#endif
+}
 
-        public long RefModelId { get; set; }
-        public short RefMemberId { get; set; }
+public sealed class EntitySetVO : EntityMemberVO
+{
+    public override EntityMemberType Type => EntityMemberType.EntitySet;
+
+    public long RefModelId { get; set; }
+    public short RefMemberId { get; set; }
 
 #if __APPBOXDESIGN__
         internal static EntitySetVO From(EntitySetModel model)
@@ -196,24 +196,24 @@ namespace AppBoxDesign
             ws.WriteShort(RefMemberId);
         }
 #else
-        public override void ReadFrom(IInputStream rs)
-        {
-            base.ReadFrom(rs);
-            RefModelId = rs.ReadLong();
-            RefMemberId = rs.ReadShort();
-        }
-#endif
-    }
-
-    public sealed class EntityModelVO : IBinSerializable
+    public override void ReadFrom(IInputStream rs)
     {
-        public bool IsNew { get; set; }
-        public readonly IList<EntityMemberVO> Members = new List<EntityMemberVO>();
-        public DataStoreKind DataStoreKind { get; set; }
+        base.ReadFrom(rs);
+        RefModelId = rs.ReadLong();
+        RefMemberId = rs.ReadShort();
+    }
+#endif
+}
 
-        private object? _storeOptions;
+public sealed class EntityModelVO : IBinSerializable
+{
+    public bool IsNew { get; set; }
+    public readonly IList<EntityMemberVO> Members = new List<EntityMemberVO>();
+    public DataStoreKind DataStoreKind { get; set; }
 
-        public SqlStoreOptionsVO SqlStoreOptions => (SqlStoreOptionsVO)_storeOptions!;
+    private object? _storeOptions;
+
+    public SqlStoreOptionsVO SqlStoreOptions => (SqlStoreOptionsVO)_storeOptions!;
 
 #if __APPBOXDESIGN__
         public static EntityModelVO From(EntityModel model)
@@ -274,44 +274,43 @@ namespace AppBoxDesign
 
         public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
 #else
-        public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
+    public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
 
-        public void ReadFrom(IInputStream rs)
+    public void ReadFrom(IInputStream rs)
+    {
+        IsNew = rs.ReadBool();
+        DataStoreKind = (DataStoreKind)rs.ReadByte();
+        //store options
+        if (DataStoreKind == DataStoreKind.Sql)
         {
-            IsNew = rs.ReadBool();
-            DataStoreKind = (DataStoreKind)rs.ReadByte();
-            //store options
-            if (DataStoreKind == DataStoreKind.Sql)
-            {
-                var sqlStoreOptions = new SqlStoreOptionsVO();
-                sqlStoreOptions.ReadFrom(rs);
-                _storeOptions = sqlStoreOptions;
-            }
-
-            //members
-            var count = rs.ReadVariant();
-            for (var i = 0; i < count; i++)
-            {
-                var type = (EntityMemberType)rs.ReadByte();
-                EntityMemberVO member;
-                switch (type)
-                {
-                    case EntityMemberType.EntityField:
-                        member = new EntityFieldVO();
-                        break;
-                    case EntityMemberType.EntityRef:
-                        member = new EntityRefVO();
-                        break;
-                    case EntityMemberType.EntitySet:
-                        member = new EntitySetVO();
-                        break;
-                    default: throw new NotImplementedException();
-                }
-
-                member.ReadFrom(rs);
-                Members.Add(member);
-            }
+            var sqlStoreOptions = new SqlStoreOptionsVO();
+            sqlStoreOptions.ReadFrom(rs);
+            _storeOptions = sqlStoreOptions;
         }
-#endif
+
+        //members
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
+        {
+            var type = (EntityMemberType)rs.ReadByte();
+            EntityMemberVO member;
+            switch (type)
+            {
+                case EntityMemberType.EntityField:
+                    member = new EntityFieldVO();
+                    break;
+                case EntityMemberType.EntityRef:
+                    member = new EntityRefVO();
+                    break;
+                case EntityMemberType.EntitySet:
+                    member = new EntitySetVO();
+                    break;
+                default: throw new NotImplementedException();
+            }
+
+            member.ReadFrom(rs);
+            Members.Add(member);
+        }
     }
+#endif
 }
