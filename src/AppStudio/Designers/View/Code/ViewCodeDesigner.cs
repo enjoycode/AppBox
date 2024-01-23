@@ -20,13 +20,13 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
         _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
         _delayDocChangedTask = new DelayTask(300, RunDelayTask);
 
-        Child = new Row()
+        Child = new Splitter
         {
-            Children = new Widget[]
-            {
-                new Expanded(BuildEditor(_codeEditorController), 2),
-                new Expanded(new WidgetPreviewer(_previewController), 1),
-            }
+            Fixed = Splitter.FixedPanel.Panel2,
+            Distance = 380,
+            Panel2Collapsed = _hidePreviewer,
+            Panel1 = BuildEditor(_codeEditorController),
+            Panel2 = new WidgetPreviewer(_previewController),
         };
     }
 
@@ -36,37 +36,39 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     private readonly ModelCodeSyncService _codeSyncService;
     private readonly PreviewController _previewController;
     private readonly DelayTask _delayDocChangedTask;
-    private bool _hasLoadSourceCode = false;
+    private bool _hasLoadSourceCode;
+    private readonly State<bool> _hidePreviewer = false;
 
     private ReferenceVO? _pendingGoto;
 
-    private static Widget BuildEditor(CodeEditorController codeEditorController)
+    private Widget BuildEditor(CodeEditorController codeEditorController) => new Column
     {
-        return new Column()
+        Children =
+        {
+            BuildActionBar(),
+            new Expanded() { Child = new CodeEditorWidget(codeEditorController) },
+        }
+    };
+
+    private Widget BuildActionBar() => new Container
+    {
+        FillColor = new Color(0xFF3C3C3C), Height = 40,
+        Padding = EdgeInsets.Only(15, 8, 15, 8),
+        Child = new Row(VerticalAlignment.Middle, 10)
         {
             Children = new Widget[]
             {
-                BuildActionBar(),
-                new Expanded() { Child = new CodeEditorWidget(codeEditorController) },
+                new Button("Preview") { Width = 75, OnTap = SwitchPreviewer },
+                new Button("Debug") { Width = 75 }
             }
-        };
-    }
+        }
+    };
 
-    private static Widget BuildActionBar()
+    private void SwitchPreviewer(PointerEvent e)
     {
-        return new Container
-        {
-            FillColor = new Color(0xFF3C3C3C), Height = 40,
-            Padding = EdgeInsets.Only(15, 8, 15, 8),
-            Child = new Row(VerticalAlignment.Middle, 10)
-            {
-                Children = new Widget[]
-                {
-                    new Button("Preview") { Width = 75 },
-                    new Button("Debug") { Width = 75 }
-                }
-            }
-        };
+        _hidePreviewer.Value = !_hidePreviewer.Value;
+        if (!_hidePreviewer.Value)
+            _previewController.Invalidate();
     }
 
     protected override void OnMounted()
@@ -110,7 +112,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
             new object?[] { false, ModelNode.Id });
         _designStore.UpdateProblems(ModelNode, problems!);
 
-        if (!problems!.Any(p => p.IsError))
+        if (!problems!.Any(p => p.IsError) && !_hidePreviewer.Value)
             _previewController.Invalidate();
     }
 
@@ -123,7 +125,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
         }
     }
 
-    public Widget? GetOutlinePad() => new ViewOutlinePad(_previewController);
+    public Widget GetOutlinePad() => new ViewOutlinePad(_previewController);
 
     public Widget? GetToolboxPad() => null;
 
