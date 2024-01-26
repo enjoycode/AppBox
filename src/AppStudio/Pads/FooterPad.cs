@@ -1,20 +1,19 @@
 using PixUI;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+internal sealed class FooterPad : View
 {
-    internal sealed class FooterPad : View
+    public FooterPad()
     {
-        public FooterPad()
+        Child = new Container
         {
-            Child = new Container
+            Height = 25,
+            FillColor = new Color(0xFFCC653A),
+            Child = new Center
             {
-                Height = 25,
-                FillColor = new Color(0xFFCC653A),
-                Child = new Center
-                {
-                    Child = new Text("enjoycode@icloud.com") { TextColor = Colors.White }
-                }
-            };
-        }
+                Child = new Text("enjoycode@icloud.com") { TextColor = Colors.White }
+            }
+        };
     }
 }

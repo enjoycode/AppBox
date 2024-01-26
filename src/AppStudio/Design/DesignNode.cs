@@ -3,194 +3,193 @@ using System.Collections.Generic;
 using PixUI;
 using AppBoxCore;
 
-namespace AppBoxDesign
+namespace AppBoxDesign;
+
+internal abstract class DesignNodeVO
 {
-    internal abstract class DesignNodeVO
+    public abstract DesignNodeType Type { get; }
+    public virtual IList<DesignNodeVO>? Children => null;
+
+    public string Id { get; protected set; } = null!;
+    public readonly State<string> Label = "None";
+
+    /// <summary>
+    /// 当前节点打开的设计器，打开时设置关闭时取消
+    /// </summary>
+    internal IDesigner? Designer { get; set; }
+
+    public override string ToString() => Label.Value;
+
+    public virtual void ReadFrom(IInputStream rs)
     {
-        public abstract DesignNodeType Type { get; }
-        public virtual IList<DesignNodeVO>? Children => null;
+        Id = rs.ReadString()!;
+        Label.Value = rs.ReadString()!;
+    }
+}
 
-        public string Id { get; protected set; } = null!;
-        public readonly State<string> Label = "None";
+internal sealed class DataStoreRootNodeVO : DesignNodeVO
+{
+    public override DesignNodeType Type => DesignNodeType.DataStoreRootNode;
 
-        /// <summary>
-        /// 当前节点打开的设计器，打开时设置关闭时取消
-        /// </summary>
-        internal IDesigner? Designer { get; set; }
+    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
 
-        public override string ToString() => Label.Value;
+    public override IList<DesignNodeVO>? Children => _children;
 
-        public virtual void ReadFrom(IInputStream rs)
+    public override void ReadFrom(IInputStream rs)
+    {
+        base.ReadFrom(rs);
+
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            Id = rs.ReadString()!;
-            Label.Value = rs.ReadString()!;
+            var dataStoreNode = new DataStoreNodeVO();
+            dataStoreNode.ReadFrom(rs);
+            _children.Add(dataStoreNode);
         }
     }
+}
 
-    internal sealed class DataStoreRootNodeVO : DesignNodeVO
+internal sealed class DataStoreNodeVO : DesignNodeVO
+{
+    public static readonly DataStoreNodeVO None = new();
+
+    public override DesignNodeType Type => DesignNodeType.DataStoreNode;
+}
+
+internal sealed class ApplicationRootNodeVO : DesignNodeVO
+{
+    public override DesignNodeType Type => DesignNodeType.ApplicationRoot;
+    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+    public override IList<DesignNodeVO>? Children => _children;
+
+    public override void ReadFrom(IInputStream rs)
     {
-        public override DesignNodeType Type => DesignNodeType.DataStoreRootNode;
-
-        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
-
-        public override IList<DesignNodeVO>? Children => _children;
-
-        public override void ReadFrom(IInputStream rs)
+        base.ReadFrom(rs);
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            base.ReadFrom(rs);
-
-            var count = rs.ReadVariant();
-            for (var i = 0; i < count; i++)
-            {
-                var dataStoreNode = new DataStoreNodeVO();
-                dataStoreNode.ReadFrom(rs);
-                _children.Add(dataStoreNode);
-            }
+            var appNode = new ApplicationNodeVO();
+            appNode.ReadFrom(rs);
+            _children.Add(appNode);
         }
     }
+}
 
-    internal sealed class DataStoreNodeVO : DesignNodeVO
+internal sealed class ApplicationNodeVO : DesignNodeVO
+{
+    public override DesignNodeType Type => DesignNodeType.ApplicationNode;
+    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+    public override IList<DesignNodeVO>? Children => _children;
+
+    public override void ReadFrom(IInputStream rs)
     {
-        public static readonly DataStoreNodeVO None = new();
-
-        public override DesignNodeType Type => DesignNodeType.DataStoreNode;
-    }
-
-    internal sealed class ApplicationRootNodeVO : DesignNodeVO
-    {
-        public override DesignNodeType Type => DesignNodeType.ApplicationRoot;
-        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
-        public override IList<DesignNodeVO>? Children => _children;
-
-        public override void ReadFrom(IInputStream rs)
+        base.ReadFrom(rs);
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            base.ReadFrom(rs);
-            var count = rs.ReadVariant();
-            for (var i = 0; i < count; i++)
-            {
-                var appNode = new ApplicationNodeVO();
-                appNode.ReadFrom(rs);
-                _children.Add(appNode);
-            }
+            var modelRootNode = new ModelRootNodeVO(this);
+            modelRootNode.ReadFrom(rs);
+            _children.Add(modelRootNode);
         }
     }
+}
 
-    internal sealed class ApplicationNodeVO : DesignNodeVO
+internal sealed class ModelRootNodeVO : DesignNodeVO
+{
+    public ModelRootNodeVO(ApplicationNodeVO applicationNode)
     {
-        public override DesignNodeType Type => DesignNodeType.ApplicationNode;
-        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
-        public override IList<DesignNodeVO>? Children => _children;
-
-        public override void ReadFrom(IInputStream rs)
-        {
-            base.ReadFrom(rs);
-            var count = rs.ReadVariant();
-            for (var i = 0; i < count; i++)
-            {
-                var modelRootNode = new ModelRootNodeVO(this);
-                modelRootNode.ReadFrom(rs);
-                _children.Add(modelRootNode);
-            }
-        }
+        ApplicationNode = applicationNode;
     }
 
-    internal sealed class ModelRootNodeVO : DesignNodeVO
+    public readonly ApplicationNodeVO ApplicationNode;
+
+    public override DesignNodeType Type => DesignNodeType.ModelRootNode;
+
+    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+    public override IList<DesignNodeVO>? Children => _children;
+
+    public override void ReadFrom(IInputStream rs)
     {
-        public ModelRootNodeVO(ApplicationNodeVO applicationNode)
+        base.ReadFrom(rs);
+
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            ApplicationNode = applicationNode;
-        }
+            var nodeType = (DesignNodeType)rs.ReadByte();
+            DesignNodeVO node;
+            if (nodeType == DesignNodeType.ModelNode)
+                node = new ModelNodeVO(this);
+            else if (nodeType == DesignNodeType.FolderNode)
+                node = new FolderNodeVO(this);
+            else
+                throw new NotSupportedException();
 
-        public readonly ApplicationNodeVO ApplicationNode;
-
-        public override DesignNodeType Type => DesignNodeType.ModelRootNode;
-
-        private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
-        public override IList<DesignNodeVO>? Children => _children;
-
-        public override void ReadFrom(IInputStream rs)
-        {
-            base.ReadFrom(rs);
-
-            var count = rs.ReadVariant();
-            for (var i = 0; i < count; i++)
-            {
-                var nodeType = (DesignNodeType)rs.ReadByte();
-                DesignNodeVO node;
-                if (nodeType == DesignNodeType.ModelNode)
-                    node = new ModelNodeVO(this);
-                else if (nodeType == DesignNodeType.FolderNode)
-                    node = new FolderNodeVO(this);
-                else
-                    throw new NotSupportedException();
-
-                node.ReadFrom(rs);
-                _children.Add(node);
-            }
+            node.ReadFrom(rs);
+            _children.Add(node);
         }
     }
+}
 
-    internal sealed class FolderNodeVO : DesignNodeVO
+internal sealed class FolderNodeVO : DesignNodeVO
+{
+    public FolderNodeVO(ModelRootNodeVO modelRootNode)
     {
-        public FolderNodeVO(ModelRootNodeVO modelRootNode)
-        {
-            ModelRootNode = modelRootNode;
-        }
-
-        public ModelRootNodeVO ModelRootNode { get; internal set; }
-
-        public override DesignNodeType Type => DesignNodeType.FolderNode;
-
-        private readonly List<DesignNodeVO> _children = new();
-        public override IList<DesignNodeVO> Children => _children;
-
-        public override void ReadFrom(IInputStream rs)
-        {
-            base.ReadFrom(rs);
-
-            var count = rs.ReadVariant();
-            for (var i = 0; i < count; i++)
-            {
-                var nodeType = (DesignNodeType)rs.ReadByte();
-                DesignNodeVO node;
-                if (nodeType == DesignNodeType.ModelNode)
-                    node = new ModelNodeVO(ModelRootNode);
-                else if (nodeType == DesignNodeType.FolderNode)
-                    node = new FolderNodeVO(ModelRootNode);
-                else
-                    throw new NotSupportedException();
-
-                node.ReadFrom(rs);
-                _children.Add(node);
-            }
-        }
+        ModelRootNode = modelRootNode;
     }
 
-    internal sealed class ModelNodeVO : DesignNodeVO
+    public ModelRootNodeVO ModelRootNode { get; internal set; }
+
+    public override DesignNodeType Type => DesignNodeType.FolderNode;
+
+    private readonly List<DesignNodeVO> _children = new();
+    public override IList<DesignNodeVO> Children => _children;
+
+    public override void ReadFrom(IInputStream rs)
     {
-        public ModelNodeVO(ModelRootNodeVO modelRootNode)
+        base.ReadFrom(rs);
+
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            ModelRootNode = modelRootNode;
+            var nodeType = (DesignNodeType)rs.ReadByte();
+            DesignNodeVO node;
+            if (nodeType == DesignNodeType.ModelNode)
+                node = new ModelNodeVO(ModelRootNode);
+            else if (nodeType == DesignNodeType.FolderNode)
+                node = new FolderNodeVO(ModelRootNode);
+            else
+                throw new NotSupportedException();
+
+            node.ReadFrom(rs);
+            _children.Add(node);
         }
+    }
+}
 
-        public ModelRootNodeVO ModelRootNode { get; internal set; }
+internal sealed class ModelNodeVO : DesignNodeVO
+{
+    public ModelNodeVO(ModelRootNodeVO modelRootNode)
+    {
+        ModelRootNode = modelRootNode;
+    }
 
-        public string AppName => ModelRootNode.ApplicationNode.Label.Value;
+    public ModelRootNodeVO ModelRootNode { get; internal set; }
 
-        public override DesignNodeType Type => DesignNodeType.ModelNode;
+    public string AppName => ModelRootNode.ApplicationNode.Label.Value;
 
-        public ModelType ModelType { get; private set; }
+    public override DesignNodeType Type => DesignNodeType.ModelNode;
 
-        /// <summary>
-        /// 目前仅用于视图模型的类型
-        /// </summary>
-        public byte Tag { get; private set; }
+    public ModelType ModelType { get; private set; }
 
-        public override void ReadFrom(IInputStream rs)
-        {
-            base.ReadFrom(rs);
-            ModelType = (ModelType)rs.ReadByte();
-            Tag = rs.ReadByte();
-        }
+    /// <summary>
+    /// 目前仅用于视图模型的类型
+    /// </summary>
+    public byte Tag { get; private set; }
+
+    public override void ReadFrom(IInputStream rs)
+    {
+        base.ReadFrom(rs);
+        ModelType = (ModelType)rs.ReadByte();
+        Tag = rs.ReadByte();
     }
 }
