@@ -18,7 +18,9 @@ internal sealed class NewEntityMemberDialog : Dialog
     }
 
     private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
-    private static readonly string[] FieldTypes = { "String", "Int", "Long", "Float", "Double" };
+
+    private static readonly string[] FieldTypes =
+        { "String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid" };
 
     private readonly DesignStore _designStore;
     private readonly ModelNodeVO _modelNode;
@@ -108,18 +110,19 @@ internal sealed class NewEntityMemberDialog : Dialog
         }
     }
 
-    private int GetFieldTypeValue()
+    private int GetFieldTypeValue() => _fieldType.Value switch
     {
-        switch (_fieldType.Value)
-        {
-            case "String": return (int)EntityFieldType.String;
-            case "Int": return (int)EntityFieldType.Int;
-            case "Long": return (int)EntityFieldType.Long;
-            case "Float": return (int)EntityFieldType.Float;
-            case "Double": return (int)EntityFieldType.Double;
-            default: throw new NotImplementedException();
-        }
-    }
+        "String" => (int)EntityFieldType.String,
+        "Int" => (int)EntityFieldType.Int,
+        "Long" => (int)EntityFieldType.Long,
+        "Float" => (int)EntityFieldType.Float,
+        "Double" => (int)EntityFieldType.Double,
+        "Decimal" => (int)EntityFieldType.Decimal,
+        "Bool" => (int)EntityFieldType.Bool,
+        "DateTime" => (int)EntityFieldType.DateTime,
+        "Guid" => (int)EntityFieldType.Guid,
+        _ => throw new NotImplementedException()
+    };
 
     private string[] GetRefModelIds()
     {
