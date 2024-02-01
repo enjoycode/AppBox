@@ -43,6 +43,8 @@ public sealed class DesignService : IService
         // { nameof(GetWebPreview), new GetWebPreview() },
         { nameof(GetDesktopPreview), new GetDesktopPreview() },
         { nameof(ParseExpression), new ParseExpression() },
+        // Permission
+        { nameof(NewPermissionModel), new NewPermissionModel() },
     };
 
     public ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
