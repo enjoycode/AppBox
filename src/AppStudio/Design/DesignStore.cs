@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -172,6 +173,26 @@ internal sealed class DesignStore
     {
         var node = TreeController.FindNode(n => n.Id == nodeId);
         return node?.Data;
+    }
+
+    /// <summary>
+    /// 获取应用节点下的子节点对应的应用节点
+    /// </summary>
+    internal static TreeNode<DesignNodeVO> GetModelRootNode(TreeNode<DesignNodeVO> child)
+    {
+        var childType = child.Data.Type;
+        if (childType != DesignNodeType.ModelNode && childType != DesignNodeType.FolderNode)
+            throw new ArgumentException("child must belong ModelRootNode");
+
+        var temp = child.ParentNode;
+        while (temp != null)
+        {
+            if (temp.Data.Type == DesignNodeType.ModelRootNode)
+                return temp;
+            temp = temp.ParentNode!;
+        }
+
+        throw new Exception("Never");
     }
 
     /// <summary>

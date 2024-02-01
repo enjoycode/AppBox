@@ -18,7 +18,14 @@ internal sealed class DesignTreePad : View
             Children =
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<DesignNodeVO>(_designStore.TreeController, BuildTreeNode, n => n.Children!),
+                new TreeView<DesignNodeVO>(_designStore.TreeController, BuildTreeNode, n => n.Children!)
+                {
+                    AllowDrag = true,
+                    AllowDrop = true,
+                    OnAllowDrag = OnAllowDrag,
+                    OnAllowDrop = OnAllowDrop,
+                    OnDrop = OnDrop,
+                },
             }
         };
     }
@@ -73,4 +80,38 @@ internal sealed class DesignTreePad : View
             _designStore.TreeController.IsLoading = false;
         }
     }
+
+    #region ====DragDrop TreeNode====
+
+    private static bool OnAllowDrag(TreeNode<DesignNodeVO> node)
+    {
+        //目前仅FolderNode及ModelNode
+        return node.Data.Type is DesignNodeType.FolderNode or DesignNodeType.ModelNode;
+    }
+
+    private static bool OnAllowDrop(TreeNode<DesignNodeVO> target, DragEvent e)
+    {
+        var source = e.TransferItem as TreeNode<DesignNodeVO>;
+        if (source == null) return false;
+
+        // var sourceType = source.Data.Type;
+        var targetType = target.Data.Type;
+
+        if (targetType != DesignNodeType.FolderNode && targetType != DesignNodeType.ModelRootNode)
+            return false;
+        if (e.DropPosition != DropPosition.In) //TODO: 特殊的支持排序
+            return false;
+        if (DesignStore.GetModelRootNode(source) != DesignStore.GetModelRootNode(target))
+            return false;
+
+        return true;
+    }
+
+    private void OnDrop(TreeNode<DesignNodeVO> target, DragEvent e)
+    {
+        var source = (TreeNode<DesignNodeVO>)e.TransferItem;
+        Log.Debug($"OnDrop: {source.Data} {target.Data} {e.DropPosition}");
+    }
+
+    #endregion
 }
