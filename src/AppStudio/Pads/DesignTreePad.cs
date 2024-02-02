@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using AppBoxClient;
 using PixUI;
 
@@ -101,16 +103,33 @@ internal sealed class DesignTreePad : View
             return false;
         if (e.DropPosition != DropPosition.In) //TODO: 特殊的支持排序
             return false;
+        if (source.ParentNode == target)
+            return false;
         if (DesignStore.GetModelRootNode(source) != DesignStore.GetModelRootNode(target))
             return false;
 
         return true;
     }
 
-    private void OnDrop(TreeNode<DesignNodeVO> target, DragEvent e)
+    private async void OnDrop(TreeNode<DesignNodeVO> target, DragEvent e)
     {
         var source = (TreeNode<DesignNodeVO>)e.TransferItem;
-        Log.Debug($"OnDrop: {source.Data} {target.Data} {e.DropPosition}");
+        // Log.Debug($"OnDrop: {source.Data} {target.Data} {e.DropPosition}");
+        // 暂由后端判断并尝试签出相关节点
+        var args = new object?[]
+            { (int)source.Data.Type, source.Data.Id, (int)target.Data.Type, target.Data.Id, (int)e.DropPosition };
+        try
+        {
+            var insertIndex = await Channel.Invoke<int>("sys.DesignService.DragDropNode", args)!;
+            Debug.Assert(insertIndex >= 0);
+            var treeController = _designStore.TreeController;
+            treeController.RemoveNode(source);
+            treeController.InsertNode(source.Data, target, insertIndex);
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"拖动节点失败: {ex.Message}");
+        }
     }
 
     #endregion

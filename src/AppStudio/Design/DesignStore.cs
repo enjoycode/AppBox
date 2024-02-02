@@ -176,20 +176,21 @@ internal sealed class DesignStore
     }
 
     /// <summary>
-    /// 获取应用节点下的子节点对应的应用节点
+    /// 获取节点对应的ModelRootNode
     /// </summary>
     internal static TreeNode<DesignNodeVO> GetModelRootNode(TreeNode<DesignNodeVO> child)
     {
         var childType = child.Data.Type;
-        if (childType != DesignNodeType.ModelNode && childType != DesignNodeType.FolderNode)
+        if (childType != DesignNodeType.ModelNode && childType != DesignNodeType.FolderNode &&
+            childType != DesignNodeType.ModelRootNode)
             throw new ArgumentException("child must belong ModelRootNode");
 
-        var temp = child.ParentNode;
+        var temp = child;
         while (temp != null)
         {
             if (temp.Data.Type == DesignNodeType.ModelRootNode)
                 return temp;
-            temp = temp.ParentNode!;
+            temp = temp.ParentNode;
         }
 
         throw new Exception("Never");

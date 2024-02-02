@@ -83,8 +83,8 @@ public abstract class DesignNode : IComparable<DesignNode>, IBinSerializable
             {
                 var modelNode = (ModelNode)this;
                 modelNode.Model = res.ModelWithNewVersion;
-                await DesignTree.DesignHub.TypeSystem
-                    .UpdateModelDocumentAsync(modelNode); //更新为新模型的虚拟代码
+                //更新为新模型的虚拟代码
+                await DesignTree.DesignHub.TypeSystem.UpdateModelDocumentAsync(modelNode);
             }
 
             //更新当前节点的签出信息

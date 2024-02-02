@@ -31,7 +31,7 @@ internal sealed class DataStoreRootNodeVO : DesignNodeVO
 {
     public override DesignNodeType Type => DesignNodeType.DataStoreRootNode;
 
-    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+    private readonly List<DesignNodeVO> _children = new();
 
     public override IList<DesignNodeVO>? Children => _children;
 
@@ -59,7 +59,7 @@ internal sealed class DataStoreNodeVO : DesignNodeVO
 internal sealed class ApplicationRootNodeVO : DesignNodeVO
 {
     public override DesignNodeType Type => DesignNodeType.ApplicationRoot;
-    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+    private readonly List<DesignNodeVO> _children = new();
     public override IList<DesignNodeVO>? Children => _children;
 
     public override void ReadFrom(IInputStream rs)
@@ -78,7 +78,7 @@ internal sealed class ApplicationRootNodeVO : DesignNodeVO
 internal sealed class ApplicationNodeVO : DesignNodeVO
 {
     public override DesignNodeType Type => DesignNodeType.ApplicationNode;
-    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+    private readonly List<DesignNodeVO> _children = new();
     public override IList<DesignNodeVO>? Children => _children;
 
     public override void ReadFrom(IInputStream rs)
@@ -105,7 +105,7 @@ internal sealed class ModelRootNodeVO : DesignNodeVO
 
     public override DesignNodeType Type => DesignNodeType.ModelRootNode;
 
-    private readonly List<DesignNodeVO> _children = new List<DesignNodeVO>();
+    private readonly List<DesignNodeVO> _children = new();
     public override IList<DesignNodeVO>? Children => _children;
 
     public override void ReadFrom(IInputStream rs)

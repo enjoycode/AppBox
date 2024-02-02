@@ -28,15 +28,29 @@ public sealed class FolderNode : DesignNode
         set => Folder.GetRoot().Version = value;
     }
 
+    public ModelRootNode? ModelRootNode
+    {
+        get
+        {
+            var temp = Parent;
+            while (temp != null)
+            {
+                if (temp is ModelRootNode modelRootNode)
+                    return modelRootNode;
+                temp = temp.Parent;
+            }
+
+            return null;
+        }
+    }
+
     internal override CheckoutInfo? CheckoutInfo
     {
         get
         {
             //注意：返回相应的模型根节点的签出信息
-            var rootFolder = Folder.GetRoot();
-            var rootNode =
-                DesignTree!.FindModelRootNode(rootFolder.AppId, rootFolder.TargetModelType);
-            return rootNode!.CheckoutInfo;
+            var modelRootNode = ModelRootNode;
+            return modelRootNode?.CheckoutInfo;
         }
         set => throw new NotSupportedException("FolderNode can not set CheckoutInfo");
     }
