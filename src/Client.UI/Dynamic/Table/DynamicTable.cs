@@ -53,6 +53,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TableFooterCell[]? Footer
     {
         get => _footer;
@@ -63,6 +64,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TableStyles? Styles
     {
         get => _styles;

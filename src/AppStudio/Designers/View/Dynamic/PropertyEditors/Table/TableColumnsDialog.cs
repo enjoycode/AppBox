@@ -13,7 +13,7 @@ internal sealed class TableColumnsDialog : Dialog
     {
         Title.Value = "Cartesian Series";
         Width = 580;
-        Height = 400;
+        Height = 425;
 
         _element = element;
         _treeController.DataSource = list;
