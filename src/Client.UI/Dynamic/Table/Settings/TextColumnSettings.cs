@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using AppBoxCore;
 using PixUI;
-using ExpressionType = System.Linq.Expressions.ExpressionType;
 
 namespace AppBoxClient.Dynamic;
 
@@ -35,7 +34,7 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         set => SetField(ref _cellStyles, value);
     }
 
-    protected internal override DataGridColumn<DynamicEntity> BuildColumn()
+    protected internal override DataGridColumn<DynamicEntity> BuildColumn(DataGridController<DynamicEntity> controller)
     {
         var cellStyle = new CellStyle
         {
@@ -44,8 +43,8 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         };
 
         Func<DynamicEntity, int, CellStyle>? cellStyleGetter = null;
-        if (CellStyles != null && CellStyles.Length > 0)
-            cellStyleGetter = BuildCellStylesGetter();
+        if (CellStyles is { Length: > 0 })
+            cellStyleGetter = BuildCellStylesGetter(controller);
 
         return new DataGridTextColumn<DynamicEntity>(Label,
             t => t.HasValue(Field) ? t[Field].ToStringValue() : string.Empty)
@@ -57,7 +56,7 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         };
     }
 
-    private Func<DynamicEntity, int, CellStyle> BuildCellStylesGetter()
+    private Func<DynamicEntity, int, CellStyle> BuildCellStylesGetter(DataGridController<DynamicEntity> controller)
     {
         var conditions = new Func<DynamicEntity, bool>[CellStyles!.Length];
         for (var i = 0; i < conditions.Length; i++)
@@ -71,15 +70,17 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
             {
                 if (conditions[i](entity))
                 {
-                    var cellStyle = DataGridTheme.Default.DefaultRowCellStyle.Clone();
-                    cellStyle.TextColor = CellStyles[i].TextColor;
-                    cellStyle.FillColor = CellStyles[i].FillColor;
+                    var cellStyle = controller.Theme.DefaultRowCellStyle.Clone();
+                    if (CellStyles[i].TextColor != null)
+                        cellStyle.TextColor = CellStyles[i].TextColor;
+                    if (CellStyles[i].FillColor != null)
+                        cellStyle.FillColor = CellStyles[i].FillColor;
                     return cellStyle;
                 }
             }
 
             //没有满足所有条件，暂返回默认值
-            return DataGridTheme.Default.DefaultRowCellStyle;
+            return controller.Theme.DefaultRowCellStyle;
         };
     }
 

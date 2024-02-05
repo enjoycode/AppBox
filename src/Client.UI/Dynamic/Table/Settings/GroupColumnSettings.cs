@@ -11,14 +11,14 @@ public sealed class GroupColumnSettings : TableColumnSettings
 
     public List<TableColumnSettings> Children { get; set; } = new();
 
-    protected internal override DataGridColumn<DynamicEntity> BuildColumn()
+    protected internal override DataGridColumn<DynamicEntity> BuildColumn(DataGridController<DynamicEntity> controller)
     {
         var col = new DataGridGroupColumn<DynamicEntity>(Label);
         if (Children is { Count: > 0 })
         {
             for (var i = 0; i < Children.Count; i++)
             {
-                var child = Children[i].BuildColumn();
+                var child = Children[i].BuildColumn(controller);
                 col.Children.Add(child);
             }
         }

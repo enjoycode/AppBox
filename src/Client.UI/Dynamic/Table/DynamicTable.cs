@@ -43,6 +43,20 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TableStyles? Styles
+    {
+        get => _styles;
+        set
+        {
+            _styles = value;
+            Controller.Theme = _styles == null ? DataGridTheme.Default : _styles.ToRuntimeStyles();
+
+            if (_columns is { Length: > 0 })
+                Controller.Refresh();
+        }
+    }
+
     public TableColumnSettings[]? Columns
     {
         get => _columns;
@@ -64,17 +78,6 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         }
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public TableStyles? Styles
-    {
-        get => _styles;
-        set
-        {
-            _styles = value;
-            Controller.Theme = _styles == null ? DataGridTheme.Default : _styles.ToRuntimeStyles();
-        }
-    }
-
     private void OnColumnsChanged()
     {
         Controller.Columns.Clear();
@@ -82,7 +85,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         {
             foreach (var column in _columns)
             {
-                Controller.Columns.Add(column.BuildColumn());
+                Controller.Columns.Add(column.BuildColumn(Controller));
             }
         }
     }

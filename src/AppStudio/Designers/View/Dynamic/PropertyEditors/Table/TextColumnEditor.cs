@@ -25,7 +25,7 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
         var cellStyles = Column.Observe(nameof(TextColumnSettings.CellStyles),
             s => s.CellStyles, (s, v) => s.CellStyles = v);
 
-        field.AddListener(s => cellStyles.Value = null); //改变字段清空条件单元格式
+        field.AddListener(_ => cellStyles.Value = null); //改变字段清空条件单元格式
 
         yield return ("Field:", field, new Select<string>(field!).RefBy(ref _fieldRef));
         yield return ("CellStyles:", cellStyles, new Button("...")
@@ -108,16 +108,16 @@ internal sealed class CellStylesDialog : Dialog
                 Columns =
                 {
                     new DataGridHostColumn<ConditionalCellStyle>("比较",
-                        (s, i) => new Select<string>(MakeComparerState(s)) { Options = options }
+                        (s, _) => new Select<string>(MakeComparerState(s)) { Options = options }
                     ) { Width = ColumnWidth.Fixed(80) },
                     new DataGridHostColumn<ConditionalCellStyle>("值",
-                        (s, i) => new NumberInput<double>(MakeNumberState(s))
+                        (s, _) => new NumberInput<double>(MakeNumberState(s))
                     ) { Width = ColumnWidth.Fixed(120) },
                     new DataGridHostColumn<ConditionalCellStyle>("文本颜色",
-                        (s, i) => new ColorEditor(MakeTextColorState(s), null!)
+                        (s, _) => new ColorEditor(MakeTextColorState(s), null!)
                     ),
                     new DataGridHostColumn<ConditionalCellStyle>("背景颜色",
-                        (s, i) => new ColorEditor(MakeFillColorState(s), null!)
+                        (s, _) => new ColorEditor(MakeFillColorState(s), null!)
                     )
                 }
             }
@@ -176,8 +176,8 @@ internal sealed class CellStylesDialog : Dialog
         new(() => s.Comparand, v => s.Comparand = v);
 
     private static RxProxy<Color?> MakeTextColorState(ConditionalCellStyle s) =>
-        new(() => s.TextColor, v => s.TextColor = v ?? DataGridTheme.Default.DefaultRowCellStyle.TextColor!.Value);
+        new(() => s.TextColor, v => s.TextColor = v);
 
     private static RxProxy<Color?> MakeFillColorState(ConditionalCellStyle s) =>
-        new(() => s.FillColor, v => s.FillColor = v ?? DataGridTheme.Default.DefaultRowCellStyle.FillColor!.Value);
+        new(() => s.FillColor, v => s.FillColor = v);
 }

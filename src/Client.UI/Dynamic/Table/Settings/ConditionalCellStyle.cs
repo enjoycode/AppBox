@@ -10,8 +10,8 @@ public sealed class ConditionalCellStyle
 {
     public Comparer Comparer { get; set; }
     public double Comparand { get; set; }
-    public Color TextColor { get; set; } = DataGridTheme.Default.DefaultRowCellStyle.TextColor!.Value;
-    public Color FillColor { get; set; } = DataGridTheme.Default.DefaultRowCellStyle.FillColor!.Value;
+    public Color? TextColor { get; set; }
+    public Color? FillColor { get; set; }
 
     public ConditionalCellStyle Clone() => new()
         { Comparer = Comparer, Comparand = Comparand, TextColor = TextColor, FillColor = FillColor };
