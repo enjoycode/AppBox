@@ -15,6 +15,7 @@ internal sealed class Commands
         NewEntityCommand = () => new NewEntityDialog(_designStore).Show();
         NewServiceCommand = () => new NewDialog(_designStore, "Service").Show();
         NewViewCommand = () => new NewViewDialog(_designStore).Show();
+        NewPermissionCommand = () => new NewDialog(_designStore, "Permission").Show();
         CheckoutCommand = Checkout;
         SaveCommand = Save;
         RenameCommand = Rename;
@@ -29,6 +30,7 @@ internal sealed class Commands
     public readonly Action NewEntityCommand;
     public readonly Action NewServiceCommand;
     public readonly Action NewViewCommand;
+    public readonly Action NewPermissionCommand;
     public readonly Action CheckoutCommand;
     public readonly Action SaveCommand;
     public readonly Action RenameCommand;
@@ -62,8 +64,8 @@ internal sealed class Commands
 
         try
         {
-            await Channel.Invoke("sys.DesignService.CheckoutNode", new object?[]
-                { (int)nodeType, selectedNode.Data.Id });
+            var args = new object?[] { (int)nodeType, selectedNode.Data.Id };
+            await Channel.Invoke("sys.DesignService.CheckoutNode", args);
             //TODO:判断返回结果刷新
             Notification.Success($"签出节点[{selectedNode.Data.Label}]成功");
         }

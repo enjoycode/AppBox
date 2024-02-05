@@ -37,7 +37,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     private readonly PreviewController _previewController;
     private readonly DelayTask _delayDocChangedTask;
     private bool _hasLoadSourceCode;
-    private readonly State<bool> _hidePreviewer = false;
+    private readonly State<bool> _hidePreviewer = true;
 
     private ReferenceVO? _pendingGoto;
 

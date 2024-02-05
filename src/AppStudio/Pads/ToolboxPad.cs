@@ -33,7 +33,7 @@ internal sealed class ToolboxPad : View
             if (toolboxPad != null)
             {
                 Child = toolboxPad;
-                Invalidate(InvalidAction.Relayout);
+                Relayout();
                 return;
             }
         }
@@ -42,7 +42,7 @@ internal sealed class ToolboxPad : View
         if (!ReferenceEquals(Child, NotSupported))
         {
             Child = NotSupported;
-            Invalidate(InvalidAction.Relayout);
+            Relayout();
         }
     }
 }

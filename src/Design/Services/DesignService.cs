@@ -18,6 +18,7 @@ public sealed class DesignService : IService
         { nameof(LoadDesignTree), new LoadDesignTree() },
         { nameof(CheckoutNode), new CheckoutNode() },
         { nameof(NewFolder), new NewFolder() },
+        { nameof(DragDropNode), new DragDropNode() },
         // Code
         { nameof(ChangeBuffer), new ChangeBuffer() },
         { nameof(GetProblems), new GetProblems() },
@@ -43,6 +44,8 @@ public sealed class DesignService : IService
         // { nameof(GetWebPreview), new GetWebPreview() },
         { nameof(GetDesktopPreview), new GetDesktopPreview() },
         { nameof(ParseExpression), new ParseExpression() },
+        // Permission
+        { nameof(NewPermissionModel), new NewPermissionModel() },
     };
 
     public ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)

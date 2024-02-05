@@ -8,7 +8,7 @@ public sealed class RowNumColumnSettings : TableColumnSettings
 {
     [JsonIgnore] public override string Type => RowNum;
 
-    protected internal override DataGridColumn<DynamicEntity> BuildColumn()
+    protected internal override DataGridColumn<DynamicEntity> BuildColumn(DataGridController<DynamicEntity> controller)
     {
         var cellStyle = new CellStyle
             { HorizontalAlignment = HorizontalAlignment, VerticalAlignment = VerticalAlignment };

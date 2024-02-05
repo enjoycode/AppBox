@@ -9,32 +9,31 @@ internal sealed class MembersDesigner : View
         DataGridController<EntityMemberVO> membersController,
         State<EntityMemberVO?> selectedMember)
     {
-        Child = new Row()
+        var color = new Color(0xFFF3F3F3);
+
+        Child = new Splitter
         {
-            Children =
+            Fixed = Splitter.FixedPanel.Panel2,
+            Distance = 280,
+            SplitterColor = color,
+            Panel1 = new DataGrid<EntityMemberVO>(membersController)
             {
-                new Expanded()
+                Columns =
                 {
-                    Child = new DataGrid<EntityMemberVO>(membersController)
-                    {
-                        Columns =
-                        {
-                            new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name)
-                                { Width = ColumnWidth.Fixed(150) },
-                            new DataGridTextColumn<EntityMemberVO>("Type", MemberTypeToString)
-                                { Width = ColumnWidth.Fixed(200) },
-                            new DataGridCheckboxColumn<EntityMemberVO>("AllowNull", v => v.AllowNull)
-                                { Width = ColumnWidth.Fixed(90) },
-                            new DataGridTextColumn<EntityMemberVO>("Comment", v => v.Comment ?? string.Empty),
-                        }
-                    },
-                },
-                new Container()
-                {
-                    FillColor = new Color(0xFFF3F3F3),
-                    Width = 280,
-                    Child = new EntityPropertyPanel(entityModel, selectedMember)
+                    new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name)
+                        { Width = ColumnWidth.Fixed(150) },
+                    new DataGridTextColumn<EntityMemberVO>("Type", MemberTypeToString)
+                        { Width = ColumnWidth.Fixed(200) },
+                    new DataGridCheckboxColumn<EntityMemberVO>("AllowNull", v => v.AllowNull)
+                        { Width = ColumnWidth.Fixed(90) },
+                    new DataGridTextColumn<EntityMemberVO>("Comment", v => v.Comment ?? string.Empty),
                 }
+            },
+            Panel2 = new Container()
+            {
+                Padding = EdgeInsets.All(10),
+                FillColor = color,
+                Child = new EntityPropertyPanel(entityModel, selectedMember)
             }
         };
     }
