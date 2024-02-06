@@ -114,6 +114,34 @@ namespace AppBoxStore
         [QueryMethod()]
         public SqlQuery<T> Where<TJoin>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, bool> condition) => this;
 
+        [QueryMethod()]
+        public SqlQuery<T> Where<TJoin1, TJoin2>(ISqlQueryJoin<TJoin1> j1, ISqlQueryJoin<TJoin2> j2,
+            Func<T, TJoin1, TJoin2, bool> condition) => this;
+
+        [QueryMethod()]
+        public SqlQuery<T> AndWhere(Func<T, bool> condition) => this;
+        
+        [QueryMethod()]
+        public SqlQuery<T> AndWhere<TJoin>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, bool> condition) => this;
+
+        [QueryMethod()]
+        public SqlQuery<T> AndWhere<TJoin1, TJoin2>(ISqlQueryJoin<TJoin1> j1, ISqlQueryJoin<TJoin2> j2,
+            Func<T, TJoin1, TJoin2, bool> condition) => this;
+        
+        [QueryMethod()]
+        public SqlQuery<T> OrWhere(Func<T, bool> condition) => this;
+        
+        [QueryMethod()]
+        public SqlQuery<T> OrWhere<TJoin>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, bool> condition) => this;
+
+        [QueryMethod()]
+        public SqlQuery<T> OrWhere<TJoin1, TJoin2>(ISqlQueryJoin<TJoin1> j1, ISqlQueryJoin<TJoin2> j2,
+            Func<T, TJoin1, TJoin2, bool> condition) => this;
+
+        public SqlQuery<T> Skip(int rows) => this;
+
+        public SqlQuery<T> Take(int rows) => this;
+
         public Task<T?> ToSingleAsync() => throw new Exception();
 
         /// <summary>
