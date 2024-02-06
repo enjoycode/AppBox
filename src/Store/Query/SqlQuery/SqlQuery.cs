@@ -88,12 +88,15 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public SqlQuery<TEntity> Take(int rows)
     {
+        if (rows < 0) throw new ArgumentOutOfRangeException();
         TakeSize = rows;
         return this;
     }
 
     public SqlQuery<TEntity> Skip(int rows)
     {
+        if (rows < 0) throw new ArgumentOutOfRangeException();
+
         SkipSize = rows;
         return this;
     }
