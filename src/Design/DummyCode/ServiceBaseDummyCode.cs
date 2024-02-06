@@ -142,6 +142,14 @@ namespace AppBoxStore
 
         public SqlQuery<T> Take(int rows) => this;
 
+        [QueryMethod()]
+        public SqlQuery<T> OrderBy<TResult>(Func<T, TResult> selector) => this;
+
+        [QueryMethod()]
+        public SqlQuery<T> OrderByDesc<TResult>(Func<T, TResult> selector) => this;
+
+        public Task<int> CountAsync() => throw new Exception();
+
         public Task<T?> ToSingleAsync() => throw new Exception();
 
         /// <summary>

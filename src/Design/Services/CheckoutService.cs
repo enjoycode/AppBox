@@ -50,9 +50,7 @@ internal static class CheckoutService
         {
             var storedModel = await MetaStore.Provider.LoadModelAsync(checkoutInfos[0].TargetID);
             if (storedModel.Version != checkoutInfos[0].Version)
-            {
                 result.ModelWithNewVersion = storedModel;
-            }
         }
 
         return result;

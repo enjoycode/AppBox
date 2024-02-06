@@ -56,15 +56,15 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public bool HasSortItems => _sortItems != null && _sortItems.Count > 0;
 
-    public QueryPurpose Purpose { get; internal set; }
+    public QueryPurpose Purpose { get; private set; }
 
     public bool Distinct { get; set; }
 
     #region ----分页查询属性----
 
-    public int TakeSize { get; internal set; }
+    public int TakeSize { get; private set; }
 
-    public int SkipSize { get; internal set; } = 0;
+    public int SkipSize { get; private set; } = 0;
 
     #endregion
 
@@ -88,14 +88,14 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public SqlQuery<TEntity> Take(int rows)
     {
-        if (rows < 0) throw new ArgumentOutOfRangeException();
+        if (rows <= 0) throw new ArgumentOutOfRangeException(nameof(rows),"Take rows must > 0");
         TakeSize = rows;
         return this;
     }
 
     public SqlQuery<TEntity> Skip(int rows)
     {
-        if (rows < 0) throw new ArgumentOutOfRangeException();
+        if (rows < 0) throw new ArgumentOutOfRangeException(nameof(rows), "Skip rows must >= 0");
 
         SkipSize = rows;
         return this;
@@ -141,22 +141,21 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         }
     }
 
-    // public async Task<int> CountAsync()
-    // {
-    //     Purpose = QueryPurpose.Count;
-    //     var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
-    //     var db = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
-    //     var cmd = db.BuildQuery(this);
-    //     using var conn = db.MakeConnection();
-    //     await conn.OpenAsync();
-    //     cmd.Connection = conn;
-    //     Log.Debug(cmd.CommandText);
-    //
-    //     using var reader = await cmd.ExecuteReaderAsync();
-    //     if (!await reader.ReadAsync())
-    //         return 0;
-    //     return reader.GetInt32(0);
-    // }
+    public async Task<int> CountAsync()
+    {
+        Purpose = QueryPurpose.Count;
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
+        await using var cmd = db.BuildQuery(this);
+        await using var conn = await db.OpenConnectionAsync();
+        cmd.Connection = conn;
+        Log.Debug(cmd.CommandText);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        if (!await reader.ReadAsync())
+            return 0;
+        return reader.GetInt32(0);
+    }
 
     // public T ToScalar<T>(SqlSelectItem expression)
     // {
@@ -548,7 +547,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public SqlQuery<TEntity> OrderBy(Func<EntityExpression, Expression> sortItem)
     {
-        SortItems.Add(new SqlSortItem(sortItem(T), SortType.ASC));
+        SortItems.Add(new SqlSortItem(sortItem(T)));
         return this;
     }
 

@@ -28,6 +28,14 @@ public sealed class SqlQueryTest
     }
 
     [Test]
+    public async Task CountTest()
+    {
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        var count = await q.CountAsync();
+        Assert.True(count > 0);
+    }
+
+    [Test]
     public async Task ToSingleTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
@@ -88,6 +96,24 @@ public sealed class SqlQueryTest
         var path = await q.ToTreePathAsync(t => t[nameof(OrgUnit.Parent)], t => t[nameof(OrgUnit.Name)]);
         Assert.True(path != null);
         Console.WriteLine(path);
+    }
+
+    [Test]
+    public async Task OrderByTest()
+    {
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        q.OrderBy(e => e["Name"]);
+        await q.ToListAsync();
+    }
+
+    [Test]
+    public async Task SkipTakeTest()
+    {
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        // q.OrderBy(e => e["Name"]);
+        q.Skip(1).Take(1);
+        var list = await q.ToListAsync();
+        Assert.True(list.Count == 1);
     }
 
     [Test]

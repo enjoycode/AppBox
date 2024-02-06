@@ -75,8 +75,6 @@ internal sealed class TableColumnsDialog : Dialog
                 {
                     new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAddColumn() },
                     new Button(icon: MaterialIcons.Remove) { OnTap = _ => OnRemoveColumn() },
-                    new Button(icon: MaterialIcons.ArrowUpward) /*{ OnTap = _ => OnMoveUp() }*/,
-                    new Button(icon: MaterialIcons.ArrowDownward) /*{ OnTap = _ => OnMoveDown()*/
                 }
             }
         }
@@ -91,6 +89,13 @@ internal sealed class TableColumnsDialog : Dialog
                 Width = 250,
                 Child = new TreeView<TableColumnSettings>(_treeController, BuildTreeNode,
                     s => ((GroupColumnSettings)s).Children)
+                {
+                    AllowDrag = true,
+                    AllowDrop = true,
+                    OnAllowDrag = OnAllowDrag,
+                    OnAllowDrop = OnAllowDrop,
+                    OnDrop = OnDrop
+                }
             },
 
             new Expanded(new Card
@@ -180,5 +185,45 @@ internal sealed class TableColumnsDialog : Dialog
         if (currentNode == null) return;
 
         _treeController.RemoveNode(currentNode);
+    }
+
+    private static bool OnAllowDrag(TreeNodeType node) => true;
+
+    private static bool OnAllowDrop(TreeNodeType target, DragEvent e)
+    {
+        if (e.DropPosition == DropPosition.In && target.Data.Type != TableColumnSettings.Group)
+            return false;
+        return true;
+    }
+
+    private void OnDrop(TreeNodeType target, DragEvent e)
+    {
+        var source = e.TransferItem as TreeNodeType;
+        if (source == null) return;
+
+        var isCurrent = source.IsSelected.Value;
+        if (e.DropPosition == DropPosition.In)
+        {
+            _treeController.RemoveNode(source);
+            var newNode = _treeController.InsertNode(source.Data, target);
+            if (isCurrent)
+                _treeController.SelectNode(newNode);
+        }
+        else if (e.DropPosition == DropPosition.Upper)
+        {
+            _treeController.RemoveNode(source);
+            var index = target.Index;
+            var newNode = _treeController.InsertNode(source.Data, target.ParentNode, index);
+            if (isCurrent)
+                _treeController.SelectNode(newNode);
+        }
+        else if (e.DropPosition == DropPosition.Under)
+        {
+            _treeController.RemoveNode(source); //must remove first
+            var index = target.Index + 1;
+            var newNode = _treeController.InsertNode(source.Data, target.ParentNode, index);
+            if (isCurrent)
+                _treeController.SelectNode(newNode);
+        }
     }
 }
