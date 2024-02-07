@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using AppBoxCore;
 using PixUI;
-using Log = PixUI.Log;
 
 namespace AppBoxClient;
 

@@ -202,8 +202,13 @@ internal sealed class TypeSystem : IDisposable
             }
             case ModelType.Permission:
             {
-                var dummyCode = PermissionCodeGenerator.GenDummyCode((PermissionModel)model, appName);
+                //服务端代码生成
+                var dummyCode = PermissionCodeGenerator.GenServerCode((PermissionModel)model, appName);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
+                
+                //客户端代码生成
+                var clietCode = PermissionCodeGenerator.GenClientCode((PermissionModel)model, appName);
+                newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, clietCode);
                 break;
             }
         }
@@ -252,6 +257,10 @@ internal sealed class TypeSystem : IDisposable
             {
                 var sourceCode = EntityCsGenerator.GenRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
+                
+                //RxEntity虚拟代码生成
+                var rxEntityCode = EntityCsGenerator.GenRxEntityCode(node);
+                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!, SourceText.From( rxEntityCode));
                 break;
             }
             case ModelType.Enum:
@@ -264,7 +273,7 @@ internal sealed class TypeSystem : IDisposable
                 var sourceCode = await MetaStore.Provider.LoadModelCodeAsync(model.Id);
                 newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
 
-                // 服务模型还需要更新代理类
+                // 更新代理类
                 var srcdoc = newSolution.GetDocument(docId)!;
                 var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(srcdoc, appName, (ServiceModel)model);
                 newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!, SourceText.From(proxyCode));
@@ -272,7 +281,7 @@ internal sealed class TypeSystem : IDisposable
             }
             case ModelType.Permission:
             {
-                var dummyCode = PermissionCodeGenerator.GenDummyCode((PermissionModel)model, appName);
+                var dummyCode = PermissionCodeGenerator.GenServerCode((PermissionModel)model, appName);
                 newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(dummyCode));
                 break;
             }
@@ -430,6 +439,7 @@ internal sealed class TypeSystem : IDisposable
         await DumpProjectErrors(ModelProjectId);
         await DumpProjectErrors(ServiceBaseProjectId);
         await DumpProjectErrors(ServiceProxyProjectId);
+        await DumpProjectErrors(ViewsProjectId);
     }
 
     private async Task DumpProjectErrors(ProjectId projectId)

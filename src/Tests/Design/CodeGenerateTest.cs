@@ -51,7 +51,7 @@ public class CodeGenerateTest
         var designHub = await TestHelper.MockSession();
         var node = designHub.DesignTree.FindModelNodeByFullName("sys.Permissions.Admin")!;
         var model = (PermissionModel)node.Model;
-        var code = PermissionCodeGenerator.GenDummyCode(model, node.AppNode.Model.Name);
+        var code = PermissionCodeGenerator.GenServerCode(model, node.AppNode.Model.Name);
         Console.WriteLine(code);
     }
 
