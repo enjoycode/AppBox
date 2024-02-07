@@ -18,7 +18,7 @@ internal static class PermissionCodeGenerator
         sb.Append("(\"");
         sb.Append(PermissionAccessInterceptor.Name);
         sb.Append("\")]");
-        sb.AppendFormat("public static bool {0};", model.Name);
+        sb.Append($"public static bool {model.Name};");
         sb.Append("}}");
 
         return StringBuilderCache.GetStringAndRelease(sb);
@@ -32,8 +32,9 @@ internal static class PermissionCodeGenerator
         var sb = StringBuilderCache.Acquire();
         sb.Append("namespace ");
         sb.Append(appName);
-        sb.Append(".Permissions {");
-        sb.Append("[AppBoxClient.Permission()]public static class ");
+        sb.Append(".Permissions {[");
+        sb.Append(TypeHelper.PermissionAttribte);
+        sb.Append("]public static class ");
         sb.Append(model.Name);
         sb.Append(" {");
         

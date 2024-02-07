@@ -12,6 +12,7 @@ internal static class TypeHelper
     internal const string MemberAccessInterceptorAttribute = "AppBoxCore.MemberAccessInterceptorAttribute";
     internal const string InvocationInterceptorAttribute = "AppBoxCore.InvocationInterceptorAttribute";
     internal const string InvokePermissionAttribute = "AppBoxCore.InvokePermissionAttribute";
+    internal const string PermissionAttribte = "AppBoxClient.PermissionAttribute";
 
     #endregion
 

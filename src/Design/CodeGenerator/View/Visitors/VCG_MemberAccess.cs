@@ -11,7 +11,19 @@ internal partial class ViewCsGenerator
     {
         var symbol = ModelExtensions.GetSymbolInfo(SemanticModel, node).Symbol;
 
-        //转换RxEmployee.Name 为 RxEmployee.Observe(123/*memberId*/, e => e.Name, (e,v) => e.Name=v)
+        var res = TryInterceptRxEntity(symbol, node);
+        if (res != null)
+            return res;
+        res = TryInterceptPermission(symbol, node);
+        if (res != null)
+            return res;
+
+        return base.VisitMemberAccessExpression(node);
+    }
+
+    //转换RxEmployee.Name 为 RxEmployee.Observe(123/*memberId*/, e => e.Name, (e,v) => e.Name=v)
+    private SyntaxNode? TryInterceptRxEntity(ISymbol? symbol, MemberAccessExpressionSyntax node)
+    {
         if (symbol is IPropertySymbol propertySymbol && propertySymbol.Name != "Target" /*暂简单排除Target属性*/ &&
             IsRxEntity(propertySymbol.ContainingType, out var entityFullName))
         {
@@ -32,6 +44,33 @@ internal partial class ViewCsGenerator
             return SyntaxFactory.InvocationExpression(exp, args);
         }
 
-        return base.VisitMemberAccessExpression(node);
+        return null;
+    }
+
+    private SyntaxNode? TryInterceptPermission(ISymbol? symbol, MemberAccessExpressionSyntax node)
+    {
+        if (symbol is IPropertySymbol propertySymbol && propertySymbol.ContainingType.IsStatic &&
+            propertySymbol.ContainingType.ContainingNamespace.Name == "Permissions" &&
+            IsPermissionClass(propertySymbol.ContainingType))
+        {
+            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(propertySymbol.ContainingType.ToString()!)!;
+            var modelId = modelNode.Model.Id.Value;
+            var memberName = node.Name.Identifier.Text;
+
+            var arg = SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                SyntaxFactory.Literal(modelId)));
+            var args = SyntaxFactory.ArgumentList().AddArguments(arg);
+            var exp = SyntaxFactory.ParseExpression($"AppBoxClient.PermissionManager.GetPermission{memberName}");
+            return SyntaxFactory.InvocationExpression(exp, args);
+        }
+
+        return null;
+    }
+
+    private static bool IsPermissionClass(INamedTypeSymbol type)
+    {
+        return type.GetAttributes()
+            .Any(a => a.AttributeClass != null &&
+                      a.AttributeClass.ToString() == TypeHelper.PermissionAttribte);
     }
 }
