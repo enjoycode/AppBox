@@ -24,7 +24,7 @@ internal sealed class SystemService : IService
     /// <summary>
     /// 用户登录时验证并返回组织单元的路径
     /// </summary>
-    internal async Task<TreePath> Login(string user, string password)
+    internal static async Task<TreePath> Login(string user, string password)
     {
         if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             throw new Exception("用户名或密码为空");
@@ -57,7 +57,7 @@ internal sealed class SystemService : IService
     /// <summary>
     /// 用于前端组织结构权限管理界面加载整个权限树
     /// </summary>
-    private async Task<IList<PermissionNode>> LoadPermissionTree()
+    private static async Task<IList<PermissionNode>> LoadPermissionTree()
     {
         var list = new List<PermissionNode>();
         var apps = await MetaStore.Provider.LoadAllApplicationAsync();
@@ -128,7 +128,7 @@ internal sealed class SystemService : IService
     /// <summary>
     /// 保存单个PermissionModel的权限变更
     /// </summary>
-    private async Task<bool> SavePermission(string modelId, IList<Guid>? ouids)
+    private static async Task<bool> SavePermission(string modelId, IList<Guid>? ouids)
     {
         EnsureIsAdmin();
 

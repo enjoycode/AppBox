@@ -77,7 +77,7 @@ internal sealed class WebSocketClient
         string? errorInfo = null;
         try
         {
-            result = await SysServiceContainer.SystemService.Login(user, pass);
+            result = await SystemService.Login(user, pass);
             Log.Info($"[{user}]登录成功.");
         }
         catch (Exception e)

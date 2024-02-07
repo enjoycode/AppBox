@@ -62,7 +62,7 @@ public static class MetaStoreExtensions
     public static async Task<ModelBase> LoadModelAsync(this IMetaStore metaStore, ModelId modelId)
     {
         var data = await metaStore.LoadMetaDataAsync(MetaType.Meta_Model, modelId.ToString());
-        var model = MetaSerializer.DeserializeMeta<ModelBase>(data!, () => ModelFactory.Make(modelId.Type));
+        var model = MetaSerializer.DeserializeMeta(data!, () => ModelFactory.Make(modelId.Type));
         model.AcceptChanges();
         return model;
     }
@@ -90,6 +90,7 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 加载视图模型所依赖的所有程序集列表
     /// </summary>
+    /// <param name="metaStore"></param>
     /// <param name="viewModelName">eg: sys.HomePage</param>
     /// <returns>json data: ["A","B"]</returns>
     public static Task<byte[]?> LoadViewAssembliesAsync(this IMetaStore metaStore, string viewModelName)
@@ -100,6 +101,7 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 运行时加载压缩过的视图模型的JS代码
     /// </summary>
+    /// <param name="metaStore"></param>
     /// <param name="viewName">eg: sys.HomePage</param>
     public static Task<byte[]?> LoadViewAssemblyAsync(this IMetaStore metaStore, string viewName)
     {
@@ -109,6 +111,7 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 加载客户端应用的程序集
     /// </summary>
+    /// <param name="metaStore"></param>
     /// <param name="assemblyName">16进制编码的序号</param>
     /// <returns>压缩过的程序集</returns>
     public static Task<byte[]?> LoadAppAssemblyAsync(this IMetaStore metaStore, string assemblyName)
@@ -119,6 +122,7 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 运行时加载压缩过的服务组件或应用的第三方组件
     /// </summary>
+    /// <param name="metaStore"></param>
     /// <param name="serviceName">eg: sys.HelloService or sys.Newtonsoft.Json.dll</param>
     public static Task<byte[]?> LoadServiceAssemblyAsync(this IMetaStore metaStore, string serviceName)
     {
