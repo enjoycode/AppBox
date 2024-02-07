@@ -1,34 +1,56 @@
+using System;
 using System.Threading.Tasks;
 using AppBoxCore;
 
-namespace AppBoxClient
+namespace AppBoxClient;
+
+public static class Channel
 {
-    public static class Channel
+    private static IChannel _provider = null!;
+
+    public static void Init(IChannel provider)
     {
-        private static IChannel _provider = null!;
+        _provider = provider;
+    }
 
-        public static void Init(IChannel provider)
+    public static Task Login(string user, string password, object? external = null)
+        => _provider.Login(user, password, external);
+
+    public static Task Logout() => _provider.Logout();
+
+    public static async Task Invoke(string service, object?[]? args = null)
+    {
+        await _provider.Invoke(service, args, null);
+    }
+
+    public static async Task<T?> Invoke<T>(string service, object?[]? args = null,
+        EntityFactory[]? entityFactories = null)
+    {
+        var res = await _provider.Invoke(service, args, entityFactories);
+        if (res == null) return default;
+
+        return (T)res;
+    }
+
+    //暂时放在这里，待移至RuntimeContext内
+    public static async Task<bool> HasPermission(ModelId permissionModelId)
+    {
+        if (permissionModelId.Type != ModelType.Permission)
         {
-            _provider = provider;
+            Log.Error("Not a Permission model");
+            return false;
         }
 
-        public static Task Login(string user, string password, object? external = null)
-            => _provider.Login(user, password, external);
-
-        public static Task Logout() => _provider.Logout();
-
-        public static async Task Invoke(string service, object?[]? args = null)
+        var args = new object?[] { permissionModelId.Value };
+        try
         {
-            await _provider.Invoke(service, args, null);
+            var res = await Invoke<bool>("sys.SystemService.HasPermission", args);
+            return res;
         }
-
-        public static async Task<T?> Invoke<T>(string service, object?[]? args = null,
-            EntityFactory[]? entityFactories = null)
+        catch (Exception e)
         {
-            var res = await _provider.Invoke(service, args, entityFactories);
-            if (res == null) return default;
-
-            return (T)res;
+            Log.Error($"Check has permission error: {e.Message}");
+            return false;
         }
     }
 }

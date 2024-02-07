@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>AppBoxClient</AssemblyName>
         <RootNamespace>AppBoxClient</RootNamespace>
-        <LangVersion>9</LangVersion>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

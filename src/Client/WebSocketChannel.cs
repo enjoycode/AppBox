@@ -5,35 +5,35 @@ using System.Threading;
 using System.Threading.Tasks;
 using AppBoxCore;
 
-namespace AppBoxClient
+namespace AppBoxClient;
+
+public sealed class WebSocketChannel : IChannel
 {
-    public sealed class WebSocketChannel : IChannel
+    public WebSocketChannel(Uri serverUri)
     {
-        public WebSocketChannel(Uri serverUri)
-        {
             _serverUri = serverUri;
             Task.Run(TryConnect);
         }
 
-        private ClientWebSocket _clientWebSocket = null!;
-        private int _connectStatus = 0;
-        private Task _connectTask = null!;
-        private readonly Uri _serverUri;
+    private ClientWebSocket _clientWebSocket = null!;
+    private int _connectStatus = 0;
+    private Task _connectTask = null!;
+    private readonly Uri _serverUri;
 
-        private int _sessionId;
-        private string? _name;
-        private int _msgIdIndex = 0;
+    private int _sessionId;
+    private string? _name;
+    private int _msgIdIndex = 0;
 
-        private readonly ConcurrentDictionary<int, PooledTaskSource<MessageReadStream>> _pendingRequests = new();
+    private readonly ConcurrentDictionary<int, PooledTaskSource<MessageReadStream>> _pendingRequests = new();
 
-        private readonly ObjectPool<PooledTaskSource<MessageReadStream>> _pooledTaskSource =
-            PooledTaskSource<MessageReadStream>.Create(8);
+    private readonly ObjectPool<PooledTaskSource<MessageReadStream>> _pooledTaskSource =
+        PooledTaskSource<MessageReadStream>.Create(8);
 
-        //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
-        private BytesSegment? _pendingResponse;
+    //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
+    private BytesSegment? _pendingResponse;
 
-        public async Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories)
-        {
+    public async Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories)
+    {
             //add to wait list
             var msgId = MakeMsgId();
             var promise = _pooledTaskSource.Allocate();
@@ -88,8 +88,8 @@ namespace AppBoxClient
             return result;
         }
 
-        public async Task Login(string user, string password, object? external)
-        {
+    public async Task Login(string user, string password, object? external)
+    {
             //add to wait list
             var msgId = MakeMsgId();
             var promise = _pooledTaskSource.Allocate();
@@ -127,15 +127,15 @@ namespace AppBoxClient
             }
         }
 
-        public Task Logout()
-        {
+    public Task Logout()
+    {
             throw new NotImplementedException();
         }
 
-        private int MakeMsgId() => Interlocked.Increment(ref _msgIdIndex);
+    private int MakeMsgId() => Interlocked.Increment(ref _msgIdIndex);
 
-        private async ValueTask TryConnect()
-        {
+    private async ValueTask TryConnect()
+    {
             var oldStatus = Interlocked.CompareExchange(ref _connectStatus, 1, 0);
             if (oldStatus == 0)
             {
@@ -159,8 +159,8 @@ namespace AppBoxClient
             }
         }
 
-        private async void StartReceive(WebSocket webSocket)
-        {
+    private async void StartReceive(WebSocket webSocket)
+    {
             //TODO:暂简单实现
             while (webSocket.State == WebSocketState.Open)
             {
@@ -209,15 +209,15 @@ namespace AppBoxClient
             }
         }
 
-        private void OnClose(string reason)
-        {
+    private void OnClose(string reason)
+    {
             Log.Info($"Closed by reason: {reason}");
             //TODO: clean pending request
             Interlocked.Exchange(ref _connectStatus, 0);
         }
 
-        private async Task SendMessage(BytesSegment data)
-        {
+    private async Task SendMessage(BytesSegment data)
+    {
             await TryConnect();
 
             var cur = data;
@@ -233,5 +233,4 @@ namespace AppBoxClient
 
             BytesSegment.ReturnAll(data);
         }
-    }
 }

@@ -13,8 +13,8 @@ public readonly struct ModelId : IComparable<ModelId>
         _encoded = encoded;
     }
 
-    public static ModelId Make(int appId, ModelType type, int seq, ModelLayer layer)
-        => new ModelId((long)appId << 32 | (long)type << 24 | (long)seq << 2 | (long)layer);
+    public static ModelId Make(int appId, ModelType type, int seq, ModelLayer layer) =>
+        new((long)appId << 32 | (long)type << 24 | (long)seq << 2 | (long)layer);
 
     public int AppId => (int)((_encoded >> 32) & 0xFFFFFFFF);
 
@@ -24,10 +24,9 @@ public readonly struct ModelId : IComparable<ModelId>
 
     public long Value => _encoded;
 
-    public static implicit operator ModelId(long value) => new ModelId(value);
+    public static implicit operator ModelId(long value) => new(value);
 
-    public static implicit operator ModelId(string value)
-        => new ModelId((long)ulong.Parse(value));
+    public static implicit operator ModelId(string value) => new((long)ulong.Parse(value));
 
     public static implicit operator long(ModelId value) => value._encoded;
 

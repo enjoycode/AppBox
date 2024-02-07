@@ -1,14 +1,13 @@
 using System.Threading.Tasks;
 using AppBoxCore;
 
-namespace AppBoxClient
+namespace AppBoxClient;
+
+public interface IChannel
 {
-    public interface IChannel
-    {
-        Task Login(string user, string password, object? external);
+    Task Login(string user, string password, object? external);
 
-        Task Logout();
+    Task Logout();
 
-        Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories);
-    }
+    Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories);
 }
