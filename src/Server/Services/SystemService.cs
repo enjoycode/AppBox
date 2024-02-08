@@ -18,7 +18,8 @@ internal sealed class SystemService : IService
 
     private static void EnsureIsAdmin()
     {
-        //TODO:
+        if (!HostRuntimeContext.HasPermission(_adminPermissionId))
+            throw new Exception("Must login as Administrator");
     }
 
     /// <summary>

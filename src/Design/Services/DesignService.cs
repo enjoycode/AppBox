@@ -53,6 +53,7 @@ public sealed class DesignService : IService
         if (RuntimeContext.CurrentSession is not IDeveloperSession session)
             throw new Exception("Must login as a developer");
 
+        // 由session.GetDesignHub()时验证是否具备开发权限
         var designHub = session.GetDesignHub();
         if (!_handlers.TryGetValue(method, out var handler))
             throw new Exception($"Unknown design request: {method}");
