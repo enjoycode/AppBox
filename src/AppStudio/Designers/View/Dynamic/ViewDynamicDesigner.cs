@@ -149,7 +149,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         if (meta == null) return;
 
         var active = _designController.FirstSelected!;
-        active.OnDrop(meta);
+        active.AddElement(meta, Point.Empty);
     }
 
     private void OnRemove(PointerEvent e)
