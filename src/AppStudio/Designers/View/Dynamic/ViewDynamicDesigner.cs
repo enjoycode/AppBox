@@ -44,35 +44,19 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         _toolboxPad = new Toolbox(_designController);
         _outlinePad = new DynamicOutlinePad(_designController);
 
-        Child = new Column
+        Child = new Splitter
         {
-            Children =
+            Fixed = Splitter.FixedPanel.Panel2,
+            Distance = 260,
+            Panel1 = new Column
             {
-                // CommandBar
-                new Container
+                Children =
                 {
-                    Height = 40,
-                    Padding = EdgeInsets.All(5),
-                    FillColor = Colors.Gray,
-                    Child = new Row(VerticalAlignment.Middle, 5f)
-                    {
-                        Children =
-                        {
-                            new Button("Add") { OnTap = OnAdd },
-                            new Button("Remove") { OnTap = OnRemove },
-                            new Button("Background") { OnTap = OnSetBackground },
-                        }
-                    }
-                },
-                // Designer
-                new Splitter
-                {
-                    Fixed = Splitter.FixedPanel.Panel2,
-                    Distance = 260,
-                    Panel1 = new DesignCanvas(_designController),
-                    Panel2 = new PropertyPanel(_designController),
-                },
-            }
+                    BuildCommandBar(),
+                    new DesignCanvas(_designController)
+                }
+            },
+            Panel2 = new PropertyPanel(_designController),
         };
     }
 
@@ -82,6 +66,22 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     private bool _hasLoadSourceCode;
 
     public ModelNodeVO ModelNode { get; }
+
+    private Container BuildCommandBar() => new Container
+    {
+        Height = 40,
+        Padding = EdgeInsets.All(5),
+        FillColor = Colors.Gray,
+        Child = new Row(VerticalAlignment.Middle, 5f)
+        {
+            Children =
+            {
+                new Button("Add") { OnTap = OnAdd },
+                new Button("Remove") { OnTap = OnRemove },
+                new Button("Background") { OnTap = OnSetBackground },
+            }
+        }
+    };
 
     protected override void OnMounted()
     {
