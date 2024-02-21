@@ -38,13 +38,13 @@ internal sealed class NewEntityMemberDialog : Dialog
             Padding = EdgeInsets.All(20),
             Child = new Column()
             {
-                Children = new Widget[]
+                Children =
                 {
                     new Form()
                     {
                         LabelWidth = 100,
                         Padding = EdgeInsets.Only(5, 5, 5, 0),
-                        Children = new[]
+                        Children =
                         {
                             new FormItem("Name:", new TextInput(_name)),
                             new FormItem("MemberType:", new Select<string>(_memberType!)
@@ -58,7 +58,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                         {
                             LabelWidth = 100,
                             Padding = EdgeInsets.Only(5, 0, 5, 5),
-                            Children = new[]
+                            Children =
                             {
                                 new FormItem("FieldType:",
                                     new Select<string>(_fieldType!) { Options = FieldTypes }),
@@ -69,7 +69,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                         {
                             LabelWidth = 100,
                             Padding = EdgeInsets.Only(5, 0, 5, 5),
-                            Children = new[]
+                            Children =
                             {
                                 new FormItem("Target:",
                                     new Select<ModelNodeVO>(_entityRefTarget)
@@ -83,7 +83,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                         {
                             LabelWidth = 100,
                             Padding = EdgeInsets.Only(5, 0, 5, 5),
-                            Children = new[]
+                            Children =
                             {
                                 new FormItem("Target:",
                                     new Select<EntityMemberInfo>(_entitySetTarget)

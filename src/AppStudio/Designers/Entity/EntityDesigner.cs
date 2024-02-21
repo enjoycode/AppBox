@@ -113,13 +113,9 @@ internal sealed class EntityDesigner : View, IModelDesigner
                 "sys.DesignService.NewEntityMember", dlg.GetArgs());
             foreach (var member in members!)
             {
-                if (member.IsForeignKeyMember)
-                {
-                    _entityModel!.Members.Add(member);
-                    continue;
-                }
-
-                _membersController.Add(member);
+                _entityModel!.Members.Add(member);
+                if (!member.IsForeignKeyMember)
+                    _membersController.Add(member);
             }
         }
         catch (Exception ex)
