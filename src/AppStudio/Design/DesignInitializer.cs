@@ -36,8 +36,6 @@ public static class DesignInitializer
             typeof(ChangedModel), () => new ChangedModel()));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.OrderedField,
             typeof(OrderedField), () => new OrderedField()));
-        TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField,
-            typeof(PrimaryKeyField), () => new PrimaryKeyField()));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.ReferenceVO,
             typeof(ReferenceVO), () => new ReferenceVO()));
         TypeSerializer.RegisterKnownType(new BinSerializer(PayloadType.TextChange,
