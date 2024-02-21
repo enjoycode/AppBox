@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore.Entities;
@@ -187,6 +188,9 @@ internal static class StoreInitiator
 #endif
         await MetaStore.Provider.InsertModelAsync(admin_permission, txn);
         await MetaStore.Provider.InsertModelAsync(developer_permission, txn);
+        
+        //最后保存编译好的HomePage程序集
+        await CreateHomePageAssembly(txn);
 
 #if FUTURE
             await txn.CommitAsync();
@@ -487,6 +491,16 @@ internal static class StoreInitiator
         var viewCode = Resources.GetString($"Resources.Views.{name}.cs");
         var codeData = ModelCodeUtil.CompressCode(viewCode);
         await MetaStore.Provider.UpsertModelCodeAsync(model.Id, codeData, txn);
+    }
+
+    private static async Task CreateHomePageAssembly(System.Data.Common.DbTransaction txn)
+    {
+        var asmData = Resources.GetBytes("Resources.Views.HomePage.dll");
+        await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Application, "1", asmData, txn);
+
+        var jsonData = JsonSerializer.SerializeToUtf8Bytes(new string[] { "1" });
+        await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, "sys.HomePage", jsonData, txn,
+            AssemblyFlag.ViewAssemblyNormal);
     }
 }
 

@@ -29,6 +29,8 @@
       <EmbeddedResource Include="Resources\Services\OrgUnitService.cs" />
       <None Remove="Resources\Services\OrgUnitService.dll" />
       <EmbeddedResource Include="Resources\Services\OrgUnitService.dll" />
+      <None Remove="Resources\Views\HomePage.dll" />
+      <EmbeddedResource Include="Resources\Views\HomePage.dll" />
     </ItemGroup>
 
 </Project>
