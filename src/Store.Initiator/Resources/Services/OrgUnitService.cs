@@ -93,4 +93,33 @@ public sealed class OrgUnitService
         
         await txn.CommitAsync();
     }
+    
+    [InvokePermission(sys.Permissions.Admin)]
+    public Task NewEmployeeUser(Employee employee, string account, string password)
+    {
+        if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
+            throw new ArgumentException("用户或密码不能为空");
+            
+        employee.Account = account;
+        employee.Password = RuntimeContext.PasswordHasher!.HashPassword(password);
+        return employee.UpdateAsync();
+    }
+    
+    [InvokePermission(sys.Permissions.Admin)]
+    public Task DeleteEmployeeUser(Employee employee)
+    {
+        employee.Account = null;
+        employee.Password = null;
+        return employee.UpdateAsync();
+    }
+    
+    [InvokePermission(sys.Permissions.Admin)]
+    public Task ResetPassword(Employee employee, string password)
+    {
+        if (string.IsNullOrEmpty(password))
+            throw new ArgumentException("密码不能为空");
+        
+        employee.Password = RuntimeContext.PasswordHasher!.HashPassword(password);
+        return employee.UpdateAsync();
+    }
 }

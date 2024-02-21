@@ -17,8 +17,6 @@ public sealed class OrgUnitsView : View
                 BuildBody(),
             }
         };
-
-        LoadOrgTree();
     }
 
     private readonly TreeController<OrgUnit> _orgTreeController;
@@ -54,20 +52,13 @@ public sealed class OrgUnitsView : View
     {
         return new Card
         {
-            Child = new Row
+            Child = new Splitter
             {
-                Children =
-                {
-                    new Container
-                    {
-                        Width = 150,
-                        Child = new TreeView<OrgUnit>(_orgTreeController, BuildTreeNode, d=>d.Children!)
-                    },
-                    new Container
-                    {
-                        Child = new TabView<string>(_tabController, BuildTab, BuildTabBody)
-                    }
-                }
+                Fixed = Splitter.FixedPanel.Panel1,
+                Distance = 160,
+                SplitterColor = 0xFFECECEC,
+                Panel1 = new TreeView<OrgUnit>(_orgTreeController, BuildTreeNode, d=>d.Children!),
+                Panel2 = new TabView<string>(_tabController, BuildTab, BuildTabBody)
             }
         };
     }
@@ -113,6 +104,12 @@ public sealed class OrgUnitsView : View
         }
 
         return new sys.Views.PermissionTreeView { CurrentOU = _selectedOU };
+    }
+    
+    protected override void OnMounted()
+    {
+        base.OnMounted();
+        LoadOrgTree();
     }
 
     private async void LoadOrgTree()

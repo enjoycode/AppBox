@@ -19,7 +19,7 @@ public sealed class PermissionTreeView : View
     
     public State<OrgUnit?> CurrentOU
     {
-        set => _current = Bind(_current, value, s => OnCurrentChanged())!;
+        set => Bind(ref _current!, value, s => OnCurrentChanged());
     }
     
     private static void BuildTreeNode(TreeNode<PermissionNode> node)

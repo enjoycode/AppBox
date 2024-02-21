@@ -11,6 +11,7 @@ public enum DynamicFieldFlag : byte
     String = 1,
     Binary = 2,
     Bool = 3,
+    //----数值区间----
     Byte = 4,
     Short = 5,
     Int = 6,
@@ -18,6 +19,7 @@ public enum DynamicFieldFlag : byte
     Float = 8,
     Double = 9,
     Decimal = 10,
+    //----数值区间----
     DateTime = 11,
     Guid = 12,
     TypeMask = 0xF,

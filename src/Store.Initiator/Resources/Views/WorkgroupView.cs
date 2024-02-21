@@ -12,7 +12,7 @@ public sealed class WorkgroupView : View
         {
             Padding = EdgeInsets.All(10),
             LabelWidth = 50,
-            Children =
+            Children = 
             {
                 new ("名称:", new TextInput(state.Name)),
             }
