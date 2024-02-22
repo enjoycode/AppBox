@@ -71,7 +71,7 @@ internal sealed class Commands
         }
         catch (Exception ex)
         {
-            Notification.Success($"签出节点[{selectedNode.Data.Label}]失败: {ex.Message}");
+            Notification.Error($"签出节点[{selectedNode.Data.Label}]失败: {ex.Message}");
         }
     }
 

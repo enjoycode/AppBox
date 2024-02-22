@@ -125,15 +125,6 @@ internal static class StoreInitiator
 //         await CreateViewModel("OpsLogin", 17, viewOperationFolder.Id, txn, "ops");
 //         await CreateViewModel("OpsHome", 18, viewOperationFolder.Id, txn);
 
-        //插入数据前先设置模型缓存，以防止找不到
-        var runtime = (IHostRuntimeContext)RuntimeContext.Current;
-        runtime.InjectModel(emploee);
-        runtime.InjectModel(enterprise);
-        runtime.InjectModel(workgroup);
-        runtime.InjectModel(orgunit);
-        runtime.InjectModel(staged);
-        runtime.InjectModel(checkout);
-
 #if FUTURE
         await EntityStore.InsertEntityAsync(defaultEnterprise, txn);
         await EntityStore.InsertEntityAsync(itdept, txn);
@@ -158,6 +149,15 @@ internal static class StoreInitiator
         await SqlStore.Default.CreateTableAsync(orgunit, txn, ctx);
         await SqlStore.Default.CreateTableAsync(staged, txn, ctx);
         await SqlStore.Default.CreateTableAsync(checkout, txn, ctx);
+        
+        //插入数据前先设置模型缓存，以防止找不到
+        var runtime = (IHostRuntimeContext)RuntimeContext.Current;
+        runtime.InjectModel(emploee);
+        runtime.InjectModel(enterprise);
+        runtime.InjectModel(workgroup);
+        runtime.InjectModel(orgunit);
+        runtime.InjectModel(staged);
+        runtime.InjectModel(checkout);
 
         await SqlStore.Default.InsertAsync(defaultEnterprise, txn);
         await SqlStore.Default.InsertAsync(itdept, txn);

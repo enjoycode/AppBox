@@ -31,7 +31,7 @@ public interface IMetaStore
     Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn);
 
     /// <summary>
-    /// 删除所有应用的程序集
+    /// 删除前端应用所有的程序集，用于重新Build web application
     /// </summary>
     Task DeleteAllAppAssembliesAsync(DbTransaction txn);
 
