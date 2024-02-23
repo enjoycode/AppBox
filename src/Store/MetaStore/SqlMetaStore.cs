@@ -483,15 +483,16 @@ public sealed class SqlMetaStore : IMetaStore
         return list.ToArray();
     }
 
-    public async Task<string[]> LoadDynamicWidgetsAsync()
+    public async Task<string[]> LoadMetaNamesAsync(byte metaType, byte? model)
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
         await using var conn = await db.OpenConnectionAsync();
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
-        cmd.CommandText =
-            $"Select id From {esc}sys.Meta{esc} Where meta={(byte)MetaAssemblyType.ViewAssemblies} And model={(byte)AssemblyFlag.ViewDynamic}";
+        cmd.CommandText = $"Select id From {esc}sys.Meta{esc} Where meta={metaType}";
+        if (model.HasValue)
+            cmd.CommandText += $" And model={model.Value}";
         Log.Debug(cmd.CommandText);
         await using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<string>();

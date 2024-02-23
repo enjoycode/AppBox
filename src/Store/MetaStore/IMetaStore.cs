@@ -40,9 +40,13 @@ public interface IMetaStore
     Task<T[]> LoadMetasAsync<T>(byte metaType) where T : IBinSerializable;
 
     /// <summary>
-    /// 加载所有标为动态组件的视图模型的名称，用于设计时注册动态组件至工具箱
+    /// 加载元数据名称列表
     /// </summary>
-    Task<string[]> LoadDynamicWidgetsAsync();
+    /// <remarks>
+    /// 1. 用于设计时注册动态组件至工具箱
+    /// 2. 用于设计时列出外部程序集
+    /// </remarks>
+    Task<string[]> LoadMetaNamesAsync(byte metaType, byte? model);
 }
 
 public static class MetaStoreExtensions
@@ -93,20 +97,16 @@ public static class MetaStoreExtensions
     /// <param name="metaStore"></param>
     /// <param name="viewModelName">eg: sys.HomePage</param>
     /// <returns>json data: ["A","B"]</returns>
-    public static Task<byte[]?> LoadViewAssembliesAsync(this IMetaStore metaStore, string viewModelName)
-    {
-        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ViewAssemblies, viewModelName);
-    }
+    public static Task<byte[]?> LoadViewAssembliesAsync(this IMetaStore metaStore, string viewModelName) =>
+        metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ViewAssemblies, viewModelName);
 
     /// <summary>
     /// 运行时加载压缩过的视图模型的JS代码
     /// </summary>
     /// <param name="metaStore"></param>
     /// <param name="viewName">eg: sys.HomePage</param>
-    public static Task<byte[]?> LoadViewAssemblyAsync(this IMetaStore metaStore, string viewName)
-    {
-        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ViewJS, viewName);
-    }
+    public static Task<byte[]?> LoadViewAssemblyAsync(this IMetaStore metaStore, string viewName) =>
+        metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ViewJS, viewName);
 
     /// <summary>
     /// 加载客户端应用的程序集
@@ -138,10 +138,8 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 用于设计时加载所有ApplicationModel
     /// </summary>
-    public static Task<ApplicationModel[]> LoadAllApplicationAsync(this IMetaStore metaStore)
-    {
-        return metaStore.LoadMetasAsync<ApplicationModel>(MetaType.Meta_Application);
-    }
+    public static Task<ApplicationModel[]> LoadAllApplicationAsync(this IMetaStore metaStore) =>
+        metaStore.LoadMetasAsync<ApplicationModel>(MetaType.Meta_Application);
 
     /// <summary>
     /// 用于设计时加载所有Model
@@ -160,8 +158,12 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 用于设计时加载所有Folder
     /// </summary>
-    public static Task<ModelFolder[]> LoadAllFolderAsync(this IMetaStore metaStore)
-    {
-        return metaStore.LoadMetasAsync<ModelFolder>(MetaType.Meta_Folder);
-    }
+    public static Task<ModelFolder[]> LoadAllFolderAsync(this IMetaStore metaStore) =>
+        metaStore.LoadMetasAsync<ModelFolder>(MetaType.Meta_Folder);
+
+    /// <summary>
+    /// 加载所有标为动态组件的视图模型的名称，用于设计时注册动态组件至工具箱
+    /// </summary>
+    public static Task<string[]> LoadDynamicWidgetsAsync(this IMetaStore metaStore) =>
+        metaStore.LoadMetaNamesAsync((byte)MetaAssemblyType.ViewAssemblies, (byte)AssemblyFlag.ViewDynamic);
 }
