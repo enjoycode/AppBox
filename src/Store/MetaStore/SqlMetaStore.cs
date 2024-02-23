@@ -220,45 +220,6 @@ public sealed class SqlMetaStore : IMetaStore
     // }
 
 //     /// <summary>
-//     /// 加载并解压应用的第三方组件至指定目录内
-//     /// </summary>
-//     /// <param name="appName"></param>
-//     internal static async ValueTask ExtractAppAssemblies(string appName, string libPath)
-//     {
-// #if Windows
-//             byte platform = (byte)AssemblyPlatform.Windows;
-// #elif Linux
-//             byte platform = (byte)AssemblyPlatform.Linux;
-// #else
-//         byte platform = (byte)AssemblyPlatform.OSX;
-// #endif
-//         byte meta = (byte)MetaAssemblyType.Application;
-//         byte model = (byte)AssemblyPlatform.Common;
-//
-//         var db = SqlStore.Default;
-//         var esc = db.NameEscaper;
-//         using var conn = await db.OpenConnectionAsync();
-//         using var cmd = db.MakeCommand();
-//         cmd.Connection = conn;
-//         cmd.CommandText =
-//             $"Select id,data From {esc}sys.Meta{esc} Where meta={meta} And id Like '{appName}.%' And (model={model} Or model={platform})";
-//         Log.Debug(cmd.CommandText);
-//         using var reader = await cmd.ExecuteReaderAsync();
-//         while (await reader.ReadAsync())
-//         {
-//             var id = reader.GetString(0);
-//             var firstDot = id.AsSpan().IndexOf('.');
-//             var asmName = id.AsSpan(firstDot + 1).ToString();
-//             if (!Directory.Exists(libPath))
-//                 Directory.CreateDirectory(libPath);
-//             var path = Path.Combine(libPath, asmName);
-//             using var fs = File.OpenWrite(path);
-//             using var cs = new BrotliStream(reader.GetStream(1), CompressionMode.Decompress, true);
-//             await cs.CopyToAsync(fs);
-//         }
-//     }
-//
-//     /// <summary>
 //     /// 仅用于上传应用使用的第三方组件
 //     /// </summary>
 //     internal static async ValueTask UpsertAppAssemblyAsync(string asmName, byte[] asmData,
@@ -271,31 +232,24 @@ public sealed class SqlMetaStore : IMetaStore
 //     }
 
     /// <summary>
-    /// 保存编译好的服务组件或视图运行时代码或应用的第三方组件
+    /// 保存编译好的服务组件或视图运行时代码或外部程序集
     /// </summary>
+    /// <param name="type"></param>
     /// <param name="asmName">
-    /// 1. App引用的第三方组件: eg: "sys.Newtonsoft.Json.dll", 包含app前缀防止冲突
+    /// 1. 外部程序集名称: eg: "sys.Newtonsoft.Json.dll", 包含app前缀防止冲突
     /// 2. 服务或视图模型为名称: eg: "sys.HelloService" or "sys.HomePage"
     /// </param>
     /// <param name="asmData">已压缩</param>
-    /// <param name="flag">仅适用于应用的第三方程序集</param>
+    /// <param name="txn"></param>
+    /// <param name="flag"></param>
     public async Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
-        DbTransaction txn, AssemblyFlag flag = AssemblyFlag.PlatformAll)
+        DbTransaction txn, AssemblyFlag flag = AssemblyFlag.None)
     {
-        var modelType = type switch
-        {
-            MetaAssemblyType.Application => (byte)flag,
-            MetaAssemblyType.ViewAssemblies => (byte)flag,
-            MetaAssemblyType.Service => (byte)ModelType.Service,
-            MetaAssemblyType.View => (byte)ModelType.View,
-            _ => throw new ArgumentException("Not supported MetaAssemblyType")
-        };
-
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
         BuildDeleteMetaCommand(cmd, (byte)type, asmName);
-        BuildInsertMetaCommand(cmd, (byte)type, asmName, modelType, asmData, true);
+        BuildInsertMetaCommand(cmd, (byte)type, asmName, (byte)flag, asmData, true);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -315,7 +269,7 @@ public sealed class SqlMetaStore : IMetaStore
         cmd.Transaction = txn;
         var esc = SqlStore.Default.NameEscaper;
         cmd.CommandText =
-            $"Delete From {esc}sys.Meta{esc} Where meta={(byte)MetaAssemblyType.Application} Or meta={(byte)MetaAssemblyType.ViewAssemblies}";
+            $"Delete From {esc}sys.Meta{esc} Where meta={(byte)MetaAssemblyType.ClientApp} Or meta={(byte)MetaAssemblyType.ViewAssemblies}";
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -537,7 +491,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
         cmd.CommandText =
-            $"Select id From {esc}sys.Meta{esc} Where meta={(byte)MetaAssemblyType.ViewAssemblies} And model={(byte)AssemblyFlag.ViewAssemblyDynamic}";
+            $"Select id From {esc}sys.Meta{esc} Where meta={(byte)MetaAssemblyType.ViewAssemblies} And model={(byte)AssemblyFlag.ViewDynamic}";
         Log.Debug(cmd.CommandText);
         await using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<string>();

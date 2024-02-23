@@ -496,11 +496,10 @@ internal static class StoreInitiator
     private static async Task CreateHomePageAssembly(System.Data.Common.DbTransaction txn)
     {
         var asmData = Resources.GetBytes("Resources.Views.HomePage.dll");
-        await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Application, "1", asmData, txn);
+        await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, "1", asmData, txn);
 
         var jsonData = JsonSerializer.SerializeToUtf8Bytes(new string[] { "1" });
-        await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, "sys.HomePage", jsonData, txn,
-            AssemblyFlag.ViewAssemblyNormal);
+        await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, "sys.HomePage", jsonData, txn);
     }
 }
 

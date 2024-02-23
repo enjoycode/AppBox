@@ -26,7 +26,7 @@ public interface IMetaStore
     Task DeleteModelCodeAsync(ModelId modelId, DbTransaction txn);
 
     Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
-        DbTransaction txn, AssemblyFlag flag = AssemblyFlag.PlatformAll);
+        DbTransaction txn, AssemblyFlag flag = AssemblyFlag.None);
 
     Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn);
 
@@ -105,7 +105,7 @@ public static class MetaStoreExtensions
     /// <param name="viewName">eg: sys.HomePage</param>
     public static Task<byte[]?> LoadViewAssemblyAsync(this IMetaStore metaStore, string viewName)
     {
-        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.View, viewName);
+        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ViewJS, viewName);
     }
 
     /// <summary>
@@ -116,7 +116,8 @@ public static class MetaStoreExtensions
     /// <returns>压缩过的程序集</returns>
     public static Task<byte[]?> LoadAppAssemblyAsync(this IMetaStore metaStore, string assemblyName)
     {
-        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.Application, assemblyName);
+        //TODO: 支持加载客户端应用依赖的外部程序集(可根据名称中是否包信'.'判断是否外部依赖)
+        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ClientApp, assemblyName);
     }
 
     /// <summary>
@@ -130,7 +131,7 @@ public static class MetaStoreExtensions
         //暂通过判断有无扩展名来区别是服务的组件还是第三方的组件
         if (serviceName.Length >= 4 &&
             serviceName.AsSpan(serviceName.Length - 4).SequenceEqual(".dll"))
-            return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.Application, serviceName);
+            return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ClientApp, serviceName);
         return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
     }
 

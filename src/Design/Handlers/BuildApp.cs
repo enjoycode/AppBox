@@ -61,7 +61,7 @@ internal sealed class BuildApp : IDesignHandler
         //保存程序集
         foreach (var assemblyInfo in allAssemblies)
         {
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Application, assemblyInfo.AssemblyName,
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, assemblyInfo.AssemblyName,
                 assemblyInfo.CompressAssemblyData(), txn);
         }
 
@@ -72,8 +72,8 @@ internal sealed class BuildApp : IDesignHandler
             //暂用json编码
             var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
             var asmFlag = ctx.GetModelInfo(kv.Key).IsDynamicWidget
-                ? AssemblyFlag.ViewAssemblyDynamic
-                : AssemblyFlag.ViewAssemblyNormal;
+                ? AssemblyFlag.ViewDynamic
+                : AssemblyFlag.None;
             await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, viewModelName, jsonData, txn,
                 asmFlag);
         }
@@ -467,6 +467,10 @@ internal sealed class ModelInfo
     }
 
     internal readonly ModelNode ModelNode;
+
+    /// <summary>
+    /// 是否标记了DynamicWidgetAttribute的视图模型
+    /// </summary>
     internal readonly bool IsDynamicWidget;
 
     public ModelId ModelId => ModelNode.Model.Id;

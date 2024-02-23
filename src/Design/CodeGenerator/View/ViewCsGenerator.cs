@@ -48,6 +48,9 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     private readonly TypeSymbolCache _typeSymbolCache;
     private readonly string _thisModelFullName;
     private readonly bool _forPreview;
+    /// <summary>
+    /// 是否标记了DynamicWidgetAttribute的视图模型
+    /// </summary>
     internal bool IsDynamicWidget;
 
     /// <summary>
