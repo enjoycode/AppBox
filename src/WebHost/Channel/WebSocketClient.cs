@@ -44,6 +44,7 @@ internal sealed class WebSocketClient
             var msgType = (MessageType)reader.ReadByte();
             var msgId = reader.ReadInt();
 
+            //TODO: Process on thread pool, do not await
             switch (msgType)
             {
                 case MessageType.InvokeRequest:

@@ -1,25 +1,15 @@
 
-```puml
+
+```plantuml
 @startuml
-skinparam handwritten true
-
-actor User
-participant "First Class" as A
-participant "Second Class" as B
-participant "Last Class" as C
-
-User -> A ++ : DoWork
-
-A -> B ++: Create Request
-
-B -> C ++: DoWork
-C --> B : WorkDone
-destroy C
-
-B --> A -- : Request Created
-
-A --> User --: Done
-
+Bob->Alice : Hello!
 @enduml
 ```
 
+```mermaid
+graph LR
+    A[Write Codel] --> B{Does it work?}
+    B -- Yes --> C[Great!]
+    B -- No --> D[Google]
+    D --> A
+```

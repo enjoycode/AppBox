@@ -155,7 +155,7 @@ internal static class MetadataReferences
             AppBoxStoreLib
         };
 
-        if (model.HasReference) //添加其他引用
+        if (model.HasDependency) //添加其他引用
         {
             throw new NotImplementedException("ServiceModel has references");
             // for (int i = 0; i < model.References.Count; i++)

@@ -351,7 +351,7 @@ internal sealed class TypeSystem : IDisposable
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
         };
 
-        if (model.HasReference) //添加其他引用
+        if (model.HasDependency) //添加其他引用
         {
             throw new NotImplementedException();
             // for (int i = 0; i < model.References.Count; i++)
