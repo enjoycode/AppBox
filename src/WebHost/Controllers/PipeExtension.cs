@@ -1,9 +1,10 @@
+using System.Buffers;
 using System.IO.Pipelines;
 using AppBoxCore;
 
 namespace AppBoxWebHost;
 
-internal static class PipeReaderExtension
+internal static class PipeExtension
 {
     public static async ValueTask<BytesSegment> CopyToAsync(this PipeReader pipeReader)
     {
@@ -39,5 +40,20 @@ internal static class PipeReaderExtension
         var bytes = writer.FinishWrite();
         MessageWriteStream.Return(writer);
         return bytes;
+    }
+}
+
+internal sealed class PipeOutput(PipeWriter pipeWriter) : IOutputStream
+{
+    public SerializeContext Context { get; } = new();
+
+    public unsafe void WriteByte(byte value)
+    {
+        pipeWriter.Write(new ReadOnlySpan<byte>(&value, 1));
+    }
+
+    public void WriteBytes(ReadOnlySpan<byte> src)
+    {
+        pipeWriter.Write(src);
     }
 }

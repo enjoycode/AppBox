@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>AppBoxWebHost</AssemblyName>
         <RootNamespace>AppBoxWebHost</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(RunConfiguration)' == 'WebHost' " />
