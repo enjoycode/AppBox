@@ -16,6 +16,7 @@ var app = builder.Build();
 
 //TODO:以下RestApi根据全局配置是否启用当前功能
 app.MapPost("/rest/login", RestController.Login);
+app.MapPost("/rest/invoke", RestController.Invoke);
 
 var defaultFilesOptions = new DefaultFilesOptions();
 defaultFilesOptions.DefaultFileNames.Clear();

@@ -20,6 +20,7 @@ internal static class RestController
         Log.Debug($"user={user} pass={pass} external={external}");
 
         httpContext.Response.ContentType = "application/octet-stream";
+        var writer = new PipeOutput(httpContext.Response.BodyWriter);
         try
         {
             if (string.IsNullOrEmpty(external))
@@ -35,8 +36,7 @@ internal static class RestController
                 //注册外部用户会话
                 var session = new RestExternalSession(treePath);
                 ExternalSessionManager.Provider.Register(session);
-
-                var writer = new PipeOutput(httpContext.Response.BodyWriter);
+                
                 writer.WriteByte(0);
                 writer.WriteString(session.SessionId);
                 writer.WriteString(session.Name);
@@ -44,7 +44,6 @@ internal static class RestController
         }
         catch (Exception e)
         {
-            var writer = new PipeOutput(httpContext.Response.BodyWriter);
             writer.WriteByte(1);
             writer.WriteString(e.Message);
         }
@@ -54,14 +53,27 @@ internal static class RestController
 
     public static async Task Invoke(HttpContext httpContext)
     {
-        string? sessionId = httpContext.Request.Headers["SessionId"];
         var requestBody = await httpContext.Request.BodyReader.CopyToAsync();
         var reader = MessageReadStream.Rent(requestBody);
-        var service = reader.ReadString()!;
+        
         //设置当前会话
+        var sessionId = reader.ReadString();
         if (!string.IsNullOrEmpty(sessionId) && ExternalSessionManager.Provider.TryGet(sessionId, out var session))
             HostRuntimeContext.SetCurrentSession(session);
-        
-        throw new NotImplementedException();
+        var writer = new PipeOutput(httpContext.Response.BodyWriter);
+        try
+        {
+            var service = reader.ReadString()!;
+            var invokeResult = await RuntimeContext.InvokeAsync(service, InvokeArgs.From(reader));
+            writer.WriteByte(0);
+            writer.Serialize(invokeResult.BoxedValue);
+        }
+        catch (Exception e)
+        {
+            httpContext.Response.Clear();
+            writer.WriteByte(1);
+            writer.WriteString(e.Message);
+        }
+        await httpContext.Response.BodyWriter.FlushAsync();
     }
 }
