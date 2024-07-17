@@ -20,7 +20,7 @@ public sealed class WebSocketChannel : IChannel
     private Task _connectTask = null!;
     private readonly Uri _serverUri;
 
-    private int _sessionId;
+    private string _sessionId;
     private string? _name;
     private int _msgIdIndex = 0;
 
@@ -88,7 +88,7 @@ public sealed class WebSocketChannel : IChannel
         return result;
     }
 
-    public async Task Login(string user, string password, object? external)
+    public async Task Login(string user, string password, string? external)
     {
         //add to wait list
         var msgId = MakeMsgId();
@@ -115,7 +115,7 @@ public sealed class WebSocketChannel : IChannel
         var loginOk = rs.ReadBool();
         if (loginOk)
         {
-            _sessionId = rs.ReadInt();
+            _sessionId = rs.ReadString()!;
             _name = rs.ReadString()!;
             MessageReadStream.Return(rs);
         }

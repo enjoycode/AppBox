@@ -8,7 +8,7 @@ public interface IOutputStream : IEntityMemberWriter
 
     void WriteByte(byte value);
 
-    void WriteBytes(Span<byte> src);
+    void WriteBytes(ReadOnlySpan<byte> src);
 
     #region ====IEntityMemberWriter====
 

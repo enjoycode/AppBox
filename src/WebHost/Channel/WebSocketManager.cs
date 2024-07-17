@@ -10,11 +10,11 @@ internal static class WebSocketManager
 {
     private static readonly IList<WebSocketClient> Anonymous = new List<WebSocketClient>();
 
-    private static readonly ReaderWriterLockSlim AnonymousLock = new ReaderWriterLockSlim();
+    private static readonly ReaderWriterLockSlim AnonymousLock = new();
 
-    private static readonly Dictionary<int, WebSocketClient> Clients = new();
+    private static readonly Dictionary<string, WebSocketClient> Clients = new();
 
-    private static readonly ReaderWriterLockSlim ClientsLock = new ReaderWriterLockSlim();
+    private static readonly ReaderWriterLockSlim ClientsLock = new();
 
     internal static async Task OnAccept(WebSocket webSocket)
     {
@@ -102,7 +102,7 @@ internal static class WebSocketManager
     /// <summary>
     /// 根据会话标识查找会话
     /// </summary>
-    internal static WebSession? FindSession(int sessionId)
+    internal static WebSession? FindSession(string sessionId)
     {
         ClientsLock.EnterReadLock();
         Clients.TryGetValue(sessionId, out var client);

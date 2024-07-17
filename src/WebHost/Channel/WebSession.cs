@@ -9,7 +9,7 @@ public sealed class WebSession : IDeveloperSession, IDisposable
     private readonly TreePath _treePath;
     private DesignHub? _designHub;
 
-    public WebSession(TreePath path, int sessionId)
+    public WebSession(TreePath path, string sessionId)
     {
         _treePath = path;
         SessionId = sessionId;
@@ -22,12 +22,12 @@ public sealed class WebSession : IDeveloperSession, IDisposable
     public bool IsExternal => false;
     public string Tag => string.Empty;
 
-    public int SessionId { get; }
+    public string SessionId { get; }
 
     public int Levels => _treePath.Level;
 
     public Guid LeafOrgUnitId => (Guid)_treePath[0].Id;
-    public Guid EmploeeId => LeafOrgUnitId;
+    public Guid EmployeeId => LeafOrgUnitId;
     public Guid ExternalId => Guid.Empty;
 
     public TreePathNode this[int index] => _treePath[index];

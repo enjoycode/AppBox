@@ -23,7 +23,7 @@ public sealed class MemoryWriteStream : IOutputStream, IDisposable
 
     public void WriteByte(byte value) => _memory.WriteByte(value);
 
-    public void WriteBytes(Span<byte> src) => _memory.Write(src);
+    public void WriteBytes(ReadOnlySpan<byte> src) => _memory.Write(src);
 
     public void Dispose() => _memory.Dispose();
 }

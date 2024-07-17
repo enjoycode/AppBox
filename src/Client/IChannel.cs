@@ -5,7 +5,7 @@ namespace AppBoxClient;
 
 public interface IChannel
 {
-    Task Login(string user, string password, object? external);
+    Task Login(string user, string password, string? external);
 
     Task Logout();
 

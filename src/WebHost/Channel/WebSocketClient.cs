@@ -5,18 +5,12 @@ using AppBoxServer;
 
 namespace AppBoxWebHost;
 
-internal sealed class WebSocketClient
+internal sealed class WebSocketClient(WebSocket webSocket)
 {
-    private readonly WebSocket _webSocket;
     internal WebSession? WebSession { get; set; }
 
     private BytesSegment? _pending;
-    private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
-
-    public WebSocketClient(WebSocket webSocket)
-    {
-        _webSocket = webSocket;
-    }
+    private readonly SemaphoreSlim _sendLock = new(1, 1);
 
     /// <summary>
     /// 组合并处理收到的消息
@@ -90,8 +84,7 @@ internal sealed class WebSocketClient
         //登录成功创建并注册会话
         if (errorInfo == null)
         {
-            var sessionId = StringUtil.GetHashCode(user); //TODO:暂Hash得到会话标识
-            WebSession = new WebSession(result!, sessionId);
+            WebSession = new WebSession(result!, user);
             WebSocketManager.RegisterSession(this, WebSession);
         }
 
@@ -102,7 +95,7 @@ internal sealed class WebSocketClient
         writer.WriteBool(errorInfo == null);
         if (errorInfo == null)
         {
-            writer.WriteInt(WebSession!.SessionId);
+            writer.WriteString(WebSession!.SessionId);
             writer.WriteString(WebSession.Name);
             //TODO:考虑写入员工标识
         }
@@ -195,9 +188,9 @@ internal sealed class WebSocketClient
         await _sendLock.WaitAsync();
         try
         {
-            while (cur != null && _webSocket.State == WebSocketState.Open)
+            while (cur != null && webSocket.State == WebSocketState.Open)
             {
-                await _webSocket.SendAsync(cur.Memory, WebSocketMessageType.Binary,
+                await webSocket.SendAsync(cur.Memory, WebSocketMessageType.Binary,
                     cur.Next == null, CancellationToken.None).ConfigureAwait(false);
                 cur = cur.Next;
             }

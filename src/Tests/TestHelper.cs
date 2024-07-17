@@ -27,7 +27,7 @@ public static class TestHelper
     {
         TryInitDefaultStore();
 
-        var mockSession = new MockSession(12345);
+        var mockSession = new MockSession("12345");
         HostRuntimeContext.SetCurrentSession(mockSession);
         var designHub = mockSession.GetDesignHub();
         await designHub.DesignTree.LoadAsync();

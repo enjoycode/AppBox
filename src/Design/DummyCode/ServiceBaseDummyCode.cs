@@ -180,6 +180,12 @@ namespace AppBoxStore
         [QueryMethod()]
         public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => throw new Exception();
 
+        /// <summary>
+        /// 执行查询并转换为树节点路径
+        /// </summary>
+        [QueryMethod()]
+        public Task<TreePath> ToTreePathAsync(Func<T, T> parent, Func<T, string> textMember) => throw new Exception();
+
         [QueryMethod()]
         public SqlQuery<T> GroupBy<TResult>(Func<T, TResult> keySelector) => this;
 

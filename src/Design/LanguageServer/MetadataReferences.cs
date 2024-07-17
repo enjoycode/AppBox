@@ -31,7 +31,13 @@ internal static class MetadataReferences
 
     internal static MetadataReference SystemCollectionsLib => GetSdkLib("System.Collections.dll");
 
-    internal static MetadataReference SystemTasksLib => GetSdkLib("System.Threading.Tasks.dll");
+    // internal static MetadataReference SystemTasksLib => GetSdkLib("System.Threading.Tasks.dll");
+
+    internal static MetadataReference SystemPrivateUriLib => GetSdkLib("System.Private.Uri.dll");
+
+    internal static MetadataReference SystemNetHttpLib => GetSdkLib("System.Net.Http.dll");
+
+    internal static MetadataReference SystemNetHttpJsonLib => GetSdkLib("System.Net.Http.Json.dll");
 
     internal static MetadataReference SystemDataLib => GetSdkLib("System.Data.Common.dll");
 
@@ -150,6 +156,10 @@ internal static class MetadataReferences
             // ComponentModelPrimitivesLib,
             // ComponentModelLib,
             // SystemBuffersLib,
+            SystemJsonLib,
+            SystemPrivateUriLib,
+            SystemNetHttpLib,
+            SystemNetHttpJsonLib,
             AppBoxCoreLib,
             AppBoxServerLib,
             AppBoxStoreLib

@@ -23,7 +23,7 @@ public interface IUserSession
     /// <summary>
     /// 会话标识号，仅用于服务端会话管理
     /// </summary>
-    int SessionId { get; }
+    string SessionId { get; }
 
     /// <summary>
     /// 当前会话用户的组织路径深度
@@ -39,7 +39,7 @@ public interface IUserSession
     /// <summary>
     /// 获取内部会话对应的员工标识，如果是外部用户则返回Guid.Empty
     /// </summary>
-    Guid EmploeeId { get; }
+    Guid EmployeeId { get; }
 
     /// <summary>
     /// 获取外部会话对应的外部用户标识，如果是内部用户则返回Guid.Empty

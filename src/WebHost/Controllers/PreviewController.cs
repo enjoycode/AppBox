@@ -16,7 +16,7 @@ public class PreviewController : ControllerBase
     /// </summary>
     [HttpGet("View/{sessionId}/{viewModelId}")]
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<IActionResult> View(int sessionId, string viewModelId)
+    public async Task<IActionResult> View(string sessionId, string viewModelId)
     {
         var session = WebSocketManager.FindSession(sessionId);
         if (session == null)
@@ -38,7 +38,7 @@ public class PreviewController : ControllerBase
     /// </summary>
     [HttpGet("Entity/{sessionId}/{entityModelId}")]
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<IActionResult> Entity(int sessionId, string entityModelId)
+    public async Task<IActionResult> Entity(string sessionId, string entityModelId)
     {
         var session = WebSocketManager.FindSession(sessionId);
         if (session == null)

@@ -13,7 +13,7 @@ public static class Channel
         _provider = provider;
     }
 
-    public static Task Login(string user, string password, object? external = null)
+    public static Task Login(string user, string password, string? external = null)
         => _provider.Login(user, password, external);
 
     public static Task Logout() => _provider.Logout();

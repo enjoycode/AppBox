@@ -205,7 +205,7 @@ internal sealed class TypeSystem : IDisposable
                 //服务端代码生成
                 var dummyCode = PermissionCodeGenerator.GenServerCode((PermissionModel)model, appName);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
-                
+
                 //客户端代码生成
                 var clietCode = PermissionCodeGenerator.GenClientCode((PermissionModel)model, appName);
                 newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, clietCode);
@@ -257,10 +257,10 @@ internal sealed class TypeSystem : IDisposable
             {
                 var sourceCode = EntityCsGenerator.GenRuntimeCode(node);
                 newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
-                
+
                 //RxEntity虚拟代码生成
                 var rxEntityCode = EntityCsGenerator.GenRxEntityCode(node);
-                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!, SourceText.From( rxEntityCode));
+                newSolution = newSolution.WithDocumentText(node.ExtRoslynDocumentId!, SourceText.From(rxEntityCode));
                 break;
             }
             case ModelType.Enum:
@@ -348,6 +348,10 @@ internal sealed class TypeSystem : IDisposable
             MetadataReferences.SystemLinqLib,
             MetadataReferences.SystemDataLib,
             MetadataReferences.SystemCollectionsLib,
+            MetadataReferences.SystemJsonLib,
+            MetadataReferences.SystemPrivateUriLib,
+            MetadataReferences.SystemNetHttpLib,
+            MetadataReferences.SystemNetHttpJsonLib,
             MetadataReferences.AppBoxCoreLib, //需要解析一些类型
         };
 

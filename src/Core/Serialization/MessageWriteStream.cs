@@ -53,7 +53,7 @@ public sealed class MessageWriteStream : IOutputStream
         _current.Buffer[_pos++] = value;
     }
 
-    public void WriteBytes(Span<byte> src)
+    public void WriteBytes(ReadOnlySpan<byte> src)
     {
         while (true)
         {
