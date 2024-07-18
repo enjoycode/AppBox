@@ -101,6 +101,10 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.CoreLib)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.NetstandardLib)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemJsonLib)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemPrivateUriLib)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemNetHttpLib)
+                .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.SystemNetHttpJsonLib)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(ServiceProxyProjectId, new ProjectReference(ModelProjectId))
                 .AddDocument(DocumentId.CreateNewId(ServiceProxyProjectId), "ServiceBase.cs",
