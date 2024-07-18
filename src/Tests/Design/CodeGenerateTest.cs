@@ -12,7 +12,7 @@ public class CodeGenerateTest
     public async Task GenEntityWebCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Customer")!;
         var code = EntityJsGenerator.GenWebCode((EntityModel)entityNode.Model, designHub, true);
         Console.Write(code);
     }
@@ -31,7 +31,7 @@ public class CodeGenerateTest
     public async Task GenEntityCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.楼盘位置")!;
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Customer")!;
         var code = EntityCsGenerator.GenRuntimeCode(entityNode);
         Console.Write(code);
     }

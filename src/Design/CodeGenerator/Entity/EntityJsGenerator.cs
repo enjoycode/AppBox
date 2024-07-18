@@ -47,6 +47,9 @@ public static class EntityJsGenerator
                 case EntityMemberType.EntitySet:
                     GenWebEntitySetMember((EntitySetModel)member, ctx, sb);
                     break;
+                case EntityMemberType.EntityFieldTracker:
+                    GenWebEntityFieldTrackerMember((FieldTrackerModel)member, sb);
+                    break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
             }
@@ -54,11 +57,11 @@ public static class EntityJsGenerator
 
         // override ModelId
         sb.Append("\n\n\tstatic get MODELID() {return ");
-        sb.Append(model.Id.Value.ToString());
+        sb.Append(model.Id.Value);
         sb.Append("n;}");
 
         sb.Append("\n\tget ModelId() {return ");
-        sb.Append(model.Id.Value.ToString());
+        sb.Append(model.Id.Value);
         sb.Append("n;}\n");
 
         // override ReadFrom()
@@ -77,6 +80,7 @@ public static class EntityJsGenerator
             sb.Append(':');
             switch (member.Type)
             {
+                case EntityMemberType.EntityFieldTracker:
                 case EntityMemberType.EntityField:
                     sb.Append("this._");
                     sb.Append(member.Name);
@@ -127,6 +131,7 @@ public static class EntityJsGenerator
 
             switch (member.Type)
             {
+                case EntityMemberType.EntityFieldTracker:
                 case EntityMemberType.EntityField:
                     sb.Append("ws.WriteShort(");
                     sb.Append(member.MemberId.ToString());
@@ -168,6 +173,9 @@ public static class EntityJsGenerator
         sb.Append("\t\tthis._ignoreSerializeNavigateMembers = false;\n");
         sb.Append("\t}\n"); //end WriteTo()
 
+        //override AcceptTrackerChanges()
+        GenWebEntityAcceptTrackerChanges(model, sb);
+
         sb.Append("}\n"); //class end
         return StringBuilderCache.GetStringAndRelease(sb);
     }
@@ -178,10 +186,34 @@ public static class EntityJsGenerator
         sb.Append($"\t_{field.Name}; ");
         sb.Append($"get {field.Name}() {{return this._{field.Name}}} ");
         sb.Append($"set {field.Name}(value) {{");
+
+        //判断是主键且不可修改且非新建状态抛异常
+        var isPK = field.IsPrimaryKey;
+        var isChangeablePK = field.IsChangeablePrimaryKey;
+        if (isPK && !isChangeablePK)
+        {
+            sb.Append(
+                "if (this.PersistentState != PersistentState.Detached) throw new Error(\"不可修改的主键字段\");");
+        }
+
+        //如果存在相应的跟踪值成员，则先跟踪旧值
+        var tracker = field.Owner.Members.SingleOrDefault(m =>
+            m is FieldTrackerModel tracker && tracker.TargetMemberId == field.MemberId);
+        if (tracker != null)
+        {
+            sb.Append($"if (this.PersistentState != PersistentState.Detached) && this._{tracker.Name} == null)");
+            sb.Append($" this._{tracker.Name}=this._{field.Name};");
+        }
+
         //TODO: check equals
         sb.Append($"this._{field.Name}=value;");
         sb.Append($"this.OnPropertyChanged({field.MemberId});");
         sb.Append("}\n");
+    }
+
+    private static void GenWebEntityFieldTrackerMember(FieldTrackerModel tracker, StringBuilder sb)
+    {
+        sb.Append($"\t_{tracker.Name};\n");
     }
 
     private static void GenWebEntityRefMember(EntityRefModel entityRef, IModelContainer ctx, StringBuilder sb)
@@ -269,5 +301,21 @@ public static class EntityJsGenerator
         //注意构造EntitySet时暂不需要生成实体工厂委托
         sb.Append(
             $"get {name}() {{this._{name} ??= new AppBoxCore.EntitySet((t,toNull) => t.{refName} = toNull ? null : this, null); return this._{name};}}");
+    }
+
+    private static void GenWebEntityAcceptTrackerChanges(EntityModel model, StringBuilder sb)
+    {
+        var trackers = model.Members
+            .Where(m => m.Type == EntityMemberType.EntityFieldTracker)
+            .Cast<FieldTrackerModel>().ToArray();
+        if (trackers.Length == 0) return;
+
+        sb.Append("\n\tAcceptTrackerChanges(){");
+        foreach (var tracker in trackers)
+        {
+            sb.Append($"_{tracker.Name} = null;");
+        }
+
+        sb.Append("}\n"); //end method
     }
 }
