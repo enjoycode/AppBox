@@ -201,7 +201,7 @@ public static class EntityJsGenerator
             m is FieldTrackerModel tracker && tracker.TargetMemberId == field.MemberId);
         if (tracker != null)
         {
-            sb.Append($"if (this.PersistentState != PersistentState.Detached) && this._{tracker.Name} == null)");
+            sb.Append($"if (this.PersistentState != PersistentState.Detached && this._{tracker.Name} == null)");
             sb.Append($" this._{tracker.Name}=this._{field.Name};");
         }
 
@@ -313,7 +313,7 @@ public static class EntityJsGenerator
         sb.Append("\n\tAcceptTrackerChanges(){");
         foreach (var tracker in trackers)
         {
-            sb.Append($"_{tracker.Name} = null;");
+            sb.Append($"this._{tracker.Name} = null;");
         }
 
         sb.Append("}\n"); //end method
