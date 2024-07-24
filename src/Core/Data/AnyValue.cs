@@ -166,7 +166,8 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
     public bool Equals(AnyValue other)
     {
         if (Type != other.Type) return false;
-        if (Type == AnyValueType.Object) return _ObjectValue == other._ObjectValue;
+        if (Type == AnyValueType.Object)
+            return Equals(_ObjectValue, other._ObjectValue);
         return GuidValue == other.GuidValue;
     }
 }
