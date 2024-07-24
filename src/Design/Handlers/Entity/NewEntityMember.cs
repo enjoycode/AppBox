@@ -95,11 +95,13 @@ internal sealed class NewEntityMember : IDesignHandler
 
         var res = new List<EntityMemberVO>();
         //检查外键字段名称是否已存在，并且添加外键成员 //TODO:聚合引用检查XXXType是否存在
-        var fkMemberIds = new short[refModels.Length];
+        short[] fkMemberIds;
         if (model.DataStoreKind == DataStoreKind.Sql)
         {
             var refModel = refModels[0]; //暂聚合引用以第一个的主键作为外键的名称
-            for (var i = 0; i < refModel.SqlStoreOptions!.PrimaryKeys.Length; i++)
+            var pkLen = refModel.SqlStoreOptions!.PrimaryKeys.Length;
+            fkMemberIds = new short[pkLen];
+            for (var i = 0; i < pkLen; i++)
             {
                 var pk = refModel.SqlStoreOptions!.PrimaryKeys[i];
                 var pkMemberModel = (EntityFieldModel)refModels[0].GetMember(pk.MemberId)!;
@@ -122,14 +124,14 @@ internal sealed class NewEntityMember : IDesignHandler
                 new EntityFieldModel(model, $"{name}Id", EntityFieldType.EntityId, allowNull, true);
             model.AddMember(fkId);
             res.Add(EntityFieldVO.From(fkId));
-            fkMemberIds[0] = fkId.MemberId;
+            fkMemberIds = new[] { fkId.MemberId };
         }
 
         // 如果为聚合引用则添加对应的Type列, eg: CostBill -> CostBillType
         EntityRefModel entityRef;
         if (refIds.Length > 1)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("未实现聚合引用");
             // var fkType = new EntityFieldModel(model, $"{name}Type", EntityFieldType.Long, allowNull, true);
             // model.AddMember(fkType);
             // entityRef = new EntityRefModel(model, name, refIds.Cast<ulong>().ToList(), fkMemberIds, fkType.MemberId);
