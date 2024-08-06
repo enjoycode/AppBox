@@ -20,7 +20,7 @@ internal sealed class NewEntityMemberDialog : Dialog
     private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
 
     private static readonly string[] FieldTypes =
-        { "String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid" };
+        { "String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Binary" };
 
     private readonly DesignStore _designStore;
     private readonly ModelNodeVO _modelNode;
@@ -121,6 +121,7 @@ internal sealed class NewEntityMemberDialog : Dialog
         "Bool" => (int)EntityFieldType.Bool,
         "DateTime" => (int)EntityFieldType.DateTime,
         "Guid" => (int)EntityFieldType.Guid,
+        "Binary" => (int)EntityFieldType.Binary,
         _ => throw new NotImplementedException()
     };
 
