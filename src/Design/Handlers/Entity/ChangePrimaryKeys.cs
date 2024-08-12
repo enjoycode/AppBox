@@ -1,5 +1,4 @@
 using AppBoxCore;
-using System.Linq;
 
 namespace AppBoxDesign;
 
@@ -54,7 +53,7 @@ internal sealed class ChangePrimaryKeys : IDesignHandler
             var deletesTracker = allPKTrackers
                 .Where(m => !pks.Any(p => p.AllowChange && p.MemberId == m.TargetMemberId))
                 .ToList();
-            deletesTracker.ForEach(m => model.RemoveMember(m));
+            deletesTracker.ForEach(model.RemoveMember);
             var addsTracker = pks
                 .Where(p => p.AllowChange && allPKTrackers.All(m => m.TargetMemberId != p.MemberId))
                 .ToList();

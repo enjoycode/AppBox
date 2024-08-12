@@ -22,8 +22,8 @@ internal sealed class SqlStoreOptionsDesigner : View
             {
                 Children =
                 {
-                    new Expanded(BuildPrimaryKeysPannel()),
-                    new Expanded(BuildIndexesPannel()),
+                    new Expanded(BuildPrimaryKeysPanel()),
+                    new Expanded(BuildIndexesPanel()),
                 }
             }
         };
@@ -34,7 +34,7 @@ internal sealed class SqlStoreOptionsDesigner : View
     private readonly DataGridController<PrimaryKeyField> _pkController = new();
     private readonly DataGridController<SqlIndexModelVO> _ixController = new();
 
-    private Widget BuildPrimaryKeysPannel() => new Card
+    private Widget BuildPrimaryKeysPanel() => new Card
     {
         Padding = EdgeInsets.All(10),
         Child = new Column(HorizontalAlignment.Left, 10)
@@ -66,7 +66,7 @@ internal sealed class SqlStoreOptionsDesigner : View
         }
     };
 
-    private Widget BuildIndexesPannel() => new Card
+    private Widget BuildIndexesPanel() => new Card
     {
         Padding = EdgeInsets.All(10),
         Child = new Column(HorizontalAlignment.Left, 10)

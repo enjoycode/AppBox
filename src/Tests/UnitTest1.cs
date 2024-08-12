@@ -14,6 +14,8 @@ public class Tests
         var utc = DateTime.UnixEpoch;
         var ticks = utc.Ticks;
         
+        Console.WriteLine(DateTime.MaxValue.ToLocalTime().ToString("yyyy-MM-dd hh:mm:ss"));
+        
         Assert.Pass();
     }
 }
