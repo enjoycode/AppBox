@@ -14,7 +14,7 @@ public sealed class MockSession : IDeveloperSession
     public string SessionId { get; }
 
     public int Levels { get; } = 0;
-    public Guid LeafOrgUnitId { get; } = Guid.Empty;
+    public Guid LeafOrgUnitId { get; } = Guid.Parse("23ac9096-e0dd-456d-a14d-87c085c947e9");
     public Guid EmployeeId { get; } = Guid.Empty;
     public Guid ExternalId { get; } = Guid.Empty;
 

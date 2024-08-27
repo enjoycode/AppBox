@@ -14,7 +14,7 @@ internal partial class ServiceCodeGenerator
         //eg: t.Customer.Name 转换为 t["Customer"]["Name"]
         if (queryMethodCtx.HasAny && queryMethodCtx.Current.InLambdaExpression)
         {
-            var identifier = FindIndentifierForMemberAccessExpression(node);
+            var identifier = FindIdentifierForMemberAccessExpression(node);
             if (identifier != null && queryMethodCtx.Current.IsLambdaParameter(identifier))
             {
                 //TODO:考虑进一步判断符号是否相同
@@ -41,7 +41,7 @@ internal partial class ServiceCodeGenerator
         return base.VisitMemberAccessExpression(node);
     }
 
-    private static IdentifierNameSyntax? FindIndentifierForMemberAccessExpression(MemberAccessExpressionSyntax node)
+    private static IdentifierNameSyntax? FindIdentifierForMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
         while (true)
         {
@@ -52,6 +52,21 @@ internal partial class ServiceCodeGenerator
             {
                 node = memberAccess;
                 continue;
+            }
+
+            //特殊处理 eg: t.Goods!.Name
+            if (node.Expression is PostfixUnaryExpressionSyntax postfixUnary)
+            {
+                if (postfixUnary.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+                {
+                    if (postfixUnary.Operand is IdentifierNameSyntax identifierNameSyntax2)
+                        return identifierNameSyntax2;
+                    if (postfixUnary.Operand is MemberAccessExpressionSyntax memberAccess2)
+                    {
+                        node = memberAccess2;
+                        continue;
+                    }
+                }
             }
 
             return null;
@@ -91,24 +106,36 @@ internal partial class ServiceCodeGenerator
             else if (node.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 BuildQueryMethodMemberAccess(memberAccess, targetIdentifier, sb);
-                
-                var symbol = SemanticModel.GetSymbolInfo(node).Symbol!;
-                //判断是否方法调用 eg: t.Name.Contains
-                //TODO:暂简单处理，应转换或排除不支持的方法
-                if (symbol is IMethodSymbol methodSymbol)
+                BuildQueryMethodMemberPath(node, sb);
+            }
+            else if (node.Expression is PostfixUnaryExpressionSyntax postfixUnary)
+            {
+                if (postfixUnary.Operand is MemberAccessExpressionSyntax memberAccess2)
                 {
-                    sb.Append($".{methodSymbol.Name}");
-                }
-                else
-                {
-                    //判断是否实体成员
-                    var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(symbol.ContainingType.ToString())!;
-                    var model = (EntityModel)modelNode.Model;
-                    var isEntityMember = model.GetMember(symbol.Name, false) != null;
-
-                    sb.AppendFormat(isEntityMember ? "[\"{0}\"]" : ".{0}", node.Name.Identifier.ValueText);
+                    BuildQueryMethodMemberAccess(memberAccess2, targetIdentifier, sb);
+                    BuildQueryMethodMemberPath(node, sb);
                 }
             }
+        }
+    }
+
+    private void BuildQueryMethodMemberPath(MemberAccessExpressionSyntax node, StringBuilder sb)
+    {
+        var symbol = SemanticModel.GetSymbolInfo(node).Symbol!;
+        //判断是否方法调用 eg: t.Name.Contains
+        //TODO:暂简单处理，应转换或排除不支持的方法
+        if (symbol is IMethodSymbol methodSymbol)
+        {
+            sb.Append($".{methodSymbol.Name}");
+        }
+        else
+        {
+            //判断是否实体成员
+            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(symbol.ContainingType.ToString()!)!;
+            var model = (EntityModel)modelNode.Model;
+            var isEntityMember = model.GetMember(symbol.Name, false) != null;
+
+            sb.AppendFormat(isEntityMember ? "[\"{0}\"]" : ".{0}", node.Name.Identifier.ValueText);
         }
     }
 }

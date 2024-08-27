@@ -62,6 +62,8 @@ internal partial class ServiceCodeGenerator
                 : VisitDynamicQueryToAnonymousObject(lambda, queryMethod.LambdaParameters!, aoc),
             MemberAccessExpressionSyntax ma =>
                 VisitDynamicQueryToSingleValue(lambda, queryMethod.LambdaParameters!, ma),
+            ObjectCreationExpressionSyntax oc =>
+                VisitDynamicQueryToObject(lambda, queryMethod.LambdaParameters!, oc),
             _ => throw new NotImplementedException($"动态查询方法的第一个参数[{lambda.Body.GetType().Name}]暂未实现")
         };
     }
@@ -88,7 +90,7 @@ internal partial class ServiceCodeGenerator
             var fieldName = initializer.NameEquals != null
                 ? initializer.NameEquals.Name.Identifier.ValueText
                 : ((MemberAccessExpressionSyntax)initializer.Expression).Name.Identifier.ValueText;
-            
+
             sb1.Append("[\"");
             sb1.Append(fieldName);
             sb1.Append("\"]=r.Read");
@@ -176,6 +178,62 @@ internal partial class ServiceCodeGenerator
         //处理selectItems参数
         var arrayItems = new SeparatedSyntaxList<ExpressionSyntax>()
             .AddRange(aoc.Initializers.Select(init => (ExpressionSyntax)init.Expression.Accept(this)!));
+
+        var arrayInitializer = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, arrayItems);
+        var selectsArray = SyntaxFactory.ImplicitArrayCreationExpression(arrayInitializer);
+
+        var parametersList = new SeparatedSyntaxList<ParameterSyntax>().AddRange(lambdaParameters);
+        var selectsLambdaParameters = SyntaxFactory.ParameterList(parametersList);
+        var selectsLambda = SyntaxFactory.ParenthesizedLambdaExpression(selectsLambdaParameters, null, selectsArray);
+        var selectsArg = SyntaxFactory.Argument(selectsLambda);
+        //补body所有行差
+        var lineSpan = lambda.Body.GetLocation().GetLineSpan();
+        var lineDiff = lineSpan.EndLinePosition.Line - lineSpan.StartLinePosition.Line;
+        if (lineDiff > 0)
+            selectsArg = selectsArg.WithTrailingTrivia(SyntaxFactory.Whitespace(new string('\n', lineDiff)));
+        args = args.Add(selectsArg);
+
+        return SyntaxFactory.ArgumentList(args);
+    }
+
+    private SyntaxNode VisitDynamicQueryToObject(LambdaExpressionSyntax lambda,
+        ParameterSyntax[] lambdaParameters, ObjectCreationExpressionSyntax oc)
+    {
+        var args = new SeparatedSyntaxList<ArgumentSyntax>();
+        //转换Lambda表达式为运行时Lambda表达式
+        //eg: t=>new XXX{t.Id, t.Name} 转换为 r=> new {Id=r.ReadIntMember(0), Name=r.ReadStringMember(1)}
+        var sb = StringBuilderCache.Acquire();
+        sb.Append("r => new ");
+        sb.Append(oc.Type);
+        sb.Append('{');
+        for (var i = 0; i < oc.Initializer!.Expressions.Count; i++)
+        {
+            if (i != 0) sb.Append(',');
+            var initializer = oc.Initializer.Expressions[i];
+            var assigment = (AssignmentExpressionSyntax)initializer;
+            sb.Append(assigment.Left);
+
+            sb.Append("=r.Read");
+            var expSymbol = ModelExtensions.GetSymbolInfo(SemanticModel, assigment.Left).Symbol;
+            var expType = TypeHelper.GetSymbolType(expSymbol!);
+            var typeString = TypeHelper.GetEntityMemberTypeString(expType!, out var isNullable);
+            if (isNullable) sb.Append("Nullable");
+            sb.Append(typeString);
+            sb.Append("Member(");
+            sb.Append(i);
+            sb.Append(')');
+        }
+
+        sb.Append('}');
+        //转换为参数并加入参数列表
+        args = args.Add(SyntaxFactory.Argument(
+            SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb))
+        ));
+
+        //处理selectItems参数
+        var arrayItems = new SeparatedSyntaxList<ExpressionSyntax>()
+            .AddRange(oc.Initializer.Expressions
+                .Select(init => (ExpressionSyntax)((AssignmentExpressionSyntax)init).Right.Accept(this)!));
 
         var arrayInitializer = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, arrayItems);
         var selectsArray = SyntaxFactory.ImplicitArrayCreationExpression(arrayInitializer);
