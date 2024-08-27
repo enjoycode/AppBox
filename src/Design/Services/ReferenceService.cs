@@ -52,8 +52,7 @@ internal static class ReferenceService
             memberName, member.MemberId);
 
         //获取虚拟代码的成员符号并查找代码引用
-        var symbol =
-            await hub.TypeSystem.GetEntityMemberSymbolAsync(modelNode, memberName);
+        var symbol = await hub.TypeSystem.GetEntityMemberSymbolAsync(modelNode, memberName);
         if (symbol != null)
             await AddCodeReferencesAsync(hub, ls, symbol.ContainingType, symbol);
         else

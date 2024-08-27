@@ -31,7 +31,11 @@ internal sealed class DeleteEntityMember : IDesignHandler
         //查找成员引用
         var refs = await ReferenceService.FindEntityMemberReferencesAsync(hub, node, member);
         if (refs.Count > 0) //有引用项不做删除操作
-            throw new Exception("Member has reference, can't delete it");
+        {
+            var allSelf = refs.All(r => r.ModelNode == node);
+            if (!allSelf)
+                throw new Exception("Member has reference, can't delete it");
+        }
 
         //移除成员
         model.RemoveMember(member);

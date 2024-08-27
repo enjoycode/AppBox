@@ -321,10 +321,11 @@ internal static class EntityCsGenerator
         foreach (var member in model.Members)
         {
             sb.Append("\t\tcase ");
-            sb.Append(member.MemberId.ToString());
+            sb.Append(member.MemberId);
             sb.Append(": ws.Write");
             sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member));
-            sb.Append("Member(id,_");
+            sb.Append("Member(id,");
+            if (model.StoreOptions != null) sb.Append('_');
             sb.Append(member.Name);
             sb.Append(",flags);break;\n");
         }
@@ -344,8 +345,8 @@ internal static class EntityCsGenerator
         foreach (var member in model.Members)
         {
             sb.Append("\t\tcase ");
-            sb.Append(member.MemberId.ToString());
-            sb.Append(":");
+            sb.Append(member.MemberId);
+            sb.Append(':');
             if (member.Type != EntityMemberType.EntitySet)
             {
                 if (model.StoreOptions != null) sb.Append('_');
@@ -475,7 +476,7 @@ internal static class EntityCsGenerator
             GenSqlStoreGetMethod(model.SqlStoreOptions, sb);
             sb.Append(".FetchAsync(new ");
             sb.Append(model.Name);
-            sb.Append("{");
+            sb.Append('{');
             for (var i = 0; i < pks.Length; i++)
             {
                 if (i != 0) sb.Append(',');
@@ -535,7 +536,7 @@ internal static class EntityCsGenerator
         else
         {
             sb.Append("\tAppBoxStore.SqlStore.Get(");
-            sb.Append(sqlStoreOptions.StoreModelId.ToString());
+            sb.Append(sqlStoreOptions.StoreModelId);
             sb.Append(')');
         }
     }
