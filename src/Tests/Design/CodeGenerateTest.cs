@@ -12,7 +12,7 @@ public class CodeGenerateTest
     public async Task GenEntityWebCodeTest()
     {
         var designHub = await TestHelper.MockSession();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.StockOutItem")!;
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Warehouse")!;
         var code = EntityJsGenerator.GenWebCode((EntityModel)entityNode.Model, designHub, true);
         Console.Write(code);
     }
