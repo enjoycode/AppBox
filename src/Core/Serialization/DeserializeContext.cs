@@ -41,7 +41,7 @@ public sealed class DeserializeContext
     /// 根据实体模型标识号获取实体实例
     /// </summary>
     public Entity MakeEntity(long modelId) =>
-        (Entity)Activator.CreateInstance(GetEntityType(modelId));
+        (Entity)Activator.CreateInstance(GetEntityType(modelId))!;
 }
 
 public readonly struct EntityFactory

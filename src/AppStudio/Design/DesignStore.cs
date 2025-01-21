@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AppBoxClient.Dynamic;
 using AppBoxCore;
 using PixUI;
@@ -30,18 +26,15 @@ internal sealed class DesignStore
     /// <summary>
     /// 模型树控制器
     /// </summary>
-    internal readonly TreeController<DesignNodeVO> TreeController = new();
+    internal readonly TreeController<DesignNode> TreeController = new();
 
     /// <summary>
     /// 设计器控制器
     /// </summary>
-    internal readonly TabController<DesignNodeVO> DesignerController = new(new List<DesignNodeVO>());
+    internal readonly TabController<DesignNode> DesignerController = new(new List<DesignNode>());
 
     internal readonly TabController<string> BottomPadController =
-        new(new List<string>
-        {
-            "Problems", "Usages", "Output"
-        });
+        new(new List<string> { "Problems", "Usages", "Output" });
 
     /// <summary>
     ///  问题列表控制器
@@ -73,18 +66,19 @@ internal sealed class DesignStore
     /// </summary>
     internal void OnNewNode(NewNodeResult result)
     {
-        //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
-
-        var newNode = TreeController.InsertNode(
-            result.NewNode, result.ParentNode, result.InsertIndex);
-        TreeController.ExpandTo(newNode);
-        TreeController.SelectNode(newNode);
+        throw new NotImplementedException();
+        // //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
+        //
+        // var newNode = TreeController.InsertNode(
+        //     result.NewNode, result.ParentNode, result.InsertIndex);
+        // TreeController.ExpandTo(newNode);
+        // TreeController.SelectNode(newNode);
     }
 
     /// <summary>
     /// 删除成功返回后刷新
     /// </summary>
-    internal void OnDeleteNode(TreeNode<DesignNodeVO> node, string? modelRootNodeIdString)
+    internal void OnDeleteNode(TreeNode<DesignNode> node, string? modelRootNodeIdString)
     {
         // 移除选中节点打开的设计器
         DesignerController.Remove(node.Data);
@@ -111,7 +105,7 @@ internal sealed class DesignStore
         }
     }
 
-    internal void UpdateProblems(ModelNodeVO modelNode, IList<CodeProblem> problems)
+    internal void UpdateProblems(ModelNode modelNode, IList<CodeProblem> problems)
     {
         //TODO:暂简单实现
         ProblemsController.DataSource = problems;
@@ -140,7 +134,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 打开或激活指定节点的设计器, 并且如果需要则跳转至指定位置
     /// </summary>
-    internal void OpenOrActiveDesigner(DesignNodeVO node, ReferenceVO? gotoReference)
+    internal void OpenOrActiveDesigner(DesignNode node, ReferenceVO? gotoReference)
     {
         //先检查是否已经打开
         var existsIndex = DesignerController.IndexOf(node);
@@ -169,7 +163,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 根据节点标识找到相应的节点
     /// </summary>
-    internal DesignNodeVO? FindDesignNodeById(string nodeId)
+    internal DesignNode? FindDesignNodeById(string nodeId)
     {
         var node = TreeController.FindNode(n => n.Id == nodeId);
         return node?.Data;
@@ -178,7 +172,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 获取节点对应的ModelRootNode
     /// </summary>
-    internal static TreeNode<DesignNodeVO> GetModelRootNode(TreeNode<DesignNodeVO> child)
+    internal static TreeNode<DesignNode> GetModelRootNode(TreeNode<DesignNode> child)
     {
         var childType = child.Data.Type;
         if (childType != DesignNodeType.ModelNode && childType != DesignNodeType.FolderNode &&
@@ -199,33 +193,30 @@ internal sealed class DesignStore
     /// <summary>
     /// 获取所有实体节点
     /// </summary>
-    internal IList<ModelNodeVO> GetAllEntityNodes()
+    internal IList<ModelNode> GetAllEntityNodes()
     {
-        var list = new List<ModelNodeVO>();
-        var appRootNode = TreeController.DataSource![1];
-        foreach (var appNode in appRootNode.Children!)
+        var list = new List<ModelNode>();
+        var appRootNode = (ApplicationRootNode)TreeController.DataSource![1];
+        foreach (var appNode in appRootNode.Children)
         {
-            var entityRootNode = appNode.Children![0];
+            var entityRootNode = appNode.Children[0];
             LoopAddEntityNode(entityRootNode, list);
         }
 
         return list;
     }
 
-    private static void LoopAddEntityNode(DesignNodeVO node, IList<ModelNodeVO> list)
+    private static void LoopAddEntityNode(DesignNode node, IList<ModelNode> list)
     {
-        if (node is ModelNodeVO modelNode)
+        if (node is ModelNode modelNode)
         {
             list.Add(modelNode);
         }
-        else
+        else if (node is FolderNode folderNode)
         {
-            if (node.Children != null)
+            foreach (var child in folderNode.Children)
             {
-                foreach (var child in node.Children!)
-                {
-                    LoopAddEntityNode(child, list);
-                }
+                LoopAddEntityNode(child, list);
             }
         }
     }

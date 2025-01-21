@@ -1,8 +1,5 @@
-using System;
-using System.IO;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
 using AppBoxClient.Dynamic.Events;
@@ -38,7 +35,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         EventEditor.Register(nameof(FetchDataSet), (e, m, a) => new FetchDataSetEditor(e, m, a));
     }
 
-    public ViewDynamicDesigner(ModelNodeVO modelNode)
+    public ViewDynamicDesigner(ModelNode modelNode)
     {
         ModelNode = modelNode;
         _toolboxPad = new Toolbox(_designController);
@@ -65,7 +62,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     private readonly DynamicOutlinePad _outlinePad;
     private bool _hasLoadSourceCode;
 
-    public ModelNodeVO ModelNode { get; }
+    public ModelNode ModelNode { get; }
 
     private Container BuildCommandBar() => new Container
     {

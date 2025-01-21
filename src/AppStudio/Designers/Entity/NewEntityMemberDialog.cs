@@ -6,9 +6,12 @@ using PixUI;
 
 namespace AppBoxDesign;
 
+/// <summary>
+/// 新建实体成员对话框
+/// </summary>
 internal sealed class NewEntityMemberDialog : Dialog
 {
-    public NewEntityMemberDialog(DesignStore designStore, ModelNodeVO modelNode)
+    public NewEntityMemberDialog(DesignStore designStore, ModelNode modelNode)
     {
         _designStore = designStore;
         _modelNode = modelNode;
@@ -23,12 +26,12 @@ internal sealed class NewEntityMemberDialog : Dialog
         { "String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Binary" };
 
     private readonly DesignStore _designStore;
-    private readonly ModelNodeVO _modelNode;
+    private readonly ModelNode _modelNode;
     private readonly State<string> _name = string.Empty;
     private readonly State<bool> _allowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
-    private readonly State<ModelNodeVO?> _entityRefTarget = new RxValue<ModelNodeVO?>(null);
+    private readonly State<ModelNode?> _entityRefTarget = new RxValue<ModelNode?>(null);
     private readonly State<EntityMemberInfo?> _entitySetTarget = new RxValue<EntityMemberInfo?>(null);
 
     protected override Widget BuildBody()
@@ -72,7 +75,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                             Children =
                             {
                                 new FormItem("Target:",
-                                    new Select<ModelNodeVO>(_entityRefTarget)
+                                    new Select<ModelNode>(_entityRefTarget)
                                     {
                                         Options = _designStore.GetAllEntityNodes().ToArray()
                                     }),

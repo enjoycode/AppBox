@@ -37,9 +37,10 @@ public class ModelController : ControllerBase
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Entity(string entityModelId)
     {
-        var runtimeCtx = RuntimeContext.Current;
-        var model = await runtimeCtx.GetModelAsync<EntityModel>(entityModelId);
-        var jsCode = EntityJsGenerator.GenWebCode(model, runtimeCtx, false);
-        return new FileContentResult(Encoding.UTF8.GetBytes(jsCode), "text/javascript");
+        throw new NotImplementedException();
+        // var runtimeCtx = RuntimeContext.Current;
+        // var model = await runtimeCtx.GetModelAsync<EntityModel>(entityModelId);
+        // var jsCode = EntityJsGenerator.GenWebCode(model, runtimeCtx, false);
+        // return new FileContentResult(Encoding.UTF8.GetBytes(jsCode), "text/javascript");
     }
 }

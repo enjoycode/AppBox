@@ -133,10 +133,10 @@ internal sealed class Commands
         }
 
         ModelReferenceType referenceType;
-        ModelNodeVO modelNode;
+        ModelNode modelNode;
         if (selectedNode.Data.Type == DesignNodeType.ModelNode)
         {
-            modelNode = (ModelNodeVO)selectedNode.Data;
+            modelNode = (ModelNode)selectedNode.Data;
             switch (modelNode.ModelType)
             {
                 case ModelType.Entity:

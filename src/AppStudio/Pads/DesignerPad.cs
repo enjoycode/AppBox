@@ -1,4 +1,3 @@
-using System;
 using AppBoxClient;
 using AppBoxCore;
 using PixUI;
@@ -17,7 +16,7 @@ internal sealed class DesignerPad : View
         FillColor = Colors.White;
 
         Child = new IfConditional(_isOpenedAnyDesigner,
-            () => new TabView<DesignNodeVO>(_designStore.DesignerController, BuildTab, BuildBody, true, 40)
+            () => new TabView<DesignNode>(_designStore.DesignerController, BuildTab, BuildBody, true, 40)
             {
                 SelectedTabColor = Colors.White,
                 TabBarBgColor = new Color(0xFFF3F3F3)
@@ -28,7 +27,7 @@ internal sealed class DesignerPad : View
     private readonly DesignStore _designStore;
     private readonly State<bool> _isOpenedAnyDesigner = false;
 
-    private static Widget BuildTab(DesignNodeVO node, State<bool> isSelected)
+    private static Widget BuildTab(DesignNode node, State<bool> isSelected)
     {
         var textColor = RxComputed<Color>.Make(isSelected,
             selected => selected ? Theme.FocusedColor : Colors.Black
@@ -37,11 +36,11 @@ internal sealed class DesignerPad : View
         return new Text(node.Label) { TextColor = textColor };
     }
 
-    private Widget BuildBody(DesignNodeVO node)
+    private Widget BuildBody(DesignNode node)
     {
         if (node.Type == DesignNodeType.ModelNode)
         {
-            var modelNode = (ModelNodeVO)node;
+            var modelNode = (ModelNode)node;
             switch (modelNode.ModelType)
             {
                 case ModelType.Entity:
@@ -49,20 +48,22 @@ internal sealed class DesignerPad : View
                     node.Designer = entityDesigner;
                     return entityDesigner;
                 case ModelType.View:
-                    if (modelNode.Tag == 0)
+                    var viewModel = (ViewModel)modelNode.Model;
+                    if (viewModel.ViewType == ViewModelType.PixUI)
                     {
                         var viewDesigner = new ViewCodeDesigner(_designStore, modelNode);
                         node.Designer = viewDesigner;
                         return viewDesigner;
                     }
-                    else if (modelNode.Tag == 1)
+
+                    if (viewModel.ViewType == ViewModelType.PixUIDynamic)
                     {
                         var viewDesigner = new ViewDynamicDesigner(modelNode);
                         node.Designer = viewDesigner;
                         return viewDesigner;
                     }
-                    else
-                        throw new Exception();
+
+                    throw new Exception("暂不支持的视图模型类型");
                 case ModelType.Service:
                     var designer = new ServiceDesigner(_designStore, modelNode);
                     node.Designer = designer;
@@ -78,19 +79,19 @@ internal sealed class DesignerPad : View
         };
     }
 
-    private void OnDesignerOpened(DesignNodeVO node)
+    private void OnDesignerOpened(DesignNode node)
     {
         _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
     }
 
-    private async void OnDesignerClosed(DesignNodeVO node)
+    private async void OnDesignerClosed(DesignNode node)
     {
         _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
 
         node.Designer = null;
         if (node.Type == DesignNodeType.ModelNode)
         {
-            var modelNode = (ModelNodeVO)node;
+            var modelNode = (ModelNode)node;
             if (modelNode.ModelType == ModelType.Service || modelNode.ModelType == ModelType.View)
                 await Channel.Invoke("sys.DesignService.CloseDesigner",
                     new object?[] { (int)node.Type, node.Id });
@@ -100,7 +101,7 @@ internal sealed class DesignerPad : View
     private void OnTreeSelectionChanged()
     {
         var currentNode = _designStore.TreeController.FirstSelectedNode;
-        if (currentNode is { Data: ModelNodeVO })
+        if (currentNode is { Data: ModelNode })
         {
             _designStore.OpenOrActiveDesigner(currentNode.Data, null);
         }

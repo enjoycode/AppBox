@@ -97,7 +97,7 @@ internal sealed class WebSocketClient(WebSocket webSocket)
         {
             writer.WriteString(WebSession!.SessionId);
             writer.WriteString(WebSession.Name);
-            //TODO:考虑写入员工标识
+            writer.WriteGuid(WebSession.LeafOrgUnitId);
         }
         else
         {

@@ -16,7 +16,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Design\Design.csproj" />
       <ProjectReference Include="..\Server\Server.csproj" />
       <ProjectReference Include="..\Store.Initiator\Store.Initiator.csproj" />
       <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj" />
@@ -25,37 +24,6 @@
 
     <ItemGroup>
       <Folder Include="Serialization\" />
-      <Folder Include="ViewLibs\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="ViewLibs\LiveChartsCore.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\PixUI.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\PixUI.LiveCharts.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\PixUI.TSAttributes.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\AppBoxClient.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\AppBoxClientUI.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\PixUI.Widgets.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\PixUI.MaterialIcons.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewLibs\PixUI.Dynamic.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
     </ItemGroup>
 
 </Project>

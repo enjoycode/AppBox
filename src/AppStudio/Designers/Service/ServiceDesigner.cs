@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
 using CodeEditor;
@@ -11,21 +8,22 @@ namespace AppBoxDesign;
 
 internal sealed class ServiceDesigner : View, ICodeDesigner
 {
-    public ServiceDesigner(DesignStore designStore, ModelNodeVO modelNode)
+    public ServiceDesigner(DesignStore designStore, ModelNode modelNode)
     {
-        _designStore = designStore;
-        ModelNode = modelNode;
-        _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
-            RoslynCompletionProvider.Default, modelNode.Id);
-        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
-        _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
-        _delayDocChangedTask = new DelayTask(300, RunDelayTask);
-
-        Child = BuildEditor(_codeEditorController);
+        throw new NotImplementedException("待重写服务设计器");
+        // _designStore = designStore;
+        // ModelNode = modelNode;
+        // _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
+        //     RoslynCompletionProvider.Default, modelNode.Id);
+        // _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
+        // _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
+        // _delayDocChangedTask = new DelayTask(300, RunDelayTask);
+        //
+        // Child = BuildEditor(_codeEditorController);
     }
 
     private readonly DesignStore _designStore;
-    public ModelNodeVO ModelNode { get; }
+    public ModelNode ModelNode { get; }
     private readonly CodeEditorController _codeEditorController;
     private readonly ModelCodeSyncService _codeSyncService;
     private readonly DelayTask _delayDocChangedTask;
@@ -193,7 +191,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
             if (methodInfo.Args.Length > 0)
                 throw new Exception("暂未实现带参数的服务方法调用");
 
-            var serviceMethod = $"{ModelNode.AppName}.{ModelNode.Label}.{methodInfo.Name}";
+            var serviceMethod = $"{ModelNode.AppNode.Model.Name}.{ModelNode.Label}.{methodInfo.Name}";
             var res = await Channel.Invoke<object?>(serviceMethod);
             if (res != null)
             {

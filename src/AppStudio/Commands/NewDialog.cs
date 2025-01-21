@@ -40,19 +40,20 @@ internal sealed class NewDialog : Dialog
 
     private async void CreateAsync()
     {
-        var selectedNode = _designStore.TreeController.FirstSelectedNode;
-        if (selectedNode == null) return;
-
-        var service = $"sys.DesignService.New{_type}";
-        if (_type != "Application" && _type != "Folder")
-            service += "Model";
-        var args = _type == "Application"
-            ? new object[] { _name.Value }
-            : new object[] { (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value };
-
-        var res = await Channel.Invoke<NewNodeResult>(service, args);
-        res!.ResolveToTree(_designStore);
-        //根据返回结果同步添加新节点
-        _designStore.OnNewNode(res!);
+        throw new NotImplementedException("创建节点");
+        // var selectedNode = _designStore.TreeController.FirstSelectedNode;
+        // if (selectedNode == null) return;
+        //
+        // var service = $"sys.DesignService.New{_type}";
+        // if (_type != "Application" && _type != "Folder")
+        //     service += "Model";
+        // var args = _type == "Application"
+        //     ? new object[] { _name.Value }
+        //     : new object[] { (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value };
+        //
+        // var res = await Channel.Invoke<NewNodeResult_OLD>(service, args);
+        // res!.ResolveToTree(_designStore);
+        // //根据返回结果同步添加新节点
+        // _designStore.OnNewNode(res!);
     }
 }

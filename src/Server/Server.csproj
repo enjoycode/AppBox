@@ -9,8 +9,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Design\Design.csproj" />
       <ProjectReference Include="..\Store\Store.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\AppStudio\Data\CheckoutInfo.cs">
+        <Link>Services\Design\CheckoutInfo.cs</Link>
+      </Compile>
+      <Compile Include="..\AppStudio\Data\CheckoutResult.cs">
+        <Link>Services\Design\CheckoutResult.cs</Link>
+      </Compile>
+      <Compile Include="..\AppStudio\Data\DesignNodeType.cs">
+        <Link>Services\Design\DesignNodeType.cs</Link>
+      </Compile>
+      <Compile Include="..\AppStudio\Data\StagedType.cs">
+        <Link>Services\Design\StagedType.cs</Link>
+      </Compile>
     </ItemGroup>
 
 </Project>

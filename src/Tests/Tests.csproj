@@ -18,10 +18,10 @@
     <ItemGroup>
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic.Design\PixUI.Dynamic.Design.csproj" />
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
+      <ProjectReference Include="..\AppStudio\AppStudio.csproj" />
       <ProjectReference Include="..\Client.UI\Client.UI.csproj" />
       <ProjectReference Include="..\Client\Client.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Design\Design.csproj" />
       <ProjectReference Include="..\Server\Server.csproj" />
       <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj" />
       <ProjectReference Include="..\Store\Store.csproj" />
@@ -31,45 +31,5 @@
       <None Remove="Server\HelloService.bin" />
       <EmbeddedResource Include="Server\HelloService.bin" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="..\WebHost\ViewLibs\AppBoxClient.dll">
-        <Link>ViewLibs\AppBoxClient.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\AppBoxClientUI.dll">
-        <Link>ViewLibs\AppBoxClientUI.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\LiveChartsCore.dll">
-        <Link>ViewLibs\LiveChartsCore.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\PixUI.dll">
-        <Link>ViewLibs\PixUI.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\PixUI.Dynamic.dll">
-        <Link>ViewLibs\PixUI.Dynamic.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\PixUI.LiveCharts.dll">
-        <Link>ViewLibs\PixUI.LiveCharts.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\PixUI.MaterialIcons.dll">
-        <Link>ViewLibs\PixUI.MaterialIcons.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\PixUI.TSAttributes.dll">
-        <Link>ViewLibs\PixUI.TSAttributes.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="..\WebHost\ViewLibs\PixUI.Widgets.dll">
-        <Link>ViewLibs\PixUI.Widgets.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
-
 
 </Project>

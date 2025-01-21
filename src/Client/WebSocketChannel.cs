@@ -20,9 +20,12 @@ public sealed class WebSocketChannel : IChannel
     private Task _connectTask = null!;
     private readonly Uri _serverUri;
 
-    private string _sessionId;
+    private string? _sessionId;
     private string? _name;
     private int _msgIdIndex = 0;
+
+    public string SessionName => _name ?? string.Empty;
+    public Guid LeafOrgUnitId { get; private set; } = Guid.Empty;
 
     private readonly ConcurrentDictionary<int, PooledTaskSource<MessageReadStream>> _pendingRequests = new();
 
@@ -117,6 +120,7 @@ public sealed class WebSocketChannel : IChannel
         {
             _sessionId = rs.ReadString()!;
             _name = rs.ReadString()!;
+            LeafOrgUnitId = rs.ReadGuid();
             MessageReadStream.Return(rs);
         }
         else

@@ -24,26 +24,10 @@
             <Kind>Dynamic</Kind>
             <SmartLink>False</SmartLink>
         </NativeReference>
-        <NativeReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\libs\osx-arm64\libtree-sitter.dylib">
-            <Kind>Dynamic</Kind>
-            <SmartLink>False</SmartLink>
-        </NativeReference>
-        <NativeReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\libs\osx-arm64\libtree-sitter-csharp.dylib">
-            <Kind>Dynamic</Kind>
-            <SmartLink>False</SmartLink>
-        </NativeReference>
     </ItemGroup>
 
     <ItemGroup Condition="'$(IsArm64)'!='true'">
         <NativeReference Include="..\..\ext\PixUI\src\PixUI.Platform.Mac\libs\osx-x64\libskia.dylib">
-            <Kind>Dynamic</Kind>
-            <SmartLink>False</SmartLink>
-        </NativeReference>
-        <NativeReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\libs\osx-x64\libtree-sitter.dylib">
-            <Kind>Dynamic</Kind>
-            <SmartLink>False</SmartLink>
-        </NativeReference>
-        <NativeReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\libs\osx-x64\libtree-sitter-csharp.dylib">
             <Kind>Dynamic</Kind>
             <SmartLink>False</SmartLink>
         </NativeReference>

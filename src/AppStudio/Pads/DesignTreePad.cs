@@ -20,7 +20,8 @@ internal sealed class DesignTreePad : View
             Children =
             {
                 new TextInput(_searchKey) { Prefix = new Icon(MaterialIcons.Search) },
-                new TreeView<DesignNodeVO>(_designStore.TreeController, BuildTreeNode, n => n.Children!)
+                new TreeView<DesignNode>(_designStore.TreeController, BuildTreeNode,
+                    n => n is IChildrenNode childrenNode ? childrenNode.GetChildren() : [])
                 {
                     AllowDrag = true,
                     AllowDrop = true,
@@ -32,7 +33,7 @@ internal sealed class DesignTreePad : View
         };
     }
 
-    private static void BuildTreeNode(TreeNode<DesignNodeVO> node)
+    private static void BuildTreeNode(TreeNode<DesignNode> node)
     {
         var data = node.Data;
         node.Icon = new Icon(GetIconForNode(data));
@@ -43,14 +44,14 @@ internal sealed class DesignTreePad : View
             or DesignNodeType.ApplicationNode;
     }
 
-    private static IconData GetIconForNode(DesignNodeVO data)
+    private static IconData GetIconForNode(DesignNode data)
     {
         switch (data.Type)
         {
             case DesignNodeType.DataStoreNode: return MaterialIcons.Storage;
             case DesignNodeType.ApplicationNode: return MaterialIcons.Widgets;
             case DesignNodeType.ModelNode:
-                return IconUtil.GetIconForModelType(((ModelNodeVO)data).ModelType);
+                return IconUtil.GetIconForModelType(((ModelNode)data).ModelType);
             default: return MaterialIcons.Folder;
         }
     }
@@ -70,10 +71,10 @@ internal sealed class DesignTreePad : View
         _designStore.TreeController.IsLoading = true;
         try
         {
-            var res = await Channel.Invoke<DesignTreeVO>("sys.DesignService.LoadDesignTree");
-            _designStore.TreeController.DataSource = res!.RootNodes;
+            await DesignHub.Current.DesignTree.LoadAsync();
+            _designStore.TreeController.DataSource = DesignHub.Current.DesignTree.RootNodes;
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Notification.Error($"Can't load design tree: {ex.Message}");
         }
@@ -85,15 +86,15 @@ internal sealed class DesignTreePad : View
 
     #region ====DragDrop TreeNode====
 
-    private static bool OnAllowDrag(TreeNode<DesignNodeVO> node)
+    private static bool OnAllowDrag(TreeNode<DesignNode> node)
     {
         //目前仅FolderNode及ModelNode
         return node.Data.Type is DesignNodeType.FolderNode or DesignNodeType.ModelNode;
     }
 
-    private static bool OnAllowDrop(TreeNode<DesignNodeVO> target, DragEvent e)
+    private static bool OnAllowDrop(TreeNode<DesignNode> target, DragEvent e)
     {
-        var source = e.TransferItem as TreeNode<DesignNodeVO>;
+        var source = e.TransferItem as TreeNode<DesignNode>;
         if (source == null) return false;
 
         // var sourceType = source.Data.Type;
@@ -111,9 +112,9 @@ internal sealed class DesignTreePad : View
         return true;
     }
 
-    private async void OnDrop(TreeNode<DesignNodeVO> target, DragEvent e)
+    private async void OnDrop(TreeNode<DesignNode> target, DragEvent e)
     {
-        var source = (TreeNode<DesignNodeVO>)e.TransferItem;
+        var source = (TreeNode<DesignNode>)e.TransferItem;
         // Log.Debug($"OnDrop: {source.Data} {target.Data} {e.DropPosition}");
         // 暂由后端判断并尝试签出相关节点
         var args = new object?[]

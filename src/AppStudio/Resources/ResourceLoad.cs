@@ -1,22 +1,36 @@
 using System.IO;
 using System.Reflection;
 
-namespace AppBoxDesign.Resources;
+namespace AppBoxDesign;
 
-internal static class ResourceLoad
+internal static class Resources
 {
-    private static readonly Assembly ResAssembly = typeof(ResourceLoad).Assembly;
+    private static readonly Assembly ResAssembly;
+    private static readonly string PathPrefix;
+
+    static Resources()
+    {
+        ResAssembly = typeof(Resources).Assembly;
+        PathPrefix = "AppBoxDesign.";
+    }
 
     public static Stream LoadStream(string res)
     {
-        return ResAssembly.GetManifestResourceStream("AppBoxDesign." + res)!;
+        return ResAssembly.GetManifestResourceStream(PathPrefix + res)!;
+    }
+
+    internal static string LoadString(string res)
+    {
+        var stream = ResAssembly.GetManifestResourceStream(PathPrefix + res);
+        var reader = new StreamReader(stream!);
+        return reader.ReadToEnd();
     }
 
     public static byte[] LoadBytes(string res)
     {
         using var stream = LoadStream(res);
         var data = new byte[stream.Length];
-        stream.Read(data, 0, data.Length);
+        stream.ReadExactly(data, 0, data.Length);
         return data;
     }
 }

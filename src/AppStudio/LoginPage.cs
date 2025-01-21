@@ -1,6 +1,4 @@
-using System;
 using AppBoxClient;
-using AppBoxDesign.Resources;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -11,15 +9,15 @@ public sealed class LoginPage : View
     private readonly State<string> _userName = "Admin";
     private readonly State<string> _password = "760wb";
 #else
-        private readonly State<string> _userName = "";
-        private readonly State<string> _password = "";
+    private readonly State<string> _userName = "";
+    private readonly State<string> _password = "";
 #endif
     private readonly State<float> _inputSize = 20;
     private readonly Image _bgImg;
 
     public LoginPage()
     {
-        var imgData = ResourceLoad.LoadBytes("Resources.Galaxy.webp");
+        var imgData = Resources.LoadStream("Resources.Galaxy.webp");
         _bgImg = Image.FromEncodedData(imgData)!;
 
         Child = new Center
@@ -41,9 +39,9 @@ public sealed class LoginPage : View
             Padding = EdgeInsets.All(30),
             Child = new Column(HorizontalAlignment.Center, 30)
             {
-                Children = new Widget[]
-                {
-                    new Text("Welcome") { FontSize = 50},
+                Children =
+                [
+                    new Text("Welcome") { FontSize = 50 },
                     new TextInput(_userName)
                     {
                         HintText = "Account", FontSize = _inputSize,
@@ -55,7 +53,7 @@ public sealed class LoginPage : View
                         Prefix = new Icon(MaterialIcons.Lock) { Size = _inputSize },
                     },
                     new Button("Login") { Width = 120, OnTap = e => OnLogin() }
-                }
+                ]
             }
         };
     }
@@ -66,6 +64,7 @@ public sealed class LoginPage : View
         {
             await DesignInitializer.TryInit();
             await Channel.Login(_userName.Value, _password.Value);
+            DesignHub.Current = new DesignHub(Channel.SessionName, Channel.LeafOrgUnitId);
             CurrentNavigator!.Push("IDE");
         }
         catch (Exception ex)

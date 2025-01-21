@@ -129,6 +129,17 @@ public readonly struct InvokeArgs
         };
     }
 
+    // public ulong? GetULong()
+    // {
+    //     var payloadType = (PayloadType)_stream!.ReadByte();
+    //     return payloadType switch
+    //     {
+    //         PayloadType.Null => null,
+    //         PayloadType.UInt64 => _stream.ReadLong(),
+    //         _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
+    //     };
+    // }
+
     public float? GetFloat()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();

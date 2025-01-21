@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AppBoxClient;
 using CodeEditor;
 using PixUI;
@@ -9,28 +6,29 @@ namespace AppBoxDesign;
 
 internal sealed class ViewCodeDesigner : View, ICodeDesigner
 {
-    public ViewCodeDesigner(DesignStore designStore, ModelNodeVO modelNode)
+    public ViewCodeDesigner(DesignStore designStore, ModelNode modelNode)
     {
-        _designStore = designStore;
-        ModelNode = modelNode;
-        _previewController = new PreviewController(modelNode);
-        _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
-            RoslynCompletionProvider.Default, modelNode.Id);
-        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
-        _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
-        _delayDocChangedTask = new DelayTask(300, RunDelayTask);
-
-        Child = new Splitter
-        {
-            Fixed = Splitter.FixedPanel.Panel2,
-            Distance = 380,
-            Panel2Collapsed = _hidePreviewer,
-            Panel1 = BuildEditor(_codeEditorController),
-            Panel2 = new WidgetPreviewer(_previewController),
-        };
+        throw new NotImplementedException("待重写视图设计器");
+        // _designStore = designStore;
+        // ModelNode = modelNode;
+        // _previewController = new PreviewController(modelNode);
+        // _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
+        //     RoslynCompletionProvider.Default, modelNode.Id);
+        // _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
+        // _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
+        // _delayDocChangedTask = new DelayTask(300, RunDelayTask);
+        //
+        // Child = new Splitter
+        // {
+        //     Fixed = Splitter.FixedPanel.Panel2,
+        //     Distance = 380,
+        //     Panel2Collapsed = _hidePreviewer,
+        //     Panel1 = BuildEditor(_codeEditorController),
+        //     Panel2 = new WidgetPreviewer(_previewController),
+        // };
     }
 
-    public ModelNodeVO ModelNode { get; }
+    public ModelNode ModelNode { get; }
     private readonly DesignStore _designStore;
     private readonly CodeEditorController _codeEditorController;
     private readonly ModelCodeSyncService _codeSyncService;

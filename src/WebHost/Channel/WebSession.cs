@@ -7,7 +7,7 @@ namespace AppBoxWebHost;
 public sealed class WebSession : IDeveloperSession, IDisposable
 {
     private readonly TreePath _treePath;
-    private DesignHub? _designHub;
+    // private DesignHub? _designHub;
 
     public WebSession(TreePath path, string sessionId)
     {
@@ -36,34 +36,34 @@ public sealed class WebSession : IDeveloperSession, IDisposable
 
     #region ====IDeveloperSession====
 
-    private static readonly ModelId _developerPermissionId =
-        ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS);
+    // private static readonly ModelId _developerPermissionId =
+    //     ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS);
 
-    public DesignHub GetDesignHub()
-    {
-        if (_designHub == null)
-        {
-            lock (this)
-            {
-                if (_designHub == null)
-                {
-                    //验证Developer
-                    if (!HostRuntimeContext.HasPermission(_developerPermissionId))
-                        throw new Exception("Must login as a developer");
-
-                    _designHub = new DesignHub(this);
-                    //_designHub.TypeSystem.Init();
-                }
-            }
-        }
-
-        return _designHub;
-    }
+    // public DesignHub GetDesignHub()
+    // {
+    //     if (_designHub == null)
+    //     {
+    //         lock (this)
+    //         {
+    //             if (_designHub == null)
+    //             {
+    //                 //验证Developer
+    //                 if (!HostRuntimeContext.HasPermission(_developerPermissionId))
+    //                     throw new Exception("Must login as a developer");
+    //
+    //                 _designHub = new DesignHub(this);
+    //                 //_designHub.TypeSystem.Init();
+    //             }
+    //         }
+    //     }
+    //
+    //     return _designHub;
+    // }
 
     #endregion
 
     public void Dispose()
     {
-        _designHub?.Dispose();
+        // _designHub?.Dispose();
     }
 }

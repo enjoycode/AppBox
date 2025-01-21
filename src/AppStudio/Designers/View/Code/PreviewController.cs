@@ -26,12 +26,12 @@ internal sealed class WidgetTreeNode
 /// </summary>
 internal sealed class PreviewController
 {
-    public PreviewController(ModelNodeVO modelNode)
+    public PreviewController(ModelNode modelNode)
     {
         ModelNode = modelNode;
     }
 
-    public readonly ModelNodeVO ModelNode;
+    public readonly ModelNode ModelNode;
     private Action? _invalidateAction;
     private Action? _refreshOutlineAction;
     internal Widget? CurrentWidget; //当前加载的预览的Widget实例

@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -16,7 +14,7 @@ internal sealed class NewEntityDialog : Dialog
 
     private readonly DesignStore _designStore;
     private readonly State<string> _name = "";
-    private readonly State<DataStoreNodeVO?> _store = new RxValue<DataStoreNodeVO?>(null);
+    private readonly State<DataStoreNode?> _store = new RxValue<DataStoreNode?>(null);
 
     protected override Widget BuildBody()
     {
@@ -33,7 +31,7 @@ internal sealed class NewEntityDialog : Dialog
                         Children = new[]
                         {
                             new FormItem("Name:", new TextInput(_name)),
-                            new FormItem("DataStore:", new Select<DataStoreNodeVO>(_store)
+                            new FormItem("DataStore:", new Select<DataStoreNode>(_store)
                             {
                                 Options = GetAllDataStores()
                             })
@@ -53,29 +51,30 @@ internal sealed class NewEntityDialog : Dialog
 
     private async void CreateAsync()
     {
-        var selectedNode = _designStore.TreeController.FirstSelectedNode;
-        if (selectedNode == null) return;
-
-        var args = new object?[]
-        {
-            (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value,
-            _store.Value == null ? null : _store.Value.Id
-        };
-
-        var res = await Channel.Invoke<NewNodeResult>("sys.DesignService.NewEntityModel", args);
-        res!.ResolveToTree(_designStore);
-        //根据返回结果同步添加新节点
-        _designStore.OnNewNode(res!);
+        throw new NotImplementedException();
+        // var selectedNode = _designStore.TreeController.FirstSelectedNode;
+        // if (selectedNode == null) return;
+        //
+        // var args = new object?[]
+        // {
+        //     (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value,
+        //     _store.Value == null ? null : _store.Value.Id
+        // };
+        //
+        // var res = await Channel.Invoke<NewNodeResult_OLD>("sys.DesignService.NewEntityModel", args);
+        // res!.ResolveToTree(_designStore);
+        // //根据返回结果同步添加新节点
+        // _designStore.OnNewNode(res!);
     }
 
-    private DataStoreNodeVO[] GetAllDataStores()
+    private DataStoreNode[] GetAllDataStores()
     {
-        var dataStoreRootNode = (DataStoreRootNodeVO)_designStore.TreeController.DataSource![0];
-        var list = new DataStoreNodeVO[dataStoreRootNode.Children!.Count + 1];
-        list[0] = DataStoreNodeVO.None;
+        var dataStoreRootNode = (DataStoreRootNode)_designStore.TreeController.DataSource![0];
+        var list = new DataStoreNode[dataStoreRootNode.Children!.Count + 1];
+        list[0] = DataStoreNode.None;
         for (var i = 1; i < list.Length; i++)
         {
-            list[i] = (DataStoreNodeVO)dataStoreRootNode.Children[i - 1];
+            list[i] = dataStoreRootNode.Children[i - 1];
         }
 
         return list;

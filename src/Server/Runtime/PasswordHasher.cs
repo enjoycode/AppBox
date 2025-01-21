@@ -15,7 +15,7 @@ internal sealed class PasswordHasher : IPasswordHasher
             throw new ArgumentNullException(nameof(password));
         byte[] salt;
         byte[] bytes;
-        using (var rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, 16, 1000))
+        using (var rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, 16, 1000, HashAlgorithmName.SHA1))
         {
             salt = rfc2898DeriveBytes.Salt;
             bytes = rfc2898DeriveBytes.GetBytes(32);
@@ -33,14 +33,14 @@ internal sealed class PasswordHasher : IPasswordHasher
         if (password == null)
             throw new ArgumentNullException(nameof(password));
 
-        if (hashedPassword.Length != 49 || (int)hashedPassword[0] != 0)
+        if (hashedPassword.Length != 49 || hashedPassword[0] != 0)
             return false;
         var salt = new byte[16];
         Buffer.BlockCopy(hashedPassword, 1, salt, 0, 16);
         var a = new byte[32];
         Buffer.BlockCopy(hashedPassword, 17, a, 0, 32);
         byte[] bytes;
-        using (var rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, salt, 1000))
+        using (var rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, salt, 1000, HashAlgorithmName.SHA1))
             bytes = rfc2898DeriveBytes.GetBytes(32);
 
         return a.AsSpan().SequenceEqual(bytes);

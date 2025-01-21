@@ -7,6 +7,10 @@ namespace AppBoxClient;
 public static class Channel
 {
     private static IChannel _provider = null!;
+    
+    public static string SessionName => _provider?.SessionName ?? string.Empty;
+    
+    public static Guid LeafOrgUnitId => _provider?.LeafOrgUnitId ?? Guid.Empty;
 
     public static void Init(IChannel provider)
     {

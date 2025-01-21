@@ -52,7 +52,7 @@ internal sealed class DesktopPreviewer : View
             _assemblyLoader = new ViewAssemblyLoader();
             var asm = _assemblyLoader.LoadViewAssembly(asmData!);
             var modelNode = _controller.ModelNode;
-            var widgetTypeName = $"{modelNode.AppName}.Views.{modelNode.Label.Value}";
+            var widgetTypeName = $"{modelNode.AppNode.Model.Name}.Views.{modelNode.Label.Value}";
             var widgetType = asm.GetType(widgetTypeName);
 
             //先判断是否有静态预览方法

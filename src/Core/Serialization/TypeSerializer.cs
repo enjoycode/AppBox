@@ -160,6 +160,18 @@ public abstract class TypeSerializer
         RegisterKnownType(new BinSerializer(PayloadType.DataSet, typeof(DynamicDataSet), () => new DynamicDataSet()));
         RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField, typeof(PrimaryKeyField),
             () => new PrimaryKeyField()));
+        //设计时类型
+        RegisterKnownType(new BinSerializer(PayloadType.DataStoreModel, typeof(DataStoreModel),
+            () => new DataStoreModel()));
+        RegisterKnownType(new BinSerializer(PayloadType.ApplicationModel, typeof(ApplicationModel),
+            () => new ApplicationModel()));
+        RegisterKnownType(new BinSerializer(PayloadType.ModelFolder, typeof(ModelFolder), () => new ModelFolder()));
+        RegisterKnownType(new BinSerializer(PayloadType.ModelBase, typeof(ModelBase)));
+        RegisterKnownType(new BinSerializer(PayloadType.EntityModel, typeof(EntityModel), () => new EntityModel()));
+        RegisterKnownType(new BinSerializer(PayloadType.ServiceModel, typeof(ServiceModel), () => new ServiceModel()));
+        RegisterKnownType(new BinSerializer(PayloadType.ViewModel, typeof(ViewModel), () => new ViewModel()));
+        RegisterKnownType(new BinSerializer(PayloadType.PermissionModel, typeof(PermissionModel),
+            () => new PermissionModel()));
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);

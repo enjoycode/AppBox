@@ -3,26 +3,41 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>AppBoxStudio</AssemblyName>
         <RootNamespace>AppBoxDesign</RootNamespace>
-        <LangVersion>11</LangVersion>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\PixUI.CodeEditor.csproj" />
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic.Design\PixUI.Dynamic.Design.csproj" />
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj" />
-      <ProjectReference Include="..\Client.UI\Client.UI.csproj" />
-      <ProjectReference Include="..\Client\Client.csproj" />
-      <ProjectReference Include="..\Core\Core.csproj" />
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\PixUI.CodeEditor.csproj"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic.Design\PixUI.Dynamic.Design.csproj"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj"/>
+        <ProjectReference Include="..\Client.UI\Client.UI.csproj"/>
+        <ProjectReference Include="..\Client\Client.csproj"/>
+        <ProjectReference Include="..\Core\Core.csproj"/>
+        <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\Galaxy.webp" />
-      <EmbeddedResource Include="Resources\Galaxy.webp" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.12.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Remove="Resources\Galaxy.webp"/>
+        <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
+        <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs" />
+        <EmbeddedResource Include="DummyCode\ViewBaseDummyCode.cs" />
+        <EmbeddedResource Include="Resources\Galaxy.webp"/>
+        <Compile Remove="DummyCode\ServiceBaseDummyCode.cs" />
+        <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
+        <Compile Remove="DummyCode\ViewBaseDummyCode.cs" />
+    </ItemGroup>
 
-
-
+    <ItemGroup>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.CS2TS\RoslynUtils.cs">
+            <Link>CodeGenerator\RoslynUtils.cs</Link>
+        </Compile>
+    </ItemGroup>
+    
 </Project>
