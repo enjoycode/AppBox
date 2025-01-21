@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal sealed class NewPKFieldDialog : Dialog
 {
-    public NewPKFieldDialog(EntityModelVO entityModel)
+    public NewPKFieldDialog(EntityModel entityModel)
     {
         _entityModel = entityModel;
         Title.Value = "New Primary Key Field";
@@ -14,8 +14,8 @@ internal sealed class NewPKFieldDialog : Dialog
         Height = 250;
     }
 
-    private readonly EntityModelVO _entityModel;
-    private readonly State<EntityMemberVO?> _selected = new RxValue<EntityMemberVO?>(null);
+    private readonly EntityModel _entityModel;
+    private readonly State<EntityMemberModel?> _selected = new RxValue<EntityMemberModel?>(null);
     private readonly State<bool> _orderByDesc = false;
     private readonly State<bool> _allowChange = true;
 
@@ -26,7 +26,7 @@ internal sealed class NewPKFieldDialog : Dialog
         {
             Children =
             {
-                new("EntityField:", new Select<EntityMemberVO>(_selected)
+                new("EntityField:", new Select<EntityMemberModel>(_selected)
                 {
                     Options = _entityModel.Members
                         .Where(m => m.Type == EntityMemberType.EntityField)
@@ -41,6 +41,6 @@ internal sealed class NewPKFieldDialog : Dialog
     internal PrimaryKeyField? GetResult()
     {
         if (_selected.Value == null) return null;
-        return new PrimaryKeyField(_selected.Value.Id, _allowChange.Value, _orderByDesc.Value);
+        return new PrimaryKeyField(_selected.Value.MemberId, _allowChange.Value, _orderByDesc.Value);
     }
 }

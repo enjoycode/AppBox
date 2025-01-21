@@ -5,9 +5,9 @@ namespace AppBoxDesign;
 
 internal sealed class MembersDesigner : View
 {
-    public MembersDesigner(EntityModelVO entityModel,
-        DataGridController<EntityMemberVO> membersController,
-        State<EntityMemberVO?> selectedMember)
+    public MembersDesigner(EntityModel entityModel,
+        DataGridController<EntityMemberModel> membersController,
+        State<EntityMemberModel?> selectedMember)
     {
         var color = new Color(0xFFF3F3F3);
 
@@ -16,17 +16,17 @@ internal sealed class MembersDesigner : View
             Fixed = Splitter.FixedPanel.Panel2,
             Distance = 280,
             SplitterColor = color,
-            Panel1 = new DataGrid<EntityMemberVO>(membersController)
+            Panel1 = new DataGrid<EntityMemberModel>(membersController)
             {
                 Columns =
                 {
-                    new DataGridTextColumn<EntityMemberVO>("Name", v => v.Name)
+                    new DataGridTextColumn<EntityMemberModel>("Name", v => v.Name)
                         { Width = ColumnWidth.Fixed(150) },
-                    new DataGridTextColumn<EntityMemberVO>("Type", MemberTypeToString)
+                    new DataGridTextColumn<EntityMemberModel>("Type", MemberTypeToString)
                         { Width = ColumnWidth.Fixed(200) },
-                    new DataGridCheckboxColumn<EntityMemberVO>("AllowNull", v => v.AllowNull)
+                    new DataGridCheckboxColumn<EntityMemberModel>("AllowNull", v => v.AllowNull)
                         { Width = ColumnWidth.Fixed(90) },
-                    new DataGridTextColumn<EntityMemberVO>("Comment", v => v.Comment ?? string.Empty),
+                    new DataGridTextColumn<EntityMemberModel>("Comment", v => v.Comment ?? string.Empty),
                 }
             },
             Panel2 = new Container()
@@ -38,10 +38,10 @@ internal sealed class MembersDesigner : View
         };
     }
 
-    private static string MemberTypeToString(EntityMemberVO member)
+    private static string MemberTypeToString(EntityMemberModel member)
     {
         if (member.Type == EntityMemberType.EntityField)
-            return $"{member.Type.ToString()} - {((EntityFieldVO)member).FieldType.ToString()}";
+            return $"{member.Type.ToString()} - {((EntityFieldModel)member).FieldType.ToString()}";
         //TODO: EntityRef and EntitySet attach target entity name
         return member.Type.ToString();
     }

@@ -26,7 +26,15 @@ public abstract class EntityMemberModel
     public bool IsNameChanged => _originalName != null && _originalName != _name;
     public PersistentState PersistentState => _persistentState;
     public virtual bool AllowNull => _allowNull;
-    public string? Comment => _comment;
+
+    public string? Comment
+    {
+        get => _comment;
+        set => _comment = value;
+    }
+    
+    public bool IsForeignKeyMember => Type == EntityMemberType.EntityField
+                                      && ((EntityFieldModel)this).IsForeignKey;
 
     #region ====Design Methods====
 

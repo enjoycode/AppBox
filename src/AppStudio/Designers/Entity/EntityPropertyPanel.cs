@@ -3,11 +3,11 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class RxEntityField : RxObjectBase<EntityFieldVO>
+internal sealed class RxEntityField : RxObjectBase<EntityFieldModel>
 {
-    public RxEntityField(EntityFieldVO? target)
+    public RxEntityField(EntityFieldModel? target)
     {
-        _target = target;
+        _target = target!;
 
         Name = new RxProxy<string>(() => Target.Name);
         FieldType = new RxProxy<EntityFieldType>(() => Target.FieldType);
@@ -24,10 +24,10 @@ internal sealed class RxEntityField : RxObjectBase<EntityFieldVO>
 /// </summary>
 internal sealed class EntityPropertyPanel : View
 {
-    public EntityPropertyPanel(EntityModelVO entityModel, State<EntityMemberVO?> selectedMember)
+    public EntityPropertyPanel(EntityModel entityModel, State<EntityMemberModel?> selectedMember)
     {
         Bind(ref _selectedMember!, selectedMember, OnSelectedMemberChanged);
-        _rxEntityField = new RxEntityField((EntityFieldVO?)_selectedMember.Value);
+        _rxEntityField = new RxEntityField((EntityFieldModel?)_selectedMember.Value);
         var isEntityField = _selectedMember
             .ToStateOfBool(v => v is { Type: EntityMemberType.EntityField });
 
@@ -38,7 +38,7 @@ internal sealed class EntityPropertyPanel : View
                 new Text("Entity Properties:") { FontWeight = FontWeight.Bold },
                 new Form()
                 {
-                    LabelWidth = _labelWidth,
+                    LabelWidth = LabelWidth,
                     Children =
                     {
                         new("DataStoreKind:", new TextInput("SqlStore") { Readonly = true }),
@@ -50,7 +50,7 @@ internal sealed class EntityPropertyPanel : View
                     () => new Text("EntityField Properties:") { FontWeight = FontWeight.Bold }),
                 new IfConditional(isEntityField, () => new Form()
                 {
-                    LabelWidth = _labelWidth,
+                    LabelWidth = LabelWidth,
                     Children =
                     {
                         new("Name:", new TextInput(_rxEntityField.Name)),
@@ -62,13 +62,13 @@ internal sealed class EntityPropertyPanel : View
         };
     }
 
-    private const float _labelWidth = 120f;
-    private readonly State<EntityMemberVO?> _selectedMember;
+    private const float LabelWidth = 120f;
+    private readonly State<EntityMemberModel?> _selectedMember;
     private readonly RxEntityField _rxEntityField;
 
     private void OnSelectedMemberChanged(State state)
     {
-        if (_selectedMember.Value is EntityFieldVO entityFieldVO)
-            _rxEntityField.Target = entityFieldVO;
+        if (_selectedMember.Value is EntityFieldModel entityField)
+            _rxEntityField.Target = entityField;
     }
 }

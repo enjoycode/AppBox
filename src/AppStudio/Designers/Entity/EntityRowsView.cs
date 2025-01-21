@@ -24,7 +24,7 @@ internal sealed class EntityRowsView : View
         try
         {
             var ds = await Channel.Invoke<DynamicDataSet>("sys.DesignService.GetEntityRows",
-                new object?[] { _entityModelId, 50 });
+                [_entityModelId, 50]);
             BuildColumns(ds!);
             _dgController.DataSource = ds;
         }

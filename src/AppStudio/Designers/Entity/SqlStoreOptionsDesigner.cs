@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using AppBoxClient;
 using AppBoxCore;
 using PixUI;
@@ -8,12 +6,12 @@ namespace AppBoxDesign;
 
 internal sealed class SqlStoreOptionsDesigner : View
 {
-    internal SqlStoreOptionsDesigner(EntityModelVO entityModel, string modelId)
+    internal SqlStoreOptionsDesigner(EntityModel entityModel, string modelId)
     {
         _entityModel = entityModel;
         _modelId = modelId;
-        _pkController.DataSource = _entityModel.SqlStoreOptions.PrimaryKeys;
-        _ixController.DataSource = _entityModel.SqlStoreOptions.Indexes;
+        _pkController.DataSource = _entityModel.SqlStoreOptions!.PrimaryKeys;
+        _ixController.DataSource = _entityModel.SqlStoreOptions!.Indexes;
 
         Child = new Container
         {
@@ -29,10 +27,10 @@ internal sealed class SqlStoreOptionsDesigner : View
         };
     }
 
-    private readonly EntityModelVO _entityModel;
+    private readonly EntityModel _entityModel;
     private readonly string _modelId;
     private readonly DataGridController<PrimaryKeyField> _pkController = new();
-    private readonly DataGridController<SqlIndexModelVO> _ixController = new();
+    private readonly DataGridController<SqlIndexModel> _ixController = new();
 
     private Widget BuildPrimaryKeysPanel() => new Card
     {
@@ -55,7 +53,7 @@ internal sealed class SqlStoreOptionsDesigner : View
                     Columns =
                     {
                         new DataGridTextColumn<PrimaryKeyField>("Name",
-                            t => _entityModel.Members.First(m => m.Id == t.MemberId).Name),
+                            t => _entityModel.Members.First(m => m.MemberId == t.MemberId).Name),
                         new DataGridCheckboxColumn<PrimaryKeyField>("OrderByDesc",
                             t => t.OrderByDesc),
                         new DataGridCheckboxColumn<PrimaryKeyField>("AllowChange",
@@ -82,27 +80,27 @@ internal sealed class SqlStoreOptionsDesigner : View
                         new Button("Remove", MaterialIcons.Remove)
                     }
                 },
-                new DataGrid<SqlIndexModelVO>(_ixController)
+                new DataGrid<SqlIndexModel>(_ixController)
                 {
                     Columns =
                     {
-                        new DataGridTextColumn<SqlIndexModelVO>("Name", t => t.Name),
-                        new DataGridTextColumn<SqlIndexModelVO>("Fields", GetIndexesFieldsList),
-                        new DataGridCheckboxColumn<SqlIndexModelVO>("Unique", t => true),
+                        new DataGridTextColumn<SqlIndexModel>("Name", t => t.Name),
+                        new DataGridTextColumn<SqlIndexModel>("Fields", GetIndexesFieldsList),
+                        new DataGridCheckboxColumn<SqlIndexModel>("Unique", t => true),
                     }
                 },
             }
         }
     };
 
-    private string GetIndexesFieldsList(SqlIndexModelVO indexMode)
+    private string GetIndexesFieldsList(SqlIndexModel indexMode)
     {
         var s = "";
         for (var i = 0; i < indexMode.Fields.Length; i++)
         {
             if (i != 0)
                 s += ", ";
-            s += _entityModel.Members.First(m => m.Id == indexMode.Fields[i].MemberId).Name;
+            s += _entityModel.Members.First(m => m.MemberId == indexMode.Fields[i].MemberId).Name;
             if (indexMode.Fields[i].OrderByDesc)
                 s += " OrderByDesc";
         }
@@ -133,21 +131,22 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private async void ChangePrimaryKeys()
     {
-        var args = new object?[]
-        {
-            _modelId,
-            _entityModel.SqlStoreOptions.PrimaryKeys.Count == 0
-                ? null
-                : _entityModel.SqlStoreOptions.PrimaryKeys.ToArray()
-        };
-        try
-        {
-            await Channel.Invoke("sys.DesignService.ChangePrimaryKeys", args);
-        }
-        catch (Exception ex)
-        {
-            //TODO: rollback to pre state
-            Notification.Error($"Change primary keys error: {ex.Message}");
-        }
+        throw new NotImplementedException(nameof(ChangePrimaryKeys));
+        // var args = new object?[]
+        // {
+        //     _modelId,
+        //     _entityModel.SqlStoreOptions.PrimaryKeys.Count == 0
+        //         ? null
+        //         : _entityModel.SqlStoreOptions.PrimaryKeys.ToArray()
+        // };
+        // try
+        // {
+        //     await Channel.Invoke("sys.DesignService.ChangePrimaryKeys", args);
+        // }
+        // catch (Exception ex)
+        // {
+        //     //TODO: rollback to pre state
+        //     Notification.Error($"Change primary keys error: {ex.Message}");
+        // }
     }
 }
