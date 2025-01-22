@@ -2,22 +2,13 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-internal sealed class NewFolder : IDesignHandler
+internal static class NewFolder
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static async Task<NewNodeResult> Execute(DesignNode selectedNode, string name)
     {
-        //读取参数
-        var selectedNodeType = (DesignNodeType)args.GetInt()!.Value;
-        var selectedNodeId = args.GetString();
-        var name = args.GetString();
-
-        if (string.IsNullOrEmpty(selectedNodeId) || string.IsNullOrEmpty(name))
+        if (string.IsNullOrEmpty(name)) //TODO: other name validate
             throw new Exception("名称不能为空");
 
-        //获取选择的节点
-        var selectedNode = hub.DesignTree.FindNode(selectedNodeType, selectedNodeId);
-        if (selectedNode == null)
-            throw new Exception("无法找到当前节点");
         //根据选择的节点获取合适的插入位置
         var parentNode = DesignTree.FindNewFolderParentNode(selectedNode, out var appId, out var modelType);
         if (parentNode == null)
@@ -30,11 +21,11 @@ internal sealed class NewFolder : IDesignHandler
             children = folderNode.Children;
         else
             throw new NotImplementedException();
-        if (children.Exists(t => t.Type == DesignNodeType.FolderNode && t.Label == name))
+        if (children.Exists(t => t.Type == DesignNodeType.FolderNode && t.Label.Value == name))
             throw new Exception("当前目录下已存在同名文件夹");
 
         //判断当前模型根节点有没有签出
-        var rootNode = hub.DesignTree.FindModelRootNode(appId, modelType)!;
+        var rootNode = DesignHub.Current.DesignTree.FindModelRootNode(appId, modelType)!;
         var rootNodeHasCheckout = rootNode.IsCheckoutByMe;
         if (!await rootNode.CheckoutAsync())
             throw new Exception($"Can't checkout: {rootNode.Label}");
@@ -70,10 +61,7 @@ internal sealed class NewFolder : IDesignHandler
         // 保存到本地
         await node.SaveAsync();
 
-        return AnyValue.From(
-            new NewNodeResult(parentNode.Type, parentNode.Id,
-                node, rootNodeHasCheckout ? null : rootNode.Id,
-                insertIndex)
-        );
+        return new NewNodeResult(parentNode.Type, parentNode.Id,
+            node, rootNodeHasCheckout ? null : rootNode.Id, insertIndex);
     }
 }
