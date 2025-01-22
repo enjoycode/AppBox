@@ -2,34 +2,26 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-/// <summary>
-/// 删除模型或文件夹或整个应用
-/// </summary>
-internal sealed class DeleteNode : IDesignHandler
+internal static class DeleteNode
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static async ValueTask<string> Execute(DesignNode deleteNode)
     {
-        var selectedNodeType = (DesignNodeType)args.GetInt()!.Value;
-        var selectedNodeIdString = args.GetString()!;
-        var deleteNode = hub.DesignTree.FindNode(selectedNodeType, selectedNodeIdString);
-        if (deleteNode == null)
-            throw new Exception("Can't find node");
         if (!(deleteNode is ModelNode || deleteNode is ApplicationNode ||
               deleteNode is FolderNode { Children.Count: 0 }))
             throw new Exception("Can not delete it.");
 
         DesignNode? rootNode;
         if (deleteNode is ModelNode modelNode)
-            rootNode = await DeleteModelNode(hub, modelNode);
+            rootNode = await DeleteModelNode(DesignHub.Current, modelNode);
         else if (deleteNode is FolderNode folderNode)
-            rootNode = await DeleteFolderNode(hub, folderNode);
+            rootNode = await DeleteFolderNode(DesignHub.Current, folderNode);
         else
             throw new NotImplementedException();
 
         //注意：返回rootNode.ID用于前端重新刷新模型根节点
-        return AnyValue.From(rootNode == null ? string.Empty : rootNode.Id);
+        return rootNode == null ? string.Empty : rootNode.Id;
     }
-
+    
     private static async Task<DesignNode?> DeleteModelNode(DesignHub hub, ModelNode node)
     {
         // 查找ModelRootNode
@@ -52,7 +44,7 @@ internal sealed class DeleteNode : IDesignHandler
         var model = node.Model;
         // 查找引用项
         var usages = await ReferenceService.FindModelReferencesAsync(hub, node);
-        if (usages != null && usages.Count > 0)
+        if (usages.Count > 0)
         {
             //注意排除自身引用
             usages = usages.Where(u => u.ModelNode.Model.Id != model.Id).ToList();
@@ -71,6 +63,7 @@ internal sealed class DeleteNode : IDesignHandler
         // 判断当前模型是否已持久化到数据库中
         if (model.PersistentState == PersistentState.Detached)
         {
+            //TODO: delete checkout
             await StagedService.DeleteModelAsync(model.Id);
         }
         else

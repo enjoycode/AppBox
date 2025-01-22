@@ -106,9 +106,7 @@ internal sealed class Commands
 
         try
         {
-            var modelRootNodeIdString = await Channel.Invoke<string?>(
-                "sys.DesignService.DeleteNode",
-                new object?[] { (int)nodeType, selectedNode.Data.Id });
+            var modelRootNodeIdString = await DeleteNode.Execute(selectedNode.Data);
             _designStore.OnDeleteNode(selectedNode, modelRootNodeIdString);
             Notification.Success($"删除节点[{selectedNode.Data.Label}]成功");
         }

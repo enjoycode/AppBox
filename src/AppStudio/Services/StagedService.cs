@@ -37,6 +37,11 @@ internal static class StagedService
     {
         return Channel.Invoke("sys.DesignService.StageSaveCode", [(long)modelId, sourceCode]);
     }
+
+    internal static Task DeleteModelAsync(ModelId modelId)
+    {
+        return Channel.Invoke("sys.DesignService.StageDeleteModel", [(long)modelId]);
+    }
 }
 
 internal sealed class StagedItems

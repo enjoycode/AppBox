@@ -57,6 +57,9 @@ internal sealed class DesignService : IService
             case "StageSaveCode":
                 await StagedService.SaveCodeAsync(args.GetLong()!.Value, args.GetString()!);
                 return AnyValue.Empty;
+            case "StageDeleteModel":
+                await StagedService.DeleteModelAsync(args.GetLong()!.Value);
+                return AnyValue.Empty;
             case "GetEntityRows":
                 return await GetEntityRows(args);
             default:
