@@ -63,8 +63,7 @@ internal sealed class Commands
 
         try
         {
-            var args = new object?[] { (int)nodeType, selectedNode.Data.Id };
-            await Channel.Invoke("sys.DesignService.CheckoutNode", args);
+            await CheckoutNode.Execute(selectedNode.Data);
             //TODO:判断返回结果刷新
             Notification.Success($"签出节点[{selectedNode.Data.Label}]成功");
         }

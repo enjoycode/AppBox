@@ -1,24 +1,15 @@
-using AppBoxCore;
-
 namespace AppBoxDesign;
 
-/// <summary>
-/// 签出指定的设计节点
-/// </summary>
-/// <returns>
-/// 返回true表示模型已变更，用于前端刷新
-/// </returns>
-internal sealed class CheckoutNode : IDesignHandler
+internal static class CheckoutNode
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    /// <summary>
+    /// 签出指定的设计节点
+    /// </summary>
+    /// <returns>
+    /// 返回true表示模型已变更，用于前端刷新
+    /// </returns>
+    internal static async ValueTask<bool> Execute(DesignNode node)
     {
-        var nodeType = (DesignNodeType)args.GetInt()!.Value;
-        var nodeId = args.GetString()!;
-
-        var node = hub.DesignTree.FindNode(nodeType, nodeId);
-        if (node == null)
-            throw new Exception($"Can't find: {nodeId}");
-
         switch (node.Type)
         {
             case DesignNodeType.ModelNode:
