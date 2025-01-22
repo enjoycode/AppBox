@@ -103,6 +103,7 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
     public static implicit operator AnyValue(bool v) => new() { BoolValue = v, Type = AnyValueType.Boolean };
     public static implicit operator AnyValue(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
     public static implicit operator AnyValue(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
+    public static implicit operator AnyValue(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
     public static implicit operator AnyValue(string v) => new() { _ObjectValue = v, Type = AnyValueType.Object };
     public static explicit operator string(AnyValue v) => v.BoxedValue?.ToString() ?? string.Empty;
     public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;

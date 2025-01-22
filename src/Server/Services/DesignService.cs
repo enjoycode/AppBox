@@ -1,5 +1,6 @@
 using System.Data.Common;
 using AppBoxCore;
+using AppBoxDesign;
 using AppBoxServer.Design;
 using AppBoxStore;
 
@@ -10,6 +11,12 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class DesignService : IService
 {
+    static DesignService()
+    {
+        //注册设计时序列化器
+        DesignTypeSerializer.Register();
+    }
+
     private static readonly ModelId DeveloperPermissionId =
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS);
 
@@ -29,8 +36,13 @@ internal sealed class DesignService : IService
                 return AnyValue.From(await MetaStore.Provider.LoadAllModelAsync());
             case "LoadModelCode":
                 return await MetaStore.Provider.LoadModelCodeAsync(args.GetLong()!.Value);
+            case "GenModelId":
+                return (long)(await MetaStore.Provider.GenModelIdAsync(
+                    args.GetInt()!.Value, (ModelType)args.GetInt()!.Value, (ModelLayer)args.GetInt()!.Value));
             case "CheckoutLoadAll":
                 return AnyValue.From(await CheckoutService.LoadAllAsync());
+            case "Checkout":
+                return AnyValue.From(await CheckoutService.CheckoutAsync(args.GetList<CheckoutInfo>()));
             case "StageLoadAll":
                 return AnyValue.From(await StagedService.LoadStagedAsync(args.GetBool()!.Value));
             case "StageLoadCode":
@@ -72,7 +84,7 @@ internal sealed class DesignService : IService
         var db = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
         await using var cmd = db.MakeCommand();
         cmd.CommandText = BuildCommand(model, fields, pageSize, db);
-        var ds = BuildDataSet(model, fields);
+        var ds = BuildDataSet(fields);
 
         await using var conn = await db.OpenConnectionAsync();
         cmd.Connection = conn;
@@ -84,7 +96,7 @@ internal sealed class DesignService : IService
 
         return AnyValue.From(ds);
     }
-    
+
     private static void FetchRow(EntityFieldModel[] fields, DynamicDataSet ds, DbDataReader dr)
     {
         var obj = new DynamicEntity();
@@ -111,15 +123,15 @@ internal sealed class DesignService : IService
         }
     }
 
-    private static DynamicDataSet BuildDataSet(EntityModel model, EntityFieldModel[] fields)
+    private static DynamicDataSet BuildDataSet(EntityFieldModel[] fields)
     {
-        var colums = new DynamicFieldInfo[fields.Length];
+        var columns = new DynamicFieldInfo[fields.Length];
         for (var i = 0; i < fields.Length; i++)
         {
-            colums[i] = new DynamicFieldInfo(fields[i].Name, GetFieldType(fields[i]));
+            columns[i] = new DynamicFieldInfo(fields[i].Name, GetFieldType(fields[i]));
         }
 
-        return new DynamicDataSet(colums);
+        return new DynamicDataSet(columns);
     }
 
     private static DynamicFieldFlag GetFieldType(EntityFieldModel field) => field.FieldType switch

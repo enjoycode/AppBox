@@ -23,4 +23,9 @@ internal static class CheckoutService
 
         return dic;
     }
+
+    internal static Task<CheckoutResult> CheckoutAsync(IList<CheckoutInfo> info)
+    {
+        return Channel.Invoke<CheckoutResult>("sys.DesignService.Checkout", [info]);
+    }
 }

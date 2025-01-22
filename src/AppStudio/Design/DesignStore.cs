@@ -66,13 +66,12 @@ internal sealed class DesignStore
     /// </summary>
     internal void OnNewNode(NewNodeResult result)
     {
-        throw new NotImplementedException();
-        // //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
-        //
-        // var newNode = TreeController.InsertNode(
-        //     result.NewNode, result.ParentNode, result.InsertIndex);
-        // TreeController.ExpandTo(newNode);
-        // TreeController.SelectNode(newNode);
+        //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
+        
+        var newNode = TreeController.InsertNode(
+            result.NewNode, result.ParentNode, result.InsertIndex);
+        TreeController.ExpandTo(newNode);
+        TreeController.SelectNode(newNode);
     }
 
     /// <summary>

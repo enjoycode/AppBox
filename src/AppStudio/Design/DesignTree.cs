@@ -329,7 +329,7 @@ public sealed class DesignTree
     {
         foreach (var item in infos)
         {
-            var key = CheckoutInfo.MakeKey(item.NodeType, item.TargetID);
+            var key = CheckoutInfo.MakeKey(item.NodeType, item.TargetId);
             _checkouts.TryAdd(key, item);
         }
     }

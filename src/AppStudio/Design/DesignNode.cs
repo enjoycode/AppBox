@@ -10,7 +10,7 @@ public abstract class DesignNode : IComparable<DesignNode>
 {
     public abstract DesignNodeType Type { get; }
     public abstract State<string> Label { get; }
-    
+
     /// <summary>
     /// 当前节点打开的设计器，打开时设置关闭时取消
     /// </summary>
@@ -61,8 +61,7 @@ public abstract class DesignNode : IComparable<DesignNode>
     /// 设计节点是否被当前用户签出
     /// </summary>
     public bool IsCheckoutByMe => CheckoutInfo != null &&
-                                  CheckoutInfo.DeveloperOuid ==
-                                  RuntimeContext.CurrentSession!.LeafOrgUnitId;
+                                  CheckoutInfo.DeveloperOuid == DesignHub.Current.LeafOrgUnitId;
 
     public bool AllowCheckout => Type is DesignNodeType.ModelRootNode
         or DesignNodeType.ModelNode or DesignNodeType.DataStoreNode;
@@ -72,36 +71,35 @@ public abstract class DesignNode : IComparable<DesignNode>
     /// </summary>
     public async Task<bool> CheckoutAsync()
     {
-        throw new NotImplementedException("签出节点");
-        // //判断是否已签出或者能否签出
-        // if (!AllowCheckout) return false;
-        // if (IsCheckoutByMe) return true;
-        //
-        // //调用服务
-        // var session = DesignTree!.DesignHub.Session;
-        // var infos = new List<CheckoutInfo>()
-        // {
-        //     new(Type, CheckoutTargetId, Version, session.Name, session.LeafOrgUnitId)
-        // };
-        // var res = await CheckoutService.CheckoutAsync(infos);
-        // if (res.Success)
-        // {
-        //     //签出成功则将请求的签出信息添加至当前的已签出列表
-        //     DesignTree.AddCheckoutInfos(infos);
-        //     //如果签出的是单个模型，且具备更新的版本，则替换旧模型
-        //     if (Type == DesignNodeType.ModelNode && res.ModelWithNewVersion != null)
-        //     {
-        //         var modelNode = (ModelNode)this;
-        //         modelNode.Model = res.ModelWithNewVersion;
-        //         //更新为新模型的虚拟代码
-        //         await DesignTree.DesignHub.TypeSystem.UpdateModelDocumentAsync(modelNode);
-        //     }
-        //
-        //     //更新当前节点的签出信息
-        //     CheckoutInfo = infos[0];
-        // }
-        //
-        // return res.Success;
+        //判断是否已签出或者能否签出
+        if (!AllowCheckout) return false;
+        if (IsCheckoutByMe) return true;
+
+        //调用服务
+        var hub = DesignTree!.DesignHub;
+        var infos = new List<CheckoutInfo>()
+        {
+            new(Type, CheckoutTargetId, Version, hub.SessionName, hub.LeafOrgUnitId)
+        };
+        var res = await CheckoutService.CheckoutAsync(infos);
+        if (res.Success)
+        {
+            //签出成功则将请求的签出信息添加至当前的已签出列表
+            DesignTree.AddCheckoutInfos(infos);
+            //如果签出的是单个模型，且具备更新的版本，则替换旧模型
+            if (Type == DesignNodeType.ModelNode && res.ModelWithNewVersion != null)
+            {
+                var modelNode = (ModelNode)this;
+                modelNode.Model = res.ModelWithNewVersion;
+                //更新为新模型的虚拟代码
+                await DesignTree.DesignHub.TypeSystem.UpdateModelDocumentAsync(modelNode);
+            }
+
+            //更新当前节点的签出信息
+            CheckoutInfo = infos[0];
+        }
+
+        return res.Success;
     }
 
     #endregion

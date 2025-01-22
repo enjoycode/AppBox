@@ -62,10 +62,9 @@ public sealed class LoginPage : View
     {
         try
         {
-            await DesignInitializer.TryInit();
             await Channel.Login(_userName.Value, _password.Value);
             DesignHub.Current = new DesignHub(Channel.SessionName, Channel.LeafOrgUnitId);
-            CurrentNavigator!.Push("IDE");
+            CurrentNavigator!.Push("IDE"); //TODO: use Navigator.Replace?
         }
         catch (Exception ex)
         {

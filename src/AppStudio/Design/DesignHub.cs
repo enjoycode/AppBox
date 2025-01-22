@@ -4,6 +4,12 @@ namespace AppBoxDesign;
 
 public sealed class DesignHub : IModelContainer, IDisposable
 {
+    static DesignHub()
+    {
+        //注册设计时序列化器
+        DesignTypeSerializer.Register();
+    }
+
     public DesignHub(string sessionName, Guid leafOrgUnitId)
     {
         SessionName = sessionName;

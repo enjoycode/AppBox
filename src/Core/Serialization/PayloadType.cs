@@ -53,6 +53,9 @@ namespace AppBoxCore
         OrderedField = 63,
         TextChange = 64,
         PrimaryKeyField = 65,
+        
+        CheckoutInfo = 66,
+        CheckoutResult = 67,
 
         //----运行时相关类型----
         Entity = 90,

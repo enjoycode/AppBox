@@ -40,23 +40,11 @@
       <Compile Include="..\AppStudio\Data\EntityMemberInfo.cs">
         <Link>Data\EntityMemberInfo.cs</Link>
       </Compile>
-      <Compile Include="..\AppStudio\Data\EntityModelVO.cs">
-        <Link>Data\EntityModelVO.cs</Link>
-      </Compile>
-      <Compile Include="..\AppStudio\Data\IndexModelVO.cs">
-        <Link>Data\IndexModelVO.cs</Link>
-      </Compile>
       <Compile Include="..\AppStudio\Data\ReferenceVO.cs">
         <Link>Data\ReferenceVO.cs</Link>
       </Compile>
       <Compile Include="..\AppStudio\Data\ServiceMethodInfo.cs">
         <Link>Data\ServiceMethodInfo.cs</Link>
-      </Compile>
-      <Compile Include="..\AppStudio\Data\SqlStoreOptionsVO.cs">
-        <Link>Data\SqlStoreOptionsVO.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.CS2TS\RoslynUtils.cs">
-        <Link>CodeGenerator\RoslynUtils.cs</Link>
       </Compile>
       <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
       <Compile Remove="DummyCode\ViewBaseDummyCode.cs" />

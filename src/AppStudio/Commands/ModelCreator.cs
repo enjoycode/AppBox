@@ -1,5 +1,4 @@
 using AppBoxCore;
-using AppBoxStore;
 
 namespace AppBoxDesign;
 
@@ -30,12 +29,12 @@ internal static class ModelCreator
         //判断当前模型根节点有没有签出
         var modelRootNode = hub.DesignTree.FindModelRootNode(appId, modelType)!;
         var modelRootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
-        var checkoutOK = await modelRootNode.CheckoutAsync();
-        if (!checkoutOK)
+        var checkoutOk = await modelRootNode.CheckoutAsync();
+        if (!checkoutOk)
             throw new Exception("Can't checkout ModelRootNode");
 
         //生成模型标识号并新建模型及节点 //TODO:fix Layer
-        var modelId = await MetaStore.Provider.GenModelIdAsync(appId, modelType, ModelLayer.DEV);
+        var modelId = await MetaStoreService.GenModelIdAsync(appId, modelType, ModelLayer.DEV);
         var model = creator(modelId);
         var node = new ModelNode(model, hub);
         var insertIndex = parentNode.Type == DesignNodeType.ModelRootNode
@@ -47,7 +46,7 @@ internal static class ModelCreator
             model.FolderId = folderNode.Folder.Id;
         //设为签出状态
         node.CheckoutInfo = new CheckoutInfo(node.Type, node.CheckoutTargetId, model.Version,
-            hub.Session.Name, hub.Session.LeafOrgUnitId);
+            hub.SessionName, hub.LeafOrgUnitId);
 
         //保存至Staged
         var initSrcCode = initSrcCodeGen(appNode.Model.Name);

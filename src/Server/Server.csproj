@@ -23,6 +23,9 @@
       <Compile Include="..\AppStudio\Data\DesignNodeType.cs">
         <Link>Services\Design\DesignNodeType.cs</Link>
       </Compile>
+      <Compile Include="..\AppStudio\Data\DesignTypeSerializer.cs">
+        <Link>Services\Design\DesignTypeSerializer.cs</Link>
+      </Compile>
       <Compile Include="..\AppStudio\Data\StagedType.cs">
         <Link>Services\Design\StagedType.cs</Link>
       </Compile>

@@ -1,3 +1,4 @@
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -51,20 +52,43 @@ internal sealed class NewEntityDialog : Dialog
 
     private async void CreateAsync()
     {
-        throw new NotImplementedException();
-        // var selectedNode = _designStore.TreeController.FirstSelectedNode;
-        // if (selectedNode == null) return;
-        //
-        // var args = new object?[]
-        // {
-        //     (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value,
-        //     _store.Value == null ? null : _store.Value.Id
-        // };
-        //
-        // var res = await Channel.Invoke<NewNodeResult_OLD>("sys.DesignService.NewEntityModel", args);
-        // res!.ResolveToTree(_designStore);
-        // //根据返回结果同步添加新节点
-        // _designStore.OnNewNode(res!);
+        if (_name.Value.StartsWith("Rx")) //保留Rx头
+        {
+            Notification.Error("Name can't start with Rx");
+            return;
+        }
+        
+        var selectedNode = _designStore.TreeController.FirstSelectedNode;
+        if (selectedNode == null) return;
+        var hub = DesignHub.Current;
+        var storeId = _store.Value?.Id;
+        
+        var result = await ModelCreator.Make(DesignHub.Current, ModelType.Entity,
+            id =>
+            {
+                var entityModel = new EntityModel(id, _name.Value);
+                if (!string.IsNullOrEmpty(storeId))
+                {
+                    var storeNode = hub.DesignTree.FindNode(DesignNodeType.DataStoreNode, storeId);
+                    if (storeNode == null)
+                        throw new Exception("Can't find DataStore");
+                    var storeModel = ((DataStoreNode)storeNode).Model;
+                    if (storeModel.Kind == DataStoreKind.Sql)
+                    {
+                        var appNode = hub.DesignTree.FindApplicationNode(id.AppId);
+                        entityModel.BindToSqlStore(storeModel.Id, appNode!.Model.Name + '.');
+                    }
+                    else
+                        throw new NotImplementedException();
+                }
+
+                return entityModel;
+            },
+            selectedNode.Data.Type, selectedNode.Data.Id, _name.Value, _ => null);
+        
+        //根据返回结果同步添加新节点
+        result.ResolveToTree(_designStore);
+        _designStore.OnNewNode(result);
     }
 
     private DataStoreNode[] GetAllDataStores()

@@ -19,4 +19,6 @@ public sealed class DataStoreNode : DesignNode
     public override State<string> Label { get; }
 
     public override string Id => ((ulong)Model.Id).ToString();
+
+    public override string ToString() => Model.Name;
 }

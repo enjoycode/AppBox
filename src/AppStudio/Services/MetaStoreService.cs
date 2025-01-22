@@ -28,4 +28,9 @@ internal static class MetaStoreService
     {
         return Channel.Invoke<string>("sys.DesignService.LoadModelCode", [(long)modelId]);
     }
+
+    public static async Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer)
+    {
+        return await Channel.Invoke<long>("sys.DesignService.GenModelId", [appId, (int)modelType, (int)layer]);
+    }
 }
