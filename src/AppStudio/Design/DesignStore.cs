@@ -44,7 +44,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 引用列表控制器
     /// </summary>
-    internal readonly DataGridController<ReferenceVO> UsagesController = new();
+    internal readonly DataGridController<Reference> UsagesController = new();
 
     internal IDesigner? ActiveDesigner
     {
@@ -110,13 +110,13 @@ internal sealed class DesignStore
         ProblemsController.DataSource = problems;
     }
 
-    internal void UpdateUsages(IList<ReferenceVO> usages)
+    internal void UpdateUsages(IList<Reference> usages)
     {
         UsagesController.DataSource = usages;
         BottomPadController.SelectAt(1);
     }
 
-    internal void GotoReference(ReferenceVO reference)
+    internal void GotoReference(Reference reference)
     {
         var node = FindDesignNodeById(reference.ModelId);
         if (node != null)
@@ -133,7 +133,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 打开或激活指定节点的设计器, 并且如果需要则跳转至指定位置
     /// </summary>
-    internal void OpenOrActiveDesigner(DesignNode node, ReferenceVO? gotoReference)
+    internal void OpenOrActiveDesigner(DesignNode node, Reference? gotoReference)
     {
         //先检查是否已经打开
         var existsIndex = DesignerController.IndexOf(node);

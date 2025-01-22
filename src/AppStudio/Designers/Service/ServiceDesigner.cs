@@ -29,7 +29,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
     private readonly DelayTask _delayDocChangedTask;
     private bool _hasLoadSourceCode;
 
-    private ReferenceVO? _pendingGoto;
+    private Reference? _pendingGoto;
 
     private Widget BuildEditor(CodeEditorController codeEditorController)
     {
@@ -123,7 +123,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
     public Widget? GetToolboxPad() => null;
 
-    public void GotoDefinition(ReferenceVO reference)
+    public void GotoDefinition(Reference reference)
     {
         if (reference.Offset < 0) return; //无需跳转
 

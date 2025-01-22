@@ -37,7 +37,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     private bool _hasLoadSourceCode;
     private readonly State<bool> _hidePreviewer = true;
 
-    private ReferenceVO? _pendingGoto;
+    private Reference? _pendingGoto;
 
     private Widget BuildEditor(CodeEditorController codeEditorController) => new Column
     {
@@ -127,7 +127,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 
     public Widget? GetToolboxPad() => null;
 
-    public void GotoDefinition(ReferenceVO reference)
+    public void GotoDefinition(Reference reference)
     {
         if (reference.Offset < 0) return; //无需跳转
 

@@ -12,7 +12,7 @@ internal interface IDesigner
     /// <summary>
     /// 跳转至指定位置
     /// </summary>
-    void GotoDefinition(ReferenceVO reference);
+    void GotoDefinition(Reference reference);
 }
 
 [TSInterfaceOf]

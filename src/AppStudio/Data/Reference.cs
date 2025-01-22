@@ -17,10 +17,18 @@ internal abstract class Reference : IComparable<Reference>
     
     public ModelNode ModelNode { get; private set; }
 
+    public string ModelId => ModelNode.Model.Id.ToString();
+
+    public string ModelName => $"{ModelNode.AppNode.Model.Name}.{ModelNode.Model.Name}";
+
     /// <summary>
     /// 用于友好显示的位置信息
     /// </summary>
     public abstract string Location { get; }
+
+    public virtual int Offset { get; } = -1;
+
+    public virtual int Length { get; } = -1;
 
     //public abstract String Expression { get; }
 
@@ -53,9 +61,9 @@ internal sealed class CodeReference : Reference
 {
 
     #region ====Properties====
-    public int Offset { get; }
+    public override int Offset { get; }
 
-    public int Length { get; }
+    public override int Length { get; }
 
     public override string Location => $"[{Offset} - {Length}]";
 

@@ -12,7 +12,7 @@ internal static class GotoDefinitionCommand
         var line = editor.Caret.Line;
         var column = editor.Caret.Column;
 
-        var res = await Channel.Invoke<ReferenceVO?>("sys.DesignService.GotoDefinition",
+        var res = await Channel.Invoke<Reference?>("sys.DesignService.GotoDefinition",
             new object?[] { modelIdString, line, column });
         if (res == null) return;
 
@@ -22,7 +22,7 @@ internal static class GotoDefinitionCommand
             designStore.OpenOrActiveDesigner(node, res); //打开或激活节点
     }
 
-    internal static void RunOnCodeEditor(CodeEditorController controller, ReferenceVO reference)
+    internal static void RunOnCodeEditor(CodeEditorController controller, Reference reference)
     {
         var doc = controller.Document;
         var pos = doc.OffsetToPosition(reference.Offset);

@@ -55,13 +55,13 @@ internal sealed class BottomPad : View
 
         if (title == "Usages")
         {
-            return new DataGrid<ReferenceVO>(_designStore.UsagesController)
+            return new DataGrid<Reference>(_designStore.UsagesController)
             {
                 Columns =
                 {
-                    new DataGridTextColumn<ReferenceVO>("Model", u => u.ModelName ?? string.Empty),
-                    new DataGridTextColumn<ReferenceVO>("Location", u => u.Location ?? string.Empty),
-                    new DataGridButtonColumn<ReferenceVO>("Goto",
+                    new DataGridTextColumn<Reference>("Model", u => u.ModelName ?? string.Empty),
+                    new DataGridTextColumn<Reference>("Location", u => u.Location ?? string.Empty),
+                    new DataGridButtonColumn<Reference>("Goto",
                         (p, _) => new Button(icon: MaterialIcons.NextPlan)
                         {
                             Style = ButtonStyle.Transparent,

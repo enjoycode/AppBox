@@ -129,7 +129,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         throw new NotImplementedException();
     }
 
-    public void GotoDefinition(ReferenceVO reference)
+    public void GotoDefinition(Reference reference)
     {
         throw new NotImplementedException();
     }

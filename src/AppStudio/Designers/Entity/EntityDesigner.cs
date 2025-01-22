@@ -32,7 +32,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
     private readonly State<int> _activePad = 0; //当前的设计面板
     private readonly EntityModel _entityModel;
 
-    private ReferenceVO? _pendingGoto;
+    private Reference? _pendingGoto;
 
     private readonly DataGridController<EntityMemberModel> _membersController = new();
     private readonly State<EntityMemberModel?> _selectedMember;
@@ -120,14 +120,14 @@ internal sealed class EntityDesigner : View, IModelDesigner
     private async void OnDeleteMember(PointerEvent e)
     {
         if (_selectedMember.Value == null) return;
-        
+
         try
         {
             var member = _selectedMember.Value!;
             await DeleteEntityMember.Execute(ModelNode, member);
-        
+
             _membersController.Remove(member);
-            
+
             //保存并更新虚拟代码
             await ModelNode.SaveAsync(null);
             await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
@@ -160,17 +160,14 @@ internal sealed class EntityDesigner : View, IModelDesigner
     {
         if (_selectedMember.Value == null) return;
 
-        var args = new object?[]
-            { (int)ModelReferenceType.EntityMember, ModelNode.Id, _selectedMember.Value.Name };
         try
         {
-            var res = await Channel.Invoke<IList<ReferenceVO>>("sys.DesignService.FindUsages",
-                args);
-            _designStore.UpdateUsages(res!);
+            var list = await FindUsages.Execute(ModelReferenceType.EntityMember, ModelNode, _selectedMember.Value.Name);
+            _designStore.UpdateUsages(list);
         }
         catch (Exception ex)
         {
-            Notification.Error($"Delete member error: {ex.Message}");
+            Notification.Error($"Find usages error: {ex.Message}");
         }
     }
 
@@ -180,7 +177,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     public Widget? GetToolboxPad() => null;
 
-    public void GotoDefinition(ReferenceVO reference)
+    public void GotoDefinition(Reference reference)
     {
         if (string.IsNullOrEmpty(reference.Location)) return; //不需要跳转
 
@@ -190,7 +187,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
             GotoDefinitionInternal(reference);
     }
 
-    private void GotoDefinitionInternal(ReferenceVO reference)
+    private void GotoDefinitionInternal(Reference reference)
     {
         //选中指定的成员
         var member = _entityModel!.Members.FirstOrDefault(m => m.Name == reference.Location);
