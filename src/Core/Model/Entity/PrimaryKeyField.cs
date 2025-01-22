@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 主键字段
 /// </summary>
-public struct PrimaryKeyField : IBinSerializable
+public struct PrimaryKeyField : IBinSerializable, IEquatable<PrimaryKeyField>
 {
     public short MemberId { get; private set; }
 
@@ -46,4 +46,10 @@ public struct PrimaryKeyField : IBinSerializable
 
         rs.ReadVariant(); //保留
     }
+
+    public bool Equals(PrimaryKeyField other) => MemberId == other.MemberId;
+
+    public override bool Equals(object? obj) => obj is PrimaryKeyField other && Equals(other);
+
+    public override int GetHashCode() => MemberId.GetHashCode();
 }

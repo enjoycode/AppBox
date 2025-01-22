@@ -28,6 +28,7 @@ internal sealed class NewPKFieldDialog : Dialog
             {
                 new("EntityField:", new Select<EntityMemberModel>(_selected)
                 {
+                    LabelGetter = m => m.Name,
                     Options = _entityModel.Members
                         .Where(m => m.Type == EntityMemberType.EntityField)
                         .ToArray()

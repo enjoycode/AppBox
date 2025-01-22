@@ -6,9 +6,10 @@ namespace AppBoxDesign;
 
 internal sealed class SqlStoreOptionsDesigner : View
 {
-    internal SqlStoreOptionsDesigner(EntityModel entityModel, string modelId)
+    internal SqlStoreOptionsDesigner(ModelNode modelNode, string modelId)
     {
-        _entityModel = entityModel;
+        _modelNode = modelNode;
+        _entityModel = (EntityModel)modelNode.Model;
         _modelId = modelId;
         _pkController.DataSource = _entityModel.SqlStoreOptions!.PrimaryKeys;
         _ixController.DataSource = _entityModel.SqlStoreOptions!.Indexes;
@@ -27,6 +28,7 @@ internal sealed class SqlStoreOptionsDesigner : View
         };
     }
 
+    private readonly ModelNode _modelNode;
     private readonly EntityModel _entityModel;
     private readonly string _modelId;
     private readonly DataGridController<PrimaryKeyField> _pkController = new();
@@ -117,36 +119,37 @@ internal sealed class SqlStoreOptionsDesigner : View
         var pkField = dlg.GetResult();
         if (pkField == null) return;
 
-        _pkController.Add(pkField.Value);
-        ChangePrimaryKeys();
+        var oldPks = _entityModel.SqlStoreOptions!.PrimaryKeys ?? [];
+        var newPks = oldPks.ToList();
+        newPks.Add(pkField.Value);
+
+        ChangePrimaryKeys(newPks.ToArray());
+        _pkController.DataSource = _entityModel.SqlStoreOptions!.PrimaryKeys; //_pkController.Refresh();
     }
 
     private void OnRemovePk(PointerEvent e)
     {
         if (_pkController.CurrentRowIndex < 0) return;
 
-        _pkController.RemoveAt(_pkController.CurrentRowIndex);
-        ChangePrimaryKeys();
+        var oldPks = _entityModel.SqlStoreOptions!.PrimaryKeys;
+        var newPks = oldPks.ToList();
+        newPks.RemoveAt(_pkController.CurrentRowIndex);
+
+        ChangePrimaryKeys(newPks.ToArray());
+        _pkController.ClearSelection();
+        _pkController.DataSource = _entityModel.SqlStoreOptions!.PrimaryKeys; //_pkController.Refresh();
     }
 
-    private async void ChangePrimaryKeys()
+    private void ChangePrimaryKeys(PrimaryKeyField[]? primaryKeys)
     {
-        throw new NotImplementedException(nameof(ChangePrimaryKeys));
-        // var args = new object?[]
-        // {
-        //     _modelId,
-        //     _entityModel.SqlStoreOptions.PrimaryKeys.Count == 0
-        //         ? null
-        //         : _entityModel.SqlStoreOptions.PrimaryKeys.ToArray()
-        // };
-        // try
-        // {
-        //     await Channel.Invoke("sys.DesignService.ChangePrimaryKeys", args);
-        // }
-        // catch (Exception ex)
-        // {
-        //     //TODO: rollback to pre state
-        //     Notification.Error($"Change primary keys error: {ex.Message}");
-        // }
+        try
+        {
+            AppBoxDesign.ChangePrimaryKeys.Execute(_modelNode, primaryKeys);
+        }
+        catch (Exception ex)
+        {
+            //TODO: rollback to pre state
+            Notification.Error($"Change primary keys error: {ex.Message}");
+        }
     }
 }

@@ -5,19 +5,15 @@ namespace AppBoxDesign;
 /// <summary>
 /// 设计时改变映射至数据库的实体模型的主键
 /// </summary>
-internal sealed class ChangePrimaryKeys : IDesignHandler
+internal static class ChangePrimaryKeys
 {
-    public ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static void Execute(ModelNode node, PrimaryKeyField[]? pks)
     {
-        ModelId modelId = args.GetString()!;
-        var pks = args.GetArray<PrimaryKeyField>();
-
-        var node = hub.DesignTree.FindModelNode(modelId);
-        if (node == null)
-            throw new Exception("Can't find Entity");
         if (!node.IsCheckoutByMe)
             throw new Exception("Has not checkout");
         var model = (EntityModel)node.Model;
+        if (model.SqlStoreOptions == null)
+            throw new NotSupportedException("Only for SqlStore");
 
         if (model.PersistentState != PersistentState.Detached)
         {
@@ -25,23 +21,13 @@ internal sealed class ChangePrimaryKeys : IDesignHandler
             //1. new XXXX(pks)改为new XXX(/*fix pk changed*/)
             //2. Entities.XXX.FetchAsync(pks)同上
         }
-
-        Run(model, pks);
-
-        return new ValueTask<AnyValue>(AnyValue.Empty);
-    }
-
-    internal static void Run(EntityModel model, PrimaryKeyField[]? pks)
-    {
-        if (model.SqlStoreOptions == null)
-            throw new NotSupportedException("Only for SqlStore");
-
+        
         //同步处理可修改的主键字段所关联的跟踪成员
         var allPKTrackers = model.Members
             .Where(m => m.Type == EntityMemberType.EntityFieldTracker && ((FieldTrackerModel)m).IsUsedForChangeablePK)
             .Cast<FieldTrackerModel>()
             .ToList();
-        if (pks == null)
+        if (pks == null || pks.Length == 0)
         {
             model.SqlStoreOptions.SetPrimaryKeys(null);
             allPKTrackers.ForEach(model.RemoveMember);

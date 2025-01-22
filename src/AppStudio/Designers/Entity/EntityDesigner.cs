@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AppBoxClient;
 using AppBoxCore;
 using PixUI;
 
@@ -85,7 +80,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
             .When(t => t == 0,
                 () => new MembersDesigner(_entityModel, _membersController, _selectedMember))
             .When(t => t == 1,
-                () => new SqlStoreOptionsDesigner(_entityModel, ModelNode.Id))
+                () => new SqlStoreOptionsDesigner(ModelNode, ModelNode.Id))
             .When(t => t == 2,
                 () => new EntityRowsView(ModelNode.Id));
     }
@@ -101,7 +96,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
         try
         {
             var members = dlg.GetNewMembers();
-            foreach (var member in members!)
+            foreach (var member in members)
             {
                 if (!member.IsForeignKeyMember)
                     _membersController.Add(member);
@@ -181,16 +176,16 @@ internal sealed class EntityDesigner : View, IModelDesigner
     {
         if (string.IsNullOrEmpty(reference.Location)) return; //不需要跳转
 
-        if (_entityModel == null)
-            _pendingGoto = reference;
-        else
-            GotoDefinitionInternal(reference);
+        // if (_entityModel == null)
+        //     _pendingGoto = reference;
+        // else
+        GotoDefinitionInternal(reference);
     }
 
     private void GotoDefinitionInternal(Reference reference)
     {
         //选中指定的成员
-        var member = _entityModel!.Members.FirstOrDefault(m => m.Name == reference.Location);
+        var member = _entityModel.Members.FirstOrDefault(m => m.Name == reference.Location);
         _selectedMember.Value = member;
     }
 

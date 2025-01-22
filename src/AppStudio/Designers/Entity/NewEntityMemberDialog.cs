@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using AppBoxCore;
-using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -20,10 +17,10 @@ internal sealed class NewEntityMemberDialog : Dialog
         Title.Value = "New Entity Member";
     }
 
-    private static readonly string[] MemberTypes = { "EntityField", "EntityRef", "EntitySet" };
+    private static readonly string[] MemberTypes = ["EntityField", "EntityRef", "EntitySet"];
 
     private static readonly string[] FieldTypes =
-        { "String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Binary" };
+        ["String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Binary"];
 
     private readonly DesignStore _designStore;
     private readonly ModelNode _modelNode;
@@ -91,9 +88,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                                 new FormItem("Target:",
                                     new Select<EntityMemberInfo>(_entitySetTarget)
                                     {
-                                        OptionsAsyncGetter = Channel.Invoke<EntityMemberInfo[]>(
-                                            "sys.DesignService.GetAllEntityRefs",
-                                            new object?[] { _modelNode.Id })!
+                                        Options = DesignStore.GetAllEntityRefs(_modelNode.Id)
                                     })
                             }
                         })
@@ -130,8 +125,8 @@ internal sealed class NewEntityMemberDialog : Dialog
 
     private string[] GetRefModelIds()
     {
-        if (_entityRefTarget.Value == null) return Array.Empty<string>();
-        return new string[] { _entityRefTarget.Value!.Id };
+        if (_entityRefTarget.Value == null) return [];
+        return [_entityRefTarget.Value!.Id];
     }
 
     internal EntityMemberModel[] GetNewMembers()

@@ -158,6 +158,8 @@ internal sealed class DesignStore
     #endregion
 
     #region ====设计节点相关查找方法====
+    
+    //TODO:考虑以下方法移至DesignHub
 
     /// <summary>
     /// 根据节点标识找到相应的节点
@@ -218,6 +220,26 @@ internal sealed class DesignStore
                 LoopAddEntityNode(child, list);
             }
         }
+    }
+
+    /// <summary>
+    /// 获取引用了指定实体的所有EntityRef成员
+    /// </summary>
+    internal static EntityMemberInfo[] GetAllEntityRefs(ModelId modelId)
+    {
+        var designTree = DesignHub.Current.DesignTree;
+        var entityRefs = designTree.FindAllEntityRefs(modelId);
+        var res = entityRefs
+            .Select(m => new EntityMemberInfo()
+            {
+                AppName = designTree.FindApplicationNode(m.Owner.AppId)!.Model.Name,
+                ModelName = m.Owner.Name,
+                MemberName = m.Name,
+                ModelId = m.Owner.Id.ToString(),
+                MemberId = m.MemberId
+            })
+            .ToArray();
+        return res;
     }
 
     #endregion
