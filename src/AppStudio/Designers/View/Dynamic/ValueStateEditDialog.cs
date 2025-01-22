@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxDesign.CodeGenerator;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -56,9 +57,10 @@ internal sealed class ValueStateEditDialog : Dialog
         }
     };
 
-    protected override async ValueTask<bool> OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(string result)
     {
-        if (result != DialogResult.OK) return false;
+        if (result != DialogResult.OK) 
+            return new ValueTask<bool>(false);
 
         //关闭前转换值或表达式
         if (_valuestate.Source == DynamicStateValueSource.Expression)
@@ -67,15 +69,14 @@ internal sealed class ValueStateEditDialog : Dialog
             var code = $"using System;static class E{{static object? M(){{return {_value.Value};}}}}";
             try
             {
-                var exp = await Channel.Invoke<Expression>("sys.DesignService.ParseExpression",
-                    new object?[] { code });
+                var exp = ExpressionParser.ParseCode(code);
                 _valuestate.Value = exp;
-                return false;
+                return new ValueTask<bool>(false);
             }
             catch (Exception)
             {
                 Notification.Warn("无法解析表达式");
-                return true;
+                return new ValueTask<bool>(true);
             }
         }
 
@@ -94,9 +95,9 @@ internal sealed class ValueStateEditDialog : Dialog
         catch (Exception e)
         {
             Notification.Warn($"无法将文本转换为指定的值: {e.Message}");
-            return true;
+            return new ValueTask<bool>(true);
         }
 
-        return false;
+        return new ValueTask<bool>(false);
     }
 }
