@@ -67,9 +67,9 @@ internal sealed class DesignStore
     internal void OnNewNode(NewNodeResult result)
     {
         //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
-        
+
         var newNode = TreeController.InsertNode(
-            result.NewNode, result.ParentNode, result.InsertIndex);
+            result.NewNode, result.ParentNode, result.InsertIndex, false /*不需要同步*/);
         TreeController.ExpandTo(newNode);
         TreeController.SelectNode(newNode);
     }
@@ -83,7 +83,7 @@ internal sealed class DesignStore
         DesignerController.Remove(node.Data);
         // 从设计树中移除选中的节点
         //TODO: 刷新模型根节点 if (modelRootNodeIdString != null)
-        TreeController.RemoveNode(node);
+        TreeController.RemoveNode(node, false /*不需要同步*/);
     }
 
     internal void OnRenameDone(ModelReferenceType referenceType, string modelId, string[] affects)
@@ -158,7 +158,7 @@ internal sealed class DesignStore
     #endregion
 
     #region ====设计节点相关查找方法====
-    
+
     //TODO:考虑以下方法移至DesignHub
 
     /// <summary>

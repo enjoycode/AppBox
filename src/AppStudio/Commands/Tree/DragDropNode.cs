@@ -1,24 +1,12 @@
-using AppBoxCore;
+using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class DragDropNode : IDesignHandler
+internal static class DragDropNode
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static async ValueTask<int> Execute(DesignNode sourceNode, DesignNode targetNode, DropPosition position)
     {
-        var sourceNodeType = (DesignNodeType)args.GetInt()!;
-        var sourceNodeID = args.GetString()!;
-        var targetNodeType = (DesignNodeType)args.GetInt()!;
-        var targetNodeID = args.GetString()!;
-        var position = (DropPosition)args.GetInt()!;
-
-        var sourceNode = hub.DesignTree.FindNode(sourceNodeType, sourceNodeID);
-        var targetNode = hub.DesignTree.FindNode(targetNodeType, targetNodeID);
-        if (sourceNode == null || targetNode == null)
-            throw new Exception("处理拖动时无法找到相应的节点");
-
-        //TODO: 再次验证是否允许操作，前端已验证过
-        if (position != DropPosition.Inner)
+        if (position != DropPosition.In)
             throw new NotImplementedException("暂不支持除DropIn以外的操作");
 
         int insertIndex;
@@ -130,12 +118,5 @@ internal sealed class DragDropNode : IDesignHandler
         if (parent is FolderNode folderNode)
             return folderNode.Children.Add(child);
         throw new NotImplementedException();
-    }
-
-    private enum DropPosition
-    {
-        Inner,
-        Before,
-        After
     }
 }

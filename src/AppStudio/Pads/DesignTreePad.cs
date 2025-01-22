@@ -114,18 +114,16 @@ internal sealed class DesignTreePad : View
 
     private async void OnDrop(TreeNode<DesignNode> target, DragEvent e)
     {
-        var source = (TreeNode<DesignNode>)e.TransferItem;
-        // Log.Debug($"OnDrop: {source.Data} {target.Data} {e.DropPosition}");
-        // 暂由后端判断并尝试签出相关节点
-        var args = new object?[]
-            { (int)source.Data.Type, source.Data.Id, (int)target.Data.Type, target.Data.Id, (int)e.DropPosition };
         try
         {
-            var insertIndex = await Channel.Invoke<int>("sys.DesignService.DragDropNode", args)!;
+            var source = (TreeNode<DesignNode>)e.TransferItem;
+            // Log.Debug($"OnDrop: {source.Data} {target.Data} {e.DropPosition}");
+
+            var insertIndex = await DragDropNode.Execute(source.Data, target.Data, e.DropPosition);
             Debug.Assert(insertIndex >= 0);
             var treeController = _designStore.TreeController;
-            treeController.RemoveNode(source);
-            treeController.InsertNode(source.Data, target, insertIndex);
+            treeController.RemoveNode(source, false /*不需要同步*/);
+            treeController.InsertNode(source.Data, target, insertIndex, false /*不需要同步*/);
         }
         catch (Exception ex)
         {
