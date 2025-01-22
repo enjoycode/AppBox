@@ -10,6 +10,11 @@ namespace AppBoxDesign;
 /// </summary>
 internal abstract class Reference : IComparable<Reference>
 {
+    public Reference(ModelNode modelNode)
+    {
+        ModelNode = modelNode ?? throw new ArgumentNullException();
+    }
+    
     public ModelNode ModelNode { get; private set; }
 
     /// <summary>
@@ -19,13 +24,10 @@ internal abstract class Reference : IComparable<Reference>
 
     //public abstract String Expression { get; }
 
-    public Reference(ModelNode modelNode)
+    public int CompareTo(Reference? other)
     {
-        ModelNode = modelNode ?? throw new ArgumentNullException();
-    }
-
-    public int CompareTo(Reference other)
-    {
+        if (other == null) return 0;
+        
         if (ModelNode.Model.ModelType != other.ModelNode.Model.ModelType
             || ModelNode.Model.Id != other.ModelNode.Model.Id)
             return ModelNode.Model.Id.CompareTo(other.ModelNode.Model.Id);
@@ -89,10 +91,7 @@ internal sealed class CodeReference : Reference
         var sourceText = document.GetTextAsync().Result;
         var startOffset = Offset + diff;
 
-        sourceText = sourceText.WithChanges(new[] {
-                new TextChange(new TextSpan(startOffset, Length), newName)
-            });
-
+        sourceText = sourceText.WithChanges(new TextChange(new TextSpan(startOffset, Length), newName));
         hub.TypeSystem.Workspace.OnDocumentChanged(ModelNode.RoslynDocumentId!, sourceText);
     }
     #endregion

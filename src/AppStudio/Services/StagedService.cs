@@ -12,7 +12,9 @@ internal static class StagedService
 {
     internal static async Task<StagedItems> LoadStagedAsync(bool onlyModelsAndFolders)
     {
-        var list = await Channel.Invoke<IList<Entity>>("sys.DesignService.StageLoadAll", [onlyModelsAndFolders]);
+        var list = await Channel.Invoke<IList<Entity>>("sys.DesignService.StageLoadAll",
+            [onlyModelsAndFolders],
+            [new EntityFactory(StagedModel.MODELID, typeof(StagedModel))]);
         return list == null ? new StagedItems([]) : new StagedItems(list.Cast<StagedModel>().ToList());
     }
 

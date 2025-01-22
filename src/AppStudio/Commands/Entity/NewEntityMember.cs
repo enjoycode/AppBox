@@ -3,17 +3,12 @@ using AppBoxCore;
 namespace AppBoxDesign;
 
 /// <summary>
-/// 新建实体成员
+/// 新建实体成员的命令
 /// </summary>
-internal sealed class NewEntityMember : IDesignHandler
+internal static class NewEntityMember
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    private static void Validate(ModelNode node, string memberName)
     {
-        ModelId modelId = args.GetString()!;
-        var memberName = args.GetString()!;
-        var entityMemberType = (EntityMemberType)args.GetInt()!.Value;
-
-        var node = hub.DesignTree.FindModelNode(modelId);
         if (node == null)
             throw new Exception("Can't find Entity node");
         var model = (EntityModel)node.Model;
@@ -26,48 +21,33 @@ internal sealed class NewEntityMember : IDesignHandler
             throw new Exception("Name can't same with Entity's name");
         if (model.GetMember(memberName, false) != null)
             throw new Exception("Name has exists");
-
-        var res = entityMemberType switch
-        {
-            EntityMemberType.EntityField => NewEntityField(model, memberName, ref args),
-            EntityMemberType.EntityRef => NewEntityRef(model, memberName, hub, ref args),
-            EntityMemberType.EntitySet => NewEntitySet(model, memberName, hub, ref args),
-            _ => throw new NotSupportedException($"不支持的实体成员类型: {entityMemberType}")
-        };
-
-        //保存并更新虚拟代码
-        await node.SaveAsync(null);
-        await hub.TypeSystem.UpdateModelDocumentAsync(node);
-
-        return AnyValue.From(res);
     }
 
-    private static EntityMemberVO[] NewEntityField(EntityModel model, string name,
-        ref InvokeArgs args)
+    internal static EntityFieldModel NewEntityField(ModelNode node, string memberName,
+        EntityFieldType fieldType, bool allowNull)
     {
-        var fieldType = (EntityFieldType)args.GetInt()!.Value;
-        var allowNull = args.GetBool()!.Value;
+        Validate(node, memberName);
 
-        var field = new EntityFieldModel(model, name, fieldType, allowNull);
+        var model = (EntityModel)node.Model;
+        var field = new EntityFieldModel(model, memberName, fieldType, allowNull);
         model.AddMember(field);
         //TODO:默认值处理
-
-        return new EntityMemberVO[] { EntityFieldVO.From(field) };
+        return field;
     }
 
-    private static EntityMemberVO[] NewEntityRef(EntityModel model, string name, DesignHub hub,
-        ref InvokeArgs args)
+    internal static EntityMemberModel[] NewEntityRef(ModelNode node, string name, string[] refIds, bool allowNull)
     {
-        var refIds = args.GetArray<string>()!;
-        var allowNull = args.GetBool()!.Value;
         if (refIds.Length == 0)
             throw new ArgumentException("EntityRef target is empty");
+
+        Validate(node, name);
+        var model = (EntityModel)node.Model;
 
         //检查所有引用类型是否有效
         var refModels = new EntityModel[refIds.Length];
         for (var i = 0; i < refIds.Length; i++)
         {
-            var refNode = hub.DesignTree.FindModelNode(refIds[i]);
+            var refNode = DesignHub.Current.DesignTree.FindModelNode(refIds[i]);
             if (refNode == null)
                 throw new Exception("EntityRef target not exists");
             var refModel = (EntityModel)refNode.Model;
@@ -93,7 +73,7 @@ internal sealed class NewEntityMember : IDesignHandler
             refModels[i] = refModel;
         }
 
-        var res = new List<EntityMemberVO>();
+        var res = new List<EntityMemberModel>();
         //检查外键字段名称是否已存在，并且添加外键成员 //TODO:聚合引用检查XXXType是否存在
         short[] fkMemberIds;
         if (model.DataStoreKind == DataStoreKind.Sql)
@@ -111,7 +91,7 @@ internal sealed class NewEntityMember : IDesignHandler
                 var fk = new EntityFieldModel(model, fkName, pkMemberModel.FieldType, allowNull,
                     true);
                 model.AddMember(fk);
-                res.Add(EntityFieldVO.From(fk));
+                res.Add(fk);
                 fkMemberIds[i] = fk.MemberId;
             }
         }
@@ -123,8 +103,8 @@ internal sealed class NewEntityMember : IDesignHandler
             var fkId =
                 new EntityFieldModel(model, $"{name}Id", EntityFieldType.EntityId, allowNull, true);
             model.AddMember(fkId);
-            res.Add(EntityFieldVO.From(fkId));
-            fkMemberIds = new[] { fkId.MemberId };
+            res.Add(fkId);
+            fkMemberIds = [fkId.MemberId];
         }
 
         // 如果为聚合引用则添加对应的Type列, eg: CostBill -> CostBillType
@@ -142,19 +122,15 @@ internal sealed class NewEntityMember : IDesignHandler
         }
 
         model.AddMember(entityRef);
-        res.Add(EntityRefVO.From(entityRef));
+        res.Add(entityRef);
 
         return res.ToArray();
     }
 
-    private static EntityMemberVO[] NewEntitySet(EntityModel model, string name, DesignHub hub,
-        ref InvokeArgs args)
+    internal static EntitySetModel NewEntitySet(ModelNode node, string name, ModelId refModelId, short refMemberId)
     {
-        ModelId refModelId = args.GetString()!;
-        var refMemberId = args.GetShort()!.Value;
-
         //验证引用目标是否存在
-        var target = hub.DesignTree.FindModelNode(refModelId);
+        var target = DesignHub.Current.DesignTree.FindModelNode(refModelId);
         if (target == null)
             throw new Exception("Can't find EntityRef");
         var targetModel = (EntityModel)target.Model;
@@ -162,9 +138,10 @@ internal sealed class NewEntityMember : IDesignHandler
         if (targetMember.Type != EntityMemberType.EntityRef)
             throw new Exception("Target member is not EntityRef");
 
+        var model = (EntityModel)node.Model;
         var entitySet = new EntitySetModel(model, name, refModelId, refMemberId);
         model.AddMember(entitySet);
 
-        return new EntityMemberVO[] { EntitySetVO.From(entitySet) };
+        return entitySet;
     }
 }

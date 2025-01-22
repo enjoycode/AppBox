@@ -14,7 +14,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
     {
         _designStore = designStore;
         ModelNode = modelNode;
-        _entityModel = (EntityModel) ModelNode.Model;
+        _entityModel = (EntityModel)ModelNode.Model;
         _selectedMember = _membersController.ObserveCurrentRow();
 
         Child = new Column()
@@ -71,7 +71,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private Widget BuildBody()
     {
-        _membersController.DataSource = _entityModel!.Members
+        _membersController.DataSource = _entityModel.Members
             .Where(m => !m.IsForeignKeyMember) //暂不显示EntityRef的外键
             .ToList();
 
@@ -83,9 +83,9 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
         return new Conditional<int>(_activePad)
             .When(t => t == 0,
-                () => new MembersDesigner(_entityModel!, _membersController, _selectedMember))
+                () => new MembersDesigner(_entityModel, _membersController, _selectedMember))
             .When(t => t == 1,
-                () => new SqlStoreOptionsDesigner(_entityModel!, ModelNode.Id))
+                () => new SqlStoreOptionsDesigner(_entityModel, ModelNode.Id))
             .When(t => t == 2,
                 () => new EntityRowsView(ModelNode.Id));
     }
@@ -94,61 +94,48 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private async void OnAddMember(PointerEvent e)
     {
-        throw new NotImplementedException(nameof(OnAddMember));
-        // var dlg = new NewEntityMemberDialog(_designStore, ModelNode);
-        // var dlgResult = await dlg.ShowAsync();
-        // if (dlgResult != DialogResult.OK) return;
-        //
-        // try
-        // {
-        //     var members = await Channel.Invoke<EntityMemberVO[]>(
-        //         "sys.DesignService.NewEntityMember", dlg.GetArgs());
-        //     foreach (var member in members!)
-        //     {
-        //         _entityModel!.Members.Add(member);
-        //         if (!member.IsForeignKeyMember)
-        //             _membersController.Add(member);
-        //     }
-        // }
-        // catch (Exception ex)
-        // {
-        //     Notification.Error($"新建实体成员错误: {ex.Message}");
-        // }
+        var dlg = new NewEntityMemberDialog(_designStore, ModelNode);
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
+
+        try
+        {
+            var members = dlg.GetNewMembers();
+            foreach (var member in members!)
+            {
+                if (!member.IsForeignKeyMember)
+                    _membersController.Add(member);
+            }
+
+            //保存并更新虚拟代码
+            await ModelNode.SaveAsync(null);
+            await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"新建实体成员错误: {ex.Message}");
+        }
     }
 
     private async void OnDeleteMember(PointerEvent e)
     {
-        throw new NotImplementedException(nameof(OnDeleteMember));
-        // if (_selectedMember.Value == null) return;
-        //
-        // var args = new object?[] { ModelNode.Id, _selectedMember.Value.Name };
-        // try
-        // {
-        //     await Channel.Invoke("sys.DesignService.DeleteEntityMember", args);
-        //
-        //     var member = _selectedMember.Value!;
-        //     if (member is EntityRefModel entityRef)
-        //     {
-        //         //如果EntityRef同步移除相关隐藏成员
-        //         if (entityRef.IsAggregationRef)
-        //         {
-        //             //TODO:移除聚合类型成员
-        //             throw new NotImplementedException();
-        //         }
-        //
-        //         foreach (var fkMemberId in entityRef.FKMemberIds)
-        //         {
-        //             var fk = _entityModel!.Members.First(m => m.Id == fkMemberId);
-        //             _entityModel!.Members.Remove(fk);
-        //         }
-        //     }
-        //
-        //     _membersController.Remove(member);
-        // }
-        // catch (Exception ex)
-        // {
-        //     Notification.Error($"Delete member error: {ex.Message}");
-        // }
+        if (_selectedMember.Value == null) return;
+        
+        try
+        {
+            var member = _selectedMember.Value!;
+            await DeleteEntityMember.Execute(ModelNode, member);
+        
+            _membersController.Remove(member);
+            
+            //保存并更新虚拟代码
+            await ModelNode.SaveAsync(null);
+            await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"Delete member error: {ex.Message}");
+        }
     }
 
     private async void OnRenameMember(PointerEvent e)
@@ -212,7 +199,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     public Task SaveAsync()
     {
-        return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id, null });
+        return ModelNode.SaveAsync(null);
     }
 
     public Task RefreshAsync()

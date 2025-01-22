@@ -134,27 +134,24 @@ internal sealed class NewEntityMemberDialog : Dialog
         return new string[] { _entityRefTarget.Value!.Id };
     }
 
-    internal object?[] GetArgs()
+    internal EntityMemberModel[] GetNewMembers()
     {
-        var memberType = GetMemberTypeValue();
-        if (memberType == (int)EntityMemberType.EntityField)
-            return new object?[]
-            {
-                _modelNode.Id, _name.Value, memberType, GetFieldTypeValue(), _allowNull.Value
-            };
-        if (memberType == (int)EntityMemberType.EntityRef)
-            return new object?[]
-            {
-                //TODO:暂不支持聚合引用
-                _modelNode.Id, _name.Value, memberType, GetRefModelIds(), _allowNull.Value
-            };
-        if (memberType == (int)EntityMemberType.EntitySet)
-            return new object?[]
-            {
-                _modelNode.Id, _name.Value, memberType, _entitySetTarget.Value!.ModelId,
-                _entitySetTarget.Value!.MemberId
-            };
-
-        throw new NotImplementedException();
+        var memberType = (EntityMemberType)GetMemberTypeValue();
+        return memberType switch
+        {
+            EntityMemberType.EntityField =>
+            [
+                NewEntityMember.NewEntityField(_modelNode, _name.Value,
+                    (EntityFieldType)GetFieldTypeValue(), _allowNull.Value)
+            ],
+            EntityMemberType.EntityRef => NewEntityMember.NewEntityRef(_modelNode, _name.Value,
+                GetRefModelIds(), _allowNull.Value),
+            EntityMemberType.EntitySet =>
+            [
+                NewEntityMember.NewEntitySet(_modelNode, _name.Value,
+                    _entitySetTarget.Value!.ModelId, _entitySetTarget.Value!.MemberId)
+            ],
+            _ => throw new NotImplementedException($"暂未实现的实体成员类型: {memberType}")
+        };
     }
 }

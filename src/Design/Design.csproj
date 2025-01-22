@@ -40,9 +40,6 @@
       <Compile Include="..\AppStudio\Data\EntityMemberInfo.cs">
         <Link>Data\EntityMemberInfo.cs</Link>
       </Compile>
-      <Compile Include="..\AppStudio\Data\ReferenceVO.cs">
-        <Link>Data\ReferenceVO.cs</Link>
-      </Compile>
       <Compile Include="..\AppStudio\Data\ServiceMethodInfo.cs">
         <Link>Data\ServiceMethodInfo.cs</Link>
       </Compile>
