@@ -71,7 +71,7 @@ public class CodeGenerateTest
         var designHub = await TestHelper.MockSession();
         var serviceModel =
             (ServiceModel)designHub.DesignTree.FindModelNodeByFullName("sys.Services.DemandService")!.Model;
-        var res = await PublishService.CompileServiceAsync(designHub, serviceModel);
+        var res = await Publish.CompileServiceAsync(designHub, serviceModel, false);
         Assert.True(res != null);
     }
 }

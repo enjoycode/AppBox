@@ -11,35 +11,6 @@ namespace AppBoxDesign;
 
 internal static class PublishService
 {
-    internal static void ValidateModels(DesignHub hub, PublishPackage package)
-    {
-        //TODO:
-    }
-
-    internal static async Task CompileModelsAsync(DesignHub hub, PublishPackage package)
-    {
-        foreach (var item in hub.PendingChanges!)
-        {
-            //以下重命名的已不需要加入待删除列表，保存模型时已处理
-            if (item is ServiceModel sm && sm.PersistentState != PersistentState.Deleted)
-            {
-                var asmData = await CompileServiceAsync(hub, sm);
-                var appName = hub.DesignTree.FindApplicationNode(sm.Id.AppId)!.Model.Name;
-                var fullName = $"{appName}.{sm.Name}";
-
-                package.ServiceAssemblies.Add(fullName, asmData!);
-            }
-            // 暂保留转换视图模型为JS
-            // else if (item is ViewModel vm && vm.PersistentState != PersistentState.Deleted)
-            // {
-            //     var asmData = await CompileViewAsync(hub, vm);
-            //     var appName = hub.DesignTree.FindApplicationNode(vm.Id.AppId)!.Model.Name;
-            //     var fullName = $"{appName}.{vm.Name}";
-            //
-            //     package.ViewAssemblies.Add(fullName, asmData);
-            // }
-        }
-    }
 
     /// <summary>
     /// 1. 保存模型(包括编译好的服务Assembly)，并生成EntityModel的SchemaChangeJob;
@@ -105,96 +76,6 @@ internal static class PublishService
         //最后通知各节点更新模型缓存
         InvalidModelsCache(hub, package);
     }
-
-    /// <summary>
-    /// 发布或调试时编译服务模型
-    /// </summary>
-    /// <remarks>
-    /// 发布时返回的是已经压缩过的
-    /// </remarks>
-    internal static async Task<byte[]?> CompileServiceAsync(DesignHub hub, ServiceModel model,
-        string? debugFolder = null)
-    {
-        var forDebug = !string.IsNullOrEmpty(debugFolder);
-        var designNode = hub.DesignTree.FindModelNode(model.Id)!;
-        var appName = designNode.AppNode.Model.Name;
-
-        //获取RoslynDocument并检测语义错误
-        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
-        var semanticModel = await doc.GetSemanticModelAsync();
-        if (semanticModel == null) throw new Exception("Can't get SemanticModel");
-        CodeGeneratorUtil.CheckSemantic(semanticModel, designNode);
-
-        //转换服务模型的虚拟代码为运行时代码
-        var codegen = new ServiceCodeGenerator(hub, appName, semanticModel, model);
-        var newRootNode = codegen.Visit(await semanticModel.SyntaxTree.GetRootAsync());
-        //Log.Debug(newRootNode.ToFullString());
-
-        var docName = $"{appName}.Services.{model.Name}";
-        var newTree = SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs",
-            options: TypeSystem.ParseOptions,
-            encoding: Encoding.UTF8);
-
-        //生成服务模型依赖的其他模型的运行时代码
-        var usagesTree = codegen.GetUsagesTree();
-
-        //注意：必须添加并更改版本号，否则服务端Assembly.Load始终是旧版 
-        var newModelVersion = model.Version + 1; //用于消除版本差
-        var asmVersion = $"{newModelVersion >> 24}.{(newModelVersion >> 16) & 0xFF}.{newModelVersion & 0xFFFF}";
-        var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
-            CodeUtil.ServiceGlobalUsings() +
-            $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]",
-            TypeSystem.ParseOptions);
-        var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary /*, false*/)
-            .WithNullableContextOptions(NullableContextOptions.Enable)
-            .WithOptimizationLevel(forDebug ? OptimizationLevel.Debug : OptimizationLevel.Release);
-
-        //开始编译运行时代码
-        var compilation = CSharpCompilation.Create(docName)
-            .AddReferences(MetadataReferences.GetServiceModelReferences(model))
-            .AddSyntaxTrees(newTree, usingAndVersionTree)
-            .WithOptions(options);
-        if (usagesTree != null)
-            compilation = compilation.AddSyntaxTrees(usagesTree);
-
-        EmitResult emitResult;
-        byte[]? asmData = null;
-        if (forDebug)
-        {
-            await using var dllStream = new FileStream(Path.Combine(debugFolder!, docName + ".dll"),
-                FileMode.CreateNew);
-            var emitOpts = new EmitOptions(false, DebugInformationFormat.Embedded);
-            //using var pdbStream = new FileStream(Path.Combine(debugFolder, docName + ".pdb"), FileMode.CreateNew);
-            emitResult = compilation.Emit(dllStream, null, null, null, null, emitOpts);
-        }
-        else
-        {
-            using var dllStream = new MemoryStream(1024);
-            await using (var cs = new BrotliStream(dllStream, CompressionMode.Compress, true))
-            {
-                emitResult = compilation.Emit(cs);
-            }
-
-            asmData = dllStream.ToArray();
-        }
-
-        CodeGeneratorUtil.CheckEmitResult(emitResult);
-
-        return forDebug ? null : asmData;
-    }
-
-    // 暂保留编译视图模型为JS
-    // private static async Task<byte[]> CompileViewAsync(DesignHub hub, ViewModel model)
-    // {
-    //     var jsCode = await ViewJsGenerator.GenViewWebCode(hub, model.Id, false);
-    //     using var dllStream = new MemoryStream(1024);
-    //     await using (var cs = new BrotliStream(dllStream, CompressionMode.Compress, true))
-    //     {
-    //         cs.Write(Encoding.UTF8.GetBytes(jsCode));
-    //     }
-    //
-    //     return dllStream.ToArray();
-    // }
 
     private static async ValueTask<DbTransaction> MakeOtherStoreTxn(long storeId, IDictionary<long, DbTransaction> txns)
     {

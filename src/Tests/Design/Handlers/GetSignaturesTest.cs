@@ -13,15 +13,16 @@ public class GetSignaturesTest
     [Test]
     public async Task Test()
     {
-        var designHub = await TestHelper.MockSession();
-
-        var appId = StringUtil.GetHashCode("sys") ^ StringUtil.GetHashCode("sys");
-        var viewModelId = ModelId.Make(appId, ModelType.View, 1, ModelLayer.SYS);
-        var viewModelIdString = viewModelId.ToString();
-
-        var handler = new GetSignatures();
-        var res = await handler.Handle(designHub, InvokeArgs.Make(viewModelIdString, 105));
-        var response = (SignatureResult)res.BoxedValue!;
-        Console.WriteLine(response!.Signatures.Count());
+        throw new NotImplementedException();
+        // var designHub = await TestHelper.MockSession();
+        //
+        // var appId = StringUtil.GetHashCode("sys") ^ StringUtil.GetHashCode("sys");
+        // var viewModelId = ModelId.Make(appId, ModelType.View, 1, ModelLayer.SYS);
+        // var viewModelIdString = viewModelId.ToString();
+        //
+        // var handler = new GetSignatures();
+        // var res = await handler.Handle(designHub, InvokeArgs.Make(viewModelIdString, 105));
+        // var response = (SignatureResult)res.BoxedValue!;
+        // Console.WriteLine(response!.Signatures.Count());
     }
 }

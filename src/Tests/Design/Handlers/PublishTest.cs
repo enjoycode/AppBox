@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxDesign;
@@ -11,12 +12,13 @@ public class PublishTest
     [Test]
     public async Task Test()
     {
-        var designHub = await TestHelper.MockSession();
-
-        var getPendingChanges = new GetPendingChanges();
-        await getPendingChanges.Handle(designHub, new InvokeArgs());
-
-        var publishHandler = new Publish();
-        await publishHandler.Handle(designHub, InvokeArgs.Make("Commit Message"));
+        throw new NotImplementedException();
+        // var designHub = await TestHelper.MockSession();
+        //
+        // var getPendingChanges = new GetPendingChanges();
+        // await getPendingChanges.Handle(designHub, new InvokeArgs());
+        //
+        // var publishHandler = new Publish();
+        // await publishHandler.Handle(designHub, InvokeArgs.Make("Commit Message"));
     }
 }

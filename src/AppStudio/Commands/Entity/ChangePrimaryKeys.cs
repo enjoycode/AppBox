@@ -12,16 +12,21 @@ internal static class ChangePrimaryKeys
         if (!node.IsCheckoutByMe)
             throw new Exception("Has not checkout");
         var model = (EntityModel)node.Model;
-        if (model.SqlStoreOptions == null)
-            throw new NotSupportedException("Only for SqlStore");
-
         if (model.PersistentState != PersistentState.Detached)
         {
             //TODO:如果是修改则必须查找服务方法内的引用，签出节点并修改
             //1. new XXXX(pks)改为new XXX(/*fix pk changed*/)
             //2. Entities.XXX.FetchAsync(pks)同上
         }
-        
+
+        Run(model, pks);
+    }
+
+    internal static void Run(EntityModel model, PrimaryKeyField[]? pks)
+    {
+        if (model.SqlStoreOptions == null)
+            throw new NotSupportedException("Only for SqlStore");
+
         //同步处理可修改的主键字段所关联的跟踪成员
         var allPKTrackers = model.Members
             .Where(m => m.Type == EntityMemberType.EntityFieldTracker && ((FieldTrackerModel)m).IsUsedForChangeablePK)
@@ -35,7 +40,7 @@ internal static class ChangePrimaryKeys
         else
         {
             //TODO: 注意如果选择的是EntityRef，则加入所有外键成员作为主键,目前前端仅EntityField
-            model.SqlStoreOptions.SetPrimaryKeys(pks);
+            model.SqlStoreOptions!.SetPrimaryKeys(pks);
             var deletesTracker = allPKTrackers
                 .Where(m => !pks.Any(p => p.AllowChange && p.MemberId == m.TargetMemberId))
                 .ToList();

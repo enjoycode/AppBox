@@ -11,9 +11,10 @@ public sealed class BuildAppTest
     [Test]
     public async Task BuildTest()
     {
-        var designHub = await TestHelper.MockSession();
-
-        var handler = new BuildApp(); 
-        await handler.Handle(designHub, InvokeArgs.Make(true));
+        throw new NotImplementedException();
+        // var designHub = await TestHelper.MockSession();
+        //
+        // var handler = new BuildApp(); 
+        // await handler.Handle(designHub, InvokeArgs.Make(true));
     }
 }

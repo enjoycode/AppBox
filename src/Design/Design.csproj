@@ -28,9 +28,6 @@
 
     <ItemGroup>
       <Compile Remove="DummyCode\ServiceBaseDummyCode.cs" />
-      <Compile Include="..\AppStudio\Data\ChangedModel.cs">
-        <Link>Data\ChangedModel.cs</Link>
-      </Compile>
       <Compile Include="..\AppStudio\Data\CodeProblem.cs">
         <Link>Data\CodeProblem.cs</Link>
       </Compile>
