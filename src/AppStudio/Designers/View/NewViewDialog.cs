@@ -59,16 +59,12 @@ internal sealed class NewViewDialog : Dialog
 
     private async void CreateAsync()
     {
-        throw new NotImplementedException();
-        // var selectedNode = _designStore.TreeController.FirstSelectedNode;
-        // if (selectedNode == null) return;
-        //
-        // var service = "sys.DesignService.NewViewModel";
-        // var args = new object[] { (int)selectedNode.Data.Type, selectedNode.Data.Id, _name.Value, _isDynamic.Value };
-        //
-        // var res = await Channel.Invoke<NewNodeResult_OLD>(service, args);
-        // res!.ResolveToTree(_designStore);
-        // //根据返回结果同步添加新节点
-        // _designStore.OnNewNode(res!);
+        var selectedNode = _designStore.TreeController.FirstSelectedNode;
+        if (selectedNode == null) return;
+        
+        var res = await NewViewModel.Execute(selectedNode.Data, _name.Value, _isDynamic.Value);
+        //根据返回结果同步添加新节点
+        res!.ResolveToTree(_designStore);
+        _designStore.OnNewNode(res!);
     }
 }

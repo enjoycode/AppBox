@@ -2,38 +2,34 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-internal sealed class NewViewModel : IDesignHandler
+internal static class NewViewModel
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static Task<NewNodeResult> Execute(DesignNode selectedNode, string name, bool isDynamic)
     {
-        var selectedNodeType = (DesignNodeType)args.GetInt()!.Value;
-        var selectedNodeId = args.GetString()!;
-        var name = args.GetString()!;
-        var isDynamic = args.GetBool()!.Value;
+        var selectedNodeType = selectedNode.Type;
+        var selectedNodeId = selectedNode.Id;
 
         if (isDynamic)
         {
-            var result = await ModelCreator.Make(hub, ModelType.View,
+            return ModelCreator.Make(DesignHub.Current, ModelType.View,
                 id => new ViewModel(id, name, ViewModelType.PixUIDynamic),
                 selectedNodeType, selectedNodeId, name,
-                appName => """
-                           {
-                             "Root": {
-                               "Type": "Center",
-                               "Child": {
-                                 "Type": "Button",
-                                 "Text": { "Const": "Button" }
-                               }
-                             }
-                           }
-                           """
+                _ => """
+                     {
+                       "Root": {
+                         "Type": "Center",
+                         "Child": {
+                           "Type": "Button",
+                           "Text": { "Const": "Button" }
+                         }
+                       }
+                     }
+                     """
             );
-
-            return AnyValue.From(result);
         }
         else
         {
-            var result = await ModelCreator.Make(hub, ModelType.View,
+            return ModelCreator.Make(DesignHub.Current, ModelType.View,
                 id => new ViewModel(id, name),
                 selectedNodeType, selectedNodeId, name,
                 appName => $$"""
@@ -50,8 +46,6 @@ internal sealed class NewViewModel : IDesignHandler
                                  }
                              }
                              """);
-
-            return AnyValue.From(result);
         }
     }
 }

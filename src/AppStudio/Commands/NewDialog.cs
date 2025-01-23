@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -42,17 +40,23 @@ internal sealed class NewDialog : Dialog
     {
         var selectedNode = _designStore.TreeController.FirstSelectedNode;
         if (selectedNode == null) return;
-        
+
         NewNodeResult res;
         switch (_type)
         {
             case "Folder":
                 res = await NewFolder.Execute(selectedNode.Data, _name.Value);
                 break;
+            case "Service":
+                res = await NewServiceModel.Execute(selectedNode.Data, _name.Value);
+                break;
+            case "Permission":
+                res = await NewPermissionModel.Execute(selectedNode.Data, _name.Value);
+                break;
             default:
                 throw new NotImplementedException(_type);
         }
-        
+
         //根据返回结果同步添加新节点
         res.ResolveToTree(_designStore);
         _designStore.OnNewNode(res!);
