@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 模型标识
 /// </summary>
-public readonly struct ModelId : IComparable<ModelId>
+public readonly struct ModelId : IComparable<ModelId>, IEquatable<ModelId>
 {
     //| AppId 32bit | Type 8bit | Seq 22bit | Layer 2bit|
     private readonly long _encoded;
@@ -33,4 +33,10 @@ public readonly struct ModelId : IComparable<ModelId>
     public int CompareTo(ModelId other) => _encoded.CompareTo(other._encoded);
 
     public override string ToString() => ((ulong)_encoded).ToString();
+
+    public bool Equals(ModelId other) => _encoded == other._encoded;
+
+    public override bool Equals(object? obj) => obj is ModelId other && Equals(other);
+
+    public override int GetHashCode() => _encoded.GetHashCode();
 }

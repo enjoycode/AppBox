@@ -160,7 +160,8 @@ internal sealed class Commands
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
-        modelNode.Label.Value = dlg.GetNewName();
+        //刷新节点的标题
+        modelNode.Label.NotifyValueChanged();
     }
 
     /// <summary>

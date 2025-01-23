@@ -86,20 +86,20 @@ internal sealed class DesignStore
         TreeController.RemoveNode(node, false /*不需要同步*/);
     }
 
-    internal void OnRenameDone(ModelReferenceType referenceType, string modelId, string[] affects)
+    /// <summary>
+    /// 重合名成功后刷新受影响的打开的设计器
+    /// </summary>
+    internal void OnRenameDone(ModelReferenceType referenceType, string modelId, ModelId[] affects)
     {
         //TODO: 如果重命名模型，刷新模型显示文本
         //根据返回结果刷新所有已打开的设计器
         for (var i = 0; i < DesignerController.Count; i++)
         {
             var designer = DesignerController.GetAt(i).Designer;
-            if (designer != null)
+            if (designer is IModelDesigner modelDesigner)
             {
-                if (designer is IModelDesigner modelDesigner)
-                {
-                    if (affects.Contains(modelDesigner.ModelNode.Id))
-                        designer.RefreshAsync();
-                }
+                if (affects.Contains(modelDesigner.ModelNode.Id))
+                    designer.RefreshAsync();
             }
         }
     }

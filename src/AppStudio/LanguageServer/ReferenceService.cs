@@ -119,14 +119,14 @@ internal static class ReferenceService
     /// 从所有实体模型中查找指定类型的引用项
     /// </summary>
     private static void AddReferencesFromEntityModels(DesignHub hub, List<Reference> list,
-        ModelReferenceType referenceType, ModelId modelID, string? memberName, short? entityMemberId)
+        ModelReferenceType referenceType, ModelId modelId, string? memberName, short? entityMemberId)
     {
         var allEntityNodes = hub.DesignTree.FindNodesByType(ModelType.Entity);
         foreach (var entityNode in allEntityNodes)
         {
             var model = (EntityModel)entityNode.Model;
             var mrs = new List<ModelReferenceInfo>();
-            model.AddModelReferences(mrs, referenceType, modelID, memberName, entityMemberId);
+            model.AddModelReferences(mrs, referenceType, modelId, memberName, entityMemberId);
             foreach (var item in mrs)
             {
                 list.Add(new ModelReference(entityNode, item));
@@ -137,6 +137,8 @@ internal static class ReferenceService
     /// <summary>
     /// 添加代码引用
     /// </summary>
+    /// <param name="hub"></param>
+    /// <param name="list"></param>
     /// <param name="typeSymbol">目标类型</param>
     /// <param name="memberSymbol">目标成员类型，可为空.</param>
     private static async Task AddCodeReferencesAsync(DesignHub hub, List<Reference> list,
@@ -163,7 +165,7 @@ internal static class ReferenceService
     /// 开始执行重命名
     /// </summary>
     internal static async Task<IList<Reference>> RenameAsync(DesignHub hub,
-        ModelReferenceType referenceType, ModelId modelID, string oldName, string newName)
+        ModelReferenceType referenceType, ModelId modelId, string oldName, string newName)
     {
         //注意：暂不用Roslyn的Renamer.RenameSymbolAsync，因为需要处理多个Symbol
 
@@ -173,7 +175,7 @@ internal static class ReferenceService
         switch (referenceType)
         {
             case ModelReferenceType.EntityMember:
-                sourceNode = hub.DesignTree.FindModelNode(modelID)!;
+                sourceNode = hub.DesignTree.FindModelNode(modelId)!;
                 var entityModel = (EntityModel)sourceNode.Model;
                 var entityMember = entityModel.GetMember(oldName)!;
                 references = await FindEntityMemberReferencesAsync(hub, sourceNode, entityMember);
@@ -181,7 +183,7 @@ internal static class ReferenceService
             case ModelReferenceType.EntityModel:
             case ModelReferenceType.ServiceModel:
             case ModelReferenceType.ViewModel:
-                sourceNode = hub.DesignTree.FindModelNode(modelID)!;
+                sourceNode = hub.DesignTree.FindModelNode(modelId)!;
                 references = await FindModelReferencesAsync(hub, sourceNode);
                 break;
             default:
@@ -226,7 +228,7 @@ internal static class ReferenceService
                     break;
                 case ModelReference mr:
                     mr.TargetReference.Target.RenameReference(referenceType,
-                        mr.TargetReference.TargetType, modelID, oldName, newName);
+                        mr.TargetReference.TargetType, modelId, oldName, newName);
                     break;
                 default:
                     throw new Exception($"Unknown Reference Type: {r.GetType().Name}");

@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using AppBoxClient;
 using AppBoxCore;
 using PixUI;
 
@@ -17,7 +14,7 @@ internal sealed class RenameDialog : Dialog
         _modelId = modelId;
         _oldName = oldName;
 
-        Title.Value = GetTitile();
+        Title.Value = GetTitle();
         Width = 380;
         Height = 240;
     }
@@ -29,19 +26,14 @@ internal sealed class RenameDialog : Dialog
     private readonly State<string> _oldName;
     private readonly State<string> _newName = "";
 
-    private string GetTitile()
+    private string GetTitle() => _referenceType switch
     {
-        switch (_referenceType)
-        {
-            case ModelReferenceType.EntityModel: return "Rename Entity";
-            case ModelReferenceType.EntityMember: return "Rename Entity Member";
-            case ModelReferenceType.ServiceModel: return "Rename Service";
-            case ModelReferenceType.ViewModel: return "Rename View";
-            default: return "Rename";
-        }
-    }
-
-    public string GetNewName() => _newName.Value;
+        ModelReferenceType.EntityModel => "Rename Entity",
+        ModelReferenceType.EntityMember => "Rename Entity Member",
+        ModelReferenceType.ServiceModel => "Rename Service",
+        ModelReferenceType.ViewModel => "Rename View",
+        _ => "Rename"
+    };
 
     protected override Widget BuildBody()
     {
@@ -60,27 +52,31 @@ internal sealed class RenameDialog : Dialog
             }
         };
     }
-
-    protected override ValueTask<bool> OnClosing(string result)
+    
+    protected override async ValueTask<bool> OnClosing(string result)
     {
         if (result == DialogResult.OK)
-            RenameAsync();
-        return base.OnClosing(result);
+        {
+            return !(await RenameAsync());
+        }
+
+        return false;
     }
 
-    private async void RenameAsync()
+    private async ValueTask<bool> RenameAsync()
     {
         try
         {
-            var affects = await Channel.Invoke<string[]>("sys.DesignService.Rename",
-                new object?[] { (int)_referenceType, _modelId, _oldName.Value, _newName.Value });
+            var affects = await Rename.Execute(_modelId, _referenceType, _oldName.Value, _newName.Value);
             //通知刷新受影响的节点
-            _designStore.OnRenameDone(_referenceType, _modelId, affects!);
+            _designStore.OnRenameDone(_referenceType, _modelId, affects);
             Notification.Success("重命名成功");
+            return true;
         }
         catch (Exception ex)
         {
             Notification.Error($"重命名失败: {ex.Message}");
+            return false;
         }
     }
 }

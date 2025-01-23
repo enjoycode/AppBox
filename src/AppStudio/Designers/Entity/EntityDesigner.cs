@@ -67,7 +67,8 @@ internal sealed class EntityDesigner : View, IModelDesigner
     private Widget BuildBody()
     {
         _membersController.DataSource = _entityModel.Members
-            .Where(m => !m.IsForeignKeyMember) //暂不显示EntityRef的外键
+            //暂不显示EntityRef的外键及Tracker
+            .Where(m => !m.IsForeignKeyMember && m.Type != EntityMemberType.EntityFieldTracker)
             .ToList();
 
         if (_pendingGoto != null)
@@ -135,20 +136,18 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private async void OnRenameMember(PointerEvent e)
     {
-        throw new NotImplementedException(nameof(OnRenameMember));
-        // if (_selectedMember.Value == null) return;
-        //
-        // var oldName = _selectedMember.Value.Name;
-        // var target = $"{ModelNode.Label}.{oldName}";
-        // var dlg = new RenameDialog(_designStore, ModelReferenceType.EntityMember,
-        //     target, ModelNode.Id, oldName);
-        // var dlgResult = await dlg.ShowAsync();
-        // if (dlgResult != DialogResult.OK) return;
-        //
-        // //同步重命名的成员名称
-        // _selectedMember.Value.Name = dlg.GetNewName();
-        // _membersController.Refresh();
-        // _selectedMember.NotifyValueChanged();
+        if (_selectedMember.Value == null) return;
+
+        var oldName = _selectedMember.Value.Name;
+        var target = $"{ModelNode.Label}.{oldName}";
+        var dlg = new RenameDialog(_designStore, ModelReferenceType.EntityMember,
+            target, ModelNode.Id, oldName);
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
+
+        //刷新重命名的成员名称
+        _membersController.RefreshCurrentRow();
+        _selectedMember.NotifyValueChanged();
     }
 
     private async void OnFindUsages(PointerEvent e)
