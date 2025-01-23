@@ -15,20 +15,19 @@ internal sealed class PublishDialog : Dialog
         Title.Value = "Publish";
     }
 
-    private readonly DataGridController<ChangedModel> _dataGridController =
-        new DataGridController<ChangedModel>();
+    private readonly DataGridController<PendingChange> _dataGridController = new();
 
     protected override Widget BuildBody()
     {
         return new Container()
         {
             Padding = EdgeInsets.All(20),
-            Child = new DataGrid<ChangedModel>(_dataGridController)
+            Child = new DataGrid<PendingChange>(_dataGridController)
             {
                 Columns =
                 {
-                    new DataGridTextColumn<ChangedModel>("ModelType", v => v.ModelType),
-                    new DataGridTextColumn<ChangedModel>("ModelId", v => v.ModelId),
+                    new DataGridTextColumn<PendingChange>("Type", GetChangeType),
+                    new DataGridTextColumn<PendingChange>("Name", GetChangeName),
                 }
             }
         };
@@ -43,16 +42,65 @@ internal sealed class PublishDialog : Dialog
 
     private async void LoadChanges()
     {
+        //TODO: 保存所有尚未保存的内容，否则可能服务端保存的与本地不一致
+
         try
         {
-            var res = await Channel.Invoke<ChangedModel[]?>(
-                "sys.DesignService.GetPendingChanges");
-            if (res != null)
-                _dataGridController.DataSource = new List<ChangedModel>(res);
+            var res = await StagedService.LoadChangesAsync();
+            var designTree = DesignHub.Current.DesignTree;
+            foreach (var change in res)
+            {
+                switch (change.Type)
+                {
+                    case StagedType.Model:
+                        change.DesignNode = designTree.FindNode(DesignNodeType.ModelNode, change.Id);
+                        break;
+                    case StagedType.Folder:
+                        change.DesignNode = designTree.FindNode(DesignNodeType.ModelRootNode, change.Id);
+                        break;
+                    default:
+                        throw new NotImplementedException(change.Type.ToString());
+                }
+            }
+
+            _dataGridController.DataSource = new List<PendingChange>(res);
         }
         catch (Exception ex)
         {
             Notification.Error($"加载模型变更失败:{ex.Message}");
+        }
+    }
+
+    private static string GetChangeType(PendingChange change)
+    {
+        if (change.DesignNode == null) return string.Empty;
+        switch (change.Type)
+        {
+            case StagedType.Model:
+                var modelNode = (ModelNode)change.DesignNode;
+                return modelNode.ModelType.ToString();
+            case StagedType.Folder:
+                return "Folder";
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    private static string GetChangeName(PendingChange change)
+    {
+        if (change.DesignNode == null) return string.Empty;
+
+        switch (change.Type)
+        {
+            case StagedType.Model:
+                var modelNode = (ModelNode)change.DesignNode;
+                return $"{modelNode.AppNode.Label.Value}.{modelNode.Label.Value}";
+            case StagedType.Folder:
+                var modelRootNode = (ModelRootNode)change.DesignNode;
+                var appNode = (ApplicationNode)modelRootNode.Parent!;
+                return $"{appNode.Label.Value}.{modelRootNode.Label.Value}";
+            default:
+                throw new NotImplementedException();
         }
     }
 

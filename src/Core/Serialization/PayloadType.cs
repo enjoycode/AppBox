@@ -56,6 +56,7 @@ namespace AppBoxCore
         
         CheckoutInfo = 66,
         CheckoutResult = 67,
+        PendingChange = 68,
 
         //----运行时相关类型----
         Entity = 90,

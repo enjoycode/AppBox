@@ -25,11 +25,6 @@ public sealed class DesignHub : IModelContainer, IDisposable
     public readonly DesignTree DesignTree;
     internal readonly TypeSystem TypeSystem;
 
-    /// <summary>
-    /// 用于发布时暂存挂起的修改
-    /// </summary>
-    internal object[]? PendingChanges { get; set; }
-
     internal Func<int, string> AppNameGetter =>
         appId => DesignTree.FindApplicationNode(appId)!.Model.Name;
 

@@ -115,29 +115,46 @@ internal static class StagedService
     }
 
     /// <summary>
-    /// 加载挂起项目
+    /// 用于DesignTree加载时加载挂起的项目，排除代码
     /// </summary>
-    /// <param name="onlyModelsAndFolders">true用于DesignTree加载; false用于发布时加载</param>
-    internal static async Task<IList<StagedModel>> LoadStagedAsync(bool onlyModelsAndFolders)
+    internal static async Task<IList<StagedModel>> LoadStagedAsync()
     {
         //TODO:考虑用于DesignTree加载时连服务模型的代码一并加载
         var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 
 #if FUTURE
-            var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
-            if (onlyModelsAndFolders)
-                q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID &
-                         q.GetByte(Consts.STAGED_TYPE_ID) <= (byte)StagedType.Folder);
-            else
-                q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID);
+        var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
+        q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID &
+                q.GetByte(Consts.STAGED_TYPE_ID) <= (byte)StagedType.Folder);
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        if (onlyModelsAndFolders)
-            q.Where(t => t["DeveloperId"] == developerId & t["Type"] <= (byte)StagedType.Folder);
-        else
-            q.Where(t => t["DeveloperId"] == developerId);
+        q.Where(t => t["DeveloperId"] == developerId & t["Type"] <= (byte)StagedType.Folder);
 #endif
         var res = await q.ToListAsync();
+        return res;
+    }
+
+    /// <summary>
+    /// 用于发布时加载所有挂起的项目
+    /// </summary>
+    internal static async Task<IList<PendingChange>> LoadChangesAsync()
+    {
+        var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
+
+#if FUTURE
+        var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
+        q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID);
+#else
+        var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
+        q.Where(t => t["DeveloperId"] == developerId);
+#endif
+        var res = await q.ToListAsync(
+            r => new PendingChange()
+            {
+                Type = (StagedType)r.ReadIntMember(0),
+                Id = r.ReadStringMember(1)
+            },
+            t => [t["Type"], t["Model"]]);
         return res;
     }
 

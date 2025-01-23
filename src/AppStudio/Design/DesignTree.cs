@@ -1,5 +1,4 @@
 using AppBoxCore;
-using AppBoxStore;
 
 namespace AppBoxDesign;
 
@@ -47,7 +46,7 @@ public sealed class DesignTree
 
         //1.先加载签出信息及StagedModels
         _checkouts = await CheckoutService.LoadAllAsync();
-        Staged = await StagedService.LoadStagedAsync(onlyModelsAndFolders: true);
+        Staged = await StagedService.LoadStagedAsync();
 
         //2.开始加载设计时元数据
         //加载Apps

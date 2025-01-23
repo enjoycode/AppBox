@@ -25,5 +25,6 @@ public static class DesignTypeSerializer
         
         RegisterKnownType(new BinSerializer(PayloadType.CheckoutInfo, typeof(CheckoutInfo), () => new CheckoutInfo()));
         RegisterKnownType(new BinSerializer(PayloadType.CheckoutResult, typeof(CheckoutResult), () => new CheckoutResult()));
+        RegisterKnownType(new BinSerializer(PayloadType.PendingChange, typeof(PendingChange), () => new PendingChange()));
     }
 }

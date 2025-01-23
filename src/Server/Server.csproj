@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>AppBoxServer</AssemblyName>
         <RootNamespace>AppBoxServer</RootNamespace>
-        <LangVersion>11</LangVersion>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +25,9 @@
       </Compile>
       <Compile Include="..\AppStudio\Data\DesignTypeSerializer.cs">
         <Link>Services\Design\DesignTypeSerializer.cs</Link>
+      </Compile>
+      <Compile Include="..\AppStudio\Data\PendingChange.cs">
+        <Link>Services\Design\PendingChange.cs</Link>
       </Compile>
       <Compile Include="..\AppStudio\Data\StagedType.cs">
         <Link>Services\Design\StagedType.cs</Link>

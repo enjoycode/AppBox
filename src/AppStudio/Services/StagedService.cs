@@ -10,12 +10,16 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class StagedService
 {
-    internal static async Task<StagedItems> LoadStagedAsync(bool onlyModelsAndFolders)
+    internal static async Task<StagedItems> LoadStagedAsync()
     {
-        var list = await Channel.Invoke<IList<Entity>>("sys.DesignService.StageLoadAll",
-            [onlyModelsAndFolders],
+        var list = await Channel.Invoke<IList<Entity>>("sys.DesignService.StageLoadAll", null,
             [new EntityFactory(StagedModel.MODELID, typeof(StagedModel))]);
         return list == null ? new StagedItems([]) : new StagedItems(list.Cast<StagedModel>().ToList());
+    }
+
+    internal static Task<IList<PendingChange>> LoadChangesAsync()
+    {
+        return Channel.Invoke<IList<PendingChange>>("sys.DesignService.StageLoadChanges")!;
     }
 
     internal static Task<string?> LoadCodeAsync(ModelId modelId)
