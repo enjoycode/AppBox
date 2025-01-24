@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 发布时变更的模型信息，仅用于前端显示变更项
 /// </summary>
-internal sealed class PendingChange : IBinSerializable
+public sealed class PendingChange : IBinSerializable
 {
     public StagedType Type { get; set; }
 
@@ -15,7 +15,10 @@ internal sealed class PendingChange : IBinSerializable
     /// </summary>
     public string Id { get; set; } = null!;
 
-    internal object? DesignNode { get; set; }
+    /// <summary>
+    /// 仅客户端解析至相应的树节点
+    /// </summary>
+    public object? DesignNode { get; set; }
 
     public void WriteTo(IOutputStream ws)
     {

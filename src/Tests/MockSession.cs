@@ -6,8 +6,6 @@ namespace Tests;
 
 public sealed class MockSession : IDeveloperSession
 {
-    private readonly DesignHub _designHub;
-
     public string Name { get; } = "MockUser";
     public bool IsExternal => false;
     public string Tag => string.Empty;
@@ -23,8 +21,5 @@ public sealed class MockSession : IDeveloperSession
     public MockSession(string sessionId)
     {
         SessionId = sessionId;
-        _designHub = new DesignHub(Name, LeafOrgUnitId);
     }
-
-    public DesignHub GetDesignHub() => _designHub;
 }

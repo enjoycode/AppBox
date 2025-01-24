@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-internal sealed class CheckoutResult : IBinSerializable
+public sealed class CheckoutResult : IBinSerializable
 {
     internal CheckoutResult() { }
 
@@ -17,7 +17,7 @@ internal sealed class CheckoutResult : IBinSerializable
     /// <summary>
     /// 签出单个模型时，已被其他人修改(版本变更), 则返回当前最新的版本的模型
     /// </summary>
-    public ModelBase? ModelWithNewVersion { get; internal set; }
+    public ModelBase? ModelWithNewVersion { get; set; }
 
     public void WriteTo(IOutputStream ws)
     {

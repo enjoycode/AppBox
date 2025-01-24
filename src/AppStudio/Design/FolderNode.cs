@@ -45,7 +45,7 @@ public sealed class FolderNode : DesignNode, IChildrenNode
             return null;
         }
     }
-    
+
     public IList<DesignNode> GetChildren() => Children.List;
 
     internal override CheckoutInfo? CheckoutInfo
@@ -64,6 +64,6 @@ public sealed class FolderNode : DesignNode, IChildrenNode
         //查找文件夹直至根级文件夹，然后序列化保存根级文件夹
         var rootFolder = Folder.GetRoot();
         //保存节点模型
-        return StagedService.SaveFolderAsync(rootFolder);
+        return DesignHub.Current.StagedService.SaveFolderAsync(rootFolder);
     }
 }

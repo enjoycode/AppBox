@@ -16,6 +16,7 @@
         <ProjectReference Include="..\Client.UI\Client.UI.csproj"/>
         <ProjectReference Include="..\Client\Client.csproj"/>
         <ProjectReference Include="..\Core\Core.csproj"/>
+        <ProjectReference Include="..\Design.Data\Design.Data.csproj" />
         <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>
 

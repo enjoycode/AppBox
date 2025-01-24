@@ -16,6 +16,6 @@ public class TestDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(TestHelper.ConnectionString);
+        optionsBuilder.UseNpgsql(ServerRuntimeHelper.ConnectionString);
     }
 }

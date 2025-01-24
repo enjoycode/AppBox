@@ -4,9 +4,9 @@ using AppBoxStore.Entities;
 
 namespace AppBoxDesign;
 
-internal static class CheckoutService
+internal sealed class CheckoutService : ICheckoutService
 {
-    internal static async Task<Dictionary<string, CheckoutInfo>> LoadAllAsync()
+    public async Task<Dictionary<string, CheckoutInfo>> LoadAllAsync()
     {
         var list = await Channel.Invoke<IList<Entity>>("sys.DesignService.CheckoutLoadAll",
             null, [new EntityFactory(Checkout.MODELID, typeof(Checkout))]);
@@ -24,8 +24,8 @@ internal static class CheckoutService
         return dic;
     }
 
-    internal static Task<CheckoutResult> CheckoutAsync(IList<CheckoutInfo> info)
+    public Task<CheckoutResult> CheckoutAsync(IList<CheckoutInfo> info)
     {
-        return Channel.Invoke<CheckoutResult>("sys.DesignService.Checkout", [info]);
+        return Channel.Invoke<CheckoutResult>("sys.DesignService.Checkout", [info])!;
     }
 }

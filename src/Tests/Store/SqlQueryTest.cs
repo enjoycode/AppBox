@@ -11,7 +11,7 @@ public sealed class SqlQueryTest
 {
     static SqlQueryTest()
     {
-        TestHelper.TryInitDefaultStore();
+        ServerRuntimeHelper.MockUserSession();
     }
 
     [Test]

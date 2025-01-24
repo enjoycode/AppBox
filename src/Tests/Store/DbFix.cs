@@ -11,7 +11,7 @@ public class DbFix
 {
     static DbFix()
     {
-        TestHelper.TryInitDefaultStore();
+        ServerRuntimeHelper.MockUserSession();
     }
 
     // 临时用于修复一些错误的模型数据

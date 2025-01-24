@@ -46,7 +46,7 @@ internal sealed class PublishDialog : Dialog
 
         try
         {
-            var res = await StagedService.LoadChangesAsync();
+            var res = await DesignHub.Current.StagedService.LoadChangesAsync();
             var designTree = DesignHub.Current.DesignTree;
             foreach (var change in res)
             {

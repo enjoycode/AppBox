@@ -10,7 +10,7 @@ public class SqlCommandTest
 {
     static SqlCommandTest()
     {
-        TestHelper.TryInitDefaultStore();
+        ServerRuntimeHelper.MockUserSession();
     }
 
     [Test]

@@ -101,7 +101,7 @@ public sealed class ModelNode : DesignNode
                     srcCode = srcText.ToString();
                 }
 
-                await StagedService.SaveCodeAsync(Model.Id, srcCode);
+                await DesignHub.Current.StagedService.SaveCodeAsync(Model.Id, srcCode);
 
                 //如果是非新建的服务模型需要更新服务代理(注意用initSrcCode判断是否刚创建的)
                 if (Model.ModelType == ModelType.Service && initOrNewSrcCode == null)
@@ -110,6 +110,6 @@ public sealed class ModelNode : DesignNode
         }
 
         //再保存模型元数据
-        await StagedService.SaveModelAsync(Model);
+        await DesignHub.Current.StagedService.SaveModelAsync(Model);
     }
 }

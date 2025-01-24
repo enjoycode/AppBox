@@ -44,7 +44,7 @@ internal static class DragDropNode
             RemoveFromParent(sourceNode);
             insertIndex = AddToParent(sourceNode, targetNode);
             sourceNode.Model.FolderId = null;
-            await StagedService.SaveModelAsync(sourceNode.Model); //直接保存
+            await DesignHub.Current.StagedService.SaveModelAsync(sourceNode.Model); //直接保存
         }
         else if (targetNode.Type == DesignNodeType.FolderNode)
         {
@@ -56,7 +56,7 @@ internal static class DragDropNode
             RemoveFromParent(sourceNode);
             insertIndex = AddToParent(sourceNode, targetNode);
             sourceNode.Model.FolderId = targetFolder.Id;
-            await StagedService.SaveModelAsync(sourceNode.Model); //直接保存
+            await DesignHub.Current.StagedService.SaveModelAsync(sourceNode.Model); //直接保存
         }
         else
         {

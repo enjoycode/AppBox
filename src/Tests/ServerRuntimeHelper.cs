@@ -1,18 +1,17 @@
 using AppBoxCore;
-using AppBoxDesign;
-using AppBoxStore;
 using AppBoxServer;
+using AppBoxStore;
 
 namespace Tests;
 
-public static class TestHelper
+public static class ServerRuntimeHelper
 {
     private static int _initFlag = 0;
 
     internal const string ConnectionString
         = "Server=10.211.55.2;Port=5432;Database=iWareMaster;Userid=rick;Password=;Enlist=true;Pooling=true;MinPoolSize=1;MaxPoolSize=200;";
 
-    public static void TryInitDefaultStore()
+    private static void TryInitDefaultStore()
     {
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) != 0) return;
 
@@ -21,14 +20,12 @@ public static class TestHelper
         MetaStore.Init(new SqlMetaStore());
     }
 
-    internal static async Task<DesignHub> MockSession()
+    public static IUserSession MockUserSession()
     {
         TryInitDefaultStore();
 
         var mockSession = new MockSession("12345");
         HostRuntimeContext.SetCurrentSession(mockSession);
-        var designHub = mockSession.GetDesignHub();
-        await designHub.DesignTree.LoadAsync();
-        return designHub;
+        return mockSession;
     }
 }

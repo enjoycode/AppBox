@@ -81,7 +81,7 @@ public abstract class DesignNode : IComparable<DesignNode>
         {
             new(Type, CheckoutTargetId, Version, hub.SessionName, hub.LeafOrgUnitId)
         };
-        var res = await CheckoutService.CheckoutAsync(infos);
+        var res = await DesignHub.Current.CheckoutService.CheckoutAsync(infos);
         if (res.Success)
         {
             //签出成功则将请求的签出信息添加至当前的已签出列表

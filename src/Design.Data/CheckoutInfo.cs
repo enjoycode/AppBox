@@ -31,7 +31,7 @@ public sealed class CheckoutInfo : IBinSerializable
 
     public string GetKey() => MakeKey(NodeType, TargetId);
 
-    internal static string MakeKey(DesignNodeType nodeType, string targetId)
+    public static string MakeKey(DesignNodeType nodeType, string targetId)
     {
         return $"{(byte)nodeType}|{targetId}";
     }

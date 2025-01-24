@@ -10,11 +10,16 @@ public sealed class DesignHub : IModelContainer, IDisposable
         DesignTypeSerializer.Register();
     }
 
-    public DesignHub(string sessionName, Guid leafOrgUnitId)
+    public DesignHub(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
+        IStagedService stagedService, IMetaStoreService metaStoreService)
     {
         SessionName = sessionName;
         LeafOrgUnitId = leafOrgUnitId;
-        TypeSystem = new TypeSystem();
+        CheckoutService = checkoutService;
+        StagedService = stagedService;
+        MetaStoreService = metaStoreService;
+
+        TypeSystem = new TypeSystem(this);
         DesignTree = new DesignTree(this);
     }
 
@@ -24,6 +29,9 @@ public sealed class DesignHub : IModelContainer, IDisposable
     internal readonly Guid LeafOrgUnitId;
     public readonly DesignTree DesignTree;
     internal readonly TypeSystem TypeSystem;
+    internal readonly ICheckoutService CheckoutService;
+    internal readonly IStagedService StagedService;
+    internal readonly IMetaStoreService MetaStoreService;
 
     internal Func<int, string> AppNameGetter =>
         appId => DesignTree.FindApplicationNode(appId)!.Model.Name;

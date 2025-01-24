@@ -34,7 +34,7 @@ internal static class ModelCreator
             throw new Exception("Can't checkout ModelRootNode");
 
         //生成模型标识号并新建模型及节点 //TODO:fix Layer
-        var modelId = await MetaStoreService.GenModelIdAsync(appId, modelType, ModelLayer.DEV);
+        var modelId = await hub.MetaStoreService.GenModelIdAsync(appId, modelType, ModelLayer.DEV);
         var model = creator(modelId);
         var node = new ModelNode(model, hub);
         var insertIndex = parentNode.Type == DesignNodeType.ModelRootNode

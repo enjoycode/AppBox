@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("AppBoxStore")]
-[assembly: InternalsVisibleTo("AppBoxDesign")]
+[assembly: InternalsVisibleTo("AppBoxDesignData")]
 [assembly: InternalsVisibleTo("AppBoxStudio")]
 [assembly: InternalsVisibleTo("AppBoxServer")]
 [assembly: InternalsVisibleTo("AppBoxStore.Initiator")]

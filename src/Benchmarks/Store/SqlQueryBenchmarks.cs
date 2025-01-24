@@ -9,7 +9,7 @@ public class SqlQueryBenchmarks
 {
     public SqlQueryBenchmarks()
     {
-        TestHelper.TryInitDefaultStore();
+        ServerRuntimeHelper.MockUserSession();
     }
 
     [Benchmark]
@@ -26,7 +26,7 @@ public class SqlQueryBenchmarks
         await using var db = new TestDbContext();
         var _ = await db.Employees.Where(t => t.Name == "Admin").ToListAsync();
     }
-    
+
     // M1 Pro Dotnet6
     // |                  Method |     Mean |   Error |   StdDev |    Gen0 | Allocated |
     // |------------------------ |---------:|--------:|---------:|--------:|----------:|

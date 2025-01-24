@@ -21,7 +21,7 @@ internal static class DeleteNode
         //注意：返回rootNode.ID用于前端重新刷新模型根节点
         return rootNode == null ? string.Empty : rootNode.Id;
     }
-    
+
     private static async Task<DesignNode?> DeleteModelNode(DesignHub hub, ModelNode node)
     {
         // 查找ModelRootNode
@@ -64,7 +64,7 @@ internal static class DeleteNode
         if (model.PersistentState == PersistentState.Detached)
         {
             //TODO: delete checkout
-            await StagedService.DeleteModelAsync(model.Id);
+            await hub.StagedService.DeleteModelAsync(model.Id);
         }
         else
         {

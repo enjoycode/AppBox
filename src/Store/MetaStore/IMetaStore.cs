@@ -74,7 +74,7 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 加载模型(视图、服务等)的代码
     /// </summary>
-    public static async Task<string> LoadModelCodeAsync(this IMetaStore metaStore, ModelId modelId)
+    public static async Task<string?> LoadModelCodeAsync(this IMetaStore metaStore, ModelId modelId)
     {
         var data = await metaStore.LoadMetaDataAsync(MetaType.Meta_Code, modelId.ToString());
         return ModelCodeUtil.DecompressCode(data!);

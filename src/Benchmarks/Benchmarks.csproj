@@ -25,8 +25,8 @@
       <Compile Include="..\Tests\MockSession.cs">
         <Link>MockSession.cs</Link>
       </Compile>
-      <Compile Include="..\Tests\TestHelper.cs">
-        <Link>TestHelper.cs</Link>
+      <Compile Include="..\Tests\ServerRuntimeHelper.cs">
+        <Link>ServerRuntimeHelper.cs</Link>
       </Compile>
     </ItemGroup>
 

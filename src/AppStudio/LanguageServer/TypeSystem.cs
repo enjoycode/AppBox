@@ -11,8 +11,9 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class TypeSystem : IDisposable
 {
-    public TypeSystem()
+    public TypeSystem(DesignHub designHub)
     {
+        DesignHub = designHub;
         Workspace = new ModelWorkspace(new HostServicesAggregator());
 
         ModelProjectId = ProjectId.CreateNewId();
@@ -23,10 +24,12 @@ internal sealed class TypeSystem : IDisposable
         InitWorkspace();
     }
 
+    internal readonly DesignHub DesignHub;
+
     //统一AssemblyName,方便ModelProject InternalVisibleTo
     private const string DesignTimeServiceAssemblyName = "DesignTimeService";
 
-    private readonly string ModelBaseCode =
+    private readonly string _modelBaseCode =
         $"using System.Runtime.CompilerServices;[assembly: InternalsVisibleTo(\"{DesignTimeServiceAssemblyName}\")]";
 
     internal readonly ModelWorkspace Workspace;
@@ -94,7 +97,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ModelProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.SystemDataLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.AppBoxCoreLib)
-                .AddDocument(DocumentId.CreateNewId(ModelProjectId), "ModelBase.cs", ModelBaseCode)
+                .AddDocument(DocumentId.CreateNewId(ModelProjectId), "ModelBase.cs", _modelBaseCode)
                 //服务代理工程
                 .AddProject(serviceProxyProjectInfo)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.CoreLib)
@@ -226,27 +229,27 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 获取模型节点代码，如果是新建的节点使用初始化代码，如果是已签出的先尝试从Staged中获取，最后从MetaStore获取
     /// </summary>
-    internal static async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
+    private async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
     {
         var sourceCode = initSrcCode;
         if (string.IsNullOrEmpty(sourceCode))
         {
             if (node.IsCheckoutByMe) //已签出尝试从Staged中加载
-                sourceCode = await StagedService.LoadCodeAsync(node.Model.Id);
+                sourceCode = await DesignHub.StagedService.LoadCodeAsync(node.Model.Id);
             if (string.IsNullOrEmpty(sourceCode)) //从MetaStore加载
-                sourceCode = await MetaStoreService.LoadModelCodeAsync(node.Model.Id);
+                sourceCode = await DesignHub.MetaStoreService.LoadModelCodeAsync(node.Model.Id);
         }
-        
+
         return sourceCode ?? string.Empty;
     }
 
     /// <summary>
     /// 更新模型RoslynDocument，注意：服务模型也会更新，如不需要由调用者忽略
     /// </summary>
-    internal async ValueTask UpdateModelDocumentAsync(ModelNode node)
+    internal ValueTask UpdateModelDocumentAsync(ModelNode node)
     {
         if (node.RoslynDocumentId == null)
-            return;
+            return ValueTask.CompletedTask;
 
         var appName = node.AppNode.Model.Name;
         var model = node.Model;
@@ -296,6 +299,8 @@ internal sealed class TypeSystem : IDisposable
             if (!Workspace.TryApplyChanges(newSolution))
                 Log.Warn("Cannot update roslyn document for: " + model.Name);
         }
+
+        return ValueTask.CompletedTask;
     }
 
     /// <summary>

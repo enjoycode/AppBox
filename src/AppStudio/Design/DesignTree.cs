@@ -10,7 +10,7 @@ public sealed class DesignTree
     }
 
     private int _loadingFlag;
-    private readonly List<DesignNode> _rootNodes = new List<DesignNode>();
+    private readonly List<DesignNode> _rootNodes = new();
     private DataStoreRootNode _storeRootNode = null!;
     private ApplicationRootNode _appRootNode = null!;
 
@@ -45,23 +45,23 @@ public sealed class DesignTree
         _rootNodes.Add(_appRootNode);
 
         //1.先加载签出信息及StagedModels
-        _checkouts = await CheckoutService.LoadAllAsync();
-        Staged = await StagedService.LoadStagedAsync();
+        _checkouts = await DesignHub.CheckoutService.LoadAllAsync();
+        Staged = await DesignHub.StagedService.LoadStagedAsync();
 
         //2.开始加载设计时元数据
         //加载Apps
-        var metaApps = await MetaStoreService.LoadAllApplicationAsync();
+        var metaApps = await DesignHub.MetaStoreService.LoadAllApplicationAsync();
         var apps = new List<ApplicationModel>(metaApps);
         apps.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
 
         //加载Folders
-        var metaFolders = await MetaStoreService.LoadAllFolderAsync();
+        var metaFolders = await DesignHub.MetaStoreService.LoadAllFolderAsync();
         var folders = new List<ModelFolder>(metaFolders);
         //从staged中添加新建的并更新修改的文件夹
         Staged.UpdateFolders(folders);
 
         //加载Models
-        var metaModels = await MetaStoreService.LoadAllModelAsync();
+        var metaModels = await DesignHub.MetaStoreService.LoadAllModelAsync();
         var models = new List<ModelBase>(metaModels);
 
         //添加默认存储节点

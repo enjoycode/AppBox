@@ -10,7 +10,7 @@ public class ReferenceServiceTest
     [Test]
     public async Task FindModelReferencesTest()
     {
-        var hub = await TestHelper.MockSession();
+        var hub = await DesignHelper.MockDesignHub();
         var customerNode = hub.DesignTree.FindModelNodeByFullName("sys.Entities.Customer");
         var res = await ReferenceService.FindModelReferencesAsync(hub, customerNode);
         Assert.True(res != null && res.Count > 0);
@@ -19,7 +19,7 @@ public class ReferenceServiceTest
     [Test]
     public async Task FindEntityMemberReferencesTest()
     {
-        var hub = await TestHelper.MockSession();
+        var hub = await DesignHelper.MockDesignHub();
         var customerNode = hub.DesignTree.FindModelNodeByFullName("sys.Entities.Customer");
         var entityModel = (EntityModel)customerNode!.Model;
         var entityMember = entityModel.GetMember("City")!;
