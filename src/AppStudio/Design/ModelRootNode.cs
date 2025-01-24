@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AppBoxCore;
 using PixUI;
 
@@ -36,7 +33,7 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
             return $"{appIdString}-{(byte)TargetType}";
         }
     }
-    
+
     public IList<DesignNode> GetChildren() => Children.List;
 
     #region ====Add and Remove Methods====
@@ -131,14 +128,13 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
 
     #region ====Find Methods====
 
-    public FolderNode? FindFolderNode(Guid folderID)
+    public FolderNode? FindFolderNode(Guid folderId)
     {
-        _folders.TryGetValue(folderID, out var node);
+        _folders.TryGetValue(folderId, out var node);
         return node;
     }
 
-    public ModelNode? FindModelNode(ModelId modelId)
-        => _models.TryGetValue(modelId, out var modelNode) ? modelNode : null;
+    public ModelNode? FindModelNode(ModelId modelId) => _models.GetValueOrDefault(modelId);
 
     public ModelNode? FindModelNodeByName(ReadOnlyMemory<char> name)
         => _models.Values.FirstOrDefault(t => t.Model.Name.AsSpan().SequenceEqual(name.Span));

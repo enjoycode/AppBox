@@ -38,6 +38,8 @@ internal static class Publish
         await CompileModelsAsync(hub, changes, package);
         //调用服务端发布
         // await PublishService.PublishAsync(hub, package, commitMessage);
+        //刷新所有CheckoutByMe的节点项
+        hub.DesignTree.CheckinAllNodes();
     }
 
     private static void ValidateModels(DesignHub hub, PublishPackage package)

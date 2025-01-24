@@ -1,25 +1,19 @@
 using System.Data.Common;
-using System.IO.Compression;
-using System.Text;
 using AppBoxCore;
+using AppBoxServer.Design;
 using AppBoxStore;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Emit;
 
 namespace AppBoxDesign;
 
 internal static class PublishService
 {
-
     /// <summary>
     /// 1. 保存模型(包括编译好的服务Assembly)，并生成EntityModel的SchemaChangeJob;
     /// 2. 通知集群各节点更新缓存;
     /// 3. 删除当前会话的CheckoutInfo;
-    /// 4. 刷新DesignTree相应的节点，并删除挂起
-    /// 5. 保存递交日志
+    /// 4. 保存递交日志
     /// </summary>
-    internal static async Task PublishAsync(DesignHub hub, PublishPackage package, string commitMessage)
+    internal static async Task PublishAsync(PublishPackage package, string commitMessage)
     {
         //先根据依赖关系排序
         package.SortAllModels();
@@ -35,15 +29,16 @@ internal static class PublishService
 #endif
 
         //TODO:考虑发布锁
+        var container = new PublishContainer(package);
         try
         {
-            await SaveModelsAsync(hub, package, txn, otherStoreTxns);
+            await SaveModelsAsync(container, txn, otherStoreTxns);
 
             await CheckoutService.CheckinAsync(txn);
 
-            //注意必须先刷新后清除缓存，否则删除的节点在移除后会自动保存
-            //刷新所有CheckoutByMe的节点项
-            hub.DesignTree.CheckinAllNodes();
+            // //注意必须先刷新后清除缓存，否则删除的节点在移除后会自动保存
+            // //刷新所有CheckoutByMe的节点项
+            // hub.DesignTree.CheckinAllNodes();
             //清除所有签出缓存
             await StagedService.DeleteStagedAsync(txn);
 
@@ -74,7 +69,7 @@ internal static class PublishService
         }
 
         //最后通知各节点更新模型缓存
-        InvalidModelsCache(hub, package);
+        InvalidModelsCache(package);
     }
 
     private static async ValueTask<DbTransaction> MakeOtherStoreTxn(long storeId, IDictionary<long, DbTransaction> txns)
@@ -91,14 +86,10 @@ internal static class PublishService
         return txn;
     }
 
-    private static async Task SaveModelsAsync(DesignHub hub, PublishPackage package,
-#if FUTURE
-            Transaction txn,
-#else
-        DbTransaction txn,
-#endif
+    private static async Task SaveModelsAsync(PublishContainer container, DbTransaction txn,
         IDictionary<long, DbTransaction> otherStoreTxns)
     {
+        var package = container.Package;
         //保存文件夹
         foreach (var folder in package.Folders)
         {
@@ -119,39 +110,39 @@ internal static class PublishService
                 {
                     await MetaStore.Provider.InsertModelAsync(model, txn);
                     if (model.ModelType == ModelType.Entity)
-                        await TryCreateTable(hub, (EntityModel)model, otherStoreTxns);
+                        await TryCreateTable(container, (EntityModel)model, otherStoreTxns);
                     break;
                 }
                 case PersistentState.Unchanged: //TODO:临时
                 case PersistentState.Modified:
                 {
-                    await MetaStore.Provider.UpdateModelAsync(model, txn, hub.GetApplicationModel);
+                    await MetaStore.Provider.UpdateModelAsync(model, txn, container.GetApplicationModel);
                     if (model.ModelType == ModelType.Entity)
-                        await TryAlterTable(hub, (EntityModel)model, otherStoreTxns);
+                        await TryAlterTable(container, (EntityModel)model, otherStoreTxns);
 
                     //TODO:服务模型重命名删除旧的Assembly
                     break;
                 }
                 case PersistentState.Deleted:
                 {
-                    await MetaStore.Provider.DeleteModelAsync(model, txn, hub.GetApplicationModel);
+                    await MetaStore.Provider.DeleteModelAsync(model, txn, container.GetApplicationModel);
 
                     if (model.ModelType == ModelType.Entity)
                     {
-                        await TryDropTable(hub, (EntityModel)model, otherStoreTxns);
+                        await TryDropTable(container, (EntityModel)model, otherStoreTxns);
                     }
                     //判断模型类型删除相关代码及编译好的组件
                     else if (model.ModelType == ModelType.Service)
                     {
-                        var app = hub.DesignTree.FindApplicationNode(model.AppId)!;
+                        var app = container.GetApplicationModel(model.AppId);
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
                         await MetaStore.Provider.DeleteAssemblyAsync(MetaAssemblyType.Service,
-                            $"{app.Model.Name}.{model.OriginalName}", txn);
+                            $"{app.Name}.{model.OriginalName}", txn);
                     }
                     else if (model.ModelType == ModelType.View)
                     {
-                        // var app = hub.DesignTree.FindApplicationNode(model.AppId)!;
-                        // var oldViewName = $"{app.Model.Name}.{model.OriginalName}";
+                        // var app = container.GetApplicationModel(model.AppId);
+                        // var oldViewName = $"{app.Name}.{model.OriginalName}";
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
                         // await ModelStore.DeleteAssemblyAsync(MetaAssemblyType.View, oldViewName, txn);
                     }
@@ -182,24 +173,30 @@ internal static class PublishService
         // }
     }
 
-    private static bool IsDbFirstSqlStore(DesignHub hub, EntityModel model)
+    private static bool IsDbFirstSqlStore(PublishContainer container, EntityModel model)
     {
-        var storeId = ((ulong)model.SqlStoreOptions!.StoreModelId).ToString();
-        if (hub.DesignTree.FindNode(DesignNodeType.DataStoreNode, storeId) is not DataStoreNode storeNode)
-            throw new Exception("Can't find DataStore node for Entity");
-        return storeNode.Model.IsDbFirst;
+        var storeId = model.SqlStoreOptions!.StoreModelId;
+        if (storeId == SqlStore.DefaultSqlStoreId)
+            return false;
+
+        //TODO:*** fix this
+        // if (hub.DesignTree.FindNode(DesignNodeType.DataStoreNode, storeId) is not DataStoreNode storeNode)
+        //     throw new Exception("Can't find DataStore node for Entity");
+        // return storeNode.Model.IsDbFirst;
+
+        return false;
     }
 
-    private static async ValueTask TryCreateTable(DesignHub hub, EntityModel model,
+    private static async ValueTask TryCreateTable(PublishContainer container, EntityModel model,
         IDictionary<long, DbTransaction> otherStoreTxns)
     {
         if (model.SqlStoreOptions != null) //映射至第三方数据库的需要创建相应的表
         {
-            if (IsDbFirstSqlStore(hub, model)) return; //忽略DbFirst
+            if (IsDbFirstSqlStore(container, model)) return; //忽略DbFirst
 
             var sqlStore = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
             var sqlTxn = await MakeOtherStoreTxn(model.SqlStoreOptions.StoreModelId, otherStoreTxns);
-            await sqlStore.CreateTableAsync(model, sqlTxn, hub);
+            await sqlStore.CreateTableAsync(model, sqlTxn, container);
         }
         // else if (em.CqlStoreOptions != null)
         // {
@@ -208,16 +205,16 @@ internal static class PublishService
         // }
     }
 
-    private static async ValueTask TryAlterTable(DesignHub hub, EntityModel model,
+    private static async ValueTask TryAlterTable(PublishContainer container, EntityModel model,
         IDictionary<long, DbTransaction> otherStoreTxns)
     {
         if (model.SqlStoreOptions != null) //映射至第三方数据库的需要变更表
         {
-            if (IsDbFirstSqlStore(hub, model)) return; //忽略DbFirst
+            if (IsDbFirstSqlStore(container, model)) return; //忽略DbFirst
 
             var sqlStore = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
             var sqlTxn = await MakeOtherStoreTxn(model.SqlStoreOptions.StoreModelId, otherStoreTxns);
-            await sqlStore.AlterTableAsync(model, sqlTxn, hub);
+            await sqlStore.AlterTableAsync(model, sqlTxn, container);
         }
         // else if (em.CqlStoreOptions != null)
         // {
@@ -226,16 +223,16 @@ internal static class PublishService
         // }
     }
 
-    private static async ValueTask TryDropTable(DesignHub hub, EntityModel model,
+    private static async ValueTask TryDropTable(PublishContainer container, EntityModel model,
         IDictionary<long, DbTransaction> otherStoreTxns)
     {
         if (model.SqlStoreOptions != null) //映射至第三方数据库的需要删除相应的表
         {
-            if (IsDbFirstSqlStore(hub, model)) return; //忽略DbFirst
+            if (IsDbFirstSqlStore(container, model)) return; //忽略DbFirst
 
             var sqlStore = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
             var sqlTxn = await MakeOtherStoreTxn(model.SqlStoreOptions.StoreModelId, otherStoreTxns);
-            await sqlStore.DropTableAsync(model, sqlTxn, hub);
+            await sqlStore.DropTableAsync(model, sqlTxn, container);
         }
         // else if (em.CqlStoreOptions != null)
         // {
@@ -247,7 +244,7 @@ internal static class PublishService
     /// <summary>
     /// 通知各节点模型缓存失效
     /// </summary>
-    private static void InvalidModelsCache(DesignHub hub, PublishPackage package)
+    private static void InvalidModelsCache(PublishPackage package)
     {
         if (package.Models.Count == 0)
             return;
@@ -263,13 +260,46 @@ internal static class PublishService
         var services = new string[serviceModels.Length];
         for (var i = 0; i < serviceModels.Length; i++)
         {
-            var sm = serviceModels[i];
-            var app = hub.DesignTree.FindApplicationNode(sm.AppId)!.Model;
+            var serviceModel = serviceModels[i];
+            var app = RuntimeContext.GetApplication(serviceModel.AppId);
             services[i] = serviceModels[i].IsNameChanged
-                ? $"{app.Name}.{sm.OriginalName}"
-                : $"{app.Name}.{sm.Name}";
+                ? $"{app.Name}.{serviceModel.OriginalName}"
+                : $"{app.Name}.{serviceModel.Name}";
         }
 
         RuntimeContext.Current.InvalidModelsCache(services, others, true);
+    }
+}
+
+internal sealed class PublishContainer : IModelContainer
+{
+    public PublishContainer(PublishPackage package)
+    {
+        Package = package;
+    }
+
+    internal readonly PublishPackage Package;
+    // private readonly Dictionary<long, DataStoreModel> _stores = [];
+    //
+    // public DataStoreModel GetDataStoreModel(long storeId)
+    // {
+    //     if (_stores.TryGetValue(storeId, out var model))
+    //         return model;
+    //     
+    //     MetaStore.Provider.
+    // }
+
+    public ApplicationModel GetApplicationModel(int appId) => RuntimeContext.GetApplication(appId);
+
+    public EntityModel GetEntityModel(ModelId modelId)
+    {
+        var changed = Package.Models
+            .Where(m => m.ModelType == ModelType.Entity && m.Id == modelId)
+            .Cast<EntityModel>()
+            .FirstOrDefault();
+        if (changed != null)
+            return changed;
+
+        return (EntityModel)MetaStore.Provider.LoadModelAsync(modelId).Result;
     }
 }

@@ -5,34 +5,34 @@ namespace AppBoxDesign;
 /// <summary>
 /// 用于发布的模型包，支持依赖排序
 /// </summary>
-internal sealed class PublishPackage
+public sealed class PublishPackage
 {
-    internal readonly List<ModelBase> Models = new();
+    public readonly List<ModelBase> Models = new();
 
     /// <summary>
     /// 需要保存或删除的模型根文件夹
     /// </summary>
-    internal readonly List<ModelFolder> Folders = new();
+    public readonly List<ModelFolder> Folders = new();
 
     /// <summary>
     /// 新建或更新的模型的虚拟代码，Key=ModelId
     /// </summary>
-    internal readonly Dictionary<ModelId, byte[]> SourceCodes = new();
+    public readonly Dictionary<ModelId, byte[]> SourceCodes = new();
 
     /// <summary>
     /// 新建或更新的编译好的服务组件, Key=xxx.XXXX
     /// </summary>
-    internal readonly Dictionary<string, byte[]> ServiceAssemblies = new();
+    public readonly Dictionary<string, byte[]> ServiceAssemblies = new();
 
     // /// <summary>
     // /// 新建或更新的视图组件, Key=xxx.XXXX
     // /// </summary>
-    // internal readonly Dictionary<string, byte[]> ViewAssemblies = new();
+    // public readonly Dictionary<string, byte[]> ViewAssemblies = new();
 
     /// <summary>
     /// 根据引用依赖关系排序
     /// </summary>
-    internal void SortAllModels()
+    public void SortAllModels()
     {
         Models.Sort((a, b) =>
         {

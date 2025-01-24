@@ -7,5 +7,5 @@ public interface IModelContainer
 {
     ApplicationModel GetApplicationModel(int appId);
 
-    EntityModel GetEntityModel(ModelId modelID);
+    EntityModel GetEntityModel(ModelId modelId);
 }
