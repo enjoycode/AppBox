@@ -46,7 +46,7 @@ public interface IRuntimeContext : IModelContainer
 
     ApplicationModel IModelContainer.GetApplicationModel(int appId) => GetApplication(appId);
 
-    EntityModel IModelContainer.GetEntityModel(ModelId modelID) => GetEntityModel(modelID);
+    EntityModel IModelContainer.GetEntityModel(ModelId modelId) => GetEntityModel(modelId);
 }
 
 public interface IHostRuntimeContext : IRuntimeContext

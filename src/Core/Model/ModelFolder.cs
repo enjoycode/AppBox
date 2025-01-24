@@ -66,10 +66,10 @@ public sealed class ModelFolder : IBinSerializable
     /// <summary>
     /// Create root folder
     /// </summary>
-    public ModelFolder(int appID, ModelType targetModelType)
+    public ModelFolder(int appId, ModelType targetModelType)
     {
         //RootFolder Id = Guid.Empty & Name = null
-        AppId = appID;
+        AppId = appId;
         TargetModelType = targetModelType;
     }
 

@@ -40,8 +40,7 @@ public sealed class StagedItems
                 case StagedType.Model:
                 {
                     ModelId modelId = staged[i].ModelIdString;
-                    Items[i] = MetaSerializer.DeserializeMeta(data,
-                        () => ModelFactory.Make(modelId.Type));
+                    Items[i] = MetaSerializer.DeserializeMeta(data, () => ModelFactory.Make(modelId.Type));
                     break;
                 }
                 case StagedType.Folder:
@@ -92,7 +91,7 @@ public sealed class StagedItems
     internal void UpdateFolders(List<ModelFolder> storedFolders)
     {
         if (Items == null) return;
-        for (int i = 0; i < Items.Length; i++)
+        for (var i = 0; i < Items.Length; i++)
         {
             if (Items[i] is ModelFolder folder)
             {
@@ -114,10 +113,11 @@ public sealed class StagedItems
         if (Items == null || Items.Length == 0)
             return;
 
-        for (int i = 0; i < Items.Length; i++)
+        for (var i = 0; i < Items.Length; i++)
         {
             if (Items[i] is ModelBase m && m.PersistentState == PersistentState.Deleted)
             {
+                DesignHub.Current.AddRemovedItem(m);
                 storedModels.RemoveAll(t => t.Id == m.Id);
             }
         }
@@ -126,6 +126,6 @@ public sealed class StagedItems
     internal sealed class StagedSourceCode
     {
         public ModelId ModelId;
-        public byte[] CodeData;
+        public byte[] CodeData = null!;
     }
 }

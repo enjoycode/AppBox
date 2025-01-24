@@ -11,7 +11,7 @@ public static class ExpressionSerialization
             writer.WriteVariant(array.Length);
             for (var i = 0; i < array.Length; i++)
             {
-                writer.Serialize(array[i]);
+                writer.SerializeExpression(array[i]);
             }
         }
         else
@@ -69,7 +69,7 @@ public static class ExpressionSerialization
     public static void SerializeToJson(Utf8JsonWriter jsonWriter, Expression? expression)
     {
         using var ms = new MemoryWriteStream();
-        ms.Serialize(expression);
+        ms.SerializeExpression(expression);
         var bytes = ms.Data;
         jsonWriter.WriteBase64StringValue(bytes);
     }

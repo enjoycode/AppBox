@@ -10,7 +10,7 @@ public static class DesignHelper
     {
         var mockSession = ServerRuntimeHelper.MockUserSession();
         var designHub = new DesignHub(mockSession.Name, mockSession.LeafOrgUnitId,
-            new MockCheckoutService(), new MockStagedService(), new MockMetaStoreService());
+            new MockCheckoutService(), new MockStagedService(), new MockMetaStoreService(), new MockPublishService());
         DesignHub.Current = designHub;
         await designHub.DesignTree.LoadAsync();
         return designHub;
@@ -93,4 +93,10 @@ internal sealed class MockMetaStoreService : IMetaStoreService
 
     public Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer) =>
         MetaStore.Provider.GenModelIdAsync(appId, modelType, layer);
+}
+
+internal sealed class MockPublishService : IPublishService
+{
+    public Task PublishAsync(PublishPackage package, string commitMessage) =>
+        AppBoxServer.Design.PublishService.PublishAsync(package, commitMessage);
 }

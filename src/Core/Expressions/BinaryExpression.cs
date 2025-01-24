@@ -136,10 +136,10 @@ public sealed class BinaryExpression : Expression
 
     protected internal override void WriteTo(IOutputStream writer)
     {
-        writer.Serialize(LeftOperand);
-        writer.Serialize(RightOperand);
+        writer.SerializeExpression(LeftOperand);
+        writer.SerializeExpression(RightOperand);
         writer.WriteByte((byte)BinaryType);
-        writer.Serialize(ConvertedType);
+        writer.SerializeExpression(ConvertedType);
         writer.WriteVariant(0); //保留
     }
 

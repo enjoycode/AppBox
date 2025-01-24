@@ -16,9 +16,19 @@ public sealed class PendingChange : IBinSerializable
     public string Id { get; set; } = null!;
 
     /// <summary>
-    /// 仅客户端解析至相应的树节点
+    /// 仅客户端解析至相应的模型
     /// </summary>
-    public object? DesignNode { get; set; }
+    public object? Target { get; set; }
+
+    /// <summary>
+    /// 仅客户端显示
+    /// </summary>
+    public string DisplayType { get; set; } = null!;
+    
+    /// <summary>
+    /// 仅客户端显示
+    /// </summary>
+    public string DisplayName { get; set; } = null!;
 
     public void WriteTo(IOutputStream ws)
     {

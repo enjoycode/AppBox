@@ -22,9 +22,13 @@ public static class DesignTypeSerializer
         RegisterKnownType(new BinSerializer(PayloadType.ViewModel, typeof(ViewModel), () => new ViewModel()));
         RegisterKnownType(new BinSerializer(PayloadType.PermissionModel, typeof(PermissionModel),
             () => new PermissionModel()));
-        
+
         RegisterKnownType(new BinSerializer(PayloadType.CheckoutInfo, typeof(CheckoutInfo), () => new CheckoutInfo()));
-        RegisterKnownType(new BinSerializer(PayloadType.CheckoutResult, typeof(CheckoutResult), () => new CheckoutResult()));
-        RegisterKnownType(new BinSerializer(PayloadType.PendingChange, typeof(PendingChange), () => new PendingChange()));
+        RegisterKnownType(new BinSerializer(PayloadType.CheckoutResult, typeof(CheckoutResult),
+            () => new CheckoutResult()));
+        RegisterKnownType(
+            new BinSerializer(PayloadType.PendingChange, typeof(PendingChange), () => new PendingChange()));
+        RegisterKnownType(new BinSerializer(PayloadType.PublishPackage, typeof(PublishPackage),
+            () => new PublishPackage()));
     }
 }

@@ -55,10 +55,10 @@ public sealed class MemberAccessExpression : Expression
 
     protected internal override void WriteTo(IOutputStream writer)
     {
-        writer.Serialize(Expression);
+        writer.SerializeExpression(Expression);
         writer.WriteString(MemberName);
         writer.WriteBool(IsField);
-        writer.Serialize(ConvertedType);
+        writer.SerializeExpression(ConvertedType);
     }
 
     protected internal override void ReadFrom(IInputStream reader)

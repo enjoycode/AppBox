@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore;
 using AppBoxStore.Entities;
@@ -13,12 +9,12 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class SystemService : IService
 {
-    private static readonly ModelId _adminPermissionId =
+    private static readonly ModelId AdminPermissionId =
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS);
 
     private static void EnsureIsAdmin()
     {
-        if (!HostRuntimeContext.HasPermission(_adminPermissionId))
+        if (!HostRuntimeContext.HasPermission(AdminPermissionId))
             throw new Exception("Must login as Administrator");
     }
 
@@ -153,7 +149,7 @@ internal sealed class SystemService : IService
         await txn.CommitAsync();
 
         //更新本地模型缓存
-        RuntimeContext.Current.InvalidModelsCache(null, new[] { oldModel.Id }, true);
+        RuntimeContext.Current.InvalidModelsCache(null, [oldModel.Id], true);
         //TODO: 激发事件通知集群更新缓存
         return true;
     }

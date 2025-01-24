@@ -377,8 +377,7 @@ public sealed class DesignTree
 
         //刷新签出信息表，移除被自己签出的信息
         var list = _checkouts.Keys
-            .Where(key =>
-                _checkouts[key].DeveloperOuid == RuntimeContext.CurrentSession!.LeafOrgUnitId)
+            .Where(key => _checkouts[key].DeveloperOuid == DesignHub.LeafOrgUnitId)
             .ToList();
         foreach (var key in list)
         {

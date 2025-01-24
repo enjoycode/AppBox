@@ -35,7 +35,7 @@ internal sealed class DesignService : IService
             case "LoadAllModel":
                 return AnyValue.From(await MetaStore.Provider.LoadAllModelAsync());
             case "LoadModelCode":
-                return await MetaStore.Provider.LoadModelCodeAsync(args.GetLong()!.Value);
+                return await MetaStore.Provider.LoadModelCodeAsync(args.GetLong()!.Value) ?? AnyValue.Empty;
             case "GenModelId":
                 return (long)(await MetaStore.Provider.GenModelIdAsync(
                     args.GetInt()!.Value, (ModelType)args.GetInt()!.Value, (ModelLayer)args.GetInt()!.Value));
@@ -64,6 +64,9 @@ internal sealed class DesignService : IService
                 return AnyValue.Empty;
             case "GetEntityRows":
                 return await GetEntityRows(args);
+            case "Publish":
+                await PublishService.PublishAsync((PublishPackage)args.GetObject()!, args.GetString());
+                return AnyValue.Empty;
             default:
                 throw new Exception($"Unknown design method: {method}");
         }

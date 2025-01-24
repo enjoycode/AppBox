@@ -77,11 +77,11 @@ public sealed class MethodCallExpression : Expression
 
     protected internal override void WriteTo(IOutputStream writer)
     {
-        writer.Serialize(Target);
+        writer.SerializeExpression(Target);
         writer.WriteString(MethodName);
         writer.WriteExpressionArray(Arguments);
         writer.WriteTypeExpressionArray(GenericArguments);
-        writer.Serialize(ConvertedType);
+        writer.SerializeExpression(ConvertedType);
     }
 
     protected internal override void ReadFrom(IInputStream reader)

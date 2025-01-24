@@ -93,7 +93,7 @@ public sealed class ConstantExpression : Expression
 
     protected internal override void WriteTo(IOutputStream writer)
     {
-        writer.Serialize(ConvertedType);
+        writer.SerializeExpression(ConvertedType);
         writer.Serialize(Value);
     }
 

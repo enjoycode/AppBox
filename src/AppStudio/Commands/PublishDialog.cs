@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -16,6 +12,7 @@ internal sealed class PublishDialog : Dialog
     }
 
     private readonly DataGridController<PendingChange> _dataGridController = new();
+    private IList<PendingChange> _changes = null!;
 
     protected override Widget BuildBody()
     {
@@ -26,8 +23,8 @@ internal sealed class PublishDialog : Dialog
             {
                 Columns =
                 {
-                    new DataGridTextColumn<PendingChange>("Type", GetChangeType),
-                    new DataGridTextColumn<PendingChange>("Name", GetChangeName),
+                    new DataGridTextColumn<PendingChange>("Type", t => t.DisplayType),
+                    new DataGridTextColumn<PendingChange>("Name", t => t.DisplayName),
                 }
             }
         };
@@ -46,61 +43,14 @@ internal sealed class PublishDialog : Dialog
 
         try
         {
-            var res = await DesignHub.Current.StagedService.LoadChangesAsync();
-            var designTree = DesignHub.Current.DesignTree;
-            foreach (var change in res)
-            {
-                switch (change.Type)
-                {
-                    case StagedType.Model:
-                        change.DesignNode = designTree.FindNode(DesignNodeType.ModelNode, change.Id);
-                        break;
-                    case StagedType.Folder:
-                        change.DesignNode = designTree.FindNode(DesignNodeType.ModelRootNode, change.Id);
-                        break;
-                    default:
-                        throw new NotImplementedException(change.Type.ToString());
-                }
-            }
-
-            _dataGridController.DataSource = new List<PendingChange>(res);
+            var hub = DesignHub.Current;
+            _changes = await hub.StagedService.LoadChangesAsync();
+            hub.ResolveChanges(_changes);
+            _dataGridController.DataSource = new List<PendingChange>(_changes);
         }
         catch (Exception ex)
         {
             Notification.Error($"加载模型变更失败:{ex.Message}");
-        }
-    }
-
-    private static string GetChangeType(PendingChange change)
-    {
-        if (change.DesignNode == null) return string.Empty;
-        switch (change.Type)
-        {
-            case StagedType.Model:
-                var modelNode = (ModelNode)change.DesignNode;
-                return modelNode.ModelType.ToString();
-            case StagedType.Folder:
-                return "Folder";
-            default:
-                throw new NotImplementedException();
-        }
-    }
-
-    private static string GetChangeName(PendingChange change)
-    {
-        if (change.DesignNode == null) return string.Empty;
-
-        switch (change.Type)
-        {
-            case StagedType.Model:
-                var modelNode = (ModelNode)change.DesignNode;
-                return $"{modelNode.AppNode.Label.Value}.{modelNode.Label.Value}";
-            case StagedType.Folder:
-                var modelRootNode = (ModelRootNode)change.DesignNode;
-                var appNode = (ApplicationNode)modelRootNode.Parent!;
-                return $"{appNode.Label.Value}.{modelRootNode.Label.Value}";
-            default:
-                throw new NotImplementedException();
         }
     }
 
@@ -111,11 +61,11 @@ internal sealed class PublishDialog : Dialog
         return base.OnClosing(result);
     }
 
-    private static async void PublishAsync()
+    private async void PublishAsync()
     {
         try
         {
-            await Channel.Invoke("sys.DesignService.Publish", new object?[] { "commit message" });
+            await Publish.Execute(_changes, "commit message");
             Notification.Success("发布成功");
         }
         catch (Exception ex)

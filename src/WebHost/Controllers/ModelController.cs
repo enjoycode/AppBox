@@ -1,6 +1,3 @@
-using System.Text;
-using AppBoxCore;
-using AppBoxDesign;
 using AppBoxStore;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,17 +27,16 @@ public class ModelController : ControllerBase
         return new FileContentResult(data, "text/javascript");
     }
 
-    /// <summary>
-    /// 运行时获取实体模型的js文件
-    /// </summary>
-    [HttpGet("Entity/{entityModelId}")]
-    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<IActionResult> Entity(string entityModelId)
-    {
-        throw new NotImplementedException();
-        // var runtimeCtx = RuntimeContext.Current;
-        // var model = await runtimeCtx.GetModelAsync<EntityModel>(entityModelId);
-        // var jsCode = EntityJsGenerator.GenWebCode(model, runtimeCtx, false);
-        // return new FileContentResult(Encoding.UTF8.GetBytes(jsCode), "text/javascript");
-    }
+    // /// <summary>
+    // /// 运行时获取实体模型的js文件
+    // /// </summary>
+    // [HttpGet("Entity/{entityModelId}")]
+    // [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+    // public async Task<IActionResult> Entity(string entityModelId)
+    // {
+    //     var runtimeCtx = RuntimeContext.Current;
+    //     var model = await runtimeCtx.GetModelAsync<EntityModel>(entityModelId);
+    //     var jsCode = EntityJsGenerator.GenWebCode(model, runtimeCtx, false);
+    //     return new FileContentResult(Encoding.UTF8.GetBytes(jsCode), "text/javascript");
+    // }
 }

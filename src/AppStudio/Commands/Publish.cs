@@ -18,10 +18,10 @@ internal static class Publish
             switch (change.Type)
             {
                 case StagedType.Model:
-                    package.Models.Add(((ModelNode)change.DesignNode!).Model);
+                    package.Models.Add((ModelBase)change.Target!);
                     break;
                 case StagedType.Folder:
-                    package.Folders.Add(((ModelRootNode)change.DesignNode!).RootFolder!);
+                    package.Folders.Add((ModelFolder)change.Target!);
                     break;
                 // case StagedItems.StagedSourceCode code:
                 //     package.SourceCodes.Add(code.ModelId, code.CodeData);
@@ -37,9 +37,10 @@ internal static class Publish
         //编译模型
         await CompileModelsAsync(hub, changes, package);
         //调用服务端发布
-        // await PublishService.PublishAsync(hub, package, commitMessage);
+        await hub.PublishService.PublishAsync(package, commitMessage);
         //刷新所有CheckoutByMe的节点项
         hub.DesignTree.CheckinAllNodes();
+        hub.ClearRemovedItems();
     }
 
     private static void ValidateModels(DesignHub hub, PublishPackage package)
@@ -53,14 +54,14 @@ internal static class Publish
         {
             //以下重命名的已不需要加入待删除列表，保存模型时已处理
             if (item.Type == StagedType.SourceCode &&
-                item.DesignNode is ModelNode modelNode &&
+                item.Target is ModelNode modelNode &&
                 modelNode.Model is ServiceModel sm &&
                 sm.PersistentState != PersistentState.Deleted)
             {
                 var asmData = await CompileServiceAsync(hub, sm, false);
                 var appName = hub.DesignTree.FindApplicationNode(sm.Id.AppId)!.Model.Name;
                 var fullName = $"{appName}.{sm.Name}";
-                
+
                 package.ServiceAssemblies.Add(fullName, asmData!);
             }
         }

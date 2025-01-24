@@ -25,8 +25,7 @@ internal static class DeleteNode
     private static async Task<DesignNode?> DeleteModelNode(DesignHub hub, ModelNode node)
     {
         // 查找ModelRootNode
-        var modelRootNode =
-            hub.DesignTree.FindModelRootNode(node.Model.AppId, node.Model.ModelType)!;
+        var modelRootNode = hub.DesignTree.FindModelRootNode(node.Model.AppId, node.Model.ModelType)!;
         var rootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
         // 尝试签出模型节点及根节点
         var nodeCheckout = await node.CheckoutAsync();
@@ -72,6 +71,7 @@ internal static class DeleteNode
             await node.SaveAsync(null);
         }
 
+        hub.AddRemovedItem(model);
         // 移除对应节点
         modelRootNode.RemoveModel(node);
         // 删除Roslyn相关

@@ -63,7 +63,7 @@ public sealed class NewExpression : Expression
     {
         TargetType.WriteTo(writer);
         writer.WriteExpressionArray(Arguments);
-        writer.Serialize(ConvertedType);
+        writer.SerializeExpression(ConvertedType);
         writer.WriteVariant(0); //保留
     }
 

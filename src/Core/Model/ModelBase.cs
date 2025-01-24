@@ -68,6 +68,9 @@ public abstract class ModelBase : IBinSerializable
         _originalName = null;
     }
 
+    /// <summary>
+    /// 标记为删除状态
+    /// </summary>
     internal void Delete()
     {
         if (_persistentState != PersistentState.Detached)

@@ -1,9 +1,9 @@
 using System.Data.Common;
 using AppBoxCore;
-using AppBoxServer.Design;
+using AppBoxDesign;
 using AppBoxStore;
 
-namespace AppBoxDesign;
+namespace AppBoxServer.Design;
 
 internal static class PublishService
 {
@@ -13,7 +13,7 @@ internal static class PublishService
     /// 3. 删除当前会话的CheckoutInfo;
     /// 4. 保存递交日志
     /// </summary>
-    internal static async Task PublishAsync(PublishPackage package, string commitMessage)
+    internal static async Task PublishAsync(PublishPackage package, string? commitMessage)
     {
         //先根据依赖关系排序
         package.SortAllModels();

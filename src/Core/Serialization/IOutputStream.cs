@@ -436,7 +436,7 @@ public static class OutputStreamExtensions
 
         if (value is Expression expression)
         {
-            s.Serialize(expression);
+            s.SerializeExpression(expression);
             return;
         }
 
@@ -541,7 +541,8 @@ public static class OutputStreamExtensions
         ((IBinSerializable)value).WriteTo(s);
     }
 
-    public static void Serialize(this IOutputStream s, Expression? value)
+    // 因表达式隐式转换问题，所以不能重载Serialize方法
+    public static void SerializeExpression(this IOutputStream s, Expression? value)
     {
         if (Expression.IsNull(value))
         {
