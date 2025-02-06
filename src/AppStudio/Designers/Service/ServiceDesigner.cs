@@ -10,24 +10,24 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 {
     public ServiceDesigner(DesignStore designStore, ModelNode modelNode)
     {
-        throw new NotImplementedException("待重写服务设计器");
-        // _designStore = designStore;
-        // ModelNode = modelNode;
-        // _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
-        //     RoslynCompletionProvider.Default, modelNode.Id);
-        // _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
-        // _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
-        // _delayDocChangedTask = new DelayTask(300, RunDelayTask);
-        //
-        // Child = BuildEditor(_codeEditorController);
+        ModelNode = modelNode;
+        _designStore = designStore;
+        _textBuffer = new RoslynSourceText(modelNode);
+        _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
+            new RoslynSyntaxParser(_textBuffer), RoslynCompletionProvider.Default, modelNode.Id);
+        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
+        //订阅代码变更事件
+        _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+        _delayDocChangedTask = new DelayTask(300, RunDelayTask);
+
+        Child = BuildEditor(_codeEditorController);
     }
 
     private readonly DesignStore _designStore;
+    private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }
     private readonly CodeEditorController _codeEditorController;
-    private readonly ModelCodeSyncService _codeSyncService;
     private readonly DelayTask _delayDocChangedTask;
-    private bool _hasLoadSourceCode;
 
     private Reference? _pendingGoto;
 
@@ -43,39 +43,30 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
         };
     }
 
-    private Widget BuildActionBar()
+    private Widget BuildActionBar() => new Container()
     {
-        return new Container()
+        FillColor = new Color(0xFF3C3C3C), Height = 40,
+        Padding = EdgeInsets.Only(15, 8, 15, 8),
+        Child = new Row(VerticalAlignment.Middle, 10)
         {
-            FillColor = new Color(0xFF3C3C3C), Height = 40,
-            Padding = EdgeInsets.Only(15, 8, 15, 8),
-            Child = new Row(VerticalAlignment.Middle, 10)
-            {
-                Children = new Widget[]
-                {
-                    new Button("Run") { Width = 75, OnTap = OnRunMethod },
-                    new Button("Debug") { Width = 75 }
-                }
-            }
-        };
-    }
+            Children =
+            [
+                new Button("Run") { Width = 75, OnTap = OnRunMethod },
+                new Button("Debug") { Width = 75 }
+            ]
+        }
+    };
 
     protected override void OnMounted()
     {
         base.OnMounted();
-        TryLoadSourceCode();
+        OpenDocument();
     }
 
-    private async void TryLoadSourceCode()
+    private async void OpenDocument()
     {
-        if (_hasLoadSourceCode) return;
-        _hasLoadSourceCode = true;
-
-        var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
-            new object[] { ModelNode.Id });
-        _codeEditorController.Document.TextContent = srcCode!;
-        //订阅代码变更事件
-        _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+        await _textBuffer.Open();
+        _codeEditorController.Document.Open();
 
         if (_pendingGoto != null)
         {
@@ -86,11 +77,9 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
     private void OnDocumentChanged(DocumentEventArgs e)
     {
-        //同步变更至服务端
-        _codeSyncService.OnDocumentChanged(e);
         //TODO: check syntax error first.
         //启动延时任务
-        _delayDocChangedTask.Run();
+        //_delayDocChangedTask.Run();
     }
 
     private async void RunDelayTask()
@@ -112,11 +101,9 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
     public override void Dispose()
     {
+        _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
+
         base.Dispose();
-        if (_hasLoadSourceCode)
-        {
-            _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
-        }
     }
 
     public Widget? GetOutlinePad() => null;
@@ -152,11 +139,10 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
     public async Task RefreshAsync()
     {
-        var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
-            new object[] { ModelNode.Id });
-        _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
-        _codeEditorController.Document.TextContent = srcCode!;
-        _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+        throw new NotImplementedException();
+        // var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
+        //     new object[] { ModelNode.Id });
+        // _codeEditorController.Document.TextContent = srcCode!;
     }
 
     /// <summary>

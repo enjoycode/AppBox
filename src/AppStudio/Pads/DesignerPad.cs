@@ -84,7 +84,7 @@ internal sealed class DesignerPad : View
         _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
     }
 
-    private async void OnDesignerClosed(DesignNode node)
+    private void OnDesignerClosed(DesignNode node)
     {
         _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
 
@@ -93,8 +93,12 @@ internal sealed class DesignerPad : View
         {
             var modelNode = (ModelNode)node;
             if (modelNode.ModelType == ModelType.Service || modelNode.ModelType == ModelType.View)
-                await Channel.Invoke("sys.DesignService.CloseDesigner",
-                    new object?[] { (int)node.Type, node.Id });
+            {
+                var docId = modelNode.RoslynDocumentId!;
+                var workspace = DesignHub.Current.TypeSystem.Workspace;
+                if (workspace.IsDocumentOpen(docId))
+                    workspace.CloseDocument(docId);
+            }
         }
     }
 

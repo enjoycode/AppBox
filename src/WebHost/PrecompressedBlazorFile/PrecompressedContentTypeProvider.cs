@@ -5,7 +5,7 @@ namespace AppBoxWebHost;
 
 internal sealed class PrecompressedContentTypeProvider : IContentTypeProvider
 {
-    private static readonly FileExtensionContentTypeProvider _defaultProvider = new();
+    private static readonly FileExtensionContentTypeProvider DefaultProvider = new();
 
     public bool TryGetContentType(string subpath, [MaybeNullWhen(false)] out string contentType)
     {
@@ -33,6 +33,6 @@ internal sealed class PrecompressedContentTypeProvider : IContentTypeProvider
             return true;
         }
 
-        return _defaultProvider.TryGetContentType(subpath, out contentType);
+        return DefaultProvider.TryGetContentType(subpath, out contentType);
     }
 }

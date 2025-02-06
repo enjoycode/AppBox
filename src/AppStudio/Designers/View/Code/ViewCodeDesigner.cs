@@ -31,7 +31,6 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     public ModelNode ModelNode { get; }
     private readonly DesignStore _designStore;
     private readonly CodeEditorController _codeEditorController;
-    private readonly ModelCodeSyncService _codeSyncService;
     private readonly PreviewController _previewController;
     private readonly DelayTask _delayDocChangedTask;
     private bool _hasLoadSourceCode;
@@ -77,26 +76,25 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 
     private async void TryLoadSourceCode()
     {
-        if (_hasLoadSourceCode) return;
-        _hasLoadSourceCode = true;
-
-        var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
-            new object[] { ModelNode.Id });
-        _codeEditorController.Document.TextContent = srcCode!;
-        //订阅代码变更事件
-        _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
-
-        if (_pendingGoto != null)
-        {
-            GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
-            _pendingGoto = null;
-        }
+        throw new NotImplementedException();
+        // if (_hasLoadSourceCode) return;
+        // _hasLoadSourceCode = true;
+        //
+        // var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
+        //     new object[] { ModelNode.Id });
+        // _codeEditorController.Document.TextContent = srcCode!;
+        // //订阅代码变更事件
+        // _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+        //
+        // if (_pendingGoto != null)
+        // {
+        //     GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
+        //     _pendingGoto = null;
+        // }
     }
 
     private void OnDocumentChanged(DocumentEventArgs e)
     {
-        //同步变更至服务端
-        _codeSyncService.OnDocumentChanged(e);
         //启动延时任务
         _delayDocChangedTask.Run();
     }
@@ -156,10 +154,11 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 
     public async Task RefreshAsync()
     {
-        var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
-            new object[] { ModelNode.Id });
-        _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
-        _codeEditorController.Document.TextContent = srcCode!;
-        _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+        throw new NotImplementedException();
+        // var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
+        //     new object[] { ModelNode.Id });
+        // _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
+        // _codeEditorController.Document.TextContent = srcCode!;
+        // _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
     }
 }

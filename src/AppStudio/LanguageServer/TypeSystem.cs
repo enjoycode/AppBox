@@ -213,8 +213,8 @@ internal sealed class TypeSystem : IDisposable
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, dummyCode);
 
                 //客户端代码生成
-                var clietCode = PermissionCodeGenerator.GenClientCode((PermissionModel)model, appName);
-                newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, clietCode);
+                var clientCode = PermissionCodeGenerator.GenClientCode((PermissionModel)model, appName);
+                newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, clientCode);
                 break;
             }
         }
