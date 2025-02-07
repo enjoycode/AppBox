@@ -79,7 +79,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
     {
         //TODO: check syntax error first.
         //启动延时任务
-        //_delayDocChangedTask.Run();
+        _delayDocChangedTask.Run();
     }
 
     private async void RunDelayTask()
@@ -89,8 +89,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
         try
         {
-            var problems = await Channel.Invoke<IList<CodeProblem>>(
-                "sys.DesignService.GetProblems", new object?[] { false, ModelNode.Id });
+            var problems = await GetProblems.Execute(ModelNode);
             _designStore.UpdateProblems(ModelNode, problems!);
         }
         catch (Exception ex)

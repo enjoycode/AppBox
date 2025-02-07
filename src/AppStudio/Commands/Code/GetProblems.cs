@@ -1,27 +1,17 @@
-using AppBoxCore;
 using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
 
-/// <summary>
-/// 检查代码的语义问题
-/// </summary>
-internal sealed class GetProblems : IDesignHandler
+internal static class GetProblems
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static async Task<IList<CodeProblem>> Execute(ModelNode modelNode)
     {
-        var isExpression = args.GetBool()!.Value;
-        if (isExpression)
-            throw new NotImplementedException();
-
-        ModelId modelId = args.GetString()!;
-        var modelNode = hub.DesignTree.FindModelNode(modelId);
-        if (modelNode == null)
-            throw new Exception("Can't find model");
+        var hub = DesignHub.Current;
         var document = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
         var semanticModel = await document.GetSemanticModelAsync();
-        var diagnostics = semanticModel!.GetDiagnostics();
-        return AnyValue.From(diagnostics.Select(MakeProblem).ToList());
+        return semanticModel!.GetDiagnostics()
+            .Select(MakeProblem)
+            .ToList();
     }
 
     private static CodeProblem MakeProblem(Diagnostic diagnostic)
