@@ -4,14 +4,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace AppBoxDesign;
 
-internal sealed class GotoDefinition : IDesignHandler
+internal static class GotoDefinition
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static async Task<Definition?> Execute(ModelId modelId, int position)
     {
-        ModelId modelId = args.GetString()!;
-        var line = args.GetInt()!.Value;
-        var column = args.GetInt()!.Value;
-
+        var hub = DesignHub.Current;
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
@@ -20,47 +17,38 @@ internal sealed class GotoDefinition : IDesignHandler
         if (doc == null)
             throw new Exception($"Can't find document: {modelNode.Model.Name}");
 
-        var symbol = await GetDefinitionSymbol(doc, line, column);
+        var symbol = await GetDefinitionSymbol(doc, position);
         if (symbol?.Locations.IsDefaultOrEmpty != false)
-            return AnyValue.Empty;
+            return null;
 
         //只处理有源码的
-        if (!symbol.Locations[0].IsInSource) return AnyValue.Empty;
+        if (!symbol.Locations[0].IsInSource) return null;
         var loc = symbol.Locations[0];
         //先判断是否在同一文件内
         if (loc.SourceTree!.FilePath == doc.Name)
-        {
-            var res = new ReferenceVO
-            {
-                ModelId = modelNode.Id, Offset = loc.SourceSpan.Start, Length = loc.SourceSpan.Length
-            };
-            return AnyValue.From(res);
-        }
+            return new Definition(modelNode, loc.SourceSpan.Start, loc.SourceSpan.Length);
 
         //再判断是否模型源代码
         var targetModelId = DocNameUtil.TryGetModelIdFromDocName(loc.SourceTree.FilePath);
-        if (targetModelId == null) return AnyValue.Empty;
+        if (targetModelId == null) return null;
         var targetModelNode = hub.DesignTree.FindModelNode(targetModelId.Value);
-        if (targetModelNode == null) return AnyValue.Empty;
+        if (targetModelNode == null) return null;
 
         //是否模型类型
         if (symbol is ITypeSymbol)
-        {
-            return AnyValue.From(new ReferenceVO { ModelId = targetModelNode.Id });
-        }
+            return new Definition(targetModelNode, null);
 
         // 模型成员(eg: 实体属性 or 服务代理的方法 or 视图属性方法等)
         if (targetModelNode.Model.ModelType == ModelType.Entity)
         {
             //判断是否实体构造
             if (symbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.Constructor)
-                return AnyValue.From(new ReferenceVO { ModelId = targetModelNode.Id });
+                return new Definition(targetModelNode, null);
 
             //判断是否实体成员
             var entityModel = (EntityModel)targetModelNode.Model;
             var member = entityModel.GetMember(symbol.Name, false);
-            var res = new ReferenceVO { ModelId = targetModelNode.Id, Location = member?.Name };
-            return AnyValue.From(res);
+            return new Definition(targetModelNode, member?.Name);
         }
 
         if (targetModelNode.Model.ModelType == ModelType.Service)
@@ -68,25 +56,14 @@ internal sealed class GotoDefinition : IDesignHandler
             //到这里肯定是服务代理类的方法，需要转换定位至服务代码的相应位置
             var methodSymbol = await hub.TypeSystem.GetServiceMethodSymbolAsync(targetModelNode, symbol.Name);
             var newLoc = methodSymbol?.Locations[0];
-            var res = new ReferenceVO
-            {
-                ModelId = targetModelNode.Id,
-                Offset = newLoc?.SourceSpan.Start ?? -1,
-                Length = newLoc?.SourceSpan.Length ?? -1
-            };
-            return AnyValue.From(res);
+            return new Definition(targetModelNode, newLoc?.SourceSpan.Start ?? -1, newLoc?.SourceSpan.Length ?? -1);
         }
 
-        return AnyValue.From(new ReferenceVO
-        {
-            ModelId = targetModelNode.Id, Offset = loc.SourceSpan.Start, Length = loc.SourceSpan.Length
-        });
+        return new Definition(targetModelNode, loc.SourceSpan.Start, loc.SourceSpan.Length);
     }
 
-    private static async Task<ISymbol?> GetDefinitionSymbol(Document document, int line, int column)
+    private static async Task<ISymbol?> GetDefinitionSymbol(Document document, int position)
     {
-        var sourceText = await document.GetTextAsync();
-        var position = sourceText.GetPositionFromLineAndOffset(line, column);
         var symbol = await SymbolFinder.FindSymbolAtPositionAsync(document, position);
 
         return symbol switch
@@ -99,4 +76,28 @@ internal sealed class GotoDefinition : IDesignHandler
             _ => symbol
         };
     }
+}
+
+internal readonly struct Definition : ILocation
+{
+    public Definition(ModelNode target, string? location)
+    {
+        Target = target;
+        Location = location;
+        Offset = -1;
+        Length = -1;
+    }
+
+    public Definition(ModelNode target, int offset, int length)
+    {
+        Target = target;
+        Location = null;
+        Offset = offset;
+        Length = length;
+    }
+
+    public ModelNode Target { get; init; }
+    public string? Location { get; init; }
+    public int Offset { get; init; }
+    public int Length { get; init; }
 }

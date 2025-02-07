@@ -12,7 +12,7 @@ internal interface IDesigner
     /// <summary>
     /// 跳转至指定位置
     /// </summary>
-    void GotoDefinition(Reference reference);
+    void GotoLocation(ILocation location);
 }
 
 [TSInterfaceOf]
@@ -30,7 +30,7 @@ internal interface IModelDesigner : IDesigner
     /// </summary>
     Widget? GetToolboxPad();
 }
-    
+
 internal interface ICodeDesigner : IModelDesigner
 {
     void GotoProblem(CodeProblem problem);

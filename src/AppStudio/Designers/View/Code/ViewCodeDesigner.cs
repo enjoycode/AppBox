@@ -36,7 +36,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     private bool _hasLoadSourceCode;
     private readonly State<bool> _hidePreviewer = true;
 
-    private Reference? _pendingGoto;
+    private ILocation? _pendingGoto;
 
     private Widget BuildEditor(CodeEditorController codeEditorController) => new Column
     {
@@ -125,15 +125,15 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 
     public Widget? GetToolboxPad() => null;
 
-    public void GotoDefinition(Reference reference)
+    public void GotoLocation(ILocation location)
     {
-        if (reference.Offset < 0) return; //无需跳转
+        if (location.Offset < 0) return; //无需跳转
 
         var doc = _codeEditorController.Document;
         if (doc.TextLength == 0)
-            _pendingGoto = reference;
+            _pendingGoto = location;
         else
-            GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, reference);
+            GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, location);
     }
 
     public void GotoProblem(CodeProblem problem)

@@ -171,20 +171,20 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     public Widget? GetToolboxPad() => null;
 
-    public void GotoDefinition(Reference reference)
+    public void GotoLocation(ILocation location)
     {
-        if (string.IsNullOrEmpty(reference.Location)) return; //不需要跳转
+        if (string.IsNullOrEmpty(location.Location)) return; //不需要跳转
 
         // if (_entityModel == null)
         //     _pendingGoto = reference;
         // else
-        GotoDefinitionInternal(reference);
+        GotoDefinitionInternal(location);
     }
 
-    private void GotoDefinitionInternal(Reference reference)
+    private void GotoDefinitionInternal(ILocation location)
     {
         //选中指定的成员
-        var member = _entityModel.Members.FirstOrDefault(m => m.Name == reference.Location);
+        var member = _entityModel.Members.FirstOrDefault(m => m.Name == location.Location);
         _selectedMember.Value = member;
     }
 

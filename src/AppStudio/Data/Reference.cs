@@ -8,7 +8,7 @@ namespace AppBoxDesign;
 /// 1. 模型对模型的引用
 /// 2. 模型内虚拟代码对模型的引用
 /// </summary>
-internal abstract class Reference : IComparable<Reference>
+internal abstract class Reference : ILocation, IComparable<Reference>
 {
     public Reference(ModelNode modelNode)
     {

@@ -133,7 +133,7 @@ internal sealed class DesignStore
     /// <summary>
     /// 打开或激活指定节点的设计器, 并且如果需要则跳转至指定位置
     /// </summary>
-    internal void OpenOrActiveDesigner(DesignNode node, Reference? gotoReference)
+    internal void OpenOrActiveDesigner(DesignNode node, ILocation? gotoLocation)
     {
         //先检查是否已经打开
         var existsIndex = DesignerController.IndexOf(node);
@@ -142,8 +142,8 @@ internal sealed class DesignStore
         else
             DesignerController.SelectAt(existsIndex);
 
-        if (gotoReference != null)
-            node.Designer!.GotoDefinition(gotoReference);
+        if (gotoLocation != null)
+            node.Designer!.GotoLocation(gotoLocation);
     }
 
     /// <summary>

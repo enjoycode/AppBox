@@ -1,5 +1,6 @@
 using System;
 using AppBoxClient;
+using AppBoxCore;
 using CodeEditor;
 
 namespace AppBoxDesign;
@@ -8,25 +9,21 @@ internal static class GotoDefinitionCommand
 {
     public static async void Execute(DesignStore designStore, TextEditor editor)
     {
-        var modelIdString = editor.Document.Tag!;
+        ModelId modelId = editor.Document.Tag!;
         var line = editor.Caret.Line;
         var column = editor.Caret.Column;
+        var position = editor.Document.PositionToOffset(new TextLocation(column, line));
 
-        var res = await Channel.Invoke<Reference?>("sys.DesignService.GotoDefinition",
-            new object?[] { modelIdString, line, column });
+        var res = await GotoDefinition.Execute(modelId, position);
         if (res == null) return;
-
-        //找到对应的节点, TODO: 考虑优化当前节点即目标节点
-        var node = designStore.FindDesignNodeById(res.ModelId);
-        if (node != null)
-            designStore.OpenOrActiveDesigner(node, res); //打开或激活节点
+        designStore.OpenOrActiveDesigner(res.Value.Target, res); //打开或激活节点
     }
 
-    internal static void RunOnCodeEditor(CodeEditorController controller, Reference reference)
+    internal static void RunOnCodeEditor(CodeEditorController controller, ILocation location)
     {
         var doc = controller.Document;
-        var pos = doc.OffsetToPosition(reference.Offset);
-        var end = doc.OffsetToPosition(reference.Offset + reference.Length);
+        var pos = doc.OffsetToPosition(location.Offset);
+        var end = doc.OffsetToPosition(location.Offset + location.Length);
         controller.SetCaret(pos.Line, pos.Column);
         controller.SetSelection(pos, end);
     }

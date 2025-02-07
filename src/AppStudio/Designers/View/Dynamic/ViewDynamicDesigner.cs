@@ -129,7 +129,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         throw new NotImplementedException();
     }
 
-    public void GotoDefinition(Reference reference)
+    public void GotoLocation(ILocation location)
     {
         throw new NotImplementedException();
     }
