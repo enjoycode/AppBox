@@ -128,6 +128,18 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
         await BuildLineTokens(doc, beginLine, endLine);
         _oldTree = newTree;
+
+        //暂在这里直接处理Folding
+        var foldings = await FoldingService.GetFoldings(doc);
+        Document.FoldingManager.UpdateFoldings(foldings.Select(s =>
+            {
+                var start = Document.OffsetToPosition(s.TextSpan.Start);
+                var end = Document.OffsetToPosition(s.TextSpan.End);
+                return new FoldMarker(Document, start.Line, start.Column, end.Line, end.Column,
+                    FoldType.Unspecified /*TODO: fix*/, "{...}");
+            })
+            .ToList());
+
 #if DEBUG
         var ms = Stopwatch.GetElapsedTime(ts).TotalMilliseconds;
         Log.Debug($"ParseAndTokenize: {ms}ms");
@@ -138,25 +150,36 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
     private (int, int) GetChangedRange(SyntaxTree oldTree, SyntaxTree newTree)
     {
-        var min = Document.TotalNumberOfLines;
-        var max = 0;
+        var start = Document.TextLength;
+        var end = 0;
         var changes = _syntaxDiffer.GetChanges(oldTree, newTree);
         foreach (var change in changes)
         {
             if (change.NewNodes == null)
-                continue;
-            foreach (var node in change.NewNodes)
             {
-                min = Math.Min(min, Document.GetLineNumberForOffset(node.FullSpan.Start));
-                max = Math.Max(max, Document.GetLineNumberForOffset(node.FullSpan.End));
+                start = Math.Min(start, change.Range.Span.Start);
+                end = Math.Max(end, change.Range.NewLength);
+            }
+            else
+            {
+                foreach (var node in change.NewNodes)
+                {
+                    start = Math.Min(start, node.FullSpan.Start);
+                    end = Math.Max(end, node.FullSpan.End);
+                }
             }
         }
 
+        var startLine = Document.GetLineNumberForOffset(start);
+        var endLine = Document.GetLineNumberForOffset(end);
+        if (startLine == endLine)
+            endLine += 1;
+
 #if DEBUG
-        Log.Debug($"合并的变更范围: {min} - {max}");
+        Log.Debug($"合并的变更范围: [{startLine + 1} - {endLine + 1})");
 #endif
 
-        return (min, max);
+        return (startLine, endLine);
     }
 
     private async ValueTask BuildLineTokens(Microsoft.CodeAnalysis.Document roslynDocument, int beginLine, int endLine)

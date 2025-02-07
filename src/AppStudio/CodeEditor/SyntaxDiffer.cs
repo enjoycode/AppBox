@@ -24,27 +24,11 @@ internal sealed class SyntaxDiffer
 
     static SyntaxDiffer()
     {
-        TriviaUnderlyingNodeGetter = CreateFunc<SyntaxTrivia, object>("UnderlyingNode", true);
-        NodeOrTokenUnderlyingNodeGetter = CreateFunc<SyntaxNodeOrToken, object>("UnderlyingNode", true);
-        PositionGetter = CreateFunc<SyntaxNodeOrToken, int>("Position", false);
-        EndPositionGetter = CreateFunc<SyntaxNodeOrToken, int>("EndPosition", false);
-    }
-
-    private static Func<TType, TResult> CreateFunc<TType, TResult>(string propertyName, bool needCast)
-    {
-        var type = typeof(TType);
-        var propertyInfo = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var entity = Expression.Parameter(type);
-        var getterCall = Expression.Call(entity, propertyInfo.GetMethod!);
-        if (needCast)
-        {
-            var castToObject = Expression.Convert(getterCall, typeof(object));
-            return (Func<TType, TResult>)Expression.Lambda(castToObject, entity).Compile();
-        }
-        else
-        {
-            return Expression.Lambda<Func<TType, TResult>>(getterCall, entity).Compile();
-        }
+        TriviaUnderlyingNodeGetter = ExpressionBuilder.MakePropertyGetter<SyntaxTrivia, object>("UnderlyingNode", true);
+        NodeOrTokenUnderlyingNodeGetter =
+            ExpressionBuilder.MakePropertyGetter<SyntaxNodeOrToken, object>("UnderlyingNode", true);
+        PositionGetter = ExpressionBuilder.MakePropertyGetter<SyntaxNodeOrToken, int>("Position");
+        EndPositionGetter = ExpressionBuilder.MakePropertyGetter<SyntaxNodeOrToken, int>("EndPosition");
     }
 
     internal IList<ChangeRecord> GetChanges(SyntaxTree before, SyntaxTree after)
@@ -56,10 +40,10 @@ internal sealed class SyntaxDiffer
         _newNodes.Push((SyntaxNodeOrToken)newNode);
 
         _oldSpan = oldNode.FullSpan;
-        
+
         ComputeChangeRecords();
         var result = _changes;
-        
+
         //Reset before return
         _oldNodes.Clear();
         _newNodes.Clear();
@@ -67,7 +51,7 @@ internal sealed class SyntaxDiffer
         _oldSpan = default;
         _nodeSimilaritySet.Clear();
         _tokenTextSimilaritySet.Clear();
-        
+
         return result;
     }
 

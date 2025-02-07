@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Completion;
 
 namespace AppBoxDesign;
 
