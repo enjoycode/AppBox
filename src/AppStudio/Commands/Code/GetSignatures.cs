@@ -4,13 +4,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBoxDesign;
 
-internal sealed class GetSignatures : IDesignHandler
+internal static class GetSignatures
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    public static async Task<SignatureResult?> Execute(ModelId modelId, int offset)
     {
-        ModelId modelId = args.GetString()!;
-        var offset = args.GetInt()!.Value;
-
+        var hub = DesignHub.Current;
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
@@ -21,7 +19,7 @@ internal sealed class GetSignatures : IDesignHandler
 
         var invocation = await GetInvocation(doc, offset);
         if (invocation == null)
-            return AnyValue.Empty;
+            return null;
 
         var result = new SignatureResult();
         // define active parameter by position
@@ -80,12 +78,12 @@ internal sealed class GetSignatures : IDesignHandler
         result.Signatures = signaturesList;
         result.ActiveSignature = signaturesList.IndexOf(bestScoredItem);
 
-        return AnyValue.From(result);
+        return result;
     }
 
     private static async Task<InvocationContext?> GetInvocation(Document document, int position)
     {
-        var sourceText = await document.GetTextAsync();
+        // var sourceText = await document.GetTextAsync();
         var tree = await document.GetSyntaxTreeAsync();
         var root = await tree!.GetRootAsync();
         var node = root.FindToken(position).Parent;

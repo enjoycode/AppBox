@@ -97,8 +97,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         //TODO:直接获取utf8 bytes
         try
         {
-            var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
-                new object[] { ModelNode.Id });
+            var srcCode = await DesignHub.Current.TypeSystem.LoadSourceCode(null, ModelNode);
             if (srcCode != null)
             {
                 var jsonData = Encoding.UTF8.GetBytes(srcCode);

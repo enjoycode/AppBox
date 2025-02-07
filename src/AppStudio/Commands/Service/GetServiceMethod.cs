@@ -1,4 +1,3 @@
-using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
@@ -6,23 +5,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace AppBoxDesign;
 
 /// <summary>
-/// 用于前端调试服务方法或测试调用服务方法时定位服务方法及获取参数
+/// 定位服务方法及获取参数
 /// </summary>
-internal sealed class GetServiceMethod : IDesignHandler
+internal static class GetServiceMethod
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
-    {
-        var getByPosition = args.GetBool()!.Value;
-        ServiceMethodInfo res;
-        if (getByPosition)
-            res = await GetByPosition(hub, args.GetString()!, args.GetInt()!.Value);
-        else
-            res = await GetByName(hub, args.GetString()!);
-
-        return AnyValue.From(new JsonResult(res));
-    }
-
-    private static async Task<ServiceMethodInfo> GetByPosition(DesignHub hub, string modelId, int position)
+    internal static async Task<ServiceMethodInfo> GetByPosition(DesignHub hub, string modelId, int position)
     {
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
@@ -35,7 +22,7 @@ internal sealed class GetServiceMethod : IDesignHandler
         return GetBySymbol(symbol, modelNode);
     }
 
-    private static async Task<ServiceMethodInfo> GetByName(DesignHub hub, string methodPath)
+    internal static async Task<ServiceMethodInfo> GetByName(DesignHub hub, string methodPath)
     {
         //methodName eg: sys.OrderService.GetOrders
         var sr = methodPath.Split('.');

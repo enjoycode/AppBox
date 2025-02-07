@@ -1,4 +1,3 @@
-using System.Text;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -8,11 +7,11 @@ namespace AppBoxDesign;
 /// <summary>
 /// 获取桌面端IDE预览用的视图模型的运行时组件
 /// </summary>
-internal sealed class GetDesktopPreview : IDesignHandler
+internal static class BuildViewPreview
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static async Task<object> Execute(ModelId modelId)
     {
-        ModelId modelId = args.GetString()!;
+        var hub = DesignHub.Current;
         var modelNode = hub.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find view model: {modelId}");

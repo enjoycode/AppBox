@@ -229,7 +229,7 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 获取模型节点代码，如果是新建的节点使用初始化代码，如果是已签出的先尝试从Staged中获取，最后从MetaStore获取
     /// </summary>
-    private async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
+    internal async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
     {
         var sourceCode = initSrcCode;
         if (string.IsNullOrEmpty(sourceCode))
