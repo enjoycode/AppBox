@@ -9,13 +9,9 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class BuildViewPreview
 {
-    internal static async Task<object> Execute(ModelId modelId)
+    internal static async Task<byte[]> Execute(ModelNode modelNode)
     {
         var hub = DesignHub.Current;
-        var modelNode = hub.DesignTree.FindModelNode(modelId);
-        if (modelNode == null)
-            throw new Exception($"Can't find view model: {modelId}");
-
         var codegen = await ViewCsGenerator.Make(hub, modelNode, true);
         var newTree = await codegen.GetRuntimeSyntaxTree();
         //生成视图模型依赖的其他模型的运行时代码
@@ -44,7 +40,7 @@ internal static class BuildViewPreview
         CodeGeneratorUtil.CheckEmitResult(emitResult);
 
         var asmData = dllStream.ToArray(); //TODO:考虑写临时文件并返回流
-        return AnyValue.From(asmData);
+        return asmData;
     }
 
     private static async Task<IEnumerable<SyntaxTree>> BuildAllUsages(ViewCsGenerator generator)

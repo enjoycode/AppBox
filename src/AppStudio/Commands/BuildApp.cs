@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Text.Json;
 using AppBoxCore;
-using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -11,14 +9,14 @@ namespace AppBoxDesign;
 /// <summary>
 /// 生成客户端应用的程序集
 /// </summary>
-internal sealed class BuildApp : IDesignHandler
+internal static class BuildApp
 {
-    public async ValueTask<AnyValue> Handle(DesignHub hub, InvokeArgs args)
+    internal static async Task Execute()
     {
         //TODO:*****目前简单实现，待实现从HomePage的路由表开始分析引用关系，仅生成用到的模型的程序集
         //TODO:检查签出情况，如有其他签出返回警告
 
-        _ = args.GetBool()!.Value; //是否强制生成,目前保留
+        var hub = DesignHub.Current;
         var ctx = new BuildContext(hub);
         var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
 
@@ -54,35 +52,34 @@ internal sealed class BuildApp : IDesignHandler
             assemblyInfo.TryCompile();
         }
 
-        //压缩保存
-        await using var txn = await SqlStore.Default.BeginTransactionAsync();
-        //先清除旧的
-        await MetaStore.Provider.DeleteAllAppAssembliesAsync(txn);
-        //保存程序集
-        foreach (var assemblyInfo in allAssemblies)
-        {
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, assemblyInfo.AssemblyName,
-                assemblyInfo.CompressAssemblyData(), txn);
-        }
-
-        //保存视图模型对应的所有程序集的映射
-        foreach (var kv in viewAssemblyMap)
-        {
-            var viewModelName = $"{kv.Key.AppNode.Model.Name}.{kv.Key.Model.Name}";
-            //暂用json编码
-            var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
-            var asmFlag = ctx.GetModelInfo(kv.Key).IsDynamicWidget
-                ? AssemblyFlag.ViewDynamic
-                : AssemblyFlag.None;
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, viewModelName, jsonData, txn,
-                asmFlag);
-        }
-
-        await txn.CommitAsync();
-
-        return AnyValue.From(true);
+        // TODO: 以下递交至服务端执行
+        // //压缩保存
+        // await using var txn = await SqlStore.Default.BeginTransactionAsync();
+        // //先清除旧的
+        // await MetaStore.Provider.DeleteAllAppAssembliesAsync(txn);
+        // //保存程序集
+        // foreach (var assemblyInfo in allAssemblies)
+        // {
+        //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, assemblyInfo.AssemblyName,
+        //         assemblyInfo.CompressAssemblyData(), txn);
+        // }
+        //
+        // //保存视图模型对应的所有程序集的映射
+        // foreach (var kv in viewAssemblyMap)
+        // {
+        //     var viewModelName = $"{kv.Key.AppNode.Model.Name}.{kv.Key.Model.Name}";
+        //     //暂用json编码
+        //     var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
+        //     var asmFlag = ctx.GetModelInfo(kv.Key).IsDynamicWidget
+        //         ? AssemblyFlag.ViewDynamic
+        //         : AssemblyFlag.None;
+        //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, viewModelName, jsonData, txn,
+        //         asmFlag);
+        // }
+        //
+        // await txn.CommitAsync();
     }
-
+    
     private static async ValueTask AnalyseView(BuildContext ctx, ModelNode viewModelNode)
     {
         if (ctx.HasAssemblyInfo(viewModelNode.Model.Id, out _)) return;

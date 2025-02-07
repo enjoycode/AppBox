@@ -47,8 +47,7 @@ internal sealed class DesktopPreviewer : View
 #if DEBUG
             var ts = Stopwatch.GetTimestamp();
 #endif
-            var asmData = await Channel.Invoke<byte[]>("sys.DesignService.GetDesktopPreview",
-                new object?[] { _controller.ModelNode.Id });
+            var asmData = await BuildViewPreview.Execute(_controller.ModelNode);
             _assemblyLoader = new ViewAssemblyLoader();
             var asm = _assemblyLoader.LoadViewAssembly(asmData!);
             var modelNode = _controller.ModelNode;

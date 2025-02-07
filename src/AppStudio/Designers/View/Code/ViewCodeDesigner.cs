@@ -8,32 +8,33 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 {
     public ViewCodeDesigner(DesignStore designStore, ModelNode modelNode)
     {
-        throw new NotImplementedException("待重写视图设计器");
-        // _designStore = designStore;
-        // ModelNode = modelNode;
-        // _previewController = new PreviewController(modelNode);
-        // _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", "",
-        //     RoslynCompletionProvider.Default, modelNode.Id);
-        // _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
-        // _codeSyncService = new ModelCodeSyncService(0, modelNode.Id);
-        // _delayDocChangedTask = new DelayTask(300, RunDelayTask);
-        //
-        // Child = new Splitter
-        // {
-        //     Fixed = Splitter.FixedPanel.Panel2,
-        //     Distance = 380,
-        //     Panel2Collapsed = _hidePreviewer,
-        //     Panel1 = BuildEditor(_codeEditorController),
-        //     Panel2 = new WidgetPreviewer(_previewController),
-        // };
+        _designStore = designStore;
+        ModelNode = modelNode;
+        _textBuffer = new RoslynSourceText(modelNode);
+        _previewController = new PreviewController(modelNode);
+        _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
+            new RoslynSyntaxParser(_textBuffer), RoslynCompletionProvider.Default, modelNode.Id);
+        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
+        //订阅代码变更事件
+        _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
+        _delayDocChangedTask = new DelayTask(300, RunDelayTask);
+
+        Child = new Splitter
+        {
+            Fixed = Splitter.FixedPanel.Panel2,
+            Distance = 380,
+            Panel2Collapsed = _hidePreviewer,
+            Panel1 = BuildEditor(_codeEditorController),
+            Panel2 = new WidgetPreviewer(_previewController),
+        };
     }
 
+    private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }
     private readonly DesignStore _designStore;
     private readonly CodeEditorController _codeEditorController;
     private readonly PreviewController _previewController;
     private readonly DelayTask _delayDocChangedTask;
-    private bool _hasLoadSourceCode;
     private readonly State<bool> _hidePreviewer = true;
 
     private ILocation? _pendingGoto;
@@ -71,26 +72,19 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     protected override void OnMounted()
     {
         base.OnMounted();
-        TryLoadSourceCode();
+        OpenDocument();
     }
 
-    private async void TryLoadSourceCode()
+    private async void OpenDocument()
     {
-        throw new NotImplementedException();
-        // if (_hasLoadSourceCode) return;
-        // _hasLoadSourceCode = true;
-        //
-        // var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
-        //     new object[] { ModelNode.Id });
-        // _codeEditorController.Document.TextContent = srcCode!;
-        // //订阅代码变更事件
-        // _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
-        //
-        // if (_pendingGoto != null)
-        // {
-        //     GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
-        //     _pendingGoto = null;
-        // }
+        await _textBuffer.Open();
+        _codeEditorController.Document.Open();
+
+        if (_pendingGoto != null)
+        {
+            GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, _pendingGoto);
+            _pendingGoto = null;
+        }
     }
 
     private void OnDocumentChanged(DocumentEventArgs e)
@@ -104,21 +98,18 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
         //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
         //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
 
-        var problems = await Channel.Invoke<IList<CodeProblem>>("sys.DesignService.GetProblems",
-            new object?[] { false, ModelNode.Id });
+        var problems = await GetProblems.Execute(ModelNode);
         _designStore.UpdateProblems(ModelNode, problems!);
 
-        if (!problems!.Any(p => p.IsError) && !_hidePreviewer.Value)
+        if (!problems.Any(p => p.IsError) && !_hidePreviewer.Value)
             _previewController.Invalidate();
     }
 
     public override void Dispose()
     {
+        _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
+        
         base.Dispose();
-        if (_hasLoadSourceCode)
-        {
-            _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
-        }
     }
 
     public Widget GetOutlinePad() => new ViewOutlinePad(_previewController);
