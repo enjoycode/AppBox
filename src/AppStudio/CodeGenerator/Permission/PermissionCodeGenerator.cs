@@ -18,7 +18,7 @@ internal static class PermissionCodeGenerator
         sb.Append("(\"");
         sb.Append(PermissionAccessInterceptor.Name);
         sb.Append("\")]");
-        sb.Append($"public static bool {model.Name};");
+        sb.Append($"public const bool {model.Name} = false;");
         sb.Append("}}");
 
         return StringBuilderCache.GetStringAndRelease(sb);

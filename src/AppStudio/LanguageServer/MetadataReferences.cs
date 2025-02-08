@@ -63,8 +63,8 @@ internal static class MetadataReferences
 
     internal static MetadataReference AppBoxClientUILib => TryGetViewLib("AppBoxClientUI.dll");
 
-    internal static MetadataReference AppBoxServerLib =>
-        TryGet("AppBoxServer.dll", Path.Combine(AppPath, "AppBoxServer.dll"));
+    // internal static MetadataReference AppBoxServerLib =>
+    //     TryGet("AppBoxServer.dll", Path.Combine(AppPath, "AppBoxServer.dll"));
 
     internal static MetadataReference AppBoxStoreLib =>
         TryGet("AppBoxStore.dll", typeof(MetaStore).Assembly.Location);
@@ -161,7 +161,7 @@ internal static class MetadataReferences
             SystemNetHttpLib,
             SystemNetHttpJsonLib,
             AppBoxCoreLib,
-            AppBoxServerLib,
+            // AppBoxServerLib,
             AppBoxStoreLib
         };
 

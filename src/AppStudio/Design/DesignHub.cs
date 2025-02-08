@@ -62,6 +62,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
             switch (change.Type)
             {
                 case StagedType.Model:
+                {
                     var modelNode = DesignTree.FindModelNode(change.Id);
                     if (modelNode != null)
                     {
@@ -77,6 +78,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
                         change.DisplayType = removedModel.ModelType.ToString();
                         change.DisplayName = $"{AppNameGetter(removedModel.AppId)}.{removedModel.Name}";
                     }
+                }
 
                     break;
                 case StagedType.Folder:
@@ -84,6 +86,13 @@ public sealed class DesignHub : IModelContainer, IDisposable
                     change.Target = modelRootNode.RootFolder;
                     change.DisplayType = "Folder";
                     change.DisplayName = $"{modelRootNode.Parent!.Label.Value}.{modelRootNode.Label.Value}";
+                    break;
+                case StagedType.SourceCode:
+                {
+                    var modelNode = DesignTree.FindModelNode(change.Id);
+                    if (modelNode != null)
+                        change.Target = modelNode;
+                }
                     break;
                 default:
                     throw new NotImplementedException(change.Type.ToString());

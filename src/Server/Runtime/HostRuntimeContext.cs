@@ -12,13 +12,13 @@ namespace AppBoxServer;
 /// </summary>
 public sealed class HostRuntimeContext : IHostRuntimeContext
 {
-    private static readonly AsyncLocal<IUserSession?> _sessionStore = new();
+    private static readonly AsyncLocal<IUserSession?> SessionStore = new();
     private readonly Dictionary<long, ModelBase> _models = new();
     private readonly Dictionary<int, ApplicationModel> _apps = new();
 
-    public IUserSession? CurrentSession => _sessionStore.Value;
+    public IUserSession? CurrentSession => SessionStore.Value;
 
-    internal static void SetCurrentSession(IUserSession? session) => _sessionStore.Value = session;
+    internal static void SetCurrentSession(IUserSession? session) => SessionStore.Value = session;
 
     public async ValueTask<ApplicationModel> GetApplicationAsync(int appId)
     {
@@ -31,6 +31,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
         {
             _apps[item.Id] = item;
         }
+
         if (!_apps.TryGetValue(appId, out var app2))
             throw new Exception("Can't load Application from MetaStore");
         return app2;
@@ -144,16 +145,5 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     {
         model.AcceptChanges();
         _models.Add(model.Id, model);
-    }
-
-    /// <summary>
-    /// 判断当前运行时内的当前用户是否具备指定权限模型的授权
-    /// </summary>
-    public static bool HasPermission(ModelId permissionModelId)
-    {
-        if (RuntimeContext.CurrentSession == null) return false;
-
-        var model = RuntimeContext.GetModel<PermissionModel>(permissionModelId);
-        return model.Owns(RuntimeContext.CurrentSession);
     }
 }

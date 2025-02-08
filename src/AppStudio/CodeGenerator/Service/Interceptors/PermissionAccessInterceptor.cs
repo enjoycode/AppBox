@@ -20,6 +20,6 @@ internal sealed class PermissionAccessInterceptor : IMemberAccessInterceptor<Syn
             ModelType.Permission, symbol.Name.AsMemory())!;
 
         return SyntaxFactory.ParseExpression(
-            $"AppBoxServer.HostRuntimeContext.HasPermission({modelNode.Model.Id.Value}L)");
+            $"AppBoxCore.RuntimeContext.HasPermission({modelNode.Model.Id.Value}L)");
     }
 }

@@ -26,4 +26,15 @@ public static class RuntimeContext
 
     public static ValueTask<AnyValue> InvokeAsync(string service, InvokeArgs args)
         => Current.InvokeAsync(service, args);
+    
+    /// <summary>
+    /// 判断当前运行时内的当前用户是否具备指定权限模型的授权
+    /// </summary>
+    public static bool HasPermission(ModelId permissionModelId)
+    {
+        if (CurrentSession == null) return false;
+
+        var model = GetModel<PermissionModel>(permissionModelId);
+        return model.Owns(CurrentSession);
+    }
 }

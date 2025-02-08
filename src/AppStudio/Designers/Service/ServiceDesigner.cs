@@ -133,7 +133,7 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
     public Task SaveAsync()
     {
-        return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id, null });
+        return ModelNode.SaveAsync(null);
     }
 
     public async Task RefreshAsync()
@@ -144,33 +144,13 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
         // _codeEditorController.Document.TextContent = srcCode!;
     }
 
-    /// <summary>
-    /// 获取光标位置的服务方法
-    /// </summary>
-    private async Task<JsonResult?> GetMethodInfo()
-    {
-        try
-        {
-            var jsonResult = (await Channel.Invoke<JsonResult>("sys.DesignService.GetServiceMethod",
-                new object?[] { true, ModelNode.Id, _codeEditorController.GetCaretOffset() }))!;
-            return jsonResult;
-        }
-        catch (Exception ex)
-        {
-            Notification.Error($"无法获取服务方法: {ex.Message}");
-            return null;
-        }
-    }
-
     private async void OnRunMethod(PointerEvent e)
     {
-        var json = await GetMethodInfo();
-        if (json == null) return;
-
         try
         {
-            var methodInfo = json.ParseTo<ServiceMethodInfo>();
-            if (methodInfo == null) return;
+            // 获取光标位置的服务方法
+            var methodInfo = await GetServiceMethod.GetByPosition(ModelNode, _codeEditorController.GetCaretOffset());
+            // if (methodInfo == null) return;
 
             //TODO:暂简单实现且不支持带参数的调用(显示对话框设置参数并显示调用结果)
             if (methodInfo.Args.Length > 0)

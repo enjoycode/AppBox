@@ -23,7 +23,7 @@ internal sealed class DesignService : IService
     public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
     {
         //验证Developer权限
-        if (!HostRuntimeContext.HasPermission(DeveloperPermissionId))
+        if (!RuntimeContext.HasPermission(DeveloperPermissionId))
             throw new Exception("Must login as a developer");
 
         switch (method.Span)

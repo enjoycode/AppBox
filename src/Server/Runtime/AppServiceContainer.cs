@@ -19,8 +19,7 @@ public static class AppServiceContainer
     }
 
     //TODO:use LRUCache
-    private static readonly IDictionary<string, ServiceInfo> services =
-        new Dictionary<string, ServiceInfo>(100);
+    private static readonly Dictionary<string, ServiceInfo> Services = new(100);
 
     /// <summary>
     /// 根据名称获取运行时服务实例
@@ -28,7 +27,7 @@ public static class AppServiceContainer
     /// <param name="name">eg:sys.HelloService</param>
     public static async ValueTask<IService?> TryGetAsync(string name)
     {
-        if (services.TryGetValue(name, out var service))
+        if (Services.TryGetValue(name, out var service))
             return service.Instance;
 
         //加载服务模型的组件
@@ -47,9 +46,9 @@ public static class AppServiceContainer
         var libPath = Path.Combine(typeof(AppServiceContainer).Assembly.Location, "libs", appName);
         // await MetaStore.Provider.ExtractAppAssemblies(appName, libPath);
 
-        lock (services)
+        lock (Services)
         {
-            if (!services.TryGetValue(name, out service))
+            if (!Services.TryGetValue(name, out service))
             {
                 var asmLoader = new ServiceAssemblyLoader(libPath);
                 var asm = asmLoader.LoadServiceAssembly(asmData);
@@ -57,7 +56,7 @@ public static class AppServiceContainer
                 if (instance == null)
                     return null;
                 service = new ServiceInfo { Instance = instance, Loader = asmLoader };
-                services.TryAdd(name, service);
+                Services.TryAdd(name, service);
                 Log.Debug($"加载服务实例: {asm.FullName}");
             }
         }
@@ -88,7 +87,7 @@ public static class AppServiceContainer
                 var asm = asmLoader.LoadFromAssemblyPath(file);
                 // var type = asm.GetType($"{sr[0]}.ServiceLogic.{sr[2]}", true);
                 var instance = (IService)asm.CreateInstance(sr[2])!;
-                services.TryAdd($"{sr[0]}.{sr[2]}",
+                Services.TryAdd($"{sr[0]}.{sr[2]}",
                     new ServiceInfo { Instance = instance, Loader = asmLoader });
                 Log.Debug("Inject debug service instance:" + file);
             }
@@ -100,11 +99,11 @@ public static class AppServiceContainer
     /// </summary>
     public static bool TryRemove(string name)
     {
-        lock (services)
+        lock (Services)
         {
-            if (services.TryGetValue(name, out var service))
+            if (Services.TryGetValue(name, out var service))
             {
-                services.Remove(name);
+                Services.Remove(name);
                 //#if DEBUG
                 //                    service.Loader.Unloading += OnUnloading;
                 //#endif

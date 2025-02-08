@@ -23,9 +23,9 @@ internal static class Publish
                 case StagedType.Folder:
                     package.Folders.Add((ModelFolder)change.Target!);
                     break;
-                // case StagedItems.StagedSourceCode code:
-                //     package.SourceCodes.Add(code.ModelId, code.CodeData);
-                //     break;
+                case StagedType.SourceCode:
+                    package.SourceCodes.Add(change.Id, await GetSourceCode(hub, change.Target as ModelNode));
+                    break;
                 default:
                     Log.Warn($"Unknown pending change: {change.GetType()}");
                     break;
@@ -41,6 +41,16 @@ internal static class Publish
         //刷新所有CheckoutByMe的节点项
         hub.DesignTree.CheckinAllNodes();
         hub.ClearRemovedItems();
+    }
+
+    private static async ValueTask<string?> GetSourceCode(DesignHub hub, ModelNode? modelNode)
+    {
+        if (modelNode == null)
+            return null;
+
+        var roslynDoc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
+        var source = await roslynDoc.GetTextAsync();
+        return source.ToString();
     }
 
     private static void ValidateModels(DesignHub hub, PublishPackage package)

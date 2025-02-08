@@ -46,7 +46,9 @@ internal sealed class PublishDialog : Dialog
             var hub = DesignHub.Current;
             _changes = await hub.StagedService.LoadChangesAsync();
             hub.ResolveChanges(_changes);
-            _dataGridController.DataSource = new List<PendingChange>(_changes);
+            _dataGridController.DataSource = _changes
+                .Where(c => c.Type != StagedType.SourceCode)
+                .ToList();
         }
         catch (Exception ex)
         {

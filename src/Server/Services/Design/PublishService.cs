@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.IO.Compression;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxStore;
@@ -154,14 +155,18 @@ internal static class PublishService
         //保存模型相关的代码
         foreach (var modelId in package.SourceCodes.Keys)
         {
-            var codeData = package.SourceCodes[modelId];
-            await MetaStore.Provider.UpsertModelCodeAsync(modelId, codeData, txn);
+            var code = package.SourceCodes[modelId];
+            if (code != null)
+            {
+                var codeData = ModelCodeUtil.CompressCode(code);
+                await MetaStore.Provider.UpsertModelCodeAsync(modelId, codeData, txn);
+            }
         }
 
         //保存服务模型编译好的运行时组件
         foreach (var serviceName in package.ServiceAssemblies.Keys)
         {
-            var asmData = package.ServiceAssemblies[serviceName];
+            var asmData = CompressAssemblyData(package.ServiceAssemblies[serviceName]);
             await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName, asmData, txn);
         }
 
@@ -171,6 +176,15 @@ internal static class PublishService
         //     var asmData = package.ViewAssemblies[viewName];
         //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.View, viewName, asmData, txn);
         // }
+    }
+
+    private static byte[] CompressAssemblyData(byte[] asmData)
+    {
+        using var ms = new MemoryStream(1024);
+        using var cs = new BrotliStream(ms, CompressionMode.Compress, true);
+        cs.Write(asmData, 0, asmData.Length);
+        cs.Flush();
+        return ms.ToArray();
     }
 
     private static bool IsDbFirstSqlStore(PublishContainer container, EntityModel model)

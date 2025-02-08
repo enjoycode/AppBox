@@ -158,7 +158,7 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
             if (change.NewNodes == null)
             {
                 start = Math.Min(start, change.Range.Span.Start);
-                end = Math.Max(end, change.Range.NewLength);
+                end = Math.Max(end, change.Range.Span.Start + change.Range.NewLength);
             }
             else
             {

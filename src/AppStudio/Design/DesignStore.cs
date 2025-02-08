@@ -143,7 +143,7 @@ internal sealed class DesignStore
             DesignerController.SelectAt(existsIndex);
 
         if (gotoLocation != null)
-            node.Designer!.GotoLocation(gotoLocation);
+            node.Designer?.GotoLocation(gotoLocation);
     }
 
     /// <summary>

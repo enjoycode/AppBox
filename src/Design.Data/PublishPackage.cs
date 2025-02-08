@@ -17,10 +17,10 @@ public sealed class PublishPackage : IBinSerializable
     /// <summary>
     /// 新建或更新的模型的虚拟代码，Key=ModelId
     /// </summary>
-    public readonly Dictionary<ModelId, byte[]?> SourceCodes = new();
+    public readonly Dictionary<ModelId, string?> SourceCodes = new();
 
     /// <summary>
-    /// 新建或更新的编译好的服务组件, Key=xxx.XXXX
+    /// 新建或更新的编译好的服务组件, Key=xxx.XXXX Value=未压缩的字节码
     /// </summary>
     public readonly Dictionary<string, byte[]> ServiceAssemblies = new();
 
@@ -70,7 +70,7 @@ public sealed class PublishPackage : IBinSerializable
         foreach (var item in SourceCodes)
         {
             ws.WriteLong(item.Key);
-            ws.Serialize(item.Value);
+            ws.WriteString(item.Value);
         }
 
         ws.WriteVariant(ServiceAssemblies.Count);
@@ -98,7 +98,7 @@ public sealed class PublishPackage : IBinSerializable
         count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
-            SourceCodes.Add(rs.ReadLong(), (byte[]?)rs.Deserialize());
+            SourceCodes.Add(rs.ReadLong(), rs.ReadString());
         }
 
         count = rs.ReadVariant();
