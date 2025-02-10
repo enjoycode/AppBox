@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Reflection;
 
 namespace AppBoxCore;
@@ -395,6 +396,27 @@ public static class OutputStreamExtensions
 
     #endregion
 
+    #region ====WriteStream====
+
+    public static void WriteStream(this IOutputStream s, Stream stream)
+    {
+        var buffer = ArrayPool<byte>.Shared.Rent(4096);
+        try
+        {
+            int bytesRead;
+            while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)
+            {
+                s.WriteBytes(buffer.AsSpan(0, bytesRead));
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
+
+    #endregion
+
     #region ====Serialize(写入类型)====
 
     /// <summary>
@@ -551,7 +573,7 @@ public static class OutputStreamExtensions
         }
 
         if (CheckSerialized(s, value!)) return;
-        
+
         s.Context.AddToSerialized(value!);
         s.WriteByte((byte)PayloadType.Expression);
         s.WriteByte((byte)value!.Type);

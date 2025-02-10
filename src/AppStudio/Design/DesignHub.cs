@@ -1,5 +1,4 @@
 using AppBoxCore;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace AppBoxDesign;
 
@@ -11,7 +10,16 @@ public sealed class DesignHub : IModelContainer, IDisposable
         DesignTypeSerializer.Register();
     }
 
-    public DesignHub(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
+    public static async ValueTask InitAsync(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
+        IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService)
+    {
+        await MetadataReferences.InitAsync();
+
+        Current = new DesignHub(sessionName, leafOrgUnitId,
+            checkoutService, stagedService, metaStoreService, publishService);
+    }
+
+    private DesignHub(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
         IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService)
     {
         SessionName = sessionName;

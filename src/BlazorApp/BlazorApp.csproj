@@ -26,8 +26,8 @@
     <ItemGroup>
         <EmccExportedRuntimeMethod Include="GL" />
         <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\skia.a" />
-        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter.o" />
-        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter-csharp.a" />
+<!--        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter.o" />-->
+<!--        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter-csharp.a" />-->
     </ItemGroup>
 
     <ItemGroup>

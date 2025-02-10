@@ -14,5 +14,7 @@ public interface IChannel
 
     Task Logout();
 
-    Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories);
+    Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories); //TODO: remove it
+    
+    Task<MessageReadStream> InvokeForStream(string service, object?[]? args);
 }

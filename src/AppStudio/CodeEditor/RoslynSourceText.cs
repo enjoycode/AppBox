@@ -27,7 +27,7 @@ public sealed class RoslynSourceText : ITextBuffer
         if (typeSystem.Workspace.IsDocumentOpen(docId))
             typeSystem.Workspace.CloseDocument(docId);
 
-        typeSystem.Workspace.OpenDocument(docId);
+        await typeSystem.Workspace.OpenDocumentAsync(docId);
 
         //从已加载的设计树对应的RoslynDocument中获取源码
         _sourceText = await GetRoslynDocument().GetTextAsync();

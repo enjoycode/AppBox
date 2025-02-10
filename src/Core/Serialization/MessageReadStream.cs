@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
+using NotSupportedException = System.NotSupportedException;
+
 namespace AppBoxCore;
 
 public sealed class MessageReadStream : IInputStream
@@ -10,7 +14,7 @@ public sealed class MessageReadStream : IInputStream
     public static MessageReadStream Rent(BytesSegment segment)
     {
         var res = Pool.Allocate();
-        res._current = segment;
+        res.Current = segment;
         return res;
     }
 
@@ -19,8 +23,8 @@ public sealed class MessageReadStream : IInputStream
     /// </summary>
     public static void Return(MessageReadStream mws)
     {
-        BytesSegment.ReturnAll(mws._current);
-        mws._pos = 0;
+        BytesSegment.ReturnAll(mws.Current);
+        mws.Position = 0;
         mws._context?.Clear();
         Pool.Free(mws);
     }
@@ -29,28 +33,29 @@ public sealed class MessageReadStream : IInputStream
 
     private MessageReadStream() { }
 
-    private BytesSegment _current = null!;
-    private int _pos;
     private DeserializeContext? _context;
+
+    internal BytesSegment Current { get; private set; } = null!;
+    internal int Position { get; private set; }
 
     public DeserializeContext Context => _context ??= new DeserializeContext();
 
-    private void Reset(BytesSegment segment)
+    internal void Reset(BytesSegment segment, int position = 0)
     {
-        _current = segment;
-        _pos = 0;
+        Current = segment;
+        Position = position;
     }
 
     /// <summary>
     /// 当前缓存块剩余的字节数
     /// </summary>
-    private int CurrentRemaning => _current.Length - _pos;
+    internal int CurrentRemaining => Current.Length - Position;
 
-    public bool HasRemaning => CurrentRemaning > 0 || _current.Next != null;
+    public bool HasRemaining => CurrentRemaining > 0 || Current.Next != null;
 
-    private void MoveToNext()
+    internal void MoveToNext()
     {
-        var next = _current.Next as BytesSegment;
+        var next = Current.Next as BytesSegment;
         if (next == null)
             throw new SerializationException(SerializationError.NothingToRead);
         Reset(next);
@@ -60,26 +65,26 @@ public sealed class MessageReadStream : IInputStream
 
     public byte ReadByte()
     {
-        if (CurrentRemaning <= 0) MoveToNext();
+        if (CurrentRemaining <= 0) MoveToNext();
 
-        return _current.Buffer[_pos++];
+        return Current.Buffer[Position++];
     }
 
     public void ReadBytes(Span<byte> dest)
     {
         while (true)
         {
-            var left = CurrentRemaning;
+            var left = CurrentRemaining;
             if (left > 0)
             {
                 if (left >= dest.Length)
                 {
-                    _current.Buffer.AsSpan(_pos, dest.Length).CopyTo(dest);
-                    _pos += dest.Length;
+                    Current.Buffer.AsSpan(Position, dest.Length).CopyTo(dest);
+                    Position += dest.Length;
                 }
                 else
                 {
-                    _current.Buffer.AsSpan(_pos, left).CopyTo(dest);
+                    Current.Buffer.AsSpan(Position, left).CopyTo(dest);
                     MoveToNext();
                     dest = dest.Slice(left);
                     continue;
@@ -96,4 +101,149 @@ public sealed class MessageReadStream : IInputStream
     }
 
     #endregion
+}
+
+public sealed class MessageReadStreamWrap : Stream
+{
+    public MessageReadStreamWrap(MessageReadStream inputStream)
+    {
+        _inputStream = inputStream;
+        _start = _inputStream.Current;
+        _startPos = _inputStream.Position;
+
+        _length = _inputStream.CurrentRemaining;
+        var temp = _start.Next as BytesSegment;
+        while (temp != null)
+        {
+            _length += temp.Length;
+            temp = temp.Next as BytesSegment;
+        }
+    }
+
+    private MessageReadStream _inputStream;
+    private int _position;
+    private readonly BytesSegment _start;
+    private readonly int _startPos;
+    private readonly int _length;
+
+    public override void Flush() { }
+
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+        var bytesRead = 0;
+        while (bytesRead < count)
+        {
+            if (!_inputStream.HasRemaining)
+                break;
+
+            var curLeft = _inputStream.CurrentRemaining;
+            if (curLeft == 0)
+            {
+                _inputStream.MoveToNext();
+                curLeft = _inputStream.CurrentRemaining;
+            }
+
+            var thisRead = Math.Min(curLeft, count - bytesRead);
+            _inputStream.ReadBytes(buffer.AsSpan(offset + bytesRead, thisRead));
+            bytesRead += thisRead;
+        }
+
+        Position += bytesRead;
+        return bytesRead;
+    }
+
+    public override long Seek(long offset, SeekOrigin loc)
+    {
+        switch (loc)
+        {
+            case SeekOrigin.Begin:
+            {
+                int tempPosition = unchecked((int)offset);
+                if (offset < 0 || tempPosition < 0)
+                    throw new ArgumentOutOfRangeException();
+                _position = tempPosition;
+                break;
+            }
+            case SeekOrigin.Current:
+            {
+                int tempPosition = unchecked(_position + (int)offset);
+                if (unchecked(_position + offset) < 0 || tempPosition < 0)
+                    throw new ArgumentOutOfRangeException();
+                _position = tempPosition;
+                break;
+            }
+            case SeekOrigin.End:
+            {
+                int tempPosition = unchecked(_length + (int)offset);
+                if (unchecked(_length + offset) < 0 || tempPosition < 0)
+                    throw new ArgumentOutOfRangeException();
+                _position = tempPosition;
+                break;
+            }
+            default:
+                throw new ArgumentException();
+        }
+
+        Debug.Assert(_position >= 0, "_position >= 0");
+        GotoPosition(_position);
+        return _position;
+    }
+
+    private void GotoPosition(int pos)
+    {
+        // if (pos < 0 || pos >= _length)
+        //     throw new ArgumentOutOfRangeException();
+        if (_start.Length - _startPos >= pos)
+        {
+            _inputStream.Reset(_start, _startPos + pos);
+            return;
+        }
+
+        var cur = _start.Length - _startPos;
+        var tempSeg = (BytesSegment)_start.Next!;
+        while (cur < pos)
+        {
+            if (cur + tempSeg.Length >= pos)
+            {
+                _inputStream.Reset(tempSeg, pos - cur);
+                return;
+            }
+
+            cur += tempSeg.Length;
+            tempSeg = (BytesSegment)tempSeg.Next!;
+        }
+    }
+
+    public override void SetLength(long value) => throw new NotSupportedException();
+
+    public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+    public override bool CanRead => true;
+
+    public override bool CanSeek => true;
+
+    public override bool CanWrite => false;
+
+    public override long Length => _length;
+
+    public override long Position
+    {
+        get => _position;
+        set
+        {
+            _position = (int)value;
+            GotoPosition(_position);
+        }
+    }
+
+    public override void Close()
+    {
+        if (_inputStream != null!)
+        {
+            MessageReadStream.Return(_inputStream);
+            _inputStream = null!;
+        }
+
+        base.Close();
+    }
 }

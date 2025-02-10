@@ -39,6 +39,20 @@ internal sealed class ModelWorkspace : Workspace
         }
     }
 
+    public async Task OpenDocumentAsync(DocumentId documentId, bool activate = true)
+    {
+        var doc = CurrentSolution.GetDocument(documentId);
+        if (doc != null)
+        {
+            var text = await doc.GetTextAsync(CancellationToken.None);
+            OnDocumentOpened(documentId, text.Container, activate);
+        }
+        else
+        {
+            Log.Warn($"Can't open document: {documentId}");
+        }
+    }
+
     public override void CloseDocument(DocumentId documentId)
     {
         var doc = CurrentSolution.GetDocument(documentId);

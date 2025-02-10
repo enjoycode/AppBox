@@ -8,7 +8,7 @@ public interface IInputStream : IEntityMemberReader
 
     void ReadBytes(Span<byte> dest);
 
-    bool HasRemaning { get; }
+    bool HasRemaining { get; } //TODO: change to Remaining
 
     #region ====IEntityMemberReader====
 

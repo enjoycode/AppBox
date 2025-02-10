@@ -63,13 +63,18 @@ public sealed class LoginPage : View
         try
         {
             await Channel.Login(_userName.Value, _password.Value);
-            DesignHub.Current = new DesignHub(Channel.SessionName, Channel.LeafOrgUnitId,
+
+            await DesignHub.InitAsync(Channel.SessionName, Channel.LeafOrgUnitId,
                 new CheckoutService(), new StagedService(), new MetaStoreService(), new PublishService());
+
             CurrentNavigator!.Push("IDE"); //TODO: use Navigator.Replace?
         }
         catch (Exception ex)
         {
             Notification.Error($"登录错误: {ex.Message}");
+#if DEBUG
+            Console.WriteLine(ex.StackTrace);
+#endif
         }
     }
 

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using AppBoxCore;
 
@@ -6,34 +7,47 @@ namespace AppBoxClient;
 
 public static class Channel
 {
-    private static IChannel _provider = null!;
-    
-    public static string SessionName => _provider?.SessionName ?? string.Empty;
-    
-    public static Guid LeafOrgUnitId => _provider?.LeafOrgUnitId ?? Guid.Empty;
+    public static string SessionName => Provider?.SessionName ?? string.Empty;
+
+    public static Guid LeafOrgUnitId => Provider?.LeafOrgUnitId ?? Guid.Empty;
+
+    private static IChannel Provider { get; set; } = null!;
 
     public static void Init(IChannel provider)
     {
-        _provider = provider;
+        Provider = provider;
     }
 
     public static Task Login(string user, string password, string? external = null)
-        => _provider.Login(user, password, external);
+        => Provider.Login(user, password, external);
 
-    public static Task Logout() => _provider.Logout();
+    public static Task Logout() => Provider.Logout();
 
     public static async Task Invoke(string service, object?[]? args = null)
     {
-        await _provider.Invoke(service, args, null);
+        await Provider.Invoke(service, args, null);
     }
 
     public static async Task<T?> Invoke<T>(string service, object?[]? args = null,
         EntityFactory[]? entityFactories = null)
     {
-        var res = await _provider.Invoke(service, args, entityFactories);
+        var res = await Provider.Invoke(service, args, entityFactories);
         if (res == null) return default;
 
         return (T)res;
+    }
+
+    public static async Task<Stream> InvokeForStream(string service, object?[]? args = null)
+    {
+        var rs = await Provider.InvokeForStream(service, args);
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        if (errorCode != InvokeErrorCode.None)
+        {
+            MessageReadStream.Return(rs);
+            throw new Exception($"Code={errorCode}");
+        }
+
+        return new MessageReadStreamWrap(rs);
     }
 
     //暂时放在这里，待移至RuntimeContext内

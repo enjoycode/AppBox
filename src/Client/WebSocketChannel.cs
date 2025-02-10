@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -12,7 +13,8 @@ public sealed class WebSocketChannel : IChannel
     public WebSocketChannel(Uri serverUri)
     {
         _serverUri = serverUri;
-        Task.Run(TryConnect);
+        if (RuntimeInformation.ProcessArchitecture == Architecture.Wasm)
+            Task.Run(TryConnect);
     }
 
     private ClientWebSocket _clientWebSocket = null!;
@@ -36,6 +38,37 @@ public sealed class WebSocketChannel : IChannel
     private BytesSegment? _pendingResponse;
 
     public async Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories)
+    {
+        var rs = await InvokeForStream(service, args);
+        if (entityFactories != null)
+            rs.Context.SetEntityFactories(entityFactories);
+
+        // deserialize response
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        object? result = null;
+        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
+        {
+            try
+            {
+                result = rs.Deserialize();
+            }
+            catch (Exception ex)
+            {
+                errorCode = InvokeErrorCode.DeserializeResponseFail;
+                result = ex.Message;
+            }
+            finally
+            {
+                MessageReadStream.Return(rs);
+            }
+        }
+
+        if (errorCode != InvokeErrorCode.None)
+            throw new Exception($"Code={errorCode} Msg={result}");
+        return result;
+    }
+
+    public async Task<MessageReadStream> InvokeForStream(string service, object?[]? args)
     {
         //add to wait list
         var msgId = MakeMsgId();
@@ -61,34 +94,10 @@ public sealed class WebSocketChannel : IChannel
         await SendMessage(reqData);
 
         var rs = await promise.WaitAsync();
-        if (entityFactories != null)
-            rs.Context.SetEntityFactories(entityFactories);
+
         _pendingRequests.TryRemove(msgId, out _);
         _pooledTaskSource.Free(promise);
-
-        // deserialize response
-        var errorCode = (InvokeErrorCode)rs.ReadByte();
-        object? result = null;
-        if (rs.HasRemaning) //因有些错误可能不包含数据，只有错误码
-        {
-            try
-            {
-                result = rs.Deserialize();
-            }
-            catch (Exception ex)
-            {
-                errorCode = InvokeErrorCode.DeserializeResponseFail;
-                result = ex.Message;
-            }
-            finally
-            {
-                MessageReadStream.Return(rs);
-            }
-        }
-
-        if (errorCode != InvokeErrorCode.None)
-            throw new Exception($"Code={errorCode} Msg={result}");
-        return result;
+        return rs;
     }
 
     public async Task Login(string user, string password, string? external)

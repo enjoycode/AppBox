@@ -9,11 +9,12 @@ public static class DesignHelper
     internal static async Task<DesignHub> MockDesignHub()
     {
         var mockSession = ServerRuntimeHelper.MockUserSession();
-        var designHub = new DesignHub(mockSession.Name, mockSession.LeafOrgUnitId,
+        await DesignHub.InitAsync(mockSession.Name, mockSession.LeafOrgUnitId,
             new MockCheckoutService(), new MockStagedService(), new MockMetaStoreService(), new MockPublishService());
-        DesignHub.Current = designHub;
-        await designHub.DesignTree.LoadAsync();
-        return designHub;
+
+        var hub = DesignHub.Current;
+        await hub.DesignTree.LoadAsync();
+        return hub;
     }
 }
 
