@@ -20,11 +20,11 @@ public static class Program
     }
 
     [JSInvokable]
-    public static async Task Run(string wsurl, int glHandle, int width, int height, float ratio,
-        string? routePath, bool isMacOS)
+    public static async Task Run(int glHandle, int width, int height, float ratio,
+        string? routePath, bool isMacOS, string wsUrl)
     {
         //初始化通讯
-        Channel.Init(new WebSocketChannel(new Uri(wsurl)));
+        Channel.Init(new WebSocketChannel(new Uri(wsUrl)));
 
         //初始化默认字体
         await using var fontDataStream =
