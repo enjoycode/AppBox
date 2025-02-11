@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace AppBoxWebHost;
 
-internal sealed class PrecompressedContentTypeProvider : IContentTypeProvider
+internal sealed class PreCompressedContentTypeProvider : IContentTypeProvider
 {
     private static readonly FileExtensionContentTypeProvider DefaultProvider = new();
 
@@ -21,7 +21,7 @@ internal sealed class PrecompressedContentTypeProvider : IContentTypeProvider
             return true;
         }
 
-        if (subpath.EndsWith(".dat.br") || subpath.EndsWith(".dat.gz"))
+        if (subpath.EndsWith(".dat") || subpath.EndsWith(".dat.br") || subpath.EndsWith(".dat.gz"))
         {
             contentType = "application/octet-stream";
             return true;

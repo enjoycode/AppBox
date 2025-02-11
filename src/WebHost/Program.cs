@@ -3,6 +3,8 @@ using AppBoxCore;
 using AppBoxStore;
 using AppBoxServer;
 using AppBoxWebHost;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.FileProviders;
 
 //临时方案Console输出编码问题
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -25,8 +27,15 @@ app.UseDefaultFiles(defaultFilesOptions);
 app.UsePrecompressedPrecompressedBlazor();
 app.UseStaticFiles(new StaticFileOptions
 {
-    ContentTypeProvider = new PrecompressedContentTypeProvider()
+    ContentTypeProvider = new PreCompressedContentTypeProvider()
 });
+// app.UseStaticFiles(new StaticFileOptions()
+// {
+//     FileProvider = new PhysicalFileProvider(
+//         Path.Combine(builder.Environment.ContentRootPath, "dev", "wwwroot")),
+//     ContentTypeProvider = new PrecompressedContentTypeProvider(),
+//     RequestPath = "/dev"
+// });
 
 app.UseWebSockets();
 app.MapDefaultControllerRoute();

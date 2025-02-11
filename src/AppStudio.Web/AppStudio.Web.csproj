@@ -14,8 +14,10 @@
         <EmccInitialHeapSize>128MB</EmccInitialHeapSize>
         <EmccExtraCFlags>-s USE_WEBGL2=1 -s MAX_WEBGL_VERSION=2</EmccExtraCFlags>
         <EmccExtraLDFlags>-lGL</EmccExtraLDFlags>
-        <RootNamespace>AppBox.BlazorApp</RootNamespace>
-        <AssemblyName>AppBox.BlazorApp</AssemblyName>
+        <RootNamespace>AppBoxDesign</RootNamespace>
+        <AssemblyName>AppBoxStudio.Web</AssemblyName>
+        <RunAOTCompilation>true</RunAOTCompilation>
+        <StaticWebAssetBasePath>dev</StaticWebAssetBasePath>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,36 +28,34 @@
     <ItemGroup>
         <EmccExportedRuntimeMethod Include="GL" />
         <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\skia.a" />
-<!--        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter.o" />-->
-<!--        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter-csharp.a" />-->
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\ext\PixUI\ext\LiveCharts2\src\LiveChartsCore\LiveChartsCore.csproj" />
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj" />
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
-      <ProjectReference Include="..\Client.UI\Client.UI.csproj" />
+        <ProjectReference Include="..\..\ext\PixUI\ext\LiveCharts2\src\LiveChartsCore\LiveChartsCore.csproj" />
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj" />
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
+        <ProjectReference Include="..\AppStudio\AppStudio.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorApplication.cs">
-        <Link>BlazorApplication.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorClipboard.cs">
-        <Link>BlazorClipboard.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorCursors.cs">
-        <Link>BlazorCursors.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorWindow.cs">
-        <Link>BlazorWindow.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\InputUtils.cs">
-        <Link>InputUtils.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\JSApi.cs">
-        <Link>JSApi.cs</Link>
-      </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorApplication.cs">
+            <Link>BlazorApplication.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorClipboard.cs">
+            <Link>BlazorClipboard.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorCursors.cs">
+            <Link>BlazorCursors.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorWindow.cs">
+            <Link>BlazorWindow.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\InputUtils.cs">
+            <Link>InputUtils.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\JSApi.cs">
+            <Link>JSApi.cs</Link>
+        </Compile>
     </ItemGroup>
 
     <Target Name="UseCustomICU" AfterTargets="ResolveRuntimePackAssets">

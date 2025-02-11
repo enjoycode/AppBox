@@ -37,12 +37,11 @@ public static class Program
         //var homePage = new HomePage();
         var homePage = await AppAssembiles.MakeViewWidgetAsync("sys.HomePage");
         // ReSharper disable once SuspiciousTypeConversion.Global
-        if (homePage is IHomePage mainRoutes)
-        {
-            //TODO: lazy load AppBoxDesign assembly
-            var devRoute = new Route("dev", s => new AppBoxDesign.HomePage());
-            mainRoutes.InjectRoute(devRoute);
-        }
+        // if (homePage is IHomePage mainRoutes)
+        // {
+        //     var devRoute = new Route("dev", s => new AppBoxDesign.HomePage());
+        //     mainRoutes.InjectRoute(devRoute);
+        // }
 
         BlazorApplication.Run(() => homePage, glHandle, width, height, ratio, routePath, isMacOS);
     }

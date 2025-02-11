@@ -2,22 +2,25 @@ using Microsoft.Net.Http.Headers;
 
 namespace AppBoxWebHost;
 
-public sealed class PrecompressedBlazorMiddleware
+public sealed class PreCompressedBlazorMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public PrecompressedBlazorMiddleware(RequestDelegate next)
+    public PreCompressedBlazorMiddleware(RequestDelegate next)
     {
         _next = next;
     }
 
     public Task InvokeAsync(HttpContext context)
     {
+        Console.WriteLine($"请求: {context.Request.Path}");
         var request = context.Request;
         var path = request.Path.Value;
         var extraExtension = string.Empty;
         var responseHeaders = context.Response.Headers;
-        if (path != null && path.StartsWith("/_framework/", StringComparison.Ordinal))
+        if (path != null &&
+            (path.StartsWith("/_framework/", StringComparison.Ordinal) ||
+             path.StartsWith("/dev/_framework/", StringComparison.Ordinal)))
         {
             responseHeaders[HeaderNames.Vary] = HeaderNames.AcceptEncoding;
             var acceptEncoding = request.Headers[HeaderNames.AcceptEncoding].ToString();
@@ -92,7 +95,7 @@ public static class PrecompressedBlazorMiddlewareExtensions
 {
     public static IApplicationBuilder UsePrecompressedPrecompressedBlazor(this IApplicationBuilder builder)
     {
-        return builder.UseMiddleware<PrecompressedBlazorMiddleware>();
+        return builder.UseMiddleware<PreCompressedBlazorMiddleware>();
     }
 }
 
