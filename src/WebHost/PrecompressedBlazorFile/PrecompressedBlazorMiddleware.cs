@@ -1,3 +1,4 @@
+using AppBoxCore;
 using Microsoft.Net.Http.Headers;
 
 namespace AppBoxWebHost;
@@ -13,7 +14,8 @@ public sealed class PreCompressedBlazorMiddleware
 
     public Task InvokeAsync(HttpContext context)
     {
-        Console.WriteLine($"请求: {context.Request.Path}");
+        Log.Debug($"{context.Request.Method}: {context.Request.Path}");
+
         var request = context.Request;
         var path = request.Path.Value;
         var extraExtension = string.Empty;

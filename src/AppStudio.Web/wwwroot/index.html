@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>AppBox Studio</title>
-    <base href="/dev/" />
+    <base href="/dev/"/>
     <link rel="icon" type="image/png" href="favicon.png"/>
     <style>
         .loading-progress {
@@ -44,6 +44,7 @@
     let _htmlCanvas;
     let _htmlInput;
     let _asmName = "AppBoxStudio.Web";
+    let _baseHref = (document.getElementsByTagName('base')[0] || {href: document.location.origin + '/'}).href;
 
     function CreateCanvas() {
         _htmlCanvas = document.createElement("canvas")
@@ -184,7 +185,7 @@
                     path = document.location.hash.substring(1)
                 }
                 //同步替换浏览器的历史记录
-                let url = document.location.origin + '/#' + path
+                let url = _baseHref + '#' + path
                 let id = DotNet.invokeMethod(_asmName, "NewRouteId")
                 history.replaceState(id, "", url)
                 DotNet.invokeMethod(_asmName, "RoutePush", path)
@@ -212,7 +213,7 @@
     function OnTextInput(s) {
         DotNet.invokeMethod(_asmName, "OnTextInput", s)
     }
-    
+
     function SetInputRect(x, y, w, h) {
         _htmlInput.style.left = x.toString() + 'px'
         _htmlInput.style.top = (y + h).toString() + 'px'
@@ -223,16 +224,16 @@
         _htmlInput.blur();
         _htmlInput.value = '';
     }
-    
+
     function PushWebHistory(path, index) {
-        let url = document.location.origin + '/#' + path;
+        let url = _baseHref + '#' + path;
         history.pushState(index, '', url);
     }
-    
+
     function ReplaceWebHistory(path, index) {
-        let url = document.location.origin;
+        let url = _baseHref;
         if (path !== '/')
-            url += '/#' + path;
+            url += '#' + path;
         history.replaceState(index, '', url);
     }
 
@@ -241,7 +242,7 @@
             DotNet.invokeMethod(_asmName, "OnInvalidate")
         });
     }
-    
+
     async function ClipboardWriteText(text) {
         await navigator.clipboard.writeText(text)
     }
@@ -264,8 +265,8 @@
         let glHandel = GetGLContext()
         let routePath = document.location.hash.length > 0 ? document.location.hash.substring(1) : null
         let isMacOS = navigator.userAgent.includes("Mac")
-        await DotNet.invokeMethodAsync(_asmName, "Run", wsurl, glHandel, 
-            window.innerWidth, window.innerHeight, window.devicePixelRatio, 
+        await DotNet.invokeMethodAsync(_asmName, "Run", wsurl, glHandel,
+            window.innerWidth, window.innerHeight, window.devicePixelRatio,
             routePath, isMacOS)
         BindEvents()
     }
