@@ -9,51 +9,26 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(RunConfiguration)' == 'WebHost' " />
+    <PropertyGroup Condition=" '$(RunConfiguration)' == 'WebHost' "/>
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Server\Server.csproj" />
-      <ProjectReference Include="..\Store.Initiator\Store.Initiator.csproj" />
-      <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj" />
-      <ProjectReference Include="..\Store\Store.csproj" />
+        <ProjectReference Include="..\Core\Core.csproj"/>
+        <ProjectReference Include="..\Server\Server.csproj"/>
+        <ProjectReference Include="..\Store.Initiator\Store.Initiator.csproj"/>
+        <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj"/>
+        <ProjectReference Include="..\Store\Store.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ViewRunner\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="ViewRunner\AppBoxClient.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\AppBoxClientUI.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\LiveChartsCore.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\PixUI.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\PixUI.Dynamic.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\PixUI.LiveCharts.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\PixUI.MaterialIcons.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\PixUI.TSAttributes.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="ViewRunner\PixUI.Widgets.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Include="..\..\out\wwwroot\**\*"
+              Link="wwwroot\%(RecursiveDir)%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest"/>
+        <None Include="..\..\out\ViewRunner\**\*"
+              Link="ViewRunner\%(RecursiveDir)%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
 </Project>

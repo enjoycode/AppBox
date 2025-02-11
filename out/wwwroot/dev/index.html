@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AppBox Studio</title>
+    <base href="/dev/"/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <style>
+        .loading-progress {
+            position: relative;
+            display: block;
+            width: 8rem;
+            height: 8rem;
+            margin: 20vh auto 1rem auto;
+        }
+
+        .loading-progress circle {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 0.6rem;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+        }
+
+        .loading-progress circle:last-child {
+            stroke: #1b6ec2;
+            stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+            transition: stroke-dasharray 0.05s ease-in-out;
+        }
+    </style>
+</head>
+<body style="width: 100%; height: 100%; margin: 0; position: relative">
+<div id="loading">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%"/>
+        <circle r="40%" cx="50%" cy="50%"/>
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+
+<script src="_framework/blazor.webassembly.js" autostart="false"></script>
+<script type="module">
+    import {BrotliDecode} from './decode.min.js';
+    import {PixUI} from "./pixui.js";
+
+    window.PixUI = PixUI
+
+    window.onload = async function () {
+        await Blazor.start({
+            loadBootResource: function (type, name, defaultUri, integrity) {
+                if (type !== 'dotnetjs' && location.hostname !== 'localhost' && type !== 'configuration') {
+                    return (async function () {
+                        const response = await fetch(defaultUri + '.br', {cache: 'no-cache'});
+                        if (!response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        const originalResponseBuffer = await response.arrayBuffer();
+                        const originalResponseArray = new Int8Array(originalResponseBuffer);
+                        const decompressedResponseArray = BrotliDecode(originalResponseArray);
+                        const contentType = type === 'dotnetwasm' ? 'application/wasm' : 'application/octet-stream';
+                        return new Response(decompressedResponseArray, {headers: {'content-type': contentType}});
+                    })();
+                }
+            }
+        })
+
+        let loadingEl = document.getElementById("loading")
+        loadingEl.remove()
+
+        // let wsp = document.location.protocol.startsWith("https") ? "wss://" : "ws://"
+        // let wsUrl = wsp + document.location.host + "/ws"
+        let wsUrl = "ws://localhost:5000/ws"
+        await PixUI.Run("AppBoxStudio.Web", [wsUrl])
+    }
+</script>
+</body>
+</html>
