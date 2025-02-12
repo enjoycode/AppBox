@@ -1,5 +1,6 @@
 using AppBoxCore;
 using PixUI;
+using Log = PixUI.Log;
 
 namespace AppBoxDesign;
 
@@ -162,6 +163,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
         catch (Exception ex)
         {
             Notification.Error($"Find usages error: {ex.Message}");
+            Log.Debug(ex.StackTrace ?? string.Empty);
         }
     }
 
