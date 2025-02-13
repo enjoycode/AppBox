@@ -33,4 +33,28 @@
       <EmbeddedResource Include="Server\HelloService.bin" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.CodeAnalysis">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp.Features">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Features.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Features">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Features.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Scripting">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Scripting.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Workspaces">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

@@ -12,20 +12,6 @@ internal static partial class FoldingService //: BlockStructureService
     [GeneratedRegex(@"\#region\s+")]
     public static partial Regex RegionRegex();
 
-    private static readonly Func<SyntaxToken, int> TokenRawContextualKindGetter;
-
-    static FoldingService()
-    {
-        TokenRawContextualKindGetter = ExpressionBuilder.MakePropertyGetter<SyntaxToken, int>("RawContextualKind");
-    }
-
-    private static SyntaxKind ContextualKind(in SyntaxToken token)
-    {
-        return token.Language == LanguageNames.CSharp
-            ? (SyntaxKind)TokenRawContextualKindGetter(token)
-            : SyntaxKind.None;
-    }
-
     static Dictionary<SyntaxKind, SyntaxKind> PairTypes => new()
     {
         { SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken },
@@ -134,7 +120,7 @@ internal static partial class FoldingService //: BlockStructureService
                 var token = child.AsToken();
                 if (!IsOpenType(token)) continue;
 
-                var end = FindMatchingEndBrace(token, ContextualKind(token) /*token.ContextualKind()*/);
+                var end = FindMatchingEndBrace(token, token.ContextualKind());
                 if (end != null)
                 {
                     var lineStart = text.Lines.GetLinePosition(token.SpanStart).Line;
@@ -162,7 +148,7 @@ internal static partial class FoldingService //: BlockStructureService
         var start = itens.OrderBy(s => s.FullSpan.Start).First();
         var end = itens.OrderByDescending(s => s.FullSpan.End).First();
 
-        if (start == null || end == null) return;
+        if (start == null! || end == null!) return;
 
         var lineStart = text.Lines.GetLinePosition(start.SpanStart).Line;
         var lineEnd = text.Lines.GetLinePosition(end.Span.End).Line;

@@ -58,6 +58,33 @@
         </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.CodeAnalysis">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp.Features">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Features.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Elfie">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Elfie.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Features">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Features.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Scripting">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Scripting.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Workspaces">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
     <Target Name="UseCustomICU" AfterTargets="ResolveRuntimePackAssets">
         <ItemGroup>
             <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dat' AND $([System.String]::Copy('%(ReferenceCopyLocalPaths.FileName)').StartsWith('icudt'))" />

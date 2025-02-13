@@ -3,6 +3,9 @@ using System.Reflection;
 using System.Threading;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.CSharp.Completion;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
@@ -92,28 +95,15 @@ internal sealed class HostServicesAggregator
     {
         var builder = ImmutableHashSet.CreateBuilder<Assembly>();
 
-        // We always include the default Roslyn assemblies, which includes:
-        //
-        //   * Microsoft.CodeAnalysis.Workspaces
-        //   * Microsoft.CodeAnalysis.CSharp.Workspaces
-        //   * Microsoft.CodeAnalysis.VisualBasic.Workspaces
-        foreach (var assembly in MefHostServices.DefaultAssemblies)
-        {
-            builder.Add(assembly);
-        }
-
-        //TODO: 暂在这里加入CSharp所需的Assemblies
-        var csharpAsms = new string[]
-        {
-            "Microsoft.CodeAnalysis.CSharp.Workspaces.dll",
-            "Microsoft.CodeAnalysis.CSharp.Features.dll"
-        };
-        // for (var i = 0; i < csharpAsms.Length; i++)
+        // We always include the default Roslyn assemblies:
+        // foreach (var assembly in MefHostServices.DefaultAssemblies)
         // {
-        //     var path = System.IO.Path.Combine(appbox.Design.MetadataReferences.LibPath, csharpAsms[i]);
-        //     var asm = Assembly.LoadFrom(path);
-        //     builder.Add(asm);
+        //     builder.Add(assembly);
         // }
+        builder.Add(typeof(Workspace).Assembly); //Microsoft.CodeAnalysis.Workspaces
+        builder.Add(typeof(CompletionItem).Assembly); //Microsoft.CodeAnalysis.Features
+        builder.Add(typeof(CSharpFormattingOptions).Assembly); //Microsoft.CodeAnalysis.CSharp.Workspaces
+        builder.Add(typeof(CSharpCompletionService).Assembly); //Microsoft.CodeAnalysis.CSharp.Features
 
         // foreach (var provider in hostServicesProviders)
         // {

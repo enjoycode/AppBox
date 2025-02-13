@@ -7,6 +7,8 @@
         <AssemblyName>AppBoxStudio</AssemblyName>
         <RootNamespace>AppBoxDesign</RootNamespace>
         <LangVersion>12</LangVersion>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\AppBox.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,10 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.12.0" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Remove="Resources\Galaxy.webp"/>
         <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
         <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs" />
@@ -33,12 +31,53 @@
         <Compile Remove="DummyCode\ServiceBaseDummyCode.cs" />
         <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
         <Compile Remove="DummyCode\ViewBaseDummyCode.cs" />
+        <None Include="..\AppBox.snk">
+          <Link>AppBox.snk</Link>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
         <Compile Include="..\..\ext\PixUI\src\PixUI.CS2TS\RoslynUtils.cs">
             <Link>CodeGenerator\RoslynUtils.cs</Link>
         </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.CodeAnalysis">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp.Features">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Features.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Elfie">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Elfie.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Features">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Features.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Scripting">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Scripting.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.CodeAnalysis.Workspaces">
+        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+      <PackageReference Include="Microsoft.DiaSymReader" Version="2.0.0" />
+      <PackageReference Include="System.Composition.AttributedModel" Version="8.0.0" />
+      <PackageReference Include="System.Composition.Hosting" Version="8.0.0" />
+      <PackageReference Include="System.Composition.Runtime" Version="8.0.0" />
+      <PackageReference Include="System.Composition.TypedParts" Version="8.0.0" />
+      <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
+      <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
     </ItemGroup>
     
 </Project>

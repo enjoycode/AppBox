@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
@@ -16,20 +14,6 @@ internal sealed class SyntaxDiffer
     private TextSpan _oldSpan;
     private readonly HashSet<object /*GreenNode*/> _nodeSimilaritySet = [];
     private readonly HashSet<string> _tokenTextSimilaritySet = [];
-
-    private static readonly Func<SyntaxTrivia, object> TriviaUnderlyingNodeGetter;
-    private static readonly Func<SyntaxNodeOrToken, object> NodeOrTokenUnderlyingNodeGetter;
-    private static readonly Func<SyntaxNodeOrToken, int> PositionGetter;
-    private static readonly Func<SyntaxNodeOrToken, int> EndPositionGetter;
-
-    static SyntaxDiffer()
-    {
-        TriviaUnderlyingNodeGetter = ExpressionBuilder.MakePropertyGetter<SyntaxTrivia, object>("UnderlyingNode", true);
-        NodeOrTokenUnderlyingNodeGetter =
-            ExpressionBuilder.MakePropertyGetter<SyntaxNodeOrToken, object>("UnderlyingNode", true);
-        PositionGetter = ExpressionBuilder.MakePropertyGetter<SyntaxNodeOrToken, int>("Position");
-        EndPositionGetter = ExpressionBuilder.MakePropertyGetter<SyntaxNodeOrToken, int>("EndPosition");
-    }
 
     internal IList<ChangeRecord> GetChanges(SyntaxTree before, SyntaxTree after)
     {
@@ -115,6 +99,7 @@ internal sealed class SyntaxDiffer
 
     private enum DiffOp
     {
+        // ReSharper disable once UnusedMember.Local
         None = 0,
         SkipBoth,
         ReduceOld,
@@ -381,20 +366,20 @@ internal sealed class SyntaxDiffer
 
             foreach (var tr in node1.GetLeadingTrivia())
             {
-                // Debug.Assert(tr.UnderlyingNode is object);
-                _nodeSimilaritySet.Add(TriviaUnderlyingNodeGetter(tr) /*tr.UnderlyingNode*/);
+                Debug.Assert(tr.UnderlyingNode != null);
+                _nodeSimilaritySet.Add(tr.UnderlyingNode);
             }
 
             foreach (var tr in node1.GetTrailingTrivia())
             {
-                // Debug.Assert(tr.UnderlyingNode is object);
-                _nodeSimilaritySet.Add(TriviaUnderlyingNodeGetter(tr) /*tr.UnderlyingNode*/);
+                Debug.Assert(tr.UnderlyingNode != null);
+                _nodeSimilaritySet.Add(tr.UnderlyingNode);
             }
 
             foreach (var tr in node2.GetLeadingTrivia())
             {
-                // Debug.Assert(tr.UnderlyingNode is object);
-                if (_nodeSimilaritySet.Contains(TriviaUnderlyingNodeGetter(tr) /*tr.UnderlyingNode*/))
+                Debug.Assert(tr.UnderlyingNode != null);
+                if (_nodeSimilaritySet.Contains(tr.UnderlyingNode))
                 {
                     w += tr.FullSpan.Length;
                 }
@@ -402,8 +387,8 @@ internal sealed class SyntaxDiffer
 
             foreach (var tr in node2.GetTrailingTrivia())
             {
-                // Debug.Assert(tr.UnderlyingNode is object);
-                if (_nodeSimilaritySet.Contains(TriviaUnderlyingNodeGetter(tr) /*tr.UnderlyingNode*/))
+                Debug.Assert(tr.UnderlyingNode != null);
+                if (_nodeSimilaritySet.Contains(tr.UnderlyingNode))
                 {
                     w += tr.FullSpan.Length;
                 }
@@ -413,8 +398,8 @@ internal sealed class SyntaxDiffer
         {
             foreach (var n1 in node1.ChildNodesAndTokens())
             {
-                // Debug.Assert(n1.UnderlyingNode is object);
-                _nodeSimilaritySet.Add(NodeOrTokenUnderlyingNodeGetter(n1) /*n1.UnderlyingNode*/);
+                Debug.Assert(n1.UnderlyingNode != null);
+                _nodeSimilaritySet.Add(n1.UnderlyingNode);
 
                 if (n1.IsToken)
                 {
@@ -424,8 +409,8 @@ internal sealed class SyntaxDiffer
 
             foreach (var n2 in node2.ChildNodesAndTokens())
             {
-                // Debug.Assert(n2.UnderlyingNode is object);
-                if (_nodeSimilaritySet.Contains(NodeOrTokenUnderlyingNodeGetter(n2) /*n2.UnderlyingNode*/))
+                Debug.Assert(n2.UnderlyingNode != null);
+                if (_nodeSimilaritySet.Contains(n2.UnderlyingNode))
                 {
                     w += n2.FullSpan.Length;
                 }
@@ -445,8 +430,7 @@ internal sealed class SyntaxDiffer
 
     private static bool AreIdentical(in SyntaxNodeOrToken node1, in SyntaxNodeOrToken node2)
     {
-        //return node1.UnderlyingNode == node2.UnderlyingNode;
-        return NodeOrTokenUnderlyingNodeGetter(node1) == NodeOrTokenUnderlyingNodeGetter(node2);
+        return node1.UnderlyingNode == node2.UnderlyingNode;
     }
 
     private static bool AreSimilar(in SyntaxNodeOrToken node1, in SyntaxNodeOrToken node2)
@@ -507,7 +491,7 @@ internal sealed class SyntaxDiffer
         var newSpan = GetSpan(_newNodes, 0, newNodeCount);
         var insertedNodes = CopyFirst(_newNodes, newNodeCount);
         RemoveFirst(_newNodes, newNodeCount);
-        int start = _oldNodes.Count > 0 ? PositionGetter(_oldNodes.Peek()) /*_oldNodes.Peek().Position*/ : _oldSpan.End;
+        int start = _oldNodes.Count > 0 ? _oldNodes.Peek().Position : _oldSpan.End;
         RecordChange(new ChangeRecord(new TextChangeRange(new TextSpan(start, 0), newSpan.Length), null,
             insertedNodes));
     }
@@ -576,12 +560,12 @@ internal sealed class SyntaxDiffer
         {
             if (i == first)
             {
-                start = PositionGetter(n); //n.Position;
+                start = n.Position;
             }
 
             if (i == first + length - 1)
             {
-                end = EndPositionGetter(n); //n.EndPosition;
+                end = n.EndPosition;
                 break;
             }
 

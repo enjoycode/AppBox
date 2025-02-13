@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -31,7 +29,7 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
             .AddReferences(MetadataReferences.CoreLib)
             .AddSyntaxTrees(tree);
         var semanticModel = compilation.GetSemanticModel(tree);
-        var diagnostics = semanticModel.GetDiagnostics();
+        var diagnostics = (IEnumerable<Diagnostic>)semanticModel.GetDiagnostics();
         var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
         if (errors > 0)
             throw new Exception("表达式存在语义错误");
