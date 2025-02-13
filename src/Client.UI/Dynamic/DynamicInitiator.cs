@@ -74,7 +74,7 @@ public static class DynamicInitiator
         var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");
         foreach (var viewModelName in widgets!)
         {
-            var widgetType = await AppAssembiles.TryGetViewType(viewModelName);
+            var widgetType = await AppAssemblies.TryGetViewType(viewModelName);
             if (widgetType == null) continue;
 
             DynamicWidgetManager.Register(widgetType, true);
@@ -83,12 +83,12 @@ public static class DynamicInitiator
 
     public static async Task RebuildDynamicToolbox()
     {
-        AppAssembiles.Reset(); //TODO:暂简单清除
+        AppAssemblies.Reset(); //TODO:暂简单清除
 
         var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");
         foreach (var viewModelName in widgets!)
         {
-            var widgetType = await AppAssembiles.TryGetViewType(viewModelName);
+            var widgetType = await AppAssemblies.TryGetViewType(viewModelName);
             if (widgetType == null) continue;
 
             DynamicWidgetManager.Register(widgetType, true);

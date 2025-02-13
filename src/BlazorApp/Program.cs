@@ -35,7 +35,7 @@ public static class Program
 
         //加载HomePage
         //var homePage = new HomePage();
-        var homePage = await AppAssembiles.MakeViewWidgetAsync("sys.HomePage");
+        var homePage = await AppAssemblies.MakeViewWidgetAsync("sys.HomePage");
         // ReSharper disable once SuspiciousTypeConversion.Global
         // if (homePage is IHomePage mainRoutes)
         // {

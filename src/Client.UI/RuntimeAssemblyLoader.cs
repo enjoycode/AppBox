@@ -15,7 +15,7 @@ namespace AppBoxClient;
 /// <summary>
 /// 客户端运行时加载视图程序集及依赖程序集
 /// </summary>
-public static class AppAssembiles
+public static class AppAssemblies
 {
     private static AppAssemblyLoader _loader = new();
     private static readonly Dictionary<string, Func<Widget>> _viewCreator = new();

@@ -448,7 +448,7 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         return output.ToArray();
     }
 
-    public bool Equals(AssemblyInfo x, AssemblyInfo y) => x.Id == y.Id;
+    public bool Equals(AssemblyInfo? x, AssemblyInfo? y) => x?.Id == y?.Id;
 
     public int GetHashCode(AssemblyInfo obj) => Id;
 }

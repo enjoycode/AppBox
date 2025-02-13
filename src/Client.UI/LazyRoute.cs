@@ -22,6 +22,6 @@ public sealed class LazyRoute : Route //继承自Route使转换后类型兼容
     public override ValueTask<Widget> BuildWidgetAsync(string? args)
     {
         //TODO:处理args
-        return AppAssembiles.MakeViewWidgetAsync(_viewModelName);
+        return AppAssemblies.MakeViewWidgetAsync(_viewModelName);
     }
 }
