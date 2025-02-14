@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "AppBoxStudio.Web",
   "resources": {
-    "hash": "sha256-NVUmGYlTboYhSXAXboW1Z6hhuDPzKCn2m99v/9SRXzU=",
+    "hash": "sha256-w7NYDHvPFx/O14thxDN1TL/EVtAs52+HMLoMrQrQ7Lg=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-mYyfGoKjLq4H0BDc+EqrVpr+H3sZ6Wby7dRj8DP8HVM="
     },
@@ -9,20 +9,20 @@
       "dotnet.runtime.js": "sha256-aTAnT1r/EAWev8oI/mTFI9nH3RsfA5M822bNiGhok6U="
     },
     "wasmNative": {
-      "dotnet.native.wasm": "sha256-Dw1hkTPYfUyaH+2QesC6HAylnLVjDtUtN9XbQNg8rYY="
+      "dotnet.native.wasm": "sha256-ns5b9PpB11O3SpurSStbfU+5eEAQZWpgEx2Z94H1+TU="
     },
     "icu": {
       "icudt.dat": "sha256-WA+S3mngBwacEVPf6geF4JUFljfYUtouCdBTlxeHFSg="
     },
     "coreAssembly": {},
     "assembly": {
-      "AppBoxClient.wasm": "sha256-LojX09AySHX2g6g0bqMOKyL6lgfw7fVvH/jhYxZfbr0=",
-      "AppBoxClientUI.wasm": "sha256-3aebrFFsuhflErgl14NCmoT7C8bTrXMg18I/xHBWV0g=",
-      "AppBoxCore.wasm": "sha256-lu+B1Ka9zhgjPm3Ka16ZTpsinsWbiN/QVarm4EVZEcs=",
-      "AppBoxDesignData.wasm": "sha256-IdheVKZGHnHGJof1iaamD4MbsCBSbL330x0hlrPLgz0=",
-      "AppBoxStore.wasm": "sha256-eS72Ot79dvfYptzWng9hhXrS96yJOi0LMNLxcrclEvo=",
-      "AppBoxStudio.wasm": "sha256-deOTa14P6QpCS3w/F7keE2ge8b7BLV43IAy/mZLXiaQ=",
-      "AppBoxStudio.Web.wasm": "sha256-+SIsNzyiWaJMkILNCvq+0+5kPGKe+Px61tQ6QIw8ywU=",
+      "AppBoxClient.wasm": "sha256-dV81BM+pRlBBrOUkGeVpmi3a1l2KtCpRkPoq5r+Ul8A=",
+      "AppBoxClientUI.wasm": "sha256-suN9LPq4GTBlz9EHBxGQZGuth6oDLbNHPI6nmaeLjF0=",
+      "AppBoxCore.wasm": "sha256-jXzBTdBCWH2wcVS2sPkta/gNBQYdEBRL21N1WQRzDhs=",
+      "AppBoxDesignData.wasm": "sha256-6lqaN0lCW5io86ScGNH8QC/gGqu0+2vMMxnp09Bwvtg=",
+      "AppBoxStore.wasm": "sha256-Wx/h+nsHN8OB3FZ/3V9EOldV8HEpL0PkR0b2o1o6LAI=",
+      "AppBoxStudio.wasm": "sha256-HS5hYiBxlpLxwf/FuEBqQJA/ZqHOWir+2kcAqXkJJyw=",
+      "AppBoxStudio.Web.wasm": "sha256-MX/K0A0Ht4WPsT08h70IcRgtNkIUTvj5RGjahygbJmE=",
       "Humanizer.wasm": "sha256-4NbSboZzzP9nikRtXapUZNzOyITt7ht9TNqCIQHr5OE=",
       "LiveChartsCore.wasm": "sha256-3yQdRMB0XXa/RJOCVYI72vDe6/rA8q8Ue2ZVp9Uvf18=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-fUujDTtkYy98oJdqvSOv5nMQBa+kqRfkOGFZ/N1MORo=",
@@ -50,14 +50,14 @@
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-ntjPxPV6zxozx8TpyHxdn2BRZ8n4KbBXstLFa4nCukk=",
       "Microsoft.Win32.Primitives.wasm": "sha256-06UP6nFVNuMtW1Hc/CXO7LBXMspq/LgFIFyTwsIOFCw=",
       "netstandard.wasm": "sha256-PolA0Pz7q7uPDhMsFacQSsBt9Lx5f+OW2ty5SLpJoCM=",
-      "PixUI.CodeEditor.wasm": "sha256-3daKcPKc8auKXIrtxxN8mpbPALxggi1WVomcIcCNmPQ=",
-      "PixUI.Dynamic.Design.wasm": "sha256-xgznuWMmIw6vefZ4FCnfsH28X+oLLocKwqbGjroKXA0=",
-      "PixUI.Dynamic.wasm": "sha256-TEZRn2xQ8Y+u43QON/zdCx7Cn6pjso9ehvhzN52lXbE=",
-      "PixUI.LiveCharts.wasm": "sha256-+C+p+xnUC3KlpOuACaLPamscWEBYiOpUExVWGZ/qrj8=",
-      "PixUI.MaterialIcons.wasm": "sha256-bGVPjBklVCzYBs5K+5MMIztxbCE6Ls3nrS2US6VYits=",
-      "PixUI.TSAttributes.wasm": "sha256-RGQPNG94g8a1lKD8n9TaX0FR3B2IndZ+ddLGANSoG70=",
-      "PixUI.wasm": "sha256-HZu8sjKcUIBkpanUQu2w+MLTTB0mry61t9PSQKZv9n8=",
-      "PixUI.Widgets.wasm": "sha256-jFr9ZCyoLKNUApjm4Feqlp6vv6l8a78X241vtg5fcGI=",
+      "PixUI.CodeEditor.wasm": "sha256-z3MZkzj4fxUFyq8ztXPGT6rEGU9KTTsK+VNjqR4L0CI=",
+      "PixUI.Dynamic.Design.wasm": "sha256-S7YawdeQ/aM7RPLnNTnGJjWKnpUDGQCq14zukXDGNEc=",
+      "PixUI.Dynamic.wasm": "sha256-PYGcAEiNhXx07bbsIF8KasK5DulPJl5Oq78kZ5BK+CI=",
+      "PixUI.LiveCharts.wasm": "sha256-nBpFEZBSJXxHxF1gnvikKQv/kUTK6MZ0C57GsNNHu9A=",
+      "PixUI.MaterialIcons.wasm": "sha256-MYApOXz+Gi5h4HYYZs38qCEvUa6nzA/R9NG5/g5a3mc=",
+      "PixUI.TSAttributes.wasm": "sha256-46v60UkPn+7D/aFO/5ztwiXEJdi+OyKojNtORi3ZcWs=",
+      "PixUI.wasm": "sha256-h1qj2px8Sx53w9EvR79IeiwhV169F7cRM7UvSQ2622w=",
+      "PixUI.Widgets.wasm": "sha256-WMYem8WmUKRuwsSU86qIa2yvIuNpjw1lG6pKEIWWXjo=",
       "System.Collections.Concurrent.wasm": "sha256-5RN37ye8I5mMYpLXQjyDwgu5IE6NPoWUTEChkCvwGy0=",
       "System.Collections.Immutable.wasm": "sha256-GTxm7R9zXasuwqwLaPfVo+/Ni01k3AkO1yS+SfRWYnc=",
       "System.Collections.NonGeneric.wasm": "sha256-54ow122cLFikkKulq0kO//OkTvXQ/DPkwf5Kut7kZUA=",
