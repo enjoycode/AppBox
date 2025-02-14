@@ -10,6 +10,10 @@ public interface IInputStream : IEntityMemberReader
 
     bool HasRemaining { get; } //TODO: change to Remaining
 
+    void Free();
+
+    Stream WrapToStream();
+
     #region ====IEntityMemberReader====
 
     string IEntityMemberReader.ReadStringMember(int flags)

@@ -18,15 +18,16 @@ public sealed class WebSocketChannel : IChannel
     }
 
     private ClientWebSocket _clientWebSocket = null!;
-    private int _connectStatus = 0;
+    private int _connectStatus;
     private Task _connectTask = null!;
     private readonly Uri _serverUri;
 
     private string? _sessionId;
     private string? _name;
-    private int _msgIdIndex = 0;
+    private int _msgIdIndex;
 
     public string SessionName => _name ?? string.Empty;
+    public string SessionId => _sessionId ?? string.Empty;
     public Guid LeafOrgUnitId { get; private set; } = Guid.Empty;
 
     private readonly ConcurrentDictionary<int, PooledTaskSource<MessageReadStream>> _pendingRequests = new();
@@ -37,62 +38,40 @@ public sealed class WebSocketChannel : IChannel
     //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
     private BytesSegment? _pendingResponse;
 
-    public async Task<object?> Invoke(string service, object?[]? args, EntityFactory[]? entityFactories)
-    {
-        var rs = await InvokeForStream(service, args);
-        if (entityFactories != null)
-            rs.Context.SetEntityFactories(entityFactories);
-
-        // deserialize response
-        var errorCode = (InvokeErrorCode)rs.ReadByte();
-        object? result = null;
-        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
-        {
-            try
-            {
-                result = rs.Deserialize();
-            }
-            catch (Exception ex)
-            {
-                errorCode = InvokeErrorCode.DeserializeResponseFail;
-                result = ex.Message;
-            }
-            finally
-            {
-                MessageReadStream.Return(rs);
-            }
-        }
-
-        if (errorCode != InvokeErrorCode.None)
-            throw new Exception($"Code={errorCode} Msg={result}");
-        return result;
-    }
-
-    public async Task<MessageReadStream> InvokeForStream(string service, object?[]? args)
+    public async Task<IInputStream> Invoke(string service, Action<IOutputStream>? argsWriter)
     {
         //add to wait list
         var msgId = MakeMsgId();
         var promise = _pooledTaskSource.Allocate();
         _pendingRequests.TryAdd(msgId, promise);
 
-        //serialize request
+        //serialize request header
         var ws = MessageWriteStream.Rent();
-        ws.WriteByte((byte)MessageType.InvokeRequest);
-        ws.WriteInt(msgId);
-        ws.WriteString(service);
-        if (args != null && args.Length > 0)
+        BytesSegment reqData;
+        try
         {
-            for (var i = 0; i < args.Length; i++)
-            {
-                ws.Serialize(args[i]);
-            }
+            ws.WriteByte((byte)MessageType.InvokeRequest);
+            ws.WriteInt(msgId);
+            ws.WriteString(service);
+            //serialize request args
+            argsWriter?.Invoke(ws);
+
+            reqData = ws.FinishWrite();
+        }
+        catch (Exception)
+        {
+            //must free BytesSegment has written.
+            reqData = ws.FinishWrite();
+            BytesSegment.ReturnAll(reqData);
+            throw;
+        }
+        finally
+        {
+            MessageWriteStream.Return(ws);
         }
 
-        // send and wait for response
-        var reqData = ws.FinishWrite();
-        MessageWriteStream.Return(ws);
+        // send request and wait for response
         await SendMessage(reqData);
-
         var rs = await promise.WaitAsync();
 
         _pendingRequests.TryRemove(msgId, out _);
@@ -237,10 +216,8 @@ public sealed class WebSocketChannel : IChannel
         do
         {
             var isEnd = cur.Next == null;
-            await _clientWebSocket.SendAsync(cur.Memory, WebSocketMessageType.Binary, isEnd,
-                CancellationToken.None);
-            if (isEnd)
-                break;
+            await _clientWebSocket.SendAsync(cur.Memory, WebSocketMessageType.Binary, isEnd, CancellationToken.None);
+            if (isEnd) break;
             cur = (BytesSegment)cur.Next!;
         } while (true);
 

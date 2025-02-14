@@ -25,29 +25,83 @@ public static class Channel
 
     public static async Task Invoke(string service, object?[]? args = null)
     {
-        await Provider.Invoke(service, args, null);
+        await Invoke<object?>(service, args, null);
     }
 
     public static async Task<T?> Invoke<T>(string service, object?[]? args = null,
         EntityFactory[]? entityFactories = null)
     {
-        var res = await Provider.Invoke(service, args, entityFactories);
-        if (res == null) return default;
+        var rs = await Provider.Invoke(service, w =>
+        {
+            if (args != null && args.Length > 0)
+            {
+                for (var i = 0; i < args.Length; i++)
+                {
+                    w.Serialize(args[i]);
+                }
+            }
+        });
+        if (entityFactories != null)
+            rs.Context.SetEntityFactories(entityFactories);
 
-        return (T)res;
+        // deserialize response
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        object? result = null;
+        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
+        {
+            try
+            {
+                result = rs.Deserialize();
+            }
+            catch (Exception ex)
+            {
+                errorCode = InvokeErrorCode.DeserializeResponseFail;
+                result = ex.Message;
+            }
+            finally
+            {
+                rs.Free();
+            }
+        }
+
+        if (errorCode != InvokeErrorCode.None)
+            throw new Exception($"Code={errorCode} Msg={result}");
+
+        if (result == null) return default;
+        return (T)result;
+    }
+
+    public static async Task Invoke(string service, Action<IOutputStream> argsWriter)
+    {
+        var rs = await Provider.Invoke(service, argsWriter);
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        rs.Free();
+        if (errorCode != InvokeErrorCode.None)
+            throw new Exception($"Code={errorCode}");
     }
 
     public static async Task<Stream> InvokeForStream(string service, object?[]? args = null)
     {
-        var rs = await Provider.InvokeForStream(service, args);
+        var rs = await Provider.Invoke(service, w =>
+        {
+            if (args != null && args.Length > 0)
+            {
+                for (var i = 0; i < args.Length; i++)
+                {
+                    w.Serialize(args[i]);
+                }
+            }
+        });
+
+        // deserialize response
         var errorCode = (InvokeErrorCode)rs.ReadByte();
         if (errorCode != InvokeErrorCode.None)
         {
-            MessageReadStream.Return(rs);
+            rs.Free();
             throw new Exception($"Code={errorCode}");
         }
 
-        return new MessageReadStreamWrap(rs);
+        return rs.WrapToStream();
     }
 
     //暂时放在这里，待移至RuntimeContext内
@@ -59,10 +113,9 @@ public static class Channel
             return false;
         }
 
-        var args = new object?[] { permissionModelId.Value };
         try
         {
-            var res = await Invoke<bool>("sys.SystemService.HasPermission", args);
+            var res = await Invoke<bool>("sys.SystemService.HasPermission", [permissionModelId.Value]);
             return res;
         }
         catch (Exception e)

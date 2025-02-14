@@ -171,7 +171,7 @@ internal sealed class Commands
     {
         try
         {
-            await Channel.Invoke("sys.DesignService.BuildApp", new object?[] { true });
+            await AppBoxDesign.BuildApp.Execute();
             Notification.Success($"构建应用成功");
             //TODO:**暂在这里重新构建动态组件工具箱
             await _designStore.RebuildDynamicToolbox();

@@ -283,6 +283,109 @@ internal static class PublishService
 
         RuntimeContext.Current.InvalidModelsCache(services, others, true);
     }
+
+    #region ====Publish Client App Assemblies====
+
+    private static string GetUploadAppPath()
+    {
+        var sessionName = RuntimeContext.Current.CurrentSession!.Name;
+        return Path.Combine(Path.GetTempPath(), "AppBox", sessionName);
+    }
+
+    internal static void BeginUploadApp()
+    {
+        var tempPath = GetUploadAppPath();
+        if (Directory.Exists(tempPath))
+            Directory.Delete(tempPath, true);
+
+        Directory.CreateDirectory(tempPath);
+    }
+
+    /// <summary>
+    /// 将客户端上传的编译且压缩好的AppAssembly保存至临时目录
+    /// </summary>
+    internal static async Task UploadAppAssembly(InvokeArgs args)
+    {
+        var rs = args.Stream!;
+        var assemblyName = rs.ReadString()!;
+
+        var tempPath = GetUploadAppPath();
+        var filePath = Path.Combine(tempPath, assemblyName);
+        await using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await rs.CopyToAsync(fs);
+        await fs.FlushAsync();
+        Log.Debug($"Upload to: {filePath} {fs.Length}");
+    }
+
+    /// <summary>
+    /// 保存客户端上传的视图Assembly的依赖Map，并且开始保存App
+    /// </summary>
+    internal static async Task UploadViewAssemblyMap(InvokeArgs args)
+    {
+        //读取映射表
+        var rs = args.Stream!;
+        var count = rs.ReadVariant();
+        var viewAssemblyMap = new List<MapItem>(count);
+        for (var i = 0; i < count; i++)
+        {
+            var asmFlag = (AssemblyFlag)rs.ReadByte();
+            var asmName = rs.ReadString()!;
+            var dataLen = rs.ReadVariant();
+            var data = new byte[dataLen];
+            rs.ReadBytes(data);
+            viewAssemblyMap.Add(new MapItem(asmName, asmFlag, data));
+        }
+
+        //读取之前上传的组件
+        var tempPath = GetUploadAppPath();
+        var allAssemblies = new Dictionary<string, byte[]>();
+        foreach (var file in Directory.EnumerateFiles(tempPath))
+        {
+            allAssemblies.Add(Path.GetFileName(file), await File.ReadAllBytesAsync(file));
+        }
+
+        //开始事务保存
+        await using var txn = await SqlStore.Default.BeginTransactionAsync();
+        //先清除旧的
+        await MetaStore.Provider.DeleteAllAppAssembliesAsync(txn);
+        //保存程序集
+        foreach (var assemblyInfo in allAssemblies)
+        {
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, assemblyInfo.Key,
+                assemblyInfo.Value, txn);
+        }
+
+        //保存视图模型对应的所有程序集的映射
+        foreach (var kv in viewAssemblyMap)
+        {
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, kv.ViewModelName, kv.MapData,
+                txn,
+                kv.AssemblyFlag);
+        }
+
+        await txn.CommitAsync();
+
+        // 清除临时目录
+#if !DEBUG
+        Directory.Delete(tempPath, true);
+#endif
+    }
+
+    private readonly struct MapItem
+    {
+        public MapItem(string viewModelName, AssemblyFlag assemblyFlag, byte[] data)
+        {
+            ViewModelName = viewModelName;
+            AssemblyFlag = assemblyFlag;
+            MapData = data;
+        }
+
+        public readonly string ViewModelName;
+        public readonly AssemblyFlag AssemblyFlag;
+        public readonly byte[] MapData;
+    }
+
+    #endregion
 }
 
 internal sealed class PublishContainer : IModelContainer

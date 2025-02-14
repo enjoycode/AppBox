@@ -14,6 +14,8 @@ public readonly struct InvokeArgs
         _stream = stream;
     }
 
+    internal MessageReadStream? Stream => _stream;
+
     public void SetEntityFactories(EntityFactory[] factories)
         => _stream?.Context.SetEntityFactories(factories); //stream maybe null when is Empty
 
@@ -150,7 +152,7 @@ public readonly struct InvokeArgs
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
-    
+
     public double? GetDouble()
     {
         var payloadType = (PayloadType)_stream!.ReadByte();

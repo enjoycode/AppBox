@@ -53,9 +53,13 @@ internal sealed class WebSocketClient(WebSocket webSocket)
                     break;
             }
         }
+        catch (SerializationException se)
+        {
+            Log.Warn($"Read client message error: {se.Error}\n{se.StackTrace}");
+        }
         catch (Exception e)
         {
-            Log.Warn($"Read client message error: {e.Message}");
+            Log.Warn($"Read client message error: {e.Message}\n{e.StackTrace}");
             //TODO:发送响应或关闭连接
         }
     }

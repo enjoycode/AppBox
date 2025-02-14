@@ -69,6 +69,15 @@ internal sealed class DesignService : IService
             case "Publish":
                 await PublishService.PublishAsync((PublishPackage)args.GetObject()!, args.GetString());
                 return AnyValue.Empty;
+            case "BeginUploadApp":
+                PublishService.BeginUploadApp();
+                return AnyValue.Empty;
+            case "UploadAppAssembly":
+                await PublishService.UploadAppAssembly(args);
+                return AnyValue.Empty;
+            case "UploadViewAssemblyMap":
+                await PublishService.UploadViewAssemblyMap(args);
+                return AnyValue.Empty;
             default:
                 throw new Exception($"Unknown design method: {method}");
         }

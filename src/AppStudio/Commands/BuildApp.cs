@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Text.Json;
 using AppBoxCore;
+using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -52,34 +54,40 @@ internal static class BuildApp
             assemblyInfo.TryCompile();
         }
 
-        // TODO: 以下递交至服务端执行
-        // //压缩保存
-        // await using var txn = await SqlStore.Default.BeginTransactionAsync();
-        // //先清除旧的
-        // await MetaStore.Provider.DeleteAllAppAssembliesAsync(txn);
-        // //保存程序集
-        // foreach (var assemblyInfo in allAssemblies)
-        // {
-        //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, assemblyInfo.AssemblyName,
-        //         assemblyInfo.CompressAssemblyData(), txn);
-        // }
-        //
-        // //保存视图模型对应的所有程序集的映射
-        // foreach (var kv in viewAssemblyMap)
-        // {
-        //     var viewModelName = $"{kv.Key.AppNode.Model.Name}.{kv.Key.Model.Name}";
-        //     //暂用json编码
-        //     var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
-        //     var asmFlag = ctx.GetModelInfo(kv.Key).IsDynamicWidget
-        //         ? AssemblyFlag.ViewDynamic
-        //         : AssemblyFlag.None;
-        //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, viewModelName, jsonData, txn,
-        //         asmFlag);
-        // }
-        //
-        // await txn.CommitAsync();
+        // 1.将编译好的组件上传至服务端保存
+        await hub.PublishService.BeginUploadApp();
+        // 2.保存各个程序集
+        foreach (var assemblyInfo in allAssemblies)
+        {
+            await hub.PublishService.UploadAppAssembly(w =>
+            {
+                w.WriteString(assemblyInfo.AssemblyName);
+                w.WriteBytes(assemblyInfo.CompressAssemblyData());
+            });
+        }
+
+        // 3.保存视图模型对应的所有程序集的映射
+        await hub.PublishService.UploadViewAssemblyMap(w =>
+        {
+            w.WriteVariant(viewAssemblyMap.Count);
+
+            foreach (var kv in viewAssemblyMap)
+            {
+                var viewModelName = $"{kv.Key.AppNode.Model.Name}.{kv.Key.Model.Name}";
+                //暂用json编码
+                var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
+                var asmFlag = ctx.GetModelInfo(kv.Key).IsDynamicWidget
+                    ? AssemblyFlag.ViewDynamic
+                    : AssemblyFlag.None;
+
+                w.WriteByte((byte)asmFlag);
+                w.WriteString(viewModelName);
+                w.WriteVariant(jsonData.Length);
+                w.WriteBytes(jsonData);
+            }
+        });
     }
-    
+
     private static async ValueTask AnalyseView(BuildContext ctx, ModelNode viewModelNode)
     {
         if (ctx.HasAssemblyInfo(viewModelNode.Model.Id, out _)) return;
@@ -206,11 +214,11 @@ internal static class BuildApp
         Debug.Assert(exists);
 
         var all = new List<AssemblyInfo>();
-        RecursiveBuildViewAssembies(viewAssemblyInfo, all);
+        RecursiveBuildViewAssemblies(viewAssemblyInfo, all);
         map.Add(viewModelNode, all);
     }
 
-    private static void RecursiveBuildViewAssembies(AssemblyInfo assemblyInfo, List<AssemblyInfo> all)
+    private static void RecursiveBuildViewAssemblies(AssemblyInfo assemblyInfo, List<AssemblyInfo> all)
     {
         var exists = all.Exists(a => a.Id == assemblyInfo.Id);
         if (!exists)
@@ -218,7 +226,7 @@ internal static class BuildApp
 
         foreach (var dependency in assemblyInfo.Dependencies)
         {
-            RecursiveBuildViewAssembies(dependency, all);
+            RecursiveBuildViewAssemblies(dependency, all);
         }
     }
 }
@@ -239,9 +247,9 @@ internal sealed class BuildContext
     private readonly Dictionary<ModelId, AssemblyInfo> _assemblyInfos = new();
     private readonly Dictionary<ModelId, ModelInfo> _modelCache = new();
 
-    private int _assemblyid = 0;
+    private int _assemblyId = 0;
 
-    internal int MakeAssemblyId() => Interlocked.Increment(ref _assemblyid);
+    internal int MakeAssemblyId() => Interlocked.Increment(ref _assemblyId);
 
     internal void AddModelToAssembly(ModelId modelId, AssemblyInfo assemblyInfo) =>
         _assemblyInfos.Add(modelId, assemblyInfo);

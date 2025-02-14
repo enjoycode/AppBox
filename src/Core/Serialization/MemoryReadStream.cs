@@ -29,5 +29,9 @@ public sealed class MemoryReadStream : IInputStream, IDisposable
             throw new SerializationException(SerializationError.NothingToRead);
     }
 
+    public void Free() { }
+
+    public Stream WrapToStream() => throw new NotImplementedException();
+
     public void Dispose() => _memory.Dispose();
 }

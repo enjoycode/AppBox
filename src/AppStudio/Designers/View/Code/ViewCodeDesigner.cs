@@ -108,7 +108,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     public override void Dispose()
     {
         _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
-        
+
         base.Dispose();
     }
 
@@ -140,7 +140,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
 
     public Task SaveAsync()
     {
-        return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id, null });
+        return ModelNode.SaveAsync(null);
     }
 
     public async Task RefreshAsync()

@@ -61,6 +61,22 @@ public sealed class MessageReadStream : IInputStream
         Reset(next);
     }
 
+    public void Free() => Return(this);
+
+    public Stream WrapToStream() => new MessageReadStreamWrap(this);
+
+    public async Task CopyToAsync(Stream destination)
+    {
+        while (true)
+        {
+            await destination.WriteAsync(Current.Buffer, Position, CurrentRemaining);
+            var next = Current.Next as BytesSegment;
+            if (next == null)
+                return;
+            Reset(next);
+        }
+    }
+
     #region ====IInputStream====
 
     public byte ReadByte()

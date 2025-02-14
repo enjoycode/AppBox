@@ -100,4 +100,19 @@ internal sealed class MockPublishService : IPublishService
 {
     public Task PublishAsync(PublishPackage package, string commitMessage) =>
         AppBoxServer.Design.PublishService.PublishAsync(package, commitMessage);
+
+    public Task BeginUploadApp()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UploadAppAssembly(Action<IOutputStream> writer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UploadViewAssemblyMap(Action<IOutputStream> writer)
+    {
+        throw new NotImplementedException();
+    }
 }

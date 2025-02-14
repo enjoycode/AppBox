@@ -6,6 +6,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
 
         <IsPackable>false</IsPackable>
+
+        <SignAssembly>true</SignAssembly>
+
+        <AssemblyOriginatorKeyFile>..\AppBox.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,6 +35,9 @@
     <ItemGroup>
       <None Remove="Server\HelloService.bin" />
       <EmbeddedResource Include="Server\HelloService.bin" />
+      <None Include="..\AppBox.snk">
+        <Link>AppBox.snk</Link>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
