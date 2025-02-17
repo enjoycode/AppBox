@@ -16,6 +16,8 @@ public sealed class RoslynSourceText : ITextBuffer
     private readonly ModelNode _modelNode;
     private SourceText _sourceText = null!;
 
+    public bool HasOpen => _sourceText != null!;
+
     internal Microsoft.CodeAnalysis.Document GetRoslynDocument() =>
         DesignHub.Current.TypeSystem.Workspace.CurrentSolution.GetDocument(_modelNode.RoslynDocumentId)!;
 

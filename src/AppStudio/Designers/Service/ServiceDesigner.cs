@@ -65,8 +65,11 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
     private async void OpenDocument()
     {
-        await _textBuffer.Open();
-        _codeEditorController.Document.Open();
+        if (!_textBuffer.HasOpen)
+        {
+            await _textBuffer.Open();
+            _codeEditorController.Document.Open();
+        }
 
         if (_pendingGoto != null)
         {
