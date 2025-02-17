@@ -189,7 +189,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
             throw new ArgumentNullException();
         if (oldName == newName)
         {
-            Log.Warn("Rename: name is same");
+            // Log.Warn("Rename: name is same");
             return;
         }
 

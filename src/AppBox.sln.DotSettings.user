@@ -1,4 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FNanoLog_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FNanoLog_002EExtensions_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FRoslyn_002FMicrosoft_002ECodeAnalysis_002ECSharp_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FRoslyn_002FMicrosoft_002ECodeAnalysis_002ECSharp_002EFeatures_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FRoslyn_002FMicrosoft_002ECodeAnalysis_002ECSharp_002EWorkspaces_002Edll/@EntryIndexedValue">True</s:Boolean>

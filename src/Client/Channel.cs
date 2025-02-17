@@ -109,7 +109,7 @@ public static class Channel
     {
         if (permissionModelId.Type != ModelType.Permission)
         {
-            Log.Error("Not a Permission model");
+            // Log.Error("Not a Permission model");
             return false;
         }
 
@@ -120,7 +120,7 @@ public static class Channel
         }
         catch (Exception e)
         {
-            Log.Error($"Check has permission error: {e.Message}");
+            // Log.Error($"Check has permission error: {e.Message}");
             return false;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using AppBoxCore;
 using System.Data.Common;
 using System;
+using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore.Utils;
 
@@ -32,7 +33,7 @@ internal static class EntityFetchUtil
             if (member == null)
             {
                 //不存在通过反射处理, 如扩展的引用字段
-                Log.Warn($"未找到实体成员{model.Name}.{path}");
+                Logger.Warn($"未找到实体成员{model.Name}.{path}");
             }
             else
             {

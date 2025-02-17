@@ -1,5 +1,6 @@
 using AppBoxCore;
 using AppBoxServer;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxWebHost;
 
@@ -17,7 +18,7 @@ internal static class RestController
         var external = reader.ReadString()!;
         MessageReadStream.Return(reader);
 
-        Log.Debug($"user={user} pass={pass} external={external}");
+        Logger.Debug($"user={user} pass={pass} external={external}");
 
         httpContext.Response.ContentType = "application/octet-stream";
         var writer = new PipeOutput(httpContext.Response.BodyWriter);

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore.Utils;
+using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore;
 
@@ -193,7 +194,7 @@ public abstract class SqlStore
         cmd.Transaction = txn;
         if (txn == null)
             await cmd.Connection.OpenAsync();
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         //执行命令
         try
         {
@@ -203,7 +204,7 @@ public abstract class SqlStore
         }
         catch (Exception ex)
         {
-            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
             throw;
         }
         finally
@@ -232,7 +233,7 @@ public abstract class SqlStore
         cmd.Transaction = txn;
         if (txn == null)
             await cmd.Connection.OpenAsync();
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         //执行命令
         try
         {
@@ -242,7 +243,7 @@ public abstract class SqlStore
         }
         catch (Exception ex)
         {
-            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
             throw;
         }
         finally
@@ -262,7 +263,7 @@ public abstract class SqlStore
         cmd.Transaction = txn;
         if (txn == null)
             await cmd.Connection.OpenAsync();
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         var effects = 0;
         //执行命令
@@ -279,7 +280,7 @@ public abstract class SqlStore
             }
             catch (Exception ex)
             {
-                Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+                Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
                 throw;
             }
             finally
@@ -295,7 +296,7 @@ public abstract class SqlStore
             }
             catch (Exception ex)
             {
-                Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+                Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
                 throw;
             }
             finally
@@ -334,7 +335,7 @@ public abstract class SqlStore
         cmd.Transaction = txn;
         if (txn == null)
             await cmd.Connection.OpenAsync();
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         //执行命令
         try
         {
@@ -344,7 +345,7 @@ public abstract class SqlStore
         }
         catch (Exception ex)
         {
-            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
             throw;
         }
         finally
@@ -364,7 +365,7 @@ public abstract class SqlStore
         cmd.Transaction = txn;
         if (txn == null)
             await cmd.Connection.OpenAsync();
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         //执行命令
         try
         {
@@ -372,7 +373,7 @@ public abstract class SqlStore
         }
         catch (Exception ex)
         {
-            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
             throw;
         }
         finally
@@ -447,7 +448,7 @@ public abstract class SqlStore
         cmd.Transaction = txn;
         if (txn == null)
             await cmd.Connection.OpenAsync();
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         try
         {
@@ -462,7 +463,7 @@ public abstract class SqlStore
         }
         catch (Exception ex)
         {
-            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
             throw;
         }
         finally

@@ -20,4 +20,10 @@
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="NanoLog">
+        <HintPath>..\..\ext\NanoLog.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

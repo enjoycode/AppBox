@@ -1,5 +1,5 @@
-using AppBoxCore;
 using Microsoft.Net.Http.Headers;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxWebHost;
 
@@ -14,7 +14,7 @@ public sealed class PreCompressedBlazorMiddleware
 
     public Task InvokeAsync(HttpContext context)
     {
-        Log.Debug($"{context.Request.Method}: {context.Request.Path}");
+        Logger.Debug($"{context.Request.Method}: {context.Request.Path}");
 
         var request = context.Request;
         var path = request.Path.Value;
@@ -93,7 +93,7 @@ public sealed class PreCompressedBlazorMiddleware
     }
 }
 
-public static class PrecompressedBlazorMiddlewareExtensions
+public static class PreCompressedBlazorMiddlewareExtensions
 {
     public static IApplicationBuilder UsePrecompressedPrecompressedBlazor(this IApplicationBuilder builder)
     {

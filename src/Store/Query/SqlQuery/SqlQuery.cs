@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore.Utils;
+using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore;
 
@@ -149,7 +150,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
         cmd.Connection = conn;
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         await using var reader = await cmd.ExecuteReaderAsync();
         if (!await reader.ReadAsync())
@@ -184,7 +185,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
         cmd.Connection = conn;
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         await using var reader = await cmd.ExecuteReaderAsync();
         if (await reader.ReadAsync())
@@ -215,7 +216,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
         cmd.Connection = conn;
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         var list = new List<TEntity>();
         await using var reader = await cmd.ExecuteReaderAsync();
@@ -298,7 +299,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         await using var conn = db.MakeConnection();
         await conn.OpenAsync();
         cmd.Connection = conn;
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         var list = new List<TResult>();
         try
@@ -312,7 +313,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         }
         catch (Exception ex)
         {
-            Log.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+            Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
             throw;
         }
     }
@@ -347,7 +348,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
         cmd.Connection = conn;
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         var list = new List<TEntity>();
         var allList = new List<TEntity>();
@@ -415,7 +416,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
         cmd.Connection = conn;
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
 
         var list = new List<TreePathNode>();
         await using var reader = await cmd.ExecuteReaderAsync();

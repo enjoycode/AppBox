@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxServer;
 
@@ -105,7 +102,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
             if (instance == null)
             {
                 var error = $"Can't find service: {servicePath}";
-                Log.Warn(error);
+                Logger.Warn(error);
                 throw new Exception(error);
             }
 

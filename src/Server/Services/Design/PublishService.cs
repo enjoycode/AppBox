@@ -3,6 +3,7 @@ using System.IO.Compression;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxStore;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxServer.Design;
 
@@ -314,7 +315,7 @@ internal static class PublishService
         await using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
         await rs.CopyToAsync(fs);
         await fs.FlushAsync();
-        Log.Debug($"Upload to: {filePath} {fs.Length}");
+        Logger.Debug($"Upload to: {filePath} {fs.Length}");
     }
 
     /// <summary>

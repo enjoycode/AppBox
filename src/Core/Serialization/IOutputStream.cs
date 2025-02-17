@@ -336,7 +336,7 @@ public static class OutputStreamExtensions
             var serializer = TypeSerializer.GetSerializer(type);
             if (serializer == null)
             {
-                Log.Error("未能找到序列化实现 类型:" + type.FullName);
+                // Log.Error("未能找到序列化实现 类型:" + type.FullName);
                 throw new SerializationException(SerializationError.CanNotFindSerializer, type.FullName);
             }
 
@@ -466,7 +466,7 @@ public static class OutputStreamExtensions
         var serializer = TypeSerializer.GetSerializer(type);
         if (serializer == null)
         {
-            Log.Error($"Can't find serializer for: {type.FullName}");
+            // Log.Error($"Can't find serializer for: {type.FullName}");
             throw new SerializationException(SerializationError.CanNotFindSerializer, type.FullName);
         }
 

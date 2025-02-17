@@ -203,7 +203,7 @@ public sealed class WebSocketChannel : IChannel
 
     private void OnClose(string reason)
     {
-        Log.Info($"Closed by reason: {reason}");
+        // Log.Info($"Closed by reason: {reason}");
         //TODO: clean pending request
         Interlocked.Exchange(ref _connectStatus, 0);
     }

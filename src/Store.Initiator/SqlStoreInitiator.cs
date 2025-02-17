@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AppBoxCore;
+using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore;
 
@@ -21,7 +22,7 @@ public static class SqlStoreInitiator
         }
         catch (Exception ex)
         {
-            Log.Warn($"Open sql connection error: {ex.Message}");
+            Logger.Warn($"Open sql connection error: {ex.Message}");
             Environment.Exit(0);
         }
 
@@ -33,8 +34,8 @@ public static class SqlStoreInitiator
         }
         catch (Exception ex)
         {
-            Log.Debug($"CMD:{cmd1.CommandText} MSG:{ex.Message}");
-            Log.Info("Start create meta store...");
+            Logger.Debug($"CMD:{cmd1.CommandText} MSG:{ex.Message}");
+            Logger.Info("Start create meta store...");
         }
 
         //开始事务初始化
@@ -49,15 +50,14 @@ public static class SqlStoreInitiator
         try
         {
             await cmd2.ExecuteNonQueryAsync();
-            Log.Info("Create meta table done.");
+            Logger.Info("Create meta table done.");
             await StoreInitiator.InitAsync(txn);
             await txn.CommitAsync();
-            Log.Info("Init default sql store done.");
+            Logger.Info("Init default sql store done.");
         }
         catch (Exception ex)
         {
-            Log.Error(
-                $"Init default sql store error: {ex.GetType().Name}\n{ex.Message}\n{ex.StackTrace}");
+            Logger.Error($"Init default sql store error: {ex.GetType().Name}\n{ex.Message}\n{ex.StackTrace}");
             Environment.Exit(0); //TODO:退出前关闭子进程
         }
     }

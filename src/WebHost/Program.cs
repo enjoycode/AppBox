@@ -3,8 +3,9 @@ using AppBoxCore;
 using AppBoxStore;
 using AppBoxServer;
 using AppBoxWebHost;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.FileProviders;
+using NanoLog.Extensions;
+
+NanoLog.NanoLogger.Start();
 
 //临时方案Console输出编码问题
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -13,6 +14,7 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Logging.ClearProviders().AddProvider(new NanoLoggerProvider());
 
 var app = builder.Build();
 
@@ -33,7 +35,7 @@ app.UseStaticFiles(new StaticFileOptions
 // {
 //     FileProvider = new PhysicalFileProvider(
 //         Path.Combine(builder.Environment.ContentRootPath, "dev", "wwwroot")),
-//     ContentTypeProvider = new PrecompressedContentTypeProvider(),
+//     ContentTypeProvider = new PreCompressedContentTypeProvider(),
 //     RequestPath = "/dev"
 // });
 
@@ -63,3 +65,5 @@ await SqlStoreInitiator.TryInitStoreAsync();
 #endif
 
 app.Run();
+
+NanoLog.NanoLogger.Stop();

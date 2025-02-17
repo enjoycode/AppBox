@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Net.WebSockets;
 using AppBoxCore;
 using AppBoxServer;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxWebHost;
 
@@ -48,18 +49,18 @@ internal sealed class WebSocketClient(WebSocket webSocket)
                     await ProcessLoginRequest(msgId, reader).ConfigureAwait(false);
                     break;
                 default:
-                    Log.Warn("Receive unknown message type.");
+                    Logger.Warn("Receive unknown message type.");
                     //TODO: send error response
                     break;
             }
         }
         catch (SerializationException se)
         {
-            Log.Warn($"Read client message error: {se.Error}\n{se.StackTrace}");
+            Logger.Warn($"Read client message error: {se.Error}\n{se.StackTrace}");
         }
         catch (Exception e)
         {
-            Log.Warn($"Read client message error: {e.Message}\n{e.StackTrace}");
+            Logger.Warn($"Read client message error: {e.Message}\n{e.StackTrace}");
             //TODO:发送响应或关闭连接
         }
     }
@@ -77,12 +78,12 @@ internal sealed class WebSocketClient(WebSocket webSocket)
         try
         {
             result = await SystemService.Login(user, pass);
-            Log.Info($"[{user}]登录成功.");
+            Logger.Info($"[{user}]登录成功.");
         }
         catch (Exception e)
         {
             errorInfo = e.Message;
-            Log.Warn($"用户登录失败: {e.Message}");
+            Logger.Warn($"用户登录失败: {e.Message}");
         }
 
         //登录成功创建并注册会话
@@ -126,7 +127,7 @@ internal sealed class WebSocketClient(WebSocket webSocket)
         try
         {
             service = reader.ReadString()!;
-            Log.Debug($"收到调用请求: {service}");
+            Logger.Debug($"收到调用请求: {service}");
 
             result = await RuntimeContext.InvokeAsync(service, InvokeArgs.From(reader));
         }
@@ -140,7 +141,7 @@ internal sealed class WebSocketClient(WebSocket webSocket)
                 _ => InvokeErrorCode.ServiceInnerError
             };
             result = e.Message;
-            Log.Error($"Invoke service[{service}] error[{errorCode}]: {e.Message}\n{e.StackTrace}");
+            Logger.Error($"Invoke service[{service}] error[{errorCode}]: {e.Message}\n{e.StackTrace}");
         }
 
         //序列化并发送响应
@@ -156,7 +157,7 @@ internal sealed class WebSocketClient(WebSocket webSocket)
         catch (Exception e) //序列化响应异常
         {
             writeError = true;
-            Log.Warn($"Serialize InvokeResponse error: {e.Message}");
+            Logger.Warn($"Serialize InvokeResponse error: {e.Message}");
         }
 
         var data = writer.FinishWrite();
@@ -201,7 +202,7 @@ internal sealed class WebSocketClient(WebSocket webSocket)
         }
         catch (Exception e)
         {
-            Log.Warn($"Send message to client error: {e.Message}");
+            Logger.Warn($"Send message to client error: {e.Message}");
         }
         finally
         {

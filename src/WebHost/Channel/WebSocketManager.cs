@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using AppBoxCore;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxWebHost;
 
@@ -41,7 +42,7 @@ internal static class WebSocketManager
             catch (Exception ex)
             {
                 BytesSegment.ReturnOne(frame);
-                Log.Warn($"WebSocket receive error: {ex.Message}");
+                Logger.Warn($"WebSocket receive error: {ex.Message}");
                 break;
             }
 
@@ -57,7 +58,7 @@ internal static class WebSocketManager
         }
         catch (Exception ex)
         {
-            Log.Debug($"关闭WebSocket通道失败:{ex.Message}，忽略继续");
+            Logger.Debug($"关闭WebSocket通道失败:{ex.Message}，忽略继续");
         }
 
         //移除清理
@@ -76,7 +77,7 @@ internal static class WebSocketManager
         }
 
         var leftCount = Anonymous.Count + Clients.Count;
-        Log.Debug($"WebSocket关闭, 还余: {leftCount}");
+        Logger.Debug($"WebSocket关闭, 还余: {leftCount}");
     }
 
     /// <summary>

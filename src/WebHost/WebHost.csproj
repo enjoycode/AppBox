@@ -31,4 +31,13 @@
               CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="NanoLog">
+        <HintPath>..\..\ext\NanoLog.dll</HintPath>
+      </Reference>
+      <Reference Include="NanoLog.Extensions">
+        <HintPath>..\..\ext\NanoLog.Extensions.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

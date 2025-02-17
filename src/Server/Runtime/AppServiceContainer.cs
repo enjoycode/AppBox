@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxServer;
 
@@ -34,7 +31,7 @@ public static class AppServiceContainer
         var asmData = await MetaStore.Provider.LoadServiceAssemblyAsync(name);
         if (asmData == null || asmData.Length == 0)
         {
-            Log.Warn($"无法从存储加载ServiceAssembly: {name}");
+            Logger.Warn($"无法从存储加载ServiceAssembly: {name}");
             return null;
         }
 
@@ -57,7 +54,7 @@ public static class AppServiceContainer
                     return null;
                 service = new ServiceInfo { Instance = instance, Loader = asmLoader };
                 Services.TryAdd(name, service);
-                Log.Debug($"加载服务实例: {asm.FullName}");
+                Logger.Debug($"加载服务实例: {asm.FullName}");
             }
         }
 
@@ -73,7 +70,7 @@ public static class AppServiceContainer
             Path.Combine(AppContext.BaseDirectory, "debug", debugSessionId.ToString());
         if (!Directory.Exists(debugFolder))
         {
-            Log.Warn("Start debug process can't found target folder.");
+            Logger.Warn("Start debug process can't found target folder.");
             return;
         }
 
@@ -89,7 +86,7 @@ public static class AppServiceContainer
                 var instance = (IService)asm.CreateInstance(sr[2])!;
                 Services.TryAdd($"{sr[0]}.{sr[2]}",
                     new ServiceInfo { Instance = instance, Loader = asmLoader });
-                Log.Debug("Inject debug service instance:" + file);
+                Logger.Debug($"Inject debug service instance: {file}");
             }
         }
     }

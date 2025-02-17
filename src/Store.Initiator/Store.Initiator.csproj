@@ -33,4 +33,10 @@
       <EmbeddedResource Include="Resources\Views\HomePage.dll" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="NanoLog">
+        <HintPath>..\..\ext\NanoLog.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

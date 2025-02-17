@@ -1,9 +1,7 @@
-using System;
-using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.Loader;
-using AppBoxCore;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxServer;
 
@@ -14,11 +12,11 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class ServiceAssemblyLoader : AssemblyLoadContext
 {
-    private readonly string libPath;
+    private readonly string _libPath;
 
     internal ServiceAssemblyLoader(string libPath) : base(true)
     {
-        this.libPath = libPath;
+        this._libPath = libPath;
     }
 
     /// <summary>
@@ -44,10 +42,10 @@ internal sealed class ServiceAssemblyLoader : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        var depFile = Path.Combine(libPath, $"{assemblyName.Name}.dll");
+        var depFile = Path.Combine(_libPath, $"{assemblyName.Name}.dll");
         if (File.Exists(depFile))
         {
-            Log.Debug("从文件加载依赖组件: " + assemblyName.FullName);
+            Logger.Debug($"从文件加载依赖组件: {assemblyName.FullName}");
             //注意：因编译服务模型从流中加载MetadataReference，所以不能用下句加载
             //return LoadFromAssemblyPath(depFile);
             using var fs = File.OpenRead(depFile);
@@ -62,7 +60,7 @@ internal sealed class ServiceAssemblyLoader : AssemblyLoadContext
     protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
     {
         //TODO:fix 加载第三方原生组件
-        Log.Warn($"待实现加载非托管组件: {unmanagedDllName}");
+        Logger.Warn($"待实现加载非托管组件: {unmanagedDllName}");
         return base.LoadUnmanagedDll(unmanagedDllName);
     }
 }

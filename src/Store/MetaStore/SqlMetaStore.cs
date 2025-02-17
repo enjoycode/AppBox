@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using AppBoxCore;
+using static AppBoxStore.StoreLogger;
 
 #if !FUTURE
 
@@ -310,7 +311,7 @@ public sealed class SqlMetaStore : IMetaStore
         using var cmd = db.MakeCommand();
         cmd.Connection = conn;
         cmd.CommandText = $"Select id,data From {esc}sys.Meta{esc} Where meta={MetaType.Meta_View_Router}";
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<ValueTuple<string, string>>();
         while (await reader.ReadAsync())
@@ -424,7 +425,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
         cmd.CommandText = $"Select data From {esc}sys.Meta{esc} Where meta={metaType} And id='{id}'";
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         await using var reader = await cmd.ExecuteReaderAsync();
         byte[]? metaData = null;
         if (await reader.ReadAsync())
@@ -446,7 +447,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
         cmd.CommandText = $"Select data,id From {esc}sys.Meta{esc} Where meta={metaType}";
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         await using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<T>();
         while (await reader.ReadAsync())
@@ -493,7 +494,7 @@ public sealed class SqlMetaStore : IMetaStore
         cmd.CommandText = $"Select id From {esc}sys.Meta{esc} Where meta={metaType}";
         if (model.HasValue)
             cmd.CommandText += $" And model={model.Value}";
-        Log.Debug(cmd.CommandText);
+        Logger.Debug(cmd.CommandText);
         await using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<string>();
         while (await reader.ReadAsync())
