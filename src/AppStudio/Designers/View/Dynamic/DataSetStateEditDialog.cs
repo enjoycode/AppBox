@@ -117,14 +117,12 @@ internal sealed class DataSetStateEditDialog : Dialog
     private async void FetchMethodInfo(bool byTap)
     {
         if (byTap)
-            _dataSetState.Arguments = Array.Empty<string?>();
+            _dataSetState.Arguments = [];
 
         ServiceMethodInfo methodInfo;
         try
         {
-            var jsonResult = (await Channel.Invoke<JsonResult>("sys.DesignService.GetServiceMethod",
-                new object?[] { false, _service.Value }))!;
-            methodInfo = jsonResult.ParseTo<ServiceMethodInfo>()!;
+            methodInfo = await GetServiceMethod.GetByName(DesignHub.Current, _service.Value);
         }
         catch (Exception)
         {

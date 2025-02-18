@@ -156,12 +156,15 @@ internal static class PublishService
         //保存模型相关的代码
         foreach (var modelId in package.SourceCodes.Keys)
         {
+            byte[]? codeData;
             var code = package.SourceCodes[modelId];
             if (code != null)
-            {
-                var codeData = ModelCodeUtil.CompressCode(code);
+                codeData = ModelCodeUtil.CompressCode(code);
+            else //前端没有传新的代码则尝试从暂存的加载
+                codeData = await StagedService.LoadCodeDataAsync(modelId);
+
+            if (codeData != null)
                 await MetaStore.Provider.UpsertModelCodeAsync(modelId, codeData, txn);
-            }
         }
 
         //保存服务模型编译好的运行时组件

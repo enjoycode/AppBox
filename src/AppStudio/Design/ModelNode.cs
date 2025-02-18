@@ -86,6 +86,7 @@ public sealed class ModelNode : DesignNode
         //TODO: 考虑事务保存模型及相关代码
 
         //先保存模型代码
+        var hub = DesignHub.Current;
         if (Model.PersistentState != PersistentState.Deleted)
         {
             var typeSystem = DesignTree!.DesignHub.TypeSystem;
@@ -101,7 +102,7 @@ public sealed class ModelNode : DesignNode
                     srcCode = srcText.ToString();
                 }
 
-                await DesignHub.Current.StagedService.SaveCodeAsync(Model.Id, srcCode);
+                await hub.StagedService.SaveCodeAsync(Model.Id, srcCode);
 
                 //如果是非新建的服务模型需要更新服务代理(注意用initSrcCode判断是否刚创建的)
                 if (Model.ModelType == ModelType.Service && initOrNewSrcCode == null)
@@ -110,6 +111,6 @@ public sealed class ModelNode : DesignNode
         }
 
         //再保存模型元数据
-        await DesignHub.Current.StagedService.SaveModelAsync(Model);
+        await hub.StagedService.SaveModelAsync(Model);
     }
 }

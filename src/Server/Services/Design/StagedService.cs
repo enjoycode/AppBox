@@ -10,7 +10,7 @@ namespace AppBoxServer.Design;
 /// </summary>
 internal static class StagedService
 {
-    private static async Task<byte[]?> LoadCodeDataAsync(ModelId modelId)
+    internal static async Task<byte[]?> LoadCodeDataAsync(ModelId modelId)
     {
         var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 

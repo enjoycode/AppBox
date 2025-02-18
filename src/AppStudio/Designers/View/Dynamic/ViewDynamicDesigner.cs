@@ -113,14 +113,13 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
     public Task SaveAsync()
     {
-        //TODO:直接传输utf8 bytes
         using var ms = new MemoryStream();
         using var writer = new Utf8JsonWriter(ms);
         _designController.Write(writer);
         writer.Flush();
         var json = Encoding.UTF8.GetString(ms.ToArray());
 
-        return Channel.Invoke("sys.DesignService.SaveModel", new object?[] { ModelNode.Id, json });
+        return ModelNode.SaveAsync(json);
     }
 
     public Task RefreshAsync()

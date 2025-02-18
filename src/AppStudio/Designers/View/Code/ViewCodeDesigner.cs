@@ -1,4 +1,3 @@
-using AppBoxClient;
 using CodeEditor;
 using PixUI;
 
@@ -102,7 +101,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
         //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
 
         var problems = await GetProblems.Execute(ModelNode);
-        _designStore.UpdateProblems(ModelNode, problems!);
+        _designStore.UpdateProblems(ModelNode, problems);
 
         if (!problems.Any(p => p.IsError) && !_hidePreviewer.Value)
             _previewController.Invalidate();
