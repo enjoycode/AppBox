@@ -221,7 +221,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     internal void AddModelReferences(List<ModelReferenceInfo> list,
         ModelReferenceType referenceType,
-        ModelId modelID, string? memberName, short? entityMemberId)
+        ModelId modelId, string? memberName, short? entityMemberId)
     {
         //处理ToStringExpression
         // if (FindModelReferenceVisitor.ContainsModelReference(this._toStringExpression, referenceType, modelID, memberName))
@@ -233,7 +233,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         //处理各成员
         foreach (var member in _members)
         {
-            member.AddModelReferences(list, referenceType, modelID, memberName, entityMemberId);
+            member.AddModelReferences(list, referenceType, modelId, memberName, entityMemberId);
         }
 
         // //处理各行为
@@ -324,8 +324,10 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     #region ====IComparable====
 
-    public int CompareTo(EntityModel other)
+    public int CompareTo(EntityModel? other)
     {
+        if (other == null) return 1;
+        
         //判断当前对象有没有EntityRef引用成员至目标对象, 如果引用则大于other对象
         var refs = Members
             .Where(t => t.Type == EntityMemberType.EntityRef)

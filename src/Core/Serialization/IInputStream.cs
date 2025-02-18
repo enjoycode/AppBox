@@ -402,7 +402,7 @@ public static class InputStreamExtensions
         }
 
         //其他需要创建实例的类型
-        object result = null!;
+        object result;
         if (payloadType == PayloadType.Array) //数组实例创建
         {
             var elementType = s.ReadType();
@@ -418,7 +418,7 @@ public static class InputStreamExtensions
             }
 
             var type = serializer.TargetType.MakeGenericType(genericTypes);
-            result = Activator.CreateInstance(type);
+            result = Activator.CreateInstance(type)!;
         }
         else
         {

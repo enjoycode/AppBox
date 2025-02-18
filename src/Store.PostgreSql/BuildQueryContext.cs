@@ -17,9 +17,9 @@ internal sealed class BuildQueryContext
     /// <summary>
     /// 当前正在处理的查询
     /// </summary>
-    public ISqlQuery CurrentQuery;
+    public ISqlQuery CurrentQuery = null!;
 
-    public QueryInfo CurrentQueryInfo;
+    public QueryInfo CurrentQueryInfo = null!;
 
     internal DbCommand Command;
     //internal bool IsBuildCTESelectItem;
@@ -31,7 +31,7 @@ internal sealed class BuildQueryContext
     /// </summary>
     internal Dictionary<ISqlQuery, QueryInfo> Queries;
 
-    private Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>> _autoJoins;
+    private Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>>? _autoJoins;
 
     public Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>> AutoJoins
     {
@@ -48,7 +48,7 @@ internal sealed class BuildQueryContext
     /// <summary>
     /// 参数字典表
     /// </summary>
-    private Dictionary<object, string> Parameters;
+    private Dictionary<object, string> _parameters;
 
     #endregion
 
@@ -56,7 +56,7 @@ internal sealed class BuildQueryContext
 
     public BuildQueryContext(DbCommand command, ISqlQuery root)
     {
-        Parameters = new Dictionary<object, string>();
+        _parameters = new Dictionary<object, string>();
 
         Command = command;
         RootQuery = root;
@@ -98,22 +98,21 @@ internal sealed class BuildQueryContext
     /// <returns></returns>
     public string GetParameterName(object value)
     {
-        string pname;
-        if (!Parameters.TryGetValue(value, out pname))
+        if (!_parameters.TryGetValue(value, out var paraName))
         {
             _parameterIndex += 1;
-            pname = string.Format("p{0}", _parameterIndex.ToString());
-            Parameters.Add(value, pname);
+            paraName = $"p{_parameterIndex.ToString()}";
+            _parameters.Add(value, paraName);
 
-            DbParameter para = Command.CreateParameter();
-            para.ParameterName = pname;
+            var para = Command.CreateParameter();
+            para.ParameterName = paraName;
             para.Value = value;
-            if (value is string)
-                para.Size = ((string)value).Length;
+            if (value is string s)
+                para.Size = s.Length;
             Command.Parameters.Add(para);
         }
 
-        return pname;
+        return paraName;
     }
 
     /// <summary>
@@ -131,7 +130,7 @@ internal sealed class BuildQueryContext
 
     public void BeginBuildQuery(ISqlQuery query)
     {
-        QueryInfo qi = null;
+        QueryInfo? qi;
 
         //尚未处理过，则新建相应的QueryInfo并加入字典表
         //注意：根查询在构造函数时已加入字典表
@@ -196,9 +195,8 @@ internal sealed class BuildQueryContext
     /// <returns></returns>
     public string GetQueryAliasName(ISqlQuery query)
     {
-        QueryInfo qi = null;
-        if (!Queries.TryGetValue(query, out qi))
-            qi = AddSubQuery(query); // 添加时会设置别名
+        if (!Queries.TryGetValue(query, out _))
+            /*qi =*/ AddSubQuery(query); // 添加时会设置别名
 
         return ((SqlQueryBase)query).AliasName;
     }
@@ -246,7 +244,7 @@ internal sealed class BuildQueryContext
         string path = exp.ToString();
         Dictionary<string, EntityExpression> ds = AutoJoins[query];
 
-        EntityExpression e = null;
+        EntityExpression? e;
         if (!ds.TryGetValue(path, out e))
         {
             ds.Add(path, exp);
@@ -255,7 +253,7 @@ internal sealed class BuildQueryContext
             e = exp;
         }
 
-        return e.AliasName;
+        return e.AliasName!;
     }
 
     /// <summary>
@@ -263,7 +261,7 @@ internal sealed class BuildQueryContext
     /// </summary>
     public void BuildQueryAutoJoins(SqlQueryBase target)
     {
-        if (!AutoJoins.TryGetValue(target, out Dictionary<string, EntityExpression> ds))
+        if (!AutoJoins.TryGetValue(target, out var ds))
             return;
 
         foreach (var rq in ds.Values)
@@ -296,8 +294,8 @@ sealed class QueryInfo
 {
     #region ====Properties====
 
-    private StringBuilder sb;
-    private StringBuilder sb2; //用于输出Where条件
+    private StringBuilder _sb;
+    private StringBuilder _sb2; //用于输出Where条件
 
     /// <summary>
     /// 当前正在处理的查询的步骤
@@ -312,16 +310,17 @@ sealed class QueryInfo
                 || BuildStep == BuildQueryStep.BuildOrderBy
                 || BuildStep == BuildQueryStep.BuildSkipAndTake
                 || BuildStep == BuildQueryStep.BuildPageTail)
-                return sb2;
-            return sb;
+                return _sb2;
+            return _sb;
         }
     }
 
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     internal ISqlQuery Owner { get; }
 
-    internal ISqlQuery ParentQuery { get; set; }
+    internal ISqlQuery ParentQuery { get; set; } = null!;
 
-    internal QueryInfo ParentInfo { get; set; }
+    internal QueryInfo ParentInfo { get; set; } = null!;
 
     #endregion
 
@@ -333,22 +332,23 @@ sealed class QueryInfo
     public QueryInfo(ISqlQuery owner)
     {
         Owner = owner;
-        sb = StringBuilderCache.Acquire();
-        sb2 = StringBuilderCache.Acquire();
+        _sb = StringBuilderCache.Acquire();
+        _sb2 = StringBuilderCache.Acquire();
     }
 
     /// <summary>
     /// 构造子查询信息
     /// </summary>
+    /// <param name="owner"></param>
     /// <param name="parentInfo"></param>
     public QueryInfo(ISqlQuery owner, QueryInfo parentInfo)
     {
         Owner = owner;
         if (parentInfo.BuildStep == BuildQueryStep.BuildWhere)
-            sb = parentInfo.sb2;
+            _sb = parentInfo._sb2;
         else
-            sb = parentInfo.sb;
-        sb2 = StringBuilderCache.Acquire();
+            _sb = parentInfo._sb;
+        _sb2 = StringBuilderCache.Acquire();
     }
 
     #endregion
@@ -357,14 +357,14 @@ sealed class QueryInfo
 
     internal void EndBuidQuery()
     {
-        sb.Append(StringBuilderCache.GetStringAndRelease(sb2));
+        _sb.Append(StringBuilderCache.GetStringAndRelease(_sb2));
     }
 
     internal string GetCommandText(bool cte)
     {
         if (!cte)
-            sb.Append(StringBuilderCache.GetStringAndRelease(sb2));
-        return StringBuilderCache.GetStringAndRelease(sb);
+            _sb.Append(StringBuilderCache.GetStringAndRelease(_sb2));
+        return StringBuilderCache.GetStringAndRelease(_sb);
     }
 
     #endregion

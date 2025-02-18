@@ -372,16 +372,16 @@ partial class PgSqlStore
             SqlSelectItemExpression si = (SqlSelectItemExpression)item.Expression;
             //判断当前查询是否等于Select项的所有者，否则表示Select项的所有者的外部查询引用该Select项
             if (ReferenceEquals(ctx.CurrentQuery, item.Owner))
-                ctx.AppendFormat("{0}.\"{1}\"", ctx.GetQueryAliasName(si.Owner), si.AliasName);
+                ctx.AppendFormat("{0}.\"{1}\"", ctx.GetQueryAliasName(si.Owner!), si.AliasName!);
             else
-                ctx.AppendFormat("{0}.\"{1}\"", ctx.GetQueryAliasName(item.Owner), si.AliasName);
+                ctx.AppendFormat("{0}.\"{1}\"", ctx.GetQueryAliasName(item.Owner!), si.AliasName!);
 
             //处理选择项别名
             if (ctx.CurrentQueryInfo.BuildStep ==
                 BuildQueryStep.BuildSelect) //&& !ctx.IsBuildCTESelectItem)
             {
                 if (item.AliasName != si.AliasName)
-                    ctx.AppendFormat(" \"{0}\"", item.AliasName);
+                    ctx.AppendFormat(" \"{0}\"", item.AliasName!);
             }
         }
         else //----上面为FromQuery的Select项，下面为Query或SubQuery的Select项----
@@ -390,7 +390,7 @@ partial class PgSqlStore
             if (ReferenceEquals(ctx.CurrentQuery, item.Owner))
                 BuildExpression(item.Expression, ctx);
             else
-                ctx.AppendFormat("{0}.\"{1}\"", ctx.GetQueryAliasName(item.Owner), item.AliasName);
+                ctx.AppendFormat("{0}.\"{1}\"", ctx.GetQueryAliasName(item.Owner!), item.AliasName!);
 
             //处理选择项别名
             if (ctx.CurrentQueryInfo.BuildStep ==
@@ -400,9 +400,9 @@ partial class PgSqlStore
                 if (Expression.IsNull(memberExp)
                     /*|| memberExp.Type == ExpressionType.AggregationRefFieldExpression*/
                     //注意：聚合引用字段必须用别名
-                    || memberExp.Name != item.AliasName)
+                    || memberExp!.Name != item.AliasName)
                 {
-                    ctx.AppendFormat(" \"{0}\"", item.AliasName);
+                    ctx.AppendFormat(" \"{0}\"", item.AliasName!);
                 }
             }
         }
@@ -536,7 +536,7 @@ partial class PgSqlStore
             //判断exp.User是否为Null，因为可能是附加的QuerySelectItem
             if (exp.User == null)
             {
-                SqlQueryBase q = ctx.CurrentQuery as SqlQueryBase;
+                var q = ctx.CurrentQuery as SqlQueryBase;
                 exp.User = q ?? throw new Exception("NpgsqlCommandHelper.BuildEntityExpression()");
             }
 
@@ -547,7 +547,7 @@ partial class PgSqlStore
             //先处理Owner
             BuildEntityExpression(exp.Owner, ctx);
             //再获取自动联接的别名
-            exp.AliasName = ctx.GetEntityRefAliasName(exp, (SqlQueryBase)exp.User);
+            exp.AliasName = ctx.GetEntityRefAliasName(exp, (SqlQueryBase)exp.User!);
         }
     }
 
@@ -557,13 +557,13 @@ partial class PgSqlStore
 
         //判断上下文是否在处理Update的Set
         if (ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildUpdateSet)
-            ctx.AppendFormat("\"{0}\"", exp.Name);
+            ctx.AppendFormat("\"{0}\"", exp.Name!);
         else if (ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildUpsertSet)
-            ctx.AppendFormat("\"{0}\".\"{1}\"", model.Name, exp.Name);
+            ctx.AppendFormat("\"{0}\".\"{1}\"", model.Name, exp.Name!);
         else
         {
             BuildEntityExpression(exp.Owner, ctx);
-            ctx.AppendFormat("{0}.\"{1}\"", exp.Owner.AliasName, exp.Name);
+            ctx.AppendFormat("{0}.\"{1}\"", exp.Owner.AliasName!, exp.Name!);
         }
     }
 
@@ -730,8 +730,8 @@ partial class PgSqlStore
             case ExpressionType.EntityFieldExpression:
             {
                 var e = (EntityFieldExpression)exp;
-                var model = RuntimeContext.GetModel<EntityModel>(e.Owner.ModelID);
-                var fieldModel = (EntityFieldModel)model.GetMember(e.Name, true);
+                var model = RuntimeContext.GetModel<EntityModel>(e.Owner!.ModelID);
+                var fieldModel = (EntityFieldModel)model.GetMember(e.Name, true)!;
                 return fieldModel.FieldType == EntityFieldType.String;
             }
             case ExpressionType.ConstantExpression:

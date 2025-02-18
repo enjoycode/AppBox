@@ -329,7 +329,7 @@ public static class OutputStreamExtensions
             s.WriteByte(3);
             //再写入模型标识, TODO:暂使用反射，考虑只写入ModelId = 0
             var staticModelIdProp = type.GetField("MODELID", BindingFlags.Static | BindingFlags.Public);
-            s.WriteLong(staticModelIdProp == null ? 0 : (long)staticModelIdProp.GetValue(null));
+            s.WriteLong(staticModelIdProp == null ? 0 : (long)staticModelIdProp.GetValue(null)!);
         }
         else
         {

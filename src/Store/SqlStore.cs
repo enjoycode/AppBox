@@ -193,7 +193,7 @@ public abstract class SqlStore
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
         cmd.Transaction = txn;
         if (txn == null)
-            await cmd.Connection.OpenAsync();
+            await cmd.Connection!.OpenAsync();
         Logger.Debug(cmd.CommandText);
         //执行命令
         try
@@ -209,7 +209,7 @@ public abstract class SqlStore
         }
         finally
         {
-            if (txn == null) cmd.Connection.Dispose();
+            if (txn == null) cmd.Connection!.Dispose();
         }
     }
 
@@ -232,7 +232,7 @@ public abstract class SqlStore
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
         cmd.Transaction = txn;
         if (txn == null)
-            await cmd.Connection.OpenAsync();
+            await cmd.Connection!.OpenAsync();
         Logger.Debug(cmd.CommandText);
         //执行命令
         try
@@ -248,21 +248,21 @@ public abstract class SqlStore
         }
         finally
         {
-            if (txn == null) cmd.Connection.Dispose();
+            if (txn == null) cmd.Connection!.Dispose();
         }
     }
 
     public async Task<int> UpdateAsync(SqlUpdateCommand updateCommand, EntityModel model, DbTransaction? txn = null)
     {
         //暂不支持无条件更新，以防止误操作
-        if (AppBoxCore.Expression.IsNull(updateCommand.Filter))
+        if (Expression.IsNull(updateCommand.Filter))
             throw new NotSupportedException("Update must assign Where condition");
 
         var cmd = BuildUpdateCommand(updateCommand, model);
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
         cmd.Transaction = txn;
         if (txn == null)
-            await cmd.Connection.OpenAsync();
+            await cmd.Connection!.OpenAsync();
         Logger.Debug(cmd.CommandText);
 
         var effects = 0;
@@ -285,7 +285,7 @@ public abstract class SqlStore
             }
             finally
             {
-                if (txn == null) cmd.Connection.Dispose();
+                if (txn == null) cmd.Connection!.Dispose();
             }
         }
         else
@@ -301,7 +301,7 @@ public abstract class SqlStore
             }
             finally
             {
-                if (txn == null) cmd.Connection.Dispose();
+                if (txn == null) cmd.Connection!.Dispose();
             }
 
             if (updateCommand.OutputItems != null)
@@ -334,7 +334,7 @@ public abstract class SqlStore
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
         cmd.Transaction = txn;
         if (txn == null)
-            await cmd.Connection.OpenAsync();
+            await cmd.Connection!.OpenAsync();
         Logger.Debug(cmd.CommandText);
         //执行命令
         try
@@ -350,21 +350,21 @@ public abstract class SqlStore
         }
         finally
         {
-            if (txn == null) cmd.Connection.Dispose();
+            if (txn == null) cmd.Connection!.Dispose();
         }
     }
 
     public async Task<int> DeleteAsync(SqlDeleteCommand deleteCommand, EntityModel model, DbTransaction? txn = null)
     {
         //暂不支持无条件删除，以防止误操作
-        if (AppBoxCore.Expression.IsNull(deleteCommand.Filter))
+        if (Expression.IsNull(deleteCommand.Filter))
             throw new NotSupportedException("Delete must assign Where condition");
 
         var cmd = BuildDeleteCommand(deleteCommand, model);
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
         cmd.Transaction = txn;
         if (txn == null)
-            await cmd.Connection.OpenAsync();
+            await cmd.Connection!.OpenAsync();
         Logger.Debug(cmd.CommandText);
         //执行命令
         try
@@ -378,7 +378,7 @@ public abstract class SqlStore
         }
         finally
         {
-            if (txn == null) cmd.Connection.Dispose();
+            if (txn == null) cmd.Connection!.Dispose();
         }
     }
 
@@ -447,7 +447,7 @@ public abstract class SqlStore
         cmd.Connection = txn != null ? txn.Connection : MakeConnection();
         cmd.Transaction = txn;
         if (txn == null)
-            await cmd.Connection.OpenAsync();
+            await cmd.Connection!.OpenAsync();
         Logger.Debug(cmd.CommandText);
 
         try
@@ -468,7 +468,7 @@ public abstract class SqlStore
         }
         finally
         {
-            if (txn == null) cmd.Connection.Dispose();
+            if (txn == null) cmd.Connection!.Dispose();
         }
     }
 
@@ -565,6 +565,7 @@ public abstract class SqlStore
     /// 根据主键值生成加载单个实体的命令
     /// </summary>
     /// <param name="entity">已设置主键值的实例</param>
+    /// <param name="model"></param>
     protected internal virtual DbCommand BuildFetchCommand(SqlEntity entity, EntityModel model)
     {
         var cmd = MakeCommand();
