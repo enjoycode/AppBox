@@ -98,13 +98,34 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
     private async void RunDelayTask()
     {
         //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
-        //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
+        //if (_codeEditorController.Document.HasSyntaxError) return;
 
-        var problems = await GetProblems.Execute(ModelNode);
-        _designStore.UpdateProblems(ModelNode, problems);
+        //更新Foldings
+        try
+        {
+            var foldings = await FoldingService.GetFoldings(_textBuffer.GetRoslynDocument());
+            _codeEditorController.Document.FoldingManager.UpdateFoldings(foldings
+                .Select(s => new NewFolding(s.TextSpan.Start, s.TextSpan.Length, "{...}" /*TODO:根据类型*/))
+                .OrderBy(s => s.Offset), 0);
+        }
+        catch (Exception e)
+        {
+            Notification.Error($"UpdateFoldings error: {e.Message}");
+        }
 
-        if (!problems.Any(p => p.IsError) && !_hidePreviewer.Value)
-            _previewController.Invalidate();
+        //检查语法语义错误
+        try
+        {
+            var problems = await GetProblems.Execute(ModelNode);
+            _designStore.UpdateProblems(ModelNode, problems);
+
+            if (!problems.Any(p => p.IsError) && !_hidePreviewer.Value)
+                _previewController.Invalidate();
+        }
+        catch (Exception e)
+        {
+            Notification.Error($"GetProblems error: {e.Message}");
+        }
     }
 
     public override void Dispose()

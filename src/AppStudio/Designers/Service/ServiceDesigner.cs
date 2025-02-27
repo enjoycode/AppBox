@@ -80,7 +80,6 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
 
     private void OnDocumentChanged(DocumentEventArgs e)
     {
-        //TODO: check syntax error first.
         //启动延时任务
         _delayDocChangedTask.Run();
     }
@@ -88,12 +87,26 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
     private async void RunDelayTask()
     {
         //检查代码错误，先前端判断语法，再后端判断语义，都没有问题刷新预览
-        //if (_codeEditorController.Document.HasSyntaxError) return; //TODO:获取语法错误列表
+        //if (_codeEditorController.Document.HasSyntaxError) return;
+        
+        //更新Foldings
+        try
+        {
+            var foldings = await FoldingService.GetFoldings(_textBuffer.GetRoslynDocument());
+            _codeEditorController.Document.FoldingManager.UpdateFoldings(foldings
+                .Select(s => new NewFolding(s.TextSpan.Start, s.TextSpan.Length, "{...}" /*TODO:根据类型*/))
+                .OrderBy(s => s.Offset), 0);
+        }
+        catch (Exception e)
+        {
+            Notification.Error($"UpdateFoldings error: {e.Message}");
+        }
 
+        //检查语法语义错误
         try
         {
             var problems = await GetProblems.Execute(ModelNode);
-            _designStore.UpdateProblems(ModelNode, problems!);
+            _designStore.UpdateProblems(ModelNode, problems);
         }
         catch (Exception ex)
         {

@@ -4,10 +4,7 @@ using System.Runtime.CompilerServices;
 using CodeEditor;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Classification;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.CSharp.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -106,8 +103,8 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
     {
         // var changes = _changes;
         // _changes = [];
-        var beginLine = 0;
-        var endLine = 0;
+        int beginLine;
+        int endLine;
 #if DEBUG
         var ts = Stopwatch.GetTimestamp();
 #endif
@@ -128,17 +125,6 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
         await BuildLineTokens(doc, beginLine, endLine);
         _oldTree = newTree;
-
-        //暂在这里直接处理Folding
-        var foldings = await FoldingService.GetFoldings(doc);
-        Document.FoldingManager.UpdateFoldings(foldings.Select(s =>
-            {
-                var start = Document.OffsetToPosition(s.TextSpan.Start);
-                var end = Document.OffsetToPosition(s.TextSpan.End);
-                return new FoldMarker(Document, start.Line, start.Column, end.Line, end.Column,
-                    FoldType.Unspecified /*TODO: fix*/, "{...}");
-            })
-            .ToList());
 
 #if DEBUG
         var ms = Stopwatch.GetElapsedTime(ts).TotalMilliseconds;
@@ -170,8 +156,8 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
             }
         }
 
-        var startLine = Document.GetLineNumberForOffset(start);
-        var endLine = Document.GetLineNumberForOffset(end);
+        var startLine = Document.GetLineNumberByOffset(start);
+        var endLine = Document.GetLineNumberByOffset(end);
         if (startLine == endLine)
             endLine += 1;
 
