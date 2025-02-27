@@ -41,7 +41,7 @@ public sealed class LoginPage : View
             {
                 Children =
                 [
-                    new Text("Welcome") { FontSize = 50 },
+                    new Text("AppBox") { FontSize = 50 },
                     new TextInput(_userName)
                     {
                         HintText = "Account", FontSize = _inputSize,

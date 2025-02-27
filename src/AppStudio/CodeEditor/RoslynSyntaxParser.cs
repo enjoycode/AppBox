@@ -81,23 +81,19 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
         // _changes.Add(_textBuffer.CurrentVersion);
     }
 
-    public char? GetAutoClosingPairs(char ch)
+    public char? GetAutoClosingPairs(char ch) => ch switch
     {
-        //TODO: 
-        return null;
-    }
+        '{' => '}',
+        '[' => ']',
+        '(' => ')',
+        '"' => '"',
+        '\'' => '\'',
+        _ => null
+    };
 
-    public bool IsBlockStartBracket(char ch)
-    {
-        //TODO:
-        return false;
-    }
+    public bool IsBlockStartBracket(char ch) => ch == '{';
 
-    public bool IsBlockEndBracket(char ch)
-    {
-        //TODO:
-        return false;
-    }
+    public bool IsBlockEndBracket(char ch) => ch == '}';
 
     public async ValueTask<(int, int)> ParseAndTokenize()
     {
