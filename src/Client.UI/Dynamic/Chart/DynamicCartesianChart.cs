@@ -9,7 +9,7 @@ using Axis = LiveCharts.Axis;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
+public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
 {
     public DynamicCartesianChart()
     {
@@ -25,7 +25,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
     private string? _dataset;
     [JsonIgnore] private IDynamicContext? _dynamicContext;
 
-    public string? DataSet
+    public string? DataSource
     {
         get => _dataset;
         set
@@ -36,7 +36,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
                 Series = null;
                 XAxes = null;
                 YAxes = null;
-                _dynamicContext?.UnbindToDataSet(this, _dataset);
+                _dynamicContext?.UnbindFromDataSource(this, _dataset);
             }
 
             _dataset = value;
@@ -86,8 +86,8 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
             }
             else
             {
-                if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
-                if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+                if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
+                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
 
                 axes = new Axis[_xAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
@@ -106,8 +106,8 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
             }
             else
             {
-                if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
-                if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+                if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
+                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
 
                 axes = new Axis[_yAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
@@ -126,8 +126,8 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
 
         if (_series != null)
         {
-            if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
-            if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+            if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
+            if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
 
             var runtimeSeries = new ISeries[_series.Length];
             for (var i = 0; i < _series.Length; i++)
@@ -152,7 +152,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
 
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
-        _dynamicContext?.BindToDataSet(this, _dataset);
+        _dynamicContext?.BindToDataSource(this, _dataset);
 
         OnSeriesChanged();
         if (_xAxes != null) OnAxesChanged(true);
@@ -162,13 +162,13 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSetBinder
     protected override void OnUnmounted()
     {
         //取消监听数据集变更
-        _dynamicContext?.UnbindToDataSet(this, _dataset);
+        _dynamicContext?.UnbindFromDataSource(this, _dataset);
         base.OnUnmounted();
     }
 
-    #region ====IDataSetBinder====
+    #region ====IDataSourceBinder====
 
-    void IDataSetBinder.OnDataSetValueChanged() => OnSeriesChanged();
+    void IDataSourceBinder.OnDataSourceChanged() => OnSeriesChanged();
 
     #endregion
 

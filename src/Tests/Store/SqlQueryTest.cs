@@ -65,10 +65,10 @@ public sealed class SqlQueryTest
     }
 
     [Test]
-    public async Task ToDataSetTest()
+    public async Task ToDynamicListTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        var ds = await q.ToDataSetAsync(
+        var ds = await q.ToDynamicListAsync(
             r => new()
             {
                 ["Name"] = r.ReadStringMember(0),

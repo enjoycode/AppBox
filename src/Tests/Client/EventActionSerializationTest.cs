@@ -18,7 +18,7 @@ public class EventActionSerializationTest
                                 "Child": {
                                   "Type": "Button",
                                   "TextColor": { "Const": "FFFF0000" },
-                                  "Events": { "OnTap": { "Handler": "FetchDataSet", "DataSet": "orders" } }
+                                  "Events": { "OnTap": { "Handler": "FetchDataSource", "DataSource": "orders" } }
                                 }
                               }
                             }

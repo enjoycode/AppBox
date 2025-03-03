@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AppBoxCore;
 using LiveCharts;
 using LiveChartsCore;
@@ -23,7 +22,7 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, DynamicDataSet dataset)
+    public override ISeries Build(IDynamicContext dynamicContext, DynamicEntityList dataset)
     {
         var res = new LineSeries<DynamicEntity>
         {

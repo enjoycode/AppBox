@@ -5,7 +5,7 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
+public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
 {
     public DynamicTable()
     {
@@ -23,7 +23,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
     /// <summary>
     /// 绑定的数据集名称
     /// </summary>
-    public string? DataSet
+    public string? DataSource
     {
         get => _dataset;
         set
@@ -33,7 +33,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
             {
                 _columns = null;
                 _footer = null;
-                _dynamicContext?.UnbindToDataSet(this, _dataset);
+                _dynamicContext?.UnbindFromDataSource(this, _dataset);
             }
 
             _dataset = value;
@@ -110,7 +110,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         base.OnMounted();
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
-        _dynamicContext?.BindToDataSet(this, _dataset);
+        _dynamicContext?.BindToDataSource(this, _dataset);
         //填充数据集
         Fetch();
     }
@@ -118,13 +118,13 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
     protected override void OnUnmounted()
     {
         //取消监听数据集变更
-        _dynamicContext?.UnbindToDataSet(this, _dataset);
+        _dynamicContext?.UnbindFromDataSource(this, _dataset);
         base.OnUnmounted();
     }
 
     private async void Fetch()
     {
-        if (string.IsNullOrEmpty(DataSet))
+        if (string.IsNullOrEmpty(DataSource))
         {
             Controller.DataSource = null;
             return;
@@ -132,7 +132,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
 
         if (_dynamicContext == null) return;
 
-        var ds = (DynamicDataSet?)await _dynamicContext.GetDataSet(DataSet);
+        var ds = (DynamicEntityList?)await _dynamicContext.GetDataSource(DataSource);
         Controller.DataSource = ds;
     }
 
@@ -153,9 +153,9 @@ public sealed class DynamicTable : SingleChildWidget, IDataSetBinder
         base.Paint(canvas, area);
     }
 
-    #region ====IDataSetBinder====
+    #region ====IDataSourceBinder====
 
-    void IDataSetBinder.OnDataSetValueChanged() => Fetch();
+    void IDataSourceBinder.OnDataSourceChanged() => Fetch();
 
     #endregion
 }

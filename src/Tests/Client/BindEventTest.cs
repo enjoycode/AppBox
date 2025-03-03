@@ -19,7 +19,7 @@ public class BindEventTest
     {
         Widget widget = new Button("Button");
         var eventName = "OnTap";
-        IEventAction eventAction = new FetchDataSet();
+        IEventAction eventAction = new FetchDataSource();
         
         var widgetType = widget.GetType();
         var eventPropInfo = widgetType.GetProperty(eventName, BindingFlags.Public | BindingFlags.Instance);

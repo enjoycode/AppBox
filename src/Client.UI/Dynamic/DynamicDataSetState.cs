@@ -12,7 +12,7 @@ namespace AppBoxClient.Dynamic;
 /// <summary>
 /// 数据集的配置信息
 /// </summary>
-public sealed class DynamicDataSetState : IDynamicDataSetState
+public sealed class DynamicDataSourceState : IDynamicDataSourceState
 {
     /// <summary>
     /// 获取数据集的服务方法 eg: sys.OrderService.GetOrders
@@ -24,7 +24,7 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
     /// </summary>
     public string?[] Arguments { get; set; } = Array.Empty<string?>();
 
-    public event Action? DataSetValueChanged;
+    public event Action? DataSourceChanged;
 
     #region ====Serialization====
 
@@ -77,12 +77,12 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
 
     #endregion
 
-    #region ====Runtime DataSet====
+    #region ====Runtime DataSource====
 
     private int _fetchFlag;
-    private Task<DynamicDataSet?> _fetchTask = null!;
+    private Task<DynamicEntityList?> _fetchTask = null!;
 
-    public async ValueTask<object?> GetRuntimeDataSet(IDynamicContext dynamicContext)
+    public async ValueTask<object?> GetRuntimeDataSource(IDynamicContext dynamicContext)
     {
         if (Interlocked.CompareExchange(ref _fetchFlag, 1, 0) == 0)
         {
@@ -97,7 +97,7 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
                 }
             }
 
-            _fetchTask = Channel.Invoke<DynamicDataSet>(Service, args);
+            _fetchTask = Channel.Invoke<DynamicEntityList>(Service, args);
         }
 
         try
@@ -117,7 +117,7 @@ public sealed class DynamicDataSetState : IDynamicDataSetState
     public void Reset()
     {
         Interlocked.Exchange(ref _fetchFlag, 0);
-        DataSetValueChanged?.Invoke();
+        DataSourceChanged?.Invoke();
     }
 
     #endregion

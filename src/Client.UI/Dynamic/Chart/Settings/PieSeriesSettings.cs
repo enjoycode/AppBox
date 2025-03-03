@@ -1,14 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AppBoxCore;
 using LiveCharts;
-using LiveCharts.Painting;
 using LiveChartsCore;
-using LiveChartsCore.Drawing;
-using LiveChartsCore.Measure;
-using PixUI;
 using PixUI.Dynamic;
 using Log = PixUI.Log;
 
@@ -30,7 +25,7 @@ public sealed class PieSeriesSettings
 
     public PieSeriesSettings Clone() => new() { Field = Field, Name = Name };
 
-    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DynamicDataSet dataset)
+    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DynamicEntityList dataset)
     {
         try
         {

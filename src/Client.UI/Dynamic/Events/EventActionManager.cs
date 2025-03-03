@@ -10,7 +10,7 @@ public sealed class EventActionManager : IEventActionManager
 {
     public EventActionManager()
     {
-        Register<FetchDataSet>("DataSet");
+        Register<FetchDataSource>("DataSource");
     }
 
     private readonly Dictionary<string, EventActionInfo> _eventActions = new();

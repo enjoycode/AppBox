@@ -15,16 +15,16 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
     static ViewDynamicDesigner()
     {
-        if (DesignSettings.GetDataSetStateEditor != null) return;
+        if (DesignSettings.GetDataSourceStateEditor != null) return;
 
         // 初始化一些动态视图设计时的委托
         DesignSettings.GetEventEditor = (element, meta) => new EventEditDialog(element, meta);
-        DesignSettings.GetDataSetStateEditor = (c, s) => new DataSetStateEditDialog(c, s);
-        DesignSettings.MakeDataSetState = () => new DynamicDataSetState();
+        DesignSettings.GetDataSourceStateEditor = (c, s) => new DataSourceStateEditDialog(c, s);
+        DesignSettings.MakeDataSourceState = () => new DynamicDataSourceState();
         DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
         DesignSettings.MakeValueState = () => new DynamicValueState();
         // 初始化其他属性编辑器
-        PropertyEditor.RegisterClassValueEditor<string, DataSetPropEditor>(false, "DataSetSelect");
+        PropertyEditor.RegisterClassValueEditor<string, DataSourcePropEditor>(false, DynamicInitiator.DataSourceEditorName);
         PropertyEditor.RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<ChartAxisSettings[], AxesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
@@ -32,7 +32,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         PropertyEditor.RegisterClassValueEditor<TableFooterCell[], TableFooterPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<TableStyles, TableStylesPropEditor>(true);
         // 初始化其他事件编辑器
-        EventEditor.Register(nameof(FetchDataSet), (e, m, a) => new FetchDataSetEditor(e, m, a));
+        EventEditor.Register(nameof(FetchDataSource), (e, m, a) => new FetchEntityListEditor(e, m, a));
     }
 
     public ViewDynamicDesigner(ModelNode modelNode)

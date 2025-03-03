@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using AppBoxCore;
 using LiveChartsCore;
 using PixUI.Dynamic;
@@ -23,5 +22,5 @@ public abstract class ChartSeriesSettings
     /// <summary>
     /// 生成运行时的Series
     /// </summary>
-    public abstract ISeries Build(IDynamicContext dynamicContext, DynamicDataSet dataSet);
+    public abstract ISeries Build(IDynamicContext dynamicContext, DynamicEntityList entityList);
 }

@@ -1,15 +1,15 @@
 namespace AppBoxCore;
 
-public sealed class DynamicDataSet : List<DynamicEntity>, IBinSerializable
+public sealed class DynamicEntityList : List<DynamicEntity>, IBinSerializable
 {
-    internal DynamicDataSet() { }
+    internal DynamicEntityList() { }
 
-    public DynamicDataSet(DynamicFieldInfo[] fields)
+    public DynamicEntityList(DynamicFieldInfo[] fields)
     {
         Fields = fields;
     }
 
-    public static DynamicDataSet From<T>(IList<T> entityList) where T : Entity
+    public static DynamicEntityList From<T>(IList<T> entityList) where T : Entity
     {
         throw new NotImplementedException();
     }

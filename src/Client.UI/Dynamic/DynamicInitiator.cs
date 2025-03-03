@@ -14,7 +14,7 @@ public static class DynamicInitiator
     private static int _initFlag = 0;
     private static Task _initTask = null!;
 
-    private const string DataSetEditorName = "DataSetSelect";
+    public const string DataSourceEditorName = "DataSourceSelect";
 
     public static async Task<bool> TryInitAsync()
     {
@@ -42,10 +42,10 @@ public static class DynamicInitiator
             name: "Table",
             properties: new DynamicPropertyMeta[]
             {
-                new("DataSet", typeof(string), true, editorName: DataSetEditorName),
-                new("Columns", typeof(TableColumnSettings[]), true),
-                new("Footer", typeof(TableFooterCell[]), true),
-                new("Styles", typeof(TableStyles), true),
+                new(nameof(DynamicTable.DataSource), typeof(string), true, editorName: DataSourceEditorName),
+                new(nameof(DynamicTable.Columns), typeof(TableColumnSettings[]), true),
+                new(nameof(DynamicTable.Footer), typeof(TableFooterCell[]), true),
+                new(nameof(DynamicTable.Styles), typeof(TableStyles), true),
             });
 
         //注册图表动态组件
@@ -54,20 +54,20 @@ public static class DynamicInitiator
             name: "CartesianChart",
             properties: new DynamicPropertyMeta[]
             {
-                new("DataSet", typeof(string), true, editorName: DataSetEditorName),
-                new("Series", typeof(CartesianSeriesSettings[]), true),
-                new("XAxes", typeof(ChartAxisSettings[]), true),
-                new("YAxes", typeof(ChartAxisSettings[]), true)
+                new(nameof(DynamicCartesianChart.DataSource), typeof(string), true, editorName: DataSourceEditorName),
+                new(nameof(DynamicCartesianChart.Series), typeof(CartesianSeriesSettings[]), true),
+                new(nameof(DynamicCartesianChart.XAxes), typeof(ChartAxisSettings[]), true),
+                new(nameof(DynamicCartesianChart.YAxes), typeof(ChartAxisSettings[]), true)
             });
         DynamicWidgetManager.Register<DynamicPieChart>(MaterialIcons.PieChart,
             catalog: dataCatalog,
             name: "PieChart",
             properties: new DynamicPropertyMeta[]
             {
-                new("DataSet", typeof(string), true, editorName: DataSetEditorName),
-                new("Series", typeof(PieSeriesSettings), true),
-                new("LegendPosition", typeof(LegendPosition), false),
-                new("LegendColor", typeof(Color), true),
+                new(nameof(DynamicPieChart.DataSource), typeof(string), true, editorName: DataSourceEditorName),
+                new(nameof(DynamicPieChart.Series), typeof(PieSeriesSettings), true),
+                new(nameof(DynamicPieChart.LegendPosition), typeof(LegendPosition), false),
+                new(nameof(DynamicPieChart.LegendColor), typeof(Color), true),
             });
 
         //注册标为动态组件的视图模型

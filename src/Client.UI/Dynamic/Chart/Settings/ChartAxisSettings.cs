@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AppBoxCore;
 using LiveCharts.Painting;
 using PixUI;
@@ -35,7 +34,7 @@ public sealed class ChartAxisSettings
         MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
     };
 
-    public LiveCharts.Axis Buid(IDynamicContext dynamicContext, DynamicDataSet dataset)
+    public LiveCharts.Axis Buid(IDynamicContext dynamicContext, DynamicEntityList dataset)
     {
         var res = new LiveCharts.Axis();
         // if (!string.IsNullOrEmpty(Formatter))

@@ -18,11 +18,11 @@ internal sealed class TableFooterPropEditor : ValueEditorBase
 
     private async void OnTap(PointerEvent _)
     {
-        //先判断有没有设置DataSet
-        Element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSet), out var datasetValue);
-        if (datasetValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
+        //先判断有没有设置DataSource
+        Element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSource), out var dataSourceValue);
+        if (dataSourceValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
         {
-            Notification.Warn("尚未设置DataSet");
+            Notification.Warn("尚未设置DataSource");
             return;
         }
 

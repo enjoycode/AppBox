@@ -7,20 +7,20 @@ using PixUI.Dynamic;
 namespace AppBoxClient.Dynamic.Events;
 
 /// <summary>
-/// 调用服务填充数据集
+/// 调用服务填充数据源
 /// </summary>
-public sealed class FetchDataSet : IEventAction
+public sealed class FetchDataSource : IEventAction
 {
-    public string ActionName => nameof(FetchDataSet);
+    public string ActionName => nameof(FetchDataSource);
 
     /// <summary>
-    /// 对应的数据集状态的名称
+    /// 对应的数据源状态的名称
     /// </summary>
-    public string DataSet { get; set; } = null!;
+    public string DataSource { get; set; } = null!;
 
     public void WriteProperties(Utf8JsonWriter writer)
     {
-        writer.WriteString(nameof(DataSet), DataSet);
+        writer.WriteString(nameof(DataSource), DataSource);
     }
 
     public void ReadProperties(ref Utf8JsonReader reader)
@@ -35,26 +35,26 @@ public sealed class FetchDataSet : IEventAction
             reader.Read();
             switch (propName)
             {
-                case nameof(DataSet):
-                    DataSet = reader.GetString() ?? string.Empty;
+                case nameof(DataSource):
+                    DataSource = reader.GetString() ?? string.Empty;
                     break;
-                default: throw new Exception($"Unknown property: FetchDataSet.{propName}");
+                default: throw new Exception($"Unknown property: FetchDataSource.{propName}");
             }
         }
     }
 
     public void Run(IDynamicContext dynamicContext, object? eventArg = null)
     {
-        var state = dynamicContext.FindState(DataSet);
+        var state = dynamicContext.FindState(DataSource);
         if (state == null)
         {
-            Notification.Error($"Can't find DataSet: {DataSet}");
+            Notification.Error($"Can't find DataSource: {DataSource}");
             return;
         }
 
-        if (state.Value is not DynamicDataSetState ds)
+        if (state.Value is not DynamicDataSourceState ds)
         {
-            Notification.Error($"Value is not a DataSet: {DataSet}");
+            Notification.Error($"Value is not a DataSource: {DataSource}");
             return;
         }
         

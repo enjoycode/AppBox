@@ -23,7 +23,7 @@ internal sealed class EntityRowsView : View
     {
         try
         {
-            var ds = await Channel.Invoke<DynamicDataSet>("sys.DesignService.GetEntityRows",
+            var ds = await Channel.Invoke<DynamicEntityList>("sys.DesignService.GetEntityRows",
                 [_entityModelId, 50]);
             BuildColumns(ds!);
             _dgController.DataSource = ds;
@@ -34,7 +34,7 @@ internal sealed class EntityRowsView : View
         }
     }
 
-    private void BuildColumns(DynamicDataSet ds)
+    private void BuildColumns(DynamicEntityList ds)
     {
         _dgController.Columns.Clear();
         foreach (var field in ds.Fields)

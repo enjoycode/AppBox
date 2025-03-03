@@ -15,7 +15,7 @@ public class ChartSeriesSerializationTest
                        "Series": "Line",
                        "Smoothness": null,
                        "Fill": true,
-                       "DataSet": "orders",
+                       "DataSource": "orders",
                        "Field": "Sales",
                        "Name": null
                      },
@@ -23,7 +23,7 @@ public class ChartSeriesSerializationTest
                        "Series": "Line",
                        "Smoothness": 0,
                        "Fill": false,
-                       "DataSet": "orders",
+                       "DataSource": "orders",
                        "Field": "Amount",
                        "Name": null
                      }

@@ -11,7 +11,7 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
+public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
 {
     public DynamicPieChart()
     {
@@ -24,7 +24,7 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
     private string? _dataset;
     [JsonIgnore] private IDynamicContext? _dynamicContext;
 
-    public string? DataSet
+    public string? DataSource
     {
         get => _dataset;
         set
@@ -33,7 +33,7 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
             if (IsMounted && !string.IsNullOrEmpty(_dataset))
             {
                 Series = null;
-                _dynamicContext?.UnbindToDataSet(this, _dataset);
+                _dynamicContext?.UnbindFromDataSource(this, _dataset);
             }
 
             _dataset = value;
@@ -75,8 +75,8 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
 
         if (_series != null)
         {
-            if (string.IsNullOrEmpty(DataSet) || _dynamicContext == null) return;
-            if (await _dynamicContext.GetDataSet(DataSet) is not DynamicDataSet dataset) return;
+            if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
+            if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
 
             try
             {
@@ -103,7 +103,7 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
         
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
-        _dynamicContext?.BindToDataSet(this, _dataset);
+        _dynamicContext?.BindToDataSource(this, _dataset);
 
         OnSeriesChanged();
     }
@@ -111,13 +111,13 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSetBinder
     protected override void OnUnmounted()
     {
         //取消监听数据集变更
-        _dynamicContext?.UnbindToDataSet(this, _dataset);
+        _dynamicContext?.UnbindFromDataSource(this, _dataset);
         base.OnUnmounted();
     }
 
-    #region ====IDataSetBinder====
+    #region ====IDataSourceBinder====
 
-    void IDataSetBinder.OnDataSetValueChanged() => OnSeriesChanged();
+    void IDataSourceBinder.OnDataSourceChanged() => OnSeriesChanged();
 
     #endregion
 

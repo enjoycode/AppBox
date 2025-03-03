@@ -103,7 +103,7 @@ internal sealed class DesignService : IService
         var db = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
         await using var cmd = db.MakeCommand();
         cmd.CommandText = BuildCommand(model, fields, pageSize, db);
-        var ds = BuildDataSet(fields);
+        var ds = BuildEntityList(fields);
 
         await using var conn = await db.OpenConnectionAsync();
         cmd.Connection = conn;
@@ -116,7 +116,7 @@ internal sealed class DesignService : IService
         return AnyValue.From(ds);
     }
 
-    private static void FetchRow(EntityFieldModel[] fields, DynamicDataSet ds, DbDataReader dr)
+    private static void FetchRow(EntityFieldModel[] fields, DynamicEntityList ds, DbDataReader dr)
     {
         var obj = new DynamicEntity();
         ds.Add(obj);
@@ -142,7 +142,7 @@ internal sealed class DesignService : IService
         }
     }
 
-    private static DynamicDataSet BuildDataSet(EntityFieldModel[] fields)
+    private static DynamicEntityList BuildEntityList(EntityFieldModel[] fields)
     {
         var columns = new DynamicFieldInfo[fields.Length];
         for (var i = 0; i < fields.Length; i++)
@@ -150,7 +150,7 @@ internal sealed class DesignService : IService
             columns[i] = new DynamicFieldInfo(fields[i].Name, GetFieldType(fields[i]));
         }
 
-        return new DynamicDataSet(columns);
+        return new DynamicEntityList(columns);
     }
 
     private static DynamicFieldFlag GetFieldType(EntityFieldModel field) => field.FieldType switch

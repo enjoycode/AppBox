@@ -35,20 +35,20 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
         yield return ("MergeCells:", autoMergeCells, new Switch(autoMergeCells));
     }
 
-    protected override void OnMounted() => FetchDataSetFields();
+    protected override void OnMounted() => FetchDataSourceFields();
 
-    private async void FetchDataSetFields()
+    private async void FetchDataSourceFields()
     {
-        Element.Data.TryGetPropertyValue(nameof(DynamicTable.DataSet), out var datasetValue);
-        if (datasetValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
+        Element.Data.TryGetPropertyValue(nameof(DynamicTable.DataSource), out var dataSourceValue);
+        if (dataSourceValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
         {
-            Notification.Warn("尚未设置DataSet");
+            Notification.Warn("尚未设置DataSource");
             return;
         }
 
         var dsState = Element.Controller.FindState(dsName);
-        if (dsState?.Value is not IDynamicDataSetState dsSettings) return;
-        if (await dsSettings.GetRuntimeDataSet(Element.Controller.DesignCanvas) is not DynamicDataSet ds) return;
+        if (dsState?.Value is not IDynamicDataSourceState dsSettings) return;
+        if (await dsSettings.GetRuntimeDataSource(Element.Controller.DesignCanvas) is not DynamicEntityList ds) return;
 
         _allFields = ds.Fields;
         var fields = _allFields.Select(f => f.Name).ToArray();

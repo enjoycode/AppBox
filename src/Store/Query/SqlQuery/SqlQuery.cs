@@ -260,17 +260,17 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return list;
     }
 
-    public Task<DynamicDataSet> ToDataSetAsync(Func<SqlRowReader, DynamicEntity> selector,
+    public Task<DynamicEntityList> ToDynamicListAsync(Func<SqlRowReader, DynamicEntity> selector,
         DynamicFieldInfo[] fields, Func<EntityExpression, IEnumerable<Expression>> selects) =>
-        ToDataSetInternal(selector, fields, selects(T));
+        ToDynamicListInternal(selector, fields, selects(T));
 
     /// <summary>
     /// 动态查询，返回动态数据集
     /// </summary>
-    private async Task<DynamicDataSet> ToDataSetInternal(Func<SqlRowReader, DynamicEntity> selector,
+    private async Task<DynamicEntityList> ToDynamicListInternal(Func<SqlRowReader, DynamicEntity> selector,
         DynamicFieldInfo[] fields, IEnumerable<Expression> selectItem)
     {
-        var ds = new DynamicDataSet(fields);
+        var ds = new DynamicEntityList(fields);
         await ToListCore(selector, selectItem, e => ds.Add(e));
         return ds;
     }

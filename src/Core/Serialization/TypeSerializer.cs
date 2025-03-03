@@ -8,7 +8,7 @@ public abstract class TypeSerializer
     /// <summary>
     /// 用于实体EntityField成员不写入附加范型信息
     /// </summary>
-    private readonly bool _notWriteAttachInfo = false;
+    private readonly bool _notWriteAttachInfo;
 
     public readonly PayloadType PayloadType;
 
@@ -157,7 +157,7 @@ public abstract class TypeSerializer
         //运行时类型
         RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode),
             () => new PermissionNode()));
-        RegisterKnownType(new BinSerializer(PayloadType.DataSet, typeof(DynamicDataSet), () => new DynamicDataSet()));
+        RegisterKnownType(new BinSerializer(PayloadType.DynamicEntityList, typeof(DynamicEntityList), () => new DynamicEntityList()));
         RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField, typeof(PrimaryKeyField),
             () => new PrimaryKeyField()));
     }
@@ -184,7 +184,7 @@ public abstract class TypeSerializer
     /// </summary>
     public static TypeSerializer? GetSerializer(Type type)
     {
-        TypeSerializer? serializer = null;
+        TypeSerializer? serializer;
         var targetType = type;
 
         if (type.IsGenericType)

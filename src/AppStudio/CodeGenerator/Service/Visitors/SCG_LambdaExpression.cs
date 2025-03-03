@@ -57,8 +57,8 @@ internal partial class ServiceCodeGenerator
     {
         return lambda.Body switch
         {
-            AnonymousObjectCreationExpressionSyntax aoc => queryMethod.MethodName == "ToDataSetAsync"
-                ? VisitDynamicQueryToDataSet(lambda, queryMethod.LambdaParameters!, aoc)
+            AnonymousObjectCreationExpressionSyntax aoc => queryMethod.MethodName == "ToDynamicListAsync"
+                ? VisitDynamicQueryToDynamicList(lambda, queryMethod.LambdaParameters!, aoc)
                 : VisitDynamicQueryToAnonymousObject(lambda, queryMethod.LambdaParameters!, aoc),
             MemberAccessExpressionSyntax ma =>
                 VisitDynamicQueryToSingleValue(lambda, queryMethod.LambdaParameters!, ma),
@@ -68,7 +68,7 @@ internal partial class ServiceCodeGenerator
         };
     }
 
-    private SyntaxNode VisitDynamicQueryToDataSet(LambdaExpressionSyntax lambda,
+    private SyntaxNode VisitDynamicQueryToDynamicList(LambdaExpressionSyntax lambda,
         ParameterSyntax[] lambdaParameters, AnonymousObjectCreationExpressionSyntax aoc)
     {
         var args = new SeparatedSyntaxList<ArgumentSyntax>();

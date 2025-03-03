@@ -75,20 +75,20 @@ internal sealed class AxesEditor : SingleChildWidget
     private readonly DataGridController<ChartAxisSettings> _dataGridController;
     private readonly Select<string> _labelsRef = null!;
 
-    protected override void OnMounted() => FetchDataSetFields();
+    protected override void OnMounted() => FetchDataSourceFields();
 
-    private async void FetchDataSetFields()
+    private async void FetchDataSourceFields()
     {
-        _element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSet), out var datasetValue);
-        if (datasetValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
+        _element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSource), out var dataSourceValue);
+        if (dataSourceValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
         {
-            Notification.Warn("尚未设置DataSet");
+            Notification.Warn("尚未设置DataSource");
             return;
         }
 
         var dsState = _element.Controller.FindState(dsName);
-        if (dsState?.Value is not IDynamicDataSetState dsSettings) return;
-        if (await dsSettings.GetRuntimeDataSet(_element.Controller.DesignCanvas) is not DynamicDataSet ds) return;
+        if (dsState?.Value is not IDynamicDataSourceState dsSettings) return;
+        if (await dsSettings.GetRuntimeDataSource(_element.Controller.DesignCanvas) is not DynamicEntityList ds) return;
 
         var strings = ds.Fields.Where(f => f.IsString).Select(f => f.Name).ToArray();
         _labelsRef.Options = strings;

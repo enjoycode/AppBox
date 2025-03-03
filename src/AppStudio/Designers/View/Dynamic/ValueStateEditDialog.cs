@@ -88,7 +88,7 @@ internal sealed class ValueStateEditDialog : Dialog
                 DynamicStateType.String => _value.Value,
                 DynamicStateType.Int => int.Parse(_value.Value),
                 DynamicStateType.DateTime => DateTime.Parse(_value.Value),
-                DynamicStateType.DataSet => throw new InvalidOperationException(),
+                DynamicStateType.EntityList => throw new InvalidOperationException(),
                 _ => throw new NotImplementedException()
             };
         }

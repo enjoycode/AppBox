@@ -31,12 +31,12 @@ internal sealed class QueryMethod
     public ParameterSyntax[]? LambdaParameters; //eg: (t, j1, j2) => {}
 
     /// <summary>
-    /// 是否动态查询方法，最后一个参数会转换为两个参数或三个参数(ToDataSetAsync)
+    /// 是否动态查询方法，最后一个参数会转换为两个参数或三个参数(ToDynamicListAsync)
     /// </summary>
     internal bool IsDynamicMethod => MethodName == "Output"
                                      || MethodName == "ToScalarAsync"
                                      || (MethodName == "ToListAsync" && ParameterCount > 0)
-                                     || (MethodName == "ToDataSetAsync" && ParameterCount > 0);
+                                     || (MethodName == "ToDynamicListAsync" && ParameterCount > 0);
 
     internal bool IsLambdaParameter(IdentifierNameSyntax identifier)
     {
@@ -52,13 +52,13 @@ internal sealed class QueryMethod
 /// </summary>
 internal sealed class QueryMethodContext
 {
-    private readonly Stack<QueryMethod> methodsStack = new();
+    private readonly Stack<QueryMethod> _methodsStack = new();
 
-    internal bool HasAny => methodsStack.Count > 0;
+    internal bool HasAny => _methodsStack.Count > 0;
 
-    internal QueryMethod Current => methodsStack.Peek();
+    internal QueryMethod Current => _methodsStack.Peek();
 
-    internal void Push(QueryMethod method) => methodsStack.Push(method);
+    internal void Push(QueryMethod method) => _methodsStack.Push(method);
 
-    internal void Pop() => methodsStack.Pop();
+    internal void Pop() => _methodsStack.Pop();
 }

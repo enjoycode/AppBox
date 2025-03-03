@@ -26,10 +26,12 @@ public sealed class DynamicTest
     }
 
     [Test]
-    public void DataSetSerializeTest()
+    public void DynamicEntityListSerializeTest()
     {
-        var ds1 = new DynamicDataSet(new DynamicFieldInfo[]
-            { new("Name", DynamicFieldFlag.String), new("Score", DynamicFieldFlag.Int) });
+        var ds1 = new DynamicEntityList([
+            new("Name", DynamicFieldFlag.String),
+            new("Score", DynamicFieldFlag.Int)
+        ]);
         ds1.Add(new()
         {
             ["Name"] = "Rick",
@@ -38,8 +40,8 @@ public sealed class DynamicTest
 
         var data = SerializationTest.Serialize(ds1);
 
-        var ds2 = (DynamicDataSet) SerializationTest.Deserialize(data)!;
-        
+        var ds2 = (DynamicEntityList)SerializationTest.Deserialize(data)!;
+
         Assert.True(ds1.Count == ds2.Count);
         Assert.True((string)ds1[0]["Name"]! == (string)ds2[0]["Name"]!);
     }

@@ -1,8 +1,4 @@
-using System;
-using System.Linq;
-using AppBoxClient;
 using AppBoxClient.Dynamic;
-using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
@@ -11,25 +7,25 @@ namespace AppBoxDesign;
 
 //TODO: 服务选择
 
-internal sealed class DataSetStateEditDialog : Dialog
+internal sealed class DataSourceStateEditDialog : Dialog
 {
-    public DataSetStateEditDialog(DesignController designController, DynamicState state)
+    public DataSourceStateEditDialog(DesignController designController, DynamicState state)
     {
-        Title.Value = "DataSet Settings";
+        Title.Value = "DataSource Settings";
         Width = 500;
         Height = 400;
 
         _designController = designController;
         //初始化状态
-        state.Value ??= new DynamicDataSetState();
-        _dataSetState = (DynamicDataSetState)state.Value;
+        state.Value ??= new DynamicDataSourceState();
+        _dataSourceState = (DynamicDataSourceState)state.Value;
         _service = new RxProxy<string>(
-            () => ((DynamicDataSetState)state.Value).Service,
-            v => ((DynamicDataSetState)state.Value).Service = v);
+            () => ((DynamicDataSourceState)state.Value).Service,
+            v => ((DynamicDataSourceState)state.Value).Service = v);
     }
 
     private readonly DesignController _designController;
-    private readonly DynamicDataSetState _dataSetState;
+    private readonly DynamicDataSourceState _dataSourceState;
     private readonly State<string> _service;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
 
@@ -80,11 +76,11 @@ internal sealed class DataSetStateEditDialog : Dialog
             new DataGridHostColumn<ServiceMethodParameterInfo>("State", (para, index) =>
             {
                 var rs = new RxProxy<string?>(
-                    () => index < 0 || index >= _dataSetState.Arguments.Length ? null : _dataSetState.Arguments[index],
+                    () => index < 0 || index >= _dataSourceState.Arguments.Length ? null : _dataSourceState.Arguments[index],
                     v =>
                     {
-                        if (index >= 0 && index < _dataSetState.Arguments.Length)
-                            _dataSetState.Arguments[index] = v;
+                        if (index >= 0 && index < _dataSourceState.Arguments.Length)
+                            _dataSourceState.Arguments[index] = v;
                     });
 
                 string[] options;
@@ -117,7 +113,7 @@ internal sealed class DataSetStateEditDialog : Dialog
     private async void FetchMethodInfo(bool byTap)
     {
         if (byTap)
-            _dataSetState.Arguments = [];
+            _dataSourceState.Arguments = [];
 
         ServiceMethodInfo methodInfo;
         try
@@ -132,7 +128,7 @@ internal sealed class DataSetStateEditDialog : Dialog
 
         //先重置参数列表
         if (byTap)
-            _dataSetState.Arguments = new string?[methodInfo.Args.Length];
+            _dataSourceState.Arguments = new string?[methodInfo.Args.Length];
         //再绑定数据
         _dgController.DataSource = methodInfo.Args;
     }
