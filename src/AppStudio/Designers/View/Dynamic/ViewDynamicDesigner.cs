@@ -19,7 +19,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
         // 初始化一些动态视图设计时的委托
         DesignSettings.GetEventEditor = (element, meta) => new EventEditDialog(element, meta);
-        DesignSettings.GetTableStateEditor = (c, s) => new DataSourceStateEditDialog(c, s);
+        DesignSettings.GetTableStateEditor = (c, s) => new TableStateEditDialog(c, s);
         DesignSettings.MakeTableState = () => new DynamicTableState();
         DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
         DesignSettings.MakeValueState = () => new DynamicValueState();

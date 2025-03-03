@@ -7,9 +7,9 @@ namespace AppBoxDesign;
 
 //TODO: 服务选择
 
-internal sealed class DataSourceStateEditDialog : Dialog
+internal sealed class TableStateEditDialog : Dialog
 {
-    public DataSourceStateEditDialog(DesignController designController, DynamicState state)
+    public TableStateEditDialog(DesignController designController, DynamicState state)
     {
         Title.Value = "DataSource Settings";
         Width = 500;
