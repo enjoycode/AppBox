@@ -131,13 +131,13 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         var type = Enum.Parse<DynamicStateType>(reader.GetString()!);
         var state = new DynamicState { Name = name, Type = type };
 
-        if (type == DynamicStateType.EntityList)
+        if (type == DynamicStateType.DataTable)
         {
             reader.Read(); //Value prop
             var peekReader = reader;
             if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
             {
-                var ds = new DynamicDataSourceState();
+                var ds = new DynamicTableState();
                 ds.ReadFrom(ref reader);
                 state.Value = ds;
             }

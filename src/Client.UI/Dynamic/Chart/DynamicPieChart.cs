@@ -21,22 +21,22 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
 
     private readonly PieChart _chart;
     private PieSeriesSettings? _series;
-    private string? _dataset;
+    private string? _dataSource;
     [JsonIgnore] private IDynamicContext? _dynamicContext;
 
     public string? DataSource
     {
-        get => _dataset;
+        get => _dataSource;
         set
         {
             //设计时改变了重置并取消监听数据集变更
-            if (IsMounted && !string.IsNullOrEmpty(_dataset))
+            if (IsMounted && !string.IsNullOrEmpty(_dataSource))
             {
                 Series = null;
-                _dynamicContext?.UnbindFromDataSource(this, _dataset);
+                _dynamicContext?.UnbindFromDataSource(this, _dataSource);
             }
 
-            _dataset = value;
+            _dataSource = value;
         }
     }
 
@@ -76,11 +76,11 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
         if (_series != null)
         {
             if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-            if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
+            if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList entityList) return;
 
             try
             {
-                var runtimeSeries = _series.Build(_dynamicContext, dataset);
+                var runtimeSeries = _series.Build(_dynamicContext, entityList);
                 _chart.Series = runtimeSeries;
             }
             catch (Exception e)
@@ -103,7 +103,7 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
         
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
-        _dynamicContext?.BindToDataSource(this, _dataset);
+        _dynamicContext?.BindToDataSource(this, _dataSource);
 
         OnSeriesChanged();
     }
@@ -111,13 +111,13 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
     protected override void OnUnmounted()
     {
         //取消监听数据集变更
-        _dynamicContext?.UnbindFromDataSource(this, _dataset);
+        _dynamicContext?.UnbindFromDataSource(this, _dataSource);
         base.OnUnmounted();
     }
 
     #region ====IDataSourceBinder====
 
-    void IDataSourceBinder.OnDataSourceChanged() => OnSeriesChanged();
+    void IDataSourceBinder.OnDataChanged() => OnSeriesChanged();
 
     #endregion
 

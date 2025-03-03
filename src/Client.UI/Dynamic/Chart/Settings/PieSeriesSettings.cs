@@ -25,11 +25,11 @@ public sealed class PieSeriesSettings
 
     public PieSeriesSettings Clone() => new() { Field = Field, Name = Name };
 
-    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DynamicEntityList dataset)
+    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DynamicEntityList list)
     {
         try
         {
-            var runtimeSeries = dataset.Select(e =>
+            var runtimeSeries = list.Select(e =>
             {
                 var s = new PieSeries<double?>()
                 {

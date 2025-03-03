@@ -18,12 +18,12 @@ public sealed class ColumnSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, DynamicEntityList dataset)
+    public override ISeries Build(IDynamicContext dynamicContext, DynamicEntityList list)
     {
         var res = new ColumnSeries<DynamicEntity>()
         {
             Name = Name ?? Field,
-            Values = dataset,
+            Values = list,
             Mapping = (obj, point) =>
             {
                 var v = obj[Field].ToDouble();

@@ -15,12 +15,12 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
     static ViewDynamicDesigner()
     {
-        if (DesignSettings.GetDataSourceStateEditor != null) return;
+        if (DesignSettings.GetTableStateEditor != null) return;
 
         // 初始化一些动态视图设计时的委托
         DesignSettings.GetEventEditor = (element, meta) => new EventEditDialog(element, meta);
-        DesignSettings.GetDataSourceStateEditor = (c, s) => new DataSourceStateEditDialog(c, s);
-        DesignSettings.MakeDataSourceState = () => new DynamicDataSourceState();
+        DesignSettings.GetTableStateEditor = (c, s) => new DataSourceStateEditDialog(c, s);
+        DesignSettings.MakeTableState = () => new DynamicTableState();
         DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
         DesignSettings.MakeValueState = () => new DynamicValueState();
         // 初始化其他属性编辑器

@@ -12,7 +12,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
         Child = new DataGrid<DynamicEntity>(Controller);
     }
 
-    private string? _dataset;
+    private string? _dataSource;
     private TableColumnSettings[]? _columns;
     private TableFooterCell[]? _footer;
     private TableStyles? _styles;
@@ -21,22 +21,22 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
     [JsonIgnore] internal DataGridController<DynamicEntity> Controller { get; } = new();
 
     /// <summary>
-    /// 绑定的数据集名称
+    /// 绑定的数据源名称
     /// </summary>
     public string? DataSource
     {
-        get => _dataset;
+        get => _dataSource;
         set
         {
             //设计时改变了重置并取消监听数据集变更
-            if (IsMounted && !string.IsNullOrEmpty(_dataset))
+            if (IsMounted && !string.IsNullOrEmpty(_dataSource))
             {
                 _columns = null;
                 _footer = null;
-                _dynamicContext?.UnbindFromDataSource(this, _dataset);
+                _dynamicContext?.UnbindFromDataSource(this, _dataSource);
             }
 
-            _dataset = value;
+            _dataSource = value;
 
             if (IsMounted)
                 Fetch();
@@ -110,7 +110,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
         base.OnMounted();
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
-        _dynamicContext?.BindToDataSource(this, _dataset);
+        _dynamicContext?.BindToDataSource(this, _dataSource);
         //填充数据集
         Fetch();
     }
@@ -118,7 +118,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
     protected override void OnUnmounted()
     {
         //取消监听数据集变更
-        _dynamicContext?.UnbindFromDataSource(this, _dataset);
+        _dynamicContext?.UnbindFromDataSource(this, _dataSource);
         base.OnUnmounted();
     }
 
@@ -155,7 +155,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
 
     #region ====IDataSourceBinder====
 
-    void IDataSourceBinder.OnDataSourceChanged() => Fetch();
+    void IDataSourceBinder.OnDataChanged() => Fetch();
 
     #endregion
 }

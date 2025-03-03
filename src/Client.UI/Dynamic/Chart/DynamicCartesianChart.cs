@@ -22,24 +22,24 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
     private ChartAxisSettings[]? _xAxes;
     private ChartAxisSettings[]? _yAxes;
 
-    private string? _dataset;
+    private string? _dataSource;
     [JsonIgnore] private IDynamicContext? _dynamicContext;
 
     public string? DataSource
     {
-        get => _dataset;
+        get => _dataSource;
         set
         {
             //设计时改变了重置并取消监听数据集变更
-            if (IsMounted && !string.IsNullOrEmpty(_dataset))
+            if (IsMounted && !string.IsNullOrEmpty(_dataSource))
             {
                 Series = null;
                 XAxes = null;
                 YAxes = null;
-                _dynamicContext?.UnbindFromDataSource(this, _dataset);
+                _dynamicContext?.UnbindFromDataSource(this, _dataSource);
             }
 
-            _dataset = value;
+            _dataSource = value;
         }
     }
 
@@ -87,12 +87,12 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
             else
             {
                 if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
+                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList entityList) return;
 
                 axes = new Axis[_xAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
                 {
-                    axes[i] = _xAxes[i].Buid(_dynamicContext, dataset);
+                    axes[i] = _xAxes[i].Build(_dynamicContext, entityList);
                 }
             }
 
@@ -107,12 +107,12 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
             else
             {
                 if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
+                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList entityList) return;
 
                 axes = new Axis[_yAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
                 {
-                    axes[i] = _yAxes[i].Buid(_dynamicContext, dataset);
+                    axes[i] = _yAxes[i].Build(_dynamicContext, entityList);
                 }
             }
 
@@ -127,12 +127,12 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
         if (_series != null)
         {
             if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-            if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList dataset) return;
+            if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList entityList) return;
 
             var runtimeSeries = new ISeries[_series.Length];
             for (var i = 0; i < _series.Length; i++)
             {
-                runtimeSeries[i] = _series[i].Build(_dynamicContext, dataset);
+                runtimeSeries[i] = _series[i].Build(_dynamicContext, entityList);
             }
 
             _chart.Series = runtimeSeries;
@@ -152,7 +152,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
 
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
-        _dynamicContext?.BindToDataSource(this, _dataset);
+        _dynamicContext?.BindToDataSource(this, _dataSource);
 
         OnSeriesChanged();
         if (_xAxes != null) OnAxesChanged(true);
@@ -162,13 +162,13 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
     protected override void OnUnmounted()
     {
         //取消监听数据集变更
-        _dynamicContext?.UnbindFromDataSource(this, _dataset);
+        _dynamicContext?.UnbindFromDataSource(this, _dataSource);
         base.OnUnmounted();
     }
 
     #region ====IDataSourceBinder====
 
-    void IDataSourceBinder.OnDataSourceChanged() => OnSeriesChanged();
+    void IDataSourceBinder.OnDataChanged() => OnSeriesChanged();
 
     #endregion
 

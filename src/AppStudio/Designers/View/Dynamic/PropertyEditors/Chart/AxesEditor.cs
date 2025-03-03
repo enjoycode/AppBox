@@ -87,8 +87,8 @@ internal sealed class AxesEditor : SingleChildWidget
         }
 
         var dsState = _element.Controller.FindState(dsName);
-        if (dsState?.Value is not IDynamicDataSourceState dsSettings) return;
-        if (await dsSettings.GetRuntimeDataSource(_element.Controller.DesignCanvas) is not DynamicEntityList ds) return;
+        if (dsState?.Value is not IDynamicTableState dsSettings) return;
+        if (await dsSettings.GetRuntimeState(_element.Controller.DesignCanvas) is not DynamicEntityList ds) return;
 
         var strings = ds.Fields.Where(f => f.IsString).Select(f => f.Name).ToArray();
         _labelsRef.Options = strings;

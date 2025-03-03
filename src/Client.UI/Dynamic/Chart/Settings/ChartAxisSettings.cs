@@ -34,7 +34,7 @@ public sealed class ChartAxisSettings
         MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
     };
 
-    public LiveCharts.Axis Buid(IDynamicContext dynamicContext, DynamicEntityList dataset)
+    public LiveCharts.Axis Build(IDynamicContext dynamicContext, DynamicEntityList list)
     {
         var res = new LiveCharts.Axis();
         // if (!string.IsNullOrEmpty(Formatter))
@@ -56,10 +56,10 @@ public sealed class ChartAxisSettings
             res.Labeler = v =>
             {
                 var index = (int)v;
-                if (index < 0 || index >= dataset.Count)
+                if (index < 0 || index >= list.Count)
                     return string.Empty;
 
-                return dataset[index][Labels].ToStringValue();
+                return list[index][Labels].ToStringValue();
             };
         }
 

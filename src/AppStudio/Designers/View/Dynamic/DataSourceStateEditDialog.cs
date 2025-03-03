@@ -17,15 +17,15 @@ internal sealed class DataSourceStateEditDialog : Dialog
 
         _designController = designController;
         //初始化状态
-        state.Value ??= new DynamicDataSourceState();
-        _dataSourceState = (DynamicDataSourceState)state.Value;
+        state.Value ??= new DynamicTableState();
+        _tableState = (DynamicTableState)state.Value;
         _service = new RxProxy<string>(
-            () => ((DynamicDataSourceState)state.Value).Service,
-            v => ((DynamicDataSourceState)state.Value).Service = v);
+            () => ((DynamicTableState)state.Value).Service,
+            v => ((DynamicTableState)state.Value).Service = v);
     }
 
     private readonly DesignController _designController;
-    private readonly DynamicDataSourceState _dataSourceState;
+    private readonly DynamicTableState _tableState;
     private readonly State<string> _service;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
 
@@ -76,11 +76,11 @@ internal sealed class DataSourceStateEditDialog : Dialog
             new DataGridHostColumn<ServiceMethodParameterInfo>("State", (para, index) =>
             {
                 var rs = new RxProxy<string?>(
-                    () => index < 0 || index >= _dataSourceState.Arguments.Length ? null : _dataSourceState.Arguments[index],
+                    () => index < 0 || index >= _tableState.Arguments.Length ? null : _tableState.Arguments[index],
                     v =>
                     {
-                        if (index >= 0 && index < _dataSourceState.Arguments.Length)
-                            _dataSourceState.Arguments[index] = v;
+                        if (index >= 0 && index < _tableState.Arguments.Length)
+                            _tableState.Arguments[index] = v;
                     });
 
                 string[] options;
@@ -113,7 +113,7 @@ internal sealed class DataSourceStateEditDialog : Dialog
     private async void FetchMethodInfo(bool byTap)
     {
         if (byTap)
-            _dataSourceState.Arguments = [];
+            _tableState.Arguments = [];
 
         ServiceMethodInfo methodInfo;
         try
@@ -128,7 +128,7 @@ internal sealed class DataSourceStateEditDialog : Dialog
 
         //先重置参数列表
         if (byTap)
-            _dataSourceState.Arguments = new string?[methodInfo.Args.Length];
+            _tableState.Arguments = new string?[methodInfo.Args.Length];
         //再绑定数据
         _dgController.DataSource = methodInfo.Args;
     }

@@ -61,7 +61,7 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         var conditions = new Func<DynamicEntity, bool>[CellStyles!.Length];
         for (var i = 0; i < conditions.Length; i++)
         {
-            conditions[i] = BuidCondition(CellStyles[i], Field);
+            conditions[i] = BuildCondition(CellStyles[i], Field);
         }
 
         return (entity, _) =>
@@ -84,7 +84,7 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         };
     }
 
-    private static Func<DynamicEntity, bool> BuidCondition(ConditionalCellStyle c, string field)
+    private static Func<DynamicEntity, bool> BuildCondition(ConditionalCellStyle c, string field)
     {
         // var arg = System.Linq.Expressions.Expression.Parameter(typeof(DynamicEntity));
         // var agrValue = System.Linq.Expressions.Expression.MakeIndex()

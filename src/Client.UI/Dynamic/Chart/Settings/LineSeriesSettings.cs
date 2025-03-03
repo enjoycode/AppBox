@@ -22,12 +22,12 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, DynamicEntityList dataset)
+    public override ISeries Build(IDynamicContext dynamicContext, DynamicEntityList list)
     {
         var res = new LineSeries<DynamicEntity>
         {
             Name = Name ?? Field,
-            Values = dataset,
+            Values = list,
             LineSmoothness = Smoothness ?? 0.65f,
             Mapping = (obj, point) =>
             {

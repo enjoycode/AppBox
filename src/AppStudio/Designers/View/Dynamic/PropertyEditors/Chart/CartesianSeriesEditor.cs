@@ -62,16 +62,16 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
 
     private async void FetchDataSourceFields()
     {
-        _element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSource), out var datasetValue);
-        if (datasetValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
+        _element.Data.TryGetPropertyValue(nameof(DynamicCartesianChart.DataSource), out var dataSourceValue);
+        if (dataSourceValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
         {
             Notification.Warn("尚未设置DataSource");
             return;
         }
 
         var dsState = _element.Controller.FindState(dsName);
-        if (dsState?.Value is not IDynamicDataSourceState dsSettings) return;
-        if (await dsSettings.GetRuntimeDataSource(_element.Controller.DesignCanvas) is not DynamicEntityList ds) return;
+        if (dsState?.Value is not IDynamicTableState dsSettings) return;
+        if (await dsSettings.GetRuntimeState(_element.Controller.DesignCanvas) is not DynamicEntityList ds) return;
 
         var numbers = ds.Fields.Where(f => f.IsNumber).Select(f => f.Name).ToArray();
         //var numbersAndDates = ds.Fields.Where(f => f.IsNumber || f.IsDateTime).Select(f => f.Name).ToArray();

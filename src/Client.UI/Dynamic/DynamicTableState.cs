@@ -10,9 +10,9 @@ using PixUI.Dynamic;
 namespace AppBoxClient.Dynamic;
 
 /// <summary>
-/// 数据集的配置信息
+/// 数据表的配置信息
 /// </summary>
-public sealed class DynamicDataSourceState : IDynamicDataSourceState
+public sealed class DynamicTableState : IDynamicTableState
 {
     /// <summary>
     /// 获取数据集的服务方法 eg: sys.OrderService.GetOrders
@@ -24,7 +24,7 @@ public sealed class DynamicDataSourceState : IDynamicDataSourceState
     /// </summary>
     public string?[] Arguments { get; set; } = Array.Empty<string?>();
 
-    public event Action? DataSourceChanged;
+    public event Action? DataChanged;
 
     #region ====Serialization====
 
@@ -82,7 +82,7 @@ public sealed class DynamicDataSourceState : IDynamicDataSourceState
     private int _fetchFlag;
     private Task<DynamicEntityList?> _fetchTask = null!;
 
-    public async ValueTask<object?> GetRuntimeDataSource(IDynamicContext dynamicContext)
+    public async ValueTask<object?> GetRuntimeState(IDynamicContext dynamicContext)
     {
         if (Interlocked.CompareExchange(ref _fetchFlag, 1, 0) == 0)
         {
@@ -117,7 +117,7 @@ public sealed class DynamicDataSourceState : IDynamicDataSourceState
     public void Reset()
     {
         Interlocked.Exchange(ref _fetchFlag, 0);
-        DataSourceChanged?.Invoke();
+        DataChanged?.Invoke();
     }
 
     #endregion
