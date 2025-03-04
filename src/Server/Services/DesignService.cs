@@ -89,8 +89,7 @@ internal sealed class DesignService : IService
     {
         ModelId modelId = args.GetString()!;
         var pageSize = args.GetInt()!.Value;
-
-
+        
         var model = await RuntimeContext.GetModelAsync<EntityModel>(modelId);
         if (model.SqlStoreOptions == null)
             throw new NotSupportedException("Only support SqlStore now.");

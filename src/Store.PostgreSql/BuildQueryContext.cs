@@ -268,9 +268,9 @@ internal sealed class BuildQueryContext
         {
             //Left Join "City" c ON c."Code" = t."CityCode"
             //eg: Customer.City的City
-            var rqModel = RuntimeContext.GetModel<EntityModel>(rq.ModelID);
+            var rqModel = RuntimeContext.GetModel<EntityModel>(rq.ModelId);
             //eg: Customer.City的Customer
-            var rqOwnerModel = RuntimeContext.GetModel<EntityModel>(rq.Owner!.ModelID);
+            var rqOwnerModel = RuntimeContext.GetModel<EntityModel>(rq.Owner!.ModelId);
             AppendFormat(" Left Join \"{0}\" {1} On ",
                 rqModel.SqlStoreOptions!.GetSqlTableName(false, null), rq.AliasName!);
             //Build ON Condition, other.pks == this.fks

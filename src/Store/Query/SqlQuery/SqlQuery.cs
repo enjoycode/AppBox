@@ -12,9 +12,9 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 {
     #region ====Ctor====
 
-    public SqlQuery(long entityModelID)
+    public SqlQuery(long entityModelId)
     {
-        T = new EntityExpression(entityModelID, this);
+        T = new EntityExpression(entityModelId, this);
     }
 
     // /// <summary>
@@ -145,7 +145,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     public async Task<int> CountAsync()
     {
         Purpose = QueryPurpose.Count;
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
@@ -172,7 +172,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     public async Task<TEntity?> ToSingleAsync()
     {
         Purpose = QueryPurpose.ToSingle;
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
 
         //TODO: 添加选择项,暂默认*
         // if (_rootIncluder != null) {
@@ -204,7 +204,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     public async Task<IList<TEntity>> ToListAsync()
     {
         Purpose = QueryPurpose.ToList;
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
 
         // TODO: 添加选择项,暂默认*
         // if (_rootIncluder != null) {
@@ -293,7 +293,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
             throw new ArgumentException("must select some one");
 
         //递交查询
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
         await using var cmd = db.BuildQuery(this);
         await using var conn = db.MakeConnection();
@@ -327,7 +327,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     {
         Purpose = QueryPurpose.ToTree;
         var children = (EntitySetExpression)childrenMember(T);
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
         var childrenModel = (EntitySetModel)model.GetMember(children.Name)!;
         TreeParentMember = (EntityRefModel)model.GetMember(childrenModel.RefMemberId)!;
 
@@ -392,7 +392,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         if (parent is not EntityExpression)
             throw new Exception("Parent is not EntityRef member");
 
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelID);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
         if (!model.SqlStoreOptions!.HasPrimaryKeys || model.SqlStoreOptions.PrimaryKeys.Length > 1)
             throw new Exception("仅支持具备单一主键的树状实体");
 

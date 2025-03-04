@@ -35,7 +35,7 @@ public sealed class EntityExpression : EntityPathExpression
         }
     }
 
-    public ModelId ModelID { get; private set; }
+    public ModelId ModelId { get; private set; }
 
     //TODO:考虑实现AddToCache，用于下属成员反序列化时自动加入Cache内
     private Dictionary<string, EntityPathExpression>? _cache;
@@ -51,11 +51,10 @@ public sealed class EntityExpression : EntityPathExpression
     {
         get
         {
-            EntityPathExpression? exp = null;
-            if (Cache.TryGetValue(name, out exp))
+            if (Cache.TryGetValue(name, out var exp))
                 return exp;
 
-            var model = RuntimeContext.GetModel<EntityModel>(ModelID);
+            var model = RuntimeContext.GetModel<EntityModel>(ModelId);
             var m = model.GetMember(name, false);
             if (m != null)
             {
@@ -109,18 +108,18 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// New Root EntityExpression
     /// </summary>
-    public EntityExpression(ModelId modelID, object? user) : base(null, null)
+    public EntityExpression(ModelId modelId, object? user) : base(null, null)
     {
-        ModelID = modelID;
+        ModelId = modelId;
         _user = user;
     }
 
     /// <summary>
     /// New EntityRefModel's EntityExpression
     /// </summary>
-    internal EntityExpression(string name, ModelId modelID, EntityExpression owner) : base(name, owner)
+    internal EntityExpression(string name, ModelId modelId, EntityExpression owner) : base(name, owner)
     {
-        ModelID = modelID;
+        ModelId = modelId;
     }
 
     #endregion
@@ -144,7 +143,7 @@ public sealed class EntityExpression : EntityPathExpression
         if (IsNull(target))
             return false;
 
-        return target!.ModelID == ModelID
+        return target!.ModelId == ModelId
                && target.User == User && Equals(target.Owner, Owner);
     }
 

@@ -83,7 +83,7 @@ partial class PgSqlStore
         // else
         // {
         var q = (ISqlEntityQuery)ctx.CurrentQuery;
-        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
+        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelId);
         ctx.Append('"');
         ctx.Append(model.SqlStoreOptions!.GetSqlTableName(false, null));
         ctx.Append("\" ");
@@ -176,7 +176,7 @@ partial class PgSqlStore
         //From Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
         var q = (ISqlEntityQuery)query;
-        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
+        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelId);
         ctx.AppendWithNameEscaper(model.SqlStoreOptions!.GetSqlTableName(false, null));
         ctx.Append(" AS ");
         ctx.Append(q.AliasName);
@@ -260,7 +260,7 @@ partial class PgSqlStore
         //From Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
         var q = (ISqlEntityQuery)query;
-        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelID);
+        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelId);
         ctx.AppendFormat("\"{0}\" As {1}", model.SqlStoreOptions!.GetSqlTableName(false, null), q.AliasName);
         //Where Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildWhere);
@@ -419,7 +419,7 @@ partial class PgSqlStore
             ctx.Append(GetJoinString(item.JoinType));
             if (item.Right is SqlQueryJoin j)
             {
-                var jModel = RuntimeContext.GetModel<EntityModel>(j.T.ModelID);
+                var jModel = RuntimeContext.GetModel<EntityModel>(j.T.ModelId);
                 ctx.AppendFormat("\"{0}\" {1} On ", jModel.SqlStoreOptions!.GetSqlTableName(false, null),
                     j.AliasName);
                 BuildExpression(item.OnConditon, ctx);
@@ -553,7 +553,7 @@ partial class PgSqlStore
 
     private void BuildFieldExpression(EntityFieldExpression exp, BuildQueryContext ctx)
     {
-        var model = RuntimeContext.GetModel<EntityModel>(exp.Owner!.ModelID);
+        var model = RuntimeContext.GetModel<EntityModel>(exp.Owner!.ModelId);
 
         //判断上下文是否在处理Update的Set
         if (ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildUpdateSet)
@@ -730,7 +730,7 @@ partial class PgSqlStore
             case ExpressionType.EntityFieldExpression:
             {
                 var e = (EntityFieldExpression)exp;
-                var model = RuntimeContext.GetModel<EntityModel>(e.Owner!.ModelID);
+                var model = RuntimeContext.GetModel<EntityModel>(e.Owner!.ModelId);
                 var fieldModel = (EntityFieldModel)model.GetMember(e.Name, true)!;
                 return fieldModel.FieldType == EntityFieldType.String;
             }
