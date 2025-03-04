@@ -17,18 +17,10 @@ internal sealed class MembersDesigner : View
             Distance = 280,
             SplitterColor = color,
             Panel1 = new DataGrid<EntityMemberModel>(membersController)
-            {
-                Columns =
-                {
-                    new DataGridTextColumn<EntityMemberModel>("Name", v => v.Name)
-                        { Width = ColumnWidth.Fixed(150) },
-                    new DataGridTextColumn<EntityMemberModel>("Type", MemberTypeToString)
-                        { Width = ColumnWidth.Fixed(200) },
-                    new DataGridCheckboxColumn<EntityMemberModel>("AllowNull", v => v.AllowNull)
-                        { Width = ColumnWidth.Fixed(90) },
-                    new DataGridTextColumn<EntityMemberModel>("Comment", v => v.Comment ?? string.Empty),
-                }
-            },
+                .AddTextColumn("Name", v => v.Name, 150)
+                .AddTextColumn("Type", MemberTypeToString, 200)
+                .AddCheckboxColumn("AllowNull", v => v.AllowNull, width: 90)
+                .AddTextColumn("Comment", v => v.Comment ?? string.Empty),
             Panel2 = new Container()
             {
                 Padding = EdgeInsets.All(10),

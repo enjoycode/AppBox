@@ -68,39 +68,34 @@ internal sealed class TableStateEditDialog : Dialog
     };
 
     private Widget BuildDataGrid() => new DataGrid<ServiceMethodParameterInfo>(_dgController)
-    {
-        Columns =
+        .AddTextColumn("Name", a => a.Name)
+        .AddTextColumn("Type", a => a.Type)
+        .AddHostColumn("State", (para, index) =>
         {
-            new DataGridTextColumn<ServiceMethodParameterInfo>("Name", a => a.Name),
-            new DataGridTextColumn<ServiceMethodParameterInfo>("Type", a => a.Type),
-            new DataGridHostColumn<ServiceMethodParameterInfo>("State", (para, index) =>
+            var rs = new RxProxy<string?>(
+                () => index < 0 || index >= _tableState.Arguments.Length ? null : _tableState.Arguments[index],
+                v =>
+                {
+                    if (index >= 0 && index < _tableState.Arguments.Length)
+                        _tableState.Arguments[index] = v;
+                });
+
+            string[] options;
+            try
             {
-                var rs = new RxProxy<string?>(
-                    () => index < 0 || index >= _tableState.Arguments.Length ? null : _tableState.Arguments[index],
-                    v =>
-                    {
-                        if (index >= 0 && index < _tableState.Arguments.Length)
-                            _tableState.Arguments[index] = v;
-                    });
+                var noneNullableValueType = para.ConvertToRuntimeType(out var allowNull);
+                var stateType = DynamicState.GetStateTypeByValueType(noneNullableValueType);
+                options = _designController.FindStatesByValueType(stateType, allowNull)
+                    .Select(s => s.Name)
+                    .ToArray();
+            }
+            catch (Exception e)
+            {
+                options = [];
+            }
 
-                string[] options;
-                try
-                {
-                    var noneNullableValueType = para.ConvertToRuntimeType(out var allowNull);
-                    var stateType = DynamicState.GetStateTypeByValueType(noneNullableValueType);
-                    options = _designController.FindStatesByValueType(stateType, allowNull)
-                        .Select(s => s.Name)
-                        .ToArray();
-                }
-                catch (Exception e)
-                {
-                    options = Array.Empty<string>();
-                }
-
-                return new Select<string>(rs) { Options = options };
-            }),
-        }
-    };
+            return new Select<string>(rs) { Options = options };
+        });
 
     protected override void OnMounted()
     {

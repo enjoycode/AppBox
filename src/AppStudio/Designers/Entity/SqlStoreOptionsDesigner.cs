@@ -1,4 +1,3 @@
-using AppBoxClient;
 using AppBoxCore;
 using PixUI;
 
@@ -51,17 +50,9 @@ internal sealed class SqlStoreOptionsDesigner : View
                     }
                 },
                 new DataGrid<PrimaryKeyField>(_pkController)
-                {
-                    Columns =
-                    {
-                        new DataGridTextColumn<PrimaryKeyField>("Name",
-                            t => _entityModel.Members.First(m => m.MemberId == t.MemberId).Name),
-                        new DataGridCheckboxColumn<PrimaryKeyField>("OrderByDesc",
-                            t => t.OrderByDesc),
-                        new DataGridCheckboxColumn<PrimaryKeyField>("AllowChange",
-                            t => t.AllowChange),
-                    }
-                }
+                    .AddTextColumn("Name", t => _entityModel.Members.First(m => m.MemberId == t.MemberId).Name)
+                    .AddCheckboxColumn("OrderByDesc", t => t.OrderByDesc)
+                    .AddCheckboxColumn("AllowChange", t => t.AllowChange)
             }
         }
     };
@@ -83,14 +74,9 @@ internal sealed class SqlStoreOptionsDesigner : View
                     }
                 },
                 new DataGrid<SqlIndexModel>(_ixController)
-                {
-                    Columns =
-                    {
-                        new DataGridTextColumn<SqlIndexModel>("Name", t => t.Name),
-                        new DataGridTextColumn<SqlIndexModel>("Fields", GetIndexesFieldsList),
-                        new DataGridCheckboxColumn<SqlIndexModel>("Unique", t => true),
-                    }
-                },
+                    .AddTextColumn("Name", t => t.Name)
+                    .AddTextColumn("Fields", GetIndexesFieldsList)
+                    .AddCheckboxColumn("Unique", t => t.Unique)
             }
         }
     };

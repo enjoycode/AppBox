@@ -20,8 +20,8 @@ internal sealed class ValueStateEditDialog : Dialog
         //初始化状态
         _state.Value ??= new DynamicValueState();
         _valuestate = (DynamicValueState)_state.Value;
-        _isExpression = new RxProxy<bool>(() => _valuestate.Source == DynamicStateValueSource.Expression,
-            v => _valuestate.Source = v ? DynamicStateValueSource.Expression : DynamicStateValueSource.Primitive);
+        _isExpression = new RxProxy<bool>(() => _valuestate.Source == DynamicValueStateSource.Expression,
+            v => _valuestate.Source = v ? DynamicValueStateSource.Expression : DynamicValueStateSource.Primitive);
         _allowNull = new RxProxy<bool>(() => _state.AllowNull, v => _state.AllowNull = v);
 
         _value.Value = _valuestate.Value?.ToString() ?? string.Empty; //TODO: Expression to Code
@@ -63,7 +63,7 @@ internal sealed class ValueStateEditDialog : Dialog
             return new ValueTask<bool>(false);
 
         //关闭前转换值或表达式
-        if (_valuestate.Source == DynamicStateValueSource.Expression)
+        if (_valuestate.Source == DynamicValueStateSource.Expression)
         {
             //TODO: 根据状态类型正确处理返回类型
             var code = $"using System;static class E{{static object? M(){{return {_value.Value};}}}}";

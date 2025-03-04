@@ -64,15 +64,9 @@ internal sealed class AxesDialog : Dialog
         {
             new Card
             {
-                Child = new DataGrid<ChartAxisSettings>(_dataGridController)
-                {
-                    Width = 250,
-                    Columns =
-                    {
-                        new DataGridTextColumn<ChartAxisSettings>("Name", c => c.Name ?? string.Empty),
-                        new DataGridTextColumn<ChartAxisSettings>("Labels", c => c.Labels ?? string.Empty)
-                    }
-                }
+                Child = new DataGrid<ChartAxisSettings>(_dataGridController) { Width = 250 }
+                    .AddTextColumn("Name", c => c.Name ?? string.Empty)
+                    .AddTextColumn("Labels", c => c.Labels ?? string.Empty)
             },
 
             new Expanded(new Card

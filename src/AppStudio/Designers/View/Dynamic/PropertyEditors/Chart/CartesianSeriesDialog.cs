@@ -70,15 +70,9 @@ internal sealed class CartesianSeriesDialog : Dialog
         {
             new Card
             {
-                Child = new DataGrid<CartesianSeriesSettings>(_dataGridController)
-                {
-                    Width = 250,
-                    Columns =
-                    {
-                        new DataGridTextColumn<CartesianSeriesSettings>("Type", c => c.Type),
-                        new DataGridTextColumn<CartesianSeriesSettings>("YField", c => c.Field)
-                    }
-                }
+                Child = new DataGrid<CartesianSeriesSettings>(_dataGridController) { Width = 250 }
+                    .AddTextColumn("Type", c => c.Type)
+                    .AddTextColumn("YField", c => c.Field)
             },
 
             new Expanded(new Card
@@ -97,7 +91,7 @@ internal sealed class CartesianSeriesDialog : Dialog
     };
 
     #endregion
-    
+
     private void OnCurrentChanged()
     {
         if (_current.Value == null) return;

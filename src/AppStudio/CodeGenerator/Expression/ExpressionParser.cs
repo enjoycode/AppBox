@@ -14,9 +14,6 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
 
     private readonly SemanticModel _semanticModel;
 
-    /// <summary>
-    /// Only for test
-    /// </summary>
     public static Expression ParseCode(string code)
     {
         var parseOptions = new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11);

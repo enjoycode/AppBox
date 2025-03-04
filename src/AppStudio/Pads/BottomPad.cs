@@ -7,7 +7,7 @@ internal sealed class BottomPad : View
     public BottomPad(DesignStore designStore)
     {
         _designStore = designStore;
-        
+
         Child = new Container()
         {
             Child = new TabView<string>(_designStore.BottomPadController, BuildTab, BuildBody, false, 40)
@@ -33,45 +33,29 @@ internal sealed class BottomPad : View
         if (title == "Problems")
         {
             return new DataGrid<CodeProblem>(_designStore.ProblemsController)
-            {
-                Columns =
+                .AddTextColumn("Position", p => p.Position, 180)
+                .AddTextColumn("Message", p => p.Message)
+                .AddButtonColumn("Goto", (p, _) => new Button(icon: MaterialIcons.NextPlan)
                 {
-                    //new DataGridTextColumn<CodeProblem>("Model", p => p.Model, ColumnWidth.Fixed(150)),
-                    new DataGridTextColumn<CodeProblem>("Position", p => p.Position)
-                        { Width = ColumnWidth.Fixed(180) },
-                    new DataGridTextColumn<CodeProblem>("Message", p => p.Message),
-                    new DataGridButtonColumn<CodeProblem>("Goto",
-                        (p, _) => new Button(icon: MaterialIcons.NextPlan)
-                        {
-                            Style = ButtonStyle.Transparent,
-                            Shape = ButtonShape.Pills,
-                            FontSize = 20,
-                            OnTap = _ => _designStore.GotoProblem(p)
-                        },
-                        ColumnWidth.Fixed(80)),
-                }
-            };
+                    Style = ButtonStyle.Transparent,
+                    Shape = ButtonShape.Pills,
+                    FontSize = 20,
+                    OnTap = _ => _designStore.GotoProblem(p)
+                }, 80);
         }
 
         if (title == "Usages")
         {
             return new DataGrid<Reference>(_designStore.UsagesController)
-            {
-                Columns =
+                .AddTextColumn("Model", u => u.ModelName)
+                .AddTextColumn("Location", u => u.Location)
+                .AddButtonColumn("Goto", (p, _) => new Button(icon: MaterialIcons.NextPlan)
                 {
-                    new DataGridTextColumn<Reference>("Model", u => u.ModelName ?? string.Empty),
-                    new DataGridTextColumn<Reference>("Location", u => u.Location ?? string.Empty),
-                    new DataGridButtonColumn<Reference>("Goto",
-                        (p, _) => new Button(icon: MaterialIcons.NextPlan)
-                        {
-                            Style = ButtonStyle.Transparent,
-                            Shape = ButtonShape.Pills,
-                            FontSize = 20,
-                            OnTap = _ => _designStore.GotoReference(p)
-                        },
-                        ColumnWidth.Fixed(80))
-                }
-            };
+                    Style = ButtonStyle.Transparent,
+                    Shape = ButtonShape.Pills,
+                    FontSize = 20,
+                    OnTap = _ => _designStore.GotoReference(p)
+                }, 80);
         }
 
         return new Container()

@@ -360,7 +360,7 @@ public static class OutputStreamExtensions
     #region ====WriteCollection====
 
     public static void WriteCollection(this IOutputStream s, Type elementType, int count,
-        Func<int, object> elementGetter)
+        Func<int, object?> elementGetter)
     {
         if (count == 0) return;
 
@@ -377,7 +377,9 @@ public static class OutputStreamExtensions
         {
             for (var i = 0; i < count; i++)
             {
+#pragma warning disable CS8604 // Possible null reference argument.
                 serializer.Write(s, elementGetter(i));
+#pragma warning restore CS8604 // Possible null reference argument.
             }
         }
     }

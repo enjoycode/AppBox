@@ -20,13 +20,8 @@ internal sealed class PublishDialog : Dialog
         {
             Padding = EdgeInsets.All(20),
             Child = new DataGrid<PendingChange>(_dataGridController)
-            {
-                Columns =
-                {
-                    new DataGridTextColumn<PendingChange>("Type", t => t.DisplayType),
-                    new DataGridTextColumn<PendingChange>("Name", t => t.DisplayName),
-                }
-            }
+                .AddTextColumn("Type", t => t.DisplayType)
+                .AddTextColumn("Name", t => t.DisplayName)
         };
     }
 
