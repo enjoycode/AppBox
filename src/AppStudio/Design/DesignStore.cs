@@ -192,37 +192,6 @@ internal sealed class DesignStore
     }
 
     /// <summary>
-    /// 获取所有实体节点
-    /// </summary>
-    internal IList<ModelNode> GetAllEntityNodes()
-    {
-        var list = new List<ModelNode>();
-        var appRootNode = (ApplicationRootNode)TreeController.DataSource![1];
-        foreach (var appNode in appRootNode.Children)
-        {
-            var entityRootNode = appNode.Children[0];
-            LoopAddEntityNode(entityRootNode, list);
-        }
-
-        return list;
-    }
-
-    private static void LoopAddEntityNode(DesignNode node, IList<ModelNode> list)
-    {
-        if (node is ModelNode modelNode)
-        {
-            list.Add(modelNode);
-        }
-        else if (node is FolderNode folderNode)
-        {
-            foreach (var child in folderNode.Children)
-            {
-                LoopAddEntityNode(child, list);
-            }
-        }
-    }
-
-    /// <summary>
     /// 获取引用了指定实体的所有EntityRef成员
     /// </summary>
     internal static EntityMemberInfo[] GetAllEntityRefs(ModelId modelId)

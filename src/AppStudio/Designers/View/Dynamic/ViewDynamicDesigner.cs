@@ -24,7 +24,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
         DesignSettings.MakeValueState = () => new DynamicValueState();
         // 初始化其他属性编辑器
-        PropertyEditor.RegisterClassValueEditor<string, DataSourcePropEditor>(false, DynamicInitiator.DataSourceEditorName);
+        PropertyEditor.RegisterClassValueEditor<string, DataSourcePropEditor>(false,
+            DynamicInitiator.DataSourceEditorName);
         PropertyEditor.RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<ChartAxisSettings[], AxesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
@@ -76,6 +77,12 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                 new Button("Add") { OnTap = OnAdd },
                 new Button("Remove") { OnTap = OnRemove },
                 new Button("Background") { OnTap = OnSetBackground },
+#if DEBUG
+                new Button("Json")
+                {
+                    OnTap = _ => { Log.Debug(BuildJson(new JsonWriterOptions() { Indented = true })); }
+                },
+#endif
             }
         }
     };
@@ -111,15 +118,18 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         }
     }
 
-    public Task SaveAsync()
+    private string BuildJson(JsonWriterOptions options = default)
     {
         using var ms = new MemoryStream();
-        using var writer = new Utf8JsonWriter(ms);
+        using var writer = new Utf8JsonWriter(ms, options);
         _designController.Write(writer);
         writer.Flush();
-        var json = Encoding.UTF8.GetString(ms.ToArray());
+        return Encoding.UTF8.GetString(ms.ToArray());
+    }
 
-        return ModelNode.SaveAsync(json);
+    public Task SaveAsync()
+    {
+        return ModelNode.SaveAsync(BuildJson());
     }
 
     public Task RefreshAsync()

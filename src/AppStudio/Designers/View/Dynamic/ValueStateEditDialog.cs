@@ -1,7 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using AppBoxClient;
-using AppBoxCore;
 using AppBoxDesign.CodeGenerator;
 using PixUI;
 using PixUI.Dynamic;
@@ -59,7 +55,7 @@ internal sealed class ValueStateEditDialog : Dialog
 
     protected override ValueTask<bool> OnClosing(string result)
     {
-        if (result != DialogResult.OK) 
+        if (result != DialogResult.OK)
             return new ValueTask<bool>(false);
 
         //关闭前转换值或表达式

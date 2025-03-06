@@ -2,7 +2,7 @@ namespace AppBoxCore;
 
 public static class ExpressionFactory
 {
-    private static readonly Dictionary<ExpressionType, Func<Expression>> dic = new()
+    private static readonly Dictionary<ExpressionType, Func<Expression>> Factories = new()
     {
         { ExpressionType.ConstantExpression, () => new ConstantExpression() },
         { ExpressionType.TypeExpression, () => new TypeExpression() },
@@ -14,7 +14,7 @@ public static class ExpressionFactory
 
     public static Expression Make(ExpressionType expressionType)
     {
-        if (dic.TryGetValue(expressionType, out var creator))
+        if (Factories.TryGetValue(expressionType, out var creator))
             return creator();
 
         throw new NotImplementedException();

@@ -8,9 +8,8 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class NewEntityMemberDialog : Dialog
 {
-    public NewEntityMemberDialog(DesignStore designStore, ModelNode modelNode)
+    public NewEntityMemberDialog(ModelNode modelNode)
     {
-        _designStore = designStore;
         _modelNode = modelNode;
         Width = 380;
         Height = 280;
@@ -22,7 +21,6 @@ internal sealed class NewEntityMemberDialog : Dialog
     private static readonly string[] FieldTypes =
         ["String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Binary"];
 
-    private readonly DesignStore _designStore;
     private readonly ModelNode _modelNode;
     private readonly State<string> _name = string.Empty;
     private readonly State<bool> _allowNull = false;
@@ -74,7 +72,8 @@ internal sealed class NewEntityMemberDialog : Dialog
                                 new FormItem("Target:",
                                     new Select<ModelNode>(_entityRefTarget)
                                     {
-                                        Options = _designStore.GetAllEntityNodes().ToArray()
+                                        Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
+                                        LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                                     }),
                                 new FormItem("AllowNull:", new Checkbox(_allowNull))
                             }

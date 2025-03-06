@@ -119,6 +119,7 @@ public sealed class DynamicValueState : IDynamicValueState
                     : new RxProxy<DateTime>(() => ProxyValue == null ? default : (DateTime)ProxyValue,
                         v => ProxyValue = v);
                 break;
+            //TODO: others
             default:
                 throw new NotImplementedException();
         }

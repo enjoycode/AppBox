@@ -47,7 +47,7 @@ public sealed class EntityFieldExpression : EntityPathExpression
     public override void ToCode(StringBuilder sb, int preTabs)
     {
         Owner!.ToCode(sb, preTabs);
-        sb.Append(".");
+        sb.Append('.');
         sb.Append(Name);
     }
 

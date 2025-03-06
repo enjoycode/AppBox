@@ -139,7 +139,7 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
     public ModelNode? FindModelNodeByName(ReadOnlyMemory<char> name)
         => _models.Values.FirstOrDefault(t => t.Model.Name.AsSpan().SequenceEqual(name.Span));
 
-    public ModelNode[] GetAllModelNodes() => _models.Values.ToArray();
+    public IEnumerable<ModelNode> GetAllModelNodes() => _models.Values;
 
     #endregion
 
