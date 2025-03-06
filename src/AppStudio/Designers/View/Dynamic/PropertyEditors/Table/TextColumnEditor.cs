@@ -25,8 +25,6 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
         var cellStyles = Column.Observe(nameof(TextColumnSettings.CellStyles),
             s => s.CellStyles, (s, v) => s.CellStyles = v);
 
-        field.AddListener(_ => cellStyles.Value = null); //改变字段清空条件单元格式
-
         yield return ("Field:", field, new Select<string>(field!).RefBy(ref _fieldRef));
         yield return ("CellStyles:", cellStyles, new Button("...")
         {
