@@ -1,8 +1,6 @@
-using System;
 using System.Text;
-using AppBoxCore;
 
-namespace AppBoxStore;
+namespace AppBoxCore;
 
 public sealed class EntitySetExpression : EntityPathExpression
 {

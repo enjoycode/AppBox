@@ -1,6 +1,4 @@
-using AppBoxCore;
-
-namespace AppBoxStore;
+namespace AppBoxCore;
 
 public abstract class EntityPathExpression : Expression
 {
