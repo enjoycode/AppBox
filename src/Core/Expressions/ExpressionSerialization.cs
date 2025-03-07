@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace AppBoxCore;
@@ -77,6 +78,7 @@ public static class ExpressionSerialization
     public static Expression? DeserializeFromJson(ref Utf8JsonReader jsonReader)
     {
         jsonReader.Read();
+        Debug.Assert(jsonReader.TokenType == JsonTokenType.String);
         var bytes = jsonReader.GetBytesFromBase64();
         using var ms = new MemoryReadStream(bytes);
         var res = ms.Deserialize() as Expression;
