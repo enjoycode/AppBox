@@ -3,6 +3,7 @@ using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
+using DynamicTable = AppBoxCore.DynamicTable;
 
 namespace AppBoxDesign.PropertyEditors;
 
@@ -34,7 +35,7 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
 
     private async void FetchDataSourceFields()
     {
-        Element.Data.TryGetPropertyValue(nameof(DynamicTable.DataSource), out var dataSourceValue);
+        Element.Data.TryGetPropertyValue(nameof(AppBoxClient.Dynamic.DynamicTable.DataSource), out var dataSourceValue);
         if (dataSourceValue?.Value.Value is not string dsName || string.IsNullOrEmpty(dsName))
         {
             Notification.Warn("尚未设置DataSource");
@@ -43,7 +44,7 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
 
         var dsState = Element.Controller.FindState(dsName);
         if (dsState?.Value is not IDynamicTableState dsSettings) return;
-        if (await dsSettings.GetRuntimeState(Element.Controller.DesignCanvas) is not DynamicEntityList ds) return;
+        if (await dsSettings.GetRuntimeState(Element.Controller.DesignCanvas) is not DynamicTable ds) return;
 
         _allFields = ds.Fields;
         var fields = _allFields.Select(f => f.Name).ToArray();

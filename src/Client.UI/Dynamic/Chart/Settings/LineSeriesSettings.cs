@@ -22,9 +22,9 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, DynamicEntityList list)
+    public override ISeries Build(IDynamicContext dynamicContext, AppBoxCore.DynamicTable list)
     {
-        var res = new LineSeries<DynamicEntity>
+        var res = new LineSeries<DynamicRow>
         {
             Name = Name ?? Field,
             Values = list,

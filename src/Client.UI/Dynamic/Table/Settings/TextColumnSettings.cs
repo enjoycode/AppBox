@@ -34,7 +34,7 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         set => SetField(ref _cellStyles, value);
     }
 
-    protected internal override DataGridColumn<DynamicEntity> BuildColumn(DataGridController<DynamicEntity> controller)
+    protected internal override DataGridColumn<DynamicRow> BuildColumn(DataGridController<DynamicRow> controller)
     {
         var cellStyle = new CellStyle
         {
@@ -42,11 +42,11 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
             VerticalAlignment = VerticalAlignment
         };
 
-        Func<DynamicEntity, int, CellStyle>? cellStyleGetter = null;
+        Func<DynamicRow, int, CellStyle>? cellStyleGetter = null;
         if (CellStyles is { Length: > 0 })
             cellStyleGetter = BuildCellStylesGetter(controller);
 
-        return new DataGridTextColumn<DynamicEntity>(Label,
+        return new DataGridTextColumn<DynamicRow>(Label,
             t => t.HasValue(Field) ? t[Field].ToStringValue() : string.Empty)
         {
             Width = Width,
@@ -56,9 +56,9 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         };
     }
 
-    private Func<DynamicEntity, int, CellStyle> BuildCellStylesGetter(DataGridController<DynamicEntity> controller)
+    private Func<DynamicRow, int, CellStyle> BuildCellStylesGetter(DataGridController<DynamicRow> controller)
     {
-        var conditions = new Func<DynamicEntity, bool>[CellStyles!.Length];
+        var conditions = new Func<DynamicRow, bool>[CellStyles!.Length];
         for (var i = 0; i < conditions.Length; i++)
         {
             conditions[i] = BuildCondition(CellStyles[i], Field);
@@ -84,7 +84,7 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
         };
     }
 
-    private static Func<DynamicEntity, bool> BuildCondition(ConditionalCellStyle c, string field)
+    private static Func<DynamicRow, bool> BuildCondition(ConditionalCellStyle c, string field)
     {
         // var arg = System.Linq.Expressions.Expression.Parameter(typeof(DynamicEntity));
         // var agrValue = System.Linq.Expressions.Expression.MakeIndex()

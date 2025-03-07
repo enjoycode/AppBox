@@ -53,12 +53,12 @@ public sealed class DynamicTableState : IDynamicTableState
 
     #region ====Runtime DataSource====
 
-    private Lazy<Task<DynamicEntityList?>>? _fetchTask;
+    private Lazy<Task<DynamicTable?>>? _fetchTask;
 
     public async ValueTask<object?> GetRuntimeState(IDynamicContext dynamicContext)
     {
         Interlocked.CompareExchange(ref _fetchTask,
-            new Lazy<Task<DynamicEntityList?>>(() => Source.GetFetchTask(dynamicContext)), null);
+            new Lazy<Task<DynamicTable?>>(() => Source.GetFetchTask(dynamicContext)), null);
         try
         {
             return await _fetchTask.Value;
@@ -86,7 +86,7 @@ internal interface IDynamicTableSource
 {
     string SourceType { get; }
 
-    Task<DynamicEntityList?> GetFetchTask(IDynamicContext dynamicContext);
+    Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext);
 
     void WriteTo(Utf8JsonWriter writer);
 

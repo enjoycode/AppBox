@@ -115,9 +115,9 @@ internal sealed class DesignService : IService
         return AnyValue.From(ds);
     }
 
-    private static void FetchRow(EntityFieldModel[] fields, DynamicEntityList ds, DbDataReader dr)
+    private static void FetchRow(EntityFieldModel[] fields, DynamicTable ds, DbDataReader dr)
     {
-        var obj = new DynamicEntity();
+        var obj = new DynamicRow();
         ds.Add(obj);
         for (var i = 0; i < fields.Length; i++)
         {
@@ -141,7 +141,7 @@ internal sealed class DesignService : IService
         }
     }
 
-    private static DynamicEntityList BuildEntityList(EntityFieldModel[] fields)
+    private static DynamicTable BuildEntityList(EntityFieldModel[] fields)
     {
         var columns = new DynamicFieldInfo[fields.Length];
         for (var i = 0; i < fields.Length; i++)
@@ -149,7 +149,7 @@ internal sealed class DesignService : IService
             columns[i] = new DynamicFieldInfo(fields[i].Name, GetFieldType(fields[i]));
         }
 
-        return new DynamicEntityList(columns);
+        return new DynamicTable(columns);
     }
 
     private static DynamicFieldFlag GetFieldType(EntityFieldModel field) => field.FieldType switch

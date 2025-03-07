@@ -57,7 +57,7 @@ internal partial class ServiceCodeGenerator
     {
         return lambda.Body switch
         {
-            AnonymousObjectCreationExpressionSyntax aoc => queryMethod.MethodName == "ToDynamicListAsync"
+            AnonymousObjectCreationExpressionSyntax aoc => queryMethod.MethodName == "ToTableAsync"
                 ? VisitDynamicQueryToDynamicList(lambda, queryMethod.LambdaParameters!, aoc)
                 : VisitDynamicQueryToAnonymousObject(lambda, queryMethod.LambdaParameters!, aoc),
             MemberAccessExpressionSyntax ma =>

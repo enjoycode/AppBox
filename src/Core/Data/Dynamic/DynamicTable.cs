@@ -1,15 +1,18 @@
 namespace AppBoxCore;
 
-public sealed class DynamicEntityList : List<DynamicEntity>, IBinSerializable
+/// <summary>
+/// 动态数据表
+/// </summary>
+public sealed class DynamicTable : List<DynamicRow>, IBinSerializable
 {
-    internal DynamicEntityList() { }
+    internal DynamicTable() { }
 
-    public DynamicEntityList(DynamicFieldInfo[] fields)
+    public DynamicTable(DynamicFieldInfo[] fields)
     {
         Fields = fields;
     }
 
-    public static DynamicEntityList From<T>(IList<T> entityList) where T : Entity
+    public static DynamicTable From<T>(IList<T> entityList) where T : Entity
     {
         throw new NotImplementedException();
     }
@@ -48,7 +51,7 @@ public sealed class DynamicEntityList : List<DynamicEntity>, IBinSerializable
         count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
-            var item = new DynamicEntity();
+            var item = new DynamicRow();
             item.ReadFrom(rs, Fields);
             Add(item);
         }

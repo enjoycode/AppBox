@@ -48,7 +48,7 @@ public abstract class TableColumnSettings : INotifyPropertyChanged
         set => SetField(ref _verticalAlignment, value);
     }
 
-    protected internal abstract DataGridColumn<DynamicEntity> BuildColumn(DataGridController<DynamicEntity> controller);
+    protected internal abstract DataGridColumn<DynamicRow> BuildColumn(DataGridController<DynamicRow> controller);
 
     public abstract TableColumnSettings Clone();
 

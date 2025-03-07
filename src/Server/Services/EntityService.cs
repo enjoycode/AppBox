@@ -8,12 +8,12 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class EntityService
 {
-    public DynamicEntityList FetchList(DynamicQuery query)
+    public DynamicTable FetchList(DynamicQuery query)
     {
         throw new NotImplementedException();
     }
 
-    public DynamicEntity Fetch(DynamicQuery query)
+    public DynamicRow Fetch(DynamicQuery query)
     {
         throw new NotImplementedException();
     }

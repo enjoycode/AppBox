@@ -1,23 +1,26 @@
 namespace AppBoxCore;
 
-public sealed class DynamicEntity
+/// <summary>
+/// 动态数据行
+/// </summary>
+public sealed class DynamicRow
 {
-    private readonly Dictionary<string, DynamicField> _properties = new();
+    private readonly Dictionary<string, DynamicField> _fields = new();
 
     public DynamicField this[string name]
     {
-        get => _properties[name];
-        set => _properties[name] = value; //TODO:变更标记
+        get => _fields[name];
+        set => _fields[name] = value; //TODO:变更标记
     }
 
-    public bool HasValue(string name) => _properties.ContainsKey(name) && _properties[name].HasValue;
+    public bool HasValue(string name) => _fields.ContainsKey(name) && _fields[name].HasValue;
 
     public override string ToString()
     {
         var sb = StringBuilderCache.Acquire();
         sb.Append('{');
         var needSep = false;
-        foreach (var kv in _properties)
+        foreach (var kv in _fields)
         {
             if (needSep) sb.Append(", ");
             else needSep = true;
@@ -37,7 +40,7 @@ public sealed class DynamicEntity
         //注意按fields顺序写入值
         foreach (var field in fields)
         {
-            if (_properties.TryGetValue(field.Name, out var value))
+            if (_fields.TryGetValue(field.Name, out var value))
                 value.WriteTo(ws);
             else
                 ws.WriteByte((byte)DynamicFieldFlag.Empty);
@@ -48,7 +51,7 @@ public sealed class DynamicEntity
     {
         foreach (var field in fields)
         {
-            _properties[field.Name] = DynamicField.ReadFrom(rs);
+            _fields[field.Name] = DynamicField.ReadFrom(rs);
         }
     }
 }

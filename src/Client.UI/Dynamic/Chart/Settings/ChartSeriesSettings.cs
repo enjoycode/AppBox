@@ -22,5 +22,5 @@ public abstract class ChartSeriesSettings
     /// <summary>
     /// 生成运行时的Series
     /// </summary>
-    public abstract ISeries Build(IDynamicContext dynamicContext, DynamicEntityList entityList);
+    public abstract ISeries Build(IDynamicContext dynamicContext, AppBoxCore.DynamicTable entityList);
 }

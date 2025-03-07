@@ -11,9 +11,9 @@ public sealed class GroupColumnSettings : TableColumnSettings
 
     public List<TableColumnSettings> Children { get; set; } = new();
 
-    protected internal override DataGridColumn<DynamicEntity> BuildColumn(DataGridController<DynamicEntity> controller)
+    protected internal override DataGridColumn<DynamicRow> BuildColumn(DataGridController<DynamicRow> controller)
     {
-        var col = new DataGridGroupColumn<DynamicEntity>(Label);
+        var col = new DataGridGroupColumn<DynamicRow>(Label);
         if (Children is { Count: > 0 })
         {
             for (var i = 0; i < Children.Count; i++)

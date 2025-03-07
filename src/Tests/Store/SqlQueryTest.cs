@@ -65,17 +65,20 @@ public sealed class SqlQueryTest
     }
 
     [Test]
-    public async Task ToDynamicListTest()
+    public async Task ToTableTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        var ds = await q.ToDynamicListAsync(
+        var ds = await q.ToTableAsync(
             r => new()
             {
                 ["Name"] = r.ReadStringMember(0),
                 ["Login"] = r.ReadNullableStringMember(1) ?? DynamicField.Empty
             },
-            new DynamicFieldInfo[] { new("Name", DynamicFieldFlag.String), new("Login", DynamicFieldFlag.String) },
-            t => new[] { t["Name"], t["Account"] });
+            [
+                new("Name", DynamicFieldFlag.String),
+                new("Login", DynamicFieldFlag.String)
+            ],
+            t => [t["Name"], t["Account"]]);
         Assert.True(ds.Count > 0);
     }
 

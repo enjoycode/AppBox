@@ -168,11 +168,11 @@ namespace AppBoxStore
             throw new Exception();
 
         /// <summary>
-        /// 执行查询并转换为动态数据集
+        /// 执行查询并转换为动态数据表
         /// </summary>
         /// <param name="selector">必须为返回匿名类的Lambda表达式 eg: t => new {t.Name, t.Score}</param>
         [QueryMethod()]
-        public Task<DynamicEntityList> ToDynamicListAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
+        public Task<DynamicTable> ToTableAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为树状结构

@@ -37,7 +37,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     /// </summary>
     public DynamicTableOrder[]? Orders { get; set; }
 
-    public Task<DynamicEntityList?> GetFetchTask(IDynamicContext dynamicContext)
+    public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         throw new NotImplementedException();
     }

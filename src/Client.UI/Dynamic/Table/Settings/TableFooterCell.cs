@@ -96,7 +96,7 @@ public sealed class TableFooterCell : INotifyPropertyChanged
         if (dataView == null || dataView.Count == 0)
             return "0";
 
-        Func<DynamicEntity, double> getFieldValue = t => t.HasValue(fieldName) ? (t[fieldName].ToDouble() ?? 0.0) : 0.0;
+        Func<DynamicRow, double> getFieldValue = t => t.HasValue(fieldName) ? (t[fieldName].ToDouble() ?? 0.0) : 0.0;
         var agg = Type switch
         {
             TableFooterCellType.Sum => dataView.Sum(getFieldValue),

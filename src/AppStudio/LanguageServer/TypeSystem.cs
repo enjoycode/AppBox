@@ -464,7 +464,22 @@ internal sealed class TypeSystem : IDisposable
         foreach (var err in errors)
         {
             if (err.Severity == DiagnosticSeverity.Error)
-                Console.WriteLine("项目[{0}]存在错误: {1}", project.Name, err);
+            {
+                var modelName = string.Empty;
+                var filePath = err.Location.SourceTree?.FilePath;
+                if (filePath != null)
+                {
+                    var modelId = DocNameUtil.TryGetModelIdFromDocName(filePath);
+                    if (modelId != null)
+                    {
+                        var modelNode = DesignHub.DesignTree.FindModelNode(modelId.Value);
+                        if (modelNode != null)
+                            modelName = $"{modelNode.AppNode.Label}.{modelNode.Label}";
+                    }
+                }
+
+                Console.WriteLine($"项目[{project.Name}][{modelName}]存在错误: {err}");
+            }
         }
     }
 

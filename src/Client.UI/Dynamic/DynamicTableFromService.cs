@@ -24,7 +24,7 @@ internal sealed class DynamicTableFromService : IDynamicTableSource
     /// </summary>
     public string?[] Arguments { get; set; } = Array.Empty<string?>();
 
-    public Task<DynamicEntityList?> GetFetchTask(IDynamicContext dynamicContext)
+    public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         object?[]? args = null;
         if (Arguments.Length > 0)
@@ -37,7 +37,7 @@ internal sealed class DynamicTableFromService : IDynamicTableSource
             }
         }
 
-        return Channel.Invoke<DynamicEntityList>(Service, args);
+        return Channel.Invoke<DynamicTable>(Service, args);
     }
 
     #region ====Serialization====

@@ -89,7 +89,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public SqlQuery<TEntity> Take(int rows)
     {
-        if (rows <= 0) throw new ArgumentOutOfRangeException(nameof(rows),"Take rows must > 0");
+        if (rows <= 0) throw new ArgumentOutOfRangeException(nameof(rows), "Take rows must > 0");
         TakeSize = rows;
         return this;
     }
@@ -260,17 +260,17 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return list;
     }
 
-    public Task<DynamicEntityList> ToDynamicListAsync(Func<SqlRowReader, DynamicEntity> selector,
+    public Task<DynamicTable> ToTableAsync(Func<SqlRowReader, DynamicRow> selector,
         DynamicFieldInfo[] fields, Func<EntityExpression, IEnumerable<Expression>> selects) =>
-        ToDynamicListInternal(selector, fields, selects(T));
+        ToTableInternal(selector, fields, selects(T));
 
     /// <summary>
     /// 动态查询，返回动态数据集
     /// </summary>
-    private async Task<DynamicEntityList> ToDynamicListInternal(Func<SqlRowReader, DynamicEntity> selector,
+    private async Task<DynamicTable> ToTableInternal(Func<SqlRowReader, DynamicRow> selector,
         DynamicFieldInfo[] fields, IEnumerable<Expression> selectItem)
     {
-        var ds = new DynamicEntityList(fields);
+        var ds = new DynamicTable(fields);
         await ToListCore(selector, selectItem, e => ds.Add(e));
         return ds;
     }
@@ -432,8 +432,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     /// <summary>
     /// 用于树状结构填充时查找指定实体的上级
     /// </summary>
-    private static TEntity FindParent(EntityRefModel parentModel, TEntity entity,
-        IList<TEntity> from)
+    private static TEntity FindParent(EntityRefModel parentModel, TEntity entity, IList<TEntity> from)
     {
         var model = parentModel.Owner;
         var pks = model.SqlStoreOptions!.PrimaryKeys;

@@ -25,7 +25,7 @@ public sealed class PieSeriesSettings
 
     public PieSeriesSettings Clone() => new() { Field = Field, Name = Name };
 
-    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DynamicEntityList list)
+    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, AppBoxCore.DynamicTable list)
     {
         try
         {

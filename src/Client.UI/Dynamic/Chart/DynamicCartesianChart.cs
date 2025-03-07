@@ -87,7 +87,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
             else
             {
                 if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList entityList) return;
+                if (await _dynamicContext.GetDataSource(DataSource) is not AppBoxCore.DynamicTable entityList) return;
 
                 axes = new Axis[_xAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
@@ -107,7 +107,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
             else
             {
                 if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-                if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList entityList) return;
+                if (await _dynamicContext.GetDataSource(DataSource) is not AppBoxCore.DynamicTable entityList) return;
 
                 axes = new Axis[_yAxes.Length];
                 for (var i = 0; i < axes.Length; i++)
@@ -127,7 +127,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
         if (_series != null)
         {
             if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-            if (await _dynamicContext.GetDataSource(DataSource) is not DynamicEntityList entityList) return;
+            if (await _dynamicContext.GetDataSource(DataSource) is not AppBoxCore.DynamicTable entityList) return;
 
             var runtimeSeries = new ISeries[_series.Length];
             for (var i = 0; i < _series.Length; i++)

@@ -9,7 +9,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
 {
     public DynamicTable()
     {
-        Child = new DataGrid<DynamicEntity>(Controller);
+        Child = new DataGrid<DynamicRow>(Controller);
     }
 
     private string? _dataSource;
@@ -18,7 +18,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
     private TableStyles? _styles;
     [JsonIgnore] private IDynamicContext? _dynamicContext;
 
-    [JsonIgnore] internal DataGridController<DynamicEntity> Controller { get; } = new();
+    [JsonIgnore] internal DataGridController<DynamicRow> Controller { get; } = new();
 
     /// <summary>
     /// 绑定的数据源名称
@@ -132,7 +132,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
 
         if (_dynamicContext == null) return;
 
-        var ds = (DynamicEntityList?)await _dynamicContext.GetDataSource(DataSource);
+        var ds = (AppBoxCore.DynamicTable?)await _dynamicContext.GetDataSource(DataSource);
         Controller.DataSource = ds;
     }
 
