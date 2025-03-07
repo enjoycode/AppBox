@@ -5,7 +5,8 @@
         <Nullable>enable</Nullable>
         <AssemblyName>AppBoxStore</AssemblyName>
         <RootNamespace>AppBoxStore</RootNamespace>
-        <LangVersion>10</LangVersion>
+        <ImplicitUsings>true</ImplicitUsings>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

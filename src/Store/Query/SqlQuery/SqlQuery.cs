@@ -32,7 +32,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
     #region ====Fields & Properties====
 
     private IList<SqlSelectItemExpression>? _selects;
-    private IList<SqlSortItem>? _sortItems;
+    private IList<SqlOrderBy>? _sortItems;
 
     /// <summary>
     /// Query Target
@@ -53,7 +53,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public IList<SqlSelectItemExpression>? Selects => _selects ??= new List<SqlSelectItemExpression>();
 
-    public IList<SqlSortItem> SortItems => _sortItems ??= new List<SqlSortItem>();
+    public IList<SqlOrderBy> SortItems => _sortItems ??= new List<SqlOrderBy>();
 
     public bool HasSortItems => _sortItems != null && _sortItems.Count > 0;
 
@@ -547,13 +547,13 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     public SqlQuery<TEntity> OrderBy(Func<EntityExpression, Expression> sortItem)
     {
-        SortItems.Add(new SqlSortItem(sortItem(T)));
+        SortItems.Add(new SqlOrderBy(sortItem(T)));
         return this;
     }
 
     public SqlQuery<TEntity> OrderByDesc(Func<EntityExpression, Expression> sortItem)
     {
-        SortItems.Add(new SqlSortItem(sortItem(T), SortType.DESC));
+        SortItems.Add(new SqlOrderBy(sortItem(T), true));
         return this;
     }
 

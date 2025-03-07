@@ -237,8 +237,8 @@ partial class PgSqlStore
             foreach (var item in query.SortItems)
             {
                 ctx.Append(',');
-                BuildExpression(item.Expression, ctx);
-                if (item.SortType == SortType.DESC)
+                BuildExpression(item.OrderBy, ctx);
+                if (item.Descending)
                     ctx.Append(" DESC");
             }
         }
@@ -328,9 +328,9 @@ partial class PgSqlStore
         ctx.Append(" Order By ");
         for (int i = 0; i < query.SortItems.Count; i++)
         {
-            SqlSortItem si = query.SortItems[i];
-            BuildExpression(si.Expression, ctx);
-            if (si.SortType == SortType.DESC)
+            SqlOrderBy si = query.SortItems[i];
+            BuildExpression(si.OrderBy, ctx);
+            if (si.Descending)
                 ctx.Append(" DESC");
             if (i < query.SortItems.Count - 1)
                 ctx.Append(" ,");

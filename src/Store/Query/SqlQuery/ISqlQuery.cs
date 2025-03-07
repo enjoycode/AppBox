@@ -15,7 +15,7 @@ public interface ISqlSelectQuery : ISqlQuery
 {
     IList<SqlSelectItemExpression>? Selects { get; }
 
-    IList<SqlSortItem> SortItems { get; }
+    IList<SqlOrderBy> SortItems { get; }
 
     bool HasSortItems { get; }
 
