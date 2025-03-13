@@ -62,6 +62,9 @@
       <Reference Include="Microsoft.CodeAnalysis.Workspaces">
         <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
       </Reference>
+      <Reference Include="NanoLog">
+        <HintPath>..\..\ext\NanoLog.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

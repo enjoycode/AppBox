@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Text;
 using AppBoxCore;
 
@@ -7,12 +8,20 @@ namespace AppBoxStore;
 
 internal sealed class BuildQueryContext
 {
+    public BuildQueryContext(DbCommand command, ISqlQuery root)
+    {
+        _command = command;
+        _rootQuery = root;
+        ((SqlQueryBase)_rootQuery).AliasName = "t";
+        _queries.Add(root, new QueryInfo(root));
+    }
+
     #region ====Properties & Fields====
 
     /// <summary>
     /// 根查询
     /// </summary>
-    internal ISqlQuery RootQuery;
+    private readonly ISqlQuery _rootQuery;
 
     /// <summary>
     /// 当前正在处理的查询
@@ -21,7 +30,7 @@ internal sealed class BuildQueryContext
 
     public QueryInfo CurrentQueryInfo = null!;
 
-    internal DbCommand Command;
+    private readonly DbCommand _command;
     //internal bool IsBuildCTESelectItem;
 
     private int _queryIndex;
@@ -29,41 +38,19 @@ internal sealed class BuildQueryContext
     /// <summary>
     /// 查询字典表
     /// </summary>
-    internal Dictionary<ISqlQuery, QueryInfo> Queries;
+    private readonly Dictionary<ISqlQuery, QueryInfo> _queries = [];
 
     private Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>>? _autoJoins;
 
-    public Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>> AutoJoins
-    {
-        get
-        {
-            if (_autoJoins == null)
-                _autoJoins = new Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>>();
-            return _autoJoins;
-        }
-    }
+    private Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>> AutoJoins =>
+        _autoJoins ??= new Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>>();
 
     private int _parameterIndex;
 
     /// <summary>
     /// 参数字典表
     /// </summary>
-    private Dictionary<object, string> _parameters;
-
-    #endregion
-
-    #region ====Ctor====
-
-    public BuildQueryContext(DbCommand command, ISqlQuery root)
-    {
-        _parameters = new Dictionary<object, string>();
-
-        Command = command;
-        RootQuery = root;
-        Queries = new Dictionary<ISqlQuery, QueryInfo>();
-        ((SqlQueryBase)RootQuery).AliasName = "t";
-        Queries.Add(root, new QueryInfo(root));
-    }
+    private readonly Dictionary<object, string> _parameters = [];
 
     #endregion
 
@@ -104,12 +91,12 @@ internal sealed class BuildQueryContext
             paraName = $"p{_parameterIndex.ToString()}";
             _parameters.Add(value, paraName);
 
-            var para = Command.CreateParameter();
+            var para = _command.CreateParameter();
             para.ParameterName = paraName;
             para.Value = value;
             if (value is string s)
                 para.Size = s.Length;
-            Command.Parameters.Add(para);
+            _command.Parameters.Add(para);
         }
 
         return paraName;
@@ -121,11 +108,11 @@ internal sealed class BuildQueryContext
     public string GetDbParameterName()
     {
         _parameterIndex += 1;
-        var pname = $"p{_parameterIndex.ToString()}";
-        DbParameter para = Command.CreateParameter();
-        para.ParameterName = pname;
-        Command.Parameters.Add(para);
-        return pname;
+        var paraName = $"p{_parameterIndex.ToString()}";
+        var para = _command.CreateParameter();
+        para.ParameterName = paraName;
+        _command.Parameters.Add(para);
+        return paraName;
     }
 
     public void BeginBuildQuery(ISqlQuery query)
@@ -134,11 +121,11 @@ internal sealed class BuildQueryContext
 
         //尚未处理过，则新建相应的QueryInfo并加入字典表
         //注意：根查询在构造函数时已加入字典表
-        if (!Queries.TryGetValue(query, out qi))
+        if (!_queries.TryGetValue(query, out qi))
             qi = AddSubQuery(query);
 
         //设置上级的查询及相应的查询信息
-        if (!ReferenceEquals(query, RootQuery))
+        if (!ReferenceEquals(query, _rootQuery))
         {
             qi.ParentQuery = CurrentQuery;
             qi.ParentInfo = CurrentQueryInfo;
@@ -155,13 +142,13 @@ internal sealed class BuildQueryContext
     public void EndBuildQuery(ISqlQuery query, bool cte = false)
     {
         //判断是否根查询
-        if (ReferenceEquals(CurrentQuery, RootQuery))
+        if (ReferenceEquals(CurrentQuery, _rootQuery))
         {
-            Command.CommandText = CurrentQueryInfo.GetCommandText(cte);
+            _command.CommandText = CurrentQueryInfo.GetCommandText(cte);
         }
         else
         {
-            CurrentQueryInfo.EndBuidQuery();
+            CurrentQueryInfo.EndBuildQuery();
             CurrentQuery = CurrentQueryInfo.ParentQuery;
             CurrentQueryInfo = CurrentQueryInfo.ParentInfo;
         }
@@ -183,7 +170,7 @@ internal sealed class BuildQueryContext
         }
 
         QueryInfo info = new QueryInfo(query, CurrentQueryInfo);
-        Queries.Add(query, info);
+        _queries.Add(query, info);
         return info;
     }
 
@@ -195,7 +182,8 @@ internal sealed class BuildQueryContext
     /// <returns></returns>
     public string GetQueryAliasName(ISqlQuery query)
     {
-        if (!Queries.TryGetValue(query, out _))
+        Debug.Assert(query != null);
+        if (!_queries.TryGetValue(query, out _))
             /*qi =*/ AddSubQuery(query); // 添加时会设置别名
 
         return ((SqlQueryBase)query).AliasName;
@@ -241,11 +229,10 @@ internal sealed class BuildQueryContext
 
     public string GetEntityRefAliasName(EntityExpression exp, SqlQueryBase query)
     {
-        string path = exp.ToString();
-        Dictionary<string, EntityExpression> ds = AutoJoins[query];
+        var path = exp.ToString();
+        var ds = AutoJoins[query];
 
-        EntityExpression? e;
-        if (!ds.TryGetValue(path, out e))
+        if (!ds.TryGetValue(path, out var e))
         {
             ds.Add(path, exp);
             _queryIndex += 1;
@@ -290,12 +277,12 @@ internal sealed class BuildQueryContext
     #endregion
 }
 
-sealed class QueryInfo
+internal sealed class QueryInfo
 {
     #region ====Properties====
 
-    private StringBuilder _sb;
-    private StringBuilder _sb2; //用于输出Where条件
+    private readonly StringBuilder _sb;
+    private readonly StringBuilder _sb2; //用于输出Where条件
 
     /// <summary>
     /// 当前正在处理的查询的步骤
@@ -344,10 +331,7 @@ sealed class QueryInfo
     public QueryInfo(ISqlQuery owner, QueryInfo parentInfo)
     {
         Owner = owner;
-        if (parentInfo.BuildStep == BuildQueryStep.BuildWhere)
-            _sb = parentInfo._sb2;
-        else
-            _sb = parentInfo._sb;
+        _sb = parentInfo.BuildStep == BuildQueryStep.BuildWhere ? parentInfo._sb2 : parentInfo._sb;
         _sb2 = StringBuilderCache.Acquire();
     }
 
@@ -355,7 +339,7 @@ sealed class QueryInfo
 
     #region ====Methods====
 
-    internal void EndBuidQuery()
+    internal void EndBuildQuery()
     {
         _sb.Append(StringBuilderCache.GetStringAndRelease(_sb2));
     }
@@ -370,7 +354,7 @@ sealed class QueryInfo
     #endregion
 }
 
-enum BuildQueryStep : byte
+internal enum BuildQueryStep : byte
 {
     BuildSelect,
     BuildFrom,

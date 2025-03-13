@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 using AppBoxCore;
 
@@ -9,7 +7,7 @@ namespace AppBoxStore;
 /// 子查询
 /// 用于将外部查询[OutQuery]或查询[Query]包装为子查询
 /// </summary>
-public sealed class SqlSubQuery : Expression, ISqlQueryJoin
+public sealed class SqlSubQuery : Expression, ISqlJoinable
 {
     internal SqlSubQuery(ISqlSelectQuery target)
     {

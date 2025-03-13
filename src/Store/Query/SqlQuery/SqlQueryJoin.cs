@@ -2,11 +2,11 @@ using AppBoxCore;
 
 namespace AppBoxStore;
 
-public sealed class SqlQueryJoin : SqlQueryBase, ISqlQueryJoin
+public sealed class SqlQueryJoin : SqlQueryBase
 {
-    public SqlQueryJoin(ModelId entityModelID)
+    public SqlQueryJoin(ModelId entityModelId)
     {
-        T = new EntityExpression(entityModelID, this);
+        T = new EntityExpression(entityModelId, this);
     }
 
     /// <summary>

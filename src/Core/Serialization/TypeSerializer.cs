@@ -158,6 +158,7 @@ public abstract class TypeSerializer
         RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode),
             () => new PermissionNode()));
         RegisterKnownType(new BinSerializer(PayloadType.DynamicTable, typeof(DynamicTable), () => new DynamicTable()));
+        RegisterKnownType(new BinSerializer(PayloadType.DynamicQuery, typeof(DynamicQuery), () => new DynamicQuery()));
         RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField, typeof(PrimaryKeyField),
             () => new PrimaryKeyField()));
     }

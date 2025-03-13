@@ -4,16 +4,16 @@ namespace AppBoxStore;
 
 public sealed class SqlJoin
 {
-    public SqlJoin(ISqlQueryJoin right, JoinType joinType, Expression onCondition)
+    public SqlJoin(ISqlJoinable right, JoinType joinType, Expression onCondition)
     {
         Right = right;
         JoinType = joinType;
-        OnConditon = onCondition;
+        OnCondition = onCondition;
     }
 
-    public ISqlQueryJoin Right { get; }
+    public ISqlJoinable Right { get; }
 
-    public Expression OnConditon { get; }
+    public Expression OnCondition { get; }
 
     public JoinType JoinType { get; }
 }

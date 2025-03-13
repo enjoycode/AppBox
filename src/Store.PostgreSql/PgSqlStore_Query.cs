@@ -82,12 +82,11 @@ partial class PgSqlStore
         // }
         // else
         // {
-        var q = (ISqlEntityQuery)ctx.CurrentQuery;
-        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelId);
+        var model = RuntimeContext.GetModel<EntityModel>(query.EntityModelId);
         ctx.Append('"');
         ctx.Append(model.SqlStoreOptions!.GetSqlTableName(false, null));
         ctx.Append("\" ");
-        ctx.Append(q.AliasName);
+        ctx.Append(query.AliasName);
         // }
 
         //构建Where
@@ -175,11 +174,10 @@ partial class PgSqlStore
 
         //From Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-        var q = (ISqlEntityQuery)query;
-        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelId);
+        var model = RuntimeContext.GetModel<EntityModel>(query.EntityModelId);
         ctx.AppendWithNameEscaper(model.SqlStoreOptions!.GetSqlTableName(false, null));
         ctx.Append(" AS ");
-        ctx.Append(q.AliasName);
+        ctx.Append(query.AliasName);
 
         //Where Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildWhere);
@@ -190,7 +188,7 @@ partial class PgSqlStore
         }
 
         //End 1
-        ctx.CurrentQueryInfo.EndBuidQuery();
+        ctx.CurrentQueryInfo.EndBuildQuery();
 
         //Union all
         ctx.SetBuildStep(BuildQueryStep.BuildSelect);
@@ -206,18 +204,18 @@ partial class PgSqlStore
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
         ctx.AppendWithNameEscaper(model.SqlStoreOptions.GetSqlTableName(false, null));
         ctx.Append(" AS ");
-        ctx.Append(q.AliasName);
+        ctx.Append(query.AliasName);
 
         //Inner Join 
         ctx.Append(" Inner Join cte as d On ");
-        var treeParentMember = q.TreeParentMember!;
+        var treeParentMember = query.TreeParentMember!;
         for (var i = 0; i < treeParentMember.FKMemberIds.Length; i++)
         {
             if (i != 0) ctx.Append(" And ");
 
             var fkName = model.GetMember(treeParentMember.FKMemberIds[i])!.Name;
             var pkName = model.GetMember(model.SqlStoreOptions!.PrimaryKeys[i].MemberId)!.Name;
-            BuildFieldExpression((EntityFieldExpression)q.T[fkName], ctx);
+            BuildFieldExpression((EntityFieldExpression)query[fkName], ctx);
             ctx.Append("=d.");
             ctx.AppendWithNameEscaper(pkName);
         }
@@ -226,7 +224,7 @@ partial class PgSqlStore
 
         //构建自动联接Join，主要用于继承的
         ctx.SetBuildStep(BuildQueryStep.BuildJoin);
-        ctx.BuildQueryAutoJoins((SqlQueryBase)q); //再处理自动联接
+        ctx.BuildQueryAutoJoins((SqlQueryBase)query); //再处理自动联接
 
         //最后处理Order By 
         ctx.SetBuildStep(BuildQueryStep.BuildOrderBy);
@@ -259,9 +257,9 @@ partial class PgSqlStore
         ctx.Append("0 From ");
         //From Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-        var q = (ISqlEntityQuery)query;
-        var model = RuntimeContext.GetModel<EntityModel>(q.T.ModelId);
-        ctx.AppendFormat("\"{0}\" As {1}", model.SqlStoreOptions!.GetSqlTableName(false, null), q.AliasName);
+        var model = RuntimeContext.GetModel<EntityModel>(query.EntityModelId);
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, null);
+        ctx.AppendFormat("\"{0}\" As {1}", tableName, query.AliasName);
         //Where Anchor
         ctx.SetBuildStep(BuildQueryStep.BuildWhere);
         if (!Equals(null, query.Filter))
@@ -271,7 +269,7 @@ partial class PgSqlStore
         }
 
         //End 1
-        ctx.CurrentQueryInfo.EndBuidQuery(); //ctx.EndBuildQuery(query);
+        ctx.CurrentQueryInfo.EndBuildQuery(); //ctx.EndBuildQuery(query);
 
         //Union all
         ctx.SetBuildStep(BuildQueryStep.BuildSelect);
@@ -281,7 +279,7 @@ partial class PgSqlStore
         ctx.Append("\"Level\" + 1 From ");
         //From 2
         ctx.SetBuildStep(BuildQueryStep.BuildFrom);
-        ctx.AppendFormat("\"{0}\" As {1}", model.SqlStoreOptions!.GetSqlTableName(false, null), q.AliasName);
+        ctx.AppendFormat("\"{0}\" As {1}", tableName, query.AliasName);
         //Inner Join 
         ctx.Append(" Inner Join cte as d On d.\"ParentId\"=t.\"Id\") Select * From cte");
 
@@ -422,7 +420,7 @@ partial class PgSqlStore
                 var jModel = RuntimeContext.GetModel<EntityModel>(j.T.ModelId);
                 ctx.AppendFormat("\"{0}\" {1} On ", jModel.SqlStoreOptions!.GetSqlTableName(false, null),
                     j.AliasName);
-                BuildExpression(item.OnConditon, ctx);
+                BuildExpression(item.OnCondition, ctx);
 
                 //再处理手工联接的自动联接
                 ctx.BuildQueryAutoJoins(j);
@@ -433,7 +431,7 @@ partial class PgSqlStore
                 ctx.Append("(");
                 BuildNormalQuery(sq.Target, ctx);
                 ctx.AppendFormat(") As {0} On ", ((SqlQueryBase)sq.Target).AliasName);
-                BuildExpression(item.OnConditon, ctx);
+                BuildExpression(item.OnCondition, ctx);
             }
 
             //最后递归当前联接的右部是否还有手工的联接项
@@ -470,7 +468,7 @@ partial class PgSqlStore
             //     BuildSubQuery((SqlSubQuery)exp, ctx);
             //     break;
             case ExpressionType.DbFuncExpression:
-                BuidDbFuncExpression((SqlFunc)exp, ctx);
+                BuildDbFuncExpression((SqlFunc)exp, ctx);
                 break;
             // case ExpressionType.DbParameterExpression:
             //     BuildDbParameterExpression((DbParameterExpression)exp, ctx);
@@ -490,7 +488,7 @@ partial class PgSqlStore
     //     ctx.Append(")");
     // }
 
-    private void BuildPrimitiveExpression(ConstantExpression exp, BuildQueryContext ctx)
+    private static void BuildPrimitiveExpression(ConstantExpression exp, BuildQueryContext ctx)
     {
         if (exp.Value == null)
         {
@@ -520,7 +518,7 @@ partial class PgSqlStore
         }
     }
 
-    private void BuildEntityExpression(EntityExpression exp, BuildQueryContext ctx)
+    private static void BuildEntityExpression(EntityExpression exp, BuildQueryContext ctx)
     {
         //判断是否已处理过
         if (exp.AliasName != null)
@@ -551,7 +549,7 @@ partial class PgSqlStore
         }
     }
 
-    private void BuildFieldExpression(EntityFieldExpression exp, BuildQueryContext ctx)
+    private static void BuildFieldExpression(EntityFieldExpression exp, BuildQueryContext ctx)
     {
         var model = RuntimeContext.GetModel<EntityModel>(exp.Owner!.ModelId);
 
@@ -602,7 +600,7 @@ partial class PgSqlStore
         }
     }
 
-    private void BuidDbFuncExpression(SqlFunc exp, BuildQueryContext ctx)
+    private void BuildDbFuncExpression(SqlFunc exp, BuildQueryContext ctx)
     {
         ctx.Append($"{exp.Name}(");
         if (exp.Arguments != null)

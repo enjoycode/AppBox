@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
 using AppBoxCore;
 
 namespace AppBoxStore;
 
-public abstract class SqlQueryBase : ISqlQueryJoin
+public abstract class SqlQueryBase : ISqlJoinable
 {
     public string AliasName { get; set; } = null!;
 

@@ -35,7 +35,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     /// <summary>
     /// 排序项
     /// </summary>
-    public DynamicTableOrder[]? Orders { get; set; }
+    public DynamicQuery.OrderByItem[]? Orders { get; set; }
 
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
@@ -138,12 +138,12 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                     break;
                 case nameof(Orders):
                     reader.Read(); //[
-                    var orders = new List<DynamicTableOrder>();
+                    var orders = new List<DynamicQuery.OrderByItem>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        orders.Add(DynamicTableOrder.ReadFrom(ref reader));
+                        orders.Add(DynamicQuery.OrderByItem.ReadFrom(ref reader));
                     }
 
                     Orders = orders.ToArray();
@@ -215,60 +215,6 @@ internal readonly struct DynamicTableFilter
         }
 
         return new DynamicTableFilter(field, op, state);
-    }
-
-    #endregion
-}
-
-internal readonly struct DynamicTableOrder
-{
-    public DynamicTableOrder(Expression field, bool descending = false)
-    {
-        Field = field;
-        Descending = descending;
-    }
-
-    public readonly Expression Field;
-    public readonly bool Descending;
-
-    #region ====Serialization====
-
-    public void WriteTo(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName(nameof(Field));
-        ExpressionSerialization.SerializeToJson(writer, Field);
-        writer.WritePropertyName(nameof(Descending));
-        writer.WriteBooleanValue(Descending);
-        writer.WriteEndObject();
-    }
-
-    public static DynamicTableOrder ReadFrom(ref Utf8JsonReader reader)
-    {
-        Expression field = null!;
-        bool descending = false;
-
-        reader.Read(); //{
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                break;
-            var propName = reader.GetString();
-            switch (propName)
-            {
-                case nameof(Field):
-                    field = ExpressionSerialization.DeserializeFromJson(ref reader)!;
-                    break;
-                case nameof(Descending):
-                    reader.Read();
-                    descending = reader.GetBoolean();
-                    break;
-                default:
-                    throw new Exception($"Unknown property name: {nameof(DynamicTableOrder)}.{propName}");
-            }
-        }
-
-        return new DynamicTableOrder(field, descending);
     }
 
     #endregion

@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore.Utils;
 using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore;
 
-public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
+public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     where TEntity : SqlEntity, new()
 {
     #region ====Ctor====
@@ -31,13 +28,15 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
 
     #region ====Fields & Properties====
 
-    private IList<SqlSelectItemExpression>? _selects;
-    private IList<SqlOrderBy>? _sortItems;
+    private List<SqlSelectItemExpression>? _selects;
+    private List<SqlOrderBy>? _sortItems;
 
     /// <summary>
     /// Query Target
     /// </summary>
     public EntityExpression T { get; }
+
+    public ModelId EntityModelId => T.ModelId;
 
     public override EntityPathExpression this[string name] => T[name];
 
@@ -123,7 +122,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         Selects!.Add(item);
     }
 
-    internal void AddAllSelects(EntityModel model, EntityExpression T, string? fullPath)
+    internal void AddAllSelects(EntityModel model, EntityExpression t, string? fullPath)
     {
         //TODO:考虑特殊SqlSelectItemExpression with *，但只能在fullPath==null时使用
         var members = model.Members;
@@ -136,7 +135,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
                 || members[i].Type == EntityMemberType.AggregationRefField*/)
             {
                 var alias = fullPath == null ? members[i].Name : $"{fullPath}.{members[i].Name}";
-                var si = new SqlSelectItemExpression(T[members[i].Name], alias);
+                var si = new SqlSelectItemExpression(t[members[i].Name], alias);
                 AddSelectItem(si);
             }
         }
@@ -239,14 +238,14 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         Func<EntityExpression, IEnumerable<Expression>> selects) =>
         ToListInternal(selector, selects(T));
 
-    public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join,
+    public Task<IList<TResult>> ToListAsync<TResult>(ISqlJoinable join,
         Func<SqlRowReader, TResult> selector,
-        Func<EntityExpression, ISqlQueryJoin, IEnumerable<Expression>> selects) =>
+        Func<EntityExpression, ISqlJoinable, IEnumerable<Expression>> selects) =>
         ToListInternal(selector, selects(T, join));
 
-    public Task<IList<TResult>> ToListAsync<TResult>(ISqlQueryJoin join1, ISqlQueryJoin join2,
+    public Task<IList<TResult>> ToListAsync<TResult>(ISqlJoinable join1, ISqlJoinable join2,
         Func<SqlRowReader, TResult> selector,
-        Func<EntityExpression, ISqlQueryJoin, ISqlQueryJoin, IEnumerable<Expression>> selects) =>
+        Func<EntityExpression, ISqlJoinable, ISqlJoinable, IEnumerable<Expression>> selects) =>
         ToListInternal(selector, selects(T, join1, join2));
 
     /// <summary>
@@ -260,18 +259,14 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return list;
     }
 
-    public Task<DynamicTable> ToTableAsync(Func<SqlRowReader, DynamicRow> selector,
-        DynamicFieldInfo[] fields, Func<EntityExpression, IEnumerable<Expression>> selects) =>
-        ToTableInternal(selector, fields, selects(T));
-
     /// <summary>
-    /// 动态查询，返回动态数据集
+    /// 动态查询，返回动态数据表
     /// </summary>
-    private async Task<DynamicTable> ToTableInternal(Func<SqlRowReader, DynamicRow> selector,
-        DynamicFieldInfo[] fields, IEnumerable<Expression> selectItem)
+    public async Task<DynamicTable> ToTableAsync(Func<SqlRowReader, DynamicRow> selector,
+        DynamicFieldInfo[] fields, Func<EntityExpression, IEnumerable<Expression>> selects)
     {
         var ds = new DynamicTable(fields);
-        await ToListCore(selector, selectItem, e => ds.Add(e));
+        await ToListCore(selector, selects(T), e => ds.Add(e));
         return ds;
     }
 
@@ -301,7 +296,6 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         cmd.Connection = conn;
         Logger.Debug(cmd.CommandText);
 
-        var list = new List<TResult>();
         try
         {
             await using var reader = await cmd.ExecuteReaderAsync();
@@ -519,7 +513,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlEntityQuery
         return this;
     }
 
-    public SqlQuery<TEntity> Where(ISqlQueryJoin join, Func<EntityExpression, ISqlQueryJoin, Expression> condition)
+    public SqlQuery<TEntity> Where(ISqlJoinable join, Func<EntityExpression, ISqlJoinable, Expression> condition)
     {
         Filter = condition(T, join);
         return this;

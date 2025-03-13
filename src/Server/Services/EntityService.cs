@@ -8,12 +8,13 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class EntityService
 {
-    public DynamicTable FetchList(DynamicQuery query)
+    public DynamicTable FetchTable(DynamicQuery query)
     {
+        var q = new SqlDynamicQuery(query);
         throw new NotImplementedException();
     }
 
-    public DynamicRow Fetch(DynamicQuery query)
+    public DynamicRow FetchRow(DynamicQuery query)
     {
         throw new NotImplementedException();
     }

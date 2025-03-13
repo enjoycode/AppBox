@@ -13,6 +13,17 @@ public interface ISqlQuery
 
 public interface ISqlSelectQuery : ISqlQuery
 {
+    ModelId EntityModelId { get; }
+
+    EntityPathExpression this[string name] { get; }
+
+    string AliasName { get; }
+
+    /// <summary>
+    /// 仅用于树结构查询
+    /// </summary>
+    EntityRefModel? TreeParentMember { get; }
+
     IList<SqlSelectItemExpression>? Selects { get; }
 
     IList<SqlOrderBy> SortItems { get; }
@@ -39,13 +50,4 @@ public interface ISqlSelectQuery : ISqlQuery
     /// 分组过滤条件
     /// </summary>
     Expression? HavingFilter { get; }
-}
-
-public interface ISqlEntityQuery : ISqlSelectQuery
-{
-    EntityExpression T { get; }
-
-    string AliasName { get; }
-    
-    EntityRefModel? TreeParentMember { get; }
 }

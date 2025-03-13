@@ -36,10 +36,11 @@ namespace AppBoxCore
         /** 其他未知类型 */
         Object = 24,
 
+        /** 表达式 */
         Expression = 25,
 
         //----设计时及模型相关----
-        DataStoreModel= 50,
+        DataStoreModel = 50,
         ApplicationModel = 51,
         ModelFolder = 52,
         ModelBase = 53,
@@ -49,11 +50,11 @@ namespace AppBoxCore
         WorkflowModel = 57,
         ReportModel = 58,
         PermissionModel = 59,
-        
+
         OrderedField = 63,
         TextChange = 64,
         PrimaryKeyField = 65,
-        
+
         CheckoutInfo = 66,
         CheckoutResult = 67,
         PendingChange = 68,
@@ -63,5 +64,6 @@ namespace AppBoxCore
         Entity = 90,
         PermissionNode = 91,
         DynamicTable = 92,
+        DynamicQuery = 93,
     }
 }

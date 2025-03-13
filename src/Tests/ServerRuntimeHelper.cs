@@ -1,6 +1,7 @@
 using AppBoxCore;
 using AppBoxServer;
 using AppBoxStore;
+using NanoLog;
 
 namespace Tests;
 
@@ -14,7 +15,9 @@ public static class ServerRuntimeHelper
     private static void TryInitDefaultStore()
     {
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) != 0) return;
-
+        
+        NanoLogger.Start(new NanoLoggerOptions().AddLogger(new UnitTestConsoleLogger()));
+        
         RuntimeContext.Init(new HostRuntimeContext(), null);
         SqlStore.InitDefault("AppBoxStore.PostgreSql", "AppBoxStore.PgSqlStore", ConnectionString);
         MetaStore.Init(new SqlMetaStore());

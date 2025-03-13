@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>AppBoxStore.PostgreSql</AssemblyName>
         <RootNamespace>AppBoxStore</RootNamespace>
-        <LangVersion>10</LangVersion>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
