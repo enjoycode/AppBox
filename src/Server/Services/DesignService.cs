@@ -1,4 +1,3 @@
-using System.Data.Common;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxServer.Design;
@@ -89,7 +88,7 @@ internal sealed class DesignService : IService
     {
         ModelId modelId = args.GetString()!;
         var pageSize = args.GetInt()!.Value;
-        
+
         var model = await RuntimeContext.GetModelAsync<EntityModel>(modelId);
         if (model.SqlStoreOptions == null)
             throw new NotSupportedException("Only support SqlStore now.");
@@ -99,57 +98,20 @@ internal sealed class DesignService : IService
             .Cast<EntityFieldModel>()
             .ToArray();
 
-        var db = SqlStore.Get(model.SqlStoreOptions.StoreModelId);
-        await using var cmd = db.MakeCommand();
-        cmd.CommandText = BuildCommand(model, fields, pageSize, db);
-        var ds = BuildEntityList(fields);
-
-        await using var conn = await db.OpenConnectionAsync();
-        cmd.Connection = conn;
-        await using var dr = await cmd.ExecuteReaderAsync();
-        while (await dr.ReadAsync())
-        {
-            FetchRow(fields, ds, dr);
-        }
-
-        return AnyValue.From(ds);
-    }
-
-    private static void FetchRow(EntityFieldModel[] fields, DynamicTable ds, DbDataReader dr)
-    {
-        var obj = new DynamicRow();
-        ds.Add(obj);
+        var q = new DynamicQuery() { ModelId = modelId };
+        var t = new EntityExpression(modelId, null);
+        q.Selects = new DynamicQuery.SelectItem[fields.Length];
         for (var i = 0; i < fields.Length; i++)
         {
-            obj[fields[i].Name] = fields[i].FieldType switch
-            {
-                EntityFieldType.String => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetString(i),
-                EntityFieldType.DateTime => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetDateTime(i).ToLocalTime(),
-                EntityFieldType.Short => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetInt16(i),
-                EntityFieldType.Int => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetInt32(i),
-                EntityFieldType.Long => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetInt64(i),
-                EntityFieldType.Decimal => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetDecimal(i),
-                EntityFieldType.Bool => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetBoolean(i),
-                EntityFieldType.Guid => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetGuid(i),
-                EntityFieldType.Byte => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetByte(i),
-                EntityFieldType.Binary => dr.IsDBNull(i) ? DynamicField.Empty : (byte[])dr.GetValue(i),
-                EntityFieldType.Enum => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetInt32(i),
-                EntityFieldType.Float => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetFloat(i),
-                EntityFieldType.Double => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetDouble(i),
-                _ => throw new NotImplementedException()
-            };
-        }
-    }
-
-    private static DynamicTable BuildEntityList(EntityFieldModel[] fields)
-    {
-        var columns = new DynamicFieldInfo[fields.Length];
-        for (var i = 0; i < fields.Length; i++)
-        {
-            columns[i] = new DynamicFieldInfo(fields[i].Name, GetFieldType(fields[i]));
+            q.Selects[i] = new DynamicQuery.SelectItem(fields[i].Name, t[fields[i].Name], GetFieldType(fields[i]));
         }
 
-        return new DynamicTable(columns);
+        q.PageSize = pageSize;
+        q.PageIndex = 0;
+
+        var query = new SqlDynamicQuery(q);
+        var res = await query.ToTableAsync();
+        return AnyValue.From(res);
     }
 
     private static DynamicFieldFlag GetFieldType(EntityFieldModel field) => field.FieldType switch
@@ -169,29 +131,6 @@ internal sealed class DesignService : IService
         EntityFieldType.Double => DynamicFieldFlag.Double,
         _ => throw new NotImplementedException()
     };
-
-    private static string BuildCommand(EntityModel model, EntityFieldModel[] fields, int pageSize, SqlStore db)
-    {
-        var sb = StringBuilderCache.Acquire();
-
-        //TODO: 特殊处理不同数据库的sql,暂仅Postgres
-
-        sb.Append("Select ");
-        sb.Append(' ');
-        for (var i = 0; i < fields.Length; i++)
-        {
-            if (i != 0) sb.Append(',');
-            sb.AppendWithNameEscaper(fields[i].SqlColOriginalName, db.NameEscaper);
-        }
-
-        sb.Append(" From ");
-        sb.AppendWithNameEscaper(model.SqlStoreOptions!.GetSqlTableName(true, null), db.NameEscaper);
-
-        sb.Append(" Limit ");
-        sb.Append(pageSize);
-
-        return StringBuilderCache.GetStringAndRelease(sb);
-    }
 
     #endregion
 }
