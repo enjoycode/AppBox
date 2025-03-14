@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AppBoxCore;
 using static AppBoxStore.StoreLogger;
 
@@ -25,6 +26,42 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
             SortItems = from.Orders.Select(o => new SqlOrderBy(o.Field, o.Descending)).ToArray();
     }
 
+    public SqlDynamicQuery(DynamicQuerySimple from)
+    {
+        EntityModelId = from.ModelId;
+        _fields = from.Selects.Select(f => new DynamicFieldInfo(f.Alias, f.Type)).ToArray();
+
+        if (from.PageSize > 0)
+        {
+            TakeSize = from.PageSize;
+            SkipSize = from.PageIndex * from.PageSize;
+        }
+
+        var ds = new Dictionary<string, EntityExpression> { { "t", new EntityExpression(from.ModelId, null) } };
+        Selects = from.Selects.Select(f => new SqlSelectItemExpression(ParseExpression(f.Item, ds)) { Owner = this })
+            .ToArray();
+        if (from.Orders != null && from.Orders.Any())
+            SortItems = from.Orders.Select(o => new SqlOrderBy(ParseExpression(o.Field, ds), o.Descending)).ToArray();
+
+        if (from.Filters != null && from.Filters.Any())
+        {
+            Expression? filter = null;
+            foreach (var item in from.Filters)
+            {
+                if (item.Value != null)
+                {
+                    var exp = new BinaryExpression(ParseExpression(item.Field, ds),
+                        new ConstantExpression(item.Value), item.Operator);
+                    filter = Expression.IsNull(filter)
+                        ? exp
+                        : new BinaryExpression(filter!, exp, BinaryOperatorType.AndAlso);
+                }
+            }
+
+            Filter = filter;
+        }
+    }
+
     private readonly DynamicFieldInfo[] _fields;
 
 
@@ -49,6 +86,40 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
     public Expression? HavingFilter => null;
 
     #endregion
+
+    private static Expression ParseExpression(string exp, Dictionary<string, EntityExpression> ds)
+    {
+        //考虑使用ExpressionParser实现，现简单实现仅解析EntityPathExpression
+        var span = exp.AsSpan();
+        EntityPathExpression? expression = null;
+        var isFirst = true;
+        while (true)
+        {
+            var index = span.IndexOf('.');
+            if (index < 0)
+            {
+                expression = expression![span.ToString()];
+                break;
+            }
+
+            var s = span.Slice(0, index);
+            if (isFirst)
+            {
+                isFirst = false;
+                expression = ds[s.ToString()];
+                Debug.Assert(!Expression.IsNull(expression));
+            }
+            else
+            {
+                Debug.Assert(!Expression.IsNull(expression));
+                expression = expression![s.ToString()];
+            }
+
+            span = span.Slice(index + 1);
+        }
+
+        return expression;
+    }
 
     public async Task<DynamicTable> ToTableAsync()
     {
