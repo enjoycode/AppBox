@@ -114,7 +114,7 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// New EntityRefModel's EntityExpression
     /// </summary>
-    internal EntityExpression(string name, ModelId modelId, EntityExpression owner) : base(name, owner)
+    private EntityExpression(string name, ModelId modelId, EntityExpression owner) : base(name, owner)
     {
         ModelId = modelId;
     }

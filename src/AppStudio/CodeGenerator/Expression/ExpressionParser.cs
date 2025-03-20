@@ -32,7 +32,7 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
             throw new Exception("表达式存在语义错误");
 
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
-        if (methodDecl.Body != null && methodDecl.Body.Statements.Count > 1)
+        if (methodDecl.Body is { Statements.Count: > 1 })
             throw new NotImplementedException("Parse block body");
 
         if (methodDecl.ExpressionBody != null)

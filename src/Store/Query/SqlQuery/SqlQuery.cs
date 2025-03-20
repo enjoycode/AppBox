@@ -50,7 +50,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     /// </summary>
     private SqlIncluder? _rootIncluder;
 
-    public IList<SqlSelectItemExpression>? Selects => _selects ??= new List<SqlSelectItemExpression>();
+    public IList<SqlSelectItemExpression> Selects => _selects ??= new List<SqlSelectItemExpression>();
 
     public IList<SqlOrderBy> SortItems => _sortItems ??= new List<SqlOrderBy>();
 
@@ -64,7 +64,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
 
     public int TakeSize { get; private set; }
 
-    public int SkipSize { get; private set; } = 0;
+    public int SkipSize { get; private set; }
 
     #endregion
 
@@ -119,7 +119,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     public void AddSelectItem(SqlSelectItemExpression item)
     {
         item.Owner = this;
-        Selects!.Add(item);
+        Selects.Add(item);
     }
 
     internal void AddAllSelects(EntityModel model, EntityExpression t, string? fullPath)
