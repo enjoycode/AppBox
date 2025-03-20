@@ -2,6 +2,12 @@ namespace AppBoxCore;
 
 public abstract class EntityPathExpression : Expression
 {
+    internal EntityPathExpression(string? name, EntityExpression? owner)
+    {
+        Name = name;
+        Owner = owner;
+    }
+
     /// <summary>
     /// 名称
     /// 分以下几种情况：
@@ -10,22 +16,11 @@ public abstract class EntityPathExpression : Expression
     /// 1.2 如果为Ref EntityExpression，Name即属性名称
     /// 2、如果为FieldExpression，Name为属性名称
     /// </summary>
-    public string? Name { get; internal set; }
+    public string? Name { get; }
 
-    public EntityExpression? Owner { get; private set; }
+    public EntityExpression? Owner { get; }
 
     public abstract EntityPathExpression this[string name] { get; }
-
-    /// <summary>
-    /// Ctor for Serialization
-    /// </summary>
-    internal EntityPathExpression() { }
-
-    internal EntityPathExpression(string? name, EntityExpression? owner)
-    {
-        Name = name;
-        Owner = owner;
-    }
 
     /// <summary>
     /// eg: Customer.Name => CustomerName

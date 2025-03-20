@@ -1,9 +1,38 @@
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace AppBoxCore;
 
 public sealed class EntityExpression : EntityPathExpression
 {
+    /// <summary>
+    /// New Root EntityExpression
+    /// </summary>
+    internal EntityExpression(EntityModel model, object? user) : base(null, null)
+    {
+        _model = model;
+        ModelId = model.Id;
+        _user = user;
+    }
+
+    /// <summary>
+    /// New Root EntityExpression
+    /// </summary>
+    public EntityExpression(ModelId modelId, object? user) : base(null, null)
+    {
+        ModelId = modelId;
+        _user = user;
+    }
+
+    /// <summary>
+    /// New EntityRefModel's EntityExpression
+    /// </summary>
+    private EntityExpression(string name, ModelId modelId, EntityExpression owner) : base(name, owner)
+    {
+        ModelId = modelId;
+    }
+
     #region ====Fields & Properties====
 
     public override ExpressionType Type => ExpressionType.EntityExpression;
@@ -34,15 +63,16 @@ public sealed class EntityExpression : EntityPathExpression
 
     public ModelId ModelId { get; private set; }
 
-    //TODO:考虑实现AddToCache，用于下属成员反序列化时自动加入Cache内
-    private Dictionary<string, EntityPathExpression>? _cache;
-
-    private Dictionary<string, EntityPathExpression> Cache =>
-        _cache ??= new Dictionary<string, EntityPathExpression>();
+    private EntityModel? _model;
 
     #endregion
 
     #region ====Default Property====
+
+    private EntityModel EnsureModel()
+    {
+        return _model ??= RuntimeContext.GetModel<EntityModel>(ModelId);
+    }
 
     public override EntityPathExpression this[string name]
     {
@@ -51,7 +81,7 @@ public sealed class EntityExpression : EntityPathExpression
             if (Cache.TryGetValue(name, out var exp))
                 return exp;
 
-            var model = RuntimeContext.GetModel<EntityModel>(ModelId);
+            var model = EnsureModel();
             var m = model.GetMember(name, false);
             if (m != null)
             {
@@ -98,26 +128,23 @@ public sealed class EntityExpression : EntityPathExpression
         }
     }
 
-    #endregion
 
-    #region ====Ctor====
+    private Dictionary<string, EntityPathExpression>? _cache;
 
-    /// <summary>
-    /// New Root EntityExpression
-    /// </summary>
-    public EntityExpression(ModelId modelId, object? user) : base(null, null)
+    private Dictionary<string, EntityPathExpression> Cache =>
+        _cache ??= new Dictionary<string, EntityPathExpression>();
+
+    internal void AddMemberToCache(string name, EntityPathExpression member)
     {
-        ModelId = modelId;
-        _user = user;
+#if DEBUG
+        if (Cache.ContainsKey(name))
+            throw new Exception($"Already exists: {name}");
+#endif
+        Cache[name] = member;
     }
 
-    /// <summary>
-    /// New EntityRefModel's EntityExpression
-    /// </summary>
-    private EntityExpression(string name, ModelId modelId, EntityExpression owner) : base(name, owner)
-    {
-        ModelId = modelId;
-    }
+    internal bool TryGetExistsMember(string name, [MaybeNullWhen(false)] out EntityPathExpression member) =>
+        Cache.TryGetValue(name, out member);
 
     #endregion
 
@@ -158,6 +185,34 @@ public sealed class EntityExpression : EntityPathExpression
             Owner.ToCode(sb, preTabs);
             sb.Append($".{Name}");
         }
+    }
+
+    #endregion
+
+    #region ====Serialization====
+
+    protected internal override void WriteTo(IOutputStream writer)
+    {
+        writer.WriteLong(ModelId);
+        writer.SerializeExpression(Owner);
+        if (!IsNull(Owner))
+            writer.WriteString(Name);
+    }
+
+    internal static EntityExpression Read(IInputStream reader)
+    {
+        ModelId modelId = reader.ReadLong();
+        var owner = (EntityExpression?)reader.Deserialize();
+        if (IsNull(owner))
+            return new EntityExpression(modelId, null);
+
+        var name = reader.ReadString()!;
+        if (owner!.TryGetExistsMember(name, out var exists))
+            return (EntityExpression)exists;
+
+        var member = new EntityExpression(name, modelId, owner);
+        owner.AddMemberToCache(name, member);
+        return member;
     }
 
     #endregion

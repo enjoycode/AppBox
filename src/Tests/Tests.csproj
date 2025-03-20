@@ -10,6 +10,8 @@
         <SignAssembly>true</SignAssembly>
 
         <AssemblyOriginatorKeyFile>..\AppBox.snk</AssemblyOriginatorKeyFile>
+
+        <LangVersion>13</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

@@ -9,7 +9,7 @@ public static class ExpressionFactory
         { ExpressionType.BinaryExpression, () => new BinaryExpression() },
         { ExpressionType.NewExpression, () => new NewExpression() },
         { ExpressionType.MemberAccessExpression, () => new MemberAccessExpression() },
-        { ExpressionType.MethodCallExpression, () => new MethodCallExpression() }
+        { ExpressionType.MethodCallExpression, () => new MethodCallExpression() },
     };
 
     public static Expression Make(ExpressionType expressionType)

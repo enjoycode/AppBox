@@ -457,10 +457,19 @@ public static class InputStreamExtensions
     private static Expression ReadExpression(this IInputStream s)
     {
         var expType = (ExpressionType)s.ReadByte();
-        var exp = ExpressionFactory.Make(expType);
-        s.Context.AddToDeserialized(exp);
-        exp.ReadFrom(s);
-        return exp;
+        switch (expType)
+        {
+            //特殊处理EntityPath表达式
+            case ExpressionType.EntityExpression:
+                return EntityExpression.Read(s);
+            case ExpressionType.EntityFieldExpression:
+                return EntityFieldExpression.Read(s);
+            default:
+                var exp = ExpressionFactory.Make(expType);
+                s.Context.AddToDeserialized(exp);
+                exp.ReadFrom(s);
+                return exp;
+        }
     }
 
     #endregion

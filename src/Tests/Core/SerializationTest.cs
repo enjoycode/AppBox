@@ -6,7 +6,7 @@ namespace Tests.Core;
 
 public sealed class SerializationTest
 {
-    private static readonly EntityFactory[] _entityFactories = { new(TestEntity.MODELID, typeof(TestEntity)) };
+    private static readonly EntityFactory[] EntityFactories = [new(TestEntity.MODELID, typeof(TestEntity))];
 
     internal static BytesSegment Serialize<T>(T obj)
     {
@@ -69,7 +69,7 @@ public sealed class SerializationTest
     {
         var src = new TestEntity() { Name = "Rick", Score = 100 };
         var data = Serialize(src);
-        var dest = (TestEntity)Deserialize(data, _entityFactories)!;
+        var dest = (TestEntity)Deserialize(data, EntityFactories)!;
 
         Assert.True(src.Name == dest.Name && src.Score == dest.Score);
     }
@@ -82,7 +82,7 @@ public sealed class SerializationTest
             new() { Name = "Rick", Score = 100 }
         };
         var data = Serialize(src);
-        var dest = (TestEntity[])Deserialize(data, _entityFactories)!;
+        var dest = (TestEntity[])Deserialize(data, EntityFactories)!;
         Assert.True(src.Length == dest.Length);
     }
 
@@ -105,7 +105,7 @@ public sealed class SerializationTest
             new() { Name = "Eric", Score = 200 }
         };
         var data = Serialize(src);
-        var dest = (List<TestEntity>)Deserialize(data, _entityFactories)!;
+        var dest = (List<TestEntity>)Deserialize(data, EntityFactories)!;
         Assert.True(src.Count == dest.Count);
         Assert.AreEqual(src, dest);
     }

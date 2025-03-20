@@ -67,20 +67,41 @@ public static class ExpressionSerialization
         return res;
     }
 
-    public static void SerializeToJson(Utf8JsonWriter jsonWriter, Expression? expression)
+    /// <summary>
+    /// 将表达式序列化转换为Base64
+    /// </summary>
+    public static void SerializeToJson(Utf8JsonWriter jsonWriter, Expression? expression,
+        IEnumerable<object>? serialized = null)
     {
         using var ms = new MemoryWriteStream();
+        if (serialized is not null)
+        {
+            foreach (var obj in serialized)
+                ms.Context.AddToSerialized(obj);
+        }
+
         ms.SerializeExpression(expression);
         var bytes = ms.Data;
         jsonWriter.WriteBase64StringValue(bytes);
     }
 
-    public static Expression? DeserializeFromJson(ref Utf8JsonReader jsonReader)
+    /// <summary>
+    /// 从Base64内反序列化表达式
+    /// </summary>
+    public static Expression? DeserializeFromJson(ref Utf8JsonReader jsonReader,
+        IEnumerable<object>? deserialized = null)
     {
         jsonReader.Read();
         Debug.Assert(jsonReader.TokenType == JsonTokenType.String);
         var bytes = jsonReader.GetBytesFromBase64();
+
         using var ms = new MemoryReadStream(bytes);
+        if (deserialized is not null)
+        {
+            foreach (var obj in deserialized)
+                ms.Context.AddToDeserialized(obj);
+        }
+
         var res = ms.Deserialize() as Expression;
         return res;
     }
