@@ -27,13 +27,14 @@
         <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
         <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs" />
         <EmbeddedResource Include="DummyCode\ViewBaseDummyCode.cs" />
-        <EmbeddedResource Include="Resources\Galaxy.webp"/>
         <Compile Remove="DummyCode\ServiceBaseDummyCode.cs" />
         <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
         <Compile Remove="DummyCode\ViewBaseDummyCode.cs" />
         <None Include="..\AppBox.snk">
           <Link>AppBox.snk</Link>
         </None>
+        <None Remove="Resources\LoginBG.webp" />
+        <EmbeddedResource Include="Resources\LoginBG.webp" />
     </ItemGroup>
 
     <ItemGroup>

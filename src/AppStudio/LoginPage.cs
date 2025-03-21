@@ -17,16 +17,16 @@ public sealed class LoginPage : View
 
     public LoginPage()
     {
-        var imgData = Resources.LoadStream("Resources.Galaxy.webp");
+        var imgData = Resources.LoadStream("Resources.LoginBG.webp");
         _bgImg = Image.FromEncodedData(imgData)!;
 
         Child = new Center
         {
             Child = new Card
             {
-                Color = new Color(0x88FFFFFF),
+                Color = new Color(0xA8FFFFFF),
                 Width = 400, Height = 330,
-                Elevation = 20,
+                Elevation = 10,
                 Child = BuildLoginForm()
             }
         };
