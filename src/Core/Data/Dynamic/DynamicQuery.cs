@@ -103,17 +103,17 @@ public sealed class DynamicQuery : IBinSerializable
             return new SelectItem(alias, item, type);
         }
 
-        internal void WriteTo(Utf8JsonWriter writer)
+        internal void WriteTo(Utf8JsonWriter writer, EntityExpression root)
         {
             writer.WriteStartObject();
             writer.WritePropertyName(nameof(Item));
-            ExpressionSerialization.SerializeToJson(writer, Item);
+            ExpressionSerialization.SerializeToJson(writer, Item, [root]);
             writer.WriteString(nameof(Type), Type.ToString());
             writer.WriteString(nameof(Alias), Alias);
             writer.WriteEndObject();
         }
 
-        internal static SelectItem ReadFrom(ref Utf8JsonReader reader)
+        internal static SelectItem ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
         {
             Expression item = null!;
             DynamicFieldFlag type = DynamicFieldFlag.Empty;
@@ -128,7 +128,7 @@ public sealed class DynamicQuery : IBinSerializable
                 switch (propName)
                 {
                     case nameof(Item):
-                        item = ExpressionSerialization.DeserializeFromJson(ref reader)!;
+                        item = ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
                         break;
                     case nameof(Type):
                         reader.Read();
@@ -175,20 +175,20 @@ public sealed class DynamicQuery : IBinSerializable
             return new OrderByItem(field, descending);
         }
 
-        internal void WriteTo(Utf8JsonWriter writer)
+        internal void WriteTo(Utf8JsonWriter writer, EntityExpression root)
         {
             writer.WriteStartObject();
             writer.WritePropertyName(nameof(Field));
-            ExpressionSerialization.SerializeToJson(writer, Field);
+            ExpressionSerialization.SerializeToJson(writer, Field, [root]);
             writer.WritePropertyName(nameof(Descending));
             writer.WriteBooleanValue(Descending);
             writer.WriteEndObject();
         }
 
-        internal static OrderByItem ReadFrom(ref Utf8JsonReader reader)
+        internal static OrderByItem ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
         {
             Expression field = null!;
-            bool descending = false;
+            var descending = false;
 
             reader.Read(); //{
             while (reader.Read())
@@ -199,7 +199,7 @@ public sealed class DynamicQuery : IBinSerializable
                 switch (propName)
                 {
                     case nameof(Field):
-                        field = ExpressionSerialization.DeserializeFromJson(ref reader)!;
+                        field = ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
                         break;
                     case nameof(Descending):
                         reader.Read();

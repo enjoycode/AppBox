@@ -12,11 +12,8 @@ namespace PixUI.Dynamic;
 internal sealed class DynamicTableFromQuery : IDynamicTableSource
 {
     public string SourceType => DynamicTableState.FromQuery;
-
-    /// <summary>
-    /// 查询的目标实体模型标识
-    /// </summary>
-    public ModelId EntityModelId { get; set; }
+    
+    public EntityExpression? Root { get; private set; }
 
     public int PageSize { get; set; }
 
@@ -25,7 +22,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     /// <summary>
     /// 查询输出的字段
     /// </summary>
-    public Expression[] Fields { get; set; } = null!;
+    public DynamicQuery.SelectItem[] Selects { get; set; } = null!;
 
     /// <summary>
     /// 过滤项
@@ -46,18 +43,21 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
 
     public void WriteTo(Utf8JsonWriter writer)
     {
-        writer.WriteNumber(nameof(EntityModelId), EntityModelId.Value);
+        if (Expression.IsNull(Root))
+            return;
+        
+        writer.WriteNumber("ModelId", Root!.ModelId);
         writer.WriteNumber(nameof(PageSize), PageSize);
         writer.WriteNumber(nameof(PageIndex), PageIndex);
 
-        //Fields
-        writer.WritePropertyName(nameof(Fields));
+        //Selects
+        writer.WritePropertyName(nameof(Selects));
         writer.WriteStartArray();
-        if (Fields != null!)
+        if (Selects != null!)
         {
-            for (var i = 0; i < Fields.Length; i++)
+            for (var i = 0; i < Selects.Length; i++)
             {
-                ExpressionSerialization.SerializeToJson(writer, Fields[i]);
+                Selects[i].WriteTo(writer, Root);
             }
         }
 
@@ -70,7 +70,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
             writer.WriteStartArray();
             for (var i = 0; i < Filters.Length; i++)
             {
-                Filters[i].WriteTo(writer);
+                Filters[i].WriteTo(writer, Root);
             }
 
             writer.WriteEndArray();
@@ -83,7 +83,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
             writer.WriteStartArray();
             for (var i = 0; i < Orders.Length; i++)
             {
-                Orders[i].WriteTo(writer);
+                Orders[i].WriteTo(writer, Root);
             }
 
             writer.WriteEndArray();
@@ -100,9 +100,10 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
             var propName = reader.GetString();
             switch (propName)
             {
-                case nameof(EntityModelId):
+                case "ModelId":
                     reader.Read();
-                    EntityModelId = reader.GetInt64();
+                    var modelId = reader.GetInt64();
+                    Root = new EntityExpression(modelId, null);
                     break;
                 case nameof(PageSize):
                     reader.Read();
@@ -112,17 +113,17 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                     reader.Read();
                     PageIndex = reader.GetInt32();
                     break;
-                case nameof(Fields):
+                case nameof(Selects):
                     reader.Read(); //[
-                    var fields = new List<Expression>();
+                    var selects = new List<DynamicQuery.SelectItem>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        fields.Add(ExpressionSerialization.DeserializeFromJson(ref reader)!);
+                        selects.Add(DynamicQuery.SelectItem.ReadFrom(ref reader, Root!));
                     }
 
-                    Fields = fields.ToArray();
+                    Selects = selects.ToArray();
                     break;
                 case nameof(Filters):
                     reader.Read(); //[
@@ -131,7 +132,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        filters.Add(DynamicTableFilter.ReadFrom(ref reader));
+                        filters.Add(DynamicTableFilter.ReadFrom(ref reader, Root!));
                     }
 
                     Filters = filters.ToArray();
@@ -143,7 +144,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        orders.Add(DynamicQuery.OrderByItem.ReadFrom(ref reader));
+                        orders.Add(DynamicQuery.OrderByItem.ReadFrom(ref reader, Root!));
                     }
 
                     Orders = orders.ToArray();
@@ -159,7 +160,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
 
 internal readonly struct DynamicTableFilter
 {
-    public DynamicTableFilter(Expression field, BinaryOperatorType operatorType, string state)
+    private DynamicTableFilter(Expression field, BinaryOperatorType operatorType, string state)
     {
         Field = field;
         Operator = operatorType;
@@ -172,11 +173,11 @@ internal readonly struct DynamicTableFilter
 
     #region ====Serialization=====
 
-    public void WriteTo(Utf8JsonWriter writer)
+    public void WriteTo(Utf8JsonWriter writer, EntityExpression root)
     {
         writer.WriteStartObject();
         writer.WritePropertyName(nameof(Field));
-        ExpressionSerialization.SerializeToJson(writer, Field);
+        ExpressionSerialization.SerializeToJson(writer, Field, [root]);
         writer.WritePropertyName(nameof(Operator));
         writer.WriteStringValue(Operator.ToString());
         writer.WritePropertyName(nameof(State));
@@ -184,7 +185,7 @@ internal readonly struct DynamicTableFilter
         writer.WriteEndObject();
     }
 
-    public static DynamicTableFilter ReadFrom(ref Utf8JsonReader reader)
+    public static DynamicTableFilter ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
     {
         Expression field = null!;
         BinaryOperatorType op = BinaryOperatorType.Equal;
@@ -199,7 +200,7 @@ internal readonly struct DynamicTableFilter
             switch (propName)
             {
                 case nameof(Field):
-                    field = ExpressionSerialization.DeserializeFromJson(ref reader)!;
+                    field = ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
                     break;
                 case nameof(Operator):
                     reader.Read();
