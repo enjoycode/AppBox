@@ -9,6 +9,7 @@ internal static class SysServiceContainer
 {
     internal static readonly SystemService SystemService = new();
     internal static readonly DesignService DesignService = new();
+    private static readonly EntityService EntityService = new();
 
     internal static IService? TryGet(ReadOnlyMemory<char> serviceName)
     {
@@ -16,6 +17,7 @@ internal static class SysServiceContainer
         {
             nameof(SystemService) => SystemService,
             nameof(DesignService) => DesignService,
+            nameof(EntityService) => EntityService,
             _ => null
         };
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AppBoxClient;
 using AppBoxCore;
 
 namespace PixUI.Dynamic;
@@ -12,7 +13,7 @@ namespace PixUI.Dynamic;
 internal sealed class DynamicTableFromQuery : IDynamicTableSource
 {
     public string SourceType => DynamicTableState.FromQuery;
-    
+
     public EntityExpression? Root { get; private set; }
 
     public int PageSize { get; set; }
@@ -36,7 +37,36 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
 
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
-        throw new NotImplementedException();
+        if (Expression.IsNull(Root))
+            throw new Exception("Query target not set");
+
+        var q = new DynamicQuery();
+        q.ModelId = Root!.ModelId;
+        q.PageIndex = PageIndex;
+        q.PageSize = PageSize;
+        q.Selects = Selects;
+        q.Orders = Orders;
+
+        if (Filters != null)
+        {
+            Expression? filter = null;
+            foreach (var item in Filters)
+            {
+                var state = dynamicContext.GetState(item.State);
+                if (state.BoxedValue != null)
+                {
+                    var exp = new BinaryExpression(item.Field,
+                        new ConstantExpression(state.BoxedValue),
+                        item.Operator);
+                    filter = Expression.IsNull(filter)
+                        ? exp
+                        : new BinaryExpression(filter!, exp, BinaryOperatorType.AndAlso);
+                }
+            }
+            q.Filter = filter;
+        }
+
+        return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
     }
 
     #region ====Serialization====
@@ -45,7 +75,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     {
         if (Expression.IsNull(Root))
             return;
-        
+
         writer.WriteNumber("ModelId", Root!.ModelId);
         writer.WriteNumber(nameof(PageSize), PageSize);
         writer.WriteNumber(nameof(PageIndex), PageIndex);

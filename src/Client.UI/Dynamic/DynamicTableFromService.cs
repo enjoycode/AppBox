@@ -22,7 +22,7 @@ internal sealed class DynamicTableFromService : IDynamicTableSource
     /// <summary>
     /// 服务方法的参数所指向的动态视图的状态的名称
     /// </summary>
-    public string?[] Arguments { get; set; } = Array.Empty<string?>();
+    public string?[] Arguments { get; set; } = [];
 
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {

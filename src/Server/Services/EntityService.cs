@@ -6,16 +6,20 @@ namespace AppBoxServer;
 /// <summary>
 /// 通用的动态化实体增删改查服务
 /// </summary>
-internal sealed class EntityService
+internal sealed class EntityService : IService
 {
-    public DynamicTable FetchTable(DynamicQuery query)
+    public static Task<DynamicTable> Fetch(DynamicQuery query)
     {
         var q = new SqlDynamicQuery(query);
-        throw new NotImplementedException();
+        return q.ToTableAsync();
     }
 
-    public DynamicRow FetchRow(DynamicQuery query)
+    public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
     {
-        throw new NotImplementedException();
+        return method.Span switch
+        {
+            nameof(Fetch) => AnyValue.From(await Fetch((DynamicQuery)args.GetObject()!)),
+            _ => throw new Exception($"Can't find method: {method}")
+        };
     }
 }
