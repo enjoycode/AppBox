@@ -58,6 +58,14 @@ public sealed class BinaryExpression : Expression
         var right = RightOperand.ToLinqExpression(ctx)!;
         var op = GetLinqExpressionType();
 
+        //特殊处理 eg: "Hello" + " World"表达式
+        if (op == LinqExpressionType.Add && left.Type == typeof(string))
+        {
+            return TryConvert(LinqExpression.Add(left, right,
+                    typeof(string).GetMethod("Concat", [typeof(string), typeof(string)])),
+                ConvertedType, ctx);
+        }
+
         LinqExpression res = LinqExpression.MakeBinary(op, left, right);
         return TryConvert(res, ConvertedType, ctx);
     }
