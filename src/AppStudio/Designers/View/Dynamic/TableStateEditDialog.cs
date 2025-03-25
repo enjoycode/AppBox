@@ -10,8 +10,8 @@ internal sealed class TableStateEditDialog : Dialog
     public TableStateEditDialog(DesignController designController, DynamicState state)
     {
         Title.Value = "DataTable Settings";
-        Width = 500;
-        Height = 400;
+        Width = 580;
+        Height = 430;
 
         _designController = designController;
         //初始化状态
@@ -26,28 +26,30 @@ internal sealed class TableStateEditDialog : Dialog
             _tableState = (DynamicTableState)state.Value;
         }
 
-        _isFromQuery = new RxProxy<bool>(
-            () => _tableState.Source.SourceType == "Query",
-            v =>
-            {
-                if (v)
-                {
-                    if (_tableState.Source is DynamicTableFromQuery)
-                        return;
-                    _tableState.Source = new DynamicTableFromQuery();
-                }
-                else
-                {
-                    if (_tableState.Source is DynamicTableFromService)
-                        return;
-                    _tableState.Source = new DynamicTableFromService();
-                }
-            });
+        _isFromQuery = MakeStateOfIsFromQuery();
     }
 
     private readonly DesignController _designController;
     private readonly DynamicTableState _tableState;
     private readonly State<bool> _isFromQuery;
+
+    private RxProxy<bool> MakeStateOfIsFromQuery() => new(
+        () => _tableState.Source.SourceType == DynamicTableState.FromQuery,
+        v =>
+        {
+            if (v)
+            {
+                if (_tableState.Source is DynamicTableFromQuery)
+                    return;
+                _tableState.Source = new DynamicTableFromQuery();
+            }
+            else
+            {
+                if (_tableState.Source is DynamicTableFromService)
+                    return;
+                _tableState.Source = new DynamicTableFromService();
+            }
+        });
 
     protected override Widget BuildBody() => new Container
     {
@@ -88,27 +90,106 @@ internal sealed class TableStateFromQueryEditor : View
     {
         _designController = designController;
         _tableState = tableState;
+        _entityTarget = MakeStateOfRoot();
 
         Child = BuildBody();
+
+        if (_entityTarget.Value != null)
+            _treeController.DataSource = GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
     }
 
     private readonly DesignController _designController;
     private readonly DynamicTableState _tableState;
+    private readonly TreeController<EntityMemberModel> _treeController = new();
     private DynamicTableFromQuery TableFromQuery => (DynamicTableFromQuery)_tableState.Source;
-    private readonly State<ModelNode?> _entityTarget = State<ModelNode?>.Default();
 
-    private Widget BuildBody() => new Form()
-    {
-        LabelWidth = 100,
-        Children =
+    private readonly State<ModelNode?> _entityTarget;
+
+    private RxProxy<ModelNode?> MakeStateOfRoot() => new(
+        () =>
         {
-            new FormItem("Entity:", new Select<ModelNode>(_entityTarget)
-            {
-                Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
-                LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
-            })
+            if (Expression.IsNull(TableFromQuery.Root))
+                return null;
+            var rootModelId = TableFromQuery.Root!.ModelId;
+            return DesignHub.Current.DesignTree.FindModelNode(rootModelId);
+        },
+        node =>
+        {
+            TableFromQuery.Root = node == null ? null : new EntityExpression((EntityModel)node.Model, null);
+            // clear query
+            TableFromQuery.Selects = [];
+            TableFromQuery.Filters = null;
+            TableFromQuery.Orders = null;
+            // reset members tree
+            if (node != null)
+                _treeController.DataSource = GetEntityModelMembers((EntityModel)node.Model);
         }
+    );
+
+    private Row BuildBody() => new Row(VerticalAlignment.Top)
+    {
+        Children =
+        [
+            new Card()
+            {
+                Width = 200,
+                Child = new Column()
+                {
+                    Children =
+                    [
+                        new Select<ModelNode>(_entityTarget)
+                        {
+                            Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
+                            LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
+                        },
+                        new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>
+                        {
+                            var entityRef = (EntityRefModel)m;
+                            if (entityRef.IsAggregationRef)
+                                throw new NotImplementedException();
+                            var refModel =
+                                (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
+                                    .Model;
+                            return GetEntityModelMembers(refModel);
+                        }))
+                    ]
+                }
+            },
+            new Expanded(new Card())
+        ]
     };
+
+    private static void BuildTreeNode(TreeNode<EntityMemberModel> node)
+    {
+        var member = node.Data;
+        node.Label = new Text(member.Name);
+        node.Icon = member is EntityRefModel ? new(MaterialIcons.Folder) : new(MaterialIcons.TextFields);
+        node.IsLeaf = member is not EntityRefModel;
+        node.IsExpanded = true;
+    }
+
+    private static List<EntityMemberModel> GetEntityModelMembers(EntityModel model)
+    {
+        var list = new List<EntityMemberModel>();
+        foreach (var member in model.Members)
+        {
+            switch (member)
+            {
+                case EntityFieldModel:
+                    list.Add(member);
+                    break;
+                case EntityRefModel entityRef:
+                {
+                    //暂排除聚合引用及循环引用
+                    if (!entityRef.IsAggregationRef && !entityRef.RefModelIds.Contains(model.Id))
+                        list.Add(member);
+                    break;
+                }
+            }
+        }
+
+        return list;
+    }
 }
 
 internal sealed class TableStateFromServiceEditor : View

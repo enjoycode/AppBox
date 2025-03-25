@@ -120,21 +120,21 @@ public sealed class EntityRefModel : EntityMemberModel, IModelReference
     }
 
     internal override void AddModelReferences(List<ModelReferenceInfo> list,
-        ModelReferenceType referenceType, ModelId modelID, string? memberName,
+        ModelReferenceType referenceType, ModelId modelId, string? memberName,
         short? entityMemberId)
     {
         if (referenceType == ModelReferenceType.EntityModel)
         {
-            if (RefModelIds.Contains(modelID))
+            if (RefModelIds.Contains(modelId))
                 list.Add(new ModelReferenceInfo(this,
                     ModelReferencePosition.EntityRefModel_RefModelID, Name, string.Empty));
         }
-        else if (referenceType == ModelReferenceType.EntityMember && modelID == Owner.Id)
+        else if (referenceType == ModelReferenceType.EntityMember && modelId == Owner.Id)
         {
             if (FKMemberIds.Contains(entityMemberId!.Value))
                 list.Add(new ModelReferenceInfo(this,
                     ModelReferencePosition.EntityRefModel_IDMember, Name, memberName!));
-            else if (TypeMemberId == entityMemberId!.Value)
+            else if (TypeMemberId == entityMemberId.Value)
                 list.Add(new ModelReferenceInfo(this,
                     ModelReferencePosition.EntityRefModel_TypeMember, Name, memberName!));
         }
@@ -142,7 +142,7 @@ public sealed class EntityRefModel : EntityMemberModel, IModelReference
 
     void IModelReference.RenameReference(ModelReferenceType sourceType,
         ModelReferencePosition targetType,
-        ModelId modelID, string oldName, string newName)
+        ModelId modelId, string oldName, string newName)
     {
         //do nothing
     }

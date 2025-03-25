@@ -14,26 +14,26 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
 {
     public string SourceType => DynamicTableState.FromQuery;
 
-    public EntityExpression? Root { get; private set; }
+    public EntityExpression? Root { get; internal set; }
 
-    public int PageSize { get; set; }
+    public int PageSize { get; internal set; }
 
-    public int PageIndex { get; set; } = -1;
+    public int PageIndex { get; internal set; }
 
     /// <summary>
     /// 查询输出的字段
     /// </summary>
-    public DynamicQuery.SelectItem[] Selects { get; set; } = null!;
+    public DynamicQuery.SelectItem[] Selects { get; internal set; } = null!;
 
     /// <summary>
     /// 过滤项
     /// </summary>
-    public DynamicTableFilter[]? Filters { get; set; }
+    public DynamicTableFilter[]? Filters { get; internal set; }
 
     /// <summary>
     /// 排序项
     /// </summary>
-    public DynamicQuery.OrderByItem[]? Orders { get; set; }
+    public DynamicQuery.OrderByItem[]? Orders { get; internal set; }
 
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
