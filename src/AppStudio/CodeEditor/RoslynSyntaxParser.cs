@@ -176,7 +176,8 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
             line.BeginTokenize();
             foreach (var token in tokens)
             {
-                AddTokenToLine(line, token);
+                if (token.ClassificationType != ClassificationTypeNames.StaticSymbol) //排除特例
+                    AddTokenToLine(line, token);
             }
 
             line.EndTokenize();
