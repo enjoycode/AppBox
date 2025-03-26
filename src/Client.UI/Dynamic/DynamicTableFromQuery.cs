@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AppBoxClient;
@@ -23,17 +24,17 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     /// <summary>
     /// 查询输出的字段
     /// </summary>
-    public DynamicQuery.SelectItem[] Selects { get; internal set; } = null!;
+    public List<DynamicQuery.SelectItem> Selects { get; } = new();
 
     /// <summary>
     /// 过滤项
     /// </summary>
-    public DynamicTableFilter[]? Filters { get; internal set; }
+    public List<DynamicTableFilter>? Filters { get; internal set; }
 
     /// <summary>
     /// 排序项
     /// </summary>
-    public DynamicQuery.OrderByItem[]? Orders { get; internal set; }
+    public List<DynamicQuery.OrderByItem>? Orders { get; internal set; }
 
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
@@ -44,8 +45,8 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
         q.ModelId = Root!.ModelId;
         q.PageIndex = PageIndex;
         q.PageSize = PageSize;
-        q.Selects = Selects;
-        q.Orders = Orders;
+        q.Selects = Selects.ToArray();
+        q.Orders = Orders?.ToArray();
 
         if (Filters != null)
         {
@@ -63,6 +64,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                         : new BinaryExpression(filter!, exp, BinaryOperatorType.AndAlso);
                 }
             }
+
             q.Filter = filter;
         }
 
@@ -83,22 +85,19 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
         //Selects
         writer.WritePropertyName(nameof(Selects));
         writer.WriteStartArray();
-        if (Selects != null!)
+        for (var i = 0; i < Selects.Count; i++)
         {
-            for (var i = 0; i < Selects.Length; i++)
-            {
-                Selects[i].WriteTo(writer, Root);
-            }
+            Selects[i].WriteTo(writer, Root);
         }
 
         writer.WriteEndArray();
 
         //Filters
-        if (Filters != null && Filters.Length > 0)
+        if (Filters != null && Filters.Count > 0)
         {
             writer.WritePropertyName(nameof(Filters));
             writer.WriteStartArray();
-            for (var i = 0; i < Filters.Length; i++)
+            for (var i = 0; i < Filters.Count; i++)
             {
                 Filters[i].WriteTo(writer, Root);
             }
@@ -107,11 +106,11 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
         }
 
         //Orders
-        if (Orders != null && Orders.Length > 0)
+        if (Orders != null && Orders.Count > 0)
         {
             writer.WritePropertyName(nameof(Orders));
             writer.WriteStartArray();
-            for (var i = 0; i < Orders.Length; i++)
+            for (var i = 0; i < Orders.Count; i++)
             {
                 Orders[i].WriteTo(writer, Root);
             }
@@ -145,39 +144,38 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                     break;
                 case nameof(Selects):
                     reader.Read(); //[
-                    var selects = new List<DynamicQuery.SelectItem>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        selects.Add(DynamicQuery.SelectItem.ReadFrom(ref reader, Root!));
+                        Debug.Assert(reader.TokenType == JsonTokenType.StartObject);
+                        Selects.Add(DynamicQuery.SelectItem.ReadFrom(ref reader, Root!));
                     }
 
-                    Selects = selects.ToArray();
                     break;
                 case nameof(Filters):
                     reader.Read(); //[
-                    var filters = new List<DynamicTableFilter>();
+                    Filters = new List<DynamicTableFilter>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        filters.Add(DynamicTableFilter.ReadFrom(ref reader, Root!));
+                        Debug.Assert(reader.TokenType == JsonTokenType.StartObject);
+                        Filters.Add(DynamicTableFilter.ReadFrom(ref reader, Root!));
                     }
 
-                    Filters = filters.ToArray();
                     break;
                 case nameof(Orders):
                     reader.Read(); //[
-                    var orders = new List<DynamicQuery.OrderByItem>();
+                    Orders = new List<DynamicQuery.OrderByItem>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        orders.Add(DynamicQuery.OrderByItem.ReadFrom(ref reader, Root!));
+                        Debug.Assert(reader.TokenType == JsonTokenType.StartObject);
+                        Orders.Add(DynamicQuery.OrderByItem.ReadFrom(ref reader, Root!));
                     }
 
-                    Orders = orders.ToArray();
                     break;
                 default:
                     throw new Exception($"Unknown property name: {nameof(DynamicTableFromQuery)}.{propName}");
@@ -218,14 +216,14 @@ internal readonly struct DynamicTableFilter
     public static DynamicTableFilter ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
     {
         Expression field = null!;
-        BinaryOperatorType op = BinaryOperatorType.Equal;
-        string state = string.Empty;
+        var op = BinaryOperatorType.Equal;
+        var state = string.Empty;
 
-        reader.Read(); //{
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
                 break;
+            Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
             var propName = reader.GetString();
             switch (propName)
             {

@@ -95,12 +95,17 @@ internal sealed class TableStateFromQueryEditor : View
         Child = BuildBody();
 
         if (_entityTarget.Value != null)
+        {
             _treeController.DataSource = GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
+            _selectsController.DataSource = TableFromQuery.Selects;
+        }
     }
 
     private readonly DesignController _designController;
     private readonly DynamicTableState _tableState;
     private readonly TreeController<EntityMemberModel> _treeController = new();
+    private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
+    private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
     private DynamicTableFromQuery TableFromQuery => (DynamicTableFromQuery)_tableState.Source;
 
     private readonly State<ModelNode?> _entityTarget;
@@ -117,7 +122,7 @@ internal sealed class TableStateFromQueryEditor : View
         {
             TableFromQuery.Root = node == null ? null : new EntityExpression((EntityModel)node.Model, null);
             // clear query
-            TableFromQuery.Selects = [];
+            TableFromQuery.Selects.Clear();
             TableFromQuery.Filters = null;
             TableFromQuery.Orders = null;
             // reset members tree
@@ -143,19 +148,27 @@ internal sealed class TableStateFromQueryEditor : View
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
                         new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>
-                        {
-                            var entityRef = (EntityRefModel)m;
-                            if (entityRef.IsAggregationRef)
-                                throw new NotImplementedException();
-                            var refModel =
-                                (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
-                                    .Model;
-                            return GetEntityModelMembers(refModel);
-                        }))
+                            {
+                                var entityRef = (EntityRefModel)m;
+                                if (entityRef.IsAggregationRef)
+                                    throw new NotImplementedException();
+                                var refModel =
+                                    (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
+                                        .Model;
+                                return GetEntityModelMembers(refModel);
+                            })
+                            {
+                                AllowDrag = true,
+                                OnAllowDrag = node => node.Data is not EntityRefModel
+                            }
+                        )
                     ]
                 }
             },
-            new Expanded(new Card())
+            new Expanded(new Card()
+            {
+                Child = new TabView<string>(_tabController, BuildTab, BuildTabBody)
+            })
         ]
     };
 
@@ -189,6 +202,73 @@ internal sealed class TableStateFromQueryEditor : View
         }
 
         return list;
+    }
+
+    private static Widget BuildTab(string title, State<bool> isSelected)
+    {
+        var textColor = RxComputed<Color>.Make(isSelected,
+            selected => selected ? Theme.FocusedColor : Colors.Black
+        );
+
+        return new Text(title) { TextColor = textColor };
+    }
+
+    private Widget BuildTabBody(string title)
+    {
+        return title switch
+        {
+            "Selects" => BuildDataGridForSelects(),
+            _ => new Text(title)
+        };
+    }
+
+    private Widget BuildDataGridForSelects()
+    {
+        return new DataGrid<DynamicQuery.SelectItem>(_selectsController)
+            {
+                AllowDrop = true,
+                OnAllowDrop = OnAllowDropToSelects,
+                OnDrop = OnDropToSelects
+            }
+            .AddTextColumn("Item", t => t.Item.ToString())
+            .AddButtonColumn("Action", (_, index) => new Button(icon: MaterialIcons.Clear)
+            {
+                Style = ButtonStyle.Transparent,
+                Shape = ButtonShape.Pills,
+                FontSize = 20,
+                OnTap = _ => { _selectsController.RemoveAt(index); }
+            }, 80);
+    }
+
+    private static bool OnAllowDropToSelects(DragEvent dragEvent)
+    {
+        if (dragEvent.TransferItem is TreeNode<EntityMemberModel> { Data: EntityFieldModel })
+            return true;
+        return false;
+    }
+
+    private void OnDropToSelects(DragEvent dragEvent)
+    {
+        var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
+
+        //构建路径表达式
+        var temp = treeNode;
+        var list = new List<EntityMemberModel>();
+        while (temp != null)
+        {
+            list.Insert(0, temp.Data);
+            temp = treeNode.ParentNode;
+        }
+
+        EntityPathExpression exp = TableFromQuery.Root!;
+        foreach (var item in list)
+        {
+            exp = exp[item.Name];
+        }
+
+        var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
+            DynamicField.FlagFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
+        _selectsController.Add(selectItem);
     }
 }
 

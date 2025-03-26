@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace AppBoxCore;
@@ -116,14 +117,14 @@ public sealed class DynamicQuery : IBinSerializable
         internal static SelectItem ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
         {
             Expression item = null!;
-            DynamicFieldFlag type = DynamicFieldFlag.Empty;
+            var type = DynamicFieldFlag.Empty;
             var alias = string.Empty;
 
-            reader.Read(); //{
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.EndObject)
                     break;
+                Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
                 var propName = reader.GetString();
                 switch (propName)
                 {
@@ -190,11 +191,11 @@ public sealed class DynamicQuery : IBinSerializable
             Expression field = null!;
             var descending = false;
 
-            reader.Read(); //{
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.EndObject)
                     break;
+                Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
                 var propName = reader.GetString();
                 switch (propName)
                 {

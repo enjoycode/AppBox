@@ -103,7 +103,8 @@ internal sealed class DesignService : IService
         q.Selects = new DynamicQuery.SelectItem[fields.Length];
         for (var i = 0; i < fields.Length; i++)
         {
-            q.Selects[i] = new DynamicQuery.SelectItem(fields[i].Name, t[fields[i].Name], GetFieldType(fields[i]));
+            q.Selects[i] = new DynamicQuery.SelectItem(fields[i].Name, t[fields[i].Name],
+                DynamicField.FlagFromEntityFieldType(fields[i].FieldType));
         }
 
         q.PageSize = pageSize;
@@ -113,24 +114,6 @@ internal sealed class DesignService : IService
         var res = await query.ToTableAsync();
         return AnyValue.From(res);
     }
-
-    private static DynamicFieldFlag GetFieldType(EntityFieldModel field) => field.FieldType switch
-    {
-        EntityFieldType.String => DynamicFieldFlag.String,
-        EntityFieldType.DateTime => DynamicFieldFlag.DateTime,
-        EntityFieldType.Short => DynamicFieldFlag.Short,
-        EntityFieldType.Int => DynamicFieldFlag.Int,
-        EntityFieldType.Long => DynamicFieldFlag.Long,
-        EntityFieldType.Decimal => DynamicFieldFlag.Decimal,
-        EntityFieldType.Bool => DynamicFieldFlag.Bool,
-        EntityFieldType.Guid => DynamicFieldFlag.Guid,
-        EntityFieldType.Byte => DynamicFieldFlag.Byte,
-        EntityFieldType.Binary => DynamicFieldFlag.Binary,
-        EntityFieldType.Enum => DynamicFieldFlag.Int,
-        EntityFieldType.Float => DynamicFieldFlag.Float,
-        EntityFieldType.Double => DynamicFieldFlag.Double,
-        _ => throw new NotImplementedException()
-    };
 
     #endregion
 }

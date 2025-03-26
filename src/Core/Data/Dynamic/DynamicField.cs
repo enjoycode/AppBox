@@ -11,6 +11,7 @@ public enum DynamicFieldFlag : byte
     String = 1,
     Binary = 2,
     Bool = 3,
+
     //----数值区间----
     Byte = 4,
     Short = 5,
@@ -19,6 +20,7 @@ public enum DynamicFieldFlag : byte
     Float = 8,
     Double = 9,
     Decimal = 10,
+
     //----数值区间----
     DateTime = 11,
     Guid = 12,
@@ -96,7 +98,7 @@ public struct DynamicField
     public string ToStringValue()
     {
         if (!HasValue) return string.Empty;
-            
+
         var type = _flag & DynamicFieldFlag.TypeMask;
         return type switch
         {
@@ -137,6 +139,24 @@ public struct DynamicField
             _ => "Unknown"
         };
     }
+
+    public static DynamicFieldFlag FlagFromEntityFieldType(EntityFieldType entityFieldType) => entityFieldType switch
+    {
+        EntityFieldType.String => DynamicFieldFlag.String,
+        EntityFieldType.DateTime => DynamicFieldFlag.DateTime,
+        EntityFieldType.Short => DynamicFieldFlag.Short,
+        EntityFieldType.Int => DynamicFieldFlag.Int,
+        EntityFieldType.Long => DynamicFieldFlag.Long,
+        EntityFieldType.Decimal => DynamicFieldFlag.Decimal,
+        EntityFieldType.Bool => DynamicFieldFlag.Bool,
+        EntityFieldType.Guid => DynamicFieldFlag.Guid,
+        EntityFieldType.Byte => DynamicFieldFlag.Byte,
+        EntityFieldType.Binary => DynamicFieldFlag.Binary,
+        EntityFieldType.Enum => DynamicFieldFlag.Int,
+        EntityFieldType.Float => DynamicFieldFlag.Float,
+        EntityFieldType.Double => DynamicFieldFlag.Double,
+        _ => throw new NotImplementedException()
+    };
 
     #region ====隐式转换=====
 

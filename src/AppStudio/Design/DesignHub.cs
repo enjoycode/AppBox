@@ -13,10 +13,14 @@ public sealed class DesignHub : IModelContainer, IDisposable
     public static async ValueTask InitAsync(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
         IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService)
     {
+        //TODO: 判断是否已初始
+
         await MetadataReferences.InitAsync();
 
         Current = new DesignHub(sessionName, leafOrgUnitId,
             checkoutService, stagedService, metaStoreService, publishService);
+
+        RuntimeContext.Init(new DesignTimeContext(), null);
     }
 
     private DesignHub(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
@@ -33,7 +37,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
         DesignTree = new DesignTree(this);
     }
 
-    public static DesignHub Current { get; internal set; } = null!;
+    public static DesignHub Current { get; private set; } = null!;
 
     internal readonly string SessionName;
     internal readonly Guid LeafOrgUnitId;
@@ -121,4 +125,29 @@ public sealed class DesignHub : IModelContainer, IDisposable
         => (EntityModel)DesignTree.FindModelNode(modelId)!.Model;
 
     #endregion
+}
+
+internal sealed class DesignTimeContext : IRuntimeContext
+{
+    public IUserSession? CurrentSession { get; }
+
+    public ValueTask<ApplicationModel> GetApplicationAsync(int appId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
+    {
+        return new ValueTask<T>((T)DesignHub.Current.DesignTree.FindModelNode(modelId)!.Model);
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, InvokeArgs args)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)
+    {
+        throw new NotImplementedException();
+    }
 }
