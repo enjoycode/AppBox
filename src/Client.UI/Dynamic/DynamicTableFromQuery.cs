@@ -24,17 +24,17 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     /// <summary>
     /// 查询输出的字段
     /// </summary>
-    public List<DynamicQuery.SelectItem> Selects { get; } = new();
+    public List<DynamicQuery.SelectItem> Selects { get; } = [];
 
     /// <summary>
     /// 过滤项
     /// </summary>
-    public List<DynamicTableFilter>? Filters { get; internal set; }
+    public List<FilterItem> Filters { get; } = [];
 
     /// <summary>
     /// 排序项
     /// </summary>
-    public List<DynamicQuery.OrderByItem>? Orders { get; internal set; }
+    public List<DynamicQuery.OrderByItem> Orders { get; } = [];
 
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
@@ -93,7 +93,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
         writer.WriteEndArray();
 
         //Filters
-        if (Filters != null && Filters.Count > 0)
+        if (Filters.Count > 0)
         {
             writer.WritePropertyName(nameof(Filters));
             writer.WriteStartArray();
@@ -106,7 +106,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
         }
 
         //Orders
-        if (Orders != null && Orders.Count > 0)
+        if (Orders.Count > 0)
         {
             writer.WritePropertyName(nameof(Orders));
             writer.WriteStartArray();
@@ -155,19 +155,17 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                     break;
                 case nameof(Filters):
                     reader.Read(); //[
-                    Filters = new List<DynamicTableFilter>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
                         Debug.Assert(reader.TokenType == JsonTokenType.StartObject);
-                        Filters.Add(DynamicTableFilter.ReadFrom(ref reader, Root!));
+                        Filters.Add(FilterItem.ReadFrom(ref reader, Root!));
                     }
 
                     break;
                 case nameof(Orders):
                     reader.Read(); //[
-                    Orders = new List<DynamicQuery.OrderByItem>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
@@ -184,66 +182,65 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     }
 
     #endregion
-}
 
-internal readonly struct DynamicTableFilter
-{
-    private DynamicTableFilter(Expression field, BinaryOperatorType operatorType, string state)
+    #region ====FilterItem====
+
+    internal sealed class FilterItem
     {
-        Field = field;
-        Operator = operatorType;
-        State = state;
-    }
+        public Expression Field { get; internal set; } = null!;
+        public BinaryOperatorType Operator { get; internal set; }
 
-    public readonly Expression Field;
-    public readonly BinaryOperatorType Operator;
-    public readonly string State;
+        /// <summary>
+        /// 比较的状态的名称
+        /// </summary>
+        public string State { get; internal set; } = null!;
 
-    #region ====Serialization=====
+        #region ====Serialization=====
 
-    public void WriteTo(Utf8JsonWriter writer, EntityExpression root)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName(nameof(Field));
-        ExpressionSerialization.SerializeToJson(writer, Field, [root]);
-        writer.WritePropertyName(nameof(Operator));
-        writer.WriteStringValue(Operator.ToString());
-        writer.WritePropertyName(nameof(State));
-        writer.WriteStringValue(State);
-        writer.WriteEndObject();
-    }
-
-    public static DynamicTableFilter ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
-    {
-        Expression field = null!;
-        var op = BinaryOperatorType.Equal;
-        var state = string.Empty;
-
-        while (reader.Read())
+        public void WriteTo(Utf8JsonWriter writer, EntityExpression root)
         {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                break;
-            Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-            var propName = reader.GetString();
-            switch (propName)
-            {
-                case nameof(Field):
-                    field = ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
-                    break;
-                case nameof(Operator):
-                    reader.Read();
-                    op = Enum.Parse<BinaryOperatorType>(reader.GetString()!);
-                    break;
-                case nameof(State):
-                    reader.Read();
-                    state = reader.GetString()!;
-                    break;
-                default:
-                    throw new Exception($"Unknown property name: {nameof(DynamicTableFilter)}.{propName}");
-            }
+            writer.WriteStartObject();
+            writer.WritePropertyName(nameof(Field));
+            ExpressionSerialization.SerializeToJson(writer, Field, [root]);
+            writer.WritePropertyName(nameof(Operator));
+            writer.WriteStringValue(Operator.ToString());
+            writer.WritePropertyName(nameof(State));
+            writer.WriteStringValue(State);
+            writer.WriteEndObject();
         }
 
-        return new DynamicTableFilter(field, op, state);
+        public static FilterItem ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
+        {
+            var filter = new FilterItem();
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
+                var propName = reader.GetString();
+                switch (propName)
+                {
+                    case nameof(Field):
+                        filter.Field = ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
+                        break;
+                    case nameof(Operator):
+                        reader.Read();
+                        filter.Operator = Enum.Parse<BinaryOperatorType>(reader.GetString()!);
+                        break;
+                    case nameof(State):
+                        reader.Read();
+                        filter.State = reader.GetString()!;
+                        break;
+                    default:
+                        throw new Exception($"Unknown property name: {nameof(FilterItem)}.{propName}");
+                }
+            }
+
+            return filter;
+        }
+
+        #endregion
     }
 
     #endregion

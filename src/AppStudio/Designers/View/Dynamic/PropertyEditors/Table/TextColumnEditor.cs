@@ -100,23 +100,10 @@ internal sealed class CellStylesDialog : Dialog
         {
             Padding = EdgeInsets.All(20),
             Child = new DataGrid<ConditionalCellStyle>(_dgController)
-            {
-                Columns =
-                {
-                    new DataGridHostColumn<ConditionalCellStyle>("比较",
-                        (s, _) => new Select<string>(MakeComparerState(s)) { Options = options }
-                    ) { Width = ColumnWidth.Fixed(80) },
-                    new DataGridHostColumn<ConditionalCellStyle>("值",
-                        (s, _) => new NumberInput<double>(MakeNumberState(s))
-                    ) { Width = ColumnWidth.Fixed(120) },
-                    new DataGridHostColumn<ConditionalCellStyle>("文本颜色",
-                        (s, _) => new ColorEditor(MakeTextColorState(s), null!)
-                    ),
-                    new DataGridHostColumn<ConditionalCellStyle>("背景颜色",
-                        (s, _) => new ColorEditor(MakeFillColorState(s), null!)
-                    )
-                }
-            }
+                .AddHostColumn("比较", (s, _) => new Select<string>(MakeComparerState(s)) { Options = options }, 80)
+                .AddHostColumn("值", (s, _) => new NumberInput<double>(MakeNumberState(s)), 120)
+                .AddHostColumn("文本颜色", (s, _) => new ColorEditor(MakeTextColorState(s), null!))
+                .AddHostColumn("背景颜色", (s, _) => new ColorEditor(MakeFillColorState(s), null!))
         };
     }
 
