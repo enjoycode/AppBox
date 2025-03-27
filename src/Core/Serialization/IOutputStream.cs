@@ -574,9 +574,13 @@ public static class OutputStreamExtensions
             return;
         }
 
-        if (CheckSerialized(s, value!)) return;
+        //特殊处理非Root的EntityPathExpression,不用加入已序列化列表
+        if (value is not EntityPathExpression entityPath || Expression.IsNull(entityPath.Owner))
+        {
+            if (CheckSerialized(s, value!)) return;
+            s.Context.AddToSerialized(value!);
+        }
 
-        s.Context.AddToSerialized(value!);
         s.WriteByte((byte)PayloadType.Expression);
         s.WriteByte((byte)value!.Type);
         value.WriteTo(s);

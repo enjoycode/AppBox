@@ -58,10 +58,10 @@ public sealed class EntityFieldExpression : EntityPathExpression
     {
         var owner = (EntityExpression)reader.Deserialize()!;
         var name = reader.ReadString()!;
-        
+
         if (owner.TryGetExistsMember(name, out var exists))
             return (EntityFieldExpression)exists;
-        
+
         var member = new EntityFieldExpression(name, owner);
         owner.AddMemberToCache(name, member);
         return member;

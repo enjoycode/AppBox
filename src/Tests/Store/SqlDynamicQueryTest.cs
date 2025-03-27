@@ -2,6 +2,7 @@ using AppBoxCore;
 using AppBoxStore;
 using AppBoxStore.Entities;
 using NUnit.Framework;
+using Tests.Core;
 
 namespace Tests.Store;
 
@@ -50,5 +51,24 @@ public class SqlDynamicQueryTest
         var res = await sq.ToTableAsync();
         Assert.IsNotNull(res);
         Assert.IsTrue(res.Count > 0);
+    }
+
+
+    [Test]
+    public void DynamicQuerySerializeTest()
+    {
+        var root = new EntityExpression(Employee.MODELID, null);
+
+        var q1 = new DynamicQuery();
+        q1.ModelId = root.ModelId;
+        q1.Selects =
+        [
+            new("Id", root["Id"], DynamicFieldFlag.Guid),
+            new("Name", root["Name"], DynamicFieldFlag.String),
+        ];
+
+        var data = SerializationTest.Serialize(q1);
+        var q2 = (DynamicQuery)SerializationTest.Deserialize(data)!;
+        Assert.NotNull(q2);
     }
 }

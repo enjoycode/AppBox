@@ -123,6 +123,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
 
     public async Task<DynamicTable> ToTableAsync()
     {
+        //TODO:验证是否允许动态查询，并根据规则附加过滤条件
         var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
         await using var cmd = db.BuildQuery(this);

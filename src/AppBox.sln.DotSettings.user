@@ -158,6 +158,7 @@
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net8.0::Tests.Store.SqlDynamicQueryTest.FetchTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net8.0::Tests.Store.SqlDynamicQueryTest.FetchSimpleTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net8.0::Tests.Core.ExpressionSerializationTest.EntityPathSerializeToJsonTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net8.0::Tests.Store.SqlDynamicQueryTest.DynamicQuerySerializeTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	

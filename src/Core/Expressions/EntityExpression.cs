@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
@@ -204,7 +203,11 @@ public sealed class EntityExpression : EntityPathExpression
         ModelId modelId = reader.ReadLong();
         var owner = (EntityExpression?)reader.Deserialize();
         if (IsNull(owner))
-            return new EntityExpression(modelId, null);
+        {
+            var res = new EntityExpression(modelId, null);
+            reader.Context.AddToDeserialized(res);
+            return res;
+        }
 
         var name = reader.ReadString()!;
         if (owner!.TryGetExistsMember(name, out var exists))

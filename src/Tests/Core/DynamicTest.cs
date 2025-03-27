@@ -6,7 +6,7 @@ namespace Tests.Core;
 public sealed class DynamicTest
 {
     [Test]
-    public void DynamicEntityTest()
+    public void DynamicRowTest()
     {
         int? v = null;
         DynamicRow obj = new()
@@ -26,7 +26,7 @@ public sealed class DynamicTest
     }
 
     [Test]
-    public void DynamicEntityListSerializeTest()
+    public void DynamicTableSerializeTest()
     {
         var ds1 = new DynamicTable([
             new("Name", DynamicFieldFlag.String),
