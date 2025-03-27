@@ -155,7 +155,13 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
 
     #region ====IDataSourceBinder====
 
-    void IDataSourceBinder.OnDataChanged() => Fetch();
+    void IDataSourceBinder.OnDataChanged(bool isReset)
+    {
+        if (!isReset)
+            Fetch();
+        else
+            Columns = null;
+    }
 
     #endregion
 }

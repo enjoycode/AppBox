@@ -12,6 +12,7 @@ internal sealed class TableStateFromQueryEditor : View
         _designController = designController;
         _tableState = tableState;
         _entityTarget = MakeStateOfRoot();
+        _entityTarget.AddListener(_ => _tableState.Reset()); //监听变更后调用DataChanged事件通知绑定对象重置(eg: 表格移除所有列)
 
         Child = BuildBody();
 

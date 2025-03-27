@@ -58,6 +58,6 @@ public sealed class FetchDataSource : IEventAction
             return;
         }
         
-        ds.Reset();
+        ds.Refresh();
     }
 }

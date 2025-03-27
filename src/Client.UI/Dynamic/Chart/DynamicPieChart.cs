@@ -117,7 +117,15 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
 
     #region ====IDataSourceBinder====
 
-    void IDataSourceBinder.OnDataChanged() => OnSeriesChanged();
+    void IDataSourceBinder.OnDataChanged(bool isReset)
+    {
+        if (!isReset)
+            OnSeriesChanged();
+        // else
+        // {
+        //     //TODO:
+        // }
+    }
 
     #endregion
 

@@ -16,7 +16,7 @@ public sealed class DynamicTableState : IDynamicTableState
 
     internal IDynamicTableSource Source { get; set; } = null!;
 
-    public event Action? DataChanged;
+    public event Action<bool>? DataChanged;
 
     #region ====Serialization====
 
@@ -73,10 +73,18 @@ public sealed class DynamicTableState : IDynamicTableState
     /// <summary>
     /// 清除数据加载状态并通知相关的绑定者刷新数据
     /// </summary>
-    public void Reset()
+    public void Refresh()
     {
         Interlocked.Exchange(ref _fetchTask, null);
-        DataChanged?.Invoke();
+        DataChanged?.Invoke(false);
+    }
+
+    /// <summary>
+    /// 改变了数据源配置后重置绑定者(仅设计时)
+    /// </summary>
+    internal void Reset()
+    {
+        DataChanged?.Invoke(true);
     }
 
     #endregion
