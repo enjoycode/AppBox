@@ -1,11 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
 using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign.PropertyEditors;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class TableColumnsPropEditor : ValueEditorBase
 {
     public TableColumnsPropEditor(State<TableColumnSettings[]> state, DesignElement element) : base(element)

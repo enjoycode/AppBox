@@ -26,6 +26,7 @@ internal sealed class TableStateEditDialog : Dialog
         }
 
         _isFromQuery = MakeStateOfIsFromQuery();
+        _isFromQuery.AddListener(_ => _tableState.Reset()); //改变数据源类型重置绑定组件的相关配置
     }
 
     private readonly DesignController _designController;

@@ -158,9 +158,15 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
     void IDataSourceBinder.OnDataChanged(bool isReset)
     {
         if (!isReset)
+        {
             Fetch();
+        }
         else
+        {
             Columns = null;
+            if (Parent is IDesignElement designElement)
+                designElement.Data.RemovePropertyValue(nameof(Columns));
+        }
     }
 
     #endregion
