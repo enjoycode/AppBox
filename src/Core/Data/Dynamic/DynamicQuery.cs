@@ -73,7 +73,7 @@ public sealed class DynamicQuery : IBinSerializable
 
     #endregion
 
-    public readonly struct SelectItem
+    public sealed class SelectItem
     {
         public SelectItem(string alias, Expression item, DynamicFieldFlag type)
         {
@@ -82,10 +82,9 @@ public sealed class DynamicQuery : IBinSerializable
             Type = type;
         }
 
-        public readonly Expression Item;
-
-        public readonly DynamicFieldFlag Type;
-        public readonly string Alias;
+        public Expression Item { get; internal set; }
+        public DynamicFieldFlag Type { get; internal set; }
+        public string Alias { get; internal set; }
 
         #region ====Serialization====
 
@@ -150,7 +149,7 @@ public sealed class DynamicQuery : IBinSerializable
         #endregion
     }
 
-    public readonly struct OrderByItem
+    public sealed class OrderByItem
     {
         public OrderByItem(Expression field, bool descending = false)
         {
@@ -158,8 +157,8 @@ public sealed class DynamicQuery : IBinSerializable
             Descending = descending;
         }
 
-        public readonly Expression Field;
-        public readonly bool Descending;
+        public Expression Field { get; internal set; }
+        public bool Descending { get; internal set; }
 
         #region ====Serialization====
 

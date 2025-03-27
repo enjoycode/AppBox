@@ -9,8 +9,8 @@ internal sealed class TableStateEditDialog : Dialog
     public TableStateEditDialog(DesignController designController, DynamicState state)
     {
         Title.Value = "DataTable Settings";
-        Width = 580;
-        Height = 430;
+        Width = 630;
+        Height = 450;
 
         _designController = designController;
         //初始化状态

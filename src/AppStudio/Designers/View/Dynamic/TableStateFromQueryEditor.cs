@@ -16,11 +16,10 @@ internal sealed class TableStateFromQueryEditor : View
         Child = BuildBody();
 
         if (_entityTarget.Value != null)
-        {
             _treeController.DataSource = GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
-            _selectsController.DataSource = TableFromQuery.Selects;
-            _filtersController.DataSource = TableFromQuery.Filters;
-        }
+        _selectsController.DataSource = TableFromQuery.Selects;
+        _filtersController.DataSource = TableFromQuery.Filters;
+        _ordersController.DataSource = TableFromQuery.Orders;
     }
 
     private readonly DesignController _designController;
@@ -29,6 +28,7 @@ internal sealed class TableStateFromQueryEditor : View
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
     private readonly DataGridController<DynamicTableFromQuery.FilterItem> _filtersController = new();
+    private readonly DataGridController<DynamicQuery.OrderByItem> _ordersController = new();
     private DynamicTableFromQuery TableFromQuery => (DynamicTableFromQuery)_tableState.Source;
 
     private readonly State<ModelNode?> _entityTarget;
@@ -142,7 +142,8 @@ internal sealed class TableStateFromQueryEditor : View
         {
             "Selects" => BuildDataGridForSelects(),
             "Filters" => BuildDataGridForFilters(),
-            _ => new Text(title)
+            "Orders" => BuildDataGridForOrders(),
+            _ => throw new NotSupportedException()
         };
     }
 
@@ -177,7 +178,7 @@ internal sealed class TableStateFromQueryEditor : View
             .AddHostColumn("Comparer", (s, _) => new Select<string>(MakeComparerState(s))
             {
                 Options = options, Border = null
-            }, 80)
+            }, 88)
             .AddHostColumn("State", (s, _) => new Select<string>(MakeTargetState(s))
             {
                 Options = GetStates(s, _designController), Border = null
@@ -188,6 +189,25 @@ internal sealed class TableStateFromQueryEditor : View
                 Shape = ButtonShape.Pills,
                 FontSize = 20,
                 OnTap = _ => _filtersController.RemoveAt(index)
+            }, 80);
+    }
+
+    private Widget BuildDataGridForOrders()
+    {
+        return new DataGrid<DynamicQuery.OrderByItem>(_ordersController)
+            {
+                AllowDrop = true,
+                OnAllowDrop = OnAllowDropTo,
+                OnDrop = OnDropToOrders
+            }
+            .AddTextColumn("Item", t => t.Field.ToString())
+            .AddHostColumn("Descending", (s, _) => new Checkbox(MakeOrderByState(s)))
+            .AddButtonColumn("Action", (_, index) => new Button(icon: MaterialIcons.Clear)
+            {
+                Style = ButtonStyle.Transparent,
+                Shape = ButtonShape.Pills,
+                FontSize = 20,
+                OnTap = _ => _ordersController.RemoveAt(index)
             }, 80);
     }
 
@@ -216,6 +236,15 @@ internal sealed class TableStateFromQueryEditor : View
 
         var filterItem = new DynamicTableFromQuery.FilterItem() { Field = exp };
         _filtersController.Add(filterItem);
+    }
+
+    private void OnDropToOrders(DragEvent dragEvent)
+    {
+        var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
+        var exp = BuildExpressionFrom(treeNode);
+
+        var orderItem = new DynamicQuery.OrderByItem(exp);
+        _ordersController.Add(orderItem);
     }
 
     private EntityPathExpression BuildExpressionFrom(TreeNode<EntityMemberModel> treeNode)
@@ -265,6 +294,9 @@ internal sealed class TableStateFromQueryEditor : View
         () => s.State,
         v => s.State = v ?? string.Empty
     );
+
+    private static RxProxy<bool> MakeOrderByState(DynamicQuery.OrderByItem s) =>
+        new(() => s.Descending, v => s.Descending = v);
 
     private static string[] GetStates(DynamicTableFromQuery.FilterItem s, DesignController designController)
     {

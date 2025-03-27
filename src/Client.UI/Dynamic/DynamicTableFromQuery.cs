@@ -46,26 +46,18 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
         q.PageIndex = PageIndex;
         q.PageSize = PageSize;
         q.Selects = Selects.ToArray();
-        q.Orders = Orders?.ToArray();
+        q.Orders = Orders.ToArray();
 
-        if (Filters != null)
+        foreach (var item in Filters)
         {
-            Expression? filter = null;
-            foreach (var item in Filters)
-            {
-                var state = dynamicContext.GetState(item.State);
-                if (state.BoxedValue != null)
-                {
-                    var exp = new BinaryExpression(item.Field,
-                        new ConstantExpression(state.BoxedValue),
-                        item.Operator);
-                    filter = Expression.IsNull(filter)
-                        ? exp
-                        : new BinaryExpression(filter!, exp, BinaryOperatorType.AndAlso);
-                }
-            }
+            var state = dynamicContext.GetState(item.State);
+            if (state.BoxedValue == null || (state.BoxedValue is string s && string.IsNullOrEmpty(s)))
+                continue;
 
-            q.Filter = filter;
+            var exp = new BinaryExpression(item.Field, new ConstantExpression(state.BoxedValue), item.Operator);
+            q.Filter = Expression.IsNull(q.Filter)
+                ? exp
+                : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         }
 
         return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
