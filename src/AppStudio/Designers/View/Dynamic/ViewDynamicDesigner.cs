@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json;
-using AppBoxClient;
 using AppBoxClient.Dynamic;
 using AppBoxClient.Dynamic.Events;
 using AppBoxDesign.EventEditors;
@@ -15,14 +14,23 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
     static ViewDynamicDesigner()
     {
-        if (DesignSettings.GetTableStateEditor != null) return;
+        if (DesignSettings.CreateDynamicStateValue != null!) return;
 
         // 初始化一些动态视图设计时的委托
-        DesignSettings.GetEventEditor = (element, meta) => new EventEditDialog(element, meta);
-        DesignSettings.GetTableStateEditor = (c, s) => new TableStateEditDialog(c, s);
-        DesignSettings.MakeTableState = () => new DynamicTableState();
-        DesignSettings.GetValueStateEditor = state => new ValueStateEditDialog(state);
-        DesignSettings.MakeValueState = () => new DynamicValueState();
+        DesignSettings.CreateDynamicStateValue = static (type) =>
+        {
+            if (type == DynamicStateType.DataTable)
+                return new DynamicTableState();
+            return new DynamicValueState();
+        };
+        DesignSettings.GetStateEditor = static (controller, state) =>
+        {
+            if (state.Type == DynamicStateType.DataTable)
+                return new TableStateEditDialog(controller, state);
+            return new ValueStateEditDialog(state);
+        };
+        DesignSettings.GetEventEditor = static (element, meta) => new EventEditDialog(element, meta);
+
         // 初始化其他属性编辑器
         PropertyEditor.RegisterClassValueEditor<string, DataSourcePropEditor>(false,
             DynamicInitiator.DataSourceEditorName);
@@ -33,7 +41,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         PropertyEditor.RegisterClassValueEditor<TableFooterCell[], TableFooterPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<TableStyles, TableStylesPropEditor>(true);
         // 初始化其他事件编辑器
-        EventEditor.Register(nameof(FetchDataSource), (e, m, a) => new FetchEntityListEditor(e, m, a));
+        EventEditor.Register(nameof(FetchDataSource), static (e, m, a) => new FetchEntityListEditor(e, m, a));
     }
 
     public ViewDynamicDesigner(ModelNode modelNode)
@@ -105,7 +113,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         try
         {
             var srcCode = await DesignHub.Current.TypeSystem.LoadSourceCode(null, ModelNode);
-            if (srcCode != null)
+            if (srcCode != null!)
             {
                 var jsonData = Encoding.UTF8.GetBytes(srcCode);
                 _designController.Load(jsonData);
@@ -142,9 +150,9 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         throw new NotImplementedException();
     }
 
-    public Widget? GetOutlinePad() => _outlinePad;
+    public Widget GetOutlinePad() => _outlinePad;
 
-    public Widget? GetToolboxPad() => _toolboxPad;
+    public Widget GetToolboxPad() => _toolboxPad;
 
     private void OnAdd(PointerEvent e)
     {

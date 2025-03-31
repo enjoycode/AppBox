@@ -30,7 +30,7 @@ public sealed class DynamicTableState : IDynamicTableState
         writer.WriteEndObject();
     }
 
-    public void ReadFrom(ref Utf8JsonReader reader)
+    public void ReadFrom(ref Utf8JsonReader reader, DynamicState state)
     {
         reader.Read(); //{
 

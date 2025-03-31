@@ -138,7 +138,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
             {
                 var ds = new DynamicTableState();
-                ds.ReadFrom(ref reader);
+                ds.ReadFrom(ref reader, state);
                 state.Value = ds;
             }
             else
