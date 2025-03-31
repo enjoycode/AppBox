@@ -20,8 +20,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         DesignSettings.CreateDynamicStateValue = static (type) =>
         {
             if (type == DynamicStateType.DataTable)
-                return new DynamicTableState();
-            return new DynamicValueState();
+                return new DynamicDataTable();
+            return new DynamicPrimitive();
         };
         DesignSettings.GetStateEditor = static (controller, state) =>
         {

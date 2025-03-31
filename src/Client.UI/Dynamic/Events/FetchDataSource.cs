@@ -52,7 +52,7 @@ public sealed class FetchDataSource : IEventAction
             return;
         }
 
-        if (state.Value is not DynamicTableState ds)
+        if (state.Value is not DynamicDataTable ds)
         {
             Notification.Error($"Value is not a DataSource: {DataSource}");
             return;

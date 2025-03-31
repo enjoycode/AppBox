@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 
 internal sealed class TableStateFromQueryEditor : View
 {
-    public TableStateFromQueryEditor(DesignController designController, DynamicTableState tableState)
+    public TableStateFromQueryEditor(DesignController designController, DynamicDataTable tableState)
     {
         _designController = designController;
         _tableState = tableState;
@@ -24,7 +24,7 @@ internal sealed class TableStateFromQueryEditor : View
     }
 
     private readonly DesignController _designController;
-    private readonly DynamicTableState _tableState;
+    private readonly DynamicDataTable _tableState;
     private readonly TreeController<EntityMemberModel> _treeController = new();
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();

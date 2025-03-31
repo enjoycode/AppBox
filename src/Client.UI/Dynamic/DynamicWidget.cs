@@ -137,7 +137,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             var peekReader = reader;
             if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
             {
-                var ds = new DynamicTableState();
+                var ds = new DynamicDataTable();
                 ds.ReadFrom(ref reader, state);
                 state.Value = ds;
             }
@@ -158,7 +158,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             var peekReader = reader;
             if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
             {
-                var vs = new DynamicValueState();
+                var vs = new DynamicPrimitive();
                 vs.ReadFrom(ref reader, state);
                 state.Value = vs;
             }

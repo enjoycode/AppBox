@@ -57,7 +57,7 @@ public sealed class TableFooterCell : INotifyPropertyChanged
     public TableFooterCell Clone() => new()
         { BeginColumn = BeginColumn, EndColumn = EndColumn, Text = Text, Type = Type, Decimals = Decimals };
 
-    internal DataGridFooterCell Build(DynamicTable table)
+    internal DataGridFooterCell Build(DynamicTableView table)
     {
         //TODO:聚合暂转换为Double处理
         switch (Type)
@@ -74,7 +74,7 @@ public sealed class TableFooterCell : INotifyPropertyChanged
         }
     }
 
-    private string Calc(DynamicTable table)
+    private string Calc(DynamicTableView table)
     {
         if (table.Columns == null || table.Columns.Length == 0)
             return string.Empty;

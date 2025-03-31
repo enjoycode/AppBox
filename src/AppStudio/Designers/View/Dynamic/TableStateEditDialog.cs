@@ -16,13 +16,13 @@ internal sealed class TableStateEditDialog : Dialog
         //初始化状态
         if (state.Value == null)
         {
-            _tableState = new DynamicTableState();
+            _tableState = new DynamicDataTable();
             _tableState.Source = new DynamicTableFromQuery(); //默认来源动态查询
             state.Value = _tableState;
         }
         else
         {
-            _tableState = (DynamicTableState)state.Value;
+            _tableState = (DynamicDataTable)state.Value;
         }
 
         _isFromQuery = MakeStateOfIsFromQuery();
@@ -30,11 +30,11 @@ internal sealed class TableStateEditDialog : Dialog
     }
 
     private readonly DesignController _designController;
-    private readonly DynamicTableState _tableState;
+    private readonly DynamicDataTable _tableState;
     private readonly State<bool> _isFromQuery;
 
     private RxProxy<bool> MakeStateOfIsFromQuery() => new(
-        () => _tableState.Source.SourceType == DynamicTableState.FromQuery,
+        () => _tableState.Source.SourceType == DynamicDataTable.FromQuery,
         v =>
         {
             if (v)

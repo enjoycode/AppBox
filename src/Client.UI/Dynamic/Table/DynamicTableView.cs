@@ -5,9 +5,9 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
+public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
 {
-    public DynamicTable()
+    public DynamicTableView()
     {
         Child = new DataGrid<DynamicRow>(Controller);
     }
@@ -132,7 +132,7 @@ public sealed class DynamicTable : SingleChildWidget, IDataSourceBinder
 
         if (_dynamicContext == null) return;
 
-        var ds = (AppBoxCore.DynamicTable?)await _dynamicContext.GetDataSource(DataSource);
+        var ds = (DynamicTable?)await _dynamicContext.GetDataSource(DataSource);
         Controller.DataSource = ds;
     }
 

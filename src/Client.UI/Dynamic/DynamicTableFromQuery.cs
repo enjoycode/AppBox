@@ -13,7 +13,7 @@ namespace PixUI.Dynamic;
 /// </summary>
 internal sealed class DynamicTableFromQuery : IDynamicTableSource
 {
-    public string SourceType => DynamicTableState.FromQuery;
+    public string SourceType => DynamicDataTable.FromQuery;
 
     public EntityExpression? Root { get; internal set; }
 

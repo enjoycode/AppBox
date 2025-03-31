@@ -11,7 +11,7 @@ namespace AppBoxClient.Dynamic;
 /// </summary>
 public static class DynamicInitiator
 {
-    private static int _initFlag = 0;
+    private static int _initFlag;
     private static Task _initTask = null!;
 
     public const string DataSourceEditorName = "DataSourceSelect";
@@ -37,38 +37,38 @@ public static class DynamicInitiator
         DynamicWidgetManager.TryInitEventActionManager(() => new EventActionManager());
 
         //注册表格动态组件
-        DynamicWidgetManager.Register<DynamicTable>(MaterialIcons.GridOn,
+        DynamicWidgetManager.Register<DynamicTableView>(MaterialIcons.GridOn,
             catalog: dataCatalog,
             name: "Table",
-            properties: new DynamicPropertyMeta[]
-            {
-                new(nameof(DynamicTable.DataSource), typeof(string), true, editorName: DataSourceEditorName),
-                new(nameof(DynamicTable.Columns), typeof(TableColumnSettings[]), true),
-                new(nameof(DynamicTable.Footer), typeof(TableFooterCell[]), true),
-                new(nameof(DynamicTable.Styles), typeof(TableStyles), true),
-            });
+            properties:
+            [
+                new(nameof(DynamicTableView.DataSource), typeof(string), true, editorName: DataSourceEditorName),
+                new(nameof(DynamicTableView.Columns), typeof(TableColumnSettings[]), true),
+                new(nameof(DynamicTableView.Footer), typeof(TableFooterCell[]), true),
+                new(nameof(DynamicTableView.Styles), typeof(TableStyles), true)
+            ]);
 
         //注册图表动态组件
         DynamicWidgetManager.Register<DynamicCartesianChart>(MaterialIcons.BarChart,
             catalog: dataCatalog,
             name: "CartesianChart",
-            properties: new DynamicPropertyMeta[]
-            {
+            properties:
+            [
                 new(nameof(DynamicCartesianChart.DataSource), typeof(string), true, editorName: DataSourceEditorName),
                 new(nameof(DynamicCartesianChart.Series), typeof(CartesianSeriesSettings[]), true),
                 new(nameof(DynamicCartesianChart.XAxes), typeof(ChartAxisSettings[]), true),
                 new(nameof(DynamicCartesianChart.YAxes), typeof(ChartAxisSettings[]), true)
-            });
+            ]);
         DynamicWidgetManager.Register<DynamicPieChart>(MaterialIcons.PieChart,
             catalog: dataCatalog,
             name: "PieChart",
-            properties: new DynamicPropertyMeta[]
-            {
+            properties:
+            [
                 new(nameof(DynamicPieChart.DataSource), typeof(string), true, editorName: DataSourceEditorName),
                 new(nameof(DynamicPieChart.Series), typeof(PieSeriesSettings), true),
                 new(nameof(DynamicPieChart.LegendPosition), typeof(LegendPosition), false),
-                new(nameof(DynamicPieChart.LegendColor), typeof(Color), true),
-            });
+                new(nameof(DynamicPieChart.LegendColor), typeof(Color), true)
+            ]);
 
         //注册标为动态组件的视图模型
         var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");

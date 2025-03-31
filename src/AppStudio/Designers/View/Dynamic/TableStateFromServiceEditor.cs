@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal sealed class TableStateFromServiceEditor : View
 {
-    public TableStateFromServiceEditor(DesignController designController, DynamicTableState tableState)
+    public TableStateFromServiceEditor(DesignController designController, DynamicDataTable tableState)
     {
         _designController = designController;
         _tableState = tableState;
@@ -18,7 +18,7 @@ internal sealed class TableStateFromServiceEditor : View
     //TODO: 服务选择
 
     private readonly DesignController _designController;
-    private readonly DynamicTableState _tableState;
+    private readonly DynamicDataTable _tableState;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
     private readonly State<string> _service;
     private DynamicTableFromService TableFromService => (DynamicTableFromService)_tableState.Source;

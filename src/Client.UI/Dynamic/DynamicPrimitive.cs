@@ -5,7 +5,7 @@ using AppBoxCore;
 
 namespace PixUI.Dynamic;
 
-public enum DynamicValueStateSource
+public enum DynamicPrimitiveSource
 {
     /// <summary>
     /// 常量值
@@ -18,14 +18,14 @@ public enum DynamicValueStateSource
     Expression
 }
 
-public sealed class DynamicValueState : IDynamicValueState
+public sealed class DynamicPrimitive : IDynamicPrimitive
 {
     [JsonIgnore] private State? _runtimeState;
     [JsonIgnore] private object? _expressionValue;
     [JsonIgnore] private IDynamicContext? _cachedContext; //Only for Expression
     private object? _value;
 
-    public DynamicValueStateSource Source { get; set; }
+    public DynamicPrimitiveSource Source { get; set; }
 
     /// <summary>
     /// 设计时状态值
@@ -39,7 +39,7 @@ public sealed class DynamicValueState : IDynamicValueState
             _value = value;
             if (_runtimeState != null)
             {
-                if (Source == DynamicValueStateSource.Expression)
+                if (Source == DynamicPrimitiveSource.Expression)
                     InitExpressionValue(_cachedContext!);
                 _runtimeState.NotifyValueChanged();
             }
@@ -49,10 +49,10 @@ public sealed class DynamicValueState : IDynamicValueState
     [JsonIgnore]
     private object? ProxyValue
     {
-        get => Source == DynamicValueStateSource.Expression ? _expressionValue : _value;
+        get => Source == DynamicPrimitiveSource.Expression ? _expressionValue : _value;
         set
         {
-            if (Source == DynamicValueStateSource.Expression)
+            if (Source == DynamicPrimitiveSource.Expression)
                 _expressionValue = value;
             else
                 _value = value;
@@ -90,7 +90,7 @@ public sealed class DynamicValueState : IDynamicValueState
 
     public object? GetDesignValue(IDynamicContext ctx)
     {
-        if (Source == DynamicValueStateSource.Expression && _expressionValue == null)
+        if (Source == DynamicPrimitiveSource.Expression && _expressionValue == null)
             InitExpressionValue(ctx);
         return ProxyValue;
     }
@@ -99,7 +99,7 @@ public sealed class DynamicValueState : IDynamicValueState
     {
         if (_runtimeState != null) return _runtimeState;
 
-        if (Source == DynamicValueStateSource.Expression)
+        if (Source == DynamicPrimitiveSource.Expression)
             InitExpressionValue(ctx);
 
         //暂用RxProxy<>包装Value,考虑根据上下文确定运行时使用RxValue<>
@@ -135,13 +135,13 @@ public sealed class DynamicValueState : IDynamicValueState
 
         var propName = Source switch
         {
-            DynamicValueStateSource.Primitive => nameof(DynamicValueStateSource.Primitive),
-            DynamicValueStateSource.Expression => nameof(DynamicValueStateSource.Expression),
+            DynamicPrimitiveSource.Primitive => nameof(DynamicPrimitiveSource.Primitive),
+            DynamicPrimitiveSource.Expression => nameof(DynamicPrimitiveSource.Expression),
             _ => throw new JsonException($"Unknown DynamicStateValueSource")
         };
         writer.WritePropertyName(propName);
 
-        if (Source == DynamicValueStateSource.Expression)
+        if (Source == DynamicPrimitiveSource.Expression)
             ExpressionSerialization.SerializeToJson(writer, _value as Expression);
         else
             JsonSerializer.Serialize(writer, _value);
@@ -155,12 +155,12 @@ public sealed class DynamicValueState : IDynamicValueState
         var sourceName = reader.GetString()!;
         Source = sourceName switch
         {
-            nameof(DynamicValueStateSource.Primitive) => DynamicValueStateSource.Primitive,
-            nameof(DynamicValueStateSource.Expression) => DynamicValueStateSource.Expression,
+            nameof(DynamicPrimitiveSource.Primitive) => DynamicPrimitiveSource.Primitive,
+            nameof(DynamicPrimitiveSource.Expression) => DynamicPrimitiveSource.Expression,
             _ => throw new JsonException($"Unknown ValueSource: [{sourceName}]")
         };
 
-        if (Source == DynamicValueStateSource.Expression)
+        if (Source == DynamicPrimitiveSource.Expression)
         {
             _value = ExpressionSerialization.DeserializeFromJson(ref reader);
         }
@@ -170,7 +170,7 @@ public sealed class DynamicValueState : IDynamicValueState
             peekReader.Read();
             if (peekReader.TokenType != JsonTokenType.Null)
             {
-                var valueType = state.GetValueStateValueType();
+                var valueType = state.GetTypeOfPrimitiveState();
                 _value = JsonSerializer.Deserialize(ref reader, valueType);
             }
             else

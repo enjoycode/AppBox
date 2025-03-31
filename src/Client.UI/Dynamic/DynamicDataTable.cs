@@ -9,7 +9,7 @@ namespace PixUI.Dynamic;
 /// <summary>
 /// 数据表的配置信息
 /// </summary>
-public sealed class DynamicTableState : IDynamicTableState
+public sealed class DynamicDataTable : IDynamicTable
 {
     internal const string FromService = "Service";
     internal const string FromQuery = "Query";

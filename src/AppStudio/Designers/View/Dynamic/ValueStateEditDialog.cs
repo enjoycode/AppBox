@@ -14,17 +14,17 @@ internal sealed class ValueStateEditDialog : Dialog
 
         _state = state;
         //初始化状态
-        _state.Value ??= new DynamicValueState();
-        _valueState = (DynamicValueState)_state.Value;
-        _isExpression = new RxProxy<bool>(() => _valueState.Source == DynamicValueStateSource.Expression,
-            v => _valueState.Source = v ? DynamicValueStateSource.Expression : DynamicValueStateSource.Primitive);
+        _state.Value ??= new DynamicPrimitive();
+        _primitive = (DynamicPrimitive)_state.Value;
+        _isExpression = new RxProxy<bool>(() => _primitive.Source == DynamicPrimitiveSource.Expression,
+            v => _primitive.Source = v ? DynamicPrimitiveSource.Expression : DynamicPrimitiveSource.Primitive);
         _allowNull = new RxProxy<bool>(() => _state.AllowNull, v => _state.AllowNull = v);
 
-        _value.Value = _valueState.Value?.ToString() ?? string.Empty; //TODO: Expression to Code
+        _value.Value = _primitive.Value?.ToString() ?? string.Empty; //TODO: Expression to Code
     }
 
     private readonly DynamicState _state;
-    private readonly DynamicValueState _valueState;
+    private readonly DynamicPrimitive _primitive;
     private readonly State<bool> _isExpression;
     private readonly State<bool> _allowNull;
     private readonly State<string> _value = string.Empty;
@@ -59,14 +59,14 @@ internal sealed class ValueStateEditDialog : Dialog
             return new ValueTask<bool>(false);
 
         //关闭前转换值或表达式
-        if (_valueState.Source == DynamicValueStateSource.Expression)
+        if (_primitive.Source == DynamicPrimitiveSource.Expression)
         {
             //TODO: 根据状态类型正确处理返回类型
             var code = $"using System;static class E{{static object? M(){{return {_value.Value};}}}}";
             try
             {
                 var exp = ExpressionParser.ParseCode(code);
-                _valueState.Value = exp;
+                _primitive.Value = exp;
                 return new ValueTask<bool>(false);
             }
             catch (Exception)
@@ -79,7 +79,7 @@ internal sealed class ValueStateEditDialog : Dialog
         // convert string to value
         try
         {
-            _valueState.Value = _state.Type switch
+            _primitive.Value = _state.Type switch
             {
                 DynamicStateType.String => _value.Value,
                 DynamicStateType.Int => int.Parse(_value.Value),

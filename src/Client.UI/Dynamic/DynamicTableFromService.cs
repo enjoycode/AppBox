@@ -12,7 +12,7 @@ namespace PixUI.Dynamic;
 /// </summary>
 internal sealed class DynamicTableFromService : IDynamicTableSource
 {
-    public string SourceType => DynamicTableState.FromService;
+    public string SourceType => DynamicDataTable.FromService;
 
     /// <summary>
     /// 获取数据集的服务方法 eg: sys.OrderService.GetOrders
