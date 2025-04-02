@@ -3,7 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <LangVersion>12</LangVersion>
+        <LangVersion>13</LangVersion>
+        <ImplicitUsings>true</ImplicitUsings>
         <AssemblyName>AppBoxClientUI</AssemblyName>
         <RootNamespace>AppBoxClient</RootNamespace>
     </PropertyGroup>
@@ -16,8 +17,5 @@
       <ProjectReference Include="..\Core\Core.csproj" />
 
     </ItemGroup>
-
-
-
-
+    
 </Project>

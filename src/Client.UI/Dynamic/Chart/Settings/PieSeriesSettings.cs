@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using AppBoxCore;
 using LiveCharts;
 using LiveChartsCore;
 using PixUI.Dynamic;

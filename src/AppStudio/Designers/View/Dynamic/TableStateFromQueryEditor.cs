@@ -17,7 +17,7 @@ internal sealed class TableStateFromQueryEditor : View
         Child = BuildBody();
 
         if (_entityTarget.Value != null)
-            _treeController.DataSource = GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
+            _treeController.DataSource = EntityModelUtils.GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
         _selectsController.DataSource = TableFromQuery.Selects;
         _filtersController.DataSource = TableFromQuery.Filters;
         _ordersController.DataSource = TableFromQuery.Orders;
@@ -51,7 +51,7 @@ internal sealed class TableStateFromQueryEditor : View
             TableFromQuery.Orders.Clear();
             // reset members tree
             if (node != null)
-                _treeController.DataSource = GetEntityModelMembers((EntityModel)node.Model);
+                _treeController.DataSource = EntityModelUtils.GetEntityModelMembers((EntityModel)node.Model);
         }
     );
 
@@ -79,7 +79,7 @@ internal sealed class TableStateFromQueryEditor : View
                                 var refModel =
                                     (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
                                         .Model;
-                                return GetEntityModelMembers(refModel);
+                                return EntityModelUtils.GetEntityModelMembers(refModel);
                             })
                             {
                                 AllowDrag = true,
@@ -103,29 +103,6 @@ internal sealed class TableStateFromQueryEditor : View
         node.Icon = member is EntityRefModel ? new(MaterialIcons.Folder) : new(MaterialIcons.TextFields);
         node.IsLeaf = member is not EntityRefModel;
         node.IsExpanded = true;
-    }
-
-    private static List<EntityMemberModel> GetEntityModelMembers(EntityModel model)
-    {
-        var list = new List<EntityMemberModel>();
-        foreach (var member in model.Members)
-        {
-            switch (member)
-            {
-                case EntityFieldModel:
-                    list.Add(member);
-                    break;
-                case EntityRefModel entityRef:
-                {
-                    //暂排除聚合引用及循环引用
-                    if (!entityRef.IsAggregationRef && !entityRef.RefModelIds.Contains(model.Id))
-                        list.Add(member);
-                    break;
-                }
-            }
-        }
-
-        return list;
     }
 
     private static Widget BuildTab(string title, State<bool> isSelected)
@@ -223,7 +200,7 @@ internal sealed class TableStateFromQueryEditor : View
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
         //构建路径表达式
-        var exp = BuildExpressionFrom(treeNode);
+        var exp = EntityModelUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
 
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
             DynamicField.FlagFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
@@ -233,7 +210,7 @@ internal sealed class TableStateFromQueryEditor : View
     private void OnDropToFilters(DragEvent dragEvent)
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
-        var exp = BuildExpressionFrom(treeNode);
+        var exp = EntityModelUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
 
         var filterItem = new DynamicTableFromQuery.FilterItem() { Field = exp };
         _filtersController.Add(filterItem);
@@ -242,29 +219,10 @@ internal sealed class TableStateFromQueryEditor : View
     private void OnDropToOrders(DragEvent dragEvent)
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
-        var exp = BuildExpressionFrom(treeNode);
+        var exp = EntityModelUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
 
         var orderItem = new DynamicQuery.OrderByItem(exp);
         _ordersController.Add(orderItem);
-    }
-
-    private EntityPathExpression BuildExpressionFrom(TreeNode<EntityMemberModel> treeNode)
-    {
-        var temp = treeNode;
-        var list = new List<EntityMemberModel>();
-        while (temp != null)
-        {
-            list.Insert(0, temp.Data);
-            temp = temp.ParentNode;
-        }
-
-        EntityPathExpression exp = TableFromQuery.Root!;
-        foreach (var item in list)
-        {
-            exp = exp[item.Name];
-        }
-
-        return exp;
     }
 
     private static RxProxy<string?> MakeComparerState(DynamicTableFromQuery.FilterItem s) => new(

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
 
@@ -33,7 +30,7 @@ internal sealed class DynamicTableFromService : IDynamicTableSource
             for (var i = 0; i < args.Length; i++)
             {
                 if (!string.IsNullOrEmpty(Arguments[i]))
-                    args[i] = dynamicContext.GetState(Arguments[i]!).BoxedValue;
+                    args[i] = dynamicContext.GetPrimitiveState(Arguments[i]!).BoxedValue;
             }
         }
 

@@ -1,7 +1,4 @@
-using System;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using AppBoxCore;
 
 namespace PixUI.Dynamic;
@@ -9,7 +6,7 @@ namespace PixUI.Dynamic;
 /// <summary>
 /// 数据表的配置信息
 /// </summary>
-public sealed class DynamicDataTable : IDynamicTable
+public sealed class DynamicDataTable : IDynamicDataTable
 {
     internal const string FromService = "Service";
     internal const string FromQuery = "Query";
@@ -24,7 +21,7 @@ public sealed class DynamicDataTable : IDynamicTable
     {
         writer.WriteStartObject();
 
-        writer.WriteString("Source", Source.SourceType);
+        writer.WriteString(nameof(Source), Source.SourceType);
         Source.WriteTo(writer);
 
         writer.WriteEndObject();
@@ -90,6 +87,9 @@ public sealed class DynamicDataTable : IDynamicTable
     #endregion
 }
 
+/// <summary>
+/// 数据表的来源
+/// </summary>
 internal interface IDynamicTableSource
 {
     string SourceType { get; }

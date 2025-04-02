@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using PixUI;
 
 namespace AppBoxClient;
@@ -18,8 +12,8 @@ namespace AppBoxClient;
 public static class AppAssemblies
 {
     private static AppAssemblyLoader _loader = new();
-    private static readonly Dictionary<string, Func<Widget>> _viewCreator = new();
-    private static readonly Dictionary<string, Type> _viewTypes = new();
+    private static readonly Dictionary<string, Func<Widget>> ViewCreator = new();
+    private static readonly Dictionary<string, Type> ViewTypes = new();
 
     /// <summary>
     /// 创建视图模型的实例，如果尚未加载程序集则从服务端加载所有依赖的程序集
@@ -28,18 +22,18 @@ public static class AppAssemblies
     public static async ValueTask<Widget> MakeViewWidgetAsync(string viewModelName)
     {
         //TODO: catch exception and return ErrorWidget
-        if (_viewCreator.TryGetValue(viewModelName, out var exists))
+        if (ViewCreator.TryGetValue(viewModelName, out var exists))
             return exists();
 
         var widgetType = await GetViewType(viewModelName);
         var creator = () => (Widget)Activator.CreateInstance(widgetType)!;
-        _viewCreator.Add(viewModelName, creator);
+        ViewCreator.Add(viewModelName, creator);
         return creator();
     }
 
     private static async Task<Type> GetViewType(string viewModelName)
     {
-        if (_viewTypes.TryGetValue(viewModelName, out var exists))
+        if (ViewTypes.TryGetValue(viewModelName, out var exists))
             return exists;
 
         //从服务端获取所有依赖的程序集
@@ -74,7 +68,7 @@ public static class AppAssemblies
         var widgetType = viewAsm.GetType(viewFullName);
         if (widgetType == null)
             throw new Exception($"Can't find widget type: {viewFullName}");
-        _viewTypes.Add(viewModelName, widgetType);
+        ViewTypes.Add(viewModelName, widgetType);
         return widgetType;
     }
 
@@ -95,8 +89,8 @@ public static class AppAssemblies
     internal static void Reset()
     {
         var old = Interlocked.Exchange(ref _loader, new AppAssemblyLoader());
-        _viewTypes.Clear();
-        _viewCreator.Clear();
+        ViewTypes.Clear();
+        ViewCreator.Clear();
         old.Unload();
     }
 }

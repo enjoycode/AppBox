@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using AppBoxCore;
 using LiveChartsCore;
 using PixUI.Dynamic;
 

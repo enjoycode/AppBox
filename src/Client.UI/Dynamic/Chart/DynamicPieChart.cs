@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using AppBoxCore;
 using LiveCharts;
 using LiveCharts.Painting;
 using LiveChartsCore;

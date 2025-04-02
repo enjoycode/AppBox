@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
 
@@ -50,7 +47,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
 
         foreach (var item in Filters)
         {
-            var state = dynamicContext.GetState(item.State);
+            var state = dynamicContext.GetPrimitiveState(item.State);
             if (state.BoxedValue == null || (state.BoxedValue is string s && string.IsNullOrEmpty(s)))
                 continue;
 

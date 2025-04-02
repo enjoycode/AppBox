@@ -17,17 +17,17 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         if (DesignSettings.CreateDynamicStateValue != null!) return;
 
         // 初始化一些动态视图设计时的委托
-        DesignSettings.CreateDynamicStateValue = static (type) =>
+        DesignSettings.CreateDynamicStateValue = static (type) => type switch
         {
-            if (type == DynamicStateType.DataTable)
-                return new DynamicDataTable();
-            return new DynamicPrimitive();
+            DynamicStateType.DataTable => new DynamicDataTable(),
+            DynamicStateType.DataRow => new DynamicDataRow(),
+            _ => new DynamicPrimitive()
         };
-        DesignSettings.GetStateEditor = static (controller, state) =>
+        DesignSettings.GetStateEditor = static (controller, state) => state.Type switch
         {
-            if (state.Type == DynamicStateType.DataTable)
-                return new TableStateEditDialog(controller, state);
-            return new ValueStateEditDialog(state);
+            DynamicStateType.DataTable => new TableStateEditDialog(controller, state),
+            DynamicStateType.DataRow => new RowStateEditDialog(controller, state),
+            _ => new ValueStateEditDialog(state)
         };
         DesignSettings.GetEventEditor = static (element, meta) => new EventEditDialog(element, meta);
 
