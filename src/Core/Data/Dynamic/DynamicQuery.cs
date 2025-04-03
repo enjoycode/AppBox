@@ -82,9 +82,9 @@ public sealed class DynamicQuery : IBinSerializable
             Type = type;
         }
 
-        public Expression Item { get; internal set; }
-        public DynamicFieldFlag Type { get; internal set; }
-        public string Alias { get; internal set; }
+        public Expression Item { get; internal init; }
+        public DynamicFieldFlag Type { get; internal init; }
+        public string Alias { get; internal init; }
 
         #region ====Serialization====
 
@@ -157,7 +157,7 @@ public sealed class DynamicQuery : IBinSerializable
             Descending = descending;
         }
 
-        public Expression Field { get; internal set; }
+        public Expression Field { get; internal init; }
         public bool Descending { get; internal set; }
 
         #region ====Serialization====

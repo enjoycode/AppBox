@@ -22,7 +22,7 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
     /// <summary>
     /// 目标实体的主键字段
     /// </summary>
-    internal List<PrimaryKey> PrimaryKeys { get; set; } = [];
+    internal PrimaryKey[] PrimaryKeys { get; set; } = [];
 
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
@@ -34,17 +34,19 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
         q.PageSize = 1;
         q.Selects = Selects.ToArray();
 
-        for (var i = 0; i < PrimaryKeys.Count; i++)
-        {
-            var pk = PrimaryKeys[i];
-            if (pk.Value == null)
-                throw new Exception($"Must set pk value: {pk.Name}");
-            var exp = new BinaryExpression(Root![pk.Name], new ConstantExpression(pk.Value!),
-                BinaryOperatorType.Equal);
-            q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
-        }
+        throw new NotImplementedException();
 
-        return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
+        // for (var i = 0; i < PrimaryKeys.Length; i++)
+        // {
+        //     var pk = PrimaryKeys[i];
+        //     if (pk.Value == null)
+        //         throw new Exception($"Must set pk value: {pk.Name}");
+        //     var exp = new BinaryExpression(Root![pk.Name], new ConstantExpression(pk.Value!),
+        //         BinaryOperatorType.Equal);
+        //     q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
+        // }
+        //
+        // return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
     }
 
     #region ====Serialization====
@@ -64,12 +66,14 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
             Selects[i].WriteTo(writer, Root);
         }
 
-        //PrimaryKeys(只需要序列化名称)
+        writer.WriteEndArray();
+
+        //PrimaryKeys
         writer.WritePropertyName(nameof(PrimaryKeys));
         writer.WriteStartArray();
-        for (var i = 0; i < PrimaryKeys.Count; i++)
+        for (var i = 0; i < PrimaryKeys.Length; i++)
         {
-            writer.WriteStringValue(PrimaryKeys[i].Name);
+            PrimaryKeys[i].WriteTo(writer);
         }
 
         writer.WriteEndArray();
@@ -103,12 +107,15 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
                     break;
                 case nameof(PrimaryKeys):
                     reader.Read(); //[
+                    var list = new List<PrimaryKey>();
                     while (reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.EndArray)
                             break;
-                        PrimaryKeys.Add(new PrimaryKey() { Name = reader.GetString()! });
+                        list.Add(PrimaryKey.ReadFrom(ref reader));
                     }
+
+                    PrimaryKeys = list.ToArray();
 
                     break;
                 default:
@@ -119,9 +126,52 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
 
     #endregion
 
-    internal sealed class PrimaryKey
+    internal readonly struct PrimaryKey
     {
-        public string Name { get; init; } = null!;
-        public object? Value { get; set; }
+        public PrimaryKey(string name, DynamicFieldFlag type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        public readonly string Name;
+        public readonly DynamicFieldFlag Type;
+
+        internal void WriteTo(Utf8JsonWriter writer)
+        {
+            writer.WriteStartObject();
+            writer.WriteString(nameof(Name), Name);
+            writer.WriteString(nameof(Type), Type.ToString());
+            writer.WriteEndObject();
+        }
+
+        internal static PrimaryKey ReadFrom(ref Utf8JsonReader reader)
+        {
+            var name = string.Empty;
+            var type = DynamicFieldFlag.Empty;
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+                Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
+                var propName = reader.GetString();
+                switch (propName)
+                {
+                    case nameof(Name):
+                        reader.Read();
+                        name = reader.GetString()!;
+                        break;
+                    case nameof(Type):
+                        reader.Read();
+                        type = Enum.Parse<DynamicFieldFlag>(reader.GetString()!);
+                        break;
+                    default:
+                        throw new Exception($"Unknown property name: {nameof(PrimaryKey)}.{propName}");
+                }
+            }
+
+            return new PrimaryKey(name, type);
+        }
     }
 }

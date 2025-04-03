@@ -37,12 +37,27 @@ internal sealed class RowStateFromQueryEditor : View
         },
         node =>
         {
-            RowFromQuery.Root = node == null ? null : new EntityExpression((EntityModel)node.Model, null);
-            // clear query
             RowFromQuery.Selects.Clear();
-            // reset members tree
-            if (node != null)
-                _treeController.DataSource = EntityModelUtils.GetEntityModelMembers((EntityModel)node.Model);
+            if (node == null)
+            {
+                RowFromQuery.Root = null;
+                RowFromQuery.PrimaryKeys = [];
+            }
+            else
+            {
+                var entityModel = (EntityModel)node.Model;
+                RowFromQuery.Root = new EntityExpression(entityModel, null);
+                var sqlPks = entityModel.SqlStoreOptions!.PrimaryKeys;
+                RowFromQuery.PrimaryKeys = new DynamicRowFromQuery.PrimaryKey[sqlPks.Length];
+                for (var i = 0; i < sqlPks.Length; i++)
+                {
+                    var member = (EntityFieldModel)entityModel.GetMember(sqlPks[i].MemberId)!;
+                    RowFromQuery.PrimaryKeys[i] = new DynamicRowFromQuery.PrimaryKey(member.Name,
+                        DynamicField.FlagFromEntityFieldType(member.FieldType));
+                }
+
+                _treeController.DataSource = EntityModelUtils.GetEntityModelMembers(entityModel);
+            }
         }
     );
 
@@ -59,7 +74,7 @@ internal sealed class RowStateFromQueryEditor : View
                     [
                         new Select<ModelNode>(_entityTarget)
                         {
-                            Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
+                            Options = EntityModelUtils.GetAllSqlEntityModels(),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
                         new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>
@@ -126,7 +141,6 @@ internal sealed class RowStateFromQueryEditor : View
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
         //构建路径表达式
         var exp = EntityModelUtils.BuildExpressionFrom(treeNode, RowFromQuery.Root!);
-
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
             DynamicField.FlagFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
         _selectsController.Add(selectItem);

@@ -68,7 +68,7 @@ internal sealed class TableStateFromQueryEditor : View
                     [
                         new Select<ModelNode>(_entityTarget)
                         {
-                            Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
+                            Options = EntityModelUtils.GetAllSqlEntityModels(),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
                         new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>

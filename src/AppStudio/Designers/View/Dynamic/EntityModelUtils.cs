@@ -51,4 +51,11 @@ internal static class EntityModelUtils
 
         return exp;
     }
+
+    public static ModelNode[] GetAllSqlEntityModels()
+    {
+        return DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity)
+            .Where(m => ((EntityModel)m.Model).SqlStoreOptions != null)
+            .ToArray();
+    }
 }
