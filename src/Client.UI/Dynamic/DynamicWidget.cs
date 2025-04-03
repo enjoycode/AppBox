@@ -53,8 +53,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         await DynamicInitiator.TryInitAsync();
 
         //TODO:考虑缓存加载过的json配置
-        var json = await Channel.Invoke<byte[]?>(
-            "sys.SystemService.LoadDynamicViewJson", new object?[] { _viewModelId });
+        var json = await Channel.Invoke<byte[]?>("sys.SystemService.LoadDynamicViewJson", [_viewModelId]);
         if (json == null || json.Length == 0)
         {
             ReplaceTo(new Text("Can't find dynamic view")); //TODO: ErrorWidget

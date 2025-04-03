@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using AppBoxClient;
 using AppBoxCore;
 
 namespace PixUI.Dynamic;
@@ -18,12 +19,32 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
     /// </summary>
     public List<DynamicQuery.SelectItem> Selects { get; } = [];
 
-    public Task<DynamicRow?> GetFetchTask(IDynamicContext dynamicContext)
+    /// <summary>
+    /// 目标实体的主键字段
+    /// </summary>
+    internal List<PrimaryKey> PrimaryKeys { get; set; } = [];
+
+    public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         if (Expression.IsNull(Root))
             throw new Exception("Query target not set");
 
-        throw new NotImplementedException();
+        var q = new DynamicQuery();
+        q.ModelId = Root!.ModelId;
+        q.PageSize = 1;
+        q.Selects = Selects.ToArray();
+
+        for (var i = 0; i < PrimaryKeys.Count; i++)
+        {
+            var pk = PrimaryKeys[i];
+            if (pk.Value == null)
+                throw new Exception($"Must set pk value: {pk.Name}");
+            var exp = new BinaryExpression(Root![pk.Name], new ConstantExpression(pk.Value!),
+                BinaryOperatorType.Equal);
+            q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
+        }
+
+        return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
     }
 
     #region ====Serialization====
@@ -41,6 +62,14 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
         for (var i = 0; i < Selects.Count; i++)
         {
             Selects[i].WriteTo(writer, Root);
+        }
+
+        //PrimaryKeys(只需要序列化名称)
+        writer.WritePropertyName(nameof(PrimaryKeys));
+        writer.WriteStartArray();
+        for (var i = 0; i < PrimaryKeys.Count; i++)
+        {
+            writer.WriteStringValue(PrimaryKeys[i].Name);
         }
 
         writer.WriteEndArray();
@@ -72,6 +101,16 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
                     }
 
                     break;
+                case nameof(PrimaryKeys):
+                    reader.Read(); //[
+                    while (reader.Read())
+                    {
+                        if (reader.TokenType == JsonTokenType.EndArray)
+                            break;
+                        PrimaryKeys.Add(new PrimaryKey() { Name = reader.GetString()! });
+                    }
+
+                    break;
                 default:
                     throw new Exception($"Unknown property name: {nameof(DynamicRowFromQuery)}.{propName}");
             }
@@ -79,4 +118,10 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
     }
 
     #endregion
+
+    internal sealed class PrimaryKey
+    {
+        public string Name { get; init; } = null!;
+        public object? Value { get; set; }
+    }
 }

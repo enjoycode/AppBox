@@ -56,7 +56,7 @@ internal interface IDynamicRowSource
 {
     string SourceType { get; }
 
-    Task<DynamicRow?> GetFetchTask(IDynamicContext dynamicContext);
+    Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext);
 
     void WriteTo(Utf8JsonWriter writer);
 
