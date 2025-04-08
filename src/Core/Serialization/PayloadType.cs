@@ -63,7 +63,7 @@ namespace AppBoxCore
         //----运行时相关类型----
         Entity = 90,
         PermissionNode = 91,
-        DynamicTable = 92,
+        DataTable = 92,
         DynamicQuery = 93,
     }
 }

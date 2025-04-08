@@ -77,7 +77,7 @@ internal partial class ServiceCodeGenerator
         var sb1 = StringBuilderCache.Acquire();
         var sb2 = StringBuilderCache.Acquire();
         sb1.Append("r => new() {");
-        sb2.Append("new DynamicFieldInfo[] {");
+        sb2.Append("new DataColumn[] {");
         for (var i = 0; i < aoc.Initializers.Count; i++)
         {
             if (i != 0)
@@ -103,9 +103,9 @@ internal partial class ServiceCodeGenerator
             sb1.Append(i);
             sb1.Append(')');
             if (isNullable)
-                sb1.Append(" ?? DynamicField.Empty");
+                sb1.Append(" ?? DataCell.Empty");
 
-            sb2.Append($"new(\"{fieldName}\", DynamicFieldFlag.{typeString})");
+            sb2.Append($"new(\"{fieldName}\", DataType.{typeString})");
         }
 
         sb1.Append('}');
@@ -115,7 +115,7 @@ internal partial class ServiceCodeGenerator
             SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb1))
         ));
 
-        //2. 参数2 DynamicFieldInfo[]
+        //2. 参数2 DataColumn[]
         args = args.Add(SyntaxFactory.Argument(
             SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb2))
         ));

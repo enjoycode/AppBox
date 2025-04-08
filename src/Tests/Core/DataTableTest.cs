@@ -3,16 +3,16 @@ using NUnit.Framework;
 
 namespace Tests.Core;
 
-public sealed class DynamicTest
+public sealed class DataTableTest
 {
     [Test]
-    public void DynamicRowTest()
+    public void DataRowTest()
     {
         int? v = null;
         DataRow obj = new()
         {
             ["Name"] = "Rick",
-            ["Score"] = v //?? DynamicField.Empty,
+            ["Score"] = v //?? DataCell.Empty,
         };
 
         string? name = obj["Name"];
@@ -26,7 +26,7 @@ public sealed class DynamicTest
     }
 
     [Test]
-    public void DynamicTableSerializeTest()
+    public void DataTableSerializeTest()
     {
         var ds1 = new DataTable([
             new("Name", DataType.String),
