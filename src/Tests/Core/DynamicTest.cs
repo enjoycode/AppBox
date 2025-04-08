@@ -9,7 +9,7 @@ public sealed class DynamicTest
     public void DynamicRowTest()
     {
         int? v = null;
-        DynamicRow obj = new()
+        DataRow obj = new()
         {
             ["Name"] = "Rick",
             ["Score"] = v //?? DynamicField.Empty,
@@ -28,9 +28,9 @@ public sealed class DynamicTest
     [Test]
     public void DynamicTableSerializeTest()
     {
-        var ds1 = new DynamicTable([
-            new("Name", DynamicFieldFlag.String),
-            new("Score", DynamicFieldFlag.Int)
+        var ds1 = new DataTable([
+            new("Name", DataType.String),
+            new("Score", DataType.Int)
         ]);
         ds1.Add(new()
         {
@@ -40,7 +40,7 @@ public sealed class DynamicTest
 
         var data = SerializationTest.Serialize(ds1);
 
-        var ds2 = (DynamicTable)SerializationTest.Deserialize(data)!;
+        var ds2 = (DataTable)SerializationTest.Deserialize(data)!;
 
         Assert.True(ds1.Count == ds2.Count);
         Assert.True((string)ds1[0]["Name"]! == (string)ds2[0]["Name"]!);

@@ -8,11 +8,11 @@ public sealed class RowNumColumnSettings : TableColumnSettings
 {
     [JsonIgnore] public override string Type => RowNum;
 
-    protected internal override DataGridColumn<DynamicRow> BuildColumn(DataGridController<DynamicRow> controller)
+    protected internal override DataGridColumn<DataRow> BuildColumn(DataGridController<DataRow> controller)
     {
         var cellStyle = new CellStyle
             { HorizontalAlignment = HorizontalAlignment, VerticalAlignment = VerticalAlignment };
-        return new DataGridRowNumColumn<DynamicRow>(Label) { Width = Width, CellStyle = cellStyle };
+        return new DataGridRowNumColumn<DataRow>(Label) { Width = Width, CellStyle = cellStyle };
     }
     
     public override TableColumnSettings Clone() =>

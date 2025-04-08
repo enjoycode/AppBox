@@ -73,7 +73,7 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
         if (_series != null)
         {
             if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
-            if (await _dynamicContext.GetDataSource(DataSource) is not AppBoxCore.DynamicTable entityList) return;
+            if (await _dynamicContext.GetDataSource(DataSource) is not AppBoxCore.DataTable entityList) return;
 
             try
             {

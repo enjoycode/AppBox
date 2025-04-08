@@ -262,10 +262,10 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     /// <summary>
     /// 动态查询，返回动态数据表
     /// </summary>
-    public async Task<DynamicTable> ToTableAsync(Func<SqlRowReader, DynamicRow> selector,
-        DynamicFieldInfo[] fields, Func<EntityExpression, IEnumerable<Expression>> selects)
+    public async Task<DataTable> ToDataTableAsync(Func<SqlRowReader, DataRow> selector,
+        DataColumn[] fields, Func<EntityExpression, IEnumerable<Expression>> selects)
     {
-        var ds = new DynamicTable(fields);
+        var ds = new DataTable(fields);
         await ToListCore(selector, selects(T), e => ds.Add(e));
         return ds;
     }

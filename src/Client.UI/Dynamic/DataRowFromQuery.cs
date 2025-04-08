@@ -8,9 +8,9 @@ namespace PixUI.Dynamic;
 /// <summary>
 /// 来源于动态查询的数据行
 /// </summary>
-internal sealed class DynamicRowFromQuery : IDynamicRowSource
+internal sealed class DataRowFromQuery : IDataRowSource
 {
-    private readonly DynamicRow _row = new();
+    private readonly DataRow _row = new();
     private List<DynamicState>? _childStates;
 
     public string SourceType => DynamicDataRow.FromQuery;
@@ -52,7 +52,7 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
         return _childStates;
     }
 
-    private DynamicState MakeChildDynamicState(string parentName, string childName, DynamicFieldFlag flag)
+    private DynamicState MakeChildDynamicState(string parentName, string childName, DataType flag)
     {
         var state = new DynamicState() { Name = $"{parentName}.{childName}" };
         state.Type = FieldFlagToStateType(flag);
@@ -61,20 +61,20 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
         return state;
     }
 
-    private static DynamicStateType FieldFlagToStateType(DynamicFieldFlag flag) =>
-        (flag & DynamicFieldFlag.TypeMask) switch
+    private static DynamicStateType FieldFlagToStateType(DataType flag) =>
+        (flag & DataType.TypeMask) switch
         {
-            DynamicFieldFlag.String => DynamicStateType.String,
-            DynamicFieldFlag.Int => DynamicStateType.Int,
-            DynamicFieldFlag.DateTime => DynamicStateType.DateTime,
-            DynamicFieldFlag.Float => DynamicStateType.Float,
-            DynamicFieldFlag.Double => DynamicStateType.Double,
+            DataType.String => DynamicStateType.String,
+            DataType.Int => DynamicStateType.Int,
+            DataType.DateTime => DynamicStateType.DateTime,
+            DataType.Float => DynamicStateType.Float,
+            DataType.Double => DynamicStateType.Double,
             _ => throw new NotImplementedException(),
         };
 
     internal void ClearChildStates() => _childStates = null;
 
-    internal void AddChildState(DynamicState parent, string childName, DynamicFieldFlag flag)
+    internal void AddChildState(DynamicState parent, string childName, DataType flag)
     {
         if (_childStates == null) return;
 
@@ -90,7 +90,7 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
 
     #endregion
 
-    public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
+    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         if (Expression.IsNull(Root))
             throw new Exception("Query target not set");
@@ -111,20 +111,20 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
             q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         }
 
-        return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
+        return Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
     }
 
     #region ====DataCellProxy====
 
     private sealed class DataCellProxy : IDynamicPrimitive
     {
-        public DataCellProxy(DynamicRow row, string name)
+        public DataCellProxy(DataRow row, string name)
         {
             _row = row;
             _name = name;
         }
 
-        private readonly DynamicRow _row;
+        private readonly DataRow _row;
         private readonly string _name;
         private State? _runtimeState;
 
@@ -260,7 +260,7 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
 
                     break;
                 default:
-                    throw new Exception($"Unknown property name: {nameof(DynamicRowFromQuery)}.{propName}");
+                    throw new Exception($"Unknown property name: {nameof(DataRowFromQuery)}.{propName}");
             }
         }
     }
@@ -271,14 +271,14 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
 
     internal readonly struct PrimaryKey
     {
-        public PrimaryKey(string name, DynamicFieldFlag type)
+        public PrimaryKey(string name, DataType type)
         {
             Name = name;
             Type = type;
         }
 
         public readonly string Name;
-        public readonly DynamicFieldFlag Type;
+        public readonly DataType Type;
 
         internal void WriteTo(Utf8JsonWriter writer)
         {
@@ -291,7 +291,7 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
         internal static PrimaryKey ReadFrom(ref Utf8JsonReader reader)
         {
             var name = string.Empty;
-            var type = DynamicFieldFlag.Empty;
+            var type = DataType.Empty;
 
             while (reader.Read())
             {
@@ -307,7 +307,7 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
                         break;
                     case nameof(Type):
                         reader.Read();
-                        type = Enum.Parse<DynamicFieldFlag>(reader.GetString()!);
+                        type = Enum.Parse<DataType>(reader.GetString()!);
                         break;
                     default:
                         throw new Exception($"Unknown property name: {nameof(PrimaryKey)}.{propName}");

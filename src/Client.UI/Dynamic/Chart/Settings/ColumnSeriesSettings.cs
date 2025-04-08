@@ -18,9 +18,9 @@ public sealed class ColumnSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, AppBoxCore.DynamicTable list)
+    public override ISeries Build(IDynamicContext dynamicContext, AppBoxCore.DataTable list)
     {
-        var res = new ColumnSeries<DynamicRow>()
+        var res = new ColumnSeries<DataRow>()
         {
             Name = Name ?? Field,
             Values = list,

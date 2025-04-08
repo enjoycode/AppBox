@@ -8,12 +8,7 @@ public sealed class DynamicDataRow : IDynamicDataRow
     internal const string FromService = "Service";
     internal const string FromQuery = "Query";
 
-    internal IDynamicRowSource Source { get; set; } = null!;
-
-    // public State GetFieldState( /*IDynamicContext dynamicContext,*/ string fieldName)
-    // {
-    //     throw new NotImplementedException();
-    // }
+    internal IDataRowSource Source { get; set; } = null!;
 
     public IEnumerable<DynamicState> GetChildStates(DynamicState parent) => Source.GetChildStates(parent);
 
@@ -39,7 +34,7 @@ public sealed class DynamicDataRow : IDynamicDataRow
 
         Source = sourceType switch
         {
-            FromQuery => new DynamicRowFromQuery(),
+            FromQuery => new DataRowFromQuery(),
             // FromService => new DynamicTableFromService(),
             _ => throw new Exception($"Unknown source type: {sourceType}")
         };
@@ -54,11 +49,11 @@ public sealed class DynamicDataRow : IDynamicDataRow
 /// <summary>
 /// 数据行的来源
 /// </summary>
-internal interface IDynamicRowSource
+internal interface IDataRowSource
 {
     string SourceType { get; }
 
-    Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext);
+    Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext);
 
     IEnumerable<DynamicState> GetChildStates(DynamicState parent);
 

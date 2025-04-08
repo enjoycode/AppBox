@@ -6,7 +6,6 @@ using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
-using DynamicTable = AppBoxCore.DynamicTable;
 
 namespace AppBoxDesign.PropertyEditors;
 
@@ -72,7 +71,7 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
 
         var dsState = _element.Controller.FindState(dsName);
         if (dsState?.Value is not IDynamicDataTable dsSettings) return;
-        if (await dsSettings.GetRuntimeState(_element.Controller.DesignCanvas) is not DynamicTable ds) return;
+        if (await dsSettings.GetRuntimeState(_element.Controller.DesignCanvas) is not DataTable ds) return;
 
         var numbers = ds.Fields.Where(f => f.IsNumber).Select(f => f.Name).ToArray();
         //var numbersAndDates = ds.Fields.Where(f => f.IsNumber || f.IsDateTime).Select(f => f.Name).ToArray();

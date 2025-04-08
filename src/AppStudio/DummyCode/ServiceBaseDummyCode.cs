@@ -172,7 +172,7 @@ namespace AppBoxStore
         /// </summary>
         /// <param name="selector">必须为返回匿名类的Lambda表达式 eg: t => new {t.Name, t.Score}</param>
         [QueryMethod()]
-        public Task<DynamicTable> ToTableAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
+        public Task<DataTable> ToDataTableAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为树状结构

@@ -8,7 +8,7 @@ namespace PixUI.Dynamic;
 /// <summary>
 /// 来源于动态查询的数据表
 /// </summary>
-internal sealed class DynamicTableFromQuery : IDynamicTableSource
+internal sealed class DataTableFromQuery : IDataTableSource
 {
     public string SourceType => DynamicDataTable.FromQuery;
 
@@ -33,7 +33,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
     /// </summary>
     public List<DynamicQuery.OrderByItem> Orders { get; } = [];
 
-    public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
+    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         if (Expression.IsNull(Root))
             throw new Exception("Query target not set");
@@ -57,7 +57,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
                 : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         }
 
-        return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
+        return Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
     }
 
     #region ====Serialization====
@@ -165,7 +165,7 @@ internal sealed class DynamicTableFromQuery : IDynamicTableSource
 
                     break;
                 default:
-                    throw new Exception($"Unknown property name: {nameof(DynamicTableFromQuery)}.{propName}");
+                    throw new Exception($"Unknown property name: {nameof(DataTableFromQuery)}.{propName}");
             }
         }
     }

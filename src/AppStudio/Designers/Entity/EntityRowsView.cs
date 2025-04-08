@@ -11,11 +11,11 @@ internal sealed class EntityRowsView : View
     {
         _entityModelId = entityModelId;
 
-        Child = new DataGrid<DynamicRow>(_dgController);
+        Child = new DataGrid<DataRow>(_dgController);
     }
 
     private readonly string _entityModelId;
-    private readonly DataGridController<DynamicRow> _dgController = new();
+    private readonly DataGridController<DataRow> _dgController = new();
 
     protected override void OnMounted() => FetchRows();
 
@@ -23,7 +23,7 @@ internal sealed class EntityRowsView : View
     {
         try
         {
-            var ds = await Channel.Invoke<DynamicTable>("sys.DesignService.GetEntityRows",
+            var ds = await Channel.Invoke<DataTable>("sys.DesignService.GetEntityRows",
                 [_entityModelId, 50]);
             BuildColumns(ds!);
             _dgController.DataSource = ds;
@@ -34,13 +34,13 @@ internal sealed class EntityRowsView : View
         }
     }
 
-    private void BuildColumns(DynamicTable ds)
+    private void BuildColumns(DataTable ds)
     {
         _dgController.Columns.Clear();
         foreach (var field in ds.Fields)
         {
             _dgController.Columns.Add(
-                new DataGridTextColumn<DynamicRow>(field.Name, r => r[field.Name].ToStringValue())
+                new DataGridTextColumn<DataRow>(field.Name, r => r[field.Name].ToStringValue())
             );
         }
     }

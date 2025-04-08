@@ -36,7 +36,7 @@ internal sealed class QueryMethod
     internal bool IsDynamicMethod => MethodName == "Output"
                                      || MethodName == "ToScalarAsync"
                                      || (MethodName == "ToListAsync" && ParameterCount > 0)
-                                     || (MethodName == "ToTableAsync" && ParameterCount > 0);
+                                     || (MethodName == "ToDataTableAsync" && ParameterCount > 0);
 
     internal bool IsLambdaParameter(IdentifierNameSyntax identifier)
     {

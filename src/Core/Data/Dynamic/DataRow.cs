@@ -3,11 +3,11 @@ namespace AppBoxCore;
 /// <summary>
 /// 动态数据行
 /// </summary>
-public sealed class DynamicRow
+public sealed class DataRow
 {
-    private readonly Dictionary<string, DynamicField> _fields = new();
+    private readonly Dictionary<string, DataCell> _fields = new();
 
-    public DynamicField this[string name]
+    public DataCell this[string name]
     {
         get => _fields[name];
         set
@@ -50,7 +50,7 @@ public sealed class DynamicRow
 
     #region ====Serialization====
 
-    internal void WriteTo(IOutputStream ws, DynamicFieldInfo[] fields)
+    internal void WriteTo(IOutputStream ws, DataColumn[] fields)
     {
         //注意按fields顺序写入值
         foreach (var field in fields)
@@ -58,15 +58,15 @@ public sealed class DynamicRow
             if (_fields.TryGetValue(field.Name, out var value))
                 value.WriteTo(ws);
             else
-                ws.WriteByte((byte)DynamicFieldFlag.Empty);
+                ws.WriteByte((byte)DataType.Empty);
         }
     }
 
-    internal void ReadFrom(IInputStream rs, DynamicFieldInfo[] fields)
+    internal void ReadFrom(IInputStream rs, DataColumn[] fields)
     {
         foreach (var field in fields)
         {
-            _fields[field.Name] = DynamicField.ReadFrom(rs);
+            _fields[field.Name] = DataCell.ReadFrom(rs);
         }
     }
 

@@ -18,12 +18,12 @@ internal sealed class RowStateEditDialog : Dialog
         if (state.Value == null)
         {
             var row = new DynamicDataRow();
-            row.Source = new DynamicRowFromQuery(); //默认来源动态查询
+            row.Source = new DataRowFromQuery(); //默认来源动态查询
             state.Value = row;
         }
 
         if (state.Value is DynamicDataRow dr && dr.Source == null!)
-            dr.Source = new DynamicRowFromQuery();
+            dr.Source = new DataRowFromQuery();
 
         // _isFromQuery = MakeStateOfIsFromQuery();
         // _isFromQuery.AddListener(_ => _tableState.Reset()); //改变数据源类型重置绑定组件的相关配置

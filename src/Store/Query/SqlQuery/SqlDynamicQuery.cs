@@ -12,7 +12,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
     public SqlDynamicQuery(DynamicQuery from)
     {
         EntityModelId = from.ModelId;
-        _fields = from.Selects.Select(f => new DynamicFieldInfo(f.Alias, f.Type)).ToArray();
+        _fields = from.Selects.Select(f => new DataColumn(f.Alias, f.Type)).ToArray();
 
         if (from.PageSize > 0)
         {
@@ -29,7 +29,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
     public SqlDynamicQuery(DynamicQuerySimple from)
     {
         EntityModelId = from.ModelId;
-        _fields = from.Selects.Select(f => new DynamicFieldInfo(f.Alias, f.Type)).ToArray();
+        _fields = from.Selects.Select(f => new DataColumn(f.Alias, f.Type)).ToArray();
 
         if (from.PageSize > 0)
         {
@@ -62,7 +62,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
         }
     }
 
-    private readonly DynamicFieldInfo[] _fields;
+    private readonly DataColumn[] _fields;
 
 
     #region ====ISqlSelectQuery Members====
@@ -121,7 +121,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
         return expression;
     }
 
-    public async Task<DynamicTable> ToTableAsync()
+    public async Task<DataTable> ToDataTableAsync()
     {
         //TODO:验证是否允许动态查询，并根据规则附加过滤条件
         var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
@@ -132,31 +132,31 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
         cmd.Connection = conn;
         Logger.Debug(cmd.CommandText);
 
-        var table = new DynamicTable(_fields);
+        var table = new DataTable(_fields);
         try
         {
             await using var dr = await cmd.ExecuteReaderAsync();
             while (await dr.ReadAsync())
             {
-                var row = new DynamicRow();
+                var row = new DataRow();
                 for (var i = 0; i < _fields.Length; i++)
                 {
                     row[_fields[i].Name] = _fields[i].Type switch
                     {
-                        DynamicFieldFlag.String => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetString(i),
-                        DynamicFieldFlag.DateTime => dr.IsDBNull(i)
-                            ? DynamicField.Empty
+                        DataType.String => dr.IsDBNull(i) ? DataCell.Empty : dr.GetString(i),
+                        DataType.DateTime => dr.IsDBNull(i)
+                            ? DataCell.Empty
                             : dr.GetDateTime(i).ToLocalTime(),
-                        DynamicFieldFlag.Short => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetInt16(i),
-                        DynamicFieldFlag.Int => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetInt32(i),
-                        DynamicFieldFlag.Long => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetInt64(i),
-                        DynamicFieldFlag.Decimal => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetDecimal(i),
-                        DynamicFieldFlag.Bool => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetBoolean(i),
-                        DynamicFieldFlag.Guid => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetGuid(i),
-                        DynamicFieldFlag.Byte => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetByte(i),
-                        DynamicFieldFlag.Binary => dr.IsDBNull(i) ? DynamicField.Empty : (byte[])dr.GetValue(i),
-                        DynamicFieldFlag.Float => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetFloat(i),
-                        DynamicFieldFlag.Double => dr.IsDBNull(i) ? DynamicField.Empty : dr.GetDouble(i),
+                        DataType.Short => dr.IsDBNull(i) ? DataCell.Empty : dr.GetInt16(i),
+                        DataType.Int => dr.IsDBNull(i) ? DataCell.Empty : dr.GetInt32(i),
+                        DataType.Long => dr.IsDBNull(i) ? DataCell.Empty : dr.GetInt64(i),
+                        DataType.Decimal => dr.IsDBNull(i) ? DataCell.Empty : dr.GetDecimal(i),
+                        DataType.Bool => dr.IsDBNull(i) ? DataCell.Empty : dr.GetBoolean(i),
+                        DataType.Guid => dr.IsDBNull(i) ? DataCell.Empty : dr.GetGuid(i),
+                        DataType.Byte => dr.IsDBNull(i) ? DataCell.Empty : dr.GetByte(i),
+                        DataType.Binary => dr.IsDBNull(i) ? DataCell.Empty : (byte[])dr.GetValue(i),
+                        DataType.Float => dr.IsDBNull(i) ? DataCell.Empty : dr.GetFloat(i),
+                        DataType.Double => dr.IsDBNull(i) ? DataCell.Empty : dr.GetDouble(i),
                         _ => throw new NotImplementedException()
                     };
                 }

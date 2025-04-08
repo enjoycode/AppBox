@@ -9,7 +9,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
 {
     public DynamicTableView()
     {
-        Child = new DataGrid<DynamicRow>(Controller);
+        Child = new DataGrid<DataRow>(Controller);
     }
 
     private string? _dataSource;
@@ -18,7 +18,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
     private TableStyles? _styles;
     [JsonIgnore] private IDynamicContext? _dynamicContext;
 
-    [JsonIgnore] internal DataGridController<DynamicRow> Controller { get; } = new();
+    [JsonIgnore] internal DataGridController<DataRow> Controller { get; } = new();
 
     /// <summary>
     /// 绑定的数据源名称
@@ -132,7 +132,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
 
         if (_dynamicContext == null) return;
 
-        var ds = (DynamicTable?)await _dynamicContext.GetDataSource(DataSource);
+        var ds = (DataTable?)await _dynamicContext.GetDataSource(DataSource);
         Controller.DataSource = ds;
     }
 

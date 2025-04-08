@@ -17,7 +17,7 @@ internal sealed class TableStateEditDialog : Dialog
         if (state.Value == null)
         {
             _tableState = new DynamicDataTable();
-            _tableState.Source = new DynamicTableFromQuery(); //默认来源动态查询
+            _tableState.Source = new DataTableFromQuery(); //默认来源动态查询
             state.Value = _tableState;
         }
         else
@@ -39,15 +39,15 @@ internal sealed class TableStateEditDialog : Dialog
         {
             if (v)
             {
-                if (_tableState.Source is DynamicTableFromQuery)
+                if (_tableState.Source is DataTableFromQuery)
                     return;
-                _tableState.Source = new DynamicTableFromQuery();
+                _tableState.Source = new DataTableFromQuery();
             }
             else
             {
-                if (_tableState.Source is DynamicTableFromService)
+                if (_tableState.Source is DataTableFromService)
                     return;
-                _tableState.Source = new DynamicTableFromService();
+                _tableState.Source = new DataTableFromService();
             }
         });
 

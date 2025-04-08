@@ -7,7 +7,7 @@ namespace PixUI.Dynamic;
 /// <summary>
 /// 来源于服务调用的数据表
 /// </summary>
-internal sealed class DynamicTableFromService : IDynamicTableSource
+internal sealed class DataTableFromService : IDataTableSource
 {
     public string SourceType => DynamicDataTable.FromService;
 
@@ -21,7 +21,7 @@ internal sealed class DynamicTableFromService : IDynamicTableSource
     /// </summary>
     public string?[] Arguments { get; set; } = [];
 
-    public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
+    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         object?[]? args = null;
         if (Arguments.Length > 0)
@@ -34,7 +34,7 @@ internal sealed class DynamicTableFromService : IDynamicTableSource
             }
         }
 
-        return Channel.Invoke<DynamicTable>(Service, args);
+        return Channel.Invoke<DataTable>(Service, args);
     }
 
     #region ====Serialization====
@@ -80,7 +80,7 @@ internal sealed class DynamicTableFromService : IDynamicTableSource
                     Arguments = args.ToArray();
                     break;
                 default:
-                    throw new Exception($"Unknown property name: {nameof(DynamicTableFromService)}.{propName}");
+                    throw new Exception($"Unknown property name: {nameof(DataTableFromService)}.{propName}");
             }
         }
     }

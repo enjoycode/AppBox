@@ -65,18 +65,18 @@ public sealed class SqlQueryTest
     }
 
     [Test]
-    public async Task ToTableTest()
+    public async Task ToDataTableTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        var ds = await q.ToTableAsync(
+        var ds = await q.ToDataTableAsync(
             r => new()
             {
                 ["Name"] = r.ReadStringMember(0),
-                ["Login"] = r.ReadNullableStringMember(1) ?? DynamicField.Empty
+                ["Login"] = r.ReadNullableStringMember(1) ?? DataCell.Empty
             },
             [
-                new("Name", DynamicFieldFlag.String),
-                new("Login", DynamicFieldFlag.String)
+                new("Name", DataType.String),
+                new("Login", DataType.String)
             ],
             t => [t["Name"], t["Account"]]);
         Assert.True(ds.Count > 0);

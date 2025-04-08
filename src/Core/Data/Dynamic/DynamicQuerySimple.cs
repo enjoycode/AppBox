@@ -19,7 +19,7 @@ public sealed class DynamicQuerySimple
 
     public readonly struct SelectItem
     {
-        public SelectItem(string alias, string item, DynamicFieldFlag type)
+        public SelectItem(string alias, string item, DataType type)
         {
             Alias = alias;
             Item = item;
@@ -27,7 +27,7 @@ public sealed class DynamicQuerySimple
         }
 
         public readonly string Item;
-        public readonly DynamicFieldFlag Type;
+        public readonly DataType Type;
         public readonly string Alias;
     }
 

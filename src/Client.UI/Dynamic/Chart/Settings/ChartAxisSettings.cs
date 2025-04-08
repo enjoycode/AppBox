@@ -33,7 +33,7 @@ public sealed class ChartAxisSettings
         MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
     };
 
-    public LiveCharts.Axis Build(IDynamicContext dynamicContext, AppBoxCore.DynamicTable list)
+    public LiveCharts.Axis Build(IDynamicContext dynamicContext, AppBoxCore.DataTable list)
     {
         var res = new LiveCharts.Axis();
         // if (!string.IsNullOrEmpty(Formatter))

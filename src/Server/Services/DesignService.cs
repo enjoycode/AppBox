@@ -104,14 +104,14 @@ internal sealed class DesignService : IService
         for (var i = 0; i < fields.Length; i++)
         {
             q.Selects[i] = new DynamicQuery.SelectItem(fields[i].Name, t[fields[i].Name],
-                DynamicField.FlagFromEntityFieldType(fields[i].FieldType));
+                DataCell.DataTypeFromEntityFieldType(fields[i].FieldType));
         }
 
         q.PageSize = pageSize;
         q.PageIndex = 0;
 
         var query = new SqlDynamicQuery(q);
-        var res = await query.ToTableAsync();
+        var res = await query.ToDataTableAsync();
         return AnyValue.From(res);
     }
 

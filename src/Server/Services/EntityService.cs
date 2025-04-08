@@ -8,10 +8,10 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class EntityService : IService
 {
-    public static Task<DynamicTable> Fetch(DynamicQuery query)
+    public static Task<DataTable> Fetch(DynamicQuery query)
     {
         var q = new SqlDynamicQuery(query);
-        return q.ToTableAsync();
+        return q.ToDataTableAsync();
     }
 
     public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)

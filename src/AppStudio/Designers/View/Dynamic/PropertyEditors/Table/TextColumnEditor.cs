@@ -3,7 +3,6 @@ using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
-using DynamicTable = AppBoxCore.DynamicTable;
 
 namespace AppBoxDesign.PropertyEditors;
 
@@ -12,7 +11,7 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
     public TextColumnEditor(RxObject<TextColumnSettings> obj, DesignElement element) : base(obj, element) { }
 
     private Select<string> _fieldRef = null!;
-    private DynamicFieldInfo[]? _allFields;
+    private DataColumn[]? _allFields;
 
     protected override IEnumerable<(string, State, Widget)> GetExtProps()
     {
@@ -44,7 +43,7 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
 
         var dsState = Element.Controller.FindState(dsName);
         if (dsState?.Value is not IDynamicDataTable dsSettings) return;
-        if (await dsSettings.GetRuntimeState(Element.Controller.DesignCanvas) is not DynamicTable ds) return;
+        if (await dsSettings.GetRuntimeState(Element.Controller.DesignCanvas) is not DataTable ds) return;
 
         _allFields = ds.Fields;
         var fields = _allFields.Select(f => f.Name).ToArray();

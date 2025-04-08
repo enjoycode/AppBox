@@ -3,21 +3,21 @@ namespace AppBoxCore;
 /// <summary>
 /// 动态数据表
 /// </summary>
-public sealed class DynamicTable : List<DynamicRow>, IBinSerializable
+public sealed class DataTable : List<DataRow>, IBinSerializable
 {
-    internal DynamicTable() { }
+    internal DataTable() { }
 
-    public DynamicTable(DynamicFieldInfo[] fields)
+    public DataTable(DataColumn[] fields)
     {
         Fields = fields;
     }
 
-    public static DynamicTable From<T>(IList<T> entityList) where T : Entity
+    public static DataTable From<T>(IList<T> entityList) where T : Entity
     {
         throw new NotImplementedException();
     }
 
-    public DynamicFieldInfo[] Fields { get; private set; } = null!;
+    public DataColumn[] Fields { get; private set; } = null!;
 
     public void WriteTo(IOutputStream ws)
     {
@@ -41,17 +41,17 @@ public sealed class DynamicTable : List<DynamicRow>, IBinSerializable
     {
         //Fields
         var count = rs.ReadVariant();
-        Fields = new DynamicFieldInfo[count];
+        Fields = new DataColumn[count];
         for (var i = 0; i < count; i++)
         {
-            Fields[i] = new DynamicFieldInfo(rs.ReadString()!, (DynamicFieldFlag)rs.ReadByte());
+            Fields[i] = new DataColumn(rs.ReadString()!, (DataType)rs.ReadByte());
         }
 
         //Rows
         count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
-            var item = new DynamicRow();
+            var item = new DataRow();
             item.ReadFrom(rs, Fields);
             Add(item);
         }

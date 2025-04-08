@@ -75,7 +75,7 @@ public sealed class DynamicQuery : IBinSerializable
 
     public sealed class SelectItem
     {
-        public SelectItem(string alias, Expression item, DynamicFieldFlag type)
+        public SelectItem(string alias, Expression item, DataType type)
         {
             Alias = alias;
             Item = item;
@@ -83,7 +83,7 @@ public sealed class DynamicQuery : IBinSerializable
         }
 
         public Expression Item { get; internal init; }
-        public DynamicFieldFlag Type { get; internal init; }
+        public DataType Type { get; internal init; }
         public string Alias { get; internal init; }
 
         #region ====Serialization====
@@ -98,7 +98,7 @@ public sealed class DynamicQuery : IBinSerializable
         internal static SelectItem ReadFrom(IInputStream rs)
         {
             var item = (Expression)rs.Deserialize()!;
-            var type = (DynamicFieldFlag)rs.ReadByte();
+            var type = (DataType)rs.ReadByte();
             var alias = rs.ReadString()!;
             return new SelectItem(alias, item, type);
         }
@@ -116,7 +116,7 @@ public sealed class DynamicQuery : IBinSerializable
         internal static SelectItem ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
         {
             Expression item = null!;
-            var type = DynamicFieldFlag.Empty;
+            var type = DataType.Empty;
             var alias = string.Empty;
 
             while (reader.Read())
@@ -132,7 +132,7 @@ public sealed class DynamicQuery : IBinSerializable
                         break;
                     case nameof(Type):
                         reader.Read();
-                        type = Enum.Parse<DynamicFieldFlag>(reader.GetString()!);
+                        type = Enum.Parse<DataType>(reader.GetString()!);
                         break;
                     case nameof(Alias):
                         reader.Read();

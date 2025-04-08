@@ -21,7 +21,7 @@ internal sealed class TableStateFromServiceEditor : View
     private readonly DynamicDataTable _tableState;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
     private readonly State<string> _service;
-    private DynamicTableFromService TableFromService => (DynamicTableFromService)_tableState.Source;
+    private DataTableFromService TableFromService => (DataTableFromService)_tableState.Source;
 
     protected override void OnMounted()
     {

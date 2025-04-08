@@ -26,7 +26,7 @@ internal sealed class RowStateFromQueryEditor : View
     private readonly DynamicDataRow _dataRow;
     private readonly TreeController<EntityMemberModel> _treeController = new();
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
-    private DynamicRowFromQuery RowFromQuery => (DynamicRowFromQuery)_dataRow.Source;
+    private DataRowFromQuery RowFromQuery => (DataRowFromQuery)_dataRow.Source;
     private readonly State<ModelNode?> _entityTarget;
 
     private RxProxy<ModelNode?> MakeStateOfRoot() => new(
@@ -51,12 +51,12 @@ internal sealed class RowStateFromQueryEditor : View
                 var entityModel = (EntityModel)node.Model;
                 RowFromQuery.Root = new EntityExpression(entityModel, null);
                 var sqlPks = entityModel.SqlStoreOptions!.PrimaryKeys;
-                RowFromQuery.PrimaryKeys = new DynamicRowFromQuery.PrimaryKey[sqlPks.Length];
+                RowFromQuery.PrimaryKeys = new DataRowFromQuery.PrimaryKey[sqlPks.Length];
                 for (var i = 0; i < sqlPks.Length; i++)
                 {
                     var member = (EntityFieldModel)entityModel.GetMember(sqlPks[i].MemberId)!;
-                    RowFromQuery.PrimaryKeys[i] = new DynamicRowFromQuery.PrimaryKey(member.Name,
-                        DynamicField.FlagFromEntityFieldType(member.FieldType));
+                    RowFromQuery.PrimaryKeys[i] = new DataRowFromQuery.PrimaryKey(member.Name,
+                        DataCell.DataTypeFromEntityFieldType(member.FieldType));
                 }
 
                 _treeController.DataSource = DesignUtils.GetEntityModelMembers(entityModel);
@@ -149,7 +149,7 @@ internal sealed class RowStateFromQueryEditor : View
         //构建路径表达式
         var exp = DesignUtils.BuildExpressionFrom(treeNode, RowFromQuery.Root!);
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
-            DynamicField.FlagFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
+            DataCell.DataTypeFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
         _selectsController.Add(selectItem);
 
         RowFromQuery.AddChildState(_state, selectItem.Alias, selectItem.Type);

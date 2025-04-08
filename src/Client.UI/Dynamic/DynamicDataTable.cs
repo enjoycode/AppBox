@@ -11,7 +11,7 @@ public sealed class DynamicDataTable : IDynamicDataTable
     internal const string FromService = "Service";
     internal const string FromQuery = "Query";
 
-    internal IDynamicTableSource Source { get; set; } = null!;
+    internal IDataTableSource Source { get; set; } = null!;
 
     public event Action<bool>? DataChanged;
 
@@ -37,8 +37,8 @@ public sealed class DynamicDataTable : IDynamicDataTable
 
         Source = sourceType switch
         {
-            FromQuery => new DynamicTableFromQuery(),
-            FromService => new DynamicTableFromService(),
+            FromQuery => new DataTableFromQuery(),
+            FromService => new DataTableFromService(),
             _ => throw new Exception($"Unknown source type: {sourceType}")
         };
         Source.ReadFrom(ref reader);
@@ -50,12 +50,12 @@ public sealed class DynamicDataTable : IDynamicDataTable
 
     #region ====Runtime DataSource====
 
-    private Lazy<Task<DynamicTable?>>? _fetchTask;
+    private Lazy<Task<DataTable?>>? _fetchTask;
 
     public async ValueTask<object?> GetRuntimeState(IDynamicContext dynamicContext)
     {
         Interlocked.CompareExchange(ref _fetchTask,
-            new Lazy<Task<DynamicTable?>>(() => Source.GetFetchTask(dynamicContext)), null);
+            new Lazy<Task<DataTable?>>(() => Source.GetFetchTask(dynamicContext)), null);
         try
         {
             return await _fetchTask.Value;
@@ -90,11 +90,11 @@ public sealed class DynamicDataTable : IDynamicDataTable
 /// <summary>
 /// 数据表的来源
 /// </summary>
-internal interface IDynamicTableSource
+internal interface IDataTableSource
 {
     string SourceType { get; }
 
-    Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext);
+    Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext);
 
     void WriteTo(Utf8JsonWriter writer);
 

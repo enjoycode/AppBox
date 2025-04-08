@@ -10,9 +10,9 @@ public sealed class GroupColumnSettings : TableColumnSettings
 
     public List<TableColumnSettings> Children { get; set; } = new();
 
-    protected internal override DataGridColumn<DynamicRow> BuildColumn(DataGridController<DynamicRow> controller)
+    protected internal override DataGridColumn<DataRow> BuildColumn(DataGridController<DataRow> controller)
     {
-        var col = new DataGridGroupColumn<DynamicRow>(Label);
+        var col = new DataGridGroupColumn<DataRow>(Label);
         if (Children is { Count: > 0 })
         {
             for (var i = 0; i < Children.Count; i++)
