@@ -10,6 +10,9 @@ namespace PixUI.Dynamic;
 /// </summary>
 internal sealed class DynamicRowFromQuery : IDynamicRowSource
 {
+    private readonly DynamicRow _row = new();
+    private List<DynamicState>? _childStates;
+
     public string SourceType => DynamicDataRow.FromQuery;
 
     public EntityExpression? Root { get; internal set; }
@@ -24,6 +27,69 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
     /// </summary>
     internal PrimaryKey[] PrimaryKeys { get; set; } = [];
 
+    #region ====Child States====
+
+    public IEnumerable<DynamicState> GetChildStates(DynamicState parent)
+    {
+        if (_childStates == null)
+        {
+            _childStates = new List<DynamicState>();
+            foreach (var selectItem in Selects)
+            {
+                var state = MakeChildDynamicState(parent.Name, selectItem.Alias, selectItem.Type);
+                _childStates.Add(state);
+            }
+
+            foreach (var pk in PrimaryKeys)
+            {
+                if (_childStates.Any(item => item.Name == $"{parent.Name}.{pk.Name}"))
+                    continue;
+                var state = MakeChildDynamicState(parent.Name, pk.Name, pk.Type);
+                _childStates.Add(state);
+            }
+        }
+
+        return _childStates;
+    }
+
+    private DynamicState MakeChildDynamicState(string parentName, string childName, DynamicFieldFlag flag)
+    {
+        var state = new DynamicState() { Name = $"{parentName}.{childName}" };
+        state.Type = FieldFlagToStateType(flag);
+        //TODO: fix state.AllowNull
+        state.Value = new DataCellProxy(_row, childName);
+        return state;
+    }
+
+    private static DynamicStateType FieldFlagToStateType(DynamicFieldFlag flag) =>
+        (flag & DynamicFieldFlag.TypeMask) switch
+        {
+            DynamicFieldFlag.String => DynamicStateType.String,
+            DynamicFieldFlag.Int => DynamicStateType.Int,
+            DynamicFieldFlag.DateTime => DynamicStateType.DateTime,
+            DynamicFieldFlag.Float => DynamicStateType.Float,
+            DynamicFieldFlag.Double => DynamicStateType.Double,
+            _ => throw new NotImplementedException(),
+        };
+
+    internal void ClearChildStates() => _childStates = null;
+
+    internal void AddChildState(DynamicState parent, string childName, DynamicFieldFlag flag)
+    {
+        if (_childStates == null) return;
+
+        var state = MakeChildDynamicState(parent.Name, childName, flag);
+        _childStates.Add(state);
+    }
+
+    internal void RemoveChildState(DynamicState parent, string childName)
+    {
+        if (_childStates == null) return;
+        _childStates.RemoveAll(item => item.Name == $"{parent.Name}.{childName}");
+    }
+
+    #endregion
+
     public Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         if (Expression.IsNull(Root))
@@ -34,20 +100,95 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
         q.PageSize = 1;
         q.Selects = Selects.ToArray();
 
-        throw new NotImplementedException();
+        for (var i = 0; i < PrimaryKeys.Length; i++)
+        {
+            var pk = PrimaryKeys[i];
+            if (!_row.HasValue(pk.Name))
+                throw new Exception($"Must set pk value: {pk.Name}");
+            var exp = new BinaryExpression(Root![pk.Name],
+                new ConstantExpression(_row[pk.Name].BoxedValue),
+                BinaryOperatorType.Equal);
+            q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
+        }
 
-        // for (var i = 0; i < PrimaryKeys.Length; i++)
-        // {
-        //     var pk = PrimaryKeys[i];
-        //     if (pk.Value == null)
-        //         throw new Exception($"Must set pk value: {pk.Name}");
-        //     var exp = new BinaryExpression(Root![pk.Name], new ConstantExpression(pk.Value!),
-        //         BinaryOperatorType.Equal);
-        //     q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
-        // }
-        //
-        // return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
+        return Channel.Invoke<DynamicTable>("sys.EntityService.Fetch", [q]);
     }
+
+    #region ====DataCellProxy====
+
+    private sealed class DataCellProxy : IDynamicPrimitive
+    {
+        public DataCellProxy(DynamicRow row, string name)
+        {
+            _row = row;
+            _name = name;
+        }
+
+        private readonly DynamicRow _row;
+        private readonly string _name;
+        private State? _runtimeState;
+
+        public void WriteTo(Utf8JsonWriter writer) => throw new NotSupportedException();
+
+        public void ReadFrom(ref Utf8JsonReader reader, DynamicState state) => throw new NotSupportedException();
+
+        public object? GetDesignValue(IDynamicContext ctx)
+        {
+            return _row.HasValue(_name) ? _row[_name].BoxedValue : null;
+        }
+
+        public State GetRuntimeState(IDynamicContext ctx, DynamicState state)
+        {
+            if (_runtimeState != null) return _runtimeState;
+
+            _runtimeState = state.Type switch
+            {
+                DynamicStateType.String => new RxProxy<string>(
+                    () => _row.HasValue(_name) ? _row[_name].StringValue! : string.Empty,
+                    v =>
+                    {
+                        _row[_name] = v;
+                        _runtimeState?.NotifyValueChanged();
+                    }),
+                DynamicStateType.Int => (state.AllowNull
+                    ? new RxProxy<int?>(
+                        () => _row.HasValue(_name) ? _row[_name].NullableIntValue : null,
+                        v =>
+                        {
+                            _row[_name] = v;
+                            _runtimeState?.NotifyValueChanged();
+                        })
+                    : new RxProxy<int>(
+                        () => _row.HasValue(_name) ? _row[_name].IntValue : 0,
+                        v =>
+                        {
+                            _row[_name] = v;
+                            _runtimeState?.NotifyValueChanged();
+                        })),
+                DynamicStateType.DateTime => (state.AllowNull
+                    ? new RxProxy<DateTime?>(
+                        () => _row.HasValue(_name) ? _row[_name].NullableDateTimeValue : null,
+                        v =>
+                        {
+                            _row[_name] = v;
+                            _runtimeState?.NotifyValueChanged();
+                        })
+                    : new RxProxy<DateTime>(
+                        () => _row.HasValue(_name) ? _row[_name].DateTimeValue : default,
+                        v =>
+                        {
+                            _row[_name] = v;
+                            _runtimeState?.NotifyValueChanged();
+                        })),
+                //TODO: others
+                _ => throw new NotImplementedException()
+            };
+
+            return _runtimeState;
+        }
+    }
+
+    #endregion
 
     #region ====Serialization====
 
@@ -126,6 +267,8 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
 
     #endregion
 
+    #region ====PrimaryKey====
+
     internal readonly struct PrimaryKey
     {
         public PrimaryKey(string name, DynamicFieldFlag type)
@@ -174,4 +317,6 @@ internal sealed class DynamicRowFromQuery : IDynamicRowSource
             return new PrimaryKey(name, type);
         }
     }
+
+    #endregion
 }

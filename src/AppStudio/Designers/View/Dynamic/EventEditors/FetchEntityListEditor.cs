@@ -12,7 +12,7 @@ internal sealed class FetchEntityListEditor : SingleChildWidget
         var action = (FetchDataSource)eventAction;
 
         var dsName = new RxProxy<string?>(() => action.DataSource, v => action.DataSource = v ?? string.Empty);
-        var allDS = element.Controller.GetAllDataSource().Select(d => d.Name).ToArray();
+        var allDS = element.Controller.FindDataTableStates().Select(d => d.Name).ToArray();
 
         Child = new Form()
         {

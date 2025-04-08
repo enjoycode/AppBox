@@ -3,7 +3,7 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal static class EntityModelUtils
+internal static class DesignUtils
 {
     /// <summary>
     /// 获取实体模型的字段成员(包括EntityRef的字段成员)

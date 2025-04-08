@@ -13,27 +13,24 @@ internal sealed class RowStateEditDialog : Dialog
         Height = 450;
 
         _designController = designController;
+        _state = state;
         //初始化状态
         if (state.Value == null)
         {
-            _rowState = new DynamicDataRow();
-            _rowState.Source = new DynamicRowFromQuery(); //默认来源动态查询
-            state.Value = _rowState;
-        }
-        else
-        {
-            _rowState = (DynamicDataRow)state.Value;
+            var row = new DynamicDataRow();
+            row.Source = new DynamicRowFromQuery(); //默认来源动态查询
+            state.Value = row;
         }
 
-        if (_rowState.Source == null!)
-            _rowState.Source = new DynamicRowFromQuery();
+        if (state.Value is DynamicDataRow dr && dr.Source == null!)
+            dr.Source = new DynamicRowFromQuery();
 
         // _isFromQuery = MakeStateOfIsFromQuery();
         // _isFromQuery.AddListener(_ => _tableState.Reset()); //改变数据源类型重置绑定组件的相关配置
     }
 
     private readonly DesignController _designController;
-    private readonly DynamicDataRow _rowState;
+    private readonly DynamicState _state;
     // private readonly State<bool> _isFromQuery;
 
     protected override Widget BuildBody()
@@ -41,7 +38,7 @@ internal sealed class RowStateEditDialog : Dialog
         return new Container()
         {
             Padding = EdgeInsets.All(10),
-            Child = new RowStateFromQueryEditor(_designController, _rowState)
+            Child = new RowStateFromQueryEditor(_designController, _state)
         };
     }
 }

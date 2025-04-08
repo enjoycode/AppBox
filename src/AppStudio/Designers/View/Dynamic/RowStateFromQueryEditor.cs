@@ -7,24 +7,26 @@ namespace AppBoxDesign;
 
 internal sealed class RowStateFromQueryEditor : View
 {
-    public RowStateFromQueryEditor(DesignController designController, DynamicDataRow rowState)
+    public RowStateFromQueryEditor(DesignController designController, DynamicState state)
     {
         _designController = designController;
-        _rowState = rowState;
+        _state = state;
+        _dataRow = (DynamicDataRow)state.Value!;
         _entityTarget = MakeStateOfRoot();
 
         Child = BuildBody();
 
         if (_entityTarget.Value != null)
-            _treeController.DataSource = EntityModelUtils.GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
+            _treeController.DataSource = DesignUtils.GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
         _selectsController.DataSource = RowFromQuery.Selects;
     }
 
     private readonly DesignController _designController;
-    private readonly DynamicDataRow _rowState;
+    private readonly DynamicState _state;
+    private readonly DynamicDataRow _dataRow;
     private readonly TreeController<EntityMemberModel> _treeController = new();
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
-    private DynamicRowFromQuery RowFromQuery => (DynamicRowFromQuery)_rowState.Source;
+    private DynamicRowFromQuery RowFromQuery => (DynamicRowFromQuery)_dataRow.Source;
     private readonly State<ModelNode?> _entityTarget;
 
     private RxProxy<ModelNode?> MakeStateOfRoot() => new(
@@ -38,6 +40,7 @@ internal sealed class RowStateFromQueryEditor : View
         node =>
         {
             RowFromQuery.Selects.Clear();
+            RowFromQuery.ClearChildStates();
             if (node == null)
             {
                 RowFromQuery.Root = null;
@@ -56,7 +59,7 @@ internal sealed class RowStateFromQueryEditor : View
                         DynamicField.FlagFromEntityFieldType(member.FieldType));
                 }
 
-                _treeController.DataSource = EntityModelUtils.GetEntityModelMembers(entityModel);
+                _treeController.DataSource = DesignUtils.GetEntityModelMembers(entityModel);
             }
         }
     );
@@ -74,7 +77,7 @@ internal sealed class RowStateFromQueryEditor : View
                     [
                         new Select<ModelNode>(_entityTarget)
                         {
-                            Options = EntityModelUtils.GetAllSqlEntityModels(),
+                            Options = DesignUtils.GetAllSqlEntityModels(),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
                         new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>
@@ -85,7 +88,7 @@ internal sealed class RowStateFromQueryEditor : View
                                 var refModel =
                                     (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
                                         .Model;
-                                return EntityModelUtils.GetEntityModelMembers(refModel);
+                                return DesignUtils.GetEntityModelMembers(refModel);
                             })
                             {
                                 AllowDrag = true,
@@ -120,12 +123,16 @@ internal sealed class RowStateFromQueryEditor : View
                 OnDrop = OnDropToSelects
             }
             .AddTextColumn("Item", t => t.Item.ToString())
-            .AddButtonColumn("Action", (_, index) => new Button(icon: MaterialIcons.Clear)
+            .AddButtonColumn("Action", (item, index) => new Button(icon: MaterialIcons.Clear)
             {
                 Style = ButtonStyle.Transparent,
                 Shape = ButtonShape.Pills,
                 FontSize = 20,
-                OnTap = _ => _selectsController.RemoveAt(index)
+                OnTap = _ =>
+                {
+                    _selectsController.RemoveAt(index);
+                    RowFromQuery.RemoveChildState(_state, item.Alias);
+                }
             }, 80);
     }
 
@@ -140,9 +147,11 @@ internal sealed class RowStateFromQueryEditor : View
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
         //构建路径表达式
-        var exp = EntityModelUtils.BuildExpressionFrom(treeNode, RowFromQuery.Root!);
+        var exp = DesignUtils.BuildExpressionFrom(treeNode, RowFromQuery.Root!);
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
             DynamicField.FlagFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
         _selectsController.Add(selectItem);
+
+        RowFromQuery.AddChildState(_state, selectItem.Alias, selectItem.Type);
     }
 }

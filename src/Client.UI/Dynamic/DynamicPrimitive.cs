@@ -102,26 +102,19 @@ public sealed class DynamicPrimitive : IDynamicPrimitive
             InitExpressionValue(ctx);
 
         //暂用RxProxy<>包装Value,考虑根据上下文确定运行时使用RxValue<>
-        switch (state.Type)
+        _runtimeState = state.Type switch
         {
-            case DynamicStateType.String:
-                _runtimeState = new RxProxy<string>(() => (ProxyValue as string) ?? string.Empty, v => ProxyValue = v);
-                break;
-            case DynamicStateType.Int:
-                _runtimeState = state.AllowNull
-                    ? new RxProxy<int?>(() => (int?)ProxyValue, v => ProxyValue = v)
-                    : new RxProxy<int>(() => ProxyValue == null ? 0 : (int)ProxyValue, v => ProxyValue = v);
-                break;
-            case DynamicStateType.DateTime:
-                _runtimeState = state.AllowNull
-                    ? new RxProxy<DateTime?>(() => (DateTime?)ProxyValue, v => ProxyValue = v)
-                    : new RxProxy<DateTime>(() => ProxyValue == null ? default : (DateTime)ProxyValue,
-                        v => ProxyValue = v);
-                break;
-            //TODO: others
-            default:
-                throw new NotImplementedException();
-        }
+            DynamicStateType.String => new RxProxy<string>(() => (ProxyValue as string) ?? string.Empty,
+                v => ProxyValue = v),
+            DynamicStateType.Int => (state.AllowNull
+                ? new RxProxy<int?>(() => (int?)ProxyValue, v => ProxyValue = v)
+                : new RxProxy<int>(() => ProxyValue == null ? 0 : (int)ProxyValue, v => ProxyValue = v)),
+            DynamicStateType.DateTime => (state.AllowNull
+                ? new RxProxy<DateTime?>(() => (DateTime?)ProxyValue, v => ProxyValue = v)
+                : new RxProxy<DateTime>(() => ProxyValue == null ? default : (DateTime)ProxyValue,
+                    v => ProxyValue = v)),
+            _ => throw new NotImplementedException()
+        };
 
         return _runtimeState;
     }

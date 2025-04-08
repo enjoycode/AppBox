@@ -87,7 +87,7 @@ internal sealed class TableStateFromServiceEditor : View
         {
             var noneNullableValueType = para.ConvertToRuntimeType(out var allowNull);
             var stateType = DynamicState.GetStateTypeByValueType(noneNullableValueType);
-            options = _designController.FindStatesByValueType(stateType, allowNull)
+            options = _designController.FindPrimitiveStates(stateType, allowNull)
                 .Select(s => s.Name)
                 .ToArray();
         }

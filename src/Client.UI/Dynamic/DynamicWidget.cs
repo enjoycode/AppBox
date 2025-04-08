@@ -25,7 +25,20 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
     private DynamicBackground? _background;
     private Image? _cachedImage;
 
-    DynamicState? IDynamicContext.FindState(string name) => _states?.SingleOrDefault(s => s.Name == name);
+    DynamicState? IDynamicContext.FindState(string name)
+    {
+        if (_states == null || _states.Count == 0)
+            return null;
+
+        if (name.Contains('.'))
+        {
+            return _states.Where(s => s.Value is IWithChildStates)
+                .SelectMany(s => ((IWithChildStates)s.Value!).GetChildStates(s))
+                .FirstOrDefault(s => s.Name == name);
+        }
+
+        return _states?.SingleOrDefault(s => s.Name == name);
+    }
 
     protected override void OnMounted()
     {

@@ -12,7 +12,7 @@ public enum DynamicFieldFlag : byte
     Binary = 2,
     Bool = 3,
 
-    //----数值区间----
+    //----数值区间开始----
     Byte = 4,
     Short = 5,
     Int = 6,
@@ -20,8 +20,8 @@ public enum DynamicFieldFlag : byte
     Float = 8,
     Double = 9,
     Decimal = 10,
+    //----数值区间结束----
 
-    //----数值区间----
     DateTime = 11,
     Guid = 12,
     TypeMask = 0xF,
@@ -29,49 +29,98 @@ public enum DynamicFieldFlag : byte
 }
 
 [StructLayout(LayoutKind.Explicit, Pack = 4)]
-public struct DynamicField
+public readonly struct DynamicField
 {
-    public static readonly DynamicField Empty = new() { _flag = DynamicFieldFlag.Empty };
+    public static readonly DynamicField Empty = new() { Flag = DynamicFieldFlag.Empty };
 
     #region ====内存结构===
 
-    [field: FieldOffset(0)] public bool BoolValue { get; private set; }
-    [field: FieldOffset(0)] public byte ByteValue { get; private set; }
-    [field: FieldOffset(0)] public short ShortValue { get; private set; }
-    [field: FieldOffset(0)] public int IntValue { get; private set; }
-    [field: FieldOffset(0)] public long LongValue { get; private set; }
-    [field: FieldOffset(0)] public float FloatValue { get; private set; }
-    [field: FieldOffset(0)] public double DoubleValue { get; private set; }
-    [field: FieldOffset(0)] public DateTime DateTimeValue { get; private set; }
-    [field: FieldOffset(0)] public decimal DecimalValue { get; private set; }
-    [field: FieldOffset(0)] public Guid GuidValue { get; private set; }
+    [field: FieldOffset(0)] public bool BoolValue { get; private init; }
+    [field: FieldOffset(0)] public byte ByteValue { get; private init; }
+    [field: FieldOffset(0)] public short ShortValue { get; private init; }
+    [field: FieldOffset(0)] public int IntValue { get; private init; }
+    [field: FieldOffset(0)] public long LongValue { get; private init; }
+    [field: FieldOffset(0)] public float FloatValue { get; private init; }
+    [field: FieldOffset(0)] public double DoubleValue { get; private init; }
+    [field: FieldOffset(0)] public DateTime DateTimeValue { get; private init; }
+    [field: FieldOffset(0)] public decimal DecimalValue { get; private init; }
+    [field: FieldOffset(0)] public Guid GuidValue { get; private init; }
 
-    [FieldOffset(16)] private object? _ObjectValue;
+    [field: FieldOffset(16)] private object? ObjectValue { get; init; }
 
-    [FieldOffset(24)] private DynamicFieldFlag _flag;
+    [field: FieldOffset(24)] private DynamicFieldFlag Flag { get; init; }
 
     #endregion
+
+    public DynamicField WithChanged() => new()
+        { GuidValue = GuidValue, ObjectValue = ObjectValue, Flag = Flag | DynamicFieldFlag.Changed };
+
+    public DynamicField WithoutChange() => new()
+        { GuidValue = GuidValue, ObjectValue = ObjectValue, Flag = Flag & DynamicFieldFlag.TypeMask };
 
     public bool HasValue
     {
         get
         {
-            var type = _flag & DynamicFieldFlag.TypeMask;
+            var type = Flag & DynamicFieldFlag.TypeMask;
             if (type is DynamicFieldFlag.String or DynamicFieldFlag.Binary)
-                return _ObjectValue != null;
+                return ObjectValue != null;
             return type != DynamicFieldFlag.Empty;
         }
     }
+
+    public bool HasChanged => (Flag & DynamicFieldFlag.Changed) == DynamicFieldFlag.Changed;
+
+    public object? BoxedValue => (Flag & DynamicFieldFlag.TypeMask) switch
+    {
+        DynamicFieldFlag.String or DynamicFieldFlag.Binary => ObjectValue,
+        DynamicFieldFlag.Empty => null,
+        DynamicFieldFlag.Bool => BoolValue,
+        DynamicFieldFlag.Byte => ByteValue,
+        DynamicFieldFlag.Short => ShortValue,
+        DynamicFieldFlag.Int => IntValue,
+        DynamicFieldFlag.Long => LongValue,
+        DynamicFieldFlag.Float => FloatValue,
+        DynamicFieldFlag.Double => DoubleValue,
+        DynamicFieldFlag.Decimal => DecimalValue,
+        DynamicFieldFlag.DateTime => DateTimeValue,
+        DynamicFieldFlag.Guid => GuidValue,
+        _ => throw new NotSupportedException()
+    };
 
     public string? StringValue
     {
         get
         {
             if (!HasValue) return null;
-            var type = _flag & DynamicFieldFlag.TypeMask;
+            var type = Flag & DynamicFieldFlag.TypeMask;
             if (type != DynamicFieldFlag.String)
                 throw new NotSupportedException();
-            return (string)_ObjectValue!;
+            return (string)ObjectValue!;
+        }
+    }
+
+    public int? NullableIntValue
+    {
+        get
+        {
+            if (!HasValue) return null;
+            var type = Flag & DynamicFieldFlag.TypeMask;
+            if (type != DynamicFieldFlag.Int)
+                throw new NotSupportedException();
+            return IntValue;
+        }
+    }
+
+    public DateTime? NullableDateTimeValue
+    {
+        get
+        {
+            if (!HasValue) return null;
+            var type = Flag & DynamicFieldFlag.TypeMask;
+            if (type != DynamicFieldFlag.DateTime)
+                throw new NotSupportedException();
+            return DateTimeValue;
         }
     }
 
@@ -80,7 +129,7 @@ public struct DynamicField
     /// </summary>
     public double? ToDouble()
     {
-        var type = _flag & DynamicFieldFlag.TypeMask;
+        var type = Flag & DynamicFieldFlag.TypeMask;
         return type switch
         {
             DynamicFieldFlag.Bool => BoolValue ? 1 : 0,
@@ -99,11 +148,11 @@ public struct DynamicField
     {
         if (!HasValue) return string.Empty;
 
-        var type = _flag & DynamicFieldFlag.TypeMask;
+        var type = Flag & DynamicFieldFlag.TypeMask;
         return type switch
         {
-            DynamicFieldFlag.String => $"{(string)_ObjectValue!}",
-            DynamicFieldFlag.Binary => StringUtil.ToHexString((byte[])_ObjectValue!)!,
+            DynamicFieldFlag.String => $"{(string)ObjectValue!}",
+            DynamicFieldFlag.Binary => StringUtil.ToHexString((byte[])ObjectValue!)!,
             DynamicFieldFlag.Bool => BoolValue.ToString(),
             DynamicFieldFlag.Byte => ByteValue.ToString(),
             DynamicFieldFlag.Short => ShortValue.ToString(),
@@ -120,12 +169,12 @@ public struct DynamicField
 
     public override string ToString()
     {
-        var type = _flag & DynamicFieldFlag.TypeMask;
+        var type = Flag & DynamicFieldFlag.TypeMask;
         return type switch
         {
             DynamicFieldFlag.Empty => "null",
-            DynamicFieldFlag.String => $"\"{(string)_ObjectValue!}\"",
-            DynamicFieldFlag.Binary => StringUtil.ToHexString((byte[])_ObjectValue!)!,
+            DynamicFieldFlag.String => $"\"{(string)ObjectValue!}\"",
+            DynamicFieldFlag.Binary => StringUtil.ToHexString((byte[])ObjectValue!)!,
             DynamicFieldFlag.Bool => BoolValue.ToString(),
             DynamicFieldFlag.Byte => ByteValue.ToString(),
             DynamicFieldFlag.Short => ShortValue.ToString(),
@@ -161,64 +210,64 @@ public struct DynamicField
     #region ====隐式转换=====
 
     public static implicit operator DynamicField(bool? v) =>
-        v.HasValue ? new() { BoolValue = v.Value, _flag = DynamicFieldFlag.Bool } : Empty;
+        v.HasValue ? new() { BoolValue = v.Value, Flag = DynamicFieldFlag.Bool } : Empty;
 
     public static implicit operator bool?(DynamicField p) => p.HasValue ? p.BoolValue : null;
 
     public static implicit operator DynamicField(byte? v) =>
-        v.HasValue ? new() { ByteValue = v.Value, _flag = DynamicFieldFlag.Byte } : Empty;
+        v.HasValue ? new() { ByteValue = v.Value, Flag = DynamicFieldFlag.Byte } : Empty;
 
     public static implicit operator byte?(DynamicField p) => p.HasValue ? p.ByteValue : null;
 
     public static implicit operator DynamicField(short? v) =>
-        v.HasValue ? new() { ShortValue = v.Value, _flag = DynamicFieldFlag.Short } : Empty;
+        v.HasValue ? new() { ShortValue = v.Value, Flag = DynamicFieldFlag.Short } : Empty;
 
     public static implicit operator short?(DynamicField p) => p.HasValue ? p.ShortValue : null;
 
     public static implicit operator DynamicField(int? v) =>
-        v.HasValue ? new() { IntValue = v.Value, _flag = DynamicFieldFlag.Int } : Empty;
+        v.HasValue ? new() { IntValue = v.Value, Flag = DynamicFieldFlag.Int } : Empty;
 
     public static implicit operator int?(DynamicField p) => p.HasValue ? p.IntValue : null;
 
     public static implicit operator DynamicField(long? v) =>
-        v.HasValue ? new() { LongValue = v.Value, _flag = DynamicFieldFlag.Long } : Empty;
+        v.HasValue ? new() { LongValue = v.Value, Flag = DynamicFieldFlag.Long } : Empty;
 
     public static implicit operator long?(DynamicField p) => p.HasValue ? p.LongValue : null;
 
     public static implicit operator DynamicField(float? v) =>
-        v.HasValue ? new() { FloatValue = v.Value, _flag = DynamicFieldFlag.Float } : Empty;
+        v.HasValue ? new() { FloatValue = v.Value, Flag = DynamicFieldFlag.Float } : Empty;
 
     public static implicit operator float?(DynamicField p) => p.HasValue ? p.FloatValue : null;
 
     public static implicit operator DynamicField(double? v) =>
-        v.HasValue ? new() { DoubleValue = v.Value, _flag = DynamicFieldFlag.Double } : Empty;
+        v.HasValue ? new() { DoubleValue = v.Value, Flag = DynamicFieldFlag.Double } : Empty;
 
     public static implicit operator double?(DynamicField p) => p.HasValue ? p.DoubleValue : null;
 
     public static implicit operator DynamicField(DateTime? v) =>
-        v.HasValue ? new() { DateTimeValue = v.Value, _flag = DynamicFieldFlag.DateTime } : Empty;
+        v.HasValue ? new() { DateTimeValue = v.Value, Flag = DynamicFieldFlag.DateTime } : Empty;
 
     public static implicit operator DateTime?(DynamicField p) => p.HasValue ? p.DateTimeValue : null;
 
     public static implicit operator DynamicField(decimal? v) =>
-        v.HasValue ? new() { DecimalValue = v.Value, _flag = DynamicFieldFlag.Decimal } : Empty;
+        v.HasValue ? new() { DecimalValue = v.Value, Flag = DynamicFieldFlag.Decimal } : Empty;
 
     public static implicit operator decimal?(DynamicField p) => p.HasValue ? p.DecimalValue : null;
 
     public static implicit operator DynamicField(Guid? v) =>
-        v.HasValue ? new() { GuidValue = v.Value, _flag = DynamicFieldFlag.Guid } : Empty;
+        v.HasValue ? new() { GuidValue = v.Value, Flag = DynamicFieldFlag.Guid } : Empty;
 
     public static implicit operator Guid?(DynamicField p) => p.HasValue ? p.GuidValue : null;
 
     public static implicit operator DynamicField(string? v) =>
-        new() { _ObjectValue = v, _flag = v == null ? DynamicFieldFlag.Empty : DynamicFieldFlag.String };
+        new() { ObjectValue = v, Flag = v == null ? DynamicFieldFlag.Empty : DynamicFieldFlag.String };
 
-    public static implicit operator string?(DynamicField p) => p.HasValue ? (string)p._ObjectValue! : null;
+    public static implicit operator string?(DynamicField p) => p.HasValue ? (string)p.ObjectValue! : null;
 
     public static implicit operator DynamicField(byte[]? v) =>
-        new() { _ObjectValue = v, _flag = v == null ? DynamicFieldFlag.Empty : DynamicFieldFlag.Binary };
+        new() { ObjectValue = v, Flag = v == null ? DynamicFieldFlag.Empty : DynamicFieldFlag.Binary };
 
-    public static implicit operator byte[]?(DynamicField p) => p.HasValue ? (byte[])p._ObjectValue! : null;
+    public static implicit operator byte[]?(DynamicField p) => p.HasValue ? (byte[])p.ObjectValue! : null;
 
     #endregion
 
@@ -226,20 +275,20 @@ public struct DynamicField
 
     internal void WriteTo(IOutputStream ws)
     {
-        ws.WriteByte((byte)_flag);
+        ws.WriteByte((byte)Flag);
 
-        var type = _flag & DynamicFieldFlag.TypeMask;
+        var type = Flag & DynamicFieldFlag.TypeMask;
         switch (type)
         {
             case DynamicFieldFlag.Empty:
                 break;
             case DynamicFieldFlag.String:
-                ws.WriteString((string?)_ObjectValue);
+                ws.WriteString((string?)ObjectValue);
                 break;
             case DynamicFieldFlag.Binary:
-                var len = _ObjectValue == null ? -1 : ((byte[])_ObjectValue).Length;
+                var len = ObjectValue == null ? -1 : ((byte[])ObjectValue).Length;
                 ws.WriteVariant(len);
-                if (len > 0) ws.WriteBytes((byte[])_ObjectValue!);
+                if (len > 0) ws.WriteBytes((byte[])ObjectValue!);
                 break;
             case DynamicFieldFlag.Bool:
                 ws.WriteBool(BoolValue);

@@ -16,7 +16,7 @@ internal sealed class DataSourcePropEditor : ValueEditorBase
 
         Child = new Select<string>(state)
         {
-            Options = element.Controller.GetAllDataSource().Select(d => d.Name).ToArray()
+            Options = element.Controller.FindDataTableStates().Select(d => d.Name).ToArray()
         };
     }
 }

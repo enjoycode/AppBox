@@ -10,10 +10,23 @@ public sealed class DynamicRow
     public DynamicField this[string name]
     {
         get => _fields[name];
-        set => _fields[name] = value; //TODO:变更标记
+        set
+        {
+            if (!_fields.TryAdd(name, value))
+                _fields[name] = value.WithChanged();
+        }
     }
 
-    public bool HasValue(string name) => _fields.ContainsKey(name) && _fields[name].HasValue;
+    public bool HasValue(string name) => _fields.TryGetValue(name, out var field) && field.HasValue;
+
+    public void AcceptChanges()
+    {
+        foreach (var kv in _fields)
+        {
+            if (kv.Value.HasChanged)
+                _fields[kv.Key] = kv.Value.WithoutChange();
+        }
+    }
 
     public override string ToString()
     {
@@ -35,6 +48,8 @@ public sealed class DynamicRow
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
+    #region ====Serialization====
+
     internal void WriteTo(IOutputStream ws, DynamicFieldInfo[] fields)
     {
         //注意按fields顺序写入值
@@ -54,4 +69,6 @@ public sealed class DynamicRow
             _fields[field.Name] = DynamicField.ReadFrom(rs);
         }
     }
+
+    #endregion
 }

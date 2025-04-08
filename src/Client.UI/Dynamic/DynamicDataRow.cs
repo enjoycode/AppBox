@@ -10,10 +10,12 @@ public sealed class DynamicDataRow : IDynamicDataRow
 
     internal IDynamicRowSource Source { get; set; } = null!;
 
-    public State GetFieldState( /*IDynamicContext dynamicContext,*/ string fieldName)
-    {
-        throw new NotImplementedException();
-    }
+    // public State GetFieldState( /*IDynamicContext dynamicContext,*/ string fieldName)
+    // {
+    //     throw new NotImplementedException();
+    // }
+
+    public IEnumerable<DynamicState> GetChildStates(DynamicState parent) => Source.GetChildStates(parent);
 
     #region ====Serialization====
 
@@ -57,6 +59,8 @@ internal interface IDynamicRowSource
     string SourceType { get; }
 
     Task<DynamicTable?> GetFetchTask(IDynamicContext dynamicContext);
+
+    IEnumerable<DynamicState> GetChildStates(DynamicState parent);
 
     void WriteTo(Utf8JsonWriter writer);
 

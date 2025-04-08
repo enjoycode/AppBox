@@ -17,7 +17,7 @@ internal sealed class TableStateFromQueryEditor : View
         Child = BuildBody();
 
         if (_entityTarget.Value != null)
-            _treeController.DataSource = EntityModelUtils.GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
+            _treeController.DataSource = DesignUtils.GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
         _selectsController.DataSource = TableFromQuery.Selects;
         _filtersController.DataSource = TableFromQuery.Filters;
         _ordersController.DataSource = TableFromQuery.Orders;
@@ -51,7 +51,7 @@ internal sealed class TableStateFromQueryEditor : View
             TableFromQuery.Orders.Clear();
             // reset members tree
             if (node != null)
-                _treeController.DataSource = EntityModelUtils.GetEntityModelMembers((EntityModel)node.Model);
+                _treeController.DataSource = DesignUtils.GetEntityModelMembers((EntityModel)node.Model);
         }
     );
 
@@ -68,7 +68,7 @@ internal sealed class TableStateFromQueryEditor : View
                     [
                         new Select<ModelNode>(_entityTarget)
                         {
-                            Options = EntityModelUtils.GetAllSqlEntityModels(),
+                            Options = DesignUtils.GetAllSqlEntityModels(),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
                         new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>
@@ -79,7 +79,7 @@ internal sealed class TableStateFromQueryEditor : View
                                 var refModel =
                                     (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
                                         .Model;
-                                return EntityModelUtils.GetEntityModelMembers(refModel);
+                                return DesignUtils.GetEntityModelMembers(refModel);
                             })
                             {
                                 AllowDrag = true,
@@ -200,7 +200,7 @@ internal sealed class TableStateFromQueryEditor : View
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
         //构建路径表达式
-        var exp = EntityModelUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
+        var exp = DesignUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
 
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
             DynamicField.FlagFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
@@ -210,7 +210,7 @@ internal sealed class TableStateFromQueryEditor : View
     private void OnDropToFilters(DragEvent dragEvent)
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
-        var exp = EntityModelUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
+        var exp = DesignUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
 
         var filterItem = new DynamicTableFromQuery.FilterItem() { Field = exp };
         _filtersController.Add(filterItem);
@@ -219,7 +219,7 @@ internal sealed class TableStateFromQueryEditor : View
     private void OnDropToOrders(DragEvent dragEvent)
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
-        var exp = EntityModelUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
+        var exp = DesignUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
 
         var orderItem = new DynamicQuery.OrderByItem(exp);
         _ordersController.Add(orderItem);
@@ -273,7 +273,7 @@ internal sealed class TableStateFromQueryEditor : View
                 EntityFieldType.Double => DynamicStateType.Double,
                 _ => throw new NotImplementedException()
             };
-            return designController.FindStatesByValueType(dynamicStateType, member.AllowNull)
+            return designController.FindPrimitiveStates(dynamicStateType, member.AllowNull)
                 .Select(state => state.Name)
                 .ToArray();
         }
