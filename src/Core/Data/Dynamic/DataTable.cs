@@ -7,44 +7,55 @@ public sealed class DataTable : List<DataRow>, IBinSerializable
 {
     internal DataTable() { }
 
-    public DataTable(DataColumn[] fields)
+    public DataTable(DataColumn[] columns)
     {
-        Fields = fields;
+        Columns = columns;
     }
+
+    public DataColumn[] Columns { get; private set; } = null!;
+
+    /// <summary>
+    /// 映射的实体模型标识号，没有映射等于0
+    /// </summary>
+    public ModelId EntityModelId { get; internal set; } = 0;
 
     public static DataTable From<T>(IList<T> entityList) where T : Entity
     {
         throw new NotImplementedException();
     }
 
-    public DataColumn[] Fields { get; private set; } = null!;
+    #region ====Serialization====
 
     public void WriteTo(IOutputStream ws)
     {
-        //Fields
-        ws.WriteVariant(Fields.Length);
-        for (var i = 0; i < Fields.Length; i++)
+        ws.WriteLong(EntityModelId);
+
+        //Columns
+        ws.WriteVariant(Columns.Length);
+        for (var i = 0; i < Columns.Length; i++)
         {
-            ws.WriteString(Fields[i].Name);
-            ws.WriteByte((byte)Fields[i].Type);
+            ws.WriteString(Columns[i].Name);
+            ws.WriteByte((byte)Columns[i].Type);
         }
 
         //Rows
         ws.WriteVariant(Count);
         for (var i = 0; i < Count; i++)
         {
-            this[i].WriteTo(ws, Fields);
+            this[i].WriteTo(ws, Columns);
         }
     }
 
     public void ReadFrom(IInputStream rs)
     {
-        //Fields
+        EntityModelId = rs.ReadLong();
+
+        //Columns
         var count = rs.ReadVariant();
-        Fields = new DataColumn[count];
+        Columns = new DataColumn[count];
         for (var i = 0; i < count; i++)
         {
-            Fields[i] = new DataColumn(rs.ReadString()!, (DataType)rs.ReadByte());
+            Columns[i] = new DataColumn(rs.ReadString()!, (DataType)rs.ReadByte());
         }
 
         //Rows
@@ -52,8 +63,10 @@ public sealed class DataTable : List<DataRow>, IBinSerializable
         for (var i = 0; i < count; i++)
         {
             var item = new DataRow();
-            item.ReadFrom(rs, Fields);
+            item.ReadFrom(rs, Columns);
             Add(item);
         }
     }
+
+    #endregion
 }

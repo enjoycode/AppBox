@@ -41,7 +41,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         PropertyEditor.RegisterClassValueEditor<TableFooterCell[], TableFooterPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<TableStyles, TableStylesPropEditor>(true);
         // 初始化其他事件编辑器
-        EventEditor.Register(nameof(FetchDataSource), static (e, m, a) => new FetchEntityListEditor(e, m, a));
+        EventEditor.Register(nameof(FetchData), static (e, m, a) => new FetchDataEditor(e, m, a));
+        EventEditor.Register(nameof(SaveData), static (e, m, a) => new SaveDataEditor(e, m, a));
     }
 
     public ViewDynamicDesigner(ModelNode modelNode)

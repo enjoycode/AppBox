@@ -6,6 +6,7 @@ namespace AppBoxCore;
 public sealed class DataRow
 {
     private readonly Dictionary<string, DataCell> _fields = new();
+    public bool IsNew { get; internal set; } = true;
 
     public DataCell this[string name]
     {
@@ -21,6 +22,8 @@ public sealed class DataRow
 
     public void AcceptChanges()
     {
+        IsNew = false;
+
         foreach (var kv in _fields)
         {
             if (kv.Value.HasChanged)
@@ -52,6 +55,8 @@ public sealed class DataRow
 
     internal void WriteTo(IOutputStream ws, DataColumn[] fields)
     {
+        ws.WriteBool(IsNew);
+
         //注意按fields顺序写入值
         foreach (var field in fields)
         {
@@ -64,6 +69,8 @@ public sealed class DataRow
 
     internal void ReadFrom(IInputStream rs, DataColumn[] fields)
     {
+        IsNew = rs.ReadBool();
+
         foreach (var field in fields)
         {
             _fields[field.Name] = DataCell.ReadFrom(rs);

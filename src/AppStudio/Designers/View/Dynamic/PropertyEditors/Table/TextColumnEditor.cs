@@ -43,9 +43,9 @@ internal sealed class TextColumnEditor : TableColumnEditor<TextColumnSettings>
 
         var dsState = Element.Controller.FindState(dsName);
         if (dsState?.Value is not IDynamicDataTable dsSettings) return;
-        if (await dsSettings.GetRuntimeState(Element.Controller.DesignCanvas) is not DataTable ds) return;
+        if (await dsSettings.GetRuntimeValue(Element.Controller.DesignCanvas) is not DataTable ds) return;
 
-        _allFields = ds.Fields;
+        _allFields = ds.Columns;
         var fields = _allFields.Select(f => f.Name).ToArray();
         _fieldRef.Options = fields;
     }

@@ -52,7 +52,7 @@ public sealed class DynamicDataTable : IDynamicDataTable
 
     private Lazy<Task<DataTable?>>? _fetchTask;
 
-    public async ValueTask<object?> GetRuntimeState(IDynamicContext dynamicContext)
+    public async ValueTask<object?> GetRuntimeValue(IDynamicContext dynamicContext)
     {
         Interlocked.CompareExchange(ref _fetchTask,
             new Lazy<Task<DataTable?>>(() => Source.GetFetchTask(dynamicContext)), null);
@@ -62,7 +62,7 @@ public sealed class DynamicDataTable : IDynamicDataTable
         }
         catch (Exception e)
         {
-            Notification.Error("填充数据集错误: " + e.Message);
+            Notification.Error("填充数据错误: " + e.Message);
             return null;
         }
     }

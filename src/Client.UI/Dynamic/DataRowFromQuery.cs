@@ -27,6 +27,41 @@ internal sealed class DataRowFromQuery : IDataRowSource
     /// </summary>
     internal PrimaryKey[] PrimaryKeys { get; set; } = [];
 
+    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
+    {
+        if (Expression.IsNull(Root))
+            throw new Exception("Query target not set");
+
+        var q = new DynamicQuery();
+        q.ModelId = Root!.ModelId;
+        q.PageSize = 1;
+        q.Selects = Selects.ToArray();
+
+        for (var i = 0; i < PrimaryKeys.Length; i++)
+        {
+            var pk = PrimaryKeys[i];
+            if (!_row.HasValue(pk.Name))
+                throw new Exception($"Must set pk value: {pk.Name}");
+            var exp = new BinaryExpression(Root![pk.Name],
+                new ConstantExpression(_row[pk.Name].BoxedValue),
+                BinaryOperatorType.Equal);
+            q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
+        }
+
+        return Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
+    }
+
+    public DataTable ToDataTable()
+    {
+        var columns = new DataColumn[Selects.Count];
+        for (var i = 0; i < Selects.Count; i++)
+            columns[i] = new DataColumn(Selects[i].Alias, Selects[i].Type);
+        var dataTable = new DataTable(columns);
+        dataTable.EntityModelId = Root!.ModelId;
+        dataTable.Add(_row);
+        return dataTable;
+    }
+
     #region ====Child States====
 
     public IEnumerable<DynamicState> GetChildStates(DynamicState parent)
@@ -89,30 +124,6 @@ internal sealed class DataRowFromQuery : IDataRowSource
     }
 
     #endregion
-
-    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
-    {
-        if (Expression.IsNull(Root))
-            throw new Exception("Query target not set");
-
-        var q = new DynamicQuery();
-        q.ModelId = Root!.ModelId;
-        q.PageSize = 1;
-        q.Selects = Selects.ToArray();
-
-        for (var i = 0; i < PrimaryKeys.Length; i++)
-        {
-            var pk = PrimaryKeys[i];
-            if (!_row.HasValue(pk.Name))
-                throw new Exception($"Must set pk value: {pk.Name}");
-            var exp = new BinaryExpression(Root![pk.Name],
-                new ConstantExpression(_row[pk.Name].BoxedValue),
-                BinaryOperatorType.Equal);
-            q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
-        }
-
-        return Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
-    }
 
     #region ====DataCellProxy====
 

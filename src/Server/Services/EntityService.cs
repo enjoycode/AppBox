@@ -14,12 +14,22 @@ internal sealed class EntityService : IService
         return q.ToDataTableAsync();
     }
 
+    public static Task Save(object[] data)
+    {
+        throw new NotImplementedException();
+    }
+
     public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
     {
-        return method.Span switch
+        switch (method.Span)
         {
-            nameof(Fetch) => AnyValue.From(await Fetch((DynamicQuery)args.GetObject()!)),
-            _ => throw new Exception($"Can't find method: {method}")
-        };
+            case nameof(Fetch): return AnyValue.From(await Fetch((DynamicQuery)args.GetObject()!));
+            case nameof(Save):
+            {
+                await Save((object[])args.GetObject()!);
+                return AnyValue.Empty;
+            }
+            default: throw new Exception($"Can't find method: {method}");
+        }
     }
 }

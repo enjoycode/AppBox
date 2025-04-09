@@ -37,7 +37,7 @@ internal sealed class EntityRowsView : View
     private void BuildColumns(DataTable ds)
     {
         _dgController.Columns.Clear();
-        foreach (var field in ds.Fields)
+        foreach (var field in ds.Columns)
         {
             _dgController.Columns.Add(
                 new DataGridTextColumn<DataRow>(field.Name, r => r[field.Name].ToStringValue())

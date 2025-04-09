@@ -57,6 +57,11 @@ internal interface IDataRowSource
 
     IEnumerable<DynamicState> GetChildStates(DynamicState parent);
 
+    /// <summary>
+    /// 转换为数据表，用于传输至后端保存数据
+    /// </summary>
+    DataTable ToDataTable();
+
     void WriteTo(Utf8JsonWriter writer);
 
     void ReadFrom(ref Utf8JsonReader reader);
