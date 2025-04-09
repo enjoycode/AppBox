@@ -6,15 +6,23 @@ namespace AppBoxCore;
 public sealed class DataRow
 {
     private readonly Dictionary<string, DataCell> _fields = new();
-    public bool IsNew { get; internal set; } = true;
+    public PersistentState PersistentState { get; private set; } = PersistentState.Detached;
 
     public DataCell this[string name]
     {
         get => _fields[name];
         set
         {
-            if (!_fields.TryAdd(name, value))
+            if (PersistentState == PersistentState.Detached)
+            {
+                _fields[name] = value;
+            }
+            else
+            {
                 _fields[name] = value.WithChanged();
+                if (PersistentState == PersistentState.Unchanged)
+                    PersistentState = PersistentState.Modified;
+            }
         }
     }
 
@@ -22,7 +30,9 @@ public sealed class DataRow
 
     public void AcceptChanges()
     {
-        IsNew = false;
+        PersistentState = PersistentState == PersistentState.Deleted
+            ? PersistentState.Detached
+            : PersistentState.Unchanged;
 
         foreach (var kv in _fields)
         {
@@ -30,6 +40,8 @@ public sealed class DataRow
                 _fields[kv.Key] = kv.Value.WithoutChange();
         }
     }
+
+    internal void AcceptAfterFetch() => PersistentState = PersistentState.Unchanged;
 
     public override string ToString()
     {
@@ -55,7 +67,7 @@ public sealed class DataRow
 
     internal void WriteTo(IOutputStream ws, DataColumn[] fields)
     {
-        ws.WriteBool(IsNew);
+        ws.WriteByte((byte)PersistentState);
 
         //注意按fields顺序写入值
         foreach (var field in fields)
@@ -69,7 +81,7 @@ public sealed class DataRow
 
     internal void ReadFrom(IInputStream rs, DataColumn[] fields)
     {
-        IsNew = rs.ReadBool();
+        PersistentState = (PersistentState)rs.ReadByte();
 
         foreach (var field in fields)
         {

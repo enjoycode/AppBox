@@ -14,7 +14,7 @@ internal sealed class EntityService : IService
         return q.ToDataTableAsync();
     }
 
-    public static Task Save(object[] data)
+    public static Task Save(DataTable[] tables)
     {
         throw new NotImplementedException();
     }
@@ -26,7 +26,7 @@ internal sealed class EntityService : IService
             case nameof(Fetch): return AnyValue.From(await Fetch((DynamicQuery)args.GetObject()!));
             case nameof(Save):
             {
-                await Save((object[])args.GetObject()!);
+                await Save((DataTable[])args.GetObject()!);
                 return AnyValue.Empty;
             }
             default: throw new Exception($"Can't find method: {method}");

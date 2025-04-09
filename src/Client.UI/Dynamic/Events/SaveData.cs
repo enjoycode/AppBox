@@ -74,6 +74,7 @@ public sealed class SaveData : IEventAction
         try
         {
             await Channel.Invoke("sys.EntityService.Save", [tables]);
+            //TODO: accept changes after succeed.
         }
         catch (Exception e)
         {

@@ -161,7 +161,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
                     };
                 }
 
-                row.IsNew = false;
+                row.AcceptAfterFetch();
                 table.Add(row);
             }
         }

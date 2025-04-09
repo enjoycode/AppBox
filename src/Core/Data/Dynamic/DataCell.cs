@@ -331,35 +331,36 @@ public readonly struct DataCell
         switch (type)
         {
             case DataType.Empty:
-                return Empty;
+                return new DataCell() { Flag = flag };
             case DataType.String:
-                return rs.ReadString();
+                return new DataCell() { Flag = flag, ObjectValue = rs.ReadString() };
             case DataType.Binary:
                 var len = rs.ReadVariant();
                 var bytes = new byte[len];
                 rs.ReadBytes(bytes);
-                return bytes;
+                return new DataCell() { Flag = flag, ObjectValue = bytes };
             case DataType.Bool:
-                return rs.ReadBool();
+                return new DataCell() { Flag = flag, BoolValue = rs.ReadBool() };
             case DataType.Byte:
-                return rs.ReadByte();
+                return new DataCell() { Flag = flag, ByteValue = rs.ReadByte() };
             case DataType.Short:
-                return rs.ReadShort();
+                return new DataCell() { Flag = flag, ShortValue = rs.ReadShort() };
             case DataType.Int:
-                return rs.ReadInt();
+                return new DataCell() { Flag = flag, IntValue = rs.ReadInt() };
             case DataType.Long:
-                return rs.ReadLong();
+                return new DataCell() { Flag = flag, LongValue = rs.ReadLong() };
             case DataType.Float:
-                return rs.ReadFloat();
+                return new DataCell() { Flag = flag, FloatValue = rs.ReadFloat() };
             case DataType.Double:
-                return rs.ReadDouble();
+                return new DataCell() { Flag = flag, DoubleValue = rs.ReadDouble() };
             case DataType.DateTime:
-                return rs.ReadDateTime();
+                return new DataCell() { Flag = flag, DateTimeValue = rs.ReadDateTime() };
             case DataType.Decimal:
-                return rs.ReadDecimal();
+                return new DataCell() { Flag = flag, DecimalValue = rs.ReadDecimal() };
             case DataType.Guid:
-                return rs.ReadGuid();
-            default: throw new NotSupportedException(type.ToString());
+                return new DataCell() { Flag = flag, GuidValue = rs.ReadGuid() };
+            default:
+                throw new NotSupportedException(type.ToString());
         }
     }
 
