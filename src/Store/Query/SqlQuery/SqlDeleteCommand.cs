@@ -7,9 +7,9 @@ namespace AppBoxStore;
 
 public sealed class SqlDeleteCommand : SqlQueryBase, ISqlQuery
 {
-    public SqlDeleteCommand(ModelId entityModelID)
+    public SqlDeleteCommand(ModelId entityModelId)
     {
-        T = new EntityExpression(entityModelID, this);
+        T = new EntityExpression(entityModelId, this);
     }
 
     public EntityExpression T { get; }

@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxStore.Utils;
 using static AppBoxStore.StoreLogger;
@@ -224,7 +219,7 @@ public abstract class SqlStore
 
         var model = await RuntimeContext.GetModelAsync<EntityModel>(entity.ModelId);
         if (model.SqlStoreOptions == null)
-            throw new InvalidOperationException("Can't update entity to sqlstore");
+            throw new InvalidOperationException("Can't update entity not map to SqlStore");
         if (!model.SqlStoreOptions.HasPrimaryKeys)
             throw new InvalidOperationException("Can't update entity without primary key");
 
@@ -559,6 +554,67 @@ public abstract class SqlStore
 
     #endregion
 
+    #region ====DML SaveDataTable====
+
+    public async Task SaveDataTableAsync(DataTable table, DbTransaction? transaction = null)
+    {
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(table.EntityModelId);
+
+        var txn = transaction ?? await BeginTransactionAsync();
+        try
+        {
+            //TODO: 删除行
+
+            //更新行
+            foreach (var row in table.Where(r => r.PersistentState == PersistentState.Modified))
+            {
+                var cmd = BuildUpdateCommand(row, model);
+                cmd.Connection = txn.Connection;
+                cmd.Transaction = txn;
+
+                Logger.Debug(cmd.CommandText);
+                try
+                {
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+                    throw;
+                }
+            }
+
+            //添加行
+            foreach (var row in table.Where(r => r.PersistentState == PersistentState.Detached))
+            {
+                var cmd = BuildInsertCommand(row, model);
+                cmd.Connection = txn.Connection;
+                cmd.Transaction = txn;
+
+                Logger.Debug(cmd.CommandText);
+                try
+                {
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+                    throw;
+                }
+            }
+
+            if (transaction == null)
+                await txn.CommitAsync();
+        }
+        finally
+        {
+            if (transaction == null)
+                txn.Connection?.Dispose();
+        }
+    }
+
+    #endregion
+
     #region ====Build DbCommand Methods====
 
     /// <summary>
@@ -597,13 +653,56 @@ public abstract class SqlStore
         sb.Append(" (");
 
         var parasCount = 0; //用于判断有没有写入字段值
-        var members = model.Members;
-        foreach (var member in members)
+        foreach (var member in model.Members)
         {
             if (member.Type != EntityMemberType.EntityField) continue;
 
             var entityField = (EntityFieldModel)member;
             entity.WriteMember(entityField.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
+            if (cmd.Parameters.Count > parasCount) //已写入实体成员
+            {
+                if (parasCount != 0) sb.Append(',');
+                sb.AppendWithNameEscaper(entityField.Name, NameEscaper);
+                parasCount = cmd.Parameters.Count;
+            }
+        }
+
+        sb.Append(") Values (");
+
+        for (var i = 0; i < cmd.Parameters.Count; i++)
+        {
+            if (i != 0) sb.Append(',');
+            sb.Append(ParameterPrefix);
+            sb.Append(cmd.Parameters[i].ParameterName);
+        }
+
+        sb.Append(')');
+
+        cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
+        return cmd;
+    }
+
+    protected virtual DbCommand BuildInsertCommand(DataRow row, EntityModel model)
+    {
+        var cmd = MakeCommand();
+        var sb = StringBuilderCache.Acquire();
+        sb.Append("Insert Into ");
+        sb.AppendWithNameEscaper(model.SqlStoreOptions!.GetSqlTableName(false, null), NameEscaper);
+        sb.Append(" (");
+
+        var parasCount = 0; //用于判断有没有写入字段值
+        foreach (var member in model.Members)
+        {
+            if (member.Type != EntityMemberType.EntityField) continue;
+
+            var entityField = (EntityFieldModel)member;
+            if (!row.HasValue(entityField.Name)) continue;
+
+            var para = cmd.CreateParameter();
+            para.ParameterName = $"p{cmd.Parameters.Count}";
+            para.Value = row[entityField.Name].BoxedValue;
+            cmd.Parameters.Add(para);
+
             if (cmd.Parameters.Count > parasCount) //已写入实体成员
             {
                 if (parasCount != 0) sb.Append(',');
@@ -648,7 +747,7 @@ public abstract class SqlStore
 
             entity.WriteMember(mm.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
 
-            if (hasChangedMember) sb.Append(",");
+            if (hasChangedMember) sb.Append(',');
             else hasChangedMember = true;
 
             sb.AppendWithNameEscaper(dfm.SqlColName, NameEscaper);
@@ -663,6 +762,50 @@ public abstract class SqlStore
         //根据主键生成条件
         sb.Append(" Where ");
         BuildWhereForEntityPKS(entity, model, cmd, sb, false);
+
+        cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
+        return cmd;
+    }
+
+    protected virtual DbCommand BuildUpdateCommand(DataRow row, EntityModel model)
+    {
+        var cmd = MakeCommand();
+        var sb = StringBuilderCache.Acquire();
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, null);
+
+        sb.Append("Update ");
+        sb.AppendWithNameEscaper(tableName, NameEscaper);
+        sb.Append(" Set ");
+
+        var hasChangedMember = false;
+        foreach (var mm in model.Members)
+        {
+            if (mm.Type != EntityMemberType.EntityField) continue;
+
+            var dfm = (EntityFieldModel)mm;
+
+            if (!row.HasChanged(mm.Name)) continue; //字段值无改变
+
+            if (hasChangedMember) sb.Append(',');
+            else hasChangedMember = true;
+
+            var para = cmd.CreateParameter();
+            para.ParameterName = $"p{cmd.Parameters.Count}";
+            para.Value = row.HasValue(mm.Name) ? row[mm.Name].BoxedValue : DBNull.Value;
+            cmd.Parameters.Add(para);
+
+            sb.AppendWithNameEscaper(dfm.SqlColName, NameEscaper);
+            sb.Append('=');
+            sb.Append(ParameterPrefix);
+            sb.Append(para.ParameterName);
+        }
+
+        if (!hasChangedMember)
+            throw new InvalidOperationException("DataRow has no changed member");
+
+        //根据主键生成条件
+        sb.Append(" Where ");
+        BuildWhereForEntityPKS(row, model, cmd, sb);
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
@@ -693,9 +836,10 @@ public abstract class SqlStore
         StringBuilder sb, bool forFetch)
     {
         var entityMemberWriter = new DbCommandParameterWriter(cmd);
-        for (var i = 0; i < model.SqlStoreOptions!.PrimaryKeys.Length; i++)
+        var pks = model.SqlStoreOptions!.PrimaryKeys;
+        for (var i = 0; i < pks.Length; i++)
         {
-            var pk = model.SqlStoreOptions.PrimaryKeys[i];
+            var pk = pks[i];
             var mm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
 
             var memberId = pk.MemberId;
@@ -709,6 +853,39 @@ public abstract class SqlStore
             sb.Append('=');
             sb.Append(ParameterPrefix);
             sb.Append(cmd.Parameters[^1].ParameterName);
+        }
+    }
+
+    /// <summary>
+    /// 根据实体的主键生成Where条件
+    /// </summary>
+    private void BuildWhereForEntityPKS(DataRow row, EntityModel model, DbCommand cmd, StringBuilder sb)
+    {
+        // var entityMemberWriter = new DbCommandParameterWriter(cmd);
+        var pks = model.SqlStoreOptions!.PrimaryKeys;
+        for (var i = 0; i < pks.Length; i++)
+        {
+            var pk = pks[i];
+            var mm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
+
+            object? pkValue;
+            var oriName = $"${mm.Name}";
+            if (pk.AllowChange && row.HasValue(oriName))
+                pkValue = row[oriName].BoxedValue;
+            else
+                pkValue = row[mm.Name].BoxedValue;
+
+            var para = cmd.CreateParameter();
+            para.ParameterName = $"p{cmd.Parameters.Count}";
+            para.Value = pkValue;
+            cmd.Parameters.Add(para);
+
+            if (i != 0) sb.Append(" And");
+            sb.Append(' ');
+            sb.AppendWithNameEscaper(mm.SqlColName, NameEscaper);
+            sb.Append('=');
+            sb.Append(ParameterPrefix);
+            sb.Append(para.ParameterName);
         }
     }
 

@@ -24,6 +24,14 @@ public sealed class DataTable : List<DataRow>, IBinSerializable
         throw new NotImplementedException();
     }
 
+    public void AcceptChanges()
+    {
+        foreach (var row in this)
+        {
+            row.AcceptChanges();
+        }
+    }
+
     #region ====Serialization====
 
     public void WriteTo(IOutputStream ws)

@@ -28,6 +28,8 @@ public sealed class DataRow
 
     public bool HasValue(string name) => _fields.TryGetValue(name, out var field) && field.HasValue;
 
+    public bool HasChanged(string name) => _fields.TryGetValue(name, out var field) && field.HasChanged;
+
     public void AcceptChanges()
     {
         PersistentState = PersistentState == PersistentState.Deleted

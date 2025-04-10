@@ -14,9 +14,41 @@ internal sealed class EntityService : IService
         return q.ToDataTableAsync();
     }
 
-    public static Task Save(DataTable[] tables)
+    public static async Task Save(DataTable[] tables)
     {
-        throw new NotImplementedException();
+        if (tables.Length == 0) return;
+
+        //先检查数据表
+        long? storeId = null;
+        foreach (var table in tables)
+        {
+            if (table.EntityModelId == 0)
+                throw new Exception("table has not map to entity");
+            var model = await RuntimeContext.GetModelAsync<EntityModel>(table.EntityModelId);
+            if (model.SqlStoreOptions == null)
+                throw new Exception("table has not map to store");
+            if (storeId == null)
+                storeId = model.SqlStoreOptions.StoreModelId;
+            else if (model.SqlStoreOptions.StoreModelId != storeId.Value)
+                throw new Exception("table not in same store");
+        }
+
+        //开始事务保存
+        var db = SqlStore.Get(storeId!.Value);
+        var txn = await db.BeginTransactionAsync();
+        try
+        {
+            foreach (var table in tables)
+            {
+                await db.SaveDataTableAsync(table, txn);
+            }
+
+            await txn.CommitAsync();
+        }
+        finally
+        {
+            await txn.DisposeAsync();
+        }
     }
 
     public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
