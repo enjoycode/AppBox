@@ -1,9 +1,11 @@
+using System.Collections.ObjectModel;
+
 namespace AppBoxCore;
 
 /// <summary>
 /// 动态数据表
 /// </summary>
-public sealed class DataTable : List<DataRow>, IBinSerializable
+public sealed class DataTable : Collection<DataRow>, IBinSerializable
 {
     internal DataTable() { }
 
@@ -11,6 +13,10 @@ public sealed class DataTable : List<DataRow>, IBinSerializable
     {
         Columns = columns;
     }
+
+    private List<DataRow>? _removedRows;
+
+    public IList<DataRow>? RemovedRows => _removedRows;
 
     public DataColumn[] Columns { get; private set; } = null!;
 
@@ -26,11 +32,49 @@ public sealed class DataTable : List<DataRow>, IBinSerializable
 
     public void AcceptChanges()
     {
+        _removedRows = null;
+
         foreach (var row in this)
         {
             row.AcceptChanges();
         }
     }
+
+    #region ====Overrides====
+
+    protected override void RemoveItem(int index)
+    {
+        TryAddToRemoved(this[index]);
+        base.RemoveItem(index);
+    }
+
+    protected override void SetItem(int index, DataRow item)
+    {
+        TryAddToRemoved(this[index]);
+
+        base.SetItem(index, item);
+    }
+
+    protected override void ClearItems()
+    {
+        foreach (var row in this)
+        {
+            TryAddToRemoved(row);
+        }
+
+        base.ClearItems();
+    }
+
+    private void TryAddToRemoved(DataRow row)
+    {
+        if (row.PersistentState != PersistentState.Detached)
+        {
+            _removedRows ??= new List<DataRow>();
+            _removedRows.Add(row);
+        }
+    }
+
+    #endregion
 
     #region ====Serialization====
 

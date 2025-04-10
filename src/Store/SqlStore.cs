@@ -563,7 +563,27 @@ public abstract class SqlStore
         var txn = transaction ?? await BeginTransactionAsync();
         try
         {
-            //TODO: 删除行
+            //删除行
+            if (table.RemovedRows is { Count: > 0 })
+            {
+                foreach (var row in table.RemovedRows)
+                {
+                    var cmd = BuildUpdateCommand(row, model);
+                    cmd.Connection = txn.Connection;
+                    cmd.Transaction = txn;
+
+                    Logger.Debug(cmd.CommandText);
+                    try
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
+                        throw;
+                    }
+                }
+            }
 
             //更新行
             foreach (var row in table.Where(r => r.PersistentState == PersistentState.Modified))
@@ -822,6 +842,20 @@ public abstract class SqlStore
         sb.Append($"Delete From {NameEscaper}{tableName}{NameEscaper} Where ");
         //根据主键生成条件
         BuildWhereForEntityPKS(entity, model, cmd, sb, false);
+
+        cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
+        return cmd;
+    }
+
+    protected virtual DbCommand BuildDeleteCommand(DataRow row, EntityModel model)
+    {
+        var cmd = MakeCommand();
+        var sb = StringBuilderCache.Acquire();
+        var tableName = model.SqlStoreOptions!.GetSqlTableName(false, null);
+
+        sb.Append($"Delete From {NameEscaper}{tableName}{NameEscaper} Where ");
+        //根据主键生成条件
+        BuildWhereForEntityPKS(row, model, cmd, sb);
 
         cmd.CommandText = StringBuilderCache.GetStringAndRelease(sb);
         return cmd;
