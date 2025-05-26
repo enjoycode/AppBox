@@ -124,6 +124,42 @@ public readonly struct DataCell
         }
     }
 
+    public float? NullableFloatValue
+    {
+        get
+        {
+            if (!HasValue) return null;
+            var type = Flag & DataType.TypeMask;
+            if (type != DataType.Float)
+                throw new NotSupportedException();
+            return FloatValue;
+        }
+    }
+    
+    public double? NullableDoubleValue
+    {
+        get
+        {
+            if (!HasValue) return null;
+            var type = Flag & DataType.TypeMask;
+            if (type != DataType.Double)
+                throw new NotSupportedException();
+            return DoubleValue;
+        }
+    }
+
+    public Guid? NullableGuidValue
+    {
+        get
+        {
+            if (!HasValue) return null;
+            var type = Flag & DataType.TypeMask;
+            if (type != DataType.Guid)
+                throw new NotSupportedException();
+            return GuidValue;
+        }
+    }
+    
     /// <summary>
     /// 主要用于Chart转换为相应的ChartPoint
     /// </summary>

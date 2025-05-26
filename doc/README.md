@@ -1,11 +1,4 @@
 
-
-```plantuml
-@startuml
-Bob->Alice : Hello!
-@enduml
-```
-
 ```mermaid
 graph LR
     A[Write Codel] --> B{Does it work?}

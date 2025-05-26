@@ -12,6 +12,11 @@ public sealed class DynamicDataRow : IDynamicDataRow
 
     public IEnumerable<DynamicState> GetChildStates(DynamicState parent) => Source.GetChildStates(parent);
 
+    public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
+    {
+        throw new NotImplementedException();
+    }
+
     #region ====Serialization====
 
     public void WriteTo(Utf8JsonWriter writer)

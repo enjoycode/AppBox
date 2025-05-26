@@ -119,6 +119,18 @@ public sealed class DynamicPrimitive : IDynamicPrimitive
         return _runtimeState;
     }
 
+    public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
+    {
+        if (Source == DynamicPrimitiveSource.Expression)
+            throw new NotSupportedException("Can't copy to Expression");
+        if (otherState.Value is not IDynamicPrimitive otherPrimitive)
+            throw new NotSupportedException($"{nameof(DynamicPrimitive)} cannot copy from other: {otherState.Type}");
+
+        var otherRuntimeState = otherPrimitive.GetRuntimeState(otherCtx, otherState);
+        _value = otherRuntimeState.BoxedValue;
+        //这里暂不通知值更新
+    }
+
     #region ====Serialization====
 
     public void WriteTo(Utf8JsonWriter writer)

@@ -15,6 +15,11 @@ public sealed class DynamicDataTable : IDynamicDataTable
 
     public event Action<bool>? DataChanged;
 
+    public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
+    {
+        throw new NotImplementedException();
+    }
+
     #region ====Serialization====
 
     public void WriteTo(Utf8JsonWriter writer)

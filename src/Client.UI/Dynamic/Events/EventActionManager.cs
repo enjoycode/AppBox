@@ -9,9 +9,12 @@ public sealed class EventActionManager : IEventActionManager
     {
         Register<FetchData>(DataSourceGroup);
         Register<SaveData>(DataSourceGroup);
+        Register<ShowDialog>(NavigationGroup);
     }
 
     private const string DataSourceGroup = "DataSource";
+    private const string NavigationGroup = "Navigation";
+
     private readonly Dictionary<string, EventActionInfo> _eventActions = new();
 
     private void Register<T>(string groupName) where T : IEventAction, new()
