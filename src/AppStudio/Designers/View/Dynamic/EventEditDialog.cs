@@ -36,7 +36,7 @@ internal sealed class EventEditDialog : Dialog
             {
                 new Card
                 {
-                    Width = 250,
+                    Width = 200,
                     Child = new TreeView<ActionNode>(_treeController, BuildTreeNode, d => d.Children)
                 },
                 new Card

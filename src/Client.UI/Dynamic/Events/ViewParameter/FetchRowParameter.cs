@@ -9,7 +9,9 @@ namespace AppBoxClient.Dynamic.Events;
 /// </summary>
 public sealed class FetchRowParameter : IViewParameterSource
 {
-    public string Name => "FetchRow";
+    internal const string SourceName = "FetchRow";
+    
+    public string Name => SourceName;
 
     public List<PrimaryKeyValue> PkValues { get; } = [];
 
