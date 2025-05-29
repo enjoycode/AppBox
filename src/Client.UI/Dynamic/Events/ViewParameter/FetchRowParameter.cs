@@ -10,7 +10,7 @@ namespace AppBoxClient.Dynamic.Events;
 public sealed class FetchRowParameter : IViewParameterSource
 {
     internal const string SourceName = "FetchRow";
-    
+
     public string Name => SourceName;
 
     public List<PrimaryKeyValue> PkValues { get; } = [];
@@ -86,9 +86,9 @@ public sealed class FetchRowParameter : IViewParameterSource
         await targetDataRow.Source.GetFetchTask(target);
     }
 
-    public struct PrimaryKeyValue
+    public sealed class PrimaryKeyValue
     {
-        public string CurrentStateName { get; set; }
-        public string TargetStateName { get; set; }
+        public string CurrentStateName { get; set; } = string.Empty;
+        public string TargetStateName { get; set; } = string.Empty;
     }
 }

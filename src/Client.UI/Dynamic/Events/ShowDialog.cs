@@ -10,8 +10,8 @@ public sealed class ShowDialog : IEventAction
 {
     public string ActionName => nameof(ShowDialog);
 
-    public int DialogWidth { get; private set; } = 400;
-    public int DialogHeight { get; private set; } = 300;
+    public int DialogWidth { get; internal set; } = 400;
+    public int DialogHeight { get; internal set; } = 300;
 
     /// <summary>
     /// 显示视图模型的名称, eg: sys.CustomerEditView

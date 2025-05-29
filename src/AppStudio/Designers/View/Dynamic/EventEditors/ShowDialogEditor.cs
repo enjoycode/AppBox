@@ -10,8 +10,9 @@ internal sealed class ShowDialogEditor : SingleChildWidget
     public ShowDialogEditor(DesignElement element, DynamicEventMeta eventMeta, IEventAction eventAction)
     {
         _showDialogAction = (ShowDialog)eventAction;
-        _targetView = new RxProxy<string>(() => _showDialogAction.TargetView,
-            v => _showDialogAction.TargetView = v);
+        _targetView = new RxProxy<string>(() => _showDialogAction.TargetView, v => _showDialogAction.TargetView = v);
+        _width = new RxProxy<int>(() => _showDialogAction.DialogWidth, v => _showDialogAction.DialogWidth = v);
+        _height = new RxProxy<int>(() => _showDialogAction.DialogHeight, v => _showDialogAction.DialogHeight = v);
         _dgController.DataSource = _showDialogAction.Parameters;
 
         Child = Build();
@@ -20,6 +21,8 @@ internal sealed class ShowDialogEditor : SingleChildWidget
     private readonly DataGridController<ViewParameter> _dgController = new();
     private readonly ShowDialog _showDialogAction;
     private readonly State<string> _targetView;
+    private readonly State<int> _width;
+    private readonly State<int> _height;
 
     private Widget Build() => new Column()
     {
@@ -32,8 +35,8 @@ internal sealed class ShowDialogEditor : SingleChildWidget
                 Children =
                 {
                     new("TargetView:", new TextInput(_targetView)),
-                    new("Width:", new NumberInput<int>(400)),
-                    new("Height:", new NumberInput<int>(300)),
+                    new("Width:", new NumberInput<int>(_width)),
+                    new("Height:", new NumberInput<int>(_height)),
                     new("Parameters:", new ButtonGroup
                     {
                         Children =
@@ -47,14 +50,11 @@ internal sealed class ShowDialogEditor : SingleChildWidget
             new DataGrid<ViewParameter>(_dgController)
                 .AddTextColumn("State", v => v.StateName)
                 .AddTextColumn("Source", v => v.Source.Name)
-                .AddButtonColumn("Edit", (s, _) => new Button(icon: MaterialIcons.Edit)
+                .AddButtonColumn("Edit", (v, _) => new Button(icon: MaterialIcons.Edit)
                 {
                     Style = ButtonStyle.Transparent,
                     Shape = ButtonShape.Pills,
-                    OnTap = _ =>
-                    {
-                        /*TODO:*/
-                    },
+                    OnTap = _ => OnEditViewParameter(v),
                 }, 50)
         ]
     };
@@ -74,5 +74,14 @@ internal sealed class ShowDialogEditor : SingleChildWidget
 
         var viewParameter = dlg.GetViewParameter();
         _dgController.Add(viewParameter);
+    }
+
+    private static void OnEditViewParameter(ViewParameter viewParameter)
+    {
+        if (viewParameter.Source is FetchRowParameter fetchRowParameter)
+        {
+            var dlg = new PkValuesDialog(fetchRowParameter);
+            dlg.Show();
+        }
     }
 }
