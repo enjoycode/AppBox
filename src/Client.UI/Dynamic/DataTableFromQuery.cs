@@ -33,7 +33,8 @@ internal sealed class DataTableFromQuery : IDataTableSource
     /// </summary>
     public List<DynamicQuery.OrderByItem> Orders { get; } = [];
 
-    public IEnumerable<DataColumn> GetColumns() => Selects.Select(item => new DataColumn(item.Alias, item.Type));
+    public IEnumerable<DataColumn> GetColumns(IDynamicContext context, DynamicDataTable dataTable) =>
+        Selects.Select(item => new DataColumn(item.Alias, item.Type));
 
     public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
     {

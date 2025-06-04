@@ -21,9 +21,10 @@ internal sealed class DataTableFromService : IDataTableSource
     /// </summary>
     public string?[] Arguments { get; set; } = [];
 
-    public IEnumerable<DataColumn> GetColumns()
+    public IEnumerable<DataColumn> GetColumns(IDynamicContext context, DynamicDataTable dataTable)
     {
-        throw new NotImplementedException();
+        var fetchTask = dataTable.GetRuntimeValue(context);
+        return fetchTask is { IsCompletedSuccessfully: true, Result: DataTable table } ? table.Columns : [];
     }
 
     public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)

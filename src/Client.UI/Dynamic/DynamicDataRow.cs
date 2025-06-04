@@ -10,7 +10,8 @@ public sealed class DynamicDataRow : IDynamicDataRow
 
     internal IDataRowSource Source { get; set; } = null!;
 
-    public IEnumerable<DynamicState> GetChildStates(DynamicState parent) => Source.GetChildStates(parent);
+    public IEnumerable<DynamicState> GetChildStates(IDynamicContext context, DynamicState parent) => 
+        Source.GetChildStates(parent);
 
     public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
     {

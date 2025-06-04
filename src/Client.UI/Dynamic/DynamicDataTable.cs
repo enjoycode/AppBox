@@ -30,14 +30,14 @@ public sealed class DynamicDataTable : IDynamicDataTable
         throw new NotImplementedException();
     }
 
-    public IEnumerable<DynamicState> GetChildStates(DynamicState parent)
+    public IEnumerable<DynamicState> GetChildStates(IDynamicContext context, DynamicState parent)
     {
         if (_childStates == null)
         {
             _childStates = new List<DynamicState>();
 
             //不使用CurrentRow作为中介
-            foreach (var column in Source.GetColumns())
+            foreach (var column in Source.GetColumns(context, this))
             {
                 var childState = new DynamicState() { Name = $"{parent.Name}.CurrentRow.{column.Name}" };
                 childState.AllowNull = true; //始终允许为空
@@ -132,7 +132,7 @@ internal interface IDataTableSource
     /// <summary>
     /// 获取所有列信息，主要用于生成子级状态
     /// </summary>
-    IEnumerable<DataColumn> GetColumns();
+    IEnumerable<DataColumn> GetColumns(IDynamicContext context, DynamicDataTable dataTable);
 
     /// <summary>
     /// 获取填充数据的任务，eg:执行查询或调用服务

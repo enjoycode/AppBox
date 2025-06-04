@@ -33,7 +33,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         if (name.Contains('.'))
         {
             return _states.Where(s => s.Value is IWithChildStates)
-                .SelectMany(s => ((IWithChildStates)s.Value!).GetChildStates(s))
+                .SelectMany(s => ((IWithChildStates)s.Value!).GetChildStates(this, s))
                 .FirstOrDefault(s => s.Name == name);
         }
 
