@@ -1,5 +1,7 @@
 using System.Text.Json;
+using AppBoxClient.Dynamic;
 using AppBoxCore;
+using AppBoxClient.Utils;
 
 namespace PixUI.Dynamic;
 
@@ -11,13 +13,41 @@ public sealed class DynamicDataTable : IDynamicDataTable
     internal const string FromService = "Service";
     internal const string FromQuery = "Query";
 
+    private List<DynamicState>? _childStates;
+
+    /// <summary>
+    /// 数据表的来源，可以是从服务调用或通用数据查询获取
+    /// </summary>
     internal IDataTableSource Source { get; set; } = null!;
 
+    /// <summary>
+    /// 数据变更事件，用于通知绑定的组件刷新
+    /// </summary>
     public event Action<bool>? DataChanged;
 
     public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
     {
         throw new NotImplementedException();
+    }
+
+    public IEnumerable<DynamicState> GetChildStates(DynamicState parent)
+    {
+        if (_childStates == null)
+        {
+            _childStates = new List<DynamicState>();
+
+            //不使用CurrentRow作为中介
+            foreach (var column in Source.GetColumns())
+            {
+                var childState = new DynamicState() { Name = $"{parent.Name}.CurrentRow.{column.Name}" };
+                childState.AllowNull = true; //始终允许为空
+                childState.Type = column.Type.ToDynamicStateType();
+                childState.Value = new CurrentRowProxy(this, column.Name);
+                _childStates.Add(childState);
+            }
+        }
+
+        return _childStates;
     }
 
     #region ====Serialization====
@@ -99,6 +129,14 @@ internal interface IDataTableSource
 {
     string SourceType { get; }
 
+    /// <summary>
+    /// 获取所有列信息，主要用于生成子级状态
+    /// </summary>
+    IEnumerable<DataColumn> GetColumns();
+
+    /// <summary>
+    /// 获取填充数据的任务，eg:执行查询或调用服务
+    /// </summary>
     Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext);
 
     void WriteTo(Utf8JsonWriter writer);

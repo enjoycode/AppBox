@@ -1,4 +1,5 @@
 using System.Text.Json;
+using PixUI;
 using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic.Events;
@@ -128,6 +129,8 @@ public sealed class ShowDialog : IEventAction
 
     public void Run(IDynamicContext dynamicContext, object? eventArg = null)
     {
+        //var dynamicWidget = new DynamicWidget()
+        
         throw new NotImplementedException();
     }
 }

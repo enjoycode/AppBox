@@ -21,6 +21,11 @@ internal sealed class DataTableFromService : IDataTableSource
     /// </summary>
     public string?[] Arguments { get; set; } = [];
 
+    public IEnumerable<DataColumn> GetColumns()
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
         object?[]? args = null;

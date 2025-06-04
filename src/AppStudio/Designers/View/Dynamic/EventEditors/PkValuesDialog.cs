@@ -14,23 +14,21 @@ internal sealed class PkValuesDialog : Dialog
         Height = 400;
         Title.Value = "PrimaryKeys for FetchRow";
 
-        _fetchRowParameter = fetchRowParameter;
-        _dgController.DataSource = _fetchRowParameter.PkValues;
+        _dgController.DataSource = fetchRowParameter.PkValues;
     }
 
     private readonly DataGridController<FetchRowParameter.PrimaryKeyValue> _dgController = new();
-    private readonly FetchRowParameter _fetchRowParameter;
 
     protected override Widget BuildBody() => new Container()
     {
         Padding = EdgeInsets.All(20),
         Child = new DataGrid<FetchRowParameter.PrimaryKeyValue>(_dgController)
-            .AddHostColumn("SourceState", (pk, i) =>
+            .AddHostColumn("SourceState", (pk, _) =>
             {
                 var s = new RxProxy<string>(() => pk.CurrentStateName, v => pk.CurrentStateName = v);
                 return new TextInput(s);
             })
-            .AddHostColumn("TargetState", (pk, i) =>
+            .AddHostColumn("TargetState", (pk, _) =>
             {
                 var s = new RxProxy<string>(() => pk.TargetStateName, v => pk.TargetStateName = v);
                 return new TextInput(s);
