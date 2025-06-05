@@ -166,6 +166,8 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
 
     #region ====IDataSourceBinder====
 
+    public event Action<IDataSourceBinder, object?>? CurrentRowChanged;
+
     void IDataSourceBinder.OnDataChanged(bool isReset)
     {
         if (!isReset)

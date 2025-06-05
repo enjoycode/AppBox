@@ -111,6 +111,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
         _dynamicContext?.BindToDataSource(this, _dataSource);
+        Controller.SelectionChanged += OnDataGridSelectionChanged;
         //填充数据集
         Fetch();
     }
@@ -119,6 +120,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
     {
         //取消监听数据集变更
         _dynamicContext?.UnbindFromDataSource(this, _dataSource);
+        Controller.SelectionChanged -= OnDataGridSelectionChanged;
         base.OnUnmounted();
     }
 
@@ -154,6 +156,13 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
     }
 
     #region ====IDataSourceBinder====
+
+    public event Action<IDataSourceBinder, object?>? CurrentRowChanged;
+
+    private void OnDataGridSelectionChanged()
+    {
+        CurrentRowChanged?.Invoke(this, Controller.CurrentRow);
+    }
 
     void IDataSourceBinder.OnDataChanged(bool isReset)
     {

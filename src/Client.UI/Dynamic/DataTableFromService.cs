@@ -23,6 +23,7 @@ internal sealed class DataTableFromService : IDataTableSource
 
     public IEnumerable<DataColumn> GetColumns(IDynamicContext context, DynamicDataTable dataTable)
     {
+        //暂用以下方式实现，考虑设计时调用一次服务获取DataTable然后保存所有列信息
         var fetchTask = dataTable.GetRuntimeValue(context);
         return fetchTask is { IsCompletedSuccessfully: true, Result: DataTable table } ? table.Columns : [];
     }

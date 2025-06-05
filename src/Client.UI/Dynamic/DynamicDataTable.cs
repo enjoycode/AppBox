@@ -16,6 +16,11 @@ public sealed class DynamicDataTable : IDynamicDataTable
     private List<DynamicState>? _childStates;
 
     /// <summary>
+    /// 绑定组件当前选择的行
+    /// </summary>
+    public DataRow? CurrentRow { get; private set; }
+
+    /// <summary>
     /// 数据表的来源，可以是从服务调用或通用数据查询获取
     /// </summary>
     internal IDataTableSource Source { get; set; } = null!;
@@ -48,6 +53,11 @@ public sealed class DynamicDataTable : IDynamicDataTable
         }
 
         return _childStates;
+    }
+
+    public void NotifyStateChanged()
+    {
+        //TODO: do nothing now
     }
 
     #region ====Serialization====
@@ -102,6 +112,17 @@ public sealed class DynamicDataTable : IDynamicDataTable
         }
     }
 
+    public void OnCurrentRowChanged(IDataSourceBinder widget, object? dataRow)
+    {
+        CurrentRow = dataRow as DataRow;
+        //通知所有子级状态变更
+        if (_childStates == null) return;
+        foreach (var childState in _childStates)
+        {
+            childState.Value?.NotifyStateChanged();
+        }
+    }
+
     /// <summary>
     /// 清除数据加载状态并通知相关的绑定者刷新数据
     /// </summary>
@@ -117,6 +138,7 @@ public sealed class DynamicDataTable : IDynamicDataTable
     internal void Reset()
     {
         DataChanged?.Invoke(true);
+        _childStates = null;
     }
 
     #endregion

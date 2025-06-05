@@ -131,6 +131,11 @@ public sealed class DynamicPrimitive : IDynamicPrimitive
         //这里暂不通知值更新
     }
 
+    public void NotifyStateChanged()
+    {
+        _runtimeState?.NotifyValueChanged();
+    }
+
     #region ====Serialization====
 
     public void WriteTo(Utf8JsonWriter writer)

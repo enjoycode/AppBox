@@ -50,6 +50,11 @@ internal sealed class DataCellProxy : IDynamicPrimitive
         return _row.HasValue(_name) ? _row[_name].BoxedValue : null;
     }
 
+    public void NotifyStateChanged()
+    {
+        _runtimeState?.NotifyValueChanged();
+    }
+
     public State GetRuntimeState(IDynamicContext ctx, DynamicState state)
     {
         if (_runtimeState != null) return _runtimeState;

@@ -18,6 +18,11 @@ public sealed class DynamicDataRow : IDynamicDataRow
         throw new NotImplementedException();
     }
 
+    public void NotifyStateChanged()
+    {
+        //TODO: do nothing now
+    }
+
     #region ====Serialization====
 
     public void WriteTo(Utf8JsonWriter writer)
