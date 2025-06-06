@@ -10,7 +10,10 @@ internal sealed class ShowDialogEditor : SingleChildWidget
     public ShowDialogEditor(DesignElement element, DynamicEventMeta eventMeta, IEventAction eventAction)
     {
         _showDialogAction = (ShowDialog)eventAction;
-        _targetView = new RxProxy<string>(() => _showDialogAction.TargetView, v => _showDialogAction.TargetView = v);
+        _targetView = new RxProxy<ModelNode?>(
+            () => DesignHub.Current.DesignTree.FindModelNode(_showDialogAction.TargetViewId),
+            v => _showDialogAction.TargetViewId = v?.Model.Id ?? 0);
+        //TODO:设计时监听_targetView改变清除ViewParameters
         _width = new RxProxy<int>(() => _showDialogAction.DialogWidth, v => _showDialogAction.DialogWidth = v);
         _height = new RxProxy<int>(() => _showDialogAction.DialogHeight, v => _showDialogAction.DialogHeight = v);
         _dgController.DataSource = _showDialogAction.Parameters;
@@ -20,7 +23,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
 
     private readonly DataGridController<ViewParameter> _dgController = new();
     private readonly ShowDialog _showDialogAction;
-    private readonly State<string> _targetView;
+    private readonly State<ModelNode?> _targetView;
     private readonly State<int> _width;
     private readonly State<int> _height;
 
@@ -34,7 +37,11 @@ internal sealed class ShowDialogEditor : SingleChildWidget
                 LabelWidth = 90,
                 Children =
                 {
-                    new("TargetView:", new TextInput(_targetView)),
+                    new("TargetView:", new Select<ModelNode>(_targetView)
+                    {
+                        Options = DesignUtils.GetAllDynamicViewModels(),
+                        LabelGetter = node => $"{node.AppNode.Label}.{node.Label}",
+                    }),
                     new("Width:", new NumberInput<int>(_width)),
                     new("Height:", new NumberInput<int>(_height)),
                     new("Parameters:", new ButtonGroup
@@ -61,7 +68,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
 
     private async void OnAddViewParameter()
     {
-        if (string.IsNullOrEmpty(_targetView.Value))
+        if (_targetView.Value == null)
         {
             Notification.Error("Please set target view first.");
             return;

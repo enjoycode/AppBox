@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -15,9 +16,9 @@ public sealed class ShowDialog : IEventAction
     public int DialogHeight { get; internal set; } = 300;
 
     /// <summary>
-    /// 显示视图模型的名称, eg: sys.CustomerEditView
+    /// 显示视图模型的标识
     /// </summary>
-    public string TargetView { get; internal set; } = string.Empty;
+    public ModelId TargetViewId { get; internal set; }
 
     /// <summary>
     /// 目标视图的参数列表
@@ -30,7 +31,7 @@ public sealed class ShowDialog : IEventAction
     {
         writer.WriteNumber(nameof(DialogWidth), DialogWidth);
         writer.WriteNumber(nameof(DialogHeight), DialogHeight);
-        writer.WriteString(nameof(TargetView), TargetView);
+        writer.WriteString(nameof(TargetViewId), TargetViewId.ToString());
         writer.WritePropertyName(nameof(Parameters));
         writer.WriteStartArray();
         foreach (var parameter in Parameters)
@@ -65,9 +66,9 @@ public sealed class ShowDialog : IEventAction
                         reader.Read();
                         DialogHeight = reader.GetInt32();
                         break;
-                    case nameof(TargetView):
+                    case nameof(TargetViewId):
                         reader.Read();
-                        TargetView = reader.GetString() ?? string.Empty;
+                        TargetViewId = reader.GetString() ?? "0";
                         break;
                     case nameof(Parameters):
                         ReadParameters(ref reader);
@@ -129,8 +130,9 @@ public sealed class ShowDialog : IEventAction
 
     public void Run(IDynamicContext dynamicContext, object? eventArg = null)
     {
-        //var dynamicWidget = new DynamicWidget()
+        var dynamicWidget = new DynamicWidget(TargetViewId);
+        //TODO:订阅dynamicWidget加载动态视图成功后的操作
+        Dialog.Show("" /*TODO: fix*/, dlg => dynamicWidget, null, new(DialogWidth, DialogHeight));
         
-        throw new NotImplementedException();
     }
 }

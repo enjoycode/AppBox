@@ -80,6 +80,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         }
         catch (Exception e)
         {
+            Log.Debug($"解析动态视图错误: {e.Message}\n{e.StackTrace}");
             ReplaceTo(new Text($"Parse error: {e.Message}"));
         }
     }
@@ -167,7 +168,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             var peekReader = reader;
             if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
             {
-                var vs = new DynamicPrimitive();
+                IDynamicStateValue vs = type == DynamicStateType.DataRow ? new DynamicDataRow() : new DynamicPrimitive();
                 vs.ReadFrom(ref reader, state);
                 state.Value = vs;
             }

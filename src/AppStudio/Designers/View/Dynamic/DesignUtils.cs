@@ -58,4 +58,11 @@ internal static class DesignUtils
             .Where(m => ((EntityModel)m.Model).SqlStoreOptions != null)
             .ToArray();
     }
+
+    public static ModelNode[] GetAllDynamicViewModels()
+    {
+        return DesignHub.Current.DesignTree.FindNodesByType(ModelType.View)
+            .Where(m => ((ViewModel)m.Model).ViewType == ViewModelType.PixUIDynamic)
+            .ToArray();
+    }
 }
