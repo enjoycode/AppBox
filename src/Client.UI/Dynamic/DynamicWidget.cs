@@ -14,7 +14,7 @@ namespace PixUI;
 /// </summary>
 public sealed class DynamicWidget : DynamicView, IDynamicContext
 {
-    public DynamicWidget(long viewModelId /*, IDictionary<string, object?>? initProps = null*/)
+    public DynamicWidget(long viewModelId)
     {
         _viewModelId = viewModelId;
     }
@@ -24,6 +24,11 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
     private List<DynamicState>? _states;
     private DynamicBackground? _background;
     private Image? _cachedImage;
+
+    /// <summary>
+    /// 成功解析json并加载后的事件
+    /// </summary>
+    public event Action? OnLoaded;
 
     DynamicState? IDynamicContext.FindState(string name)
     {
@@ -77,6 +82,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         {
             var root = ParseJson(json);
             ReplaceTo(root);
+            OnLoaded?.Invoke();
         }
         catch (Exception e)
         {
@@ -168,7 +174,9 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             var peekReader = reader;
             if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
             {
-                IDynamicStateValue vs = type == DynamicStateType.DataRow ? new DynamicDataRow() : new DynamicPrimitive();
+                IDynamicStateValue vs = type == DynamicStateType.DataRow
+                    ? new DynamicDataRow()
+                    : new DynamicPrimitive();
                 vs.ReadFrom(ref reader, state);
                 state.Value = vs;
             }

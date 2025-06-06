@@ -28,7 +28,7 @@ internal sealed class DataRowFromQuery : IDataRowSource
     /// </summary>
     internal PrimaryKey[] PrimaryKeys { get; set; } = [];
 
-    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
+    public async Task Fetch(IDynamicContext dynamicContext)
     {
         if (Expression.IsNull(Root))
             throw new Exception("Query target not set");
@@ -49,7 +49,25 @@ internal sealed class DataRowFromQuery : IDataRowSource
             q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         }
 
-        return Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
+        var dataTable = await Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
+        if (dataTable == null || dataTable.Count != 1)
+            throw new Exception("Can't fetch data table");
+
+        var row = dataTable[0];
+        foreach (var item in Selects)
+        {
+            _row[item.Alias] = row[item.Alias];
+        }
+
+        _row.AcceptChanges();
+        NotifyStateChanged();
+    }
+
+    private void NotifyStateChanged()
+    {
+        if (_childStates == null) return;
+        foreach (var childState in _childStates)
+            childState.Value?.NotifyStateChanged();
     }
 
     public DataTable ToDataTable()
@@ -192,7 +210,7 @@ internal sealed class DataRowFromQuery : IDataRowSource
 
     #endregion
 
-    #region ====PrimaryKey====
+    #region ====PrimaryKey struct====
 
     internal readonly struct PrimaryKey
     {

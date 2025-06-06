@@ -83,7 +83,7 @@ public sealed class FetchRowParameter : IViewParameterSource
             throw new Exception($"Target state: {targetName} must be a DataRow");
 
         var targetDataRow = (DynamicDataRow)targetState.Value!;
-        await targetDataRow.Source.GetFetchTask(target);
+        await targetDataRow.Source.Fetch(target);
     }
 
     public sealed class PrimaryKeyValue

@@ -138,7 +138,22 @@ public sealed class ShowDialog : IEventAction
     public void Run(IDynamicContext dynamicContext, object? eventArg = null)
     {
         var dynamicWidget = new DynamicWidget(TargetViewId);
-        //TODO:订阅dynamicWidget加载动态视图成功后的操作
+        //订阅dynamicWidget加载动态视图成功后开始传入视图参数值
+        dynamicWidget.OnLoaded += async () =>
+        {
+            try
+            {
+                foreach (var viewParameter in Parameters)
+                {
+                    await viewParameter.Source.Run(dynamicContext, dynamicWidget, viewParameter.StateName);
+                }
+            }
+            catch (Exception e)
+            {
+                Notification.Error($"ViewParameters Error: {e.Message}");
+                //TODO: 考虑直接关闭对话框
+            }
+        };
         Dialog.Show(Title, dlg => dynamicWidget, null, new(DialogWidth, DialogHeight));
     }
 }

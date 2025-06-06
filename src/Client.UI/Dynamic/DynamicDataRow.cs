@@ -10,7 +10,7 @@ public sealed class DynamicDataRow : IDynamicDataRow
 
     internal IDataRowSource Source { get; set; } = null!;
 
-    public IEnumerable<DynamicState> GetChildStates(IDynamicContext context, DynamicState parent) => 
+    public IEnumerable<DynamicState> GetChildStates(IDynamicContext context, DynamicState parent) =>
         Source.GetChildStates(parent);
 
     public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
@@ -18,10 +18,7 @@ public sealed class DynamicDataRow : IDynamicDataRow
         throw new NotImplementedException();
     }
 
-    public void NotifyStateChanged()
-    {
-        //TODO: do nothing now
-    }
+    public void NotifyStateChanged() { }
 
     #region ====Serialization====
 
@@ -64,7 +61,10 @@ internal interface IDataRowSource
 {
     string SourceType { get; }
 
-    Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext);
+    /// <summary>
+    /// 获取数据行的数据
+    /// </summary>
+    Task Fetch(IDynamicContext dynamicContext);
 
     IEnumerable<DynamicState> GetChildStates(DynamicState parent);
 
