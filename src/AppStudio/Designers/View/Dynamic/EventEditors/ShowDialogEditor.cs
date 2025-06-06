@@ -14,6 +14,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
             () => DesignHub.Current.DesignTree.FindModelNode(_showDialogAction.TargetViewId),
             v => _showDialogAction.TargetViewId = v?.Model.Id ?? 0);
         //TODO:设计时监听_targetView改变清除ViewParameters
+        _title = new RxProxy<string>(() => _showDialogAction.Title, v => _showDialogAction.Title = v);
         _width = new RxProxy<int>(() => _showDialogAction.DialogWidth, v => _showDialogAction.DialogWidth = v);
         _height = new RxProxy<int>(() => _showDialogAction.DialogHeight, v => _showDialogAction.DialogHeight = v);
         _dgController.DataSource = _showDialogAction.Parameters;
@@ -24,6 +25,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
     private readonly DataGridController<ViewParameter> _dgController = new();
     private readonly ShowDialog _showDialogAction;
     private readonly State<ModelNode?> _targetView;
+    private readonly State<string> _title;
     private readonly State<int> _width;
     private readonly State<int> _height;
 
@@ -42,6 +44,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
                         Options = DesignUtils.GetAllDynamicViewModels(),
                         LabelGetter = node => $"{node.AppNode.Label}.{node.Label}",
                     }),
+                    new("Title:", new TextInput(_title)),
                     new("Width:", new NumberInput<int>(_width)),
                     new("Height:", new NumberInput<int>(_height)),
                     new("Parameters:", new ButtonGroup

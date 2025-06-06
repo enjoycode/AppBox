@@ -14,7 +14,7 @@ internal sealed class EventEditDialog : Dialog
     {
         Title.Value = "Event Action Edit";
         Width = 580;
-        Height = 400;
+        Height = 430;
 
         _element = element;
         _eventMeta = eventMeta;

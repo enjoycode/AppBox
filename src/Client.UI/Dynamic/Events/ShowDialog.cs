@@ -12,6 +12,8 @@ public sealed class ShowDialog : IEventAction
 {
     public string ActionName => nameof(ShowDialog);
 
+    public string Title { get; internal set; } = string.Empty;
+
     public int DialogWidth { get; internal set; } = 400;
     public int DialogHeight { get; internal set; } = 300;
 
@@ -29,6 +31,7 @@ public sealed class ShowDialog : IEventAction
 
     public void WriteProperties(Utf8JsonWriter writer)
     {
+        writer.WriteString(nameof(Title), Title);
         writer.WriteNumber(nameof(DialogWidth), DialogWidth);
         writer.WriteNumber(nameof(DialogHeight), DialogHeight);
         writer.WriteString(nameof(TargetViewId), TargetViewId.ToString());
@@ -58,6 +61,10 @@ public sealed class ShowDialog : IEventAction
                 var propName = reader.GetString();
                 switch (propName)
                 {
+                    case nameof(Title):
+                        reader.Read();
+                        Title = reader.GetString() ?? string.Empty;
+                        break;
                     case nameof(DialogWidth):
                         reader.Read();
                         DialogWidth = reader.GetInt32();
@@ -132,7 +139,6 @@ public sealed class ShowDialog : IEventAction
     {
         var dynamicWidget = new DynamicWidget(TargetViewId);
         //TODO:订阅dynamicWidget加载动态视图成功后的操作
-        Dialog.Show("" /*TODO: fix*/, dlg => dynamicWidget, null, new(DialogWidth, DialogHeight));
-        
+        Dialog.Show(Title, dlg => dynamicWidget, null, new(DialogWidth, DialogHeight));
     }
 }
