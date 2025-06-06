@@ -11,7 +11,7 @@ internal sealed class PkValuesDialog : Dialog
     public PkValuesDialog(FetchRowParameter fetchRowParameter)
     {
         Width = 580;
-        Height = 400;
+        Height = 430;
         Title.Value = "PrimaryKeys for FetchRow";
 
         _dgController.DataSource = fetchRowParameter.PkValues;
@@ -26,12 +26,12 @@ internal sealed class PkValuesDialog : Dialog
             .AddHostColumn("SourceState", (pk, _) =>
             {
                 var s = new RxProxy<string>(() => pk.CurrentStateName, v => pk.CurrentStateName = v);
-                return new TextInput(s);
+                return new TextInput(s) { Border = null };
             })
             .AddHostColumn("TargetState", (pk, _) =>
             {
                 var s = new RxProxy<string>(() => pk.TargetStateName, v => pk.TargetStateName = v);
-                return new TextInput(s);
+                return new TextInput(s) { Border = null };
             })
     };
 

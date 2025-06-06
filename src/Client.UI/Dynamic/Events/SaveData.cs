@@ -79,10 +79,12 @@ public sealed class SaveData : IEventAction
             {
                 table.AcceptChanges();
             }
+
+            Notification.Success("保存成功");
         }
         catch (Exception e)
         {
-            Notification.Error($"Save error: {e.Message}");
+            Notification.Error($"保存失败: {e.Message}");
         }
     }
 }

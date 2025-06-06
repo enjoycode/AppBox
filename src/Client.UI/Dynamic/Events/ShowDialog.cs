@@ -154,6 +154,6 @@ public sealed class ShowDialog : IEventAction
                 //TODO: 考虑直接关闭对话框
             }
         };
-        Dialog.Show(Title, dlg => dynamicWidget, null, new(DialogWidth, DialogHeight));
+        Dialog.Show(Title, _ => dynamicWidget, null, new(DialogWidth, DialogHeight));
     }
 }
