@@ -80,8 +80,8 @@ internal sealed class EventEditDialog : Dialog
         //尝试选中节点
         if (_element.Data.TryGetEventValue(_eventMeta.Name, out var eventValue))
         {
-            var exists = _treeController.FindNode(
-                n => !n.IsGroup && n.EventActionInfo.ActionName == eventValue.Action.ActionName);
+            var exists = _treeController.FindNode(n =>
+                !n.IsGroup && n.EventActionInfo.ActionName == eventValue.Action.ActionName);
             if (exists != null)
                 _treeController.SelectNode(exists);
         }
@@ -99,9 +99,10 @@ internal sealed class EventEditDialog : Dialog
         var actionName = node.Data.EventActionInfo.ActionName;
         try
         {
-            _currentAction = _element.Data.TryGetEventValue(_eventMeta.Name, out var eventValue)
-                ? eventValue.Action
-                : DynamicWidgetManager.EventActionManager.Create(actionName);
+            if (_element.Data.TryGetEventValue(_eventMeta.Name, out var eventValue))
+                _currentAction = eventValue.Action;
+            if (_currentAction == null || _currentAction.ActionName != actionName)
+                _currentAction = DynamicWidgetManager.EventActionManager.Create(actionName);
         }
         catch (Exception)
         {
