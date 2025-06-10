@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using AppBoxCore;
+using PixUI;
 using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic.Events;
@@ -74,7 +75,39 @@ public sealed class CreateRowParameter : IViewParameterSource
 
     public ValueTask Run(IDynamicContext current, IDynamicContext target, string targetName)
     {
-        throw new NotImplementedException();
+        //复制默认值给目标字段
+        foreach (var item in DefaultValues)
+        {
+            if (Expression.IsNull(item.DefaultValue))
+                continue;
+
+            var dst = target.FindState($"{targetName}.{item.TargetFieldName}");
+            if (dst == null)
+                throw new Exception("Can't find target state");
+
+            object? expressionValue = null;
+            try
+            {
+                var body = item.DefaultValue!.ToLinqExpression(ExpressionContext.Default)!;
+                var convertedBody = System.Linq.Expressions.Expression.Convert(body, typeof(object));
+                var lambda = System.Linq.Expressions.Expression.Lambda<Func<object?>>(convertedBody);
+                var func = lambda.Compile();
+                expressionValue = func();
+            }
+            catch (Exception)
+            {
+                Notification.Error("无法编译表达式");
+            }
+
+            if (expressionValue == null)
+                continue;
+            var src = new DynamicState() { Type = DynamicState.GetStateTypeByValueType(expressionValue.GetType()) };
+            src.Value = new DynamicPrimitive() { Source = DynamicPrimitiveSource.Primitive, Value = expressionValue };
+
+            dst.Value!.CopyFrom(current, src);
+        }
+
+        return ValueTask.CompletedTask;
     }
 
     /// <summary>
