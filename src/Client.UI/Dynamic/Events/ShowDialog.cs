@@ -130,7 +130,8 @@ public sealed class ShowDialog : IEventAction
     private static IViewParameterSource CreateParameterSource(string sourceTypeName) => sourceTypeName switch
     {
         FetchRowParameter.SourceName => new FetchRowParameter(),
-        _ => throw new Exception("Unknown source type: " + sourceTypeName)
+        CreateRowParameter.SourceName => new CreateRowParameter(),
+        _ => throw new Exception("Unknown ViewParameter type: " + sourceTypeName)
     };
 
     #endregion

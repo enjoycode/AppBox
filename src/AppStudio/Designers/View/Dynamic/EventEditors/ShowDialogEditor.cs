@@ -93,5 +93,10 @@ internal sealed class ShowDialogEditor : SingleChildWidget
             var dlg = new PkValuesDialog(fetchRowParameter);
             dlg.Show();
         }
+        else if (viewParameter.Source is CreateRowParameter createRowParameter)
+        {
+            var dlg = new DefaultValuesDialog(createRowParameter);
+            dlg.Show();
+        }
     }
 }

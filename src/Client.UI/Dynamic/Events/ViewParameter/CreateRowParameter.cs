@@ -50,13 +50,16 @@ public sealed class CreateRowParameter : IViewParameterSource
                     break;
                 case JsonTokenType.PropertyName:
                     var propName = reader.GetString();
-                    reader.Read();
                     if (propName == "Target")
+                    {
+                        reader.Read();
                         defaultValue.TargetStateName = reader.GetString()!;
+                    }
                     else if (propName == "DefaultValue")
                         defaultValue.DefaultValue = ExpressionSerialization.DeserializeFromJson(ref reader);
                     else
-                        throw new Exception($"Unknown property: {propName}");
+                        throw new Exception($"Unknown property: {nameof(CreateRowParameter)}.{propName}");
+
                     break;
                 case JsonTokenType.EndObject:
                     DefaultValues.Add(defaultValue);
