@@ -5,7 +5,7 @@ using PixUI.Dynamic;
 namespace AppBoxClient.Dynamic.Events;
 
 /// <summary>
-/// 填充数据行的参数类型
+/// 填充数据行的视图参数
 /// </summary>
 public sealed class FetchRowParameter : IViewParameterSource
 {
@@ -14,6 +14,8 @@ public sealed class FetchRowParameter : IViewParameterSource
     public string Name => SourceName;
 
     public List<PrimaryKeyValue> PkValues { get; } = [];
+
+    #region ====Serialization====
 
     public void WriteProperties(Utf8JsonWriter writer)
     {
@@ -36,13 +38,13 @@ public sealed class FetchRowParameter : IViewParameterSource
         Debug.Assert(reader.TokenType == JsonTokenType.PropertyName && reader.GetString() == nameof(PkValues));
         reader.Read(); // [
 
-        PrimaryKeyValue pkValue = new PrimaryKeyValue();
+        PrimaryKeyValue pkValue = null!;
         while (reader.Read())
         {
             switch (reader.TokenType)
             {
                 case JsonTokenType.StartObject:
-                    pkValue = new PrimaryKeyValue();
+                    pkValue = new();
                     break;
                 case JsonTokenType.PropertyName:
                     var propName = reader.GetString();
@@ -62,6 +64,8 @@ public sealed class FetchRowParameter : IViewParameterSource
             }
         }
     }
+
+    #endregion
 
     public async ValueTask Run(IDynamicContext current, IDynamicContext target, string targetName)
     {
@@ -86,6 +90,9 @@ public sealed class FetchRowParameter : IViewParameterSource
         await targetDataRow.Source.Fetch(target);
     }
 
+    /// <summary>
+    /// 填充数据行时的主键的值
+    /// </summary>
     public sealed class PrimaryKeyValue
     {
         public string CurrentStateName { get; set; } = string.Empty;
