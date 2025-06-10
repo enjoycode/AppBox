@@ -24,8 +24,8 @@ public sealed class FetchRowParameter : IViewParameterSource
         foreach (var pkValue in PkValues)
         {
             writer.WriteStartObject();
-            writer.WriteString("Current", pkValue.CurrentStateName);
-            writer.WriteString("Target", pkValue.TargetStateName);
+            writer.WriteString("Current", pkValue.FromStateName);
+            writer.WriteString("Target", pkValue.TargetFieldName);
             writer.WriteEndObject();
         }
 
@@ -50,9 +50,9 @@ public sealed class FetchRowParameter : IViewParameterSource
                     var propName = reader.GetString();
                     reader.Read();
                     if (propName == "Current")
-                        pkValue.CurrentStateName = reader.GetString()!;
+                        pkValue.FromStateName = reader.GetString()!;
                     else if (propName == "Target")
-                        pkValue.TargetStateName = reader.GetString()!;
+                        pkValue.TargetFieldName = reader.GetString()!;
                     else
                         throw new Exception($"Unknown property: {propName}");
                     break;
@@ -72,8 +72,8 @@ public sealed class FetchRowParameter : IViewParameterSource
         //1. 复制主键字段的值给目标
         foreach (var pkValue in PkValues)
         {
-            var src = current.FindState(pkValue.CurrentStateName);
-            var dst = target.FindState(pkValue.TargetStateName);
+            var src = current.FindState(pkValue.FromStateName);
+            var dst = target.FindState($"{targetName}.{pkValue.TargetFieldName}");
             if (src == null || dst == null)
                 throw new Exception("Can't find current or target state");
             dst.Value!.CopyFrom(current, src);
@@ -95,7 +95,14 @@ public sealed class FetchRowParameter : IViewParameterSource
     /// </summary>
     public sealed class PrimaryKeyValue
     {
-        public string CurrentStateName { get; set; } = string.Empty;
-        public string TargetStateName { get; set; } = string.Empty;
+        /// <summary>
+        /// 目标字段名称，不需要全路径
+        /// </summary>
+        public string TargetFieldName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 来源状态名称，即将来源状态值复制给目标状态, eg: orders.Current.OrderId
+        /// </summary>
+        public string FromStateName { get; set; } = string.Empty;
     }
 }

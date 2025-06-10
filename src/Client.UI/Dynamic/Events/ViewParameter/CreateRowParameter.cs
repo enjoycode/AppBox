@@ -25,7 +25,7 @@ public sealed class CreateRowParameter : IViewParameterSource
         foreach (var item in DefaultValues)
         {
             writer.WriteStartObject();
-            writer.WriteString("Target", item.TargetStateName);
+            writer.WriteString("Target", item.TargetFieldName);
             writer.WritePropertyName("DefaultValue");
             ExpressionSerialization.SerializeToJson(writer, item.DefaultValue);
             writer.WriteEndObject();
@@ -53,7 +53,7 @@ public sealed class CreateRowParameter : IViewParameterSource
                     if (propName == "Target")
                     {
                         reader.Read();
-                        defaultValue.TargetStateName = reader.GetString()!;
+                        defaultValue.TargetFieldName = reader.GetString()!;
                     }
                     else if (propName == "DefaultValue")
                         defaultValue.DefaultValue = ExpressionSerialization.DeserializeFromJson(ref reader);
@@ -83,9 +83,9 @@ public sealed class CreateRowParameter : IViewParameterSource
     public sealed class FieldDefaultValue
     {
         /// <summary>
-        /// 目标状态 eg: order.CreateTime
+        /// 目标字段名称(不需要全路径) eg: CreateTime
         /// </summary>
-        public string TargetStateName { get; set; } = null!;
+        public string TargetFieldName { get; set; } = null!;
 
         /// <summary>
         /// 默认值的表达式 eg: DateTime.Now

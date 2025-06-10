@@ -28,7 +28,7 @@ internal sealed class DefaultValuesDialog : Dialog
     {
         Padding = EdgeInsets.All(20),
         Child = new DataGrid<DefaultValueWrapper>(_dgController)
-            .AddHostColumn("TargetState", (pk, _) =>
+            .AddHostColumn("TargetField", (pk, _) =>
             {
                 var s = new RxProxy<string>(() => pk.TargetStateName, v => pk.TargetStateName = v);
                 return new TextInput(s) { Border = null };
@@ -89,8 +89,8 @@ internal sealed class DefaultValuesDialog : Dialog
 
         public string TargetStateName
         {
-            get => Target.TargetStateName;
-            set => Target.TargetStateName = value;
+            get => Target.TargetFieldName;
+            set => Target.TargetFieldName = value;
         }
 
         public void ParseExpression()

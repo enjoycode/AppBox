@@ -23,14 +23,14 @@ internal sealed class PkValuesDialog : Dialog
     {
         Padding = EdgeInsets.All(20),
         Child = new DataGrid<FetchRowParameter.PrimaryKeyValue>(_dgController)
-            .AddHostColumn("SourceState", (pk, _) =>
+            .AddHostColumn("TargetField", (pk, _) =>
             {
-                var s = new RxProxy<string>(() => pk.CurrentStateName, v => pk.CurrentStateName = v);
+                var s = new RxProxy<string>(() => pk.TargetFieldName, v => pk.TargetFieldName = v);
                 return new TextInput(s) { Border = null };
             })
-            .AddHostColumn("TargetState", (pk, _) =>
+            .AddHostColumn("FromState", (pk, _) =>
             {
-                var s = new RxProxy<string>(() => pk.TargetStateName, v => pk.TargetStateName = v);
+                var s = new RxProxy<string>(() => pk.FromStateName, v => pk.FromStateName = v);
                 return new TextInput(s) { Border = null };
             })
     };
