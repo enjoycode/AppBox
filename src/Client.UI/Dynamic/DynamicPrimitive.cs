@@ -122,7 +122,7 @@ public sealed class DynamicPrimitive : IDynamicPrimitive
     public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
     {
         if (Source == DynamicPrimitiveSource.Expression)
-            throw new NotSupportedException("Can't copy from Expression");
+            throw new NotSupportedException("Can't copy to Expression");
         if (otherState.Value is not IDynamicPrimitive otherPrimitive)
             throw new NotSupportedException($"{nameof(DynamicPrimitive)} cannot copy from other: {otherState.Type}");
 
