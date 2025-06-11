@@ -568,7 +568,7 @@ public abstract class SqlStore
             {
                 foreach (var row in table.RemovedRows)
                 {
-                    var cmd = BuildUpdateCommand(row, model);
+                    var cmd = BuildDeleteCommand(row, model);
                     cmd.Connection = txn.Connection;
                     cmd.Transaction = txn;
 
