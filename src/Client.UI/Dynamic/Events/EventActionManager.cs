@@ -9,6 +9,7 @@ public sealed class EventActionManager : IEventActionManager
     {
         Register<FetchData>(DataSourceGroup);
         Register<SaveData>(DataSourceGroup);
+        Register<DeleteData>(DataSourceGroup);
         Register<ShowDialog>(NavigationGroup);
     }
 
