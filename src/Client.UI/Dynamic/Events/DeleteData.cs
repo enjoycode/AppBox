@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -57,14 +58,24 @@ public sealed class DeleteData : IEventAction
 
     public void Run(IDynamicContext dynamicContext, object? eventArg = null)
     {
+        var state = dynamicContext.FindState(DataSource);
+        if (state == null)
+        {
+            Notification.Error($"Can't find state: {DataSource}");
+            return;
+        }
+
+        //如果是DataTable先检查有没有选择行则直接退出
+        if (state.Value is DynamicDataTable { CurrentRow: null }) return;
+
         if (string.IsNullOrEmpty(ConfirmMessage))
         {
-            RunInternal(dynamicContext);
+            RunInternal(dynamicContext, state);
             return;
         }
 
         Dialog.Show("Confirm",
-            dlg => new Center()
+            _ => new Center()
             {
                 Child = new Text(ConfirmMessage) { TextColor = Colors.Red }
             },
@@ -78,27 +89,53 @@ public sealed class DeleteData : IEventAction
                     {
                         new Expanded(),
                         new Button(DialogResult.No) { Width = 80, OnTap = _ => dlg.Close(DialogResult.No) },
-                        new Button(DialogResult.Yes) { Width = 80, OnTap = _ => dlg.Close(DialogResult.Yes) }
+                        new Button(DialogResult.Yes)
+                        {
+                            Width = 80,
+                            OnTap = _ =>
+                            {
+                                dlg.Close(DialogResult.Yes);
+                                RunInternal(dynamicContext, state);
+                            }
+                        }
                     }
                 }
             },
-            new(300, 200)
+            new(280, 180)
         );
     }
 
-    private void RunInternal(IDynamicContext dynamicContext)
+    private static async void RunInternal(IDynamicContext dynamicContext, DynamicState state)
     {
-        var state = dynamicContext.FindState(DataSource);
-        if (state == null)
+        try
         {
-            Notification.Error($"Can't find state: {DataSource}");
-            return;
-        }
+            if (state.Value is DynamicDataTable dt)
+            {
+                var table = (DataTable)(await dt.GetRuntimeValue(dynamicContext))!;
+                //判断当前行是否游离态，是则视为操作成功
+                if (dt.CurrentRow!.PersistentState != PersistentState.Detached)
+                {
+                    //暂创建一个新的DataTable加入当前行后再删除
+                    var newTable = new DataTable(table.Columns);
+                    newTable.EntityModelId = table.EntityModelId;
+                    newTable.Add(dt.CurrentRow);
+                    newTable.RemoveAt(0);
+                    //调用服务保存
+                    DataTable[] args = [newTable];
+                    await Channel.Invoke("sys.EntityService.Save", [args]);
+                }
+                //TODO: 后续刷新操作, maybe call NotifyStateChanged
 
-        if (state.Value is not DynamicDataTable ds)
+                Notification.Success("删除数据成功");
+            }
+            else
+            {
+                throw new NotImplementedException("直接删除DataRow暂未实现");
+            }
+        }
+        catch (Exception e)
         {
-            Notification.Error($"Value is not a DataTable: {DataSource}");
-            return;
+            Notification.Error($"删除数据错误: {e.Message}");
         }
     }
 }

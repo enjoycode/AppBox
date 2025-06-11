@@ -96,6 +96,12 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
         {
             this[i].WriteTo(ws, Columns);
         }
+
+        //Removed Rows
+        var removedCount = RemovedRows?.Count ?? 0;
+        ws.WriteVariant(removedCount);
+        for (var i = 0; i < removedCount; i++)
+            RemovedRows![i].WriteTo(ws, Columns);
     }
 
     public void ReadFrom(IInputStream rs)
@@ -117,6 +123,17 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
             var item = new DataRow();
             item.ReadFrom(rs, Columns);
             Add(item);
+        }
+
+        //Removed Rows
+        count = rs.ReadVariant();
+        if (count > 0)
+            _removedRows ??= new List<DataRow>();
+        for (var i = 0; i < count; i++)
+        {
+            var item = new DataRow();
+            item.ReadFrom(rs, Columns);
+            _removedRows!.Add(item);
         }
     }
 

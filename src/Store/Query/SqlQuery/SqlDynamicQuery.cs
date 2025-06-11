@@ -133,6 +133,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
         Logger.Debug(cmd.CommandText);
 
         var table = new DataTable(_fields);
+        table.EntityModelId = EntityModelId;
         try
         {
             await using var dr = await cmd.ExecuteReaderAsync();
