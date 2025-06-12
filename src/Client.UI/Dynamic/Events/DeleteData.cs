@@ -124,7 +124,8 @@ public sealed class DeleteData : IEventAction
                     DataTable[] args = [newTable];
                     await Channel.Invoke("sys.EntityService.Save", [args]);
                 }
-                //TODO: 后续刷新操作, maybe call NotifyStateChanged
+                //TODO: ***后续刷新操作,暂简单刷新, maybe call NotifyStateChanged
+                dt.Refresh();
 
                 Notification.Success("删除数据成功");
             }

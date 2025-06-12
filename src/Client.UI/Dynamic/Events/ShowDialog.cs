@@ -156,5 +156,6 @@ public sealed class ShowDialog : IEventAction
             }
         };
         Dialog.Show(Title, _ => dynamicWidget, null, new(DialogWidth, DialogHeight));
+        //TODO:*** Dialog关闭后的刷新操作
     }
 }
