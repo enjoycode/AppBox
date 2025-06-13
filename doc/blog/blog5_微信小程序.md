@@ -77,4 +77,4 @@ function(){return;if(ds)return;ds=!0;const e=ps(),t=e.tableSize,n=ot.emscriptenB
 ### 4. 报`compiling function underran the stack`错误，暂无解。**请哪位熟悉WebAssembly的大神指点一下**。
 
 # 六、小结
-&emsp;&emsp;本次尝试换种方式用自己熟悉的语言来开发微信小程序，也为AppBox快速开发框架做个用户端拓展实验。感兴趣的小伙伴可以直接clone https://github.com/enjoycode/PixUI.git ,用Wechat Devtools打开PixUI.Demo.Wxmp项目体验。如果感兴趣的小伙伴比较多，我会继续完善(包括将微信小程序的一些api用C#包装一下)。作者个人能力实在有限Bug在所难免，如有问题请邮件联系或Github Issue，欢迎感兴趣的小伙伴们加入共同完善，当然更欢迎赞助项目或给作者介绍工作（目前找工作中）。
+&emsp;&emsp;本次尝试换种方式用自己熟悉的语言来开发微信小程序，也为AppBox快速开发框架做个用户端拓展实验。感兴趣的小伙伴可以直接clone https://github.com/enjoycode/PixUI.git ,用Wechat Devtools打开PixUI.Demo.Wxmp项目体验。如果感兴趣的小伙伴比较多，我会继续完善(包括将微信小程序的一些api用C#包装一下)。~~作者个人能力实在有限Bug在所难免，如有问题请邮件联系或Github Issue，欢迎感兴趣的小伙伴们加入共同完善，当然更欢迎赞助项目或给作者介绍工作（目前找工作中）。~~
