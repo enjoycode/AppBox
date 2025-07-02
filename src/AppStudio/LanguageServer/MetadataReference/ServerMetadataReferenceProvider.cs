@@ -3,6 +3,9 @@ using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
 
+/// <summary>
+/// 从服务端远程加载MetadataReference
+/// </summary>
 internal sealed class ServerMetadataReferenceProvider : IMetadataReferenceProvider
 {
     public ValueTask<MetadataReference> LoadSdkLib(string assemblyName) => LoadInternal(0, assemblyName);

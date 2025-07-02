@@ -3,6 +3,9 @@ using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
 
+/// <summary>
+/// 本地加载MetadataReference
+/// </summary>
 internal sealed class ClientMetadataReferenceProvider : IMetadataReferenceProvider
 {
     private readonly string _sdkPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
