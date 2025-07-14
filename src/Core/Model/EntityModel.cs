@@ -7,7 +7,7 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 {
-    public EntityModel() { }
+    internal EntityModel() { }
     public EntityModel(ModelId id, string name) : base(id, name) { }
 
     private const short MaxMemberId = 512;

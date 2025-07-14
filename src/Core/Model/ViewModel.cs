@@ -16,7 +16,7 @@ public enum ViewModelType
 [BinSerializable(BinSerializePolicy.Compact, true)]
 public sealed partial class ViewModel : ModelBase
 {
-    public ViewModel() { }
+    internal ViewModel() { }
 
     public ViewModel(ModelId id, string name, ViewModelType type = ViewModelType.PixUI) : base(id, name)
     {
