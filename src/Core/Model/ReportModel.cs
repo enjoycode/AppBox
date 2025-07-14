@@ -8,7 +8,7 @@ public sealed class ReportModel : ModelBase
 
     public ReportModel(ModelId id, string name) : base(id, name)
     {
-        Debug.Assert(id.Type == ModelType.Service);
+        Debug.Assert(id.Type == ModelType.Report);
     }
 
     public byte SchemaVersion { get; private set; }

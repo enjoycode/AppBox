@@ -65,7 +65,7 @@ internal static class StagedService
 
     private static async Task SaveAsync(StagedType type, string modelId, byte[] data)
     {
-        var developerID = RuntimeContext.CurrentSession!.LeafOrgUnitId;
+        var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 
         //TODO:使用SelectForUpdate or BatchDelete
 
@@ -81,7 +81,7 @@ internal static class StagedService
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
         q.Where(t => t["Type"] == (byte)type &
                      t["Model"] == modelId &
-                     t["DeveloperId"] == developerID);
+                     t["DeveloperId"] == developerId);
 
         await using var conn = await SqlStore.Default.OpenConnectionAsync();
         await using var txn = await conn.BeginTransactionAsync();
@@ -94,14 +94,14 @@ internal static class StagedService
             for (var i = 0; i < res.Count; i++)
             {
 #if FUTURE
-                    await EntityStore.DeleteEntityAsync(model, res[i].Id, txn);
+                await EntityStore.DeleteEntityAsync(model, res[i].Id, txn);
 #else
                 await SqlStore.Default.DeleteAsync(res[i], txn);
 #endif
             }
         }
 
-        var obj = new StagedModel((byte)type, modelId, developerID) { Data = data };
+        var obj = new StagedModel((byte)type, modelId, developerId) { Data = data };
 #if FUTURE
             await EntityStore.InsertEntityAsync(obj, txn);
             await txn.CommitAsync();

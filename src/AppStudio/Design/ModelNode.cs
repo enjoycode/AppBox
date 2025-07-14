@@ -108,6 +108,11 @@ public sealed class ModelNode : DesignNode
                 if (Model.ModelType == ModelType.Service && initOrNewSrcCode == null)
                     await typeSystem.UpdateServiceProxyDocumentAsync(this);
             }
+            else if (Model.ModelType == ModelType.Report)
+            {
+                var srcCode = string.IsNullOrEmpty(initOrNewSrcCode) ? string.Empty : initOrNewSrcCode;
+                await hub.StagedService.SaveCodeAsync(Model.Id, srcCode);
+            }
         }
 
         //再保存模型元数据

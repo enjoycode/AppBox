@@ -15,6 +15,7 @@ internal sealed class Commands
         NewServiceCommand = () => new NewDialog(_designStore, "Service").Show();
         NewViewCommand = () => new NewViewDialog(_designStore).Show();
         NewPermissionCommand = () => new NewDialog(_designStore, "Permission").Show();
+        NewReportCommand = () => new NewDialog(_designStore, "Report").Show();
         CheckoutCommand = Checkout;
         SaveCommand = Save;
         RenameCommand = Rename;
@@ -30,6 +31,7 @@ internal sealed class Commands
     public readonly Action NewServiceCommand;
     public readonly Action NewViewCommand;
     public readonly Action NewPermissionCommand;
+    public readonly Action NewReportCommand;
     public readonly Action CheckoutCommand;
     public readonly Action SaveCommand;
     public readonly Action RenameCommand;
