@@ -68,6 +68,10 @@ internal sealed class DesignerPad : View
                     var designer = new ServiceDesigner(_designStore, modelNode);
                     node.Designer = designer;
                     return designer;
+                case ModelType.Report:
+                    var reportDesigner = new ReportDesigner(modelNode);
+                    node.Designer = reportDesigner;
+                    return reportDesigner;
             }
         }
 

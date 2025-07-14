@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Design.Data", "Design.Data\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStudio.Web", "AppStudio.Web\AppStudio.Web.csproj", "{ED77E765-6505-4F61-952F-45E61320378C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Diagram", "..\ext\PixUI\src\PixUI.Diagram\PixUI.Diagram.csproj", "{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +195,10 @@ Global
 		{ED77E765-6505-4F61-952F-45E61320378C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED77E765-6505-4F61-952F-45E61320378C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED77E765-6505-4F61-952F-45E61320378C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -211,6 +217,7 @@ Global
 		{A51BDA70-E661-4068-8804-814DFC827871} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 		{9359D422-6D41-46DC-B3D4-A2766D11A8B1} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 		{F40E4284-87B0-4FDE-8F5F-CDFDC0E3F5CC} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
+		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0AED9DEB-9800-4131-95EE-564DCE3157C0}

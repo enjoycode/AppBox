@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>AppBoxStudio</AssemblyName>
@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\PixUI.CodeEditor.csproj"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Diagram\PixUI.Diagram.csproj" />
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic.Design\PixUI.Dynamic.Design.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj"/>
         <ProjectReference Include="..\Client.UI\Client.UI.csproj"/>
