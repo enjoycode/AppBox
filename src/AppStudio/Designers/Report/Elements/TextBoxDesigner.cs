@@ -12,6 +12,8 @@ namespace AppBoxDesign;
 
 internal sealed class TextBoxDesigner : ReportItemDesigner, IReportItemDesigner
 {
+    internal TextBoxDesigner() : this(new TextBox()) { }
+
     public TextBoxDesigner(TextBox textbox)
     {
         TextBox = textbox;
@@ -47,7 +49,7 @@ internal sealed class TextBoxDesigner : ReportItemDesigner, IReportItemDesigner
     public override void Paint(Canvas canvas)
     {
         base.Paint(canvas);
-        
+
         var clientRect = Bounds;
         Brush? brush = null;
 
@@ -65,7 +67,7 @@ internal sealed class TextBoxDesigner : ReportItemDesigner, IReportItemDesigner
 
             if (!IsTableCell)
             {
-                text = $"<{"SiteName"}>";
+                text = "<TextBox>";
                 textFormat.Trimming = StringTrimming.Character;
             }
 

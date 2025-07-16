@@ -26,7 +26,7 @@ internal sealed class ReportToolbox : View, IDesignToolbox
 
     private static readonly List<ReportToolboxItem> ToolboxItems =
     [
-        new() { Name = "TextBox", Icon = MaterialIcons.Title },
+        new() { Name = "TextBox", Creator = () => new TextBoxDesigner(), Icon = MaterialIcons.Title },
         new() { Name = "Table", Icon = MaterialIcons.TableView },
         new() { Name = "Image", Icon = MaterialIcons.Image },
         new() { Name = "Chart", Icon = MaterialIcons.PieChart },
@@ -57,10 +57,9 @@ internal sealed class ReportToolboxItem : IDesignToolboxItem
 
     public IconData Icon { get; init; }
 
+    public Func<DiagramItem> Creator { get; init; }
+
     bool IDesignToolboxItem.IsConnection => false;
 
-    public DiagramItem Create()
-    {
-        throw new NotImplementedException();
-    }
+    public DiagramItem Create() => Creator.Invoke();
 }
