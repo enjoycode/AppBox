@@ -48,7 +48,7 @@ internal sealed class ReportToolbox : View, IDesignToolbox
 
     private void OnSelectionChanged() => SelectedItem = _treeController.FirstSelectedNode?.Data;
 
-    public void ClearSelectedItem() => SelectedItem = null;
+    public void ClearSelectedItem() => _treeController.ClearSelection();
 }
 
 internal sealed class ReportToolboxItem : IDesignToolboxItem
