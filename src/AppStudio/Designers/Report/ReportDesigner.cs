@@ -30,6 +30,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
 
     private bool _hasLoadSourceCode;
     private readonly DiagramView _view = null!;
+    private readonly ReportToolbox _toolbox = new();
     internal DiagramSurface Surface => _view.Surface;
 
     public ModelNode ModelNode { get; }
@@ -75,7 +76,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
             Notification.Error($"无法加载报表定义: {e.Message}");
         }
     }
-    
+
     private static void LoadDesigners(ReportItemBase item, IReportItemDesigner parentDesigner)
     {
         var designer = DesignerFactory.CreateDesigner(item);
@@ -123,9 +124,5 @@ internal sealed class ReportDesigner : View, IModelDesigner
         return null;
     }
 
-    public Widget? GetToolboxPad()
-    {
-        //TODO: 
-        return null;
-    }
+    public Widget? GetToolboxPad() => _toolbox;
 }
