@@ -26,7 +26,7 @@ internal static class NewReportModel
                          "Items": [
                            { 
                              "$T": "TextBox", "Width": "3cm", "Height": "1cm", "Left": "5cm", "Top": "1cm", "Value": "Hello Future",
-                             "Style": { "Color": "Red", "VerticalAlign": "Middle", "BorderStyle": { "Default": "Solid" }, "Font": { "Size": "12pt" } }
+                             "Style": { "Color": "FFFF0000", "VerticalAlign": "Middle", "BorderStyle": { "Default": "Solid" }, "Font": { "Size": "12pt" } }
                            }
                          ]
                        }

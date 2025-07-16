@@ -19,9 +19,11 @@ internal static class ReferenceService
             case ModelType.Service:
                 return await FindServiceReferences(ctx, modelNode);
             case ModelType.View:
-                return new List<Reference>(); //TODO:*****
+                return []; //TODO:*****
             case ModelType.Permission:
-                return new List<Reference>(); //TODO:*****
+                return []; //TODO:*****
+            case ModelType.Report:
+                return []; //TODO:
             default:
                 throw new NotImplementedException($"查找模型引用: {modelNode.Model.ModelType}");
         }

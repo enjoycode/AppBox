@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>AppBoxStudio</AssemblyName>
         <RootNamespace>AppBoxDesign</RootNamespace>
-        <LangVersion>12</LangVersion>
+        <LangVersion>13</LangVersion>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\AppBox.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
@@ -45,6 +45,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Reference Include="AppBox.Reporting">
+        <HintPath>..\..\ext\AppBox.Reporting.dll</HintPath>
+      </Reference>
       <Reference Include="Microsoft.CodeAnalysis">
         <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
       </Reference>
