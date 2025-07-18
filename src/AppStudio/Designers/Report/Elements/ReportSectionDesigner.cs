@@ -5,20 +5,16 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal sealed class ReportSectionDesigner : DiagramItem, IReportItemDesigner
+internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSectionBase>
 {
     public ReportSectionDesigner(ReportSectionBase section)
     {
-        Section = section;
+        ReportItem = section;
     }
 
-    public ReportItemBase ReportItem => Section;
-
-    internal ReportSectionBase Section { get; }
+    protected override bool IsContainer => true;
 
     public float Y { get; internal set; }
-
-    protected override bool IsContainer => true;
 
     public override DesignBehavior DesignBehavior => DesignBehavior.CanResize;
 
@@ -26,11 +22,24 @@ internal sealed class ReportSectionDesigner : DiagramItem, IReportItemDesigner
     {
         get
         {
-            var widthPx = Section.Report.Width.Pixels;
-            var heightPx = Section.Height.Pixels;
+            var widthPx = ReportItem.Report.Width.Pixels;
+            var heightPx = ReportItem.Height.Pixels;
             return Rect.FromLTWH(0, Y, widthPx, heightPx);
         }
         set => SetBounds(value.X, value.Y, value.Width, value.Height, BoundsSpecified.Size);
+    }
+
+    protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
+    {
+        //获取原单位
+        var unitType = ReportItem.Height.Type;
+        //不允许改变宽度，改变报表宽度
+        ReportItem.Height = ReportSize.FromPixels(height, unitType);
+
+        //重新布局并刷新
+        var rootDesigner = (ReportRootDesigner)Parent!;
+        rootDesigner.PerformLayout();
+        Surface?.Repaint();
     }
 
     public override void Paint(Canvas canvas)
@@ -44,18 +53,5 @@ internal sealed class ReportSectionDesigner : DiagramItem, IReportItemDesigner
         }
 
         canvas.Translate(-Bounds.X, -Bounds.Y);
-    }
-
-    protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
-    {
-        //获取原单位
-        var unitType = Section.Height.Type;
-        //不允许改变宽度，改变报表宽度
-        Section.Height = ReportSize.FromPixels(height, unitType);
-
-        //重新布局并刷新
-        var rootDesigner = (ReportRootDesigner)Parent!;
-        rootDesigner.PerformLayout();
-        Surface?.Repaint();
     }
 }

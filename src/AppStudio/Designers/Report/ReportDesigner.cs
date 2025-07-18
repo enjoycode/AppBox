@@ -12,8 +12,8 @@ internal sealed class ReportDesigner : View, IModelDesigner
     {
         ModelNode = modelNode;
 
-        _diagramView = new DiagramView();
-        _diagramView.Surface.ToolboxService.Toolbox = _toolbox;
+        _designService = new ReportDesignService();
+        _designService.Surface.ToolboxService.Toolbox = _toolbox;
 
         Child = new Splitter
         {
@@ -24,17 +24,17 @@ internal sealed class ReportDesigner : View, IModelDesigner
                 Children =
                 {
                     BuildCommandBar(),
-                    _diagramView,
+                    _designService.DiagramView,
                 }
             },
-            Panel2 = new Container() { FillColor = Colors.DarkGray } /*TODO: Property Panel*/
+            Panel2 = _designService.PropertyPanel,
         };
     }
 
     private bool _hasLoadSourceCode;
-    private readonly DiagramView _diagramView;
+    private readonly ReportDesignService _designService;
     private readonly ReportToolbox _toolbox = new();
-    internal DiagramSurface Surface => _diagramView.Surface;
+    internal DiagramSurface Surface => _designService.Surface;
 
     public ModelNode ModelNode { get; }
 
@@ -62,6 +62,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
                 //2. 转换为相应的设计器
                 var rootDesigner = new ReportRootDesigner(report);
                 Surface.AddItem(rootDesigner);
+                Surface.SelectionService.SelectItem(rootDesigner);
 
                 foreach (var item in report.Items)
                 {

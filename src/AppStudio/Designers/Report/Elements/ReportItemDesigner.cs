@@ -4,11 +4,11 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal abstract class ReportItemDesigner : DiagramItem
+internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T : ReportItem
 {
-    internal abstract ReportItem ReportItem { get; }
 
     internal bool IsTableCell => ReportItem.Parent is Table;
+
 
     public override DesignBehavior DesignBehavior => IsTableCell ? DesignBehavior.None : base.DesignBehavior;
 

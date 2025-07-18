@@ -4,27 +4,29 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal sealed class ReportRootDesigner : DiagramItem, IReportItemDesigner
+internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
 {
     public ReportRootDesigner(Report report)
     {
-        Report = report;
+        ReportItem = report;
     }
-
-    internal Report Report { get; }
-
-    public ReportItemBase ReportItem => Report;
 
     public override DesignBehavior DesignBehavior => DesignBehavior.None;
 
     protected override bool IsContainer => true;
 
+    public Point Position
+    {
+        get => new(0, 0);
+        set => throw new NotSupportedException();
+    }
+
     public override Rect Bounds
     {
         get
         {
-            var widthPx = Report.Width.Pixels;
-            var heightPx = Report.Items.Cast<ReportSectionBase>()
+            var widthPx = ReportItem.Width.Pixels;
+            var heightPx = ReportItem.Items.Cast<ReportSectionBase>()
                 .Aggregate(0f, (current, section) => current + section.Height.Pixels);
 
             return Rect.FromLTWH(8, 8, widthPx, heightPx);
@@ -56,12 +58,12 @@ internal sealed class ReportRootDesigner : DiagramItem, IReportItemDesigner
     internal void PerformLayout()
     {
         float offsetY = 0;
-        foreach (var section in GetSectionsOrdered(Report))
+        foreach (var section in GetSectionsOrdered(ReportItem))
         {
-            var designer = (ReportSectionDesigner)this.Items.Single(t =>
+            var designer = (ReportSectionDesigner)Items.Single(t =>
             {
                 var sectionDesigner = (ReportSectionDesigner)t;
-                return object.ReferenceEquals(sectionDesigner.Section, section);
+                return ReferenceEquals(sectionDesigner.ReportItem, section);
             });
             designer.Y = offsetY;
             offsetY += section.Height.Pixels;
