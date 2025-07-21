@@ -33,8 +33,7 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
 
     // private void OnPropertyChanged(object sender, PropertyChangeEventArgs e)
     // {
-    //     //暂全部重画
-    //     //Invalidate();
+    //     //Invalidate(); //暂全部重画
     // }
 
     public override void Paint(Canvas canvas)
@@ -104,5 +103,26 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
         textFormat.Trimming = NoWrap ? StringTrimming.Character : StringTrimming.Word;
 
         return textFormat;
+    }
+
+    public override IEnumerable<DiagramPropertyGroup> GetProperties()
+    {
+        yield return new DiagramPropertyGroup()
+        {
+            GroupName = "Properties",
+            Properties =
+            [
+                new DiagramPropertyItem()
+                {
+                    PropertyName = "Value", EditorName = "ReportText",
+                    ValueGetter = () => ReportItem.Value,
+                    ValueSetter = v =>
+                    {
+                        ReportItem.Value = v as string ?? string.Empty;
+                        Invalidate();
+                    },
+                }
+            ]
+        };
     }
 }

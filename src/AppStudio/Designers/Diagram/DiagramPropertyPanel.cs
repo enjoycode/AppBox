@@ -1,4 +1,4 @@
-using AppBox.Reporting;
+using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
 using PixUI.Diagram;
 
@@ -8,6 +8,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
 {
     public DiagramPropertyPanel()
     {
+        IsLayoutTight = false;
         _typeName = new RxProxy<string>(() => _selectedItem?.TypeName ?? string.Empty);
 
         Child = new Container
@@ -15,9 +16,21 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
             FillColor = new Color(0xFFF3F3F3),
             Child = new Column
             {
+                Alignment = HorizontalAlignment.Left,
                 Children =
                 [
-                    new Text(_typeName) { FontWeight = FontWeight.Bold }
+                    //类型标题
+                    new Container
+                    {
+                        Padding = EdgeInsets.All(5),
+                        Height = 30,
+                        Child = new Center
+                        {
+                            Child = new Text(_typeName) { FontWeight = FontWeight.Bold },
+                        }
+                    },
+                    //属性分组列表
+                    new ListView<DiagramPropertyGroup>(BuildPropertyGroupPanel, null, _listViewController)
                 ]
             }
         };
@@ -25,10 +38,34 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
 
     private IDiagramItem? _selectedItem;
     private readonly State<string> _typeName;
+    private readonly ListViewController<DiagramPropertyGroup> _listViewController = new();
 
     internal void OnSelectedItem(IDiagramItem? item)
     {
         _selectedItem = item;
+
+        if (item is IDiagramItemWithProperties ownsProperties)
+            _listViewController.DataSource = ownsProperties.GetProperties().ToList();
+        else
+            _listViewController.DataSource = null;
+
         _typeName.NotifyValueChanged();
+    }
+
+    private static Collapse BuildPropertyGroupPanel(DiagramPropertyGroup group, int index)
+    {
+        var form = new Form { LabelWidth = 108 };
+        foreach (var property in group.Properties)
+        {
+            var propEditor = PropertyEditorFactory.CreateEditor(property);
+            var formItem = new FormItem(property.PropertyName, propEditor);
+            form.Children.Add(formItem);
+        }
+
+        return new Collapse
+        {
+            Title = new Text(group.GroupName) { FontWeight = FontWeight.Bold },
+            Body = form,
+        };
     }
 }
