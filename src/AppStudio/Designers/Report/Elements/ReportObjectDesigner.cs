@@ -15,4 +15,6 @@ internal abstract class ReportObjectDesigner<T> : DiagramItem, IReportItemDesign
     {
         yield break;
     }
+
+    void IReportItemDesigner.Invalidate() => Invalidate();
 }

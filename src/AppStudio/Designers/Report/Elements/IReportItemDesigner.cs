@@ -6,4 +6,6 @@ namespace AppBoxDesign;
 internal interface IReportItemDesigner : IDiagramItem, IDiagramItemWithProperties
 {
     ReportItemBase ReportItem { get; }
+
+    void Invalidate();
 }

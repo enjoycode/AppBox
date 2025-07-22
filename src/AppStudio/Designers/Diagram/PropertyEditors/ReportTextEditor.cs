@@ -7,11 +7,17 @@ namespace AppBoxDesign.Diagram.PropertyEditors;
 /// </summary>
 internal sealed class ReportTextEditor : SingleChildWidget
 {
-    public ReportTextEditor(DiagramPropertyItem propertyItem)
+    public ReportTextEditor(IDiagramProperty propertyItem)
     {
         var valueState = new RxProxy<string>(
             () => propertyItem.ValueGetter()?.ToString() ?? string.Empty,
-            v => propertyItem.ValueSetter!(v));
+            v =>
+            {
+                propertyItem.ValueSetter!(v);
+                if (propertyItem.InvalidateAfterChanged)
+                    propertyItem.Invalidate();
+            }
+        );
 
         Child = new TextInput(valueState);
     }

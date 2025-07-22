@@ -57,7 +57,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         var form = new Form { LabelWidth = 108 };
         foreach (var property in group.Properties)
         {
-            var propEditor = PropertyEditorFactory.CreateEditor(property);
+            var propEditor = property.CreateEditor(property);
             var formItem = new FormItem(property.PropertyName, propEditor);
             form.Children.Add(formItem);
         }

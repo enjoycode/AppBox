@@ -1,23 +1,50 @@
+using AppBox.Reporting;
+using PixUI;
+
 namespace AppBoxDesign;
 
 internal readonly struct DiagramPropertyGroup
 {
     public string GroupName { get; init; }
 
-    public DiagramPropertyItem[] Properties { get; init; }
+    public IDiagramProperty[] Properties { get; init; }
 }
 
-internal sealed class DiagramPropertyItem
+internal interface IDiagramProperty
 {
-    public string PropertyName { get; init; } = null!;
+    string PropertyName { get; }
 
-    public string EditorName { get; init; } = null!;
+    Func<IDiagramProperty, Widget> CreateEditor { get; }
 
-    public object? EditorOptions { get; init; }
-
-    public Func<object?> ValueGetter { get; init; } = null!;
+    public Func<object?> ValueGetter { get; init; }
 
     public Action<object?>? ValueSetter { get; init; }
 
-    public bool Readonly => ValueSetter == null;
+    bool Readonly { get; }
+
+    /// <summary>
+    /// 是否在属性值变更后刷新界面
+    /// </summary>
+    bool InvalidateAfterChanged { get; }
+
+    void Invalidate();
+}
+
+internal sealed class ReportDiagramProperty : IDiagramProperty
+{
+    public ReportDiagramProperty(IReportItemDesigner obj, string propertyName)
+    {
+        _obj = obj;
+        PropertyName = propertyName;
+    }
+
+    private readonly IReportItemDesigner _obj;
+
+    public string PropertyName { get; init; }
+    public required Func<IDiagramProperty, Widget> CreateEditor { get; init; }
+    public required Func<object?> ValueGetter { get; init; }
+    public Action<object?>? ValueSetter { get; init; }
+    public bool Readonly => ValueSetter != null;
+    public bool InvalidateAfterChanged { get; init; } = true;
+    public void Invalidate() => _obj.Invalidate();
 }
