@@ -14,7 +14,7 @@ internal interface IDiagramProperty
 {
     string PropertyName { get; }
 
-    Func<IDiagramProperty, Widget> CreateEditor { get; }
+    string EditorName { get; }
 
     public Func<object?> ValueGetter { get; init; }
 
@@ -32,16 +32,19 @@ internal interface IDiagramProperty
 
 internal sealed class ReportDiagramProperty : IDiagramProperty
 {
-    public ReportDiagramProperty(IReportItemDesigner obj, string propertyName)
+    public ReportDiagramProperty(IReportItemDesigner obj, string propertyName, string editorName)
     {
         _obj = obj;
         PropertyName = propertyName;
+        EditorName = editorName;
     }
 
     private readonly IReportItemDesigner _obj;
 
-    public string PropertyName { get; init; }
-    public required Func<IDiagramProperty, Widget> CreateEditor { get; init; }
+    public string PropertyName { get; }
+
+    public string EditorName { get; }
+
     public required Func<object?> ValueGetter { get; init; }
     public Action<object?>? ValueSetter { get; init; }
     public bool Readonly => ValueSetter != null;

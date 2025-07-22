@@ -113,21 +113,18 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
             GroupName = "Properties",
             Properties =
             [
-                new ReportDiagramProperty(this, nameof(TextBox.Value))
+                new ReportDiagramProperty(this, nameof(TextBox.Value), nameof(ReportTextEditor))
                 {
-                    CreateEditor = e => new ReportTextEditor(e),
                     ValueGetter = () => ReportItem.Value,
                     ValueSetter = v => ReportItem.Value = v as string ?? string.Empty,
                 },
-                new ReportDiagramProperty(this, nameof(TextBox.CanGrow))
+                new ReportDiagramProperty(this, nameof(TextBox.CanGrow), nameof(CheckBoxEditor))
                 {
-                    CreateEditor = e => new CheckBoxEditor(e),
                     ValueGetter = () => ReportItem.CanGrow,
                     ValueSetter = v => ReportItem.CanGrow = v is true,
                 },
-                new ReportDiagramProperty(this, nameof(TextBox.CanShrink))
+                new ReportDiagramProperty(this, nameof(TextBox.CanShrink), nameof(CheckBoxEditor))
                 {
-                    CreateEditor = e => new CheckBoxEditor(e),
                     ValueGetter = () => ReportItem.CanShrink,
                     ValueSetter = v => ReportItem.CanShrink = v is true,
                 }

@@ -57,7 +57,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         var form = new Form { LabelWidth = 108 };
         foreach (var property in group.Properties)
         {
-            var propEditor = property.CreateEditor(property);
+            var propEditor = MakePropertyEditor(property);
             var formItem = new FormItem(property.PropertyName, propEditor);
             form.Children.Add(formItem);
         }
@@ -68,4 +68,11 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
             Body = form,
         };
     }
+
+    private static Widget MakePropertyEditor(IDiagramProperty property) => property.EditorName switch
+    {
+        nameof(ReportTextEditor) => new ReportTextEditor(property),
+        nameof(CheckBoxEditor) => new CheckBoxEditor(property),
+        _ => throw new Exception($"Unknown property editor: {property.EditorName}")
+    };
 }
