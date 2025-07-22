@@ -1,6 +1,3 @@
-using AppBox.Reporting;
-using PixUI;
-
 namespace AppBoxDesign;
 
 internal readonly struct DiagramPropertyGroup
@@ -30,6 +27,9 @@ internal interface IDiagramProperty
     void Invalidate();
 }
 
+/// <summary>
+/// 报表设计器的属性
+/// </summary>
 internal sealed class ReportDiagramProperty : IDiagramProperty
 {
     public ReportDiagramProperty(IReportItemDesigner obj, string propertyName, string editorName)

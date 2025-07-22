@@ -1,4 +1,6 @@
 using AppBox.Reporting;
+using AppBox.Reporting.Drawing;
+using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
 using PixUI.Diagram;
 
@@ -6,9 +8,7 @@ namespace AppBoxDesign;
 
 internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T : ReportItem
 {
-
     internal bool IsTableCell => ReportItem.Parent is Table;
-
 
     public override DesignBehavior DesignBehavior => IsTableCell ? DesignBehavior.None : base.DesignBehavior;
 
@@ -58,6 +58,8 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
             if (child.ReportItem.Parent == null)
                 parent.ReportItem.Items.Add(child.ReportItem);
         }
+
+        ReportItem.PropertyChange += OnReportItemPropertyChanged;
     }
 
     protected override void OnRemoveFromSurface()
@@ -68,5 +70,53 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         {
             parent.ReportItem.Items.Remove(child.ReportItem);
         }
+
+        ReportItem.PropertyChange -= OnReportItemPropertyChanged;
+    }
+
+    private void OnReportItemPropertyChanged(object sender, PropertyChangeEventArgs e)
+    {
+        // refresh PropertyPanel's Layout properties
+        var designService = GetRootDesigner()?.DesignService;
+        if (designService == null)
+            return;
+
+        if (e.Name is "Location" or "Size")
+        {
+            designService.PropertyPanel.RefreshLayoutProperties();
+        }
+    }
+
+    protected DiagramPropertyGroup GetLayoutPropertyGroup()
+    {
+        if (IsTableCell) throw new NotSupportedException();
+
+        var ownerIsTable = false; //TODO: this is TableDesigner;
+        var properties = ownerIsTable ? new IDiagramProperty[2] : new IDiagramProperty[4];
+        properties[0] = new ReportDiagramProperty(this, "Left", nameof(ReportSizeEditor))
+        {
+            ValueGetter = () => ReportItem.Left,
+            ValueSetter = v => ReportItem.Left = (ReportSize)v!
+        };
+        properties[1] = new ReportDiagramProperty(this, "Top", nameof(ReportSizeEditor))
+        {
+            ValueGetter = () => ReportItem.Top,
+            ValueSetter = v => ReportItem.Top = (ReportSize)v!
+        };
+        if (!ownerIsTable)
+        {
+            properties[2] = new ReportDiagramProperty(this, "Width", nameof(ReportSizeEditor))
+            {
+                ValueGetter = () => ReportItem.Width,
+                ValueSetter = v => ReportItem.Width = (ReportSize)v!
+            };
+            properties[3] = new ReportDiagramProperty(this, "Height", nameof(ReportSizeEditor))
+            {
+                ValueGetter = () => ReportItem.Height,
+                ValueSetter = v => ReportItem.Height = (ReportSize)v!
+            };
+        }
+
+        return new DiagramPropertyGroup() { GroupName = "Layout", Properties = properties };
     }
 }

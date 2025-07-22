@@ -11,6 +11,19 @@ internal abstract class ReportObjectDesigner<T> : DiagramItem, IReportItemDesign
 
     public virtual string TypeName => ReportItem.GetType().Name;
 
+    internal ReportRootDesigner? GetRootDesigner()
+    {
+        DiagramItem? temp = this;
+        while (temp != null)
+        {
+            if (temp is ReportRootDesigner rootDesigner)
+                return rootDesigner;
+            temp = temp.Parent;
+        }
+
+        return null;
+    }
+
     public virtual IEnumerable<DiagramPropertyGroup> GetProperties()
     {
         yield break;

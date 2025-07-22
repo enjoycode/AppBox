@@ -60,7 +60,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
                 var report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader);
 
                 //2. 转换为相应的设计器
-                var rootDesigner = new ReportRootDesigner(report);
+                var rootDesigner = new ReportRootDesigner(_designService, report);
                 Surface.AddItem(rootDesigner);
                 Surface.SelectionService.SelectItem(rootDesigner);
 

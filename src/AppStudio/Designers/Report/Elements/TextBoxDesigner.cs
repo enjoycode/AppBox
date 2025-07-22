@@ -15,7 +15,6 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
     public TextBoxDesigner(TextBox textbox)
     {
         ReportItem = textbox;
-        // ReportItem.PropertyChange += OnPropertyChanged;
     }
 
     private bool NoWrap => !ReportItem.Multiline || !ReportItem.TextWrap;
@@ -31,11 +30,6 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
 
         Invalidate();
     }
-
-    // private void OnPropertyChanged(object sender, PropertyChangeEventArgs e)
-    // {
-    //     //Invalidate(); //暂全部重画
-    // }
 
     public override void Paint(Canvas canvas)
     {
@@ -130,5 +124,8 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
                 }
             ]
         };
+
+        if (!IsTableCell)
+            yield return GetLayoutPropertyGroup();
     }
 }

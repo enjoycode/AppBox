@@ -39,10 +39,12 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
     private IDiagramItem? _selectedItem;
     private readonly State<string> _typeName;
     private readonly ListViewController<DiagramPropertyGroup> _listViewController = new();
+    private readonly List<IValueStateEditor> _layoutProperties = [];
 
     internal void OnSelectedItem(IDiagramItem? item)
     {
         _selectedItem = item;
+        _layoutProperties.Clear();
 
         if (item is IDiagramItemWithProperties ownsProperties)
             _listViewController.DataSource = ownsProperties.GetProperties().ToList();
@@ -52,7 +54,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         _typeName.NotifyValueChanged();
     }
 
-    private static Collapse BuildPropertyGroupPanel(DiagramPropertyGroup group, int index)
+    private Collapse BuildPropertyGroupPanel(DiagramPropertyGroup group, int index)
     {
         var form = new Form { LabelWidth = 108 };
         foreach (var property in group.Properties)
@@ -60,6 +62,8 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
             var propEditor = MakePropertyEditor(property);
             var formItem = new FormItem(property.PropertyName, propEditor);
             form.Children.Add(formItem);
+            if (group.GroupName == "Layout" && propEditor is IValueStateEditor stateEditor)
+                _layoutProperties.Add(stateEditor);
         }
 
         return new Collapse
@@ -73,6 +77,14 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
     {
         nameof(ReportTextEditor) => new ReportTextEditor(property),
         nameof(CheckBoxEditor) => new CheckBoxEditor(property),
+        nameof(ReportSizeEditor) => new ReportSizeEditor(property),
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };
+
+    internal void RefreshLayoutProperties()
+    {
+        //TODO: 暂刷新全部，考虑仅刷新指定属性
+        foreach (var item in _layoutProperties)
+            item.ValueState.NotifyValueChanged();
+    }
 }
