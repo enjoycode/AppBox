@@ -24,9 +24,22 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
     protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
     {
         var unitType = ReportItem.Bounds.Top.Type;
-        var bounds = new RRectangle(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType)
-            , ReportSize.FromPixels(width, unitType), ReportSize.FromPixels(height, unitType));
-        ReportItem.Bounds = bounds;
+
+        if (specified == BoundsSpecified.Location)
+        {
+            ReportItem.Location = new RPoint(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType));
+        }
+        else if (specified == BoundsSpecified.Size)
+        {
+            ReportItem.Size = new RSize(ReportSize.FromPixels(width, unitType),
+                ReportSize.FromPixels(height, unitType));
+        }
+        else
+        {
+            var bounds = new RRectangle(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType)
+                , ReportSize.FromPixels(width, unitType), ReportSize.FromPixels(height, unitType));
+            ReportItem.Bounds = bounds;
+        }
 
         Invalidate();
     }

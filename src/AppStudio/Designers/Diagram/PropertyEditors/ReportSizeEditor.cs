@@ -3,35 +3,38 @@ using PixUI;
 
 namespace AppBoxDesign.Diagram.PropertyEditors;
 
-//TODO: 暂简单实现
-
 internal sealed class ReportSizeEditor : SingleChildWidget, IValueStateEditor
 {
     public ReportSizeEditor(IDiagramProperty propertyItem)
     {
-        var valueState = new RxProxy<string>(
-            () => propertyItem.ValueGetter()?.ToString() ?? string.Empty,
-            v =>
+        _propertyItem = propertyItem;
+        NotifyValueChanged();
+
+        //暂用TextInput简单实现
+        Child = new TextInput(_inputState)
+        {
+            OnCommitChanges = v =>
             {
-                ReportSize size;
                 try
                 {
-                    size = new ReportSize(v);
+                    var res = new ReportSize(v);
+                    propertyItem.ValueSetter!(res);
+                    if (propertyItem.InvalidateAfterChanged)
+                        propertyItem.Invalidate();
                 }
                 catch (Exception)
                 {
-                    size = ReportSize.Empty;
+                    NotifyValueChanged(); //can't parse to ReportSize, reset to old value
                 }
-
-                propertyItem.ValueSetter!(size);
-                if (propertyItem.InvalidateAfterChanged)
-                    propertyItem.Invalidate();
             }
-        );
-        ValueState = valueState;
-
-        Child = new TextInput(valueState);
+        };
     }
 
-    public State ValueState { get; }
+    private readonly State<string> _inputState = string.Empty;
+    private readonly IDiagramProperty _propertyItem;
+
+    public void NotifyValueChanged()
+    {
+        _inputState.Value = _propertyItem.ValueGetter()?.ToString() ?? string.Empty;
+    }
 }

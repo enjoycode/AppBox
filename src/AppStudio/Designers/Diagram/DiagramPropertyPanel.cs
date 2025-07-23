@@ -85,6 +85,6 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
     {
         //TODO: 暂刷新全部，考虑仅刷新指定属性
         foreach (var item in _layoutProperties)
-            item.ValueState.NotifyValueChanged();
+            item.NotifyValueChanged();
     }
 }
