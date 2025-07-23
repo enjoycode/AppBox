@@ -74,6 +74,9 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         ReportItem.PropertyChange -= OnReportItemPropertyChanged;
     }
 
+    /// <summary>
+    /// 目前用于布局属性发生变更时通知属性面板刷新相应的值
+    /// </summary>
     private void OnReportItemPropertyChanged(object sender, PropertyChangeEventArgs e)
     {
         // refresh PropertyPanel's Layout properties
@@ -87,6 +90,9 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         }
     }
 
+    /// <summary>
+    /// 获取布局属性组
+    /// </summary>
     protected DiagramPropertyGroup GetLayoutPropertyGroup()
     {
         if (IsTableCell) throw new NotSupportedException();
@@ -118,5 +124,35 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         }
 
         return new DiagramPropertyGroup() { GroupName = "Layout", Properties = properties };
+    }
+
+    /// <summary>
+    /// 获取样式属性组
+    /// </summary>
+    /// <returns></returns>
+    protected DiagramPropertyGroup GetStylePropertyGroup()
+    {
+        return new DiagramPropertyGroup()
+        {
+            GroupName = "Style",
+            Properties =
+            [
+                new ReportDiagramProperty(this, "FontSize", nameof(ReportSizeEditor))
+                {
+                    ValueGetter = () => ReportItem.Style.Font.Size,
+                    ValueSetter = v => ReportItem.Style.Font.Size = (ReportSize)v!
+                },
+                new ReportDiagramProperty(this, "TextAlign", nameof(EnumEditor), typeof(HorizontalAlign))
+                {
+                    ValueGetter = () => ReportItem.Style.TextAlign,
+                    ValueSetter = v => ReportItem.Style.TextAlign = (HorizontalAlign)v!
+                },
+                new ReportDiagramProperty(this, "VerticalAlign", nameof(EnumEditor), typeof(VerticalAlign))
+                {
+                    ValueGetter = () => ReportItem.Style.VerticalAlign,
+                    ValueSetter = v => ReportItem.Style.VerticalAlign = (VerticalAlign)v!
+                },
+            ]
+        };
     }
 }

@@ -75,9 +75,10 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
 
     private static Widget MakePropertyEditor(IDiagramProperty property) => property.EditorName switch
     {
-        nameof(ReportTextEditor) => new ReportTextEditor(property),
+        nameof(EnumEditor) => new EnumEditor(property),
         nameof(CheckBoxEditor) => new CheckBoxEditor(property),
         nameof(ReportSizeEditor) => new ReportSizeEditor(property),
+        nameof(ReportTextEditor) => new ReportTextEditor(property),
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };
 

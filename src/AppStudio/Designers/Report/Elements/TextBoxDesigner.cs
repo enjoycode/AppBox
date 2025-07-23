@@ -140,5 +140,7 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
 
         if (!IsTableCell)
             yield return GetLayoutPropertyGroup();
+
+        yield return GetStylePropertyGroup();
     }
 }
