@@ -24,7 +24,7 @@ public sealed class LoginPage : View
         {
             Child = new Card
             {
-                Color = new Color(0x88CCCCCC),
+                Color = new Color(0x88888888),
                 Width = 400, Height = 330,
                 Elevation = 20,
                 Child = BuildLoginForm()
@@ -41,7 +41,7 @@ public sealed class LoginPage : View
             {
                 Children =
                 [
-                    new Text("AppBox") { FontSize = 50 },
+                    new Text("AppBox") { FontSize = 50, TextColor = Colors.White },
                     new TextInput(_userName)
                     {
                         HintText = "Account", FontSize = _inputSize,
