@@ -130,29 +130,31 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
     /// 获取样式属性组
     /// </summary>
     /// <returns></returns>
-    protected DiagramPropertyGroup GetStylePropertyGroup()
+    protected DiagramPropertyGroup GetStylePropertyGroup() => new()
     {
-        return new DiagramPropertyGroup()
-        {
-            GroupName = "Style",
-            Properties =
-            [
-                new ReportDiagramProperty(this, "FontSize", nameof(ReportSizeEditor))
-                {
-                    ValueGetter = () => ReportItem.Style.Font.Size,
-                    ValueSetter = v => ReportItem.Style.Font.Size = (ReportSize)v!
-                },
-                new ReportDiagramProperty(this, "TextAlign", nameof(EnumEditor), typeof(HorizontalAlign))
-                {
-                    ValueGetter = () => ReportItem.Style.TextAlign,
-                    ValueSetter = v => ReportItem.Style.TextAlign = (HorizontalAlign)v!
-                },
-                new ReportDiagramProperty(this, "VerticalAlign", nameof(EnumEditor), typeof(VerticalAlign))
-                {
-                    ValueGetter = () => ReportItem.Style.VerticalAlign,
-                    ValueSetter = v => ReportItem.Style.VerticalAlign = (VerticalAlign)v!
-                },
-            ]
-        };
-    }
+        GroupName = "Style",
+        Properties =
+        [
+            new ReportDiagramProperty(this, "FontSize", nameof(ReportSizeEditor))
+            {
+                ValueGetter = () => ReportItem.Style.Font.Size,
+                ValueSetter = v => ReportItem.Style.Font.Size = (ReportSize)v!
+            },
+            new ReportDiagramProperty(this, "Color", nameof(ColorEditor))
+            {
+                ValueGetter = () => ReportItem.Style.Color,
+                ValueSetter = v => ReportItem.Style.Color = (Color)v!
+            },
+            new ReportDiagramProperty(this, "TextAlign", nameof(EnumEditor), typeof(HorizontalAlign))
+            {
+                ValueGetter = () => ReportItem.Style.TextAlign,
+                ValueSetter = v => ReportItem.Style.TextAlign = (HorizontalAlign)v!
+            },
+            new ReportDiagramProperty(this, "VerticalAlign", nameof(EnumEditor), typeof(VerticalAlign))
+            {
+                ValueGetter = () => ReportItem.Style.VerticalAlign,
+                ValueSetter = v => ReportItem.Style.VerticalAlign = (VerticalAlign)v!
+            },
+        ]
+    };
 }
