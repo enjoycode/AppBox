@@ -3,7 +3,6 @@ using AppBox.Reporting.Drawing;
 using AppBox.Reporting.Processing;
 using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
-using PixUI.Diagram;
 using TextBox = AppBox.Reporting.TextBox;
 
 namespace AppBoxDesign;
@@ -20,29 +19,6 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
     private bool NoWrap => !ReportItem.Multiline || !ReportItem.TextWrap;
     private readonly string _emptyMessage = string.Empty;
     private const char ReplacementChar = '\uFFFD';
-
-    protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
-    {
-        var unitType = ReportItem.Bounds.Top.Type;
-
-        if (specified == BoundsSpecified.Location)
-        {
-            ReportItem.Location = new RPoint(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType));
-        }
-        else if (specified == BoundsSpecified.Size)
-        {
-            ReportItem.Size = new RSize(ReportSize.FromPixels(width, unitType),
-                ReportSize.FromPixels(height, unitType));
-        }
-        else
-        {
-            var bounds = new RRectangle(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType)
-                , ReportSize.FromPixels(width, unitType), ReportSize.FromPixels(height, unitType));
-            ReportItem.Bounds = bounds;
-        }
-
-        Invalidate();
-    }
 
     public override void Paint(Canvas canvas)
     {

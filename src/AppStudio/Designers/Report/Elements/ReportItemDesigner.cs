@@ -16,19 +16,14 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
     {
         get
         {
-            if (IsTableCell)
+            if (IsTableCell && Parent is TableDesigner tableDesigner)
             {
-                throw new NotImplementedException();
-                // TableDesignerBase tableDesigner = this.Parent as TableDesignerBase;
-                // if (null != tableDesigner)
-                // {
-                //     TableLayout.Cell tableCell = tableDesigner.TableLayout.GetCell(this.ReportItem);
-                //     if (null != tableCell)
-                //     {
-                //         return Rect.FromLTWH(tableCell.Bounds.Left.FPixels, tableCell.Bounds.Top.FPixels,
-                //             tableCell.Bounds.Width.FPixels, tableCell.Bounds.Height.FPixels);
-                //     }
-                // }
+                var tableCell = tableDesigner.TableLayout.GetCell(ReportItem);
+                if (tableCell != null)
+                {
+                    return Rect.FromLTWH(tableCell.Bounds.Left.Pixels, tableCell.Bounds.Top.Pixels,
+                        tableCell.Bounds.Width.Pixels, tableCell.Bounds.Height.Pixels);
+                }
             }
 
             return Rect.FromLTWH(ReportItem.Left.Pixels, ReportItem.Top.Pixels,
@@ -41,6 +36,29 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
 
             SetBounds(value.X, value.Y, value.Width, value.Height, BoundsSpecified.All);
         }
+    }
+
+    protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
+    {
+        var unitType = ReportItem.Bounds.Top.Type;
+
+        if (specified == BoundsSpecified.Location)
+        {
+            ReportItem.Location = new RPoint(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType));
+        }
+        else if (specified == BoundsSpecified.Size)
+        {
+            ReportItem.Size = new RSize(ReportSize.FromPixels(width, unitType),
+                ReportSize.FromPixels(height, unitType));
+        }
+        else
+        {
+            var bounds = new RRectangle(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType)
+                , ReportSize.FromPixels(width, unitType), ReportSize.FromPixels(height, unitType));
+            ReportItem.Bounds = bounds;
+        }
+
+        Invalidate();
     }
 
     public override void Paint(Canvas canvas)
