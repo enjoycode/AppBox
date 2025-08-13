@@ -30,7 +30,7 @@ internal sealed class ReportToolbox : View, IDesignToolbox
         new() { Name = "Table", Creator = () => new TableDesigner(), Icon = MaterialIcons.TableView },
         new() { Name = "Image", Icon = MaterialIcons.Image },
         new() { Name = "Chart", Icon = MaterialIcons.PieChart },
-        new() { Name = "Barcode", Icon = MaterialIcons.QrCode },
+        new() { Name = "Barcode", Creator = () => new BarcodeDesigner(), Icon = MaterialIcons.QrCode },
     ];
 
     private readonly TreeController<ReportToolboxItem> _treeController = new();
