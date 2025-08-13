@@ -17,10 +17,8 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
         ReportItem = barcode;
     }
 
-    protected override void OnAddToSurface()
+    protected override void OnCreated()
     {
-        base.OnAddToSurface();
-
         ReportItem.Value = "123456789";
     }
 
@@ -72,7 +70,7 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
             measureContext.PageUnit = GraphicsUnit.Pixel;
             var layoutRect = new RectangleRF(0, 0, Bounds.Width, Bounds.Height);
             processingBarcode.Arrange(measureContext, layoutRect);
-            
+
             graphics.TranslateTransform(Bounds.X, Bounds.Y);
             new PrimitiveElementGdiWriter(graphics).Write(processingBarcode.ElementContainer);
         }

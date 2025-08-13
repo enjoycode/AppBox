@@ -21,13 +21,8 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
     protected override bool IsContainer => true;
 
-    protected override void OnAddToSurface()
+    protected override void OnCreated()
     {
-        base.OnAddToSurface();
-
-        //TODO:暂在这里绑定选择改变事件
-        Surface!.SelectionService.SelectionChanged += OnSelectionChanged;
-
         //TODO: 测试代码加入样式
         var sTableNormal = new StyleRule();
         sTableNormal.Style.Color = PixUI.Colors.Black;
@@ -60,14 +55,6 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
         //初始化Table
         InitNewTable(Bounds.Size);
-    }
-
-    protected override void OnRemoveFromSurface()
-    {
-        //TODO:暂在这里移除选择改变事件
-        Surface!.SelectionService.SelectionChanged -= OnSelectionChanged;
-
-        base.OnRemoveFromSurface();
     }
 
     private void InitNewTable(Size size)
@@ -123,6 +110,22 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
                 }
             }
         }
+    }
+
+    protected override void OnAddToSurface()
+    {
+        base.OnAddToSurface();
+
+        //绑定选择改变事件
+        Surface!.SelectionService.SelectionChanged += OnSelectionChanged;
+    }
+
+    protected override void OnRemoveFromSurface()
+    {
+        //移除选择改变事件
+        Surface!.SelectionService.SelectionChanged -= OnSelectionChanged;
+
+        base.OnRemoveFromSurface();
     }
 
     private void OnSelectionChanged(object? sender, EventArgs args)
