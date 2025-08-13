@@ -128,5 +128,5 @@ internal sealed class ReportDesigner : View, IModelDesigner
         return null;
     }
 
-    public Widget? GetToolboxPad() => _toolbox;
+    public Widget GetToolboxPad() => _toolbox;
 }
