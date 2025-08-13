@@ -49,6 +49,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
         var sTableHeader = new StyleRule();
         sTableHeader.Style.VerticalAlign = VerticalAlign.Middle;
+        sTableHeader.Style.TextAlign = HorizontalAlign.Center;
         sTableHeader.Style.Color = PixUI.Colors.Black;
         sTableHeader.Style.BorderStyle.Default = BorderType.Solid;
         sTableHeader.Style.BorderColor.Default = PixUI.Colors.Black;
@@ -126,37 +127,38 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
     private void OnSelectionChanged(object? sender, EventArgs args)
     {
-        //TODO:
-        // var selectionService = (SelectionService)sender;
-        //
-        // var list = new List<TableLayout.Cell>();
-        // foreach (var component in selectionService.SelectedItems)
-        // {
-        //     var item = component as ReportItemDesigner;
-        //     if (null != item && item.ReportItem.Parent == this.Table)
-        //     {
-        //         var cell = this.TableLayout.GetCell(item.ReportItem);
-        //         if (null != cell)
-        //         {
-        //             list.Add(cell);
-        //         }
-        //     }
-        //
-        //     //if (component is TableLayout.TableMember)
-        //     //{
-        //     //    Debug.Assert(false,
-        //     //                 "Since we select Member's cells, instead of the Member itself, we should never have Table.Row/Column selected");
-        //     //    foreach (var cell in (IEnumerable<TableLayout.Cell>)component)
-        //     //    {
-        //     //        if (null == cell.MergeTarget)
-        //     //        {
-        //     //            list.Add(cell);
-        //     //        }
-        //     //    }
-        //     //}
-        // }
-        //
-        // TableLayout.SetSelectedCells(list);
+        var selectionService = (SelectionService)sender!;
+
+        var list = new List<TableLayout.Cell>();
+        foreach (var component in selectionService.SelectedItems)
+        {
+            if (component is IReportItemDesigner item && item.ReportItem.Parent == ReportItem)
+            {
+                var cell = TableLayout.GetCell((ReportItem)item.ReportItem);
+                if (null != cell)
+                    list.Add(cell);
+            }
+
+            //if (component is TableLayout.TableMember)
+            //{
+            //    Debug.Assert(false,
+            //                 "Since we select Member's cells, instead of the Member itself, we should never have Table.Row/Column selected");
+            //    foreach (var cell in (IEnumerable<TableLayout.Cell>)component)
+            //    {
+            //        if (null == cell.MergeTarget)
+            //        {
+            //            list.Add(cell);
+            //        }
+            //    }
+            //}
+        }
+
+        TableLayout.SetSelectedCells(list);
+    }
+
+    protected override ISelectionAdorner GetSelectionAdorner(DesignAdorners adorners)
+    {
+        return SelectionAdorner ??= new TableSelectionAdorner(adorners, this);
     }
 
     public override void Paint(Canvas canvas)

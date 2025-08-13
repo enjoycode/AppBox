@@ -92,6 +92,17 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         ReportItem.PropertyChange -= OnReportItemPropertyChanged;
     }
 
+    protected override ISelectionAdorner GetSelectionAdorner(DesignAdorners adorners)
+    {
+        if (IsTableCell)
+        {
+            var tableDesigner = (TableDesigner)Parent!;
+            return tableDesigner.GetSelectionAdorner(adorners);
+        }
+
+        return base.GetSelectionAdorner(adorners);
+    }
+
     /// <summary>
     /// 目前用于布局属性发生变更时通知属性面板刷新相应的值
     /// </summary>

@@ -1,0 +1,172 @@
+using AppBox.Reporting;
+using AppBox.Reporting.Drawing;
+using PixUI;
+using PixUI.Diagram;
+
+namespace AppBoxDesign;
+
+/// <summary>
+/// 表格设计器专用的选择装饰器
+/// </summary>
+internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
+{
+    private const float OFFSET = 10;
+    private IElement? _hitTestElement;
+
+    public TableSelectionAdorner(DesignAdorners owner, TableDesigner target) : base(owner, target) { }
+
+    protected override void OnRender(Canvas canvas)
+    {
+        //画顶部灰条
+        var topRect = Rect.FromLTWH(-OFFSET, -OFFSET, Target.Bounds.Width + OFFSET, OFFSET);
+        canvas.FillRectangle(new(240, 240, 240), topRect);
+        //画左侧灰条
+        var leftRect = Rect.FromLTWH(-OFFSET, 0, OFFSET, Target.Bounds.Height);
+        canvas.FillRectangle(new(240, 240, 240), leftRect);
+
+        //画顶部列边框
+        var tableLayout = ((TableDesigner)Target).TableLayout;
+        var x = 0f;
+        for (var i = 0; i < tableLayout.Columns.Count; i++)
+        {
+            var column = tableLayout.Columns[i];
+            canvas.DrawRectangle(ReportDesignSettings.SelectionColor, 1.0f,
+                Rect.FromLTWH(x, -OFFSET, column.Size.Pixels, OFFSET));
+            x += column.Size.Pixels;
+        }
+
+        //画左侧行边框
+        var y = 0f;
+        for (var i = 0; i < tableLayout.Rows.Count; i++)
+        {
+            var row = tableLayout.Rows[i];
+            canvas.DrawRectangle(ReportDesignSettings.SelectionColor, 1.0f,
+                Rect.FromLTWH(-OFFSET, y, OFFSET, row.Size.Pixels));
+            y += row.Size.Pixels;
+        }
+
+        //画左上边框
+        canvas.DrawRectangle(ReportDesignSettings.SelectionColor, 1.0f,
+            Rect.FromLTWH(-OFFSET, -OFFSET, OFFSET, OFFSET));
+
+        //画选择的Cell
+        foreach (var cell in tableLayout.GetSelectedCells())
+        {
+            var cellBounds = Rect.FromLTWH(cell.Bounds.Left.Pixels, cell.Bounds.Top.Pixels,
+                cell.Bounds.Width.Pixels, cell.Bounds.Height.Pixels);
+            canvas.DrawRectangle(ReportDesignSettings.SelectionColor, 2.0f, cellBounds);
+        }
+    }
+
+    private List<IElement> GetElements()
+    {
+        //TODO:参照TableDesigner.GetGlyphs()方法重构
+        var ls = new List<IElement>();
+        var tableLayout = ((TableDesigner)Target).TableLayout;
+        //加入列ResizeHandle
+        var x = 0f;
+        for (var i = 0; i < tableLayout.Columns.Count; i++)
+        {
+            var column = tableLayout.Columns[i];
+            var resizeHandle = new ResizeHandle()
+            {
+                Bounds = Rect.FromLTWH(x + column.Size.Pixels - ReportDesignSettings.HandleSize / 2, -OFFSET,
+                    ReportDesignSettings.HandleSize, OFFSET),
+                Cursor = Cursors.ResizeLR,
+                Target = column
+            };
+            ls.Add(resizeHandle);
+            x += column.Size.Pixels;
+        }
+
+        //加入行ResizeHandle
+        var y = 0f;
+        for (var i = 0; i < tableLayout.Rows.Count; i++)
+        {
+            var row = tableLayout.Rows[i];
+            var resizeHandle = new ResizeHandle()
+            {
+                Bounds = Rect.FromLTWH(-OFFSET, y + row.Size.Pixels - ReportDesignSettings.HandleSize / 2, OFFSET,
+                    ReportDesignSettings.HandleSize),
+                Cursor = Cursors.ResizeUD,
+                Target = row
+            };
+            ls.Add(resizeHandle);
+            y += row.Size.Pixels;
+        }
+
+        return ls;
+    }
+
+    protected override bool HitTest(Point pt, ref Cursor? cursor)
+    {
+        var ls = this.GetElements();
+        IElement? hitElement = null;
+        Cursor? hitCursor = null;
+        for (int i = 0; i < ls.Count; i++)
+        {
+            if (ls[i].HitTest(pt, ref hitCursor))
+            {
+                hitElement = ls[i];
+            }
+        }
+
+        if (hitElement != null)
+        {
+            cursor = hitCursor;
+            _hitTestElement = hitElement;
+            return true;
+        }
+
+        _hitTestElement = null;
+        return false;
+    }
+
+    protected override void OnMouseMove(PointerEvent e)
+    {
+        if (_hitTestElement == null)
+            return;
+
+        if (_hitTestElement is ResizeHandle)
+        {
+            var resizeHandle = (ResizeHandle)_hitTestElement;
+            if (resizeHandle.Target is TableLayout.Column)
+            {
+                //resize column width
+                var column = (TableLayout.Column)resizeHandle.Target;
+                column.Size += ReportSize.Pixel(e.DeltaX);
+            }
+            else
+            {
+                //resize row height
+                var row = (TableLayout.Row)resizeHandle.Target;
+                row.Size += ReportSize.Pixel(e.DeltaY);
+            }
+
+            ((IReportItemDesigner)Target).Invalidate();
+        }
+    }
+
+    private interface IElement
+    {
+        bool HitTest(Point pt, ref Cursor? cursor);
+    }
+
+    private struct ResizeHandle : IElement
+    {
+        public Rect Bounds;
+        public Cursor Cursor;
+        public TableLayout.TableMember Target;
+
+        public bool HitTest(Point pt, ref Cursor? cursor)
+        {
+            if (Bounds.Contains(pt))
+            {
+                cursor = Cursor;
+                return true;
+            }
+
+            return false;
+        }
+    }
+}
