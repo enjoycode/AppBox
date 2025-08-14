@@ -98,6 +98,7 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         //加入MoveTableHandle
         var moveHandle = new MoveTableHandle()
         {
+            //Bounds = Rect.FromLTWH(-OFFSET, -OFFSET, -OFFSET, -OFFSET),
             Bounds = Rect.FromLTWH(0, 0, 15, 15),
             Cursor = Cursors.Hand,
         };
@@ -128,6 +129,17 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
 
         _hitTestElement = null;
         return false;
+    }
+
+    protected override void OnMouseDown(PointerEvent e)
+    {
+        base.OnMouseDown(e);
+
+        if (_hitTestElement is MoveTableHandle)
+        {
+            //选中整个表格
+            Target.Surface!.SelectionService.SelectItem(Target);
+        }
     }
 
     protected override void OnMouseMove(PointerEvent e)
