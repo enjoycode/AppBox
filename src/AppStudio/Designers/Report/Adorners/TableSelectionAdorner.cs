@@ -98,8 +98,7 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         //加入MoveTableHandle
         var moveHandle = new MoveTableHandle()
         {
-            //Bounds = Rect.FromLTWH(-OFFSET, -OFFSET, -OFFSET, -OFFSET),
-            Bounds = Rect.FromLTWH(0, 0, 15, 15),
+            Bounds = Rect.FromLTWH(-OFFSET, -OFFSET, OFFSET, OFFSET),
             Cursor = Cursors.Hand,
         };
         ls.Add(moveHandle);
@@ -112,7 +111,7 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         var ls = GetElements();
         IElement? hitElement = null;
         Cursor? hitCursor = null;
-        for (int i = 0; i < ls.Count; i++)
+        for (var i = 0; i < ls.Count; i++)
         {
             if (ls[i].HitTest(pt, ref hitCursor))
             {
