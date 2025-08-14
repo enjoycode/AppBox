@@ -86,8 +86,8 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
             var row = tableLayout.Rows[i];
             var resizeHandle = new ResizeHandle()
             {
-                Bounds = Rect.FromLTWH(-OFFSET, y + row.Size.Pixels - ReportDesignSettings.HandleSize / 2, OFFSET,
-                    ReportDesignSettings.HandleSize),
+                Bounds = Rect.FromLTWH(-OFFSET, y + row.Size.Pixels - ReportDesignSettings.HandleSize / 2,
+                    OFFSET, ReportDesignSettings.HandleSize),
                 Cursor = Cursors.ResizeUD,
                 Target = row
             };
@@ -95,12 +95,20 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
             y += row.Size.Pixels;
         }
 
+        //加入MoveTableHandle
+        var moveHandle = new MoveTableHandle()
+        {
+            Bounds = Rect.FromLTWH(0, 0, 15, 15),
+            Cursor = Cursors.Hand,
+        };
+        ls.Add(moveHandle);
+
         return ls;
     }
 
     protected override bool HitTest(Point pt, ref Cursor? cursor)
     {
-        var ls = this.GetElements();
+        var ls = GetElements();
         IElement? hitElement = null;
         Cursor? hitCursor = null;
         for (int i = 0; i < ls.Count; i++)
@@ -127,23 +135,25 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         if (_hitTestElement == null)
             return;
 
-        if (_hitTestElement is ResizeHandle)
+        if (_hitTestElement is ResizeHandle resizeHandle)
         {
-            var resizeHandle = (ResizeHandle)_hitTestElement;
-            if (resizeHandle.Target is TableLayout.Column)
+            if (resizeHandle.Target is TableLayout.Column column)
             {
                 //resize column width
-                var column = (TableLayout.Column)resizeHandle.Target;
                 column.Size += ReportSize.Pixel(e.DeltaX);
             }
-            else
+            else if (resizeHandle.Target is TableLayout.Row row)
             {
                 //resize row height
-                var row = (TableLayout.Row)resizeHandle.Target;
                 row.Size += ReportSize.Pixel(e.DeltaY);
             }
 
             ((IReportItemDesigner)Target).Invalidate();
+        }
+        else if (_hitTestElement is MoveTableHandle)
+        {
+            var table = (TableDesigner)Target;
+            table.Move((int)Math.Round(e.DeltaX), (int)Math.Round(e.DeltaY));
         }
     }
 
@@ -152,11 +162,12 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         bool HitTest(Point pt, ref Cursor? cursor);
     }
 
-    private struct ResizeHandle : IElement
+    #region ====Handles====
+
+    private abstract class HandleBase : IElement
     {
-        public Rect Bounds;
-        public Cursor Cursor;
-        public TableLayout.TableMember Target;
+        public Rect Bounds { get; init; }
+        public Cursor Cursor { get; init; } = null!;
 
         public bool HitTest(Point pt, ref Cursor? cursor)
         {
@@ -169,4 +180,19 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
             return false;
         }
     }
+
+    /// <summary>
+    /// 用于Resize Table's Column or Row
+    /// </summary>
+    private sealed class ResizeHandle : HandleBase
+    {
+        public TableLayout.TableMember Target { get; init; } = null!;
+    }
+
+    /// <summary>
+    /// 用于移动表格位置
+    /// </summary>
+    private sealed class MoveTableHandle : HandleBase { }
+
+    #endregion
 }

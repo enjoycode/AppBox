@@ -72,7 +72,7 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
             processingBarcode.Arrange(measureContext, layoutRect);
 
             graphics.TranslateTransform(Bounds.X, Bounds.Y);
-            new PrimitiveElementGdiWriter(graphics).Write(processingBarcode.ElementContainer);
+            new PrimitiveElementCanvasWriter(graphics).Write(processingBarcode.ElementContainer);
         }
         finally
         {
