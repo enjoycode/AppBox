@@ -22,8 +22,8 @@ internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSection
     {
         get
         {
-            var widthPx = ReportItem.Report.Width.Pixels;
-            var heightPx = ReportItem.Height.Pixels;
+            var widthPx = ReportItem.Report.Width.FPixels;
+            var heightPx = ReportItem.Height.FPixels;
             return Rect.FromLTWH(0, Y, widthPx, heightPx);
         }
         set => SetBounds(value.X, value.Y, value.Width, value.Height, BoundsSpecified.Size);

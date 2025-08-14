@@ -31,8 +31,8 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         {
             var column = tableLayout.Columns[i];
             canvas.DrawRectangle(ReportDesignSettings.SelectionColor, 1.0f,
-                Rect.FromLTWH(x, -OFFSET, column.Size.Pixels, OFFSET));
-            x += column.Size.Pixels;
+                Rect.FromLTWH(x, -OFFSET, column.Size.FPixels, OFFSET));
+            x += column.Size.FPixels;
         }
 
         //画左侧行边框
@@ -41,8 +41,8 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         {
             var row = tableLayout.Rows[i];
             canvas.DrawRectangle(ReportDesignSettings.SelectionColor, 1.0f,
-                Rect.FromLTWH(-OFFSET, y, OFFSET, row.Size.Pixels));
-            y += row.Size.Pixels;
+                Rect.FromLTWH(-OFFSET, y, OFFSET, row.Size.FPixels));
+            y += row.Size.FPixels;
         }
 
         //画左上边框
@@ -52,8 +52,8 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         //画选择的Cell
         foreach (var cell in tableLayout.GetSelectedCells())
         {
-            var cellBounds = Rect.FromLTWH(cell.Bounds.Left.Pixels, cell.Bounds.Top.Pixels,
-                cell.Bounds.Width.Pixels, cell.Bounds.Height.Pixels);
+            var cellBounds = Rect.FromLTWH(cell.Bounds.Left.FPixels, cell.Bounds.Top.FPixels,
+                cell.Bounds.Width.FPixels, cell.Bounds.Height.FPixels);
             canvas.DrawRectangle(ReportDesignSettings.SelectionColor, 2.0f, cellBounds);
         }
     }
@@ -70,13 +70,13 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
             var column = tableLayout.Columns[i];
             var resizeHandle = new ResizeHandle()
             {
-                Bounds = Rect.FromLTWH(x + column.Size.Pixels - ReportDesignSettings.HandleSize / 2, -OFFSET,
+                Bounds = Rect.FromLTWH(x + column.Size.FPixels - ReportDesignSettings.HandleSize / 2, -OFFSET,
                     ReportDesignSettings.HandleSize, OFFSET),
                 Cursor = Cursors.ResizeLR,
                 Target = column
             };
             ls.Add(resizeHandle);
-            x += column.Size.Pixels;
+            x += column.Size.FPixels;
         }
 
         //加入行ResizeHandle
@@ -86,13 +86,13 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
             var row = tableLayout.Rows[i];
             var resizeHandle = new ResizeHandle()
             {
-                Bounds = Rect.FromLTWH(-OFFSET, y + row.Size.Pixels - ReportDesignSettings.HandleSize / 2,
+                Bounds = Rect.FromLTWH(-OFFSET, y + row.Size.FPixels - ReportDesignSettings.HandleSize / 2,
                     OFFSET, ReportDesignSettings.HandleSize),
                 Cursor = Cursors.ResizeUD,
                 Target = row
             };
             ls.Add(resizeHandle);
-            y += row.Size.Pixels;
+            y += row.Size.FPixels;
         }
 
         //加入MoveTableHandle

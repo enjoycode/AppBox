@@ -28,9 +28,9 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
     {
         get
         {
-            var widthPx = ReportItem.Width.Pixels;
+            var widthPx = ReportItem.Width.FPixels;
             var heightPx = ReportItem.Items.Cast<ReportSectionBase>()
-                .Aggregate(0f, (current, section) => current + section.Height.Pixels);
+                .Aggregate(0f, (current, section) => current + section.Height.FPixels);
 
             return Rect.FromLTWH(8, 8, widthPx, heightPx);
         }
@@ -69,7 +69,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                 return ReferenceEquals(sectionDesigner.ReportItem, section);
             });
             designer.Y = offsetY;
-            offsetY += section.Height.Pixels;
+            offsetY += section.Height.FPixels;
         }
     }
 

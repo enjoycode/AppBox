@@ -21,13 +21,13 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
                 var tableCell = tableDesigner.TableLayout.GetCell(ReportItem);
                 if (tableCell != null)
                 {
-                    return Rect.FromLTWH(tableCell.Bounds.Left.Pixels, tableCell.Bounds.Top.Pixels,
-                        tableCell.Bounds.Width.Pixels, tableCell.Bounds.Height.Pixels);
+                    return Rect.FromLTWH(tableCell.Bounds.Left.FPixels, tableCell.Bounds.Top.FPixels,
+                        tableCell.Bounds.Width.FPixels, tableCell.Bounds.Height.FPixels);
                 }
             }
 
-            return Rect.FromLTWH(ReportItem.Left.Pixels, ReportItem.Top.Pixels,
-                ReportItem.Width.Pixels, ReportItem.Height.Pixels);
+            return Rect.FromLTWH(ReportItem.Left.FPixels, ReportItem.Top.FPixels,
+                ReportItem.Width.FPixels, ReportItem.Height.FPixels);
         }
         set
         {
