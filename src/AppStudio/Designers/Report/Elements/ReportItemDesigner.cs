@@ -63,8 +63,9 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
 
     public override void Paint(Canvas canvas)
     {
-        canvas.FillRectangle(ReportItem.Style.BackgroundColor, Bounds);
-        canvas.DrawRectangle(new(173, 219, 241), 1.0f, Bounds);
+        var bounds = Bounds;
+        canvas.FillRectangle(ReportItem.Style.BackgroundColor, bounds);
+        canvas.DrawRectangle(new(173, 219, 241), 1.0f, bounds);
     }
 
     protected override void OnAddToSurface()
