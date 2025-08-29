@@ -91,7 +91,7 @@ public sealed class ModelNode : DesignNode
         {
             var typeSystem = DesignTree!.DesignHub.TypeSystem;
             //注意：不在此更新RoslynDocument, 实体模型通过设计命令更新,服务模型通过前端代码编辑器实时更新
-            if (Model.ModelType == ModelType.Service || Model.ModelType == ModelType.View)
+            if (Model.ModelType is ModelType.Service or ModelType.View)
             {
                 string srcCode;
                 if (initOrNewSrcCode != null) srcCode = initOrNewSrcCode;

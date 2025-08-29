@@ -17,7 +17,7 @@ internal static class NewReportModel
                          "$T": "PageHeader",
                          "Height": "2cm",
                          "Items": [
-                           {"$T": "TextBox", "Width": "3cm", "Height": "1cm", "Left": "5cm", "Top": "1cm", "Value": "Header"}
+                           {"$T": "TextBox", "Width": "3cm", "Height": "1cm", "Left": "5cm", "Top": "0.5cm", "Value": "Header"}
                          ]
                        },
                        {

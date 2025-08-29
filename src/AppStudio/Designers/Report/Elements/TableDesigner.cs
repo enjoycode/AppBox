@@ -192,7 +192,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
     private sealed class DesignerTableLayout : TableLayout
     {
-        public TableDesigner Designer { get; private set; }
+        public TableDesigner Designer { get; }
 
         public DesignerTableLayout(TableDesigner designer) : base(designer.ReportItem)
         {
@@ -206,10 +206,10 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
             public DesignCell(DesignerTableLayout tableLayout, int rowIndex, int colIndex)
                 : base(tableLayout, rowIndex, colIndex)
             {
-                _tableLayout = tableLayout;
+                // _tableLayout = tableLayout;
             }
 
-            private readonly DesignerTableLayout _tableLayout;
+            // private readonly DesignerTableLayout _tableLayout;
         }
     }
 

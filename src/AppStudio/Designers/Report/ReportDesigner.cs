@@ -32,6 +32,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
     }
 
     private bool _hasLoadSourceCode;
+    private Report _report = null!;
     private readonly ReportDesignService _designService;
     private readonly ReportToolbox _toolbox = new();
     internal DiagramSurface Surface => _designService.Surface;
@@ -57,14 +58,14 @@ internal sealed class ReportDesigner : View, IModelDesigner
             {
                 var jsonData = Encoding.UTF8.GetBytes(srcCode);
                 var jsonReader = new Utf8JsonReader(jsonData.AsSpan());
-                var report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader);
+                _report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader);
 
                 //2. 转换为相应的设计器
-                var rootDesigner = new ReportRootDesigner(_designService, report);
+                var rootDesigner = new ReportRootDesigner(_designService, _report);
                 Surface.AddItem(rootDesigner);
                 Surface.SelectionService.SelectItem(rootDesigner);
 
-                foreach (var item in report.Items)
+                foreach (var item in _report.Items)
                 {
                     LoadDesigners(item, rootDesigner);
                 }
@@ -109,7 +110,17 @@ internal sealed class ReportDesigner : View, IModelDesigner
 
     public Task SaveAsync()
     {
-        throw new NotImplementedException();
+        if (_report == null!)
+            throw new Exception("Report instance has not created");
+
+        //TODO: 暂转换处理
+        var ms = new MemoryStream();
+        var jsonWriter = new Utf8JsonWriter(ms);
+        AppBox.Reporting.Serialization.JsonSerializer.Serialize(jsonWriter, _report);
+        jsonWriter.Flush();
+
+        var jsonText = Encoding.UTF8.GetString(ms.ToArray());
+        return ModelNode.SaveAsync(jsonText);
     }
 
     public Task RefreshAsync()
