@@ -8,7 +8,7 @@ namespace AppBoxDesign;
 
 internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T : ReportItem
 {
-    internal bool IsTableCell => ReportItem.Parent is Table;
+    public sealed override bool IsTableCell => ReportItem.Parent is Table;
 
     public override DesignBehavior DesignBehavior => IsTableCell ? DesignBehavior.None : base.DesignBehavior;
 

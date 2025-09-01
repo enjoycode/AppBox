@@ -30,7 +30,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         sTableNormal.Style.BorderColor.Default = PixUI.Colors.Black;
         sTableNormal.Style.BorderWidth.Default = ReportSize.Pixel(1);
         sTableNormal.AddSelector(new StyleSelector(typeof(Table), "Normal.TableNormal"));
-        ReportItem.Report.StyleSheet.Add(sTableNormal);
+        ReportItem.Report!.StyleSheet.Add(sTableNormal);
 
         var sTableBody = new StyleRule();
         sTableBody.Style.Color = PixUI.Colors.Black;

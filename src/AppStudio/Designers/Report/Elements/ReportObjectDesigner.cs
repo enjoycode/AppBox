@@ -7,7 +7,7 @@ internal abstract class ReportObjectDesigner<T> : DiagramItem, IReportItemDesign
 {
     public T ReportItem { get; protected init; } = null!;
 
-    ReportItemBase IReportItemDesigner.ReportItem => ReportItem;
+    public virtual bool IsTableCell => false;
 
     public virtual string TypeName => ReportItem.GetType().Name;
 
@@ -28,6 +28,8 @@ internal abstract class ReportObjectDesigner<T> : DiagramItem, IReportItemDesign
     {
         yield break;
     }
+
+    ReportItemBase IReportItemDesigner.ReportItem => ReportItem;
 
     void IReportItemDesigner.Invalidate() => Invalidate();
 }

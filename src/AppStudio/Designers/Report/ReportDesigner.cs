@@ -103,7 +103,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
             Children =
             {
                 new Button("Add"),
-                new Button("Remove"),
+                new Button("Remove") { OnTap = _ => _designService.DeleteSelection() },
             }
         }
     };
