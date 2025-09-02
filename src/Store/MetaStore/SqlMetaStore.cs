@@ -26,8 +26,8 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildInsertMetaCommand(cmd, MetaType.Meta_Application, app.Id.ToString(),
-            MetaType.ModelType_Application, MetaSerializer.SerializeMeta(app), false);
+        BuildInsertMetaCommand(cmd, MetaType.META_APPLICATION, app.Id.ToString(),
+            MetaType.MODEL_TYPE_APPLICATION, MetaSerializer.SerializeMeta(app), false);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -36,7 +36,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var conn = await SqlStore.Default.OpenConnectionAsync();
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = conn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_Application, app.Id.ToString());
+        BuildDeleteMetaCommand(cmd, MetaType.META_APPLICATION, app.Id.ToString());
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -45,8 +45,8 @@ public sealed class SqlMetaStore : IMetaStore
         if (layer == ModelLayer.SYS) //不允许SYS Layer
             throw new ArgumentException(nameof(layer));
         var meta = layer == ModelLayer.DEV
-            ? MetaType.Meta_App_Model_Dev_Counter
-            : MetaType.Meta_App_Model_Usr_Counter;
+            ? MetaType.META_APP_MODEL_DEV_COUNTER
+            : MetaType.META_APP_MODEL_USR_COUNTER;
         var id = appId.ToString();
 
         var db = SqlStore.Default;
@@ -61,7 +61,7 @@ public sealed class SqlMetaStore : IMetaStore
         cmd1.CommandText = $"Select data From {esc}sys.Meta{esc} Where meta={meta} And id='{id}' For Update";
         await using var reader = await cmd1.ExecuteReaderAsync();
         byte[] counterData;
-        var seq = 0;
+        int seq;
 
         await using var cmd2 = db.MakeCommand();
         if (await reader.ReadAsync()) //已存在计数器
@@ -76,7 +76,7 @@ public sealed class SqlMetaStore : IMetaStore
         {
             seq = 1;
             counterData = BitConverter.GetBytes(seq);
-            BuildInsertMetaCommand(cmd2, meta, id, MetaType.ModelType_Application, counterData, false);
+            BuildInsertMetaCommand(cmd2, meta, id, MetaType.MODEL_TYPE_APPLICATION, counterData, false);
         }
 
         await reader.CloseAsync();
@@ -95,7 +95,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildInsertMetaCommand(cmd, MetaType.Meta_Model, model.Id.ToString(), (byte)model.ModelType,
+        BuildInsertMetaCommand(cmd, MetaType.META_MODEL, model.Id.ToString(), (byte)model.ModelType,
             MetaSerializer.SerializeMeta(model), false);
         await cmd.ExecuteNonQueryAsync();
     }
@@ -108,7 +108,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildUpdateMetaCommand(cmd, MetaType.Meta_Model, model.Id.ToString(), MetaSerializer.SerializeMeta(model));
+        BuildUpdateMetaCommand(cmd, MetaType.META_MODEL, model.Id.ToString(), MetaSerializer.SerializeMeta(model));
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -118,7 +118,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_Model, model.Id.ToString());
+        BuildDeleteMetaCommand(cmd, MetaType.META_MODEL, model.Id.ToString());
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -136,8 +136,8 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_Folder, id);
-        BuildInsertMetaCommand(cmd, MetaType.Meta_Folder, id, MetaType.ModelType_Folder,
+        BuildDeleteMetaCommand(cmd, MetaType.META_FOLDER, id);
+        BuildInsertMetaCommand(cmd, MetaType.META_FOLDER, id, MetaType.MODEL_TYPE_FOLDER,
             MetaSerializer.SerializeMeta(folder),
             true);
         await cmd.ExecuteNonQueryAsync();
@@ -155,7 +155,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_Folder, id);
+        BuildDeleteMetaCommand(cmd, MetaType.META_FOLDER, id);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -176,8 +176,8 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_Code, id);
-        BuildInsertMetaCommand(cmd, MetaType.Meta_Code, id, (byte)modelId.Type, codeData, true);
+        BuildDeleteMetaCommand(cmd, MetaType.META_CODE, id);
+        BuildInsertMetaCommand(cmd, MetaType.META_CODE, id, (byte)modelId.Type, codeData, true);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -186,7 +186,7 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_Code, modelId.ToString());
+        BuildDeleteMetaCommand(cmd, MetaType.META_CODE, modelId.ToString());
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -288,8 +288,8 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_View_Router, viewName);
-        BuildInsertMetaCommand(cmd, MetaType.Meta_View_Router, viewName, (byte)ModelType.View,
+        BuildDeleteMetaCommand(cmd, MetaType.META_VIEW_ROUTER, viewName);
+        BuildInsertMetaCommand(cmd, MetaType.META_VIEW_ROUTER, viewName, (byte)ModelType.View,
             System.Text.Encoding.UTF8.GetBytes(path), true);
         await cmd.ExecuteNonQueryAsync();
     }
@@ -299,7 +299,7 @@ public sealed class SqlMetaStore : IMetaStore
         using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
-        BuildDeleteMetaCommand(cmd, MetaType.Meta_View_Router, viewName);
+        BuildDeleteMetaCommand(cmd, MetaType.META_VIEW_ROUTER, viewName);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -310,7 +310,7 @@ public sealed class SqlMetaStore : IMetaStore
         using var conn = await db.OpenConnectionAsync();
         using var cmd = db.MakeCommand();
         cmd.Connection = conn;
-        cmd.CommandText = $"Select id,data From {esc}sys.Meta{esc} Where meta={MetaType.Meta_View_Router}";
+        cmd.CommandText = $"Select id,data From {esc}sys.Meta{esc} Where meta={MetaType.META_VIEW_ROUTER}";
         Logger.Debug(cmd.CommandText);
         using var reader = await cmd.ExecuteReaderAsync();
         var list = new List<ValueTuple<string, string>>();
@@ -455,21 +455,21 @@ public sealed class SqlMetaStore : IMetaStore
             var data = (byte[])reader.GetValue(0);
             switch (metaType)
             {
-                case MetaType.Meta_Application:
+                case MetaType.META_APPLICATION:
                 {
                     var appModel = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
                         () => new ApplicationModel());
                     list.Add((T)appModel);
                     break;
                 }
-                case MetaType.Meta_Folder:
+                case MetaType.META_FOLDER:
                 {
                     var folder = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
                         () => new ModelFolder());
                     list.Add((T)folder);
                     break;
                 }
-                case MetaType.Meta_Model:
+                case MetaType.META_MODEL:
                 {
                     ModelId modelId = reader.GetString(1);
                     var model = MetaSerializer.DeserializeMeta<IBinSerializable>(data,

@@ -1,6 +1,4 @@
-using System;
 using System.Data.Common;
-using System.Threading.Tasks;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -56,7 +54,7 @@ public static class MetaStoreExtensions
     /// </summary>
     public static async ValueTask<ApplicationModel> LoadApplicationAsync(this IMetaStore metaStore, int appId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.Meta_Application, appId.ToString());
+        var data = await metaStore.LoadMetaDataAsync(MetaType.META_APPLICATION, appId.ToString());
         return MetaSerializer.DeserializeMeta(data!, () => new ApplicationModel());
     }
 
@@ -65,7 +63,7 @@ public static class MetaStoreExtensions
     /// </summary>
     public static async Task<ModelBase> LoadModelAsync(this IMetaStore metaStore, ModelId modelId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.Meta_Model, modelId.ToString());
+        var data = await metaStore.LoadMetaDataAsync(MetaType.META_MODEL, modelId.ToString());
         var model = MetaSerializer.DeserializeMeta(data!, () => ModelFactory.Make(modelId.Type));
         model.AcceptChanges();
         return model;
@@ -76,7 +74,7 @@ public static class MetaStoreExtensions
     /// </summary>
     public static async Task<string?> LoadModelCodeAsync(this IMetaStore metaStore, ModelId modelId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.Meta_Code, modelId.ToString());
+        var data = await metaStore.LoadMetaDataAsync(MetaType.META_CODE, modelId.ToString());
         return ModelCodeUtil.DecompressCode(data!);
     }
 
@@ -86,7 +84,7 @@ public static class MetaStoreExtensions
     /// <returns>utf8 bytes</returns>
     public static async Task<byte[]?> LoadDynamicViewJsonAsync(this IMetaStore metaStore, ModelId viewModelId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.Meta_Code, viewModelId.ToString());
+        var data = await metaStore.LoadMetaDataAsync(MetaType.META_CODE, viewModelId.ToString());
         if (data == null || data.Length == 0) return null;
         return ModelCodeUtil.DecompressCodeToUtf8Bytes(data);
     }
@@ -139,14 +137,14 @@ public static class MetaStoreExtensions
     /// 用于设计时加载所有ApplicationModel
     /// </summary>
     public static Task<ApplicationModel[]> LoadAllApplicationAsync(this IMetaStore metaStore) =>
-        metaStore.LoadMetasAsync<ApplicationModel>(MetaType.Meta_Application);
+        metaStore.LoadMetasAsync<ApplicationModel>(MetaType.META_APPLICATION);
 
     /// <summary>
     /// 用于设计时加载所有Model
     /// </summary>
     public static async Task<ModelBase[]> LoadAllModelAsync(this IMetaStore metaStore)
     {
-        var res = await metaStore.LoadMetasAsync<ModelBase>(MetaType.Meta_Model);
+        var res = await metaStore.LoadMetasAsync<ModelBase>(MetaType.META_MODEL);
         foreach (var model in res)
         {
             model.AcceptChanges(); //暂循环转换状态
@@ -159,7 +157,7 @@ public static class MetaStoreExtensions
     /// 用于设计时加载所有Folder
     /// </summary>
     public static Task<ModelFolder[]> LoadAllFolderAsync(this IMetaStore metaStore) =>
-        metaStore.LoadMetasAsync<ModelFolder>(MetaType.Meta_Folder);
+        metaStore.LoadMetasAsync<ModelFolder>(MetaType.META_FOLDER);
 
     /// <summary>
     /// 加载所有标为动态组件的视图模型的名称，用于设计时注册动态组件至工具箱

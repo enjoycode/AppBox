@@ -14,7 +14,7 @@ public static class SqlStoreInitiator
         //暂通过查询判断有无初始化过
         await using var cmd1 = db.MakeCommand();
         cmd1.CommandText =
-            $"Select meta From {esc}sys.Meta{esc} Where meta={MetaType.Meta_Application} And id='{Consts.SYS_APP_ID.ToString()}'";
+            $"Select meta From {esc}sys.Meta{esc} Where meta={MetaType.META_APPLICATION} And id='{Consts.SYS_APP_ID.ToString()}'";
         await using var conn = db.MakeConnection();
         try
         {
