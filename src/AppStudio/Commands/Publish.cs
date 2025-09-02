@@ -49,8 +49,10 @@ internal static class Publish
         if (modelNode == null)
             return null;
 
-        if (modelNode.Model is ViewModel viewModel && viewModel.ViewType == ViewModelType.PixUIDynamic)
-            return null; //由服务端保存暂存的
+        if (modelNode.Model is ViewModel { ViewType: ViewModelType.PixUIDynamic })
+            return null; //由服务端暂存
+        if (modelNode.Model is ReportModel)
+            return null; //由服务端暂存
 
         var roslynDoc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
         var source = await roslynDoc.GetTextAsync();

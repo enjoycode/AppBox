@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading.Tasks;
 using AppBoxCore;
 using static AppBoxStore.StoreLogger;
 
@@ -169,7 +166,9 @@ public sealed class SqlMetaStore : IMetaStore
     /// <summary>
     /// Insert or Update模型相关的代码，目前主要用于服务模型及视图模型
     /// </summary>
+    /// <param name="modelId"></param>
     /// <param name="codeData">已经压缩编码过</param>
+    /// <param name="txn"></param>
     public async Task UpsertModelCodeAsync(ModelId modelId, byte[] codeData, DbTransaction txn)
     {
         //TODO:暂先删除再插入
@@ -283,9 +282,10 @@ public sealed class SqlMetaStore : IMetaStore
     /// </summary>
     /// <param name="viewName">eg: sys.CustomerList</param>
     /// <param name="path">无自定义路由为空, 有上级则;分隔</param>
+    /// <param name="txn"></param>
     internal static async ValueTask UpsertViewRoute(string viewName, string path, DbTransaction txn)
     {
-        using var cmd = SqlStore.Default.MakeCommand();
+        await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
         BuildDeleteMetaCommand(cmd, MetaType.Meta_View_Router, viewName);

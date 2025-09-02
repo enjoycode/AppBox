@@ -148,6 +148,10 @@ internal static class PublishService
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
                         // await ModelStore.DeleteAssemblyAsync(MetaAssemblyType.View, oldViewName, txn);
                     }
+                    else if (model.ModelType == ModelType.Report)
+                    {
+                        await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
+                    }
                 }
                     break;
             }
