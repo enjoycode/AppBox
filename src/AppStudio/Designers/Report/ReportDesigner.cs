@@ -12,9 +12,6 @@ internal sealed class ReportDesigner : View, IModelDesigner
     {
         ModelNode = modelNode;
 
-        _designService = new ReportDesignService();
-        _designService.Surface.ToolboxService.Toolbox = _toolbox;
-
         Child = new Splitter
         {
             Fixed = Splitter.FixedPanel.Panel2,
@@ -24,7 +21,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
                 Children =
                 {
                     BuildCommandBar(),
-                    _designService.DiagramView,
+                    new DiagramView(_designService),
                 }
             },
             Panel2 = _designService.PropertyPanel,
@@ -33,8 +30,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
 
     private bool _hasLoadSourceCode;
     private Report _report = null!;
-    private readonly ReportDesignService _designService;
-    private readonly ReportToolbox _toolbox = new();
+    private readonly ReportDesignService _designService = new();
     internal DiagramSurface Surface => _designService.Surface;
 
     public ModelNode ModelNode { get; }
@@ -139,5 +135,5 @@ internal sealed class ReportDesigner : View, IModelDesigner
         return null;
     }
 
-    public Widget GetToolboxPad() => _toolbox;
+    public Widget GetToolboxPad() => _designService.Toolbox;
 }
