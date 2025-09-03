@@ -14,6 +14,7 @@ internal static class DesignerFactory
         { typeof(ReportFooter), t => new ReportSectionDesigner((ReportSectionBase)t) },
         { typeof(TextBox), t => new TextBoxDesigner((TextBox)t) },
         { typeof(Barcode), t => new BarcodeDesigner((Barcode)t) },
+        { typeof(Table), t => new TableDesigner((Table)t) },
     };
 
     public static DiagramItem CreateDesigner(ReportItemBase item)

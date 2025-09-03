@@ -56,7 +56,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
 
     private Collapse BuildPropertyGroupPanel(DiagramPropertyGroup group, int index)
     {
-        var form = new Form { LabelWidth = 108 };
+        var form = new Form { LabelWidth = 118 };
         foreach (var property in group.Properties)
         {
             var propEditor = MakePropertyEditor(property);

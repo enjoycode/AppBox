@@ -1,5 +1,6 @@
 using AppBox.Reporting;
 using AppBox.Reporting.Drawing;
+using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
 using PixUI.Diagram;
 
@@ -53,5 +54,21 @@ internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSection
         }
 
         canvas.Translate(-Bounds.X, -Bounds.Y);
+    }
+
+    public override IEnumerable<DiagramPropertyGroup> GetProperties()
+    {
+        yield return new DiagramPropertyGroup()
+        {
+            GroupName = "Layout",
+            Properties =
+            [
+                new ReportDiagramProperty(this, "Height", nameof(ReportSizeEditor))
+                {
+                    ValueGetter = () => ReportItem.Height,
+                    ValueSetter = v => ReportItem.Height = (ReportSize)v!,
+                },
+            ]
+        };
     }
 }

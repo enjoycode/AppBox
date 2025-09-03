@@ -1,6 +1,7 @@
 using AppBox.Reporting.Drawing;
 using AppBox.Reporting.Processing.Common;
 using AppBox.Reporting.Processing.Primitives;
+using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
 using Processing = AppBox.Reporting.Processing;
 using Barcode = AppBox.Reporting.Barcode;
@@ -97,5 +98,24 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
         var message = $"#ERROR# {error.Message}";
         using var font = ReportItem.Style.Font.ToDrawingFont();
         graphics.DrawString(message, font, Colors.Red, Bounds, format);
+    }
+
+    public override IEnumerable<DiagramPropertyGroup> GetProperties()
+    {
+        yield return new DiagramPropertyGroup()
+        {
+            GroupName = "Properties",
+            Properties =
+            [
+                new ReportDiagramProperty(this, nameof(Barcode.Value), nameof(ReportTextEditor))
+                {
+                    ValueGetter = () => ReportItem.Value,
+                    ValueSetter = v => ReportItem.Value = v as string ?? string.Empty,
+                },
+            ]
+        };
+
+        if (!IsTableCell)
+            yield return GetLayoutPropertyGroup();
     }
 }

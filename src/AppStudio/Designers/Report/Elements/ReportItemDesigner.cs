@@ -175,6 +175,11 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
                 ValueGetter = () => ReportItem.Style.Color,
                 ValueSetter = v => ReportItem.Style.Color = (Color)v!
             },
+            new ReportDiagramProperty(this, "BackgroundColor", nameof(ColorEditor))
+            {
+                ValueGetter = () => ReportItem.Style.BackgroundColor,
+                ValueSetter = v => ReportItem.Style.BackgroundColor = (Color)v!
+            },
             new ReportDiagramProperty(this, "TextAlign", nameof(EnumEditor), typeof(HorizontalAlign))
             {
                 ValueGetter = () => ReportItem.Style.TextAlign,
