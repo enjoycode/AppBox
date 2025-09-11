@@ -18,12 +18,6 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
 
     protected override bool IsContainer => true;
 
-    public Point Position
-    {
-        get => new(0, 0);
-        set => throw new NotSupportedException();
-    }
-
     public override Rect Bounds
     {
         get
@@ -75,7 +69,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
 
     internal static IEnumerable<ReportSectionBase> GetSectionsOrdered(Report report)
     {
-        ReportSectionBase? section = null;
+        ReportSectionBase? section;
 
         if (null != (section = report.FindFirstChild<PageHeader>()))
             yield return section;
