@@ -17,7 +17,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         TableLayout.Refresh();
     }
 
-    internal TableLayout TableLayout { get; private set; }
+    internal TableLayout TableLayout { get; }
 
     protected override bool IsContainer => true;
 
@@ -28,7 +28,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         sTableNormal.Style.Color = PixUI.Colors.Black;
         sTableNormal.Style.BorderStyle.Default = BorderType.Solid;
         sTableNormal.Style.BorderColor.Default = PixUI.Colors.Black;
-        sTableNormal.Style.BorderWidth.Default = ReportSize.Pixel(1);
+        sTableNormal.Style.BorderWidth.Default = Scalar.Pixel(1);
         sTableNormal.AddSelector(new StyleSelector(typeof(Table), "Normal.TableNormal"));
         ReportItem.Report!.StyleSheet.Add(sTableNormal);
 
@@ -36,7 +36,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         sTableBody.Style.Color = PixUI.Colors.Black;
         sTableBody.Style.BorderStyle.Default = BorderType.Solid;
         sTableBody.Style.BorderColor.Default = PixUI.Colors.Black;
-        sTableBody.Style.BorderWidth.Default = ReportSize.Pixel(1);
+        sTableBody.Style.BorderWidth.Default = Scalar.Pixel(1);
         ISelector[] selectors =
             [new TypeSelector(typeof(Table)), new StyleSelector(typeof(ReportItem), "Normal.TableBody")];
         sTableBody.AddSelector(new DescendantSelector(selectors));
@@ -48,7 +48,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         sTableHeader.Style.Color = PixUI.Colors.Black;
         sTableHeader.Style.BorderStyle.Default = BorderType.Solid;
         sTableHeader.Style.BorderColor.Default = PixUI.Colors.Black;
-        sTableHeader.Style.BorderWidth.Default = ReportSize.Pixel(1);
+        sTableHeader.Style.BorderWidth.Default = Scalar.Pixel(1);
         selectors = [new TypeSelector(typeof(Table)), new StyleSelector(typeof(ReportItem), "Normal.TableHeader")];
         sTableHeader.AddSelector(new DescendantSelector(selectors));
         ReportItem.Report.StyleSheet.Add(sTableHeader);
@@ -59,8 +59,8 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
     private void InitNewTable(Size size)
     {
-        var colWidth = ReportSize.Pixel(Math.Round(size.Width / 3));
-        var rowHeight = ReportSize.Pixel(Math.Round(size.Height / 2));
+        var colWidth = Scalar.Pixel(Math.Round(size.Width / 3));
+        var rowHeight = Scalar.Pixel(Math.Round(size.Height / 2));
 
         // 1. add cells
         ReportItem.StyleName = "Normal.TableNormal";

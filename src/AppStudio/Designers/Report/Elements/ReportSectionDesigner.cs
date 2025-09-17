@@ -35,7 +35,7 @@ internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSection
         //获取原单位
         var unitType = ReportItem.Height.Type;
         //不允许改变宽度，改变报表宽度
-        ReportItem.Height = ReportSize.FromPixels(height, unitType);
+        ReportItem.Height = Scalar.FromPixels(height, unitType);
 
         //重新布局并刷新
         var rootDesigner = (ReportRootDesigner)Parent!;
@@ -63,10 +63,10 @@ internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSection
             GroupName = "Layout",
             Properties =
             [
-                new ReportDiagramProperty(this, "Height", nameof(ReportSizeEditor))
+                new ReportDiagramProperty(this, "Height", nameof(ReportScalarEditor))
                 {
                     ValueGetter = () => ReportItem.Height,
-                    ValueSetter = v => ReportItem.Height = (ReportSize)v!,
+                    ValueSetter = v => ReportItem.Height = (Scalar)v!,
                 },
             ]
         };

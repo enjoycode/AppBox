@@ -78,7 +78,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         nameof(EnumEditor) => new EnumEditor(property),
         nameof(CheckBoxEditor) => new CheckBoxEditor(property),
         nameof(ColorEditor) => new ColorEditor(property),
-        nameof(ReportSizeEditor) => new ReportSizeEditor(property),
+        nameof(ReportScalarEditor) => new ReportScalarEditor(property),
         nameof(ReportTextEditor) => new ReportTextEditor(property),
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };

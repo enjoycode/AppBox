@@ -31,6 +31,8 @@ internal sealed class ReportDesigner : View, IModelDesigner
     private bool _hasLoadSourceCode;
     private Report _report = null!;
     private readonly ReportDesignService _designService = new();
+    private readonly State<bool> _isPreview = false;
+
     internal DiagramSurface Surface => _designService.Surface;
 
     public ModelNode ModelNode { get; }
@@ -94,12 +96,26 @@ internal sealed class ReportDesigner : View, IModelDesigner
         Height = 40,
         Padding = EdgeInsets.All(5),
         FillColor = Colors.Gray,
-        Child = new Row(VerticalAlignment.Middle, 5f)
+        Child = new Row(VerticalAlignment.Middle, 10f)
         {
             Children =
             {
-                new Button("Add"),
-                new Button("Remove") { OnTap = _ => _designService.DeleteSelection() },
+                new ButtonGroup
+                {
+                    Children =
+                    [
+                        new Button("Design") { Width = 75, OnTap = _ => _isPreview.Value = false },
+                        new Button("Preview") { Width = 75, OnTap = _ => _isPreview.Value = true },
+                    ]
+                },
+                new ButtonGroup()
+                {
+                    Children =
+                    [
+                        new Button("Add"),
+                        new Button("Remove") { OnTap = _ => _designService.DeleteSelection() },
+                    ]
+                },
             }
         }
     };

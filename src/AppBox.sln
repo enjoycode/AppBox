@@ -69,6 +69,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStudio.Web", "AppStudio.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Diagram", "..\ext\PixUI\src\PixUI.Diagram\PixUI.Diagram.csproj", "{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.PdfViewer", "..\ext\PixUI\src\PixUI.PdfViewer\PixUI.PdfViewer.csproj", "{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,6 +201,10 @@ Global
 		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,6 +224,7 @@ Global
 		{9359D422-6D41-46DC-B3D4-A2766D11A8B1} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 		{F40E4284-87B0-4FDE-8F5F-CDFDC0E3F5CC} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 		{E7E41C2D-2801-4E26-B6BD-5D50A80BD749} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
+		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0AED9DEB-9800-4131-95EE-564DCE3157C0}

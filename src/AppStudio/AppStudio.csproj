@@ -82,7 +82,7 @@
       <PackageReference Include="System.Composition.Runtime" Version="8.0.0" />
       <PackageReference Include="System.Composition.TypedParts" Version="8.0.0" />
       <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
-      <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+      <PackageReference Include="System.IO.Pipelines" Version="9.0.9" />
     </ItemGroup>
     
 </Project>

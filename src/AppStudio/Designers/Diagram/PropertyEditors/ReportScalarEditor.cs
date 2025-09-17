@@ -3,9 +3,9 @@ using PixUI;
 
 namespace AppBoxDesign.Diagram.PropertyEditors;
 
-internal sealed class ReportSizeEditor : SingleChildWidget, IValueStateEditor
+internal sealed class ReportScalarEditor : SingleChildWidget, IValueStateEditor
 {
-    public ReportSizeEditor(IDiagramProperty propertyItem)
+    public ReportScalarEditor(IDiagramProperty propertyItem)
     {
         _propertyItem = propertyItem;
         NotifyValueChanged();
@@ -17,7 +17,7 @@ internal sealed class ReportSizeEditor : SingleChildWidget, IValueStateEditor
             {
                 try
                 {
-                    var res = new ReportSize(v);
+                    var res = new Scalar(v);
                     propertyItem.ValueSetter!(res);
                     if (propertyItem.InvalidateAfterChanged)
                         propertyItem.Invalidate();

@@ -151,12 +151,12 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
             if (resizeHandle.Target is TableLayout.Column column)
             {
                 //resize column width
-                column.Size += ReportSize.Pixel(e.DeltaX);
+                column.Size += Scalar.Pixel(e.DeltaX);
             }
             else if (resizeHandle.Target is TableLayout.Row row)
             {
                 //resize row height
-                row.Size += ReportSize.Pixel(e.DeltaY);
+                row.Size += Scalar.Pixel(e.DeltaY);
             }
 
             ((IReportItemDesigner)Target).Invalidate();

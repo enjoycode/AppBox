@@ -44,17 +44,17 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
 
         if (specified == BoundsSpecified.Location)
         {
-            ReportItem.Location = new RPoint(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType));
+            ReportItem.Location = new RPoint(Scalar.FromPixels(x, unitType), Scalar.FromPixels(y, unitType));
         }
         else if (specified == BoundsSpecified.Size)
         {
-            ReportItem.Size = new RSize(ReportSize.FromPixels(width, unitType),
-                ReportSize.FromPixels(height, unitType));
+            ReportItem.Size = new RSize(Scalar.FromPixels(width, unitType),
+                Scalar.FromPixels(height, unitType));
         }
         else
         {
-            var bounds = new RRectangle(ReportSize.FromPixels(x, unitType), ReportSize.FromPixels(y, unitType)
-                , ReportSize.FromPixels(width, unitType), ReportSize.FromPixels(height, unitType));
+            var bounds = new RRectangle(Scalar.FromPixels(x, unitType), Scalar.FromPixels(y, unitType)
+                , Scalar.FromPixels(width, unitType), Scalar.FromPixels(height, unitType));
             ReportItem.Bounds = bounds;
         }
 
@@ -129,27 +129,27 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
 
         var ownerIsTable = false; //TODO: this is TableDesigner;
         var properties = ownerIsTable ? new IDiagramProperty[2] : new IDiagramProperty[4];
-        properties[0] = new ReportDiagramProperty(this, "Left", nameof(ReportSizeEditor))
+        properties[0] = new ReportDiagramProperty(this, "Left", nameof(ReportScalarEditor))
         {
             ValueGetter = () => ReportItem.Left,
-            ValueSetter = v => ReportItem.Left = (ReportSize)v!
+            ValueSetter = v => ReportItem.Left = (Scalar)v!
         };
-        properties[1] = new ReportDiagramProperty(this, "Top", nameof(ReportSizeEditor))
+        properties[1] = new ReportDiagramProperty(this, "Top", nameof(ReportScalarEditor))
         {
             ValueGetter = () => ReportItem.Top,
-            ValueSetter = v => ReportItem.Top = (ReportSize)v!
+            ValueSetter = v => ReportItem.Top = (Scalar)v!
         };
         if (!ownerIsTable)
         {
-            properties[2] = new ReportDiagramProperty(this, "Width", nameof(ReportSizeEditor))
+            properties[2] = new ReportDiagramProperty(this, "Width", nameof(ReportScalarEditor))
             {
                 ValueGetter = () => ReportItem.Width,
-                ValueSetter = v => ReportItem.Width = (ReportSize)v!
+                ValueSetter = v => ReportItem.Width = (Scalar)v!
             };
-            properties[3] = new ReportDiagramProperty(this, "Height", nameof(ReportSizeEditor))
+            properties[3] = new ReportDiagramProperty(this, "Height", nameof(ReportScalarEditor))
             {
                 ValueGetter = () => ReportItem.Height,
-                ValueSetter = v => ReportItem.Height = (ReportSize)v!
+                ValueSetter = v => ReportItem.Height = (Scalar)v!
             };
         }
 
@@ -165,10 +165,10 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         GroupName = "Style",
         Properties =
         [
-            new ReportDiagramProperty(this, "FontSize", nameof(ReportSizeEditor))
+            new ReportDiagramProperty(this, "FontSize", nameof(ReportScalarEditor))
             {
                 ValueGetter = () => ReportItem.Style.Font.Size,
-                ValueSetter = v => ReportItem.Style.Font.Size = (ReportSize)v!
+                ValueSetter = v => ReportItem.Style.Font.Size = (Scalar)v!
             },
             new ReportDiagramProperty(this, "Color", nameof(ColorEditor))
             {
