@@ -21,7 +21,9 @@ internal sealed class ReportDesigner : View, IModelDesigner
                 Children =
                 {
                     BuildCommandBar(),
-                    new DiagramView(_designService),
+                    new IfConditional(_isPreview,
+                        () => new ReportPreviewer(() => _report),
+                        () => new DiagramView(_designService))
                 }
             },
             Panel2 = _designService.PropertyPanel,
