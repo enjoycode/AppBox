@@ -11,7 +11,7 @@ internal static class NewReportModel
             selectedNode.Type, selectedNode.Id, name,
             _ => $$"""
                    {
-                     "Width": "21cm",
+                     "PageSettings": {"PaperSize":["21cm","29.7cm"]},
                      "Items": [
                        {
                          "$T": "PageHeader",

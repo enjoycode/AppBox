@@ -1,6 +1,9 @@
 using AppBox.Reporting;
+using AppBox.Reporting.Drawing;
+using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
 using PixUI.Diagram;
+using Colors = PixUI.Colors;
 
 namespace AppBoxDesign;
 
@@ -67,7 +70,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
         }
     }
 
-    internal static IEnumerable<ReportSectionBase> GetSectionsOrdered(Report report)
+    private static IEnumerable<ReportSectionBase> GetSectionsOrdered(Report report)
     {
         ReportSectionBase? section;
 
@@ -97,5 +100,35 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
 
         if (null != (section = report.FindFirstChild<PageFooter>()))
             yield return section;
+    }
+
+    public override IEnumerable<DiagramPropertyGroup> GetProperties()
+    {
+        yield return new DiagramPropertyGroup()
+        {
+            GroupName = "PageSettings",
+            Properties =
+            [
+                new ReportDiagramProperty(this, "PaperWidth", nameof(ReportScalarEditor))
+                {
+                    ValueGetter = () => ReportItem.PageSettings.PaperSize.Width,
+                    ValueSetter = v =>
+                    {
+                        var oldSize = ReportItem.PageSettings.PaperSize;
+                        ReportItem.PageSettings.PaperSize = new RSize((Scalar)v!, oldSize.Height);
+                        ReportItem.ResetWidth();
+                    },
+                },
+                new ReportDiagramProperty(this, "PaperHeight", nameof(ReportScalarEditor))
+                {
+                    ValueGetter = () => ReportItem.PageSettings.PaperSize.Height,
+                    ValueSetter = v =>
+                    {
+                        var oldSize = ReportItem.PageSettings.PaperSize;
+                        ReportItem.PageSettings.PaperSize = new RSize(oldSize.Width, (Scalar)v!);
+                    }
+                }
+            ]
+        };
     }
 }
