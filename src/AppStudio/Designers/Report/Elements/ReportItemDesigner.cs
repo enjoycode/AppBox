@@ -104,6 +104,30 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         return base.GetSelectionAdorner(adorners);
     }
 
+    protected override bool PreviewMouseDown(PointerEvent e)
+    {
+        if (e.Buttons == PointerButtons.Left && IsTableCell) //如果在表格内则开始单元格选取
+        {
+            var tableDesigner = (TableDesigner)Parent!;
+            tableDesigner.BeginCellSelection(e.X, e.Y);
+        }
+
+        return base.PreviewMouseDown(e);
+    }
+
+    public override void Move(float deltaX, float deltaY)
+    {
+        if (IsTableCell)
+        {
+            var tableDesigner = (TableDesigner)Parent!;
+            tableDesigner.MoveCellSelection(deltaX, deltaY);
+        }
+        else
+        {
+            base.Move(deltaX, deltaY);
+        }
+    }
+
     /// <summary>
     /// 目前用于布局属性发生变更时通知属性面板刷新相应的值
     /// </summary>

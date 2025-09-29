@@ -164,6 +164,45 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         return SelectionAdorner ??= new TableSelectionAdorner(adorners, this);
     }
 
+    #region ====Cell Selection====
+
+    private Point _startPos = Point.Empty;
+    private Point _endPos = Point.Empty;
+
+    /// <summary>
+    /// Begins the cell selection.
+    /// </summary>
+    /// <param name="x">Surface坐标系.</param>
+    /// <param name="y">Surface坐标系.</param>
+    internal void BeginCellSelection(float x, float y)
+    {
+        _startPos = _endPos = PointToClient(new Point(x, y));
+    }
+
+    /// <summary>
+    /// 用于Mouse拖动时选择单元格
+    /// </summary>
+    internal void MoveCellSelection(float deltaX, float deltaY)
+    {
+        _endPos.X += deltaX;
+        _endPos.Y += deltaY;
+
+        var dragRect = Rect.FromLTWH(Math.Min(_startPos.X, _endPos.X)
+            , Math.Min(_startPos.Y, _endPos.Y)
+            , Math.Abs(_endPos.X - _startPos.X)
+            , Math.Abs(_endPos.Y - _startPos.Y));
+
+        var cells = GetCellsInBounds(dragRect);
+        Surface!.SelectionService.SelectItems(cells);
+    }
+
+    private DiagramItem[] GetCellsInBounds(Rect dragRect)
+    {
+        return Items.Where(item => dragRect.IntersectsWith(item.Bounds)).ToArray();
+    }
+
+    #endregion
+
     public override void Paint(Canvas canvas)
     {
         canvas.Translate(Bounds.X, Bounds.Y);

@@ -44,9 +44,9 @@ internal sealed class ReportDesignService : IDesignService
         Surface.Repaint(); //TODO:考虑合并重绘区域，暂全部刷新
     }
 
-    void IDesignService.MoveSelection(int deltaX, int deltaY)
+    void IDesignService.MoveSelection(float deltaX, float deltaY)
     {
-        var selectedItems = Surface.SelectionService.SelectedItems;
+        var selectedItems = Surface.SelectionService.SelectedItems.ToArray(); //Maybe changed
         //TODO: 先判断有没有不能Move的对象，有则全部不允许移动
         // foreach (var item in selectedItems)
         // {
