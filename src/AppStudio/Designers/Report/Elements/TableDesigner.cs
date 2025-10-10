@@ -159,49 +159,8 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         TableLayout.SetSelectedCells(list);
     }
 
-    protected override ISelectionAdorner GetSelectionAdorner(DesignAdorners adorners)
-    {
-        return SelectionAdorner ??= new TableSelectionAdorner(adorners, this);
-    }
-
-    #region ====Cell Selection====
-
-    private Point _startPos = Point.Empty;
-    private Point _endPos = Point.Empty;
-
-    /// <summary>
-    /// Begins the cell selection.
-    /// </summary>
-    /// <param name="x">Surface坐标系.</param>
-    /// <param name="y">Surface坐标系.</param>
-    internal void BeginCellSelection(float x, float y)
-    {
-        _startPos = _endPos = PointToClient(new Point(x, y));
-    }
-
-    /// <summary>
-    /// 用于Mouse拖动时选择单元格
-    /// </summary>
-    internal void MoveCellSelection(float deltaX, float deltaY)
-    {
-        _endPos.X += deltaX;
-        _endPos.Y += deltaY;
-
-        var dragRect = Rect.FromLTWH(Math.Min(_startPos.X, _endPos.X)
-            , Math.Min(_startPos.Y, _endPos.Y)
-            , Math.Abs(_endPos.X - _startPos.X)
-            , Math.Abs(_endPos.Y - _startPos.Y));
-
-        var cells = GetCellsInBounds(dragRect);
-        Surface!.SelectionService.SelectItems(cells);
-    }
-
-    private DiagramItem[] GetCellsInBounds(Rect dragRect)
-    {
-        return Items.Where(item => dragRect.IntersectsWith(item.Bounds)).ToArray();
-    }
-
-    #endregion
+    protected override ISelectionAdorner GetSelectionAdorner(DesignAdorners adorners) =>
+        SelectionAdorner ??= new TableSelectionAdorner(adorners, this);
 
     public override void Paint(Canvas canvas)
     {
@@ -226,6 +185,34 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
         canvas.Translate(-Bounds.X, -Bounds.Y);
     }
+
+    #region ====Cell Selection====
+
+    private Point _dragStartPos = Point.Empty;
+
+    /// <summary>
+    /// 开始拖动选择单元格
+    /// </summary>
+    internal void BeginCellSelection(Point pointOfSurface)
+    {
+        _dragStartPos = PointToClient(pointOfSurface);
+    }
+
+    /// <summary>
+    /// 选择拖动框内的单元格
+    /// </summary>
+    internal void SelectCells(Point pointOfSurface)
+    {
+        var endPos = PointToClient(pointOfSurface);
+        var dragRect = Rect.FromLTWH(Math.Min(_dragStartPos.X, endPos.X)
+            , Math.Min(_dragStartPos.Y, endPos.Y)
+            , Math.Abs(endPos.X - _dragStartPos.X)
+            , Math.Abs(endPos.Y - _dragStartPos.Y));
+        var cells = Items.Where(item => dragRect.IntersectsWith(item.Bounds)).ToArray();
+        Surface!.SelectionService.SelectItems(cells);
+    }
+
+    #endregion
 
     #region ====DesignerTableLayout & DesignCell class====
 

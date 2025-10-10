@@ -1,3 +1,4 @@
+using PixUI;
 using PixUI.Diagram;
 
 namespace AppBoxDesign;
@@ -44,9 +45,10 @@ internal sealed class ReportDesignService : IDesignService
         Surface.Repaint(); //TODO:考虑合并重绘区域，暂全部刷新
     }
 
-    void IDesignService.MoveSelection(float deltaX, float deltaY)
+    void IDesignService.MoveSelection(Offset delta)
     {
-        var selectedItems = Surface.SelectionService.SelectedItems.ToArray(); //Maybe changed
+        //var selectedItems = Surface.SelectionService.SelectedItems.ToArray(); //Maybe changed
+        var selectedItems = Surface.SelectionService.SelectedItems;
         //TODO: 先判断有没有不能Move的对象，有则全部不允许移动
         // foreach (var item in selectedItems)
         // {
@@ -56,6 +58,8 @@ internal sealed class ReportDesignService : IDesignService
 
         //再处理移动所有选择的对象
         foreach (var item in selectedItems)
-            item.Move(deltaX, deltaY);
+        {
+            item.Move(delta);
+        }
     }
 }

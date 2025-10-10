@@ -127,24 +127,40 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         }
 
         _hitTestElement = null;
-        return false;
+        return Rect.FromLTWH(0, 0, Target.Bounds.Width, Target.Bounds.Height).Contains(pt);
     }
 
     protected override void OnMouseDown(PointerEvent e)
     {
         base.OnMouseDown(e);
 
+        if (e.Buttons != PointerButtons.Left)
+            return;
+
         if (_hitTestElement is MoveTableHandle)
         {
             //选中整个表格
             Target.Surface!.SelectionService.SelectItem(Target);
+        }
+        else if (_hitTestElement == null)
+        {
+            var table = (TableDesigner)Target;
+            //先选择当前单元格
+            table.Surface!.SelectionService.SelectHoverItem();
+            //开始拖动选择单元格
+            table.BeginCellSelection(new Point(e.X, e.Y));
         }
     }
 
     protected override void OnMouseMove(PointerEvent e)
     {
         if (_hitTestElement == null)
+        {
+            //正在拖动选择单元格
+            var table = (TableDesigner)Target;
+            table.SelectCells(new Point(e.X, e.Y));
             return;
+        }
 
         if (_hitTestElement is ResizeHandle resizeHandle)
         {
@@ -164,7 +180,7 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         else if (_hitTestElement is MoveTableHandle)
         {
             var table = (TableDesigner)Target;
-            table.Move((int)Math.Round(e.DeltaX), (int)Math.Round(e.DeltaY));
+            table.Move(new Offset(e.DeltaX, e.DeltaY));
         }
     }
 
