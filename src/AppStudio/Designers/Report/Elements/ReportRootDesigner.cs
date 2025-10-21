@@ -106,7 +106,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
     {
         yield return new DiagramPropertyGroup()
         {
-            GroupName = "PageSettings",
+            GroupName = "Properties",
             Properties =
             [
                 new ReportDiagramProperty(this, "PaperWidth", nameof(ReportScalarEditor))
@@ -127,6 +127,11 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                         var oldSize = ReportItem.PageSettings.PaperSize;
                         ReportItem.PageSettings.PaperSize = new RSize(oldSize.Width, (Scalar)v!);
                     }
+                },
+                new ReportDiagramProperty(this, "DataSource", nameof(ReportDataSourceEditor))
+                {
+                    ValueGetter = () => ReportItem.DataSource,
+                    ValueSetter = v => ReportItem.DataSource = (DataSource?)v
                 }
             ]
         };

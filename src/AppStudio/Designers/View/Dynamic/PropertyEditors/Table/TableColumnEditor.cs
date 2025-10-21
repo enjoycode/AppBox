@@ -14,14 +14,14 @@ internal class TableColumnEditor<T> : SingleChildWidget where T : TableColumnSet
         Column = column;
         Element = element;
 
-        var lable = column.Observe(nameof(TextColumnSettings.Label),
+        var label = column.Observe(nameof(TextColumnSettings.Label),
             s => s.Label, (s, v) => s.Label = v);
 
         // ReSharper disable once VirtualMemberCallInConstructor
         var extProps = GetExtProps().ToArray();
         var formItems = new List<FormItem>
         {
-            new("Label:", new TextInput(lable)),
+            new("Label:", new TextInput(label)),
         };
         if (typeof(T) != typeof(GroupColumnSettings))
         {

@@ -4,6 +4,7 @@ using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign.PropertyEditors;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class TableStylesPropEditor : ValueEditorBase
 {
     public TableStylesPropEditor(State<TableStyles?> state, DesignElement element) : base(element)

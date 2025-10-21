@@ -80,6 +80,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         nameof(ColorEditor) => new ColorEditor(property),
         nameof(ReportScalarEditor) => new ReportScalarEditor(property),
         nameof(ReportTextEditor) => new ReportTextEditor(property),
+        nameof(ReportDataSourceEditor) => new ReportDataSourceEditor(property),
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };
 
