@@ -11,7 +11,7 @@ internal sealed class TableColumnsDialog : Dialog
 {
     public TableColumnsDialog(List<TableColumnSettings> list, DesignElement element)
     {
-        Title.Value = "Cartesian Series";
+        Title.Value = "Table Columns";
         Width = 580;
         Height = 425;
 

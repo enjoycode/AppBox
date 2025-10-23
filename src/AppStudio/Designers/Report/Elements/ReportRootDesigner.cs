@@ -128,10 +128,9 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                         ReportItem.PageSettings.PaperSize = new RSize(oldSize.Width, (Scalar)v!);
                     }
                 },
-                new ReportDiagramProperty(this, "DataSource", nameof(ReportDataSourceEditor))
+                new ReportDiagramProperty(this, "DataSources", nameof(ReportDataSourcesEditor))
                 {
-                    ValueGetter = () => ReportItem.DataSource,
-                    ValueSetter = v => ReportItem.DataSource = (DataSource?)v
+                    ValueGetter = () => ReportItem.DataSources,
                 }
             ]
         };

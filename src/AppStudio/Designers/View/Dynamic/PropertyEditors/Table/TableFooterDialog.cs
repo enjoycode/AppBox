@@ -12,7 +12,7 @@ internal sealed class TableFooterDialog : Dialog
 {
     public TableFooterDialog(List<TableFooterCell> list)
     {
-        Title.Value = "Cartesian Series";
+        Title.Value = "Table Footer";
         Width = 580;
         Height = 400;
 
