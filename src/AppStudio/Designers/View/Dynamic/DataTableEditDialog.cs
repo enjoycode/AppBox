@@ -97,28 +97,11 @@ internal sealed class DataTableEditDialog : Dialog
 
         private readonly DesignController _designController;
 
-        protected override string[] GetStates(DataTableFromQuery.FilterItem s)
+        protected override string[] FindStates(DynamicStateType type, bool allowNull)
         {
-            //TODO:暂只支持EntityField
-            if (s.Field is EntityFieldExpression field)
-            {
-                var model = RuntimeContext.GetModel<EntityModel>(field.Owner!.ModelId);
-                var member = (EntityFieldModel)model.GetMember(field.Name)!;
-                var dynamicStateType = member.FieldType switch
-                {
-                    EntityFieldType.String => DynamicStateType.String,
-                    EntityFieldType.DateTime => DynamicStateType.DateTime,
-                    EntityFieldType.Int => DynamicStateType.Int,
-                    EntityFieldType.Float => DynamicStateType.Float,
-                    EntityFieldType.Double => DynamicStateType.Double,
-                    _ => throw new NotImplementedException()
-                };
-                return _designController.FindPrimitiveStates(dynamicStateType, member.AllowNull)
-                    .Select(state => state.Name)
-                    .ToArray();
-            }
-
-            return [];
+            return _designController.FindPrimitiveStates(type, allowNull)
+                .Select(state => state.Name)
+                .ToArray();
         }
     }
 
@@ -134,7 +117,9 @@ internal sealed class DataTableEditDialog : Dialog
 
         protected override string[] FindStates(DynamicStateType type, bool allowNull)
         {
-            return _designController.FindPrimitiveStates(type, allowNull).Select(s => s.Name).ToArray();
+            return _designController.FindPrimitiveStates(type, allowNull)
+                .Select(s => s.Name)
+                .ToArray();
         }
     }
 }

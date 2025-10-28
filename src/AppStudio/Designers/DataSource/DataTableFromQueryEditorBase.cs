@@ -254,5 +254,27 @@ internal abstract class DataTableFromQueryEditorBase : View
     private static RxProxy<bool> MakeOrderByState(DynamicQuery.OrderByItem s) =>
         new(() => s.Descending, v => s.Descending = v);
 
-    protected abstract string[] GetStates(DataTableFromQuery.FilterItem s);
+    private string[] GetStates(DataTableFromQuery.FilterItem s)
+    {
+        //TODO:暂只支持EntityField
+        if (s.Field is EntityFieldExpression field)
+        {
+            var model = RuntimeContext.GetModel<EntityModel>(field.Owner!.ModelId);
+            var member = (EntityFieldModel)model.GetMember(field.Name)!;
+            var dynamicStateType = member.FieldType switch
+            {
+                EntityFieldType.String => DynamicStateType.String,
+                EntityFieldType.DateTime => DynamicStateType.DateTime,
+                EntityFieldType.Int => DynamicStateType.Int,
+                EntityFieldType.Float => DynamicStateType.Float,
+                EntityFieldType.Double => DynamicStateType.Double,
+                _ => throw new NotImplementedException()
+            };
+            return FindStates(dynamicStateType, member.AllowNull);
+        }
+
+        return [];
+    }
+
+    protected abstract string[] FindStates(DynamicStateType type, bool allowNull);
 }
