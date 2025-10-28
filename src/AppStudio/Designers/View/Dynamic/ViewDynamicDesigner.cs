@@ -25,8 +25,8 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         };
         DesignSettings.GetStateEditor = static (controller, state) => state.Type switch
         {
-            DynamicStateType.DataTable => new TableStateEditDialog(controller, state),
-            DynamicStateType.DataRow => new RowStateEditDialog(controller, state),
+            DynamicStateType.DataTable => new DataTableEditDialog(controller, state),
+            DynamicStateType.DataRow => new DataRowEditDialog(controller, state),
             _ => new ValueStateEditDialog(state)
         };
         DesignSettings.GetEventEditor = static (element, meta) => new EventEditDialog(element, meta);

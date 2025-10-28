@@ -5,9 +5,9 @@ using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign;
 
-internal sealed class RowStateFromQueryEditor : View
+internal sealed class DataRowFromQueryEditor : View
 {
-    public RowStateFromQueryEditor(DesignController designController, DynamicState state)
+    public DataRowFromQueryEditor(DesignController designController, DynamicState state)
     {
         _designController = designController;
         _state = state;

@@ -59,10 +59,9 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         var form = new Form { LabelWidth = 118 };
         foreach (var property in group.Properties)
         {
-            var propEditor = MakePropertyEditor(property);
-            var formItem = new FormItem(property.PropertyName, propEditor);
-            form.Children.Add(formItem);
-            if (group.GroupName == "Layout" && propEditor is IValueStateEditor stateEditor)
+            var formItem = MakePropertyEditor(property);
+            form.Children.Add(MakePropertyEditor(property));
+            if (group.GroupName == "Layout" && formItem.Child is IValueStateEditor stateEditor)
                 _layoutProperties.Add(stateEditor);
         }
 
@@ -73,14 +72,15 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         };
     }
 
-    private static Widget MakePropertyEditor(IDiagramProperty property) => property.EditorName switch
+    private static FormItem MakePropertyEditor(IDiagramProperty property) => property.EditorName switch
     {
-        nameof(EnumEditor) => new EnumEditor(property),
-        nameof(CheckBoxEditor) => new CheckBoxEditor(property),
-        nameof(ColorEditor) => new ColorEditor(property),
-        nameof(ReportScalarEditor) => new ReportScalarEditor(property),
-        nameof(ReportTextEditor) => new ReportTextEditor(property),
-        nameof(ReportDataSourcesEditor) => new ReportDataSourcesEditor(property),
+        nameof(EnumEditor) => new FormItem(property.PropertyName, new EnumEditor(property)),
+        nameof(CheckBoxEditor) => new FormItem(property.PropertyName, new CheckBoxEditor(property)),
+        nameof(ColorEditor) => new FormItem(property.PropertyName, new ColorEditor(property)),
+        nameof(ReportScalarEditor) => new FormItem(property.PropertyName, new ReportScalarEditor(property)),
+        nameof(ReportTextEditor) => new FormItem(property.PropertyName, new ReportTextEditor(property)),
+        nameof(ReportDataSourcesEditor) => new FormItem(property.PropertyName, new ReportDataSourcesEditor(property))
+            { LabelVerticalAlignment = VerticalAlignment.Top },
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };
 

@@ -183,7 +183,7 @@ internal sealed class DataTableFromQuery : IDataTableSource
         public BinaryOperatorType Operator { get; internal set; }
 
         /// <summary>
-        /// 比较的状态的名称
+        /// 比较的状态或参数的名称
         /// </summary>
         public string State { get; internal set; } = null!;
 

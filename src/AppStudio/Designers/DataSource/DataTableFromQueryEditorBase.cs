@@ -1,15 +1,13 @@
 using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
-using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign;
 
-internal sealed class TableStateFromQueryEditor : View
+internal abstract class DataTableFromQueryEditorBase : View
 {
-    public TableStateFromQueryEditor(DesignController designController, DynamicDataTable tableState)
+    protected DataTableFromQueryEditorBase(DynamicDataTable tableState)
     {
-        _designController = designController;
         _tableState = tableState;
         _entityTarget = MakeStateOfRoot();
         _entityTarget.AddListener(_ => _tableState.Reset()); //监听变更后调用DataChanged事件通知绑定对象重置(eg: 表格移除所有列)
@@ -23,7 +21,6 @@ internal sealed class TableStateFromQueryEditor : View
         _ordersController.DataSource = TableFromQuery.Orders;
     }
 
-    private readonly DesignController _designController;
     private readonly DynamicDataTable _tableState;
     private readonly TreeController<EntityMemberModel> _treeController = new();
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
@@ -159,7 +156,7 @@ internal sealed class TableStateFromQueryEditor : View
             }, 88)
             .AddHostColumn("State", (s, _) => new Select<string>(MakeTargetState(s))
             {
-                Options = GetStates(s, _designController), Border = null
+                Options = GetStates(s), Border = null
             })
             .AddButtonColumn("Action", (_, index) => new Button(icon: MaterialIcons.Clear)
             {
@@ -257,27 +254,5 @@ internal sealed class TableStateFromQueryEditor : View
     private static RxProxy<bool> MakeOrderByState(DynamicQuery.OrderByItem s) =>
         new(() => s.Descending, v => s.Descending = v);
 
-    private static string[] GetStates(DataTableFromQuery.FilterItem s, DesignController designController)
-    {
-        //TODO:暂只支持EntityField
-        if (s.Field is EntityFieldExpression field)
-        {
-            var model = RuntimeContext.GetModel<EntityModel>(field.Owner!.ModelId);
-            var member = (EntityFieldModel)model.GetMember(field.Name)!;
-            var dynamicStateType = member.FieldType switch
-            {
-                EntityFieldType.String => DynamicStateType.String,
-                EntityFieldType.DateTime => DynamicStateType.DateTime,
-                EntityFieldType.Int => DynamicStateType.Int,
-                EntityFieldType.Float => DynamicStateType.Float,
-                EntityFieldType.Double => DynamicStateType.Double,
-                _ => throw new NotImplementedException()
-            };
-            return designController.FindPrimitiveStates(dynamicStateType, member.AllowNull)
-                .Select(state => state.Name)
-                .ToArray();
-        }
-
-        return [];
-    }
+    protected abstract string[] GetStates(DataTableFromQuery.FilterItem s);
 }

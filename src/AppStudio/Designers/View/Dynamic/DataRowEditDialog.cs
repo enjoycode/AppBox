@@ -4,9 +4,9 @@ using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign;
 
-internal sealed class RowStateEditDialog : Dialog
+internal sealed class DataRowEditDialog : Dialog
 {
-    public RowStateEditDialog(DesignController designController, DynamicState state)
+    public DataRowEditDialog(DesignController designController, DynamicState state)
     {
         Title.Value = "DataRow Settings";
         Width = 630;
@@ -38,7 +38,7 @@ internal sealed class RowStateEditDialog : Dialog
         return new Container()
         {
             Padding = EdgeInsets.All(10),
-            Child = new RowStateFromQueryEditor(_designController, _state)
+            Child = new DataRowFromQueryEditor(_designController, _state)
         };
     }
 }

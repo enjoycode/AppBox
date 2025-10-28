@@ -1,14 +1,12 @@
 using PixUI;
 using PixUI.Dynamic;
-using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign;
 
-internal sealed class TableStateFromServiceEditor : View
+internal abstract class DataTableFromServiceEditorBase : View
 {
-    public TableStateFromServiceEditor(DesignController designController, DynamicDataTable tableState)
+    protected DataTableFromServiceEditorBase(DynamicDataTable tableState)
     {
-        _designController = designController;
         _tableState = tableState;
         _service = new RxProxy<string>(() => TableFromService.Service, v => TableFromService.Service = v);
 
@@ -17,7 +15,6 @@ internal sealed class TableStateFromServiceEditor : View
 
     //TODO: 服务选择
 
-    private readonly DesignController _designController;
     private readonly DynamicDataTable _tableState;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
     private readonly State<string> _service;
@@ -87,9 +84,7 @@ internal sealed class TableStateFromServiceEditor : View
         {
             var noneNullableValueType = para.ConvertToRuntimeType(out var allowNull);
             var stateType = DynamicState.GetStateTypeByValueType(noneNullableValueType);
-            options = _designController.FindPrimitiveStates(stateType, allowNull)
-                .Select(s => s.Name)
-                .ToArray();
+            options = FindStates(stateType, allowNull);
         }
         catch (Exception e)
         {
@@ -122,4 +117,6 @@ internal sealed class TableStateFromServiceEditor : View
         //再绑定数据
         _dgController.DataSource = methodInfo.Args;
     }
+
+    protected abstract string[] FindStates(DynamicStateType type, bool allowNull);
 }
