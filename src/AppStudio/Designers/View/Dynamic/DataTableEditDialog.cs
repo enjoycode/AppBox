@@ -1,4 +1,3 @@
-using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
@@ -6,7 +5,7 @@ using PixUI.Dynamic.Design;
 namespace AppBoxDesign;
 
 /// <summary>
-/// 编辑数据表视图状态的对话框
+/// 编辑动态视图的数据表状态的对话框
 /// </summary>
 internal sealed class DataTableEditDialog : Dialog
 {
