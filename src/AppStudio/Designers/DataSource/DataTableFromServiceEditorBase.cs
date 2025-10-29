@@ -1,3 +1,4 @@
+using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -5,20 +6,19 @@ namespace AppBoxDesign;
 
 internal abstract class DataTableFromServiceEditorBase : View
 {
-    protected DataTableFromServiceEditorBase(DynamicDataTable tableState)
+    protected DataTableFromServiceEditorBase(DataTableFromServiceBase tableFromService)
     {
-        _tableState = tableState;
-        _service = new RxProxy<string>(() => TableFromService.Service, v => TableFromService.Service = v);
+        _tableFromService = tableFromService;
+        _service = new RxProxy<string>(() => _tableFromService.Service, v => _tableFromService.Service = v);
 
         Child = BuildBody();
     }
 
     //TODO: 服务选择
 
-    private readonly DynamicDataTable _tableState;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
     private readonly State<string> _service;
-    private DataTableFromService TableFromService => (DataTableFromService)_tableState.Source;
+    private readonly DataTableFromServiceBase _tableFromService;
 
     protected override void OnMounted()
     {
@@ -70,13 +70,13 @@ internal abstract class DataTableFromServiceEditorBase : View
     private Widget BuildStateCell(ServiceMethodParameterInfo para, int index)
     {
         var rs = new RxProxy<string?>(
-            () => index < 0 || index >= TableFromService.Arguments.Length
+            () => index < 0 || index >= _tableFromService.Arguments.Length
                 ? null
-                : TableFromService.Arguments[index],
+                : _tableFromService.Arguments[index],
             v =>
             {
-                if (index >= 0 && index < TableFromService.Arguments.Length)
-                    TableFromService.Arguments[index] = v;
+                if (index >= 0 && index < _tableFromService.Arguments.Length)
+                    _tableFromService.Arguments[index] = v;
             });
 
         string[] options;
@@ -98,7 +98,7 @@ internal abstract class DataTableFromServiceEditorBase : View
     private async void FetchMethodInfo(bool byTap)
     {
         if (byTap)
-            TableFromService.Arguments = [];
+            _tableFromService.Arguments = [];
 
         ServiceMethodInfo methodInfo;
         try
@@ -113,7 +113,7 @@ internal abstract class DataTableFromServiceEditorBase : View
 
         //先重置参数列表
         if (byTap)
-            TableFromService.Arguments = new string?[methodInfo.Args.Length];
+            _tableFromService.Arguments = new string?[methodInfo.Args.Length];
         //再绑定数据
         _dgController.DataSource = methodInfo.Args;
     }

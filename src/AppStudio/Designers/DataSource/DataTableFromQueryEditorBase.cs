@@ -6,45 +6,44 @@ namespace AppBoxDesign;
 
 internal abstract class DataTableFromQueryEditorBase : View
 {
-    protected DataTableFromQueryEditorBase(DynamicDataTable tableState)
+    protected DataTableFromQueryEditorBase(DataTableFromQueryBase tableFromQuery)
     {
-        _tableState = tableState;
+        _tableFromQuery = tableFromQuery;
         _entityTarget = MakeStateOfRoot();
-        _entityTarget.AddListener(_ => _tableState.Reset()); //监听变更后调用DataChanged事件通知绑定对象重置(eg: 表格移除所有列)
+        _entityTarget.AddListener(OnTargetChanged);
 
         Child = BuildBody();
 
         if (_entityTarget.Value != null)
             _treeController.DataSource = DesignUtils.GetEntityModelMembers((EntityModel)_entityTarget.Value.Model);
-        _selectsController.DataSource = TableFromQuery.Selects;
-        _filtersController.DataSource = TableFromQuery.Filters;
-        _ordersController.DataSource = TableFromQuery.Orders;
+        _selectsController.DataSource = _tableFromQuery.Selects;
+        _filtersController.DataSource = _tableFromQuery.Filters;
+        _ordersController.DataSource = _tableFromQuery.Orders;
     }
 
-    private readonly DynamicDataTable _tableState;
     private readonly State<ModelNode?> _entityTarget;
     private readonly TreeController<EntityMemberModel> _treeController = new();
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
     private readonly DataGridController<DataTableFromQueryBase.FilterItem> _filtersController = new();
     private readonly DataGridController<DynamicQuery.OrderByItem> _ordersController = new();
-    private DataTableFromQuery TableFromQuery => (DataTableFromQuery)_tableState.Source;
+    private readonly DataTableFromQueryBase _tableFromQuery;
 
     private RxProxy<ModelNode?> MakeStateOfRoot() => new(
         () =>
         {
-            if (Expression.IsNull(TableFromQuery.Root))
+            if (Expression.IsNull(_tableFromQuery.Root))
                 return null;
-            var rootModelId = TableFromQuery.Root!.ModelId;
+            var rootModelId = _tableFromQuery.Root!.ModelId;
             return DesignHub.Current.DesignTree.FindModelNode(rootModelId);
         },
         node =>
         {
-            TableFromQuery.Root = node == null ? null : new EntityExpression((EntityModel)node.Model, null);
+            _tableFromQuery.Root = node == null ? null : new EntityExpression((EntityModel)node.Model, null);
             // clear query
-            TableFromQuery.Selects.Clear();
-            TableFromQuery.Filters.Clear();
-            TableFromQuery.Orders.Clear();
+            _tableFromQuery.Selects.Clear();
+            _tableFromQuery.Filters.Clear();
+            _tableFromQuery.Orders.Clear();
             // reset members tree
             if (node != null)
                 _treeController.DataSource = DesignUtils.GetEntityModelMembers((EntityModel)node.Model);
@@ -185,6 +184,11 @@ internal abstract class DataTableFromQueryEditorBase : View
             }, 80);
     }
 
+    /// <summary>
+    /// 选择的RootEntity改变后的操作
+    /// </summary>
+    protected virtual void OnTargetChanged(State entityTarget) { }
+
     private static bool OnAllowDropTo(DragEvent dragEvent)
     {
         if (dragEvent.TransferItem is TreeNode<EntityMemberModel> { Data: EntityFieldModel })
@@ -196,7 +200,7 @@ internal abstract class DataTableFromQueryEditorBase : View
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
         //构建路径表达式
-        var exp = DesignUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
+        var exp = DesignUtils.BuildExpressionFrom(treeNode, _tableFromQuery.Root!);
 
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
             DataCell.DataTypeFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
@@ -206,7 +210,7 @@ internal abstract class DataTableFromQueryEditorBase : View
     private void OnDropToFilters(DragEvent dragEvent)
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
-        var exp = DesignUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
+        var exp = DesignUtils.BuildExpressionFrom(treeNode, _tableFromQuery.Root!);
 
         var filterItem = new DataTableFromQueryBase.FilterItem() { Field = exp };
         _filtersController.Add(filterItem);
@@ -215,7 +219,7 @@ internal abstract class DataTableFromQueryEditorBase : View
     private void OnDropToOrders(DragEvent dragEvent)
     {
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
-        var exp = DesignUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
+        var exp = DesignUtils.BuildExpressionFrom(treeNode, _tableFromQuery.Root!);
 
         var orderItem = new DynamicQuery.OrderByItem(exp);
         _ordersController.Add(orderItem);

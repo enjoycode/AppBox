@@ -89,12 +89,20 @@ internal sealed class DataTableEditDialog : Dialog
     private class DataTableFromQueryEditor : DataTableFromQueryEditorBase
     {
         public DataTableFromQueryEditor(DesignController designController, DynamicDataTable tableState)
-            : base(tableState)
+            : base((DataTableFromQuery)tableState.Source)
         {
             _designController = designController;
+            _tableState = tableState;
         }
 
         private readonly DesignController _designController;
+        private readonly DynamicDataTable _tableState;
+
+        protected override void OnTargetChanged(State entityTarget)
+        {
+            //变更后调用DataChanged事件通知绑定对象重置(eg: 表格移除所有列)
+            _tableState.Reset();
+        }
 
         protected override string[] FindStates(DynamicStateType type, bool allowNull)
         {
@@ -107,7 +115,7 @@ internal sealed class DataTableEditDialog : Dialog
     private class DataTableFromServiceEditor : DataTableFromServiceEditorBase
     {
         public DataTableFromServiceEditor(DesignController designController, DynamicDataTable tableState)
-            : base(tableState)
+            : base((DataTableFromService)tableState.Source)
         {
             _designController = designController;
         }
