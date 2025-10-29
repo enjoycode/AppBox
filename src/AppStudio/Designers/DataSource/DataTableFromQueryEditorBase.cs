@@ -22,14 +22,13 @@ internal abstract class DataTableFromQueryEditorBase : View
     }
 
     private readonly DynamicDataTable _tableState;
+    private readonly State<ModelNode?> _entityTarget;
     private readonly TreeController<EntityMemberModel> _treeController = new();
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
-    private readonly DataGridController<DataTableFromQuery.FilterItem> _filtersController = new();
+    private readonly DataGridController<DataTableFromQueryBase.FilterItem> _filtersController = new();
     private readonly DataGridController<DynamicQuery.OrderByItem> _ordersController = new();
     private DataTableFromQuery TableFromQuery => (DataTableFromQuery)_tableState.Source;
-
-    private readonly State<ModelNode?> _entityTarget;
 
     private RxProxy<ModelNode?> MakeStateOfRoot() => new(
         () =>
@@ -143,7 +142,7 @@ internal abstract class DataTableFromQueryEditorBase : View
     private Widget BuildDataGridForFilters()
     {
         var options = new[] { ">", ">=", "<", "<=", "==", "!=", "Contains" };
-        return new DataGrid<DataTableFromQuery.FilterItem>(_filtersController)
+        return new DataGrid<DataTableFromQueryBase.FilterItem>(_filtersController)
             {
                 AllowDrop = true,
                 OnAllowDrop = OnAllowDropTo,
@@ -209,7 +208,7 @@ internal abstract class DataTableFromQueryEditorBase : View
         var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
         var exp = DesignUtils.BuildExpressionFrom(treeNode, TableFromQuery.Root!);
 
-        var filterItem = new DataTableFromQuery.FilterItem() { Field = exp };
+        var filterItem = new DataTableFromQueryBase.FilterItem() { Field = exp };
         _filtersController.Add(filterItem);
     }
 
@@ -222,7 +221,7 @@ internal abstract class DataTableFromQueryEditorBase : View
         _ordersController.Add(orderItem);
     }
 
-    private static RxProxy<string?> MakeComparerState(DataTableFromQuery.FilterItem s) => new(
+    private static RxProxy<string?> MakeComparerState(DataTableFromQueryBase.FilterItem s) => new(
         () => s.Operator switch
         {
             BinaryOperatorType.Greater => ">",
@@ -246,7 +245,7 @@ internal abstract class DataTableFromQueryEditorBase : View
             _ => throw new NotSupportedException()
         });
 
-    private static RxProxy<string?> MakeTargetState(DataTableFromQuery.FilterItem s) => new(
+    private static RxProxy<string?> MakeTargetState(DataTableFromQueryBase.FilterItem s) => new(
         () => s.State,
         v => s.State = v ?? string.Empty
     );
@@ -254,7 +253,7 @@ internal abstract class DataTableFromQueryEditorBase : View
     private static RxProxy<bool> MakeOrderByState(DynamicQuery.OrderByItem s) =>
         new(() => s.Descending, v => s.Descending = v);
 
-    private string[] GetStates(DataTableFromQuery.FilterItem s)
+    private string[] GetStates(DataTableFromQueryBase.FilterItem s)
     {
         //TODO:暂只支持EntityField
         if (s.Field is EntityFieldExpression field)

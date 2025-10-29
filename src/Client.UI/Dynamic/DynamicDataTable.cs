@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AppBoxClient;
 using AppBoxClient.Dynamic;
 using AppBoxCore;
 using AppBoxClient.Utils;
@@ -164,4 +165,73 @@ internal interface IDataTableSource
     void WriteTo(Utf8JsonWriter writer);
 
     void ReadFrom(ref Utf8JsonReader reader);
+}
+
+/// <summary>
+/// 来源于动态查询的数据表
+/// </summary>
+internal sealed class DataTableFromQuery : DataTableFromQueryBase, IDataTableSource
+{
+    public string SourceType => DynamicDataTable.FromQuery;
+
+    public IEnumerable<DataColumn> GetColumns(IDynamicContext context, DynamicDataTable dataTable) =>
+        Selects.Select(item => new DataColumn(item.Alias, item.Type));
+
+    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
+    {
+        if (Expression.IsNull(Root))
+            throw new Exception("Query target not set");
+
+        var q = new DynamicQuery();
+        q.ModelId = Root!.ModelId;
+        q.PageIndex = PageIndex;
+        q.PageSize = PageSize;
+        q.Selects = Selects.ToArray();
+        q.Orders = Orders.ToArray();
+
+        foreach (var item in Filters)
+        {
+            var state = dynamicContext.GetPrimitiveState(item.State);
+            if (state.BoxedValue == null || (state.BoxedValue is string s && string.IsNullOrEmpty(s)))
+                continue;
+
+            var exp = new BinaryExpression(item.Field, new ConstantExpression(state.BoxedValue), item.Operator);
+            q.Filter = Expression.IsNull(q.Filter)
+                ? exp
+                : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
+        }
+
+        return Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
+    }
+}
+
+/// <summary>
+/// 来源于服务调用的数据表
+/// </summary>
+internal sealed class DataTableFromService : DataTableFromServiceBase, IDataTableSource
+{
+    public string SourceType => DynamicDataTable.FromService;
+
+    public IEnumerable<DataColumn> GetColumns(IDynamicContext context, DynamicDataTable dataTable)
+    {
+        //暂用以下方式实现，考虑设计时调用一次服务获取DataTable然后保存所有列信息
+        var fetchTask = dataTable.GetRuntimeValue(context);
+        return fetchTask is { IsCompletedSuccessfully: true, Result: DataTable table } ? table.Columns : [];
+    }
+
+    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
+    {
+        object?[]? args = null;
+        if (Arguments.Length > 0)
+        {
+            args = new object? [Arguments.Length];
+            for (var i = 0; i < args.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(Arguments[i]))
+                    args[i] = dynamicContext.GetPrimitiveState(Arguments[i]!).BoxedValue;
+            }
+        }
+
+        return Channel.Invoke<DataTable>(Service, args);
+    }
 }
