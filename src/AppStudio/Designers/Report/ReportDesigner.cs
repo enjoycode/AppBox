@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using AppBox.ReportDataSource;
 using AppBox.Reporting;
 using PixUI;
 using PixUI.Diagram;
@@ -58,7 +59,8 @@ internal sealed class ReportDesigner : View, IModelDesigner
             {
                 var jsonData = Encoding.UTF8.GetBytes(srcCode);
                 var jsonReader = new Utf8JsonReader(jsonData.AsSpan());
-                _report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader);
+                var ctx = new ReportDeserializeContext();
+                _report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader, ctx);
 
                 //2. 转换为相应的设计器
                 var rootDesigner = new ReportRootDesigner(_designService, _report);

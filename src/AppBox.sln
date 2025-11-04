@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Diagram", "..\ext\Pix
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.PdfViewer", "..\ext\PixUI\src\PixUI.PdfViewer\PixUI.PdfViewer.csproj", "{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportDataSource", "ReportDataSource\ReportDataSource.csproj", "{569815EF-BFD8-4B2A-ACBF-382B852511FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -205,6 +207,10 @@ Global
 		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06E5954D-3C15-4C4B-8CD5-CEC3C14D6E31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{569815EF-BFD8-4B2A-ACBF-382B852511FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{569815EF-BFD8-4B2A-ACBF-382B852511FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{569815EF-BFD8-4B2A-ACBF-382B852511FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{569815EF-BFD8-4B2A-ACBF-382B852511FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

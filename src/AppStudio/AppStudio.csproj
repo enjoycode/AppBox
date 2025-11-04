@@ -20,6 +20,7 @@
         <ProjectReference Include="..\Client\Client.csproj"/>
         <ProjectReference Include="..\Core\Core.csproj"/>
         <ProjectReference Include="..\Design.Data\Design.Data.csproj" />
+        <ProjectReference Include="..\ReportDataSource\ReportDataSource.csproj" />
         <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>
 
