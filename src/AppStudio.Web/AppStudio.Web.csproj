@@ -5,10 +5,11 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <InvariantGlobalization>false</InvariantGlobalization>
-        <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>
-        <WasmIcuDataFileName>icudt.dat</WasmIcuDataFileName>
-        <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+        <InvariantGlobalization>true</InvariantGlobalization>
+<!--        <InvariantGlobalization>false</InvariantGlobalization>-->
+<!--        <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>-->
+<!--        <WasmIcuDataFileName>icudt.dat</WasmIcuDataFileName>-->
+<!--        <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>-->
         <WasmEnableSIMD>true</WasmEnableSIMD>
         <WasmAllowUndefinedSymbols>true</WasmAllowUndefinedSymbols>
         <EmccInitialHeapSize>128MB</EmccInitialHeapSize>
@@ -85,15 +86,15 @@
       </Reference>
     </ItemGroup>
 
-    <Target Name="UseCustomICU" AfterTargets="ResolveRuntimePackAssets">
-        <ItemGroup>
-            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dat' AND $([System.String]::Copy('%(ReferenceCopyLocalPaths.FileName)').StartsWith('icudt'))" />
+<!--    <Target Name="UseCustomICU" AfterTargets="ResolveRuntimePackAssets">-->
+<!--        <ItemGroup>-->
+<!--            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dat' AND $([System.String]::Copy('%(ReferenceCopyLocalPaths.FileName)').StartsWith('icudt'))" />-->
 
-            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt.dat" DestinationSubPath="icudt.dat" />
-            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_CJK.dat" DestinationSubPath="icudt_CJK.dat" />
-            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_EFIGS.dat" DestinationSubPath="icudt_EFIGS.dat" />
-            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_no_CJK.dat" DestinationSubPath="icudt_no_CJK.dat" />
-        </ItemGroup>
-    </Target>
+<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt.dat" DestinationSubPath="icudt.dat" />-->
+<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_CJK.dat" DestinationSubPath="icudt_CJK.dat" />-->
+<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_EFIGS.dat" DestinationSubPath="icudt_EFIGS.dat" />-->
+<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_no_CJK.dat" DestinationSubPath="icudt_no_CJK.dat" />-->
+<!--        </ItemGroup>-->
+<!--    </Target>-->
 
 </Project>

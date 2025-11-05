@@ -46,6 +46,7 @@
     window.PixUI = PixUI
 
     window.onload = async function () {
+        PixUI.Init()
         await Blazor.start({
             loadBootResource: function (type, name, defaultUri, integrity) {
                 if (type !== 'dotnetjs' && location.hostname !== 'localhost' && type !== 'configuration') {
@@ -66,11 +67,6 @@
 
         let loadingEl = document.getElementById("loading")
         loadingEl.remove()
-
-        // let wsp = document.location.protocol.startsWith("https") ? "wss://" : "ws://"
-        // let wsUrl = wsp + document.location.host + "/ws"
-        let wsUrl = "ws://localhost:5000/ws"
-        await PixUI.Run("AppBoxStudio.Web", [wsUrl])
     }
 </script>
 </body>

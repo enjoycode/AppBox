@@ -15,12 +15,18 @@ public static class Program
         var host = builder.Build();
         BlazorApplication.JSRuntime = host.Services.GetRequiredService<IJSRuntime>();
         BlazorApplication.HttpClient = host.Services.GetService<HttpClient>()!;
+        
+        //调用js获取启动参数
+        var jsRuntime = ((IJSInProcessRuntime)BlazorApplication.JSRuntime);
+        var runInfo = jsRuntime.Invoke<RunInfo>("PixUI.BeforeRunApp");
+        await Run(runInfo.GLHandle, runInfo.Width, runInfo.Height, runInfo.PixelRatio, runInfo.RoutePath,
+            runInfo.IsMacOS, runInfo.WSUrl);
+        jsRuntime.InvokeVoid("PixUI.BindEvents");
 
         await host.RunAsync();
     }
 
-    [JSInvokable]
-    public static async Task Run(int glHandle, int width, int height, float ratio,
+    private static async Task Run(int glHandle, int width, int height, float ratio,
         string? routePath, bool isMacOS, string wsUrl)
     {
         //初始化通讯
@@ -34,5 +40,17 @@ public static class Program
 
         //加载HomePage
         BlazorApplication.Run(() => new HomePage(), glHandle, width, height, ratio, routePath, isMacOS);
+    }
+    
+    public struct RunInfo
+    {
+        public int GLHandle { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public float PixelRatio { get; set; }
+        public string? RoutePath { get; set; }
+        public bool IsMacOS { get; set; }
+        
+        public string WSUrl { get; set; }
     }
 }
