@@ -7,6 +7,11 @@ public sealed class ReportDeserializeContext : DeserializeContext
 {
     public override IDataSource CreateDataSource(string type)
     {
-        return base.CreateDataSource(type);
+        return type switch
+        {
+            nameof(DataTableFromQuery) => new DataTableFromQuery(),
+            nameof(DataTableFromService) => new DataTableFromService(),
+            _ => base.CreateDataSource(type)
+        };
     }
 }

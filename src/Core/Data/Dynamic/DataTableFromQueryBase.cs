@@ -32,7 +32,7 @@ public abstract class DataTableFromQueryBase
 
     #region ====Serialization====
 
-    public void WriteTo(Utf8JsonWriter writer)
+    public void WriteProperties(Utf8JsonWriter writer)
     {
         if (Expression.IsNull(Root))
             return;
@@ -78,7 +78,7 @@ public abstract class DataTableFromQueryBase
         }
     }
 
-    public void ReadFrom(ref Utf8JsonReader reader)
+    public void ReadProperties(ref Utf8JsonReader reader)
     {
         while (reader.Read())
         {

@@ -68,7 +68,7 @@ public sealed class DynamicDataTable : IDynamicDataTable
         writer.WriteStartObject();
 
         writer.WriteString(nameof(Source), Source.SourceType);
-        Source.WriteTo(writer);
+        Source.WriteProperties(writer);
 
         writer.WriteEndObject();
     }
@@ -87,7 +87,7 @@ public sealed class DynamicDataTable : IDynamicDataTable
             FromService => new DataTableFromService(),
             _ => throw new Exception($"Unknown source type: {sourceType}")
         };
-        Source.ReadFrom(ref reader);
+        Source.ReadProperties(ref reader);
 
         //不需要reader.Read(); //}
     }
@@ -162,9 +162,9 @@ internal interface IDataTableSource
     /// </summary>
     Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext);
 
-    void WriteTo(Utf8JsonWriter writer);
+    void WriteProperties(Utf8JsonWriter writer);
 
-    void ReadFrom(ref Utf8JsonReader reader);
+    void ReadProperties(ref Utf8JsonReader reader);
 }
 
 /// <summary>

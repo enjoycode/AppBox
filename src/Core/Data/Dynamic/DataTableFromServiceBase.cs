@@ -19,7 +19,7 @@ public abstract class DataTableFromServiceBase
 
     #region ====Serialization====
 
-    public void WriteTo(Utf8JsonWriter writer)
+    public void WriteProperties(Utf8JsonWriter writer)
     {
         writer.WriteString(nameof(Service), Service);
 
@@ -33,7 +33,7 @@ public abstract class DataTableFromServiceBase
         writer.WriteEndArray();
     }
 
-    public void ReadFrom(ref Utf8JsonReader reader)
+    public void ReadProperties(ref Utf8JsonReader reader)
     {
         while (reader.Read())
         {

@@ -1,6 +1,9 @@
 using AppBox.Reporting;
+using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
+using DataTableFromQuery = AppBox.ReportDataSource.DataTableFromQuery;
+using DataTableFromService = AppBox.ReportDataSource.DataTableFromService;
 
 namespace AppBoxDesign.Diagram.PropertyEditors;
 
@@ -27,15 +30,16 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
                 {
                     Children =
                     [
-                        new Button(icon: MaterialIcons.Add),
-                        new Button(icon: MaterialIcons.Edit),
-                        new Button(icon: MaterialIcons.Delete)
+                        new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAdd() },
+                        new Button(icon: MaterialIcons.Edit) { OnTap = _ => OnEdit() },
+                        new Button(icon: MaterialIcons.Delete) { OnTap = _ => OnDelete() }
                     ]
                 },
 
                 new ListView<IDataSource>(
                     (item, index) => new DataSourceItemWidget(item, index, _selectedIndex),
-                    _dataSources, _listController)
+                    _dataSources, _listController
+                )
             ]
         };
     }
@@ -44,6 +48,41 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
     private readonly IList<IDataSource> _dataSources;
     private readonly ListViewController<IDataSource> _listController;
     private readonly State<int> _selectedIndex = -1;
+
+    #region ====Add/Edit/Delete DataSource====
+
+    private async void OnAdd()
+    {
+        var dataSource = new DataTableFromQuery();
+        _dataSources.Add(dataSource);
+        var index = _dataSources.Count - 1;
+        var dlg = new ReportDataSourceDialog(_dataSources, index);
+        await dlg.ShowAsync();
+        RefreshDataSources();
+    }
+
+    private async void OnEdit()
+    {
+        if (_selectedIndex.Value < 0) return;
+
+        var dlg = new ReportDataSourceDialog(_dataSources, _selectedIndex.Value);
+        await dlg.ShowAsync();
+        RefreshDataSources();
+    }
+
+    private void OnDelete()
+    {
+        if (_selectedIndex.Value < 0) return;
+        _dataSources.RemoveAt(_selectedIndex.Value);
+        RefreshDataSources();
+    }
+
+    private void RefreshDataSources()
+    {
+        _listController.DataSource = _dataSources; //TODO: use Refresh()
+    }
+
+    #endregion
 
     public override void Paint(Canvas canvas, IDirtyArea? area = null)
     {
@@ -102,41 +141,36 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
         }
     }
 
+    /// <summary>
+    /// 数据源编辑对话框
+    /// </summary>
     private class ReportDataSourceDialog : Dialog
     {
-        public ReportDataSourceDialog(IList<IDataSource> dataSources)
+        public ReportDataSourceDialog(IList<IDataSource> dataSources, int index)
         {
             Title.Value = "Report DataSource";
             Width = 630;
             Height = 450;
 
             _dataSources = dataSources;
-
+            _index = index;
             _isFromQuery = MakeStateOfIsFromQuery();
-            _isFromQuery.AddListener(_ => _tableState.Reset()); //改变数据源类型重置绑定组件的相关配置
+            //_isFromQuery.AddListener(_ => _tableState.Reset());
+            _name = new RxProxy<string>(
+                () => _dataSources[_index].Name,
+                v => _dataSources[_index].Name = v
+            );
         }
 
-        private readonly DynamicDataTable _tableState;
-        private readonly State<bool> _isFromQuery;
         private readonly IList<IDataSource> _dataSources;
+        private readonly int _index;
+        private readonly State<bool> _isFromQuery;
+        private readonly State<string> _name;
 
         private RxProxy<bool> MakeStateOfIsFromQuery() => new(
-            () => _tableState.Source.SourceType == DynamicDataTable.FromQuery,
-            v =>
-            {
-                if (v)
-                {
-                    if (_tableState.Source is DataTableFromQuery)
-                        return;
-                    _tableState.Source = new DataTableFromQuery();
-                }
-                else
-                {
-                    if (_tableState.Source is DataTableFromService)
-                        return;
-                    _tableState.Source = new DataTableFromService();
-                }
-            });
+            () => _dataSources[_index] is DataTableFromQuery,
+            v => _dataSources[_index] = v ? new DataTableFromQuery() : new DataTableFromService()
+        );
 
         protected override Widget BuildFooter() => new Container
         {
@@ -163,21 +197,46 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
                     [
                         new Row()
                         {
+                            Spacing = 2,
                             Children =
                             [
+                                new Text("Name:"),
+                                new TextInput(_name) { Width = 138 },
+                                new Text("     "), //TODO: use blank
+                                new Text("Source:"),
                                 new Radio(_isFromQuery),
                                 new Text("From Query"),
                                 new Radio(_isFromQuery.ToReversed()),
                                 new Text("From Service"),
                             ]
                         },
-                        // new IfConditional(_isFromQuery,
-                        //     () => new DataTableFromQueryEditor(_designController, _tableState),
-                        //     () => new DataTableFromServiceEditor(_designController, _tableState)
-                        // )
+                        new IfConditional(_isFromQuery,
+                            () => new DataTableFromQueryEditor((DataTableFromQuery)_dataSources[_index]),
+                            () => new DataTableFromServiceEditor((DataTableFromService)_dataSources[_index])
+                        )
                     ]
                 }
             };
+        }
+
+        private class DataTableFromQueryEditor : DataTableFromQueryEditorBase
+        {
+            public DataTableFromQueryEditor(DataTableFromQuery tableFromQuery) : base(tableFromQuery) { }
+
+            protected override string[] FindStates(DynamicStateType type, bool allowNull)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class DataTableFromServiceEditor : DataTableFromServiceEditorBase
+        {
+            public DataTableFromServiceEditor(DataTableFromService tableFromService) : base(tableFromService) { }
+
+            protected override string[] FindStates(DynamicStateType type, bool allowNull)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
