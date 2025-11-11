@@ -37,13 +37,13 @@ internal sealed class ReportDiagramProperty : IDiagramProperty
     public ReportDiagramProperty(IReportItemDesigner obj, string propertyName,
         string editorName, object? editorOptions = null)
     {
-        _obj = obj;
+        ReportItemDesigner = obj;
         PropertyName = propertyName;
         EditorName = editorName;
         EditorOptions = editorOptions;
     }
 
-    private readonly IReportItemDesigner _obj;
+    public IReportItemDesigner ReportItemDesigner { get; }
 
     public string PropertyName { get; }
 
@@ -55,5 +55,5 @@ internal sealed class ReportDiagramProperty : IDiagramProperty
     public Action<object?>? ValueSetter { get; init; }
     public bool Readonly => ValueSetter != null;
     public bool InvalidateAfterChanged { get; init; } = true;
-    public void Invalidate() => _obj.Invalidate();
+    public void Invalidate() => ReportItemDesigner.Invalidate();
 }

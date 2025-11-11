@@ -1,5 +1,6 @@
 using AppBox.Reporting;
 using AppBox.Reporting.Drawing;
+using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
 using PixUI.Diagram;
 using TextBox = AppBox.Reporting.TextBox;
@@ -184,6 +185,25 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         }
 
         canvas.Translate(-Bounds.X, -Bounds.Y);
+    }
+
+    public override IEnumerable<DiagramPropertyGroup> GetProperties()
+    {
+        yield return new DiagramPropertyGroup()
+        {
+            GroupName = "Properties",
+            Properties =
+            [
+                new ReportDiagramProperty(this, nameof(Table.DataSource), nameof(ReportDataSourceEditor))
+                {
+                    ValueGetter = () => ReportItem.DataSource,
+                    ValueSetter = v => ReportItem.DataSource = v,
+                },
+            ]
+        };
+
+        if (!IsTableCell)
+            yield return GetLayoutPropertyGroup();
     }
 
     #region ====Cell Selection====
