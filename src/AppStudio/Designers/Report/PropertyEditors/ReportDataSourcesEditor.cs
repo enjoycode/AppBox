@@ -221,7 +221,7 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 
         private class DataTableFromQueryEditor : DataTableFromQueryEditorBase
         {
-            public DataTableFromQueryEditor(DataTableFromQuery tableFromQuery) : base(tableFromQuery) { }
+            public DataTableFromQueryEditor(DataTableFromQuery tableFromQuery) : base(tableFromQuery.Wrap) { }
 
             protected override string[] FindStates(DynamicStateType type, bool allowNull)
             {
@@ -231,7 +231,7 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 
         private class DataTableFromServiceEditor : DataTableFromServiceEditorBase
         {
-            public DataTableFromServiceEditor(DataTableFromService tableFromService) : base(tableFromService) { }
+            public DataTableFromServiceEditor(DataTableFromService tableFromService) : base(tableFromService.Wrap) { }
 
             protected override string[] FindStates(DynamicStateType type, bool allowNull)
             {

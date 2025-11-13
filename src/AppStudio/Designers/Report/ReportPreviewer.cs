@@ -1,4 +1,5 @@
 using System.Collections;
+using AppBox.ReportDataSource;
 using AppBox.Reporting;
 using PixUI;
 using Processing = AppBox.Reporting.Processing;
@@ -32,8 +33,16 @@ internal sealed class ReportPreviewer : View
         }
     }
 
-    public void RefreshReport(Report report)
+    private async void RefreshReport(Report report)
     {
+        //先填充数据源
+        foreach (var dataSource in report.DataSources)
+        {
+            if (dataSource is IAsyncReportDataSource asyncDataSource)
+                await asyncDataSource.FetchDataAsync();
+        }
+
+        //再渲染报表
         var rs = new InstanceReportSource { ReportDocument = report };
         var deviceInfo = new Hashtable()
         {
