@@ -7,29 +7,29 @@ namespace AppBoxCore;
 /// 主要用于服务调用的返回值，以减少常规类型的装拆箱操作
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Pack = 4)]
-public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
+public readonly struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
 {
-    public static readonly AnyValue Empty = new AnyValue { Type = AnyValueType.Empty };
+    public static readonly AnyValue Empty = new() { Type = AnyValueType.Empty };
 
     #region ====内存结构===
 
-    [field: FieldOffset(0)] public bool BoolValue { get; private set; }
-    [field: FieldOffset(0)] public byte ByteValue { get; private set; }
-    [field: FieldOffset(0)] public short ShortValue { get; private set; }
-    [field: FieldOffset(0)] public ushort UShortValue { get; private set; }
-    [field: FieldOffset(0)] public int IntValue { get; private set; }
-    [field: FieldOffset(0)] public uint UIntValue { get; private set; }
-    [field: FieldOffset(0)] public long LongValue { get; private set; }
-    [field: FieldOffset(0)] public ulong ULongValue { get; private set; }
-    [field: FieldOffset(0)] public float FloatValue { get; private set; }
-    [field: FieldOffset(0)] public double DoubleValue { get; private set; }
-    [field: FieldOffset(0)] public DateTime DateTimeValue { get; private set; }
-    [field: FieldOffset(0)] public decimal DecimalValue { get; private set; }
-    [field: FieldOffset(0)] public Guid GuidValue { get; private set; }
+    [field: FieldOffset(0)] private bool BoolValue { get; init; }
+    [field: FieldOffset(0)] private byte ByteValue { get; init; }
+    [field: FieldOffset(0)] private short ShortValue { get; init; }
+    [field: FieldOffset(0)] private ushort UShortValue { get; init; }
+    [field: FieldOffset(0)] private int IntValue { get; init; }
+    [field: FieldOffset(0)] private uint UIntValue { get; init; }
+    [field: FieldOffset(0)] private long LongValue { get; init; }
+    [field: FieldOffset(0)] private ulong ULongValue { get; init; }
+    [field: FieldOffset(0)] private float FloatValue { get; init; }
+    [field: FieldOffset(0)] private double DoubleValue { get; init; }
+    [field: FieldOffset(0)] private DateTime DateTimeValue { get; init; }
+    [field: FieldOffset(0)] private decimal DecimalValue { get; init; }
+    [field: FieldOffset(0)] private Guid GuidValue { get; init; }
 
-    [FieldOffset(16)] private object? _ObjectValue;
+    [field: FieldOffset(16)] private object? ObjectValue { get; init; }
 
-    [FieldOffset(24)] private AnyValueType Type;
+    [field: FieldOffset(24)] private AnyValueType Type { get; init; }
 
     #endregion
 
@@ -54,7 +54,7 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
                 AnyValueType.DateTime => DateTimeValue,
                 AnyValueType.Decimal => DecimalValue,
                 AnyValueType.Guid => GuidValue,
-                _ => _ObjectValue,
+                _ => ObjectValue,
             };
         }
     }
@@ -87,13 +87,13 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
 
     public static AnyValue From(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
 
-    public static AnyValue From(string v) => new() { _ObjectValue = v, Type = AnyValueType.Object };
+    public static AnyValue From(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
 
     public static AnyValue From(object? v) =>
-        v == null ? Empty : new() { _ObjectValue = v, Type = AnyValueType.Object };
+        v == null ? Empty : new() { ObjectValue = v, Type = AnyValueType.Object };
 
     public static AnyValue From(Action<IOutputStream> streamWriter) =>
-        new() { _ObjectValue = streamWriter, Type = AnyValueType.Stream };
+        new() { ObjectValue = streamWriter, Type = AnyValueType.Stream };
 
     #endregion
 
@@ -104,7 +104,7 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
     public static implicit operator AnyValue(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
     public static implicit operator AnyValue(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
     public static implicit operator AnyValue(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
-    public static implicit operator AnyValue(string v) => new() { _ObjectValue = v, Type = AnyValueType.Object };
+    public static implicit operator AnyValue(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
     public static explicit operator string(AnyValue v) => v.BoxedValue?.ToString() ?? string.Empty;
     public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;
 
@@ -152,10 +152,10 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
                 bs.Serialize(GuidValue);
                 break;
             case AnyValueType.Object:
-                bs.Serialize(_ObjectValue);
+                bs.Serialize(ObjectValue);
                 break;
             case AnyValueType.Stream:
-                ((Action<IOutputStream>)_ObjectValue!)(bs);
+                ((Action<IOutputStream>)ObjectValue!)(bs);
                 break;
             default:
                 throw new NotImplementedException($"序列化AnyValue: {Type}");
@@ -168,7 +168,7 @@ public struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
     {
         if (Type != other.Type) return false;
         if (Type == AnyValueType.Object)
-            return Equals(_ObjectValue, other._ObjectValue);
+            return Equals(ObjectValue, other.ObjectValue);
         return GuidValue == other.GuidValue;
     }
 }
