@@ -44,10 +44,10 @@ public sealed class BlobController : ControllerBase
 
         //2.调用处理服务
         AnyValue res;
-        var serviceArgs = InvokeArgs.Make(formFile.Name, tempFile, (int)formFile.Length, args);
         try
         {
-            res = await RuntimeContext.Current.InvokeAsync(processor, serviceArgs);
+            res = await RuntimeContext.Current.InvokeAsync(processor, formFile.Name,
+                tempFile, (int)formFile.Length, args);
         }
         catch (Exception ex)
         {
@@ -78,7 +78,7 @@ public sealed class BlobController : ControllerBase
 
         try
         {
-            var res = await RuntimeContext.Current.InvokeAsync(processor, InvokeArgs.Make(args));
+            var res = await RuntimeContext.Current.InvokeAsync(processor, args);
             var tempFilePath = (string)res.BoxedValue!;
             return new PhysicalFileResult(tempFilePath, FileContentType.GetMimeType(Path.GetExtension(tempFilePath)));
         }

@@ -129,7 +129,7 @@ internal sealed class WebSocketClient(WebSocket webSocket)
             service = reader.ReadString()!;
             Logger.Debug($"收到调用请求: {service}");
 
-            result = await RuntimeContext.InvokeAsync(service, InvokeArgs.From(reader));
+            result = await ServiceContainer.InvokeAsync(service, InvokeArgs.From(reader));
         }
         catch (Exception e)
         {

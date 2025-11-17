@@ -20,12 +20,16 @@ public interface IRuntimeContext : IModelContainer
     /// </summary>
     ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase;
 
-    /// <summary>
-    /// 调用服务
-    /// </summary>
-    /// <param name="service">eg: sys.HelloService.SayHello</param>
-    /// <param name="args">注意: 使用完后必须调用args.Free()释放缓存</param>
-    ValueTask<AnyValue> InvokeAsync(string service, InvokeArgs args);
+    ValueTask<AnyValue> InvokeAsync(string service);
+
+    ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg);
+
+    ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2);
+
+    ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3);
+
+    ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3,
+        in AnyValue arg4);
 
     /// <summary>
     /// 用于发布时更新模型缓存

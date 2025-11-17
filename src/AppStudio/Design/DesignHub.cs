@@ -53,11 +53,9 @@ public sealed class DesignHub : IModelContainer, IDisposable
     /// </summary>
     private readonly List<object> _removedItems = [];
 
-    internal Func<int, string> AppNameGetter =>
-        appId => DesignTree.FindApplicationNode(appId)!.Model.Name;
+    internal Func<int, string> AppNameGetter => appId => DesignTree.FindApplicationNode(appId)!.Model.Name;
 
-    internal Func<ModelId, ModelBase> ModelGetter =>
-        id => DesignTree.FindModelNode(id)!.Model;
+    internal Func<ModelId, ModelBase> ModelGetter => id => DesignTree.FindModelNode(id)!.Model;
 
     public void Dispose()
     {
@@ -141,12 +139,33 @@ internal sealed class DesignTimeContext : IRuntimeContext
         return new ValueTask<T>((T)DesignHub.Current.DesignTree.FindModelNode(modelId)!.Model);
     }
 
-    public ValueTask<AnyValue> InvokeAsync(string service, InvokeArgs args)
+    public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)
     {
         throw new NotImplementedException();
     }
 
-    public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)
+    public ValueTask<AnyValue> InvokeAsync(string service)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3,
+        in AnyValue arg4)
     {
         throw new NotImplementedException();
     }

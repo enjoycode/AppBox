@@ -7,22 +7,20 @@ namespace AppBoxCore;
 /// </summary>
 public readonly struct InvokeArgs
 {
-    private readonly MessageReadStream? _stream;
-
     private InvokeArgs(MessageReadStream stream)
     {
-        _stream = stream;
+        Stream = stream;
     }
 
-    internal MessageReadStream? Stream => _stream;
+    internal MessageReadStream? Stream { get; }
 
     public void SetEntityFactories(EntityFactory[] factories)
-        => _stream?.Context.SetEntityFactories(factories); //stream maybe null when is Empty
+        => Stream?.Context.SetEntityFactories(factories); //stream maybe null when is Empty
 
     public void Free()
     {
-        if (_stream != null)
-            MessageReadStream.Return(_stream);
+        if (Stream != null)
+            MessageReadStream.Return(Stream);
     }
 
     public static readonly InvokeArgs Empty = new();
@@ -87,7 +85,7 @@ public readonly struct InvokeArgs
 
     public bool? GetBool()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
@@ -99,34 +97,34 @@ public readonly struct InvokeArgs
 
     public short? GetShort()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int16 => _stream.ReadShort(),
-            PayloadType.Int32 => (short)_stream.ReadInt(),
+            PayloadType.Int16 => Stream.ReadShort(),
+            PayloadType.Int32 => (short)Stream.ReadInt(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public int? GetInt()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int32 => _stream.ReadInt(),
+            PayloadType.Int32 => Stream.ReadInt(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public long? GetLong()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int64 => _stream.ReadLong(),
+            PayloadType.Int64 => Stream.ReadLong(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
@@ -144,75 +142,75 @@ public readonly struct InvokeArgs
 
     public float? GetFloat()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Float => _stream.ReadFloat(),
+            PayloadType.Float => Stream.ReadFloat(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public double? GetDouble()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Double => _stream.ReadDouble(),
+            PayloadType.Double => Stream.ReadDouble(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public decimal? GetDecimal()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Double => _stream.ReadDecimal(),
+            PayloadType.Double => Stream.ReadDecimal(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public DateTime? GetDateTime()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.DateTime => _stream.ReadDateTime(),
+            PayloadType.DateTime => Stream.ReadDateTime(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public Guid? GetGuid()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
+        var payloadType = (PayloadType)Stream!.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Guid => _stream.ReadGuid(),
+            PayloadType.Guid => Stream.ReadGuid(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public string? GetString()
     {
-        var payloadType = (PayloadType)_stream!.ReadByte();
-        if (payloadType == PayloadType.String) return _stream.ReadString();
+        var payloadType = (PayloadType)Stream!.ReadByte();
+        if (payloadType == PayloadType.String) return Stream.ReadString();
         if (payloadType == PayloadType.Null) return null;
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
 
-    public object? GetObject() => _stream!.Deserialize();
+    public object? GetObject() => Stream!.Deserialize();
 
     /// <summary>
     /// 用于转换如Web前端封送的object[]数组
     /// </summary>
     public T[]? GetArray<T>()
     {
-        var res = _stream!.Deserialize();
+        var res = Stream!.Deserialize();
         if (res == null) return null;
 
         // TODO:考虑判断源类型是否目标类型
@@ -225,7 +223,7 @@ public readonly struct InvokeArgs
     /// </summary>
     public IList<T>? GetList<T>()
     {
-        var res = _stream!.Deserialize();
+        var res = Stream!.Deserialize();
         if (res == null) return null;
 
         var list = (IList)res;

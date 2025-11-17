@@ -4,10 +4,10 @@ namespace AppBoxCore;
 
 /// <summary>
 /// 任意值，可包含C#常规则内置类型或引用类型或Boxed的结构体
-/// 主要用于服务调用的返回值，以减少常规类型的装拆箱操作
+/// 主要用于类型擦除及减少常规类型的装拆箱操作
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Pack = 4)]
-public readonly struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeResult
+public readonly struct AnyValue : IEquatable<AnyValue>
 {
     public static readonly AnyValue Empty = new() { Type = AnyValueType.Empty };
 
@@ -164,6 +164,8 @@ public readonly struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeR
 
     #endregion
 
+    #region ====Overrides Equals====
+
     public bool Equals(AnyValue other)
     {
         if (Type != other.Type) return false;
@@ -171,24 +173,36 @@ public readonly struct AnyValue : IEquatable<AnyValue> //TODO: rename to InvokeR
             return Equals(ObjectValue, other.ObjectValue);
         return GuidValue == other.GuidValue;
     }
-}
 
-public enum AnyValueType : byte
-{
-    Empty,
-    Object,
-    Boolean,
-    Byte,
-    Int16,
-    UInt16,
-    Int32,
-    UInt32,
-    Int64,
-    UInt64,
-    Float,
-    Double,
-    DateTime,
-    Decimal,
-    Guid,
-    Stream,
+    public override bool Equals(object? obj) => obj is AnyValue value && Equals(value);
+
+    public override int GetHashCode()
+    {
+        if (IsEmpty) return 0;
+        if (Type is AnyValueType.Object or AnyValueType.Stream)
+            return ObjectValue?.GetHashCode() ?? 0;
+        return GuidValue.GetHashCode() ^ Type.GetHashCode();
+    }
+
+    #endregion
+
+    private enum AnyValueType : byte
+    {
+        Empty,
+        Object,
+        Boolean,
+        Byte,
+        Int16,
+        UInt16,
+        Int32,
+        UInt32,
+        Int64,
+        UInt64,
+        Float,
+        Double,
+        DateTime,
+        Decimal,
+        Guid,
+        Stream,
+    }
 }

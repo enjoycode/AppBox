@@ -24,9 +24,6 @@ public static class RuntimeContext
     public static ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
         => Current.GetModelAsync<T>(modelId);
 
-    public static ValueTask<AnyValue> InvokeAsync(string service, InvokeArgs args)
-        => Current.InvokeAsync(service, args);
-    
     /// <summary>
     /// 判断当前运行时内的当前用户是否具备指定权限模型的授权
     /// </summary>

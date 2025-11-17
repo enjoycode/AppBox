@@ -24,11 +24,11 @@ public class PreviewController : ControllerBase
 
         HostRuntimeContext.SetCurrentSession(session);
 
-        var jsCodeData = (byte[])await RuntimeContext.InvokeAsync("sys.DesignService.GetWebPreview",
+        var jsCodeData = (byte[])await RuntimeContext.Current.InvokeAsync("sys.DesignService.GetWebPreview",
 #if DEBUG
-            InvokeArgs.Make(viewModelId, Request.Headers.ContainsKey("ViteDev")));
+            viewModelId, Request.Headers.ContainsKey("ViteDev"));
 #else
-            InvokeArgs.Make(viewModelId));
+            viewModelId);
 #endif
         return new FileContentResult(jsCodeData, "text/javascript");
     }
@@ -46,11 +46,11 @@ public class PreviewController : ControllerBase
 
         HostRuntimeContext.SetCurrentSession(session);
 
-        var jsCodeData = (byte[])await RuntimeContext.InvokeAsync("sys.DesignService.GetEntityPreview",
+        var jsCodeData = (byte[])await RuntimeContext.Current.InvokeAsync("sys.DesignService.GetEntityPreview",
 #if DEBUG
-            InvokeArgs.Make(entityModelId, Request.Headers.ContainsKey("ViteDev")));
+            entityModelId, Request.Headers.ContainsKey("ViteDev"));
 #else
-            InvokeArgs.Make(entityModelId));
+            entityModelId);
 #endif
         return new FileContentResult(jsCodeData, "text/javascript");
     }

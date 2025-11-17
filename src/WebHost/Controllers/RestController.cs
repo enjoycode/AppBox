@@ -25,23 +25,18 @@ internal static class RestController
         try
         {
             if (string.IsNullOrEmpty(external))
-            {
                 throw new NotImplementedException("None external login for rest api");
-            }
-            else
-            {
-                var args = InvokeArgs.Make(user, pass);
-                var res = await RuntimeContext.InvokeAsync($"{external}.Login", args);
-                var treePath = (TreePath)res.BoxedValue!;
 
-                //注册外部用户会话
-                var session = new RestExternalSession(treePath);
-                ExternalSessionManager.Provider.Register(session);
-                
-                writer.WriteByte(0);
-                writer.WriteString(session.SessionId);
-                writer.WriteString(session.Name);
-            }
+            var res = await RuntimeContext.Current.InvokeAsync($"{external}.Login", user, pass);
+            var treePath = (TreePath)res.BoxedValue!;
+
+            //注册外部用户会话
+            var session = new RestExternalSession(treePath);
+            ExternalSessionManager.Provider.Register(session);
+
+            writer.WriteByte(0);
+            writer.WriteString(session.SessionId);
+            writer.WriteString(session.Name);
         }
         catch (Exception e)
         {
@@ -56,7 +51,7 @@ internal static class RestController
     {
         var requestBody = await httpContext.Request.BodyReader.CopyToAsync();
         var reader = MessageReadStream.Rent(requestBody);
-        
+
         //设置当前会话
         var sessionId = reader.ReadString();
         if (!string.IsNullOrEmpty(sessionId) && ExternalSessionManager.Provider.TryGet(sessionId, out var session))
@@ -65,7 +60,7 @@ internal static class RestController
         try
         {
             var service = reader.ReadString()!;
-            var invokeResult = await RuntimeContext.InvokeAsync(service, InvokeArgs.From(reader));
+            var invokeResult = await ServiceContainer.InvokeAsync(service, InvokeArgs.From(reader));
             writer.WriteByte(0);
             writer.Serialize(invokeResult.BoxedValue);
         }
@@ -75,6 +70,7 @@ internal static class RestController
             writer.WriteByte(1);
             writer.WriteString(e.Message);
         }
+
         await httpContext.Response.BodyWriter.FlushAsync();
     }
 }

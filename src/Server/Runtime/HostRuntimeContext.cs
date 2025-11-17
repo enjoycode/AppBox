@@ -1,6 +1,5 @@
 using AppBoxCore;
 using AppBoxStore;
-using static AppBoxServer.ServerLogger;
 
 namespace AppBoxServer;
 
@@ -47,6 +46,32 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
         return (T)model;
     }
 
+    public ValueTask<AnyValue> InvokeAsync(string service)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3,
+        in AnyValue arg4)
+    {
+        throw new NotImplementedException();
+    }
+
     public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)
     {
         //先移除已加载的服务实例
@@ -74,65 +99,6 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
         }
     }
 
-    public async ValueTask<AnyValue> InvokeAsync(string servicePath, InvokeArgs args)
-    {
-        var span = servicePath.AsMemory();
-        var firstDot = span.Span.IndexOf('.');
-        var lastDot = span.Span.LastIndexOf('.');
-        if (firstDot == lastDot)
-            throw new ServicePathException(nameof(servicePath));
-        var app = span.Slice(0, firstDot);
-        var service = servicePath.AsMemory(firstDot + 1, lastDot - firstDot - 1);
-        var method = servicePath.AsMemory(lastDot + 1);
-
-        try
-        {
-            //TODO:埋点监测性能指标
-            //尝试系统内置服务调用
-            IService? instance;
-            if (app.Span.SequenceEqual(Consts.SYS))
-            {
-                instance = SysServiceContainer.TryGet(service);
-                if (instance != null)
-                    return await instance.InvokeAsync(method, args);
-            }
-
-            //应用服务调用
-            instance = await AppServiceContainer.TryGetAsync($"{app}.{service}"); //TODO:优化
-            if (instance == null)
-            {
-                var error = $"Can't find service: {servicePath}";
-                Logger.Warn(error);
-                throw new Exception(error);
-            }
-
-            return await instance.InvokeAsync(method, args);
-        }
-        finally
-        {
-            args.Free();
-        }
-    }
-
-    /// <summary>
-    /// 仅用于服务端服务调用服务(无返回)
-    /// </summary>
-    public static async ValueTask Invoke(string service, InvokeArgs args)
-    {
-        await RuntimeContext.InvokeAsync(service, args);
-    }
-
-    /// <summary>
-    /// 仅用于服务端服务调用服务(有返回)
-    /// </summary>
-    public static async ValueTask<T?> Invoke<T>(string service, InvokeArgs args)
-    {
-        var res = await RuntimeContext.InvokeAsync(service, args);
-        if (res.IsEmpty) return default;
-
-        return (T)res.BoxedValue!;
-    }
-
     public void InjectApplication(ApplicationModel appModel)
     {
         throw new NotImplementedException();
@@ -143,4 +109,29 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
         model.AcceptChanges();
         _models.Add(model.Id, model);
     }
+
+    #region ====供服务模型生成的代码使用的Invoke====
+
+    //TODO***:待修改服务代码生成后(CallServiceInterceptor)移除以下
+
+    /// <summary>
+    /// 仅用于服务端服务调用服务(无返回)
+    /// </summary>
+    public static async ValueTask Invoke(string service, InvokeArgs args)
+    {
+        await ServiceContainer.InvokeAsync(service, args);
+    }
+
+    /// <summary>
+    /// 仅用于服务端服务调用服务(有返回)
+    /// </summary>
+    public static async ValueTask<T?> Invoke<T>(string service, InvokeArgs args)
+    {
+        var res = await ServiceContainer.InvokeAsync(service, args);
+        if (res.IsEmpty) return default;
+
+        return (T)res.BoxedValue!;
+    }
+
+    #endregion
 }
