@@ -6,12 +6,10 @@ namespace AppBoxDesign;
 
 public interface IMemberAccessInterceptor<T>
 {
-    T VisitMemberAccess(MemberAccessExpressionSyntax node, ISymbol symbol,
-        CSharpSyntaxVisitor<T> visitor);
+    T VisitMemberAccess(MemberAccessExpressionSyntax node, ISymbol symbol, CSharpSyntaxVisitor<T> visitor);
 }
 
 public interface IInvocationInterceptor<T>
 {
-    T VisitInvocation(InvocationExpressionSyntax node, IMethodSymbol symbol,
-        CSharpSyntaxVisitor<T> visitor);
+    T VisitInvocation(InvocationExpressionSyntax node, IMethodSymbol symbol, CSharpSyntaxVisitor<T> visitor);
 }

@@ -26,9 +26,9 @@ public class PreviewController : ControllerBase
 
         var jsCodeData = (byte[])await RuntimeContext.Current.InvokeAsync("sys.DesignService.GetWebPreview",
 #if DEBUG
-            viewModelId, Request.Headers.ContainsKey("ViteDev"));
+            InvokeArgs.Make(viewModelId, Request.Headers.ContainsKey("ViteDev")));
 #else
-            viewModelId);
+            InvokeArgs.Make(viewModelId));
 #endif
         return new FileContentResult(jsCodeData, "text/javascript");
     }
@@ -48,9 +48,9 @@ public class PreviewController : ControllerBase
 
         var jsCodeData = (byte[])await RuntimeContext.Current.InvokeAsync("sys.DesignService.GetEntityPreview",
 #if DEBUG
-            entityModelId, Request.Headers.ContainsKey("ViteDev"));
+            InvokeArgs.Make(entityModelId, Request.Headers.ContainsKey("ViteDev")));
 #else
-            entityModelId);
+            InvokeArgs.Make(entityModelId));
 #endif
         return new FileContentResult(jsCodeData, "text/javascript");
     }

@@ -27,7 +27,7 @@ internal static class RestController
             if (string.IsNullOrEmpty(external))
                 throw new NotImplementedException("None external login for rest api");
 
-            var res = await RuntimeContext.Current.InvokeAsync($"{external}.Login", user, pass);
+            var res = await RuntimeContext.Current.InvokeAsync($"{external}.Login", InvokeArgs.Make(user, pass));
             var treePath = (TreePath)res.BoxedValue!;
 
             //注册外部用户会话

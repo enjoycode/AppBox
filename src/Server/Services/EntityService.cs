@@ -51,7 +51,8 @@ internal sealed class EntityService : IService
         }
     }
 
-    public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
+    public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args)
+        where T : struct, IInvokeArgs
     {
         switch (method.Span)
         {

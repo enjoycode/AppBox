@@ -59,6 +59,40 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         }
     }
 
+    #region ====GetXXX Methods====
+
+    public bool? GetBool() =>
+        IsEmpty ? null : Type != AnyValueType.Boolean ? throw new InvalidOperationException() : BoolValue;
+
+    public short? GetShort() =>
+        IsEmpty ? null : Type != AnyValueType.Int16 ? throw new InvalidOperationException() : ShortValue;
+
+    public int? GetInt() =>
+        IsEmpty ? null : Type != AnyValueType.Int32 ? throw new InvalidOperationException() : IntValue;
+
+    public long? GetLong() =>
+        IsEmpty ? null : Type != AnyValueType.Int64 ? throw new InvalidOperationException() : LongValue;
+
+    public float? GetFloat() =>
+        IsEmpty ? null : Type != AnyValueType.Float ? throw new InvalidOperationException() : FloatValue;
+
+    public double? GetDouble() =>
+        IsEmpty ? null : Type != AnyValueType.Double ? throw new InvalidOperationException() : DoubleValue;
+
+    public decimal? GetDecimal() =>
+        IsEmpty ? null : Type != AnyValueType.Decimal ? throw new InvalidOperationException() : DecimalValue;
+
+    public DateTime? GetDateTime() =>
+        IsEmpty ? null : Type != AnyValueType.DateTime ? throw new InvalidOperationException() : DateTimeValue;
+
+    public Guid? GetGuid() =>
+        IsEmpty ? null : Type != AnyValueType.Guid ? throw new InvalidOperationException() : GuidValue;
+    
+    public object? GetObject() =>
+        IsEmpty ? null : Type != AnyValueType.Object ? throw new InvalidOperationException() : ObjectValue;
+
+    #endregion
+
     #region ====FromXXX Methods, 仅用于生成虚拟服务代码的IService接口====
 
     public static AnyValue From(bool v) => new() { BoolValue = v, Type = AnyValueType.Boolean };
@@ -104,6 +138,8 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static implicit operator AnyValue(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
     public static implicit operator AnyValue(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
     public static implicit operator AnyValue(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
+    public static implicit operator AnyValue(float v) => new() { FloatValue = v, Type = AnyValueType.Float };
+    public static implicit operator AnyValue(double v) => new() { DoubleValue = v, Type = AnyValueType.Double };
     public static implicit operator AnyValue(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
     public static explicit operator string(AnyValue v) => v.BoxedValue?.ToString() ?? string.Empty;
     public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;

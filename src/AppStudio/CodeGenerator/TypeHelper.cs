@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,7 +12,7 @@ internal static class TypeHelper
     internal const string MemberAccessInterceptorAttribute = "AppBoxCore.MemberAccessInterceptorAttribute";
     internal const string InvocationInterceptorAttribute = "AppBoxCore.InvocationInterceptorAttribute";
     internal const string InvokePermissionAttribute = "AppBoxCore.InvokePermissionAttribute";
-    internal const string PermissionAttribte = "AppBoxClient.PermissionAttribute";
+    internal const string PermissionAttribute = "AppBoxClient.PermissionAttribute";
 
     #endregion
 
@@ -62,14 +59,14 @@ internal static class TypeHelper
 
     #region ====运行时类型转换====
 
-    private static readonly Dictionary<string, TypeSyntax> realTypes = new();
+    private static readonly Dictionary<string, TypeSyntax> RealTypes = new();
 
     internal static TypeSyntax GetRealType(string realTypeName)
     {
-        if (!realTypes.TryGetValue(realTypeName, out var found))
+        if (!RealTypes.TryGetValue(realTypeName, out var found))
         {
             found = SyntaxFactory.ParseTypeName(realTypeName);
-            realTypes.Add(realTypeName, found);
+            RealTypes.Add(realTypeName, found);
         }
 
         return found;

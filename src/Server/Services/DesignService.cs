@@ -19,7 +19,8 @@ internal sealed class DesignService : IService
     private static readonly ModelId DeveloperPermissionId =
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS);
 
-    public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
+    public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args)
+        where T : struct, IInvokeArgs
     {
         //验证Developer权限
         if (!RuntimeContext.HasPermission(DeveloperPermissionId))
@@ -72,10 +73,10 @@ internal sealed class DesignService : IService
                 PublishService.BeginUploadApp();
                 return AnyValue.Empty;
             case "UploadAppAssembly":
-                await PublishService.UploadAppAssembly(args);
+                await PublishService.UploadAppAssembly(args.GetReadStream()!);
                 return AnyValue.Empty;
             case "UploadViewAssemblyMap":
-                await PublishService.UploadViewAssemblyMap(args);
+                await PublishService.UploadViewAssemblyMap(args.GetReadStream()!);
                 return AnyValue.Empty;
             default:
                 throw new Exception($"Unknown design method: {method}");
@@ -84,7 +85,7 @@ internal sealed class DesignService : IService
 
     #region ====Entity====
 
-    private static async ValueTask<AnyValue> GetEntityRows(InvokeArgs args)
+    private static async ValueTask<AnyValue> GetEntityRows<T>(T args) where T : struct, IInvokeArgs
     {
         ModelId modelId = args.GetString()!;
         var pageSize = args.GetInt()!.Value;

@@ -162,21 +162,20 @@ internal sealed class SystemService : IService
         return new ValueTask<string>($"Hello {name}");
     }
 
-    public async ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args)
+    public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args)
+        where T : struct, IInvokeArgs => method.Span switch
     {
-        return method.Span switch
-        {
-            nameof(Login) => AnyValue.From(await Login(args.GetString()!, args.GetString()!)),
-            "GetViewAssemblies" => AnyValue.From(await MetaStore.Provider.LoadViewAssembliesAsync(args.GetString()!)),
-            "LoadAppAssembly" => AnyValue.From(await MetaStore.Provider.LoadAppAssemblyAsync(args.GetString()!)),
-            "LoadDynamicViewJson" => AnyValue.From(
-                await MetaStore.Provider.LoadDynamicViewJsonAsync(args.GetLong()!.Value)),
-            "LoadDynamicWidgets" => AnyValue.From(await MetaStore.Provider.LoadDynamicWidgetsAsync()),
-            "HasPermission" => AnyValue.From(RuntimeContext.HasPermission(args.GetLong()!.Value)),
-            nameof(LoadPermissionTree) => AnyValue.From(await LoadPermissionTree()),
-            nameof(SavePermission) => AnyValue.From(await SavePermission(args.GetString()!, args.GetArray<Guid>())),
-            nameof(Hello) => AnyValue.From(await Hello(args.GetString()!)),
-            _ => throw new Exception($"Can't find method: {method}")
-        };
-    }
+        //@formatter:off
+        nameof(Login) => AnyValue.From(await Login(args.GetString()!, args.GetString()!)),
+        "GetViewAssemblies" => AnyValue.From(await MetaStore.Provider.LoadViewAssembliesAsync(args.GetString()!)),
+        "LoadAppAssembly" => AnyValue.From(await MetaStore.Provider.LoadAppAssemblyAsync(args.GetString()!)),
+        "LoadDynamicViewJson" => AnyValue.From( await MetaStore.Provider.LoadDynamicViewJsonAsync(args.GetLong()!.Value)),
+        "LoadDynamicWidgets" => AnyValue.From(await MetaStore.Provider.LoadDynamicWidgetsAsync()),
+        "HasPermission" => AnyValue.From(RuntimeContext.HasPermission(args.GetLong()!.Value)),
+        nameof(LoadPermissionTree) => AnyValue.From(await LoadPermissionTree()),
+        nameof(SavePermission) => AnyValue.From(await SavePermission(args.GetString()!, args.GetArray<Guid>())),
+        nameof(Hello) => AnyValue.From(await Hello(args.GetString()!)),
+        _ => throw new Exception($"Can't find method: {method}")
+        //@formatter:on
+    };
 }

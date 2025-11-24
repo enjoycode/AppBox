@@ -312,9 +312,8 @@ internal static class PublishService
     /// <summary>
     /// 将客户端上传的编译且压缩好的AppAssembly保存至临时目录
     /// </summary>
-    internal static async Task UploadAppAssembly(InvokeArgs args)
+    internal static async Task UploadAppAssembly(MessageReadStream rs)
     {
-        var rs = args.Stream!;
         var assemblyName = rs.ReadString()!;
 
         var tempPath = GetUploadAppPath();
@@ -328,10 +327,9 @@ internal static class PublishService
     /// <summary>
     /// 保存客户端上传的视图Assembly的依赖Map，并且开始保存App
     /// </summary>
-    internal static async Task UploadViewAssemblyMap(InvokeArgs args)
+    internal static async Task UploadViewAssemblyMap(MessageReadStream rs)
     {
         //读取映射表
-        var rs = args.Stream!;
         var count = rs.ReadVariant();
         var viewAssemblyMap = new List<MapItem>(count);
         for (var i = 0; i < count; i++)

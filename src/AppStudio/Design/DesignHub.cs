@@ -144,28 +144,7 @@ internal sealed class DesignTimeContext : IRuntimeContext
         throw new NotImplementedException();
     }
 
-    public ValueTask<AnyValue> InvokeAsync(string service)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3,
-        in AnyValue arg4)
+    public ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IInvokeArgs
     {
         throw new NotImplementedException();
     }

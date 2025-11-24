@@ -69,8 +69,7 @@ public class CodeGenerateTest
     public async Task GenServiceRuntimeCodeTest()
     {
         var designHub = await DesignHelper.MockDesignHub();
-        var serviceModel =
-            (ServiceModel)designHub.DesignTree.FindModelNodeByFullName("sys.Services.DemandService")!.Model;
+        var serviceModel = (ServiceModel)designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!.Model;
         var res = await Publish.CompileServiceAsync(designHub, serviceModel, false);
         Assert.True(res != null);
     }

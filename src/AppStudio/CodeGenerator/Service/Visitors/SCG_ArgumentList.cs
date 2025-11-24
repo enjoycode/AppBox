@@ -9,7 +9,7 @@ internal partial class ServiceCodeGenerator
     public override SyntaxNode? VisitArgumentList(ArgumentListSyntax node)
     {
         //因动态查询方法的最后一个参数会被转换为两个参数，所以需要特殊处理
-        if (queryMethodCtx is { HasAny: true, Current: { InLambdaExpression: false, IsDynamicMethod: true } })
+        if (_queryMethodCtx is { HasAny: true, Current: { InLambdaExpression: false, IsDynamicMethod: true } })
         {
             var args = new SeparatedSyntaxList<ArgumentSyntax>();
             for (var i = 0; i < node.Arguments.Count; i++)

@@ -71,6 +71,6 @@ internal partial class ViewCsGenerator
     {
         return type.GetAttributes()
             .Any(a => a.AttributeClass != null &&
-                      a.AttributeClass.ToString() == TypeHelper.PermissionAttribte);
+                      a.AttributeClass.ToString() == TypeHelper.PermissionAttribute);
     }
 }

@@ -106,7 +106,7 @@ internal static class CodeGeneratorUtil
     }
 
     private const string EmptyEntityFactories =
-        "private static readonly AppBoxCore.EntityFactory[] _entityFactories=Array.Empty<EntityFactory>();\n";
+        "private static readonly EntityFactory[] _entityFactories=Array.Empty<EntityFactory>();\n";
 
     /// <summary>
     /// 生成反序列化时的实体工厂

@@ -20,21 +20,24 @@ public static class DesignHelper
 
 internal sealed class MockCheckoutService : ICheckoutService
 {
-    public async Task<Dictionary<string, CheckoutInfo>> LoadAllAsync()
+    public Task<Dictionary<string, CheckoutInfo>> LoadAllAsync()
     {
-        var list = await AppBoxServer.Design.CheckoutService.LoadAllAsync();
-        if (list.Count == 0)
-            return [];
+        return Task.FromResult(new Dictionary<string, CheckoutInfo>());
 
-        var dic = new Dictionary<string, CheckoutInfo>();
-        foreach (var item in list)
-        {
-            var info = new CheckoutInfo((DesignNodeType)item.NodeType, item.TargetId,
-                item.Version, item.DeveloperName, item.DeveloperId);
-            dic.Add(info.GetKey(), info);
-        }
-
-        return dic;
+        //TODO:
+        // var list = await AppBoxServer.Design.CheckoutService.LoadAllAsync();
+        // if (list.Count == 0)
+        //     return [];
+        //
+        // var dic = new Dictionary<string, CheckoutInfo>();
+        // foreach (var item in list)
+        // {
+        //     var info = new CheckoutInfo((DesignNodeType)item.NodeType, item.TargetId,
+        //         item.Version, item.DeveloperName, item.DeveloperId);
+        //     dic.Add(info.GetKey(), info);
+        // }
+        //
+        // return dic;
     }
 
     public Task<CheckoutResult> CheckoutAsync(IList<CheckoutInfo> info)
@@ -45,10 +48,12 @@ internal sealed class MockCheckoutService : ICheckoutService
 
 internal sealed class MockStagedService : IStagedService
 {
-    public async Task<StagedItems> LoadStagedAsync()
+    public Task<StagedItems> LoadStagedAsync()
     {
-        var list = await AppBoxServer.Design.StagedService.LoadStagedAsync();
-        return new StagedItems(list);
+        return Task.FromResult(new StagedItems([]));
+        //TODO:
+        // var list = await AppBoxServer.Design.StagedService.LoadStagedAsync();
+        // return new StagedItems(list);
     }
 
     public Task<IList<PendingChange>> LoadChangesAsync()

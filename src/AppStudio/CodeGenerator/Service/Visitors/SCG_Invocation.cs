@@ -21,7 +21,7 @@ internal partial class ServiceCodeGenerator
         {
             //设置当前查询方法上下文
             var queryMethod = new QueryMethod(methodSymbol!.Name, methodSymbol.Parameters.Length);
-            queryMethodCtx.Push(queryMethod);
+            _queryMethodCtx.Push(queryMethod);
         }
 
         var res = base.VisitInvocationExpression(node)!;
@@ -29,7 +29,7 @@ internal partial class ServiceCodeGenerator
         if (isQueryMethod)
         {
             //将ToScalar转换为ToScalar<T>
-            if (queryMethodCtx.Current.MethodName == "ToScalarAsync")
+            if (_queryMethodCtx.Current.MethodName == "ToScalarAsync")
             {
                 var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
                 var newGenericName = (SimpleNameSyntax)SyntaxFactory.ParseName(
@@ -38,7 +38,7 @@ internal partial class ServiceCodeGenerator
                 res = ((InvocationExpressionSyntax)res).WithExpression(memberAccess);
             }
 
-            queryMethodCtx.Pop();
+            _queryMethodCtx.Pop();
         }
 
         return res;

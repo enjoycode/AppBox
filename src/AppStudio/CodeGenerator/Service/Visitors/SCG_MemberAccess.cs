@@ -12,10 +12,10 @@ internal partial class ServiceCodeGenerator
     {
         //处理查询类方法的lambda表达式内的实体成员访问,
         //eg: t.Customer.Name 转换为 t["Customer"]["Name"]
-        if (queryMethodCtx.HasAny && queryMethodCtx.Current.InLambdaExpression)
+        if (_queryMethodCtx.HasAny && _queryMethodCtx.Current.InLambdaExpression)
         {
             var identifier = FindIdentifierForMemberAccessExpression(node);
-            if (identifier != null && queryMethodCtx.Current.IsLambdaParameter(identifier))
+            if (identifier != null && _queryMethodCtx.Current.IsLambdaParameter(identifier))
             {
                 //TODO:考虑进一步判断符号是否相同
                 //var symbol = SemanticModel.GetSymbolInfo(identifier).Symbol;
@@ -77,7 +77,7 @@ internal partial class ServiceCodeGenerator
         IdentifierNameSyntax targetIdentifier, StringBuilder sb)
     {
         //根据是否在Sql查询内使用不同的处理方式
-        if (queryMethodCtx.Current.IsSystemQuery)
+        if (_queryMethodCtx.Current.IsSystemQuery)
         {
             throw new NotImplementedException();
             // if (node.Expression is IdentifierNameSyntax)

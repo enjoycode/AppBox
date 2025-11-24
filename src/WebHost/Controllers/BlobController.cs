@@ -46,8 +46,8 @@ public sealed class BlobController : ControllerBase
         AnyValue res;
         try
         {
-            res = await RuntimeContext.Current.InvokeAsync(processor, formFile.Name,
-                tempFile, (int)formFile.Length, args);
+            res = await RuntimeContext.Current.InvokeAsync(processor,
+                InvokeArgs.Make(formFile.Name, tempFile, (int)formFile.Length, args));
         }
         catch (Exception ex)
         {
@@ -78,7 +78,7 @@ public sealed class BlobController : ControllerBase
 
         try
         {
-            var res = await RuntimeContext.Current.InvokeAsync(processor, args);
+            var res = await RuntimeContext.Current.InvokeAsync(processor, InvokeArgs.Make(args));
             var tempFilePath = (string)res.BoxedValue!;
             return new PhysicalFileResult(tempFilePath, FileContentType.GetMimeType(Path.GetExtension(tempFilePath)));
         }

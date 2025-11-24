@@ -5,7 +5,7 @@ namespace AppBoxServer;
 
 internal static class ServiceContainer
 {
-    public static async ValueTask<AnyValue> InvokeAsync(string servicePath, InvokeArgs args)
+    public static async ValueTask<AnyValue> InvokeAsync<T>(string servicePath, T args) where T : struct, IInvokeArgs
     {
         var span = servicePath.AsMemory();
         var firstDot = span.Span.IndexOf('.');

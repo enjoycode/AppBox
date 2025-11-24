@@ -8,7 +8,7 @@ internal partial class ServiceCodeGenerator
 {
     public override SyntaxNode? VisitBinaryExpression(BinaryExpressionSyntax node)
     {
-        if (queryMethodCtx.HasAny && queryMethodCtx.Current.InLambdaExpression)
+        if (_queryMethodCtx.HasAny && _queryMethodCtx.Current.InLambdaExpression)
         {
             //如果在条件表达式内将&&转为&, ||转为|
             if (node.OperatorToken.IsKind(SyntaxKind.AmpersandAmpersandToken)) //&& -> &

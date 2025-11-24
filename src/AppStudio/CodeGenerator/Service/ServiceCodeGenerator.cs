@@ -32,7 +32,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
     /// <summary>
     /// 用于转换查询方法的Lambda表达式
     /// </summary>
-    private readonly QueryMethodContext queryMethodCtx = new();
+    private readonly QueryMethodContext _queryMethodCtx = new();
 
     /// <summary>
     /// 公开的服务方法集合
@@ -86,20 +86,18 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
 
     #region ====Interceptors====
 
-    private static readonly Dictionary<string, IInvocationInterceptor<SyntaxNode>>
-        invocationInterceptors;
+    private static readonly Dictionary<string, IInvocationInterceptor<SyntaxNode>> InvocationInterceptors;
 
-    private static readonly Dictionary<string, IMemberAccessInterceptor<SyntaxNode>>
-        memberAccessInterceptors;
+    private static readonly Dictionary<string, IMemberAccessInterceptor<SyntaxNode>> MemberAccessInterceptors;
 
     static ServiceCodeGenerator()
     {
-        invocationInterceptors = new Dictionary<string, IInvocationInterceptor<SyntaxNode>>
+        InvocationInterceptors = new Dictionary<string, IInvocationInterceptor<SyntaxNode>>
         {
             { CallServiceInterceptor.Name, new CallServiceInterceptor() }
         };
 
-        memberAccessInterceptors = new Dictionary<string, IMemberAccessInterceptor<SyntaxNode>>
+        MemberAccessInterceptors = new Dictionary<string, IMemberAccessInterceptor<SyntaxNode>>
         {
             { PermissionAccessInterceptor.Name, new PermissionAccessInterceptor() }
         };
@@ -116,8 +114,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
                 TypeHelper.InvocationInterceptorAttribute)
             {
                 var key = item.ConstructorArguments[0].Value!.ToString();
-                if (!invocationInterceptors.TryGetValue(key,
-                        out IInvocationInterceptor<SyntaxNode> interceptor))
+                if (!InvocationInterceptors.TryGetValue(key, out var interceptor))
                     Log.Debug($"未能找到InvocationInterceptor: {key}");
                 return interceptor;
             }
@@ -137,8 +134,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
                 TypeHelper.MemberAccessInterceptorAttribute)
             {
                 var key = item.ConstructorArguments[0].Value!.ToString();
-                if (!memberAccessInterceptors.TryGetValue(key,
-                        out IMemberAccessInterceptor<SyntaxNode> interceptor))
+                if (!MemberAccessInterceptors.TryGetValue(key, out var interceptor))
                     Log.Debug($"未能找到MemberAccessInterceptor: {key}");
                 return interceptor;
             }

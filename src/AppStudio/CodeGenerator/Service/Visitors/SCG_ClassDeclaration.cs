@@ -1,4 +1,3 @@
-using System.Text;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,21 +13,17 @@ internal partial class ServiceCodeGenerator
         {
             //IService接口
             var updatedNode = (ClassDeclarationSyntax)base.VisitClassDeclaration(node)!;
-            updatedNode = updatedNode.AddBaseListTypes(
-                SyntaxFactory.SimpleBaseType(TypeHelper.ServiceInterfaceType));
+            updatedNode = updatedNode.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.ServiceInterfaceType));
 
             //实体工厂
-            var entityFactoriesCode =
-                CodeGeneratorUtil.GenerateEntityFactoriesCode(DesignHub, _usedEntities);
-            var entityFactories =
-                SyntaxFactory.ParseCompilationUnit(entityFactoriesCode).Members[0];
-            updatedNode = updatedNode.AddMembers(entityFactories);
+            var entityFactoriesCode = CodeGeneratorUtil.GenerateEntityFactoriesCode(DesignHub, _usedEntities);
+            var entityFactories = SyntaxFactory.ParseMemberDeclaration(entityFactoriesCode)!;
 
             //IService接口实现
-            var iserivceImplsCode = GenerateIServiceImplementsCode();
-            var invokeMethod = SyntaxFactory
-                .ParseCompilationUnit(iserivceImplsCode).Members[0];
-            return updatedNode.AddMembers(invokeMethod);
+            var serviceImplsCode = GenerateIServiceImplementsCode();
+            var invokeMethod = SyntaxFactory.ParseMemberDeclaration(serviceImplsCode)!;
+
+            return updatedNode.AddMembers(entityFactories, invokeMethod);
         }
 
         return base.VisitClassDeclaration(node);
@@ -41,7 +36,7 @@ internal partial class ServiceCodeGenerator
     {
         var sb = StringBuilderCache.Acquire();
         sb.Append(
-            "async ValueTask<AppBoxCore.AnyValue> AppBoxCore.IService.InvokeAsync(ReadOnlyMemory<char> method, AppBoxCore.InvokeArgs args) {\n");
+            "public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IInvokeArgs{\n");
         sb.Append("args.SetEntityFactories(_entityFactories);\n");
         sb.Append("switch(method.Span) {\n");
 
@@ -64,7 +59,7 @@ internal partial class ServiceCodeGenerator
                                    !((INamedTypeSymbol)SemanticModel.GetSymbolInfo(method.ReturnType).Symbol!)
                                        .IsGenericType;
             var isReturnVoid = method.IsReturnVoid() || isReturnVoidTask;
-            if (!isReturnVoid) sb.Append("return AppBoxCore.AnyValue.From(");
+            if (!isReturnVoid) sb.Append("return AnyValue.From(");
             if (isReturnTask) sb.Append("await ");
             sb.Append(methodName);
             sb.Append('(');
@@ -76,7 +71,7 @@ internal partial class ServiceCodeGenerator
                     sb.Append(',');
             }
 
-            sb.Append(!isReturnVoid ? "));\n" : "); return AppBoxCore.AnyValue.Empty;\n");
+            sb.Append(!isReturnVoid ? "));\n" : "); return AnyValue.Empty;\n");
         }
 
         sb.Append("default: throw new Exception(\"Cannot find method: \" + method);\n}\n}");

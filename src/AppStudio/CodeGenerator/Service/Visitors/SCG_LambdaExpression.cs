@@ -9,10 +9,10 @@ internal partial class ServiceCodeGenerator
 {
     public override SyntaxNode? VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node)
     {
-        if (queryMethodCtx.HasAny)
+        if (_queryMethodCtx.HasAny)
         {
-            var currentQuery = queryMethodCtx.Current;
-            currentQuery.LambdaParameters = new[] { node.Parameter };
+            var currentQuery = _queryMethodCtx.Current;
+            currentQuery.LambdaParameters = [node.Parameter];
             currentQuery.InLambdaExpression = true;
 
             SyntaxNode? res;
@@ -32,9 +32,9 @@ internal partial class ServiceCodeGenerator
 
     public override SyntaxNode? VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node)
     {
-        if (queryMethodCtx.HasAny)
+        if (_queryMethodCtx.HasAny)
         {
-            var currentQuery = queryMethodCtx.Current;
+            var currentQuery = _queryMethodCtx.Current;
             currentQuery.LambdaParameters = node.ParameterList.Parameters.ToArray();
             currentQuery.InLambdaExpression = true;
 

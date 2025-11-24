@@ -2,5 +2,5 @@ namespace AppBoxCore;
 
 public interface IService
 {
-     ValueTask<AnyValue> InvokeAsync(ReadOnlyMemory<char> method, InvokeArgs args);
+    ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IInvokeArgs;
 }

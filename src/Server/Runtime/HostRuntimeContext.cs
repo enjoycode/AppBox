@@ -46,32 +46,6 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
         return (T)model;
     }
 
-    public ValueTask<AnyValue> InvokeAsync(string service)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3)
-    {
-        throw new NotImplementedException();
-    }
-
-    public ValueTask<AnyValue> InvokeAsync(string service, in AnyValue arg1, in AnyValue arg2, in AnyValue arg3,
-        in AnyValue arg4)
-    {
-        throw new NotImplementedException();
-    }
-
     public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)
     {
         //先移除已加载的服务实例
@@ -110,14 +84,17 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
         _models.Add(model.Id, model);
     }
 
-    #region ====供服务模型生成的代码使用的Invoke====
+    public ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IInvokeArgs
+    {
+        return ServiceContainer.InvokeAsync(service, args);
+    }
 
-    //TODO***:待修改服务代码生成后(CallServiceInterceptor)移除以下
+    #region ====供服务模型生成的代码使用的Invoke====
 
     /// <summary>
     /// 仅用于服务端服务调用服务(无返回)
     /// </summary>
-    public static async ValueTask Invoke(string service, InvokeArgs args)
+    public static async ValueTask Invoke<T>(string service, T args) where T : struct, IInvokeArgs
     {
         await ServiceContainer.InvokeAsync(service, args);
     }
@@ -125,12 +102,13 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     /// <summary>
     /// 仅用于服务端服务调用服务(有返回)
     /// </summary>
-    public static async ValueTask<T?> Invoke<T>(string service, InvokeArgs args)
+    public static async ValueTask<TResult?> Invoke<TArgs, TResult>(string service, TArgs args)
+        where TArgs : struct, IInvokeArgs
     {
         var res = await ServiceContainer.InvokeAsync(service, args);
         if (res.IsEmpty) return default;
 
-        return (T)res.BoxedValue!;
+        return (TResult)res.BoxedValue!; //TODO: avoid boxed
     }
 
     #endregion

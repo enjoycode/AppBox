@@ -33,7 +33,7 @@ internal static class PermissionCodeGenerator
         sb.Append("namespace ");
         sb.Append(appName);
         sb.Append(".Permissions {[");
-        sb.Append(TypeHelper.PermissionAttribte);
+        sb.Append(TypeHelper.PermissionAttribute);
         sb.Append("]public static class ");
         sb.Append(model.Name);
         sb.Append(" {");
