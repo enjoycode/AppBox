@@ -11,7 +11,7 @@ public static class Channel
 
     public static Guid LeafOrgUnitId => Provider?.LeafOrgUnitId ?? Guid.Empty;
 
-    private static IChannel Provider { get; set; } = null!;
+    public static IChannel Provider { get; private set; } = null!;
 
     public static void Init(IChannel provider)
     {

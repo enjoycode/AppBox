@@ -40,6 +40,41 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
         }
     }
 
+    public System.Data.DataTable ToSystemDataTable()
+    {
+        var dt = new System.Data.DataTable();
+        foreach (var col in Columns)
+        {
+            dt.Columns.Add(col.Name, GetColumnType(col));
+        }
+
+        foreach (var row in this)
+        {
+            var dr = dt.NewRow();
+            dr.ItemArray = row.ToValuesArray(this);
+            dt.Rows.Add(dr);
+        }
+
+        return dt;
+    }
+
+    private Type GetColumnType(in DataColumn column) => column.Type switch
+    {
+        DataType.String => typeof(string),
+        DataType.Bool => typeof(bool),
+        DataType.Byte => typeof(byte),
+        DataType.Short => typeof(short),
+        DataType.Int => typeof(int),
+        DataType.Long => typeof(long),
+        DataType.DateTime => typeof(DateTime),
+        DataType.Decimal => typeof(decimal),
+        DataType.Float => typeof(float),
+        DataType.Double => typeof(double),
+        DataType.Guid => typeof(Guid),
+        DataType.Binary => typeof(byte[]),
+        _ => typeof(object)
+    };
+
     #region ====Overrides====
 
     protected override void RemoveItem(int index)

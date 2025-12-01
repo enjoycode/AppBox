@@ -65,6 +65,17 @@ public sealed class DataRow
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
+    internal object?[] ToValuesArray(DataTable table)
+    {
+        var res = new object?[table.Columns.Length];
+        for (var i = 0; i < table.Columns.Length; i++)
+        {
+            res[i] = this[table.Columns[i].Name].BoxedValue;
+        }
+
+        return res;
+    }
+
     #region ====Serialization====
 
     internal void WriteTo(IOutputStream ws, DataColumn[] fields)

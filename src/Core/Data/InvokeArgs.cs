@@ -15,6 +15,8 @@ public interface IInvokeArgs
     /// </summary>
     void Free();
 
+    void SerializeTo(IOutputStream stream);
+
     #region ====GetXXX Methods====
 
     MessageReadStream? GetReadStream();
@@ -45,6 +47,8 @@ public static class InvokeArgs
 
     public static LocalInvokeArgs2 Make(AnyValue arg1, AnyValue arg2) => new(arg1, arg2);
 
+    public static LocalInvokeArgs3 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3) => new(arg1, arg2, arg3);
+
     public static LocalInvokeArgs4 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4)
         => new(arg1, arg2, arg3, arg4);
 
@@ -58,6 +62,7 @@ public readonly struct EmptyInvokeArgs : IInvokeArgs
 {
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
+    public void SerializeTo(IOutputStream stream) { }
 
     #region ====GetXXX Methods====
 
@@ -94,6 +99,7 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     public void SetEntityFactories(EntityFactory[] factories) => Stream.Context.SetEntityFactories(factories);
 
     public void Free() => MessageReadStream.Return(Stream);
+    public void SerializeTo(IOutputStream stream) => throw new NotSupportedException();
 
     #region ====MakeXXX Methods====
 
@@ -317,8 +323,9 @@ public readonly struct LocalInvokeArgs1 : IInvokeArgs
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
+    public void SerializeTo(IOutputStream stream) => _value.SerializeTo(stream);
 
-    public MessageReadStream? GetReadStream() => throw new NotSupportedException();
+    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _value.GetBool();
     public short? GetShort() => _value.GetShort();
     public int? GetInt() => _value.GetInt();
@@ -348,7 +355,13 @@ public struct LocalInvokeArgs2 : IInvokeArgs
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
-    public MessageReadStream? GetReadStream() => throw new NotSupportedException();
+    public void SerializeTo(IOutputStream stream)
+    {
+        _values[0].SerializeTo(stream);
+        _values[1].SerializeTo(stream);
+    }
+
+    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _values[_index++].GetBool();
     public short? GetShort() => _values[_index++].GetShort();
     public int? GetInt() => _values[_index++].GetInt();
@@ -370,6 +383,50 @@ public struct LocalInvokeArgs2 : IInvokeArgs
     }
 }
 
+public struct LocalInvokeArgs3 : IInvokeArgs
+{
+    internal LocalInvokeArgs3(AnyValue arg1, AnyValue arg2, AnyValue arg3)
+    {
+        _values[0] = arg1;
+        _values[1] = arg2;
+        _values[2] = arg3;
+    }
+
+    private int _index;
+    private readonly AnyValue3 _values;
+
+    public void SetEntityFactories(EntityFactory[] factories) { }
+    public void Free() { }
+
+    public void SerializeTo(IOutputStream stream)
+    {
+        _values[0].SerializeTo(stream);
+        _values[1].SerializeTo(stream);
+        _values[2].SerializeTo(stream);
+    }
+
+    public MessageReadStream GetReadStream() => throw new NotSupportedException();
+    public bool? GetBool() => _values[_index++].GetBool();
+    public short? GetShort() => _values[_index++].GetShort();
+    public int? GetInt() => _values[_index++].GetInt();
+    public long? GetLong() => _values[_index++].GetLong();
+    public float? GetFloat() => _values[_index++].GetFloat();
+    public double? GetDouble() => _values[_index++].GetDouble();
+    public decimal? GetDecimal() => _values[_index++].GetDecimal();
+    public DateTime? GetDateTime() => _values[_index++].GetDateTime();
+    public Guid? GetGuid() => _values[_index++].GetGuid();
+    public string? GetString() => (string?)_values[_index++].GetObject();
+    public object? GetObject() => _values[_index++].GetObject();
+    public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
+    public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
+
+    [InlineArray(3)]
+    private struct AnyValue3
+    {
+        private AnyValue _value;
+    }
+}
+
 public struct LocalInvokeArgs4 : IInvokeArgs
 {
     internal LocalInvokeArgs4(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4)
@@ -386,7 +443,15 @@ public struct LocalInvokeArgs4 : IInvokeArgs
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
-    public MessageReadStream? GetReadStream() => throw new NotSupportedException();
+    public void SerializeTo(IOutputStream stream)
+    {
+        _values[0].SerializeTo(stream);
+        _values[1].SerializeTo(stream);
+        _values[2].SerializeTo(stream);
+        _values[3].SerializeTo(stream);
+    }
+
+    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _values[_index++].GetBool();
     public short? GetShort() => _values[_index++].GetShort();
     public int? GetInt() => _values[_index++].GetInt();
@@ -425,7 +490,16 @@ public struct LocalInvokeArgs5 : IInvokeArgs
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
-    public MessageReadStream? GetReadStream() => throw new NotSupportedException();
+    public void SerializeTo(IOutputStream stream)
+    {
+        _values[0].SerializeTo(stream);
+        _values[1].SerializeTo(stream);
+        _values[2].SerializeTo(stream);
+        _values[3].SerializeTo(stream);
+        _values[4].SerializeTo(stream);
+    }
+
+    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _values[_index++].GetBool();
     public short? GetShort() => _values[_index++].GetShort();
     public int? GetInt() => _values[_index++].GetInt();

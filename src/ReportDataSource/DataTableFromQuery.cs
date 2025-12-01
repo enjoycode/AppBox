@@ -53,18 +53,9 @@ public sealed class DataTableFromQuery : ObjectDataSource, IAsyncReportDataSourc
         //         ? exp
         //         : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         // }
-
-        throw new NotImplementedException("DataTableFromQuery.FetchDataAsync not implemented");
-        // var args = InvokeArgs.Make(q);
-        // try
-        // {
-        //     var result = await RuntimeContext.InvokeAsync("sys.EntityService.Fetch", args);
-        //     Console.WriteLine(result);
-        // }
-        // finally
-        // {
-        //     args.Free();
-        // }
+        
+        var result = await RuntimeContext.Current.InvokeAsync("sys.EntityService.Fetch", InvokeArgs.Make(q));
+        DataSource = ((DataTable?)result.BoxedValue)?.ToSystemDataTable();
     }
 
     private sealed class DataTableFromQueryWrap : DataTableFromQueryBase { }

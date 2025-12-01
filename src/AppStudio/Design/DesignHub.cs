@@ -1,3 +1,4 @@
+using AppBoxClient;
 using AppBoxCore;
 
 namespace AppBoxDesign;
@@ -144,8 +145,32 @@ internal sealed class DesignTimeContext : IRuntimeContext
         throw new NotImplementedException();
     }
 
-    public ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IInvokeArgs
+    public async ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IInvokeArgs
     {
-        throw new NotImplementedException();
+        //TODO:临时方案
+        var rs = await Channel.Provider.Invoke(service, o => args.SerializeTo(o));
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        object? result = null;
+        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
+        {
+            try
+            {
+                result = rs.Deserialize();
+            }
+            catch (Exception ex)
+            {
+                errorCode = InvokeErrorCode.DeserializeResponseFail;
+                result = ex.Message;
+            }
+            finally
+            {
+                rs.Free();
+            }
+        }
+
+        if (errorCode != InvokeErrorCode.None)
+            throw new Exception($"Code={errorCode} Msg={result}");
+
+        return AnyValue.From(result);
     }
 }
