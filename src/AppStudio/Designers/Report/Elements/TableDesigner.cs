@@ -24,14 +24,30 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
 
     protected override void OnCreated()
     {
-        //TODO: 测试代码加入样式
+        ShouldInitTableStyle();
+
+        //初始化Table
+        InitNewTable(Bounds.Size);
+    }
+
+    private void ShouldInitTableStyle()
+    {
+        var report = ReportItem.Report!;
+        foreach (var styleRule in report.StyleSheet)
+        {
+            if (styleRule.Selectors[0] is StyleSelector selector &&
+                selector.Type == typeof(Table) &&
+                selector.StyleName == "Normal.TableNormal")
+                return;
+        }
+
         var sTableNormal = new StyleRule();
         sTableNormal.Style.Color = PixUI.Colors.Black;
         sTableNormal.Style.BorderStyle.Default = BorderType.Solid;
         sTableNormal.Style.BorderColor.Default = PixUI.Colors.Black;
         sTableNormal.Style.BorderWidth.Default = Scalar.Pixel(1);
         sTableNormal.AddSelector(new StyleSelector(typeof(Table), "Normal.TableNormal"));
-        ReportItem.Report!.StyleSheet.Add(sTableNormal);
+        report.StyleSheet.Add(sTableNormal);
 
         var sTableBody = new StyleRule();
         sTableBody.Style.Color = PixUI.Colors.Black;
@@ -41,7 +57,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         ISelector[] selectors =
             [new TypeSelector(typeof(Table)), new StyleSelector(typeof(ReportItem), "Normal.TableBody")];
         sTableBody.AddSelector(new DescendantSelector(selectors));
-        ReportItem.Report.StyleSheet.Add(sTableBody);
+        report.StyleSheet.Add(sTableBody);
 
         var sTableHeader = new StyleRule();
         sTableHeader.Style.VerticalAlign = VerticalAlign.Middle;
@@ -52,10 +68,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
         sTableHeader.Style.BorderWidth.Default = Scalar.Pixel(1);
         selectors = [new TypeSelector(typeof(Table)), new StyleSelector(typeof(ReportItem), "Normal.TableHeader")];
         sTableHeader.AddSelector(new DescendantSelector(selectors));
-        ReportItem.Report.StyleSheet.Add(sTableHeader);
-
-        //初始化Table
-        InitNewTable(Bounds.Size);
+        report.StyleSheet.Add(sTableHeader);
     }
 
     private void InitNewTable(Size size)
