@@ -64,31 +64,21 @@ public static class AppServiceContainer
     /// <summary>
     /// 预先注入调试目标服务实例，防止从存储加载
     /// </summary>
-    internal static void InjectDebugService(int debugSessionId)
+    /// <param name="debugFolder">FullPath</param>
+    /// <param name="appName">eg: erp</param>
+    /// <param name="serviceName">eg: OrderService</param>
+    internal static void InjectDebugService(string debugFolder, string appName, string serviceName)
     {
-        var debugFolder =
-            Path.Combine(AppContext.BaseDirectory, "debug", debugSessionId.ToString());
-        if (!Directory.Exists(debugFolder))
-        {
-            Logger.Warn("Start debug process can't found target folder.");
-            return;
-        }
+        var serviceAssembly = $"{appName}.{serviceName}.dll";
+        var servicePath = Path.Combine(debugFolder, serviceAssembly);
+        if (!File.Exists(servicePath))
+            throw new Exception($"Debug service not found: {servicePath}");
 
-        var files = Directory.GetFiles(debugFolder);
-        var asmLoader = new ServiceAssemblyLoader(Path.Combine(debugFolder, "lib"));
-        foreach (var file in files)
-        {
-            if (Path.GetExtension(file) == ".dll")
-            {
-                var sr = Path.GetFileName(file).Split('.');
-                var asm = asmLoader.LoadFromAssemblyPath(file);
-                // var type = asm.GetType($"{sr[0]}.ServiceLogic.{sr[2]}", true);
-                var instance = (IService)asm.CreateInstance(sr[2])!;
-                Services.TryAdd($"{sr[0]}.{sr[2]}",
-                    new ServiceInfo { Instance = instance, Loader = asmLoader });
-                Logger.Debug($"Inject debug service instance: {file}");
-            }
-        }
+        var asmLoader = new ServiceAssemblyLoader(debugFolder);
+        var asm = asmLoader.LoadFromAssemblyPath(servicePath);
+        var instance = (IService)asm.CreateInstance(serviceName)!;
+        Services.TryAdd($"{appName}.{serviceName}", new ServiceInfo { Instance = instance, Loader = asmLoader });
+        Logger.Debug($"Inject debug service instance: {servicePath}");
     }
 
     /// <summary>
@@ -98,9 +88,8 @@ public static class AppServiceContainer
     {
         lock (Services)
         {
-            if (Services.TryGetValue(name, out var service))
+            if (Services.Remove(name, out var service))
             {
-                Services.Remove(name);
                 //#if DEBUG
                 //                    service.Loader.Unloading += OnUnloading;
                 //#endif

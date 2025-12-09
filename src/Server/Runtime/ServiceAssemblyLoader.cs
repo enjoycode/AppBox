@@ -16,7 +16,7 @@ internal sealed class ServiceAssemblyLoader : AssemblyLoadContext
 
     internal ServiceAssemblyLoader(string libPath) : base(true)
     {
-        this._libPath = libPath;
+        _libPath = libPath;
     }
 
     /// <summary>
