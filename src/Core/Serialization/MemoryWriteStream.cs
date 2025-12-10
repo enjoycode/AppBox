@@ -10,6 +10,8 @@ public sealed class MemoryWriteStream : IOutputStream, IDisposable
     private SerializeContext? _context;
     private readonly MemoryStream _memory;
 
+    public SerializeContext Context => _context ??= new SerializeContext();
+
     public byte[] Data
     {
         get
@@ -18,8 +20,6 @@ public sealed class MemoryWriteStream : IOutputStream, IDisposable
             return _memory.ToArray();
         }
     }
-
-    public SerializeContext Context => _context ??= new SerializeContext();
 
     public void WriteByte(byte value) => _memory.WriteByte(value);
 
