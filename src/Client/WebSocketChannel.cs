@@ -36,7 +36,7 @@ public sealed class WebSocketChannel : IClientChannel
         PooledTaskSource<MessageReadStream>.Create(8);
 
     //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
-    private BytesSegment? _pendingResponse;
+    private BytesSegment? _pendingMsg; //当前未全部接收的消息包
 
     public async Task<IInputStream> Invoke(string service, Action<IOutputStream>? argsWriter)
     {
@@ -179,24 +179,45 @@ public sealed class WebSocketChannel : IClientChannel
             segment.Length = res.Count;
             if (res.EndOfMessage)
             {
-                if (_pendingResponse != null)
+                if (_pendingMsg != null)
                 {
-                    _pendingResponse.Append(segment);
-                    _pendingResponse = null;
+                    _pendingMsg.Append(segment);
+                    _pendingMsg = null;
                 }
 
                 var rs = MessageReadStream.Rent(segment.First!);
-                _ = rs.ReadByte(); //message type
-                var msgId = rs.ReadInt();
-                if (_pendingRequests.TryGetValue(msgId, out var promise))
-                    promise.SetResult(rs);
+                var msgType = (MessageType)rs.ReadByte(); //message type
+                if (msgType != MessageType.ServerEvent)
+                {
+                    var msgId = rs.ReadInt();
+                    if (_pendingRequests.TryGetValue(msgId, out var promise))
+                        promise.SetResult(rs);
+                    else
+                        rs.Free();
+                }
                 else
-                    MessageReadStream.Return(rs);
+                {
+                    var eventId = rs.ReadInt();
+                    var eventHandler = Channel.GetServerEventHandler(eventId);
+                    try
+                    {
+                        eventHandler?.Invoke(AnyArgs.From(rs));
+                    }
+                    catch (Exception e)
+                    {
+                        //TODO: forward to ui notification
+                        Console.WriteLine($"Process server event error: {e.Message}");
+                    }
+                    finally
+                    {
+                        rs.Free();
+                    }
+                }
             }
             else
             {
-                _pendingResponse?.Append(segment);
-                _pendingResponse = segment;
+                _pendingMsg?.Append(segment);
+                _pendingMsg = segment;
             }
         }
     }
@@ -208,6 +229,9 @@ public sealed class WebSocketChannel : IClientChannel
         Interlocked.Exchange(ref _connectStatus, 0);
     }
 
+    /// <summary>
+    /// 发送完整消息包，完成后归还缓存
+    /// </summary>
     private async Task SendMessage(BytesSegment data)
     {
         await TryConnect();

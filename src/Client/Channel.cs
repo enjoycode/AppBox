@@ -27,9 +27,12 @@ public static class Channel
             ServerEventHandlers.Remove(eventId);
     }
 
-    internal static void RaiseServerEvent(int eventId, IAnyArgs args)
+    internal static Action<IAnyArgs>? GetServerEventHandler(int eventId)
     {
-        throw new NotImplementedException();
+        lock (ServerEventHandlers)
+        {
+            return ServerEventHandlers.GetValueOrDefault(eventId);
+        }
     }
 
     #endregion
