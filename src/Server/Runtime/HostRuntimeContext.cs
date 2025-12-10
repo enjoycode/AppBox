@@ -84,7 +84,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
         _models.Add(model.Id, model);
     }
 
-    public ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IInvokeArgs
+    public ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IAnyArgs
     {
         return ServiceContainer.InvokeAsync(service, args);
     }
@@ -94,7 +94,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     /// <summary>
     /// 仅用于服务端服务调用服务(无返回)
     /// </summary>
-    public static async ValueTask Invoke<T>(string service, T args) where T : struct, IInvokeArgs
+    public static async ValueTask Invoke<T>(string service, T args) where T : struct, IAnyArgs
     {
         await ServiceContainer.InvokeAsync(service, args);
     }
@@ -103,7 +103,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     /// 仅用于服务端服务调用服务(有返回)
     /// </summary>
     public static async ValueTask<TResult?> Invoke<TArgs, TResult>(string service, TArgs args)
-        where TArgs : struct, IInvokeArgs
+        where TArgs : struct, IAnyArgs
     {
         var res = await ServiceContainer.InvokeAsync(service, args);
         if (res.IsEmpty) return default;

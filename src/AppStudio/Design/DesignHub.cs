@@ -145,7 +145,7 @@ internal sealed class DesignTimeContext : IRuntimeContext
         throw new NotImplementedException();
     }
 
-    public async ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IInvokeArgs
+    public async ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IAnyArgs
     {
         //TODO:临时方案
         var rs = await Channel.Provider.Invoke(service, o => args.SerializeTo(o));

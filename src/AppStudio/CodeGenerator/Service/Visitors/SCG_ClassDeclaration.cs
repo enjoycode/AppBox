@@ -36,7 +36,7 @@ internal partial class ServiceCodeGenerator
     {
         var sb = StringBuilderCache.Acquire();
         sb.Append(
-            "public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IInvokeArgs{\n");
+            "public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IAnyArgs{\n");
         sb.Append("args.SetEntityFactories(_entityFactories);\n");
         sb.Append("switch(method.Span) {\n");
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -7,6 +8,32 @@ namespace AppBoxClient;
 
 public static class Channel
 {
+    #region ====ServerEvent Handlers====
+
+    private static readonly Dictionary<int, Action<IAnyArgs>> ServerEventHandlers = new();
+
+    public static void AddServerEventHandler(int eventId, Action<IAnyArgs> handler)
+    {
+        lock (ServerEventHandlers)
+        {
+            if (!ServerEventHandlers.TryAdd(eventId, handler))
+                throw new Exception($"ServerEventHandler {eventId} already exists");
+        }
+    }
+
+    public static void RemoveServerEventHandler(int eventId)
+    {
+        lock (ServerEventHandlers)
+            ServerEventHandlers.Remove(eventId);
+    }
+
+    internal static void RaiseServerEvent(int eventId, IAnyArgs args)
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
+
     public static string SessionName => Provider?.SessionName ?? string.Empty;
 
     public static Guid LeafOrgUnitId => Provider?.LeafOrgUnitId ?? Guid.Empty;

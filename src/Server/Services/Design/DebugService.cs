@@ -6,7 +6,7 @@ internal sealed class DebugService : IService
 {
     
     
-    public ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IInvokeArgs
+    public ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IAnyArgs
     {
         throw new NotImplementedException();
     }

@@ -16,9 +16,9 @@ public class PublishTest
         // var designHub = await TestHelper.MockSession();
         //
         // var getPendingChanges = new GetPendingChanges();
-        // await getPendingChanges.Handle(designHub, new InvokeArgs());
+        // await getPendingChanges.Handle(designHub, AnyArgs.Empty);
         //
         // var publishHandler = new Publish();
-        // await publishHandler.Handle(designHub, InvokeArgs.Make("Commit Message"));
+        // await publishHandler.Handle(designHub, AnyArgs.Make("Commit Message"));
     }
 }

@@ -27,7 +27,7 @@ internal static class RestController
             if (string.IsNullOrEmpty(external))
                 throw new NotImplementedException("None external login for rest api");
 
-            var res = await RuntimeContext.Current.InvokeAsync($"{external}.Login", InvokeArgs.Make(user, pass));
+            var res = await RuntimeContext.Current.InvokeAsync($"{external}.Login", AnyArgs.Make(user, pass));
             var treePath = (TreePath)res.BoxedValue!;
 
             //注册外部用户会话
@@ -60,7 +60,7 @@ internal static class RestController
         try
         {
             var service = reader.ReadString()!;
-            var invokeResult = await ServiceContainer.InvokeAsync(service, InvokeArgs.From(reader));
+            var invokeResult = await ServiceContainer.InvokeAsync(service, AnyArgs.From(reader));
             writer.WriteByte(0);
             writer.Serialize(invokeResult.BoxedValue);
         }

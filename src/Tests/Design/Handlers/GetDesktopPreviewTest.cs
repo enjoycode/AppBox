@@ -17,7 +17,7 @@ public class GetDesktopPreviewTest
         // var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
         //
         // var handler = new GetDesktopPreview();
-        // var res = (byte[])await handler.Handle(designHub, InvokeArgs.Make(modelNode.Id));
+        // var res = (byte[])await handler.Handle(designHub, AnyArgs.Make(modelNode.Id));
         // Console.Write($"{res} {res.Length}");
     }
 }

@@ -21,7 +21,7 @@ public class GetCompletionTest
         //
         // var handler = new GetCompletion();
         // var res = await handler.Handle(designHub,
-        //     InvokeArgs.Make(0, viewModelIdString, 7, "S"));
+        //     AnyArgs.Make(0, viewModelIdString, 7, "S"));
         // var list = (IList)res.BoxedValue!;
         // foreach (var item in list)
         // {

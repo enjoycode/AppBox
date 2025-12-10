@@ -3,13 +3,16 @@ using System.Runtime.CompilerServices;
 
 namespace AppBoxCore;
 
-public interface IInvokeArgs
+/// <summary>
+/// 包装参数列表，用于服务方法调用及服务端事件参数
+/// </summary>
+public interface IAnyArgs
 {
     /// <summary>
     /// 获取包装的读取流，仅MessageReadStream和FileReadStream支持
     /// </summary>
     IInputStream? InputStream { get; }
-    
+
     /// <summary>
     /// 设置实体工厂，用于反序列化参数为实体
     /// </summary>
@@ -41,28 +44,28 @@ public interface IInvokeArgs
     #endregion
 }
 
-public static class InvokeArgs
+public static class AnyArgs
 {
-    public static EmptyInvokeArgs Empty { get; } = new();
+    public static EmptyArgs Empty { get; } = new();
 
-    public static LocalInvokeArgs1 Make(AnyValue arg) => new(arg);
+    public static LocalArgs1 Make(AnyValue arg) => new(arg);
 
-    public static LocalInvokeArgs1 Make(object? arg) => new(AnyValue.From(arg));
+    public static LocalArgs1 Make(object? arg) => new(AnyValue.From(arg));
 
-    public static LocalInvokeArgs2 Make(AnyValue arg1, AnyValue arg2) => new(arg1, arg2);
+    public static LocalArgs2 Make(AnyValue arg1, AnyValue arg2) => new(arg1, arg2);
 
-    public static LocalInvokeArgs3 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3) => new(arg1, arg2, arg3);
+    public static LocalArgs3 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3) => new(arg1, arg2, arg3);
 
-    public static LocalInvokeArgs4 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4)
+    public static LocalArgs4 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4)
         => new(arg1, arg2, arg3, arg4);
 
-    public static LocalInvokeArgs5 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4, AnyValue arg5)
+    public static LocalArgs5 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4, AnyValue arg5)
         => new(arg1, arg2, arg3, arg4, arg5);
 
-    public static StreamInvokeArgs From(MessageReadStream stream) => new(stream);
+    public static StreamArgs From(IInputStream stream) => new(stream);
 }
 
-public readonly struct EmptyInvokeArgs : IInvokeArgs
+public readonly struct EmptyArgs : IAnyArgs
 {
     public IInputStream? InputStream => throw new NotSupportedException();
     public void SetEntityFactories(EntityFactory[] factories) { }
@@ -91,9 +94,9 @@ public readonly struct EmptyInvokeArgs : IInvokeArgs
 /// <summary>
 /// 封装调用服务的参数，直接从流中反序列化相应的参数
 /// </summary>
-public readonly struct StreamInvokeArgs : IInvokeArgs
+public readonly struct StreamArgs : IAnyArgs
 {
-    internal StreamInvokeArgs(IInputStream inputStream)
+    internal StreamArgs(IInputStream inputStream)
     {
         InputStream = inputStream;
     }
@@ -107,7 +110,7 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
 
     #region ====MakeXXX Methods====
 
-    // public static InvokeArgs Make<T>(T arg)
+    // public static StreamArgs Make<T>(T arg)
     // {
     //     var writer = MessageWriteStream.Rent();
     //     writer.Serialize(arg);
@@ -115,10 +118,10 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     //     MessageWriteStream.Return(writer);
     //
     //     var reader = MessageReadStream.Rent(data);
-    //     return new InvokeArgs(reader);
+    //     return new StreamArgs(reader);
     // }
     //
-    // public static InvokeArgs Make<T1, T2>(T1 arg1, T2 arg2)
+    // public static StreamArgs Make<T1, T2>(T1 arg1, T2 arg2)
     // {
     //     var writer = MessageWriteStream.Rent();
     //     writer.Serialize(arg1);
@@ -127,10 +130,10 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     //     MessageWriteStream.Return(writer);
     //
     //     var reader = MessageReadStream.Rent(data);
-    //     return new InvokeArgs(reader);
+    //     return new StreamArgs(reader);
     // }
     //
-    // public static InvokeArgs Make<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3)
+    // public static StreamArgs Make<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3)
     // {
     //     var writer = MessageWriteStream.Rent();
     //     writer.Serialize(arg1);
@@ -140,10 +143,10 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     //     MessageWriteStream.Return(writer);
     //
     //     var reader = MessageReadStream.Rent(data);
-    //     return new InvokeArgs(reader);
+    //     return new StreamArgs(reader);
     // }
     //
-    // public static InvokeArgs Make<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+    // public static StreamArgs Make<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
     // {
     //     var writer = MessageWriteStream.Rent();
     //     writer.Serialize(arg1);
@@ -154,13 +157,13 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     //     MessageWriteStream.Return(writer);
     //
     //     var reader = MessageReadStream.Rent(data);
-    //     return new InvokeArgs(reader);
+    //     return new StreamArgs(reader);
     // }
 
     #endregion
 
     #region ====GetXXX Methods(所有均返回可为空的类型)====
-    
+
     public bool? GetBool()
     {
         var payloadType = (PayloadType)InputStream.ReadByte();
@@ -314,15 +317,15 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     #endregion
 }
 
-public readonly struct LocalInvokeArgs1 : IInvokeArgs
+public readonly struct LocalArgs1 : IAnyArgs
 {
-    internal LocalInvokeArgs1(AnyValue value)
+    internal LocalArgs1(AnyValue value)
     {
         _value = value;
     }
 
     private readonly AnyValue _value;
-    public IInputStream? InputStream =>throw new NotSupportedException();
+    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -343,9 +346,9 @@ public readonly struct LocalInvokeArgs1 : IInvokeArgs
     public IList<T>? GetList<T>() => (IList<T>?)_value.GetObject();
 }
 
-public struct LocalInvokeArgs2 : IInvokeArgs
+public struct LocalArgs2 : IAnyArgs
 {
-    internal LocalInvokeArgs2(AnyValue arg1, AnyValue arg2)
+    internal LocalArgs2(AnyValue arg1, AnyValue arg2)
     {
         _values[0] = arg1;
         _values[1] = arg2;
@@ -353,7 +356,7 @@ public struct LocalInvokeArgs2 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue2 _values;
-    public IInputStream? InputStream =>throw new NotSupportedException();
+    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -385,9 +388,9 @@ public struct LocalInvokeArgs2 : IInvokeArgs
     }
 }
 
-public struct LocalInvokeArgs3 : IInvokeArgs
+public struct LocalArgs3 : IAnyArgs
 {
-    internal LocalInvokeArgs3(AnyValue arg1, AnyValue arg2, AnyValue arg3)
+    internal LocalArgs3(AnyValue arg1, AnyValue arg2, AnyValue arg3)
     {
         _values[0] = arg1;
         _values[1] = arg2;
@@ -396,8 +399,8 @@ public struct LocalInvokeArgs3 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue3 _values;
-    
-    public IInputStream? InputStream =>throw new NotSupportedException();
+
+    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -430,9 +433,9 @@ public struct LocalInvokeArgs3 : IInvokeArgs
     }
 }
 
-public struct LocalInvokeArgs4 : IInvokeArgs
+public struct LocalArgs4 : IAnyArgs
 {
-    internal LocalInvokeArgs4(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4)
+    internal LocalArgs4(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4)
     {
         _values[0] = arg1;
         _values[1] = arg2;
@@ -442,7 +445,7 @@ public struct LocalInvokeArgs4 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue4 _values;
-    public IInputStream? InputStream =>throw new NotSupportedException();
+    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -476,9 +479,9 @@ public struct LocalInvokeArgs4 : IInvokeArgs
     }
 }
 
-public struct LocalInvokeArgs5 : IInvokeArgs
+public struct LocalArgs5 : IAnyArgs
 {
-    internal LocalInvokeArgs5(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4, AnyValue arg5)
+    internal LocalArgs5(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4, AnyValue arg5)
     {
         _values[0] = arg1;
         _values[1] = arg2;
@@ -489,9 +492,9 @@ public struct LocalInvokeArgs5 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue5 _values;
-    
-    public IInputStream? InputStream =>throw new NotSupportedException();
-    
+
+    public IInputStream? InputStream => throw new NotSupportedException();
+
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 

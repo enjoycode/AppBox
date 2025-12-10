@@ -54,7 +54,7 @@ public sealed class DataTableFromQuery : ObjectDataSource, IAsyncReportDataSourc
         //         : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         // }
         
-        var result = await RuntimeContext.Current.InvokeAsync("sys.EntityService.Fetch", InvokeArgs.Make(q));
+        var result = await RuntimeContext.Current.InvokeAsync("sys.EntityService.Fetch", AnyArgs.Make(q));
         DataSource = ((DataTable?)result.BoxedValue)?.ToSystemDataTable();
     }
 

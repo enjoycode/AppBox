@@ -8,7 +8,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 转换服务调用服务的代码，eg:
 /// var res = await sys.Services.HelloService.SayHello("aa", 123)
-/// var res = await HostRuntimeContext.Invoke~string~("sys.HelloService.SayHello", InvokeArgs.Make("aa", 123))
+/// var res = await HostRuntimeContext.Invoke~string~("sys.HelloService.SayHello", AnyArgs.Make("aa", 123))
 /// </summary>
 internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode>
 {
@@ -42,13 +42,13 @@ internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode
         var args = SyntaxFactory.ArgumentList().AddArguments(serviceArg);
         if (node.ArgumentList.Arguments.Count == 0)
         {
-            var emptyArgs = SyntaxFactory.ParseExpression("InvokeArgs.Empty");
+            var emptyArgs = SyntaxFactory.ParseExpression("AnyArgs.Empty");
             args = args.AddArguments(SyntaxFactory.Argument(emptyArgs));
         }
         else
         {
             var argList = SyntaxFactory.ArgumentList(node.ArgumentList.Arguments);
-            var makeMethod = SyntaxFactory.ParseExpression("InvokeArgs.Make");
+            var makeMethod = SyntaxFactory.ParseExpression("AnyArgs.Make");
             var makeArgs = SyntaxFactory.InvocationExpression(makeMethod, argList);
             args = args.AddArguments(SyntaxFactory.Argument(makeArgs));
         }

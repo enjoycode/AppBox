@@ -20,7 +20,7 @@ public interface IRuntimeContext : IModelContainer
     /// </summary>
     ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase;
 
-    ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IInvokeArgs;
+    ValueTask<AnyValue> InvokeAsync<T>(string service, T args) where T : struct, IAnyArgs;
 
     /// <summary>
     /// 用于发布时更新模型缓存

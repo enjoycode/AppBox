@@ -21,7 +21,7 @@ public class GetSignaturesTest
         // var viewModelIdString = viewModelId.ToString();
         //
         // var handler = new GetSignatures();
-        // var res = await handler.Handle(designHub, InvokeArgs.Make(viewModelIdString, 105));
+        // var res = await handler.Handle(designHub, AnyArgs.Make(viewModelIdString, 105));
         // var response = (SignatureResult)res.BoxedValue!;
         // Console.WriteLine(response!.Signatures.Count());
     }

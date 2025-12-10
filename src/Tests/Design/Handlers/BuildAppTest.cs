@@ -15,6 +15,6 @@ public sealed class BuildAppTest
         // var designHub = await TestHelper.MockSession();
         //
         // var handler = new BuildApp(); 
-        // await handler.Handle(designHub, InvokeArgs.Make(true));
+        // await handler.Handle(designHub, AnyArgs.Make(true));
     }
 }

@@ -20,7 +20,7 @@ internal sealed class DesignService : IService
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS);
 
     public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args)
-        where T : struct, IInvokeArgs
+        where T : struct, IAnyArgs
     {
         //验证Developer权限
         if (!RuntimeContext.HasPermission(DeveloperPermissionId))
@@ -85,7 +85,7 @@ internal sealed class DesignService : IService
 
     #region ====Entity====
 
-    private static async ValueTask<AnyValue> GetEntityRows<T>(T args) where T : struct, IInvokeArgs
+    private static async ValueTask<AnyValue> GetEntityRows<T>(T args) where T : struct, IAnyArgs
     {
         ModelId modelId = args.GetString()!;
         var pageSize = args.GetInt()!.Value;

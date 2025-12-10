@@ -163,7 +163,7 @@ internal sealed class SystemService : IService
     }
 
     public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args)
-        where T : struct, IInvokeArgs => method.Span switch
+        where T : struct, IAnyArgs => method.Span switch
     {
         //@formatter:off
         nameof(Login) => AnyValue.From(await Login(args.GetString()!, args.GetString()!)),
