@@ -210,4 +210,36 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
             BytesSegment.ReturnAll(segment);
         }
     }
+
+    public Task SendServerEvent<T>(int eventId, T args) where T : struct, IAnyArgs
+    {
+        var writer = MessageWriteStream.Rent();
+        var writeError = false;
+        try
+        {
+            writer.WriteByte((byte)MessageType.ServerEvent);
+            writer.WriteInt(eventId);
+            args.SerializeTo(writer);
+        }
+        catch (Exception e) //序列化响应异常
+        {
+            writeError = true;
+            Logger.Warn($"Serialize ServerEvent error: {e.Message}");
+        }
+        finally
+        {
+            args.Free();
+        }
+
+        var data = writer.FinishWrite();
+        MessageWriteStream.Return(writer);
+
+        if (writeError)
+        {
+            BytesSegment.ReturnAll(data); //释放写错误的数据
+            return Task.CompletedTask; //TODO: should throw exception
+        }
+
+        return SendMessage(data);
+    }
 }
