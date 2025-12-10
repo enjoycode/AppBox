@@ -74,6 +74,10 @@ namespace AppBoxClient
             => throw new Exception();
 
         public static Task Logout() => throw new Exception();
+
+        public static void AddServerEventHandler(int eventId, Action<IAnyArgs> handler) => throw new Exception();
+        
+        public static void RemoveServerEventHandler(int eventId) => throw new Exception();
     }
 
     public sealed class RxEntity<T> : RxObjectBase<T> where T : Entity, new()
