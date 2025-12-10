@@ -199,7 +199,7 @@ internal static class MetadataReferences
             SystemNetHttpLib,
             SystemNetHttpJsonLib,
             AppBoxCoreLib,
-            // AppBoxServerLib,
+            // AppBoxServerLib, //暂不使用
             AppBoxStoreLib
         };
 
