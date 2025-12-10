@@ -8,7 +8,7 @@ using AppBoxCore;
 
 namespace AppBoxClient;
 
-public sealed class WebSocketChannel : IChannel
+public sealed class WebSocketChannel : IClientChannel
 {
     public WebSocketChannel(Uri serverUri)
     {

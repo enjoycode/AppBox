@@ -55,4 +55,6 @@ internal sealed class RestExternalSession(TreePath path) : IUserSession
     public Guid ExternalId => Guid.Empty;
 
     public TreePathNode this[int index] => path[index];
+
+    public IChannel Channel => throw new NotImplementedException();
 }

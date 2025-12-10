@@ -9,12 +9,9 @@ namespace AppBoxWebHost;
 /// </summary>
 internal static class WebSocketManager
 {
-    private static readonly IList<WebSocketClient> Anonymous = new List<WebSocketClient>();
-
+    private static readonly List<WebSocketClient> Anonymous = new();
     private static readonly ReaderWriterLockSlim AnonymousLock = new();
-
     private static readonly Dictionary<string, WebSocketClient> Clients = new();
-
     private static readonly ReaderWriterLockSlim ClientsLock = new();
 
     internal static async Task OnAccept(WebSocket webSocket)

@@ -4,7 +4,7 @@ using AppBoxCore;
 
 namespace AppBoxClient;
 
-public interface IChannel
+public interface IClientChannel : IChannel
 {
     string SessionName { get; }
 

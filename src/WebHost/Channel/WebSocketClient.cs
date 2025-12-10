@@ -6,7 +6,7 @@ using static AppBoxServer.ServerLogger;
 
 namespace AppBoxWebHost;
 
-internal sealed class WebSocketClient(WebSocket webSocket)
+internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
 {
     internal WebSession? WebSession { get; set; }
 
@@ -89,7 +89,7 @@ internal sealed class WebSocketClient(WebSocket webSocket)
         //登录成功创建并注册会话
         if (errorInfo == null)
         {
-            WebSession = new WebSession(result!, user);
+            WebSession = new WebSession(result!, user, this);
             WebSocketManager.RegisterSession(this, WebSession);
         }
 

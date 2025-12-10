@@ -15,6 +15,8 @@ public sealed class MockSession : IDeveloperSession
     public Guid EmployeeId { get; } = Guid.Empty;
     public Guid ExternalId { get; } = Guid.Empty;
 
+    public IChannel Channel => throw new NotSupportedException();
+
     public TreePathNode this[int index] => throw new NotImplementedException();
 
     public MockSession(string sessionId)

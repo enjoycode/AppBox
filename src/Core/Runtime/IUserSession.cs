@@ -6,6 +6,11 @@ namespace AppBoxCore;
 public interface IUserSession
 {
     /// <summary>
+    /// 会话绑定的通信通道
+    /// </summary>
+    IChannel Channel { get; }
+
+    /// <summary>
     /// 用户名
     /// </summary>
     string Name { get; }
