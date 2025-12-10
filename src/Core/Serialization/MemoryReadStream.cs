@@ -31,7 +31,7 @@ public sealed class MemoryReadStream : IInputStream, IDisposable
 
     public void Free() { }
 
-    public Stream WrapToStream() => throw new NotImplementedException();
+    public Stream ToSystemStream() => throw new NotImplementedException();
 
     public void Dispose() => _memory.Dispose();
 }

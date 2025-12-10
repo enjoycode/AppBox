@@ -63,7 +63,7 @@ public sealed class MessageReadStream : IInputStream
 
     public void Free() => Return(this);
 
-    public Stream WrapToStream() => new MessageReadStreamWrap(this);
+    public Stream ToSystemStream() => new MessageReadStreamWrap(this);
 
     public async Task CopyToAsync(Stream destination)
     {
@@ -119,7 +119,7 @@ public sealed class MessageReadStream : IInputStream
     #endregion
 }
 
-public sealed class MessageReadStreamWrap : Stream
+internal sealed class MessageReadStreamWrap : Stream
 {
     public MessageReadStreamWrap(MessageReadStream inputStream)
     {

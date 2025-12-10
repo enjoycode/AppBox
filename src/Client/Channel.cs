@@ -101,7 +101,7 @@ public static class Channel
             throw new Exception($"Code={errorCode}");
         }
 
-        return rs.WrapToStream();
+        return rs.ToSystemStream();
     }
 
     //暂时放在这里，待移至RuntimeContext内

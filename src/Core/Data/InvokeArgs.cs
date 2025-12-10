@@ -6,6 +6,11 @@ namespace AppBoxCore;
 public interface IInvokeArgs
 {
     /// <summary>
+    /// 获取包装的读取流，仅MessageReadStream和FileReadStream支持
+    /// </summary>
+    IInputStream? InputStream { get; }
+    
+    /// <summary>
     /// 设置实体工厂，用于反序列化参数为实体
     /// </summary>
     void SetEntityFactories(EntityFactory[] factories);
@@ -19,7 +24,6 @@ public interface IInvokeArgs
 
     #region ====GetXXX Methods====
 
-    MessageReadStream? GetReadStream();
     bool? GetBool();
     short? GetShort();
     int? GetInt();
@@ -60,13 +64,13 @@ public static class InvokeArgs
 
 public readonly struct EmptyInvokeArgs : IInvokeArgs
 {
+    public IInputStream? InputStream => throw new NotSupportedException();
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
     public void SerializeTo(IOutputStream stream) { }
 
     #region ====GetXXX Methods====
 
-    public MessageReadStream? GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => throw new NotSupportedException();
     public short? GetShort() => throw new NotSupportedException();
     public int? GetInt() => throw new NotSupportedException();
@@ -89,16 +93,16 @@ public readonly struct EmptyInvokeArgs : IInvokeArgs
 /// </summary>
 public readonly struct StreamInvokeArgs : IInvokeArgs
 {
-    internal StreamInvokeArgs(MessageReadStream stream)
+    internal StreamInvokeArgs(IInputStream inputStream)
     {
-        Stream = stream;
+        InputStream = inputStream;
     }
 
-    private MessageReadStream Stream { get; }
+    public IInputStream InputStream { get; }
 
-    public void SetEntityFactories(EntityFactory[] factories) => Stream.Context.SetEntityFactories(factories);
+    public void SetEntityFactories(EntityFactory[] factories) => InputStream.Context.SetEntityFactories(factories);
 
-    public void Free() => MessageReadStream.Return(Stream);
+    public void Free() => InputStream.Free();
     public void SerializeTo(IOutputStream stream) => throw new NotSupportedException();
 
     #region ====MakeXXX Methods====
@@ -156,12 +160,10 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     #endregion
 
     #region ====GetXXX Methods(所有均返回可为空的类型)====
-
-    public MessageReadStream? GetReadStream() => Stream;
-
+    
     public bool? GetBool()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
@@ -173,34 +175,34 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
 
     public short? GetShort()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int16 => Stream.ReadShort(),
-            PayloadType.Int32 => (short)Stream.ReadInt(),
+            PayloadType.Int16 => InputStream.ReadShort(),
+            PayloadType.Int32 => (short)InputStream.ReadInt(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public int? GetInt()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int32 => Stream.ReadInt(),
+            PayloadType.Int32 => InputStream.ReadInt(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public long? GetLong()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int64 => Stream.ReadLong(),
+            PayloadType.Int64 => InputStream.ReadLong(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
@@ -218,75 +220,75 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
 
     public float? GetFloat()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Float => Stream.ReadFloat(),
+            PayloadType.Float => InputStream.ReadFloat(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public double? GetDouble()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Double => Stream.ReadDouble(),
+            PayloadType.Double => InputStream.ReadDouble(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public decimal? GetDecimal()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Double => Stream.ReadDecimal(),
+            PayloadType.Double => InputStream.ReadDecimal(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public DateTime? GetDateTime()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.DateTime => Stream.ReadDateTime(),
+            PayloadType.DateTime => InputStream.ReadDateTime(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public Guid? GetGuid()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
+        var payloadType = (PayloadType)InputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Guid => Stream.ReadGuid(),
+            PayloadType.Guid => InputStream.ReadGuid(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public string? GetString()
     {
-        var payloadType = (PayloadType)Stream.ReadByte();
-        if (payloadType == PayloadType.String) return Stream.ReadString();
+        var payloadType = (PayloadType)InputStream.ReadByte();
+        if (payloadType == PayloadType.String) return InputStream.ReadString();
         if (payloadType == PayloadType.Null) return null;
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
 
-    public object? GetObject() => Stream.Deserialize();
+    public object? GetObject() => InputStream.Deserialize();
 
     /// <summary>
     /// 用于转换如Web前端封送的object[]数组
     /// </summary>
     public T[]? GetArray<T>()
     {
-        var res = Stream.Deserialize();
+        var res = InputStream.Deserialize();
         if (res == null) return null;
 
         // TODO:考虑判断源类型是否目标类型
@@ -299,7 +301,7 @@ public readonly struct StreamInvokeArgs : IInvokeArgs
     /// </summary>
     public IList<T>? GetList<T>()
     {
-        var res = Stream.Deserialize();
+        var res = InputStream.Deserialize();
         if (res == null) return null;
 
         var list = (IList)res;
@@ -320,12 +322,12 @@ public readonly struct LocalInvokeArgs1 : IInvokeArgs
     }
 
     private readonly AnyValue _value;
+    public IInputStream? InputStream =>throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
     public void SerializeTo(IOutputStream stream) => _value.SerializeTo(stream);
 
-    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _value.GetBool();
     public short? GetShort() => _value.GetShort();
     public int? GetInt() => _value.GetInt();
@@ -351,6 +353,7 @@ public struct LocalInvokeArgs2 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue2 _values;
+    public IInputStream? InputStream =>throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -361,7 +364,6 @@ public struct LocalInvokeArgs2 : IInvokeArgs
         _values[1].SerializeTo(stream);
     }
 
-    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _values[_index++].GetBool();
     public short? GetShort() => _values[_index++].GetShort();
     public int? GetInt() => _values[_index++].GetInt();
@@ -394,6 +396,8 @@ public struct LocalInvokeArgs3 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue3 _values;
+    
+    public IInputStream? InputStream =>throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -405,7 +409,6 @@ public struct LocalInvokeArgs3 : IInvokeArgs
         _values[2].SerializeTo(stream);
     }
 
-    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _values[_index++].GetBool();
     public short? GetShort() => _values[_index++].GetShort();
     public int? GetInt() => _values[_index++].GetInt();
@@ -439,6 +442,7 @@ public struct LocalInvokeArgs4 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue4 _values;
+    public IInputStream? InputStream =>throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -451,7 +455,6 @@ public struct LocalInvokeArgs4 : IInvokeArgs
         _values[3].SerializeTo(stream);
     }
 
-    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _values[_index++].GetBool();
     public short? GetShort() => _values[_index++].GetShort();
     public int? GetInt() => _values[_index++].GetInt();
@@ -486,7 +489,9 @@ public struct LocalInvokeArgs5 : IInvokeArgs
 
     private int _index;
     private readonly AnyValue5 _values;
-
+    
+    public IInputStream? InputStream =>throw new NotSupportedException();
+    
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
@@ -499,7 +504,6 @@ public struct LocalInvokeArgs5 : IInvokeArgs
         _values[4].SerializeTo(stream);
     }
 
-    public MessageReadStream GetReadStream() => throw new NotSupportedException();
     public bool? GetBool() => _values[_index++].GetBool();
     public short? GetShort() => _values[_index++].GetShort();
     public int? GetInt() => _values[_index++].GetInt();

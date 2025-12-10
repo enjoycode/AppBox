@@ -12,71 +12,56 @@ public interface IInputStream : IEntityMemberReader
 
     void Free();
 
-    Stream WrapToStream();
+    /// <summary>
+    /// 转换为原生的Stream
+    /// </summary>
+    Stream ToSystemStream();
 
     #region ====IEntityMemberReader====
 
     string IEntityMemberReader.ReadStringMember(int flags)
     {
-        if (flags == 0) return this.ReadString()!;
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadString()! : throw new NotImplementedException();
     }
 
     bool IEntityMemberReader.ReadBoolMember(int flags)
     {
-        if (flags == 0) return this.ReadBool();
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadBool() : throw new NotImplementedException();
     }
 
     byte IEntityMemberReader.ReadByteMember(int flags)
     {
-        if (flags == 0) return ReadByte();
-
-        throw new NotImplementedException();
+        return flags == 0 ? ReadByte() : throw new NotImplementedException();
     }
 
     int IEntityMemberReader.ReadIntMember(int flags)
     {
-        if (flags == 0) return this.ReadInt();
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadInt() : throw new NotImplementedException();
     }
 
     long IEntityMemberReader.ReadLongMember(int flags)
     {
-        if (flags == 0) return this.ReadLong();
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadLong() : throw new NotImplementedException();
     }
 
     float IEntityMemberReader.ReadFloatMember(int flags)
     {
-        if (flags == 0) return this.ReadFloat();
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadFloat() : throw new NotImplementedException();
     }
 
     double IEntityMemberReader.ReadDoubleMember(int flags)
     {
-        if (flags == 0) return this.ReadDouble();
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadDouble() : throw new NotImplementedException();
     }
 
     DateTime IEntityMemberReader.ReadDateTimeMember(int flags)
     {
-        if (flags == 0) return this.ReadDateTime();
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadDateTime() : throw new NotImplementedException();
     }
 
     Guid IEntityMemberReader.ReadGuidMember(int flags)
     {
-        if (flags == 0) return this.ReadGuid();
-
-        throw new NotImplementedException();
+        return flags == 0 ? this.ReadGuid() : throw new NotImplementedException();
     }
 
     byte[] IEntityMemberReader.ReadBinaryMember(int flags)
