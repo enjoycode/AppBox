@@ -20,7 +20,7 @@ public abstract class Entity : IBinSerializable
     #region ====PropertyChanged====
 
     public event Action<short>? PropertyChanged;
-    
+
     protected void SetField<T>(ref T field, T value, short memberId)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return;
@@ -81,6 +81,98 @@ public abstract class Entity : IBinSerializable
             var memberId = rs.ReadShort();
             if (memberId == 0) break;
             ReadMember(memberId, ref rs, 0);
+        }
+    }
+
+    public EntityData ToEntityData()
+    {
+        var data = new EntityData() { ModelId = ModelId };
+        var writer = new EntityDataWriter(data);
+        foreach (var memberId in AllMembers)
+            WriteMember(memberId, ref writer, EntityMemberWriteFlags.None);
+        return data;
+    }
+
+    #endregion
+
+    #region ====EntityDataWriter====
+
+    private readonly struct EntityDataWriter : IEntityMemberWriter
+    {
+        public EntityDataWriter(EntityData data)
+        {
+            _data = data;
+        }
+
+        private readonly EntityData _data;
+
+        public void WriteStringMember(short id, string? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value);
+        }
+
+        public void WriteBoolMember(short id, bool? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteByteMember(short id, byte? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteIntMember(short id, int? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteLongMember(short id, long? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteFloatMember(short id, float? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteDoubleMember(short id, double? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteDateTimeMember(short id, DateTime? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteGuidMember(short id, Guid? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
+        public void WriteBinaryMember(short id, byte[]? value, int flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteEntityRefMember(short id, Entity? value, int flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags) where T : Entity, new()
+        {
+            throw new NotImplementedException();
         }
     }
 

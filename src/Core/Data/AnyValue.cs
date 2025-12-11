@@ -64,6 +64,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public bool? GetBool() =>
         IsEmpty ? null : Type != AnyValueType.Boolean ? throw new InvalidOperationException() : BoolValue;
 
+    public byte? GetByte() =>
+        IsEmpty ? null : Type != AnyValueType.Byte ? throw new InvalidOperationException() : ByteValue;
+
     public short? GetShort() =>
         IsEmpty ? null : Type != AnyValueType.Int16 ? throw new InvalidOperationException() : ShortValue;
 
@@ -87,6 +90,8 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     public Guid? GetGuid() =>
         IsEmpty ? null : Type != AnyValueType.Guid ? throw new InvalidOperationException() : GuidValue;
+
+    public string? GetString() => IsEmpty ? null : BoxedValue?.ToString();
 
     public object? GetObject() =>
         IsEmpty ? null : Type != AnyValueType.Object ? throw new InvalidOperationException() : ObjectValue;
@@ -145,7 +150,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static implicit operator AnyValue(DateTime v) => new() { DateTimeValue = v, Type = AnyValueType.DateTime };
     public static implicit operator AnyValue(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
     public static implicit operator AnyValue(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
-    public static explicit operator string(AnyValue v) => v.BoxedValue?.ToString() ?? string.Empty;
+    public static explicit operator string(AnyValue v) => v.GetString() ?? string.Empty;
     public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;
 
     //public static implicit operator AnyValue(Entity obj)=> new() { ObjectValue = obj, Type = AnyValueType.Object };

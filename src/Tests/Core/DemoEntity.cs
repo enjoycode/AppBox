@@ -1,11 +1,10 @@
-using System;
 using AppBoxCore;
 
 namespace Tests.Core;
 
-public sealed class TestEntity : Entity, IEquatable<TestEntity>
+public sealed class DemoEntity : Entity, IEquatable<DemoEntity>
 {
-    private static readonly short[] Members = { 1, 2 };
+    private static readonly short[] Members = [1, 2];
 
     private string _name = string.Empty;
 
@@ -65,7 +64,7 @@ public sealed class TestEntity : Entity, IEquatable<TestEntity>
         }
     }
 
-    public bool Equals(TestEntity? other)
+    public bool Equals(DemoEntity? other)
     {
         if (other == null) return false;
         return Name == other.Name && Score == other.Score;

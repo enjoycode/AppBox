@@ -6,7 +6,7 @@ namespace Tests.Core;
 
 public sealed class SerializationTest
 {
-    private static readonly EntityFactory[] EntityFactories = [new(TestEntity.MODELID, typeof(TestEntity))];
+    private static readonly EntityFactory[] EntityFactories = [new(DemoEntity.MODELID, typeof(DemoEntity))];
 
     internal static BytesSegment Serialize<T>(T obj)
     {
@@ -67,9 +67,9 @@ public sealed class SerializationTest
     [Test]
     public void EntitySerializationTest()
     {
-        var src = new TestEntity() { Name = "Rick", Score = 100 };
+        var src = new DemoEntity() { Name = "Rick", Score = 100 };
         var data = Serialize(src);
-        var dest = (TestEntity)Deserialize(data, EntityFactories)!;
+        var dest = (DemoEntity)Deserialize(data, EntityFactories)!;
 
         Assert.True(src.Name == dest.Name && src.Score == dest.Score);
     }
@@ -77,12 +77,12 @@ public sealed class SerializationTest
     [Test]
     public void EntityArraySerializationTest()
     {
-        var src = new TestEntity[]
+        var src = new DemoEntity[]
         {
             new() { Name = "Rick", Score = 100 }
         };
         var data = Serialize(src);
-        var dest = (TestEntity[])Deserialize(data, EntityFactories)!;
+        var dest = (DemoEntity[])Deserialize(data, EntityFactories)!;
         Assert.True(src.Length == dest.Length);
     }
 
@@ -99,13 +99,13 @@ public sealed class SerializationTest
     [Test]
     public void ListOfEntitySerializationTest()
     {
-        var src = new List<TestEntity>
+        var src = new List<DemoEntity>
         {
             new() { Name = "Rick", Score = 100 },
             new() { Name = "Eric", Score = 200 }
         };
         var data = Serialize(src);
-        var dest = (List<TestEntity>)Deserialize(data, EntityFactories)!;
+        var dest = (List<DemoEntity>)Deserialize(data, EntityFactories)!;
         Assert.True(src.Count == dest.Count);
         Assert.AreEqual(src, dest);
     }
