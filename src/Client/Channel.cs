@@ -22,13 +22,15 @@ public static class Channel
         public readonly Action<IServerEventArgs> Handler;
     }
 
-    private static readonly Dictionary<int, List<EventSubscriber>> EventSubscirbers = new();
+    private static readonly Dictionary<int, List<EventSubscriber>> EventSubscribers = new();
+    
+    //TODO:以下方法加入参数是否需要通知服务端订阅
 
     public static void AddEventSubscriber(int eventId, object subscriber, Action<IServerEventArgs> handler)
     {
-        lock (EventSubscirbers)
+        lock (EventSubscribers)
         {
-            if (EventSubscirbers.TryGetValue(eventId, out var subscribers))
+            if (EventSubscribers.TryGetValue(eventId, out var subscribers))
             {
                 //暂不允许重复加入相同的订阅者
                 if (!subscribers.Exists(s => s.Subscriber == subscriber))
@@ -37,29 +39,29 @@ public static class Channel
             else
             {
                 var newList = new List<EventSubscriber> { new(subscriber, handler) };
-                EventSubscirbers.Add(eventId, newList);
+                EventSubscribers.Add(eventId, newList);
             }
         }
     }
 
     public static void RemoveEventSubscriber(int eventId, object subscriber)
     {
-        lock (EventSubscirbers)
+        lock (EventSubscribers)
         {
-            if (EventSubscirbers.TryGetValue(eventId, out var subscribers))
+            if (EventSubscribers.TryGetValue(eventId, out var subscribers))
             {
                 subscribers.RemoveAll(s => s.Subscriber == subscriber);
                 if (subscribers.Count == 0)
-                    EventSubscirbers.Remove(eventId);
+                    EventSubscribers.Remove(eventId);
             }
         }
     }
 
     internal static void RaiseServerEvent(int eventId, IInputStream inputStream)
     {
-        lock (EventSubscirbers)
+        lock (EventSubscribers)
         {
-            if (EventSubscirbers.TryGetValue(eventId, out var subscribers))
+            if (EventSubscribers.TryGetValue(eventId, out var subscribers))
             {
                 var eventArgs = new ServerEventArgs(inputStream);
                 foreach (var subscriber in subscribers)
