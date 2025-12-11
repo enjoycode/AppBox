@@ -49,6 +49,8 @@ public static class Channel
             if (EventSubscirbers.TryGetValue(eventId, out var subscribers))
             {
                 subscribers.RemoveAll(s => s.Subscriber == subscriber);
+                if (subscribers.Count == 0)
+                    EventSubscirbers.Remove(eventId);
             }
         }
     }
