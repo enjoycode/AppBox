@@ -30,7 +30,7 @@ public enum ModelType : byte
     Workflow = 3,
     Report = 4,
     Enum = 5,
-    Event = 6,
+    Event = 6, //TODO: 待移除
     Permission = 7,
 }
 

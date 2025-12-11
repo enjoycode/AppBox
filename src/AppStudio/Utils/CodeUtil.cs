@@ -5,9 +5,9 @@ namespace AppBoxDesign;
 
 public static class CodeUtil
 {
-    private static readonly string[] _keywords = { "private", "protected" };
+    private static readonly string[] Keywords = { "private", "protected" };
 
-    private static readonly string[] _reservedEntityMemberNames = { "ModelId", "MODELID", "Target" };
+    private static readonly string[] ReservedEntityMemberNames = ["ModelId", "MODELID", "Target"];
 
     public static bool IsValidIdentifier(string value)
     {
@@ -37,9 +37,9 @@ public static class CodeUtil
     }
 
     public static bool IsReservedEntityMemberName(string name) =>
-        _reservedEntityMemberNames.Contains(name);
+        ReservedEntityMemberNames.Contains(name);
 
-    private static bool IsKeyword(string value) => _keywords.Contains(value);
+    private static bool IsKeyword(string value) => Keywords.Contains(value);
 
     public static bool IsValidLanguageIndependentIdentifier(string value)
     {
@@ -142,14 +142,14 @@ public static class CodeUtil
     public static ModelType GetModelTypeFromPluralString(ReadOnlySpan<char> typeName) =>
         typeName switch
         {
-            var s when s.SequenceEqual("Enums") => ModelType.Enum,
-            var s when s.SequenceEqual("Entities") => ModelType.Entity,
-            var s when s.SequenceEqual("Events") => ModelType.Event,
-            var s when s.SequenceEqual("Services") => ModelType.Service,
-            var s when s.SequenceEqual("Views") => ModelType.View,
-            var s when s.SequenceEqual("Workflows") => ModelType.Workflow,
-            var s when s.SequenceEqual("Reports") => ModelType.Report,
-            var s when s.SequenceEqual("Permissions") => ModelType.Permission,
+            "Enums" => ModelType.Enum,
+            "Entities" => ModelType.Entity,
+            "Events" => ModelType.Event,
+            "Services" => ModelType.Service,
+            "Views" => ModelType.View,
+            "Workflows" => ModelType.Workflow,
+            "Reports" => ModelType.Report,
+            "Permissions" => ModelType.Permission,
             _ => throw new NotSupportedException(typeName.ToString())
         };
 

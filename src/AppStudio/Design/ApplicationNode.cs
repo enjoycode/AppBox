@@ -14,6 +14,8 @@ public sealed class ApplicationNode : DesignNode, IChildrenNode
         //按ModelType项顺序添加模型根节点
         for (var i = 0; i < 8; i++)
         {
+            if (i == (int)ModelType.Event)
+                continue; //TODO: 暂简单跳过待移除的事件模型
             var modelRoot = new ModelRootNode((ModelType)i);
             Children.Add(modelRoot);
             tree.BindCheckoutInfo(modelRoot, false);
@@ -40,7 +42,7 @@ public sealed class ApplicationNode : DesignNode, IChildrenNode
     }
 
     public ModelRootNode FindModelRootNode(ModelType modelType)
-        => Children[(int)modelType];
+        => modelType != ModelType.Permission ? Children[(int)modelType] : Children[6]; //TODO: 暂简单跳过待移除的事件模型
 
     internal FolderNode? FindFolderNode(Guid folderId)
     {

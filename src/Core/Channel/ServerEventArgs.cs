@@ -30,7 +30,7 @@ public sealed class ServerEventArgs : IServerEventArgs
                 PayloadType.DateTime => stream.ReadDateTime(),
                 PayloadType.Guid => stream.ReadGuid(),
                 PayloadType.String => stream.ReadString() ?? AnyValue.Empty,
-                _ => AnyValue.From(stream.Deserialize()) //TODO:设置反序列化实体为EntityData
+                _ => AnyValue.From(stream.Deserialize())
             };
 
             index++;
