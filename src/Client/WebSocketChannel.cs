@@ -198,10 +198,9 @@ public sealed class WebSocketChannel : IClientChannel
                 else
                 {
                     var eventId = rs.ReadInt();
-                    var eventHandler = Channel.GetServerEventHandler(eventId);
                     try
                     {
-                        eventHandler?.Invoke(AnyArgs.From(rs));
+                        Channel.RaiseServerEvent(eventId, rs);
                     }
                     catch (Exception e)
                     {

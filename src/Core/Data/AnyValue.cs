@@ -87,7 +87,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     public Guid? GetGuid() =>
         IsEmpty ? null : Type != AnyValueType.Guid ? throw new InvalidOperationException() : GuidValue;
-    
+
     public object? GetObject() =>
         IsEmpty ? null : Type != AnyValueType.Object ? throw new InvalidOperationException() : ObjectValue;
 
@@ -135,11 +135,15 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     //注意隐式转换不支持接口类型及object
     public static implicit operator AnyValue(bool v) => new() { BoolValue = v, Type = AnyValueType.Boolean };
+    public static implicit operator AnyValue(byte v) => new() { ByteValue = v, Type = AnyValueType.Byte };
     public static implicit operator AnyValue(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
     public static implicit operator AnyValue(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
     public static implicit operator AnyValue(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
     public static implicit operator AnyValue(float v) => new() { FloatValue = v, Type = AnyValueType.Float };
     public static implicit operator AnyValue(double v) => new() { DoubleValue = v, Type = AnyValueType.Double };
+    public static implicit operator AnyValue(decimal v) => new() { DecimalValue = v, Type = AnyValueType.Decimal };
+    public static implicit operator AnyValue(DateTime v) => new() { DateTimeValue = v, Type = AnyValueType.DateTime };
+    public static implicit operator AnyValue(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
     public static implicit operator AnyValue(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
     public static explicit operator string(AnyValue v) => v.BoxedValue?.ToString() ?? string.Empty;
     public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;

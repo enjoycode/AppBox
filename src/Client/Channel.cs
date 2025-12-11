@@ -10,28 +10,59 @@ public static class Channel
 {
     #region ====ServerEvent Handlers====
 
-    private static readonly Dictionary<int, Action<IAnyArgs>> ServerEventHandlers = new();
-
-    public static void AddServerEventHandler(int eventId, Action<IAnyArgs> handler)
+    private readonly struct EventSubscriber
     {
-        lock (ServerEventHandlers)
+        public EventSubscriber(object subscriber, Action<IServerEventArgs> handler)
         {
-            if (!ServerEventHandlers.TryAdd(eventId, handler))
-                throw new Exception($"ServerEventHandler {eventId} already exists");
+            Subscriber = subscriber;
+            Handler = handler;
+        }
+
+        public readonly object Subscriber;
+        public readonly Action<IServerEventArgs> Handler;
+    }
+
+    private static readonly Dictionary<int, List<EventSubscriber>> EventSubscirbers = new();
+
+    public static void AddEventSubscriber(int eventId, object subscriber, Action<IServerEventArgs> handler)
+    {
+        lock (EventSubscirbers)
+        {
+            if (EventSubscirbers.TryGetValue(eventId, out var subscribers))
+            {
+                //暂不允许重复加入相同的订阅者
+                if (!subscribers.Exists(s => s.Subscriber == subscriber))
+                    subscribers.Add(new EventSubscriber(subscriber, handler));
+            }
+            else
+            {
+                var newList = new List<EventSubscriber> { new(subscriber, handler) };
+                EventSubscirbers.Add(eventId, newList);
+            }
         }
     }
 
-    public static void RemoveServerEventHandler(int eventId)
+    public static void RemoveEventSubscriber(int eventId, object subscriber)
     {
-        lock (ServerEventHandlers)
-            ServerEventHandlers.Remove(eventId);
+        lock (EventSubscirbers)
+        {
+            if (EventSubscirbers.TryGetValue(eventId, out var subscribers))
+            {
+                subscribers.RemoveAll(s => s.Subscriber == subscriber);
+            }
+        }
     }
 
-    internal static Action<IAnyArgs>? GetServerEventHandler(int eventId)
+    internal static void RaiseServerEvent(int eventId, IInputStream inputStream)
     {
-        lock (ServerEventHandlers)
+        lock (EventSubscirbers)
         {
-            return ServerEventHandlers.GetValueOrDefault(eventId);
+            if (EventSubscirbers.TryGetValue(eventId, out var subscribers))
+            {
+                var eventArgs = new ServerEventArgs(inputStream);
+                foreach (var subscriber in subscribers)
+                    subscriber.Handler(eventArgs);
+            }
         }
     }
 
