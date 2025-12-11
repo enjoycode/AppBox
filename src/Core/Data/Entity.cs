@@ -86,7 +86,7 @@ public abstract class Entity : IBinSerializable
 
     public EntityData ToEntityData()
     {
-        var data = new EntityData() { ModelId = ModelId };
+        var data = new EntityData(ModelId);
         var writer = new EntityDataWriter(data);
         foreach (var memberId in AllMembers)
             WriteMember(memberId, ref writer, EntityMemberWriteFlags.None);

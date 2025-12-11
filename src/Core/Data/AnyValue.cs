@@ -134,6 +134,31 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static AnyValue From(Action<IOutputStream> streamWriter) =>
         new() { ObjectValue = streamWriter, Type = AnyValueType.Stream };
 
+    /// <summary>
+    /// 从输入流中读取
+    /// </summary>
+    public static AnyValue ReadFrom(IInputStream stream)
+    {
+        var payloadType = (PayloadType)stream.ReadByte();
+        return payloadType switch
+        {
+            PayloadType.Null => Empty,
+            PayloadType.BooleanTrue => true,
+            PayloadType.BooleanFalse => false,
+            PayloadType.Byte => stream.ReadByte(),
+            PayloadType.Int16 => stream.ReadShort(),
+            PayloadType.Int32 => stream.ReadInt(),
+            PayloadType.Int64 => stream.ReadLong(),
+            PayloadType.Float => stream.ReadFloat(),
+            PayloadType.Double => stream.ReadDouble(),
+            PayloadType.Decimal => stream.ReadDecimal(),
+            PayloadType.DateTime => stream.ReadDateTime(),
+            PayloadType.Guid => stream.ReadGuid(),
+            PayloadType.String => stream.ReadString() ?? Empty,
+            _ => From(stream.Deserialize())
+        };
+    }
+
     #endregion
 
     #region ====隐式/显式转换====

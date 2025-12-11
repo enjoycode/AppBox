@@ -61,6 +61,7 @@ namespace AppBoxCore
         PublishPackage = 69,
 
         //----运行时相关类型----
+        EntityData = 89,
         Entity = 90,
         PermissionNode = 91,
         DataTable = 92,

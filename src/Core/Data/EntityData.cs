@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace AppBoxCore;
 
 /// <summary>
@@ -5,7 +7,15 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class EntityData : IBinSerializable
 {
-    public ModelId ModelId { get; set; }
+    internal EntityData() { }
+
+    internal EntityData(ModelId modelId)
+    {
+        Debug.Assert(modelId.Type == ModelType.Entity);
+        ModelId = modelId;
+    }
+
+    public ModelId ModelId { get; private set; }
     private readonly List<MemberData> _members = [];
 
     internal void AddMember(short id, AnyValue value)
@@ -75,12 +85,24 @@ public sealed class EntityData : IBinSerializable
 
     void IBinSerializable.WriteTo(IOutputStream ws)
     {
-        throw new NotImplementedException();
+        ws.WriteLong(ModelId);
+
+        ws.WriteVariant(_members.Count);
+        for (var i = 0; i < _members.Count; i++)
+        {
+            ws.WriteShort(_members[i].MemberId);
+            _members[i].Value.SerializeTo(ws);
+        }
     }
 
     void IBinSerializable.ReadFrom(IInputStream rs)
     {
-        throw new NotImplementedException();
+        ModelId = rs.ReadLong();
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
+        {
+            _members.Add(new MemberData(rs.ReadShort(), AnyValue.ReadFrom(rs)));
+        }
     }
 
     #endregion

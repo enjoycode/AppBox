@@ -14,25 +14,7 @@ public sealed class ServerEventArgs : IServerEventArgs
         var index = 0;
         while (stream.HasRemaining && index < 5)
         {
-            var payloadType = (PayloadType)stream.ReadByte();
-            _values[index] = payloadType switch
-            {
-                PayloadType.Null => AnyValue.Empty,
-                PayloadType.BooleanTrue => true,
-                PayloadType.BooleanFalse => false,
-                PayloadType.Byte => stream.ReadByte(),
-                PayloadType.Int16 => stream.ReadShort(),
-                PayloadType.Int32 => stream.ReadInt(),
-                PayloadType.Int64 => stream.ReadLong(),
-                PayloadType.Float => stream.ReadFloat(),
-                PayloadType.Double => stream.ReadDouble(),
-                PayloadType.Decimal => stream.ReadDecimal(),
-                PayloadType.DateTime => stream.ReadDateTime(),
-                PayloadType.Guid => stream.ReadGuid(),
-                PayloadType.String => stream.ReadString() ?? AnyValue.Empty,
-                _ => AnyValue.From(stream.Deserialize())
-            };
-
+            _values[index] = AnyValue.ReadFrom(stream);
             index++;
         }
     }

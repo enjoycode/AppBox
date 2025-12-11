@@ -155,12 +155,13 @@ public abstract class TypeSerializer
         RegisterKnownType(new ArraySerializer());
         RegisterKnownType(new ListSerializer());
         //运行时类型
-        RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode),
-            () => new PermissionNode()));
+        //@formatter:off
+        RegisterKnownType(new BinSerializer(PayloadType.EntityData, typeof(EntityData), () => new EntityData()));
+        RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode), () => new PermissionNode()));
         RegisterKnownType(new BinSerializer(PayloadType.DataTable, typeof(DataTable), () => new DataTable()));
         RegisterKnownType(new BinSerializer(PayloadType.DynamicQuery, typeof(DynamicQuery), () => new DynamicQuery()));
-        RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField, typeof(PrimaryKeyField),
-            () => new PrimaryKeyField()));
+        RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField, typeof(PrimaryKeyField), () => new PrimaryKeyField()));
+        //@formatter:on
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);
