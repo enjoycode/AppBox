@@ -69,4 +69,8 @@ public sealed class DemoEntity : Entity, IEquatable<DemoEntity>
         if (other == null) return false;
         return Name == other.Name && Score == other.Score;
     }
+
+    //以下测试与EntityData的类型转换
+    public static implicit operator EntityData(DemoEntity entity) => entity.ToEntityData();
+    public static explicit operator DemoEntity(EntityData data) => data.ToEntity<DemoEntity>();
 }
