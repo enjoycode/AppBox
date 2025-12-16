@@ -7,6 +7,10 @@
         <AssemblyName>AppBoxWebHost</AssemblyName>
         <RootNamespace>AppBoxWebHost</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'">true</IsWindows>
+        <IsMacOS Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">true</IsMacOS>
+        <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">true</IsLinux>
+        <IsArm64 Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">true</IsArm64>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(RunConfiguration)' == 'WebHost' "/>
@@ -17,6 +21,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Core\Core.csproj"/>
         <ProjectReference Include="..\Server\Server.csproj"/>
+        <ProjectReference Include="..\ServiceDebugger\ServiceDebugger.csproj" />
         <ProjectReference Include="..\Store.Initiator\Store.Initiator.csproj"/>
         <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj"/>
         <ProjectReference Include="..\Store\Store.csproj"/>
@@ -38,6 +43,12 @@
       <Reference Include="NanoLog.Extensions">
         <HintPath>..\..\ext\NanoLog.Extensions.dll</HintPath>
       </Reference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsMacOS)'=='true' And '$(IsArm64)'=='true'">
+        <None Include="..\..\ext\netcoredbg\osx-arm64\*.*" 
+              Link="Debugger\%(RecursiveDir)%(Filename)%(Extension)" 
+              CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

@@ -16,7 +16,7 @@ if (args.Length != 3 && args.Length != 2)
 var sessionId = args[0];
 var serviceMethod = args[1];
 var mockUserName = args.Length == 3 ? args[2] : string.Empty;
-var debugFolder = Path.Combine(AppContext.BaseDirectory, "ServiceDebug", sessionId);
+var debugFolder = Path.Combine(Path.GetTempPath(), "AppBox", "ServiceDebug", sessionId);
 if (!Directory.Exists(debugFolder))
 {
     Console.WriteLine($"DebugFolder not found: {debugFolder}");
