@@ -1,3 +1,4 @@
+using AppBoxCore;
 using NUnit.Framework;
 
 namespace Tests.Core;
@@ -16,4 +17,14 @@ public class EntityDataTest
 
         Assert.AreEqual(entity1, entity2);
     }
+
+    // [Test]
+    // public void ConvertTest2()
+    // {
+    //     var /*object*/ entity1 = new DemoEntity() { Name = "Test1", Score = 100 };
+    //     EntityData data = (EntityData)entity1;
+    //     object entity2 = (DemoEntityClone)data;
+    //
+    //     Assert.AreEqual(entity1, entity2);
+    // }
 }

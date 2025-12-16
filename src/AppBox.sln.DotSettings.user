@@ -227,6 +227,7 @@
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net9.0::Tests.Design.CodeGenerateTest.GenServiceRuntimeCodeTest&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net9.0::Tests.Core.EntityDataTest.ConvertTest&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net9.0::Tests.Core.EntityDataTest.ConvertTest2&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	
