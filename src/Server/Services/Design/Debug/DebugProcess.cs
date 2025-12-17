@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using AppBoxCore;
+using static AppBoxServer.Design.DebugLogger;
 
 namespace AppBoxServer.Design;
 
@@ -8,6 +10,15 @@ namespace AppBoxServer.Design;
 /// </summary>
 internal sealed class DebugProcess
 {
+    public DebugProcess(IUserSession session)
+    {
+        _session = session;
+        _parser = new MIParser(OnDebuggerOutput, OnDebuggerResult);
+    }
+
+    private readonly IUserSession _session;
+    private readonly MIParser _parser;
+
     public void Start(string sessionName, string serviceMethod)
     {
         var process = new Process();
@@ -21,38 +32,58 @@ internal sealed class DebugProcess
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
+        process.EnableRaisingEvents = true;
         process.ErrorDataReceived += OnErrorDataReceived;
         process.Exited += OnProcessExited;
 
         process.Start();
         StartReadOutput(process);
-        
+
         process.StandardInput.WriteLine("-exec-run");
     }
 
     private void StartReadOutput(Process process)
     {
-        //TODO: use Channel for read and parse
+        //TODO: https://learn.microsoft.com/en-us/dotnet/standard/io/pipelines
         Task.Run(async () =>
         {
             while (!process.HasExited)
             {
                 var line = await process.StandardOutput.ReadLineAsync();
-                Console.WriteLine(line);
+                // Console.WriteLine(line);
+                if (!string.IsNullOrEmpty(line))
+                {
+                    try
+                    {
+                        _parser.ParseOutput(line);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"ParseOutput: {e.Message}\n {line}");
+                    }
+                }
             }
         });
+    }
+
+    private void OnDebuggerOutput(MIOutOfBandRecord record)
+    {
+        Console.WriteLine(record);
+    }
+
+    private void OnDebuggerResult(MIResultRecord record)
+    {
+        Console.WriteLine(record);
     }
 
     private static void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Data))
-        {
-            Console.WriteLine(e.Data);
-        }
+            Logger.Error($"Debugger error: {e.Data}");
     }
 
     private static void OnProcessExited(object? sender, EventArgs e)
     {
-        Console.WriteLine("Debug process exited");
+        Logger.Info("Debugger process exited");
     }
 }

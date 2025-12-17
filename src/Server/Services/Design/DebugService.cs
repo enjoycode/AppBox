@@ -43,7 +43,7 @@ internal static class DebugService
         //TODO: 读取Breakpoints并将调用参数写入args.bin文件
 
         //启动netcoredbg进程
-        var debugProcess = new DebugProcess();
+        var debugProcess = new DebugProcess(session);
         debugProcess.Start(session.Name, $"{service}.{methodName}");
     }
 }
