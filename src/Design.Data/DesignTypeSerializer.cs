@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxDesign.Debugging;
 
 namespace AppBoxDesign;
 
@@ -23,8 +24,9 @@ public static class DesignTypeSerializer
         RegisterKnownType(new BinSerializer(PayloadType.ReportModel, typeof(ReportModel), () => new ReportModel()));
         RegisterKnownType(new BinSerializer(PayloadType.CheckoutInfo, typeof(CheckoutInfo), () => new CheckoutInfo()));
         RegisterKnownType(new BinSerializer(PayloadType.CheckoutResult, typeof(CheckoutResult), () => new CheckoutResult()));
-        RegisterKnownType( new BinSerializer(PayloadType.PendingChange, typeof(PendingChange), () => new PendingChange()));
+        RegisterKnownType(new BinSerializer(PayloadType.PendingChange, typeof(PendingChange), () => new PendingChange()));
         RegisterKnownType(new BinSerializer(PayloadType.PublishPackage, typeof(PublishPackage), () => new PublishPackage()));
+        RegisterKnownType(new BinSerializer(PayloadType.DebugEventArgs, typeof(DebugEventArgs), () => new DebugEventArgs()));
         //@formatter:on
     }
 }

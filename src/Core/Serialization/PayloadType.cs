@@ -59,6 +59,7 @@ namespace AppBoxCore
         CheckoutResult = 67,
         PendingChange = 68,
         PublishPackage = 69,
+        DebugEventArgs = 70,
 
         //----运行时相关类型----
         EntityData = 89,

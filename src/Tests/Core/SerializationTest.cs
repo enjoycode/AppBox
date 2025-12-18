@@ -1,11 +1,16 @@
-using System.Collections.Generic;
 using AppBoxCore;
+using AppBoxDesign.Debugging;
 using NUnit.Framework;
 
 namespace Tests.Core;
 
 public sealed class SerializationTest
 {
+    static SerializationTest()
+    {
+        AppBoxDesign.DesignTypeSerializer.Register();
+    }
+
     private static readonly EntityFactory[] EntityFactories = [new(DemoEntity.MODELID, typeof(DemoEntity))];
 
     internal static BytesSegment Serialize<T>(T obj)
@@ -128,5 +133,32 @@ public sealed class SerializationTest
         Assert.AreEqual(dest.Children!.Count, 1);
         Assert.AreEqual(dest.Children[0].Name, ou2.Name);
         Assert.True(ReferenceEquals(dest.Children[0].Parent, dest));
+    }
+
+    /// <summary>
+    /// DebugEventArgs序列化测试
+    /// </summary>
+    [Test]
+    public void DebugEventArgsTest()
+    {
+        var eventArgs1 = new DebugEventArgs(12345678, new DebuggerExited(-1));
+        var args1 = AnyArgs.Make(eventArgs1);
+
+        //序列化
+        var writer = MessageWriteStream.Rent();
+        args1.SerializeTo(writer);
+        var segment = writer.FinishWrite();
+        MessageWriteStream.Return(writer);
+
+        //反序列化
+        var reader = MessageReadStream.Rent(segment.First!);
+        var serverEventArgs = new ServerEventArgs(reader);
+        var eventArgs2 = (DebugEventArgs)serverEventArgs[0].GetObject()!;
+
+        // var args2 = AnyArgs.From(reader);
+        // var eventArgs2 = (DebugEventArgs)args2.GetObject()!;
+        MessageReadStream.Return(reader);
+
+        Assert.True(eventArgs1.TargetModelId == eventArgs2.TargetModelId);
     }
 }

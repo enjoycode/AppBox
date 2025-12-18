@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using AppBoxCore;
+using AppBoxDesign.Debugging;
 using static AppBoxServer.Design.DebugLogger;
 
 namespace AppBoxServer.Design;
@@ -10,12 +11,14 @@ namespace AppBoxServer.Design;
 /// </summary>
 internal sealed class DebugProcess
 {
-    public DebugProcess(IUserSession session)
+    public DebugProcess(IUserSession session, ModelId modelId)
     {
         _session = session;
+        _modelId = modelId;
         _parser = new MIParser(OnDebuggerOutput, OnDebuggerResult);
     }
 
+    private readonly ModelId _modelId;
     private readonly IUserSession _session;
     private readonly MIParser _parser;
     private Process? _process;
@@ -90,6 +93,7 @@ internal sealed class DebugProcess
                 else if (value.CString == "exited")
                 {
                     SendCommand("-gdb-exit");
+                    RaiseDebugEvent(new DebuggerExited(0 /*TODO:*/));
                 }
             }
         }
@@ -109,5 +113,15 @@ internal sealed class DebugProcess
     private static void OnProcessExited(object? sender, EventArgs e)
     {
         Logger.Info("Debugger process exited");
+    }
+
+    /// <summary>
+    /// 激发调试事件发送给客户端处理
+    /// </summary>
+    private void RaiseDebugEvent(IDebugEventArgs eventArgs)
+    {
+        var args = new DebugEventArgs(_modelId, eventArgs);
+        var remote = (IRemoteChannel)_session.Channel;
+        remote.SendServerEvent(IDebugEventArgs.DebugEventId, AnyArgs.Make(args));
     }
 }

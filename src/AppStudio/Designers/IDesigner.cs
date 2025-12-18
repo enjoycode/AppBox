@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using AppBoxDesign.Debugging;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -34,4 +34,9 @@ internal interface IModelDesigner : IDesigner
 internal interface ICodeDesigner : IModelDesigner
 {
     void GotoProblem(CodeProblem problem);
+}
+
+internal interface IDebuggableCodeDesigner : ICodeDesigner
+{
+    void OnDebugEvent(IDebugEventArgs eventArgs);
 }

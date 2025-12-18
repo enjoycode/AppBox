@@ -38,12 +38,13 @@ internal static class DebugService
             throw new Exception("Debug service directory not found");
 
         var session = RuntimeContext.CurrentSession!;
+        var modelId = stream.ReadLong();
         var service = stream.ReadString()!; //eg: erp.OrderService
         var methodName = stream.ReadString()!; //eg: SaveOrder
         //TODO: 读取Breakpoints并将调用参数写入args.bin文件
 
         //启动netcoredbg进程
-        var debugProcess = new DebugProcess(session);
+        var debugProcess = new DebugProcess(session, modelId);
         debugProcess.Start(session.Name, $"{service}.{methodName}");
     }
 }

@@ -1,12 +1,13 @@
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxDesign.Debugging;
 using CodeEditor;
 using PixUI;
 using Log = PixUI.Log;
 
 namespace AppBoxDesign;
 
-internal sealed class ServiceDesigner : View, ICodeDesigner
+internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
 {
     public ServiceDesigner(DesignStore designStore, ModelNode modelNode)
     {
@@ -197,11 +198,17 @@ internal sealed class ServiceDesigner : View, ICodeDesigner
             if (methodInfo.Args.Length > 0)
                 throw new Exception("暂未实现带参数的服务方法调试");
 
-            await ServiceDebugging.StartDebugging(ModelNode, methodInfo, AnyArgs.Empty /*TODO:*/);
+            await ClientDebugManager.StartDebugService(ModelNode, methodInfo, AnyArgs.Empty /*TODO:*/);
         }
         catch (Exception ex)
         {
             Notification.Error($"调试服务方法错误: {ex.Message}");
         }
+    }
+
+    void IDebuggableCodeDesigner.OnDebugEvent(IDebugEventArgs eventArgs)
+    {
+        //TODO:
+        Notification.Error($"收到调试事件: {eventArgs.GetType().Name}");
     }
 }
