@@ -360,6 +360,11 @@ public static class InputStreamExtensions
     public static object? Deserialize(this IInputStream s)
     {
         var payloadType = (PayloadType)s.ReadByte();
+        return s.ReadObject(payloadType);
+    }
+
+    internal static object? ReadObject(this IInputStream s, PayloadType payloadType)
+    {
         switch (payloadType)
         {
             case PayloadType.Null: return null;

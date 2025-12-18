@@ -155,7 +155,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             PayloadType.DateTime => stream.ReadDateTime(),
             PayloadType.Guid => stream.ReadGuid(),
             PayloadType.String => stream.ReadString() ?? Empty,
-            _ => From(stream.Deserialize())
+            _ => From(stream.ReadObject(payloadType))
         };
     }
 
