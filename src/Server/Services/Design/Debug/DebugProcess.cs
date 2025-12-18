@@ -18,6 +18,7 @@ internal sealed class DebugProcess
 
     private readonly IUserSession _session;
     private readonly MIParser _parser;
+    private Process? _process;
 
     public void Start(string sessionName, string serviceMethod)
     {
@@ -39,7 +40,13 @@ internal sealed class DebugProcess
         process.Start();
         StartReadOutput(process);
 
-        process.StandardInput.WriteLine("-exec-run");
+        _process = process;
+        SendCommand("-exec-run");
+    }
+
+    private void SendCommand(string command)
+    {
+        _process?.StandardInput.WriteLine(command);
     }
 
     private void StartReadOutput(Process process)
@@ -68,12 +75,29 @@ internal sealed class DebugProcess
 
     private void OnDebuggerOutput(MIOutOfBandRecord record)
     {
-        Console.WriteLine(record);
+        Console.WriteLine($"{record.GetType().Name}: {record}");
+
+        //判断stopped的情况
+        if (record is MIAsyncRecord asyncRecord && asyncRecord.Output.Class == MIAsyncOutputClass.Stopped)
+        {
+            if (asyncRecord.Output.Results.TryGetValue("reason", out var reason) && reason is MIConst value)
+            {
+                //如果是entry-point-hit，暂自动继续执行
+                if (value.CString == "entry-point-hit")
+                {
+                    SendCommand("-exec-continue");
+                }
+                else if (value.CString == "exited")
+                {
+                    SendCommand("-gdb-exit");
+                }
+            }
+        }
     }
 
     private void OnDebuggerResult(MIResultRecord record)
     {
-        Console.WriteLine(record);
+        Console.WriteLine($"{record.GetType().Name}: {record}");
     }
 
     private static void OnErrorDataReceived(object sender, DataReceivedEventArgs e)

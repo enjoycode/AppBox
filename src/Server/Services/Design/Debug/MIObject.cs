@@ -100,7 +100,7 @@ public abstract class MIListElement
     public readonly MIListElementType ElementType;
 }
 
-public class MIValue : MIListElement
+public abstract class MIValue : MIListElement
 {
     public MIValue(MIValueType type)
         : base(MIListElementType.Value) { }
@@ -110,7 +110,7 @@ public class MIValue : MIListElement
     public MIListElementType Type;
 }
 
-public class MITuple : MIValue, IEnumerable
+public sealed class MITuple : MIValue, IEnumerable
 {
     public MITuple() : base(MIValueType.Tuple)
     {
@@ -171,7 +171,7 @@ public class MITuple : MIValue, IEnumerable
     private Dictionary<string, MIValue> _results;
 }
 
-public class MIList : MIValue, IEnumerable
+public sealed class MIList : MIValue, IEnumerable
 {
     public MIList() : base(MIValueType.List)
     {
@@ -253,7 +253,7 @@ public class MIList : MIValue, IEnumerable
     private readonly List<MIListElement> _elements;
 }
 
-public class MIConst : MIValue
+public sealed class MIConst : MIValue
 {
     public MIConst(string cstring) : base(MIValueType.Const)
     {
@@ -267,121 +267,118 @@ public class MIConst : MIValue
     // return c-string without escape sequences
     // https://en.wikipedia.org/wiki/Escape_sequences_in_C
     // throw exception for invalid c-string
-    public string String
+    public string GetString()
     {
-        get
+        var sb = new StringBuilder();
+        try
         {
-            var sb = new StringBuilder();
-            try
+            for (int i = 0; i < CString.Length;)
             {
-                for (int i = 0; i < CString.Length;)
+                if (CString[i] == '\\')
                 {
-                    if (CString[i] == '\\')
+                    char c;
+                    int hex;
+                    switch (CString[i + 1])
                     {
-                        char c;
-                        int hex;
-                        switch (CString[i + 1])
-                        {
-                            case 'a':
-                                c = '\a';
-                                i += 2;
-                                break;
-                            case 'b':
-                                c = '\b';
-                                i += 2;
-                                break;
-                            case 'f':
-                                c = '\f';
-                                i += 2;
-                                break;
-                            case 'n':
-                                c = '\n';
-                                i += 2;
-                                break;
-                            case 'r':
-                                c = '\r';
-                                i += 2;
-                                break;
-                            case 't':
-                                c = '\t';
-                                i += 2;
-                                break;
-                            case 'v':
-                                c = '\v';
-                                i += 2;
-                                break;
-                            case '\\':
-                                c = '\\';
-                                i += 2;
-                                break;
-                            case '\'':
-                                c = '\'';
-                                i += 2;
-                                break;
-                            case '\"':
-                                c = '\"';
-                                i += 2;
-                                break;
-                            case '?':
-                                c = '\u003f';
-                                i += 2;
-                                break;
-                            case '0':
-                            case '1':
-                            case '2':
-                            case '3':
-                            case '4':
-                            case '5':
-                            case '6':
-                            case '7':
-                                int num2 = CString[i + 2] - '0';
-                                int num1 = CString[i + 3] - '0';
-                                int num0 = CString[i + 4] - '0';
-                                c = (char)(num2 * 64 + num1 * 8 + num0);
-                                i += 5;
-                                break;
-                            case 'e':
-                                c = '\u001b';
-                                i += 2;
-                                break;
-                            case 'U':
-                                hex = Int32.Parse(CString.Substring(i + 2, i + 10),
-                                    System.Globalization.NumberStyles.HexNumber);
-                                c = (char)hex;
-                                i += 11;
-                                break;
-                            case 'u':
-                                hex = Int32.Parse(CString.Substring(i + 2, i + 6),
-                                    System.Globalization.NumberStyles.HexNumber);
-                                c = (char)hex;
-                                i += 7;
-                                break;
-                            default:
-                                throw new FormatException();
-                        }
+                        case 'a':
+                            c = '\a';
+                            i += 2;
+                            break;
+                        case 'b':
+                            c = '\b';
+                            i += 2;
+                            break;
+                        case 'f':
+                            c = '\f';
+                            i += 2;
+                            break;
+                        case 'n':
+                            c = '\n';
+                            i += 2;
+                            break;
+                        case 'r':
+                            c = '\r';
+                            i += 2;
+                            break;
+                        case 't':
+                            c = '\t';
+                            i += 2;
+                            break;
+                        case 'v':
+                            c = '\v';
+                            i += 2;
+                            break;
+                        case '\\':
+                            c = '\\';
+                            i += 2;
+                            break;
+                        case '\'':
+                            c = '\'';
+                            i += 2;
+                            break;
+                        case '\"':
+                            c = '\"';
+                            i += 2;
+                            break;
+                        case '?':
+                            c = '\u003f';
+                            i += 2;
+                            break;
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                            int num2 = CString[i + 2] - '0';
+                            int num1 = CString[i + 3] - '0';
+                            int num0 = CString[i + 4] - '0';
+                            c = (char)(num2 * 64 + num1 * 8 + num0);
+                            i += 5;
+                            break;
+                        case 'e':
+                            c = '\u001b';
+                            i += 2;
+                            break;
+                        case 'U':
+                            hex = Int32.Parse(CString.Substring(i + 2, i + 10),
+                                System.Globalization.NumberStyles.HexNumber);
+                            c = (char)hex;
+                            i += 11;
+                            break;
+                        case 'u':
+                            hex = Int32.Parse(CString.Substring(i + 2, i + 6),
+                                System.Globalization.NumberStyles.HexNumber);
+                            c = (char)hex;
+                            i += 7;
+                            break;
+                        default:
+                            throw new FormatException();
+                    }
 
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        sb.Append(CString[i]);
-                        i++;
-                    }
+                    sb.Append(c);
+                }
+                else
+                {
+                    sb.Append(CString[i]);
+                    i++;
                 }
             }
-            catch
-            {
-                throw new FormatException("Invalid c-string");
-            }
-
-            return sb.ToString();
         }
+        catch
+        {
+            throw new FormatException("Invalid c-string");
+        }
+
+        return sb.ToString();
     }
 
-    public int Int => int.Parse(CString);
+    public int GetInt() => int.Parse(CString);
 }
 
-public class MIResult : MIListElement
+public sealed class MIResult : MIListElement
 {
     public MIResult(string variable, MIValue val) : base(MIListElementType.Result)
     {
@@ -416,9 +413,7 @@ public sealed class MIAsyncRecord : MIOutOfBandRecord
         var sb = new StringBuilder();
 
         if (Token != null)
-        {
             sb.Append(Token);
-        }
 
         sb.Append(Class);
         sb.Append(Output);
@@ -431,7 +426,7 @@ public sealed class MIAsyncRecord : MIOutOfBandRecord
     public readonly MIAsyncOutput Output;
 }
 
-public class MIStreamRecord : MIOutOfBandRecord
+public sealed class MIStreamRecord : MIOutOfBandRecord
 {
     public MIStreamRecord(MIStreamRecordClass cl, MIConst constant)
         : base(MIOutOfBandRecordType.Stream)
@@ -446,7 +441,7 @@ public class MIStreamRecord : MIOutOfBandRecord
     public readonly MIConst Const;
 }
 
-public class MIAsyncOutput
+public sealed class MIAsyncOutput
 {
     public MIAsyncOutput(MIAsyncOutputClass cl, MIResult[]? results)
     {
@@ -469,6 +464,8 @@ public class MIAsyncOutput
         foreach (var result in Results)
         {
             sb.Append(',');
+            sb.Append(result.Key);
+            sb.Append('=');
             sb.Append(result.Value);
         }
 
@@ -499,7 +496,7 @@ public readonly struct MIResultClass
     public readonly string Representation;
 }
 
-public class MIAsyncOutputClass
+public readonly struct MIAsyncOutputClass : IEquatable<MIAsyncOutputClass>
 {
     public static MIAsyncOutputClass Stopped { get; private set; } = new("stopped");
 
@@ -508,17 +505,27 @@ public class MIAsyncOutputClass
         return new MIAsyncOutputClass(representation);
     }
 
-    public override string ToString() => Represenation;
-
     private MIAsyncOutputClass(string representation)
     {
         Represenation = representation;
     }
 
     public readonly string Represenation;
+
+    public override string ToString() => Represenation;
+
+    public bool Equals(MIAsyncOutputClass other) => Represenation == other.Represenation;
+
+    public override bool Equals(object? obj) => obj is MIAsyncOutputClass other && Equals(other);
+
+    public override int GetHashCode() => Represenation.GetHashCode();
+
+    public static bool operator ==(MIAsyncOutputClass left, MIAsyncOutputClass right) => left.Equals(right);
+
+    public static bool operator !=(MIAsyncOutputClass left, MIAsyncOutputClass right) => !(left == right);
 }
 
-public class MIAsyncRecordClass
+public readonly struct MIAsyncRecordClass
 {
     public static MIAsyncRecordClass Exec { get; private set; } = new("*");
     public static MIAsyncRecordClass Status { get; private set; } = new("+");
@@ -534,14 +541,10 @@ public class MIAsyncRecordClass
     public readonly string Represenation;
 }
 
-public class MIStreamRecordClass
+public readonly struct MIStreamRecordClass
 {
-    public override string ToString() => Represenation;
-
     public static MIStreamRecordClass Console { get; private set; } = new("~");
-
     public static MIStreamRecordClass Target { get; private set; } = new("@");
-
     public static MIStreamRecordClass Log { get; private set; } = new("&");
 
     private MIStreamRecordClass(string representation)
@@ -550,4 +553,6 @@ public class MIStreamRecordClass
     }
 
     public readonly string Represenation;
+
+    public override string ToString() => Represenation;
 }
