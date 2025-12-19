@@ -29,7 +29,7 @@ internal sealed class DebugProcess
         var debuggerFile = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Path.Combine(AppContext.BaseDirectory, "Debugger", "netcoredbg.exe")
             : Path.Combine(AppContext.BaseDirectory, "Debugger", "netcoredbg");
-        var runnerFile = Path.Combine(AppContext.BaseDirectory, "ServiceDebugger.dll");
+        var runnerFile = Path.Combine(AppContext.BaseDirectory, "ServiceRunner.dll");
         process.StartInfo.FileName = debuggerFile;
         process.StartInfo.Arguments = $"--interpreter=mi -- dotnet {runnerFile} {sessionName} {serviceMethod}";
         process.StartInfo.UseShellExecute = false;

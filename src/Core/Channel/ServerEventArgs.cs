@@ -7,6 +7,9 @@ public interface IServerEventArgs
     ref readonly AnyValue this[int index] { get; }
 }
 
+/// <summary>
+/// 服务端事件参数,用于包装AnyArgs以便多个事件订阅者共享读取参数
+/// </summary>
 public sealed class ServerEventArgs : IServerEventArgs
 {
     internal ServerEventArgs(IInputStream stream)

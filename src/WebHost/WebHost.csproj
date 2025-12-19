@@ -21,7 +21,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Core\Core.csproj"/>
         <ProjectReference Include="..\Server\Server.csproj"/>
-        <ProjectReference Include="..\ServiceDebugger\ServiceDebugger.csproj" />
+        <ProjectReference Include="..\ServiceRunner\ServiceRunner.csproj" />
         <ProjectReference Include="..\Store.Initiator\Store.Initiator.csproj"/>
         <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj"/>
         <ProjectReference Include="..\Store\Store.csproj"/>
