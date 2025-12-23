@@ -44,8 +44,7 @@ internal static class ClientDebugManager
     /// <summary>
     /// 开始调试服务模型
     /// </summary>
-    public static async Task StartDebugService<T>(ModelNode modelNode, ServiceMethodInfo methodInfo, T args)
-        where T : struct, IAnyArgs
+    public static async Task StartDebugService(ModelNode modelNode, ServiceMethodInfo methodInfo, int[] breakpoints)
     {
         var hub = DesignHub.Current;
         var serviceModel = (ServiceModel)modelNode.Model;
@@ -66,9 +65,15 @@ internal static class ClientDebugManager
             //写入模型标识
             w.WriteLong(serviceModel.Id);
             //写入待调试的服务方法
-            w.WriteString($"{appName}.{serviceName}");
+            w.WriteString(appName);
+            w.WriteString(serviceName);
             w.WriteString(methodInfo.Name);
-            //TODO:写入Breakpoints
+            //写入Breakpoints
+            w.WriteVariant(breakpoints.Length);
+            for (var i = 0; i < breakpoints.Length; i++)
+            {
+                w.WriteInt(breakpoints[i]);
+            }
             //TODO:最后写入调用参数
         });
     }

@@ -1,11 +1,17 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace AppBoxCore;
 
 /// <summary>
 /// 动态数据行
 /// </summary>
+[JsonConverter(typeof(DataRowJsonConverter))]
 public sealed class DataRow
 {
     private readonly Dictionary<string, DataCell> _fields = new();
+    internal Dictionary<string, DataCell> Fields => _fields;
+
     public PersistentState PersistentState { get; private set; } = PersistentState.Detached;
 
     public DataCell this[string name]
@@ -103,4 +109,38 @@ public sealed class DataRow
     }
 
     #endregion
+}
+
+public sealed class DataRowJsonConverter : JsonConverter<DataRow>
+{
+    public override void Write(Utf8JsonWriter writer, DataRow value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+
+        writer.WriteNumber(nameof(PersistentState), (int)value.PersistentState);
+
+        foreach (var kv in value.Fields)
+        {
+            writer.WritePropertyName(kv.Key);
+            JsonSerializer.Serialize(writer, kv.Value.BoxedValue, options); //TODO: use DataCell.WriteTo()
+        }
+
+        writer.WriteEndObject();
+    }
+
+    public override DataRow? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotImplementedException();
+        // var dataRow = new DataRow();
+        // while (reader.Read())
+        // {
+        //     if (reader.TokenType == JsonTokenType.EndObject)
+        //         break;
+        //     if (reader.TokenType == JsonTokenType.PropertyName)
+        //     {
+        //         var propName = reader.GetString();
+        //         dataRow.Fields.Add(propName, JsonSerializer.Deserialize());
+        //     }
+        // }
+    }
 }

@@ -70,9 +70,10 @@ catch (Exception e)
     return;
 }
 
-//模拟当前用户
+//TODO:模拟当前用户
 
-//反序列化调用请求的参数，并开始执行方法
-
+//TODO:反序列化调用请求的参数，并开始执行方法
+var result = await RuntimeContext.Current.InvokeAsync(serviceMethod, AnyArgs.Empty /*TODO:*/);
+Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(result.BoxedValue));
 
 NanoLog.NanoLogger.Stop();

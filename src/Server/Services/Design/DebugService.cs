@@ -39,12 +39,21 @@ internal static class DebugService
 
         var session = RuntimeContext.CurrentSession!;
         var modelId = stream.ReadLong();
-        var service = stream.ReadString()!; //eg: erp.OrderService
+        var appName = stream.ReadString()!;
+        var serviceName = stream.ReadString()!;
         var methodName = stream.ReadString()!; //eg: SaveOrder
-        //TODO: 读取Breakpoints并将调用参数写入args.bin文件
+        //读取Breakpoints
+        var breakpointCount = stream.ReadVariant();
+        var breakpoints = new int[breakpointCount];
+        for (var i = 0; i < breakpointCount; i++)
+        {
+            breakpoints[i] = stream.ReadInt();
+        }
+
+        //TODO: 将调用参数写入args.bin备用
 
         //启动netcoredbg进程
         var debugProcess = new DebugProcess(session, modelId);
-        debugProcess.Start(session.Name, $"{service}.{methodName}");
+        debugProcess.Start(session.Name, appName, serviceName, methodName, breakpoints);
     }
 }

@@ -23,7 +23,7 @@ internal sealed class DebugProcess
     private readonly MIParser _parser;
     private Process? _process;
 
-    public void Start(string sessionName, string serviceMethod)
+    public void Start(string sessionName, string appName, string serviceName, string methodName, int[] breakpoints)
     {
         var process = new Process();
         var debuggerFile = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
@@ -31,7 +31,8 @@ internal sealed class DebugProcess
             : Path.Combine(AppContext.BaseDirectory, "Debugger", "netcoredbg");
         var runnerFile = Path.Combine(AppContext.BaseDirectory, "ServiceRunner.dll");
         process.StartInfo.FileName = debuggerFile;
-        process.StartInfo.Arguments = $"--interpreter=mi -- dotnet {runnerFile} {sessionName} {serviceMethod}";
+        process.StartInfo.Arguments =
+            $"--interpreter=mi -- dotnet {runnerFile} {sessionName} {appName}.{serviceName}.{methodName}";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;
@@ -44,7 +45,20 @@ internal sealed class DebugProcess
         StartReadOutput(process);
 
         _process = process;
+        SendCommand("-gdb-set just-my-code 1");
+        var serviceFileName = $"{appName}.Services.{serviceName}.cs";
+        // SendCommand($"-break-insert -f ServiceRunner.cs:Program.Main");
+        AddBreakpoints(serviceFileName, breakpoints);
         SendCommand("-exec-run");
+    }
+
+    private void AddBreakpoints(string fileName, int[] breakpoints)
+    {
+        for (var i = 0; i < breakpoints.Length; i++)
+        {
+            //SendCommand($"-break-insert {fileName}:{breakpoints[i]}");
+            SendCommand($"-break-insert -f {fileName}:{breakpoints[i]}");
+        }
     }
 
     private void SendCommand(string command)

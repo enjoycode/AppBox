@@ -36,11 +36,11 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     {
         return new Column()
         {
-            Children = new Widget[]
-            {
+            Children =
+            [
                 BuildActionBar(),
-                new Expanded() { Child = new CodeEditorWidget(codeEditorController) },
-            }
+                new Expanded() { Child = new CodeEditorWidget(codeEditorController) }
+            ]
         };
     }
 
@@ -198,7 +198,12 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
             if (methodInfo.Args.Length > 0)
                 throw new Exception("暂未实现带参数的服务方法调试");
 
-            await ClientDebugManager.StartDebugService(ModelNode, methodInfo, AnyArgs.Empty /*TODO:*/);
+            // collect breakpoints (TODO: 暂不考虑断点表达式)
+            var breakpoints = _codeEditorController.Document.BookmarkManager.Marks
+                .Select(m => m.LineNumber)
+                .ToArray();
+
+            await ClientDebugManager.StartDebugService(ModelNode, methodInfo, breakpoints);
         }
         catch (Exception ex)
         {
