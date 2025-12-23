@@ -2,6 +2,8 @@
 using AppBoxCore;
 using AppBoxStore;
 using AppBoxServer;
+using NanoLog;
+using ServiceDebugger;
 
 //验证参数：
 // 0 = 调试会话标识
@@ -28,7 +30,7 @@ var appName = sr[0];
 var serviceName = sr[1];
 var methodName = sr[2];
 
-NanoLog.NanoLogger.Start();
+NanoLogger.Start( /*new NanoLoggerOptions().AddLogger(new UnitTestConsoleLogger())*/);
 
 //临时方案Console输出编码问题
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -73,7 +75,18 @@ catch (Exception e)
 //TODO:模拟当前用户
 
 //TODO:反序列化调用请求的参数，并开始执行方法
-var result = await RuntimeContext.Current.InvokeAsync(serviceMethod, AnyArgs.Empty /*TODO:*/);
-Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(result.BoxedValue));
+InvokeResult invokeResult;
+try
+{
+    var result = await RuntimeContext.Current.InvokeAsync(serviceMethod, AnyArgs.Empty /*TODO:*/);
+    invokeResult = new InvokeResult() { Result = result.BoxedValue };
+}
+catch (Exception e)
+{
+    invokeResult = new InvokeResult() { ErrorMessage = e.Message };
+}
 
-NanoLog.NanoLogger.Stop();
+Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(invokeResult));
+
+
+NanoLogger.Stop();

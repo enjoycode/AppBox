@@ -45,9 +45,8 @@ internal sealed class DebugProcess
         StartReadOutput(process);
 
         _process = process;
-        SendCommand("-gdb-set just-my-code 1");
+        //SendCommand("-gdb-set just-my-code 1");
         var serviceFileName = $"{appName}.Services.{serviceName}.cs";
-        // SendCommand($"-break-insert -f ServiceRunner.cs:Program.Main");
         AddBreakpoints(serviceFileName, breakpoints);
         SendCommand("-exec-run");
     }
@@ -56,7 +55,6 @@ internal sealed class DebugProcess
     {
         for (var i = 0; i < breakpoints.Length; i++)
         {
-            //SendCommand($"-break-insert {fileName}:{breakpoints[i]}");
             SendCommand($"-break-insert -f {fileName}:{breakpoints[i]}");
         }
     }
