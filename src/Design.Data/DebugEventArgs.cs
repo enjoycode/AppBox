@@ -57,16 +57,18 @@ public sealed class DebugEventArgs : IBinSerializable
 /// </summary>
 public sealed class HitBreakpoint : IDebugEventArgs
 {
+    public int LineNumber { get; set; }
+
     public DebugEventType EventType => DebugEventType.HitBreakpoint;
 
     public void WriteTo(IOutputStream ws)
     {
-        throw new NotImplementedException();
+        ws.WriteInt(LineNumber);
     }
 
     public void ReadFrom(IInputStream rs)
     {
-        throw new NotImplementedException();
+        LineNumber = rs.ReadInt();
     }
 }
 
@@ -75,14 +77,7 @@ public sealed class HitBreakpoint : IDebugEventArgs
 /// </summary>
 public sealed class DebuggerExited : IDebugEventArgs
 {
-    internal DebuggerExited() { }
-
-    public DebuggerExited(int exitCode)
-    {
-        ExitCode = exitCode;
-    }
-
-    public int ExitCode { get; private set; }
+    public int ExitCode { get; set; }
 
     public DebugEventType EventType => DebugEventType.DebuggerExited;
 

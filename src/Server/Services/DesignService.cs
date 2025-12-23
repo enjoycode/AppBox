@@ -82,7 +82,10 @@ internal sealed class DesignService : IService
                 await DebugService.UploadAssembly(args.InputStream!);
                 return AnyValue.Empty;
             case "StartDebugService":
-                await DebugService.StartDebugService(args.InputStream!);
+                DebugService.StartDebugService(args.InputStream!);
+                return AnyValue.Empty;
+            case "ResumeDebugService":
+                DebugService.ResumeDebugService();
                 return AnyValue.Empty;
             default:
                 throw new Exception($"Unknown design method: {method}");

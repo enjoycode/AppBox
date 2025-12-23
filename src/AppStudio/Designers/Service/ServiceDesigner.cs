@@ -29,8 +29,12 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     public ModelNode ModelNode { get; }
     private readonly CodeEditorController _codeEditorController;
     private readonly DelayTask _delayDocChangedTask;
-
     private ILocation? _pendingGoto;
+    private readonly State<int> _debuggingState = DebuggingStateNone;
+    private const int DebuggingStateNone = 0;
+    private const int DebuggingStateRunning = 1;
+    private const int DebuggingStateStopped = 2;
+    private Bookmark? _stoppedBookmark;
 
     private Widget BuildEditor(CodeEditorController codeEditorController)
     {
@@ -53,7 +57,26 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
             Children =
             [
                 new Button("Run") { Width = 75, OnTap = OnRunMethod },
-                new Button("Debug") { Width = 75, OnTap = OnDebugMethod }
+                new Button("Debug")
+                {
+                    Width = 75, OnTap = OnDebugMethod,
+                    Enabled = _debuggingState.ToComputed(s => s == DebuggingStateNone)
+                },
+                new ButtonGroup()
+                {
+                    Children =
+                    [
+                        new Button("Resume", MaterialIcons.SkipNext)
+                        {
+                            Enabled = _debuggingState.ToComputed(s => s == DebuggingStateStopped),
+                            OnTap = _ => OnResumeDebugging()
+                        },
+                        new Button("StepOver", MaterialIcons.NavigateNext)
+                        {
+                            Enabled = _debuggingState.ToComputed(s => s == DebuggingStateStopped)
+                        },
+                    ]
+                }
             ]
         }
     };
@@ -204,6 +227,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
                 .ToArray();
 
             await ClientDebugManager.StartDebugService(ModelNode, methodInfo, breakpoints);
+            _debuggingState.Value = DebuggingStateRunning;
         }
         catch (Exception ex)
         {
@@ -215,5 +239,42 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     {
         //TODO:
         Notification.Error($"收到调试事件: {eventArgs.GetType().Name}");
+
+        if (eventArgs is HitBreakpoint hitBreakpoint)
+        {
+            _debuggingState.Value = DebuggingStateStopped;
+            var breakpoint = FindBreakpoint(hitBreakpoint.LineNumber - 1 /*TODO:确认-1*/);
+            if (breakpoint != null)
+            {
+                _stoppedBookmark = breakpoint;
+                breakpoint.IsHighlighted = true;
+            }
+        }
+        else if (eventArgs is DebuggerExited debuggerExited)
+        {
+            _debuggingState.Value = DebuggingStateNone;
+        }
+    }
+
+    private Bookmark? FindBreakpoint(int line)
+    {
+        var bookmarkManager = _codeEditorController.Document.BookmarkManager;
+        var found = bookmarkManager.GetFirstMark(b => b.LineNumber == line);
+        return found;
+    }
+
+    private async void OnResumeDebugging()
+    {
+        if (_stoppedBookmark != null)
+            _stoppedBookmark.IsHighlighted = false;
+
+        try
+        {
+            await ClientDebugManager.ResumeDebugService();
+        }
+        catch (Exception e)
+        {
+            Notification.Error("Resume debugging error: " + e.Message);
+        }
     }
 }

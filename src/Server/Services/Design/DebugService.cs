@@ -5,6 +5,8 @@ namespace AppBoxServer.Design;
 
 internal static class DebugService
 {
+    private static readonly Dictionary<string, DebugProcess> DebugProcesses = new();
+
     private static string GetDebugFolderPath()
     {
         var session = RuntimeContext.CurrentSession!;
@@ -31,13 +33,19 @@ internal static class DebugService
     /// <summary>
     /// 开始服务调试
     /// </summary>
-    internal static async Task StartDebugService(IInputStream stream)
+    internal static void StartDebugService(IInputStream stream)
     {
         var debugPath = GetDebugFolderPath();
         if (!Directory.Exists(debugPath))
             throw new Exception("Debug service directory not found");
 
         var session = RuntimeContext.CurrentSession!;
+        lock (DebugProcesses)
+        {
+            if (DebugProcesses.ContainsKey(session.Name))
+                throw new Exception("Debugging already started");
+        }
+
         var modelId = stream.ReadLong();
         var appName = stream.ReadString()!;
         var serviceName = stream.ReadString()!;
@@ -54,6 +62,32 @@ internal static class DebugService
 
         //启动netcoredbg进程
         var debugProcess = new DebugProcess(session, modelId);
+        lock (DebugProcesses)
+        {
+            DebugProcesses.Add(session.Name, debugProcess);
+        }
+
         debugProcess.Start(session.Name, appName, serviceName, methodName, breakpoints);
+    }
+
+    internal static void ResumeDebugService()
+    {
+        var session = RuntimeContext.CurrentSession!;
+        DebugProcess? process;
+        lock (DebugProcesses)
+        {
+            if (!DebugProcesses.TryGetValue(session.Name, out process))
+                throw new Exception("Debugging not started");
+        }
+
+        process.Resume();
+    }
+
+    internal static void OnProcessExited(string sessionName)
+    {
+        lock (DebugProcesses)
+        {
+            DebugProcesses.Remove(sessionName);
+        }
     }
 }

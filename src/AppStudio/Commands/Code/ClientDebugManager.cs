@@ -72,9 +72,14 @@ internal static class ClientDebugManager
             w.WriteVariant(breakpoints.Length);
             for (var i = 0; i < breakpoints.Length; i++)
             {
-                w.WriteInt(breakpoints[i]);
+                w.WriteInt(breakpoints[i] + 1 /*暂加1行*/);
             }
             //TODO:最后写入调用参数
         });
+    }
+
+    public static Task ResumeDebugService()
+    {
+        return Channel.Invoke("sys.DesignService.ResumeDebugService");
     }
 }

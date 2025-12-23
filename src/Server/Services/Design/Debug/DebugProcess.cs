@@ -64,6 +64,11 @@ internal sealed class DebugProcess
         _process?.StandardInput.WriteLine(command);
     }
 
+    internal void Resume()
+    {
+        SendCommand("-exec-continue");
+    }
+
     private void StartReadOutput(Process process)
     {
         //TODO: https://learn.microsoft.com/en-us/dotnet/standard/io/pipelines
@@ -95,17 +100,24 @@ internal sealed class DebugProcess
         //判断stopped的情况
         if (record is MIAsyncRecord asyncRecord && asyncRecord.Output.Class == MIAsyncOutputClass.Stopped)
         {
-            if (asyncRecord.Output.Results.TryGetValue("reason", out var reason) && reason is MIConst value)
+            var outputResults = asyncRecord.Output.Results;
+            if (outputResults.TryGetValue("reason", out var reason) && reason is MIConst value)
             {
                 //如果是entry-point-hit，暂自动继续执行
                 if (value.CString == "entry-point-hit")
                 {
                     SendCommand("-exec-continue");
                 }
+                else if (value.CString == "breakpoint-hit")
+                {
+                    var frame = ((MITuple)outputResults["frame"]);
+                    var lineNumber = ((MIConst)frame["line"]).GetInt();
+                    RaiseDebugEvent(new HitBreakpoint() { LineNumber = lineNumber });
+                }
                 else if (value.CString == "exited")
                 {
                     SendCommand("-gdb-exit");
-                    RaiseDebugEvent(new DebuggerExited(0 /*TODO:*/));
+                    RaiseDebugEvent(new DebuggerExited { ExitCode = 0 /*TODO*/ });
                 }
             }
         }
@@ -116,15 +128,16 @@ internal sealed class DebugProcess
         Console.WriteLine($"{record.GetType().Name}: {record}");
     }
 
-    private static void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
+    private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Data))
-            Logger.Error($"Debugger error: {e.Data}");
+            Logger.Error($"[{_session.Name}] Debugger error: {e.Data}");
     }
 
-    private static void OnProcessExited(object? sender, EventArgs e)
+    private void OnProcessExited(object? sender, EventArgs e)
     {
-        Logger.Info("Debugger process exited");
+        DebugService.OnProcessExited(_session.Name);
+        Logger.Info($"[{_session.Name}] Debugger process exited");
     }
 
     /// <summary>

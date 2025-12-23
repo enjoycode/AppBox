@@ -141,7 +141,7 @@ public sealed class SerializationTest
     [Test]
     public void DebugEventArgsTest()
     {
-        var eventArgs1 = new DebugEventArgs(12345678, new DebuggerExited(-1));
+        var eventArgs1 = new DebugEventArgs(12345678, new DebuggerExited { ExitCode = -1 });
         var args1 = AnyArgs.Make(eventArgs1);
 
         //序列化

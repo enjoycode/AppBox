@@ -514,6 +514,8 @@ public readonly struct MIAsyncOutputClass : IEquatable<MIAsyncOutputClass>
 
     public override string ToString() => Represenation;
 
+    #region ====IEquatable====
+
     public bool Equals(MIAsyncOutputClass other) => Represenation == other.Represenation;
 
     public override bool Equals(object? obj) => obj is MIAsyncOutputClass other && Equals(other);
@@ -523,6 +525,8 @@ public readonly struct MIAsyncOutputClass : IEquatable<MIAsyncOutputClass>
     public static bool operator ==(MIAsyncOutputClass left, MIAsyncOutputClass right) => left.Equals(right);
 
     public static bool operator !=(MIAsyncOutputClass left, MIAsyncOutputClass right) => !(left == right);
+
+    #endregion
 }
 
 public readonly struct MIAsyncRecordClass
