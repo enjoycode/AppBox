@@ -82,4 +82,12 @@ internal static class ClientDebugManager
     {
         return Channel.Invoke("sys.DesignService.ResumeDebugService");
     }
+
+    public static async Task<EvaluateResult> EvaluateExpression(string expression)
+    {
+        var result = await Channel.Invoke<DebugEventArgs>("sys.DesignService.DebugEvaluate", [expression]);
+        if (result == null)
+            throw new Exception("EvaluateResult is null");
+        return (EvaluateResult)result.EventArgs;
+    }
 }

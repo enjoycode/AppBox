@@ -87,6 +87,8 @@ internal sealed class DesignService : IService
             case "ResumeDebugService":
                 DebugService.ResumeDebugService();
                 return AnyValue.Empty;
+            case "DebugEvaluate":
+                return AnyValue.From(await DebugService.Evaluate(args.GetString()!));
             default:
                 throw new Exception($"Unknown design method: {method}");
         }

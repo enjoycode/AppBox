@@ -51,6 +51,8 @@ public sealed class MIResultRecord
         foreach (var pair in _results)
         {
             sb.Append(',');
+            sb.Append(pair.Key);
+            sb.Append('=');
             sb.Append(pair.Value);
         }
 

@@ -34,7 +34,7 @@ internal sealed class DesignStore
     internal readonly TabController<DesignNode> DesignerController = new(new List<DesignNode>());
 
     internal readonly TabController<string> BottomPadController =
-        new(new List<string> { "Problems", "Usages", "Output" });
+        new(new List<string> { "Problems", "Usages", "Debug" });
 
     /// <summary>
     ///  问题列表控制器
@@ -51,9 +51,7 @@ internal sealed class DesignStore
         get
         {
             var selectedIndex = DesignerController.SelectedIndex;
-            if (selectedIndex < 0)
-                return null;
-            return DesignerController.GetAt(selectedIndex).Designer;
+            return selectedIndex < 0 ? null : DesignerController.GetAt(selectedIndex).Designer;
         }
     }
 

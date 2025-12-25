@@ -1,11 +1,13 @@
+using System.Collections.Concurrent;
 using AppBoxCore;
+using AppBoxDesign.Debugging;
 using static AppBoxServer.ServerLogger;
 
 namespace AppBoxServer.Design;
 
 internal static class DebugService
 {
-    private static readonly Dictionary<string, DebugProcess> DebugProcesses = new();
+    private static readonly ConcurrentDictionary<string, DebugProcess> Processes = new();
 
     private static string GetDebugFolderPath()
     {
@@ -40,12 +42,6 @@ internal static class DebugService
             throw new Exception("Debug service directory not found");
 
         var session = RuntimeContext.CurrentSession!;
-        lock (DebugProcesses)
-        {
-            if (DebugProcesses.ContainsKey(session.Name))
-                throw new Exception("Debugging already started");
-        }
-
         var modelId = stream.ReadLong();
         var appName = stream.ReadString()!;
         var serviceName = stream.ReadString()!;
@@ -62,10 +58,8 @@ internal static class DebugService
 
         //启动netcoredbg进程
         var debugProcess = new DebugProcess(session, modelId);
-        lock (DebugProcesses)
-        {
-            DebugProcesses.Add(session.Name, debugProcess);
-        }
+        if (!Processes.TryAdd(session.Name, debugProcess))
+            throw new Exception("Debugging already started");
 
         debugProcess.Start(session.Name, appName, serviceName, methodName, breakpoints);
     }
@@ -73,21 +67,23 @@ internal static class DebugService
     internal static void ResumeDebugService()
     {
         var session = RuntimeContext.CurrentSession!;
-        DebugProcess? process;
-        lock (DebugProcesses)
-        {
-            if (!DebugProcesses.TryGetValue(session.Name, out process))
-                throw new Exception("Debugging not started");
-        }
+        if (!Processes.TryGetValue(session.Name, out var process))
+            throw new Exception("Debugging not started");
 
         process.Resume();
     }
 
+    internal static Task<DebugEventArgs> Evaluate(string expression)
+    {
+        var session = RuntimeContext.CurrentSession!;
+        if (!Processes.TryGetValue(session.Name, out var process))
+            throw new Exception("Debugging not started");
+
+        return process.Evaluate(expression);
+    }
+
     internal static void OnProcessExited(string sessionName)
     {
-        lock (DebugProcesses)
-        {
-            DebugProcesses.Remove(sessionName);
-        }
+        Processes.TryRemove(sessionName, out _);
     }
 }

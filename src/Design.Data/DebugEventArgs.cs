@@ -5,6 +5,7 @@ namespace AppBoxDesign.Debugging;
 public enum DebugEventType : byte
 {
     HitBreakpoint = 1,
+    EvaluateResult = 2,
     DebuggerExited = 255,
 }
 
@@ -46,6 +47,7 @@ public sealed class DebugEventArgs : IBinSerializable
         {
             DebugEventType.DebuggerExited => new DebuggerExited(),
             DebugEventType.HitBreakpoint => new HitBreakpoint(),
+            DebugEventType.EvaluateResult => new EvaluateResult(),
             _ => throw new Exception($"Unknown event type: {eventType}")
         };
         EventArgs.ReadFrom(rs);
@@ -89,5 +91,44 @@ public sealed class DebuggerExited : IDebugEventArgs
     public void ReadFrom(IInputStream rs)
     {
         ExitCode = rs.ReadInt();
+    }
+}
+
+/// <summary>
+/// 表达式值
+/// </summary>
+public sealed class EvaluateResult : IDebugEventArgs
+{
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 值类型 eg: AppBoxCore.DataTable
+    /// </summary>
+    public string Type { get; set; } = string.Empty;
+
+    public string Value { get; set; } = string.Empty;
+
+    public string Expression { get; set; } = string.Empty;
+
+    public int ChildCount { get; set; }
+
+    public DebugEventType EventType => DebugEventType.EvaluateResult;
+
+    public void WriteTo(IOutputStream ws)
+    {
+        ws.WriteString(Name);
+        ws.WriteString(Type);
+        ws.WriteString(Value);
+        ws.WriteString(Expression);
+        ws.WriteInt(ChildCount);
+    }
+
+    public void ReadFrom(IInputStream rs)
+    {
+        Name = rs.ReadString() ?? string.Empty;
+        Type = rs.ReadString() ?? string.Empty;
+        Value = rs.ReadString() ?? string.Empty;
+        Expression = rs.ReadString() ?? string.Empty;
+        ChildCount = rs.ReadInt();
     }
 }

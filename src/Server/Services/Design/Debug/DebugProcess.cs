@@ -22,6 +22,8 @@ internal sealed class DebugProcess
     private readonly IUserSession _session;
     private readonly MIParser _parser;
     private Process? _process;
+    private ulong _cmdIdIndex;
+    private readonly Dictionary<ulong, TaskCompletionSource<DebugEventArgs>> _pendingCmds = new();
 
     public void Start(string sessionName, string appName, string serviceName, string methodName, int[] breakpoints)
     {
@@ -67,6 +69,17 @@ internal sealed class DebugProcess
     internal void Resume()
     {
         SendCommand("-exec-continue");
+    }
+
+    internal Task<DebugEventArgs> Evaluate(string expression)
+    {
+        var cmdId = Interlocked.Increment(ref _cmdIdIndex);
+        var taskSource = new TaskCompletionSource<DebugEventArgs>();
+        _pendingCmds[cmdId] = taskSource;
+
+        SendCommand($"{cmdId}-var-create v{cmdId} {expression}");
+
+        return taskSource.Task;
     }
 
     private void StartReadOutput(Process process)
@@ -126,6 +139,23 @@ internal sealed class DebugProcess
     private void OnDebuggerResult(MIResultRecord record)
     {
         Console.WriteLine($"{record.GetType().Name}: {record}");
+
+        if (record.Token != null)
+        {
+            if (_pendingCmds.Remove(record.Token.Value.Number, out var taskCompletionSource))
+            {
+                //解析值
+                var evaluateResult = new EvaluateResult
+                {
+                    Name = ((MIConst)record["name"]).ToString(),
+                    Type = ((MIConst)record["type"]).GetString(),
+                    Value = ((MIConst)record["value"]).GetString(),
+                    Expression = ((MIConst)record["exp"]).GetString(),
+                    ChildCount = ((MIConst)record["numchild"]).GetInt()
+                };
+                taskCompletionSource.SetResult(new DebugEventArgs(_modelId, evaluateResult));
+            }
+        }
     }
 
     private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)

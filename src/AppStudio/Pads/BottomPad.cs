@@ -28,41 +28,30 @@ internal sealed class BottomPad : View
         return new Text(title) { TextColor = textColor };
     }
 
-    private Widget BuildBody(string title)
+    private Widget BuildBody(string title) => title switch
     {
-        if (title == "Problems")
-        {
-            return new DataGrid<CodeProblem>(_designStore.ProblemsController)
-                .AddTextColumn("Position", p => p.Position, 180)
-                .AddTextColumn("Message", p => p.Message)
-                .AddButtonColumn("Goto", (p, _) => new Button(icon: MaterialIcons.NextPlan)
+        "Problems" => new DataGrid<CodeProblem>(_designStore.ProblemsController)
+            .AddTextColumn("Position", p => p.Position, 180)
+            .AddTextColumn("Message", p => p.Message)
+            .AddButtonColumn("Goto",
+                (p, _) => new Button(icon: MaterialIcons.NextPlan)
                 {
                     Style = ButtonStyle.Transparent,
                     Shape = ButtonShape.Pills,
                     FontSize = 20,
                     OnTap = _ => _designStore.GotoProblem(p)
-                }, 80);
-        }
-
-        if (title == "Usages")
-        {
-            return new DataGrid<Reference>(_designStore.UsagesController)
-                .AddTextColumn("Model", u => u.ModelName)
-                .AddTextColumn("Location", u => u.Location)
-                .AddButtonColumn("Goto", (p, _) => new Button(icon: MaterialIcons.NextPlan)
+                }, 80),
+        "Usages" => new DataGrid<Reference>(_designStore.UsagesController).AddTextColumn("Model", u => u.ModelName)
+            .AddTextColumn("Location", u => u.Location)
+            .AddButtonColumn("Goto",
+                (p, _) => new Button(icon: MaterialIcons.NextPlan)
                 {
                     Style = ButtonStyle.Transparent,
                     Shape = ButtonShape.Pills,
                     FontSize = 20,
                     OnTap = _ => _designStore.GotoReference(p)
-                }, 80);
-        }
-
-        return new Container()
-        {
-            Padding = EdgeInsets.All(10),
-            FillColor = Colors.White,
-            Child = new Text(title),
-        };
-    }
+                }, 80),
+        "Debug" => new DebugPad(_designStore),
+        _ => new Container() { Padding = EdgeInsets.All(10), FillColor = Colors.White, Child = new Text(title), }
+    };
 }

@@ -1,3 +1,4 @@
+using AppBoxCore;
 using AppBoxDesign.Debugging;
 using PixUI;
 
@@ -39,4 +40,6 @@ internal interface ICodeDesigner : IModelDesigner
 internal interface IDebuggableCodeDesigner : ICodeDesigner
 {
     void OnDebugEvent(IDebugEventArgs eventArgs);
+
+    Task<EvaluateResult> EvaluateExpression(string expression);
 }
