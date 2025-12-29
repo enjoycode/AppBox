@@ -174,7 +174,8 @@ internal sealed class DesignStore
     internal static TreeNode<DesignNode> GetModelRootNode(TreeNode<DesignNode> child)
     {
         var childType = child.Data.Type;
-        if (childType != DesignNodeType.ModelNode && childType != DesignNodeType.FolderNode &&
+        if (childType != DesignNodeType.ModelNode && 
+            childType != DesignNodeType.FolderNode &&
             childType != DesignNodeType.ModelRootNode)
             throw new ArgumentException("child must belong ModelRootNode");
 

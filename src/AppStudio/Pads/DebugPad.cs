@@ -1,3 +1,4 @@
+using AppBoxDesign.Debugging;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -11,14 +12,14 @@ internal sealed class DebugPad : View
     {
         Child = new Splitter()
         {
-            Panel1 = new EvaluteView(store),
+            Panel1 = new EvaluateView(store),
             Panel2 = new OutputView(),
         };
     }
 
-    private class EvaluteView : View
+    private class EvaluateView : View
     {
-        public EvaluteView(DesignStore store)
+        public EvaluateView(DesignStore store)
         {
             _designStore = store;
 
@@ -38,13 +39,30 @@ internal sealed class DebugPad : View
                             new Button("Evaluate") { OnTap = _ => OnEvaluate() }
                         ]
                     },
-                    //TODO: result view
+                    new TreeView<EvaluateResult>(_treeController, BuildTreeNode, n => [] /*TODO:*/)
                 ]
             };
         }
 
         private readonly DesignStore _designStore;
         private readonly State<string> _expression = "";
+        private readonly TreeController<EvaluateResult> _treeController = new();
+
+        private static void BuildTreeNode(TreeNode<EvaluateResult> node)
+        {
+            node.IsLeaf = node.Data.ChildCount == 0;
+            node.Label = new Row()
+            {
+                Spacing = 3,
+                Children =
+                [
+                    new Text(node.Data.Expression) { TextColor = Colors.Magenta },
+                    new Text("="),
+                    new Text($"[{node.Data.Type}]") { TextColor = Colors.Gray },
+                    new Text(node.Data.Value)
+                ]
+            };
+        }
 
         private async void OnEvaluate()
         {
@@ -64,7 +82,8 @@ internal sealed class DebugPad : View
             try
             {
                 var result = await debuggable.EvaluateExpression(_expression.Value);
-                Notification.Info($"{result.Expression}[{result.Type}] = {result.Value}"); //TODO: show in pad
+                //Notification.Info($"{result.Expression}[{result.Type}] = {result.Value}");
+                _treeController.DataSource = new List<EvaluateResult>() { result };
             }
             catch (Exception e)
             {
