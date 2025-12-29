@@ -1,4 +1,3 @@
-using AppBoxClient;
 using AppBoxCore;
 using PixUI;
 
@@ -91,7 +90,7 @@ internal sealed class DesignerPad : View
     private void OnDesignerClosed(DesignNode node)
     {
         _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
-
+        //TODO: call node.Designer.OnClose()
         node.Designer = null;
         if (node.Type == DesignNodeType.ModelNode)
         {
