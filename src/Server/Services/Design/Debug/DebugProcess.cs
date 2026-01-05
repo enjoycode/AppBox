@@ -23,7 +23,7 @@ internal sealed class DebugProcess
     private readonly MIParser _parser;
     private Process? _process;
     private ulong _cmdIdIndex;
-    private readonly Dictionary<ulong, TaskCompletionSource<DebugEventArgs>> _pendingCmds = new();
+    private readonly Dictionary<ulong, DebugRequest> _pendingCmds = new();
 
     public void Start(string sessionName, string appName, string serviceName, string methodName, int[] breakpoints)
     {
@@ -53,35 +53,6 @@ internal sealed class DebugProcess
         SendCommand("-exec-run");
     }
 
-    private void AddBreakpoints(string fileName, int[] breakpoints)
-    {
-        for (var i = 0; i < breakpoints.Length; i++)
-        {
-            SendCommand($"-break-insert -f {fileName}:{breakpoints[i]}");
-        }
-    }
-
-    private void SendCommand(string command)
-    {
-        _process?.StandardInput.WriteLine(command);
-    }
-
-    internal void Resume()
-    {
-        SendCommand("-exec-continue");
-    }
-
-    internal Task<DebugEventArgs> Evaluate(string expression)
-    {
-        var cmdId = Interlocked.Increment(ref _cmdIdIndex);
-        var taskSource = new TaskCompletionSource<DebugEventArgs>();
-        _pendingCmds[cmdId] = taskSource;
-
-        SendCommand($"{cmdId}-var-create v{cmdId} {expression}");
-
-        return taskSource.Task;
-    }
-
     private void StartReadOutput(Process process)
     {
         //TODO: https://learn.microsoft.com/en-us/dotnet/standard/io/pipelines
@@ -105,6 +76,68 @@ internal sealed class DebugProcess
             }
         });
     }
+
+    #region ====Commands====
+
+    private void AddBreakpoints(string fileName, int[] breakpoints)
+    {
+        for (var i = 0; i < breakpoints.Length; i++)
+        {
+            SendCommand($"-break-insert -f {fileName}:{breakpoints[i]}");
+        }
+    }
+
+    private void SendCommand(string command)
+    {
+        _process?.StandardInput.WriteLine(command);
+    }
+
+    /// <summary>
+    /// 继续中断的调试
+    /// </summary>
+    internal void Resume()
+    {
+        SendCommand("-exec-continue");
+    }
+
+    private TaskCompletionSource<DebugEventArgs> MakePendingCommand(DebugRequestType requestType, out ulong cmdId)
+    {
+        cmdId = Interlocked.Increment(ref _cmdIdIndex);
+        var request = new DebugRequest(requestType);
+        _pendingCmds[cmdId] = request;
+        return request.TaskCompletionSource;
+    }
+
+    /// <summary>
+    /// 计算表达式的值
+    /// </summary>
+    internal Task<DebugEventArgs> CreateVariable(string expression)
+    {
+        var taskSource = MakePendingCommand(DebugRequestType.CreateVariable, out var cmdId);
+        SendCommand($"{cmdId}-var-create v{cmdId} {expression}");
+        return taskSource.Task;
+    }
+
+    /// <summary>
+    /// 列出变量的所有子级
+    /// </summary>
+    internal Task<DebugEventArgs> ListVariableChildren(string varName)
+    {
+        var taskSource = MakePendingCommand(DebugRequestType.ListChildren, out var cmdId);
+        SendCommand($"{cmdId}-var-list-children {varName}");
+        return taskSource.Task;
+    }
+
+    private Task<DebugEventArgs> EvaluateVariable(string varName)
+    {
+        var taskSource = MakePendingCommand(DebugRequestType.EvaluateVariable, out var cmdId);
+        SendCommand($"{cmdId}-var-evaluate-expression {varName}");
+        return taskSource.Task;
+    }
+
+    #endregion
+
+    #region ====EventHandler====
 
     private void OnDebuggerOutput(MIOutOfBandRecord record)
     {
@@ -142,21 +175,47 @@ internal sealed class DebugProcess
 
         if (record.Token != null)
         {
-            if (_pendingCmds.Remove(record.Token.Value.Number, out var taskCompletionSource))
+            if (_pendingCmds.Remove(record.Token.Value.Number, out var request))
             {
-                //解析值
-                var evaluateResult = new EvaluateResult
+                var response = request.ParseResponse(record);
+                if (request.RequestType != DebugRequestType.ListChildren)
                 {
-                    Name = ((MIConst)record["name"]).ToString(),
-                    Type = ((MIConst)record["type"]).GetString(),
-                    Value = ((MIConst)record["value"]).GetString(),
-                    Expression = ((MIConst)record["exp"]).GetString(),
-                    ChildCount = ((MIConst)record["numchild"]).GetInt()
-                };
-                taskCompletionSource.SetResult(new DebugEventArgs(_modelId, evaluateResult));
+                    request.TaskCompletionSource.SetResult(new DebugEventArgs(_modelId, response));
+                }
+                else
+                {
+                    //需要继续计算各个子属性的值
+                    EvaluateChildrenValue(request, (VariableChildren)response);
+                }
             }
         }
     }
+
+    /// <summary>
+    /// 因为ListChildren没有计算值，所以暂用此方法计算完值后再返回给前端
+    /// </summary>
+    private async void EvaluateChildrenValue(DebugRequest request, VariableChildren response)
+    {
+        try
+        {
+            for (var i = 0; i < response.Children.Count; i++)
+            {
+                var name = response.Children[i].Name;
+                var result = await EvaluateVariable(name);
+                var value = (EvaluateValue)result.EventArgs;
+                response.Children[i].Value = value.Value;
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error($"[{_session.Name}] Debugger evaluate variable error: {e.Message}");
+        }
+        finally
+        {
+            request.TaskCompletionSource.SetResult(new DebugEventArgs(_modelId, response));
+        }
+    }
+
 
     private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
     {
@@ -169,6 +228,8 @@ internal sealed class DebugProcess
         DebugService.OnProcessExited(_session.Name);
         Logger.Info($"[{_session.Name}] Debugger process exited");
     }
+
+    #endregion
 
     /// <summary>
     /// 激发调试事件发送给客户端处理

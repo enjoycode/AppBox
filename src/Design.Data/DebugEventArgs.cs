@@ -4,8 +4,10 @@ namespace AppBoxDesign.Debugging;
 
 public enum DebugEventType : byte
 {
+    Internal = 0,
     HitBreakpoint = 1,
     EvaluateResult = 2,
+    VariableChildren = 3,
     DebuggerExited = 255,
 }
 
@@ -48,6 +50,7 @@ public sealed class DebugEventArgs : IBinSerializable
             DebugEventType.DebuggerExited => new DebuggerExited(),
             DebugEventType.HitBreakpoint => new HitBreakpoint(),
             DebugEventType.EvaluateResult => new EvaluateResult(),
+            DebugEventType.VariableChildren => new VariableChildren(),
             _ => throw new Exception($"Unknown event type: {eventType}")
         };
         EventArgs.ReadFrom(rs);
@@ -130,5 +133,33 @@ public sealed class EvaluateResult : IDebugEventArgs
         Value = rs.ReadString() ?? string.Empty;
         Expression = rs.ReadString() ?? string.Empty;
         ChildCount = rs.ReadInt();
+    }
+}
+
+public sealed class EvaluateValue : IDebugEventArgs
+{
+    public string Value { get; set; } = string.Empty;
+
+    public DebugEventType EventType => DebugEventType.Internal;
+
+    public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
+
+    public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
+}
+
+public sealed class VariableChildren : IDebugEventArgs
+{
+    public List<EvaluateResult> Children { get; } = [];
+
+    public DebugEventType EventType => DebugEventType.VariableChildren;
+
+    public void WriteTo(IOutputStream ws)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ReadFrom(IInputStream rs)
+    {
+        throw new NotImplementedException();
     }
 }

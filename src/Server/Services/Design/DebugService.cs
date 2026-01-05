@@ -79,7 +79,16 @@ internal static class DebugService
         if (!Processes.TryGetValue(session.Name, out var process))
             throw new Exception("Debugging not started");
 
-        return process.Evaluate(expression);
+        return process.CreateVariable(expression);
+    }
+
+    internal static Task<DebugEventArgs> ListChildren(string variableName)
+    {
+        var session = RuntimeContext.CurrentSession!;
+        if (!Processes.TryGetValue(session.Name, out var process))
+            throw new Exception("Debugging not started");
+
+        return process.ListVariableChildren(variableName);
     }
 
     internal static void OnProcessExited(string sessionName)
