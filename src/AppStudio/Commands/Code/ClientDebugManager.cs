@@ -90,4 +90,13 @@ internal static class ClientDebugManager
             throw new Exception("EvaluateResult is null");
         return (EvaluateResult)result.EventArgs;
     }
+
+    public static async Task<List<EvaluateResult>> ListChildren(string variableName)
+    {
+        var result = await Channel.Invoke<DebugEventArgs>("sys.DesignService.DebugListChildren", [variableName]);
+        if (result == null)
+            throw new Exception("ListChildren result is null");
+
+        return ((VariableChildren)result.EventArgs).Children;
+    }
 }

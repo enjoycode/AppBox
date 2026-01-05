@@ -43,4 +43,6 @@ internal interface IDebuggableCodeDesigner : ICodeDesigner
     void OnDebugEvent(IDebugEventArgs eventArgs);
 
     Task<EvaluateResult> EvaluateExpression(string expression);
+
+    Task<List<EvaluateResult>> ListChildren(string variableName);
 }

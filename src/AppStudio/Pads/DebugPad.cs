@@ -39,7 +39,10 @@ internal sealed class DebugPad : View
                             new Button("Evaluate") { OnTap = _ => OnEvaluate() }
                         ]
                     },
-                    new TreeView<EvaluateResult>(_treeController, BuildTreeNode, n => [] /*TODO:*/)
+                    new TreeView<EvaluateResult>(_treeController, BuildTreeNode, n => n.Children ?? [])
+                    {
+                        LazyLoader = LazyLoadChildren
+                    }
                 ]
             };
         }
@@ -58,10 +61,23 @@ internal sealed class DebugPad : View
                 [
                     new Text(node.Data.Expression) { TextColor = Colors.Magenta },
                     new Text("="),
-                    new Text($"[{node.Data.Type}]") { TextColor = Colors.Gray },
+                    new Text($"{{{node.Data.Type}}}") { TextColor = Colors.Gray },
                     new Text(node.Data.Value)
                 ]
             };
+        }
+
+        private async Task LazyLoadChildren(TreeNode<EvaluateResult> node)
+        {
+            if (_designStore.ActiveDesigner == null ||
+                _designStore.ActiveDesigner is not IDebuggableCodeDesigner debuggable)
+            {
+                Notification.Error("The debuggable code editor is missing");
+                return;
+            }
+
+            var children = await debuggable.ListChildren(node.Data.Name);
+            node.Data.Children = children;
         }
 
         private async void OnEvaluate()

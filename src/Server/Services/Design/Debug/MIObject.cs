@@ -480,7 +480,7 @@ public sealed class MIAsyncOutput
     public readonly Dictionary<string, MIValue> Results;
 }
 
-public readonly struct MIResultClass
+public readonly struct MIResultClass : IEquatable<MIResultClass>
 {
     public static MIResultClass Done { get; private set; } = new("done");
     public static MIResultClass Running { get; private set; } = new("running");
@@ -496,6 +496,16 @@ public readonly struct MIResultClass
     }
 
     public readonly string Representation;
+
+    public bool Equals(MIResultClass other) => Representation == other.Representation;
+
+    public override bool Equals(object? obj) => obj is MIResultClass other && Equals(other);
+
+    public override int GetHashCode() => Representation.GetHashCode();
+
+    public static bool operator ==(MIResultClass left, MIResultClass right) => left.Equals(right);
+
+    public static bool operator !=(MIResultClass left, MIResultClass right) => !(left == right);
 }
 
 public readonly struct MIAsyncOutputClass : IEquatable<MIAsyncOutputClass>

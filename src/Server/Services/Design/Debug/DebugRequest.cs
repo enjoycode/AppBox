@@ -40,10 +40,17 @@ internal readonly struct DebugRequest
 
     private static EvaluateValue ParseEvaluateVariable(MIResultRecord record)
     {
-        var response = new EvaluateValue()
+        var response = new EvaluateValue();
+        if (record.Class == MIResultClass.Error)
         {
-            Value = ((MIConst)record["value"]).GetString(),
-        };
+            response.IsError = true;
+            response.Value = ((MIConst)record["msg"]).GetString();
+        }
+        else
+        {
+            response.Value = ((MIConst)record["value"]).GetString();
+        }
+
         return response;
     }
 
@@ -53,7 +60,7 @@ internal readonly struct DebugRequest
         var children = (MIList)record["children"];
         for (var i = 0; i < children.Count; i++)
         {
-            var child = (MITuple)((MIResult)children[0]).Value;
+            var child = (MITuple)((MIResult)children[i]).Value;
             var result = new EvaluateResult()
             {
                 Name = ((MIConst)child["name"]).ToString(),

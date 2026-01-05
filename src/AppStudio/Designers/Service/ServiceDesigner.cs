@@ -264,6 +264,14 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         return ClientDebugManager.EvaluateExpression(expression);
     }
 
+    Task<List<EvaluateResult>> IDebuggableCodeDesigner.ListChildren(string variableName)
+    {
+        if (_debuggingState.Value != DebuggingStateStopped)
+            throw new Exception("Debugging state is not stopped");
+        
+        return ClientDebugManager.ListChildren(variableName);
+    }
+
     private Bookmark? FindBreakpoint(int line)
     {
         var bookmarkManager = _codeEditorController.Document.BookmarkManager;

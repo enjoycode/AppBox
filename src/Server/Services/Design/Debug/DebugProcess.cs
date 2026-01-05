@@ -203,6 +203,7 @@ internal sealed class DebugProcess
                 var name = response.Children[i].Name;
                 var result = await EvaluateVariable(name);
                 var value = (EvaluateValue)result.EventArgs;
+                response.Children[i].IsError = value.IsError;
                 response.Children[i].Value = value.Value;
             }
         }

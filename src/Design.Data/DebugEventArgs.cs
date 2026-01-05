@@ -113,7 +113,11 @@ public sealed class EvaluateResult : IDebugEventArgs
 
     public string Expression { get; set; } = string.Empty;
 
+    public bool IsError { get; set; }
+
     public int ChildCount { get; set; }
+
+    public List<EvaluateResult>? Children { get; set; } //暂不需要序列化
 
     public DebugEventType EventType => DebugEventType.EvaluateResult;
 
@@ -121,6 +125,7 @@ public sealed class EvaluateResult : IDebugEventArgs
     {
         ws.WriteString(Name);
         ws.WriteString(Type);
+        ws.WriteBool(IsError);
         ws.WriteString(Value);
         ws.WriteString(Expression);
         ws.WriteInt(ChildCount);
@@ -130,6 +135,7 @@ public sealed class EvaluateResult : IDebugEventArgs
     {
         Name = rs.ReadString() ?? string.Empty;
         Type = rs.ReadString() ?? string.Empty;
+        IsError = rs.ReadBool();
         Value = rs.ReadString() ?? string.Empty;
         Expression = rs.ReadString() ?? string.Empty;
         ChildCount = rs.ReadInt();
@@ -141,6 +147,8 @@ public sealed class EvaluateResult : IDebugEventArgs
 /// </summary>
 public sealed class EvaluateValue : IDebugEventArgs
 {
+    public bool IsError { get; set; }
+
     public string Value { get; set; } = string.Empty;
 
     public DebugEventType EventType => DebugEventType.Internal;
