@@ -136,6 +136,9 @@ public sealed class EvaluateResult : IDebugEventArgs
     }
 }
 
+/// <summary>
+/// 变量的值，仅内部使用
+/// </summary>
 public sealed class EvaluateValue : IDebugEventArgs
 {
     public string Value { get; set; } = string.Empty;
@@ -147,6 +150,9 @@ public sealed class EvaluateValue : IDebugEventArgs
     public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
 }
 
+/// <summary>
+/// 变量所有子级
+/// </summary>
 public sealed class VariableChildren : IDebugEventArgs
 {
     public List<EvaluateResult> Children { get; } = [];
@@ -155,11 +161,22 @@ public sealed class VariableChildren : IDebugEventArgs
 
     public void WriteTo(IOutputStream ws)
     {
-        throw new NotImplementedException();
+        ws.WriteVariant(Children.Count);
+
+        for (var i = 0; i < Children.Count; i++)
+        {
+            Children[i].WriteTo(ws);
+        }
     }
 
     public void ReadFrom(IInputStream rs)
     {
-        throw new NotImplementedException();
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
+        {
+            var child = new EvaluateResult();
+            child.ReadFrom(rs);
+            Children.Add(child);
+        }
     }
 }
