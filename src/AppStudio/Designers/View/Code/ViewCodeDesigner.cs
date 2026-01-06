@@ -175,4 +175,6 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner
         // _codeEditorController.Document.TextContent = srcCode!;
         // _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
     }
+    
+    void IDesigner.OnClose() { }
 }

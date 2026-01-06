@@ -100,6 +100,11 @@ internal sealed class DebugProcess
         SendCommand("-exec-continue");
     }
 
+    internal void Exit()
+    {
+        SendCommand("-gdb-exit");
+    }
+
     private TaskCompletionSource<DebugEventArgs> MakePendingCommand(DebugRequestType requestType, out ulong cmdId)
     {
         cmdId = Interlocked.Increment(ref _cmdIdIndex);

@@ -78,18 +78,21 @@ internal sealed class DesignService : IService
             case "UploadViewAssemblyMap":
                 await PublishService.UploadViewAssemblyMap((MessageReadStream)args.InputStream!);
                 return AnyValue.Empty;
-            case "UploadDebugService":
+            case DesignMethods.DebugUploadService:
                 await DebugService.UploadAssembly(args.InputStream!);
                 return AnyValue.Empty;
-            case "StartDebugService":
-                DebugService.StartDebugService(args.InputStream!);
+            case DesignMethods.DebugStart:
+                DebugService.Start(args.InputStream!);
                 return AnyValue.Empty;
-            case "ResumeDebugService":
-                DebugService.ResumeDebugService();
+            case DesignMethods.DebugResume:
+                DebugService.Resume();
                 return AnyValue.Empty;
-            case "DebugEvaluate":
+            case DesignMethods.DebugExit:
+                DebugService.Exit();
+                return AnyValue.Empty;
+            case DesignMethods.DebugEvaluate:
                 return AnyValue.From(await DebugService.Evaluate(args.GetString()!));
-            case "DebugListChildren":
+            case DesignMethods.DebugListChildren:
                 return AnyValue.From(await DebugService.ListChildren(args.GetString()!));
             default:
                 throw new Exception($"Unknown design method: {method}");

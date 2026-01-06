@@ -156,4 +156,6 @@ internal sealed class ReportDesigner : View, IModelDesigner
     }
 
     public Widget GetToolboxPad() => _designService.Toolbox;
+    
+    void IDesigner.OnClose() { }
 }

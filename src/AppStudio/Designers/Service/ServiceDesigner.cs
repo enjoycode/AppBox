@@ -1,5 +1,4 @@
 using AppBoxClient;
-using AppBoxCore;
 using AppBoxDesign.Debugging;
 using CodeEditor;
 using PixUI;
@@ -237,8 +236,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
 
     void IDebuggableCodeDesigner.OnDebugEvent(IDebugEventArgs eventArgs)
     {
-        //TODO:
-        Notification.Error($"收到调试事件: {eventArgs.GetType().Name}");
+        //Notification.Error($"收到调试事件: {eventArgs.GetType().Name}");
 
         if (eventArgs is HitBreakpoint hitBreakpoint)
         {
@@ -268,7 +266,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     {
         if (_debuggingState.Value != DebuggingStateStopped)
             throw new Exception("Debugging state is not stopped");
-        
+
         return ClientDebugManager.ListChildren(variableName);
     }
 
@@ -292,5 +290,11 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         {
             Notification.Error("Resume debugging error: " + e.Message);
         }
+    }
+
+    void IDesigner.OnClose()
+    {
+        if (_debuggingState.Value != DebuggingStateNone)
+            ClientDebugManager.ExitDebugService();
     }
 }

@@ -35,7 +35,7 @@ internal static class DebugService
     /// <summary>
     /// 开始服务调试
     /// </summary>
-    internal static void StartDebugService(IInputStream stream)
+    internal static void Start(IInputStream stream)
     {
         var debugPath = GetDebugFolderPath();
         if (!Directory.Exists(debugPath))
@@ -64,32 +64,31 @@ internal static class DebugService
         debugProcess.Start(session.Name, appName, serviceName, methodName, breakpoints);
     }
 
-    internal static void ResumeDebugService()
+    private static DebugProcess? FindDebugProcess(bool throwExceptionWhenNull = true)
     {
-        var session = RuntimeContext.CurrentSession!;
-        if (!Processes.TryGetValue(session.Name, out var process))
-            throw new Exception("Debugging not started");
+        var session = RuntimeContext.CurrentSession;
+        if (session == null)
+        {
+            return throwExceptionWhenNull ? throw new Exception("Debugging not started") : null;
+        }
 
-        process.Resume();
+        if (!Processes.TryGetValue(session.Name, out var process))
+        {
+            return throwExceptionWhenNull ? throw new Exception($"Debugging not started for [{session.Name}]") : null;
+        }
+
+        return process;
     }
 
-    internal static Task<DebugEventArgs> Evaluate(string expression)
-    {
-        var session = RuntimeContext.CurrentSession!;
-        if (!Processes.TryGetValue(session.Name, out var process))
-            throw new Exception("Debugging not started");
+    internal static void Resume() => FindDebugProcess()!.Resume();
 
-        return process.CreateVariable(expression);
-    }
+    internal static void Exit() => FindDebugProcess(false)?.Exit();
 
-    internal static Task<DebugEventArgs> ListChildren(string variableName)
-    {
-        var session = RuntimeContext.CurrentSession!;
-        if (!Processes.TryGetValue(session.Name, out var process))
-            throw new Exception("Debugging not started");
+    internal static Task<DebugEventArgs> Evaluate(string expression) =>
+        FindDebugProcess()!.CreateVariable(expression);
 
-        return process.ListVariableChildren(variableName);
-    }
+    internal static Task<DebugEventArgs> ListChildren(string variableName) =>
+        FindDebugProcess()!.ListVariableChildren(variableName);
 
     internal static void OnProcessExited(string sessionName)
     {

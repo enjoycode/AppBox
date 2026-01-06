@@ -53,14 +53,14 @@ internal static class ClientDebugManager
 
         // 1.编译并上传服务模型
         var asmData = await Publish.CompileServiceAsync(hub, serviceModel, true);
-        await Channel.Invoke("sys.DesignService.UploadDebugService", w =>
+        await Channel.Invoke(DesignMethods.DebugUploadServiceFull, w =>
         {
             w.WriteString($"{appName}.{serviceName}");
             w.WriteBytes(asmData);
         });
 
         // 2.开始启动调试 TODO:没有Breakpoint提示请求确认
-        await Channel.Invoke("sys.DesignService.StartDebugService", w =>
+        await Channel.Invoke(DesignMethods.DebugStartFull, w =>
         {
             //写入模型标识
             w.WriteLong(serviceModel.Id);
@@ -78,14 +78,13 @@ internal static class ClientDebugManager
         });
     }
 
-    public static Task ResumeDebugService()
-    {
-        return Channel.Invoke("sys.DesignService.ResumeDebugService");
-    }
+    public static Task ResumeDebugService() => Channel.Invoke(DesignMethods.DebugResumeFull);
+
+    public static Task ExitDebugService() => Channel.Invoke(DesignMethods.DebugExitFull);
 
     public static async Task<EvaluateResult> EvaluateExpression(string expression)
     {
-        var result = await Channel.Invoke<DebugEventArgs>("sys.DesignService.DebugEvaluate", [expression]);
+        var result = await Channel.Invoke<DebugEventArgs>(DesignMethods.DebugEvaluateFull, [expression]);
         if (result == null)
             throw new Exception("EvaluateResult is null");
         return (EvaluateResult)result.EventArgs;
@@ -93,7 +92,7 @@ internal static class ClientDebugManager
 
     public static async Task<List<EvaluateResult>> ListChildren(string variableName)
     {
-        var result = await Channel.Invoke<DebugEventArgs>("sys.DesignService.DebugListChildren", [variableName]);
+        var result = await Channel.Invoke<DebugEventArgs>(DesignMethods.DebugListChildrenFull, [variableName]);
         if (result == null)
             throw new Exception("ListChildren result is null");
 

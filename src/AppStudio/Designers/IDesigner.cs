@@ -13,8 +13,8 @@ internal interface IDesigner
     /// 跳转至指定位置
     /// </summary>
     void GotoLocation(ILocation location);
-
-    //TODO: void OnClose();
+    
+    void OnClose();
 }
 
 [TSInterfaceOf]

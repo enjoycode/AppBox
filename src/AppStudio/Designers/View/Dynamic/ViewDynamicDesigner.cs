@@ -183,4 +183,6 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         var bg = dlg.GetBackground();
         _designController.Background = bg;
     }
+
+    void IDesigner.OnClose() { }
 }

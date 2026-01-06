@@ -199,4 +199,6 @@ internal sealed class EntityDesigner : View, IModelDesigner
     {
         return Task.CompletedTask; //TODO:
     }
+
+    void IDesigner.OnClose() { }
 }
