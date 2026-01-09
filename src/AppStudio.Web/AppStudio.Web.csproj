@@ -51,6 +51,9 @@
         <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorWindow.cs">
             <Link>BlazorWindow.cs</Link>
         </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorFileDialog.cs">
+            <Link>BlazorFileDialog.cs</Link>
+        </Compile>
         <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\InputUtils.cs">
             <Link>InputUtils.cs</Link>
         </Compile>

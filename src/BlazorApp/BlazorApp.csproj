@@ -48,6 +48,9 @@
       <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorCursors.cs">
         <Link>BlazorCursors.cs</Link>
       </Compile>
+      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorFileDialog.cs">
+        <Link>BlazorFileDialog.cs</Link>
+      </Compile>
       <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorWindow.cs">
         <Link>BlazorWindow.cs</Link>
       </Compile>
