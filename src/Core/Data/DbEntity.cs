@@ -5,8 +5,8 @@ namespace AppBoxCore;
 /// </summary>
 public abstract class DbEntity : Entity
 {
-    private IList<short>? _changedMembers;
     public PersistentState PersistentState { get; private set; }
+    internal List<short>? ChangedMembers { get; private set; }
 
     protected sealed override void OnPropertyChanged(short memberId)
     {
@@ -14,16 +14,16 @@ public abstract class DbEntity : Entity
         {
             PersistentState = PersistentState.Modified;
             //Track member changes
-            _changedMembers ??= new List<short>();
-            if (_changedMembers.IndexOf(memberId) < 0)
-                _changedMembers.Add(memberId);
+            ChangedMembers ??= new List<short>();
+            if (ChangedMembers.IndexOf(memberId) < 0)
+                ChangedMembers.Add(memberId);
         }
 
         base.OnPropertyChanged(memberId);
     }
 
     public bool IsMemberChanged(short memberId) =>
-        _changedMembers != null && _changedMembers.IndexOf(memberId) >= 0;
+        ChangedMembers != null && ChangedMembers.IndexOf(memberId) >= 0;
 
     /// <summary>
     /// 接受状态变更
@@ -34,7 +34,7 @@ public abstract class DbEntity : Entity
         if (PersistentState != PersistentState.Detached)
             AcceptTrackerChanges();
 
-        _changedMembers = null;
+        ChangedMembers = null;
         PersistentState = PersistentState == PersistentState.Deleted
             ? PersistentState.Detached
             : PersistentState.Unchanged;
@@ -50,32 +50,78 @@ public abstract class DbEntity : Entity
     /// </summary>
     internal void AsDeleted() => PersistentState = PersistentState.Deleted;
 
+    #region ====Convert with EntityData====
+
+    internal void ClonePersistentStateAndChangedMembers(EntityData entityData)
+    {
+        PersistentState = entityData.PersistentState;
+        ChangedMembers = entityData.ChangedMembers;
+    }
+
+    public sealed override EntityData ToEntityData()
+    {
+        var data = new EntityData(ModelId, EntityType);
+        data.ClonePersistentStateAndChangedMembers(this);
+
+        var writer = new EntityDataWriter(data);
+        foreach (var memberId in AllMembers)
+            WriteMember(memberId, ref writer, EntityMemberWriteFlags.None);
+        return data;
+    }
+
+    #endregion
+
     #region ====Serialization====
 
-    internal void WriteTo(IOutputStream ws)
+    protected sealed override void WriteTo(IOutputStream ws)
     {
+        ws.WriteLong(ModelId);
+        ws.WriteByte((byte)EntityType);
+
         ws.WriteByte((byte)PersistentState);
 
-        var changesCount = _changedMembers?.Count ?? 0;
+        //Changes of members
+        var changesCount = ChangedMembers?.Count ?? 0;
         ws.WriteVariant(changesCount);
         for (var i = 0; i < changesCount; i++)
         {
-            ws.WriteShort(_changedMembers![i]);
+            ws.WriteShort(ChangedMembers![i]);
         }
+
+        //Write members
+        foreach (var memberId in AllMembers)
+        {
+            WriteMember(memberId, ref ws, WriteMemberFlags);
+        }
+
+        ResetWriteMemberFlags(); //注意写完后重置
+        ws.WriteShort(0); //End write members
     }
 
-    internal void ReadFrom(IInputStream rs)
+    protected sealed override void ReadFrom(IInputStream rs)
     {
+        rs.ReadLong(); //ModelId
+        rs.ReadByte(); //EntityType
+
         PersistentState = (PersistentState)rs.ReadByte();
 
+        //Changed members
         var changesCount = rs.ReadVariant();
         if (changesCount > 0)
         {
-            _changedMembers = new List<short>(changesCount);
+            ChangedMembers = new List<short>(changesCount);
             for (var i = 0; i < changesCount; i++)
             {
-                _changedMembers.Add(rs.ReadShort());
+                ChangedMembers.Add(rs.ReadShort());
             }
+        }
+
+        //Read members
+        while (true)
+        {
+            var memberId = rs.ReadShort();
+            if (memberId == 0) break;
+            ReadMember(memberId, ref rs, 0);
         }
     }
 

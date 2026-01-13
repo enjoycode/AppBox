@@ -127,9 +127,8 @@ public static class MetaStoreExtensions
     {
         //TODO:考虑保存至本地文件，返回路径
         //暂通过判断有无扩展名来区别是服务的组件还是第三方的组件
-        if (serviceName.Length >= 4 &&
-            serviceName.AsSpan(serviceName.Length - 4).SequenceEqual(".dll"))
-            return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ClientApp, serviceName);
+        if (serviceName.Length >= 4 && serviceName.AsSpan(serviceName.Length - 4) is ".dll")
+            return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ExtService, serviceName);
         return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
     }
 

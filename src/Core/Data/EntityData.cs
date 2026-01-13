@@ -9,25 +9,36 @@ public sealed class EntityData : IBinSerializable
 {
     internal EntityData() { }
 
-    internal EntityData(ModelId modelId)
+    internal EntityData(ModelId modelId, EntityType type)
     {
         Debug.Assert(modelId.Type == ModelType.Entity);
         ModelId = modelId;
+        EntityType = type;
     }
 
     public ModelId ModelId { get; private set; }
+    public EntityType EntityType { get; private set; }
+    public PersistentState PersistentState { get; private set; }
     private readonly List<MemberData> _members = [];
+    internal List<short>? ChangedMembers { get; private set; }
 
     internal void AddMember(short id, AnyValue value)
     {
         _members.Add(new MemberData(id, value));
     }
 
+    #region ====Convert with Entity====
+
     public T ToEntity<T>() where T : Entity, new()
     {
         var entity = new T();
         if (entity.ModelId != ModelId)
             throw new Exception("EntityModel is not same");
+
+        if (entity is DbEntity dbEntity)
+        {
+            dbEntity.ClonePersistentStateAndChangedMembers(this);
+        }
 
         var reader = new EntityDataReader(this);
         for (var i = 0; i < _members.Count; i++)
@@ -38,6 +49,14 @@ public sealed class EntityData : IBinSerializable
 
         return entity;
     }
+
+    internal void ClonePersistentStateAndChangedMembers(DbEntity dbEntity)
+    {
+        PersistentState = dbEntity.PersistentState;
+        ChangedMembers = dbEntity.ChangedMembers;
+    }
+
+    #endregion
 
     #region ====EntityDataReader====
 
@@ -86,22 +105,57 @@ public sealed class EntityData : IBinSerializable
     void IBinSerializable.WriteTo(IOutputStream ws)
     {
         ws.WriteLong(ModelId);
+        ws.WriteByte((byte)EntityType);
 
-        ws.WriteVariant(_members.Count);
+        if (EntityType == EntityType.SqlStore)
+        {
+            ws.WriteByte((byte)PersistentState);
+
+            //Changes of members
+            var changesCount = ChangedMembers?.Count ?? 0;
+            ws.WriteVariant(changesCount);
+            for (var i = 0; i < changesCount; i++)
+            {
+                ws.WriteShort(ChangedMembers![i]);
+            }
+        }
+
+        // Members
         for (var i = 0; i < _members.Count; i++)
         {
             ws.WriteShort(_members[i].MemberId);
             _members[i].Value.SerializeTo(ws);
         }
+
+        ws.WriteShort(0); ////End write members
     }
 
     void IBinSerializable.ReadFrom(IInputStream rs)
     {
         ModelId = rs.ReadLong();
-        var count = rs.ReadVariant();
-        for (var i = 0; i < count; i++)
+        EntityType = (EntityType)rs.ReadByte();
+
+        if (EntityType == EntityType.SqlStore)
         {
-            _members.Add(new MemberData(rs.ReadShort(), AnyValue.ReadFrom(rs)));
+            PersistentState = (PersistentState)rs.ReadByte();
+            //Changed members
+            var changesCount = rs.ReadVariant();
+            if (changesCount > 0)
+            {
+                ChangedMembers = new List<short>(changesCount);
+                for (var i = 0; i < changesCount; i++)
+                {
+                    ChangedMembers.Add(rs.ReadShort());
+                }
+            }
+        }
+
+        //Members
+        while (true)
+        {
+            var memberId = rs.ReadShort();
+            if (memberId == 0) break;
+            _members.Add(new MemberData(memberId, AnyValue.ReadFrom(rs)));
         }
     }
 

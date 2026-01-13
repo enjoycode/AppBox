@@ -12,10 +12,12 @@ public abstract class Entity : IBinSerializable
     /// </summary>
     protected abstract short[] AllMembers { get; }
 
+    protected virtual EntityType EntityType => EntityType.NonPersistent;
+
     /// <summary>
     /// 用于序列化时是否忽略导航属性
     /// </summary>
-    private int _writeMemberFlags = 0;
+    protected int WriteMemberFlags { get; private set; }
 
     #region ====PropertyChanged====
 
@@ -39,8 +41,10 @@ public abstract class Entity : IBinSerializable
     /// </summary>
     internal void IgnoreSerializeNavigationInternal()
     {
-        _writeMemberFlags |= EntityMemberWriteFlags.IgnoreNavigates;
+        WriteMemberFlags |= EntityMemberWriteFlags.IgnoreNavigates;
     }
+
+    protected void ResetWriteMemberFlags() => WriteMemberFlags = EntityMemberWriteFlags.None;
 
     /// <summary>
     /// 写入成员至IEntityMemberWriter，由IEntityMemberWriter及flags决定写入格式
@@ -52,28 +56,25 @@ public abstract class Entity : IBinSerializable
     /// </summary>
     protected internal abstract void ReadMember<T>(short id, ref T rs, int flags) where T : IEntityMemberReader;
 
-    void IBinSerializable.WriteTo(IOutputStream ws)
+    protected virtual void WriteTo(IOutputStream ws)
     {
-        // Write DbEntity
-        if (this is DbEntity dbEntity)
-            dbEntity.WriteTo(ws);
+        ws.WriteLong(ModelId);
+        ws.WriteByte((byte)EntityType);
 
         //Write members
         foreach (var memberId in AllMembers)
         {
-            WriteMember(memberId, ref ws, _writeMemberFlags);
+            WriteMember(memberId, ref ws, WriteMemberFlags);
         }
 
-        _writeMemberFlags = EntityMemberWriteFlags.None; //注意写完后重置
-
+        WriteMemberFlags = EntityMemberWriteFlags.None; //注意写完后重置
         ws.WriteShort(0); //End write members
     }
 
-    void IBinSerializable.ReadFrom(IInputStream rs)
+    protected virtual void ReadFrom(IInputStream rs)
     {
-        //Read DbEntity
-        if (this is DbEntity dbEntity)
-            dbEntity.ReadFrom(rs);
+        rs.ReadLong(); //ModelId
+        rs.ReadByte(); //EntityType
 
         //Read members
         while (true)
@@ -84,9 +85,13 @@ public abstract class Entity : IBinSerializable
         }
     }
 
-    public EntityData ToEntityData()
+    void IBinSerializable.WriteTo(IOutputStream ws) => WriteTo(ws);
+
+    void IBinSerializable.ReadFrom(IInputStream rs) => ReadFrom(rs);
+
+    public virtual EntityData ToEntityData()
     {
-        var data = new EntityData(ModelId);
+        var data = new EntityData(ModelId, EntityType);
         var writer = new EntityDataWriter(data);
         foreach (var memberId in AllMembers)
             WriteMember(memberId, ref writer, EntityMemberWriteFlags.None);
@@ -97,7 +102,7 @@ public abstract class Entity : IBinSerializable
 
     #region ====EntityDataWriter====
 
-    private readonly struct EntityDataWriter : IEntityMemberWriter
+    internal readonly struct EntityDataWriter : IEntityMemberWriter
     {
         public EntityDataWriter(EntityData data)
         {
@@ -193,4 +198,13 @@ public static class EntityExtensions
         entity.IgnoreSerializeNavigationInternal();
         return entity;
     }
+}
+
+public enum EntityType : byte
+{
+    /// <summary>
+    /// 非持久性的，eg: DTO or VO
+    /// </summary>
+    NonPersistent = 0,
+    SqlStore = 1,
 }
