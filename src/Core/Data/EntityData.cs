@@ -10,19 +10,19 @@ public sealed class EntityData : Entity
     internal EntityData(ModelId modelId)
     {
         Debug.Assert(modelId.Type == ModelType.Entity);
-        _modelId = modelId;
+        ModelId = modelId;
     }
 
     internal EntityData(ModelId modelId, EntityType type)
     {
         Debug.Assert(modelId.Type == ModelType.Entity);
-        _modelId = modelId;
+        ModelId = modelId;
         _entityType = type;
     }
 
-    private ModelId _modelId;
     private EntityType _entityType;
-    public override ModelId ModelId => _modelId;
+    public override ModelId ModelId { get; }
+
     protected override EntityType EntityType => _entityType;
     public PersistentState PersistentState { get; private set; }
     private readonly List<MemberData> _members = [];
