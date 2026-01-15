@@ -128,7 +128,7 @@ public sealed class SerializationTest
         var data = Serialize(ou1);
 
         var dest = (AppBoxStore.Entities.OrgUnit)Deserialize(data,
-            new EntityFactory[] { new(AppBoxStore.Entities.OrgUnit.MODELID, typeof(AppBoxStore.Entities.OrgUnit)) })!;
+            [new(AppBoxStore.Entities.OrgUnit.MODELID, typeof(AppBoxStore.Entities.OrgUnit))])!;
         Assert.AreEqual(dest.Name, ou1.Name);
         Assert.AreEqual(dest.Children!.Count, 1);
         Assert.AreEqual(dest.Children[0].Name, ou2.Name);

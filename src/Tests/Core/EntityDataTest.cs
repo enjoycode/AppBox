@@ -27,4 +27,18 @@ public class EntityDataTest
     //
     //     Assert.AreEqual(entity1, entity2);
     // }
+
+    /// <summary>
+    /// 实体序列化后在未指定EntityFactory的情况下反序列化为EntityData
+    /// </summary>
+    [Test]
+    public void SerializeTest()
+    {
+        var entity1 = new DemoEntity() { Name = "Test1", Score = 100 };
+        var data = SerializationTest.Serialize(entity1);
+
+        var entityData = (EntityData)SerializationTest.Deserialize(data)!;
+        var entity2 = entityData.ToEntity<DemoEntity>();
+        Assert.AreEqual(entity1, entity2);
+    }
 }

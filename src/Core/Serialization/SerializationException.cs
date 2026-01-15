@@ -15,17 +15,15 @@ public enum SerializationError
     CanNotFindSerializer,
     UnknownTypeFlag,
 
-    SysKnownTypeAlreadyRegisted,
+    SysKnownTypeAlreadyRegistered,
     NotSupportedValueType,
     NotSupportedClassType,
     KnownTypeOverriderIsNull,
-    
+
     UnknownEntityMember,
-    EntityFactoryIsNull,
-    EntityFactoryNotExists,
-    
+
     PayloadTypeNotMatch,
-    
+
     ReadUnknownFieldId,
 
     NothingToRead,

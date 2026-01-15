@@ -75,9 +75,7 @@ public abstract class DbEntity : Entity
 
     protected sealed override void WriteTo(IOutputStream ws)
     {
-        ws.WriteLong(ModelId);
         ws.WriteByte((byte)EntityType);
-
         ws.WriteByte((byte)PersistentState);
 
         //Changes of members
@@ -100,9 +98,7 @@ public abstract class DbEntity : Entity
 
     protected sealed override void ReadFrom(IInputStream rs)
     {
-        rs.ReadLong(); //ModelId
         rs.ReadByte(); //EntityType
-
         PersistentState = (PersistentState)rs.ReadByte();
 
         //Changed members

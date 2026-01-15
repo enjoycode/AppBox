@@ -58,7 +58,6 @@ public abstract class Entity : IBinSerializable
 
     protected virtual void WriteTo(IOutputStream ws)
     {
-        ws.WriteLong(ModelId);
         ws.WriteByte((byte)EntityType);
 
         //Write members
@@ -73,7 +72,6 @@ public abstract class Entity : IBinSerializable
 
     protected virtual void ReadFrom(IInputStream rs)
     {
-        rs.ReadLong(); //ModelId
         rs.ReadByte(); //EntityType
 
         //Read members

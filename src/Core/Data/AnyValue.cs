@@ -155,6 +155,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             PayloadType.DateTime => stream.ReadDateTime(),
             PayloadType.Guid => stream.ReadGuid(),
             PayloadType.String => stream.ReadString() ?? Empty,
+            PayloadType.EntitySet => throw new NotImplementedException("AnyValue.ReadFrom EntitySet"),
             _ => From(stream.ReadObject(payloadType))
         };
     }

@@ -21,7 +21,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteString(value);
+            this.Serialize(value);
         }
         else
         {
@@ -53,7 +53,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            WriteByte(value.Value);
+            this.Serialize(value.Value);
         }
         else
         {
@@ -69,7 +69,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteInt(value.Value);
+            this.Serialize(value.Value);
         }
         else
         {
@@ -85,7 +85,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteLong(value.Value);
+            this.Serialize(value.Value);
         }
         else
         {
@@ -101,7 +101,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteFloat(value.Value);
+            this.Serialize(value.Value);
         }
         else
         {
@@ -117,7 +117,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteDouble(value.Value);
+            this.Serialize(value.Value);
         }
         else
         {
@@ -133,7 +133,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteDateTime(value.Value);
+            this.Serialize(value.Value);
         }
         else
         {
@@ -149,7 +149,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteGuid(value.Value);
+            this.Serialize(value.Value);
         }
         else
         {
@@ -165,8 +165,7 @@ public interface IOutputStream : IEntityMemberWriter
             if (value == null) return;
 
             this.WriteShort(id);
-            this.WriteVariant(value.Length);
-            WriteBytes(value);
+            this.Serialize(value);
         }
         else
         {
@@ -189,6 +188,7 @@ public interface IOutputStream : IEntityMemberWriter
         if (value == null) return;
 
         this.WriteShort(id);
+        this.WriteByte((byte)PayloadType.EntitySet);
         ((IBinSerializable)value).WriteTo(this);
     }
 
@@ -319,7 +319,7 @@ public static class OutputStreamExtensions
 
     public static void WriteType(this IOutputStream s, Type type)
     {
-        //TypeFlag定义： 0 = 系统已知类型 1 = 扩展已知类型 2 = Object, 3=Entity
+        //TypeFlag定义： 0=系统已知类型; 1=扩展已知类型; 2=Object; 3=Entity
         if (type == typeof(object))
         {
             s.WriteByte(2);
@@ -547,6 +547,12 @@ public static class OutputStreamExtensions
     {
         s.WriteByte((byte)PayloadType.Guid);
         s.WriteGuid(value);
+    }
+
+    public static void Serialize(this IOutputStream s, string value)
+    {
+        s.WriteByte((byte)PayloadType.String);
+        s.WriteString(value);
     }
 
     public static void Serialize(this IOutputStream s, Entity? value)

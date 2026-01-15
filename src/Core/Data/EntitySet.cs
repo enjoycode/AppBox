@@ -14,7 +14,7 @@ public sealed class EntitySet<T> : IList<T>, IBinSerializable where T : Entity, 
     public EntitySet(Action<T, bool> entityRefSetter)
     {
         _entityRefSetter = entityRefSetter;
-        _list = new List<T>();
+        _list = [];
     }
 
     private readonly Action<T, bool> _entityRefSetter;

@@ -30,18 +30,23 @@ public sealed class DeserializeContext
     public Type GetEntityType(long modelId)
     {
         if (_entityFactories == null)
-            throw new SerializationException(SerializationError.EntityFactoryIsNull);
+            return typeof(EntityData);
         var index = Array.FindIndex(_entityFactories, t => t.ModelId == modelId);
-        if (index < 0) //TODO: 不存在返回动态类型，不抛异常
-            throw new SerializationException(SerializationError.EntityFactoryNotExists);
-        return _entityFactories[index].EntityType;
+        return index < 0
+            ? typeof(EntityData) //不存在返回动态类型，不抛异常
+            : _entityFactories[index].EntityType;
     }
 
     /// <summary>
     /// 根据实体模型标识号获取实体实例
     /// </summary>
-    public Entity MakeEntity(long modelId) =>
-        (Entity)Activator.CreateInstance(GetEntityType(modelId))!;
+    public IBinSerializable MakeEntity(long modelId)
+    {
+        var entityType = GetEntityType(modelId);
+        return entityType != typeof(EntityData)
+            ? (IBinSerializable)Activator.CreateInstance(entityType)!
+            : new EntityData(modelId);
+    }
 }
 
 public readonly struct EntityFactory

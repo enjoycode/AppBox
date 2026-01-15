@@ -4,6 +4,8 @@ namespace Tests.Core;
 
 public sealed class DemoEntity : Entity, IEquatable<DemoEntity>
 {
+    public const long MODELID = 12345;
+
     private static readonly short[] Members = [1, 2];
 
     private string _name = string.Empty;
@@ -32,7 +34,6 @@ public sealed class DemoEntity : Entity, IEquatable<DemoEntity>
         }
     }
 
-    internal const long MODELID = 12345;
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => Members;
 

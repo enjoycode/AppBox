@@ -5,27 +5,34 @@ namespace AppBoxCore;
 /// <summary>
 /// 用于包装实体的序列化数据，以便互相转换
 /// </summary>
-public sealed class EntityData : IBinSerializable
+public sealed class EntityData : Entity
 {
-    internal EntityData() { }
+    internal EntityData(ModelId modelId)
+    {
+        Debug.Assert(modelId.Type == ModelType.Entity);
+        _modelId = modelId;
+    }
 
     internal EntityData(ModelId modelId, EntityType type)
     {
         Debug.Assert(modelId.Type == ModelType.Entity);
-        ModelId = modelId;
-        EntityType = type;
+        _modelId = modelId;
+        _entityType = type;
     }
 
-    public ModelId ModelId { get; private set; }
-    public EntityType EntityType { get; private set; }
+    private ModelId _modelId;
+    private EntityType _entityType;
+    public override ModelId ModelId => _modelId;
+    protected override EntityType EntityType => _entityType;
     public PersistentState PersistentState { get; private set; }
     private readonly List<MemberData> _members = [];
     internal List<short>? ChangedMembers { get; private set; }
 
-    internal void AddMember(short id, AnyValue value)
-    {
-        _members.Add(new MemberData(id, value));
-    }
+    protected override short[] AllMembers => _members.Select(m => m.MemberId).ToArray();
+
+    internal void AddMember(short id, AnyValue value) => _members.Add(new MemberData(id, value));
+
+    public override EntityData ToEntityData() => this;
 
     #region ====Convert with Entity====
 
@@ -102,9 +109,12 @@ public sealed class EntityData : IBinSerializable
 
     #region ====Serialization====
 
-    void IBinSerializable.WriteTo(IOutputStream ws)
+    protected internal override void WriteMember<T>(short id, ref T ws, int flags) => throw new NotSupportedException();
+
+    protected internal override void ReadMember<T>(short id, ref T rs, int flags) => throw new NotSupportedException();
+
+    protected override void WriteTo(IOutputStream ws)
     {
-        ws.WriteLong(ModelId);
         ws.WriteByte((byte)EntityType);
 
         if (EntityType == EntityType.SqlStore)
@@ -130,10 +140,9 @@ public sealed class EntityData : IBinSerializable
         ws.WriteShort(0); ////End write members
     }
 
-    void IBinSerializable.ReadFrom(IInputStream rs)
+    protected override void ReadFrom(IInputStream rs)
     {
-        ModelId = rs.ReadLong();
-        EntityType = (EntityType)rs.ReadByte();
+        _entityType = (EntityType)rs.ReadByte();
 
         if (EntityType == EntityType.SqlStore)
         {

@@ -62,7 +62,7 @@ namespace AppBoxCore
         DebugEventArgs = 70,
 
         //----运行时相关类型----
-        EntityData = 89,
+        EntitySet = 89,
         Entity = 90,
         PermissionNode = 91,
         DataTable = 92,

@@ -156,7 +156,6 @@ public abstract class TypeSerializer
         RegisterKnownType(new ListSerializer());
         //运行时类型
         //@formatter:off
-        RegisterKnownType(new BinSerializer(PayloadType.EntityData, typeof(EntityData), () => new EntityData()));
         RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode), () => new PermissionNode()));
         RegisterKnownType(new BinSerializer(PayloadType.DataTable, typeof(DataTable), () => new DataTable()));
         RegisterKnownType(new BinSerializer(PayloadType.DynamicQuery, typeof(DynamicQuery), () => new DynamicQuery()));
