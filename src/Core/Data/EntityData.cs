@@ -86,6 +86,7 @@ public sealed class EntityData : Entity
         public long ReadLongMember(int flags) => _data._members[_index].Value.GetLong()!.Value;
         public float ReadFloatMember(int flags) => _data._members[_index].Value.GetFloat()!.Value;
         public double ReadDoubleMember(int flags) => _data._members[_index].Value.GetDouble()!.Value;
+        public decimal ReadDecimalMember(int flags) => _data._members[_index].Value.GetDecimal()!.Value;
         public DateTime ReadDateTimeMember(int flags) => _data._members[_index].Value.GetDateTime()!.Value;
         public Guid ReadGuidMember(int flags) => _data._members[_index].Value.GetGuid()!.Value;
 

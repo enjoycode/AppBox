@@ -39,6 +39,9 @@ internal struct EntityMemberValueGetter : IEntityMemberWriter
     public void WriteDoubleMember(short id, double? value, int flags)
         => Value = value == null ? AnyValue.Empty : AnyValue.From(value.Value);
 
+    public void WriteDecimalMember(short id, decimal? value, int flags)
+        => Value = value == null ? AnyValue.Empty : AnyValue.From(value.Value);
+
     public void WriteDateTimeMember(short id, DateTime? value, int flags)
         => Value = value == null ? AnyValue.Empty : AnyValue.From(value.Value);
 

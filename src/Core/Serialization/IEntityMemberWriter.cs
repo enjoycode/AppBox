@@ -27,6 +27,8 @@ public interface IEntityMemberWriter
 
     void WriteDoubleMember(short id, double? value, int flags);
 
+    void WriteDecimalMember(short id, decimal? value, int flags);
+
     void WriteDateTimeMember(short id, DateTime? value, int flags);
 
     void WriteGuidMember(short id, Guid? value, int flags);
@@ -35,5 +37,5 @@ public interface IEntityMemberWriter
 
     void WriteEntityRefMember(short id, Entity? value, int flags);
 
-    void WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags) where T: Entity, new();
+    void WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags) where T : Entity, new();
 }

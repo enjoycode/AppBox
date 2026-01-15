@@ -19,7 +19,7 @@ public interface IInputStream : IEntityMemberReader
 
     #region ====IEntityMemberReader====
 
-    private void ExpectReadType(PayloadType expected)
+    private void ReadExpectType(PayloadType expected)
     {
         var readType = (PayloadType)ReadByte();
         if (readType != expected)
@@ -28,7 +28,7 @@ public interface IInputStream : IEntityMemberReader
 
     string IEntityMemberReader.ReadStringMember(int flags)
     {
-        ExpectReadType(PayloadType.String);
+        ReadExpectType(PayloadType.String);
         return flags == 0 ? this.ReadString()! : throw new NotImplementedException();
     }
 
@@ -39,43 +39,49 @@ public interface IInputStream : IEntityMemberReader
 
     byte IEntityMemberReader.ReadByteMember(int flags)
     {
-        ExpectReadType(PayloadType.Byte);
+        ReadExpectType(PayloadType.Byte);
         return flags == 0 ? ReadByte() : throw new NotImplementedException();
     }
 
     int IEntityMemberReader.ReadIntMember(int flags)
     {
-        ExpectReadType(PayloadType.Int32);
+        ReadExpectType(PayloadType.Int32);
         return flags == 0 ? this.ReadInt() : throw new NotImplementedException();
     }
 
     long IEntityMemberReader.ReadLongMember(int flags)
     {
-        ExpectReadType(PayloadType.Int64);
+        ReadExpectType(PayloadType.Int64);
         return flags == 0 ? this.ReadLong() : throw new NotImplementedException();
     }
 
     float IEntityMemberReader.ReadFloatMember(int flags)
     {
-        ExpectReadType(PayloadType.Float);
+        ReadExpectType(PayloadType.Float);
         return flags == 0 ? this.ReadFloat() : throw new NotImplementedException();
     }
 
     double IEntityMemberReader.ReadDoubleMember(int flags)
     {
-        ExpectReadType(PayloadType.Double);
+        ReadExpectType(PayloadType.Double);
         return flags == 0 ? this.ReadDouble() : throw new NotImplementedException();
+    }
+
+    decimal IEntityMemberReader.ReadDecimalMember(int flags)
+    {
+        ReadExpectType(PayloadType.Decimal);
+        return flags == 0 ? this.ReadDecimal() : throw new NotImplementedException();
     }
 
     DateTime IEntityMemberReader.ReadDateTimeMember(int flags)
     {
-        ExpectReadType(PayloadType.DateTime);
+        ReadExpectType(PayloadType.DateTime);
         return flags == 0 ? this.ReadDateTime() : throw new NotImplementedException();
     }
 
     Guid IEntityMemberReader.ReadGuidMember(int flags)
     {
-        ExpectReadType(PayloadType.Guid);
+        ReadExpectType(PayloadType.Guid);
         return flags == 0 ? this.ReadGuid() : throw new NotImplementedException();
     }
 
@@ -96,7 +102,7 @@ public interface IInputStream : IEntityMemberReader
 
     void IEntityMemberReader.ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet)
     {
-        ExpectReadType(PayloadType.EntitySet);
+        ReadExpectType(PayloadType.EntitySet);
         ((IBinSerializable)entitySet).ReadFrom(this);
     }
 

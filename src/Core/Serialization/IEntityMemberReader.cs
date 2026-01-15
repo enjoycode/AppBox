@@ -18,13 +18,15 @@ public interface IEntityMemberReader
 
     double ReadDoubleMember(int flags);
 
+    decimal ReadDecimalMember(int flags);
+
     DateTime ReadDateTimeMember(int flags);
 
     Guid ReadGuidMember(int flags);
 
     byte[] ReadBinaryMember(int flags);
 
-    T ReadEntityRefMember<T>(int flags, Func<T>? creator/*聚合引用需要*/) where T : Entity;
+    T ReadEntityRefMember<T>(int flags, Func<T>? creator /*聚合引用需要*/) where T : Entity;
 
     void ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet) where T : Entity, new();
 }

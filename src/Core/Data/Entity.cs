@@ -151,6 +151,12 @@ public abstract class Entity : IBinSerializable
             _data.AddMember(id, value.Value);
         }
 
+        public void WriteDecimalMember(short id, decimal? value, int flags)
+        {
+            if (value == null) return;
+            _data.AddMember(id, value.Value);
+        }
+
         public void WriteDateTimeMember(short id, DateTime? value, int flags)
         {
             if (value == null) return;

@@ -47,6 +47,11 @@ public readonly struct SqlRowReader : IEntityMemberReader
     public double? ReadNullableDoubleMember(int flags) =>
         _dataReader.IsDBNull(flags) ? null : _dataReader.GetDouble(flags);
 
+    public decimal ReadDecimalMember(int flags) => _dataReader.GetDecimal(flags);
+
+    public decimal? ReadNullableDecimalMember(int flags) =>
+        _dataReader.IsDBNull(flags) ? null : _dataReader.GetDecimal(flags);
+
     public DateTime ReadDateTimeMember(int flags) => _dataReader.GetDateTime(flags).ToLocalTime();
 
     public DateTime? ReadNullableDateTimeMember(int flags) =>

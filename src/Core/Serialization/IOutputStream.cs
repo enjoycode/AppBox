@@ -125,6 +125,22 @@ public interface IOutputStream : IEntityMemberWriter
         }
     }
 
+    void IEntityMemberWriter.WriteDecimalMember(short id, decimal? value, int flags)
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            this.WriteShort(id);
+            this.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     void IEntityMemberWriter.WriteDateTimeMember(short id, DateTime? value, int flags)
     {
         var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
