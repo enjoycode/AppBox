@@ -24,7 +24,7 @@ public interface IMetaStore
     Task DeleteModelCodeAsync(ModelId modelId, DbTransaction txn);
 
     Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
-        DbTransaction txn, AssemblyFlag flag = AssemblyFlag.None);
+        DbTransaction? txn, AssemblyFlag flag = AssemblyFlag.None);
 
     Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn);
 

@@ -364,9 +364,8 @@ internal static class PublishService
         //保存视图模型对应的所有程序集的映射
         foreach (var kv in viewAssemblyMap)
         {
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, kv.ViewModelName, kv.MapData,
-                txn,
-                kv.AssemblyFlag);
+            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies,
+                kv.ViewModelName, kv.MapData, txn, kv.AssemblyFlag);
         }
 
         await txn.CommitAsync();

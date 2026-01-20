@@ -66,9 +66,19 @@ public enum AssemblyFlag : byte
     None,
 
     /// <summary>
-    /// 平台原生程序集，通过扩展名区分对应的平台
+    /// Linux平台原生程序集
     /// </summary>
-    Native = 3,
+    LinuxNative = 3,
+
+    /// <summary>
+    /// Windows平台原生程序集
+    /// </summary>
+    WindowsNative = 4,
+
+    /// <summary>
+    /// MacOS平台原生程序集
+    /// </summary>
+    MacOSNative = 5,
 
     /// <summary>
     /// 可以注册为动态组件的视图程序集,用于动态视图设计器注册至工具箱

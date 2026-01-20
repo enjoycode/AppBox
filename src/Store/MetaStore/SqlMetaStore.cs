@@ -219,18 +219,6 @@ public sealed class SqlMetaStore : IMetaStore
     //     return list;
     // }
 
-//     /// <summary>
-//     /// 仅用于上传应用使用的第三方组件
-//     /// </summary>
-//     internal static async ValueTask UpsertAppAssemblyAsync(string asmName, byte[] asmData,
-//         AssemblyPlatform platform)
-//     {
-//         using var conn = await SqlStore.Default.OpenConnectionAsync();
-//         using var txn = conn.BeginTransaction();
-//         await UpsertAssemblyAsync(MetaAssemblyType.Application, asmName, asmData, txn, platform);
-//         txn.Commit();
-//     }
-
     /// <summary>
     /// 保存编译好的服务组件或视图运行时代码或外部程序集
     /// </summary>
@@ -243,14 +231,27 @@ public sealed class SqlMetaStore : IMetaStore
     /// <param name="txn"></param>
     /// <param name="flag"></param>
     public async Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
-        DbTransaction txn, AssemblyFlag flag = AssemblyFlag.None)
+        DbTransaction? txn, AssemblyFlag flag = AssemblyFlag.None)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
-        cmd.Connection = txn.Connection;
-        cmd.Transaction = txn;
+        DbConnection? conn = null;
+        if (txn == null)
+        {
+            conn = SqlStore.Default.MakeConnection();
+            await conn.OpenAsync();
+            cmd.Connection = conn;
+        }
+        else
+        {
+            cmd.Connection = txn.Connection;
+            cmd.Transaction = txn;
+        }
+
         BuildDeleteMetaCommand(cmd, (byte)type, asmName);
         BuildInsertMetaCommand(cmd, (byte)type, asmName, (byte)flag, asmData, true);
         await cmd.ExecuteNonQueryAsync();
+
+        if (conn != null) await conn.CloseAsync();
     }
 
     public async Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn)
