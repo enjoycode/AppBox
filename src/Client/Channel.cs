@@ -23,7 +23,7 @@ public static class Channel
     }
 
     private static readonly Dictionary<int, List<EventSubscriber>> EventSubscribers = new();
-    
+
     //TODO:以下方法加入参数是否需要通知服务端订阅
 
     public static void AddEventSubscriber(int eventId, object subscriber, Action<IServerEventArgs> handler)
@@ -98,7 +98,7 @@ public static class Channel
     {
         var rs = await Provider.Invoke(service, w =>
         {
-            if (args != null && args.Length > 0)
+            if (args is { Length: > 0 })
             {
                 for (var i = 0; i < args.Length; i++)
                 {
@@ -110,30 +110,7 @@ public static class Channel
             rs.Context.SetEntityFactories(entityFactories);
 
         // deserialize response
-        var errorCode = (InvokeErrorCode)rs.ReadByte();
-        object? result = null;
-        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
-        {
-            try
-            {
-                result = rs.Deserialize();
-            }
-            catch (Exception ex)
-            {
-                errorCode = InvokeErrorCode.DeserializeResponseFail;
-                result = ex.Message;
-            }
-            finally
-            {
-                rs.Free();
-            }
-        }
-
-        if (errorCode != InvokeErrorCode.None)
-            throw new Exception($"Code={errorCode} Msg={result}");
-
-        if (result == null) return default;
-        return (T)result;
+        return DeserializeResponse<T>(rs);
     }
 
     public static async Task Invoke(string service, Action<IOutputStream> argsWriter)
@@ -143,6 +120,12 @@ public static class Channel
         rs.Free();
         if (errorCode != InvokeErrorCode.None)
             throw new Exception($"Code={errorCode}");
+    }
+
+    public static async Task<T?> Invoke<T>(string service, Action<IOutputStream> argsWriter)
+    {
+        var rs = await Provider.Invoke(service, argsWriter);
+        return DeserializeResponse<T>(rs);
     }
 
     public static async Task<Stream> InvokeForStream(string service, object?[]? args = null)
@@ -167,6 +150,34 @@ public static class Channel
         }
 
         return rs.ToSystemStream();
+    }
+
+    private static T? DeserializeResponse<T>(IInputStream rs)
+    {
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        object? result = null;
+        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
+        {
+            try
+            {
+                result = rs.Deserialize();
+            }
+            catch (Exception ex)
+            {
+                errorCode = InvokeErrorCode.DeserializeResponseFail;
+                result = ex.Message;
+            }
+            finally
+            {
+                rs.Free();
+            }
+        }
+
+        if (errorCode != InvokeErrorCode.None)
+            throw new Exception($"Code={errorCode} Msg={result}");
+
+        if (result == null) return default;
+        return (T)result;
     }
 
     //暂时放在这里，待移至RuntimeContext内

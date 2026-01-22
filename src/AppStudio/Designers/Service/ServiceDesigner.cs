@@ -55,6 +55,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         {
             Children =
             [
+                new Button("Dependencies") { Width = 118, OnTap = OnShowDependencies },
                 new Button("Run") { Width = 75, OnTap = OnRunMethod },
                 new Button("Debug")
                 {
@@ -181,6 +182,16 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         // var srcCode = await Channel.Invoke<string>("sys.DesignService.OpenCodeModel",
         //     new object[] { ModelNode.Id });
         // _codeEditorController.Document.TextContent = srcCode!;
+    }
+
+    private async void OnShowDependencies(PointerEvent e)
+    {
+        var dlg = new DependencyDialog(ModelNode);
+        var res = await dlg.ShowAsync();
+        if (res == DialogResult.OK)
+        {
+            //TODO: update dependencies
+        }
     }
 
     private async void OnRunMethod(PointerEvent e)

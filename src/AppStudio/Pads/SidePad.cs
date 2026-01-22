@@ -33,13 +33,13 @@ internal sealed class NaviBar : View
                     {
                         Child = new Column(HorizontalAlignment.Center, 5)
                         {
-                            Children = new Widget[]
-                            {
+                            Children =
+                            [
                                 BuildButton(MaterialIcons.Folder, SidePadType.DesignTree),
                                 BuildButton(MaterialIcons.AccountTree, SidePadType.Outline),
                                 BuildButton(MaterialIcons.Build, SidePadType.Toolbox),
-                                BuildButton(MaterialIcons.Settings, SidePadType.Settings),
-                            }
+                                BuildButton(MaterialIcons.Settings, SidePadType.Settings)
+                            ]
                         }
                     },
                     BuildButton(MaterialIcons.ArrowLeft)

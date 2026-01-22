@@ -16,12 +16,17 @@ internal static class ExternalLibraryManager
     {
         var appName = stream.ReadString()!;
         var fileName = stream.ReadString()!;
-        var filePath = Path.Combine(AppContext.BaseDirectory, "External", appName, fileName);
+        var folder = Path.Combine(AppContext.BaseDirectory, "External", appName);
+        var filePath = Path.Combine(folder, fileName);
+        
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
 
         // save to External library folder
-        await using var wfs = File.OpenWrite(filePath);
+        var wfs = File.OpenWrite(filePath);
         await stream.ToSystemStream().CopyToAsync(wfs);
         await wfs.FlushAsync();
+        wfs.Close();
 
         // check is native assembly
         var assemblyFlag = AssemblyFlag.None;
@@ -54,6 +59,15 @@ internal static class ExternalLibraryManager
         // 3. 如果集群模式，通知集群其他节点做上述1，2操作
 
         return (byte)assemblyFlag;
+    }
+
+    /// <summary>
+    /// 获取指定应用所有的外部依赖库
+    /// </summary>
+    internal static async Task<IList<string>> GetExternalLibraries(string appName)
+    {
+        var allExtLibs = await MetaStore.Provider.LoadMetaNamesAsync((byte)MetaAssemblyType.ExtService, 0);
+        throw new NotImplementedException();
     }
 
     // https://stackoverflow.com/questions/1366503/best-way-to-check-if-a-dll-file-is-a-clr-assembly-in-c-sharp

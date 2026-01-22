@@ -609,4 +609,17 @@ public static class OutputStreamExtensions
     }
 
     #endregion
+
+    public static void CopyTo(this Stream source, IOutputStream dest)
+    {
+        var buffer = new byte[1024];
+        while (true)
+        {
+            var readBytes = source.Read(buffer);
+            if (readBytes <= 0)
+                break;
+
+            dest.WriteBytes(buffer.AsSpan(0, readBytes));
+        }
+    }
 }
