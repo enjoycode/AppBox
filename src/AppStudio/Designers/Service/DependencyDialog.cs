@@ -21,6 +21,8 @@ internal sealed class DependencyDialog : Dialog
     private readonly ListViewController<string> _sourceListController = new();
     private readonly ListViewController<string> _targetListController = new();
     private readonly Color _fillColor = new(0xFFF3F3F3);
+    private readonly State<int> _selectedSource = -1;
+    private readonly State<int> _hoveredSource = -1;
 
     protected override Widget BuildBody() => new Container()
     {
@@ -92,7 +94,38 @@ internal sealed class DependencyDialog : Dialog
 
     private Widget BuildListItem(string value, int index)
     {
-        throw new NotImplementedException();
+        return new Row()
+        {
+            Children =
+            [
+                new SelectableItem(index,
+                    _hoveredSource.ToComputed(idx => idx == index, v => { _hoveredSource.Value = v ? index : -1; }),
+                    _selectedSource.ToComputed(idx => idx == index),
+                    idx => _selectedSource.Value = idx)
+                {
+                    Height = 22,
+                    Child = new Container()
+                    {
+                        Padding = EdgeInsets.Only(5, 2, 2, 5),
+                        Child = new Text(value)
+                    }
+                }
+            ]
+        };
+    }
+
+    protected override void OnMounted()
+    {
+        base.OnMounted();
+
+        LoadSourceList();
+    }
+
+    private async void LoadSourceList()
+    {
+        var appName = _modelNode.AppNode.Model.Name;
+        var list = await Channel.Invoke<string[]>(DesignMethods.GetExtLibrariesFull, [appName]);
+        _sourceListController.DataSource = list;
     }
 
     private async void OnUpload()
@@ -113,6 +146,7 @@ internal sealed class DependencyDialog : Dialog
                 ws.WriteString(fileName);
                 fileStream.CopyTo(ws);
             });
+            //TODO:加入Source列表内
         }
         catch (Exception ex)
         {

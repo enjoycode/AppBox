@@ -80,6 +80,8 @@ internal sealed class DesignService : IService
                 return AnyValue.Empty;
             case DesignMethods.UploadExtAssembly:
                 return AnyValue.From(await ExternalLibraryManager.UploadLibrary(args.InputStream!));
+            case DesignMethods.GetExtLibraries:
+                return AnyValue.From(await ExternalLibraryManager.GetExternalLibraries(args.GetString()!));
             case DesignMethods.DebugUploadService:
                 await DebugService.UploadAssembly(args.InputStream!);
                 return AnyValue.Empty;

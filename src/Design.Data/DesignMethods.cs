@@ -8,6 +8,9 @@ public static class DesignMethods
     public const string UploadExtAssembly = "UploadExtAssembly";
     public const string UploadExtAssemblyFull = $"{DesignService}.{UploadExtAssembly}";
 
+    public const string GetExtLibraries = "GetExtLibraries";
+    public const string GetExtLibrariesFull = $"{DesignService}.{GetExtLibraries}";
+
     #region ====Debug Methods====
 
     public const string DebugUploadService = "DebugUploadService";
