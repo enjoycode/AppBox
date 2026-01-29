@@ -394,6 +394,24 @@ internal sealed class TypeSystem : IDisposable
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot remove service project.");
     }
+    
+    // internal void AddServiceReference(ProjectId serviceProjectId, string appId, string reference)
+    // {
+    //     var dep = MetadataReferences.Get($"{reference}.dll", appId);
+    //     var newSolution = Workspace.CurrentSolution.AddMetadataReference(serviceProjectId, dep);
+    //     if (!Workspace.TryApplyChanges(newSolution))
+    //         Log.Warn("Cannot add service project reference.");
+    // }
+    //
+    // internal void RemoveServiceReference(ProjectId serviceProjectId, string appID, string reference)
+    // {
+    //     // var project = Workspace.CurrentSolution.GetProject(serviceProjectId);
+    //     // var mrf = project.MetadataReferences.FirstOrDefault(t => t.Display == reference);
+    //     var dep = MetadataReferences.Get($"{reference}.dll", appID);
+    //     var newSolution = Workspace.CurrentSolution.RemoveMetadataReference(serviceProjectId, dep);
+    //     if (!Workspace.TryApplyChanges(newSolution))
+    //         Log.Warn("Cannot remove service project reference.");
+    // }
 
     #endregion
 

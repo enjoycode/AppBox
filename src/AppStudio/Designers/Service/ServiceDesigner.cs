@@ -1,4 +1,5 @@
 using AppBoxClient;
+using AppBoxCore;
 using AppBoxDesign.Debugging;
 using CodeEditor;
 using PixUI;
@@ -26,6 +27,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     private readonly DesignStore _designStore;
     private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }
+    internal ServiceModel ServiceModel => (ServiceModel)ModelNode.Model;
     private readonly CodeEditorController _codeEditorController;
     private readonly DelayTask _delayDocChangedTask;
     private ILocation? _pendingGoto;
@@ -188,10 +190,20 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     {
         var dlg = new DependencyDialog(ModelNode);
         var res = await dlg.ShowAsync();
-        if (res == DialogResult.OK)
+        if (res != DialogResult.OK)
+            return;
+
+        var newList = dlg.Result;
+        List<string> added = newList;
+        List<string> removed = [];
+        //更新的应该由上传新的版本后处理
+        if (ServiceModel.Dependencies != null)
         {
-            //TODO: update dependencies
+            added = newList.Except(ServiceModel.Dependencies).ToList();
+            removed = ServiceModel.Dependencies.Except(newList).ToList();
         }
+
+        ServiceModel.Dependencies = newList;
     }
 
     private async void OnRunMethod(PointerEvent e)

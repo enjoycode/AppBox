@@ -64,13 +64,13 @@ internal static class ExternalLibraryManager
     /// <summary>
     /// 获取指定应用所有的外部依赖库
     /// </summary>
-    internal static async Task<string[]> GetExternalLibraries(string appName)
+    internal static async Task<List<string>> GetExternalLibraries(string appName)
     {
         var allExtLibs = await MetaStore.Provider.LoadMetaNamesAsync((byte)MetaAssemblyType.ExtService, 0);
         return allExtLibs
             .Where(name => name.StartsWith($"{appName}."))
             .Select(name => name.Substring($"{appName}.".Length))
-            .ToArray();
+            .ToList();
     }
 
     // https://stackoverflow.com/questions/1366503/best-way-to-check-if-a-dll-file-is-a-clr-assembly-in-c-sharp

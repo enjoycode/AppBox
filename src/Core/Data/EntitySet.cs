@@ -76,7 +76,6 @@ public sealed class EntitySet<T> : IList<T>, IBinSerializable where T : Entity, 
     public T this[int index]
     {
         get => _list[index];
-        [PixUI.TSIndexerSetToMethod]
         set
         {
             RemoveInternal(_list[index]);

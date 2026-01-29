@@ -150,7 +150,7 @@ internal static class TypeHelper
             _ => null
         };
     }
-    
+
     internal static AttributeSyntax? TryGetAttribute(SyntaxList<AttributeListSyntax> attributes,
         Predicate<AttributeSyntax> checker)
     {

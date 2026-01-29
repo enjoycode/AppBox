@@ -17,7 +17,6 @@ internal interface IDesigner
     void OnClose();
 }
 
-[TSInterfaceOf]
 internal interface IModelDesigner : IDesigner
 {
     ModelNode ModelNode { get; }

@@ -40,12 +40,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="..\..\ext\PixUI\src\PixUI.CS2TS\RoslynUtils.cs">
-            <Link>CodeGenerator\RoslynUtils.cs</Link>
-        </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
       <Reference Include="AppBox.Reporting">
         <HintPath>..\..\ext\AppBox.Reporting.dll</HintPath>
       </Reference>

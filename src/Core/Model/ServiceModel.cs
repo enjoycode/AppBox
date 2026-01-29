@@ -11,9 +11,9 @@ public sealed class ServiceModel : ModelBase
         Debug.Assert(id.Type == ModelType.Service);
     }
 
-    private List<string>? _dependencies;
+    public bool HasDependency => Dependencies is { Count: > 0 };
 
-    public bool HasDependency => _dependencies is { Count: > 0 };
+    public List<string>? Dependencies { get; internal set; }
 
     #region ====Serialization====
 
@@ -21,12 +21,12 @@ public sealed class ServiceModel : ModelBase
     {
         base.WriteTo(ws);
 
-        if (_dependencies == null || _dependencies.Count == 0)
+        if (Dependencies == null || Dependencies.Count == 0)
             ws.WriteVariant(0);
         else
         {
-            ws.WriteVariant(_dependencies.Count);
-            foreach (var dep in _dependencies)
+            ws.WriteVariant(Dependencies.Count);
+            foreach (var dep in Dependencies)
             {
                 ws.WriteString(dep);
             }
@@ -42,10 +42,10 @@ public sealed class ServiceModel : ModelBase
         var referenceCount = rs.ReadVariant();
         if (referenceCount > 0)
         {
-            _dependencies = new List<string>();
+            Dependencies = [];
             for (var i = 0; i < referenceCount; i++)
             {
-                _dependencies.Add(rs.ReadString()!);
+                Dependencies.Add(rs.ReadString()!);
             }
         }
 

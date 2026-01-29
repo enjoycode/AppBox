@@ -23,6 +23,10 @@ internal sealed class DependencyDialog : Dialog
     private readonly Color _fillColor = new(0xFFF3F3F3);
     private readonly State<int> _selectedSource = -1;
     private readonly State<int> _hoveredSource = -1;
+    private readonly State<int> _selectedTarget = -1;
+    private readonly State<int> _hoveredTarget = -1;
+
+    public List<string> Result => _targetListController.DataSource as List<string> ?? [];
 
     protected override Widget BuildBody() => new Container()
     {
@@ -41,7 +45,7 @@ internal sealed class DependencyDialog : Dialog
                             new Container()
                             {
                                 FillColor = _fillColor,
-                                Child = new ListView<string>(BuildListItem, null, _sourceListController),
+                                Child = new ListView<string>(BuildSourceListItem, null, _sourceListController),
                             }
                         ]
                     }
@@ -53,8 +57,8 @@ internal sealed class DependencyDialog : Dialog
                     Spacing = 10,
                     Children =
                     [
-                        new Button(">"),
-                        new Button("<")
+                        new Button(">") { OnTap = _ => OnAdd() },
+                        new Button("<") { OnTap = _ => OnRemove() }
                     ]
                 },
 
@@ -67,7 +71,7 @@ internal sealed class DependencyDialog : Dialog
                             new Container()
                             {
                                 FillColor = _fillColor,
-                                Child = new ListView<string>(BuildListItem, null, _targetListController)
+                                Child = new ListView<string>(BuildTargetListItem, null, _targetListController)
                             }
                         ]
                     }
@@ -92,16 +96,22 @@ internal sealed class DependencyDialog : Dialog
         }
     };
 
-    private Widget BuildListItem(string value, int index)
+    private Widget BuildSourceListItem(string value, int index) =>
+        BuildListItem(value, index, _hoveredSource, _selectedSource);
+
+    private Widget BuildTargetListItem(string value, int index) =>
+        BuildListItem(value, index, _hoveredTarget, _selectedTarget);
+
+    private static Widget BuildListItem(string value, int index, State<int> hoverState, State<int> selectedState)
     {
         return new Row()
         {
             Children =
             [
                 new SelectableItem(index,
-                    _hoveredSource.ToComputed(idx => idx == index, v => { _hoveredSource.Value = v ? index : -1; }),
-                    _selectedSource.ToComputed(idx => idx == index),
-                    idx => _selectedSource.Value = idx)
+                    hoverState.ToComputed(idx => idx == index, v => { hoverState.Value = v ? index : -1; }),
+                    selectedState.ToComputed(idx => idx == index),
+                    idx => selectedState.Value = idx)
                 {
                     Height = 22,
                     Child = new Container()
@@ -124,7 +134,14 @@ internal sealed class DependencyDialog : Dialog
     private async void LoadSourceList()
     {
         var appName = _modelNode.AppNode.Model.Name;
-        var list = await Channel.Invoke<string[]>(DesignMethods.GetExtLibrariesFull, [appName]);
+        var list = (await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, [appName]))!;
+        if (_targetListController.DataSource != null && _targetListController.DataSource.Any())
+        {
+            if (list.RemoveAll(name => _targetListController.DataSource.Contains(name)) > 0)
+                list = list.ToList();
+        }
+
+
         _sourceListController.DataSource = list;
     }
 
@@ -156,5 +173,44 @@ internal sealed class DependencyDialog : Dialog
         {
             fileStream.Close();
         }
+    }
+
+    private void OnAdd()
+    {
+        var index = _selectedSource.Value;
+        if (index < 0)
+            return;
+
+        var sourceList = (List<string>)_sourceListController.DataSource!;
+        List<string> targetList;
+        if (_targetListController.DataSource is List<string> list)
+            targetList = list;
+        else
+            targetList = [];
+
+        var value = sourceList[index];
+        sourceList.RemoveAt(index);
+        _selectedSource.Value = -1;
+        targetList.Add(value);
+        targetList.Sort();
+        _sourceListController.DataSource = sourceList;
+        _targetListController.DataSource = targetList;
+    }
+
+    private void OnRemove()
+    {
+        var index = _selectedTarget.Value;
+        if (index < 0)
+            return;
+
+        var sourceList = (List<string>)_sourceListController.DataSource!;
+        var targetList = (List<string>)_targetListController.DataSource!;
+        var value = targetList[index];
+        targetList.RemoveAt(index);
+        _selectedTarget.Value = -1;
+        sourceList.Add(value);
+        sourceList.Sort();
+        _sourceListController.DataSource = sourceList;
+        _targetListController.DataSource = targetList;
     }
 }
