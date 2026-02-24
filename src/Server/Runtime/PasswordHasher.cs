@@ -1,4 +1,3 @@
-using System;
 using System.Security.Cryptography;
 using AppBoxCore;
 
@@ -9,40 +8,34 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class PasswordHasher : IPasswordHasher
 {
+    private const int ITERATIONS = 1000;
+    private const int SALT_SIZE = 16;
+    private const int KEY_SIZE = 32;
+
     public byte[] HashPassword(string password)
     {
-        if (password == null)
+        if (string.IsNullOrEmpty(password))
             throw new ArgumentNullException(nameof(password));
-        byte[] salt;
-        byte[] bytes;
-        using (var rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, 16, 1000, HashAlgorithmName.SHA1))
-        {
-            salt = rfc2898DeriveBytes.Salt;
-            bytes = rfc2898DeriveBytes.GetBytes(32);
-        }
-        var inArray = new byte[49];
-        Buffer.BlockCopy(salt, 0, inArray, 1, 16);
-        Buffer.BlockCopy(bytes, 0, inArray, 17, 32);
-        return inArray;
+
+        var salt = new byte[SALT_SIZE];
+        RandomNumberGenerator.Fill(salt.AsSpan(0, SALT_SIZE));
+        var key = Rfc2898DeriveBytes.Pbkdf2(password, salt, ITERATIONS, HashAlgorithmName.SHA1, KEY_SIZE);
+
+        var result = new byte[49];
+        Buffer.BlockCopy(salt, 0, result, 1, SALT_SIZE);
+        Buffer.BlockCopy(key, 0, result, 17, KEY_SIZE);
+        return result;
     }
 
     public bool VerifyHashedPassword(byte[]? hashedPassword, string password)
     {
-        if (hashedPassword == null)
+        if (hashedPassword == null || hashedPassword.Length != 49 || hashedPassword[0] != 0)
             return false;
-        if (password == null)
+        if (string.IsNullOrEmpty(password))
             throw new ArgumentNullException(nameof(password));
 
-        if (hashedPassword.Length != 49 || hashedPassword[0] != 0)
-            return false;
-        var salt = new byte[16];
-        Buffer.BlockCopy(hashedPassword, 1, salt, 0, 16);
-        var a = new byte[32];
-        Buffer.BlockCopy(hashedPassword, 17, a, 0, 32);
-        byte[] bytes;
-        using (var rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, salt, 1000, HashAlgorithmName.SHA1))
-            bytes = rfc2898DeriveBytes.GetBytes(32);
-
-        return a.AsSpan().SequenceEqual(bytes);
+        var key = Rfc2898DeriveBytes.Pbkdf2(password.AsSpan(), hashedPassword.AsSpan(1, SALT_SIZE), ITERATIONS,
+            HashAlgorithmName.SHA1, KEY_SIZE);
+        return key.AsSpan().SequenceEqual(hashedPassword.AsSpan(17));
     }
 }

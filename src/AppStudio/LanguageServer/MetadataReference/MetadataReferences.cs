@@ -35,7 +35,8 @@ internal static class MetadataReferences
         ];
         string[] serverLibs = ["AppBoxStore.dll"];
 
-        var tasks = new Task<(string, MetadataReference)>[sdkLibs.Length + commonLibs.Length + clientLibs.Length];
+        var tasksCount = sdkLibs.Length + commonLibs.Length + clientLibs.Length + serverLibs.Length;
+        var tasks = new Task<(string, MetadataReference)>[tasksCount];
         var offset = 0;
         for (var i = 0; i < sdkLibs.Length; i++)
         {
