@@ -24,7 +24,7 @@ public interface IMetaStore
     Task DeleteModelCodeAsync(ModelId modelId, DbTransaction txn);
 
     Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
-        DbTransaction? txn, AssemblyFlag flag = AssemblyFlag.None);
+        DbTransaction? txn, AssemblyPlatform flag = AssemblyPlatform.None);
 
     Task DeleteAssemblyAsync(MetaAssemblyType type, string asmName, DbTransaction txn);
 
@@ -162,5 +162,5 @@ public static class MetaStoreExtensions
     /// 加载所有标为动态组件的视图模型的名称，用于设计时注册动态组件至工具箱
     /// </summary>
     public static Task<string[]> LoadDynamicWidgetsAsync(this IMetaStore metaStore) =>
-        metaStore.LoadMetaNamesAsync((byte)MetaAssemblyType.ViewAssemblies, (byte)AssemblyFlag.ViewDynamic);
+        metaStore.LoadMetaNamesAsync((byte)MetaAssemblyType.ViewAssemblies, (byte)AssemblyPlatform.ViewDynamic);
 }

@@ -1,83 +1,83 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>AppBoxStudio</AssemblyName>
         <RootNamespace>AppBoxDesign</RootNamespace>
-        <LangVersion>13</LangVersion>
+        <LangVersion>14</LangVersion>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\AppBox.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\PixUI.CodeEditor.csproj"/>
-        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Diagram\PixUI.Diagram.csproj" />
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Diagram\PixUI.Diagram.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic.Design\PixUI.Dynamic.Design.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj"/>
         <ProjectReference Include="..\Client.UI\Client.UI.csproj"/>
         <ProjectReference Include="..\Client\Client.csproj"/>
         <ProjectReference Include="..\Core\Core.csproj"/>
-        <ProjectReference Include="..\Design.Data\Design.Data.csproj" />
-        <ProjectReference Include="..\ReportDataSource\ReportDataSource.csproj" />
-        <ProjectReference Include="..\Store\Store.csproj" />
+        <ProjectReference Include="..\Design.Data\Design.Data.csproj"/>
+        <ProjectReference Include="..\ReportDataSource\ReportDataSource.csproj"/>
+        <ProjectReference Include="..\Store.Data\Store.Data.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Remove="Resources\Galaxy.webp"/>
-        <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
-        <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs" />
-        <EmbeddedResource Include="DummyCode\ViewBaseDummyCode.cs" />
-        <Compile Remove="DummyCode\ServiceBaseDummyCode.cs" />
-        <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
-        <Compile Remove="DummyCode\ViewBaseDummyCode.cs" />
+        <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs"/>
+        <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs"/>
+        <EmbeddedResource Include="DummyCode\ViewBaseDummyCode.cs"/>
+        <Compile Remove="DummyCode\ServiceBaseDummyCode.cs"/>
+        <Compile Remove="DummyCode\ServiceProxyDummyCode.cs"/>
+        <Compile Remove="DummyCode\ViewBaseDummyCode.cs"/>
         <None Include="..\AppBox.snk">
-          <Link>AppBox.snk</Link>
+            <Link>AppBox.snk</Link>
         </None>
-        <None Remove="Resources\LoginBG.webp" />
-        <EmbeddedResource Include="Resources\LoginBG.webp" />
+        <None Remove="Resources\LoginBG.webp"/>
+        <EmbeddedResource Include="Resources\LoginBG.webp"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="AppBox.Reporting">
-        <HintPath>..\..\ext\AppBox.Reporting.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis.CSharp">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis.CSharp.Features">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Features.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis.Elfie">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Elfie.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis.Features">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Features.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis.Scripting">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Scripting.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.CodeAnalysis.Workspaces">
-        <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
-      </Reference>
+        <Reference Include="AppBox.Reporting">
+            <HintPath>..\..\ext\AppBox.Reporting.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.CSharp">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.CSharp.Features">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Features.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.Elfie">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Elfie.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.Features">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Features.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.Scripting">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Scripting.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.CodeAnalysis.Workspaces">
+            <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-      <PackageReference Include="Microsoft.DiaSymReader" Version="2.0.0" />
-      <PackageReference Include="System.Composition.AttributedModel" Version="8.0.0" />
-      <PackageReference Include="System.Composition.Hosting" Version="8.0.0" />
-      <PackageReference Include="System.Composition.Runtime" Version="8.0.0" />
-      <PackageReference Include="System.Composition.TypedParts" Version="8.0.0" />
-      <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
-      <PackageReference Include="System.IO.Pipelines" Version="9.0.9" />
+        <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
+        <PackageReference Include="Microsoft.DiaSymReader" Version="2.0.0"/>
+        <PackageReference Include="System.Composition.AttributedModel" Version="8.0.0"/>
+        <PackageReference Include="System.Composition.Hosting" Version="8.0.0"/>
+        <PackageReference Include="System.Composition.Runtime" Version="8.0.0"/>
+        <PackageReference Include="System.Composition.TypedParts" Version="8.0.0"/>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1"/>
+        <PackageReference Include="System.IO.Pipelines" Version="9.0.9"/>
     </ItemGroup>
-    
+
 </Project>

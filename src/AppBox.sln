@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportDataSource", "ReportD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceRunner", "ServiceRunner\ServiceRunner.csproj", "{B9C4A9EF-2FC6-4B11-AF1F-E4179C853934}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Data", "Store.Data\Store.Data.csproj", "{7443EC62-359B-4D70-AF2A-92B9BC017C2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -205,6 +207,10 @@ Global
 		{B9C4A9EF-2FC6-4B11-AF1F-E4179C853934}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9C4A9EF-2FC6-4B11-AF1F-E4179C853934}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9C4A9EF-2FC6-4B11-AF1F-E4179C853934}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7443EC62-359B-4D70-AF2A-92B9BC017C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7443EC62-359B-4D70-AF2A-92B9BC017C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7443EC62-359B-4D70-AF2A-92B9BC017C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7443EC62-359B-4D70-AF2A-92B9BC017C2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

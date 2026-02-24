@@ -398,7 +398,7 @@ internal static class StoreInitiator
 #endif
 
         var nodeType = new EntityFieldModel(model, "NodeType", EntityFieldType.Byte, false);
-        model.AddSysMember(nodeType, Checkout.NODETYPE_ID);
+        model.AddSysMember(nodeType, Checkout.NODE_TYPE_ID);
 
         var targetId = new EntityFieldModel(model, "TargetId", EntityFieldType.String, false);
 #if !FUTURE
@@ -413,7 +413,7 @@ internal static class StoreInitiator
 #if !FUTURE
         devName.Length = 100;
 #endif
-        model.AddSysMember(devName, Checkout.DEVELOPERNAME_ID);
+        model.AddSysMember(devName, Checkout.DEVELOPER_NAME_ID);
 
         var version = new EntityFieldModel(model, "Version", EntityFieldType.Int, false);
         model.AddSysMember(version, Checkout.VERSION_ID);
@@ -431,7 +431,7 @@ internal static class StoreInitiator
         var ui_nodeType_targetId = new SqlIndexModel(model, "UI_NodeType_TargetId", true,
             new[]
             {
-                new OrderedField(Checkout.NODETYPE_ID),
+                new OrderedField(Checkout.NODE_TYPE_ID),
                 new OrderedField(Checkout.TARGET_ID)
             });
         model.SqlStoreOptions!.AddIndex(ui_nodeType_targetId);
@@ -529,9 +529,9 @@ internal sealed class InitModelContainer : IModelContainer
         return _sysApp;
     }
 
-    public EntityModel GetEntityModel(ModelId modelID)
+    public EntityModel GetEntityModel(ModelId modelId)
     {
-        return _models[modelID];
+        return _models[modelId];
     }
 }
 #endif

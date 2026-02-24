@@ -1,6 +1,5 @@
 using System.Text;
 using AppBoxCore;
-using AppBoxStore;
 
 namespace AppBoxDesign;
 
@@ -9,6 +8,8 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class EntityCsGenerator
 {
+    private static readonly long DefaultSqlStoreId = StringUtil.GetHashCode("Default");
+
     internal static string GenRxEntityCode(ModelNode modelNode)
     {
         var appName = modelNode.AppNode.Model.Name;
@@ -92,7 +93,7 @@ internal static class EntityCsGenerator
                     throw new NotImplementedException(member.Type.ToString());
             }
         }
-        
+
         // override AcceptTrackerChanges()
         GenOverrideAcceptTrackerChanges(model, sb);
 
@@ -304,13 +305,14 @@ internal static class EntityCsGenerator
         var trackers = model.Members
             .Where(m => m.Type == EntityMemberType.EntityFieldTracker)
             .Cast<FieldTrackerModel>().ToArray();
-        if(trackers.Length == 0) return;
-        
+        if (trackers.Length == 0) return;
+
         sb.Append("protected override void AcceptTrackerChanges(){\n");
         foreach (var tracker in trackers)
         {
             sb.Append($"\t_{tracker.Name} = null;\n");
         }
+
         sb.Append("}\n"); //end method
     }
 
@@ -528,7 +530,7 @@ internal static class EntityCsGenerator
 
     private static void GenSqlStoreGetMethod(SqlStoreOptions sqlStoreOptions, StringBuilder sb)
     {
-        var isDefaultStore = sqlStoreOptions.StoreModelId == SqlStore.DefaultSqlStoreId;
+        var isDefaultStore = sqlStoreOptions.StoreModelId == DefaultSqlStoreId; //SqlStore.DefaultSqlStoreId;
         if (isDefaultStore)
         {
             sb.Append("\tAppBoxStore.SqlStore.Default");

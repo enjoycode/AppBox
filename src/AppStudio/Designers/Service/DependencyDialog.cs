@@ -163,7 +163,7 @@ internal sealed class DependencyDialog : Dialog
                 ws.WriteString(fileName);
                 fileStream.CopyTo(ws);
             });
-            //TODO:加入Source列表内
+            //TODO:加入Source列表内，并通知已经依赖的更新
         }
         catch (Exception ex)
         {

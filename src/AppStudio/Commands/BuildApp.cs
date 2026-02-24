@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Text.Json;
 using AppBoxCore;
-using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -77,8 +76,8 @@ internal static class BuildApp
                 //暂用json编码
                 var jsonData = JsonSerializer.SerializeToUtf8Bytes(kv.Value.Select(v => v.AssemblyName));
                 var asmFlag = ctx.GetModelInfo(kv.Key).IsDynamicWidget
-                    ? AssemblyFlag.ViewDynamic
-                    : AssemblyFlag.None;
+                    ? AssemblyPlatform.ViewDynamic
+                    : AssemblyPlatform.None;
 
                 w.WriteByte((byte)asmFlag);
                 w.WriteString(viewModelName);

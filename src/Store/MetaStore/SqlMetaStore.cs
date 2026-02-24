@@ -231,7 +231,7 @@ public sealed class SqlMetaStore : IMetaStore
     /// <param name="txn"></param>
     /// <param name="flag"></param>
     public async Task UpsertAssemblyAsync(MetaAssemblyType type, string asmName, byte[] asmData,
-        DbTransaction? txn, AssemblyFlag flag = AssemblyFlag.None)
+        DbTransaction? txn, AssemblyPlatform flag = AssemblyPlatform.None)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
         DbConnection? conn = null;

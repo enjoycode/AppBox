@@ -1,7 +1,4 @@
-using System;
-using AppBoxCore;
-
-namespace AppBoxStore;
+namespace AppBoxCore;
 
 /// <summary>
 /// 元数据序列化为byte[]及相应的反序列化

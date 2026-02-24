@@ -30,7 +30,7 @@ internal sealed class TypeSystem : IDisposable
     //统一AssemblyName,方便ModelProject InternalVisibleTo
     private const string DesignTimeServiceAssemblyName = "DesignTimeService";
 
-    private readonly string _modelBaseCode =
+    private const string MODEL_BASE_CODE =
         $"using System.Runtime.CompilerServices;[assembly: InternalsVisibleTo(\"{DesignTimeServiceAssemblyName}\")]";
 
     internal readonly ModelWorkspace Workspace;
@@ -98,7 +98,7 @@ internal sealed class TypeSystem : IDisposable
                 .AddMetadataReference(ModelProjectId, MetadataReferences.SystemRuntimeLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.SystemDataLib)
                 .AddMetadataReference(ModelProjectId, MetadataReferences.AppBoxCoreLib)
-                .AddDocument(DocumentId.CreateNewId(ModelProjectId), "ModelBase.cs", _modelBaseCode)
+                .AddDocument(DocumentId.CreateNewId(ModelProjectId), "ModelBase.cs", MODEL_BASE_CODE)
                 //服务代理工程
                 .AddProject(serviceProxyProjectInfo)
                 .AddMetadataReference(ServiceProxyProjectId, MetadataReferences.CoreLib)
@@ -394,7 +394,7 @@ internal sealed class TypeSystem : IDisposable
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot remove service project.");
     }
-    
+
     // internal void AddServiceReference(ProjectId serviceProjectId, string appId, string reference)
     // {
     //     var dep = MetadataReferences.Get($"{reference}.dll", appId);

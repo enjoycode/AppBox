@@ -4,12 +4,12 @@ using Microsoft.CodeAnalysis;
 namespace AppBoxDesign;
 
 /// <summary>
-/// 本地加载MetadataReference
+/// 本地加载MetadataReference(服务端的需要远程加载)
 /// </summary>
 internal sealed class ClientMetadataReferenceProvider : IMetadataReferenceProvider
 {
     private readonly string _sdkPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-    private readonly string _appPath = Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!;
+    private readonly string _appPath = Path.GetDirectoryName(typeof(TypeSystem).Assembly.Location)!;
 
     public ValueTask<MetadataReference> LoadSdkLib(string assemblyName)
     {
@@ -29,9 +29,9 @@ internal sealed class ClientMetadataReferenceProvider : IMetadataReferenceProvid
         return new ValueTask<MetadataReference>(MetadataReference.CreateFromFile(fullPath));
     }
 
-    public ValueTask<MetadataReference> LoadServerLib(string assemblyName)
-    {
-        var fullPath = Path.Combine(_appPath, assemblyName);
-        return new ValueTask<MetadataReference>(MetadataReference.CreateFromFile(fullPath));
-    }
+    public ValueTask<MetadataReference> LoadServerLib(string assemblyName) =>
+        this.LoadMetadataReferenceFromServer(MetadataReferenceType.ServerLibrary, assemblyName);
+
+    public ValueTask<MetadataReference> LoadServerExtLib(string appName, string assemblyName) =>
+        this.LoadMetadataReferenceFromServer(MetadataReferenceType.ServerExtLibrary, assemblyName, appName);
 }

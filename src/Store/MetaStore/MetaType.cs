@@ -54,34 +54,3 @@ public enum MetaAssemblyType : byte
     /// <remarks> eg: ["A","B","sys.NewtonSoft.Json.dll"] </remarks>
     ViewAssemblies = 0xA5, //165
 }
-
-/// <summary>
-/// 程序集附加标记
-/// </summary>
-public enum AssemblyFlag : byte
-{
-    /// <summary>
-    /// 未指定，一般指DotNet托管程序集
-    /// </summary>
-    None,
-
-    /// <summary>
-    /// Linux平台原生程序集
-    /// </summary>
-    LinuxNative = 3,
-
-    /// <summary>
-    /// Windows平台原生程序集
-    /// </summary>
-    WindowsNative = 4,
-
-    /// <summary>
-    /// MacOS平台原生程序集
-    /// </summary>
-    MacOSNative = 5,
-
-    /// <summary>
-    /// 可以注册为动态组件的视图程序集,用于动态视图设计器注册至工具箱
-    /// </summary>
-    ViewDynamic = 5,
-}

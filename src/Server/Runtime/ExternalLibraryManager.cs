@@ -9,6 +9,9 @@ namespace AppBoxServer;
 /// </summary>
 internal static class ExternalLibraryManager
 {
+    internal static string GetExternalLibraryPath(string appName) =>
+        Path.Combine(AppContext.BaseDirectory, "External", appName);
+
     /// <summary>
     /// 上传第三方库, 注意：目前仅支持服务依赖的库
     /// </summary>
@@ -16,7 +19,7 @@ internal static class ExternalLibraryManager
     {
         var appName = stream.ReadString()!;
         var fileName = stream.ReadString()!;
-        var folder = Path.Combine(AppContext.BaseDirectory, "External", appName);
+        var folder = GetExternalLibraryPath(appName);
         var filePath = Path.Combine(folder, fileName);
 
         if (!Directory.Exists(folder))
@@ -29,13 +32,13 @@ internal static class ExternalLibraryManager
         wfs.Close();
 
         // check is native assembly
-        var assemblyFlag = AssemblyFlag.None;
+        var assemblyFlag = AssemblyPlatform.None;
         var extName = Path.GetExtension(fileName);
         assemblyFlag = extName switch
         {
-            "so" => AssemblyFlag.LinuxNative,
-            "dylib" => AssemblyFlag.MacOSNative,
-            "dll" => IsDotNetAssembly(filePath) ? AssemblyFlag.None : AssemblyFlag.WindowsNative,
+            "so" => AssemblyPlatform.LinuxNative,
+            "dylib" => AssemblyPlatform.MacOSNative,
+            "dll" => IsDotNetAssembly(filePath) ? AssemblyPlatform.None : AssemblyPlatform.WindowsNative,
             _ => assemblyFlag
         };
 

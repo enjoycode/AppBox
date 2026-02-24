@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <AssemblyName>AppBoxStore</AssemblyName>
         <RootNamespace>AppBoxStore</RootNamespace>
@@ -19,6 +19,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Store.Data\Store.Data.csproj" />
     </ItemGroup>
 
     <ItemGroup>

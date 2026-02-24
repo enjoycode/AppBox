@@ -3,8 +3,10 @@ namespace AppBoxDesign;
 public static class DesignMethods
 {
     private const string DesignService = "sys.DesignService";
-
-
+    
+    public const string LoadMetadataReference =  "LoadMetadataReference";
+    public const string LoadMetadataReferenceFull = $"{DesignService}.{LoadMetadataReference}";
+    
     public const string UploadExtAssembly = "UploadExtAssembly";
     public const string UploadExtAssemblyFull = $"{DesignService}.{UploadExtAssembly}";
 

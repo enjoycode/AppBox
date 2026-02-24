@@ -33,6 +33,7 @@ internal static class MetadataReferences
             "PixUI.LiveCharts.dll", "PixUI.Dynamic.dll", "PixUI.TSAttributes.dll", "AppBoxClient.dll",
             "AppBoxClientUI.dll"
         ];
+        string[] serverLibs = ["AppBoxStore.dll"];
 
         var tasks = new Task<(string, MetadataReference)>[sdkLibs.Length + commonLibs.Length + clientLibs.Length];
         var offset = 0;
@@ -58,7 +59,13 @@ internal static class MetadataReferences
             tasks[i + offset] = Task.Run(async () => (lib, await Provider.LoadClientLib(lib)));
         }
 
-        // offset += clientLibs.Length;
+        offset += clientLibs.Length;
+
+        for (var i = 0; i < serverLibs.Length; i++)
+        {
+            var lib = serverLibs[i];
+            tasks[i + offset] = Task.Run(async () => (lib, await Provider.LoadServerLib(lib)));
+        }
 
         await Task.WhenAll(tasks);
 
@@ -95,7 +102,7 @@ internal static class MetadataReferences
     internal static MetadataReference AppBoxCoreLib => GetCommonLib("AppBoxCore.dll");
     internal static MetadataReference AppBoxClientLib => GetClientLib("AppBoxClient.dll");
     internal static MetadataReference AppBoxClientUILib => GetClientLib("AppBoxClientUI.dll");
-    internal static MetadataReference AppBoxStoreLib => GetCommonLib("AppBoxStore.dll");
+    internal static MetadataReference AppBoxStoreLib => GetLoaded("AppBoxStore.dll");
     private static MetadataReference GetSdkLib(string asmName) => GetLoaded(asmName);
     private static MetadataReference GetCommonLib(string asmName) => GetLoaded(asmName);
     private static MetadataReference GetClientLib(string asmName) => GetLoaded(asmName);

@@ -1,4 +1,3 @@
-using System;
 using AppBoxCore;
 
 namespace AppBoxStore.Entities;
@@ -27,7 +26,7 @@ internal sealed class Checkout : SqlEntity
     public string DeveloperName
     {
         get => _developerName;
-        set => SetField(ref _developerName, value, DEVELOPERNAME_ID);
+        set => SetField(ref _developerName, value, DEVELOPER_NAME_ID);
     }
 
     public int Version
@@ -40,14 +39,13 @@ internal sealed class Checkout : SqlEntity
 
     internal const long MODELID = 8012673906332663832; //6
 
-    internal const short NODETYPE_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short NODE_TYPE_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short TARGET_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short DEVELOPER_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short DEVELOPERNAME_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short DEVELOPER_NAME_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short VERSION_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
 
-    private static readonly short[] MemberIds =
-        { NODETYPE_ID, TARGET_ID, DEVELOPER_ID, DEVELOPERNAME_ID, VERSION_ID };
+    private static readonly short[] MemberIds = [NODE_TYPE_ID, TARGET_ID, DEVELOPER_ID, DEVELOPER_NAME_ID, VERSION_ID];
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
@@ -56,7 +54,7 @@ internal sealed class Checkout : SqlEntity
     {
         switch (id)
         {
-            case NODETYPE_ID:
+            case NODE_TYPE_ID:
                 ws.WriteByteMember(id, _nodeType, flags);
                 break;
             case TARGET_ID:
@@ -65,7 +63,7 @@ internal sealed class Checkout : SqlEntity
             case DEVELOPER_ID:
                 ws.WriteGuidMember(id, _developerId, flags);
                 break;
-            case DEVELOPERNAME_ID:
+            case DEVELOPER_NAME_ID:
                 ws.WriteStringMember(id, _developerName, flags);
                 break;
             case VERSION_ID:
@@ -81,7 +79,7 @@ internal sealed class Checkout : SqlEntity
     {
         switch (id)
         {
-            case NODETYPE_ID:
+            case NODE_TYPE_ID:
                 _nodeType = rs.ReadByteMember(flags);
                 break;
             case TARGET_ID:
@@ -90,7 +88,7 @@ internal sealed class Checkout : SqlEntity
             case DEVELOPER_ID:
                 _developerId = rs.ReadGuidMember(flags);
                 break;
-            case DEVELOPERNAME_ID:
+            case DEVELOPER_NAME_ID:
                 _developerName = rs.ReadStringMember(flags);
                 break;
             case VERSION_ID:

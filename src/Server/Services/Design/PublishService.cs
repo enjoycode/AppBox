@@ -334,7 +334,7 @@ internal static class PublishService
         var viewAssemblyMap = new List<MapItem>(count);
         for (var i = 0; i < count; i++)
         {
-            var asmFlag = (AssemblyFlag)rs.ReadByte();
+            var asmFlag = (AssemblyPlatform)rs.ReadByte();
             var asmName = rs.ReadString()!;
             var dataLen = rs.ReadVariant();
             var data = new byte[dataLen];
@@ -378,7 +378,7 @@ internal static class PublishService
 
     private readonly struct MapItem
     {
-        public MapItem(string viewModelName, AssemblyFlag assemblyFlag, byte[] data)
+        public MapItem(string viewModelName, AssemblyPlatform assemblyFlag, byte[] data)
         {
             ViewModelName = viewModelName;
             AssemblyFlag = assemblyFlag;
@@ -386,7 +386,7 @@ internal static class PublishService
         }
 
         public readonly string ViewModelName;
-        public readonly AssemblyFlag AssemblyFlag;
+        public readonly AssemblyPlatform AssemblyFlag;
         public readonly byte[] MapData;
     }
 
