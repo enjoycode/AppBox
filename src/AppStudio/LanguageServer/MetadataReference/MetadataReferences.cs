@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using AppBoxCore;
+using AppBoxStore;
 using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
@@ -16,6 +17,9 @@ internal static class MetadataReferences
 
     private static readonly Dictionary<string, MetadataReference> MetaRefs = new();
 
+    /// <summary>
+    /// 初始化加载必需的MetadataReference
+    /// </summary>
     internal static async ValueTask InitAsync()
     {
         string[] sdkLibs =
@@ -109,6 +113,9 @@ internal static class MetadataReferences
     private static MetadataReference GetClientLib(string asmName) => GetLoaded(asmName);
     //@formatter:on
 
+    /// <summary>
+    /// 仅获取已加载的MetadataReference，不存在报错
+    /// </summary>
     private static MetadataReference GetLoaded(string asmName)
     {
         lock (MetaRefs)
@@ -119,20 +126,42 @@ internal static class MetadataReferences
         throw new Exception($"Can't find loaded metadata reference: {asmName}");
     }
 
-    // private static MetadataReference TryGet(string asmName, Func<string, ValueTask<MetadataReference>> loader)
-    // {
-    //     MetadataReference? res;
-    //     lock (MetaRefs)
-    //     {
-    //         if (MetaRefs.TryGetValue(asmName, out res)) return res;
-    //
-    //         var l = loader(asmName);
-    //         res = l.IsCompleted ? l.Result : l.AsTask().Result;
-    //         MetaRefs.Add(asmName, res);
-    //     }
-    //
-    //     return res;
-    // }
+    /// <summary>
+    /// 尝试获取已加载的MetadataReference,不存在则从Provider加载并加入缓存
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="asmName"></param>
+    /// <param name="appName">仅依赖的第三方库</param>
+    /// <returns></returns>
+    internal static async ValueTask<MetadataReference> TryGet(MetadataReferenceType type, string asmName,
+        string? appName = null)
+    {
+        if (type == MetadataReferenceType.ServerExtLibrary && string.IsNullOrEmpty(appName))
+            throw new ArgumentNullException(nameof(appName));
+
+        var key = type == MetadataReferenceType.ServerExtLibrary ? $"{appName!}-{asmName}" : asmName;
+        lock (MetaRefs)
+        {
+            if (MetaRefs.TryGetValue(key, out var res))
+                return res;
+        }
+
+        //根据类型异步加载
+        var metadataReference = type switch
+        {
+            MetadataReferenceType.SdkLibrary => await Provider.LoadSdkLib(asmName),
+            MetadataReferenceType.CoreLibrary => await Provider.LoadCommonLib(asmName),
+            MetadataReferenceType.ClientLibrary => await Provider.LoadClientLib(asmName),
+            MetadataReferenceType.ServerLibrary => await Provider.LoadServerLib(asmName),
+            MetadataReferenceType.ServerExtLibrary => await Provider.LoadServerExtLib(appName!, asmName),
+            _ => throw new Exception($"Can't find metadata reference: {type}")
+        };
+
+        lock (MetaRefs)
+            MetaRefs[key] = metadataReference;
+
+        return metadataReference;
+    }
 
     internal static IEnumerable<MetadataReference> GetEntitiesAssemblyReferences()
     {
@@ -187,7 +216,7 @@ internal static class MetadataReferences
     /// <summary>
     /// 获取服务模型的依赖引用
     /// </summary>
-    internal static IEnumerable<MetadataReference> GetServiceModelReferences(ServiceModel model)
+    internal static async Task<List<MetadataReference>> GetServiceModelReferences(ServiceModel model, string appName)
     {
         var deps = new List<MetadataReference>
         {
@@ -213,11 +242,12 @@ internal static class MetadataReferences
 
         if (model.HasDependency) //添加其他引用
         {
-            throw new NotImplementedException("ServiceModel has references");
-            // for (int i = 0; i < model.References.Count; i++)
-            // {
-            //     deps.Add(MetadataReferences.Get($"{model.References[i]}.dll", appName));
-            // }
+            //TODO:*** 暂仅支持第三方库
+            foreach (var asmName in model.Dependencies!)
+            {
+                var metadataReference = await TryGet(MetadataReferenceType.ServerExtLibrary, asmName, appName);
+                deps.Add(metadataReference);
+            }
         }
 
         return deps;

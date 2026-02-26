@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FDesktop_002FHelloService_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FAppBox_002EReporting_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FNanoLog_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002FUsers_002Frick_002FProjects_002FAppBox_002Fext_002FNanoLog_002EExtensions_002Edll/@EntryIndexedValue">True</s:Boolean>
@@ -238,6 +239,7 @@
   &lt;Assembly Path="/Users/rick/.nuget/packages/microsoft.codeanalysis.workspaces.common/4.12.0/lib/net8.0/Microsoft.CodeAnalysis.Workspaces.dll" /&gt;
   &lt;Assembly Path="/Users/rick/.nuget/packages/microsoft.codeanalysis.common/4.12.0/lib/net8.0/Microsoft.CodeAnalysis.dll" /&gt;
   &lt;Assembly Path="/Users/rick/Projects/AppBox/ext/Roslyn/Microsoft.CodeAnalysis.CSharp.Features.dll" /&gt;
+  &lt;Assembly Path="/Users/rick/Desktop/HelloService.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c44543c3_002D7b43_002D4257_002D96da_002D1c2ce112dd09/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="EntityArraySerializationTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;

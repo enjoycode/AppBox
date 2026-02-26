@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -343,7 +344,7 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 创建服务模型的虚拟项目，即一个服务模型对应一个虚拟项目
     /// </summary>
-    private void CreateServiceProject(ProjectId prjId, ServiceModel model, string appName)
+    private async void CreateServiceProject(ProjectId prjId, ServiceModel model, string appName)
     {
         var prjName = $"{appName}.{model.Name}";
 
@@ -368,11 +369,13 @@ internal sealed class TypeSystem : IDisposable
 
         if (model.HasDependency) //添加其他引用
         {
-            throw new NotImplementedException();
-            // for (int i = 0; i < model.References.Count; i++)
-            // {
-            //     deps.Add(MetadataReferences.Get($"{model.References[i]}.dll", appName));
-            // }
+            //TODO:*** 暂仅支持第三方库
+            foreach (var asmName in model.Dependencies!)
+            {
+                var metadataReference =
+                    await MetadataReferences.TryGet(MetadataReferenceType.ServerExtLibrary, asmName, appName);
+                deps.Add(metadataReference);
+            }
         }
 
         var newSolution = Workspace.CurrentSolution

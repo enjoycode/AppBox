@@ -2,7 +2,6 @@ using AppBoxClient;
 using AppBoxCore;
 using PixUI;
 using PixUI.Platform;
-using Roslyn.Utilities;
 
 namespace AppBoxDesign;
 
@@ -18,6 +17,7 @@ internal sealed class DependencyDialog : Dialog
     }
 
     private readonly ModelNode _modelNode;
+    private ServiceModel ServiceModel => (ServiceModel)_modelNode.Model;
     private readonly ListViewController<string> _sourceListController = new();
     private readonly ListViewController<string> _targetListController = new();
     private readonly Color _fillColor = new(0xFFF3F3F3);
@@ -96,67 +96,78 @@ internal sealed class DependencyDialog : Dialog
         }
     };
 
-    private Widget BuildSourceListItem(string value, int index) =>
+    private Row BuildSourceListItem(string value, int index) =>
         BuildListItem(value, index, _hoveredSource, _selectedSource);
 
-    private Widget BuildTargetListItem(string value, int index) =>
+    private Row BuildTargetListItem(string value, int index) =>
         BuildListItem(value, index, _hoveredTarget, _selectedTarget);
 
-    private static Widget BuildListItem(string value, int index, State<int> hoverState, State<int> selectedState)
+    private static Row BuildListItem(string value, int index, State<int> hoverState, State<int> selectedState) => new()
     {
-        return new Row()
-        {
-            Children =
-            [
-                new SelectableItem(index,
-                    hoverState.ToComputed(idx => idx == index, v => { hoverState.Value = v ? index : -1; }),
-                    selectedState.ToComputed(idx => idx == index),
-                    idx => selectedState.Value = idx)
+        Children =
+        [
+            new SelectableItem(index,
+                hoverState.ToComputed(idx => idx == index, v => { hoverState.Value = v ? index : -1; }),
+                selectedState.ToComputed(idx => idx == index),
+                idx => selectedState.Value = idx)
+            {
+                Height = 22,
+                Child = new Container()
                 {
-                    Height = 22,
-                    Child = new Container()
-                    {
-                        Padding = EdgeInsets.Only(5, 2, 2, 5),
-                        Child = new Text(value)
-                    }
+                    Padding = EdgeInsets.Only(5, 2, 2, 5),
+                    Child = new Text(value)
                 }
-            ]
-        };
-    }
+            }
+        ]
+    };
 
     protected override void OnMounted()
     {
         base.OnMounted();
 
+        //先加载已选择的依赖项
+        if (ServiceModel.Dependencies != null && ServiceModel.Dependencies.Count != 0)
+            _targetListController.DataSource = ServiceModel.Dependencies;
+
+        //后加载所有依赖项
         LoadSourceList();
     }
 
     private async void LoadSourceList()
     {
-        var appName = _modelNode.AppNode.Model.Name;
-        var list = (await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, [appName]))!;
-        if (_targetListController.DataSource != null && _targetListController.DataSource.Any())
+        try
         {
-            if (list.RemoveAll(name => _targetListController.DataSource.Contains(name)) > 0)
-                list = list.ToList();
+            var appName = _modelNode.AppNode.Model.Name;
+            var list = (await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, [appName]))!;
+            if (_targetListController.DataSource != null && _targetListController.DataSource.Count != 0)
+            {
+                if (list.RemoveAll(name => _targetListController.DataSource.Contains(name)) > 0)
+                    list = list.ToList();
+            }
+
+
+            _sourceListController.DataSource = list;
         }
-
-
-        _sourceListController.DataSource = list;
+        catch (Exception e)
+        {
+            Notification.Error($"Load available library error: {e.Message}");
+        }
     }
 
     private async void OnUpload()
     {
-        var options = new OpenFileOptions();
-        var files = await FileDialog.OpenFileAsync(options);
-        if (files.Length <= 0)
-            return;
-
-        var appName = _modelNode.AppNode.Model.Name;
-        var fileName = files[0].FileName;
-        var fileStream = files[0].FileStream;
+        Stream? fileStream = null;
         try
         {
+            var options = new OpenFileOptions();
+            var files = await FileDialog.OpenFileAsync(options);
+            if (files.Length <= 0)
+                return;
+
+            var appName = _modelNode.AppNode.Model.Name;
+            var fileName = files[0].FileName;
+            fileStream = files[0].FileStream;
+
             var assemblyFlag = await Channel.Invoke<byte>(DesignMethods.UploadExtAssemblyFull, ws =>
             {
                 ws.WriteString(appName);
@@ -171,7 +182,7 @@ internal sealed class DependencyDialog : Dialog
         }
         finally
         {
-            fileStream.Close();
+            fileStream?.Close();
         }
     }
 

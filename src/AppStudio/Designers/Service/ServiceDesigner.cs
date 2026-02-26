@@ -204,6 +204,8 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         }
 
         ServiceModel.Dependencies = newList;
+        
+        //TODO: 更新Roslyn项目的依赖项
     }
 
     private async void OnRunMethod(PointerEvent e)

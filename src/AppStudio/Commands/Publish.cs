@@ -125,8 +125,9 @@ internal static class Publish
             .WithOptimizationLevel(forDebug ? OptimizationLevel.Debug : OptimizationLevel.Release);
 
         //开始编译运行时代码
+        var deps = await MetadataReferences.GetServiceModelReferences(model, appName);
         var compilation = CSharpCompilation.Create(docName)
-            .AddReferences(MetadataReferences.GetServiceModelReferences(model))
+            .AddReferences(deps)
             .AddSyntaxTrees(newTree, usingAndVersionTree)
             .WithOptions(options);
         if (usagesTree != null)
