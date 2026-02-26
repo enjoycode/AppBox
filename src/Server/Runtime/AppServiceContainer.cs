@@ -9,10 +9,10 @@ namespace AppBoxServer;
 /// </summary>
 public static class AppServiceContainer
 {
-    private struct ServiceInfo
+    private readonly struct ServiceInfo
     {
-        public IService Instance;
-        public ServiceAssemblyLoader Loader;
+        public IService Instance { get; init; }
+        public ServiceAssemblyLoader Loader { get; init; }
     }
 
     //TODO:use LRUCache
