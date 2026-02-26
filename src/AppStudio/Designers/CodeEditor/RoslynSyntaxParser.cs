@@ -97,8 +97,6 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
     public async ValueTask<(int, int)> ParseAndTokenize()
     {
-        // var changes = _changes;
-        // _changes = [];
         int beginLine;
         int endLine;
 #if DEBUG
@@ -116,7 +114,7 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
         else
         {
             beginLine = 0;
-            endLine = Document.TotalNumberOfLines;
+            endLine = Document.TotalNumberOfLines - 1;
         }
 
         await BuildLineTokens(doc, beginLine, endLine);
@@ -124,7 +122,7 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
 #if DEBUG
         var ms = Stopwatch.GetElapsedTime(ts).TotalMilliseconds;
-        Log.Debug($"ParseAndTokenize: {ms}ms");
+        Log.Debug($"ParseAndTokenize [{beginLine + 1}, {endLine + 1}]: {ms}ms");
 #endif
 
         return (beginLine, endLine);
@@ -132,41 +130,46 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
     private (int, int) GetChangedRange(SyntaxTree oldTree, SyntaxTree newTree)
     {
-        var start = Document.TextLength;
+        var start = Document.TextLength - 1;
         var end = 0;
         var changes = _syntaxDiffer.GetChanges(oldTree, newTree);
         foreach (var change in changes)
         {
-            if (change.NewNodes == null)
-            {
-                start = Math.Min(start, change.Range.Span.Start);
-                end = Math.Max(end, change.Range.Span.Start + change.Range.NewLength);
-            }
-            else
-            {
-                foreach (var node in change.NewNodes)
-                {
-                    start = Math.Min(start, node.FullSpan.Start);
-                    end = Math.Max(end, node.FullSpan.End);
-                }
-            }
+            //注意以下end索引-1
+            start = Math.Min(start, change.Range.Span.Start);
+            end = Math.Max(end, change.Range.Span.Start + change.Range.NewLength - 1);
+
+            // 注释旧代码
+            // if (change.NewNodes == null)
+            // {
+            //     start = Math.Min(start, change.Range.Span.Start);
+            //     end = Math.Max(end, change.Range.Span.Start + change.Range.NewLength - 1);
+            // }
+            // else
+            // {
+            //     foreach (var node in change.NewNodes)
+            //     {
+            //         start = Math.Min(start, node.FullSpan.Start);
+            //         end = Math.Max(end, node.FullSpan.End - 1);
+            //     }
+            // }
         }
 
         var startLine = Document.GetLineNumberByOffset(start);
         var endLine = Document.GetLineNumberByOffset(end);
-        if (startLine == endLine)
-            endLine += 1;
-
-#if DEBUG
-        Log.Debug($"合并的变更范围: [{startLine + 1} - {endLine + 1})");
-#endif
+// #if DEBUG
+//         Log.Debug($"合并的变更范围: [{startLine + 1} - {endLine + 1}]");
+// #endif
 
         return (startLine, endLine);
     }
 
+    /// <summary>
+    /// 构建行范围[beginLine, endLine]的Tokens，注意包括endLine
+    /// </summary>
     private async ValueTask BuildLineTokens(Microsoft.CodeAnalysis.Document roslynDocument, int beginLine, int endLine)
     {
-        for (var i = beginLine; i < endLine; i++)
+        for (var i = beginLine; i <= endLine; i++)
         {
             var line = Document.GetLineSegment(i); //TODO: 优化
             // Console.WriteLine(Document.GetText(line.Offset, line.Length));
