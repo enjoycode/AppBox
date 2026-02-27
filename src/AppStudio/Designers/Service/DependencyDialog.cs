@@ -18,15 +18,15 @@ internal sealed class DependencyDialog : Dialog
 
     private readonly ModelNode _modelNode;
     private ServiceModel ServiceModel => (ServiceModel)_modelNode.Model;
-    private readonly ListViewController<string> _sourceListController = new();
-    private readonly ListViewController<string> _targetListController = new();
+    private readonly ListViewController<ModelDependency> _sourceListController = new();
+    private readonly ListViewController<ModelDependency> _targetListController = new();
     private readonly Color _fillColor = new(0xFFF3F3F3);
     private readonly State<int> _selectedSource = -1;
     private readonly State<int> _hoveredSource = -1;
     private readonly State<int> _selectedTarget = -1;
     private readonly State<int> _hoveredTarget = -1;
 
-    public List<string> Result => _targetListController.DataSource as List<string> ?? [];
+    public List<ModelDependency> Result => _targetListController.DataSource as List<ModelDependency> ?? [];
 
     protected override Widget BuildBody() => new Container()
     {
@@ -45,7 +45,7 @@ internal sealed class DependencyDialog : Dialog
                             new Container()
                             {
                                 FillColor = _fillColor,
-                                Child = new ListView<string>(BuildSourceListItem, null, _sourceListController),
+                                Child = new ListView<ModelDependency>(BuildSourceListItem, null, _sourceListController),
                             }
                         ]
                     }
@@ -71,7 +71,7 @@ internal sealed class DependencyDialog : Dialog
                             new Container()
                             {
                                 FillColor = _fillColor,
-                                Child = new ListView<string>(BuildTargetListItem, null, _targetListController)
+                                Child = new ListView<ModelDependency>(BuildTargetListItem, null, _targetListController)
                             }
                         ]
                     }
@@ -96,13 +96,14 @@ internal sealed class DependencyDialog : Dialog
         }
     };
 
-    private Row BuildSourceListItem(string value, int index) =>
+    private Row BuildSourceListItem(ModelDependency value, int index) =>
         BuildListItem(value, index, _hoveredSource, _selectedSource);
 
-    private Row BuildTargetListItem(string value, int index) =>
+    private Row BuildTargetListItem(ModelDependency value, int index) =>
         BuildListItem(value, index, _hoveredTarget, _selectedTarget);
 
-    private static Row BuildListItem(string value, int index, State<int> hoverState, State<int> selectedState) => new()
+    private static Row BuildListItem(ModelDependency value, int index, State<int> hoverState,
+        State<int> selectedState) => new()
     {
         Children =
         [
@@ -115,7 +116,7 @@ internal sealed class DependencyDialog : Dialog
                 Child = new Container()
                 {
                     Padding = EdgeInsets.Only(5, 2, 2, 5),
-                    Child = new Text(value)
+                    Child = new Text(value.AssemblyName)
                 }
             }
         ]
@@ -138,15 +139,21 @@ internal sealed class DependencyDialog : Dialog
         try
         {
             var appName = _modelNode.AppNode.Model.Name;
-            var list = (await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, [appName]))!;
+            var extLibs = (await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, [appName]))!
+                .Select(name => new ModelDependency()
+                {
+                    Type = ModelDependencyType.ServerExtLibrary,
+                    AssemblyName = name
+                })
+                .ToList();
             if (_targetListController.DataSource != null && _targetListController.DataSource.Count != 0)
             {
-                if (list.RemoveAll(name => _targetListController.DataSource.Contains(name)) > 0)
-                    list = list.ToList();
+                if (extLibs.RemoveAll(name => _targetListController.DataSource.Contains(name)) > 0)
+                    extLibs = extLibs.ToList();
             }
 
 
-            _sourceListController.DataSource = list;
+            _sourceListController.DataSource = extLibs;
         }
         catch (Exception e)
         {
@@ -192,9 +199,9 @@ internal sealed class DependencyDialog : Dialog
         if (index < 0)
             return;
 
-        var sourceList = (List<string>)_sourceListController.DataSource!;
-        List<string> targetList;
-        if (_targetListController.DataSource is List<string> list)
+        var sourceList = (List<ModelDependency>)_sourceListController.DataSource!;
+        List<ModelDependency> targetList;
+        if (_targetListController.DataSource is List<ModelDependency> list)
             targetList = list;
         else
             targetList = [];
@@ -214,8 +221,8 @@ internal sealed class DependencyDialog : Dialog
         if (index < 0)
             return;
 
-        var sourceList = (List<string>)_sourceListController.DataSource!;
-        var targetList = (List<string>)_targetListController.DataSource!;
+        var sourceList = (List<ModelDependency>)_sourceListController.DataSource!;
+        var targetList = (List<ModelDependency>)_targetListController.DataSource!;
         var value = targetList[index];
         targetList.RemoveAt(index);
         _selectedTarget.Value = -1;

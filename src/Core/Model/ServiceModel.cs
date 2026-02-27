@@ -13,7 +13,7 @@ public sealed class ServiceModel : ModelBase
 
     public bool HasDependency => Dependencies is { Count: > 0 };
 
-    public List<string>? Dependencies { get; internal set; }
+    public List<ModelDependency>? Dependencies { get; internal set; }
 
     #region ====Serialization====
 
@@ -28,7 +28,8 @@ public sealed class ServiceModel : ModelBase
             ws.WriteVariant(Dependencies.Count);
             foreach (var dep in Dependencies)
             {
-                ws.WriteString(dep);
+                ws.WriteByte((byte)dep.Type);
+                ws.WriteString(dep.AssemblyName);
             }
         }
 
@@ -39,17 +40,21 @@ public sealed class ServiceModel : ModelBase
     {
         base.ReadFrom(rs);
 
-        var referenceCount = rs.ReadVariant();
-        if (referenceCount > 0)
+        var dependencyCount = rs.ReadVariant();
+        if (dependencyCount > 0)
         {
             Dependencies = [];
-            for (var i = 0; i < referenceCount; i++)
+            for (var i = 0; i < dependencyCount; i++)
             {
-                Dependencies.Add(rs.ReadString()!);
+                Dependencies.Add(new ModelDependency()
+                {
+                    Type = (ModelDependencyType)rs.ReadByte(),
+                    AssemblyName = rs.ReadString()!
+                });
             }
         }
 
-        rs.ReadVariant(); //保留
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

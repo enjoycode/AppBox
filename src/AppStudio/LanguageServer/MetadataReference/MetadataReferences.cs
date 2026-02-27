@@ -1,6 +1,5 @@
 using System.Runtime.InteropServices;
 using AppBoxCore;
-using AppBoxStore;
 using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
@@ -133,13 +132,13 @@ internal static class MetadataReferences
     /// <param name="asmName"></param>
     /// <param name="appName">仅依赖的第三方库</param>
     /// <returns></returns>
-    internal static async ValueTask<MetadataReference> TryGet(MetadataReferenceType type, string asmName,
+    internal static async ValueTask<MetadataReference> TryGet(ModelDependencyType type, string asmName,
         string? appName = null)
     {
-        if (type == MetadataReferenceType.ServerExtLibrary && string.IsNullOrEmpty(appName))
+        if (type == ModelDependencyType.ServerExtLibrary && string.IsNullOrEmpty(appName))
             throw new ArgumentNullException(nameof(appName));
 
-        var key = type == MetadataReferenceType.ServerExtLibrary ? $"{appName!}-{asmName}" : asmName;
+        var key = type == ModelDependencyType.ServerExtLibrary ? $"{appName!}-{asmName}" : asmName;
         lock (MetaRefs)
         {
             if (MetaRefs.TryGetValue(key, out var res))
@@ -149,11 +148,11 @@ internal static class MetadataReferences
         //根据类型异步加载
         var metadataReference = type switch
         {
-            MetadataReferenceType.SdkLibrary => await Provider.LoadSdkLib(asmName),
-            MetadataReferenceType.CoreLibrary => await Provider.LoadCommonLib(asmName),
-            MetadataReferenceType.ClientLibrary => await Provider.LoadClientLib(asmName),
-            MetadataReferenceType.ServerLibrary => await Provider.LoadServerLib(asmName),
-            MetadataReferenceType.ServerExtLibrary => await Provider.LoadServerExtLib(appName!, asmName),
+            ModelDependencyType.SdkLibrary => await Provider.LoadSdkLib(asmName),
+            ModelDependencyType.CoreLibrary => await Provider.LoadCommonLib(asmName),
+            ModelDependencyType.ClientLibrary => await Provider.LoadClientLib(asmName),
+            ModelDependencyType.ServerLibrary => await Provider.LoadServerLib(asmName),
+            ModelDependencyType.ServerExtLibrary => await Provider.LoadServerExtLib(appName!, asmName),
             _ => throw new Exception($"Can't find metadata reference: {type}")
         };
 
@@ -214,7 +213,7 @@ internal static class MetadataReferences
     }
 
     /// <summary>
-    /// 获取服务模型的依赖引用
+    /// 获取服务模型的依赖引用，用于运行时编译
     /// </summary>
     internal static async Task<List<MetadataReference>> GetServiceModelReferences(ServiceModel model, string appName)
     {
@@ -242,10 +241,9 @@ internal static class MetadataReferences
 
         if (model.HasDependency) //添加其他引用
         {
-            //TODO:*** 暂仅支持第三方库
-            foreach (var asmName in model.Dependencies!)
+            foreach (var dependency in model.Dependencies!)
             {
-                var metadataReference = await TryGet(MetadataReferenceType.ServerExtLibrary, asmName, appName);
+                var metadataReference = await TryGet(dependency.Type, dependency.AssemblyName, appName);
                 deps.Add(metadataReference);
             }
         }

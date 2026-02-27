@@ -194,8 +194,8 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
             return;
 
         var newList = dlg.Result;
-        List<string> added = newList;
-        List<string> removed = [];
+        List<ModelDependency> added = newList;
+        List<ModelDependency> removed = [];
         //更新的应该由上传新的版本后处理
         if (ServiceModel.Dependencies != null)
         {
@@ -204,7 +204,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         }
 
         ServiceModel.Dependencies = newList;
-        
+
         //TODO: 更新Roslyn项目的依赖项
     }
 

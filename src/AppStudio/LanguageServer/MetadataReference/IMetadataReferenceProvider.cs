@@ -1,5 +1,5 @@
 using AppBoxClient;
-using AppBoxStore;
+using AppBoxCore;
 using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
@@ -32,9 +32,9 @@ internal static class MetadataReferenceProviderExtensions
     /// <returns></returns>
     internal static async ValueTask<MetadataReference> LoadMetadataReferenceFromServer(
         this IMetadataReferenceProvider provider,
-        MetadataReferenceType type, string assemblyName, string? appName = null)
+        ModelDependencyType type, string assemblyName, string? appName = null)
     {
-        object[] args = type == MetadataReferenceType.ServerExtLibrary
+        object[] args = type == ModelDependencyType.ServerExtLibrary
             ? [(int)type, appName!, assemblyName]
             : [(int)type, assemblyName];
 

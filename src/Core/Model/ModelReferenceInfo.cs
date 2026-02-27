@@ -25,6 +25,7 @@ public enum ModelReferenceType : byte
 /// </summary>
 public enum ModelReferencePosition : byte
 {
+    // ReSharper disable InconsistentNaming
     LocalizedName,
     EntityModel_ToStringExpression,
     EntityDataFieldModel_EnumModelID,
@@ -42,6 +43,7 @@ public enum ModelReferencePosition : byte
     EntityUserAction_ExecuteExpression,
     EntityDeleteAction_CanExecuteExpression,
     EntityDeleteAction_ExecuteExpression
+    // ReSharper restore InconsistentNaming
 }
 
 /// <summary>
@@ -58,11 +60,11 @@ public interface IModelReference
     /// </summary>
     /// <param name="sourceType">引用的源类型</param>
     /// <param name="targetType">引用的目标类型</param>
-    /// <param name="modelID"></param>
+    /// <param name="modelId"></param>
     /// <param name="oldName"></param>
     /// <param name="newName"></param>
     void RenameReference(ModelReferenceType sourceType, ModelReferencePosition targetType,
-        ModelId modelID, string oldName, string newName);
+        ModelId modelId, string oldName, string newName);
 }
 
 public sealed class ModelReferenceInfo

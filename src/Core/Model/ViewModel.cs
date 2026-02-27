@@ -13,8 +13,7 @@ public enum ViewModelType
 /// <summary>
 /// 视图模型
 /// </summary>
-[BinSerializable(BinSerializePolicy.Compact, true)]
-public sealed partial class ViewModel : ModelBase
+public sealed class ViewModel : ModelBase
 {
     internal ViewModel() { }
 
@@ -24,5 +23,19 @@ public sealed partial class ViewModel : ModelBase
         ViewType = type;
     }
 
-    [Field(1)] public ViewModelType ViewType { get; private set; }
+    public ViewModelType ViewType { get; private set; }
+
+    public override void WriteTo(IOutputStream ws)
+    {
+        base.WriteTo(ws);
+        ws.WriteByte((byte)ViewType);
+        ws.WriteFieldEnd();
+    }
+
+    public override void ReadFrom(IInputStream rs)
+    {
+        base.ReadFrom(rs);
+        ViewType = (ViewModelType)rs.ReadByte();
+        rs.ReadFieldId();
+    }
 }

@@ -14,10 +14,10 @@ internal static class MetadataReferenceLoader
 
     internal static AnyValue LoadMetadataReference<T>(T args) where T : struct, IAnyArgs
     {
-        var type = (MetadataReferenceType)args.GetInt()!.Value;
+        var type = (ModelDependencyType)args.GetInt()!.Value;
         string asmName;
         string appName;
-        if (type != MetadataReferenceType.ServerExtLibrary)
+        if (type != ModelDependencyType.ServerExtLibrary)
         {
             asmName = args.GetString()!;
             appName = string.Empty;
@@ -30,11 +30,11 @@ internal static class MetadataReferenceLoader
 
         var fullPath = type switch
         {
-            MetadataReferenceType.SdkLibrary => Path.Combine(SdkPath, asmName),
-            MetadataReferenceType.CoreLibrary => Path.Combine(AppPath, asmName),
-            MetadataReferenceType.ClientLibrary => Path.Combine(AppPath, ViewRunnerPath, asmName),
-            MetadataReferenceType.ServerLibrary => Path.Combine(AppPath, asmName),
-            MetadataReferenceType.ServerExtLibrary => Path.Combine(
+            ModelDependencyType.SdkLibrary => Path.Combine(SdkPath, asmName),
+            ModelDependencyType.CoreLibrary => Path.Combine(AppPath, asmName),
+            ModelDependencyType.ClientLibrary => Path.Combine(AppPath, ViewRunnerPath, asmName),
+            ModelDependencyType.ServerLibrary => Path.Combine(AppPath, asmName),
+            ModelDependencyType.ServerExtLibrary => Path.Combine(
                 ExternalLibraryManager.GetExternalLibraryPath(appName), asmName),
             _ => throw new ArgumentException($"Invalid type: {type}")
         };

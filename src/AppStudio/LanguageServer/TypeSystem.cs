@@ -9,7 +9,7 @@ using PixUI;
 namespace AppBoxDesign;
 
 /// <summary>
-/// 每个开发人员的设计时上下文对应一个TypeSystem实例
+/// Roslyn的Workspace及各个Project的管理，每个开发人员的设计时上下文对应一个TypeSystem实例
 /// </summary>
 internal sealed class TypeSystem : IDisposable
 {
@@ -369,11 +369,10 @@ internal sealed class TypeSystem : IDisposable
 
         if (model.HasDependency) //添加其他引用
         {
-            //TODO:*** 暂仅支持第三方库
-            foreach (var asmName in model.Dependencies!)
+            foreach (var dependency in model.Dependencies!)
             {
                 var metadataReference =
-                    await MetadataReferences.TryGet(MetadataReferenceType.ServerExtLibrary, asmName, appName);
+                    await MetadataReferences.TryGet(dependency.Type, dependency.AssemblyName, appName);
                 deps.Add(metadataReference);
             }
         }
@@ -398,23 +397,31 @@ internal sealed class TypeSystem : IDisposable
             Log.Warn("Cannot remove service project.");
     }
 
-    // internal void AddServiceReference(ProjectId serviceProjectId, string appId, string reference)
-    // {
-    //     var dep = MetadataReferences.Get($"{reference}.dll", appId);
-    //     var newSolution = Workspace.CurrentSolution.AddMetadataReference(serviceProjectId, dep);
-    //     if (!Workspace.TryApplyChanges(newSolution))
-    //         Log.Warn("Cannot add service project reference.");
-    // }
-    //
-    // internal void RemoveServiceReference(ProjectId serviceProjectId, string appID, string reference)
-    // {
-    //     // var project = Workspace.CurrentSolution.GetProject(serviceProjectId);
-    //     // var mrf = project.MetadataReferences.FirstOrDefault(t => t.Display == reference);
-    //     var dep = MetadataReferences.Get($"{reference}.dll", appID);
-    //     var newSolution = Workspace.CurrentSolution.RemoveMetadataReference(serviceProjectId, dep);
-    //     if (!Workspace.TryApplyChanges(newSolution))
-    //         Log.Warn("Cannot remove service project reference.");
-    // }
+    /// <summary>
+    /// 给Service Project添加MetadataReference
+    /// </summary>
+    internal async void AddServiceMetadataReference(ProjectId serviceProjectId, string asmName, string? appName = null)
+    {
+        //TODO:目前仅第三方依赖
+        var metadataReference =
+            await MetadataReferences.TryGet(ModelDependencyType.ServerExtLibrary, asmName, appName);
+        var newSolution = Workspace.CurrentSolution.AddMetadataReference(serviceProjectId, metadataReference);
+        if (!Workspace.TryApplyChanges(newSolution))
+            Log.Warn("Cannot add service project reference.");
+    }
+
+    /// <summary>
+    /// 给Service Project移除MetadataReference
+    /// </summary>
+    internal async void RemoveServiceMetadataReference(ProjectId serviceProjectId, string asmName,
+        string? appName = null)
+    {
+        var metadataReference =
+            await MetadataReferences.TryGet(ModelDependencyType.ServerExtLibrary, asmName, appName);
+        var newSolution = Workspace.CurrentSolution.RemoveMetadataReference(serviceProjectId, metadataReference);
+        if (!Workspace.TryApplyChanges(newSolution))
+            Log.Warn("Cannot remove service project reference.");
+    }
 
     #endregion
 

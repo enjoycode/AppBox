@@ -1,4 +1,4 @@
-using AppBoxStore;
+using AppBoxCore;
 using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
@@ -9,17 +9,17 @@ namespace AppBoxDesign;
 internal sealed class ServerMetadataReferenceProvider : IMetadataReferenceProvider
 {
     public ValueTask<MetadataReference> LoadSdkLib(string assemblyName) =>
-        this.LoadMetadataReferenceFromServer(MetadataReferenceType.SdkLibrary, assemblyName);
+        this.LoadMetadataReferenceFromServer(ModelDependencyType.SdkLibrary, assemblyName);
 
     public ValueTask<MetadataReference> LoadCommonLib(string assemblyName) =>
-        this.LoadMetadataReferenceFromServer(MetadataReferenceType.CoreLibrary, assemblyName);
+        this.LoadMetadataReferenceFromServer(ModelDependencyType.CoreLibrary, assemblyName);
 
     public ValueTask<MetadataReference> LoadClientLib(string assemblyName) =>
-        this.LoadMetadataReferenceFromServer(MetadataReferenceType.ClientLibrary, assemblyName);
+        this.LoadMetadataReferenceFromServer(ModelDependencyType.ClientLibrary, assemblyName);
 
     public ValueTask<MetadataReference> LoadServerLib(string assemblyName) =>
-        this.LoadMetadataReferenceFromServer(MetadataReferenceType.ServerLibrary, assemblyName);
+        this.LoadMetadataReferenceFromServer(ModelDependencyType.ServerLibrary, assemblyName);
 
     public ValueTask<MetadataReference> LoadServerExtLib(string appName, string assemblyName) =>
-        this.LoadMetadataReferenceFromServer(MetadataReferenceType.ServerExtLibrary, assemblyName, appName);
+        this.LoadMetadataReferenceFromServer(ModelDependencyType.ServerExtLibrary, assemblyName, appName);
 }
