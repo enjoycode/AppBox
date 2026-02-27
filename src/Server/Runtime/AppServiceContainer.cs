@@ -40,14 +40,14 @@ public static class AppServiceContainer
         var dotIndex = name.AsSpan().IndexOf('.');
         var appName = name.AsSpan(0, dotIndex).ToString();
         var serviceName = name.AsSpan(dotIndex + 1).ToString();
-        var libPath = Path.Combine(typeof(AppServiceContainer).Assembly.Location, "libs", appName);
+        var externalLibPath = ExternalLibraryManager.GetExternalLibraryPath(appName);
         // await MetaStore.Provider.ExtractAppAssemblies(appName, libPath);
 
         lock (Services)
         {
             if (!Services.TryGetValue(name, out service))
             {
-                var asmLoader = new ServiceAssemblyLoader(libPath);
+                var asmLoader = new ServiceAssemblyLoader(externalLibPath);
                 var asm = asmLoader.LoadServiceAssembly(asmData);
                 var instance = asm.CreateInstance(serviceName) as IService;
                 if (instance == null)

@@ -12,11 +12,14 @@ namespace AppBoxServer;
 /// </summary>
 internal sealed class ServiceAssemblyLoader : AssemblyLoadContext
 {
-    private readonly string _libPath;
+    /// <summary>
+    /// 依赖的第三方库的路径
+    /// </summary>
+    private readonly string _externalLibPath;
 
-    internal ServiceAssemblyLoader(string libPath) : base(true)
+    internal ServiceAssemblyLoader(string externalLibPath) : base(true)
     {
-        _libPath = libPath;
+        _externalLibPath = externalLibPath;
     }
 
     /// <summary>
@@ -42,7 +45,7 @@ internal sealed class ServiceAssemblyLoader : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        var depFile = Path.Combine(_libPath, $"{assemblyName.Name}.dll");
+        var depFile = Path.Combine(_externalLibPath, $"{assemblyName.Name}.dll");
         if (File.Exists(depFile))
         {
             Logger.Debug($"从文件加载依赖组件: {assemblyName.FullName}");

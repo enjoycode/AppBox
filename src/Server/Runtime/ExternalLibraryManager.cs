@@ -9,6 +9,9 @@ namespace AppBoxServer;
 /// </summary>
 internal static class ExternalLibraryManager
 {
+    /// <summary>
+    /// 获取指定app的外部依赖库路径
+    /// </summary>
     internal static string GetExternalLibraryPath(string appName) =>
         Path.Combine(AppContext.BaseDirectory, "External", appName);
 
