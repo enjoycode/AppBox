@@ -242,12 +242,7 @@
   &lt;Assembly Path="/Users/rick/Projects/AppBox/ext/Roslyn/Microsoft.CodeAnalysis.CSharp.Features.dll" /&gt;
   &lt;Assembly Path="/Users/rick/Desktop/HelloService.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c44543c3_002D7b43_002D4257_002D96da_002D1c2ce112dd09/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="EntityArraySerializationTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net10.0::Tests.Core.SerializationTest.EntityArraySerializationTest&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::A4D07B9D-CAE6-460F-8C10-D076A5D1C097::net10.0::Tests.Server.ServiceAssemblyLoaderTest.PasswordHasherTest&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
+	
 	
 	
 	

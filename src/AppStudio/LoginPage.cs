@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using AppBoxClient;
 using PixUI;
 
@@ -64,8 +65,13 @@ public sealed class LoginPage : View
         {
             await Channel.Login(_userName.Value, _password.Value);
 
-            await DesignHub.InitAsync(Channel.SessionName, Channel.LeafOrgUnitId,
-                new CheckoutService(), new StagedService(), new MetaStoreService(), new PublishService());
+            await DesignHub.InitAsync(
+                Channel.SessionName, Channel.LeafOrgUnitId,
+                new CheckoutService(), new StagedService(), new MetaStoreService(), new PublishService(),
+                RuntimeInformation.ProcessArchitecture == Architecture.Wasm
+                    ? new ServerMetadataReferenceProvider()
+                    : new ClientMetadataReferenceProvider()
+            );
 
             CurrentNavigator!.Push("IDE"); //TODO: use Navigator.Replace?
         }

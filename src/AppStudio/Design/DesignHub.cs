@@ -12,11 +12,12 @@ public sealed class DesignHub : IModelContainer, IDisposable
     }
 
     public static async ValueTask InitAsync(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
-        IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService)
+        IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService,
+        IMetadataReferenceProvider metadataReferenceProvider)
     {
         //TODO: 判断是否已初始
 
-        await MetadataReferences.InitAsync();
+        await MetadataReferences.InitAsync(metadataReferenceProvider);
 
         Current = new DesignHub(sessionName, leafOrgUnitId,
             checkoutService, stagedService, metaStoreService, publishService);

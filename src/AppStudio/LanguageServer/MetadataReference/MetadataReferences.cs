@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 
@@ -9,18 +8,17 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class MetadataReferences
 {
-    private static readonly IMetadataReferenceProvider Provider =
-        RuntimeInformation.ProcessArchitecture == Architecture.Wasm
-            ? new ServerMetadataReferenceProvider()
-            : new ClientMetadataReferenceProvider();
+    private static IMetadataReferenceProvider _provider = null!;
 
     private static readonly Dictionary<string, MetadataReference> MetaRefs = new();
 
     /// <summary>
     /// 初始化加载必需的MetadataReference
     /// </summary>
-    internal static async ValueTask InitAsync()
+    internal static async ValueTask InitAsync(IMetadataReferenceProvider provider)
     {
+        _provider = provider;
+        
         string[] sdkLibs =
         [
             "System.Private.CoreLib.dll", "netstandard.dll", "System.Linq.dll", "System.Linq.Expressions.dll",
@@ -33,8 +31,7 @@ internal static class MetadataReferences
         string[] clientLibs =
         [
             "PixUI.dll", "PixUI.Drawing.dll", "PixUI.Widgets.dll", "PixUI.MaterialIcons.dll", "LiveChartsCore.dll",
-            "PixUI.LiveCharts.dll", "PixUI.Dynamic.dll", "PixUI.TSAttributes.dll", "AppBoxClient.dll",
-            "AppBoxClientUI.dll"
+            "PixUI.LiveCharts.dll", "PixUI.Dynamic.dll", "AppBoxClient.dll", "AppBoxClientUI.dll"
         ];
         string[] serverLibs = ["AppBoxStore.dll"];
 
@@ -44,7 +41,7 @@ internal static class MetadataReferences
         for (var i = 0; i < sdkLibs.Length; i++)
         {
             var lib = sdkLibs[i];
-            tasks[i + offset] = Task.Run(async () => (lib, await Provider.LoadSdkLib(lib)));
+            tasks[i + offset] = Task.Run(async () => (lib, await _provider.LoadSdkLib(lib)));
         }
 
         offset += sdkLibs.Length;
@@ -52,7 +49,7 @@ internal static class MetadataReferences
         for (var i = 0; i < commonLibs.Length; i++)
         {
             var lib = commonLibs[i];
-            tasks[i + offset] = Task.Run(async () => (lib, await Provider.LoadCommonLib(lib)));
+            tasks[i + offset] = Task.Run(async () => (lib, await _provider.LoadCommonLib(lib)));
         }
 
         offset += commonLibs.Length;
@@ -60,7 +57,7 @@ internal static class MetadataReferences
         for (var i = 0; i < clientLibs.Length; i++)
         {
             var lib = clientLibs[i];
-            tasks[i + offset] = Task.Run(async () => (lib, await Provider.LoadClientLib(lib)));
+            tasks[i + offset] = Task.Run(async () => (lib, await _provider.LoadClientLib(lib)));
         }
 
         offset += clientLibs.Length;
@@ -68,7 +65,7 @@ internal static class MetadataReferences
         for (var i = 0; i < serverLibs.Length; i++)
         {
             var lib = serverLibs[i];
-            tasks[i + offset] = Task.Run(async () => (lib, await Provider.LoadServerLib(lib)));
+            tasks[i + offset] = Task.Run(async () => (lib, await _provider.LoadServerLib(lib)));
         }
 
         await Task.WhenAll(tasks);
@@ -102,7 +99,6 @@ internal static class MetadataReferences
     internal static MetadataReference LiveChartsCoreLib => GetClientLib("LiveChartsCore.dll");
     internal static MetadataReference PixUILiveChartsLib => GetClientLib("PixUI.LiveCharts.dll");
     internal static MetadataReference PixUIDynamicLib => GetClientLib("PixUI.Dynamic.dll");
-    internal static MetadataReference PixUIAttributesLib => GetClientLib("PixUI.TSAttributes.dll");
     internal static MetadataReference AppBoxCoreLib => GetCommonLib("AppBoxCore.dll");
     internal static MetadataReference AppBoxClientLib => GetClientLib("AppBoxClient.dll");
     internal static MetadataReference AppBoxClientUILib => GetClientLib("AppBoxClientUI.dll");
@@ -148,11 +144,11 @@ internal static class MetadataReferences
         //根据类型异步加载
         var metadataReference = type switch
         {
-            ModelDependencyType.SdkLibrary => await Provider.LoadSdkLib(asmName),
-            ModelDependencyType.CoreLibrary => await Provider.LoadCommonLib(asmName),
-            ModelDependencyType.ClientLibrary => await Provider.LoadClientLib(asmName),
-            ModelDependencyType.ServerLibrary => await Provider.LoadServerLib(asmName),
-            ModelDependencyType.ServerExtLibrary => await Provider.LoadServerExtLib(appName!, asmName),
+            ModelDependencyType.SdkLibrary => await _provider.LoadSdkLib(asmName),
+            ModelDependencyType.CoreLibrary => await _provider.LoadCommonLib(asmName),
+            ModelDependencyType.ClientLibrary => await _provider.LoadClientLib(asmName),
+            ModelDependencyType.ServerLibrary => await _provider.LoadServerLib(asmName),
+            ModelDependencyType.ServerExtLibrary => await _provider.LoadServerExtLib(appName!, asmName),
             _ => throw new Exception($"Can't find metadata reference: {type}")
         };
 

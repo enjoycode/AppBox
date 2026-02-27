@@ -1,6 +1,7 @@
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxStore;
+using Microsoft.CodeAnalysis;
 
 namespace Tests;
 
@@ -9,8 +10,11 @@ public static class DesignHelper
     internal static async Task<DesignHub> MockDesignHub()
     {
         var mockSession = ServerRuntimeHelper.MockUserSession();
-        await DesignHub.InitAsync(mockSession.Name, mockSession.LeafOrgUnitId,
-            new MockCheckoutService(), new MockStagedService(), new MockMetaStoreService(), new MockPublishService());
+        await DesignHub.InitAsync(
+            mockSession.Name, mockSession.LeafOrgUnitId,
+            new MockCheckoutService(), new MockStagedService(), new MockMetaStoreService(), new MockPublishService(),
+            new MockMetadataReferenceProvider()
+        );
 
         var hub = DesignHub.Current;
         await hub.DesignTree.LoadAsync();
@@ -120,4 +124,37 @@ internal sealed class MockPublishService : IPublishService
     {
         throw new NotImplementedException();
     }
+}
+
+internal sealed class MockMetadataReferenceProvider : IMetadataReferenceProvider
+{
+    private readonly string _sdkPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+    private readonly string _appPath = Path.GetDirectoryName(typeof(TypeSystem).Assembly.Location)!;
+
+    public ValueTask<MetadataReference> LoadSdkLib(string assemblyName)
+    {
+        var fullPath = Path.Combine(_sdkPath, assemblyName);
+        return new ValueTask<MetadataReference>(MetadataReference.CreateFromFile(fullPath));
+    }
+
+    public ValueTask<MetadataReference> LoadCommonLib(string assemblyName)
+    {
+        var fullPath = Path.Combine(_appPath, assemblyName);
+        return new ValueTask<MetadataReference>(MetadataReference.CreateFromFile(fullPath));
+    }
+
+    public ValueTask<MetadataReference> LoadClientLib(string assemblyName)
+    {
+        var fullPath = Path.Combine(_appPath, assemblyName);
+        return new ValueTask<MetadataReference>(MetadataReference.CreateFromFile(fullPath));
+    }
+
+    public ValueTask<MetadataReference> LoadServerLib(string assemblyName)
+    {
+        var fullPath = Path.Combine(_appPath, assemblyName);
+        return new ValueTask<MetadataReference>(MetadataReference.CreateFromFile(fullPath));
+    }
+
+    public ValueTask<MetadataReference> LoadServerExtLib(string appName, string assemblyName) =>
+        throw new NotImplementedException($"{nameof(MockMetadataReferenceProvider)}.{nameof(LoadServerExtLib)}");
 }
