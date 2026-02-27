@@ -27,7 +27,7 @@ internal static class MetadataReferences
             "System.Net.Http.Json.dll", "System.Data.Common.dll"
         ];
 
-        string[] commonLibs = ["AppBoxCore.dll", "AppBoxStore.dll"];
+        string[] commonLibs = ["AppBoxCore.dll"];
         string[] clientLibs =
         [
             "PixUI.dll", "PixUI.Drawing.dll", "PixUI.Widgets.dll", "PixUI.MaterialIcons.dll", "LiveChartsCore.dll",
