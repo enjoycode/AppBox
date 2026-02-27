@@ -13,6 +13,9 @@ public sealed class ServiceModel : ModelBase
 
     public bool HasDependency => Dependencies is { Count: > 0 };
 
+    /// <summary>
+    /// 附加依赖项，比如系统内的PixUI.Drawing.dll或第三方依赖库
+    /// </summary>
     public List<ModelDependency>? Dependencies { get; internal set; }
 
     #region ====Serialization====
