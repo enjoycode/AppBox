@@ -205,7 +205,19 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
 
         ServiceModel.Dependencies = newList;
 
-        //TODO: 更新Roslyn项目的依赖项
+        //通知TypeSystem更新当前服务模型对应的Roslyn项目的依赖项
+        var designHub = DesignHub.Current;
+        var appName = ModelNode.AppNode.Model.Name;
+        var serviceProjectId = ModelNode.ServiceProjectId!;
+        foreach (var dep in removed)
+        {
+            designHub.TypeSystem.RemoveMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
+        }
+
+        foreach (var dep in added)
+        {
+            designHub.TypeSystem.AddMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
+        }
     }
 
     private async void OnRunMethod(PointerEvent e)
