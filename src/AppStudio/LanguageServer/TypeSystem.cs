@@ -1,5 +1,4 @@
 using AppBoxCore;
-using AppBoxStore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -396,27 +395,29 @@ internal sealed class TypeSystem : IDisposable
             Log.Warn("Cannot remove service project.");
     }
 
+    #endregion
+
+    #region ====MetadataReference====
+
     /// <summary>
-    /// 给Service Project添加MetadataReference
+    /// 给Project添加MetadataReference，用于设计时添加依赖项后更新
     /// </summary>
-    internal async void AddServiceMetadataReference(ProjectId serviceProjectId, string asmName, string? appName = null)
+    internal async void AddMetadataReference(ProjectId serviceProjectId, ModelDependencyType type,
+        string asmName, string? appName = null)
     {
-        //TODO:目前仅第三方依赖
-        var metadataReference =
-            await MetadataReferences.TryGet(ModelDependencyType.ServerExtLibrary, asmName, appName);
+        var metadataReference = await MetadataReferences.TryGet(type, asmName, appName);
         var newSolution = Workspace.CurrentSolution.AddMetadataReference(serviceProjectId, metadataReference);
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot add service project reference.");
     }
 
     /// <summary>
-    /// 给Service Project移除MetadataReference
+    /// 给Project移除MetadataReference，用于设计时更新或删除依赖后更新
     /// </summary>
-    internal async void RemoveServiceMetadataReference(ProjectId serviceProjectId, string asmName,
-        string? appName = null)
+    internal async void RemoveMetadataReference(ProjectId serviceProjectId, ModelDependencyType type,
+        string asmName, string? appName = null)
     {
-        var metadataReference =
-            await MetadataReferences.TryGet(ModelDependencyType.ServerExtLibrary, asmName, appName);
+        var metadataReference = await MetadataReferences.TryGet(type, asmName, appName);
         var newSolution = Workspace.CurrentSolution.RemoveMetadataReference(serviceProjectId, metadataReference);
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot remove service project reference.");
