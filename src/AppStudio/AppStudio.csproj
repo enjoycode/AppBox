@@ -80,4 +80,8 @@
         <PackageReference Include="System.IO.Pipelines" Version="9.0.9"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="AI\View\" />
+    </ItemGroup>
+
 </Project>

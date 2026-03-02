@@ -44,6 +44,10 @@
       <None Include="..\AppBox.snk">
         <Link>AppBox.snk</Link>
       </None>
+      <None Remove="AI\View\SystemPrompt.md" />
+      <EmbeddedResource Include="AI\View\SystemPrompt.md" />
+      <None Remove="AI\View\Widgets.md" />
+      <EmbeddedResource Include="AI\View\Widgets.md" />
     </ItemGroup>
 
     <ItemGroup>
