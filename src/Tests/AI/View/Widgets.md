@@ -33,7 +33,8 @@
   "Summary": "按行排列各个子组件",
   "Properties": [
     { "Name": "Spacing", "Type": "float", "Summary": "每个子组件的间隙" },
-    { "Name": "Children", "Type": "IList<Widget>" }
+    { "Name": "Children", "Type": "IList<Widget>" },
+    { "Name": "Alignment", "Type": "VerticalAlignment", "Summary": "子组件的垂直对齐方式"}
   ]
 }
 ```
@@ -45,7 +46,8 @@
   "Summary": "按列排列各个子组件",
   "Properties": [
     { "Name": "Spacing", "Type": "float", "Summary": "每个子组件的间隙" },
-    { "Name": "Children", "Type": "IList<Widget>" }
+    { "Name": "Children", "Type": "IList<Widget>" },
+    { "Name": "Alignment", "Type": "HorizontalAlignment", "Summary": "子组件的水平对齐方式" }
   ]
 }
 ```

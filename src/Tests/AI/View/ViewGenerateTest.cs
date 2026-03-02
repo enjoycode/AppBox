@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using NUnit.Framework;
+using AppBoxDesign.AI;
 
 namespace Tests.AI.View;
 
@@ -20,7 +21,10 @@ public class ViewGenerateTest
         req.Messages.Add(systemMessage);
 
         //Build user prompt
-        var userMessage = new AIMessage() { Role = "user", Content = "请生成用户登录界面,系统的名称为AppStudio，表单标题红色显示,字体大小为28,宽度为400.用户名及密码输入框前有标题，标题与输入框用Row按行排列" };
+        var userMessage = new AIMessage()
+        {
+            Role = "user", Content = "请生成用户登录界面,系统的名称为AppStudio，表单标题红色显示,字体大小为28,宽度为400.用户名及密码输入框前有标题"
+        };
         req.Messages.Add(userMessage);
 
         //Post request and wait response
@@ -43,34 +47,4 @@ public class ViewGenerateTest
 
         Console.WriteLine(res!.Message.Content);
     }
-}
-
-public sealed class AIMessage
-{
-    public string Role { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-}
-
-public sealed class AIRequest
-{
-    public string Model { get; set; } = "qwen3-coder";
-
-    public bool Stream { get; } = false;
-
-    public List<AIMessage> Messages { get; } = [];
-}
-
-public sealed class AIResponse
-{
-    public string Model { get; set; } = string.Empty;
-    public AIMessage Message { get; set; } = null!;
-    public DateTime CreatedAt { get; set; } = DateTime.MinValue;
-    public bool Done { get; set; }
-    public string DoneReason { get; set; } = string.Empty;
-    public int TotalDuration { get; set; }
-    public int LoadDuration { get; set; }
-    public int PromptEvalCount { get; set; }
-    public int PromptEvalDuration { get; set; }
-    public int EvalCount { get; set; }
-    public int EvalDuration { get; set; }
 }

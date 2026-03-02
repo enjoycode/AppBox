@@ -26,17 +26,18 @@
 
     <ItemGroup>
         <None Remove="Resources\Galaxy.webp"/>
-        <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs"/>
-        <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs"/>
-        <EmbeddedResource Include="DummyCode\ViewBaseDummyCode.cs"/>
-        <Compile Remove="DummyCode\ServiceBaseDummyCode.cs"/>
-        <Compile Remove="DummyCode\ServiceProxyDummyCode.cs"/>
-        <Compile Remove="DummyCode\ViewBaseDummyCode.cs"/>
+        <EmbeddedResource Include="AI\View\SystemPrompt.md" />
+        <EmbeddedResource Include="DummyCode\ServiceBaseDummyCode.cs" />
+        <EmbeddedResource Include="DummyCode\ServiceProxyDummyCode.cs" />
+        <EmbeddedResource Include="DummyCode\ViewBaseDummyCode.cs" />
+        <Compile Remove="DummyCode\ServiceBaseDummyCode.cs" />
+        <Compile Remove="DummyCode\ServiceProxyDummyCode.cs" />
+        <Compile Remove="DummyCode\ViewBaseDummyCode.cs" />
         <None Include="..\AppBox.snk">
             <Link>AppBox.snk</Link>
         </None>
-        <None Remove="Resources\LoginBG.webp"/>
-        <EmbeddedResource Include="Resources\LoginBG.webp"/>
+        <None Remove="Resources\LoginBG.webp" />
+        <EmbeddedResource Include="Resources\LoginBG.webp" />
     </ItemGroup>
 
     <ItemGroup>
@@ -70,18 +71,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
-        <PackageReference Include="Microsoft.DiaSymReader" Version="2.0.0"/>
-        <PackageReference Include="System.Composition.AttributedModel" Version="8.0.0"/>
-        <PackageReference Include="System.Composition.Hosting" Version="8.0.0"/>
-        <PackageReference Include="System.Composition.Runtime" Version="8.0.0"/>
-        <PackageReference Include="System.Composition.TypedParts" Version="8.0.0"/>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1"/>
-        <PackageReference Include="System.IO.Pipelines" Version="9.0.9"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="AI\View\" />
+        <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+        <PackageReference Include="Microsoft.DiaSymReader" Version="2.0.0" />
+        <PackageReference Include="System.Composition.AttributedModel" Version="8.0.0" />
+        <PackageReference Include="System.Composition.Hosting" Version="8.0.0" />
+        <PackageReference Include="System.Composition.Runtime" Version="8.0.0" />
+        <PackageReference Include="System.Composition.TypedParts" Version="8.0.0" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
+        <PackageReference Include="System.IO.Pipelines" Version="9.0.9" />
     </ItemGroup>
 
 </Project>

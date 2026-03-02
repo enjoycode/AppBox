@@ -45,7 +45,6 @@
         <Link>AppBox.snk</Link>
       </None>
       <None Remove="AI\View\SystemPrompt.md" />
-      <EmbeddedResource Include="AI\View\SystemPrompt.md" />
       <None Remove="AI\View\Widgets.md" />
       <EmbeddedResource Include="AI\View\Widgets.md" />
     </ItemGroup>
@@ -75,6 +74,18 @@
       <Reference Include="NanoLog">
         <HintPath>..\..\ext\NanoLog.dll</HintPath>
       </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\AppStudio\AI\AIChatObjects.cs">
+        <Link>AI\View\AIChatObjects.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="..\AppStudio\AI\View\SystemPrompt.md">
+        <Link>AI/View/SystemPrompt.md</Link>
+      </EmbeddedResource>
     </ItemGroup>
 
 </Project>
