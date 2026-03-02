@@ -77,6 +77,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Include="..\AppStudio\AI\AIChat.cs">
+        <Link>AI\View\AIChat.cs</Link>
+      </Compile>
       <Compile Include="..\AppStudio\AI\AIChatObjects.cs">
         <Link>AI\View\AIChatObjects.cs</Link>
       </Compile>

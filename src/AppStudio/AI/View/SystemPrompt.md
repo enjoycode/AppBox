@@ -41,7 +41,7 @@ public class LoginForm : View
 
 # STATE
 
-Widget的某些属性为State<T>类型，可以定义状态变量并绑定至组件的相关属性，这样当状态值发生变更时（通过设置State.Value=新值），绑定的组件根据状态影响进行重新布局或仅重新绘制.
+Widget的某些属性为State<T>类型，可以定义状态变量并绑定至组件的相关属性，这样当状态值发生变更时（通过设置State.Value=新值），绑定的组件根据状态影响进行重新布局或重新绘制.
 请参考输出示例的```private readonly State<string> _name = "";```定义状态变量，
 请参考输出示例的```_name.Value = $"Hello {_name.Value}"```改变状态变量的值.
 
@@ -54,21 +54,19 @@ Widget的某些属性为Action<T>类型，可以设置为C#委托，这样当Wid
 
 # UI ENUMS
 
+- 水平对齐方式
 ```csharp
-// <summary>
-/// 水平对齐方式
-/// </summary>
-public enum HorizontalAlignment : byte
+public enum HorizontalAlignment
 {
     Left,
     Center,
     Right
 }
+```
 
-/// <summary>
-/// 垂直对齐方式
-/// </summary>
-public enum VerticalAlignment : byte
+- 垂直对齐方式
+```csharp
+public enum VerticalAlignment
 {
     Top,
     Middle,
