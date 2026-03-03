@@ -2,6 +2,14 @@ using PixUI;
 
 namespace AppBoxDesign;
 
+internal static class BottomPadNames
+{
+    public const string Problems = "Problems";
+    public const string Usages = "Usages";
+    public const string Debug = "Debug";
+    public const string AIGenerate = "AIGenerate";
+}
+
 internal sealed class BottomPad : View
 {
     public BottomPad(DesignStore designStore)
@@ -30,7 +38,7 @@ internal sealed class BottomPad : View
 
     private Widget BuildBody(string title) => title switch
     {
-        "Problems" => new DataGrid<CodeProblem>(_designStore.ProblemsController)
+        BottomPadNames.Problems => new DataGrid<CodeProblem>(_designStore.ProblemsController)
             .AddTextColumn("Position", p => p.Position, 180)
             .AddTextColumn("Message", p => p.Message)
             .AddButtonColumn("Goto",
@@ -41,7 +49,8 @@ internal sealed class BottomPad : View
                     FontSize = 20,
                     OnTap = _ => _designStore.GotoProblem(p)
                 }, 80),
-        "Usages" => new DataGrid<Reference>(_designStore.UsagesController).AddTextColumn("Model", u => u.ModelName)
+        BottomPadNames.Usages => new DataGrid<Reference>(_designStore.UsagesController)
+            .AddTextColumn("Model", u => u.ModelName)
             .AddTextColumn("Location", u => u.Location)
             .AddButtonColumn("Goto",
                 (p, _) => new Button(icon: MaterialIcons.NextPlan)
@@ -51,7 +60,8 @@ internal sealed class BottomPad : View
                     FontSize = 20,
                     OnTap = _ => _designStore.GotoReference(p)
                 }, 80),
-        "Debug" => new DebugPad(_designStore),
-        _ => new Container() { Padding = EdgeInsets.All(10), FillColor = Colors.White, Child = new Text(title), }
+        BottomPadNames.Debug => new DebugPad(_designStore),
+        BottomPadNames.AIGenerate => new AIGeneratePad(_designStore),
+        _ => new Container() { Padding = EdgeInsets.All(10), FillColor = Colors.White, Child = new Text(title) }
     };
 }

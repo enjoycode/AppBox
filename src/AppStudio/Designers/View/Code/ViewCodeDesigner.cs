@@ -1,9 +1,10 @@
+using AppBoxDesign.AI;
 using CodeEditor;
 using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class ViewCodeDesigner : View, ICodeDesigner
+internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 {
     public ViewCodeDesigner(DesignStore designStore, ModelNode modelNode)
     {

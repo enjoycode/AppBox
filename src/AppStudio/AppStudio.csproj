@@ -12,6 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor.Text\PixUI.CodeEditor.Text.csproj" />
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\PixUI.CodeEditor.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Diagram\PixUI.Diagram.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic.Design\PixUI.Dynamic.Design.csproj"/>

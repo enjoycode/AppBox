@@ -1,5 +1,6 @@
 using AppBoxClient.Dynamic;
 using AppBoxCore;
+using AppBoxDesign.AI;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -34,7 +35,7 @@ internal sealed class DesignStore
     internal readonly TabController<DesignNode> DesignerController = new(new List<DesignNode>());
 
     internal readonly TabController<string> BottomPadController =
-        new(new List<string> { "Problems", "Usages", "Debug" });
+        new(new List<string> { BottomPadNames.Problems, BottomPadNames.Usages, BottomPadNames.Debug });
 
     /// <summary>
     ///  问题列表控制器
@@ -142,6 +143,17 @@ internal sealed class DesignStore
 
         if (gotoLocation != null)
             node.Designer?.GotoLocation(gotoLocation);
+
+        //如果支持AI生成的，显示相应的面板
+        if (node.Designer is IAIGeneratable)
+        {
+            if (BottomPadController.IndexOf(BottomPadNames.AIGenerate) < 0)
+                BottomPadController.Add(BottomPadNames.AIGenerate, false);
+        }
+        else
+        {
+            BottomPadController.Remove(BottomPadNames.AIGenerate);
+        }
     }
 
     /// <summary>
@@ -174,7 +186,7 @@ internal sealed class DesignStore
     internal static TreeNode<DesignNode> GetModelRootNode(TreeNode<DesignNode> child)
     {
         var childType = child.Data.Type;
-        if (childType != DesignNodeType.ModelNode && 
+        if (childType != DesignNodeType.ModelNode &&
             childType != DesignNodeType.FolderNode &&
             childType != DesignNodeType.ModelRootNode)
             throw new ArgumentException("child must belong ModelRootNode");

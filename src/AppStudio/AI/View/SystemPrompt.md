@@ -31,6 +31,7 @@ public class LoginForm : View
 ```
 
 ## 输出要求:
+
 - 仅输出C#代码
 - 不要使用 Markdown 代码块标记
 - 只能使用以下`AVAILABLE WIDGETS`章节内列出的Widget
@@ -55,6 +56,7 @@ Widget的某些属性为Action<T>类型，可以设置为C#委托，这样当Wid
 # UI ENUMS
 
 - 水平对齐方式
+
 ```csharp
 public enum HorizontalAlignment
 {
@@ -65,6 +67,7 @@ public enum HorizontalAlignment
 ```
 
 - 垂直对齐方式
+
 ```csharp
 public enum VerticalAlignment
 {

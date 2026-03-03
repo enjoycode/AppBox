@@ -1,28 +1,25 @@
 #if !__WEB__
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
-using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class DesktopPreviewer : View
+internal sealed class DesktopPreviewer : View //TODO: rename to EmbedPreviewer
 {
     public DesktopPreviewer(PreviewController controller)
     {
         _controller = controller;
         _controller.InvalidateAction = Run;
 
-        Child = new Container { Child = _loading }.RefBy(ref _containerRef);
+        Child = new Container { Child = Loading }.RefBy(ref _containerRef);
     }
 
     private readonly PreviewController _controller;
     private readonly Container _containerRef = null!;
     private ViewAssemblyLoader? _assemblyLoader;
-    private static readonly Widget _loading = new Center { Child = new Text("Loading....") };
+    private static readonly Widget Loading = new Center { Child = new Text("Loading....") };
     private bool _hasLoaded;
 
     protected override void OnMounted()
@@ -49,7 +46,7 @@ internal sealed class DesktopPreviewer : View
 #endif
             var asmData = await BuildViewPreview.Execute(_controller.ModelNode);
             _assemblyLoader = new ViewAssemblyLoader();
-            var asm = _assemblyLoader.LoadViewAssembly(asmData!);
+            var asm = _assemblyLoader.LoadViewAssembly(asmData);
             var modelNode = _controller.ModelNode;
             var widgetTypeName = $"{modelNode.AppNode.Model.Name}.Views.{modelNode.Label.Value}";
             var widgetType = asm.GetType(widgetTypeName);
