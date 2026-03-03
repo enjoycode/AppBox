@@ -136,23 +136,19 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
         foreach (var change in changes)
         {
             //注意以下end索引-1
-            start = Math.Min(start, change.Range.Span.Start);
-            end = Math.Max(end, change.Range.Span.Start + change.Range.NewLength - 1);
-
-            // 注释旧代码
-            // if (change.NewNodes == null)
-            // {
-            //     start = Math.Min(start, change.Range.Span.Start);
-            //     end = Math.Max(end, change.Range.Span.Start + change.Range.NewLength - 1);
-            // }
-            // else
-            // {
-            //     foreach (var node in change.NewNodes)
-            //     {
-            //         start = Math.Min(start, node.FullSpan.Start);
-            //         end = Math.Max(end, node.FullSpan.End - 1);
-            //     }
-            // }
+            if (change.NewNodes == null)
+            {
+                start = Math.Min(start, change.Range.Span.Start);
+                end = Math.Max(end, change.Range.Span.Start + change.Range.NewLength - 1);
+            }
+            else
+            {
+                foreach (var node in change.NewNodes)
+                {
+                    start = Math.Min(start, node.FullSpan.Start);
+                    end = Math.Max(end, node.FullSpan.End - 1);
+                }
+            }
         }
 
         var startLine = Document.GetLineNumberByOffset(start);
