@@ -35,7 +35,7 @@ internal sealed class DesignStore
     internal readonly TabController<DesignNode> DesignerController = new(new List<DesignNode>());
 
     internal readonly TabController<string> BottomPadController =
-        new(new List<string> { BottomPadNames.Problems, BottomPadNames.Usages, BottomPadNames.Debug });
+        new(new List<string> { BottomPadNames.Problems, BottomPadNames.Usages });
 
     /// <summary>
     ///  问题列表控制器
@@ -146,6 +146,17 @@ internal sealed class DesignStore
 
         if (gotoLocation != null)
             node.Designer?.GotoLocation(gotoLocation);
+
+        //如果支持Debug的显示相应的面板
+        if (node.Designer is IDebuggableCodeDesigner)
+        {
+            if (BottomPadController.IndexOf(BottomPadNames.Debug) < 0)
+                BottomPadController.Add(BottomPadNames.Debug, false);
+        }
+        else
+        {
+            BottomPadController.Remove(BottomPadNames.Debug);
+        }
 
         //如果支持AI生成的，显示相应的面板
         BottomPadController.Remove(BottomPadNames.AIGenerate);
