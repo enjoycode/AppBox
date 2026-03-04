@@ -1,3 +1,4 @@
+using AppBoxDesign.AI;
 using CodeEditor;
 using PixUI;
 
@@ -8,6 +9,7 @@ internal sealed class AIGeneratePad : View
     public AIGeneratePad(DesignStore designStore)
     {
         _designStore = designStore;
+        _notRunning = _running.ToReversed();
 
         Child = new Column()
         {
@@ -21,11 +23,13 @@ internal sealed class AIGeneratePad : View
     }
 
     private readonly DesignStore _designStore;
+    private readonly State<bool> _running = false;
+    private readonly State<bool> _notRunning;
 
     private readonly CodeEditorController _textController =
-        new("AI.md", new ImmutableTextBuffer(), new PureTextSyntaxParser());
+        new("AIPrompt.md", new ImmutableTextBuffer(), new PureTextSyntaxParser());
 
-    private Widget BuildActionBar() => new Container()
+    private Container BuildActionBar() => new Container()
     {
         Height = 40,
         Padding = EdgeInsets.Only(15, 5, 15, 5),
@@ -37,11 +41,19 @@ internal sealed class AIGeneratePad : View
                 {
                     Children =
                     [
-                        new Button("Send", MaterialIcons.Message),
-                        new Button("Undo", MaterialIcons.Undo),
-                        new Button("Clear", MaterialIcons.Clear),
+                        new Button("Send Prompt", MaterialIcons.Message)
+                            { Enabled = _notRunning, OnTap = _ => SendPrompt() },
+                        new Button("Clear Prompt", MaterialIcons.Clear)
+                            { Enabled = _notRunning, OnTap = _ => ClearPrompt() },
+                        new Button("Reset Chat", MaterialIcons.LockReset)
                     ]
                 },
+                // new ButtonGroup()
+                // {
+                //     Children = [
+                //         new Button("Undo History", MaterialIcons.Undo) { Enabled = _notRunning },
+                //     ]
+                // }
             ]
         }
     };
@@ -51,9 +63,40 @@ internal sealed class AIGeneratePad : View
         base.OnMounted();
         _textController.Document.Open("Write prompt here.");
     }
+
+    private void ClearPrompt()
+    {
+        var document = _textController.Document;
+        document.Remove(0, document.TextLength);
+    }
+
+    private async void SendPrompt()
+    {
+        var activeDesigner = _designStore.ActiveDesigner;
+        if (activeDesigner is not IAIGeneratable aiGenerator)
+        {
+            Notification.Error("Not support for AI");
+            return;
+        }
+
+        _running.Value = true;
+        var prompt = _textController.Document.TextContent;
+        try
+        {
+            await aiGenerator.Chat.SendUserPrompt(prompt);
+        }
+        catch (Exception e)
+        {
+            Notification.Error(e.Message);
+        }
+        finally
+        {
+            _running.Value = false;
+        }
+    }
 }
 
-internal sealed class PureTextSyntaxParser : CodeEditor.ISyntaxParser
+internal sealed class PureTextSyntaxParser : ISyntaxParser
 {
     private int _editStartOffset;
     private int _editEndOffset;
@@ -61,7 +104,7 @@ internal sealed class PureTextSyntaxParser : CodeEditor.ISyntaxParser
     public void Dispose() { }
     public bool HasSyntaxError => false;
 
-    public Document Document { get; set; }
+    public Document Document { get; set; } = null!;
 
     public void BeginEdit(int offset, int length, int textLength) { }
 
@@ -73,7 +116,7 @@ internal sealed class PureTextSyntaxParser : CodeEditor.ISyntaxParser
         else if (length > 0 && textLength == 0) //remove
             _editEndOffset = offset;
         else //replace
-            _editEndOffset = offset + (textLength - length);
+            _editEndOffset = offset + textLength;
     }
 
     public char? GetAutoClosingPairs(char ch) => null;

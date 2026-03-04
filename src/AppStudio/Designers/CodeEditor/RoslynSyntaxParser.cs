@@ -21,6 +21,8 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
     // private List<SourceText> _changes = [];
     private SyntaxTree? _oldTree;
+    private int _lastReplaceStartLine = -1;
+    private int _lastReplaceEndLine = -1;
 
     #region ====TokenType Map====
 
@@ -67,11 +69,15 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
     public void Dispose() { }
 
-    public bool HasSyntaxError { get; }
+    public bool HasSyntaxError =>
+        _oldTree != null && _oldTree.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error);
 
     public CodeEditor.Document Document { get; set; } = null!;
 
-    public void BeginEdit(int offset, int length, int textLength) { }
+    public void BeginEdit(int offset, int length, int textLength)
+    {
+        _lastReplaceStartLine = _lastReplaceEndLine = -1;
+    }
 
     public void EndEdit(int offset, int length, int textLength)
     {
@@ -79,6 +85,12 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
         // if (!ReferenceEquals(_textBuffer.CurrentVersion, doc.GetTextAsync().Result))
         //     throw new InvalidOperationException();
         // _changes.Add(_textBuffer.CurrentVersion);
+
+        if (length > 0 && textLength > 0) //replace
+        {
+            _lastReplaceStartLine = Document.GetLineNumberByOffset(offset);
+            _lastReplaceEndLine = Document.GetLineNumberByOffset(offset + textLength);
+        }
     }
 
     public char? GetAutoClosingPairs(char ch) => ch switch
@@ -153,6 +165,13 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
 
         var startLine = Document.GetLineNumberByOffset(start);
         var endLine = Document.GetLineNumberByOffset(end);
+
+        //暂使用此方法修复替换的内容与被替换的内容只存在局部差异的情况
+        if (_lastReplaceStartLine >= 0)
+        {
+            startLine = Math.Min(_lastReplaceStartLine, startLine);
+            endLine = Math.Max(_lastReplaceEndLine, endLine);
+        }
 // #if DEBUG
 //         Log.Debug($"合并的变更范围: [{startLine + 1} - {endLine + 1}]");
 // #endif

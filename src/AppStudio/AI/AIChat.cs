@@ -32,6 +32,8 @@ internal abstract class AIChat : IDisposable
 
     protected abstract string BuildSystemPrompt();
 
+    protected virtual string BuildUserPrompt(string userPrompt, bool isNew) => userPrompt;
+
     protected abstract void ParseAIResponse(AIMessage responseMessage);
 
     /// <summary>
@@ -44,17 +46,23 @@ internal abstract class AIChat : IDisposable
         if (_history.Count == 0) // 初次对话
         {
             // build system prompt
-            var systemPrompt = new AIMessage() { Role = "system", Content = BuildSystemPrompt() };
-            request.Messages.Add(systemPrompt);
+            var systemMessage = new AIMessage() { Role = "system", Content = BuildSystemPrompt() };
+            request.Messages.Add(systemMessage);
+            _history.Add(systemMessage);
+            // build user prompt
+            var userMessage = new AIMessage() { Role = "user", Content = BuildUserPrompt(userPrompt, true) };
+            request.Messages.Add(userMessage);
+            _history.Add(userMessage);
         }
         else
         {
             // add history messages
             request.Messages.AddRange(_history);
+            // add user message
+            var userMessage = new AIMessage() { Role = "user", Content = BuildUserPrompt(userPrompt, false) };
+            request.Messages.Add(userMessage);
+            _history.Add(userMessage);
         }
-
-        // add user prompt
-        request.Messages.Add(new AIMessage() { Role = "user", Content = userPrompt });
 
         // Send POST request
         var content = JsonContent.Create(request, null, JsonRequestSerializerOptions);
@@ -67,6 +75,7 @@ internal abstract class AIChat : IDisposable
         if (response == null)
             throw new Exception("No response from server");
 
+        // Add to history and parse response
         _history.Add(response.Message);
         ParseAIResponse(response.Message);
     }

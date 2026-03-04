@@ -57,17 +57,11 @@ public sealed class RoslynSourceText : ITextBuffer
         DesignHub.Current.TypeSystem.Workspace.OnDocumentChanged(_modelNode.RoslynDocumentId!, _sourceText);
     }
 
-    public string GetText(int offset, int length)
-    {
-        return _sourceText.ToString(new TextSpan(offset, length));
-    }
+    public string GetText(int offset, int length) => _sourceText.ToString(new TextSpan(offset, length));
 
     public char GetCharAt(int offset) => _sourceText[offset];
 
-    public void SetContent(string text)
-    {
-        throw new NotImplementedException();
-    }
+    public void SetContent(string text) => _sourceText.Replace(0, _sourceText.Length, text);
 
     public void CopyTo(Span<char> dest, int offset, int count)
     {

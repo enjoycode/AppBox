@@ -47,6 +47,9 @@ internal sealed class DesignStore
     /// </summary>
     internal readonly DataGridController<Reference> UsagesController = new();
 
+    /// <summary>
+    /// 当前选择的模型设计器
+    /// </summary>
     internal IDesigner? ActiveDesigner
     {
         get
@@ -145,15 +148,9 @@ internal sealed class DesignStore
             node.Designer?.GotoLocation(gotoLocation);
 
         //如果支持AI生成的，显示相应的面板
+        BottomPadController.Remove(BottomPadNames.AIGenerate);
         if (node.Designer is IAIGeneratable)
-        {
-            if (BottomPadController.IndexOf(BottomPadNames.AIGenerate) < 0)
-                BottomPadController.Add(BottomPadNames.AIGenerate, false);
-        }
-        else
-        {
-            BottomPadController.Remove(BottomPadNames.AIGenerate);
-        }
+            BottomPadController.Add(BottomPadNames.AIGenerate, false);
     }
 
     /// <summary>
@@ -221,6 +218,15 @@ internal sealed class DesignStore
             .ToArray();
         return res;
     }
+
+    #endregion
+
+    #region ====AI Options====
+
+    public static string AIModelName = "qwen3-coder";
+    public static string AIApiUrl = "http://localhost:11434/api/chat";
+
+    //TODO: 其他选项
 
     #endregion
 }

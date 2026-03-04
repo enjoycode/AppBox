@@ -39,7 +39,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 
     private ILocation? _pendingGoto;
 
-    private Widget BuildEditor(CodeEditorController codeEditorController) => new Column
+    private Column BuildEditor(CodeEditorController codeEditorController) => new Column
     {
         Children =
         {
@@ -48,17 +48,17 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
         }
     };
 
-    private Widget BuildActionBar() => new Container
+    private Container BuildActionBar() => new Container
     {
         FillColor = new Color(0xFF3C3C3C), Height = 40,
         Padding = EdgeInsets.Only(15, 8, 15, 8),
         Child = new Row(VerticalAlignment.Middle, 10)
         {
-            Children = new Widget[]
-            {
+            Children =
+            [
                 new Button("Preview") { Width = 75, OnTap = SwitchPreviewer },
                 new Button("Debug") { Width = 75 }
-            }
+            ]
         }
     };
 
@@ -129,13 +129,6 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
         }
     }
 
-    public override void Dispose()
-    {
-        _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
-
-        base.Dispose();
-    }
-
     public Widget GetOutlinePad() => new ViewOutlinePad(_previewController);
 
     public Widget? GetToolboxPad() => null;
@@ -176,6 +169,49 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
         // _codeEditorController.Document.TextContent = srcCode!;
         // _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
     }
-    
-    void IDesigner.OnClose() { }
+
+    void IDesigner.OnClose()
+    {
+        _chat?.Dispose();
+        _chat = null;
+    }
+
+    public override void Dispose()
+    {
+        _codeEditorController.Document.DocumentChanged -= OnDocumentChanged;
+
+        base.Dispose();
+    }
+
+    #region ====AI====
+
+    private AIChatForViewCodeGenerate? _chat;
+
+    AIChat IAIGeneratable.Chat
+    {
+        get
+        {
+            _chat ??= new AIChatForViewCodeGenerate(DesignStore.AIModelName, DesignStore.AIApiUrl, this);
+            return _chat;
+        }
+    }
+
+    string IAIGeneratable.GetCurrentContent() => _codeEditorController.Document.TextContent;
+
+    void IAIGeneratable.SetCurrentContent(string content)
+    {
+        var editorDoc =  _codeEditorController.Document;
+        //TODO:仅部分更新
+        // var newSourceText = SourceText.From(content);
+        // var changes = newSourceText.GetTextChanges(_textBuffer.CurrentVersion);
+        // foreach (var change in changes) { }
+        
+        editorDoc.Replace(0, editorDoc.TextContent.Length, content);
+    }
+
+    string IAIGeneratable.GetAppName() => ModelNode.AppNode.Model.Name;
+
+    string IAIGeneratable.GetModelName() => ModelNode.Model.Name;
+
+    #endregion
 }
