@@ -11,6 +11,8 @@ internal sealed class AIRequest
     public string Model { get; set; } = "qwen3-coder";
 
     public bool Stream { get; } = false;
+    
+    public bool Think { get; set; } = false;
 
     public List<AIMessage> Messages { get; } = [];
 }

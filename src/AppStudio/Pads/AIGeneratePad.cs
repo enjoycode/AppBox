@@ -20,6 +20,8 @@ internal sealed class AIGeneratePad : View
                 new CodeEditorWidget(_textController)
             ],
         };
+        
+        _textController.Document.Open("Write prompt here.");
     }
 
     private readonly DesignStore _designStore;
@@ -45,7 +47,7 @@ internal sealed class AIGeneratePad : View
                             { Enabled = _notRunning, OnTap = _ => SendPrompt() },
                         new Button("Clear Prompt", MaterialIcons.Clear)
                             { Enabled = _notRunning, OnTap = _ => ClearPrompt() },
-                        new Button("Reset Chat", MaterialIcons.LockReset)
+                        new Button("Reset Chat", MaterialIcons.LockReset) { Enabled = _notRunning }
                     ]
                 },
                 // new ButtonGroup()
@@ -58,16 +60,11 @@ internal sealed class AIGeneratePad : View
         }
     };
 
-    protected override void OnMounted()
-    {
-        base.OnMounted();
-        _textController.Document.Open("Write prompt here.");
-    }
-
     private void ClearPrompt()
     {
         var document = _textController.Document;
-        document.Remove(0, document.TextLength);
+        document.Replace(0, document.TextLength, "");
+        _textController.SetCaret(0, 0);
     }
 
     private async void SendPrompt()
@@ -79,8 +76,14 @@ internal sealed class AIGeneratePad : View
             return;
         }
 
-        _running.Value = true;
         var prompt = _textController.Document.TextContent;
+        if (string.IsNullOrEmpty(prompt))
+        {
+            Notification.Error("Please enter a valid prompt");
+            return;
+        }
+
+        _running.Value = true;
         try
         {
             await aiGenerator.Chat.SendUserPrompt(prompt);

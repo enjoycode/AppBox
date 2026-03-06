@@ -46,7 +46,6 @@
       </None>
       <None Remove="AI\View\SystemPrompt.md" />
       <None Remove="AI\View\Widgets.md" />
-      <EmbeddedResource Include="AI\View\Widgets.md" />
     </ItemGroup>
 
     <ItemGroup>
@@ -88,6 +87,12 @@
     <ItemGroup>
       <EmbeddedResource Include="..\AppStudio\AI\View\SystemPrompt.md">
         <Link>AI/View/SystemPrompt.md</Link>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="..\AppStudio\AI\View\Widgets.md">
+        <Link>AI/View/Widgets.md</Link>
       </EmbeddedResource>
     </ItemGroup>
 

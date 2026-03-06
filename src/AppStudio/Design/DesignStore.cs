@@ -86,6 +86,8 @@ internal sealed class DesignStore
         // 从设计树中移除选中的节点
         //TODO: 刷新模型根节点 if (modelRootNodeIdString != null)
         TreeController.RemoveNode(node, false /*不需要同步*/);
+        // 隐藏相关面板
+        ShowOrHiddenBottomPad(null);
     }
 
     /// <summary>
@@ -147,8 +149,16 @@ internal sealed class DesignStore
         if (gotoLocation != null)
             node.Designer?.GotoLocation(gotoLocation);
 
+        ShowOrHiddenBottomPad(node);
+    }
+
+    /// <summary>
+    /// 根据类型显示或隐藏底部的面板
+    /// </summary>
+    private void ShowOrHiddenBottomPad(DesignNode? node)
+    {
         //如果支持Debug的显示相应的面板
-        if (node.Designer is IDebuggableCodeDesigner)
+        if (node?.Designer is IDebuggableCodeDesigner)
         {
             if (BottomPadController.IndexOf(BottomPadNames.Debug) < 0)
                 BottomPadController.Add(BottomPadNames.Debug, false);
@@ -160,7 +170,7 @@ internal sealed class DesignStore
 
         //如果支持AI生成的，显示相应的面板
         BottomPadController.Remove(BottomPadNames.AIGenerate);
-        if (node.Designer is IAIGeneratable)
+        if (node?.Designer is IAIGeneratable)
             BottomPadController.Add(BottomPadNames.AIGenerate, false);
     }
 

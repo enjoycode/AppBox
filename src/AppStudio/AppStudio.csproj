@@ -39,6 +39,10 @@
         </None>
         <None Remove="Resources\LoginBG.webp" />
         <EmbeddedResource Include="Resources\LoginBG.webp" />
+        <None Remove="AI\View\Widgets.md" />
+        <EmbeddedResource Include="AI\View\Widgets.md" />
+        <None Remove="AI\View\Rules.md" />
+        <EmbeddedResource Include="AI\View\Rules.md" />
     </ItemGroup>
 
     <ItemGroup>

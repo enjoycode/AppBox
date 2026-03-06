@@ -53,7 +53,21 @@ State<T>支持隐式转换，示例: ```private State<string> _name = "Rick"```
 Widget的某些属性为Action<T>类型，可以设置为C#委托，这样当Widget产生如按钮点击事件时可以调用相应的委托.
 请参考输出示例的```new Button() { Text = "Click Me", OnTap = _ => OnButtonClick() }```
 
-# UI ENUMS
+# LAYOUT & STYLE
+
+## 规则
+- 具备Padding属性的Widget可以设置内边距,示例: 1.所有边距相同 ```new Card() { Padding = EdgeInset.All(8) }```,
+  2.单独设置各方向的边距 ```new Card() { Padding = EdgeInset.Only(5/*左边距*/, 6/*上边距*/, 7/*右边距*/, 8/*下边距*/) }```
+- IconData使用MaterialIcons,常用的名称：Add,Remove,Delete,Save,Search,Login,Logout,Upload,Download. 示例:
+  ```new Button() { Icon = MaterialIcons.Save }```
+- ImageSource示例: ```ImageSource.FromNetwork("https://picsum.photos/WIDTH/HEIGHT?random=N")```
+  ,使用不同的random产生不同的图片，比如: ?random=1, ?random=2
+- Color示例: ```var color = Color.FromArgb(0xAABBCCDD);```
+- ListView默认垂直方向排列子组件，如果需要改为水平方向参照示例: ```new ListView(Axis.Horizontal)```
+- ListView/Card/ImageBox不指定Width及Height属性会在布局时会占据上级组件的所有剩余空间，最好设置Width及Height属性值.
+- TextInput不指定Width时宽度会占据上级组件的所有剩余宽度，最好设置Width属性值
+
+## 常用类型
 
 - 水平对齐方式
 
