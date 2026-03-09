@@ -206,8 +206,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
         // var changes = newSourceText.GetTextChanges(_textBuffer.CurrentVersion);
         // foreach (var change in changes) { }
 
-        editorDoc.Replace(0, editorDoc.TextContent.Length, content);
-        _codeEditorController.SetCaret(0, 0);
+        _codeEditorController.Replace(0, editorDoc.TextContent.Length, content);
     }
 
     string IAIGeneratable.GetAppName() => ModelNode.AppNode.Model.Name;

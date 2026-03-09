@@ -20,7 +20,7 @@ internal sealed class AIGeneratePad : View
                 new CodeEditorWidget(_textController)
             ],
         };
-        
+
         _textController.Document.Open("Write prompt here.");
     }
 
@@ -60,12 +60,7 @@ internal sealed class AIGeneratePad : View
         }
     };
 
-    private void ClearPrompt()
-    {
-        var document = _textController.Document;
-        document.Replace(0, document.TextLength, "");
-        _textController.SetCaret(0, 0);
-    }
+    private void ClearPrompt() => _textController.Replace(0, _textController.Document.TextLength, "");
 
     private async void SendPrompt()
     {

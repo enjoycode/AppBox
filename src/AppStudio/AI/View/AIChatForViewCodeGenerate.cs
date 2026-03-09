@@ -11,6 +11,8 @@ internal sealed class AIChatForViewCodeGenerate : AIChat
 
     private readonly IAIGeneratable _generator;
 
+    protected override AIRequestOptions? BuildOptions() => new() { Temperature = 0.2f };
+
     protected override string BuildSystemPrompt()
     {
         var sb = new StringBuilder(1024);

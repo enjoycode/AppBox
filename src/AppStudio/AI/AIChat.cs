@@ -34,6 +34,8 @@ internal abstract class AIChat : IDisposable
 
     protected virtual string BuildUserPrompt(string userPrompt, bool isNew) => userPrompt;
 
+    protected virtual AIRequestOptions? BuildOptions() => null;
+
     protected abstract void ParseAIResponse(AIMessage responseMessage);
 
     /// <summary>
@@ -41,7 +43,7 @@ internal abstract class AIChat : IDisposable
     /// </summary>
     public async Task SendUserPrompt(string userPrompt)
     {
-        var request = new AIRequest() { Model = _model };
+        var request = new AIRequest { Model = _model, Options = BuildOptions() };
 
         if (_history.Count == 0) // 初次对话
         {

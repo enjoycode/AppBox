@@ -11,10 +11,18 @@ internal sealed class AIRequest
     public string Model { get; set; } = "qwen3-coder";
 
     public bool Stream { get; } = false;
-    
+
     public bool Think { get; set; } = false;
 
+    // ReSharper disable once CollectionNeverQueried.Global
     public List<AIMessage> Messages { get; } = [];
+
+    public AIRequestOptions? Options { get; set; }
+}
+
+internal sealed class AIRequestOptions
+{
+    public float Temperature { get; set; } = 0.8f;
 }
 
 internal sealed class AIResponse

@@ -121,3 +121,21 @@
   ]
 }
 ```
+
+* Checkbox
+
+```json
+{
+  "Summary": "Checkbox for boolean selections",
+  "Properties": []
+}
+```
+
+* Switch
+
+```json
+{
+  "Summary": "Toggle switch",
+  "Properties": [ ]
+}
+```

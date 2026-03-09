@@ -56,6 +56,7 @@ Widget的某些属性为Action<T>类型，可以设置为C#委托，这样当Wid
 # LAYOUT & STYLE
 
 ## 规则
+
 - 具备Padding属性的Widget可以设置内边距,示例: 1.所有边距相同 ```new Card() { Padding = EdgeInset.All(8) }```,
   2.单独设置各方向的边距 ```new Card() { Padding = EdgeInset.Only(5/*左边距*/, 6/*上边距*/, 7/*右边距*/, 8/*下边距*/) }```
 - IconData使用MaterialIcons,常用的名称：Add,Remove,Delete,Save,Search,Login,Logout,Upload,Download. 示例:
@@ -65,28 +66,19 @@ Widget的某些属性为Action<T>类型，可以设置为C#委托，这样当Wid
 - Color示例: ```var color = Color.FromArgb(0xAABBCCDD);```
 - ListView默认垂直方向排列子组件，如果需要改为水平方向参照示例: ```new ListView(Axis.Horizontal)```
 - ListView/Card/ImageBox不指定Width及Height属性会在布局时会占据上级组件的所有剩余空间，最好设置Width及Height属性值.
-- TextInput不指定Width时宽度会占据上级组件的所有剩余宽度，最好设置Width属性值
+- TextInput不指定Width时宽度会占据上级组件的所有剩余宽度，最好设置Width属性值.
+- Checkbox及Switch在构造时必须传入State<bool>类型的状态参数, 示例: ```new Checkbox(_isSelected)```
 
 ## 常用类型
 
 - 水平对齐方式
 
 ```csharp
-public enum HorizontalAlignment
-{
-    Left,
-    Center,
-    Right
-}
+public enum HorizontalAlignment { Left, Center, Right }
 ```
 
 - 垂直对齐方式
 
 ```csharp
-public enum VerticalAlignment
-{
-    Top,
-    Middle,
-    Bottom
-}
+public enum VerticalAlignment { Top, Middle, Bottom }
 ```
