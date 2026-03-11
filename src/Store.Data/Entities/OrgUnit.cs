@@ -92,7 +92,7 @@ internal sealed class OrgUnit : SqlEntity
     internal const short CHILDREN_ID = 7 << IdUtil.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds =
-        { ID_ID, NAME_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID };
+        [ID_ID, NAME_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID];
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
@@ -123,8 +123,7 @@ internal sealed class OrgUnit : SqlEntity
                 ws.WriteEntitySetMember(id, _children, flags);
                 break;
             default:
-                throw new SerializationException(SerializationError.UnknownEntityMember,
-                    nameof(Employee));
+                throw new SerializationException(SerializationError.UnknownEntityMember, nameof(Employee));
         }
     }
 
@@ -160,8 +159,7 @@ internal sealed class OrgUnit : SqlEntity
                 rs.ReadEntitySetMember(flags, Children);
                 break;
             default:
-                throw new SerializationException(SerializationError.UnknownEntityMember,
-                    nameof(Employee));
+                throw new SerializationException(SerializationError.UnknownEntityMember, nameof(Employee));
         }
     }
 

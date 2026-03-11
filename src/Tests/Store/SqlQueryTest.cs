@@ -157,7 +157,6 @@ public sealed class SqlQueryTest
         Assert.NotNull(obj);
         Assert.NotNull(obj!.Parent);
         Assert.AreEqual("IT Dept", obj.Parent!.Name);
-        Console.WriteLine();
-        Console.WriteLine(obj.Parent.PersistentState);
+        Assert.AreEqual(PersistentState.Unchanged, obj.Parent.PersistentState);
     }
 }

@@ -160,8 +160,9 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         //添加选择项,暂默认*
         if (_rootIncluder != null)
         {
-            this.AddAllSelects(model, T, null);
+            //注意先加Includer的
             await _rootIncluder.AddSelects(this, model, null);
+            this.AddAllSelects(model, T, null);
         }
 
         //递交查询
@@ -190,11 +191,13 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         Purpose = QueryPurpose.ToList;
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
 
-        // TODO: 添加选择项,暂默认*
-        // if (_rootIncluder != null) {
-        //     AddAllSelects(model, t, null);
-        //     _rootIncluder.addSelects(this, model, null);
-        // }
+        // 添加选择项,暂默认*
+        if (_rootIncluder != null)
+        {
+            //注意先加Includer的
+            await _rootIncluder.AddSelects(this, model, null);
+            this.AddAllSelects(model, T, null);
+        }
 
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
         await using var cmd = db.BuildQuery(this);

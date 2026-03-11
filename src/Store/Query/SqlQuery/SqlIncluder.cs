@@ -13,7 +13,7 @@ public abstract class SqlIncluder
     /// </summary>
     public SqlIncluder? Parent { get; protected init; }
 
-    public List<SqlIncluder>? Childs { get; private set; }
+    public List<SqlIncluder>? Children { get; private set; }
 
     /// <summary>
     /// Only EntityExpression | EntitySetExpression | SqlSelectItemExpression
@@ -61,7 +61,7 @@ public abstract class SqlIncluder
         if (member.Type == ExpressionType.EntityFieldExpression)
         {
             //可以包含多个层级如t.Customer.Region.Name
-            //if (!ReferenceEquals(GetTopOnwer(member), MemberExpression))
+            //if (!ReferenceEquals(GetTopOwner(member), MemberExpression))
             //    throw new ArgumentException("Owner not same");
             if (ReferenceEquals(member.Owner, MemberExpression))
                 throw new ArgumentException("Can't include field");
@@ -69,9 +69,9 @@ public abstract class SqlIncluder
             if (string.IsNullOrEmpty(alias))
                 alias = member.GetFieldAlias();
             //TODO:判断重复
-            Childs ??= new List<SqlIncluder>();
+            Children ??= new List<SqlIncluder>();
             var res = new SqlIncluder<TChild>(this, new SqlSelectItemExpression(member, alias));
-            Childs.Add(res);
+            Children.Add(res);
             return res;
         }
         else //EntityRef or EntitySet
@@ -80,34 +80,45 @@ public abstract class SqlIncluder
             //判断Include的Owner是否相同
             //if (!ReferenceEquals(member.Owner, MemberExpression))
             //    throw new ArgumentException("Owner not same");
-            if (Childs == null)
+            if (Children == null)
             {
                 var child = new SqlIncluder<TChild>(this, member);
-                Childs = new List<SqlIncluder> { child };
+                Children = [child];
                 return child;
             }
 
-            var found = Childs.FindIndex(t => t.Expression.Type == member.Type
+            var found = Children.FindIndex(t => t.Expression.Type == member.Type
                                               && t.MemberExpression.Name == member.Name);
             if (found >= 0)
-                return (SqlIncluder<TChild>)Childs[found];
+                return (SqlIncluder<TChild>)Children[found];
             var res = new SqlIncluder<TChild>(this, member);
-            Childs.Add(res);
+            Children.Add(res);
             return res;
         }
     }
 
     private EntityExpression GetTopOwner(EntityPathExpression member)
     {
-        if (Expression.IsNull(member.Owner!.Owner))
-            return member.Owner;
-        return GetTopOwner(member.Owner);
+        while (true)
+        {
+            if (Expression.IsNull(member.Owner!.Owner)) return member.Owner;
+            member = member.Owner;
+        }
     }
 
     #endregion
 
     internal async ValueTask LoopAddSelects(ISqlSelectQuery query, EntityModel model, string? path)
     {
+        //注意：子级加在前面
+        if (Children != null)
+        {
+            for (var i = 0; i < Children.Count; i++)
+            {
+                await Children[i].LoopAddSelects(query, model, path);
+            }
+        }
+
         if (Expression.Type == ExpressionType.EntityExpression)
         {
             var exp = (EntityExpression)Expression;
@@ -124,16 +135,7 @@ public abstract class SqlIncluder
         {
             query.AddSelectItem((SqlSelectItemExpression)Expression);
         }
-        else
-        {
-            return;
-        }
-
-        if (Childs == null) return;
-        for (var i = 0; i < Childs.Count; i++)
-        {
-            await Childs[i].LoopAddSelects(query, model, path);
-        }
+        //不需要处理EntitySetExpression
     }
 }
 
@@ -166,10 +168,10 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
 
     internal async ValueTask AddSelects(ISqlSelectQuery query, EntityModel model, string? path = null)
     {
-        if (Childs == null) return;
-        for (var i = 0; i < Childs.Count; i++)
+        if (Children == null) return;
+        for (var i = 0; i < Children.Count; i++)
         {
-            await Childs[i].LoopAddSelects(query, model, path);
+            await Children[i].LoopAddSelects(query, model, path);
         }
     }
 

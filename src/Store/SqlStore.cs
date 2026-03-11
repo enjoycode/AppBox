@@ -473,7 +473,7 @@ public abstract class SqlStore
     //     if (Expressions.Expression.IsNull(updateCommand.Filter))
     //         throw new NotSupportedException("Update must assign Where condition");
     //
-    //     var cmd = BuidUpdateCommand(updateCommand);
+    //     var cmd = BuildUpdateCommand(updateCommand);
     //     cmd.Connection = txn != null ? txn.Connection : MakeConnection();
     //     cmd.Transaction = txn;
     //     if (txn == null)
