@@ -470,9 +470,9 @@ partial class PgSqlStore
             case ExpressionType.DbFuncExpression:
                 BuildDbFuncExpression((SqlFunc)exp, ctx);
                 break;
-            // case ExpressionType.DbParameterExpression:
-            //     BuildDbParameterExpression((DbParameterExpression)exp, ctx);
-            //     break;
+            case ExpressionType.DbParameterExpression:
+                BuildDbParameterExpression((SqlParameterExpression)exp, ctx);
+                break;
             //case ExpressionType.InvocationExpression:
             //    BuildInvocationExpression((InvocationExpression)exp, ctx);
             //    break;
@@ -615,10 +615,11 @@ partial class PgSqlStore
         ctx.Append(')');
     }
 
-    // private void BuildDbParameterExpression(DbParameterExpression exp, BuildQueryContext ctx)
-    // {
-    //     ctx.AppendFormat("@{0}", ctx.GetDbParameterName());
-    // }
+    private static void BuildDbParameterExpression(SqlParameterExpression exp, BuildQueryContext ctx)
+    {
+        ctx.Append('@');
+        ctx.Append(ctx.GetDbParameterName());
+    }
 
     #endregion
 

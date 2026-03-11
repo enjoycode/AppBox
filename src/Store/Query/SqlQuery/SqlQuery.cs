@@ -7,24 +7,10 @@ namespace AppBoxStore;
 public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     where TEntity : SqlEntity, new()
 {
-    #region ====Ctor====
-
     public SqlQuery(long entityModelId)
     {
         T = new EntityExpression(entityModelId, this);
     }
-
-    // /// <summary>
-    // /// 仅用于加载EntitySet
-    // /// </summary>
-    // internal SqlQuery(SqlIncluder root)
-    // {
-    //     T = ((EntitySetExpression)root.Expression).RootEntityExpression;
-    //     T.User = this;
-    //     _rootIncluder = root;
-    // }
-
-    #endregion
 
     #region ====Fields & Properties====
 
@@ -178,8 +164,8 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
             var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
             await EntityFetchUtil.FillEntity(entity, model, reader, 0);
 
-            // if (_rootIncluder != null)
-            //     await _rootIncluder.LoadEntitySets(db, res, null); //TODO:fix txn
+            if (_rootIncluder != null)
+                await _rootIncluder.LoadEntitySets(db, entity, null /*TODO: fix*/);
             return entity;
         }
 
@@ -214,8 +200,8 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
             list.Add(entity);
         }
 
-        // if (_rootIncluder != null && list != null)
-        //     await _rootIncluder.LoadEntitySets(db, list, null); //TODO: ***** fix txn
+        if (_rootIncluder != null)
+            await _rootIncluder.LoadEntitySets(db, list, null/*TODO: fix*/);
         return list;
     }
 

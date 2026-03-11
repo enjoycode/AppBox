@@ -1,8 +1,10 @@
 using System.Data.Common;
 using System.Diagnostics;
 using AppBoxCore;
+using AppBoxStore.Utils;
 using Expression = AppBoxCore.Expression;
 using ExpressionType = AppBoxCore.ExpressionType;
+using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore;
 
@@ -88,7 +90,7 @@ public abstract class SqlIncluder
             }
 
             var found = Children.FindIndex(t => t.Expression.Type == member.Type
-                                              && t.MemberExpression.Name == member.Name);
+                                                && t.MemberExpression.Name == member.Name);
             if (found >= 0)
                 return (SqlIncluder<TChild>)Children[found];
             var res = new SqlIncluder<TChild>(this, member);
@@ -137,6 +139,8 @@ public abstract class SqlIncluder
         }
         //不需要处理EntitySetExpression
     }
+
+    internal abstract ValueTask LoopLoadEntitySets(SqlStore db, SqlEntity owner, DbTransaction? txn);
 }
 
 /// <summary>
@@ -175,94 +179,123 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
         }
     }
 
-    // internal async ValueTask LoadEntitySets(SqlStore db, Entity owner, DbTransaction txn)
-    // {
-    //     if (Childs == null) return;
-    //     for (var i = 0; i < Childs.Count; i++)
-    //     {
-    //         await Childs[i].LoopLoadEntitySets(db, owner, txn);
-    //     }
-    // }
+    internal async ValueTask LoadEntitySets(SqlStore db, SqlEntity owner, DbTransaction? txn)
+    {
+        if (Children == null) return;
+        for (var i = 0; i < Children.Count; i++)
+        {
+            await Children[i].LoopLoadEntitySets(db, owner, txn);
+        }
+    }
 
-    // internal async ValueTask LoadEntitySets(SqlStore db, EntityList list, DbTransaction txn)
-    // {
-    //     if (Childs == null) return;
-    //     if (!Childs.Any(t => t.Expression.Type == ExpressionType.EntitySetExpression)) return;
-    //
-    //     //TODO:考虑一次加载方案
-    //     for (var i = 0; i < list.Count; i++)
-    //     {
-    //         await LoadEntitySets(db, list[i], txn); //TODO: fix txn
-    //     }
-    // }
+    internal async ValueTask LoadEntitySets<T>(SqlStore db, IList<T> list, DbTransaction? txn)
+        where T : SqlEntity
+    {
+        if (Children == null) return;
+        if (!Children.Any(t => t.Expression.Type == ExpressionType.EntitySetExpression)) return;
 
-    // private async ValueTask LoopLoadEntitySets(SqlStore db, Entity owner, DbTransaction txn)
-    // {
-    //     if (Expression.Type != ExpressionType.EntitySetExpression) return;
-    //
-    //     //判断是否已经生成加载命令
-    //     var setmm = (EntitySetModel)owner.Model.GetMember(MemberExpression.Name, true);
-    //     var setModel = await Runtime.RuntimeContext.Current.GetModelAsync<EntityModel>(setmm.RefModelId);
-    //     if (_loadEntitySetCmd == null)
-    //     {
-    //         var fkmm = (EntityRefModel)setModel.GetMember(setmm.RefMemberId, true);
-    //         SqlQuery q = new SqlQuery(this);
-    //         //生成条件
-    //         for (int i = 0; i < fkmm.FKMemberIds.Length; i++)
-    //         {
-    //             //外键字段 == 当前主键字段
-    //             var fkExp = q.T[setModel.GetMember(fkmm.FKMemberIds[i], true).Name];
-    //             //var pkValue = owner.GetMember(owner.Model.SqlStoreOptions.PrimaryKeys[i].MemberId).BoxedValue;
-    //             q.AndWhere(fkExp == new DbParameterExpression());
-    //         }
-    //
-    //         //AddSelects
-    //         SqlQuery.AddAllSelects(q, setModel, ((EntitySetExpression)Expression).RootEntityExpression, null);
-    //         await AddSelects(q, setModel);
-    //
-    //         _loadEntitySetCmd = db.BuildQuery(q);
-    //     }
-    //
-    //     //重设加载命令外键参数值为主键值
-    //     for (int i = 0; i < owner.Model.SqlStoreOptions.PrimaryKeys.Count; i++)
-    //     {
-    //         var pkValue = owner.GetMember(owner.Model.SqlStoreOptions.PrimaryKeys[i].MemberId).BoxedValue;
-    //         _loadEntitySetCmd.Parameters[i].Value = pkValue;
-    //     }
-    //
-    //     //开始执行sql加载
-    //     using var conn = db.MakeConnection(); //TODO:暂每次new SqlConnection
-    //     await conn.OpenAsync();
-    //     _loadEntitySetCmd.Connection = conn;
-    //     Log.Debug(_loadEntitySetCmd.CommandText);
-    //
-    //     using var reader = await _loadEntitySetCmd.ExecuteReaderAsync();
-    //     var list = new EntityList(setModel.Id);
-    //     while (await reader.ReadAsync())
-    //     {
-    //         Entity obj = SqlQuery.FillEntity(setModel, reader);
-    //         list.Add(obj);
-    //     }
-    //
-    //     InitEntitySetForLoad(owner, setmm, list);
-    //     //继续加载子级
-    //     await LoadEntitySets(db, list, txn);
-    // }
+        //TODO:考虑一次加载方案
+        for (var i = 0; i < list.Count; i++)
+        {
+            await LoadEntitySets(db, list[i], txn); //TODO: fix txn
+        }
+    }
 
-    // private static void InitEntitySetForLoad(Entity owner, EntitySetModel entitySetModel, EntityList list)
-    // {
-    //     //设置EntitySet成员, eg: Order.Items
-    //     ref EntityMember m = ref owner.GetMember(entitySetModel.MemberId);
-    //     m.Flag.HasLoad = true;
-    //     m.ObjectValue = list;
-    //     //循环处理EntityRef引用, eg: Order.Items内每个Item.Order
-    //     for (var i = 0; i < list.Count; i++)
-    //     {
-    //         ref EntityMember rm = ref list[i].GetMember(entitySetModel.RefMemberId);
-    //         rm.Flag.HasLoad = rm.Flag.HasValue = true;
-    //         rm.ObjectValue = owner;
-    //     }
-    // }
+    internal override async ValueTask LoopLoadEntitySets(SqlStore db, SqlEntity owner, DbTransaction? txn)
+    {
+        if (Expression.Type != ExpressionType.EntitySetExpression) return;
+
+        //判断是否已经生成加载命令
+        var ownerModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(owner.ModelId);
+        var setmm = (EntitySetModel)ownerModel.GetMember(MemberExpression.Name, true)!;
+        var setModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(setmm.RefModelId);
+        if (_loadEntitySetCmd == null)
+        {
+            var fkmm = (EntityRefModel)setModel.GetMember(setmm.RefMemberId, true)!;
+            var q = new SqlFetchEntitySetQuery(this); // Should use SqlQuery<TEntity>?
+            //生成条件
+            for (var i = 0; i < fkmm.FKMemberIds.Length; i++)
+            {
+                //外键字段 == 当前主键字段
+                var fkExp = q.T[setModel.GetMember(fkmm.FKMemberIds[i], true)!.Name];
+                q.AndWhere(fkExp == new SqlParameterExpression());
+            }
+
+            //AddSelects
+            await AddSelects(q, setModel); //注意在前面
+            q.AddAllSelects(setModel, ((EntitySetExpression)Expression).RootEntityExpression, null);
+
+            _loadEntitySetCmd = db.BuildQuery(q);
+        }
+
+        //重设加载命令外键参数值为主键值
+        for (var i = 0; i < ownerModel.SqlStoreOptions!.PrimaryKeys.Length; i++)
+        {
+            var pk = ownerModel.SqlStoreOptions.PrimaryKeys[i];
+            var pkValueGetter = new EntityMemberValueGetter();
+            owner.WriteMember(pk.MemberId, ref pkValueGetter, EntityMemberWriteFlags.None);
+            _loadEntitySetCmd.Parameters[i].Value = pkValueGetter.Value.BoxedValue;
+        }
+
+        //开始执行sql加载
+        await using var conn = db.MakeConnection();
+        await conn.OpenAsync();
+        _loadEntitySetCmd.Connection = conn;
+        Logger.Debug(_loadEntitySetCmd.CommandText);
+
+        await using var reader = await _loadEntitySetCmd.ExecuteReaderAsync();
+        var entitySet = (EntitySet<TEntity>)EntityFetchUtil.GetNaviPropForFetch(owner, setmm.MemberId);
+        while (await reader.ReadAsync())
+        {
+            var obj = new TEntity();
+            await EntityFetchUtil.FillEntity(obj, setModel, reader, 0);
+            entitySet.Add(obj);
+        }
+
+        //继续加载子级
+        await LoadEntitySets(db, entitySet, txn);
+    }
+
+    #endregion
+
+    #region ====SqlFetchEntitySetQuery====
+
+    /// <summary>
+    /// 专用于加载EntitySet成员的查询
+    /// </summary>
+    private class SqlFetchEntitySetQuery : SqlQueryBase, ISqlSelectQuery
+    {
+        public SqlFetchEntitySetQuery(SqlIncluder root)
+        {
+            T = ((EntitySetExpression)root.Expression).RootEntityExpression;
+            T.User = this;
+        }
+
+        public EntityExpression T { get; }
+
+        public ModelId EntityModelId => T.ModelId;
+
+        public override EntityPathExpression this[string name] => throw new NotImplementedException();
+
+        public EntityRefModel? TreeParentMember => null;
+        public IList<SqlSelectItemExpression>? Selects { get; } = new List<SqlSelectItemExpression>();
+        public IList<SqlOrderBy> SortItems { get; }
+        public bool HasSortItems { get; }
+        public int TakeSize => 0;
+        public int SkipSize => 0;
+        public QueryPurpose Purpose => QueryPurpose.ToList;
+        public bool Distinct => false;
+        public IList<SqlSelectItemExpression>? GroupByKeys => null;
+        public Expression? HavingFilter => null;
+        public Expression? Filter { get; private set; }
+
+        public void AndWhere(Expression condition)
+        {
+            Filter = Expression.IsNull(Filter)
+                ? condition
+                : new BinaryExpression(Filter!, condition, BinaryOperatorType.AndAlso);
+        }
+    }
 
     #endregion
 }

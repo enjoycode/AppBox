@@ -159,4 +159,16 @@ public sealed class SqlQueryTest
         Assert.AreEqual("IT Dept", obj.Parent!.Name);
         Assert.AreEqual(PersistentState.Unchanged, obj.Parent.PersistentState);
     }
+
+    [Test]
+    public async Task IncludeEntitySetTest()
+    {
+        var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
+        q.Include<OrgUnit>(t => t["Children"]);
+        q.Where(t => t["Name"] == "IT Dept");
+        var obj = await q.ToSingleAsync();
+        Assert.NotNull(obj);
+        Assert.NotNull(obj!.Children);
+        Assert.Greater(obj.Children.Count, 0);
+    }
 }
