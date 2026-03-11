@@ -1,42 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Data.Common;
 using AppBoxCore;
+using AppBoxStore.Entities;
+using AppBoxStoreDummy;
 
-namespace AppBoxCore
-{
-    [AttributeUsage(AttributeTargets.Field)]
-    internal sealed class MemberAccessInterceptorAttribute : Attribute
-    {
-        public MemberAccessInterceptorAttribute(string name) {}
-    }
-    
-    /// <summary>
-    /// 服务方法的调用权限
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public sealed class InvokePermissionAttribute : Attribute
-    {
-        public InvokePermissionAttribute(bool permission) { }
-    }
-}
-
-// namespace AppBoxServer
-// {
-//     /// <summary>
-//     /// 客户端通信通道
-//     /// </summary>
-//     public interface IRemoteChannel : IChannel
-//     {
-//         /// <summary>
-//         /// 发送服务端事件至客户端
-//         /// </summary>
-//         Task SendServerEvent<T>(int eventId, T args) where T : struct, IAnyArgs;
-//     }
-// }
-
-namespace AppBoxStore
+namespace AppBoxStoreDummy
 {
     #region ====虚拟代码转运行时代码的Attributes====
 
@@ -268,5 +235,126 @@ namespace AppBoxStore
         public SqlDeleteCommand<T> Where(Func<T, bool> condition) => this;
 
         public async Task<int> ExecAsync(DbTransaction? txn = null) => throw new Exception();
+    }
+}
+
+namespace TestNameSpace
+{
+    #region ====Mock Entities====
+
+    public sealed class Order : SqlEntity
+    {
+        public Customer Customer { get; set; } = null!;
+
+        public EntitySet<OrderItem> Items { get; }
+
+        public override ModelId ModelId { get; }
+        protected override short[] AllMembers { get; }
+
+        protected internal override void WriteMember<T>(short id, ref T ws, int flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected internal override void ReadMember<T>(short id, ref T rs, int flags)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class Customer : SqlEntity
+    {
+        public string Name { get; set; } = null!;
+        public City City { get; set; } = null!;
+
+        public override ModelId ModelId { get; }
+        protected override short[] AllMembers { get; }
+
+        protected internal override void WriteMember<T>(short id, ref T ws, int flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected internal override void ReadMember<T>(short id, ref T rs, int flags)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class City : SqlEntity
+    {
+        public string Code { get; set; } = null!;
+        public string Name { get; set; } = null!;
+
+        public override ModelId ModelId { get; }
+        protected override short[] AllMembers { get; }
+
+        protected internal override void WriteMember<T>(short id, ref T ws, int flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected internal override void ReadMember<T>(short id, ref T rs, int flags)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class OrderItem : SqlEntity
+    {
+        public int LineNumber { get; set; }
+
+        public Product Product { get; set; } = null!;
+
+        public override ModelId ModelId { get; }
+        protected override short[] AllMembers { get; }
+
+        protected internal override void WriteMember<T>(short id, ref T ws, int flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected internal override void ReadMember<T>(short id, ref T rs, int flags)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class Product : SqlEntity
+    {
+        public string Name { get; set; }
+
+        public override ModelId ModelId { get; }
+        protected override short[] AllMembers { get; }
+
+        protected internal override void WriteMember<T>(short id, ref T ws, int flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected internal override void ReadMember<T>(short id, ref T rs, int flags)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
+
+    public static class Main
+    {
+        public static void Test()
+        {
+            var q = new SqlQuery<Order>();
+            q.Include(order => order.Customer)
+                .ThenInclude(customer => customer.City)
+                .Include(order => order.Items)
+                .ThenInclude(item => item.Product);
+
+            //另一种写法
+            q.Include(order => order.Customer)
+                .ThenInclude(customer => customer.City);
+            q.Include(order => order.Items)
+                .ThenInclude(item => item.Product);
+        }
     }
 }
