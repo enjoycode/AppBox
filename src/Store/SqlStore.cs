@@ -447,10 +447,10 @@ public abstract class SqlStore
 
         try
         {
-            using var reader = await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                EntityFetchUtil.FillEntity(entity, model, reader, 0);
+                await EntityFetchUtil.FillEntity(entity, model, reader, 0);
                 return entity;
             }
 

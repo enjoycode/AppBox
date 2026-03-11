@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -50,4 +49,33 @@ public interface ISqlSelectQuery : ISqlQuery
     /// 分组过滤条件
     /// </summary>
     Expression? HavingFilter { get; }
+}
+
+internal static class SqlSelectQueryExtensions
+{
+    public static void AddSelectItem(this ISqlSelectQuery query, SqlSelectItemExpression item)
+    {
+        item.Owner = query;
+        query.Selects!.Add(item);
+    }
+
+    public static void AddAllSelects(this ISqlSelectQuery query, EntityModel model, EntityExpression t,
+        string? fullPath)
+    {
+        //TODO:考虑特殊SqlSelectItemExpression with *，但只能在fullPath==null时使用
+        var members = model.Members;
+        for (var i = 0; i < members.Count; i++)
+        {
+            if (members[i].Type == EntityMemberType.EntityField
+                /*|| members[i].Type == EntityMemberType.Aggregate
+                || members[i].Type == EntityMemberType.Formula
+                || members[i].Type == EntityMemberType.AutoNumber
+                || members[i].Type == EntityMemberType.AggregationRefField*/)
+            {
+                var alias = fullPath == null ? members[i].Name : $"{fullPath}.{members[i].Name}";
+                var si = new SqlSelectItemExpression(t[members[i].Name], alias);
+                query.AddSelectItem(si);
+            }
+        }
+    }
 }

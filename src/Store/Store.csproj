@@ -6,7 +6,7 @@
         <AssemblyName>AppBoxStore</AssemblyName>
         <RootNamespace>AppBoxStore</RootNamespace>
         <ImplicitUsings>true</ImplicitUsings>
-        <LangVersion>11</LangVersion>
+        <LangVersion>13</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

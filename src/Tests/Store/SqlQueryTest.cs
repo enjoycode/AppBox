@@ -144,6 +144,20 @@ public sealed class SqlQueryTest
             .Having(t => SqlFunc.Sum(t["Version"]) > 0);
         var list = await q.ToListAsync(
             r => new { NodeType = r.ReadByteMember(0), Count = r.ReadIntMember(1) },
-            (t) => new[] { t["NodeType"], SqlFunc.Sum(t["Version"]) });
+            (t) => [t["NodeType"], SqlFunc.Sum(t["Version"])]);
+    }
+
+    [Test]
+    public async Task IncludeEntityRefTest()
+    {
+        var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
+        q.Include<OrgUnit>(t => t["Parent"]);
+        q.Where(t => t["Name"] == "Admin");
+        var obj = await q.ToSingleAsync();
+        Assert.NotNull(obj);
+        Assert.NotNull(obj!.Parent);
+        Assert.AreEqual("IT Dept", obj.Parent!.Name);
+        Console.WriteLine();
+        Console.WriteLine(obj.Parent.PersistentState);
     }
 }

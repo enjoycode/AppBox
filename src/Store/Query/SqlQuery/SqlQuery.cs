@@ -48,7 +48,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     /// <summary>
     /// 用于EagerLoad导航属性 
     /// </summary>
-    private SqlIncluder? _rootIncluder;
+    private SqlIncluder<TEntity>? _rootIncluder;
 
     public IList<SqlSelectItemExpression> Selects => _selects ??= new List<SqlSelectItemExpression>();
 
@@ -105,6 +105,15 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
 
     #region ====Include Methods====
 
+    public SqlIncluder<TChild> Include<TChild>(Func<EntityExpression, EntityPathExpression> selector,
+        string? alias = null) where TChild : SqlEntity, new()
+    {
+        if (_rootIncluder == null)
+            _rootIncluder = new SqlIncluder<TEntity>(T);
+
+        return _rootIncluder.Include<TChild>(selector, alias);
+    }
+
     // public SqlIncluder Include(Func<EntityExpression, MemberExpression> selector,
     //     string? alias = null)
     // {
@@ -115,31 +124,6 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     #endregion
 
     #region ====Select Methods====
-
-    public void AddSelectItem(SqlSelectItemExpression item)
-    {
-        item.Owner = this;
-        Selects.Add(item);
-    }
-
-    internal void AddAllSelects(EntityModel model, EntityExpression t, string? fullPath)
-    {
-        //TODO:考虑特殊SqlSelectItemExpression with *，但只能在fullPath==null时使用
-        var members = model.Members;
-        for (var i = 0; i < members.Count; i++)
-        {
-            if (members[i].Type == EntityMemberType.EntityField
-                /*|| members[i].Type == EntityMemberType.Aggregate
-                || members[i].Type == EntityMemberType.Formula
-                || members[i].Type == EntityMemberType.AutoNumber
-                || members[i].Type == EntityMemberType.AggregationRefField*/)
-            {
-                var alias = fullPath == null ? members[i].Name : $"{fullPath}.{members[i].Name}";
-                var si = new SqlSelectItemExpression(t[members[i].Name], alias);
-                AddSelectItem(si);
-            }
-        }
-    }
 
     public async Task<int> CountAsync()
     {
@@ -173,11 +157,12 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         Purpose = QueryPurpose.ToSingle;
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
 
-        //TODO: 添加选择项,暂默认*
-        // if (_rootIncluder != null) {
-        //     AddAllSelects(model, t, null);
-        //     _rootIncluder.addSelects(this, model, null);
-        // }
+        //添加选择项,暂默认*
+        if (_rootIncluder != null)
+        {
+            this.AddAllSelects(model, T, null);
+            await _rootIncluder.AddSelects(this, model, null);
+        }
 
         //递交查询
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
@@ -190,7 +175,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         if (await reader.ReadAsync())
         {
             var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
-            EntityFetchUtil.FillEntity(entity, model, reader, 0);
+            await EntityFetchUtil.FillEntity(entity, model, reader, 0);
 
             // if (_rootIncluder != null)
             //     await _rootIncluder.LoadEntitySets(db, res, null); //TODO:fix txn
@@ -222,7 +207,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         while (await reader.ReadAsync())
         {
             var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
-            EntityFetchUtil.FillEntity(entity, model, reader, 0);
+            await EntityFetchUtil.FillEntity(entity, model, reader, 0);
             list.Add(entity);
         }
 
@@ -281,7 +266,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         _selects?.Clear();
         foreach (var item in selectItem)
         {
-            AddSelectItem(new SqlSelectItemExpression(item));
+            this.AddSelectItem(new SqlSelectItemExpression(item));
         }
 
         if (_selects!.Count == 0)
@@ -325,7 +310,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         var childrenModel = (EntitySetModel)model.GetMember(children.Name)!;
         TreeParentMember = (EntityRefModel)model.GetMember(childrenModel.RefMemberId)!;
 
-        AddAllSelects(model, T, null);
+        this.AddAllSelects(model, T, null);
 
         //TODO:考虑EntitySet自动排序
 
@@ -350,7 +335,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         while (await reader.ReadAsync())
         {
             var entity = new TEntity(); //Activator.CreateInstance<TEntity>();
-            EntityFetchUtil.FillEntity(entity, model, reader, 0);
+            await EntityFetchUtil.FillEntity(entity, model, reader, 0);
 
             var treeLevel = reader.GetInt32(reader.FieldCount - 1);
             if (treeLevel == 0)
@@ -361,7 +346,8 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
             {
                 var parent = FindParent(TreeParentMember, entity, allList);
                 //add child to parent.children list
-                var childrenList = (EntitySet<TEntity>)GetNaviPropForFetch(parent, childrenModel.MemberId);
+                var childrenList =
+                    (EntitySet<TEntity>)EntityFetchUtil.GetNaviPropForFetch(parent, childrenModel.MemberId);
                 childrenList.Add(entity);
             }
 
@@ -401,9 +387,9 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         var fkName = model.GetMember(entityRefModel.FKMemberIds[0])!.Name;
 
         Purpose = QueryPurpose.ToTreePath;
-        AddSelectItem(new SqlSelectItemExpression(T[pkName], "Id"));
-        AddSelectItem(new SqlSelectItemExpression(T[fkName], "ParentId"));
-        AddSelectItem(new SqlSelectItemExpression(textMember(T), "Text"));
+        this.AddSelectItem(new SqlSelectItemExpression(T[pkName], "Id"));
+        this.AddSelectItem(new SqlSelectItemExpression(T[fkName], "ParentId"));
+        this.AddSelectItem(new SqlSelectItemExpression(textMember(T), "Text"));
 
         //开始执行查询并转换
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
@@ -454,23 +440,6 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         }
 
         throw new Exception("Can't find parent");
-    }
-
-    /// <summary>
-    /// 初始化(读取或新建)实体的导航属性
-    /// </summary>
-    private static object GetNaviPropForFetch(SqlEntity entity, short naviMemberId)
-    {
-        // 先判断是否已初始化过
-        var memberValueGetter = new EntityMemberValueGetter();
-        entity.WriteMember(naviMemberId, ref memberValueGetter, EntityMemberWriteFlags.None);
-        if (!memberValueGetter.Value.IsEmpty)
-            return memberValueGetter.Value.BoxedValue!;
-
-        // 初始化导航属性的实例
-        var initiator = new EntityNaviPropInitiator();
-        entity.ReadMember(naviMemberId, ref initiator, EntityMemberWriteFlags.None);
-        return initiator.NaviMemberValue;
     }
 
     #endregion
