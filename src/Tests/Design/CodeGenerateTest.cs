@@ -67,7 +67,23 @@ public class CodeGenerateTest
     public async Task GenServiceRuntimeCodeTest()
     {
         var designHub = await DesignHelper.MockDesignHub();
-        var serviceModel = (ServiceModel)designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!.Model;
+        const string serviceCode = """
+                                   public sealed class OrderService
+                                   {
+                                       public async Task<object?> IncludeTest()
+                                       {
+                                           var q = new SqlQuery<sys.Entities.OrgUnit>();
+                                           q.Include(t => t.Children);
+                                           q.Where(t => t.Name == "IT Dept");
+                                           return await q.ToSingleAsync();
+                                       }
+                                   }
+                                   """;
+
+        var serviceNode = designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!;
+        var serviceModel = (ServiceModel)serviceNode.Model;
+        await DesignHelper.ReplaceCode(designHub, serviceNode.RoslynDocumentId!, serviceCode);
+
         var res = await Publish.CompileServiceAsync(designHub, serviceModel, false);
         Assert.True(res != null);
     }

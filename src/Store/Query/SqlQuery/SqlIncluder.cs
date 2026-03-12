@@ -207,11 +207,11 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
 
         //判断是否已经生成加载命令
         var ownerModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(owner.ModelId);
-        var setmm = (EntitySetModel)ownerModel.GetMember(MemberExpression.Name, true)!;
-        var setModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(setmm.RefModelId);
+        var memberModel = (EntitySetModel)ownerModel.GetMember(MemberExpression.Name, true)!;
+        var setModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(memberModel.RefModelId);
         if (_loadEntitySetCmd == null)
         {
-            var fkmm = (EntityRefModel)setModel.GetMember(setmm.RefMemberId, true)!;
+            var fkmm = (EntityRefModel)setModel.GetMember(memberModel.RefMemberId, true)!;
             var q = new SqlFetchEntitySetQuery(this); // Should use SqlQuery<TEntity>?
             //生成条件
             for (var i = 0; i < fkmm.FKMemberIds.Length; i++)
@@ -244,7 +244,7 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
         Logger.Debug(_loadEntitySetCmd.CommandText);
 
         await using var reader = await _loadEntitySetCmd.ExecuteReaderAsync();
-        var entitySet = (EntitySet<TEntity>)EntityFetchUtil.GetNaviPropForFetch(owner, setmm.MemberId);
+        var entitySet = (EntitySet<TEntity>)EntityFetchUtil.GetNaviPropForFetch(owner, memberModel.MemberId);
         while (await reader.ReadAsync())
         {
             var obj = new TEntity();

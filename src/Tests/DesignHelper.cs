@@ -20,6 +20,15 @@ public static class DesignHelper
         await hub.DesignTree.LoadAsync();
         return hub;
     }
+
+    internal static async Task ReplaceCode(DesignHub hub, DocumentId documentId, string code)
+    {
+        var workspace = hub.TypeSystem.Workspace;
+        var roslynDoc = workspace.CurrentSolution.GetDocument(documentId)!;
+        var sourceText = await roslynDoc.GetTextAsync();
+        sourceText = sourceText.Replace(0, sourceText.Length, code);
+        workspace.OnDocumentChanged(documentId, sourceText);
+    }
 }
 
 internal sealed class MockCheckoutService : ICheckoutService
@@ -55,9 +64,6 @@ internal sealed class MockStagedService : IStagedService
     public Task<StagedItems> LoadStagedAsync()
     {
         return Task.FromResult(new StagedItems([]));
-        //TODO:
-        // var list = await AppBoxServer.Design.StagedService.LoadStagedAsync();
-        // return new StagedItems(list);
     }
 
     public Task<IList<PendingChange>> LoadChangesAsync()

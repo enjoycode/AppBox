@@ -25,8 +25,8 @@ internal static class StagedService
                      t["Model"] == modelId.ToString() &
                      t["Type"] == (byte)StagedType.SourceCode);
 #endif
-        var res = await q.ToListAsync(); //TODO: ToSingleAsync()
-        return res.Count == 0 ? null : res[0].Data;
+        var res = await q.ToSingleAsync();
+        return res?.Data;
     }
 
     /// <summary>

@@ -88,15 +88,19 @@ namespace AppBoxStoreDummy
         where TRoot : SqlEntity, new()
         where TChild : SqlEntity, new()
     {
+        [QueryMethod()]
         public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, TResult> selector)
             where TResult : SqlEntity, new() => throw new Exception();
 
+        [QueryMethod()]
         public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, EntitySet<TResult>> selector)
             where TResult : SqlEntity, new() => throw new Exception();
 
+        [QueryMethod()]
         public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, TResult> selector)
             where TResult : SqlEntity, new() => throw new Exception();
 
+        [QueryMethod()]
         public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, EntitySet<TResult>> selector)
             where TResult : SqlEntity, new() => throw new Exception();
     }
@@ -106,9 +110,11 @@ namespace AppBoxStoreDummy
         [GenericCreate(false)]
         public SqlQuery() { }
 
+        [QueryMethod()]
         public SqlIncluder<T, TChild> Include<TChild>(Func<T, TChild> selector)
             where TChild : SqlEntity, new() => throw new Exception();
 
+        [QueryMethod()]
         public SqlIncluder<T, TChild> Include<TChild>(Func<T, EntitySet<TChild>> selector)
             where TChild : SqlEntity, new() => throw new Exception();
 

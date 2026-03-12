@@ -61,7 +61,7 @@ public sealed class RoslynSourceText : ITextBuffer
 
     public char GetCharAt(int offset) => _sourceText[offset];
 
-    public void SetContent(string text) => _sourceText.Replace(0, _sourceText.Length, text);
+    public void SetContent(string text) => Replace(0, _sourceText.Length, text);
 
     public void CopyTo(Span<char> dest, int offset, int count)
     {

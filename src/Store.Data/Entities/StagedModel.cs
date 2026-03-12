@@ -38,7 +38,7 @@ internal sealed class StagedModel : SqlEntity
     internal const short DEVELOPER_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short DATA_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
 
-    private static readonly short[] MemberIds = { TYPE_ID, MODEL_ID, DEVELOPER_ID, DATA_ID };
+    private static readonly short[] MemberIds = [TYPE_ID, MODEL_ID, DEVELOPER_ID, DATA_ID];
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;

@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal partial class ServiceCodeGenerator
 {
-    public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node)
+    public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         var methodSymbol = SemanticModel.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
 
@@ -28,12 +28,13 @@ internal partial class ServiceCodeGenerator
 
         if (isQueryMethod)
         {
-            //将ToScalar转换为ToScalar<T>
-            if (_queryMethodCtx.Current.MethodName == "ToScalarAsync")
+            //将ToScalar转换为ToScalar<T>, Include转换为Include<T>, ThenInclude转换为ThenInclude<T>
+            var methodName = _queryMethodCtx.Current.MethodName;
+            if (methodName is "ToScalarAsync" or "Include" or "ThenInclude")
             {
                 var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
                 var newGenericName = (SimpleNameSyntax)SyntaxFactory.ParseName(
-                    $"ToScalarAsync<{methodSymbol!.TypeArguments[0]}>");
+                    $"{methodName}<{methodSymbol!.TypeArguments[0]}>");
                 memberAccess = memberAccess.WithName(newGenericName);
                 res = ((InvocationExpressionSyntax)res).WithExpression(memberAccess);
             }
