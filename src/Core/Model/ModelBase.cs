@@ -9,18 +9,14 @@ public abstract class ModelBase : IBinSerializable
 
     protected ModelBase(ModelId id, string name)
     {
-        _designMode = true;
+        IsDesignMode = true;
         _id = id;
-        _name = name;
-        _persistentState = PersistentState.Detached;
+        Name = name;
+        PersistentState = PersistentState.Detached;
     }
 
     private ModelId _id;
-    private string _name = null!;
     private string? _originalName;
-    private int _version;
-    private bool _designMode;
-    private PersistentState _persistentState;
     private Guid? _folderId;
 
     public ModelLayer ModelLayer => _id.Layer;
@@ -28,9 +24,10 @@ public abstract class ModelBase : IBinSerializable
 
     public ModelId Id => _id;
     public int AppId => Id.AppId;
-    public string Name => _name;
-    public string OriginalName => _originalName ?? _name;
-    public int Version => _version;
+    public string Name { get; private set; } = null!;
+
+    public string OriginalName => _originalName ?? Name;
+    public int Version { get; private set; }
 
     public Guid? FolderId
     {
@@ -38,31 +35,31 @@ public abstract class ModelBase : IBinSerializable
         set => _folderId = value;
     }
 
-    public bool IsDesignMode => _designMode;
+    public bool IsDesignMode { get; private set; }
 
-    public PersistentState PersistentState => _persistentState;
+    public PersistentState PersistentState { get; private set; }
 
     #region ====Design Methods====
 
-    public bool IsNameChanged => _originalName != null && _originalName != _name;
+    public bool IsNameChanged => _originalName != null && _originalName != Name;
 
     internal void RenameTo(string newName)
     {
         CheckDesignMode();
 
         //如果已经重命名过，不再修改_originalName
-        if (_originalName == null && _persistentState != PersistentState.Detached)
-            _originalName = _name;
-        _name = newName;
+        if (_originalName == null && PersistentState != PersistentState.Detached)
+            _originalName = Name;
+        Name = newName;
         OnPropertyChanged();
     }
 
-    internal void IncreaseVersion() => _version++;
+    internal void IncreaseVersion() => Version++;
 
     internal virtual void AcceptChanges()
     {
-        if (_persistentState == PersistentState.Unchanged) return;
-        _persistentState = _persistentState == PersistentState.Deleted
+        if (PersistentState == PersistentState.Unchanged) return;
+        PersistentState = PersistentState == PersistentState.Deleted
             ? PersistentState.Detached
             : PersistentState.Unchanged;
         _originalName = null;
@@ -73,19 +70,19 @@ public abstract class ModelBase : IBinSerializable
     /// </summary>
     internal void Delete()
     {
-        if (_persistentState != PersistentState.Detached)
-            _persistentState = PersistentState.Deleted;
+        if (PersistentState != PersistentState.Detached)
+            PersistentState = PersistentState.Deleted;
     }
 
     internal void CheckDesignMode()
     {
-        if (!_designMode) throw new InvalidOperationException();
+        if (!IsDesignMode) throw new InvalidOperationException();
     }
 
     protected internal void OnPropertyChanged()
     {
-        if (_persistentState == PersistentState.Unchanged)
-            _persistentState = PersistentState.Modified;
+        if (PersistentState == PersistentState.Unchanged)
+            PersistentState = PersistentState.Modified;
     }
 
     #endregion
@@ -95,17 +92,17 @@ public abstract class ModelBase : IBinSerializable
     public virtual void WriteTo(IOutputStream ws)
     {
         ws.WriteLong(_id);
-        ws.WriteString(_name);
-        ws.WriteBool(_designMode);
+        ws.WriteString(Name);
+        ws.WriteBool(IsDesignMode);
 
-        if (_designMode)
+        if (IsDesignMode)
         {
-            ws.WriteVariant(_version);
-            ws.WriteByte((byte)_persistentState);
+            ws.WriteVariant(Version);
+            ws.WriteByte((byte)PersistentState);
             ws.WriteString(_originalName);
         }
 
-        if (_folderId != null && (_designMode || ModelType == ModelType.Permission))
+        if (_folderId != null && (IsDesignMode || ModelType == ModelType.Permission))
             ws.WriteFieldId(3).WriteGuid(_folderId.Value);
         ws.WriteFieldEnd();
     }
@@ -113,13 +110,13 @@ public abstract class ModelBase : IBinSerializable
     public virtual void ReadFrom(IInputStream rs)
     {
         _id = rs.ReadLong();
-        _name = rs.ReadString()!;
-        _designMode = rs.ReadBool();
+        Name = rs.ReadString()!;
+        IsDesignMode = rs.ReadBool();
 
-        if (_designMode)
+        if (IsDesignMode)
         {
-            _version = rs.ReadVariant();
-            _persistentState = (PersistentState)rs.ReadByte();
+            Version = rs.ReadVariant();
+            PersistentState = (PersistentState)rs.ReadByte();
             _originalName = rs.ReadString();
         }
 

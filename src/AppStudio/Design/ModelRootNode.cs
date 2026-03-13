@@ -146,7 +146,7 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
     internal void CheckInAllNodes()
     {
         //定义待删除模型节点列表
-        var ls = new List<ModelNode>();
+        var removed = new List<ModelNode>();
 
         //签入模型根节点，文件夹的签出信息同模型根节点
         if (IsCheckoutByMe)
@@ -160,12 +160,13 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
                 //判断是否待删除的节点
                 if (n.Model.PersistentState == PersistentState.Deleted)
                 {
-                    ls.Add(n);
+                    removed.Add(n);
                 }
                 else
                 {
                     n.CheckoutInfo = null;
-                    //不再需要累加版本号，由ModelStore保存模型时处理 n.Model.Version += 1;
+                    //DesignTime在本地需要累加版本号，与发布后的服务端保持一致
+                    n.Model.IncreaseVersion();
                     n.Model.AcceptChanges();
                 }
             }
@@ -173,7 +174,7 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
 
         //TODO:移除已删除的文件夹节点
         //开始移除待删除的模型节点
-        foreach (var modelNode in ls)
+        foreach (var modelNode in removed)
         {
             //先移除索引
             _models.Remove(modelNode.Model.Id);
