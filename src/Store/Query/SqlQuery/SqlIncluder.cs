@@ -192,12 +192,12 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
         where T : SqlEntity
     {
         if (Children == null) return;
-        if (!Children.Any(t => t.Expression.Type == ExpressionType.EntitySetExpression)) return;
+        if (Children.All(t => t.Expression.Type != ExpressionType.EntitySetExpression)) return;
 
         //TODO:考虑一次加载方案
         for (var i = 0; i < list.Count; i++)
         {
-            await LoadEntitySets(db, list[i], txn); //TODO: fix txn
+            await LoadEntitySets(db, list[i], txn);
         }
     }
 
