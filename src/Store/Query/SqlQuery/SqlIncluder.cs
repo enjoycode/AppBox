@@ -124,7 +124,7 @@ public abstract class SqlIncluder
         if (Expression.Type == ExpressionType.EntityExpression)
         {
             var exp = (EntityExpression)Expression;
-            var mm = (EntityRefModel)model.GetMember(exp.Name, true)!;
+            var mm = (EntityRefMember)model.GetMember(exp.Name, true)!;
             if (mm.IsAggregationRef) //TODO:聚合引用转换为Case表达式
                 throw new NotImplementedException();
 
@@ -207,11 +207,11 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
 
         //判断是否已经生成加载命令
         var ownerModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(owner.ModelId);
-        var memberModel = (EntitySetModel)ownerModel.GetMember(MemberExpression.Name, true)!;
-        var setModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(memberModel.RefModelId);
+        var entitySetMember = (EntitySetMember)ownerModel.GetMember(MemberExpression.Name, true)!;
+        var setModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(entitySetMember.RefModelId);
         if (_loadEntitySetCmd == null)
         {
-            var fkmm = (EntityRefModel)setModel.GetMember(memberModel.RefMemberId, true)!;
+            var fkmm = (EntityRefMember)setModel.GetMember(entitySetMember.RefMemberId, true)!;
             var q = new SqlFetchEntitySetQuery(this); // Should use SqlQuery<TEntity>?
             //生成条件
             for (var i = 0; i < fkmm.FKMemberIds.Length; i++)
@@ -244,7 +244,7 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
         Logger.Debug(_loadEntitySetCmd.CommandText);
 
         await using var reader = await _loadEntitySetCmd.ExecuteReaderAsync();
-        var entitySet = (EntitySet<TEntity>)EntityFetchUtil.GetNaviPropForFetch(owner, memberModel.MemberId);
+        var entitySet = (EntitySet<TEntity>)EntityFetchUtil.GetNaviPropForFetch(owner, entitySetMember.MemberId);
         while (await reader.ReadAsync())
         {
             var obj = new TEntity();
@@ -277,7 +277,7 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
 
         public override EntityPathExpression this[string name] => throw new NotImplementedException();
 
-        public EntityRefModel? TreeParentMember => null;
+        public EntityRefMember? TreeParentMember => null;
         public IList<SqlSelectItemExpression>? Selects { get; } = new List<SqlSelectItemExpression>();
         public IList<SqlOrderBy> SortItems { get; }
         public bool HasSortItems { get; }

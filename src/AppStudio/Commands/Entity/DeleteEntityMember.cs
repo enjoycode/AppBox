@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal static class DeleteEntityMember
 {
-    internal static async ValueTask Execute(ModelNode node, EntityMemberModel member)
+    internal static async ValueTask Execute(ModelNode node, EntityMember member)
     {
         if (!node.IsCheckoutByMe)
             throw new Exception("Has not checkout");
@@ -13,7 +13,7 @@ internal static class DeleteEntityMember
         //如果EntityField先判断是否自身引用
         if (member.Type == EntityMemberType.EntityField)
         {
-            var field = (EntityFieldModel)member;
+            var field = (EntityFieldMember)member;
             if (field.IsPrimaryKey || field.IsForeignKey)
                 throw new Exception("Can't delete PrimaryKey or ForeignKey");
             if (field.IsUsedByIndexes())

@@ -15,7 +15,7 @@ internal sealed class NewPKFieldDialog : Dialog
     }
 
     private readonly EntityModel _entityModel;
-    private readonly State<EntityMemberModel?> _selected = new RxValue<EntityMemberModel?>(null);
+    private readonly State<EntityMember?> _selected = new RxValue<EntityMember?>(null);
     private readonly State<bool> _orderByDesc = false;
     private readonly State<bool> _allowChange = true;
 
@@ -26,7 +26,7 @@ internal sealed class NewPKFieldDialog : Dialog
         {
             Children =
             {
-                new("EntityField:", new Select<EntityMemberModel>(_selected)
+                new("EntityField:", new Select<EntityMember>(_selected)
                 {
                     LabelGetter = m => m.Name,
                     Options = _entityModel.Members

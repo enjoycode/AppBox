@@ -30,8 +30,8 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private Reference? _pendingGoto;
 
-    private readonly DataGridController<EntityMemberModel> _membersController = new();
-    private readonly State<EntityMemberModel?> _selectedMember;
+    private readonly DataGridController<EntityMember> _membersController = new();
+    private readonly State<EntityMember?> _selectedMember;
 
     private Container BuildActionBar() => new Container
     {

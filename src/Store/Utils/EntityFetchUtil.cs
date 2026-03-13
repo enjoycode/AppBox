@@ -53,7 +53,7 @@ internal static class EntityFetchUtil
 
             //eg: "Customer.Name" or "Customer.Address.City"
             var entityRefMemberName = path.Span[..indexOfDot];
-            var memberModel = (EntityRefModel)model.GetMember(entityRefMemberName, true)!;
+            var memberModel = (EntityRefMember)model.GetMember(entityRefMemberName, true)!;
             if (memberModel.IsAggregationRef) throw new NotImplementedException("For Aggregation");
 
             var targetModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(memberModel.RefModelIds[0]);

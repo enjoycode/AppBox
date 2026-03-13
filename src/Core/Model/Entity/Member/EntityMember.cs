@@ -1,47 +1,40 @@
 namespace AppBoxCore;
 
-public abstract class EntityMemberModel
+public abstract class EntityMember
 {
-    public EntityMemberModel(EntityModel owner, string name, bool allowNull)
+    protected EntityMember(EntityModel owner, string name, bool allowNull)
     {
         Owner = owner;
-        _name = name;
+        Name = name;
         _allowNull = allowNull;
-        _persistentState = PersistentState.Detached;
+        PersistentState = PersistentState.Detached;
     }
 
     public readonly EntityModel Owner; //不用序列化
     public abstract EntityMemberType Type { get; }
 
-    private string _name;
     private string? _originalName;
-    private short _memberId;
     protected bool _allowNull; //设计时改变时如果是EntityField需要调用其onFieldTypeChanged
-    private PersistentState _persistentState;
-    private string? _comment;
 
-    public short MemberId => _memberId;
-    public string Name => _name;
+    public short MemberId { get; private set; }
+    public string Name { get; private set; }
     internal string OriginalName => string.IsNullOrEmpty(_originalName) ? Name : _originalName;
-    public bool IsNameChanged => _originalName != null && _originalName != _name;
-    public PersistentState PersistentState => _persistentState;
+    public bool IsNameChanged => _originalName != null && _originalName != Name;
+    public PersistentState PersistentState { get; private set; }
+
     public virtual bool AllowNull => _allowNull;
 
-    public string? Comment
-    {
-        get => _comment;
-        set => _comment = value;
-    }
-    
+    public string? Comment { get; set; }
+
     public bool IsForeignKeyMember => Type == EntityMemberType.EntityField
-                                      && ((EntityFieldModel)this).IsForeignKey;
+                                      && ((EntityFieldMember)this).IsForeignKey;
 
     #region ====Design Methods====
 
     internal void InitMemberId(short id)
     {
-        if (_memberId == 0)
-            _memberId = id;
+        if (MemberId == 0)
+            MemberId = id;
         else
             throw new InvalidOperationException("Member id has set");
     }
@@ -50,23 +43,23 @@ public abstract class EntityMemberModel
 
     internal void RenameTo(string newName)
     {
-        if (_originalName == null && _persistentState != PersistentState.Detached)
-            _originalName = _name;
-        _name = newName;
+        if (_originalName == null && PersistentState != PersistentState.Detached)
+            _originalName = Name;
+        Name = newName;
         OnPropertyChanged();
     }
 
     protected void OnPropertyChanged()
     {
-        if (_persistentState != PersistentState.Unchanged) return;
+        if (PersistentState != PersistentState.Unchanged) return;
 
-        _persistentState = PersistentState.Modified;
+        PersistentState = PersistentState.Modified;
         Owner.OnPropertyChanged();
     }
 
     internal void AcceptChanges()
     {
-        _persistentState = _persistentState == PersistentState.Deleted
+        PersistentState = PersistentState == PersistentState.Deleted
             ? PersistentState.Detached
             : PersistentState.Unchanged;
         _originalName = null;
@@ -74,7 +67,7 @@ public abstract class EntityMemberModel
 
     internal void AsDeleted()
     {
-        _persistentState = PersistentState.Deleted;
+        PersistentState = PersistentState.Deleted;
         Owner.OnPropertyChanged();
     }
 
@@ -91,29 +84,29 @@ public abstract class EntityMemberModel
 
     public virtual void WriteTo(IOutputStream ws)
     {
-        ws.WriteShort(_memberId);
-        ws.WriteString(_name);
+        ws.WriteShort(MemberId);
+        ws.WriteString(Name);
         ws.WriteBool(_allowNull);
-        ws.WriteString(_comment);
+        ws.WriteString(Comment);
 
         if (Owner.IsDesignMode)
         {
             ws.WriteString(_originalName);
-            ws.WriteByte((byte)_persistentState);
+            ws.WriteByte((byte)PersistentState);
         }
     }
 
     public virtual void ReadFrom(IInputStream rs)
     {
-        _memberId = rs.ReadShort();
-        _name = rs.ReadString()!;
+        MemberId = rs.ReadShort();
+        Name = rs.ReadString()!;
         _allowNull = rs.ReadBool();
-        _comment = rs.ReadString();
+        Comment = rs.ReadString();
 
         if (Owner.IsDesignMode)
         {
             _originalName = rs.ReadString();
-            _persistentState = (PersistentState)rs.ReadByte();
+            PersistentState = (PersistentState)rs.ReadByte();
         }
     }
 

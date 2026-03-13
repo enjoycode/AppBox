@@ -24,12 +24,12 @@ partial class PgSqlStore
         {
             if (mm.Type == EntityMemberType.EntityField)
             {
-                BuildFieldDefine((EntityFieldModel)mm, sb, false);
+                BuildFieldDefine((EntityFieldMember)mm, sb, false);
                 sb.Append(',');
             }
             else if (mm.Type == EntityMemberType.EntityRef)
             {
-                var rm = (EntityRefModel)mm;
+                var rm = (EntityRefMember)mm;
                 if (!rm.IsAggregationRef) //只有非聚合引合创建外键
                 {
                     fks.Add(BuildForeignKey(rm, ctx, tableName));
@@ -94,11 +94,11 @@ partial class PgSqlStore
                 {
                     needCommand = true;
                     sb.AppendFormat("ALTER TABLE \"{0}\" DROP COLUMN \"{1}\";", tableName,
-                        ((EntityFieldModel)m).SqlColOriginalName);
+                        ((EntityFieldMember)m).SqlColOriginalName);
                 }
                 else if (m.Type == EntityMemberType.EntityRef)
                 {
-                    EntityRefModel rm = (EntityRefModel)m;
+                    EntityRefMember rm = (EntityRefMember)m;
                     if (!rm.IsAggregationRef)
                     {
                         var fkName = $"FK_{rm.Owner.Id}_{rm.MemberId}"; //TODO:特殊处理DbFirst导入表的外键约束名称
@@ -142,12 +142,12 @@ partial class PgSqlStore
                 {
                     needCommand = true;
                     sb.AppendFormat("ALTER TABLE \"{0}\" ADD COLUMN ", tableName);
-                    BuildFieldDefine((EntityFieldModel)m, sb, false);
+                    BuildFieldDefine((EntityFieldMember)m, sb, false);
                     sb.Append(";");
                 }
                 else if (m.Type == EntityMemberType.EntityRef)
                 {
-                    var rm = (EntityRefModel)m;
+                    var rm = (EntityRefMember)m;
                     if (!rm.IsAggregationRef) //只有非聚合引合创建外键
                     {
                         foreignKeys.Add(BuildForeignKey(rm, ctx, tableName));
@@ -188,7 +188,7 @@ partial class PgSqlStore
             {
                 if (m.Type == EntityMemberType.EntityField)
                 {
-                    var dfm = (EntityFieldModel)m;
+                    var dfm = (EntityFieldMember)m;
                     //先处理数据类型变更，变更类型或者变更AllowNull或者变更默认值
                     if (dfm.IsFieldTypeChanged)
                     {
@@ -262,7 +262,7 @@ partial class PgSqlStore
         };
     }
 
-    private static void BuildFieldDefine(EntityFieldModel dfm, StringBuilder sb, bool forAlter)
+    private static void BuildFieldDefine(EntityFieldMember dfm, StringBuilder sb, bool forAlter)
     {
         var fieldName = forAlter ? dfm.SqlColOriginalName : dfm.SqlColName;
         sb.Append($"\"{fieldName}\" ");
@@ -324,7 +324,7 @@ partial class PgSqlStore
         }
     }
 
-    private static string BuildForeignKey(EntityRefModel rm, IModelContainer ctx, string tableName)
+    private static string BuildForeignKey(EntityRefMember rm, IModelContainer ctx, string tableName)
     {
         var refModel = ctx.GetEntityModel(rm.RefModelIds[0]);
         //使用模型标识+成员标识作为fk name以减少重命名带来的影响
@@ -333,7 +333,7 @@ partial class PgSqlStore
         rsb.Append($"ALTER TABLE \"{tableName}\" ADD CONSTRAINT \"{fkName}\" FOREIGN KEY (");
         for (var i = 0; i < rm.FKMemberIds.Length; i++)
         {
-            var fk = (EntityFieldModel)rm.Owner.GetMember(rm.FKMemberIds[i], true)!;
+            var fk = (EntityFieldMember)rm.Owner.GetMember(rm.FKMemberIds[i], true)!;
             if (i != 0) rsb.Append(',');
             rsb.Append($"\"{fk.SqlColName}\"");
         }
@@ -341,7 +341,7 @@ partial class PgSqlStore
         rsb.Append($") REFERENCES \"{refModel.SqlStoreOptions!.GetSqlTableName(false, ctx)}\" ("); //引用目标使用新名称
         for (var i = 0; i < refModel.SqlStoreOptions!.PrimaryKeys.Length; i++)
         {
-            var pk = (EntityFieldModel)refModel.GetMember(
+            var pk = (EntityFieldMember)refModel.GetMember(
                 refModel.SqlStoreOptions!.PrimaryKeys[i].MemberId, true)!;
             if (i != 0) rsb.Append(',');
             rsb.Append($"\"{pk.SqlColName}\"");
@@ -380,7 +380,7 @@ partial class PgSqlStore
             for (var i = 0; i < index.Fields.Length; i++)
             {
                 if (i != 0) sb.Append(',');
-                var dfm = (EntityFieldModel)model.GetMember(index.Fields[i].MemberId, true)!;
+                var dfm = (EntityFieldMember)model.GetMember(index.Fields[i].MemberId, true)!;
                 sb.Append($"\"{dfm.SqlColName}\"");
                 if (index.Fields[i].OrderByDesc) sb.Append(" DESC");
             }
@@ -415,7 +415,7 @@ partial class PgSqlStore
         sb.Append(" PRIMARY KEY (");
         foreach (var pk in model.SqlStoreOptions!.PrimaryKeys)
         {
-            var mm = (EntityFieldModel)model.GetMember(pk.MemberId, true)!;
+            var mm = (EntityFieldMember)model.GetMember(pk.MemberId, true)!;
             sb.Append($"\"{mm.SqlColName}\",");
         }
 

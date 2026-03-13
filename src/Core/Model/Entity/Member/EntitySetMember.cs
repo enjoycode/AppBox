@@ -1,10 +1,10 @@
 namespace AppBoxCore;
 
-public sealed class EntitySetModel : EntityMemberModel, IModelReference
+public sealed class EntitySetMember : EntityMember, IModelReference
 {
-    internal EntitySetModel(EntityModel owner) : base(owner, string.Empty, false) { }
+    internal EntitySetMember(EntityModel owner) : base(owner, string.Empty, false) { }
 
-    public EntitySetModel(EntityModel owner, string name, long refModelId, short refMemberId)
+    public EntitySetMember(EntityModel owner, string name, long refModelId, short refMemberId)
         : base(owner, name, true)
     {
         RefModelId = refModelId;
@@ -29,21 +29,21 @@ public sealed class EntitySetModel : EntityMemberModel, IModelReference
     }
 
     internal override void AddModelReferences(List<ModelReferenceInfo> list,
-        ModelReferenceType referenceType, ModelId modelID,
+        ModelReferenceType referenceType, ModelId modelId,
         string? memberName, short? entityMemberId)
     {
         if (referenceType == ModelReferenceType.EntityModel)
         {
-            if (RefModelId == modelID)
+            if (RefModelId == modelId)
                 list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntitySetModel_RefModelID, Name,
+                    ModelReferencePosition.EntitySetMember_RefModelID, Name,
                     $"{Owner.Name}.{Name}"));
         }
-        else if (referenceType == ModelReferenceType.EntityMember && RefModelId == modelID)
+        else if (referenceType == ModelReferenceType.EntityMember && RefModelId == modelId)
         {
             if (RefMemberId == entityMemberId!.Value)
                 list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntitySetModel_RefMemberId, Name, $"{Owner.Name}.{Name}"));
+                    ModelReferencePosition.EntitySetMember_RefMemberId, Name, $"{Owner.Name}.{Name}"));
         }
     }
 

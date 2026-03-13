@@ -29,8 +29,8 @@ internal static class ChangePrimaryKeys
 
         //同步处理可修改的主键字段所关联的跟踪成员
         var allPKTrackers = model.Members
-            .Where(m => m.Type == EntityMemberType.EntityFieldTracker && ((FieldTrackerModel)m).IsUsedForChangeablePK)
-            .Cast<FieldTrackerModel>()
+            .Where(m => m.Type == EntityMemberType.EntityFieldTracker && ((EntityTrackerMember)m).IsUsedForChangeablePK)
+            .Cast<EntityTrackerMember>()
             .ToList();
         if (pks == null || pks.Length == 0)
         {
@@ -51,7 +51,7 @@ internal static class ChangePrimaryKeys
             addsTracker.ForEach(p =>
             {
                 var name = $"Original{model.GetMember(p.MemberId)!.Name}";
-                var pkTracker = new FieldTrackerModel(model, name, p.MemberId);
+                var pkTracker = new EntityTrackerMember(model, name, p.MemberId);
                 model.AddMember(pkTracker);
                 var newPKField = new PrimaryKeyField(p.MemberId, true, p.OrderByDesc);
                 newPKField.TrackerMemberId = pkTracker.MemberId;

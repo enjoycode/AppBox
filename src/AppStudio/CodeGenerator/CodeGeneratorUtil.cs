@@ -82,7 +82,7 @@ internal static class CodeGeneratorUtil
         var model = (EntityModel)modelNode.Model;
         var refs = model.Members
             .Where(t => t.Type == EntityMemberType.EntityRef)
-            .Cast<EntityRefModel>();
+            .Cast<EntityRefMember>();
         foreach (var refModel in refs)
         {
             foreach (var refModelId in refModel.RefModelIds)
@@ -95,7 +95,7 @@ internal static class CodeGeneratorUtil
 
         var sets = model.Members
             .Where(t => t.Type == EntityMemberType.EntitySet)
-            .Cast<EntitySetModel>();
+            .Cast<EntitySetMember>();
         foreach (var setModel in sets)
         {
             var setModelNode =

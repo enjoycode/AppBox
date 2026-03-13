@@ -3,11 +3,11 @@ namespace AppBoxCore;
 /// <summary>
 /// 跟踪字段值变化的成员，存储变更前的原始值
 /// </summary>
-public sealed class FieldTrackerModel : EntityMemberModel
+public sealed class EntityTrackerMember : EntityMember
 {
-    internal FieldTrackerModel(EntityModel owner) : this(owner, string.Empty, 0) { }
+    internal EntityTrackerMember(EntityModel owner) : this(owner, string.Empty, 0) { }
 
-    public FieldTrackerModel(EntityModel owner, string name, short targetMemberId)
+    public EntityTrackerMember(EntityModel owner, string name, short targetMemberId)
         : base(owner, name, true)
     {
         TargetMemberId = targetMemberId;
@@ -18,7 +18,7 @@ public sealed class FieldTrackerModel : EntityMemberModel
     /// </summary>
     public short TargetMemberId { get; private set; }
 
-    public EntityFieldModel Target => (EntityFieldModel)Owner.GetMember(TargetMemberId)!;
+    public EntityFieldMember Target => (EntityFieldMember)Owner.GetMember(TargetMemberId)!;
 
     public override EntityMemberType Type => EntityMemberType.EntityFieldTracker;
 

@@ -56,7 +56,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
 
     #region ----树状查询属性----
 
-    public EntityRefModel? TreeParentMember { get; private set; }
+    public EntityRefMember? TreeParentMember { get; private set; }
 
     #endregion
 
@@ -296,8 +296,8 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         Purpose = QueryPurpose.ToTree;
         var children = (EntitySetExpression)childrenMember(T);
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
-        var childrenModel = (EntitySetModel)model.GetMember(children.Name)!;
-        TreeParentMember = (EntityRefModel)model.GetMember(childrenModel.RefMemberId)!;
+        var childrenModel = (EntitySetMember)model.GetMember(children.Name)!;
+        TreeParentMember = (EntityRefMember)model.GetMember(childrenModel.RefMemberId)!;
 
         this.AddAllSelects(model, T, null);
 
@@ -366,14 +366,14 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
             throw new Exception("仅支持具备单一主键的树状实体");
 
         //验证上级非聚合引用，且引用目标为自身
-        var entityRefModel = (EntityRefModel)model.GetMember(parent.Name!)!;
-        if (entityRefModel.IsAggregationRef)
+        var entityRefMember = (EntityRefMember)model.GetMember(parent.Name!)!;
+        if (entityRefMember.IsAggregationRef)
             throw new Exception("不支持上级成员为聚合引用");
-        if (entityRefModel.RefModelIds[0] != model.Id)
+        if (entityRefMember.RefModelIds[0] != model.Id)
             throw new Exception("当前实体非树状结构");
 
         var pkName = model.GetMember(model.SqlStoreOptions.PrimaryKeys[0].MemberId)!.Name;
-        var fkName = model.GetMember(entityRefModel.FKMemberIds[0])!.Name;
+        var fkName = model.GetMember(entityRefMember.FKMemberIds[0])!.Name;
 
         Purpose = QueryPurpose.ToTreePath;
         this.AddSelectItem(new SqlSelectItemExpression(T[pkName], "Id"));
@@ -401,17 +401,17 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     /// <summary>
     /// 用于树状结构填充时查找指定实体的上级
     /// </summary>
-    private static TEntity FindParent(EntityRefModel parentModel, TEntity entity, IList<TEntity> from)
+    private static TEntity FindParent(EntityRefMember parentMember, TEntity entity, IList<TEntity> from)
     {
-        var model = parentModel.Owner;
+        var model = parentMember.Owner;
         var pks = model.SqlStoreOptions!.PrimaryKeys;
         var memberValueGetter = new EntityMemberValueGetter();
         for (var i = from.Count - 1; i >= 0; i--) //倒查
         {
             var allSame = true;
-            for (var j = 0; j < parentModel.FKMemberIds.Length; j++)
+            for (var j = 0; j < parentMember.FKMemberIds.Length; j++)
             {
-                entity.WriteMember(parentModel.FKMemberIds[j], ref memberValueGetter,
+                entity.WriteMember(parentMember.FKMemberIds[j], ref memberValueGetter,
                     EntityMemberWriteFlags.None);
                 var fkValue = memberValueGetter.Value;
                 from[i].WriteMember(pks[j].MemberId, ref memberValueGetter,

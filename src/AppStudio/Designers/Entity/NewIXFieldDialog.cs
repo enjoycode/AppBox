@@ -16,7 +16,7 @@ internal sealed class NewIdxFieldDialog : Dialog
     }
 
     private readonly EntityModel _entityModel;
-    private readonly State<EntityMemberModel?> _selected = new RxValue<EntityMemberModel?>(null);
+    private readonly State<EntityMember?> _selected = new RxValue<EntityMember?>(null);
     private readonly State<bool> _orderByDesc = false;
 
     protected override Widget BuildBody() => new Container
@@ -26,7 +26,7 @@ internal sealed class NewIdxFieldDialog : Dialog
         {
             Children =
             {
-                new FormItem("EntityField:", new Select<EntityMemberModel>(_selected)
+                new FormItem("EntityField:", new Select<EntityMember>(_selected)
                 {
                     Options = _entityModel.Members
                         .Where(m => m.Type == EntityMemberType.EntityField)

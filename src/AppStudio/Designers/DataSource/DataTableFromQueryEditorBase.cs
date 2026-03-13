@@ -22,7 +22,7 @@ internal abstract class DataTableFromQueryEditorBase : View
     }
 
     private readonly State<ModelNode?> _entityTarget;
-    private readonly TreeController<EntityMemberModel> _treeController = new();
+    private readonly TreeController<EntityMember> _treeController = new();
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
     private readonly DataGridController<DataTableFromQueryBase.FilterItem> _filtersController = new();
@@ -66,9 +66,9 @@ internal abstract class DataTableFromQueryEditorBase : View
                             Options = DesignUtils.GetAllSqlEntityModels(),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
-                        new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>
+                        new Expanded(new TreeView<EntityMember>(_treeController, BuildTreeNode, m =>
                             {
-                                var entityRef = (EntityRefModel)m;
+                                var entityRef = (EntityRefMember)m;
                                 if (entityRef.IsAggregationRef)
                                     throw new NotImplementedException();
                                 var refModel =
@@ -78,7 +78,7 @@ internal abstract class DataTableFromQueryEditorBase : View
                             })
                             {
                                 AllowDrag = true,
-                                OnAllowDrag = node => node.Data is not EntityRefModel
+                                OnAllowDrag = node => node.Data is not EntityRefMember
                             }
                         )
                     ]
@@ -91,12 +91,12 @@ internal abstract class DataTableFromQueryEditorBase : View
         ]
     };
 
-    private static void BuildTreeNode(TreeNode<EntityMemberModel> node)
+    private static void BuildTreeNode(TreeNode<EntityMember> node)
     {
         var member = node.Data;
         node.Label = new Text(member.Name);
-        node.Icon = member is EntityRefModel ? new(MaterialIcons.Folder) : new(MaterialIcons.TextFields);
-        node.IsLeaf = member is not EntityRefModel;
+        node.Icon = member is EntityRefMember ? new(MaterialIcons.Folder) : new(MaterialIcons.TextFields);
+        node.IsLeaf = member is not EntityRefMember;
         node.IsExpanded = true;
     }
 
@@ -191,25 +191,25 @@ internal abstract class DataTableFromQueryEditorBase : View
 
     private static bool OnAllowDropTo(DragEvent dragEvent)
     {
-        if (dragEvent.TransferItem is TreeNode<EntityMemberModel> { Data: EntityFieldModel })
+        if (dragEvent.TransferItem is TreeNode<EntityMember> { Data: EntityFieldMember })
             return true;
         return false;
     }
 
     private void OnDropToSelects(DragEvent dragEvent)
     {
-        var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
+        var treeNode = (TreeNode<EntityMember>)dragEvent.TransferItem;
         //构建路径表达式
         var exp = DesignUtils.BuildExpressionFrom(treeNode, _tableFromQuery.Root!);
 
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
-            DataCell.DataTypeFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
+            DataCell.DataTypeFromEntityFieldType(((EntityFieldMember)treeNode.Data).FieldType));
         _selectsController.Add(selectItem);
     }
 
     private void OnDropToFilters(DragEvent dragEvent)
     {
-        var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
+        var treeNode = (TreeNode<EntityMember>)dragEvent.TransferItem;
         var exp = DesignUtils.BuildExpressionFrom(treeNode, _tableFromQuery.Root!);
 
         var filterItem = new DataTableFromQueryBase.FilterItem() { Field = exp };
@@ -218,7 +218,7 @@ internal abstract class DataTableFromQueryEditorBase : View
 
     private void OnDropToOrders(DragEvent dragEvent)
     {
-        var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
+        var treeNode = (TreeNode<EntityMember>)dragEvent.TransferItem;
         var exp = DesignUtils.BuildExpressionFrom(treeNode, _tableFromQuery.Root!);
 
         var orderItem = new DynamicQuery.OrderByItem(exp);
@@ -263,7 +263,7 @@ internal abstract class DataTableFromQueryEditorBase : View
         if (s.Field is EntityFieldExpression field)
         {
             var model = RuntimeContext.GetModel<EntityModel>(field.Owner!.ModelId);
-            var member = (EntityFieldModel)model.GetMember(field.Name)!;
+            var member = (EntityFieldMember)model.GetMember(field.Name)!;
             var dynamicStateType = member.FieldType switch
             {
                 EntityFieldType.String => DynamicStateType.String,

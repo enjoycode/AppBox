@@ -1,20 +1,18 @@
 namespace AppBoxCore;
 
-public sealed class EntityFieldModel : EntityMemberModel
+public sealed class EntityFieldMember : EntityMember
 {
-    internal EntityFieldModel(EntityModel owner) : base(owner, string.Empty, false) { }
+    internal EntityFieldMember(EntityModel owner) : base(owner, string.Empty, false) { }
 
-    public EntityFieldModel(EntityModel owner, string name, EntityFieldType fieldType,
+    public EntityFieldMember(EntityModel owner, string name, EntityFieldType fieldType,
         bool allowNull, bool isForeignKey = false) :
         base(owner, name, allowNull)
     {
         _fieldType = fieldType;
-        _isForeignKey = isForeignKey;
+        IsForeignKey = isForeignKey;
     }
 
     public override EntityMemberType Type => EntityMemberType.EntityField;
-
-    private bool _isForeignKey; //是否引用外键
 
     private bool _isFieldTypeChanged; //字段类型、AllowNull及DefaultValue变更均视为FieldTypeChanged
 
@@ -27,7 +25,11 @@ public sealed class EntityFieldModel : EntityMemberModel
     private int _decimals; //仅用于Sql存储设置Decimal小数部分长度
     private string? _defaultValue; //默认值
 
-    public bool IsForeignKey => _isForeignKey;
+    /// <summary>
+    /// 是否引用外键
+    /// </summary>
+    public bool IsForeignKey { get; private set; }
+
     public EntityFieldType FieldType => _fieldType;
     public ModelId? EnumModelId => _enumModelId;
 
@@ -117,7 +119,7 @@ public sealed class EntityFieldModel : EntityMemberModel
         base.WriteTo(ws);
 
         ws.WriteByte((byte)_fieldType);
-        ws.WriteBool(_isForeignKey);
+        ws.WriteBool(IsForeignKey);
         if (_fieldType == EntityFieldType.Enum)
             ws.WriteLong(_enumModelId!.Value);
         else if (_fieldType == EntityFieldType.String)
@@ -139,7 +141,7 @@ public sealed class EntityFieldModel : EntityMemberModel
         base.ReadFrom(rs);
 
         _fieldType = (EntityFieldType)rs.ReadByte();
-        _isForeignKey = rs.ReadBool();
+        IsForeignKey = rs.ReadBool();
         if (_fieldType == EntityFieldType.Enum)
             _enumModelId = rs.ReadLong();
         else if (_fieldType == EntityFieldType.String)

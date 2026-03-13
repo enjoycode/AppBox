@@ -3,9 +3,9 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class RxEntityField : RxObjectBase<EntityFieldModel>
+internal sealed class RxEntityField : RxObjectBase<EntityFieldMember>
 {
-    public RxEntityField(EntityFieldModel? target)
+    public RxEntityField(EntityFieldMember? target)
     {
         _target = target!;
 
@@ -24,10 +24,10 @@ internal sealed class RxEntityField : RxObjectBase<EntityFieldModel>
 /// </summary>
 internal sealed class EntityPropertyPanel : View
 {
-    public EntityPropertyPanel(EntityModel entityModel, State<EntityMemberModel?> selectedMember)
+    public EntityPropertyPanel(EntityModel entityModel, State<EntityMember?> selectedMember)
     {
         Bind(ref _selectedMember!, selectedMember, OnSelectedMemberChanged);
-        _rxEntityField = new RxEntityField((EntityFieldModel?)_selectedMember.Value);
+        _rxEntityField = new RxEntityField((EntityFieldMember?)_selectedMember.Value);
         var isEntityField = _selectedMember
             .ToStateOfBool(v => v is { Type: EntityMemberType.EntityField });
 
@@ -63,12 +63,12 @@ internal sealed class EntityPropertyPanel : View
     }
 
     private const float LabelWidth = 120f;
-    private readonly State<EntityMemberModel?> _selectedMember;
+    private readonly State<EntityMember?> _selectedMember;
     private readonly RxEntityField _rxEntityField;
 
     private void OnSelectedMemberChanged(State state)
     {
-        if (_selectedMember.Value is EntityFieldModel entityField)
+        if (_selectedMember.Value is EntityFieldMember entityField)
             _rxEntityField.Target = entityField;
     }
 }

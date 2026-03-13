@@ -69,7 +69,7 @@ internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
 
     public ModelId EntityModelId { get; }
 
-    public EntityRefModel? TreeParentMember => throw new NotImplementedException();
+    public EntityRefMember? TreeParentMember => throw new NotImplementedException();
 
     public override EntityPathExpression this[string name] => throw new NotImplementedException();
 

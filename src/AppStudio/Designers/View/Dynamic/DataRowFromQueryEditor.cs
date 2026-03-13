@@ -24,7 +24,7 @@ internal sealed class DataRowFromQueryEditor : View
     private readonly DesignController _designController;
     private readonly DynamicState _state;
     private readonly DynamicDataRow _dataRow;
-    private readonly TreeController<EntityMemberModel> _treeController = new();
+    private readonly TreeController<EntityMember> _treeController = new();
     private readonly DataGridController<DynamicQuery.SelectItem> _selectsController = new();
     private DataRowFromQuery RowFromQuery => (DataRowFromQuery)_dataRow.Source;
     private readonly State<ModelNode?> _entityTarget;
@@ -54,7 +54,7 @@ internal sealed class DataRowFromQueryEditor : View
                 RowFromQuery.PrimaryKeys = new DataRowFromQuery.PrimaryKey[sqlPks.Length];
                 for (var i = 0; i < sqlPks.Length; i++)
                 {
-                    var member = (EntityFieldModel)entityModel.GetMember(sqlPks[i].MemberId)!;
+                    var member = (EntityFieldMember)entityModel.GetMember(sqlPks[i].MemberId)!;
                     RowFromQuery.PrimaryKeys[i] = new DataRowFromQuery.PrimaryKey(member.Name,
                         DataCell.DataTypeFromEntityFieldType(member.FieldType));
                 }
@@ -80,9 +80,9 @@ internal sealed class DataRowFromQueryEditor : View
                             Options = DesignUtils.GetAllSqlEntityModels(),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
-                        new Expanded(new TreeView<EntityMemberModel>(_treeController, BuildTreeNode, m =>
+                        new Expanded(new TreeView<EntityMember>(_treeController, BuildTreeNode, m =>
                             {
-                                var entityRef = (EntityRefModel)m;
+                                var entityRef = (EntityRefMember)m;
                                 if (entityRef.IsAggregationRef)
                                     throw new NotImplementedException();
                                 var refModel =
@@ -92,7 +92,7 @@ internal sealed class DataRowFromQueryEditor : View
                             })
                             {
                                 AllowDrag = true,
-                                OnAllowDrag = node => node.Data is not EntityRefModel
+                                OnAllowDrag = node => node.Data is not EntityRefMember
                             }
                         )
                     ]
@@ -105,12 +105,12 @@ internal sealed class DataRowFromQueryEditor : View
         ]
     };
 
-    private static void BuildTreeNode(TreeNode<EntityMemberModel> node)
+    private static void BuildTreeNode(TreeNode<EntityMember> node)
     {
         var member = node.Data;
         node.Label = new Text(member.Name);
-        node.Icon = member is EntityRefModel ? new(MaterialIcons.Folder) : new(MaterialIcons.TextFields);
-        node.IsLeaf = member is not EntityRefModel;
+        node.Icon = member is EntityRefMember ? new(MaterialIcons.Folder) : new(MaterialIcons.TextFields);
+        node.IsLeaf = member is not EntityRefMember;
         node.IsExpanded = true;
     }
 
@@ -138,18 +138,18 @@ internal sealed class DataRowFromQueryEditor : View
 
     private static bool OnAllowDropTo(DragEvent dragEvent)
     {
-        if (dragEvent.TransferItem is TreeNode<EntityMemberModel> { Data: EntityFieldModel })
+        if (dragEvent.TransferItem is TreeNode<EntityMember> { Data: EntityFieldMember })
             return true;
         return false;
     }
 
     private void OnDropToSelects(DragEvent dragEvent)
     {
-        var treeNode = (TreeNode<EntityMemberModel>)dragEvent.TransferItem;
+        var treeNode = (TreeNode<EntityMember>)dragEvent.TransferItem;
         //构建路径表达式
         var exp = DesignUtils.BuildExpressionFrom(treeNode, RowFromQuery.Root!);
         var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
-            DataCell.DataTypeFromEntityFieldType(((EntityFieldModel)treeNode.Data).FieldType));
+            DataCell.DataTypeFromEntityFieldType(((EntityFieldMember)treeNode.Data).FieldType));
         _selectsController.Add(selectItem);
 
         RowFromQuery.AddChildState(_state, selectItem.Alias, selectItem.Type);

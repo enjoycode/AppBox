@@ -10,17 +10,17 @@ internal static class DesignUtils
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public static List<EntityMemberModel> GetEntityModelMembers(EntityModel model)
+    public static List<EntityMember> GetEntityModelMembers(EntityModel model)
     {
-        var list = new List<EntityMemberModel>();
+        var list = new List<EntityMember>();
         foreach (var member in model.Members)
         {
             switch (member)
             {
-                case EntityFieldModel:
+                case EntityFieldMember:
                     list.Add(member);
                     break;
-                case EntityRefModel entityRef:
+                case EntityRefMember entityRef:
                 {
                     //暂排除聚合引用及循环引用
                     if (!entityRef.IsAggregationRef && !entityRef.RefModelIds.Contains(model.Id))
@@ -33,10 +33,10 @@ internal static class DesignUtils
         return list;
     }
 
-    public static EntityPathExpression BuildExpressionFrom(TreeNode<EntityMemberModel> treeNode, EntityExpression root)
+    public static EntityPathExpression BuildExpressionFrom(TreeNode<EntityMember> treeNode, EntityExpression root)
     {
         var temp = treeNode;
-        var list = new List<EntityMemberModel>();
+        var list = new List<EntityMember>();
         while (temp != null)
         {
             list.Insert(0, temp.Data);

@@ -128,7 +128,7 @@ internal sealed class NewEntityMemberDialog : Dialog
         return [_entityRefTarget.Value!.Id];
     }
 
-    internal EntityMemberModel[] GetNewMembers()
+    internal EntityMember[] GetNewMembers()
     {
         var memberType = (EntityMemberType)GetMemberTypeValue();
         return memberType switch

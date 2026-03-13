@@ -42,7 +42,7 @@ internal static class ReferenceService
     /// 查找实体模型成员的引用项
     /// </summary>
     internal static async Task<List<Reference>> FindEntityMemberReferencesAsync(DesignHub hub,
-        ModelNode modelNode, EntityMemberModel member)
+        ModelNode modelNode, EntityMember member)
     {
         var appName = modelNode.AppNode.Model.Name;
         var modelName = modelNode.Model.Name;

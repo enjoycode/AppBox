@@ -23,19 +23,19 @@ internal static class NewEntityMember
             throw new Exception("Name has exists");
     }
 
-    internal static EntityFieldModel NewEntityField(ModelNode node, string memberName,
+    internal static EntityFieldMember NewEntityField(ModelNode node, string memberName,
         EntityFieldType fieldType, bool allowNull)
     {
         Validate(node, memberName);
 
         var model = (EntityModel)node.Model;
-        var field = new EntityFieldModel(model, memberName, fieldType, allowNull);
+        var field = new EntityFieldMember(model, memberName, fieldType, allowNull);
         model.AddMember(field);
         //TODO:默认值处理
         return field;
     }
 
-    internal static EntityMemberModel[] NewEntityRef(ModelNode node, string name, string[] refIds, bool allowNull)
+    internal static EntityMember[] NewEntityRef(ModelNode node, string name, string[] refIds, bool allowNull)
     {
         if (refIds.Length == 0)
             throw new ArgumentException("EntityRef target is empty");
@@ -73,7 +73,7 @@ internal static class NewEntityMember
             refModels[i] = refModel;
         }
 
-        var res = new List<EntityMemberModel>();
+        var res = new List<EntityMember>();
         //检查外键字段名称是否已存在，并且添加外键成员 //TODO:聚合引用检查XXXType是否存在
         short[] fkMemberIds;
         if (model.DataStoreKind == DataStoreKind.Sql)
@@ -84,11 +84,11 @@ internal static class NewEntityMember
             for (var i = 0; i < pkLen; i++)
             {
                 var pk = refModel.SqlStoreOptions!.PrimaryKeys[i];
-                var pkMemberModel = (EntityFieldModel)refModels[0].GetMember(pk.MemberId)!;
+                var pkMemberModel = (EntityFieldMember)refModels[0].GetMember(pk.MemberId)!;
                 var fkName = $"{name}{pkMemberModel.Name}";
                 if (model.Members.Any(t => t.Name == fkName))
                     throw new Exception($"Name has exists: {fkName}");
-                var fk = new EntityFieldModel(model, fkName, pkMemberModel.FieldType, allowNull,
+                var fk = new EntityFieldMember(model, fkName, pkMemberModel.FieldType, allowNull,
                     true);
                 model.AddMember(fk);
                 res.Add(fk);
@@ -101,24 +101,24 @@ internal static class NewEntityMember
                 throw new Exception($"Name has exists: {name}Id");
             // 添加外键Id列, eg: Customer -> CustomerId
             var fkId =
-                new EntityFieldModel(model, $"{name}Id", EntityFieldType.EntityId, allowNull, true);
+                new EntityFieldMember(model, $"{name}Id", EntityFieldType.EntityId, allowNull, true);
             model.AddMember(fkId);
             res.Add(fkId);
             fkMemberIds = [fkId.MemberId];
         }
 
         // 如果为聚合引用则添加对应的Type列, eg: CostBill -> CostBillType
-        EntityRefModel entityRef;
+        EntityRefMember entityRef;
         if (refIds.Length > 1)
         {
             throw new NotImplementedException("未实现聚合引用");
-            // var fkType = new EntityFieldModel(model, $"{name}Type", EntityFieldType.Long, allowNull, true);
+            // var fkType = new EntityFieldMember(model, $"{name}Type", EntityFieldType.Long, allowNull, true);
             // model.AddMember(fkType);
-            // entityRef = new EntityRefModel(model, name, refIds.Cast<ulong>().ToList(), fkMemberIds, fkType.MemberId);
+            // entityRef = new EntityRefMember(model, name, refIds.Cast<ulong>().ToList(), fkMemberIds, fkType.MemberId);
         }
         else
         {
-            entityRef = new EntityRefModel(model, name, refIds[0], fkMemberIds, allowNull /*TODO:入参指明是否外键约束 */);
+            entityRef = new EntityRefMember(model, name, refIds[0], fkMemberIds, allowNull /*TODO:入参指明是否外键约束 */);
         }
 
         model.AddMember(entityRef);
@@ -127,7 +127,7 @@ internal static class NewEntityMember
         return res.ToArray();
     }
 
-    internal static EntitySetModel NewEntitySet(ModelNode node, string name, ModelId refModelId, short refMemberId)
+    internal static EntitySetMember NewEntitySet(ModelNode node, string name, ModelId refModelId, short refMemberId)
     {
         //验证引用目标是否存在
         var target = DesignHub.Current.DesignTree.FindModelNode(refModelId);
@@ -139,7 +139,7 @@ internal static class NewEntityMember
             throw new Exception("Target member is not EntityRef");
 
         var model = (EntityModel)node.Model;
-        var entitySet = new EntitySetModel(model, name, refModelId, refMemberId);
+        var entitySet = new EntitySetMember(model, name, refModelId, refMemberId);
         model.AddMember(entitySet);
 
         return entitySet;

@@ -291,9 +291,9 @@ public sealed class DesignTree
     /// <summary>
     /// 查找所有引用指定模型标识的EntityRef Member集合
     /// </summary>
-    public List<EntityRefModel> FindAllEntityRefs(ModelId targetEntityModelId)
+    public List<EntityRefMember> FindAllEntityRefs(ModelId targetEntityModelId)
     {
-        var rs = new List<EntityRefModel>();
+        var rs = new List<EntityRefMember>();
 
         var allEntities = FindNodesByType(ModelType.Entity);
         for (var i = 0; i < allEntities.Length; i++)
@@ -304,7 +304,7 @@ public sealed class DesignTree
             {
                 if (model.Members[j].Type == EntityMemberType.EntityRef)
                 {
-                    var refMember = (EntityRefModel)model.Members[j];
+                    var refMember = (EntityRefMember)model.Members[j];
                     //注意不排除聚合引用
                     for (var k = 0; k < refMember.RefModelIds.Count; k++)
                     {

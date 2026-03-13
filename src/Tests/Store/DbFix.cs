@@ -42,8 +42,8 @@ public class DbFix
     //     {
     //         if (model.Name == "楼盘位置")
     //         {
-    //             var pkMember = (EntityFieldModel)model.GetMember("名称")!;
-    //             var pkTracker = new FieldTrackerModel(model, "Original名称", pkMember.MemberId);
+    //             var pkMember = (EntityFieldMember)model.GetMember("名称")!;
+    //             var pkTracker = new FieldTrackerMember(model, "Original名称", pkMember.MemberId);
     //             model.AddMember(pkTracker);
     //
     //             var oldPKField = model.SqlStoreOptions!.PrimaryKeys[0];

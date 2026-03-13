@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text.Json;
 using AppBoxCore;
@@ -253,7 +254,7 @@ internal sealed class BuildContext
     internal void AddModelToAssembly(ModelId modelId, AssemblyInfo assemblyInfo) =>
         _assemblyInfos.Add(modelId, assemblyInfo);
 
-    internal bool HasAssemblyInfo(ModelId modelId, out AssemblyInfo assemblyInfo) =>
+    internal bool HasAssemblyInfo(ModelId modelId, [MaybeNullWhen(false)]out AssemblyInfo assemblyInfo) =>
         _assemblyInfos.TryGetValue(modelId, out assemblyInfo);
 
     internal async ValueTask<ModelInfo> GetOrMakeModelInfo(ModelNode modelNode)
@@ -292,7 +293,7 @@ internal sealed class BuildContext
 
         var entityRefs = entityModel.Members
             .Where(m => m.Type == EntityMemberType.EntityRef)
-            .Cast<EntityRefModel>();
+            .Cast<EntityRefMember>();
         foreach (var entityRef in entityRefs)
         {
             foreach (var refModelId in entityRef.RefModelIds)
@@ -304,7 +305,7 @@ internal sealed class BuildContext
 
         var entitySets = entityModel.Members
             .Where(m => m.Type == EntityMemberType.EntitySet)
-            .Cast<EntitySetModel>();
+            .Cast<EntitySetMember>();
         foreach (var entitySet in entitySets)
         {
             if (entitySet.RefModelId == entityModel.Id || usages.Any(n => n.Model.Id == entitySet.RefModelId)) continue;
@@ -331,7 +332,7 @@ internal sealed class LinksContext
         }
         else
         {
-            var newLinks = _currentStack.Peek()!.Clone();
+            var newLinks = _currentStack.Peek().Clone();
             newLinks.Add(modelInfo);
             _currentStack.Push(newLinks);
         }
@@ -354,7 +355,7 @@ internal sealed class LinksContext
     public void AddCurrentLinks()
     {
         _links ??= new List<ModelLinks>();
-        _links.Add(_currentStack.Peek()!);
+        _links.Add(_currentStack.Peek());
     }
 
     public List<ModelLinks> GetAndResetLinks()

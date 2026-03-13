@@ -677,7 +677,7 @@ public abstract class SqlStore
         {
             if (member.Type != EntityMemberType.EntityField) continue;
 
-            var entityField = (EntityFieldModel)member;
+            var entityField = (EntityFieldMember)member;
             entity.WriteMember(entityField.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
             if (cmd.Parameters.Count > parasCount) //已写入实体成员
             {
@@ -715,7 +715,7 @@ public abstract class SqlStore
         {
             if (member.Type != EntityMemberType.EntityField) continue;
 
-            var entityField = (EntityFieldModel)member;
+            var entityField = (EntityFieldMember)member;
             if (!row.HasValue(entityField.Name)) continue;
 
             var para = cmd.CreateParameter();
@@ -762,7 +762,7 @@ public abstract class SqlStore
         {
             if (mm.Type != EntityMemberType.EntityField) continue;
 
-            var dfm = (EntityFieldModel)mm;
+            var dfm = (EntityFieldMember)mm;
             if (!entity.IsMemberChanged(dfm.MemberId)) continue; //字段值无改变
 
             entity.WriteMember(mm.MemberId, ref entityMemberWriter, EntityMemberWriteFlags.None);
@@ -802,7 +802,7 @@ public abstract class SqlStore
         {
             if (mm.Type != EntityMemberType.EntityField) continue;
 
-            var dfm = (EntityFieldModel)mm;
+            var dfm = (EntityFieldMember)mm;
 
             if (!row.HasChanged(mm.Name)) continue; //字段值无改变
 
@@ -874,7 +874,7 @@ public abstract class SqlStore
         for (var i = 0; i < pks.Length; i++)
         {
             var pk = pks[i];
-            var mm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
+            var mm = (EntityFieldMember)model.GetMember(pk.MemberId)!;
 
             var memberId = pk.MemberId;
             if (!forFetch && pk.AllowChange && entity.IsMemberChanged(pk.MemberId))
@@ -900,7 +900,7 @@ public abstract class SqlStore
         for (var i = 0; i < pks.Length; i++)
         {
             var pk = pks[i];
-            var mm = (EntityFieldModel)model.GetMember(pk.MemberId)!;
+            var mm = (EntityFieldMember)model.GetMember(pk.MemberId)!;
 
             object? pkValue;
             var oriName = $"${mm.Name}";

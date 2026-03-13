@@ -21,7 +21,7 @@ public interface ISqlSelectQuery : ISqlQuery
     /// <summary>
     /// 仅用于树结构查询
     /// </summary>
-    EntityRefModel? TreeParentMember { get; }
+    EntityRefMember? TreeParentMember { get; }
 
     IList<SqlSelectItemExpression>? Selects { get; }
 

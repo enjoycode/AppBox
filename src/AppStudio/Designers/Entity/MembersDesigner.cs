@@ -6,8 +6,8 @@ namespace AppBoxDesign;
 internal sealed class MembersDesigner : View
 {
     public MembersDesigner(EntityModel entityModel,
-        DataGridController<EntityMemberModel> membersController,
-        State<EntityMemberModel?> selectedMember)
+        DataGridController<EntityMember> membersController,
+        State<EntityMember?> selectedMember)
     {
         var color = new Color(0xFFF3F3F3);
 
@@ -16,7 +16,7 @@ internal sealed class MembersDesigner : View
             Fixed = Splitter.FixedPanel.Panel2,
             Distance = 280,
             SplitterColor = color,
-            Panel1 = new DataGrid<EntityMemberModel>(membersController)
+            Panel1 = new DataGrid<EntityMember>(membersController)
                 .AddTextColumn("Name", v => v.Name, 150)
                 .AddTextColumn("Type", MemberTypeToString, 200)
                 .AddCheckboxColumn("AllowNull", v => v.AllowNull, width: 90)
@@ -30,10 +30,10 @@ internal sealed class MembersDesigner : View
         };
     }
 
-    private static string MemberTypeToString(EntityMemberModel member)
+    private static string MemberTypeToString(EntityMember member)
     {
         if (member.Type == EntityMemberType.EntityField)
-            return $"{member.Type.ToString()} - {((EntityFieldModel)member).FieldType.ToString()}";
+            return $"{member.Type.ToString()} - {((EntityFieldMember)member).FieldType.ToString()}";
         //TODO: EntityRef and EntitySet attach target entity name
         return member.Type.ToString();
     }

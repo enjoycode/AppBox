@@ -34,7 +34,7 @@ internal static class EntityCsGenerator
             switch (member.Type)
             {
                 case EntityMemberType.EntityField:
-                    GenRxEntityFieldMember((EntityFieldModel)member, sb);
+                    GenRxEntityFieldMember((EntityFieldMember)member, sb);
                     break;
                 // TODO:
                 // case EntityMemberType.EntityRef:
@@ -50,7 +50,7 @@ internal static class EntityCsGenerator
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
-    private static void GenRxEntityFieldMember(EntityFieldModel field, StringBuilder sb)
+    private static void GenRxEntityFieldMember(EntityFieldMember field, StringBuilder sb)
     {
         sb.Append("public State<");
         sb.Append(GetEntityFieldTypeString(field));
@@ -78,16 +78,16 @@ internal static class EntityCsGenerator
             switch (member.Type)
             {
                 case EntityMemberType.EntityField:
-                    GenEntityFieldMember((EntityFieldModel)member, sb);
+                    GenEntityFieldMember((EntityFieldMember)member, sb);
                     break;
                 case EntityMemberType.EntityFieldTracker:
-                    GenFieldTrackerMember((FieldTrackerModel)member, sb);
+                    GenFieldTrackerMember((EntityTrackerMember)member, sb);
                     break;
                 case EntityMemberType.EntityRef:
-                    GenEntityRefMember((EntityRefModel)member, sb, modelNode.DesignTree!);
+                    GenEntityRefMember((EntityRefMember)member, sb, modelNode.DesignTree!);
                     break;
                 case EntityMemberType.EntitySet:
-                    GenEntitySetMember((EntitySetModel)member, sb, modelNode.DesignTree!);
+                    GenEntitySetMember((EntitySetMember)member, sb, modelNode.DesignTree!);
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
@@ -122,7 +122,7 @@ internal static class EntityCsGenerator
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
-    private static void GenEntityFieldMember(EntityFieldModel field, StringBuilder sb)
+    private static void GenEntityFieldMember(EntityFieldMember field, StringBuilder sb)
     {
         var typeString = GetEntityFieldTypeString(field);
         if (field.Owner.DataStoreKind == DataStoreKind.None)
@@ -152,7 +152,7 @@ internal static class EntityCsGenerator
 
             //如果存在相应的跟踪值成员，则先跟踪旧值
             var tracker = field.Owner.Members.SingleOrDefault(m =>
-                m is FieldTrackerModel tracker && tracker.TargetMemberId == field.MemberId);
+                m is EntityTrackerMember tracker && tracker.TargetMemberId == field.MemberId);
             if (tracker != null)
                 sb.Append($"\t\t\t{tracker.Name} = _{field.Name};\n");
 
@@ -164,7 +164,7 @@ internal static class EntityCsGenerator
         }
     }
 
-    private static void GenFieldTrackerMember(FieldTrackerModel tracker, StringBuilder sb)
+    private static void GenFieldTrackerMember(EntityTrackerMember tracker, StringBuilder sb)
     {
         var target = tracker.Target;
         var targetTypeString = GetEntityFieldTypeString(target);
@@ -189,7 +189,7 @@ internal static class EntityCsGenerator
         sb.Append("\t}\n"); //prop end
     }
 
-    private static void GenEntityRefMember(EntityRefModel entityRef, StringBuilder sb, DesignTree tree)
+    private static void GenEntityRefMember(EntityRefMember entityRef, StringBuilder sb, DesignTree tree)
     {
         var refModelNode = tree.FindModelNode(entityRef.RefModelIds[0])!;
         var typeString = entityRef.IsAggregationRef
@@ -220,7 +220,7 @@ internal static class EntityCsGenerator
                     sb.Append($"\t\t\t\t{typeMember.Name} = null;\n");
                     for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
                     {
-                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        var fkMember = (EntityFieldMember)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
                         if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
                         sb.Append($"\t\t\t\t{fkMember.Name} = null;\n");
                     }
@@ -240,7 +240,7 @@ internal static class EntityCsGenerator
                     sb.Append($"\t\t\t\t{typeMember.Name} = {refModel.Id.Value.ToString()}L;\n");
                     for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
                     {
-                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        var fkMember = (EntityFieldMember)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
                         if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
                         var pkMember = refModel.GetMember(refPks[i].MemberId)!;
                         sb.Append($"\t\t\t\t{fkMember.Name} = _{refModel.Name}.{pkMember.Name};\n");
@@ -279,7 +279,7 @@ internal static class EntityCsGenerator
         sb.Append("\t}\n"); //prop end
     }
 
-    private static void GenEntitySetMember(EntitySetModel entitySet, StringBuilder sb, DesignTree tree)
+    private static void GenEntitySetMember(EntitySetMember entitySet, StringBuilder sb, DesignTree tree)
     {
         var refNode = tree.FindModelNode(entitySet.RefModelId)!;
         var refModel = (EntityModel)refNode.Model;
@@ -304,7 +304,7 @@ internal static class EntityCsGenerator
     {
         var trackers = model.Members
             .Where(m => m.Type == EntityMemberType.EntityFieldTracker)
-            .Cast<FieldTrackerModel>().ToArray();
+            .Cast<EntityTrackerMember>().ToArray();
         if (trackers.Length == 0) return;
 
         sb.Append("protected override void AcceptTrackerChanges(){\n");
@@ -367,7 +367,7 @@ internal static class EntityCsGenerator
                     break;
                 case EntityMemberType.EntityRef:
                 {
-                    var entityRef = (EntityRefModel)member;
+                    var entityRef = (EntityRefMember)member;
                     if (entityRef.IsAggregationRef)
                     {
                         var typeMember = model.GetMember(entityRef.TypeMemberId)!;
@@ -398,7 +398,7 @@ internal static class EntityCsGenerator
                 }
                 case EntityMemberType.EntitySet:
                 {
-                    var entitySet = (EntitySetModel)member;
+                    var entitySet = (EntitySetMember)member;
                     var refNode = tree.FindModelNode(entitySet.RefModelId)!;
                     var refModel = (EntityModel)refNode.Model;
                     var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
@@ -465,7 +465,7 @@ internal static class EntityCsGenerator
         for (var i = 0; i < pks.Length; i++)
         {
             if (i != 0) sb.Append(',');
-            var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
+            var dfm = (EntityFieldMember)model.GetMember(pks[i].MemberId)!;
             sb.Append(GetEntityFieldTypeString(dfm));
             sb.Append(' ');
             sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
@@ -482,7 +482,7 @@ internal static class EntityCsGenerator
             for (var i = 0; i < pks.Length; i++)
             {
                 if (i != 0) sb.Append(',');
-                var dfm = (EntityFieldModel)model.GetMember(pks[i].MemberId)!;
+                var dfm = (EntityFieldMember)model.GetMember(pks[i].MemberId)!;
                 sb.Append($"{dfm.Name} = {CodeUtil.ToLowCamelCase(dfm.Name)}");
             }
 
@@ -507,7 +507,7 @@ internal static class EntityCsGenerator
         };
     }
 
-    private static string GetEntityFieldTypeString(EntityFieldModel field)
+    private static string GetEntityFieldTypeString(EntityFieldMember field)
     {
         var typeString = field.FieldType switch
         {

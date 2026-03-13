@@ -261,13 +261,13 @@ internal sealed class BuildQueryContext
             AppendFormat(" Left Join \"{0}\" {1} On ",
                 rqModel.SqlStoreOptions!.GetSqlTableName(false, null), rq.AliasName!);
             //Build ON Condition, other.pks == this.fks
-            var rm = (EntityRefModel)rqOwnerModel.GetMember(rq.Name, true)!;
+            var rm = (EntityRefMember)rqOwnerModel.GetMember(rq.Name, true)!;
             for (var i = 0; i < rqModel.SqlStoreOptions.PrimaryKeys.Length; i++)
             {
                 if (i != 0) Append(" And ");
-                var pk = (EntityFieldModel)rqModel.GetMember(
+                var pk = (EntityFieldMember)rqModel.GetMember(
                     rqModel.SqlStoreOptions.PrimaryKeys[i].MemberId, true)!;
-                var fk = (EntityFieldModel)rqOwnerModel.GetMember(rm.FKMemberIds[i], true)!;
+                var fk = (EntityFieldMember)rqOwnerModel.GetMember(rm.FKMemberIds[i], true)!;
                 AppendFormat("{0}.\"{1}\"={2}.\"{3}\"", rq.AliasName!, pk.SqlColName,
                     rq.Owner.AliasName!, fk.SqlColName);
             }

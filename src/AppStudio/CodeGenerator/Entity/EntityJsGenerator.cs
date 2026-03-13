@@ -41,16 +41,16 @@ public static class EntityJsGenerator
             switch (member.Type)
             {
                 case EntityMemberType.EntityField:
-                    GenWebEntityFieldMember((EntityFieldModel)member, sb);
+                    GenWebEntityFieldMember((EntityFieldMember)member, sb);
                     break;
                 case EntityMemberType.EntityRef:
-                    GenWebEntityRefMember((EntityRefModel)member, ctx, sb);
+                    GenWebEntityRefMember((EntityRefMember)member, ctx, sb);
                     break;
                 case EntityMemberType.EntitySet:
-                    GenWebEntitySetMember((EntitySetModel)member, ctx, sb);
+                    GenWebEntitySetMember((EntitySetMember)member, ctx, sb);
                     break;
                 case EntityMemberType.EntityFieldTracker:
-                    GenWebEntityFieldTrackerMember((FieldTrackerModel)member, sb);
+                    GenWebEntityFieldTrackerMember((EntityTrackerMember)member, sb);
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
@@ -182,7 +182,7 @@ public static class EntityJsGenerator
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
-    private static void GenWebEntityFieldMember(EntityFieldModel field, StringBuilder sb)
+    private static void GenWebEntityFieldMember(EntityFieldMember field, StringBuilder sb)
     {
         //TODO:默认值生成
         sb.Append($"\t_{field.Name}; ");
@@ -200,7 +200,7 @@ public static class EntityJsGenerator
 
         //如果存在相应的跟踪值成员，则先跟踪旧值
         var tracker = field.Owner.Members.SingleOrDefault(m =>
-            m is FieldTrackerModel tracker && tracker.TargetMemberId == field.MemberId);
+            m is EntityTrackerMember tracker && tracker.TargetMemberId == field.MemberId);
         if (tracker != null)
         {
             sb.Append($"if (this.PersistentState != PersistentState.Detached && this._{tracker.Name} == null)");
@@ -213,12 +213,12 @@ public static class EntityJsGenerator
         sb.Append("}\n");
     }
 
-    private static void GenWebEntityFieldTrackerMember(FieldTrackerModel tracker, StringBuilder sb)
+    private static void GenWebEntityFieldTrackerMember(EntityTrackerMember tracker, StringBuilder sb)
     {
         sb.Append($"\t_{tracker.Name};\n");
     }
 
-    private static void GenWebEntityRefMember(EntityRefModel entityRef, IModelContainer ctx, StringBuilder sb)
+    private static void GenWebEntityRefMember(EntityRefMember entityRef, IModelContainer ctx, StringBuilder sb)
     {
         var name = entityRef.Name;
         sb.Append($"\t_{name}; ");
@@ -238,7 +238,7 @@ public static class EntityJsGenerator
                     sb.Append($"{typeMember.Name} = null;");
                     for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
                     {
-                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        var fkMember = (EntityFieldMember)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
                         if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
                         sb.Append($"{fkMember.Name} = null;");
                     }
@@ -256,7 +256,7 @@ public static class EntityJsGenerator
                     sb.Append($"this.{typeMember.Name} = {refModelId.ToString()}n;");
                     for (var i = 0; i < entityRef.FKMemberIds.Length; i++)
                     {
-                        var fkMember = (EntityFieldModel)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
+                        var fkMember = (EntityFieldMember)entityRef.Owner.GetMember(entityRef.FKMemberIds[i])!;
                         if (fkMember.IsPrimaryKey) continue; //暂OrgUnit特例
                         var pkMember = refModel.GetMember(refPks[i].MemberId)!;
                         sb.Append($"this.{fkMember.Name} = _{refModel.Name}.{pkMember.Name};");
@@ -293,7 +293,7 @@ public static class EntityJsGenerator
         sb.Append("}\n");
     }
 
-    private static void GenWebEntitySetMember(EntitySetModel entitySet, IModelContainer ctx, StringBuilder sb)
+    private static void GenWebEntitySetMember(EntitySetMember entitySet, IModelContainer ctx, StringBuilder sb)
     {
         var name = entitySet.Name;
         var refModel = ctx.GetEntityModel(entitySet.RefModelId);
@@ -309,7 +309,7 @@ public static class EntityJsGenerator
     {
         var trackers = model.Members
             .Where(m => m.Type == EntityMemberType.EntityFieldTracker)
-            .Cast<FieldTrackerModel>().ToArray();
+            .Cast<EntityTrackerMember>().ToArray();
         if (trackers.Length == 0) return;
 
         sb.Append("\n\tAcceptTrackerChanges(){");

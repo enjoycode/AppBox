@@ -13,9 +13,9 @@ public class ChangePrimaryKeyTest
     {
         var model = new EntityModel(0, "TestModel");
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId, null);
-        var id = new EntityFieldModel(model, "Id", EntityFieldType.Guid, false);
-        var code = new EntityFieldModel(model, "Code", EntityFieldType.String, false);
-        var name = new EntityFieldModel(model, "Name", EntityFieldType.String, false);
+        var id = new EntityFieldMember(model, "Id", EntityFieldType.Guid, false);
+        var code = new EntityFieldMember(model, "Code", EntityFieldType.String, false);
+        var name = new EntityFieldMember(model, "Name", EntityFieldType.String, false);
         model.AddMember(id);
         model.AddMember(code);
         model.AddMember(name);
@@ -25,7 +25,7 @@ public class ChangePrimaryKeyTest
         var pk1 = new[] { new PrimaryKeyField(code.MemberId, true) };
         ChangePrimaryKeys.Run(model, pk1);
         var tracker1 = model.GetMember("OriginalCode", false);
-        Assert.True(tracker1 is FieldTrackerModel tracker && tracker.TargetMemberId == code.MemberId);
+        Assert.True(tracker1 is EntityTrackerMember tracker && tracker.TargetMemberId == code.MemberId);
         Assert.True(model.SqlStoreOptions!.PrimaryKeys[0].TrackerMemberId == tracker1!.MemberId);
 
         //PK = [Id, Code-Changeable]
@@ -36,13 +36,13 @@ public class ChangePrimaryKeyTest
         };
         ChangePrimaryKeys.Run(model, pk2);
         var tracker2 = model.GetMember("OriginalCode", false);
-        Assert.True(tracker2 is FieldTrackerModel && ReferenceEquals(tracker1, tracker2));
+        Assert.True(tracker2 is EntityTrackerMember && ReferenceEquals(tracker1, tracker2));
 
         //PK = [Name-Changeable]
         var pk3 = new[] { new PrimaryKeyField(name.MemberId, true) };
         ChangePrimaryKeys.Run(model, pk3);
         Assert.True(model.GetMember("OriginalCode", false) == null);
-        Assert.True(model.GetMember("OriginalName", false) is FieldTrackerModel t && t.TargetMemberId == name.MemberId);
+        Assert.True(model.GetMember("OriginalName", false) is EntityTrackerMember t && t.TargetMemberId == name.MemberId);
 
         //PK = [Name]
         var pk4 = new[] { new PrimaryKeyField(name.MemberId, false) };

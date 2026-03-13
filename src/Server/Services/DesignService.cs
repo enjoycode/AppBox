@@ -116,7 +116,7 @@ internal sealed class DesignService : IService
 
         var fields = model.Members
             .Where(m => m.Type == EntityMemberType.EntityField)
-            .Cast<EntityFieldModel>()
+            .Cast<EntityFieldMember>()
             .ToArray();
 
         var q = new DynamicQuery() { ModelId = modelId };

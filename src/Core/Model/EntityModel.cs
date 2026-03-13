@@ -14,19 +14,19 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     private short _devMemberIdSeq;
     private short _usrMemberIdSeq;
-    private readonly List<EntityMemberModel> _members = new(); ////注意已按memberId排序
-    private IEntityStoreOptions? _storeOptions;
+    private readonly List<EntityMember> _members = new(); ////注意已按memberId排序
 
-    public IReadOnlyList<EntityMemberModel> Members => _members;
+    public IReadOnlyList<EntityMember> Members => _members;
 
-    public DataStoreKind DataStoreKind => _storeOptions?.Kind ?? DataStoreKind.None;
+    public DataStoreKind DataStoreKind => StoreOptions?.Kind ?? DataStoreKind.None;
 
-    public IEntityStoreOptions? StoreOptions => _storeOptions;
-    public SqlStoreOptions? SqlStoreOptions => _storeOptions as SqlStoreOptions;
+    public IEntityStoreOptions? StoreOptions { get; private set; }
+
+    public SqlStoreOptions? SqlStoreOptions => StoreOptions as SqlStoreOptions;
 
     #region ====GetMember Methods====
 
-    public EntityMemberModel? GetMember(ReadOnlySpan<char> name, bool throwOnNotExists = true)
+    public EntityMember? GetMember(ReadOnlySpan<char> name, bool throwOnNotExists = true)
     {
         foreach (var t in Members)
         {
@@ -39,7 +39,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         return null;
     }
 
-    public EntityMemberModel? GetMember(short id, bool throwOnNotExists = true)
+    public EntityMember? GetMember(short id, bool throwOnNotExists = true)
     {
         var m = _members.SingleOrDefault(t => t.MemberId == id);
         if (m == null && throwOnNotExists)
@@ -47,7 +47,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         return m;
     }
 
-    private EntityMemberModel? BinarySearch(short id)
+    private EntityMember? BinarySearch(short id)
     {
         var low = 0;
         var high = _members.Count - 1;
@@ -78,13 +78,13 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     internal void BindToSqlStore(long storeId, string? tableNamePrefix)
     {
-        _storeOptions = new SqlStoreOptions(this, storeId, tableNamePrefix);
+        StoreOptions = new SqlStoreOptions(this, storeId, tableNamePrefix);
     }
 
     /// <summary>
     /// Only for StoreInitiator
     /// </summary>
-    internal void AddSysMember(EntityMemberModel member, short id)
+    internal void AddSysMember(EntityMember member, short id)
     {
         CheckDesignMode();
         member.InitMemberId(id); //已处理Layer标记
@@ -92,7 +92,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         _members.Sort((a, b) => a.MemberId.CompareTo(b.MemberId));
     }
 
-    internal void AddMember(EntityMemberModel member, bool byImport = false)
+    internal void AddMember(EntityMember member, bool byImport = false)
     {
         CheckDesignMode();
         Debug.Assert(member.Owner == this);
@@ -123,14 +123,14 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
     /// <summary>
     /// 删除成员，如果是EntityRef包含其隐藏成员
     /// </summary>
-    internal void RemoveMember(EntityMemberModel member)
+    internal void RemoveMember(EntityMember member)
     {
         CheckDesignMode();
 
         //如果实体是新建的或成员是新建的直接移除
         if (PersistentState == PersistentState.Detached || member.PersistentState == PersistentState.Detached)
         {
-            if (member is EntityRefModel entityRef)
+            if (member is EntityRefMember entityRef)
             {
                 foreach (var fk in entityRef.FKMemberIds)
                 {
@@ -140,12 +140,12 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
                 if (entityRef.IsAggregationRef)
                     _members.Remove(GetMember(entityRef.TypeMemberId)!);
             }
-            else if (member is EntityFieldModel)
+            else if (member is EntityFieldMember)
             {
                 //同时删除可能存在的跟踪成员
                 var tracker = _members
                     .SingleOrDefault(m => m.Type == EntityMemberType.EntityFieldTracker &&
-                                          ((FieldTrackerModel)m).TargetMemberId == member.MemberId);
+                                          ((EntityTrackerMember)m).TargetMemberId == member.MemberId);
                 if (tracker != null)
                     _members.Remove(tracker);
             }
@@ -156,22 +156,22 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
         //否则仅标为删除状态
         member.AsDeleted();
-        if (member is EntityRefModel entityRefModel)
+        if (member is EntityRefMember entityRefMember)
         {
-            foreach (var fk in entityRefModel.FKMemberIds)
+            foreach (var fk in entityRefMember.FKMemberIds)
             {
                 GetMember(fk)!.AsDeleted();
             }
 
-            if (entityRefModel.IsAggregationRef)
-                GetMember(entityRefModel.TypeMemberId)!.AsDeleted();
+            if (entityRefMember.IsAggregationRef)
+                GetMember(entityRefMember.TypeMemberId)!.AsDeleted();
         }
-        else if (member is EntityFieldModel)
+        else if (member is EntityFieldMember)
         {
             //同时删除可能存在的跟踪成员
             var tracker = _members
                 .SingleOrDefault(m => m.Type == EntityMemberType.EntityFieldTracker &&
-                                      ((FieldTrackerModel)m).TargetMemberId == member.MemberId);
+                                      ((EntityTrackerMember)m).TargetMemberId == member.MemberId);
             tracker?.AsDeleted();
         }
 
@@ -263,8 +263,8 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         }
 
         //写入存储配置
-        ws.WriteByte(_storeOptions == null ? (byte)0 : (byte)_storeOptions.Kind);
-        _storeOptions?.WriteTo(ws);
+        ws.WriteByte(StoreOptions == null ? (byte)0 : (byte)StoreOptions.Kind);
+        StoreOptions?.WriteTo(ws);
 
         if (IsDesignMode)
         {
@@ -292,8 +292,8 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         var storeType = rs.ReadByte();
         if (storeType != 0)
         {
-            _storeOptions = MakeStoreOptionsByType(storeType);
-            _storeOptions.ReadFrom(rs);
+            StoreOptions = MakeStoreOptionsByType(storeType);
+            StoreOptions.ReadFrom(rs);
         }
 
         if (IsDesignMode)
@@ -305,12 +305,12 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         rs.ReadVariant(); //保留
     }
 
-    private EntityMemberModel MakeMemberByType(byte memberType) => (EntityMemberType)memberType switch
+    private EntityMember MakeMemberByType(byte memberType) => (EntityMemberType)memberType switch
     {
-        EntityMemberType.EntityField => new EntityFieldModel(this),
-        EntityMemberType.EntityFieldTracker => new FieldTrackerModel(this),
-        EntityMemberType.EntityRef => new EntityRefModel(this),
-        EntityMemberType.EntitySet => new EntitySetModel(this),
+        EntityMemberType.EntityField => new EntityFieldMember(this),
+        EntityMemberType.EntityFieldTracker => new EntityTrackerMember(this),
+        EntityMemberType.EntityRef => new EntityRefMember(this),
+        EntityMemberType.EntitySet => new EntitySetMember(this),
         _ => throw new NotImplementedException(memberType.ToString())
     };
 
@@ -331,7 +331,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         //判断当前对象有没有EntityRef引用成员至目标对象, 如果引用则大于other对象
         var refs = Members
             .Where(t => t.Type == EntityMemberType.EntityRef)
-            .Cast<EntityRefModel>();
+            .Cast<EntityRefMember>();
         if (refs.Any(rm => rm.RefModelIds.Any(refModelId => refModelId == other.Id)))
         {
             return other.PersistentState == PersistentState.Deleted ? -1 : 1;
@@ -340,7 +340,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         //反过来判断,应该不需要
         var otherRefs = other.Members
             .Where(t => t.Type == EntityMemberType.EntityRef)
-            .Cast<EntityRefModel>();
+            .Cast<EntityRefMember>();
         if (otherRefs.Any(m => m.RefModelIds.Any()))
         {
             return other.PersistentState == PersistentState.Deleted ? 1 : -1;

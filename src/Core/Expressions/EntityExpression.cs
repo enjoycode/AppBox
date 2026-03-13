@@ -25,7 +25,7 @@ public sealed class EntityExpression : EntityPathExpression
     }
 
     /// <summary>
-    /// New EntityRefModel's EntityExpression
+    /// New EntityRefMember's EntityExpression
     /// </summary>
     private EntityExpression(string name, ModelId modelId, EntityExpression owner) : base(name, owner)
     {
@@ -93,15 +93,15 @@ public sealed class EntityExpression : EntityPathExpression
                         exp = new EntityFieldExpression(name, this);
                         break;
                     case EntityMemberType.EntityRef:
-                        var rm = (EntityRefModel)m;
+                        var rm = (EntityRefMember)m;
                         if (!rm.IsAggregationRef)
                             exp = new EntityExpression(name, rm.RefModelIds[0], this);
                         else
                             throw new NotImplementedException("尚未实现聚合引用对象的表达式");
                         break;
                     case EntityMemberType.EntitySet:
-                        var sm = (EntitySetModel)m;
-                        //EntityRefModel erm = esm.RefModel[esm.RefMemberName] as EntityRefModel;
+                        var sm = (EntitySetMember)m;
+                        //var erm = esm.RefModel[esm.RefMemberName] as EntityRefMember;
                         exp = new EntitySetExpression(name, this, sm.RefModelId);
                         break;
                     //case EntityMemberType.AggregationRefField:

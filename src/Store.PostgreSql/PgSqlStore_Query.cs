@@ -730,7 +730,7 @@ partial class PgSqlStore
             {
                 var e = (EntityFieldExpression)exp;
                 var model = RuntimeContext.GetModel<EntityModel>(e.Owner!.ModelId);
-                var fieldModel = (EntityFieldModel)model.GetMember(e.Name, true)!;
+                var fieldModel = (EntityFieldMember)model.GetMember(e.Name, true)!;
                 return fieldModel.FieldType == EntityFieldType.String;
             }
             case ExpressionType.ConstantExpression:

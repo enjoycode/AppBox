@@ -1,22 +1,22 @@
 namespace AppBoxCore;
 
-public sealed class EntityRefModel : EntityMemberModel, IModelReference
+public sealed class EntityRefMember : EntityMember, IModelReference
 {
     #region ====Ctor====
 
-    internal EntityRefModel(EntityModel owner) : base(owner, string.Empty, false) { }
+    internal EntityRefMember(EntityModel owner) : base(owner, string.Empty, false) { }
 
     /// <summary>
     /// 设计时新建非聚合引用成员
     /// </summary>
-    public EntityRefModel(EntityModel owner, string name, ModelId refModelId,
+    public EntityRefMember(EntityModel owner, string name, ModelId refModelId,
         short[] fkMemberIds, bool allowNull = true, bool foreignConstraint = true) 
         : base(owner, name, allowNull)
     {
         if (fkMemberIds == null || fkMemberIds.Length == 0)
             throw new ArgumentNullException(nameof(fkMemberIds));
 
-        RefModelIds = new List<long> { refModelId };
+        RefModelIds = [refModelId];
         IsReverse = false;
         FKMemberIds = fkMemberIds;
         TypeMemberId = 0;
@@ -26,7 +26,7 @@ public sealed class EntityRefModel : EntityMemberModel, IModelReference
     /// <summary>
     /// 设计时新建聚合引用成员
     /// </summary>
-    public EntityRefModel(EntityModel owner, string name, List<long> refModelIds,
+    public EntityRefMember(EntityModel owner, string name, List<long> refModelIds,
         short[] fkMemberIds, short typeMemberId, bool allowNull = true, bool foreignConstraint = true)
         : base(owner, name, allowNull)
     {
@@ -127,16 +127,16 @@ public sealed class EntityRefModel : EntityMemberModel, IModelReference
         {
             if (RefModelIds.Contains(modelId))
                 list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntityRefModel_RefModelID, Name, string.Empty));
+                    ModelReferencePosition.EntityRefMember_RefModelID, Name, string.Empty));
         }
         else if (referenceType == ModelReferenceType.EntityMember && modelId == Owner.Id)
         {
             if (FKMemberIds.Contains(entityMemberId!.Value))
                 list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntityRefModel_IDMember, Name, memberName!));
+                    ModelReferencePosition.EntityRefMember_IDMember, Name, memberName!));
             else if (TypeMemberId == entityMemberId.Value)
                 list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntityRefModel_TypeMember, Name, memberName!));
+                    ModelReferencePosition.EntityRefMember_TypeMember, Name, memberName!));
         }
     }
 
