@@ -91,12 +91,12 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private async void OnAddMember(PointerEvent e)
     {
-        var dlg = new NewEntityMemberDialog(ModelNode);
-        var dlgResult = await dlg.ShowAsync();
-        if (dlgResult != DialogResult.OK) return;
-
         try
         {
+            var dlg = new NewEntityMemberDialog(ModelNode);
+            var dlgResult = await dlg.ShowAsync();
+            if (dlgResult != DialogResult.OK) return;
+
             var members = dlg.GetNewMembers();
             foreach (var member in members)
             {

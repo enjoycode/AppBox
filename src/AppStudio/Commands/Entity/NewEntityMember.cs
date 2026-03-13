@@ -129,6 +129,8 @@ internal static class NewEntityMember
 
     internal static EntitySetMember NewEntitySet(ModelNode node, string name, ModelId refModelId, short refMemberId)
     {
+        Validate(node, name);
+
         //验证引用目标是否存在
         var target = DesignHub.Current.DesignTree.FindModelNode(refModelId);
         if (target == null)
@@ -143,5 +145,43 @@ internal static class NewEntityMember
         model.AddMember(entitySet);
 
         return entitySet;
+    }
+
+    internal static EntityRefFieldMember NewEntityRefField(ModelNode node, string name, string path)
+    {
+        Validate(node, name);
+
+        var model = (EntityModel)node.Model;
+        //验证路径
+        if (!path.Contains('.')) throw new ArgumentException("path invalid.");
+        var items = path.Split('.');
+        var refFieldPath = new short[items.Length];
+        var currentModel = model;
+        for (var i = 0; i < items.Length; i++)
+        {
+            var member = currentModel.GetMember(items[i], false);
+            if (member == null)
+                throw new ArgumentException("Can't find member");
+            refFieldPath[i] = member.MemberId;
+            if (i == items.Length - 1)
+            {
+                if (member.Type != EntityMemberType.EntityField)
+                    throw new ArgumentException("Last member must be EntityField");
+            }
+            else
+            {
+                if (member is not EntityRefMember entityRefMember)
+                    throw new ArgumentException("None last member must be EntityRef");
+                if (entityRefMember.IsAggregationRef)
+                    throw new NotImplementedException("Aggregation is not implemented");
+
+                currentModel = (EntityModel)DesignHub.Current.DesignTree
+                    .FindModelNode(entityRefMember.RefModelIds[0])!.Model;
+            }
+        }
+
+        var result = new EntityRefFieldMember(model, name, refFieldPath);
+        model.AddMember(result);
+        return result;
     }
 }

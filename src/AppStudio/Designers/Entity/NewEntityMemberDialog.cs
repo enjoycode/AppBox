@@ -16,7 +16,7 @@ internal sealed class NewEntityMemberDialog : Dialog
         Title.Value = "New Entity Member";
     }
 
-    private static readonly string[] MemberTypes = ["EntityField", "EntityRef", "EntitySet"];
+    private static readonly string[] MemberTypes = ["EntityField", "EntityRef", "EntitySet", "EntityRefField"];
 
     private static readonly string[] FieldTypes =
         ["String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Binary"];
@@ -28,84 +28,91 @@ internal sealed class NewEntityMemberDialog : Dialog
     private readonly State<string> _fieldType = FieldTypes[0];
     private readonly State<ModelNode?> _entityRefTarget = new RxValue<ModelNode?>(null);
     private readonly State<EntityMemberInfo?> _entitySetTarget = new RxValue<EntityMemberInfo?>(null);
+    private readonly State<string> _refFieldPath = "";
 
-    protected override Widget BuildBody()
+    protected override Widget BuildBody() => new Container()
     {
-        return new Container()
+        Padding = EdgeInsets.All(20),
+        Child = new Column()
         {
-            Padding = EdgeInsets.All(20),
-            Child = new Column()
+            Children =
             {
-                Children =
+                new Form()
                 {
-                    new Form()
+                    LabelWidth = 100,
+                    Padding = EdgeInsets.Only(5, 5, 5, 0),
+                    Children =
+                    {
+                        new FormItem("Name:", new TextInput(_name)),
+                        new FormItem("MemberType:", new Select<string>(_memberType!)
+                        {
+                            Options = MemberTypes
+                        })
+                    }
+                },
+                new Conditional<string>(_memberType)
+                    .When(t => t == "EntityField", () => new Form()
                     {
                         LabelWidth = 100,
-                        Padding = EdgeInsets.Only(5, 5, 5, 0),
+                        Padding = EdgeInsets.Only(5, 0, 5, 5),
                         Children =
                         {
-                            new FormItem("Name:", new TextInput(_name)),
-                            new FormItem("MemberType:", new Select<string>(_memberType!)
-                            {
-                                Options = MemberTypes
-                            })
+                            new FormItem("FieldType:",
+                                new Select<string>(_fieldType!) { Options = FieldTypes }),
+                            new FormItem("AllowNull:", new Checkbox(_allowNull))
                         }
-                    },
-                    new Conditional<string>(_memberType)
-                        .When(t => t == "EntityField", () => new Form()
+                    })
+                    .When(t => t == "EntityRef", () => new Form()
+                    {
+                        LabelWidth = 100,
+                        Padding = EdgeInsets.Only(5, 0, 5, 5),
+                        Children =
                         {
-                            LabelWidth = 100,
-                            Padding = EdgeInsets.Only(5, 0, 5, 5),
-                            Children =
-                            {
-                                new FormItem("FieldType:",
-                                    new Select<string>(_fieldType!) { Options = FieldTypes }),
-                                new FormItem("AllowNull:", new Checkbox(_allowNull))
-                            }
-                        })
-                        .When(t => t == "EntityRef", () => new Form()
+                            new FormItem("Target:",
+                                new Select<ModelNode>(_entityRefTarget)
+                                {
+                                    Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
+                                    LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
+                                }),
+                            new FormItem("AllowNull:", new Checkbox(_allowNull))
+                        }
+                    })
+                    .When(t => t == "EntitySet", () => new Form()
+                    {
+                        LabelWidth = 100,
+                        Padding = EdgeInsets.Only(5, 0, 5, 5),
+                        Children =
                         {
-                            LabelWidth = 100,
-                            Padding = EdgeInsets.Only(5, 0, 5, 5),
-                            Children =
-                            {
-                                new FormItem("Target:",
-                                    new Select<ModelNode>(_entityRefTarget)
-                                    {
-                                        Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
-                                        LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
-                                    }),
-                                new FormItem("AllowNull:", new Checkbox(_allowNull))
-                            }
-                        })
-                        .When(t => t == "EntitySet", () => new Form()
+                            new FormItem("Target:", //TODO: 暂简单实现
+                                new Select<EntityMemberInfo>(_entitySetTarget)
+                                {
+                                    Options = DesignStore.GetAllEntityRefs(_modelNode.Id)
+                                })
+                        }
+                    })
+                    .When(t => t == "EntityRefField", () => new Form()
+                    {
+                        LabelWidth = 100,
+                        Padding = EdgeInsets.Only(5, 0, 5, 5),
+                        Children =
                         {
-                            LabelWidth = 100,
-                            Padding = EdgeInsets.Only(5, 0, 5, 5),
-                            Children =
-                            {
-                                new FormItem("Target:",
-                                    new Select<EntityMemberInfo>(_entitySetTarget)
-                                    {
-                                        Options = DesignStore.GetAllEntityRefs(_modelNode.Id)
-                                    })
-                            }
-                        })
-                }
+                            new FormItem("Target:", //TODO: 暂简单实现
+                                new TextInput(_refFieldPath) { HintText = "eg: Customer.Name" }
+                            )
+                        }
+                    })
             }
-        };
-    }
-
-    private int GetMemberTypeValue()
-    {
-        switch (_memberType.Value)
-        {
-            case "EntityField": return (int)EntityMemberType.EntityField;
-            case "EntityRef": return (int)EntityMemberType.EntityRef;
-            case "EntitySet": return (int)EntityMemberType.EntitySet;
-            default: throw new Exception();
         }
-    }
+    };
+
+    private int GetMemberTypeValue() => _memberType.Value switch
+    {
+        "EntityField" => (int)EntityMemberType.EntityField,
+        "EntityRef" => (int)EntityMemberType.EntityRef,
+        "EntitySet" => (int)EntityMemberType.EntitySet,
+        "EntityRefField" => (int)EntityMemberType.EntityRefField,
+        _ => throw new NotSupportedException(_memberType.Value)
+    };
 
     private int GetFieldTypeValue() => _fieldType.Value switch
     {
@@ -144,6 +151,10 @@ internal sealed class NewEntityMemberDialog : Dialog
             [
                 NewEntityMember.NewEntitySet(_modelNode, _name.Value,
                     _entitySetTarget.Value!.ModelId, _entitySetTarget.Value!.MemberId)
+            ],
+            EntityMemberType.EntityRefField =>
+            [
+                NewEntityMember.NewEntityRefField(_modelNode, _name.Value, _refFieldPath.Value)
             ],
             _ => throw new NotImplementedException($"暂未实现的实体成员类型: {memberType}")
         };

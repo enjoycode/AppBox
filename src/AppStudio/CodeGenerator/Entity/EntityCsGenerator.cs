@@ -294,11 +294,11 @@ internal static class EntityCsGenerator
         var typeString = GetEntityFieldTypeString(field);
         if (!typeString.EndsWith('?')) typeString += '?';
 
-        sb.Append($"\tprivate {typeString} _{field.Name};\n");
-        sb.Append($"\tpublic {typeString} {field.Name}\n");
+        sb.Append($"\tprivate {typeString} _{refField.Name};\n");
+        sb.Append($"\tpublic {typeString} {refField.Name}\n");
         sb.Append("\t{\n"); //prop start
         sb.Append($"\t\tget\n");
-        sb.Append("\t\t{"); //prop get start
+        sb.Append("\t\t{\n"); //prop get start
         sb.Append("\t\t\tif (");
         for (var i = 0; i < path.Length - 1; i++)
         {
@@ -315,7 +315,8 @@ internal static class EntityCsGenerator
         }
 
         sb.Append(";\n"); //end if
-        sb.Append("\t\t}"); //prop get end
+        sb.Append($"\t\t\treturn _{refField.Name};\n");
+        sb.Append("\t\t}\n"); //prop get end
 
         sb.Append("\t\tset\n");
         sb.Append("\t\t{\n"); //prop set start
@@ -328,8 +329,8 @@ internal static class EntityCsGenerator
         }
 
         sb.Append(")\n");
-        sb.Append("\t\t{\n");
-        sb.Append("\t\t\t");
+        sb.Append("\t\t\t{\n");
+        sb.Append("\t\t\t\t");
         for (var i = 0; i < path.Length; i++)
         {
             if (i != 0) sb.Append('.');
@@ -337,13 +338,13 @@ internal static class EntityCsGenerator
         }
 
         sb.Append(" = value;\n");
-        sb.Append("\t\t}\n");
-        sb.Append("\t\telse\n");
-        sb.Append("\t\t{\n");
-        sb.Append($"\t\t\t_{field.Name} = value;\n");
+        sb.Append("\t\t\t}\n");
+        sb.Append("\t\t\telse\n");
+        sb.Append("\t\t\t{\n");
+        sb.Append($"\t\t\t\t_{refField.Name} = value;\n");
+        sb.Append("\t\t\t}\n");
+        sb.Append($"\t\t\tRaisePropertyChanged({refField.MemberId});\n");
         sb.Append("\t\t}\n"); //prop set end
-
-        sb.Append($"\t\tRaisePropertyChanged({field.MemberId});\n");
         sb.Append("\t}\n"); //prop end
     }
 
