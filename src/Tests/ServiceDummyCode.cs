@@ -250,7 +250,20 @@ namespace TestNameSpace
 
     public sealed class Order : SqlEntity
     {
-        public Customer Customer { get; set; } = null!;
+        public Customer? Customer { get; set; } = null!;
+
+        private string? _customerName;
+        public string? CustomerName
+        {
+            get => Customer?.Name ??  _customerName;
+            set
+            {
+                if (Customer != null)
+                    Customer.Name = value!;
+                _customerName = value;
+                //Raise OnPropertyChange only
+            }
+        }
 
         public EntitySet<OrderItem> Items { get; }
 

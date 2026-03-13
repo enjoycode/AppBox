@@ -32,6 +32,8 @@ public abstract class Entity : IBinSerializable
 
     protected virtual void OnPropertyChanged(short memberId) => PropertyChanged?.Invoke(memberId);
 
+    protected void RaisePropertyChanged(short memberId) => PropertyChanged?.Invoke(memberId);
+
     #endregion
 
     #region ====Serialization====

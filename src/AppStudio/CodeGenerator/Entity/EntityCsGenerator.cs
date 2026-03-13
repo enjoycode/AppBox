@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using AppBoxCore;
 
@@ -61,6 +62,7 @@ internal static class EntityCsGenerator
     {
         var appName = modelNode.AppNode.Model.Name;
         var model = (EntityModel)modelNode.Model;
+        var designTree = modelNode.DesignTree!;
 
         var sb = StringBuilderCache.Acquire();
         sb.Append("using System;\n");
@@ -81,13 +83,16 @@ internal static class EntityCsGenerator
                     GenEntityFieldMember((EntityFieldMember)member, sb);
                     break;
                 case EntityMemberType.EntityFieldTracker:
-                    GenFieldTrackerMember((EntityTrackerMember)member, sb);
+                    GenEntityTrackerMember((EntityTrackerMember)member, sb);
                     break;
                 case EntityMemberType.EntityRef:
-                    GenEntityRefMember((EntityRefMember)member, sb, modelNode.DesignTree!);
+                    GenEntityRefMember((EntityRefMember)member, sb, designTree);
                     break;
                 case EntityMemberType.EntitySet:
-                    GenEntitySetMember((EntitySetMember)member, sb, modelNode.DesignTree!);
+                    GenEntitySetMember((EntitySetMember)member, sb, designTree);
+                    break;
+                case EntityMemberType.EntityRefField:
+                    GenEntityRefFieldMember((EntityRefFieldMember)member, sb, designTree);
                     break;
                 default:
                     throw new NotImplementedException(member.Type.ToString());
@@ -112,7 +117,7 @@ internal static class EntityCsGenerator
         sb.Append("};\nprotected override short[] AllMembers => MemberIds;\n");
 
         // override WriteMember & ReadMember
-        GenOverrideWriteMember(model, sb);
+        GenOverrideWriteMember(model, sb, modelNode.DesignTree!);
         GenOverrideReadMember(model, sb, modelNode.DesignTree!);
 
         // 存储方法Insert/Update/Delete/Fetch
@@ -164,7 +169,7 @@ internal static class EntityCsGenerator
         }
     }
 
-    private static void GenFieldTrackerMember(EntityTrackerMember tracker, StringBuilder sb)
+    private static void GenEntityTrackerMember(EntityTrackerMember tracker, StringBuilder sb)
     {
         var target = tracker.Target;
         var targetTypeString = GetEntityFieldTypeString(target);
@@ -279,6 +284,69 @@ internal static class EntityCsGenerator
         sb.Append("\t}\n"); //prop end
     }
 
+    private static void GenEntityRefFieldMember(EntityRefFieldMember refField, StringBuilder sb, DesignTree tree)
+    {
+        //先获取路径信息
+        var path = EntityCodeGenUtils.GetEntityRefFieldPath(refField, tree.DesignHub);
+        var field = (EntityFieldMember)path[^1];
+
+        //build code
+        var typeString = GetEntityFieldTypeString(field);
+        if (!typeString.EndsWith('?')) typeString += '?';
+
+        sb.Append($"\tprivate {typeString} _{field.Name};\n");
+        sb.Append($"\tpublic {typeString} {field.Name}\n");
+        sb.Append("\t{\n"); //prop start
+        sb.Append($"\t\tget\n");
+        sb.Append("\t\t{"); //prop get start
+        sb.Append("\t\t\tif (");
+        for (var i = 0; i < path.Length - 1; i++)
+        {
+            Debug.Assert(path[i].Type == EntityMemberType.EntityRef);
+            if (i != 0) sb.Append(" && ");
+            sb.Append($"{path[i].Name} != null");
+        }
+
+        sb.Append(") return ");
+        for (var i = 0; i < path.Length; i++)
+        {
+            if (i != 0) sb.Append('.');
+            sb.Append(path[i].Name);
+        }
+
+        sb.Append(";\n"); //end if
+        sb.Append("\t\t}"); //prop get end
+
+        sb.Append("\t\tset\n");
+        sb.Append("\t\t{\n"); //prop set start
+
+        sb.Append("\t\t\tif (");
+        for (var i = 0; i < path.Length - 1; i++)
+        {
+            if (i != 0) sb.Append(" && ");
+            sb.Append($"{path[i].Name} != null");
+        }
+
+        sb.Append(")\n");
+        sb.Append("\t\t{\n");
+        sb.Append("\t\t\t");
+        for (var i = 0; i < path.Length; i++)
+        {
+            if (i != 0) sb.Append('.');
+            sb.Append(path[i].Name);
+        }
+
+        sb.Append(" = value;\n");
+        sb.Append("\t\t}\n");
+        sb.Append("\t\telse\n");
+        sb.Append("\t\t{\n");
+        sb.Append($"\t\t\t_{field.Name} = value;\n");
+        sb.Append("\t\t}\n"); //prop set end
+
+        sb.Append($"\t\tRaisePropertyChanged({field.MemberId});\n");
+        sb.Append("\t}\n"); //prop end
+    }
+
     private static void GenEntitySetMember(EntitySetMember entitySet, StringBuilder sb, DesignTree tree)
     {
         var refNode = tree.FindModelNode(entitySet.RefModelId)!;
@@ -316,7 +384,7 @@ internal static class EntityCsGenerator
         sb.Append("}\n"); //end method
     }
 
-    private static void GenOverrideWriteMember(EntityModel model, StringBuilder sb)
+    private static void GenOverrideWriteMember(EntityModel model, StringBuilder sb, DesignTree tree)
     {
         sb.Append("protected override void WriteMember<T>(short id, ref T ws, int flags){\n");
         sb.Append("\tswitch(id){\n");
@@ -325,7 +393,7 @@ internal static class EntityCsGenerator
             sb.Append("\t\tcase ");
             sb.Append(member.MemberId);
             sb.Append(": ws.Write");
-            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member));
+            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignHub));
             sb.Append("Member(id,");
             if (model.StoreOptions != null) sb.Append('_');
             sb.Append(member.Name);
@@ -357,12 +425,13 @@ internal static class EntityCsGenerator
             }
 
             sb.Append("rs.Read");
-            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member));
+            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignHub));
             sb.Append("Member");
             switch (member.Type)
             {
                 case EntityMemberType.EntityField:
                 case EntityMemberType.EntityFieldTracker:
+                case EntityMemberType.EntityRefField:
                     sb.Append("(flags);break;\n");
                     break;
                 case EntityMemberType.EntityRef:
@@ -398,10 +467,10 @@ internal static class EntityCsGenerator
                 }
                 case EntityMemberType.EntitySet:
                 {
-                    var entitySet = (EntitySetMember)member;
-                    var refNode = tree.FindModelNode(entitySet.RefModelId)!;
-                    var refModel = (EntityModel)refNode.Model;
-                    var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
+                    //var entitySet = (EntitySetMember)member;
+                    //var refNode = tree.FindModelNode(entitySet.RefModelId)!;
+                    //var refModel = (EntityModel)refNode.Model;
+                    //var refModelName = $"{refNode.AppNode.Model.Name}.Entities.{refModel.Name}";
                     sb.Append($"(flags, {member.Name});break;\n");
 
                     break;

@@ -87,7 +87,7 @@ public static class EntityJsGenerator
                     sb.Append("this._");
                     sb.Append(member.Name);
                     sb.Append("=rs.Read");
-                    sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member));
+                    sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, ctx));
                     sb.Append("();break;\n");
                     break;
                 case EntityMemberType.EntityRef:
@@ -140,7 +140,7 @@ public static class EntityJsGenerator
                     sb.Append("); ");
 
                     sb.Append("ws.Write");
-                    sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member));
+                    sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, ctx));
                     sb.Append("(this._");
                     sb.Append(member.Name);
                     sb.Append(");");
