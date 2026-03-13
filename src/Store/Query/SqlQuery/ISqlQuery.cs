@@ -59,21 +59,45 @@ internal static class SqlSelectQueryExtensions
         query.Selects!.Add(item);
     }
 
-    public static void AddAllSelects(this ISqlSelectQuery query, EntityModel model, EntityExpression t,
-        string? fullPath)
+    public static async ValueTask AddAllSelects(this ISqlSelectQuery query, EntityModel model, EntityExpression t,
+        string? fullPath, bool includeEntityRefFields)
     {
         //TODO:考虑特殊SqlSelectItemExpression with *，但只能在fullPath==null时使用
         var members = model.Members;
         for (var i = 0; i < members.Count; i++)
         {
-            if (members[i].Type == EntityMemberType.EntityField
-                /*|| members[i].Type == EntityMemberType.Aggregate
-                || members[i].Type == EntityMemberType.Formula
-                || members[i].Type == EntityMemberType.AutoNumber
-                || members[i].Type == EntityMemberType.AggregationRefField*/)
+            if (members[i].Type == EntityMemberType.EntityField)
             {
                 var alias = fullPath == null ? members[i].Name : $"{fullPath}.{members[i].Name}";
                 var si = new SqlSelectItemExpression(t[members[i].Name], alias);
+                query.AddSelectItem(si);
+            }
+            else if (members[i].Type == EntityMemberType.EntityRefField)
+            {
+                if (!includeEntityRefFields) continue;
+
+                //转换为eg: t["Customer"]["City"]["Name"]表达式
+                var entityRefFieldMember = (EntityRefFieldMember)members[i];
+                var currentEntityModel = model;
+                EntityPathExpression pathExpression = t;
+                for (var j = 0; j < entityRefFieldMember.RefFieldPath.Length; j++)
+                {
+                    var member = currentEntityModel.GetMember(entityRefFieldMember.RefFieldPath[j], true)!;
+                    pathExpression = pathExpression[member.Name];
+                    if (member is EntityRefMember entityRefMember)
+                    {
+                        if (entityRefMember.IsAggregationRef) throw new NotImplementedException();
+                        currentEntityModel =
+                            await RuntimeContext.GetModelAsync<EntityModel>(entityRefMember.RefModelIds[0]);
+                    }
+                    else if (member.Type != EntityMemberType.EntityField)
+                    {
+                        throw new NotSupportedException();
+                    }
+                }
+
+                var alias = fullPath == null ? entityRefFieldMember.Name : $"{fullPath}.{entityRefFieldMember.Name}";
+                var si = new SqlSelectItemExpression(pathExpression, alias);
                 query.AddSelectItem(si);
             }
         }

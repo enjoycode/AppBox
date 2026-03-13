@@ -92,20 +92,11 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     #region ====Include Methods====
 
     public SqlIncluder<TChild> Include<TChild>(Func<EntityExpression, EntityPathExpression> selector,
-        string? alias = null) where TChild : SqlEntity, new()
+        bool includeEntityRefFields = false) where TChild : SqlEntity, new()
     {
-        if (_rootIncluder == null)
-            _rootIncluder = new SqlIncluder<TEntity>(T);
-
-        return _rootIncluder.Include<TChild>(selector, alias);
+        _rootIncluder ??= new SqlIncluder<TEntity>(T);
+        return _rootIncluder.Include<TChild>(selector, includeEntityRefFields);
     }
-
-    // public SqlIncluder Include(Func<EntityExpression, MemberExpression> selector,
-    //     string? alias = null)
-    // {
-    //     if (_rootIncluder == null) _rootIncluder = new SqlIncluder(T);
-    //     return _rootIncluder.ThenInclude(selector, alias);
-    // }
 
     #endregion
 
@@ -138,7 +129,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     //     //return (T)db.ExecuteScalar(cmd);
     // }
 
-    public async Task<TEntity?> ToSingleAsync()
+    public async Task<TEntity?> ToSingleAsync(bool includeEntityRefFields = false)
     {
         Purpose = QueryPurpose.ToSingle;
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
@@ -148,7 +139,11 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         {
             //注意先加Includer的
             await _rootIncluder.AddSelects(this, model, null);
-            this.AddAllSelects(model, T, null);
+            await this.AddAllSelects(model, T, null, includeEntityRefFields);
+        }
+        else if (includeEntityRefFields)
+        {
+            await this.AddAllSelects(model, T, null, includeEntityRefFields);
         }
 
         //递交查询
@@ -172,7 +167,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         return null;
     }
 
-    public async Task<IList<TEntity>> ToListAsync()
+    public async Task<IList<TEntity>> ToListAsync(bool includeEntityRefFields = false)
     {
         Purpose = QueryPurpose.ToList;
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
@@ -182,7 +177,11 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         {
             //注意先加Includer的
             await _rootIncluder.AddSelects(this, model, null);
-            this.AddAllSelects(model, T, null);
+            await this.AddAllSelects(model, T, null, includeEntityRefFields);
+        }
+        else if (includeEntityRefFields)
+        {
+            await this.AddAllSelects(model, T, null, includeEntityRefFields);
         }
 
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
@@ -201,7 +200,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         }
 
         if (_rootIncluder != null)
-            await _rootIncluder.LoadEntitySets(db, list, null/*TODO: fix*/);
+            await _rootIncluder.LoadEntitySets(db, list, null /*TODO: fix*/);
         return list;
     }
 
@@ -290,8 +289,10 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
     /// 返回树状结构的实体集合
     /// </summary>
     /// <param name="childrenMember">eg: t => t["Children"]</param>
+    /// <param name="includeEntityRefFields">default: false</param>
     /// <returns></returns>
-    public async Task<IList<TEntity>> ToTreeAsync(Func<EntityExpression, EntityPathExpression> childrenMember)
+    public async Task<IList<TEntity>> ToTreeAsync(Func<EntityExpression, EntityPathExpression> childrenMember,
+        bool includeEntityRefFields = false)
     {
         Purpose = QueryPurpose.ToTree;
         var children = (EntitySetExpression)childrenMember(T);
@@ -299,7 +300,7 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         var childrenModel = (EntitySetMember)model.GetMember(children.Name)!;
         TreeParentMember = (EntityRefMember)model.GetMember(childrenModel.RefMemberId)!;
 
-        this.AddAllSelects(model, T, null);
+        await this.AddAllSelects(model, T, null, includeEntityRefFields);
 
         //TODO:考虑EntitySet自动排序
 

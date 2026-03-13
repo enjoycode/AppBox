@@ -122,19 +122,19 @@ namespace AppBoxStore
         where TChild : SqlEntity, new()
     {
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, TResult> selector)
+        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, TResult> selector, bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, EntitySet<TResult>> selector)
+        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, EntitySet<TResult>> selector, bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, TResult> selector)
+        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, TResult> selector, bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, EntitySet<TResult>> selector)
+        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, EntitySet<TResult>> selector, bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
     }
 
@@ -144,11 +144,11 @@ namespace AppBoxStore
         public SqlQuery() { }
 
         [QueryMethod()]
-        public SqlIncluder<T, TChild> Include<TChild>(Func<T, TChild> selector)
+        public SqlIncluder<T, TChild> Include<TChild>(Func<T, TChild> selector, bool includeEntityRefFields = false)
             where TChild : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<T, TChild> Include<TChild>(Func<T, EntitySet<TChild>> selector)
+        public SqlIncluder<T, TChild> Include<TChild>(Func<T, EntitySet<TChild>> selector, bool includeEntityRefFields = false)
             where TChild : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
@@ -193,12 +193,12 @@ namespace AppBoxStore
 
         public Task<int> CountAsync() => throw new Exception();
 
-        public Task<T?> ToSingleAsync() => throw new Exception();
+        public Task<T?> ToSingleAsync(bool includeEntityRefFields = false) => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为列表
         /// </summary>
-        public Task<IList<T>> ToListAsync() => throw new Exception();
+        public Task<IList<T>> ToListAsync(bool includeEntityRefFields = false) => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为匿名类列表
@@ -222,7 +222,7 @@ namespace AppBoxStore
         /// 执行查询并转换为树状结构
         /// </summary>
         [QueryMethod()]
-        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children) => throw new Exception();
+        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children, bool includeEntityRefFields = false) => throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为树节点路径
