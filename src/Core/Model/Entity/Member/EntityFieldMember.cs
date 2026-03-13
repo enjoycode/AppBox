@@ -1,5 +1,8 @@
 namespace AppBoxCore;
 
+/// <summary>
+/// 实体字段成员
+/// </summary>
 public sealed class EntityFieldMember : EntityMember
 {
     internal EntityFieldMember(EntityModel owner) : base(owner, string.Empty, false) { }

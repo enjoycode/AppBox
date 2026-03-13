@@ -1,5 +1,8 @@
 namespace AppBoxCore;
 
+/// <summary>
+/// 实体一对多引用的成员，eg: Order.OrderItems
+/// </summary>
 public sealed class EntitySetMember : EntityMember, IModelReference
 {
     internal EntitySetMember(EntityModel owner) : base(owner, string.Empty, false) { }

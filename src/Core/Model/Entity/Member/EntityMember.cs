@@ -24,6 +24,9 @@ public abstract class EntityMember
 
     public virtual bool AllowNull => _allowNull;
 
+    /// <summary>
+    /// 备注说明
+    /// </summary>
     public string? Comment { get; set; }
 
     public bool IsForeignKeyMember => Type == EntityMemberType.EntityField
@@ -75,7 +78,7 @@ public abstract class EntityMember
     /// 添加对其他模型或成员的引用
     /// </summary>
     internal virtual void AddModelReferences(List<ModelReferenceInfo> list,
-        ModelReferenceType referenceType, ModelId modelID, string? memberName,
+        ModelReferenceType referenceType, ModelId modelId, string? memberName,
         short? entityMemberId) { }
 
     #endregion

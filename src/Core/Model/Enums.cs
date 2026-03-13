@@ -43,6 +43,7 @@ public enum EntityMemberType : byte
     EntityFieldTracker = 1,
     EntityRef = 2,
     EntitySet = 3,
+    EntityRefField = 4,
 }
 
 public enum EntityFieldType : byte

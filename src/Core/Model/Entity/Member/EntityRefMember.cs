@@ -1,5 +1,8 @@
 namespace AppBoxCore;
 
+/// <summary>
+/// 实体一对一引用的成员，eg: Order.Customer
+/// </summary>
 public sealed class EntityRefMember : EntityMember, IModelReference
 {
     #region ====Ctor====
@@ -200,7 +203,7 @@ public sealed class EntityRefMember : EntityMember, IModelReference
             FKMemberIds[i] = rs.ReadShort();
         }
 
-        rs.ReadVariant(); //保留
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

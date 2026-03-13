@@ -311,6 +311,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         EntityMemberType.EntityFieldTracker => new EntityTrackerMember(this),
         EntityMemberType.EntityRef => new EntityRefMember(this),
         EntityMemberType.EntitySet => new EntitySetMember(this),
+        EntityMemberType.EntityRefField => new EntityRefFieldMember(this),
         _ => throw new NotImplementedException(memberType.ToString())
     };
 
@@ -327,7 +328,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
     public int CompareTo(EntityModel? other)
     {
         if (other == null) return 1;
-        
+
         //判断当前对象有没有EntityRef引用成员至目标对象, 如果引用则大于other对象
         var refs = Members
             .Where(t => t.Type == EntityMemberType.EntityRef)
