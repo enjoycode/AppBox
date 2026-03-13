@@ -1,10 +1,13 @@
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AppBoxCore;
 
 /// <summary>
 /// 用于包装实体的序列化数据，以便互相转换
 /// </summary>
+[JsonConverter(typeof(EntityDataJsonConverter))]
 public sealed class EntityData : Entity
 {
     internal EntityData(ModelId modelId)
@@ -29,6 +32,8 @@ public sealed class EntityData : Entity
     internal List<short>? ChangedMembers { get; private set; }
 
     protected override short[] AllMembers => _members.Select(m => m.MemberId).ToArray();
+
+    internal IList<MemberData> GetMembers() => _members;
 
     internal void AddMember(short id, AnyValue value) => _members.Add(new MemberData(id, value));
 
@@ -173,7 +178,7 @@ public sealed class EntityData : Entity
 
     #region ====MemberData====
 
-    private readonly struct MemberData
+    internal readonly struct MemberData
     {
         public MemberData(short id, AnyValue value)
         {
@@ -186,4 +191,30 @@ public sealed class EntityData : Entity
     }
 
     #endregion
+}
+
+public sealed class EntityDataJsonConverter : JsonConverter<EntityData>
+{
+    public override EntityData? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Write(Utf8JsonWriter writer, EntityData value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+
+        var entityModel = RuntimeContext.GetModel<EntityModel>(value.ModelId);
+        var members = value.GetMembers();
+        foreach (var member in members)
+        {
+            var entityMember = entityModel.GetMember(member.MemberId, false);
+            if (entityMember == null) continue;
+
+            writer.WritePropertyName(entityMember.Name);
+            JsonSerializer.Serialize(writer, member.Value.BoxedValue, options);
+        }
+
+        writer.WriteEndObject();
+    }
 }
