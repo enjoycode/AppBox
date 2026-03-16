@@ -39,3 +39,42 @@ public static class ISqlJoinableExtensions
         Func<ISqlJoinable, ISqlJoinable, Expression> onCondition)
         => s.Join(JoinType.FullJoin, target, onCondition(s, target));
 }
+
+public sealed class SqlJoin
+{
+    public SqlJoin(ISqlJoinable right, JoinType joinType, Expression onCondition)
+    {
+        Right = right;
+        JoinType = joinType;
+        OnCondition = onCondition;
+    }
+
+    public ISqlJoinable Right { get; }
+
+    public Expression OnCondition { get; }
+
+    public JoinType JoinType { get; }
+}
+
+/// <summary>
+/// 查询联接类型
+/// </summary>
+/// <remarks>对应数据库查询的联接类型</remarks>
+public enum JoinType : byte
+{
+    InnerJoin,
+    LeftJoin,
+    RightJoin,
+    FullJoin
+}
+
+public abstract class SqlJoinable : ISqlJoinable //备注曾用名: SqlQueryBase
+{
+    public string AliasName { get; set; } = null!;
+
+    private List<SqlJoin>? _joins;
+    public bool HasJoins => _joins is { Count: > 0 };
+    public IList<SqlJoin> Joins => _joins ??= [];
+
+    public abstract EntityPathExpression this[string name] { get; }
+}

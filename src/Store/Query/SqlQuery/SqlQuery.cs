@@ -4,7 +4,7 @@ using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore;
 
-public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
+public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
     where TEntity : SqlEntity, new()
 {
     public SqlQuery(long entityModelId)

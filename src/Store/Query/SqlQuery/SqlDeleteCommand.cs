@@ -5,7 +5,7 @@ using AppBoxCore;
 
 namespace AppBoxStore;
 
-public sealed class SqlDeleteCommand : SqlQueryBase, ISqlQuery
+public sealed class SqlDeleteCommand : SqlJoinable, ISqlQuery
 {
     public SqlDeleteCommand(ModelId entityModelId)
     {

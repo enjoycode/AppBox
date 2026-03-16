@@ -89,32 +89,32 @@ namespace AppBoxStore
     }
 
     [NoneGeneric]
-    public interface ISqlQueryJoin<T> { }
+    public interface ISqlJoinable<T> { }
 
-    public static class SqlQueryJoinExtensions
+    public static class ISqlJoinableExtensions
     {
         [QueryMethod()]
-        public static ISqlQueryJoin<TJoin> InnerJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
-            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+        public static ISqlJoinable<TJoin> InnerJoin<TSource, TJoin>(this ISqlJoinable<TSource> s,
+            ISqlJoinable<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
 
         [QueryMethod()]
-        public static ISqlQueryJoin<TJoin> LeftJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
-            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+        public static ISqlJoinable<TJoin> LeftJoin<TSource, TJoin>(this ISqlJoinable<TSource> s,
+            ISqlJoinable<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
 
         [QueryMethod()]
-        public static ISqlQueryJoin<TJoin> RightJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
-            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+        public static ISqlJoinable<TJoin> RightJoin<TSource, TJoin>(this ISqlJoinable<TSource> s,
+            ISqlJoinable<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
 
         [QueryMethod()]
-        public static ISqlQueryJoin<TJoin> FullJoin<TSource, TJoin>(this ISqlQueryJoin<TSource> s,
-            ISqlQueryJoin<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
+        public static ISqlJoinable<TJoin> FullJoin<TSource, TJoin>(this ISqlJoinable<TSource> s,
+            ISqlJoinable<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
     }
 
     [NoneGeneric]
-    public sealed class SqlQueryJoin<T> : ISqlQueryJoin<T> where T : SqlEntity
+    public sealed class SqlTable<T> : ISqlJoinable<T> where T : SqlEntity
     {
         [GenericCreate(true)]
-        public SqlQueryJoin() { }
+        public SqlTable() { }
     }
 
     public sealed class SqlIncluder<TRoot, TChild>
@@ -122,63 +122,68 @@ namespace AppBoxStore
         where TChild : SqlEntity, new()
     {
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, TResult> selector, bool includeEntityRefFields = false)
+        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, TResult?> selector,
+            bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, EntitySet<TResult>> selector, bool includeEntityRefFields = false)
+        public SqlIncluder<TRoot, TResult> Include<TResult>(Func<TRoot, EntitySet<TResult>?> selector,
+            bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, TResult> selector, bool includeEntityRefFields = false)
+        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, TResult?> selector,
+            bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, EntitySet<TResult>> selector, bool includeEntityRefFields = false)
+        public SqlIncluder<TRoot, TResult> ThenInclude<TResult>(Func<TChild, EntitySet<TResult>?> selector,
+            bool includeEntityRefFields = false)
             where TResult : SqlEntity, new() => throw new Exception();
     }
 
-    public sealed class SqlQuery<T> : ISqlQueryJoin<T> where T : SqlEntity, new()
+    public sealed class SqlQuery<T> : ISqlJoinable<T> where T : SqlEntity, new()
     {
         [GenericCreate(false)]
         public SqlQuery() { }
 
         [QueryMethod()]
-        public SqlIncluder<T, TChild> Include<TChild>(Func<T, TChild> selector, bool includeEntityRefFields = false)
+        public SqlIncluder<T, TChild> Include<TChild>(Func<T, TChild?> selector, bool includeEntityRefFields = false)
             where TChild : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
-        public SqlIncluder<T, TChild> Include<TChild>(Func<T, EntitySet<TChild>> selector, bool includeEntityRefFields = false)
+        public SqlIncluder<T, TChild> Include<TChild>(Func<T, EntitySet<TChild>?> selector,
+            bool includeEntityRefFields = false)
             where TChild : SqlEntity, new() => throw new Exception();
 
         [QueryMethod()]
         public SqlQuery<T> Where(Func<T, bool> condition) => this;
 
         [QueryMethod()]
-        public SqlQuery<T> Where<TJoin>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, bool> condition) => this;
+        public SqlQuery<T> Where<TJoin>(ISqlJoinable<TJoin> join, Func<T, TJoin, bool> condition) => this;
 
         [QueryMethod()]
-        public SqlQuery<T> Where<TJoin1, TJoin2>(ISqlQueryJoin<TJoin1> j1, ISqlQueryJoin<TJoin2> j2,
+        public SqlQuery<T> Where<TJoin1, TJoin2>(ISqlJoinable<TJoin1> j1, ISqlJoinable<TJoin2> j2,
             Func<T, TJoin1, TJoin2, bool> condition) => this;
 
         [QueryMethod()]
         public SqlQuery<T> AndWhere(Func<T, bool> condition) => this;
 
         [QueryMethod()]
-        public SqlQuery<T> AndWhere<TJoin>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, bool> condition) => this;
+        public SqlQuery<T> AndWhere<TJoin>(ISqlJoinable<TJoin> join, Func<T, TJoin, bool> condition) => this;
 
         [QueryMethod()]
-        public SqlQuery<T> AndWhere<TJoin1, TJoin2>(ISqlQueryJoin<TJoin1> j1, ISqlQueryJoin<TJoin2> j2,
+        public SqlQuery<T> AndWhere<TJoin1, TJoin2>(ISqlJoinable<TJoin1> j1, ISqlJoinable<TJoin2> j2,
             Func<T, TJoin1, TJoin2, bool> condition) => this;
 
         [QueryMethod()]
         public SqlQuery<T> OrWhere(Func<T, bool> condition) => this;
 
         [QueryMethod()]
-        public SqlQuery<T> OrWhere<TJoin>(ISqlQueryJoin<TJoin> join, Func<T, TJoin, bool> condition) => this;
+        public SqlQuery<T> OrWhere<TJoin>(ISqlJoinable<TJoin> join, Func<T, TJoin, bool> condition) => this;
 
         [QueryMethod()]
-        public SqlQuery<T> OrWhere<TJoin1, TJoin2>(ISqlQueryJoin<TJoin1> j1, ISqlQueryJoin<TJoin2> j2,
+        public SqlQuery<T> OrWhere<TJoin1, TJoin2>(ISqlJoinable<TJoin1> j1, ISqlJoinable<TJoin2> j2,
             Func<T, TJoin1, TJoin2, bool> condition) => this;
 
         public SqlQuery<T> Skip(int rows) => this;
@@ -192,7 +197,7 @@ namespace AppBoxStore
         public SqlQuery<T> OrderByDesc<TResult>(Func<T, TResult> selector) => this;
 
         public Task<int> CountAsync() => throw new Exception();
-        
+
         [QueryMethod()]
         public Task<TResult?> ToScalarAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
 
@@ -210,7 +215,7 @@ namespace AppBoxStore
         public Task<IList<TResult>> ToListAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
 
         [QueryMethod()]
-        public Task<IList<TResult>> ToListAsync<TJoin, TResult>(ISqlQueryJoin<TJoin> join,
+        public Task<IList<TResult>> ToListAsync<TJoin, TResult>(ISqlJoinable<TJoin> join,
             Func<T, TJoin, TResult> selector) =>
             throw new Exception();
 
@@ -225,7 +230,8 @@ namespace AppBoxStore
         /// 执行查询并转换为树状结构
         /// </summary>
         [QueryMethod()]
-        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children, bool includeEntityRefFields = false) => throw new Exception();
+        public Task<IList<T>> ToTreeAsync(Func<T, EntitySet<T>> children, bool includeEntityRefFields = false) =>
+            throw new Exception();
 
         /// <summary>
         /// 执行查询并转换为树节点路径
@@ -241,7 +247,7 @@ namespace AppBoxStore
     }
 
     [NoneGeneric]
-    public sealed class SqlUpdateCommand<T> : ISqlQueryJoin<T> where T : SqlEntity
+    public sealed class SqlUpdateCommand<T> : ISqlJoinable<T> where T : SqlEntity
     {
         [GenericCreate(true)]
         public SqlUpdateCommand() { }
@@ -268,7 +274,7 @@ namespace AppBoxStore
     }
 
     [NoneGeneric]
-    public sealed class SqlDeleteCommand<T> : ISqlQueryJoin<T> where T : SqlEntity
+    public sealed class SqlDeleteCommand<T> : ISqlJoinable<T> where T : SqlEntity
     {
         [GenericCreate(true)]
         public SqlDeleteCommand() { }

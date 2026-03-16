@@ -32,7 +32,7 @@ partial class PgSqlStore
 
         //构建Join
         ctx.CurrentQueryInfo.BuildStep = BuildQueryStep.BuildJoin;
-        SqlQueryBase q1 = (SqlQueryBase)ctx.CurrentQuery;
+        SqlJoinable q1 = (SqlJoinable)ctx.CurrentQuery;
         if (q1.HasJoins) //先处理每个手工的联接及每个手工联接相应的自动联接
         {
             BuildJoins(q1.Joins, ctx);
@@ -78,7 +78,7 @@ partial class PgSqlStore
 
         //构建Join
         ctx.CurrentQueryInfo.BuildStep = BuildQueryStep.BuildJoin;
-        var q1 = (SqlQueryBase)ctx.CurrentQuery;
+        var q1 = (SqlJoinable)ctx.CurrentQuery;
         if (q1.HasJoins) //先处理每个手工的联接及每个手工联接相应的自动联接
         {
             BuildJoins(q1.Joins, ctx);

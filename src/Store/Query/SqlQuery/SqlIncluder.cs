@@ -244,7 +244,7 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
     /// <summary>
     /// 专用于加载EntitySet成员的查询
     /// </summary>
-    private class SqlFetchEntitySetQuery : SqlQueryBase, ISqlSelectQuery
+    private class SqlFetchEntitySetQuery : SqlJoinable, ISqlSelectQuery
     {
         public SqlFetchEntitySetQuery(SqlIncluder root)
         {

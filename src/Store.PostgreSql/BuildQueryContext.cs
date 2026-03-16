@@ -12,7 +12,7 @@ internal sealed class BuildQueryContext
     {
         _command = command;
         _rootQuery = root;
-        ((SqlQueryBase)_rootQuery).AliasName = "t";
+        ((SqlJoinable)_rootQuery).AliasName = "t";
         _queries.Add(root, new QueryInfo(root));
     }
 
@@ -40,10 +40,10 @@ internal sealed class BuildQueryContext
     /// </summary>
     private readonly Dictionary<ISqlQuery, QueryInfo> _queries = [];
 
-    private Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>>? _autoJoins;
+    private Dictionary<SqlJoinable, Dictionary<string, EntityExpression>>? _autoJoins;
 
-    private Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>> AutoJoins =>
-        _autoJoins ??= new Dictionary<SqlQueryBase, Dictionary<string, EntityExpression>>();
+    private Dictionary<SqlJoinable, Dictionary<string, EntityExpression>> AutoJoins =>
+        _autoJoins ??= new Dictionary<SqlJoinable, Dictionary<string, EntityExpression>>();
 
     private int _parameterIndex;
 
@@ -136,7 +136,7 @@ internal sealed class BuildQueryContext
         CurrentQueryInfo = qi;
 
         //添加手工联接
-        LoopAddQueryJoins((SqlQueryBase)query);
+        LoopAddQueryJoins((SqlJoinable)query);
     }
 
     public void EndBuildQuery(ISqlQuery query, bool cte = false)
@@ -162,11 +162,11 @@ internal sealed class BuildQueryContext
     private QueryInfo AddSubQuery(ISqlQuery query)
     {
         //先判断是否已存在于手工Join里，如果不存在则需要设置别名
-        var q = (SqlQueryBase)query;
+        var q = (SqlJoinable)query;
         if (!AutoJoins.ContainsKey(q))
         {
             _queryIndex += 1;
-            ((SqlQueryBase)query).AliasName = $"t{_queryIndex.ToString()}";
+            ((SqlJoinable)query).AliasName = $"t{_queryIndex.ToString()}";
         }
 
         QueryInfo info = new QueryInfo(query, CurrentQueryInfo);
@@ -186,10 +186,10 @@ internal sealed class BuildQueryContext
         if (!_queries.TryGetValue(query, out _))
             /*qi =*/ AddSubQuery(query); // 添加时会设置别名
 
-        return ((SqlQueryBase)query).AliasName;
+        return ((SqlJoinable)query).AliasName;
     }
 
-    private void LoopAddQueryJoins(SqlQueryBase query)
+    private void LoopAddQueryJoins(SqlJoinable query)
     {
         //判断是否已经生成别名
         if (string.IsNullOrEmpty(query.AliasName))
@@ -205,8 +205,8 @@ internal sealed class BuildQueryContext
         {
             foreach (var item in query.Joins)
             {
-                if (item.Right is SqlQueryJoin) //注意：子查询不具备自动联接
-                    LoopAddQueryJoins((SqlQueryBase)item.Right);
+                if (item.Right is SqlTable) //注意：子查询不具备自动联接
+                    LoopAddQueryJoins((SqlJoinable)item.Right);
                 else
                     LoopAddSubQueryJoins((SqlSubQuery)item.Right);
             }
@@ -219,15 +219,15 @@ internal sealed class BuildQueryContext
         {
             foreach (var item in query.Joins)
             {
-                if (item.Right is SqlQueryJoin) //注意：子查询不具备自动联接
-                    LoopAddQueryJoins((SqlQueryBase)item.Right);
+                if (item.Right is SqlTable) //注意：子查询不具备自动联接
+                    LoopAddQueryJoins((SqlJoinable)item.Right);
                 else
                     LoopAddSubQueryJoins((SqlSubQuery)item.Right);
             }
         }
     }
 
-    public string GetEntityRefAliasName(EntityExpression exp, SqlQueryBase query)
+    public string GetEntityRefAliasName(EntityExpression exp, SqlJoinable query)
     {
         var path = exp.ToString();
         var ds = AutoJoins[query];
@@ -246,7 +246,7 @@ internal sealed class BuildQueryContext
     /// <summary>
     /// 用于生成EntityRef的自动Join
     /// </summary>
-    public void BuildQueryAutoJoins(SqlQueryBase target)
+    public void BuildQueryAutoJoins(SqlJoinable target)
     {
         if (!AutoJoins.TryGetValue(target, out var ds))
             return;

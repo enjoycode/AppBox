@@ -123,7 +123,7 @@ public sealed class SqlQueryTest
     public async Task JoinTest()
     {
         var q = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
-        var j = new SqlQueryJoin(Employee.MODELID);
+        var j = new SqlTable(Employee.MODELID);
         q.LeftJoin(j, (ou, emp) => ou["Id"] == emp["Id"]);
 
         var list = await q

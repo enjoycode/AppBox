@@ -7,7 +7,7 @@ namespace AppBoxStore;
 /// <summary>
 /// 将DynamicQuery转换为ISqlSelectQuery执行查询
 /// </summary>
-internal sealed class SqlDynamicQuery : SqlQueryBase, ISqlSelectQuery
+internal sealed class SqlDynamicQuery : SqlJoinable, ISqlSelectQuery
 {
     public SqlDynamicQuery(DynamicQuery from)
     {

@@ -7,7 +7,7 @@ using Expression = AppBoxCore.Expression;
 
 namespace AppBoxStore;
 
-public sealed class SqlUpdateCommand : SqlQueryBase, ISqlQuery
+public sealed class SqlUpdateCommand : SqlJoinable, ISqlQuery
 {
     public SqlUpdateCommand(ModelId entityModelId)
     {

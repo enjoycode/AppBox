@@ -51,7 +51,7 @@ partial class PgSqlStore
             var selects = query.Selects;
             if (selects == null || selects.Count == 0)
             {
-                ctx.Append(((SqlQueryBase)query).AliasName);
+                ctx.Append(((SqlJoinable)query).AliasName);
                 ctx.Append(".*");
             }
             else
@@ -78,7 +78,7 @@ partial class PgSqlStore
         //     BuildNormalQuery(q.Target, ctx);
         //     ctx.Append(")");
         //     ctx.AppendFormat(" {0}",
-        //         ((SqlQueryBase)q.Target).AliasName); // ((QueryBase)query).AliasName);
+        //         ((SqlJoinable)q.Target).AliasName);
         // }
         // else
         // {
@@ -109,7 +109,7 @@ partial class PgSqlStore
 
         //构建Join
         ctx.CurrentQueryInfo.BuildStep = BuildQueryStep.BuildJoin;
-        var q1 = (SqlQueryBase)ctx.CurrentQuery;
+        var q1 = (SqlJoinable)ctx.CurrentQuery;
         if (q1.HasJoins) //先处理每个手工的联接及每个手工联接相应的自动联接
         {
             BuildJoins(q1.Joins, ctx);
@@ -224,7 +224,7 @@ partial class PgSqlStore
 
         //构建自动联接Join，主要用于继承的
         ctx.SetBuildStep(BuildQueryStep.BuildJoin);
-        ctx.BuildQueryAutoJoins((SqlQueryBase)query); //再处理自动联接
+        ctx.BuildQueryAutoJoins((SqlJoinable)query); //再处理自动联接
 
         //最后处理Order By 
         ctx.SetBuildStep(BuildQueryStep.BuildOrderBy);
@@ -415,7 +415,7 @@ partial class PgSqlStore
         {
             //先处理当前的联接
             ctx.Append(GetJoinString(item.JoinType));
-            if (item.Right is SqlQueryJoin j)
+            if (item.Right is SqlTable j)
             {
                 var jModel = RuntimeContext.GetModel<EntityModel>(j.T.ModelId);
                 ctx.AppendFormat("\"{0}\" {1} On ", jModel.SqlStoreOptions!.GetSqlTableName(false, null),
@@ -430,7 +430,7 @@ partial class PgSqlStore
                 SqlSubQuery sq = (SqlSubQuery)item.Right;
                 ctx.Append("(");
                 BuildNormalQuery(sq.Target, ctx);
-                ctx.AppendFormat(") As {0} On ", ((SqlQueryBase)sq.Target).AliasName);
+                ctx.AppendFormat(") As {0} On ", ((SqlJoinable)sq.Target).AliasName);
                 BuildExpression(item.OnCondition, ctx);
             }
 
@@ -534,18 +534,18 @@ partial class PgSqlStore
             //判断exp.User是否为Null，因为可能是附加的QuerySelectItem
             if (exp.User == null)
             {
-                var q = ctx.CurrentQuery as SqlQueryBase;
+                var q = ctx.CurrentQuery as SqlJoinable;
                 exp.User = q ?? throw new Exception("NpgsqlCommandHelper.BuildEntityExpression()");
             }
 
-            exp.AliasName = ((SqlQueryBase)exp.User).AliasName;
+            exp.AliasName = ((SqlJoinable)exp.User).AliasName;
         }
         else //否则表示自动联接
         {
             //先处理Owner
             BuildEntityExpression(exp.Owner, ctx);
             //再获取自动联接的别名
-            exp.AliasName = ctx.GetEntityRefAliasName(exp, (SqlQueryBase)exp.User!);
+            exp.AliasName = ctx.GetEntityRefAliasName(exp, (SqlJoinable)exp.User!);
         }
     }
 

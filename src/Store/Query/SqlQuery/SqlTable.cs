@@ -2,9 +2,9 @@ using AppBoxCore;
 
 namespace AppBoxStore;
 
-public sealed class SqlQueryJoin : SqlQueryBase
+public sealed class SqlTable : SqlJoinable //备注曾用名: SqlQueryJoin
 {
-    public SqlQueryJoin(ModelId entityModelId)
+    public SqlTable(ModelId entityModelId)
     {
         T = new EntityExpression(entityModelId, this);
     }
