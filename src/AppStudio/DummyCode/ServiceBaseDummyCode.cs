@@ -192,6 +192,9 @@ namespace AppBoxStore
         public SqlQuery<T> OrderByDesc<TResult>(Func<T, TResult> selector) => this;
 
         public Task<int> CountAsync() => throw new Exception();
+        
+        [QueryMethod()]
+        public Task<TResult?> ToScalarAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
 
         public Task<T?> ToSingleAsync(bool includeEntityRefFields = false) => throw new Exception();
 

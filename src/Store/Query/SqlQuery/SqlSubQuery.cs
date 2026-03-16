@@ -30,6 +30,6 @@ public sealed class SqlSubQuery : Expression, ISqlJoinable
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
-        sb.AppendFormat("SubQuery({0})", Target); //TODO: fix target.ToCode
+        sb.Append($"SubQuery({Target})"); //TODO: fix target.ToCode
     }
 }

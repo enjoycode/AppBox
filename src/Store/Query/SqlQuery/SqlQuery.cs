@@ -118,16 +118,21 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
         return reader.GetInt32(0);
     }
 
-    // public T ToScalar<T>(SqlSelectItem expression)
-    // {
-    //     throw new NotImplementedException();
-    //     //this.Purpose = QueryPurpose.ToScalar;
-    //     //this.AddSelectItem(expression.Target);
-    //
-    //     //var db = SqlStore.Get(this.StoreName);
-    //     //var cmd = db.DbCommandBuilder.CreateQueryCommand(this);
-    //     //return (T)db.ExecuteScalar(cmd);
-    // }
+    public async Task<TResult?> ToScalarAsync<TResult>(Func<EntityExpression, Expression> select)
+    {
+        Purpose = QueryPurpose.ToScalar;
+        this.AddSelectItem(new SqlSelectItemExpression(select(T)));
+
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
+        await using var cmd = db.BuildQuery(this);
+        await using var conn = await db.OpenConnectionAsync();
+        cmd.Connection = conn;
+        Logger.Debug(cmd.CommandText);
+
+        var result = await cmd.ExecuteScalarAsync();
+        return (TResult?)result;
+    }
 
     public async Task<TEntity?> ToSingleAsync(bool includeEntityRefFields = false)
     {
@@ -436,19 +441,12 @@ public sealed class SqlQuery<TEntity> : SqlQueryBase, ISqlSelectQuery
 
     #region ====AsXXX Methods====
 
-    // public SqlSubQuery AsSubQuery(params SqlSelectItem[] selectItem)
-    // {
-    //     if (selectItem == null || selectItem.Length <= 0)
-    //         throw new ArgumentException("must select some one");
-    //
-    //     foreach (var item in selectItem)
-    //     {
-    //         AddSelectItem(item.Target);
-    //     }
-    //
-    //     return new SqlSubQuery(this);
-    // }
-    //
+    public SqlSubQuery AsSubQuery(Func<EntityExpression, Expression> select)
+    {
+        this.AddSelectItem(new SqlSelectItemExpression(select(T)));
+        return new SqlSubQuery(this);
+    }
+
     // public SqlFromQuery AsFromQuery(params SqlSelectItem[] selectItem)
     // {
     //     if (selectItem == null || selectItem.Length <= 0)
