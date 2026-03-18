@@ -78,7 +78,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
     public async Task<int> CountAsync()
     {
         Purpose = QueryPurpose.Count;
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
@@ -96,7 +96,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
         Purpose = QueryPurpose.ToScalar;
         this.AddSelectItem(new SqlSelectItemExpression(select(T)));
 
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
         await using var cmd = db.BuildQuery(this);
         await using var conn = await db.OpenConnectionAsync();
@@ -110,7 +110,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
     public async Task<TEntity?> ToSingleAsync(bool includeEntityRefFields = false)
     {
         Purpose = QueryPurpose.ToSingle;
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
 
         //添加选择项,暂默认*
         if (_rootIncluder != null)
@@ -148,7 +148,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
     public async Task<IList<TEntity>> ToListAsync(bool includeEntityRefFields = false)
     {
         Purpose = QueryPurpose.ToList;
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
 
         // 添加选择项,暂默认*
         if (_rootIncluder != null)
@@ -239,7 +239,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
             throw new ArgumentException("must select some one");
 
         //递交查询
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
         var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
         await using var cmd = db.BuildQuery(this);
         await using var conn = db.MakeConnection();
@@ -274,7 +274,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
     {
         Purpose = QueryPurpose.ToTree;
         var children = childrenMember(T);
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
         var childrenModel = (EntitySetMember)model.GetMember(children.Name)!;
         TreeParentMember = (EntityRefMember)model.GetMember(childrenModel.RefMemberId)!;
 
@@ -338,7 +338,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
             throw new Exception("Must set filter to single entity");
         var parent = parentMember(T);
 
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
+        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
         if (!model.SqlStoreOptions!.HasPrimaryKeys || model.SqlStoreOptions.PrimaryKeys.Length > 1)
             throw new Exception("仅支持具备单一主键的树状实体");
 

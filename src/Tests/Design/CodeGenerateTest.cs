@@ -73,8 +73,8 @@ public class CodeGenerateTest
                                        public async Task<object?> IncludeTest()
                                        {
                                            var q = new SqlQuery<sys.Entities.OrgUnit>();
-                                           q.Include(t => t.Children);
-                                           q.Where(t => t.Name == "IT Dept");
+                                           q.Include(t => t.Parent);
+                                           q.Where(t => t.Name == "IT Dept" && t.Parent.Name.Contains("AA"));
                                            return await q.ToSingleAsync();
                                        }
                                    }

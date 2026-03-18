@@ -3,6 +3,7 @@ using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace AppBoxDesign;
 
@@ -11,7 +12,7 @@ internal partial class ServiceCodeGenerator
     public override SyntaxNode? VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
         //处理查询类方法的lambda表达式内的实体成员访问,
-        //eg: t.Customer.Name 转换为 t["Customer"]["Name"]
+        //eg: t.Customer.Name 转换为 t.R("Customer", 12345).F("Name")
         if (_queryMethodCtx.HasAny && _queryMethodCtx.Current.InLambdaExpression)
         {
             var identifier = FindIdentifierForMemberAccessExpression(node);
@@ -35,7 +36,7 @@ internal partial class ServiceCodeGenerator
         {
             var interceptor = GetMemberAccessInterceptor(expSymbol);
             if (interceptor != null)
-                return interceptor.VisitMemberAccess(node, expSymbol, this);
+                return interceptor.VisitMemberAccess(node, expSymbol, this!);
         }
 
         return base.VisitMemberAccessExpression(node);
@@ -99,43 +100,91 @@ internal partial class ServiceCodeGenerator
         }
         else
         {
+            var symbol = SemanticModel.GetSymbolInfo(node).Symbol!;
             if (node.Expression is IdentifierNameSyntax)
             {
-                sb.Insert(0, $"{targetIdentifier.Identifier.ValueText}[\"{node.Name.Identifier.ValueText}\"]");
+                var pathMethodName = GetEntityMemberPathMethod(symbol, out long modelId);
+                var identifierName = targetIdentifier.Identifier.ValueText;
+                var memberName = node.Name.Identifier.ValueText;
+                if (pathMethodName is nameof(IMemberPathBuilder.R) or nameof(IMemberPathBuilder.S))
+                    sb.Insert(0, $"{identifierName}.{pathMethodName}(\"{memberName}\", {modelId}L)");
+                else
+                    sb.Insert(0, $"{identifierName}.{pathMethodName}(\"{memberName}\")");
             }
             else if (node.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 BuildQueryMethodMemberAccess(memberAccess, targetIdentifier, sb);
-                BuildQueryMethodMemberPath(node, sb);
+                BuildQueryMethodMemberPath(node, symbol, sb);
             }
             else if (node.Expression is PostfixUnaryExpressionSyntax postfixUnary)
             {
                 if (postfixUnary.Operand is MemberAccessExpressionSyntax memberAccess2)
                 {
                     BuildQueryMethodMemberAccess(memberAccess2, targetIdentifier, sb);
-                    BuildQueryMethodMemberPath(node, sb);
+                    BuildQueryMethodMemberPath(node, symbol, sb);
                 }
             }
         }
     }
 
-    private void BuildQueryMethodMemberPath(MemberAccessExpressionSyntax node, StringBuilder sb)
+    private void BuildQueryMethodMemberPath(MemberAccessExpressionSyntax node, ISymbol nodeSymbol, StringBuilder sb)
     {
-        var symbol = SemanticModel.GetSymbolInfo(node).Symbol!;
         //判断是否方法调用 eg: t.Name.Contains
-        //TODO:暂简单处理，应转换或排除不支持的方法
-        if (symbol is IMethodSymbol methodSymbol)
+        if (nodeSymbol is IMethodSymbol methodSymbol)
         {
+            //TODO:暂简单处理，应转换或排除不支持的方法
             sb.Append($".{methodSymbol.Name}");
         }
         else
         {
-            //判断是否实体成员
-            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(symbol.ContainingType.ToString()!)!;
-            var model = (EntityModel)modelNode.Model;
-            var isEntityMember = model.GetMember(symbol.Name, false) != null;
-
-            sb.AppendFormat(isEntityMember ? "[\"{0}\"]" : ".{0}", node.Name.Identifier.ValueText);
+            var pathMethodName = GetEntityMemberPathMethod(nodeSymbol, out long modelId);
+            var memberName = node.Name.Identifier.ValueText;
+            if (pathMethodName is nameof(IMemberPathBuilder.R) or nameof(IMemberPathBuilder.S))
+                sb.Append($".{pathMethodName}(\"{memberName}\", {modelId}L)");
+            else
+                sb.Append($".{pathMethodName}(\"{memberName}\")");
         }
+    }
+
+    private string GetEntityMemberPathMethod(ISymbol symbol, out long modelId)
+    {
+        // is Entity
+        if (symbol.ContainingType.IsInherits(TypeSymbolCache.TypeOfEntity))
+        {
+            var entityType = symbol.ContainingType;
+            var memberName = symbol.Name;
+
+            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(entityType.ToString()!)!;
+            var entityModel = (EntityModel)modelNode.Model;
+            var entityMember = entityModel.GetMember(memberName, false);
+            if (entityMember == null)
+                throw new NotSupportedException("Only support EntityMember");
+
+            if (entityMember is EntitySetMember entitySetMember)
+            {
+                modelId = entitySetMember.RefModelId;
+                return nameof(IMemberPathBuilder.S);
+            }
+
+            if (entityMember is EntityRefMember entityRefMember)
+            {
+                if (entityRefMember.IsAggregationRef)
+                    throw new NotSupportedException("AggregationRef is not supported");
+                modelId = entityRefMember.RefModelIds[0];
+                return nameof(IMemberPathBuilder.R);
+            }
+
+            if (entityMember is EntityFieldMember)
+            {
+                modelId = 0;
+                return nameof(IMemberPathBuilder.F);
+            }
+
+            throw new NotSupportedException("Only EntitySet/EntityRef/EntityField supported");
+        }
+
+        // none Entity, eg: SubQuery's select item
+        modelId = 0;
+        return nameof(IMemberPathBuilder.U);
     }
 }
