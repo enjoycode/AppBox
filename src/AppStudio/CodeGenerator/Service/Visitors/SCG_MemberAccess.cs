@@ -103,7 +103,7 @@ internal partial class ServiceCodeGenerator
             var symbol = SemanticModel.GetSymbolInfo(node).Symbol!;
             if (node.Expression is IdentifierNameSyntax)
             {
-                var pathMethodName = GetEntityMemberPathMethod(symbol, out long modelId);
+                var pathMethodName = GetMemberPathMethod(symbol, out long modelId);
                 var identifierName = targetIdentifier.Identifier.ValueText;
                 var memberName = node.Name.Identifier.ValueText;
                 if (pathMethodName is nameof(IMemberPathBuilder.R) or nameof(IMemberPathBuilder.S))
@@ -137,7 +137,7 @@ internal partial class ServiceCodeGenerator
         }
         else
         {
-            var pathMethodName = GetEntityMemberPathMethod(nodeSymbol, out long modelId);
+            var pathMethodName = GetMemberPathMethod(nodeSymbol, out long modelId);
             var memberName = node.Name.Identifier.ValueText;
             if (pathMethodName is nameof(IMemberPathBuilder.R) or nameof(IMemberPathBuilder.S))
                 sb.Append($".{pathMethodName}(\"{memberName}\", {modelId}L)");
@@ -146,7 +146,7 @@ internal partial class ServiceCodeGenerator
         }
     }
 
-    private string GetEntityMemberPathMethod(ISymbol symbol, out long modelId)
+    private string GetMemberPathMethod(ISymbol symbol, out long modelId)
     {
         // is Entity
         if (symbol.ContainingType.IsInherits(TypeSymbolCache.TypeOfEntity))
