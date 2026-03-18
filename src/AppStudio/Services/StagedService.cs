@@ -12,9 +12,9 @@ internal sealed class StagedService : IStagedService
 {
     public async Task<StagedItems> LoadStagedAsync()
     {
-        var list = await Channel.Invoke<IList<Entity>>("sys.DesignService.StageLoadAll", null,
+        var list = await Channel.Invoke<IList<StagedModel>>("sys.DesignService.StageLoadAll", null,
             [new EntityFactory(StagedModel.MODELID, typeof(StagedModel))]);
-        return list == null ? new StagedItems([]) : new StagedItems(list.Cast<StagedModel>().ToList());
+        return list == null ? new StagedItems([]) : new StagedItems(list.ToList());
     }
 
     public Task<IList<PendingChange>> LoadChangesAsync()
