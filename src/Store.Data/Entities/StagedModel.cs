@@ -3,7 +3,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-internal sealed class StagedModel : SqlEntity
+internal sealed class StagedModel : SqlEntity, IEntity
 {
     public StagedModel() { }
 
@@ -31,7 +31,7 @@ internal sealed class StagedModel : SqlEntity
 
     #region ====Overrides====
 
-    internal const long MODELID = 8012673906332663828; //5
+    public static long MODELID => 8012673906332663828; //5
 
     internal const short TYPE_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short MODEL_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;

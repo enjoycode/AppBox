@@ -1,5 +1,10 @@
 namespace AppBoxCore;
 
+public interface IEntity
+{
+    static abstract long MODELID { get; }
+}
+
 public abstract class Entity : IBinSerializable
 {
     /// <summary>
@@ -188,6 +193,8 @@ public abstract class Entity : IBinSerializable
     }
 
     #endregion
+    
+    //public static long GetModelId<T>() where T : IEntity => T.MODELID;
 }
 
 public static class EntityExtensions

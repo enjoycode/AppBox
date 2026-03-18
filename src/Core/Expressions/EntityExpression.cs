@@ -3,14 +3,15 @@ using System.Text;
 
 namespace AppBoxCore;
 
-public sealed class EntityExpression : EntityPathExpression
+public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPathExpression
 {
     /// <summary>
     /// New Root EntityExpression
     /// </summary>
-    internal EntityExpression(EntityModel model, object? user) : base(null, null)
+    internal EntityExpression(EntityModel model, object? user) //TODO: remove this
     {
-        _model = model;
+        Name = null;
+        Owner = null;
         ModelId = model.Id;
         _user = user;
     }
@@ -18,8 +19,10 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// New Root EntityExpression
     /// </summary>
-    public EntityExpression(ModelId modelId, object? user) : base(null, null)
+    public EntityExpression(ModelId modelId, object? user)
     {
+        Name = null;
+        Owner = null;
         ModelId = modelId;
         _user = user;
     }
@@ -27,14 +30,27 @@ public sealed class EntityExpression : EntityPathExpression
     /// <summary>
     /// New EntityRefMember's EntityExpression
     /// </summary>
-    private EntityExpression(string name, ModelId modelId, EntityExpression owner) : base(name, owner)
+    private EntityExpression(string name, ModelId modelId, EntityExpression owner)
     {
+        Name = name;
+        Owner = owner;
         ModelId = modelId;
     }
 
     #region ====Fields & Properties====
 
     public override ExpressionType Type => ExpressionType.EntityExpression;
+
+    /// <summary>
+    /// 名称
+    /// 分以下几种情况：
+    /// 1、如果为EntityExpression
+    /// 1.1 如果为Root EntityExpression，Name及Owner属性皆为null
+    /// 1.2 如果为Ref EntityExpression，Name即属性名称
+    /// </summary>
+    public string? Name { get; }
+
+    public EntityExpression? Owner { get; }
 
     /// <summary>
     /// 用于查询时的别名，不用序列化
@@ -45,12 +61,7 @@ public sealed class EntityExpression : EntityPathExpression
 
     public object? User
     {
-        get
-        {
-            if (Equals(null, Owner))
-                return _user;
-            return Owner.User;
-        }
+        get => Equals(null, Owner) ? _user : Owner.User;
         set
         {
             if (Equals(null, Owner))
@@ -62,97 +73,82 @@ public sealed class EntityExpression : EntityPathExpression
 
     public ModelId ModelId { get; private set; }
 
-    private EntityModel? _model;
-
     #endregion
 
-    #region ====Default Property====
-
-    private EntityModel EnsureModel()
+    internal string GetFieldAlias()
     {
-        return _model ??= RuntimeContext.GetModel<EntityModel>(ModelId);
+        return IsNull(Owner) ? Name! : $"{Owner!.GetFieldAlias()}{Name}";
     }
 
-    public override EntityPathExpression this[string name]
+    #region ====IMemberPathBuilder====
+
+    public EntityFieldExpression F(string name)
     {
-        get
+        if (Cache.TryGetValue(name, out var member))
         {
-            if (Cache.TryGetValue(name, out var exp))
-                return exp;
-
-            var model = EnsureModel();
-            var m = model.GetMember(name, false);
-            if (m != null)
-            {
-                switch (m.Type)
-                {
-                    case EntityMemberType.EntityField:
-                        //case EntityMemberType.Formula:
-                        //case EntityMemberType.Aggregate:
-                        //case EntityMemberType.AutoNumber:
-                        exp = new EntityFieldExpression(name, this);
-                        break;
-                    case EntityMemberType.EntityRef:
-                        var rm = (EntityRefMember)m;
-                        if (!rm.IsAggregationRef)
-                            exp = new EntityExpression(name, rm.RefModelIds[0], this);
-                        else
-                            throw new NotImplementedException("尚未实现聚合引用对象的表达式");
-                        break;
-                    case EntityMemberType.EntitySet:
-                        var sm = (EntitySetMember)m;
-                        //var erm = esm.RefModel[esm.RefMemberName] as EntityRefMember;
-                        exp = new EntitySetExpression(name, this, sm.RefModelId);
-                        break;
-                    //case EntityMemberType.AggregationRefField:
-                    //    exp = new AggregationRefFieldExpression(name, this);
-                    //    break;
-                    default:
-                        throw new NotSupportedException(
-                            $"EntityExpression.DefaultIndex[]: Not Supported MemberType [{m.Type.ToString()}].");
-                }
-
-                Cache.Add(name, exp);
-                return exp;
-            }
-
-            //如果不包含判断是否继承，或EntityRef's DisplayText
-            //if (name.EndsWith("DisplayText", StringComparison.Ordinal)) //TODO: 暂简单判断
-            //{
-            //    exp = new FieldExpression(name, this);
-            //    Cache.Add(name, exp);
-            //    return exp;
-            //}
-            throw new Exception($"Can not find member [{name}] in [{model.Name}].");
+            if (member is EntityFieldExpression entityFieldExpression)
+                return entityFieldExpression;
+            throw new ArgumentException("Exists is not a EntityFieldExpression.");
         }
+
+        var exp = new EntityFieldExpression(name, this);
+        Cache.Add(name, exp);
+        return exp;
     }
 
-
-    private Dictionary<string, EntityPathExpression>? _cache;
-
-    private Dictionary<string, EntityPathExpression> Cache =>
-        _cache ??= new Dictionary<string, EntityPathExpression>();
-
-    internal void AddMemberToCache(string name, EntityPathExpression member)
+    public EntityExpression R(string name, long modelId)
     {
-#if DEBUG
-        if (Cache.ContainsKey(name))
-            throw new Exception($"Already exists: {name}");
-#endif
-        Cache[name] = member;
+        if (Cache.TryGetValue(name, out var member))
+        {
+            if (member is EntityExpression entityExpression)
+                return entityExpression;
+            throw new ArgumentException("Exists is not a EntityExpression.");
+        }
+
+        var exp = new EntityExpression(name, modelId, this);
+        Cache.Add(name, exp);
+        return exp;
     }
 
-    internal bool TryGetExistsMember(string name, [MaybeNullWhen(false)] out EntityPathExpression member) =>
+    public EntitySetExpression S(string name, long modelId)
+    {
+        if (Cache.TryGetValue(name, out var member))
+        {
+            if (member is EntitySetExpression entitySetExpression)
+                return entitySetExpression;
+            throw new ArgumentException("Exists is not a EntitySetExpression.");
+        }
+
+        var exp = new EntitySetExpression(name, modelId, this);
+        Cache.Add(name, exp);
+        return exp;
+    }
+
+    public Expression U(string name) => throw new NotSupportedException();
+    
+    private Dictionary<string, Expression>? _cache;
+
+    private Dictionary<string, Expression> Cache => _cache ??= new Dictionary<string, Expression>();
+
+    internal void AddMemberToCache(string name, Expression member)
+    {
+        if (member.Type != ExpressionType.EntityFieldExpression &&
+            member.Type != ExpressionType.EntitySetExpression &&
+            member.Type != ExpressionType.EntityExpression)
+            throw new ArgumentException($"Not supported MemberType [{member.Type}].");
+
+        if (!Cache.TryAdd(name, member))
+            throw new Exception($"Already exists: {name}");
+    }
+
+    internal bool TryGetExistsMember(string name, [MaybeNullWhen(false)] out Expression member) =>
         Cache.TryGetValue(name, out member);
 
     #endregion
 
     #region ====Overrides Methods====
 
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
+    public override int GetHashCode() => base.GetHashCode();
 
     public override bool Equals(object? obj)
     {

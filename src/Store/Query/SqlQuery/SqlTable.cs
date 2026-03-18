@@ -14,5 +14,12 @@ public sealed class SqlTable : SqlJoinable //备注曾用名: SqlQueryJoin
     /// </summary>
     public EntityExpression T { get; }
 
-    public override EntityPathExpression this[string name] => T[name];
+    #region ====IMemberPathBuilder====
+
+    public override EntityFieldExpression F(string name) => T.F(name);
+    public override EntityExpression R(string name, long modelId) => T.R(name, modelId);
+    public override EntitySetExpression S(string name, long modelId) => T.S(name, modelId);
+    public override Expression U(string name) => T.U(name);
+
+    #endregion
 }

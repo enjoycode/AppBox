@@ -3,7 +3,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-internal sealed class Workgroup : SqlEntity
+internal sealed class Workgroup : SqlEntity, IEntity
 {
     internal Workgroup() { }
 
@@ -25,12 +25,12 @@ internal sealed class Workgroup : SqlEntity
 
     #region ====Overrides====
 
-    internal const long MODELID = 8012673906332663820; //3
+    public static long MODELID => 8012673906332663820; //3
 
     internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
 
-    private static readonly short[] MemberIds = { ID_ID, NAME_ID };
+    private static readonly short[] MemberIds = [ID_ID, NAME_ID];
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;

@@ -14,8 +14,6 @@ public interface ISqlSelectQuery : ISqlQuery
 {
     ModelId EntityModelId { get; }
 
-    EntityPathExpression this[string name] { get; }
-
     string AliasName { get; }
 
     /// <summary>
@@ -69,7 +67,7 @@ internal static class SqlSelectQueryExtensions
             if (members[i].Type == EntityMemberType.EntityField)
             {
                 var alias = fullPath == null ? members[i].Name : $"{fullPath}.{members[i].Name}";
-                var si = new SqlSelectItemExpression(t[members[i].Name], alias);
+                var si = new SqlSelectItemExpression(t.F(members[i].Name), alias);
                 query.AddSelectItem(si);
             }
             else if (members[i].Type == EntityMemberType.EntityRefField)
@@ -79,11 +77,11 @@ internal static class SqlSelectQueryExtensions
                 //转换为eg: t["Customer"]["City"]["Name"]表达式
                 var entityRefFieldMember = (EntityRefFieldMember)members[i];
                 var currentEntityModel = model;
-                EntityPathExpression pathExpression = t;
+                Expression pathExpression = t;
                 for (var j = 0; j < entityRefFieldMember.RefFieldPath.Length; j++)
                 {
                     var member = currentEntityModel.GetMember(entityRefFieldMember.RefFieldPath[j], true)!;
-                    pathExpression = pathExpression[member.Name];
+                    pathExpression = ((EntityExpression)pathExpression).F(member.Name);
                     if (member is EntityRefMember entityRefMember)
                     {
                         if (entityRefMember.IsAggregationRef) throw new NotImplementedException();

@@ -2,15 +2,27 @@ using System.Text;
 
 namespace AppBoxCore;
 
-public sealed class EntityFieldExpression : EntityPathExpression
+public sealed class EntityFieldExpression : Expression, IEntityPathExpression
 {
-    internal EntityFieldExpression(string name, EntityExpression owner) : base(name, owner) { }
+    internal EntityFieldExpression(string name, EntityExpression owner)
+    {
+        Name = name;
+        Owner = owner;
+    }
+    
+    public string Name { get; }
+
+    public EntityExpression Owner { get; }
+    
+    /// <summary>
+    /// eg: Customer.Name => CustomerName
+    /// </summary>
+    /// <returns></returns>
+    internal string GetFieldAlias() => $"{Owner.GetFieldAlias()}{Name}";
 
     #region ====Overrides====
 
     public override ExpressionType Type => ExpressionType.EntityFieldExpression;
-
-    public override EntityPathExpression this[string name] => throw new InvalidOperationException();
 
     public override bool Equals(object? obj)
     {

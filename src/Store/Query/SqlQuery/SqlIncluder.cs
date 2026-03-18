@@ -25,45 +25,38 @@ public abstract class SqlIncluder
     public List<SqlIncluder>? Children { get; private set; }
 
     /// <summary>
-    /// Only EntityExpression | EntitySetExpression
+    /// Only EntityExpression | EntitySetExpression now.
     /// </summary>
     public Expression Expression { get; protected init; } = null!;
 
-    protected EntityPathExpression MemberExpression //TODO: remove this
-    {
-        get
-        {
-            if (Expression.Type is ExpressionType.EntityExpression or ExpressionType.EntitySetExpression)
-                return (EntityPathExpression)Expression;
-            return (EntityPathExpression)((SqlSelectItemExpression)Expression).Expression;
-        }
-    }
+    protected string ExpressionName => ((IEntityPathExpression)Expression).Name!;
 
     protected SqlIncluder GetRoot() => Parent == null ? this : Parent.GetRoot();
 
     #region ====Include Methods====
 
-    public SqlIncluder<TChild> Include<TChild>(Func<EntityExpression, EntityPathExpression> selector,
-        bool includeEntityRefFields = false) where TChild : SqlEntity, new()
+    public SqlIncluder<TChild> Include<TChild>(Func<EntityExpression, Expression> selector,
+        bool includeEntityRefFields = false) where TChild : SqlEntity, IEntity, new()
     {
         var root = GetRoot();
         return root.IncludeInternal<TChild>(selector((EntityExpression)root.Expression), includeEntityRefFields);
     }
 
-    public SqlIncluder<TChild> ThenInclude<TChild>(Func<EntityExpression, EntityPathExpression> selector,
-        bool includeEntityRefFields = false) where TChild : SqlEntity, new()
+    public SqlIncluder<TChild> ThenInclude<TChild>(Func<EntityExpression, Expression> selector,
+        bool includeEntityRefFields = false) where TChild : SqlEntity, IEntity, new()
     {
-        if (Expression.Type == ExpressionType.EntitySetExpression)
-            return IncludeInternal<TChild>(selector(((EntitySetExpression)Expression).RootEntityExpression),
-                includeEntityRefFields);
-        return IncludeInternal<TChild>(selector((EntityExpression)Expression), includeEntityRefFields);
+        return IncludeInternal<TChild>(Expression.Type == ExpressionType.EntitySetExpression
+            ? selector(((EntitySetExpression)Expression).RootEntityExpression)
+            : selector((EntityExpression)Expression), includeEntityRefFields);
     }
 
-    private SqlIncluder<TChild> IncludeInternal<TChild>(EntityPathExpression member, bool includeEntityRefFields)
-        where TChild : SqlEntity, new()
+    private SqlIncluder<TChild> IncludeInternal<TChild>(Expression member, bool includeEntityRefFields)
+        where TChild : SqlEntity, IEntity, new()
     {
-        Debug.Assert(member.Type is ExpressionType.EntityExpression or ExpressionType.EntitySetExpression);
+        if (member.Type != ExpressionType.EntitySetExpression && member.Type != ExpressionType.EntityExpression)
+            throw new ArgumentException("Only supports EntitySetExpression and EntityExpression now");
 
+        //TODO: 处理如Order.Customer.City多层级
         //判断Include的Owner是否相同
         //if (!ReferenceEquals(member.Owner, MemberExpression))
         //    throw new ArgumentException("Owner not same");
@@ -74,8 +67,9 @@ public abstract class SqlIncluder
             return child;
         }
 
+        var memberName = ((IEntityPathExpression)member).Name;
         var found = Children.FindIndex(t => t.Expression.Type == member.Type
-                                            && t.MemberExpression.Name == member.Name);
+                                            && t.ExpressionName == memberName);
         if (found >= 0)
             return (SqlIncluder<TChild>)Children[found];
         var res = new SqlIncluder<TChild>(this, member, includeEntityRefFields);
@@ -187,23 +181,24 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
 
         //判断是否已经生成加载命令
         var ownerModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(owner.ModelId);
-        var entitySetMember = (EntitySetMember)ownerModel.GetMember(MemberExpression.Name, true)!;
+        var entitySetMember = (EntitySetMember)ownerModel.GetMember(ExpressionName, true)!;
         var setModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(entitySetMember.RefModelId);
+        var entityExpression = ((EntitySetExpression)Expression).RootEntityExpression;
         if (_loadEntitySetCmd == null)
         {
             var fkmm = (EntityRefMember)setModel.GetMember(entitySetMember.RefMemberId, true)!;
-            var q = new SqlFetchEntitySetQuery(this); // Should use SqlQuery<TEntity>?
+            var q = new SqlFetchEntitySetQuery(entityExpression); // Should use SqlQuery<TEntity>?
             //生成条件
             for (var i = 0; i < fkmm.FKMemberIds.Length; i++)
             {
                 //外键字段 == 当前主键字段
-                var fkExp = q.T[setModel.GetMember(fkmm.FKMemberIds[i], true)!.Name];
+                var fkExp = q.F(setModel.GetMember(fkmm.FKMemberIds[i], true)!.Name);
                 q.AndWhere(fkExp == new SqlParameterExpression());
             }
 
             //AddSelects
             await AddSelects(q, setModel); //注意在前面
-            await q.AddAllSelects(setModel, ((EntitySetExpression)Expression).RootEntityExpression, null,
+            await q.AddAllSelects(setModel, entityExpression, null,
                 IncludeEntityRefFields);
 
             _loadEntitySetCmd = db.BuildQuery(q);
@@ -246,17 +241,15 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
     /// </summary>
     private class SqlFetchEntitySetQuery : SqlJoinable, ISqlSelectQuery
     {
-        public SqlFetchEntitySetQuery(SqlIncluder root)
+        public SqlFetchEntitySetQuery(EntityExpression entityExpression)
         {
-            T = ((EntitySetExpression)root.Expression).RootEntityExpression;
+            T = entityExpression;
             T.User = this;
         }
 
         public EntityExpression T { get; }
 
         public ModelId EntityModelId => T.ModelId;
-
-        public override EntityPathExpression this[string name] => throw new NotImplementedException();
 
         public EntityRefMember? TreeParentMember => null;
         public IList<SqlSelectItemExpression>? Selects { get; } = new List<SqlSelectItemExpression>();
@@ -269,6 +262,15 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
         public IList<SqlSelectItemExpression>? GroupByKeys => null;
         public Expression? HavingFilter => null;
         public Expression? Filter { get; private set; }
+
+        #region ====IMemberPathBuilder====
+
+        public override EntityFieldExpression F(string name) => T.F(name);
+        public override EntityExpression R(string name, long modelId) => T.R(name, modelId);
+        public override EntitySetExpression S(string name, long modelId) => T.S(name, modelId);
+        public override Expression U(string name) => T.U(name);
+
+        #endregion
 
         public void AndWhere(Expression condition)
         {

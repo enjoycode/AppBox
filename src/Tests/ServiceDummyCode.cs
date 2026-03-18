@@ -19,9 +19,12 @@ namespace AppBoxStoreDummy
     internal sealed class NoneGenericAttribute : Attribute { }
 
     #endregion
-
-    public static class SqlEntityExtensions
+    
+    public static class StoreExtensions
     {
+        public static bool In<T>(this T source, IEnumerable<T> list) => false;
+        public static bool NotIn<T>(this T source, IEnumerable<T> list) => false;
+        
         public static Task<int> InsertAsync(this SqlEntity entity, DbTransaction? txn = null)
             => throw new Exception();
 
@@ -55,7 +58,7 @@ namespace AppBoxStoreDummy
     }
 
     [NoneGeneric]
-    public interface ISqlJoinable<T> { }
+    public interface ISqlJoinable<out T> { }
 
     public static class ISqlJoinableExtensions
     {
@@ -75,6 +78,13 @@ namespace AppBoxStoreDummy
         public static ISqlJoinable<TJoin> FullJoin<TSource, TJoin>(this ISqlJoinable<TSource> s,
             ISqlJoinable<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
     }
+    
+    /// <summary>
+    /// 子查询
+    /// </summary>
+    [NoneGeneric]
+    public interface ISqlSubQuery<out T> : IEnumerable<T>, ISqlJoinable<T>
+    {}
 
     [NoneGeneric]
     public sealed class SqlTable<T> : ISqlJoinable<T> where T : SqlEntity
@@ -210,6 +220,12 @@ namespace AppBoxStoreDummy
 
         [QueryMethod()]
         public SqlQuery<T> Having(Func<T, bool> condition) => this;
+        
+        /// <summary>
+        /// 转换为列子查询
+        /// </summary>
+        [QueryMethod()]
+        public ISqlSubQuery<TResult> AsSubQuery<TResult>(Func<T, TResult> selector) => throw new Exception();
     }
 
     [NoneGeneric]
@@ -294,7 +310,7 @@ namespace TestNameSpace
     {
         public string Name { get; set; } = null!;
         public City City { get; set; } = null!;
-        public string CityCode { get; set; } = null!;
+        public string CityId { get; set; } = null!;
 
         public override ModelId ModelId { get; } = null!;
         protected override short[] AllMembers { get; } = null!;
@@ -312,7 +328,7 @@ namespace TestNameSpace
 
     public sealed class City : SqlEntity
     {
-        public string Code { get; set; } = null!;
+        public string Id { get; set; } = null!;
         public string Name { get; set; } = null!;
 
         public override ModelId ModelId { get; } = null!;
@@ -335,6 +351,8 @@ namespace TestNameSpace
 
         public Product Product { get; set; } = null!;
 
+        public string ProductId { get; set; } = null!;
+
         public override ModelId ModelId { get; } = null!;
         protected override short[] AllMembers { get; } = null!;
 
@@ -351,6 +369,8 @@ namespace TestNameSpace
 
     public sealed class Product : SqlEntity
     {
+        public string Id { get; set; } = null!;
+        
         public string Name { get; set; } = null!;
 
         public override ModelId ModelId { get; } = null!;
@@ -391,10 +411,20 @@ namespace TestNameSpace
             var q = new SqlQuery<Customer>();
             var j = new SqlTable<City>();
 
-            q.LeftJoin(j, (cus, city) => cus.CityCode == city.Code);
+            q.LeftJoin(j, (cus, city) => cus.CityId == city.Id);
             q.Where(j, (cus, city) => city.Name == "无锡");
             var list = await q.ToListAsync(j, (cus, city) => new { cus.Name, CityName = city.Name });
             Console.WriteLine(list[0].CityName);
+        }
+
+        public static void TestSubQuery1()
+        {
+            var q = new SqlQuery<OrderItem>();
+            var s = new SqlQuery<Product>()
+                .Where(t => t.Name.Contains("汽车"))
+                .AsSubQuery(t => t.Id);
+
+            q.Where(t => t.ProductId.In(s));
         }
     }
 }

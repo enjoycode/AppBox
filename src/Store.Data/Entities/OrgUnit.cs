@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-internal sealed class OrgUnit : SqlEntity
+internal sealed class OrgUnit : SqlEntity, IEntity
 {
     private string _name = null!;
     private Guid _id;
@@ -81,7 +81,7 @@ internal sealed class OrgUnit : SqlEntity
 
     #region ====Overrides====
 
-    internal const long MODELID = 8012673906332663824; //4
+    public static long MODELID => 8012673906332663824; //4
 
     internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
@@ -144,12 +144,15 @@ internal sealed class OrgUnit : SqlEntity
                 _parentId = rs.ReadGuidMember(flags);
                 break;
             case BASE_ID:
-                _base = rs.ReadEntityRefMember<SqlEntity>(flags, () => _baseType switch
+                _base = rs.ReadEntityRefMember<SqlEntity>(flags, () =>
                 {
-                    Employee.MODELID => new Employee(),
-                    Workgroup.MODELID => new Workgroup(),
-                    Enterprise.MODELID => new Enterprise(Guid.Empty),
-                    _ => throw new Exception()
+                    if (_baseType == Employee.MODELID)
+                        return new Employee();
+                    if (_baseType == Workgroup.MODELID)
+                        return new Workgroup();
+                    if (_baseType == Enterprise.MODELID)
+                        return new Enterprise(Guid.Empty);
+                    throw new Exception("Unknown Base Type");
                 });
                 break;
             case PARENT_ID:

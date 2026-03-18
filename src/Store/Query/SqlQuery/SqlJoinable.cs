@@ -2,13 +2,11 @@ using AppBoxCore;
 
 namespace AppBoxStore;
 
-public interface ISqlJoinable
+public interface ISqlJoinable : IMemberPathBuilder
 {
     bool HasJoins { get; }
 
     IList<SqlJoin> Joins { get; }
-
-    EntityPathExpression this[string name] { get; }
 }
 
 public static class ISqlJoinableExtensions
@@ -40,7 +38,7 @@ public static class ISqlJoinableExtensions
         => s.Join(JoinType.FullJoin, target, onCondition(s, target));
 }
 
-public sealed class SqlJoin
+public sealed class SqlJoin //TODO: should be readonly struct
 {
     public SqlJoin(ISqlJoinable right, JoinType joinType, Expression onCondition)
     {
@@ -76,5 +74,11 @@ public abstract class SqlJoinable : ISqlJoinable //备注曾用名: SqlQueryBase
     public bool HasJoins => _joins is { Count: > 0 };
     public IList<SqlJoin> Joins => _joins ??= [];
 
-    public abstract EntityPathExpression this[string name] { get; }
+    public abstract EntityFieldExpression F(string name);
+
+    public abstract EntityExpression R(string name, long modelId);
+
+    public abstract EntitySetExpression S(string name, long modelId);
+
+    public abstract Expression U(string name);
 }

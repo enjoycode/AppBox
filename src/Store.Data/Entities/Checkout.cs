@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-internal sealed class Checkout : SqlEntity
+internal sealed class Checkout : SqlEntity, IEntity
 {
     public Checkout() { }
 
@@ -37,7 +37,7 @@ internal sealed class Checkout : SqlEntity
 
     #region ====Overrides====
 
-    internal const long MODELID = 8012673906332663832; //6
+    public static long MODELID => 8012673906332663832; //6
 
     internal const short NODE_TYPE_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short TARGET_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;

@@ -33,7 +33,7 @@ internal static class DesignUtils
         return list;
     }
 
-    public static EntityPathExpression BuildExpressionFrom(TreeNode<EntityMember> treeNode, EntityExpression root)
+    public static Expression BuildExpressionFrom(TreeNode<EntityMember> treeNode, EntityExpression root)
     {
         var temp = treeNode;
         var list = new List<EntityMember>();
@@ -43,10 +43,19 @@ internal static class DesignUtils
             temp = temp.ParentNode;
         }
 
-        EntityPathExpression exp = root;
+        Expression exp = root;
         foreach (var item in list)
         {
-            exp = exp[item.Name];
+            exp = item switch
+            {
+                EntityFieldMember => ((EntityExpression)exp).F(item.Name),
+                EntityRefMember entityRefMember when entityRefMember.IsAggregationRef =>
+                    throw new NotSupportedException("Not supported aggregation now"),
+                EntityRefMember entityRefMember => ((EntityExpression)exp).R(item.Name, entityRefMember.RefModelIds[0]),
+                EntitySetMember entitySetMember => ((EntityExpression)exp).S(entitySetMember.Name,
+                    entitySetMember.RefModelId),
+                _ => throw new NotSupportedException(item.Type.ToString())
+            };
         }
 
         return exp;

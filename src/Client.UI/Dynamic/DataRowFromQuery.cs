@@ -43,7 +43,7 @@ internal sealed class DataRowFromQuery : IDataRowSource
             var pk = PrimaryKeys[i];
             if (!_row.HasValue(pk.Name))
                 throw new Exception($"Must set pk value: {pk.Name}");
-            var exp = new BinaryExpression(Root![pk.Name],
+            var exp = new BinaryExpression(Root!.F(pk.Name),
                 new ConstantExpression(_row[pk.Name].BoxedValue),
                 BinaryOperatorType.Equal);
             q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);

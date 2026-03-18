@@ -71,7 +71,7 @@ internal static class EntityCsGenerator
         sb.Append("using AppBoxCore;\n\n");
         sb.Append($"namespace {appName}.Entities;\n");
 
-        sb.Append($"public sealed class {model.Name} : {GetEntityBaseClass(model)}");
+        sb.Append($"public sealed class {model.Name} : {GetEntityBaseClass(model)}, IEntity");
         sb.Append("\n{\n"); //class start
 
         // 实体成员
@@ -103,7 +103,7 @@ internal static class EntityCsGenerator
         GenOverrideAcceptTrackerChanges(model, sb);
 
         // override ModelId
-        sb.Append($"public const long MODELID={model.Id.Value}L;\n");
+        sb.Append($"public static long MODELID=>{model.Id.Value}L;\n");
         sb.Append("public override ModelId ModelId => MODELID;\n");
 
         // override AllMembers

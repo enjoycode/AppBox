@@ -21,9 +21,9 @@ internal static class StagedService
                      q.GetByte(Consts.STAGED_TYPE_ID) == (byte)StagedType.SourceCode);
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t["DeveloperId"] == developerId &
-                     t["Model"] == modelId.ToString() &
-                     t["Type"] == (byte)StagedType.SourceCode);
+        q.Where(t => t.F("DeveloperId") == developerId &
+                     t.F("Model") == modelId.ToString() &
+                     t.F("Type") == (byte)StagedType.SourceCode);
 #endif
         var res = await q.ToSingleAsync();
         return res?.Data;
@@ -79,9 +79,9 @@ internal static class StagedService
             var txn = await Transaction.BeginAsync();
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t["Type"] == (byte)type &
-                     t["Model"] == modelId &
-                     t["DeveloperId"] == developerId);
+        q.Where(t => t.F("Type") == (byte)type &
+                     t.F("Model") == modelId &
+                     t.F("DeveloperId") == developerId);
 
         await using var conn = await SqlStore.Default.OpenConnectionAsync();
         await using var txn = await conn.BeginTransactionAsync();
@@ -125,7 +125,7 @@ internal static class StagedService
                 q.GetByte(Consts.STAGED_TYPE_ID) <= (byte)StagedType.Folder);
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t["DeveloperId"] == developerId & t["Type"] <= (byte)StagedType.Folder);
+        q.Where(t => t.F("DeveloperId") == developerId & t.F("Type") <= (byte)StagedType.Folder);
 #endif
         var res = await q.ToListAsync();
         return res;
@@ -143,7 +143,7 @@ internal static class StagedService
         q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID);
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t["DeveloperId"] == developerId);
+        q.Where(t => t.F("DeveloperId") == developerId);
 #endif
         var res = await q.ToListAsync(
             r => new PendingChange()
@@ -151,7 +151,7 @@ internal static class StagedService
                 Type = (StagedType)r.ReadIntMember(0),
                 Id = r.ReadStringMember(1)
             },
-            t => [t["Type"], t["Model"]]);
+            t => [t.F("Type"), t.F("Model")]);
         return res;
     }
 
@@ -167,7 +167,7 @@ internal static class StagedService
             q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == devId);
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t["DeveloperId"] == devId);
+        q.Where(t => t.F("DeveloperId") == devId);
 #endif
         var list = await q.ToListAsync();
         for (var i = 0; i < list.Count; i++)
@@ -194,8 +194,8 @@ internal static class StagedService
              & q.GetString(Consts.STAGED_MODELID_ID) == modelId.ToString());
 #else
         var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t["DeveloperId"] == devId &
-                     t["Model"] == modelId.ToString());
+        q.Where(t => t.F("DeveloperId") == devId &
+                     t.F("Model") == modelId.ToString());
 #endif
         var list = await q.ToListAsync();
         for (var i = 0; i < list.Count; i++)

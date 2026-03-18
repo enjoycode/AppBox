@@ -124,7 +124,7 @@ internal sealed class DesignService : IService
         q.Selects = new DynamicQuery.SelectItem[fields.Length];
         for (var i = 0; i < fields.Length; i++)
         {
-            q.Selects[i] = new DynamicQuery.SelectItem(fields[i].Name, t[fields[i].Name],
+            q.Selects[i] = new DynamicQuery.SelectItem(fields[i].Name, t.F(fields[i].Name),
                 DataCell.DataTypeFromEntityFieldType(fields[i].FieldType));
         }
 

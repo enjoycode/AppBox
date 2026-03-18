@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using AppBoxStore;
 using AppBoxStore.Entities;
 using NUnit.Framework;
@@ -17,12 +15,12 @@ public class SqlCommandTest
     public async Task SqlUpdateTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where(t => t["Name"] == "Test");
+        q.Where(t => t.F("Name") == "Test");
         var e = await q.ToSingleAsync();
 
         var cmd = new SqlUpdateCommand(Employee.MODELID);
-        cmd.Where(t => t["Id"] == e!.Id);
-        cmd.Update(t => t["Birthday"].Assign(DateTime.Now));
+        cmd.Where(t => t.F("Id") == e!.Id);
+        cmd.Update(t => t.F("Birthday").Assign(DateTime.Now));
         // //返回单个值
         // var output = cmd.Output(r => r.ReadDateTimeMember(0), cmd["Birthday"]);
         //返回多个字段组成的匿名类
@@ -33,12 +31,12 @@ public class SqlCommandTest
                     Name = r.ReadStringMember(1),
                     Birthday = r.ReadDateTimeMember(2),
                 },
-            t => new[]
-            {
-                t["Id"],
-                t["Name"],
-                t["Birthday"]
-            });
+            t =>
+            [
+                t.F("Id"),
+                t.F("Name"),
+                t.F("Birthday")
+            ]);
 
         var count = await cmd.ExecAsync();
         Assert.True(count == 1);
@@ -55,7 +53,7 @@ public class SqlCommandTest
         await db.InsertAsync(e);
 
         var cmd = new SqlDeleteCommand(Employee.MODELID);
-        cmd.Where(t => t["Id"] == e.Id);
+        cmd.Where(t => t.F("Id") == e.Id);
         var count = await cmd.ExecAsync();
         Assert.True(count == 1);
     }

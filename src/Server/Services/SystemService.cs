@@ -28,7 +28,7 @@ internal sealed class SystemService : IService
 
         //查找账号
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where(e => e[nameof(Employee.Account)] == user);
+        q.Where(e => e.F(nameof(Employee.Account)) == user);
         var emp = await q.ToSingleAsync();
         if (emp == null)
             throw new Exception("用户不存在");
@@ -41,13 +41,15 @@ internal sealed class SystemService : IService
 
         //查找对应的组织单元
         var q1 = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
-        q1.Where(t => t[nameof(OrgUnit.Id)] == emp.Id);
+        q1.Where(t => t.F(nameof(OrgUnit.Id)) == emp.Id);
         var ous = await q1.ToListAsync();
         if (ous.Count == 0)
             throw new Exception("用户不在组织内");
         var q2 = new SqlQuery<OrgUnit>(OrgUnit.MODELID);
-        q2.Where(t => t[nameof(OrgUnit.Id)] == ous[0].Id); //暂始终取第一个组织单元
-        var path = await q2.ToTreePathAsync(t => t[nameof(OrgUnit.Parent)], t => t[nameof(OrgUnit.Name)]);
+        q2.Where(t => t.F(nameof(OrgUnit.Id)) == ous[0].Id); //暂始终取第一个组织单元
+        var path = await q2.ToTreePathAsync(
+            t => t.R(nameof(OrgUnit.Parent), OrgUnit.MODELID),
+            t => t.F(nameof(OrgUnit.Name)));
         return path!;
     }
 

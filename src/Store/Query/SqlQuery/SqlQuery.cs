@@ -4,7 +4,7 @@ using static AppBoxStore.StoreLogger;
 
 namespace AppBoxStore;
 
-public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
+public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
     where TEntity : SqlEntity, new()
 {
     public SqlQuery(long entityModelId)
@@ -14,9 +14,6 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
 
     #region ====Fields & Properties====
 
-    private List<SqlSelectItemExpression>? _selects;
-    private List<SqlOrderBy>? _sortItems;
-
     /// <summary>
     /// Query Target
     /// </summary>
@@ -24,47 +21,14 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
 
     public ModelId EntityModelId => T.ModelId;
 
-    public override EntityPathExpression this[string name] => T[name];
-
     /// <summary>
-    /// 筛选器
-    /// </summary>
-    public Expression? Filter { get; private set; }
-
-    /// <summary>
-    /// 用于EagerLoad导航属性 
+    /// 用于预先加载(EagerLoad)导航属性 
     /// </summary>
     private SqlIncluder<TEntity>? _rootIncluder;
-
-    public IList<SqlSelectItemExpression> Selects => _selects ??= new List<SqlSelectItemExpression>();
-
-    public IList<SqlOrderBy> SortItems => _sortItems ??= new List<SqlOrderBy>();
-
-    public bool HasSortItems => _sortItems != null && _sortItems.Count > 0;
-
-    public QueryPurpose Purpose { get; private set; }
-
-    public bool Distinct { get; set; }
-
-    #region ----分页查询属性----
-
-    public int TakeSize { get; private set; }
-
-    public int SkipSize { get; private set; }
-
-    #endregion
 
     #region ----树状查询属性----
 
     public EntityRefMember? TreeParentMember { get; private set; }
-
-    #endregion
-
-    #region ----GroupBy属性----
-
-    public IList<SqlSelectItemExpression>? GroupByKeys { get; private set; }
-
-    public Expression? HavingFilter { get; private set; }
 
     #endregion
 
@@ -89,10 +53,19 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
 
     #endregion
 
+    #region ====IMemberPathBuilder====
+
+    public override EntityFieldExpression F(string name) => T.F(name);
+    public override EntityExpression R(string name, long modelId) => T.R(name, modelId);
+    public override EntitySetExpression S(string name, long modelId) => T.S(name, modelId);
+    public override Expression U(string name) => T.U(name);
+
+    #endregion
+
     #region ====Include Methods====
 
-    public SqlIncluder<TChild> Include<TChild>(Func<EntityExpression, EntityPathExpression> selector,
-        bool includeEntityRefFields = false) where TChild : SqlEntity, new()
+    public SqlIncluder<TChild> Include<TChild>(Func<EntityExpression, Expression> selector,
+        bool includeEntityRefFields = false) where TChild : SqlEntity, IEntity, new()
     {
         _rootIncluder ??= new SqlIncluder<TEntity>(T);
         return _rootIncluder.Include<TChild>(selector, includeEntityRefFields);
@@ -256,13 +229,13 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
 
         Purpose = QueryPurpose.ToList;
 
-        _selects?.Clear();
+        ClearSelects();
         foreach (var item in selectItem)
         {
             this.AddSelectItem(new SqlSelectItemExpression(item));
         }
 
-        if (_selects!.Count == 0)
+        if (!HasSelects())
             throw new ArgumentException("must select some one");
 
         //递交查询
@@ -293,14 +266,14 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
     /// <summary>
     /// 返回树状结构的实体集合
     /// </summary>
-    /// <param name="childrenMember">eg: t => t["Children"]</param>
+    /// <param name="childrenMember">eg: t => t.S("Children")</param>
     /// <param name="includeEntityRefFields">default: false</param>
     /// <returns></returns>
-    public async Task<IList<TEntity>> ToTreeAsync(Func<EntityExpression, EntityPathExpression> childrenMember,
+    public async Task<IList<TEntity>> ToTreeAsync(Func<EntityExpression, EntitySetExpression> childrenMember,
         bool includeEntityRefFields = false)
     {
         Purpose = QueryPurpose.ToTree;
-        var children = (EntitySetExpression)childrenMember(T);
+        var children = childrenMember(T);
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
         var childrenModel = (EntitySetMember)model.GetMember(children.Name)!;
         TreeParentMember = (EntityRefMember)model.GetMember(childrenModel.RefMemberId)!;
@@ -314,7 +287,7 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
         {
             foreach (var fk in TreeParentMember.FKMemberIds)
             {
-                AndWhere(t => t[model.GetMember(fk)!.Name] == new ConstantExpression(null));
+                AndWhere(t => t.F(model.GetMember(fk)!.Name) == new ConstantExpression(null));
             }
         }
 
@@ -356,16 +329,14 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
     /// <summary>
     /// 返回树状结构的路径, eg: 根节点/子节点/子子节点
     /// </summary>
-    /// <param name="parentMember">指向上级的EntityRef成员 eg: t => t["Parent"]</param>
+    /// <param name="parentMember">指向上级的EntityRef成员 eg: t => t.R("Parent")</param>
     /// <param name="textMember">指向用于显示的文本成员</param>
-    public async Task<TreePath?> ToTreePathAsync(Func<EntityExpression, EntityPathExpression> parentMember,
-        Func<EntityExpression, EntityPathExpression> textMember)
+    public async Task<TreePath?> ToTreePathAsync(Func<EntityExpression, EntityExpression> parentMember,
+        Func<EntityExpression, Expression> textMember)
     {
         if (Expression.IsNull(Filter))
             throw new Exception("Must set filter to single entity");
         var parent = parentMember(T);
-        if (parent is not EntityExpression)
-            throw new Exception("Parent is not EntityRef member");
 
         var model = await RuntimeContext.GetModelAsync<EntityModel>(T.ModelId);
         if (!model.SqlStoreOptions!.HasPrimaryKeys || model.SqlStoreOptions.PrimaryKeys.Length > 1)
@@ -382,8 +353,8 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
         var fkName = model.GetMember(entityRefMember.FKMemberIds[0])!.Name;
 
         Purpose = QueryPurpose.ToTreePath;
-        this.AddSelectItem(new SqlSelectItemExpression(T[pkName], "Id"));
-        this.AddSelectItem(new SqlSelectItemExpression(T[fkName], "ParentId"));
+        this.AddSelectItem(new SqlSelectItemExpression(T.F(pkName), "Id"));
+        this.AddSelectItem(new SqlSelectItemExpression(T.F(fkName), "ParentId"));
         this.AddSelectItem(new SqlSelectItemExpression(textMember(T), "Text"));
 
         //开始执行查询并转换
@@ -407,7 +378,7 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
     /// <summary>
     /// 用于树状结构填充时查找指定实体的上级
     /// </summary>
-    private static TEntity FindParent(EntityRefMember parentMember, TEntity entity, IList<TEntity> from)
+    private static TEntity FindParent(EntityRefMember parentMember, TEntity entity, List<TEntity> from)
     {
         var model = parentMember.Owner;
         var pks = model.SqlStoreOptions!.PrimaryKeys;
@@ -446,19 +417,6 @@ public sealed class SqlQuery<TEntity> : SqlJoinable, ISqlSelectQuery
         this.AddSelectItem(new SqlSelectItemExpression(select(T)));
         return new SqlSubQuery(this);
     }
-
-    // public SqlFromQuery AsFromQuery(params SqlSelectItem[] selectItem)
-    // {
-    //     if (selectItem == null || selectItem.Length <= 0)
-    //         throw new ArgumentException("must select some one");
-    //
-    //     foreach (var item in selectItem)
-    //     {
-    //         AddSelectItem(item.Target);
-    //     }
-    //
-    //     return new SqlFromQuery(this);
-    // }
 
     #endregion
 

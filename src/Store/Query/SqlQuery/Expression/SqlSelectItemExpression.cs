@@ -10,9 +10,8 @@ public sealed class SqlSelectItemExpression : Expression //TODO: rename to SqlSe
         switch (expression.Type)
         {
             case ExpressionType.EntityFieldExpression:
-                //case ExpressionType.AggregationRefFieldExpression:
                 Expression = expression;
-                AliasName = ((EntityPathExpression)expression).Name;
+                AliasName = ((EntityFieldExpression)expression).Name;
                 break;
             case ExpressionType.SelectItemExpression:
                 Expression = expression;

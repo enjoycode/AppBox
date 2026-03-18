@@ -215,7 +215,8 @@ partial class PgSqlStore
 
             var fkName = model.GetMember(treeParentMember.FKMemberIds[i])!.Name;
             var pkName = model.GetMember(model.SqlStoreOptions!.PrimaryKeys[i].MemberId)!.Name;
-            BuildFieldExpression((EntityFieldExpression)query[fkName], ctx);
+            //BuildFieldExpression((EntityFieldExpression)query[fkName], ctx);
+            BuildFieldExpression(((ISqlJoinable)query).F(fkName), ctx);
             ctx.Append("=d.");
             ctx.AppendWithNameEscaper(pkName);
         }
@@ -391,11 +392,10 @@ partial class PgSqlStore
                 ctx.AppendFormat("{0}.\"{1}\"", ctx.GetQueryAliasName(item.Owner!), item.AliasName!);
 
             //处理选择项别名
-            if (ctx.CurrentQueryInfo.BuildStep ==
-                BuildQueryStep.BuildSelect) //&& !ctx.IsBuildCTESelectItem)
+            if (ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildSelect) //&& !ctx.IsBuildCTESelectItem)
             {
-                var memberExp = item.Expression as EntityPathExpression;
-                if (Expression.IsNull(memberExp)
+                var memberExp = item.Expression as IEntityPathExpression;
+                if (memberExp == null /*Expression.IsNull(memberExp)*/
                     /*|| memberExp.Type == ExpressionType.AggregationRefFieldExpression*/
                     //注意：聚合引用字段必须用别名
                     || memberExp!.Name != item.AliasName)

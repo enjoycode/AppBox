@@ -27,7 +27,7 @@ public sealed class SqlFunc : Expression
 
     public static Expression Min(Expression field) => new SqlFunc("Min", field);
 
-    public static BinaryExpression In(Expression field, SqlSubQuery subQuery) =>
+    public static BinaryExpression In(Expression field, SqlSubQueryExpression subQuery) =>
         new(field, subQuery, BinaryOperatorType.In);
 
     public static BinaryExpression In(Expression field, IList list) =>

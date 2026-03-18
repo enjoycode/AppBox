@@ -201,8 +201,7 @@ internal abstract class DataTableFromQueryEditorBase : View
         var treeNode = (TreeNode<EntityMember>)dragEvent.TransferItem;
         //构建路径表达式
         var exp = DesignUtils.BuildExpressionFrom(treeNode, _tableFromQuery.Root!);
-
-        var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
+        var selectItem = new DynamicQuery.SelectItem(((EntityFieldExpression)exp).GetFieldAlias(), exp,
             DataCell.DataTypeFromEntityFieldType(((EntityFieldMember)treeNode.Data).FieldType));
         _selectsController.Add(selectItem);
     }
@@ -262,7 +261,7 @@ internal abstract class DataTableFromQueryEditorBase : View
         //TODO:暂只支持EntityField
         if (s.Field is EntityFieldExpression field)
         {
-            var model = RuntimeContext.GetModel<EntityModel>(field.Owner!.ModelId);
+            var model = RuntimeContext.GetModel<EntityModel>(field.Owner.ModelId);
             var member = (EntityFieldMember)model.GetMember(field.Name)!;
             var dynamicStateType = member.FieldType switch
             {

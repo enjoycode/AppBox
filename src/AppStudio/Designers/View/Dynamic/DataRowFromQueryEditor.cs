@@ -148,7 +148,7 @@ internal sealed class DataRowFromQueryEditor : View
         var treeNode = (TreeNode<EntityMember>)dragEvent.TransferItem;
         //构建路径表达式
         var exp = DesignUtils.BuildExpressionFrom(treeNode, RowFromQuery.Root!);
-        var selectItem = new DynamicQuery.SelectItem(exp.GetFieldAlias(), exp,
+        var selectItem = new DynamicQuery.SelectItem(((EntityFieldExpression)exp).GetFieldAlias(), exp,
             DataCell.DataTypeFromEntityFieldType(((EntityFieldMember)treeNode.Data).FieldType));
         _selectsController.Add(selectItem);
 

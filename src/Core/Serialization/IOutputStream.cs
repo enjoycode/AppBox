@@ -344,7 +344,7 @@ public static class OutputStreamExtensions
         {
             s.WriteByte(3);
             //再写入模型标识, TODO:暂使用反射，考虑只写入ModelId = 0
-            var staticModelIdProp = type.GetField("MODELID", BindingFlags.Static | BindingFlags.Public);
+            var staticModelIdProp = type.GetProperty("MODELID", BindingFlags.Static | BindingFlags.Public);
             s.WriteLong(staticModelIdProp == null ? 0 : (long)staticModelIdProp.GetValue(null)!);
         }
         else
@@ -597,7 +597,7 @@ public static class OutputStreamExtensions
         }
 
         //特殊处理非Root的EntityPathExpression,不用加入已序列化列表
-        if (value is not EntityPathExpression entityPath || Expression.IsNull(entityPath.Owner))
+        if (value is not IEntityPathExpression entityPath || Expression.IsNull(entityPath.Owner))
         {
             if (CheckSerialized(s, value!)) return;
             s.Context.AddToSerialized(value!);

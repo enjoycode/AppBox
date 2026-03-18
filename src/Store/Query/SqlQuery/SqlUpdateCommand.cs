@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading.Tasks;
 using AppBoxCore;
 using Expression = AppBoxCore.Expression;
 
@@ -22,8 +19,6 @@ public sealed class SqlUpdateCommand : SqlJoinable, ISqlQuery
     /// </summary>
     public EntityExpression T { get; }
 
-    public override EntityPathExpression this[string name] => T[name];
-
     /// <summary>
     /// 筛选器
     /// </summary>
@@ -37,12 +32,21 @@ public sealed class SqlUpdateCommand : SqlJoinable, ISqlQuery
     /// <summary>
     /// 更新同时输出的成员
     /// </summary>
-    public EntityPathExpression[]? OutputItems { get; private set; }
+    public Expression[]? OutputItems { get; private set; }
 
     /// <summary>
     /// 用于回调设置输出结果
     /// </summary>
     internal Action<SqlRowReader>? SetOutputs;
+
+    #endregion
+
+    #region ====IMemberPathBuilder====
+
+    public override EntityFieldExpression F(string name) => T.F(name);
+    public override EntityExpression R(string name, long modelId) => T.R(name, modelId);
+    public override EntitySetExpression S(string name, long modelId) => T.S(name, modelId);
+    public override Expression U(string name) => T.U(name);
 
     #endregion
 
@@ -81,7 +85,7 @@ public sealed class SqlUpdateCommand : SqlJoinable, ISqlQuery
     }
 
     public UpdateOutputs<TResult> Output<TResult>(Func<SqlRowReader, TResult> selector,
-        params EntityPathExpression[] selectItem)
+        params Expression[] selectItem)
     {
         //TODO:验证Selected members
         OutputItems = selectItem;
@@ -91,7 +95,7 @@ public sealed class SqlUpdateCommand : SqlJoinable, ISqlQuery
     }
 
     public UpdateOutputs<TResult> Output<TResult>(Func<SqlRowReader, TResult> selector,
-        Func<SqlUpdateCommand, EntityPathExpression[]> selects)
+        Func<SqlUpdateCommand, Expression[]> selects)
     {
         return Output(selector, selects(this));
     }
@@ -107,21 +111,21 @@ public sealed class SqlUpdateCommand : SqlJoinable, ISqlQuery
 
     public sealed class UpdateOutputs<T>
     {
-        private readonly Func<SqlRowReader, T> selector;
-        private readonly IList<T> values = new List<T>();
+        private readonly Func<SqlRowReader, T> _selector;
+        private readonly IList<T> _values = new List<T>();
 
-        public T this[int index] => values[index];
+        public T this[int index] => _values[index];
 
-        public int Count => values.Count;
+        public int Count => _values.Count;
 
         internal UpdateOutputs(Func<SqlRowReader, T> selector)
         {
-            this.selector = selector;
+            _selector = selector;
         }
 
         internal void OnResults(SqlRowReader reader)
         {
-            values.Add(selector(reader));
+            _values.Add(_selector(reader));
         }
     }
 }

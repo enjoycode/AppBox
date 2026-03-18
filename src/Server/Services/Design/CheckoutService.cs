@@ -84,7 +84,7 @@ internal static class CheckoutService
         q.Filter(q.GetGuid(Consts.CHECKOUT_DEVELOPERID_ID) == devId);
 #else
         var q = new SqlQuery<Checkout>(Checkout.MODELID);
-        q.Where(t => t["DeveloperId"] == devId);
+        q.Where(t => t.F("DeveloperId") == devId);
 #endif
 
         var list = await q.ToListAsync();

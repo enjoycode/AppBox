@@ -2,20 +2,23 @@ using System.Text;
 
 namespace AppBoxCore;
 
-public sealed class EntitySetExpression : EntityPathExpression
+public sealed class EntitySetExpression : Expression, IEntityPathExpression
 {
-    public EntitySetExpression(string name, EntityExpression owner, long setModelId)
-        : base(name, owner)
+    public EntitySetExpression(string name, long setModelId, EntityExpression owner)
     {
+        Name = name;
+        Owner = owner;
         _entitySetModelId = setModelId;
     }
 
     private readonly long _entitySetModelId;
     private EntityExpression? _root;
 
-    public override ExpressionType Type => ExpressionType.EntitySetExpression;
+    public string Name { get; }
 
-    public override EntityPathExpression this[string name] => throw new NotSupportedException();
+    public EntityExpression Owner { get; }
+
+    public override ExpressionType Type => ExpressionType.EntitySetExpression;
 
     public EntityExpression RootEntityExpression
     {
@@ -30,7 +33,7 @@ public sealed class EntitySetExpression : EntityPathExpression
     public override void ToCode(StringBuilder sb, int preTabs)
     {
         Owner!.ToCode(sb, preTabs);
-        sb.Append(".");
+        sb.Append('.');
         sb.Append(Name);
     }
 }

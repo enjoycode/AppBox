@@ -16,7 +16,7 @@ public class SqlQueryBenchmarks
     public Task SqlQuery_SimpleWhere()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);
-        q.Where(t => t["Name"] == "Admin");
+        q.Where(t => t.F("Name") == "Admin");
         return q.ToListAsync();
     }
 

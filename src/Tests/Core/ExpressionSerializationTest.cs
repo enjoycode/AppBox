@@ -28,7 +28,7 @@ public class ExpressionSerializationTest
         var model = await RuntimeContext.GetModelAsync<EntityModel>(OrgUnit.MODELID);
 
         var root = new EntityExpression(model, null);
-        var exp1 = root["Parent"]["Name"];
+        var exp1 = root.R("Parent", OrgUnit.MODELID).F("Name");
 
         using var ms = new MemoryStream();
         await using var writer = new Utf8JsonWriter(ms);
@@ -37,7 +37,7 @@ public class ExpressionSerializationTest
 
         ms.Position = 0;
         var reader = new Utf8JsonReader(ms.ToArray());
-        var exp2 = (EntityPathExpression)ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
+        var exp2 = (EntityFieldExpression)ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
         Assert.True(exp2!.ToString() == exp1.ToString());
         Assert.AreSame(exp2.Owner!.Owner!, root);
     }

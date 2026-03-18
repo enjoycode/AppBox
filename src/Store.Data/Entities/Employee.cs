@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-internal sealed class Employee : SqlEntity
+internal sealed class Employee : SqlEntity, IEntity
 {
     public Employee() { }
 
@@ -52,7 +52,7 @@ internal sealed class Employee : SqlEntity
 
     #region ====Overrides====
 
-    internal const long MODELID = 8012673906332663812; //1
+    public static long MODELID => 8012673906332663812; //1
 
     internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;

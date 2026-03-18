@@ -3,7 +3,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-internal sealed class Enterprise : SqlEntity
+internal sealed class Enterprise : SqlEntity, IEntity
 {
     public Enterprise(Guid id)
     {
@@ -30,7 +30,7 @@ internal sealed class Enterprise : SqlEntity
 
     #region ====Overrides====
 
-    internal const long MODELID = 8012673906332663816; //2
+    public static long MODELID => 8012673906332663816; //2
 
     internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
