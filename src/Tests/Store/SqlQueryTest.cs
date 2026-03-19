@@ -34,6 +34,15 @@ public sealed class SqlQueryTest
     }
 
     [Test]
+    public async Task ToScalarTest()
+    {
+        var q = new SqlQuery<Employee>(Employee.MODELID);
+        q.Where(t => t.F(nameof(Employee.Name)) == "Admin");
+        var name = await q.ToScalarAsync<string>(t => t.F("Name"));
+        Assert.AreEqual("Admin", name);
+    }
+
+    [Test]
     public async Task ToSingleTest()
     {
         var q = new SqlQuery<Employee>(Employee.MODELID);

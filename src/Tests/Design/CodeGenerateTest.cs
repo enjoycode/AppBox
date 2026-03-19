@@ -75,6 +75,8 @@ public class CodeGenerateTest
                                            var q = new SqlQuery<sys.Entities.OrgUnit>();
                                            q.Include(t => t.Parent);
                                            q.Where(t => t.Name == "IT Dept" && t.Parent.Name.Contains("AA"));
+                                           q.AsSubQuery(t => t.Id);
+                                           q.AsSubQuery(t => new {t.Id, t.Name});
                                            return await q.ToSingleAsync();
                                        }
                                    }

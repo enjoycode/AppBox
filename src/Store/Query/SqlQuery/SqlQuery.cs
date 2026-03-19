@@ -388,11 +388,9 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
             var allSame = true;
             for (var j = 0; j < parentMember.FKMemberIds.Length; j++)
             {
-                entity.WriteMember(parentMember.FKMemberIds[j], ref memberValueGetter,
-                    EntityMemberWriteFlags.None);
+                entity.WriteMember(parentMember.FKMemberIds[j], ref memberValueGetter, EntityMemberWriteFlags.None);
                 var fkValue = memberValueGetter.Value;
-                from[i].WriteMember(pks[j].MemberId, ref memberValueGetter,
-                    EntityMemberWriteFlags.None);
+                from[i].WriteMember(pks[j].MemberId, ref memberValueGetter, EntityMemberWriteFlags.None);
                 var pkValue = memberValueGetter.Value;
                 if (!fkValue.Equals(pkValue))
                 {
@@ -410,11 +408,27 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
 
     #endregion
 
-    #region ====AsXXX Methods====
+    #region ====AsSubQuery Methods====
 
+    /// <summary>
+    /// 选择一列的子查询
+    /// </summary>
     public SqlSubQuery AsSubQuery(Func<EntityExpression, Expression> select)
     {
         this.AddSelectItem(new SqlSelectItemExpression(select(T)));
+        return new SqlSubQuery(this);
+    }
+
+    /// <summary>
+    /// 选择多列的子查询
+    /// </summary>
+    public SqlSubQuery AsSubQuery(Func<EntityExpression, IEnumerable<Expression>> selects)
+    {
+        foreach (var item in selects(T))
+        {
+            this.AddSelectItem(new SqlSelectItemExpression(item));
+        }
+
         return new SqlSubQuery(this);
     }
 

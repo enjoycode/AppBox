@@ -222,7 +222,7 @@ namespace AppBoxStoreDummy
         public SqlQuery<T> Having(Func<T, bool> condition) => this;
         
         /// <summary>
-        /// 转换为列子查询
+        /// 转换为子查询
         /// </summary>
         [QueryMethod()]
         public ISqlSubQuery<TResult> AsSubQuery<TResult>(Func<T, TResult> selector) => throw new Exception();

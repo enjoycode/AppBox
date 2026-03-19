@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxDesign.CodeGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,8 +19,8 @@ internal partial class ServiceCodeGenerator
             SyntaxNode? res;
             if (currentQuery.IsDynamicMethod)
                 res = VisitDynamicQuery(node, currentQuery);
-            else if (currentQuery.MethodName == "ToScalarAsync")
-                res = VisitToScalarQuery(node);
+            else if (currentQuery.MethodName == QueryMethods.AsSubQuery)
+                res = VisitAsSubQuery(node, currentQuery);
             else
                 res = base.VisitSimpleLambdaExpression(node);
 
@@ -41,8 +42,8 @@ internal partial class ServiceCodeGenerator
             SyntaxNode? res;
             if (currentQuery.IsDynamicMethod)
                 res = VisitDynamicQuery(node, currentQuery);
-            else if (currentQuery.MethodName == "ToScalarAsync")
-                res = VisitToScalarQuery(node);
+            else if (currentQuery.MethodName == QueryMethods.AsSubQuery)
+                res = VisitAsSubQuery(node, currentQuery);
             else
                 res = base.VisitParenthesizedLambdaExpression(node);
 
@@ -55,20 +56,22 @@ internal partial class ServiceCodeGenerator
 
     private SyntaxNode VisitDynamicQuery(LambdaExpressionSyntax lambda, QueryMethod queryMethod)
     {
-        return lambda.Body switch
+        switch (lambda.Body)
         {
-            AnonymousObjectCreationExpressionSyntax aoc => queryMethod.MethodName == "ToDataTableAsync"
-                ? VisitDynamicQueryToDynamicList(lambda, queryMethod.LambdaParameters!, aoc)
-                : VisitDynamicQueryToAnonymousObject(lambda, queryMethod.LambdaParameters!, aoc),
-            MemberAccessExpressionSyntax ma =>
-                VisitDynamicQueryToSingleValue(lambda, queryMethod.LambdaParameters!, ma),
-            ObjectCreationExpressionSyntax oc =>
-                VisitDynamicQueryToObject(lambda, queryMethod.LambdaParameters!, oc),
-            _ => throw new NotImplementedException($"动态查询方法的第一个参数[{lambda.Body.GetType().Name}]暂未实现")
-        };
+            case AnonymousObjectCreationExpressionSyntax aoc:
+                return queryMethod.MethodName == QueryMethods.ToDataTableAsync
+                    ? VisitDynamicQueryToDataTable(lambda, queryMethod.LambdaParameters!, aoc)
+                    : VisitDynamicQueryToAnonymousObject(lambda, queryMethod.LambdaParameters!, aoc);
+            case MemberAccessExpressionSyntax ma:
+                return VisitDynamicQueryToSingleValue(lambda, queryMethod.LambdaParameters!, ma);
+            case ObjectCreationExpressionSyntax oc:
+                return VisitDynamicQueryToObject(lambda, queryMethod.LambdaParameters!, oc);
+            default:
+                throw new NotImplementedException($"Lambda body [{lambda.Body.GetType().Name}] is not implemented.");
+        }
     }
 
-    private SyntaxNode VisitDynamicQueryToDynamicList(LambdaExpressionSyntax lambda,
+    private SyntaxNode VisitDynamicQueryToDataTable(LambdaExpressionSyntax lambda,
         ParameterSyntax[] lambdaParameters, AnonymousObjectCreationExpressionSyntax aoc)
     {
         var args = new SeparatedSyntaxList<ArgumentSyntax>();
@@ -95,8 +98,8 @@ internal partial class ServiceCodeGenerator
             sb1.Append(fieldName);
             sb1.Append("\"]=r.Read");
             var expSymbol = ModelExtensions.GetSymbolInfo(SemanticModel, initializer.Expression).Symbol;
-            var expType = TypeHelper.GetSymbolType(expSymbol);
-            var typeString = TypeHelper.GetEntityMemberTypeString(expType, out var isNullable);
+            var expType = TypeHelper.GetSymbolType(expSymbol!);
+            var typeString = TypeHelper.GetEntityMemberTypeString(expType!, out var isNullable);
             if (isNullable) sb1.Append("Nullable");
             sb1.Append(typeString);
             sb1.Append("Member(");
@@ -120,23 +123,10 @@ internal partial class ServiceCodeGenerator
             SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb2))
         ));
 
-        //3. 处理selectItems参数
+        //3. 转换lambda with AnonymousObject
         var arrayItems = new SeparatedSyntaxList<ExpressionSyntax>()
             .AddRange(aoc.Initializers.Select(init => (ExpressionSyntax)init.Expression.Accept(this)!));
-
-        var arrayInitializer = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, arrayItems);
-        var selectsArray = SyntaxFactory.ImplicitArrayCreationExpression(arrayInitializer);
-
-        var parametersList = new SeparatedSyntaxList<ParameterSyntax>().AddRange(lambdaParameters);
-        var selectsLambdaParameters = SyntaxFactory.ParameterList(parametersList);
-        var selectsLambda = SyntaxFactory.ParenthesizedLambdaExpression(selectsLambdaParameters, null, selectsArray);
-        var selectsArg = SyntaxFactory.Argument(selectsLambda);
-
-        //补body所有行差
-        var lineSpan = lambda.Body.GetLocation().GetLineSpan();
-        var lineDiff = lineSpan.EndLinePosition.Line - lineSpan.StartLinePosition.Line;
-        if (lineDiff > 0)
-            selectsArg = selectsArg.WithTrailingTrivia(SyntaxFactory.Whitespace(new string('\n', lineDiff)));
+        var selectsArg = LambdaToArgument(lambda, lambdaParameters, arrayItems);
         args = args.Add(selectsArg);
 
         return SyntaxFactory.ArgumentList(args);
@@ -146,7 +136,7 @@ internal partial class ServiceCodeGenerator
         ParameterSyntax[] lambdaParameters, AnonymousObjectCreationExpressionSyntax aoc)
     {
         var args = new SeparatedSyntaxList<ArgumentSyntax>();
-        //转换Lambda表达式为运行时Lambda表达式
+        //1. 转换Lambda表达式为运行时Lambda表达式
         //eg: t=>new {t.Id, t.Name} 转换为 r=> new {Id=r.ReadIntMember(0), Name=r.ReadStringMember(1)}
         var sb = StringBuilderCache.Acquire();
         sb.Append("r => new {");
@@ -156,12 +146,12 @@ internal partial class ServiceCodeGenerator
             var initializer = aoc.Initializers[i];
             if (initializer.NameEquals != null)
                 sb.Append(initializer.NameEquals.Name.Identifier.ValueText);
-            else //没有命名需要指定成员名称 t.Name 转换为 Name = t["Name"]
+            else //没有命名需要指定成员名称 t.Name 转换为 Name = t.F("Name")
                 sb.Append(((MemberAccessExpressionSyntax)initializer.Expression).Name.Identifier.ValueText);
             sb.Append("=r.Read");
             var expSymbol = ModelExtensions.GetSymbolInfo(SemanticModel, initializer.Expression).Symbol;
-            var expType = TypeHelper.GetSymbolType(expSymbol);
-            var typeString = TypeHelper.GetEntityMemberTypeString(expType, out var isNullable);
+            var expType = TypeHelper.GetSymbolType(expSymbol!);
+            var typeString = TypeHelper.GetEntityMemberTypeString(expType!, out var isNullable);
             if (isNullable) sb.Append("Nullable");
             sb.Append(typeString);
             sb.Append("Member(");
@@ -175,22 +165,10 @@ internal partial class ServiceCodeGenerator
             SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb))
         ));
 
-        //处理selectItems参数
+        //2. 转换lambda with AnonymousObject
         var arrayItems = new SeparatedSyntaxList<ExpressionSyntax>()
             .AddRange(aoc.Initializers.Select(init => (ExpressionSyntax)init.Expression.Accept(this)!));
-
-        var arrayInitializer = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, arrayItems);
-        var selectsArray = SyntaxFactory.ImplicitArrayCreationExpression(arrayInitializer);
-
-        var parametersList = new SeparatedSyntaxList<ParameterSyntax>().AddRange(lambdaParameters);
-        var selectsLambdaParameters = SyntaxFactory.ParameterList(parametersList);
-        var selectsLambda = SyntaxFactory.ParenthesizedLambdaExpression(selectsLambdaParameters, null, selectsArray);
-        var selectsArg = SyntaxFactory.Argument(selectsLambda);
-        //补body所有行差
-        var lineSpan = lambda.Body.GetLocation().GetLineSpan();
-        var lineDiff = lineSpan.EndLinePosition.Line - lineSpan.StartLinePosition.Line;
-        if (lineDiff > 0)
-            selectsArg = selectsArg.WithTrailingTrivia(SyntaxFactory.Whitespace(new string('\n', lineDiff)));
+        var selectsArg = LambdaToArgument(lambda, lambdaParameters, arrayItems);
         args = args.Add(selectsArg);
 
         return SyntaxFactory.ArgumentList(args);
@@ -200,8 +178,8 @@ internal partial class ServiceCodeGenerator
         ParameterSyntax[] lambdaParameters, ObjectCreationExpressionSyntax oc)
     {
         var args = new SeparatedSyntaxList<ArgumentSyntax>();
-        //转换Lambda表达式为运行时Lambda表达式
-        //eg: t=>new XXX{t.Id, t.Name} 转换为 r=> new {Id=r.ReadIntMember(0), Name=r.ReadStringMember(1)}
+        //1. 转换Lambda表达式为运行时Lambda表达式
+        //eg: t=>new XXX{t.Id, t.Name} 转换为 r=> new XXX{Id=r.ReadIntMember(0), Name=r.ReadStringMember(1)}
         var sb = StringBuilderCache.Acquire();
         sb.Append("r => new ");
         sb.Append(oc.Type);
@@ -230,23 +208,11 @@ internal partial class ServiceCodeGenerator
             SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb))
         ));
 
-        //处理selectItems参数
+        //2. 处理selectItems参数
         var arrayItems = new SeparatedSyntaxList<ExpressionSyntax>()
             .AddRange(oc.Initializer.Expressions
                 .Select(init => (ExpressionSyntax)((AssignmentExpressionSyntax)init).Right.Accept(this)!));
-
-        var arrayInitializer = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, arrayItems);
-        var selectsArray = SyntaxFactory.ImplicitArrayCreationExpression(arrayInitializer);
-
-        var parametersList = new SeparatedSyntaxList<ParameterSyntax>().AddRange(lambdaParameters);
-        var selectsLambdaParameters = SyntaxFactory.ParameterList(parametersList);
-        var selectsLambda = SyntaxFactory.ParenthesizedLambdaExpression(selectsLambdaParameters, null, selectsArray);
-        var selectsArg = SyntaxFactory.Argument(selectsLambda);
-        //补body所有行差
-        var lineSpan = lambda.Body.GetLocation().GetLineSpan();
-        var lineDiff = lineSpan.EndLinePosition.Line - lineSpan.StartLinePosition.Line;
-        if (lineDiff > 0)
-            selectsArg = selectsArg.WithTrailingTrivia(SyntaxFactory.Whitespace(new string('\n', lineDiff)));
+        var selectsArg = LambdaToArgument(lambda, lambdaParameters, arrayItems);
         args = args.Add(selectsArg);
 
         return SyntaxFactory.ArgumentList(args);
@@ -256,7 +222,7 @@ internal partial class ServiceCodeGenerator
         ParameterSyntax[] lambdaParameters, MemberAccessExpressionSyntax ma)
     {
         var args = new SeparatedSyntaxList<ArgumentSyntax>();
-        //转换Lambda表达式为运行时Lambda表达式
+        //1. 转换Lambda表达式为运行时Lambda表达式
         //eg: t=> t.Name 转换为 r=> r.ReadStringMember(0)
         var sb = StringBuilderCache.Acquire();
         sb.Append("r => r.Read");
@@ -271,30 +237,72 @@ internal partial class ServiceCodeGenerator
             SyntaxFactory.ParseExpression(StringBuilderCache.GetStringAndRelease(sb))
         ));
 
-        //处理selectItems参数
+        //2. 处理selectItems参数
         var arrayItems = new SeparatedSyntaxList<ExpressionSyntax>()
             .Add((ExpressionSyntax)ma.Accept(this)!);
-
-        var arrayInitializer =
-            SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, arrayItems);
-        var selectsArray = SyntaxFactory.ImplicitArrayCreationExpression(arrayInitializer);
-
-        var parametersList = new SeparatedSyntaxList<ParameterSyntax>().AddRange(lambdaParameters);
-        var selectsLambdaParameters = SyntaxFactory.ParameterList(parametersList);
-        var selectsLambda =
-            SyntaxFactory.ParenthesizedLambdaExpression(selectsLambdaParameters, null, selectsArray);
-
-        args = args.Add(SyntaxFactory.Argument(selectsLambda).WithTriviaFrom(ma));
+        var selectsArg = LambdaToArgument(lambda, lambdaParameters, arrayItems);
+        args = args.Add(selectsArg);
 
         return SyntaxFactory.ArgumentList(args);
     }
 
-    private SyntaxNode VisitToScalarQuery(LambdaExpressionSyntax lambda)
+    private SyntaxNode? VisitAsSubQuery(LambdaExpressionSyntax lambda, QueryMethod queryMethod)
     {
-        var args = new SeparatedSyntaxList<ArgumentSyntax>();
-        var argExpression = (ExpressionSyntax)lambda.Body.Accept(this)!;
-        var arg = SyntaxFactory.Argument(argExpression);
-        args = args.Add(arg);
-        return SyntaxFactory.ArgumentList(args);
+        if (lambda.Body is MemberAccessExpressionSyntax)
+        {
+            return lambda switch
+            {
+                SimpleLambdaExpressionSyntax simple => base.VisitSimpleLambdaExpression(simple),
+                ParenthesizedLambdaExpressionSyntax parenthesized => base.VisitParenthesizedLambdaExpression(
+                    parenthesized),
+                _ => base.Visit(lambda)
+            };
+        }
+
+        if (lambda.Body is not AnonymousObjectCreationExpressionSyntax aoc)
+            throw new NotImplementedException($"AsSubQuery lambda can't accept {lambda.Body.GetType()}");
+
+        var arrayItems = new SeparatedSyntaxList<ExpressionSyntax>()
+            .AddRange(aoc.Initializers.Select(init => (ExpressionSyntax)init.Expression.Accept(this)!));
+        return ConvertLambdaSelects(queryMethod.LambdaParameters!, arrayItems).WithTriviaFrom(lambda);
+    }
+
+
+    private static ArgumentSyntax LambdaToArgument(LambdaExpressionSyntax lambda,
+        ParameterSyntax[] lambdaParameters, SeparatedSyntaxList<ExpressionSyntax> array)
+    {
+        var selectsLambda = ConvertLambdaSelects(lambdaParameters, array);
+        var selectsArg = SyntaxFactory.Argument(selectsLambda);
+
+        //补行差
+        if (lambda.Body is MemberAccessExpressionSyntax)
+        {
+            selectsArg = selectsArg.WithTriviaFrom(lambda.Body);
+        }
+        else
+        {
+            var lineSpan = lambda.Body.GetLocation().GetLineSpan();
+            var lineDiff = lineSpan.EndLinePosition.Line - lineSpan.StartLinePosition.Line;
+            if (lineDiff > 0)
+                selectsArg = selectsArg.WithTrailingTrivia(SyntaxFactory.Whitespace(new string('\n', lineDiff)));
+        }
+
+        return selectsArg;
+    }
+
+    /// <summary>
+    /// 1. 将t=>new {ID=t.ID, Name=t.Name} 转换为 t=> [t.F("ID"), t.F("Name")]
+    /// 2. 将t=>new XXX {ID=t.ID, Name=t.Name} 转换为 t=> [t.F("ID"), t.F("Name)]
+    /// 3. 将t=>t.ID 转换为 t=>[t.F("ID")]
+    /// </summary>
+    private static ParenthesizedLambdaExpressionSyntax ConvertLambdaSelects(ParameterSyntax[] lambdaParameters,
+        SeparatedSyntaxList<ExpressionSyntax> array)
+    {
+        var arrayInitializer = SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, array);
+        var selectsArray = SyntaxFactory.ImplicitArrayCreationExpression(arrayInitializer);
+
+        var parametersList = new SeparatedSyntaxList<ParameterSyntax>().AddRange(lambdaParameters);
+        var selectsLambdaParameters = SyntaxFactory.ParameterList(parametersList);
+        return SyntaxFactory.ParenthesizedLambdaExpression(selectsLambdaParameters, null, selectsArray);
     }
 }

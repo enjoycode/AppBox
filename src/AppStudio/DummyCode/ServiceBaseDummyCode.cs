@@ -53,9 +53,12 @@ namespace AppBoxStore
     internal sealed class NoneGenericAttribute : Attribute { }
 
     #endregion
-
-    public static class SqlEntityExtensions
+    
+    public static class StoreExtensions
     {
+        public static bool In<T>(this T source, IEnumerable<T> list) => false;
+        public static bool NotIn<T>(this T source, IEnumerable<T> list) => false;
+        
         public static Task<int> InsertAsync(this SqlEntity entity, DbTransaction? txn = null)
             => throw new Exception();
 
@@ -89,7 +92,7 @@ namespace AppBoxStore
     }
 
     [NoneGeneric]
-    public interface ISqlJoinable<T> { }
+    public interface ISqlJoinable<out T> { }
 
     public static class ISqlJoinableExtensions
     {
@@ -109,6 +112,13 @@ namespace AppBoxStore
         public static ISqlJoinable<TJoin> FullJoin<TSource, TJoin>(this ISqlJoinable<TSource> s,
             ISqlJoinable<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
     }
+    
+    /// <summary>
+    /// 子查询
+    /// </summary>
+    [NoneGeneric]
+    public interface ISqlSubQuery<out T> : IEnumerable<T>, ISqlJoinable<T>
+    {}
 
     [NoneGeneric]
     public sealed class SqlTable<T> : ISqlJoinable<T> where T : SqlEntity
@@ -244,6 +254,12 @@ namespace AppBoxStore
 
         [QueryMethod()]
         public SqlQuery<T> Having(Func<T, bool> condition) => this;
+        
+        /// <summary>
+        /// 转换为子查询
+        /// </summary>
+        [QueryMethod()]
+        public ISqlSubQuery<TResult> AsSubQuery<TResult>(Func<T, TResult> selector) => throw new Exception();
     }
 
     [NoneGeneric]

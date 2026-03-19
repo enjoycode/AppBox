@@ -1,3 +1,4 @@
+using AppBoxDesign.CodeGenerator;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBoxDesign;
@@ -33,10 +34,9 @@ internal sealed class QueryMethod
     /// <summary>
     /// 是否动态查询方法，最后一个参数会转换为两个参数或三个参数(ToDynamicListAsync)
     /// </summary>
-    internal bool IsDynamicMethod => MethodName == "Output"
-                                     || MethodName == "ToScalarAsync"
-                                     || (MethodName == "ToListAsync" && ParameterCount > 0)
-                                     || (MethodName == "ToDataTableAsync" && ParameterCount > 0);
+    internal bool IsDynamicMethod => MethodName == QueryMethods.Output ||
+                                     (MethodName == QueryMethods.ToListAsync && ParameterCount > 0) ||
+                                     (MethodName == QueryMethods.ToDataTableAsync && ParameterCount > 0);
 
     internal bool IsLambdaParameter(IdentifierNameSyntax identifier)
     {
