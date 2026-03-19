@@ -7,18 +7,17 @@ public sealed class SqlSubQueryExpression : Expression
 {
     public SqlSubQueryExpression(SqlSubQuery subQuery)
     {
-        _subQuery = subQuery;
+        SubQuery = subQuery;
     }
 
-    private readonly SqlSubQuery _subQuery;
+    public SqlSubQuery SubQuery { get; }
+
     public override ExpressionType Type => ExpressionType.SubQueryExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
         //TODO:
         sb.Append(preTabs);
-        sb.Append($"SubQuery({_subQuery})");
+        sb.Append($"SubQuery({SubQuery})");
     }
-
-    public static implicit operator SqlSubQueryExpression(SqlSubQuery subQuery) => new(subQuery);
 }

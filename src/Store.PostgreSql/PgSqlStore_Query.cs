@@ -464,9 +464,9 @@ partial class PgSqlStore
             case ExpressionType.SelectItemExpression:
                 BuildSelectItem((SqlSelectItemExpression)exp, ctx);
                 break;
-            // case ExpressionType.SubQueryExpression:
-            //     BuildSubQuery((SqlSubQuery)exp, ctx);
-            //     break;
+            case ExpressionType.SubQueryExpression:
+                BuildSubQuery((SqlSubQueryExpression)exp, ctx);
+                break;
             case ExpressionType.DbFuncExpression:
                 BuildDbFuncExpression((SqlFunc)exp, ctx);
                 break;
@@ -481,12 +481,12 @@ partial class PgSqlStore
         }
     }
 
-    // private void BuildSubQuery(SqlSubQuery exp, BuildQueryContext ctx)
-    // {
-    //     ctx.Append("(");
-    //     BuildNormalQuery(exp.Target, ctx);
-    //     ctx.Append(")");
-    // }
+    private void BuildSubQuery(SqlSubQueryExpression exp, BuildQueryContext ctx)
+    {
+        ctx.Append("(");
+        BuildNormalQuery(exp.SubQuery.Target, ctx);
+        ctx.Append(")");
+    }
 
     private static void BuildPrimitiveExpression(ConstantExpression exp, BuildQueryContext ctx)
     {

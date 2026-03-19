@@ -20,6 +20,12 @@ public sealed class SqlSubQuery : SqlSelectQueryBase, ISqlSelectQuery
 
     public EntityRefMember? TreeParentMember => null;
 
+    #region ====隐式转换====
+
+    public static implicit operator SqlSubQueryExpression(SqlSubQuery subQuery) => new(subQuery);
+
+    #endregion
+
     #region ====IMemberPathBuilder====
 
     public override EntityFieldExpression F(string name) => throw new NotSupportedException();
