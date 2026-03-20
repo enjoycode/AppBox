@@ -216,51 +216,14 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
     public async Task<DataTable> ToDataTableAsync(Func<SqlRowReader, DataRow> selector,
         DataColumn[] fields, Func<EntityExpression, IEnumerable<Expression>> selects)
     {
-        var ds = new DataTable(fields);
-        await ToListCore(selector, selects(T), e => ds.Add(e));
-        return ds;
-    }
-
-    private async Task ToListCore<TResult>(Func<SqlRowReader, TResult> selector,
-        IEnumerable<Expression> selectItem, Action<TResult> addItem)
-    {
-        //if (SkipSize > -1 && !HasSortItems)
-        //    throw new ArgumentException("Paged query must has sort items."); //TODO:加入默认主键排序
-
-        Purpose = QueryPurpose.ToList;
-
-        ClearSelects();
-        foreach (var item in selectItem)
+        var table = new DataTable(fields);
+        table.EntityModelId = EntityModelId;
+        await ToListCore(selector, selects(T), e =>
         {
-            this.AddSelectItem(new SqlSelectItemExpression(item));
-        }
-
-        if (!HasSelects())
-            throw new ArgumentException("must select some one");
-
-        //递交查询
-        var model = await RuntimeContext.GetModelAsync<EntityModel>(EntityModelId);
-        var db = SqlStore.Get(model.SqlStoreOptions!.StoreModelId);
-        await using var cmd = db.BuildQuery(this);
-        await using var conn = db.MakeConnection();
-        await conn.OpenAsync();
-        cmd.Connection = conn;
-        Logger.Debug(cmd.CommandText);
-
-        try
-        {
-            await using var reader = await cmd.ExecuteReaderAsync();
-            var rr = new SqlRowReader(reader);
-            while (await reader.ReadAsync())
-            {
-                addItem(selector(rr));
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Warn($"Exec sql error: {ex.Message}\n{cmd.CommandText}");
-            throw;
-        }
+            e.AcceptAfterFetch();
+            table.Add(e);
+        });
+        return table;
     }
 
     /// <summary>

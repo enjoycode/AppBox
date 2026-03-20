@@ -70,24 +70,22 @@ partial class PgSqlStore
         ctx.CurrentQueryInfo.BuildStep = BuildQueryStep.BuildFrom;
         ctx.Append(" From ");
         //判断From源
-        // if (query is SqlFromQuery)
-        // {
-        //     SqlFromQuery q = (SqlFromQuery)ctx.CurrentQuery;
-        //     //开始构建From子查询
-        //     ctx.Append("(");
-        //     BuildNormalQuery(q.Target, ctx);
-        //     ctx.Append(")");
-        //     ctx.AppendFormat(" {0}",
-        //         ((SqlJoinable)q.Target).AliasName);
-        // }
-        // else
-        // {
-        var model = RuntimeContext.GetModel<EntityModel>(query.EntityModelId);
-        ctx.Append('"');
-        ctx.Append(model.SqlStoreOptions!.GetSqlTableName(false, null));
-        ctx.Append("\" ");
-        ctx.Append(query.AliasName);
-        // }
+        if (query is SqlSubQuery subQuery)
+        {
+            //开始构建From子查询
+            ctx.Append("(");
+            BuildNormalQuery(subQuery.Target, ctx);
+            ctx.Append(")");
+            ctx.AppendFormat(" {0}", ((SqlJoinable)subQuery.Target).AliasName);
+        }
+        else
+        {
+            var model = RuntimeContext.GetModel<EntityModel>(query.EntityModelId);
+            ctx.Append('"');
+            ctx.Append(model.SqlStoreOptions!.GetSqlTableName(false, null));
+            ctx.Append("\" ");
+            ctx.Append(query.AliasName);
+        }
 
         //构建Where
         ctx.CurrentQueryInfo.BuildStep = BuildQueryStep.BuildWhere;

@@ -16,9 +16,16 @@ public sealed class SqlSubQuery : SqlSelectQueryBase, ISqlSelectQuery
 
     public ISqlSelectQuery Target { get; }
 
-    public ModelId EntityModelId => throw new NotSupportedException();
+    public ModelId EntityModelId => FindRootModelId(Target);
 
     public EntityRefMember? TreeParentMember => null;
+
+    private static ModelId FindRootModelId(ISqlSelectQuery query)
+    {
+        if (query is SqlSubQuery subQuery)
+            FindRootModelId(subQuery.Target);
+        return query.EntityModelId;
+    }
 
     #region ====隐式转换====
 
@@ -46,6 +53,18 @@ public sealed class SqlSubQuery : SqlSelectQueryBase, ISqlSelectQuery
         var member = new SqlSelectItemExpression(found!) { Owner = this };
         _t.Add(name, member);
         return member;
+    }
+
+    #endregion
+
+    #region ====Select Methods====
+
+    public async Task<DataTable> ToDataTableAsync(Func<SqlRowReader, DataRow> selector,
+        DataColumn[] fields, Func<SqlSubQuery, IEnumerable<Expression>> selects)
+    {
+        var table = new DataTable(fields);
+        await ToListCore(selector, selects(this), e => table.Add(e));
+        return table;
     }
 
     #endregion

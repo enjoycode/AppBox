@@ -78,13 +78,20 @@ namespace AppBoxStoreDummy
         public static ISqlJoinable<TJoin> FullJoin<TSource, TJoin>(this ISqlJoinable<TSource> s,
             ISqlJoinable<TJoin> join, Func<TSource, TJoin, bool> condition) => join;
     }
-    
+
     /// <summary>
     /// 子查询
     /// </summary>
     [NoneGeneric]
     public interface ISqlSubQuery<out T> : IEnumerable<T>, ISqlJoinable<T>
-    {}
+    {
+        /// <summary>
+        /// 执行查询并转换为动态数据表
+        /// </summary>
+        /// <param name="selector">必须为返回匿名类的Lambda表达式 eg: t => new {t.Name, t.Score}</param>
+        [QueryMethod()]
+        public Task<DataTable> ToDataTableAsync<TResult>(Func<T, TResult> selector) => throw new Exception();
+    }
 
     [NoneGeneric]
     public sealed class SqlTable<T> : ISqlJoinable<T> where T : SqlEntity
