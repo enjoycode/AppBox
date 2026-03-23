@@ -50,6 +50,7 @@ namespace AppBoxCore
         WorkflowModel = 57,
         ReportModel = 58,
         PermissionModel = 59,
+        EnumModel = 60,
 
         OrderedField = 63,
         TextChange = 64,

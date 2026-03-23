@@ -8,7 +8,11 @@ namespace AppBoxCore;
 public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 {
     internal EntityModel() { }
-    public EntityModel(ModelId id, string name) : base(id, name) { }
+
+    public EntityModel(ModelId id, string name) : base(id, name)
+    {
+        Debug.Assert(id.Type == ModelType.Entity);
+    }
 
     private const short MaxMemberId = 512;
 
