@@ -736,9 +736,8 @@ partial class PgSqlStore
             //case ExpressionType.InvocationExpression:
             //    throw new NotImplementedException(); //TODO:根据系统函数判断
             default:
-                throw new NotSupportedException("Not Supported Expression Type ["
-                                                + exp.Type.ToString() +
-                                                "] for CheckNeedConvertStringAddOperator.");
+                throw new NotSupportedException(
+                    $"Not Supported Expression Type [{exp.Type}] for CheckNeedConvertStringAddOperator.");
         }
     }
 

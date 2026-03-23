@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AppBoxClient;
 using AppBoxCore;
 using AppBoxDesign.Debugging;
@@ -236,7 +237,8 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
             var res = await Channel.Invoke<object?>(serviceMethod);
             if (res != null)
             {
-                Log.Info($"调用服务方法结果: {System.Text.Json.JsonSerializer.Serialize(res)}");
+                Log.Info($"调用服务方法结果: " +
+                         $"{JsonSerializer.Serialize(res, new JsonSerializerOptions() { WriteIndented = true })}");
             }
         }
         catch (Exception ex)

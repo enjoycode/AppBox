@@ -1,10 +1,13 @@
 using System.Collections.ObjectModel;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AppBoxCore;
 
 /// <summary>
 /// 动态数据表
 /// </summary>
+[JsonConverter(typeof(DataTableJsonConverter))]
 public sealed class DataTable : Collection<DataRow>, IBinSerializable
 {
     internal DataTable() { }
@@ -173,4 +176,28 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
     }
 
     #endregion
+}
+
+public sealed class DataTableJsonConverter : JsonConverter<DataTable>
+{
+    public override DataTable? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public override void Write(Utf8JsonWriter writer, DataTable value, JsonSerializerOptions options)
+    {
+        writer.WriteStartArray();
+        foreach (var row in value)
+        {
+            writer.WriteStartObject();
+            foreach (var col in value.Columns)
+            {
+                writer.WritePropertyName(col.Name);
+                JsonSerializer.Serialize(writer, row[col.Name].BoxedValue, options);
+            }
+            writer.WriteEndObject();
+        }
+        writer.WriteEndArray();
+    }
 }
