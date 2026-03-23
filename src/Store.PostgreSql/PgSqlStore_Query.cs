@@ -76,7 +76,7 @@ partial class PgSqlStore
             ctx.Append("(");
             BuildNormalQuery(subQuery.Target, ctx);
             ctx.Append(")");
-            ctx.AppendFormat(" {0}", ((SqlJoinable)subQuery.Target).AliasName);
+            ctx.AppendFormat(" {0}", subQuery.AliasName);
         }
         else
         {
