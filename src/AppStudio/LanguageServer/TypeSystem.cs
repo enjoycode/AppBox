@@ -1,3 +1,4 @@
+using System.Text;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -218,6 +219,12 @@ internal sealed class TypeSystem : IDisposable
                 newSolution = newSolution.AddDocument(node.ExtRoslynDocumentId!, docName, clientCode);
                 break;
             }
+            case ModelType.Enum:
+            {
+                var enumCode = EnumCodeGenerator.GenEnumCode((EnumModel)model, appName);
+                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, enumCode);
+                break;
+            }
         }
 
         if (newSolution != null)
@@ -271,10 +278,11 @@ internal sealed class TypeSystem : IDisposable
                 break;
             }
             case ModelType.Enum:
-                //TODO:
-                // newSolution = Workspace.CurrentSolution.WithDocumentText(docId,
-                //                     SourceText.From(CodeGenService.GenEnumDummyCode((EnumModel)model, appName)));
+            {
+                var enumCode = EnumCodeGenerator.GenEnumCode((EnumModel)model, appName);
+                newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(enumCode));
                 break;
+            }
             case ModelType.Service:
             {
                 throw new NotImplementedException();
