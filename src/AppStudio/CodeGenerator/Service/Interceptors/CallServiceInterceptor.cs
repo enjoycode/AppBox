@@ -36,8 +36,7 @@ internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode
 
         var method = SyntaxFactory.ParseExpression(methodName);
         var serviceArg = SyntaxFactory.Argument(
-            SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
-                SyntaxFactory.Literal(servicePath))
+            SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(servicePath))
         );
         var args = SyntaxFactory.ArgumentList().AddArguments(serviceArg);
         if (node.ArgumentList.Arguments.Count == 0)
