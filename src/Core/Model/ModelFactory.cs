@@ -9,6 +9,7 @@ public static class ModelFactory
         ModelType.View => new ViewModel(),
         ModelType.Permission => new PermissionModel(),
         ModelType.Report => new ReportModel(),
-        _ => throw new NotImplementedException(type.ToString())
+        ModelType.Enum => new EnumModel(),
+        _ => throw new NotImplementedException($"{nameof(ModelFactory)}.Make {type}")
     };
 }

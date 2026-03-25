@@ -71,6 +71,10 @@ internal sealed class DesignerPad : View
                     var reportDesigner = new ReportDesigner(modelNode);
                     node.Designer = reportDesigner;
                     return reportDesigner;
+                case ModelType.Enum:
+                    var enumDesigner = new EnumDesigner(_designStore, modelNode);
+                    node.Designer = enumDesigner;
+                    return enumDesigner;
             }
         }
 

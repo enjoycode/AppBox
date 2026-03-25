@@ -16,6 +16,8 @@ internal static class EnumCodeGenerator
             sb.Append("/// </summary>\n");
         }
 
+        if (model.IsFlag) sb.Append("[Flags]\n");
+
         sb.Append($"public enum {model.Name} {{\n");
         for (var i = 0; i < model.Items.Count; i++)
         {

@@ -30,6 +30,9 @@ public sealed class ModelNode : DesignNode
                 RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ServiceBaseProjectId);
                 ExtRoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ViewsProjectId);
                 break;
+            case ModelType.Enum:
+                RoslynDocumentId = DocumentId.CreateNewId(hub.TypeSystem.ModelProjectId);
+                break;
         }
     }
 

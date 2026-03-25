@@ -41,7 +41,7 @@ internal sealed class MainMenuPad : View
                 MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand),
                 MenuItem.Item("View", MaterialIcons.Wysiwyg, cmds.NewViewCommand),
                 MenuItem.Item("Report", MaterialIcons.PieChart, cmds.NewReportCommand),
-                MenuItem.Item("Enum", MaterialIcons.ViewList, cmds.NotImplCommand),
+                MenuItem.Item("Enum", MaterialIcons.ViewList, cmds.NewEnumCommand),
                 MenuItem.Item("Permission", MaterialIcons.Lock, cmds.NewPermissionCommand)
             ]),
             MenuItem.SubMenu("Models", MaterialIcons.Widgets, [

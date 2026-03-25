@@ -9,7 +9,7 @@ internal sealed class DesignTreePad : View
 {
     private readonly DesignStore _designStore;
     private readonly State<string> _searchKey = "";
-    private bool _hasLoadTree = false;
+    private bool _hasLoadTree;
 
     public DesignTreePad(DesignStore designStore)
     {

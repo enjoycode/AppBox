@@ -38,20 +38,28 @@ internal sealed class NewDialog : Dialog
 
     private async void CreateAsync()
     {
-        var selectedNode = _designStore.TreeController.FirstSelectedNode;
-        if (selectedNode == null) return;
-
-        var res = _type switch
+        try
         {
-            "Folder" => await NewFolder.Execute(selectedNode.Data, _name.Value),
-            "Service" => await NewServiceModel.Execute(selectedNode.Data, _name.Value),
-            "Permission" => await NewPermissionModel.Execute(selectedNode.Data, _name.Value),
-            "Report" => await NewReportModel.Execute(selectedNode.Data, _name.Value),
-            _ => throw new NotImplementedException(_type)
-        };
+            var selectedNode = _designStore.TreeController.FirstSelectedNode;
+            if (selectedNode == null) return;
 
-        //根据返回结果同步添加新节点
-        res.ResolveToTree(_designStore);
-        _designStore.OnNewNode(res!);
+            var res = _type switch
+            {
+                "Folder" => await NewFolder.Execute(selectedNode.Data, _name.Value),
+                "Service" => await NewServiceModel.Execute(selectedNode.Data, _name.Value),
+                "Permission" => await NewPermissionModel.Execute(selectedNode.Data, _name.Value),
+                "Report" => await NewReportModel.Execute(selectedNode.Data, _name.Value),
+                "Enum" => await NewEnumModel.Execute(selectedNode.Data, _name.Value),
+                _ => throw new NotImplementedException(_type)
+            };
+
+            //根据返回结果同步添加新节点
+            res.ResolveToTree(_designStore);
+            _designStore.OnNewNode(res!);
+        }
+        catch (Exception e)
+        {
+            Notification.Error($"Create error: {e.Message}");
+        }
     }
 }
