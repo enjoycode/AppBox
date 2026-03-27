@@ -28,15 +28,8 @@ internal static class DebugService
             Directory.CreateDirectory(debugPath);
 
         var asmFilePath = Path.Combine(debugPath, $"{asmName}.dll");
-        await using var fs = new FileStream(asmFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await foreach (var chunk in stream)
-        {
-            //TODO: check order by offset
-            await fs.WriteAsync(chunk.GetDataChunk());
-        }
-
-        await fs.FlushAsync();
-        Logger.Debug($"Upload debug service to: {asmFilePath} {fs.Length}");
+        await stream.WriteToFile(asmFilePath);
+        Logger.Debug($"Upload debug service to: {asmFilePath}");
     }
 
     /// <summary>

@@ -129,7 +129,10 @@ public static class Channel
 
     public static Task Upload(string service, Stream stream, AnyValue arg) =>
         Provider.Upload(service, stream, AnyArgs.Make(arg));
-    
+
+    public static async Task<T> Upload<T>(string service, Stream stream, AnyValue arg1, AnyValue arg2) =>
+        (await Provider.Upload(service, stream, AnyArgs.Make(arg1, arg2))).CastTo<T>();
+
     //暂时放在这里，待移至RuntimeContext内
     public static Task<bool> HasPermission(ModelId permissionModelId)
     {

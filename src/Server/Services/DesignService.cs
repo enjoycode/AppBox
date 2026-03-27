@@ -79,7 +79,8 @@ internal sealed class DesignService : IService
                 await PublishService.UploadViewAssemblyMap((MessageReadStream)args.InputStream!);
                 return AnyValue.Empty;
             case DesignMethods.UploadExtAssembly:
-                return AnyValue.From(await ExternalLibraryManager.UploadLibrary(args.InputStream!));
+                return AnyValue.From(await ExternalLibraryManager.UploadLibrary(
+                    (IAsyncEnumerable<IBlobChunk>)args.GetObject()!, args.GetString()!, args.GetString()!));
             case DesignMethods.GetExtLibraries:
                 return AnyValue.From(await ExternalLibraryManager.GetExternalLibraries(args.GetString()!));
             case DesignMethods.DebugUploadService:

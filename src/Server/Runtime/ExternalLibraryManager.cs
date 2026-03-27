@@ -18,10 +18,8 @@ internal static class ExternalLibraryManager
     /// <summary>
     /// 上传第三方库, 注意：目前仅支持服务依赖的库
     /// </summary>
-    internal static async Task<byte> UploadLibrary(IInputStream stream)
+    internal static async Task<byte> UploadLibrary(IAsyncEnumerable<IBlobChunk> stream, string appName, string fileName)
     {
-        var appName = stream.ReadString()!;
-        var fileName = stream.ReadString()!;
         var folder = GetExternalLibraryPath(appName);
         var filePath = Path.Combine(folder, fileName);
 
@@ -29,10 +27,7 @@ internal static class ExternalLibraryManager
             Directory.CreateDirectory(folder);
 
         // save to External library folder
-        var wfs = File.OpenWrite(filePath);
-        await stream.ToSystemStream().CopyToAsync(wfs);
-        await wfs.FlushAsync();
-        wfs.Close();
+        await stream.WriteToFile(filePath);
 
         // check is native assembly
         var assemblyFlag = AssemblyPlatform.None;

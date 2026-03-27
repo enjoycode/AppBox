@@ -175,12 +175,8 @@ internal sealed class DependencyDialog : Dialog
             var fileName = files[0].FileName;
             fileStream = files[0].FileStream;
 
-            var assemblyFlag = await Channel.Invoke<byte>(DesignMethods.UploadExtAssemblyFull, ws =>
-            {
-                ws.WriteString(appName);
-                ws.WriteString(fileName);
-                fileStream.CopyTo(ws);
-            });
+            var assemblyFlag = await Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull,
+                fileStream, appName, fileName);
             //TODO:加入Source列表内，并通知已经依赖的更新
         }
         catch (Exception ex)
