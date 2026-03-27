@@ -214,14 +214,15 @@ public sealed class WebSocketChannel : IClientChannel
             {
                 var reader = new BlobChuckWriter(msgId, offset);
                 var bytesRead = await reader.ReadChunkDataAsync(stream);
-                if (bytesRead == 0)
-                    break;
                 if (bytesRead < 0)
                 {
                     NotifyErrorToPendingRequest(msgId, MessageType.UploadChunk, InvokeErrorCode.SendRequestFail,
                         "Can't send blob chunk");
                     break;
                 }
+                
+                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk给服务端(bytesRead == 0)
+                await SendMessage(reader.Chunk);
 
                 offset += bytesRead;
             }

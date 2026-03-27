@@ -23,7 +23,8 @@ public sealed class MessageReadStream : IInputStream
     /// </summary>
     public static void Return(MessageReadStream mws)
     {
-        BytesSegment.ReturnAll(mws.Current);
+        if (mws.Current != null!)
+            BytesSegment.ReturnAll(mws.Current);
         mws.Position = 0;
         mws._context?.Clear();
         Pool.Free(mws);
@@ -44,6 +45,17 @@ public sealed class MessageReadStream : IInputStream
     {
         Current = segment;
         Position = position;
+    }
+
+    internal IBlobChunk TakeBlobChunk()
+    {
+        if (Current.Buffer[0] != (byte)MessageType.UploadChunk)
+            throw new NotSupportedException("Only for UploadChunk");
+        
+        var result = Current;
+        Current = null!;
+        Free();
+        return result;
     }
 
     /// <summary>

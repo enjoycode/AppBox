@@ -12,12 +12,14 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
 
     private BytesSegment? _pending;
     private readonly SemaphoreSlim _sendLock = new(1, 1);
+    private UploadManager? _uploadManager;
 
     /// <summary>
     /// 组合并处理收到的消息
     /// </summary>
     internal async ValueTask OnReceiveMessage(BytesSegment frame, bool isEnd)
     {
+        //TODO:1.严格检查frame有效性；2.ShortPath for UploadChunk frame
         if (!isEnd)
         {
             _pending?.Append(frame);
@@ -48,9 +50,15 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
                 case MessageType.LoginRequest:
                     await ProcessLoginRequest(msgId, reader).ConfigureAwait(false);
                     break;
+                case MessageType.UploadRequest:
+                    await ProcessUploadRequest(msgId, reader).ConfigureAwait(false);
+                    break;
+                case MessageType.UploadChunk:
+                    await ProcessUploadChunk(msgId, reader).ConfigureAwait(false);
+                    break;
                 default:
-                    Logger.Warn("Receive unknown message type.");
-                    //TODO: send error response
+                    Logger.Warn($"Receive unknown message type: {msgType}");
+                    //TODO: should send error response
                     break;
             }
         }
@@ -115,31 +123,70 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         await SendMessage(data).ConfigureAwait(false);
     }
 
-    private async Task ProcessInvokeRequest(int msgId, MessageReadStream reader)
+    private Task ProcessInvokeRequest(int msgId, MessageReadStream reader)
     {
         //设置当前会话
         HostRuntimeContext.SetCurrentSession(WebSession);
 
         //调用服务
-        AnyValue result;
-        var errorCode = InvokeErrorCode.None;
-        var service = "";
+        return InvokeInternal(msgId, reader, MessageType.InvokeResponse, AnyArgs.From(reader));
+    }
+
+    private async Task ProcessUploadRequest(int msgId, MessageReadStream reader)
+    {
+        //设置当前会话
+        HostRuntimeContext.SetCurrentSession(WebSession);
+
+        _uploadManager ??= new UploadManager();
+        var pendingUpload = _uploadManager.MakePendingUpload(msgId);
+
+        //调用上传服务 TODO:超时处理，如客户端意外掉线
         try
         {
-            service = reader.ReadString()!;
-            Logger.Debug($"收到调用请求: {service}");
+            await InvokeInternal(msgId, reader, MessageType.UploadResponse,
+                new UploadArgs(pendingUpload.Channel.Reader.ReadAllAsync(), reader));
+        }
+        finally
+        {
+            //清除挂起的上传
+            _uploadManager.RemovePending(msgId);
+        }
+    }
 
-            result = await ServiceContainer.InvokeAsync(service, AnyArgs.From(reader));
+    private async Task ProcessUploadChunk(int msgId, MessageReadStream reader)
+    {
+        var blobChunk = reader.TakeBlobChunk();
+
+        if (_uploadManager == null || !_uploadManager.TryGetPending(msgId, out var pendingUpload))
+        {
+            blobChunk.Free();
+            Logger.Warn("Receive unknown upload data chunk");
+            return;
+        }
+
+        //写入Channel,并判断是否最后一块
+        await pendingUpload.Channel.Writer.WriteAsync(blobChunk);
+        if (blobChunk.IsLastChunk())
+            pendingUpload.Channel.Writer.Complete();
+    }
+
+    private async Task InvokeInternal<T>(int msgId, MessageReadStream rs, MessageType msgType, T args)
+        where T : struct, IAnyArgs
+    {
+        //调用服务
+        AnyValue result;
+        var service = "";
+        var errorCode = InvokeErrorCode.None;
+        try
+        {
+            service = rs.ReadString()!;
+            Logger.Debug($"Invoke service: {service}");
+
+            result = await ServiceContainer.InvokeAsync(service, args);
         }
         catch (Exception e)
         {
-            errorCode = e switch
-            {
-                ServicePathException => InvokeErrorCode.DeserializeRequestFail,
-                SerializationException => InvokeErrorCode.DeserializeRequestFail,
-                ServiceNotExistsException => InvokeErrorCode.ServiceNotExists,
-                _ => InvokeErrorCode.ServiceInnerError
-            };
+            errorCode = ExceptionToErrorCode(e);
             result = e.Message;
             Logger.Error($"Invoke service[{service}] error[{errorCode}]: {e.Message}\n{e.StackTrace}");
         }
@@ -149,7 +196,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         var writeError = false;
         try
         {
-            writer.WriteByte((byte)MessageType.InvokeResponse);
+            writer.WriteByte((byte)msgType);
             writer.WriteInt(msgId);
             writer.WriteByte((byte)errorCode);
             writer.Serialize(result);
@@ -165,7 +212,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         if (writeError)
         {
             BytesSegment.ReturnAll(data); //释放写错误的数据
-            await SendInvokeResponseWithSerializeError(msgId);
+            await SendErrorResponse(msgId, MessageType.InvokeResponse, InvokeErrorCode.SerializeResponseFail);
         }
         else
         {
@@ -173,12 +220,22 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
     }
 
-    private async Task SendInvokeResponseWithSerializeError(int msgId)
+    private static InvokeErrorCode ExceptionToErrorCode(Exception e) => e switch
+    {
+        ServicePathException => InvokeErrorCode.ServiceNotExists,
+        SerializationException => InvokeErrorCode.DeserializeRequestFail,
+        ServiceNotExistsException => InvokeErrorCode.ServiceNotExists,
+        _ => InvokeErrorCode.ServiceInnerError
+    };
+
+    private async Task SendErrorResponse(int msgId, MessageType msgType, InvokeErrorCode errCode, string? errMsg = null)
     {
         var writer = MessageWriteStream.Rent();
-        writer.WriteByte((byte)MessageType.InvokeResponse);
+        writer.WriteByte((byte)msgType);
         writer.WriteInt(msgId);
-        writer.WriteByte((byte)InvokeErrorCode.SerializeResponseFail);
+        writer.WriteByte((byte)errCode);
+        if (!string.IsNullOrEmpty(errMsg))
+            writer.Serialize(errMsg);
         var data = writer.FinishWrite();
         MessageWriteStream.Return(writer);
         await SendMessage(data);
@@ -211,6 +268,9 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
     }
 
+    /// <summary>
+    /// 发送服务端事件至客户端
+    /// </summary>
     public Task SendServerEvent<T>(int eventId, T args) where T : struct, IAnyArgs
     {
         var writer = MessageWriteStream.Rent();
@@ -241,5 +301,10 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         return SendMessage(data);
+    }
+
+    internal void OnClosed()
+    {
+        _uploadManager?.OnClosed();
     }
 }

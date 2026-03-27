@@ -59,6 +59,7 @@ internal static class WebSocketManager
         }
 
         //移除清理
+        client.OnClosed();
         if (client.WebSession != null)
         {
             ClientsLock.EnterWriteLock();

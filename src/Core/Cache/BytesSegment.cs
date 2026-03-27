@@ -7,7 +7,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 托管的字节缓存块
 /// </summary>
-public sealed class BytesSegment : ReadOnlySequenceSegment<byte>
+public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
 {
     #region ====Static Pool====
 
@@ -56,6 +56,8 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>
 
     #endregion
 
+    public const int BlobChunkHeaderSize = 9;
+
     private BytesSegment()
     {
         Buffer = new byte[FrameSize];
@@ -97,4 +99,19 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>
         next.RunningIndex = RunningIndex + Length;
         Next = next;
     }
+
+    #region ====IBlockChunk====
+
+    ReadOnlySpan<byte> IBlobChunk.GetDataChunk() => Buffer.AsSpan(BlobChunkHeaderSize, Length - BlobChunkHeaderSize);
+
+    void IBlobChunk.Free() => ReturnOne(this);
+
+    bool IBlobChunk.IsLastChunk()
+    {
+        var maxDataSize = Buffer.Length - BlobChunkHeaderSize;
+        var dataSize = Length - BlobChunkHeaderSize;
+        return dataSize == 0 || dataSize < maxDataSize;
+    }
+
+    #endregion
 }
