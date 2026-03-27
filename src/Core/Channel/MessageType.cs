@@ -9,4 +9,8 @@ public enum MessageType : byte
         
     InvokeRequest = 10,
     InvokeResponse = 11,
+    
+    UploadRequest = 20,
+    UploadChunk = 21,
+    UploadResponse = 22,
 }

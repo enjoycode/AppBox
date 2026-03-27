@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.JavaScript;
@@ -39,13 +40,24 @@ public sealed class WebSocketChannel : IClientChannel
     //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
     private BytesSegment? _pendingMsg; //当前未全部接收的消息包
 
+    private int MakePendingRequest(out PooledTaskSource<MessageReadStream> promise)
+    {
+        var msgId = MakeMsgId();
+        promise = _pooledTaskSource.Allocate();
+        if (!_pendingRequests.TryAdd(msgId, promise))
+        {
+            _pooledTaskSource.Free(promise);
+            throw new Exception("Can't add pending request");
+        }
+
+        return msgId;
+    }
+
     public async Task<AnyValue> Invoke<T>(string service, T args, EntityFactory[]? entityFactories = null)
         where T : struct, IAnyArgs
     {
         //add to wait list
-        var msgId = MakeMsgId();
-        var promise = _pooledTaskSource.Allocate();
-        _pendingRequests.TryAdd(msgId, promise);
+        var msgId = MakePendingRequest(out var promise);
 
         //serialize request header
         var ws = MessageWriteStream.Rent();
@@ -55,8 +67,7 @@ public sealed class WebSocketChannel : IClientChannel
             ws.WriteByte((byte)MessageType.InvokeRequest);
             ws.WriteInt(msgId);
             ws.WriteString(service);
-            //serialize request args
-            args.SerializeTo(ws);
+            args.SerializeTo(ws); //serialize request args
 
             reqData = ws.FinishWrite();
         }
@@ -75,10 +86,14 @@ public sealed class WebSocketChannel : IClientChannel
         // send request and wait for response
         await SendMessage(reqData);
         var rs = await promise.WaitAsync();
-        _pendingRequests.TryRemove(msgId, out _);
         _pooledTaskSource.Free(promise);
 
         // deserialize response
+        return DeserializeResponse(rs, entityFactories);
+    }
+
+    private static AnyValue DeserializeResponse(MessageReadStream rs, EntityFactory[]? entityFactories)
+    {
         var errorCode = (InvokeErrorCode)rs.ReadByte();
         var result = AnyValue.Empty;
         if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
@@ -101,16 +116,15 @@ public sealed class WebSocketChannel : IClientChannel
         }
 
         if (errorCode != InvokeErrorCode.None)
-            throw new Exception($"Invoke [{service}] error: Code={errorCode} Msg={result.GetString()}");
+            throw new Exception($"Invoke error: Code={errorCode} Msg={result.GetString()}");
+
         return result;
     }
 
     public async Task Login(string user, string password, string? external)
     {
         //add to wait list
-        var msgId = MakeMsgId();
-        var promise = _pooledTaskSource.Allocate();
-        _pendingRequests.TryAdd(msgId, promise);
+        var msgId = MakePendingRequest(out var promise);
 
         //serialize request
         var ws = MessageWriteStream.Rent();
@@ -125,7 +139,6 @@ public sealed class WebSocketChannel : IClientChannel
         await SendMessage(reqData);
 
         var rs = await promise.WaitAsync();
-        _pendingRequests.TryRemove(msgId, out _);
         _pooledTaskSource.Free(promise);
 
         // deserialize response
@@ -148,6 +161,90 @@ public sealed class WebSocketChannel : IClientChannel
     public Task Logout()
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<AnyValue> Upload<T>(string service, Stream stream, T args)
+        where T : struct, IAnyArgs
+    {
+        //add to wait list
+        var msgId = MakePendingRequest(out var promise);
+
+        //serialize request header
+        var ws = MessageWriteStream.Rent();
+        BytesSegment reqData;
+        try
+        {
+            ws.WriteByte((byte)MessageType.UploadRequest);
+            ws.WriteInt(msgId);
+            ws.WriteString(service);
+            //serialize request args
+            args.SerializeTo(ws);
+
+            reqData = ws.FinishWrite();
+        }
+        catch (Exception)
+        {
+            //must free BytesSegment has written.
+            reqData = ws.FinishWrite();
+            BytesSegment.ReturnAll(reqData);
+            throw;
+        }
+        finally
+        {
+            MessageWriteStream.Return(ws);
+        }
+
+        // send request
+        await SendMessage(reqData);
+        // send data chunk in other task
+        SendBlobChunk(msgId, stream);
+
+        // wait for response
+        var rs = await promise.WaitAsync();
+        _pooledTaskSource.Free(promise);
+        return DeserializeResponse(rs, null);
+    }
+
+    private void SendBlobChunk(int msgId, Stream stream)
+    {
+        Task.Run(async () =>
+        {
+            var offset = 0;
+            while (_pendingRequests.ContainsKey(msgId) /*should be removed when error*/)
+            {
+                var reader = new BlobChuckWriter(msgId, offset);
+                var bytesRead = await reader.ReadChunkDataAsync(stream);
+                if (bytesRead == 0)
+                    break;
+                if (bytesRead < 0)
+                {
+                    NotifyErrorToPendingRequest(msgId, MessageType.UploadChunk, InvokeErrorCode.SendRequestFail,
+                        "Can't send blob chunk");
+                    break;
+                }
+
+                offset += bytesRead;
+            }
+        });
+    }
+
+    private void NotifyErrorToPendingRequest(int msgId, MessageType msgType, InvokeErrorCode errCode, string errMsg)
+    {
+        if (_pendingRequests.TryRemove(msgId, out var promise))
+        {
+            var ws = MessageWriteStream.Rent();
+            ws.WriteByte((byte)msgType);
+            ws.WriteInt(msgId);
+            ws.WriteByte((byte)errCode);
+            ws.Serialize(errMsg);
+            var data = ws.FinishWrite();
+            MessageWriteStream.Return(ws);
+
+            var rs = MessageReadStream.Rent(data.First!);
+            rs.ReadByte(); //msgType
+            rs.ReadInt(); //msgId
+            promise.SetResult(rs);
+        }
     }
 
     private int MakeMsgId() => Interlocked.Increment(ref _msgIdIndex);
@@ -216,7 +313,7 @@ public sealed class WebSocketChannel : IClientChannel
                 if (msgType != MessageType.ServerEvent)
                 {
                     var msgId = rs.ReadInt();
-                    if (_pendingRequests.TryGetValue(msgId, out var promise))
+                    if (_pendingRequests.TryRemove(msgId, out var promise))
                         promise.SetResult(rs);
                     else
                         rs.Free();
