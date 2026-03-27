@@ -8,7 +8,7 @@ public interface IPublishService
 
     Task BeginUploadApp();
     
-    Task UploadAppAssembly(Action<IOutputStream> writer);
+    Task UploadAppAssembly(Stream stream, string assemblyName);
     
     Task UploadViewAssemblyMap(Action<IOutputStream> writer);
 }

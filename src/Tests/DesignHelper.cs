@@ -121,10 +121,7 @@ internal sealed class MockPublishService : IPublishService
         throw new NotImplementedException();
     }
 
-    public Task UploadAppAssembly(Action<IOutputStream> writer)
-    {
-        throw new NotImplementedException();
-    }
+    public Task UploadAppAssembly(Stream stream, string assemblyName) => throw new NotImplementedException();
 
     public Task UploadViewAssemblyMap(Action<IOutputStream> writer)
     {

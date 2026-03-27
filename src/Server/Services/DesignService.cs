@@ -73,7 +73,8 @@ internal sealed class DesignService : IService
                 PublishService.BeginUploadApp();
                 return AnyValue.Empty;
             case "UploadAppAssembly":
-                await PublishService.UploadAppAssembly((MessageReadStream)args.InputStream!);
+                await PublishService.UploadAppAssembly((IAsyncEnumerable<IBlobChunk>)args.GetObject()!,
+                    args.GetString()!);
                 return AnyValue.Empty;
             case "UploadViewAssemblyMap":
                 await PublishService.UploadViewAssemblyMap((MessageReadStream)args.InputStream!);

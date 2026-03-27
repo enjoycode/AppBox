@@ -312,16 +312,12 @@ internal static class PublishService
     /// <summary>
     /// 将客户端上传的编译且压缩好的AppAssembly保存至临时目录
     /// </summary>
-    internal static async Task UploadAppAssembly(MessageReadStream rs)
+    internal static async Task UploadAppAssembly(IAsyncEnumerable<IBlobChunk> stream, string assemblyName)
     {
-        var assemblyName = rs.ReadString()!;
-
         var tempPath = GetUploadAppPath();
         var filePath = Path.Combine(tempPath, assemblyName);
-        await using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await rs.CopyToAsync(fs);
-        await fs.FlushAsync();
-        Logger.Debug($"Upload to: {filePath} {fs.Length}");
+        await stream.WriteToFile(filePath);
+        Logger.Debug($"Upload to: {filePath}");
     }
 
     /// <summary>

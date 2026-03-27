@@ -10,10 +10,8 @@ internal sealed class PublishService : IPublishService
 
     public Task BeginUploadApp() => Channel.Invoke("sys.DesignService.BeginUploadApp");
 
-    public Task UploadAppAssembly(Action<IOutputStream> writer)
-    {
-        return Channel.Invoke("sys.DesignService.UploadAppAssembly", writer);
-    }
+    public Task UploadAppAssembly(Stream stream, string assemblyName) =>
+        Channel.Upload("sys.DesignService.UploadAppAssembly", stream, assemblyName);
 
     public Task UploadViewAssemblyMap(Action<IOutputStream> writer)
     {

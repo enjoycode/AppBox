@@ -59,11 +59,8 @@ internal static class BuildApp
         // 2.保存各个程序集
         foreach (var assemblyInfo in allAssemblies)
         {
-            await hub.PublishService.UploadAppAssembly(w =>
-            {
-                w.WriteString(assemblyInfo.AssemblyName);
-                w.WriteBytes(assemblyInfo.CompressAssemblyData());
-            });
+            await using var assemblyStream = assemblyInfo.CompressAssemblyData();
+            await hub.PublishService.UploadAppAssembly(assemblyStream, assemblyInfo.AssemblyName);
         }
 
         // 3.保存视图模型对应的所有程序集的映射
@@ -254,7 +251,7 @@ internal sealed class BuildContext
     internal void AddModelToAssembly(ModelId modelId, AssemblyInfo assemblyInfo) =>
         _assemblyInfos.Add(modelId, assemblyInfo);
 
-    internal bool HasAssemblyInfo(ModelId modelId, [MaybeNullWhen(false)]out AssemblyInfo assemblyInfo) =>
+    internal bool HasAssemblyInfo(ModelId modelId, [MaybeNullWhen(false)] out AssemblyInfo assemblyInfo) =>
         _assemblyInfos.TryGetValue(modelId, out assemblyInfo);
 
     internal async ValueTask<ModelInfo> GetOrMakeModelInfo(ModelNode modelNode)
@@ -447,13 +444,14 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         return MetadataReference.CreateFromStream(new MemoryStream(_asmData!));
     }
 
-    public byte[] CompressAssemblyData()
+    public Stream CompressAssemblyData()
     {
-        using var output = new MemoryStream(1024);
+        var output = new MemoryStream(1024);
         using var zipStream = new DeflateStream(output, CompressionMode.Compress); //Blazor暂不支持Brotli
         zipStream.Write(_asmData!);
         zipStream.Flush();
-        return output.ToArray();
+        output.Position = 0;
+        return output;
     }
 
     public bool Equals(AssemblyInfo? x, AssemblyInfo? y) => x?.Id == y?.Id;
