@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using AppBoxCore;
+using AppBoxDesign;
 using AppBoxDesign.Debugging;
 using static AppBoxServer.ServerLogger;
 
@@ -18,16 +19,22 @@ internal static class DebugService
     /// <summary>
     /// 上传编译好的服务组件
     /// </summary>
-    internal static async Task UploadAssembly(IInputStream stream)
+    /// <param name="stream"></param>
+    /// <param name="asmName">eg: erp.OrderService</param>
+    internal static async Task UploadAssembly(IAsyncEnumerable<IBlobChunk> stream, string asmName)
     {
-        var asmName = stream.ReadString()!; //eg: erp.OrderService
         var debugPath = GetDebugFolderPath();
         if (!Directory.Exists(debugPath))
             Directory.CreateDirectory(debugPath);
 
         var asmFilePath = Path.Combine(debugPath, $"{asmName}.dll");
         await using var fs = new FileStream(asmFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await stream.ToSystemStream().CopyToAsync(fs);
+        await foreach (var chunk in stream)
+        {
+            //TODO: check order by offset
+            await fs.WriteAsync(chunk.GetDataChunk());
+        }
+
         await fs.FlushAsync();
         Logger.Debug($"Upload debug service to: {asmFilePath} {fs.Length}");
     }
@@ -35,33 +42,21 @@ internal static class DebugService
     /// <summary>
     /// 开始服务调试
     /// </summary>
-    internal static void Start(IInputStream stream)
+    internal static void Start(DebugStartRequest request)
     {
         var debugPath = GetDebugFolderPath();
         if (!Directory.Exists(debugPath))
             throw new Exception("Debug service directory not found");
 
         var session = RuntimeContext.CurrentSession!;
-        var modelId = stream.ReadLong();
-        var appName = stream.ReadString()!;
-        var serviceName = stream.ReadString()!;
-        var methodName = stream.ReadString()!; //eg: SaveOrder
-        //读取Breakpoints
-        var breakpointCount = stream.ReadVariant();
-        var breakpoints = new int[breakpointCount];
-        for (var i = 0; i < breakpointCount; i++)
-        {
-            breakpoints[i] = stream.ReadInt();
-        }
-
         //TODO: 将调用参数写入args.bin备用
 
         //启动netcoredbg进程
-        var debugProcess = new DebugProcess(session, modelId);
+        var debugProcess = new DebugProcess(session, request.ModelId);
         if (!Processes.TryAdd(session.Name, debugProcess))
             throw new Exception("Debugging already started");
 
-        debugProcess.Start(session.Name, appName, serviceName, methodName, breakpoints);
+        debugProcess.Start(session.Name, request.AppName, request.ServiceName, request.MethodName, request.Breakpoints);
     }
 
     private static DebugProcess? FindDebugProcess(bool throwExceptionWhenNull = true)

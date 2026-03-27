@@ -165,8 +165,13 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         //写入Channel,并判断是否最后一块
-        await pendingUpload.Channel.Writer.WriteAsync(blobChunk);
-        if (blobChunk.IsLastChunk())
+        var isLastChunk = blobChunk.IsLastChunk(out var isEmpty);
+        if (!isEmpty)
+            await pendingUpload.Channel.Writer.WriteAsync(blobChunk);
+        else
+            blobChunk.Free();
+
+        if (isLastChunk)
             pendingUpload.Channel.Writer.Complete();
     }
 

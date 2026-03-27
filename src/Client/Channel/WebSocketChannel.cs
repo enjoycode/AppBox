@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.JavaScript;
 using System.Threading;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -177,8 +176,7 @@ public sealed class WebSocketChannel : IClientChannel
             ws.WriteByte((byte)MessageType.UploadRequest);
             ws.WriteInt(msgId);
             ws.WriteString(service);
-            //serialize request args
-            args.SerializeTo(ws);
+            args.SerializeTo(ws); //serialize request args
 
             reqData = ws.FinishWrite();
         }
@@ -220,7 +218,7 @@ public sealed class WebSocketChannel : IClientChannel
                         "Can't send blob chunk");
                     break;
                 }
-                
+
                 //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk给服务端(bytesRead == 0)
                 await SendMessage(reader.Chunk);
 

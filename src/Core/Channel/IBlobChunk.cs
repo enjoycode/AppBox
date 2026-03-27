@@ -2,9 +2,9 @@ namespace AppBoxCore;
 
 public interface IBlobChunk
 {
-    ReadOnlySpan<byte> GetDataChunk();
+    ReadOnlyMemory<byte> GetDataChunk();
 
-    bool IsLastChunk();
+    bool IsLastChunk(out bool isEmpty);
 
     void Free();
 }

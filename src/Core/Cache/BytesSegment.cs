@@ -102,14 +102,16 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
 
     #region ====IBlockChunk====
 
-    ReadOnlySpan<byte> IBlobChunk.GetDataChunk() => Buffer.AsSpan(BlobChunkHeaderSize, Length - BlobChunkHeaderSize);
+    ReadOnlyMemory<byte> IBlobChunk.GetDataChunk() =>
+        Buffer.AsMemory(BlobChunkHeaderSize, Length - BlobChunkHeaderSize);
 
     void IBlobChunk.Free() => ReturnOne(this);
 
-    bool IBlobChunk.IsLastChunk()
+    bool IBlobChunk.IsLastChunk(out bool isEmpty)
     {
         var maxDataSize = Buffer.Length - BlobChunkHeaderSize;
         var dataSize = Length - BlobChunkHeaderSize;
+        isEmpty = dataSize == 0;
         return dataSize == 0 || dataSize < maxDataSize;
     }
 

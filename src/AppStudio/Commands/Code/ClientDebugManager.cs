@@ -53,29 +53,19 @@ internal static class ClientDebugManager
 
         // 1.编译并上传服务模型
         var asmData = await Publish.CompileServiceAsync(hub, serviceModel, true);
-        await Channel.Invoke(DesignMethods.DebugUploadServiceFull, w =>
-        {
-            w.WriteString($"{appName}.{serviceName}");
-            w.WriteBytes(asmData);
-        });
+        using var stream = new MemoryStream(asmData!);
+        await Channel.Upload(DesignMethods.DebugUploadServiceFull, stream, $"{appName}.{serviceName}");
 
         // 2.开始启动调试 TODO:没有Breakpoint提示请求确认
-        await Channel.Invoke(DesignMethods.DebugStartFull, w =>
+        var request = new DebugStartRequest()
         {
-            //写入模型标识
-            w.WriteLong(serviceModel.Id);
-            //写入待调试的服务方法
-            w.WriteString(appName);
-            w.WriteString(serviceName);
-            w.WriteString(methodInfo.Name);
-            //写入Breakpoints
-            w.WriteVariant(breakpoints.Length);
-            for (var i = 0; i < breakpoints.Length; i++)
-            {
-                w.WriteInt(breakpoints[i] + 1 /*暂加1行*/);
-            }
-            //TODO:最后写入调用参数
-        });
+            ModelId = serviceModel.Id,
+            AppName = appName,
+            ServiceName = serviceName,
+            MethodName = methodInfo.Name,
+            Breakpoints = breakpoints
+        };
+        await Channel.Invoke(DesignMethods.DebugStartFull, AnyValue.From(request));
     }
 
     public static Task ResumeDebugService() => Channel.Invoke(DesignMethods.DebugResumeFull);

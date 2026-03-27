@@ -61,6 +61,7 @@ namespace AppBoxCore
         PendingChange = 68,
         PublishPackage = 69,
         DebugEventArgs = 70,
+        DebugStartRequest = 71,
 
         //----运行时相关类型----
         EntitySet = 89,

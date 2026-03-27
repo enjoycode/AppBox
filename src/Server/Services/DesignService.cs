@@ -83,10 +83,10 @@ internal sealed class DesignService : IService
             case DesignMethods.GetExtLibraries:
                 return AnyValue.From(await ExternalLibraryManager.GetExternalLibraries(args.GetString()!));
             case DesignMethods.DebugUploadService:
-                await DebugService.UploadAssembly(args.InputStream!);
+                await DebugService.UploadAssembly((IAsyncEnumerable<IBlobChunk>)args.GetObject()!, args.GetString()!);
                 return AnyValue.Empty;
             case DesignMethods.DebugStart:
-                DebugService.Start(args.InputStream!);
+                DebugService.Start((DebugStartRequest)args.GetObject()!);
                 return AnyValue.Empty;
             case DesignMethods.DebugResume:
                 DebugService.Resume();

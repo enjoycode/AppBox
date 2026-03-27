@@ -28,6 +28,7 @@ public static class DesignTypeSerializer
         RegisterKnownType(new BinSerializer(PayloadType.PendingChange, typeof(PendingChange), () => new PendingChange()));
         RegisterKnownType(new BinSerializer(PayloadType.PublishPackage, typeof(PublishPackage), () => new PublishPackage()));
         RegisterKnownType(new BinSerializer(PayloadType.DebugEventArgs, typeof(DebugEventArgs), () => new DebugEventArgs()));
+        RegisterKnownType(new BinSerializer(PayloadType.DebugStartRequest, typeof(DebugStartRequest), () => new DebugStartRequest()));
         //@formatter:on
     }
 }
