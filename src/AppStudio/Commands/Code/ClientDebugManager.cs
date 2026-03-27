@@ -84,7 +84,7 @@ internal static class ClientDebugManager
 
     public static async Task<EvaluateResult> EvaluateExpression(string expression)
     {
-        var result = await Channel.Invoke<DebugEventArgs>(DesignMethods.DebugEvaluateFull, [expression]);
+        var result = await Channel.Invoke<DebugEventArgs>(DesignMethods.DebugEvaluateFull, expression);
         if (result == null)
             throw new Exception("EvaluateResult is null");
         return (EvaluateResult)result.EventArgs;
@@ -92,7 +92,7 @@ internal static class ClientDebugManager
 
     public static async Task<List<EvaluateResult>> ListChildren(string variableName)
     {
-        var result = await Channel.Invoke<DebugEventArgs>(DesignMethods.DebugListChildrenFull, [variableName]);
+        var result = await Channel.Invoke<DebugEventArgs>(DesignMethods.DebugListChildrenFull, variableName);
         if (result == null)
             throw new Exception("ListChildren result is null");
 

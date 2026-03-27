@@ -59,6 +59,12 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         }
     }
 
+    public T CastTo<T>()
+    {
+        if (IsEmpty) return default!;
+        return (T)BoxedValue!; //should avoid box?
+    }
+
     #region ====GetXXX Methods====
 
     public bool? GetBool() =>
@@ -176,6 +182,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static implicit operator AnyValue(DateTime v) => new() { DateTimeValue = v, Type = AnyValueType.DateTime };
     public static implicit operator AnyValue(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
     public static implicit operator AnyValue(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
+
     public static explicit operator string(AnyValue v) => v.GetString() ?? string.Empty;
     public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;
 
@@ -231,6 +238,27 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             default:
                 throw new NotImplementedException($"序列化AnyValue: {Type}");
         }
+    }
+
+    internal static AnyValue DeserializeFrom(IInputStream rs)
+    {
+        var payloadType = (PayloadType)rs.ReadByte();
+        return payloadType switch
+        {
+            PayloadType.Null => Empty,
+            PayloadType.BooleanTrue => From(true),
+            PayloadType.BooleanFalse => From(false),
+            PayloadType.Byte => From(rs.ReadByte()),
+            PayloadType.Int16 => From(rs.ReadShort()),
+            PayloadType.Int32 => From(rs.ReadInt()),
+            PayloadType.Int64 => From(rs.ReadLong()),
+            PayloadType.Float => From(rs.ReadFloat()),
+            PayloadType.Double => From(rs.ReadDouble()),
+            PayloadType.Decimal => From(rs.ReadDecimal()),
+            PayloadType.DateTime => From(rs.ReadDateTime()),
+            PayloadType.Guid => From(rs.ReadGuid()),
+            _ => From(rs.ReadObject(payloadType))
+        };
     }
 
     #endregion

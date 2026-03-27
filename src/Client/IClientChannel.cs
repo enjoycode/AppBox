@@ -14,5 +14,6 @@ public interface IClientChannel : IChannel
 
     Task Logout();
 
-    Task<IInputStream> Invoke(string service, Action<IOutputStream>? argsWriter);
+    Task<AnyValue> Invoke<T>(string service, T args, EntityFactory[]? entityFactories = null)
+        where T : struct, IAnyArgs;
 }

@@ -56,7 +56,7 @@ public sealed class FetchData : IEventAction
             Notification.Error($"Value is not a DataTable: {DataSource}");
             return;
         }
-        
+
         ds.Refresh();
     }
 }

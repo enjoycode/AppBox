@@ -139,7 +139,7 @@ internal sealed class DependencyDialog : Dialog
         try
         {
             var appName = _modelNode.AppNode.Model.Name;
-            var extLibs = (await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, [appName]))!
+            var extLibs = (await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, appName))
                 .Select(name => new ModelDependency()
                 {
                     Type = ModelDependencyType.ServerExtLibrary,

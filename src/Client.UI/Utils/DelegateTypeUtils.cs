@@ -19,6 +19,7 @@ public static class DelegateTypeUtils
         {
             typeParameters[i] = parameters[i].ParameterType;
         }
+
         return typeParameters;
     }
 

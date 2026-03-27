@@ -62,7 +62,7 @@ public sealed class SaveData : IEventAction
             }
             else if (state.Type == DynamicStateType.DataTable)
             {
-                var dataTable = (DynamicDataTable)state.Value!;
+                //var dataTable = (DynamicDataTable)state.Value!;
                 throw new NotImplementedException();
             }
             else
@@ -73,7 +73,7 @@ public sealed class SaveData : IEventAction
 
         try
         {
-            await Channel.Invoke("sys.EntityService.Save", [tables]);
+            await Channel.Invoke("sys.EntityService.Save", AnyValue.From(tables));
             //accept changes after succeed.
             foreach (var table in tables)
             {

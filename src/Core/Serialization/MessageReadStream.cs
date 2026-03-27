@@ -61,6 +61,9 @@ public sealed class MessageReadStream : IInputStream
         Reset(next);
     }
 
+    /// <summary>
+    /// 归还并释放所有缓存块
+    /// </summary>
     public void Free() => Return(this);
 
     public Stream ToSystemStream() => new MessageReadStreamWrap(this);

@@ -1,4 +1,3 @@
-using System;
 using AppBoxClient;
 using AppBoxCore;
 using PixUI;
@@ -23,9 +22,8 @@ internal sealed class EntityRowsView : View
     {
         try
         {
-            var ds = await Channel.Invoke<DataTable>("sys.DesignService.GetEntityRows",
-                [_entityModelId, 50]);
-            BuildColumns(ds!);
+            var ds = await Channel.Invoke<DataTable>("sys.DesignService.GetEntityRows", _entityModelId, 50);
+            BuildColumns(ds);
             _dgController.DataSource = ds;
         }
         catch (Exception e)

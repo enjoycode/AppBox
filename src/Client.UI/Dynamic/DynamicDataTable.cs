@@ -201,7 +201,7 @@ internal sealed class DataTableFromQuery : DataTableFromQueryBase, IDataTableSou
                 : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         }
 
-        return Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
+        return Channel.Invoke<DataTable?>("sys.EntityService.Fetch", AnyValue.From(q));
     }
 }
 
@@ -221,17 +221,30 @@ internal sealed class DataTableFromService : DataTableFromServiceBase, IDataTabl
 
     public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
     {
-        object?[]? args = null;
-        if (Arguments.Length > 0)
+        return Arguments.Length switch
         {
-            args = new object? [Arguments.Length];
-            for (var i = 0; i < args.Length; i++)
-            {
-                if (!string.IsNullOrEmpty(Arguments[i]))
-                    args[i] = dynamicContext.GetPrimitiveState(Arguments[i]!).BoxedValue;
-            }
-        }
-
-        return Channel.Invoke<DataTable>(Service, args);
+            0 => Channel.Invoke<DataTable?>(Service),
+            1 => Channel.Invoke<DataTable?>(Service,
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue)),
+            2 => Channel.Invoke<DataTable?>(Service,
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue)),
+            3 => Channel.Invoke<DataTable?>(Service,
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue)),
+            4 => Channel.Invoke<DataTable?>(Service,
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[3]!).BoxedValue)),
+            5 => Channel.Invoke<DataTable?>(Service,
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[3]!).BoxedValue),
+                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[4]!).BoxedValue)),
+            _ => throw new NotSupportedException("Argument count > 5")
+        };
     }
 }

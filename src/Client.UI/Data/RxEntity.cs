@@ -10,7 +10,7 @@ public sealed class RxEntity<T> : RxObjectBase<T> where T : Entity, new()
         _target = new T();
         _target.PropertyChanged += OnTargetPropertyChanged;
     }
-    
+
     private readonly Dictionary<short, State> _ds = new();
 
     public State<TMember> Observe<TMember>(short memberId, Func<T, TMember> getter, Action<T, TMember> setter)

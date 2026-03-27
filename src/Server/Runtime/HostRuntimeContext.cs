@@ -91,6 +91,8 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
 
     #region ====供服务模型生成的代码使用的Invoke====
 
+    //TODO:*****以下实现错误，因每个服务的独立性，需要实体类的相关转换参数及返回值
+    
     /// <summary>
     /// 仅用于服务端服务调用服务(无返回)
     /// </summary>
@@ -107,7 +109,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     {
         var res = await ServiceContainer.InvokeAsync(service, args);
         if (res.IsEmpty) return default;
-
+        
         return (TResult)res.BoxedValue!; //TODO: avoid boxed
     }
 

@@ -49,7 +49,7 @@ internal sealed class DataRowFromQuery : IDataRowSource
             q.Filter = i == 0 ? exp : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);
         }
 
-        var dataTable = await Channel.Invoke<DataTable>("sys.EntityService.Fetch", [q]);
+        var dataTable = await Channel.Invoke<DataTable>("sys.EntityService.Fetch", AnyValue.From(q));
         if (dataTable == null || dataTable.Count != 1)
             throw new Exception("Can't fetch data table");
 

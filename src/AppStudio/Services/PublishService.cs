@@ -5,15 +5,10 @@ namespace AppBoxDesign;
 
 internal sealed class PublishService : IPublishService
 {
-    public Task PublishAsync(PublishPackage package, string commitMessage)
-    {
-        return Channel.Invoke("sys.DesignService.Publish", [package, commitMessage]);
-    }
+    public Task PublishAsync(PublishPackage package, string commitMessage) =>
+        Channel.Invoke("sys.DesignService.Publish", AnyValue.From(package), commitMessage);
 
-    public Task BeginUploadApp()
-    {
-        return Channel.Invoke("sys.DesignService.BeginUploadApp");
-    }
+    public Task BeginUploadApp() => Channel.Invoke("sys.DesignService.BeginUploadApp");
 
     public Task UploadAppAssembly(Action<IOutputStream> writer)
     {

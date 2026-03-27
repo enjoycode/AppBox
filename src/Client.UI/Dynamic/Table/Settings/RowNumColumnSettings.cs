@@ -14,7 +14,7 @@ public sealed class RowNumColumnSettings : TableColumnSettings
             { HorizontalAlignment = HorizontalAlignment, VerticalAlignment = VerticalAlignment };
         return new DataGridRowNumColumn<DataRow>(Label) { Width = Width, CellStyle = cellStyle };
     }
-    
+
     public override TableColumnSettings Clone() =>
         new RowNumColumnSettings
         {

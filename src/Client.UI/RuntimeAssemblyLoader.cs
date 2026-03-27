@@ -37,17 +37,16 @@ public static class AppAssemblies
             return exists;
 
         //从服务端获取所有依赖的程序集
-        var asmJson = await Channel.Invoke<byte[]?>("sys.SystemService.GetViewAssemblies",
-            new object?[] { viewModelName });
+        var asmJson = await Channel.Invoke<byte[]?>("sys.SystemService.GetViewAssemblies", viewModelName);
         if (asmJson == null) throw new Exception($"Can't find view: {viewModelName}");
         var asmNames = JsonSerializer.Deserialize<string[]>(asmJson);
-        if (asmNames == null || asmNames.Length == 0) 
+        if (asmNames == null || asmNames.Length == 0)
             throw new Exception($"获取视图模型[{viewModelName}]的程序集列表失败");
 
         var needLoads = asmNames.Where(asmName => !_loader.HasLoad(asmName));
         foreach (var asmName in needLoads)
         {
-            var data = await Channel.Invoke<byte[]?>("sys.SystemService.LoadAppAssembly", new object?[] { asmName });
+            var data = await Channel.Invoke<byte[]?>("sys.SystemService.LoadAppAssembly", asmName);
             if (data == null)
                 throw new Exception($"Can't load assembly: {asmName}");
 

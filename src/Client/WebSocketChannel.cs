@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.JavaScript;
 using System.Threading;
 using System.Threading.Tasks;
 using AppBoxCore;
@@ -38,7 +39,8 @@ public sealed class WebSocketChannel : IClientChannel
     //private readonly ConcurrentDictionary<int, BytesSegment> _pendingResponses = new();
     private BytesSegment? _pendingMsg; //当前未全部接收的消息包
 
-    public async Task<IInputStream> Invoke(string service, Action<IOutputStream>? argsWriter)
+    public async Task<AnyValue> Invoke<T>(string service, T args, EntityFactory[]? entityFactories = null)
+        where T : struct, IAnyArgs
     {
         //add to wait list
         var msgId = MakeMsgId();
@@ -54,7 +56,7 @@ public sealed class WebSocketChannel : IClientChannel
             ws.WriteInt(msgId);
             ws.WriteString(service);
             //serialize request args
-            argsWriter?.Invoke(ws);
+            args.SerializeTo(ws);
 
             reqData = ws.FinishWrite();
         }
@@ -73,10 +75,34 @@ public sealed class WebSocketChannel : IClientChannel
         // send request and wait for response
         await SendMessage(reqData);
         var rs = await promise.WaitAsync();
-
         _pendingRequests.TryRemove(msgId, out _);
         _pooledTaskSource.Free(promise);
-        return rs;
+
+        // deserialize response
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        var result = AnyValue.Empty;
+        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
+        {
+            try
+            {
+                if (entityFactories != null)
+                    rs.Context.SetEntityFactories(entityFactories);
+                result = AnyValue.DeserializeFrom(rs);
+            }
+            catch (Exception ex)
+            {
+                errorCode = InvokeErrorCode.DeserializeResponseFail;
+                result = AnyValue.From(ex.Message);
+            }
+            finally
+            {
+                rs.Free();
+            }
+        }
+
+        if (errorCode != InvokeErrorCode.None)
+            throw new Exception($"Invoke [{service}] error: Code={errorCode} Msg={result.GetString()}");
+        return result;
     }
 
     public async Task Login(string user, string password, string? external)

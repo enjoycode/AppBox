@@ -1,6 +1,5 @@
 using AppBoxClient;
 using AppBoxCore;
-using AppBoxStore;
 using AppBoxStore.Entities;
 
 namespace AppBoxDesign;
@@ -12,9 +11,9 @@ internal sealed class StagedService : IStagedService
 {
     public async Task<StagedItems> LoadStagedAsync()
     {
-        var list = await Channel.Invoke<IList<StagedModel>>("sys.DesignService.StageLoadAll", null,
+        var list = await Channel.Invoke<IList<StagedModel>>("sys.DesignService.StageLoadAll",
             [new EntityFactory(StagedModel.MODELID, typeof(StagedModel))]);
-        return list == null ? new StagedItems([]) : new StagedItems(list.ToList());
+        return new StagedItems(list.ToList());
     }
 
     public Task<IList<PendingChange>> LoadChangesAsync()
@@ -22,28 +21,18 @@ internal sealed class StagedService : IStagedService
         return Channel.Invoke<IList<PendingChange>>("sys.DesignService.StageLoadChanges")!;
     }
 
-    public Task<string?> LoadCodeAsync(ModelId modelId)
-    {
-        return Channel.Invoke<string>("sys.DesignService.StageLoadCode", [(long)modelId]);
-    }
+    public Task<string?> LoadCodeAsync(ModelId modelId) =>
+        Channel.Invoke<string?>("sys.DesignService.StageLoadCode", (long)modelId);
 
-    public Task SaveFolderAsync(ModelFolder folder)
-    {
-        return Channel.Invoke("sys.DesignService.StageSaveFolder", [folder]);
-    }
+    public Task SaveFolderAsync(ModelFolder folder) =>
+        Channel.Invoke("sys.DesignService.StageSaveFolder", AnyValue.From(folder));
 
-    public Task SaveModelAsync(ModelBase model)
-    {
-        return Channel.Invoke("sys.DesignService.StageSaveModel", [model]);
-    }
+    public Task SaveModelAsync(ModelBase model) =>
+        Channel.Invoke("sys.DesignService.StageSaveModel", AnyValue.From(model));
 
-    public Task SaveCodeAsync(ModelId modelId, string sourceCode)
-    {
-        return Channel.Invoke("sys.DesignService.StageSaveCode", [(long)modelId, sourceCode]);
-    }
+    public Task SaveCodeAsync(ModelId modelId, string sourceCode) =>
+        Channel.Invoke("sys.DesignService.StageSaveCode", (long)modelId, sourceCode);
 
-    public Task DeleteModelAsync(ModelId modelId)
-    {
-        return Channel.Invoke("sys.DesignService.StageDeleteModel", [(long)modelId]);
-    }
+    public Task DeleteModelAsync(ModelId modelId) =>
+        Channel.Invoke("sys.DesignService.StageDeleteModel", (long)modelId);
 }

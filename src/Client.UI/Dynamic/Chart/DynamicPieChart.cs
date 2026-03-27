@@ -97,14 +97,14 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
 
         if (Parent is IDesignElement)
             _chart.EasingFunction = null; //disable animation in design time
-        
+
         //监听目标数据集变更
         _dynamicContext = FindParent(w => w is IDynamicContext) as IDynamicContext;
         _dynamicContext?.BindToDataSource(this, _dataSource);
 
         OnSeriesChanged();
     }
-    
+
     protected override void OnUnmounted()
     {
         //取消监听数据集变更

@@ -9,8 +9,8 @@ internal sealed class CheckoutService : ICheckoutService
     public async Task<Dictionary<string, CheckoutInfo>> LoadAllAsync()
     {
         var list = await Channel.Invoke<IList<Checkout>>("sys.DesignService.CheckoutLoadAll",
-            null, [new EntityFactory(Checkout.MODELID, typeof(Checkout))]);
-        if (list == null || list.Count == 0)
+            [new EntityFactory(Checkout.MODELID, typeof(Checkout))]);
+        if (list.Count == 0)
             return [];
 
         var dic = new Dictionary<string, CheckoutInfo>();
@@ -24,8 +24,6 @@ internal sealed class CheckoutService : ICheckoutService
         return dic;
     }
 
-    public Task<CheckoutResult> CheckoutAsync(IList<CheckoutInfo> info)
-    {
-        return Channel.Invoke<CheckoutResult>("sys.DesignService.Checkout", [info])!;
-    }
+    public Task<CheckoutResult> CheckoutAsync(IList<CheckoutInfo> info) =>
+        Channel.Invoke<CheckoutResult>("sys.DesignService.Checkout", AnyValue.From(info));
 }

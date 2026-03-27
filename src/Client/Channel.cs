@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AppBoxCore;
 
@@ -88,116 +89,61 @@ public static class Channel
 
     public static Task Logout() => Provider.Logout();
 
-    public static async Task Invoke(string service, object?[]? args = null)
-    {
-        await Invoke<object?>(service, args, null);
-    }
+    public static Task Invoke(string service) => Provider.Invoke(service, AnyArgs.Empty);
 
-    public static async Task<T?> Invoke<T>(string service, object?[]? args = null,
-        EntityFactory[]? entityFactories = null)
-    {
-        var rs = await Provider.Invoke(service, w =>
-        {
-            if (args is { Length: > 0 })
-            {
-                for (var i = 0; i < args.Length; i++)
-                {
-                    w.Serialize(args[i]);
-                }
-            }
-        });
-        if (entityFactories != null)
-            rs.Context.SetEntityFactories(entityFactories);
+    public static Task Invoke(string service, AnyValue arg) => Provider.Invoke(service, AnyArgs.Make(arg));
 
-        // deserialize response
-        return DeserializeResponse<T>(rs);
-    }
+    public static Task Invoke(string service, AnyValue arg1, AnyValue arg2) =>
+        Provider.Invoke(service, AnyArgs.Make(arg1, arg2));
 
-    public static async Task Invoke(string service, Action<IOutputStream> argsWriter)
-    {
-        var rs = await Provider.Invoke(service, argsWriter);
-        var errorCode = (InvokeErrorCode)rs.ReadByte();
-        rs.Free();
-        if (errorCode != InvokeErrorCode.None)
-            throw new Exception($"Code={errorCode}");
-    }
+    public static Task Invoke(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
+        Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3));
 
-    public static async Task<T?> Invoke<T>(string service, Action<IOutputStream> argsWriter)
-    {
-        var rs = await Provider.Invoke(service, argsWriter);
-        return DeserializeResponse<T>(rs);
-    }
+    public static Task Invoke(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4) =>
+        Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4));
 
-    public static async Task<Stream> InvokeForStream(string service, object?[]? args = null)
-    {
-        var rs = await Provider.Invoke(service, w =>
-        {
-            if (args != null && args.Length > 0)
-            {
-                for (var i = 0; i < args.Length; i++)
-                {
-                    w.Serialize(args[i]);
-                }
-            }
-        });
+    public static Task Invoke(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4, AnyValue arg5)
+        => Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4, arg5));
 
-        // deserialize response
-        var errorCode = (InvokeErrorCode)rs.ReadByte();
-        if (errorCode != InvokeErrorCode.None)
-        {
-            rs.Free();
-            throw new Exception($"Code={errorCode}");
-        }
+    public static async Task<T> Invoke<T>(string service, EntityFactory[]? entityFactories = null) =>
+        (await Provider.Invoke(service, AnyArgs.Empty, entityFactories)).CastTo<T>();
 
-        return rs.ToSystemStream();
-    }
+    public static async Task<T> Invoke<T>(string service, AnyValue arg, EntityFactory[]? entityFactories = null) =>
+        (await Provider.Invoke(service, AnyArgs.Make(arg), entityFactories)).CastTo<T>();
 
-    private static T? DeserializeResponse<T>(IInputStream rs)
-    {
-        var errorCode = (InvokeErrorCode)rs.ReadByte();
-        object? result = null;
-        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
-        {
-            try
-            {
-                result = rs.Deserialize();
-            }
-            catch (Exception ex)
-            {
-                errorCode = InvokeErrorCode.DeserializeResponseFail;
-                result = ex.Message;
-            }
-            finally
-            {
-                rs.Free();
-            }
-        }
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2,
+        EntityFactory[]? entityFactories = null) =>
+        (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2), entityFactories)).CastTo<T>();
 
-        if (errorCode != InvokeErrorCode.None)
-            throw new Exception($"Code={errorCode} Msg={result}");
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3,
+        EntityFactory[]? entityFactories = null) =>
+        (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3), entityFactories)).CastTo<T>();
 
-        if (result == null) return default;
-        return (T)result;
-    }
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4,
+        EntityFactory[]? entityFactories = null) =>
+        (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4), entityFactories)).CastTo<T>();
+
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4,
+        AnyValue arg5, EntityFactory[]? entityFactories = null) =>
+        (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4, arg5), entityFactories)).CastTo<T>();
 
     //暂时放在这里，待移至RuntimeContext内
-    public static async Task<bool> HasPermission(ModelId permissionModelId)
+    public static Task<bool> HasPermission(ModelId permissionModelId)
     {
         if (permissionModelId.Type != ModelType.Permission)
         {
             // Log.Error("Not a Permission model");
-            return false;
+            return Task.FromResult(false);
         }
 
         try
         {
-            var res = await Invoke<bool>("sys.SystemService.HasPermission", [permissionModelId.Value]);
-            return res;
+            return Invoke<bool>("sys.SystemService.HasPermission", permissionModelId.Value);
         }
         catch (Exception e)
         {
             // Log.Error($"Check has permission error: {e.Message}");
-            return false;
+            return Task.FromResult(false);
         }
     }
 }
