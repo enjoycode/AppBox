@@ -9,9 +9,9 @@ internal sealed class SqlDynamicQuery : SqlSelectQueryBase, ISqlSelectQuery
 {
     public SqlDynamicQuery(DynamicQuery from)
     {
-        Purpose = QueryPurpose.ToList;
+        _from = from;
         EntityModelId = from.ModelId;
-        _fields = from.Selects.Select(f => new DataColumn(f.Alias, f.Type)).ToArray();
+        _columns = from.Selects.Select(f => new DataColumn(f.Alias, f.Type)).ToArray();
 
         if (from.PageSize > 0)
         {
@@ -20,12 +20,13 @@ internal sealed class SqlDynamicQuery : SqlSelectQueryBase, ISqlSelectQuery
         }
 
         Filter = from.Filter;
-        Selects = from.Selects.Select(f => new SqlSelectItemExpression(f.Item) { Owner = this }).ToArray();
+        //Selects = from.Selects.Select(f => new SqlSelectItemExpression(f.Item) { Owner = this }).ToArray();
         if (from.Orders != null && from.Orders.Any())
             SortItems = from.Orders.Select(o => new SqlOrderBy(o.Field, o.Descending)).ToArray();
     }
 
-    private readonly DataColumn[] _fields;
+    private readonly DataColumn[] _columns;
+    private readonly DynamicQuery _from;
 
     #region ====IMemberPathBuilder====
 
@@ -48,9 +49,9 @@ internal sealed class SqlDynamicQuery : SqlSelectQueryBase, ISqlSelectQuery
     {
         var dr = rowReader.DataReader;
         var row = new DataRow();
-        for (var i = 0; i < _fields.Length; i++)
+        for (var i = 0; i < _columns.Length; i++)
         {
-            row[_fields[i].Name] = _fields[i].Type switch
+            row[_columns[i].Name] = _columns[i].Type switch
             {
                 DataType.String => dr.IsDBNull(i) ? DataCell.Empty : dr.GetString(i),
                 DataType.DateTime => dr.IsDBNull(i) ? DataCell.Empty : dr.GetDateTime(i).ToLocalTime(),
@@ -75,13 +76,14 @@ internal sealed class SqlDynamicQuery : SqlSelectQueryBase, ISqlSelectQuery
     {
         //TODO:验证是否允许动态查询，并根据规则附加过滤条件
 
-        var table = new DataTable();
+        var table = new DataTable(_columns);
         table.EntityModelId = EntityModelId;
-        await ToListCore(ReadToDataRow, Selects, e =>
-        {
-            e.AcceptAfterFetch();
-            table.Add(e);
-        });
+        await ToListCore(ReadToDataRow, _from.Selects.Select(f => new SqlSelectItemExpression(f.Item) { Owner = this }),
+            e =>
+            {
+                e.AcceptAfterFetch();
+                table.Add(e);
+            });
         return table;
     }
 }

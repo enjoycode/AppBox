@@ -31,9 +31,10 @@ public class SqlDynamicQueryTest
         var res = await sq.ToDataTableAsync();
         Assert.IsNotNull(res);
         Assert.IsTrue(res.Count > 0);
+        Assert.IsTrue(res.Columns.Length > 0);
         Assert.AreEqual(res[0]["Name"].StringValue, "Admin");
     }
-    
+
 
     [Test]
     public void DynamicQuerySerializeTest()
