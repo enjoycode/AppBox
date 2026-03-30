@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using AppBoxCore;
 using AppBoxStore;
+using static AppBoxServer.ServerLogger;
 
 namespace AppBoxServer;
 
@@ -28,6 +29,7 @@ internal static class ExternalLibraryManager
 
         // save to External library folder
         await stream.WriteToFile(filePath);
+        Logger.Debug($"Uploaded external library at {filePath}");
 
         // check is native assembly
         var assemblyFlag = AssemblyPlatform.None;

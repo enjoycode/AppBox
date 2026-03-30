@@ -19,8 +19,8 @@ internal readonly struct BlobChuckWriter
     /// 从流中读取数据，如果返回值小于0，会自动释放缓存
     /// </summary>
     /// <param name="stream"></param>
-    /// <returns>-1 = read error; other = bytes read</returns>
-    public async Task<int> ReadChunkDataAsync(Stream stream)
+    /// <returns>-1 = error; other = bytes</returns>
+    public async Task<int> WriteChunkDataAsync(Stream stream)
     {
         try
         {

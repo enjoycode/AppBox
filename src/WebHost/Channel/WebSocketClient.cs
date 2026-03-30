@@ -17,7 +17,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
     /// <summary>
     /// 组合并处理收到的消息
     /// </summary>
-    internal async ValueTask OnReceiveMessage(BytesSegment frame, bool isEnd)
+    internal void OnReceiveMessage(BytesSegment frame, bool isEnd)
     {
         //TODO:1.严格检查frame有效性；2.ShortPath for UploadChunk frame
         if (!isEnd)
@@ -36,47 +36,46 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
 
         //开始读取并处理消息
         var reader = MessageReadStream.Rent(frame.First!);
+        MessageType msgType;
+        int msgId;
         try
         {
-            var msgType = (MessageType)reader.ReadByte();
-            var msgId = reader.ReadInt();
-
-            //TODO: Process on thread pool, do not await
-            switch (msgType)
-            {
-                case MessageType.InvokeRequest:
-                    await ProcessInvokeRequest(msgId, reader).ConfigureAwait(false);
-                    break;
-                case MessageType.LoginRequest:
-                    await ProcessLoginRequest(msgId, reader).ConfigureAwait(false);
-                    break;
-                case MessageType.UploadRequest:
-                    await ProcessUploadRequest(msgId, reader).ConfigureAwait(false);
-                    break;
-                case MessageType.UploadChunk:
-                    await ProcessUploadChunk(msgId, reader).ConfigureAwait(false);
-                    break;
-                case MessageType.DownloadRequest:
-                    await ProcessDownloadRequest(msgId, reader).ConfigureAwait(false);
-                    break;
-                default:
-                    Logger.Warn($"Receive unknown message type: {msgType}");
-                    //TODO: should send error response
-                    break;
-            }
-        }
-        catch (SerializationException se)
-        {
-            Logger.Warn($"Read client message error: {se.Error}\n{se.StackTrace}");
+            msgType = (MessageType)reader.ReadByte();
+            msgId = reader.ReadInt();
         }
         catch (Exception e)
         {
-            Logger.Warn($"Read client message error: {e.Message}\n{e.StackTrace}");
-            //TODO:发送响应或关闭连接
+            reader.Free();
+            Logger.Warn($"Read message header error: {e.Message}");
+            return;
+        }
+
+        //Process on thread pool
+        switch (msgType)
+        {
+            case MessageType.InvokeRequest:
+                ProcessInvokeRequest(msgId, reader);
+                break;
+            case MessageType.LoginRequest:
+                ProcessLoginRequest(msgId, reader);
+                break;
+            case MessageType.UploadRequest:
+                ProcessUploadRequest(msgId, reader);
+                break;
+            case MessageType.UploadChunk:
+                ProcessUploadChunk(msgId, reader);
+                break;
+            case MessageType.DownloadRequest:
+                ProcessDownloadRequest(msgId, reader);
+                break;
+            default:
+                reader.Free();
+                Logger.Warn($"Receive unknown message type: {msgType}");
+                break;
         }
     }
 
-    private async Task ProcessLoginRequest(int msgId, MessageReadStream reader)
+    private async void ProcessLoginRequest(int msgId, MessageReadStream reader)
     {
         //读取请求消息
         var user = reader.ReadString()!;
@@ -126,7 +125,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         await SendMessage(data).ConfigureAwait(false);
     }
 
-    private async Task ProcessInvokeRequest(int msgId, MessageReadStream reader)
+    private async void ProcessInvokeRequest(int msgId, MessageReadStream reader)
     {
         //设置当前会话
         HostRuntimeContext.SetCurrentSession(WebSession);
@@ -136,7 +135,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         await SendResponse(msgId, MessageType.InvokeResponse, errorCode, result);
     }
 
-    private async Task ProcessUploadRequest(int msgId, MessageReadStream reader)
+    private async void ProcessUploadRequest(int msgId, MessageReadStream reader)
     {
         //设置当前会话
         HostRuntimeContext.SetCurrentSession(WebSession);
@@ -158,7 +157,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
     }
 
-    private async ValueTask ProcessUploadChunk(int msgId, MessageReadStream reader)
+    private async void ProcessUploadChunk(int msgId, MessageReadStream reader)
     {
         var blobChunk = reader.TakeBlobChunkAndFreeSelf();
 
@@ -190,7 +189,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
             pendingUpload.Channel.Writer.Complete();
     }
 
-    private async Task ProcessDownloadRequest(int msgId, MessageReadStream reader)
+    private async void ProcessDownloadRequest(int msgId, MessageReadStream reader)
     {
         //设置当前会话
         HostRuntimeContext.SetCurrentSession(WebSession);
@@ -219,7 +218,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
             while (true)
             {
                 var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.DownloadChunk);
-                var bytesRead = await chuckWriter.ReadChunkDataAsync(stream);
+                var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
                 if (bytesRead < 0)
                 {
                     await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
@@ -227,9 +226,9 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
                     break;
                 }
 
-                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk(bytesRead == 0)
+                //可能会发送一个空的chunk(bytesRead == 0)
                 await SendMessage(chuckWriter.Chunk);
-                if (bytesRead == 0)
+                if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
                     break;
 
                 offset += bytesRead;

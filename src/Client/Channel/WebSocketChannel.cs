@@ -409,8 +409,8 @@ public sealed class WebSocketChannel : IClientChannel
             var offset = 0;
             while (_pendingRequests.ContainsKey(msgId) /*should be removed when error*/)
             {
-                var reader = new BlobChuckWriter(msgId, offset, MessageType.UploadChunk);
-                var bytesRead = await reader.ReadChunkDataAsync(stream);
+                var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.UploadChunk);
+                var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
                 if (bytesRead < 0)
                 {
                     NotifyToPendingRequest(msgId, MessageType.UploadChunk, InvokeErrorCode.SendRequestFail,
@@ -418,9 +418,9 @@ public sealed class WebSocketChannel : IClientChannel
                     break;
                 }
 
-                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk(bytesRead == 0)
-                await SendMessage(reader.Chunk);
-                if (bytesRead == 0)
+                //可能会发送一个空的chunk(bytesRead == 0)
+                await SendMessage(chuckWriter.Chunk);
+                if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
                     break;
 
                 offset += bytesRead;

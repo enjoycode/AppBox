@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -104,6 +105,8 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
 
     ReadOnlyMemory<byte> IBlobChunk.GetDataChunk() =>
         Buffer.AsMemory(BlobChunkHeaderSize, Length - BlobChunkHeaderSize);
+
+    int IBlobChunk.Offset => BinaryPrimitives.ReadInt32LittleEndian(Buffer.AsSpan(5));
 
     void IBlobChunk.Free() => ReturnOne(this);
 
