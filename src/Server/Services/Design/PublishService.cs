@@ -323,9 +323,13 @@ internal static class PublishService
     /// <summary>
     /// 保存客户端上传的视图Assembly的依赖Map，并且开始保存App
     /// </summary>
-    internal static async Task UploadViewAssemblyMap(MessageReadStream rs)
+    internal static async Task UploadViewAssemblyMap(IAsyncEnumerable<IBlobChunk> stream)
     {
         //读取映射表
+        var tempFilePath = Path.GetTempFileName();
+        await stream.WriteToFile(tempFilePath);
+        
+        using var rs = new FileReadStream(tempFilePath);
         var count = rs.ReadVariant();
         var viewAssemblyMap = new List<MapItem>(count);
         for (var i = 0; i < count; i++)
@@ -337,6 +341,7 @@ internal static class PublishService
             rs.ReadBytes(data);
             viewAssemblyMap.Add(new MapItem(asmName, asmFlag, data));
         }
+        File.Delete(tempFilePath);
 
         //读取之前上传的组件
         var tempPath = GetUploadAppPath();

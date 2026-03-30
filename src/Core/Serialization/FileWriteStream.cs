@@ -7,7 +7,12 @@ public sealed class FileWriteStream : IOutputStream, IDisposable
         _fileStream = File.OpenWrite(filePath);
     }
 
-    private readonly FileStream _fileStream;
+    public FileWriteStream(Stream stream)
+    {
+        _fileStream = stream;
+    }
+
+    private readonly Stream _fileStream;
     private SerializeContext? _context;
 
     public SerializeContext Context => _context ??= new SerializeContext();

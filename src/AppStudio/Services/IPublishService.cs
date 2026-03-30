@@ -10,5 +10,5 @@ public interface IPublishService
     
     Task UploadAppAssembly(Stream stream, string assemblyName);
     
-    Task UploadViewAssemblyMap(Action<IOutputStream> writer);
+    Task UploadViewAssemblyMap(Stream stream);
 }

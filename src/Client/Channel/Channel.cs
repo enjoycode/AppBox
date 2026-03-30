@@ -127,6 +127,9 @@ public static class Channel
         AnyValue arg5, EntityFactory[]? entityFactories = null) =>
         (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4, arg5), entityFactories)).CastTo<T>();
 
+    public static Task Upload(string service, Stream stream) =>
+        Provider.Upload(service, stream, AnyArgs.Empty);
+
     public static Task Upload(string service, Stream stream, AnyValue arg) =>
         Provider.Upload(service, stream, AnyArgs.Make(arg));
 

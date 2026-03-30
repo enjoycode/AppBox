@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 using AppBoxCore;
 
@@ -11,7 +10,6 @@ internal sealed class PendingUpload
     {
         Channel = System.Threading.Channels.Channel.CreateBounded<IBlobChunk>(new BoundedChannelOptions(3)
         {
-            SingleReader = true,
             SingleWriter = true,
             FullMode = BoundedChannelFullMode.Wait,
         });
@@ -88,7 +86,13 @@ internal sealed class UploadManager
     public void OnClosed()
     {
         foreach (var pending in _pendingUploads.Values)
+        {
             pending.Channel.Writer.Complete(new Exception("Channel is closed"));
+            //free pending buffer
+            while (pending.Channel.Reader.TryRead(out var chunk))
+                chunk.Free();
+        }
+
         _pendingUploads.Clear();
     }
 }

@@ -2,6 +2,8 @@ namespace AppBoxCore;
 
 public sealed class FileReadStream : IInputStream, IDisposable
 {
+    //TODO: use buffer for read
+    
     public FileReadStream(string filePath)
     {
         _fileStream = File.OpenRead(filePath);

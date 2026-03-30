@@ -123,10 +123,7 @@ internal sealed class MockPublishService : IPublishService
 
     public Task UploadAppAssembly(Stream stream, string assemblyName) => throw new NotImplementedException();
 
-    public Task UploadViewAssemblyMap(Action<IOutputStream> writer)
-    {
-        throw new NotImplementedException();
-    }
+    public Task UploadViewAssemblyMap(Stream stream) => throw new NotImplementedException();
 }
 
 internal sealed class MockMetadataReferenceProvider : IMetadataReferenceProvider

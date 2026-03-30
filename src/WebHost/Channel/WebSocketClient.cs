@@ -153,7 +153,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
     }
 
-    private async Task ProcessUploadChunk(int msgId, MessageReadStream reader)
+    private async ValueTask ProcessUploadChunk(int msgId, MessageReadStream reader)
     {
         var blobChunk = reader.TakeBlobChunk();
 
@@ -167,7 +167,17 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         //写入Channel,并判断是否最后一块
         var isLastChunk = blobChunk.IsLastChunk(out var isEmpty);
         if (!isEmpty)
-            await pendingUpload.Channel.Writer.WriteAsync(blobChunk);
+        {
+            try
+            {
+                await pendingUpload.Channel.Writer.WriteAsync(blobChunk);
+            }
+            catch (Exception e)
+            {
+                Logger.Warn($"Can't write upload data chunk: {e.Message}");
+                blobChunk.Free();
+            }
+        }
         else
             blobChunk.Free();
 

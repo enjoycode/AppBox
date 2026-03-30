@@ -11,7 +11,7 @@ public interface IAnyArgs
     /// <summary>
     /// 获取包装的读取流，仅MessageReadStream和FileReadStream支持
     /// </summary>
-    IInputStream? InputStream { get; }
+    IInputStream? InputStream { get; } //TODO: remove this
 
     /// <summary>
     /// 设置实体工厂，用于反序列化参数为实体

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text.Json;
+using AppBoxClient;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -64,8 +65,13 @@ internal static class BuildApp
         }
 
         // 3.保存视图模型对应的所有程序集的映射
-        await hub.PublishService.UploadViewAssemblyMap(w =>
+        Stream? tempFileStream = null;
+        string? tempFilePath = null;
+        try
         {
+            //先写入临时文件
+            tempFileStream = LocalFileSystem.CreateTempFile(out tempFilePath);
+            var w = new FileWriteStream(tempFileStream);
             w.WriteVariant(viewAssemblyMap.Count);
 
             foreach (var kv in viewAssemblyMap)
@@ -82,7 +88,17 @@ internal static class BuildApp
                 w.WriteVariant(jsonData.Length);
                 w.WriteBytes(jsonData);
             }
-        });
+
+            tempFileStream.Position = 0;
+
+            //再上传临时文件
+            await hub.PublishService.UploadViewAssemblyMap(tempFileStream);
+        }
+        finally
+        {
+            tempFileStream?.Close();
+            LocalFileSystem.DeleteTempFile(tempFilePath);
+        }
     }
 
     private static async ValueTask AnalyseView(BuildContext ctx, ModelNode viewModelNode)
