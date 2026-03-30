@@ -155,7 +155,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
 
     private async ValueTask ProcessUploadChunk(int msgId, MessageReadStream reader)
     {
-        var blobChunk = reader.TakeBlobChunk();
+        var blobChunk = reader.TakeBlobChunkAndFreeSelf();
 
         if (_uploadManager == null || !_uploadManager.TryGetPending(msgId, out var pendingUpload))
         {

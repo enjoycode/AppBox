@@ -13,4 +13,8 @@ public enum MessageType : byte
     UploadRequest = 20,
     UploadChunk = 21,
     UploadResponse = 22,
+    
+    DownloadRequest = 23,
+    DownloadChunk = 24,
+    DownloadResponse = 25,
 }

@@ -47,7 +47,10 @@ public sealed class MessageReadStream : IInputStream
         Position = position;
     }
 
-    internal IBlobChunk TakeBlobChunk()
+    /// <summary>
+    /// Take owner for blob chunk, and free self
+    /// </summary>
+    internal IBlobChunk TakeBlobChunkAndFreeSelf()
     {
         if (Current.Buffer[0] != (byte)MessageType.UploadChunk)
             throw new NotSupportedException("Only for UploadChunk");

@@ -12,4 +12,6 @@ public enum InvokeErrorCode
 
     SendRequestFail = 10,
     DeserializeResponseFail = 11,
+
+    Other = 255
 }

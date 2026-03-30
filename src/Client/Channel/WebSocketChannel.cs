@@ -31,6 +31,8 @@ public sealed class WebSocketChannel : IClientChannel
     public string SessionId => _sessionId ?? string.Empty;
     public Guid LeafOrgUnitId { get; private set; } = Guid.Empty;
 
+    private DownloadManager? _downloadManager;
+
     private readonly ConcurrentDictionary<int, PooledTaskSource<MessageReadStream>> _pendingRequests = new();
 
     private readonly ObjectPool<PooledTaskSource<MessageReadStream>> _pooledTaskSource =
@@ -133,7 +135,25 @@ public sealed class WebSocketChannel : IClientChannel
     }
 
     public async Task Download<T>(string service, Stream stream, T args)
-        where T : struct, IAnyArgs { }
+        where T : struct, IAnyArgs
+    {
+        //add to wait list
+        var msgId = MakePendingRequest(out var promise);
+        _downloadManager ??= new DownloadManager();
+        _downloadManager.MakePendingDownload(msgId, stream);
+
+        //serialize request
+        var reqData = SerializeRequest(msgId, MessageType.DownloadRequest, service, args);
+
+        // send request
+        await SendMessage(reqData);
+
+        // wait for response
+        var rs = await promise.WaitAsync();
+        _pooledTaskSource.Free(promise);
+        _downloadManager.RemovePending(msgId);
+        DeserializeResponse(rs, null);
+    }
 
     #region ====Serialization for Request & Response====
 
@@ -197,31 +217,7 @@ public sealed class WebSocketChannel : IClientChannel
 
     #endregion
 
-    private void SendBlobChunk(int msgId, Stream stream)
-    {
-        Task.Run(async () =>
-        {
-            var offset = 0;
-            while (_pendingRequests.ContainsKey(msgId) /*should be removed when error*/)
-            {
-                var reader = new BlobChuckWriter(msgId, offset);
-                var bytesRead = await reader.ReadChunkDataAsync(stream);
-                if (bytesRead < 0)
-                {
-                    NotifyErrorToPendingRequest(msgId, MessageType.UploadChunk, InvokeErrorCode.SendRequestFail,
-                        "Can't send blob chunk");
-                    break;
-                }
-
-                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk给服务端(bytesRead == 0)
-                await SendMessage(reader.Chunk);
-
-                offset += bytesRead;
-            }
-        });
-    }
-
-    private void NotifyErrorToPendingRequest(int msgId, MessageType msgType, InvokeErrorCode errCode, string errMsg)
+    private void NotifyToPendingRequest(int msgId, MessageType msgType, InvokeErrorCode errCode, string? errMsg = null)
     {
         if (_pendingRequests.TryRemove(msgId, out var promise))
         {
@@ -229,7 +225,8 @@ public sealed class WebSocketChannel : IClientChannel
             ws.WriteByte((byte)msgType);
             ws.WriteInt(msgId);
             ws.WriteByte((byte)errCode);
-            ws.Serialize(errMsg);
+            if (!string.IsNullOrEmpty(errMsg))
+                ws.Serialize(errMsg);
             var data = ws.FinishWrite();
             MessageWriteStream.Return(ws);
 
@@ -241,6 +238,8 @@ public sealed class WebSocketChannel : IClientChannel
     }
 
     private int MakeMsgId() => Interlocked.Increment(ref _msgIdIndex);
+
+    #region ====Connection Methods====
 
     private async ValueTask TryConnect()
     {
@@ -266,6 +265,17 @@ public sealed class WebSocketChannel : IClientChannel
             await _connectTask;
         }
     }
+
+    private void OnClose(string reason)
+    {
+        //TODO: clean pending request
+        Interlocked.Exchange(ref _connectStatus, 0);
+        Console.WriteLine($"Closed by reason: {reason}"); // Log.Info($"Closed by reason: {reason}");
+    }
+
+    #endregion
+
+    #region ====Receive Methods====
 
     private async void StartReceive(WebSocket webSocket)
     {
@@ -303,30 +313,18 @@ public sealed class WebSocketChannel : IClientChannel
 
                 var rs = MessageReadStream.Rent(segment.First!);
                 var msgType = (MessageType)rs.ReadByte(); //message type
-                if (msgType != MessageType.ServerEvent)
+                switch (msgType)
                 {
-                    var msgId = rs.ReadInt();
-                    if (_pendingRequests.TryRemove(msgId, out var promise))
-                        promise.SetResult(rs);
-                    else
+                    case MessageType.InvokeResponse:
+                    case MessageType.UploadResponse:
+                    case MessageType.DownloadResponse:
+                        ProcessResponse(rs); break;
+                    case MessageType.DownloadChunk:
+                        ProcessDownloadChunk(rs); break;
+                    case MessageType.ServerEvent: ProcessServerEvent(rs); break;
+                    default:
                         rs.Free();
-                }
-                else
-                {
-                    var eventId = rs.ReadInt();
-                    try
-                    {
-                        Channel.RaiseServerEvent(eventId, rs);
-                    }
-                    catch (Exception e)
-                    {
-                        //TODO: forward to ui notification
-                        Console.WriteLine($"Process server event error: {e.Message}");
-                    }
-                    finally
-                    {
-                        rs.Free();
-                    }
+                        throw new Exception($"Unknown message type: {msgType}");
                 }
             }
             else
@@ -337,11 +335,92 @@ public sealed class WebSocketChannel : IClientChannel
         }
     }
 
-    private void OnClose(string reason)
+    private void ProcessResponse(MessageReadStream rs)
     {
-        // Log.Info($"Closed by reason: {reason}");
-        //TODO: clean pending request
-        Interlocked.Exchange(ref _connectStatus, 0);
+        var msgId = rs.ReadInt();
+        if (_pendingRequests.TryRemove(msgId, out var promise))
+            promise.SetResult(rs);
+        else
+            rs.Free();
+    }
+
+    private async void ProcessDownloadChunk(MessageReadStream rs)
+    {
+        var msgId = rs.ReadInt();
+        var blobChunk = rs.TakeBlobChunkAndFreeSelf();
+        if (_downloadManager == null || !_downloadManager.TryGetPending(msgId, out var stream))
+        {
+            blobChunk.Free();
+            return;
+        }
+
+        var isLastChunk = blobChunk.IsLastChunk(out var isEmpty);
+        try
+        {
+            if (!isEmpty)
+            {
+                await stream.WriteAsync(blobChunk.GetDataChunk());
+            }
+        }
+        catch (Exception e)
+        {
+            NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.Other,
+                $"Can't write download data to stream: {e.Message}");
+            return;
+        }
+        finally
+        {
+            blobChunk.Free();
+        }
+
+        if (isLastChunk)
+            NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.None);
+    }
+
+    private static void ProcessServerEvent(MessageReadStream rs)
+    {
+        var eventId = rs.ReadInt();
+        try
+        {
+            Channel.RaiseServerEvent(eventId, rs);
+        }
+        catch (Exception e)
+        {
+            //TODO: forward to ui notification
+            Console.WriteLine($"Process server event error: {e.Message}");
+        }
+        finally
+        {
+            rs.Free();
+        }
+    }
+
+    #endregion
+
+    #region ====Send Methods====
+
+    private void SendBlobChunk(int msgId, Stream stream)
+    {
+        Task.Run(async () =>
+        {
+            var offset = 0;
+            while (_pendingRequests.ContainsKey(msgId) /*should be removed when error*/)
+            {
+                var reader = new BlobChuckWriter(msgId, offset);
+                var bytesRead = await reader.ReadChunkDataAsync(stream);
+                if (bytesRead < 0)
+                {
+                    NotifyToPendingRequest(msgId, MessageType.UploadChunk, InvokeErrorCode.SendRequestFail,
+                        "Can't send blob chunk");
+                    break;
+                }
+
+                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk给服务端(bytesRead == 0)
+                await SendMessage(reader.Chunk);
+
+                offset += bytesRead;
+            }
+        });
     }
 
     /// <summary>
@@ -362,4 +441,6 @@ public sealed class WebSocketChannel : IClientChannel
 
         BytesSegment.ReturnAll(data);
     }
+
+    #endregion
 }
