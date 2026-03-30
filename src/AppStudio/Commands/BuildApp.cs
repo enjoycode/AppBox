@@ -70,7 +70,7 @@ internal static class BuildApp
         try
         {
             //先写入临时文件
-            tempFileStream = LocalFileSystem.CreateTempFile(out tempFilePath);
+            tempFileStream = LocalFileSystem.CreateTempFile(out tempFilePath, false);
             var w = new FileWriteStream(tempFileStream);
             w.WriteVariant(viewAssemblyMap.Count);
 

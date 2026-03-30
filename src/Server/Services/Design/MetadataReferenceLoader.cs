@@ -12,22 +12,9 @@ internal static class MetadataReferenceLoader
     private static readonly string AppPath = Path.GetDirectoryName(typeof(MetaStore).Assembly.Location)!;
     private const string ViewRunnerPath = "ViewRunner";
 
-    internal static AnyValue LoadMetadataReference<T>(T args) where T : struct, IAnyArgs
+    internal static AnyValue LoadMetadataReference(int typeFlag, string asmName, string? appName)
     {
-        var type = (ModelDependencyType)args.GetInt()!.Value;
-        string asmName;
-        string appName;
-        if (type != ModelDependencyType.ServerExtLibrary)
-        {
-            asmName = args.GetString()!;
-            appName = string.Empty;
-        }
-        else
-        {
-            appName = args.GetString()!;
-            asmName = args.GetString()!;
-        }
-
+        var type = (ModelDependencyType)typeFlag;
         var fullPath = type switch
         {
             ModelDependencyType.SdkLibrary => Path.Combine(SdkPath, asmName),
@@ -35,14 +22,10 @@ internal static class MetadataReferenceLoader
             ModelDependencyType.ClientLibrary => Path.Combine(AppPath, ViewRunnerPath, asmName),
             ModelDependencyType.ServerLibrary => Path.Combine(AppPath, asmName),
             ModelDependencyType.ServerExtLibrary => Path.Combine(
-                ExternalLibraryManager.GetExternalLibraryPath(appName), asmName),
+                ExternalLibraryManager.GetExternalLibraryPath(appName!), asmName),
             _ => throw new ArgumentException($"Invalid type: {type}")
         };
 
-        return AnyValue.From(ws =>
-        {
-            using var fileStream = File.OpenRead(fullPath);
-            ws.WriteStream(fileStream);
-        });
+        return AnyValue.From(File.OpenRead(fullPath));
     }
 }

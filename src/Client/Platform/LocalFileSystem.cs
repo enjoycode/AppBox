@@ -11,7 +11,8 @@ public static class LocalFileSystem
 
     private static ILocalFileSystem _provider = null!;
 
-    public static Stream CreateTempFile(out string filePath) => _provider.CreateTempFile(out filePath);
+    public static Stream CreateTempFile(out string filePath, bool writeOnly = true) =>
+        _provider.CreateTempFile(out filePath, writeOnly);
 
     public static void DeleteTempFile(string? filePath)
     {

@@ -34,11 +34,19 @@ internal static class MetadataReferenceProviderExtensions
         this IMetadataReferenceProvider provider,
         ModelDependencyType type, string assemblyName, string? appName = null)
     {
-        object[] args = type == ModelDependencyType.ServerExtLibrary
-            ? [(int)type, appName!, assemblyName]
-            : [(int)type, assemblyName];
+        var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+        try
+        {
+            await Channel.Download(DesignMethods.LoadMetadataReferenceFull, tempFileStream,
+                (int)type, assemblyName, string.IsNullOrEmpty(appName) ? "" : appName);
 
-        await using var stream = await Channel.InvokeForStream(DesignMethods.LoadMetadataReferenceFull, args);
-        return MetadataReference.CreateFromStream(stream);
+            tempFileStream.Position = 0;
+            return MetadataReference.CreateFromStream(tempFileStream);
+        }
+        finally
+        {
+            await tempFileStream.DisposeAsync();
+            LocalFileSystem.DeleteTempFile(tempFilePath);
+        }
     }
 }

@@ -52,9 +52,10 @@ public sealed class MessageReadStream : IInputStream
     /// </summary>
     internal IBlobChunk TakeBlobChunkAndFreeSelf()
     {
-        if (Current.Buffer[0] != (byte)MessageType.UploadChunk)
-            throw new NotSupportedException("Only for UploadChunk");
-        
+        var msgType = (MessageType)Current.Buffer[0];
+        if (msgType != MessageType.UploadChunk && msgType != MessageType.DownloadChunk)
+            throw new NotSupportedException("Only for Upload or Download data chunk");
+
         var result = Current;
         Current = null!;
         Free();

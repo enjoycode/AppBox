@@ -4,11 +4,11 @@ namespace AppBoxCore;
 
 internal readonly struct BlobChuckWriter
 {
-    public BlobChuckWriter(int msgId, int offset)
+    public BlobChuckWriter(int msgId, int offset, MessageType msgType)
     {
         Chunk = BytesSegment.Rent();
         var buffer = Chunk.Buffer;
-        buffer[0] = (byte)MessageType.UploadChunk;
+        buffer[0] = (byte)msgType;
         BinaryPrimitives.WriteInt32LittleEndian(buffer.AsSpan(1, 4), msgId);
         BinaryPrimitives.WriteInt32LittleEndian(buffer.AsSpan(5, 4), offset);
     }

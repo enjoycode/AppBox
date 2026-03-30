@@ -17,6 +17,8 @@ public interface IClientChannel : IChannel
 
     Task<AnyValue> Invoke<T>(string service, T args, EntityFactory[]? entityFactories = null)
         where T : struct, IAnyArgs;
-    
+
     Task<AnyValue> Upload<T>(string service, Stream stream, T args) where T : struct, IAnyArgs;
+
+    Task Download<T>(string service, Stream stream, T args) where T : struct, IAnyArgs;
 }

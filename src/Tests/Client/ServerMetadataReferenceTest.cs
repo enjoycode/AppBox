@@ -1,4 +1,5 @@
 using AppBoxClient;
+using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 
@@ -11,13 +12,19 @@ public class ServerMetadataReferenceTest
     {
         Channel.Init(new WebSocketChannel(new Uri("ws://localhost:5000/ws")));
         await Channel.Login("Admin", "760wb");
-        var stream = await Channel.InvokeForStream("sys.DesignService.LoadMetadataReference",
-            [1, "AppBoxCore.dll"]);
-        Assert.NotNull(stream);
-        Console.WriteLine(stream.Length);
 
-        var metadata = MetadataReference.CreateFromStream(stream);
+        var tempFilePath = Path.GetTempFileName();
+        var tempFileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+        await Channel.Download("sys.DesignService.LoadMetadataReference", tempFileStream,
+            1, "AppBoxCore.dll", "");
+        Console.WriteLine(tempFileStream.Length);
+
+        tempFileStream.Position = 0;
+        var metadata = MetadataReference.CreateFromStream(tempFileStream);
         Assert.NotNull(metadata);
         Console.WriteLine(metadata);
+
+        await tempFileStream.DisposeAsync();
+        File.Delete(tempFilePath);
     }
 }

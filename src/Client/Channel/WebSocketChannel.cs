@@ -316,15 +316,18 @@ public sealed class WebSocketChannel : IClientChannel
                 switch (msgType)
                 {
                     case MessageType.InvokeResponse:
+                    case MessageType.LoginResponse:
                     case MessageType.UploadResponse:
                     case MessageType.DownloadResponse:
                         ProcessResponse(rs); break;
                     case MessageType.DownloadChunk:
-                        ProcessDownloadChunk(rs); break;
+                        await ProcessDownloadChunk(rs); break;
                     case MessageType.ServerEvent: ProcessServerEvent(rs); break;
                     default:
                         rs.Free();
-                        throw new Exception($"Unknown message type: {msgType}");
+                        //throw new Exception($"Unknown message type: {msgType}");
+                        Console.WriteLine($"Receive unknown message type: {msgType}");
+                        break;
                 }
             }
             else
@@ -344,7 +347,7 @@ public sealed class WebSocketChannel : IClientChannel
             rs.Free();
     }
 
-    private async void ProcessDownloadChunk(MessageReadStream rs)
+    private async ValueTask ProcessDownloadChunk(MessageReadStream rs)
     {
         var msgId = rs.ReadInt();
         var blobChunk = rs.TakeBlobChunkAndFreeSelf();
@@ -406,7 +409,7 @@ public sealed class WebSocketChannel : IClientChannel
             var offset = 0;
             while (_pendingRequests.ContainsKey(msgId) /*should be removed when error*/)
             {
-                var reader = new BlobChuckWriter(msgId, offset);
+                var reader = new BlobChuckWriter(msgId, offset, MessageType.UploadChunk);
                 var bytesRead = await reader.ReadChunkDataAsync(stream);
                 if (bytesRead < 0)
                 {

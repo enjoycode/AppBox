@@ -29,7 +29,8 @@ internal sealed class DesignService : IService
         switch (method.Span)
         {
             case DesignMethods.LoadMetadataReference:
-                return MetadataReferenceLoader.LoadMetadataReference(args);
+                return MetadataReferenceLoader.LoadMetadataReference(args.GetInt()!.Value, args.GetString()!,
+                    args.GetString());
             case "LoadAllApplication":
                 return AnyValue.From(await MetaStore.Provider.LoadAllApplicationAsync());
             case "LoadAllFolder":

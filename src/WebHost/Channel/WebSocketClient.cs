@@ -213,24 +213,31 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         //开始发送数据块
-        var offset = 0;
-        while (true)
+        try
         {
-            var chuckWriter = new BlobChuckWriter(msgId, offset);
-            var bytesRead = await chuckWriter.ReadChunkDataAsync(stream);
-            if (bytesRead < 0)
+            var offset = 0;
+            while (true)
             {
-                await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
-                    "Can't read blob chunk");
-                break;
+                var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.DownloadChunk);
+                var bytesRead = await chuckWriter.ReadChunkDataAsync(stream);
+                if (bytesRead < 0)
+                {
+                    await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
+                        "Can't read blob chunk");
+                    break;
+                }
+
+                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk(bytesRead == 0)
+                await SendMessage(chuckWriter.Chunk);
+                if (bytesRead == 0)
+                    break;
+
+                offset += bytesRead;
             }
-
-            //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk(bytesRead == 0)
-            await SendMessage(chuckWriter.Chunk);
-            if (bytesRead == 0)
-                break;
-
-            offset += bytesRead;
+        }
+        finally
+        {
+            await stream.DisposeAsync();
         }
     }
 
