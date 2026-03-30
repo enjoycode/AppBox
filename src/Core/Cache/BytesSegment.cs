@@ -13,7 +13,7 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
 
     private static readonly ObjectPool<BytesSegment> Pools = new(() => new BytesSegment(), 256); //TODO: check count
 
-    private const int FrameSize = 216; //注意: 等于MessageChunk的数据部分大小
+    private const int FrameSize = 256;
 
     /// <summary>
     /// 从缓存池租用一块
