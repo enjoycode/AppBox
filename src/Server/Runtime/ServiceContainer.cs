@@ -5,6 +5,9 @@ namespace AppBoxServer;
 
 internal static class ServiceContainer
 {
+    /// <summary>
+    /// 调用服务，完成后释放AnyArgs使用的缓存
+    /// </summary>
     public static async ValueTask<AnyValue> InvokeAsync<T>(string servicePath, T args) where T : struct, IAnyArgs
     {
         var span = servicePath.AsMemory();

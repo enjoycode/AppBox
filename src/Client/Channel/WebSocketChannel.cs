@@ -415,8 +415,10 @@ public sealed class WebSocketChannel : IClientChannel
                     break;
                 }
 
-                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk给服务端(bytesRead == 0)
+                //这里不做是否最后一块chunk的判断，可能会发送一个空的chunk(bytesRead == 0)
                 await SendMessage(reader.Chunk);
+                if (bytesRead == 0)
+                    break;
 
                 offset += bytesRead;
             }

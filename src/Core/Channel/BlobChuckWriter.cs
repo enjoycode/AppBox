@@ -1,10 +1,6 @@
-using System;
 using System.Buffers.Binary;
-using System.IO;
-using System.Threading.Tasks;
-using AppBoxCore;
 
-namespace AppBoxClient;
+namespace AppBoxCore;
 
 internal readonly struct BlobChuckWriter
 {
