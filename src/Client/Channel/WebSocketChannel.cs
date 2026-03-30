@@ -58,29 +58,8 @@ public sealed class WebSocketChannel : IClientChannel
         //add to wait list
         var msgId = MakePendingRequest(out var promise);
 
-        //serialize request header
-        var ws = MessageWriteStream.Rent();
-        BytesSegment reqData;
-        try
-        {
-            ws.WriteByte((byte)MessageType.InvokeRequest);
-            ws.WriteInt(msgId);
-            ws.WriteString(service);
-            args.SerializeTo(ws); //serialize request args
-
-            reqData = ws.FinishWrite();
-        }
-        catch (Exception)
-        {
-            //must free BytesSegment has written.
-            reqData = ws.FinishWrite();
-            BytesSegment.ReturnAll(reqData);
-            throw;
-        }
-        finally
-        {
-            MessageWriteStream.Return(ws);
-        }
+        //serialize request
+        var reqData = SerializeRequest(msgId, MessageType.InvokeRequest, service, args);
 
         // send request and wait for response
         await SendMessage(reqData);
@@ -89,35 +68,6 @@ public sealed class WebSocketChannel : IClientChannel
 
         // deserialize response
         return DeserializeResponse(rs, entityFactories);
-    }
-
-    private static AnyValue DeserializeResponse(MessageReadStream rs, EntityFactory[]? entityFactories)
-    {
-        var errorCode = (InvokeErrorCode)rs.ReadByte();
-        var result = AnyValue.Empty;
-        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
-        {
-            try
-            {
-                if (entityFactories != null)
-                    rs.Context.SetEntityFactories(entityFactories);
-                result = AnyValue.DeserializeFrom(rs);
-            }
-            catch (Exception ex)
-            {
-                errorCode = InvokeErrorCode.DeserializeResponseFail;
-                result = AnyValue.From(ex.Message);
-            }
-            finally
-            {
-                rs.Free();
-            }
-        }
-
-        if (errorCode != InvokeErrorCode.None)
-            throw new Exception($"Invoke error: Code={errorCode} Msg={result.GetString()}");
-
-        return result;
     }
 
     public async Task Login(string user, string password, string? external)
@@ -168,12 +118,62 @@ public sealed class WebSocketChannel : IClientChannel
         //add to wait list
         var msgId = MakePendingRequest(out var promise);
 
-        //serialize request header
+        //serialize request
+        var reqData = SerializeRequest(msgId, MessageType.UploadRequest, service, args);
+
+        // send request
+        await SendMessage(reqData);
+        // send data chunk in other task
+        SendBlobChunk(msgId, stream);
+
+        // wait for response
+        var rs = await promise.WaitAsync();
+        _pooledTaskSource.Free(promise);
+        return DeserializeResponse(rs, null);
+    }
+
+    public async Task Download<T>(string service, Stream stream, T args)
+        where T : struct, IAnyArgs { }
+
+    #region ====Serialization for Request & Response====
+
+    private static AnyValue DeserializeResponse(MessageReadStream rs, EntityFactory[]? entityFactories)
+    {
+        var errorCode = (InvokeErrorCode)rs.ReadByte();
+        var result = AnyValue.Empty;
+        if (rs.HasRemaining) //因有些错误可能不包含数据，只有错误码
+        {
+            try
+            {
+                if (entityFactories != null)
+                    rs.Context.SetEntityFactories(entityFactories);
+                result = AnyValue.DeserializeFrom(rs);
+            }
+            catch (Exception ex)
+            {
+                errorCode = InvokeErrorCode.DeserializeResponseFail;
+                result = AnyValue.From(ex.Message);
+            }
+            finally
+            {
+                rs.Free();
+            }
+        }
+
+        if (errorCode != InvokeErrorCode.None)
+            throw new Exception($"Invoke error: Code={errorCode} Msg={result.GetString()}");
+
+        return result;
+    }
+
+    private static BytesSegment SerializeRequest<T>(int msgId, MessageType msgType, string service, T args)
+        where T : struct, IAnyArgs
+    {
         var ws = MessageWriteStream.Rent();
         BytesSegment reqData;
         try
         {
-            ws.WriteByte((byte)MessageType.UploadRequest);
+            ws.WriteByte((byte)msgType);
             ws.WriteInt(msgId);
             ws.WriteString(service);
             args.SerializeTo(ws); //serialize request args
@@ -192,16 +192,10 @@ public sealed class WebSocketChannel : IClientChannel
             MessageWriteStream.Return(ws);
         }
 
-        // send request
-        await SendMessage(reqData);
-        // send data chunk in other task
-        SendBlobChunk(msgId, stream);
-
-        // wait for response
-        var rs = await promise.WaitAsync();
-        _pooledTaskSource.Free(promise);
-        return DeserializeResponse(rs, null);
+        return reqData;
     }
+
+    #endregion
 
     private void SendBlobChunk(int msgId, Stream stream)
     {
