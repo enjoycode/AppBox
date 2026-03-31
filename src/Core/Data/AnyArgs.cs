@@ -46,6 +46,8 @@ public interface IAnyArgs
 
 public static class AnyArgs
 {
+    public const int MAX_COUNT = 5;
+
     public static EmptyArgs Empty { get; } = new();
 
     public static LocalArgs1 Make(AnyValue arg) => new(arg);

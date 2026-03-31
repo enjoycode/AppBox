@@ -198,6 +198,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         switch (Type)
         {
             case AnyValueType.Empty:
+                bs.WriteByte((byte)PayloadType.Null);
                 break;
             case AnyValueType.Boolean:
                 bs.WriteBool(BoolValue);

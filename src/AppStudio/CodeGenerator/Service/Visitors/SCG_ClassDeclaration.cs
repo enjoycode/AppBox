@@ -87,8 +87,7 @@ internal partial class ServiceCodeGenerator
         //先判断是否Nullable<T>
         var isNullable = false;
         var specType = typeSymbol.SpecialType;
-        if (typeSymbol.IsValueType &&
-            typeSymbol is INamedTypeSymbol
+        if (typeSymbol.IsValueType && typeSymbol is INamedTypeSymbol
             {
                 IsGenericType: true, OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
             } namedType)
@@ -110,6 +109,8 @@ internal partial class ServiceCodeGenerator
             case SpecialType.System_Decimal: return isNullable ? "args.GetDecimal()" : "args.GetDecimal()!.Value";
             case SpecialType.System_String: return "args.GetString()";
         }
+        
+        //TODO: Guid Type
 
         //特殊处理范型集合
         if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)

@@ -10,7 +10,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 转换生成运行时的视图模型的代码,用于调试与桌面端预览
 /// </summary>
-internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
+internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGeneratorWithUsages
 {
     internal static async Task<ViewCsGenerator> Make(DesignHub hub, ModelNode modelNode, bool forPreview)
     {
@@ -48,6 +48,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
     private readonly TypeSymbolCache _typeSymbolCache;
     private readonly string _thisModelFullName;
     private readonly bool _forPreview;
+
     /// <summary>
     /// 是否标记了DynamicWidgetAttribute的视图模型
     /// </summary>
@@ -114,7 +115,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
 
             if (modelType == ModelType.Entity)
             {
-                CodeGeneratorUtil.BuildUsagedEntity(DesignHub, modelNode, ctx, parseOpts);
+                CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx, parseOpts);
             }
             else if (modelType == ModelType.View)
             {
@@ -132,6 +133,12 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter
             }
         }
     }
+
+    bool ICodeGeneratorWithUsages.FindModel(string fullName) => FindModel(fullName);
+
+    void ICodeGeneratorWithUsages.AddUsedModel(string fullName) => AddUsedModel(fullName);
+
+    ModelType ICodeGeneratorWithUsages.TargetModelType => ModelType.View;
 
     #endregion
 }

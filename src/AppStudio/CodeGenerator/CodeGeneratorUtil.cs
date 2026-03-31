@@ -1,7 +1,9 @@
 using System.Text;
 using AppBoxCore;
+using RoslynUtils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
 
 namespace AppBoxDesign;
@@ -18,7 +20,7 @@ internal static class CodeGeneratorUtil
 
         var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         if (errors.Length <= 0) return;
-        
+
         var sb = new StringBuilder("语义错误:");
         sb.AppendLine();
         for (var i = 0; i < errors.Length; i++)
@@ -67,7 +69,7 @@ internal static class CodeGeneratorUtil
     /// <summary>
     /// 转换视图或服务模型时生成使用到的实体模型的运行时代码，包括EntityRef及EntitySet的引用
     /// </summary>
-    internal static void BuildUsagedEntity(DesignHub hub, ModelNode modelNode,
+    internal static void BuildUsedEntity(DesignHub hub, ModelNode modelNode,
         IDictionary<string, SyntaxTree> ctx, CSharpParseOptions parseOptions)
     {
         var fullName = $"{modelNode.AppNode.Model.Name}.Entities.{modelNode.Model.Name}";
@@ -87,9 +89,8 @@ internal static class CodeGeneratorUtil
         {
             foreach (var refModelId in refModel.RefModelIds)
             {
-                var refModelNode =
-                    hub.DesignTree.FindModelNode(refModelId)!;
-                BuildUsagedEntity(hub, refModelNode, ctx, parseOptions);
+                var refModelNode = hub.DesignTree.FindModelNode(refModelId)!;
+                BuildUsedEntity(hub, refModelNode, ctx, parseOptions);
             }
         }
 
@@ -98,9 +99,8 @@ internal static class CodeGeneratorUtil
             .Cast<EntitySetMember>();
         foreach (var setModel in sets)
         {
-            var setModelNode =
-                hub.DesignTree.FindModelNode(setModel.RefModelId)!;
-            BuildUsagedEntity(hub, setModelNode, ctx, parseOptions);
+            var setModelNode = hub.DesignTree.FindModelNode(setModel.RefModelId)!;
+            BuildUsedEntity(hub, setModelNode, ctx, parseOptions);
         }
         //TODO:实体枚举成员的处理
     }
@@ -142,5 +142,65 @@ internal static class CodeGeneratorUtil
 
         sb.Append("};\n");
         return StringBuilderCache.GetStringAndRelease(sb);
+    }
+
+    /// <summary>
+    /// 转换视图模型调用服务或服务模型调用其他服务
+    /// </summary>
+    internal static InvocationExpressionSyntax VisitInvokeAppBoxService(ICodeGeneratorWithUsages generator,
+        InvocationExpressionSyntax node, IMethodSymbol symbol)
+    {
+        // //考虑判断参数数量是否超出
+        // if (node.ArgumentList.Arguments.Count > AnyArgs.MAX_COUNT)
+        //     throw new ArgumentException();
+
+        //返回类型是Task<T>或Task
+        var isReturnGenericTask = ((INamedTypeSymbol)symbol.ReturnType).IsGenericType;
+        //需要检查返回类型内是否包含实体，是则加入引用模型列表内
+        if (isReturnGenericTask)
+            symbol.ReturnType.CheckTypeHasAppBoxModel(generator.FindModel, generator.AddUsedModel);
+
+        //转换服务方法调用为 AppBoxClient.Channel.Invoke()
+        var appName = symbol.ContainingNamespace.ContainingNamespace.Name;
+        var servicePath = $"{appName}.{symbol.ContainingType.Name}.{symbol.Name}";
+        var methodName = generator.TargetModelType == ModelType.View
+            ? "AppBoxClient.Channel.Invoke"
+            : "AppBoxServer.HostRuntimeContext.Invoke";
+        if (isReturnGenericTask)
+        {
+            var rt = ((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0];
+            methodName += $"<{rt}>";
+        }
+
+        var method = SyntaxFactory.ParseExpression(methodName);
+        //服务名称参数 eg: "sys.OrderService.GetOrder
+        var serviceArg = SyntaxFactory.Argument(
+            SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                SyntaxFactory.Literal(servicePath))
+        );
+        var args = SyntaxFactory.ArgumentList().AddArguments(serviceArg);
+        //转换原来的参数, eg: 1, "aa" => AnyValue.From(1), AnyValue.From("aa")
+        if (node.ArgumentList.Arguments.Count > 0)
+        {
+            foreach (var argument in node.ArgumentList.Arguments)
+            {
+                var anyValueFromMethod = SyntaxFactory.ParseExpression("AnyValue.From");
+                var anyValueFromValue = SyntaxFactory.Argument(argument.Expression);
+                var anyValueFromArgs = SyntaxFactory.ArgumentList().AddArguments(anyValueFromValue);
+                var anyValueFromInvoke = SyntaxFactory.InvocationExpression(anyValueFromMethod, anyValueFromArgs);
+
+                args = args.AddArguments(SyntaxFactory.Argument(anyValueFromInvoke));
+            }
+        }
+
+        //附加反序列化需要的entity factory arg
+        if (isReturnGenericTask)
+        {
+            var entityFactories = SyntaxFactory.IdentifierName("_entityFactories");
+            args = args.AddArguments(SyntaxFactory.Argument(entityFactories));
+        }
+
+        var res = SyntaxFactory.InvocationExpression(method, args).WithTriviaFrom(node);
+        return res;
     }
 }

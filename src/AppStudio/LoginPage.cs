@@ -65,6 +65,7 @@ public sealed class LoginPage : View
         {
             await Channel.Login(_userName.Value, _password.Value);
 
+            LocalFileSystem.Init(new OSFileSystem()); //TODO: by platform
             await DesignHub.InitAsync(
                 Channel.SessionName, Channel.LeafOrgUnitId,
                 new CheckoutService(), new StagedService(), new MetaStoreService(), new PublishService(),

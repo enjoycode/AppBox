@@ -57,8 +57,21 @@ public class CodeGenerateTest
     public async Task GenViewRuntimeCodeTest()
     {
         var designHub = await DesignHelper.MockDesignHub();
-        var node = designHub.DesignTree.FindModelNodeByFullName("sys.Views.Demo1")!;
-        var generator = await ViewCsGenerator.Make(designHub, node, false);
+        const string viewCode = """
+                                public class HomePage: View
+                                {
+                                    private async void OnClick()
+                                    {
+                                        int? b = null;
+                                        await sys.Services.OrderService.Hello1(1, b, "aa");
+                                    }
+                                }
+                                """;
+        
+        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
+        await DesignHelper.ReplaceCode(designHub, modelNode.RoslynDocumentId!, viewCode);
+        
+        var generator = await ViewCsGenerator.Make(designHub, modelNode, false);
         var syntaxTree = await generator.GetRuntimeSyntaxTree();
         Console.WriteLine(syntaxTree.ToString());
     }

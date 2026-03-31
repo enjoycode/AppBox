@@ -10,7 +10,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 用于转换生成运行时的服务代码
 /// </summary>
-internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
+internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICodeGeneratorWithUsages
 {
     internal ServiceCodeGenerator(DesignHub hub, string appName, SemanticModel semanticModel,
         ServiceModel serviceModel)
@@ -75,12 +75,18 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter
         foreach (var usedEntity in _usedEntities)
         {
             var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(usedEntity)!;
-            CodeGeneratorUtil.BuildUsagedEntity(DesignHub, modelNode, ctx,
+            CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx,
                 TypeSystem.ServiceParseOptions);
         }
 
         return ctx.Values;
     }
+
+    bool ICodeGeneratorWithUsages.FindModel(string fullName) => FindModel(fullName);
+
+    void ICodeGeneratorWithUsages.AddUsedModel(string fullName) => AddUsedEntity(fullName);
+
+    ModelType ICodeGeneratorWithUsages.TargetModelType => ModelType.Service;
 
     #endregion
 
