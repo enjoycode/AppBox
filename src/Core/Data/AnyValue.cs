@@ -107,32 +107,43 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     #region ====FromXXX Methods, 仅用于生成虚拟服务代码的IService接口====
 
     public static AnyValue From(bool v) => new() { BoolValue = v, Type = AnyValueType.Boolean };
+    public static AnyValue From(bool? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(byte v) => new() { ByteValue = v, Type = AnyValueType.Byte };
+    public static AnyValue From(byte? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(ushort v) => new() { UShortValue = v, Type = AnyValueType.UInt16 };
+    public static AnyValue From(ushort? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(short v) => new() { ShortValue = v, Type = AnyValueType.Int16 };
+    public static AnyValue From(short? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
+    public static AnyValue From(uint? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
+    public static AnyValue From(int? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(ulong v) => new() { ULongValue = v, Type = AnyValueType.UInt64 };
+    public static AnyValue From(ulong? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
+    public static AnyValue From(long? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(float v) => new() { FloatValue = v, Type = AnyValueType.Float };
+    public static AnyValue From(float? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(double v) => new() { DoubleValue = v, Type = AnyValueType.Double };
+    public static AnyValue From(double? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(DateTime v) => new() { DateTimeValue = v, Type = AnyValueType.DateTime };
+    public static AnyValue From(DateTime? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(decimal v) => new() { DecimalValue = v, Type = AnyValueType.Decimal };
+    public static AnyValue From(decimal? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
-
-    public static AnyValue From(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
+    public static AnyValue From(Guid? v) => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(object? v) =>
         v == null ? Empty : new() { ObjectValue = v, Type = AnyValueType.Object };
