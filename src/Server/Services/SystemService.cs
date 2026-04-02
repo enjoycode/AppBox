@@ -59,12 +59,10 @@ internal sealed class SystemService : IService
     private static async Task<IList<PermissionNode>> LoadPermissionTree()
     {
         var list = new List<PermissionNode>();
-        var apps = await MetaStore.Provider.LoadAllApplicationAsync();
-        //TODO:***暂简单实现加载全部，待优化且注意排序
-        var allFolders = await MetaStore.Provider.LoadAllFolderAsync();
-        var allModels = await MetaStore.Provider.LoadAllModelAsync();
-        var folders = allFolders.Where(t => t.TargetModelType == ModelType.Permission);
-        var permissions = allModels.Where(t => t.ModelType == ModelType.Permission);
+        var apps = await MetaStore.LoadAllApplicationAsync();
+        //TODO:考虑排序
+        var folders = await MetaStore.LoadAllPermissionFolderAsync();
+        var permissions = await MetaStore.LoadAllPermissionAsync();
 
         foreach (var app in apps)
         {
@@ -78,17 +76,17 @@ internal sealed class SystemService : IService
             if (rootFolder != null)
                 LoopAddFolder(folderIndex, appNode, rootFolder);
             //加载PermissionModels
-            var appPermisions = permissions.Where(t => t.AppId == app.Id).Cast<PermissionModel>();
-            foreach (var permision in appPermisions)
+            var appPermissions = permissions.Where(t => t.AppId == app.Id);
+            foreach (var permission in appPermissions)
             {
                 var node = new PermissionNode
                 {
-                    Name = permision.Name,
-                    ModelId = permision.Id.ToString(),
-                    OrgUnits = permision.OrgUnits
+                    Name = permission.Name,
+                    ModelId = permission.Id.ToString(),
+                    OrgUnits = permission.OrgUnits
                 };
-                if (permision.FolderId.HasValue &&
-                    folderIndex.TryGetValue(permision.FolderId.Value, out var folderNode))
+                if (permission.FolderId.HasValue &&
+                    folderIndex.TryGetValue(permission.FolderId.Value, out var folderNode))
                 {
                     folderNode.Children!.Add(node);
                 }
@@ -156,14 +154,6 @@ internal sealed class SystemService : IService
         return true;
     }
 
-    /// <summary>
-    /// Only for test
-    /// </summary>
-    private static ValueTask<string> Hello(string name)
-    {
-        return new ValueTask<string>($"Hello {name}");
-    }
-
     public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args)
         where T : struct, IAnyArgs => method.Span switch
     {
@@ -176,7 +166,6 @@ internal sealed class SystemService : IService
         "HasPermission" => AnyValue.From(RuntimeContext.HasPermission(args.GetLong()!.Value)),
         nameof(LoadPermissionTree) => AnyValue.From(await LoadPermissionTree()),
         nameof(SavePermission) => AnyValue.From(await SavePermission(args.GetString()!, args.GetArray<Guid>())),
-        nameof(Hello) => AnyValue.From(await Hello(args.GetString()!)),
         _ => throw new Exception($"Can't find method: {method}")
         //@formatter:on
     };

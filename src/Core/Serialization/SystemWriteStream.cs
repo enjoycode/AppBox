@@ -1,13 +1,8 @@
 namespace AppBoxCore;
 
-public sealed class FileWriteStream : IOutputStream, IDisposable
+public sealed class SystemWriteStream : IOutputStream
 {
-    public FileWriteStream(string filePath)
-    {
-        _fileStream = File.OpenWrite(filePath);
-    }
-
-    public FileWriteStream(Stream stream)
+    public SystemWriteStream(Stream stream)
     {
         _fileStream = stream;
     }
@@ -23,6 +18,4 @@ public sealed class FileWriteStream : IOutputStream, IDisposable
 
     public void Flush() => _fileStream.Flush();
     public Task FlushAsync() => _fileStream.FlushAsync();
-
-    public void Dispose() => _fileStream.Dispose();
 }

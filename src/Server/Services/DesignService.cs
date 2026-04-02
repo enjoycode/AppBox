@@ -32,11 +32,11 @@ internal sealed class DesignService : IService
                 return MetadataReferenceLoader.LoadMetadataReference(args.GetInt()!.Value, args.GetString()!,
                     args.GetString());
             case "LoadAllApplication":
-                return AnyValue.From(await MetaStore.Provider.LoadAllApplicationAsync());
+                return AnyValue.From(await MetaStore.DownloadApplicationsAsync());
             case "LoadAllFolder":
-                return AnyValue.From(await MetaStore.Provider.LoadAllFolderAsync());
+                return AnyValue.From(await MetaStore.DownloadFoldersAsync());
             case "LoadAllModel":
-                return AnyValue.From(await MetaStore.Provider.LoadAllModelAsync());
+                return AnyValue.From(await MetaStore.DownloadModelsAsync());
             case "LoadModelCode":
                 return await MetaStore.Provider.LoadModelCodeAsync(args.GetLong()!.Value) ?? AnyValue.Empty;
             case "GenModelId":

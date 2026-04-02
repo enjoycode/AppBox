@@ -5,14 +5,33 @@ namespace AppBoxDesign;
 
 internal sealed class MetaStoreService : IMetaStoreService
 {
-    public Task<ApplicationModel[]> LoadAllApplicationAsync() =>
-        Channel.Invoke<ApplicationModel[]>("sys.DesignService.LoadAllApplication");
+    public async Task<IList<ApplicationModel>> LoadAllApplicationAsync()
+    {
+        using var ms = new MemoryStream(1024);
+        await Channel.Download("sys.DesignService.LoadAllApplication", ms);
 
-    public Task<ModelFolder[]> LoadAllFolderAsync() =>
-        Channel.Invoke<ModelFolder[]>("sys.DesignService.LoadAllFolder");
+        ms.Position = 0;
+        return MetaSerializer.DeserializeApplications(ms);
+    }
 
-    public Task<ModelBase[]> LoadAllModelAsync() =>
-        Channel.Invoke<ModelBase[]>("sys.DesignService.LoadAllModel");
+    public async Task<IList<ModelFolder>> LoadAllFolderAsync()
+    {
+        using var ms = new MemoryStream(1024);
+        await Channel.Download("sys.DesignService.LoadAllFolder", ms);
+
+        ms.Position = 0;
+        return MetaSerializer.DeserializeFolders(ms);
+    }
+
+    public async Task<IList<ModelBase>> LoadAllModelAsync()
+    {
+        //TODO: write to temp local file
+        using var ms = new MemoryStream(8192);
+        await Channel.Download("sys.DesignService.LoadAllModel", ms);
+
+        ms.Position = 0;
+        return MetaSerializer.DeserializeModels(ms);
+    }
 
     public Task<string?> LoadModelCodeAsync(ModelId modelId) =>
         Channel.Invoke<string?>("sys.DesignService.LoadModelCode", (long)modelId);

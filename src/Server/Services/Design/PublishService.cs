@@ -327,21 +327,31 @@ internal static class PublishService
     {
         //读取映射表
         var tempFilePath = Path.GetTempFileName();
+        var tempFileStream = File.Open(tempFilePath, FileMode.Create, FileAccess.ReadWrite);
         await stream.WriteToFile(tempFilePath);
-        
-        using var rs = new FileReadStream(tempFilePath);
-        var count = rs.ReadVariant();
-        var viewAssemblyMap = new List<MapItem>(count);
-        for (var i = 0; i < count; i++)
+        tempFileStream.Seek(0, SeekOrigin.Begin);
+
+        var viewAssemblyMap = new List<MapItem>();
+        try
         {
-            var asmFlag = (AssemblyPlatform)rs.ReadByte();
-            var asmName = rs.ReadString()!;
-            var dataLen = rs.ReadVariant();
-            var data = new byte[dataLen];
-            rs.ReadBytes(data);
-            viewAssemblyMap.Add(new MapItem(asmName, asmFlag, data));
+            var rs = new SystemReadStream(tempFileStream);
+            var count = rs.ReadVariant();
+            viewAssemblyMap.Capacity = count;
+            for (var i = 0; i < count; i++)
+            {
+                var asmFlag = (AssemblyPlatform)rs.ReadByte();
+                var asmName = rs.ReadString()!;
+                var dataLen = rs.ReadVariant();
+                var data = new byte[dataLen];
+                rs.ReadBytes(data);
+                viewAssemblyMap.Add(new MapItem(asmName, asmFlag, data));
+            }
         }
-        File.Delete(tempFilePath);
+        finally
+        {
+            tempFileStream.Close();
+            File.Delete(tempFilePath);
+        }
 
         //读取之前上传的组件
         var tempPath = GetUploadAppPath();

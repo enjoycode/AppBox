@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.Common;
 using AppBoxCore;
 using static AppBoxStore.StoreLogger;
@@ -129,15 +130,13 @@ public sealed class SqlMetaStore : IMetaStore
             throw new InvalidOperationException("Can't save none root folder.");
 
         //TODO:暂先删除再插入
-        var id =
-            $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
+        var id = $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
         BuildDeleteMetaCommand(cmd, MetaType.META_FOLDER, id);
-        BuildInsertMetaCommand(cmd, MetaType.META_FOLDER, id, MetaType.MODEL_TYPE_FOLDER,
-            MetaSerializer.SerializeMeta(folder),
-            true);
+        BuildInsertMetaCommand(cmd, MetaType.META_FOLDER, id, (byte)folder.TargetModelType,
+            MetaSerializer.SerializeMeta(folder), true);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -148,8 +147,7 @@ public sealed class SqlMetaStore : IMetaStore
     {
         if (folder.Parent != null)
             throw new InvalidOperationException("Can't delete none root folder.");
-        var id =
-            $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
+        var id = $"{folder.AppId.ToString()}.{(byte)folder.TargetModelType}"; //RootFolder.Id=Guid.Empty
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;
         cmd.Transaction = txn;
@@ -435,52 +433,30 @@ public sealed class SqlMetaStore : IMetaStore
         return metaData;
     }
 
-    /// <summary>
-    /// 加载所有指定meta类型并反序列化目标类型
-    /// </summary>
-    public async Task<T[]> LoadMetasAsync<T>(byte metaType) where T : IBinSerializable
+    public async Task LoadMetasAsync(Stream toStream, byte metaType, byte? model)
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
         await using var conn = await db.OpenConnectionAsync();
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
-        cmd.CommandText = $"Select data,id From {esc}sys.Meta{esc} Where meta={metaType}";
+        cmd.CommandText = $"Select id,data From {esc}sys.Meta{esc} Where meta={metaType}";
+        if (model.HasValue)
+            cmd.CommandText += $" And model={model.Value}";
         Logger.Debug(cmd.CommandText);
-        await using var reader = await cmd.ExecuteReaderAsync();
-        var list = new List<T>();
+        await using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
         while (await reader.ReadAsync())
         {
-            var data = (byte[])reader.GetValue(0);
-            switch (metaType)
+            var id = reader.GetString(0);
+            if (metaType == MetaType.META_MODEL)
             {
-                case MetaType.META_APPLICATION:
-                {
-                    var appModel = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
-                        () => new ApplicationModel());
-                    list.Add((T)appModel);
-                    break;
-                }
-                case MetaType.META_FOLDER:
-                {
-                    var folder = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
-                        () => new ModelFolder());
-                    list.Add((T)folder);
-                    break;
-                }
-                case MetaType.META_MODEL:
-                {
-                    ModelId modelId = reader.GetString(1);
-                    var model = MetaSerializer.DeserializeMeta<IBinSerializable>(data,
-                        () => ModelFactory.Make(modelId.Type));
-                    list.Add((T)model);
-                    break;
-                }
-                default: throw new NotImplementedException();
+                ModelId modelId = id;
+                toStream.WriteByte((byte)modelId.Type); //写入一字节模型类型
             }
-        }
 
-        return list.ToArray();
+            await using var dataStream = reader.GetStream(1);
+            await dataStream.CopyToAsync(toStream, 2048);
+        }
     }
 
     public async Task<string[]> LoadMetaNamesAsync(byte metaType, byte? model)

@@ -71,7 +71,7 @@ internal static class BuildApp
         {
             //先写入临时文件
             tempFileStream = LocalFileSystem.CreateTempFile(out tempFilePath, false);
-            var w = new FileWriteStream(tempFileStream);
+            var w = new SystemWriteStream(tempFileStream);
             w.WriteVariant(viewAssemblyMap.Count);
 
             foreach (var kv in viewAssemblyMap)

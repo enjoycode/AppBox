@@ -99,11 +99,26 @@ internal sealed class MockStagedService : IStagedService
 
 internal sealed class MockMetaStoreService : IMetaStoreService
 {
-    public Task<ApplicationModel[]> LoadAllApplicationAsync() => MetaStore.Provider.LoadAllApplicationAsync();
+    public async Task<IList<ApplicationModel>> LoadAllApplicationAsync()
+    {
+        await using var stream = await MetaStore.DownloadApplicationsAsync();
+        stream.Position = 0;
+        return MetaSerializer.DeserializeApplications(stream);
+    }
 
-    public Task<ModelFolder[]> LoadAllFolderAsync() => MetaStore.Provider.LoadAllFolderAsync();
+    public async Task<IList<ModelFolder>> LoadAllFolderAsync()
+    {
+        await using var stream = await MetaStore.DownloadFoldersAsync();
+        stream.Position = 0;
+        return MetaSerializer.DeserializeFolders(stream);
+    }
 
-    public Task<ModelBase[]> LoadAllModelAsync() => MetaStore.Provider.LoadAllModelAsync();
+    public async Task<IList<ModelBase>> LoadAllModelAsync()
+    {
+        await using var stream = await MetaStore.DownloadModelsAsync();
+        stream.Position = 0;
+        return MetaSerializer.DeserializeModels(stream);
+    }
 
     public Task<string?> LoadModelCodeAsync(ModelId modelId) => MetaStore.Provider.LoadModelCodeAsync(modelId);
 

@@ -5,7 +5,7 @@ namespace AppBoxCore;
 /// </summary>
 public interface IModelContainer
 {
-    ApplicationModel GetApplicationModel(int appId);
+    ApplicationModel GetApplicationModel(int appId); //TODO: remove this
 
     EntityModel GetEntityModel(ModelId modelId);
 }

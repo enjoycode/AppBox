@@ -1,38 +1,36 @@
 namespace AppBoxCore;
 
-public sealed class FileReadStream : IInputStream, IDisposable
+public sealed class SystemReadStream : IInputStream
 {
     //TODO: use buffer for read
-    
-    public FileReadStream(string filePath)
+
+    public SystemReadStream(Stream stream)
     {
-        _fileStream = File.OpenRead(filePath);
+        _stream = stream;
     }
 
-    private readonly FileStream _fileStream;
+    private readonly Stream _stream;
     private DeserializeContext? _context;
 
     public DeserializeContext Context => _context ??= new DeserializeContext();
 
-    public bool HasRemaining => _fileStream.Position < _fileStream.Length;
+    public bool HasRemaining => _stream.Position < _stream.Length;
 
     public byte ReadByte()
     {
-        var res = _fileStream.ReadByte();
+        var res = _stream.ReadByte();
         if (res == -1) throw new SerializationException(SerializationError.NothingToRead);
         return (byte)res;
     }
 
     public void ReadBytes(Span<byte> dest)
     {
-        var read = _fileStream.Read(dest);
+        var read = _stream.Read(dest);
         if (read != dest.Length)
             throw new SerializationException(SerializationError.NothingToRead);
     }
 
-    public void Free() => _fileStream.Dispose();
+    public Stream ToSystemStream() => _stream;
 
-    public Stream ToSystemStream() => _fileStream;
-
-    public void Dispose() => _fileStream.Dispose();
+    public void Free() => _stream.Dispose();
 }

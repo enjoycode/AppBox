@@ -18,7 +18,6 @@ public static class MetaType
     public const byte META_APP_MODEL_USR_COUNTER = 0xAD;
 
     public const byte MODEL_TYPE_APPLICATION = 100;
-    public const byte MODEL_TYPE_FOLDER = 101;
 }
 
 public enum MetaAssemblyType : byte

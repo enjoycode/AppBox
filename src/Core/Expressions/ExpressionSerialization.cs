@@ -73,15 +73,16 @@ public static class ExpressionSerialization
     public static void SerializeToJson(Utf8JsonWriter jsonWriter, Expression? expression,
         IEnumerable<object>? serialized = null)
     {
-        using var ms = new MemoryWriteStream();
+        using var ms = new MemoryStream();
+        var writer = new SystemWriteStream(ms);
         if (serialized is not null)
         {
             foreach (var obj in serialized)
-                ms.Context.AddToSerialized(obj);
+                writer.Context.AddToSerialized(obj);
         }
 
-        ms.SerializeExpression(expression);
-        var bytes = ms.Data;
+        writer.SerializeExpression(expression);
+        var bytes = ms.ToArray();
         jsonWriter.WriteBase64StringValue(bytes);
     }
 
@@ -95,14 +96,15 @@ public static class ExpressionSerialization
         Debug.Assert(jsonReader.TokenType == JsonTokenType.String);
         var bytes = jsonReader.GetBytesFromBase64();
 
-        using var ms = new MemoryReadStream(bytes);
+        using var ms = new MemoryStream(bytes);
+        var reader = new SystemReadStream(ms);
         if (deserialized is not null)
         {
             foreach (var obj in deserialized)
-                ms.Context.AddToDeserialized(obj);
+                reader.Context.AddToDeserialized(obj);
         }
 
-        var res = ms.Deserialize() as Expression;
+        var res = reader.Deserialize() as Expression;
         return res;
     }
 }

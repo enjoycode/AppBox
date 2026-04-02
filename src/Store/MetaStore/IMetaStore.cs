@@ -35,7 +35,10 @@ public interface IMetaStore
 
     Task<byte[]?> LoadMetaDataAsync(byte metaType, string id);
 
-    Task<T[]> LoadMetasAsync<T>(byte metaType) where T : IBinSerializable;
+    /// <summary>
+    /// 设计时加载所有指定类型的元数据
+    /// </summary>
+    Task LoadMetasAsync(Stream toStream, byte metaType, byte? model);
 
     /// <summary>
     /// 加载元数据名称列表
@@ -132,31 +135,31 @@ public static class MetaStoreExtensions
         return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
     }
 
-    /// <summary>
-    /// 用于设计时加载所有ApplicationModel
-    /// </summary>
-    public static Task<ApplicationModel[]> LoadAllApplicationAsync(this IMetaStore metaStore) =>
-        metaStore.LoadMetasAsync<ApplicationModel>(MetaType.META_APPLICATION);
-
-    /// <summary>
-    /// 用于设计时加载所有Model
-    /// </summary>
-    public static async Task<ModelBase[]> LoadAllModelAsync(this IMetaStore metaStore)
-    {
-        var res = await metaStore.LoadMetasAsync<ModelBase>(MetaType.META_MODEL);
-        foreach (var model in res)
-        {
-            model.AcceptChanges(); //暂循环转换状态
-        }
-
-        return res;
-    }
-
-    /// <summary>
-    /// 用于设计时加载所有Folder
-    /// </summary>
-    public static Task<ModelFolder[]> LoadAllFolderAsync(this IMetaStore metaStore) =>
-        metaStore.LoadMetasAsync<ModelFolder>(MetaType.META_FOLDER);
+    // /// <summary>
+    // /// 用于设计时加载所有ApplicationModel
+    // /// </summary>
+    // public static Task<ApplicationModel[]> LoadAllApplicationAsync(this IMetaStore metaStore) =>
+    //     metaStore.LoadMetasAsync<ApplicationModel>(MetaType.META_APPLICATION);
+    //
+    // /// <summary>
+    // /// 用于设计时加载所有Model
+    // /// </summary>
+    // public static async Task<ModelBase[]> LoadAllModelAsync(this IMetaStore metaStore)
+    // {
+    //     var res = await metaStore.LoadMetasAsync<ModelBase>(MetaType.META_MODEL);
+    //     foreach (var model in res)
+    //     {
+    //         model.AcceptChanges(); //暂循环转换状态
+    //     }
+    //
+    //     return res;
+    // }
+    //
+    // /// <summary>
+    // /// 用于设计时加载所有Folder
+    // /// </summary>
+    // public static Task<ModelFolder[]> LoadAllFolderAsync(this IMetaStore metaStore) =>
+    //     metaStore.LoadMetasAsync<ModelFolder>(MetaType.META_FOLDER);
 
     /// <summary>
     /// 加载所有标为动态组件的视图模型的名称，用于设计时注册动态组件至工具箱

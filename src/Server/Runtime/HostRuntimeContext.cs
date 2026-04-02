@@ -18,19 +18,20 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
 
     public async ValueTask<ApplicationModel> GetApplicationAsync(int appId)
     {
-        if (_apps.TryGetValue(appId, out var app))
-            return app;
-
-        //TODO: 暂简单实现加载全部
-        var apps = await MetaStore.Provider.LoadAllApplicationAsync();
-        foreach (var item in apps)
-        {
-            _apps[item.Id] = item;
-        }
-
-        if (!_apps.TryGetValue(appId, out var app2))
-            throw new Exception("Can't load Application from MetaStore");
-        return app2;
+        throw new NotImplementedException();
+        // if (_apps.TryGetValue(appId, out var app))
+        //     return app;
+        //
+        // //TODO: 暂简单实现加载全部
+        // var apps = await MetaStore.Provider.LoadAllApplicationAsync();
+        // foreach (var item in apps)
+        // {
+        //     _apps[item.Id] = item;
+        // }
+        //
+        // if (!_apps.TryGetValue(appId, out var app2))
+        //     throw new Exception("Can't load Application from MetaStore");
+        // return app2;
     }
 
     public async ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
@@ -92,7 +93,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     #region ====供服务模型生成的代码使用的Invoke====
 
     //TODO:*****以下实现错误，因每个服务的独立性，需要实体类的相关转换参数及返回值
-    
+
     /// <summary>
     /// 仅用于服务端服务调用服务(无返回)
     /// </summary>
@@ -109,7 +110,7 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     {
         var res = await ServiceContainer.InvokeAsync(service, args);
         if (res.IsEmpty) return default;
-        
+
         return (TResult)res.BoxedValue!; //TODO: avoid boxed
     }
 
