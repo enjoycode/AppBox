@@ -118,7 +118,7 @@ internal static class PublishService
                 case PersistentState.Unchanged: //TODO:临时
                 case PersistentState.Modified:
                 {
-                    await MetaStore.Provider.UpdateModelAsync(model, txn, container.GetApplicationModel);
+                    await MetaStore.Provider.UpdateModelAsync(model, txn);
                     if (model.ModelType == ModelType.Entity)
                         await TryAlterTable(container, (EntityModel)model, otherStoreTxns);
 
@@ -127,7 +127,7 @@ internal static class PublishService
                 }
                 case PersistentState.Deleted:
                 {
-                    await MetaStore.Provider.DeleteModelAsync(model, txn, container.GetApplicationModel);
+                    await MetaStore.Provider.DeleteModelAsync(model, txn);
 
                     if (model.ModelType == ModelType.Entity)
                     {
@@ -136,7 +136,7 @@ internal static class PublishService
                     //判断模型类型删除相关代码及编译好的组件
                     else if (model.ModelType == ModelType.Service)
                     {
-                        var app = container.GetApplicationModel(model.AppId);
+                        var app = container.GetApplicationModel(model.AppId); //TODO: get app name from PublishPackage
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
                         await MetaStore.Provider.DeleteAssemblyAsync(MetaAssemblyType.Service,
                             $"{app.Name}.{model.OriginalName}", txn);

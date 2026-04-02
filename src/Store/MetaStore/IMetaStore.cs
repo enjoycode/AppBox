@@ -15,9 +15,9 @@ public interface IMetaStore
 
     Task InsertModelAsync(ModelBase model, DbTransaction txn);
 
-    Task UpdateModelAsync(ModelBase model, DbTransaction txn, Func<int, ApplicationModel> getApp);
+    Task UpdateModelAsync(ModelBase model, DbTransaction txn);
 
-    Task DeleteModelAsync(ModelBase model, DbTransaction txn, Func<int, ApplicationModel> getApp);
+    Task DeleteModelAsync(ModelBase model, DbTransaction txn);
 
     Task UpsertModelCodeAsync(ModelId modelId, byte[] codeData, DbTransaction txn);
 

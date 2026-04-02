@@ -100,8 +100,7 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    public async Task UpdateModelAsync(ModelBase model, DbTransaction txn,
-        Func<int, ApplicationModel> getApp)
+    public async Task UpdateModelAsync(ModelBase model, DbTransaction txn)
     {
         model.IncreaseVersion(); //注意增加模型版本号
 
@@ -112,8 +111,7 @@ public sealed class SqlMetaStore : IMetaStore
         await cmd.ExecuteNonQueryAsync();
     }
 
-    public async Task DeleteModelAsync(ModelBase model, DbTransaction txn,
-        Func<int, ApplicationModel> getApp)
+    public async Task DeleteModelAsync(ModelBase model, DbTransaction txn)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
         cmd.Connection = txn.Connection;

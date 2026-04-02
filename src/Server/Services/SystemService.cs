@@ -147,7 +147,7 @@ internal sealed class SystemService : IService
 
         //保存权限模型
         await using var txn = await SqlStore.Default.BeginTransactionAsync();
-        await MetaStore.Provider.UpdateModelAsync(oldModel, txn, RuntimeContext.GetApplication);
+        await MetaStore.Provider.UpdateModelAsync(oldModel, txn);
         await txn.CommitAsync();
 
         //更新本地模型缓存
