@@ -10,3 +10,24 @@ public interface IBlobChunk
 
     void Free();
 }
+
+public static class BlobChunkExtensions
+{
+    public static async Task WriteToStream(this IAsyncEnumerable<IBlobChunk> chunks, Stream toStream)
+    {
+        await foreach (var chunk in chunks)
+        {
+            //TODO: order by offset
+            await toStream.WriteAsync(chunk.GetDataChunk());
+            chunk.Free(); //Do not forget this
+        }
+
+        await toStream.FlushAsync();
+    }
+    
+    public static async Task WriteToFile(this IAsyncEnumerable<IBlobChunk> chunks, string filePath)
+    {
+        await using var wfs = File.OpenWrite(filePath);
+        await chunks.WriteToStream(wfs);
+    }
+}
