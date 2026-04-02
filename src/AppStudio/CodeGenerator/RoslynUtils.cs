@@ -1,3 +1,4 @@
+using AppBoxDesign;
 using Microsoft.CodeAnalysis;
 
 namespace RoslynUtils;
@@ -90,7 +91,7 @@ public static class RoslynExtensions
         if (symbol is INamedTypeSymbol typeSymbol && typeSymbol.ContainingNamespace.Name == "Entities")
         {
             var fullName = symbol.ToString();
-            return findModel(fullName);
+            return !string.IsNullOrEmpty(fullName) && findModel(fullName);
         }
 
         return false;
@@ -119,8 +120,8 @@ public static class RoslynExtensions
     {
         if (symbol.ContainingNamespace.Name != "Services") return false;
         var interceptorAttribute = symbol.GetAttributes()
-            .SingleOrDefault(t => t.AttributeClass != null && t.AttributeClass.ToString() ==
-                "AppBoxCore.InvocationInterceptorAttribute");
+            .SingleOrDefault(t => t.AttributeClass != null &&
+                                  t.AttributeClass.ToString() == TypeHelper.InvocationInterceptorAttribute);
         return interceptorAttribute != null;
     }
 }

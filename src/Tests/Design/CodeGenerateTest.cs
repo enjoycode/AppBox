@@ -67,10 +67,10 @@ public class CodeGenerateTest
                                     }
                                 }
                                 """;
-        
+
         var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
         await DesignHelper.ReplaceCode(designHub, modelNode.RoslynDocumentId!, viewCode);
-        
+
         var generator = await ViewCsGenerator.Make(designHub, modelNode, false);
         var syntaxTree = await generator.GetRuntimeSyntaxTree();
         Console.WriteLine(syntaxTree.ToString());
@@ -101,5 +101,16 @@ public class CodeGenerateTest
 
         var res = await Publish.CompileServiceAsync(designHub, serviceModel, false);
         Assert.True(res != null);
+    }
+
+    [Test]
+    public async Task GenServiceProxyCodeTest()
+    {
+        var designHub = await DesignHelper.MockDesignHub();
+        var serviceNode = designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!;
+        var serviceModel = (ServiceModel)serviceNode.Model;
+        var doc = designHub.TypeSystem.Workspace.CurrentSolution.GetDocument(serviceNode.RoslynDocumentId)!;
+        var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(doc!, "sys", serviceModel);
+        Console.WriteLine(proxyCode);
     }
 }

@@ -47,12 +47,22 @@ internal static class ServiceProxyGenerator
             sb.Append(CallServiceInterceptor.Name);
             sb.Append("\")]\n");
 
+            // 判断是否上传或下载方法
+            var isUploadMethod = IsUploadMethod(method);
+            var isDownloadMethod = IsDownloadMethod(method);
+            if (isUploadMethod && isDownloadMethod)
+                throw new NotSupportedException("Can't be both Download and Upload method.");
+            if (isUploadMethod)
+                sb.Append("[UploadMethod]\n");
+            if (isDownloadMethod)
+                sb.Append("[DownloadMethod]\n");
+
             // method declaration
             sb.Append("public static ");
             var isReturnVoid = method.IsReturnVoid();
             var isReturnTask = !isReturnVoid && method.IsReturnTask();
             //非异步方法转换为异步
-            if (isReturnVoid)
+            if (isReturnVoid || isDownloadMethod)
             {
                 sb.Append("Task");
             }
@@ -70,17 +80,57 @@ internal static class ServiceProxyGenerator
             sb.Append(' ');
             sb.Append(method.Identifier.ValueText);
             sb.Append('(');
+            
+            //下载方法添加第一个Stream类型的参数
+            if (isDownloadMethod)
+                sb.Append("System.IO.Stream toStream,");
 
             for (var i = 0; i < method.ParameterList.Parameters.Count; i++)
             {
                 if (i != 0) sb.Append(',');
-                sb.Append(method.ParameterList.Parameters[i]);
+
+                if (i == 0 && isUploadMethod) 
+                {
+                    //上传方法需要转换第一个参数的类型为Stream
+                    sb.Append("System.IO.Stream ");
+                    sb.Append(method.ParameterList.Parameters[i].Identifier.ValueText);
+                }
+                else
+                {
+                    sb.Append(method.ParameterList.Parameters[i]);
+                }
             }
 
             sb.Append(") => throw new Exception();\n");
         }
 
-        sb.Append("}");
+        sb.Append('}');
         return StringBuilderCache.GetStringAndRelease(sb);
+    }
+
+    private static bool IsUploadMethod(MethodDeclarationSyntax method)
+    {
+        var attribute = TypeHelper.TryGetAttribute(method.AttributeLists, static a =>
+        {
+            const string shortName = "UploadMethod";
+            var name = a.Name.ToString();
+            if (name == shortName) return true;
+
+            return name is $"{shortName}Attribute" or $"AppBoxCore.{shortName}" or $"AppBoxCore.{shortName}Attribute";
+        });
+        return attribute != null;
+    }
+
+    private static bool IsDownloadMethod(MethodDeclarationSyntax method)
+    {
+        var attribute = TypeHelper.TryGetAttribute(method.AttributeLists, static a =>
+        {
+            const string shortName = "DownloadMethod";
+            var name = a.Name.ToString();
+            if (name == shortName) return true;
+
+            return name is $"{shortName}Attribute" or $"AppBoxCore.{shortName}" or $"AppBoxCore.{shortName}Attribute";
+        });
+        return attribute != null;
     }
 }

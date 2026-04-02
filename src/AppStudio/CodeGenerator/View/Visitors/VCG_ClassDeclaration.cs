@@ -28,18 +28,14 @@ internal partial class ViewCsGenerator
     /// </summary>
     private static bool CheckIsDynamicWidget(ClassDeclarationSyntax node)
     {
-        var attribute = TypeHelper.TryGetAttribute(node.AttributeLists, IsDynamicWidgetAttribute);
+        var attribute = TypeHelper.TryGetAttribute(node.AttributeLists, static a =>
+        {
+            const string shortName = "DynamicWidget";
+            var name = a.Name.ToString();
+            if (name == shortName) return true;
+
+            return name is $"{shortName}Attribute" or $"PixUI.{shortName}" or $"PixUI.{shortName}Attribute";
+        });
         return attribute != null;
-    }
-
-    private static bool IsDynamicWidgetAttribute(AttributeSyntax attribute)
-    {
-        const string shortName = "DynamicWidget";
-        var name = attribute.Name.ToString();
-        if (name == shortName) return true;
-
-        return name == $"{shortName}Attribute"
-               || name == $"PixUI.{shortName}"
-               || name == $"PixUI.{shortName}Attribute";
     }
 }

@@ -9,6 +9,18 @@ namespace AppBoxCore
     {
         public InvocationInterceptorAttribute(string name) {}
     }
+    
+    /// <summary>
+    /// 标记服务方法为上传
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class UploadMethodAttribute : Attribute {}
+    
+    /// <summary>
+    /// 标记服务方法为下载
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class DownloadMethodAttribute : Attribute {}
 }
 
 //====以下系统服务的代理类，方便前端调用====
