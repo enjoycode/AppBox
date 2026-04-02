@@ -163,9 +163,26 @@ internal static class CodeGeneratorUtil
         //转换服务方法调用为 AppBoxClient.Channel.Invoke()
         var appName = symbol.ContainingNamespace.ContainingNamespace.Name;
         var servicePath = $"{appName}.{symbol.ContainingType.Name}.{symbol.Name}";
-        var methodName = generator.TargetModelType == ModelType.View
-            ? "AppBoxClient.Channel.Invoke"
-            : "AppBoxServer.HostRuntimeContext.Invoke";
+
+        string methodName;
+        var isUploadMethod = false;
+        var isDownloadMethod = false;
+        if (generator.TargetModelType == ModelType.View)
+        {
+            isUploadMethod = symbol.IsServiceUploadMethod();
+            isDownloadMethod = symbol.IsServiceDownloadMethod();
+            if (isUploadMethod)
+                methodName = "AppBoxClient.Channel.Upload";
+            else if (isDownloadMethod)
+                methodName = "AppBoxClient.Channel.Download";
+            else
+                methodName = "AppBoxClient.Channel.Invoke";
+        }
+        else
+        {
+            methodName = "AppBoxServer.HostRuntimeContext.Invoke";
+        }
+
         if (isReturnGenericTask)
         {
             var rt = ((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0];
@@ -182,14 +199,22 @@ internal static class CodeGeneratorUtil
         //转换原来的参数, eg: 1, "aa" => AnyValue.From(1), AnyValue.From("aa")
         if (node.ArgumentList.Arguments.Count > 0)
         {
-            foreach (var argument in node.ArgumentList.Arguments)
+            for (var i = 0; i < node.ArgumentList.Arguments.Count; i++)
             {
-                var anyValueFromMethod = SyntaxFactory.ParseExpression("AnyValue.From");
-                var anyValueFromValue = SyntaxFactory.Argument(argument.Expression);
-                var anyValueFromArgs = SyntaxFactory.ArgumentList().AddArguments(anyValueFromValue);
-                var anyValueFromInvoke = SyntaxFactory.InvocationExpression(anyValueFromMethod, anyValueFromArgs);
+                var argument = node.ArgumentList.Arguments[i];
+                if (i == 0 && (isUploadMethod || isDownloadMethod))
+                {
+                    args = args.AddArguments(SyntaxFactory.Argument(argument.Expression));
+                }
+                else
+                {
+                    var anyValueFromMethod = SyntaxFactory.ParseExpression("AnyValue.From");
+                    var anyValueFromValue = SyntaxFactory.Argument(argument.Expression);
+                    var anyValueFromArgs = SyntaxFactory.ArgumentList().AddArguments(anyValueFromValue);
+                    var anyValueFromInvoke = SyntaxFactory.InvocationExpression(anyValueFromMethod, anyValueFromArgs);
 
-                args = args.AddArguments(SyntaxFactory.Argument(anyValueFromInvoke));
+                    args = args.AddArguments(SyntaxFactory.Argument(anyValueFromInvoke));
+                }
             }
         }
 

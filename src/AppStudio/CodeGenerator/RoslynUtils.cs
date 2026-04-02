@@ -119,9 +119,16 @@ public static class RoslynExtensions
     internal static bool IsAppBoxServiceMethod(this IMethodSymbol symbol)
     {
         if (symbol.ContainingNamespace.Name != "Services") return false;
-        var interceptorAttribute = symbol.GetAttributes()
-            .SingleOrDefault(t => t.AttributeClass != null &&
-                                  t.AttributeClass.ToString() == TypeHelper.InvocationInterceptorAttribute);
-        return interceptorAttribute != null;
+        return TryGetAttribute(symbol, TypeHelper.InvocationInterceptorAttribute) != null;
     }
+
+    internal static bool IsServiceUploadMethod(this IMethodSymbol symbol) =>
+        TryGetAttribute(symbol, TypeHelper.UploadMethodAttribute) != null;
+
+    internal static bool IsServiceDownloadMethod(this IMethodSymbol symbol) =>
+        TryGetAttribute(symbol, TypeHelper.DownloadMethodAttribute) != null;
+
+    private static AttributeData? TryGetAttribute(ISymbol symbol, string fullName) =>
+        symbol.GetAttributes().SingleOrDefault(t =>
+            t.AttributeClass != null && t.AttributeClass.ToString() == fullName);
 }

@@ -62,8 +62,10 @@ public class CodeGenerateTest
                                 {
                                     private async void OnClick()
                                     {
-                                        int? b = null;
-                                        await sys.Services.OrderService.Hello1(1, b, "aa");
+                                        System.IO.Stream uploadStream = null!;
+                                        await sys.Services.OrderService.Hello1(uploadStream, "aa");
+                                        System.IO.Stream downloadStream = null!;
+                                        await sys.Services.OrderService.DownloadTest(downloadStream, "aa");
                                     }
                                 }
                                 """;
