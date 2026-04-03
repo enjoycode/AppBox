@@ -30,7 +30,7 @@ internal struct UploadArgs : IAnyArgs
     private readonly StreamArgs _streamArgs;
     private readonly IAsyncEnumerable<IBlobChunk> _firstArg;
     private bool _hasReadFirstArg;
-    public IInputStream InputStream => _streamArgs.InputStream;
+
     public void SetEntityFactories(EntityFactory[] factories) => _streamArgs.SetEntityFactories(factories);
 
     public void Free() => _streamArgs.Free();

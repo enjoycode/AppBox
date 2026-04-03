@@ -9,11 +9,6 @@ namespace AppBoxCore;
 public interface IAnyArgs
 {
     /// <summary>
-    /// 获取包装的读取流，仅MessageReadStream和FileReadStream支持
-    /// </summary>
-    IInputStream? InputStream { get; } //TODO: remove this
-
-    /// <summary>
     /// 设置实体工厂，用于反序列化参数为实体
     /// </summary>
     void SetEntityFactories(EntityFactory[] factories);
@@ -69,7 +64,6 @@ public static class AnyArgs
 
 public readonly struct EmptyArgs : IAnyArgs
 {
-    public IInputStream? InputStream => throw new NotSupportedException();
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
     public void SerializeTo(IOutputStream stream) { }
@@ -85,10 +79,10 @@ public readonly struct EmptyArgs : IAnyArgs
     public decimal? GetDecimal() => throw new NotSupportedException();
     public DateTime? GetDateTime() => throw new NotSupportedException();
     public Guid? GetGuid() => throw new NotSupportedException();
-    public string? GetString() => throw new NotSupportedException();
-    public object? GetObject() => throw new NotSupportedException();
-    public T[]? GetArray<T>() => throw new NotSupportedException();
-    public IList<T>? GetList<T>() => throw new NotSupportedException();
+    public string GetString() => throw new NotSupportedException();
+    public object GetObject() => throw new NotSupportedException();
+    public T[] GetArray<T>() => throw new NotSupportedException();
+    public IList<T> GetList<T>() => throw new NotSupportedException();
 
     #endregion
 }
@@ -100,14 +94,14 @@ public readonly struct StreamArgs : IAnyArgs
 {
     internal StreamArgs(IInputStream inputStream)
     {
-        InputStream = inputStream;
+        _inputStream = inputStream;
     }
 
-    public IInputStream InputStream { get; }
+    private readonly IInputStream _inputStream;
 
-    public void SetEntityFactories(EntityFactory[] factories) => InputStream.Context.SetEntityFactories(factories);
+    public void SetEntityFactories(EntityFactory[] factories) => _inputStream.Context.SetEntityFactories(factories);
 
-    public void Free() => InputStream.Free();
+    public void Free() => _inputStream.Free();
     public void SerializeTo(IOutputStream stream) => throw new NotSupportedException();
 
     #region ====MakeXXX Methods====
@@ -168,7 +162,7 @@ public readonly struct StreamArgs : IAnyArgs
 
     public bool? GetBool()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
@@ -180,34 +174,34 @@ public readonly struct StreamArgs : IAnyArgs
 
     public short? GetShort()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int16 => InputStream.ReadShort(),
-            PayloadType.Int32 => (short)InputStream.ReadInt(),
+            PayloadType.Int16 => _inputStream.ReadShort(),
+            PayloadType.Int32 => (short)_inputStream.ReadInt(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public int? GetInt()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int32 => InputStream.ReadInt(),
+            PayloadType.Int32 => _inputStream.ReadInt(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public long? GetLong()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Int64 => InputStream.ReadLong(),
+            PayloadType.Int64 => _inputStream.ReadLong(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
@@ -225,75 +219,75 @@ public readonly struct StreamArgs : IAnyArgs
 
     public float? GetFloat()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Float => InputStream.ReadFloat(),
+            PayloadType.Float => _inputStream.ReadFloat(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public double? GetDouble()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Double => InputStream.ReadDouble(),
+            PayloadType.Double => _inputStream.ReadDouble(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public decimal? GetDecimal()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Double => InputStream.ReadDecimal(),
+            PayloadType.Double => _inputStream.ReadDecimal(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public DateTime? GetDateTime()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.DateTime => InputStream.ReadDateTime(),
+            PayloadType.DateTime => _inputStream.ReadDateTime(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public Guid? GetGuid()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.Guid => InputStream.ReadGuid(),
+            PayloadType.Guid => _inputStream.ReadGuid(),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
     public string? GetString()
     {
-        var payloadType = (PayloadType)InputStream.ReadByte();
-        if (payloadType == PayloadType.String) return InputStream.ReadString();
+        var payloadType = (PayloadType)_inputStream.ReadByte();
+        if (payloadType == PayloadType.String) return _inputStream.ReadString();
         if (payloadType == PayloadType.Null) return null;
         throw new SerializationException(SerializationError.PayloadTypeNotMatch);
     }
 
-    public object? GetObject() => InputStream.Deserialize();
+    public object? GetObject() => _inputStream.Deserialize();
 
     /// <summary>
     /// 用于转换如Web前端封送的object[]数组
     /// </summary>
     public T[]? GetArray<T>()
     {
-        var res = InputStream.Deserialize();
+        var res = _inputStream.Deserialize();
         if (res == null) return null;
 
         // TODO:考虑判断源类型是否目标类型
@@ -306,7 +300,7 @@ public readonly struct StreamArgs : IAnyArgs
     /// </summary>
     public IList<T>? GetList<T>()
     {
-        var res = InputStream.Deserialize();
+        var res = _inputStream.Deserialize();
         if (res == null) return null;
 
         var list = (IList)res;
@@ -327,7 +321,6 @@ public readonly struct LocalArgs1 : IAnyArgs
     }
 
     private readonly AnyValue _value;
-    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -358,7 +351,6 @@ public struct LocalArgs2 : IAnyArgs
 
     private int _index;
     private readonly AnyValue2 _values;
-    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -401,8 +393,6 @@ public struct LocalArgs3 : IAnyArgs
 
     private int _index;
     private readonly AnyValue3 _values;
-
-    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -447,7 +437,6 @@ public struct LocalArgs4 : IAnyArgs
 
     private int _index;
     private readonly AnyValue4 _values;
-    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
@@ -494,8 +483,6 @@ public struct LocalArgs5 : IAnyArgs
 
     private int _index;
     private readonly AnyValue5 _values;
-
-    public IInputStream? InputStream => throw new NotSupportedException();
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
