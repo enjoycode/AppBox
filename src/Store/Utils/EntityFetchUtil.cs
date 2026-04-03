@@ -34,7 +34,7 @@ internal static class EntityFetchUtil
             if (indexOfDot < 0)
             {
                 //忽略一些特殊字段
-                if (path.Span == SqlStore.TREE_LEVEL) return entity;
+                if (path.Span is SqlStore.TREE_LEVEL) return entity;
 
                 var member = model.GetMember(path.Span, false);
                 if (member == null)
