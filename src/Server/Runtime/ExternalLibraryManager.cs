@@ -48,7 +48,7 @@ internal static class ExternalLibraryManager
         await using var rfs = File.OpenRead(filePath);
         await rfs.CopyToAsync(zs);
         await zs.FlushAsync();
-        var compressed = ms.ToArray();
+        var compressed = ms.GetBuffer();
 
         // save to meta store
         var metaName = $"{appName}.{fileName}";

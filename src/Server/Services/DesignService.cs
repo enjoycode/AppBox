@@ -38,7 +38,7 @@ internal sealed class DesignService : IService
             case "LoadAllModel":
                 return AnyValue.From(await MetaStore.DownloadModelsAsync());
             case "LoadModelCode":
-                return await MetaStore.Provider.LoadModelCodeAsync(args.GetLong()!.Value) ?? AnyValue.Empty;
+                return AnyValue.From(await MetaStore.Provider.DownloadModelCodeAsync(args.GetLong()!.Value));
             case "GenModelId":
                 return (long)(await MetaStore.Provider.GenModelIdAsync(
                     args.GetInt()!.Value, (ModelType)args.GetInt()!.Value, (ModelLayer)args.GetInt()!.Value));
@@ -51,8 +51,7 @@ internal sealed class DesignService : IService
             case "StageLoadChanges":
                 return AnyValue.From(await StagedService.LoadChangesAsync());
             case "StageLoadCode":
-                var code = await StagedService.LoadCodeAsync(args.GetLong()!.Value);
-                return code ?? AnyValue.Empty;
+                return AnyValue.From(await StagedService.DownloadCodeAsync(args.GetLong()!.Value));
             case "StageSaveModel":
                 await StagedService.SaveModelAsync((ModelBase)args.GetObject()!);
                 return AnyValue.Empty;

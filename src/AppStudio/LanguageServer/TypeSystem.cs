@@ -1,4 +1,5 @@
 using System.Text;
+using AppBoxClient;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -182,7 +183,7 @@ internal sealed class TypeSystem : IDisposable
                 var viewModel = (ViewModel)model;
                 if (viewModel.ViewType == ViewModelType.PixUI)
                 {
-                    var sourceCode = await LoadSourceCode(initSrcCode, node);
+                    var sourceCode = await MakeSourceText(initSrcCode, node);
                     newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
                 }
                 else if (viewModel.ViewType == ViewModelType.PixUIDynamic)
@@ -199,7 +200,7 @@ internal sealed class TypeSystem : IDisposable
                 //服务模型先创建虚拟项目
                 CreateServiceProject(node.ServiceProjectId!, (ServiceModel)model, appName);
 
-                var sourceCode = await LoadSourceCode(initSrcCode, node);
+                var sourceCode = await MakeSourceText(initSrcCode, node);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, sourceCode);
 
                 //服务代理的代码生成
@@ -234,21 +235,35 @@ internal sealed class TypeSystem : IDisposable
         }
     }
 
-    /// <summary>
-    /// 获取模型节点代码，如果是新建的节点使用初始化代码，如果是已签出的先尝试从Staged中获取，最后从MetaStore获取
-    /// </summary>
-    internal async Task<string> LoadSourceCode(string? initSrcCode, ModelNode node)
+    private async Task<SourceText> MakeSourceText(string? initSrcCode, ModelNode node)
     {
-        var sourceCode = initSrcCode;
-        if (string.IsNullOrEmpty(sourceCode))
-        {
-            if (node.IsCheckoutByMe) //已签出尝试从Staged中加载
-                sourceCode = await DesignHub.StagedService.LoadCodeAsync(node.Model.Id);
-            if (string.IsNullOrEmpty(sourceCode)) //从MetaStore加载
-                sourceCode = await DesignHub.MetaStoreService.LoadModelCodeAsync(node.Model.Id);
-        }
+        if (!string.IsNullOrEmpty(initSrcCode))
+            return SourceText.From(initSrcCode);
 
-        return sourceCode ?? string.Empty;
+        var stream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+        try
+        {
+            await DownloadSourceCode(stream, node);
+            stream.Seek(0, SeekOrigin.Begin);
+
+            return SourceText.From(stream, Encoding.UTF8);
+        }
+        finally
+        {
+            stream.Close();
+            LocalFileSystem.DeleteTempFile(tempFilePath);
+        }
+    }
+
+    /// <summary>
+    /// 下载模型的代码，如果是已签出的先尝试从Staged中获取，最后从MetaStore获取
+    /// </summary>
+    internal async Task DownloadSourceCode(Stream toStream, ModelNode node)
+    {
+        if (node.IsCheckoutByMe) //已签出尝试从Staged中加载
+            await DesignHub.StagedService.DownloadCodeAsync(toStream, node.Model.Id);
+        if (toStream.Length == 0) //从MetaStore加载
+            await DesignHub.MetaStoreService.DownloadModelCodeAsync(toStream, node.Model.Id);
     }
 
     /// <summary>

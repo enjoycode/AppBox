@@ -33,8 +33,8 @@ internal sealed class MetaStoreService : IMetaStoreService
         return MetaSerializer.DeserializeModels(ms);
     }
 
-    public Task<string?> LoadModelCodeAsync(ModelId modelId) =>
-        Channel.Invoke<string?>("sys.DesignService.LoadModelCode", (long)modelId);
+    public Task DownloadModelCodeAsync(Stream toStream, ModelId modelId) =>
+        Channel.Download("sys.DesignService.LoadModelCode", toStream, (long)modelId);
 
     public async Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer) =>
         await Channel.Invoke<long>("sys.DesignService.GenModelId", appId, (int)modelType, (int)layer);

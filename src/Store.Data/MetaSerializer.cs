@@ -10,14 +10,19 @@ public static class MetaSerializer
         using var ms = new MemoryStream(128);
         var writer = new SystemWriteStream(ms);
         obj.WriteTo(writer);
-        return ms.ToArray();
+        return ms.GetBuffer();
     }
 
     public static T DeserializeMeta<T>(byte[] data, Func<T> creator) where T : IBinSerializable
     {
-        var obj = creator();
         using var ms = new MemoryStream(data);
-        var reader = new SystemReadStream(ms);
+        return DeserializeMeta(ms, creator);
+    }
+
+    public static T DeserializeMeta<T>(Stream stream, Func<T> creator) where T : IBinSerializable
+    {
+        var obj = creator();
+        var reader = new SystemReadStream(stream);
         obj.ReadFrom(reader);
         return obj;
     }
@@ -59,6 +64,7 @@ public static class MetaSerializer
             var modelType = (ModelType)reader.ReadByte();
             var model = ModelFactory.Make(modelType);
             model.ReadFrom(reader);
+            model.AcceptChanges();
             list.Add(model);
         }
 

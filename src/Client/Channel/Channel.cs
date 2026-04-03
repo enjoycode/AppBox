@@ -135,9 +135,12 @@ public static class Channel
 
     public static async Task<T> Upload<T>(string service, Stream stream, AnyValue arg1, AnyValue arg2) =>
         (await Provider.Upload(service, stream, AnyArgs.Make(arg1, arg2))).CastTo<T>();
-    
+
     public static Task Download(string service, Stream stream) =>
         Provider.Download(service, stream, AnyArgs.Empty);
+
+    public static Task Download(string service, Stream stream, AnyValue arg) =>
+        Provider.Download(service, stream, AnyArgs.Make(arg));
 
     public static Task Download(string service, Stream stream, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
         Provider.Download(service, stream, AnyArgs.Make(arg1, arg2, arg3));

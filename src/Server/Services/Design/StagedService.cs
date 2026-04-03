@@ -1,3 +1,4 @@
+using System.Data;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxStore;
@@ -10,7 +11,10 @@ namespace AppBoxServer.Design;
 /// </summary>
 internal static class StagedService
 {
-    internal static async Task<byte[]?> LoadCodeDataAsync(ModelId modelId)
+    /// <summary>
+    /// 加载暂存的模型代码，返回的是压缩过的
+    /// </summary>
+    internal static async Task LoadCodeDataAsync(Stream toStream, ModelId modelId)
     {
         var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 
@@ -20,13 +24,28 @@ internal static class StagedService
                      q.GetString(Consts.STAGED_MODELID_ID) == modelId.ToString() &
                      q.GetByte(Consts.STAGED_TYPE_ID) == (byte)StagedType.SourceCode);
 #else
-        var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t.F("DeveloperId") == developerId &
-                     t.F("Model") == modelId.ToString() &
-                     t.F("Type") == (byte)StagedType.SourceCode);
+        var db = SqlStore.Default;
+        var esc = db.NameEscaper;
+        await using var conn = await db.OpenConnectionAsync();
+        await using var cmd = db.MakeCommand();
+        cmd.Connection = conn;
+        cmd.CommandText =
+            $"Select {esc}Data{esc} From {esc}sys.StagedModel{esc} Where {esc}DeveloperId{esc}='{developerId}' And {esc}Type{esc}={(byte)StagedType.SourceCode} And {esc}Model{esc}='{modelId.ToString()}'";
+        // Logger.Debug(cmd.CommandText);
+        await using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
+        if (await reader.ReadAsync())
+        {
+            await using var dataStream = reader.GetStream(0);
+            await dataStream.CopyToAsync(toStream);
+        }
 #endif
-        var res = await q.ToSingleAsync();
-        return res?.Data;
+    }
+
+    internal static async Task<byte[]?> LoadCodeDataAsync(ModelId modelId) //TODO: remove this
+    {
+        using var ms = new MemoryStream(2048);
+        await LoadCodeDataAsync(ms, modelId);
+        return ms.GetBuffer();
     }
 
     /// <summary>
@@ -57,10 +76,28 @@ internal static class StagedService
         return SaveAsync(StagedType.SourceCode, modelId.ToString(), data);
     }
 
-    internal static async Task<string?> LoadCodeAsync(ModelId modelId)
+    internal static async Task<Stream> DownloadCodeAsync(ModelId modelId)
     {
-        var data = await LoadCodeDataAsync(modelId);
-        return data == null ? null : ModelCodeUtil.DecompressCode(data);
+        var inputTempFilePath = Path.GetTempFileName();
+        var inputTempFileStream = File.Open(inputTempFilePath, FileMode.Create, FileAccess.ReadWrite);
+        try
+        {
+            await LoadCodeDataAsync(inputTempFileStream, modelId);
+            if (inputTempFileStream.Length == 0)
+                throw new Exception("Can't load staged code");
+
+            inputTempFileStream.Seek(0, SeekOrigin.Begin);
+            var outputTempFilePath = Path.GetTempFileName();
+            var outputTempFileStream = File.Open(outputTempFilePath, FileMode.Create, FileAccess.ReadWrite);
+            await ModelCodeUtil.DecompressCode(inputTempFileStream, outputTempFileStream);
+            outputTempFileStream.Seek(0, SeekOrigin.Begin);
+            return outputTempFileStream;
+        }
+        finally
+        {
+            inputTempFileStream.Close();
+            File.Delete(inputTempFilePath);
+        }
     }
 
     private static async Task SaveAsync(StagedType type, string modelId, byte[] data)

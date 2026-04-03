@@ -33,7 +33,10 @@ public interface IMetaStore
     /// </summary>
     Task DeleteAllAppAssembliesAsync(DbTransaction txn);
 
-    Task<byte[]?> LoadMetaDataAsync(byte metaType, string id);
+    /// <summary>
+    /// 加载单个元数据
+    /// </summary>
+    Task LoadMetaDataAsync(Stream toStream, byte metaType, string id);
 
     /// <summary>
     /// 设计时加载所有指定类型的元数据
@@ -57,8 +60,10 @@ public static class MetaStoreExtensions
     /// </summary>
     public static async ValueTask<ApplicationModel> LoadApplicationAsync(this IMetaStore metaStore, int appId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.META_APPLICATION, appId.ToString());
-        return MetaSerializer.DeserializeMeta(data!, () => new ApplicationModel());
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, MetaType.META_APPLICATION, appId.ToString());
+        ms.Seek(0, SeekOrigin.Begin);
+        return MetaSerializer.DeserializeMeta(ms, () => new ApplicationModel());
     }
 
     /// <summary>
@@ -66,8 +71,10 @@ public static class MetaStoreExtensions
     /// </summary>
     public static async Task<ModelBase> LoadModelAsync(this IMetaStore metaStore, ModelId modelId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.META_MODEL, modelId.ToString());
-        var model = MetaSerializer.DeserializeMeta(data!, () => ModelFactory.Make(modelId.Type));
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, MetaType.META_MODEL, modelId.ToString());
+        ms.Seek(0, SeekOrigin.Begin);
+        var model = MetaSerializer.DeserializeMeta(ms, () => ModelFactory.Make(modelId.Type));
         model.AcceptChanges();
         return model;
     }
@@ -75,10 +82,29 @@ public static class MetaStoreExtensions
     /// <summary>
     /// 加载模型(视图、服务等)的代码
     /// </summary>
-    public static async Task<string?> LoadModelCodeAsync(this IMetaStore metaStore, ModelId modelId)
+    public static async Task<Stream> DownloadModelCodeAsync(this IMetaStore metaStore, ModelId modelId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.META_CODE, modelId.ToString());
-        return ModelCodeUtil.DecompressCode(data!);
+        //TODO:使用指定临时文件路径
+        var inputFilePath = Path.GetTempFileName();
+        var inputFileStream = File.Open(inputFilePath, FileMode.Create, FileAccess.ReadWrite);
+        try
+        {
+            await metaStore.LoadMetaDataAsync(inputFileStream, MetaType.META_CODE, modelId.ToString());
+            if (inputFileStream.Length == 0)
+                throw new Exception("Can't download model code");
+
+            inputFileStream.Seek(0, SeekOrigin.Begin);
+            var outputFilePath = Path.GetTempFileName();
+            var outputFileStream = File.Open(outputFilePath, FileMode.Create, FileAccess.ReadWrite);
+            await ModelCodeUtil.DecompressCode(inputFileStream, outputFileStream);
+            outputFileStream.Seek(0, SeekOrigin.Begin);
+            return outputFileStream;
+        }
+        finally
+        {
+            inputFileStream.Close();
+            File.Delete(inputFilePath);
+        }
     }
 
     /// <summary>
@@ -87,9 +113,10 @@ public static class MetaStoreExtensions
     /// <returns>utf8 bytes</returns>
     public static async Task<byte[]?> LoadDynamicViewJsonAsync(this IMetaStore metaStore, ModelId viewModelId)
     {
-        var data = await metaStore.LoadMetaDataAsync(MetaType.META_CODE, viewModelId.ToString());
-        if (data == null || data.Length == 0) return null;
-        return ModelCodeUtil.DecompressCodeToUtf8Bytes(data);
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, MetaType.META_CODE, viewModelId.ToString());
+        if (ms.Length == 0) return null;
+        return ModelCodeUtil.DecompressCodeToUtf8Bytes(ms.GetBuffer());
     }
 
     /// <summary>
@@ -98,16 +125,26 @@ public static class MetaStoreExtensions
     /// <param name="metaStore"></param>
     /// <param name="viewModelName">eg: sys.HomePage</param>
     /// <returns>json data: ["A","B"]</returns>
-    public static Task<byte[]?> LoadViewAssembliesAsync(this IMetaStore metaStore, string viewModelName) =>
-        metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ViewAssemblies, viewModelName);
+    public static async Task<byte[]?> LoadViewAssembliesAsync(this IMetaStore metaStore, string viewModelName)
+    {
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, (byte)MetaAssemblyType.ViewAssemblies, viewModelName);
+        if (ms.Length == 0) return null;
+        return ms.GetBuffer();
+    }
 
     /// <summary>
     /// 运行时加载压缩过的视图模型的JS代码
     /// </summary>
     /// <param name="metaStore"></param>
     /// <param name="viewName">eg: sys.HomePage</param>
-    public static Task<byte[]?> LoadViewAssemblyAsync(this IMetaStore metaStore, string viewName) =>
-        metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ViewJS, viewName);
+    public static async Task<byte[]?> LoadViewAssemblyAsync(this IMetaStore metaStore, string viewName)
+    {
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, (byte)MetaAssemblyType.ViewJS, viewName);
+        if (ms.Length == 0) return null;
+        return ms.GetBuffer();
+    }
 
     /// <summary>
     /// 加载客户端应用的程序集
@@ -115,10 +152,13 @@ public static class MetaStoreExtensions
     /// <param name="metaStore"></param>
     /// <param name="assemblyName">16进制编码的序号</param>
     /// <returns>压缩过的程序集</returns>
-    public static Task<byte[]?> LoadAppAssemblyAsync(this IMetaStore metaStore, string assemblyName)
+    public static async Task<byte[]?> LoadAppAssemblyAsync(this IMetaStore metaStore, string assemblyName)
     {
         //TODO: 支持加载客户端应用依赖的外部程序集(可根据名称中是否包信'.'判断是否外部依赖)
-        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ClientApp, assemblyName);
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, (byte)MetaAssemblyType.ClientApp, assemblyName);
+        if (ms.Length == 0) return null;
+        return ms.GetBuffer();
     }
 
     /// <summary>
@@ -126,40 +166,21 @@ public static class MetaStoreExtensions
     /// </summary>
     /// <param name="metaStore"></param>
     /// <param name="serviceName">eg: sys.HelloService or sys.Newtonsoft.Json.dll</param>
-    public static Task<byte[]?> LoadServiceAssemblyAsync(this IMetaStore metaStore, string serviceName)
+    public static async Task<byte[]?> LoadServiceAssemblyAsync(this IMetaStore metaStore, string serviceName)
     {
-        //TODO:考虑保存至本地文件，返回路径
+        //TODO:保存至本地文件，返回路径
         //暂通过判断有无扩展名来区别是服务的组件还是第三方的组件
+        MetaAssemblyType assemblyType;
         if (serviceName.Length >= 4 && serviceName.AsSpan(serviceName.Length - 4) is ".dll")
-            return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.ExtService, serviceName);
-        return metaStore.LoadMetaDataAsync((byte)MetaAssemblyType.Service, serviceName);
-    }
+            assemblyType = MetaAssemblyType.ExtService;
+        else
+            assemblyType = MetaAssemblyType.Service;
 
-    // /// <summary>
-    // /// 用于设计时加载所有ApplicationModel
-    // /// </summary>
-    // public static Task<ApplicationModel[]> LoadAllApplicationAsync(this IMetaStore metaStore) =>
-    //     metaStore.LoadMetasAsync<ApplicationModel>(MetaType.META_APPLICATION);
-    //
-    // /// <summary>
-    // /// 用于设计时加载所有Model
-    // /// </summary>
-    // public static async Task<ModelBase[]> LoadAllModelAsync(this IMetaStore metaStore)
-    // {
-    //     var res = await metaStore.LoadMetasAsync<ModelBase>(MetaType.META_MODEL);
-    //     foreach (var model in res)
-    //     {
-    //         model.AcceptChanges(); //暂循环转换状态
-    //     }
-    //
-    //     return res;
-    // }
-    //
-    // /// <summary>
-    // /// 用于设计时加载所有Folder
-    // /// </summary>
-    // public static Task<ModelFolder[]> LoadAllFolderAsync(this IMetaStore metaStore) =>
-    //     metaStore.LoadMetasAsync<ModelFolder>(MetaType.META_FOLDER);
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, (byte)assemblyType, serviceName);
+        if (ms.Length == 0) return null;
+        return ms.GetBuffer();
+    }
 
     /// <summary>
     /// 加载所有标为动态组件的视图模型的名称，用于设计时注册动态组件至工具箱

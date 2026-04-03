@@ -111,15 +111,14 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
         if (await DynamicInitiator.TryInitAsync())
             _toolboxPad.Rebuild();
-
-        //TODO:直接获取utf8 bytes
+        
         try
         {
-            var srcCode = await DesignHub.Current.TypeSystem.LoadSourceCode(null, ModelNode);
-            if (srcCode != null!)
+            using var ms = new MemoryStream(2048);
+            await DesignHub.Current.TypeSystem.DownloadSourceCode(ms, ModelNode);
+            if (ms.Length > 0)
             {
-                var jsonData = Encoding.UTF8.GetBytes(srcCode);
-                _designController.Load(jsonData);
+                _designController.Load(ms.GetBuffer());
             }
         }
         catch (Exception e)
@@ -135,7 +134,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         using var writer = new Utf8JsonWriter(ms, options);
         _designController.Write(writer);
         writer.Flush();
-        return Encoding.UTF8.GetString(ms.ToArray());
+        return Encoding.UTF8.GetString(ms.GetBuffer());
     }
 
     public Task SaveAsync()

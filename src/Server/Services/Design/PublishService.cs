@@ -192,7 +192,7 @@ internal static class PublishService
         using var cs = new BrotliStream(ms, CompressionMode.Compress, true);
         cs.Write(asmData, 0, asmData.Length);
         cs.Flush();
-        return ms.ToArray();
+        return ms.GetBuffer();
     }
 
     private static bool IsDbFirstSqlStore(PublishContainer container, EntityModel model)

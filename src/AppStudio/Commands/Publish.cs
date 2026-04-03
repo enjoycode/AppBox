@@ -141,13 +141,13 @@ internal static class Publish
             var emitOpts = new EmitOptions(false, DebugInformationFormat.Embedded);
             //using var pdbStream = new FileStream(Path.Combine(debugFolder, docName + ".pdb"), FileMode.CreateNew);
             emitResult = compilation.Emit(dllStream, null, null, null, null, emitOpts);
-            asmData = dllStream.ToArray();
+            asmData = dllStream.GetBuffer();
         }
         else
         {
             using var dllStream = new MemoryStream(1024);
             emitResult = compilation.Emit(dllStream);
-            asmData = dllStream.ToArray();
+            asmData = dllStream.GetBuffer();
         }
 
         CodeGeneratorUtil.CheckEmitResult(emitResult);

@@ -66,35 +66,17 @@ internal sealed class MockStagedService : IStagedService
         return Task.FromResult(new StagedItems([]));
     }
 
-    public Task<IList<PendingChange>> LoadChangesAsync()
-    {
-        throw new NotImplementedException();
-    }
+    public Task<IList<PendingChange>> LoadChangesAsync() => throw new NotImplementedException();
 
-    public Task<string?> LoadCodeAsync(ModelId modelId)
-    {
-        throw new NotImplementedException();
-    }
+    public Task DownloadCodeAsync(Stream toStream, ModelId modelId) => throw new NotImplementedException();
 
-    public Task SaveFolderAsync(ModelFolder folder)
-    {
-        throw new NotImplementedException();
-    }
+    public Task SaveFolderAsync(ModelFolder folder) => throw new NotImplementedException();
 
-    public Task SaveModelAsync(ModelBase model)
-    {
-        throw new NotImplementedException();
-    }
+    public Task SaveModelAsync(ModelBase model) => throw new NotImplementedException();
 
-    public Task SaveCodeAsync(ModelId modelId, string sourceCode)
-    {
-        throw new NotImplementedException();
-    }
+    public Task SaveCodeAsync(ModelId modelId, string sourceCode) => throw new NotImplementedException();
 
-    public Task DeleteModelAsync(ModelId modelId)
-    {
-        throw new NotImplementedException();
-    }
+    public Task DeleteModelAsync(ModelId modelId) => throw new NotImplementedException();
 }
 
 internal sealed class MockMetaStoreService : IMetaStoreService
@@ -120,7 +102,12 @@ internal sealed class MockMetaStoreService : IMetaStoreService
         return MetaSerializer.DeserializeModels(stream);
     }
 
-    public Task<string?> LoadModelCodeAsync(ModelId modelId) => MetaStore.Provider.LoadModelCodeAsync(modelId);
+    public async Task DownloadModelCodeAsync(Stream toStream, ModelId modelId)
+    {
+        await using var stream = await MetaStore.Provider.DownloadModelCodeAsync(modelId);
+        stream.Position = 0;
+        await stream.CopyToAsync(toStream);
+    }
 
     public Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer) =>
         MetaStore.Provider.GenModelIdAsync(appId, modelType, layer);

@@ -1,6 +1,6 @@
 namespace AppBoxCore;
 
-public enum InvokeErrorCode
+public enum InvokeErrorCode : byte
 {
     None = 0,
     DeserializeRequestFail = 1,

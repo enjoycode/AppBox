@@ -10,7 +10,7 @@ public interface IMetaStoreService
 
     Task<IList<ModelBase>> LoadAllModelAsync();
 
-    Task<string?> LoadModelCodeAsync(ModelId modelId);
+    Task DownloadModelCodeAsync(Stream toStream, ModelId modelId);
 
     Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer);
 }

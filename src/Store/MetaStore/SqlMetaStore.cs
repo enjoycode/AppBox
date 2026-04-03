@@ -414,7 +414,7 @@ public sealed class SqlMetaStore : IMetaStore
 
     #region ====LoadMeta====
 
-    public async Task<byte[]?> LoadMetaDataAsync(byte metaType, string id)
+    public async Task LoadMetaDataAsync(Stream toStream, byte metaType, string id)
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
@@ -422,15 +422,13 @@ public sealed class SqlMetaStore : IMetaStore
         await using var cmd = db.MakeCommand();
         cmd.Connection = conn;
         cmd.CommandText = $"Select data From {esc}sys.Meta{esc} Where meta={metaType} And id='{id}'";
-        Logger.Debug(cmd.CommandText);
-        await using var reader = await cmd.ExecuteReaderAsync();
-        byte[]? metaData = null;
+        // Logger.Debug(cmd.CommandText);
+        await using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
         if (await reader.ReadAsync())
         {
-            metaData = (byte[])reader.GetValue(0); //TODO:Use GetStream
+            await using var dataStream = reader.GetStream(0);
+            await dataStream.CopyToAsync(toStream);
         }
-
-        return metaData;
     }
 
     public async Task LoadMetasAsync(Stream toStream, byte metaType, byte? model)

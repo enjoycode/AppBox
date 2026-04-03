@@ -21,8 +21,8 @@ internal sealed class StagedService : IStagedService
         return Channel.Invoke<IList<PendingChange>>("sys.DesignService.StageLoadChanges")!;
     }
 
-    public Task<string?> LoadCodeAsync(ModelId modelId) =>
-        Channel.Invoke<string?>("sys.DesignService.StageLoadCode", (long)modelId);
+    public Task DownloadCodeAsync(Stream toStream, ModelId modelId) =>
+        Channel.Download("sys.DesignService.StageLoadCode", toStream, (long)modelId);
 
     public Task SaveFolderAsync(ModelFolder folder) =>
         Channel.Invoke("sys.DesignService.StageSaveFolder", AnyValue.From(folder));

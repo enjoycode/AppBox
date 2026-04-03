@@ -1,16 +1,18 @@
 using AppBoxCore;
-using AppBoxStore;
 using AppBoxStore.Entities;
 
 namespace AppBoxDesign;
 
 public interface IStagedService
 {
+    /// <summary>
+    /// 加载所有暂存项，不包括暂存的模型代码
+    /// </summary>
     Task<StagedItems> LoadStagedAsync();
 
     Task<IList<PendingChange>> LoadChangesAsync();
 
-    Task<string?> LoadCodeAsync(ModelId modelId);
+    Task DownloadCodeAsync(Stream toStream, ModelId modelId);
 
     Task SaveFolderAsync(ModelFolder folder);
 
@@ -46,14 +48,14 @@ public sealed class StagedItems
                 case StagedType.Folder:
                     Items[i] = MetaSerializer.DeserializeMeta(data, () => new ModelFolder());
                     break;
-                case StagedType.SourceCode:
-                {
-                    ModelId modelId = staged[i].ModelIdString;
-                    Items[i] = new StagedSourceCode { ModelId = modelId, CodeData = data };
-                    break;
-                }
+                // case StagedType.SourceCode:
+                // {
+                //     ModelId modelId = staged[i].ModelIdString;
+                //     Items[i] = new StagedSourceCode { ModelId = modelId, CodeData = data };
+                //     break;
+                // }
                 default:
-                    throw new NotImplementedException();
+                    throw new Exception($"Unknown staged type {type}");
             }
         }
     }
@@ -123,9 +125,9 @@ public sealed class StagedItems
         }
     }
 
-    internal sealed class StagedSourceCode
-    {
-        public ModelId ModelId;
-        public byte[] CodeData = null!;
-    }
+    // internal sealed class StagedSourceCode
+    // {
+    //     public ModelId ModelId;
+    //     public byte[] CodeData = null!;
+    // }
 }

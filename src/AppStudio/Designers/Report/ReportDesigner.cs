@@ -50,15 +50,14 @@ internal sealed class ReportDesigner : View, IModelDesigner
     {
         if (_hasLoadSourceCode) return;
         _hasLoadSourceCode = true;
-
-        //TODO:直接获取utf8 bytes
+        
         try
         {
-            var srcCode = await DesignHub.Current.TypeSystem.LoadSourceCode(null, ModelNode);
-            if (srcCode != null!)
+            using var ms = new MemoryStream(2048);
+            await DesignHub.Current.TypeSystem.DownloadSourceCode(ms, ModelNode);
+            if (ms.Length > 0)
             {
-                var jsonData = Encoding.UTF8.GetBytes(srcCode);
-                var jsonReader = new Utf8JsonReader(jsonData.AsSpan());
+                var jsonReader = new Utf8JsonReader(ms.GetBuffer());
                 var ctx = new ReportDeserializeContext();
                 _report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader, ctx);
 
@@ -130,12 +129,12 @@ internal sealed class ReportDesigner : View, IModelDesigner
             throw new Exception("Report instance has not created");
 
         //TODO: 暂转换处理
-        var ms = new MemoryStream();
+        var ms = new MemoryStream(2048);
         var jsonWriter = new Utf8JsonWriter(ms);
         AppBox.Reporting.Serialization.JsonSerializer.Serialize(jsonWriter, _report);
         jsonWriter.Flush();
 
-        var jsonText = Encoding.UTF8.GetString(ms.ToArray());
+        var jsonText = Encoding.UTF8.GetString(ms.GetBuffer());
         return ModelNode.SaveAsync(jsonText);
     }
 

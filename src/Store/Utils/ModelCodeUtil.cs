@@ -25,7 +25,7 @@ internal static class ModelCodeUtil
         StringUtil.WriteTo(code, b => cs.WriteByte(b));
         cs.Flush();
 
-        return ms.ToArray();
+        return ms.GetBuffer();
     }
 
     internal static unsafe string DecompressCode(byte[] data)
@@ -49,6 +49,14 @@ internal static class ModelCodeUtil
         return res;
     }
 
+    internal static async Task DecompressCode(Stream input, Stream output)
+    {
+        input.Seek(4L, SeekOrigin.Begin); //跳过字符数
+
+        await using var ds = new BrotliStream(input, CompressionMode.Decompress, true);
+        await ds.CopyToAsync(output);
+    }
+
     /// <summary>
     /// 仅解压代码为utf8字节数组，不转换为字符串
     /// </summary>
@@ -66,6 +74,6 @@ internal static class ModelCodeUtil
         using var output = new MemoryStream(1024);
         ds.CopyTo(output);
 
-        return output.ToArray();
+        return output.GetBuffer();
     }
 }
