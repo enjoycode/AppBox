@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
@@ -22,10 +23,23 @@ internal static class ModelCodeUtil
         //再压缩写入代码
         using var cs = new BrotliStream(ms, CompressionMode.Compress, true);
         // ReSharper disable once AccessToDisposedClosure
-        StringUtil.WriteTo(code, b => cs.WriteByte(b));
+        StringUtil.WriteTo(code, cs.WriteByte);
         cs.Flush();
 
         return ms.GetBuffer();
+    }
+
+    internal static async Task CompressCode(Stream input, int chars, Stream output)
+    {
+        //先写入字符数
+        Span<byte> span = stackalloc byte[4];
+        BinaryPrimitives.WriteInt32LittleEndian(span, chars);
+        output.Write(span);
+
+        //再压缩写入代码
+        await using var cs = new BrotliStream(output, CompressionMode.Compress, true);
+        await input.CopyToAsync(cs);
+        await cs.FlushAsync();
     }
 
     internal static unsafe string DecompressCode(byte[] data)

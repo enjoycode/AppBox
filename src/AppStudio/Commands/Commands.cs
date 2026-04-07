@@ -82,10 +82,11 @@ internal sealed class Commands
     /// </summary>
     private async void Save()
     {
-        var designer = _designStore.ActiveDesigner;
-        if (designer == null) return;
         try
         {
+            var designer = _designStore.ActiveDesigner;
+            if (designer == null) return;
+            
             await designer.SaveAsync();
             Notification.Success("保存成功");
         }

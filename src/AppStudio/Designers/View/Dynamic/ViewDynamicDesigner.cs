@@ -89,10 +89,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                 new Button("Remove") { OnTap = OnRemove },
                 new Button("Background") { OnTap = OnSetBackground },
 #if DEBUG
-                new Button("Json")
-                {
-                    OnTap = _ => { Log.Debug(BuildJson(new JsonWriterOptions() { Indented = true })); }
-                },
+                new Button("Json") { OnTap = _ => BuildJson() },
 #endif
             }
         }
@@ -111,7 +108,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
 
         if (await DynamicInitiator.TryInitAsync())
             _toolboxPad.Rebuild();
-        
+
         try
         {
             using var ms = new MemoryStream(2048);
@@ -128,18 +125,27 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         }
     }
 
-    private string BuildJson(JsonWriterOptions options = default)
+#if DEBUG
+    private void BuildJson()
     {
         using var ms = new MemoryStream();
-        using var writer = new Utf8JsonWriter(ms, options);
+        using var writer = new Utf8JsonWriter(ms, new JsonWriterOptions() {Indented = true});
         _designController.Write(writer);
         writer.Flush();
-        return Encoding.UTF8.GetString(ms.GetBuffer());
+        var json = Encoding.UTF8.GetString(ms.GetBuffer());
+        Log.Debug(json);
     }
+#endif
 
-    public Task SaveAsync()
+    public async Task SaveAsync()
     {
-        return ModelNode.SaveAsync(BuildJson());
+        await using var ms = new MemoryStream(2048);
+        await using var writer = new Utf8JsonWriter(ms);
+        _designController.Write(writer);
+        await writer.FlushAsync();
+        ms.Seek(0, SeekOrigin.Begin);
+
+        await ModelNode.SaveAsync(ms, (int)ms.Length);
     }
 
     public Task RefreshAsync()

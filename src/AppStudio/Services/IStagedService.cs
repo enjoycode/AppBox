@@ -18,7 +18,7 @@ public interface IStagedService
 
     Task SaveModelAsync(ModelBase model);
 
-    Task SaveCodeAsync(ModelId modelId, string sourceCode);
+    Task SaveCodeAsync(ModelId modelId, Stream code, int chars);
 
     Task DeleteModelAsync(ModelId modelId);
 }

@@ -69,7 +69,7 @@ internal static class DeleteNode
         else
         {
             model.Delete();
-            await node.SaveAsync(null);
+            await node.SaveAsync(null, 0);
         }
 
         hub.AddRemovedItem(model);

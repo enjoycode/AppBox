@@ -59,7 +59,8 @@ internal sealed class DesignService : IService
                 await StagedService.SaveFolderAsync((ModelFolder)args.GetObject()!);
                 return AnyValue.Empty;
             case "StageSaveCode":
-                await StagedService.SaveCodeAsync(args.GetLong()!.Value, args.GetString()!);
+                await StagedService.SaveCodeAsync((IAsyncEnumerable<IBlobChunk>)args.GetObject()!,
+                    args.GetLong()!.Value, args.GetInt()!.Value);
                 return AnyValue.Empty;
             case "StageDeleteModel":
                 await StagedService.DeleteModelAsync(args.GetLong()!.Value);

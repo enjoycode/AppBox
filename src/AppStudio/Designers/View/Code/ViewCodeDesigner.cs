@@ -157,7 +157,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 
     public Task SaveAsync()
     {
-        return ModelNode.SaveAsync(null);
+        return ModelNode.SaveAsync(null, 0);
     }
 
     public async Task RefreshAsync()

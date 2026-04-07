@@ -48,12 +48,12 @@ internal sealed class ReportDesigner : View, IModelDesigner
 
     private async void TryLoadSourceCode()
     {
-        if (_hasLoadSourceCode) return;
-        _hasLoadSourceCode = true;
-        
         try
         {
-            using var ms = new MemoryStream(2048);
+            if (_hasLoadSourceCode) return;
+            _hasLoadSourceCode = true;
+            
+            await using var ms = new MemoryStream(2048);
             await DesignHub.Current.TypeSystem.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
@@ -123,19 +123,19 @@ internal sealed class ReportDesigner : View, IModelDesigner
         }
     };
 
-    public Task SaveAsync()
+    public async Task SaveAsync()
     {
         if (_report == null!)
             throw new Exception("Report instance has not created");
 
         //TODO: 暂转换处理
-        var ms = new MemoryStream(2048);
+        await using var ms = new MemoryStream(2048);
         var jsonWriter = new Utf8JsonWriter(ms);
         AppBox.Reporting.Serialization.JsonSerializer.Serialize(jsonWriter, _report);
-        jsonWriter.Flush();
-
-        var jsonText = Encoding.UTF8.GetString(ms.GetBuffer());
-        return ModelNode.SaveAsync(jsonText);
+        await jsonWriter.FlushAsync();
+        ms.Position = 0;
+        
+        await ModelNode.SaveAsync(ms, (int)ms.Length);
     }
 
     public Task RefreshAsync()

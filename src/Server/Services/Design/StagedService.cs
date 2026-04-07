@@ -14,7 +14,7 @@ internal static class StagedService
     /// <summary>
     /// 加载暂存的模型代码，返回的是压缩过的
     /// </summary>
-    internal static async Task LoadCodeDataAsync(Stream toStream, ModelId modelId)
+    private static async Task LoadCodeDataAsync(Stream toStream, ModelId modelId)
     {
         var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 
@@ -51,29 +51,45 @@ internal static class StagedService
     /// <summary>
     /// 保存Staged模型
     /// </summary>
-    internal static Task SaveModelAsync(ModelBase model)
+    internal static async Task SaveModelAsync(ModelBase model)
     {
         var data = MetaSerializer.SerializeMeta(model);
-        return SaveAsync(StagedType.Model, model.Id.ToString(), data);
+        await using var ms = new MemoryStream(data);
+        await SaveAsync(StagedType.Model, model.Id.ToString(), ms);
     }
 
     /// <summary>
     /// 保存模型类型的根目录
     /// </summary>
-    internal static Task SaveFolderAsync(ModelFolder folder)
+    internal static async Task SaveFolderAsync(ModelFolder folder)
     {
         if (folder.Parent != null)
             throw new InvalidOperationException("仅允许保存模型类型的根目录");
         var data = MetaSerializer.SerializeMeta(folder);
-        return SaveAsync(StagedType.Folder,
-            $"{folder.AppId}-{(byte)folder.TargetModelType}" /*不要使用folder.Id*/, data);
+        await using var ms = new MemoryStream(data);
+        await SaveAsync(StagedType.Folder,
+            $"{folder.AppId}-{(byte)folder.TargetModelType}" /*不要使用folder.Id*/, ms);
     }
 
-
-    internal static Task SaveCodeAsync(ModelId modelId, string sourceCode)
+    internal static async Task SaveCodeAsync(IAsyncEnumerable<IBlobChunk> stream, ModelId modelId, int chars)
     {
-        var data = ModelCodeUtil.CompressCode(sourceCode);
-        return SaveAsync(StagedType.SourceCode, modelId.ToString(), data);
+        var inputTempFilePath = Path.GetTempFileName();
+        var inputTempFileStream = File.Open(inputTempFilePath, FileMode.Create, FileAccess.ReadWrite);
+        try
+        {
+            await stream.WriteToStream(inputTempFileStream);
+            inputTempFileStream.Seek(0, SeekOrigin.Begin);
+
+            using var outputStream = new MemoryStream(2048);
+            await ModelCodeUtil.CompressCode(inputTempFileStream, chars, outputStream);
+            outputStream.Seek(0, SeekOrigin.Begin);
+            await SaveAsync(StagedType.SourceCode, modelId.ToString(), outputStream);
+        }
+        finally
+        {
+            inputTempFileStream.Close();
+            File.Delete(inputTempFilePath);
+        }
     }
 
     internal static async Task<Stream> DownloadCodeAsync(ModelId modelId)
@@ -84,7 +100,7 @@ internal static class StagedService
         {
             await LoadCodeDataAsync(inputTempFileStream, modelId);
             if (inputTempFileStream.Length == 0)
-                throw new Exception("Can't load staged code");
+                return Stream.Null; //throw new Exception("Can't load staged code");
 
             inputTempFileStream.Seek(0, SeekOrigin.Begin);
             var outputTempFilePath = Path.GetTempFileName();
@@ -100,50 +116,57 @@ internal static class StagedService
         }
     }
 
-    private static async Task SaveAsync(StagedType type, string modelId, byte[] data)
+    private static async Task SaveAsync(StagedType type, string modelId, Stream data)
     {
         var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 
         //TODO:使用SelectForUpdate or BatchDelete
-
 #if FUTURE
-            var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
-            byte typeValue = (byte)type;
-            q.Filter(q.GetByte(Consts.STAGED_TYPE_ID) == typeValue &
-                q.GetString(Consts.STAGED_MODELID_ID) == modelId &
-                q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID);
+        var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
+        byte typeValue = (byte)type;
+        q.Filter(q.GetByte(Consts.STAGED_TYPE_ID) == typeValue &
+            q.GetString(Consts.STAGED_MODELID_ID) == modelId &
+            q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID);
 
-            var txn = await Transaction.BeginAsync();
-#else
-        var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t.F("Type") == (byte)type &
-                     t.F("Model") == modelId &
-                     t.F("DeveloperId") == developerId);
-
-        await using var conn = await SqlStore.Default.OpenConnectionAsync();
-        await using var txn = await conn.BeginTransactionAsync();
-#endif
-
+        var txn = await Transaction.BeginAsync();
         var res = await q.ToListAsync();
         if (res.Count > 0)
         {
-            //TODO:*****临时先删除再重新插入
             for (var i = 0; i < res.Count; i++)
             {
-#if FUTURE
                 await EntityStore.DeleteEntityAsync(model, res[i].Id, txn);
-#else
-                await SqlStore.Default.DeleteAsync(res[i], txn);
-#endif
             }
         }
-
+        
         var obj = new StagedModel((byte)type, modelId, developerId) { Data = data };
-#if FUTURE
-            await EntityStore.InsertEntityAsync(obj, txn);
-            await txn.CommitAsync();
+        await EntityStore.InsertEntityAsync(obj, txn);
+        await txn.CommitAsync();
 #else
-        await SqlStore.Default.InsertAsync(obj, txn);
+        await using var conn = await SqlStore.Default.OpenConnectionAsync();
+        await using var txn = await conn.BeginTransactionAsync();
+        //TODO:暂先删除再重新插入
+        var esc = SqlStore.Default.NameEscaper;
+        var pre = SqlStore.Default.ParameterPrefix;
+        await using var delCmd = conn.CreateCommand();
+        delCmd.CommandText =
+            $"DELETE FROM {esc}sys.StagedModel{esc} WHERE {esc}DeveloperId{esc}={pre}devId AND {esc}Type{esc}={pre}type AND {esc}Model{esc}={pre}model";
+        delCmd.AddParameter($"{pre}devId", DbType.Guid, developerId);
+        delCmd.AddParameter($"{pre}type", DbType.Int16, (short)type);
+        delCmd.AddParameter($"{pre}model", DbType.String, modelId);
+        delCmd.Connection = conn;
+        delCmd.Transaction = txn;
+        await delCmd.ExecuteNonQueryAsync();
+
+        var addCmd = conn.CreateCommand();
+        addCmd.CommandText =
+            $"INSERT INTO {esc}sys.StagedModel{esc} ({esc}DeveloperId{esc},{esc}Type{esc},{esc}Model{esc},{esc}Data{esc}) VALUES ({pre}devId, {pre}type,{pre}model,{pre}data)";
+        addCmd.AddParameter($"{pre}devId", DbType.Guid, developerId);
+        addCmd.AddParameter($"{pre}type", DbType.Int16, (short)type);
+        addCmd.AddParameter($"{pre}model", DbType.String, modelId);
+        addCmd.AddParameter($"{pre}data", DbType.Binary, -1, data);
+        addCmd.Connection = conn;
+        addCmd.Transaction = txn;
+        await addCmd.ExecuteNonQueryAsync();
         await txn.CommitAsync();
 #endif
     }

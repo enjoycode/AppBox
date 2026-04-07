@@ -77,7 +77,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
 
     public Task SaveAsync()
     {
-        return ModelNode.SaveAsync(null);
+        return ModelNode.SaveAsync(null, 0);
     }
 
     public Task RefreshAsync()
@@ -106,7 +106,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
             _enumModel.AddItem(item);
             _membersController.Refresh();
             //保存并更新虚拟代码
-            await ModelNode.SaveAsync(null);
+            await ModelNode.SaveAsync(null, 0);
             await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception e)

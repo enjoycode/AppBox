@@ -261,7 +261,17 @@ internal sealed class TypeSystem : IDisposable
     internal async Task DownloadSourceCode(Stream toStream, ModelNode node)
     {
         if (node.IsCheckoutByMe) //已签出尝试从Staged中加载
-            await DesignHub.StagedService.DownloadCodeAsync(toStream, node.Model.Id);
+        {
+            try
+            {
+                await DesignHub.StagedService.DownloadCodeAsync(toStream, node.Model.Id);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
         if (toStream.Length == 0) //从MetaStore加载
             await DesignHub.MetaStoreService.DownloadModelCodeAsync(toStream, node.Model.Id);
     }

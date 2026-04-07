@@ -82,7 +82,7 @@ public sealed class ModelNode : DesignNode
     /// <summary>
     /// 保存模型节点(包括相关代码)
     /// </summary>
-    public async Task SaveAsync(string? initOrNewSrcCode)
+    public async Task SaveAsync(Stream? utf8CodeStream, int chars)
     {
         if (!IsCheckoutByMe) throw new Exception("ModelNode has not checkout");
 
@@ -92,29 +92,32 @@ public sealed class ModelNode : DesignNode
         var hub = DesignHub.Current;
         if (Model.PersistentState != PersistentState.Deleted)
         {
-            var typeSystem = DesignTree!.DesignHub.TypeSystem;
-            //注意：不在此更新RoslynDocument, 实体模型通过设计命令更新,服务模型通过前端代码编辑器实时更新
-            if (Model.ModelType is ModelType.Service or ModelType.View)
+            if (utf8CodeStream != null)
             {
-                string srcCode;
-                if (initOrNewSrcCode != null) srcCode = initOrNewSrcCode;
-                else
+                await hub.StagedService.SaveCodeAsync(Model.Id, utf8CodeStream, chars);
+            }
+            else
+            {
+                var typeSystem = DesignTree!.DesignHub.TypeSystem;
+                //注意：不在此更新RoslynDocument, 实体模型通过设计命令更新,服务模型通过前端代码编辑器实时更新
+                if (Model.ModelType is ModelType.Service or ModelType.View)
                 {
+                    using var ms = new MemoryStream(); //Should use temp file
+                    await using var streamWriter = new StreamWriter(ms, leaveOpen: true);
+
                     var doc = typeSystem.Workspace.CurrentSolution.GetDocument(RoslynDocumentId)!;
                     var srcText = await doc.GetTextAsync();
-                    srcCode = srcText.ToString();
+                    chars = srcText.Length;
+                    srcText.Write(streamWriter);
+
+                    await streamWriter.FlushAsync();
+                    ms.Position = 0;
+                    await hub.StagedService.SaveCodeAsync(Model.Id, ms, chars);
+
+                    //如果是非新建的服务模型需要更新服务代理(注意用utf8CodeStream判断是否刚创建的)
+                    if (Model.ModelType == ModelType.Service)
+                        await typeSystem.UpdateServiceProxyDocumentAsync(this);
                 }
-
-                await hub.StagedService.SaveCodeAsync(Model.Id, srcCode);
-
-                //如果是非新建的服务模型需要更新服务代理(注意用initSrcCode判断是否刚创建的)
-                if (Model.ModelType == ModelType.Service && initOrNewSrcCode == null)
-                    await typeSystem.UpdateServiceProxyDocumentAsync(this);
-            }
-            else if (Model.ModelType == ModelType.Report)
-            {
-                var srcCode = string.IsNullOrEmpty(initOrNewSrcCode) ? string.Empty : initOrNewSrcCode;
-                await hub.StagedService.SaveCodeAsync(Model.Id, srcCode);
             }
         }
 
