@@ -56,15 +56,15 @@ internal static class BuildApp
         }
 
         // 1.将编译好的组件上传至服务端保存
-        await hub.PublishService.BeginUploadApp();
-        // 2.保存各个程序集
+        var isFirst = true;
         foreach (var assemblyInfo in allAssemblies)
         {
             await using var assemblyStream = assemblyInfo.CompressAssemblyData();
-            await hub.PublishService.UploadAppAssembly(assemblyStream, assemblyInfo.AssemblyName);
+            await hub.PublishService.UploadAppAssembly(assemblyStream, assemblyInfo.AssemblyName, isFirst);
+            isFirst = false;
         }
 
-        // 3.保存视图模型对应的所有程序集的映射
+        // 2.保存视图模型对应的所有程序集的映射
         Stream? tempFileStream = null;
         string? tempFilePath = null;
         try

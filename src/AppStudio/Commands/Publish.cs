@@ -1,4 +1,5 @@
 using System.Text;
+using AppBoxClient;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -38,8 +39,8 @@ internal static class Publish
 
         //验证模型有效性
         ValidateModels(hub, package);
-        //编译模型
-        await CompileModelsAsync(hub, changes, package);
+        //编译模型并上传
+        await CompileAndUploadAsync(hub, changes, package);
         //调用服务端发布
         await hub.PublishService.PublishAsync(package, commitMessage);
         //刷新所有CheckoutByMe的节点项
@@ -52,18 +53,29 @@ internal static class Publish
         //TODO:
     }
 
-    private static async Task CompileModelsAsync(DesignHub hub, IList<PendingChange> changes, PublishPackage package)
+    private static async Task CompileAndUploadAsync(DesignHub hub, IList<PendingChange> changes, PublishPackage package)
     {
+        var isFirst = true;
         foreach (var item in changes)
         {
             //以下重命名的已不需要加入待删除列表，保存模型时已处理
             if (item.Target is ServiceModel sm && sm.PersistentState != PersistentState.Deleted)
             {
-                var asmData = await CompileServiceAsync(hub, sm, false);
-                var appName = hub.AppNameGetter(sm.Id.AppId);
-                var fullName = $"{appName}.{sm.Name}";
-
-                package.ServiceAssemblies.Add(fullName, asmData!);
+                var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+                try
+                {
+                    await CompileServiceAsync(tempFileStream, hub, sm, false);
+                    var appName = hub.AppNameGetter(sm.Id.AppId);
+                    var fullName = $"{appName}.{sm.Name}";
+                    tempFileStream.Seek(0, SeekOrigin.Begin);
+                    await hub.PublishService.UploadServiceAssembly(tempFileStream, fullName, isFirst);
+                    isFirst = false;
+                }
+                finally
+                {
+                    tempFileStream.Close();
+                    LocalFileSystem.DeleteTempFile(tempFilePath);
+                }
             }
         }
     }
@@ -74,7 +86,7 @@ internal static class Publish
     /// <remarks>
     /// 因Blazor不支持Brotli,所以暂不压缩
     /// </remarks>
-    internal static async Task<byte[]?> CompileServiceAsync(DesignHub hub, ServiceModel model, bool forDebug)
+    internal static async Task CompileServiceAsync(Stream toStream, DesignHub hub, ServiceModel model, bool forDebug)
     {
         var designNode = hub.DesignTree.FindModelNode(model.Id)!;
         var appName = designNode.AppNode.Model.Name;
@@ -119,24 +131,17 @@ internal static class Publish
             compilation = compilation.AddSyntaxTrees(usagesTree);
 
         EmitResult emitResult;
-        byte[] asmData;
         if (forDebug)
         {
-            using var dllStream = new MemoryStream(1024);
             var emitOpts = new EmitOptions(false, DebugInformationFormat.Embedded);
             //using var pdbStream = new FileStream(Path.Combine(debugFolder, docName + ".pdb"), FileMode.CreateNew);
-            emitResult = compilation.Emit(dllStream, null, null, null, null, emitOpts);
-            asmData = dllStream.ToArray();
+            emitResult = compilation.Emit(toStream, null, null, null, null, emitOpts);
         }
         else
         {
-            using var dllStream = new MemoryStream(1024);
-            emitResult = compilation.Emit(dllStream);
-            asmData = dllStream.ToArray();
+            emitResult = compilation.Emit(toStream);
         }
 
         CodeGeneratorUtil.CheckEmitResult(emitResult);
-
-        return asmData;
     }
 }

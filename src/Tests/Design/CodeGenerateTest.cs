@@ -101,8 +101,9 @@ public class CodeGenerateTest
         var serviceModel = (ServiceModel)serviceNode.Model;
         await DesignHelper.ReplaceCode(designHub, serviceNode.RoslynDocumentId!, serviceCode);
 
-        var res = await Publish.CompileServiceAsync(designHub, serviceModel, false);
-        Assert.True(res != null);
+        using var ms = new MemoryStream(2048);
+        await Publish.CompileServiceAsync(ms, designHub, serviceModel, false);
+        Assert.True(ms.Length > 0);
     }
 
     [Test]

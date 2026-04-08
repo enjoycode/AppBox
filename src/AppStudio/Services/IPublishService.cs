@@ -6,9 +6,9 @@ public interface IPublishService
 {
     Task PublishAsync(PublishPackage package, string commitMessage);
 
-    Task BeginUploadApp();
-    
-    Task UploadAppAssembly(Stream stream, string assemblyName);
-    
+    Task UploadServiceAssembly(Stream stream, string assemblyName, bool isFirst);
+
+    Task UploadAppAssembly(Stream stream, string assemblyName, bool isFirst);
+
     Task UploadViewAssemblyMap(Stream stream);
 }

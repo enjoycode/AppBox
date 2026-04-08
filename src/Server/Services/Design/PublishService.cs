@@ -115,7 +115,7 @@ internal static class PublishService
                         await TryCreateTable(container, (EntityModel)model, otherStoreTxns);
                     else if (model.ModelType is ModelType.Service or ModelType.View
                              or ModelType.Report or ModelType.Workflow)
-                        await SaveModelCode(model.Id, txn);
+                        await SaveStagedModelCode(model.Id, txn);
                     break;
                 }
                 case PersistentState.Unchanged:
@@ -126,7 +126,7 @@ internal static class PublishService
                         await TryAlterTable(container, (EntityModel)model, otherStoreTxns);
                     else if (model.ModelType is ModelType.Service or ModelType.View
                              or ModelType.Report or ModelType.Workflow)
-                        await SaveModelCode(model.Id, txn);
+                        await SaveStagedModelCode(model.Id, txn);
                     //TODO:服务模型重命名删除旧的Assembly
                     break;
                 }
@@ -156,17 +156,23 @@ internal static class PublishService
         }
 
         //保存服务模型编译好的运行时组件
-        foreach (var serviceName in package.ServiceAssemblies.Keys)
+        var uploadPath = GetUploadServicePath();
+        foreach (var file in Directory.EnumerateFiles(uploadPath))
         {
-            var asmData = CompressAssemblyData(package.ServiceAssemblies[serviceName]);
+            var asmData = await CompressAssemblyData(file);
+            var serviceName = Path.GetFileName(file);
             await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName, asmData, txn);
         }
+        // 清除临时目录
+#if !DEBUG
+        Directory.Delete(uploadPath, true);
+#endif
     }
 
     /// <summary>
     /// 将暂存的模型代码保存入MetaStore
     /// </summary>
-    private static async Task SaveModelCode(ModelId modelId, DbTransaction txn)
+    private static async Task SaveStagedModelCode(ModelId modelId, DbTransaction txn)
     {
         //TODO:待实现Stream to Stream
         using var ms = new MemoryStream(2048);
@@ -177,11 +183,12 @@ internal static class PublishService
         await MetaStore.Provider.UpsertModelCodeAsync(modelId, ms.ToArray(), txn);
     }
 
-    private static byte[] CompressAssemblyData(byte[] asmData)
+    private static async Task<byte[]> CompressAssemblyData(string filePath)
     {
-        using var ms = new MemoryStream(1024);
-        using var cs = new BrotliStream(ms, CompressionMode.Compress, true);
-        cs.Write(asmData, 0, asmData.Length);
+        await using var input = File.OpenRead(filePath);
+        await using var ms = new MemoryStream(1024);
+        await using var cs = new BrotliStream(ms, CompressionMode.Compress, true);
+        await input.CopyToAsync(cs);
         cs.Flush();
         return ms.ToArray();
     }
@@ -199,6 +206,8 @@ internal static class PublishService
 
         return false;
     }
+
+    #region ====Create/Alter/Drop Table====
 
     private static async ValueTask TryCreateTable(PublishContainer container, EntityModel model,
         IDictionary<long, DbTransaction> otherStoreTxns)
@@ -254,6 +263,8 @@ internal static class PublishService
         // }
     }
 
+    #endregion
+
     /// <summary>
     /// 通知各节点模型缓存失效
     /// </summary>
@@ -283,32 +294,54 @@ internal static class PublishService
         RuntimeContext.Current.InvalidModelsCache(services, others, true);
     }
 
+    private static string GetUploadServicePath()
+    {
+        var sessionName = RuntimeContext.Current.CurrentSession!.Name;
+        return Path.Combine(Path.GetTempPath(), "AppBox", sessionName, "Service");
+    }
+
+    internal static async Task UploadServiceAssembly(IAsyncEnumerable<IBlobChunk> stream, string assemblyName,
+        bool isFirst)
+    {
+        var tempPath = GetUploadServicePath();
+        if (isFirst)
+        {
+            if (Directory.Exists(tempPath))
+                Directory.Delete(tempPath, true);
+
+            Directory.CreateDirectory(tempPath);
+        }
+
+        var filePath = Path.Combine(tempPath, assemblyName);
+        await stream.WriteToFile(filePath);
+        Logger.Debug($"Upload service assembly to: {filePath}");
+    }
+
     #region ====Publish Client App Assemblies====
 
     private static string GetUploadAppPath()
     {
         var sessionName = RuntimeContext.Current.CurrentSession!.Name;
-        return Path.Combine(Path.GetTempPath(), "AppBox", sessionName);
-    }
-
-    internal static void BeginUploadApp()
-    {
-        var tempPath = GetUploadAppPath();
-        if (Directory.Exists(tempPath))
-            Directory.Delete(tempPath, true);
-
-        Directory.CreateDirectory(tempPath);
+        return Path.Combine(Path.GetTempPath(), "AppBox", sessionName, "App");
     }
 
     /// <summary>
     /// 将客户端上传的编译且压缩好的AppAssembly保存至临时目录
     /// </summary>
-    internal static async Task UploadAppAssembly(IAsyncEnumerable<IBlobChunk> stream, string assemblyName)
+    internal static async Task UploadAppAssembly(IAsyncEnumerable<IBlobChunk> stream, string assemblyName, bool isFirst)
     {
         var tempPath = GetUploadAppPath();
+        if (isFirst)
+        {
+            if (Directory.Exists(tempPath))
+                Directory.Delete(tempPath, true);
+
+            Directory.CreateDirectory(tempPath);
+        }
+
         var filePath = Path.Combine(tempPath, assemblyName);
         await stream.WriteToFile(filePath);
-        Logger.Debug($"Upload to: {filePath}");
+        Logger.Debug($"Upload app assembly to: {filePath}");
     }
 
     /// <summary>

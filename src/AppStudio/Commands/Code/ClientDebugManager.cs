@@ -52,8 +52,9 @@ internal static class ClientDebugManager
         var serviceName = serviceModel.Name;
 
         // 1.编译并上传服务模型
-        var asmData = await Publish.CompileServiceAsync(hub, serviceModel, true);
-        using var stream = new MemoryStream(asmData!);
+        using var stream = new MemoryStream(2048);
+        await Publish.CompileServiceAsync(stream, hub, serviceModel, true);
+        stream.Seek(0, SeekOrigin.Begin);
         await Channel.Upload(DesignMethods.DebugUploadServiceFull, stream, $"{appName}.{serviceName}");
 
         // 2.开始启动调试 TODO:没有Breakpoint提示请求确认
