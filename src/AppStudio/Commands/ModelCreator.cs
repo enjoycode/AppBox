@@ -56,11 +56,12 @@ internal static class ModelCreator
         {
             chars = initSrcCode.Length;
             codeStream = new MemoryStream(512);
-            await using var streamWriter = new StreamWriter(codeStream);
+            await using var streamWriter = new StreamWriter(codeStream, leaveOpen: true);
             await streamWriter.WriteAsync(initSrcCode);
             await streamWriter.FlushAsync();
             codeStream.Seek(0, SeekOrigin.Begin);
         }
+
         await node.SaveAsync(codeStream, chars);
         //创建RoslynDocument
         await hub.TypeSystem.CreateModelDocumentAsync(node, initSrcCode);
