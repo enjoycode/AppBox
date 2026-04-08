@@ -36,7 +36,7 @@ public class ExpressionSerializationTest
         await writer.FlushAsync();
 
         ms.Position = 0;
-        var reader = new Utf8JsonReader(ms.GetBuffer());
+        var reader = new Utf8JsonReader(ms.GetBuffer().AsSpan(0, (int)ms.Length));
         var exp2 = (EntityFieldExpression)ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
         Assert.True(exp2!.ToString() == exp1.ToString());
         Assert.AreSame(exp2.Owner!.Owner!, root);

@@ -113,15 +113,20 @@ internal static class PublishService
                     await MetaStore.Provider.InsertModelAsync(model, txn);
                     if (model.ModelType == ModelType.Entity)
                         await TryCreateTable(container, (EntityModel)model, otherStoreTxns);
+                    else if (model.ModelType is ModelType.Service or ModelType.View
+                             or ModelType.Report or ModelType.Workflow)
+                        await SaveModelCode(model.Id, txn);
                     break;
                 }
-                case PersistentState.Unchanged: //TODO:临时
+                case PersistentState.Unchanged:
                 case PersistentState.Modified:
                 {
                     await MetaStore.Provider.UpdateModelAsync(model, txn);
                     if (model.ModelType == ModelType.Entity)
                         await TryAlterTable(container, (EntityModel)model, otherStoreTxns);
-
+                    else if (model.ModelType is ModelType.Service or ModelType.View
+                             or ModelType.Report or ModelType.Workflow)
+                        await SaveModelCode(model.Id, txn);
                     //TODO:服务模型重命名删除旧的Assembly
                     break;
                 }
@@ -136,19 +141,12 @@ internal static class PublishService
                     //判断模型类型删除相关代码及编译好的组件
                     else if (model.ModelType == ModelType.Service)
                     {
-                        var app = container.GetApplicationModel(model.AppId); //TODO: get app name from PublishPackage
+                        var appName = package.Apps[model.AppId];
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
                         await MetaStore.Provider.DeleteAssemblyAsync(MetaAssemblyType.Service,
-                            $"{app.Name}.{model.OriginalName}", txn);
+                            $"{appName}.{model.OriginalName}", txn);
                     }
-                    else if (model.ModelType == ModelType.View)
-                    {
-                        // var app = container.GetApplicationModel(model.AppId);
-                        // var oldViewName = $"{app.Name}.{model.OriginalName}";
-                        await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
-                        // await ModelStore.DeleteAssemblyAsync(MetaAssemblyType.View, oldViewName, txn);
-                    }
-                    else if (model.ModelType == ModelType.Report)
+                    else if (model.ModelType is ModelType.View or ModelType.Report or ModelType.Workflow)
                     {
                         await MetaStore.Provider.DeleteModelCodeAsync(model.Id, txn);
                     }
@@ -157,33 +155,26 @@ internal static class PublishService
             }
         }
 
-        //保存模型相关的代码
-        foreach (var modelId in package.SourceCodes.Keys)
-        {
-            byte[]? codeData;
-            var code = package.SourceCodes[modelId];
-            if (code != null)
-                codeData = ModelCodeUtil.CompressCode(code);
-            else //前端没有传新的代码则尝试从暂存的加载
-                codeData = await StagedService.LoadCodeDataAsync(modelId);
-
-            if (codeData != null)
-                await MetaStore.Provider.UpsertModelCodeAsync(modelId, codeData, txn);
-        }
-
         //保存服务模型编译好的运行时组件
         foreach (var serviceName in package.ServiceAssemblies.Keys)
         {
             var asmData = CompressAssemblyData(package.ServiceAssemblies[serviceName]);
             await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName, asmData, txn);
         }
+    }
 
-        //暂保留保存视图模型编译好的运行时代码
-        // foreach (var viewName in package.ViewAssemblies.Keys)
-        // {
-        //     var asmData = package.ViewAssemblies[viewName];
-        //     await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.View, viewName, asmData, txn);
-        // }
+    /// <summary>
+    /// 将暂存的模型代码保存入MetaStore
+    /// </summary>
+    private static async Task SaveModelCode(ModelId modelId, DbTransaction txn)
+    {
+        //TODO:待实现Stream to Stream
+        using var ms = new MemoryStream(2048);
+        await StagedService.LoadCodeDataAsync(ms, modelId);
+        if (ms.Length == 0)
+            return;
+
+        await MetaStore.Provider.UpsertModelCodeAsync(modelId, ms.ToArray(), txn);
     }
 
     private static byte[] CompressAssemblyData(byte[] asmData)
@@ -192,7 +183,7 @@ internal static class PublishService
         using var cs = new BrotliStream(ms, CompressionMode.Compress, true);
         cs.Write(asmData, 0, asmData.Length);
         cs.Flush();
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     private static bool IsDbFirstSqlStore(PublishContainer container, EntityModel model)
@@ -283,10 +274,10 @@ internal static class PublishService
         for (var i = 0; i < serviceModels.Length; i++)
         {
             var serviceModel = serviceModels[i];
-            var app = RuntimeContext.GetApplication(serviceModel.AppId);
+            var appName = package.Apps[serviceModel.AppId];
             services[i] = serviceModels[i].IsNameChanged
-                ? $"{app.Name}.{serviceModel.OriginalName}"
-                : $"{app.Name}.{serviceModel.Name}";
+                ? $"{appName}.{serviceModel.OriginalName}"
+                : $"{appName}.{serviceModel.Name}";
         }
 
         RuntimeContext.Current.InvalidModelsCache(services, others, true);

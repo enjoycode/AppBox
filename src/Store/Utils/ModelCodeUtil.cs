@@ -26,7 +26,7 @@ internal static class ModelCodeUtil
         StringUtil.WriteTo(code, cs.WriteByte);
         cs.Flush();
 
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     internal static async Task CompressCode(Stream input, int chars, Stream output)
@@ -88,6 +88,6 @@ internal static class ModelCodeUtil
         using var output = new MemoryStream(1024);
         ds.CopyTo(output);
 
-        return output.GetBuffer();
+        return output.ToArray();
     }
 }

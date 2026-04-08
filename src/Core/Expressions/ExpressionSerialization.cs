@@ -82,8 +82,7 @@ public static class ExpressionSerialization
         }
 
         writer.SerializeExpression(expression);
-        var bytes = ms.GetBuffer();
-        jsonWriter.WriteBase64StringValue(bytes);
+        jsonWriter.WriteBase64StringValue(ms.GetBuffer().AsSpan(0, (int)ms.Length));
     }
 
     /// <summary>

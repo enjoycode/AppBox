@@ -7,6 +7,11 @@ namespace AppBoxDesign;
 /// </summary>
 public sealed class PublishPackage : IBinSerializable
 {
+    /// <summary>
+    /// 应用标识与名称的字典表
+    /// </summary>
+    public readonly Dictionary<int, string> Apps = new();
+
     public readonly List<ModelBase> Models = [];
 
     /// <summary>
@@ -15,19 +20,9 @@ public sealed class PublishPackage : IBinSerializable
     public readonly List<ModelFolder> Folders = [];
 
     /// <summary>
-    /// 新建或更新的模型的虚拟代码，Key=ModelId
-    /// </summary>
-    public readonly Dictionary<ModelId, string?> SourceCodes = new();
-
-    /// <summary>
     /// 新建或更新的编译好的服务组件, Key=xxx.XXXX Value=未压缩的字节码
     /// </summary>
     public readonly Dictionary<string, byte[]> ServiceAssemblies = new();
-
-    // /// <summary>
-    // /// 新建或更新的视图组件, Key=xxx.XXXX
-    // /// </summary>
-    // public readonly Dictionary<string, byte[]> ViewAssemblies = new();
 
     /// <summary>
     /// 根据引用依赖关系排序
@@ -37,11 +32,9 @@ public sealed class PublishPackage : IBinSerializable
         Models.Sort((a, b) =>
         {
             //先将标为删除的排在前面
-            if (a.PersistentState == PersistentState.Deleted
-                && b.PersistentState != PersistentState.Deleted)
+            if (a.PersistentState == PersistentState.Deleted && b.PersistentState != PersistentState.Deleted)
                 return -1;
-            if (a.PersistentState != PersistentState.Deleted
-                && b.PersistentState == PersistentState.Deleted)
+            if (a.PersistentState != PersistentState.Deleted && b.PersistentState == PersistentState.Deleted)
                 return 1;
             //后面根据类型及依赖关系排序
             if (a.ModelType != b.ModelType)
@@ -60,18 +53,18 @@ public sealed class PublishPackage : IBinSerializable
 
     public void WriteTo(IOutputStream ws)
     {
+        ws.WriteVariant(Apps.Count);
+        foreach (var kv in Apps)
+        {
+            ws.WriteInt(kv.Key);
+            ws.WriteString(kv.Value);
+        }
+
         ws.WriteVariant(Models.Count);
         ws.WriteCollection(typeof(ModelBase), Models.Count, i => Models[i]);
 
         ws.WriteVariant(Folders.Count);
         ws.WriteCollection(typeof(ModelFolder), Folders.Count, i => Folders[i]);
-
-        ws.WriteVariant(SourceCodes.Count);
-        foreach (var item in SourceCodes)
-        {
-            ws.WriteLong(item.Key);
-            ws.WriteString(item.Value);
-        }
 
         ws.WriteVariant(ServiceAssemblies.Count);
         foreach (var item in ServiceAssemblies)
@@ -86,6 +79,12 @@ public sealed class PublishPackage : IBinSerializable
         var count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
+            Apps.Add(rs.ReadInt(), rs.ReadString()!);
+        }
+
+        count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
+        {
             Models.Add((ModelBase)rs.Deserialize()!);
         }
 
@@ -93,12 +92,6 @@ public sealed class PublishPackage : IBinSerializable
         for (var i = 0; i < count; i++)
         {
             Folders.Add((ModelFolder)rs.Deserialize()!);
-        }
-
-        count = rs.ReadVariant();
-        for (var i = 0; i < count; i++)
-        {
-            SourceCodes.Add(rs.ReadLong(), rs.ReadString());
         }
 
         count = rs.ReadVariant();

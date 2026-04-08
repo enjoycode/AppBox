@@ -57,7 +57,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
             await DesignHub.Current.TypeSystem.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
-                var jsonReader = new Utf8JsonReader(ms.GetBuffer());
+                var jsonReader = new Utf8JsonReader(ms.GetBuffer().AsSpan(0, (int)ms.Length));
                 var ctx = new ReportDeserializeContext();
                 _report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader, ctx);
 

@@ -14,7 +14,7 @@ internal static class StagedService
     /// <summary>
     /// 加载暂存的模型代码，返回的是压缩过的
     /// </summary>
-    private static async Task LoadCodeDataAsync(Stream toStream, ModelId modelId)
+    internal static async Task LoadCodeDataAsync(Stream toStream, ModelId modelId)
     {
         var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 
@@ -39,13 +39,6 @@ internal static class StagedService
             await dataStream.CopyToAsync(toStream);
         }
 #endif
-    }
-
-    internal static async Task<byte[]?> LoadCodeDataAsync(ModelId modelId) //TODO: remove this
-    {
-        using var ms = new MemoryStream(2048);
-        await LoadCodeDataAsync(ms, modelId);
-        return ms.GetBuffer();
     }
 
     /// <summary>

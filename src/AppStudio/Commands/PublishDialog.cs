@@ -56,8 +56,6 @@ internal sealed class PublishDialog : Dialog
 
     private async void PublishAsync()
     {
-        //TODO: 保存所有尚未保存的内容，否则可能服务端保存的与本地不一致
-
         try
         {
             await Publish.Execute(_changes, "commit message");

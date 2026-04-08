@@ -83,6 +83,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
                     {
                         var change = new PendingChange();
                         change.Target = modelNode.Model;
+                        change.DesignNode = modelNode;
                         change.DisplayType = modelNode.Model.ModelType.ToString();
                         change.DisplayName = $"{modelNode.AppNode.Label.Value}.{modelNode.Model.Name}";
                         change.ChangeType = modelNode.Model.PersistentState == PersistentState.Detached
@@ -105,14 +106,15 @@ public sealed class DesignHub : IModelContainer, IDisposable
                             changes.Add(change);
                         }
                     }
-                    
                 }
                     break;
                 case DesignNodeType.ModelRootNode:
                 {
-                    var modelRootNode = (ModelRootNode)DesignTree.FindNode(DesignNodeType.ModelRootNode, checkout.TargetId)!;
+                    var modelRootNode =
+                        (ModelRootNode)DesignTree.FindNode(DesignNodeType.ModelRootNode, checkout.TargetId)!;
                     var change = new PendingChange();
                     change.Target = modelRootNode.RootFolder;
+                    change.DesignNode = modelRootNode;
                     change.DisplayType = "Folder";
                     change.DisplayName = $"{modelRootNode.Parent!.Label.Value}.{modelRootNode.Label.Value}";
                     change.ChangeType = PendingChangeType.Modified;
@@ -123,7 +125,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
                     throw new NotImplementedException(checkout.NodeType.ToString());
             }
         }
-        
+
         return changes;
     }
 
@@ -132,6 +134,9 @@ public sealed class DesignHub : IModelContainer, IDisposable
     public void ClearRemovedItems() => _removedItems.Clear();
 
     #region ====IModelContainer====
+
+    public IEnumerable<ApplicationModel> GetApplications()
+        => DesignTree.AppRootNode.Children.Select(n => n.Model);
 
     public ApplicationModel GetApplicationModel(int appId)
         => DesignTree.FindApplicationNode(appId)!.Model;

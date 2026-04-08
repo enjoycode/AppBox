@@ -487,34 +487,26 @@ public sealed class SqlMetaStore : IMetaStore
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
-        var pname = db.ParameterPrefix;
+        var pre = db.ParameterPrefix;
         var cmdTxt =
-            $"Insert Into {esc}sys.Meta{esc} (meta,id,model,data) Values ({metaType},'{id}',{modelType}, {pname}v)";
+            $"Insert Into {esc}sys.Meta{esc} (meta,id,model,data) Values ({metaType},'{id}',{modelType}, {pre}v)";
         if (append)
             cmd.CommandText += ";" + cmdTxt + ";";
         else
             cmd.CommandText = cmdTxt;
 
-        var vp = cmd.CreateParameter();
-        vp.ParameterName = $"{pname}v";
-        vp.DbType = System.Data.DbType.Binary;
-        vp.Value = data;
-        cmd.Parameters.Add(vp);
+        cmd.AddParameter($"{pre}v", DbType.Binary, data);
     }
 
     private static void BuildUpdateMetaCommand(DbCommand cmd, byte metaType, string id, byte[] data)
     {
         var db = SqlStore.Default;
         var esc = db.NameEscaper;
-        var pf = db.ParameterPrefix;
+        var pre = db.ParameterPrefix;
         cmd.CommandText =
-            $"Update {esc}sys.Meta{esc} Set data={pf}v Where meta={metaType} And id='{id}'";
+            $"Update {esc}sys.Meta{esc} Set data={pre}v Where meta={metaType} And id='{id}'";
 
-        var vp = cmd.CreateParameter();
-        vp.ParameterName = $"{pf}v";
-        vp.DbType = System.Data.DbType.Binary;
-        vp.Value = data;
-        cmd.Parameters.Add(vp);
+        cmd.AddParameter($"{pre}v", DbType.Binary, data);
     }
 
     private static void BuildDeleteMetaCommand(DbCommand cmd, byte metaType, string id)

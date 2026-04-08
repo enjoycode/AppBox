@@ -12,6 +12,8 @@ internal sealed class PendingChange
     /// </summary>
     public object? Target { get; set; }
 
+    public DesignNode? DesignNode { get; set; }
+
     /// <summary>
     /// eg: Entity or Folder
     /// </summary>

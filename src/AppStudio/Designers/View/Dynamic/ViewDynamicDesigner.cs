@@ -115,7 +115,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
             await DesignHub.Current.TypeSystem.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
-                _designController.Load(ms.GetBuffer());
+                _designController.Load(ms.GetBuffer().AsSpan(0, (int)ms.Length));
             }
         }
         catch (Exception e)
@@ -132,7 +132,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         using var writer = new Utf8JsonWriter(ms, new JsonWriterOptions() {Indented = true});
         _designController.Write(writer);
         writer.Flush();
-        var json = Encoding.UTF8.GetString(ms.GetBuffer());
+        var json = Encoding.UTF8.GetString(ms.GetBuffer().AsSpan(0, (int)ms.Length));
         Log.Debug(json);
     }
 #endif

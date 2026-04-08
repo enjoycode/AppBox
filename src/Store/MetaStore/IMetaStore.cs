@@ -116,7 +116,7 @@ public static class MetaStoreExtensions
         using var ms = new MemoryStream();
         await metaStore.LoadMetaDataAsync(ms, MetaType.META_CODE, viewModelId.ToString());
         if (ms.Length == 0) return null;
-        return ModelCodeUtil.DecompressCodeToUtf8Bytes(ms.GetBuffer());
+        return ModelCodeUtil.DecompressCodeToUtf8Bytes(ms.ToArray());
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ public static class MetaStoreExtensions
         using var ms = new MemoryStream();
         await metaStore.LoadMetaDataAsync(ms, (byte)MetaAssemblyType.ViewAssemblies, viewModelName);
         if (ms.Length == 0) return null;
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public static class MetaStoreExtensions
         using var ms = new MemoryStream();
         await metaStore.LoadMetaDataAsync(ms, (byte)MetaAssemblyType.ViewJS, viewName);
         if (ms.Length == 0) return null;
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public static class MetaStoreExtensions
         using var ms = new MemoryStream();
         await metaStore.LoadMetaDataAsync(ms, (byte)MetaAssemblyType.ClientApp, assemblyName);
         if (ms.Length == 0) return null;
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     /// <summary>
@@ -179,7 +179,7 @@ public static class MetaStoreExtensions
         using var ms = new MemoryStream();
         await metaStore.LoadMetaDataAsync(ms, (byte)assemblyType, serviceName);
         if (ms.Length == 0) return null;
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     /// <summary>

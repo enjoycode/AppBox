@@ -39,7 +39,7 @@ internal static class BuildViewPreview
         var emitResult = compilation.Emit(dllStream);
         CodeGeneratorUtil.CheckEmitResult(emitResult);
 
-        var asmData = dllStream.GetBuffer(); //TODO:考虑写临时文件并返回流
+        var asmData = dllStream.ToArray(); //TODO:考虑写临时文件并返回流
         return asmData;
     }
 

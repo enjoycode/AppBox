@@ -10,7 +10,7 @@ public static class MetaSerializer
         using var ms = new MemoryStream(128);
         var writer = new SystemWriteStream(ms);
         obj.WriteTo(writer);
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     public static T DeserializeMeta<T>(byte[] data, Func<T> creator) where T : IBinSerializable

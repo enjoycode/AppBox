@@ -56,7 +56,7 @@ public static class AppAssemblies
             await cs.CopyToAsync(output);
             cs.Flush();
 
-            _loader.AddAssemblyData(asmName, output.GetBuffer());
+            _loader.AddAssemblyData(asmName, output.ToArray());
         }
 
         //开始加载程序集

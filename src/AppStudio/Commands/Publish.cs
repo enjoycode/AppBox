@@ -12,17 +12,23 @@ internal static class Publish
     internal static async Task Execute(IList<PendingChange> changes, string commitMessage)
     {
         var hub = DesignHub.Current;
-        //将PendingChanges转为PublishPackage
+        //将PendingChanges转为PublishPackage, 并保存所有尚未保存的内容
         var package = new PublishPackage();
+        var apps = hub.GetApplications();
+        foreach (var app in apps)
+            package.Apps.Add(app.Id, app.Name);
         foreach (var change in changes)
         {
             switch (change.Target)
             {
                 case ModelBase model:
                     package.Models.Add(model);
+                    var modelNode = (ModelNode)change.DesignNode!;
+                    await modelNode.SaveAsync(null, 0); //TODO: check need save
                     break;
                 case ModelFolder folder:
                     package.Folders.Add(folder);
+                    //await DesignHub.Current.StagedService.SaveFolderAsync(folder); //TODO: check need save
                     break;
                 default:
                     Log.Warn($"Unknown pending change: {change.GetType()}");
@@ -120,13 +126,13 @@ internal static class Publish
             var emitOpts = new EmitOptions(false, DebugInformationFormat.Embedded);
             //using var pdbStream = new FileStream(Path.Combine(debugFolder, docName + ".pdb"), FileMode.CreateNew);
             emitResult = compilation.Emit(dllStream, null, null, null, null, emitOpts);
-            asmData = dllStream.GetBuffer();
+            asmData = dllStream.ToArray();
         }
         else
         {
             using var dllStream = new MemoryStream(1024);
             emitResult = compilation.Emit(dllStream);
-            asmData = dllStream.GetBuffer();
+            asmData = dllStream.ToArray();
         }
 
         CodeGeneratorUtil.CheckEmitResult(emitResult);

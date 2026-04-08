@@ -449,7 +449,7 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         var emitResult = compilation.Emit(dllStream);
         CodeGeneratorUtil.CheckEmitResult(emitResult);
 
-        _asmData = dllStream.GetBuffer();
+        _asmData = dllStream.ToArray();
     }
 
     public MetadataReference GetMetadataReference()
