@@ -328,7 +328,7 @@ internal static class PublishService
         //读取映射表
         var tempFilePath = Path.GetTempFileName();
         var tempFileStream = File.Open(tempFilePath, FileMode.Create, FileAccess.ReadWrite);
-        await stream.WriteToFile(tempFilePath);
+        await stream.WriteToStream(tempFileStream);
         tempFileStream.Seek(0, SeekOrigin.Begin);
 
         var viewAssemblyMap = new List<MapItem>();

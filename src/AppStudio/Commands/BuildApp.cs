@@ -463,7 +463,7 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
     public Stream CompressAssemblyData()
     {
         var output = new MemoryStream(1024);
-        using var zipStream = new DeflateStream(output, CompressionMode.Compress); //Blazor暂不支持Brotli
+        using var zipStream = new DeflateStream(output, CompressionMode.Compress, true); //Blazor暂不支持Brotli
         zipStream.Write(_asmData!);
         zipStream.Flush();
         output.Position = 0;
