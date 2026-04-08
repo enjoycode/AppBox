@@ -48,8 +48,6 @@ internal sealed class DesignService : IService
                 return AnyValue.From(await CheckoutService.CheckoutAsync(args.GetList<CheckoutInfo>()));
             case "StageLoadAll":
                 return AnyValue.From(await StagedService.LoadStagedAsync());
-            case "StageLoadChanges":
-                return AnyValue.From(await StagedService.LoadChangesAsync());
             case "StageLoadCode":
                 return AnyValue.From(await StagedService.DownloadCodeAsync(args.GetLong()!.Value));
             case "StageSaveModel":

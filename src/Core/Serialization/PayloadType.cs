@@ -58,7 +58,7 @@ namespace AppBoxCore
 
         CheckoutInfo = 66,
         CheckoutResult = 67,
-        PendingChange = 68,
+        //PendingChange = 68,
         PublishPackage = 69,
         DebugEventArgs = 70,
         DebugStartRequest = 71,

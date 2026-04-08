@@ -63,7 +63,7 @@ internal static class DeleteNode
         // 判断当前模型是否已持久化到数据库中
         if (model.PersistentState == PersistentState.Detached)
         {
-            //TODO: delete checkout
+            //TODO: should remove from checkouts
             await hub.StagedService.DeleteModelAsync(model.Id);
         }
         else

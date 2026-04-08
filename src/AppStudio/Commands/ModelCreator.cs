@@ -44,9 +44,11 @@ internal static class ModelCreator
         //设置文件夹
         if (parentNode is FolderNode folderNode)
             model.FolderId = folderNode.Folder.Id;
-        //设为签出状态
-        node.CheckoutInfo = new CheckoutInfo(node.Type, node.CheckoutTargetId, model.Version,
+        //设为签出状态，新建的同样加入签出列表，方便后续获取所有变更项
+        var checkout = new CheckoutInfo(node.Type, node.CheckoutTargetId, model.Version,
             hub.SessionName, hub.LeafOrgUnitId);
+        node.CheckoutInfo = checkout;
+        hub.DesignTree.AddCheckoutInfos(new List<CheckoutInfo>() { checkout });
 
         //保存至Staged
         var initSrcCode = initSrcCodeGen(appNode.Model.Name);

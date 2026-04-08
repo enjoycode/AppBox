@@ -66,8 +66,6 @@ internal sealed class MockStagedService : IStagedService
         return Task.FromResult(new StagedItems([]));
     }
 
-    public Task<IList<PendingChange>> LoadChangesAsync() => throw new NotImplementedException();
-
     public Task DownloadCodeAsync(Stream toStream, ModelId modelId) => throw new NotImplementedException();
 
     public Task SaveFolderAsync(ModelFolder folder) => throw new NotImplementedException();

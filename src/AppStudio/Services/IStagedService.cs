@@ -10,8 +10,6 @@ public interface IStagedService
     /// </summary>
     Task<StagedItems> LoadStagedAsync();
 
-    Task<IList<PendingChange>> LoadChangesAsync();
-
     Task DownloadCodeAsync(Stream toStream, ModelId modelId);
 
     Task SaveFolderAsync(ModelFolder folder);
@@ -124,10 +122,4 @@ public sealed class StagedItems
             }
         }
     }
-
-    // internal sealed class StagedSourceCode
-    // {
-    //     public ModelId ModelId;
-    //     public byte[] CodeData = null!;
-    // }
 }

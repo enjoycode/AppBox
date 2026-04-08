@@ -16,16 +16,13 @@ internal static class Publish
         var package = new PublishPackage();
         foreach (var change in changes)
         {
-            switch (change.Type)
+            switch (change.Target)
             {
-                case StagedType.Model:
-                    package.Models.Add((ModelBase)change.Target!);
+                case ModelBase model:
+                    package.Models.Add(model);
                     break;
-                case StagedType.Folder:
-                    package.Folders.Add((ModelFolder)change.Target!);
-                    break;
-                case StagedType.SourceCode:
-                    package.SourceCodes.Add(change.Id, await GetSourceCode(hub, change.Target as ModelNode));
+                case ModelFolder folder:
+                    package.Folders.Add(folder);
                     break;
                 default:
                     Log.Warn($"Unknown pending change: {change.GetType()}");
@@ -44,21 +41,6 @@ internal static class Publish
         hub.ClearRemovedItems();
     }
 
-    private static async ValueTask<string?> GetSourceCode(DesignHub hub, ModelNode? modelNode)
-    {
-        if (modelNode == null)
-            return null;
-
-        if (modelNode.Model is ViewModel { ViewType: ViewModelType.PixUIDynamic })
-            return null; //由服务端暂存
-        if (modelNode.Model is ReportModel)
-            return null; //由服务端暂存
-
-        var roslynDoc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
-        var source = await roslynDoc.GetTextAsync();
-        return source.ToString();
-    }
-
     private static void ValidateModels(DesignHub hub, PublishPackage package)
     {
         //TODO:
@@ -69,13 +51,10 @@ internal static class Publish
         foreach (var item in changes)
         {
             //以下重命名的已不需要加入待删除列表，保存模型时已处理
-            if (item.Type == StagedType.SourceCode &&
-                item.Target is ModelNode modelNode &&
-                modelNode.Model is ServiceModel sm &&
-                sm.PersistentState != PersistentState.Deleted)
+            if (item.Target is ServiceModel sm && sm.PersistentState != PersistentState.Deleted)
             {
                 var asmData = await CompileServiceAsync(hub, sm, false);
-                var appName = hub.DesignTree.FindApplicationNode(sm.Id.AppId)!.Model.Name;
+                var appName = hub.AppNameGetter(sm.Id.AppId);
                 var fullName = $"{appName}.{sm.Name}";
 
                 package.ServiceAssemblies.Add(fullName, asmData!);

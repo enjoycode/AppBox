@@ -345,8 +345,11 @@ public sealed class DesignTree
         //先判断是否新增的
         if (isNewNode)
         {
-            node.CheckoutInfo = new CheckoutInfo(node.Type, node.CheckoutTargetId, node.Version,
+            //新建的同样加入签出列表
+            var checkoutInfo = new CheckoutInfo(node.Type, node.CheckoutTargetId, node.Version,
                 DesignHub.SessionName, DesignHub.LeafOrgUnitId);
+            node.CheckoutInfo = checkoutInfo;
+            AddCheckoutInfos([checkoutInfo]);
             return;
         }
 
@@ -364,6 +367,12 @@ public sealed class DesignTree
             }
         }
     }
+
+    /// <summary>
+    /// 获取当前用户签出的所有节点
+    /// </summary>
+    internal IEnumerable<CheckoutInfo> GetAllCheckoutByMe() =>
+        _checkouts.Values.Where(c => c.DeveloperOuid == DesignHub.LeafOrgUnitId);
 
     /// <summary>
     /// 部署完后更新所有模型节点的状态，并移除待删除的节点

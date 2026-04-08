@@ -6,7 +6,7 @@ internal sealed class PublishDialog : Dialog
 {
     public PublishDialog()
     {
-        Width = 400;
+        Width = 500;
         Height = 300;
         Title.Value = "Publish";
     }
@@ -22,6 +22,7 @@ internal sealed class PublishDialog : Dialog
             Child = new DataGrid<PendingChange>(_dataGridController)
                 .AddTextColumn("Type", t => t.DisplayType)
                 .AddTextColumn("Name", t => t.DisplayName)
+                .AddTextColumn("Change", t => t.ChangeType.ToString())
         };
     }
 
@@ -32,18 +33,13 @@ internal sealed class PublishDialog : Dialog
         LoadChanges();
     }
 
-    private async void LoadChanges()
+    private void LoadChanges()
     {
-        //TODO: 保存所有尚未保存的内容，否则可能服务端保存的与本地不一致
-
         try
         {
             var hub = DesignHub.Current;
-            _changes = await hub.StagedService.LoadChangesAsync();
-            hub.ResolveChanges(_changes);
-            _dataGridController.DataSource = _changes
-                .Where(c => c.Type != StagedType.SourceCode)
-                .ToList();
+            _changes = hub.GetChanges();
+            _dataGridController.DataSource = _changes;
         }
         catch (Exception ex)
         {
@@ -60,6 +56,8 @@ internal sealed class PublishDialog : Dialog
 
     private async void PublishAsync()
     {
+        //TODO: 保存所有尚未保存的内容，否则可能服务端保存的与本地不一致
+
         try
         {
             await Publish.Execute(_changes, "commit message");

@@ -51,13 +51,13 @@ public sealed class DesignHub : IModelContainer, IDisposable
     internal readonly IPublishService PublishService;
 
     /// <summary>
-    /// 被标为删除的模型或其他,因获取服务端PendingChange无法解析已解删除的
+    /// 被标为删除的模型或其他,因获取服务端PendingChange无法解析已经删除的
     /// </summary>
     private readonly List<object> _removedItems = [];
 
     internal Func<int, string> AppNameGetter => appId => DesignTree.FindApplicationNode(appId)!.Model.Name;
 
-    internal Func<ModelId, ModelBase> ModelGetter => id => DesignTree.FindModelNode(id)!.Model;
+    //internal Func<ModelId, ModelBase> ModelGetter => id => DesignTree.FindModelNode(id)!.Model;
 
     public void Dispose()
     {
@@ -65,51 +65,66 @@ public sealed class DesignHub : IModelContainer, IDisposable
     }
 
     /// <summary>
-    /// 根据服务端返回的变更项查找对应的目标
+    /// 根据签出信息及删除信息获取变更项
     /// </summary>
-    public void ResolveChanges(IList<PendingChange> changes)
+    internal List<PendingChange> GetChanges()
     {
-        foreach (var change in changes)
+        var changes = new List<PendingChange>();
+
+        var checkouts = DesignTree.GetAllCheckoutByMe();
+        foreach (var checkout in checkouts)
         {
-            switch (change.Type)
+            switch (checkout.NodeType)
             {
-                case StagedType.Model:
+                case DesignNodeType.ModelNode:
                 {
-                    var modelNode = DesignTree.FindModelNode(change.Id);
+                    var modelNode = DesignTree.FindModelNode(checkout.TargetId);
                     if (modelNode != null)
                     {
+                        var change = new PendingChange();
                         change.Target = modelNode.Model;
                         change.DisplayType = modelNode.Model.ModelType.ToString();
                         change.DisplayName = $"{modelNode.AppNode.Label.Value}.{modelNode.Model.Name}";
+                        change.ChangeType = modelNode.Model.PersistentState == PersistentState.Detached
+                            ? PendingChangeType.Added
+                            : PendingChangeType.Modified;
+                        changes.Add(change);
                     }
-                    else //已被删除
+                    else
                     {
+                        //已被删除了,如果不是新建的加入变更列表
                         var removedModel = (ModelBase)_removedItems
-                            .Single(t => t is ModelBase m && m.Id == (ModelId)change.Id);
-                        change.Target = removedModel;
-                        change.DisplayType = removedModel.ModelType.ToString();
-                        change.DisplayName = $"{AppNameGetter(removedModel.AppId)}.{removedModel.Name}";
+                            .Single(t => t is ModelBase m && m.Id == (ModelId)checkout.TargetId);
+                        if (removedModel.PersistentState != PersistentState.Detached)
+                        {
+                            var change = new PendingChange();
+                            change.Target = removedModel;
+                            change.DisplayType = removedModel.ModelType.ToString();
+                            change.DisplayName = $"{AppNameGetter(removedModel.AppId)}.{removedModel.Name}";
+                            change.ChangeType = PendingChangeType.Deleted;
+                            changes.Add(change);
+                        }
                     }
+                    
                 }
-
                     break;
-                case StagedType.Folder:
-                    var modelRootNode = (ModelRootNode)DesignTree.FindNode(DesignNodeType.ModelRootNode, change.Id)!;
+                case DesignNodeType.ModelRootNode:
+                {
+                    var modelRootNode = (ModelRootNode)DesignTree.FindNode(DesignNodeType.ModelRootNode, checkout.TargetId)!;
+                    var change = new PendingChange();
                     change.Target = modelRootNode.RootFolder;
                     change.DisplayType = "Folder";
                     change.DisplayName = $"{modelRootNode.Parent!.Label.Value}.{modelRootNode.Label.Value}";
-                    break;
-                case StagedType.SourceCode:
-                {
-                    var modelNode = DesignTree.FindModelNode(change.Id);
-                    if (modelNode != null)
-                        change.Target = modelNode;
+                    change.ChangeType = PendingChangeType.Modified;
+                    changes.Add(change);
                 }
                     break;
                 default:
-                    throw new NotImplementedException(change.Type.ToString());
+                    throw new NotImplementedException(checkout.NodeType.ToString());
             }
         }
+        
+        return changes;
     }
 
     public void AddRemovedItem(object item) => _removedItems.Add(item);

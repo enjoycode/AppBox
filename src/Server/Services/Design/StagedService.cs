@@ -192,30 +192,6 @@ internal static class StagedService
     }
 
     /// <summary>
-    /// 用于发布时加载所有挂起的项目
-    /// </summary>
-    internal static async Task<IList<PendingChange>> LoadChangesAsync()
-    {
-        var developerId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
-
-#if FUTURE
-        var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
-        q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == developerID);
-#else
-        var q = new SqlQuery<StagedModel>(StagedModel.MODELID);
-        q.Where(t => t.F("DeveloperId") == developerId);
-#endif
-        var res = await q.ToListAsync(
-            r => new PendingChange()
-            {
-                Type = (StagedType)r.ReadIntMember(0),
-                Id = r.ReadStringMember(1)
-            },
-            t => [t.F("Type"), t.F("Model")]);
-        return res;
-    }
-
-    /// <summary>
     /// 发布时删除当前会话下所有挂起
     /// </summary>
     internal static async Task DeleteStagedAsync(System.Data.Common.DbTransaction txn)
