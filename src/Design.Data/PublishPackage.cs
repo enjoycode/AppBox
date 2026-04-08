@@ -20,16 +20,11 @@ public sealed class PublishPackage : IBinSerializable
     public readonly List<ModelFolder> Folders = [];
 
     /// <summary>
-    /// 新建或更新的编译好的服务组件, Key=xxx.XXXX Value=未压缩的字节码
-    /// </summary>
-    public readonly Dictionary<string, byte[]> ServiceAssemblies = new();
-
-    /// <summary>
     /// 根据引用依赖关系排序
     /// </summary>
     public void SortAllModels()
     {
-        Models.Sort((a, b) =>
+        Models.Sort(static (a, b) =>
         {
             //先将标为删除的排在前面
             if (a.PersistentState == PersistentState.Deleted && b.PersistentState != PersistentState.Deleted)
@@ -65,13 +60,6 @@ public sealed class PublishPackage : IBinSerializable
 
         ws.WriteVariant(Folders.Count);
         ws.WriteCollection(typeof(ModelFolder), Folders.Count, i => Folders[i]);
-
-        ws.WriteVariant(ServiceAssemblies.Count);
-        foreach (var item in ServiceAssemblies)
-        {
-            ws.WriteString(item.Key);
-            ws.Serialize(item.Value);
-        }
     }
 
     public void ReadFrom(IInputStream rs)
@@ -92,12 +80,6 @@ public sealed class PublishPackage : IBinSerializable
         for (var i = 0; i < count; i++)
         {
             Folders.Add((ModelFolder)rs.Deserialize()!);
-        }
-
-        count = rs.ReadVariant();
-        for (var i = 0; i < count; i++)
-        {
-            ServiceAssemblies.Add(rs.ReadString()!, (byte[])rs.Deserialize()!);
         }
     }
 }
