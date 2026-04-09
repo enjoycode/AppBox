@@ -33,6 +33,7 @@ public interface IAnyArgs
     Guid? GetGuid();
     string? GetString();
     object? GetObject();
+    T GetEnum<T>() where T : struct, Enum;
     T[]? GetArray<T>();
     IList<T>? GetList<T>();
 
@@ -81,6 +82,7 @@ public readonly struct EmptyArgs : IAnyArgs
     public Guid? GetGuid() => throw new NotSupportedException();
     public string GetString() => throw new NotSupportedException();
     public object GetObject() => throw new NotSupportedException();
+    public T GetEnum<T>() where T : struct, Enum => throw new NotSupportedException();
     public T[] GetArray<T>() => throw new NotSupportedException();
     public IList<T> GetList<T>() => throw new NotSupportedException();
 
@@ -282,6 +284,23 @@ public readonly struct StreamArgs : IAnyArgs
 
     public object? GetObject() => _inputStream.Deserialize();
 
+    public T GetEnum<T>() where T : struct, Enum
+    {
+        var payloadType = (PayloadType)_inputStream.ReadByte();
+        if (payloadType != PayloadType.Int32)
+            throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+
+        var intValue = _inputStream.ReadInt();
+        return Unsafe.SizeOf<T>() switch
+        {
+            sizeof(byte) => Unsafe.BitCast<byte, T>((byte)intValue),
+            sizeof(short) => Unsafe.BitCast<short, T>((short)intValue),
+            sizeof(int) => Unsafe.BitCast<int, T>(intValue),
+            // sizeof(ulong)  => Unsafe.BitCast<TEnum, ulong>(value),
+            _ => throw new InvalidCastException($"The size of {typeof(T)} is not supported."),
+        };
+    }
+
     /// <summary>
     /// 用于转换如Web前端封送的object[]数组
     /// </summary>
@@ -337,6 +356,7 @@ public readonly struct LocalArgs1 : IAnyArgs
     public Guid? GetGuid() => _value.GetGuid();
     public string? GetString() => (string?)_value.GetObject();
     public object? GetObject() => _value.GetObject();
+    public T GetEnum<T>() where T : struct, Enum => _value.GetEnum<T>();
     public T[]? GetArray<T>() => (T[]?)_value.GetObject();
     public IList<T>? GetList<T>() => (IList<T>?)_value.GetObject();
 }
@@ -372,6 +392,7 @@ public struct LocalArgs2 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
+    public T GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
     public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
     public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
 
@@ -415,6 +436,7 @@ public struct LocalArgs3 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
+    public T GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
     public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
     public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
 
@@ -460,6 +482,7 @@ public struct LocalArgs4 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
+    public T GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
     public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
     public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
 
@@ -507,6 +530,7 @@ public struct LocalArgs5 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
+    public T GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
     public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
     public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
 
