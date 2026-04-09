@@ -135,7 +135,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
         await jsonWriter.FlushAsync();
         ms.Position = 0;
         
-        await ModelNode.SaveAsync(ms, (int)ms.Length);
+        await ModelNode.SaveAsync(ms);
     }
 
     public Task RefreshAsync()

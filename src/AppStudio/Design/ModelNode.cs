@@ -82,7 +82,7 @@ public sealed class ModelNode : DesignNode
     /// <summary>
     /// 保存模型节点(包括相关代码)
     /// </summary>
-    public async Task SaveAsync(Stream? utf8CodeStream, int chars)
+    public async Task SaveAsync(Stream? utf8CodeStream)
     {
         if (!IsCheckoutByMe) throw new Exception("ModelNode has not checkout");
 
@@ -94,7 +94,7 @@ public sealed class ModelNode : DesignNode
         {
             if (utf8CodeStream != null)
             {
-                await hub.StagedService.SaveCodeAsync(Model.Id, utf8CodeStream, chars);
+                await hub.StagedService.SaveCodeAsync(Model.Id, utf8CodeStream);
             }
             else
             {
@@ -107,12 +107,11 @@ public sealed class ModelNode : DesignNode
 
                     var doc = typeSystem.Workspace.CurrentSolution.GetDocument(RoslynDocumentId)!;
                     var srcText = await doc.GetTextAsync();
-                    chars = srcText.Length;
                     srcText.Write(streamWriter);
 
                     await streamWriter.FlushAsync();
                     ms.Position = 0;
-                    await hub.StagedService.SaveCodeAsync(Model.Id, ms, chars);
+                    await hub.StagedService.SaveCodeAsync(Model.Id, ms);
 
                     //如果是非新建的服务模型需要更新服务代理(注意用utf8CodeStream判断是否刚创建的)
                     if (Model.ModelType == ModelType.Service)

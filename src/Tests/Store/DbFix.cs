@@ -82,4 +82,23 @@ public class DbFix
     //         }
     //     }
     // }
+
+    // [Test]
+    // public async Task RemoveCharsCountForMetaCode()
+    // {
+    //     var names = await MetaStore.Provider.LoadMetaNamesAsync(MetaType.META_CODE, null);
+    //     var db = SqlStore.Default;
+    //     var conn = db.MakeConnection();
+    //     await conn.OpenAsync();
+    //     var txn = await conn.BeginTransactionAsync();
+    //     foreach (var name in names)
+    //     {
+    //         using var ms = new  MemoryStream();
+    //         await MetaStore.Provider.LoadMetaDataAsync(ms, MetaType.META_CODE, name);
+    //         var data = ms.GetBuffer().AsSpan(4, (int)ms.Length - 4).ToArray();
+    //         ModelId id = name;
+    //         await MetaStore.Provider.UpsertModelCodeAsync(id, data, txn);
+    //     }
+    //     await txn.CommitAsync();
+    // }
 }

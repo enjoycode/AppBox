@@ -72,7 +72,7 @@ internal sealed class MockStagedService : IStagedService
 
     public Task SaveModelAsync(ModelBase model) => throw new NotImplementedException();
 
-    public Task SaveCodeAsync(ModelId modelId, Stream code, int chars) => throw new NotImplementedException();
+    public Task SaveCodeAsync(ModelId modelId, Stream code) => throw new NotImplementedException();
 
     public Task DeleteModelAsync(ModelId modelId) => throw new NotImplementedException();
 }

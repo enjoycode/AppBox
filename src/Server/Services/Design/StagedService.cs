@@ -64,7 +64,12 @@ internal static class StagedService
             $"{folder.AppId}-{(byte)folder.TargetModelType}" /*不要使用folder.Id*/, ms);
     }
 
-    internal static async Task SaveCodeAsync(IAsyncEnumerable<IBlobChunk> stream, ModelId modelId, int chars)
+    /// <summary>
+    /// 保存上传的代码
+    /// </summary>
+    /// <param name="stream">未压缩的utf8字节</param>
+    /// <param name="modelId"></param>
+    internal static async Task SaveCodeAsync(IAsyncEnumerable<IBlobChunk> stream, ModelId modelId)
     {
         var inputTempFilePath = Path.GetTempFileName();
         var inputTempFileStream = File.Open(inputTempFilePath, FileMode.Create, FileAccess.ReadWrite);
@@ -74,7 +79,7 @@ internal static class StagedService
             inputTempFileStream.Seek(0, SeekOrigin.Begin);
 
             using var outputStream = new MemoryStream(2048);
-            await ModelCodeUtil.CompressCode(inputTempFileStream, chars, outputStream);
+            await ModelCodeUtil.CompressCode(inputTempFileStream, outputStream);
             outputStream.Seek(0, SeekOrigin.Begin);
             await SaveAsync(StagedType.SourceCode, modelId.ToString(), outputStream);
         }

@@ -105,7 +105,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
             }
 
             //保存并更新虚拟代码
-            await ModelNode.SaveAsync(null, 0);
+            await ModelNode.SaveAsync(null);
             await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception ex)
@@ -126,7 +126,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
             _membersController.Remove(member);
 
             //保存并更新虚拟代码
-            await ModelNode.SaveAsync(null, 0);
+            await ModelNode.SaveAsync(null);
             await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception ex)
@@ -192,7 +192,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     public Task SaveAsync()
     {
-        return ModelNode.SaveAsync(null, 0);
+        return ModelNode.SaveAsync(null);
     }
 
     public Task RefreshAsync()

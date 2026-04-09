@@ -53,10 +53,8 @@ internal static class ModelCreator
         //保存至Staged
         var initSrcCode = initSrcCodeGen(appNode.Model.Name);
         Stream? codeStream = null;
-        int chars = 0;
         if (!string.IsNullOrEmpty(initSrcCode))
         {
-            chars = initSrcCode.Length;
             codeStream = new MemoryStream(512);
             await using var streamWriter = new StreamWriter(codeStream, leaveOpen: true);
             await streamWriter.WriteAsync(initSrcCode);
@@ -64,7 +62,7 @@ internal static class ModelCreator
             codeStream.Seek(0, SeekOrigin.Begin);
         }
 
-        await node.SaveAsync(codeStream, chars);
+        await node.SaveAsync(codeStream);
         //创建RoslynDocument
         await hub.TypeSystem.CreateModelDocumentAsync(node, initSrcCode);
 

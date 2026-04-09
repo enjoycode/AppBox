@@ -25,8 +25,8 @@ internal sealed class StagedService : IStagedService
     public Task SaveModelAsync(ModelBase model) =>
         Channel.Invoke("sys.DesignService.StageSaveModel", AnyValue.From(model));
 
-    public Task SaveCodeAsync(ModelId modelId, Stream code, int chars) =>
-        Channel.Upload("sys.DesignService.StageSaveCode", code, (long)modelId, chars);
+    public Task SaveCodeAsync(ModelId modelId, Stream code) =>
+        Channel.Upload("sys.DesignService.StageSaveCode", code, (long)modelId);
 
     public Task DeleteModelAsync(ModelId modelId) =>
         Channel.Invoke("sys.DesignService.StageDeleteModel", (long)modelId);

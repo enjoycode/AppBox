@@ -25,7 +25,7 @@ internal static class Publish
                 case ModelBase model:
                     package.Models.Add(model);
                     var modelNode = (ModelNode)change.DesignNode!;
-                    await modelNode.SaveAsync(null, 0); //TODO: check need save
+                    await modelNode.SaveAsync(null); //TODO: check need save
                     break;
                 case ModelFolder folder:
                     package.Folders.Add(folder);

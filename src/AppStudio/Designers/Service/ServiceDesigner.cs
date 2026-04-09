@@ -176,7 +176,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
 
     public Task SaveAsync()
     {
-        return ModelNode.SaveAsync(null, 0);
+        return ModelNode.SaveAsync(null);
     }
 
     public async Task RefreshAsync()

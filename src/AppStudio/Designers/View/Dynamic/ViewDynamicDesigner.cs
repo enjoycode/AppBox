@@ -145,7 +145,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         await writer.FlushAsync();
         ms.Seek(0, SeekOrigin.Begin);
 
-        await ModelNode.SaveAsync(ms, (int)ms.Length);
+        await ModelNode.SaveAsync(ms);
     }
 
     public Task RefreshAsync()

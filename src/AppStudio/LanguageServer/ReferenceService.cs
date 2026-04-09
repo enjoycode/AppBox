@@ -257,7 +257,7 @@ internal static class ReferenceService
                 throw new NotImplementedException();
         }
 
-        await sourceNode.SaveAsync(null, 0);
+        await sourceNode.SaveAsync(null);
         if (needUpdateSourceRoslyn)
             await hub.TypeSystem.UpdateModelDocumentAsync(sourceNode);
 
@@ -271,7 +271,7 @@ internal static class ReferenceService
     private static async Task FinishRenamedNode(ModelNode node)
     {
         //保存节点
-        await node.SaveAsync(null, 0);
+        await node.SaveAsync(null);
         //TODO: 是否需要更新引用者的RoslynDocument
     }
 
