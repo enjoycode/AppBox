@@ -113,40 +113,33 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICode
     {
         if (symbol == null) return null;
 
-        var attributes = symbol.GetAttributes();
-        foreach (var item in attributes)
-        {
-            if (item.AttributeClass != null && item.AttributeClass.ToString() ==
-                TypeHelper.InvocationInterceptorAttribute)
-            {
-                var key = item.ConstructorArguments[0].Value!.ToString();
-                if (!InvocationInterceptors.TryGetValue(key, out var interceptor))
-                    Log.Debug($"未能找到InvocationInterceptor: {key}");
-                return interceptor;
-            }
-        }
+        var attribute = symbol.GetAttributes()
+            .SingleOrDefault(a => a.AttributeClass != null &&
+                                  a.AttributeClass.ToString() == TypeHelper.InvocationInterceptorAttribute);
 
-        return null;
+        if (attribute == null) return null;
+
+        var key = attribute.ConstructorArguments[0].Value!.ToString();
+        if (string.IsNullOrEmpty(key)) return null;
+        if (!InvocationInterceptors.TryGetValue(key, out var interceptor))
+            Log.Debug($"Can't find InvocationInterceptor: {key}");
+        return interceptor;
     }
 
     private static IMemberAccessInterceptor<SyntaxNode>? GetMemberAccessInterceptor(ISymbol? symbol)
     {
         if (symbol == null) return null;
 
-        var attributes = symbol.GetAttributes();
-        foreach (var item in attributes)
-        {
-            if (item.AttributeClass != null && item.AttributeClass.ToString() ==
-                TypeHelper.MemberAccessInterceptorAttribute)
-            {
-                var key = item.ConstructorArguments[0].Value!.ToString();
-                if (!MemberAccessInterceptors.TryGetValue(key, out var interceptor))
-                    Log.Debug($"未能找到MemberAccessInterceptor: {key}");
-                return interceptor;
-            }
-        }
+        var attribute = symbol.GetAttributes()
+            .SingleOrDefault(a => a.AttributeClass != null &&
+                                  a.AttributeClass.ToString() == TypeHelper.MemberAccessInterceptorAttribute);
+        if (attribute == null) return null;
 
-        return null;
+        var key = attribute.ConstructorArguments[0].Value!.ToString();
+        if (string.IsNullOrEmpty(key)) return null;
+        if (!MemberAccessInterceptors.TryGetValue(key, out var interceptor))
+            Log.Debug($"Can't find MemberAccessInterceptor: {key}");
+        return interceptor;
     }
 
     #endregion
