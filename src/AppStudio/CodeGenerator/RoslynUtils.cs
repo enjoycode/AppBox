@@ -79,8 +79,12 @@ public static class RoslynExtensions
             return;
         }
 
-        if (typeSymbol.IsAppBoxEntity(findModel) || typeSymbol.IsAppBoxView(findModel))
-            addAction(typeSymbol.ToString());
+        if (typeSymbol.IsAppBoxEntity(findModel) ||
+            typeSymbol.IsAppBoxView(findModel) ||
+            typeSymbol.IsAppBoxEnum(findModel))
+        {
+            addAction(typeSymbol.ToString()!);
+        }
     }
 
     /// <summary>
@@ -89,6 +93,20 @@ public static class RoslynExtensions
     internal static bool IsAppBoxEntity(this ISymbol symbol, Func<string, bool> findModel)
     {
         if (symbol is INamedTypeSymbol typeSymbol && typeSymbol.ContainingNamespace.Name == "Entities")
+        {
+            var fullName = symbol.ToString();
+            return !string.IsNullOrEmpty(fullName) && findModel(fullName);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 是否AppBox枚举模型
+    /// </summary>
+    internal static bool IsAppBoxEnum(this ISymbol symbol, Func<string, bool> findModel)
+    {
+        if (symbol is INamedTypeSymbol typeSymbol && typeSymbol.ContainingNamespace.Name == "Enums")
         {
             var fullName = symbol.ToString();
             return !string.IsNullOrEmpty(fullName) && findModel(fullName);
@@ -122,9 +140,15 @@ public static class RoslynExtensions
         return TryGetAttribute(symbol, TypeHelper.InvocationInterceptorAttribute) != null;
     }
 
+    /// <summary>
+    /// 是否服务的上传方法
+    /// </summary>
     internal static bool IsServiceUploadMethod(this IMethodSymbol symbol) =>
         TryGetAttribute(symbol, TypeHelper.UploadMethodAttribute) != null;
 
+    /// <summary>
+    /// 是否服务的下载方法
+    /// </summary>
     internal static bool IsServiceDownloadMethod(this IMethodSymbol symbol) =>
         TryGetAttribute(symbol, TypeHelper.DownloadMethodAttribute) != null;
 

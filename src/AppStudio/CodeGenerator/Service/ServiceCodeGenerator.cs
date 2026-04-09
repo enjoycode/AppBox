@@ -47,17 +47,17 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICode
     #region ====Usages====
 
     /// <summary>
-    /// 服务模型使用到的实体模型
+    /// 服务模型使用到的实体模型、枚举模型
     /// </summary>
-    private readonly HashSet<string> _usedEntities = new();
+    private readonly HashSet<string> _usedModel = [];
 
-    internal void AddUsedEntity(string fullName) => _usedEntities.Add(fullName);
+    private void AddUsedModel(string fullName) => _usedModel.Add(fullName);
 
     /// <summary>
     /// 根据类型全名称查找是否模型
     /// </summary>
     /// <param name="fullName">eg: sys.Entities.Customer</param>
-    internal bool FindModel(string fullName)
+    private bool FindModel(string fullName)
     {
         var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(fullName);
         return modelNode != null;
@@ -68,15 +68,24 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICode
     /// </summary>
     internal IEnumerable<SyntaxTree>? GetUsagesTree()
     {
-        if (_usedEntities.Count == 0) return null;
+        if (_usedModel.Count == 0) return null;
 
         //开始生成依赖模型的运行时代码
         var ctx = new Dictionary<string, SyntaxTree>();
-        foreach (var usedEntity in _usedEntities)
+        foreach (var usedEntity in _usedModel)
         {
             var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(usedEntity)!;
-            CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx,
-                TypeSystem.ServiceParseOptions);
+            switch (modelNode.Model.ModelType)
+            {
+                case ModelType.Entity:
+                    CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx, TypeSystem.ServiceParseOptions);
+                    break;
+                case ModelType.Enum:
+                    CodeGeneratorUtil.BuildUsedEnum(DesignHub, modelNode, ctx, TypeSystem.ServiceParseOptions);
+                    break;
+                default:
+                    throw new NotImplementedException($"{modelNode.Model.ModelType}");
+            }
         }
 
         return ctx.Values;
@@ -84,7 +93,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICode
 
     bool ICodeGeneratorWithUsages.FindModel(string fullName) => FindModel(fullName);
 
-    void ICodeGeneratorWithUsages.AddUsedModel(string fullName) => AddUsedEntity(fullName);
+    void ICodeGeneratorWithUsages.AddUsedModel(string fullName) => AddUsedModel(fullName);
 
     ModelType ICodeGeneratorWithUsages.TargetModelType => ModelType.Service;
 

@@ -72,7 +72,7 @@ internal static class CodeGeneratorUtil
     internal static void BuildUsedEntity(DesignHub hub, ModelNode modelNode,
         IDictionary<string, SyntaxTree> ctx, CSharpParseOptions parseOptions)
     {
-        var fullName = $"{modelNode.AppNode.Model.Name}.Entities.{modelNode.Model.Name}";
+        var fullName = $"{modelNode.AppName}.Entities.{modelNode.Model.Name}";
         if (ctx.ContainsKey(fullName)) return;
 
         //处理自身
@@ -102,7 +102,27 @@ internal static class CodeGeneratorUtil
             var setModelNode = hub.DesignTree.FindModelNode(setModel.RefModelId)!;
             BuildUsedEntity(hub, setModelNode, ctx, parseOptions);
         }
-        //TODO:实体枚举成员的处理
+
+        //实体枚举成员的处理
+        var enumMembers = model.Members
+            .Where(m => m is EntityFieldMember { FieldType: EntityFieldType.Enum })
+            .Cast<EntityFieldMember>();
+        foreach (var m in enumMembers)
+        {
+            var enumModelNode = hub.DesignTree.FindModelNode(m.EnumModelId!.Value)!;
+            BuildUsedEnum(hub, enumModelNode, ctx, parseOptions);
+        }
+    }
+
+    internal static void BuildUsedEnum(DesignHub hub, ModelNode modelNode,
+        IDictionary<string, SyntaxTree> ctx, CSharpParseOptions parseOptions)
+    {
+        var fullName = $"{modelNode.AppName}.Enums.{modelNode.Model.Name}";
+        if (ctx.ContainsKey(fullName)) return;
+
+        var code = EnumCodeGenerator.GenEnumCode((EnumModel)modelNode.Model, modelNode.AppName);
+        var syntaxTree = SyntaxFactory.ParseSyntaxTree(code, parseOptions);
+        ctx.Add(fullName, syntaxTree);
     }
 
     private const string EmptyEntityFactories =

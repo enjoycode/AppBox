@@ -79,6 +79,8 @@ public sealed class ModelNode : DesignNode
         }
     }
 
+    public string AppName => AppNode.Model.Name;
+
     /// <summary>
     /// 保存模型节点(包括相关代码)
     /// </summary>

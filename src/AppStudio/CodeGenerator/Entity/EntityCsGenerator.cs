@@ -593,9 +593,22 @@ internal static class EntityCsGenerator
             EntityFieldType.Decimal => "decimal",
             EntityFieldType.Guid => "Guid",
             EntityFieldType.Binary => "byte[]",
+            EntityFieldType.Enum => GetEnumFullName(field),
             _ => throw new NotImplementedException(field.FieldType.ToString())
         };
         return field.AllowNull ? typeString + '?' : typeString;
+    }
+
+    private static string GetEnumFullName(EntityFieldMember field)
+    {
+        if (field.FieldType != EntityFieldType.Enum)
+            throw new NotSupportedException();
+        var enumModelId = field.EnumModelId!.Value;
+        var enumModelNode = DesignHub.Current.DesignTree.FindModelNode(enumModelId);
+        if (enumModelNode == null)
+            throw new Exception("Can't find enum model");
+
+        return $"{enumModelNode.AppName}.Enums.{enumModelNode.Model.Name}";
     }
 
     private static void GenSqlStoreGetMethod(SqlStoreOptions sqlStoreOptions, StringBuilder sb)

@@ -17,7 +17,7 @@ internal partial class ServiceCodeGenerator
             var modelTypeFullName = modelType.ToString();
             var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(modelTypeFullName)!;
             var model = (EntityModel)modelNode.Model;
-            AddUsedEntity(modelTypeFullName);
+            AddUsedModel(modelTypeFullName);
             if (typeArgs.Length == 1)
             {
                 var typeName = GetGenericTypeName(node.Type, toNoneGeneric);
