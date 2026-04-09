@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace AppBoxCore;
@@ -102,6 +103,21 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public object? GetObject() =>
         IsEmpty ? null : Type != AnyValueType.Object ? throw new InvalidOperationException() : ObjectValue;
 
+    public T GetEnum<T>() where T : struct, Enum
+    {
+        if (IsEmpty) throw new InvalidCastException("Value is null");
+        if (Type != AnyValueType.Int32) throw new InvalidCastException("Value can't cast to enum");
+
+        return Unsafe.SizeOf<T>() switch
+        {
+            sizeof(byte) => Unsafe.BitCast<byte, T>((byte)IntValue),
+            sizeof(short) => Unsafe.BitCast<short, T>((short)IntValue),
+            sizeof(int) => Unsafe.BitCast<int, T>(IntValue),
+            // sizeof(ulong)  => Unsafe.BitCast<TEnum, ulong>(value),
+            _ => throw new InvalidCastException($"The size of {typeof(T)} is not supported."),
+        };
+    }
+
     #endregion
 
     #region ====FromXXX Methods, 仅用于生成虚拟服务代码的IService接口====
@@ -147,6 +163,19 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     public static AnyValue From(object? v) =>
         v == null ? Empty : new() { ObjectValue = v, Type = AnyValueType.Object };
+
+    public static AnyValue From<T>(T v) where T : struct, Enum
+    {
+        var intValue = Unsafe.SizeOf<T>() switch
+        {
+            sizeof(byte) => Unsafe.BitCast<T, byte>(v),
+            sizeof(short) => Unsafe.BitCast<T, short>(v),
+            sizeof(int) => Unsafe.BitCast<T, int>(v),
+            // sizeof(ulong)  => Unsafe.BitCast<TEnum, ulong>(value),
+            _ => throw new InvalidCastException($"The size of {typeof(T)} is not supported."),
+        };
+        return new AnyValue() { IntValue = intValue, Type = AnyValueType.Int32 };
+    }
 
     public static AnyValue From(Action<IOutputStream> streamWriter) =>
         new() { ObjectValue = streamWriter, Type = AnyValueType.Stream };

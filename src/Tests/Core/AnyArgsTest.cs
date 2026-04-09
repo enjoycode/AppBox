@@ -5,6 +5,21 @@ namespace Tests.Core;
 
 public class AnyArgsTest
 {
+    private enum Gender : byte
+    {
+        Unknown = 0,
+        Male = 1,
+        Female = 2,
+    }
+
+    [Test]
+    public void AnyValueOfEnumTest()
+    {
+        var anyValue = AnyValue.From(Gender.Male);
+        var gender = anyValue.GetEnum<Gender>();
+        Assert.True(gender == Gender.Male);
+    }
+
     [Test]
     public void GetArrayTest()
     {
