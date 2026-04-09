@@ -121,7 +121,11 @@ internal partial class ServiceCodeGenerator
                 : $"args.GetEnum<{noneNullableType}>()!.Value";
         }
 
-        //TODO: Guid Type
+        //Guid type
+        if (noneNullableType.IsValueType && noneNullableType.ToString() == "System.Guid")
+        {
+            return isNullable ? "args.GetGuid()" : "args.GetGuid()!.Value";
+        }
 
         //特殊处理范型集合
         if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
