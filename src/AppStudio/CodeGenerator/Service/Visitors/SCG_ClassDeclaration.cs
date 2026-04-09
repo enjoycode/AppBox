@@ -2,6 +2,7 @@ using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Shared.Extensions;
 
 namespace AppBoxDesign;
 
@@ -87,6 +88,7 @@ internal partial class ServiceCodeGenerator
         //先判断是否Nullable<T>
         var isNullable = false;
         var specType = typeSymbol.SpecialType;
+        var noneNullableType = typeSymbol;
         if (typeSymbol.IsValueType && typeSymbol is INamedTypeSymbol
             {
                 IsGenericType: true, OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
@@ -94,6 +96,7 @@ internal partial class ServiceCodeGenerator
         {
             isNullable = true;
             specType = namedType.TypeArguments[0].SpecialType;
+            noneNullableType = namedType.TypeArguments[0];
         }
 
         switch (specType)
@@ -110,6 +113,14 @@ internal partial class ServiceCodeGenerator
             case SpecialType.System_String: return "args.GetString()";
         }
         
+        //Enum type
+        if (noneNullableType.TypeKind == TypeKind.Enum)
+        {
+            return isNullable
+                ? $"args.GetEnum<{noneNullableType}>()"
+                : $"args.GetEnum<{noneNullableType}>()!.Value";
+        }
+
         //TODO: Guid Type
 
         //特殊处理范型集合

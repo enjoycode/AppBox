@@ -1,3 +1,4 @@
+using AppBoxClient;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxStore;
@@ -9,6 +10,8 @@ public static class DesignHelper
 {
     internal static async Task<DesignHub> MockDesignHub()
     {
+        LocalFileSystem.Init(new OSFileSystem());
+
         var mockSession = ServerRuntimeHelper.MockUserSession();
         await DesignHub.InitAsync(
             mockSession.Name, mockSession.LeafOrgUnitId,

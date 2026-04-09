@@ -85,7 +85,7 @@ public class CodeGenerateTest
         const string serviceCode = """
                                    public sealed class OrderService
                                    {
-                                       public async Task<object?> IncludeTest()
+                                       public async Task<object?> IncludeTest(sys.Enums.Gender gender)
                                        {
                                            var q = new SqlQuery<sys.Entities.OrgUnit>();
                                            //q.Include(t => t.Parent);

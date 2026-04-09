@@ -48,6 +48,9 @@ internal struct UploadArgs : IAnyArgs
     public Guid? GetGuid() => _hasReadFirstArg ? _streamArgs.GetGuid() : throw new InvalidCastException();
     public string? GetString() => _hasReadFirstArg ? _streamArgs.GetString() : throw new InvalidCastException();
 
+    public T? GetEnum<T>() where T : struct, Enum =>
+        _hasReadFirstArg ? _streamArgs.GetEnum<T>() : throw new InvalidCastException();
+
     public object? GetObject()
     {
         if (!_hasReadFirstArg)

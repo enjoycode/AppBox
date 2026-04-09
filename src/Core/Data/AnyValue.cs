@@ -103,9 +103,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public object? GetObject() =>
         IsEmpty ? null : Type != AnyValueType.Object ? throw new InvalidOperationException() : ObjectValue;
 
-    public T GetEnum<T>() where T : struct, Enum
+    public T? GetEnum<T>() where T : struct, Enum
     {
-        if (IsEmpty) throw new InvalidCastException("Value is null");
+        if (IsEmpty) return null;
         if (Type != AnyValueType.Int32) throw new InvalidCastException("Value can't cast to enum");
 
         return Unsafe.SizeOf<T>() switch
@@ -176,6 +176,8 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         };
         return new AnyValue() { IntValue = intValue, Type = AnyValueType.Int32 };
     }
+
+    public static AnyValue From<T>(T? v) where T : struct, Enum => v.HasValue ? From(v.Value) : Empty;
 
     public static AnyValue From(Action<IOutputStream> streamWriter) =>
         new() { ObjectValue = streamWriter, Type = AnyValueType.Stream };
