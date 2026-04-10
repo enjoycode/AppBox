@@ -125,19 +125,18 @@ public static class CodeUtil
     /// <summary>
     /// 获取模型类型的复数名称
     /// </summary>
-    public static string GetPluralStringOfModelType(ModelType modelType) =>
-        modelType switch
-        {
-            ModelType.Enum => "Enums",
-            ModelType.Entity => "Entities",
-            ModelType.Event => "Events",
-            ModelType.Service => "Services",
-            ModelType.View => "Views",
-            ModelType.Workflow => "Workflows",
-            ModelType.Report => "Reports",
-            ModelType.Permission => "Permissions",
-            _ => throw new NotSupportedException()
-        };
+    public static string GetPluralStringOfModelType(ModelType modelType) => modelType switch
+    {
+        ModelType.Enum => "Enums",
+        ModelType.Entity => "Entities",
+        ModelType.Event => "Events",
+        ModelType.Service => "Services",
+        ModelType.View => "Views",
+        ModelType.Workflow => "Workflows",
+        ModelType.Report => "Reports",
+        ModelType.Permission => "Permissions",
+        _ => throw new NotSupportedException()
+    };
 
     public static ModelType GetModelTypeFromPluralString(ReadOnlySpan<char> typeName) =>
         typeName switch

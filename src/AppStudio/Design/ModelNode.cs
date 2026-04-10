@@ -125,4 +125,6 @@ public sealed class ModelNode : DesignNode
         //再保存模型元数据
         await hub.StagedService.SaveModelAsync(Model);
     }
+
+    public override string ToString() => $"{AppName}.{CodeUtil.GetPluralStringOfModelType(ModelType)}.{Model.Name}";
 }

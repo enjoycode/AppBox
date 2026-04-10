@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 using AppBoxClient;
 using AppBoxCore;
@@ -38,7 +39,7 @@ internal static class BuildApp
             //附加视图程序集依赖的实体程序集
             foreach (var viewModelNode in viewModels)
             {
-                await AddUsedEntitiesToViewAssembly(ctx, viewModelNode);
+                await AddUsedEntityAndEnumToViewAssembly(ctx, viewModelNode);
             }
 
             //构建视图模型所依赖的所有程序集(直接及间接的)，用于前端LazyLoad
@@ -101,7 +102,7 @@ internal static class BuildApp
         }
     }
 
-    private static async ValueTask AnalyseView(BuildContext ctx, ModelNode viewModelNode)
+    internal static async ValueTask AnalyseView(BuildContext ctx, ModelNode viewModelNode)
     {
         if (ctx.HasAssemblyInfo(viewModelNode.Model.Id, out _)) return;
 
@@ -146,10 +147,19 @@ internal static class BuildApp
         links.EndBuildLink();
 
         //处理当前视图引用的实体
-        var usedEntities = viewModelInfo.Usages.Where(n => n.Model.ModelType == ModelType.Entity);
-        foreach (var usedentity in usedEntities)
+        var usedEntities = viewModelInfo.Usages
+            .Where(n => n.Model.ModelType == ModelType.Entity);
+        foreach (var usedEntity in usedEntities)
         {
-            await AnalyseEntity(ctx, usedentity);
+            await AnalyseEntity(ctx, usedEntity);
+        }
+
+        //处理当前视图引用的枚举
+        var usedEnums = viewModelInfo.Usages
+            .Where(n => n.Model.ModelType == ModelType.Enum);
+        foreach (var usedEnum in usedEnums)
+        {
+            await ctx.GetOrMakeModelInfo(usedEnum);
         }
     }
 
@@ -204,30 +214,46 @@ internal static class BuildApp
         links.EndBuildLink();
     }
 
-    private static async ValueTask AddUsedEntitiesToViewAssembly(BuildContext ctx, ModelNode viewModelNode)
+    /// <summary>
+    /// 将视图模型使用到的Entity及Enum添加至依赖
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <param name="viewModelNode"></param>
+    internal static async ValueTask AddUsedEntityAndEnumToViewAssembly(BuildContext ctx, ModelNode viewModelNode)
     {
         var exists = ctx.HasAssemblyInfo(viewModelNode.Model.Id, out var viewAssemblyInfo);
         Debug.Assert(exists);
 
         var viewModelInfo = await ctx.GetOrMakeModelInfo(viewModelNode);
-        var usedEntities = viewModelInfo.Usages.Where(n => n.Model.ModelType == ModelType.Entity);
+        var usedEntities = viewModelInfo.Usages
+            .Where(n => n.Model.ModelType == ModelType.Entity);
         foreach (var usedEntity in usedEntities)
         {
             exists = ctx.HasAssemblyInfo(usedEntity.Model.Id, out var entityAssemblyInfo);
             Debug.Assert(exists);
 
-            viewAssemblyInfo.TryAddDependency(entityAssemblyInfo);
+            viewAssemblyInfo!.TryAddDependency(entityAssemblyInfo!);
+        }
+
+        var usedEnums = viewModelInfo.Usages
+            .Where(n => n.Model.ModelType == ModelType.Enum);
+        foreach (var usedEnum in usedEnums)
+        {
+            exists = ctx.HasAssemblyInfo(usedEnum.Model.Id, out var enumAssemblyInfo);
+            Debug.Assert(exists);
+
+            viewAssemblyInfo!.TryAddDependency(enumAssemblyInfo!);
         }
     }
 
-    private static void BuildViewAssemblyMap(BuildContext ctx, Dictionary<ModelNode, List<AssemblyInfo>> map,
+    internal static void BuildViewAssemblyMap(BuildContext ctx, Dictionary<ModelNode, List<AssemblyInfo>> map,
         ModelNode viewModelNode)
     {
         var exists = ctx.HasAssemblyInfo(viewModelNode.Model.Id, out var viewAssemblyInfo);
         Debug.Assert(exists);
 
         var all = new List<AssemblyInfo>();
-        RecursiveBuildViewAssemblies(viewAssemblyInfo, all);
+        RecursiveBuildViewAssemblies(viewAssemblyInfo!, all);
         map.Add(viewModelNode, all);
     }
 
@@ -248,16 +274,14 @@ internal sealed class BuildContext
 {
     public BuildContext(DesignHub hub)
     {
-        Hub = hub;
-        ModelsProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(hub.TypeSystem.ModelProjectId)!;
-        ViewsProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(hub.TypeSystem.ViewsProjectId)!;
+        _hub = hub;
+        _modelsProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(hub.TypeSystem.ModelProjectId)!;
     }
 
-    internal readonly DesignHub Hub;
-    internal readonly Project ViewsProject;
-    internal readonly Project ModelsProject;
+    private readonly DesignHub _hub;
+    private readonly Project _modelsProject;
 
-    private readonly Dictionary<ModelId, AssemblyInfo> _assemblyInfos = new();
+    private readonly Dictionary<ModelId, AssemblyInfo> _assemblyInfos = new(); //循环引用情况下不同的Model指向相同的Assembly
     private readonly Dictionary<ModelId, ModelInfo> _modelCache = new();
 
     private int _assemblyId = 0;
@@ -277,7 +301,7 @@ internal sealed class BuildContext
 
         if (modelNode.Model.ModelType == ModelType.Entity)
         {
-            var srcDocument = ModelsProject.GetDocument(modelNode.RoslynDocumentId!)!;
+            var srcDocument = _modelsProject.GetDocument(modelNode.RoslynDocumentId!)!;
             var semanticModel = await srcDocument.GetSemanticModelAsync();
             var usedModels = GetEntityUsages((EntityModel)modelNode.Model);
             var modelInfo = new ModelInfo(modelNode, semanticModel!.SyntaxTree, usedModels);
@@ -287,11 +311,25 @@ internal sealed class BuildContext
 
         if (modelNode.Model.ModelType == ModelType.View)
         {
-            var codegen = await ViewCsGenerator.Make(Hub, modelNode, false);
+            var codegen = await ViewCsGenerator.Make(_hub, modelNode, false);
             var newTree = await codegen.GetRuntimeSyntaxTree();
-            var usedModels = codegen.UsedModels.Select(fullName => Hub.DesignTree.FindModelNodeByFullName(fullName)!);
-            var modelInfo = new ModelInfo(modelNode, newTree, usedModels.ToList(), codegen.IsDynamicWidget);
+            var usedModels = codegen.UsedModels
+                .Select(fullName => _hub.DesignTree.FindModelNodeByFullName(fullName)!)
+                .ToList();
+            var modelInfo = new ModelInfo(modelNode, newTree, usedModels, codegen.IsDynamicWidget);
             _modelCache.Add(modelInfo.ModelId, modelInfo);
+            return modelInfo;
+        }
+
+        if (modelNode.Model.ModelType == ModelType.Enum)
+        {
+            var srcDocument = _modelsProject.GetDocument(modelNode.RoslynDocumentId!)!;
+            var semanticModel = await srcDocument.GetSemanticModelAsync();
+            var modelInfo = new ModelInfo(modelNode, semanticModel!.SyntaxTree, []);
+            _modelCache.Add(modelInfo.ModelId, modelInfo);
+            //直接加入AssemblyInfo
+            var assemblyInfo = new AssemblyInfo(MakeAssemblyId());
+            assemblyInfo.AddModel(modelInfo, this);
             return modelInfo;
         }
 
@@ -312,7 +350,7 @@ internal sealed class BuildContext
             foreach (var refModelId in entityRef.RefModelIds)
             {
                 if (refModelId == entityModel.Id || usages.Any(n => n.Model.Id == refModelId)) continue;
-                usages.Add(Hub.DesignTree.FindModelNode(refModelId)!);
+                usages.Add(_hub.DesignTree.FindModelNode(refModelId)!);
             }
         }
 
@@ -322,7 +360,7 @@ internal sealed class BuildContext
         foreach (var entitySet in entitySets)
         {
             if (entitySet.RefModelId == entityModel.Id || usages.Any(n => n.Model.Id == entitySet.RefModelId)) continue;
-            usages.Add(Hub.DesignTree.FindModelNode(entitySet.RefModelId)!);
+            usages.Add(_hub.DesignTree.FindModelNode(entitySet.RefModelId)!);
         }
 
         return usages;
@@ -386,10 +424,10 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         Id = id;
     }
 
-    private readonly List<ModelInfo> _modelInfos = new();
+    private readonly List<ModelInfo> _modelInfos = [];
     private byte[]? _asmData;
     public int Id { get; }
-    public List<AssemblyInfo> Dependencies { get; } = new();
+    public List<AssemblyInfo> Dependencies { get; } = [];
     public string AssemblyName => Id.ToString("X");
 
     /// <summary>
@@ -452,7 +490,7 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         _asmData = dllStream.ToArray();
     }
 
-    public MetadataReference GetMetadataReference()
+    private MetadataReference GetMetadataReference()
     {
         if (_asmData == null)
             TryCompile();
@@ -473,6 +511,21 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
     public bool Equals(AssemblyInfo? x, AssemblyInfo? y) => x?.Id == y?.Id;
 
     public int GetHashCode(AssemblyInfo obj) => Id;
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append(AssemblyName);
+        sb.Append('[');
+        for (var i = 0; i < _modelInfos.Count; i++)
+        {
+            if (i != 0) sb.Append(", ");
+            sb.Append(_modelInfos[i].ToString());
+        }
+
+        sb.Append(']');
+        return sb.ToString();
+    }
 }
 
 internal sealed class ModelInfo
@@ -495,6 +548,9 @@ internal sealed class ModelInfo
     public ModelId ModelId => ModelNode.Model.Id;
     public IList<ModelNode> Usages { get; }
     public SyntaxTree SyntaxTree { get; }
+
+    public override string ToString() =>
+        $"{ModelNode.AppName}.{CodeUtil.GetPluralStringOfModelType(ModelNode.Model.ModelType)}.{ModelNode.Model.Name}";
 }
 
 internal sealed class ModelLinks : List<ModelInfo>
