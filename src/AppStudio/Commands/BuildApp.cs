@@ -215,10 +215,8 @@ internal static class BuildApp
     }
 
     /// <summary>
-    /// 将视图模型使用到的Entity及Enum添加至依赖
+    /// 将视图模型直接使用到的Entity及Enum添加为依赖
     /// </summary>
-    /// <param name="ctx"></param>
-    /// <param name="viewModelNode"></param>
     internal static async ValueTask AddUsedEntityAndEnumToViewAssembly(BuildContext ctx, ModelNode viewModelNode)
     {
         var exists = ctx.HasAssemblyInfo(viewModelNode.Model.Id, out var viewAssemblyInfo);
@@ -284,7 +282,7 @@ internal sealed class BuildContext
     private readonly Dictionary<ModelId, AssemblyInfo> _assemblyInfos = new(); //循环引用情况下不同的Model指向相同的Assembly
     private readonly Dictionary<ModelId, ModelInfo> _modelCache = new();
 
-    private int _assemblyId = 0;
+    private int _assemblyId;
 
     internal int MakeAssemblyId() => Interlocked.Increment(ref _assemblyId);
 
@@ -327,7 +325,7 @@ internal sealed class BuildContext
             var semanticModel = await srcDocument.GetSemanticModelAsync();
             var modelInfo = new ModelInfo(modelNode, semanticModel!.SyntaxTree, []);
             _modelCache.Add(modelInfo.ModelId, modelInfo);
-            //直接加入AssemblyInfo
+            //Enum直接加入AssemblyInfo
             var assemblyInfo = new AssemblyInfo(MakeAssemblyId());
             assemblyInfo.AddModel(modelInfo, this);
             return modelInfo;
@@ -342,25 +340,27 @@ internal sealed class BuildContext
     {
         var usages = new List<ModelNode>();
 
-        var entityRefs = entityModel.Members
-            .Where(m => m.Type == EntityMemberType.EntityRef)
-            .Cast<EntityRefMember>();
-        foreach (var entityRef in entityRefs)
+        foreach (var member in entityModel.Members)
         {
-            foreach (var refModelId in entityRef.RefModelIds)
+            if (member is EntityRefMember entityRef)
             {
-                if (refModelId == entityModel.Id || usages.Any(n => n.Model.Id == refModelId)) continue;
-                usages.Add(_hub.DesignTree.FindModelNode(refModelId)!);
+                foreach (var refModelId in entityRef.RefModelIds)
+                {
+                    if (refModelId == entityModel.Id || usages.Any(n => n.Model.Id == refModelId)) continue;
+                    usages.Add(_hub.DesignTree.FindModelNode(refModelId)!);
+                }
             }
-        }
-
-        var entitySets = entityModel.Members
-            .Where(m => m.Type == EntityMemberType.EntitySet)
-            .Cast<EntitySetMember>();
-        foreach (var entitySet in entitySets)
-        {
-            if (entitySet.RefModelId == entityModel.Id || usages.Any(n => n.Model.Id == entitySet.RefModelId)) continue;
-            usages.Add(_hub.DesignTree.FindModelNode(entitySet.RefModelId)!);
+            else if (member is EntitySetMember entitySet)
+            {
+                if (entitySet.RefModelId == entityModel.Id ||
+                    usages.Any(n => n.Model.Id == entitySet.RefModelId)) continue;
+                usages.Add(_hub.DesignTree.FindModelNode(entitySet.RefModelId)!);
+            }
+            else if (member is EntityFieldMember { FieldType: EntityFieldType.Enum } entityField)
+            {
+                if (usages.Any(n => n.Model.Id == entityField.EnumModelId!.Value)) continue;
+                usages.Add(_hub.DesignTree.FindModelNode(entityField.EnumModelId!.Value)!);
+            }
         }
 
         return usages;
@@ -520,7 +520,7 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         for (var i = 0; i < _modelInfos.Count; i++)
         {
             if (i != 0) sb.Append(", ");
-            sb.Append(_modelInfos[i].ToString());
+            sb.Append(_modelInfos[i]);
         }
 
         sb.Append(']');
@@ -703,6 +703,6 @@ internal sealed class ModelLinks : List<ModelInfo>
         }
 
         prev?.TryAddDependency(assemblyInfo);
-        return assemblyInfo!;
+        return assemblyInfo;
     }
 }
