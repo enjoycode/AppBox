@@ -396,6 +396,8 @@ internal static class EntityCsGenerator
             sb.Append(": ws.Write");
             sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignHub));
             sb.Append("Member(id,");
+            if (member is EntityFieldMember { FieldType: EntityFieldType.Enum })
+                sb.Append("(int)");
             if (model.StoreOptions != null) sb.Append('_');
             sb.Append(member.Name);
             sb.Append(",flags);break;\n");
@@ -425,6 +427,8 @@ internal static class EntityCsGenerator
                 sb.Append('=');
             }
 
+            if (member is EntityFieldMember { FieldType: EntityFieldType.Enum } enumMember)
+                sb.Append($"({GetEnumFullName(enumMember)})");
             sb.Append("rs.Read");
             sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignHub));
             sb.Append("Member");
