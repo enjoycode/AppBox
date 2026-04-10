@@ -12,12 +12,12 @@ public sealed class BuildAppTest
         // var handler = new BuildApp(); 
         // await handler.Handle(designHub, AnyArgs.Make(true));
 
-        var ctx = new BuildContext(hub);
+        var ctx = new BuildAppContext(hub);
         var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
         var viewModelNode = hub.DesignTree.FindModelNodeByFullName("sys.Views.DemoAI")!;
 
         await BuildApp.AnalyseView(ctx, viewModelNode);
-        await BuildApp.AddUsedEntityAndEnumToViewAssembly(ctx, viewModelNode);
+        ctx.ResolveAssemblyDependencies();
         BuildApp.BuildViewAssemblyMap(ctx, viewAssemblyMap, viewModelNode);
         
         var allAssemblies = ctx.GetAllAssemblies();

@@ -17,46 +17,37 @@ internal static class BuildApp
 {
     internal static async Task Execute()
     {
-        //TODO:*****目前简单实现，待实现从HomePage的路由表开始分析引用关系，仅生成用到的模型的程序集
         //TODO:检查签出情况，如有其他签出返回警告
 
         var hub = DesignHub.Current;
-        var ctx = new BuildContext(hub);
+        var ctx = new BuildAppContext(hub);
         var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
 
-        for (var i = 0; i < hub.DesignTree.AppRootNode.Children.Count; i++)
+        //从HomePage的路由表开始分析引用关系，仅生成用到的模型的程序集
+        var homePage = hub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage");
+        if (homePage == null)
+            throw new Exception("Can't find HomePage");
+
+        //1.开始分析直接引用关系
+        await AnalyseView(ctx, homePage);
+
+        //2.解析所有程序集的依赖项
+        ctx.ResolveAssemblyDependencies();
+
+        //3.生成所有视图模型的依赖列表
+        foreach (var viewModelNode in ctx.GetAllViewModelNodes())
         {
-            var appNode = hub.DesignTree.AppRootNode.Children[i];
-            var viewRootNode = appNode.FindModelRootNode(ModelType.View);
-            var viewModels = viewRootNode.GetAllModelNodes()
-                .Where(n => ((ViewModel)n.Model).ViewType == ViewModelType.PixUI) //仅代码视图模型
-                .ToArray();
-            foreach (var viewModelNode in viewModels)
-            {
-                await AnalyseView(ctx, viewModelNode);
-            }
-
-            //附加视图程序集依赖的实体程序集
-            foreach (var viewModelNode in viewModels)
-            {
-                await AddUsedEntityAndEnumToViewAssembly(ctx, viewModelNode);
-            }
-
-            //构建视图模型所依赖的所有程序集(直接及间接的)，用于前端LazyLoad
-            foreach (var viewModelNode in viewModels)
-            {
-                BuildViewAssemblyMap(ctx, viewAssemblyMap, viewModelNode);
-            }
+            BuildViewAssemblyMap(ctx, viewAssemblyMap, viewModelNode);
         }
 
-        //编译所有程序集
+        //4.编译所有程序集
         var allAssemblies = ctx.GetAllAssemblies();
         foreach (var assemblyInfo in allAssemblies)
         {
             assemblyInfo.TryCompile();
         }
 
-        // 1.将编译好的组件上传至服务端保存
+        //5.将编译好的组件上传至服务端保存
         var isFirst = true;
         foreach (var assemblyInfo in allAssemblies)
         {
@@ -65,7 +56,7 @@ internal static class BuildApp
             isFirst = false;
         }
 
-        // 2.保存视图模型对应的所有程序集的映射
+        //6.保存视图模型对应的所有程序集的映射
         Stream? tempFileStream = null;
         string? tempFilePath = null;
         try
@@ -102,7 +93,7 @@ internal static class BuildApp
         }
     }
 
-    internal static async ValueTask AnalyseView(BuildContext ctx, ModelNode viewModelNode)
+    internal static async ValueTask AnalyseView(BuildAppContext ctx, ModelNode viewModelNode)
     {
         if (ctx.HasAssemblyInfo(viewModelNode.Model.Id, out _)) return;
 
@@ -116,7 +107,7 @@ internal static class BuildApp
         }
     }
 
-    private static async ValueTask RecursiveBuildViewLinks(BuildContext ctx, LinksContext links,
+    private static async ValueTask RecursiveBuildViewLinks(BuildAppContext ctx, LinksContext links,
         ModelInfo viewModelInfo)
     {
         //先判断是否存在循环引用
@@ -163,7 +154,7 @@ internal static class BuildApp
         }
     }
 
-    private static async ValueTask AnalyseEntity(BuildContext ctx, ModelNode entityModelNode)
+    private static async ValueTask AnalyseEntity(BuildAppContext ctx, ModelNode entityModelNode)
     {
         //分析引用关系转换为示例的链表结构的列表
         //eg: A -> B -> C [-> A]    头尾循环
@@ -183,7 +174,7 @@ internal static class BuildApp
         }
     }
 
-    private static async ValueTask RecursiveBuildEntityLinks(BuildContext ctx, LinksContext links,
+    private static async ValueTask RecursiveBuildEntityLinks(BuildAppContext ctx, LinksContext links,
         ModelInfo entityModelInfo)
     {
         //先判断是否存在循环引用
@@ -214,37 +205,7 @@ internal static class BuildApp
         links.EndBuildLink();
     }
 
-    /// <summary>
-    /// 将视图模型直接使用到的Entity及Enum添加为依赖
-    /// </summary>
-    internal static async ValueTask AddUsedEntityAndEnumToViewAssembly(BuildContext ctx, ModelNode viewModelNode)
-    {
-        var exists = ctx.HasAssemblyInfo(viewModelNode.Model.Id, out var viewAssemblyInfo);
-        Debug.Assert(exists);
-
-        var viewModelInfo = await ctx.GetOrMakeModelInfo(viewModelNode);
-        var usedEntities = viewModelInfo.Usages
-            .Where(n => n.Model.ModelType == ModelType.Entity);
-        foreach (var usedEntity in usedEntities)
-        {
-            exists = ctx.HasAssemblyInfo(usedEntity.Model.Id, out var entityAssemblyInfo);
-            Debug.Assert(exists);
-
-            viewAssemblyInfo!.TryAddDependency(entityAssemblyInfo!);
-        }
-
-        var usedEnums = viewModelInfo.Usages
-            .Where(n => n.Model.ModelType == ModelType.Enum);
-        foreach (var usedEnum in usedEnums)
-        {
-            exists = ctx.HasAssemblyInfo(usedEnum.Model.Id, out var enumAssemblyInfo);
-            Debug.Assert(exists);
-
-            viewAssemblyInfo!.TryAddDependency(enumAssemblyInfo!);
-        }
-    }
-
-    internal static void BuildViewAssemblyMap(BuildContext ctx, Dictionary<ModelNode, List<AssemblyInfo>> map,
+    internal static void BuildViewAssemblyMap(BuildAppContext ctx, Dictionary<ModelNode, List<AssemblyInfo>> map,
         ModelNode viewModelNode)
     {
         var exists = ctx.HasAssemblyInfo(viewModelNode.Model.Id, out var viewAssemblyInfo);
@@ -268,9 +229,9 @@ internal static class BuildApp
     }
 }
 
-internal sealed class BuildContext
+internal sealed class BuildAppContext
 {
-    public BuildContext(DesignHub hub)
+    public BuildAppContext(DesignHub hub)
     {
         _hub = hub;
         _modelsProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(hub.TypeSystem.ModelProjectId)!;
@@ -286,8 +247,11 @@ internal sealed class BuildContext
 
     internal int MakeAssemblyId() => Interlocked.Increment(ref _assemblyId);
 
-    internal void AddModelToAssembly(ModelId modelId, AssemblyInfo assemblyInfo) =>
-        _assemblyInfos.Add(modelId, assemblyInfo);
+    /// <summary>
+    /// 添加或更新模型对应的Assembly
+    /// </summary>
+    internal void AddOrUpdateModelToAssembly(ModelId modelId, AssemblyInfo assemblyInfo) =>
+        _assemblyInfos[modelId] = assemblyInfo;
 
     internal bool HasAssemblyInfo(ModelId modelId, [MaybeNullWhen(false)] out AssemblyInfo assemblyInfo) =>
         _assemblyInfos.TryGetValue(modelId, out assemblyInfo);
@@ -336,6 +300,9 @@ internal sealed class BuildContext
 
     internal ModelInfo GetModelInfo(ModelNode modelNode) => _modelCache[modelNode.Model.Id];
 
+    /// <summary>
+    /// 获取实体直接引用的其他实体及枚举
+    /// </summary>
     private List<ModelNode> GetEntityUsages(EntityModel entityModel)
     {
         var usages = new List<ModelNode>();
@@ -365,6 +332,29 @@ internal sealed class BuildContext
 
         return usages;
     }
+
+    /// <summary>
+    /// 解析所有Assembly的直接依赖
+    /// </summary>
+    internal void ResolveAssemblyDependencies()
+    {
+        foreach (var assemblyInfo in _assemblyInfos.Values)
+        {
+            foreach (var modelInfo in assemblyInfo.ModelInfos)
+            {
+                foreach (var usage in modelInfo.Usages)
+                {
+                    if (!_assemblyInfos.TryGetValue(usage.Model.Id, out var targetAssemblyInfo))
+                        throw new Exception($"Can't find [{usage.AppName}.{usage.Model.Name}]'s assembly");
+                    assemblyInfo.TryAddDependency(targetAssemblyInfo);
+                }
+            }
+        }
+    }
+
+    public IEnumerable<ModelNode> GetAllViewModelNodes() => _modelCache.Values
+        .Where(c => c.ModelNode.Model is ViewModel { ViewType: ViewModelType.PixUI })
+        .Select(c => c.ModelNode);
 
     public IList<AssemblyInfo> GetAllAssemblies() => _assemblyInfos.Values.Distinct().ToArray();
 }
@@ -430,21 +420,24 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
     public List<AssemblyInfo> Dependencies { get; } = [];
     public string AssemblyName => Id.ToString("X");
 
+    public IReadOnlyList<ModelInfo> ModelInfos => _modelInfos;
+
     /// <summary>
     /// 添加模型并更新BuildContext的字典表
     /// </summary>
-    public void AddModel(ModelInfo modelInfo, BuildContext ctx)
+    public void AddModel(ModelInfo modelInfo, BuildAppContext ctx)
     {
         _modelInfos.Add(modelInfo);
-        ctx.AddModelToAssembly(modelInfo.ModelId, this);
+        ctx.AddOrUpdateModelToAssembly(modelInfo.ModelId, this);
     }
 
     public bool Contains(ModelId modelId) => _modelInfos.Any(m => m.ModelId == modelId);
 
-    public void TryAddDependency(AssemblyInfo used)
+    public void TryAddDependency(AssemblyInfo dependency)
     {
-        if (!Dependencies.Exists(a => a.Id == used.Id))
-            Dependencies.Add(used);
+        if (dependency == this) return;
+        if (!Dependencies.Exists(a => a.Id == dependency.Id))
+            Dependencies.Add(dependency);
     }
 
     public void TryCompile()
@@ -495,7 +488,8 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
         if (_asmData == null)
             TryCompile();
 
-        return MetadataReference.CreateFromStream(new MemoryStream(_asmData!));
+        using var ms = new MemoryStream(_asmData!);
+        return MetadataReference.CreateFromStream(ms);
     }
 
     public Stream CompressAssemblyData()
@@ -546,7 +540,12 @@ internal sealed class ModelInfo
     internal readonly bool IsDynamicWidget;
 
     public ModelId ModelId => ModelNode.Model.Id;
+
+    /// <summary>
+    /// 直接引用的其他模型
+    /// </summary>
     public IList<ModelNode> Usages { get; }
+
     public SyntaxTree SyntaxTree { get; }
 
     public override string ToString() =>
@@ -618,7 +617,7 @@ internal sealed class ModelLinks : List<ModelInfo>
         return clone;
     }
 
-    public void BuildAssemblyInfos(BuildContext ctx)
+    public void BuildAssemblyInfos(BuildAppContext ctx)
     {
         if (_circleRefs == null || _circleRefs.Count == 0)
         {
@@ -645,7 +644,7 @@ internal sealed class ModelLinks : List<ModelInfo>
             BuildOpenLinks(ctx, index, Count - 1, prev);
     }
 
-    private AssemblyInfo BuildOpenLinks(BuildContext ctx, int from, int to, AssemblyInfo? prev)
+    private AssemblyInfo BuildOpenLinks(BuildAppContext ctx, int from, int to, AssemblyInfo? prev)
     {
         for (var i = from; i <= to; i++)
         {
@@ -656,7 +655,7 @@ internal sealed class ModelLinks : List<ModelInfo>
                 //调用者已处理了 A -> B -> C
                 //现在处理      A -> B -> D 中的B,那么需要继续处理D以合并B依赖的D
 
-                prev?.TryAddDependency(exists);
+                // prev?.TryAddDependency(exists);
                 prev = exists;
                 continue;
             }
@@ -664,14 +663,14 @@ internal sealed class ModelLinks : List<ModelInfo>
             var current = new AssemblyInfo(ctx.MakeAssemblyId());
             current.AddModel(modelInfo, ctx);
 
-            prev?.TryAddDependency(current);
+            // prev?.TryAddDependency(current);
             prev = current;
         }
 
         return prev!;
     }
 
-    private AssemblyInfo BuildCloseLinks(BuildContext ctx, CircleRef circle, AssemblyInfo? prev)
+    private AssemblyInfo BuildCloseLinks(BuildAppContext ctx, CircleRef circle, AssemblyInfo? prev)
     {
         //先判断是否在之前已处理的循环引用内
         AssemblyInfo? assemblyInfo = null;
@@ -702,7 +701,7 @@ internal sealed class ModelLinks : List<ModelInfo>
             }
         }
 
-        prev?.TryAddDependency(assemblyInfo);
+        // prev?.TryAddDependency(assemblyInfo);
         return assemblyInfo;
     }
 }
