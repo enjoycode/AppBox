@@ -65,13 +65,14 @@ export let PixUI = {
             'renderViaOffscreenBackBuffer': 0,
         }
         contextAttributes['majorVersion'] = (typeof WebGL2RenderingContext !== 'undefined') ? 2 : 1
-        let handle = Module.GL.createContext(this._htmlCanvas, contextAttributes)
+        let gl = globalThis.Blazor.runtime.Module.GL;
+        let handle = gl.createContext(this._htmlCanvas, contextAttributes)
         if (handle) {
-            Module.GL.makeContextCurrent(handle)
-            Module.GL.currentContext.GLctx.getExtension('WEBGL_debug_renderer_info')
+            gl.makeContextCurrent(handle)
+            gl.currentContext.GLctx.getExtension('WEBGL_debug_renderer_info')
             //https://github.com/dotnet/runtime/issues/76077
-            window.GL = Module.GL
-            window.GLctx = Module.GL.currentContext.GLctx
+            globalThis.GL = gl
+            globalThis.GLctx = gl.currentContext.GLctx
         } else {
             //TODO: fallback to software surface
             alert("Can't use gpu")
@@ -209,17 +210,76 @@ export let PixUI = {
         return await navigator.clipboard.readText()
     },
 
-    Run: async function (asmName, args) {
-        this._asmName = asmName;
+    OpenFile: async function (multiple, accept) {
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.multiple = multiple
+        input.accept = accept
 
+        // See https://stackoverflow.com/questions/47664777/javascript-file-input-onchange-not-working-ios-safari-only
+        Object.assign(input.style, {
+            position: 'fixed',
+            top: '-100000px',
+            left: '-100000px'
+        })
+
+        document.body.appendChild(input)
+
+        await new Promise(resolve => {
+            input.addEventListener('change', resolve, {once: true})
+            input.click()
+        })
+        input.remove()
+
+        let results = []
+        if (input.files) {
+            for (let i = 0; i < input.files.length; i++) {
+                results.push({
+                    FileName: input.files[i].name,
+                    FileSize: input.files[i].size,
+                    FileStream: DotNet.createJSStreamReference(input.files[i])
+                })
+            }
+        }
+        return results
+    },
+
+    SaveFile: async function (fileName, streamRef) {
+        //https://github.com/jimmywarting/native-file-system-adapter/blob/master/src/adapters/downloader.js
+        //https://stackoverflow.com/questions/77427123/javascript-open-save-as-dialog-box-and-store-content
+        const data = await streamRef.arrayBuffer()
+        const blob = new Blob([data], {type: 'application/octet-stream; charset=utf-8'})
+
+        const link = document.createElement('a')
+        link.download = fileName
+        link.href = URL.createObjectURL(blob)
+        link.click()
+        setTimeout(() => URL.revokeObjectURL(link.href), 10000)
+    },
+
+    Init: function () {
         this.CreateCanvas()
         this.CreateInput()
-        let glHandel = this.GetGLContext()
+    },
+
+    BeforeRunApp: function () {
+        this._asmName = Blazor.runtime.getConfig().mainAssemblyName
+        // let wsp = document.location.protocol.startsWith("https") ? "wss://" : "ws://"
+        // let wsUrl = wsp + document.location.host + "/ws"
+        let wsUrl = "ws://localhost:5000/ws"
+
+        let glHandle = this.GetGLContext()
         let routePath = document.location.hash.length > 0 ? document.location.hash.substring(1) : null
         let isMacOS = navigator.userAgent.includes("Mac")
-        await DotNet.invokeMethodAsync(this._asmName, "Run", glHandel, 
-            window.innerWidth, window.innerHeight, window.devicePixelRatio, routePath, isMacOS, ...args)
-        this.BindEvents()
+        return {
+            GlHandle: glHandle,
+            Width: window.innerWidth,
+            Height: window.innerHeight,
+            PixelRatio: window.devicePixelRatio,
+            RoutePath: routePath,
+            IsMacOS: isMacOS,
+            WsUrl: wsUrl,
+        }
     }
 
 }
