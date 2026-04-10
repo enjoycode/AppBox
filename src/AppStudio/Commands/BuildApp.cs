@@ -52,6 +52,7 @@ internal static class BuildApp
         foreach (var assemblyInfo in allAssemblies)
         {
             await using var assemblyStream = assemblyInfo.CompressAssemblyData();
+            assemblyStream.Position = 0;
             await hub.PublishService.UploadAppAssembly(assemblyStream, assemblyInfo.AssemblyName, isFirst);
             isFirst = false;
         }
@@ -494,11 +495,10 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
 
     public Stream CompressAssemblyData()
     {
-        var output = new MemoryStream(1024);
+        var output = new MemoryStream(2048);
         using var zipStream = new DeflateStream(output, CompressionMode.Compress, true); //Blazor暂不支持Brotli
         zipStream.Write(_asmData!);
         zipStream.Flush();
-        output.Position = 0;
         return output;
     }
 
