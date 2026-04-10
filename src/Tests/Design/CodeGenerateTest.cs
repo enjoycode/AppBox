@@ -62,10 +62,11 @@ public class CodeGenerateTest
                                 {
                                     private async void OnClick()
                                     {
-                                        System.IO.Stream uploadStream = null!;
-                                        await sys.Services.OrderService.Hello1(uploadStream, "aa");
-                                        System.IO.Stream downloadStream = null!;
-                                        await sys.Services.OrderService.DownloadTest(downloadStream, "aa");
+                                        var gender = sys.Enums.Gender.Male;
+                                        //System.IO.Stream uploadStream = null!;
+                                        //await sys.Services.OrderService.Hello1(uploadStream, "aa");
+                                        //System.IO.Stream downloadStream = null!;
+                                        //await sys.Services.OrderService.DownloadTest(downloadStream, "aa");
                                     }
                                 }
                                 """;

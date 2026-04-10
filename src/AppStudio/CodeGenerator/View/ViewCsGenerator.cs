@@ -113,23 +113,23 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
 
             if (ctx.ContainsKey(usedModel)) continue;
 
-            if (modelType == ModelType.Entity)
+            switch (modelType)
             {
-                CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx, parseOpts);
-            }
-            else if (modelType == ModelType.View)
-            {
-                var codeGen = await Make(DesignHub, modelNode, _forPreview);
-                ctx.Add(usedModel, await codeGen.GetRuntimeSyntaxTree());
-                await codeGen.BuildUsages(ctx);
-            }
-            else if (modelType == ModelType.Enum)
-            {
-                throw new NotImplementedException("未实现生成枚举模型的运行时代码");
-            }
-            else
-            {
-                throw new NotSupportedException(modelType.ToString());
+                case ModelType.Entity:
+                    CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx, parseOpts);
+                    break;
+                case ModelType.View:
+                {
+                    var codeGen = await Make(DesignHub, modelNode, _forPreview);
+                    ctx.Add(usedModel, await codeGen.GetRuntimeSyntaxTree());
+                    await codeGen.BuildUsages(ctx);
+                    break;
+                }
+                case ModelType.Enum:
+                    CodeGeneratorUtil.BuildUsedEnum(DesignHub, modelNode, ctx, parseOpts);
+                    break;
+                default:
+                    throw new NotSupportedException(modelType.ToString());
             }
         }
     }

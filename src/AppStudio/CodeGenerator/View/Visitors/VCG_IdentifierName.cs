@@ -11,8 +11,9 @@ internal partial class ViewCsGenerator
     {
         var symbol = SemanticModel.GetSymbolInfo(node).Symbol;
         //判断是否实体模型或视图模型，是则加入引用列表
-        if (symbol != null && (symbol.IsAppBoxEntity(FindModel) || symbol.IsAppBoxView(FindModel)))
-            AddUsedModel(symbol.ToString());
+        if (symbol != null && (symbol.IsAppBoxEntity(FindModel) || symbol.IsAppBoxView(FindModel) ||
+                               symbol.IsAppBoxEnum(FindModel)))
+            AddUsedModel(symbol.ToString()!);
         //判断是否响应实体类，是则转换eg: RxEmployee转换为RxEntity<Employee>并加入引用列表
         if (symbol != null && IsRxEntity(symbol, out var entityFullName))
         {
