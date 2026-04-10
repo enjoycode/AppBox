@@ -24,12 +24,20 @@ internal static class NewEntityMember
     }
 
     internal static EntityFieldMember NewEntityField(ModelNode node, string memberName,
-        EntityFieldType fieldType, bool allowNull)
+        EntityFieldType fieldType, bool allowNull, ModelId? enumModelId = null)
     {
         Validate(node, memberName);
 
         var model = (EntityModel)node.Model;
         var field = new EntityFieldMember(model, memberName, fieldType, allowNull);
+        if (fieldType == EntityFieldType.Enum)
+        {
+            if (enumModelId.HasValue)
+                field.EnumModelId = enumModelId.Value;
+            else
+                throw new Exception("Enum field must assign EnumModel");
+        }
+
         model.AddMember(field);
         //TODO:默认值处理
         return field;

@@ -12,22 +12,23 @@ internal sealed class NewEntityMemberDialog : Dialog
     {
         _modelNode = modelNode;
         Width = 380;
-        Height = 280;
+        Height = 300;
         Title.Value = "New Entity Member";
     }
 
     private static readonly string[] MemberTypes = ["EntityField", "EntityRef", "EntitySet", "EntityRefField"];
 
     private static readonly string[] FieldTypes =
-        ["String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Binary"];
+        ["String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Enum", "Binary"];
 
     private readonly ModelNode _modelNode;
     private readonly State<string> _name = string.Empty;
     private readonly State<bool> _allowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
-    private readonly State<ModelNode?> _entityRefTarget = new RxValue<ModelNode?>(null);
-    private readonly State<EntityMemberInfo?> _entitySetTarget = new RxValue<EntityMemberInfo?>(null);
+    private readonly State<ModelNode?> _entityRefTarget = State<ModelNode?>.Default();
+    private readonly State<EntityMemberInfo?> _entitySetTarget = State<EntityMemberInfo?>.Default();
+    private readonly State<ModelNode?> _enumTarget = State<ModelNode?>.Default();
     private readonly State<string> _refFieldPath = "";
 
     protected override Widget BuildBody() => new Container()
@@ -59,6 +60,13 @@ internal sealed class NewEntityMemberDialog : Dialog
                         {
                             new FormItem("FieldType:",
                                 new Select<string>(_fieldType!) { Options = FieldTypes }),
+                            new FormItem("EnumModel:",
+                                new Select<ModelNode>(_enumTarget)
+                                {
+                                    Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Enum),
+                                    LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
+                                }
+                            ),
                             new FormItem("AllowNull:", new Checkbox(_allowNull))
                         }
                     })
@@ -125,6 +133,7 @@ internal sealed class NewEntityMemberDialog : Dialog
         "Bool" => (int)EntityFieldType.Bool,
         "DateTime" => (int)EntityFieldType.DateTime,
         "Guid" => (int)EntityFieldType.Guid,
+        "Enum" => (int)EntityFieldType.Enum,
         "Binary" => (int)EntityFieldType.Binary,
         _ => throw new NotImplementedException()
     };
@@ -143,7 +152,7 @@ internal sealed class NewEntityMemberDialog : Dialog
             EntityMemberType.EntityField =>
             [
                 NewEntityMember.NewEntityField(_modelNode, _name.Value,
-                    (EntityFieldType)GetFieldTypeValue(), _allowNull.Value)
+                    (EntityFieldType)GetFieldTypeValue(), _allowNull.Value, _enumTarget.Value?.Model.Id)
             ],
             EntityMemberType.EntityRef => NewEntityMember.NewEntityRef(_modelNode, _name.Value,
                 GetRefModelIds(), _allowNull.Value),

@@ -34,7 +34,16 @@ public sealed class EntityFieldMember : EntityMember
     public bool IsForeignKey { get; private set; }
 
     public EntityFieldType FieldType => _fieldType;
-    public ModelId? EnumModelId => _enumModelId;
+
+    public ModelId? EnumModelId
+    {
+        get => _enumModelId;
+        set
+        {
+            _enumModelId = value;
+            OnPropertyChanged();
+        }
+    }
 
     public int Length
     {
