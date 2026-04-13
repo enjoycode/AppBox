@@ -26,37 +26,35 @@ internal sealed class MainMenuPad : View
 
     private readonly Color _bgColor = new(43, 49, 56);
 
-    private static MenuItem[] BuildMenuItems(Commands cmds)
-    {
-        return
-        [
-            MenuItem.SubMenu("DataStore", MaterialIcons.Dns, [
-                MenuItem.Item("Add DataStore", null, cmds.NotImplCommand),
-                MenuItem.Item("Remove DataStore", null, cmds.NotImplCommand)
-            ]),
-            MenuItem.SubMenu("New", MaterialIcons.CreateNewFolder, [
-                MenuItem.Item("Application", MaterialIcons.Widgets, cmds.NotImplCommand),
-                MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NewFolderCommand),
-                MenuItem.Item("Entity", MaterialIcons.TableChart, cmds.NewEntityCommand),
-                MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand),
-                MenuItem.Item("View", MaterialIcons.Wysiwyg, cmds.NewViewCommand),
-                MenuItem.Item("Report", MaterialIcons.PieChart, cmds.NewReportCommand),
-                MenuItem.Item("Enum", MaterialIcons.ViewList, cmds.NewEnumCommand),
-                MenuItem.Item("Permission", MaterialIcons.Lock, cmds.NewPermissionCommand)
-            ]),
-            MenuItem.SubMenu("Models", MaterialIcons.Widgets, [
-                MenuItem.Item("Save", MaterialIcons.Save, cmds.SaveCommand),
-                MenuItem.Item("Checkout", MaterialIcons.CheckCircle, cmds.CheckoutCommand),
-                MenuItem.Item("Rename", MaterialIcons.DriveFileRenameOutline, cmds.RenameCommand),
-                MenuItem.Item("Delete", MaterialIcons.DeleteForever, cmds.DeleteCommand),
-                MenuItem.Item("Publish", MaterialIcons.Publish, cmds.PublishCommand)
-            ]),
-            MenuItem.SubMenu("Apps", MaterialIcons.Apps, [
-                MenuItem.Item("Build", MaterialIcons.Build, cmds.BuildAppCommand)
-            ]),
-            MenuItem.Item("Tools", MaterialIcons.Handyman),
-            MenuItem.Item("AppStore", MaterialIcons.Store),
-            MenuItem.Item("About", MaterialIcons.Help)
-        ];
-    }
+    private static MenuItem[] BuildMenuItems(Commands cmds) =>
+    [
+        MenuItem.SubMenu("DataStore", MaterialIcons.Dns, [
+            MenuItem.Item("Add DataStore", null, cmds.NotImplCommand),
+            MenuItem.Item("Remove DataStore", null, cmds.NotImplCommand)
+        ]),
+        MenuItem.SubMenu("New", MaterialIcons.CreateNewFolder, [
+            MenuItem.Item("Application", MaterialIcons.Widgets, cmds.NotImplCommand),
+            MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NewFolderCommand),
+            MenuItem.Item("Entity", MaterialIcons.TableChart, cmds.NewEntityCommand),
+            MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand),
+            MenuItem.Item("View", MaterialIcons.Wysiwyg, cmds.NewViewCommand),
+            MenuItem.Item("Report", MaterialIcons.PieChart, cmds.NewReportCommand),
+            MenuItem.Item("Enum", MaterialIcons.ViewList, cmds.NewEnumCommand),
+            MenuItem.Item("Permission", MaterialIcons.Lock, cmds.NewPermissionCommand)
+        ]),
+        MenuItem.SubMenu("Models", MaterialIcons.Widgets, [
+            MenuItem.Item("Save", MaterialIcons.Save, cmds.SaveCommand),
+            MenuItem.Item("Checkout", MaterialIcons.CheckCircle, cmds.CheckoutCommand),
+            MenuItem.Item("Usages", MaterialIcons.Link, cmds.UsagesCommand),
+            MenuItem.Item("Rename", MaterialIcons.DriveFileRenameOutline, cmds.RenameCommand),
+            MenuItem.Item("Delete", MaterialIcons.DeleteForever, cmds.DeleteCommand),
+            MenuItem.Item("Publish", MaterialIcons.Publish, cmds.PublishCommand)
+        ]),
+        MenuItem.SubMenu("Apps", MaterialIcons.Apps, [
+            MenuItem.Item("Build", MaterialIcons.Build, cmds.BuildAppCommand)
+        ]),
+        MenuItem.Item("Tools", MaterialIcons.Handyman),
+        MenuItem.Item("AppStore", MaterialIcons.Store),
+        MenuItem.Item("About", MaterialIcons.Help)
+    ];
 }

@@ -28,7 +28,7 @@ public enum ModelReferencePosition : byte
     // ReSharper disable InconsistentNaming
     LocalizedName,
     EntityModel_ToStringExpression,
-    EntityDataFieldModel_EnumModelID,
+    EntityFieldMember_EnumModelID,
     EntityFormulaModel_Formula,
     EntityAggregateModel_TargetEntitySet,
     EntityRefMember_RefModelID,

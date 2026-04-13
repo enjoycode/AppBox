@@ -11,7 +11,7 @@ public class ReferenceServiceTest
     public async Task FindModelReferencesTest()
     {
         var hub = await DesignHelper.MockDesignHub();
-        var modelNode = hub.DesignTree.FindModelNodeByFullName("sys.Views.CustomerList")!;
+        var modelNode = hub.DesignTree.FindModelNodeByFullName("sys.Enums.Gender")!;
         var res = await ReferenceService.FindModelReferencesAsync(hub, modelNode);
         Assert.True(res.Count > 0);
     }

@@ -104,8 +104,19 @@ internal static class ReferenceService
     {
         var ls = new List<Reference>();
 
+        var enumModelId = modelNode.Model.Id;
         var modelSymbol = await hub.TypeSystem.GetModelSymbolAsync(modelNode);
         await AddCodeReferencesAsync(hub, ls, modelSymbol!, null);
+
+        //修改实体枚举成员的引用
+        var entityNodes = ls.Where(r => r.ModelNode.ModelType == ModelType.Entity)
+            .Select(r => r.ModelNode)
+            .Distinct()
+            .ToList();
+        ls.RemoveAll(r => r.ModelNode.ModelType == ModelType.Entity);
+        foreach (var entityNode in entityNodes)
+            AddReferencesFromEntityModel(hub, ls, entityNode, ModelReferenceType.EnumModel, enumModelId, null, null);
+
         return ls;
     }
 
@@ -137,13 +148,19 @@ internal static class ReferenceService
         var allEntityNodes = hub.DesignTree.FindNodesByType(ModelType.Entity);
         foreach (var entityNode in allEntityNodes)
         {
-            var model = (EntityModel)entityNode.Model;
-            var mrs = new List<ModelReferenceInfo>();
-            model.AddModelReferences(mrs, referenceType, modelId, memberName, entityMemberId);
-            foreach (var item in mrs)
-            {
-                list.Add(new ModelReference(entityNode, item));
-            }
+            AddReferencesFromEntityModel(hub, list, entityNode, referenceType, modelId, memberName, entityMemberId);
+        }
+    }
+
+    private static void AddReferencesFromEntityModel(DesignHub hub, List<Reference> list, ModelNode entityNode,
+        ModelReferenceType referenceType, ModelId modelId, string? memberName, short? entityMemberId)
+    {
+        var model = (EntityModel)entityNode.Model;
+        var mrs = new List<ModelReferenceInfo>();
+        model.AddModelReferences(mrs, referenceType, modelId, memberName, entityMemberId);
+        foreach (var item in mrs)
+        {
+            list.Add(new ModelReference(entityNode, item));
         }
     }
 

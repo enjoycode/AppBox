@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 实体字段成员
 /// </summary>
-public sealed class EntityFieldMember : EntityMember
+public sealed class EntityFieldMember : EntityMember, IModelReference
 {
     internal EntityFieldMember(EntityModel owner) : base(owner, string.Empty, false) { }
 
@@ -121,6 +121,24 @@ public sealed class EntityFieldMember : EntityMember
     //     if (!AllowNull)
     //         OnFieldTypeChanged();
     // }
+
+    internal override void AddModelReferences(List<ModelReferenceInfo> list, ModelReferenceType referenceType,
+        ModelId modelId, string? memberName, short? entityMemberId)
+    {
+        if (referenceType == ModelReferenceType.EnumModel && _fieldType == EntityFieldType.Enum &&
+            EnumModelId!.Value == modelId)
+        {
+            var item = new ModelReferenceInfo(this, ModelReferencePosition.EntityFieldMember_EnumModelID,
+                Name, string.Empty);
+            list.Add(item);
+        }
+    }
+
+    public void RenameReference(ModelReferenceType sourceType, ModelReferencePosition targetType,
+        ModelId modelId, string oldName, string newName)
+    {
+        //do nothing for rename enum name.
+    }
 
     #endregion
 

@@ -112,7 +112,7 @@ internal sealed class ModelReference : Reference
 {
     public ModelReferenceInfo TargetReference { get; }
 
-    public override string Location => TargetReference.TargetType.ToString();
+    public override string Location => TargetReference.Path;
 
     //public override string Expression
     //{

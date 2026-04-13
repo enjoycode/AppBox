@@ -23,6 +23,7 @@ internal sealed class Commands
         DeleteCommand = Delete;
         PublishCommand = () => new PublishDialog().Show();
         BuildAppCommand = BuildApp;
+        UsagesCommand = FindUsages;
         NotImplCommand = () => Notification.Error("暂未实现");
     }
 
@@ -40,6 +41,7 @@ internal sealed class Commands
     public readonly Action DeleteCommand;
     public readonly Action PublishCommand;
     public readonly Action BuildAppCommand;
+    public readonly Action UsagesCommand;
     public readonly Action NotImplCommand;
 
     /// <summary>
@@ -86,7 +88,7 @@ internal sealed class Commands
         {
             var designer = _designStore.ActiveDesigner;
             if (designer == null) return;
-            
+
             await designer.SaveAsync();
             Notification.Success("保存成功");
         }
@@ -184,6 +186,37 @@ internal sealed class Commands
         catch (Exception ex)
         {
             Notification.Error($"构建应用失败: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 查找模型的引用
+    /// </summary>
+    private async void FindUsages()
+    {
+        try
+        {
+            var designer = _designStore.ActiveDesigner;
+            if (designer is not IModelDesigner modelDesigner) return;
+
+            var modelNode = modelDesigner.ModelNode;
+            var type = modelNode.ModelType switch
+            {
+                ModelType.Entity => ModelReferenceType.EntityModel,
+                ModelType.Service => ModelReferenceType.ServiceModel,
+                ModelType.View => ModelReferenceType.ViewModel,
+                ModelType.Enum => ModelReferenceType.EnumModel,
+                ModelType.Permission => ModelReferenceType.PermissionModel,
+                ModelType.Report => ModelReferenceType.ReportModel,
+                ModelType.Workflow => ModelReferenceType.WorkflowModel,
+                _ => throw new NotImplementedException(modelNode.ModelType.ToString())
+            };
+            var list = await AppBoxDesign.FindUsages.Execute(type, modelNode);
+            _designStore.UpdateUsages(list);
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"Find usages error: {ex.Message}");
         }
     }
 }
