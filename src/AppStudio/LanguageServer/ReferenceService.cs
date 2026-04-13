@@ -20,7 +20,7 @@ internal static class ReferenceService
         {
             ModelType.Entity => FindEntityReferences(ctx, modelNode),
             ModelType.Service => FindServiceReferences(ctx, modelNode),
-            ModelType.Enum => FindEnumReferencesAsync(ctx, modelNode),
+            ModelType.Enum => FindEnumReferences(ctx, modelNode),
             ModelType.View => FindViewReferences(ctx, modelNode),
             ModelType.Permission => Task.FromResult<List<Reference>>([]),
             ModelType.Report => Task.FromResult<List<Reference>>([]),
@@ -32,8 +32,22 @@ internal static class ReferenceService
     {
         var ls = new List<Reference>();
 
+        var entityModelId = modelNode.Model.Id;
         var modelClass = await ctx.TypeSystem.GetModelSymbolAsync(modelNode);
         await AddCodeReferencesAsync(ctx, ls, modelClass!, null);
+
+        //移除自身的代码引用
+        ls.RemoveAll(r => r.ModelNode == modelNode);
+        //修改其他实体的引用
+        var entityNodes = ls.Where(r => r.ModelNode.ModelType == ModelType.Entity)
+            .Select(r => r.ModelNode)
+            .Distinct()
+            .ToList();
+        ls.RemoveAll(r => r.ModelNode.ModelType == ModelType.Entity);
+        foreach (var entityNode in entityNodes)
+            AddReferencesFromEntityModel(ctx, ls, entityNode,
+                ModelReferenceType.EntityModel, entityModelId, null, null);
+
         return ls;
     }
 
@@ -100,7 +114,7 @@ internal static class ReferenceService
         return ls;
     }
 
-    private static async Task<List<Reference>> FindEnumReferencesAsync(DesignHub hub, ModelNode modelNode)
+    private static async Task<List<Reference>> FindEnumReferences(DesignHub hub, ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
@@ -184,8 +198,8 @@ internal static class ReferenceService
             {
                 var modelId = DocNameUtil.GetModelIdFromDocName(loc.Document.Name);
                 var modelNode = hub.DesignTree.FindModelNode(modelId)!;
-                var reference = new CodeReference(modelNode,
-                    loc.Location.SourceSpan.Start, loc.Location.SourceSpan.Length);
+                var sourceSpan = loc.Location.SourceSpan;
+                var reference = new CodeReference(modelNode, sourceSpan.Start, sourceSpan.Length);
                 list.Add(reference);
             }
         }
