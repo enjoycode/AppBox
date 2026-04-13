@@ -474,14 +474,21 @@ internal sealed class TypeSystem : IDisposable
         var syntaxRootNode = await doc.GetSyntaxRootAsync();
         var semanticModel = await doc.GetSemanticModelAsync();
 
-        if (modelId.Type == ModelType.Enum) //TODO:处理枚举等非ClassDeclaration的类型
-            throw new NotImplementedException($"获取类型为{modelId.Type}的Symbol");
+        if (modelId.Type != ModelType.Enum)
+        {
+            var classDeclaration = syntaxRootNode!
+                .DescendantNodes()
+                .OfType<ClassDeclarationSyntax>()
+                .Single(c => c.Identifier.ValueText == modelName);
+            return semanticModel.GetDeclaredSymbol(classDeclaration);
+        }
 
-        var classDeclaration = syntaxRootNode!
+        //枚举类型区别处理
+        var enumDeclaration = syntaxRootNode!
             .DescendantNodes()
-            .OfType<ClassDeclarationSyntax>()
-            .Single(c => c.Identifier.ValueText == modelName);
-        return semanticModel.GetDeclaredSymbol(classDeclaration);
+            .OfType<EnumDeclarationSyntax>()
+            .Single(e => e.Identifier.ValueText == modelName);
+        return semanticModel.GetDeclaredSymbol(enumDeclaration);
     }
 
     /// <summary>
