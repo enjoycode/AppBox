@@ -21,7 +21,7 @@ internal static class ReferenceService
             ModelType.Entity => FindEntityReferences(ctx, modelNode),
             ModelType.Service => FindServiceReferences(ctx, modelNode),
             ModelType.Enum => FindEnumReferencesAsync(ctx, modelNode),
-            ModelType.View => Task.FromResult<List<Reference>>([]),
+            ModelType.View => FindViewReferences(ctx, modelNode),
             ModelType.Permission => Task.FromResult<List<Reference>>([]),
             ModelType.Report => Task.FromResult<List<Reference>>([]),
             _ => throw new NotImplementedException($"查找模型引用: {modelNode.Model.ModelType}")
@@ -88,6 +88,15 @@ internal static class ReferenceService
         var modelClass = await ctx.TypeSystem.GetModelSymbolAsync(modelNode);
         await AddCodeReferencesAsync(ctx, ls, modelClass!, null);
         //TODO:查找视图引用
+        return ls;
+    }
+
+    private static async Task<List<Reference>> FindViewReferences(DesignHub hub, ModelNode modelNode)
+    {
+        var ls = new List<Reference>();
+
+        var modelSymbol = await hub.TypeSystem.GetModelSymbolAsync(modelNode);
+        await AddCodeReferencesAsync(hub, ls, modelSymbol!, null);
         return ls;
     }
 
