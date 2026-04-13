@@ -45,7 +45,7 @@ internal static class ReferenceService
             .ToList();
         ls.RemoveAll(r => r.ModelNode.ModelType == ModelType.Entity);
         foreach (var entityNode in entityNodes)
-            AddReferencesFromEntityModel(ctx, ls, entityNode,
+            AddReferencesFromEntityModel(ls, entityNode,
                 ModelReferenceType.EntityModel, entityModelId, null, null);
 
         return ls;
@@ -129,7 +129,7 @@ internal static class ReferenceService
             .ToList();
         ls.RemoveAll(r => r.ModelNode.ModelType == ModelType.Entity);
         foreach (var entityNode in entityNodes)
-            AddReferencesFromEntityModel(hub, ls, entityNode, ModelReferenceType.EnumModel, enumModelId, null, null);
+            AddReferencesFromEntityModel(ls, entityNode, ModelReferenceType.EnumModel, enumModelId, null, null);
 
         return ls;
     }
@@ -162,11 +162,11 @@ internal static class ReferenceService
         var allEntityNodes = hub.DesignTree.FindNodesByType(ModelType.Entity);
         foreach (var entityNode in allEntityNodes)
         {
-            AddReferencesFromEntityModel(hub, list, entityNode, referenceType, modelId, memberName, entityMemberId);
+            AddReferencesFromEntityModel(list, entityNode, referenceType, modelId, memberName, entityMemberId);
         }
     }
 
-    private static void AddReferencesFromEntityModel(DesignHub hub, List<Reference> list, ModelNode entityNode,
+    private static void AddReferencesFromEntityModel(List<Reference> list, ModelNode entityNode,
         ModelReferenceType referenceType, ModelId modelId, string? memberName, short? entityMemberId)
     {
         var model = (EntityModel)entityNode.Model;
@@ -283,7 +283,7 @@ internal static class ReferenceService
         } //end for references
 
         //6.根据源类型进行相关的模型处理并保存，另根据源引用类型更新相应的RoslynDocument
-        var needUpdateSourceRoslyn = false; //注意:如果改为RoslynRenamer实现则不再需要更新
+        bool needUpdateSourceRoslyn; //注意:如果改为RoslynRenamer实现则不再需要更新
         switch (referenceType)
         {
             case ModelReferenceType.EntityMember:
