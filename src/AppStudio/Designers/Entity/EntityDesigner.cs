@@ -116,10 +116,10 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private async void OnDeleteMember(PointerEvent e)
     {
-        if (_selectedMember.Value == null) return;
-
         try
         {
+            if (_selectedMember.Value == null) return;
+
             var member = _selectedMember.Value!;
             await DeleteEntityMember.Execute(ModelNode, member);
 
@@ -153,10 +153,10 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
     private async void OnFindUsages(PointerEvent e)
     {
-        if (_selectedMember.Value == null) return;
-
         try
         {
+            if (_selectedMember.Value == null) return;
+            
             var list = await FindUsages.Execute(ModelReferenceType.EntityMember, ModelNode, _selectedMember.Value.Name);
             _designStore.UpdateUsages(list);
         }

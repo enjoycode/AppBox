@@ -26,6 +26,13 @@ public sealed class EnumModel : ModelBase
         OnPropertyChanged();
     }
 
+    internal void RemoveItem(EnumItem item)
+    {
+        CheckDesignMode();
+        Items.Remove(item);
+        OnPropertyChanged();
+    }
+
     #endregion
 
     #region ====Serialization====

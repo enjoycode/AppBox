@@ -42,10 +42,10 @@ internal sealed class EnumDesigner : View, IModelDesigner
                 {
                     Children =
                     {
-                        new Button("Add", MaterialIcons.Add) { OnTap = _ => OnAddItem() },
-                        new Button("Remove", MaterialIcons.Delete),
+                        new Button("Add", MaterialIcons.Add) { OnTap = OnAddItem },
+                        new Button("Remove", MaterialIcons.Delete) { OnTap = OnRemoveItem },
                         new Button("Rename", MaterialIcons.Edit),
-                        new Button("Usages", MaterialIcons.Link),
+                        new Button("Usages", MaterialIcons.Link) { OnTap = OnFindUsages },
                     }
                 },
             }
@@ -87,7 +87,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
 
     void IDesigner.OnClose() { }
 
-    private async void OnAddItem()
+    private async void OnAddItem(PointerEvent _)
     {
         var dlg = new NewEnumItemDialog(_enumModel);
         var result = await dlg.ShowAsync();
@@ -112,6 +112,44 @@ internal sealed class EnumDesigner : View, IModelDesigner
         catch (Exception e)
         {
             Notification.Error($"Create EnumItem error: {e.Message}");
+        }
+    }
+
+    private async void OnRemoveItem(PointerEvent _)
+    {
+        try
+        {
+            if (_selectedMember.Value == null) return;
+
+            var member = _selectedMember.Value!;
+            await DeleteEnumItem.Execute(ModelNode, member);
+
+            _membersController.Remove(member);
+
+            //保存并更新虚拟代码
+            await ModelNode.SaveAsync(null);
+            await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"Delete member error: {ex.Message}");
+        }
+    }
+
+    private async void OnFindUsages(PointerEvent _)
+    {
+        try
+        {
+            if (_selectedMember.Value == null) return;
+
+            var list = await FindUsages.Execute(ModelReferenceType.EnumModelItem, ModelNode,
+                _selectedMember.Value.Name);
+            _designStore.UpdateUsages(list);
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"Find usages error: {ex.Message}");
+            Log.Debug(ex.StackTrace ?? string.Empty);
         }
     }
 }
