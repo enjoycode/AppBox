@@ -513,6 +513,17 @@ internal sealed class TypeSystem : IDisposable
         return modelSymbol.GetMembers(methodName).FirstOrDefault() as IMethodSymbol;
     }
 
+    /// <summary>
+    /// 根据枚举项名称获取相应的类型
+    /// </summary>
+    internal async Task<IFieldSymbol?> GetEnumItemSymbolAsync(ModelNode modelNode, string enumItemName)
+    {
+        var modelSymbol = await GetModelSymbolAsync(modelNode);
+        if (modelSymbol == null) return null;
+
+        return modelSymbol.GetMembers(enumItemName).FirstOrDefault() as IFieldSymbol;
+    }
+
     #endregion
 
     #region ====Debug Methods====

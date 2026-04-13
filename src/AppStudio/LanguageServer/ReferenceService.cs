@@ -5,28 +5,27 @@ using PixUI;
 
 namespace AppBoxDesign;
 
+/// <summary>
+/// 查询模型间的依赖关系
+/// </summary>
 internal static class ReferenceService
 {
     /// <summary>
     /// 查找模型的引用项
     /// </summary>
-    internal static async Task<List<Reference>> FindModelReferencesAsync(DesignHub ctx, ModelNode modelNode)
+    internal static Task<List<Reference>> FindModelReferencesAsync(DesignHub ctx, ModelNode modelNode)
     {
-        switch (modelNode.Model.ModelType)
+        //TODO: 未实现的
+        return modelNode.Model.ModelType switch
         {
-            case ModelType.Entity:
-                return await FindEntityReferences(ctx, modelNode);
-            case ModelType.Service:
-                return await FindServiceReferences(ctx, modelNode);
-            case ModelType.View:
-                return []; //TODO:*****
-            case ModelType.Permission:
-                return []; //TODO:*****
-            case ModelType.Report:
-                return []; //TODO:
-            default:
-                throw new NotImplementedException($"查找模型引用: {modelNode.Model.ModelType}");
-        }
+            ModelType.Entity => FindEntityReferences(ctx, modelNode),
+            ModelType.Service => FindServiceReferences(ctx, modelNode),
+            ModelType.Enum => FindEnumReferencesAsync(ctx, modelNode),
+            ModelType.View => Task.FromResult<List<Reference>>([]),
+            ModelType.Permission => Task.FromResult<List<Reference>>([]),
+            ModelType.Report => Task.FromResult<List<Reference>>([]),
+            _ => throw new NotImplementedException($"查找模型引用: {modelNode.Model.ModelType}")
+        };
     }
 
     private static async Task<List<Reference>> FindEntityReferences(DesignHub ctx, ModelNode modelNode)
@@ -64,22 +63,22 @@ internal static class ReferenceService
         return ls;
     }
 
-    /// <summary>
-    /// 查找实体模型的索引的引用项
-    /// </summary>
-    private static Task<List<Reference>> FindEntityIndexReferencesAsync(DesignHub hub,
-        string appName, string modelName, string indexName)
-    {
-        throw new NotImplementedException();
-        // var ls = new List<Reference>();
-        // //获取索引虚拟成员
-        // var symbol = await hub.TypeSystem.GetEntityIndexSymbolAsync(appName, modelName, indexName);
-        // if (symbol != null)
-        //     await AddCodeReferencesAsync(hub, ls, symbol, null);
-        // else
-        //     Log.Warn($"Can't get EntityIndex symbol: {appName}.{modelName}.{indexName}");
-        // return ls;
-    }
+    // /// <summary>
+    // /// 查找实体模型的索引的引用项
+    // /// </summary>
+    // private static Task<List<Reference>> FindEntityIndexReferencesAsync(DesignHub hub,
+    //     string appName, string modelName, string indexName)
+    // {
+    //     throw new NotImplementedException();
+    //     // var ls = new List<Reference>();
+    //     // //获取索引虚拟成员
+    //     // var symbol = await hub.TypeSystem.GetEntityIndexSymbolAsync(appName, modelName, indexName);
+    //     // if (symbol != null)
+    //     //     await AddCodeReferencesAsync(hub, ls, symbol, null);
+    //     // else
+    //     //     Log.Warn($"Can't get EntityIndex symbol: {appName}.{modelName}.{indexName}");
+    //     // return ls;
+    // }
 
     private static async Task<List<Reference>> FindServiceReferences(DesignHub ctx, ModelNode modelNode)
     {
@@ -89,33 +88,35 @@ internal static class ReferenceService
         var modelClass = await ctx.TypeSystem.GetModelSymbolAsync(modelNode);
         await AddCodeReferencesAsync(ctx, ls, modelClass!, null);
         //TODO:查找视图引用
-        Log.Warn("查找视图等引用尚未实现.");
         return ls;
     }
 
-    private static Task<List<Reference>> FindEnumItemReferencesAsync(DesignHub hub,
-        string appName, string modelName, string memberName)
+    private static async Task<List<Reference>> FindEnumReferencesAsync(DesignHub hub, ModelNode modelNode)
     {
-        throw new NotImplementedException();
-        // if (string.IsNullOrEmpty(modelName))
-        //     throw new ArgumentNullException(nameof(modelName), "枚举模型标识为空");
-        // if (string.IsNullOrEmpty(memberName))
-        //     throw new ArgumentNullException(nameof(memberName), "枚举模型成员名称为空");
-        //
-        // var ls = new List<Reference>();
-        //
-        // //TODO:待确认是否需要查找实体模型的引用
-        // //AddReferencesFromEntityModels(hub, ls, ModelReferenceType.EntityMemberName, modelID, memberName);
-        //
-        // //获取虚拟成员及相应的资源的虚拟成员
-        // var symbol = await hub.TypeSystem.GetEnumItemSymbolAsync(appName, modelName, memberName);
-        // //加入所有的代码引用
-        // if (symbol != null)
-        //     await AddCodeReferencesAsync(hub, ls, symbol.ContainingType, symbol);
-        // else
-        //     Log.Warn($"Can't get EnumItem symbol: {appName}.{modelName}.{memberName}");
-        //
-        // return ls;
+        var ls = new List<Reference>();
+
+        var modelSymbol = await hub.TypeSystem.GetModelSymbolAsync(modelNode);
+        await AddCodeReferencesAsync(hub, ls, modelSymbol!, null);
+        return ls;
+    }
+
+    internal static async Task<List<Reference>> FindEnumItemReferencesAsync(DesignHub hub,
+        ModelNode modelNode, string itemName)
+    {
+        var ls = new List<Reference>();
+
+        //TODO: 如果实体的枚举成员指定了默认值需要处理
+        //AddReferencesFromEntityModels(hub, ls, ModelReferenceType.EntityMemberName, modelID, memberName);
+
+        //获取虚拟成员及相应的资源的虚拟成员
+        var symbol = await hub.TypeSystem.GetEnumItemSymbolAsync(modelNode, itemName);
+        //加入所有的代码引用
+        if (symbol != null)
+            await AddCodeReferencesAsync(hub, ls, symbol.ContainingType, symbol);
+        else
+            Log.Warn($"Can't get EnumItem symbol: {modelNode.AppName}.{modelNode.Model.Name}.{itemName}");
+
+        return ls;
     }
 
     /// <summary>
@@ -150,10 +151,10 @@ internal static class ReferenceService
         var solution = hub.TypeSystem.Workspace.CurrentSolution;
         var targetSymbol = memberSymbol ?? typeSymbol;
 
-        var mrefs = await SymbolFinder.FindReferencesAsync(targetSymbol, solution);
-        foreach (var mref in mrefs)
+        var referencedSymbols = await SymbolFinder.FindReferencesAsync(targetSymbol, solution);
+        foreach (var item in referencedSymbols)
         {
-            foreach (var loc in mref.Locations)
+            foreach (var loc in item.Locations)
             {
                 var modelId = DocNameUtil.GetModelIdFromDocName(loc.Document.Name);
                 var modelNode = hub.DesignTree.FindModelNode(modelId)!;

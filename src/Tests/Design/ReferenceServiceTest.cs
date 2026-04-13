@@ -30,11 +30,11 @@ public class ReferenceServiceTest
     }
 
     [Test]
-    public async Task GetEnumSymbolTest()
+    public async Task FineEnumItemReferencesTest()
     {
         var hub = await DesignHelper.MockDesignHub();
         var enumModelNode = hub.DesignTree.FindModelNodeByFullName("sys.Enums.Gender")!;
-        var symbol = await hub.TypeSystem.GetModelSymbolAsync(enumModelNode);
-        Assert.NotNull(symbol);
+        var res = await ReferenceService.FindEnumItemReferencesAsync(hub, enumModelNode, "Male");
+        Assert.True(res.Count > 0);
     }
 }
