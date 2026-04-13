@@ -90,7 +90,7 @@ public sealed class DesignTree
         }
 
         //加入Models
-        Staged.RemoveDeletedModels(models); //先移除已删除的
+        Staged.RemoveDeletedModels(DesignHub, models); //先移除已删除的
         var allModelNodes = new List<ModelNode>(models.Count);
         foreach (var model in models)
         {

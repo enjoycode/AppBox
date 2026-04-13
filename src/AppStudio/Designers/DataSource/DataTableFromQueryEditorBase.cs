@@ -6,8 +6,9 @@ namespace AppBoxDesign;
 
 internal abstract class DataTableFromQueryEditorBase : View
 {
-    protected DataTableFromQueryEditorBase(DataTableFromQueryBase tableFromQuery)
+    protected DataTableFromQueryEditorBase(DesignHub designContext, DataTableFromQueryBase tableFromQuery)
     {
+        _designContext = designContext;
         _tableFromQuery = tableFromQuery;
         _entityTarget = MakeStateOfRoot();
         _entityTarget.AddListener(OnTargetChanged);
@@ -21,6 +22,7 @@ internal abstract class DataTableFromQueryEditorBase : View
         _ordersController.DataSource = _tableFromQuery.Orders;
     }
 
+    private readonly DesignHub _designContext;
     private readonly State<ModelNode?> _entityTarget;
     private readonly TreeController<EntityMember> _treeController = new();
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);
@@ -35,7 +37,7 @@ internal abstract class DataTableFromQueryEditorBase : View
             if (Expression.IsNull(_tableFromQuery.Root))
                 return null;
             var rootModelId = _tableFromQuery.Root!.ModelId;
-            return DesignHub.Current.DesignTree.FindModelNode(rootModelId);
+            return _designContext.DesignTree.FindModelNode(rootModelId);
         },
         node =>
         {
@@ -63,7 +65,7 @@ internal abstract class DataTableFromQueryEditorBase : View
                     [
                         new Select<ModelNode>(_entityTarget)
                         {
-                            Options = DesignUtils.GetAllSqlEntityModels(),
+                            Options = DesignUtils.GetAllSqlEntityModels(_designContext),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
                         new Expanded(new TreeView<EntityMember>(_treeController, BuildTreeNode, m =>
@@ -72,7 +74,7 @@ internal abstract class DataTableFromQueryEditorBase : View
                                 if (entityRef.IsAggregationRef)
                                     throw new NotImplementedException();
                                 var refModel =
-                                    (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
+                                    (EntityModel)_designContext.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
                                         .Model;
                                 return DesignUtils.GetEntityModelMembers(refModel);
                             })

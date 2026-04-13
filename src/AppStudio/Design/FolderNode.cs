@@ -64,6 +64,6 @@ public sealed class FolderNode : DesignNode, IChildrenNode
         //查找文件夹直至根级文件夹，然后序列化保存根级文件夹
         var rootFolder = Folder.GetRoot();
         //保存节点模型
-        return DesignHub.Current.StagedService.SaveFolderAsync(rootFolder);
+        return DesignContext.StagedService.SaveFolderAsync(rootFolder);
     }
 }

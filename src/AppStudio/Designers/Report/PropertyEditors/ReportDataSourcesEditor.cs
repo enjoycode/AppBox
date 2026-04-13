@@ -12,7 +12,7 @@ namespace AppBoxDesign.Diagram.PropertyEditors;
 /// </summary>
 internal sealed class ReportDataSourcesEditor : SingleChildWidget
 {
-    public ReportDataSourcesEditor(IDiagramProperty propertyItem)
+    public ReportDataSourcesEditor(DesignHub designContext, IDiagramProperty propertyItem)
     {
         _propertyItem = propertyItem;
         _listController = new ListViewController<IDataSource>();
@@ -30,8 +30,8 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
                 {
                     Children =
                     [
-                        new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAdd() },
-                        new Button(icon: MaterialIcons.Edit) { OnTap = _ => OnEdit() },
+                        new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAdd(designContext) },
+                        new Button(icon: MaterialIcons.Edit) { OnTap = _ => OnEdit(designContext) },
                         new Button(icon: MaterialIcons.Delete) { OnTap = _ => OnDelete() }
                     ]
                 },
@@ -51,21 +51,21 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 
     #region ====Add/Edit/Delete DataSource====
 
-    private async void OnAdd()
+    private async void OnAdd(DesignHub designContext)
     {
         var dataSource = new DataTableFromQuery();
         _dataSources.Add(dataSource);
         var index = _dataSources.Count - 1;
-        var dlg = new ReportDataSourceDialog(_dataSources, index);
+        var dlg = new ReportDataSourceDialog(designContext, _dataSources, index);
         await dlg.ShowAsync();
         RefreshDataSources();
     }
 
-    private async void OnEdit()
+    private async void OnEdit(DesignHub designContext)
     {
         if (_selectedIndex.Value < 0) return;
 
-        var dlg = new ReportDataSourceDialog(_dataSources, _selectedIndex.Value);
+        var dlg = new ReportDataSourceDialog(designContext, _dataSources, _selectedIndex.Value);
         await dlg.ShowAsync();
         RefreshDataSources();
     }
@@ -146,12 +146,13 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
     /// </summary>
     private class ReportDataSourceDialog : Dialog
     {
-        public ReportDataSourceDialog(IList<IDataSource> dataSources, int index)
+        public ReportDataSourceDialog(DesignHub designContext, IList<IDataSource> dataSources, int index)
         {
             Title.Value = "Report DataSource";
             Width = 630;
             Height = 450;
 
+            _designContext = designContext;
             _dataSources = dataSources;
             _index = index;
             _isFromQuery = MakeStateOfIsFromQuery();
@@ -162,6 +163,7 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
             );
         }
 
+        private readonly DesignHub _designContext;
         private readonly IList<IDataSource> _dataSources;
         private readonly int _index;
         private readonly State<bool> _isFromQuery;
@@ -211,8 +213,10 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
                             ]
                         },
                         new IfConditional(_isFromQuery,
-                            () => new DataTableFromQueryEditor((DataTableFromQuery)_dataSources[_index]),
-                            () => new DataTableFromServiceEditor((DataTableFromService)_dataSources[_index])
+                            () => new DataTableFromQueryEditor(_designContext,
+                                (DataTableFromQuery)_dataSources[_index]),
+                            () => new DataTableFromServiceEditor(_designContext,
+                                (DataTableFromService)_dataSources[_index])
                         )
                     ]
                 }
@@ -221,7 +225,8 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 
         private class DataTableFromQueryEditor : DataTableFromQueryEditorBase
         {
-            public DataTableFromQueryEditor(DataTableFromQuery tableFromQuery) : base(tableFromQuery.Wrap) { }
+            public DataTableFromQueryEditor(DesignHub designContext, DataTableFromQuery tableFromQuery) : base(
+                designContext, tableFromQuery.Wrap) { }
 
             protected override string[] FindStates(DynamicStateType type, bool allowNull)
             {
@@ -231,7 +236,8 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 
         private class DataTableFromServiceEditor : DataTableFromServiceEditorBase
         {
-            public DataTableFromServiceEditor(DataTableFromService tableFromService) : base(tableFromService.Wrap) { }
+            public DataTableFromServiceEditor(DesignHub designContext, DataTableFromService tableFromService) : base(
+                designContext, tableFromService.Wrap) { }
 
             protected override string[] FindStates(DynamicStateType type, bool allowNull)
             {

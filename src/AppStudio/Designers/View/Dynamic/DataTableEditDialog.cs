@@ -9,12 +9,13 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class DataTableEditDialog : Dialog
 {
-    public DataTableEditDialog(DesignController designController, DynamicState state)
+    public DataTableEditDialog(DesignHub designContext, DesignController designController, DynamicState state)
     {
         Title.Value = "DataTable Settings";
         Width = 630;
         Height = 450;
 
+        _designContext = designContext;
         _designController = designController;
         //初始化状态
         if (state.Value == null)
@@ -32,6 +33,7 @@ internal sealed class DataTableEditDialog : Dialog
         _isFromQuery.AddListener(_ => _tableState.Reset()); //改变数据源类型重置绑定组件的相关配置
     }
 
+    private readonly DesignHub _designContext;
     private readonly DesignController _designController;
     private readonly DynamicDataTable _tableState;
     private readonly State<bool> _isFromQuery;
@@ -72,8 +74,8 @@ internal sealed class DataTableEditDialog : Dialog
                     ]
                 },
                 new IfConditional(_isFromQuery,
-                    () => new DataTableFromQueryEditor(_designController, _tableState),
-                    () => new DataTableFromServiceEditor(_designController, _tableState)
+                    () => new DataTableFromQueryEditor(_designContext, _designController, _tableState),
+                    () => new DataTableFromServiceEditor(_designContext, _designController, _tableState)
                 )
             ]
         }
@@ -88,8 +90,9 @@ internal sealed class DataTableEditDialog : Dialog
 
     private class DataTableFromQueryEditor : DataTableFromQueryEditorBase
     {
-        public DataTableFromQueryEditor(DesignController designController, DynamicDataTable tableState)
-            : base((DataTableFromQuery)tableState.Source)
+        public DataTableFromQueryEditor(DesignHub designContext, DesignController designController,
+            DynamicDataTable tableState)
+            : base(designContext, (DataTableFromQuery)tableState.Source)
         {
             _designController = designController;
             _tableState = tableState;
@@ -114,8 +117,9 @@ internal sealed class DataTableEditDialog : Dialog
 
     private class DataTableFromServiceEditor : DataTableFromServiceEditorBase
     {
-        public DataTableFromServiceEditor(DesignController designController, DynamicDataTable tableState)
-            : base((DataTableFromService)tableState.Source)
+        public DataTableFromServiceEditor(DesignHub designContext, DesignController designController,
+            DynamicDataTable tableState)
+            : base(designContext, (DataTableFromService)tableState.Source)
         {
             _designController = designController;
         }

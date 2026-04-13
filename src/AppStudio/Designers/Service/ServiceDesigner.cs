@@ -10,13 +10,14 @@ namespace AppBoxDesign;
 
 internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
 {
-    public ServiceDesigner(DesignStore designStore, ModelNode modelNode)
+    public ServiceDesigner(DesignHub designContext, ModelNode modelNode)
     {
         ModelNode = modelNode;
-        _designStore = designStore;
+        _designContext = designContext;
+        _designStore = (DesignStore)_designContext.DesignUIService;
         _textBuffer = new RoslynSourceText(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
-            new RoslynSyntaxParser(_textBuffer), RoslynCompletionProvider.Default, modelNode.Id);
+            new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.Id);
         _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
         //订阅代码变更事件
         _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
@@ -25,6 +26,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         Child = BuildEditor(_codeEditorController);
     }
 
+    private readonly DesignHub _designContext;
     private readonly DesignStore _designStore;
     private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }
@@ -207,17 +209,16 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         ServiceModel.Dependencies = newList;
 
         //通知TypeSystem更新当前服务模型对应的Roslyn项目的依赖项
-        var designHub = DesignHub.Current;
         var appName = ModelNode.AppNode.Model.Name;
         var serviceProjectId = ModelNode.ServiceProjectId!;
         foreach (var dep in removed)
         {
-            designHub.TypeSystem.RemoveMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
+            _designContext.TypeSystem.RemoveMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
         }
 
         foreach (var dep in added)
         {
-            designHub.TypeSystem.AddMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
+            _designContext.TypeSystem.AddMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
         }
     }
 

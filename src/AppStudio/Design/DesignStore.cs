@@ -8,11 +8,32 @@ namespace AppBoxDesign;
 /// <summary>
 /// 设计时全局状态
 /// </summary>
-internal sealed class DesignStore
+internal sealed class DesignStore : IDesignUIService
 {
-    public DesignStore()
+    public DesignStore(DesignHub designContext)
     {
+        _designContext = designContext;
         Commands = new Commands(this);
+    }
+
+    private readonly DesignHub _designContext;
+
+    public async Task LoadDesignTreeAsync()
+    {
+        TreeController.IsLoading = true;
+        try
+        {
+            await _designContext.DesignTree.LoadAsync();
+            TreeController.DataSource = _designContext.DesignTree.RootNodes;
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"Can't load design tree: {ex.Message}");
+        }
+        finally
+        {
+            TreeController.IsLoading = false;
+        }
     }
 
     #region ====State and Controllers====
@@ -223,9 +244,9 @@ internal sealed class DesignStore
     /// <summary>
     /// 获取引用了指定实体的所有EntityRef成员
     /// </summary>
-    internal static EntityMemberInfo[] GetAllEntityRefs(ModelId modelId)
+    internal static EntityMemberInfo[] GetAllEntityRefs(DesignHub designContext, ModelId modelId)
     {
-        var designTree = DesignHub.Current.DesignTree;
+        var designTree = designContext.DesignTree;
         var entityRefs = designTree.FindAllEntityRefs(modelId);
         var res = entityRefs
             .Select(m => new EntityMemberInfo()

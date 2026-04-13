@@ -5,17 +5,17 @@ namespace AppBoxDesign;
 
 internal sealed class DesignerPad : View
 {
-    public DesignerPad(DesignStore designStore)
+    public DesignerPad(DesignHub designContext)
     {
-        _designStore = designStore;
-        _designStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
-        _designStore.DesignerController.TabAdded += OnDesignerOpened;
-        _designStore.DesignerController.TabClosed += OnDesignerClosed;
+        _designContext = designContext;
+        DesignStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
+        DesignStore.DesignerController.TabAdded += OnDesignerOpened;
+        DesignStore.DesignerController.TabClosed += OnDesignerClosed;
 
         FillColor = Colors.White;
 
         Child = new IfConditional(_isOpenedAnyDesigner,
-            () => new TabView<DesignNode>(_designStore.DesignerController, BuildTab, BuildBody, true, 40)
+            () => new TabView<DesignNode>(DesignStore.DesignerController, BuildTab, BuildBody, true, 40)
             {
                 SelectedTabColor = Colors.White,
                 TabBarBgColor = new Color(0xFFF3F3F3)
@@ -23,7 +23,8 @@ internal sealed class DesignerPad : View
             () => new Center { Child = new Text("Welcome to AppBox!") });
     }
 
-    private readonly DesignStore _designStore;
+    private readonly DesignHub _designContext;
+    private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly State<bool> _isOpenedAnyDesigner = false;
 
     private static Widget BuildTab(DesignNode node, State<bool> isSelected)
@@ -43,36 +44,36 @@ internal sealed class DesignerPad : View
             switch (modelNode.ModelType)
             {
                 case ModelType.Entity:
-                    var entityDesigner = new EntityDesigner(_designStore, modelNode);
+                    var entityDesigner = new EntityDesigner(_designContext, modelNode);
                     node.Designer = entityDesigner;
                     return entityDesigner;
                 case ModelType.View:
                     var viewModel = (ViewModel)modelNode.Model;
                     if (viewModel.ViewType == ViewModelType.PixUI)
                     {
-                        var viewDesigner = new ViewCodeDesigner(_designStore, modelNode);
+                        var viewDesigner = new ViewCodeDesigner(_designContext, modelNode);
                         node.Designer = viewDesigner;
                         return viewDesigner;
                     }
 
                     if (viewModel.ViewType == ViewModelType.PixUIDynamic)
                     {
-                        var viewDesigner = new ViewDynamicDesigner(modelNode);
+                        var viewDesigner = new ViewDynamicDesigner(_designContext, modelNode);
                         node.Designer = viewDesigner;
                         return viewDesigner;
                     }
 
                     throw new Exception("暂不支持的视图模型类型");
                 case ModelType.Service:
-                    var designer = new ServiceDesigner(_designStore, modelNode);
+                    var designer = new ServiceDesigner(_designContext, modelNode);
                     node.Designer = designer;
                     return designer;
                 case ModelType.Report:
-                    var reportDesigner = new ReportDesigner(modelNode);
+                    var reportDesigner = new ReportDesigner(_designContext, modelNode);
                     node.Designer = reportDesigner;
                     return reportDesigner;
                 case ModelType.Enum:
-                    var enumDesigner = new EnumDesigner(_designStore, modelNode);
+                    var enumDesigner = new EnumDesigner(_designContext, modelNode);
                     node.Designer = enumDesigner;
                     return enumDesigner;
             }
@@ -88,12 +89,12 @@ internal sealed class DesignerPad : View
 
     private void OnDesignerOpened(DesignNode node)
     {
-        _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
+        _isOpenedAnyDesigner.Value = DesignStore.DesignerController.Count > 0;
     }
 
     private void OnDesignerClosed(DesignNode node)
     {
-        _isOpenedAnyDesigner.Value = _designStore.DesignerController.Count > 0;
+        _isOpenedAnyDesigner.Value = DesignStore.DesignerController.Count > 0;
         node.Designer?.OnClose();
         node.Designer = null;
         if (node.Type == DesignNodeType.ModelNode)
@@ -102,7 +103,7 @@ internal sealed class DesignerPad : View
             if (modelNode.ModelType == ModelType.Service || modelNode.ModelType == ModelType.View)
             {
                 var docId = modelNode.RoslynDocumentId!;
-                var workspace = DesignHub.Current.TypeSystem.Workspace;
+                var workspace = _designContext.TypeSystem.Workspace;
                 if (workspace.IsDocumentOpen(docId))
                     workspace.CloseDocument(docId);
             }
@@ -111,10 +112,10 @@ internal sealed class DesignerPad : View
 
     private void OnTreeSelectionChanged()
     {
-        var currentNode = _designStore.TreeController.FirstSelectedNode;
+        var currentNode = DesignStore.TreeController.FirstSelectedNode;
         if (currentNode is { Data: ModelNode })
         {
-            _designStore.OpenOrActiveDesigner(currentNode.Data, null);
+            DesignStore.OpenOrActiveDesigner(currentNode.Data, null);
         }
     }
 }

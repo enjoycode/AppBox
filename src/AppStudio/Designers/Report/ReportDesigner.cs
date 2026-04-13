@@ -9,9 +9,11 @@ namespace AppBoxDesign;
 
 internal sealed class ReportDesigner : View, IModelDesigner
 {
-    public ReportDesigner(ModelNode modelNode)
+    public ReportDesigner(DesignHub designContext, ModelNode modelNode)
     {
+        _designContext = designContext;
         ModelNode = modelNode;
+        _designService = new ReportDesignService(designContext);
 
         Child = new Splitter
         {
@@ -31,9 +33,10 @@ internal sealed class ReportDesigner : View, IModelDesigner
         };
     }
 
+    private readonly DesignHub _designContext;
     private bool _hasLoadSourceCode;
     private Report _report = null!;
-    private readonly ReportDesignService _designService = new();
+    private readonly ReportDesignService _designService;
     private readonly State<bool> _isPreview = false;
 
     internal DiagramSurface Surface => _designService.Surface;
@@ -52,9 +55,9 @@ internal sealed class ReportDesigner : View, IModelDesigner
         {
             if (_hasLoadSourceCode) return;
             _hasLoadSourceCode = true;
-            
+
             await using var ms = new MemoryStream(2048);
-            await DesignHub.Current.TypeSystem.DownloadSourceCode(ms, ModelNode);
+            await _designContext.TypeSystem.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
                 var jsonReader = new Utf8JsonReader(ms.GetBuffer().AsSpan(0, (int)ms.Length));
@@ -134,7 +137,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
         AppBox.Reporting.Serialization.JsonSerializer.Serialize(jsonWriter, _report);
         await jsonWriter.FlushAsync();
         ms.Position = 0;
-        
+
         await ModelNode.SaveAsync(ms);
     }
 
@@ -155,6 +158,6 @@ internal sealed class ReportDesigner : View, IModelDesigner
     }
 
     public Widget GetToolboxPad() => _designService.Toolbox;
-    
+
     void IDesigner.OnClose() { }
 }

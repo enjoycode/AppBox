@@ -1,19 +1,13 @@
-using System;
 using System.Diagnostics;
-using AppBoxClient;
 using PixUI;
 
 namespace AppBoxDesign;
 
 internal sealed class DesignTreePad : View
 {
-    private readonly DesignStore _designStore;
-    private readonly State<string> _searchKey = "";
-    private bool _hasLoadTree;
-
-    public DesignTreePad(DesignStore designStore)
+    public DesignTreePad(DesignHub designContext)
     {
-        _designStore = designStore;
+        _designStore = (DesignStore)designContext.DesignUIService;
 
         Child = new Column
         {
@@ -32,6 +26,9 @@ internal sealed class DesignTreePad : View
             }
         };
     }
+
+    private readonly DesignStore _designStore;
+    private readonly State<string> _searchKey = "";
 
     private static void BuildTreeNode(TreeNode<DesignNode> node)
     {
@@ -53,34 +50,6 @@ internal sealed class DesignTreePad : View
             case DesignNodeType.ModelNode:
                 return IconUtil.GetIconForModelType(((ModelNode)data).ModelType);
             default: return MaterialIcons.Folder;
-        }
-    }
-
-    protected override void OnMounted()
-    {
-        base.OnMounted();
-
-        LoadDesignTree();
-    }
-
-    private async void LoadDesignTree()
-    {
-        if (_hasLoadTree) return;
-        _hasLoadTree = true;
-
-        _designStore.TreeController.IsLoading = true;
-        try
-        {
-            await DesignHub.Current.DesignTree.LoadAsync();
-            _designStore.TreeController.DataSource = DesignHub.Current.DesignTree.RootNodes;
-        }
-        catch (Exception ex)
-        {
-            Notification.Error($"Can't load design tree: {ex.Message}");
-        }
-        finally
-        {
-            _designStore.TreeController.IsLoading = false;
         }
     }
 

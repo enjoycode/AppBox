@@ -64,16 +64,6 @@ public sealed class LoginPage : View
         try
         {
             await Channel.Login(_userName.Value, _password.Value);
-
-            LocalFileSystem.Init(new OSFileSystem()); //TODO: by platform
-            await DesignHub.InitAsync(
-                Channel.SessionName, Channel.LeafOrgUnitId,
-                new CheckoutService(), new StagedService(), new MetaStoreService(), new PublishService(),
-                RuntimeInformation.ProcessArchitecture == Architecture.Wasm
-                    ? new ServerMetadataReferenceProvider()
-                    : new ClientMetadataReferenceProvider()
-            );
-
             CurrentNavigator!.Push("IDE"); //TODO: use Navigator.Replace?
         }
         catch (Exception ex)

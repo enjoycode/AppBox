@@ -6,14 +6,14 @@ namespace AppBoxDesign;
 
 internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 {
-    public ViewCodeDesigner(DesignStore designStore, ModelNode modelNode)
+    public ViewCodeDesigner(DesignHub designContext, ModelNode modelNode)
     {
-        _designStore = designStore;
+        _designStore = (DesignStore)designContext.DesignUIService;
         ModelNode = modelNode;
         _textBuffer = new RoslynSourceText(modelNode);
         _previewController = new PreviewController(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
-            new RoslynSyntaxParser(_textBuffer), RoslynCompletionProvider.Default, modelNode.Id);
+            new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.Id);
         _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
         //订阅代码变更事件
         _codeEditorController.Document.DocumentChanged += OnDocumentChanged;

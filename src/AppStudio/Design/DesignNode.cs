@@ -51,13 +51,15 @@ public abstract class DesignNode : IComparable<DesignNode>
         }
     }
 
+    protected DesignHub DesignContext => DesignTree!.DesignHub;
+
     #region ====Checkout====
 
     /// <summary>
     /// 设计节点是否被当前用户签出
     /// </summary>
     public bool IsCheckoutByMe => CheckoutInfo != null &&
-                                  CheckoutInfo.DeveloperOuid == DesignHub.Current.LeafOrgUnitId;
+                                  CheckoutInfo.DeveloperOuid == DesignContext.LeafOrgUnitId;
 
     public bool AllowCheckout => Type is DesignNodeType.ModelRootNode
         or DesignNodeType.ModelNode or DesignNodeType.DataStoreNode;
@@ -77,7 +79,7 @@ public abstract class DesignNode : IComparable<DesignNode>
         {
             new(Type, CheckoutTargetId, Version, hub.SessionName, hub.LeafOrgUnitId)
         };
-        var res = await DesignHub.Current.CheckoutService.CheckoutAsync(infos);
+        var res = await DesignContext.CheckoutService.CheckoutAsync(infos);
         if (res.Success)
         {
             //签出成功则将请求的签出信息添加至当前的已签出列表
@@ -88,7 +90,7 @@ public abstract class DesignNode : IComparable<DesignNode>
                 var modelNode = (ModelNode)this;
                 modelNode.Model = res.ModelWithNewVersion;
                 //更新为新模型的虚拟代码
-                await DesignTree.DesignHub.TypeSystem.UpdateModelDocumentAsync(modelNode);
+                await DesignContext.TypeSystem.UpdateModelDocumentAsync(modelNode);
             }
 
             //更新当前节点的签出信息

@@ -15,6 +15,7 @@ internal static class EntityCsGenerator
     {
         var appName = modelNode.AppNode.Model.Name;
         var model = (EntityModel)modelNode.Model;
+        var tree = modelNode.DesignTree!;
 
         var sb = StringBuilderCache.Acquire();
         sb.Append("using System;\n");
@@ -35,7 +36,7 @@ internal static class EntityCsGenerator
             switch (member.Type)
             {
                 case EntityMemberType.EntityField:
-                    GenRxEntityFieldMember((EntityFieldMember)member, sb);
+                    GenRxEntityFieldMember((EntityFieldMember)member, sb, tree);
                     break;
                 // TODO:
                 // case EntityMemberType.EntityRef:
@@ -51,10 +52,10 @@ internal static class EntityCsGenerator
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
-    private static void GenRxEntityFieldMember(EntityFieldMember field, StringBuilder sb)
+    private static void GenRxEntityFieldMember(EntityFieldMember field, StringBuilder sb, DesignTree tree)
     {
         sb.Append("public State<");
-        sb.Append(GetEntityFieldTypeString(field));
+        sb.Append(GetEntityFieldTypeString(tree, field));
         sb.Append($"> {field.Name} => throw new Exception();\n");
     }
 
@@ -80,10 +81,10 @@ internal static class EntityCsGenerator
             switch (member.Type)
             {
                 case EntityMemberType.EntityField:
-                    GenEntityFieldMember((EntityFieldMember)member, sb);
+                    GenEntityFieldMember((EntityFieldMember)member, sb, designTree);
                     break;
                 case EntityMemberType.EntityFieldTracker:
-                    GenEntityTrackerMember((EntityTrackerMember)member, sb);
+                    GenEntityTrackerMember((EntityTrackerMember)member, sb, designTree);
                     break;
                 case EntityMemberType.EntityRef:
                     GenEntityRefMember((EntityRefMember)member, sb, designTree);
@@ -121,15 +122,15 @@ internal static class EntityCsGenerator
         GenOverrideReadMember(model, sb, modelNode.DesignTree!);
 
         // 存储方法Insert/Update/Delete/Fetch
-        GenStoreCRUDMethods(model, sb);
+        GenStoreCRUDMethods(model, sb, designTree);
 
         sb.Append("}\n"); //class end
         return StringBuilderCache.GetStringAndRelease(sb);
     }
 
-    private static void GenEntityFieldMember(EntityFieldMember field, StringBuilder sb)
+    private static void GenEntityFieldMember(EntityFieldMember field, StringBuilder sb, DesignTree tree)
     {
-        var typeString = GetEntityFieldTypeString(field);
+        var typeString = GetEntityFieldTypeString(tree, field);
         if (field.Owner.DataStoreKind == DataStoreKind.None)
         {
             sb.Append($"\tpublic {typeString} {field.Name} {{get; set;}}\n");
@@ -169,10 +170,10 @@ internal static class EntityCsGenerator
         }
     }
 
-    private static void GenEntityTrackerMember(EntityTrackerMember tracker, StringBuilder sb)
+    private static void GenEntityTrackerMember(EntityTrackerMember tracker, StringBuilder sb, DesignTree tree)
     {
         var target = tracker.Target;
-        var targetTypeString = GetEntityFieldTypeString(target);
+        var targetTypeString = GetEntityFieldTypeString(tree, target);
         var typeString = targetTypeString;
         if (!target.AllowNull) typeString = targetTypeString + "?"; //始终允许null
 
@@ -291,7 +292,7 @@ internal static class EntityCsGenerator
         var field = (EntityFieldMember)path[^1];
 
         //build code
-        var typeString = GetEntityFieldTypeString(field);
+        var typeString = GetEntityFieldTypeString(tree, field);
         if (!typeString.EndsWith('?')) typeString += '?';
 
         sb.Append($"\tprivate {typeString} _{refField.Name};\n");
@@ -428,7 +429,7 @@ internal static class EntityCsGenerator
             }
 
             if (member is EntityFieldMember { FieldType: EntityFieldType.Enum } enumMember)
-                sb.Append($"({GetEnumFullName(enumMember)})");
+                sb.Append($"({GetEnumFullName(tree, enumMember)})");
             sb.Append("rs.Read");
             sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignHub));
             sb.Append("Member");
@@ -494,7 +495,7 @@ internal static class EntityCsGenerator
     /// <summary>
     /// 生成服务端运行时的存储方法
     /// </summary>
-    private static void GenStoreCRUDMethods(EntityModel model, StringBuilder sb)
+    private static void GenStoreCRUDMethods(EntityModel model, StringBuilder sb, DesignTree tree)
     {
         if (model.SqlStoreOptions == null) return;
 
@@ -520,15 +521,15 @@ internal static class EntityCsGenerator
         sb.Append(".DeleteAsync(this,txn);\n\n");
 
         // FetchAsync
-        GenStoreFetchMethod(model, sb, true);
+        GenStoreFetchMethod(model, sb, true, tree);
 
         sb.Append("#else\n");
         //生成internal版本的FetchAsync方法,防止前端工程看见此方法
-        GenStoreFetchMethod(model, sb, false);
+        GenStoreFetchMethod(model, sb, false, tree);
         sb.Append("#endif\n");
     }
 
-    private static void GenStoreFetchMethod(EntityModel model, StringBuilder sb, bool forRuntime)
+    private static void GenStoreFetchMethod(EntityModel model, StringBuilder sb, bool forRuntime, DesignTree tree)
     {
         if (!model.SqlStoreOptions!.HasPrimaryKeys) return;
 
@@ -540,7 +541,7 @@ internal static class EntityCsGenerator
         {
             if (i != 0) sb.Append(',');
             var dfm = (EntityFieldMember)model.GetMember(pks[i].MemberId)!;
-            sb.Append(GetEntityFieldTypeString(dfm));
+            sb.Append(GetEntityFieldTypeString(tree, dfm));
             sb.Append(' ');
             sb.Append(CodeUtil.ToLowCamelCase(dfm.Name));
         }
@@ -581,7 +582,7 @@ internal static class EntityCsGenerator
         };
     }
 
-    private static string GetEntityFieldTypeString(EntityFieldMember field)
+    private static string GetEntityFieldTypeString(DesignTree tree, EntityFieldMember field)
     {
         var typeString = field.FieldType switch
         {
@@ -597,18 +598,18 @@ internal static class EntityCsGenerator
             EntityFieldType.Decimal => "decimal",
             EntityFieldType.Guid => "Guid",
             EntityFieldType.Binary => "byte[]",
-            EntityFieldType.Enum => GetEnumFullName(field),
+            EntityFieldType.Enum => GetEnumFullName(tree, field),
             _ => throw new NotImplementedException(field.FieldType.ToString())
         };
         return field.AllowNull ? typeString + '?' : typeString;
     }
 
-    private static string GetEnumFullName(EntityFieldMember field)
+    private static string GetEnumFullName(DesignTree tree, EntityFieldMember field)
     {
         if (field.FieldType != EntityFieldType.Enum)
             throw new NotSupportedException();
         var enumModelId = field.EnumModelId!.Value;
-        var enumModelNode = DesignHub.Current.DesignTree.FindModelNode(enumModelId);
+        var enumModelNode = tree.FindModelNode(enumModelId);
         if (enumModelNode == null)
             throw new Exception("Can't find enum model");
 

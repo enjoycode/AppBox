@@ -16,9 +16,9 @@ internal sealed class NaviBar : View
     private readonly State<float> _buttonSize = 25;
     private readonly DesignStore _designStore;
 
-    public NaviBar(DesignStore designStore)
+    public NaviBar(DesignHub designContext)
     {
-        _designStore = designStore;
+        _designStore = (DesignStore)designContext.DesignUIService;
 
         Child = new Container
         {
@@ -72,26 +72,20 @@ internal sealed class NaviBar : View
 
 internal sealed class SidePad : View
 {
-    public SidePad(DesignStore designStore)
+    public SidePad(DesignHub designContext)
     {
+        var designStore = (DesignStore)designContext.DesignUIService;
+
         Child = new Container
         {
             DebugLabel = "SidePad",
             Padding = EdgeInsets.All(5),
             FillColor = new Color(0xFFF3F3F3),
             Child = new Conditional<SidePadType>(designStore.ActiveSidePad)
-                .When(t => t == SidePadType.DesignTree, () => new DesignTreePad(designStore))
+                .When(t => t == SidePadType.DesignTree, () => new DesignTreePad(designContext))
                 .When(t => t == SidePadType.Outline, () => new OutlinePad(designStore))
                 .When(t => t == SidePadType.Toolbox, () => new ToolboxPad(designStore))
                 .When(t => t == SidePadType.Settings, () => new SettingsPad())
         };
-        // Child = new Row
-        // {
-        //     Children =
-        //     {
-        //         new NaviBar(designStore),
-        //         
-        //     }
-        // };
     }
 }

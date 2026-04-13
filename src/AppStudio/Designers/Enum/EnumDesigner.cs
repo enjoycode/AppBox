@@ -5,9 +5,9 @@ namespace AppBoxDesign;
 
 internal sealed class EnumDesigner : View, IModelDesigner
 {
-    public EnumDesigner(DesignStore designStore, ModelNode modelNode)
+    public EnumDesigner(DesignHub designContext, ModelNode modelNode)
     {
-        _designStore = designStore;
+        _designContext = designContext;
         ModelNode = modelNode;
         _enumModel = (EnumModel)ModelNode.Model;
         _selectedMember = _membersController.ObserveCurrentRow();
@@ -23,7 +23,8 @@ internal sealed class EnumDesigner : View, IModelDesigner
         };
     }
 
-    private readonly DesignStore _designStore;
+    private readonly DesignHub _designContext;
+    private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     public ModelNode ModelNode { get; }
     private readonly EnumModel _enumModel;
     private readonly DataGridController<EnumItem> _membersController = new();
@@ -107,7 +108,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
             _membersController.Refresh();
             //保存并更新虚拟代码
             await ModelNode.SaveAsync(null);
-            await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+            await _designContext.TypeSystem.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception e)
         {
@@ -128,7 +129,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
 
             //保存并更新虚拟代码
             await ModelNode.SaveAsync(null);
-            await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+            await _designContext.TypeSystem.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception ex)
         {
@@ -144,7 +145,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
 
             var list = await FindUsages.Execute(ModelReferenceType.EnumModelItem, ModelNode,
                 _selectedMember.Value.Name);
-            _designStore.UpdateUsages(list);
+            DesignStore.UpdateUsages(list);
         }
         catch (Exception ex)
         {

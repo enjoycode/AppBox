@@ -11,44 +11,26 @@ public sealed class DesignHub : IModelContainer, IDisposable
         DesignTypeSerializer.Register();
     }
 
-    public static async ValueTask InitAsync(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
-        IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService,
-        IMetadataReferenceProvider metadataReferenceProvider)
-    {
-        //TODO: 判断是否已初始
-
-        await MetadataReferences.InitAsync(metadataReferenceProvider);
-
-        Current = new DesignHub(sessionName, leafOrgUnitId,
-            checkoutService, stagedService, metaStoreService, publishService);
-
-        RuntimeContext.Init(new DesignTimeContext(), null);
-    }
-
-    private DesignHub(string sessionName, Guid leafOrgUnitId, ICheckoutService checkoutService,
-        IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService)
+    public DesignHub(string sessionName, Guid leafOrgUnitId)
     {
         SessionName = sessionName;
         LeafOrgUnitId = leafOrgUnitId;
-        CheckoutService = checkoutService;
-        StagedService = stagedService;
-        MetaStoreService = metaStoreService;
-        PublishService = publishService;
-
+        
         TypeSystem = new TypeSystem(this);
         DesignTree = new DesignTree(this);
-    }
 
-    public static DesignHub Current { get; private set; } = null!;
+        RuntimeContext.Init(new DesignTimeContext(this), null); //TODO: fix
+    }
 
     internal readonly string SessionName;
     internal readonly Guid LeafOrgUnitId;
     public readonly DesignTree DesignTree;
     internal readonly TypeSystem TypeSystem;
-    internal readonly ICheckoutService CheckoutService;
-    internal readonly IStagedService StagedService;
-    internal readonly IMetaStoreService MetaStoreService;
-    internal readonly IPublishService PublishService;
+    internal ICheckoutService CheckoutService { get; private set; }
+    internal IStagedService StagedService { get; private set; }
+    internal IMetaStoreService MetaStoreService { get; private set; }
+    internal IPublishService PublishService { get; private set; }
+    internal IDesignUIService DesignUIService { get; private set; }
 
     /// <summary>
     /// 被标为删除的模型或其他,因获取服务端PendingChange无法解析已经删除的
@@ -58,6 +40,16 @@ public sealed class DesignHub : IModelContainer, IDisposable
     internal Func<int, string> AppNameGetter => appId => DesignTree.FindApplicationNode(appId)!.Model.Name;
 
     //internal Func<ModelId, ModelBase> ModelGetter => id => DesignTree.FindModelNode(id)!.Model;
+
+    public void InitServices(IDesignUIService uiService, ICheckoutService checkoutService,
+        IStagedService stagedService, IMetaStoreService metaStoreService, IPublishService publishService)
+    {
+        DesignUIService = uiService;
+        CheckoutService = checkoutService;
+        StagedService = stagedService;
+        MetaStoreService = metaStoreService;
+        PublishService = publishService;
+    }
 
     public void Dispose()
     {
@@ -149,7 +141,14 @@ public sealed class DesignHub : IModelContainer, IDisposable
 
 internal sealed class DesignTimeContext : IRuntimeContext
 {
-    public IUserSession? CurrentSession { get; }
+    public DesignTimeContext(DesignHub designContext)
+    {
+        _designContext = designContext;
+    }
+
+    private readonly DesignHub _designContext;
+
+    public IUserSession? CurrentSession { get; } //TODO: fix
 
     public ValueTask<ApplicationModel> GetApplicationAsync(int appId)
     {
@@ -158,7 +157,7 @@ internal sealed class DesignTimeContext : IRuntimeContext
 
     public ValueTask<T> GetModelAsync<T>(ModelId modelId) where T : ModelBase
     {
-        return new ValueTask<T>((T)DesignHub.Current.DesignTree.FindModelNode(modelId)!.Model);
+        return new ValueTask<T>((T)_designContext.DesignTree.FindModelNode(modelId)!.Model);
     }
 
     public void InvalidModelsCache(string[]? services, ModelId[]? others, bool byPublish)

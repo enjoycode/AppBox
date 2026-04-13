@@ -15,7 +15,7 @@ internal static class MetadataReferences
     /// <summary>
     /// 初始化加载必需的MetadataReference
     /// </summary>
-    internal static async ValueTask InitAsync(IMetadataReferenceProvider provider)
+    internal static async Task InitAsync(IMetadataReferenceProvider provider)
     {
         _provider = provider;
         

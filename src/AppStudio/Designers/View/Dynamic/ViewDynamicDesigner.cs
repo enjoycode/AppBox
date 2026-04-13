@@ -12,7 +12,7 @@ namespace AppBoxDesign;
 
 internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
-    static ViewDynamicDesigner()
+    private static void InitEditors(DesignHub designContext)
     {
         if (DesignSettings.CreateDynamicStateValue != null!) return;
 
@@ -23,10 +23,10 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
             DynamicStateType.DataRow => new DynamicDataRow(),
             _ => new DynamicPrimitive()
         };
-        DesignSettings.GetStateEditor = static (controller, state) => state.Type switch
+        DesignSettings.GetStateEditor = (controller, state) => state.Type switch
         {
-            DynamicStateType.DataTable => new DataTableEditDialog(controller, state),
-            DynamicStateType.DataRow => new DataRowEditDialog(controller, state),
+            DynamicStateType.DataTable => new DataTableEditDialog(designContext, controller, state),
+            DynamicStateType.DataRow => new DataRowEditDialog(designContext, controller, state),
             _ => new ValueStateEditDialog(state)
         };
         DesignSettings.GetEventEditor = static (element, meta) => new EventEditDialog(element, meta);
@@ -44,11 +44,14 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         EventEditor.Register(nameof(FetchData), static (e, m, a) => new FetchDataEditor(e, m, a));
         EventEditor.Register(nameof(SaveData), static (e, m, a) => new SaveDataEditor(e, m, a));
         EventEditor.Register(nameof(DeleteData), static (e, m, a) => new DeleteDataEditor(e, m, a));
-        EventEditor.Register(nameof(ShowDialog), static (e, m, a) => new ShowDialogEditor(e, m, a));
+        EventEditor.Register(nameof(ShowDialog), (e, m, a) => new ShowDialogEditor(designContext, e, m, a));
     }
 
-    public ViewDynamicDesigner(ModelNode modelNode)
+    public ViewDynamicDesigner(DesignHub designContext, ModelNode modelNode)
     {
+        _designContext = designContext;
+        InitEditors(designContext);
+
         ModelNode = modelNode;
         _toolboxPad = new Toolbox(_designController);
         _outlinePad = new DynamicOutlinePad(_designController);
@@ -69,6 +72,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         };
     }
 
+    private readonly DesignHub _designContext;
     private readonly DesignController _designController = new();
     private readonly Toolbox _toolboxPad;
     private readonly DynamicOutlinePad _outlinePad;
@@ -112,7 +116,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         try
         {
             using var ms = new MemoryStream(2048);
-            await DesignHub.Current.TypeSystem.DownloadSourceCode(ms, ModelNode);
+            await _designContext.TypeSystem.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
                 _designController.Load(ms.GetBuffer().AsSpan(0, (int)ms.Length));
@@ -129,7 +133,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
     private void BuildJson()
     {
         using var ms = new MemoryStream();
-        using var writer = new Utf8JsonWriter(ms, new JsonWriterOptions() {Indented = true});
+        using var writer = new Utf8JsonWriter(ms, new JsonWriterOptions() { Indented = true });
         _designController.Write(writer);
         writer.Flush();
         var json = Encoding.UTF8.GetString(ms.GetBuffer().AsSpan(0, (int)ms.Length));

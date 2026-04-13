@@ -7,11 +7,12 @@ namespace AppBoxDesign.EventEditors;
 
 internal sealed class ShowDialogEditor : SingleChildWidget
 {
-    public ShowDialogEditor(DesignElement element, DynamicEventMeta eventMeta, IEventAction eventAction)
+    public ShowDialogEditor(DesignHub designContext, DesignElement element, DynamicEventMeta eventMeta, IEventAction eventAction)
     {
+        _designContext = designContext;
         _showDialogAction = (ShowDialog)eventAction;
         _targetView = new RxProxy<ModelNode?>(
-            () => DesignHub.Current.DesignTree.FindModelNode(_showDialogAction.TargetViewId),
+            () => designContext.DesignTree.FindModelNode(_showDialogAction.TargetViewId),
             v => _showDialogAction.TargetViewId = v?.Model.Id ?? 0);
         //TODO:设计时监听_targetView改变清除ViewParameters
         _title = new RxProxy<string>(() => _showDialogAction.Title, v => _showDialogAction.Title = v);
@@ -22,6 +23,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
         Child = Build();
     }
 
+    private readonly DesignHub _designContext;
     private readonly DataGridController<ViewParameter> _dgController = new();
     private readonly ShowDialog _showDialogAction;
     private readonly State<ModelNode?> _targetView;
@@ -41,7 +43,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
                 {
                     new("TargetView:", new Select<ModelNode>(_targetView)
                     {
-                        Options = DesignUtils.GetAllDynamicViewModels(),
+                        Options = DesignUtils.GetAllDynamicViewModels(_designContext),
                         LabelGetter = node => $"{node.AppNode.Label}.{node.Label}",
                     }),
                     new("Title:", new TextInput(_title)),

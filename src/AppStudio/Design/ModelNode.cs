@@ -91,12 +91,11 @@ public sealed class ModelNode : DesignNode
         //TODO: 考虑事务保存模型及相关代码
 
         //先保存模型代码
-        var hub = DesignHub.Current;
         if (Model.PersistentState != PersistentState.Deleted)
         {
             if (utf8CodeStream != null)
             {
-                await hub.StagedService.SaveCodeAsync(Model.Id, utf8CodeStream);
+                await DesignContext.StagedService.SaveCodeAsync(Model.Id, utf8CodeStream);
             }
             else
             {
@@ -113,7 +112,7 @@ public sealed class ModelNode : DesignNode
 
                     await streamWriter.FlushAsync();
                     ms.Position = 0;
-                    await hub.StagedService.SaveCodeAsync(Model.Id, ms);
+                    await DesignContext.StagedService.SaveCodeAsync(Model.Id, ms);
 
                     //如果是非新建的服务模型需要更新服务代理(注意用utf8CodeStream判断是否刚创建的)
                     if (Model.ModelType == ModelType.Service)
@@ -123,7 +122,7 @@ public sealed class ModelNode : DesignNode
         }
 
         //再保存模型元数据
-        await hub.StagedService.SaveModelAsync(Model);
+        await DesignContext.StagedService.SaveModelAsync(Model);
     }
 
     public override string ToString() => $"{AppName}.{CodeUtil.GetPluralStringOfModelType(ModelType)}.{Model.Name}";

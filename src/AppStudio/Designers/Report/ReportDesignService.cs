@@ -5,9 +5,14 @@ namespace AppBoxDesign;
 
 internal sealed class ReportDesignService : IDesignService
 {
+    public ReportDesignService(DesignHub designContext)
+    {
+        PropertyPanel = new DiagramPropertyPanel(designContext);
+    }
+
     internal ReportToolbox Toolbox { get; } = new();
     internal DiagramSurface Surface { get; private set; } = null!;
-    internal DiagramPropertyPanel PropertyPanel { get; } = new();
+    internal DiagramPropertyPanel PropertyPanel { get; }
 
     void IDesignService.InitSurface(DiagramSurface surface)
     {

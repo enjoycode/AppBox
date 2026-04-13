@@ -12,9 +12,9 @@ internal static class BottomPadNames
 
 internal sealed class BottomPad : View
 {
-    public BottomPad(DesignStore designStore)
+    public BottomPad(DesignHub designContext)
     {
-        _designStore = designStore;
+        _designStore = (DesignStore)designContext.DesignUIService;
 
         Child = new Container()
         {

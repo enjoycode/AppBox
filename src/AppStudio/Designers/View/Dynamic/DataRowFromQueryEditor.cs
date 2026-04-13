@@ -7,8 +7,9 @@ namespace AppBoxDesign;
 
 internal sealed class DataRowFromQueryEditor : View
 {
-    public DataRowFromQueryEditor(DesignController designController, DynamicState state)
+    public DataRowFromQueryEditor(DesignHub designContext, DesignController designController, DynamicState state)
     {
+        _designContext = designContext;
         _designController = designController;
         _state = state;
         _dataRow = (DynamicDataRow)state.Value!;
@@ -21,6 +22,7 @@ internal sealed class DataRowFromQueryEditor : View
         _selectsController.DataSource = RowFromQuery.Selects;
     }
 
+    private readonly DesignHub _designContext;
     private readonly DesignController _designController;
     private readonly DynamicState _state;
     private readonly DynamicDataRow _dataRow;
@@ -35,7 +37,7 @@ internal sealed class DataRowFromQueryEditor : View
             if (Expression.IsNull(RowFromQuery.Root))
                 return null;
             var rootModelId = RowFromQuery.Root!.ModelId;
-            return DesignHub.Current.DesignTree.FindModelNode(rootModelId);
+            return _designContext.DesignTree.FindModelNode(rootModelId);
         },
         node =>
         {
@@ -77,7 +79,7 @@ internal sealed class DataRowFromQueryEditor : View
                     [
                         new Select<ModelNode>(_entityTarget)
                         {
-                            Options = DesignUtils.GetAllSqlEntityModels(),
+                            Options = DesignUtils.GetAllSqlEntityModels(_designContext),
                             LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                         },
                         new Expanded(new TreeView<EntityMember>(_treeController, BuildTreeNode, m =>
@@ -86,7 +88,7 @@ internal sealed class DataRowFromQueryEditor : View
                                 if (entityRef.IsAggregationRef)
                                     throw new NotImplementedException();
                                 var refModel =
-                                    (EntityModel)DesignHub.Current.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
+                                    (EntityModel)_designContext.DesignTree.FindModelNode(entityRef.RefModelIds[0])!
                                         .Model;
                                 return DesignUtils.GetEntityModelMembers(refModel);
                             })

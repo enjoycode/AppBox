@@ -13,15 +13,13 @@ public static class DesignHelper
         LocalFileSystem.Init(new OSFileSystem());
 
         var mockSession = ServerRuntimeHelper.MockUserSession();
-        await DesignHub.InitAsync(
-            mockSession.Name, mockSession.LeafOrgUnitId,
-            new MockCheckoutService(), new MockStagedService(), new MockMetaStoreService(), new MockPublishService(),
-            new MockMetadataReferenceProvider()
-        );
+        var designContext = new DesignHub(mockSession.Name, mockSession.LeafOrgUnitId);
+        designContext.InitServices(new MockDesignUIService(), new MockCheckoutService(),
+            new MockStagedService(), new MockMetaStoreService(), new MockPublishService());
+        await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
 
-        var hub = DesignHub.Current;
-        await hub.DesignTree.LoadAsync();
-        return hub;
+        await designContext.DesignTree.LoadAsync();
+        return designContext;
     }
 
     internal static async Task ReplaceCode(DesignHub hub, DocumentId documentId, string code)
@@ -32,6 +30,11 @@ public static class DesignHelper
         sourceText = sourceText.Replace(0, sourceText.Length, code);
         workspace.OnDocumentChanged(documentId, sourceText);
     }
+}
+
+internal sealed class MockDesignUIService : IDesignUIService
+{
+    public Task LoadDesignTreeAsync() => throw new NotImplementedException();
 }
 
 internal sealed class MockCheckoutService : ICheckoutService

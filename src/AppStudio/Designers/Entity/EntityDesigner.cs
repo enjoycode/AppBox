@@ -6,9 +6,10 @@ namespace AppBoxDesign;
 
 internal sealed class EntityDesigner : View, IModelDesigner
 {
-    public EntityDesigner(DesignStore designStore, ModelNode modelNode)
+    public EntityDesigner(DesignHub designContext, ModelNode modelNode)
     {
-        _designStore = designStore;
+        _designContext = designContext;
+        _designStore = (DesignStore)designContext.DesignUIService;
         ModelNode = modelNode;
         _entityModel = (EntityModel)ModelNode.Model;
         _selectedMember = _membersController.ObserveCurrentRow();
@@ -23,6 +24,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
         };
     }
 
+    private readonly DesignHub _designContext;
     private readonly DesignStore _designStore;
     public ModelNode ModelNode { get; }
     private readonly State<int> _activePad = 0; //当前的设计面板
@@ -93,7 +95,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
     {
         try
         {
-            var dlg = new NewEntityMemberDialog(ModelNode);
+            var dlg = new NewEntityMemberDialog(_designContext, ModelNode);
             var dlgResult = await dlg.ShowAsync();
             if (dlgResult != DialogResult.OK) return;
 
@@ -106,7 +108,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
             //保存并更新虚拟代码
             await ModelNode.SaveAsync(null);
-            await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+            await _designContext.TypeSystem.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception ex)
         {
@@ -127,7 +129,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
             //保存并更新虚拟代码
             await ModelNode.SaveAsync(null);
-            await DesignHub.Current.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+            await _designContext.TypeSystem.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception ex)
         {
@@ -156,7 +158,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
         try
         {
             if (_selectedMember.Value == null) return;
-            
+
             var list = await FindUsages.Execute(ModelReferenceType.EntityMember, ModelNode, _selectedMember.Value.Name);
             _designStore.UpdateUsages(list);
         }

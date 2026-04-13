@@ -9,7 +9,12 @@ namespace AppBoxDesign;
 
 internal sealed class RoslynCompletionProvider : ICompletionProvider
 {
-    internal static readonly RoslynCompletionProvider Default = new RoslynCompletionProvider();
+    public RoslynCompletionProvider(DesignHub designContext)
+    {
+        _designContext = designContext;
+    }
+    
+    private readonly DesignHub _designContext;
 
     public IEnumerable<char> TriggerCharacters => ['.'];
 
@@ -18,14 +23,13 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
     {
         var wants = WantsType.WantDocumentationForEveryCompletionResult | WantsType.WantKind |
                     WantsType.WantReturnType; //暂默认
-
-        var hub = DesignHub.Current;
+        
         ModelId modelId = document.Tag!;
-        var modelNode = hub.DesignTree.FindModelNode(modelId);
+        var modelNode = _designContext.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
 
-        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
+        var doc = _designContext.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
         if (doc == null)
             throw new Exception($"Can't find document: {modelNode.Model.Name}");
 
@@ -40,7 +44,7 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
         // get recommened symbols to match them up later with SymbolCompletionProvider
         var semanticModel = await doc.GetSemanticModelAsync();
         var recommendedSymbols = await
-            Recommender.GetRecommendedSymbolsAtPositionAsync(semanticModel!, offset, hub.TypeSystem.Workspace);
+            Recommender.GetRecommendedSymbolsAtPositionAsync(semanticModel!, offset, _designContext.TypeSystem.Workspace);
         var completions = new List<ICompletionItem>(completionList.Items.Length);
         foreach (var item in completionList.Items)
         {

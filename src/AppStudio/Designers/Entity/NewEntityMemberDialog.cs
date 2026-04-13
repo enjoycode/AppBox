@@ -8,8 +8,9 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class NewEntityMemberDialog : Dialog
 {
-    public NewEntityMemberDialog(ModelNode modelNode)
+    public NewEntityMemberDialog(DesignHub designContext, ModelNode modelNode)
     {
+        _designContext = designContext;
         _modelNode = modelNode;
         Width = 380;
         Height = 300;
@@ -21,6 +22,7 @@ internal sealed class NewEntityMemberDialog : Dialog
     private static readonly string[] FieldTypes =
         ["String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Enum", "Binary"];
 
+    private readonly DesignHub _designContext;
     private readonly ModelNode _modelNode;
     private readonly State<string> _name = string.Empty;
     private readonly State<bool> _allowNull = false;
@@ -63,7 +65,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                             new FormItem("EnumModel:",
                                 new Select<ModelNode>(_enumTarget)
                                 {
-                                    Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Enum),
+                                    Options = _designContext.DesignTree.FindNodesByType(ModelType.Enum),
                                     LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                                 }
                             ),
@@ -79,7 +81,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                             new FormItem("Target:",
                                 new Select<ModelNode>(_entityRefTarget)
                                 {
-                                    Options = DesignHub.Current.DesignTree.FindNodesByType(ModelType.Entity),
+                                    Options = _designContext.DesignTree.FindNodesByType(ModelType.Entity),
                                     LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                                 }),
                             new FormItem("AllowNull:", new Checkbox(_allowNull))
@@ -94,7 +96,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                             new FormItem("Target:", //TODO: 暂简单实现
                                 new Select<EntityMemberInfo>(_entitySetTarget)
                                 {
-                                    Options = DesignStore.GetAllEntityRefs(_modelNode.Id)
+                                    Options = DesignStore.GetAllEntityRefs(_designContext, _modelNode.Id)
                                 })
                         }
                     })

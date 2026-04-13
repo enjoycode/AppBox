@@ -6,8 +6,9 @@ namespace AppBoxDesign;
 
 internal abstract class DataTableFromServiceEditorBase : View
 {
-    protected DataTableFromServiceEditorBase(DataTableFromServiceBase tableFromService)
+    protected DataTableFromServiceEditorBase(DesignHub designContext, DataTableFromServiceBase tableFromService)
     {
+        _designContext = designContext;
         _tableFromService = tableFromService;
         _service = new RxProxy<string>(() => _tableFromService.Service, v => _tableFromService.Service = v);
 
@@ -15,7 +16,7 @@ internal abstract class DataTableFromServiceEditorBase : View
     }
 
     //TODO: 服务选择
-
+    private readonly DesignHub _designContext;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
     private readonly State<string> _service;
     private readonly DataTableFromServiceBase _tableFromService;
@@ -103,7 +104,7 @@ internal abstract class DataTableFromServiceEditorBase : View
         ServiceMethodInfo methodInfo;
         try
         {
-            methodInfo = await GetServiceMethod.GetByName(DesignHub.Current, _service.Value);
+            methodInfo = await GetServiceMethod.GetByName(_designContext, _service.Value);
         }
         catch (Exception)
         {

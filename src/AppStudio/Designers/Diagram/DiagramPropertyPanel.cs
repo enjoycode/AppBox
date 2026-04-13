@@ -6,8 +6,9 @@ namespace AppBoxDesign;
 
 internal sealed class DiagramPropertyPanel : SingleChildWidget
 {
-    public DiagramPropertyPanel()
+    public DiagramPropertyPanel(DesignHub designContext)
     {
+        _designContext = designContext;
         IsLayoutTight = false;
         _typeName = new RxProxy<string>(() => _selectedItem?.TypeName ?? string.Empty);
 
@@ -36,6 +37,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         };
     }
 
+    private readonly DesignHub _designContext;
     private IDiagramItem? _selectedItem;
     private readonly State<string> _typeName;
     private readonly ListViewController<DiagramPropertyGroup> _listViewController = new();
@@ -60,7 +62,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         foreach (var property in group.Properties)
         {
             var formItem = MakePropertyEditor(property);
-            form.Children.Add(MakePropertyEditor(property));
+            form.Children.Add(formItem);
             if (group.GroupName == "Layout" && formItem.Child is IValueStateEditor stateEditor)
                 _layoutProperties.Add(stateEditor);
         }
@@ -72,7 +74,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         };
     }
 
-    private static FormItem MakePropertyEditor(IDiagramProperty property) => property.EditorName switch
+    private FormItem MakePropertyEditor(IDiagramProperty property) => property.EditorName switch
     {
         nameof(EnumEditor) => new FormItem(property.PropertyName, new EnumEditor(property)),
         nameof(CheckBoxEditor) => new FormItem(property.PropertyName, new CheckBoxEditor(property)),
@@ -80,8 +82,8 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         nameof(ReportScalarEditor) => new FormItem(property.PropertyName, new ReportScalarEditor(property)),
         nameof(ReportTextEditor) => new FormItem(property.PropertyName, new ReportTextEditor(property)),
         nameof(ReportDataSourceEditor) => new FormItem(property.PropertyName, new ReportDataSourceEditor(property)),
-        nameof(ReportDataSourcesEditor) => new FormItem(property.PropertyName, new ReportDataSourcesEditor(property))
-            { LabelVerticalAlignment = VerticalAlignment.Top },
+        nameof(ReportDataSourcesEditor) => new FormItem(property.PropertyName,
+            new ReportDataSourcesEditor(_designContext, property)) { LabelVerticalAlignment = VerticalAlignment.Top },
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };
 

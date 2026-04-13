@@ -4,8 +4,10 @@ namespace AppBoxDesign;
 
 internal sealed class MainMenuPad : View
 {
-    public MainMenuPad(DesignStore designStore)
+    public MainMenuPad(DesignHub designContext)
     {
+        var designStore = (DesignStore)designContext.DesignUIService;
+
         Child = new Container
         {
             Height = 45, FillColor = _bgColor,
