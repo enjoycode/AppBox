@@ -9,13 +9,18 @@ internal sealed class DeleteCommand : DesignCommand
 
     public async void Execute()
     {
-        //TODO:确认删除
         var selectedNode = DesignStore.TreeController.FirstSelectedNode;
         if (selectedNode == null)
         {
             Notification.Error("请先选择待删除的节点");
             return;
         }
+
+        //确认删除
+        var nodeName = selectedNode.Data.Label.Value;
+        var confirmResult = await Dialog.ShowConfirmAsync("确认操作", $"确认是否删除[{nodeName}]");
+        if (confirmResult != DialogResult.Yes)
+            return;
 
         var nodeType = selectedNode.Data.Type;
         //TODO:判断能否删除

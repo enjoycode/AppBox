@@ -56,7 +56,7 @@ public sealed class DeleteData : IEventAction
 
     #endregion
 
-    public void Run(IDynamicContext dynamicContext, object? eventArg = null)
+    public async void Run(IDynamicContext dynamicContext, object? eventArg = null)
     {
         var state = dynamicContext.FindState(DataSource);
         if (state == null)
@@ -74,35 +74,9 @@ public sealed class DeleteData : IEventAction
             return;
         }
 
-        Dialog.Show("Confirm",
-            _ => new Center()
-            {
-                Child = new Text(ConfirmMessage) { TextColor = Colors.Red }
-            },
-            dlg => new Container
-            {
-                Height = Button.DefaultHeight + 20 + 20,
-                Padding = EdgeInsets.All(20),
-                Child = new Row(VerticalAlignment.Middle, 20)
-                {
-                    Children =
-                    {
-                        new Expanded(),
-                        new Button(DialogResult.No) { Width = 80, OnTap = _ => dlg.Close(DialogResult.No) },
-                        new Button(DialogResult.Yes)
-                        {
-                            Width = 80,
-                            OnTap = _ =>
-                            {
-                                dlg.Close(DialogResult.Yes);
-                                RunInternal(dynamicContext, state);
-                            }
-                        }
-                    }
-                }
-            },
-            new(280, 180)
-        );
+        var dlgResult = await Dialog.ShowConfirmAsync("Confirm", ConfirmMessage);
+        if (dlgResult == DialogResult.Yes)
+            RunInternal(dynamicContext, state);
     }
 
     private static async void RunInternal(IDynamicContext dynamicContext, DynamicState state)
