@@ -7,14 +7,15 @@ namespace AppBoxDesign;
 
 internal static class GotoDefinitionCommand
 {
-    public static async void Execute(DesignStore designStore, TextEditor editor)
+    public static async void Execute(DesignHub designContext, TextEditor editor)
     {
+        var designStore = (DesignStore)designContext.DesignUIService;
         ModelId modelId = editor.Document.Tag!;
         var line = editor.Caret.Line;
         var column = editor.Caret.Column;
         var position = editor.Document.PositionToOffset(new TextLocation(column, line));
 
-        var res = await GotoDefinition.Execute(modelId, position);
+        var res = await GotoDefinition.Execute(designContext, modelId, position);
         if (res == null) return;
         designStore.OpenOrActiveDesigner(res.Value.Target, res); //打开或激活节点
     }

@@ -7,24 +7,38 @@ using AppBoxClient;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using PixUI;
 
 namespace AppBoxDesign;
 
-/// <summary>
-/// 生成客户端应用的程序集
-/// </summary>
-internal static class BuildApp
+internal sealed class BuildAppCommand : DesignCommand
 {
-    internal static async Task Execute()
+    public BuildAppCommand(DesignHub context) : base(context) { }
+
+    public async void Execute()
+    {
+        try
+        {
+            await Build(Context);
+            Notification.Success($"构建应用成功");
+            //TODO:**暂在这里重新构建动态组件工具箱
+            await DesignStore.RebuildDynamicToolbox();
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"构建应用失败: {ex.Message}");
+        }
+    }
+
+    private static async Task Build(DesignHub context)
     {
         //TODO:检查签出情况，如有其他签出返回警告
 
-        var hub = DesignHub.Current;
-        var ctx = new BuildAppContext(hub);
+        var ctx = new BuildAppContext(context);
         var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
 
         //从HomePage的路由表开始分析引用关系，仅生成用到的模型的程序集
-        var homePage = hub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage");
+        var homePage = context.DesignTree.FindModelNodeByFullName("sys.Views.HomePage");
         if (homePage == null)
             throw new Exception("Can't find HomePage");
 
@@ -53,7 +67,7 @@ internal static class BuildApp
         {
             await using var assemblyStream = assemblyInfo.CompressAssemblyData();
             assemblyStream.Position = 0;
-            await hub.PublishService.UploadAppAssembly(assemblyStream, assemblyInfo.AssemblyName, isFirst);
+            await context.PublishService.UploadAppAssembly(assemblyStream, assemblyInfo.AssemblyName, isFirst);
             isFirst = false;
         }
 
@@ -85,7 +99,7 @@ internal static class BuildApp
             tempFileStream.Position = 0;
 
             //再上传临时文件
-            await hub.PublishService.UploadViewAssemblyMap(tempFileStream);
+            await context.PublishService.UploadViewAssemblyMap(tempFileStream);
         }
         finally
         {

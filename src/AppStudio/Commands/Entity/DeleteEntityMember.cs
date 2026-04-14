@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal static class DeleteEntityMember
 {
-    internal static async ValueTask Execute(ModelNode node, EntityMember member)
+    internal static async ValueTask Execute(DesignHub context, ModelNode node, EntityMember member)
     {
         if (!node.IsCheckoutByMe)
             throw new Exception("Has not checkout");
@@ -21,7 +21,7 @@ internal static class DeleteEntityMember
         }
 
         //查找成员引用
-        var refs = await ReferenceService.FindEntityMemberReferencesAsync(DesignHub.Current, node, member);
+        var refs = await ReferenceService.FindEntityMemberReferencesAsync(context, node, member);
         if (refs.Count > 0) //有引用项不做删除操作
         {
             var allSelf = refs.All(r => r.ModelNode == node);

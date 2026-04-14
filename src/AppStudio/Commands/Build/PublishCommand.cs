@@ -8,14 +8,17 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal static class Publish
+internal sealed class PublishCommand : DesignCommand
 {
-    internal static async Task Execute(IList<PendingChange> changes, string commitMessage)
+    public PublishCommand(DesignHub context) : base(context) { }
+
+    public void Execute() => new PublishDialog(Context).Show();
+
+    internal static async Task Publish(DesignHub context, IList<PendingChange> changes, string commitMessage)
     {
-        var hub = DesignHub.Current;
         //将PendingChanges转为PublishPackage, 并保存所有尚未保存的内容
         var package = new PublishPackage();
-        var apps = hub.GetApplications();
+        var apps = context.GetApplications();
         foreach (var app in apps)
             package.Apps.Add(app.Id, app.Name);
         foreach (var change in changes)
@@ -38,14 +41,14 @@ internal static class Publish
         }
 
         //验证模型有效性
-        ValidateModels(hub, package);
+        ValidateModels(context, package);
         //编译模型并上传
-        await CompileAndUploadAsync(hub, changes, package);
+        await CompileAndUploadAsync(context, changes, package);
         //调用服务端发布
-        await hub.PublishService.PublishAsync(package, commitMessage);
+        await context.PublishService.PublishAsync(package, commitMessage);
         //刷新所有CheckoutByMe的节点项
-        hub.DesignTree.CheckinAllNodes();
-        hub.ClearRemovedItems();
+        context.DesignTree.CheckinAllNodes();
+        context.ClearRemovedItems();
     }
 
     private static void ValidateModels(DesignHub hub, PublishPackage package)

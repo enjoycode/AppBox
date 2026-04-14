@@ -9,13 +9,12 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class GetServiceMethod
 {
-    internal static async Task<ServiceMethodInfo> GetByPosition(ModelNode modelNode, int position)
+    internal static async Task<ServiceMethodInfo> GetByPosition(DesignHub ctx, ModelNode modelNode, int position)
     {
         //定位服务入口方法
-        var hub = DesignHub.Current;
-        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
+        var doc = ctx.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
         var semanticModel = await doc!.GetSemanticModelAsync();
-        var symbol = await SymbolFinder.FindSymbolAtPositionAsync(semanticModel!, position, hub.TypeSystem.Workspace);
+        var symbol = await SymbolFinder.FindSymbolAtPositionAsync(semanticModel!, position, ctx.TypeSystem.Workspace);
         return GetBySymbol(symbol, modelNode);
     }
 

@@ -15,7 +15,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
     {
         SessionName = sessionName;
         LeafOrgUnitId = leafOrgUnitId;
-        
+
         TypeSystem = new TypeSystem(this);
         DesignTree = new DesignTree(this);
 
@@ -26,11 +26,11 @@ public sealed class DesignHub : IModelContainer, IDisposable
     internal readonly Guid LeafOrgUnitId;
     public readonly DesignTree DesignTree;
     internal readonly TypeSystem TypeSystem;
-    internal ICheckoutService CheckoutService { get; private set; }
-    internal IStagedService StagedService { get; private set; }
-    internal IMetaStoreService MetaStoreService { get; private set; }
-    internal IPublishService PublishService { get; private set; }
-    internal IDesignUIService DesignUIService { get; private set; }
+    internal ICheckoutService CheckoutService { get; private set; } = null!;
+    internal IStagedService StagedService { get; private set; } = null!;
+    internal IMetaStoreService MetaStoreService { get; private set; } = null!;
+    internal IPublishService PublishService { get; private set; } = null!;
+    internal IDesignUIService DesignUIService { get; private set; } = null!;
 
     /// <summary>
     /// 被标为删除的模型或其他,因获取服务端PendingChange无法解析已经删除的

@@ -3,9 +3,36 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal static class DeleteNode
+internal sealed class DeleteCommand : DesignCommand
 {
-    internal static async ValueTask<string> Execute(DesignNode deleteNode)
+    public DeleteCommand(DesignHub context) : base(context) { }
+
+    public async void Execute()
+    {
+        //TODO:确认删除
+        var selectedNode = DesignStore.TreeController.FirstSelectedNode;
+        if (selectedNode == null)
+        {
+            Notification.Error("请先选择待删除的节点");
+            return;
+        }
+
+        var nodeType = selectedNode.Data.Type;
+        //TODO:判断能否删除
+
+        try
+        {
+            var modelRootNodeIdString = await DeleteNode(Context, selectedNode.Data);
+            DesignStore.OnDeleteNode(selectedNode, modelRootNodeIdString);
+            Notification.Success($"删除节点[{selectedNode.Data.Label}]成功");
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"删除节点[{selectedNode.Data.Label}]失败: {ex.Message}");
+        }
+    }
+
+    private static async ValueTask<string> DeleteNode(DesignHub context, DesignNode deleteNode)
     {
         if (!(deleteNode is ModelNode || deleteNode is ApplicationNode ||
               deleteNode is FolderNode { Children.Count: 0 }))
@@ -13,9 +40,9 @@ internal static class DeleteNode
 
         DesignNode? rootNode;
         if (deleteNode is ModelNode modelNode)
-            rootNode = await DeleteModelNode(DesignHub.Current, modelNode);
+            rootNode = await DeleteModelNode(context, modelNode);
         else if (deleteNode is FolderNode folderNode)
-            rootNode = await DeleteFolderNode(DesignHub.Current, folderNode);
+            rootNode = await DeleteFolderNode(context, folderNode);
         else
             throw new NotImplementedException();
 

@@ -16,9 +16,9 @@ public sealed class BuildAppTest
         var viewAssemblyMap = new Dictionary<ModelNode, List<AssemblyInfo>>();
         var viewModelNode = hub.DesignTree.FindModelNodeByFullName("sys.Views.DemoAI")!;
 
-        await BuildApp.AnalyseView(ctx, viewModelNode);
+        await BuildAppCommand.AnalyseView(ctx, viewModelNode);
         ctx.ResolveAssemblyDependencies();
-        BuildApp.BuildViewAssemblyMap(ctx, viewAssemblyMap, viewModelNode);
+        BuildAppCommand.BuildViewAssemblyMap(ctx, viewAssemblyMap, viewModelNode);
         
         var allAssemblies = ctx.GetAllAssemblies();
         foreach (var assemblyInfo in allAssemblies)

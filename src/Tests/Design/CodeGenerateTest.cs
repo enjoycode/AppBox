@@ -103,7 +103,7 @@ public class CodeGenerateTest
         await DesignHelper.ReplaceCode(designHub, serviceNode.RoslynDocumentId!, serviceCode);
 
         using var ms = new MemoryStream(2048);
-        await Publish.CompileServiceAsync(ms, designHub, serviceModel, false);
+        await PublishCommand.CompileServiceAsync(ms, designHub, serviceModel, false);
         Assert.True(ms.Length > 0);
     }
 

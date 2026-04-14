@@ -32,6 +32,7 @@ internal static class DragDropNode
 
     private static async Task<int> DropModelNodeInner(ModelNode sourceNode, DesignNode targetNode)
     {
+        var hub = targetNode.DesignTree!.DesignHub;
         int insertIndex;
 
         if (targetNode.Type == DesignNodeType.ModelRootNode)
@@ -44,7 +45,7 @@ internal static class DragDropNode
             RemoveFromParent(sourceNode);
             insertIndex = AddToParent(sourceNode, targetNode);
             sourceNode.Model.FolderId = null;
-            await DesignHub.Current.StagedService.SaveModelAsync(sourceNode.Model); //直接保存
+            await hub.StagedService.SaveModelAsync(sourceNode.Model); //直接保存
         }
         else if (targetNode.Type == DesignNodeType.FolderNode)
         {
@@ -56,7 +57,7 @@ internal static class DragDropNode
             RemoveFromParent(sourceNode);
             insertIndex = AddToParent(sourceNode, targetNode);
             sourceNode.Model.FolderId = targetFolder.Id;
-            await DesignHub.Current.StagedService.SaveModelAsync(sourceNode.Model); //直接保存
+            await hub.StagedService.SaveModelAsync(sourceNode.Model); //直接保存
         }
         else
         {

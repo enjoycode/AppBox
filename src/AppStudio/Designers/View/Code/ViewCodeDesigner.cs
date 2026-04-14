@@ -8,13 +8,13 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 {
     public ViewCodeDesigner(DesignHub designContext, ModelNode modelNode)
     {
-        _designStore = (DesignStore)designContext.DesignUIService;
+        _designContext = designContext;
         ModelNode = modelNode;
         _textBuffer = new RoslynSourceText(modelNode);
         _previewController = new PreviewController(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
             new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.Id);
-        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
+        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(designContext, e);
         //订阅代码变更事件
         _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
         _delayDocChangedTask = new DelayTask(300, RunDelayTask);
@@ -31,7 +31,8 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 
     private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }
-    private readonly DesignStore _designStore;
+    private readonly DesignHub _designContext;
+    private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly CodeEditorController _codeEditorController;
     private readonly PreviewController _previewController;
     private readonly DelayTask _delayDocChangedTask;
@@ -117,8 +118,8 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
         //检查语法语义错误
         try
         {
-            var problems = await GetProblems.Execute(ModelNode);
-            _designStore.UpdateProblems(ModelNode, problems);
+            var problems = await GetProblems.Execute(_designContext, ModelNode);
+            DesignStore.UpdateProblems(ModelNode, problems);
 
             if (!problems.Any(p => p.IsError) && !_hidePreviewer.Value)
                 _previewController.Invalidate();

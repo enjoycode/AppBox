@@ -8,7 +8,6 @@ public sealed class AppStudio : View
 {
     public AppStudio()
     {
-        //Create DesignContext as Init services
         _designContext = new DesignHub(Channel.SessionName, Channel.LeafOrgUnitId);
         _designContext.InitServices(new DesignStore(_designContext), new CheckoutService(),
             new StagedService(), new MetaStoreService(), new PublishService());
@@ -66,6 +65,7 @@ public sealed class AppStudio : View
                     : new ClientMetadataReferenceProvider();
             await MetadataReferences.InitAsync(metadataReferenceProvider);
             //开始加载DesignTree
+            _designContext.TypeSystem.InitWorkspace();
             await _designContext.DesignUIService.LoadDesignTreeAsync();
         }
         catch (Exception e)

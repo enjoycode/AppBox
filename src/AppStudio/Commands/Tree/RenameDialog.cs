@@ -5,10 +5,10 @@ namespace AppBoxDesign;
 
 internal sealed class RenameDialog : Dialog
 {
-    public RenameDialog(DesignStore designStore, ModelReferenceType referenceType,
+    public RenameDialog(DesignHub context, ModelReferenceType referenceType,
         string target, string modelId, string oldName)
     {
-        _designStore = designStore;
+        _designContext = context;
         _referenceType = referenceType;
         _target = target;
         _modelId = modelId;
@@ -19,7 +19,8 @@ internal sealed class RenameDialog : Dialog
         Height = 240;
     }
 
-    private readonly DesignStore _designStore;
+    private readonly DesignHub _designContext;
+    private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly ModelReferenceType _referenceType;
     private readonly string _modelId;
     private readonly State<string> _target;
@@ -52,7 +53,7 @@ internal sealed class RenameDialog : Dialog
             }
         };
     }
-    
+
     protected override async ValueTask<bool> OnClosing(string result)
     {
         if (result == DialogResult.OK)
@@ -67,9 +68,10 @@ internal sealed class RenameDialog : Dialog
     {
         try
         {
-            var affects = await Rename.Execute(_modelId, _referenceType, _oldName.Value, _newName.Value);
+            var affects = await RenameCommand.Rename(_designContext, _modelId, _referenceType,
+                _oldName.Value, _newName.Value);
             //通知刷新受影响的节点
-            _designStore.OnRenameDone(_referenceType, _modelId, affects);
+            DesignStore.OnRenameDone(_referenceType, _modelId, affects);
             Notification.Success("重命名成功");
             return true;
         }

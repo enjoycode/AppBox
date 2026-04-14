@@ -6,14 +6,13 @@ namespace AppBoxDesign;
 
 internal static class GetSignatures
 {
-    public static async Task<SignatureResult?> Execute(ModelId modelId, int offset)
+    public static async Task<SignatureResult?> Execute(DesignHub context, ModelId modelId, int offset)
     {
-        var hub = DesignHub.Current;
-        var modelNode = hub.DesignTree.FindModelNode(modelId);
+        var modelNode = context.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
 
-        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
+        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
         if (doc == null)
             throw new Exception($"Can't find document: {modelNode.Model.Name}");
 

@@ -6,14 +6,13 @@ namespace AppBoxDesign;
 
 internal static class GotoDefinition
 {
-    internal static async Task<Definition?> Execute(ModelId modelId, int position)
+    internal static async Task<Definition?> Execute(DesignHub context, ModelId modelId, int position)
     {
-        var hub = DesignHub.Current;
-        var modelNode = hub.DesignTree.FindModelNode(modelId);
+        var modelNode = context.DesignTree.FindModelNode(modelId);
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
 
-        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
+        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
         if (doc == null)
             throw new Exception($"Can't find document: {modelNode.Model.Name}");
 
@@ -31,7 +30,7 @@ internal static class GotoDefinition
         //再判断是否模型源代码
         var targetModelId = DocNameUtil.TryGetModelIdFromDocName(loc.SourceTree.FilePath);
         if (targetModelId == null) return null;
-        var targetModelNode = hub.DesignTree.FindModelNode(targetModelId.Value);
+        var targetModelNode = context.DesignTree.FindModelNode(targetModelId.Value);
         if (targetModelNode == null) return null;
 
         //是否模型类型
@@ -54,7 +53,7 @@ internal static class GotoDefinition
         if (targetModelNode.Model.ModelType == ModelType.Service)
         {
             //到这里肯定是服务代理类的方法，需要转换定位至服务代码的相应位置
-            var methodSymbol = await hub.TypeSystem.GetServiceMethodSymbolAsync(targetModelNode, symbol.Name);
+            var methodSymbol = await context.TypeSystem.GetServiceMethodSymbolAsync(targetModelNode, symbol.Name);
             var newLoc = methodSymbol?.Locations[0];
             return new Definition(targetModelNode, newLoc?.SourceSpan.Start ?? -1, newLoc?.SourceSpan.Length ?? -1);
         }

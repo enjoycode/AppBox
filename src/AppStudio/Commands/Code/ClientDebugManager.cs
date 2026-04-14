@@ -23,7 +23,7 @@ internal static class ClientDebugManager
 
         // 1.编译并上传服务模型
         using var stream = new MemoryStream(2048);
-        await Publish.CompileServiceAsync(stream, hub, serviceModel, true);
+        await PublishCommand.CompileServiceAsync(stream, hub, serviceModel, true);
         stream.Seek(0, SeekOrigin.Begin);
         await Channel.Upload(DesignMethods.DebugUploadServiceFull, stream, $"{appName}.{serviceName}");
 

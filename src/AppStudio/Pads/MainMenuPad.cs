@@ -36,24 +36,24 @@ internal sealed class MainMenuPad : View
         ]),
         MenuItem.SubMenu("New", MaterialIcons.CreateNewFolder, [
             MenuItem.Item("Application", MaterialIcons.Widgets, cmds.NotImplCommand),
-            MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NewFolderCommand),
-            MenuItem.Item("Entity", MaterialIcons.TableChart, cmds.NewEntityCommand),
-            MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand),
-            MenuItem.Item("View", MaterialIcons.Wysiwyg, cmds.NewViewCommand),
-            MenuItem.Item("Report", MaterialIcons.PieChart, cmds.NewReportCommand),
-            MenuItem.Item("Enum", MaterialIcons.ViewList, cmds.NewEnumCommand),
-            MenuItem.Item("Permission", MaterialIcons.Lock, cmds.NewPermissionCommand)
+            MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NewFolderCommand.Execute),
+            MenuItem.Item("Entity", MaterialIcons.TableChart, cmds.NewEntityCommand.Execute),
+            MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand.Execute),
+            MenuItem.Item("View", MaterialIcons.Wysiwyg, cmds.NewViewCommand.Execute),
+            MenuItem.Item("Report", MaterialIcons.PieChart, cmds.NewReportCommand.Execute),
+            MenuItem.Item("Enum", MaterialIcons.ViewList, cmds.NewEnumCommand.Execute),
+            MenuItem.Item("Permission", MaterialIcons.Lock, cmds.NewPermissionCommand.Execute)
         ]),
         MenuItem.SubMenu("Models", MaterialIcons.Widgets, [
-            MenuItem.Item("Save", MaterialIcons.Save, cmds.SaveCommand),
-            MenuItem.Item("Checkout", MaterialIcons.CheckCircle, cmds.CheckoutCommand),
-            MenuItem.Item("Usages", MaterialIcons.Link, cmds.UsagesCommand),
-            MenuItem.Item("Rename", MaterialIcons.DriveFileRenameOutline, cmds.RenameCommand),
-            MenuItem.Item("Delete", MaterialIcons.DeleteForever, cmds.DeleteCommand),
-            MenuItem.Item("Publish", MaterialIcons.Publish, cmds.PublishCommand)
+            MenuItem.Item("Save", MaterialIcons.Save, cmds.SaveCommand.Execute),
+            MenuItem.Item("Checkout", MaterialIcons.CheckCircle, cmds.CheckoutCommand.Execute),
+            MenuItem.Item("Usages", MaterialIcons.Link, cmds.UsagesCommand.Execute),
+            MenuItem.Item("Rename", MaterialIcons.DriveFileRenameOutline, cmds.RenameCommand.Execute),
+            MenuItem.Item("Delete", MaterialIcons.DeleteForever, cmds.DeleteCommand.Execute),
+            MenuItem.Item("Publish", MaterialIcons.Publish, cmds.PublishCommand.Execute)
         ]),
         MenuItem.SubMenu("Apps", MaterialIcons.Apps, [
-            MenuItem.Item("Build", MaterialIcons.Build, cmds.BuildAppCommand)
+            MenuItem.Item("Build", MaterialIcons.Build, cmds.BuildAppCommand.Execute)
         ]),
         MenuItem.Item("Tools", MaterialIcons.Handyman),
         MenuItem.Item("AppStore", MaterialIcons.Store),

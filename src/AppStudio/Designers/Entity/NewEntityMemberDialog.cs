@@ -156,16 +156,16 @@ internal sealed class NewEntityMemberDialog : Dialog
                 NewEntityMember.NewEntityField(_modelNode, _name.Value,
                     (EntityFieldType)GetFieldTypeValue(), _allowNull.Value, _enumTarget.Value?.Model.Id)
             ],
-            EntityMemberType.EntityRef => NewEntityMember.NewEntityRef(_modelNode, _name.Value,
+            EntityMemberType.EntityRef => NewEntityMember.NewEntityRef(_designContext, _modelNode, _name.Value,
                 GetRefModelIds(), _allowNull.Value),
             EntityMemberType.EntitySet =>
             [
-                NewEntityMember.NewEntitySet(_modelNode, _name.Value,
+                NewEntityMember.NewEntitySet(_designContext, _modelNode, _name.Value,
                     _entitySetTarget.Value!.ModelId, _entitySetTarget.Value!.MemberId)
             ],
             EntityMemberType.EntityRefField =>
             [
-                NewEntityMember.NewEntityRefField(_modelNode, _name.Value, _refFieldPath.Value)
+                NewEntityMember.NewEntityRefField(_designContext, _modelNode, _name.Value, _refFieldPath.Value)
             ],
             _ => throw new NotImplementedException($"暂未实现的实体成员类型: {memberType}")
         };

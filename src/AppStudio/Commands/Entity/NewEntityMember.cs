@@ -43,7 +43,8 @@ internal static class NewEntityMember
         return field;
     }
 
-    internal static EntityMember[] NewEntityRef(ModelNode node, string name, string[] refIds, bool allowNull)
+    internal static EntityMember[] NewEntityRef(DesignHub ctx, ModelNode node, string name,
+        string[] refIds, bool allowNull)
     {
         if (refIds.Length == 0)
             throw new ArgumentException("EntityRef target is empty");
@@ -55,7 +56,7 @@ internal static class NewEntityMember
         var refModels = new EntityModel[refIds.Length];
         for (var i = 0; i < refIds.Length; i++)
         {
-            var refNode = DesignHub.Current.DesignTree.FindModelNode(refIds[i]);
+            var refNode = ctx.DesignTree.FindModelNode(refIds[i]);
             if (refNode == null)
                 throw new Exception("EntityRef target not exists");
             var refModel = (EntityModel)refNode.Model;
@@ -135,12 +136,13 @@ internal static class NewEntityMember
         return res.ToArray();
     }
 
-    internal static EntitySetMember NewEntitySet(ModelNode node, string name, ModelId refModelId, short refMemberId)
+    internal static EntitySetMember NewEntitySet(DesignHub ctx, ModelNode node, string name,
+        ModelId refModelId, short refMemberId)
     {
         Validate(node, name);
 
         //验证引用目标是否存在
-        var target = DesignHub.Current.DesignTree.FindModelNode(refModelId);
+        var target = ctx.DesignTree.FindModelNode(refModelId);
         if (target == null)
             throw new Exception("Can't find EntityRef");
         var targetModel = (EntityModel)target.Model;
@@ -155,7 +157,7 @@ internal static class NewEntityMember
         return entitySet;
     }
 
-    internal static EntityRefFieldMember NewEntityRefField(ModelNode node, string name, string path)
+    internal static EntityRefFieldMember NewEntityRefField(DesignHub ctx, ModelNode node, string name, string path)
     {
         Validate(node, name);
 
@@ -183,8 +185,7 @@ internal static class NewEntityMember
                 if (entityRefMember.IsAggregationRef)
                     throw new NotImplementedException("Aggregation is not implemented");
 
-                currentModel = (EntityModel)DesignHub.Current.DesignTree
-                    .FindModelNode(entityRefMember.RefModelIds[0])!.Model;
+                currentModel = (EntityModel)ctx.DesignTree.FindModelNode(entityRefMember.RefModelIds[0])!.Model;
             }
         }
 

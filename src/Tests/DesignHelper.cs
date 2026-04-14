@@ -11,12 +11,13 @@ public static class DesignHelper
     internal static async Task<DesignHub> MockDesignHub()
     {
         LocalFileSystem.Init(new OSFileSystem());
+        await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
 
         var mockSession = ServerRuntimeHelper.MockUserSession();
         var designContext = new DesignHub(mockSession.Name, mockSession.LeafOrgUnitId);
         designContext.InitServices(new MockDesignUIService(), new MockCheckoutService(),
             new MockStagedService(), new MockMetaStoreService(), new MockPublishService());
-        await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
+        designContext.TypeSystem.InitWorkspace();
 
         await designContext.DesignTree.LoadAsync();
         return designContext;

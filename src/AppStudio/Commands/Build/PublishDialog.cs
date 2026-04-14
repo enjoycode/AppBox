@@ -4,13 +4,16 @@ namespace AppBoxDesign;
 
 internal sealed class PublishDialog : Dialog
 {
-    public PublishDialog()
+    public PublishDialog(DesignHub context)
     {
         Width = 500;
         Height = 300;
         Title.Value = "Publish";
+
+        _context = context;
     }
 
+    private readonly DesignHub _context;
     private readonly DataGridController<PendingChange> _dataGridController = new();
     private IList<PendingChange> _changes = null!;
 
@@ -37,8 +40,7 @@ internal sealed class PublishDialog : Dialog
     {
         try
         {
-            var hub = DesignHub.Current;
-            _changes = hub.GetChanges();
+            _changes = _context.GetChanges();
             _dataGridController.DataSource = _changes;
         }
         catch (Exception ex)
@@ -58,7 +60,7 @@ internal sealed class PublishDialog : Dialog
     {
         try
         {
-            await Publish.Execute(_changes, "commit message");
+            await PublishCommand.Publish(_context, _changes, "commit message");
             Notification.Success("发布成功");
         }
         catch (Exception ex)

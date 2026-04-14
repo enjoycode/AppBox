@@ -9,7 +9,6 @@ internal sealed class EntityDesigner : View, IModelDesigner
     public EntityDesigner(DesignHub designContext, ModelNode modelNode)
     {
         _designContext = designContext;
-        _designStore = (DesignStore)designContext.DesignUIService;
         ModelNode = modelNode;
         _entityModel = (EntityModel)ModelNode.Model;
         _selectedMember = _membersController.ObserveCurrentRow();
@@ -25,7 +24,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
     }
 
     private readonly DesignHub _designContext;
-    private readonly DesignStore _designStore;
+    private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     public ModelNode ModelNode { get; }
     private readonly State<int> _activePad = 0; //当前的设计面板
     private readonly EntityModel _entityModel;
@@ -123,7 +122,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
             if (_selectedMember.Value == null) return;
 
             var member = _selectedMember.Value!;
-            await DeleteEntityMember.Execute(ModelNode, member);
+            await DeleteEntityMember.Execute(_designContext, ModelNode, member);
 
             _membersController.Remove(member);
 
@@ -143,8 +142,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
 
         var oldName = _selectedMember.Value.Name;
         var target = $"{ModelNode.Label}.{oldName}";
-        var dlg = new RenameDialog(_designStore, ModelReferenceType.EntityMember,
-            target, ModelNode.Id, oldName);
+        var dlg = new RenameDialog(_designContext, ModelReferenceType.EntityMember, target, ModelNode.Id, oldName);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
@@ -159,8 +157,9 @@ internal sealed class EntityDesigner : View, IModelDesigner
         {
             if (_selectedMember.Value == null) return;
 
-            var list = await FindUsages.Execute(ModelReferenceType.EntityMember, ModelNode, _selectedMember.Value.Name);
-            _designStore.UpdateUsages(list);
+            var list = await FindUsagesCommand.Find(_designContext, ModelReferenceType.EntityMember,
+                ModelNode, _selectedMember.Value.Name);
+            DesignStore.UpdateUsages(list);
         }
         catch (Exception ex)
         {

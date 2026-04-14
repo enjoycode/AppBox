@@ -13,7 +13,7 @@ internal sealed class DesignStore : IDesignUIService
     public DesignStore(DesignHub designContext)
     {
         _designContext = designContext;
-        Commands = new Commands(this);
+        Commands = new Commands(designContext);
     }
 
     private readonly DesignHub _designContext;

@@ -14,11 +14,10 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     {
         ModelNode = modelNode;
         _designContext = designContext;
-        _designStore = (DesignStore)_designContext.DesignUIService;
         _textBuffer = new RoslynSourceText(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
             new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.Id);
-        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designStore, e);
+        _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designContext, e);
         //订阅代码变更事件
         _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
         _delayDocChangedTask = new DelayTask(300, RunDelayTask);
@@ -27,7 +26,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     }
 
     private readonly DesignHub _designContext;
-    private readonly DesignStore _designStore;
+    private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }
     internal ServiceModel ServiceModel => (ServiceModel)ModelNode.Model;
@@ -134,8 +133,8 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         //检查语法语义错误
         try
         {
-            var problems = await GetProblems.Execute(ModelNode);
-            _designStore.UpdateProblems(ModelNode, problems);
+            var problems = await GetProblems.Execute(_designContext, ModelNode);
+            DesignStore.UpdateProblems(ModelNode, problems);
         }
         catch (Exception ex)
         {
@@ -227,7 +226,8 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         try
         {
             // 获取光标位置的服务方法
-            var methodInfo = await GetServiceMethod.GetByPosition(ModelNode, _codeEditorController.GetCaretOffset());
+            var methodInfo = await GetServiceMethod.GetByPosition(_designContext, ModelNode,
+                _codeEditorController.GetCaretOffset());
             // if (methodInfo == null) return;
 
             //TODO:暂简单实现且不支持带参数的调用(显示对话框设置参数并显示调用结果)
@@ -253,7 +253,8 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         try
         {
             // 获取光标位置的服务方法
-            var methodInfo = await GetServiceMethod.GetByPosition(ModelNode, _codeEditorController.GetCaretOffset());
+            var methodInfo = await GetServiceMethod.GetByPosition(_designContext, ModelNode,
+                _codeEditorController.GetCaretOffset());
             // if (methodInfo == null) return;
 
             //TODO:暂简单实现且不支持带参数的调用(显示对话框设置参数并显示调用结果)

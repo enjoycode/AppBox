@@ -23,8 +23,6 @@ internal sealed class TypeSystem : IDisposable
         ViewsProjectId = ProjectId.CreateNewId();
         ServiceBaseProjectId = ProjectId.CreateNewId();
         ServiceProxyProjectId = ProjectId.CreateNewId();
-
-        InitWorkspace();
     }
 
     internal readonly DesignHub DesignHub;
@@ -75,7 +73,7 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 初始化虚拟工程
     /// </summary>
-    private void InitWorkspace()
+    internal void InitWorkspace()
     {
         var modelProjectInfo = ProjectInfo.Create(ModelProjectId, VersionStamp.Create(),
             "ModelProject", "ModelProject", LanguageNames.CSharp, null, null,

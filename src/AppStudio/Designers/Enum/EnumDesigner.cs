@@ -123,7 +123,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
             if (_selectedMember.Value == null) return;
 
             var member = _selectedMember.Value!;
-            await DeleteEnumItem.Execute(ModelNode, member);
+            await DeleteEnumItem.Execute(_designContext, ModelNode, member);
 
             _membersController.Remove(member);
 
@@ -143,8 +143,8 @@ internal sealed class EnumDesigner : View, IModelDesigner
         {
             if (_selectedMember.Value == null) return;
 
-            var list = await FindUsages.Execute(ModelReferenceType.EnumModelItem, ModelNode,
-                _selectedMember.Value.Name);
+            var list = await FindUsagesCommand.Find(_designContext, ModelReferenceType.EnumModelItem,
+                ModelNode, _selectedMember.Value.Name);
             DesignStore.UpdateUsages(list);
         }
         catch (Exception ex)
