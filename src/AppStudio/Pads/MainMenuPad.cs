@@ -35,7 +35,7 @@ internal sealed class MainMenuPad : View
             MenuItem.Item("Remove DataStore", null, cmds.NotImplCommand)
         ]),
         MenuItem.SubMenu("New", MaterialIcons.CreateNewFolder, [
-            MenuItem.Item("Application", MaterialIcons.Widgets, cmds.NotImplCommand),
+            MenuItem.Item("Application", MaterialIcons.Widgets, cmds.NewAppCommand.Execute),
             MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NewFolderCommand.Execute),
             MenuItem.Item("Entity", MaterialIcons.TableChart, cmds.NewEntityCommand.Execute),
             MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand.Execute),

@@ -116,6 +116,9 @@ internal sealed class MockMetaStoreService : IMetaStoreService
 
     public Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer) =>
         MetaStore.Provider.GenModelIdAsync(appId, modelType, layer);
+
+    public Task CreateApplicationAsync(ApplicationModel app) =>
+        MetaStore.Provider.CreateApplicationAsync(app, null);
 }
 
 internal sealed class MockPublishService : IPublishService

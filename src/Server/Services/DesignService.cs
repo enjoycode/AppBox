@@ -39,6 +39,9 @@ internal sealed class DesignService : IService
                 return AnyValue.From(await MetaStore.DownloadModelsAsync());
             case "LoadModelCode":
                 return AnyValue.From(await MetaStore.Provider.DownloadModelCodeAsync(args.GetLong()!.Value));
+            case DesignMethods.CreateApplication:
+                await MetaStore.Provider.CreateApplicationAsync((ApplicationModel)args.GetObject()!, null);
+                return AnyValue.Empty;
             case "GenModelId":
                 return (long)(await MetaStore.Provider.GenModelIdAsync(
                     args.GetInt()!.Value, (ModelType)args.GetInt()!.Value, (ModelLayer)args.GetInt()!.Value));

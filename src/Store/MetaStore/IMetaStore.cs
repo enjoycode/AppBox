@@ -5,7 +5,7 @@ namespace AppBoxStore;
 
 public interface IMetaStore
 {
-    Task CreateApplicationAsync(ApplicationModel app, DbTransaction txn);
+    Task CreateApplicationAsync(ApplicationModel app, DbTransaction? txn);
 
     Task<ModelId> GenModelIdAsync(int appId, ModelType type, ModelLayer layer);
 

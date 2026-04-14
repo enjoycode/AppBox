@@ -14,22 +14,28 @@ public sealed class SqlMetaStore : IMetaStore
 {
     #region ====模型相关操作====
 
-    public async Task CreateApplicationAsync(ApplicationModel app)
-    {
-        await using var conn = await SqlStore.Default.OpenConnectionAsync();
-        await using var txn = await conn.BeginTransactionAsync();
-        await CreateApplicationAsync(app, txn);
-        await txn.CommitAsync();
-    }
-
-    public async Task CreateApplicationAsync(ApplicationModel app, DbTransaction txn)
+    public async Task CreateApplicationAsync(ApplicationModel app, DbTransaction? txn)
     {
         await using var cmd = SqlStore.Default.MakeCommand();
-        cmd.Connection = txn.Connection;
-        cmd.Transaction = txn;
         BuildInsertMetaCommand(cmd, MetaType.META_APPLICATION, app.Id.ToString(),
             MetaType.MODEL_TYPE_APPLICATION, MetaSerializer.SerializeMeta(app), false);
+
+        DbConnection? conn = null;
+        if (txn == null)
+        {
+            conn = await SqlStore.Default.OpenConnectionAsync();
+            cmd.Connection = conn;
+        }
+        else
+        {
+            cmd.Connection = txn.Connection;
+            cmd.Transaction = txn;
+        }
+
         await cmd.ExecuteNonQueryAsync();
+
+        if (conn != null)
+            await conn.CloseAsync();
     }
 
     internal static async ValueTask DeleteApplicationAsync(ApplicationModel app)

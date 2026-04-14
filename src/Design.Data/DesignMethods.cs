@@ -3,15 +3,18 @@ namespace AppBoxDesign;
 public static class DesignMethods
 {
     private const string DesignService = "sys.DesignService";
-    
-    public const string LoadMetadataReference =  "LoadMetadataReference";
+
+    public const string LoadMetadataReference = "LoadMetadataReference";
     public const string LoadMetadataReferenceFull = $"{DesignService}.{LoadMetadataReference}";
-    
+
     public const string UploadExtAssembly = "UploadExtAssembly";
     public const string UploadExtAssemblyFull = $"{DesignService}.{UploadExtAssembly}";
 
     public const string GetExtLibraries = "GetExtLibraries";
     public const string GetExtLibrariesFull = $"{DesignService}.{GetExtLibraries}";
+
+    public const string CreateApplication = "CreateApplication";
+    public const string CreateApplicationFull = $"{DesignService}.{CreateApplication}";
 
     #region ====Debug Methods====
 

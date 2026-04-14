@@ -17,6 +17,7 @@ internal sealed class Commands
 {
     public Commands(DesignHub designContext)
     {
+        NewAppCommand = new NewAppCommand(designContext);
         NewEntityCommand = new NewCommand(designContext, "Entity");
         NewViewCommand = new NewCommand(designContext, "View");
         NewFolderCommand = new NewCommand(designContext, "Folder");
@@ -34,6 +35,7 @@ internal sealed class Commands
         NotImplCommand = () => Notification.Error("暂未实现");
     }
 
+    public readonly NewAppCommand NewAppCommand;
     public readonly NewCommand NewFolderCommand;
     public readonly NewCommand NewEntityCommand;
     public readonly NewCommand NewServiceCommand;

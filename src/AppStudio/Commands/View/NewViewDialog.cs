@@ -18,37 +18,34 @@ internal sealed class NewViewDialog : Dialog
     private readonly State<string> _name = "";
     private readonly State<bool> _isDynamic = false;
 
-    protected override Widget BuildBody()
+    protected override Widget BuildBody() => new Container()
     {
-        return new Container()
+        Padding = EdgeInsets.All(20),
+        Child = new Column()
         {
-            Padding = EdgeInsets.All(20),
-            Child = new Column()
+            Children =
             {
-                Children =
+                new Form()
                 {
-                    new Form()
-                    {
-                        LabelWidth = 80,
-                        Children = new[]
+                    LabelWidth = 80,
+                    Children =
+                    [
+                        new FormItem("Name:", new TextInput(_name)),
+                        new FormItem("Type:", new Row
                         {
-                            new FormItem("Name:", new TextInput(_name)),
-                            new FormItem("Type:", new Row
+                            Children =
                             {
-                                Children =
-                                {
-                                    new Radio(_isDynamic.ToReversed()),
-                                    new Text("Code"),
-                                    new Radio(_isDynamic),
-                                    new Text("Dynamic"),
-                                }
-                            })
-                        }
-                    }
+                                new Radio(_isDynamic.ToReversed()),
+                                new Text("Code"),
+                                new Radio(_isDynamic),
+                                new Text("Dynamic"),
+                            }
+                        })
+                    ]
                 }
             }
-        };
-    }
+        }
+    };
 
     protected override ValueTask<bool> OnClosing(string result)
     {
