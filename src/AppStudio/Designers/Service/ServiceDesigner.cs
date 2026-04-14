@@ -265,7 +265,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
                 .Select(m => m.LineNumber)
                 .ToArray();
 
-            await ClientDebugManager.StartDebugService(ModelNode, methodInfo, breakpoints);
+            await ClientDebugManager.StartDebugService(this, methodInfo, breakpoints);
             _debuggingState.Value = DebuggingStateRunning;
         }
         catch (Exception ex)
@@ -288,9 +288,10 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
                 breakpoint.IsHighlighted = true;
             }
         }
-        else if (eventArgs is DebuggerExited debuggerExited)
+        else if (eventArgs is DebuggerExited)
         {
             _debuggingState.Value = DebuggingStateNone;
+            ClientDebugManager.OnDebuggerExited(this);
         }
     }
 
@@ -335,6 +336,6 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     void IDesigner.OnClose()
     {
         if (_debuggingState.Value != DebuggingStateNone)
-            ClientDebugManager.ExitDebugService();
+            ClientDebugManager.ExitDebugService(this);
     }
 }

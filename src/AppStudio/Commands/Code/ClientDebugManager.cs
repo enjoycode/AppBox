@@ -10,45 +10,15 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class ClientDebugManager
 {
-    static ClientDebugManager()
-    {
-        //订阅服务端调试事件
-        var subscriber = new DebugEventSubscriber();
-        Channel.AddEventSubscriber(IDebugEventArgs.DebugEventId, subscriber, OnServerEvent);
-    }
-
-    private sealed class DebugEventSubscriber { }
-
-    /// <summary>
-    /// 收到服务端调试事件，解析并分发处理
-    /// </summary>
-    private static void OnServerEvent(IServerEventArgs args)
-    {
-        var eventArgs = (DebugEventArgs)args[0].GetObject()!;
-        var modelNode = DesignHub.Current.DesignTree.FindModelNode(eventArgs.TargetModelId);
-        if (modelNode == null)
-        {
-            Notification.Warn("Cannot find model node for debug event");
-            return;
-        }
-
-        if (modelNode.Designer is not IDebuggableCodeDesigner designer)
-        {
-            Notification.Warn("Cannot find editor for debug event");
-            return;
-        }
-
-        designer.OnDebugEvent(eventArgs.EventArgs);
-    }
-
     /// <summary>
     /// 开始调试服务模型
     /// </summary>
-    public static async Task StartDebugService(ModelNode modelNode, ServiceMethodInfo methodInfo, int[] breakpoints)
+    public static async Task StartDebugService(IDebuggableCodeDesigner designer,
+        ServiceMethodInfo methodInfo, int[] breakpoints)
     {
-        var hub = DesignHub.Current;
-        var serviceModel = (ServiceModel)modelNode.Model;
-        var appName = modelNode.AppNode.Model.Name;
+        var hub = designer.ModelNode.DesignTree!.DesignHub;
+        var serviceModel = (ServiceModel)designer.ModelNode.Model;
+        var appName = designer.ModelNode.AppName;
         var serviceName = serviceModel.Name;
 
         // 1.编译并上传服务模型
@@ -57,7 +27,15 @@ internal static class ClientDebugManager
         stream.Seek(0, SeekOrigin.Begin);
         await Channel.Upload(DesignMethods.DebugUploadServiceFull, stream, $"{appName}.{serviceName}");
 
-        // 2.开始启动调试 TODO:没有Breakpoint提示请求确认
+        // 2.订阅调试事件
+        Channel.AddEventSubscriber(IDebugEventArgs.DebugEventId, designer, args =>
+        {
+            var eventArgs = (DebugEventArgs)args[0].GetObject()!;
+            if (eventArgs.TargetModelId == designer.ModelNode.Model.Id)
+                designer.OnDebugEvent(eventArgs.EventArgs);
+        });
+
+        // 3.开始启动调试 TODO:没有Breakpoint提示请求确认
         var request = new DebugStartRequest()
         {
             ModelId = serviceModel.Id,
@@ -71,7 +49,22 @@ internal static class ClientDebugManager
 
     public static Task ResumeDebugService() => Channel.Invoke(DesignMethods.DebugResumeFull);
 
-    public static Task ExitDebugService() => Channel.Invoke(DesignMethods.DebugExitFull);
+    /// <summary>
+    /// 设计器内正常结束调试过程
+    /// </summary>
+    public static void OnDebuggerExited(IDebuggableCodeDesigner designer)
+    {
+        Channel.RemoveEventSubscriber(IDebugEventArgs.DebugEventId, designer);
+    }
+
+    /// <summary>
+    /// 设计器关闭时主动中断调试过程
+    /// </summary>
+    public static Task ExitDebugService(IDebuggableCodeDesigner designer)
+    {
+        Channel.RemoveEventSubscriber(IDebugEventArgs.DebugEventId, designer);
+        return Channel.Invoke(DesignMethods.DebugExitFull);
+    }
 
     public static async Task<EvaluateResult> EvaluateExpression(string expression)
     {
