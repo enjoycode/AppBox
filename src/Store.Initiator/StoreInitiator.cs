@@ -42,14 +42,14 @@ internal static class StoreInitiator
         var viewClusterFolder = new ModelFolder(viewOperationFolder, "Cluster");
 
         //新建EntityModel
-        var emploee = CreateEmploeeModel(app);
-        emploee.FolderId = entityOrgUnitsFolder.Id;
+        var employee = CreateEmployeeModel(app);
+        employee.FolderId = entityOrgUnitsFolder.Id;
         var enterprise = CreateEnterpriseModel(app);
         enterprise.FolderId = entityOrgUnitsFolder.Id;
         var workgroup = CreateWorkgroupModel(app);
         workgroup.FolderId = entityOrgUnitsFolder.Id;
-        var orgunit = CreateOrgUnitModel(app);
-        orgunit.FolderId = entityOrgUnitsFolder.Id;
+        var orgUnit = CreateOrgUnitModel(app);
+        orgUnit.FolderId = entityOrgUnitsFolder.Id;
         var staged = CreateStagedModel(app);
         staged.FolderId = entityDesignFolder.Id;
         var checkout = CreateCheckoutModel(app);
@@ -72,14 +72,14 @@ internal static class StoreInitiator
         test.Male = false;
         test.Birthday = new DateTime(1979, 1, 2);
 
-        var itdept = new Workgroup(Guid.NewGuid());
-        itdept.Name = "IT Dept";
+        var itDept = new Workgroup(Guid.NewGuid());
+        itDept.Name = "IT Dept";
 
         //新建默认组织单元
-        var entou = new OrgUnit { Base = defaultEnterprise };
-        var itdeptou = new OrgUnit { Base = itdept, ParentId = entou.Id };
-        var adminou = new OrgUnit { Base = admin, ParentId = itdeptou.Id };
-        var testou = new OrgUnit { Base = test, ParentId = itdeptou.Id };
+        var entOrgUnit = new OrgUnit { Base = defaultEnterprise };
+        var itDeptOrgUnit = new OrgUnit { Base = itDept, ParentId = entOrgUnit.Id };
+        var adminOrgUnit = new OrgUnit { Base = admin, ParentId = itDeptOrgUnit.Id };
+        var testOrgUnit = new OrgUnit { Base = test, ParentId = itDeptOrgUnit.Id };
 
         //事务保存
 #if FUTURE
@@ -88,10 +88,10 @@ internal static class StoreInitiator
         await MetaStore.Provider.UpsertFolderAsync(entityRootFolder, txn);
         await MetaStore.Provider.UpsertFolderAsync(viewRootFolder, txn);
 
-        await MetaStore.Provider.InsertModelAsync(emploee, txn);
+        await MetaStore.Provider.InsertModelAsync(employee, txn);
         await MetaStore.Provider.InsertModelAsync(enterprise, txn);
         await MetaStore.Provider.InsertModelAsync(workgroup, txn);
-        await MetaStore.Provider.InsertModelAsync(orgunit, txn);
+        await MetaStore.Provider.InsertModelAsync(orgUnit, txn);
         await MetaStore.Provider.InsertModelAsync(staged, txn);
         await MetaStore.Provider.InsertModelAsync(checkout, txn);
 
@@ -136,58 +136,58 @@ internal static class StoreInitiator
         await EntityStore.InsertEntityAsync(testou, txn);
 #else
         var ctx = new InitModelContainer(app);
-        ctx.AddEntityModel(emploee);
+        ctx.AddEntityModel(employee);
         ctx.AddEntityModel(enterprise);
         ctx.AddEntityModel(workgroup);
-        ctx.AddEntityModel(orgunit);
+        ctx.AddEntityModel(orgUnit);
         ctx.AddEntityModel(staged);
         ctx.AddEntityModel(checkout);
 
-        await SqlStore.Default.CreateTableAsync(emploee, txn, ctx);
+        await SqlStore.Default.CreateTableAsync(employee, txn, ctx);
         await SqlStore.Default.CreateTableAsync(enterprise, txn, ctx);
         await SqlStore.Default.CreateTableAsync(workgroup, txn, ctx);
-        await SqlStore.Default.CreateTableAsync(orgunit, txn, ctx);
+        await SqlStore.Default.CreateTableAsync(orgUnit, txn, ctx);
         await SqlStore.Default.CreateTableAsync(staged, txn, ctx);
         await SqlStore.Default.CreateTableAsync(checkout, txn, ctx);
         
         //插入数据前先设置模型缓存，以防止找不到
         var runtime = (IHostRuntimeContext)RuntimeContext.Current;
-        runtime.InjectModel(emploee);
+        runtime.InjectModel(employee);
         runtime.InjectModel(enterprise);
         runtime.InjectModel(workgroup);
-        runtime.InjectModel(orgunit);
+        runtime.InjectModel(orgUnit);
         runtime.InjectModel(staged);
         runtime.InjectModel(checkout);
 
         await SqlStore.Default.InsertAsync(defaultEnterprise, txn);
-        await SqlStore.Default.InsertAsync(itdept, txn);
+        await SqlStore.Default.InsertAsync(itDept, txn);
         await SqlStore.Default.InsertAsync(admin, txn);
         await SqlStore.Default.InsertAsync(test, txn);
-        await SqlStore.Default.InsertAsync(entou, txn);
-        await SqlStore.Default.InsertAsync(itdeptou, txn);
-        await SqlStore.Default.InsertAsync(adminou, txn);
-        await SqlStore.Default.InsertAsync(testou, txn);
+        await SqlStore.Default.InsertAsync(entOrgUnit, txn);
+        await SqlStore.Default.InsertAsync(itDeptOrgUnit, txn);
+        await SqlStore.Default.InsertAsync(adminOrgUnit, txn);
+        await SqlStore.Default.InsertAsync(testOrgUnit, txn);
 #endif
 
         //添加权限模型在保存OU实例之后
-        var admin_permission =
+        var adminPermission =
             new PermissionModel(ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS), "Admin");
-        admin_permission.Comment = "System administrator";
+        adminPermission.Comment = "System administrator";
 #if FUTURE
             admin_permission.OrgUnits.Add(adminou.Id);
 #else
-        admin_permission.OrgUnits.Add(adminou.Id);
+        adminPermission.OrgUnits.Add(adminOrgUnit.Id);
 #endif
-        var developer_permission =
+        var developerPermission =
             new PermissionModel(ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS), "Developer");
-        developer_permission.Comment = "System developer";
+        developerPermission.Comment = "System developer";
 #if FUTURE
             developer_permission.OrgUnits.Add(itdeptou.Id);
 #else
-        developer_permission.OrgUnits.Add(itdeptou.Id);
+        developerPermission.OrgUnits.Add(itDeptOrgUnit.Id);
 #endif
-        await MetaStore.Provider.InsertModelAsync(admin_permission, txn);
-        await MetaStore.Provider.InsertModelAsync(developer_permission, txn);
+        await MetaStore.Provider.InsertModelAsync(adminPermission, txn);
+        await MetaStore.Provider.InsertModelAsync(developerPermission, txn);
         
         //最后保存编译好的HomePage程序集
         await CreateHomePageAssembly(txn);
@@ -197,7 +197,7 @@ internal static class StoreInitiator
 #endif
     }
 
-    private static EntityModel CreateEmploeeModel(ApplicationModel app)
+    private static EntityModel CreateEmployeeModel(ApplicationModel app)
     {
 #if FUTURE
         var emploee = new EntityModel(Consts.SYS_EMPLOEE_MODEL_ID, Consts.EMPLOEE, EntityStoreType.StoreWithMvcc);
