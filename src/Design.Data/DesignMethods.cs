@@ -15,6 +15,9 @@ public static class DesignMethods
 
     public const string CreateApplication = "CreateApplication";
     public const string CreateApplicationFull = $"{DesignService}.{CreateApplication}";
+    
+    public const string DeleteApplication = "DeleteApplication";
+    public const string DeleteApplicationFull = $"{DesignService}.{DeleteApplication}";
 
     #region ====Debug Methods====
 

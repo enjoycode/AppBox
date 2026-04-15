@@ -41,4 +41,7 @@ internal sealed class MetaStoreService : IMetaStoreService
 
     public Task CreateApplicationAsync(ApplicationModel app) =>
         Channel.Invoke(DesignMethods.CreateApplicationFull, AnyValue.From(app));
+
+    public Task DeleteApplicationAsync(ApplicationModel app) =>
+        Channel.Invoke(DesignMethods.DeleteApplicationFull, AnyValue.From(app));
 }

@@ -358,7 +358,7 @@ public sealed class DesignTree
         if (_checkouts.TryGetValue(key, out var checkout))
         {
             node.CheckoutInfo = checkout;
-            if (node.IsCheckoutByMe && node is ModelNode modelNode) //如果是被当前用户签出的模型
+            if (checkout.DeveloperOuid == DesignHub.LeafOrgUnitId && node is ModelNode modelNode) //如果是被当前用户签出的模型
             {
                 //从Staged加载
                 var stagedModel = Staged!.FindModel(modelNode.Model.Id);
@@ -386,13 +386,22 @@ public sealed class DesignTree
         }
 
         //刷新签出信息表，移除被自己签出的信息
-        var list = _checkouts.Keys
-            .Where(key => _checkouts[key].DeveloperOuid == DesignHub.LeafOrgUnitId)
-            .ToList();
+        var list = _checkouts.Where(kv => kv.Value.DeveloperOuid == DesignHub.LeafOrgUnitId)
+            .Select(kv => kv.Key);
         foreach (var key in list)
-        {
             _checkouts.Remove(key);
-        }
+    }
+
+    /// <summary>
+    /// 仅用于删除应用节点后清除相关签出信息
+    /// </summary>
+    public void RemoveCheckoutsForDeletedApp(int deletedAppId)
+    {
+        var list = _checkouts
+            .Where(kv => kv.Value.DeveloperOuid == DesignHub.LeafOrgUnitId && kv.Value.IsOwnedByApp(deletedAppId))
+            .Select(kv => kv.Key);
+        foreach (var key in list)
+            _checkouts.Remove(key);
     }
 
     #endregion

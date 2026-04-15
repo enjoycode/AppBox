@@ -74,7 +74,9 @@ internal static class CheckoutService
     /// <summary>
     /// 签入当前用户所有已签出项
     /// </summary>
-    internal static async Task CheckinAsync(System.Data.Common.DbTransaction txn)
+    /// <param name="txn"></param>
+    /// <param name="deletedAppId">仅用于删除整个App</param>
+    internal static async Task CheckinAsync(System.Data.Common.DbTransaction txn, int? deletedAppId)
     {
         var devId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
 
@@ -93,7 +95,14 @@ internal static class CheckoutService
 #if FUTURE
             await EntityStore.DeleteEntityAsync(model, list[i].Id, txn);
 #else
-            await SqlStore.Default.DeleteAsync(list[i], txn);
+            var item = list[i];
+            var shouldDelete = true;
+            if (deletedAppId.HasValue)
+                shouldDelete =
+                    CheckoutInfo.IsOwnedByApp(deletedAppId.Value, (DesignNodeType)item.NodeType, item.TargetId);
+
+            if (shouldDelete)
+                await SqlStore.Default.DeleteAsync(item, txn);
 #endif
         }
     }

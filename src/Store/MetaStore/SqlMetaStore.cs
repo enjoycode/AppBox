@@ -38,7 +38,7 @@ public sealed class SqlMetaStore : IMetaStore
             await conn.CloseAsync();
     }
 
-    internal static async ValueTask DeleteApplicationAsync(ApplicationModel app)
+    public async Task DeleteApplicationAsync(ApplicationModel app)
     {
         await using var conn = await SqlStore.Default.OpenConnectionAsync();
         await using var cmd = SqlStore.Default.MakeCommand();

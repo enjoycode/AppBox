@@ -192,10 +192,11 @@ internal static class StagedService
     /// <summary>
     /// 发布时删除当前会话下所有挂起
     /// </summary>
-    internal static async Task DeleteStagedAsync(System.Data.Common.DbTransaction txn)
+    internal static async Task DeleteStagedAsync(System.Data.Common.DbTransaction txn, int? deletedAppId)
     {
         //TODO:****暂查询再删除, use BatchDelete
         var devId = RuntimeContext.CurrentSession!.LeafOrgUnitId;
+        var deletedAppIdString = deletedAppId.HasValue ? deletedAppId.Value.ToString() : "";
 #if FUTURE
             var q = new TableScan(Consts.SYS_STAGED_MODEL_ID);
             q.Filter(q.GetGuid(Consts.STAGED_DEVELOPERID_ID) == devId);
@@ -209,7 +210,29 @@ internal static class StagedService
 #if FUTURE
                 await EntityStore.DeleteEntityAsync(model, list[i].Id, txn);
 #else
-            await SqlStore.Default.DeleteAsync(list[i], txn);
+            var item = list[i];
+            var shouldDelete = true;
+            if (deletedAppId.HasValue)
+            {
+                if (item.Type == (byte)StagedType.Folder)
+                {
+                    var index = item.ModelIdString.IndexOf('-');
+                    var appIdSpan = item.ModelIdString.AsSpan(0, index);
+                    shouldDelete = appIdSpan.SequenceEqual(deletedAppIdString);
+                }
+                else if (item.Type is (byte)StagedType.Model or (byte)StagedType.SourceCode)
+                {
+                    ModelId modelId = item.ModelIdString;
+                    shouldDelete = modelId.AppId == deletedAppId.Value;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            if (shouldDelete)
+                await SqlStore.Default.DeleteAsync(list[i], txn);
 #endif
         }
     }

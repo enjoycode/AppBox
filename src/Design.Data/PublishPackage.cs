@@ -8,6 +8,11 @@ namespace AppBoxDesign;
 public sealed class PublishPackage : IBinSerializable
 {
     /// <summary>
+    /// 用于删除整个应用时指定删除的应用标识
+    /// </summary>
+    public int? DeletedAppId { get; set; }
+
+    /// <summary>
     /// 应用标识与名称的字典表
     /// </summary>
     public readonly Dictionary<int, string> Apps = new();
@@ -46,8 +51,14 @@ public sealed class PublishPackage : IBinSerializable
         });
     }
 
+    #region ====Serialization====
+
     public void WriteTo(IOutputStream ws)
     {
+        ws.WriteBool(DeletedAppId.HasValue);
+        if (DeletedAppId.HasValue)
+            ws.WriteInt(DeletedAppId.Value);
+
         ws.WriteVariant(Apps.Count);
         foreach (var kv in Apps)
         {
@@ -64,6 +75,10 @@ public sealed class PublishPackage : IBinSerializable
 
     public void ReadFrom(IInputStream rs)
     {
+        var hasDeletedAppId = rs.ReadBool();
+        if (hasDeletedAppId)
+            DeletedAppId = rs.ReadInt();
+
         var count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
@@ -82,4 +97,6 @@ public sealed class PublishPackage : IBinSerializable
             Folders.Add((ModelFolder)rs.Deserialize()!);
         }
     }
+
+    #endregion
 }

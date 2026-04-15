@@ -7,6 +7,11 @@ public interface IMetaStore
 {
     Task CreateApplicationAsync(ApplicationModel app, DbTransaction? txn);
 
+    Task DeleteApplicationAsync(ApplicationModel app);
+
+    /// <summary>
+    /// 生成新模型的标识号
+    /// </summary>
     Task<ModelId> GenModelIdAsync(int appId, ModelType type, ModelLayer layer);
 
     Task UpsertFolderAsync(ModelFolder folder, DbTransaction txn);

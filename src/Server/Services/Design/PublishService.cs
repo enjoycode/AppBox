@@ -34,15 +34,12 @@ internal static class PublishService
         var container = new PublishContainer(package);
         try
         {
+            //保存所有模型
             await SaveModelsAsync(container, txn, otherStoreTxns);
-
-            await CheckoutService.CheckinAsync(txn);
-
-            // //注意必须先刷新后清除缓存，否则删除的节点在移除后会自动保存
-            // //刷新所有CheckoutByMe的节点项
-            // hub.DesignTree.CheckinAllNodes();
-            //清除所有签出缓存
-            await StagedService.DeleteStagedAsync(txn);
+            //清除相关签出项
+            await CheckoutService.CheckinAsync(txn, package.DeletedAppId);
+            //清除相关暂存项
+            await StagedService.DeleteStagedAsync(txn, package.DeletedAppId);
 
             //先尝试递交第三方数据库的DDL事务
             foreach (var sqlTxn in otherStoreTxns.Values)
@@ -157,16 +154,19 @@ internal static class PublishService
 
         //保存服务模型编译好的运行时组件
         var uploadPath = GetUploadServicePath();
-        foreach (var file in Directory.EnumerateFiles(uploadPath))
+        if (Directory.Exists(uploadPath))
         {
-            var asmData = await CompressAssemblyData(file);
-            var serviceName = Path.GetFileName(file);
-            await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName, asmData, txn);
-        }
-        // 清除临时目录
+            foreach (var file in Directory.EnumerateFiles(uploadPath))
+            {
+                var asmData = await CompressAssemblyData(file);
+                var serviceName = Path.GetFileName(file);
+                await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, serviceName, asmData, txn);
+            }
+            // 清除临时目录
 #if !DEBUG
         Directory.Delete(uploadPath, true);
 #endif
+        }
     }
 
     /// <summary>

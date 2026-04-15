@@ -42,6 +42,9 @@ internal sealed class DesignService : IService
             case DesignMethods.CreateApplication:
                 await MetaStore.Provider.CreateApplicationAsync((ApplicationModel)args.GetObject()!, null);
                 return AnyValue.Empty;
+            case DesignMethods.DeleteApplication:
+                await MetaStore.Provider.DeleteApplicationAsync((ApplicationModel)args.GetObject()!);
+                return AnyValue.Empty;
             case "GenModelId":
                 return (long)(await MetaStore.Provider.GenModelIdAsync(
                     args.GetInt()!.Value, (ModelType)args.GetInt()!.Value, (ModelLayer)args.GetInt()!.Value));

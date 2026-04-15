@@ -15,4 +15,6 @@ public interface IMetaStoreService
     Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer);
 
     Task CreateApplicationAsync(ApplicationModel app);
+
+    Task DeleteApplicationAsync(ApplicationModel app);
 }

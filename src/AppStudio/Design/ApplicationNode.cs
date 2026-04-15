@@ -55,4 +55,30 @@ public sealed class ApplicationNode : DesignNode, IChildrenNode
 
         return null;
     }
+
+    internal IList<ModelNode> GetAllModelNodes()
+    {
+        var list = new List<ModelNode>();
+        for (var i = 0; i < Children.Count; i++)
+        {
+            list.AddRange(Children[i].GetAllModelNodes());
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    /// 获取所有根文件夹，仅用于删除整个App
+    /// </summary>
+    internal IList<ModelFolder> GetAllRootFolders()
+    {
+        var list = new List<ModelFolder>();
+        for (var i = 0; i < Children.Count; i++)
+        {
+            if (Children[i].RootFolder != null)
+                list.Add(Children[i].RootFolder!);
+        }
+
+        return list;
+    }
 }

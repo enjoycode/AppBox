@@ -119,6 +119,9 @@ internal sealed class MockMetaStoreService : IMetaStoreService
 
     public Task CreateApplicationAsync(ApplicationModel app) =>
         MetaStore.Provider.CreateApplicationAsync(app, null);
+
+    public Task DeleteApplicationAsync(ApplicationModel app) =>
+        MetaStore.Provider.DeleteApplicationAsync(app);
 }
 
 internal sealed class MockPublishService : IPublishService
