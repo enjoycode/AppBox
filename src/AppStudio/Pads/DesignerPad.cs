@@ -79,6 +79,13 @@ internal sealed class DesignerPad : View
             }
         }
 
+        if (node is DependencyNode)
+        {
+            var dependencyDesigner = new DependencyDesigner(_designContext);
+            node.Designer = dependencyDesigner;
+            return dependencyDesigner;
+        }
+        
         return new Container()
         {
             Padding = EdgeInsets.All(10),
@@ -100,7 +107,7 @@ internal sealed class DesignerPad : View
         if (node.Type == DesignNodeType.ModelNode)
         {
             var modelNode = (ModelNode)node;
-            if (modelNode.ModelType == ModelType.Service || modelNode.ModelType == ModelType.View)
+            if (modelNode.ModelType is ModelType.Service or ModelType.View)
             {
                 var docId = modelNode.RoslynDocumentId!;
                 var workspace = _designContext.TypeSystem.Workspace;

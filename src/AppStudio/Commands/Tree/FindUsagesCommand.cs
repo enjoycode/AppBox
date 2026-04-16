@@ -15,17 +15,7 @@ internal sealed class FindUsagesCommand : DesignCommand
             if (designer is not IModelDesigner modelDesigner) return;
 
             var modelNode = modelDesigner.ModelNode;
-            var type = modelNode.ModelType switch
-            {
-                ModelType.Entity => ModelReferenceType.EntityModel,
-                ModelType.Service => ModelReferenceType.ServiceModel,
-                ModelType.View => ModelReferenceType.ViewModel,
-                ModelType.Enum => ModelReferenceType.EnumModel,
-                ModelType.Permission => ModelReferenceType.PermissionModel,
-                ModelType.Report => ModelReferenceType.ReportModel,
-                ModelType.Workflow => ModelReferenceType.WorkflowModel,
-                _ => throw new NotImplementedException(modelNode.ModelType.ToString())
-            };
+            var type = ModelTypeToReferenceType(modelNode.ModelType);
             var list = await Find(Context, type, modelNode);
             DesignStore.UpdateUsages(list);
         }
@@ -34,6 +24,18 @@ internal sealed class FindUsagesCommand : DesignCommand
             Notification.Error($"Find usages error: {ex.Message}");
         }
     }
+
+    internal static ModelReferenceType ModelTypeToReferenceType(ModelType type) => type switch
+    {
+        ModelType.Entity => ModelReferenceType.EntityModel,
+        ModelType.Service => ModelReferenceType.ServiceModel,
+        ModelType.View => ModelReferenceType.ViewModel,
+        ModelType.Enum => ModelReferenceType.EnumModel,
+        ModelType.Permission => ModelReferenceType.PermissionModel,
+        ModelType.Report => ModelReferenceType.ReportModel,
+        ModelType.Workflow => ModelReferenceType.WorkflowModel,
+        _ => throw new NotImplementedException(type.ToString())
+    };
 
     internal static Task<List<Reference>> Find(DesignHub context, ModelReferenceType referenceType,
         ModelNode modelNode, string? memberName = null)

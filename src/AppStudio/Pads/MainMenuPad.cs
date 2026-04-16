@@ -48,6 +48,7 @@ internal sealed class MainMenuPad : View
             MenuItem.Item("Save", MaterialIcons.Save, cmds.SaveCommand.Execute),
             MenuItem.Item("Checkout", MaterialIcons.CheckCircle, cmds.CheckoutCommand.Execute),
             MenuItem.Item("Usages", MaterialIcons.Link, cmds.UsagesCommand.Execute),
+            MenuItem.Item("Dependency", MaterialIcons.Lan, cmds.DependencyCommand.Execute),
             MenuItem.Item("Rename", MaterialIcons.DriveFileRenameOutline, cmds.RenameCommand.Execute),
             MenuItem.Item("Delete", MaterialIcons.DeleteForever, cmds.DeleteCommand.Execute),
             MenuItem.Item("Publish", MaterialIcons.Publish, cmds.PublishCommand.Execute)
