@@ -31,6 +31,19 @@ internal static class DependencyLayout
             groups.Add(new DependencyGroup(others, DependencyGroup.GroupPosition.Left));
 
         LayoutGroups(target, groups);
+
+        //再次居中至视图
+        var left = Math.Min(usages.Min(u => u.Location.X), target.Location.X);
+        var top = Math.Min(usages.Min(u => u.Location.Y), target.Location.Y);
+        var right = Math.Max(usages.Max(u => u.Bounds.Right), target.Bounds.Right);
+        var bottom = Math.Max(usages.Max(u => u.Bounds.Bottom), target.Bounds.Bottom);
+        var allBounds = new Rect(left, top, right, bottom);
+        var allBoundsCenter = allBounds.Center;
+        var dx = center.X - allBoundsCenter.X;
+        var dy = center.Y - allBoundsCenter.Y;
+        target.Move(new Offset(dx, dy));
+        foreach (var item in usages)
+            item.Move(new Offset(dx, dy));
     }
 
     private static void LayoutGroups(DependencyItem target, List<DependencyGroup> groups)
@@ -41,8 +54,8 @@ internal static class DependencyLayout
         foreach (var group in groups)
         {
             group.LayoutItems();
-            var offsetX = 0f;
-            var offsetY = 0f;
+            float offsetX;
+            float offsetY;
             switch (group.Position)
             {
                 case DependencyGroup.GroupPosition.Top:

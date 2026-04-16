@@ -48,7 +48,7 @@ internal sealed class DependencyDesigner : View, IDesigner
         DependencyLayout.Layout(target, items, center);
 
         var surface = _designService.Surface;
-        surface.AddItem(target);
+
         foreach (var item in items)
         {
             var conn = new DependencyConnection();
@@ -77,11 +77,30 @@ internal sealed class DependencyDesigner : View, IDesigner
             }
 
             conn.Attach(sourceConnector, destConnector);
-            surface.AddItem(item);
             surface.AddItem(conn);
+            surface.AddItem(item);
         }
 
+        surface.AddItem(target);
+
         surface.Repaint();
+    }
+
+    public override void Layout(float availableWidth, float availableHeight)
+    {
+        //暂在这里移动所有元素的位置
+        var oldWidth = LayoutBounds.Width;
+        var oldHeight = LayoutBounds.Height;
+
+        base.Layout(availableWidth, availableHeight);
+
+        var dx = (LayoutBounds.Width - oldWidth) / 2f;
+        var dy = (LayoutBounds.Height - oldHeight) / 2f;
+        foreach (var item in _designService.Surface.Items)
+        {
+            if (item is DependencyItem)
+                item.Move(new Offset(dx, dy));
+        }
     }
 
     #region ====IDesigner====
