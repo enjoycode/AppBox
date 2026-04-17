@@ -1,0 +1,77 @@
+using AppBoxCore;
+
+namespace AppBoxDesign;
+
+/// <summary>
+/// 用于导入导出
+/// </summary>
+public sealed class AppPackage : ModelPackage
+{
+    public ApplicationModel Application { get; private set; } = null!;
+
+    /// <summary>
+    /// 用于导入时判断相应的数据库是否存在
+    /// </summary>
+    public List<DataStoreInfo> DataStores { get; private set; } = [];
+
+    #region ====Serialization====
+
+    public override void WriteTo(IOutputStream ws)
+    {
+        Application.WriteTo(ws);
+        ws.WriteVariant(DataStores.Count);
+        foreach (var dataStore in DataStores)
+        {
+            dataStore.WriteTo(ws);
+        }
+
+        ws.WriteFieldEnd(); //reserved
+
+        base.WriteTo(ws);
+    }
+
+    public override void ReadFrom(IInputStream rs)
+    {
+        Application = new ApplicationModel();
+        Application.ReadFrom(rs);
+
+        var count = rs.ReadVariant();
+        for (int i = 0; i < count; i++)
+        {
+            var dataStore = new DataStoreInfo();
+            dataStore.ReadFrom(rs);
+            DataStores.Add(dataStore);
+        }
+
+        rs.ReadFieldId(); //reserved
+
+        base.ReadFrom(rs);
+    }
+
+    #endregion
+
+    public sealed class DataStoreInfo : IBinSerializable
+    {
+        public long Id { get; private set; }
+        public string Name { get; private set; } = null!;
+
+        public DataStoreKind Kind { get; private set; }
+
+        //考虑精确匹配数据库提供者的属性，用于利用某数据库特性的应用(eg:只能用PGSQL)
+        public void WriteTo(IOutputStream ws)
+        {
+            ws.WriteLong(Id);
+            ws.WriteString(Name);
+            ws.WriteByte((byte)Kind);
+            ws.WriteFieldEnd(); //reserved
+        }
+
+        public void ReadFrom(IInputStream rs)
+        {
+            Id = rs.ReadLong();
+            Name = rs.ReadString()!;
+            Kind = (DataStoreKind)rs.ReadByte();
+            rs.ReadFieldId(); //reserved
+        }
+    }
+}
