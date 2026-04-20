@@ -102,6 +102,7 @@ public sealed class DesignHub : IModelContainer, IDisposable
                     break;
                 case DesignNodeType.ModelRootNode:
                 {
+                    //TODO:应判断文件夹是否变更再加入变更列表
                     var modelRootNode =
                         (ModelRootNode)DesignTree.FindNode(DesignNodeType.ModelRootNode, checkout.TargetId)!;
                     var change = new PendingChange();

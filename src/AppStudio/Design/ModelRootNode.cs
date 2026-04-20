@@ -166,7 +166,8 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
                 {
                     n.CheckoutInfo = null;
                     //DesignTime在本地需要累加版本号，与发布后的服务端保持一致
-                    n.Model.IncreaseVersion();
+                    if (n.Model.PersistentState is PersistentState.Unchanged or PersistentState.Modified)
+                        n.Model.IncreaseVersion();
                     n.Model.AcceptChanges();
                 }
             }
