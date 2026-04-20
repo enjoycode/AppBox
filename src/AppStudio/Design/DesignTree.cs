@@ -146,6 +146,9 @@ public sealed class DesignTree
     public ApplicationNode? FindApplicationNodeByName(ReadOnlyMemory<char> name)
         => _appRootNode.Children.Find(n => n.Model.Name.AsSpan().SequenceEqual(name.Span));
 
+    public DataStoreNode? FindDataStoreNode(long dataStoreId)
+        => FindNode(DesignNodeType.DataStoreNode, ((ulong)dataStoreId).ToString()) as DataStoreNode;
+
     public ModelRootNode? FindModelRootNode(int appId, ModelType modelType)
         => FindApplicationNode(appId)?.FindModelRootNode(modelType);
 

@@ -10,7 +10,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     public SqlStoreOptions(EntityModel owner, long storeModelId, string? tableNamePrefix)
     {
         _owner = owner;
-        _storeModelId = storeModelId;
+        StoreModelId = storeModelId;
         _tableNamePrefix = tableNamePrefix;
     }
 
@@ -21,18 +21,17 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     private readonly EntityModel _owner;
     private string? _originalTableNamePrefix;
     private string? _tableNamePrefix;
-    private long _storeModelId; //映射的DataStoreModel的标识
     private PrimaryKeyField[]? _primaryKeys;
     private IList<SqlIndexModel>? _indexes;
 
     public DataStoreKind Kind => DataStoreKind.Sql;
 
-    public long StoreModelId => _storeModelId;
+    public long StoreModelId { get; private set; }
 
     public bool PrimaryKeysHasChanged { get; private set; }
 
-    public bool HasIndexes => _indexes != null && _indexes.Count > 0;
-    public bool HasPrimaryKeys => _primaryKeys != null && _primaryKeys.Length > 0;
+    public bool HasIndexes => _indexes is { Count: > 0 };
+    public bool HasPrimaryKeys => _primaryKeys is { Length: > 0 };
 
     public PrimaryKeyField[] PrimaryKeys => _primaryKeys!;
 
@@ -143,7 +142,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public void WriteTo(IOutputStream ws)
     {
-        ws.WriteLong(_storeModelId);
+        ws.WriteLong(StoreModelId);
         ws.WriteString(_tableNamePrefix);
 
         //写入主键
@@ -179,7 +178,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public void ReadFrom(IInputStream rs)
     {
-        _storeModelId = rs.ReadLong();
+        StoreModelId = rs.ReadLong();
         _tableNamePrefix = rs.ReadString();
 
         //读取主键

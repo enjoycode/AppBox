@@ -7,7 +7,12 @@ namespace AppBoxDesign;
 /// </summary>
 public sealed class AppPackage : ModelPackage
 {
-    public ApplicationModel Application { get; private set; } = null!;
+    public AppPackage(ApplicationModel app)
+    {
+        Application = app;
+    }
+
+    public ApplicationModel Application { get; private set; }
 
     /// <summary>
     /// 用于导入时判断相应的数据库是否存在
@@ -52,10 +57,10 @@ public sealed class AppPackage : ModelPackage
 
     public sealed class DataStoreInfo : IBinSerializable
     {
-        public long Id { get; private set; }
-        public string Name { get; private set; } = null!;
+        public long Id { get; set; }
+        public string Name { get; set; } = null!;
 
-        public DataStoreKind Kind { get; private set; }
+        public DataStoreKind Kind { get; set; }
 
         //考虑精确匹配数据库提供者的属性，用于利用某数据库特性的应用(eg:只能用PGSQL)
         public void WriteTo(IOutputStream ws)
