@@ -7,6 +7,9 @@ public interface IMetaStore
 {
     Task CreateApplicationAsync(ApplicationModel app, DbTransaction? txn);
 
+    /// <summary>
+    /// 删除应用元数据及相关第三方库
+    /// </summary>
     Task DeleteApplicationAsync(ApplicationModel app);
 
     /// <summary>

@@ -41,10 +41,32 @@ public sealed class SqlMetaStore : IMetaStore
     public async Task DeleteApplicationAsync(ApplicationModel app)
     {
         await using var conn = await SqlStore.Default.OpenConnectionAsync();
-        await using var cmd = SqlStore.Default.MakeCommand();
-        cmd.Connection = conn;
-        BuildDeleteMetaCommand(cmd, MetaType.META_APPLICATION, app.Id.ToString());
-        await cmd.ExecuteNonQueryAsync();
+        await using var txn = await conn.BeginTransactionAsync();
+
+        try
+        {
+            //删除ApplicationModel
+            await using var cmd = SqlStore.Default.MakeCommand();
+            cmd.Connection = conn;
+            cmd.Transaction = txn;
+            BuildDeleteMetaCommand(cmd, MetaType.META_APPLICATION, app.Id.ToString());
+            await cmd.ExecuteNonQueryAsync();
+
+            //删除相关第三方库(TODO: 目前仅服务依赖的外部库)
+            var serviceExtLibs = await MetaStore.Provider.LoadMetaNamesAsync((byte)MetaAssemblyType.ExtService, 0);
+            var appExtLibs = serviceExtLibs.Where(name => name.StartsWith($"{app.Name}."));
+            foreach (var appExtLib in appExtLibs)
+            {
+                await DeleteAssemblyAsync(MetaAssemblyType.ExtService, appExtLib, txn);
+            }
+
+            await txn.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await txn.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<ModelId> GenModelIdAsync(int appId, ModelType type, ModelLayer layer)
