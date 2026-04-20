@@ -27,8 +27,12 @@ internal sealed class PublishCommand : DesignCommand
             {
                 case ModelBase model:
                     package.Models.Add(model);
-                    var modelNode = (ModelNode)change.DesignNode!;
-                    await modelNode.SaveAsync(null); //TODO: check need save
+                    if (change.ChangeType != PendingChangeType.Deleted) //已删除的模型节点已经保存过了
+                    {
+                        var modelNode = (ModelNode)change.DesignNode!;
+                        await modelNode.SaveAsync(null); //TODO: check changed
+                    }
+
                     break;
                 case ModelFolder folder:
                     package.Folders.Add(folder);

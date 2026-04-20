@@ -197,7 +197,7 @@ internal sealed class DeleteCommand : DesignCommand
         //使用PublishService.PublishAsync，与删除ApplicationModel非事务
         await hub.PublishService.PublishAsync(pkg, $"Delete Application: {appNode.Model.Name}");
         //删除ApplicationModel
-        await hub.MetaStoreService.DeleteApplicationAsync(appNode.Model);
+        await hub.MetaStoreService.DeleteApplicationAsync(appNode.Model); //服务端会删除第三方库
         //从设计树移除ApplicationNode
         hub.DesignTree.AppRootNode.Children.Remove(appNode);
         //移除本地签出列表内相关项
