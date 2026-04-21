@@ -31,7 +31,7 @@ internal sealed class SqlStoreOptionsDesigner : View
     private readonly EntityModel _entityModel;
     private readonly string _modelId;
     private readonly DataGridController<PrimaryKeyField> _pkController = new();
-    private readonly DataGridController<SqlIndexModel> _ixController = new();
+    private readonly DataGridController<SqlIndex> _ixController = new();
 
     private Widget BuildPrimaryKeysPanel() => new Card
     {
@@ -73,7 +73,7 @@ internal sealed class SqlStoreOptionsDesigner : View
                         new Button("Remove", MaterialIcons.Remove)
                     }
                 },
-                new DataGrid<SqlIndexModel>(_ixController)
+                new DataGrid<SqlIndex>(_ixController)
                     .AddTextColumn("Name", t => t.Name)
                     .AddTextColumn("Fields", GetIndexesFieldsList)
                     .AddCheckboxColumn("Unique", t => t.Unique)
@@ -81,7 +81,7 @@ internal sealed class SqlStoreOptionsDesigner : View
         }
     };
 
-    private string GetIndexesFieldsList(SqlIndexModel indexMode)
+    private string GetIndexesFieldsList(SqlIndex indexMode)
     {
         var s = "";
         for (var i = 0; i < indexMode.Fields.Length; i++)

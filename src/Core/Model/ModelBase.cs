@@ -70,6 +70,8 @@ public abstract class ModelBase : IBinSerializable
     /// </summary>
     internal void Delete()
     {
+        CheckDesignMode();
+
         if (PersistentState != PersistentState.Detached)
             PersistentState = PersistentState.Deleted;
     }
@@ -83,6 +85,27 @@ public abstract class ModelBase : IBinSerializable
     {
         if (PersistentState == PersistentState.Unchanged)
             PersistentState = PersistentState.Modified;
+    }
+
+    internal virtual void Import()
+    {
+        //作为新建的导入不需要修改版本号
+        PersistentState = PersistentState.Detached;
+    }
+
+    internal virtual bool UpdateFrom(ModelBase from)
+    {
+        Version = from.Version - 1; //作为修改的导入先-1，发布时+1
+        if (Name != from.Name)
+        {
+            _originalName = Name;
+            Name = from.Name;
+        }
+
+        FolderId = from.FolderId;
+        PersistentState = PersistentState.Modified;
+
+        return true;
     }
 
     #endregion

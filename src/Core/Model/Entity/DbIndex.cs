@@ -1,11 +1,28 @@
+using System.Diagnostics;
+
 namespace AppBoxCore;
 
 /// <summary>
 /// 系统存储及Sql存储的索引模型基类
 /// </summary>
-public abstract class IndexModelBase : IBinSerializable
+public abstract class DbIndex : IBinSerializable
 {
-    public EntityModel Owner { get; private set; }
+    protected DbIndex(EntityModel owner)
+    {
+        Owner = owner;
+    }
+
+    protected DbIndex(EntityModel owner, string name, bool unique,
+        OrderedField[] fields, short[]? storingFields = null)
+    {
+        Owner = owner;
+        Name = name;
+        Unique = unique;
+        Fields = fields;
+        StoringFields = storingFields;
+    }
+
+    public EntityModel Owner { get; }
     public byte IndexId { get; private set; }
     public string Name { get; private set; } = null!;
     public bool Unique { get; private set; }
@@ -19,25 +36,6 @@ public abstract class IndexModelBase : IBinSerializable
     public bool HasStoringFields => StoringFields != null && StoringFields.Length > 0;
 
     public PersistentState PersistentState { get; private set; }
-
-    #region ====Ctor====
-
-    protected IndexModelBase(EntityModel owner)
-    {
-        Owner = owner;
-    }
-
-    protected IndexModelBase(EntityModel owner, string name, bool unique,
-        OrderedField[] fields, short[]? storingFields = null)
-    {
-        Owner = owner;
-        Name = name;
-        Unique = unique;
-        Fields = fields;
-        StoringFields = storingFields;
-    }
-
-    #endregion
 
     #region ====Design Methods====
 
@@ -122,20 +120,19 @@ public abstract class IndexModelBase : IBinSerializable
 
     #endregion
 
-    #region ====导入方法====
+    #region ====Import====
 
-    // internal void Import(EntityModel owner)
-    // {
-    //     Owner = owner;
-    //     PersistentState = PersistentState.Detached;
-    // }
-    //
-    // internal void UpdateFrom(IndexModelBase from)
-    // {
-    //     //TODO: fix this
-    //     PersistentState = PersistentState.Modified;
-    //     Log.Warn("导入索引暂未实现");
-    // }
+    internal void Import()
+    {
+        Debug.Assert(PersistentState != PersistentState.Deleted);
+        PersistentState = PersistentState.Detached;
+    }
+
+    internal void UpdateFrom(DbIndex from)
+    {
+        //PersistentState = PersistentState.Modified;
+        throw new NotImplementedException("Update DbIndex not implemented");
+    }
 
     #endregion
 }

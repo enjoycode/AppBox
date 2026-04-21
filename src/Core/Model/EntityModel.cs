@@ -18,7 +18,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     private short _devMemberIdSeq;
     private short _usrMemberIdSeq;
-    private readonly List<EntityMember> _members = new(); ////注意已按memberId排序
+    private readonly List<EntityMember> _members = []; //注意已按memberId排序
 
     public IReadOnlyList<EntityMember> Members => _members;
 
@@ -248,6 +248,20 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         //         act.AddModelReferences(list, referenceType, modelID, memberName);
         //     }
         // }
+    }
+
+    internal override void Import()
+    {
+        base.Import();
+        //导入成员
+        foreach (var member in _members)
+        {
+            if (member.PersistentState != PersistentState.Deleted)
+                member.Import();
+        }
+
+        //导入存储选项
+        StoreOptions?.Import();
     }
 
     #endregion

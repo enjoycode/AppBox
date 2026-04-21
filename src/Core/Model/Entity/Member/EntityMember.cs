@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace AppBoxCore;
 
 public abstract class EntityMember
@@ -80,6 +82,13 @@ public abstract class EntityMember
     internal virtual void AddModelReferences(List<ModelReferenceInfo> list,
         ModelReferenceType referenceType, ModelId modelId, string? memberName,
         short? entityMemberId) { }
+
+    internal void Import()
+    {
+        Debug.Assert(PersistentState != PersistentState.Deleted);
+
+        PersistentState = PersistentState.Detached;
+    }
 
     #endregion
 

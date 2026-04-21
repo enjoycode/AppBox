@@ -22,7 +22,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     private string? _originalTableNamePrefix;
     private string? _tableNamePrefix;
     private PrimaryKeyField[]? _primaryKeys;
-    private IList<SqlIndexModel>? _indexes;
+    private IList<SqlIndex>? _indexes;
 
     public DataStoreKind Kind => DataStoreKind.Sql;
 
@@ -35,7 +35,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     public PrimaryKeyField[] PrimaryKeys => _primaryKeys!;
 
-    public IList<SqlIndexModel> Indexes => _indexes!;
+    public IList<SqlIndex> Indexes => _indexes!;
 
     private bool IsTableNamePrefixChanged =>
         _originalTableNamePrefix != null && _originalTableNamePrefix != _tableNamePrefix;
@@ -100,7 +100,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         _owner.OnPropertyChanged();
     }
 
-    public void AddIndex(SqlIndexModel index)
+    public void AddIndex(SqlIndex index)
     {
         _owner.CheckDesignMode();
 
@@ -113,7 +113,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         if (index.Unique)
             indexId |= 1 << IdUtil.INDEXID_UNIQUE_OFFSET;
         index.InitIndexId(indexId);
-        _indexes ??= new List<SqlIndexModel>();
+        _indexes ??= new List<SqlIndex>();
         _indexes.Add(index);
 
         _owner.OnPropertyChanged();
@@ -133,6 +133,17 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
                 else
                     _indexes[i].AcceptChanges();
             }
+        }
+    }
+
+    void IEntityStoreOptions.Import()
+    {
+        if (!HasIndexes) return;
+
+        foreach (var idx in _indexes!)
+        {
+            if (idx.PersistentState != PersistentState.Deleted)
+                idx.Import();
         }
     }
 
@@ -196,10 +207,10 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         count = rs.ReadVariant();
         if (count > 0)
         {
-            _indexes = new List<SqlIndexModel>();
+            _indexes = new List<SqlIndex>();
             for (var i = 0; i < count; i++)
             {
-                var index = new SqlIndexModel(_owner);
+                var index = new SqlIndex(_owner);
                 index.ReadFrom(rs);
                 _indexes.Add(index);
             }

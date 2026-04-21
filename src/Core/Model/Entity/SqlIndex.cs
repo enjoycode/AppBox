@@ -1,10 +1,10 @@
 namespace AppBoxCore;
 
-public sealed class SqlIndexModel : IndexModelBase
+public sealed class SqlIndex : DbIndex
 {
-    internal SqlIndexModel(EntityModel owner) : base(owner) {}
+    internal SqlIndex(EntityModel owner) : base(owner) {}
 
-    public SqlIndexModel(EntityModel owner, string name, bool unique,
+    public SqlIndex(EntityModel owner, string name, bool unique,
         OrderedField[] fields, short[]? storingFields = null)
         : base(owner, name, unique, fields, storingFields) { }
 
