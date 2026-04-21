@@ -30,13 +30,14 @@ internal sealed class PublishCommand : DesignCommand
                     if (change.ChangeType != PendingChangeType.Deleted) //已删除的模型节点已经保存过了
                     {
                         var modelNode = (ModelNode)change.DesignNode!;
-                        await modelNode.SaveAsync(null); //TODO: check changed
+                        //保存尚未保存的模型代码 //TODO: check is unsaved
+                        await modelNode.SaveAsync(null);
                     }
 
                     break;
                 case ModelFolder folder:
                     package.Folders.Add(folder);
-                    //await DesignHub.Current.StagedService.SaveFolderAsync(folder); //TODO: check need save
+                    //不再需要保存，增删改文件夹时已保存
                     break;
                 default:
                     Log.Warn($"Unknown pending change: {change.GetType()}");

@@ -30,10 +30,15 @@ internal sealed class ExportCommand : DesignCommand
             await FileDialog.SaveFileAsync(new SaveFileOptions()
                 { FileName = outputFileName, FileStream = tempFileStream, Title = "Export Application" }
             );
+            Notification.Success($"Export [{appNode.Model.Name}] success.");
+        }
+        catch (Exception ex)
+        {
+            Notification.Error($"Export error: {ex.Message}");
         }
         finally
         {
-            tempFileStream.Dispose();
+            await tempFileStream.DisposeAsync();
             LocalFileSystem.DeleteTempFile(tempFilePath);
         }
     }
@@ -62,8 +67,43 @@ internal sealed class ExportCommand : DesignCommand
         writer.WriteInt(0);
         //3.2 写入AppPackage
         appPkg.WriteTo(writer);
-        //3.3 写入各模型代码
+        //3.3 写入依赖的第三方库
+        await ExportExtLibs(appNode.Model.Name, writer);
+        //3.4 写入各模型代码
         await ExportModelCodes(models, writer);
+    }
+
+    private async Task ExportExtLibs(string appName, SystemWriteStream writer)
+    {
+        var extLibs = await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, appName);
+        if (extLibs.Count == 0)
+        {
+            writer.WriteVariant(0);
+            return;
+        }
+
+        writer.WriteVariant(extLibs.Count);
+        foreach (var libName in extLibs)
+        {
+            var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+            try
+            {
+                await Channel.Download(DesignMethods.LoadMetadataReferenceFull, tempFileStream,
+                    (int)ModelDependencyType.ServerExtLibrary, libName, appName);
+                tempFileStream.Position = 0;
+                //写入库名称
+                writer.WriteString(libName);
+                //写入字节长度
+                writer.WriteInt((int)tempFileStream.Length);
+                //写入字节
+                await tempFileStream.CopyToAsync(writer.OutputStream);
+            }
+            finally
+            {
+                await tempFileStream.DisposeAsync();
+                LocalFileSystem.DeleteTempFile(tempFilePath);
+            }
+        }
     }
 
     private async Task ExportModelCodes(IList<ModelNode> modelNodes, SystemWriteStream writer)

@@ -98,8 +98,9 @@ public sealed class DesignHub : IModelContainer, IDisposable
                             changes.Add(change);
                         }
                     }
-                }
+
                     break;
+                }
                 case DesignNodeType.ModelRootNode:
                 {
                     //TODO:应判断文件夹是否变更再加入变更列表
@@ -112,8 +113,8 @@ public sealed class DesignHub : IModelContainer, IDisposable
                     change.DisplayName = $"{modelRootNode.Parent!.Label.Value}.{modelRootNode.Label.Value}";
                     change.ChangeType = PendingChangeType.Modified;
                     changes.Add(change);
-                }
                     break;
+                }
                 default:
                     throw new NotImplementedException(checkout.NodeType.ToString());
             }
