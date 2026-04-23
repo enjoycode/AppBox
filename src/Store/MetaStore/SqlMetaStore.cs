@@ -60,6 +60,19 @@ public sealed class SqlMetaStore : IMetaStore
                 await DeleteAssemblyAsync(MetaAssemblyType.ExtService, appExtLib, txn);
             }
 
+            //删除模型标识计数器
+            var delDevCounterCmd = SqlStore.Default.MakeCommand();
+            delDevCounterCmd.Connection = txn.Connection;
+            delDevCounterCmd.Transaction = txn;
+            BuildDeleteMetaCommand(delDevCounterCmd, MetaType.META_APP_MODEL_DEV_COUNTER, app.Id.ToString());
+            await delDevCounterCmd.ExecuteNonQueryAsync();
+
+            var delUsrCounterCmd = SqlStore.Default.MakeCommand();
+            delUsrCounterCmd.Connection = txn.Connection;
+            delUsrCounterCmd.Transaction = txn;
+            BuildDeleteMetaCommand(delUsrCounterCmd, MetaType.META_APP_MODEL_USR_COUNTER, app.Id.ToString());
+            await delUsrCounterCmd.ExecuteNonQueryAsync();
+
             await txn.CommitAsync();
         }
         catch (Exception)

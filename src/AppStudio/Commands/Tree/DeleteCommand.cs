@@ -16,14 +16,18 @@ internal sealed class DeleteCommand : DesignCommand
             return;
         }
 
+        //TODO:判断能否删除
+        if (selectedNode.Data is ApplicationNode { Model.Name: Consts.SYS })
+        {
+            Notification.Error("Can't delete [sys] application.");
+            return;
+        }
+
         //确认删除
         var nodeName = selectedNode.Data.Label.Value;
         var confirmResult = await Dialog.ShowConfirmAsync("确认操作", $"确认是否删除[{nodeName}]");
         if (confirmResult != DialogResult.Yes)
             return;
-
-        //var nodeType = selectedNode.Data.Type;
-        //TODO:判断能否删除
 
         try
         {
