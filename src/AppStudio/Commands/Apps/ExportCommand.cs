@@ -20,15 +20,15 @@ internal sealed class ExportCommand : DesignCommand
         }
 
         //先写入临时文件
-        var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+        var tempFile = await LocalFileSystem.CreateTempFile(false);
         try
         {
-            await ExportToStream(appNode, tempFileStream);
-            tempFileStream.Position = 0;
+            await ExportToStream(appNode, tempFile.FileStream);
+            tempFile.FileStream.Position = 0;
             //保存至指定
             var outputFileName = $"{appNode.Model.Name}-{DateTime.Now:yyyy-MM-dd}.apk";
             await FileDialog.SaveFileAsync(new SaveFileOptions()
-                { FileName = outputFileName, FileStream = tempFileStream, Title = "Export Application" }
+                { FileName = outputFileName, FileStream = tempFile.FileStream, Title = "Export Application" }
             );
             Notification.Success($"Export [{appNode.Model.Name}] success.");
         }
@@ -38,8 +38,8 @@ internal sealed class ExportCommand : DesignCommand
         }
         finally
         {
-            await tempFileStream.DisposeAsync();
-            LocalFileSystem.DeleteTempFile(tempFilePath);
+            await tempFile.Close();
+            await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
         }
     }
 
@@ -49,11 +49,13 @@ internal sealed class ExportCommand : DesignCommand
     private async Task ExportToStream(ApplicationNode appNode, Stream outputStream)
     {
         var appPkg = new AppPackage(appNode.Model);
-        //1.加入所有模型及文件夹
-        var models = appNode.GetAllModelNodes();
+        //1.加入所有模型及文件夹, 排除所有已删除的
+        var models = appNode.GetAllModelNodes()
+            .Where(n => n.Model.PersistentState != PersistentState.Deleted)
+            .ToArray();
         foreach (var modelNode in models)
-            appPkg.Models.Add(modelNode.Model); //TODO: should exclude deleted.
-        var folders = appNode.GetAllRootFolders();
+            appPkg.Models.Add(modelNode.Model);
+        var folders = appNode.GetAllRootFolders().Where(f => !f.IsDeleted);
         foreach (var folder in folders)
             appPkg.Folders.Add(folder);
 
@@ -73,8 +75,9 @@ internal sealed class ExportCommand : DesignCommand
         await ExportModelCodes(models, writer);
     }
 
-    private async Task ExportExtLibs(string appName, SystemWriteStream writer)
+    private static async Task ExportExtLibs(string appName, SystemWriteStream writer)
     {
+        //TODO:获取所有第三方依赖(包括平台相关的)
         var extLibs = await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, appName);
         if (extLibs.Count == 0)
         {
@@ -85,23 +88,23 @@ internal sealed class ExportCommand : DesignCommand
         writer.WriteVariant(extLibs.Count);
         foreach (var libName in extLibs)
         {
-            var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+            var tempFile = await LocalFileSystem.CreateTempFile(false);
             try
             {
-                await Channel.Download(DesignMethods.LoadMetadataReferenceFull, tempFileStream,
+                await Channel.Download(DesignMethods.LoadMetadataReferenceFull, tempFile.FileStream,
                     (int)ModelDependencyType.ServerExtLibrary, libName, appName);
-                tempFileStream.Position = 0;
+                tempFile.FileStream.Position = 0;
                 //写入库名称
                 writer.WriteString(libName);
                 //写入字节长度
-                writer.WriteInt((int)tempFileStream.Length);
+                writer.WriteInt((int)tempFile.FileStream.Length);
                 //写入字节
-                await tempFileStream.CopyToAsync(writer.OutputStream);
+                await tempFile.FileStream.CopyToAsync(writer.OutputStream);
             }
             finally
             {
-                await tempFileStream.DisposeAsync();
-                LocalFileSystem.DeleteTempFile(tempFilePath);
+                await tempFile.Close();
+                await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
             }
         }
     }
@@ -113,26 +116,25 @@ internal sealed class ExportCommand : DesignCommand
             if (modelNode.ModelType == ModelType.Service ||
                 modelNode.Model is ViewModel { ViewType: ViewModelType.PixUI })
             {
-                var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
-
+                var tempFile = await LocalFileSystem.CreateTempFile(false);
                 try
                 {
-                    await using var streamWriter = new StreamWriter(tempFileStream, leaveOpen: true);
+                    await using var streamWriter = new StreamWriter(tempFile.FileStream, leaveOpen: true);
                     //1.先将代码写入临时文件
                     var doc = Context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
                     var srcText = await doc.GetTextAsync();
                     srcText.Write(streamWriter);
 
                     await streamWriter.FlushAsync();
-                    tempFileStream.Position = 0;
+                    tempFile.FileStream.Position = 0;
 
                     //2.开始写入
-                    await WriteModelCode(modelNode.Model.Id, tempFileStream, writer);
+                    await WriteModelCode(modelNode.Model.Id, tempFile.FileStream, writer);
                 }
                 finally
                 {
-                    tempFileStream.Close();
-                    LocalFileSystem.DeleteTempFile(tempFilePath);
+                    await tempFile.Close();
+                    await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
                 }
             }
             else if (modelNode.ModelType == ModelType.Report ||
@@ -140,21 +142,21 @@ internal sealed class ExportCommand : DesignCommand
                      modelNode.Model is ViewModel { ViewType: ViewModelType.PixUIDynamic })
             {
                 //暂不考虑本地正在修改的，直接从服务端获取
-                var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+                var tempFile = await LocalFileSystem.CreateTempFile(false);
 
                 try
                 {
                     //1.从服务端下载代码
-                    await Context.TypeSystem.DownloadSourceCode(tempFileStream, modelNode);
-                    tempFileStream.Position = 0;
+                    await Context.TypeSystem.DownloadSourceCode(tempFile.FileStream, modelNode);
+                    tempFile.FileStream.Position = 0;
 
                     //2.开始写入
-                    await WriteModelCode(modelNode.Model.Id, tempFileStream, writer);
+                    await WriteModelCode(modelNode.Model.Id, tempFile.FileStream, writer);
                 }
                 finally
                 {
-                    tempFileStream.Close();
-                    LocalFileSystem.DeleteTempFile(tempFilePath);
+                    await tempFile.Close();
+                    await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
                 }
             }
         }
@@ -179,11 +181,9 @@ internal sealed class ExportCommand : DesignCommand
         var stores = appPkg.Models
             .Where(m => m is EntityModel entityModel && entityModel.DataStoreKind != DataStoreKind.None)
             .Cast<EntityModel>()
-            .Select(m => m.StoreOptions!)
-            .Distinct()
             .Select(s =>
             {
-                if (s is SqlStoreOptions sqlStore)
+                if (s.StoreOptions is SqlStoreOptions sqlStore)
                 {
                     var storeNode = Context.DesignTree.FindDataStoreNode(sqlStore.StoreModelId)!;
                     return new AppPackage.DataStoreInfo()
@@ -191,7 +191,8 @@ internal sealed class ExportCommand : DesignCommand
                 }
 
                 throw new NotImplementedException();
-            });
+            })
+            .DistinctBy(s => s.Id);
         appPkg.DataStores.AddRange(stores);
     }
 }

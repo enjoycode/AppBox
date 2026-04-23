@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace AppBoxCore;
 
 /// <summary>
@@ -42,12 +44,12 @@ public sealed class ModelFolder : IBinSerializable
     {
         get
         {
-            _children ??= new List<ModelFolder>();
+            _children ??= [];
             return _children;
         }
     }
 
-    public bool HasChilds => _children != null && _children.Count > 0;
+    public bool HasChildren => _children is { Count: > 0 };
 
     /// <summary>
     /// 仅Root有效
@@ -107,6 +109,44 @@ public sealed class ModelFolder : IBinSerializable
         return this;
     }
 
+    public void Import()
+    {
+        Debug.Assert(Parent == null && !IsDeleted);
+    }
+
+    public bool UpdateFrom(ModelFolder from)
+    {
+        Debug.Assert(Parent == null && !from.IsDeleted);
+
+        IsDeleted = from.IsDeleted;
+        Clone(this, from);
+
+        return true;
+    }
+
+    private static void Clone(ModelFolder parent, ModelFolder from)
+    {
+        if (from._children is { Count: > 0 })
+        {
+            for (var i = 0; i < from._children.Count; i++)
+            {
+                var child = new ModelFolder()
+                {
+                    Parent = parent,
+                    Name = from._children[i].Name,
+                    Id = from._children[i].Id,
+                    AppId = from._children[i].AppId,
+                    TargetModelType = parent.TargetModelType,
+                    SortNum = from._children[i].SortNum,
+                    Version = from._children[i].Version,
+                };
+                parent.Children.Add(child);
+
+                Clone(child, from._children[i]);
+            }
+        }
+    }
+
     #endregion
 
     #region ====Serialization====
@@ -127,7 +167,7 @@ public sealed class ModelFolder : IBinSerializable
             ws.WriteBool(IsDeleted);
         }
 
-        if (!HasChilds)
+        if (!HasChildren)
             ws.WriteVariant(0);
         else
         {
@@ -167,24 +207,6 @@ public sealed class ModelFolder : IBinSerializable
 
         rs.ReadVariant(); //保留
     }
-
-    #endregion
-
-    #region ====导入方法====
-
-    // public void Import()
-    // {
-    //     Version -= 1; //注意：-1，发布时+1
-    // }
-    //
-    // public bool UpdateFrom(ModelFolder from)
-    // {
-    //     Version = from.Version - 1; //注意：-1，发布时+1
-    //     //TODO:暂简单同步处理
-    //     Name = from.Name;
-    //     _childs = from._childs; //直接复制
-    //     return true;
-    // }
 
     #endregion
 }

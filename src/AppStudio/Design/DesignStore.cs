@@ -91,8 +91,7 @@ internal sealed class DesignStore : IDesignUIService
     {
         //TODO:result.RootNodeId !=null 重新刷新模型根节点，因为可能被其他开发者改变过目录结构
 
-        var newNode = TreeController.InsertNode(
-            result.NewNode, result.ParentNode, result.InsertIndex, false /*不需要同步*/);
+        var newNode = TreeController.InsertNode(result.NewNode, result.ParentNode, result.InsertIndex, false /*不需要同步*/);
         TreeController.ExpandTo(newNode);
         TreeController.SelectNode(newNode);
     }
@@ -103,10 +102,15 @@ internal sealed class DesignStore : IDesignUIService
     internal void OnDeleteNode(TreeNode<DesignNode> node, string? modelRootNodeIdString)
     {
         // 移除选中节点打开的设计器
-        DesignerController.Remove(node.Data);
+        if (node.Data is ApplicationNode appNode)
+            DesignerController.RemoveAll(n => n is ModelNode modelNode && modelNode.Model.Id.AppId == appNode.Model.Id);
+        else
+            DesignerController.Remove(node.Data);
+
         // 从设计树中移除选中的节点
         //TODO: 刷新模型根节点 if (modelRootNodeIdString != null)
         TreeController.RemoveNode(node, false /*不需要同步*/);
+
         // 隐藏相关面板
         ShowOrHiddenBottomPad(null);
     }

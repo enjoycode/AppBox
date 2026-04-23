@@ -153,26 +153,15 @@ internal sealed class DeleteCommand : DesignCommand
         //TODO:考虑删除整个应用前自动导出备份
 
         //先签出所有模型根节点及所有模型节点
-        foreach (var modelRootNode in appNode.Children)
-        {
-            var checkoutOk = await modelRootNode.CheckoutAsync();
-            if (!checkoutOk)
-                throw new Exception($"Can't checkout model root: {modelRootNode.TargetType}.");
-        }
-
-        var modelNodes = appNode.GetAllModelNodes();
-        foreach (var modelNode in modelNodes)
-        {
-            var checkoutOk = await modelNode.CheckoutAsync();
-            if (!checkoutOk)
-                throw new Exception($"Can't checkout model node: {modelNode.Model.Name}.");
-        }
+        await appNode.CheckoutAllModelRootNodes();
+        await appNode.CheckoutAllModelNodes();
 
         //组包用现有PublishService发布(删除)
         var pkg = new PublishPackage() { DeletedAppId = appNode.Model.Id };
         var apps = hub.GetApplications();
         foreach (var app in apps)
             pkg.Apps.Add(app.Id, app.Name);
+        var modelNodes = appNode.GetAllModelNodes();
         foreach (var modelNode in modelNodes)
         {
             if (modelNode.Model.PersistentState != PersistentState.Detached)

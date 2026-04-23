@@ -82,6 +82,12 @@ public sealed class ModelNode : DesignNode
     public string AppName => AppNode.Model.Name;
 
     /// <summary>
+    /// 是否代码模型，目前仅服务模型及非动态视图模型
+    /// </summary>
+    public bool IsCodable => ModelType == ModelType.Service ||
+                             Model is ViewModel { ViewType: ViewModelType.PixUI };
+
+    /// <summary>
     /// 保存模型节点(包括相关代码)
     /// </summary>
     public async Task SaveAsync(Stream? utf8CodeStream)
@@ -101,7 +107,7 @@ public sealed class ModelNode : DesignNode
             {
                 var typeSystem = DesignTree!.DesignHub.TypeSystem;
                 //注意：不在此更新RoslynDocument, 实体模型通过设计命令更新,服务模型通过前端代码编辑器实时更新
-                if (Model.ModelType is ModelType.Service or ModelType.View)
+                if (IsCodable)
                 {
                     using var ms = new MemoryStream(); //Should use temp file
                     await using var streamWriter = new StreamWriter(ms, leaveOpen: true);

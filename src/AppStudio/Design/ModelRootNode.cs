@@ -92,7 +92,7 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
             RootFolder = folder;
         }
 
-        if (folder.HasChilds)
+        if (folder.HasChildren)
         {
             foreach (var child in folder.Children)
             {

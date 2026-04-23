@@ -17,4 +17,6 @@ public interface IMetaStoreService
     Task CreateApplicationAsync(ApplicationModel app);
 
     Task DeleteApplicationAsync(ApplicationModel app);
+
+    Task<byte> UploadExtLib(Stream input, string appName, string fileName);
 }

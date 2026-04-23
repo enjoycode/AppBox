@@ -72,13 +72,12 @@ internal sealed class BuildAppCommand : DesignCommand
         }
 
         //6.保存视图模型对应的所有程序集的映射
-        Stream? tempFileStream = null;
-        string? tempFilePath = null;
+        LocalFileInfo tempFile = default;
         try
         {
             //先写入临时文件
-            tempFileStream = LocalFileSystem.CreateTempFile(out tempFilePath, false);
-            var w = new SystemWriteStream(tempFileStream);
+            tempFile = await LocalFileSystem.CreateTempFile(false);
+            var w = new SystemWriteStream(tempFile.FileStream);
             w.WriteVariant(viewAssemblyMap.Count);
 
             foreach (var kv in viewAssemblyMap)
@@ -96,15 +95,15 @@ internal sealed class BuildAppCommand : DesignCommand
                 w.WriteBytes(jsonData);
             }
 
-            tempFileStream.Position = 0;
+            tempFile.FileStream.Position = 0;
 
             //再上传临时文件
-            await context.PublishService.UploadViewAssemblyMap(tempFileStream);
+            await context.PublishService.UploadViewAssemblyMap(tempFile.FileStream);
         }
         finally
         {
-            tempFileStream?.Close();
-            LocalFileSystem.DeleteTempFile(tempFilePath);
+            await tempFile.Close();
+            await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
         }
     }
 

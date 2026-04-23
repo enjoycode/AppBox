@@ -238,18 +238,18 @@ internal sealed class TypeSystem : IDisposable
         if (!string.IsNullOrEmpty(initSrcCode))
             return SourceText.From(initSrcCode);
 
-        var stream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+        var tempFile = await LocalFileSystem.CreateTempFile(false);
         try
         {
-            await DownloadSourceCode(stream, node);
-            stream.Seek(0, SeekOrigin.Begin);
+            await DownloadSourceCode(tempFile.FileStream, node);
+            tempFile.FileStream.Seek(0, SeekOrigin.Begin);
 
-            return SourceText.From(stream, Encoding.UTF8);
+            return SourceText.From(tempFile.FileStream, Encoding.UTF8);
         }
         finally
         {
-            stream.Close();
-            LocalFileSystem.DeleteTempFile(tempFilePath);
+            await tempFile.Close();
+            await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
         }
     }
 

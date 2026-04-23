@@ -37,7 +37,6 @@ public sealed class AppPackage : ModelPackage
 
     public override void ReadFrom(IInputStream rs)
     {
-        Application = new ApplicationModel();
         Application.ReadFrom(rs);
 
         var count = rs.ReadVariant();

@@ -69,20 +69,20 @@ internal sealed class PublishCommand : DesignCommand
             //以下重命名的已不需要加入待删除列表，保存模型时已处理
             if (item.Target is ServiceModel sm && sm.PersistentState != PersistentState.Deleted)
             {
-                var tempFileStream = LocalFileSystem.CreateTempFile(out var tempFilePath, false);
+                var tempFile = await LocalFileSystem.CreateTempFile(false);
                 try
                 {
-                    await CompileServiceAsync(tempFileStream, hub, sm, false);
+                    await CompileServiceAsync(tempFile.FileStream, hub, sm, false);
                     var appName = hub.AppNameGetter(sm.Id.AppId);
                     var fullName = $"{appName}.{sm.Name}";
-                    tempFileStream.Seek(0, SeekOrigin.Begin);
-                    await hub.PublishService.UploadServiceAssembly(tempFileStream, fullName, isFirst);
+                    tempFile.FileStream.Seek(0, SeekOrigin.Begin);
+                    await hub.PublishService.UploadServiceAssembly(tempFile.FileStream, fullName, isFirst);
                     isFirst = false;
                 }
                 finally
                 {
-                    tempFileStream.Close();
-                    LocalFileSystem.DeleteTempFile(tempFilePath);
+                    await tempFile.Close();
+                    await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
                 }
             }
         }

@@ -32,6 +32,7 @@ internal sealed class Commands
         PublishCommand = new PublishCommand(designContext);
         BuildAppCommand = new BuildAppCommand(designContext);
         ExportCommand = new ExportCommand(designContext);
+        ImportCommand = new ImportCommand(designContext);
         UsagesCommand = new FindUsagesCommand(designContext);
         DependencyCommand = new DependencyCommand(designContext);
         NotImplCommand = () => Notification.Error("暂未实现");
@@ -52,6 +53,7 @@ internal sealed class Commands
     public readonly PublishCommand PublishCommand;
     public readonly BuildAppCommand BuildAppCommand;
     public readonly ExportCommand ExportCommand;
+    public readonly ImportCommand ImportCommand;
     public readonly FindUsagesCommand UsagesCommand;
     public readonly DependencyCommand DependencyCommand;
     public readonly Action NotImplCommand;

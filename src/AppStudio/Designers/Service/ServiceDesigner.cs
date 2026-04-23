@@ -190,7 +190,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
 
     private async void OnShowDependencies(PointerEvent e)
     {
-        var dlg = new DependencyDialog(ModelNode);
+        var dlg = new DependencyDialog(_designContext, ModelNode);
         var res = await dlg.ShowAsync();
         if (res != DialogResult.OK)
             return;

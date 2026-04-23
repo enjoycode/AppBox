@@ -122,6 +122,9 @@ internal sealed class MockMetaStoreService : IMetaStoreService
 
     public Task DeleteApplicationAsync(ApplicationModel app) =>
         MetaStore.Provider.DeleteApplicationAsync(app);
+
+    public Task<byte> UploadExtLib(Stream input, string appName, string fileName) =>
+        throw new NotImplementedException();
 }
 
 internal sealed class MockPublishService : IPublishService

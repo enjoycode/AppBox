@@ -113,7 +113,7 @@ internal sealed class SystemService : IService
             parentNode = node;
         }
 
-        if (folder.HasChilds)
+        if (folder.HasChildren)
         {
             for (var i = 0; i < folder.Children.Count; i++)
             {

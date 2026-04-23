@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace AppBoxClient;
 
@@ -11,14 +12,14 @@ public static class LocalFileSystem
 
     private static ILocalFileSystem _provider = null!;
 
-    public static Stream CreateTempFile(out string filePath, bool writeOnly = true) =>
-        _provider.CreateTempFile(out filePath, writeOnly);
+    public static ValueTask<LocalFileInfo> CreateTempFile(bool writeOnly = true) =>
+        _provider.CreateTempFile(writeOnly);
 
-    public static void DeleteTempFile(string? filePath)
+    public static ValueTask DeleteTempFile(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath))
-            return;
+            return ValueTask.CompletedTask;
 
-        _provider.DeleteTempFile(filePath);
+        return _provider.DeleteTempFile(filePath);
     }
 }

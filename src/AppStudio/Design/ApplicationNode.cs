@@ -31,6 +31,35 @@ public sealed class ApplicationNode : DesignNode, IChildrenNode
     public IList<DesignNode> GetChildren() => Children.List.Cast<DesignNode>().ToList();
 
     /// <summary>
+    /// 用于删除或导入时签出所有模型根节点
+    /// </summary>
+    internal async Task CheckoutAllModelRootNodes()
+    {
+        foreach (var modelRootNode in Children)
+        {
+            var checkoutOk = await modelRootNode.CheckoutAsync();
+            if (!checkoutOk)
+                throw new Exception($"Can't checkout model root: {modelRootNode.TargetType}.");
+        }
+    }
+
+    /// <summary>
+    /// 用于删除或导入时签出所有模型节点
+    /// </summary>
+    internal async Task CheckoutAllModelNodes()
+    {
+        for (var i = 0; i < Children.Count; i++)
+        {
+            foreach (var modelNode in Children[i].GetAllModelNodes())
+            {
+                var checkoutOk = await modelNode.CheckoutAsync();
+                if (!checkoutOk)
+                    throw new Exception($"Can't checkout model node: {modelNode.Model.Name}.");
+            }
+        }
+    }
+
+    /// <summary>
     /// 签入当前应用节点下所有子节点
     /// </summary>
     internal void CheckinAllNodes()
@@ -56,29 +85,21 @@ public sealed class ApplicationNode : DesignNode, IChildrenNode
         return null;
     }
 
-    internal IList<ModelNode> GetAllModelNodes()
-    {
-        var list = new List<ModelNode>();
-        for (var i = 0; i < Children.Count; i++)
-        {
-            list.AddRange(Children[i].GetAllModelNodes());
-        }
-
-        return list;
-    }
+    /// <summary>
+    /// 获取所有模型节点
+    /// </summary>
+    internal IEnumerable<ModelNode> GetAllModelNodes() =>
+        Children.SelectMany(t => t.GetAllModelNodes());
 
     /// <summary>
-    /// 获取所有根文件夹，仅用于删除整个App
+    /// 获取所有根文件夹
     /// </summary>
-    internal IList<ModelFolder> GetAllRootFolders()
+    internal IEnumerable<ModelFolder> GetAllRootFolders()
     {
-        var list = new List<ModelFolder>();
         for (var i = 0; i < Children.Count; i++)
         {
             if (Children[i].RootFolder != null)
-                list.Add(Children[i].RootFolder!);
+                yield return Children[i].RootFolder!;
         }
-
-        return list;
     }
 }

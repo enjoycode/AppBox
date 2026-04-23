@@ -129,8 +129,7 @@ internal sealed class NewCommand : DesignCommand
             else if (parentNode.Type == DesignNodeType.ModelRootNode)
             {
                 //判断是否存在根文件夹
-                if (rootNode.RootFolder == null)
-                    rootNode.RootFolder = new ModelFolder(appId, rootNode.TargetType);
+                rootNode.RootFolder ??= new ModelFolder(appId, rootNode.TargetType);
                 model = new ModelFolder(rootNode.RootFolder, name);
             }
             else

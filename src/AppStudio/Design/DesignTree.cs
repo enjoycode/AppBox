@@ -115,6 +115,8 @@ public sealed class DesignTree
 
     #region ====Find Methods====
 
+    public IReadOnlyList<DataStoreNode> GetAllDataStoreNodes() => _storeRootNode.Children.ToList();
+
     /// <summary>
     /// 用于前端传回的参数查找对应的设计节点
     /// </summary>

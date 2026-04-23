@@ -56,7 +56,7 @@ internal sealed class MainMenuPad : View
         MenuItem.SubMenu("Apps", MaterialIcons.Apps, [
             MenuItem.Item("Build", MaterialIcons.Build, cmds.BuildAppCommand.Execute),
             MenuItem.Item("Export", MaterialIcons.Upload, cmds.ExportCommand.Execute),
-            MenuItem.Item("Import", MaterialIcons.Download, cmds.NotImplCommand)
+            MenuItem.Item("Import", MaterialIcons.Download, cmds.ImportCommand.Execute)
         ]),
         MenuItem.Item("Tools", MaterialIcons.Handyman),
         MenuItem.Item("AppStore", MaterialIcons.Store),

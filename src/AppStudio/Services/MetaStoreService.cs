@@ -44,4 +44,7 @@ internal sealed class MetaStoreService : IMetaStoreService
 
     public Task DeleteApplicationAsync(ApplicationModel app) =>
         Channel.Invoke(DesignMethods.DeleteApplicationFull, AnyValue.From(app));
+
+    public Task<byte> UploadExtLib(Stream input, string appName, string fileName) =>
+        Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull, input, appName, fileName);
 }

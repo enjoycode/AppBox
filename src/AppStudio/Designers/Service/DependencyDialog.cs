@@ -7,16 +7,18 @@ namespace AppBoxDesign;
 
 internal sealed class DependencyDialog : Dialog
 {
-    public DependencyDialog(ModelNode modelNode)
+    public DependencyDialog(DesignHub designContext, ModelNode modelNode)
     {
         Title.Value = "Dependencies";
         Width = 600;
         Height = 400;
 
         _modelNode = modelNode;
+        _designContext = designContext;
     }
 
     private readonly ModelNode _modelNode;
+    private readonly DesignHub _designContext;
     private ServiceModel ServiceModel => (ServiceModel)_modelNode.Model;
     private readonly ListViewController<ModelDependency> _sourceListController = new();
     private readonly ListViewController<ModelDependency> _targetListController = new();
@@ -175,7 +177,7 @@ internal sealed class DependencyDialog : Dialog
             var fileName = files[0].FileName;
             fileStream = files[0].FileStream;
 
-            var assemblyFlag = await Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull,
+            var assemblyFlag = await _designContext.MetaStoreService.UploadExtLib(
                 fileStream, appName, fileName);
             //TODO:加入Source列表内，并通知已经依赖的更新
         }
