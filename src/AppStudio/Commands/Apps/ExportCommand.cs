@@ -49,6 +49,9 @@ internal sealed class ExportCommand : DesignCommand
     private async Task ExportToStream(ApplicationNode appNode, Stream outputStream)
     {
         var appPkg = new AppPackage(appNode.Model);
+        appPkg.DevModelIdCounter = await Context.MetaStoreService.LoadModelIdCounterAsync(appNode.Model.Id, true);
+        appPkg.UsrModelIdCounter = await Context.MetaStoreService.LoadModelIdCounterAsync(appNode.Model.Id, false);
+
         //1.加入所有模型及文件夹, 排除所有已删除的
         var models = appNode.GetAllModelNodes()
             .Where(n => n.Model.PersistentState != PersistentState.Deleted)

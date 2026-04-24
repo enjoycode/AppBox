@@ -195,4 +195,16 @@ public static class MetaStoreExtensions
     /// </summary>
     public static Task<string[]> LoadDynamicWidgetsAsync(this IMetaStore metaStore) =>
         metaStore.LoadMetaNamesAsync((byte)MetaAssemblyType.ViewAssemblies, (byte)AssemblyPlatform.ViewDynamic);
+
+    /// <summary>
+    /// 用于导出应用时获取当前的模型标识计数器
+    /// </summary>
+    public static async Task<byte[]?> LoadModelIdCounter(this IMetaStore metaStore, int appId, bool forDev)
+    {
+        var meta = forDev ? MetaType.META_APP_MODEL_DEV_COUNTER : MetaType.META_APP_MODEL_USR_COUNTER;
+        using var ms = new MemoryStream();
+        await metaStore.LoadMetaDataAsync(ms, meta, appId.ToString());
+        if (ms.Length == 0) return null;
+        return ms.ToArray();
+    }
 }

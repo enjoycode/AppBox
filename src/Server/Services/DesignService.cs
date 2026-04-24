@@ -48,6 +48,9 @@ internal sealed class DesignService : IService
             case "GenModelId":
                 return (long)(await MetaStore.Provider.GenModelIdAsync(
                     args.GetInt()!.Value, (ModelType)args.GetInt()!.Value, (ModelLayer)args.GetInt()!.Value));
+            case DesignMethods.LoadModelIdCounter:
+                return AnyValue.From(
+                    await MetaStore.Provider.LoadModelIdCounter(args.GetInt()!.Value, args.GetBool()!.Value));
             case "CheckoutLoadAll":
                 return AnyValue.From(await CheckoutService.LoadAllAsync());
             case "Checkout":

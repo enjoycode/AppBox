@@ -13,6 +13,8 @@ public interface IMetaStoreService
     Task DownloadModelCodeAsync(Stream toStream, ModelId modelId);
 
     Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer);
+    
+    Task<byte[]?> LoadModelIdCounterAsync(int appId, bool forDev);
 
     Task CreateApplicationAsync(ApplicationModel app);
 

@@ -117,6 +117,9 @@ internal sealed class MockMetaStoreService : IMetaStoreService
     public Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer) =>
         MetaStore.Provider.GenModelIdAsync(appId, modelType, layer);
 
+    public Task<byte[]?> LoadModelIdCounterAsync(int appId, bool forDev) =>
+        MetaStore.Provider.LoadModelIdCounter(appId, forDev);
+
     public Task CreateApplicationAsync(ApplicationModel app) =>
         MetaStore.Provider.CreateApplicationAsync(app, null);
 

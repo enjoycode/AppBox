@@ -39,6 +39,9 @@ internal sealed class MetaStoreService : IMetaStoreService
     public async Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer) =>
         await Channel.Invoke<long>("sys.DesignService.GenModelId", appId, (int)modelType, (int)layer);
 
+    public Task<byte[]?> LoadModelIdCounterAsync(int appId, bool forDev) =>
+        Channel.Invoke<byte[]?>(DesignMethods.LoadModelIdCounter, appId, forDev);
+    
     public Task CreateApplicationAsync(ApplicationModel app) =>
         Channel.Invoke(DesignMethods.CreateApplicationFull, AnyValue.From(app));
 

@@ -19,11 +19,19 @@ public sealed class AppPackage : ModelPackage
     /// </summary>
     public List<DataStoreInfo> DataStores { get; private set; } = [];
 
+    public byte[]? DevModelIdCounter { get; set; }
+
+    public byte[]? UsrModelIdCounter { get; set; }
+
     #region ====Serialization====
 
     public override void WriteTo(IOutputStream ws)
     {
         Application.WriteTo(ws);
+
+        ws.Serialize(DevModelIdCounter);
+        ws.Serialize(UsrModelIdCounter);
+
         ws.WriteVariant(DataStores.Count);
         foreach (var dataStore in DataStores)
         {
@@ -39,8 +47,11 @@ public sealed class AppPackage : ModelPackage
     {
         Application.ReadFrom(rs);
 
+        DevModelIdCounter = (byte[]?)rs.Deserialize();
+        UsrModelIdCounter = (byte[]?)rs.Deserialize();
+
         var count = rs.ReadVariant();
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             var dataStore = new DataStoreInfo();
             dataStore.ReadFrom(rs);

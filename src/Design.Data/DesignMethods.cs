@@ -18,6 +18,9 @@ public static class DesignMethods
     
     public const string DeleteApplication = "DeleteApplication";
     public const string DeleteApplicationFull = $"{DesignService}.{DeleteApplication}";
+    
+    public const string LoadModelIdCounter = "LoadModelIdCounter";
+    public const string LoadModelIdCounterFull = $"{DesignService}.{LoadModelIdCounter}";
 
     #region ====Debug Methods====
 
