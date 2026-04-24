@@ -25,7 +25,7 @@ internal sealed class ImportCommand : DesignCommand
         var reader = new SystemReadStream(zipInputStream);
 
         //1.读取应用包内容
-        AppPackage appPkg = null!;
+        AppPackage appPkg;
         Dictionary<string, LocalFileInfo>? extLibs = null;
         Dictionary<long, LocalFileInfo> codes = null!;
         try
@@ -84,6 +84,13 @@ internal sealed class ImportCommand : DesignCommand
     {
         //1.先创建应用
         var appNode = await NewAppCommand.CreateApplication(Context, appPkg.Application);
+        if (appPkg.DevModelIdCounter is { Length: > 0 })
+            await Context.MetaStoreService.UpsertModelIdCounterAsync(appPkg.Application.Id, true,
+                appPkg.DevModelIdCounter);
+        if (appPkg.UsrModelIdCounter is { Length: > 0 })
+            await Context.MetaStoreService.UpsertModelIdCounterAsync(appPkg.Application.Id, false,
+                appPkg.UsrModelIdCounter);
+
         //2.签出所有根文件夹
         await appNode.CheckoutAllModelRootNodes();
         //3.保存依赖的第三方库
@@ -94,6 +101,7 @@ internal sealed class ImportCommand : DesignCommand
                 await Context.MetaStoreService.UploadExtLib(kv.Value.FileStream, appPkg.Application.Name, kv.Key);
             }
         }
+
         //4.导入并加入到设计树
         foreach (var folder in appPkg.Folders)
         {
@@ -125,6 +133,7 @@ internal sealed class ImportCommand : DesignCommand
                 using var stringReader = new StreamReader(codeStream);
                 srcCode = await stringReader.ReadToEndAsync();
             }
+
             await Context.TypeSystem.CreateModelDocumentAsync(modelNode, srcCode);
         }
     }

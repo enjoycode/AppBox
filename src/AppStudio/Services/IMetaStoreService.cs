@@ -14,7 +14,15 @@ public interface IMetaStoreService
 
     Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer);
     
+    /// <summary>
+    /// 仅用于导出应用包时获取模型标识计数器
+    /// </summary>
     Task<byte[]?> LoadModelIdCounterAsync(int appId, bool forDev);
+    
+    /// <summary>
+    /// 仅用于导入应用包时更新模型标识计数器
+    /// </summary>
+    Task UpsertModelIdCounterAsync(int appId, bool forDev, byte[] counterData);
 
     Task CreateApplicationAsync(ApplicationModel app);
 

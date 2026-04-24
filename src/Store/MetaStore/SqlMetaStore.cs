@@ -132,6 +132,32 @@ public sealed class SqlMetaStore : IMetaStore
         return ModelId.Make(appId, type, seq, layer);
     }
 
+    /// <summary>
+    /// 仅用于导入应用包时更新模型标识计数器
+    /// </summary>
+    public async Task UpsertModelIdCounterAsync(int appId, bool forDev, byte[] counterData)
+    {
+        var meta = forDev ? MetaType.META_APP_MODEL_DEV_COUNTER : MetaType.META_APP_MODEL_USR_COUNTER;
+        var db = SqlStore.Default;
+        await using var conn = db.MakeConnection();
+        await conn.OpenAsync();
+        await using var txn = await conn.BeginTransactionAsync();
+        
+        var delCommand = db.MakeCommand();
+        delCommand.Connection = txn.Connection;
+        delCommand.Transaction = txn;
+        BuildDeleteMetaCommand(delCommand, meta, appId.ToString());
+        await delCommand.ExecuteNonQueryAsync();
+
+        var addCommand = db.MakeCommand();
+        addCommand.Connection = txn.Connection;
+        addCommand.Transaction = txn;
+        BuildInsertMetaCommand(addCommand, meta, appId.ToString(), MetaType.MODEL_TYPE_APPLICATION, counterData, false);
+        await addCommand.ExecuteNonQueryAsync();
+
+        await txn.CommitAsync();
+    }
+
     public async Task InsertModelAsync(ModelBase model, DbTransaction txn)
     {
         await using var cmd = SqlStore.Default.MakeCommand();

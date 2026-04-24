@@ -21,6 +21,9 @@ public static class DesignMethods
     
     public const string LoadModelIdCounter = "LoadModelIdCounter";
     public const string LoadModelIdCounterFull = $"{DesignService}.{LoadModelIdCounter}";
+    
+    public const string UpsertModelIdCounter = "UpsertModelIdCounter";
+    public const string UpsertModelIdCounterFull = $"{DesignService}.{UpsertModelIdCounter}";
 
     #region ====Debug Methods====
 

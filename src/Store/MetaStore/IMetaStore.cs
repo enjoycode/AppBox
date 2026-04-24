@@ -17,6 +17,8 @@ public interface IMetaStore
     /// </summary>
     Task<ModelId> GenModelIdAsync(int appId, ModelType type, ModelLayer layer);
 
+    Task UpsertModelIdCounterAsync(int appId, bool forDev, byte[] counterData);
+
     Task UpsertFolderAsync(ModelFolder folder, DbTransaction txn);
 
     Task DeleteFolderAsync(ModelFolder folder, DbTransaction txn);

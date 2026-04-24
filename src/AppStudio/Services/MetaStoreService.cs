@@ -41,7 +41,10 @@ internal sealed class MetaStoreService : IMetaStoreService
 
     public Task<byte[]?> LoadModelIdCounterAsync(int appId, bool forDev) =>
         Channel.Invoke<byte[]?>(DesignMethods.LoadModelIdCounter, appId, forDev);
-    
+
+    public Task UpsertModelIdCounterAsync(int appId, bool forDev, byte[] counterData) =>
+        Channel.Invoke(DesignMethods.UpsertModelIdCounter, appId, forDev, AnyValue.From(counterData));
+
     public Task CreateApplicationAsync(ApplicationModel app) =>
         Channel.Invoke(DesignMethods.CreateApplicationFull, AnyValue.From(app));
 

@@ -51,6 +51,10 @@ internal sealed class DesignService : IService
             case DesignMethods.LoadModelIdCounter:
                 return AnyValue.From(
                     await MetaStore.Provider.LoadModelIdCounter(args.GetInt()!.Value, args.GetBool()!.Value));
+            case DesignMethods.UpsertModelIdCounter:
+                await MetaStore.Provider.UpsertModelIdCounterAsync(args.GetInt()!.Value, args.GetBool()!.Value,
+                    (byte[])args.GetObject()!);
+                return AnyValue.Empty;
             case "CheckoutLoadAll":
                 return AnyValue.From(await CheckoutService.LoadAllAsync());
             case "Checkout":
