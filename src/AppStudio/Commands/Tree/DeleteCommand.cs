@@ -111,19 +111,9 @@ internal sealed class DeleteCommand : DesignCommand
         // 移除对应节点
         modelRootNode.RemoveModel(node);
         // 删除Roslyn相关
-        RemoveRoslynFromModelNode(hub, node);
+        hub.TypeSystem.RemoveAllDocuments(node);
 
         return rootNodeHasCheckout ? null : modelRootNode;
-    }
-
-    private static void RemoveRoslynFromModelNode(DesignHub hub, ModelNode node)
-    {
-        if (node.RoslynDocumentId != null)
-            hub.TypeSystem.RemoveDocument(node.RoslynDocumentId);
-        if (node.ExtRoslynDocumentId != null)
-            hub.TypeSystem.RemoveDocument(node.ExtRoslynDocumentId);
-        if (node.ServiceProjectId != null) //注意：服务模型移除整个虚拟项目
-            hub.TypeSystem.RemoveServiceProject(node.ServiceProjectId);
     }
 
     private static async Task<DesignNode?> DeleteFolderNode(DesignHub hub, FolderNode node)
@@ -176,7 +166,7 @@ internal sealed class DeleteCommand : DesignCommand
             }
 
             //删除所有Roslyn相关
-            RemoveRoslynFromModelNode(hub, modelNode);
+            hub.TypeSystem.RemoveAllDocuments(modelNode);
         }
 
         //加入待删除的根级文件夹

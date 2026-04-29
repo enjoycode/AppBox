@@ -19,5 +19,5 @@ public sealed class ApplicationRootNode : DesignNode, IRootNode, IChildrenNode
 
     public new DesignTree DesignTree { get; }
     
-    public IList<DesignNode> GetChildren() => Children.List.Cast<DesignNode>().ToList();
+    public IList<DesignNode> GetChildren() => Children.Cast<DesignNode>().ToList();
 }

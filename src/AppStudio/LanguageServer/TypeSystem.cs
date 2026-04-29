@@ -356,7 +356,7 @@ internal sealed class TypeSystem : IDisposable
     /// <remarks>
     /// 注意: 如果处于打开状态，则先关闭再移除
     /// </remarks>
-    internal void RemoveDocument(DocumentId docId)
+    private void RemoveDocument(DocumentId docId)
     {
         if (Workspace.IsDocumentOpen(docId))
             Workspace.CloseDocument(docId);
@@ -364,6 +364,19 @@ internal sealed class TypeSystem : IDisposable
         var newSolution = Workspace.CurrentSolution.RemoveDocument(docId);
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn($"Cannot remove roslyn document for: {docId}");
+    }
+
+    /// <summary>
+    /// 删除节点时移除所有Roslyn相关
+    /// </summary>
+    internal void RemoveAllDocuments(ModelNode node)
+    {
+        if (node.RoslynDocumentId != null)
+            RemoveDocument(node.RoslynDocumentId);
+        if (node.ExtRoslynDocumentId != null)
+            RemoveDocument(node.ExtRoslynDocumentId);
+        if (node.ServiceProjectId != null) //注意：服务模型移除整个虚拟项目
+            RemoveServiceProject(node.ServiceProjectId);
     }
 
     #endregion

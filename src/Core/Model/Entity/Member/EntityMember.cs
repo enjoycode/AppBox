@@ -12,7 +12,7 @@ public abstract class EntityMember
         PersistentState = PersistentState.Detached;
     }
 
-    public readonly EntityModel Owner; //不用序列化
+    public EntityModel Owner { get; private set; } //不用序列化
     public abstract EntityMemberType Type { get; }
 
     private string? _originalName;
@@ -83,11 +83,19 @@ public abstract class EntityMember
         ModelReferenceType referenceType, ModelId modelId, string? memberName,
         short? entityMemberId) { }
 
-    internal void Import()
+    internal void Import(EntityModel newOwner)
     {
         Debug.Assert(PersistentState != PersistentState.Deleted);
-
+        Owner = newOwner;
         PersistentState = PersistentState.Detached;
+    }
+
+    internal virtual void UpdateFrom(EntityMember other)
+    {
+        if (Name != other.Name)
+            RenameTo(other.Name);
+        _allowNull = other.AllowNull;
+        Comment = other.Comment;
     }
 
     #endregion

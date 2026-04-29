@@ -257,11 +257,60 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         foreach (var member in _members)
         {
             if (member.PersistentState != PersistentState.Deleted)
-                member.Import();
+                member.Import(this);
         }
 
         //导入存储选项
         StoreOptions?.Import();
+    }
+
+    internal override bool UpdateFrom(ModelBase other)
+    {
+        var from = (EntityModel)other;
+        var changed = base.UpdateFrom(other);
+
+        //导入成员，TODO:处理不同Layer的成员
+        var memberComparer = new MemberComparer();
+        //注意顺序:删除的 then 更新的 then 新建的
+        var removedMembers = Members.Except(from.Members, memberComparer);
+        foreach (var removedMember in removedMembers)
+        {
+            RemoveMember(removedMember);
+        }
+
+        var otherMembers = Members.Intersect(from.Members, memberComparer);
+        foreach (var member in otherMembers)
+        {
+            member.UpdateFrom(from.Members.Single(t => t.MemberId == member.MemberId));
+        }
+
+        var addedMembers = from.Members.Except(Members, memberComparer);
+        foreach (var addedMember in addedMembers)
+        {
+            addedMember.Import(this);
+            AddMember(addedMember, byImport: true);
+        }
+
+        //导入存储选项
+        StoreOptions?.UpdateFrom(from.StoreOptions!);
+
+        //同步成员计数器
+        _devMemberIdSeq = from._devMemberIdSeq; //Math.Max(_devMemberIdSeq, from._devMemberIdSeq);
+        //_usrMemberIdSeq = Math.Max(_usrMemberIdSeq, from._usrMemberIdSeq);
+
+        return changed;
+    }
+
+    private sealed class MemberComparer : IEqualityComparer<EntityMember>
+    {
+        public bool Equals(EntityMember? x, EntityMember? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (x == null || y == null) return false;
+            return x.MemberId == y.MemberId;
+        }
+
+        public int GetHashCode(EntityMember obj) => obj.MemberId.GetHashCode();
     }
 
     #endregion

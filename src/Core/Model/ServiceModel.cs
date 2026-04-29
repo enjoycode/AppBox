@@ -18,6 +18,17 @@ public sealed class ServiceModel : ModelBase
     /// </summary>
     public List<ModelDependency>? Dependencies { get; internal set; }
 
+    internal override bool UpdateFrom(ModelBase other)
+    {
+        var from = (ServiceModel)other;
+        var changed = base.UpdateFrom(other);
+
+        //同步属性
+        Dependencies = from.Dependencies;
+
+        return changed;
+    }
+
     #region ====Serialization====
 
     public override void WriteTo(IOutputStream ws)

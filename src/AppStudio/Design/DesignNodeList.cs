@@ -25,7 +25,7 @@ public sealed class DesignNodeList<T> : IEnumerable<T> where T : DesignNode
     {
         item.Parent = Owner;
         //特定Owner找到插入点
-        if (Owner.Type is DesignNodeType.ModelRootNode or DesignNodeType.FolderNode)
+        if (Owner.Type is DesignNodeType.ModelRootNode or DesignNodeType.FolderNode or DesignNodeType.ApplicationRoot)
         {
             var index = -1;
             for (var i = 0; i < List.Count; i++)

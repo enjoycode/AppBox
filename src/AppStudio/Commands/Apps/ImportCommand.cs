@@ -107,8 +107,7 @@ internal sealed class ImportCommand : DesignCommand
         {
             folder.Import();
             Context.DesignTree.FindModelRootNode(folder.AppId, folder.TargetModelType)!.LoadFolder(folder);
-            //保存
-            await Context.StagedService.SaveFolderAsync(folder);
+            await Context.StagedService.SaveFolderAsync(folder); //保存
         }
 
         var allModelNodes = new List<ModelNode>(appPkg.Models.Count);
@@ -138,14 +137,139 @@ internal sealed class ImportCommand : DesignCommand
         }
     }
 
-    private Task UpdateApp(ApplicationNode oldAppNode, AppPackage appPkg, Dictionary<string, LocalFileInfo>? extLibs,
+    private async Task UpdateApp(ApplicationNode appNode, AppPackage appPkg,
+        Dictionary<string, LocalFileInfo>? extLibs,
         Dictionary<long, LocalFileInfo> codes)
     {
-        //TODO: 先尝试签出所有根文件夹及模型节点
+        //1.先尝试签出所有根文件夹及模型节点，并关闭当前打开的编辑器
+        await appNode.CheckoutAllModelRootNodes();
+        await appNode.CheckoutAllModelNodes();
+        DesignStore.CloseAllDesignerByApp(appPkg.Application.Id);
 
-        throw new NotImplementedException();
-        // var folders = new List<ModelFolder>();
-        // var oldFolders = Context.DesignTree.get
+        //2.开始比较更新
+        var oldFolders = appNode.GetAllRootFolders().ToArray();
+        var oldModelNodes = appNode.GetAllModelNodes().ToArray();
+        var oldModels = oldModelNodes.Select(n => n.Model).ToArray();
+        var newFolders = new List<ModelFolder>(oldFolders.Length);
+        var newModels = new List<ModelBase>(oldModels.Length);
+        //2.1 比较文件夹
+        var folderComparer = new FolderComparer();
+        var addedFolders = appPkg.Folders.Except(oldFolders, folderComparer);
+        foreach (var addedFolder in addedFolders)
+        {
+            addedFolder.Import();
+            newFolders.Add(addedFolder);
+        }
+
+        var removedFolders = oldFolders.Except(appPkg.Folders, folderComparer);
+        foreach (var removedFolder in removedFolders)
+        {
+            removedFolder.IsDeleted = true;
+            newFolders.Add(removedFolder);
+        }
+
+        var otherFolders = oldFolders.Intersect(appPkg.Folders, folderComparer);
+        foreach (var folder in otherFolders)
+        {
+            if (folder.UpdateFrom(appPkg.Folders.Single(t =>
+                    t.TargetModelType == folder.TargetModelType && t.Id == folder.Id)))
+                newFolders.Add(folder);
+        }
+
+        //2.2 比较模型
+        var modelComparer = new ModelComparer();
+        var addedModels = appPkg.Models.Except(oldModels, modelComparer);
+        foreach (var addedModel in addedModels)
+        {
+            addedModel.Import();
+            newModels.Add(addedModel);
+        }
+
+        var removedModels = oldModels.Except(appPkg.Models, modelComparer);
+        foreach (var removedModel in removedModels)
+        {
+            if (removedModel.PersistentState != PersistentState.Detached)
+            {
+                removedModel.Delete();
+                newModels.Add(removedModel);
+            }
+
+            Context.AddRemovedItem(removedModel);
+        }
+
+        var otherModels = oldModels.Intersect(appPkg.Models, modelComparer);
+        foreach (var model in otherModels)
+        {
+            if (model.UpdateFrom(appPkg.Models.Single(t => t.ModelType == model.ModelType && t.Id == model.Id)))
+                newModels.Add(model);
+        }
+
+        //3.清除旧应用节点开始重新加载
+        appNode.ClearForReload();
+        DesignStore.ClearAppNodeForReload(appNode);
+        foreach (var folder in newFolders)
+        {
+            if (!folder.IsDeleted)
+                Context.DesignTree.FindModelRootNode(folder.AppId, folder.TargetModelType)!.LoadFolder(folder);
+            await Context.StagedService.SaveFolderAsync(folder); //保存
+        }
+
+        var newModelNodes = new List<ModelNode>(newModels.Count);
+        foreach (var model in newModels)
+        {
+            if (model.PersistentState != PersistentState.Deleted)
+            {
+                newModelNodes.Add(
+                    Context.DesignTree.FindModelRootNode(model.Id.AppId, model.ModelType)!.LoadModel(model));
+            }
+        }
+
+        //4.开始重新创建RoslynDocument
+        //4.1 先移除旧的
+        foreach (var modelNode in oldModelNodes)
+        {
+            if (modelNode.Model.PersistentState == PersistentState.Deleted)
+                await modelNode.SaveAsync(null);
+            else if (modelNode.Model.PersistentState == PersistentState.Detached)
+                await Context.StagedService.DeleteModelAsync(modelNode.Model.Id);
+            Context.TypeSystem.RemoveAllDocuments(modelNode);
+        }
+
+        //4.2 再重新添加
+        foreach (var modelNode in newModelNodes)
+        {
+            Stream? codeStream = null;
+            if (codes.TryGetValue(modelNode.Model.Id, out var tempFile))
+                codeStream = tempFile.FileStream;
+            await modelNode.SaveAsync(codeStream);
+
+            string? srcCode = null;
+            if (modelNode.IsCodable && codeStream != null)
+            {
+                codeStream.Position = 0;
+                using var stringReader = new StreamReader(codeStream);
+                srcCode = await stringReader.ReadToEndAsync();
+            }
+
+            await Context.TypeSystem.CreateModelDocumentAsync(modelNode, srcCode);
+        }
+
+        //5.保存依赖的第三方库 TODO:比较移除不再依赖的
+        if (extLibs != null)
+        {
+            foreach (var kv in extLibs)
+            {
+                await Context.MetaStoreService.UploadExtLib(kv.Value.FileStream, appPkg.Application.Name, kv.Key);
+            }
+        }
+
+        //6.更新标型标识计数器
+        if (appPkg.DevModelIdCounter is { Length: > 0 })
+            await Context.MetaStoreService.UpsertModelIdCounterAsync(appPkg.Application.Id, true,
+                appPkg.DevModelIdCounter);
+        if (appPkg.UsrModelIdCounter is { Length: > 0 })
+            await Context.MetaStoreService.UpsertModelIdCounterAsync(appPkg.Application.Id, false,
+                appPkg.UsrModelIdCounter);
     }
 
     /// <summary>
@@ -251,5 +375,29 @@ internal sealed class ImportCommand : DesignCommand
             await output.WriteAsync(buffer, 0, len);
             bytesRead += len;
         }
+    }
+
+    private sealed class FolderComparer : IEqualityComparer<ModelFolder>
+    {
+        public bool Equals(ModelFolder? x, ModelFolder? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (x == null || y == null) return false;
+            return x.AppId == y.AppId && x.TargetModelType == y.TargetModelType && x.Id == y.Id;
+        }
+
+        public int GetHashCode(ModelFolder obj) => obj.Id.GetHashCode() ^ (int)obj.TargetModelType;
+    }
+
+    private sealed class ModelComparer : IEqualityComparer<ModelBase>
+    {
+        public bool Equals(ModelBase? x, ModelBase? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (x == null || y == null) return false;
+            return x.AppId == y.AppId && x.ModelType == y.ModelType && x.Id == y.Id;
+        }
+
+        public int GetHashCode(ModelBase obj) => obj.Id.GetHashCode() ^ (int)obj.ModelType;
     }
 }

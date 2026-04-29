@@ -37,8 +37,7 @@ public sealed class NewNodeResult
     /// </summary>
     internal void ResolveToTree(DesignStore designStore)
     {
-        ParentNode = designStore.TreeController.FindNode(
-            n => n.Type == ParentNodeType && n.Id == ParentNodeId)!;
+        ParentNode = designStore.TreeController.FindNode(n => n.Type == ParentNodeType && n.Id == ParentNodeId)!;
         // ResolveNodeToTree(NewNode, GetModelRootNode(ParentNode));
     }
 

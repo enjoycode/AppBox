@@ -140,6 +140,25 @@ public sealed class EntityFieldMember : EntityMember, IModelReference
         //do nothing for rename enum name.
     }
 
+    internal override void UpdateFrom(EntityMember other)
+    {
+        base.UpdateFrom(other);
+
+        var from = (EntityFieldMember)other;
+        //先判断是否数据类型变更
+        if (FieldType != from.FieldType || Length != from.Length || Decimals != from.Decimals ||
+            AllowNull != from.AllowNull || _defaultValue != from._defaultValue)
+            OnFieldTypeChanged();
+        //复制属性
+        _fieldType = from._fieldType;
+        IsForeignKey = from.IsForeignKey;
+        Length = from.Length;
+        _decimals = from.Decimals;
+        EnumModelId = from.EnumModelId;
+        _allowNull = from.AllowNull;
+        _defaultValue = from._defaultValue;
+    }
+
     #endregion
 
     #region ====Serialization====

@@ -7,4 +7,6 @@ public interface IEntityStoreOptions : IBinSerializable
     void AcceptChanges();
 
     void Import();
+
+    void UpdateFrom(IEntityStoreOptions other);
 }

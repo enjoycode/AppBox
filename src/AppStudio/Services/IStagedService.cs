@@ -115,7 +115,7 @@ public sealed class StagedItems
 
         for (var i = 0; i < Items.Length; i++)
         {
-            if (Items[i] is ModelBase m && m.PersistentState == PersistentState.Deleted)
+            if (Items[i] is ModelBase { PersistentState: PersistentState.Deleted } m)
             {
                 context.AddRemovedItem(m);
                 storedModels.RemoveAll(t => t.Id == m.Id);

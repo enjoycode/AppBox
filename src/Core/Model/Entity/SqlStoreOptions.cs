@@ -147,6 +147,89 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         }
     }
 
+    void IEntityStoreOptions.UpdateFrom(IEntityStoreOptions other)
+    {
+        var from = (SqlStoreOptions)other;
+
+        //1.更新主键
+        if (IsPrimaryKeyChanged(from))
+            SetPrimaryKeys(from.PrimaryKeys);
+
+        //2.更新索引
+        if (from.HasIndexes)
+        {
+            var indexComparer = new SqlIndexComparer();
+            //注意顺序:删除的 then 更新的 then 新建的
+            var removedIndexes = Indexes.Except(from.Indexes, indexComparer);
+            foreach (var removedIndex in removedIndexes)
+            {
+                removedIndex.MarkDeleted();
+            }
+
+            var otherIndexes = Indexes.Intersect(from.Indexes, indexComparer);
+            foreach (var otherIndex in otherIndexes)
+            {
+                otherIndex.UpdateFrom(from.Indexes.Single(t => t.IndexId == otherIndex.IndexId));
+            }
+
+            var addedIndexes = from.Indexes.Except(Indexes, indexComparer);
+            foreach (var addedIndex in addedIndexes)
+            {
+                addedIndex.Import();
+                Indexes.Add(addedIndex);
+                _owner.OnPropertyChanged();
+            }
+        }
+        else
+        {
+            if (_indexes != null)
+            {
+                for (var i = 0; i < _indexes.Count; i++)
+                {
+                    _indexes[i].MarkDeleted();
+                }
+            }
+        }
+
+        //3.同步索引计数器
+        _devIndexIdSeq = from._devIndexIdSeq; //Math.Max(_devIndexIdSeq, from._devIndexIdSeq);
+        //_usrIndexIdSeq = Math.Max(_usrIndexIdSeq, from._usrIndexIdSeq);
+    }
+
+    private bool IsPrimaryKeyChanged(SqlStoreOptions from)
+    {
+        if (HasPrimaryKeys != from.HasPrimaryKeys)
+            return true;
+
+        if (HasPrimaryKeys && from.HasPrimaryKeys)
+        {
+            if (_primaryKeys!.Length != from._primaryKeys!.Length)
+                return true;
+            for (var i = 0; i < _primaryKeys.Length; i++)
+            {
+                if (_primaryKeys[i].MemberId != from._primaryKeys[i].MemberId ||
+                    _primaryKeys[i].AllowChange != from._primaryKeys[i].AllowChange ||
+                    _primaryKeys[i].OrderByDesc != from._primaryKeys[i].OrderByDesc ||
+                    _primaryKeys[i].TrackerMemberId != from._primaryKeys[i].TrackerMemberId)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private sealed class SqlIndexComparer : IEqualityComparer<SqlIndex>
+    {
+        public bool Equals(SqlIndex? x, SqlIndex? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (x == null || y == null) return false;
+            return x.IndexId == y.IndexId;
+        }
+
+        public int GetHashCode(SqlIndex obj) => obj.IndexId.GetHashCode();
+    }
+
     #endregion
 
     #region ====Serialization====

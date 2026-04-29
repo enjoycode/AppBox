@@ -36,6 +36,20 @@ internal sealed class DesignStore : IDesignUIService
         }
     }
 
+    /// <summary>
+    /// 仅用于导入更新应用时重新创建节点
+    /// </summary>
+    /// <param name="app"></param>
+    internal void ClearAppNodeForReload(ApplicationNode app)
+    {
+        var oldAppTreeNode = TreeController.FindNode(n => n is ApplicationNode appNode && appNode.Id == app.Id)!;
+        var parentNode = oldAppTreeNode.ParentNode;
+        var index = oldAppTreeNode.Index;
+        TreeController.RemoveNode(oldAppTreeNode);
+
+        TreeController.InsertNode(app, parentNode, index, false);
+    }
+
     #region ====State and Controllers====
 
     internal readonly Commands Commands;
@@ -96,6 +110,9 @@ internal sealed class DesignStore : IDesignUIService
         TreeController.SelectNode(newNode);
     }
 
+    internal void CloseAllDesignerByApp(int appId) =>
+        DesignerController.RemoveAll(n => n is ModelNode modelNode && modelNode.Model.Id.AppId == appId);
+
     /// <summary>
     /// 删除成功返回后刷新
     /// </summary>
@@ -103,7 +120,7 @@ internal sealed class DesignStore : IDesignUIService
     {
         // 移除选中节点打开的设计器
         if (node.Data is ApplicationNode appNode)
-            DesignerController.RemoveAll(n => n is ModelNode modelNode && modelNode.Model.Id.AppId == appNode.Model.Id);
+            CloseAllDesignerByApp(appNode.Model.Id);
         else
             DesignerController.Remove(node.Data);
 

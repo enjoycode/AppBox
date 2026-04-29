@@ -28,7 +28,7 @@ public sealed class ApplicationNode : DesignNode, IChildrenNode
     public override DesignNodeType Type => DesignNodeType.ApplicationNode;
     public override State<string> Label { get; }
 
-    public IList<DesignNode> GetChildren() => Children.List.Cast<DesignNode>().ToList();
+    public IList<DesignNode> GetChildren() => Children.Cast<DesignNode>().ToList();
 
     /// <summary>
     /// 用于删除或导入时签出所有模型根节点
@@ -101,5 +101,14 @@ public sealed class ApplicationNode : DesignNode, IChildrenNode
             if (Children[i].RootFolder != null)
                 yield return Children[i].RootFolder!;
         }
+    }
+
+    /// <summary>
+    /// 仅用于导入应用包时清除后重新加载
+    /// </summary>
+    internal void ClearForReload()
+    {
+        foreach (var modelRootNode in Children)
+            modelRootNode.RemoveAllChildren();
     }
 }

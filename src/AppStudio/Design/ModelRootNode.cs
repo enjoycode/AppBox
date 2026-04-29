@@ -70,6 +70,17 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
     }
 
     /// <summary>
+    /// 仅用于导入应用时清除后再重新加载
+    /// </summary>
+    internal void RemoveAllChildren()
+    {
+        RootFolder = null;
+        _folders.Clear();
+        _models.Clear();
+        Children.Clear();
+    }
+
+    /// <summary>
     /// 仅用于设计树从顶级开始递归添加文件夹节点
     /// </summary>
     internal void LoadFolder(ModelFolder folder, FolderNode? parent = null)

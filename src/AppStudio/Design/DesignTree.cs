@@ -366,7 +366,7 @@ public sealed class DesignTree
             if (checkout.DeveloperOuid == DesignHub.LeafOrgUnitId && node is ModelNode modelNode) //如果是被当前用户签出的模型
             {
                 //从Staged加载
-                var stagedModel = Staged!.FindModel(modelNode.Model.Id);
+                var stagedModel = Staged?.FindModel(modelNode.Model.Id);
                 if (stagedModel != null)
                     modelNode.Model = stagedModel;
             }

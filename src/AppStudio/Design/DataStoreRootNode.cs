@@ -19,5 +19,5 @@ public sealed class DataStoreRootNode : DesignNode, IRootNode, IChildrenNode
     public override State<string> Label => LabelState;
     public new DesignTree DesignTree { get; }
     
-    public IList<DesignNode> GetChildren() => Children.List.Cast<DesignNode>().ToList();
+    public IList<DesignNode> GetChildren() => Children.Cast<DesignNode>().ToList();
 }
