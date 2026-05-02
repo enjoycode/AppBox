@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -10,15 +8,28 @@ internal sealed class WidgetTreeNode
     {
         Widget = widget;
         Children = new List<WidgetTreeNode>();
-        Widget.VisitChildren(child =>
-        {
-            Children.Add(new WidgetTreeNode(child));
-            return false;
-        });
+        var visitor = new WidgetTreeChildrenVisitor(Children);
+        Widget.VisitChildren(ref visitor);
     }
 
     public readonly Widget Widget;
-    public readonly IList<WidgetTreeNode> Children;
+    public readonly List<WidgetTreeNode> Children;
+
+    private readonly struct WidgetTreeChildrenVisitor : IChildrenVisitor
+    {
+        public WidgetTreeChildrenVisitor(List<WidgetTreeNode> children)
+        {
+            _children = children;
+        }
+
+        private readonly List<WidgetTreeNode> _children;
+
+        public bool Visit(Widget child)
+        {
+            _children.Add(new WidgetTreeNode(child));
+            return false;
+        }
+    }
 }
 
 /// <summary>
@@ -33,7 +44,6 @@ internal sealed class PreviewController
 
     public readonly ModelNode ModelNode;
     private Action? _invalidateAction;
-    private Action? _refreshOutlineAction;
     internal Widget? CurrentWidget; //当前加载的预览的Widget实例
 
     /// <summary>
@@ -47,11 +57,7 @@ internal sealed class PreviewController
     /// <summary>
     /// 用于重新加载大纲视图
     /// </summary>
-    internal Action? RefreshOutlineAction
-    {
-        get => _refreshOutlineAction;
-        set => _refreshOutlineAction = value;
-    }
+    internal Action? RefreshOutlineAction { get; set; }
 
     public void Invalidate() => _invalidateAction?.Invoke();
 

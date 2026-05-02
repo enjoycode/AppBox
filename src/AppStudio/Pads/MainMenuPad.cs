@@ -19,7 +19,7 @@ internal sealed class MainMenuPad : View
                     new Expanded
                     {
                         Child = new MainMenu(BuildMenuItems(designStore.Commands))
-                            { BackgroudColor = _bgColor, Color = Colors.White }
+                            { BackgroundColor = _bgColor, Color = Colors.White }
                     },
                 }
             }
