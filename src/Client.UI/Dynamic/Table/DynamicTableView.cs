@@ -138,7 +138,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
         Controller.DataSource = ds;
     }
 
-    public override void Paint(Canvas canvas, IDirtyArea? area = null)
+    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
     {
         if (_columns == null || _columns.Length == 0)
         {

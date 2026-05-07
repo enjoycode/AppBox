@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using PixUI;
+using Document = Microsoft.CodeAnalysis.Document;
 
 namespace AppBoxDesign;
 

@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using CodeEditor;
+using PixUI.CodeEditor;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.Text;
@@ -72,7 +72,7 @@ internal sealed class RoslynSyntaxParser : ISyntaxParser
     public bool HasSyntaxError =>
         _oldTree != null && _oldTree.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error);
 
-    public CodeEditor.Document Document { get; set; } = null!;
+    public PixUI.CodeEditor.Document Document { get; set; } = null!;
 
     public void BeginEdit(int offset, int length, int textLength)
     {

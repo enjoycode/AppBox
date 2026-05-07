@@ -1,7 +1,5 @@
-using System;
-using AppBoxClient;
 using AppBoxCore;
-using CodeEditor;
+using PixUI.CodeEditor;
 
 namespace AppBoxDesign;
 

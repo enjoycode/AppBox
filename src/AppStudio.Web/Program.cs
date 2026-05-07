@@ -39,8 +39,7 @@ public static class Program
         using var ms = new MemoryStream();
         await fontDataStream.CopyToAsync(ms);
         ms.Position = 0;
-        using var fontData = SKData.Create(ms);
-        FontCollection.Instance.RegisterTypeface(fontData!, FontCollection.DefaultFamilyName, false);
+        FontCollection.RegisterTypeface(ms, FontCollection.DefaultFamilyName, false);
 
         //加载HomePage
         BlazorApplication.Run(() => new HomePage(), glHandle, width, height, ratio, routePath, isMacOS);

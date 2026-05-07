@@ -42,7 +42,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
         //do nothing
     }
 
-    public override void Paint(Canvas canvas)
+    public override void Paint(ICanvas canvas)
     {
         var bounds = Bounds;
         var clientRect = Rect.FromLTWH(0, 0, bounds.Width, bounds.Height);

@@ -15,7 +15,7 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
 
     public TableSelectionAdorner(DesignAdorners owner, TableDesigner target) : base(owner, target) { }
 
-    protected override void OnRender(Canvas canvas)
+    protected override void OnRender(ICanvas canvas)
     {
         //画顶部灰条
         var topRect = Rect.FromLTWH(-OFFSET, -OFFSET, Target.Bounds.Width + OFFSET, OFFSET);

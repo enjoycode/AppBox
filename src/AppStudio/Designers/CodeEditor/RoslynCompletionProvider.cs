@@ -1,9 +1,9 @@
 using AppBoxCore;
-using CodeEditor;
+using PixUI.CodeEditor;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Recommendations;
-using Document = CodeEditor.Document;
+using Document = PixUI.CodeEditor.Document;
 
 namespace AppBoxDesign;
 

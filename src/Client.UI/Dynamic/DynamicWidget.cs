@@ -23,7 +23,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
     private bool _hasLoaded;
     private List<DynamicState>? _states;
     private DynamicBackground? _background;
-    private Image? _cachedImage;
+    private IImage? _cachedImage;
 
     /// <summary>
     /// 成功解析json并加载后的事件
@@ -55,7 +55,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         }
     }
 
-    public override void Paint(Canvas canvas, IDirtyArea? area = null)
+    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
     {
         if (_background != null && _background.ImageData != null)
         {

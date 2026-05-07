@@ -20,7 +20,7 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
     private readonly string _emptyMessage = string.Empty;
     private const char ReplacementChar = '\uFFFD';
 
-    public override void Paint(Canvas canvas)
+    public override void Paint(ICanvas canvas)
     {
         base.Paint(canvas);
 

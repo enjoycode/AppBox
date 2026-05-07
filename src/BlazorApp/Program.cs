@@ -2,6 +2,7 @@ using AppBoxClient;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using PixUI;
+using PixUI.Drawing.Skia;
 using PixUI.Platform.Blazor;
 
 namespace AppBox.BlazorApp;
@@ -30,6 +31,7 @@ public static class Program
     private static async Task Run(int glHandle, int width, int height, float ratio,
         string? routePath, bool isMacOS, string wsUrl)
     {
+        Render.Init(new SkiaRender());
         //初始化通讯
         Channel.Init(new WebSocketChannel(new Uri(wsUrl)));
 
@@ -40,8 +42,7 @@ public static class Program
         using var ms = new MemoryStream();
         await fontDataStream.CopyToAsync(ms);
         ms.Position = 0;
-        using var fontData = SKData.Create(ms);
-        FontCollection.Instance.RegisterTypeface(fontData!, FontCollection.DefaultFamilyName, false);
+        FontCollection.RegisterTypeface(ms, FontCollection.DefaultFamilyName, false);
 
         //加载HomePage
         //var homePage = new HomePage();

@@ -1,5 +1,4 @@
 using AppBoxCore;
-using CodeEditor;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;

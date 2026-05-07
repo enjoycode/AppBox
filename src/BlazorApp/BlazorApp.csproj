@@ -33,6 +33,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\ext\PixUI\ext\LiveCharts2\src\LiveChartsCore\LiveChartsCore.csproj" />
+      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Drawing.Skia\PixUI.Drawing.Skia.csproj" />
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj" />
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
       <ProjectReference Include="..\Client.UI\Client.UI.csproj" />

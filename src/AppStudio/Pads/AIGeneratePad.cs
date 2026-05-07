@@ -1,5 +1,5 @@
 using AppBoxDesign.AI;
-using CodeEditor;
+using PixUI.CodeEditor;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -102,7 +102,7 @@ internal sealed class PureTextSyntaxParser : ISyntaxParser
     public void Dispose() { }
     public bool HasSyntaxError => false;
 
-    public Document Document { get; set; } = null!;
+    public PixUI.CodeEditor.Document Document { get; set; } = null!;
 
     public void BeginEdit(int offset, int length, int textLength) { }
 

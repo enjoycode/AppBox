@@ -72,7 +72,7 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         return base.PreviewMouseDown(e);
     }
 
-    public override void Paint(Canvas canvas)
+    public override void Paint(ICanvas canvas)
     {
         var bounds = Bounds;
         canvas.FillRectangle(ReportItem.Style.BackgroundColor, bounds);

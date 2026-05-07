@@ -1,4 +1,4 @@
-using CodeEditor;
+using PixUI.CodeEditor;
 using Microsoft.CodeAnalysis.Text;
 
 namespace AppBoxDesign;

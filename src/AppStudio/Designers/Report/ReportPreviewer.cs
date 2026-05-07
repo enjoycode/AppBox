@@ -64,9 +64,9 @@ internal sealed class ReportPreviewer : View
 
     private sealed class ReportView : Widget
     {
-        internal Picture[] Pictures = null!;
+        internal IPicture[] Pictures = null!;
 
-        public override void Paint(Canvas canvas, IDirtyArea? area = null)
+        public override void Paint(ICanvas canvas, IDirtyArea? area = null)
         {
             //TODO:暂简单画第一页
             if (Pictures == null! || Pictures.Length == 0)

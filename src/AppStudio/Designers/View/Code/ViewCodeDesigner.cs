@@ -1,5 +1,5 @@
 using AppBoxDesign.AI;
-using CodeEditor;
+using PixUI.CodeEditor;
 using PixUI;
 
 namespace AppBoxDesign;

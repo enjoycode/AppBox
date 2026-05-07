@@ -176,7 +176,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
     protected override ISelectionAdorner GetSelectionAdorner(DesignAdorners adorners) =>
         SelectionAdorner ??= new TableSelectionAdorner(adorners, this);
 
-    public override void Paint(Canvas canvas)
+    public override void Paint(ICanvas canvas)
     {
         canvas.Translate(Bounds.X, Bounds.Y);
 

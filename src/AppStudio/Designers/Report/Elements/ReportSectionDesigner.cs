@@ -43,7 +43,7 @@ internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSection
         Surface?.Repaint();
     }
 
-    public override void Paint(Canvas canvas)
+    public override void Paint(ICanvas canvas)
     {
         canvas.DrawRectangle(new(173, 219, 241), 1.0f, Bounds);
         canvas.Translate(Bounds.X, Bounds.Y);

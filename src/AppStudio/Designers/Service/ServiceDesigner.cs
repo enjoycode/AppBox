@@ -2,7 +2,7 @@ using System.Text.Json;
 using AppBoxClient;
 using AppBoxCore;
 using AppBoxDesign.Debugging;
-using CodeEditor;
+using PixUI.CodeEditor;
 using PixUI;
 using Log = PixUI.Log;
 

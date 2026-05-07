@@ -14,7 +14,7 @@ public sealed class LoginPage : View
     private readonly State<string> _password = "";
 #endif
     private readonly State<float> _inputSize = 20;
-    private readonly Image _bgImg;
+    private readonly IImage _bgImg;
 
     public LoginPage()
     {
@@ -75,7 +75,7 @@ public sealed class LoginPage : View
         }
     }
 
-    public override void Paint(Canvas canvas, IDirtyArea? area = null)
+    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
     {
         canvas.DrawImage(_bgImg, Rect.FromLTWH(0, 0, W, H));
         base.Paint(canvas, area);

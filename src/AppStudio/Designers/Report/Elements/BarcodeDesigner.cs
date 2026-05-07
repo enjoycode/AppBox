@@ -23,7 +23,7 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
         ReportItem.Value = "123456789";
     }
 
-    public override void Paint(Canvas canvas)
+    public override void Paint(ICanvas canvas)
     {
         base.Paint(canvas);
 

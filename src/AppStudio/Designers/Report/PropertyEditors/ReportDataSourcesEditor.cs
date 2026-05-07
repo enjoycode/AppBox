@@ -84,7 +84,7 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 
     #endregion
 
-    public override void Paint(Canvas canvas, IDirtyArea? area = null)
+    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
     {
         // draw border
         var cmdBarHeight = 35;
@@ -112,7 +112,7 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
         private readonly IDataSource _item;
         private readonly int _itemIndex;
         private readonly State<int> _selectedState;
-        private Paragraph? _paragraph;
+        private IParagraph? _paragraph;
 
         public MouseRegion MouseRegion { get; }
 
@@ -127,7 +127,7 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
             SetSize(availableWidth, 20);
         }
 
-        public override void Paint(Canvas canvas, IDirtyArea? area = null)
+        public override void Paint(ICanvas canvas, IDirtyArea? area = null)
         {
             if (_selectedState.Value == _itemIndex)
                 canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), PixUI.Paint.Shared(Theme.FocusedColor));

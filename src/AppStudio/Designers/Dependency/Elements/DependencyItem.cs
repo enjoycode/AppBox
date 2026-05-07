@@ -21,7 +21,7 @@ internal sealed class DependencyItem : DiagramShape
     private const float FontSize = 16;
     private const float WidthPadding = 16f;
     private readonly DesignHub _designContext;
-    private readonly Paragraph _titleParagraph;
+    private readonly IParagraph _titleParagraph;
     public ModelNode ModelNode { get; }
     
     public Color ForeColor { get; set; } = Colors.Magenta;
@@ -30,7 +30,7 @@ internal sealed class DependencyItem : DiagramShape
 
     protected override bool IsContainer => false;
 
-    public override void Paint(Canvas canvas)
+    public override void Paint(ICanvas canvas)
     {
         //画边框
         var paint = PixUI.Paint.Shared(ForeColor, PaintStyle.Stroke, 2f);
