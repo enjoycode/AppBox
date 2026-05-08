@@ -66,7 +66,7 @@ internal sealed class ReportPreviewer : View
     {
         internal IPicture[] Pictures = null!;
 
-        public override void Paint(ICanvas canvas, IDirtyArea? area = null)
+        public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
         {
             //TODO:暂简单画第一页
             if (Pictures == null! || Pictures.Length == 0)
@@ -77,7 +77,7 @@ internal sealed class ReportPreviewer : View
             var height = pic.CullRect.Height;
 
             //draw background
-            var bgPaint = PixUI.Paint.Shared(Colors.White);
+            var bgPaint = Paint.Shared(Colors.White);
             canvas.DrawRect(Rect.FromLTWH(0, 0, width, height), bgPaint);
 
             //draw picture

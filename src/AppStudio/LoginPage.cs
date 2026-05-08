@@ -75,9 +75,9 @@ public sealed class LoginPage : View
         }
     }
 
-    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
+    public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
     {
         canvas.DrawImage(_bgImg, Rect.FromLTWH(0, 0, W, H));
-        base.Paint(canvas, area);
+        base.OnPaint(canvas, area);
     }
 }

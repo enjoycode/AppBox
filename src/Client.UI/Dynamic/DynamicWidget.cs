@@ -55,7 +55,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         }
     }
 
-    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
+    public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
     {
         if (_background != null && _background.ImageData != null)
         {
@@ -63,7 +63,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             canvas.DrawImage(_cachedImage!, Rect.FromLTWH(0, 0, W, H));
         }
 
-        base.Paint(canvas, area);
+        base.OnPaint(canvas, area);
     }
 
     private async void LoadAsync()

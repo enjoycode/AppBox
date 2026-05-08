@@ -86,13 +86,13 @@ internal sealed class DependencyDesigner : View, IDesigner
         surface.Repaint();
     }
 
-    public override void Layout(float availableWidth, float availableHeight)
+    protected override void OnLayout(Size maxSize)
     {
         //暂在这里移动所有元素的位置
         var oldWidth = LayoutBounds.Width;
         var oldHeight = LayoutBounds.Height;
 
-        base.Layout(availableWidth, availableHeight);
+        base.OnLayout(maxSize);
 
         var dx = (LayoutBounds.Width - oldWidth) / 2f;
         var dy = (LayoutBounds.Height - oldHeight) / 2f;

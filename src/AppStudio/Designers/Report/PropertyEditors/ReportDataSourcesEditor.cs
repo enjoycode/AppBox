@@ -84,14 +84,14 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 
     #endregion
 
-    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
+    public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
     {
         // draw border
         var cmdBarHeight = 35;
-        var paint = PixUI.Paint.Shared(Colors.Silver, PaintStyle.Stroke);
+        var paint = Paint.Shared(Colors.Silver, PaintStyle.Stroke);
         canvas.DrawRect(Rect.FromLTWH(0, cmdBarHeight, W, H - cmdBarHeight), paint);
 
-        base.Paint(canvas, area);
+        base.OnPaint(canvas, area);
     }
 
     private class DataSourceItemWidget : Widget, IMouseRegion
@@ -122,17 +122,14 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
             Repaint();
         }
 
-        public override void Layout(float availableWidth, float availableHeight)
-        {
-            SetSize(availableWidth, 20);
-        }
+        protected override void OnLayout(Size maxSize) => SetLayoutSize(AvailableSize.Width, 20);
 
-        public override void Paint(ICanvas canvas, IDirtyArea? area = null)
+        public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
         {
             if (_selectedState.Value == _itemIndex)
-                canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), PixUI.Paint.Shared(Theme.FocusedColor));
+                canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), Paint.Shared(Theme.FocusedColor));
             else if (_isHover)
-                canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), PixUI.Paint.Shared(Theme.AccentColor));
+                canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), Paint.Shared(Theme.AccentColor));
 
             _paragraph ??= TextPainter.BuildParagraph(_item.Name, float.PositiveInfinity,
                 12, Colors.Black, null, 1, true);

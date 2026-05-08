@@ -138,7 +138,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
         Controller.DataSource = ds;
     }
 
-    public override void Paint(ICanvas canvas, IDirtyArea? area = null)
+    public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
     {
         if (_columns == null || _columns.Length == 0)
         {
@@ -152,7 +152,7 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
             return;
         }
 
-        base.Paint(canvas, area);
+        base.OnPaint(canvas, area);
     }
 
     #region ====IDataSourceBinder====
