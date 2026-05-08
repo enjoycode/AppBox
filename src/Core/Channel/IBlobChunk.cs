@@ -17,9 +17,15 @@ public static class BlobChunkExtensions
     {
         await foreach (var chunk in chunks)
         {
-            //TODO: order by offset
-            await toStream.WriteAsync(chunk.GetDataChunk());
-            chunk.Free(); //Do not forget this
+            //暂由上传管理器保证顺序
+            try
+            {
+                await toStream.WriteAsync(chunk.GetDataChunk());
+            }
+            finally
+            {
+                chunk.Free(); //Do not forget this
+            }
         }
 
         await toStream.FlushAsync();

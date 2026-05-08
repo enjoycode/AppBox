@@ -17,7 +17,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
     /// <summary>
     /// 组合并处理收到的消息
     /// </summary>
-    internal void OnReceiveMessage(BytesSegment frame, bool isEnd)
+    internal async ValueTask OnReceiveMessage(BytesSegment frame, bool isEnd)
     {
         //TODO:1.严格检查frame有效性；2.ShortPath for UploadChunk frame
         if (!isEnd)
@@ -63,7 +63,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
                 ProcessUploadRequest(msgId, reader);
                 break;
             case MessageType.UploadChunk:
-                ProcessUploadChunk(msgId, reader);
+                await ProcessUploadChunk(msgId, reader); //暂在这里await以保证顺序，可考虑在UploadManager内排序
                 break;
             case MessageType.DownloadRequest:
                 ProcessDownloadRequest(msgId, reader);
@@ -157,7 +157,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
     }
 
-    private async void ProcessUploadChunk(int msgId, MessageReadStream reader)
+    private async ValueTask ProcessUploadChunk(int msgId, MessageReadStream reader)
     {
         var blobChunk = reader.TakeBlobChunkAndFreeSelf();
 

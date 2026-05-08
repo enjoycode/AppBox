@@ -1,9 +1,15 @@
 using System;
+using System.Buffers.Binary;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using AppBoxClient;
 using AppBoxCore;
+using AppBoxDesign;
 using AppBoxStore;
 using NUnit.Framework;
+using PixUI;
+using Path = System.IO.Path;
 
 namespace Tests.Store;
 
@@ -101,4 +107,183 @@ public class DbFix
     //     }
     //     await txn.CommitAsync();
     // }
+
+    // [Test]
+    // public async Task ReadBackup()
+    // {
+    //     DesignTypeSerializer.Register();
+    //     const string file = "/Users/rick/Desktop/sys-2.apk";
+    //     await using var fileStream = File.OpenRead(file);
+    //     await using var zipInputStream = new DeflateStream(fileStream, CompressionMode.Decompress, true);
+    //     var reader = new SystemReadStream(zipInputStream);
+    //
+    //     var appPkg = new OldAppPackage(new ApplicationModel());
+    //     Dictionary<string, string>? extLibs = null;
+    //     Dictionary<long, string> codes = null!;
+    //
+    //     try
+    //     {
+    //         reader.ReadInt(); //保留版本号
+    //         appPkg.ReadFrom(reader);
+    //         extLibs = await ReadExtLibs(reader);
+    //         codes = await ReadCodes(reader);
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         Notification.Error($"Read app package failed: {e.Message}");
+    //     }
+    //     finally
+    //     {
+    //         DeleteTempFiles(extLibs, codes);
+    //     }
+    // }
+
+    // private static async ValueTask<Dictionary<string, string>?> ReadExtLibs(SystemReadStream reader)
+    // {
+    //     var count = reader.ReadVariant();
+    //     if (count <= 0)
+    //         return null;
+    //
+    //     var map = new Dictionary<string, string>(); //key=名称, value=临时文件路径
+    //     for (var i = 0; i < count; i++)
+    //     {
+    //         var name = reader.ReadString()!;
+    //         var length = reader.ReadInt();
+    //
+    //         var tempFilePath = Path.GetTempFileName();
+    //         await using var tempFileStream =
+    //             new FileStream(tempFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+    //         await CopyTo(reader.InputStream, tempFileStream, length);
+    //
+    //         map.Add(name, tempFilePath);
+    //     }
+    //
+    //     return map;
+    // }
+
+    // private static async ValueTask<Dictionary<long, string>> ReadCodes(SystemReadStream reader)
+    // {
+    //     var idBuffer = new byte[8];
+    //     var map = new Dictionary<long, string>(); //key=ModelId, value=临时文件路径
+    //     while (true)
+    //     {
+    //         var len = await reader.InputStream.ReadAsync(idBuffer, 0, idBuffer.Length);
+    //         if (len <= 0) break;
+    //
+    //         var size = reader.ReadInt();
+    //         var idString = BinaryPrimitives.ReadInt64LittleEndian(idBuffer).ToString();
+    //         var tempFilePath = Path.Combine("/Users/rick/Desktop/OldCodes/", $"M{idString}.txt");
+    //         await using var tempFileStream =
+    //             new FileStream(tempFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+    //         await CopyTo(reader.InputStream, tempFileStream, size);
+    //
+    //         map.Add(BinaryPrimitives.ReadInt64LittleEndian(idBuffer), tempFilePath);
+    //     }
+    //
+    //     return map;
+    // }
+    //
+    // private static async Task CopyTo(Stream input, Stream output, int length)
+    // {
+    //     const int bufferSize = 2048;
+    //     var buffer = new byte[bufferSize];
+    //
+    //     var bytesRead = 0;
+    //     while (bytesRead < length)
+    //     {
+    //         var len = await input.ReadAsync(buffer, 0, Math.Min(bufferSize, length - bytesRead));
+    //         await output.WriteAsync(buffer, 0, len);
+    //         bytesRead += len;
+    //     }
+    // }
+    //
+    // private static void DeleteTempFiles(Dictionary<string, string>? extLibs, Dictionary<long, string> codes)
+    // {
+    //     if (extLibs != null)
+    //     {
+    //         foreach (var file in extLibs.Values)
+    //             File.Delete(file);
+    //     }
+    //
+    //     // if (codes != null!)
+    //     // {
+    //     //     foreach (var file in codes.Values)
+    //     //         File.Delete(file);
+    //     // }
+    // }
 }
+
+// internal sealed class OldAppPackage : ModelPackage
+// {
+//     public OldAppPackage(ApplicationModel app)
+//     {
+//         Application = app;
+//     }
+//
+//     public ApplicationModel Application { get; private set; }
+//
+//     /// <summary>
+//     /// 用于导入时判断相应的数据库是否存在
+//     /// </summary>
+//     public List<DataStoreInfo> DataStores { get; private set; } = [];
+//
+//     #region ====Serialization====
+//
+//     public override void WriteTo(IOutputStream ws)
+//     {
+//         Application.WriteTo(ws);
+//         ws.WriteVariant(DataStores.Count);
+//         foreach (var dataStore in DataStores)
+//         {
+//             dataStore.WriteTo(ws);
+//         }
+//
+//         ws.WriteFieldEnd(); //reserved
+//
+//         base.WriteTo(ws);
+//     }
+//
+//     public override void ReadFrom(IInputStream rs)
+//     {
+//         Application.ReadFrom(rs);
+//
+//         var count = rs.ReadVariant();
+//         for (int i = 0; i < count; i++)
+//         {
+//             var dataStore = new DataStoreInfo();
+//             dataStore.ReadFrom(rs);
+//             DataStores.Add(dataStore);
+//         }
+//
+//         rs.ReadFieldId(); //reserved
+//
+//         base.ReadFrom(rs);
+//     }
+//
+//     #endregion
+//
+//     public sealed class DataStoreInfo : IBinSerializable
+//     {
+//         public long Id { get; set; }
+//         public string Name { get; set; } = null!;
+//
+//         public DataStoreKind Kind { get; set; }
+//
+//         //考虑精确匹配数据库提供者的属性，用于利用某数据库特性的应用(eg:只能用PGSQL)
+//         public void WriteTo(IOutputStream ws)
+//         {
+//             ws.WriteLong(Id);
+//             ws.WriteString(Name);
+//             ws.WriteByte((byte)Kind);
+//             ws.WriteFieldEnd(); //reserved
+//         }
+//
+//         public void ReadFrom(IInputStream rs)
+//         {
+//             Id = rs.ReadLong();
+//             Name = rs.ReadString()!;
+//             Kind = (DataStoreKind)rs.ReadByte();
+//             rs.ReadFieldId(); //reserved
+//         }
+//     }
+// }
