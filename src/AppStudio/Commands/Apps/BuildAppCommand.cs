@@ -7,6 +7,7 @@ using AppBoxClient;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -42,8 +43,12 @@ internal sealed class BuildAppCommand : DesignCommand
         if (homePage == null)
             throw new Exception("Can't find HomePage");
 
-        //1.开始分析直接引用关系
+        //1.开始分析视图模型的直接引用关系，暂在这里包括所有动态组件
         await AnalyseView(ctx, homePage);
+        await foreach (var viewModelNode in GetAllDynamicWidgets(context))
+        {
+            await AnalyseView(ctx, viewModelNode);
+        }
 
         //2.解析所有程序集的依赖项
         ctx.ResolveAssemblyDependencies();
@@ -104,6 +109,47 @@ internal sealed class BuildAppCommand : DesignCommand
         {
             await tempFile.Close();
             await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
+        }
+    }
+
+    private static async IAsyncEnumerable<ModelNode> GetAllDynamicWidgets(DesignHub context)
+    {
+        for (var i = 0; i < context.DesignTree.AppRootNode.Children.Count; i++)
+        {
+            var appNode = context.DesignTree.AppRootNode.Children[i];
+            var viewRootNode = appNode.FindModelRootNode(ModelType.View);
+            var viewModels = viewRootNode.GetAllModelNodes();
+            foreach (var modelNode in viewModels)
+            {
+                var viewModel = (ViewModel)modelNode.Model;
+                if (viewModel.ViewType == ViewModelType.PixUI)
+                {
+                    var srcPrjId = context.TypeSystem.ViewsProjectId;
+                    var srcProject = context.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
+                    var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
+                    var syntaxTree = await srcDocument.GetSyntaxTreeAsync();
+                    if (syntaxTree == null) continue;
+                    var isDynamicWidget = false;
+                    var classDeclarations = (await syntaxTree.GetRootAsync())
+                        .DescendantNodes()
+                        .OfType<ClassDeclarationSyntax>();
+
+                    foreach (var classDeclaration in classDeclarations)
+                    {
+                        if (TypeHelper.IsViewClass(classDeclaration, modelNode.AppName, viewModel.Name))
+                        {
+                            if (ViewCsGenerator.CheckIsDynamicWidget(classDeclaration))
+                            {
+                                isDynamicWidget = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isDynamicWidget)
+                        yield return modelNode;
+                }
+            }
         }
     }
 

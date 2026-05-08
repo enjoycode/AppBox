@@ -26,7 +26,7 @@ internal partial class ViewCsGenerator
     /// <summary>
     /// 是否标记了DynamicWidgetAttribute的视图模型
     /// </summary>
-    private static bool CheckIsDynamicWidget(ClassDeclarationSyntax node)
+    internal static bool CheckIsDynamicWidget(ClassDeclarationSyntax node)
     {
         var attribute = TypeHelper.TryGetAttribute(node.AttributeLists, static a =>
         {
