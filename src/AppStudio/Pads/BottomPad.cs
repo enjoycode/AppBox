@@ -20,7 +20,7 @@ internal sealed class BottomPad : View
         {
             Child = new TabView<string>(_designStore.BottomPadController, BuildTab, BuildBody, false, 40)
             {
-                SelectedTabColor = Colors.White, TabBarBgColor = new Color(0xFFF3F3F3)
+                SelectedTabColor = Colors.White, TabBarBgColor = 0xFFF3F3F3
             },
         };
     }
