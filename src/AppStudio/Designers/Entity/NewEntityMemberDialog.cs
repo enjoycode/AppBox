@@ -68,7 +68,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                                     Options = _designContext.DesignTree.FindNodesByType(ModelType.Enum),
                                     LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                                 }
-                            ),
+                            ) { Visible = _fieldType.ToComputed(t => t == "Enum") },
                             new FormItem("AllowNull:", new Checkbox(_allowNull))
                         }
                     })
