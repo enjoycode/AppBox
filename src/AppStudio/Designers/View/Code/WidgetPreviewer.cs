@@ -17,11 +17,7 @@ internal sealed class WidgetPreviewer : View
                 Elevation = 10,
                 Child = new Transform(_scale)
                 {
-#if __WEB__
-                        Child = new WebPreviewer(controller)
-#else
                     Child = new DesktopPreviewer(controller)
-#endif
                 }
             }
         };

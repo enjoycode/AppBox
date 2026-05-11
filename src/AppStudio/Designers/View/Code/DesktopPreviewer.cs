@@ -20,17 +20,6 @@ internal sealed class DesktopPreviewer : View //TODO: rename to EmbedPreviewer
     private readonly Container _containerRef = null!;
     private ViewAssemblyLoader? _assemblyLoader;
     private static readonly Widget Loading = new Center { Child = new Text("Loading....") };
-    private bool _hasLoaded;
-
-    protected override void OnMounted()
-    {
-        base.OnMounted();
-        if (!_hasLoaded)
-        {
-            _hasLoaded = true;
-            Run();
-        }
-    }
 
     private async void Run()
     {
