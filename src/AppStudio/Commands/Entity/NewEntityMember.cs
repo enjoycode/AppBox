@@ -23,8 +23,9 @@ internal static class NewEntityMember
             throw new Exception("Name has exists");
     }
 
-    internal static EntityFieldMember NewEntityField(ModelNode node, string memberName,
-        EntityFieldType fieldType, bool allowNull, ModelId? enumModelId = null)
+    internal static EntityFieldMember NewEntityField(DesignHub ctx, ModelNode node, string memberName,
+        EntityFieldType fieldType, bool allowNull,
+        ModelId? enumModelId = null, string? defaultValue = null)
     {
         Validate(node, memberName);
 
@@ -35,12 +36,73 @@ internal static class NewEntityMember
             if (enumModelId.HasValue)
                 field.EnumModelId = enumModelId.Value;
             else
-                throw new Exception("Enum field must assign EnumModel");
+                throw new Exception("Enum field must assign a EnumModel");
         }
 
-        model.AddMember(field);
-        //TODO:默认值处理
+        //默认值处理
+        if (!string.IsNullOrEmpty(defaultValue))
+        {
+            if (!ValidateDefaultValue(field, defaultValue, ctx, out var error))
+                throw new Exception($"Default value invalid: {error}");
+            field.DefaultValue = defaultValue;
+        }
+        else
+        {
+            if (!field.AllowNull && field.FieldType != EntityFieldType.Binary &&
+                model.PersistentState != PersistentState.Detached)
+                throw new Exception($"Must set default value when not AllowNull");
+        }
+
         return field;
+    }
+
+    private static bool ValidateDefaultValue(EntityFieldMember field, string defaultValue,
+        DesignHub ctx, out string? error)
+    {
+        error = "Format error";
+        switch (field.FieldType)
+        {
+            case EntityFieldType.String: return true;
+            case EntityFieldType.DateTime:
+                return DateTime.TryParse(defaultValue, out _) || defaultValue == "DateTime.Now";
+            case EntityFieldType.Bool:
+                return bool.TryParse(defaultValue, out _);
+            case EntityFieldType.Byte:
+                return byte.TryParse(defaultValue, out _);
+            case EntityFieldType.Short:
+                return short.TryParse(defaultValue, out _);
+            case EntityFieldType.Int:
+                return int.TryParse(defaultValue, out _);
+            case EntityFieldType.Long:
+                return long.TryParse(defaultValue, out _);
+            case EntityFieldType.Float:
+                return float.TryParse(defaultValue, out _);
+            case EntityFieldType.Double:
+                return double.TryParse(defaultValue, out _);
+            case EntityFieldType.Decimal:
+                return decimal.TryParse(defaultValue, out _);
+            case EntityFieldType.EntityId:
+            case EntityFieldType.Guid:
+                return Guid.TryParse(defaultValue, out _) || defaultValue == "Guid.Empty";
+            case EntityFieldType.Enum:
+                if (!int.TryParse(defaultValue, out var enumValue))
+                {
+                    error = "Enum default value must be an integer";
+                    return false;
+                }
+
+                var enumModelNode = ctx.DesignTree.FindModelNode(field.EnumModelId!.Value)!;
+                var enumModel = (EnumModel)enumModelNode.Model;
+                if (!enumModel.Items.Exists(t => t.Value == enumValue))
+                {
+                    error = $"Enum default value must exists in [{enumModel.Name}]";
+                    return false;
+                }
+
+                return true;
+        }
+
+        return false;
     }
 
     internal static EntityMember[] NewEntityRef(DesignHub ctx, ModelNode node, string name,
@@ -99,7 +161,6 @@ internal static class NewEntityMember
                     throw new Exception($"Name has exists: {fkName}");
                 var fk = new EntityFieldMember(model, fkName, pkMemberModel.FieldType, allowNull,
                     true);
-                model.AddMember(fk);
                 res.Add(fk);
                 fkMemberIds[i] = fk.MemberId;
             }
@@ -111,7 +172,6 @@ internal static class NewEntityMember
             // 添加外键Id列, eg: Customer -> CustomerId
             var fkId =
                 new EntityFieldMember(model, $"{name}Id", EntityFieldType.EntityId, allowNull, true);
-            model.AddMember(fkId);
             res.Add(fkId);
             fkMemberIds = [fkId.MemberId];
         }
@@ -122,7 +182,6 @@ internal static class NewEntityMember
         {
             throw new NotImplementedException("未实现聚合引用");
             // var fkType = new EntityFieldMember(model, $"{name}Type", EntityFieldType.Long, allowNull, true);
-            // model.AddMember(fkType);
             // entityRef = new EntityRefMember(model, name, refIds.Cast<ulong>().ToList(), fkMemberIds, fkType.MemberId);
         }
         else
@@ -130,7 +189,6 @@ internal static class NewEntityMember
             entityRef = new EntityRefMember(model, name, refIds[0], fkMemberIds, allowNull /*TODO:入参指明是否外键约束 */);
         }
 
-        model.AddMember(entityRef);
         res.Add(entityRef);
 
         return res.ToArray();
@@ -152,7 +210,6 @@ internal static class NewEntityMember
 
         var model = (EntityModel)node.Model;
         var entitySet = new EntitySetMember(model, name, refModelId, refMemberId);
-        model.AddMember(entitySet);
 
         return entitySet;
     }
@@ -190,7 +247,6 @@ internal static class NewEntityMember
         }
 
         var result = new EntityRefFieldMember(model, name, refFieldPath);
-        model.AddMember(result);
         return result;
     }
 }

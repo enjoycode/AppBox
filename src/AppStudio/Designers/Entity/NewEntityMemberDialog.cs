@@ -28,6 +28,7 @@ internal sealed class NewEntityMemberDialog : Dialog
     private readonly State<bool> _allowNull = false;
     private readonly State<string> _memberType = MemberTypes[0];
     private readonly State<string> _fieldType = FieldTypes[0];
+    private readonly State<string> _defaultValue = string.Empty;
     private readonly State<ModelNode?> _entityRefTarget = State<ModelNode?>.Default();
     private readonly State<EntityMemberInfo?> _entitySetTarget = State<EntityMemberInfo?>.Default();
     private readonly State<ModelNode?> _enumTarget = State<ModelNode?>.Default();
@@ -69,6 +70,7 @@ internal sealed class NewEntityMemberDialog : Dialog
                                     LabelGetter = node => $"{node.AppNode.Label}.{node.Label}"
                                 }
                             ) { Visible = _fieldType.ToComputed(t => t == "Enum") },
+                            new FormItem("DefaultValue:", new TextInput(_defaultValue)),
                             new FormItem("AllowNull:", new Checkbox(_allowNull))
                         }
                     })
@@ -115,6 +117,24 @@ internal sealed class NewEntityMemberDialog : Dialog
         }
     };
 
+    protected override ValueTask<bool> OnClosing(string result)
+    {
+        if (result == DialogResult.OK)
+        {
+            try
+            {
+                NewMembers = GetNewMembers();
+            }
+            catch (Exception e)
+            {
+                Notification.Error($"GetNewMembers error: {e.Message}");
+                return new ValueTask<bool>(true);
+            }
+        }
+
+        return base.OnClosing(result);
+    }
+
     private int GetMemberTypeValue() => _memberType.Value switch
     {
         "EntityField" => (int)EntityMemberType.EntityField,
@@ -146,15 +166,18 @@ internal sealed class NewEntityMemberDialog : Dialog
         return [_entityRefTarget.Value!.Id];
     }
 
-    internal EntityMember[] GetNewMembers()
+    internal EntityMember[] NewMembers { get; private set; } = null!;
+
+    private EntityMember[] GetNewMembers()
     {
         var memberType = (EntityMemberType)GetMemberTypeValue();
         return memberType switch
         {
             EntityMemberType.EntityField =>
             [
-                NewEntityMember.NewEntityField(_modelNode, _name.Value,
-                    (EntityFieldType)GetFieldTypeValue(), _allowNull.Value, _enumTarget.Value?.Model.Id)
+                NewEntityMember.NewEntityField(_designContext, _modelNode, _name.Value,
+                    (EntityFieldType)GetFieldTypeValue(), _allowNull.Value,
+                    _enumTarget.Value?.Model.Id, _defaultValue.Value)
             ],
             EntityMemberType.EntityRef => NewEntityMember.NewEntityRef(_designContext, _modelNode, _name.Value,
                 GetRefModelIds(), _allowNull.Value),

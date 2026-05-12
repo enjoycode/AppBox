@@ -98,10 +98,11 @@ internal sealed class EntityDesigner : View, IModelDesigner
             var dlgResult = await dlg.ShowAsync();
             if (dlgResult != DialogResult.OK) return;
 
-            var members = dlg.GetNewMembers();
-            foreach (var member in members)
+            var model = (EntityModel)ModelNode.Model;
+            foreach (var member in dlg.NewMembers)
             {
-                if (!member.IsForeignKeyMember)
+                model.AddMember(member);
+                if (!member.IsForeignKeyMember) //暂不显示外键成员
                     _membersController.Add(member);
             }
 

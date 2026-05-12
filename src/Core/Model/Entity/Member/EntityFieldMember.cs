@@ -45,6 +45,23 @@ public sealed class EntityFieldMember : EntityMember, IModelReference
         }
     }
 
+    /// <summary>
+    /// 字段默认值
+    /// </summary>
+    /// <remarks>
+    /// 1. DateTime可以设为DateTime.Now
+    /// 2. Guid可以设为Guid.Empty
+    /// </remarks>
+    public string? DefaultValue
+    {
+        get => _defaultValue;
+        internal set
+        {
+            _defaultValue = value;
+            OnFieldTypeChanged();
+        }
+    }
+
     public int Length
     {
         get => _length;
