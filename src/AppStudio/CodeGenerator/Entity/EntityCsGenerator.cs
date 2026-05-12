@@ -137,7 +137,9 @@ internal static class EntityCsGenerator
         }
         else
         {
-            sb.Append($"\tprivate {typeString} _{field.Name};\n");
+            sb.Append($"\tprivate {typeString} _{field.Name}");
+            GenEntityFieldDefaultValue(field, sb, tree); //生成默认值
+            sb.Append(";\n");
             sb.Append($"\tpublic {typeString} {field.Name}\n");
             sb.Append("\t{\n"); //prop start
             sb.Append($"\t\tget => _{field.Name};\n");
@@ -167,6 +169,61 @@ internal static class EntityCsGenerator
             sb.Append("\t\t}\n"); //prop set end
 
             sb.Append("\t}\n"); //prop end
+        }
+    }
+
+    private static void GenEntityFieldDefaultValue(EntityFieldMember field, StringBuilder sb, DesignTree tree)
+    {
+        if (field.FieldType == EntityFieldType.Binary) return;
+        if (!string.IsNullOrEmpty(field.DefaultValue))
+        {
+            switch (field.FieldType)
+            {
+                case EntityFieldType.String:
+                    sb.Append($"=\"{field.DefaultValue}\"");
+                    break;
+                case EntityFieldType.Bool:
+                case EntityFieldType.Byte:
+                case EntityFieldType.Short:
+                case EntityFieldType.Int:
+                case EntityFieldType.Double:
+                    sb.Append($"={field.DefaultValue}");
+                    break;
+                case EntityFieldType.Float:
+                    sb.Append($"={field.DefaultValue}f");
+                    break;
+                case EntityFieldType.Long:
+                    sb.Append($"={field.DefaultValue}L");
+                    break;
+                case EntityFieldType.Decimal:
+                    sb.Append($"={field.DefaultValue}m");
+                    break;
+                case EntityFieldType.EntityId:
+                case EntityFieldType.Guid:
+                    if (field.DefaultValue == "Guid.Empty")
+                        sb.Append("=Guid.Empty");
+                    else
+                        sb.Append($"=Guid.Parse(\"{field.DefaultValue}\")");
+                    break;
+                case EntityFieldType.DateTime:
+                    if (field.DefaultValue == "DateTime.Now")
+                        sb.Append("=DateTime.Now");
+                    else
+                        sb.Append($"=DateTime.Parse(\"{field.DefaultValue}\")");
+                    break;
+                case EntityFieldType.Enum:
+                    var enumDefaultValue = int.Parse(field.DefaultValue);
+                    var enumModelNode = tree.FindModelNode(field.EnumModelId!.Value)!;
+                    var enumModel = (EnumModel)enumModelNode.Model;
+                    var enumItem = enumModel.Items.First(t => t.Value == enumDefaultValue);
+                    sb.Append($"={enumModelNode.AppName}.Enums.{enumModel.Name}.{enumItem.Name}");
+                    break;
+            }
+        }
+        else
+        {
+            if (field is { FieldType: EntityFieldType.String, AllowNull: false })
+                sb.Append("=string.Empty");
         }
     }
 

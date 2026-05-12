@@ -29,7 +29,7 @@ public class CodeGenerateTest
     public async Task GenEntityCodeTest()
     {
         var designHub = await DesignHelper.MockDesignHub();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Contact")!;
+        var entityNode = designHub.DesignTree.FindModelNodeByFullName("demo.Entities.Customer")!;
         var code = EntityCsGenerator.GenRuntimeCode(entityNode);
         Console.Write(code);
     }
