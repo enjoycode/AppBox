@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using AppBoxCore;
@@ -193,21 +194,25 @@ partial class PgSqlStore
                     if (dfm.IsFieldTypeChanged)
                     {
                         var sb = StringBuilderCache.Acquire();
-                        sb.AppendFormat("ALTER TABLE \"{0}\" ALTER COLUMN ", tableName);
+                        sb.Append($"ALTER TABLE \"{tableName}\" ALTER COLUMN ");
                         BuildFieldDefine(dfm, sb, true);
 
                         if (dfm.AllowNull)
                         {
-                            sb.AppendFormat(",ALTER COLUMN \"{0}\" DROP NOT NULL",
-                                dfm.SqlColOriginalName);
+                            sb.Append($",ALTER COLUMN \"{dfm.SqlColOriginalName}\" DROP NOT NULL");
                         }
                         else
                         {
                             if (dfm.FieldType == EntityFieldType.Binary)
                                 throw new Exception("Binary field must be allow null");
-                            sb.AppendFormat(",ALTER COLUMN \"{0}\" SET NOT NULL",
-                                dfm.SqlColOriginalName);
+                            sb.Append($",ALTER COLUMN \"{dfm.SqlColOriginalName}\" SET NOT NULL");
                         }
+
+                        var defaultValue = GetDefaultValue(dfm);
+                        if (defaultValue == null)
+                            sb.Append($",ALTER COLUMN \"{dfm.SqlColOriginalName}\" DROP DEFAULT");
+                        else
+                            sb.Append($",ALTER COLUMN \"{dfm.SqlColOriginalName}\" SET DEFAULT {defaultValue}");
 
                         commands.Add(new NpgsqlCommand(StringBuilderCache.GetStringAndRelease(sb)));
                     }
@@ -315,13 +320,50 @@ partial class PgSqlStore
                     $"PgSqlStore.BuildFieldDefine with type: {dfm.FieldType}");
         }
 
-        if (!dfm.AllowNull && !forAlter)
+        if (!forAlter) //处理新建字段是否允许空及默认值
         {
-            if (dfm.FieldType == EntityFieldType.Binary)
-                throw new Exception("Binary field must be allow null");
+            if (!dfm.AllowNull)
+                sb.Append("NOT NULL ");
 
-            sb.Append("NOT NULL ");
+            var defaultValue = GetDefaultValue(dfm);
+            if (defaultValue != null)
+                sb.Append($"DEFAULT {defaultValue} ");
         }
+    }
+
+    private static string? GetDefaultValue(EntityFieldMember field)
+    {
+        if (!string.IsNullOrEmpty(field.DefaultValue))
+        {
+            switch (field.FieldType)
+            {
+                case EntityFieldType.EntityId:
+                case EntityFieldType.Guid:
+                    return field.DefaultValue == "Guid.Empty"
+                        ? "'00000000-0000-0000-0000-000000000000'"
+                        : $"'{field.DefaultValue}'";
+                case EntityFieldType.String: return $"'{field.DefaultValue}'";
+                case EntityFieldType.DateTime:
+                    return field.DefaultValue == "DateTime.Now" ? "NOW()" : $"'{field.DefaultValue}'";
+                case EntityFieldType.Bool:
+                case EntityFieldType.Byte:
+                case EntityFieldType.Short:
+                case EntityFieldType.Int:
+                case EntityFieldType.Long:
+                case EntityFieldType.Float:
+                case EntityFieldType.Double:
+                case EntityFieldType.Decimal:
+                case EntityFieldType.Enum:
+                    return field.DefaultValue;
+            }
+        }
+        else
+        {
+            if (field is { FieldType: EntityFieldType.String, AllowNull: false })
+                return "''";
+        }
+
+        return null;
     }
 
     private static string BuildForeignKey(EntityRefMember rm, IModelContainer ctx, string tableName)
