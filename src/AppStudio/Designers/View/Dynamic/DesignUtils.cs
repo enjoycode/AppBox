@@ -23,7 +23,7 @@ internal static class DesignUtils
                 case EntityRefMember entityRef:
                 {
                     //暂排除聚合引用及循环引用
-                    if (!entityRef.IsAggregationRef && !entityRef.RefModelIds.Contains(model.Id))
+                    if (!entityRef.IsUnionRef && !entityRef.RefModelIds.Contains(model.Id))
                         list.Add(member);
                     break;
                 }
@@ -49,8 +49,8 @@ internal static class DesignUtils
             exp = item switch
             {
                 EntityFieldMember => ((EntityExpression)exp).F(item.Name),
-                EntityRefMember entityRefMember when entityRefMember.IsAggregationRef =>
-                    throw new NotSupportedException("Not supported aggregation now"),
+                EntityRefMember entityRefMember when entityRefMember.IsUnionRef =>
+                    throw new NotSupportedException("Not supported UnionRef now"),
                 EntityRefMember entityRefMember => ((EntityExpression)exp).R(item.Name, entityRefMember.RefModelIds[0]),
                 EntitySetMember entitySetMember => ((EntityExpression)exp).S(entitySetMember.Name,
                     entitySetMember.RefModelId),

@@ -239,8 +239,8 @@ internal static class NewEntityMember
             {
                 if (member is not EntityRefMember entityRefMember)
                     throw new ArgumentException("None last member must be EntityRef");
-                if (entityRefMember.IsAggregationRef)
-                    throw new NotImplementedException("Aggregation is not implemented");
+                if (entityRefMember.IsUnionRef)
+                    throw new NotImplementedException("UnionRef is not implemented");
 
                 currentModel = (EntityModel)ctx.DesignTree.FindModelNode(entityRefMember.RefModelIds[0])!.Model;
             }

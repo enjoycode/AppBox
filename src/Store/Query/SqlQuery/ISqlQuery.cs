@@ -84,7 +84,7 @@ internal static class SqlSelectQueryExtensions
                     pathExpression = ((EntityExpression)pathExpression).F(member.Name);
                     if (member is EntityRefMember entityRefMember)
                     {
-                        if (entityRefMember.IsAggregationRef) throw new NotImplementedException();
+                        if (entityRefMember.IsUnionRef) throw new NotImplementedException();
                         currentEntityModel =
                             await RuntimeContext.GetModelAsync<EntityModel>(entityRefMember.RefModelIds[0]);
                     }

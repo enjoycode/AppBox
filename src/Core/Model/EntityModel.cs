@@ -141,7 +141,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
                     _members.Remove(GetMember(fk)!);
                 }
 
-                if (entityRef.IsAggregationRef)
+                if (entityRef.IsUnionRef)
                     _members.Remove(GetMember(entityRef.TypeMemberId)!);
             }
             else if (member is EntityFieldMember)
@@ -167,7 +167,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
                 GetMember(fk)!.AsDeleted();
             }
 
-            if (entityRefMember.IsAggregationRef)
+            if (entityRefMember.IsUnionRef)
                 GetMember(entityRefMember.TypeMemberId)!.AsDeleted();
         }
         else if (member is EntityFieldMember)

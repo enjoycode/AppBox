@@ -31,7 +31,7 @@ partial class PgSqlStore
             else if (mm.Type == EntityMemberType.EntityRef)
             {
                 var rm = (EntityRefMember)mm;
-                if (!rm.IsAggregationRef) //只有非聚合引合创建外键
+                if (!rm.IsUnionRef) //只有非聚合引合创建外键
                 {
                     fks.Add(BuildForeignKey(rm, ctx, tableName));
                     //考虑旧实现CreateGetTreeNodeChildsDbFuncCommand
@@ -100,7 +100,7 @@ partial class PgSqlStore
                 else if (m.Type == EntityMemberType.EntityRef)
                 {
                     EntityRefMember rm = (EntityRefMember)m;
-                    if (!rm.IsAggregationRef)
+                    if (!rm.IsUnionRef)
                     {
                         var fkName = $"FK_{rm.Owner.Id}_{rm.MemberId}"; //TODO:特殊处理DbFirst导入表的外键约束名称
                         foreignKeys.Add($"ALTER TABLE \"{tableName}\" DROP CONSTRAINT \"{fkName}\";");
@@ -149,7 +149,7 @@ partial class PgSqlStore
                 else if (m.Type == EntityMemberType.EntityRef)
                 {
                     var rm = (EntityRefMember)m;
-                    if (!rm.IsAggregationRef) //只有非聚合引合创建外键
+                    if (!rm.IsUnionRef) //只有非聚合引合创建外键
                     {
                         foreignKeys.Add(BuildForeignKey(rm, ctx, tableName));
                         //考虑CreateGetTreeNodeChildsDbFuncCommand

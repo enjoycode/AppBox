@@ -229,7 +229,7 @@ public static class EntityJsGenerator
         //同步设置聚合引用类型成员的值及外键成员的值
         if (entityRef.Owner.DataStoreKind == DataStoreKind.Sql)
         {
-            if (entityRef.IsAggregationRef)
+            if (entityRef.IsUnionRef)
             {
                 var typeMember = entityRef.Owner.GetMember(entityRef.TypeMemberId)!;
                 if (entityRef.AllowNull)

@@ -309,10 +309,10 @@ partial class PgSqlStore
             }
             //TODO: else if (forTeeNodePath)
             //{
-            //    var aggRefField = si.Expression as AggregationRefFieldExpression;
+            //    var aggRefField = si.Expression as UnionRefFieldExpression;
             //    if (!object.Equals(null, aggRefField))
             //    {
-            //        BuildAggregationRefFieldExpression(aggRefField, ctx);
+            //        BuildUnionRefFieldExpression(aggRefField, ctx);
             //        ctx.AppendFormat(" \"{0}\",", si.AliasName);
             //    }
             //}
@@ -394,7 +394,7 @@ partial class PgSqlStore
             {
                 var memberExp = item.Expression as IEntityPathExpression;
                 if (memberExp == null /*Expression.IsNull(memberExp)*/
-                    /*|| memberExp.Type == ExpressionType.AggregationRefFieldExpression*/
+                    /*|| memberExp.Type == ExpressionType.UnionRefFieldExpression*/
                     //注意：聚合引用字段必须用别名
                     || memberExp!.Name != item.AliasName)
                 {
@@ -450,8 +450,8 @@ partial class PgSqlStore
             case ExpressionType.EntityExpression:
                 BuildEntityExpression((EntityExpression)exp, ctx);
                 break;
-            //case ExpressionType.AggregationRefFieldExpression:
-            //    BuildAggregationRefFieldExpression((AggregationRefFieldExpression)exp, ctx);
+            //case ExpressionType.UnionRefFieldExpression:
+            //    BuildUnionRefFieldExpression((UnionRefFieldExpression)exp, ctx);
             //    break;
             case ExpressionType.BinaryExpression:
                 BuildBinaryExpression((BinaryExpression)exp, ctx);

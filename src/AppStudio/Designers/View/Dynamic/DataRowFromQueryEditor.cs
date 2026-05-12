@@ -85,7 +85,7 @@ internal sealed class DataRowFromQueryEditor : View
                         new Expanded(new TreeView<EntityMember>(_treeController, BuildTreeNode, m =>
                             {
                                 var entityRef = (EntityRefMember)m;
-                                if (entityRef.IsAggregationRef)
+                                if (entityRef.IsUnionRef)
                                     throw new NotImplementedException();
                                 var refModel =
                                     (EntityModel)_designContext.DesignTree.FindModelNode(entityRef.RefModelIds[0])!

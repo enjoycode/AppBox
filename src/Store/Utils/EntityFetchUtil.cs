@@ -54,7 +54,7 @@ internal static class EntityFetchUtil
             //eg: "Customer.Name" or "Customer.Address.City"
             var entityRefMemberName = path.Span[..indexOfDot];
             var memberModel = (EntityRefMember)model.GetMember(entityRefMemberName, true)!;
-            if (memberModel.IsAggregationRef) throw new NotImplementedException("For Aggregation");
+            if (memberModel.IsUnionRef) throw new NotImplementedException("For union ref");
 
             var targetModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(memberModel.RefModelIds[0]);
             var entityRefInstance = (SqlEntity)GetNaviPropForFetch(entity, memberModel.MemberId);

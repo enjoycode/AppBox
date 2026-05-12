@@ -22,7 +22,7 @@ public enum ExpressionType : byte
     EntitySetExpression,
     KVFieldExpression,
 
-    //AggregationRefFieldExpression,
+    //UnionRefFieldExpression,
     //EnumItemExpression,
 
     SubQueryExpression, //TODO: rename

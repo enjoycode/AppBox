@@ -255,7 +255,7 @@ internal static class EntityCsGenerator
     private static void GenEntityRefMember(EntityRefMember entityRef, StringBuilder sb, DesignTree tree)
     {
         var refModelNode = tree.FindModelNode(entityRef.RefModelIds[0])!;
-        var typeString = entityRef.IsAggregationRef
+        var typeString = entityRef.IsUnionRef
             ? GetEntityBaseClass(entityRef.Owner)
             : $"{refModelNode.AppNode.Model.Name}.Entities.{refModelNode.Model.Name}";
 
@@ -274,7 +274,7 @@ internal static class EntityCsGenerator
         //同步设置聚合引用类型成员的值及外键成员的值
         if (entityRef.Owner.DataStoreKind == DataStoreKind.Sql)
         {
-            if (entityRef.IsAggregationRef)
+            if (entityRef.IsUnionRef)
             {
                 var typeMember = entityRef.Owner.GetMember(entityRef.TypeMemberId)!;
                 if (entityRef.AllowNull)
@@ -500,7 +500,7 @@ internal static class EntityCsGenerator
                 case EntityMemberType.EntityRef:
                 {
                     var entityRef = (EntityRefMember)member;
-                    if (entityRef.IsAggregationRef)
+                    if (entityRef.IsUnionRef)
                     {
                         var typeMember = model.GetMember(entityRef.TypeMemberId)!;
                         sb.Append($"<{GetEntityBaseClass(model)}>");

@@ -79,9 +79,9 @@ public sealed class EntityRefMember : EntityMember, IModelReference
     public short TypeMemberId { get; private set; }
 
     /// <summary>
-    /// 是否聚合引用至不同的实体模型
+    /// 是否联合引用至不同的实体模型
     /// </summary>
-    public bool IsAggregationRef => TypeMemberId != 0;
+    public bool IsUnionRef => TypeMemberId != 0;
 
     public EntityRefActionRule UpdateRule { get; private set; } = EntityRefActionRule.Cascade;
 
@@ -97,7 +97,7 @@ public sealed class EntityRefMember : EntityMember, IModelReference
     //         {
     //             Owner.GetMember(fkId, true).AllowNull = value;
     //         }
-    //         if (IsAggregationRef)
+    //         if (IsUnionRef)
     //         {
     //             Owner.GetMember(TypeMemberId, true).AllowNull = value;
     //         }
@@ -116,7 +116,7 @@ public sealed class EntityRefMember : EntityMember, IModelReference
             Owner.GetMember(fkId, true)!.SetAllowNull(value);
         }
 
-        if (IsAggregationRef)
+        if (IsUnionRef)
         {
             Owner.GetMember(TypeMemberId, true)!.SetAllowNull(value);
         }

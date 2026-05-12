@@ -168,8 +168,8 @@ internal partial class ServiceCodeGenerator
 
             if (entityMember is EntityRefMember entityRefMember)
             {
-                if (entityRefMember.IsAggregationRef)
-                    throw new NotSupportedException("AggregationRef is not supported");
+                if (entityRefMember.IsUnionRef)
+                    throw new NotSupportedException("UnionRef is not supported");
                 modelId = entityRefMember.RefModelIds[0];
                 return nameof(IMemberPathBuilder.R);
             }

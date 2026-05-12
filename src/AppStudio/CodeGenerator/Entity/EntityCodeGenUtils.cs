@@ -38,7 +38,7 @@ internal static class EntityCodeGenUtils
             path[i] = entityMember;
             if (entityMember is EntityRefMember refMember)
             {
-                if (refMember.IsAggregationRef) throw new NotImplementedException();
+                if (refMember.IsUnionRef) throw new NotImplementedException();
 
                 currentEntityModel = modelContainer.GetEntityModel(refMember.RefModelIds[0]);
             }

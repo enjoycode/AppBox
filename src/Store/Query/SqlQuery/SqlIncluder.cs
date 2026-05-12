@@ -103,7 +103,7 @@ public abstract class SqlIncluder
         {
             var exp = (EntityExpression)Expression;
             var mm = (EntityRefMember)model.GetMember(exp.Name, true)!;
-            if (mm.IsAggregationRef) //TODO:聚合引用转换为Case表达式
+            if (mm.IsUnionRef) //TODO:聚合引用转换为Case表达式
                 throw new NotImplementedException();
 
             //注意替换入参支持多级

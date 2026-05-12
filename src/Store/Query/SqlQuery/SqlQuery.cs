@@ -307,7 +307,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
 
         //验证上级非聚合引用，且引用目标为自身
         var entityRefMember = (EntityRefMember)model.GetMember(parent.Name!)!;
-        if (entityRefMember.IsAggregationRef)
+        if (entityRefMember.IsUnionRef)
             throw new Exception("不支持上级成员为聚合引用");
         if (entityRefMember.RefModelIds[0] != model.Id)
             throw new Exception("当前实体非树状结构");

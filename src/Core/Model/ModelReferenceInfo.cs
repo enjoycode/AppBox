@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace AppBoxCore;
 
 /// <summary>
@@ -23,14 +25,14 @@ public enum ModelReferenceType : byte
 /// <summary>
 /// 模型引用的位置
 /// </summary>
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 public enum ModelReferencePosition : byte
 {
-    // ReSharper disable InconsistentNaming
     LocalizedName,
     EntityModel_ToStringExpression,
     EntityFieldMember_EnumModelID,
     EntityFormulaModel_Formula,
-    EntityAggregateModel_TargetEntitySet,
+    EntityUnionModel_TargetEntitySet,
     EntityRefMember_RefModelID,
     EntityRefMember_IDMember,
     EntityRefMember_TypeMember,
@@ -43,7 +45,6 @@ public enum ModelReferencePosition : byte
     EntityUserAction_ExecuteExpression,
     EntityDeleteAction_CanExecuteExpression,
     EntityDeleteAction_ExecuteExpression
-    // ReSharper restore InconsistentNaming
 }
 
 /// <summary>
