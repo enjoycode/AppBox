@@ -67,7 +67,7 @@ public abstract class DesignNode : IComparable<DesignNode>
     /// <summary>
     /// 签出当前节点
     /// </summary>
-    public async Task<bool> CheckoutAsync()
+    public async ValueTask<bool> CheckoutAsync()
     {
         //判断是否已签出或者能否签出
         if (!AllowCheckout) return false;
