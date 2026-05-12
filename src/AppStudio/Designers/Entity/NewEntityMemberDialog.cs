@@ -15,6 +15,8 @@ internal sealed class NewEntityMemberDialog : Dialog
         Width = 380;
         Height = 300;
         Title.Value = "New Entity Member";
+        
+        _fieldType.AddListener(OnFieldTypeChanged);
     }
 
     private static readonly string[] MemberTypes = ["EntityField", "EntityRef", "EntitySet", "EntityRefField"];
@@ -134,6 +136,11 @@ internal sealed class NewEntityMemberDialog : Dialog
 
         return base.OnClosing(result);
     }
+
+    /// <summary>
+    /// 字段类型改变时清空默认值
+    /// </summary>
+    private void OnFieldTypeChanged(State fieldType) => _defaultValue.Value = string.Empty;
 
     private int GetMemberTypeValue() => _memberType.Value switch
     {
