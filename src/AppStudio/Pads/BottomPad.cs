@@ -26,6 +26,8 @@ internal sealed class BottomPad : View
     }
 
     private readonly DesignStore _designStore;
+    private readonly CellStyle _errorCellStyle = new() { TextColor = Colors.Red };
+    private readonly CellStyle _warnCellStyle = new() { TextColor = 0xFFFFC763 };
 
     private static Widget BuildTab(string title, State<bool> isSelected)
     {
@@ -39,6 +41,10 @@ internal sealed class BottomPad : View
     private Widget BuildBody(string title) => title switch
     {
         BottomPadNames.Problems => new DataGrid<CodeProblem>(_designStore.ProblemsController)
+            .AddIconColumn(string.Empty,
+                p => p.IsError ? MaterialIcons.Dangerous : MaterialIcons.Report,
+                26,
+                (p, _) => p.IsError ? _errorCellStyle : _warnCellStyle)
             .AddTextColumn("Position", p => p.Position, 180)
             .AddTextColumn("Message", p => p.Message)
             .AddButtonColumn("Goto",
