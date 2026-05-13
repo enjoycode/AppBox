@@ -13,7 +13,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
     {
         _designContext = designContext;
         ModelNode = modelNode;
-        _designService = new ReportDesignService(designContext);
+        _diagramService = new ReportDiagramService(designContext);
 
         Child = new Splitter
         {
@@ -26,20 +26,20 @@ internal sealed class ReportDesigner : View, IModelDesigner
                     BuildCommandBar(),
                     new IfConditional(_isPreview,
                         () => new ReportPreviewer(() => _report),
-                        () => new DiagramView(_designService))
+                        () => new DiagramView(_diagramService))
                 }
             },
-            Panel2 = _designService.PropertyPanel,
+            Panel2 = _diagramService.PropertyPanel,
         };
     }
 
     private readonly DesignHub _designContext;
     private bool _hasLoadSourceCode;
     private Report _report = null!;
-    private readonly ReportDesignService _designService;
+    private readonly ReportDiagramService _diagramService;
     private readonly State<bool> _isPreview = false;
 
-    internal DiagramSurface Surface => _designService.Surface;
+    internal DiagramSurface Surface => _diagramService.Surface;
 
     public ModelNode ModelNode { get; }
 
@@ -65,7 +65,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
                 _report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader, ctx);
 
                 //2. 转换为相应的设计器
-                var rootDesigner = new ReportRootDesigner(_designService, _report);
+                var rootDesigner = new ReportRootDesigner(_diagramService, _report);
                 Surface.AddItem(rootDesigner);
                 Surface.SelectionService.SelectItem(rootDesigner);
 
@@ -119,7 +119,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
                     Children =
                     [
                         new Button("Add"),
-                        new Button("Remove") { OnTap = _ => _designService.DeleteSelection() },
+                        new Button("Remove") { OnTap = _ => _diagramService.DeleteSelection() },
                     ]
                 },
             }
@@ -157,7 +157,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
         return null;
     }
 
-    public Widget GetToolboxPad() => _designService.Toolbox;
+    public Widget GetToolboxPad() => _diagramService.Toolbox;
 
     void IDesigner.OnClose() { }
 }

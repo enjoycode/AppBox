@@ -121,7 +121,7 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
     private void OnReportItemPropertyChanged(object sender, PropertyChangeEventArgs e)
     {
         // refresh PropertyPanel's Layout properties
-        var designService = GetRootDesigner()?.DesignService;
+        var designService = GetRootDesigner()?.DiagramService;
         if (designService == null)
             return;
 

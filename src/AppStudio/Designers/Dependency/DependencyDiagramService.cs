@@ -3,7 +3,7 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal sealed class DependencyDesignService : IDesignService
+internal sealed class DependencyDiagramService : IDiagramService
 {
     internal DiagramSurface Surface { get; private set; } = null!;
 

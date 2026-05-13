@@ -10,15 +10,15 @@ internal sealed class DependencyDesigner : View, IDesigner
     public DependencyDesigner(DesignHub designContext)
     {
         _designContext = designContext;
-        _designService = new DependencyDesignService();
+        _diagramService = new DependencyDiagramService();
 
         FillColor = new Color(0xFF2B2B2B);
 
-        Child = new DiagramView(_designService);
+        Child = new DiagramView(_diagramService);
     }
 
     private readonly DesignHub _designContext;
-    private readonly DependencyDesignService _designService;
+    private readonly DependencyDiagramService _diagramService;
     private ModelNode _targetNode = null!;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
 
@@ -27,7 +27,7 @@ internal sealed class DependencyDesigner : View, IDesigner
         if (ReferenceEquals(_targetNode, modelNode)) return;
 
         _targetNode = modelNode;
-        _designService.Surface.ClearItems();
+        _diagramService.Surface.ClearItems();
         LoadAndLayout();
     }
 
@@ -44,10 +44,10 @@ internal sealed class DependencyDesigner : View, IDesigner
             .Select(u => new DependencyItem(_designContext, u.ModelNode))
             .ToList();
 
-        var center = _designService.Surface.LayoutBounds.Center;
+        var center = _diagramService.Surface.LayoutBounds.Center;
         DependencyLayout.Layout(target, items, center);
 
-        var surface = _designService.Surface;
+        var surface = _diagramService.Surface;
 
         foreach (var item in items)
         {
@@ -96,7 +96,7 @@ internal sealed class DependencyDesigner : View, IDesigner
 
         var dx = (LayoutBounds.Width - oldWidth) / 2f;
         var dy = (LayoutBounds.Height - oldHeight) / 2f;
-        foreach (var item in _designService.Surface.Items)
+        foreach (var item in _diagramService.Surface.Items)
         {
             if (item is DependencyItem)
                 item.Move(new Offset(dx, dy));

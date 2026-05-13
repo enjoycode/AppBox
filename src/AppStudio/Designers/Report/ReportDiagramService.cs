@@ -3,9 +3,9 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal sealed class ReportDesignService : IDesignService
+internal sealed class ReportDiagramService : IDiagramService
 {
-    public ReportDesignService(DesignHub designContext)
+    public ReportDiagramService(DesignHub designContext)
     {
         PropertyPanel = new DiagramPropertyPanel(designContext);
     }
@@ -14,7 +14,7 @@ internal sealed class ReportDesignService : IDesignService
     internal DiagramSurface Surface { get; private set; } = null!;
     internal DiagramPropertyPanel PropertyPanel { get; }
 
-    void IDesignService.InitSurface(DiagramSurface surface)
+    void IDiagramService.InitSurface(DiagramSurface surface)
     {
         if (Surface != null!)
             throw new Exception("Surface is already set");
@@ -50,7 +50,7 @@ internal sealed class ReportDesignService : IDesignService
         Surface.Repaint(); //TODO:考虑合并重绘区域，暂全部刷新
     }
 
-    void IDesignService.MoveSelection(Offset delta)
+    void IDiagramService.MoveSelection(Offset delta)
     {
         //var selectedItems = Surface.SelectionService.SelectedItems.ToArray(); //Maybe changed
         var selectedItems = Surface.SelectionService.SelectedItems;

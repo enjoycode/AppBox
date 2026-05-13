@@ -9,13 +9,13 @@ namespace AppBoxDesign;
 
 internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
 {
-    public ReportRootDesigner(ReportDesignService designService, Report report)
+    public ReportRootDesigner(ReportDiagramService diagramService, Report report)
     {
         ReportItem = report;
-        DesignService = designService;
+        DiagramService = diagramService;
     }
 
-    public ReportDesignService DesignService { get; }
+    public ReportDiagramService DiagramService { get; }
 
     public override DesignBehavior DesignBehavior => DesignBehavior.None;
 

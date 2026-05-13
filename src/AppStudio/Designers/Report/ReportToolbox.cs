@@ -3,7 +3,7 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal sealed class ReportToolbox : View, IDesignToolbox
+internal sealed class ReportToolbox : View, IDiagramToolbox
 {
     public ReportToolbox()
     {
@@ -35,7 +35,7 @@ internal sealed class ReportToolbox : View, IDesignToolbox
 
     private readonly TreeController<ReportToolboxItem> _treeController = new();
 
-    public IDesignToolboxItem? SelectedItem { get; private set; }
+    public IDiagramToolboxItem? SelectedItem { get; private set; }
 
     private static void BuildTreeNode(TreeNode<ReportToolboxItem> node)
     {
@@ -51,7 +51,7 @@ internal sealed class ReportToolbox : View, IDesignToolbox
     public void ClearSelectedItem() => _treeController.ClearSelection();
 }
 
-internal sealed class ReportToolboxItem : IDesignToolboxItem
+internal sealed class ReportToolboxItem : IDiagramToolboxItem
 {
     public string Name { get; init; } = null!;
 
@@ -59,7 +59,7 @@ internal sealed class ReportToolboxItem : IDesignToolboxItem
 
     public Func<DiagramItem> Creator { get; init; } = null!;
 
-    bool IDesignToolboxItem.IsConnection => false;
+    bool IDiagramToolboxItem.IsConnection => false;
 
     public DiagramItem Create() => Creator.Invoke();
 }
