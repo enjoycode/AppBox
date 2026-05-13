@@ -88,7 +88,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
 
     private static void LoadDesigners(ReportItemBase item, IReportItemDesigner parentDesigner)
     {
-        var designer = DesignerFactory.CreateDesigner(item);
+        var designer = ReportDesignerFactory.CreateDesigner(item);
         ((DiagramItem)parentDesigner).AddItem(designer);
 
         foreach (var child in item.Items)

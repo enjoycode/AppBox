@@ -119,7 +119,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
             {
                 if (cell.ReportItem != null!)
                 {
-                    var designer = DesignerFactory.CreateDesigner(cell.ReportItem);
+                    var designer = ReportDesignerFactory.CreateDesigner(cell.ReportItem);
                     AddItem(designer);
                 }
             }

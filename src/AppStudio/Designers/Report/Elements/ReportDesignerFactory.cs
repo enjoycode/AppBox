@@ -3,7 +3,7 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal static class DesignerFactory
+internal static class ReportDesignerFactory
 {
     private static readonly Dictionary<Type, Func<ReportItemBase, DiagramItem>> DesignerTypes = new()
     {
