@@ -328,6 +328,18 @@ public static class InputStreamExtensions
 
     #region ====ReadCollection====
 
+    public static void ReadCollection<T>(this IInputStream s, ICollection<T> collection)
+        where T : IBinSerializable, new()
+    {
+        var count = s.ReadVariant();
+        for (var i = 0; i < count; i++)
+        {
+            var obj = new T();
+            obj.ReadFrom(s);
+            collection.Add(obj);
+        }
+    }
+
     public static void ReadCollection(this IInputStream s, Type elementType, int count,
         Action<int, object?> elementSetter)
     {

@@ -375,6 +375,15 @@ public static class OutputStreamExtensions
 
     #region ====WriteCollection====
 
+    public static void WriteCollection<T>(this IOutputStream s, IList<T> collection) where T : IBinSerializable
+    {
+        s.WriteVariant(collection.Count);
+        for (var i = 0; i <= collection.Count; i++)
+        {
+            collection[i].WriteTo(s);
+        }
+    }
+
     public static void WriteCollection(this IOutputStream s, Type elementType, int count,
         Func<int, object?> elementGetter)
     {
