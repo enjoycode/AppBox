@@ -50,7 +50,8 @@ public class FlowLink : IBinSerializable
         if (Target != null)
         {
             ws.WriteFieldId(4);
-            ws.Serialize(Target);
+            ws.WriteByte(Target.Type);
+            Target.WriteTo(ws);
         }
 
         ws.WriteFieldEnd();
@@ -67,9 +68,14 @@ public class FlowLink : IBinSerializable
                 case 1: Name = rs.ReadString(); break;
                 case 2: _sourceConnector = rs.ReadString(); break;
                 case 3: _targetConnector = rs.ReadString(); break;
-                case 4: Target = (ActivityModel)rs.Deserialize()!; break;
+                case 4:
+                {
+                    Target = ActivityFactory.Make(rs.ReadByte());
+                    Target.ReadFrom(rs);
+                    break;
+                }
                 case 0: break;
-                default: throw new Exception($"Deserialize_ObjectUnknownFieldIndex: {GetType().Name}");
+                default: throw SerializationException.ReadUnknownField(nameof(FlowLink), propIndex);
             }
         } while (propIndex != 0);
     }

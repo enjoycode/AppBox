@@ -4,6 +4,8 @@ public abstract class ActivityModel : IBinSerializable
 {
     //TODO:加入Name属性
 
+    public abstract byte Type { get; }
+
     public string Title { get; set; } = string.Empty;
 
     public float X { get; set; }
@@ -52,7 +54,7 @@ public abstract class ActivityModel : IBinSerializable
                     Y = rs.ReadFloat();
                     break;
                 case 0: break;
-                default: throw new Exception($"Deserialize_ObjectUnknownFieldIndex: {GetType().Name}");
+                default: throw SerializationException.ReadUnknownField(nameof(ActivityModel), propIndex);
             }
         } while (propIndex != 0);
     }

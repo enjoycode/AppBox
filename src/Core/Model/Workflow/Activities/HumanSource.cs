@@ -50,7 +50,7 @@ public sealed class HumanSource : IBinSerializable
             if (AssignedOrgUnit != null)
                 return AssignedOrgUnit.ToString();
             else
-                return Expression.IsNull(OrgUnitExpression) ? "" : OrgUnitExpression.ToString();
+                return Expression.IsNull(OrgUnitExpression) ? "" : OrgUnitExpression!.ToString();
         }
     }
 
@@ -109,9 +109,7 @@ public sealed class HumanSource : IBinSerializable
             {
                 case 1: _ouExpression = (Expression)rs.Deserialize()!; break;
                 case 0: break;
-                default:
-                    throw new SerializationException(SerializationError.ReadUnknownFieldId,
-                        $"{nameof(HumanSource)}.{propIndex}");
+                default: throw SerializationException.ReadUnknownField(nameof(HumanSource), propIndex);
             }
         } while (propIndex != 0);
     }

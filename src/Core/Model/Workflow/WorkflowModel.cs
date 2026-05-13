@@ -46,7 +46,7 @@ public sealed class WorkflowModel : ModelBase
                 case 1: StartActivity = (StartActivityModel)rs.Deserialize()!; break;
                 case 2: rs.ReadCollection(Parameters); break;
                 case 0: break;
-                default: throw new Exception($"Deserialize_ObjectUnknownFieldIndex: {nameof(WorkflowModel)}");
+                default: throw SerializationException.ReadUnknownField(nameof(WorkflowModel), propIndex);
             }
         } while (propIndex != 0);
     }

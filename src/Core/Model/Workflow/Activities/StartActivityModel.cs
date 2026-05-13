@@ -10,6 +10,8 @@ public sealed class StartActivityModel : ActivityModel
         Next = new FlowLink();
     }
 
+    public override byte Type => ActivityType.StartActivity;
+
     public FlowLink Next { get; private set; }
 
     public override FlowLink[]? GetOutLinks() => [Next];
@@ -41,7 +43,7 @@ public sealed class StartActivityModel : ActivityModel
             {
                 case 1: Next.ReadFrom(rs); break;
                 case 0: break;
-                default: throw new Exception($"Deserialize_ObjectUnknownFieldIndex: {nameof(StartActivityModel)}");
+                default: throw SerializationException.ReadUnknownField(nameof(StartActivityModel), propIndex);
             }
         } while (propIndex != 0);
     }

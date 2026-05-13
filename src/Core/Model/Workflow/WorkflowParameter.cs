@@ -52,7 +52,7 @@ public sealed class WorkflowParameter : IBinSerializable
                 case 1: Name = bs.ReadString()!; break;
                 case 2: Type = (WorkflowParameterType)bs.ReadByte(); break;
                 case 0: break;
-                default: throw new Exception($"Deserialize_ObjectUnknownFieldIndex: {nameof(WorkflowParameter)}");
+                default: throw SerializationException.ReadUnknownField(nameof(StartActivityModel), propIndex);
             }
         } while (propIndex != 0);
     }

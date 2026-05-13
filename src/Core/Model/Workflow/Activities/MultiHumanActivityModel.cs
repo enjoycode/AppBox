@@ -2,6 +2,7 @@
 
 public sealed class MultiHumanActivityModel : HumanActivityModel
 {
+    public override byte Type => ActivityType.MultiHumanActivity;
 
     public override bool IsSingleHuman
     {
@@ -12,5 +13,4 @@ public sealed class MultiHumanActivityModel : HumanActivityModel
     {
         Title = "多人活动";
     }
-
 }

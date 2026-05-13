@@ -57,9 +57,7 @@ public sealed class HumanAction : IBinSerializable
             {
                 case 1: _name = rs.ReadString() ?? string.Empty; break;
                 case 0: break;
-                default:
-                    throw new SerializationException(SerializationError.ReadUnknownFieldId,
-                        $"{nameof(HumanAction)}.{propIndex}");
+                default: throw SerializationException.ReadUnknownField(nameof(HumanAction), propIndex);
             }
         } while (propIndex != 0);
     }

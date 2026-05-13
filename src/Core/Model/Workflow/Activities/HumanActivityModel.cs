@@ -140,7 +140,7 @@ public abstract class HumanActivityModel : ActivityModel
                 case 3: rs.ReadCollection(_humanSource); break;
                 case 4: _desktopView = (Expression)rs.Deserialize()!; break;
                 case 0: break;
-                default: throw new Exception("Deserialize_ObjectUnknownFieldIndex: " + GetType().Name);
+                default: throw SerializationException.ReadUnknownField(nameof(HumanActivityModel), propIndex);
             }
         } while (propIndex != 0);
     }

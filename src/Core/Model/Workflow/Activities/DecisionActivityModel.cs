@@ -2,6 +2,8 @@
 
 public sealed class DecisionActivityModel : ActivityModel
 {
+    public override byte Type => ActivityType.DecisionActivity;
+
     private List<ConditionLink> _conditions = new List<ConditionLink>();
 
     public List<ConditionLink> Conditions
@@ -52,9 +54,7 @@ public sealed class DecisionActivityModel : ActivityModel
             {
                 case 1: rs.ReadCollection(_conditions); break;
                 case 0: break;
-                default:
-                    throw new SerializationException(SerializationError.ReadUnknownFieldId,
-                        $"{nameof(DecisionActivityModel)}.{propIndex})");
+                default: throw SerializationException.ReadUnknownField(nameof(DecisionActivityModel), propIndex);
             }
         } while (propIndex != 0);
     }

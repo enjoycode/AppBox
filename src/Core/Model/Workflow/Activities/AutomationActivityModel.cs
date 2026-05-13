@@ -5,6 +5,8 @@
 /// </summary>
 public sealed class AutomationActivityModel : ActivityModel
 {
+    public override byte Type => ActivityType.AutomationActivity;
+
     public Expression? Expression { get; set; }
 
     #region ====Serialization====
@@ -34,9 +36,7 @@ public sealed class AutomationActivityModel : ActivityModel
             {
                 case 1: Expression = (Expression)rs.Deserialize()!; break;
                 case 0: break;
-                default:
-                    throw new SerializationException(SerializationError.ReadUnknownFieldId,
-                        $"{nameof(AutomationActivityModel)}.{propIndex}");
+                default: throw SerializationException.ReadUnknownField(nameof(AutomationActivityModel), propIndex);
             }
         } while (propIndex != 0);
     }

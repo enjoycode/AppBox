@@ -8,6 +8,9 @@ public sealed class SerializationException : Exception
     {
         Error = error;
     }
+
+    public static SerializationException ReadUnknownField(string className, int fieldId) =>
+        new(SerializationError.ReadUnknownFieldId, $"{className}.{fieldId}");
 }
 
 public enum SerializationError
