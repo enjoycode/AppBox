@@ -35,7 +35,12 @@ internal sealed class WorkflowDiagramService : IDiagramService
 
     public void MoveSelection(Offset delta)
     {
-        throw new NotImplementedException();
+        //var selectedItems = Surface.SelectionService.SelectedItems.ToArray(); //Maybe changed
+        var selectedItems = Surface.SelectionService.SelectedItems;
+        foreach (var item in selectedItems)
+        {
+            item.Move(delta);
+        }
     }
 
     public void DeleteSelection()

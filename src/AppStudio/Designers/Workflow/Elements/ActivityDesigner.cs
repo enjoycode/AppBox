@@ -21,6 +21,11 @@ internal sealed class ActivityDesigner : DiagramShape
 
     public ActivityModel Model => _model;
 
+    protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
+    {
+        base.SetBounds(x, y, 30, 30, BoundsSpecified.Location); //TODO:
+    }
+
     protected override void OnAddToSurface()
     {
         base.OnAddToSurface();

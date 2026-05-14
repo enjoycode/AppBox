@@ -11,7 +11,7 @@ internal static class IconUtil
         ModelType.Service => MaterialIcons.Settings,
         ModelType.View => MaterialIcons.Wysiwyg,
         ModelType.Report => MaterialIcons.PieChart,
-        ModelType.Workflow => MaterialIcons.Schema,
+        ModelType.Workflow => MaterialIcons.DeviceHub,
         ModelType.Enum => MaterialIcons.ViewList,
         ModelType.Permission => MaterialIcons.Lock,
         _ => MaterialIcons.TableChart
