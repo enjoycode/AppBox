@@ -2,7 +2,10 @@
 
 public sealed class WorkflowModel : ModelBase
 {
-    internal WorkflowModel() { }
+    internal WorkflowModel()
+    {
+        StartActivity = new StartActivityModel();
+    }
 
     public WorkflowModel(ModelId modelId, string name) : base(modelId, name)
     {
@@ -11,7 +14,7 @@ public sealed class WorkflowModel : ModelBase
 
     //TODO:添加默认视图表达式属性
 
-    public StartActivityModel StartActivity { get; private set; } = null!;
+    public StartActivityModel StartActivity { get; }
 
     public List<WorkflowParameter> Parameters { get; set; } = [];
 
@@ -22,7 +25,7 @@ public sealed class WorkflowModel : ModelBase
         base.WriteTo(ws);
 
         ws.WriteFieldId(1);
-        ws.Serialize(StartActivity);
+        StartActivity.WriteTo(ws);
 
         if (Parameters.Count > 0)
         {
@@ -43,7 +46,7 @@ public sealed class WorkflowModel : ModelBase
             propIndex = rs.ReadFieldId();
             switch (propIndex)
             {
-                case 1: StartActivity = (StartActivityModel)rs.Deserialize()!; break;
+                case 1: StartActivity.ReadFrom(rs); break;
                 case 2: rs.ReadCollection(Parameters); break;
                 case 0: break;
                 default: throw SerializationException.ReadUnknownField(nameof(WorkflowModel), propIndex);

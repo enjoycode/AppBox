@@ -1,3 +1,4 @@
+using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -30,6 +31,7 @@ internal sealed class MainMenuPad : View
 
     private static MenuItem[] BuildMenuItems(Commands cmds) =>
     [
+        //@formatter:off
         MenuItem.SubMenu("DataStore", MaterialIcons.Dns, [
             MenuItem.Item("Add DataStore", null, cmds.NotImplCommand),
             MenuItem.Item("Remove DataStore", null, cmds.NotImplCommand)
@@ -37,12 +39,13 @@ internal sealed class MainMenuPad : View
         MenuItem.SubMenu("New", MaterialIcons.CreateNewFolder, [
             MenuItem.Item("Application", MaterialIcons.Widgets, cmds.NewAppCommand.Execute),
             MenuItem.Item("Folder", MaterialIcons.Folder, cmds.NewFolderCommand.Execute),
-            MenuItem.Item("Entity", MaterialIcons.TableChart, cmds.NewEntityCommand.Execute),
-            MenuItem.Item("Service", MaterialIcons.Settings, cmds.NewServiceCommand.Execute),
-            MenuItem.Item("View", MaterialIcons.Wysiwyg, cmds.NewViewCommand.Execute),
-            MenuItem.Item("Report", MaterialIcons.PieChart, cmds.NewReportCommand.Execute),
-            MenuItem.Item("Enum", MaterialIcons.ViewList, cmds.NewEnumCommand.Execute),
-            MenuItem.Item("Permission", MaterialIcons.Lock, cmds.NewPermissionCommand.Execute)
+            MenuItem.Item("Entity", IconUtil.GetIconForModelType(ModelType.Entity), cmds.NewEntityCommand.Execute),
+            MenuItem.Item("Service", IconUtil.GetIconForModelType(ModelType.Service), cmds.NewServiceCommand.Execute),
+            MenuItem.Item("View", IconUtil.GetIconForModelType(ModelType.View), cmds.NewViewCommand.Execute),
+            MenuItem.Item("Report", IconUtil.GetIconForModelType(ModelType.Report), cmds.NewReportCommand.Execute),
+            MenuItem.Item("Workflow", IconUtil.GetIconForModelType(ModelType.Workflow), cmds.NewWorkflowCommand.Execute),
+            MenuItem.Item("Enum", IconUtil.GetIconForModelType(ModelType.Enum), cmds.NewEnumCommand.Execute),
+            MenuItem.Item("Permission", IconUtil.GetIconForModelType(ModelType.Permission), cmds.NewPermissionCommand.Execute)
         ]),
         MenuItem.SubMenu("Models", MaterialIcons.Widgets, [
             MenuItem.Item("Save", MaterialIcons.Save, cmds.SaveCommand.Execute),
@@ -62,4 +65,5 @@ internal sealed class MainMenuPad : View
         MenuItem.Item("AppStore", MaterialIcons.Store),
         MenuItem.Item("About", MaterialIcons.Help)
     ];
+    //@formatter:on
 }

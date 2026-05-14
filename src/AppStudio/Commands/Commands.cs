@@ -24,6 +24,7 @@ internal sealed class Commands
         NewServiceCommand = new NewCommand(designContext, "Service");
         NewPermissionCommand = new NewCommand(designContext, "Permission");
         NewReportCommand = new NewCommand(designContext, "Report");
+        NewWorkflowCommand = new NewCommand(designContext, "Workflow");
         NewEnumCommand = new NewCommand(designContext, "Enum");
         CheckoutCommand = new CheckoutCommand(designContext);
         SaveCommand = new SaveCommand(designContext);
@@ -45,6 +46,7 @@ internal sealed class Commands
     public readonly NewCommand NewViewCommand;
     public readonly NewCommand NewPermissionCommand;
     public readonly NewCommand NewReportCommand;
+    public readonly NewCommand NewWorkflowCommand;
     public readonly NewCommand NewEnumCommand;
     public readonly CheckoutCommand CheckoutCommand;
     public readonly SaveCommand SaveCommand;

@@ -73,6 +73,7 @@ internal sealed class NewCommand : DesignCommand
                     "Service" => await NewService(selectedNode.Data, _name.Value),
                     "Permission" => await NewPermission(selectedNode.Data, _name.Value),
                     "Report" => await NewReport(selectedNode.Data, _name.Value),
+                    "Workflow" => await NewWorkflow(selectedNode.Data, _name.Value),
                     "Enum" => await NewEnum(selectedNode.Data, _name.Value),
                     _ => throw new NotImplementedException(_type)
                 };
@@ -200,6 +201,13 @@ internal sealed class NewCommand : DesignCommand
                          ]
                        }
                        """);
+        }
+
+        private Task<NewNodeResult> NewWorkflow(DesignNode selectedNode, string name)
+        {
+            return ModelCreator.Make(_designContext, ModelType.Workflow,
+                id => new WorkflowModel(id, name),
+                selectedNode.Type, selectedNode.Id, name, _ => null);
         }
 
         private Task<NewNodeResult> NewEnum(DesignNode selectedNode, string name)
