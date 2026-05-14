@@ -72,6 +72,10 @@ internal sealed class DesignerPad : View
                     var reportDesigner = new ReportDesigner(_designContext, modelNode);
                     node.Designer = reportDesigner;
                     return reportDesigner;
+                case ModelType.Workflow:
+                    var workflowDesigner = new WorkflowDesigner(_designContext, modelNode);
+                    node.Designer = workflowDesigner;
+                    return workflowDesigner;
                 case ModelType.Enum:
                     var enumDesigner = new EnumDesigner(_designContext, modelNode);
                     node.Designer = enumDesigner;
@@ -85,7 +89,7 @@ internal sealed class DesignerPad : View
             node.Designer = dependencyDesigner;
             return dependencyDesigner;
         }
-        
+
         return new Container()
         {
             Padding = EdgeInsets.All(10),
