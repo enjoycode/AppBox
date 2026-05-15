@@ -15,7 +15,7 @@ internal sealed class ReportToolbox : View, IDiagramToolbox
             Children =
             {
                 //new TextInput(_searchKey) { Suffix = new Icon(MaterialIcons.Search) },
-                new TreeView<ReportToolboxItem>(_treeController, BuildTreeNode, _ => [])
+                new TreeView<DiagramToolboxItem>(_treeController, BuildTreeNode, _ => [])
                 {
                     AllowDrag = false,
                     //OnAllowDrag = OnAllowDrag,
@@ -24,7 +24,7 @@ internal sealed class ReportToolbox : View, IDiagramToolbox
         };
     }
 
-    private static readonly List<ReportToolboxItem> ToolboxItems =
+    private static readonly List<DiagramToolboxItem> ToolboxItems =
     [
         new() { Name = "TextBox", Creator = () => new TextBoxDesigner(), Icon = MaterialIcons.Title },
         new() { Name = "Table", Creator = () => new TableDesigner(), Icon = MaterialIcons.TableView },
@@ -33,11 +33,11 @@ internal sealed class ReportToolbox : View, IDiagramToolbox
         new() { Name = "Barcode", Creator = () => new BarcodeDesigner(), Icon = MaterialIcons.QrCode },
     ];
 
-    private readonly TreeController<ReportToolboxItem> _treeController = new();
+    private readonly TreeController<DiagramToolboxItem> _treeController = new();
 
     public IDiagramToolboxItem? SelectedItem { get; private set; }
 
-    private static void BuildTreeNode(TreeNode<ReportToolboxItem> node)
+    private static void BuildTreeNode(TreeNode<DiagramToolboxItem> node)
     {
         var data = node.Data;
         node.Label = new Text(data.Name);
@@ -49,17 +49,4 @@ internal sealed class ReportToolbox : View, IDiagramToolbox
     private void OnSelectionChanged() => SelectedItem = _treeController.FirstSelectedNode?.Data;
 
     public void ClearSelectedItem() => _treeController.ClearSelection();
-}
-
-internal sealed class ReportToolboxItem : IDiagramToolboxItem
-{
-    public string Name { get; init; } = null!;
-
-    public IconData Icon { get; init; }
-
-    public Func<DiagramItem> Creator { get; init; } = null!;
-
-    bool IDiagramToolboxItem.IsConnection => false;
-
-    public DiagramItem Create() => Creator.Invoke();
 }

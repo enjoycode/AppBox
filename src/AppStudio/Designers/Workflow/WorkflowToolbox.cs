@@ -1,3 +1,4 @@
+using AppBoxCore;
 using PixUI;
 using PixUI.Diagram;
 
@@ -5,20 +6,49 @@ namespace AppBoxDesign;
 
 internal sealed class WorkflowToolbox : View, IDiagramToolbox
 {
-    public IDiagramToolboxItem? SelectedItem { get; }
-
-    public void ClearSelectedItem()
+    public WorkflowToolbox()
     {
-        throw new NotImplementedException();
+        _treeController.SelectionChanged += OnSelectionChanged;
+        _treeController.DataSource = ToolboxItems;
+
+        Child = new Column
+        {
+            Children =
+            {
+                new TreeView<DiagramToolboxItem>(_treeController, BuildTreeNode, _ => [])
+                {
+                    AllowDrag = false,
+                    //OnAllowDrag = OnAllowDrag,
+                }
+            }
+        };
     }
-}
 
-internal sealed class WorkflowToolboxItem : IDiagramToolboxItem
-{
-    public bool IsConnection { get; }
+    private readonly TreeController<DiagramToolboxItem> _treeController = new();
 
-    public DiagramItem Create()
+    private static readonly List<DiagramToolboxItem> ToolboxItems =
+    [
+        //@formatter:off
+        new() { Name = "Connection", IsConnection = true, Creator = () => new ActivityConnection(), Icon = MaterialIcons.Moving },
+        new() { Name = "Automation", Creator = () => new ActivityDesigner(new AutomationActivityModel()), Icon = MaterialIcons.Settings },
+        new() { Name = "Decision", Creator = () => new ActivityDesigner(new DecisionActivityModel()), Icon = MaterialIcons.ForkRight },
+        new() { Name = "SingleHuman", Creator = () => new ActivityDesigner(new SingleHumanActivityModel()) ,Icon = MaterialIcons.Person },
+        new() { Name = "MultiHuman", Creator = () => new ActivityDesigner(new MultiHumanActivityModel()) ,Icon = MaterialIcons.Group },
+        //@formatter:on
+    ];
+
+    public IDiagramToolboxItem? SelectedItem { get; private set; }
+
+    private static void BuildTreeNode(TreeNode<DiagramToolboxItem> node)
     {
-        throw new NotImplementedException();
+        var data = node.Data;
+        node.Label = new Text(data.Name);
+        node.Icon = new Icon(data.Icon);
+        node.IsLeaf = true;
+        node.IsExpanded = true;
     }
+
+    private void OnSelectionChanged() => SelectedItem = _treeController.FirstSelectedNode?.Data;
+
+    public void ClearSelectedItem() => _treeController.ClearSelection();
 }
