@@ -1,3 +1,4 @@
+using AppBoxDesign.Diagram;
 using PixUI;
 using PixUI.Diagram;
 
@@ -50,6 +51,16 @@ internal sealed class WorkflowDiagramService : IDiagramService
 
     public void DeleteSelection()
     {
-        throw new NotImplementedException();
+        var selection = Surface.SelectionService.SelectedItems;
+        if (selection.Count == 0) return;
+
+        // foreach (var item in selection)
+        // {
+        //     if (item is ActivityDesigner )
+        //         
+        // }
+
+        Surface.SelectionService.ClearSelection();
+        Surface.Repaint(); //TODO:考虑合并重绘区域，暂全部刷新
     }
 }

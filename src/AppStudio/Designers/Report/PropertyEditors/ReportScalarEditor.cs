@@ -1,7 +1,8 @@
 using AppBox.Reporting.Drawing;
+using AppBoxDesign.Diagram;
 using PixUI;
 
-namespace AppBoxDesign.Diagram.PropertyEditors;
+namespace AppBoxDesign.Reporting;
 
 internal sealed class ReportScalarEditor : SingleChildWidget, IValueStateEditor
 {

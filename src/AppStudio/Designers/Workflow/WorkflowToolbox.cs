@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxDesign.Diagram;
 using PixUI;
 using PixUI.Diagram;
 

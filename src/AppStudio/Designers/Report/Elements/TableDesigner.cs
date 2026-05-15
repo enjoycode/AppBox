@@ -1,11 +1,11 @@
 using AppBox.Reporting;
 using AppBox.Reporting.Drawing;
-using AppBoxDesign.Diagram.PropertyEditors;
+using AppBoxDesign.Diagram;
 using PixUI;
 using PixUI.Diagram;
 using TextBox = AppBox.Reporting.TextBox;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 internal sealed class TableDesigner : ReportItemDesigner<Table>
 {
@@ -207,7 +207,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
             GroupName = "Properties",
             Properties =
             [
-                new ReportDiagramProperty(this, nameof(Table.DataSource), nameof(ReportDataSourceEditor))
+                new DiagramProperty(this, nameof(Table.DataSource), nameof(ReportDataSourceEditor))
                 {
                     ValueGetter = () => ReportItem.DataSource,
                     ValueSetter = v => ReportItem.DataSource = v,

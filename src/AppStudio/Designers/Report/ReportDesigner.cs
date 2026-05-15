@@ -1,6 +1,7 @@
 using System.Text.Json;
 using AppBox.ReportDataSource;
 using AppBox.Reporting;
+using AppBoxDesign.Reporting;
 using PixUI;
 using PixUI.Diagram;
 

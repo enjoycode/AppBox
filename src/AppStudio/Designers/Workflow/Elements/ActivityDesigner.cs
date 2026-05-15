@@ -1,16 +1,16 @@
 using AppBoxCore;
+using AppBoxDesign.Diagram;
+using AppBoxDesign.Workflow;
 using PixUI;
 using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal sealed class ActivityDesigner : DiagramShape
+internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 {
     public ActivityDesigner(ActivityModel model)
     {
         _model = model;
-        // var typeName = model.GetType().Name;
-        // this._painter = ActivityPainters.GetPainter(typeName.Remove(typeName.Length - 5));
         SetBounds(model.X, model.Y, 0f, 0f, BoundsSpecified.All); //todo: check it
 
         if (_model is HumanActivityModel humanActivityModel)
@@ -21,9 +21,44 @@ internal sealed class ActivityDesigner : DiagramShape
 
     public ActivityModel Model => _model;
 
+    public override string TypeName => _model switch
+    {
+        StartActivityModel => "StartActivity",
+        DecisionActivityModel => "DecisionActivity",
+        AutomationActivityModel => "AutomationActivity",
+        SingleHumanActivityModel => "SingleHumanActivity",
+        MultiHumanActivityModel => "MultiHumanActivity",
+        _ => base.TypeName
+    };
+
     protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
     {
-        base.SetBounds(x, y, 30, 30, BoundsSpecified.Location); //TODO:
+        //同步模型的坐标
+        if (specified.HasFlag(BoundsSpecified.X) || specified.HasFlag(BoundsSpecified.Y))
+        {
+            _model.X = x;
+            _model.Y = y;
+        }
+
+        var itemSize = GetItemSize();
+        base.SetBounds(x, y, itemSize.Width, itemSize.Height, specified);
+
+        //刷新属性面板的布局属性
+        (Surface?.DiagramService as WorkflowDiagramService)?.PropertyPanel.RefreshLayoutProperties();
+    }
+
+    private Size GetItemSize()
+    {
+        //暂固定大小
+        return _model switch
+        {
+            StartActivityModel => new(30, 30),
+            // DecisionActivityModel => new(80, 40),
+            // AutomationActivityModel => new(80, 40),
+            // SingleHumanActivityModel => new(80, 40),
+            // MultiHumanActivityModel => new(80, 40),
+            _ => new(80, 40)
+        };
     }
 
     protected override void OnAddToSurface()
@@ -139,8 +174,43 @@ internal sealed class ActivityDesigner : DiagramShape
         }
     }
 
-    public override void Paint(ICanvas g)
+    void IDiagramItemDesigner.Invalidate() => Invalidate();
+
+    /// <summary>
+    /// 获取布局属性组
+    /// </summary>
+    private DiagramPropertyGroup GetLayoutPropertyGroup()
     {
-        base.Paint(g);
+        var properties = new IDiagramProperty[2];
+        properties[0] = new DiagramProperty(this, "X", nameof(LocationEditor))
+        {
+            ValueGetter = () => Location.X,
+            ValueSetter = v => Location = new Point((float)v!, Location.Y)
+        };
+        properties[1] = new DiagramProperty(this, "Y", nameof(LocationEditor))
+        {
+            ValueGetter = () => Location.Y,
+            ValueSetter = v => Location = new Point(Location.X, (float)v!)
+        };
+
+        return new DiagramPropertyGroup() { GroupName = "Layout", Properties = properties };
+    }
+
+    public IEnumerable<DiagramPropertyGroup> GetProperties()
+    {
+        yield return GetLayoutPropertyGroup();
+    }
+
+    public override void Paint(ICanvas canvas)
+    {
+        switch (_model)
+        {
+            case StartActivityModel:
+                ActivityPainter.PaintStartActivity(canvas, Bounds.Size);
+                break;
+            default:
+                base.Paint(canvas);
+                break;
+        }
     }
 }

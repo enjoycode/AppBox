@@ -1,11 +1,11 @@
 using System.Text;
 using AppBox.Reporting.Drawing;
 using AppBox.Reporting.Processing;
-using AppBoxDesign.Diagram.PropertyEditors;
+using AppBoxDesign.Diagram;
 using PixUI;
 using TextBox = AppBox.Reporting.TextBox;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
 {
@@ -96,17 +96,17 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
             GroupName = "Properties",
             Properties =
             [
-                new ReportDiagramProperty(this, nameof(TextBox.Value), nameof(ReportTextEditor))
+                new DiagramProperty(this, nameof(TextBox.Value), nameof(ReportTextEditor))
                 {
                     ValueGetter = () => ReportItem.Value,
                     ValueSetter = v => ReportItem.Value = v as string ?? string.Empty,
                 },
-                new ReportDiagramProperty(this, nameof(TextBox.CanGrow), nameof(CheckBoxEditor))
+                new DiagramProperty(this, nameof(TextBox.CanGrow), nameof(CheckBoxEditor))
                 {
                     ValueGetter = () => ReportItem.CanGrow,
                     ValueSetter = v => ReportItem.CanGrow = v is true,
                 },
-                new ReportDiagramProperty(this, nameof(TextBox.CanShrink), nameof(CheckBoxEditor))
+                new DiagramProperty(this, nameof(TextBox.CanShrink), nameof(CheckBoxEditor))
                 {
                     ValueGetter = () => ReportItem.CanShrink,
                     ValueSetter = v => ReportItem.CanShrink = v is true,

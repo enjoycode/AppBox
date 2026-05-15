@@ -1,9 +1,9 @@
 using AppBox.Reporting;
-using PixUI.Diagram;
+using AppBoxDesign.Diagram;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
-internal interface IReportItemDesigner : IDiagramItem, IDiagramItemWithProperties
+internal interface IReportItemDesigner : IDiagramItemDesigner
 {
     ReportItemBase ReportItem { get; }
 
@@ -11,6 +11,4 @@ internal interface IReportItemDesigner : IDiagramItem, IDiagramItemWithPropertie
     /// 当前元素是否在表格的单元格内
     /// </summary>
     bool IsTableCell { get; }
-
-    void Invalidate();
 }

@@ -1,7 +1,8 @@
 using AppBox.Reporting;
+using AppBoxDesign.Diagram;
 using PixUI;
 
-namespace AppBoxDesign.Diagram.PropertyEditors;
+namespace AppBoxDesign.Reporting;
 
 /// <summary>
 /// 用于编辑IDataItem.DataSource属性
@@ -10,8 +11,8 @@ internal sealed class ReportDataSourceEditor : SingleChildWidget
 {
     public ReportDataSourceEditor(IDiagramProperty propertyItem)
     {
-        var reportProperty = (ReportDiagramProperty)propertyItem;
-        var table = (Table)reportProperty.ReportItemDesigner.ReportItem;
+        var reportItem = (IReportItemDesigner)propertyItem.DiagramItem;
+        var table = (Table)reportItem.ReportItem;
         var report = table.Report!;
         var dataSourceState = new RxProxy<IDataSource?>(
             () => table.DataSource as IDataSource,

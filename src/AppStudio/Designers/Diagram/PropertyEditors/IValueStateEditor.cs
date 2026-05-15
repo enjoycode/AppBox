@@ -1,4 +1,4 @@
-namespace AppBoxDesign.Diagram.PropertyEditors;
+namespace AppBoxDesign.Diagram;
 
 internal interface IValueStateEditor
 {

@@ -1,8 +1,9 @@
-using AppBoxDesign.Diagram.PropertyEditors;
 using PixUI;
 using PixUI.Diagram;
+using AppBoxDesign.Reporting;
+using AppBoxDesign.Workflow;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Diagram;
 
 internal sealed class DiagramPropertyPanel : SingleChildWidget
 {
@@ -84,6 +85,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         nameof(ReportDataSourceEditor) => new FormItem(property.PropertyName, new ReportDataSourceEditor(property)),
         nameof(ReportDataSourcesEditor) => new FormItem(property.PropertyName,
             new ReportDataSourcesEditor(_designContext, property)) { LabelVerticalAlignment = VerticalAlignment.Top },
+        nameof(LocationEditor) => new FormItem(property.PropertyName, new LocationEditor(property)),
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };
 

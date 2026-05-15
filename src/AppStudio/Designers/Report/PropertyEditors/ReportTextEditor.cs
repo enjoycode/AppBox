@@ -1,6 +1,7 @@
+using AppBoxDesign.Diagram;
 using PixUI;
 
-namespace AppBoxDesign.Diagram.PropertyEditors;
+namespace AppBoxDesign.Reporting;
 
 /// <summary>
 /// 专用于报表的文本属性编辑器，支持绑定表达式

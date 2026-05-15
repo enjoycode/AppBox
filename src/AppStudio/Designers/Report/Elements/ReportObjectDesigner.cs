@@ -1,7 +1,8 @@
 using AppBox.Reporting;
+using AppBoxDesign.Diagram;
 using PixUI.Diagram;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 internal abstract class ReportObjectDesigner<T> : DiagramItem, IReportItemDesigner where T : ReportItemBase
 {
@@ -31,5 +32,5 @@ internal abstract class ReportObjectDesigner<T> : DiagramItem, IReportItemDesign
 
     ReportItemBase IReportItemDesigner.ReportItem => ReportItem;
 
-    void IReportItemDesigner.Invalidate() => Invalidate();
+    void IDiagramItemDesigner.Invalidate() => Invalidate();
 }

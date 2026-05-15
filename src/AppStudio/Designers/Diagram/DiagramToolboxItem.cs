@@ -1,7 +1,7 @@
 using PixUI;
 using PixUI.Diagram;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Diagram;
 
 internal sealed class DiagramToolboxItem : IDiagramToolboxItem
 {

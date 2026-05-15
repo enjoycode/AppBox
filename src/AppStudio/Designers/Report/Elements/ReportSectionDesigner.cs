@@ -1,10 +1,10 @@
 using AppBox.Reporting;
 using AppBox.Reporting.Drawing;
-using AppBoxDesign.Diagram.PropertyEditors;
+using AppBoxDesign.Diagram;
 using PixUI;
 using PixUI.Diagram;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSectionBase>
 {
@@ -63,7 +63,7 @@ internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSection
             GroupName = "Layout",
             Properties =
             [
-                new ReportDiagramProperty(this, "Height", nameof(ReportScalarEditor))
+                new DiagramProperty(this, "Height", nameof(ReportScalarEditor))
                 {
                     ValueGetter = () => ReportItem.Height,
                     ValueSetter = v => ReportItem.Height = (Scalar)v!,

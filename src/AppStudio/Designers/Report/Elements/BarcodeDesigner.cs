@@ -1,13 +1,13 @@
 using AppBox.Reporting.Drawing;
 using AppBox.Reporting.Processing.Common;
 using AppBox.Reporting.Processing.Primitives;
-using AppBoxDesign.Diagram.PropertyEditors;
+using AppBoxDesign.Diagram;
 using PixUI;
 using Processing = AppBox.Reporting.Processing;
 using Barcode = AppBox.Reporting.Barcode;
 using Colors = AppBox.Reporting.Drawing.Colors;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
 {
@@ -107,7 +107,7 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
             GroupName = "Properties",
             Properties =
             [
-                new ReportDiagramProperty(this, nameof(Barcode.Value), nameof(ReportTextEditor))
+                new DiagramProperty(this, nameof(Barcode.Value), nameof(ReportTextEditor))
                 {
                     ValueGetter = () => ReportItem.Value,
                     ValueSetter = v => ReportItem.Value = v as string ?? string.Empty,

@@ -1,6 +1,6 @@
 using PixUI;
 
-namespace AppBoxDesign.Diagram.PropertyEditors;
+namespace AppBoxDesign.Diagram;
 
 internal sealed class CheckBoxEditor : SingleChildWidget
 {

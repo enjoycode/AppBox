@@ -1,3 +1,5 @@
+using AppBoxDesign.Diagram;
+using AppBoxDesign.Reporting;
 using PixUI;
 using PixUI.Diagram;
 

@@ -1,11 +1,11 @@
 using AppBox.Reporting;
-using AppBoxCore;
+using AppBoxDesign.Diagram;
 using PixUI;
 using PixUI.Dynamic;
 using DataTableFromQuery = AppBox.ReportDataSource.DataTableFromQuery;
 using DataTableFromService = AppBox.ReportDataSource.DataTableFromService;
 
-namespace AppBoxDesign.Diagram.PropertyEditors;
+namespace AppBoxDesign.Reporting;
 
 /// <summary>
 /// 报表的数据源属性编辑器

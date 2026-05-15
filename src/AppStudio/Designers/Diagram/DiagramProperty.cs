@@ -1,4 +1,4 @@
-namespace AppBoxDesign;
+namespace AppBoxDesign.Diagram;
 
 internal readonly struct DiagramPropertyGroup
 {
@@ -9,6 +9,8 @@ internal readonly struct DiagramPropertyGroup
 
 internal interface IDiagramProperty
 {
+    IDiagramItemDesigner DiagramItem { get; }
+    
     string PropertyName { get; }
 
     string EditorName { get; }
@@ -29,21 +31,23 @@ internal interface IDiagramProperty
     void Invalidate();
 }
 
-/// <summary>
-/// 报表设计器的属性
-/// </summary>
-internal sealed class ReportDiagramProperty : IDiagramProperty
+internal interface IDiagramItemWithProperties
 {
-    public ReportDiagramProperty(IReportItemDesigner obj, string propertyName,
+    IEnumerable<DiagramPropertyGroup> GetProperties();
+}
+
+internal sealed class DiagramProperty : IDiagramProperty
+{
+    public DiagramProperty(IDiagramItemDesigner obj, string propertyName,
         string editorName, object? editorOptions = null)
     {
-        ReportItemDesigner = obj;
+        DiagramItem = obj;
         PropertyName = propertyName;
         EditorName = editorName;
         EditorOptions = editorOptions;
     }
 
-    public IReportItemDesigner ReportItemDesigner { get; }
+    public IDiagramItemDesigner DiagramItem { get; }
 
     public string PropertyName { get; }
 
@@ -55,5 +59,5 @@ internal sealed class ReportDiagramProperty : IDiagramProperty
     public Action<object?>? ValueSetter { get; init; }
     public bool Readonly => ValueSetter != null;
     public bool InvalidateAfterChanged { get; init; } = true;
-    public void Invalidate() => ReportItemDesigner.Invalidate();
+    public void Invalidate() => DiagramItem.Invalidate();
 }

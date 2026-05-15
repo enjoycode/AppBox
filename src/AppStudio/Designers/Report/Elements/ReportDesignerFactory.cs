@@ -1,7 +1,7 @@
 using AppBox.Reporting;
 using PixUI.Diagram;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 internal static class ReportDesignerFactory
 {

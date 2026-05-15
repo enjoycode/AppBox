@@ -3,7 +3,7 @@ using AppBox.Reporting.Drawing;
 using PixUI;
 using PixUI.Diagram;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 /// <summary>
 /// 表格设计器专用的选择装饰器

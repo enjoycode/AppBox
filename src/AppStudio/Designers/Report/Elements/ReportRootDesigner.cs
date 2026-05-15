@@ -1,11 +1,11 @@
 using AppBox.Reporting;
 using AppBox.Reporting.Drawing;
-using AppBoxDesign.Diagram.PropertyEditors;
+using AppBoxDesign.Diagram;
 using PixUI;
 using PixUI.Diagram;
 using Colors = PixUI.Colors;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.Reporting;
 
 internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
 {
@@ -109,7 +109,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
             GroupName = "Properties",
             Properties =
             [
-                new ReportDiagramProperty(this, "PaperWidth", nameof(ReportScalarEditor))
+                new DiagramProperty(this, "PaperWidth", nameof(ReportScalarEditor))
                 {
                     ValueGetter = () => ReportItem.PageSettings.PaperSize.Width,
                     ValueSetter = v =>
@@ -119,7 +119,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                         ReportItem.ResetWidth();
                     },
                 },
-                new ReportDiagramProperty(this, "PaperHeight", nameof(ReportScalarEditor))
+                new DiagramProperty(this, "PaperHeight", nameof(ReportScalarEditor))
                 {
                     ValueGetter = () => ReportItem.PageSettings.PaperSize.Height,
                     ValueSetter = v =>
@@ -128,7 +128,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                         ReportItem.PageSettings.PaperSize = new RSize(oldSize.Width, (Scalar)v!);
                     }
                 },
-                new ReportDiagramProperty(this, "DataSources", nameof(ReportDataSourcesEditor))
+                new DiagramProperty(this, "DataSources", nameof(ReportDataSourcesEditor))
                 {
                     ValueGetter = () => ReportItem.DataSources,
                 }
