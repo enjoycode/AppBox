@@ -211,6 +211,15 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             case DecisionActivityModel:
                 ActivityPainter.PaintDecisionActivity(canvas, Bounds.Size, _model.Title);
                 break;
+            case AutomationActivityModel:
+                ActivityPainter.PaintAutomationActivity(canvas, Bounds.Size, _model.Title);
+                break;
+            case SingleHumanActivityModel:
+                ActivityPainter.PaintSingleHumanActivity(canvas, Bounds.Size, _model.Title);
+                break;
+            case MultiHumanActivityModel:
+                ActivityPainter.PaintMultiHumanActivity(canvas, Bounds.Size, _model.Title);
+                break;
             default:
                 base.Paint(canvas);
                 break;

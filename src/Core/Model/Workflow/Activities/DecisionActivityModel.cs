@@ -2,17 +2,9 @@
 
 public sealed class DecisionActivityModel : ActivityModel
 {
-    public override byte Type => ActivityType.DecisionActivity;
-
-    private List<ConditionLink> _conditions = new List<ConditionLink>();
-
-    public List<ConditionLink> Conditions
-    {
-        get { return _conditions; }
-    }
-
     public DecisionActivityModel()
     {
+        Title = "条件判断";
         //建立默认的两个条件分支
         var cTrue = new ConditionLink();
         cTrue.Name = "是";
@@ -23,10 +15,13 @@ public sealed class DecisionActivityModel : ActivityModel
         _conditions.Add(cFalse);
     }
 
-    public override FlowLink[]? GetOutLinks()
-    {
-        return _conditions.ToArray();
-    }
+    public override byte Type => ActivityType.DecisionActivity;
+
+    private readonly List<ConditionLink> _conditions = [];
+
+    public IReadOnlyList<ConditionLink> Conditions => _conditions;
+
+    public override FlowLink[]? GetOutLinks() => _conditions.Cast<FlowLink>().ToArray();
 
     //todo:验证时只允许存在一个Else分支
 

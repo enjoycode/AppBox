@@ -5,6 +5,11 @@
 /// </summary>
 public sealed class AutomationActivityModel : ActivityModel
 {
+    public AutomationActivityModel()
+    {
+        Title = "机器活动";
+    }
+
     public override byte Type => ActivityType.AutomationActivity;
 
     public Expression? Expression { get; set; }
