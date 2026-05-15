@@ -10,8 +10,10 @@ internal sealed class ActivityConnection : DiagramConnection
 {
     public ActivityConnection()
     {
-        BackColor = 0xFF006400;
+        BackColor = ActivityPainter.ConnectionBackColor;
         TargetCapType = CapType.Arrow2Filled;
+        StrokeThickness = ActivityPainter.ConnectionThickness;
+        ForeColor = ActivityPainter.ConnectionLineColor;
         Route = true;
     }
 

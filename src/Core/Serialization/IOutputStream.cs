@@ -378,7 +378,7 @@ public static class OutputStreamExtensions
     public static void WriteCollection<T>(this IOutputStream s, IList<T> collection) where T : IBinSerializable
     {
         s.WriteVariant(collection.Count);
-        for (var i = 0; i <= collection.Count; i++)
+        for (var i = 0; i < collection.Count; i++)
         {
             collection[i].WriteTo(s);
         }
@@ -402,9 +402,7 @@ public static class OutputStreamExtensions
         {
             for (var i = 0; i < count; i++)
             {
-#pragma warning disable CS8604 // Possible null reference argument.
-                serializer.Write(s, elementGetter(i));
-#pragma warning restore CS8604 // Possible null reference argument.
+                serializer.Write(s, elementGetter(i)!);
             }
         }
     }

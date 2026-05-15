@@ -208,6 +208,9 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             case StartActivityModel:
                 ActivityPainter.PaintStartActivity(canvas, Bounds.Size);
                 break;
+            case DecisionActivityModel:
+                ActivityPainter.PaintDecisionActivity(canvas, Bounds.Size, _model.Title);
+                break;
             default:
                 base.Paint(canvas);
                 break;

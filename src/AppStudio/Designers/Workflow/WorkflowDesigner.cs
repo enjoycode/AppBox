@@ -70,10 +70,7 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
 
     #region ====IModelDesigner====
 
-    public Widget? GetOutlinePad()
-    {
-        throw new NotImplementedException();
-    }
+    public Widget? GetOutlinePad() => null;
 
     public Widget? GetToolboxPad() => _diagramService.Toolbox;
 
@@ -82,15 +79,9 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
         return ModelNode.SaveAsync(null);
     }
 
-    public Task RefreshAsync()
-    {
-        throw new NotImplementedException();
-    }
+    public Task RefreshAsync() => Task.CompletedTask;
 
-    public void GotoLocation(ILocation location)
-    {
-        throw new NotImplementedException();
-    }
+    public void GotoLocation(ILocation location) { }
 
     void IDesigner.OnClose() { }
 

@@ -11,6 +11,6 @@ internal sealed class DependencyConnection : DiagramConnection
         BezierTension = 1;
         TargetCapType = CapType.Arrow2Filled;
         StrokeThickness = 2f;
-        ForeColor = new Color(0xFF2196F3);
+        ForeColor = 0xFF2196F3;
     }
 }
