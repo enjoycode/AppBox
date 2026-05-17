@@ -11,7 +11,10 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     public ActivityDesigner(ActivityModel model)
     {
         _model = model;
-        SetBounds(model.X, model.Y, 0f, 0f, BoundsSpecified.All); //todo: check it
+        if (model is StartActivityModel)
+            SetBounds(model.X, model.Y, 30, 30, BoundsSpecified.Size);
+        else
+            SetBounds(model.X, model.Y, _model.W, _model.H, BoundsSpecified.All);
 
         if (_model is HumanActivityModel humanActivityModel)
             humanActivityModel.ActionsChanging += OnHumanActionsChanging;
@@ -31,34 +34,40 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         _ => base.TypeName
     };
 
+    public override DesignBehavior DesignBehavior
+    {
+        get
+        {
+            if (_model is StartActivityModel) return DesignBehavior.CanMove;
+            return DesignBehavior.CanMove | DesignBehavior.CanResize;
+        }
+    }
+
+    protected override void OnCreated()
+    {
+        base.OnCreated();
+
+        //设为默认大小
+        var defaultSize = new Size(80, 40);
+        SetBounds(_model.X, _model.Y, defaultSize.Width, defaultSize.Height, BoundsSpecified.Size);
+    }
+
     protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
     {
         //同步模型的坐标
-        if (specified.HasFlag(BoundsSpecified.X) || specified.HasFlag(BoundsSpecified.Y))
-        {
+        if (specified.HasFlag(BoundsSpecified.X))
             _model.X = x;
+        if (specified.HasFlag(BoundsSpecified.Y))
             _model.Y = y;
-        }
+        if (specified.HasFlag(BoundsSpecified.Width))
+            _model.W = width;
+        if (specified.HasFlag(BoundsSpecified.Height))
+            _model.H = height;
 
-        var itemSize = GetItemSize();
-        base.SetBounds(x, y, itemSize.Width, itemSize.Height, specified);
+        base.SetBounds(x, y, width, height, specified);
 
         //刷新属性面板的布局属性
         (Surface?.DiagramService as WorkflowDiagramService)?.PropertyPanel.RefreshLayoutProperties();
-    }
-
-    private Size GetItemSize()
-    {
-        //暂固定大小
-        return _model switch
-        {
-            StartActivityModel => new(30, 30),
-            // DecisionActivityModel => new(80, 40),
-            // AutomationActivityModel => new(80, 40),
-            // SingleHumanActivityModel => new(80, 40),
-            // MultiHumanActivityModel => new(80, 40),
-            _ => new(80, 40)
-        };
     }
 
     protected override void OnAddToSurface()
@@ -181,17 +190,31 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     /// </summary>
     private DiagramPropertyGroup GetLayoutPropertyGroup()
     {
-        var properties = new IDiagramProperty[2];
+        var length = _model is StartActivityModel ? 2 : 4;
+        var properties = new IDiagramProperty[length];
         properties[0] = new DiagramProperty(this, "X", nameof(LocationEditor))
         {
             ValueGetter = () => Location.X,
-            ValueSetter = v => Location = new Point((float)v!, Location.Y)
+            ValueSetter = v => SetBounds((float)v!, Location.Y, Bounds.Width, Bounds.Height, BoundsSpecified.X)
         };
         properties[1] = new DiagramProperty(this, "Y", nameof(LocationEditor))
         {
             ValueGetter = () => Location.Y,
-            ValueSetter = v => Location = new Point(Location.X, (float)v!)
+            ValueSetter = v => SetBounds(Location.X, (float)v!, Bounds.Width, Bounds.Height, BoundsSpecified.Y)
         };
+        if (_model is not StartActivityModel)
+        {
+            properties[2] = new DiagramProperty(this, "Width", nameof(LocationEditor))
+            {
+                ValueGetter = () => Bounds.Width,
+                ValueSetter = v => SetBounds(Location.X, Location.Y, (float)v!, Bounds.Height, BoundsSpecified.Width)
+            };
+            properties[3] = new DiagramProperty(this, "Height", nameof(LocationEditor))
+            {
+                ValueGetter = () => Bounds.Height,
+                ValueSetter = v => SetBounds(Location.X, Location.Y, Bounds.Width, (float)v!, BoundsSpecified.Height)
+            };
+        }
 
         return new DiagramPropertyGroup() { GroupName = "Layout", Properties = properties };
     }

@@ -12,6 +12,9 @@ internal static class ActivityPainter
     private static readonly IPath StartArrowPath = CreateArrowPath();
     private static readonly Color BorderColor = 0xFF0A3210;
     private static readonly Color FillColor = 0xFF28C840;
+    private static readonly Color DecisionFillColor = 0xFF00A3E7;
+    private static readonly Color HumanFillColor = 0xFFC3E4F3;
+    private static readonly Color AutomationFillColor = 0xFF6AA8DD;
     private static readonly Color TextColor = Colors.Black;
     private static readonly Color IconColor = BorderColor;
     internal static readonly Color ConnectionBackColor = 0xFF006400;
@@ -92,7 +95,7 @@ internal static class ActivityPainter
     public static void PaintDecisionActivity(ICanvas canvas, Size size, string title)
     {
         using var path = CreateDecisionPath(size);
-        canvas.FillPath(FillColor, path);
+        canvas.FillPath(DecisionFillColor, path);
         canvas.DrawPath(BorderColor, BorderWidth, path);
 
         if (!string.IsNullOrEmpty(title))
@@ -113,7 +116,7 @@ internal static class ActivityPainter
     {
         var radius = size.Height / 2f;
         var rect = Rect.FromLS(Point.Empty, size);
-        canvas.FillRoundRectangle(FillColor, rect, radius, radius);
+        canvas.FillRoundRectangle(AutomationFillColor, rect, radius, radius);
         canvas.DrawRoundRectangle(BorderColor, rect, radius, radius, BorderWidth);
 
         PaintIcon(canvas, AutomationIconPath, size, 0, 30);
@@ -129,7 +132,7 @@ internal static class ActivityPainter
     {
         var radius = 5f;
         var rect = Rect.FromLS(Point.Empty, size);
-        canvas.FillRoundRectangle(FillColor, rect, radius, radius);
+        canvas.FillRoundRectangle(HumanFillColor, rect, radius, radius);
         canvas.DrawRoundRectangle(BorderColor, rect, radius, radius, BorderWidth);
 
         PaintIcon(canvas, isSingleHuman ? SingleHumanIconPath : MultiHumanIconPath, size, isSingleHuman ? 0 : 1, 30);

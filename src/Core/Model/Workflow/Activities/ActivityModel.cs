@@ -10,6 +10,8 @@ public abstract class ActivityModel : IBinSerializable
 
     public float X { get; set; }
     public float Y { get; set; }
+    public float W { get; set; } = 80;
+    public float H { get; set; } = 40;
 
     /// <summary>
     /// 获取源自本身的连接至其他节点的FlowLink数组
@@ -36,6 +38,9 @@ public abstract class ActivityModel : IBinSerializable
         ws.WriteFieldId(2);
         ws.WriteFloat(X);
         ws.WriteFloat(Y);
+        ws.WriteFieldId(3);
+        ws.WriteFloat(W);
+        ws.WriteFloat(H);
 
         ws.WriteFieldEnd();
     }
@@ -52,6 +57,10 @@ public abstract class ActivityModel : IBinSerializable
                 case 2:
                     X = rs.ReadFloat();
                     Y = rs.ReadFloat();
+                    break;
+                case 3:
+                    W = rs.ReadFloat();
+                    H = rs.ReadFloat();
                     break;
                 case 0: break;
                 default: throw SerializationException.ReadUnknownField(nameof(ActivityModel), propIndex);
