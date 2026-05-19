@@ -26,13 +26,9 @@ internal sealed class WorkflowDesignVisitor
         Designers.Add(designer);
 
         //处理连接
-        var outLinks = node.GetOutLinks();
-        if (outLinks != null)
+        foreach (var link in node.GetOutLinks())
         {
-            for (var i = 0; i < outLinks.Length; i++)
-            {
-                VisitLink(node, outLinks[i]);
-            }
+            VisitLink(node, link);
         }
     }
 

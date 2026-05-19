@@ -15,9 +15,6 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             SetBounds(model.X, model.Y, 30, 30, BoundsSpecified.Size);
         else
             SetBounds(model.X, model.Y, _model.W, _model.H, BoundsSpecified.All);
-
-        if (_model is HumanActivityModel humanActivityModel)
-            humanActivityModel.ActionsChanging += OnHumanActionsChanging;
     }
 
     private readonly ActivityModel _model;
@@ -80,7 +77,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         //判断连接至当前模型实例的，打断连接
         var links = Surface!.GetConnections();
-        for (int i = 0; i < links.Count; i++)
+        for (var i = 0; i < links.Count; i++)
         {
             if (links[i].Source == this)
             {
@@ -95,9 +92,6 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
                 links[i].Target = null;
             }
         }
-
-        if (_model is HumanActivityModel humanActivityModel)
-            humanActivityModel.ActionsChanging -= OnHumanActionsChanging;
 
         base.OnRemoveFromSurface();
     }
@@ -115,8 +109,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             if (connection.Target != null && connection.Target == this)
                 return false;
 
-            var avaLinks = Model.GetAvailableOutLinks();
-            if (avaLinks == null || avaLinks.Length == 0)
+            if (!Model.GetAvailableOutLinks().Any())
                 return false;
         }
         else
@@ -131,59 +124,9 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         return true;
     }
 
-    /// <summary>
-    /// 用于监测HumanActivity的ActionsChanged
-    /// </summary>
-    private void OnHumanActionsChanging(HumanActionsChangingEventArgs e)
-    {
-        var humanActivity = (HumanActivityModel)_model;
-        if (humanActivity.IsSingleHuman) //单人活动
-        {
-            //1.处理删除的
-            var deletes = e.OldActions.Except(e.NewActions).ToArray();
-            if (deletes.Length > 0)
-            {
-                var connections = Surface!.GetConnections().Cast<ActivityConnection>();
-                for (int i = 0; i < deletes.Length; i++)
-                {
-                    //1.1 找到对应的ConditionLink
-                    var link = humanActivity.ResultConditions.SingleOrDefault(t => t.Name == deletes[i].OriginalName);
-                    //1.2 从现有的连接线查找
-                    var connection = connections.SingleOrDefault(t => t.Link == link);
-                    if (connection != null)
-                        connection.Remove();
-                    //1.3 最后删除link
-                    humanActivity.ResultConditions.Remove(link);
-                }
-            }
-
-            //2.处理重命名的
-            var renames = e.OldActions.Intersect(e.NewActions).Where(t => t.Name != t.OriginalName).ToArray();
-            for (int i = 0; i < renames.Length; i++)
-            {
-                var link = humanActivity.ResultConditions.SingleOrDefault(t => t.Name == renames[i].OriginalName);
-                link.Name = renames[i].Name;
-                renames[i].AcceptChanges();
-                //todo:通知刷新相应的连接线
-            }
-
-            //3.处理新添加的
-            var adds = e.NewActions.Except(e.OldActions).ToArray();
-            for (int i = 0; i < adds.Length; i++)
-            {
-                var link = new ConditionLink();
-                link.Name = adds[i].Name;
-                humanActivity.ResultConditions.Add(link);
-            }
-        }
-        else //多人活动
-        {
-            //todo:需要判断删除的有没有在ResultConditions的表达式内引用到，有引用则不允许删除
-            throw new NotImplementedException();
-        }
-    }
-
     void IDiagramItemDesigner.Invalidate() => Invalidate();
+
+    #region ====GetProperties====
 
     /// <summary>
     /// 获取布局属性组
@@ -192,24 +135,24 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         var length = _model is StartActivityModel ? 2 : 4;
         var properties = new IDiagramProperty[length];
-        properties[0] = new DiagramProperty(this, "X", nameof(LocationEditor))
+        properties[0] = new DiagramProperty(this, "X", nameof(BoundsEditor))
         {
             ValueGetter = () => Location.X,
             ValueSetter = v => SetBounds((float)v!, Location.Y, Bounds.Width, Bounds.Height, BoundsSpecified.X)
         };
-        properties[1] = new DiagramProperty(this, "Y", nameof(LocationEditor))
+        properties[1] = new DiagramProperty(this, "Y", nameof(BoundsEditor))
         {
             ValueGetter = () => Location.Y,
             ValueSetter = v => SetBounds(Location.X, (float)v!, Bounds.Width, Bounds.Height, BoundsSpecified.Y)
         };
         if (_model is not StartActivityModel)
         {
-            properties[2] = new DiagramProperty(this, "Width", nameof(LocationEditor))
+            properties[2] = new DiagramProperty(this, "Width", nameof(BoundsEditor))
             {
                 ValueGetter = () => Bounds.Width,
                 ValueSetter = v => SetBounds(Location.X, Location.Y, (float)v!, Bounds.Height, BoundsSpecified.Width)
             };
-            properties[3] = new DiagramProperty(this, "Height", nameof(LocationEditor))
+            properties[3] = new DiagramProperty(this, "Height", nameof(BoundsEditor))
             {
                 ValueGetter = () => Bounds.Height,
                 ValueSetter = v => SetBounds(Location.X, Location.Y, Bounds.Width, (float)v!, BoundsSpecified.Height)
@@ -219,10 +162,64 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         return new DiagramPropertyGroup() { GroupName = "Layout", Properties = properties };
     }
 
+    private DiagramPropertyGroup GetDecisionPropertyGroup()
+    {
+        var titleProperty = new DiagramProperty(this, "Title", nameof(TextEditor))
+        {
+            ValueGetter = () => _model.Title,
+            ValueSetter = v => _model.Title = v?.ToString() ?? string.Empty
+        };
+
+        return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty] };
+    }
+
+    private DiagramPropertyGroup GetAutomationPropertyGroup()
+    {
+        var titleProperty = new DiagramProperty(this, "Title", nameof(TextEditor))
+        {
+            ValueGetter = () => _model.Title,
+            ValueSetter = v => _model.Title = v?.ToString() ?? string.Empty
+        };
+
+        return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty] };
+    }
+
+    private DiagramPropertyGroup GetHumanPropertyGroup()
+    {
+        var titleProperty = new DiagramProperty(this, "Title", nameof(TextEditor))
+        {
+            ValueGetter = () => _model.Title,
+            ValueSetter = v => _model.Title = v?.ToString() ?? string.Empty
+        };
+
+        var actionProperty = new DiagramProperty(this, "Action", nameof(HumanActionEditor))
+        {
+            ValueGetter = () => ((HumanActivityModel)_model).Actions,
+        };
+
+        return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty, actionProperty] };
+    }
+
     public IEnumerable<DiagramPropertyGroup> GetProperties()
     {
         yield return GetLayoutPropertyGroup();
+
+        switch (_model)
+        {
+            case DecisionActivityModel:
+                yield return GetDecisionPropertyGroup();
+                break;
+            case AutomationActivityModel:
+                yield return GetAutomationPropertyGroup();
+                break;
+            case SingleHumanActivityModel:
+            case MultiHumanActivityModel:
+                yield return GetHumanPropertyGroup();
+                break;
+        }
     }
+
+    #endregion
 
     public override void Paint(ICanvas canvas)
     {

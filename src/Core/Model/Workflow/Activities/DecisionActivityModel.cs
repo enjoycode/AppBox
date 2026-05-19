@@ -21,7 +21,7 @@ public sealed class DecisionActivityModel : ActivityModel
 
     public IReadOnlyList<ConditionLink> Conditions => _conditions;
 
-    public override FlowLink[]? GetOutLinks() => _conditions.Cast<FlowLink>().ToArray();
+    public override IEnumerable<FlowLink> GetOutLinks() => _conditions;
 
     //todo:验证时只允许存在一个Else分支
 

@@ -109,35 +109,31 @@ internal sealed class ActivityConnection : DiagramConnection
         if (oldSourceModel == null && newSourceModel != null) //null -> non null
         {
             //todo:对话框选择可供输出的连接名称，如HumanAction或Decision有多个输出
-            var availableConnections = newSourceModel.GetAvailableOutLinks();
-            if (availableConnections == null || availableConnections.Length == 0)
-            {
+            var availableConnections = newSourceModel.GetAvailableOutLinks().ToArray();
+            if (availableConnections.Length == 0)
                 throw new NotSupportedException("No available out links."); //this.Source = null;//暂简单改回去
-            }
-            else
+
+            //互设引用
+            if (_preSourceLink != null)
             {
-                //互设引用
-                if (_preSourceLink != null)
-                {
-                    if (Source == _preSource) //还是相同的源，只不过连接到不同的Connector
-                        _sourceLink = _preSourceLink;
+                if (Source == _preSource) //还是相同的源，只不过连接到不同的Connector
+                    _sourceLink = _preSourceLink;
 
-                    _preSource = null;
-                    _preSourceLink = null;
-                }
+                _preSource = null;
+                _preSourceLink = null;
+            }
 
-                if (_sourceLink == null)
-                    _sourceLink = availableConnections[0];
-                _sourceLink.SourceConnection = this;
+            if (_sourceLink == null)
+                _sourceLink = availableConnections[0];
+            _sourceLink.SourceConnection = this;
 
-                //再判断目标有没有
-                if (Target != null)
-                {
-                    ActivityModel targetModel = ((ActivityDesigner)Target).Model;
-                    _sourceLink.SourceConnector = SourceConnectorPosition;
-                    _sourceLink.TargetConnector = TargetConnectorPosition;
-                    _sourceLink.Target = targetModel;
-                }
+            //再判断目标有没有
+            if (Target != null)
+            {
+                ActivityModel targetModel = ((ActivityDesigner)Target).Model;
+                _sourceLink.SourceConnector = SourceConnectorPosition;
+                _sourceLink.TargetConnector = TargetConnectorPosition;
+                _sourceLink.Target = targetModel;
             }
         }
         else if (oldSourceModel != null && newSourceModel == null) //non null -> null

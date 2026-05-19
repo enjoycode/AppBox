@@ -14,20 +14,15 @@ public abstract class ActivityModel : IBinSerializable
     public float H { get; set; } = 40;
 
     /// <summary>
-    /// 获取源自本身的连接至其他节点的FlowLink数组
+    /// 获取源自本身的连接至其他节点的FlowLink
     /// </summary>
-    public virtual FlowLink[]? GetOutLinks() => null;
+    public virtual IEnumerable<FlowLink> GetOutLinks() => [];
 
     /// <summary>
-    /// 获取源自本身的可供连接至其他节点的FlowLink数组，仅供设计时调用
+    /// 获取源自本身的可供连接至其他节点的FlowLink，仅供设计时调用
     /// </summary>
-    public FlowLink[]? GetAvailableOutLinks()
-    {
-        var links = GetOutLinks();
-        if (links == null || links.Length == 0)
-            return null;
-        return links.Where(t => t.SourceConnection == null).ToArray();
-    }
+    public IEnumerable<FlowLink> GetAvailableOutLinks() =>
+        GetOutLinks().Where(t => t.SourceConnection == null);
 
     #region ====Serialization====
 

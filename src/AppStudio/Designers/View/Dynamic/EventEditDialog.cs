@@ -124,7 +124,7 @@ internal sealed class EventEditDialog : Dialog
 
     private void SwitchActionEditor(Widget? editor) => _editorView.ReplaceTo(editor);
 
-    protected override ValueTask<bool> OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(DialogResult result)
     {
         if (result != DialogResult.OK || _currentAction == null) return new ValueTask<bool>(false);
 

@@ -54,7 +54,7 @@ internal sealed class RenameDialog : Dialog
         };
     }
 
-    protected override async ValueTask<bool> OnClosing(string result)
+    protected override async ValueTask<bool> OnClosing(DialogResult result)
     {
         if (result == DialogResult.OK)
         {

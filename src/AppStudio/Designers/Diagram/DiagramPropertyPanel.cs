@@ -80,12 +80,15 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         nameof(EnumEditor) => new FormItem(property.PropertyName, new EnumEditor(property)),
         nameof(CheckBoxEditor) => new FormItem(property.PropertyName, new CheckBoxEditor(property)),
         nameof(ColorEditor) => new FormItem(property.PropertyName, new ColorEditor(property)),
+        nameof(TextEditor) => new FormItem(property.PropertyName, new TextEditor(property)),
         nameof(ReportScalarEditor) => new FormItem(property.PropertyName, new ReportScalarEditor(property)),
         nameof(ReportTextEditor) => new FormItem(property.PropertyName, new ReportTextEditor(property)),
         nameof(ReportDataSourceEditor) => new FormItem(property.PropertyName, new ReportDataSourceEditor(property)),
         nameof(ReportDataSourcesEditor) => new FormItem(property.PropertyName,
             new ReportDataSourcesEditor(_designContext, property)) { LabelVerticalAlignment = VerticalAlignment.Top },
-        nameof(LocationEditor) => new FormItem(property.PropertyName, new LocationEditor(property)),
+        nameof(BoundsEditor) => new FormItem(property.PropertyName, new BoundsEditor(property)),
+        nameof(HumanActionEditor) => new FormItem(property.PropertyName, new HumanActionEditor(property))
+            { LabelVerticalAlignment = VerticalAlignment.Top },
         _ => throw new Exception($"Unknown property editor: {property.EditorName}")
     };
 

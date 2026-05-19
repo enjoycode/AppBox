@@ -61,7 +61,7 @@ internal sealed class DefaultValuesDialog : Dialog
         _dgController.Add(new DefaultValueWrapper(new CreateRowParameter.FieldDefaultValue()));
     }
 
-    protected override ValueTask<bool> OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(DialogResult result)
     {
         //重新设置CreateRowParameter的默认值
         _createRowParameter.DefaultValues.Clear();

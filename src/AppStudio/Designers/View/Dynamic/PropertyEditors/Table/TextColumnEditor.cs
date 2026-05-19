@@ -117,8 +117,8 @@ internal sealed class CellStylesDialog : Dialog
                 new Expanded(),
                 new Button("添加条件") { Width = 80, OnTap = _ => OnAdd() },
                 new Button("删除条件") { Width = 80, OnTap = _ => OnRemove() },
-                new Button(DialogResult.Cancel) { Width = 80, OnTap = _ => Close(DialogResult.Cancel) },
-                new Button(DialogResult.OK) { Width = 80, OnTap = _ => Close(DialogResult.OK) }
+                new Button(nameof(DialogResult.Cancel)) { Width = 80, OnTap = _ => Close(DialogResult.Cancel) },
+                new Button(nameof(DialogResult.OK)) { Width = 80, OnTap = _ => Close(DialogResult.OK) }
             }
         }
     };

@@ -12,9 +12,12 @@ public sealed class StartActivityModel : ActivityModel
 
     public override byte Type => ActivityType.StartActivity;
 
-    public FlowLink Next { get; private set; }
+    public FlowLink Next { get; }
 
-    public override FlowLink[]? GetOutLinks() => [Next];
+    public override IEnumerable<FlowLink> GetOutLinks()
+    {
+        yield return Next;
+    }
 
     #region ====Serialization====
 

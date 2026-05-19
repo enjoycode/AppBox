@@ -9,8 +9,5 @@ public sealed class MultiHumanActivityModel : HumanActivityModel
 
     public override byte Type => ActivityType.MultiHumanActivity;
 
-    public override bool IsSingleHuman
-    {
-        get { return false; }
-    }
+    public override bool IsSingleHuman => false;
 }

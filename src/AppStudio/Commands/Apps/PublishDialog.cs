@@ -49,7 +49,7 @@ internal sealed class PublishDialog : Dialog
         }
     }
 
-    protected override ValueTask<bool> OnClosing(string result)
+    protected override ValueTask<bool> OnClosing(DialogResult result)
     {
         if (result == DialogResult.OK) //TODO: check no items to publish
             PublishAsync();

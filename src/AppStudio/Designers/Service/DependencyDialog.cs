@@ -24,9 +24,7 @@ internal sealed class DependencyDialog : Dialog
     private readonly ListViewController<ModelDependency> _targetListController = new();
     private readonly Color _fillColor = new(0xFFF3F3F3);
     private readonly State<int> _selectedSource = -1;
-    private readonly State<int> _hoveredSource = -1;
     private readonly State<int> _selectedTarget = -1;
-    private readonly State<int> _hoveredTarget = -1;
 
     public List<ModelDependency> Result => _targetListController.DataSource as List<ModelDependency> ?? [];
 
@@ -92,27 +90,23 @@ internal sealed class DependencyDialog : Dialog
             {
                 new Expanded(),
                 new Button("Upload") { Width = 80, OnTap = _ => OnUpload() },
-                new Button(DialogResult.Cancel) { Width = 80, OnTap = _ => Close(DialogResult.Cancel) },
-                new Button(DialogResult.OK) { Width = 80, OnTap = _ => Close(DialogResult.OK) }
+                new Button(nameof(DialogResult.Cancel)) { Width = 80, OnTap = _ => Close(DialogResult.Cancel) },
+                new Button(nameof(DialogResult.OK)) { Width = 80, OnTap = _ => Close(DialogResult.OK) }
             }
         }
     };
 
     private Row BuildSourceListItem(ModelDependency value, int index) =>
-        BuildListItem(value, index, _hoveredSource, _selectedSource);
+        BuildListItem(value, index, _selectedSource);
 
     private Row BuildTargetListItem(ModelDependency value, int index) =>
-        BuildListItem(value, index, _hoveredTarget, _selectedTarget);
+        BuildListItem(value, index, _selectedTarget);
 
-    private static Row BuildListItem(ModelDependency value, int index, State<int> hoverState,
-        State<int> selectedState) => new()
+    private static Row BuildListItem(ModelDependency value, int index, State<int> selectedState) => new()
     {
         Children =
         [
-            new SelectableItem(index,
-                hoverState.ToComputed(idx => idx == index, v => { hoverState.Value = v ? index : -1; }),
-                selectedState.ToComputed(idx => idx == index),
-                idx => selectedState.Value = idx)
+            new SelectableItem(index, selectedState)
             {
                 Height = 22,
                 Child = new Container()

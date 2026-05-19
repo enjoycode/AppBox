@@ -1,26 +1,15 @@
-﻿using System.ComponentModel;
-
-namespace AppBoxCore;
+﻿namespace AppBoxCore;
 
 /// <summary>
 /// 工作流人工节点，定义谁通过哪个用户界面进行什么样的操作，以及操作结果的判定条件
 /// </summary>
 public abstract class HumanActivityModel : ActivityModel
 {
-    #region ====Events====
-
-    public event Action<HumanActionsChangingEventArgs>? ActionsChanging;
-
-    #endregion
 
     #region ====Fields====
 
-    private List<HumanSource> _humanSource = new List<HumanSource>(); // Who
-    private Expression _desktopView; // e.View = new erp.Forms.LeaveView
-    private List<HumanAction> _actions = new List<HumanAction>(); // "同意","不同意","弃权"
-    private Expression _notificationExpression; //发送通知服务，不设置则不调用
-
-    private List<ConditionLink> _resultConditions = new List<ConditionLink>(); //注意：单人活动不设判断条件表达式
+    private Expression? _desktopView; // e.View = new erp.Forms.LeaveView
+    private Expression? _notificationExpression; //发送通知服务，不设置则不调用
 
     #endregion
 
@@ -31,11 +20,7 @@ public abstract class HumanActivityModel : ActivityModel
     /// <summary>
     /// 处理人员
     /// </summary>
-    public List<HumanSource> HumanSource
-    {
-        get { return _humanSource; }
-        set { _humanSource = value; }
-    }
+    public List<HumanSource> HumanSource { get; } = [];
 
     /// <summary>
     /// 用于设置人工处理时所显示的用户界面（桌面或Web）
@@ -49,33 +34,17 @@ public abstract class HumanActivityModel : ActivityModel
     /// <summary>
     /// 处理人员的动作集合
     /// </summary>
-    public List<HumanAction> Actions
-    {
-        get { return _actions; }
-        set
-        {
-            var arg = new HumanActionsChangingEventArgs(_actions, value);
-            if (ActionsChanging != null)
-                ActionsChanging(arg);
-
-            if (!arg.Cancel)
-                _actions = value;
-        }
-    }
+    public List<HumanAction> Actions { get; } = [];
 
     /// <summary>
     /// 用于判断处理结果的条件分支集合
     /// </summary>
-    public List<ConditionLink> ResultConditions
-    {
-        get { return _resultConditions; }
-        set { _resultConditions = value; } //todo:检查删除的，从设计器删除对应的Connection
-    }
+    public List<ConditionLink> ResultConditions { get; } = [];
 
     /// <summary>
     /// 用于调用通知服务提醒相关处理人员
     /// </summary>
-    public Expression Notification
+    public Expression? Notification
     {
         get { return _notificationExpression; }
         set { _notificationExpression = value; }
@@ -85,10 +54,7 @@ public abstract class HumanActivityModel : ActivityModel
 
     #region ====Overrides====
 
-    public override FlowLink[] GetOutLinks()
-    {
-        return _resultConditions.ToArray();
-    }
+    public override IEnumerable<FlowLink> GetOutLinks() => ResultConditions;
 
     #endregion
 
@@ -98,28 +64,28 @@ public abstract class HumanActivityModel : ActivityModel
     {
         base.WriteTo(ws);
 
-        if (_resultConditions.Count > 0)
+        if (ResultConditions.Count > 0)
         {
             ws.WriteFieldId(1);
-            ws.WriteCollection(_resultConditions);
+            ws.WriteCollection(ResultConditions);
         }
 
-        if (_actions.Count > 0)
+        if (Actions.Count > 0)
         {
             ws.WriteFieldId(2);
-            ws.WriteCollection(_actions);
+            ws.WriteCollection(Actions);
         }
 
-        if (_humanSource.Count > 0)
+        if (HumanSource.Count > 0)
         {
             ws.WriteFieldId(3);
-            ws.WriteCollection(_humanSource);
+            ws.WriteCollection(HumanSource);
         }
 
         if (!Expression.IsNull(_desktopView))
         {
             ws.WriteFieldId(4);
-            ws.Serialize(_desktopView);
+            ws.SerializeExpression(_desktopView);
         }
 
         ws.WriteFieldEnd();
@@ -135,9 +101,9 @@ public abstract class HumanActivityModel : ActivityModel
             propIndex = rs.ReadFieldId();
             switch (propIndex)
             {
-                case 1: rs.ReadCollection(_resultConditions); break;
-                case 2: rs.ReadCollection(_actions); break;
-                case 3: rs.ReadCollection(_humanSource); break;
+                case 1: rs.ReadCollection(ResultConditions); break;
+                case 2: rs.ReadCollection(Actions); break;
+                case 3: rs.ReadCollection(HumanSource); break;
                 case 4: _desktopView = (Expression)rs.Deserialize()!; break;
                 case 0: break;
                 default: throw SerializationException.ReadUnknownField(nameof(HumanActivityModel), propIndex);
@@ -147,19 +113,3 @@ public abstract class HumanActivityModel : ActivityModel
 
     #endregion
 }
-
-#region ====HumanActionsChangingEventArgs====
-
-public sealed class HumanActionsChangingEventArgs : CancelEventArgs
-{
-    public IList<HumanAction> OldActions { get; private set; }
-    public IList<HumanAction> NewActions { get; private set; }
-
-    public HumanActionsChangingEventArgs(IList<HumanAction> oldActions, IList<HumanAction> newActions)
-    {
-        OldActions = oldActions;
-        NewActions = newActions;
-    }
-}
-
-#endregion

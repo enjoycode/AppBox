@@ -14,9 +14,8 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
 {
     public ReportDataSourcesEditor(DesignHub designContext, IDiagramProperty propertyItem)
     {
-        _propertyItem = propertyItem;
         _listController = new ListViewController<IDataSource>();
-        _dataSources = (IList<IDataSource>)_propertyItem.ValueGetter()!;
+        _dataSources = (IList<IDataSource>)propertyItem.ValueGetter()!;
 
         Height = 100;
 
@@ -32,19 +31,21 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
                     [
                         new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAdd(designContext) },
                         new Button(icon: MaterialIcons.Edit) { OnTap = _ => OnEdit(designContext) },
-                        new Button(icon: MaterialIcons.Delete) { OnTap = _ => OnDelete() }
+                        new Button(icon: MaterialIcons.Remove) { OnTap = _ => OnDelete() }
                     ]
                 },
 
                 new ListView<IDataSource>(
-                    (item, index) => new DataSourceItemWidget(item, index, _selectedIndex),
+                    (item, index) => new SelectableItem(index, _selectedIndex)
+                    {
+                        Child = new Text(item.Name)
+                    },
                     _dataSources, _listController
                 )
             ]
         };
     }
 
-    private readonly IDiagramProperty _propertyItem;
     private readonly IList<IDataSource> _dataSources;
     private readonly ListViewController<IDataSource> _listController;
     private readonly State<int> _selectedIndex = -1;
@@ -92,50 +93,6 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
         canvas.DrawRect(Rect.FromLTWH(0, cmdBarHeight, W, H - cmdBarHeight), paint);
 
         base.OnPaint(canvas, area);
-    }
-
-    private class DataSourceItemWidget : Widget, IMouseRegion
-    {
-        internal DataSourceItemWidget(IDataSource item, int index, State<int> selectedState)
-        {
-            _item = item;
-            _itemIndex = index;
-            _selectedState = selectedState;
-            _selectedState.AddListener(_ => Repaint());
-
-            MouseRegion = new MouseRegion(() => Cursors.Hand);
-            MouseRegion.HoverChanged += OnHoverChanged;
-            MouseRegion.PointerTap += _ => _selectedState.Value = _itemIndex;
-        }
-
-        private bool _isHover;
-        private readonly IDataSource _item;
-        private readonly int _itemIndex;
-        private readonly State<int> _selectedState;
-        private IParagraph? _paragraph;
-
-        public MouseRegion MouseRegion { get; }
-
-        private void OnHoverChanged(bool isHover)
-        {
-            _isHover = isHover;
-            Repaint();
-        }
-
-        protected override void OnLayout(Size maxSize) => SetLayoutSize(AvailableSize.Width, 20);
-
-        public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
-        {
-            if (_selectedState.Value == _itemIndex)
-                canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), Paint.Shared(Theme.FocusedColor));
-            else if (_isHover)
-                canvas.DrawRect(Rect.FromLTWH(0, 0, W, H), Paint.Shared(Theme.AccentColor));
-
-            _paragraph ??= TextPainter.BuildParagraph(_item.Name, float.PositiveInfinity,
-                12, Colors.Black, null, 1, true);
-
-            canvas.DrawParagraph(_paragraph, 2, (H - _paragraph.Height) / 2);
-        }
     }
 
     /// <summary>

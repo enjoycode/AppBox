@@ -17,8 +17,5 @@ public sealed class SingleHumanActivityModel : HumanActivityModel
         get { return base.ResultConditions; }
     }
 
-    public override bool IsSingleHuman
-    {
-        get { return true; }
-    }
+    public override bool IsSingleHuman => true;
 }

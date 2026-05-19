@@ -3,9 +3,9 @@ using PixUI;
 
 namespace AppBoxDesign.Workflow;
 
-internal sealed class LocationEditor : SingleChildWidget, IValueStateEditor
+internal sealed class BoundsEditor : SingleChildWidget, IValueStateEditor
 {
-    public LocationEditor(IDiagramProperty propertyItem)
+    public BoundsEditor(IDiagramProperty propertyItem)
     {
         _inputState = new RxProxy<float>(
             () => (float)propertyItem.ValueGetter()!,
