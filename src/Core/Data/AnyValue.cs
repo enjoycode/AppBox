@@ -63,6 +63,16 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public T CastTo<T>()
     {
         if (IsEmpty) return default!;
+        // switch (typeof(T))
+        // {
+        //     case { } t when t == typeof(int):
+        //     {
+        //         if (Type != AnyValueType.Int32) throw new InvalidCastException("Value can't cast to an int.");
+        //         var intValue = IntValue;
+        //         return Unsafe.As<int, T>(ref intValue);
+        //     }
+        // }
+
         return (T)BoxedValue!; //should avoid box?
     }
 

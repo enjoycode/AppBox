@@ -13,6 +13,14 @@ public class AnyArgsTest
     }
 
     [Test]
+    public void AnyValueCastTest()
+    {
+        var anyValue = AnyValue.From(123);
+        var v = anyValue.CastTo<int>();
+        Console.WriteLine(v);
+    }
+
+    [Test]
     public void AnyValueOfEnumTest()
     {
         var anyValue = AnyValue.From(Gender.Male);
