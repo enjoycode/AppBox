@@ -27,11 +27,13 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
             [
                 new ButtonGroup()
                 {
+                    Height = CmdBarHeight,
                     Children =
                     [
-                        new Button(icon: MaterialIcons.Add) { OnTap = _ => OnAdd(designContext) },
-                        new Button(icon: MaterialIcons.Edit) { OnTap = _ => OnEdit(designContext) },
-                        new Button(icon: MaterialIcons.Remove) { OnTap = _ => OnDelete() }
+                        new Button(icon: MaterialIcons.Add) { Width = _buttonWidth, OnTap = _ => OnAdd(designContext) },
+                        new Button(icon: MaterialIcons.Edit)
+                            { Width = _buttonWidth, OnTap = _ => OnEdit(designContext) },
+                        new Button(icon: MaterialIcons.Remove) { Width = _buttonWidth, OnTap = _ => OnDelete() }
                     ]
                 },
 
@@ -46,6 +48,8 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
         };
     }
 
+    private const float CmdBarHeight = 20;
+    private readonly State<float> _buttonWidth = 20;
     private readonly IList<IDataSource> _dataSources;
     private readonly ListViewController<IDataSource> _listController;
     private readonly State<int> _selectedIndex = -1;
@@ -88,9 +92,8 @@ internal sealed class ReportDataSourcesEditor : SingleChildWidget
     public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
     {
         // draw border
-        var cmdBarHeight = 35;
         var paint = Paint.Shared(Colors.Silver, PaintStyle.Stroke);
-        canvas.DrawRect(Rect.FromLTWH(0, cmdBarHeight, W, H - cmdBarHeight), paint);
+        canvas.DrawRect(Rect.FromLTWH(0, CmdBarHeight + 5, W, H - CmdBarHeight - 5), paint);
 
         base.OnPaint(canvas, area);
     }

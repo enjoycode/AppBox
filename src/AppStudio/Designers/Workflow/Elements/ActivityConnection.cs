@@ -45,19 +45,20 @@ internal sealed class ActivityConnection : DiagramConnection
         get => _sourceLink?.Name;
         set
         {
-            if (_sourceLink != null)
-            {
-                //暂直接修改单人活动的连接名称所对应的Action.Name
-                var designer = (ActivityDesigner)Source!;
-                if (designer.Model is SingleHumanActivityModel singleHumanActivityModel)
-                {
-                    var act = singleHumanActivityModel.Actions.Single(t => t.Name == _sourceLink.Name);
-                    act.Name = value ?? string.Empty;
-                    act.AcceptChanges();
-                }
-
-                _sourceLink.Name = value;
-            }
+            throw new NotSupportedException(); //暂不支持修改
+            // if (_sourceLink != null)
+            // {
+            //     //暂直接修改单人活动的连接名称所对应的Action.Name
+            //     var designer = (ActivityDesigner)Source!;
+            //     if (designer.Model is SingleHumanActivityModel singleHumanActivityModel)
+            //     {
+            //         var act = singleHumanActivityModel.Actions.Single(t => t.Name == _sourceLink.Name);
+            //         act.Name = value ?? string.Empty;
+            //         act.AcceptChanges();
+            //     }
+            //
+            //     _sourceLink.Name = value;
+            // }
         }
     }
 

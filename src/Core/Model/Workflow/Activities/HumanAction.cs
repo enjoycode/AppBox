@@ -7,11 +7,6 @@ public sealed class HumanAction : IBinSerializable
 {
     private string? _originalName;
 
-    /// <summary>
-    /// 旧名称，用于设计时判断重命名
-    /// </summary>
-    public string OriginalName => _originalName ?? Name;
-
     private string _name = string.Empty;
 
     public string Name
@@ -29,11 +24,6 @@ public sealed class HumanAction : IBinSerializable
     }
 
     // public IImageSource Icon { get; set; }
-
-    public void AcceptChanges()
-    {
-        _originalName = null;
-    }
 
     //考虑加入Expression ActionBeforeSubmit {get;set;}
 
