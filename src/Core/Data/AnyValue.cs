@@ -175,8 +175,26 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static AnyValue From(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
     public static AnyValue From(Guid? v) => v.HasValue ? From(v.Value) : Empty;
 
-    public static AnyValue From(object? v) =>
-        v == null ? Empty : new() { ObjectValue = v, Type = AnyValueType.Object };
+    public static AnyValue From(object? v)
+    {
+        if (v == null) return AnyValue.Empty;
+        //TODO: others
+        return v switch
+        {
+            bool boolValue => From(boolValue),
+            byte byteValue => From(byteValue),
+            char charValue => From(charValue),
+            short shortValue => From(shortValue),
+            int intValue => From(intValue),
+            long longValue => From(longValue),
+            float floatValue => From(floatValue),
+            double doubleValue => From(doubleValue),
+            decimal decimalValue => From(decimalValue),
+            Guid guidValue => From(guidValue),
+            DateTime dateTimeValue => From(dateTimeValue),
+            _ => new() { ObjectValue = v, Type = AnyValueType.Object }
+        };
+    }
 
     public static AnyValue From<T>(T v) where T : struct, Enum
     {

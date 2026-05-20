@@ -9,7 +9,16 @@ internal partial class ExpressionParser
     private static TypeExpression MakeTypeExpression(INamedTypeSymbol namedTypeSymbol)
     {
         if (namedTypeSymbol.IsGenericType)
-            throw new NotImplementedException();
+        {
+            var genericTypes = new TypeExpression[namedTypeSymbol.TypeArguments.Length];
+            for (var i = 0; i < genericTypes.Length; i++)
+            {
+                genericTypes[i] = MakeTypeExpression((INamedTypeSymbol)namedTypeSymbol.TypeArguments[i]);
+            }
+
+            var fullName = $"{namedTypeSymbol.ContainingNamespace}.{namedTypeSymbol.MetadataName}";
+            return new TypeExpression(fullName, genericTypes);
+        }
 
         return new TypeExpression(namedTypeSymbol.ToString()!);
     }

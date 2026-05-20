@@ -7,11 +7,13 @@ public sealed class MethodCallExpression : Expression
 {
     internal MethodCallExpression() { }
 
-    public MethodCallExpression(Expression target, string methodName, Expression[]? arguments = null,
+    public MethodCallExpression(Expression target, string methodName, TypeExpression[]? genericTypes = null,
+        Expression[]? arguments = null,
         TypeExpression? convertedType = null)
     {
         Target = target;
         MethodName = methodName;
+        GenericArguments = genericTypes;
         Arguments = arguments;
         ConvertedType = convertedType;
     }
@@ -59,17 +61,27 @@ public sealed class MethodCallExpression : Expression
             }
         }
 
+        Type[]? genericTypes = null;
+        if (GenericArguments is { Length: > 0 })
+        {
+            genericTypes = new Type[GenericArguments.Length];
+            for (var i = 0; i < genericTypes.Length; i++)
+            {
+                genericTypes[i] = ctx.ResolveType(GenericArguments[i]);
+            }
+        }
+
         LinqExpression res;
         if (Target is TypeExpression typeInfo) //static method call
         {
             var type = ctx.ResolveType(typeInfo);
-            res = LinqExpression.Call(type, MethodName, null /*TODO:*/, args);
+            res = LinqExpression.Call(type, MethodName, genericTypes, args);
         }
         else
         {
             //instance method call
             var target = Target.ToLinqExpression(ctx)!;
-            res = LinqExpression.Call(target, MethodName, null /*TODO:*/, args);
+            res = LinqExpression.Call(target, MethodName, genericTypes, args);
         }
 
         return TryConvert(res, ConvertedType, ctx);

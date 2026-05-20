@@ -14,7 +14,7 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
 
     private readonly SemanticModel _semanticModel;
 
-    public static Expression ParseCode(string code)
+    public static Expression ParseCode(string code, bool singleLine = true)
     {
         var parseOptions = new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11);
         var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
@@ -39,10 +39,24 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
             throw new NotImplementedException("Parse expression body");
 
         var firstStatement = methodDecl.Body!.Statements.FirstOrDefault();
-        if (firstStatement is not ReturnStatementSyntax returnNode)
-            throw new Exception("表达式方法不是单行返回语句");
+        if (firstStatement == null)
+            throw new Exception("Can't find statement");
+        SyntaxNode syntaxNode;
+        if (singleLine)
+        {
+            if (firstStatement is not ReturnStatementSyntax returnNode)
+                throw new Exception("表达式方法不是单行返回语句");
+            syntaxNode = returnNode.Expression!;
+        }
+        else
+        {
+            if (firstStatement is ExpressionStatementSyntax expressionStatement)
+                syntaxNode = expressionStatement.Expression;
+            else
+                throw new NotImplementedException();
+        }
 
         var parser = new ExpressionParser(semanticModel);
-        return parser.Visit(returnNode.Expression)!;
+        return parser.Visit(syntaxNode)!;
     }
 }

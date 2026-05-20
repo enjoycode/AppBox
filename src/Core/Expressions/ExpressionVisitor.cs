@@ -9,6 +9,7 @@ public abstract class ExpressionVisitor<TContext, TResult>
         MemberAccessExpression memberAccessExpression => VisitMemberAccess(memberAccessExpression, context),
         MethodCallExpression methodCallExpression => VisitMethodCall(methodCallExpression, context),
         NewExpression newExpression => VisitNew(newExpression, context),
+        AwaitExpression awaitExpression => VisitAwait(awaitExpression, context),
         _ => throw new NotImplementedException()
     };
 
@@ -25,5 +26,8 @@ public abstract class ExpressionVisitor<TContext, TResult>
         => throw new NotSupportedException();
 
     protected virtual TResult VisitNew(NewExpression newExpression, TContext context)
+        => throw new NotSupportedException();
+
+    protected virtual TResult VisitAwait(AwaitExpression awaitExpression, TContext context)
         => throw new NotSupportedException();
 }

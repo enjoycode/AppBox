@@ -32,13 +32,23 @@ public class ExpressionContext : IExpressionContext
     public Type ResolveType(TypeExpression typeExpression)
     {
         //TODO:暂简单实现,maybe use cache
-
         if (_knownTypes.TryGetValue(typeExpression.TypeName, out var sysType))
             return sysType;
 
         var type = Type.GetType(typeExpression.TypeName);
         if (type == null)
             throw new Exception($"Can't find type: {typeExpression.TypeName} ");
+
+        if (typeExpression.GenericArguments is { Length: > 0 })
+        {
+            var genericTypes = new Type[typeExpression.GenericArguments.Length];
+            for (var i = 0; i < genericTypes.Length; i++)
+            {
+                genericTypes[i] = ResolveType(typeExpression.GenericArguments[i]);
+            }
+
+            type = type.MakeGenericType(genericTypes);
+        }
 
         return type;
     }

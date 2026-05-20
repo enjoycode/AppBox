@@ -12,6 +12,12 @@ public sealed class TypeExpression : Expression
         GenericArguments = null;
     }
 
+    public TypeExpression(string typeName, TypeExpression[] genericArguments)
+    {
+        TypeName = typeName;
+        GenericArguments = genericArguments;
+    }
+
     public override ExpressionType Type => ExpressionType.TypeExpression;
 
     /// <summary>

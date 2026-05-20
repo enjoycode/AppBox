@@ -17,6 +17,8 @@ public enum ExpressionType : byte
     //IfStatementExpression,
     //LocalDeclaration,
 
+    AwaitExpression = 199,
+
     EntityExpression = 200,
     EntityFieldExpression,
     EntitySetExpression,

@@ -16,26 +16,8 @@ public sealed class ConstantExpression : Expression
         ConvertedType = convertedType;
     }
 
-    public static ConstantExpression From(object? value, TypeExpression? convertedType = null)
-    {
-        if (value == null) return new ConstantExpression(AnyValue.Empty, convertedType);
-        //TODO: others
-        return value switch
-        {
-            bool boolValue => new ConstantExpression(boolValue, convertedType),
-            byte byteValue => new ConstantExpression(byteValue, convertedType),
-            char charValue => new ConstantExpression(charValue, convertedType),
-            short shortValue => new ConstantExpression(shortValue, convertedType),
-            int intValue => new ConstantExpression(intValue, convertedType),
-            long longValue => new ConstantExpression(longValue, convertedType),
-            float floatValue => new ConstantExpression(floatValue, convertedType),
-            double doubleValue => new ConstantExpression(doubleValue, convertedType),
-            decimal decimalValue => new ConstantExpression(decimalValue, convertedType),
-            Guid guidValue => new ConstantExpression(guidValue, convertedType),
-            DateTime dateTimeValue => new ConstantExpression(dateTimeValue, convertedType),
-            _ => new ConstantExpression(AnyValue.From(value), convertedType)
-        };
-    }
+    public static ConstantExpression From(object? value, TypeExpression? convertedType = null) =>
+        new(AnyValue.From(value), convertedType);
 
     public AnyValue Value { get; private set; }
 
@@ -110,7 +92,7 @@ public sealed class ConstantExpression : Expression
     }
 
     public override LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
-        TryConvert(LinqExpression.Constant(Value), ConvertedType, ctx);
+        TryConvert(LinqExpression.Constant(Value.BoxedValue), ConvertedType, ctx);
 
     protected internal override void WriteTo(IOutputStream writer)
     {

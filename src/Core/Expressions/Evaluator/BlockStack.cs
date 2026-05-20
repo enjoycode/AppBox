@@ -8,9 +8,18 @@ public sealed class BlockStack
     public bool IsReturn { get; private set; }
     public AnyValue ReturnValue { get; private set; }
 
-    public AnyValue GetIdentifier(string name) => _identifiers.TryGetValue(name, out var value)
-        ? value
-        : throw new Exception($"Identifier {name} not found");
+    public bool TryGetIdentifier(string name, out AnyValue value) => _identifiers.TryGetValue(name, out value);
 
-    public void SetIdentifier(string name, AnyValue value) => _identifiers[name] = value;
+    public bool TrySetIdentifier(string name, AnyValue value)
+    {
+        if (_identifiers.ContainsKey(name))
+        {
+            _identifiers[name] = value;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void AddIdentifier(string name, AnyValue value) => _identifiers.Add(name, value);
 }
