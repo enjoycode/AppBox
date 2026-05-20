@@ -195,7 +195,7 @@ internal sealed class DataTableFromQuery : DataTableFromQueryBase, IDataTableSou
             if (state.BoxedValue == null || (state.BoxedValue is string s && string.IsNullOrEmpty(s)))
                 continue;
 
-            var exp = new BinaryExpression(item.Field, new ConstantExpression(state.BoxedValue), item.Operator);
+            var exp = new BinaryExpression(item.Field, ConstantExpression.From(state.BoxedValue), item.Operator);
             q.Filter = Expression.IsNull(q.Filter)
                 ? exp
                 : new BinaryExpression(q.Filter!, exp, BinaryOperatorType.AndAlso);

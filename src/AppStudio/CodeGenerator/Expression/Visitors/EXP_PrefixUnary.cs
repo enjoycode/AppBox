@@ -13,27 +13,18 @@ internal partial class ExpressionParser
         //特殊处理 eg: -1 转换为ConstantExpression
         if (node.Operand is LiteralExpressionSyntax literal && node.OperatorToken.IsKind(SyntaxKind.MinusToken))
         {
+            var convertedType = GetConvertedType(node);
             var value = literal.Token.Value;
-            // ReSharper disable once HeapView.BoxingAllocation
-            value = value switch
+            return value switch
             {
-                sbyte b => -b,
-                short s => -s,
-                int i => -i,
-                long l => -l,
-                float f => -f,
-                double d => -d,
-                decimal dd => -dd,
+                short shortValue => new ConstantExpression(-shortValue, convertedType),
+                int intValue => new ConstantExpression(-intValue, convertedType),
+                long longValue => new ConstantExpression(-longValue, convertedType),
+                float floatValue => new ConstantExpression(-floatValue, convertedType),
+                double doubleValue => new ConstantExpression(-doubleValue, convertedType),
+                decimal decimalValue => new ConstantExpression(-decimalValue, convertedType),
                 _ => throw new NotImplementedException()
             };
-            //以下通过反射报错: System.BadImageFormatException : Bad IL format.
-            // var valueType = value!.GetType();
-            // var type = typeof(IUnaryNegationOperators<,>).MakeGenericType(valueType, valueType);
-            // var method = type.GetMethod("op_UnaryNegation", BindingFlags.Static | BindingFlags.Public);
-            // value = method!.Invoke(null, new[] { value });
-
-            var convertedType = GetConvertedType(node);
-            return new ConstantExpression(value, convertedType);
         }
 
         throw new NotImplementedException();

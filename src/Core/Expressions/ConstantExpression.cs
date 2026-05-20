@@ -9,14 +9,35 @@ public sealed class ConstantExpression : Expression
     /// </summary>
     internal ConstantExpression() { }
 
-    public ConstantExpression(object? value, TypeExpression? convertedType = null)
+    public ConstantExpression(AnyValue value, TypeExpression? convertedType = null)
     {
         //TODO: value is null must has convertedType
         Value = value;
         ConvertedType = convertedType;
     }
 
-    public object? Value { get; private set; }
+    public static ConstantExpression From(object? value, TypeExpression? convertedType = null)
+    {
+        if (value == null) return new ConstantExpression(AnyValue.Empty, convertedType);
+        //TODO: others
+        return value switch
+        {
+            bool boolValue => new ConstantExpression(boolValue, convertedType),
+            byte byteValue => new ConstantExpression(byteValue, convertedType),
+            char charValue => new ConstantExpression(charValue, convertedType),
+            short shortValue => new ConstantExpression(shortValue, convertedType),
+            int intValue => new ConstantExpression(intValue, convertedType),
+            long longValue => new ConstantExpression(longValue, convertedType),
+            float floatValue => new ConstantExpression(floatValue, convertedType),
+            double doubleValue => new ConstantExpression(doubleValue, convertedType),
+            decimal decimalValue => new ConstantExpression(decimalValue, convertedType),
+            Guid guidValue => new ConstantExpression(guidValue, convertedType),
+            DateTime dateTimeValue => new ConstantExpression(dateTimeValue, convertedType),
+            _ => new ConstantExpression(AnyValue.From(value), convertedType)
+        };
+    }
+
+    public AnyValue Value { get; private set; }
 
     public TypeExpression? ConvertedType { get; private set; }
 
@@ -24,32 +45,38 @@ public sealed class ConstantExpression : Expression
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
-        if (Value == null)
+        //TODO: 以下待重写
+        if (Value.IsEmpty)
         {
             sb.Append("null");
             return;
         }
 
-        if (Value is bool boolean)
+        if (Value.Type == AnyValue.AnyValueType.Boolean)
         {
-            sb.Append(boolean ? "true" : "false");
+            sb.Append(Value.GetBool()!.Value ? "true" : "false");
             return;
         }
 
-        if (Value is byte or sbyte or short or ushort or int or uint or double)
+        if (Value.Type is AnyValue.AnyValueType.Byte
+            or AnyValue.AnyValueType.Int16 or AnyValue.AnyValueType.Int32
+            or AnyValue.AnyValueType.Int64 or AnyValue.AnyValueType.UInt16
+            or AnyValue.AnyValueType.UInt32 or AnyValue.AnyValueType.UInt64
+            or AnyValue.AnyValueType.Float or AnyValue.AnyValueType.Double
+            or AnyValue.AnyValueType.Decimal)
         {
             sb.Append(Value);
             return;
         }
 
-        if (Value is float)
+        if (Value.Type == AnyValue.AnyValueType.Float)
         {
             sb.Append(Value);
             sb.Append('f');
             return;
         }
 
-        if (Value is decimal)
+        if (Value.Type == AnyValue.AnyValueType.Decimal)
         {
             sb.Append(Value);
             sb.Append('m');
@@ -64,7 +91,7 @@ public sealed class ConstantExpression : Expression
             return;
         }
 
-        if (Value is char)
+        if (Value.Type == AnyValue.AnyValueType.Char)
         {
             sb.Append('\'');
             sb.Append(Value);
@@ -72,16 +99,10 @@ public sealed class ConstantExpression : Expression
             return;
         }
 
-        if (Value is Guid || Value is DateTime)
+        if (Value.Type is AnyValue.AnyValueType.Guid or AnyValue.AnyValueType.DateTime)
         {
             //TODO:
             sb.AppendFormat("\"{0}\"", Value);
-            return;
-        }
-
-        if (Value.GetType().IsEnum)
-        {
-            sb.Append((int)Value);
             return;
         }
 
@@ -100,6 +121,6 @@ public sealed class ConstantExpression : Expression
     protected internal override void ReadFrom(IInputStream reader)
     {
         ConvertedType = reader.Deserialize() as TypeExpression;
-        Value = reader.Deserialize();
+        Value = AnyValue.DeserializeFrom(reader);
     }
 }

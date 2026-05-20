@@ -116,6 +116,18 @@ public static class InputStreamExtensions
     public static bool ReadBool(this IInputStream s)
         => s.ReadByte() == (byte)PayloadType.BooleanTrue;
 
+    public static char ReadChar(this IInputStream s)
+    {
+        char res = '\0';
+        unsafe
+        {
+            var span = new Span<byte>(&res, 2);
+            s.ReadBytes(span);
+        }
+
+        return res;
+    }
+
     public static short ReadShort(this IInputStream s)
     {
         short res = 0;

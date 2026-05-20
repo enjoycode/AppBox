@@ -488,13 +488,13 @@ partial class PgSqlStore
 
     private static void BuildPrimitiveExpression(ConstantExpression exp, BuildQueryContext ctx)
     {
-        if (exp.Value == null)
+        if (exp.Value.IsEmpty)
         {
             ctx.Append("NULL");
             return;
         }
 
-        if (exp.Value is IEnumerable list && !(exp.Value is string)) //用于处理In及NotIn的参数
+        if (exp.Value.BoxedValue is IEnumerable list && !(exp.Value.BoxedValue is string)) //用于处理In及NotIn的参数
         {
             ctx.Append("(");
             bool first = true;
@@ -509,7 +509,7 @@ partial class PgSqlStore
         }
         else
         {
-            if (exp.Value is ulong v)
+            if (exp.Value.BoxedValue is ulong v)
                 ctx.AppendFormat("@{0}", ctx.GetParameterName(unchecked((long)v)));
             else
                 ctx.AppendFormat("@{0}", ctx.GetParameterName(exp.Value));
@@ -570,7 +570,7 @@ partial class PgSqlStore
 
         //判断是否在处理条件中
         if (exp.RightOperand.Type == ExpressionType.ConstantExpression
-            && ((ConstantExpression)exp.RightOperand).Value == null
+            && ((ConstantExpression)exp.RightOperand).Value.IsEmpty
             && ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildWhere)
         {
             if (exp.BinaryType == BinaryOperatorType.Equal)

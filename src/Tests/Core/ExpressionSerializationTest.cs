@@ -2,11 +2,26 @@ using System.Text.Json;
 using AppBoxCore;
 using AppBoxStore.Entities;
 using NUnit.Framework;
+using LinqExpression = System.Linq.Expressions.Expression;
 
 namespace Tests.Core;
 
 public class ExpressionSerializationTest
 {
+    [Test]
+    public void TestLinqExpression()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            i++;
+            if (i > 10)
+            {
+                break;
+            }
+        }
+        throw new Exception();
+    }
+    
     [Test]
     public void Test1()
     {

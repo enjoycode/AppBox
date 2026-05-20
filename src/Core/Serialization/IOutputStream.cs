@@ -218,6 +218,15 @@ public static class OutputStreamExtensions
     public static void WriteBool(this IOutputStream s, bool value)
         => s.WriteByte(value ? (byte)PayloadType.BooleanTrue : (byte)PayloadType.BooleanFalse);
 
+    public static void WriteChar(this IOutputStream s, char value)
+    {
+        unsafe
+        {
+            var span = new Span<byte>(&value, 2);
+            s.WriteBytes(span);
+        }
+    }
+
     public static void WriteShort(this IOutputStream s, short value)
     {
         unsafe
@@ -522,6 +531,12 @@ public static class OutputStreamExtensions
     {
         s.WriteByte((byte)PayloadType.Byte);
         s.WriteByte(value);
+    }
+
+    public static void Serialize(this IOutputStream s, char value)
+    {
+        s.WriteByte((byte)PayloadType.Char);
+        s.WriteChar(value);
     }
 
     public static void Serialize(this IOutputStream s, short value)

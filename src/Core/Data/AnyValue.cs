@@ -16,6 +16,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     [field: FieldOffset(0)] private bool BoolValue { get; init; }
     [field: FieldOffset(0)] private byte ByteValue { get; init; }
+    [field: FieldOffset(0)] private char CharValue { get; init; }
     [field: FieldOffset(0)] private short ShortValue { get; init; }
     [field: FieldOffset(0)] private ushort UShortValue { get; init; }
     [field: FieldOffset(0)] private int IntValue { get; init; }
@@ -30,7 +31,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     [field: FieldOffset(16)] private object? ObjectValue { get; init; }
 
-    [field: FieldOffset(24)] private AnyValueType Type { get; init; }
+    [field: FieldOffset(24)] public AnyValueType Type { get; init; }
 
     #endregion
 
@@ -138,6 +139,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static AnyValue From(byte v) => new() { ByteValue = v, Type = AnyValueType.Byte };
     public static AnyValue From(byte? v) => v.HasValue ? From(v.Value) : Empty;
 
+    public static AnyValue From(char v) => new() { CharValue = v, Type = AnyValueType.Char };
+    public static AnyValue From(char? v) => v.HasValue ? From(v.Value) : Empty;
+
     public static AnyValue From(ushort v) => new() { UShortValue = v, Type = AnyValueType.UInt16 };
     public static AnyValue From(ushort? v) => v.HasValue ? From(v.Value) : Empty;
 
@@ -225,6 +229,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     //注意隐式转换不支持接口类型及object
     public static implicit operator AnyValue(bool v) => new() { BoolValue = v, Type = AnyValueType.Boolean };
     public static implicit operator AnyValue(byte v) => new() { ByteValue = v, Type = AnyValueType.Byte };
+    public static implicit operator AnyValue(char v) => new() { CharValue = v, Type = AnyValueType.Char };
     public static implicit operator AnyValue(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
     public static implicit operator AnyValue(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
     public static implicit operator AnyValue(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
@@ -257,6 +262,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
                 break;
             case AnyValueType.Byte:
                 bs.Serialize(ByteValue);
+                break;
+            case AnyValueType.Char:
+                bs.Serialize(CharValue);
                 break;
             case AnyValueType.Int16:
                 bs.Serialize(ShortValue);
@@ -302,6 +310,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             PayloadType.BooleanTrue => From(true),
             PayloadType.BooleanFalse => From(false),
             PayloadType.Byte => From(rs.ReadByte()),
+            PayloadType.Char => From(rs.ReadChar()),
             PayloadType.Int16 => From(rs.ReadShort()),
             PayloadType.Int32 => From(rs.ReadInt()),
             PayloadType.Int64 => From(rs.ReadLong()),
@@ -338,12 +347,13 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     #endregion
 
-    private enum AnyValueType : byte
+    public enum AnyValueType : byte
     {
         Empty,
         Object,
         Boolean,
         Byte,
+        Char,
         Int16,
         UInt16,
         Int32,

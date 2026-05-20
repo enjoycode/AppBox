@@ -40,14 +40,14 @@ public sealed class BinaryExpression : Expression
         {
             sb.Append("f.Contains(");
             LeftOperand.ToCode(sb, preTabs);
-            sb.Append(",");
+            sb.Append(',');
             RightOperand.ToCode(sb, preTabs);
-            sb.Append(")");
+            sb.Append(')');
         }
         else
         {
             LeftOperand.ToCode(sb, preTabs);
-            sb.AppendFormat(" {0} ", GetBinaryOperatorTypeString());
+            sb.Append($" {GetBinaryOperatorTypeString()} ");
             RightOperand.ToCode(sb, preTabs);
         }
     }
@@ -69,39 +69,6 @@ public sealed class BinaryExpression : Expression
         LinqExpression res = LinqExpression.MakeBinary(op, left, right);
         return TryConvert(res, ConvertedType, ctx);
     }
-
-//         public override System.Linq.Expressions.Expression ToLinqExpression(IExpressionContext ctx)
-//         {
-//             //TODO: 暂简单处理Nullable问题
-//             //TODO: 优化TupleField<String>的相关比较，直接用原生utf8，不要再转换为C#字符串
-//             var left = LeftOperand.ToLinqExpression(ctx);
-//             var right = RightOperand.ToLinqExpression(ctx);
-// #if FUTURE
-//             if (LeftOperand.Type == ExpressionType.KVFieldExpression)
-//             {
-//                 var tupleExp = (KVFieldExpression)LeftOperand;
-//                 if (!(tupleExp.IsClassType()
-//                     || RightOperand.Type == ExpressionType.KVFieldExpression
-//                     || (RightOperand.Type == ExpressionType.PrimitiveExpression && ((PrimitiveExpression)RightOperand).Value == null)))
-//                 {
-//                     right = System.Linq.Expressions.Expression.Convert(right, left.Type);
-//                 }
-//             }
-//             else if (RightOperand.Type == ExpressionType.KVFieldExpression)
-//             {
-//                 var tupleExp = (KVFieldExpression)RightOperand;
-//                 if (!(tupleExp.IsClassType()
-//                     || LeftOperand.Type == ExpressionType.KVFieldExpression
-//                      || (LeftOperand.Type == ExpressionType.PrimitiveExpression && ((PrimitiveExpression)LeftOperand).Value == null)))
-//                 {
-//                     left = System.Linq.Expressions.Expression.Convert(left, right.Type);
-//                 }
-//             }
-// #endif
-//
-//             System.Linq.Expressions.ExpressionType type;
-//             return System.Linq.Expressions.Expression.MakeBinary(type, left, right);
-//         }
 
     private LinqExpressionType GetLinqExpressionType() => BinaryType switch
     {
@@ -161,4 +128,31 @@ public sealed class BinaryExpression : Expression
     }
 
     #endregion
+}
+
+public enum BinaryOperatorType
+{
+    BitwiseAnd = 7,
+    BitwiseOr = 8,
+    BitwiseXor = 9,
+    Divide = 10,
+    Equal = 0,
+    Greater = 2,
+    GreaterOrEqual = 5,
+    In = 17,
+    NotIn = 22,
+    Is = 16,
+    IsNot = 15,
+    Less = 3,
+    LessOrEqual = 4,
+    Like = 6,
+    Minus = 14,
+    Modulo = 11,
+    Multiply = 12,
+    NotEqual = 1,
+    Plus = 13,
+    As = 18,
+    AndAlso = 19,
+    OrElse = 20,
+    Assign = 21,
 }
