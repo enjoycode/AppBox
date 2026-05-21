@@ -15,7 +15,7 @@ public sealed class SqlFunc : Expression
     public readonly string Name;
     public readonly Expression[]? Arguments;
 
-    public override ExpressionType Type => ExpressionType.DbFuncExpression;
+    public override ExpressionType NodeType => ExpressionType.DbFuncExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs) => sb.Append($"{Name}()"); //TODO:
 

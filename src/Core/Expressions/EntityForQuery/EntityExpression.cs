@@ -39,7 +39,7 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
 
     #region ====Fields & Properties====
 
-    public override ExpressionType Type => ExpressionType.EntityExpression;
+    public override ExpressionType NodeType => ExpressionType.EntityExpression;
 
     /// <summary>
     /// 名称
@@ -132,10 +132,10 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
 
     internal void AddMemberToCache(string name, Expression member)
     {
-        if (member.Type != ExpressionType.EntityFieldExpression &&
-            member.Type != ExpressionType.EntitySetExpression &&
-            member.Type != ExpressionType.EntityExpression)
-            throw new ArgumentException($"Not supported MemberType [{member.Type}].");
+        if (member.NodeType != ExpressionType.EntityFieldExpression &&
+            member.NodeType != ExpressionType.EntitySetExpression &&
+            member.NodeType != ExpressionType.EntityExpression)
+            throw new ArgumentException($"Not supported MemberType [{member.NodeType}].");
 
         if (!Cache.TryAdd(name, member))
             throw new Exception($"Already exists: {name}");

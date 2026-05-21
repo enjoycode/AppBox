@@ -9,7 +9,7 @@ public sealed class AwaitExpression : Expression
         Expression = expression;
     }
 
-    public override ExpressionType Type => ExpressionType.AwaitExpression;
+    public override ExpressionType NodeType => ExpressionType.AwaitExpression;
 
     public Expression Expression { get; }
 

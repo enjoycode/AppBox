@@ -18,7 +18,7 @@ public sealed class TypeExpression : Expression
         GenericArguments = genericArguments;
     }
 
-    public override ExpressionType Type => ExpressionType.TypeExpression;
+    public override ExpressionType NodeType => ExpressionType.TypeExpression;
 
     /// <summary>
     /// 包含Namespace的名称, eg: System.DateTime或者简称 eg: int

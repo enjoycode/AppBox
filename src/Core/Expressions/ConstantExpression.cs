@@ -23,7 +23,7 @@ public sealed class ConstantExpression : Expression
 
     public TypeExpression? ConvertedType { get; private set; }
 
-    public override ExpressionType Type => ExpressionType.ConstantExpression;
+    public override ExpressionType NodeType => ExpressionType.ConstantExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {

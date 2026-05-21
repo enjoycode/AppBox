@@ -22,7 +22,7 @@ public sealed class EntityFieldExpression : Expression, IEntityPathExpression
 
     #region ====Overrides====
 
-    public override ExpressionType Type => ExpressionType.EntityFieldExpression;
+    public override ExpressionType NodeType => ExpressionType.EntityFieldExpression;
 
     public override bool Equals(object? obj)
     {

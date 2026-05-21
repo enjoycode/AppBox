@@ -18,7 +18,7 @@ public sealed class MethodCallExpression : Expression
         ConvertedType = convertedType;
     }
 
-    public override ExpressionType Type => ExpressionType.MethodCallExpression;
+    public override ExpressionType NodeType => ExpressionType.MethodCallExpression;
 
     public Expression Target { get; private set; } = null!;
 

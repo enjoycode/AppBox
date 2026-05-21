@@ -7,7 +7,7 @@ public sealed class SqlSelectItemExpression : Expression //TODO: rename to SqlSe
 {
     public SqlSelectItemExpression(Expression expression)
     {
-        switch (expression.Type)
+        switch (expression.NodeType)
         {
             case ExpressionType.EntityFieldExpression:
                 Expression = expression;
@@ -36,7 +36,7 @@ public sealed class SqlSelectItemExpression : Expression //TODO: rename to SqlSe
 
     public Expression Expression { get; }
 
-    public override ExpressionType Type => ExpressionType.SelectItemExpression;
+    public override ExpressionType NodeType => ExpressionType.SelectItemExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {

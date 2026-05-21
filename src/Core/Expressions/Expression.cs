@@ -12,7 +12,7 @@ public abstract class Expression
     /// <summary>
     /// 表达式节点类型
     /// </summary>
-    public abstract ExpressionType Type { get; }
+    public abstract ExpressionType NodeType { get; }
 
     /// <summary>
     /// 转换为用于表达式编辑器的代码

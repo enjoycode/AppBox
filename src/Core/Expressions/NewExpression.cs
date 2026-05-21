@@ -19,7 +19,7 @@ public sealed class NewExpression : Expression
 
     public TypeExpression? ConvertedType { get; private set; }
 
-    public override ExpressionType Type => ExpressionType.NewExpression;
+    public override ExpressionType NodeType => ExpressionType.NewExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {

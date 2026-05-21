@@ -41,15 +41,10 @@ public class ExpressionEvaluatorTest
         Assert.IsTrue(result.GetInt()!.Value == 123);
     }
 
-
     [Test]
     public void ConvertTest()
     {
-        // float a = 3f;
-        // decimal m = 3m;
-        // int b = (int)m;
-
-        var b = 1 + 4.56;
-        Console.WriteLine(b);
+        var exp = LinqExpression.Parameter(typeof(int));
+        var evaluator = new ExpressionEvaluator();
     }
 }

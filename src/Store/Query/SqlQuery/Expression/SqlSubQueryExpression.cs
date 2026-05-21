@@ -12,7 +12,7 @@ public sealed class SqlSubQueryExpression : Expression
 
     public SqlSubQuery SubQuery { get; }
 
-    public override ExpressionType Type => ExpressionType.SubQueryExpression;
+    public override ExpressionType NodeType => ExpressionType.SubQueryExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {

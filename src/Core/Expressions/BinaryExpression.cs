@@ -27,7 +27,7 @@ public sealed class BinaryExpression : Expression
 
     public TypeExpression? ConvertedType { get; private set; }
 
-    public override ExpressionType Type => ExpressionType.BinaryExpression;
+    public override ExpressionType NodeType => ExpressionType.BinaryExpression;
 
     #endregion
 

@@ -13,8 +13,8 @@ public readonly struct SqlOrderBy
         if (Expression.IsNull(orderBy))
             throw new ArgumentNullException(nameof(orderBy));
 
-        if (orderBy.Type != ExpressionType.EntityFieldExpression
-            && orderBy.Type != ExpressionType.SelectItemExpression)
+        if (orderBy.NodeType != ExpressionType.EntityFieldExpression
+            && orderBy.NodeType != ExpressionType.SelectItemExpression)
             throw new ArgumentException("orderBy is not EntityFieldExpression or SelectItemExpression");
 
         OrderBy = orderBy;

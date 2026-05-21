@@ -618,7 +618,7 @@ public static class OutputStreamExtensions
         }
 
         s.WriteByte((byte)PayloadType.Expression);
-        s.WriteByte((byte)value!.Type);
+        s.WriteByte((byte)value!.NodeType);
         value.WriteTo(s);
     }
 

@@ -45,7 +45,7 @@ public abstract class SqlIncluder
     public SqlIncluder<TChild> ThenInclude<TChild>(Func<EntityExpression, Expression> selector,
         bool includeEntityRefFields = false) where TChild : SqlEntity, IEntity, new()
     {
-        return IncludeInternal<TChild>(Expression.Type == ExpressionType.EntitySetExpression
+        return IncludeInternal<TChild>(Expression.NodeType == ExpressionType.EntitySetExpression
             ? selector(((EntitySetExpression)Expression).RootEntityExpression)
             : selector((EntityExpression)Expression), includeEntityRefFields);
     }
@@ -53,7 +53,7 @@ public abstract class SqlIncluder
     private SqlIncluder<TChild> IncludeInternal<TChild>(Expression member, bool includeEntityRefFields)
         where TChild : SqlEntity, IEntity, new()
     {
-        if (member.Type != ExpressionType.EntitySetExpression && member.Type != ExpressionType.EntityExpression)
+        if (member.NodeType != ExpressionType.EntitySetExpression && member.NodeType != ExpressionType.EntityExpression)
             throw new ArgumentException("Only supports EntitySetExpression and EntityExpression now");
 
         //TODO: 处理如Order.Customer.City多层级
@@ -68,7 +68,7 @@ public abstract class SqlIncluder
         }
 
         var memberName = ((IEntityPathExpression)member).Name;
-        var found = Children.FindIndex(t => t.Expression.Type == member.Type
+        var found = Children.FindIndex(t => t.Expression.NodeType == member.NodeType
                                             && t.ExpressionName == memberName);
         if (found >= 0)
             return (SqlIncluder<TChild>)Children[found];
@@ -99,7 +99,7 @@ public abstract class SqlIncluder
             }
         }
 
-        if (Expression.Type == ExpressionType.EntityExpression)
+        if (Expression.NodeType == ExpressionType.EntityExpression)
         {
             var exp = (EntityExpression)Expression;
             var mm = (EntityRefMember)model.GetMember(exp.Name, true)!;
@@ -166,7 +166,7 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
         where T : SqlEntity
     {
         if (Children == null) return;
-        if (Children.All(t => t.Expression.Type != ExpressionType.EntitySetExpression)) return;
+        if (Children.All(t => t.Expression.NodeType != ExpressionType.EntitySetExpression)) return;
 
         //TODO:考虑一次加载方案
         for (var i = 0; i < list.Count; i++)
@@ -177,7 +177,7 @@ public sealed class SqlIncluder<TEntity> : SqlIncluder where TEntity : SqlEntity
 
     internal override async ValueTask LoopLoadEntitySets(SqlStore db, SqlEntity owner, DbTransaction? txn)
     {
-        if (Expression.Type != ExpressionType.EntitySetExpression) return;
+        if (Expression.NodeType != ExpressionType.EntitySetExpression) return;
 
         //判断是否已经生成加载命令
         var ownerModel = await RuntimeContext.Current.GetModelAsync<EntityModel>(owner.ModelId);

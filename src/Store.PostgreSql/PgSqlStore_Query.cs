@@ -364,7 +364,7 @@ partial class PgSqlStore
     private void BuildSelectItem(SqlSelectItemExpression item, BuildQueryContext ctx)
     {
         //判断item.Expression是否是子Select项,是则表示外部查询（FromQuery）引用的Select项
-        if (item.Expression.Type == ExpressionType.SelectItemExpression)
+        if (item.Expression.NodeType == ExpressionType.SelectItemExpression)
         {
             SqlSelectItemExpression si = (SqlSelectItemExpression)item.Expression;
             //判断当前查询是否等于Select项的所有者，否则表示Select项的所有者的外部查询引用该Select项
@@ -442,7 +442,7 @@ partial class PgSqlStore
 
     private void BuildExpression(Expression exp, BuildQueryContext ctx)
     {
-        switch (exp.Type)
+        switch (exp.NodeType)
         {
             case ExpressionType.EntityFieldExpression:
                 BuildFieldExpression((EntityFieldExpression)exp, ctx);
@@ -475,7 +475,7 @@ partial class PgSqlStore
             //    BuildInvocationExpression((InvocationExpression)exp, ctx);
             //    break;
             default:
-                throw new NotSupportedException($"Not Supported Expression Type [{exp.Type.ToString()}] for Query.");
+                throw new NotSupportedException($"Not Supported Expression Type [{exp.NodeType.ToString()}] for Query.");
         }
     }
 
@@ -569,7 +569,7 @@ partial class PgSqlStore
         BuildExpression(exp.LeftOperand, ctx);
 
         //判断是否在处理条件中
-        if (exp.RightOperand.Type == ExpressionType.ConstantExpression
+        if (exp.RightOperand.NodeType == ExpressionType.ConstantExpression
             && ((ConstantExpression)exp.RightOperand).Value.IsEmpty
             && ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildWhere)
         {
@@ -716,7 +716,7 @@ partial class PgSqlStore
     /// <returns>true需要转换</returns>
     private static bool CheckNeedConvertStringAddOperator(Expression exp)
     {
-        switch (exp.Type)
+        switch (exp.NodeType)
         {
             case ExpressionType.BinaryExpression:
             {
@@ -737,7 +737,7 @@ partial class PgSqlStore
             //    throw new NotImplementedException(); //TODO:根据系统函数判断
             default:
                 throw new NotSupportedException(
-                    $"Not Supported Expression Type [{exp.Type}] for CheckNeedConvertStringAddOperator.");
+                    $"Not Supported Expression Type [{exp.NodeType}] for CheckNeedConvertStringAddOperator.");
         }
     }
 

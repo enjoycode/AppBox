@@ -18,7 +18,7 @@ public sealed class EntitySetExpression : Expression, IEntityPathExpression
 
     public EntityExpression Owner { get; }
 
-    public override ExpressionType Type => ExpressionType.EntitySetExpression;
+    public override ExpressionType NodeType => ExpressionType.EntitySetExpression;
 
     public EntityExpression RootEntityExpression
     {

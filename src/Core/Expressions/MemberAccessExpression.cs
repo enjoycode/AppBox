@@ -16,7 +16,7 @@ public sealed class MemberAccessExpression : Expression
         ConvertedType = convertedType;
     }
 
-    public override ExpressionType Type => ExpressionType.MemberAccessExpression;
+    public override ExpressionType NodeType => ExpressionType.MemberAccessExpression;
 
     public Expression Expression { get; private set; } = null!;
 
