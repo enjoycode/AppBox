@@ -11,8 +11,8 @@ public sealed class BinaryExpression : Expression
     public BinaryExpression(Expression leftOperator, Expression rightOperator,
         BinaryOperatorType operatorType, TypeExpression? convertedType = null)
     {
-        LeftOperand = Equals(null, leftOperator) ? new ConstantExpression(null) : leftOperator;
-        RightOperand = Equals(null, rightOperator) ? new ConstantExpression(null) : rightOperator;
+        LeftOperand = Equals(null, leftOperator) ? new ConstantExpression(AnyValue.Empty) : leftOperator;
+        RightOperand = Equals(null, rightOperator) ? new ConstantExpression(AnyValue.Empty) : rightOperator;
         BinaryType = operatorType;
         ConvertedType = convertedType;
     }
