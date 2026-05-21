@@ -472,28 +472,20 @@ public static class OutputStreamExtensions
 
     public static void Serialize(this IOutputStream s, object? value)
     {
-        if (value == null)
+        switch (value)
         {
-            s.WriteByte((byte)PayloadType.Null);
-            return;
-        }
-
-        if (value is bool boolValue)
-        {
-            s.WriteByte(boolValue ? (byte)PayloadType.BooleanTrue : (byte)PayloadType.BooleanFalse);
-            return;
-        }
-
-        if (value is Entity entity)
-        {
-            s.Serialize(entity);
-            return;
-        }
-
-        if (value is Expression expression)
-        {
-            s.SerializeExpression(expression);
-            return;
+            case null:
+                s.WriteByte((byte)PayloadType.Null);
+                return;
+            case bool boolValue:
+                s.WriteByte(boolValue ? (byte)PayloadType.BooleanTrue : (byte)PayloadType.BooleanFalse);
+                return;
+            case Entity entity:
+                s.Serialize(entity);
+                return;
+            case Expression expression:
+                s.SerializeExpression(expression);
+                return;
         }
 
         var type = value.GetType();

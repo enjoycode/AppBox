@@ -1,32 +1,55 @@
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxDesign.CodeGenerator;
 using NUnit.Framework;
+using LinqExpression = System.Linq.Expressions.Expression;
 
 namespace Tests.Core;
 
 public class ExpressionEvaluatorTest
 {
-    [Test]
-    public async Task AwaitTest()
+    [SetUp]
+    public static async Task InitSetup()
     {
         await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
-        //var expLine = "await Task.Delay(500)";
-        var expLine = "return await Task.FromResult(123)";
-        var code =
-            $"using System;using System.Threading.Tasks;static class E{{static async Task<int> M(){{{expLine};}}}}";
-        var exp = ExpressionParser.ParseCode(code, true);
+    }
 
-        // Task<int> task1 = Task.FromResult(123);
-        // Task<object?> task2 =  task1;
-        
+    private static async Task<AnyValue> EvalSingleLine(string lineCode, string returnType = "void")
+    {
+        var code =
+            $"using System;using System.Threading.Tasks;static class C{{static {returnType} M(){{{lineCode};}}}}";
+        var exp = ExpressionParser.ParseCode(code, lineCode.StartsWith("return "));
         var evaluator = new ExpressionEvaluator();
         var context = new ExpressionEvalContext(ExpressionContext.Default);
         var ts = Stopwatch.GetTimestamp();
         var result = await evaluator.Visit(exp, context);
-        Console.WriteLine($"{Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
-        Console.WriteLine(result.BoxedValue);
+        Console.WriteLine($"used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
+        return result;
+    }
+    
+    [Test]
+    public async Task EqualsTest() => await EvalSingleLine("return object.Equals(null, 1)", "bool");
+
+    [Test]
+    public async Task AwaitVoidTest() => await EvalSingleLine("await Task.Delay(500)", "async Task");
+
+    [Test]
+    public async Task AwaitResultTest()
+    {
+        var result = await EvalSingleLine("return await Task.FromResult(123)", "async Task<int>");
+        Assert.IsTrue(result.GetInt()!.Value == 123);
+    }
+
+
+    [Test]
+    public void ConvertTest()
+    {
+        // float a = 3f;
+        // decimal m = 3m;
+        // int b = (int)m;
+
+        var b = 1 + 4.56;
+        Console.WriteLine(b);
     }
 }

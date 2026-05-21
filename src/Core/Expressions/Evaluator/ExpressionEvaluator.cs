@@ -3,7 +3,24 @@ namespace AppBoxCore;
 public sealed partial class ExpressionEvaluator : ExpressionVisitor<ExpressionEvalContext, ValueTask<AnyValue>>
 {
     protected override ValueTask<AnyValue> VisitConstant(ConstantExpression constantExpression,
-        ExpressionEvalContext context) => new(constantExpression.Value);
+        ExpressionEvalContext context) => Expression.IsNull(constantExpression.ConvertedType)
+        ? new ValueTask<AnyValue>(constantExpression.Value)
+        : new ValueTask<AnyValue>(ConvertTo(constantExpression.Value, constantExpression.ConvertedType!, context));
+
+    protected override ValueTask<AnyValue> VisitBinary(BinaryExpression binaryExpression, ExpressionEvalContext context)
+    {
+        var leftValue = Visit(binaryExpression.LeftOperand, context).Result;
+        switch (binaryExpression.BinaryType)
+        {
+            case BinaryOperatorType.Plus:
+            {
+                var rightValue = Visit(binaryExpression.RightOperand, context).Result;
+                return new ValueTask<AnyValue>(BinaryAdd(leftValue, rightValue));
+            }
+            default:
+                throw new NotImplementedException();
+        }
+    }
 
     protected override ValueTask<AnyValue> VisitMethodCall(MethodCallExpression methodCallExpression,
         ExpressionEvalContext context)

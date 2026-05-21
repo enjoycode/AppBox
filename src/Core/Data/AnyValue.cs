@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -364,6 +365,64 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     }
 
     #endregion
+
+    public Type GetRuntimeType()
+    {
+        switch (Type)
+        {
+            case AnyValueType.Boolean: return typeof(bool);
+            case AnyValueType.Byte: return typeof(byte);
+            case AnyValueType.Char: return typeof(char);
+            case AnyValueType.Int16: return typeof(short);
+            case AnyValueType.UInt16: return typeof(ushort);
+            case AnyValueType.Int32: return typeof(int);
+            case AnyValueType.UInt32: return typeof(uint);
+            case AnyValueType.Int64: return typeof(long);
+            case AnyValueType.UInt64: return typeof(ulong);
+            case AnyValueType.Float: return typeof(float);
+            case AnyValueType.Double: return typeof(double);
+            case AnyValueType.Decimal: return typeof(decimal);
+            case AnyValueType.Guid: return typeof(Guid);
+            default: return typeof(object);
+        }
+    }
+
+    #region ====ConvertToXXX====
+
+    public int ConvertToInt32() => Type switch
+    {
+        AnyValueType.Byte => ByteValue,
+        AnyValueType.Char => CharValue,
+        AnyValueType.Int16 => ShortValue,
+        AnyValueType.UInt16 => UShortValue,
+        AnyValueType.Int32 => IntValue,
+        AnyValueType.UInt32 => unchecked((int)UIntValue),
+        AnyValueType.Int64 => unchecked((int)LongValue),
+        AnyValueType.UInt64 => unchecked((int)ULongValue),
+        AnyValueType.Float => (int)FloatValue,
+        AnyValueType.Double => (int)DoubleValue,
+        AnyValueType.Decimal => (int)DecimalValue,
+        _ => throw new InvalidCastException($"{Type} can't convert to Int32")
+    };
+
+    public double ConvertToDouble() => Type switch
+    {
+        AnyValueType.Byte => ByteValue,
+        AnyValueType.Char => CharValue,
+        AnyValueType.Int16 => ShortValue,
+        AnyValueType.UInt16 => UShortValue,
+        AnyValueType.Int32 => IntValue,
+        AnyValueType.UInt32 => UIntValue,
+        AnyValueType.Int64 => LongValue,
+        AnyValueType.UInt64 => ULongValue,
+        AnyValueType.Float => FloatValue,
+        AnyValueType.Double => DoubleValue,
+        AnyValueType.Decimal => (double)DecimalValue,
+        _ => throw new InvalidCastException($"{Type} can't convert to Double")
+    };
+
+    #endregion
+
 
     public enum AnyValueType : byte
     {
