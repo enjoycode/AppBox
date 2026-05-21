@@ -1,6 +1,7 @@
 using System.Reflection.Emit;
 using BenchmarkDotNet.Attributes;
 using LinqExpression = System.Linq.Expressions.Expression;
+using FastExpressionCompiler;
 
 namespace Tests;
 
@@ -16,6 +17,17 @@ public class ExpressionEvalBenchmarks
         var converter = LinqExpression.Convert(resultMember, typeof(object));
         var lambda = LinqExpression.Lambda<Func<object?>>(converter);
         var compiled = lambda.Compile();
+        _ = compiled();
+    }
+
+    [Benchmark]
+    public void UseFastExpression()
+    {
+        var taskInstance = LinqExpression.Constant(_task);
+        var resultMember = LinqExpression.Property(taskInstance, "Result");
+        var converter = LinqExpression.Convert(resultMember, typeof(object));
+        var lambda = LinqExpression.Lambda<Func<object?>>(converter);
+        var compiled = lambda.CompileFast();
         _ = compiled();
     }
 
@@ -42,11 +54,12 @@ public class ExpressionEvalBenchmarks
         var getter = (Func<object?, object?>)dynamicMethod.CreateDelegate(typeof(Func<object?, object?>));
         getter(_task);
     }
-    
+
     // M1Pro Dotnet10
-    // | Method        | Mean          | Error        | StdDev       | Gen0   | Gen1   | Allocated |
-    // |-------------- |--------------:|-------------:|-------------:|-------:|-------:|----------:|
-    // | UseExpression | 199,494.80 ns | 2,465.067 ns | 2,305.825 ns | 0.4883 | 0.2441 |    4401 B |
-    // | UseReflection |      26.76 ns |     0.094 ns |     0.079 ns | 0.0038 |      - |      24 B |
-    // | UseEmit       | 172,473.06 ns | 2,432.484 ns | 2,275.347 ns |      - |      - |    1296 B |
+    // | Method            | Mean          | Error        | StdDev       | Gen0   | Gen1   | Allocated |
+    // |------------------ |--------------:|-------------:|-------------:|-------:|-------:|----------:|
+    // | UseExpression     | 199,958.92 ns | 2,159.172 ns | 1,914.050 ns | 0.4883 | 0.2441 |    4401 B |
+    // | UseFastExpression | 186,665.20 ns | 2,801.209 ns | 2,483.198 ns |      - |      - |    1328 B |
+    // | UseReflection     |      26.28 ns |     0.108 ns |     0.101 ns | 0.0038 |      - |      24 B |
+    // | UseEmit           | 174,363.87 ns | 1,993.591 ns | 1,664.738 ns |      - |      - |    1296 B |
 }
