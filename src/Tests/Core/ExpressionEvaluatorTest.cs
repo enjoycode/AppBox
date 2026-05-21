@@ -15,17 +15,18 @@ public class ExpressionEvaluatorTest
         await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
         //var expLine = "await Task.Delay(500)";
         var expLine = "return await Task.FromResult(123)";
-        var code = $"using System;using System.Threading.Tasks;static class E{{static async Task<int> M(){{{expLine};}}}}";
+        var code =
+            $"using System;using System.Threading.Tasks;static class E{{static async Task<int> M(){{{expLine};}}}}";
         var exp = ExpressionParser.ParseCode(code, true);
 
         // Task<int> task1 = Task.FromResult(123);
         // Task<object?> task2 =  task1;
         
-
         var evaluator = new ExpressionEvaluator();
-        var context = new ExpressionEvalContext();
+        var context = new ExpressionEvalContext(ExpressionContext.Default);
         var ts = Stopwatch.GetTimestamp();
         var result = await evaluator.Visit(exp, context);
-        Console.WriteLine(Stopwatch.GetElapsedTime(ts).TotalMilliseconds);
+        Console.WriteLine($"{Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
+        Console.WriteLine(result.BoxedValue);
     }
 }

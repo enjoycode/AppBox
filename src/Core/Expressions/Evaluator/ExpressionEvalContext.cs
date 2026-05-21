@@ -2,6 +2,12 @@ namespace AppBoxCore;
 
 public sealed class ExpressionEvalContext
 {
+    public ExpressionEvalContext(IExpressionContext expressionContext)
+    {
+        _expressionContext = expressionContext;
+    }
+
+    private readonly IExpressionContext _expressionContext;
     private readonly List<BlockStack> _blockStacks = [];
 
     public void PushBlockStack(BlockStack blockStack) => _blockStacks.Add(blockStack);
@@ -31,4 +37,6 @@ public sealed class ExpressionEvalContext
 
     public void AddIdentifier(string name, AnyValue value)
         => _blockStacks[^1].AddIdentifier(name, value);
+
+    public Type ResolveType(TypeExpression typeExpression) => _expressionContext.ResolveType(typeExpression);
 }
