@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -7,32 +8,43 @@ public sealed class MethodCallExpression : Expression
 {
     internal MethodCallExpression() { }
 
-    public MethodCallExpression(Expression target, string methodName, TypeExpression[]? genericTypes = null,
-        Expression[]? arguments = null,
-        TypeExpression? convertedType = null)
+    public MethodCallExpression(ExpressionTypeInfo staticType, Expression? instance, string methodName,
+        ExpressionTypeInfo typeInfo, Expression[]? arguments = null,
+        ExpressionTypeInfo[]? genericTypes = null)
     {
-        Target = target;
+        Debug.Assert(!typeInfo.IsEmpty);
+        StaticType = staticType;
+        Instance = instance;
         MethodName = methodName;
         GenericArguments = genericTypes;
         Arguments = arguments;
-        ConvertedType = convertedType;
+        _typeInfo = typeInfo;
     }
 
     public override ExpressionType NodeType => ExpressionType.MethodCallExpression;
 
-    public Expression Target { get; private set; } = null!;
+    public ExpressionTypeInfo StaticType { get; private set; }
+
+    public Expression? Instance { get; private set; }
 
     public string MethodName { get; private set; } = null!;
 
     public Expression[]? Arguments { get; private set; }
 
-    public TypeExpression[]? GenericArguments { get; private set; }
+    public ExpressionTypeInfo[]? GenericArguments { get; private set; }
 
-    public TypeExpression? ConvertedType { get; private set; }
+    private ExpressionTypeInfo _typeInfo;
+    public override ExpressionTypeInfo TypeInfo => _typeInfo;
+
+    public bool IsStaticMethodCall => IsNull(Instance);
+    public bool IsGenericMethod => GenericArguments is { Length: > 0 };
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
-        Target.ToCode(sb, preTabs);
+        if (IsStaticMethodCall)
+            sb.Append(StaticType.TypeName);
+        else
+            Instance!.ToCode(sb, preTabs);
         sb.Append('.');
         sb.Append(MethodName);
         sb.Append('(');
@@ -72,36 +84,45 @@ public sealed class MethodCallExpression : Expression
         }
 
         LinqExpression res;
-        if (Target is TypeExpression typeInfo) //static method call
+        if (IsStaticMethodCall) //static method call
         {
-            var type = ctx.ResolveType(typeInfo);
+            var type = ctx.ResolveType(StaticType);
             res = LinqExpression.Call(type, MethodName, genericTypes, args);
         }
-        else
+        else //instance method call
         {
-            //instance method call
-            var target = Target.ToLinqExpression(ctx)!;
+            var target = Instance!.ToLinqExpression(ctx)!;
             res = LinqExpression.Call(target, MethodName, genericTypes, args);
         }
 
-        return TryConvert(res, ConvertedType, ctx);
+        return TryLinqConvert(res, TypeInfo, ctx);
     }
 
     protected internal override void WriteTo(IOutputStream writer)
     {
-        writer.SerializeExpression(Target);
+        writer.WriteBool(IsStaticMethodCall);
+        if (IsStaticMethodCall)
+            StaticType.WriteTo(writer);
+        else
+            writer.SerializeExpression(Instance);
         writer.WriteString(MethodName);
         writer.WriteExpressionArray(Arguments);
-        writer.WriteTypeExpressionArray(GenericArguments);
-        writer.SerializeExpression(ConvertedType);
+        writer.WriteTypeInfoArray(GenericArguments);
+        _typeInfo.WriteTo(writer);
+        writer.WriteFieldEnd(); //保留
     }
 
     protected internal override void ReadFrom(IInputStream reader)
     {
-        Target = (Expression)reader.Deserialize()!;
+        var isStaticMethodCall = reader.ReadBool();
+        if (isStaticMethodCall)
+            StaticType = ExpressionTypeInfo.ReadFrom(reader);
+        else
+            Instance = (Expression)reader.Deserialize()!;
         MethodName = reader.ReadString()!;
         Arguments = reader.ReadExpressionArray();
-        GenericArguments = reader.ReadTypeExpressionArray();
-        ConvertedType = reader.Deserialize() as TypeExpression;
+        GenericArguments = reader.ReadTypeInfoArray();
+        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
+        reader.ReadFieldId(); //保留
     }
 }

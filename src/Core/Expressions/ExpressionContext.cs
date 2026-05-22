@@ -4,7 +4,7 @@ public interface IExpressionContext
 {
     //TODO: ResolveParameter
 
-    Type ResolveType(TypeExpression typeExpression);
+    Type ResolveType(ExpressionTypeInfo typeInfo);
 }
 
 public class ExpressionContext : IExpressionContext
@@ -24,27 +24,28 @@ public class ExpressionContext : IExpressionContext
         { "ulong", typeof(ulong) },
         { "float", typeof(float) },
         { "double", typeof(double) },
+        { "decimal", typeof(decimal) },
         { "char", typeof(char) },
         { "string", typeof(string) },
         { "object", typeof(object) },
     };
 
-    public Type ResolveType(TypeExpression typeExpression)
+    public virtual Type ResolveType(ExpressionTypeInfo typeInfo)
     {
         //TODO:暂简单实现,maybe use cache
-        if (_knownTypes.TryGetValue(typeExpression.TypeName, out var sysType))
+        if (_knownTypes.TryGetValue(typeInfo.TypeName, out var sysType))
             return sysType;
 
-        var type = Type.GetType(typeExpression.TypeName);
+        var type = Type.GetType(typeInfo.TypeName);
         if (type == null)
-            throw new Exception($"Can't find type: {typeExpression.TypeName} ");
+            throw new Exception($"Can't find type: {typeInfo.TypeName} ");
 
-        if (typeExpression.GenericArguments is { Length: > 0 })
+        if (typeInfo.GenericArguments is { Length: > 0 })
         {
-            var genericTypes = new Type[typeExpression.GenericArguments.Length];
+            var genericTypes = new Type[typeInfo.GenericArguments.Length];
             for (var i = 0; i < genericTypes.Length; i++)
             {
-                genericTypes[i] = ResolveType(typeExpression.GenericArguments[i]);
+                genericTypes[i] = ResolveType(typeInfo.GenericArguments[i]);
             }
 
             type = type.MakeGenericType(genericTypes);

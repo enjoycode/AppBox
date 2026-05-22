@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBoxDesign.CodeGenerator;
 
-internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
+internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult>
 {
     public ExpressionParser(SemanticModel semanticModel)
     {
@@ -41,22 +41,15 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<Expression>
         var firstStatement = methodDecl.Body!.Statements.FirstOrDefault();
         if (firstStatement == null)
             throw new Exception("Can't find statement");
-        SyntaxNode syntaxNode;
+        SyntaxNode syntaxNode = firstStatement;
         if (singleLine)
         {
             if (firstStatement is not ReturnStatementSyntax returnNode)
                 throw new Exception("表达式方法不是单行返回语句");
             syntaxNode = returnNode.Expression!;
         }
-        else
-        {
-            if (firstStatement is ExpressionStatementSyntax expressionStatement)
-                syntaxNode = expressionStatement.Expression;
-            else
-                throw new NotImplementedException();
-        }
 
         var parser = new ExpressionParser(semanticModel);
-        return parser.Visit(syntaxNode)!;
+        return parser.Visit(syntaxNode).Expression;
     }
 }

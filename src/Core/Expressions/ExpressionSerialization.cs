@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 
 namespace AppBoxCore;
@@ -21,7 +22,7 @@ public static class ExpressionSerialization
         }
     }
 
-    internal static void WriteTypeExpressionArray(this IOutputStream writer, TypeExpression[]? array)
+    internal static void WriteTypeInfoArray(this IOutputStream writer, ExpressionTypeInfo[]? array)
     {
         if (array is { Length: > 0 })
         {
@@ -51,17 +52,15 @@ public static class ExpressionSerialization
         return res;
     }
 
-    internal static TypeExpression[]? ReadTypeExpressionArray(this IInputStream reader)
+    internal static ExpressionTypeInfo[]? ReadTypeInfoArray(this IInputStream reader)
     {
         var count = reader.ReadVariant();
         if (count <= 0) return null;
 
-        var res = new TypeExpression[count];
+        var res = new ExpressionTypeInfo[count];
         for (var i = 0; i < count; i++)
         {
-            var item = new TypeExpression();
-            item.ReadFrom(reader);
-            res[i] = item;
+            res[i] = ExpressionTypeInfo.ReadFrom(reader);
         }
 
         return res;

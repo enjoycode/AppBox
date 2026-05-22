@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -5,30 +6,38 @@ namespace AppBoxCore;
 
 public sealed class MemberAccessExpression : Expression
 {
+    //LinqExpression只支持Property和Field
+
     internal MemberAccessExpression() { }
 
-    public MemberAccessExpression(Expression expression, string memberName, bool isField,
-        TypeExpression? convertedType = null)
+    internal MemberAccessExpression(ExpressionTypeInfo staticType, Expression? instance, string memberName,
+        bool isField, ExpressionTypeInfo typeInfo)
     {
-        Expression = expression;
+        Debug.Assert(!typeInfo.IsEmpty);
+        StaticType = staticType;
+        Instance = instance;
         MemberName = memberName;
         IsField = isField;
-        ConvertedType = convertedType;
+        _typeInfo = typeInfo;
     }
 
     public override ExpressionType NodeType => ExpressionType.MemberAccessExpression;
 
-    public Expression Expression { get; private set; } = null!;
+    public ExpressionTypeInfo StaticType { get; private set; }
+    public Expression? Instance { get; private set; }
 
     public string MemberName { get; private set; } = null!;
 
     public bool IsField { get; private set; }
 
-    public TypeExpression? ConvertedType { get; private set; }
+    private ExpressionTypeInfo _typeInfo;
+    public override ExpressionTypeInfo TypeInfo => _typeInfo;
+
+    public bool IsStaticMemberAccess => IsNull(Instance);
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
-        Expression.ToCode(sb, preTabs);
+        Instance.ToCode(sb, preTabs);
         sb.Append('.');
         sb.Append(MemberName);
     }
@@ -36,36 +45,46 @@ public sealed class MemberAccessExpression : Expression
     public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
     {
         LinqExpression res;
-        if (Expression is TypeExpression typeInfo) //static member access
+        if (IsStaticMemberAccess) //static member access
         {
-            var type = ctx.ResolveType(typeInfo);
+            var type = ctx.ResolveType(StaticType);
             MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
             res = LinqExpression.MakeMemberAccess(null, memberInfo!);
         }
         else //instance member access
         {
-            var instance = Expression.ToLinqExpression(ctx);
+            var instance = Instance!.ToLinqExpression(ctx);
             var type = instance!.Type;
             MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
             res = LinqExpression.MakeMemberAccess(instance, memberInfo!);
         }
 
-        return TryConvert(res, ConvertedType, ctx);
+        return TryLinqConvert(res, TypeInfo, ctx);
     }
 
     protected internal override void WriteTo(IOutputStream writer)
     {
-        writer.SerializeExpression(Expression);
+        writer.WriteBool(IsStaticMemberAccess);
+        if (IsStaticMemberAccess)
+            StaticType.WriteTo(writer);
+        else
+            writer.SerializeExpression(Instance);
         writer.WriteString(MemberName);
         writer.WriteBool(IsField);
-        writer.SerializeExpression(ConvertedType);
+        _typeInfo.WriteTo(writer);
+        writer.WriteFieldEnd(); //保留
     }
 
     protected internal override void ReadFrom(IInputStream reader)
     {
-        Expression = (Expression)reader.Deserialize()!;
+        var isStaticMemberAccess = reader.ReadBool();
+        if (isStaticMemberAccess)
+            StaticType = ExpressionTypeInfo.ReadFrom(reader);
+        else
+            Instance = (Expression)reader.Deserialize()!;
         MemberName = reader.ReadString()!;
         IsField = reader.ReadBool();
-        ConvertedType = reader.Deserialize() as TypeExpression;
+        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
+        reader.ReadFieldId(); //保留
     }
 }

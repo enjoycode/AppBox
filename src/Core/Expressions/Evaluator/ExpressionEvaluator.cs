@@ -3,16 +3,49 @@ namespace AppBoxCore;
 public sealed partial class ExpressionEvaluator : ExpressionVisitor<ExpressionEvalContext, ValueTask<AnyValue>>
 {
     protected override ValueTask<AnyValue> VisitConstant(ConstantExpression constantExpression,
-        ExpressionEvalContext context) => Expression.IsNull(constantExpression.ConvertedType)
-        ? new ValueTask<AnyValue>(constantExpression.Value)
-        : new ValueTask<AnyValue>(ConvertTo(constantExpression.Value, constantExpression.ConvertedType!, context));
+        ExpressionEvalContext context) => constantExpression.TypeInfo.IsConverted
+        ? new ValueTask<AnyValue>(ConvertTo(constantExpression.Value, constantExpression.TypeInfo, context))
+        : new ValueTask<AnyValue>(constantExpression.Value);
+
+    protected override ValueTask<AnyValue> VisitMemberAccess(MemberAccessExpression memberAccessExpression,
+        ExpressionEvalContext context)
+    {
+        var memberName = memberAccessExpression.MemberName;
+        var isField = memberAccessExpression.IsField;
+        if (memberAccessExpression.IsStaticMemberAccess)
+        {
+            var staticType = context.ResolveType(memberAccessExpression.StaticType);
+            if (isField)
+            {
+                var fieldInfo = staticType.GetField(memberName)!;
+                return new ValueTask<AnyValue>(AnyValue.From(fieldInfo.GetValue(null)));
+            }
+
+            var propInfo = staticType.GetProperty(memberName)!;
+            return new(AnyValue.From(propInfo.GetValue(null)));
+        }
+        else
+        {
+            var instance = Visit(memberAccessExpression.Instance!, context).Result;
+            if (instance.IsEmpty) throw new NullReferenceException();
+            var instanceType = instance.GetRuntimeType();
+            if (isField)
+            {
+                var fieldInfo = instanceType.GetField(memberName)!;
+                return new ValueTask<AnyValue>(AnyValue.From(fieldInfo.GetValue(instance)));
+            }
+
+            var propInfo = instanceType.GetField(memberName)!;
+            return new(AnyValue.From(propInfo.GetValue(instance)));
+        }
+    }
 
     protected override ValueTask<AnyValue> VisitBinary(BinaryExpression binaryExpression, ExpressionEvalContext context)
     {
         var leftValue = Visit(binaryExpression.LeftOperand, context).Result;
         switch (binaryExpression.BinaryType)
         {
-            case BinaryOperatorType.Plus:
+            case BinaryOperatorType.Add:
             {
                 var rightValue = Visit(binaryExpression.RightOperand, context).Result;
                 return new ValueTask<AnyValue>(BinaryAdd(leftValue, rightValue));
@@ -34,9 +67,9 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ExpressionEv
         // var result = compiled();
         // return new ValueTask<AnyValue>(AnyValue.From(result));
 
-        if (methodCallExpression.Target is TypeExpression typeExpression)
+        if (methodCallExpression.IsStaticMethodCall)
         {
-            var staticType = context.ResolveType(typeExpression);
+            var staticType = context.ResolveType(methodCallExpression.StaticType);
             var methodInfo = GetMethodInfo(staticType, methodCallExpression, context);
             var args = GetMethodArgs(methodCallExpression, context);
             var result = methodInfo.Invoke(null, args);
@@ -44,7 +77,7 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ExpressionEv
         }
         else
         {
-            var target = Visit(methodCallExpression.Target, context).Result.BoxedValue!;
+            var target = Visit(methodCallExpression.Instance!, context).Result.BoxedValue!;
             var targetType = target.GetType();
             var methodInfo = GetMethodInfo(targetType, methodCallExpression, context);
             var args = GetMethodArgs(methodCallExpression, context);

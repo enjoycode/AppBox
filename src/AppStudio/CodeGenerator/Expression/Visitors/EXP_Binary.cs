@@ -1,4 +1,3 @@
-using System;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -8,20 +7,20 @@ namespace AppBoxDesign.CodeGenerator;
 
 internal partial class ExpressionParser
 {
-    public override Expression? VisitBinaryExpression(BinaryExpressionSyntax node)
+    public override ParseResult VisitBinaryExpression(BinaryExpressionSyntax node)
     {
         var left = node.Left.Accept(this)!;
         var right = node.Right.Accept(this)!;
         var op = GetOperator(node.OperatorToken);
-        var convertedType = GetConvertedType(node);
+        var typeInfo = TryGetTypeInfoWithConverted(node);
 
-        return new BinaryExpression(left, right, op, convertedType);
+        return new BinaryExpression(left.Expression, right.Expression, op, typeInfo);
     }
 
     private static BinaryOperatorType GetOperator(SyntaxToken token) => token.Kind() switch
     {
-        SyntaxKind.PlusToken => BinaryOperatorType.Plus,
-        SyntaxKind.MinusToken => BinaryOperatorType.Minus,
+        SyntaxKind.PlusToken => BinaryOperatorType.Add,
+        SyntaxKind.MinusToken => BinaryOperatorType.Subtract,
         SyntaxKind.AsteriskToken => BinaryOperatorType.Multiply,
         SyntaxKind.SlashToken => BinaryOperatorType.Divide,
         SyntaxKind.EqualsEqualsToken => BinaryOperatorType.Equal,

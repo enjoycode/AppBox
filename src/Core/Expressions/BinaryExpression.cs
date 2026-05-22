@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace AppBoxCore;
@@ -9,15 +10,25 @@ public sealed class BinaryExpression : Expression
     internal BinaryExpression() { }
 
     public BinaryExpression(Expression leftOperator, Expression rightOperator,
-        BinaryOperatorType operatorType, TypeExpression? convertedType = null)
+        BinaryOperatorType operatorType, ExpressionTypeInfo? typeInfo = null)
     {
         LeftOperand = Equals(null, leftOperator) ? new ConstantExpression(AnyValue.Empty) : leftOperator;
         RightOperand = Equals(null, rightOperator) ? new ConstantExpression(AnyValue.Empty) : rightOperator;
         BinaryType = operatorType;
-        ConvertedType = convertedType;
+        if (typeInfo.HasValue)
+        {
+            _typeInfo = typeInfo.Value;
+            if (IsLogical(BinaryType) && _typeInfo.TypeName != "bool")
+                throw new ArgumentException("Type is not bool when is logical");
+        }
+        else
+        {
+            if (IsLogical(BinaryType))
+                _typeInfo = new ExpressionTypeInfo("bool");
+            else
+                throw new NotImplementedException(BinaryType.ToString());
+        }
     }
-
-    #region ====Properties====
 
     public Expression LeftOperand { get; private set; } = null!;
 
@@ -25,11 +36,16 @@ public sealed class BinaryExpression : Expression
 
     public Expression RightOperand { get; private set; } = null!;
 
-    public TypeExpression? ConvertedType { get; private set; }
+    private ExpressionTypeInfo _typeInfo;
+    public override ExpressionTypeInfo TypeInfo => _typeInfo;
 
     public override ExpressionType NodeType => ExpressionType.BinaryExpression;
 
-    #endregion
+    internal static bool IsLogical(BinaryOperatorType opType) =>
+        opType is BinaryOperatorType.Equal or BinaryOperatorType.NotEqual
+            or BinaryOperatorType.Greater or BinaryOperatorType.GreaterOrEqual
+            or BinaryOperatorType.Less or BinaryOperatorType.LessOrEqual
+            or BinaryOperatorType.AndAlso or BinaryOperatorType.OrElse;
 
     #region ====Overrides Methods====
 
@@ -61,19 +77,18 @@ public sealed class BinaryExpression : Expression
         //特殊处理 eg: "Hello" + " World"表达式
         if (op == LinqExpressionType.Add && left.Type == typeof(string))
         {
-            return TryConvert(LinqExpression.Add(left, right,
-                    typeof(string).GetMethod("Concat", [typeof(string), typeof(string)])),
-                ConvertedType, ctx);
+            return TryLinqConvert(LinqExpression.Add(left, right, ExpressionUtils.StringConcatMethod),
+                TypeInfo, ctx);
         }
 
         LinqExpression res = LinqExpression.MakeBinary(op, left, right);
-        return TryConvert(res, ConvertedType, ctx);
+        return TryLinqConvert(res, TypeInfo, ctx);
     }
 
     private LinqExpressionType GetLinqExpressionType() => BinaryType switch
     {
-        BinaryOperatorType.Plus => LinqExpressionType.Add,
-        BinaryOperatorType.Minus => LinqExpressionType.Subtract,
+        BinaryOperatorType.Add => LinqExpressionType.Add,
+        BinaryOperatorType.Subtract => LinqExpressionType.Subtract,
         BinaryOperatorType.Multiply => LinqExpressionType.Multiply,
         BinaryOperatorType.Divide => LinqExpressionType.Divide,
         BinaryOperatorType.Equal => LinqExpressionType.Equal,
@@ -100,11 +115,11 @@ public sealed class BinaryExpression : Expression
         BinaryOperatorType.Less => "<",
         BinaryOperatorType.LessOrEqual => "<=",
         BinaryOperatorType.Like => "Like",
-        BinaryOperatorType.Minus => "-",
+        BinaryOperatorType.Subtract => "-",
         BinaryOperatorType.Modulo => "Mod",
         BinaryOperatorType.Multiply => "*",
         BinaryOperatorType.NotEqual => "!=",
-        BinaryOperatorType.Plus => "+",
+        BinaryOperatorType.Add => "+",
         BinaryOperatorType.As => "as",
         _ => throw new NotSupportedException()
     };
@@ -114,7 +129,7 @@ public sealed class BinaryExpression : Expression
         writer.SerializeExpression(LeftOperand);
         writer.SerializeExpression(RightOperand);
         writer.WriteByte((byte)BinaryType);
-        writer.SerializeExpression(ConvertedType);
+        _typeInfo.WriteTo(writer);
         writer.WriteVariant(0); //保留
     }
 
@@ -123,7 +138,7 @@ public sealed class BinaryExpression : Expression
         LeftOperand = (Expression)reader.Deserialize()!;
         RightOperand = (Expression)reader.Deserialize()!;
         BinaryType = (BinaryOperatorType)reader.ReadByte();
-        ConvertedType = reader.Deserialize() as TypeExpression;
+        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
         reader.ReadVariant(); //保留
     }
 
@@ -146,11 +161,11 @@ public enum BinaryOperatorType
     Less = 3,
     LessOrEqual = 4,
     Like = 6,
-    Minus = 14,
+    Subtract = 14,
     Modulo = 11,
     Multiply = 12,
     NotEqual = 1,
-    Plus = 13,
+    Add = 13,
     As = 18,
     AndAlso = 19,
     OrElse = 20,

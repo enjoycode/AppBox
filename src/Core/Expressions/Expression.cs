@@ -3,7 +3,7 @@ using System.Text;
 
 namespace AppBoxCore;
 
-public abstract class Expression
+public abstract partial class Expression
 {
     //关于LinqExpression的一些限制
     //https://github.com/bartdesmet/ExpressionFutures/tree/master/CSharpExpressions
@@ -14,20 +14,25 @@ public abstract class Expression
     /// </summary>
     public abstract ExpressionType NodeType { get; }
 
+    public virtual ExpressionTypeInfo TypeInfo { get; } = ExpressionTypeInfo.Empty;
+
     /// <summary>
     /// 转换为用于表达式编辑器的代码
     /// </summary>
-    public abstract void ToCode(StringBuilder sb, int preTabs);
+    public abstract void ToCode(StringBuilder sb, int preTabs); //TODO: remove, use ExpressionVisitor
 
-    //TODO:直接参考FastExpressionCompiler emit code，省掉一次转换
     /// <summary>
     /// 转换为Linq的表达式
     /// </summary>
+    /// <remarks>
+    /// 注意表达式解释器处理Lambda时必须调用此转换
+    /// </remarks>
     public virtual LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
         throw new NotSupportedException(GetType().FullName);
 
-    protected static LinqExpression TryConvert(LinqExpression exp, TypeExpression? toType, IExpressionContext ctx) =>
-        IsNull(toType) ? exp : LinqExpression.Convert(exp, ctx.ResolveType(toType!));
+    protected static LinqExpression TryLinqConvert(LinqExpression exp,
+        in ExpressionTypeInfo toType, IExpressionContext ctx) =>
+        toType.IsConverted ? LinqExpression.Convert(exp, ctx.ResolveType(toType)) : exp;
 
     public static bool IsNull(Expression? exp) => Equals(exp, null);
 
@@ -87,12 +92,12 @@ public abstract class Expression
 
     public static Expression operator +(Expression left, Expression right)
     {
-        return new BinaryExpression(left, right, BinaryOperatorType.Plus);
+        return new BinaryExpression(left, right, BinaryOperatorType.Add);
     }
 
     public static Expression operator -(Expression left, Expression right)
     {
-        return new BinaryExpression(left, right, BinaryOperatorType.Minus);
+        return new BinaryExpression(left, right, BinaryOperatorType.Subtract);
     }
 
     public static Expression operator *(Expression left, Expression right)

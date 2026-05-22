@@ -688,7 +688,7 @@ partial class PgSqlStore
             case BinaryOperatorType.Like:
                 sb.Append(" Like ");
                 break;
-            case BinaryOperatorType.Minus:
+            case BinaryOperatorType.Subtract:
                 sb.Append(" - ");
                 break;
             case BinaryOperatorType.Modulo:
@@ -699,7 +699,7 @@ partial class PgSqlStore
             case BinaryOperatorType.NotEqual:
                 sb.Append(" <> ");
                 break;
-            case BinaryOperatorType.Plus:
+            case BinaryOperatorType.Add:
                 if (CheckNeedConvertStringAddOperator(exp))
                     sb.Append(" || ");
                 else

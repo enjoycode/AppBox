@@ -10,6 +10,7 @@ public abstract class ExpressionVisitor<TContext, TResult>
         MethodCallExpression methodCallExpression => VisitMethodCall(methodCallExpression, context),
         NewExpression newExpression => VisitNew(newExpression, context),
         AwaitExpression awaitExpression => VisitAwait(awaitExpression, context),
+        null => throw new ArgumentNullException(nameof(expression)),
         _ => throw new NotImplementedException()
     };
 

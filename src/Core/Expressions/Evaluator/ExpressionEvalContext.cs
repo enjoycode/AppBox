@@ -38,5 +38,5 @@ public sealed class ExpressionEvalContext
     public void AddIdentifier(string name, AnyValue value)
         => _blockStacks[^1].AddIdentifier(name, value);
 
-    public Type ResolveType(TypeExpression typeExpression) => _expressionContext.ResolveType(typeExpression);
+    public Type ResolveType(ExpressionTypeInfo typeInfo) => _expressionContext.ResolveType(typeInfo);
 }

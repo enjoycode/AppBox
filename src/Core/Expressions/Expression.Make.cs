@@ -1,0 +1,34 @@
+namespace AppBoxCore;
+
+partial class Expression
+{
+    public static ConstantExpression Constant(AnyValue value, ExpressionTypeInfo? typeInfo = null) =>
+        new(value, typeInfo);
+
+    public static ConstantExpression Constant(object? value, ExpressionTypeInfo? typeInfo = null) =>
+        new(AnyValue.From(value), typeInfo);
+
+    public static MemberAccessExpression StaticProperty(ExpressionTypeInfo staticType, string memberName,
+        ExpressionTypeInfo typeInfo) =>
+        new(staticType, null, memberName, false, typeInfo);
+
+    public static MemberAccessExpression StaticField(ExpressionTypeInfo staticType, string memberName,
+        ExpressionTypeInfo typeInfo) =>
+        new(staticType, null, memberName, true, typeInfo);
+
+    public static MemberAccessExpression InstanceProperty(Expression instance, string memberName,
+        ExpressionTypeInfo typeInfo) =>
+        new(ExpressionTypeInfo.Empty, instance, memberName, false, typeInfo);
+
+    public static MemberAccessExpression InstanceField(Expression instance, string memberName,
+        ExpressionTypeInfo typeInfo) =>
+        new(ExpressionTypeInfo.Empty, instance, memberName, true, typeInfo);
+
+    public static MethodCallExpression StaticCall(ExpressionTypeInfo staticType, string methodName,
+        ExpressionTypeInfo typeInfo, Expression[]? arguments = null, ExpressionTypeInfo[]? genericTypes = null) =>
+        new(staticType, null, methodName, typeInfo, arguments, genericTypes);
+
+    public static MethodCallExpression InstanceCall(Expression instance, string methodName,
+        ExpressionTypeInfo typeInfo, Expression[]? arguments = null, ExpressionTypeInfo[]? genericTypes = null) =>
+        new(ExpressionTypeInfo.Empty, instance, methodName, typeInfo, arguments, genericTypes);
+}

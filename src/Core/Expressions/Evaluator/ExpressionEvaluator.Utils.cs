@@ -1,10 +1,11 @@
+using System.Diagnostics;
 using System.Reflection;
 
 namespace AppBoxCore;
 
 partial class ExpressionEvaluator
 {
-    private static AnyValue ConvertTo(AnyValue value, TypeExpression toType, ExpressionEvalContext context)
+    private static AnyValue ConvertTo(AnyValue value, ExpressionTypeInfo toType, ExpressionEvalContext context)
     {
         var resultType = context.ResolveType(toType);
         return resultType! switch
@@ -29,10 +30,36 @@ partial class ExpressionEvaluator
     private static MethodInfo GetMethodInfo(Type type, MethodCallExpression methodCallExpression,
         ExpressionEvalContext context)
     {
-        var methodInfo = type.GetMethod(methodCallExpression.MethodName)!;
-        if (methodCallExpression.GenericArguments is { Length: > 0 })
+        Type[] argTypes = Type.EmptyTypes;
+        var genericParameterCount = methodCallExpression.IsGenericMethod
+            ? methodCallExpression.GenericArguments!.Length
+            : 0;
+
+        if (methodCallExpression.Arguments is { Length: > 0 })
         {
-            var genericTypes = new Type[methodCallExpression.GenericArguments.Length];
+            argTypes = new Type[methodCallExpression.Arguments.Length];
+            for (var i = 0; i < argTypes.Length; i++)
+            {
+                if (!methodCallExpression.IsGenericMethod)
+                {
+                    var arg = methodCallExpression.Arguments[i];
+                    Debug.Assert(!arg.TypeInfo.IsEmpty);
+                    argTypes[i] = context.ResolveType(arg.TypeInfo);
+                }
+                else
+                {
+                    argTypes[i] = Type.MakeGenericMethodParameter(i);
+                }
+            }
+        }
+
+        var methodInfo = type.GetMethod(methodCallExpression.MethodName, genericParameterCount, argTypes);
+        if (methodInfo == null)
+            throw new Exception($"Can't find method for {type.Name}.{methodCallExpression.MethodName}");
+
+        if (methodCallExpression.IsGenericMethod)
+        {
+            var genericTypes = new Type[methodCallExpression.GenericArguments!.Length];
             for (var i = 0; i < genericTypes.Length; i++)
             {
                 genericTypes[i] = context.ResolveType(methodCallExpression.GenericArguments[i]);
@@ -56,7 +83,6 @@ partial class ExpressionEvaluator
             {
                 var arg = methodCallExpression.Arguments[i];
                 args[i] = Visit(arg, context).Result.BoxedValue;
-                
             }
         }
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace AppBoxCore;
@@ -6,25 +7,33 @@ public sealed class NewExpression : Expression
 {
     internal NewExpression() { }
 
-    public NewExpression(TypeExpression type, Expression[]? arguments = null, TypeExpression? convertedType = null)
+    public NewExpression(ExpressionTypeInfo type, Expression[]? arguments = null,
+        ExpressionTypeInfo? convertedType = null)
     {
         TargetType = type;
         Arguments = arguments;
         ConvertedType = convertedType;
+
+#if DEBUG
+        if (convertedType.HasValue)
+            Debug.Assert(convertedType.Value.IsConverted);
+#endif
     }
 
-    public TypeExpression TargetType { get; private set; } = null!;
+    public ExpressionTypeInfo TargetType { get; private set; }
 
     public Expression[]? Arguments { get; private set; }
 
-    public TypeExpression? ConvertedType { get; private set; }
+    public ExpressionTypeInfo? ConvertedType { get; private set; }
+
+    public override ExpressionTypeInfo TypeInfo => ConvertedType ?? TargetType;
 
     public override ExpressionType NodeType => ExpressionType.NewExpression;
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
         sb.Append("new ");
-        TargetType.ToCode(sb, preTabs);
+        sb.Append(TargetType.TypeName);
         sb.Append('(');
         if (Arguments is { Length: > 0 })
         {
@@ -55,24 +64,28 @@ public sealed class NewExpression : Expression
         }
 
         var objectType = ctx.ResolveType(TargetType);
-        var ctorInfo = objectType.GetConstructor(argTypes);
-        return TryConvert(LinqExpression.New(ctorInfo!, args), ConvertedType, ctx);
+        var ctorInfo = objectType.GetConstructor(argTypes)!;
+        if (ConvertedType.HasValue)
+            return TryLinqConvert(LinqExpression.New(ctorInfo, args), ConvertedType.Value, ctx);
+        return LinqExpression.New(ctorInfo, args);
     }
 
     protected internal override void WriteTo(IOutputStream writer)
     {
         TargetType.WriteTo(writer);
         writer.WriteExpressionArray(Arguments);
-        writer.SerializeExpression(ConvertedType);
+        writer.WriteBool(ConvertedType.HasValue);
+        ConvertedType?.WriteTo(writer);
         writer.WriteVariant(0); //保留
     }
 
     protected internal override void ReadFrom(IInputStream reader)
     {
-        TargetType = new TypeExpression();
-        TargetType.ReadFrom(reader);
+        TargetType = ExpressionTypeInfo.ReadFrom(reader);
         Arguments = reader.ReadExpressionArray();
-        ConvertedType = reader.Deserialize() as TypeExpression;
+        var hasConvertedType = reader.ReadBool();
+        if (hasConvertedType)
+            ConvertedType = ExpressionTypeInfo.ReadFrom(reader);
         reader.ReadVariant(); //保留
     }
 }

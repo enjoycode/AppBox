@@ -9,19 +9,16 @@ public sealed class ConstantExpression : Expression
     /// </summary>
     internal ConstantExpression() { }
 
-    public ConstantExpression(AnyValue value, TypeExpression? convertedType = null)
+    internal ConstantExpression(AnyValue value, ExpressionTypeInfo? typeInfo = null)
     {
-        //TODO: value is null must has convertedType
         Value = value;
-        ConvertedType = convertedType;
+        _typeInfo = typeInfo ?? ExpressionTypeInfo.FromAnyValue(value);
     }
-
-    public static ConstantExpression From(object? value, TypeExpression? convertedType = null) =>
-        new(AnyValue.From(value), convertedType);
 
     public AnyValue Value { get; private set; }
 
-    public TypeExpression? ConvertedType { get; private set; }
+    private ExpressionTypeInfo _typeInfo;
+    public override ExpressionTypeInfo TypeInfo => _typeInfo;
 
     public override ExpressionType NodeType => ExpressionType.ConstantExpression;
 
@@ -65,14 +62,6 @@ public sealed class ConstantExpression : Expression
             return;
         }
 
-        if (Value is string)
-        {
-            sb.Append('"');
-            sb.Append(Value);
-            sb.Append('"');
-            return;
-        }
-
         if (Value.Type == AnyValue.AnyValueType.Char)
         {
             sb.Append('\'');
@@ -88,21 +77,29 @@ public sealed class ConstantExpression : Expression
             return;
         }
 
+        if (Value.BoxedValue is string)
+        {
+            sb.Append('"');
+            sb.Append(Value);
+            sb.Append('"');
+            return;
+        }
+
         throw new NotSupportedException();
     }
 
     public override LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
-        TryConvert(LinqExpression.Constant(Value.BoxedValue), ConvertedType, ctx);
+        TryLinqConvert(LinqExpression.Constant(Value.BoxedValue), TypeInfo, ctx);
 
     protected internal override void WriteTo(IOutputStream writer)
     {
-        writer.SerializeExpression(ConvertedType);
+        _typeInfo.WriteTo(writer);
         writer.Serialize(Value);
     }
 
     protected internal override void ReadFrom(IInputStream reader)
     {
-        ConvertedType = reader.Deserialize() as TypeExpression;
+        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
         Value = AnyValue.DeserializeFrom(reader);
     }
 }

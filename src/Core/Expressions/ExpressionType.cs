@@ -8,7 +8,6 @@ public enum ExpressionType : byte
     NewExpression = 3,
     MemberAccessExpression = 4,
     MethodCallExpression = 5,
-    //InvocationExpression,
     //LambdaExpression,
     //BlockExpression,
     //EventAction,
@@ -22,8 +21,7 @@ public enum ExpressionType : byte
     EntityExpression = 200,
     EntityFieldExpression,
     EntitySetExpression,
-    KVFieldExpression,
-
+    //KVFieldExpression,
     //UnionRefFieldExpression,
     //EnumItemExpression,
 

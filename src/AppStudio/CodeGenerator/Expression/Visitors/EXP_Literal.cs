@@ -5,9 +5,9 @@ namespace AppBoxDesign.CodeGenerator;
 
 internal partial class ExpressionParser
 {
-    public override Expression? VisitLiteralExpression(LiteralExpressionSyntax node)
+    public override ParseResult VisitLiteralExpression(LiteralExpressionSyntax node)
     {
-        var convertedType = GetConvertedType(node);
-        return ConstantExpression.From(node.Token.Value, convertedType);
+        var typeInfo = TryGetTypeInfoWithConverted(node);
+        return Expression.Constant(node.Token.Value, typeInfo);
     }
 }

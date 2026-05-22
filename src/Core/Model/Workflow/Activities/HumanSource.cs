@@ -82,7 +82,7 @@ public sealed class HumanSource : IBinSerializable
         set
         {
             _cachedOrgUnitPath = value;
-            _ouExpression = ConstantExpression.From(_cachedOrgUnitPath![0].Id);
+            _ouExpression = Expression.Constant(_cachedOrgUnitPath![0].Id);
         }
     }
 
