@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Tests;
 
-public class SqlQueryBenchmarks
+public class SqlQueryBenchmark
 {
-    public SqlQueryBenchmarks()
+    public SqlQueryBenchmark()
     {
         ServerRuntimeHelper.MockUserSession();
         _db = new TestDbContext();

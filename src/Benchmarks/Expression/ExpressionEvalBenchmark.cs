@@ -7,7 +7,7 @@ using LightExpression = FastExpressionCompiler.LightExpression.Expression;
 
 namespace Tests;
 
-public class ExpressionEvalBenchmarks
+public class ExpressionEvalBenchmark
 {
     private readonly Task<int> _task = Task.FromResult(123);
 
