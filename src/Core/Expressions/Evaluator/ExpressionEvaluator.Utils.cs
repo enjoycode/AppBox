@@ -5,9 +5,9 @@ namespace AppBoxCore;
 
 partial class ExpressionEvaluator
 {
-    private static AnyValue ConvertTo(AnyValue value, ExpressionTypeInfo toType, ExpressionEvalContext context)
+    private AnyValue ConvertTo(AnyValue value, ExpressionTypeInfo toType)
     {
-        var resultType = context.ResolveType(toType);
+        var resultType = ResolveType(toType);
         return resultType! switch
         {
             { } t when t == typeof(int) => value.ConvertToInt32(),
@@ -27,8 +27,7 @@ partial class ExpressionEvaluator
         };
     }
 
-    private static MethodInfo GetMethodInfo(Type type, MethodCallExpression methodCallExpression,
-        ExpressionEvalContext context)
+    private MethodInfo GetMethodInfo(Type type, MethodCallExpression methodCallExpression)
     {
         Type[] argTypes = Type.EmptyTypes;
         var genericParameterCount = methodCallExpression.IsGenericMethod
@@ -44,7 +43,7 @@ partial class ExpressionEvaluator
                 {
                     var arg = methodCallExpression.Arguments[i];
                     Debug.Assert(!arg.TypeInfo.IsEmpty);
-                    argTypes[i] = context.ResolveType(arg.TypeInfo);
+                    argTypes[i] = ResolveType(arg.TypeInfo);
                 }
                 else
                 {
@@ -62,7 +61,7 @@ partial class ExpressionEvaluator
             var genericTypes = new Type[methodCallExpression.GenericArguments!.Length];
             for (var i = 0; i < genericTypes.Length; i++)
             {
-                genericTypes[i] = context.ResolveType(methodCallExpression.GenericArguments[i]);
+                genericTypes[i] = ResolveType(methodCallExpression.GenericArguments[i]);
             }
 
             methodInfo = methodInfo.MakeGenericMethod(genericTypes);
@@ -71,7 +70,7 @@ partial class ExpressionEvaluator
         return methodInfo;
     }
 
-    private object?[]? GetMethodArgs(MethodCallExpression methodCallExpression, ExpressionEvalContext context)
+    private object?[]? GetMethodArgs(MethodCallExpression methodCallExpression)
     {
         object?[]? args = null;
         // types = [];
@@ -82,7 +81,7 @@ partial class ExpressionEvaluator
             for (var i = 0; i < args.Length; i++)
             {
                 var arg = methodCallExpression.Arguments[i];
-                args[i] = Visit(arg, context).Result.BoxedValue;
+                args[i] = Visit(arg).Result.BoxedValue;
             }
         }
 

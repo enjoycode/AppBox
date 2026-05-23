@@ -26,9 +26,8 @@ public class ExpressionEvaluatorTest
         Console.WriteLine($"Parse used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
 
         ts = Stopwatch.GetTimestamp();
-        var evaluator = new ExpressionEvaluator();
-        var context = new ExpressionEvalContext(ExpressionContext.Default);
-        var result = await evaluator.Visit(exp, context);
+        var evaluator = new ExpressionEvaluator(ExpressionContext.Default);
+        var result = await evaluator.Visit(exp);
         Console.WriteLine($"Eval used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
 
         assert?.Invoke(result);

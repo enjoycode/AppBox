@@ -30,7 +30,7 @@ public class ExpressionContext : IExpressionContext
         { "object", typeof(object) },
     };
 
-    public virtual Type ResolveType(ExpressionTypeInfo typeInfo)
+    public Type ResolveType(ExpressionTypeInfo typeInfo)
     {
         //TODO:暂简单实现,maybe use cache
         if (_knownTypes.TryGetValue(typeInfo.TypeName, out var sysType))

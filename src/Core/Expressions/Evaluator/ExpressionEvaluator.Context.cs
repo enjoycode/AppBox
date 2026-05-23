@@ -1,8 +1,8 @@
 namespace AppBoxCore;
 
-public sealed class ExpressionEvalContext
+partial class ExpressionEvaluator
 {
-    public ExpressionEvalContext(IExpressionContext expressionContext)
+    public ExpressionEvaluator(IExpressionContext expressionContext)
     {
         _expressionContext = expressionContext;
     }
