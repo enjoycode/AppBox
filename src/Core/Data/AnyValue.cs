@@ -12,6 +12,8 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 {
     public static readonly AnyValue Empty = new();
 
+    #region ====Ctor====
+
     //@formatter:off
     public AnyValue() { Type = ValueType.Empty; }
     private AnyValue(bool v) { Type = ValueType.Boolean; BoolValue = v; }
@@ -32,22 +34,24 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     private AnyValue(Action<IOutputStream> streamWriter) {Type = ValueType.Stream; ObjectValue = streamWriter; }
     //@formatter:on
 
+    #endregion
+
     #region ====内存结构===
 
-    [FieldOffset(0)] internal readonly bool BoolValue;
-    [FieldOffset(0)] internal readonly byte ByteValue;
-    [FieldOffset(0)] internal readonly char CharValue;
-    [FieldOffset(0)] internal readonly short ShortValue;
-    [FieldOffset(0)] internal readonly ushort UShortValue;
-    [FieldOffset(0)] internal readonly int IntValue;
-    [FieldOffset(0)] internal readonly uint UIntValue;
-    [FieldOffset(0)] internal readonly long LongValue;
-    [FieldOffset(0)] internal readonly ulong ULongValue;
-    [FieldOffset(0)] internal readonly float FloatValue;
-    [FieldOffset(0)] internal readonly double DoubleValue;
-    [FieldOffset(0)] internal readonly decimal DecimalValue;
-    [FieldOffset(0)] internal readonly DateTime DateTimeValue;
-    [FieldOffset(0)] internal readonly Guid GuidValue;
+    [FieldOffset(0)] private readonly bool BoolValue;
+    [FieldOffset(0)] private readonly byte ByteValue;
+    [FieldOffset(0)] private readonly char CharValue;
+    [FieldOffset(0)] private readonly short ShortValue;
+    [FieldOffset(0)] private readonly ushort UShortValue;
+    [FieldOffset(0)] private readonly int IntValue;
+    [FieldOffset(0)] private readonly uint UIntValue;
+    [FieldOffset(0)] private readonly long LongValue;
+    [FieldOffset(0)] private readonly ulong ULongValue;
+    [FieldOffset(0)] private readonly float FloatValue;
+    [FieldOffset(0)] private readonly double DoubleValue;
+    [FieldOffset(0)] private readonly decimal DecimalValue;
+    [FieldOffset(0)] private readonly DateTime DateTimeValue;
+    [FieldOffset(0)] private readonly Guid GuidValue;
     [FieldOffset(16)] private readonly object? ObjectValue;
     [FieldOffset(24)] public readonly ValueType Type;
 
@@ -122,6 +126,61 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             sizeof(int) => Unsafe.BitCast<int, T>(IntValue),
             // sizeof(ulong)  => Unsafe.BitCast<TEnum, ulong>(value),
             _ => throw new InvalidCastException($"The size of {typeof(T)} is not supported."),
+        };
+    }
+
+    #endregion
+
+    #region ====CastTo====
+
+    public T? CastTo<T>() where T : notnull
+    {
+        if (IsEmpty) return default;
+        return typeof(T) switch
+        {
+            { } t when t == typeof(bool) => Type == ValueType.Boolean
+                ? Unsafe.As<bool, T>(ref Unsafe.AsRef(in BoolValue))
+                : throw new InvalidCastException($"{Type} can't cast to bool"),
+            { } t when t == typeof(byte) => Type == ValueType.Byte
+                ? Unsafe.As<byte, T>(ref Unsafe.AsRef(in ByteValue))
+                : throw new InvalidCastException($"{Type} can't cast to byte"),
+            { } t when t == typeof(char) => Type == ValueType.Char
+                ? Unsafe.As<char, T>(ref Unsafe.AsRef(in CharValue))
+                : throw new InvalidCastException($"{Type} can't cast to char"),
+            { } t when t == typeof(short) => Type == ValueType.Int16
+                ? Unsafe.As<short, T>(ref Unsafe.AsRef(in ShortValue))
+                : throw new InvalidCastException($"{Type} can't cast to short"),
+            { } t when t == typeof(ushort) => Type == ValueType.UInt16
+                ? Unsafe.As<ushort, T>(ref Unsafe.AsRef(in UShortValue))
+                : throw new InvalidCastException($"{Type} can't cast to ushort"),
+            { } t when t == typeof(int) => Type == ValueType.Int32
+                ? Unsafe.As<int, T>(ref Unsafe.AsRef(in IntValue))
+                : throw new InvalidCastException($"{Type} can't cast to int"),
+            { } t when t == typeof(uint) => Type == ValueType.UInt32
+                ? Unsafe.As<uint, T>(ref Unsafe.AsRef(in UIntValue))
+                : throw new InvalidCastException($"{Type} can't cast to uint"),
+            { } t when t == typeof(long) => Type == ValueType.Int64
+                ? Unsafe.As<long, T>(ref Unsafe.AsRef(in LongValue))
+                : throw new InvalidCastException($"{Type} can't cast to long"),
+            { } t when t == typeof(ulong) => Type == ValueType.UInt64
+                ? Unsafe.As<ulong, T>(ref Unsafe.AsRef(in ULongValue))
+                : throw new InvalidCastException($"{Type} can't cast to ulong"),
+            { } t when t == typeof(float) => Type == ValueType.Float
+                ? Unsafe.As<float, T>(ref Unsafe.AsRef(in FloatValue))
+                : throw new InvalidCastException($"{Type} can't cast to float"),
+            { } t when t == typeof(double) => Type == ValueType.Double
+                ? Unsafe.As<double, T>(ref Unsafe.AsRef(in DoubleValue))
+                : throw new InvalidCastException($"{Type} can't cast to double"),
+            { } t when t == typeof(decimal) => Type == ValueType.Decimal
+                ? Unsafe.As<decimal, T>(ref Unsafe.AsRef(in DecimalValue))
+                : throw new InvalidCastException($"{Type} can't cast to decimal"),
+            { } t when t == typeof(DateTime) => Type == ValueType.DateTime
+                ? Unsafe.As<DateTime, T>(ref Unsafe.AsRef(in DateTimeValue))
+                : throw new InvalidCastException($"{Type} can't cast to DateTime"),
+            { } t when t == typeof(Guid) => Type == ValueType.Guid
+                ? Unsafe.As<Guid, T>(ref Unsafe.AsRef(in GuidValue))
+                : throw new InvalidCastException($"{Type} can't cast to Guid"),
+            _ => (T)BoxedValue!
         };
     }
 
@@ -459,61 +518,3 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         Stream,
     }
 }
-
-#region ====CastTo====
-
-public static class Extensions
-{
-    public static T? CastTo<T>(this AnyValue v) where T : notnull
-    {
-        if (v.IsEmpty) return default;
-        return typeof(T) switch
-        {
-            { } t when t == typeof(bool) => v.Type == AnyValue.ValueType.Boolean
-                ? Unsafe.As<bool, T>(ref Unsafe.AsRef(in v.BoolValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to bool"),
-            { } t when t == typeof(byte) => v.Type == AnyValue.ValueType.Byte
-                ? Unsafe.As<byte, T>(ref Unsafe.AsRef(in v.ByteValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to byte"),
-            { } t when t == typeof(char) => v.Type == AnyValue.ValueType.Char
-                ? Unsafe.As<char, T>(ref Unsafe.AsRef(in v.CharValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to char"),
-            { } t when t == typeof(short) => v.Type == AnyValue.ValueType.Int16
-                ? Unsafe.As<short, T>(ref Unsafe.AsRef(in v.ShortValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to short"),
-            { } t when t == typeof(ushort) => v.Type == AnyValue.ValueType.UInt16
-                ? Unsafe.As<ushort, T>(ref Unsafe.AsRef(in v.UShortValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to ushort"),
-            { } t when t == typeof(int) => v.Type == AnyValue.ValueType.Int32
-                ? Unsafe.As<int, T>(ref Unsafe.AsRef(in v.IntValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to int"),
-            { } t when t == typeof(uint) => v.Type == AnyValue.ValueType.UInt32
-                ? Unsafe.As<uint, T>(ref Unsafe.AsRef(in v.UIntValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to uint"),
-            { } t when t == typeof(long) => v.Type == AnyValue.ValueType.Int64
-                ? Unsafe.As<long, T>(ref Unsafe.AsRef(in v.LongValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to long"),
-            { } t when t == typeof(ulong) => v.Type == AnyValue.ValueType.UInt64
-                ? Unsafe.As<ulong, T>(ref Unsafe.AsRef(in v.ULongValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to ulong"),
-            { } t when t == typeof(float) => v.Type == AnyValue.ValueType.Float
-                ? Unsafe.As<float, T>(ref Unsafe.AsRef(in v.FloatValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to float"),
-            { } t when t == typeof(double) => v.Type == AnyValue.ValueType.Double
-                ? Unsafe.As<double, T>(ref Unsafe.AsRef(in v.DoubleValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to double"),
-            { } t when t == typeof(decimal) => v.Type == AnyValue.ValueType.Decimal
-                ? Unsafe.As<decimal, T>(ref Unsafe.AsRef(in v.DecimalValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to decimal"),
-            { } t when t == typeof(DateTime) => v.Type == AnyValue.ValueType.DateTime
-                ? Unsafe.As<DateTime, T>(ref Unsafe.AsRef(in v.DateTimeValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to DateTime"),
-            { } t when t == typeof(Guid) => v.Type == AnyValue.ValueType.Guid
-                ? Unsafe.As<Guid, T>(ref Unsafe.AsRef(in v.GuidValue))
-                : throw new InvalidCastException($"{v.Type} can't cast to Guid"),
-            _ => (T)v.BoxedValue!
-        };
-    }
-}
-
-#endregion
