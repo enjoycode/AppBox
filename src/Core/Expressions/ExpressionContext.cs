@@ -4,7 +4,7 @@ public interface IExpressionContext
 {
     //TODO: ResolveParameter
 
-    Type ResolveType(ExpressionTypeInfo typeInfo);
+    Type ResolveType(in ExpressionTypeInfo typeInfo);
 }
 
 public class ExpressionContext : IExpressionContext
@@ -30,7 +30,7 @@ public class ExpressionContext : IExpressionContext
         { "object", typeof(object) },
     };
 
-    public Type ResolveType(ExpressionTypeInfo typeInfo)
+    public Type ResolveType(in ExpressionTypeInfo typeInfo)
     {
         //TODO:暂简单实现,maybe use cache
         if (_knownTypes.TryGetValue(typeInfo.TypeName, out var sysType))
@@ -40,12 +40,12 @@ public class ExpressionContext : IExpressionContext
         if (type == null)
             throw new Exception($"Can't find type: {typeInfo.TypeName} ");
 
-        if (typeInfo.GenericArguments is { Length: > 0 })
+        if (typeInfo.Types is { Length: > 0 })
         {
-            var genericTypes = new Type[typeInfo.GenericArguments.Length];
+            var genericTypes = new Type[typeInfo.Types.Length];
             for (var i = 0; i < genericTypes.Length; i++)
             {
-                genericTypes[i] = ResolveType(typeInfo.GenericArguments[i]);
+                genericTypes[i] = ResolveType(typeInfo.Types[i]);
             }
 
             type = type.MakeGenericType(genericTypes);

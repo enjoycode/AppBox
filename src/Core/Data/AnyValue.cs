@@ -18,6 +18,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public AnyValue() { Type = ValueType.Empty; }
     private AnyValue(bool v) { Type = ValueType.Boolean; BoolValue = v; }
     private AnyValue(byte v) { Type = ValueType.Byte; ByteValue = v; }
+    private AnyValue(sbyte v) { Type = ValueType.SByte; SByteValue = v; }
     private AnyValue(char v) { Type = ValueType.Char; CharValue = v; }
     private AnyValue(short v) { Type = ValueType.Int16; ShortValue = v; }
     private AnyValue(ushort v) { Type = ValueType.UInt16; UShortValue = v; }
@@ -40,6 +41,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     [FieldOffset(0)] private readonly bool BoolValue;
     [FieldOffset(0)] private readonly byte ByteValue;
+    [FieldOffset(0)] private readonly sbyte SByteValue;
     [FieldOffset(0)] private readonly char CharValue;
     [FieldOffset(0)] private readonly short ShortValue;
     [FieldOffset(0)] private readonly ushort UShortValue;
@@ -63,6 +65,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     {
         ValueType.Boolean => BoolValue,
         ValueType.Byte => ByteValue,
+        ValueType.SByte => SByteValue,
         ValueType.Int16 => ShortValue,
         ValueType.UInt16 => UShortValue,
         ValueType.Int32 => IntValue,
@@ -84,6 +87,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     public byte? GetByte() =>
         IsEmpty ? null : Type != ValueType.Byte ? throw new InvalidOperationException() : ByteValue;
+
+    public sbyte? GetSByte() =>
+        IsEmpty ? null : Type != ValueType.SByte ? throw new InvalidOperationException() : SByteValue;
 
     public short? GetShort() =>
         IsEmpty ? null : Type != ValueType.Int16 ? throw new InvalidOperationException() : ShortValue;
@@ -144,6 +150,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             { } t when t == typeof(byte) => Type == ValueType.Byte
                 ? Unsafe.As<byte, T>(ref Unsafe.AsRef(in ByteValue))
                 : throw new InvalidCastException($"{Type} can't cast to byte"),
+            { } t when t == typeof(sbyte) => Type == ValueType.SByte
+                ? Unsafe.As<sbyte, T>(ref Unsafe.AsRef(in SByteValue))
+                : throw new InvalidCastException($"{Type} can't cast to sbyte"),
             { } t when t == typeof(char) => Type == ValueType.Char
                 ? Unsafe.As<char, T>(ref Unsafe.AsRef(in CharValue))
                 : throw new InvalidCastException($"{Type} can't cast to char"),
@@ -194,6 +203,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static AnyValue From(byte v) => new(v);
     public static AnyValue From(byte? v) => v.HasValue ? new(v.Value) : Empty;
 
+    public static AnyValue From(sbyte v) => new(v);
+    public static AnyValue From(sbyte? v) => v.HasValue ? new(v.Value) : Empty;
+
     public static AnyValue From(char v) => new(v);
     public static AnyValue From(char? v) => v.HasValue ? new(v.Value) : Empty;
 
@@ -237,6 +249,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         {
             bool boolValue => new(boolValue),
             byte byteValue => new(byteValue),
+            sbyte sbyteValue => new(sbyteValue),
             char charValue => new(charValue),
             short shortValue => new(shortValue),
             ushort ushortValue => new(ushortValue),
@@ -303,6 +316,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     //注意隐式转换不支持接口类型及object
     public static implicit operator AnyValue(bool v) => new(v);
     public static implicit operator AnyValue(byte v) => new(v);
+    public static implicit operator AnyValue(sbyte v) => new(v);
     public static implicit operator AnyValue(char v) => new(v);
     public static implicit operator AnyValue(short v) => new(v);
     public static implicit operator AnyValue(ushort v) => new(v);
@@ -430,6 +444,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         {
             case ValueType.Boolean: return typeof(bool);
             case ValueType.Byte: return typeof(byte);
+            case ValueType.SByte: return typeof(sbyte);
             case ValueType.Char: return typeof(char);
             case ValueType.Int16: return typeof(short);
             case ValueType.UInt16: return typeof(ushort);
@@ -516,5 +531,6 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         Decimal,
         Guid,
         Stream,
+        SByte,
     }
 }

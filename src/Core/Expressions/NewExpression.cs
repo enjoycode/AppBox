@@ -76,7 +76,6 @@ public sealed class NewExpression : Expression
         writer.WriteExpressionArray(Arguments);
         writer.WriteBool(ConvertedType.HasValue);
         ConvertedType?.WriteTo(writer);
-        writer.WriteVariant(0); //保留
     }
 
     protected internal override void ReadFrom(IInputStream reader)
@@ -86,6 +85,5 @@ public sealed class NewExpression : Expression
         var hasConvertedType = reader.ReadBool();
         if (hasConvertedType)
             ConvertedType = ExpressionTypeInfo.ReadFrom(reader);
-        reader.ReadVariant(); //保留
     }
 }

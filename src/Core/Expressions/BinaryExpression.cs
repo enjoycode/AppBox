@@ -130,7 +130,6 @@ public sealed class BinaryExpression : Expression
         writer.SerializeExpression(RightOperand);
         writer.WriteByte((byte)BinaryType);
         _typeInfo.WriteTo(writer);
-        writer.WriteVariant(0); //保留
     }
 
     protected internal override void ReadFrom(IInputStream reader)
@@ -139,7 +138,6 @@ public sealed class BinaryExpression : Expression
         RightOperand = (Expression)reader.Deserialize()!;
         BinaryType = (BinaryOperatorType)reader.ReadByte();
         _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
-        reader.ReadVariant(); //保留
     }
 
     #endregion

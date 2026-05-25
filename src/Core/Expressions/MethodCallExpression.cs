@@ -109,7 +109,6 @@ public sealed class MethodCallExpression : Expression
         writer.WriteExpressionArray(Arguments);
         writer.WriteTypeInfoArray(GenericArguments);
         _typeInfo.WriteTo(writer);
-        writer.WriteFieldEnd(); //保留
     }
 
     protected internal override void ReadFrom(IInputStream reader)
@@ -123,6 +122,5 @@ public sealed class MethodCallExpression : Expression
         Arguments = reader.ReadExpressionArray();
         GenericArguments = reader.ReadTypeInfoArray();
         _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
-        reader.ReadFieldId(); //保留
     }
 }

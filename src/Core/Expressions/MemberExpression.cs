@@ -72,7 +72,6 @@ public sealed class MemberExpression : Expression
         writer.WriteString(MemberName);
         writer.WriteBool(IsField);
         _typeInfo.WriteTo(writer);
-        writer.WriteFieldEnd(); //保留
     }
 
     protected internal override void ReadFrom(IInputStream reader)
@@ -85,6 +84,5 @@ public sealed class MemberExpression : Expression
         MemberName = reader.ReadString()!;
         IsField = reader.ReadBool();
         _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
-        reader.ReadFieldId(); //保留
     }
 }

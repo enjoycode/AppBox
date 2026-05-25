@@ -12,7 +12,7 @@ public sealed class ConstantExpression : Expression
     internal ConstantExpression(AnyValue value, ExpressionTypeInfo? typeInfo = null)
     {
         Value = value;
-        _typeInfo = typeInfo ?? ExpressionTypeInfo.FromAnyValue(value);
+        _typeInfo = typeInfo ?? new(value);
     }
 
     public AnyValue Value { get; private set; }
