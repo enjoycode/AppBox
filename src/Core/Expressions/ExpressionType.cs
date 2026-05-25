@@ -30,7 +30,4 @@ public enum ExpressionType : byte
 
     DbFuncExpression,
     DbParameterExpression,
-
-    //FormCreationExpression,
-    //ArrayCreationExpression,
 }

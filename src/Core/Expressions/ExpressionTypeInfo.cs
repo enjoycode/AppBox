@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AppBoxCore;
 
@@ -13,8 +14,23 @@ public readonly struct ExpressionTypeInfo
     private const byte KnownTypeMask = 0x1F;
 
     public static readonly ExpressionTypeInfo Empty = new(KnownType.Empty);
-    public static readonly ExpressionTypeInfo DateTime = new(KnownType.DateTime);
+    public static readonly ExpressionTypeInfo Boolean = new(KnownType.Boolean);
+    public static readonly ExpressionTypeInfo Byte = new(KnownType.Byte);
+    public static readonly ExpressionTypeInfo SByte = new(KnownType.SByte);
+    public static readonly ExpressionTypeInfo Char = new(KnownType.Char);
+    public static readonly ExpressionTypeInfo Int16 = new(KnownType.Int16);
+    public static readonly ExpressionTypeInfo UInt16 = new(KnownType.UInt16);
+    public static readonly ExpressionTypeInfo Int32 = new(KnownType.Int32);
+    public static readonly ExpressionTypeInfo UInt32 = new(KnownType.UInt32);
+    public static readonly ExpressionTypeInfo Int64 = new(KnownType.Int64);
+    public static readonly ExpressionTypeInfo UInt64 = new(KnownType.UInt64);
+    public static readonly ExpressionTypeInfo Float = new(KnownType.Float);
     public static readonly ExpressionTypeInfo Double = new(KnownType.Double);
+    public static readonly ExpressionTypeInfo Decimal = new(KnownType.Decimal);
+    public static readonly ExpressionTypeInfo DateTime = new(KnownType.DateTime);
+    public static readonly ExpressionTypeInfo Guid = new(KnownType.Guid);
+    public static readonly ExpressionTypeInfo String = new(KnownType.String);
+    public static readonly ExpressionTypeInfo Object = new(KnownType.Object);
 
     #region ====Ctor====
 
@@ -90,17 +106,17 @@ public readonly struct ExpressionTypeInfo
         };
     }
 
-    /// <summary>
-    /// From runtime type
-    /// </summary>
-    public ExpressionTypeInfo(Type runtimeType)
-    {
-        // switch (runtimeType)
-        // {
-        //     case Type t when t == typeof(bool)
-        // }
-        throw new NotImplementedException();
-    }
+    // /// <summary>
+    // /// From runtime type
+    // /// </summary>
+    // public ExpressionTypeInfo(Type runtimeType)
+    // {
+    //     // switch (runtimeType)
+    //     // {
+    //     //     case Type t when t == typeof(bool)
+    //     // }
+    //     throw new NotImplementedException();
+    // }
 
     #endregion
 
@@ -148,7 +164,7 @@ public readonly struct ExpressionTypeInfo
 
     public bool IsNullable => (_typeFlag & IsNullableMask) == IsNullableMask;
     public bool IsConverted => (_typeFlag & IsConvertedMask) == IsConvertedMask;
-    private bool HasTypes => (_typeFlag & HasTypesMask) == HasTypesMask;
+    internal bool HasTypes => (_typeFlag & HasTypesMask) == HasTypesMask;
 
     public bool IsGeneric => HasTypes && Type != KnownType.Array;
     public bool IsEmpty => Type == KnownType.Empty;
@@ -156,6 +172,27 @@ public readonly struct ExpressionTypeInfo
     public ExpressionTypeInfo WithConverted(bool isConverted) => Type == KnownType.Unknown
         ? new(TypeName, isConverted, IsNullable, Types)
         : new(Type, isConverted, IsNullable, Types);
+
+    public ExpressionTypeInfo WithNullable(bool isNullable) => Type == KnownType.Unknown
+        ? new(TypeName, IsConverted, isNullable, Types)
+        : new(Type, IsConverted, isNullable, Types);
+
+    // private bool TryGetFromRuntimeType(Type runtimeType,
+    //     [MaybeNullWhen(returnValue: false)] out ExpressionTypeInfo typeInfo)
+    // {
+    //     if (runtimeType.IsArray)
+    //     {
+    //         if (TryGetFromRuntimeType(runtimeType.GetElementType()!, out var elementType))
+    //         {
+    //             typeInfo = new ExpressionTypeInfo(KnownType.Array, types: [elementType]);
+    //             return true;
+    //         }
+    //     }
+    //     else if (runtimeType.IsGenericType)
+    //     {
+    //         
+    //     }
+    // }
 
     public override string ToString() => TypeName;
 

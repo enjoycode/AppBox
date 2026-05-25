@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
 using AppBoxCore;
+using AppBoxDesign;
 using AppBoxDesign.CodeGenerator;
 using NUnit.Framework;
 using LinqExp = System.Linq.Expressions.Expression;
@@ -8,8 +7,14 @@ using LinqExps = System.Linq.Expressions;
 
 namespace Tests.Design;
 
-public class ExpressionParserTest
+public class ExpressionCompileTest
 {
+    [SetUp]
+    public static async Task InitSetup()
+    {
+        await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
+    }
+    
     private static T Run<T>(string expLine)
     {
         var code = $"using System;static class E{{static {typeof(T).FullName} M(){{return {expLine};}}}}";

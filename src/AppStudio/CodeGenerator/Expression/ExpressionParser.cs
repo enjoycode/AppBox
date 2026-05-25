@@ -14,14 +14,14 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
 
     private readonly SemanticModel _semanticModel;
 
-    public static Expression ParseCode(string code, bool singleLine = true)
+    public static SemanticModel Parse(string code, out CompilationUnitSyntax root)
     {
         var parseOptions = new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11);
         var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
             .WithNullableContextOptions(NullableContextOptions.Enable);
 
         var tree = CSharpSyntaxTree.ParseText(code, parseOptions);
-        var root = tree.GetCompilationUnitRoot();
+        root = tree.GetCompilationUnitRoot();
         var compilation = CSharpCompilation.Create("Expression", options: compilationOptions)
             .AddReferences(MetadataReferences.CoreLib)
             .AddSyntaxTrees(tree);
@@ -30,6 +30,12 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
         var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
         if (errors > 0)
             throw new Exception("表达式存在语义错误");
+        return semanticModel;
+    }
+
+    public static Expression ParseCode(string code, bool singleLine = true)
+    {
+        var semanticModel = Parse(code, out var root);
 
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
         if (methodDecl.Body is { Statements.Count: > 1 })
