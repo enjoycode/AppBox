@@ -6,7 +6,7 @@ public abstract class ExpressionVisitor<TResult>
     {
         ConstantExpression constantExpression => VisitConstant(constantExpression),
         BinaryExpression binaryExpression => VisitBinary(binaryExpression),
-        MemberAccessExpression memberAccessExpression => VisitMemberAccess(memberAccessExpression),
+        MemberExpression memberAccessExpression => VisitMemberAccess(memberAccessExpression),
         MethodCallExpression methodCallExpression => VisitMethodCall(methodCallExpression),
         NewExpression newExpression => VisitNew(newExpression),
         AwaitExpression awaitExpression => VisitAwait(awaitExpression),
@@ -20,7 +20,7 @@ public abstract class ExpressionVisitor<TResult>
     protected virtual TResult VisitBinary(BinaryExpression binaryExpression)
         => throw new NotSupportedException();
 
-    protected virtual TResult VisitMemberAccess(MemberAccessExpression memberAccessExpression)
+    protected virtual TResult VisitMemberAccess(MemberExpression memberExpression)
         => throw new NotSupportedException();
 
     protected virtual TResult VisitMethodCall(MethodCallExpression methodCallExpression)

@@ -8,19 +8,22 @@ partial class Expression
     public static ConstantExpression Constant(object? value, ExpressionTypeInfo? typeInfo = null) =>
         new(AnyValue.From(value), typeInfo);
 
-    public static MemberAccessExpression StaticProperty(ExpressionTypeInfo staticType, string memberName,
+    public static ParameterExpression Parameter(string name, ExpressionTypeInfo typeInfo) =>
+        new(name, typeInfo);
+
+    public static MemberExpression StaticProperty(ExpressionTypeInfo staticType, string memberName,
         ExpressionTypeInfo typeInfo) =>
         new(staticType, null, memberName, false, typeInfo);
 
-    public static MemberAccessExpression StaticField(ExpressionTypeInfo staticType, string memberName,
+    public static MemberExpression StaticField(ExpressionTypeInfo staticType, string memberName,
         ExpressionTypeInfo typeInfo) =>
         new(staticType, null, memberName, true, typeInfo);
 
-    public static MemberAccessExpression InstanceProperty(Expression instance, string memberName,
+    public static MemberExpression InstanceProperty(Expression instance, string memberName,
         ExpressionTypeInfo typeInfo) =>
         new(ExpressionTypeInfo.Empty, instance, memberName, false, typeInfo);
 
-    public static MemberAccessExpression InstanceField(Expression instance, string memberName,
+    public static MemberExpression InstanceField(Expression instance, string memberName,
         ExpressionTypeInfo typeInfo) =>
         new(ExpressionTypeInfo.Empty, instance, memberName, true, typeInfo);
 

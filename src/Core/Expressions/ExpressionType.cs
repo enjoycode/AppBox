@@ -3,10 +3,10 @@ namespace AppBoxCore;
 public enum ExpressionType : byte
 {
     ConstantExpression = 0,
-    TypeExpression = 1,
+    ParameterExpression = 1,
     BinaryExpression = 2,
     NewExpression = 3,
-    MemberAccessExpression = 4,
+    MemberExpression = 4,
     MethodCallExpression = 5,
     //LambdaExpression,
     //BlockExpression,

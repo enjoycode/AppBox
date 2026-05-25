@@ -7,13 +7,13 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
         ? new ValueTask<AnyValue>(ConvertTo(constantExpression.Value, constantExpression.TypeInfo))
         : new ValueTask<AnyValue>(constantExpression.Value);
 
-    protected override ValueTask<AnyValue> VisitMemberAccess(MemberAccessExpression memberAccessExpression)
+    protected override ValueTask<AnyValue> VisitMemberAccess(MemberExpression memberExpression)
     {
-        var memberName = memberAccessExpression.MemberName;
-        var isField = memberAccessExpression.IsField;
-        if (memberAccessExpression.IsStaticMemberAccess)
+        var memberName = memberExpression.MemberName;
+        var isField = memberExpression.IsField;
+        if (memberExpression.IsStaticMemberAccess)
         {
-            var staticType = ResolveType(memberAccessExpression.StaticType);
+            var staticType = ResolveType(memberExpression.StaticType);
             if (isField)
             {
                 var fieldInfo = staticType.GetField(memberName)!;
@@ -25,7 +25,7 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
         }
         else
         {
-            var instance = Visit(memberAccessExpression.Instance!).Result;
+            var instance = Visit(memberExpression.Instance!).Result;
             if (instance.IsEmpty) throw new NullReferenceException();
             var instanceType = instance.GetRuntimeType();
             if (isField)

@@ -4,13 +4,13 @@ using System.Text;
 
 namespace AppBoxCore;
 
-public sealed class MemberAccessExpression : Expression
+public sealed class MemberExpression : Expression
 {
     //LinqExpression只支持Property和Field
 
-    internal MemberAccessExpression() { }
+    internal MemberExpression() { }
 
-    internal MemberAccessExpression(ExpressionTypeInfo staticType, Expression? instance, string memberName,
+    internal MemberExpression(ExpressionTypeInfo staticType, Expression? instance, string memberName,
         bool isField, ExpressionTypeInfo typeInfo)
     {
         Debug.Assert(!typeInfo.IsEmpty);
@@ -21,7 +21,7 @@ public sealed class MemberAccessExpression : Expression
         _typeInfo = typeInfo;
     }
 
-    public override ExpressionType NodeType => ExpressionType.MemberAccessExpression;
+    public override ExpressionType NodeType => ExpressionType.MemberExpression;
 
     public ExpressionTypeInfo StaticType { get; private set; }
     public Expression? Instance { get; private set; }
