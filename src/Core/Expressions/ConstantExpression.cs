@@ -31,38 +31,38 @@ public sealed class ConstantExpression : Expression
             return;
         }
 
-        if (Value.Type == AnyValue.AnyValueType.Boolean)
+        if (Value.Type == AnyValue.ValueType.Boolean)
         {
             sb.Append(Value.GetBool()!.Value ? "true" : "false");
             return;
         }
 
-        if (Value.Type is AnyValue.AnyValueType.Byte
-            or AnyValue.AnyValueType.Int16 or AnyValue.AnyValueType.Int32
-            or AnyValue.AnyValueType.Int64 or AnyValue.AnyValueType.UInt16
-            or AnyValue.AnyValueType.UInt32 or AnyValue.AnyValueType.UInt64
-            or AnyValue.AnyValueType.Float or AnyValue.AnyValueType.Double
-            or AnyValue.AnyValueType.Decimal)
+        if (Value.Type is AnyValue.ValueType.Byte
+            or AnyValue.ValueType.Int16 or AnyValue.ValueType.Int32
+            or AnyValue.ValueType.Int64 or AnyValue.ValueType.UInt16
+            or AnyValue.ValueType.UInt32 or AnyValue.ValueType.UInt64
+            or AnyValue.ValueType.Float or AnyValue.ValueType.Double
+            or AnyValue.ValueType.Decimal)
         {
             sb.Append(Value);
             return;
         }
 
-        if (Value.Type == AnyValue.AnyValueType.Float)
+        if (Value.Type == AnyValue.ValueType.Float)
         {
             sb.Append(Value);
             sb.Append('f');
             return;
         }
 
-        if (Value.Type == AnyValue.AnyValueType.Decimal)
+        if (Value.Type == AnyValue.ValueType.Decimal)
         {
             sb.Append(Value);
             sb.Append('m');
             return;
         }
 
-        if (Value.Type == AnyValue.AnyValueType.Char)
+        if (Value.Type == AnyValue.ValueType.Char)
         {
             sb.Append('\'');
             sb.Append(Value);
@@ -70,7 +70,7 @@ public sealed class ConstantExpression : Expression
             return;
         }
 
-        if (Value.Type is AnyValue.AnyValueType.Guid or AnyValue.AnyValueType.DateTime)
+        if (Value.Type is AnyValue.ValueType.Guid or AnyValue.ValueType.DateTime)
         {
             //TODO:
             sb.AppendFormat("\"{0}\"", Value);

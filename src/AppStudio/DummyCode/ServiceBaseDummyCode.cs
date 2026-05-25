@@ -284,13 +284,13 @@ namespace AppBoxStore
         [QueryMethod()]
         public UpdateOutputs<TResult> Output<TResult>(Func<T, TResult> selector) => throw new Exception();
 
-        public async Task<int> ExecAsync(DbTransaction? txn = null) => throw new Exception();
+        public Task<int> ExecAsync(DbTransaction? txn = null) => throw new Exception();
 
-        public sealed class UpdateOutputs<T>
+        public sealed class UpdateOutputs<TResult>
         {
             private UpdateOutputs() { }
 
-            public T this[int index] => default(T);
+            public TResult this[int index] => default;
 
             public int Count => 0;
         }
@@ -305,6 +305,6 @@ namespace AppBoxStore
         [QueryMethod()]
         public SqlDeleteCommand<T> Where(Func<T, bool> condition) => this;
 
-        public async Task<int> ExecAsync(DbTransaction? txn = null) => throw new Exception();
+        public Task<int> ExecAsync(DbTransaction? txn = null) => throw new Exception();
     }
 }

@@ -21,8 +21,8 @@ partial class ExpressionEvaluator
     {
         return left.Type switch
         {
-            AnyValue.AnyValueType.Int32 => left.GetInt()!.Value + right.GetInt()!.Value,
-            AnyValue.AnyValueType.Double => left.GetDouble()!.Value + right.GetDouble()!.Value,
+            AnyValue.ValueType.Int32 => left.GetInt()!.Value + right.GetInt()!.Value,
+            AnyValue.ValueType.Double => left.GetDouble()!.Value + right.GetDouble()!.Value,
             _ => throw new NotImplementedException()
         };
     }

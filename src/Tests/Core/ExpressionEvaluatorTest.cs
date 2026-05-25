@@ -39,11 +39,11 @@ public class ExpressionEvaluatorTest
         res => res.GetDouble()!.Value == 1 + 2.5);
 
     [Test]
-    public Task EqualsTest1() => EvalSingleLine("return object.Equals(null, 1)", "bool",
+    public Task MethoCallTest1() => EvalSingleLine("return object.Equals(null, 1)", "bool",
         res => !res.GetBool()!.Value);
 
     [Test]
-    public Task EqualsTest2() => EvalSingleLine("return Equals(null, 1)", "bool",
+    public Task MethodCallTest2() => EvalSingleLine("return Equals(null, 1)", "bool",
         res => !res.GetBool()!.Value);
 
     [Test]

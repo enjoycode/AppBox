@@ -24,9 +24,6 @@ public abstract partial class Expression
     /// <summary>
     /// 转换为Linq的表达式
     /// </summary>
-    /// <remarks>
-    /// 注意表达式解释器处理Lambda时必须调用此转换
-    /// </remarks>
     public virtual LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
         throw new NotSupportedException(GetType().FullName);
 

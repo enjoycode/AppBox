@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -11,114 +10,110 @@ namespace AppBoxCore;
 [StructLayout(LayoutKind.Explicit, Pack = 4)]
 public readonly struct AnyValue : IEquatable<AnyValue>
 {
-    public static readonly AnyValue Empty = new() { Type = AnyValueType.Empty };
+    public static readonly AnyValue Empty = new();
+
+    //@formatter:off
+    public AnyValue() { Type = ValueType.Empty; }
+    private AnyValue(bool v) { Type = ValueType.Boolean; BoolValue = v; }
+    private AnyValue(byte v) { Type = ValueType.Byte; ByteValue = v; }
+    private AnyValue(char v) { Type = ValueType.Char; CharValue = v; }
+    private AnyValue(short v) { Type = ValueType.Int16; ShortValue = v; }
+    private AnyValue(ushort v) { Type = ValueType.UInt16; UShortValue = v; }
+    private AnyValue(int v) { Type = ValueType.Int32; IntValue = v; }
+    private AnyValue(uint v) { Type = ValueType.UInt32; UIntValue = v; }
+    private AnyValue(long v) { Type = ValueType.Int64; LongValue = v; }
+    private AnyValue(ulong v) { Type = ValueType.UInt64; ULongValue = v; }
+    private AnyValue(float v) { Type = ValueType.Float; FloatValue = v; }
+    private AnyValue(double v) { Type = ValueType.Double; DoubleValue = v; }
+    private AnyValue(decimal v) { Type = ValueType.Decimal; DecimalValue = v; }
+    private AnyValue(DateTime v) { Type = ValueType.DateTime; DateTimeValue = v; }
+    private AnyValue(Guid v) { Type = ValueType.Guid; GuidValue = v; }
+    private AnyValue(object? v) { Type = v == null ? ValueType.Empty : ValueType.Object; ObjectValue = v; }
+    private AnyValue(Action<IOutputStream> streamWriter) {Type = ValueType.Stream; ObjectValue = streamWriter; }
+    //@formatter:on
 
     #region ====内存结构===
 
-    [field: FieldOffset(0)] private bool BoolValue { get; init; }
-    [field: FieldOffset(0)] private byte ByteValue { get; init; }
-    [field: FieldOffset(0)] private char CharValue { get; init; }
-    [field: FieldOffset(0)] private short ShortValue { get; init; }
-    [field: FieldOffset(0)] private ushort UShortValue { get; init; }
-    [field: FieldOffset(0)] private int IntValue { get; init; }
-    [field: FieldOffset(0)] private uint UIntValue { get; init; }
-    [field: FieldOffset(0)] private long LongValue { get; init; }
-    [field: FieldOffset(0)] private ulong ULongValue { get; init; }
-    [field: FieldOffset(0)] private float FloatValue { get; init; }
-    [field: FieldOffset(0)] private double DoubleValue { get; init; }
-    [field: FieldOffset(0)] private DateTime DateTimeValue { get; init; }
-    [field: FieldOffset(0)] private decimal DecimalValue { get; init; }
-    [field: FieldOffset(0)] private Guid GuidValue { get; init; }
-
-    [field: FieldOffset(16)] private object? ObjectValue { get; init; }
-
-    [field: FieldOffset(24)] public AnyValueType Type { get; init; }
+    [FieldOffset(0)] internal readonly bool BoolValue;
+    [FieldOffset(0)] internal readonly byte ByteValue;
+    [FieldOffset(0)] internal readonly char CharValue;
+    [FieldOffset(0)] internal readonly short ShortValue;
+    [FieldOffset(0)] internal readonly ushort UShortValue;
+    [FieldOffset(0)] internal readonly int IntValue;
+    [FieldOffset(0)] internal readonly uint UIntValue;
+    [FieldOffset(0)] internal readonly long LongValue;
+    [FieldOffset(0)] internal readonly ulong ULongValue;
+    [FieldOffset(0)] internal readonly float FloatValue;
+    [FieldOffset(0)] internal readonly double DoubleValue;
+    [FieldOffset(0)] internal readonly decimal DecimalValue;
+    [FieldOffset(0)] internal readonly DateTime DateTimeValue;
+    [FieldOffset(0)] internal readonly Guid GuidValue;
+    [FieldOffset(16)] private readonly object? ObjectValue;
+    [FieldOffset(24)] public readonly ValueType Type;
 
     #endregion
 
-    public bool IsEmpty => Type == AnyValueType.Empty;
+    public bool IsEmpty => Type == ValueType.Empty;
 
-    public object? BoxedValue
+    public object? BoxedValue => Type switch
     {
-        get
-        {
-            return Type switch
-            {
-                AnyValueType.Boolean => BoolValue,
-                AnyValueType.Byte => ByteValue,
-                AnyValueType.Int16 => ShortValue,
-                AnyValueType.UInt16 => UShortValue,
-                AnyValueType.Int32 => IntValue,
-                AnyValueType.UInt32 => UIntValue,
-                AnyValueType.Int64 => LongValue,
-                AnyValueType.UInt64 => ULongValue,
-                AnyValueType.Float => FloatValue,
-                AnyValueType.Double => DoubleValue,
-                AnyValueType.DateTime => DateTimeValue,
-                AnyValueType.Decimal => DecimalValue,
-                AnyValueType.Guid => GuidValue,
-                _ => ObjectValue,
-            };
-        }
-    }
-
-    public T CastTo<T>()
-    {
-        if (IsEmpty) return default!;
-        // switch (typeof(T))
-        // {
-        //     case { } t when t == typeof(int):
-        //     {
-        //         if (Type != AnyValueType.Int32) throw new InvalidCastException("Value can't cast to an int.");
-        //         var intValue = IntValue;
-        //         return Unsafe.As<int, T>(ref intValue);
-        //     }
-        // }
-
-        return (T)BoxedValue!; //should avoid box?
-    }
+        ValueType.Boolean => BoolValue,
+        ValueType.Byte => ByteValue,
+        ValueType.Int16 => ShortValue,
+        ValueType.UInt16 => UShortValue,
+        ValueType.Int32 => IntValue,
+        ValueType.UInt32 => UIntValue,
+        ValueType.Int64 => LongValue,
+        ValueType.UInt64 => ULongValue,
+        ValueType.Float => FloatValue,
+        ValueType.Double => DoubleValue,
+        ValueType.DateTime => DateTimeValue,
+        ValueType.Decimal => DecimalValue,
+        ValueType.Guid => GuidValue,
+        _ => ObjectValue,
+    };
 
     #region ====GetXXX Methods====
 
     public bool? GetBool() =>
-        IsEmpty ? null : Type != AnyValueType.Boolean ? throw new InvalidOperationException() : BoolValue;
+        IsEmpty ? null : Type != ValueType.Boolean ? throw new InvalidOperationException() : BoolValue;
 
     public byte? GetByte() =>
-        IsEmpty ? null : Type != AnyValueType.Byte ? throw new InvalidOperationException() : ByteValue;
+        IsEmpty ? null : Type != ValueType.Byte ? throw new InvalidOperationException() : ByteValue;
 
     public short? GetShort() =>
-        IsEmpty ? null : Type != AnyValueType.Int16 ? throw new InvalidOperationException() : ShortValue;
+        IsEmpty ? null : Type != ValueType.Int16 ? throw new InvalidOperationException() : ShortValue;
 
     public int? GetInt() =>
-        IsEmpty ? null : Type != AnyValueType.Int32 ? throw new InvalidOperationException() : IntValue;
+        IsEmpty ? null : Type != ValueType.Int32 ? throw new InvalidOperationException() : IntValue;
 
     public long? GetLong() =>
-        IsEmpty ? null : Type != AnyValueType.Int64 ? throw new InvalidOperationException() : LongValue;
+        IsEmpty ? null : Type != ValueType.Int64 ? throw new InvalidOperationException() : LongValue;
 
     public float? GetFloat() =>
-        IsEmpty ? null : Type != AnyValueType.Float ? throw new InvalidOperationException() : FloatValue;
+        IsEmpty ? null : Type != ValueType.Float ? throw new InvalidOperationException() : FloatValue;
 
     public double? GetDouble() =>
-        IsEmpty ? null : Type != AnyValueType.Double ? throw new InvalidOperationException() : DoubleValue;
+        IsEmpty ? null : Type != ValueType.Double ? throw new InvalidOperationException() : DoubleValue;
 
     public decimal? GetDecimal() =>
-        IsEmpty ? null : Type != AnyValueType.Decimal ? throw new InvalidOperationException() : DecimalValue;
+        IsEmpty ? null : Type != ValueType.Decimal ? throw new InvalidOperationException() : DecimalValue;
 
     public DateTime? GetDateTime() =>
-        IsEmpty ? null : Type != AnyValueType.DateTime ? throw new InvalidOperationException() : DateTimeValue;
+        IsEmpty ? null : Type != ValueType.DateTime ? throw new InvalidOperationException() : DateTimeValue;
 
     public Guid? GetGuid() =>
-        IsEmpty ? null : Type != AnyValueType.Guid ? throw new InvalidOperationException() : GuidValue;
+        IsEmpty ? null : Type != ValueType.Guid ? throw new InvalidOperationException() : GuidValue;
 
     public string? GetString() => IsEmpty ? null : BoxedValue?.ToString();
 
     public object? GetObject() =>
-        IsEmpty ? null : Type != AnyValueType.Object ? throw new InvalidOperationException() : ObjectValue;
+        IsEmpty ? null : Type != ValueType.Object ? throw new InvalidOperationException() : ObjectValue;
 
     public T? GetEnum<T>() where T : struct, Enum
     {
         if (IsEmpty) return null;
-        if (Type != AnyValueType.Int32) throw new InvalidCastException("Value can't cast to enum");
+        if (Type != ValueType.Int32) throw new InvalidCastException("Value can't cast to enum");
 
         return Unsafe.SizeOf<T>() switch
         {
@@ -134,66 +129,68 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     #region ====FromXXX Methods, 仅用于生成虚拟服务代码的IService接口====
 
-    public static AnyValue From(bool v) => new() { BoolValue = v, Type = AnyValueType.Boolean };
-    public static AnyValue From(bool? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(bool v) => new(v);
+    public static AnyValue From(bool? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(byte v) => new() { ByteValue = v, Type = AnyValueType.Byte };
-    public static AnyValue From(byte? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(byte v) => new(v);
+    public static AnyValue From(byte? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(char v) => new() { CharValue = v, Type = AnyValueType.Char };
-    public static AnyValue From(char? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(char v) => new(v);
+    public static AnyValue From(char? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(ushort v) => new() { UShortValue = v, Type = AnyValueType.UInt16 };
-    public static AnyValue From(ushort? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(ushort v) => new(v);
+    public static AnyValue From(ushort? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(short v) => new() { ShortValue = v, Type = AnyValueType.Int16 };
-    public static AnyValue From(short? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(short v) => new(v);
+    public static AnyValue From(short? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
-    public static AnyValue From(uint? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(uint v) => new(v);
+    public static AnyValue From(uint? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
-    public static AnyValue From(int? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(int v) => new(v);
+    public static AnyValue From(int? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(ulong v) => new() { ULongValue = v, Type = AnyValueType.UInt64 };
-    public static AnyValue From(ulong? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(ulong v) => new(v);
+    public static AnyValue From(ulong? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
-    public static AnyValue From(long? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(long v) => new(v);
+    public static AnyValue From(long? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(float v) => new() { FloatValue = v, Type = AnyValueType.Float };
-    public static AnyValue From(float? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(float v) => new(v);
+    public static AnyValue From(float? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(double v) => new() { DoubleValue = v, Type = AnyValueType.Double };
-    public static AnyValue From(double? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(double v) => new(v);
+    public static AnyValue From(double? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(DateTime v) => new() { DateTimeValue = v, Type = AnyValueType.DateTime };
-    public static AnyValue From(DateTime? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(decimal v) => new(v);
+    public static AnyValue From(decimal? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(decimal v) => new() { DecimalValue = v, Type = AnyValueType.Decimal };
-    public static AnyValue From(decimal? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(DateTime v) => new(v);
+    public static AnyValue From(DateTime? v) => v.HasValue ? new(v.Value) : Empty;
 
-    public static AnyValue From(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
-    public static AnyValue From(Guid? v) => v.HasValue ? From(v.Value) : Empty;
+    public static AnyValue From(Guid v) => new(v);
+    public static AnyValue From(Guid? v) => v.HasValue ? new(v.Value) : Empty;
 
     public static AnyValue From(object? v)
     {
-        if (v == null) return AnyValue.Empty;
-        //TODO: others
+        if (v == null) return Empty;
         return v switch
         {
-            bool boolValue => From(boolValue),
-            byte byteValue => From(byteValue),
-            char charValue => From(charValue),
-            short shortValue => From(shortValue),
-            int intValue => From(intValue),
-            long longValue => From(longValue),
-            float floatValue => From(floatValue),
-            double doubleValue => From(doubleValue),
-            decimal decimalValue => From(decimalValue),
-            Guid guidValue => From(guidValue),
-            DateTime dateTimeValue => From(dateTimeValue),
-            _ => new() { ObjectValue = v, Type = AnyValueType.Object }
+            bool boolValue => new(boolValue),
+            byte byteValue => new(byteValue),
+            char charValue => new(charValue),
+            short shortValue => new(shortValue),
+            ushort ushortValue => new(ushortValue),
+            int intValue => new(intValue),
+            uint uintValue => new(uintValue),
+            long longValue => new(longValue),
+            ulong ulongValue => new(ulongValue),
+            float floatValue => new(floatValue),
+            double doubleValue => new(doubleValue),
+            decimal decimalValue => new(decimalValue),
+            Guid guidValue => new(guidValue),
+            DateTime dateTimeValue => new(dateTimeValue),
+            _ => new(v)
         };
     }
 
@@ -207,13 +204,12 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             // sizeof(ulong)  => Unsafe.BitCast<TEnum, ulong>(value),
             _ => throw new InvalidCastException($"The size of {typeof(T)} is not supported."),
         };
-        return new AnyValue() { IntValue = intValue, Type = AnyValueType.Int32 };
+        return new AnyValue(intValue);
     }
 
     public static AnyValue From<T>(T? v) where T : struct, Enum => v.HasValue ? From(v.Value) : Empty;
 
-    public static AnyValue From(Action<IOutputStream> streamWriter) =>
-        new() { ObjectValue = streamWriter, Type = AnyValueType.Stream };
+    public static AnyValue From(Action<IOutputStream> streamWriter) => new(streamWriter);
 
     /// <summary>
     /// 从输入流中读取
@@ -246,18 +242,21 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     #region ====隐式/显式转换====
 
     //注意隐式转换不支持接口类型及object
-    public static implicit operator AnyValue(bool v) => new() { BoolValue = v, Type = AnyValueType.Boolean };
-    public static implicit operator AnyValue(byte v) => new() { ByteValue = v, Type = AnyValueType.Byte };
-    public static implicit operator AnyValue(char v) => new() { CharValue = v, Type = AnyValueType.Char };
-    public static implicit operator AnyValue(uint v) => new() { UIntValue = v, Type = AnyValueType.UInt32 };
-    public static implicit operator AnyValue(int v) => new() { IntValue = v, Type = AnyValueType.Int32 };
-    public static implicit operator AnyValue(long v) => new() { LongValue = v, Type = AnyValueType.Int64 };
-    public static implicit operator AnyValue(float v) => new() { FloatValue = v, Type = AnyValueType.Float };
-    public static implicit operator AnyValue(double v) => new() { DoubleValue = v, Type = AnyValueType.Double };
-    public static implicit operator AnyValue(decimal v) => new() { DecimalValue = v, Type = AnyValueType.Decimal };
-    public static implicit operator AnyValue(DateTime v) => new() { DateTimeValue = v, Type = AnyValueType.DateTime };
-    public static implicit operator AnyValue(Guid v) => new() { GuidValue = v, Type = AnyValueType.Guid };
-    public static implicit operator AnyValue(string v) => new() { ObjectValue = v, Type = AnyValueType.Object };
+    public static implicit operator AnyValue(bool v) => new(v);
+    public static implicit operator AnyValue(byte v) => new(v);
+    public static implicit operator AnyValue(char v) => new(v);
+    public static implicit operator AnyValue(short v) => new(v);
+    public static implicit operator AnyValue(ushort v) => new(v);
+    public static implicit operator AnyValue(int v) => new(v);
+    public static implicit operator AnyValue(uint v) => new(v);
+    public static implicit operator AnyValue(long v) => new(v);
+    public static implicit operator AnyValue(ulong v) => new(v);
+    public static implicit operator AnyValue(float v) => new(v);
+    public static implicit operator AnyValue(double v) => new(v);
+    public static implicit operator AnyValue(decimal v) => new(v);
+    public static implicit operator AnyValue(DateTime v) => new(v);
+    public static implicit operator AnyValue(Guid v) => new(v);
+    public static implicit operator AnyValue(string v) => new(v);
 
     public static explicit operator string(AnyValue v) => v.GetString() ?? string.Empty;
     public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;
@@ -273,46 +272,46 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         //TODO: others
         switch (Type)
         {
-            case AnyValueType.Empty:
+            case ValueType.Empty:
                 bs.WriteByte((byte)PayloadType.Null);
                 break;
-            case AnyValueType.Boolean:
+            case ValueType.Boolean:
                 bs.WriteBool(BoolValue);
                 break;
-            case AnyValueType.Byte:
+            case ValueType.Byte:
                 bs.Serialize(ByteValue);
                 break;
-            case AnyValueType.Char:
+            case ValueType.Char:
                 bs.Serialize(CharValue);
                 break;
-            case AnyValueType.Int16:
+            case ValueType.Int16:
                 bs.Serialize(ShortValue);
                 break;
-            case AnyValueType.Int32:
+            case ValueType.Int32:
                 bs.Serialize(IntValue);
                 break;
-            case AnyValueType.Int64:
+            case ValueType.Int64:
                 bs.Serialize(LongValue);
                 break;
-            case AnyValueType.Float:
+            case ValueType.Float:
                 bs.Serialize(FloatValue);
                 break;
-            case AnyValueType.Double:
+            case ValueType.Double:
                 bs.Serialize(DoubleValue);
                 break;
-            case AnyValueType.Decimal:
+            case ValueType.Decimal:
                 bs.Serialize(DecimalValue);
                 break;
-            case AnyValueType.DateTime:
+            case ValueType.DateTime:
                 bs.Serialize(DateTimeValue);
                 break;
-            case AnyValueType.Guid:
+            case ValueType.Guid:
                 bs.Serialize(GuidValue);
                 break;
-            case AnyValueType.Object:
+            case ValueType.Object:
                 bs.Serialize(ObjectValue);
                 break;
-            case AnyValueType.Stream:
+            case ValueType.Stream:
                 ((Action<IOutputStream>)ObjectValue!)(bs);
                 break;
             default:
@@ -349,7 +348,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public bool Equals(AnyValue other)
     {
         if (Type != other.Type) return false;
-        if (Type == AnyValueType.Object)
+        if (Type == ValueType.Object)
             return Equals(ObjectValue, other.ObjectValue);
         return GuidValue == other.GuidValue;
     }
@@ -359,7 +358,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public override int GetHashCode()
     {
         if (IsEmpty) return 0;
-        if (Type is AnyValueType.Object or AnyValueType.Stream)
+        if (Type is ValueType.Object or ValueType.Stream)
             return ObjectValue?.GetHashCode() ?? 0;
         return GuidValue.GetHashCode() ^ Type.GetHashCode();
     }
@@ -370,19 +369,19 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     {
         switch (Type)
         {
-            case AnyValueType.Boolean: return typeof(bool);
-            case AnyValueType.Byte: return typeof(byte);
-            case AnyValueType.Char: return typeof(char);
-            case AnyValueType.Int16: return typeof(short);
-            case AnyValueType.UInt16: return typeof(ushort);
-            case AnyValueType.Int32: return typeof(int);
-            case AnyValueType.UInt32: return typeof(uint);
-            case AnyValueType.Int64: return typeof(long);
-            case AnyValueType.UInt64: return typeof(ulong);
-            case AnyValueType.Float: return typeof(float);
-            case AnyValueType.Double: return typeof(double);
-            case AnyValueType.Decimal: return typeof(decimal);
-            case AnyValueType.Guid: return typeof(Guid);
+            case ValueType.Boolean: return typeof(bool);
+            case ValueType.Byte: return typeof(byte);
+            case ValueType.Char: return typeof(char);
+            case ValueType.Int16: return typeof(short);
+            case ValueType.UInt16: return typeof(ushort);
+            case ValueType.Int32: return typeof(int);
+            case ValueType.UInt32: return typeof(uint);
+            case ValueType.Int64: return typeof(long);
+            case ValueType.UInt64: return typeof(ulong);
+            case ValueType.Float: return typeof(float);
+            case ValueType.Double: return typeof(double);
+            case ValueType.Decimal: return typeof(decimal);
+            case ValueType.Guid: return typeof(Guid);
             default: return typeof(object);
         }
     }
@@ -391,40 +390,55 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     public int ConvertToInt32() => Type switch
     {
-        AnyValueType.Byte => ByteValue,
-        AnyValueType.Char => CharValue,
-        AnyValueType.Int16 => ShortValue,
-        AnyValueType.UInt16 => UShortValue,
-        AnyValueType.Int32 => IntValue,
-        AnyValueType.UInt32 => unchecked((int)UIntValue),
-        AnyValueType.Int64 => unchecked((int)LongValue),
-        AnyValueType.UInt64 => unchecked((int)ULongValue),
-        AnyValueType.Float => (int)FloatValue,
-        AnyValueType.Double => (int)DoubleValue,
-        AnyValueType.Decimal => (int)DecimalValue,
+        ValueType.Byte => ByteValue,
+        ValueType.Char => CharValue,
+        ValueType.Int16 => ShortValue,
+        ValueType.UInt16 => UShortValue,
+        ValueType.Int32 => IntValue,
+        ValueType.UInt32 => unchecked((int)UIntValue),
+        ValueType.Int64 => unchecked((int)LongValue),
+        ValueType.UInt64 => unchecked((int)ULongValue),
+        ValueType.Float => (int)FloatValue,
+        ValueType.Double => (int)DoubleValue,
+        ValueType.Decimal => (int)DecimalValue,
         _ => throw new InvalidCastException($"{Type} can't convert to Int32")
+    };
+
+    public float ConvertToFloat() => Type switch
+    {
+        ValueType.Byte => ByteValue,
+        ValueType.Char => CharValue,
+        ValueType.Int16 => ShortValue,
+        ValueType.UInt16 => ShortValue,
+        ValueType.Int32 => IntValue,
+        ValueType.UInt32 => UIntValue,
+        ValueType.Int64 => LongValue,
+        ValueType.UInt64 => ULongValue,
+        ValueType.Float => FloatValue,
+        ValueType.Double => (float)DoubleValue,
+        ValueType.Decimal => (float)DecimalValue,
+        _ => throw new InvalidCastException($"{Type} can't convert to Float")
     };
 
     public double ConvertToDouble() => Type switch
     {
-        AnyValueType.Byte => ByteValue,
-        AnyValueType.Char => CharValue,
-        AnyValueType.Int16 => ShortValue,
-        AnyValueType.UInt16 => UShortValue,
-        AnyValueType.Int32 => IntValue,
-        AnyValueType.UInt32 => UIntValue,
-        AnyValueType.Int64 => LongValue,
-        AnyValueType.UInt64 => ULongValue,
-        AnyValueType.Float => FloatValue,
-        AnyValueType.Double => DoubleValue,
-        AnyValueType.Decimal => (double)DecimalValue,
+        ValueType.Byte => ByteValue,
+        ValueType.Char => CharValue,
+        ValueType.Int16 => ShortValue,
+        ValueType.UInt16 => UShortValue,
+        ValueType.Int32 => IntValue,
+        ValueType.UInt32 => UIntValue,
+        ValueType.Int64 => LongValue,
+        ValueType.UInt64 => ULongValue,
+        ValueType.Float => FloatValue,
+        ValueType.Double => DoubleValue,
+        ValueType.Decimal => (double)DecimalValue,
         _ => throw new InvalidCastException($"{Type} can't convert to Double")
     };
 
     #endregion
 
-
-    public enum AnyValueType : byte
+    public enum ValueType : byte
     {
         Empty,
         Object,
@@ -445,3 +459,61 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         Stream,
     }
 }
+
+#region ====CastTo====
+
+public static class Extensions
+{
+    public static T? CastTo<T>(this AnyValue v) where T : notnull
+    {
+        if (v.IsEmpty) return default;
+        return typeof(T) switch
+        {
+            { } t when t == typeof(bool) => v.Type == AnyValue.ValueType.Boolean
+                ? Unsafe.As<bool, T>(ref Unsafe.AsRef(in v.BoolValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to bool"),
+            { } t when t == typeof(byte) => v.Type == AnyValue.ValueType.Byte
+                ? Unsafe.As<byte, T>(ref Unsafe.AsRef(in v.ByteValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to byte"),
+            { } t when t == typeof(char) => v.Type == AnyValue.ValueType.Char
+                ? Unsafe.As<char, T>(ref Unsafe.AsRef(in v.CharValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to char"),
+            { } t when t == typeof(short) => v.Type == AnyValue.ValueType.Int16
+                ? Unsafe.As<short, T>(ref Unsafe.AsRef(in v.ShortValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to short"),
+            { } t when t == typeof(ushort) => v.Type == AnyValue.ValueType.UInt16
+                ? Unsafe.As<ushort, T>(ref Unsafe.AsRef(in v.UShortValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to ushort"),
+            { } t when t == typeof(int) => v.Type == AnyValue.ValueType.Int32
+                ? Unsafe.As<int, T>(ref Unsafe.AsRef(in v.IntValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to int"),
+            { } t when t == typeof(uint) => v.Type == AnyValue.ValueType.UInt32
+                ? Unsafe.As<uint, T>(ref Unsafe.AsRef(in v.UIntValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to uint"),
+            { } t when t == typeof(long) => v.Type == AnyValue.ValueType.Int64
+                ? Unsafe.As<long, T>(ref Unsafe.AsRef(in v.LongValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to long"),
+            { } t when t == typeof(ulong) => v.Type == AnyValue.ValueType.UInt64
+                ? Unsafe.As<ulong, T>(ref Unsafe.AsRef(in v.ULongValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to ulong"),
+            { } t when t == typeof(float) => v.Type == AnyValue.ValueType.Float
+                ? Unsafe.As<float, T>(ref Unsafe.AsRef(in v.FloatValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to float"),
+            { } t when t == typeof(double) => v.Type == AnyValue.ValueType.Double
+                ? Unsafe.As<double, T>(ref Unsafe.AsRef(in v.DoubleValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to double"),
+            { } t when t == typeof(decimal) => v.Type == AnyValue.ValueType.Decimal
+                ? Unsafe.As<decimal, T>(ref Unsafe.AsRef(in v.DecimalValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to decimal"),
+            { } t when t == typeof(DateTime) => v.Type == AnyValue.ValueType.DateTime
+                ? Unsafe.As<DateTime, T>(ref Unsafe.AsRef(in v.DateTimeValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to DateTime"),
+            { } t when t == typeof(Guid) => v.Type == AnyValue.ValueType.Guid
+                ? Unsafe.As<Guid, T>(ref Unsafe.AsRef(in v.GuidValue))
+                : throw new InvalidCastException($"{v.Type} can't cast to Guid"),
+            _ => (T)v.BoxedValue!
+        };
+    }
+}
+
+#endregion

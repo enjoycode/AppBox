@@ -20,21 +20,21 @@ public readonly struct ExpressionTypeInfo
 
     public static ExpressionTypeInfo FromAnyValue(in AnyValue value) => value.Type switch
     {
-        AnyValue.AnyValueType.Boolean => new ExpressionTypeInfo("bool"),
-        AnyValue.AnyValueType.Byte => new ExpressionTypeInfo("byte"),
-        AnyValue.AnyValueType.Char => new ExpressionTypeInfo("char"),
-        AnyValue.AnyValueType.Int16 => new ExpressionTypeInfo("short"),
-        AnyValue.AnyValueType.UInt16 => new ExpressionTypeInfo("ushort"),
-        AnyValue.AnyValueType.Int32 => new ExpressionTypeInfo("int"),
-        AnyValue.AnyValueType.UInt32 => new ExpressionTypeInfo("uint"),
-        AnyValue.AnyValueType.Int64 => new ExpressionTypeInfo("long"),
-        AnyValue.AnyValueType.UInt64 => new ExpressionTypeInfo("ulong"),
-        AnyValue.AnyValueType.Float => new ExpressionTypeInfo("float"),
-        AnyValue.AnyValueType.Double => new ExpressionTypeInfo("double"),
-        AnyValue.AnyValueType.Decimal => new ExpressionTypeInfo("decimal"),
-        AnyValue.AnyValueType.Guid => new ExpressionTypeInfo("System.Guid"),
-        AnyValue.AnyValueType.DateTime => new ExpressionTypeInfo("System.DateTime"),
-        AnyValue.AnyValueType.Empty => new ExpressionTypeInfo("object", isNullable: true),
+        AnyValue.ValueType.Boolean => new ExpressionTypeInfo("bool"),
+        AnyValue.ValueType.Byte => new ExpressionTypeInfo("byte"),
+        AnyValue.ValueType.Char => new ExpressionTypeInfo("char"),
+        AnyValue.ValueType.Int16 => new ExpressionTypeInfo("short"),
+        AnyValue.ValueType.UInt16 => new ExpressionTypeInfo("ushort"),
+        AnyValue.ValueType.Int32 => new ExpressionTypeInfo("int"),
+        AnyValue.ValueType.UInt32 => new ExpressionTypeInfo("uint"),
+        AnyValue.ValueType.Int64 => new ExpressionTypeInfo("long"),
+        AnyValue.ValueType.UInt64 => new ExpressionTypeInfo("ulong"),
+        AnyValue.ValueType.Float => new ExpressionTypeInfo("float"),
+        AnyValue.ValueType.Double => new ExpressionTypeInfo("double"),
+        AnyValue.ValueType.Decimal => new ExpressionTypeInfo("decimal"),
+        AnyValue.ValueType.Guid => new ExpressionTypeInfo("System.Guid"),
+        AnyValue.ValueType.DateTime => new ExpressionTypeInfo("System.DateTime"),
+        AnyValue.ValueType.Empty => new ExpressionTypeInfo("object", isNullable: true),
         _ => new ExpressionTypeInfo("object")
     };
 
