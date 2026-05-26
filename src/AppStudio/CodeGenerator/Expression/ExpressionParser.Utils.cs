@@ -5,21 +5,19 @@ namespace AppBoxDesign.CodeGenerator;
 
 internal partial class ExpressionParser
 {
-    private static ExpressionTypeInfo MakeTypeInfo(INamedTypeSymbol typeSymbol)
+    private static ExpressionTypeInfo MakeTypeInfo(ITypeSymbol typeSymbol)
     {
+        var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
         //先判断是否Nullable<T>
         var isNullable = false;
         var specType = typeSymbol.SpecialType;
         var noneNullableType = typeSymbol;
-        if (typeSymbol is
-            {
-                IsValueType: true, IsGenericType: true,
-                OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-            })
+        if (typeSymbol.IsValueType && namedTypeSymbol is
+                { IsGenericType: true, OriginalDefinition.SpecialType: SpecialType.System_Nullable_T })
         {
             isNullable = true;
-            specType = typeSymbol.TypeArguments[0].SpecialType;
-            noneNullableType = (INamedTypeSymbol)typeSymbol.TypeArguments[0];
+            specType = namedTypeSymbol.TypeArguments[0].SpecialType;
+            noneNullableType = namedTypeSymbol.TypeArguments[0];
         }
 
         switch (specType)
@@ -46,13 +44,20 @@ internal partial class ExpressionParser
             noneNullableType.ContainingNamespace.Name == "System")
             return new(ExpressionTypeInfo.KnownType.Guid, isNullable: isNullable);
 
-        // Others
-        if (typeSymbol.IsGenericType)
+        // Array
+        if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
         {
-            var genericTypes = new ExpressionTypeInfo[typeSymbol.TypeArguments.Length];
+            var elementType = MakeTypeInfo(arrayTypeSymbol.ElementType);
+            return new ExpressionTypeInfo(ExpressionTypeInfo.KnownType.Array, types: [elementType]);
+        }
+
+        // Others
+        if (namedTypeSymbol is { IsGenericType: true })
+        {
+            var genericTypes = new ExpressionTypeInfo[namedTypeSymbol.TypeArguments.Length];
             for (var i = 0; i < genericTypes.Length; i++)
             {
-                genericTypes[i] = MakeTypeInfo((INamedTypeSymbol)typeSymbol.TypeArguments[i]);
+                genericTypes[i] = MakeTypeInfo(namedTypeSymbol.TypeArguments[i]);
             }
 
             if (typeSymbol.Name is "List" or "Dictionary" &&
@@ -84,9 +89,10 @@ internal partial class ExpressionParser
         ExpressionTypeInfo? expTypeInfo = null;
         if (typeInfo.Type != null)
         {
+            //TODO: IsNullable here
             expTypeInfo = SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeInfo.ConvertedType)
-                ? MakeTypeInfo((INamedTypeSymbol)typeInfo.Type)
-                : MakeTypeInfo((INamedTypeSymbol)typeInfo.ConvertedType!).WithConverted(true);
+                ? MakeTypeInfo(typeInfo.Type)
+                : MakeTypeInfo(typeInfo.ConvertedType!).WithConverted(true);
         }
 
         return expTypeInfo;
@@ -97,7 +103,7 @@ internal partial class ExpressionParser
         var typeInfo = _semanticModel.GetTypeInfo(node);
         ExpressionTypeInfo? convertedType = null;
         if (!SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeInfo.ConvertedType))
-            convertedType = MakeTypeInfo((INamedTypeSymbol)typeInfo.ConvertedType!);
+            convertedType = MakeTypeInfo(typeInfo.ConvertedType!);
         return convertedType;
     }
 }

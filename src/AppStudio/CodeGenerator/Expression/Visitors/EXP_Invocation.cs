@@ -26,7 +26,7 @@ internal partial class ExpressionParser
             genericTypes = new ExpressionTypeInfo[methodSymbol.TypeArguments.Length];
             for (var i = 0; i < genericTypes.Length; i++)
             {
-                genericTypes[i] = MakeTypeInfo((INamedTypeSymbol)methodSymbol.TypeArguments[i]);
+                genericTypes[i] = MakeTypeInfo(methodSymbol.TypeArguments[i]);
             }
         }
 

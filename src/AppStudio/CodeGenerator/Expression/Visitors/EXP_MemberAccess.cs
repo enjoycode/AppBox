@@ -15,9 +15,7 @@ internal partial class ExpressionParser
         if (owner.IsNone) //namespace now, eg: System.DateTime
         {
             if (symbol is INamedTypeSymbol namedTypeSymbol)
-            {
                 return MakeTypeInfo(namedTypeSymbol);
-            }
 
             throw new NotImplementedException();
         }

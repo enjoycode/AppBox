@@ -18,8 +18,15 @@ public class ExpressionEvaluatorTest
     private static async Task EvalSingleLine(string lineCode, string returnType = "void",
         Func<AnyValue, bool>? assert = null)
     {
-        var code =
-            $"using System;using System.Threading.Tasks;static class C{{static {returnType} M(){{{lineCode};}}}}";
+        var code = $$$"""
+                      using System;
+                      using System.Threading.Tasks;
+                      static class C{
+                        static {{{returnType}}} M(){
+                            {{{lineCode}}};
+                        }
+                      }
+                      """;
 
         var ts = Stopwatch.GetTimestamp();
         var exp = ExpressionParser.ParseCode(code, lineCode.StartsWith("return "));

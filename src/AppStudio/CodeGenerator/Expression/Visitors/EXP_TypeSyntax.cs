@@ -15,8 +15,8 @@ partial class ExpressionParser
         if (symbol is INamespaceSymbol)
             return ParseResult.None;
 
-        if (symbol is INamedTypeSymbol namedTypeSymbol)
-            return MakeTypeInfo(namedTypeSymbol);
+        if (symbol is ITypeSymbol typeSymbol)
+            return MakeTypeInfo(typeSymbol);
 
         throw new NotImplementedException();
     }
@@ -39,8 +39,8 @@ partial class ExpressionParser
     {
         var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
 
-        if (symbol is INamedTypeSymbol namedTypeSymbol)
-            return MakeTypeInfo(namedTypeSymbol);
+        if (symbol is ITypeSymbol typeSymbol)
+            return MakeTypeInfo(typeSymbol);
 
         throw new NotImplementedException();
     }
