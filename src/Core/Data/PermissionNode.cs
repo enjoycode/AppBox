@@ -13,7 +13,7 @@ public sealed class PermissionNode : IBinSerializable
 
     public IList<Guid>? OrgUnits { get; internal set; }
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteString(Name);
         if (Children != null)
@@ -22,7 +22,7 @@ public sealed class PermissionNode : IBinSerializable
             ws.WriteVariant(Children.Count);
             for (var i = 0; i < Children.Count; i++)
             {
-                Children[i].WriteTo(ws);
+                Children[i].WriteTo(ref ws);
             }
         }
         else
@@ -38,7 +38,7 @@ public sealed class PermissionNode : IBinSerializable
         }
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         Name = rs.ReadString()!;
         var count = rs.ReadVariant();
@@ -48,7 +48,7 @@ public sealed class PermissionNode : IBinSerializable
             for (var i = 0; i < count; i++)
             {
                 var child = new PermissionNode();
-                child.ReadFrom(rs);
+                child.ReadFrom(ref rs);
                 Children.Add(child);
             }
         }

@@ -1,38 +1,15 @@
 using System.Diagnostics;
-using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
-using NotSupportedException = System.NotSupportedException;
 
 namespace AppBoxCore;
 
-public sealed class MessageReadStream : IInputStream
+public struct MessageReadStream : IInputStream
 {
-    #region ====Static Pool====
-
-    private static readonly ObjectPool<MessageReadStream> Pool =
-        new(() => new MessageReadStream(), 16);
-
-    public static MessageReadStream Rent(BytesSegment segment)
+    public MessageReadStream(BytesSegment first)
     {
-        var res = Pool.Allocate();
-        res.Current = segment;
-        return res;
+        Current = first;
+        _context = null;
+        Position = 0;
     }
-
-    /// <summary>
-    /// 归还并释放所有缓存块
-    /// </summary>
-    public static void Return(MessageReadStream mws)
-    {
-        if (mws.Current != null!)
-            BytesSegment.ReturnAll(mws.Current);
-        mws.Position = 0;
-        mws._context?.Clear();
-        Pool.Free(mws);
-    }
-
-    #endregion
-
-    private MessageReadStream() { }
 
     private DeserializeContext? _context;
 
@@ -80,9 +57,15 @@ public sealed class MessageReadStream : IInputStream
     /// <summary>
     /// 归还并释放所有缓存块
     /// </summary>
-    public void Free() => Return(this);
+    public void Free()
+    {
+        if (Current != null!)
+            BytesSegment.ReturnAll(Current);
 
-    public Stream ToSystemStream() => new MessageReadStreamWrap(this);
+        _context?.Clear();
+    }
+
+    // public Stream ToSystemStream() => new MessageReadStreamWrap(this);
 
     public async Task CopyToAsync(Stream destination)
     {
@@ -134,6 +117,28 @@ public sealed class MessageReadStream : IInputStream
             break;
         }
     }
+
+    #endregion
+
+    #region ====IEntityMemberReader====
+
+    string IEntityMemberReader.ReadStringMember(int flags) => this.ReadEntityStringMember(flags);
+    bool IEntityMemberReader.ReadBoolMember(int flags) => this.ReadEntityBoolMember(flags);
+    byte IEntityMemberReader.ReadByteMember(int flags) => this.ReadEntityByteMember(flags);
+    int IEntityMemberReader.ReadIntMember(int flags) => this.ReadEntityIntMember(flags);
+    long IEntityMemberReader.ReadLongMember(int flags) => this.ReadEntityLongMember(flags);
+    float IEntityMemberReader.ReadFloatMember(int flags) => this.ReadEntityFloatMember(flags);
+    double IEntityMemberReader.ReadDoubleMember(int flags) => this.ReadEntityDoubleMember(flags);
+    decimal IEntityMemberReader.ReadDecimalMember(int flags) => this.ReadEntityDecimalMember(flags);
+    DateTime IEntityMemberReader.ReadDateTimeMember(int flags) => this.ReadEntityDateTimeMember(flags);
+    Guid IEntityMemberReader.ReadGuidMember(int flags) => this.ReadEntityGuidMember(flags);
+    byte[] IEntityMemberReader.ReadBinaryMember(int flags) => this.ReadEntityBinaryMember(flags);
+
+    T IEntityMemberReader.ReadEntityRefMember<T>(int flags, Func<T>? creator) =>
+        this.ReadEntityRefMember(flags, creator);
+
+    void IEntityMemberReader.ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet) =>
+        this.ReadEntitySetMember(flags, entitySet);
 
     #endregion
 }
@@ -269,16 +274,5 @@ internal sealed class MessageReadStreamWrap : Stream
             _position = (int)value;
             GotoPosition(_position);
         }
-    }
-
-    public override void Close()
-    {
-        if (_inputStream != null!)
-        {
-            MessageReadStream.Return(_inputStream);
-            _inputStream = null!;
-        }
-
-        base.Close();
     }
 }

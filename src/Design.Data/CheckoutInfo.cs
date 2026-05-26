@@ -60,7 +60,7 @@ public sealed class CheckoutInfo : IBinSerializable
         return $"{(byte)nodeType}|{targetId}";
     }
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteByte((byte)NodeType);
         ws.WriteString(TargetId);
@@ -70,7 +70,7 @@ public sealed class CheckoutInfo : IBinSerializable
         ws.WriteDateTime(CheckoutTime);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         NodeType = (DesignNodeType)rs.ReadByte();
         TargetId = rs.ReadString()!;

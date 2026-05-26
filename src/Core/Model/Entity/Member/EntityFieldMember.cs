@@ -180,9 +180,9 @@ public sealed class EntityFieldMember : EntityMember, IModelReference
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         ws.WriteByte((byte)_fieldType);
         ws.WriteBool(IsForeignKey);
@@ -202,9 +202,9 @@ public sealed class EntityFieldMember : EntityMember, IModelReference
             ws.WriteBool(_isFieldTypeChanged);
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         _fieldType = (EntityFieldType)rs.ReadByte();
         IsForeignKey = rs.ReadBool();

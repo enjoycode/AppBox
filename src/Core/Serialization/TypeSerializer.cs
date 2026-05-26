@@ -90,11 +90,11 @@ public abstract class TypeSerializer
     // }
 
     /// <summary>
-    /// Write data to BinSerializaer
+    /// Write data to output stream
     /// </summary>
     /// <param name="bs">Bs.</param>
     /// <param name="instance">None null instance</param>
-    public abstract void Write(IOutputStream bs, object instance);
+    public abstract void Write<T>(ref T bs, object instance) where T : struct, IOutputStream;
 
     /// <summary>
     /// 1.用于非范型值类型的反序列化，由实现自行创建实例
@@ -102,12 +102,12 @@ public abstract class TypeSerializer
     /// </summary>
     /// <param name="bs">Bs.</param>
     /// <param name="instance">用于引用类型及范型值类型的反序列化，由序列化器创建的实例</param>
-    public abstract object? Read(IInputStream bs, object? instance);
+    public abstract object? Read<T>(ref T bs, object? instance) where T : struct, IInputStream;
 
     /// <summary>
     /// 写入附加类型信息(数组或其他范型类型的范型参数)
     /// </summary>
-    internal void WriteAttachTypeInfo(IOutputStream bs, Type type)
+    internal void WriteAttachTypeInfo<T>(ref T bs, Type type) where T : struct, IOutputStream
     {
         if (_notWriteAttachInfo)
             return;

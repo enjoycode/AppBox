@@ -12,11 +12,20 @@ internal static class RestController
     public static async Task Login(HttpContext httpContext)
     {
         var requestBody = await httpContext.Request.BodyReader.CopyToAsync();
-        var reader = MessageReadStream.Rent(requestBody);
-        var user = reader.ReadString()!;
-        var pass = reader.ReadString()!;
-        var external = reader.ReadString()!;
-        MessageReadStream.Return(reader);
+        string user;
+        string pass;
+        string external;
+        var reader = new MessageReadStream(requestBody);
+        try
+        {
+            user = reader.ReadString()!;
+            pass = reader.ReadString()!;
+            external = reader.ReadString()!;
+        }
+        finally
+        {
+            reader.Free();
+        }
 
         Logger.Debug($"user={user} pass={pass} external={external}");
 
@@ -50,7 +59,7 @@ internal static class RestController
     public static async Task Invoke(HttpContext httpContext)
     {
         var requestBody = await httpContext.Request.BodyReader.CopyToAsync();
-        var reader = MessageReadStream.Rent(requestBody);
+        var reader = new MessageReadStream(requestBody); //TODO: Free when error before ServiceContainer.Invoke
 
         //设置当前会话
         var sessionId = reader.ReadString();

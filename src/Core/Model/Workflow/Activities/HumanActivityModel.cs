@@ -5,7 +5,6 @@
 /// </summary>
 public abstract class HumanActivityModel : ActivityModel
 {
-
     #region ====Fields====
 
     private Expression? _desktopView; // e.View = new erp.Forms.LeaveView
@@ -60,9 +59,9 @@ public abstract class HumanActivityModel : ActivityModel
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         if (ResultConditions.Count > 0)
         {
@@ -91,9 +90,9 @@ public abstract class HumanActivityModel : ActivityModel
         ws.WriteFieldEnd();
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         var propIndex = 0;
         do

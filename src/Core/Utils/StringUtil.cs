@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Unicode;
 
 namespace AppBoxCore;
 
@@ -52,6 +53,83 @@ public static class StringUtil
         }
 
         return hash1 + (hash2 * 1566083941);
+    }
+
+    /// <summary>
+    /// 将字符串以UTF-8编码方式写入流内
+    /// </summary>
+    public static unsafe void WriteTo<T>(string s, ref T w) where T : struct, IOutputStream
+    {
+        //TODO: should use Utf8.FromUtf16
+        fixed (char* chars = s)
+        {
+            var pos = 0;
+            var surrogateChar = -1;
+            var strLength = s.Length;
+            while (pos < strLength)
+            {
+                char c = chars[pos++];
+                if (surrogateChar > 0)
+                {
+                    if (IsLowSurrogate(c))
+                    {
+                        surrogateChar = (surrogateChar - 0xd800) << 10;
+                        surrogateChar += c - 0xdc00;
+                        surrogateChar += 0x10000;
+                        w.WriteByte((byte)(240 | ((surrogateChar >> 0x12) & 7)));
+                        w.WriteByte((byte)(0x80 | ((surrogateChar >> 12) & 0x3f)));
+                        w.WriteByte((byte)(0x80 | ((surrogateChar >> 6) & 0x3f)));
+                        w.WriteByte((byte)(0x80 | (surrogateChar & 0x3f)));
+                        surrogateChar = -1;
+                    }
+                    else if (IsHighSurrogate(c))
+                    {
+                        EncodeThreeBytes(0xfffd, ref w);
+                        surrogateChar = c;
+                    }
+                    else
+                    {
+                        EncodeThreeBytes(0xfffd, ref w);
+                        surrogateChar = -1;
+                        pos--;
+                    }
+                }
+                else if (c < '\x0080')
+                {
+                    w.WriteByte((byte)c);
+                }
+                else
+                {
+                    if (c < 'ࠀ')
+                    {
+                        w.WriteByte((byte)(0xc0 | ((c >> 6) & '\x001f')));
+                        w.WriteByte((byte)(0x80 | (c & '?')));
+                        continue;
+                    }
+
+                    if (IsHighSurrogate(c))
+                    {
+                        surrogateChar = c;
+                        continue;
+                    }
+
+                    if (IsLowSurrogate(c))
+                    {
+                        EncodeThreeBytes(0xfffd, ref w);
+                        continue;
+                    }
+
+                    w.WriteByte((byte)(0xe0 | ((c >> 12) & '\x000f')));
+                    w.WriteByte((byte)(0x80 | ((c >> 6) & '?')));
+                    w.WriteByte((byte)(0x80 | (c & '?')));
+                }
+            }
+
+            if (surrogateChar > 0)
+            {
+                EncodeThreeBytes(0xfffd, ref w);
+            }
+        }
     }
 
     /// <summary>
@@ -131,16 +209,10 @@ public static class StringUtil
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool IsLowSurrogate(char c)
-    {
-        return ((c >= 0xdc00) && (c <= 0xdfff));
-    }
+    private static bool IsLowSurrogate(char c) => ((c >= 0xdc00) && (c <= 0xdfff));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool IsHighSurrogate(char c)
-    {
-        return ((c >= 0xd800) && (c <= 0xdbff));
-    }
+    private static bool IsHighSurrogate(char c) => ((c >= 0xd800) && (c <= 0xdbff));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void EncodeThreeBytes(int ch, Action<byte> writer)
@@ -148,6 +220,70 @@ public static class StringUtil
         writer((byte)(0xe0 | ((ch >> 12) & 15)));
         writer((byte)(0x80 | ((ch >> 6) & 0x3f)));
         writer((byte)(0x80 | (ch & 0x3f)));
+    }
+
+    private static void EncodeThreeBytes<T>(int ch, ref T w) where T : struct, IOutputStream
+    {
+        w.WriteByte((byte)(0xe0 | ((ch >> 12) & 15)));
+        w.WriteByte((byte)(0x80 | ((ch >> 6) & 0x3f)));
+        w.WriteByte((byte)(0x80 | (ch & 0x3f)));
+    }
+
+    /// <summary>
+    /// 读取UTF-8编码的字符串
+    /// </summary>
+    public static unsafe string ReadFrom<T>(int chars, ref T reader) where T : struct, IInputStream
+    {
+        Debug.Assert(chars > 0);
+        //TODO: use Utf8.ToUtf16
+
+        var res = new string('\0', chars);
+        fixed (char* span = res)
+        {
+            var dp = 0;
+            int b1, b2, b3, b4;
+
+            while (dp < chars)
+            {
+                b1 = reader.ReadByte();
+                if ((b1 & 0x80) == 0) // 1 byte, 7 bits: 0xxxxxxx
+                {
+                    span[dp++] = (char)b1;
+                }
+                else if ((b1 & 0xE0) == 0xC0) // 2 bytes
+                {
+                    b2 = reader.ReadByte() & 0x3F;
+                    span[dp++] = (char)(((b1 & 0x1F) << 6) | b2);
+                }
+                else if ((b1 & 0xF0) == 0xE0) // 3 bytes
+                {
+                    b2 = reader.ReadByte() & 0x3F;
+                    b3 = reader.ReadByte() & 0x3F;
+                    span[dp++] = (char)(((b1 & 0x1F) << 12) | (b2 << 6) | b3);
+                }
+                else if ((b1 & 0xF8) == 0xF0) // 4 bytes
+                {
+                    b2 = reader.ReadByte() & 0x3F;
+                    b3 = reader.ReadByte() & 0x3F;
+                    b4 = reader.ReadByte() & 0x3F;
+                    var unit = ((b1 & 0x07) << 0x12) | (b2 << 0x0C) | (b3 << 0x06) | b4;
+                    if (unit > 0xFFFF)
+                    {
+                        unit -= 0x10000;
+                        span[dp++] = (char)(((unit >> 10) & 0x3FF) | 0xD800);
+                        unit = 0xDC00 | (unit & 0x3FF);
+                    }
+
+                    span[dp++] = (char)unit;
+                }
+                else
+                {
+                    throw new Exception("Utf8 encode error");
+                }
+            }
+        }
+
+        return res;
     }
 
     /// <summary>

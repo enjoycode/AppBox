@@ -34,14 +34,14 @@ public sealed class DebugEventArgs : IBinSerializable
     public ModelId TargetModelId { get; private set; }
     public IDebugEventArgs EventArgs { get; private set; } = null!;
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteLong(TargetModelId);
         ws.WriteByte((byte)EventArgs.EventType);
-        EventArgs.WriteTo(ws);
+        EventArgs.WriteTo(ref ws);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         TargetModelId = rs.ReadLong();
         var eventType = (DebugEventType)rs.ReadByte();
@@ -53,7 +53,7 @@ public sealed class DebugEventArgs : IBinSerializable
             DebugEventType.VariableChildren => new VariableChildren(),
             _ => throw new Exception($"Unknown event type: {eventType}")
         };
-        EventArgs.ReadFrom(rs);
+        EventArgs.ReadFrom(ref rs);
     }
 }
 
@@ -66,12 +66,12 @@ public sealed class HitBreakpoint : IDebugEventArgs
 
     public DebugEventType EventType => DebugEventType.HitBreakpoint;
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteInt(LineNumber);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         LineNumber = rs.ReadInt();
     }
@@ -86,12 +86,12 @@ public sealed class DebuggerExited : IDebugEventArgs
 
     public DebugEventType EventType => DebugEventType.DebuggerExited;
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteInt(ExitCode);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         ExitCode = rs.ReadInt();
     }
@@ -121,7 +121,7 @@ public sealed class EvaluateResult : IDebugEventArgs
 
     public DebugEventType EventType => DebugEventType.EvaluateResult;
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteString(Name);
         ws.WriteString(Type);
@@ -131,7 +131,7 @@ public sealed class EvaluateResult : IDebugEventArgs
         ws.WriteInt(ChildCount);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         Name = rs.ReadString() ?? string.Empty;
         Type = rs.ReadString() ?? string.Empty;
@@ -153,9 +153,11 @@ public sealed class EvaluateValue : IDebugEventArgs
 
     public DebugEventType EventType => DebugEventType.Internal;
 
-    public void WriteTo(IOutputStream ws) => throw new NotSupportedException();
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+        => throw new NotSupportedException();
 
-    public void ReadFrom(IInputStream rs) => throw new NotSupportedException();
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+        => throw new NotSupportedException();
 }
 
 /// <summary>
@@ -167,23 +169,23 @@ public sealed class VariableChildren : IDebugEventArgs
 
     public DebugEventType EventType => DebugEventType.VariableChildren;
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteVariant(Children.Count);
 
         for (var i = 0; i < Children.Count; i++)
         {
-            Children[i].WriteTo(ws);
+            Children[i].WriteTo(ref ws);
         }
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
             var child = new EvaluateResult();
-            child.ReadFrom(rs);
+            child.ReadFrom(ref rs);
             Children.Add(child);
         }
     }

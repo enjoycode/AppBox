@@ -35,7 +35,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         //开始读取并处理消息
-        var reader = MessageReadStream.Rent(frame.First!);
+        var reader = new MessageReadStream(frame.First!);
         MessageType msgType;
         int msgId;
         try
@@ -78,9 +78,17 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
     private async void ProcessLoginRequest(int msgId, MessageReadStream reader)
     {
         //读取请求消息
-        var user = reader.ReadString()!;
-        var pass = reader.ReadString()!;
-        MessageReadStream.Return(reader);
+        string user;
+        string pass;
+        try
+        {
+            user = reader.ReadString()!;
+            pass = reader.ReadString()!;
+        }
+        finally
+        {
+            reader.Free();
+        }
 
         //调用系统服务进行验证
         TreePath? result = null;
@@ -104,7 +112,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         //发送响应
-        var writer = MessageWriteStream.Rent();
+        var writer = new MessageWriteStream();
         writer.WriteByte((byte)MessageType.LoginResponse);
         writer.WriteInt(msgId);
         writer.WriteBool(errorInfo == null);
@@ -120,7 +128,6 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         var data = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
 
         await SendMessage(data).ConfigureAwait(false);
     }
@@ -130,9 +137,18 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         //设置当前会话
         HostRuntimeContext.SetCurrentSession(WebSession);
         //调用服务
-        var (result, errorCode) = await InvokeInternal(reader, AnyArgs.From(reader));
-        //发送响应
-        await SendResponse(msgId, MessageType.InvokeResponse, errorCode, result);
+        var res = TryReadService(ref reader, out var service);
+        if (res == InvokeErrorCode.None)
+        {
+            var (result, errorCode) = await InvokeInternal(service, AnyArgs.From(reader));
+            //发送响应
+            await SendResponse(msgId, MessageType.InvokeResponse, errorCode, result);
+        }
+        else
+        {
+            //发送错误响应
+            await SendErrorResponse(msgId, MessageType.InvokeResponse, res);
+        }
     }
 
     private async void ProcessUploadRequest(int msgId, MessageReadStream reader)
@@ -146,9 +162,17 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         //调用上传服务并等待服务处理完上传的数据后发送响应 TODO:超时处理，如客户端意外掉线
         try
         {
-            var (result, errCode) = await InvokeInternal(reader,
-                new UploadArgs(pendingUpload.Channel.Reader.ReadAllAsync(), reader));
-            await SendResponse(msgId, MessageType.UploadResponse, errCode, result);
+            var res = TryReadService(ref reader, out var service);
+            if (res == InvokeErrorCode.None)
+            {
+                var (result, errCode) = await InvokeInternal(service,
+                    new UploadArgs<MessageReadStream>(pendingUpload.Channel.Reader.ReadAllAsync(), reader));
+                await SendResponse(msgId, MessageType.UploadResponse, errCode, result);
+            }
+            else
+            {
+                await SendErrorResponse(msgId, MessageType.UploadResponse, res);
+            }
         }
         finally
         {
@@ -195,63 +219,91 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         HostRuntimeContext.SetCurrentSession(WebSession);
 
         //调用下载服务获取数据流
-        var (result, errCode) = await InvokeInternal(reader, AnyArgs.From(reader));
-        //如果有错误直接发送响应
-        if (errCode != InvokeErrorCode.None)
+        var res = TryReadService(ref reader, out var service);
+        if (res == InvokeErrorCode.None)
         {
-            await SendResponse(msgId, MessageType.DownloadResponse, errCode, result);
-            return;
-        }
-
-        //根据服务返回结果发送数据块，目前仅支持Stream
-        if (result.BoxedValue is not Stream stream)
-        {
-            await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
-                "Download service return none stream");
-            return;
-        }
-
-        //开始发送数据块
-        try
-        {
-            var offset = 0;
-            while (true)
+            var (result, errCode) = await InvokeInternal(service, AnyArgs.From(reader));
+            //如果有错误直接发送响应
+            if (errCode != InvokeErrorCode.None)
             {
-                var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.DownloadChunk);
-                var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
-                if (bytesRead < 0)
+                await SendResponse(msgId, MessageType.DownloadResponse, errCode, result);
+                return;
+            }
+
+            //根据服务返回结果发送数据块，目前仅支持Stream
+            if (result.BoxedValue is not Stream stream)
+            {
+                await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
+                    "Download service return none stream");
+                return;
+            }
+
+            //开始发送数据块
+            try
+            {
+                var offset = 0;
+                while (true)
                 {
-                    await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
-                        "Can't read blob chunk");
-                    break;
+                    var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.DownloadChunk);
+                    var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
+                    if (bytesRead < 0)
+                    {
+                        await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
+                            "Can't read blob chunk");
+                        break;
+                    }
+
+                    //可能会发送一个空的chunk(bytesRead == 0)
+                    await SendMessage(chuckWriter.Chunk);
+                    if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
+                        break;
+
+                    offset += bytesRead;
                 }
-
-                //可能会发送一个空的chunk(bytesRead == 0)
-                await SendMessage(chuckWriter.Chunk);
-                if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
-                    break;
-
-                offset += bytesRead;
+            }
+            finally
+            {
+                await stream.DisposeAsync();
             }
         }
-        finally
+        else
         {
-            await stream.DisposeAsync();
+            await SendErrorResponse(msgId, MessageType.DownloadResponse, res);
         }
     }
 
-    private static async ValueTask<(AnyValue, InvokeErrorCode)> InvokeInternal<T>(MessageReadStream rs, T args)
-        where T : struct, IAnyArgs
+    /// <summary>
+    /// 读取调用服务的名称，异常直接释放读缓存
+    /// </summary>
+    private static InvokeErrorCode TryReadService(ref MessageReadStream rs, out string service)
     {
-        //调用服务
-        AnyValue result;
-        var service = "";
-        var errorCode = InvokeErrorCode.None;
         try
         {
             service = rs.ReadString()!;
             Logger.Debug($"Invoke service: {service}");
+            return InvokeErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            rs.Free();
+            service = string.Empty;
+            var errorCode = ExceptionToErrorCode(e);
+            Logger.Error($"Read service error[{errorCode}]: {e.Message}");
+            return errorCode;
+        }
+    }
 
+    /// <summary>
+    /// 调用服务, 参数由被调用者释放
+    /// </summary>
+    private static async ValueTask<(AnyValue, InvokeErrorCode)> InvokeInternal<T>(string service, T args)
+        where T : struct, IAnyArgs
+    {
+        //调用服务
+        AnyValue result;
+        var errorCode = InvokeErrorCode.None;
+        try
+        {
             result = await ServiceContainer.InvokeAsync(service, args);
         }
         catch (Exception e)
@@ -276,7 +328,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
 
     private async Task SendResponse(int msgId, MessageType msgType, InvokeErrorCode errorCode, AnyValue result)
     {
-        var writer = MessageWriteStream.Rent();
+        var writer = new MessageWriteStream();
         var writeError = false;
         try
         {
@@ -292,7 +344,6 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         var data = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
         if (writeError)
         {
             BytesSegment.ReturnAll(data); //释放写错误的数据
@@ -306,14 +357,13 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
 
     private async Task SendErrorResponse(int msgId, MessageType msgType, InvokeErrorCode errCode, string? errMsg = null)
     {
-        var writer = MessageWriteStream.Rent();
+        var writer = new MessageWriteStream();
         writer.WriteByte((byte)msgType);
         writer.WriteInt(msgId);
         writer.WriteByte((byte)errCode);
         if (!string.IsNullOrEmpty(errMsg))
             writer.Serialize(errMsg);
         var data = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
         await SendMessage(data);
     }
 
@@ -349,13 +399,13 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
     /// </summary>
     public Task SendServerEvent<T>(int eventId, T args) where T : struct, IAnyArgs
     {
-        var writer = MessageWriteStream.Rent();
+        var writer = new MessageWriteStream();
         var writeError = false;
         try
         {
             writer.WriteByte((byte)MessageType.ServerEvent);
             writer.WriteInt(eventId);
-            args.SerializeTo(writer);
+            args.SerializeTo(ref writer);
         }
         catch (Exception e) //序列化响应异常
         {
@@ -368,8 +418,6 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         var data = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
-
         if (writeError)
         {
             BytesSegment.ReturnAll(data); //释放写错误的数据

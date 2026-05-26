@@ -186,15 +186,15 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
 
     #region ====Serialization====
 
-    protected internal override void WriteTo(IOutputStream writer)
+    protected internal override void WriteTo<T>(ref T writer)
     {
         writer.WriteLong(ModelId);
         writer.SerializeExpression(Owner);
         if (!IsNull(Owner))
             writer.WriteString(Name);
     }
-
-    internal static EntityExpression Read(IInputStream reader)
+    
+    internal static EntityExpression Read<T>(ref T reader) where T: struct, IInputStream
     {
         ModelId modelId = reader.ReadLong();
         var owner = (EntityExpression?)reader.Deserialize();

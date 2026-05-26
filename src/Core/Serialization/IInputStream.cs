@@ -11,214 +11,94 @@ public interface IInputStream : IEntityMemberReader
     bool HasRemaining { get; } //TODO: change to Remaining
 
     void Free();
-
-    /// <summary>
-    /// 转换为原生的Stream
-    /// </summary>
-    Stream ToSystemStream();
-
-    #region ====IEntityMemberReader====
-
-    private void ReadExpectType(PayloadType expected)
-    {
-        var readType = (PayloadType)ReadByte();
-        if (readType != expected)
-            throw new SerializationException(SerializationError.PayloadTypeNotMatch);
-    }
-
-    string IEntityMemberReader.ReadStringMember(int flags)
-    {
-        ReadExpectType(PayloadType.String);
-        return flags == 0 ? this.ReadString()! : throw new NotImplementedException();
-    }
-
-    bool IEntityMemberReader.ReadBoolMember(int flags)
-    {
-        return flags == 0 ? this.ReadBool() : throw new NotImplementedException();
-    }
-
-    byte IEntityMemberReader.ReadByteMember(int flags)
-    {
-        ReadExpectType(PayloadType.Byte);
-        return flags == 0 ? ReadByte() : throw new NotImplementedException();
-    }
-
-    int IEntityMemberReader.ReadIntMember(int flags)
-    {
-        ReadExpectType(PayloadType.Int32);
-        return flags == 0 ? this.ReadInt() : throw new NotImplementedException();
-    }
-
-    long IEntityMemberReader.ReadLongMember(int flags)
-    {
-        ReadExpectType(PayloadType.Int64);
-        return flags == 0 ? this.ReadLong() : throw new NotImplementedException();
-    }
-
-    float IEntityMemberReader.ReadFloatMember(int flags)
-    {
-        ReadExpectType(PayloadType.Float);
-        return flags == 0 ? this.ReadFloat() : throw new NotImplementedException();
-    }
-
-    double IEntityMemberReader.ReadDoubleMember(int flags)
-    {
-        ReadExpectType(PayloadType.Double);
-        return flags == 0 ? this.ReadDouble() : throw new NotImplementedException();
-    }
-
-    decimal IEntityMemberReader.ReadDecimalMember(int flags)
-    {
-        ReadExpectType(PayloadType.Decimal);
-        return flags == 0 ? this.ReadDecimal() : throw new NotImplementedException();
-    }
-
-    DateTime IEntityMemberReader.ReadDateTimeMember(int flags)
-    {
-        ReadExpectType(PayloadType.DateTime);
-        return flags == 0 ? this.ReadDateTime() : throw new NotImplementedException();
-    }
-
-    Guid IEntityMemberReader.ReadGuidMember(int flags)
-    {
-        ReadExpectType(PayloadType.Guid);
-        return flags == 0 ? this.ReadGuid() : throw new NotImplementedException();
-    }
-
-    byte[] IEntityMemberReader.ReadBinaryMember(int flags)
-    {
-        if (flags == 0)
-        {
-            return (byte[])this.Deserialize()!;
-        }
-
-        throw new NotImplementedException();
-    }
-
-    T IEntityMemberReader.ReadEntityRefMember<T>(int flags, Func<T>? creator)
-    {
-        return this.DeserializeEntity(creator)!;
-    }
-
-    void IEntityMemberReader.ReadEntitySetMember<T>(int flags, EntitySet<T> entitySet)
-    {
-        ReadExpectType(PayloadType.EntitySet);
-        ((IBinSerializable)entitySet).ReadFrom(this);
-    }
-
-    #endregion
 }
 
 public static class InputStreamExtensions
 {
     #region ====Read(常规类型)====
 
-    public static bool ReadBool(this IInputStream s)
+    public static bool ReadBool<T>(this ref T s) where T : struct, IInputStream
         => s.ReadByte() == (byte)PayloadType.BooleanTrue;
 
-    public static char ReadChar(this IInputStream s)
+    public static unsafe char ReadChar<T>(this ref T s) where T : struct, IInputStream
     {
         char res = '\0';
-        unsafe
-        {
-            var span = new Span<byte>(&res, 2);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 2);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static short ReadShort(this IInputStream s)
+    public static unsafe short ReadShort<T>(this ref T s) where T : struct, IInputStream
     {
         short res = 0;
-        unsafe
-        {
-            var span = new Span<byte>(&res, 2);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 2);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static int ReadInt(this IInputStream s)
+    public static unsafe int ReadInt<T>(this ref T s) where T : struct, IInputStream
     {
         var res = 0;
-        unsafe
-        {
-            var span = new Span<byte>(&res, 4);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 4);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static long ReadLong(this IInputStream s)
+    public static unsafe long ReadLong<T>(this ref T s) where T : struct, IInputStream
     {
         long res = 0;
-        unsafe
-        {
-            var span = new Span<byte>(&res, 8);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 8);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static float ReadFloat(this IInputStream s)
+    public static unsafe float ReadFloat<T>(this ref T s) where T : struct, IInputStream
     {
         float res = 0f;
-        unsafe
-        {
-            var span = new Span<byte>(&res, 4);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 4);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static double ReadDouble(this IInputStream s)
+    public static unsafe double ReadDouble<T>(this ref T s) where T : struct, IInputStream
     {
         double res = 0;
-        unsafe
-        {
-            var span = new Span<byte>(&res, 8);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 8);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static DateTime ReadDateTime(this IInputStream s)
+    public static DateTime ReadDateTime<T>(this ref T s) where T : struct, IInputStream
     {
         var ticks = s.ReadLong();
         return new DateTime(ticks);
     }
 
-    public static decimal ReadDecimal(this IInputStream s)
+    public static unsafe decimal ReadDecimal<T>(this ref T s) where T : struct, IInputStream
     {
         decimal res = 0;
-        unsafe
-        {
-            var span = new Span<byte>(&res, 16);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 16);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static Guid ReadGuid(this IInputStream s)
+    public static unsafe Guid ReadGuid<T>(this ref T s) where T : struct, IInputStream
     {
         var res = Guid.Empty;
-        unsafe
-        {
-            var span = new Span<byte>(&res, 16);
-            s.ReadBytes(span);
-        }
+        var span = new Span<byte>(&res, 16);
+        s.ReadBytes(span);
 
         return res;
     }
 
-    public static uint ReadNativeVariant(this IInputStream s)
+    public static uint ReadNativeVariant<T>(this ref T s) where T : struct, IInputStream
     {
         var data = (uint)s.ReadByte();
         if ((data & 0x80) != 0)
@@ -248,15 +128,15 @@ public static class InputStreamExtensions
         return data;
     }
 
-    public static int ReadVariant(this IInputStream s)
+    public static int ReadVariant<T>(this ref T s) where T : struct, IInputStream
     {
         var temp = (int)s.ReadNativeVariant();
         return -(temp & 1) ^ ((temp >> 1) & 0x7fffffff);
     }
 
-    public static int ReadFieldId(this IInputStream s) => s.ReadVariant();
+    public static int ReadFieldId<T>(this ref T s) where T : struct, IInputStream => s.ReadVariant();
 
-    public static string? ReadString(this IInputStream s)
+    public static string? ReadString<T>(this ref T s) where T : struct, IInputStream
     {
         var len = s.ReadVariant();
         //TODO:限制大小
@@ -264,7 +144,7 @@ public static class InputStreamExtensions
         {
             -1 => null,
             0 => string.Empty,
-            _ => StringUtil.ReadFrom(len, s.ReadByte)
+            _ => StringUtil.ReadFrom(len, ref s)
         };
     }
 
@@ -272,7 +152,7 @@ public static class InputStreamExtensions
 
     #region ====ReadType====
 
-    public static Type ReadType(this IInputStream s)
+    public static Type ReadType<T>(this ref T s) where T : struct, IInputStream
     {
         var typeFlag = s.ReadByte();
         switch (typeFlag)
@@ -340,20 +220,20 @@ public static class InputStreamExtensions
 
     #region ====ReadCollection====
 
-    public static void ReadCollection<T>(this IInputStream s, ICollection<T> collection)
-        where T : IBinSerializable, new()
+    public static void ReadCollection<T, TValue>(this ref T s, ICollection<TValue> collection)
+        where T : struct, IInputStream where TValue : IBinSerializable, new()
     {
         var count = s.ReadVariant();
         for (var i = 0; i < count; i++)
         {
-            var obj = new T();
-            obj.ReadFrom(s);
+            var obj = new TValue();
+            obj.ReadFrom(ref s);
             collection.Add(obj);
         }
     }
 
-    public static void ReadCollection(this IInputStream s, Type elementType, int count,
-        Action<int, object?> elementSetter)
+    public static void ReadCollection<T>(this ref T s, Type elementType, int count,
+        Action<int, object?> elementSetter) where T : struct, IInputStream
     {
         if (count == 0) return;
 
@@ -373,7 +253,7 @@ public static class InputStreamExtensions
                 for (var i = 0; i < count; i++)
                 {
                     var element = Activator.CreateInstance(elementType);
-                    serializer.Read(s, element);
+                    serializer.Read(ref s, element);
                     elementSetter(i, element);
                 }
             }
@@ -382,7 +262,7 @@ public static class InputStreamExtensions
                 for (var i = 0; i < count; i++)
                 {
                     var element = serializer.Creator();
-                    serializer.Read(s, element);
+                    serializer.Read(ref s, element);
                     elementSetter(i, element);
                 }
             }
@@ -390,7 +270,7 @@ public static class InputStreamExtensions
             {
                 for (var i = 0; i < count; i++)
                 {
-                    elementSetter(i, serializer.Read(s, null));
+                    elementSetter(i, serializer.Read(ref s, null));
                 }
             }
         }
@@ -398,15 +278,106 @@ public static class InputStreamExtensions
 
     #endregion
 
+    #region ====EntityMemberReader====
+
+    private static void ReadExpectType<T>(this ref T s, PayloadType expected) where T : struct, IInputStream
+    {
+        var readType = (PayloadType)s.ReadByte();
+        if (readType != expected)
+            throw new SerializationException(SerializationError.PayloadTypeNotMatch);
+    }
+
+    public static string ReadEntityStringMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.String);
+        return flags == 0 ? s.ReadString()! : throw new NotImplementedException();
+    }
+
+    public static bool ReadEntityBoolMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        return flags == 0 ? s.ReadBool() : throw new NotImplementedException();
+    }
+
+    public static byte ReadEntityByteMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.Byte);
+        return flags == 0 ? s.ReadByte() : throw new NotImplementedException();
+    }
+
+    public static int ReadEntityIntMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.Int32);
+        return flags == 0 ? s.ReadInt() : throw new NotImplementedException();
+    }
+
+    public static long ReadEntityLongMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.Int64);
+        return flags == 0 ? s.ReadLong() : throw new NotImplementedException();
+    }
+
+    public static float ReadEntityFloatMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.Float);
+        return flags == 0 ? s.ReadFloat() : throw new NotImplementedException();
+    }
+
+    public static double ReadEntityDoubleMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.Double);
+        return flags == 0 ? s.ReadDouble() : throw new NotImplementedException();
+    }
+
+    public static decimal ReadEntityDecimalMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.Decimal);
+        return flags == 0 ? s.ReadDecimal() : throw new NotImplementedException();
+    }
+
+    public static DateTime ReadEntityDateTimeMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.DateTime);
+        return flags == 0 ? s.ReadDateTime() : throw new NotImplementedException();
+    }
+
+    public static Guid ReadEntityGuidMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        s.ReadExpectType(PayloadType.Guid);
+        return flags == 0 ? s.ReadGuid() : throw new NotImplementedException();
+    }
+
+    public static byte[] ReadEntityBinaryMember<T>(this ref T s, int flags) where T : struct, IInputStream
+    {
+        if (flags == 0)
+            return (byte[])s.Deserialize()!;
+
+        throw new NotImplementedException();
+    }
+
+    public static TValue ReadEntityRefMember<T, TValue>(this ref T s, int flags, Func<TValue>? creator)
+        where T : struct, IInputStream where TValue : Entity
+    {
+        return s.DeserializeEntity(creator)!;
+    }
+
+    public static void ReadEntitySetMember<T, TValue>(this ref T s, int flags, EntitySet<TValue> entitySet)
+        where T : struct, IInputStream where TValue : Entity, new()
+    {
+        s.ReadExpectType(PayloadType.EntitySet);
+        ((IBinSerializable)entitySet).ReadFrom(ref s);
+    }
+
+    #endregion
+
     #region ====Deserialize====
 
-    public static object? Deserialize(this IInputStream s)
+    public static object? Deserialize<T>(this ref T s) where T : struct, IInputStream
     {
         var payloadType = (PayloadType)s.ReadByte();
         return s.ReadObject(payloadType);
     }
 
-    internal static object? ReadObject(this IInputStream s, PayloadType payloadType)
+    internal static object? ReadObject<T>(this ref T s, PayloadType payloadType) where T : struct, IInputStream
     {
         switch (payloadType)
         {
@@ -414,7 +385,7 @@ public static class InputStreamExtensions
             case PayloadType.BooleanTrue: return true;
             case PayloadType.BooleanFalse: return false;
             case PayloadType.ObjectRef: return s.Context.GetDeserialized(s.ReadVariant());
-            case PayloadType.Entity: return s.ReadEntity<Entity>(null);
+            case PayloadType.Entity: return s.ReadEntity<T, Entity>(null);
             case PayloadType.Expression: return s.ReadExpression();
         }
 
@@ -431,7 +402,7 @@ public static class InputStreamExtensions
             payloadType != PayloadType.Array && //非数组类型
             serializer.GenericTypeCount <= 0) //非范型类型
         {
-            return serializer.Read(s, null);
+            return serializer.Read(ref s, null);
         }
 
         //其他需要创建实例的类型
@@ -462,45 +433,47 @@ public static class InputStreamExtensions
             s.Context.AddToDeserialized(result); //引用类型加入已序列化列表
 
         //读取数据
-        serializer.Read(s, result);
+        serializer.Read(ref s, result);
         return result;
     }
 
-    internal static T? DeserializeEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
+    internal static TValue? DeserializeEntity<T, TValue>(this ref T s, Func<TValue>? creator)
+        where T : struct, IInputStream where TValue : Entity
     {
         var payloadType = (PayloadType)s.ReadByte();
         return payloadType switch
         {
             PayloadType.Null => null,
-            PayloadType.ObjectRef => (T)s.Context.GetDeserialized(s.ReadVariant()),
+            PayloadType.ObjectRef => (TValue)s.Context.GetDeserialized(s.ReadVariant()),
             PayloadType.Entity => s.ReadEntity(creator),
             _ => throw new SerializationException(SerializationError.PayloadTypeNotMatch)
         };
     }
 
-    private static T ReadEntity<T>(this IInputStream s, Func<T>? creator) where T : Entity
+    private static TValue ReadEntity<T, TValue>(this ref T s, Func<TValue>? creator)
+        where T : struct, IInputStream where TValue : Entity
     {
         var modelId = s.ReadLong();
         var entity = creator != null ? creator() : s.Context.MakeEntity(modelId);
         s.Context.AddToDeserialized(entity);
-        entity.ReadFrom(s);
-        return (T)entity;
+        entity.ReadFrom(ref s);
+        return (TValue)entity;
     }
 
-    private static Expression ReadExpression(this IInputStream s)
+    private static Expression ReadExpression<T>(this ref T s) where T : struct, IInputStream
     {
         var expType = (ExpressionType)s.ReadByte();
         switch (expType)
         {
             //特殊处理EntityPath表达式
             case ExpressionType.EntityExpression:
-                return EntityExpression.Read(s);
+                return EntityExpression.Read(ref s);
             case ExpressionType.EntityFieldExpression:
-                return EntityFieldExpression.Read(s);
+                return EntityFieldExpression.Read(ref s);
             default:
                 var exp = ExpressionFactory.Make(expType);
                 s.Context.AddToDeserialized(exp);
-                exp.ReadFrom(s);
+                exp.ReadFrom(ref s);
                 return exp;
         }
     }

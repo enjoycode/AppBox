@@ -20,12 +20,12 @@ public sealed class WorkflowModel : ModelBase
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         ws.WriteFieldId(1);
-        StartActivity.WriteTo(ws);
+        StartActivity.WriteTo(ref ws);
 
         if (Parameters.Count > 0)
         {
@@ -36,9 +36,9 @@ public sealed class WorkflowModel : ModelBase
         ws.WriteFieldEnd();
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         int propIndex;
         do
@@ -46,7 +46,7 @@ public sealed class WorkflowModel : ModelBase
             propIndex = rs.ReadFieldId();
             switch (propIndex)
             {
-                case 1: StartActivity.ReadFrom(rs); break;
+                case 1: StartActivity.ReadFrom(ref rs); break;
                 case 2: rs.ReadCollection(Parameters); break;
                 case 0: break;
                 default: throw SerializationException.ReadUnknownField(nameof(WorkflowModel), propIndex);

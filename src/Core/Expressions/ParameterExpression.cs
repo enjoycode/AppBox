@@ -31,15 +31,15 @@ public sealed class ParameterExpression : Expression
         sb.Append(Name);
     }
 
-    protected internal override void WriteTo(IOutputStream writer)
+    protected internal override void WriteTo<T>(ref T writer)
     {
         writer.WriteString(Name);
-        _typeInfo.WriteTo(writer);
+        _typeInfo.WriteTo(ref writer);
     }
 
-    protected internal override void ReadFrom(IInputStream reader)
+    protected internal override void ReadFrom<T>(ref T reader)
     {
         Name = reader.ReadString()!;
-        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
+        _typeInfo = ExpressionTypeInfo.ReadFrom(ref reader);
     }
 }

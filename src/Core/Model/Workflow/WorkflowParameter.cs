@@ -30,7 +30,7 @@ public sealed class WorkflowParameter : IBinSerializable
         _originalName = null;
     }
 
-    public void WriteTo(IOutputStream bs)
+    public void WriteTo<TWriter>(ref TWriter bs) where TWriter : struct, IOutputStream
     {
         bs.WriteFieldId(1);
         bs.WriteString(Name);
@@ -41,7 +41,7 @@ public sealed class WorkflowParameter : IBinSerializable
         bs.WriteFieldEnd();
     }
 
-    public void ReadFrom(IInputStream bs)
+    public void ReadFrom<TReader>(ref TReader bs) where TReader : struct, IInputStream
     {
         int propIndex;
         do

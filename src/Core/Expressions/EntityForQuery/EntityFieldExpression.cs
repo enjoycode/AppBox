@@ -9,11 +9,11 @@ public sealed class EntityFieldExpression : Expression, IEntityPathExpression
         Name = name;
         Owner = owner;
     }
-    
+
     public string Name { get; }
 
     public EntityExpression Owner { get; }
-    
+
     /// <summary>
     /// eg: Customer.Name => CustomerName
     /// </summary>
@@ -60,13 +60,13 @@ public sealed class EntityFieldExpression : Expression, IEntityPathExpression
 
     #region ====Serialization====
 
-    protected internal override void WriteTo(IOutputStream writer)
+    protected internal override void WriteTo<T>(ref T writer)
     {
         writer.SerializeExpression(Owner);
         writer.WriteString(Name);
     }
 
-    internal static EntityFieldExpression Read(IInputStream reader)
+    internal static EntityFieldExpression Read<T>(ref T reader) where T : struct, IInputStream
     {
         var owner = (EntityExpression)reader.Deserialize()!;
         var name = reader.ReadString()!;

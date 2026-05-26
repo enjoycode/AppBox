@@ -31,9 +31,9 @@ public sealed class ServiceModel : ModelBase
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         if (Dependencies == null || Dependencies.Count == 0)
             ws.WriteVariant(0);
@@ -50,9 +50,9 @@ public sealed class ServiceModel : ModelBase
         ws.WriteFieldEnd(); //保留
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         var dependencyCount = rs.ReadVariant();
         if (dependencyCount > 0)

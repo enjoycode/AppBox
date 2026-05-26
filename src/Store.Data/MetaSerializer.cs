@@ -9,7 +9,7 @@ public static class MetaSerializer
     {
         using var ms = new MemoryStream(128);
         var writer = new SystemWriteStream(ms);
-        obj.WriteTo(writer);
+        obj.WriteTo(ref writer);
         return ms.ToArray();
     }
 
@@ -23,7 +23,7 @@ public static class MetaSerializer
     {
         var obj = creator();
         var reader = new SystemReadStream(stream);
-        obj.ReadFrom(reader);
+        obj.ReadFrom(ref reader);
         return obj;
     }
 
@@ -34,7 +34,7 @@ public static class MetaSerializer
         while (stream.Position < stream.Length)
         {
             var app = new ApplicationModel();
-            app.ReadFrom(reader);
+            app.ReadFrom(ref reader);
             list.Add(app);
         }
 
@@ -48,7 +48,7 @@ public static class MetaSerializer
         while (stream.Position < stream.Length)
         {
             var folder = new ModelFolder();
-            folder.ReadFrom(reader);
+            folder.ReadFrom(ref reader);
             list.Add(folder);
         }
 
@@ -63,7 +63,7 @@ public static class MetaSerializer
         {
             var modelType = (ModelType)reader.ReadByte();
             var model = ModelFactory.Make(modelType);
-            model.ReadFrom(reader);
+            model.ReadFrom(ref reader);
             model.AcceptChanges();
             list.Add(model);
         }

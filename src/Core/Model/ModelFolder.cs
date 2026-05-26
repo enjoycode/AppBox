@@ -151,7 +151,7 @@ public sealed class ModelFolder : IBinSerializable
 
     #region ====Serialization====
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteByte((byte)TargetModelType);
         if (Parent != null)
@@ -174,14 +174,14 @@ public sealed class ModelFolder : IBinSerializable
             ws.WriteVariant(_children!.Count);
             foreach (var child in _children)
             {
-                child.WriteTo(ws);
+                child.WriteTo(ref ws);
             }
         }
 
         ws.WriteFieldEnd(); //保留
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         TargetModelType = (ModelType)rs.ReadByte();
         if (Parent != null)
@@ -201,7 +201,7 @@ public sealed class ModelFolder : IBinSerializable
         for (var i = 0; i < childCount; i++)
         {
             var child = new ModelFolder { Parent = this };
-            child.ReadFrom(rs);
+            child.ReadFrom(ref rs);
             Children.Add(child);
         }
 

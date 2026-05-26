@@ -119,7 +119,7 @@ public sealed class EntityData : Entity
 
     protected internal override void ReadMember<T>(short id, ref T rs, int flags) => throw new NotSupportedException();
 
-    protected override void WriteTo(IOutputStream ws)
+    protected override void WriteTo<T>(ref T ws)
     {
         ws.WriteByte((byte)EntityType);
 
@@ -140,13 +140,13 @@ public sealed class EntityData : Entity
         for (var i = 0; i < _members.Count; i++)
         {
             ws.WriteShort(_members[i].MemberId);
-            _members[i].Value.SerializeTo(ws);
+            _members[i].Value.SerializeTo(ref ws);
         }
 
         ws.WriteShort(0); ////End write members
     }
 
-    protected override void ReadFrom(IInputStream rs)
+    protected override void ReadFrom<T>(ref T rs)
     {
         _entityType = (EntityType)rs.ReadByte();
 
@@ -170,7 +170,7 @@ public sealed class EntityData : Entity
         {
             var memberId = rs.ReadShort();
             if (memberId == 0) break;
-            _members.Add(new MemberData(memberId, AnyValue.ReadFrom(rs)));
+            _members.Add(new MemberData(memberId, AnyValue.ReadFrom(ref rs)));
         }
     }
 

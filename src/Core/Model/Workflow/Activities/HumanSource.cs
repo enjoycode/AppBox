@@ -88,7 +88,7 @@ public sealed class HumanSource : IBinSerializable
 
     #region ====Serialization====
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         if (!Expression.IsNull(_ouExpression))
         {
@@ -99,7 +99,7 @@ public sealed class HumanSource : IBinSerializable
         ws.WriteFieldEnd();
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var propIndex = 0;
         do

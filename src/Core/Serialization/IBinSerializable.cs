@@ -2,9 +2,7 @@ namespace AppBoxCore;
 
 public interface IBinSerializable
 {
-    void WriteTo(IOutputStream ws);
+    void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream;
 
-    void ReadFrom(IInputStream rs);
-    
-    //TODO:专用于Web的TypeName属性
+    void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream;
 }

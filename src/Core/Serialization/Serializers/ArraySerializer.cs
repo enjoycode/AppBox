@@ -5,7 +5,7 @@ internal sealed class ArraySerializer : TypeSerializer
     public ArraySerializer()
         : base(PayloadType.Array, typeof(Array), null, false) { }
 
-    public override void Write(IOutputStream bs, object instance)
+    public override void Write<T>(ref T bs, object instance)
     {
         var array = (Array)instance;
         var elementType = array.GetType().GetElementType();
@@ -15,10 +15,10 @@ internal sealed class ArraySerializer : TypeSerializer
         if (elementType == typeof(byte)) //short path for byte[]
             bs.WriteBytes((byte[])array);
         else
-            bs.WriteCollection(elementType!, array.Length, i => array.GetValue(i));
+            bs.WriteCollection(elementType!, array.Length, array.GetValue);
     }
 
-    public override object? Read(IInputStream bs, object? instance)
+    public override object? Read<T>(ref T bs, object? instance)
     {
         var array = (Array)instance!;
         var elementType = array.GetType().GetElementType();

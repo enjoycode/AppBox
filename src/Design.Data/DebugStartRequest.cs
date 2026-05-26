@@ -12,7 +12,7 @@ public sealed class DebugStartRequest : IBinSerializable
 
     //TODO: 调用服务的参数
 
-    public void WriteTo(IOutputStream w)
+    public void WriteTo<TWriter>(ref TWriter w) where TWriter : struct, IOutputStream
     {
         //写入模型标识
         w.WriteLong(ModelId);
@@ -29,7 +29,7 @@ public sealed class DebugStartRequest : IBinSerializable
         //TODO:最后写入调用参数
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         ModelId = rs.ReadLong();
         AppName = rs.ReadString()!;

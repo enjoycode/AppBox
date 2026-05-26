@@ -100,7 +100,7 @@ public sealed class EntitySet<T> : IList<T>, IBinSerializable where T : Entity, 
 
     #region ====Serialization====
 
-    void IBinSerializable.WriteTo(IOutputStream ws)
+    void IBinSerializable.WriteTo<TWriter>(ref TWriter ws)
     {
         ws.WriteVariant(_list.Count);
         foreach (var item in _list)
@@ -118,7 +118,7 @@ public sealed class EntitySet<T> : IList<T>, IBinSerializable where T : Entity, 
         }
     }
 
-    void IBinSerializable.ReadFrom(IInputStream rs)
+    void IBinSerializable.ReadFrom<TReader>(ref TReader rs)
     {
         var count = rs.ReadVariant();
         for (var i = 0; i < count; i++)

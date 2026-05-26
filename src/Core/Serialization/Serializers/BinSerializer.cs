@@ -9,14 +9,14 @@ public sealed class BinSerializer : TypeSerializer
         Func<object>? creator = null, bool notWriteAttachInfo = true)
         : base(payloadType, sysType, creator, notWriteAttachInfo) { }
 
-    public override void Write(IOutputStream bs, object instance)
+    public override void Write<T>(ref T bs, object instance)
     {
-        ((IBinSerializable)instance).WriteTo(bs);
+        ((IBinSerializable)instance).WriteTo(ref bs);
     }
 
-    public override object? Read(IInputStream bs, object? instance)
+    public override object? Read<T>(ref T bs, object? instance)
     {
-        ((IBinSerializable)instance!).ReadFrom(bs);
+        ((IBinSerializable)instance!).ReadFrom(ref bs);
         return instance;
     }
 }

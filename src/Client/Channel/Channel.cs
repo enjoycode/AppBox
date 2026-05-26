@@ -57,13 +57,13 @@ public static class Channel
         }
     }
 
-    internal static void RaiseServerEvent(int eventId, IInputStream inputStream)
+    internal static void RaiseServerEvent<T>(int eventId, ref T inputStream) where T : struct, IInputStream
     {
         lock (EventSubscribers)
         {
             if (EventSubscribers.TryGetValue(eventId, out var subscribers))
             {
-                var eventArgs = new ServerEventArgs(inputStream);
+                var eventArgs = new ServerEventArgs<T>(inputStream);
                 foreach (var subscriber in subscribers)
                     subscriber.Handler(eventArgs);
             }

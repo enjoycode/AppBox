@@ -15,20 +15,19 @@ public sealed class SerializationTest
 
     internal static BytesSegment Serialize<T>(T obj)
     {
-        var writer = MessageWriteStream.Rent();
+        var writer = new MessageWriteStream();
         writer.Serialize(obj);
         var segment = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
         return segment;
     }
 
     internal static object? Deserialize(BytesSegment data, EntityFactory[]? factories = null)
     {
-        var reader = MessageReadStream.Rent(data.First!);
+        var reader = new MessageReadStream(data.First!);
         if (factories != null)
             reader.Context.SetEntityFactories(factories);
         var res = reader.Deserialize();
-        MessageReadStream.Return(reader);
+        reader.Free();
         return res;
     }
 
@@ -53,20 +52,19 @@ public sealed class SerializationTest
     {
         const string src = "h中😀";
 
-        var writer = MessageWriteStream.Rent();
+        var writer = new MessageWriteStream();
         writer.WriteBool(true);
         writer.WriteInt(1234);
         writer.WriteVariant(5678);
         writer.WriteString(src);
         var segment = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
 
-        var reader = MessageReadStream.Rent(segment.First!);
+        var reader = new MessageReadStream(segment.First!);
         Assert.True(reader.ReadBool() == true);
         Assert.True(reader.ReadInt() == 1234);
         Assert.True(reader.ReadVariant() == 5678);
         Assert.True(reader.ReadString() == src);
-        MessageReadStream.Return(reader);
+        reader.Free();
     }
 
     [Test]
@@ -145,19 +143,18 @@ public sealed class SerializationTest
         var args1 = AnyArgs.Make(eventArgs1);
 
         //序列化
-        var writer = MessageWriteStream.Rent();
-        args1.SerializeTo(writer);
+        var writer = new MessageWriteStream();
+        args1.SerializeTo(ref writer);
         var segment = writer.FinishWrite();
-        MessageWriteStream.Return(writer);
 
         //反序列化
-        var reader = MessageReadStream.Rent(segment.First!);
-        var serverEventArgs = new ServerEventArgs(reader);
+        var reader = new MessageReadStream(segment.First!);
+        var serverEventArgs = new ServerEventArgs<MessageReadStream>(reader);
         var eventArgs2 = (DebugEventArgs)serverEventArgs[0].GetObject()!;
 
         // var args2 = AnyArgs.From(reader);
         // var eventArgs2 = (DebugEventArgs)args2.GetObject()!;
-        MessageReadStream.Return(reader);
+        reader.Free();
 
         Assert.True(eventArgs1.TargetModelId == eventArgs2.TargetModelId);
     }

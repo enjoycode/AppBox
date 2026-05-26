@@ -18,16 +18,16 @@ internal sealed class PendingUpload
     public Channel<IBlobChunk> Channel { get; }
 }
 
-internal struct UploadArgs : IAnyArgs
+internal struct UploadArgs<TStream> : IAnyArgs where TStream : struct, IInputStream
 {
-    internal UploadArgs(IAsyncEnumerable<IBlobChunk> firstArg, IInputStream inputStream)
+    internal UploadArgs(IAsyncEnumerable<IBlobChunk> firstArg, TStream inputStream)
     {
         _firstArg = firstArg;
-        _streamArgs = new StreamArgs(inputStream);
+        _streamArgs = new StreamArgs<TStream>(inputStream);
         _hasReadFirstArg = false;
     }
 
-    private readonly StreamArgs _streamArgs;
+    private StreamArgs<TStream> _streamArgs;
     private readonly IAsyncEnumerable<IBlobChunk> _firstArg;
     private bool _hasReadFirstArg;
 
@@ -35,7 +35,8 @@ internal struct UploadArgs : IAnyArgs
 
     public void Free() => _streamArgs.Free();
 
-    public void SerializeTo(IOutputStream stream) => throw new NotImplementedException();
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream
+        => throw new NotSupportedException();
 
     public bool? GetBool() => _hasReadFirstArg ? _streamArgs.GetBool() : throw new InvalidCastException();
     public short? GetShort() => _hasReadFirstArg ? _streamArgs.GetShort() : throw new InvalidCastException();

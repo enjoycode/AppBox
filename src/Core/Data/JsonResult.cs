@@ -7,8 +7,8 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class JsonResult : IBinSerializable
 {
-    internal JsonResult() {}
-    
+    internal JsonResult() { }
+
     public JsonResult(object? value)
     {
         _value = value;
@@ -25,7 +25,7 @@ public sealed class JsonResult : IBinSerializable
         return JsonSerializer.Deserialize<T>(bytes);
     }
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         //TODO:判断_value是否实现自定义Json序列化接口，是则直接写入流
         //TODO:暂简单实现，待实现流式写入
@@ -34,7 +34,7 @@ public sealed class JsonResult : IBinSerializable
         ws.WriteBytes(bytes);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var len = rs.ReadVariant();
         var bytes = new byte[len];

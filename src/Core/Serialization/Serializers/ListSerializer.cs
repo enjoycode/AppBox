@@ -6,7 +6,7 @@ internal sealed class ListSerializer : TypeSerializer
 {
     public ListSerializer() : base(PayloadType.List, typeof(List<>)) { }
 
-    public override void Write(IOutputStream bs, object instance)
+    public override void Write<T>(ref T bs, object instance)
     {
         var list = (IList)instance;
         var elementType = list.GetType().GenericTypeArguments[0];
@@ -16,7 +16,7 @@ internal sealed class ListSerializer : TypeSerializer
         bs.WriteCollection(elementType!, list.Count, i => list[i]);
     }
 
-    public override object? Read(IInputStream bs, object? instance)
+    public override object? Read<T>(ref T bs, object? instance)
     {
         var list = (IList)instance!;
         var elementType = list.GetType().GenericTypeArguments[0];

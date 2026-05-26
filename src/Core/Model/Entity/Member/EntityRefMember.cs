@@ -13,7 +13,7 @@ public sealed class EntityRefMember : EntityMember, IModelReference
     /// 设计时新建非聚合引用成员
     /// </summary>
     public EntityRefMember(EntityModel owner, string name, ModelId refModelId,
-        short[] fkMemberIds, bool allowNull = true, bool foreignConstraint = true) 
+        short[] fkMemberIds, bool allowNull = true, bool foreignConstraint = true)
         : base(owner, name, allowNull)
     {
         if (fkMemberIds == null || fkMemberIds.Length == 0)
@@ -154,9 +154,9 @@ public sealed class EntityRefMember : EntityMember, IModelReference
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         ws.WriteBool(IsReverse);
         ws.WriteBool(IsForeignKeyConstraint);
@@ -179,9 +179,9 @@ public sealed class EntityRefMember : EntityMember, IModelReference
         ws.WriteFieldEnd(); //保留
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         IsReverse = rs.ReadBool();
         IsForeignKeyConstraint = rs.ReadBool();

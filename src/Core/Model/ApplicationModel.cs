@@ -1,17 +1,16 @@
 namespace AppBoxCore;
 
-[BinSerializable(BinSerializePolicy.Compact)]
-public sealed partial class ApplicationModel
+public sealed class ApplicationModel : IBinSerializable
 {
-    [Field(1)] private int _id;
-    [Field(2, true)] private int _devModelIdSeq; //仅用于导入导出，注意导出前需要从存储刷新
-    [Field(3)] private string _owner = null!;
-    [Field(4)] private string _name = null!;
+    private int _id;
+    private int _devModelIdSeq; //仅用于导入导出，注意导出前需要从存储刷新
+    private string _owner = null!;
+    private string _name = null!;
 #if FUTURE
     private byte _sysStoreId; //映射至系统存储的编号，由SysStore生成
 #endif
-    
-    public ApplicationModel() {}
+
+    public ApplicationModel() { }
 
     public ApplicationModel(string owner, string name)
     {
@@ -22,4 +21,22 @@ public sealed partial class ApplicationModel
 
     public int Id => _id;
     public string Name => _name;
+
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+    {
+        ws.WriteInt(_id);
+        ws.WriteVariant(_devModelIdSeq);
+        ws.WriteString(_owner);
+        ws.WriteString(_name);
+        ws.WriteFieldEnd();
+    }
+
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+    {
+        _id = rs.ReadInt();
+        _devModelIdSeq = rs.ReadVariant();
+        _owner = rs.ReadString() ?? string.Empty;
+        _name = rs.ReadString() ?? string.Empty;
+        rs.ReadFieldId();
+    }
 }

@@ -84,7 +84,7 @@ public sealed class DataRow
 
     #region ====Serialization====
 
-    internal void WriteTo(IOutputStream ws, DataColumn[] fields)
+    internal void WriteTo<TWriter>(ref TWriter ws, DataColumn[] fields) where TWriter : struct, IOutputStream
     {
         ws.WriteByte((byte)PersistentState);
 
@@ -92,19 +92,19 @@ public sealed class DataRow
         foreach (var field in fields)
         {
             if (_fields.TryGetValue(field.Name, out var value))
-                value.WriteTo(ws);
+                value.WriteTo(ref ws);
             else
                 ws.WriteByte((byte)DataType.Empty);
         }
     }
 
-    internal void ReadFrom(IInputStream rs, DataColumn[] fields)
+    internal void ReadFrom<TReader>(ref TReader rs, DataColumn[] fields) where TReader : struct, IInputStream
     {
         PersistentState = (PersistentState)rs.ReadByte();
 
         foreach (var field in fields)
         {
-            _fields[field.Name] = DataCell.ReadFrom(rs);
+            _fields[field.Name] = DataCell.ReadFrom(ref rs);
         }
     }
 

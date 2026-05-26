@@ -62,7 +62,7 @@ public abstract class DbIndex : IBinSerializable
 
     #region ====Serialization====
 
-    public virtual void WriteTo(IOutputStream ws)
+    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteByte(IndexId);
         ws.WriteString(Name);
@@ -72,7 +72,7 @@ public abstract class DbIndex : IBinSerializable
         ws.WriteVariant(Fields.Length);
         for (var i = 0; i < Fields.Length; i++)
         {
-            Fields[i].WriteTo(ws);
+            Fields[i].WriteTo(ref ws);
         }
 
         //Storing fields
@@ -89,7 +89,7 @@ public abstract class DbIndex : IBinSerializable
             ws.WriteByte((byte)PersistentState);
     }
 
-    public virtual void ReadFrom(IInputStream rs)
+    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         IndexId = rs.ReadByte();
         Name = rs.ReadString()!;
@@ -100,7 +100,7 @@ public abstract class DbIndex : IBinSerializable
         Fields = new OrderedField[count];
         for (var i = 0; i < count; i++)
         {
-            Fields[i].ReadFrom(rs);
+            Fields[i].ReadFrom(ref rs);
         }
 
         //Storing fields

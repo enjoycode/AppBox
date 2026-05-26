@@ -32,9 +32,9 @@ public sealed class ViewModel : ModelBase
     /// </summary>
     public List<ModelDependency>? Dependencies { get; internal set; }
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
         ws.WriteByte((byte)ViewType);
 
         if (Dependencies is { Count: > 0 })
@@ -52,9 +52,9 @@ public sealed class ViewModel : ModelBase
         ws.WriteFieldEnd();
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
         ViewType = (ViewModelType)rs.ReadByte();
 
         while (true)

@@ -112,7 +112,7 @@ public abstract class ModelBase : IBinSerializable
 
     #region ====Serialization====
 
-    public virtual void WriteTo(IOutputStream ws)
+    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteLong(_id);
         ws.WriteString(Name);
@@ -126,11 +126,15 @@ public abstract class ModelBase : IBinSerializable
         }
 
         if (_folderId != null && (IsDesignMode || ModelType == ModelType.Permission))
-            ws.WriteFieldId(3).WriteGuid(_folderId.Value);
+        {
+            ws.WriteFieldId(3);
+            ws.WriteGuid(_folderId.Value);
+        }
+
         ws.WriteFieldEnd();
     }
 
-    public virtual void ReadFrom(IInputStream rs)
+    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         _id = rs.ReadLong();
         Name = rs.ReadString()!;

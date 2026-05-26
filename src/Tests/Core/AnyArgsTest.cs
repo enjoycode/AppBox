@@ -51,14 +51,13 @@ public class AnyArgsTest
     [Test]
     public void GetWhenNothingToRead()
     {
-        var ws = MessageWriteStream.Rent();
+        var ws = new MessageWriteStream();
         ws.WriteByte((byte)MessageType.InvokeRequest);
         ws.WriteInt(1);
         ws.WriteString("sys.OrderService.GetOrders2");
         var reqData = ws.FinishWrite();
-        MessageWriteStream.Return(ws);
 
-        var rs = MessageReadStream.Rent(reqData.First!);
+        var rs = new MessageReadStream(reqData.First!);
         rs.ReadByte(); //MsgType
         rs.ReadInt(); //MsgId
         var service = rs.ReadString();
@@ -67,6 +66,6 @@ public class AnyArgsTest
         // args.GetObject();
         Assert.Throws<SerializationException>(() => rs.Deserialize());
 
-        MessageReadStream.Return(rs);
+        rs.Free();
     }
 }

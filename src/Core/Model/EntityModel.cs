@@ -317,21 +317,21 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         //写入成员
         ws.WriteVariant(_members.Count);
         foreach (var member in _members)
         {
             ws.WriteByte((byte)member.Type);
-            member.WriteTo(ws);
+            member.WriteTo(ref ws);
         }
 
         //写入存储配置
         ws.WriteByte(StoreOptions == null ? (byte)0 : (byte)StoreOptions.Kind);
-        StoreOptions?.WriteTo(ws);
+        StoreOptions?.WriteTo(ref ws);
 
         if (IsDesignMode)
         {
@@ -342,16 +342,16 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         ws.WriteFieldEnd(); //保留
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         //读取成员
         var count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
             var member = MakeMemberByType(rs.ReadByte());
-            member.ReadFrom(rs);
+            member.ReadFrom(ref rs);
             _members.Add(member);
         }
 
@@ -360,7 +360,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         if (storeType != 0)
         {
             StoreOptions = MakeStoreOptionsByType(storeType);
-            StoreOptions.ReadFrom(rs);
+            StoreOptions.ReadFrom(ref rs);
         }
 
         if (IsDesignMode)

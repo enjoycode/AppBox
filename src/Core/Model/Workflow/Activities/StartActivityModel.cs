@@ -21,22 +21,22 @@ public sealed class StartActivityModel : ActivityModel
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         if (Next.Target != null)
         {
             ws.WriteFieldId(1);
-            Next.WriteTo(ws);
+            Next.WriteTo(ref ws);
         }
 
         ws.WriteFieldEnd();
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         var propIndex = 0;
         do
@@ -44,7 +44,7 @@ public sealed class StartActivityModel : ActivityModel
             propIndex = rs.ReadFieldId();
             switch (propIndex)
             {
-                case 1: Next.ReadFrom(rs); break;
+                case 1: Next.ReadFrom(ref rs); break;
                 case 0: break;
                 default: throw SerializationException.ReadUnknownField(nameof(StartActivityModel), propIndex);
             }

@@ -286,7 +286,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     /// <summary>
     /// 从输入流中读取
     /// </summary>
-    public static AnyValue ReadFrom(IInputStream stream)
+    public static AnyValue ReadFrom<T>(ref T stream) where T : struct, IInputStream
     {
         var payloadType = (PayloadType)stream.ReadByte();
         return payloadType switch
@@ -340,7 +340,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     #region ====Serialization====
 
-    internal readonly void SerializeTo(IOutputStream bs)
+    internal readonly void SerializeTo<T>(ref T bs) where T : struct, IOutputStream
     {
         //TODO: others
         switch (Type)
@@ -392,7 +392,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         }
     }
 
-    internal static AnyValue DeserializeFrom(IInputStream rs)
+    internal static AnyValue DeserializeFrom<T>(ref T rs) where T : struct, IInputStream
     {
         var payloadType = (PayloadType)rs.ReadByte();
         return payloadType switch

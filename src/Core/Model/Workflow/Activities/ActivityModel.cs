@@ -26,7 +26,7 @@ public abstract class ActivityModel : IBinSerializable
 
     #region ====Serialization====
 
-    public virtual void WriteTo(IOutputStream ws)
+    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteFieldId(1);
         ws.WriteString(Title);
@@ -40,7 +40,7 @@ public abstract class ActivityModel : IBinSerializable
         ws.WriteFieldEnd();
     }
 
-    public virtual void ReadFrom(IInputStream rs)
+    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var propIndex = 0;
         do

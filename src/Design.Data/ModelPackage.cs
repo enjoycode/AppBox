@@ -40,7 +40,7 @@ public abstract class ModelPackage : IBinSerializable
 
     #region ====Serialization====
 
-    public virtual void WriteTo(IOutputStream ws)
+    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteVariant(Models.Count);
         ws.WriteCollection(typeof(ModelBase), Models.Count, i => Models[i]);
@@ -49,7 +49,7 @@ public abstract class ModelPackage : IBinSerializable
         ws.WriteCollection(typeof(ModelFolder), Folders.Count, i => Folders[i]);
     }
 
-    public virtual void ReadFrom(IInputStream rs)
+    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var count = rs.ReadVariant();
         for (var i = 0; i < count; i++)

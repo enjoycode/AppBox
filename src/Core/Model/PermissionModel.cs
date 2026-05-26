@@ -60,9 +60,9 @@ public sealed class PermissionModel : ModelBase
         return false;
     }
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         ws.WriteVariant(_sortNum);
         ws.WriteString(_comment);
@@ -76,9 +76,9 @@ public sealed class PermissionModel : ModelBase
         }
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         _sortNum = rs.ReadVariant();
         _comment = rs.ReadString();

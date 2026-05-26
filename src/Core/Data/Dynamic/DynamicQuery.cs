@@ -21,7 +21,7 @@ public sealed class DynamicQuery : IBinSerializable
 
     #region ====Serialization====
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteLong(ModelId);
         ws.WriteInt(PageSize);
@@ -32,7 +32,7 @@ public sealed class DynamicQuery : IBinSerializable
         ws.WriteVariant(Selects.Length);
         for (var i = 0; i < Selects.Length; i++)
         {
-            Selects[i].WriteTo(ws);
+            Selects[i].WriteTo(ref ws);
         }
 
         ws.WriteVariant(Orders?.Length ?? 0);
@@ -40,12 +40,12 @@ public sealed class DynamicQuery : IBinSerializable
         {
             for (var i = 0; i < Orders.Length; i++)
             {
-                Orders[i].WriteTo(ws);
+                Orders[i].WriteTo(ref ws);
             }
         }
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         ModelId = rs.ReadLong();
         PageSize = rs.ReadInt();
@@ -57,7 +57,7 @@ public sealed class DynamicQuery : IBinSerializable
         Selects = new SelectItem[count];
         for (var i = 0; i < count; i++)
         {
-            Selects[i] = SelectItem.ReadFrom(rs);
+            Selects[i] = SelectItem.ReadFrom(ref rs);
         }
 
         count = rs.ReadVariant();
@@ -66,7 +66,7 @@ public sealed class DynamicQuery : IBinSerializable
             Orders = new OrderByItem[count];
             for (var i = 0; i < count; i++)
             {
-                Orders[i] = OrderByItem.ReadFrom(rs);
+                Orders[i] = OrderByItem.ReadFrom(ref rs);
             }
         }
     }
@@ -88,14 +88,14 @@ public sealed class DynamicQuery : IBinSerializable
 
         #region ====Serialization====
 
-        internal void WriteTo(IOutputStream ws)
+        internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
         {
             ws.SerializeExpression(Item);
             ws.WriteByte((byte)Type);
             ws.WriteString(Alias);
         }
 
-        internal static SelectItem ReadFrom(IInputStream rs)
+        internal static SelectItem ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
         {
             var item = (Expression)rs.Deserialize()!;
             var type = (DataType)rs.ReadByte();
@@ -162,13 +162,13 @@ public sealed class DynamicQuery : IBinSerializable
 
         #region ====Serialization====
 
-        internal void WriteTo(IOutputStream ws)
+        internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
         {
             ws.SerializeExpression(Field);
             ws.WriteBool(Descending);
         }
 
-        internal static OrderByItem ReadFrom(IInputStream rs)
+        internal static OrderByItem ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
         {
             var field = (Expression)rs.Deserialize()!;
             var descending = rs.ReadBool();

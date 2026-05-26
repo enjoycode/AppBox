@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AppBoxCore;
 
@@ -10,292 +11,69 @@ public interface IOutputStream : IEntityMemberWriter
     void WriteByte(byte value);
 
     void WriteBytes(ReadOnlySpan<byte> src);
-
-    #region ====IEntityMemberWriter====
-
-    void IEntityMemberWriter.WriteStringMember(short id, string? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteBoolMember(short id, bool? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.WriteBool(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteByteMember(short id, byte? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteIntMember(short id, int? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteLongMember(short id, long? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteFloatMember(short id, float? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteDoubleMember(short id, double? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteDecimalMember(short id, decimal? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteDateTimeMember(short id, DateTime? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteGuidMember(short id, Guid? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value.Value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteBinaryMember(short id, byte[]? value, int flags)
-    {
-        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
-        if (!forStore)
-        {
-            if (value == null) return;
-
-            this.WriteShort(id);
-            this.Serialize(value);
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    void IEntityMemberWriter.WriteEntityRefMember(short id, Entity? value, int flags)
-    {
-        if (flags != EntityMemberWriteFlags.None) return; //存储或忽略导航属性不需要写入
-        if (value == null) return;
-
-        this.WriteShort(id);
-        this.Serialize(value);
-    }
-
-    void IEntityMemberWriter.WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags)
-    {
-        if (flags != EntityMemberWriteFlags.None) return; //存储或忽略导航属性不需要写入
-        if (value == null) return;
-
-        this.WriteShort(id);
-        this.WriteByte((byte)PayloadType.EntitySet);
-        ((IBinSerializable)value).WriteTo(this);
-    }
-
-    #endregion
 }
 
 public static class OutputStreamExtensions
 {
     #region ====Write(常规类型)====
 
-    public static void WriteBool(this IOutputStream s, bool value)
+    public static void WriteBool<T>(this ref T s, bool value) where T : struct, IOutputStream
         => s.WriteByte(value ? (byte)PayloadType.BooleanTrue : (byte)PayloadType.BooleanFalse);
 
-    public static void WriteChar(this IOutputStream s, char value)
+    public static unsafe void WriteChar<T>(this ref T s, char value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 2);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 2);
+        s.WriteBytes(span);
     }
 
-    public static void WriteShort(this IOutputStream s, short value)
+    public static unsafe void WriteShort<T>(this ref T s, short value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 2);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 2);
+        s.WriteBytes(span);
     }
 
-    public static void WriteInt(this IOutputStream s, int value)
+    public static unsafe void WriteInt<T>(this ref T s, int value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 4);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 4);
+        s.WriteBytes(span);
     }
 
-    public static void WriteLong(this IOutputStream s, long value)
+    public static unsafe void WriteLong<T>(this ref T s, long value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 8);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 8);
+        s.WriteBytes(span);
     }
 
-    public static void WriteFloat(this IOutputStream s, float value)
+    public static unsafe void WriteFloat<T>(this ref T s, float value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 4);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 4);
+        s.WriteBytes(span);
     }
 
-    public static void WriteDouble(this IOutputStream s, double value)
+    public static unsafe void WriteDouble<T>(this ref T s, double value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 8);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 8);
+        s.WriteBytes(span);
     }
 
-    public static void WriteDateTime(this IOutputStream s, DateTime value)
+    public static void WriteDateTime<T>(this ref T s, DateTime value) where T : struct, IOutputStream
     {
         s.WriteLong(value.Ticks);
     }
 
-    public static void WriteDecimal(this IOutputStream s, decimal value)
+    public static unsafe void WriteDecimal<T>(this ref T s, decimal value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 16);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 16);
+        s.WriteBytes(span);
     }
 
-    public static void WriteGuid(this IOutputStream s, Guid value)
+    public static unsafe void WriteGuid<T>(this ref T s, Guid value) where T : struct, IOutputStream
     {
-        unsafe
-        {
-            var span = new Span<byte>(&value, 16);
-            s.WriteBytes(span);
-        }
+        var span = new Span<byte>(&value, 16);
+        s.WriteBytes(span);
     }
 
-    public static void WriteNativeVariant(this IOutputStream s, uint value)
+    public static void WriteNativeVariant<T>(this ref T s, uint value) where T : struct, IOutputStream
     {
         do
         {
@@ -311,7 +89,7 @@ public static class OutputStreamExtensions
         } while (true);
     }
 
-    public static void WriteVariant(this IOutputStream s, int value)
+    public static void WriteVariant<T>(this ref T s, int value) where T : struct, IOutputStream
     {
         var num = (uint)((value << 1) ^ (value >> 0x1F));
         s.WriteNativeVariant(num);
@@ -320,14 +98,14 @@ public static class OutputStreamExtensions
     /// <summary>
     /// 写入带长度信息且Utf8编码的字符串
     /// </summary>
-    public static void WriteString(this IOutputStream s, string? value)
+    public static void WriteString<T>(this ref T s, string? value) where T : struct, IOutputStream
     {
         if (value == null) s.WriteVariant(-1);
         else if (value.Length == 0) s.WriteVariant(0);
         else
         {
             s.WriteVariant(value.Length); //注意非编码后的字节数量
-            StringUtil.WriteTo(value, s.WriteByte);
+            StringUtil.WriteTo(value, ref s);
         }
     }
 
@@ -335,14 +113,15 @@ public static class OutputStreamExtensions
 
     #region ====Write(实现了IBinSerializable的对象)
 
-    public static void Write<T>(this IOutputStream s, T obj) where T : IBinSerializable
-        => obj.WriteTo(s);
+    public static void Write<T, TValue>(this ref T s, TValue obj)
+        where TValue : IBinSerializable where T : struct, IOutputStream
+        => obj.WriteTo(ref s);
 
     #endregion
 
     #region ====WriteType====
 
-    public static void WriteType(this IOutputStream s, Type type)
+    public static void WriteType<T>(this ref T s, Type type) where T : struct, IOutputStream
     {
         //TypeFlag定义： 0=系统已知类型; 1=扩展已知类型; 2=Object; 3=Entity
         if (type == typeof(object))
@@ -352,7 +131,7 @@ public static class OutputStreamExtensions
         else if (type == typeof(Entity) || type.IsSubclassOf(typeof(Entity)))
         {
             s.WriteByte(3);
-            //再写入模型标识, TODO:暂使用反射，考虑只写入ModelId = 0
+            //再写入模型标识, TODO:暂使用反射，考虑只写入ModelId = 0，另编译并缓存表达式
             var staticModelIdProp = type.GetProperty("MODELID", BindingFlags.Static | BindingFlags.Public);
             s.WriteLong(staticModelIdProp == null ? 0 : (long)staticModelIdProp.GetValue(null)!);
         }
@@ -376,7 +155,7 @@ public static class OutputStreamExtensions
             }
 
             //写入附加类型信息
-            serializer.WriteAttachTypeInfo(s, type);
+            serializer.WriteAttachTypeInfo(ref s, type);
         }
     }
 
@@ -384,17 +163,18 @@ public static class OutputStreamExtensions
 
     #region ====WriteCollection====
 
-    public static void WriteCollection<T>(this IOutputStream s, IList<T> collection) where T : IBinSerializable
+    public static void WriteCollection<T, TValue>(this ref T s, IList<TValue> collection)
+        where TValue : IBinSerializable where T : struct, IOutputStream
     {
         s.WriteVariant(collection.Count);
         for (var i = 0; i < collection.Count; i++)
         {
-            collection[i].WriteTo(s);
+            collection[i].WriteTo(ref s);
         }
     }
 
-    public static void WriteCollection(this IOutputStream s, Type elementType, int count,
-        Func<int, object?> elementGetter)
+    public static void WriteCollection<T>(this ref T s, Type elementType, int count,
+        Func<int, object?> elementGetter) where T : struct, IOutputStream
     {
         if (count == 0) return;
 
@@ -411,7 +191,7 @@ public static class OutputStreamExtensions
         {
             for (var i = 0; i < count; i++)
             {
-                serializer.Write(s, elementGetter(i)!);
+                serializer.Write(ref s, elementGetter(i)!);
             }
         }
     }
@@ -420,19 +200,18 @@ public static class OutputStreamExtensions
 
     #region ====Write(字段标识)====
 
-    public static IOutputStream WriteFieldId(this IOutputStream s, int fieldId)
-    {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteFieldId<T>(this ref T s, int fieldId) where T : struct, IOutputStream =>
         s.WriteVariant(fieldId);
-        return s;
-    }
 
-    public static void WriteFieldEnd(this IOutputStream s) => s.WriteVariant(0);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteFieldEnd<T>(this ref T s) where T : struct, IOutputStream => s.WriteVariant(0);
 
     #endregion
 
     #region ====WriteStream====
 
-    public static void WriteStream(this IOutputStream s, Stream stream)
+    public static void WriteStream<T>(this ref T s, Stream stream) where T : struct, IOutputStream
     {
         var buffer = ArrayPool<byte>.Shared.Rent(4096);
         try
@@ -456,7 +235,7 @@ public static class OutputStreamExtensions
     /// <summary>
     /// 检查是否已经序列化过，是则写入ObjectRef信息
     /// </summary>
-    private static bool CheckSerialized(IOutputStream s, object obj)
+    private static bool CheckSerialized<T>(ref T s, object obj) where T : struct, IOutputStream
     {
         var index = s.Context.GetSerializedIndex(obj);
         if (index == -1)
@@ -470,7 +249,7 @@ public static class OutputStreamExtensions
         return true;
     }
 
-    public static void Serialize(this IOutputStream s, object? value)
+    public static void Serialize<T>(this ref T s, object? value) where T : struct, IOutputStream
     {
         switch (value)
         {
@@ -499,93 +278,103 @@ public static class OutputStreamExtensions
         //检查是否已经序列化过
         if (serializer.TargetType.IsClass && serializer.TargetType != typeof(string))
         {
-            if (CheckSerialized(s, value))
+            if (CheckSerialized(ref s, value))
                 return;
         }
 
         //写入类型信息
         s.WriteByte((byte)serializer.PayloadType);
         //写入附加类型信息
-        serializer.WriteAttachTypeInfo(s, type);
+        serializer.WriteAttachTypeInfo(ref s, type);
         //判断是否引用类型，是则加入已序列化对象列表
         if (serializer.TargetType.IsClass && serializer.TargetType != typeof(string))
             s.Context.AddToSerialized(value);
         //写入数据
-        serializer.Write(s, value);
+        serializer.Write(ref s, value);
     }
 
-    public static void Serialize(this IOutputStream s, in AnyValue value)
-    {
-        value.SerializeTo(s);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, in AnyValue value) where T : struct, IOutputStream =>
+        value.SerializeTo(ref s);
 
-    public static void Serialize(this IOutputStream s, byte value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, byte value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Byte);
         s.WriteByte(value);
     }
 
-    public static void Serialize(this IOutputStream s, char value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, char value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Char);
         s.WriteChar(value);
     }
 
-    public static void Serialize(this IOutputStream s, short value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, short value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Int16);
         s.WriteShort(value);
     }
 
-    public static void Serialize(this IOutputStream s, int value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, int value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Int32);
         s.WriteInt(value);
     }
 
-    public static void Serialize(this IOutputStream s, long value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, long value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Int64);
         s.WriteLong(value);
     }
 
-    public static void Serialize(this IOutputStream s, float value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, float value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Float);
         s.WriteFloat(value);
     }
 
-    public static void Serialize(this IOutputStream s, double value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, double value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Double);
         s.WriteDouble(value);
     }
 
-    public static void Serialize(this IOutputStream s, decimal value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, decimal value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Decimal);
         s.WriteDecimal(value);
     }
 
-    public static void Serialize(this IOutputStream s, DateTime value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, DateTime value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.DateTime);
         s.WriteDateTime(value);
     }
 
-    public static void Serialize(this IOutputStream s, Guid value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, Guid value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.Guid);
         s.WriteGuid(value);
     }
 
-    public static void Serialize(this IOutputStream s, string value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Serialize<T>(this ref T s, string value) where T : struct, IOutputStream
     {
         s.WriteByte((byte)PayloadType.String);
         s.WriteString(value);
     }
 
-    public static void Serialize(this IOutputStream s, Entity? value)
+    public static void Serialize<T>(this ref T s, Entity? value) where T : struct, IOutputStream
     {
         if (value == null)
         {
@@ -593,16 +382,16 @@ public static class OutputStreamExtensions
             return;
         }
 
-        if (CheckSerialized(s, value)) return;
+        if (CheckSerialized(ref s, value)) return;
 
         s.Context.AddToSerialized(value);
         s.WriteByte((byte)PayloadType.Entity);
         s.WriteLong(value.ModelId);
-        ((IBinSerializable)value).WriteTo(s);
+        ((IBinSerializable)value).WriteTo(ref s);
     }
 
     // 因表达式隐式转换问题，所以不能重载Serialize方法
-    public static void SerializeExpression(this IOutputStream s, Expression? value)
+    public static void SerializeExpression<T>(this ref T s, Expression? value) where T : struct, IOutputStream
     {
         if (Expression.IsNull(value))
         {
@@ -613,18 +402,230 @@ public static class OutputStreamExtensions
         //特殊处理非Root的EntityPathExpression,不用加入已序列化列表
         if (value is not IEntityPathExpression entityPath || Expression.IsNull(entityPath.Owner))
         {
-            if (CheckSerialized(s, value!)) return;
+            if (CheckSerialized(ref s, value!)) return;
             s.Context.AddToSerialized(value!);
         }
 
         s.WriteByte((byte)PayloadType.Expression);
         s.WriteByte((byte)value!.NodeType);
-        value.WriteTo(s);
+        value.WriteTo(ref s);
     }
 
     #endregion
 
-    public static void CopyTo(this Stream source, IOutputStream dest)
+    #region ====EntityMemberWriter====
+
+    public static void WriteEntityStringMember<T>(this ref T w, short id, string? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityBoolMember<T>(this ref T w, short id, bool? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.WriteBool(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityByteMember<T>(this ref T w, short id, byte? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityIntMember<T>(this ref T w, short id, int? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityLongMember<T>(this ref T w, short id, long? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityFloatMember<T>(this ref T w, short id, float? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityDoubleMember<T>(this ref T w, short id, double? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityDecimalMember<T>(this ref T w, short id, decimal? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityDateTimeMember<T>(this ref T w, short id, DateTime? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityGuidMember<T>(this ref T w, short id, Guid? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value.Value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityBinaryMember<T>(this ref T w, short id, byte[]? value, int flags)
+        where T : struct, IOutputStream
+    {
+        var forStore = (flags & EntityMemberWriteFlags.Store) == EntityMemberWriteFlags.Store;
+        if (!forStore)
+        {
+            if (value == null) return;
+
+            w.WriteShort(id);
+            w.Serialize(value);
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteEntityRefMember<T>(this ref T w, short id, Entity? value, int flags)
+        where T : struct, IOutputStream
+    {
+        if (flags != EntityMemberWriteFlags.None) return; //存储或忽略导航属性不需要写入
+        if (value == null) return;
+
+        w.WriteShort(id);
+        w.Serialize(value);
+    }
+
+    public static void WriteEntitySetMember<T, TValue>(this ref T w, short id, EntitySet<TValue>? value, int flags)
+        where T : struct, IOutputStream where TValue : Entity, new()
+    {
+        if (flags != EntityMemberWriteFlags.None) return; //存储或忽略导航属性不需要写入
+        if (value == null) return;
+
+        w.WriteShort(id);
+        w.WriteByte((byte)PayloadType.EntitySet);
+        ((IBinSerializable)value).WriteTo(ref w);
+    }
+
+    #endregion
+
+    public static void CopyTo<T>(this Stream source, ref T dest) where T : struct, IOutputStream
     {
         var buffer = new byte[1024];
         while (true)

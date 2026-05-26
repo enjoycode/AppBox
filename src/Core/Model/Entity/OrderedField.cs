@@ -14,13 +14,13 @@ public struct OrderedField : IBinSerializable
         OrderByDesc = orderByDesc;
     }
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteShort(MemberId);
         ws.WriteBool(OrderByDesc);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         MemberId = rs.ReadShort();
         OrderByDesc = rs.ReadBool();

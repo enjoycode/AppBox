@@ -13,31 +13,31 @@ internal sealed class PooledTaskSource<T> : IValueTaskSource<T>
             return new ObjectPool<PooledTaskSource<T>>(() => new PooledTaskSource<T>(), count);
         }
 
-    private ManualResetValueTaskSourceCore<T> tsc;
+    private ManualResetValueTaskSourceCore<T> _tsc;
 
     private PooledTaskSource()
     {
-            tsc.RunContinuationsAsynchronously = true;
+            _tsc.RunContinuationsAsynchronously = true;
         }
 
     public T GetResult(short token)
     {
-            var res = tsc.GetResult(token);
-            tsc.Reset();
+            var res = _tsc.GetResult(token);
+            _tsc.Reset();
             return res;
         }
 
-    public ValueTaskSourceStatus GetStatus(short token) => tsc.GetStatus(token);
+    public ValueTaskSourceStatus GetStatus(short token) => _tsc.GetStatus(token);
 
-    public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
-        => tsc.OnCompleted(continuation, state, token, flags);
+    public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
+        => _tsc.OnCompleted(continuation, state, token, flags);
 
     public ValueTask<T> WaitAsync()
     {
             //TODO:short path for completed?
-            return new ValueTask<T>(this, tsc.Version);
+            return new ValueTask<T>(this, _tsc.Version);
         }
 
-    public void SetResult(T result) => tsc.SetResult(result);
+    public void SetResult(T result) => _tsc.SetResult(result);
 
 }

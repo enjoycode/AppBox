@@ -29,7 +29,7 @@ public sealed class HumanAction : IBinSerializable
 
     #region ====Serialization====
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteFieldId(1);
         ws.WriteString(_name);
@@ -37,7 +37,7 @@ public sealed class HumanAction : IBinSerializable
         ws.WriteFieldEnd();
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var propIndex = 0;
         do

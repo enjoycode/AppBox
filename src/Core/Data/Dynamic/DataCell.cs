@@ -135,7 +135,7 @@ public readonly struct DataCell
             return FloatValue;
         }
     }
-    
+
     public double? NullableDoubleValue
     {
         get
@@ -159,7 +159,7 @@ public readonly struct DataCell
             return GuidValue;
         }
     }
-    
+
     /// <summary>
     /// 主要用于Chart转换为相应的ChartPoint
     /// </summary>
@@ -309,7 +309,7 @@ public readonly struct DataCell
 
     #region ====Serialization====
 
-    internal void WriteTo(IOutputStream ws)
+    internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteByte((byte)Flag);
 
@@ -360,7 +360,7 @@ public readonly struct DataCell
         }
     }
 
-    internal static DataCell ReadFrom(IInputStream rs)
+    internal static DataCell ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var flag = (DataType)rs.ReadByte();
         var type = flag & DataType.TypeMask;

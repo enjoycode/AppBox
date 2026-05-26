@@ -67,28 +67,28 @@ internal sealed class ExportCommand : DesignCommand
 
         //3.压缩写入
         await using var zipOutStream = new DeflateStream(outputStream, CompressionMode.Compress, true);
-        var writer = new SystemWriteStream(zipOutStream);
+        var writer = new SystemWriteStreamWrap(zipOutStream);
         //3.1 写入保留版本号
-        writer.WriteInt(0);
+        writer.GetRef().WriteInt(0);
         //3.2 写入AppPackage
-        appPkg.WriteTo(writer);
+        appPkg.WriteTo(ref writer.GetRef());
         //3.3 写入依赖的第三方库
         await ExportExtLibs(appNode.Model.Name, writer);
         //3.4 写入各模型代码
         await ExportModelCodes(models, writer);
     }
 
-    private static async Task ExportExtLibs(string appName, SystemWriteStream writer)
+    private static async Task ExportExtLibs(string appName, SystemWriteStreamWrap writer)
     {
         //TODO:获取所有第三方依赖(包括平台相关的)
         var extLibs = await Channel.Invoke<List<string>>(DesignMethods.GetExtLibrariesFull, appName);
-        if (extLibs.Count == 0)
+        if (extLibs == null || extLibs.Count == 0)
         {
-            writer.WriteVariant(0);
+            writer.GetRef().WriteVariant(0);
             return;
         }
 
-        writer.WriteVariant(extLibs.Count);
+        writer.GetRef().WriteVariant(extLibs.Count);
         foreach (var libName in extLibs)
         {
             var tempFile = await LocalFileSystem.CreateTempFile(false);
@@ -98,9 +98,9 @@ internal sealed class ExportCommand : DesignCommand
                     (int)ModelDependencyType.ServerExtLibrary, libName, appName);
                 tempFile.FileStream.Position = 0;
                 //写入库名称
-                writer.WriteString(libName);
+                writer.GetRef().WriteString(libName);
                 //写入字节长度
-                writer.WriteInt((int)tempFile.FileStream.Length);
+                writer.GetRef().WriteInt((int)tempFile.FileStream.Length);
                 //写入字节
                 await tempFile.FileStream.CopyToAsync(writer.OutputStream);
             }
@@ -112,7 +112,7 @@ internal sealed class ExportCommand : DesignCommand
         }
     }
 
-    private async Task ExportModelCodes(IList<ModelNode> modelNodes, SystemWriteStream writer)
+    private async Task ExportModelCodes(IList<ModelNode> modelNodes, SystemWriteStreamWrap writer)
     {
         foreach (var modelNode in modelNodes)
         {
@@ -165,15 +165,15 @@ internal sealed class ExportCommand : DesignCommand
         }
     }
 
-    private static async Task WriteModelCode(ModelId modelId, Stream inputStream, SystemWriteStream writer)
+    private static async Task WriteModelCode(ModelId modelId, Stream inputStream, SystemWriteStreamWrap writer)
     {
         if (inputStream.Length == 0)
             return;
 
         //写入模型标识
-        writer.WriteLong(modelId);
+        writer.GetRef().WriteLong(modelId);
         //写入代码字节长度
-        writer.WriteInt((int)inputStream.Length);
+        writer.GetRef().WriteInt((int)inputStream.Length);
         //写入代码字节
         await inputStream.CopyToAsync(writer.OutputStream);
     }

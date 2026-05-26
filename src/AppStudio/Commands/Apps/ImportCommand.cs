@@ -22,7 +22,7 @@ internal sealed class ImportCommand : DesignCommand
             return;
         await using var fileStream = files[0].FileStream;
         await using var zipInputStream = new DeflateStream(fileStream, CompressionMode.Decompress, true);
-        var reader = new SystemReadStream(zipInputStream);
+        var reader = new SystemReadStreamWrap(zipInputStream);
 
         //1.读取应用包内容
         AppPackage appPkg;
@@ -30,7 +30,7 @@ internal sealed class ImportCommand : DesignCommand
         Dictionary<long, LocalFileInfo> codes = null!;
         try
         {
-            reader.ReadInt(); //保留版本号
+            reader.GetRef().ReadInt(); //保留版本号
             appPkg = ReadAppPackage(reader);
             extLibs = await ReadExtLibs(reader);
             codes = await ReadCodes(reader);
@@ -315,24 +315,24 @@ internal sealed class ImportCommand : DesignCommand
         }
     }
 
-    private static AppPackage ReadAppPackage(SystemReadStream reader)
+    private static AppPackage ReadAppPackage(SystemReadStreamWrap reader)
     {
         var appPkg = new AppPackage(new ApplicationModel());
-        appPkg.ReadFrom(reader);
+        appPkg.ReadFrom(ref reader.GetRef());
         return appPkg;
     }
 
-    private static async ValueTask<Dictionary<string, LocalFileInfo>?> ReadExtLibs(SystemReadStream reader)
+    private static async ValueTask<Dictionary<string, LocalFileInfo>?> ReadExtLibs(SystemReadStreamWrap reader)
     {
-        var count = reader.ReadVariant();
+        var count = reader.GetRef().ReadVariant();
         if (count <= 0)
             return null;
 
         var map = new Dictionary<string, LocalFileInfo>(); //key=名称, value=临时文件路径
         for (var i = 0; i < count; i++)
         {
-            var name = reader.ReadString()!;
-            var length = reader.ReadInt();
+            var name = reader.GetRef().ReadString()!;
+            var length = reader.GetRef().ReadInt();
 
             var tempFile = await LocalFileSystem.CreateTempFile(false);
             await CopyTo(reader.InputStream, tempFile.FileStream, length);
@@ -343,7 +343,7 @@ internal sealed class ImportCommand : DesignCommand
         return map;
     }
 
-    private static async ValueTask<Dictionary<long, LocalFileInfo>> ReadCodes(SystemReadStream reader)
+    private static async ValueTask<Dictionary<long, LocalFileInfo>> ReadCodes(SystemReadStreamWrap reader)
     {
         var idBuffer = new byte[8];
         var map = new Dictionary<long, LocalFileInfo>(); //key=ModelId, value=临时文件路径
@@ -352,7 +352,7 @@ internal sealed class ImportCommand : DesignCommand
             var len = await reader.InputStream.ReadAsync(idBuffer, 0, idBuffer.Length);
             if (len <= 0) break;
 
-            var size = reader.ReadInt();
+            var size = reader.GetRef().ReadInt();
             var tempFile = await LocalFileSystem.CreateTempFile(false);
             await CopyTo(reader.InputStream, tempFile.FileStream, size);
             tempFile.FileStream.Position = 0;

@@ -88,18 +88,18 @@ public sealed class ConstantExpression : Expression
         throw new NotSupportedException();
     }
 
-    public override LinqExpression? ToLinqExpression(IExpressionContext ctx) =>
+    public override LinqExpression ToLinqExpression(IExpressionContext ctx) =>
         TryLinqConvert(LinqExpression.Constant(Value.BoxedValue), TypeInfo, ctx);
 
-    protected internal override void WriteTo(IOutputStream writer)
+    protected internal override void WriteTo<T>(ref T writer)
     {
-        _typeInfo.WriteTo(writer);
+        _typeInfo.WriteTo(ref writer);
         writer.Serialize(Value);
     }
 
-    protected internal override void ReadFrom(IInputStream reader)
+    protected internal override void ReadFrom<T>(ref T reader)
     {
-        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
-        Value = AnyValue.DeserializeFrom(reader);
+        _typeInfo = ExpressionTypeInfo.ReadFrom(ref reader);
+        Value = AnyValue.DeserializeFrom(ref reader);
     }
 }

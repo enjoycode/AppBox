@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace AppBoxCore;
 
@@ -198,7 +197,7 @@ public readonly struct ExpressionTypeInfo
 
     #region ====Serialization====
 
-    internal void WriteTo(IOutputStream ws)
+    internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteByte(_typeFlag);
         if (Type == KnownType.Unknown)
@@ -207,7 +206,7 @@ public readonly struct ExpressionTypeInfo
             ws.WriteTypeInfoArray(Types);
     }
 
-    internal static ExpressionTypeInfo ReadFrom(IInputStream rs)
+    internal static ExpressionTypeInfo ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var typeFlag = rs.ReadByte();
         var typeName = string.Empty;

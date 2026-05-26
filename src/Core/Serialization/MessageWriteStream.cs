@@ -1,28 +1,11 @@
 namespace AppBoxCore;
 
-public sealed class MessageWriteStream : IOutputStream
+public struct MessageWriteStream : IOutputStream
 {
-    #region ====Static Pool====
-
-    private static readonly ObjectPool<MessageWriteStream> Pool = new(() => new MessageWriteStream(), 16);
-
-    public static MessageWriteStream Rent()
+    public MessageWriteStream()
     {
-        var res = Pool.Allocate();
-        res._current = BytesSegment.Rent();
-        return res;
+        _current = BytesSegment.Rent();
     }
-
-    public static void Return(MessageWriteStream mws)
-    {
-        mws._pos = 0;
-        mws._context?.Clear();
-        Pool.Free(mws);
-    }
-
-    #endregion
-
-    private MessageWriteStream() { }
 
     private BytesSegment _current = null!;
     private int _pos;
@@ -38,10 +21,22 @@ public sealed class MessageWriteStream : IOutputStream
         _pos = 0;
     }
 
+    /// <summary>
+    /// Finish write and take (owns) buffer
+    /// </summary>
+    /// <returns></returns>
     public BytesSegment FinishWrite()
     {
         _current.Length = _pos;
-        return _current.First!;
+        var res = _current;
+        _current = null!;
+        return res.First!;
+    }
+
+    public void FreeBuffer()
+    {
+        BytesSegment.ReturnAll(_current.First!);
+        _current = null!;
     }
 
     #region ====IOutputStream====
@@ -82,6 +77,49 @@ public sealed class MessageWriteStream : IOutputStream
             break;
         }
     }
+
+    #endregion
+
+    #region ====IEntityMemberWriter====
+
+    void IEntityMemberWriter.WriteStringMember(short id, string? value, int flags) =>
+        this.WriteEntityStringMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteBoolMember(short id, bool? value, int flags) =>
+        this.WriteEntityBoolMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteByteMember(short id, byte? value, int flags) =>
+        this.WriteEntityByteMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteIntMember(short id, int? value, int flags) =>
+        this.WriteEntityIntMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteLongMember(short id, long? value, int flags) =>
+        this.WriteEntityLongMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteFloatMember(short id, float? value, int flags) =>
+        this.WriteEntityFloatMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteDoubleMember(short id, double? value, int flags) =>
+        this.WriteEntityDoubleMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteDecimalMember(short id, decimal? value, int flags) =>
+        this.WriteEntityDecimalMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteDateTimeMember(short id, DateTime? value, int flags) =>
+        this.WriteEntityDateTimeMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteGuidMember(short id, Guid? value, int flags) =>
+        this.WriteEntityGuidMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteBinaryMember(short id, byte[]? value, int flags) =>
+        this.WriteEntityBinaryMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteEntityRefMember(short id, Entity? value, int flags) =>
+        this.WriteEntityRefMember(id, value, flags);
+
+    void IEntityMemberWriter.WriteEntitySetMember<T>(short id, EntitySet<T>? value, int flags) =>
+        this.WriteEntitySetMember(id, value, flags);
 
     #endregion
 }

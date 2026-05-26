@@ -70,20 +70,20 @@ public sealed class NewExpression : Expression
         return LinqExpression.New(ctorInfo, args);
     }
 
-    protected internal override void WriteTo(IOutputStream writer)
+    protected internal override void WriteTo<T>(ref T writer)
     {
-        TargetType.WriteTo(writer);
+        TargetType.WriteTo(ref writer);
         writer.WriteExpressionArray(Arguments);
         writer.WriteBool(ConvertedType.HasValue);
-        ConvertedType?.WriteTo(writer);
+        ConvertedType?.WriteTo(ref writer);
     }
 
-    protected internal override void ReadFrom(IInputStream reader)
+    protected internal override void ReadFrom<T>(ref T reader)
     {
-        TargetType = ExpressionTypeInfo.ReadFrom(reader);
+        TargetType = ExpressionTypeInfo.ReadFrom(ref reader);
         Arguments = reader.ReadExpressionArray();
         var hasConvertedType = reader.ReadBool();
         if (hasConvertedType)
-            ConvertedType = ExpressionTypeInfo.ReadFrom(reader);
+            ConvertedType = ExpressionTypeInfo.ReadFrom(ref reader);
     }
 }

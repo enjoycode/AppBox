@@ -102,7 +102,7 @@ public abstract class EntityMember
 
     #region ====Serialization====
 
-    public virtual void WriteTo(IOutputStream ws)
+    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteShort(MemberId);
         ws.WriteString(Name);
@@ -116,7 +116,7 @@ public abstract class EntityMember
         }
     }
 
-    public virtual void ReadFrom(IInputStream rs)
+    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         MemberId = rs.ReadShort();
         Name = rs.ReadString()!;

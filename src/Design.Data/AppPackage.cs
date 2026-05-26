@@ -25,9 +25,9 @@ public sealed class AppPackage : ModelPackage
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        Application.WriteTo(ws);
+        Application.WriteTo(ref ws);
 
         ws.Serialize(DevModelIdCounter);
         ws.Serialize(UsrModelIdCounter);
@@ -35,17 +35,17 @@ public sealed class AppPackage : ModelPackage
         ws.WriteVariant(DataStores.Count);
         foreach (var dataStore in DataStores)
         {
-            dataStore.WriteTo(ws);
+            dataStore.WriteTo(ref ws);
         }
 
         ws.WriteFieldEnd(); //reserved
 
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        Application.ReadFrom(rs);
+        Application.ReadFrom(ref rs);
 
         DevModelIdCounter = (byte[]?)rs.Deserialize();
         UsrModelIdCounter = (byte[]?)rs.Deserialize();
@@ -54,13 +54,13 @@ public sealed class AppPackage : ModelPackage
         for (var i = 0; i < count; i++)
         {
             var dataStore = new DataStoreInfo();
-            dataStore.ReadFrom(rs);
+            dataStore.ReadFrom(ref rs);
             DataStores.Add(dataStore);
         }
 
         rs.ReadFieldId(); //reserved
 
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
     }
 
     #endregion
@@ -72,16 +72,16 @@ public sealed class AppPackage : ModelPackage
 
         public DataStoreKind Kind { get; set; }
 
-        //考虑精确匹配数据库提供者的属性，用于利用某数据库特性的应用(eg:只能用PGSQL)
-        public void WriteTo(IOutputStream ws)
+        public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
         {
+            //考虑精确匹配数据库提供者的属性，用于利用某数据库特性的应用(eg:只能用PGSQL)
             ws.WriteLong(Id);
             ws.WriteString(Name);
             ws.WriteByte((byte)Kind);
             ws.WriteFieldEnd(); //reserved
         }
 
-        public void ReadFrom(IInputStream rs)
+        public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
         {
             Id = rs.ReadLong();
             Name = rs.ReadString()!;

@@ -27,7 +27,7 @@ public class FlowLink : IBinSerializable
     /// </summary>
     public object? SourceConnection;
 
-    public virtual void WriteTo(IOutputStream ws)
+    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         if (!string.IsNullOrEmpty(Name))
         {
@@ -51,13 +51,13 @@ public class FlowLink : IBinSerializable
         {
             ws.WriteFieldId(4);
             ws.WriteByte(Target.Type);
-            Target.WriteTo(ws);
+            Target.WriteTo(ref ws);
         }
 
         ws.WriteFieldEnd();
     }
 
-    public virtual void ReadFrom(IInputStream rs)
+    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         var propIndex = 0;
         do
@@ -71,7 +71,7 @@ public class FlowLink : IBinSerializable
                 case 4:
                 {
                     Target = ActivityFactory.Make(rs.ReadByte());
-                    Target.ReadFrom(rs);
+                    Target.ReadFrom(ref rs);
                     break;
                 }
                 case 0: break;
@@ -91,9 +91,9 @@ public sealed class ConditionLink : FlowLink
     /// </summary>
     public Expression? Condition { get; set; }
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         if (!Expression.IsNull(Condition))
         {
@@ -104,9 +104,9 @@ public sealed class ConditionLink : FlowLink
         ws.WriteFieldEnd();
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         var propIndex = 0;
         do
@@ -116,7 +116,7 @@ public sealed class ConditionLink : FlowLink
             {
                 case 1: Condition = (Expression)rs.Deserialize()!; break;
                 case 0: break;
-                default: throw new Exception($"Deserialize_ObjectUnknownFieldIndex: {nameof(ConditionLink)}");
+                default: throw SerializationException.ReadUnknownField(nameof(ConditionLink), propIndex);
             }
         } while (propIndex != 0);
     }

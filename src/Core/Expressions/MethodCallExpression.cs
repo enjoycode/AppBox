@@ -98,29 +98,29 @@ public sealed class MethodCallExpression : Expression
         return TryLinqConvert(res, TypeInfo, ctx);
     }
 
-    protected internal override void WriteTo(IOutputStream writer)
+    protected internal override void WriteTo<T>(ref T writer)
     {
         writer.WriteBool(IsStaticMethodCall);
         if (IsStaticMethodCall)
-            StaticType.WriteTo(writer);
+            StaticType.WriteTo(ref writer);
         else
             writer.SerializeExpression(Instance);
         writer.WriteString(MethodName);
         writer.WriteExpressionArray(Arguments);
         writer.WriteTypeInfoArray(GenericArguments);
-        _typeInfo.WriteTo(writer);
+        _typeInfo.WriteTo(ref writer);
     }
 
-    protected internal override void ReadFrom(IInputStream reader)
+    protected internal override void ReadFrom<T>(ref T reader)
     {
         var isStaticMethodCall = reader.ReadBool();
         if (isStaticMethodCall)
-            StaticType = ExpressionTypeInfo.ReadFrom(reader);
+            StaticType = ExpressionTypeInfo.ReadFrom(ref reader);
         else
             Instance = (Expression)reader.Deserialize()!;
         MethodName = reader.ReadString()!;
         Arguments = reader.ReadExpressionArray();
         GenericArguments = reader.ReadTypeInfoArray();
-        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
+        _typeInfo = ExpressionTypeInfo.ReadFrom(ref reader);
     }
 }

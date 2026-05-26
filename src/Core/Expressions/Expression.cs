@@ -35,10 +35,10 @@ public abstract partial class Expression
 
     #region ====Serialization====
 
-    protected internal virtual void WriteTo(IOutputStream writer) =>
+    protected internal virtual void WriteTo<T>(ref T writer) where T : struct, IOutputStream =>
         throw new NotSupportedException(GetType().FullName);
 
-    protected internal virtual void ReadFrom(IInputStream reader) =>
+    protected internal virtual void ReadFrom<T>(ref T reader) where T : struct, IInputStream =>
         throw new NotSupportedException(GetType().FullName);
 
     #endregion

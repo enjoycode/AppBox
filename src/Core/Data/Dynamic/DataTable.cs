@@ -116,7 +116,7 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
 
     #region ====Serialization====
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteLong(EntityModelId);
 
@@ -132,17 +132,17 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
         ws.WriteVariant(Count);
         for (var i = 0; i < Count; i++)
         {
-            this[i].WriteTo(ws, Columns);
+            this[i].WriteTo(ref ws, Columns);
         }
 
         //Removed Rows
         var removedCount = RemovedRows?.Count ?? 0;
         ws.WriteVariant(removedCount);
         for (var i = 0; i < removedCount; i++)
-            RemovedRows![i].WriteTo(ws, Columns);
+            RemovedRows![i].WriteTo(ref ws, Columns);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         EntityModelId = rs.ReadLong();
 
@@ -159,7 +159,7 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
         for (var i = 0; i < count; i++)
         {
             var item = new DataRow();
-            item.ReadFrom(rs, Columns);
+            item.ReadFrom(ref rs, Columns);
             Add(item);
         }
 
@@ -170,7 +170,7 @@ public sealed class DataTable : Collection<DataRow>, IBinSerializable
         for (var i = 0; i < count; i++)
         {
             var item = new DataRow();
-            item.ReadFrom(rs, Columns);
+            item.ReadFrom(ref rs, Columns);
             _removedRows!.Add(item);
         }
     }
@@ -184,7 +184,7 @@ public sealed class DataTableJsonConverter : JsonConverter<DataTable>
     {
         throw new NotImplementedException();
     }
-    
+
     public override void Write(Utf8JsonWriter writer, DataTable value, JsonSerializerOptions options)
     {
         writer.WriteStartArray();
@@ -196,8 +196,10 @@ public sealed class DataTableJsonConverter : JsonConverter<DataTable>
                 writer.WritePropertyName(col.Name);
                 JsonSerializer.Serialize(writer, row[col.Name].BoxedValue, options);
             }
+
             writer.WriteEndObject();
         }
+
         writer.WriteEndArray();
     }
 }

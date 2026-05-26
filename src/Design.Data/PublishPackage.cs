@@ -19,7 +19,7 @@ public sealed class PublishPackage : ModelPackage
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
         ws.WriteBool(DeletedAppId.HasValue);
         if (DeletedAppId.HasValue)
@@ -32,10 +32,10 @@ public sealed class PublishPackage : ModelPackage
             ws.WriteString(kv.Value);
         }
 
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
         var hasDeletedAppId = rs.ReadBool();
         if (hasDeletedAppId)
@@ -47,7 +47,7 @@ public sealed class PublishPackage : ModelPackage
             Apps.Add(rs.ReadInt(), rs.ReadString()!);
         }
 
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
     }
 
     #endregion

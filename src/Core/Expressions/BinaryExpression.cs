@@ -124,20 +124,20 @@ public sealed class BinaryExpression : Expression
         _ => throw new NotSupportedException()
     };
 
-    protected internal override void WriteTo(IOutputStream writer)
+    protected internal override void WriteTo<T>(ref T writer)
     {
         writer.SerializeExpression(LeftOperand);
         writer.SerializeExpression(RightOperand);
         writer.WriteByte((byte)BinaryType);
-        _typeInfo.WriteTo(writer);
+        _typeInfo.WriteTo(ref writer);
     }
 
-    protected internal override void ReadFrom(IInputStream reader)
+    protected internal override void ReadFrom<T>(ref T reader)
     {
         LeftOperand = (Expression)reader.Deserialize()!;
         RightOperand = (Expression)reader.Deserialize()!;
         BinaryType = (BinaryOperatorType)reader.ReadByte();
-        _typeInfo = ExpressionTypeInfo.ReadFrom(reader);
+        _typeInfo = ExpressionTypeInfo.ReadFrom(ref reader);
     }
 
     #endregion

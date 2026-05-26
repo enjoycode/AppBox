@@ -16,9 +16,9 @@ public sealed class AutomationActivityModel : ActivityModel
 
     #region ====Serialization====
 
-    public override void WriteTo(IOutputStream ws)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        base.WriteTo(ws);
+        base.WriteTo(ref ws);
 
         if (!Expression.IsNull(Expression))
         {
@@ -29,9 +29,9 @@ public sealed class AutomationActivityModel : ActivityModel
         ws.WriteFieldEnd();
     }
 
-    public override void ReadFrom(IInputStream rs)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        base.ReadFrom(rs);
+        base.ReadFrom(ref rs);
 
         var propIndex = 0;
         do

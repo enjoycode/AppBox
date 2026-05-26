@@ -10,14 +10,14 @@ public interface IServerEventArgs
 /// <summary>
 /// 服务端事件参数,用于包装AnyArgs以便多个事件订阅者共享读取参数
 /// </summary>
-public sealed class ServerEventArgs : IServerEventArgs
+public sealed class ServerEventArgs<T> : IServerEventArgs where T : struct, IInputStream
 {
-    internal ServerEventArgs(IInputStream stream)
+    internal ServerEventArgs(T stream)
     {
         var index = 0;
         while (stream.HasRemaining && index < 5)
         {
-            _values[index] = AnyValue.ReadFrom(stream);
+            _values[index] = AnyValue.ReadFrom(ref stream);
             index++;
         }
     }

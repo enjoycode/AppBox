@@ -6,7 +6,8 @@ namespace AppBoxCore;
 
 public static class ExpressionSerialization
 {
-    internal static void WriteExpressionArray(this IOutputStream writer, Expression[]? array)
+    internal static void WriteExpressionArray<T>(this ref T writer, Expression[]? array)
+        where T : struct, IOutputStream
     {
         if (array is { Length: > 0 })
         {
@@ -22,14 +23,15 @@ public static class ExpressionSerialization
         }
     }
 
-    internal static void WriteTypeInfoArray(this IOutputStream writer, ExpressionTypeInfo[]? array)
+    internal static void WriteTypeInfoArray<T>(this ref T writer, ExpressionTypeInfo[]? array)
+        where T : struct, IOutputStream
     {
         if (array is { Length: > 0 })
         {
             writer.WriteVariant(array.Length);
             for (var i = 0; i < array.Length; i++)
             {
-                array[i].WriteTo(writer);
+                array[i].WriteTo(ref writer);
             }
         }
         else
@@ -38,7 +40,8 @@ public static class ExpressionSerialization
         }
     }
 
-    internal static Expression[]? ReadExpressionArray(this IInputStream reader)
+    internal static Expression[]? ReadExpressionArray<T>(this ref T reader)
+        where T : struct, IInputStream
     {
         var count = reader.ReadVariant();
         if (count <= 0) return null;
@@ -52,7 +55,8 @@ public static class ExpressionSerialization
         return res;
     }
 
-    internal static ExpressionTypeInfo[]? ReadTypeInfoArray(this IInputStream reader)
+    internal static ExpressionTypeInfo[]? ReadTypeInfoArray<T>(this ref T reader)
+        where T : struct, IInputStream
     {
         var count = reader.ReadVariant();
         if (count <= 0) return null;
@@ -60,7 +64,7 @@ public static class ExpressionSerialization
         var res = new ExpressionTypeInfo[count];
         for (var i = 0; i < count; i++)
         {
-            res[i] = ExpressionTypeInfo.ReadFrom(reader);
+            res[i] = ExpressionTypeInfo.ReadFrom(ref reader);
         }
 
         return res;

@@ -73,7 +73,7 @@ public abstract class DbEntity : Entity
 
     #region ====Serialization====
 
-    protected sealed override void WriteTo(IOutputStream ws)
+    protected override void WriteTo<T>(ref T ws)
     {
         ws.WriteByte((byte)EntityType);
         ws.WriteByte((byte)PersistentState);
@@ -96,7 +96,7 @@ public abstract class DbEntity : Entity
         ws.WriteShort(0); //End write members
     }
 
-    protected sealed override void ReadFrom(IInputStream rs)
+    protected override void ReadFrom<T>(ref T rs)
     {
         rs.ReadByte(); //EntityType
         PersistentState = (PersistentState)rs.ReadByte();

@@ -20,15 +20,14 @@ public enum DataStoreKind : byte
     Blob
 }
 
-[BinSerializable(BinSerializePolicy.Compact)]
-public sealed partial class DataStoreModel
+public sealed class DataStoreModel
 {
-    [Field(1)] private long _id;
-    [Field(2)] private string _name = null!;
-    [Field(3)] private DataStoreKind _kind;
-    [Field(4)] private string? _provider;
-    [Field(5)] private string? _settings;
-    [Field(6)] private bool _isDbFirst;
+    private long _id;
+    private string _name = null!;
+    private DataStoreKind _kind;
+    private string? _provider;
+    private string? _settings;
+    private bool _isDbFirst;
 
     internal DataStoreModel() { }
 
@@ -54,4 +53,44 @@ public sealed partial class DataStoreModel
     public bool IsSystemBlobStore => _kind == DataStoreKind.Blob && Provider == null;
 
     public void UpdateSettings(string? settings) => _settings = settings;
+
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+    {
+        ws.WriteLong(_id);
+        ws.WriteString(_name);
+        ws.WriteByte((byte)_kind);
+        ws.WriteBool(_isDbFirst);
+        if (_provider != null)
+        {
+            ws.WriteFieldId(4);
+            ws.WriteString(_provider);
+        }
+
+        if (_settings != null)
+        {
+            ws.WriteFieldId(5);
+            ws.WriteString(_settings);
+        }
+
+        ws.WriteFieldEnd();
+    }
+
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+    {
+        _id = rs.ReadLong();
+        _name = rs.ReadString() ?? string.Empty;
+        _kind = (DataStoreKind)rs.ReadByte();
+        _isDbFirst = rs.ReadBool();
+        while (true)
+        {
+            var fieldId = rs.ReadFieldId();
+            switch (fieldId)
+            {
+                case 4: _provider = rs.ReadString(); break;
+                case 5: _settings = rs.ReadString(); break;
+                case 0: return;
+                default: throw new SerializationException(SerializationError.ReadUnknownFieldId);
+            }
+        }
+    }
 }

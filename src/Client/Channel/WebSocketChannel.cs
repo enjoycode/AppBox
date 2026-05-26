@@ -69,7 +69,7 @@ public sealed class WebSocketChannel : IClientChannel
         _pooledTaskSource.Free(promise);
 
         // deserialize response
-        return DeserializeResponse(rs, entityFactories);
+        return DeserializeResponse(ref rs, entityFactories);
     }
 
     public async Task Login(string user, string password, string? external)
@@ -78,7 +78,7 @@ public sealed class WebSocketChannel : IClientChannel
         var msgId = MakePendingRequest(out var promise);
 
         //serialize request
-        var ws = MessageWriteStream.Rent();
+        var ws = new MessageWriteStream();
         ws.WriteByte((byte)MessageType.LoginRequest);
         ws.WriteInt(msgId);
         ws.WriteString(user);
@@ -86,7 +86,6 @@ public sealed class WebSocketChannel : IClientChannel
 
         // send and wait for response
         var reqData = ws.FinishWrite();
-        MessageWriteStream.Return(ws);
         await SendMessage(reqData);
 
         var rs = await promise.WaitAsync();
@@ -99,12 +98,12 @@ public sealed class WebSocketChannel : IClientChannel
             _sessionId = rs.ReadString()!;
             _name = rs.ReadString()!;
             LeafOrgUnitId = rs.ReadGuid();
-            MessageReadStream.Return(rs);
+            rs.Free();
         }
         else
         {
             var error = rs.ReadString();
-            MessageReadStream.Return(rs);
+            rs.Free();
             throw new Exception(error);
         }
     }
@@ -131,7 +130,7 @@ public sealed class WebSocketChannel : IClientChannel
         // wait for response
         var rs = await promise.WaitAsync();
         _pooledTaskSource.Free(promise);
-        return DeserializeResponse(rs, null);
+        return DeserializeResponse(ref rs, null);
     }
 
     public async Task Download<T>(string service, Stream stream, T args)
@@ -152,12 +151,12 @@ public sealed class WebSocketChannel : IClientChannel
         var rs = await promise.WaitAsync();
         _pooledTaskSource.Free(promise);
         _downloadManager.RemovePending(msgId);
-        DeserializeResponse(rs, null);
+        DeserializeResponse(ref rs, null);
     }
 
     #region ====Serialization for Request & Response====
 
-    private static AnyValue DeserializeResponse(MessageReadStream rs, EntityFactory[]? entityFactories)
+    private static AnyValue DeserializeResponse(ref MessageReadStream rs, EntityFactory[]? entityFactories)
     {
         var errorCode = (InvokeErrorCode)rs.ReadByte();
         var result = AnyValue.Empty;
@@ -167,7 +166,7 @@ public sealed class WebSocketChannel : IClientChannel
             {
                 if (entityFactories != null)
                     rs.Context.SetEntityFactories(entityFactories);
-                result = AnyValue.DeserializeFrom(rs);
+                result = AnyValue.DeserializeFrom(ref rs);
             }
             catch (Exception ex)
             {
@@ -189,14 +188,14 @@ public sealed class WebSocketChannel : IClientChannel
     private static BytesSegment SerializeRequest<T>(int msgId, MessageType msgType, string service, T args)
         where T : struct, IAnyArgs
     {
-        var ws = MessageWriteStream.Rent();
+        var ws = new MessageWriteStream();
         BytesSegment reqData;
         try
         {
             ws.WriteByte((byte)msgType);
             ws.WriteInt(msgId);
             ws.WriteString(service);
-            args.SerializeTo(ws); //serialize request args
+            args.SerializeTo(ref ws); //serialize request args
 
             reqData = ws.FinishWrite();
         }
@@ -209,7 +208,7 @@ public sealed class WebSocketChannel : IClientChannel
         }
         finally
         {
-            MessageWriteStream.Return(ws);
+            ws.FreeBuffer();
         }
 
         return reqData;
@@ -221,16 +220,15 @@ public sealed class WebSocketChannel : IClientChannel
     {
         if (_pendingRequests.TryRemove(msgId, out var promise))
         {
-            var ws = MessageWriteStream.Rent();
+            var ws = new MessageWriteStream();
             ws.WriteByte((byte)msgType);
             ws.WriteInt(msgId);
             ws.WriteByte((byte)errCode);
             if (!string.IsNullOrEmpty(errMsg))
                 ws.Serialize(errMsg);
             var data = ws.FinishWrite();
-            MessageWriteStream.Return(ws);
 
-            var rs = MessageReadStream.Rent(data.First!);
+            var rs = new MessageReadStream(data.First!);
             rs.ReadByte(); //msgType
             rs.ReadInt(); //msgId
             promise.SetResult(rs);
@@ -311,7 +309,7 @@ public sealed class WebSocketChannel : IClientChannel
                     _pendingMsg = null;
                 }
 
-                var rs = MessageReadStream.Rent(segment.First!);
+                var rs = new MessageReadStream(segment.First!);
                 var msgType = (MessageType)rs.ReadByte(); //message type
                 switch (msgType)
                 {
@@ -319,10 +317,10 @@ public sealed class WebSocketChannel : IClientChannel
                     case MessageType.LoginResponse:
                     case MessageType.UploadResponse:
                     case MessageType.DownloadResponse:
-                        ProcessResponse(rs); break;
+                        ProcessResponse(ref rs); break;
                     case MessageType.DownloadChunk:
                         await ProcessDownloadChunk(rs); break;
-                    case MessageType.ServerEvent: ProcessServerEvent(rs); break;
+                    case MessageType.ServerEvent: ProcessServerEvent(ref rs); break;
                     default:
                         rs.Free();
                         //throw new Exception($"Unknown message type: {msgType}");
@@ -338,7 +336,7 @@ public sealed class WebSocketChannel : IClientChannel
         }
     }
 
-    private void ProcessResponse(MessageReadStream rs)
+    private void ProcessResponse(ref MessageReadStream rs)
     {
         var msgId = rs.ReadInt();
         if (_pendingRequests.TryRemove(msgId, out var promise))
@@ -380,12 +378,12 @@ public sealed class WebSocketChannel : IClientChannel
             NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.None);
     }
 
-    private static void ProcessServerEvent(MessageReadStream rs)
+    private static void ProcessServerEvent(ref MessageReadStream rs)
     {
         var eventId = rs.ReadInt();
         try
         {
-            Channel.RaiseServerEvent(eventId, rs);
+            Channel.RaiseServerEvent(eventId, ref rs);
         }
         catch (Exception e)
         {

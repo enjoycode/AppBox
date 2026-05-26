@@ -56,14 +56,14 @@ public abstract class Entity : IBinSerializable
     /// <summary>
     /// 写入成员至IEntityMemberWriter，由IEntityMemberWriter及flags决定写入格式
     /// </summary>
-    protected internal abstract void WriteMember<T>(short id, ref T ws, int flags) where T : IEntityMemberWriter;
+    protected internal abstract void WriteMember<T>(short id, ref T ws, int flags) where T : struct, IEntityMemberWriter;
 
     /// <summary>
     /// 从IEntityMemberReader读取成员值赋值给当前实例
     /// </summary>
-    protected internal abstract void ReadMember<T>(short id, ref T rs, int flags) where T : IEntityMemberReader;
+    protected internal abstract void ReadMember<T>(short id, ref T rs, int flags) where T : struct, IEntityMemberReader;
 
-    protected virtual void WriteTo(IOutputStream ws)
+    protected virtual void WriteTo<T>(ref T ws) where T: struct, IOutputStream
     {
         ws.WriteByte((byte)EntityType);
 
@@ -77,7 +77,7 @@ public abstract class Entity : IBinSerializable
         ws.WriteShort(0); //End write members
     }
 
-    protected virtual void ReadFrom(IInputStream rs)
+    protected virtual void ReadFrom<T>(ref T rs) where T: struct, IInputStream
     {
         rs.ReadByte(); //EntityType
 
@@ -90,9 +90,9 @@ public abstract class Entity : IBinSerializable
         }
     }
 
-    void IBinSerializable.WriteTo(IOutputStream ws) => WriteTo(ws);
+    void IBinSerializable.WriteTo<T>(ref T ws) => WriteTo(ref ws);
 
-    void IBinSerializable.ReadFrom(IInputStream rs) => ReadFrom(rs);
+    void IBinSerializable.ReadFrom<T>(ref T rs) => ReadFrom(ref rs);
 
     public virtual EntityData ToEntityData()
     {

@@ -18,7 +18,7 @@ public interface IAnyArgs
     /// </summary>
     void Free();
 
-    void SerializeTo(IOutputStream stream);
+    void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream;
 
     #region ====GetXXX Methods====
 
@@ -60,14 +60,18 @@ public static class AnyArgs
     public static LocalArgs5 Make(AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4, AnyValue arg5)
         => new(arg1, arg2, arg3, arg4, arg5);
 
-    public static StreamArgs From(IInputStream stream) => new(stream);
+    /// <summary>
+    /// 从消息流中构建参数
+    /// </summary>
+    /// <param name="stream">Owns it</param>
+    public static StreamArgs<T> From<T>(T stream) where T : struct, IInputStream => new(stream);
 }
 
 public readonly struct EmptyArgs : IAnyArgs
 {
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
-    public void SerializeTo(IOutputStream stream) { }
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream { }
 
     #region ====GetXXX Methods====
 
@@ -92,19 +96,21 @@ public readonly struct EmptyArgs : IAnyArgs
 /// <summary>
 /// 封装调用服务的参数，直接从流中反序列化相应的参数
 /// </summary>
-public readonly struct StreamArgs : IAnyArgs
+public struct StreamArgs<T> : IAnyArgs where T : struct, IInputStream
 {
-    internal StreamArgs(IInputStream inputStream)
+    internal StreamArgs(T inputStream)
     {
         _inputStream = inputStream;
     }
 
-    private readonly IInputStream _inputStream;
+    private T _inputStream;
 
     public void SetEntityFactories(EntityFactory[] factories) => _inputStream.Context.SetEntityFactories(factories);
 
     public void Free() => _inputStream.Free();
-    public void SerializeTo(IOutputStream stream) => throw new NotSupportedException();
+
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream
+        => throw new NotSupportedException();
 
     #region ====MakeXXX Methods====
 
@@ -287,7 +293,7 @@ public readonly struct StreamArgs : IAnyArgs
     public T? GetEnum<T>() where T : struct, Enum
     {
         var payloadType = (PayloadType)_inputStream.ReadByte();
-        if (payloadType == PayloadType.Null) return null;   
+        if (payloadType == PayloadType.Null) return null;
         if (payloadType != PayloadType.Int32)
             throw new SerializationException(SerializationError.PayloadTypeNotMatch);
 
@@ -344,7 +350,9 @@ public readonly struct LocalArgs1 : IAnyArgs
 
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
-    public void SerializeTo(IOutputStream stream) => _value.SerializeTo(stream);
+
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream
+        => _value.SerializeTo(ref stream);
 
     public bool? GetBool() => _value.GetBool();
     public short? GetShort() => _value.GetShort();
@@ -376,10 +384,10 @@ public struct LocalArgs2 : IAnyArgs
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
-    public void SerializeTo(IOutputStream stream)
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream
     {
-        _values[0].SerializeTo(stream);
-        _values[1].SerializeTo(stream);
+        _values[0].SerializeTo(ref stream);
+        _values[1].SerializeTo(ref stream);
     }
 
     public bool? GetBool() => _values[_index++].GetBool();
@@ -419,11 +427,11 @@ public struct LocalArgs3 : IAnyArgs
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
-    public void SerializeTo(IOutputStream stream)
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream
     {
-        _values[0].SerializeTo(stream);
-        _values[1].SerializeTo(stream);
-        _values[2].SerializeTo(stream);
+        _values[0].SerializeTo(ref stream);
+        _values[1].SerializeTo(ref stream);
+        _values[2].SerializeTo(ref stream);
     }
 
     public bool? GetBool() => _values[_index++].GetBool();
@@ -464,12 +472,12 @@ public struct LocalArgs4 : IAnyArgs
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
-    public void SerializeTo(IOutputStream stream)
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream
     {
-        _values[0].SerializeTo(stream);
-        _values[1].SerializeTo(stream);
-        _values[2].SerializeTo(stream);
-        _values[3].SerializeTo(stream);
+        _values[0].SerializeTo(ref stream);
+        _values[1].SerializeTo(ref stream);
+        _values[2].SerializeTo(ref stream);
+        _values[3].SerializeTo(ref stream);
     }
 
     public bool? GetBool() => _values[_index++].GetBool();
@@ -511,13 +519,13 @@ public struct LocalArgs5 : IAnyArgs
     public void SetEntityFactories(EntityFactory[] factories) { }
     public void Free() { }
 
-    public void SerializeTo(IOutputStream stream)
+    public void SerializeTo<TWriter>(ref TWriter stream) where TWriter : struct, IOutputStream
     {
-        _values[0].SerializeTo(stream);
-        _values[1].SerializeTo(stream);
-        _values[2].SerializeTo(stream);
-        _values[3].SerializeTo(stream);
-        _values[4].SerializeTo(stream);
+        _values[0].SerializeTo(ref stream);
+        _values[1].SerializeTo(ref stream);
+        _values[2].SerializeTo(ref stream);
+        _values[3].SerializeTo(ref stream);
+        _values[4].SerializeTo(ref stream);
     }
 
     public bool? GetBool() => _values[_index++].GetBool();

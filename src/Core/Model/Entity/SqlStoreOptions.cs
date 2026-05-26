@@ -234,7 +234,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     #region ====Serialization====
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteLong(StoreModelId);
         ws.WriteString(_tableNamePrefix);
@@ -245,7 +245,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         {
             for (var i = 0; i < _primaryKeys.Length; i++)
             {
-                _primaryKeys[i].WriteTo(ws);
+                _primaryKeys[i].WriteTo(ref ws);
             }
         }
 
@@ -255,7 +255,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         {
             for (var i = 0; i < _indexes.Count; i++)
             {
-                _indexes[i].WriteTo(ws);
+                _indexes[i].WriteTo(ref ws);
             }
         }
 
@@ -270,7 +270,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         ws.WriteFieldEnd(); //保留
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         StoreModelId = rs.ReadLong();
         _tableNamePrefix = rs.ReadString();
@@ -282,7 +282,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             _primaryKeys = new PrimaryKeyField[count];
             for (var i = 0; i < count; i++)
             {
-                _primaryKeys[i].ReadFrom(rs);
+                _primaryKeys[i].ReadFrom(ref rs);
             }
         }
 
@@ -294,7 +294,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             for (var i = 0; i < count; i++)
             {
                 var index = new SqlIndex(_owner);
-                index.ReadFrom(rs);
+                index.ReadFrom(ref rs);
                 _indexes.Add(index);
             }
         }

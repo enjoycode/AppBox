@@ -19,13 +19,13 @@ public sealed class CheckoutResult : IBinSerializable
     /// </summary>
     public ModelBase? ModelWithNewVersion { get; set; }
 
-    public void WriteTo(IOutputStream ws)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteBool(Success);
         ws.Serialize(ModelWithNewVersion);
     }
 
-    public void ReadFrom(IInputStream rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         Success = rs.ReadBool();
         ModelWithNewVersion = rs.Deserialize() as ModelBase;
