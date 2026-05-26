@@ -63,7 +63,7 @@ public static class Channel
         {
             if (EventSubscribers.TryGetValue(eventId, out var subscribers))
             {
-                var eventArgs = new ServerEventArgs<T>(inputStream);
+                var eventArgs = ServerEventArgs.From(ref inputStream);
                 foreach (var subscriber in subscribers)
                     subscriber.Handler(eventArgs);
             }

@@ -149,7 +149,7 @@ public sealed class SerializationTest
 
         //反序列化
         var reader = new MessageReadStream(segment.First!);
-        var serverEventArgs = new ServerEventArgs<MessageReadStream>(reader);
+        var serverEventArgs = ServerEventArgs.From(ref reader);
         var eventArgs2 = (DebugEventArgs)serverEventArgs[0].GetObject()!;
 
         // var args2 = AnyArgs.From(reader);

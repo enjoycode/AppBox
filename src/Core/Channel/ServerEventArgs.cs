@@ -8,21 +8,26 @@ public interface IServerEventArgs
 }
 
 /// <summary>
-/// 服务端事件参数,用于包装AnyArgs以便多个事件订阅者共享读取参数
+/// 服务端事件参数,用于从AnyArgs读取缓存所有参数，以便多个事件订阅者共享读取参数
 /// </summary>
-public sealed class ServerEventArgs<T> : IServerEventArgs where T : struct, IInputStream
+public sealed class ServerEventArgs : IServerEventArgs
 {
-    internal ServerEventArgs(T stream)
+    public static ServerEventArgs From<T>(ref T stream) where T : struct, IInputStream
     {
+        var serverEventArgs = new ServerEventArgs();
         var index = 0;
         while (stream.HasRemaining && index < 5)
         {
-            _values[index] = AnyValue.ReadFrom(ref stream);
+            serverEventArgs._values[index] = AnyValue.ReadFrom(ref stream);
             index++;
         }
+
+        return serverEventArgs;
     }
 
-    private readonly AnyValue5 _values;
+    private ServerEventArgs() { }
+
+    private AnyValue5 _values;
 
     public ref readonly AnyValue this[int index] => ref _values[index];
 
