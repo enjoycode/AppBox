@@ -63,7 +63,7 @@ internal sealed class ReportSectionDesigner : ReportObjectDesigner<ReportSection
             GroupName = "Layout",
             Properties =
             [
-                new DiagramProperty(this, "Height", nameof(ReportScalarEditor))
+                new DiagramProperty(this, "Height", ReportScalarEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.Height,
                     ValueSetter = v => ReportItem.Height = (Scalar)v!,

@@ -9,6 +9,8 @@ namespace AppBoxDesign.Reporting;
 /// </summary>
 internal sealed class ReportDataSourceEditor : SingleChildWidget
 {
+    internal static EditorFactory Factory => (_, prop) => new ReportDataSourceEditor(prop);
+    
     public ReportDataSourceEditor(IDiagramProperty propertyItem)
     {
         var reportItem = (IReportItemDesigner)propertyItem.DiagramItem;

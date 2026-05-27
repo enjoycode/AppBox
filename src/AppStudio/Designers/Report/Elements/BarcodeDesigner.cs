@@ -107,7 +107,7 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
             GroupName = "Properties",
             Properties =
             [
-                new DiagramProperty(this, nameof(Barcode.Value), nameof(ReportTextEditor))
+                new DiagramProperty(this, nameof(Barcode.Value), ReportTextEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.Value,
                     ValueSetter = v => ReportItem.Value = v as string ?? string.Empty,

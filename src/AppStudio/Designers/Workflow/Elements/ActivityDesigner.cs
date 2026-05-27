@@ -135,24 +135,24 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         var length = _node is StartNode ? 2 : 4;
         var properties = new IDiagramProperty[length];
-        properties[0] = new DiagramProperty(this, "X", nameof(BoundsEditor))
+        properties[0] = new DiagramProperty(this, "X", BoundsEditor.Factory)
         {
             ValueGetter = () => Location.X,
             ValueSetter = v => SetBounds((float)v!, Location.Y, Bounds.Width, Bounds.Height, BoundsSpecified.X)
         };
-        properties[1] = new DiagramProperty(this, "Y", nameof(BoundsEditor))
+        properties[1] = new DiagramProperty(this, "Y", BoundsEditor.Factory)
         {
             ValueGetter = () => Location.Y,
             ValueSetter = v => SetBounds(Location.X, (float)v!, Bounds.Width, Bounds.Height, BoundsSpecified.Y)
         };
         if (_node is not StartNode)
         {
-            properties[2] = new DiagramProperty(this, "Width", nameof(BoundsEditor))
+            properties[2] = new DiagramProperty(this, "Width", BoundsEditor.Factory)
             {
                 ValueGetter = () => Bounds.Width,
                 ValueSetter = v => SetBounds(Location.X, Location.Y, (float)v!, Bounds.Height, BoundsSpecified.Width)
             };
-            properties[3] = new DiagramProperty(this, "Height", nameof(BoundsEditor))
+            properties[3] = new DiagramProperty(this, "Height", BoundsEditor.Factory)
             {
                 ValueGetter = () => Bounds.Height,
                 ValueSetter = v => SetBounds(Location.X, Location.Y, Bounds.Width, (float)v!, BoundsSpecified.Height)
@@ -164,7 +164,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 
     private DiagramPropertyGroup GetDecisionPropertyGroup()
     {
-        var titleProperty = new DiagramProperty(this, "Title", nameof(TextEditor))
+        var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
             ValueGetter = () => _node.Title,
             ValueSetter = v => _node.Title = v?.ToString() ?? string.Empty
@@ -175,7 +175,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 
     private DiagramPropertyGroup GetAutomationPropertyGroup()
     {
-        var titleProperty = new DiagramProperty(this, "Title", nameof(TextEditor))
+        var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
             ValueGetter = () => _node.Title,
             ValueSetter = v => _node.Title = v?.ToString() ?? string.Empty
@@ -186,13 +186,13 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 
     private DiagramPropertyGroup GetHumanPropertyGroup()
     {
-        var titleProperty = new DiagramProperty(this, "Title", nameof(TextEditor))
+        var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
             ValueGetter = () => _node.Title,
             ValueSetter = v => _node.Title = v?.ToString() ?? string.Empty
         };
 
-        var actionProperty = new DiagramProperty(this, "Action", nameof(HumanActionEditor))
+        var actionProperty = new DiagramProperty(this, "Action", HumanActionEditor.Factory)
         {
             ValueGetter = () => ((HumanNode)_node).Actions,
         };

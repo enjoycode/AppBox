@@ -24,7 +24,7 @@ internal sealed class WorkflowRootDesigner : IDiagramItemDesigner
 
     public IEnumerable<DiagramPropertyGroup> GetProperties()
     {
-        var nameProperty = new DiagramProperty(this, "Name", nameof(TextEditor))
+        var nameProperty = new DiagramProperty(this, "Name", TextEditor.Factory)
         {
             ValueGetter = () => _model.Name,
         };

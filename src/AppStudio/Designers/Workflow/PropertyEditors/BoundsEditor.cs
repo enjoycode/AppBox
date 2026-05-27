@@ -5,6 +5,8 @@ namespace AppBoxDesign.Workflow;
 
 internal sealed class BoundsEditor : SingleChildWidget, IValueStateEditor
 {
+    internal static EditorFactory Factory => (_, prop) => new BoundsEditor(prop);
+    
     public BoundsEditor(IDiagramProperty propertyItem)
     {
         _inputState = new RxProxy<float>(

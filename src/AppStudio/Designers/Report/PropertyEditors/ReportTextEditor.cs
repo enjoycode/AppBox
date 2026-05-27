@@ -8,6 +8,8 @@ namespace AppBoxDesign.Reporting;
 /// </summary>
 internal sealed class ReportTextEditor : SingleChildWidget
 {
+    internal static EditorFactory Factory => (_, prop) => new ReportTextEditor(prop);
+    
     public ReportTextEditor(IDiagramProperty propertyItem)
     {
         var valueState = new RxProxy<string>(

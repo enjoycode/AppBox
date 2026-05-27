@@ -13,7 +13,7 @@ internal interface IDiagramProperty
 
     string PropertyName { get; }
 
-    string EditorName { get; }
+    EditorFactory EditorFactory { get; }
 
     object? EditorOptions { get; }
 
@@ -39,11 +39,11 @@ internal interface IDiagramItemWithProperties
 internal sealed class DiagramProperty : IDiagramProperty
 {
     public DiagramProperty(IDiagramItemDesigner obj, string propertyName,
-        string editorName, object? editorOptions = null)
+        EditorFactory editorFactory, object? editorOptions = null)
     {
         DiagramItem = obj;
         PropertyName = propertyName;
-        EditorName = editorName;
+        EditorFactory = editorFactory;
         EditorOptions = editorOptions;
     }
 
@@ -51,7 +51,7 @@ internal sealed class DiagramProperty : IDiagramProperty
 
     public string PropertyName { get; }
 
-    public string EditorName { get; }
+    public EditorFactory EditorFactory { get; }
 
     public object? EditorOptions { get; }
 

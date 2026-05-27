@@ -207,7 +207,7 @@ internal sealed class TableDesigner : ReportItemDesigner<Table>
             GroupName = "Properties",
             Properties =
             [
-                new DiagramProperty(this, nameof(Table.DataSource), nameof(ReportDataSourceEditor))
+                new DiagramProperty(this, nameof(Table.DataSource), ReportDataSourceEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.DataSource,
                     ValueSetter = v => ReportItem.DataSource = v,

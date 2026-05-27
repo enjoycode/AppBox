@@ -4,6 +4,8 @@ namespace AppBoxDesign.Diagram;
 
 internal sealed class TextEditor : SingleChildWidget
 {
+    internal static EditorFactory Factory => (_, prop) => new TextEditor(prop);
+    
     public TextEditor(IDiagramProperty propertyItem)
     {
         Action<string>? valueSetter = propertyItem.ValueSetter == null

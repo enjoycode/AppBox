@@ -96,17 +96,17 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
             GroupName = "Properties",
             Properties =
             [
-                new DiagramProperty(this, nameof(TextBox.Value), nameof(ReportTextEditor))
+                new DiagramProperty(this, nameof(TextBox.Value), ReportTextEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.Value,
                     ValueSetter = v => ReportItem.Value = v as string ?? string.Empty,
                 },
-                new DiagramProperty(this, nameof(TextBox.CanGrow), nameof(CheckBoxEditor))
+                new DiagramProperty(this, nameof(TextBox.CanGrow), CheckBoxEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.CanGrow,
                     ValueSetter = v => ReportItem.CanGrow = v is true,
                 },
-                new DiagramProperty(this, nameof(TextBox.CanShrink), nameof(CheckBoxEditor))
+                new DiagramProperty(this, nameof(TextBox.CanShrink), CheckBoxEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.CanShrink,
                     ValueSetter = v => ReportItem.CanShrink = v is true,

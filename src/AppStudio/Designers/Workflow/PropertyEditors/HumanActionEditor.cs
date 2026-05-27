@@ -6,6 +6,9 @@ namespace AppBoxDesign.Workflow;
 
 internal sealed class HumanActionEditor : SingleChildWidget
 {
+    internal static EditorFactory Factory => (_, prop) =>
+        new(new HumanActionEditor(prop), VerticalAlignment.Top);
+
     public HumanActionEditor(IDiagramProperty propertyItem)
     {
         _propertyItem = propertyItem;

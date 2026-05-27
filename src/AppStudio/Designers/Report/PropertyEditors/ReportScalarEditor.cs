@@ -6,6 +6,8 @@ namespace AppBoxDesign.Reporting;
 
 internal sealed class ReportScalarEditor : SingleChildWidget, IValueStateEditor
 {
+    internal static EditorFactory Factory => (_, prop) => new ReportScalarEditor(prop);
+    
     public ReportScalarEditor(IDiagramProperty propertyItem)
     {
         _propertyItem = propertyItem;

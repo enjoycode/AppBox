@@ -12,6 +12,9 @@ namespace AppBoxDesign.Reporting;
 /// </summary>
 internal sealed class ReportDataSourcesEditor : SingleChildWidget
 {
+    internal static EditorFactory Factory => (ctx, prop) =>
+        new(new ReportDataSourcesEditor(ctx, prop), VerticalAlignment.Top);
+
     public ReportDataSourcesEditor(DesignHub designContext, IDiagramProperty propertyItem)
     {
         _listController = new ListViewController<IDataSource>();

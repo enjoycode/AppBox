@@ -4,6 +4,8 @@ namespace AppBoxDesign.Diagram;
 
 internal sealed class EnumEditor : SingleChildWidget
 {
+    internal static EditorFactory Factory => (_, prop) => new EnumEditor(prop);
+
     public EnumEditor(IDiagramProperty propertyItem)
     {
         var enumType = (Type)propertyItem.EditorOptions!;

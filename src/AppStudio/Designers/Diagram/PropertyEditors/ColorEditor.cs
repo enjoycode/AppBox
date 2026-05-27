@@ -4,6 +4,8 @@ namespace AppBoxDesign.Diagram;
 
 internal sealed class ColorEditor : SingleChildWidget
 {
+    internal static EditorFactory Factory => (_, prop) => new ColorEditor(prop);
+    
     public ColorEditor(IDiagramProperty propertyItem)
     {
         var valueState = new RxProxy<Color>(

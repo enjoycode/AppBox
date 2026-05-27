@@ -140,24 +140,24 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
 
         var ownerIsTable = false; //TODO: this is TableDesigner;
         var properties = ownerIsTable ? new IDiagramProperty[2] : new IDiagramProperty[4];
-        properties[0] = new DiagramProperty(this, "Left", nameof(ReportScalarEditor))
+        properties[0] = new DiagramProperty(this, "Left", ReportScalarEditor.Factory)
         {
             ValueGetter = () => ReportItem.Left,
             ValueSetter = v => ReportItem.Left = (Scalar)v!
         };
-        properties[1] = new DiagramProperty(this, "Top", nameof(ReportScalarEditor))
+        properties[1] = new DiagramProperty(this, "Top", ReportScalarEditor.Factory)
         {
             ValueGetter = () => ReportItem.Top,
             ValueSetter = v => ReportItem.Top = (Scalar)v!
         };
         if (!ownerIsTable)
         {
-            properties[2] = new DiagramProperty(this, "Width", nameof(ReportScalarEditor))
+            properties[2] = new DiagramProperty(this, "Width", ReportScalarEditor.Factory)
             {
                 ValueGetter = () => ReportItem.Width,
                 ValueSetter = v => ReportItem.Width = (Scalar)v!
             };
-            properties[3] = new DiagramProperty(this, "Height", nameof(ReportScalarEditor))
+            properties[3] = new DiagramProperty(this, "Height", ReportScalarEditor.Factory)
             {
                 ValueGetter = () => ReportItem.Height,
                 ValueSetter = v => ReportItem.Height = (Scalar)v!
@@ -176,27 +176,27 @@ internal abstract class ReportItemDesigner<T> : ReportObjectDesigner<T> where T 
         GroupName = "Style",
         Properties =
         [
-            new DiagramProperty(this, "FontSize", nameof(ReportScalarEditor))
+            new DiagramProperty(this, "FontSize", ReportScalarEditor.Factory)
             {
                 ValueGetter = () => ReportItem.Style.Font.Size,
                 ValueSetter = v => ReportItem.Style.Font.Size = (Scalar)v!
             },
-            new DiagramProperty(this, "Color", nameof(ColorEditor))
+            new DiagramProperty(this, "Color", ColorEditor.Factory)
             {
                 ValueGetter = () => ReportItem.Style.Color,
                 ValueSetter = v => ReportItem.Style.Color = (Color)v!
             },
-            new DiagramProperty(this, "BackgroundColor", nameof(ColorEditor))
+            new DiagramProperty(this, "BackgroundColor", ColorEditor.Factory)
             {
                 ValueGetter = () => ReportItem.Style.BackgroundColor,
                 ValueSetter = v => ReportItem.Style.BackgroundColor = (Color)v!
             },
-            new DiagramProperty(this, "TextAlign", nameof(EnumEditor), typeof(HorizontalAlign))
+            new DiagramProperty(this, "TextAlign", EnumEditor.Factory, typeof(HorizontalAlign))
             {
                 ValueGetter = () => ReportItem.Style.TextAlign,
                 ValueSetter = v => ReportItem.Style.TextAlign = (HorizontalAlign)v!
             },
-            new DiagramProperty(this, "VerticalAlign", nameof(EnumEditor), typeof(VerticalAlign))
+            new DiagramProperty(this, "VerticalAlign", EnumEditor.Factory, typeof(VerticalAlign))
             {
                 ValueGetter = () => ReportItem.Style.VerticalAlign,
                 ValueSetter = v => ReportItem.Style.VerticalAlign = (VerticalAlign)v!

@@ -109,7 +109,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
             GroupName = "Properties",
             Properties =
             [
-                new DiagramProperty(this, "PaperWidth", nameof(ReportScalarEditor))
+                new DiagramProperty(this, "PaperWidth", ReportScalarEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.PageSettings.PaperSize.Width,
                     ValueSetter = v =>
@@ -119,7 +119,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                         ReportItem.ResetWidth();
                     },
                 },
-                new DiagramProperty(this, "PaperHeight", nameof(ReportScalarEditor))
+                new DiagramProperty(this, "PaperHeight", ReportScalarEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.PageSettings.PaperSize.Height,
                     ValueSetter = v =>
@@ -128,7 +128,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                         ReportItem.PageSettings.PaperSize = new RSize(oldSize.Width, (Scalar)v!);
                     }
                 },
-                new DiagramProperty(this, "DataSources", nameof(ReportDataSourcesEditor))
+                new DiagramProperty(this, "DataSources", ReportDataSourcesEditor.Factory)
                 {
                     ValueGetter = () => ReportItem.DataSources,
                 }
