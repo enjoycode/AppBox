@@ -29,7 +29,17 @@ public sealed class WorkflowParameter : IBinSerializable
     /// <summary>
     /// 是否工作流局部变量，非局部变量在启动实例时由外部输入且必需
     /// </summary>
-    public bool IsLocalVariable => (Flags & ParameterFlags.LocalVariable) == ParameterFlags.LocalVariable;
+    public bool IsLocalVariable
+    {
+        get => Flags.HasFlag(ParameterFlags.LocalVariable);
+        internal set
+        {
+            if (value)
+                Flags |= ParameterFlags.LocalVariable;
+            else
+                Flags &= ~(ParameterFlags.LocalVariable);
+        }
+    }
 
     public string? Remark { get; set; }
 

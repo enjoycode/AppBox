@@ -16,7 +16,7 @@ public sealed class WorkflowModel : ModelBase
 
     public StartNode StartNode { get; }
 
-    public List<WorkflowParameter> Parameters { get; set; } = [];
+    public List<WorkflowParameter> Parameters { get; } = [];
 
     #region ====Serialization====
 

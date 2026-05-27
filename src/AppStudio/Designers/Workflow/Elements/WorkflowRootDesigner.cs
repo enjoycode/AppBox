@@ -1,5 +1,6 @@
 using AppBoxCore;
 using AppBoxDesign.Diagram;
+using AppBoxDesign.Workflow;
 using PixUI;
 
 namespace AppBoxDesign;
@@ -29,6 +30,11 @@ internal sealed class WorkflowRootDesigner : IDiagramItemDesigner
             ValueGetter = () => _model.Name,
         };
 
-        yield return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [nameProperty] };
+        var paraProperty = new DiagramProperty(this, "Parameters", ParameterEditor.Factory)
+        {
+            ValueGetter = () => _model.Parameters,
+        };
+
+        yield return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [nameProperty, paraProperty] };
     }
 }
