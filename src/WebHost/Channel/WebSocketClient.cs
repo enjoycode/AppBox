@@ -35,22 +35,20 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         //开始读取并处理消息
-        var reader = new MessageReadStream(frame.First!);
-        MessageType msgType;
-        int msgId;
-        try
+        //先读消息头
+        var first = frame.First!;
+        if (first.Length < 5)
         {
-            msgType = (MessageType)reader.ReadByte();
-            msgId = reader.ReadInt();
-        }
-        catch (Exception e)
-        {
-            reader.Free();
-            Logger.Warn($"Read message header error: {e.Message}");
+            BytesSegment.ReturnAll(first);
+            Logger.Warn($"Read message header error");
             return;
         }
 
-        //Process on thread pool
+        var reader = new MessageReadStream(first);
+        var msgType = (MessageType)reader.ReadByte();
+        var msgId = reader.ReadInt();
+
+        //根据消息类型处理 Process on thread pool
         switch (msgType)
         {
             case MessageType.InvokeRequest:
