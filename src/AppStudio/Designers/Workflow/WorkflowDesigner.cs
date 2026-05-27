@@ -10,7 +10,7 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
     {
         _designContext = designContext;
         ModelNode = modelNode;
-        _diagramService = new WorkflowDiagramService(designContext);
+        _diagramService = new WorkflowDiagramService(designContext, (WorkflowModel)modelNode.Model);
 
         Child = new Splitter
         {
@@ -66,6 +66,8 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
             _diagramService.Surface.AddItem(item);
         foreach (var item in visitor.Connections)
             _diagramService.Surface.AddItem(item);
+
+        _diagramService.OnLoaded();
     }
 
     #region ====IModelDesigner====

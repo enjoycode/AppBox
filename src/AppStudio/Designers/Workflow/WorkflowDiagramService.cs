@@ -7,11 +7,13 @@ namespace AppBoxDesign;
 
 internal sealed class WorkflowDiagramService : IDiagramService
 {
-    public WorkflowDiagramService(DesignHub designContext)
+    public WorkflowDiagramService(DesignHub designContext, WorkflowModel workflowModel)
     {
         PropertyPanel = new DiagramPropertyPanel(designContext);
+        _rootDesigner = new WorkflowRootDesigner(workflowModel);
     }
 
+    private readonly WorkflowRootDesigner _rootDesigner;
     internal DiagramSurface Surface { get; private set; } = null!;
     internal WorkflowToolbox Toolbox { get; } = new();
 
@@ -36,9 +38,11 @@ internal sealed class WorkflowDiagramService : IDiagramService
     {
         var itemDesigner = Surface.SelectionService.HasSelection
             ? Surface.SelectionService.SelectedItems[0] as IDiagramItem
-            : null;
+            : _rootDesigner;
         PropertyPanel.OnSelectedItem(itemDesigner);
     }
+
+    internal void OnLoaded() => OnSelectionChanged(null, EventArgs.Empty);
 
     public void MoveSelection(Offset delta)
     {

@@ -10,7 +10,7 @@ internal readonly struct DiagramPropertyGroup
 internal interface IDiagramProperty
 {
     IDiagramItemDesigner DiagramItem { get; }
-    
+
     string PropertyName { get; }
 
     string EditorName { get; }
@@ -57,7 +57,7 @@ internal sealed class DiagramProperty : IDiagramProperty
 
     public required Func<object?> ValueGetter { get; init; }
     public Action<object?>? ValueSetter { get; init; }
-    public bool Readonly => ValueSetter != null;
+    public bool Readonly => ValueSetter == null;
     public bool InvalidateAfterChanged { get; init; } = true;
     public void Invalidate() => DiagramItem.Invalidate();
 }
