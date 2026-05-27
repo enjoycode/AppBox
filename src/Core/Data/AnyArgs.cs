@@ -290,7 +290,7 @@ public struct StreamArgs<T> : IAnyArgs where T : struct, IInputStream
 
     public object? GetObject() => _inputStream.Deserialize();
 
-    public T? GetEnum<T>() where T : struct, Enum
+    public TValue? GetEnum<TValue>() where TValue : struct, Enum
     {
         var payloadType = (PayloadType)_inputStream.ReadByte();
         if (payloadType == PayloadType.Null) return null;
@@ -298,33 +298,33 @@ public struct StreamArgs<T> : IAnyArgs where T : struct, IInputStream
             throw new SerializationException(SerializationError.PayloadTypeNotMatch);
 
         var intValue = _inputStream.ReadInt();
-        return Unsafe.SizeOf<T>() switch
+        return Unsafe.SizeOf<TValue>() switch
         {
-            sizeof(byte) => Unsafe.BitCast<byte, T>((byte)intValue),
-            sizeof(short) => Unsafe.BitCast<short, T>((short)intValue),
-            sizeof(int) => Unsafe.BitCast<int, T>(intValue),
-            // sizeof(ulong)  => Unsafe.BitCast<TEnum, ulong>(value),
-            _ => throw new InvalidCastException($"The size of {typeof(T)} is not supported."),
+            sizeof(byte) => Unsafe.BitCast<byte, TValue>((byte)intValue),
+            sizeof(short) => Unsafe.BitCast<short, TValue>((short)intValue),
+            sizeof(int) => Unsafe.BitCast<int, TValue>(intValue),
+            // sizeof(ulong)  => Unsafe.BitCast<TValue, ulong>(value),
+            _ => throw new InvalidCastException($"The size of {typeof(TValue)} is not supported."),
         };
     }
 
     /// <summary>
     /// 用于转换如Web前端封送的object[]数组
     /// </summary>
-    public T[]? GetArray<T>()
+    public TValue[]? GetArray<TValue>()
     {
         var res = _inputStream.Deserialize();
         if (res == null) return null;
 
         // TODO:考虑判断源类型是否目标类型
         var array = (IEnumerable)res;
-        return array.Cast<T>().ToArray();
+        return array.Cast<TValue>().ToArray();
     }
 
     /// <summary>
     /// 用于转换如Web前端封送的List&lt;object&gt;或List&lt;Entity&gt;
     /// </summary>
-    public IList<T>? GetList<T>()
+    public IList<TValue>? GetList<TValue>()
     {
         var res = _inputStream.Deserialize();
         if (res == null) return null;
@@ -333,7 +333,7 @@ public struct StreamArgs<T> : IAnyArgs where T : struct, IInputStream
         // TODO:考虑判断源类型是否目标类型
         // var srcElementType = res.GetType().GenericTypeArguments[0];
         // if (srcElementType != typeof(T))
-        return list.Cast<T>().ToList();
+        return list.Cast<TValue>().ToList();
     }
 
     #endregion
