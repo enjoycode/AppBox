@@ -31,11 +31,11 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
             if (isField)
             {
                 var fieldInfo = instanceType.GetField(memberName)!;
-                return new ValueTask<AnyValue>(AnyValue.From(fieldInfo.GetValue(instance)));
+                return new ValueTask<AnyValue>(AnyValue.From(fieldInfo.GetValue(instance.BoxedValue)));
             }
 
             var propInfo = instanceType.GetField(memberName)!;
-            return new(AnyValue.From(propInfo.GetValue(instance)));
+            return new(AnyValue.From(propInfo.GetValue(instance.BoxedValue)));
         }
     }
 

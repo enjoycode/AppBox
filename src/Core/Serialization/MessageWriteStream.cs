@@ -35,7 +35,8 @@ public struct MessageWriteStream : IOutputStream
 
     public void FreeBuffer()
     {
-        BytesSegment.ReturnAll(_current.First!);
+        if (_current != null!)
+            BytesSegment.ReturnAll(_current.First!);
         _current = null!;
     }
 

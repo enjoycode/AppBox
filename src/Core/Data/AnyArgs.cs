@@ -33,9 +33,9 @@ public interface IAnyArgs
     Guid? GetGuid();
     string? GetString();
     object? GetObject();
-    T? GetEnum<T>() where T : struct, Enum;
-    T[]? GetArray<T>();
-    IList<T>? GetList<T>();
+    TValue? GetEnum<TValue>() where TValue : struct, Enum;
+    TValue[]? GetArray<TValue>();
+    IList<TValue>? GetList<TValue>();
 
     #endregion
 }
@@ -86,9 +86,9 @@ public readonly struct EmptyArgs : IAnyArgs
     public Guid? GetGuid() => throw new NotSupportedException();
     public string GetString() => throw new NotSupportedException();
     public object GetObject() => throw new NotSupportedException();
-    public T? GetEnum<T>() where T : struct, Enum => throw new NotSupportedException();
-    public T[] GetArray<T>() => throw new NotSupportedException();
-    public IList<T> GetList<T>() => throw new NotSupportedException();
+    public TValue? GetEnum<TValue>() where TValue : struct, Enum => throw new NotSupportedException();
+    public TValue[] GetArray<TValue>() => throw new NotSupportedException();
+    public IList<TValue> GetList<TValue>() => throw new NotSupportedException();
 
     #endregion
 }
@@ -365,9 +365,9 @@ public readonly struct LocalArgs1 : IAnyArgs
     public Guid? GetGuid() => _value.GetGuid();
     public string? GetString() => (string?)_value.GetObject();
     public object? GetObject() => _value.GetObject();
-    public T? GetEnum<T>() where T : struct, Enum => _value.GetEnum<T>();
-    public T[]? GetArray<T>() => (T[]?)_value.GetObject();
-    public IList<T>? GetList<T>() => (IList<T>?)_value.GetObject();
+    public TValue? GetEnum<TValue>() where TValue : struct, Enum => _value.GetEnum<TValue>();
+    public TValue[]? GetArray<TValue>() => (TValue[]?)_value.GetObject();
+    public IList<TValue>? GetList<TValue>() => (IList<TValue>?)_value.GetObject();
 }
 
 public struct LocalArgs2 : IAnyArgs
@@ -401,9 +401,9 @@ public struct LocalArgs2 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
-    public T? GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
-    public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
-    public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
+    public TValue? GetEnum<TValue>() where TValue : struct, Enum => _values[_index++].GetEnum<TValue>();
+    public TValue[]? GetArray<TValue>() => (TValue[]?)_values[_index++].GetObject();
+    public IList<TValue>? GetList<TValue>() => (IList<TValue>?)_values[_index++].GetObject();
 
     [InlineArray(2)]
     private struct AnyValue2
@@ -445,9 +445,9 @@ public struct LocalArgs3 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
-    public T? GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
-    public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
-    public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
+    public TValue? GetEnum<TValue>() where TValue : struct, Enum => _values[_index++].GetEnum<TValue>();
+    public TValue[]? GetArray<TValue>() => (TValue[]?)_values[_index++].GetObject();
+    public IList<TValue>? GetList<TValue>() => (IList<TValue>?)_values[_index++].GetObject();
 
     [InlineArray(3)]
     private struct AnyValue3
@@ -491,9 +491,9 @@ public struct LocalArgs4 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
-    public T? GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
-    public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
-    public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
+    public TValue? GetEnum<TValue>() where TValue : struct, Enum => _values[_index++].GetEnum<TValue>();
+    public TValue[]? GetArray<TValue>() => (TValue[]?)_values[_index++].GetObject();
+    public IList<TValue>? GetList<TValue>() => (IList<TValue>?)_values[_index++].GetObject();
 
     [InlineArray(4)]
     private struct AnyValue4
@@ -539,9 +539,9 @@ public struct LocalArgs5 : IAnyArgs
     public Guid? GetGuid() => _values[_index++].GetGuid();
     public string? GetString() => (string?)_values[_index++].GetObject();
     public object? GetObject() => _values[_index++].GetObject();
-    public T? GetEnum<T>() where T : struct, Enum => _values[_index++].GetEnum<T>();
-    public T[]? GetArray<T>() => (T[]?)_values[_index++].GetObject();
-    public IList<T>? GetList<T>() => (IList<T>?)_values[_index++].GetObject();
+    public TValue? GetEnum<TValue>() where TValue : struct, Enum => _values[_index++].GetEnum<TValue>();
+    public TValue[]? GetArray<TValue>() => (TValue[]?)_values[_index++].GetObject();
+    public IList<TValue>? GetList<TValue>() => (IList<TValue>?)_values[_index++].GetObject();
 
     [InlineArray(5)]
     private struct AnyValue5

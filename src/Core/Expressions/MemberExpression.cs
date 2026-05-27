@@ -37,7 +37,10 @@ public sealed class MemberExpression : Expression
 
     public override void ToCode(StringBuilder sb, int preTabs)
     {
-        Instance.ToCode(sb, preTabs);
+        if (IsStaticMemberAccess)
+            sb.Append(StaticType.TypeName);
+        else
+            Instance!.ToCode(sb, preTabs);
         sb.Append('.');
         sb.Append(MemberName);
     }

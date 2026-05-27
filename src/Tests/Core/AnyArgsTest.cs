@@ -17,7 +17,7 @@ public class AnyArgsTest
     {
         var anyValue = AnyValue.From(123);
         var v = anyValue.CastTo<int>();
-        Console.WriteLine(v);
+        Assert.IsTrue(v == 123);
     }
 
     [Test]

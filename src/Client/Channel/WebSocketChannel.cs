@@ -206,10 +206,6 @@ public sealed class WebSocketChannel : IClientChannel
             BytesSegment.ReturnAll(reqData);
             throw;
         }
-        finally
-        {
-            ws.FreeBuffer();
-        }
 
         return reqData;
     }

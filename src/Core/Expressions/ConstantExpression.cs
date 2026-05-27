@@ -44,20 +44,20 @@ public sealed class ConstantExpression : Expression
             or AnyValue.ValueType.Float or AnyValue.ValueType.Double
             or AnyValue.ValueType.Decimal)
         {
-            sb.Append(Value);
+            sb.Append(Value.BoxedValue);
             return;
         }
 
         if (Value.Type == AnyValue.ValueType.Float)
         {
-            sb.Append(Value);
+            sb.Append(Value.GetFloat()!.Value);
             sb.Append('f');
             return;
         }
 
         if (Value.Type == AnyValue.ValueType.Decimal)
         {
-            sb.Append(Value);
+            sb.Append(Value.GetDecimal()!.Value);
             sb.Append('m');
             return;
         }
@@ -65,7 +65,7 @@ public sealed class ConstantExpression : Expression
         if (Value.Type == AnyValue.ValueType.Char)
         {
             sb.Append('\'');
-            sb.Append(Value);
+            sb.Append(Value.GetChar()!.Value);
             sb.Append('\'');
             return;
         }
@@ -73,14 +73,14 @@ public sealed class ConstantExpression : Expression
         if (Value.Type is AnyValue.ValueType.Guid or AnyValue.ValueType.DateTime)
         {
             //TODO:
-            sb.AppendFormat("\"{0}\"", Value);
+            sb.AppendFormat("\"{0}\"", Value.BoxedValue);
             return;
         }
 
         if (Value.BoxedValue is string)
         {
             sb.Append('"');
-            sb.Append(Value);
+            sb.Append(Value.BoxedValue);
             sb.Append('"');
             return;
         }

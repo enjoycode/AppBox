@@ -4,7 +4,7 @@ namespace Tests.Core;
 
 public sealed class DemoEntity : Entity, IEquatable<DemoEntity>
 {
-    public const long MODELID = 12345;
+    public static long MODELID => 12345;
 
     private static readonly short[] Members = [1, 2];
 

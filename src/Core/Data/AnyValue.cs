@@ -32,7 +32,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     private AnyValue(DateTime v) { Type = ValueType.DateTime; DateTimeValue = v; }
     private AnyValue(Guid v) { Type = ValueType.Guid; GuidValue = v; }
     private AnyValue(object? v) { Type = v == null ? ValueType.Empty : ValueType.Object; ObjectValue = v; }
-    private AnyValue(Action<IOutputStream> streamWriter) {Type = ValueType.Stream; ObjectValue = streamWriter; }
+    private AnyValue(object v, ValueType type) { Type = type; ObjectValue = v;}
     //@formatter:on
 
     #endregion
@@ -74,8 +74,8 @@ public readonly struct AnyValue : IEquatable<AnyValue>
         ValueType.UInt64 => ULongValue,
         ValueType.Float => FloatValue,
         ValueType.Double => DoubleValue,
-        ValueType.DateTime => DateTimeValue,
         ValueType.Decimal => DecimalValue,
+        ValueType.DateTime => DateTimeValue,
         ValueType.Guid => GuidValue,
         _ => ObjectValue,
     };
@@ -90,6 +90,9 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     public sbyte? GetSByte() =>
         IsEmpty ? null : Type != ValueType.SByte ? throw new InvalidOperationException() : SByteValue;
+
+    public char? GetChar() =>
+        IsEmpty ? null : Type != ValueType.Char ? throw new InvalidOperationException() : CharValue;
 
     public short? GetShort() =>
         IsEmpty ? null : Type != ValueType.Int16 ? throw new InvalidOperationException() : ShortValue;
@@ -281,7 +284,8 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     public static AnyValue From<T>(T? v) where T : struct, Enum => v.HasValue ? From(v.Value) : Empty;
 
-    public static AnyValue From(Action<IOutputStream> streamWriter) => new(streamWriter);
+    public static AnyValue From<T>(Action<T> streamWriter) where T : struct, IOutputStream =>
+        new(streamWriter, ValueType.Stream);
 
     /// <summary>
     /// 从输入流中读取
@@ -385,7 +389,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
                 bs.Serialize(ObjectValue);
                 break;
             case ValueType.Stream:
-                ((Action<IOutputStream>)ObjectValue!)(bs);
+                ((Action<T>)ObjectValue!)(bs);
                 break;
             default:
                 throw new NotImplementedException($"序列化AnyValue: {Type}");

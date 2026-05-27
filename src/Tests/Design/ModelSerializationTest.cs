@@ -1,5 +1,4 @@
 using AppBoxCore;
-using AppBoxStore;
 using NUnit.Framework;
 
 namespace Tests.Design;

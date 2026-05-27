@@ -9,21 +9,6 @@ namespace Tests.Core;
 public class ExpressionSerializationTest
 {
     [Test]
-    public void TestLinqExpression()
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            i++;
-            if (i > 10)
-            {
-                break;
-            }
-        }
-
-        throw new Exception();
-    }
-
-    [Test]
     public void Test1()
     {
         var exp1 = Expression.InstanceCall(
