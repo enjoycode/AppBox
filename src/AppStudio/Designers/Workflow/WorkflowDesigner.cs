@@ -60,7 +60,7 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
 
         var model = (WorkflowModel)ModelNode.Model;
         var visitor = new WorkflowDesignVisitor();
-        visitor.Visit(model.StartActivity);
+        visitor.Visit(model.StartNode);
 
         foreach (var item in visitor.Designers)
             _diagramService.Surface.AddItem(item);

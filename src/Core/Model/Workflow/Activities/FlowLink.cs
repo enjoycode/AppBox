@@ -20,7 +20,7 @@ public class FlowLink : IBinSerializable
         set => _targetConnector = value;
     }
 
-    public ActivityModel? Target;
+    public ActivityNode? Target;
 
     /// <summary>
     /// 仅用于设计时，源自本身的设计时连接线IConnection

@@ -12,12 +12,12 @@ internal sealed class WorkflowDesignVisitor
 
     public List<ActivityConnection> Connections { get; } = [];
 
-    public void Visit(ActivityModel? node)
+    public void Visit(ActivityNode? node)
     {
         if (node == null)
             return;
 
-        if (Designers.FindIndex(t => t.Model == node) >= 0)
+        if (Designers.FindIndex(t => t.Node == node) >= 0)
             return;
 
         //创建相应的Designer
@@ -32,16 +32,16 @@ internal sealed class WorkflowDesignVisitor
         }
     }
 
-    private void VisitLink(ActivityModel source, FlowLink link)
+    private void VisitLink(ActivityNode source, FlowLink link)
     {
         if (link.Target != null)
         {
-            if (Designers.FindIndex(t => t.Model == link.Target) < 0)
+            if (Designers.FindIndex(t => t.Node == link.Target) < 0)
                 Visit(link.Target);
 
             var connectionDesigner = new ActivityConnection(link,
-                Designers.Single(t => t.Model == source),
-                Designers.Single(t => t.Model == link.Target));
+                Designers.Single(t => t.Node == source),
+                Designers.Single(t => t.Node == link.Target));
             Connections.Add(connectionDesigner);
         }
     }

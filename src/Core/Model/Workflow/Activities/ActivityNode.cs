@@ -1,6 +1,6 @@
 ﻿namespace AppBoxCore;
 
-public abstract class ActivityModel : IBinSerializable
+public abstract class ActivityNode : IBinSerializable
 {
     //TODO:加入Name属性
 
@@ -58,7 +58,7 @@ public abstract class ActivityModel : IBinSerializable
                     H = rs.ReadFloat();
                     break;
                 case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(ActivityModel), propIndex);
+                default: throw SerializationException.ReadUnknownField(nameof(ActivityNode), propIndex);
             }
         } while (propIndex != 0);
     }

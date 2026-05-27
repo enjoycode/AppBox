@@ -1,8 +1,8 @@
 ﻿namespace AppBoxCore;
 
-public sealed class MultiHumanActivityModel : HumanActivityModel
+public sealed class MultiHumanNode : HumanNode
 {
-    public MultiHumanActivityModel()
+    public MultiHumanNode()
     {
         Title = "多人活动";
     }

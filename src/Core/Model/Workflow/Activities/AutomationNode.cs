@@ -3,9 +3,9 @@
 /// <summary>
 /// 工作流自动节点
 /// </summary>
-public sealed class AutomationActivityModel : ActivityModel
+public sealed class AutomationNode : ActivityNode
 {
-    public AutomationActivityModel()
+    public AutomationNode()
     {
         Title = "机器活动";
     }
@@ -41,7 +41,7 @@ public sealed class AutomationActivityModel : ActivityModel
             {
                 case 1: Expression = (Expression)rs.Deserialize()!; break;
                 case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(AutomationActivityModel), propIndex);
+                default: throw SerializationException.ReadUnknownField(nameof(AutomationNode), propIndex);
             }
         } while (propIndex != 0);
     }

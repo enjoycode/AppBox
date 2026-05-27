@@ -52,7 +52,7 @@ public sealed class WorkflowParameter : IBinSerializable
                 case 1: Name = bs.ReadString()!; break;
                 case 2: Type = (WorkflowParameterType)bs.ReadByte(); break;
                 case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(StartActivityModel), propIndex);
+                default: throw SerializationException.ReadUnknownField(nameof(StartNode), propIndex);
             }
         } while (propIndex != 0);
     }
@@ -60,8 +60,7 @@ public sealed class WorkflowParameter : IBinSerializable
 
 public enum WorkflowParameterType : byte
 {
-    Object = 0,
-    ObjectArray = 1,
-    Guid = 2,
-    String = 3,
+    Entity = 0,
+    String = 1,
+    Number = 2,
 }

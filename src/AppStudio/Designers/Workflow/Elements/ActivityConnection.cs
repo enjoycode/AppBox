@@ -104,8 +104,8 @@ internal sealed class ActivityConnection : DiagramConnection
         if (_isLoading)
             return;
 
-        var oldSourceModel = oldSource == null ? null : ((ActivityDesigner)oldSource).Model;
-        var newSourceModel = Source == null ? null : ((ActivityDesigner)Source).Model;
+        var oldSourceModel = oldSource == null ? null : ((ActivityDesigner)oldSource).Node;
+        var newSourceModel = Source == null ? null : ((ActivityDesigner)Source).Node;
         //注意：不可能存在 non null -> non null，设计器拖动首尾点时自动清空
         if (oldSourceModel == null && newSourceModel != null) //null -> non null
         {
@@ -131,10 +131,10 @@ internal sealed class ActivityConnection : DiagramConnection
             //再判断目标有没有
             if (Target != null)
             {
-                ActivityModel targetModel = ((ActivityDesigner)Target).Model;
+                ActivityNode targetNode = ((ActivityDesigner)Target).Node;
                 _sourceLink.SourceConnector = SourceConnectorPosition;
                 _sourceLink.TargetConnector = TargetConnectorPosition;
-                _sourceLink.Target = targetModel;
+                _sourceLink.Target = targetNode;
             }
         }
         else if (oldSourceModel != null && newSourceModel == null) //non null -> null
@@ -157,9 +157,9 @@ internal sealed class ActivityConnection : DiagramConnection
 
         if (Source != null)
         {
-            var sourceModel = ((ActivityDesigner)Source).Model;
-            var oldTargetModel = oldTarget == null ? null : ((ActivityDesigner)oldTarget).Model;
-            var newTargetModel = Target == null ? null : ((ActivityDesigner)Target).Model;
+            var sourceModel = ((ActivityDesigner)Source).Node;
+            var oldTargetModel = oldTarget == null ? null : ((ActivityDesigner)oldTarget).Node;
+            var newTargetModel = Target == null ? null : ((ActivityDesigner)Target).Node;
 
             //注意：不可能存在 non null -> non null，设计器拖动首尾点时自动清空
             if (oldTargetModel == null && newTargetModel != null) //null -> non null

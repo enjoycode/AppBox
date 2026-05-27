@@ -50,7 +50,7 @@ internal sealed class HumanActionEditor : SingleChildWidget
     private readonly State<int> _selectedIndex = -1;
 
     private ActivityDesigner ActivityDesigner => (ActivityDesigner)_propertyItem.DiagramItem;
-    private HumanActivityModel HumanActivityModel => (HumanActivityModel)ActivityDesigner.Model;
+    private HumanNode HumanNode => (HumanNode)ActivityDesigner.Node;
 
     private async void OnAdd()
     {
@@ -60,7 +60,7 @@ internal sealed class HumanActionEditor : SingleChildWidget
             return;
 
         //判断名称是否已存在
-        if (HumanActivityModel.Actions.Any(t => t.Name == actionName.Value))
+        if (HumanNode.Actions.Any(t => t.Name == actionName.Value))
         {
             Notification.Error($"Action already exists: {actionName.Value}");
             return;
@@ -68,7 +68,7 @@ internal sealed class HumanActionEditor : SingleChildWidget
 
         //同步模型添加ConditionLink
         var link = new ConditionLink() { Name = actionName.Value };
-        HumanActivityModel.ResultConditions.Add(link);
+        HumanNode.ResultConditions.Add(link);
 
         _dataSources.Add(new HumanAction() { Name = actionName.Value });
         RefreshDataSources();
@@ -88,14 +88,14 @@ internal sealed class HumanActionEditor : SingleChildWidget
             return;
 
         //判断名称是否已存在
-        if (HumanActivityModel.Actions.Any(t => t.Name == actionName.Value))
+        if (HumanNode.Actions.Any(t => t.Name == actionName.Value))
         {
             Notification.Error($"Action already exists: {actionName.Value}");
             return;
         }
 
         //同步更新FlowLink和Action的名称
-        var link = HumanActivityModel.ResultConditions.Single(t => t.Name == action.Name);
+        var link = HumanNode.ResultConditions.Single(t => t.Name == action.Name);
         link.Name = actionName.Value;
         action.Name = actionName.Value;
         //TODO: should repaint target ActivityConnection
@@ -110,13 +110,13 @@ internal sealed class HumanActionEditor : SingleChildWidget
         //TODO: 多人活动需要判断删除的有没有在ResultConditions的表达式内引用到，有引用则不允许删除
 
         //找到对应的ConditionLink
-        var link = HumanActivityModel.ResultConditions.Single(t => t.Name == action.Name);
+        var link = HumanNode.ResultConditions.Single(t => t.Name == action.Name);
         //从现有的连接线查找，从画布中移除
         var connections = ActivityDesigner.Surface!.GetConnections().Cast<ActivityConnection>();
         var connection = connections.SingleOrDefault(t => t.Link == link);
         connection?.Remove();
         //从ResultConditions中删除Link
-        HumanActivityModel.ResultConditions.Remove(link);
+        HumanNode.ResultConditions.Remove(link);
         //从HumanActions中删除
         _dataSources.RemoveAt(_selectedIndex.Value);
         RefreshDataSources();

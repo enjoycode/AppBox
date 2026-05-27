@@ -3,9 +3,9 @@
 /// <summary>
 /// 开始节点
 /// </summary>
-public sealed class StartActivityModel : ActivityModel
+public sealed class StartNode : ActivityNode
 {
-    public StartActivityModel()
+    public StartNode()
     {
         Next = new FlowLink();
     }
@@ -46,7 +46,7 @@ public sealed class StartActivityModel : ActivityModel
             {
                 case 1: Next.ReadFrom(ref rs); break;
                 case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(StartActivityModel), propIndex);
+                default: throw SerializationException.ReadUnknownField(nameof(StartNode), propIndex);
             }
         } while (propIndex != 0);
     }

@@ -3,11 +3,11 @@
 /// <summary>
 /// 工作流人工节点，定义谁通过哪个用户界面进行什么样的操作，以及操作结果的判定条件
 /// </summary>
-public abstract class HumanActivityModel : ActivityModel
+public abstract class HumanNode : ActivityNode
 {
     #region ====Fields====
 
-    private Expression? _desktopView; // e.View = new erp.Forms.LeaveView
+    private Expression? _formView; // e.View = new erp.Forms.LeaveView
     private Expression? _notificationExpression; //发送通知服务，不设置则不调用
 
     #endregion
@@ -22,12 +22,12 @@ public abstract class HumanActivityModel : ActivityModel
     public List<HumanSource> HumanSource { get; } = [];
 
     /// <summary>
-    /// 用于设置人工处理时所显示的用户界面（桌面或Web）
+    /// 用于设置人工处理时所显示的用户表单界面
     /// </summary>
-    public Expression DesktopView
+    public Expression? FormView
     {
-        get { return _desktopView; }
-        set { _desktopView = value; }
+        get => _formView;
+        set => _formView = value;
     }
 
     /// <summary>
@@ -45,8 +45,8 @@ public abstract class HumanActivityModel : ActivityModel
     /// </summary>
     public Expression? Notification
     {
-        get { return _notificationExpression; }
-        set { _notificationExpression = value; }
+        get => _notificationExpression;
+        set => _notificationExpression = value;
     }
 
     #endregion
@@ -81,10 +81,10 @@ public abstract class HumanActivityModel : ActivityModel
             ws.WriteCollection(HumanSource);
         }
 
-        if (!Expression.IsNull(_desktopView))
+        if (!Expression.IsNull(_formView))
         {
             ws.WriteFieldId(4);
-            ws.SerializeExpression(_desktopView);
+            ws.SerializeExpression(_formView);
         }
 
         ws.WriteFieldEnd();
@@ -94,7 +94,7 @@ public abstract class HumanActivityModel : ActivityModel
     {
         base.ReadFrom(ref rs);
 
-        var propIndex = 0;
+        int propIndex;
         do
         {
             propIndex = rs.ReadFieldId();
@@ -103,9 +103,9 @@ public abstract class HumanActivityModel : ActivityModel
                 case 1: rs.ReadCollection(ResultConditions); break;
                 case 2: rs.ReadCollection(Actions); break;
                 case 3: rs.ReadCollection(HumanSource); break;
-                case 4: _desktopView = (Expression)rs.Deserialize()!; break;
+                case 4: _formView = (Expression)rs.Deserialize()!; break;
                 case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(HumanActivityModel), propIndex);
+                default: throw SerializationException.ReadUnknownField(nameof(HumanNode), propIndex);
             }
         } while (propIndex != 0);
     }

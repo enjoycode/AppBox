@@ -61,7 +61,7 @@ internal sealed class WorkflowDiagramService : IDiagramService
 
         foreach (var item in selection)
         {
-            if (item is ActivityDesigner { Model: not StartActivityModel } or ActivityConnection)
+            if (item is ActivityDesigner { Node: not StartNode } or ActivityConnection)
                 Surface.RemoveItem(item);
         }
 

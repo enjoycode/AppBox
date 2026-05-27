@@ -13,23 +13,23 @@ public static class ActivityFactory
 {
     static ActivityFactory()
     {
-        Register(ActivityType.StartActivity, () => new StartActivityModel());
-        Register(ActivityType.AutomationActivity, () => new AutomationActivityModel());
-        Register(ActivityType.DecisionActivity, () => new DecisionActivityModel());
-        Register(ActivityType.SingleHumanActivity, () => new SingleHumanActivityModel());
-        Register(ActivityType.MultiHumanActivity, () => new MultiHumanActivityModel());
+        Register(ActivityType.StartActivity, () => new StartNode());
+        Register(ActivityType.AutomationActivity, () => new AutomationNode());
+        Register(ActivityType.DecisionActivity, () => new DecisionNode());
+        Register(ActivityType.SingleHumanActivity, () => new SingleHumanNode());
+        Register(ActivityType.MultiHumanActivity, () => new MultiHumanNode());
     }
 
-    private static readonly Dictionary<byte, Func<ActivityModel>> Map = [];
+    private static readonly Dictionary<byte, Func<ActivityNode>> Map = [];
 
-    public static ActivityModel Make(byte type)
+    public static ActivityNode Make(byte type)
     {
         if (Map.TryGetValue(type, out var factory))
             return factory();
         throw new Exception($"Unknown activity type: {type}");
     }
 
-    public static void Register(byte type, Func<ActivityModel> factory)
+    public static void Register(byte type, Func<ActivityNode> factory)
     {
         if (!Map.TryAdd(type, factory))
             throw new Exception($"Activity type has exists: {type}");

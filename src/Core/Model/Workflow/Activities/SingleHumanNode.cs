@@ -3,9 +3,9 @@
 /// <summary>
 /// 单人活动模型
 /// </summary>
-public sealed class SingleHumanActivityModel : HumanActivityModel
+public sealed class SingleHumanNode : HumanNode
 {
-    public SingleHumanActivityModel()
+    public SingleHumanNode()
     {
         Title = "单人活动";
     }

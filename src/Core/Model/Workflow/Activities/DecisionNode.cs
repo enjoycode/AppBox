@@ -1,8 +1,8 @@
 ﻿namespace AppBoxCore;
 
-public sealed class DecisionActivityModel : ActivityModel
+public sealed class DecisionNode : ActivityNode
 {
-    public DecisionActivityModel()
+    public DecisionNode()
     {
         Title = "条件判断";
         //建立默认的两个条件分支
@@ -49,7 +49,7 @@ public sealed class DecisionActivityModel : ActivityModel
             {
                 case 1: rs.ReadCollection(_conditions); break;
                 case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(DecisionActivityModel), propIndex);
+                default: throw SerializationException.ReadUnknownField(nameof(DecisionNode), propIndex);
             }
         } while (propIndex != 0);
     }
