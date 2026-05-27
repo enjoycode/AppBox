@@ -31,12 +31,27 @@ internal sealed class WorkflowToolbox : View, IDiagramToolbox
     [
         //@formatter:off
         new() { Name = "Connection", IsConnection = true, Creator = () => new ActivityConnection(), Icon = MaterialIcons.Moving },
-        new() { Name = "Decision", Creator = () => new ActivityDesigner(new DecisionNode()), Icon = MaterialIcons.ForkRight },
+        new() { Name = "Decision", Creator = () => new ActivityDesigner(CreateDecisionNode()), Icon = MaterialIcons.ForkRight },
         new() { Name = "Automation", Creator = () => new ActivityDesigner(new AutomationNode()), Icon = MaterialIcons.Settings },
         new() { Name = "SingleHuman", Creator = () => new ActivityDesigner(new SingleHumanNode()) ,Icon = MaterialIcons.Person },
         new() { Name = "MultiHuman", Creator = () => new ActivityDesigner(new MultiHumanNode()) ,Icon = MaterialIcons.Group },
         //@formatter:on
     ];
+
+    private static DecisionNode CreateDecisionNode()
+    {
+        var node = new DecisionNode();
+        node.Title = "条件判断";
+        //建立默认的两个条件分支
+        var cTrue = new ConditionLink();
+        cTrue.Name = "是";
+        cTrue.Condition = new ConstantExpression(true);
+        node.Conditions.Add(cTrue);
+        var cFalse = new ConditionLink();
+        cFalse.Name = "否";
+        node.Conditions.Add(cFalse);
+        return node;
+    }
 
     public IDiagramToolboxItem? SelectedItem { get; private set; }
 

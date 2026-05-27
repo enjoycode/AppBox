@@ -10,18 +10,16 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 {
     public ActivityDesigner(ActivityNode node)
     {
-        _node = node;
+        Node = node;
         if (node is StartNode)
             SetBounds(node.X, node.Y, 30, 30, BoundsSpecified.Size);
         else
-            SetBounds(node.X, node.Y, _node.W, _node.H, BoundsSpecified.All);
+            SetBounds(node.X, node.Y, Node.W, Node.H, BoundsSpecified.All);
     }
 
-    private readonly ActivityNode _node;
+    public ActivityNode Node { get; }
 
-    public ActivityNode Node => _node;
-
-    public override string TypeName => _node switch
+    public override string TypeName => Node switch
     {
         StartNode => "StartActivity",
         DecisionNode => "DecisionActivity",
@@ -35,7 +33,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         get
         {
-            if (_node is StartNode) return DesignBehavior.CanMove;
+            if (Node is StartNode) return DesignBehavior.CanMove;
             return DesignBehavior.CanMove | DesignBehavior.CanResize;
         }
     }
@@ -46,20 +44,20 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 
         //设为默认大小
         var defaultSize = new Size(80, 40);
-        SetBounds(_node.X, _node.Y, defaultSize.Width, defaultSize.Height, BoundsSpecified.Size);
+        SetBounds(Node.X, Node.Y, defaultSize.Width, defaultSize.Height, BoundsSpecified.Size);
     }
 
     protected override void SetBounds(float x, float y, float width, float height, BoundsSpecified specified)
     {
         //同步模型的坐标
         if (specified.HasFlag(BoundsSpecified.X))
-            _node.X = x;
+            Node.X = x;
         if (specified.HasFlag(BoundsSpecified.Y))
-            _node.Y = y;
+            Node.Y = y;
         if (specified.HasFlag(BoundsSpecified.Width))
-            _node.W = width;
+            Node.W = width;
         if (specified.HasFlag(BoundsSpecified.Height))
-            _node.H = height;
+            Node.H = height;
 
         base.SetBounds(x, y, width, height, specified);
 
@@ -133,7 +131,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     /// </summary>
     private DiagramPropertyGroup GetLayoutPropertyGroup()
     {
-        var length = _node is StartNode ? 2 : 4;
+        var length = Node is StartNode ? 2 : 4;
         var properties = new IDiagramProperty[length];
         properties[0] = new DiagramProperty(this, "X", BoundsEditor.Factory)
         {
@@ -145,7 +143,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             ValueGetter = () => Location.Y,
             ValueSetter = v => SetBounds(Location.X, (float)v!, Bounds.Width, Bounds.Height, BoundsSpecified.Y)
         };
-        if (_node is not StartNode)
+        if (Node is not StartNode)
         {
             properties[2] = new DiagramProperty(this, "Width", BoundsEditor.Factory)
             {
@@ -166,8 +164,8 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
-            ValueGetter = () => _node.Title,
-            ValueSetter = v => _node.Title = v?.ToString() ?? string.Empty
+            ValueGetter = () => Node.Title,
+            ValueSetter = v => Node.Title = v?.ToString() ?? string.Empty
         };
 
         return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty] };
@@ -177,8 +175,8 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
-            ValueGetter = () => _node.Title,
-            ValueSetter = v => _node.Title = v?.ToString() ?? string.Empty
+            ValueGetter = () => Node.Title,
+            ValueSetter = v => Node.Title = v?.ToString() ?? string.Empty
         };
 
         return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty] };
@@ -188,13 +186,13 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
-            ValueGetter = () => _node.Title,
-            ValueSetter = v => _node.Title = v?.ToString() ?? string.Empty
+            ValueGetter = () => Node.Title,
+            ValueSetter = v => Node.Title = v?.ToString() ?? string.Empty
         };
 
         var actionProperty = new DiagramProperty(this, "Action", HumanActionEditor.Factory)
         {
-            ValueGetter = () => ((HumanNode)_node).Actions,
+            ValueGetter = () => ((HumanNode)Node).Actions,
         };
 
         return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty, actionProperty] };
@@ -204,7 +202,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         yield return GetLayoutPropertyGroup();
 
-        switch (_node)
+        switch (Node)
         {
             case DecisionNode:
                 yield return GetDecisionPropertyGroup();
@@ -223,22 +221,22 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 
     public override void Paint(ICanvas canvas)
     {
-        switch (_node)
+        switch (Node)
         {
             case StartNode:
                 ActivityPainter.PaintStartActivity(canvas, Bounds.Size);
                 break;
             case DecisionNode:
-                ActivityPainter.PaintDecisionActivity(canvas, Bounds.Size, _node.Title);
+                ActivityPainter.PaintDecisionActivity(canvas, Bounds.Size, Node.Title);
                 break;
             case AutomationNode:
-                ActivityPainter.PaintAutomationActivity(canvas, Bounds.Size, _node.Title);
+                ActivityPainter.PaintAutomationActivity(canvas, Bounds.Size, Node.Title);
                 break;
             case SingleHumanNode:
-                ActivityPainter.PaintSingleHumanActivity(canvas, Bounds.Size, _node.Title);
+                ActivityPainter.PaintSingleHumanActivity(canvas, Bounds.Size, Node.Title);
                 break;
             case MultiHumanNode:
-                ActivityPainter.PaintMultiHumanActivity(canvas, Bounds.Size, _node.Title);
+                ActivityPainter.PaintMultiHumanActivity(canvas, Bounds.Size, Node.Title);
                 break;
             default:
                 base.Paint(canvas);

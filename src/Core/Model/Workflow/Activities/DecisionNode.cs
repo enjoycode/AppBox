@@ -2,28 +2,15 @@
 
 public sealed class DecisionNode : ActivityNode
 {
-    public DecisionNode()
-    {
-        Title = "条件判断";
-        //建立默认的两个条件分支
-        var cTrue = new ConditionLink();
-        cTrue.Name = "是";
-        cTrue.Condition = new ConstantExpression(true);
-        _conditions.Add(cTrue);
-        var cFalse = new ConditionLink();
-        cFalse.Name = "否";
-        _conditions.Add(cFalse);
-    }
+    public DecisionNode() { }
 
     public override byte Type => ActivityType.DecisionActivity;
 
-    private readonly List<ConditionLink> _conditions = [];
+    public List<ConditionLink> Conditions { get; } = [];
 
-    public IReadOnlyList<ConditionLink> Conditions => _conditions;
+    public override IEnumerable<FlowLink> GetOutLinks() => Conditions;
 
-    public override IEnumerable<FlowLink> GetOutLinks() => _conditions;
-
-    //todo:验证时只允许存在一个Else分支
+    //TODO:验证时只允许存在一个Else分支
 
     #region ====Serialization====
 
@@ -32,7 +19,7 @@ public sealed class DecisionNode : ActivityNode
         base.WriteTo(ref ws);
 
         ws.WriteFieldId(1);
-        ws.WriteCollection(_conditions);
+        ws.WriteCollection(Conditions);
 
         ws.WriteFieldEnd();
     }
@@ -47,7 +34,7 @@ public sealed class DecisionNode : ActivityNode
             propIndex = rs.ReadFieldId();
             switch (propIndex)
             {
-                case 1: rs.ReadCollection(_conditions); break;
+                case 1: rs.ReadCollection(Conditions); break;
                 case 0: break;
                 default: throw SerializationException.ReadUnknownField(nameof(DecisionNode), propIndex);
             }

@@ -98,7 +98,7 @@ public sealed class ConditionLink : FlowLink
         if (!Expression.IsNull(Condition))
         {
             ws.WriteFieldId(1);
-            ws.Serialize(Condition);
+            ws.SerializeExpression(Condition);
         }
 
         ws.WriteFieldEnd();
