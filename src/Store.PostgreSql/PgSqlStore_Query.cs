@@ -457,7 +457,7 @@ partial class PgSqlStore
                 BuildBinaryExpression((BinaryExpression)exp, ctx);
                 break;
             case ExpressionType.ConstantExpression:
-                BuildPrimitiveExpression((ConstantExpression)exp, ctx);
+                BuildConstantExpression((ConstantExpression)exp, ctx);
                 break;
             case ExpressionType.SelectItemExpression:
                 BuildSelectItem((SqlSelectItemExpression)exp, ctx);
@@ -475,7 +475,8 @@ partial class PgSqlStore
             //    BuildInvocationExpression((InvocationExpression)exp, ctx);
             //    break;
             default:
-                throw new NotSupportedException($"Not Supported Expression Type [{exp.NodeType.ToString()}] for Query.");
+                throw new NotSupportedException(
+                    $"Not Supported Expression Type [{exp.NodeType.ToString()}] for Query.");
         }
     }
 
@@ -486,7 +487,7 @@ partial class PgSqlStore
         ctx.Append(")");
     }
 
-    private static void BuildPrimitiveExpression(ConstantExpression exp, BuildQueryContext ctx)
+    private static void BuildConstantExpression(ConstantExpression exp, BuildQueryContext ctx)
     {
         if (exp.Value.IsEmpty)
         {
@@ -512,7 +513,7 @@ partial class PgSqlStore
             if (exp.Value.BoxedValue is ulong v)
                 ctx.AppendFormat("@{0}", ctx.GetParameterName(unchecked((long)v)));
             else
-                ctx.AppendFormat("@{0}", ctx.GetParameterName(exp.Value));
+                ctx.AppendFormat("@{0}", ctx.GetParameterName(exp.Value.BoxedValue!));
         }
     }
 
