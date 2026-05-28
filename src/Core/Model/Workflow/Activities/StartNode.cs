@@ -38,7 +38,7 @@ public sealed class StartNode : ActivityNode
     {
         base.ReadFrom(ref rs);
 
-        var propIndex = 0;
+        int propIndex;
         do
         {
             propIndex = rs.ReadFieldId();

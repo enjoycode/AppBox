@@ -168,7 +168,12 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             ValueSetter = v => Node.Title = v?.ToString() ?? string.Empty
         };
 
-        return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty] };
+        var consProperty = new DiagramProperty(this, "Conditions", ConditionsEditor.Factory)
+        {
+            ValueGetter = () => ((DecisionNode)Node).Conditions,
+        };
+
+        return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty, consProperty] };
     }
 
     private DiagramPropertyGroup GetAutomationPropertyGroup()

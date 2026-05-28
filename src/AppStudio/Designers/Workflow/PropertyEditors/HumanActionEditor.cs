@@ -81,7 +81,6 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
         //从ResultConditions中删除Link
         HumanNode.ResultConditions.Remove(link);
         //从HumanActions中删除
-        DataSources.RemoveAt(SelectedIndex.Value);
-        RefreshDataSources();
+        RemoveSelected();
     }
 }

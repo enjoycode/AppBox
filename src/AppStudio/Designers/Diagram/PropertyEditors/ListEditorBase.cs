@@ -51,12 +51,16 @@ internal abstract class ListEditorBase<T> : SingleChildWidget
 
     protected virtual void OnEdit() { }
 
-    protected virtual void OnRemove()
+    protected virtual void OnRemove() => RemoveSelected();
+
+    protected void RemoveSelected()
     {
         if (SelectedIndex.Value < 0)
             return;
 
         DataSources.RemoveAt(SelectedIndex.Value);
+        if (SelectedIndex.Value > 0)
+            SelectedIndex.Value--;
         RefreshDataSources();
     }
 

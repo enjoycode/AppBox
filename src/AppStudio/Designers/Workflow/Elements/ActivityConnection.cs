@@ -79,12 +79,12 @@ internal sealed class ActivityConnection : DiagramConnection
     {
         if (Source != null && Target != null)
         {
-            _sourceLink.Target = null;
+            _sourceLink?.Target = null;
         }
 
         if (Source != null)
         {
-            _sourceLink.SourceConnection = null;
+            _sourceLink?.SourceConnection = null;
             _sourceLink = null;
         }
         else

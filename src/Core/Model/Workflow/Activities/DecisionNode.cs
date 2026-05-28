@@ -28,17 +28,16 @@ public sealed class DecisionNode : ActivityNode
     {
         base.ReadFrom(ref rs);
 
-        var propIndex = 0;
         do
         {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
+            var fieldId = rs.ReadFieldId();
+            switch (fieldId)
             {
                 case 1: rs.ReadCollection(Conditions); break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(DecisionNode), propIndex);
+                case 0: return;
+                default: throw SerializationException.ReadUnknownField(nameof(DecisionNode), fieldId);
             }
-        } while (propIndex != 0);
+        } while (true);
     }
 
     #endregion
