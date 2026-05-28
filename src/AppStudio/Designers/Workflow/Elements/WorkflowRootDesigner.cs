@@ -30,7 +30,7 @@ internal sealed class WorkflowRootDesigner : IDiagramItemDesigner
             ValueGetter = () => _model.Name,
         };
 
-        var paraProperty = new DiagramProperty(this, "Parameters", ParameterEditor.Factory)
+        var paraProperty = new DiagramProperty(this, "Parameters", ParametersEditor.Factory)
         {
             ValueGetter = () => _model.Parameters,
         };

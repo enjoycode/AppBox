@@ -10,95 +10,36 @@ namespace AppBoxDesign.Reporting;
 /// <summary>
 /// 报表的数据源属性编辑器
 /// </summary>
-internal sealed class ReportDataSourcesEditor : SingleChildWidget
+internal sealed class ReportDataSourcesEditor : ListEditorBase<IDataSource>
 {
     internal static EditorFactory Factory => (ctx, prop) =>
         new(new ReportDataSourcesEditor(ctx, prop), VerticalAlignment.Top);
 
     public ReportDataSourcesEditor(DesignHub designContext, IDiagramProperty propertyItem)
+        : base(propertyItem, d => d.Name)
     {
-        _listController = new ListViewController<IDataSource>();
-        _dataSources = (IList<IDataSource>)propertyItem.ValueGetter()!;
-
-        Height = 100;
-
-        Child = new Column()
-        {
-            Spacing = 5,
-            Alignment = HorizontalAlignment.Left,
-            Children =
-            [
-                new ButtonGroup()
-                {
-                    Height = CmdBarHeight,
-                    Children =
-                    [
-                        new Button(icon: MaterialIcons.Add) { Width = _buttonWidth, OnTap = _ => OnAdd(designContext) },
-                        new Button(icon: MaterialIcons.Edit)
-                            { Width = _buttonWidth, OnTap = _ => OnEdit(designContext) },
-                        new Button(icon: MaterialIcons.Remove) { Width = _buttonWidth, OnTap = _ => OnDelete() }
-                    ]
-                },
-
-                new ListView<IDataSource>(
-                    (item, index) => new SelectableItem(index, _selectedIndex)
-                    {
-                        Child = new Text(item.Name)
-                    },
-                    _dataSources, _listController
-                )
-            ]
-        };
+        _designContext = designContext;
     }
 
-    private const float CmdBarHeight = 20;
-    private readonly State<float> _buttonWidth = 20;
-    private readonly IList<IDataSource> _dataSources;
-    private readonly ListViewController<IDataSource> _listController;
-    private readonly State<int> _selectedIndex = -1;
+    private readonly DesignHub _designContext;
 
-    #region ====Add/Edit/Delete DataSource====
-
-    private async void OnAdd(DesignHub designContext)
+    protected override async void OnAdd()
     {
         var dataSource = new DataTableFromQuery();
-        _dataSources.Add(dataSource);
-        var index = _dataSources.Count - 1;
-        var dlg = new ReportDataSourceDialog(designContext, _dataSources, index);
+        DataSources.Add(dataSource);
+        var index = DataSources.Count - 1;
+        var dlg = new ReportDataSourceDialog(_designContext, DataSources, index);
         await dlg.ShowAsync();
         RefreshDataSources();
     }
 
-    private async void OnEdit(DesignHub designContext)
+    protected override async void OnEdit()
     {
-        if (_selectedIndex.Value < 0) return;
+        if (SelectedIndex.Value < 0) return;
 
-        var dlg = new ReportDataSourceDialog(designContext, _dataSources, _selectedIndex.Value);
+        var dlg = new ReportDataSourceDialog(_designContext, DataSources, SelectedIndex.Value);
         await dlg.ShowAsync();
         RefreshDataSources();
-    }
-
-    private void OnDelete()
-    {
-        if (_selectedIndex.Value < 0) return;
-        _dataSources.RemoveAt(_selectedIndex.Value);
-        RefreshDataSources();
-    }
-
-    private void RefreshDataSources()
-    {
-        _listController.DataSource = _dataSources; //TODO: use Refresh()
-    }
-
-    #endregion
-
-    public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
-    {
-        // draw border
-        var paint = Paint.Shared(Colors.Silver, PaintStyle.Stroke);
-        canvas.DrawRect(Rect.FromLTWH(0, CmdBarHeight + 5, W, H - CmdBarHeight - 5), paint);
-
-        base.OnPaint(canvas, area);
     }
 
     /// <summary>

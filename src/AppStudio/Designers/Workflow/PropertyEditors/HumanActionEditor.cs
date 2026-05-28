@@ -4,58 +4,18 @@ using PixUI;
 
 namespace AppBoxDesign.Workflow;
 
-internal sealed class HumanActionEditor : SingleChildWidget
+internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
 {
     internal static EditorFactory Factory => (_, prop) =>
         new(new HumanActionEditor(prop), VerticalAlignment.Top);
 
-    public HumanActionEditor(IDiagramProperty propertyItem)
-    {
-        _propertyItem = propertyItem;
-        _listController = new ListViewController<HumanAction>();
-        _dataSources = (IList<HumanAction>)_propertyItem.ValueGetter()!;
+    public HumanActionEditor(IDiagramProperty propertyItem) :
+        base(propertyItem, a => a.Name) { }
 
-        Height = 100;
-
-        Child = new Column()
-        {
-            Spacing = 5,
-            Alignment = HorizontalAlignment.Left,
-            Children =
-            [
-                new ButtonGroup()
-                {
-                    Height = CmdBarHeight,
-                    Children =
-                    [
-                        new Button(icon: MaterialIcons.Add) { Width = _buttonWidth, OnTap = _ => OnAdd() },
-                        new Button(icon: MaterialIcons.Edit) { Width = _buttonWidth, OnTap = _ => OnEdit() },
-                        new Button(icon: MaterialIcons.Remove) { Width = _buttonWidth, OnTap = _ => OnRemove() }
-                    ]
-                },
-
-                new ListView<HumanAction>(
-                    (item, index) => new SelectableItem(index, _selectedIndex)
-                    {
-                        Child = new Text(item.Name)
-                    },
-                    _dataSources, _listController
-                )
-            ]
-        };
-    }
-
-    private const float CmdBarHeight = 20;
-    private readonly State<float> _buttonWidth = 20;
-    private readonly IDiagramProperty _propertyItem;
-    private readonly IList<HumanAction> _dataSources;
-    private readonly ListViewController<HumanAction> _listController;
-    private readonly State<int> _selectedIndex = -1;
-
-    private ActivityDesigner ActivityDesigner => (ActivityDesigner)_propertyItem.DiagramItem;
+    private ActivityDesigner ActivityDesigner => (ActivityDesigner)PropertyItem.DiagramItem;
     private HumanNode HumanNode => (HumanNode)ActivityDesigner.Node;
 
-    private async void OnAdd()
+    protected override async void OnAdd()
     {
         State<string> actionName = "";
         var result = await Dialog.ShowTextInputAsync("Add HumanAction", "Name:", actionName);
@@ -73,15 +33,15 @@ internal sealed class HumanActionEditor : SingleChildWidget
         var link = new ConditionLink() { Name = actionName.Value };
         HumanNode.ResultConditions.Add(link);
 
-        _dataSources.Add(new HumanAction() { Name = actionName.Value });
+        DataSources.Add(new HumanAction() { Name = actionName.Value });
         RefreshDataSources();
     }
 
-    private async void OnEdit()
+    protected override async void OnEdit()
     {
-        if (_selectedIndex.Value < 0)
+        if (SelectedIndex.Value < 0)
             return;
-        var action = _dataSources[_selectedIndex.Value];
+        var action = DataSources[SelectedIndex.Value];
         State<string> actionName = action.Name;
         var result = await Dialog.ShowTextInputAsync("Edit HumanAction", "Name:", actionName);
         if (result != DialogResult.OK)
@@ -104,11 +64,11 @@ internal sealed class HumanActionEditor : SingleChildWidget
         //TODO: should repaint target ActivityConnection
     }
 
-    private void OnRemove()
+    protected override void OnRemove()
     {
-        if (_selectedIndex.Value < 0)
+        if (SelectedIndex.Value < 0)
             return;
-        var action = _dataSources[_selectedIndex.Value];
+        var action = DataSources[SelectedIndex.Value];
 
         //TODO: 多人活动需要判断删除的有没有在ResultConditions的表达式内引用到，有引用则不允许删除
 
@@ -121,21 +81,7 @@ internal sealed class HumanActionEditor : SingleChildWidget
         //从ResultConditions中删除Link
         HumanNode.ResultConditions.Remove(link);
         //从HumanActions中删除
-        _dataSources.RemoveAt(_selectedIndex.Value);
+        DataSources.RemoveAt(SelectedIndex.Value);
         RefreshDataSources();
-    }
-
-    private void RefreshDataSources()
-    {
-        _listController.DataSource = _dataSources; //TODO: use Refresh()
-    }
-
-    public override void OnPaint(ICanvas canvas, IDirtyArea? area = null)
-    {
-        // draw border
-        var paint = Paint.Shared(Colors.Silver, PaintStyle.Stroke);
-        canvas.DrawRect(Rect.FromLTWH(0, CmdBarHeight + 5, W, H - CmdBarHeight - 5), paint);
-
-        base.OnPaint(canvas, area);
     }
 }
