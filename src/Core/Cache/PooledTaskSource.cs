@@ -1,9 +1,6 @@
-using System;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
-using AppBoxCore;
 
-namespace AppBoxClient;
+namespace AppBoxCore;
 
 internal sealed class PooledTaskSource<T> : IValueTaskSource<T>
 {
@@ -14,10 +11,12 @@ internal sealed class PooledTaskSource<T> : IValueTaskSource<T>
 
     private ManualResetValueTaskSourceCore<T> _tsc;
 
-    private PooledTaskSource()
+    internal PooledTaskSource()
     {
         _tsc.RunContinuationsAsynchronously = true;
     }
+
+    public short Version => _tsc.Version;
 
     public T GetResult(short token)
     {
@@ -32,11 +31,9 @@ internal sealed class PooledTaskSource<T> : IValueTaskSource<T>
         ValueTaskSourceOnCompletedFlags flags)
         => _tsc.OnCompleted(continuation, state, token, flags);
 
-    public ValueTask<T> WaitAsync()
-    {
-        //TODO:short path for completed?
-        return new ValueTask<T>(this, _tsc.Version);
-    }
+    public ValueTask<T> WaitAsync() => new(this, _tsc.Version);
 
     public void SetResult(T result) => _tsc.SetResult(result);
+
+    public void SetException(Exception error) => _tsc.SetException(error);
 }

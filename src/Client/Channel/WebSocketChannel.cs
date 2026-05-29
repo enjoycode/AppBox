@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AppBoxCore;
+using AppBoxCore.Channel;
 
 namespace AppBoxClient;
 
@@ -439,6 +440,11 @@ public sealed class WebSocketChannel : IClientChannel
         } while (true);
 
         BytesSegment.ReturnAll(data);
+    }
+
+    void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
+    {
+        throw new NotImplementedException();
     }
 
     #endregion

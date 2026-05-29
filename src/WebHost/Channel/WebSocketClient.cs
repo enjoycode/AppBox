@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Net.WebSockets;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxServer;
 using static AppBoxServer.ServerLogger;
 
@@ -423,6 +424,11 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
 
         return SendMessage(data);
+    }
+
+    void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
+    {
+        throw new NotImplementedException();
     }
 
     #endregion

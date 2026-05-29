@@ -69,7 +69,7 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
     public byte[] Buffer { get; }
 
     /// <summary>
-    /// 实际数据长度，不一定等于缓存块大小
+    /// 实际数据长度(包括消息头)，不一定等于缓存块大小
     /// </summary>
     public int Length
     {
@@ -100,6 +100,8 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
         next.RunningIndex = RunningIndex + Length;
         Next = next;
     }
+
+    public void ReturnOne() => BytesSegment.ReturnOne(this);
 
     #region ====IBlockChunk====
 
