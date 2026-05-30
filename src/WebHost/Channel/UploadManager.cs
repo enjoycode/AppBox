@@ -78,7 +78,7 @@ internal sealed class UploadManager
     {
         foreach (var pending in _pendingUploads.Values)
         {
-            pending.OnChannelClosed();
+            pending.OnException(new Exception("Channel closed"));
         }
 
         _pendingUploads.Clear();

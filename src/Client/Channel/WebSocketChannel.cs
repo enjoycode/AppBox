@@ -366,14 +366,18 @@ public sealed class WebSocketChannel : IClientChannel
             return;
         }
 
+#if DEBUG
         try
         {
+#endif
             pipeReader.OnReceiveSegment(segment);
+#if DEBUG
         }
         catch (Exception e)
         {
             pipeReader.OnException(new Exception($"Can't write download segment: {e.Message}"));
         }
+#endif
     }
 
     private static void ProcessServerEvent(ref MessageReadStream rs)

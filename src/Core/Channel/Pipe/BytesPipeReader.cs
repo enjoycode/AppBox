@@ -19,7 +19,10 @@ public sealed class BytesPipeReader : IDisposable
 
     internal void OnException(Exception error)
     {
-        //TODO:通知读循环中止
+        //通知读循环中止
+        if (Interlocked.CompareExchange(ref _waitingFlag, 0, 1) == 1)
+            _waitingTaskSource.SetException(error);
+
         OnCompleted?.Invoke(error);
     }
 
@@ -111,8 +114,7 @@ public sealed class BytesPipeReader : IDisposable
         if (segment.Length < PipeSegmentHeader.HeaderSize)
         {
             segment.ReturnOne();
-            _waitingTaskSource.SetException(new Exception("Read segment is invalid"));
-            //TODO: notify error to remove pending
+            OnException(new Exception("Read segment is invalid"));
             return;
         }
 
@@ -139,14 +141,6 @@ public sealed class BytesPipeReader : IDisposable
                 //TODO: log warn
             }
         }
-    }
-
-    /// <summary>
-    /// Called by channel when it closed
-    /// </summary>
-    internal void OnChannelClosed()
-    {
-        //TODO:
     }
 
     public void Dispose()

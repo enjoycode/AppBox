@@ -206,6 +206,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
         catch (Exception e)
         {
+            pendingUpload.OnException(e);
             Logger.Error($"T[{Environment.CurrentManagedThreadId}]: Id={msgId}, Error={e.Message}\n{e.StackTrace}");
         }
 #endif
