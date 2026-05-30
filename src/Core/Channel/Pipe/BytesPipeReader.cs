@@ -5,9 +5,9 @@ namespace AppBoxCore.Channel;
 
 public sealed class BytesPipeReader : IDisposable
 {
-    private readonly PooledTaskSource<bool> _waitingTaskSource = new();
+    private readonly PooledTaskSource<bool> _waitingTaskSource = new(false);
 
-    private int _waitingFlag = 1;
+    private int _waitingFlag; //默认没有等待
     private readonly Lock _pendingsLock = new();
     private readonly SortedList<int, BytesSegment> _pendings = new();
     private static readonly Exception PipeWriteError = new("Pipe write error"); //表示写入端发生异常
@@ -15,6 +15,7 @@ public sealed class BytesPipeReader : IDisposable
     public async IAsyncEnumerable<BytesSegment> GetSegmentsAsync()
     {
         var nextOffset = 0;
+        // Console.WriteLine("<<<<开始读取队列");
         while (true)
         {
             while (TryGetNextFromPendings(nextOffset, out var next))
@@ -22,12 +23,27 @@ public sealed class BytesPipeReader : IDisposable
                 nextOffset = next.GetOffset() + (next.Length - PipeSegmentHeader.HeaderSize);
                 if (next.IsError()) throw PipeWriteError; //判断是否发送端表示写入异常的包
                 var isLast = next.IsLast();
-                yield return next;
+                if (!next.IsEmpty()) //可能空的标记结束的包
+                    yield return next;
+                else
+                    next.ReturnOne();
                 if (isLast) yield break;
             }
 
             if (Interlocked.CompareExchange(ref _waitingFlag, 1, 0) == 0)
+            {
+                // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 等待新块");
                 await _waitingTaskSource.WaitAsync().ConfigureAwait(false);
+                // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 收到新块");
+            }
+        }
+    }
+
+    private bool TryGetNextFromPendings(int expectedOffset, [MaybeNullWhen(returnValue: false)] out BytesSegment next)
+    {
+        using (_pendingsLock.EnterScope())
+        {
+            return _pendings.Remove(expectedOffset, out next);
         }
     }
 
@@ -45,12 +61,20 @@ public sealed class BytesPipeReader : IDisposable
         }
     }
 
-    private bool TryGetNextFromPendings(int expectedOffset, [MaybeNullWhen(returnValue: false)] out BytesSegment next)
+    public async ValueTask CopyToStreamAsync(Stream toStream, CancellationToken ct = default)
     {
-        using (_pendingsLock.EnterScope())
+        await foreach (var segment in GetSegmentsAsync().WithCancellation(ct).ConfigureAwait(false))
         {
-            return _pendings.Remove(expectedOffset, out next);
+            await toStream
+                .WriteAsync(segment.Memory[PipeSegmentHeader.HeaderSize..], ct)
+                .ConfigureAwait(false);
         }
+    }
+
+    public async ValueTask CopyToFileAsync(string filePath)
+    {
+        await using var fileStream = File.OpenWrite(filePath);
+        await CopyToStreamAsync(fileStream);
     }
 
     /// <summary>
@@ -72,8 +96,7 @@ public sealed class BytesPipeReader : IDisposable
         //考虑进一步1.判断消息类型，消息标识是否有效, 2.判断当前状态，3.防止接收连续空包
 
         //加入挂起队列
-        // Console.WriteLine(
-        //     $"OnReceiveSegment: Offset={segment.GetOffset()} Thread={Environment.CurrentManagedThreadId}");
+        // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: Offset={segment.GetOffset()}");
         using (_pendingsLock.EnterScope())
         {
             var segmentOffset = segment.GetOffset();
@@ -81,7 +104,11 @@ public sealed class BytesPipeReader : IDisposable
             {
                 //尝试通知读取队列
                 if (Interlocked.CompareExchange(ref _waitingFlag, 0, 1) == 1)
+                {
+                    // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: 开始通知等待者");
                     _waitingTaskSource.SetResult(true);
+                    // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: 结束通知等待者");
+                }
             }
             else
             {
@@ -89,6 +116,14 @@ public sealed class BytesPipeReader : IDisposable
                 //TODO: log warn
             }
         }
+    }
+
+    /// <summary>
+    /// Called by channel when it closed
+    /// </summary>
+    internal void OnChannelClosed()
+    {
+        //TODO:
     }
 
     public void Dispose()

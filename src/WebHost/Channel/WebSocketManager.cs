@@ -45,7 +45,7 @@ internal static class WebSocketManager
 
             frame.Length = result.Count;
 
-            await client.OnReceiveMessage(frame, result.EndOfMessage); //不需要捕获异常
+            client.OnReceiveMessage(frame, result.EndOfMessage); //不需要捕获异常
         } while (true);
 
         try

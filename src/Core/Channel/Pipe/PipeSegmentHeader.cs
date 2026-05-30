@@ -31,6 +31,7 @@ internal static class PipeSegmentHeader
     public static bool IsLast(this BytesSegment segment) =>
         (segment.Buffer[FlagPosition] & IsLastMask) == IsLastMask;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetAsLast(this BytesSegment segment) =>
         segment.Buffer[FlagPosition] |= IsLastMask;
 
@@ -38,6 +39,11 @@ internal static class PipeSegmentHeader
     public static bool IsError(this BytesSegment segment) =>
         (segment.Buffer[FlagPosition] & IsErrorMask) == IsDividedMask;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetAsError(this BytesSegment segment) =>
         segment.Buffer[FlagPosition] |= IsErrorMask;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsEmpty(this BytesSegment segment) =>
+        segment.Length == HeaderSize;
 }

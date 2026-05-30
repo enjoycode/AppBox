@@ -11,9 +11,9 @@ internal sealed class PooledTaskSource<T> : IValueTaskSource<T>
 
     private ManualResetValueTaskSourceCore<T> _tsc;
 
-    internal PooledTaskSource()
+    internal PooledTaskSource(bool runContinuationsAsynchronously = true)
     {
-        _tsc.RunContinuationsAsynchronously = true;
+        _tsc.RunContinuationsAsynchronously = runContinuationsAsynchronously;
     }
 
     public short Version => _tsc.Version;

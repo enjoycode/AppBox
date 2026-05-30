@@ -1,6 +1,7 @@
 using System.Text;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
@@ -69,21 +70,15 @@ internal sealed class PublishCommand : DesignCommand
             //以下重命名的已不需要加入待删除列表，保存模型时已处理
             if (item.Target is ServiceModel sm && sm.PersistentState != PersistentState.Deleted)
             {
-                var tempFile = await LocalFileSystem.CreateTempFile(false);
-                try
+                var pipeWriter = new BytesPipeWriter(Channel.Provider, async w =>
                 {
-                    await CompileServiceAsync(tempFile.FileStream, hub, sm, false);
-                    var appName = hub.AppNameGetter(sm.Id.AppId);
-                    var fullName = $"{appName}.{sm.Name}";
-                    tempFile.FileStream.Seek(0, SeekOrigin.Begin);
-                    await hub.PublishService.UploadServiceAssembly(tempFile.FileStream, fullName, isFirst);
-                    isFirst = false;
-                }
-                finally
-                {
-                    await tempFile.Close();
-                    await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
-                }
+                    var stream = new PipeWriteStream(w);
+                    await CompileServiceAsync(stream, hub, sm, false);
+                });
+                var appName = hub.AppNameGetter(sm.Id.AppId);
+                var fullName = $"{appName}.{sm.Name}";
+                await hub.PublishService.UploadServiceAssembly(pipeWriter, fullName, isFirst);
+                isFirst = false;
             }
         }
     }

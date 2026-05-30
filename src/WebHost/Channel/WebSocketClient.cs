@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 using AppBoxCore;
 using AppBoxCore.Channel;
 using AppBoxServer;
-using static AppBoxServer.ServerLogger;
+using static AppBoxWebHost.ChannelLogger;
 
 namespace AppBoxWebHost;
 
@@ -18,7 +18,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
     /// <summary>
     /// 组合并处理收到的消息
     /// </summary>
-    internal async ValueTask OnReceiveMessage(BytesSegment frame, bool isEnd)
+    internal void OnReceiveMessage(BytesSegment frame, bool isEnd)
     {
         //TODO:1.严格检查frame有效性；2.ShortPath for UploadChunk frame
         if (!isEnd)
@@ -48,6 +48,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         var reader = new MessageReadStream(first);
         var msgType = (MessageType)reader.ReadByte();
         var msgId = reader.ReadInt();
+        // Logger.Debug($"ReceiveMessage Type={msgType}, MsgId={msgId}");
 
         //根据消息类型处理 Process on thread pool
         switch (msgType)
@@ -62,7 +63,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
                 ProcessUploadRequest(msgId, reader);
                 break;
             case MessageType.UploadChunk:
-                await ProcessUploadChunk(msgId, reader); //暂在这里await以保证顺序，可考虑在UploadManager内排序
+                ProcessUploadChunk(msgId, reader);
                 break;
             case MessageType.DownloadRequest:
                 ProcessDownloadRequest(msgId, reader);
@@ -150,66 +151,63 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         }
     }
 
-    private async void ProcessUploadRequest(int msgId, MessageReadStream reader)
+    private void ProcessUploadRequest(int msgId, MessageReadStream reader)
     {
-        //设置当前会话
-        HostRuntimeContext.SetCurrentSession(WebSession);
-
         _uploadManager ??= new UploadManager();
         var pendingUpload = _uploadManager.MakePendingUpload(msgId);
 
-        //调用上传服务并等待服务处理完上传的数据后发送响应 TODO:超时处理，如客户端意外掉线
-        try
+        Task.Run(async () =>
         {
-            var res = TryReadService(ref reader, out var service);
-            if (res == InvokeErrorCode.None)
+            //设置当前会话
+            HostRuntimeContext.SetCurrentSession(WebSession);
+
+            //调用上传服务并等待服务处理完上传的数据后发送响应 TODO:超时处理，如客户端意外掉线
+            try
             {
-                var (result, errCode) = await InvokeInternal(service,
-                    new UploadArgs<MessageReadStream>(pendingUpload.Channel.Reader.ReadAllAsync(), reader));
-                await SendResponse(msgId, MessageType.UploadResponse, errCode, result);
+                var res = TryReadService(ref reader, out var service);
+                if (res == InvokeErrorCode.None)
+                {
+                    var (result, errCode) = await InvokeInternal(service,
+                        new UploadArgs<MessageReadStream>(pendingUpload, reader)).ConfigureAwait(false);
+                    await SendResponse(msgId, MessageType.UploadResponse, errCode, result).ConfigureAwait(false);
+                }
+                else
+                {
+                    await SendErrorResponse(msgId, MessageType.UploadResponse, res);
+                }
             }
-            else
+            finally
             {
-                await SendErrorResponse(msgId, MessageType.UploadResponse, res);
+                //清除挂起的上传
+                _uploadManager.RemovePending(msgId);
             }
-        }
-        finally
-        {
-            //清除挂起的上传
-            _uploadManager.RemovePending(msgId);
-        }
+        });
     }
 
-    private async ValueTask ProcessUploadChunk(int msgId, MessageReadStream reader)
+    private void ProcessUploadChunk(int msgId, MessageReadStream reader)
     {
-        var blobChunk = reader.TakeBlobChunkAndFreeSelf();
+        var segment = reader.TakeSegmentAndFreeSelf();
 
         if (_uploadManager == null || !_uploadManager.TryGetPending(msgId, out var pendingUpload))
         {
-            blobChunk.Free();
-            Logger.Warn("Receive unknown upload data chunk");
+            segment.ReturnOne();
+            Logger.Warn($"Receive unknown upload segment, MsgId={msgId}");
             return;
         }
 
-        //写入Channel,并判断是否最后一块
-        var isLastChunk = blobChunk.IsLastChunk(out var isEmpty);
-        if (!isEmpty)
+        //写入PipeReader
+#if DEBUG
+        try
         {
-            try
-            {
-                await pendingUpload.Channel.Writer.WriteAsync(blobChunk);
-            }
-            catch (Exception e)
-            {
-                Logger.Warn($"Can't write upload data chunk: {e.Message}");
-                blobChunk.Free();
-            }
+#endif
+            pendingUpload.OnReceiveSegment(segment);
+#if DEBUG
         }
-        else
-            blobChunk.Free();
-
-        if (isLastChunk)
-            pendingUpload.Channel.Writer.Complete();
+        catch (Exception e)
+        {
+            Logger.Error($"T[{Environment.CurrentManagedThreadId}]: Id={msgId}, Error={e.Message}\n{e.StackTrace}");
+        }
+#endif
     }
 
     private async void ProcessDownloadRequest(int msgId, MessageReadStream reader)
@@ -238,32 +236,33 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
             }
 
             //开始发送数据块
-            try
-            {
-                var offset = 0;
-                while (true)
-                {
-                    var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.DownloadChunk);
-                    var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
-                    if (bytesRead < 0)
-                    {
-                        await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
-                            "Can't read blob chunk");
-                        break;
-                    }
-
-                    //可能会发送一个空的chunk(bytesRead == 0)
-                    await SendMessage(chuckWriter.Chunk);
-                    if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
-                        break;
-
-                    offset += bytesRead;
-                }
-            }
-            finally
-            {
-                await stream.DisposeAsync();
-            }
+            throw new NotImplementedException();
+            // try
+            // {
+            //     var offset = 0;
+            //     while (true)
+            //     {
+            //         var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.DownloadChunk);
+            //         var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
+            //         if (bytesRead < 0)
+            //         {
+            //             await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
+            //                 "Can't read blob chunk");
+            //             break;
+            //         }
+            //
+            //         //可能会发送一个空的chunk(bytesRead == 0)
+            //         await SendMessage(chuckWriter.Chunk);
+            //         if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
+            //             break;
+            //
+            //         offset += bytesRead;
+            //     }
+            // }
+            // finally
+            // {
+            //     await stream.DisposeAsync();
+            // }
         }
         else
         {

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxDesign;
 using AppBoxDesign.Debugging;
 using static AppBoxServer.ServerLogger;
@@ -19,16 +20,16 @@ internal static class DebugService
     /// <summary>
     /// 上传编译好的服务组件
     /// </summary>
-    /// <param name="stream"></param>
+    /// <param name="reader"></param>
     /// <param name="asmName">eg: erp.OrderService</param>
-    internal static async Task UploadAssembly(IAsyncEnumerable<IBlobChunk> stream, string asmName)
+    internal static async Task UploadAssembly(BytesPipeReader reader, string asmName)
     {
         var debugPath = GetDebugFolderPath();
         if (!Directory.Exists(debugPath))
             Directory.CreateDirectory(debugPath);
 
         var asmFilePath = Path.Combine(debugPath, $"{asmName}.dll");
-        await stream.WriteToFile(asmFilePath);
+        await reader.CopyToFileAsync(asmFilePath);
         Logger.Debug($"Upload debug service to: {asmFilePath}");
     }
 

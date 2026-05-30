@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
@@ -114,7 +116,7 @@ public sealed class WebSocketChannel : IClientChannel
         throw new NotImplementedException();
     }
 
-    public async Task<AnyValue> Upload<T>(string service, Stream stream, T args)
+    public async Task<AnyValue> Upload<T>(string service, BytesPipeWriter writer, T args)
         where T : struct, IAnyArgs
     {
         //add to wait list
@@ -125,8 +127,8 @@ public sealed class WebSocketChannel : IClientChannel
 
         // send request
         await SendMessage(reqData);
-        // send data chunk in other task
-        SendBlobChunk(msgId, stream);
+        // start send data segment
+        writer.StartWrite(MessageType.UploadChunk, msgId);
 
         // wait for response
         var rs = await promise.WaitAsync();
@@ -137,22 +139,23 @@ public sealed class WebSocketChannel : IClientChannel
     public async Task Download<T>(string service, Stream stream, T args)
         where T : struct, IAnyArgs
     {
-        //add to wait list
-        var msgId = MakePendingRequest(out var promise);
-        _downloadManager ??= new DownloadManager();
-        _downloadManager.MakePendingDownload(msgId, stream);
-
-        //serialize request
-        var reqData = SerializeRequest(msgId, MessageType.DownloadRequest, service, args);
-
-        // send request
-        await SendMessage(reqData);
-
-        // wait for response
-        var rs = await promise.WaitAsync();
-        _pooledTaskSource.Free(promise);
-        _downloadManager.RemovePending(msgId);
-        DeserializeResponse(ref rs, null);
+        throw new NotImplementedException();
+        // //add to wait list
+        // var msgId = MakePendingRequest(out var promise);
+        // _downloadManager ??= new DownloadManager();
+        // _downloadManager.MakePendingDownload(msgId, stream);
+        //
+        // //serialize request
+        // var reqData = SerializeRequest(msgId, MessageType.DownloadRequest, service, args);
+        //
+        // // send request
+        // await SendMessage(reqData);
+        //
+        // // wait for response
+        // var rs = await promise.WaitAsync();
+        // _pooledTaskSource.Free(promise);
+        // _downloadManager.RemovePending(msgId);
+        // DeserializeResponse(ref rs, null);
     }
 
     #region ====Serialization for Request & Response====
@@ -344,35 +347,36 @@ public sealed class WebSocketChannel : IClientChannel
 
     private async ValueTask ProcessDownloadChunk(MessageReadStream rs)
     {
-        var msgId = rs.ReadInt();
-        var blobChunk = rs.TakeBlobChunkAndFreeSelf();
-        if (_downloadManager == null || !_downloadManager.TryGetPending(msgId, out var stream))
-        {
-            blobChunk.Free();
-            return;
-        }
-
-        var isLastChunk = blobChunk.IsLastChunk(out var isEmpty);
-        try
-        {
-            if (!isEmpty)
-            {
-                await stream.WriteAsync(blobChunk.GetDataChunk());
-            }
-        }
-        catch (Exception e)
-        {
-            NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.Other,
-                $"Can't write download data to stream: {e.Message}");
-            return;
-        }
-        finally
-        {
-            blobChunk.Free();
-        }
-
-        if (isLastChunk)
-            NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.None);
+        throw new NotImplementedException();
+        // var msgId = rs.ReadInt();
+        // var blobChunk = rs.TakeSegmentAndFreeSelf();
+        // if (_downloadManager == null || !_downloadManager.TryGetPending(msgId, out var stream))
+        // {
+        //     blobChunk.Free();
+        //     return;
+        // }
+        //
+        // var isLastChunk = blobChunk.IsLastChunk(out var isEmpty);
+        // try
+        // {
+        //     if (!isEmpty)
+        //     {
+        //         await stream.WriteAsync(blobChunk.GetDataChunk());
+        //     }
+        // }
+        // catch (Exception e)
+        // {
+        //     NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.Other,
+        //         $"Can't write download data to stream: {e.Message}");
+        //     return;
+        // }
+        // finally
+        // {
+        //     blobChunk.Free();
+        // }
+        //
+        // if (isLastChunk)
+        //     NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.None);
     }
 
     private static void ProcessServerEvent(ref MessageReadStream rs)
@@ -397,32 +401,6 @@ public sealed class WebSocketChannel : IClientChannel
 
     #region ====Send Methods====
 
-    private void SendBlobChunk(int msgId, Stream stream)
-    {
-        Task.Run(async () =>
-        {
-            var offset = 0;
-            while (_pendingRequests.ContainsKey(msgId) /*should be removed when error*/)
-            {
-                var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.UploadChunk);
-                var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
-                if (bytesRead < 0)
-                {
-                    NotifyToPendingRequest(msgId, MessageType.UploadChunk, InvokeErrorCode.SendRequestFail,
-                        "Can't send blob chunk");
-                    break;
-                }
-
-                //可能会发送一个空的chunk(bytesRead == 0)
-                await SendMessage(chuckWriter.Chunk);
-                if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
-                    break;
-
-                offset += bytesRead;
-            }
-        });
-    }
-
     /// <summary>
     /// 发送完整消息包，完成后归还缓存
     /// </summary>
@@ -442,9 +420,30 @@ public sealed class WebSocketChannel : IClientChannel
         BytesSegment.ReturnAll(data);
     }
 
-    void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
+    async void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
     {
-        throw new NotImplementedException();
+        //目前仅支持上传的数据块
+        Debug.Assert((MessageType)segment.Buffer[0] == MessageType.UploadChunk);
+        try
+        {
+            await TryConnect();
+            await _clientWebSocket.SendAsync(segment.Memory, WebSocketMessageType.Binary, true, CancellationToken.None);
+// #if DEBUG
+//             var msgId = BinaryPrimitives.ReadInt32LittleEndian(segment.Buffer.AsSpan(1, 4));
+//             var offset = BinaryPrimitives.ReadInt32LittleEndian(segment.Buffer.AsSpan(5, 4));
+//             Console.WriteLine($"SendedPipeSegment: MsgId={msgId}, Offset={offset} Length={segment.Length}");
+// #endif
+        }
+        catch (Exception)
+        {
+            var msgId = BinaryPrimitives.ReadInt32LittleEndian(segment.Buffer.AsSpan(1, 4));
+            pipe.NotifySendError();
+            NotifyToPendingRequest(msgId, MessageType.UploadResponse, InvokeErrorCode.Other, "Can't send upload data");
+        }
+        finally
+        {
+            segment.ReturnOne();
+        }
     }
 
     #endregion

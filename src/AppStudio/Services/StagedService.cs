@@ -1,5 +1,6 @@
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxStore.Entities;
 
 namespace AppBoxDesign;
@@ -25,8 +26,11 @@ internal sealed class StagedService : IStagedService
     public Task SaveModelAsync(ModelBase model) =>
         Channel.Invoke("sys.DesignService.StageSaveModel", AnyValue.From(model));
 
-    public Task SaveCodeAsync(ModelId modelId, Stream code) =>
-        Channel.Upload("sys.DesignService.StageSaveCode", code, (long)modelId);
+    public Task SaveCodeAsync(ModelId modelId, Stream code)
+    {
+        var pipeWriter = new BytesPipeWriter(Channel.Provider, w => w.CopyFromAsync(code));
+        return Channel.Upload("sys.DesignService.StageSaveCode", pipeWriter, (long)modelId);
+    }
 
     public Task DeleteModelAsync(ModelId modelId) =>
         Channel.Invoke("sys.DesignService.StageDeleteModel", (long)modelId);

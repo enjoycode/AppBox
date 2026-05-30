@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using AppBoxCore;
+using AppBoxCore.Channel;
 
 namespace AppBoxClient;
 
@@ -18,7 +19,7 @@ public interface IClientChannel : IChannel
     Task<AnyValue> Invoke<T>(string service, T args, EntityFactory[]? entityFactories = null)
         where T : struct, IAnyArgs;
 
-    Task<AnyValue> Upload<T>(string service, Stream stream, T args) where T : struct, IAnyArgs;
+    Task<AnyValue> Upload<T>(string service, BytesPipeWriter writer, T args) where T : struct, IAnyArgs;
 
     Task Download<T>(string service, Stream stream, T args) where T : struct, IAnyArgs;
 }

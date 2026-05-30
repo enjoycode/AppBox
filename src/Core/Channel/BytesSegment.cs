@@ -8,13 +8,13 @@ namespace AppBoxCore;
 /// <summary>
 /// 托管的字节缓存块
 /// </summary>
-public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
+public sealed class BytesSegment : ReadOnlySequenceSegment<byte>
 {
     #region ====Static Pool====
 
     private static readonly ObjectPool<BytesSegment> Pools = new(() => new BytesSegment(), 256); //TODO: check count
 
-    private const int FrameSize = 256;
+    internal const int FrameSize = 256;
 
     /// <summary>
     /// 从缓存池租用一块
@@ -102,23 +102,5 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>, IBlobChunk
     }
 
     public void ReturnOne() => BytesSegment.ReturnOne(this);
-
-    #region ====IBlockChunk====
-
-    ReadOnlyMemory<byte> IBlobChunk.GetDataChunk() =>
-        Buffer.AsMemory(BlobChunkHeaderSize, Length - BlobChunkHeaderSize);
-
-    int IBlobChunk.Offset => BinaryPrimitives.ReadInt32LittleEndian(Buffer.AsSpan(5));
-
-    void IBlobChunk.Free() => ReturnOne(this);
-
-    bool IBlobChunk.IsLastChunk(out bool isEmpty)
-    {
-        var maxDataSize = Buffer.Length - BlobChunkHeaderSize;
-        var dataSize = Length - BlobChunkHeaderSize;
-        isEmpty = dataSize == 0;
-        return dataSize == 0 || dataSize < maxDataSize;
-    }
-
-    #endregion
+    
 }

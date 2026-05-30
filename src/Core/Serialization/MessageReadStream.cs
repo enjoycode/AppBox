@@ -2,13 +2,15 @@ namespace AppBoxCore;
 
 public struct MessageReadStream : IInputStream
 {
-    public MessageReadStream(BytesSegment first)
+    public MessageReadStream(BytesSegment first, int headerSize = 0)
     {
         Current = first;
+        _headerSize = headerSize;
         _context = null;
-        Position = 0;
+        Position = headerSize;
     }
 
+    private readonly int _headerSize;
     private DeserializeContext? _context;
 
     internal BytesSegment Current { get; private set; } = null!;
@@ -16,16 +18,16 @@ public struct MessageReadStream : IInputStream
 
     public DeserializeContext Context => _context ??= new DeserializeContext();
 
-    internal void Reset(BytesSegment segment, int position = 0)
+    private void Reset(BytesSegment segment)
     {
         Current = segment;
-        Position = position;
+        Position = _headerSize;
     }
 
     /// <summary>
-    /// Take owner for blob chunk, and free self
+    /// Take owner for current BytesSegment, and free self
     /// </summary>
-    internal IBlobChunk TakeBlobChunkAndFreeSelf()
+    internal BytesSegment TakeSegmentAndFreeSelf()
     {
         var msgType = (MessageType)Current.Buffer[0];
         if (msgType != MessageType.UploadChunk && msgType != MessageType.DownloadChunk)
@@ -62,8 +64,6 @@ public struct MessageReadStream : IInputStream
 
         _context?.Clear();
     }
-
-    // public Stream ToSystemStream() => new MessageReadStreamWrap(this);
 
     public async Task CopyToAsync(Stream destination)
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using AppBoxCore;
+using AppBoxCore.Channel;
 
 namespace AppBoxClient;
 
@@ -128,18 +129,18 @@ public static class Channel
         AnyValue arg5, EntityFactory[]? entityFactories = null) where T : notnull =>
         (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4, arg5), entityFactories)).CastTo<T>();
 
-    public static Task Upload(string service, Stream stream) =>
-        Provider.Upload(service, stream, AnyArgs.Empty);
+    public static Task Upload(string service, BytesPipeWriter writer) =>
+        Provider.Upload(service, writer, AnyArgs.Empty);
 
-    public static Task Upload(string service, Stream stream, AnyValue arg) =>
-        Provider.Upload(service, stream, AnyArgs.Make(arg));
+    public static Task Upload(string service, BytesPipeWriter writer, AnyValue arg) =>
+        Provider.Upload(service, writer, AnyArgs.Make(arg));
 
-    public static Task Upload(string service, Stream stream, AnyValue arg1, AnyValue arg2) =>
-        Provider.Upload(service, stream, AnyArgs.Make(arg1, arg2));
+    public static Task Upload(string service, BytesPipeWriter writer, AnyValue arg1, AnyValue arg2) =>
+        Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2));
 
-    public static async Task<T?> Upload<T>(string service, Stream stream, AnyValue arg1, AnyValue arg2)
+    public static async Task<T?> Upload<T>(string service, BytesPipeWriter writer, AnyValue arg1, AnyValue arg2)
         where T : notnull =>
-        (await Provider.Upload(service, stream, AnyArgs.Make(arg1, arg2))).CastTo<T>();
+        (await Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2))).CastTo<T>();
 
     public static Task Download(string service, Stream stream) =>
         Provider.Download(service, stream, AnyArgs.Empty);

@@ -1,4 +1,5 @@
 using AppBoxClient;
+using AppBoxCore.Channel;
 using AppBoxDesign;
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
@@ -7,17 +8,16 @@ namespace Tests.ClientUI;
 
 public class ChannelTest
 {
-    private Task InitChannel()
+    [SetUp]
+    public async Task Setup()
     {
         Channel.Init(new WebSocketChannel(new Uri("ws://localhost:5000/ws")));
-        return Channel.Login("Admin", "760wb");
+        await Channel.Login("Admin", "760wb");
     }
 
     [Test]
     public async Task DownloadTest()
     {
-        await InitChannel();
-
         var tempFilePath = Path.GetTempFileName();
         var tempFileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
         await Channel.Download(DesignMethods.LoadMetadataReferenceFull, tempFileStream,
@@ -36,12 +36,12 @@ public class ChannelTest
     [Test]
     public async Task UploadTest()
     {
-        await InitChannel();
-
         var filePath = "/Users/rick/Desktop/测试模型/HelloService.dll";
         var fileStream = File.OpenRead(filePath);
+        var pipeWriter = new BytesPipeWriter(Channel.Provider, w => w.CopyFromAsync(fileStream));
         var assemblyFlag = await Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull,
-            fileStream, "sys", "HelloService.dll");
-        Console.WriteLine(assemblyFlag);
+            pipeWriter, "sys", "HelloService.dll");
+        await fileStream.DisposeAsync();
+        Console.WriteLine($"Upload done. Res= {assemblyFlag}");
     }
 }

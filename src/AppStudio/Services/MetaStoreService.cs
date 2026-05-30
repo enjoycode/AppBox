@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxCore.Channel;
 using Channel = AppBoxClient.Channel;
 
 namespace AppBoxDesign;
@@ -51,6 +52,9 @@ internal sealed class MetaStoreService : IMetaStoreService
     public Task DeleteApplicationAsync(ApplicationModel app) =>
         Channel.Invoke(DesignMethods.DeleteApplicationFull, AnyValue.From(app));
 
-    public Task<byte> UploadExtLib(Stream input, string appName, string fileName) =>
-        Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull, input, appName, fileName);
+    public Task<byte> UploadExtLib(Stream input, string appName, string fileName)
+    {
+        var pipeWriter = new BytesPipeWriter(Channel.Provider, w => w.CopyFromAsync(input));
+        return Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull, pipeWriter, appName, fileName);
+    }
 }

@@ -1,5 +1,6 @@
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxDesign;
 using AppBoxStore;
 using Microsoft.CodeAnalysis;
@@ -138,13 +139,13 @@ internal sealed class MockPublishService : IPublishService
     public Task PublishAsync(PublishPackage package, string commitMessage) =>
         AppBoxServer.Design.PublishService.PublishAsync(package, commitMessage);
 
-    public Task UploadServiceAssembly(Stream stream, string assemblyName, bool isFirst) =>
+    public Task UploadServiceAssembly(BytesPipeWriter writer, string assemblyName, bool isFirst) =>
         throw new NotImplementedException();
 
     public Task UploadAppAssembly(Stream stream, string assemblyName, bool isFirst) =>
         throw new NotImplementedException();
 
-    public Task UploadViewAssemblyMap(Stream stream) => throw new NotImplementedException();
+    public Task UploadViewAssemblyMap(BytesPipeWriter writer) => throw new NotImplementedException();
 }
 
 internal sealed class MockMetadataReferenceProvider : IMetadataReferenceProvider

@@ -1,6 +1,7 @@
 using System.Data.Common;
 using System.IO.Compression;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxDesign;
 using AppBoxStore;
 using static AppBoxServer.ServerLogger;
@@ -300,8 +301,7 @@ internal static class PublishService
         return Path.Combine(Path.GetTempPath(), "AppBox", sessionName, "Service");
     }
 
-    internal static async Task UploadServiceAssembly(IAsyncEnumerable<IBlobChunk> stream, string assemblyName,
-        bool isFirst)
+    internal static async Task UploadServiceAssembly(BytesPipeReader reader, string assemblyName, bool isFirst)
     {
         var tempPath = GetUploadServicePath();
         if (isFirst)
@@ -313,7 +313,7 @@ internal static class PublishService
         }
 
         var filePath = Path.Combine(tempPath, assemblyName);
-        await stream.WriteToFile(filePath);
+        await reader.CopyToFileAsync(filePath);
         Logger.Debug($"Upload service assembly to: {filePath}");
     }
 
@@ -328,7 +328,7 @@ internal static class PublishService
     /// <summary>
     /// 将客户端上传的编译且压缩好的AppAssembly保存至临时目录
     /// </summary>
-    internal static async Task UploadAppAssembly(IAsyncEnumerable<IBlobChunk> stream, string assemblyName, bool isFirst)
+    internal static async Task UploadAppAssembly(BytesPipeReader reader, string assemblyName, bool isFirst)
     {
         var tempPath = GetUploadAppPath();
         if (isFirst)
@@ -340,41 +340,26 @@ internal static class PublishService
         }
 
         var filePath = Path.Combine(tempPath, assemblyName);
-        await stream.WriteToFile(filePath);
+        await reader.CopyToFileAsync(filePath);
         Logger.Debug($"Upload app assembly to: {filePath}");
     }
 
     /// <summary>
     /// 保存客户端上传的视图Assembly的依赖Map，并且开始保存App
     /// </summary>
-    internal static async Task UploadViewAssemblyMap(IAsyncEnumerable<IBlobChunk> stream)
+    internal static async Task UploadViewAssemblyMap(BytesPipeReader reader)
     {
         //读取映射表
-        var tempFilePath = Path.GetTempFileName();
-        var tempFileStream = File.Open(tempFilePath, FileMode.Create, FileAccess.ReadWrite);
-        await stream.WriteToStream(tempFileStream);
-        tempFileStream.Seek(0, SeekOrigin.Begin);
-
         var viewAssemblyMap = new List<MapItem>();
-        try
+        await foreach (var segemt in reader.GetObjectsAsync())
         {
-            var rs = new SystemReadStream(tempFileStream);
-            var count = rs.ReadVariant();
-            viewAssemblyMap.Capacity = count;
-            for (var i = 0; i < count; i++)
-            {
-                var asmFlag = (AssemblyPlatform)rs.ReadByte();
-                var asmName = rs.ReadString()!;
-                var dataLen = rs.ReadVariant();
-                var data = new byte[dataLen];
-                rs.ReadBytes(data);
-                viewAssemblyMap.Add(new MapItem(asmName, asmFlag, data));
-            }
-        }
-        finally
-        {
-            tempFileStream.Close();
-            File.Delete(tempFilePath);
+            var rs = new MessageReadStream(segemt, PipeSegmentHeader.HeaderSize);
+            var asmFlag = (AssemblyPlatform)rs.ReadByte();
+            var asmName = rs.ReadString()!;
+            var dataLen = rs.ReadVariant();
+            var data = new byte[dataLen];
+            rs.ReadBytes(data);
+            viewAssemblyMap.Add(new MapItem(asmName, asmFlag, data));
         }
 
         //读取之前上传的组件

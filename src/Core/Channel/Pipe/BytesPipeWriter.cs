@@ -43,6 +43,11 @@ public sealed class BytesPipeWriter
 
     private void SendSegment(BytesSegment segment) => _channel.SendPipeSegment(this, segment);
 
+    internal void NotifySendError()
+    {
+        //TODO: 中止写入过程
+    }
+
     /// <summary>
     /// 包装BytesSegmentWriter用于支持异步写
     /// </summary>
@@ -66,9 +71,23 @@ public sealed class BytesPipeWriter
 
         public void WriteByte(byte value) => _segmentWriter.WriteByte(value);
 
-        public Task CopyFromAsync(Stream fromStream)
+        public void WriteBytes(ReadOnlySpan<byte> src) => _segmentWriter.WriteBytes(src);
+        
+        public void WriteString(string? value) => _segmentWriter.WriteString(value);
+        
+        public void WriteVariant(int value) => _segmentWriter.WriteVariant(value);
+
+        public async Task CopyFromAsync(Stream fromStream)
         {
-            throw new NotImplementedException();
+            //TODO: 优化直接使用BytesSegment的缓冲块
+            var buffer = new byte[2048];
+            while (true)
+            {
+                var bytesRead = await fromStream.ReadAsync(buffer.AsMemory(0));
+                if (bytesRead <= 0)
+                    break;
+                _segmentWriter.WriteBytes(buffer.AsSpan(0, bytesRead));
+            }
         }
 
         /// <summary>
@@ -240,4 +259,31 @@ public sealed class BytesPipeWriter
 
         #endregion
     }
+}
+
+public sealed class PipeWriteStream : Stream
+{
+    public PipeWriteStream(BytesPipeWriter.BytesWriter writer)
+    {
+        _writer = writer;
+    }
+
+    private readonly BytesPipeWriter.BytesWriter _writer;
+
+    public override void Flush() { }
+    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+    public override void SetLength(long value) => throw new NotSupportedException();
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        _writer.WriteBytes(buffer.AsSpan(offset, count));
+        Position += count;
+    }
+
+    public override bool CanRead => false;
+    public override bool CanSeek => false;
+    public override bool CanWrite => true;
+    public override long Length => throw new NotSupportedException();
+    public override long Position { get; set; }
 }

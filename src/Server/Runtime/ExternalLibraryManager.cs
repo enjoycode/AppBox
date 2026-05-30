@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxStore;
 using static AppBoxServer.ServerLogger;
 
@@ -19,7 +20,7 @@ internal static class ExternalLibraryManager
     /// <summary>
     /// 上传第三方库, 注意：目前仅支持服务依赖的库
     /// </summary>
-    internal static async Task<byte> UploadLibrary(IAsyncEnumerable<IBlobChunk> stream, string appName, string fileName)
+    internal static async Task<byte> UploadLibrary(BytesPipeReader reader, string appName, string fileName)
     {
         var folder = GetExternalLibraryPath(appName);
         var filePath = Path.Combine(folder, fileName);
@@ -28,7 +29,7 @@ internal static class ExternalLibraryManager
             Directory.CreateDirectory(folder);
 
         // save to External library folder
-        await stream.WriteToFile(filePath);
+        await reader.CopyToFileAsync(filePath);
         Logger.Debug($"Uploaded external library at {filePath}");
 
         // check is native assembly

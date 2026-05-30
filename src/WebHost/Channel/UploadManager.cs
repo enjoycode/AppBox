@@ -1,26 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Channels;
 using AppBoxCore;
+using AppBoxCore.Channel;
 
 namespace AppBoxWebHost;
 
-internal sealed class PendingUpload
-{
-    public PendingUpload()
-    {
-        Channel = System.Threading.Channels.Channel.CreateBounded<IBlobChunk>(new BoundedChannelOptions(3)
-        {
-            SingleWriter = true,
-            FullMode = BoundedChannelFullMode.Wait,
-        });
-    }
-
-    public Channel<IBlobChunk> Channel { get; }
-}
-
 internal struct UploadArgs<TStream> : IAnyArgs where TStream : struct, IInputStream
 {
-    internal UploadArgs(IAsyncEnumerable<IBlobChunk> firstArg, TStream inputStream)
+    internal UploadArgs(BytesPipeReader firstArg, TStream inputStream)
     {
         _firstArg = firstArg;
         _streamArgs = new StreamArgs<TStream>(inputStream);
@@ -28,7 +15,7 @@ internal struct UploadArgs<TStream> : IAnyArgs where TStream : struct, IInputStr
     }
 
     private StreamArgs<TStream> _streamArgs;
-    private readonly IAsyncEnumerable<IBlobChunk> _firstArg;
+    private readonly BytesPipeReader _firstArg;
     private bool _hasReadFirstArg;
 
     public void SetEntityFactories(EntityFactory[] factories) => _streamArgs.SetEntityFactories(factories);
@@ -73,16 +60,16 @@ internal struct UploadArgs<TStream> : IAnyArgs where TStream : struct, IInputStr
 /// </summary>
 internal sealed class UploadManager
 {
-    private readonly Dictionary<int, PendingUpload> _pendingUploads = new();
+    private readonly Dictionary<int, BytesPipeReader> _pendingUploads = new();
 
-    public PendingUpload MakePendingUpload(int msgId)
+    public BytesPipeReader MakePendingUpload(int msgId)
     {
-        var pending = new PendingUpload();
+        var pending = new BytesPipeReader();
         _pendingUploads.Add(msgId, pending);
         return pending;
     }
 
-    public bool TryGetPending(int msgId, [MaybeNullWhen(returnValue: false)] out PendingUpload pending) =>
+    public bool TryGetPending(int msgId, [MaybeNullWhen(returnValue: false)] out BytesPipeReader pending) =>
         _pendingUploads.TryGetValue(msgId, out pending);
 
     public void RemovePending(int msgId) => _pendingUploads.Remove(msgId);
@@ -91,10 +78,7 @@ internal sealed class UploadManager
     {
         foreach (var pending in _pendingUploads.Values)
         {
-            pending.Channel.Writer.Complete(new Exception("Channel is closed"));
-            //free pending buffer
-            while (pending.Channel.Reader.TryRead(out var chunk))
-                chunk.Free();
+            pending.OnChannelClosed();
         }
 
         _pendingUploads.Clear();

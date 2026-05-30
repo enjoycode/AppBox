@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxDesign;
 using AppBoxServer.Design;
 using AppBoxStore;
@@ -70,8 +71,7 @@ internal sealed class DesignService : IService
                 await StagedService.SaveFolderAsync((ModelFolder)args.GetObject()!);
                 return AnyValue.Empty;
             case "StageSaveCode":
-                await StagedService.SaveCodeAsync((IAsyncEnumerable<IBlobChunk>)args.GetObject()!,
-                    args.GetLong()!.Value);
+                await StagedService.SaveCodeAsync((BytesPipeReader)args.GetObject()!, args.GetLong()!.Value);
                 return AnyValue.Empty;
             case "StageDeleteModel":
                 await StagedService.DeleteModelAsync(args.GetLong()!.Value);
@@ -82,23 +82,23 @@ internal sealed class DesignService : IService
                 await PublishService.PublishAsync((PublishPackage)args.GetObject()!, args.GetString());
                 return AnyValue.Empty;
             case "UploadServiceAssembly":
-                await PublishService.UploadServiceAssembly((IAsyncEnumerable<IBlobChunk>)args.GetObject()!,
+                await PublishService.UploadServiceAssembly((BytesPipeReader)args.GetObject()!,
                     args.GetString()!, args.GetBool()!.Value);
                 return AnyValue.Empty;
             case "UploadAppAssembly":
-                await PublishService.UploadAppAssembly((IAsyncEnumerable<IBlobChunk>)args.GetObject()!,
+                await PublishService.UploadAppAssembly((BytesPipeReader)args.GetObject()!,
                     args.GetString()!, args.GetBool()!.Value);
                 return AnyValue.Empty;
             case "UploadViewAssemblyMap":
-                await PublishService.UploadViewAssemblyMap((IAsyncEnumerable<IBlobChunk>)args.GetObject()!);
+                await PublishService.UploadViewAssemblyMap((BytesPipeReader)args.GetObject()!);
                 return AnyValue.Empty;
             case DesignMethods.UploadExtAssembly:
                 return AnyValue.From(await ExternalLibraryManager.UploadLibrary(
-                    (IAsyncEnumerable<IBlobChunk>)args.GetObject()!, args.GetString()!, args.GetString()!));
+                    (BytesPipeReader)args.GetObject()!, args.GetString()!, args.GetString()!));
             case DesignMethods.GetExtLibraries:
                 return AnyValue.From(await ExternalLibraryManager.GetExternalLibraries(args.GetString()!));
             case DesignMethods.DebugUploadService:
-                await DebugService.UploadAssembly((IAsyncEnumerable<IBlobChunk>)args.GetObject()!, args.GetString()!);
+                await DebugService.UploadAssembly((BytesPipeReader)args.GetObject()!, args.GetString()!);
                 return AnyValue.Empty;
             case DesignMethods.DebugStart:
                 DebugService.Start((DebugStartRequest)args.GetObject()!);

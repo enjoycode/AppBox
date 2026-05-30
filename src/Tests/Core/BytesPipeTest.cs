@@ -46,7 +46,7 @@ internal sealed class MockPipeChannel : IChannel
     {
         Task.Run(async () =>
         {
-            var randomDelay = Random.Shared.Next(10, 1000);
+            var randomDelay = Random.Shared.Next(10, 100);
             await Task.Delay(randomDelay);
             //实际实现需要处理发送异常，有则通知中止
             Reader.OnReceiveSegment(segment);

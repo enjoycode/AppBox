@@ -1,7 +1,7 @@
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using AppBoxDesign.Debugging;
-using PixUI;
 
 namespace AppBoxDesign;
 
@@ -22,10 +22,13 @@ internal static class ClientDebugManager
         var serviceName = serviceModel.Name;
 
         // 1.编译并上传服务模型
-        using var stream = new MemoryStream(2048);
-        await PublishCommand.CompileServiceAsync(stream, hub, serviceModel, true);
-        stream.Seek(0, SeekOrigin.Begin);
-        await Channel.Upload(DesignMethods.DebugUploadServiceFull, stream, $"{appName}.{serviceName}");
+        var pipeWriter = new BytesPipeWriter(Channel.Provider, async w =>
+        {
+            var stream = new PipeWriteStream(w);
+            await PublishCommand.CompileServiceAsync(stream, hub, serviceModel, true);
+        });
+        await Channel.Upload(DesignMethods.DebugUploadServiceFull, pipeWriter, $"{appName}.{serviceName}");
+        //TODO: check pipeWriter error, maybe compile service error.
 
         // 2.订阅调试事件
         Channel.AddEventSubscriber(IDebugEventArgs.DebugEventId, designer, args =>

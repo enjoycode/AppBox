@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -77,14 +78,8 @@ internal sealed class BuildAppCommand : DesignCommand
         }
 
         //6.保存视图模型对应的所有程序集的映射
-        LocalFileInfo tempFile = default;
-        try
+        var pipeWriter = new BytesPipeWriter(Channel.Provider, w =>
         {
-            //先写入临时文件
-            tempFile = await LocalFileSystem.CreateTempFile(false);
-            var w = new SystemWriteStream(tempFile.FileStream);
-            w.WriteVariant(viewAssemblyMap.Count);
-
             foreach (var kv in viewAssemblyMap)
             {
                 var viewModelName = $"{kv.Key.AppNode.Model.Name}.{kv.Key.Model.Name}";
@@ -98,18 +93,13 @@ internal sealed class BuildAppCommand : DesignCommand
                 w.WriteString(viewModelName);
                 w.WriteVariant(jsonData.Length);
                 w.WriteBytes(jsonData);
+                w.DivideObject();
             }
-
-            tempFile.FileStream.Position = 0;
-
-            //再上传临时文件
-            await context.PublishService.UploadViewAssemblyMap(tempFile.FileStream);
-        }
-        finally
-        {
-            await tempFile.Close();
-            await LocalFileSystem.DeleteTempFile(tempFile.FilePath);
-        }
+            
+            return Task.CompletedTask;
+        });
+        //再上传临时文件
+        await context.PublishService.UploadViewAssemblyMap(pipeWriter);
     }
 
     private static async IAsyncEnumerable<ModelNode> GetAllDynamicWidgets(DesignHub context)
