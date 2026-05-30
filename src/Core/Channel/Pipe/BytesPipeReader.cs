@@ -5,12 +5,14 @@ namespace AppBoxCore.Channel;
 
 public sealed class BytesPipeReader : IDisposable
 {
-    private readonly PooledTaskSource<bool> _waitingTaskSource = new(false);
+    private readonly PooledTaskSource<int> _waitingTaskSource = new(false); //值为offset
 
     private int _waitingFlag; //默认没有等待
     private readonly Lock _pendingsLock = new();
     private readonly SortedList<int, BytesSegment> _pendings = new();
     private static readonly Exception PipeWriteError = new("Pipe write error"); //表示写入端发生异常
+
+    public Action? OnReadFinished { get; set; } //所有数据读完后的操作,目前用于客户端下载完成通知挂起的请求
 
     public async IAsyncEnumerable<BytesSegment> GetSegmentsAsync()
     {
@@ -27,13 +29,20 @@ public sealed class BytesPipeReader : IDisposable
                     yield return next;
                 else
                     next.ReturnOne();
-                if (isLast) yield break;
+
+                if (isLast)
+                {
+                    OnReadFinished?.Invoke();
+                    yield break;
+                }
             }
 
-            if (Interlocked.CompareExchange(ref _waitingFlag, 1, 0) == 0)
+            while (Interlocked.CompareExchange(ref _waitingFlag, 1, 0) == 0)
             {
                 // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 等待新块");
-                await _waitingTaskSource.WaitAsync().ConfigureAwait(false);
+                var offset = await _waitingTaskSource.WaitAsync();
+                if (offset == nextOffset) //如果等于期望的下一块，开始读取否则继续循环等待
+                    break;
                 // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 收到新块");
             }
         }
@@ -96,7 +105,7 @@ public sealed class BytesPipeReader : IDisposable
         //考虑进一步1.判断消息类型，消息标识是否有效, 2.判断当前状态，3.防止接收连续空包
 
         //加入挂起队列
-        // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: Offset={segment.GetOffset()}");
+        // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: Offset={segment.GetOffset()} Last={segment.IsLast()}");
         using (_pendingsLock.EnterScope())
         {
             var segmentOffset = segment.GetOffset();
@@ -106,7 +115,7 @@ public sealed class BytesPipeReader : IDisposable
                 if (Interlocked.CompareExchange(ref _waitingFlag, 0, 1) == 1)
                 {
                     // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: 开始通知等待者");
-                    _waitingTaskSource.SetResult(true);
+                    _waitingTaskSource.SetResult(segmentOffset);
                     // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: 结束通知等待者");
                 }
             }
