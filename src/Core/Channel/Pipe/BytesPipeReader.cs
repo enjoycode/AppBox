@@ -54,12 +54,9 @@ public sealed class BytesPipeReader : IDisposable
                 }
             }
 
-            if (Interlocked.CompareExchange(ref _waitingFlag, 1, 0) == 0)
-            {
-                // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 等待新块");
-                await _waitingTaskSource.WaitAsync();
-                // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 收到新块");
-            }
+            // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 等待新块");
+            await _waitingTaskSource.WaitAsync();
+            // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 收到新块");
         }
     }
 
@@ -67,7 +64,14 @@ public sealed class BytesPipeReader : IDisposable
     {
         using (_pendingsLock.EnterScope())
         {
-            return _pendings.Remove(expectedOffset, out next);
+            var hasNext = _pendings.Remove(expectedOffset, out next);
+            if (!hasNext)
+            {
+                var old = Interlocked.CompareExchange(ref _waitingFlag, 1, 0);
+                Debug.Assert(old == 0);
+            }
+
+            return hasNext;
         }
     }
 
@@ -125,7 +129,7 @@ public sealed class BytesPipeReader : IDisposable
             var segmentOffset = segment.GetOffset();
             if (_pendings.TryAdd(segmentOffset, segment)) //如果是空的结束包，offset会+1
             {
-                //尝试通知读取队列
+                //尝试通知读取队列, TODO:考虑优化为仅等于期望的offset时才通知
                 if (Interlocked.CompareExchange(ref _waitingFlag, 0, 1) == 1)
                 {
                     // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: 开始通知等待者");
