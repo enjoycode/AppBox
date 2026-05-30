@@ -14,7 +14,7 @@ internal sealed class PublishService : IPublishService
 
     public Task UploadAppAssembly(Stream stream, string assemblyName, bool isFirst)
     {
-        var pipeWriter = new BytesPipeWriter(Channel.Provider, w => w.CopyFromAsync(stream));
+        var pipeWriter = new BytesPipeWriter(w => w.CopyFromAsync(stream));
         return Channel.Upload("sys.DesignService.UploadAppAssembly", pipeWriter, assemblyName, isFirst);
     }
 

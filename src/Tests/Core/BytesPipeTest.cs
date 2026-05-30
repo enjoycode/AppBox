@@ -10,7 +10,7 @@ public class BytesPipeTest
     public async Task TestUpload()
     {
         var channel = new MockPipeChannel();
-        var pipeWriter = new BytesPipeWriter(channel, w =>
+        var pipeWriter = new BytesPipeWriter(w =>
         {
             for (var i = 0; i < 100; i++)
             {
@@ -24,7 +24,7 @@ public class BytesPipeTest
         channel.Writer = pipeWriter;
         channel.Reader = pipeReader;
 
-        pipeWriter.StartWrite(MessageType.UploadChunk, 123);
+        pipeWriter.StartWrite(channel, MessageType.UploadChunk, 123);
 
         var expectedOffset = 0;
         await foreach (var segment in pipeReader.GetSegmentsAsync())

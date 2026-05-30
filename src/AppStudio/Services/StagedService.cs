@@ -17,8 +17,12 @@ internal sealed class StagedService : IStagedService
         return new StagedItems(list!.ToList());
     }
 
-    public Task DownloadCodeAsync(Stream toStream, ModelId modelId) =>
-        Channel.Download("sys.DesignService.StageLoadCode", toStream, (long)modelId);
+    public async Task DownloadCodeAsync(Stream toStream, ModelId modelId)
+    {
+        var reader = new BytesPipeReader();
+        await Channel.Download("sys.DesignService.StageLoadCode", reader, (long)modelId);
+        await reader.CopyToStreamAsync(toStream);
+    }
 
     public Task SaveFolderAsync(ModelFolder folder) =>
         Channel.Invoke("sys.DesignService.StageSaveFolder", AnyValue.From(folder));
@@ -28,7 +32,7 @@ internal sealed class StagedService : IStagedService
 
     public Task SaveCodeAsync(ModelId modelId, Stream code)
     {
-        var pipeWriter = new BytesPipeWriter(Channel.Provider, w => w.CopyFromAsync(code));
+        var pipeWriter = new BytesPipeWriter(w => w.CopyFromAsync(code));
         return Channel.Upload("sys.DesignService.StageSaveCode", pipeWriter, (long)modelId);
     }
 

@@ -57,8 +57,6 @@ public sealed class BytesSegment : ReadOnlySequenceSegment<byte>
 
     #endregion
 
-    public const int BlobChunkHeaderSize = 9;
-
     private BytesSegment()
     {
         Buffer = new byte[FrameSize];

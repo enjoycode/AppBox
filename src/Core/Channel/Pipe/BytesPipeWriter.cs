@@ -4,25 +4,25 @@ namespace AppBoxCore.Channel;
 
 public sealed class BytesPipeWriter
 {
-    public BytesPipeWriter(IChannel channel, Func<BytesWriter, Task> dataProvider)
+    public BytesPipeWriter(Func<BytesWriter, Task> dataProvider)
     {
-        _channel = channel;
         _dataProvider = dataProvider;
         _writer = new BytesWriter(this);
     }
 
     private readonly BytesWriter _writer;
-    private readonly IChannel _channel;
+    private IChannel _channel = null!;
     private readonly Func<BytesWriter, Task> _dataProvider;
 
     /// <summary>
     /// Only called by Channel begin send bytes segment
     /// </summary>
-    internal void StartWrite(MessageType msgType, int msgId)
+    internal void StartWrite(IChannel channel, MessageType msgType, int msgId)
     {
         if (msgType != MessageType.UploadChunk && msgType != MessageType.DownloadChunk)
             throw new Exception("Only for upload or download chunks");
 
+        _channel = channel;
         _writer.StartWrite(msgType, msgId);
         //开始写入数据
         _dataProvider(_writer).ContinueWith(task =>
@@ -72,9 +72,9 @@ public sealed class BytesPipeWriter
         public void WriteByte(byte value) => _segmentWriter.WriteByte(value);
 
         public void WriteBytes(ReadOnlySpan<byte> src) => _segmentWriter.WriteBytes(src);
-        
+
         public void WriteString(string? value) => _segmentWriter.WriteString(value);
-        
+
         public void WriteVariant(int value) => _segmentWriter.WriteVariant(value);
 
         public async Task CopyFromAsync(Stream fromStream)

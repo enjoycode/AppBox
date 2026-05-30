@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxCore.Channel;
 using PixUI;
 using PixUI.Platform;
 
@@ -94,8 +95,10 @@ internal sealed class ExportCommand : DesignCommand
             var tempFile = await LocalFileSystem.CreateTempFile(false);
             try
             {
-                await Channel.Download(DesignMethods.LoadMetadataReferenceFull, tempFile.FileStream,
+                var reader = new BytesPipeReader();
+                await Channel.Download(DesignMethods.LoadMetadataReferenceFull, reader,
                     (int)ModelDependencyType.ServerExtLibrary, libName, appName);
+                await reader.CopyToStreamAsync(tempFile.FileStream);
                 tempFile.FileStream.Position = 0;
                 //写入库名称
                 writer.GetRef().WriteString(libName);

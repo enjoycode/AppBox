@@ -8,34 +8,41 @@ internal sealed class MetaStoreService : IMetaStoreService
 {
     public async Task<IList<ApplicationModel>> LoadAllApplicationAsync()
     {
+        var reader = new BytesPipeReader();
+        await Channel.Download("sys.DesignService.LoadAllApplication", reader);
         using var ms = new MemoryStream(1024);
-        await Channel.Download("sys.DesignService.LoadAllApplication", ms);
-
+        await reader.CopyToStreamAsync(ms);
         ms.Position = 0;
         return MetaSerializer.DeserializeApplications(ms);
     }
 
     public async Task<IList<ModelFolder>> LoadAllFolderAsync()
     {
+        var reader = new BytesPipeReader();
+        await Channel.Download("sys.DesignService.LoadAllFolder", reader);
         using var ms = new MemoryStream(1024);
-        await Channel.Download("sys.DesignService.LoadAllFolder", ms);
-
+        await reader.CopyToStreamAsync(ms);
         ms.Position = 0;
         return MetaSerializer.DeserializeFolders(ms);
     }
 
     public async Task<IList<ModelBase>> LoadAllModelAsync()
     {
-        //TODO: write to temp local file
+        //TODO: use pipe divided objects
+        var reader = new BytesPipeReader();
+        await Channel.Download("sys.DesignService.LoadAllModel", reader);
         using var ms = new MemoryStream(8192);
-        await Channel.Download("sys.DesignService.LoadAllModel", ms);
-
+        await reader.CopyToStreamAsync(ms);
         ms.Position = 0;
         return MetaSerializer.DeserializeModels(ms);
     }
 
-    public Task DownloadModelCodeAsync(Stream toStream, ModelId modelId) =>
-        Channel.Download("sys.DesignService.LoadModelCode", toStream, (long)modelId);
+    public async Task DownloadModelCodeAsync(Stream toStream, ModelId modelId)
+    {
+        var reader = new BytesPipeReader();
+        await Channel.Download("sys.DesignService.LoadModelCode", reader, (long)modelId);
+        await reader.CopyToStreamAsync(toStream);
+    }
 
     public async Task<ModelId> GenModelIdAsync(int appId, ModelType modelType, ModelLayer layer) =>
         await Channel.Invoke<long>("sys.DesignService.GenModelId", appId, (int)modelType, (int)layer);
@@ -54,7 +61,7 @@ internal sealed class MetaStoreService : IMetaStoreService
 
     public Task<byte> UploadExtLib(Stream input, string appName, string fileName)
     {
-        var pipeWriter = new BytesPipeWriter(Channel.Provider, w => w.CopyFromAsync(input));
+        var pipeWriter = new BytesPipeWriter(w => w.CopyFromAsync(input));
         return Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull, pipeWriter, appName, fileName);
     }
 }

@@ -2,7 +2,6 @@
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -46,7 +45,7 @@ public sealed class WebSocketChannel : IClientChannel
 
     private int MakePendingRequest(out PooledTaskSource<MessageReadStream> promise)
     {
-        var msgId = MakeMsgId();
+        var msgId = Interlocked.Increment(ref _msgIdIndex);
         promise = _pooledTaskSource.Allocate();
         if (!_pendingRequests.TryAdd(msgId, promise))
         {
@@ -116,8 +115,7 @@ public sealed class WebSocketChannel : IClientChannel
         throw new NotImplementedException();
     }
 
-    public async Task<AnyValue> Upload<T>(string service, BytesPipeWriter writer, T args)
-        where T : struct, IAnyArgs
+    public async Task<AnyValue> Upload<T>(string service, BytesPipeWriter writer, T args) where T : struct, IAnyArgs
     {
         //add to wait list
         var msgId = MakePendingRequest(out var promise);
@@ -128,7 +126,7 @@ public sealed class WebSocketChannel : IClientChannel
         // send request
         await SendMessage(reqData);
         // start send data segment
-        writer.StartWrite(MessageType.UploadChunk, msgId);
+        writer.StartWrite(this, MessageType.UploadChunk, msgId);
 
         // wait for response
         var rs = await promise.WaitAsync();
@@ -136,26 +134,43 @@ public sealed class WebSocketChannel : IClientChannel
         return DeserializeResponse(ref rs, null);
     }
 
-    public async Task Download<T>(string service, Stream stream, T args)
-        where T : struct, IAnyArgs
+    public async Task Download<T>(string service, BytesPipeReader reader, T args) where T : struct, IAnyArgs
     {
-        throw new NotImplementedException();
-        // //add to wait list
-        // var msgId = MakePendingRequest(out var promise);
-        // _downloadManager ??= new DownloadManager();
-        // _downloadManager.MakePendingDownload(msgId, stream);
-        //
-        // //serialize request
-        // var reqData = SerializeRequest(msgId, MessageType.DownloadRequest, service, args);
-        //
-        // // send request
-        // await SendMessage(reqData);
-        //
-        // // wait for response
-        // var rs = await promise.WaitAsync();
-        // _pooledTaskSource.Free(promise);
-        // _downloadManager.RemovePending(msgId);
-        // DeserializeResponse(ref rs, null);
+        //add to wait list
+        var msgId = MakePendingRequest(out var promise);
+        _downloadManager ??= new DownloadManager();
+        _downloadManager.MakePendingDownload(msgId, reader);
+
+        reader.OnReadFinished = () => NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.None);
+
+        //serialize and send request
+        var reqData = SerializeRequest(msgId, MessageType.DownloadRequest, service, args);
+        await SendMessage(reqData);
+
+        // wait for response
+        var rs = await promise.WaitAsync();
+        _pooledTaskSource.Free(promise);
+        _downloadManager.RemovePending(msgId);
+        DeserializeResponse(ref rs, null);
+    }
+
+    private void NotifyToPendingRequest(int msgId, MessageType msgType, InvokeErrorCode errCode, string? errMsg = null)
+    {
+        if (_pendingRequests.TryRemove(msgId, out var promise))
+        {
+            var ws = new MessageWriteStream();
+            ws.WriteByte((byte)msgType);
+            ws.WriteInt(msgId);
+            ws.WriteByte((byte)errCode);
+            if (!string.IsNullOrEmpty(errMsg))
+                ws.Serialize(errMsg);
+            var data = ws.FinishWrite();
+
+            var rs = new MessageReadStream(data.First!);
+            rs.ReadByte(); //msgType
+            rs.ReadInt(); //msgId
+            promise.SetResult(rs);
+        }
     }
 
     #region ====Serialization for Request & Response====
@@ -215,27 +230,6 @@ public sealed class WebSocketChannel : IClientChannel
     }
 
     #endregion
-
-    private void NotifyToPendingRequest(int msgId, MessageType msgType, InvokeErrorCode errCode, string? errMsg = null)
-    {
-        if (_pendingRequests.TryRemove(msgId, out var promise))
-        {
-            var ws = new MessageWriteStream();
-            ws.WriteByte((byte)msgType);
-            ws.WriteInt(msgId);
-            ws.WriteByte((byte)errCode);
-            if (!string.IsNullOrEmpty(errMsg))
-                ws.Serialize(errMsg);
-            var data = ws.FinishWrite();
-
-            var rs = new MessageReadStream(data.First!);
-            rs.ReadByte(); //msgType
-            rs.ReadInt(); //msgId
-            promise.SetResult(rs);
-        }
-    }
-
-    private int MakeMsgId() => Interlocked.Increment(ref _msgIdIndex);
 
     #region ====Connection Methods====
 
@@ -319,8 +313,9 @@ public sealed class WebSocketChannel : IClientChannel
                     case MessageType.DownloadResponse:
                         ProcessResponse(ref rs); break;
                     case MessageType.DownloadChunk:
-                        await ProcessDownloadChunk(rs); break;
-                    case MessageType.ServerEvent: ProcessServerEvent(ref rs); break;
+                        ProcessDownloadChunk(rs); break;
+                    case MessageType.ServerEvent:
+                        ProcessServerEvent(ref rs); break;
                     default:
                         rs.Free();
                         //throw new Exception($"Unknown message type: {msgType}");
@@ -345,38 +340,26 @@ public sealed class WebSocketChannel : IClientChannel
             rs.Free();
     }
 
-    private async ValueTask ProcessDownloadChunk(MessageReadStream rs)
+    private void ProcessDownloadChunk(MessageReadStream rs)
     {
-        throw new NotImplementedException();
-        // var msgId = rs.ReadInt();
-        // var blobChunk = rs.TakeSegmentAndFreeSelf();
-        // if (_downloadManager == null || !_downloadManager.TryGetPending(msgId, out var stream))
-        // {
-        //     blobChunk.Free();
-        //     return;
-        // }
-        //
-        // var isLastChunk = blobChunk.IsLastChunk(out var isEmpty);
-        // try
-        // {
-        //     if (!isEmpty)
-        //     {
-        //         await stream.WriteAsync(blobChunk.GetDataChunk());
-        //     }
-        // }
-        // catch (Exception e)
-        // {
-        //     NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.Other,
-        //         $"Can't write download data to stream: {e.Message}");
-        //     return;
-        // }
-        // finally
-        // {
-        //     blobChunk.Free();
-        // }
-        //
-        // if (isLastChunk)
-        //     NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.None);
+        var msgId = rs.ReadInt();
+        var segment = rs.TakeSegmentAndFreeSelf();
+        if (_downloadManager == null || !_downloadManager.TryGetPending(msgId, out var pipeReader))
+        {
+            segment.ReturnOne();
+            return;
+        }
+
+        try
+        {
+            pipeReader.OnReceiveSegment(segment);
+        }
+        catch (Exception e)
+        {
+            //TODO: 考虑通知发送端中止
+            NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.Other,
+                $"Can't write download segment: {e.Message}");
+        }
     }
 
     private static void ProcessServerEvent(ref MessageReadStream rs)

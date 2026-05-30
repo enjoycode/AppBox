@@ -16,10 +16,10 @@ public interface IClientChannel : IChannel
 
     Task Logout();
 
-    Task<AnyValue> Invoke<T>(string service, T args, EntityFactory[]? entityFactories = null)
-        where T : struct, IAnyArgs;
+    Task<AnyValue> Invoke<TArgs>(string service, TArgs args, EntityFactory[]? entityFactories = null)
+        where TArgs : struct, IAnyArgs;
 
-    Task<AnyValue> Upload<T>(string service, BytesPipeWriter writer, T args) where T : struct, IAnyArgs;
+    Task<AnyValue> Upload<TArgs>(string service, BytesPipeWriter writer, TArgs args) where TArgs : struct, IAnyArgs;
 
-    Task Download<T>(string service, Stream stream, T args) where T : struct, IAnyArgs;
+    Task Download<TArgs>(string service, BytesPipeReader reader, TArgs args) where TArgs : struct, IAnyArgs;
 }

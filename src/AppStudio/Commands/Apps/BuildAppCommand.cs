@@ -78,7 +78,7 @@ internal sealed class BuildAppCommand : DesignCommand
         }
 
         //6.保存视图模型对应的所有程序集的映射
-        var pipeWriter = new BytesPipeWriter(Channel.Provider, w =>
+        var pipeWriter = new BytesPipeWriter(w =>
         {
             foreach (var kv in viewAssemblyMap)
             {

@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Diagnostics;
 using System.Net.WebSockets;
 using AppBoxCore;
 using AppBoxCore.Channel;
@@ -217,56 +218,33 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
 
         //调用下载服务获取数据流
         var res = TryReadService(ref reader, out var service);
-        if (res == InvokeErrorCode.None)
+        if (res != InvokeErrorCode.None)
         {
-            var (result, errCode) = await InvokeInternal(service, AnyArgs.From(reader));
-            //如果有错误直接发送响应
-            if (errCode != InvokeErrorCode.None)
-            {
-                await SendResponse(msgId, MessageType.DownloadResponse, errCode, result);
-                return;
-            }
-
-            //根据服务返回结果发送数据块，目前仅支持Stream
-            if (result.BoxedValue is not Stream stream)
-            {
-                await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
-                    "Download service return none stream");
-                return;
-            }
-
-            //开始发送数据块
-            throw new NotImplementedException();
-            // try
-            // {
-            //     var offset = 0;
-            //     while (true)
-            //     {
-            //         var chuckWriter = new BlobChuckWriter(msgId, offset, MessageType.DownloadChunk);
-            //         var bytesRead = await chuckWriter.WriteChunkDataAsync(stream);
-            //         if (bytesRead < 0)
-            //         {
-            //             await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
-            //                 "Can't read blob chunk");
-            //             break;
-            //         }
-            //
-            //         //可能会发送一个空的chunk(bytesRead == 0)
-            //         await SendMessage(chuckWriter.Chunk);
-            //         if (((IBlobChunk)chuckWriter.Chunk).IsLastChunk(out _))
-            //             break;
-            //
-            //         offset += bytesRead;
-            //     }
-            // }
-            // finally
-            // {
-            //     await stream.DisposeAsync();
-            // }
+            await SendErrorResponse(msgId, MessageType.DownloadResponse, res).ConfigureAwait(false);
+            return;
         }
-        else
+
+        var (result, errCode) = await InvokeInternal(service, AnyArgs.From(reader)).ConfigureAwait(false);
+        //如果有错误直接发送响应
+        if (errCode != InvokeErrorCode.None)
         {
-            await SendErrorResponse(msgId, MessageType.DownloadResponse, res);
+            await SendResponse(msgId, MessageType.DownloadResponse, errCode, result).ConfigureAwait(false);
+            return;
+        }
+
+        //根据服务返回结果发送数据块，目前仅支持Stream和BytesPipeWriter
+        switch (result.BoxedValue)
+        {
+            case Stream stream:
+                await SendStreamToPipe(MessageType.DownloadChunk, msgId, stream).ConfigureAwait(false);
+                break;
+            case BytesPipeWriter pipeWriter:
+                pipeWriter.StartWrite(this, MessageType.DownloadChunk, msgId);
+                break;
+            default:
+                await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
+                    "Download service return none Stream nore BytesPipeWriter").ConfigureAwait(false);
+                break;
         }
     }
 
@@ -425,9 +403,61 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         return SendMessage(data);
     }
 
-    void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
+    async void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
     {
-        throw new NotImplementedException();
+        //目前仅支持下载的数据块
+        Debug.Assert((MessageType)segment.Buffer[0] == MessageType.DownloadChunk);
+        try
+        {
+            await SendMessage(segment).ConfigureAwait(false);
+// #if DEBUG
+//             var msgId = BinaryPrimitives.ReadInt32LittleEndian(segment.Buffer.AsSpan(1, 4));
+//             var offset = BinaryPrimitives.ReadInt32LittleEndian(segment.Buffer.AsSpan(5, 4));
+//             Console.WriteLine($"SendedPipeSegment: MsgId={msgId}, Offset={offset} Length={segment.Length}");
+// #endif
+        }
+        catch (Exception)
+        {
+            //var msgId = BinaryPrimitives.ReadInt32LittleEndian(segment.Buffer.AsSpan(1, 4));
+            pipe.NotifySendError();
+            Logger.Error("Can't send pipe segment");
+        }
+    }
+
+    /// <summary>
+    /// 将流作为Pipe直接发送,不管是否发送成功Dispose流
+    /// </summary>
+    private async ValueTask SendStreamToPipe(MessageType msgType, int msgId, Stream fromStream)
+    {
+        try
+        {
+            var offset = 0;
+            while (true)
+            {
+                var writer = new StreamToPipeSegmentWriter(msgId, offset, msgType);
+                var bytesRead = await writer.WriteSegmentAsync(fromStream);
+                if (bytesRead < 0)
+                {
+                    await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
+                        "Can't write stream data to pipe segment");
+                    break;
+                }
+
+                var isLast = bytesRead is 0 or < BytesSegment.FrameSize - PipeSegmentHeader.HeaderSize;
+                if (isLast) writer.Segment.SetAsLast();
+
+                //可能会发送一个空的chunk(bytesRead == 0)
+                // Logger.Debug($"SendSegment: Id={msgId} Offset={offset} Last={writer.Segment.IsLast()}");
+                await SendMessage(writer.Segment);
+
+                if (isLast) break;
+                offset += bytesRead;
+            }
+        }
+        finally
+        {
+            await fromStream.DisposeAsync();
+        }
     }
 
     #endregion

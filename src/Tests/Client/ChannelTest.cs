@@ -18,19 +18,15 @@ public class ChannelTest
     [Test]
     public async Task DownloadTest()
     {
-        var tempFilePath = Path.GetTempFileName();
-        var tempFileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-        await Channel.Download(DesignMethods.LoadMetadataReferenceFull, tempFileStream,
-            1, "AppBoxCore.dll", "");
-        Console.WriteLine(tempFileStream.Length);
+        var reader = new BytesPipeReader();
+        await Channel.Download(DesignMethods.LoadMetadataReferenceFull, reader, 1, "AppBoxCore.dll", "");
 
-        tempFileStream.Position = 0;
-        var metadata = MetadataReference.CreateFromStream(tempFileStream);
+        using var ms = new MemoryStream();
+        await reader.CopyToStreamAsync(ms);
+        ms.Seek(0, SeekOrigin.Begin);
+        var metadata = MetadataReference.CreateFromStream(ms);
         Assert.NotNull(metadata);
         Console.WriteLine(metadata);
-
-        await tempFileStream.DisposeAsync();
-        File.Delete(tempFilePath);
     }
 
     [Test]
@@ -38,7 +34,7 @@ public class ChannelTest
     {
         var filePath = "/Users/rick/Desktop/测试模型/HelloService.dll";
         var fileStream = File.OpenRead(filePath);
-        var pipeWriter = new BytesPipeWriter(Channel.Provider, w => w.CopyFromAsync(fileStream));
+        var pipeWriter = new BytesPipeWriter(w => w.CopyFromAsync(fileStream));
         var assemblyFlag = await Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull,
             pipeWriter, "sys", "HelloService.dll");
         await fileStream.DisposeAsync();

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using AppBoxCore;
 using AppBoxCore.Channel;
@@ -142,14 +141,14 @@ public static class Channel
         where T : notnull =>
         (await Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2))).CastTo<T>();
 
-    public static Task Download(string service, Stream stream) =>
-        Provider.Download(service, stream, AnyArgs.Empty);
+    public static Task Download(string service, BytesPipeReader reader) =>
+        Provider.Download(service, reader, AnyArgs.Empty);
 
-    public static Task Download(string service, Stream stream, AnyValue arg) =>
-        Provider.Download(service, stream, AnyArgs.Make(arg));
+    public static Task Download(string service, BytesPipeReader reader, AnyValue arg) =>
+        Provider.Download(service, reader, AnyArgs.Make(arg));
 
-    public static Task Download(string service, Stream stream, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
-        Provider.Download(service, stream, AnyArgs.Make(arg1, arg2, arg3));
+    public static Task Download(string service, BytesPipeReader reader, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
+        Provider.Download(service, reader, AnyArgs.Make(arg1, arg2, arg3));
 
     //暂时放在这里，待移至RuntimeContext内
     public static Task<bool> HasPermission(ModelId permissionModelId)
