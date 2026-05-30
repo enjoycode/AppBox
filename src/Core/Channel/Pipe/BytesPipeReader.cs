@@ -54,12 +54,10 @@ public sealed class BytesPipeReader : IDisposable
                 }
             }
 
-            while (Interlocked.CompareExchange(ref _waitingFlag, 1, 0) == 0)
+            if (Interlocked.CompareExchange(ref _waitingFlag, 1, 0) == 0)
             {
                 // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 等待新块");
-                var offset = await _waitingTaskSource.WaitAsync();
-                if (offset == nextOffset) //如果等于期望的下一块，开始读取否则继续循环等待
-                    break;
+                await _waitingTaskSource.WaitAsync();
                 // Console.WriteLine($"<<<<[{Environment.CurrentManagedThreadId}]: 收到新块");
             }
         }
@@ -121,7 +119,7 @@ public sealed class BytesPipeReader : IDisposable
         //考虑进一步1.判断消息类型，消息标识是否有效, 2.判断当前状态，3.防止接收连续空包
 
         //加入挂起队列
-        // Console.WriteLine($">>>>[{Environment.CurrentManagedThreadId}]: Offset={segment.GetOffset()} Last={segment.IsLast()}");
+        //Console.WriteLine( $">>>>[{Environment.CurrentManagedThreadId}]: Offset={segment.GetOffset()} Last={segment.IsLast()}");
         using (_pendingsLock.EnterScope())
         {
             var segmentOffset = segment.GetOffset();
