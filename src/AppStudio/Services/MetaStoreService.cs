@@ -8,8 +8,7 @@ internal sealed class MetaStoreService : IMetaStoreService
 {
     public async Task<IList<ApplicationModel>> LoadAllApplicationAsync()
     {
-        var reader = new BytesPipeReader();
-        await Channel.Download("sys.DesignService.LoadAllApplication", reader);
+        var reader = Channel.Download("sys.DesignService.LoadAllApplication");
         using var ms = new MemoryStream(1024);
         await reader.CopyToStreamAsync(ms);
         ms.Position = 0;
@@ -18,8 +17,7 @@ internal sealed class MetaStoreService : IMetaStoreService
 
     public async Task<IList<ModelFolder>> LoadAllFolderAsync()
     {
-        var reader = new BytesPipeReader();
-        await Channel.Download("sys.DesignService.LoadAllFolder", reader);
+        var reader = Channel.Download("sys.DesignService.LoadAllFolder");
         using var ms = new MemoryStream(1024);
         await reader.CopyToStreamAsync(ms);
         ms.Position = 0;
@@ -29,8 +27,7 @@ internal sealed class MetaStoreService : IMetaStoreService
     public async Task<IList<ModelBase>> LoadAllModelAsync()
     {
         //TODO: use pipe divided objects
-        var reader = new BytesPipeReader();
-        await Channel.Download("sys.DesignService.LoadAllModel", reader);
+        var reader = Channel.Download("sys.DesignService.LoadAllModel");
         using var ms = new MemoryStream(8192);
         await reader.CopyToStreamAsync(ms);
         ms.Position = 0;
@@ -39,8 +36,7 @@ internal sealed class MetaStoreService : IMetaStoreService
 
     public async Task DownloadModelCodeAsync(Stream toStream, ModelId modelId)
     {
-        var reader = new BytesPipeReader();
-        await Channel.Download("sys.DesignService.LoadModelCode", reader, (long)modelId);
+        var reader = Channel.Download("sys.DesignService.LoadModelCode", (long)modelId);
         await reader.CopyToStreamAsync(toStream);
     }
 
@@ -48,7 +44,7 @@ internal sealed class MetaStoreService : IMetaStoreService
         await Channel.Invoke<long>("sys.DesignService.GenModelId", appId, (int)modelType, (int)layer);
 
     public Task<byte[]?> LoadModelIdCounterAsync(int appId, bool forDev) =>
-        Channel.Invoke<byte[]?>(DesignMethods.LoadModelIdCounterFull, appId, forDev);
+        Channel.Invoke<byte[]>(DesignMethods.LoadModelIdCounterFull, appId, forDev);
 
     public Task UpsertModelIdCounterAsync(int appId, bool forDev, byte[] counterData) =>
         Channel.Invoke(DesignMethods.UpsertModelIdCounterFull, appId, forDev, AnyValue.From(counterData));

@@ -21,5 +21,5 @@ public interface IClientChannel : IChannel
 
     Task<AnyValue> Upload<TArgs>(string service, BytesPipeWriter writer, TArgs args) where TArgs : struct, IAnyArgs;
 
-    Task Download<TArgs>(string service, BytesPipeReader reader, TArgs args) where TArgs : struct, IAnyArgs;
+    BytesPipeReader Download<TArgs>(string service, TArgs args) where TArgs : struct, IAnyArgs;
 }

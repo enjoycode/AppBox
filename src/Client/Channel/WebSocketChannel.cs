@@ -134,24 +134,24 @@ public sealed class WebSocketChannel : IClientChannel
         return DeserializeResponse(ref rs, null);
     }
 
-    public async Task Download<T>(string service, BytesPipeReader reader, T args) where T : struct, IAnyArgs
+    public BytesPipeReader Download<T>(string service, T args) where T : struct, IAnyArgs
     {
-        //add to wait list
-        var msgId = MakePendingRequest(out var promise);
+        //下载请求不加入等待列表，由BytesPipeReader结束流程
+        var msgId = Interlocked.Increment(ref _msgIdIndex);
+        var reader = new BytesPipeReader();
         _downloadManager ??= new DownloadManager();
         _downloadManager.MakePendingDownload(msgId, reader);
-
-        reader.OnReadFinished = () => NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.None);
+        reader.OnCompleted = _ => _downloadManager.RemovePending(msgId);
 
         //serialize and send request
         var reqData = SerializeRequest(msgId, MessageType.DownloadRequest, service, args);
-        await SendMessage(reqData);
+        SendMessage(reqData).ContinueWith(sendTask =>
+        {
+            if (sendTask.IsFaulted)
+                reader.OnException(new Exception("Can't send download request"));
+        });
 
-        // wait for response
-        var rs = await promise.WaitAsync();
-        _pooledTaskSource.Free(promise);
-        _downloadManager.RemovePending(msgId);
-        DeserializeResponse(ref rs, null);
+        return reader;
     }
 
     private void NotifyToPendingRequest(int msgId, MessageType msgType, InvokeErrorCode errCode, string? errMsg = null)
@@ -310,8 +310,9 @@ public sealed class WebSocketChannel : IClientChannel
                     case MessageType.InvokeResponse:
                     case MessageType.LoginResponse:
                     case MessageType.UploadResponse:
-                    case MessageType.DownloadResponse:
                         ProcessResponse(ref rs); break;
+                    case MessageType.DownloadResponse:
+                        ProcessDownloadReponse(ref rs); break;
                     case MessageType.DownloadChunk:
                         ProcessDownloadChunk(rs); break;
                     case MessageType.ServerEvent:
@@ -340,6 +341,21 @@ public sealed class WebSocketChannel : IClientChannel
             rs.Free();
     }
 
+    private void ProcessDownloadReponse(ref MessageReadStream rs)
+    {
+        var msgId = rs.ReadInt();
+        if (_downloadManager == null || !_downloadManager.TryGetPending(msgId, out var pipeReader))
+        {
+            rs.Free();
+            return;
+        }
+
+        var errorCode = (InvokeErrorCode)rs.ReadByte(); //暂忽略其他信息
+        rs.Free();
+        Debug.Assert(errorCode != InvokeErrorCode.None); //仅异常
+        pipeReader.OnException(new Exception($"Error code: {errorCode}"));
+    }
+
     private void ProcessDownloadChunk(MessageReadStream rs)
     {
         var msgId = rs.ReadInt();
@@ -356,9 +372,7 @@ public sealed class WebSocketChannel : IClientChannel
         }
         catch (Exception e)
         {
-            //TODO: 考虑通知发送端中止
-            NotifyToPendingRequest(msgId, MessageType.DownloadResponse, InvokeErrorCode.Other,
-                $"Can't write download segment: {e.Message}");
+            pipeReader.OnException(new Exception($"Can't write download segment: {e.Message}"));
         }
     }
 

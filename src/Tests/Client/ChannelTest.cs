@@ -18,8 +18,7 @@ public class ChannelTest
     [Test]
     public async Task DownloadTest()
     {
-        var reader = new BytesPipeReader();
-        await Channel.Download(DesignMethods.LoadMetadataReferenceFull, reader, 1, "AppBoxCore.dll", "");
+        var reader = Channel.Download(DesignMethods.LoadMetadataReferenceFull, 1, "AppBoxCore.dll", "");
 
         using var ms = new MemoryStream();
         await reader.CopyToStreamAsync(ms);

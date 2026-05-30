@@ -19,8 +19,7 @@ internal sealed class StagedService : IStagedService
 
     public async Task DownloadCodeAsync(Stream toStream, ModelId modelId)
     {
-        var reader = new BytesPipeReader();
-        await Channel.Download("sys.DesignService.StageLoadCode", reader, (long)modelId);
+        var reader = Channel.Download("sys.DesignService.StageLoadCode", (long)modelId);
         await reader.CopyToStreamAsync(toStream);
     }
 

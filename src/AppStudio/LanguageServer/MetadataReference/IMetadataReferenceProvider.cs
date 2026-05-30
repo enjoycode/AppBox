@@ -1,6 +1,5 @@
 using AppBoxClient;
 using AppBoxCore;
-using AppBoxCore.Channel;
 using Microsoft.CodeAnalysis;
 
 namespace AppBoxDesign;
@@ -38,8 +37,7 @@ internal static class MetadataReferenceProviderExtensions
         var tempFile = await LocalFileSystem.CreateTempFile(false);
         try
         {
-            var reader = new BytesPipeReader();
-            await Channel.Download(DesignMethods.LoadMetadataReferenceFull, reader,
+            var reader = Channel.Download(DesignMethods.LoadMetadataReferenceFull,
                 (int)type, assemblyName, string.IsNullOrEmpty(appName) ? "" : appName);
             await reader.CopyToStreamAsync(tempFile.FileStream);
             tempFile.FileStream.Position = 0;

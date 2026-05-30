@@ -141,14 +141,13 @@ public static class Channel
         where T : notnull =>
         (await Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2))).CastTo<T>();
 
-    public static Task Download(string service, BytesPipeReader reader) =>
-        Provider.Download(service, reader, AnyArgs.Empty);
+    public static BytesPipeReader Download(string service) => Provider.Download(service, AnyArgs.Empty);
 
-    public static Task Download(string service, BytesPipeReader reader, AnyValue arg) =>
-        Provider.Download(service, reader, AnyArgs.Make(arg));
+    public static BytesPipeReader Download(string service, AnyValue arg) =>
+        Provider.Download(service, AnyArgs.Make(arg));
 
-    public static Task Download(string service, BytesPipeReader reader, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
-        Provider.Download(service, reader, AnyArgs.Make(arg1, arg2, arg3));
+    public static BytesPipeReader Download(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
+        Provider.Download(service, AnyArgs.Make(arg1, arg2, arg3));
 
     //暂时放在这里，待移至RuntimeContext内
     public static Task<bool> HasPermission(ModelId permissionModelId)

@@ -95,8 +95,7 @@ internal sealed class ExportCommand : DesignCommand
             var tempFile = await LocalFileSystem.CreateTempFile(false);
             try
             {
-                var reader = new BytesPipeReader();
-                await Channel.Download(DesignMethods.LoadMetadataReferenceFull, reader,
+                var reader = Channel.Download(DesignMethods.LoadMetadataReferenceFull,
                     (int)ModelDependencyType.ServerExtLibrary, libName, appName);
                 await reader.CopyToStreamAsync(tempFile.FileStream);
                 tempFile.FileStream.Position = 0;

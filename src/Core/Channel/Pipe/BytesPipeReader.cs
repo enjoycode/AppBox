@@ -12,7 +12,16 @@ public sealed class BytesPipeReader : IDisposable
     private readonly SortedList<int, BytesSegment> _pendings = new();
     private static readonly Exception PipeWriteError = new("Pipe write error"); //表示写入端发生异常
 
-    public Action? OnReadFinished { get; set; } //所有数据读完后的操作,目前用于客户端下载完成通知挂起的请求
+    /// <summary>
+    /// 所有数据读完后或发生异常中止后的操作,目前用于客户端下载通知挂起的请求
+    /// </summary>
+    public Action<Exception?>? OnCompleted { get; set; }
+
+    internal void OnException(Exception error)
+    {
+        //TODO:通知读循环中止
+        OnCompleted?.Invoke(error);
+    }
 
     public async IAsyncEnumerable<BytesSegment> GetSegmentsAsync()
     {
@@ -23,7 +32,12 @@ public sealed class BytesPipeReader : IDisposable
             while (TryGetNextFromPendings(nextOffset, out var next))
             {
                 nextOffset = next.GetOffset() + (next.Length - PipeSegmentHeader.HeaderSize);
-                if (next.IsError()) throw PipeWriteError; //判断是否发送端表示写入异常的包
+                if (next.IsError())
+                {
+                    OnCompleted?.Invoke(PipeWriteError);
+                    throw PipeWriteError; //判断是否发送端表示写入异常的包
+                }
+
                 var isLast = next.IsLast();
                 if (!next.IsEmpty()) //可能空的标记结束的包
                     yield return next;
@@ -32,7 +46,7 @@ public sealed class BytesPipeReader : IDisposable
 
                 if (isLast)
                 {
-                    OnReadFinished?.Invoke();
+                    OnCompleted?.Invoke(null);
                     yield break;
                 }
             }
